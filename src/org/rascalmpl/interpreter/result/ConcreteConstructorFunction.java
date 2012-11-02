@@ -15,6 +15,8 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -54,7 +56,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		return call(actualTypes, actuals);
 	}
 

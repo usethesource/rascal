@@ -56,7 +56,6 @@ import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.staticErrors.MissingReturnError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
@@ -74,7 +73,6 @@ public class RascalFunction extends NamedFunction {
 	private final Stack<Accumulator> accumulators;
 	private final boolean isDefault;
 	private final boolean isTest;
-	private final boolean isExtend;
 	private final boolean isStatic;
 	private final String resourceScheme;
 	private final List<Expression> formals;
@@ -89,7 +87,7 @@ public class RascalFunction extends NamedFunction {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
 				(FunctionType) func.getSignature().typeOf(env),
-				varargs, isDefault(func), hasTestMod(func.getSignature()), hasExtendModifier(func),
+				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				func.getBody().getStatements(), env, accumulators);
 	}
 
@@ -98,14 +96,14 @@ public class RascalFunction extends NamedFunction {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
 				(FunctionType) func.getSignature().typeOf(env), 
-				varargs, isDefault(func), hasTestMod(func.getSignature()), hasExtendModifier(func),
+				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getLocation(), ASTBuilder.makeStat("Expression", func.getLocation(), func.getExpression()))}),
 				env, accumulators);
 	}
 
 	@SuppressWarnings("unchecked")
 	public RascalFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, String name, FunctionType functionType,
-			boolean varargs, boolean isDefault, boolean isTest, boolean isExtend,
+			boolean varargs, boolean isDefault, boolean isTest,
 			List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
 		super(ast, eval, functionType, name, varargs, env);
 		this.body = body;
@@ -117,7 +115,6 @@ public class RascalFunction extends NamedFunction {
 		this.firstOutermostProduction = computeFirstOutermostProduction(ast);
 		this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
 		this.isTest = isTest;
-		this.isExtend = isExtend;
 		
 		if (ast instanceof FunctionDeclaration) {
 			tags = parseTags((FunctionDeclaration) ast);
@@ -317,18 +314,9 @@ public class RascalFunction extends NamedFunction {
 	public boolean isDefault() {
 		return isDefault;
 	}
-		
-	private static boolean hasExtendModifier(FunctionDeclaration func) {
-		return org.rascalmpl.semantics.dynamic.FunctionDeclaration.hasExtendModifier(func);
-	}
-	
+			
 	@Override
-	public boolean isExtend() {
-		return this.isExtend;
-	}
-	
-	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		Environment old = ctx.getCurrentEnvt();
 		AbstractAST oldAST = ctx.getCurrentAST();
 		Stack<Accumulator> oldAccus = ctx.getAccumulators();
@@ -342,12 +330,19 @@ public class RascalFunction extends NamedFunction {
 			ctx.setAccumulators(accumulators);
 			ctx.pushEnv();
 			
-			/*
-			 * The body of a function is parameterized by:
-			 * - the '<name>' self reference ( e.g., f = F(f) );
-			 * - the 'it' special variable;
-			 * - the 'prev' special variable; 
+			/* 
+			 * The body of a function is parameterized with:
+			 * - the self reference ( e.g., f = F(f) );
+			 * - the mutually recursive self references
+			 * - the 'it' special variable; 
 			 */
+			if(selfParams != null && selfParamBounds != null)
+				for(int i = 0; i < selfParams.size(); i++) {
+					if(!selfParams.get(i).equals(name)) {
+						ctx.pushEnv();
+						ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(selfParams.get(i), selfParamBounds.get(i));
+					}
+				}
 			java.util.List<AbstractFunction> functions = new java.util.LinkedList<AbstractFunction>();
 			Result<IValue> it = self;
 			if(self == null) {
@@ -359,30 +354,15 @@ public class RascalFunction extends NamedFunction {
 					self = new OverloadedFunction(name, functions);
 					it = self;
 				}
-
-//			} else {
-//				declarationEnvironment.getAllFunctions(name, functions);
-//				self = self.add(new OverloadedFunction(name, functions));
-//				it = self;
-
 			}
 			// binding '<name>'
 			if(self != null && !isAnonymous()) {
 				ctx.pushEnv();
-				ctx.getCurrentEnvt().storeVariable(name, self);
+				ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, self);
 			}
 			// binding 'it' 
 			ctx.pushEnv();
-			ctx.getCurrentEnvt().storeVariable(org.rascalmpl.interpreter.Evaluator.IT, it );
-			// binding 'prev'
-			functions = new java.util.LinkedList<AbstractFunction>();
-			if(isExtend && declarationEnvironment.isRootScope()) 
-				((ModuleEnvironment) declarationEnvironment).getAllImportedFunctions(name, functions);
-			if(functions.size() != 0) {
-				Result<IValue> prev = new OverloadedFunction(name, functions);
-				ctx.pushEnv();
-				ctx.getCurrentEnvt().storeVariable(org.rascalmpl.interpreter.Evaluator.PREV, prev);
-			}
+			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(Names.name(org.rascalmpl.interpreter.Evaluator.IT), it);
 			
 			Type actualTypesTuple = TF.tupleType(actualTypes);
 			if (hasVarArgs) {
@@ -613,4 +593,10 @@ public class RascalFunction extends NamedFunction {
 	public boolean hasResourceScheme() {
 		return this.resourceScheme != null;
 	}
+	
+	@Override
+	public String getSelfParam() {
+		return (this.isAnonymous()) ? "" : this.getName();
+	}
+	
 }

@@ -698,6 +698,102 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
+  public boolean isClosedRecursiveAddition() {
+    return false;
+  }
+
+  static public class ClosedRecursiveAddition extends Expression {
+    // Production: sig("ClosedRecursiveAddition",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+  
+    
+    private final org.rascalmpl.ast.Expression lhs;
+    private final org.rascalmpl.ast.Expression rhs;
+  
+    public ClosedRecursiveAddition(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(node);
+      
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+  
+    @Override
+    public boolean isClosedRecursiveAddition() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionClosedRecursiveAddition(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getLhs() {
+      return this.lhs;
+    }
+  
+    @Override
+    public boolean hasLhs() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getRhs() {
+      return this.rhs;
+    }
+  
+    @Override
+    public boolean hasRhs() {
+      return true;
+    }	
+  }
+  public boolean isClosedRecursiveComposition() {
+    return false;
+  }
+
+  static public class ClosedRecursiveComposition extends Expression {
+    // Production: sig("ClosedRecursiveComposition",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+  
+    
+    private final org.rascalmpl.ast.Expression lhs;
+    private final org.rascalmpl.ast.Expression rhs;
+  
+    public ClosedRecursiveComposition(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(node);
+      
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+  
+    @Override
+    public boolean isClosedRecursiveComposition() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionClosedRecursiveComposition(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getLhs() {
+      return this.lhs;
+    }
+  
+    @Override
+    public boolean hasLhs() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getRhs() {
+      return this.rhs;
+    }
+  
+    @Override
+    public boolean hasRhs() {
+      return true;
+    }	
+  }
   public boolean isClosure() {
     return false;
   }
@@ -2471,102 +2567,6 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
-  public boolean isOpenRecursiveAddition() {
-    return false;
-  }
-
-  static public class OpenRecursiveAddition extends Expression {
-    // Production: sig("OpenRecursiveAddition",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
-  
-    
-    private final org.rascalmpl.ast.Expression lhs;
-    private final org.rascalmpl.ast.Expression rhs;
-  
-    public OpenRecursiveAddition(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
-      
-      this.lhs = lhs;
-      this.rhs = rhs;
-    }
-  
-    @Override
-    public boolean isOpenRecursiveAddition() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionOpenRecursiveAddition(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Expression getLhs() {
-      return this.lhs;
-    }
-  
-    @Override
-    public boolean hasLhs() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Expression getRhs() {
-      return this.rhs;
-    }
-  
-    @Override
-    public boolean hasRhs() {
-      return true;
-    }	
-  }
-  public boolean isOpenRecursiveComposition() {
-    return false;
-  }
-
-  static public class OpenRecursiveComposition extends Expression {
-    // Production: sig("OpenRecursiveComposition",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
-  
-    
-    private final org.rascalmpl.ast.Expression lhs;
-    private final org.rascalmpl.ast.Expression rhs;
-  
-    public OpenRecursiveComposition(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
-      
-      this.lhs = lhs;
-      this.rhs = rhs;
-    }
-  
-    @Override
-    public boolean isOpenRecursiveComposition() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionOpenRecursiveComposition(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Expression getLhs() {
-      return this.lhs;
-    }
-  
-    @Override
-    public boolean hasLhs() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Expression getRhs() {
-      return this.rhs;
-    }
-  
-    @Override
-    public boolean hasRhs() {
-      return true;
-    }	
-  }
   public boolean isOr() {
     return false;
   }
@@ -2614,32 +2614,6 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
-  }
-  public boolean isPrev() {
-    return false;
-  }
-
-  static public class Prev extends Expression {
-    // Production: sig("Prev",[])
-  
-    
-  
-    public Prev(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isPrev() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionPrev(this);
-    }
-  
-    	
   }
   public boolean isProduct() {
     return false;

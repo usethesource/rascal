@@ -245,15 +245,15 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
 			IValue[] argValues) {
-		return call(monitor, argTypes, argValues, null);
+		return call(monitor, argTypes, argValues, null, null, null);
 	}
 
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
-			IValue[] argValues, Result<IValue> self) {
+			IValue[] argValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
-			return call(argTypes, argValues, self);
+			return call(argTypes, argValues, self, selfParams, selfParamBounds);
 		}
 		finally {
 			ctx.getEvaluator().setMonitor(old);
@@ -261,15 +261,14 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override 
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		if(isComposedFunctionResult && isOpenRecursive) 
-			if(self == null) 
-				self = this;
+			if(self == null) self = this;
 		
-		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues, self, defaultCandidates.size() <= 0);
+		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues, self, selfParams, selfParamBounds, defaultCandidates.size() <= 0);
 		
 		if (result == null && defaultCandidates.size() > 0) {
-			result = callWith(defaultCandidates, argTypes, argValues, self, true);
+			result = callWith(defaultCandidates, argTypes, argValues, self, selfParams, selfParamBounds, true);
 		}
 
 		if (result == null) {
@@ -282,7 +281,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		return result;
 	}
 
-	private static Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, Result<IValue> self, boolean mustSucceed) {
+	private static Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds, boolean mustSucceed) {
 		AbstractFunction failed = null;
 		Failure failure = null;
 
@@ -290,7 +289,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 			if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
 					|| candidate.getArity() == argValues.length) {
 				try {
-					return candidate.call(argTypes, argValues, self);
+					return candidate.call(argTypes, argValues, self, selfParams, selfParamBounds);
 				}
 				catch (MatchFailed m) {
 					// could happen if pattern dispatched
@@ -468,22 +467,29 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this, false);
+		List<String> selfParams = new LinkedList<String>();
+		List<Result<IValue>> selfParamBounds = new LinkedList<Result<IValue>>();
+		return right.composeFunction(this, selfParams, selfParamBounds, true);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> composeOpenRecursive(Result<V> right) {
-		return right.composeFunction(this, true);
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, List<String> selfs, List<Result<IValue>> selfBounds) {
+		return right.composeFunction(this, selfs, selfBounds, true);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> composeClosedRecursive(Result<V> right) {
+		return right.composeFunction(this, null, null, false);
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
-		return that.addFunctionNonDeterministic(this, false);
+		return that.addFunctionNonDeterministic(this, true);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> addOpenRecursive(Result<V> that) {
-		return that.addFunctionNonDeterministic(this, true);
+	public <U extends IValue, V extends IValue> Result<U> addClosedRecursive(Result<V> that) {
+		return that.addFunctionNonDeterministic(this, false);
 	}
 	
 	@Override
@@ -508,24 +514,27 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
-	public ComposedFunctionResult composeFunction(AbstractFunction that, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+	@SuppressWarnings("unchecked")
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, selfs, selfBounds, ctx);
 		result.setOpenRecursive(isOpenRecursive);
-		return result;
+		return (Result<U>) result;
 	}
 
 	@Override
-	public ComposedFunctionResult composeFunction(OverloadedFunction that, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+	@SuppressWarnings("unchecked")
+	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, selfs, selfBounds, ctx);
 		result.setOpenRecursive(isOpenRecursive);
-		return result;
+		return (Result<U>) result;
 	}
 
 	@Override
-	public ComposedFunctionResult composeFunction(ComposedFunctionResult that, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+	@SuppressWarnings("unchecked")
+	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, selfs, selfBounds, ctx);
 		result.setOpenRecursive(isOpenRecursive);
-		return result;
+		return (Result<U>) result;
 	}
 
 	public List<AbstractFunction> getFunctions(){
@@ -559,4 +568,10 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	public Evaluator getEval(){
 		return (Evaluator) ctx;
 	}
+	
+	@Override
+	public String getSelfParam() {
+		return (this.isComposedFunctionResult) ? "" : this.getName();
+	}
+	
 }

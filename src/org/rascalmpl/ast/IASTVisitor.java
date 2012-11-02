@@ -189,6 +189,10 @@ public interface IASTVisitor<T> {
 
   public T visitExpressionCallOrTree(Expression.CallOrTree x);
 
+  public T visitExpressionClosedRecursiveAddition(Expression.ClosedRecursiveAddition x);
+
+  public T visitExpressionClosedRecursiveComposition(Expression.ClosedRecursiveComposition x);
+
   public T visitExpressionClosure(Expression.Closure x);
 
   public T visitExpressionComposition(Expression.Composition x);
@@ -267,13 +271,7 @@ public interface IASTVisitor<T> {
 
   public T visitExpressionNotIn(Expression.NotIn x);
 
-  public T visitExpressionOpenRecursiveAddition(Expression.OpenRecursiveAddition x);
-
-  public T visitExpressionOpenRecursiveComposition(Expression.OpenRecursiveComposition x);
-
   public T visitExpressionOr(Expression.Or x);
-
-  public T visitExpressionPrev(Expression.Prev x);
 
   public T visitExpressionProduct(Expression.Product x);
 
@@ -336,8 +334,6 @@ public interface IASTVisitor<T> {
   public T visitFunctionDeclarationExpression(FunctionDeclaration.Expression x);
 
   public T visitFunctionModifierDefault(FunctionModifier.Default x);
-
-  public T visitFunctionModifierExtend(FunctionModifier.Extend x);
 
   public T visitFunctionModifierJava(FunctionModifier.Java x);
 

@@ -17,6 +17,7 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
@@ -46,16 +47,11 @@ public class ConstructorFunction extends NamedFunction {
 	public boolean isStatic() {
 		return true;
 	}
-	
+		
 	@Override
-	public boolean isExtend() {
-		return false;
-	}
-	
-	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		if (constructorType == Factory.Tree_Appl) {
-			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, self);
+			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, self, selfParams, selfParamBounds);
 		}
 
 		Map<Type,Type> bindings = new HashMap<Type,Type>();

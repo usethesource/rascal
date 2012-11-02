@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -57,11 +58,6 @@ public class JavaMethod extends NamedFunction {
 	
 	@Override
 	public boolean isDefault() {
-		return false;
-	}
-	
-	@Override
-	public boolean isExtend() {
 		return false;
 	}
 	
@@ -128,7 +124,7 @@ public class JavaMethod extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		return call(actualTypes, actuals);
 	}
 	

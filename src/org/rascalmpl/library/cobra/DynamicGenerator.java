@@ -14,6 +14,7 @@ package org.rascalmpl.library.cobra;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -59,7 +60,7 @@ public class DynamicGenerator extends AbstractFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		return call(actualTypes, actuals);
 	}
 
@@ -73,9 +74,4 @@ public class DynamicGenerator extends AbstractFunction {
 		return false;
 	}
 	
-	@Override
-	public boolean isExtend() {
-		return false;
-	}
-
 }

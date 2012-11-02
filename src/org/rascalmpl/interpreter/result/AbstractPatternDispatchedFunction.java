@@ -141,7 +141,7 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Result<IValue> self) {
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		String label = null;
 		
 		if (argTypes.length == 0) {
@@ -157,7 +157,7 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 					if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
 							|| candidate.getArity() == argValues.length) {
 						try {
-							return candidate.call(argTypes, argValues, self);
+							return candidate.call(argTypes, argValues, self, selfParams, selfParamBounds);
 						}
 						catch (MatchFailed m) {
 							// could happen if pattern dispatched
@@ -176,8 +176,8 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self) {
-		return call(null, argTypes, argValues, self);
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+		return call(null, argTypes, argValues, self, selfParams, selfParamBounds);
 	}
 
 	@Override
@@ -199,11 +199,6 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 		return false;
 	}
 		
-	@Override
-	public boolean isExtend() {
-		return false;
-	}
-	
 	@Override
 	public String getName() {
 		return this.name;

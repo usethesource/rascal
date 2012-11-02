@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -20,9 +22,9 @@ public interface ICallableValue extends IValue {
 	public int getArity();
 	public boolean hasVarArgs();
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues);
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Result<IValue> self);
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds);
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues);
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self);
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds);
 	public boolean isStatic();
 	
 	public IEvaluator<Result<IValue>> getEval();
