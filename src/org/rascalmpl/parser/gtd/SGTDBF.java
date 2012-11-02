@@ -72,12 +72,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	
 	protected int lookAheadChar;
 	
-	private final HashMap<String, Method> methodCache;
+	private final HashMap<String, AbstractStackNode<P>[]> expectCache;
 	
 	private final IntegerObjectList<AbstractStackNode<P>> sharedLastExpects;
-	
-	private final IntegerObjectList<IntegerList> propagatedPrefixes;
-	private final IntegerObjectList<IntegerList> propagatedReductions; // Note: we can replace this thing, if we pick a more efficient solution.
 	
 	// Guard
 	private boolean invoked;
@@ -91,7 +88,10 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	// Error reporting guards
 	private boolean parseErrorOccured;
 	
+	// Error recovery
 	private IRecoverer<P> recoverer;
+	
+	// Debugging
 	private IDebugListener<P> debugListener;
 	
 	public SGTDBF(){
@@ -108,12 +108,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		
 		location = 0;
 		
-		methodCache = new HashMap<String, Method>();
+		expectCache = new HashMap<String, AbstractStackNode<P>[]>();
 		
 		sharedLastExpects = new IntegerObjectList<AbstractStackNode<P>>();
-		
-		propagatedPrefixes = new IntegerObjectList<IntegerList>();
-		propagatedReductions = new IntegerObjectList<IntegerList>();
 		
 		unexpandableNodes = new Stack<AbstractStackNode<P>>();
 		unmatchableLeafNodes = new Stack<AbstractStackNode<P>>();
@@ -127,28 +124,29 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	@SuppressWarnings("unchecked")
 	protected AbstractStackNode<P>[] invokeExpects(AbstractStackNode<P> nonTerminal){
 		String name = nonTerminal.getName();
-		Method method = methodCache.get(name);
-		if(method == null){
+		AbstractStackNode<P>[] expects = expectCache.get(name);
+		if(expects == null){
 			try{
-				method = getClass().getMethod(name);
+				Method method = getClass().getMethod(name);
 				try{
 					method.setAccessible(true); // Try to bypass the 'isAccessible' check to save time.
 				}catch(SecurityException sex){
 					// Ignore this if it happens.
 				}
+				
+				expects = (AbstractStackNode<P>[]) method.invoke(this);
 			}catch(NoSuchMethodException nsmex){
 				throw new UndeclaredNonTerminalException(name, getClass());
+			}catch(IllegalAccessException iaex){
+				throw new RuntimeException(iaex);
+			}catch(InvocationTargetException itex){
+				throw new RuntimeException(itex.getTargetException());
 			}
-			methodCache.putUnsafe(name, method);
+			
+			expectCache.putUnsafe(name, expects);
 		}
 		
-		try{
-			return (AbstractStackNode<P>[]) method.invoke(this);
-		}catch(IllegalAccessException iaex){
-			throw new RuntimeException(iaex);
-		}catch(InvocationTargetException itex){
-			throw new RuntimeException(itex.getTargetException());
-		} 
+		 return expects;
 	}
 	
 	/**
@@ -168,7 +166,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 				if(alternative.isMatchable()){
 					if(alternative.isEmptyLeafNode()){
 						// Encountered a stack 'overtake'.
-						propagateEdgesAndPrefixes(node, result, alternative, alternative.getResult(), node.getEdges().size());
+						if(node.getStartLocation() != location){
+							propagateEdgesAndPrefixes(node, result, alternative, alternative.getResult());
+						}else{
+							propagateEdgesAndPrefixesForNullable(node, result, alternative, alternative.getResult(), node.getEdges().size());
+						}
 						return alternative;
 					}
 				}else{
@@ -177,7 +179,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 						int resultStoreId = getResultStoreId(alternative.getId());
 						if(alternativeEdgesSet != null && alternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
 							// Encountered a stack 'overtake'.
-							propagateEdgesAndPrefixes(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId), node.getEdges().size());
+							if(node.getStartLocation() != location){
+								propagateEdgesAndPrefixes(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId));
+							}else{
+								propagateEdgesAndPrefixesForNullable(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId), node.getEdges().size());
+							}
 							return alternative;
 						}
 					}
@@ -308,11 +314,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 * Executes absent reductions.
 	 */
 	private void propagateReductions(AbstractStackNode<P> node, AbstractNode nodeResultStore, AbstractStackNode<P> next, AbstractNode nextResultStore, int potentialNewEdges){
-		IntegerList touched = propagatedReductions.findValue(next.getId());
-		if(touched == null){
-			touched = new IntegerList();
-			propagatedReductions.add(next.getId(), touched);
-		}
+		IntegerList propagatedReductions = next.getPropagatedReductions();
 		
 		IntegerObjectList<EdgesSet<P>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixes = node.getPrefixesMap();
@@ -330,8 +332,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		for(int i = edgesMap.size() - 1; i >= fromIndex; --i){
 			int startLocation = edgesMap.getKey(i);
 			
-			if(touched.contains(startLocation)) continue; // Prevent duplicate reductions (artifact of the hidden-right-recursion fix).
-			touched.add(startLocation);
+			// We know we haven't been here before.
+			propagatedReductions.add(startLocation);
 			
 			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
 			Link prefix = (prefixes != null) ? new Link(prefixes[i], nodeResultStore) : new Link(null, nodeResultStore);
@@ -368,7 +370,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 				nextNextAlternative = nextNextAlternativeEntry.value1;
 				if(nextNextAlternative.isMatchable()){
 					if(nextNextAlternative.isEmptyLeafNode()){
-						propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextAlternative.getResult(), nrOfAddedEdges);
+						propagateEdgesAndPrefixesForNullable(next, nextResult, nextNextAlternative, nextNextAlternative.getResult(), nrOfAddedEdges);
 					}else{
 						nextNextAlternative.updateNode(next, nextResult);
 						
@@ -378,7 +380,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 					EdgesSet<P> nextNextAlternativeEdgesSet = nextNextAlternative.getIncomingEdges();
 					int resultStoreId = getResultStoreId(nextNextAlternative.getId());
 					if(nextNextAlternativeEdgesSet != null && nextNextAlternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
-						propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextAlternativeEdgesSet.getLastResult(resultStoreId), nrOfAddedEdges);
+						propagateEdgesAndPrefixesForNullable(next, nextResult, nextNextAlternative, nextNextAlternativeEdgesSet.getLastResult(resultStoreId), nrOfAddedEdges);
 					}else{
 						nextNextAlternative.updateNode(next, nextResult);
 						
@@ -446,14 +448,28 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 * Part of the hidden-right-recursion fix.
 	 * Inserts missing prefixes and triggers reductions where necessary.
 	 */
-	private void propagateEdgesAndPrefixes(AbstractStackNode<P> node, AbstractNode nodeResult, AbstractStackNode<P> next, AbstractNode nextResult, int potentialNewEdges){
-		IntegerList touched = propagatedPrefixes.findValue(node.getId());
-		if(touched == null){
-			touched = new IntegerList();
-			propagatedPrefixes.add(node.getId(), touched);
+	private void propagateEdgesAndPrefixes(AbstractStackNode<P> node, AbstractNode nodeResult, AbstractStackNode<P> next, AbstractNode nextResult){
+		int nrOfAddedEdges = next.updateOvertakenNode(node, nodeResult);
+
+		if(debugListener != null) debugListener.propagated(node, nodeResult, next);
+		
+		if(nrOfAddedEdges == 0) return;
+		
+		if(next.isEndNode()){
+			propagateReductions(node, nodeResult, next, nextResult, nrOfAddedEdges);
 		}
 		
-		int nrOfAddedEdges = next.updateOvertakenNode(node, nodeResult, potentialNewEdges, touched);
+		if(next.hasNext()){
+			propagatePrefixes(next, nextResult, nrOfAddedEdges);
+		}
+	}
+	
+	/**
+	 * Part of the hidden-right-recursion fix.
+	 * Inserts missing prefixes and triggers reductions where necessary (specific for nullable nodes).
+	 */
+	private void propagateEdgesAndPrefixesForNullable(AbstractStackNode<P> node, AbstractNode nodeResult, AbstractStackNode<P> next, AbstractNode nextResult, int potentialNewEdges){
+		int nrOfAddedEdges = next.updateOvertakenNullableNode(node, nodeResult, potentialNewEdges);
 
 		if(debugListener != null) debugListener.propagated(node, nodeResult, next);
 		
@@ -524,11 +540,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 * Initiates the handling of reductions for nullable symbols.
 	 */
 	private void updateNullableEdges(AbstractStackNode<P> node, AbstractNode result){
-		IntegerList touched = propagatedReductions.findValue(node.getId());
-		if(touched == null){
-			touched = new IntegerList();
-			propagatedReductions.add(node.getId(), touched);
-		}
+		IntegerList propagatedReductions = node.getPropagatedReductions();
+		
+		int initialSize = propagatedReductions.size();
 		
 		IntegerObjectList<EdgesSet<P>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
@@ -546,8 +560,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			int startLocation = edgesMap.getKey(i);
 			
-			if(touched.contains(startLocation)) continue; // Prevent duplicate reductions (artifact of the hidden-right-recursion fix).
-			touched.add(startLocation);
+			if(propagatedReductions.containsBefore(startLocation, initialSize)) continue; // Prevent duplicate reductions (artifact of the hidden-right-recursion fix).
+			propagatedReductions.add(startLocation);
 			
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
 			
@@ -581,6 +595,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			}
 			
 			stacksWithNonTerminalsToReduce.push(edge, resultStore);
+			
+			if(debugListener != null) debugListener.reduced(edge);
 			
 			for(int j = edgeSet.size() - 1; j >= 1; --j){
 				edge = edgeSet.get(j);
@@ -1112,7 +1128,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		stacksToExpand.push(rootNode);
 		lookAheadChar = (input.length > 0) ? input[0] : 0;
 		
-		if(debugListener != null) debugListener.shifting(location, input);
+		if(debugListener != null) debugListener.shifting(location, input, positionStore);
 		
 		expand();
 		
@@ -1125,15 +1141,12 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 					sharedNextNodes.clear();
 					cachedEdgesForExpect.clear();
 					
-					propagatedPrefixes.dirtyClear();
-					propagatedReductions.dirtyClear();
-					
 					unexpandableNodes.dirtyClear();
 					unmatchableLeafNodes.dirtyClear();
 					unmatchableMidProductionNodes.dirtyClear();
 					filteredNodes.dirtyClear();
 					
-					if(debugListener != null) debugListener.shifting(location, input);
+					if(debugListener != null) debugListener.shifting(location, input, positionStore);
 				}
 				
 				// Reduce-expand loop.

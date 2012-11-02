@@ -77,7 +77,7 @@ public void setCompact(list[segment] ( list[Symbol] ) isCompac) {
 
 //   ISSEPARATED
 
-bool defaultSeparated(list[Symbol] o) {
+bool defaultSeparated(list[Symbol] \o) {
      return false;
      }
 
@@ -89,11 +89,11 @@ public void setSeparated(bool ( list[Symbol] ) isSepar) {
 
 //   ISKEYWORD
 
-bool defaultKeyword(Symbol o) {
+bool defaultKeyword(Symbol \o) {
      return false;
      }
 
-bool defaultString(Symbol o) {
+bool defaultString(Symbol \o) {
      return false;
      }
 

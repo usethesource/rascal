@@ -46,7 +46,7 @@ private Symbol et(Symbol::\cons(Symbol a, list[Symbol] ps), STBuilder stb, ItemI
 private Symbol et(\alias(str s, list[Symbol] ps, Symbol at), STBuilder stb, ItemId cs) = \alias(s,[expandUserTypes(p,stb,cs)|p<-ps],expandUserTypes(at,stb,cs));
 private Symbol et(Symbol::\func(Symbol rt, list[Symbol] ps), STBuilder stb, ItemId cs) = Symbol::\func(expandUserTypes(rt,stb,cs),[expandUserTypes(p,stb,cs)|p <- ps]);
 
-private Symbol et(\overloaded(set[Symbol] os), STBuilder stb, ItemId cs) = \overloaded({expandUserTypes(o,stb,cs)|o<-os});
+private Symbol et(\overloaded(set[Symbol] os), STBuilder stb, ItemId cs) = \overloaded({expandUserTypes(\o,stb,cs)|\o<-os});
 private Symbol et(\user(RName rn, list[Symbol] ps), STBuilder stb, ItemId cs) {
     list[Symbol] params = [ expandUserTypes(tp,stb,cs) | tp <- ps ];
     set[ItemId] userTypes = getItems(stb,cs,rn,Types());

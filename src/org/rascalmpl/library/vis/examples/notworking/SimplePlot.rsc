@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
-module vis::examples::SimplePlot
+module vis::examples::notworking::SimplePlot
 
 import vis::Figure;
 import vis::Render;
@@ -230,18 +230,18 @@ private Figure ylabel(num n){
 
 // X-axis
 
-private Figure xaxis(str title, num start, num incr, num end, num scale){
-   // println("START:<start> incr:<incr> end: <end> scale: <scale>");
-   Figure ticks = grid( [ xtick(n) | num n <- [start, (start + incr) .. end]],
+private Figure xaxis(str title, num \start, num incr, num end, num scale){
+   // println("START:<\start> incr:<incr> end: <end> scale: <scale>");
+   Figure ticks = grid( [ xtick(n) | num n <- [\start, (\start + incr) .. end]],
                  gap(incr * scale), width(chartWidth), top() // vcenter() 
                );
    println("grid:<grid>");
    return ticks;
 }
 
-private Figure xlabels(str title, num start, num incr, num end, num scale){
-// println("START:<start> incr:<incr> end: <end> scale: <scale>");
-   Figure ticks = grid( [ xlabel(n) | num n <- [start, (start + incr) .. end]],
+private Figure xlabels(str title, num \start, num incr, num end, num scale){
+// println("START:<\start> incr:<incr> end: <end> scale: <scale>");
+   Figure ticks = grid( [ xlabel(n) | num n <- [\start, (\start + incr) .. end]],
                  gap(incr * scale), width(chartWidth), top() // vcenter() 
                );
    println("grid:<grid>");
@@ -250,15 +250,15 @@ private Figure xlabels(str title, num start, num incr, num end, num scale){
 
 // Y-axis
 
-private Figure yaxis(str title,  num start, num incr, num end, num scale){
-   Figure ticks = grid( [ ytick(n) | num n <- [end, (end - incr) .. start]],
+private Figure yaxis(str title,  num \start, num incr, num end, num scale){
+   Figure ticks = grid( [ ytick(n) | num n <- [end, (end - incr) .. \start]],
                  gap(incr * scale), height(chartHeight), left() // right()
                );
    return ticks;
 }
 
-private Figure ylabels(str title,  num start, num incr, num end, num scale){
-   Figure ticks = hcat([makeSubTitle(title), grid( [ ylabel(n) | num n <- [end, (end - incr) .. start]],
+private Figure ylabels(str title,  num \start, num incr, num end, num scale){
+   Figure ticks = hcat([makeSubTitle(title), grid( [ ylabel(n) | num n <- [end, (end - incr) .. \start]],
                  gap(incr * scale), height(chartHeight), right()
                )], vcenter());
    return ticks;
@@ -289,5 +289,5 @@ public void plotDemo() {
     render(simplePlot("simple plot", [[x, cos(PI()*x), sin(PI()*x)]|num x<-[-1,-5.0/6..1]], chartSize(400, 400), curvePlot(), step(1.0/7), xAxis(true), yAxis(true), xLabel("pi")));
     }
 
-*/
+
 

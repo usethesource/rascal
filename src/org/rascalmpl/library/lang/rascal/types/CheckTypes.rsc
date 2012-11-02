@@ -2944,7 +2944,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 if ( (ph@rtype)? && concreteType(ph@rtype) ) {
                     if (isConstructorType(ph@rtype) || isOverloadedType(ph@rtype)) {
                         // alts contains all possible constructors of this name
-                        set[Symbol] alts = (isOverloadedType(ph@rtype)) ? { o | o <- getOverloadOptions(ph@rtype), isConstructorType(o) } : {ph@rtype};
+                        set[Symbol] alts = (isOverloadedType(ph@rtype)) ? { \o | \o <- getOverloadOptions(ph@rtype), isConstructorType(\o) } : {ph@rtype};
                         // matches holds all the constructors that match the arity and types in the pattern
                         set[Symbol] matches = { };
                         

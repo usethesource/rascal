@@ -242,6 +242,8 @@ public class ListResult extends CollectionResult<IList> {
 		IList left = that.getValue();
 		IList right = this.getValue();
 		int compare = Integer.valueOf(left.length()).compareTo(Integer.valueOf(right.length()));
+	
+		// TODO: think about what <= on lists should mean
 		if (compare != 0) {
 			return makeIntegerResult(compare);
 		}

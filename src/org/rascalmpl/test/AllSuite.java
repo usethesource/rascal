@@ -16,6 +16,6 @@ import org.rascalmpl.test.infrastructure.RecursiveTest;
 import org.rascalmpl.test.infrastructure.RecursiveTestSuite;
 
 @RunWith(RecursiveTestSuite.class)
-@RecursiveTest({"functionality", "library", "parser", "grammars", "demo", "benchmark"})
+@RecursiveTest({"functionality", "library", "parser", "syntax", "demo", "benchmark"})
 public class AllSuite {
 }

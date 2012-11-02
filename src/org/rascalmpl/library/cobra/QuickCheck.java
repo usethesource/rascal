@@ -94,13 +94,21 @@ public class QuickCheck {
 			try {
 				IValue result = function.call(types, values).getValue();
 				if (!((IBool) result).getValue()) {
-					out.println(formals.getArity() > 0 ? "failed with " + Arrays.toString(values) : "failed");
+					out.println("failed " + (formals.getArity() > 0 ? "with, " : ""));
+					for (IValue arg : values) {
+						out.println(arg.getType() + ":" + arg);
+					}
+					out.println();
 					return false;
 				} else if (verbose && formals.getArity() > 0) {
 					out.println((i + 1) + ": Checked with " + Arrays.toString(values) + ": true");
 				}
 			} catch (Throwable e) {
-				out.println(formals.getArity() > 0 ? "failed with " + Arrays.toString(values) : "failed, due to " + e.getMessage());
+				out.println("failed due to " + e.getMessage() + (formals.getArity() > 0 ? ", with ": ""));
+				for (IValue arg : values) {
+					out.println(arg.getType() + ":" + arg);
+				}
+				out.println();
 				return false;
 			}
 

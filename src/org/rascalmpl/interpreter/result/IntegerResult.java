@@ -362,7 +362,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanReal(RealResult that) {
-		return widenToReal().lessThan(this);
+		return that.lessThan(widenToReal());
 	}
 	
 	@Override
