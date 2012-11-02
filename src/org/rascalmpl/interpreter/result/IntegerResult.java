@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class IntegerResult extends ElementResult<IInteger> {
 
@@ -136,7 +137,11 @@ public class IntegerResult extends ElementResult<IInteger> {
 	
 	@Override
 	protected <U extends IValue> Result<U> divideRational(RationalResult that) {
-		return makeResult(getTypeFactory().rationalType(), that.getValue().divide(getValue()), ctx);
+		try {
+			return makeResult(getTypeFactory().rationalType(), that.getValue().divide(getValue()), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}
 	}
 	
 	@Override
@@ -157,21 +162,33 @@ public class IntegerResult extends ElementResult<IInteger> {
 
 	@Override
 	protected <U extends IValue> Result<U> divideInteger(IntegerResult n) {
-		// note the reverse division.
-		return makeResult(type, n.getValue().divide(getValue()), ctx);
+		try {
+			// note the reverse division.
+			return makeResult(type, n.getValue().divide(getValue()), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> remainderInteger(IntegerResult n) {
-		// note reverse
-		return makeResult(type, n.getValue().remainder(getValue()), ctx);
+		try {
+			// note reverse
+			return makeResult(type, n.getValue().remainder(getValue()), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}
 	}
 	
 	
 	@Override
 	protected <U extends IValue> Result<U> moduloInteger(IntegerResult n) {
-		// note reverse
-		return makeResult(type, n.getValue().mod(getValue()), ctx);
+		try {
+			// note reverse
+			return makeResult(type, n.getValue().mod(getValue()), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}
 	}
 	
 	@Override  
@@ -435,8 +452,12 @@ public class IntegerResult extends ElementResult<IInteger> {
 
 	@Override
 	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
-		// note the reverse division
-		return makeResult(n.getType(), n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+		try {
+			// note the reverse division
+			return makeResult(n.getType(), n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}
 	}
 	
 	@Override
