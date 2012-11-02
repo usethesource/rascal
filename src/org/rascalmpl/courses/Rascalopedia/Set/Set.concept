@@ -22,7 +22,7 @@ A set is a collection of values with the following properties:
 
 
 In Rascal, sets are surrounded by braces `{` and `}` and the elements are separated by commas.
-Each set has a type of the form `set[$T$]`, where $T$ is the smallest common type of all lsetist elements.
+Each set has a type of the form `set[$T$]`, where $T$ is the smallest common type of all set elements.
 See [Rascal:Values/Set] for a description of sets and their operators
 and [Rascal:Prelude/Set] for functions on sets.
 
