@@ -220,20 +220,6 @@ public abstract class FunctionDeclaration extends
 		return false;
 	}
 		
-	public static boolean hasExtendModifier(
-			org.rascalmpl.ast.FunctionDeclaration func) {
-		List<FunctionModifier> mods = func.getSignature().getModifiers()
-				.getModifiers();
-		for (FunctionModifier m : mods) {
-			if (m.isExtend()) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-
 	public FunctionDeclaration(IConstructor __param1) {
 		super(__param1);
 	}

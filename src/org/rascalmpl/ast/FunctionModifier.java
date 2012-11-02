@@ -98,32 +98,6 @@ public abstract class FunctionModifier extends AbstractAST {
   
     	
   }
-  public boolean isExtend() {
-    return false;
-  }
-
-  static public class Extend extends FunctionModifier {
-    // Production: sig("Extend",[])
-  
-    
-  
-    public Extend(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isExtend() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitFunctionModifierExtend(this);
-    }
-  
-    	
-  }
   public boolean isJava() {
     return false;
   }

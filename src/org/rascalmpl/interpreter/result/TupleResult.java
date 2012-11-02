@@ -17,6 +17,9 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -268,6 +271,69 @@ public class TupleResult extends ElementResult<ITuple> {
 			}
 		}
 		return makeIntegerResult(0);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
+		List<String> selfs = new LinkedList<String>();
+		List<Result<IValue>> selfBounds = new LinkedList<Result<IValue>>();
+		return right.composeFunction(this, selfs, selfBounds, true);
+	}
+	
+	@Override 
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+		return right.composeFunction(this, selfParams, selfParamBounds, true); // flattens tuples of self parameters
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+		Type[] resultTypes = new Type[this.getValue().arity()];
+		IValue[] resultValues = new IValue[this.getValue().arity()];
+		Result<IValue> f = null;
+		Result<IValue> result = null;
+		for(int i = 0; i < this.getValue().arity(); i++) {
+			f = this.fieldSelect(new int[] {i});
+			result = that.compose(f, selfs, selfBounds);
+			resultTypes[i] = result.getType();
+			resultValues[i] = result.getValue();
+		}
+		return makeResult(this.getTypeFactory().tupleType(resultTypes), this.getValueFactory().tuple(resultValues), ctx);
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+		Type[] resultTypes = new Type[this.getValue().arity()];
+		IValue[] resultValues = new IValue[this.getValue().arity()];
+		Result<IValue> f = null;
+		Result<IValue> result = null;
+		for(int i = 0; i < this.getValue().arity(); i++) {
+			f = this.fieldSelect(new int[] {i});
+			result = that.compose(f, selfs, selfBounds);
+			resultTypes[i] = result.getType();
+			resultValues[i] = result.getValue();
+		}
+		return makeResult(this.getTypeFactory().tupleType(resultTypes), this.getValueFactory().tuple(resultValues), ctx);
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> composeFunction(TupleResult that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+		ITuple thisVal = this.getValue();
+		ITuple thatVal = that.getValue();
+		if(thisVal.arity() != thatVal.arity()) 
+			super.composeFunction(that, selfs, selfBounds, isOpenRecursive);
+		Type[] resultTypes = new Type[thisVal.arity()];
+		IValue[] resultValues = new IValue[thisVal.arity()];
+		Result<IValue> f = null;
+		Result<IValue> g = null;
+		Result<IValue> result = null;
+		for(int i = 0; i < thisVal.arity(); i++) {
+			f = this.fieldSelect(new int[] {i});
+			g = that.fieldSelect(new int[] {i});
+			result = g.compose(f, selfs, selfBounds);
+			resultTypes[i] = result.getType();
+			resultValues[i] = result.getValue();
+		}
+		return makeResult(this.getTypeFactory().tupleType(resultTypes), this.getValueFactory().tuple(resultValues), ctx);
 	}
 	
 	@Override

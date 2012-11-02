@@ -223,14 +223,17 @@ syntax Expression
 	| negative     : "-" Expression argument 
 	| non-assoc splice : "*" Expression argument
 	| asType       : "[" Type type "]" Expression!match!noMatch argument
-	> left composition: Expression lhs "o" Expression rhs 
+	> left ( composition: Expression lhs "o" Expression rhs
+	       | closedRecursiveComposition: Expression lhs "o." Expression rhs
+		       ) 
 	> left ( product: Expression lhs "*" () !>> "*" Expression!noMatch!match rhs  
 		   | \join   : Expression lhs "join" Expression rhs 
 	       | remainder: Expression lhs "%" Expression rhs
 		   | division: Expression lhs "/" Expression rhs 
 	     )
 	> left intersection: Expression lhs "&" !>> "&" Expression rhs 
-	> left ( addition   : Expression lhs "+" Expression!noMatch!match rhs  
+	> left ( addition   : Expression lhs "+" Expression!noMatch!match rhs 
+	   | closedRecursiveAddition : Expression lhs ".+." Expression!noMatch!match rhs 
 		   | subtraction: Expression!transitiveClosure!transitiveReflexiveClosure lhs "-" Expression rhs
 		   | appendAfter: Expression lhs "\<\<" !>> "=" Expression rhs
 		   | insertBefore: Expression lhs "\>\>" Expression rhs 

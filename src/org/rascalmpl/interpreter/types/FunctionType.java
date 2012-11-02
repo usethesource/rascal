@@ -218,4 +218,9 @@ public class FunctionType extends ExternalType {
 			return RascalTypeFactory.getInstance().overloadedFunctionType(newAlternatives);
 		return TypeFactory.getInstance().voidType();
 	}
+	
+	public boolean isMixin() {
+		return this.returnType instanceof FunctionType 
+				&& this.argumentTypes.equivalent(TypeFactory.getInstance().tupleType(this.returnType));
+	}
 }

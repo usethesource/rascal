@@ -78,7 +78,6 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
 import org.rascalmpl.interpreter.staticErrors.ItOutsideOfReducer;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
-import org.rascalmpl.interpreter.staticErrors.PrevOutsideOfFunction;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
@@ -133,9 +132,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	}
 	
-	static class OpenRecursiveAddition extends org.rascalmpl.ast.Expression.OpenRecursiveAddition {
+	static class ClosedRecursiveAddition extends org.rascalmpl.ast.Expression.ClosedRecursiveAddition {
 		
-		public OpenRecursiveAddition(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
+		public ClosedRecursiveAddition(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -160,7 +159,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			__eval.setCurrentAST(this);
 			
-			return left.addOpenRecursive(right);
+			return left.addClosedRecursive(right);
 			
 		}
 		
@@ -501,11 +500,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}
 				Result<IValue> res = null;
 				try {
-					if(this.getExpression().isPrev()) {
-						res = function.call(types, actuals, __eval.getCurrentEnvt().getVariable(org.rascalmpl.interpreter.Evaluator.IT));
-					} else {
-						res = function.call(types, actuals);
-					}
+					res = function.call(types, actuals);
 				}
 				catch(MatchFailed e) {
 					if(function instanceof AbstractFunction) {
@@ -580,7 +575,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new RascalFunction(this, __eval, null,
 					(FunctionType) RTF
 					.functionType(returnType, formals), this.getParameters()
-					.isVarArgs(), false, false, false, this.getStatements(), __eval
+					.isVarArgs(), false, false, this.getStatements(), __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
 
 		}
@@ -626,9 +621,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	}
 	
-	static public class OpenRecursiveComposition extends org.rascalmpl.ast.Expression.OpenRecursiveComposition {
+	static public class ClosedRecursiveComposition extends org.rascalmpl.ast.Expression.ClosedRecursiveComposition {
 		
-		public OpenRecursiveComposition (IConstructor __param1, org.rascalmpl.ast.Expression __param2, 
+		public ClosedRecursiveComposition (IConstructor __param1, org.rascalmpl.ast.Expression __param2, 
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -653,7 +648,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			__eval.setCurrentAST(this);
 			
-			return left.composeOpenRecursive(right);
+			return left.composeClosedRecursive(right);
 		}
 		
 	}
@@ -1344,34 +1339,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	}
 	
-	static public class Prev extends org.rascalmpl.ast.Expression.Prev {
-
-		public Prev(IConstructor __param1) {
-			super(__param1);
-		}
-
-		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
-			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);
-
-			Result<IValue> v = __eval.getCurrentEnvt().getVariable(
-					org.rascalmpl.interpreter.Evaluator.PREV);
-			if(v == null) 
-				throw new PrevOutsideOfFunction(this);
-			return v;
-
-		}
-		
-		@Override
-		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
-			return new BasicBooleanResult(eval, this);
-		}
-
-	}
-
-
 	static public class Join extends org.rascalmpl.ast.Expression.Join {
 
 		public Join(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
@@ -2874,7 +2841,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					.getInstance();
 			return new RascalFunction(this, __eval, null, (FunctionType) RTF
 					.functionType(TF.voidType(), formals), this.getParameters()
-					.isVarArgs(), false, false, false, this.getStatements(), __eval
+					.isVarArgs(), false, false, this.getStatements(), __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
 
 		}

@@ -47,8 +47,4 @@ public abstract class AbstractStrategy extends AbstractFunction {
 		return false;
 	}
 	
-	@Override
-	public boolean isExtend() {
-		return false;
-	}
 }
