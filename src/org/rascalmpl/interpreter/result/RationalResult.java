@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class RationalResult extends ElementResult<IRational> {
 
@@ -127,8 +128,12 @@ public class RationalResult extends ElementResult<IRational> {
 
 	@Override
 	protected <U extends IValue> Result<U> divideRational(RationalResult n) {
-		// note the reverse division.
-		return makeResult(type, n.getValue().divide(getValue()), ctx);
+		try {
+			// note the reverse division.
+			return makeResult(type, n.getValue().divide(getValue()), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}
 	}
 
 	
@@ -150,8 +155,12 @@ public class RationalResult extends ElementResult<IRational> {
 
 	@Override
 	protected <U extends IValue> Result<U> divideInteger(IntegerResult n) {
-		// note the reverse division.
-		return makeResult(type, n.getValue().toRational().divide(getValue()), ctx);
+		try {
+			// note the reverse division.
+			return makeResult(type, n.getValue().toRational().divide(getValue()), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}		
 	}
 
 	
@@ -421,8 +430,12 @@ public class RationalResult extends ElementResult<IRational> {
 
 	@Override
 	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
-		// note the reverse division
-		return makeResult(n.getType(), n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+		try {
+			// note the reverse division
+			return makeResult(n.getType(), n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}
 	}
 	
 	@Override
