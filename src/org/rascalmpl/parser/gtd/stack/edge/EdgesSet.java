@@ -41,7 +41,7 @@ public class EdgesSet<P>{
 	}
 	
 	public void add(AbstractStackNode<P> edge){
-		while(size >= edges.length){
+		while(size >= edges.length){ // While instead of if to enable the JIT to eliminate the bounds check on the edges array 
 			enlarge();
 		}
 		

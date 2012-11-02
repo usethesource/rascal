@@ -89,7 +89,9 @@ public class RuntimeExceptionFactory {
 	public static final Type Figure = TF.constructor(TS, Exception, "Figure", TF.stringType(), "message", TF.valueType(), "figure");
 	
 	public static final Type ImplodeError = TF.constructor(TS, Exception, "ImplodeError", TF.stringType(), "message");
-	
+
+	public static final Type ArithmeticException = TF.constructor(TS, Exception, "ArithmeticException", TF.stringType(), "message");
+
 	public static Throw stackOverflow(AbstractAST ast, String trace) {
 		return new Throw(StackOverflow.make(VF), ast, trace);
 	}
@@ -266,5 +268,9 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw implodeError(String msg, AbstractAST ast, String trace) {
 		return new Throw(ImplodeError.make(VF, VF.string(msg)), ast, trace);
+	}
+	
+	public static Throw arithmeticException(String msg, AbstractAST ast, String trace) {
+		return new Throw(ArithmeticException.make(VF, VF.string(msg)), ast, trace);
 	}
 }
