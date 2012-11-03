@@ -14,6 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
+import java.net.URI;
+
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
 
@@ -64,7 +66,12 @@ public abstract class StaticError extends RuntimeException {
 		StackTraceElement[] stackTrace = new StackTraceElement[oldStackTrace.length+1];
 		int i = 0;
 		
-		String mod = loc.getURI().getPath().replaceAll("^.*/", "").replaceAll("\\..*$", "");
+		URI uri = loc.getURI();
+		String mod;
+		if(uri.getScheme().equals("rascal"))
+			mod = uri.getAuthority();
+		else
+			mod = uri.getPath().replaceAll("^.*/", "").replaceAll("\\..*$", "");
 		
 		if (loc.hasLineColumn()) {
 			stackTrace[i++] = new StackTraceElement(mod, "?", loc.getURI().getPath(), loc.getBeginLine());
