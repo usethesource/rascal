@@ -165,7 +165,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			if(result.isEmpty()){
 				if(alternative.isMatchable()){
 					if(alternative.isEmptyLeafNode()){
-						// Encountered a stack 'overtake'.
+						// Encountered a possible stack 'overtake'.
 						if(node.getStartLocation() != location){
 							propagateEdgesAndPrefixes(node, result, alternative, alternative.getResult());
 						}else{
@@ -178,7 +178,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 						EdgesSet<P> alternativeEdgesSet = alternative.getIncomingEdges();
 						int resultStoreId = getResultStoreId(alternative.getId());
 						if(alternativeEdgesSet != null && alternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
-							// Encountered a stack 'overtake'.
+							// Encountered a possible stack 'overtake'.
 							if(node.getStartLocation() != location){
 								propagateEdgesAndPrefixes(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId));
 							}else{
@@ -252,7 +252,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			if(result.isEmpty()){
 				if(alternative.isMatchable()){
 					if(alternative.isEmptyLeafNode()){
-						// Encountered a stack 'overtake'.
+						// Encountered a possible stack 'overtake'.
 						propagateAlternativeEdgesAndPrefixes(node, result, alternative, alternative.getResult(), node.getEdges().size(), edgesMap, prefixesMap);
 						return true;
 					}
@@ -261,7 +261,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 					int resultStoreId = getResultStoreId(alternative.getId());
 					if(alternativeEdgesSet != null && alternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
 						AbstractContainerNode<P> nextResult = alternativeEdgesSet.getLastResult(resultStoreId);
-						// Encountered a stack 'overtake'.
+						// Encountered a possible stack 'overtake'.
 						propagateAlternativeEdgesAndPrefixes(node, result, alternative, nextResult, node.getEdges().size(), edgesMap, prefixesMap);
 						return true;
 					}
