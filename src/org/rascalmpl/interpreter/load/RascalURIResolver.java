@@ -325,12 +325,20 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 
 	public URI getResourceURI(URI uri) {
 		try {
-			return reg.getResourceURI(uri);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			String path = getPath(uri);
+
+			for (URI dir : collect()) {
+				URI full = getFullURI(path, dir);
+				if (reg.exists(full)) {
+					return full;
+				}
+			}
+		}
+		catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
 		return null;
+		
 	}
 
 	public URIResolverRegistry getRegistry() {
