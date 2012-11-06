@@ -16,4 +16,5 @@ import java.util.List;
 
 public interface IRascalSearchPathContributor {
 	void contributePaths(List<URI> path);
+	String getName();
 }

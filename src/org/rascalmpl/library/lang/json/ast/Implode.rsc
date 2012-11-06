@@ -22,10 +22,10 @@ public str removeEnds(str s) {
 
 public AValue buildAST(start[JSONText] jt) = buildAST(jt.top);
 
-public AValue buildAST((JSONText)`<Object o>`) = object(convertObject(o));
+public AValue buildAST((JSONText)`<Object \o>`) = object(convertObject(\o));
 public AValue buildAST((JSONText)`<Array a>`) = array(convertArray(a));
 
-public AValue convertValue((Value)`<Object o>`) = object(convertObject(o));
+public AValue convertValue((Value)`<Object \o>`) = object(convertObject(\o));
 public AValue convertValue((Value)`<Array a>`) = array(convertArray(a));
 public AValue convertValue((Value)`<IntegerLiteral il>`) = integer(toInt("<il>"));
 public AValue convertValue((Value)`<RealLiteral rl>`) = float(toReal("<rl>"));

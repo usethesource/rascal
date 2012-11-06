@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class NumberResult extends ElementResult<INumber> {
 	public NumberResult(Type type, INumber value, IEvaluatorContext ctx) {
@@ -121,8 +122,12 @@ public class NumberResult extends ElementResult<INumber> {
 	
 	@Override
 	protected <U extends IValue> Result<U> divideInteger(IntegerResult n) {
-		// Note reversed args: we need n / this
-		return makeResult(type, n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+		try {
+			// Note reversed args: we need n / this
+			return makeResult(type, n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}			
 	}
 	
 	@Override  
@@ -148,8 +153,12 @@ public class NumberResult extends ElementResult<INumber> {
 
 	@Override
 	protected <U extends IValue> Result<U> divideReal(RealResult n) {
-		// note the reverse division
-		return makeResult(type, n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+		try {
+			// note the reverse division
+			return makeResult(type, n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}			
 	}
 	
 	@Override
@@ -273,8 +282,12 @@ public class NumberResult extends ElementResult<INumber> {
 
 	@Override
 	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
-		// note the reverse division
-		return makeResult(type, n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+		try {
+			// note the reverse division
+			return makeResult(type, n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}			
 	}
 	
 	@Override

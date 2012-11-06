@@ -17,6 +17,11 @@ public class StandardLibraryContributor implements
 		public static StandardLibraryContributor sInstance = new StandardLibraryContributor();
 	}
 	
+	@Override
+	public String getName() {
+	  return "std";
+	}
+	
 	public static StandardLibraryContributor getInstance() {
 		return InstanceHolder.sInstance;
 	}

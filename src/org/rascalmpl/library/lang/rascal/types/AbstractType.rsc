@@ -65,7 +65,7 @@ public str prettyPrintType(\reified(Symbol t)) = "type[<prettyPrintType(t)>]";
 public str prettyPrintType(\user(RName rn, list[Symbol] ps)) = "<prettyPrintName(rn)>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
 public str prettyPrintType(failure(set[Message] ms)) = "fail"; // TODO: Add more detail?
 public str prettyPrintType(\inferred(int n)) = "inferred(<n>)";
-public str prettyPrintType(\overloaded(set[Symbol] os)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(o) | o <- os])>";
+public str prettyPrintType(\overloaded(set[Symbol] os)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(\o) | \o <- os])>";
 public default str prettyPrintType(Symbol s) { throw "Invalid type to pretty-print: <s>"; }
 
 @doc{Create a new int type.}

@@ -4,7 +4,7 @@ Perhaps they are hard to solve, but one day the inversion of these tests will
 end up in SolvedIssues
 }
 @bootstrapParser
-module lang::rascal::tests::KnownIssues
+module lang::rascal::syntax::tests::KnownIssues
 
 import lang::rascal::syntax::RascalRascal;
 import ParseTree;

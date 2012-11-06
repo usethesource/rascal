@@ -200,22 +200,22 @@ text LL(str s ) {
    }
 
 /*
-text HH(list[Box] b, Box c, options o, int m) {
+text HH(list[Box] b, Box c, options opts, int m) {
     if (isEmpty(b)) return [];
-    int h = o["h"];
-    text t = O(b[0], H([]), o, m);
+    int h = opts["h"];
+    text t = O(b[0], H([]), opts, m);
     int s = hwidth(t);
-    return hh(t, hh_(hskip(h), HH(tail(b), H([]), o, m-s-h)));
+    return hh(t, hh_(hskip(h), HH(tail(b), H([]), opts, m-s-h)));
    }
 */
    
-text HH(list[Box] b, Box c, options o, int m) {
+text HH(list[Box] b, Box c, options opts, int m) {
     if (isEmpty(b)) return [];
-    int h = o["h"];
+    int h = opts["h"];
     text r = [];
     b = reverse(b);
     for (a<-b) {
-         text t = O(a, H([]), o, m);
+         text t = O(a, H([]), opts, m);
          int s = hwidth(t); 
          r = hh(t, hh_(hskip(h), r));
          m  = m - s - h;
@@ -223,15 +223,15 @@ text HH(list[Box] b, Box c, options o, int m) {
    return r;
    }
 
-text VV(list[Box] b, Box c, options o, int m) {
+text VV(list[Box] b, Box c, options opts, int m) {
     if (isEmpty(b)) return [];
-    int v = o["v"];
+    int v = opts["v"];
     text r = [];
     b = reverse(b);
     for (a<-b) {
         if (V(_)!:=c || L("")!:=a)
             {
-            text t = O(a, V([]), o, m);
+            text t = O(a, V([]), opts, m);
             r = vv(t, vv_(vskip(v), r));
             }
     }
@@ -239,96 +239,96 @@ text VV(list[Box] b, Box c, options o, int m) {
    }
 
 /*
-text VV(list[Box] b, Box c, options o, int m) {
+text VV(list[Box] b, Box c, options opts, int m) {
     if (isEmpty(b)) return [];
-    int v = o["v"];
-    return vv(O(b[0], c , o, m), vv_(vskip(v), VV(tail(b), V([]), o, m)));
+    int v = opts["v"];
+    return vv(O(b[0], c , opts, m), vv_(vskip(v), VV(tail(b), V([]), opts, m)));
    }
 */
 
-text II(list[Box] b, Box c, options o, int m) {
+text II(list[Box] b, Box c, options opts, int m) {
  if (isEmpty(b)) return [];
-    int i = o["i"];
+    int i = opts["i"];
     switch(c) {
         case  H(list[Box] bl):{
-            return HH(b, c, o, m);
+            return HH(b, c, opts, m);
         }
        case  V(list[Box] bl):{
           int m1 = m-i;
-           text t = O(b[0], c, o, m1);
+           text t = O(b[0], c, opts, m1);
            int s = hwidth(t);
-           text r =  hh_(hskip(i),  hh(t, II(tail(b), c, o, m1-s)));
+           text r =  hh_(hskip(i),  hh(t, II(tail(b), c, opts, m1-s)));
            return r;
         }
      }
      return [];
 }
 
-text WDWD(list[Box] b, Box c ,options o, int m) {
+text WDWD(list[Box] b, Box c ,options opts, int m) {
     if (isEmpty(b)) return [];
-    int h= b[0]@hs?o["h"];
-    text t = O(b[0], c, o, m);
+    int h= b[0]@hs?opts["h"];
+    text t = O(b[0], c, opts, m);
     int s = hwidth(t);
-    return  hh(t , hh_(hskip(h) , WDWD(tail(b), c, o, m-s-h)));
+    return  hh(t , hh_(hskip(h) , WDWD(tail(b), c, opts, m-s-h)));
     }
 
 
 
-text ifHOV(text t, Box b,  Box c, options o, int m) {
+text ifHOV(text t, Box b,  Box c, options opts, int m) {
      if (isEmpty(t)) return [];
      if (size(t)==1) {
           if (width(t[0])<=m)  return t;
           else 
-           return O(b, c, o, m);
+           return O(b, c, opts, m);
            }
-      return O(b, c, o, m);
+      return O(b, c, opts, m);
      }
 
- text HOVHOV(list[Box] b, Box c, options o, int m) {
-      return ifHOV(HH(b, c, o, m), V(b), c, o, m);
+ text HOVHOV(list[Box] b, Box c, options opts, int m) {
+      return ifHOV(HH(b, c, opts, m), V(b), c, opts, m);
      }
 
 
 /* Gets complicated HVHV */
-text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
-      int h= o["h"];
-      int v = o["v"];
-      int i= o["i"];
+text HVHV(text T, int s, text a, Box A, list[Box] B, options opts, int m) {
+      int h= opts["h"];
+      int v = opts["v"];
+      int i= opts["i"];
       int n = h + hwidth(a);
       if (size(a)>1) { // Multiple lines 
-           text T1 = O(A, V([]), o, m-i);
-           return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, o, m, H([]))));
+           text T1 = O(A, V([]), opts, m-i);
+           return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
           }
       if (n <= s) {  // Box A fits in current line
-           return HVHV(hh(_hh(T, hskip(h)), a), s-n, B, o, m, H([]));
+           return HVHV(hh(_hh(T, hskip(h)), a), s-n, B, opts, m, H([]));
            }
       else {
         n -= h; // n == width(a)
          if  ((i+n)<m) { // Fits in the next line, not in current line
-                 text T1 =O(A, V([]), o, m-i);
-                 return vv(T, vv_(vskip(v), HVHV(T1, m-n-i, B, o, m, H([]))));
+                 text T1 =O(A, V([]), opts, m-i);
+                 return vv(T, vv_(vskip(v), HVHV(T1, m-n-i, B, opts, m, H([]))));
                  }
          else { // Doesn't fit in both lines
-                 text T1 =O(A, V([]), o, m-i);
-                 return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, o, m, H([]))));
+                 text T1 =O(A, V([]), opts, m-i);
+                 return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
                  }
           }
      return [];
 }
 
-text HVHV(text T, int s, list[Box] b, options o,  int m, Box c) {
+text HVHV(text T, int s, list[Box] b, options opts,  int m, Box c) {
       if (isEmpty(b))  return T;
-      text T1 = O(b[0], c  , o, s);  // Was H([])
-      return HVHV(T, s, T1 , b[0],  tail(b), o, m);
+      text T1 = O(b[0], c  , opts, s);  // Was H([])
+      return HVHV(T, s, T1 , b[0],  tail(b), opts, m);
       }
 
- text HVHV(list[Box] b, Box c, options o, int m) {
-       int h = o["h"];
+ text HVHV(list[Box] b, Box c, options opts, int m) {
+       int h = opts["h"];
        // println("HVHV:<h>");
        if (isEmpty(b))  return [];
-       text T =  O(b[0], V([]), o, m);  // Was H([])
+       text T =  O(b[0], V([]), opts, m);  // Was H([])
        if (size(b)==1) return T;
-      return HVHV(T, m-hwidth(T), tail(b), o, m, H([]));
+      return HVHV(T, m-hwidth(T), tail(b), opts, m, H([]));
       }
 
 text font(text t, str tg) {
@@ -348,61 +348,61 @@ text font(text t, str tg) {
    return r;
   }
 
-text QQ(Box b, Box c, options o, foptions f, int m) {
-      // println("QQ:<getName(b)> <o>");
+text QQ(Box b, Box c, options opts, foptions f, int m) {
+      // println("QQ:<getName(b)> <opts>");
       switch(b) {
          case L(str s): {return LL(s);}
-         case  H(list[Box] bl): {return HH(bl, c, o, m); }
-         case  V(list[Box] bl): {return VV(bl, c, o, m);}
-         case  I(list[Box] bl):{return II(bl, c, o, m);}
-         case  WD(list[Box] bl):{return WDWD(bl, c, o, m);}
-         case  HOV(list[Box] bl):{return HOVHOV(bl, c, o, m);}
-         case  HV(list[Box] bl):{return  HVHV(bl, c, o, m);}
+         case  H(list[Box] bl): {return HH(bl, c, opts, m); }
+         case  V(list[Box] bl): {return VV(bl, c, opts, m);}
+         case  I(list[Box] bl):{return II(bl, c, opts, m);}
+         case  WD(list[Box] bl):{return WDWD(bl, c, opts, m);}
+         case  HOV(list[Box] bl):{return HOVHOV(bl, c, opts, m);}
+         case  HV(list[Box] bl):{return  HVHV(bl, c, opts, m);}
          case  SPACE(int n):{return  hskip(n);}
-         case  A(list[Box] bl):{return AA(bl, c, o, f, m);}
-         case  R(list[Box] bl):{return RR(bl, c, o, f, m);}
-         case KW(Box a):{return font(O(a, c, o, m),"KW");}
-         case VAR(Box a):{return  font(O( a, c, o, m),"VR");}
-         case NM(Box a):{return font(O( a, c, o, m),"NM");}
-         case STRING(Box a):{return font(O( a, c, o, m),"SG");}
-         case COMM(Box a):{return font(O( a, c, o, m),"CT");}
-         case MATH(Box a):{return font(O( a, c, o, m),"MT");}
-         case ESC(Box a):{return font(O( a, c, o, m),"SC");}
+         case  A(list[Box] bl):{return AA(bl, c, opts, f, m);}
+         case  R(list[Box] bl):{return RR(bl, c, opts, f, m);}
+         case KW(Box a):{return font(O(a, c, opts, m),"KW");}
+         case VAR(Box a):{return  font(O( a, c, opts, m),"VR");}
+         case NM(Box a):{return font(O( a, c, opts, m),"NM");}
+         case STRING(Box a):{return font(O( a, c, opts, m),"SG");}
+         case COMM(Box a):{return font(O( a, c, opts, m),"CT");}
+         case MATH(Box a):{return font(O( a, c, opts, m),"MT");}
+         case ESC(Box a):{return font(O( a, c, opts, m),"SC");}
      }
 return [];
 }
 
-text O(Box b, Box c, options o, int m) {
-    int h = o["h"];
-    int v = o["v"];
-    int i = o["i"];
+text O(Box b, Box c, options opts, int m) {
+    int h = opts["h"];
+    int v = opts["v"];
+    int i = opts["i"];
     // if ((b@vs)?) println("Start:<getName(b)> <b@vs>");
-     if ((b@hs)?) {o["h"] = b@hs;}
-     if ((b@vs)?) {o["v"] = b@vs;}
-     if ((b@is)?) {o["i"] = b@is;}
+     if ((b@hs)?) {opts["h"] = b@hs;}
+     if ((b@vs)?) {opts["v"] = b@vs;}
+     if ((b@is)?) {opts["i"] = b@is;}
      foptions f =();
      if ((b@format)?) {f["f"] = b@format;}
-     text t = QQ(b, c, o, f, m);
-     o["h"]=h;
-     o["v"]=v;
-     o["i"]=i;
+     text t = QQ(b, c, opts, f, m);
+     opts["h"]=h;
+     opts["v"]=v;
+     opts["i"]=i;
      // println("End:<getName(b)>");
      return t;
 }
 
 /* ------------------------------- Alignment ------------------------------------------------------------*/
 
-Box boxSize(Box b, Box c, options o, int m) {
-       text s = O(b, c, o, m);
+Box boxSize(Box b, Box c, options opts, int m) {
+       text s = O(b, c, opts, m);
        b@width = twidth(s);
        b@height = size(s);
        return b;
        }
 
-list[list[Box]] RR(list[Box] bl, Box c, options o, int m) {
+list[list[Box]] RR(list[Box] bl, Box c, options opts, int m) {
      list[list[Box]] g = [ b |R(list[Box]  b)<-bl];
      // println(g);
-     return [ [ boxSize(z, c, o, m) | Box z <- b ] | list[Box] b<- g];
+     return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b<- g];
 }
 
 int maxWidth(list[Box] b) {
@@ -419,9 +419,9 @@ list[int] Awidth(list[list[Box]] a) {
      return r;
      }
 
-text AA(list[Box] bl, Box c ,options o, foptions f, int m) {
+text AA(list[Box] bl, Box c ,options opts, foptions f, int m) {
      // println(bl);
-     list[list[Box]]  r=RR(bl, c, o, m);
+     list[list[Box]]  r=RR(bl, c, opts, m);
      list[int] mw0 = Awidth(r);
      list[str] format0 = ((f["f"]?)?f["f"]:[]);
      list[Box] vargs = [];
@@ -435,7 +435,7 @@ text AA(list[Box] bl, Box c ,options o, foptions f, int m) {
                 if (!isEmpty(format)) format = tail(format);
                 max_width = head(mw);
                 mw=tail(mw);
-                int h= o["h"];
+                int h= opts["h"];
                 switch(f) {
                     case "l": {
                      // b@hs=max_width - width+h; /*left alignment */  
@@ -456,7 +456,7 @@ text AA(list[Box] bl, Box c ,options o, foptions f, int m) {
 }
          vargs += H(hargs);
          }
-     return O(V(vargs), c, o, m);
+     return O(V(vargs), c, opts, m);
 }
 
 bool changeHV2H(list[Box] hv) {

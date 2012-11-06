@@ -32,5 +32,18 @@ public test bool strAntiSymmetricLTE(str x, str y) = (x <= y && y <= x) ==> (x =
 
 public test bool strTransLTE(str x, str y, str z) = (x <= y && y <= z) ==> x <= z;
 
+// sets are ordered via sub-set relation
+public test bool subsetOrdering1(set[value] x, set[value] y) = x <= x + y;
+public test bool subsetOrdering2(set[value] x, set[value] y) = (x <= y) <==> (x == {} || all(e <- x, e in y));
+
+// maps are ordered as sets of tuples
+public test bool testMap(map[value, value] x, map[value, value] y) {
+ rX = {<k,x[k]> | k <- x};
+ rY = {<k,y[k]> | k <- y};
+ 
+ return (x <= x + y) <==> (rX <= rX + rY);
+}
+
+
 
 
