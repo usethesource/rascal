@@ -1,3 +1,4 @@
+module vis::examples::notworking::Graph
 
 // See Introduction to the Theory of Computation, Michael Sipser, page 285)
 /*

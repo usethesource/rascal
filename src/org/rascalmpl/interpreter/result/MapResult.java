@@ -249,7 +249,7 @@ public class MapResult extends ElementResult<IMap> {
 		}
 		
 		 // so they are incomparable
-		return makeIntegerResult(0);
+		return makeIntegerResult(1);
 	}
 	
 	@Override

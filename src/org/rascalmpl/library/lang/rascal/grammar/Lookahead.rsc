@@ -86,7 +86,7 @@ public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
       // find the first range that is not smaller than the pivot
       if ([pre*, post*] := l, all(z <- post, !lessThan(z,r)) || post == []) {
         // find all ranges that overlap with the pivot
-        if ([overlapping*, post2*] := post, all(o <- overlapping, intersect(r,o) != \empty-range())) {
+        if ([overlapping*, post2*] := post, all(\o <- overlapping, intersect(r,\o) != \empty-range())) {
           // overlapping with existing ranges (contained in 'overlap')
           common = intersection(overlapping,[r]);
           onlyR = difference([r],overlapping);

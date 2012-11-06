@@ -60,18 +60,18 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
 
 public DoNotNest doNotNest(Production p) {
   switch (p) {
-    case prod(s, [list[Symbol] o,t],{_*,\assoc(left())}) :
-      if (match(t, s)) return {<p, size(o), p>};
-    case prod(s,[list[Symbol] o,t],{_*,\assoc(\assoc())}) :
-      if (match(t, s)) return {<p, size(o), p>};
+    case prod(s, [list[Symbol] \o,t],{_*,\assoc(left())}) :
+      if (match(t, s)) return {<p, size(\o), p>};
+    case prod(s,[list[Symbol] \o,t],{_*,\assoc(\assoc())}) :
+      if (match(t, s)) return {<p, size(\o), p>};
     case prod(s,[t,_*],{_*,\assoc(\right())}) :
       if (match(t, s)) return {<p, 0, p>}; 
-    case prod(s,[t,list[Symbol] o,u],{_*,\assoc(\non-assoc())}) :
-      if (match(t, s) && match(u, s)) return {<p, 0, p>,<p,size(o) + 1,p>};       
+    case prod(s,[t,list[Symbol] \o,u],{_*,\assoc(\non-assoc())}) :
+      if (match(t, s) && match(u, s)) return {<p, 0, p>,<p,size(\o) + 1,p>};       
     case prod(s,[t,_*],{_*,\assoc(\non-assoc())}) :
       if (match(t, s)) return {<p, 0, p>}; 
-    case prod(s,[list[Symbol] o,t],{_*,\assoc(\non-assoc())}) :
-      if (match(t, s)) return {<p, size(o), p>};
+    case prod(s,[list[Symbol] \o,t],{_*,\assoc(\non-assoc())}) :
+      if (match(t, s)) return {<p, size(\o), p>};
     case choice(_, set[Production] alts) :
       return {*doNotNest(a) | a <- alts}; 
     case \lookahead(_,_,q) :
