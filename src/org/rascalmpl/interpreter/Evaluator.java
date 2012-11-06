@@ -1329,6 +1329,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 */
 	@Override
 	public IConstructor parseModule(IRascalMonitor monitor, URI location, ModuleEnvironment env) throws IOException{
+	  // TODO remove this code and replace by facility in rascal-eclipse to retrieve the
+	  // correct file references from a rascal:// URI
+	  URI resolved = rascalPathResolver.resolve(location);
+	  if(resolved != null){
+	    location = resolved;
+	  }
 		return parseModule(monitor, getResourceContent(location), location, env);
 	}
 	

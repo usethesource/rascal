@@ -11,6 +11,11 @@ public class URIContributor implements IRascalSearchPathContributor {
 		this.uri = uri;
 	}
 
+	@Override
+	public String getName() {
+	  return uri.toString();
+	}
+	
 	public void contributePaths(List<URI> path) {
 		path.add(0, uri);
 	}

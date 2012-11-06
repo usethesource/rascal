@@ -76,4 +76,5 @@ data RuntimeException =
      | StackOverflow()
      | Timeout()
      | ImplodeError(str message)
+     | ArithmeticException(str message)
 	 ;
