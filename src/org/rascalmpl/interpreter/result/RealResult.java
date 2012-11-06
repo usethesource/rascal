@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class RealResult extends ElementResult<IReal> {
 	public static final int PRECISION = 64;
@@ -128,9 +129,13 @@ public class RealResult extends ElementResult<IReal> {
 	
 	@Override
 	protected <U extends IValue> Result<U> divideInteger(IntegerResult n) {
-		// Note reversed args: we need n / this
-		return n.widenToReal().divide(this);
-	}
+		try {
+			// Note reversed args: we need n / this
+			return n.widenToReal().divide(this);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}
+}
 
 	
 	@Override
@@ -151,8 +156,12 @@ public class RealResult extends ElementResult<IReal> {
 	
 	@Override
 	protected <U extends IValue> Result<U> divideRational(RationalResult n) {
-		// Note reversed args: we need n / this
-		return n.widenToReal().divide(this);
+		try {
+			// Note reversed args: we need n / this
+			return n.widenToReal().divide(this);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}
 	}
 
 	@Override  
@@ -173,8 +182,12 @@ public class RealResult extends ElementResult<IReal> {
 
 	@Override
 	protected <U extends IValue> Result<U> divideReal(RealResult n) {
-		// note the reverse division
-		return makeResult(type, n.getValue().divide(getValue(), PRECISION), ctx);
+		try {
+			// note the reverse division
+			return makeResult(type, n.getValue().divide(getValue(), PRECISION), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}
 	}
 	
 	@Override
@@ -326,8 +339,12 @@ public class RealResult extends ElementResult<IReal> {
 
 	@Override
 	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
-		// note the reverse division
-		return makeResult(type, n.getValue().divide(getValue(), PRECISION), ctx);
+		try {
+			// note the reverse division
+			return makeResult(type, n.getValue().divide(getValue(), PRECISION), ctx);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
+		}
 	}
 	
 	@Override

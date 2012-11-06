@@ -27,7 +27,7 @@ public class DebugLogger implements IDebugListener<IConstructor>{
 		this(out, false);
 	}
 	
-	private void collectProductions(AbstractStackNode<IConstructor> node, ArrayList<IConstructor> productions){
+	private static void collectProductions(AbstractStackNode<IConstructor> node, ArrayList<IConstructor> productions){
 		AbstractStackNode<IConstructor>[] production = node.getProduction();
 		if(production == null) return; // Can happen, but can't remember why.
 		
