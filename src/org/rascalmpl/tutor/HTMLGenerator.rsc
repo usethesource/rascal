@@ -140,7 +140,10 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
     
     // listing from file
     case /^\<listing\s*<name:.+>\>$/: {
-      loc L = (|std:///|[path = name]).top;
+      loc L = (|courses:///|[path = name]).top;
+      if(!exists(L))
+          L = (|std:///|[path = name]).top;
+       
       try {
       	codeLines = readFileLines(L);
       	return < markupListing(stripLicense(codeLines)), skipOneNL(lines, i+1, n) >;
