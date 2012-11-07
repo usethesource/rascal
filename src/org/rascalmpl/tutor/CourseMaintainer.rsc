@@ -24,7 +24,7 @@ import CourseManager;
 
 // Compile a complete course
 
-public void compileCourse(ConceptName rootConcept){
+public void compileOneCourse(ConceptName rootConcept){
   if(rootConcept in listEntries(courseDir)){
      compileCourse(rootConcept);
   } else

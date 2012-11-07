@@ -194,7 +194,7 @@ public str getNavigationPanel(ConceptName rootConcept){
 public Concept compileAndGenerateConcept(ConceptName cn, bool updateParent){
 
    C = compileConcept(cn);
-   println("Compiling <cn> ... done.");
+   //println("Compiling <cn> ... done.");
    courseFile = courseDir + rootname(cn) + "course.value";
    try {
      theCourse = readTextValueFile(#Course, courseFile);
@@ -204,7 +204,7 @@ public Concept compileAndGenerateConcept(ConceptName cn, bool updateParent){
         pn = parentname(cn);
         if(rootname(pn) != pn) { // No update needed at root
            file = conceptFile(pn);
-           println("<cn>: updateParentDetails: pn = <pn>");
+           //println("<cn>: updateParentDetails: pn = <pn>");
            concepts[pn] =  compileConcept(pn);    
         }
      }
