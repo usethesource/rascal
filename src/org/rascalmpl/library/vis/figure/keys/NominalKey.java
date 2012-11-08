@@ -6,7 +6,7 @@ import java.util.Vector;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.library.vis.figure.FigureFactory;
 import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
@@ -16,11 +16,12 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 
 @SuppressWarnings("rawtypes")
 public class NominalKey extends LayoutProxy implements Key{
-
+  private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	IValue whole;
 	IList possibilities;
 	Vector<IValue> originals;
@@ -51,7 +52,7 @@ public class NominalKey extends LayoutProxy implements Key{
 			innerFig.destroy(env);
 		}
 		TypeFactory tf = TypeFactory.getInstance();
-		IList originalsL = ValueFactory.getInstance().list(originals.toArray(tmpArray));
+		IList originalsL = VF.list(originals.toArray(tmpArray));
 		IConstructor figureCons = (IConstructor) env.getCallBackEnv().executeRascalCallBackSingleArgument(whole,tf.listType(tf.valueType()),originalsL).getValue();
 		innerFig = FigureFactory.make(env, figureCons, prop, childProps);
 		innerFig.registerIds(env, resolver);
