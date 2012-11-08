@@ -47,7 +47,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
@@ -66,6 +66,7 @@ import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 import org.rascalmpl.library.vis.util.vector.TransformMatrix;
 import org.rascalmpl.library.vis.util.vector.TwoDimensional;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 
 /**
@@ -77,6 +78,7 @@ import org.rascalmpl.library.vis.util.vector.TwoDimensional;
  */
 
 public abstract class Figure implements Comparable<Figure> {
+	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	public static enum ResizeMode{
 		RESIZE, ZOOM;
@@ -439,7 +441,7 @@ public abstract class Figure implements Comparable<Figure> {
 
 	public boolean executeOnClick(ICallbackEnv env, int button, IMap modifiers, boolean down) {
 		Type[] types = {TypeFactory.getInstance().integerType(),modifiers.getType()};
-		IValue[] args = {ValueFactory.getInstance().integer(button),modifiers};
+		IValue[] args = {VF.integer(button),modifiers};
 		if(down) return executeHandlerProperty(env, Properties.ON_MOUSE_DOWN, types, args);
 		else return executeHandlerProperty(env, Properties.ON_MOUSE_UP, types, args);
 	}
