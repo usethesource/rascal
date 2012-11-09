@@ -5,101 +5,10 @@ This is the synopsis.
 
 Syntax:
 
-Types:
-`map[lub($T_1$, $T_2$), $T_3$]`
-
-Function:
-
-Details: Cat2 NotThere
-
-Description:
-
-PPPPPPsfd
-XXXXXX
-YYYYYYYYYYYYYYYYYY
-ZZZZZZZZ
-RRRRRRR
-SSSSSSSS
-TTTTTTTTT
-
-<xxscreen>
-$2101-09-05;
-{<X, Y> | int X <- {1, 2, 3}, int Y <- {2, 3, 4}, X >= Y};
-</screen>
-
-Text in Figure:
-<xxfigure t1.png>
-render(text("DEF"));
-</figure>
-
-gives: ![t1](t1.png)
-
------
- 
-| ABC  | DEF     |
-|-----:|---------|
-|  1   |  22222  |
-
-The Figure xxx
-<xxfigure box1.png>
-A = box(size(100), lineColor("black"), lineWidth(2), fillColor("green"));
-B = ellipse(size(100), lineColor("black"), lineWidth(1), fillColor("yellow"));
-render(hcat( [A, B, A], gap(10)));
-</figure>
-will be displayed as
-
-|  xx | yy |
-|-----|----|
-| ![Box 1](box1.png) | zzz |
-
-<toc XXX 1>
-
 Examples:
-
-<listing demo/basic/Hello.rsc>
 
 Benefits:
 
 Pitfalls:
 
 Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str]]
-test: permutations(<L>)
-
-QValue:
-prep: import List;
-prep: import Set;
-make: L = list[arb[int,str]]
-expr: H = size(permutations(<L>))
-hint: <H>
-test: size(permutations(<L>)) == <?>
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],0,3]
-expr: H = permutations(<L>)
-hint: <H>
-test: permutations(<L>) == <?>
-
-
-QValue:
-desc: Fill in the missing operator.
-make: B = arb[int[0,100],str]
-make: A = list[same[B]]
-expr: C = <A> + <B>
-hint: Use +.
-test: <A> <?> <B> == <C>
-
-QType: <A:set[arb]> > <B:same[A]>
-
-QText[A]: Dit is een vraag. Wat is het antwoord?
-a: antwoord
-
-QType[B]: <A:int>
-
-QValue: 2 * <A:int>
-
-QUse: Test:AAA 1

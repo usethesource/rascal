@@ -103,7 +103,6 @@
 <li><a href="/Rascal/Libraries/Prelude/Relation/carrierR/carrierR.html">carrierR</a>: A relation restricted to certain element values in tuples.</li>
 <li><a href="/Rascal/Libraries/Prelude/Relation/carrierX/carrierX.html">carrierX</a>: A relation excluding tuples that contain certain element values.</li>
 <li><a href="/Rascal/Libraries/Prelude/Relation/complement/complement.html">complement</a>: Complement of a relation.</li>
-<li><a href="/Rascal/Libraries/Prelude/Relation/distribution/distribution.html">distribution</a>: </li>
 <li><a href="/Rascal/Libraries/Prelude/Relation/domain/domain.html">domain</a>: Domain of a  relation: a set consisting of the first element of each tuple.</li>
 <li><a href="/Rascal/Libraries/Prelude/Relation/domainR/domainR.html">domainR</a>: Relation restricted to certain domain elements.</li>
 <li><a href="/Rascal/Libraries/Prelude/Relation/domainX/domainX.html">domainX</a>: Relation excluding certain domain values.</li>
@@ -169,14 +168,23 @@ rel[str, int, str]: {
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_0" value="0">
-<label for="Rascal/Expressions/Values/Relation_1_0">Is a set of tuples.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_1" value="0@1@[1,2,4,5,3,0]">
+<label for="Rascal/Expressions/Values/Relation_1_1">Is a list of tuples. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_3" value="3">
-<label for="Rascal/Expressions/Values/Relation_1_3">Has ordered elements.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_2" value="1@2@[1,2,4,5,3,0]">
+<label for="Rascal/Expressions/Values/Relation_1_2">Is a tuple of tuples. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_4" value="4">
-<label for="Rascal/Expressions/Values/Relation_1_4">Can contain duplicates.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_4" value="2@4@[1,2,4,5,3,0]">
+<label for="Rascal/Expressions/Values/Relation_1_4">Can contain duplicates. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_5" value="3@5@[1,2,4,5,3,0]">
+<label for="Rascal/Expressions/Values/Relation_1_5">Has a fixed length. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_3" value="4@3@[1,2,4,5,3,0]">
+<label for="Rascal/Expressions/Values/Relation_1_3">Has ordered elements. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_0" value="5@0@[1,2,4,5,3,0]">
+<label for="Rascal/Expressions/Values/Relation_1_0">Is a set of tuples. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -195,7 +203,7 @@ rel[str, int, str]: {
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Relation&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Relation&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

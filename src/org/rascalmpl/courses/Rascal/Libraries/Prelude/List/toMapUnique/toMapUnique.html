@@ -76,7 +76,7 @@ ok
 map[int, int]: (3:30,2:20,1:10)
 </pre> Let's explore an error case:
 <pre class="screen"><span class="prompt">rascal></span>toMapUnique([&lt;1,10&gt;, &lt;1, 11&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;]);
-|stdin:///|(0,48,&lt;1,0>,&lt;1,48>): MultipleKey(1)
+|stdin:///|(43,2,&lt;1,43>,&lt;1,45>): MultipleKey(1)
 	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.toMapUnique(org.eclipse.imp.pdb.facts.IList)
 	somewhere in: ___SCREEN_INSTANCE___
 
