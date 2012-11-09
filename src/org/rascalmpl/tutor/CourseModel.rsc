@@ -21,7 +21,7 @@ import String;
 import Exception;
 import ParseTree;
 import RascalUtils;
-import HTMLGenerator;
+import Warnings;
 
 //public loc courseDir    = |file:///Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/courses|;
 public loc courseDir    = |courses:///|;
@@ -400,15 +400,7 @@ public list[str] getDetails(ConceptName cn){
      return getNames(sections["Details"] ? []);
    } catch: return [];
 }
-/*
-public list[str] getDetails(loc file){
-   try {
-     script = readFileLines(file);
-     sections = getSections(script);
-     return a-z(sections["Details"] ? []);
-   } catch: return [];
-}
-*/
+
 set[str] exclude = {".svn", ".git"};
 
 map[str,Course] courseCache = ();

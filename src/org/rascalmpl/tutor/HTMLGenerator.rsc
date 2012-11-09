@@ -13,6 +13,7 @@ module HTMLGenerator
 
 import HTMLUtils;
 import CourseModel;
+import Warnings;
 
 import String;
 import ToString;
@@ -20,7 +21,9 @@ import IO;
 import List;
 import Map;
 import util::Eval;
+import Warnings;
 
+/*
 // Maintain a list of warnings found for current concept;
 
 private list[str] warnings = [];
@@ -38,7 +41,7 @@ public list[str] getAndClearWarnings(){
 public void addWarning(str txt){
   warnings += txt;
 }
-
+*/
 // Path of current concept, used to get file URLs right.
 
 private str conceptPath = "";
