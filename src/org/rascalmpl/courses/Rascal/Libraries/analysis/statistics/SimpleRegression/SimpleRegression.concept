@@ -21,7 +21,7 @@ Therefore, all functions in `SimpleRegression` throw an `IllegalArgument` except
 
 
 The following functions are provided:
-<toc Rascal/Libraries/stat/SimpleRegression 1>
+<toc Rascal/Libraries/analysis/statistics/SimpleRegression 1>
 
 Examples:
 <screen>

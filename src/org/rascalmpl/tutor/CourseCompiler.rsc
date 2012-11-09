@@ -32,6 +32,7 @@ import RascalUtils;
 import util::Benchmark;
 import util::Math;
 import util::Monitor;
+import Warnings;
 
 // ------------------------ compile a course ----------------------------------------
 

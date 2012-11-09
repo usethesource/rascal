@@ -11,79 +11,196 @@
 <meta name="description" content="Test/Exam: ">
 
 <meta name="keywords" content="Test/Exam, Rascal, meta-programming, software analysis, software transformation">
-<link type="text/css" rel="stylesheet" href="exam.css"/>
-<script type="text/javascript" src="jquery-1.4.2.min.js"></script>
-<script type="text/javascript" src="exam.js"></script>
+<link type="text/css" rel="stylesheet" href="/prelude.css"/>
+<link type="text/css" rel="stylesheet" href="/jquery.autocomplete.css"/>
+<script type="text/javascript" src="/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/jquery.colorbox-min.js"></script>
+<script type="text/javascript" src="/jquery.cookie.js"></script>
+<script type="text/javascript" src="/jquery.jstree.js"></script>
+<script type="text/javascript" src="/jquery.autocomplete.js"></script>
+<script type="text/javascript" src="/jquery.history.js"></script>
+<script type="text/javascript" src="/globals.js"></script>
+<script type="text/javascript" src="/prelude.js"></script>
+<script type="text/javascript" src="/Test/course.js"></script>
+
 </head>
 <body>
-<h1>Online Exam Exam</h1>
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
+<div id="searchBox">
+  <form method="GET" id="searchForm" action="/search"> 
+    <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
+    <input type="hidden" name="concept" value="Test/Exam">
+    <input type="text" id="searchField" name="term" autocomplete="off"><br />
+    <div id="popups"></div>
+  </form>
+</div>
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Test/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Test/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
 
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Test/Test.html">Test</a>/<a href="/Test/Exam/Exam.html">Exam</a>
+</div>
+
+	                       
+                           
+                           
+                           
   	                       
   	                       
   	                       
   	                       
 <div id="questions">
 
-<form method="POST" action="/validateExam" class="examAnswerForm"><br/>
 
-<input type="hidden" name="examName" id="examName" value="Test_Exam">
-<table id="studentInfo"><tr><td align="left">Your name</td><td align="left"><input type="text" size="30" name="studentName"   id="studentName"></td></tr><tr><td align="left">Your email address</td><td align="left"><input type="text" size="30" name="studentMail"   id="studentMail"></td></tr><tr><td align="left">Your student number</td><td align="left"><input type="text" size="30" name="studentNumber" id="studentNumber"></td></tr></table><br/>
+<br/>
 
 <span class="sectionHead">Questions</span> <br/>
 
 
 <div id="Test_Exam_A" class="question">
-<b>Question [A]. </b> Dit is een vraag. Wat is het antwoord?
+<b>Question [A]. </b>
+<span id="good_Test_Exam_A" class="answerStatus">
+<img height="25" width="25" src="/images/good.png"/>
+</span>
+
+<span id="bad_Test_Exam_A" class="answerStatus">
+<img height="25" width="25" src="/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Test_Exam_A" class="answerFeedback"></span>
+ Dit is een vraag. Wat is het antwoord?
 <br/>
-<input type="text" size="60" name="Test_Exam_A:answer" class="answerText"><br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="text" size="60" name="Test_Exam_A:answer" class="answerText">
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Exam_A:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
 
 </div>
  
 <div id="Test_Exam_2" class="question">
-<b>Question [2]. </b>  Sets can be used to represent a sequence of values when
+<b>Question [2]. </b>
+<span id="good_Test_Exam_2" class="answerStatus">
+<img height="25" width="25" src="/images/good.png"/>
+</span>
+
+<span id="bad_Test_Exam_2" class="answerStatus">
+<img height="25" width="25" src="/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Test_Exam_2" class="answerFeedback"></span>
+  Sets can be used to represent a sequence of values when
 <br/>
 
-<input type="radio" name="Test_Exam_2:answer" id="Test/Exam_2_2" value="2">
-<label for="Test/Exam_2_2">The values are unordered.</label><br/>
+<form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Test_Exam_2:answer" id="Test/Exam_2_1" value="0@1@[1,2,0]">
+<label for="Test/Exam_2_1">The values have duplicates. </label><br/>
 
-<input type="radio" name="Test_Exam_2:answer" id="Test/Exam_2_0" value="0">
-<label for="Test/Exam_2_0">The values have no duplicates and no order.</label><br/>
+<input type="radio" name="Test_Exam_2:answer" id="Test/Exam_2_2" value="1@2@[1,2,0]">
+<label for="Test/Exam_2_2">The values are unordered. </label><br/>
 
-<input type="radio" name="Test_Exam_2:answer" id="Test/Exam_2_1" value="1">
-<label for="Test/Exam_2_1">The values have duplicates.</label><br/>
-<br/>
+<input type="radio" name="Test_Exam_2:answer" id="Test/Exam_2_0" value="2@0@[1,2,0]">
+<label for="Test/Exam_2_0">The values have no duplicates and no order. </label><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Exam_2:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
 
 </div>
  
 <div id="Test_Exam_B" class="question">
-<b>Question [B]. </b> <br/>
-<input type="hidden" name="Test_Exam_B:A" value="-15">
-The type of <tt>-15</tt> is <input type="text" size="30" name="Test_Exam_B:answer" class="answerText"><br/>
-<br/>
+<b>Question [B]. </b>
+<span id="good_Test_Exam_B" class="answerStatus">
+<img height="25" width="25" src="/images/good.png"/>
+</span>
+
+<span id="bad_Test_Exam_B" class="answerStatus">
+<img height="25" width="25" src="/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Test_Exam_B" class="answerFeedback"></span>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Exam_B:A" value="8">
+The type of <tt>8</tt> is <input type="text" size="30" name="Test_Exam_B:answer" class="answerText"><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Exam_B:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
 
 </div>
  
 <div id="Test_Exam_4" class="question">
-<b>Question [4]. </b> <br/>
-<input type="hidden" name="Test_Exam_4:A" value="17">
-<pre class="prequestion">2 * 17 == <input type="text" size="30" name="Test_Exam_4:answer" class="answerText"></pre><br/>
+<b>Question [4]. </b>
+<span id="good_Test_Exam_4" class="answerStatus">
+<img height="25" width="25" src="/images/good.png"/>
+</span>
+
+<span id="bad_Test_Exam_4" class="answerStatus">
+<img height="25" width="25" src="/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Test_Exam_4" class="answerFeedback"></span>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Exam_4:A" value="9">
+<pre class="prequestion">2 * 9 == <input type="text" size="30" name="Test_Exam_4:answer" class="answerText"></pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Exam_4:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
 
 </div>
  
 <div id="Test_Exam_5" class="question">
-<b>Question [5]. </b> <br/>
-<input type="hidden" name="Test_Exam_5:A" value="{&quot;Q&quot;, &quot;Isolder&quot;, &quot;W&quot;}">
-The type of <tt>{&quot;Q&quot;, &quot;Isolder&quot;, &quot;W&quot;}</tt> is <input type="text" size="30" name="Test_Exam_5:answer" class="answerText"><br/>
-<br/>
+<b>Question [5]. </b>
+<span id="good_Test_Exam_5" class="answerStatus">
+<img height="25" width="25" src="/images/good.png"/>
+</span>
+
+<span id="bad_Test_Exam_5" class="answerStatus">
+<img height="25" width="25" src="/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Test_Exam_5" class="answerFeedback"></span>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Exam_5:A" value="{&quot;Date&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Musterd&quot;}">
+The type of <tt>{&quot;Date&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Musterd&quot;}</tt> is <input type="text" size="30" name="Test_Exam_5:answer" class="answerText"><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Exam_5:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
 
 </div>
  <br/>
 
-
-<input type="submit" value="Submit your answers" class="examSubmit">
-</form><br/>
+<br/>
 
 </div>
 
+<a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Test/Exam&new=false"><b>Edit</b></a>] | 
+               [<a id="newAction" href="/edit?concept=Test/Exam&new=true"><b>New Subconcept</b></a>] |
+               [<a id="compileAction" href="/compile?name=Test"><b>Recompile Course</b></a>] |
+               [<a id="warnAction" href="/Test/warnings.html"><b>Warnings</b></a>]</div>
+<span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
+</div>
+</td></tr></table>
 </body>
 </html>
