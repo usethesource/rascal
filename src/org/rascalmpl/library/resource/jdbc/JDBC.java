@@ -888,7 +888,6 @@ class DriverShim implements Driver {
 	public boolean jdbcCompliant() {
 		return this.driver.jdbcCompliant();
 	}
-	@Override
 	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
 		// TODO Auto-generated method stub
 		return null;
