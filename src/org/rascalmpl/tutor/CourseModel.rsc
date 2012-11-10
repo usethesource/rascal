@@ -21,9 +21,11 @@ import String;
 import Exception;
 import ParseTree;
 import RascalUtils;
+import Warnings;
 
 //public loc courseDir    = |file:///Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/courses|;
 public loc courseDir    = |courses:///|;
+
 /* The processing of exams is organized by sharing information between the server and the user (teacher) via dropbox.
  * Assumptions:
  * - Standard installation of Dropbox at ~user/Dropbox
@@ -273,7 +275,7 @@ public str readConceptFile(ConceptName cn){
          extractAndCacheRemoteConcepts(remote, getLocalRoot(cn));
          rmap = remoteContentMap[rootname(cn)] ? ();
       }
-      //println("rmap[<cn>] = <rmap[cn]>");
+      //("rmap[<cn>] = <rmap[cn]>");
       if(rmap[cn]?){
          rdoc = rmap[cn];
          if(rdoc != ""){
@@ -282,6 +284,7 @@ public str readConceptFile(ConceptName cn){
          }
       } 
    }
+   addWarning("<cn> NOT FOUND");
    println("<cn> NOT FOUND");
    throw "readConceptFile: <cn> not found";
 }
@@ -397,15 +400,7 @@ public list[str] getDetails(ConceptName cn){
      return getNames(sections["Details"] ? []);
    } catch: return [];
 }
-/*
-public list[str] getDetails(loc file){
-   try {
-     script = readFileLines(file);
-     sections = getSections(script);
-     return a-z(sections["Details"] ? []);
-   } catch: return [];
-}
-*/
+
 set[str] exclude = {".svn", ".git"};
 
 map[str,Course] courseCache = ();
@@ -471,6 +466,7 @@ str getLocalRoot(str cn){
              return root;
       }
    }
+   addWarning("No local root found for <cn>");
    println("No local root found for <cn>");
    throw "No local root found for <cn>";
 }
@@ -484,8 +480,8 @@ void extractAndCacheRemoteConcepts(loc file, str root){
      rmap =  remoteContentMap[rootname(root)] ? ();
      cmap = extractRemoteConcepts(file1, root);
      println("Extracted <size(cmap)> concepts from <file1>: <domain(cmap)>");
-     for(cn <- cmap)
-         println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
+     //for(cn <- cmap)
+     //    println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
      for(cn <- cmap)
          rmap[cn] = cmap[cn];
      remoteContentMap[rootname(root)] = rmap;

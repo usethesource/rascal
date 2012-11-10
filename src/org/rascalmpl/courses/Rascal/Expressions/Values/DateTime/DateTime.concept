@@ -77,7 +77,7 @@ Examples:
 <screen>
 //Examples of `datetime` values are:
 $2010-07-15;
-$T09:15:23.123;
+$T07:15:23.123+0100;
 // Now introduce a `datetime` value and assign it to `DT`.
 DT = $2010-07-15T09:15:23.123+03:00;
 // Here are examples of some `datatime` fields:
@@ -94,4 +94,3 @@ In normal parlance, the year 2010 is in the 21th century.
 The `century` field, however, just returns the century component of a given year, e.g., for 2010 this is 20.
 
 Questions:
-
