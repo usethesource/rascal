@@ -21,6 +21,7 @@ import org.rascalmpl.parser.gtd.util.BitSet;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 
+@SuppressWarnings({"unchecked", "cast"})
 public abstract class AbstractStackNode<P>{
 	public final static int START_SYMBOL_ID = -1;
 	public final static int DEFAULT_START_LOCATION = -1;
@@ -264,7 +265,6 @@ public abstract class AbstractStackNode<P>{
 	/**
 	 * Checks equality.
 	 */
-	@SuppressWarnings("unchecked")
 	public boolean equals(Object o){
 		if(o instanceof AbstractStackNode){
 			return isEqual((AbstractStackNode<P>) o);
@@ -312,7 +312,6 @@ public abstract class AbstractStackNode<P>{
 	 * Adds an additional alternative this node is a part of.
 	 * This can be the case if the symbol this node is associated with is located in a shared prefix of more then one alternative.
 	 */
-	@SuppressWarnings("unchecked")
 	public void addProduction(AbstractStackNode<P>[] production){
 		if(this.production == null){
 			this.production = production;
@@ -395,7 +394,6 @@ public abstract class AbstractStackNode<P>{
 	 * A 'null' prefix, for example, indicates that the current node starts the alternative.
 	 * This may be required in case a stack merges occur at the point where one of these alternatives starts.
 	 */
-	@SuppressWarnings("unchecked")
 	public void setEdgesSetWithPrefix(EdgesSet<P> edges, Link prefix, int startLocation){
 		int edgesMapSize = edgesMap.size();
 		if(prefixesMap == null){
@@ -442,7 +440,6 @@ public abstract class AbstractStackNode<P>{
 	 * 
 	 * This method also takes care of stack merges in the process of doing this.
 	 */
-	@SuppressWarnings("unchecked")
 	public void updateNode(AbstractStackNode<P> predecessor, AbstractNode predecessorResult){
 		IntegerObjectList<EdgesSet<P>> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
@@ -529,7 +526,6 @@ public abstract class AbstractStackNode<P>{
 	 * Since it is guaranteed that stack merges can never occur after non-nullable terminals
 	 * in a production it is save to use this assumption to improve efficiency.
 	 */
-	@SuppressWarnings("unchecked")
 	public void updateNodeAfterNonEmptyMatchable(AbstractStackNode<P> predecessor, AbstractNode result){
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
 		
@@ -562,7 +558,6 @@ public abstract class AbstractStackNode<P>{
 	 * (the returned number indicated how many edge sets were added and
 	 * may need to be propagated forward).
 	 */
-	@SuppressWarnings("unchecked")
 	public int updateOvertakenNode(AbstractStackNode<P> predecessor, AbstractNode result){
 		IntegerObjectList<EdgesSet<P>> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
@@ -625,7 +620,6 @@ public abstract class AbstractStackNode<P>{
 	 * It also prevents possible prefix duplication, which is an artifact
 	 * of the parser's implementation.
 	 */
-	@SuppressWarnings("unchecked")
 	public int updateOvertakenNullableNode(AbstractStackNode<P> predecessor, AbstractNode result, int potentialNewEdges){
 		IntegerObjectList<EdgesSet<P>> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;

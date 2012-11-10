@@ -13,7 +13,7 @@ package org.rascalmpl.parser.gtd.util;
 
 import java.util.Iterator;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "cast"})
 public class IntegerKeyedHashMap<V>{
 	private final static int DEFAULT_BIT_SIZE = 2;
 	
