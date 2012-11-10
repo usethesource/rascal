@@ -463,11 +463,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/setAnnotations/setAnnotations.html">setAnnotations</a>: Add a map of annotations to a node value.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/toString/toString.html">toString</a>: Convert a node to a string.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/ParseTree.html">ParseTree</a>: Library functions for parse trees.</li>
-<ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/associativity/associativity.html">associativity</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/Attr/Attr.html">Attr</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/CharClass/CharClass.html">CharClass</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/CharRange/CharRange.html">CharRange</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/Condition/Condition.html">Condition</a>: </li>
+<ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/associativity/associativity.html">associativity</a>: Choice under associativity is flattened.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/doc/doc.html">doc</a>: Annotate a parse tree node with a documentation string.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/docs/docs.html">docs</a>: Annotate a parse tree node with documentation strings for several locations.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/implode/implode.html">implode</a>: Implode a parse tree according to a given ADT.</li>
@@ -477,9 +473,8 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/message/message.html">message</a>: Annotate a parse tree node with an (error) message.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/messages/messages.html">messages</a>: Annotate a parse tree node with a list of (error) messages.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/parse/parse.html">parse</a>: Parse input text (from a string or a location) and return a parse tree.</li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/priority/priority.html">priority</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/Production/Production.html">Production</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/Symbol/Symbol.html">Symbol</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/priority/priority.html">priority</a>: Nested priority is flattened.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/Production/Production.html">Production</a>: Productions for priority and associativity.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/Tree/Tree.html">Tree</a>: The Tree data type as produced by the parser.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/treeAt/treeAt.html">treeAt</a>: Select the innermost Tree of a given type which is enclosed by a given location.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/TreeSearchResult/TreeSearchResult.html">TreeSearchResult</a>: Tree search result type for <a href="/Rascal/Libraries/Prelude/ParseTree/treeAt/treeAt.html">treeAt</a>.</li>
@@ -553,40 +548,40 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/String/trim/trim.html">trim</a>: Returns string with leading and trailing whitespace removed.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/String/wrap/wrap.html">wrap</a>: word wrap a string to fit in a certain width.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/Type.html">Type</a>: This is a module that reflects Rascal's type system, implemented in Rascal itself.</li>
-<ul><li><a href="/Rascal/Libraries/Prelude/Type/Attr/Attr.html">Attr</a>: </li>
+<ul><li><a href="/Rascal/Libraries/Prelude/Type/Attr/Attr.html">Attr</a>: Attributes register additional semantics annotations of a definition. </li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/choice/choice.html">choice</a>: Choice between alternative productions.</li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/comparable/comparable.html">comparable</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/equivalent/equivalent.html">equivalent</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/comparable/comparable.html">comparable</a>: Check if two types are comparable, i.e., have a common supertype.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/equivalent/equivalent.html">equivalent</a>: Check if two types are equivalent.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/Exception/Exception.html">Exception</a>: An exception that represents type cast violations.</li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isADTType/isADTType.html">isADTType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isAliasType/isAliasType.html">isAliasType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isBagType/isBagType.html">isBagType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isBoolType/isBoolType.html">isBoolType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isConstructorType/isConstructorType.html">isConstructorType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isDateTimeType/isDateTimeType.html">isDateTimeType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isFunctionType/isFunctionType.html">isFunctionType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isIntType/isIntType.html">isIntType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isListType/isListType.html">isListType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isLocType/isLocType.html">isLocType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isMapType/isMapType.html">isMapType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isNodeType/isNodeType.html">isNodeType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isNumType/isNumType.html">isNumType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isRatType/isRatType.html">isRatType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isRealType/isRealType.html">isRealType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isReifiedType/isReifiedType.html">isReifiedType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isRelType/isRelType.html">isRelType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isSetType/isSetType.html">isSetType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isStrType/isStrType.html">isStrType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isTupleType/isTupleType.html">isTupleType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isTypeVar/isTypeVar.html">isTypeVar</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isValueType/isValueType.html">isValueType</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isVoidType/isVoidType.html">isVoidType</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isADTType/isADTType.html">isADTType</a>: Determine if the given type is an Abstract Data Type (ADT).</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isAliasType/isAliasType.html">isAliasType</a>: Determine if the given type is an alias.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isBagType/isBagType.html">isBagType</a>: Determine if the given type is a bag (bags are not yet implemented).</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isBoolType/isBoolType.html">isBoolType</a>: Determine if the given type is a bool.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isConstructorType/isConstructorType.html">isConstructorType</a>: Determine if the given type is a constructor.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isDateTimeType/isDateTimeType.html">isDateTimeType</a>: Determine if the given type is a <code>datetime</code>.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isFunctionType/isFunctionType.html">isFunctionType</a>: Determine if the given type is a function.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isIntType/isIntType.html">isIntType</a>: Determine if the given type is an int.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isListType/isListType.html">isListType</a>: Determine if the given type is a list.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isLocType/isLocType.html">isLocType</a>: Determine if the given type is a loc.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isMapType/isMapType.html">isMapType</a>: Determine if the given type is a map.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isNodeType/isNodeType.html">isNodeType</a>: Determine if the given type is a node.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isNumType/isNumType.html">isNumType</a>: Determine if the given type is a num.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isRatType/isRatType.html">isRatType</a>: Determine if the given type is a rational.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isRealType/isRealType.html">isRealType</a>: Determine if the given type is a real.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isReifiedType/isReifiedType.html">isReifiedType</a>: Determine if the given type is a reified type.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isRelType/isRelType.html">isRelType</a>: Determine if the given type is a relation.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isSetType/isSetType.html">isSetType</a>: Determine if the given type is a set.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isStrType/isStrType.html">isStrType</a>: Determine if the given type is a string.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isTupleType/isTupleType.html">isTupleType</a>: Determine if the given type is a tuple.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isTypeVar/isTypeVar.html">isTypeVar</a>: Determine if the given type is an type variable (parameter).</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isValueType/isValueType.html">isValueType</a>: Determine if the given type is a value.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isVoidType/isVoidType.html">isVoidType</a>: Determine if the given type is a void.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/lub/lub.html">lub</a>: The least-upperbound (lub) between two types.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/Production/Production.html">Production</a>: A production in a grammar or constructor in a data type.</li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/subtype/subtype.html">subtype</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/subtype/subtype.html">subtype</a>: Subtype on types.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/Symbol/Symbol.html">Symbol</a>: A Symbol represents a Rascal Type.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/typeOf/typeOf.html">typeOf</a>: returns the dynamic type of a value as a reified type</li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/var-func/var-func.html">var-func</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/var-func/var-func.html">var-func</a>: Functions with variable argument lists are normalized to a normal function.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/ValueIO/ValueIO.html">ValueIO</a>: Library functions for reading and writing values in textual and binary format.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/ValueIO/readBinaryValueFile/readBinaryValueFile.html">readBinaryValueFile</a>: Read a value from a binary file.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ValueIO/readTextValueFile/readTextValueFile.html">readTextValueFile</a>: Read a value from a text file.</li>
@@ -853,13 +848,13 @@
 <ul></ul></ul><li><a href="/Rascal/Libraries/analysis/analysis.html">analysis</a>: </li>
 <ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/formalconcepts.html">formalconcepts</a>: Library for Formal Concept Analysis</li>
 <ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/FCA.html">FCA</a>: </li>
-<ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/fca/fca.html">fca</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/FormalContext/FormalContext.html">FormalContext</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/toDot/toDot.html">toDot</a>: </li>
+<ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/fca/fca.html">fca</a>: Computes Concept Lattice given the Object Attribute Relation.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/FormalContext/FormalContext.html">FormalContext</a>: Data Types belonging to Formal Concept Analysis.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/toDot/toDot.html">toDot</a>: Computes Dot Graph from Concept Lattice.</li>
 <ul></ul></ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/graphs.html">graphs</a>: Analyzing relations as graphs</li>
 <ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph.html">Graph</a>: A <code>Graph</code> datatype with associated functions.</li>
 <ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/bottom/bottom.html">bottom</a>: Determine the bottom nodes (leaves) of a graph.</li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph/Graph.html">Graph</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph/Graph.html">Graph</a>: Graph is an alias for a binary relation.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/order/order.html">order</a>: Compute topological order of the nodes in a graph.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/predecessors/predecessors.html">predecessors</a>: Determine the direct predecessors of a graph node.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/reach/reach.html">reach</a>: Determine the graph nodes reachable from a set of nodes.</li>
@@ -868,15 +863,15 @@
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/shortestPathPair/shortestPathPair.html">shortestPathPair</a>: Determine the shortest path between two graph nodes.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/successors/successors.html">successors</a>: Determine the direct successors of a graph node.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/top/top.html">top</a>: Determine the set of top nodes (roots) of a graph.</li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LabeledGraph.html">LabeledGraph</a>: </li>
-<ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/bottom/bottom.html">bottom</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LGraph/LGraph.html">LGraph</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/predecessors/predecessors.html">predecessors</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reach/reach.html">reach</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reachR/reachR.html">reachR</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reachX/reachX.html">reachX</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/successors/successors.html">successors</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/top/top.html">top</a>: </li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LabeledGraph.html">LabeledGraph</a>: Labelled graphs.</li>
+<ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/bottom/bottom.html">bottom</a>: Return the bottom nodes of a LGraph.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LGraph/LGraph.html">LGraph</a>: A labelled graph is an alias for a ternary relation.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/predecessors/predecessors.html">predecessors</a>: The predecessors of a single node in a LGraph.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reach/reach.html">reach</a>: Reachability from a given start set of nodes.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reachR/reachR.html">reachR</a>: Reachability from given start set of nodes with restrictions.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reachX/reachX.html">reachX</a>: Reachability from given start set of nodes with exclusions.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/successors/successors.html">successors</a>: The successors of a single node in a LGraph.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/top/top.html">top</a>: Return the top nodes of a LGraph.</li>
 <ul></ul></ul></ul><li><a href="/Rascal/Libraries/analysis/statistics/statistics.html">statistics</a>: Statistical functions.</li>
 <ul><li><a href="/Rascal/Libraries/analysis/statistics/Frequency/Frequency.html">Frequency</a>: Frequency distributions.</li>
 <ul><li><a href="/Rascal/Libraries/analysis/statistics/Frequency/cumFreq/cumFreq.html">cumFreq</a>: Cumulative frequency of values less than or equal to a given value.</li>
@@ -936,7 +931,7 @@
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Contents&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Contents&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 16 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 4 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
