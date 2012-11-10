@@ -103,7 +103,7 @@ data Production
      ;
 
 @doc{
-  Attributes register additional semantics annotations of a definition. 
+Synopsis: Attributes register additional semantics annotations of a definition. 
 }
 data Attr 
      = \tag(value \tag) 
@@ -126,7 +126,10 @@ public Production choice(Symbol s, {set[Production] a, choice(Symbol t, set[Prod
 @doc{Functions with variable argument lists are normalized to normal functions}
 public Production \var-func(Symbol ret, str name, list[tuple[Symbol typ, str label]] parameters, Symbol varArg, str varLabel) =
        \func(ret, name, parameters + [<\list(varArg), varLabel>]);
-       
+
+@doc{
+Synopsis: Subtype on types.
+}       
 public bool subtype(type[&T] t, type[&U] u) = subtype(t.symbol, u.symbol);
 
 @doc{
@@ -198,10 +201,14 @@ public default bool subtype(list[Symbol] l, list[Symbol] r) = size(l) == 0 && si
 //	return false;
 //}
 
-@doc{Check if two types are comparable, i.e., have a common supertype.}
+@doc{
+Synopsis: Check if two types are comparable, i.e., have a common supertype.
+}
 public bool comparable(Symbol s, Symbol t) = subtype(s,t) || subtype(t,s);
 
-@doc{check if two types qre equivalent.}
+@doc{
+Synopsis: Check if two types are equivalent.
+}
 public bool equivalent(Symbol s, Symbol t) = subtype(s,t) && subtype(t,s);
 
 //data Symbol 
@@ -360,49 +367,63 @@ test bool lubTuple01() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),
 test bool lubTuple02() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\int()),\label("f3",\bool())])) == \tuple([\int(),\bool()]);
 test bool lubTuple03() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\real()),\label("f2",\str())])) == \tuple([\label("f1",\num()),\label("f2",\value())]);
 
-@doc{Determine if the given type is an int.}
+@doc{
+Synopsis: Determine if the given type is an int.
+}
 public bool isIntType(\alias(_,_,Symbol at)) = isIntType(at);
 public bool isIntType(\parameter(_,Symbol tvb)) = isIntType(tvb);
 public bool isIntType(\label(_,Symbol lt)) = isIntType(lt);
 public bool isIntType(\int()) = true;
 public default bool isIntType(Symbol _) = false;
 
-@doc{Determine if the given type is a bool.}
+@doc{
+Synopsis: Determine if the given type is a bool.
+}
 public bool isBoolType(\alias(_,_,Symbol at)) = isBoolType(at);
 public bool isBoolType(\parameter(_,Symbol tvb)) = isBoolType(tvb);
 public bool isBoolType(\label(_,Symbol lt)) = isBoolType(lt);
 public bool isBoolType(\bool()) = true;
 public default bool isBoolType(Symbol _) = false;
 
-@doc{Determine if the given type is a real.}
+@doc{
+Synopsis: Determine if the given type is a real.
+}
 public bool isRealType(\alias(_,_,Symbol at)) = isRealType(at);
 public bool isRealType(\parameter(_,Symbol tvb)) = isRealType(tvb);
 public bool isRealType(\label(_,Symbol lt)) = isRealType(lt);
 public bool isRealType(\real()) = true;
 public default bool isRealType(Symbol _) = false;
 
-@doc{Determine if the given type is a rational.}
+@doc{
+Synopsis: Determine if the given type is a rational.
+}
 public bool isRatType(\alias(_,_,Symbol at)) = isRatType(at);
 public bool isRatType(\parameter(_,Symbol tvb)) = isRatType(tvb);
 public bool isRatType(\label(_,Symbol lt)) = isRatType(lt);
 public bool isRatType(\rat()) = true;
 public default bool isRatType(Symbol _) = false;
 
-@doc{Determine if the given type is a string.}
+@doc{
+Synopsis: Determine if the given type is a string.
+}
 public bool isStrType(\alias(_,_,Symbol at)) = isStrType(at);
 public bool isStrType(\parameter(_,Symbol tvb)) = isStrType(tvb);
 public bool isStrType(\label(_,Symbol lt)) = isStrType(lt);
 public bool isStrType(\str()) = true;
 public default bool isStrType(Symbol _) = false;
 
-@doc{Determine if the given type is a num.}
+@doc{
+Synopsis: Determine if the given type is a num.
+}
 public bool isNumType(\alias(_,_,Symbol at)) = isNumType(at);
 public bool isNumType(\parameter(_,Symbol tvb)) = isNumType(tvb);
 public bool isNumType(\label(_,Symbol lt)) = isNumType(lt);
 public bool isNumType(\num()) = true;
 public default bool isNumType(Symbol _) = false;
 
-@doc{Determine if the given type is a node.}
+@doc{
+Synopsis: Determine if the given type is a node.
+}
 public bool isNodeType(\alias(_,_,Symbol at)) = isNodeType(at);
 public bool isNodeType(\parameter(_,Symbol tvb)) = isNodeType(tvb);
 public bool isNodeType(\label(_,Symbol lt)) = isNodeType(lt);
@@ -410,35 +431,45 @@ public bool isNodeType(\node()) = true;
 public bool isNodeType(\adt(_,_)) = true;
 public default bool isNodeType(Symbol _) = false;
 
-@doc{Determine if the given type is a void.}
+@doc{
+Synopsis: Determine if the given type is a void.
+}
 public bool isVoidType(\alias(_,_,Symbol at)) = isVoidType(at);
 public bool isVoidType(\parameter(_,Symbol tvb)) = isVoidType(tvb);
 public bool isVoidType(\label(_,Symbol lt)) = isVoidType(lt);
 public bool isVoidType(\void()) = true;
 public default bool isVoidType(Symbol _) = false;
 
-@doc{Determine if the given type is a value.}
+@doc{
+Synopsis: Determine if the given type is a value.
+}
 public bool isValueType(\alias(_,_,Symbol at)) = isValueType(at);
 public bool isValueType(\parameter(_,Symbol tvb)) = isValueType(tvb);
 public bool isValueType(\label(_,Symbol lt)) = isValueType(lt);
 public bool isValueType(\value()) = true;
 public default bool isValueType(Symbol _) = false;
 
-@doc{Determine if the given type is a loc.}
+@doc{
+Synopsis: Determine if the given type is a loc.
+}
 public bool isLocType(\alias(_,_,Symbol at)) = isLocType(at);
 public bool isLocType(\parameter(_,Symbol tvb)) = isLocType(tvb);
 public bool isLocType(\label(_,Symbol lt)) = isLocType(lt);
 public bool isLocType(\loc()) = true;
 public default bool isLocType(Symbol _) = false;
 
-@doc{Determine if the given type is a datetime.}
+@doc{
+Synopsis: Determine if the given type is a `datetime`.
+}
 public bool isDateTimeType(\alias(_,_,Symbol at)) = isDateTimeType(at);
 public bool isDateTimeType(\parameter(_,Symbol tvb)) = isDateTimeType(tvb);
 public bool isDateTimeType(\label(_,Symbol lt)) = isDateTimeType(lt);
 public bool isDateTimeType(\datetime()) = true;
 public default bool isDateTimeType(Symbol _) = false;
 
-@doc{Determine if the given type is a set.}
+@doc{
+Synopsis: Determine if the given type is a set.
+}
 public bool isSetType(\alias(_,_,Symbol at)) = isSetType(at);
 public bool isSetType(\parameter(_,Symbol tvb)) = isSetType(tvb);
 public bool isSetType(\label(_,Symbol lt)) = isSetType(lt);
@@ -446,42 +477,54 @@ public bool isSetType(\set(_)) = true;
 public bool isSetType(\rel(_)) = true;
 public default bool isSetType(Symbol _) = false;
 
-@doc{Determine if the given type is a relation.}
+@doc{
+Synopsis: Determine if the given type is a relation.
+}
 public bool isRelType(\alias(_,_,Symbol at)) = isRelType(at);
 public bool isRelType(\parameter(_,Symbol tvb)) = isRelType(tvb);
 public bool isRelType(\label(_,Symbol lt)) = isRelType(lt);
 public bool isRelType(\rel(_)) = true;
 public default bool isRelType(Symbol _) = false;
 
-@doc{Determine if the given type is a tuple.}
+@doc{
+Synopsis: Determine if the given type is a tuple.
+}
 public bool isTupleType(\alias(_,_,Symbol at)) = isTupleType(at);
 public bool isTupleType(\parameter(_,Symbol tvb)) = isTupleType(tvb);
 public bool isTupleType(\label(_,Symbol lt)) = isTupleType(lt);
 public bool isTupleType(\tuple(_)) = true;
 public default bool isTupleType(Symbol _) = false;
 
-@doc{Determine if the given type is a list.}
+@doc{
+Synopsis: Determine if the given type is a list.
+}
 public bool isListType(\alias(_,_,Symbol at)) = isListType(at);
 public bool isListType(\parameter(_,Symbol tvb)) = isListType(tvb);
 public bool isListType(\label(_,Symbol lt)) = isListType(lt);
 public bool isListType(\list(_)) = true;
 public default bool isListType(Symbol _) = false;
 
-@doc{Determine if the given type is a map.}
+@doc{
+Synopsis: Determine if the given type is a map.
+}
 public bool isMapType(\alias(_,_,Symbol at)) = isMapType(at);
 public bool isMapType(\parameter(_,Symbol tvb)) = isMapType(tvb);
 public bool isMapType(\label(_,Symbol lt)) = isMapType(lt);
 public bool isMapType(\map(_,_)) = true;
 public default bool isMapType(Symbol _) = false;
 
-@doc{Determine if the given type is a bag.}
+@doc{
+Synopsis: Determine if the given type is a bag (bags are not yet implemented).
+}
 public bool isBagType(\alias(_,_,Symbol at)) = isBagType(at);
 public bool isBagType(\parameter(_,Symbol tvb)) = isBagType(tvb);
 public bool isBagType(\label(_,Symbol lt)) = isBagType(lt);
 public bool isBagType(\bag(_)) = true;
 public default bool isBagType(Symbol _) = false;
 
-@doc{Determine if the given type is an adt.}
+@doc{
+Synopsis: Determine if the given type is an Abstract Data Type (ADT).
+}
 public bool isADTType(\alias(_,_,Symbol at)) = isADTType(at);
 public bool isADTType(\parameter(_,Symbol tvb)) = isADTType(tvb);
 public bool isADTType(\label(_,Symbol lt)) = isADTType(lt);
@@ -489,20 +532,26 @@ public bool isADTType(\adt(_,_)) = true;
 public bool isADTType(\reified(_)) = true;
 public default bool isADTType(Symbol _) = false;
 
-@doc{Determine if the given type is a constructor.}
+@doc{
+Synopsis: Determine if the given type is a constructor.
+}
 public bool isConstructorType(\alias(_,_,Symbol at)) = isConstructorType(at);
 public bool isConstructorType(\parameter(_,Symbol tvb)) = isConstructorType(tvb);
 public bool isConstructorType(\label(_,Symbol lt)) = isConstructorType(lt);
 public bool isConstructorType(Symbol::\cons(_,_)) = true;
 public default bool isConstructorType(Symbol _) = false;
 
-@doc{Determine if the given type is an alias.}
+@doc{
+Synopsis: Determine if the given type is an alias.
+}
 public bool isAliasType(\alias(_,_,_)) = true;
 public bool isAliasType(\parameter(_,Symbol tvb)) = isAliasType(tvb);
 public bool isAliasType(\label(_,Symbol lt)) = isAliasType(lt);
 public default bool isAliasType(Symbol _) = false;
 
-@doc{Determine if the given type is a function.}
+@doc{
+Synopsis: Determine if the given type is a function.
+}
 public bool isFunctionType(\alias(_,_,Symbol at)) = isFunctionType(at);
 public bool isFunctionType(\parameter(_,Symbol tvb)) = isFunctionType(tvb);
 public bool isFunctionType(\label(_,Symbol lt)) = isFunctionType(lt);
@@ -510,14 +559,18 @@ public bool isFunctionType(Symbol::\func(_,_)) = true;
 //public bool isFunctionType(\var-func(_,_,_)) = true;
 public default bool isFunctionType(Symbol _) = false;
 
-@doc{Determine if the given type is a reified type.}
+@doc{
+Synopsis: Determine if the given type is a reified type.
+}
 public bool isReifiedType(\alias(_,_,Symbol at)) = isReifiedType(at);
 public bool isReifiedType(\parameter(_,Symbol tvb)) = isReifiedType(tvb);
 public bool isReifiedType(\label(_,Symbol lt)) = isReifiedType(lt);
 public bool isReifiedType(\reified(_)) = true;
 public default bool isReifiedType(Symbol _) = false;
 
-@doc{Determine if the given type is an type variable (parameter).}
+@doc{
+Synopsis: Determine if the given type is an type variable (parameter).
+}
 public bool isTypeVar(\parameter(_,_)) = true;
 public bool isTypeVar(\alias(_,_,Symbol at)) = isTypeVar(at);
 public bool isTypeVar(\label(_,Symbol lt)) = isTypeVar(lt);
