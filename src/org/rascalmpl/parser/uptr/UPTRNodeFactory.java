@@ -36,7 +36,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 		return VF.constructor(Factory.Tree_Appl, (IConstructor) production, listWriter.done());
 	}
 	
-	private IConstructor buildAppl(ArrayList<IConstructor> children, Object production){
+	private static IConstructor buildAppl(ArrayList<IConstructor> children, Object production){
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = children.size() - 1; i >= 0; --i){
 			childrenListWriter.insert(children.get(i));
@@ -58,7 +58,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 		
 	}
 	
-	private IConstructor buildAmbiguityNode(ArrayList<IConstructor> alternatives){
+	private static IConstructor buildAmbiguityNode(ArrayList<IConstructor> alternatives){
 		ISetWriter ambSublist = VF.setWriter(Factory.Tree);
 		for(int i = alternatives.size() - 1; i >= 0; --i){
 			ambSublist.insert(alternatives.get(i));
@@ -79,7 +79,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 		return buildAmbiguityNode(alternatives);
 	}
 	
-	private IConstructor buildCycle(int depth, Object production){
+	private static IConstructor buildCycle(int depth, Object production){
 		return VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getType((IConstructor) production), VF.integer(depth));
 	}
 
