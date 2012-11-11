@@ -165,7 +165,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			if(result.isEmpty()){
 				if(alternative.isMatchable()){
 					if(alternative.isEmptyLeafNode()){
-						// Encountered a stack 'overtake'.
+						// Encountered a possible stack 'overtake'.
 						if(node.getStartLocation() != location){
 							propagateEdgesAndPrefixes(node, result, alternative, alternative.getResult());
 						}else{
@@ -178,7 +178,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 						EdgesSet<P> alternativeEdgesSet = alternative.getIncomingEdges();
 						int resultStoreId = getResultStoreId(alternative.getId());
 						if(alternativeEdgesSet != null && alternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
-							// Encountered a stack 'overtake'.
+							// Encountered a possible stack 'overtake'.
 							if(node.getStartLocation() != location){
 								propagateEdgesAndPrefixes(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId));
 							}else{
@@ -252,7 +252,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			if(result.isEmpty()){
 				if(alternative.isMatchable()){
 					if(alternative.isEmptyLeafNode()){
-						// Encountered a stack 'overtake'.
+						// Encountered a possible stack 'overtake'.
 						propagateAlternativeEdgesAndPrefixes(node, result, alternative, alternative.getResult(), node.getEdges().size(), edgesMap, prefixesMap);
 						return true;
 					}
@@ -261,7 +261,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 					int resultStoreId = getResultStoreId(alternative.getId());
 					if(alternativeEdgesSet != null && alternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
 						AbstractContainerNode<P> nextResult = alternativeEdgesSet.getLastResult(resultStoreId);
-						// Encountered a stack 'overtake'.
+						// Encountered a possible stack 'overtake'.
 						propagateAlternativeEdgesAndPrefixes(node, result, alternative, nextResult, node.getEdges().size(), edgesMap, prefixesMap);
 						return true;
 					}
@@ -1180,9 +1180,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		int column = positionStore.getColumn(errorLocation, line);
 		if (location == input.length) {
 			throw new ParseError("Parse error", inputURI, errorLocation, 0, line, line, column, column, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
-		}else{
-			throw new ParseError("Parse error", inputURI, errorLocation, 1, line, line, column, column + 1, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
 		}
+		
+		throw new ParseError("Parse error", inputURI, errorLocation, 1, line, line, column, column + 1, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
 	}
 
 	private static int[] charsToInts(char[] input){

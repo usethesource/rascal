@@ -3,7 +3,7 @@ Name: Graph
 Usage: `import analysis::graphs::Graph;`
 </AUTOINSERTED>
 
-Synopsis: A `Graph` datatype with associated functions.
+Synopsis: Graphs with associated functions.
 
 Types:
 `alias Graph[&T] = rel[&T from, &T to];`

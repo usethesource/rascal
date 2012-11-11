@@ -105,7 +105,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 		
 		ArrayList<T> children = new ArrayList<T>();
 		for(int i = 0; i < prefix.length; ++i){
-			children.add((T) prefix[i]);
+			children.add(prefix[i]);
 		}
 
 		int index = prefix.length - 1;
@@ -124,7 +124,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 					return null;
 				}
 				
-				children.add((T) constructedNode);
+				children.add(constructedNode);
 			}else{ // Cycle.
 				CycleNode cycleNode = (CycleNode) node;
 				T[] constructedCycle = constructCycle(converter, nodeConstructorFactory, production, cycleNode, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
@@ -135,10 +135,10 @@ public class ListContainerNodeFlattener<P, T, S>{
 				
 				int constructedCycleLength = constructedCycle.length;
 				if(constructedCycleLength == 1){
-					children.add((T) constructedCycle[0]);
+					children.add(constructedCycle[0]);
 				}else{
 					for(int j = 0; j < constructedCycleLength; ++j){
-						children.add((T) constructedCycle[j]);
+						children.add(constructedCycle[j]);
 					}
 				}
 			}
@@ -478,7 +478,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 		int index = stack.contains(node);
 		if(index != -1){ // Cycle detected.
 			T cycle = nodeConstructorFactory.createCycleNode(depth - index, node.getFirstProduction());
-			cycle = (T) actionExecutor.filterListCycle(cycle, environment);
+			cycle = actionExecutor.filterListCycle(cycle, environment);
 			if(cycle != null && sourceLocation != null) cycle = nodeConstructorFactory.addPositionInformation(cycle, sourceLocation);
 			
 			cycleMark.setMark(index);
@@ -517,7 +517,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 			}
 			
 			result = nodeConstructorFactory.createListAmbiguityNode(gatheredAlternatives);
-			result = (T) actionExecutor.filterListAmbiguity(result, environment);
+			result = actionExecutor.filterListAmbiguity(result, environment);
 			if(sourceLocation != null) result = nodeConstructorFactory.addPositionInformation(result, sourceLocation);
 		}
 		

@@ -291,11 +291,15 @@ data Production
   | \reference(Symbol def, str cons)
   ;
 
-@doc{Nested priority is flattened}
+@doc{
+Synopsis:  Nested priority is flattened.
+}
 public Production priority(Symbol s, [list[Production] a, priority(Symbol t, list[Production] b),list[Production] c])
   = priority(s,a+b+c);
    
-@doc{Choice under associativity is flattened}
+@doc{
+Synopsis: Choice under associativity is flattened.
+}
 public Production associativity(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) 
   = associativity(s, as, a+b); 
   
