@@ -32,7 +32,7 @@ import org.rascalmpl.values.uptr.Factory;
 /*
 S ::= [a-z]+
 */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "cast"})
 public class CharPlusList extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_char_a_z = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Range, VF.integer(97), VF.integer(122))));
