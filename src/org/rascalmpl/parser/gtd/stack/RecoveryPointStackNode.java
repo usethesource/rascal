@@ -13,7 +13,7 @@ package org.rascalmpl.parser.gtd.stack;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "cast"})
 public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 	private final String name;
 	private final P parent;

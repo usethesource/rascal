@@ -46,7 +46,7 @@ public final class DebugHandler implements IDebugHandler {
 	
 	private enum DebugStepMode {
 		NO_STEP, STEP_INTO, STEP_OVER 
-	};
+	}
 	
 	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
 	

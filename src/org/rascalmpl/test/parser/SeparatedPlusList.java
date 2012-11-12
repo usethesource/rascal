@@ -35,7 +35,7 @@ A ::= a
 
 sep(X, Y) means, a list of X separated by Y's.
 */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "cast"})
 public class SeparatedPlusList extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
