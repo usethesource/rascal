@@ -204,11 +204,11 @@ private tuple[int,str] extractFunctionDeclaration(int current, bool writing){
 private tuple[int,str] extractDataOrAliasDeclaration(int current, bool writing){
   decl = declarations[current];
   userType = normalizeName("<decl.user>");
-  //println("userType = <userType>");
+  println("userType = <userType>");
   key = "<libRoot>/<moduleName>/<userType>";
   doc = "";
   if(!contentMap[key]?){
-     //println("extractDataOrAliasDeclaration: <userType>");
+     println("extractDataOrAliasDeclaration: <userType>");
      sigs = [getDataOrAliasSignature(decl)];
       while(current+1 < size(declarations) && isUndocumentedDataOrAlias(declarations[current+1])){
             sigs += getDataOrAliasSignature(declarations[current+1]);
