@@ -192,7 +192,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 		return tree;
 	}
 
-	private Result<IValue> call(ICallableValue function, IList args) {
+	private static Result<IValue> call(ICallableValue function, IList args) {
 		try{
 			int nrOfArgs = args.length();
 			Type[] types = new Type[nrOfArgs];

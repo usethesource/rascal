@@ -14,6 +14,7 @@ package org.rascalmpl.parser.gtd.stack;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
+@SuppressWarnings("cast")
 public final class OptionalStackNode<P> extends AbstractExpandableStackNode<P>{
 	private final P production;
 	private final String name;
@@ -56,7 +57,7 @@ public final class OptionalStackNode<P> extends AbstractExpandableStackNode<P>{
 	 */
 	@SuppressWarnings("unchecked")
 	private AbstractStackNode<P>[] generateChildren(AbstractStackNode<P> optional){
-		AbstractStackNode<P> child = (AbstractStackNode<P>) optional.getCleanCopy(DEFAULT_START_LOCATION);
+		AbstractStackNode<P> child = optional.getCleanCopy(DEFAULT_START_LOCATION);
 		child.setAlternativeProduction(production);
 		return (AbstractStackNode<P>[]) new AbstractStackNode[]{child};
 	}
