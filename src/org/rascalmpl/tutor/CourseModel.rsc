@@ -370,8 +370,9 @@ public list[ConceptName] children(Concept c){
 
 public list[ConceptName] children(ConceptName cn){
   cdetails = getDetails(cn);
-  //println("<cn>, getDetails: <cdetails>");
+ // println("<cn>, getDetails: <cdetails>");
   dir = courseDir + cn;
+  //println("[2] dir = <dir>");
   //println("[2] listEntries: <listEntries(dir)>");
   entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(dir + entry)];
   //println("[2] entries = <entries>");
