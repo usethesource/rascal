@@ -75,6 +75,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.result.TraverseFunction;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
 import org.rascalmpl.interpreter.staticErrors.ItOutsideOfReducer;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
@@ -2128,6 +2129,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
 
 			if (variable == null) {
+				if(Names.fullName(name).equals("fvisit"))
+					return new TraverseFunction(__eval);
 				throw new UndeclaredVariableError(
 						org.rascalmpl.interpreter.utils.Names.fullName(name),
 						name);
@@ -2138,7 +2141,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						org.rascalmpl.interpreter.utils.Names.fullName(name),
 						name);
 			}
-
+			
 			return variable;
 
 		}
