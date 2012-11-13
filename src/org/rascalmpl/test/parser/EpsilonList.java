@@ -33,7 +33,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= A+
 A ::= epsilon
 */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "cast"})
 public class EpsilonList extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));

@@ -79,6 +79,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.DateTimeValues.TimeValue;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
@@ -104,6 +105,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
 
 public class Prelude {
@@ -132,15 +134,6 @@ public class Prelude {
 	/*
 	 * DateTime
 	 */
-	
-	private IValue createNewTimeValue(Calendar jdt2) {
-		int hourOffset = jdt2.getTimeZone().getOffset(jdt2.getTimeInMillis())/3600000;
-		int minuteOffset = (jdt2.getTimeZone().getOffset(jdt2.getTimeInMillis())/60000)%60;				
-		return values.time(jdt2.get(Calendar.HOUR_OF_DAY), jdt2.get(Calendar.MINUTE),
-				jdt2.get(Calendar.SECOND), jdt2.get(Calendar.MILLISECOND), 
-				hourOffset, minuteOffset);
-	}		
-	
 	public IValue now()
 	//@doc{Get the current datetime.}
 	{
@@ -176,7 +169,6 @@ public class Prelude {
 				minute.intValue(), second.intValue(), millisecond.intValue());
 	}
 
-	
 	public IValue createDateTime(IInteger year, IInteger month, IInteger day,
 			IInteger hour, IInteger minute, IInteger second, IInteger millisecond, 
 			IInteger timezoneHourOffset, IInteger timezoneMinuteOffset)
@@ -222,18 +214,102 @@ public class Prelude {
 		return incrementDate(dt, Calendar.DAY_OF_MONTH, "days", n);	
 	}
 
-	private IValue incrementTime(IDateTime dt, int field, String fieldName, IInteger amount) {
-		if (!dt.isDate()) {
-			long millis = dt.getInstant();
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTimeInMillis(millis);
-			calendar.add(field, amount.intValue());
+	private String getTZString(int hourOffset, int minuteOffset) {
+		String tzString = "GMT" + 
+			((hourOffset < 0 || (0 == hourOffset && minuteOffset < 0)) ? "-" : "+") + 
+			String.format("%02d",hourOffset >= 0 ? hourOffset : hourOffset * -1) +
+			String.format("%02d",minuteOffset >= 0 ? minuteOffset : minuteOffset * -1);
+		return tzString;
+	}
+
+	private final int millisInAMinute = 1000 * 60;
+	private final int millisInAnHour = millisInAMinute * 60;
+
+	private IValue incrementDTField(IDateTime dt, int field, IInteger amount) {
+		Calendar cal = null;
+
+		cal = dateTimeToCalendar(dt);
+		
+		// Make sure lenient is true, since this allows wrapping of fields. For
+		// instance, if you have $2012-05-15, and subtract 15 months, this is
+		// an error if lenient is false, but gives $2012-02-15 (as expected)
+		// if lenient is true.
+		cal.setLenient(true);
+
+		cal.add(field, amount.intValue());
+
+		// Turn the calendar back into a date, time, or datetime value
+		if (dt.isDate()) {
+			return calendarToDate(cal);
+		} else {
 			if (dt.isTime()) {
-				return createNewTimeValue(calendar);
+				return calendarToTime(cal);
+			} else {
+				return calendarToDateTime(cal);
 			}
-			return values.datetime(calendar.getTimeInMillis());
 		}
-		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a date value.", null, null); 
+	}
+
+	private IValue calendarToDateTime(Calendar cal) {
+		int timezoneHours = cal.get(Calendar.ZONE_OFFSET) / millisInAnHour;
+		int timezoneMinutes = cal.get(Calendar.ZONE_OFFSET) % millisInAnHour / millisInAMinute;
+		return createDateTime(values.integer(cal.get(Calendar.YEAR)),
+				values.integer(cal.get(Calendar.MONTH)+1),
+				values.integer(cal.get(Calendar.DAY_OF_MONTH)),
+				values.integer(cal.get(Calendar.HOUR_OF_DAY)),
+				values.integer(cal.get(Calendar.MINUTE)),
+				values.integer(cal.get(Calendar.SECOND)),
+				values.integer(cal.get(Calendar.MILLISECOND)),
+				values.integer(timezoneHours),
+				values.integer(timezoneMinutes));
+	}
+
+	private IValue calendarToTime(Calendar cal) {
+		int timezoneHours = cal.get(Calendar.ZONE_OFFSET) / millisInAnHour;
+		int timezoneMinutes = cal.get(Calendar.ZONE_OFFSET) % millisInAnHour / millisInAMinute;
+		return createTime(values.integer(cal.get(Calendar.HOUR_OF_DAY)),
+				values.integer(cal.get(Calendar.MINUTE)),
+				values.integer(cal.get(Calendar.SECOND)),
+				values.integer(cal.get(Calendar.MILLISECOND)),
+				values.integer(timezoneHours),
+				values.integer(timezoneMinutes));
+	}
+
+	private IValue calendarToDate(Calendar cal) {
+		return createDate(values.integer(cal.get(Calendar.YEAR)),
+				values.integer(cal.get(Calendar.MONTH)+1),
+				values.integer(cal.get(Calendar.DAY_OF_MONTH)));
+	}
+
+	private Calendar dateTimeToCalendar(IDateTime dt) {
+		Calendar cal;
+		if (dt.isDate()) {
+			cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
+			cal.set(dt.getYear(), dt.getMonthOfYear()-1, dt.getDayOfMonth());
+		} else {
+			cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes())),Locale.getDefault());
+			if (dt.isTime()) {
+				cal.set(1970, 0, 1, dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
+			} else {
+				cal.set(dt.getYear(), dt.getMonthOfYear()-1, dt.getDayOfMonth(), dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
+			}
+			cal.set(Calendar.MILLISECOND, dt.getMillisecondsOfSecond());
+		}
+		return cal;
+	}
+	
+	private IValue incrementTime(IDateTime dt, int field, String fieldName, IInteger amount) {
+		if (dt.isDate())
+			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a date value.", null, null);
+		
+		return incrementDTField(dt, field, amount);
+	}
+
+	private IValue incrementDate(IDateTime dt, int field, String fieldName, IInteger amount) {
+		if (dt.isTime())
+			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a time value.", null, null);
+		
+		return incrementDTField(dt, field, amount);
 	}
 	
 	public IValue incrementHours(IDateTime dt, IInteger n)
@@ -260,21 +336,6 @@ public class Prelude {
 		return incrementTime(dt, Calendar.MILLISECOND, "milliseconds", n);
 	}
 
-	private IValue incrementDate(IDateTime dt, int field, String fieldName, IInteger amount) {
-		if (!dt.isTime()) {
-			long millis = dt.getInstant();
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTimeInMillis(millis);
-			calendar.add(field, amount.intValue());
-			if (dt.isDate()) {
-				return values.date(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-			}
-			return values.datetime(calendar.getTimeInMillis());
-		}
-		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a time value.", null, null); 
-
-	}
-	
 	public IValue decrementYears(IDateTime dt, IInteger n)
 	//@doc{Decrement the years by a given amount.}
 	{
@@ -324,7 +385,6 @@ public class Prelude {
 		endCal.setTimeInMillis(dEnd.getInstant());
 		
 		IValue duration = null;
-		
 		if (dStart.isDate()) {
 			if (dEnd.isDate()) {
 				duration = values.tuple(

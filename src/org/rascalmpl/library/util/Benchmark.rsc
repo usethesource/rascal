@@ -36,7 +36,7 @@ Examples:
 
 We use the factorial function described in [Recipes:Factorial] as example:
 <screen>
-import Benchmark;
+import util::Benchmark;
 import demo::basic::Factorial;
 // Here we measure time by using separate calls to `cpuTime` before and after a call to `fac`.
 before = cpuTime();
@@ -72,7 +72,7 @@ Description:
 Examples:
 We use the factorial function described in [Recipes:Factorial] as example:
 <screen>
-import Benchmark;
+import util::Benchmark;
 import demo::basic::Factorial;
 // Here we measure time by using separate calls to `sytemTime` before and after a call to `fac`.
 before = systemTime();
@@ -106,7 +106,7 @@ Examples:
 
 We use the factorial function described in [Recipes:Factorial] as example:
 <screen>
-import Benchmark;
+import util::Benchmark;
 import demo::basic::Factorial;
 // Here we measure time by using separate calls to `userTime` before and after a call to `fac`.
 before = userTime();
@@ -166,7 +166,7 @@ An optional `duration` argument can be used to specify the function to perform t
 Examples:
 We use the factorial function described in [Recipes:Factorial] as example:
 <screen>
-import Benchmark;
+import util::Benchmark;
 import demo::basic::Factorial;
 // We measure two calls to the factorial function with arguments `100`, respectively, `200` (using by default `realkTime` that returns milliseconds):
 benchmark( ("fac10" : void() {fac(100);}, "fac20" : void() {fac(200);}) );

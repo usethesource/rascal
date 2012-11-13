@@ -311,6 +311,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 						.__getValue(), __eval.__getEnv().getStore()));
 				// return recur(this, eval.sourceLocationFieldUpdate(loc, label,
 				// value.getValue(), value.getType(), this));
+			} else if (receiver.getType().isDateTimeType()) {
+				__eval.__setValue(__eval.newResult(receiver.fieldAccess(label,
+						__eval.__getEnv().getStore()), __eval.__getValue()));
+				return __eval.recur(this, receiver.fieldUpdate(label, __eval
+						.__getValue(), __eval.__getEnv().getStore()));
 			} else {
 				throw new UndeclaredFieldError(label, receiver.getType(), this);
 			}

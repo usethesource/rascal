@@ -88,7 +88,8 @@ public class Eval {
 	public IValue eval (IValue typ, IString input, IInteger duration, IEvaluatorContext ctx) {
 		Result<IValue> result = doEval(typ, ValueFactoryFactory.getValueFactory().list(input), duration,  getSharedEvaluator(ctx), true);
 		
-		if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
+		if(result.getType().isVoidType()){
+		//if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
 			return Result_void.make(values);
 		}
 		else {
@@ -106,7 +107,8 @@ public class Eval {
 	public IValue eval (IValue typ, IList commands, IInteger duration, IEvaluatorContext ctx) {
 		Result<IValue> result = doEval(typ, commands, duration,  getSharedEvaluator(ctx), true);
 		
-		if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
+		if(result.getType().isVoidType()){
+		//if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
 			return Result_void.make(values);
 		}
 		else {
