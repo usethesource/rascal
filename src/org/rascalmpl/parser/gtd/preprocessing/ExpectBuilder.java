@@ -13,6 +13,7 @@ import org.rascalmpl.parser.gtd.util.SortedIntegerObjectList;
  * This preprocessor incorporates prefix-sharing into related alternatives,
  * where possible. It also initialized the 'static' versions of the stack nodes.
  */
+@SuppressWarnings("cast")
 public class ExpectBuilder<P>{
 	private final IntegerMap resultStoreMappings;
 	

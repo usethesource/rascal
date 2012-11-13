@@ -13,6 +13,7 @@ module HTMLGenerator
 
 import HTMLUtils;
 import CourseModel;
+import Warnings;
 
 import String;
 import ToString;
@@ -20,7 +21,9 @@ import IO;
 import List;
 import Map;
 import util::Eval;
+import Warnings;
 
+/*
 // Maintain a list of warnings found for current concept;
 
 private list[str] warnings = [];
@@ -38,7 +41,7 @@ public list[str] getAndClearWarnings(){
 public void addWarning(str txt){
   warnings += txt;
 }
-
+*/
 // Path of current concept, used to get file URLs right.
 
 private str conceptPath = "";
@@ -140,7 +143,10 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
     
     // listing from file
     case /^\<listing\s*<name:.+>\>$/: {
-      loc L = (|std:///|[path = name]).top;
+      loc L = (|courses:///|[path = name]).top;
+      if(!exists(L))
+          L = (|std:///|[path = name]).top;
+       
       try {
       	codeLines = readFileLines(L);
       	return < markupListing(stripLicense(codeLines)), skipOneNL(lines, i+1, n) >;

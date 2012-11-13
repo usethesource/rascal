@@ -50,7 +50,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 			while (m.find()) {
 				elems.add(new StaticInterpolationElement(addGroups(re.substring(start, m.start(0)), vars)));
 				elems.add(new NamedInterpolationElement(m.group(1)));
-				;
+				
 				start = m.end(0);
 			}
 			elems.add(new StaticInterpolationElement(re.substring(start, re.length())));
