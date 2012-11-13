@@ -379,17 +379,13 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that, boolean isOpenRecursive) {
-		OverloadedFunction result = (new OverloadedFunction(this)).add(that);
-		result.setOpenRecursive(isOpenRecursive);
-		return result;
+	public Result<IValue> addFunctionNonDeterministic(AbstractFunction that, boolean isOpenRecursive) {
+		return (new OverloadedFunction(this)).addFunctionNonDeterministic(that, isOpenRecursive);
 	}
 
 	@Override
-	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that, boolean isOpenRecursive) {
-		OverloadedFunction result = (new OverloadedFunction(this)).join(that);
-		result.setOpenRecursive(isOpenRecursive);
-		return result;
+	public Result<IValue> addFunctionNonDeterministic(OverloadedFunction that, boolean isOpenRecursive) {
+		return (new OverloadedFunction(this)).addFunctionNonDeterministic(that, isOpenRecursive);
 	}
 
 	@Override

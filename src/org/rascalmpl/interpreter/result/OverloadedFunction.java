@@ -493,17 +493,29 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 	
 	@Override
-	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that, boolean isOpenRecursive) {
-		OverloadedFunction result = this.add(that);
-		result.setOpenRecursive(isOpenRecursive);
-		return result;
+	public Result<IValue> addFunctionNonDeterministic(AbstractFunction that, boolean isOpenRecursive) {
+		if(!this.defaultCandidates.isEmpty()) {
+			OverloadedFunction result = this.add(that);
+			result.setOpenRecursive(isOpenRecursive);
+			return result;
+		} else {
+			ComposedFunctionResult result = new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+			result.setOpenRecursive(isOpenRecursive);
+			return result;
+		}
 	}
 
 	@Override
-	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that, boolean isOpenRecursive) {
-		OverloadedFunction result = this.join(that);
-		result.setOpenRecursive(isOpenRecursive);
-		return result;
+	public Result<IValue> addFunctionNonDeterministic(OverloadedFunction that, boolean isOpenRecursive) {
+		if(!this.defaultCandidates.isEmpty() || !that.defaultCandidates.isEmpty()) {
+			OverloadedFunction result = this.join(that);
+			result.setOpenRecursive(isOpenRecursive);
+			return result;
+		} else {
+			ComposedFunctionResult result = new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+			result.setOpenRecursive(isOpenRecursive);
+			return result;
+		}
 	}
 
 	@Override
