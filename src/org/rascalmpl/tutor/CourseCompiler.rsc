@@ -889,16 +889,17 @@ public str showQuestion(ConceptName cpid, Question q){
          //println("exp1 = <exp1>");
          try {
            tp = parseType("<evalType(setup + (exp1 + ";"))>");
+           //println("eval: " + setup + (exp1 + ";"));
            r = eval(setup + (exp1 + ";")).val;
            env[name] = <tp, "<r>">;
            //println("env[<name>] = <env[name]>");
          }
          catch ParseError(loc l):
-	           throw "Parse error while computing <name> = <exp1> at line <l.begin.line>, column <l.begin.column>";
+	           throw "Question <qid>. Parse error while computing <name> = <exp1> at line <l.begin.line>, column <l.begin.column>";
 	     catch StaticError(str msg, loc l):
-	           throw "Static error while computing <name> = <exp1>: <msg>, at line <l.begin.line>, column <l.begin.column>"; 
+	           throw "Question <qid>. Static error while computing <name> = <exp1>: <msg>, at line <l.begin.line>, column <l.begin.column>"; 
 	     catch value x: 
-	           throw "Something unexpected went wrong while computing <name> = <exp1>: Message: <x>";
+	           throw "Question <qid>. Something unexpected went wrong while computing <name> = <exp1>: Message: <x>";
       }
       //println("env = <env>");
       

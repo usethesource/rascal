@@ -96,21 +96,6 @@
 <ul></ul></ul><li><a href="/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>: Define a user-defined type (Algebraic Data Type).</li>
 <ul></ul><li><a href="/Rascal/Declarations/Variable/Variable.html">Variable</a>: Declare a variable.</li>
 <ul></ul><li><a href="/Rascal/Declarations/Function/Function.html">Function</a>: Declare a function.</li>
-<ul></ul><li><a href="/Rascal/Declarations/Syntaxdefinition/Syntaxdefinition.html">Syntaxdefinition</a>: Syntax Definitions allow the definition of parsers for programming languages, domain-specific languages and data formats.</li>
-<ul><li><a href="/Rascal/Declarations/Syntaxdefinition/Action/Action.html">Action</a>: Actions are functions that are called when parse trees are constructed (right after parsing).</li>
-<ul></ul><li><a href="/Rascal/Declarations/Syntaxdefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a>: Ambiguity detection helps to find ambiguities in syntax definitions.</li>
-<ul></ul><li><a href="/Rascal/Declarations/Syntaxdefinition/AmbiguityDiagnosis/AmbiguityDiagnosis.html">AmbiguityDiagnosis</a>: Ambiguity diagnosis suggests changes to syntax definitions to make them non-ambiguous.</li>
-<ul></ul><li><a href="/Rascal/Declarations/Syntaxdefinition/Disambiguation/Disambiguation.html">Disambiguation</a>: Disambiguation is the definition of filters on the parse trees that <a href="/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s define. There are several ways of defining <a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> in Rascal.</li>
-<ul><li><a href="/Rascal/Declarations/Syntaxdefinition/Disambiguation/Associativity/Associativity.html">Associativity</a>: </li>
-<ul></ul><li><a href="/Rascal/Declarations/Syntaxdefinition/Disambiguation/Follow/Follow.html">Follow</a>: a follow requirement is a conditional <a href="/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>, constraining the characters that can immediately follow a symbol in the input source text.</li>
-<ul></ul><li><a href="/Rascal/Declarations/Syntaxdefinition/Disambiguation/Precede/Precede.html">Precede</a>: </li>
-<ul></ul><li><a href="/Rascal/Declarations/Syntaxdefinition/Disambiguation/Priority/Priority.html">Priority</a>: </li>
-<ul></ul><li><a href="/Rascal/Declarations/Syntaxdefinition/Disambiguation/Reserve/Reserve.html">Reserve</a>: Reserve is a conditional <a href="/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>, constraining the set of strings that a symbol may produce.</li>
-<ul></ul></ul><li><a href="/Rascal/Declarations/Syntaxdefinition/ParseTrees/ParseTrees.html">ParseTrees</a>: The ParseTrees module defines an algebraic data-type for parse trees, which all parsers generated from <a href="/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s produce.</li>
-<ul></ul><li><a href="/Rascal/Declarations/Syntaxdefinition/Symbol/Symbol.html">Symbol</a>: The symbols that can occur in a syntax definition.</li>
-<ul></ul></ul><li><a href="/Rascal/Declarations/Alias/Alias.html">Alias</a>: Declare an alias for a type.</li>
-<ul></ul><li><a href="/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>: Declare an annotation type for nodes.</li>
-<ul></ul><li><a href="/Rascal/Declarations/Tag/Tag.html">Tag</a>: </li>
 <ul></ul><li><a href="/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>: Syntax Definitions allow the definition of parsers for programming languages, domain-specific languages and data formats.</li>
 <ul><li><a href="/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a>: Actions are functions that are called when parse trees are constructed (right after parsing).</li>
 <ul></ul><li><a href="/Rascal/Declarations/SyntaxDefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a>: Ambiguity detection helps to find ambiguities in syntax definitions.</li>
@@ -123,7 +108,10 @@
 <ul></ul><li><a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Reserve/Reserve.html">Reserve</a>: Reserve is a conditional <a href="/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>, constraining the set of strings that a symbol may produce.</li>
 <ul></ul></ul><li><a href="/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a>: The ParseTrees module defines an algebraic data-type for parse trees, which all parsers generated from <a href="/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s produce.</li>
 <ul></ul><li><a href="/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>: The symbols that can occur in a syntax definition.</li>
-<ul></ul></ul></ul><li><a href="/Rascal/Patterns/Patterns.html">Patterns</a>: The various patterns that can be used for pattern matching.</li>
+<ul></ul></ul><li><a href="/Rascal/Declarations/Alias/Alias.html">Alias</a>: Declare an alias for a type.</li>
+<ul></ul><li><a href="/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>: Declare an annotation type for nodes.</li>
+<ul></ul><li><a href="/Rascal/Declarations/Tag/Tag.html">Tag</a>: </li>
+<ul></ul></ul><li><a href="/Rascal/Patterns/Patterns.html">Patterns</a>: The various patterns that can be used for pattern matching.</li>
 <ul><li><a href="/Rascal/Patterns/Abstract/Abstract.html">Abstract</a>: Abstract patterns.</li>
 <ul><li><a href="/Rascal/Patterns/Abstract/Literal/Literal.html">Literal</a>: Literal in abstract pattern.</li>
 <ul></ul><li><a href="/Rascal/Patterns/Abstract/VariableDeclaration/VariableDeclaration.html">VariableDeclaration</a>: Variable declaration in abstract pattern.</li>
@@ -845,14 +833,14 @@
 <ul><li><a href="/Rascal/Libraries/Vis/Render/render/render.html">render</a>: Render a figure on screen.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Vis/Render/renderSave/renderSave.html">renderSave</a>: Render and save a figure to a file.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/Vis/TestVis/TestVis.html">TestVis</a>: List of visualization tests (for developers only).</li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/analysis/analysis.html">analysis</a>: </li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/analysis/analysis.html">analysis</a>: Library functions for analysis tasks.</li>
 <ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/formalconcepts.html">formalconcepts</a>: Library for Formal Concept Analysis</li>
 <ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/FCA.html">FCA</a>: </li>
 <ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/fca/fca.html">fca</a>: Computes Concept Lattice given the Object Attribute Relation.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/FormalContext/FormalContext.html">FormalContext</a>: Data Types belonging to Formal Concept Analysis.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/toDot/toDot.html">toDot</a>: Computes Dot Graph from Concept Lattice.</li>
-<ul></ul></ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/graphs.html">graphs</a>: Analyzing relations as graphs</li>
-<ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph.html">Graph</a>: A <code>Graph</code> datatype with associated functions.</li>
+<ul></ul></ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/graphs.html">graphs</a>: Analyzing unlabeled and labelled graphs.</li>
+<ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph.html">Graph</a>: Graphs with associated functions.</li>
 <ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/bottom/bottom.html">bottom</a>: Determine the bottom nodes (leaves) of a graph.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph/Graph.html">Graph</a>: Graph is an alias for a binary relation.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/order/order.html">order</a>: Compute topological order of the nodes in a graph.</li>
@@ -863,7 +851,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/shortestPathPair/shortestPathPair.html">shortestPathPair</a>: Determine the shortest path between two graph nodes.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/successors/successors.html">successors</a>: Determine the direct successors of a graph node.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/top/top.html">top</a>: Determine the set of top nodes (roots) of a graph.</li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LabeledGraph.html">LabeledGraph</a>: Labelled graphs.</li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LabeledGraph.html">LabeledGraph</a>: Labelled graphs with associated functions.</li>
 <ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/bottom/bottom.html">bottom</a>: Return the bottom nodes of a LGraph.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LGraph/LGraph.html">LGraph</a>: A labelled graph is an alias for a ternary relation.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/predecessors/predecessors.html">predecessors</a>: The predecessors of a single node in a LGraph.</li>
