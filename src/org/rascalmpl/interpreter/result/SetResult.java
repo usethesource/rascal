@@ -16,6 +16,7 @@ package org.rascalmpl.interpreter.result;
 
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
+import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -97,10 +98,9 @@ public class SetResult extends SetOrRelationResult<ISet> {
 		return that.greaterThanOrEqualSet(this);
 	}
 
-
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareSet(this);
+	protected <U extends IValue> Result<U> lessThanOrEqualSet(SetResult that) {
+	  return bool(that.getValue().isSubsetOf(getValue()), ctx);
 	}
 	
 	@Override

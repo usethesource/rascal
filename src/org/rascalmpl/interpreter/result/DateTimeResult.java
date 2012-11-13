@@ -62,19 +62,6 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that) {
-		return that.compareDateTime(this);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareDateTime(DateTimeResult that) {
-		checkDateTimeComparison(that);
-		
-		return makeIntegerResult(that.value.compareTo(this.value));
-	}
-
-	
-	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		IValueFactory vf = getValueFactory();
 		IDateTime dt = getValue();

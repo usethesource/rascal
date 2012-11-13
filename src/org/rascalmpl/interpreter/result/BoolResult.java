@@ -71,11 +71,6 @@ public class BoolResult extends ElementResult<IBool> {
 	/////
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that) {
-		return that.compareBool(this);
-	}
-	
-	@Override
 	public Result<IValue> ifThenElse(Result<IValue> then, Result<IValue> _else) {
 		if (isTrue()) {
 			return then;
@@ -85,16 +80,6 @@ public class BoolResult extends ElementResult<IBool> {
 	
 	///
 	
-	@Override
-	protected <U extends IValue> Result<U> compareBool(BoolResult that) {
-		// note:  that <=> this
-		BoolResult left = that;
-		BoolResult right = this;
-		boolean lb = left.getValue().getValue();
-		boolean rb = right.getValue().getValue();
-		int result = (lb == rb) ? 0 : ((!lb && rb) ? -1 : 1);
-		return makeIntegerResult(result);
-	}
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToBool(BoolResult that) {
@@ -107,29 +92,26 @@ public class BoolResult extends ElementResult<IBool> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanBool(BoolResult that) {
-		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this) < 0, ctx);
+	protected <U extends IValue> Result<U> lessThanOrEqualBool(BoolResult that) {
+	  // false < true or true <= true
+		return bool(!that.isTrue() || isTrue(), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualBool(BoolResult that) {
-		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this) <= 0, ctx);
+	protected <U extends IValue> Result<U> lessThanBool(BoolResult that) {
+	  return bool(!that.isTrue() && isTrue(), ctx);
 	}
-
+	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanBool(BoolResult that) {
-		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this) > 0, ctx);
+	  return that.lessThanBool(this);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualBool(BoolResult that) {
-		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this) >= 0, ctx);
+	  return that.lessThanOrEqualBool(this);
 	}
-	
+
 	@Override
 	public boolean isTrue() {
 		return getValue().getValue();

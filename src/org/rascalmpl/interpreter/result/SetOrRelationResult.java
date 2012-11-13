@@ -150,39 +150,21 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 	protected <U extends IValue> Result<U> lessThanRelation(RelationResult that) {
 				// note reversed args: we need that < this
 				return bool(that.getValue().isSubsetOf(getValue()) && !that.getValue().isEqual(getValue()), ctx);
-			}
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualRelation(RelationResult that) {
 				// note reversed args: we need that <= this
 				return bool(that.getValue().isSubsetOf(getValue()), ctx);
-			}
-
+	}
+	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanRelation(RelationResult that) {
-				// note reversed args: we need that > this
-				return bool(getValue().isSubsetOf(that.getValue()) && !getValue().isEqual(that.getValue()), ctx);
-			}
-
-	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualRelation(
-			RelationResult that) {
-				// note reversed args: we need that >= this
-				return bool(getValue().isSubsetOf(that.getValue()), ctx);
-			}
-
-	@Override
-	protected <U extends IValue> Result<U> compareSet(SetResult that) {
-		// Note reversed args.
-		return makeIntegerResult(compareISets(that.getValue(), this.getValue(), ctx));
+	  return bool(getValue().isSubsetOf(that.getValue()) && !getValue().isEqual(that.getValue()), ctx);
 	}
-
+	
 	@Override
-	protected <U extends IValue> Result<U> compareRelation(RelationResult that) {
-				// Note reversed args.
-				return makeIntegerResult(compareISets(that.getValue(), this.getValue(), ctx));
-			}
-
-
-
+	protected <U extends IValue> Result<U> greaterThanOrEqualRelation(RelationResult that) {
+	  return bool(getValue().isSubsetOf(that.getValue()), ctx);
+	}
 }

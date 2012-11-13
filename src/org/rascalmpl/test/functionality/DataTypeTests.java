@@ -1240,41 +1240,42 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("<1, {2,3}> == <1, {3,2}>;"));
 		assertTrue(runTest("<{1,2}, {3,4}> == <{2,1},{4,3}>;"));
 		
-		assertTrue(runTest("<1>           >= <1>;"));
-		assertTrue(runTest("<2>           >= <1>;"));
-		assertTrue(runTest("<1,2>         >= <1>;"));
-		assertTrue(runTest("<1,2>         >= <1,2>;"));
-		assertTrue(runTest("<1,2>         >= <1, 1>;"));
-		assertTrue(runTest("<1,\"def\">   >= <1, \"abc\">;"));
-		assertTrue(runTest("<1, [2,3,4]>  >= <1, [2,3]>;"));
-		assertTrue(runTest("<1, [2,3]>    >= <1, [2,3]>;"));
-		
-		assertFalse(runTest("<1>          > <1>;"));
-		assertTrue(runTest("<2>           > <1>;"));
-		assertTrue(runTest("<1,2>         > <1>;"));
-		assertFalse(runTest("<1,2>        > <1,2>;"));
-		assertTrue(runTest("<1,2>         > <1, 1>;"));
-		assertTrue(runTest("<1,\"def\">   > <1, \"abc\">;"));
-		assertTrue(runTest("<1, [2,3,4]>  > <1, [2,3]>;"));
-		assertFalse(runTest("<1, [2,3]>   > <1, [2,3]>;"));
-		
-		assertTrue(runTest("<1>           <= <1>;"));
-		assertTrue(runTest("<1>           <= <2>;"));
-		assertTrue(runTest("<1>           <= <1,2>;"));
-		assertTrue(runTest("<1,2>         <= <1,2>;"));
-		assertTrue(runTest("<1,1>         <= <1, 2>;"));
-		assertTrue(runTest("<1,\"abc\">   <= <1, \"def\">;"));
-		assertTrue(runTest("<1, [2,3]>    <= <1, [2,3,4]>;"));
-		assertTrue(runTest("<1, [2,3]>    <= <1, [2,3]>;"));
-		
-		assertFalse(runTest("<1>          < <1>;"));
-		assertTrue(runTest("<1>           < <2>;"));
-		assertTrue(runTest("<1>           < <1,2>;"));
-		assertFalse(runTest("<1,2>        < <1,2>;"));
-		assertTrue(runTest("<1,1>         < <1, 2>;"));
-		assertTrue(runTest("<1,\"abc\">   < <1, \"def\">;"));
-		assertTrue(runTest("<1, [2,3]>    < <1, [2,3,4]>;"));
-		assertFalse(runTest("<1, [2,3]>   < <1, [2,3]>;"));
+		// comparison is now partial 
+//		assertTrue(runTest("<1>           >= <1>;"));
+//		assertTrue(runTest("<2>           >= <1>;"));
+//		assertTrue(runTest("<1,2>         >= <1>;"));
+//		assertTrue(runTest("<1,2>         >= <1,2>;"));
+//		assertTrue(runTest("<1,2>         >= <1, 1>;"));
+//		assertTrue(runTest("<1,\"def\">   >= <1, \"abc\">;"));
+//		assertTrue(runTest("<1, [2,3,4]>  >= <1, [2,3]>;"));
+//		assertTrue(runTest("<1, [2,3]>    >= <1, [2,3]>;"));
+//		
+//		assertFalse(runTest("<1>          > <1>;"));
+//		assertTrue(runTest("<2>           > <1>;"));
+//		assertTrue(runTest("<1,2>         > <1>;"));
+//		assertFalse(runTest("<1,2>        > <1,2>;"));
+//		assertTrue(runTest("<1,2>         > <1, 1>;"));
+//		assertTrue(runTest("<1,\"def\">   > <1, \"abc\">;"));
+//		assertTrue(runTest("<1, [2,3,4]>  > <1, [2,3]>;"));
+//		assertFalse(runTest("<1, [2,3]>   > <1, [2,3]>;"));
+//		
+//		assertTrue(runTest("<1>           <= <1>;"));
+//		assertTrue(runTest("<1>           <= <2>;"));
+//		assertTrue(runTest("<1>           <= <1,2>;"));
+//		assertTrue(runTest("<1,2>         <= <1,2>;"));
+//		assertTrue(runTest("<1,1>         <= <1, 2>;"));
+//		assertTrue(runTest("<1,\"abc\">   <= <1, \"def\">;"));
+//		assertTrue(runTest("<1, [2,3]>    <= <1, [2,3,4]>;"));
+//		assertTrue(runTest("<1, [2,3]>    <= <1, [2,3]>;"));
+//		
+//		assertFalse(runTest("<1>          < <1>;"));
+//		assertTrue(runTest("<1>           < <2>;"));
+//		assertTrue(runTest("<1>           < <1,2>;"));
+//		assertFalse(runTest("<1,2>        < <1,2>;"));
+//		assertTrue(runTest("<1,1>         < <1, 2>;"));
+//		assertTrue(runTest("<1,\"abc\">   < <1, \"def\">;"));
+//		assertTrue(runTest("<1, [2,3]>    < <1, [2,3,4]>;"));
+//		assertFalse(runTest("<1, [2,3]>   < <1, [2,3]>;"));
 		
 		assertTrue(runTest("<1, \"a\", true> + <1.5, \"def\"> == <1, \"a\", true> + <1.5, \"def\">;"));
 	}
@@ -1445,45 +1446,46 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5))))) == f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5)))));"));
 		assertTrue(runTestInSameEvaluator("{NODE n = f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5))))); NODE x = f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(0))))); n != x;}"));
 		
-		assertTrue(runTestInSameEvaluator("f()                       <= f();"));
-		assertTrue(runTestInSameEvaluator("f()                       <= g();"));
-		assertTrue(runTestInSameEvaluator("f()                       <= f(i(1));"));
-		assertTrue(runTestInSameEvaluator("f(i(1))                   <= f(i(1));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), i(2))             <= f(i(1), i(3));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), i(2))             <= g(i(1), i(3));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), s(\"abc\"))       <= f(i(1), s(\"def\"));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2), i(3)]))  <= f(i(1), l([i(2),i(3),i(4)]));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2), i(3)]))  <= f(i(1), l([i(2),i(3)]));"));
+// ordering on nodes is not total anymore.
+//		assertTrue(runTestInSameEvaluator("f()                       <= f();"));
+//		assertTrue(runTestInSameEvaluator("f()                       <= g();"));
+//		assertTrue(runTestInSameEvaluator("f()                       <= f(i(1));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1))                   <= f(i(1));"));
+////		assertTrue(runTestInSameEvaluator("f(i(1), i(2))             <= f(i(1), i(3));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), i(2))             <= g(i(1), i(3));"));
+////		assertTrue(runTestInSameEvaluator("f(i(1), s(\"abc\"))       <= f(i(1), s(\"def\"));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2), i(3)]))  <= f(i(1), l([i(2),i(3),i(4)]));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2), i(3)]))  <= f(i(1), l([i(2),i(3)]));"));
+//		
+//		assertFalse(runTestInSameEvaluator("f()                      < f();"));
+//		assertTrue(runTestInSameEvaluator("f()                       < g();"));
+//		assertTrue(runTestInSameEvaluator("f()                       < f(i(1));"));
+//		assertFalse(runTestInSameEvaluator("f(i(1))                  < f(i(1));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), i(2))             < f(i(1), i(3));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), i(2))             < g(i(1), i(3));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), s(\"abc\"))       < f(i(1), s(\"def\"));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2), i(3)]))  < f(i(1), l([i(2),i(3),i(4)]));"));
+//		assertFalse(runTestInSameEvaluator("f(i(1), l([i(2), i(3)])) < f(i(1), l([i(2),i(3)]));"));
 		
-		assertFalse(runTestInSameEvaluator("f()                      < f();"));
-		assertTrue(runTestInSameEvaluator("f()                       < g();"));
-		assertTrue(runTestInSameEvaluator("f()                       < f(i(1));"));
-		assertFalse(runTestInSameEvaluator("f(i(1))                  < f(i(1));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), i(2))             < f(i(1), i(3));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), i(2))             < g(i(1), i(3));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), s(\"abc\"))       < f(i(1), s(\"def\"));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2), i(3)]))  < f(i(1), l([i(2),i(3),i(4)]));"));
-		assertFalse(runTestInSameEvaluator("f(i(1), l([i(2), i(3)])) < f(i(1), l([i(2),i(3)]));"));
-		
-		assertTrue(runTestInSameEvaluator("f()                          >= f();"));
-		assertTrue(runTestInSameEvaluator("g()                          >= f();"));
-		assertTrue(runTestInSameEvaluator("f(i(1))                      >= f();"));
-		assertTrue(runTestInSameEvaluator("f(i(1))                      >= f(i(1));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), i(3))                >= f(i(1), i(2));"));
-		assertTrue(runTestInSameEvaluator("g(i(1), i(2))                >= f(i(1), i(3));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), s(\"def\"))          >= f(i(1), s(\"abc\"));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2),i(3),i(4)])) >= f(i(1), l([i(2),i(3)]));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2), i(3)]))     >= f(i(1), l([i(2),i(3)]));"));
-		
-		assertFalse(runTestInSameEvaluator("f()                         > f();"));
-		assertTrue(runTestInSameEvaluator("g()                          > f();"));
-		assertTrue(runTestInSameEvaluator("f(i(1))                      > f();"));
-		assertFalse(runTestInSameEvaluator("f(i(1))                     > f(i(1));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), i(3))                > f(i(1), i(2));"));
-		assertTrue(runTestInSameEvaluator("g(i(1), i(2))                > f(i(1), i(3));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), s(\"def\"))          > f(i(1), s(\"abc\"));"));
-		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2),i(3),i(4)])) > f(i(1), l([i(2),i(3)]));"));
-		assertFalse(runTestInSameEvaluator("f(i(1), l([i(2), i(3)]))    > f(i(1), l([i(2),i(3)]));"));
+//		assertTrue(runTestInSameEvaluator("f()                          >= f();"));
+//		assertTrue(runTestInSameEvaluator("g()                          >= f();"));
+//		assertTrue(runTestInSameEvaluator("f(i(1))                      >= f();"));
+//		assertTrue(runTestInSameEvaluator("f(i(1))                      >= f(i(1));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), i(3))                >= f(i(1), i(2));"));
+//		assertTrue(runTestInSameEvaluator("g(i(1), i(2))                >= f(i(1), i(3));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), s(\"def\"))          >= f(i(1), s(\"abc\"));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2),i(3),i(4)])) >= f(i(1), l([i(2),i(3)]));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2), i(3)]))     >= f(i(1), l([i(2),i(3)]));"));
+//		
+//		assertFalse(runTestInSameEvaluator("f()                         > f();"));
+//		assertTrue(runTestInSameEvaluator("g()                          > f();"));
+//		assertTrue(runTestInSameEvaluator("f(i(1))                      > f();"));
+//		assertFalse(runTestInSameEvaluator("f(i(1))                     > f(i(1));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), i(3))                > f(i(1), i(2));"));
+//		assertTrue(runTestInSameEvaluator("g(i(1), i(2))                > f(i(1), i(3));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), s(\"def\"))          > f(i(1), s(\"abc\"));"));
+//		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2),i(3),i(4)])) > f(i(1), l([i(2),i(3)]));"));
+//		assertFalse(runTestInSameEvaluator("f(i(1), l([i(2), i(3)]))    > f(i(1), l([i(2),i(3)]));"));
 	}
 	
 	@Test(expected=UninitializedVariableError.class)

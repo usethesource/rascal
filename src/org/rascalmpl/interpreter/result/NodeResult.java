@@ -49,18 +49,8 @@ public class NodeResult extends ElementResult<INode> {
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result) {
-		return result.lessThanNode(this);
-	}
-	
-	@Override
 	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result) {
 		return result.lessThanOrEqualNode(this);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result) {
-		return result.greaterThanNode(this);
 	}
 	
 	@Override
@@ -80,12 +70,6 @@ public class NodeResult extends ElementResult<INode> {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result) {
 		return result.greaterThanOrEqualNode(this);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(
-			Result<V> that) {
-		return that.compareNode(this);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -109,27 +93,31 @@ public class NodeResult extends ElementResult<INode> {
 	//////
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanNode(NodeResult that) {
-		// note reversed args: we need that < this
-		return bool((that.comparisonInts(this) < 0), ctx);
-	}
-	
-	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualNode(NodeResult that) {
-		// note reversed args: we need that <= this
-		return bool((that.comparisonInts(this) <= 0), ctx);
-	}
-
-	@Override
-	protected <U extends IValue> Result<U> greaterThanNode(NodeResult that) {
-		// note reversed args: we need that > this
-		return bool((that.comparisonInts(this) > 0), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualNode(NodeResult that) {
-		// note reversed args: we need that >= this
-		return bool((that.comparisonInts(this) >= 0), ctx);
+	  if (that.equals(this).isTrue()) {
+	    return bool(true, ctx);
+	  }
+	  
+	  INode left = that.getValue();
+	  INode right = getValue();
+	  
+	  int compare = left.getName().compareTo(right.getName());
+	  
+	  if (compare == -1) {
+	    return bool(true, ctx);
+	  }
+	  
+    if (compare == 1){
+      return bool(false, ctx);
+    }
+    
+    compare = Integer.valueOf(left.arity()).compareTo(Integer.valueOf(right.arity()));
+    
+    if (compare == -1) {
+      return bool(true, ctx);
+    }
+    
+    return bool(false, ctx);
 	}
 
 	@Override
@@ -140,48 +128,6 @@ public class NodeResult extends ElementResult<INode> {
 	@Override
 	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that) {
 		return that.nonEqualityBoolean(this);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareNode(NodeResult that) {
-		// Note reversed args
-		INode left = that.getValue();
-		INode right = this.getValue();
-		
-		if (left.isEqual(right)) {
-			return makeIntegerResult(0);
-		}
-		
-		int str = left.getName().compareTo(right.getName());
-		
-		if (str == 0) {
-			int leftArity = left.arity();
-			int rightArity = right.arity();
-			
-			if (leftArity == rightArity) {
-				Type valueType = getTypeFactory().valueType();
-				
-				for (int i = 0; i < leftArity; i++) {
-					Result<IInteger> comp = makeResult(valueType, left.get(i), ctx).compare(makeResult(valueType, right.get(i), ctx));
-					int val = comp.getValue().intValue();
-					
-					if (val != 0) {
-						return makeIntegerResult(val);
-					}
-				}
-				
-				// this may happen when comparing nodes to constructors
-				return makeIntegerResult(0);
-			}
-			
-			if (left.arity() < right.arity()) {
-				return makeIntegerResult(-1);
-			}
-			
-			return makeIntegerResult(1);
-		}
-		
-		return makeIntegerResult(str);
 	}
 	
 	@Override

@@ -19,3 +19,4 @@ public interface ITestResultListener{
 	void report(boolean successful, String test, ISourceLocation loc, String message);
 	void done();
 }
+

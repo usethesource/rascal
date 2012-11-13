@@ -360,6 +360,8 @@ syntax Assignable
 lexical StringConstant
 	= @category="Constant" "\"" StringCharacter* "\"" ;
 
+
+
 syntax Assoc
 	= associative: "assoc" 
 	| left: "left" 

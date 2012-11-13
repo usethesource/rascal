@@ -63,7 +63,12 @@ public list[&T] mergeUnOrdered(list[&T] A, list[&T] B) {
            }
     return res;
 }
-     
+   
+/* 
+java.lang.Exception: |rascal://lang::rascal::tests::Lists|(2393,79,<77,0>,<77,79>) : failed with, 
+list[&T]:[(0.9149442666725909:(0.36218118050823644:0.8203876444859535,0.5760368541874362:1501104122r1766714245))]
+list[&T]:[(("":<true>):[{}],():[])]
+*/     
 public test bool concat(list[&T] A, list[&T] B) = isConcat(A + B, A, B);
 public test bool concat(     &T  A, list[&T] B) = isConcat(A + B, [A], B);
 public test bool concat(list[&T] A,      &T  B) = isConcat(A + B, A, [B]);

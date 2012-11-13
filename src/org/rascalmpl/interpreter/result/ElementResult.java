@@ -18,17 +18,12 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
-import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
@@ -135,74 +130,35 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return makeResult(getType(), annotatedBase, ctx);
 	}
 
+	
+	@Override
+  public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+	  // TODO: it would be more efficient to directly implement lessThan and equals and forward lessThanOrEqual than 
+	  // the way we have it now. This is slow because we compute equality twice.
+    boolean eq = ((IBool) equals(that).getValue()).getValue();
+    
+    return bool(!eq && ((IBool) lessThanOrEqual(that).getValue()).getValue(), ctx);
+  }
+  
+  @Override
+  public <U extends IValue, V extends IValue> Result<U> greaterThan(
+      Result<V> that) {
+    return that.lessThan(this);
+  }
+  
+  @Override
+  public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(
+      Result<V> that) {
+    return that.lessThanOrEqual(this);
+  }
+  
 	@Override
 	protected <U extends IValue> Result<U> equalToValue(ValueResult that) {
 		return that.equalityBoolean(this);
 	}
 
-	
-	protected static int compareIValues(IValue left, IValue right, IEvaluatorContext ctx) {
-		Result<IValue> leftResult = makeResult(TypeFactory.getInstance().valueType(), left, ctx);
-		Result<IValue> rightResult = makeResult(TypeFactory.getInstance().valueType(), right, ctx);
-		Result<IValue> resultResult = leftResult.compare(rightResult);
-		// compare always returns IntegerResult so we can cast its value.
-		return ((IInteger)resultResult.getValue()).intValue();
-	}
-
-	// FIXME: ast should not be passed at this level
-	private static SortedSet<IValue> sortedSet(Iterator<IValue> iter, final IEvaluatorContext ctx) {
-		Comparator<IValue> comparator = new Comparator<IValue>() {
-			public int compare(IValue o1, IValue o2) {
-				return compareIValues(o1, o2, ctx);
-			}
-		};
-		SortedSet<IValue> set = new TreeSet<IValue>(comparator);
-		while (iter.hasNext()) {
-			IValue value = iter.next();
-			set.add(value);
-		}
-		return set;
-	}
-
-	protected static int compareISets(ISet left, ISet right, IEvaluatorContext ctx) {
-		int compare = Integer.valueOf(left.size()).compareTo(Integer.valueOf(right.size()));
-		if (compare != 0) {
-			return compare;
-		}
-		
-		// Sets are of equal size from here on
-		if (left.isEqual(right)) {
-			return 0;
-		}
-		if (left.isSubsetOf(right)) {
-			return -1;
-		}
-		if (right.isSubsetOf(left)) {
-			return 1;
-		}
-		
-//		SortedSet<IValue> leftSet = sortedSet(left.iterator(), ctx);
-//		SortedSet<IValue> rightSet = sortedSet(right.iterator(), ctx);
-//		Comparator<? super IValue> comparator = leftSet.comparator();
-//	
-//		while (!leftSet.isEmpty()) {
-//			compare = comparator.compare(leftSet.last(), rightSet.last());
-//			if (compare != 0) {
-//				return compare;
-//			}
-//			leftSet = leftSet.headSet(leftSet.last());
-//			rightSet = rightSet.headSet(rightSet.last());
-//		}
-		return 0;
-	}
-	
-	protected <V extends IValue> int comparisonInts(Result<V> that) {
-		return ((IInteger)compare(that).getValue()).intValue();
-	}
-
 	protected <U extends IValue, V extends IValue> Result<U> equalityBoolean(ElementResult<V> that) {
-		// Do not delegate to comparison here, since it takes runtime types into account
-		return bool((((IInteger)compare(that).getValue()).intValue() == 0), ctx);
+		return bool(that.getValue().isEqual(this.getValue()), ctx);
 	}
 
 	protected <U extends IValue, V extends IValue> Result<U> nonEqualityBoolean(ElementResult<V> that) {

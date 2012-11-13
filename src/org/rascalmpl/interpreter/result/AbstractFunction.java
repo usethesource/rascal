@@ -338,28 +338,11 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return other == this;
 	}
 	
+	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that) {
-		return that.compareFunction(this);
-	}
-
-	@Override
-	public <U extends IValue> Result<U> compareFunction(AbstractFunction that) {
-		if (that == this) {
-			return ResultFactory.makeResult(TF.integerType(), vf.integer(0), ctx);
-		}
-		
-		int result;
-		
-		result = getName().compareTo(that.getName());
-		
-		if (result != 0) {
-			return ResultFactory.makeResult(TF.integerType(), vf.integer(result), ctx);
-		}
-		
-		result = getType().compareTo(that.getType());
-		
-		return ResultFactory.makeResult(TF.integerType(), vf.integer(result), ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+	  // TODO Auto-generated method stub
+	  return super.lessThanOrEqual(that);
 	}
 	
 	@Override
