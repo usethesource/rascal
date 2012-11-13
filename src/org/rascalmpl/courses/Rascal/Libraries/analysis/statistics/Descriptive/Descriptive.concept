@@ -4,7 +4,7 @@ Synopsis: Descriptive Statistics.
 Description:
 Provides the following univariate (single variable) statistics functions:
 
-<toc Rascal/Libraries/stat/Descriptive 1>
+<toc Rascal/Libraries/analysis/statistics/Descriptive 1>
 
 Examples:
 

@@ -58,6 +58,7 @@
      | builder(set[Message] ((&amp;T&lt;:Tree) tree) messages)
      | annotator((&amp;T&lt;:Tree) (&amp;T&lt;:Tree input) annotator)
      | outliner(node (&amp;T&lt;:Tree input) outliner)
+     | proposer(list[CompletionProposal] (&amp;T&lt;:Tree input, str prefix, int requestOffset) proposer, str legalPrefixChars)
      ;
 data Menu 
      = action(str label, void (Tree tree, loc selection) action)

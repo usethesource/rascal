@@ -76,7 +76,7 @@ ok
 map[int, int]: (3:30,2:20,1:10)
 </pre> Let's explore an error case:
 <pre class="screen"><span class="prompt">rascal></span>toMapUnique([&lt;1,10&gt;, &lt;1, 11&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;]);
-|stdin:///|(0,48,&lt;1,0>,&lt;1,48>): MultipleKey(1)
+|stdin:///|(43,2,&lt;1,43>,&lt;1,45>): MultipleKey(1)
 	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.toMapUnique(org.eclipse.imp.pdb.facts.IList)
 	somewhere in: ___SCREEN_INSTANCE___
 
@@ -114,9 +114,9 @@ map[int, int]: (3:30,2:20,1:10)
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_toMapUnique_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_1:K" value="{-19, -5, -7, 7, 8, 15}">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_1:V" value="[-18, -10, 13, 14, 7, -16]">
-The type of <tt>toMapUnique([&lt;7,-18&gt;,&lt;8,-10&gt;,&lt;-7,13&gt;,&lt;-5,14&gt;,&lt;-19,7&gt;,&lt;15,-16&gt;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toMapUnique_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_1:K" value="{-18, 4, -11, -20, -2, 13}">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_1:V" value="[-19, -5, -7, 7, 8, 15]">
+The type of <tt>toMapUnique([&lt;4,-19&gt;,&lt;-11,-5&gt;,&lt;-20,-7&gt;,&lt;13,7&gt;,&lt;-18,8&gt;,&lt;-2,15&gt;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toMapUnique_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -140,9 +140,9 @@ The type of <tt>toMapUnique([&lt;7,-18&gt;,&lt;8,-10&gt;,&lt;-7,13&gt;,&lt;-5,14
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_toMapUnique_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_2:K" value="{9, 8, -6, 5, -9, 0}">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_2:V" value="[9, -7, 9, -3, 0, -16]">
-<pre class="prequestion">toMapUnique([&lt;0,9&gt;,&lt;5,-7&gt;,&lt;-9,9&gt;,&lt;8,-3&gt;,&lt;9,0&gt;,&lt;-6,-16&gt;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toMapUnique_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_2:K" value="{-18, -10, 13, 14, 7, -16}">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_2:V" value="[9, 8, -6, 5, -9, 0]">
+<pre class="prequestion">toMapUnique([&lt;-16,9&gt;,&lt;-10,8&gt;,&lt;7,-6&gt;,&lt;13,5&gt;,&lt;-18,-9&gt;,&lt;14,0&gt;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toMapUnique_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_2:another" value="yes">

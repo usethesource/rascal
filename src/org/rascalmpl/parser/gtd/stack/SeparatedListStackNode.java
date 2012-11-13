@@ -14,6 +14,7 @@ package org.rascalmpl.parser.gtd.stack;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
+@SuppressWarnings("cast")
 public final class SeparatedListStackNode<P> extends AbstractExpandableStackNode<P>{
 	private final P production;
 	private final String name;

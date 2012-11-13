@@ -98,7 +98,7 @@ bool: true
 
  Another example that results in an error:
  <pre class="screen"><span class="prompt">rascal></span>str x &lt;- {1, 3, 5, 7, 11 };
-|stdin:///|(0,27,&lt;1,0>,&lt;1,27>): Expected int, but got str
+|stdin:///|(22,2,&lt;1,22>,&lt;1,24>): Expected int, but got str
 
 </pre> Here, the enumerator produces its first integer value, an attempt is made to assign this to variable <code>x</code> that is declared as string,
  and an error results.
