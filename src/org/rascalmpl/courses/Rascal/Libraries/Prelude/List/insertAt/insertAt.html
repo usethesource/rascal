@@ -78,7 +78,7 @@ list[int]: [1,5,2,3]
 list[str]: ["zebra","elephant","eagle","snake","owl"]
 </pre> An exception is thrown when the index position is outside the list:
 <pre class="screen"><span class="prompt">rascal></span>insertAt([1,2,3], 10, 5);
-|stdin:///|(0,24,&lt;1,0>,&lt;1,24>): IndexOutOfBounds(10)
+|stdin:///|(22,1,&lt;1,22>,&lt;1,23>): IndexOutOfBounds(10)
 	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.insertAt(org.eclipse.imp.pdb.facts.IList,org.eclipse.imp.pdb.facts.IInteger,org.eclipse.imp.pdb.facts.IValue) throws java.lang.IndexOutOfBoundsException
 	somewhere in: ___SCREEN_INSTANCE___
 
@@ -112,14 +112,17 @@ list[str]: ["zebra","elephant","eagle","snake","owl"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_3" value="3">
-<label for="Rascal/Libraries/Prelude/List/insertAt_1_3">a length that depends on the inserted element.</label><br/>
+<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_3" value="0@3@[3,1,2,0]">
+<label for="Rascal/Libraries/Prelude/List/insertAt_1_3">a length that depends on the inserted element. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_2" value="2">
-<label for="Rascal/Libraries/Prelude/List/insertAt_1_2">N-1 elements.</label><br/>
+<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_1" value="1@1@[3,1,2,0]">
+<label for="Rascal/Libraries/Prelude/List/insertAt_1_1">N elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_0" value="0">
-<label for="Rascal/Libraries/Prelude/List/insertAt_1_0">N+1 elements.</label><br/>
+<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_2" value="2@2@[3,1,2,0]">
+<label for="Rascal/Libraries/Prelude/List/insertAt_1_2">N-1 elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_0" value="3@0@[3,1,2,0]">
+<label for="Rascal/Libraries/Prelude/List/insertAt_1_0">N+1 elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -143,10 +146,10 @@ list[str]: ["zebra","elephant","eagle","snake","owl"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_insertAt_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:E" value="&quot;Darth Sidious&quot;">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:L" value="[&quot;S&quot;, &quot;Pineapple&quot;, &quot;Two-Headed Monster&quot;, &quot;Rosemary&quot;]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:E" value="&quot;Sy Snootles&quot;">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:L" value="[&quot;Forgetful Jones&quot;, &quot;C-3PO&quot;, &quot;Little Bird&quot;, &quot;Pumpkin&quot;, &quot;Rosemary&quot;, &quot;Cinnamon&quot;]">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:I" value="1">
-The type of <tt>insertAt([&quot;S&quot;, &quot;Pineapple&quot;, &quot;Two-Headed Monster&quot;, &quot;Rosemary&quot;], 1, &quot;Darth Sidious&quot;)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_insertAt_2:answer" class="answerText"><br/>
+The type of <tt>insertAt([&quot;Forgetful Jones&quot;, &quot;C-3PO&quot;, &quot;Little Bird&quot;, &quot;Pumpkin&quot;, &quot;Rosemary&quot;, &quot;Cinnamon&quot;], 1, &quot;Sy Snootles&quot;)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_insertAt_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -170,10 +173,10 @@ The type of <tt>insertAt([&quot;S&quot;, &quot;Pineapple&quot;, &quot;Two-Headed
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_insertAt_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:E" value="&quot;X&quot;">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:L" value="[&quot;Cardamon&quot;, &quot;Ernie&quot;, &quot;Mint&quot;, &quot;Jabba the Hut&quot;, &quot;Count Von Count&quot;, &quot;J&quot;]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:I" value="1">
-<pre class="prequestion">insertAt([&quot;Cardamon&quot;, &quot;Ernie&quot;, &quot;Mint&quot;, &quot;Jabba the Hut&quot;, &quot;Count Von Count&quot;, &quot;J&quot;], 1, &quot;X&quot;) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_insertAt_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:E" value="&quot;Cookie Monster&quot;">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:L" value="[&quot;Barkley the Dog&quot;, &quot;Blackberry&quot;, &quot;Q&quot;, &quot;O&quot;, &quot;Barkley the Dog&quot;, &quot;Countess Von Backwards&quot;]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:I" value="2">
+<pre class="prequestion">insertAt([&quot;Barkley the Dog&quot;, &quot;Blackberry&quot;, &quot;Q&quot;, &quot;O&quot;, &quot;Barkley the Dog&quot;, &quot;Countess Von Backwards&quot;], 2, &quot;Cookie Monster&quot;) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_insertAt_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:another" value="yes">

@@ -31,7 +31,7 @@ import org.rascalmpl.values.uptr.Factory;
 /*
 S ::= "a" ("b" "c") "d"
 */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "cast"})
 public class Sequence1 extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_a = VF.constructor(Factory.Symbol_Lit, VF.string("a"));

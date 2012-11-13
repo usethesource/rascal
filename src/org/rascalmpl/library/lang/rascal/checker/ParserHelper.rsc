@@ -18,6 +18,14 @@ import util::Math;
 
 import lang::rascal::syntax::RascalRascal;
 
+public Module treeToModule(Tree t) {
+    if (Module m := t)
+        return m;
+    if (list[Tree] tl := t[1])
+        return treeToModule(tl[1]);
+    throw "Error, given something other than a module";
+}
+
 public Tree parseType(str toParse) {
 	return parse(#Type,toParse);
 }

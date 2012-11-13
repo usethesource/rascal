@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.InvalidComparisonError;
@@ -30,9 +31,22 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import com.ibm.icu.util.Calendar;
 
 public class DateTimeResult extends ElementResult<IDateTime> {
 
+	private static TypeFactory TF = TypeFactory.getInstance();
+	private static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	public static final TypeStore TS = new TypeStore();
+	public static final Type Duration = TF.abstractDataType(TS, "Duration");
+	public static final Type duration = TF.constructor(TS, Duration, "duration", 
+			TF.integerType(), "years", TF.integerType(), "months", 
+			TF.integerType(), "days", TF.integerType(), "hours", 
+			TF.integerType(), "minutes", TF.integerType(), "seconds", 
+			TF.integerType(), "milliseconds");
+	
 	public DateTimeResult(Type type, IDateTime value, IEvaluatorContext ctx) {
 		super(type, value, ctx);
 	}
@@ -261,7 +275,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 			return makeResult(getType(), newdt, ctx);
 		} 
 		catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(ctx.getCurrentAST(), null);
+			throw RuntimeExceptionFactory.illegalArgument(repl.getValue(), ctx.getCurrentAST(), null, "Cannot update field " + name + ", this would generate an invalid datetime value");
 		} 	
 	}
 
@@ -331,4 +345,73 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 		return bool(that.value.getInstant() <= this.value.getInstant(), ctx);
 	}
 
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> that) {
+		return that.subtractDateTime(this);
+	}
+
+	@Override
+	protected <U extends IValue> Result<U> subtractDateTime(DateTimeResult that) {
+		IDateTime dStart = this.getValue();
+		Calendar startCal = Calendar.getInstance();
+		startCal.setTimeInMillis(dStart.getInstant());
+
+		IDateTime dEnd = that.getValue();
+		Calendar endCal = Calendar.getInstance();
+		endCal.setTimeInMillis(dEnd.getInstant());
+		
+		if (dStart.isDate()) {
+			if (dEnd.isDate()) {
+				return makeResult(Duration,
+						VF.constructor(DateTimeResult.duration,
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.YEAR)),
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MONTH)),
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.DAY_OF_MONTH)),
+							VF.integer(0), 
+							VF.integer(0), 
+							VF.integer(0),
+							VF.integer(0)),
+						ctx);
+			} else if (dEnd.isTime()) {
+				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a date with no time and a time with no date.", null, null);	
+			} else {
+				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a date with no time and a datetime.", null, null);					
+			}
+		} else if (dStart.isTime()) {
+			if (dEnd.isTime()) {
+				return makeResult(Duration,
+						VF.constructor(DateTimeResult.duration,
+							VF.integer(0),
+							VF.integer(0),
+							VF.integer(0),
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.HOUR_OF_DAY)),
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MINUTE)),
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.SECOND)),
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MILLISECOND))),
+						ctx);
+			} else if (dEnd.isDate()) {
+				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a time with no date and a date with no time.", null, null);	
+			} else {
+				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a time with no date and a datetime.", null, null);					
+			}
+		} else {
+			if (dEnd.isDateTime()) {
+				return makeResult(Duration,
+						VF.constructor(DateTimeResult.duration,
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.YEAR)),
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MONTH)),
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.DAY_OF_MONTH)),
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.HOUR_OF_DAY)),
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MINUTE)),
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.SECOND)),
+							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MILLISECOND))),
+						ctx);
+			} else if (dEnd.isDate()) {
+				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a datetime and a date with no time.", null, null);	
+			} else {
+				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a datetime and a time with no date.", null, null);					
+			}
+		}
+	}
+	
 }

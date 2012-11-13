@@ -5,7 +5,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "cast"})
 public class EdgesSet<P>{
 	public final static int DEFAULT_RESULT_STORE_ID = -1;
 	

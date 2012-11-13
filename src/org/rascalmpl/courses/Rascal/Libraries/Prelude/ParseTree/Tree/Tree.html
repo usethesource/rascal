@@ -57,19 +57,16 @@
      | amb(set[Tree] alternatives)  
      | char(int character)
      ;
-data Tree
-     = error(Production prod, list[Tree] args, list[Tree] rest) <img src="/images/2.png">
-     | expected(Symbol symbol)
-     | erroramb(set[Tree] alternatives)
-     | errorcycle(Symbol symbol, int cycleLength)
-     ;
 data Production 
      = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) <img src="/images/3.png">
      | regular(Symbol def)
+     | error(Production prod, int dot)
+     | skipped()
      ;
 data Attr 
      = \assoc(Associativity \assoc) <img src="/images/4.png">
-     | \bracket() 
+     | \bracket()
+     | \tag(value \tag) 
      ;
 data Associativity 
      = \left() <img src="/images/5.png">

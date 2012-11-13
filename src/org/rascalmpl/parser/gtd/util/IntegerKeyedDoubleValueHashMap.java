@@ -2,7 +2,7 @@ package org.rascalmpl.parser.gtd.util;
 
 import java.util.Iterator;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "cast"})
 public class IntegerKeyedDoubleValueHashMap<V1, V2> {
 	private final static int DEFAULT_BIT_SIZE = 2;
 	

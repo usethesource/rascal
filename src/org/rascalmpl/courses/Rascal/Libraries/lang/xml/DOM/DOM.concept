@@ -42,7 +42,7 @@ We can, for instance, read this XML file and extract all `<to> ... </to>` elemen
 <screen>
 import IO;
 import lang::xml::DOM;
-D = parseXMLDOM(readFile(|tutor:///Rascal/Libraries/lang/xml/note.xml|));
+D = parseXMLDOM(readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|));
 //With the DOM instance `D` available we can extract the strings from all `to` elements:
 for(/element(_,"to",/str N) := D) 
     println(N);
