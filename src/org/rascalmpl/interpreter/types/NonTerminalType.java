@@ -46,7 +46,7 @@ public class NonTerminalType extends ExternalType {
 			this.symbol = TreeAdapter.getType(first);
 		}
 		else {
-			throw new ImplementationError("Invalid concrete syntax type constructor");
+			throw new ImplementationError("Invalid concrete syntax type constructor:" + cons);
 		}
 	}
 	

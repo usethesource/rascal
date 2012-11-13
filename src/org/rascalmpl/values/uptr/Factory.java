@@ -114,6 +114,7 @@ public class Factory {
 	public static final Type Symbol_IterPlus = tf.constructor(uptr, Symbol, "iter", Symbol, "symbol");
 	public static final Type Symbol_IterStar = tf.constructor(uptr, Symbol, "iter-star", Symbol, "symbol");
 	public static final Type Symbol_ParameterizedSort = tf.constructor(uptr, Symbol, "parameterized-sort", str, "name", tf.listType(Symbol), "parameters");
+	public static final Type Symbol_ParameterizedLex = tf.constructor(uptr, Symbol, "parameterized-lex", str, "name", tf.listType(Symbol), "parameters");
 	public static final Type Symbol_Parameter = tf.constructor(uptr, Symbol, "parameter", str, "name");
 	public static final Type Symbol_LayoutX = tf.constructor(uptr, Symbol, "layouts", str, "name");
 	

@@ -66,11 +66,6 @@ public class ListResult extends CollectionResult<IList> {
 	}	
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareList(this);
-	}
-	
-	@Override
 	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
 		return that.equalToList(this);
 	}
@@ -204,57 +199,52 @@ public class ListResult extends CollectionResult<IList> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanList(ListResult that) {
-		// note reverse of arguments: we need that < this
-		// TODO: move to PDB:
-		if (that.getValue().isEqual(getValue())) {
-			return bool(false, ctx);
-		}
-		return lessThanOrEqualList(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that) {
-		for (IValue value: that.getValue()) {
-			if (!getValue().contains(value)) {
-				return bool(false, ctx);
-			}
-		}
-		return bool(true, ctx);
-	}
-
-	@Override
 	protected <U extends IValue> Result<U> greaterThanList(ListResult that) {
-		// note double reversal of arguments: that >  this
-		return that.lessThanList(this);
+	  return that.lessThanList(this);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that) {
-		// note double reversal of arguments: that >=  this
-		return that.lessThanOrEqualList(this);
+	  return that.lessThanOrEqualList(this);
 	}
-	
 	
 	@Override
-	protected <U extends IValue> Result<U> compareList(ListResult that) {
-		// Note reversed args
-		IList left = that.getValue();
-		IList right = this.getValue();
-		int compare = Integer.valueOf(left.length()).compareTo(Integer.valueOf(right.length()));
-	
-		// TODO: think about what <= on lists should mean
-		if (compare != 0) {
-			return makeIntegerResult(compare);
-		}
-		for (int i = 0; i < left.length(); i++) {
-			compare = compareIValues(left.get(i), right.get(i), ctx);
-			if (compare != 0) {
-				return makeIntegerResult(compare);
-			}
-		}
-		return makeIntegerResult(0);
-	}
+	protected <U extends IValue> Result<U> lessThanList(ListResult that) {
+	  IList val = that.getValue();
+    
+    if (val.length() > value.length()) {
+      return bool(false, ctx);
+    }
+    
+    OUTER:for (int iThat = 0, iThis = 0; iThat < val.length(); iThat++) {
+      for (iThis = Math.max(iThis, iThat) ; iThis < value.length(); iThis++) {
+        if (val.get(iThat).isEqual(value.get(iThis))) {
+          continue OUTER;
+        }
+      }
+      return bool(false, ctx);
+    }
 
+    return bool(val.length() != value.length(), ctx);
+	}
 	
+	@Override
+	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that) {
+	  IList val = that.getValue();
+	  
+	  if (val.length() > value.length()) {
+	    return bool(false, ctx);
+	  }
+	  
+		OUTER:for (int iThat = 0, iThis = 0; iThat < val.length(); iThat++) {
+		  for (iThis = Math.max(iThis, iThat) ; iThis < value.length(); iThis++) {
+		    if (val.get(iThat).isEqual(value.get(iThis))) {
+		      continue OUTER;
+		    }
+		  }
+		  return bool(false, ctx);
+		}
+	  
+		return bool(true, ctx);
+	}
 }

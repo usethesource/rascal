@@ -18,10 +18,11 @@
 package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
-
+import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
@@ -59,7 +60,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String HAS_STRING = "has";
 	private static final String FIELD_ACCESS_STRING = "field access";
 	private static final String EQUALS_STRING = "equality";
-	private static final String COMPARE_STRING = "comparison";
 	private static final String FIELD_UPDATE_STRING = "field update";
 	private static final String RANGE_STRING = "range construction";
 	private static final String SUBSCRIPT_STRING = "subscript";
@@ -252,16 +252,12 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(EQUALS_STRING, this);
 	}
 	
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that) {
-		return undefinedError(COMPARE_STRING, that);
-	}
-	
-	public <U extends IValue> Result<U> compareFunction(AbstractFunction that) {
-		return undefinedError(COMPARE_STRING, that);
-	}
-	
 	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
-		return undefinedError(LESS_THAN_STRING, that);
+		boolean eq = ((IBool) equals(that).getValue()).getValue();
+		
+		if (eq) return bool(true, ctx);
+		
+		return lessThanOrEqual(that);
 	}
 	
 	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
@@ -582,67 +578,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareRational(RationalResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareReal(RealResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareString(StringResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareTuple(TupleResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareSet(SetResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareList(ListResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareRelation(RelationResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareBool(BoolResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	public <U extends IValue> Result<U> compareOverloadedFunction(
-			OverloadedFunction that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareConstructor(NodeResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareMap(MapResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareNode(NodeResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> compareDateTime(DateTimeResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-
 	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
@@ -1028,10 +963,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> compareNumber(NumberResult that) {
-		return that.undefinedError(COMPARE_STRING, this);
-	}
-	
 	protected <U extends IValue> Result<U> addSourceLocation(
 			SourceLocationResult that) {
 		return that.undefinedError(ADDITION_STRING, this);

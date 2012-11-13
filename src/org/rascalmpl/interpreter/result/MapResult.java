@@ -155,11 +155,6 @@ public class MapResult extends ElementResult<IMap> {
 
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareMap(this);
-	}
-	
-	@Override
 	public <U extends IValue, V extends IValue> Result<U> in(Result<V> result) {
 		return result.inMap(this);
 	}	
@@ -232,25 +227,6 @@ public class MapResult extends ElementResult<IMap> {
 		return bool(getValue().isSubMap(that.getValue()), ctx);
 	}
 	
-	@Override
-	protected <U extends IValue> Result<U> compareMap(MapResult that) {
-		// Note reversed args
-		IMap left = that.getValue();
-		IMap right = this.getValue();
-		
-		if (left.isEqual(right)) {
-			return makeIntegerResult(0);
-		}
-		if (left.isSubMap(right)) {
-			return makeIntegerResult(-1);
-		}
-		if (right.isSubMap(left)) {
-			return makeIntegerResult(1);
-		}
-		
-		 // so they are incomparable
-		return makeIntegerResult(1);
-	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(

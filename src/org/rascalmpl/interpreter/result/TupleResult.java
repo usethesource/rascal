@@ -151,11 +151,6 @@ public class TupleResult extends ElementResult<ITuple> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareTuple(this);
-	}
-	
-	@Override
 	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
 		return that.equalToTuple(this);
 	}
@@ -251,46 +246,32 @@ public class TupleResult extends ElementResult<ITuple> {
 	protected <U extends IValue> Result<U> nonEqualToTuple(TupleResult that) {
 		return that.nonEqualityBoolean(this);
 	}
+
+	@Override
+	protected <U extends IValue> Result<U> greaterThanOrEqualTuple(TupleResult that) {
+	  return that.lessThanOrEqualTuple(this);
+	}
 	
 	@Override
-	protected <U extends IValue> Result<U> compareTuple(TupleResult that) {
-		// Note reversed args
-		ITuple left = that.getValue();
-		ITuple right = this.getValue();
-		int compare = Integer.valueOf(left.arity()).compareTo(Integer.valueOf(right.arity()));
-		if (compare != 0) {
-			return makeIntegerResult(compare);
-		}
-		for (int i = 0; i < left.arity(); i++) {
-			compare = compareIValues(left.get(i), right.get(i), ctx);
-			if (compare != 0) {
-				return makeIntegerResult(compare);
-			}
-		}
-		return makeIntegerResult(0);
+	protected <U extends IValue> Result<U> greaterThanTuple(TupleResult that) {
+	  return that.lessThan(this);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanTuple(TupleResult that) {
-		// note reversed args: we need that < this
-		return bool((that.comparisonInts(this) < 0), ctx);
+	  return that.greaterThan(this);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualTuple(TupleResult that) {
-		// note reversed args: we need that <= this
-		return bool((that.comparisonInts(this) <= 0), ctx);
-	}
-
-	@Override
-	protected <U extends IValue> Result<U> greaterThanTuple(TupleResult that) {
-		// note reversed args: we need that > this
-		return bool((that.comparisonInts(this) > 0), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualTuple(TupleResult that) {
-		// note reversed args: we need that >= this
-		return bool((that.comparisonInts(this) >= 0), ctx);
+	  if (that.equals(this).isTrue()){
+	    return bool(true, ctx);
+	  }
+	  
+	  ITuple left = that.getValue();
+	  ITuple right = getValue();
+	  
+	  int compare = Integer.valueOf(left.arity()).compareTo(Integer.valueOf(right.arity()));
+    return bool(compare <= 0, ctx);
 	}
 }

@@ -56,11 +56,6 @@ public class StringResult extends ElementResult<IString> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareString(this);
-	}
-
-	@Override
 	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
 		return that.equalToString(this);
 	}
@@ -106,19 +101,25 @@ public class StringResult extends ElementResult<IString> {
 	}	
 	
 	@Override
-	protected <U extends IValue> Result<U> compareString(StringResult that) {
-		// note reversed args
-		IString left = that.getValue();
-		IString right = this.getValue();
-		int result = left.compare(right);
-		return makeIntegerResult(result);
-	}
-	
-	@Override
 	protected <U extends IValue> Result<U> equalToString(StringResult that) {
 		return that.equalityBoolean(this);
 	}
 	
+	@Override
+	protected <U extends IValue> Result<U> greaterThanString(StringResult that) {
+	  return bool(that.getValue().compare(getValue()) > 0, ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> greaterThanOrEqualString(StringResult that) {
+	  return bool(that.getValue().compare(getValue()) >= 0, ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> lessThanString(StringResult that) {
+	  return bool(that.getValue().compare(getValue()) < 0, ctx);
+	}
+
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		String name = getValue().getValue();
@@ -135,27 +136,9 @@ public class StringResult extends ElementResult<IString> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanString(StringResult that) {
-		// note reversed args: we need that < this
-		return bool((that.comparisonInts(this) < 0), ctx);
-	}
-	
-	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualString(StringResult that) {
 		// note reversed args: we need that <= this
-		return bool((that.comparisonInts(this) <= 0), ctx);
-	}
-
-	@Override
-	protected <U extends IValue> Result<U> greaterThanString(StringResult that) {
-		// note reversed args: we need that > this
-		return bool((that.comparisonInts(this) > 0), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualString(StringResult that) {
-		// note reversed args: we need that >= this
-		return bool((that.comparisonInts(this) >= 0), ctx);
+		return bool((that.getValue().compare(getValue()) <= 0), ctx);
 	}
 
 	@Override

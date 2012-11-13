@@ -2479,7 +2479,13 @@ public class Prelude {
 			throw RuntimeExceptionFactory.illegalArgument(null, null);
 		}
 	}
-
+	
+	public IValue toReal(IRational s)
+  //@doc{toReal -- convert a string s to a real}
+  {
+      return s.toReal();
+  }
+	
 	public IValue toLowerCase(IString s)
 	//@doc{toLowerCase -- convert all characters in string s to lowercase.}
 	{

@@ -25,9 +25,11 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Visitable implements IVisitable {
+  private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final static IVisitable instance = new Visitable();
 
 	private Visitable() {
@@ -106,7 +108,7 @@ public class Visitable implements IVisitable {
 			return (T) res;		
 		} else if (v instanceof IMap) {
 			IMap map = (IMap) v;
-			IMapWriter writer = ValueFactory.getInstance().mapWriter(map.getKeyType(), map.getValueType());
+			IMapWriter writer = VF.mapWriter(map.getKeyType(), map.getValueType());
 			for (int j = 0; j < map.size(); j++) {
 				ITuple newtuple = (ITuple) (newchildren.get(j));
 				writer.put(newtuple.get(0), newtuple.get(1));
@@ -114,14 +116,14 @@ public class Visitable implements IVisitable {
 			return (T) writer.done();
 		} else if (v instanceof ISet) {
 			ISet set = (ISet) v;
-			ISetWriter writer = ValueFactory.getInstance().setWriter(set.getElementType());
+			ISetWriter writer = VF.setWriter(set.getElementType());
 			for (int j = 0; j < set.size(); j++) {
 				writer.insert(newchildren.get(j));
 			}
 			return (T) writer.done();
 		} else if (v instanceof IList) {
 			IList list = (IList) v;
-			IListWriter writer = ValueFactory.getInstance().listWriter(list.getElementType());
+			IListWriter writer = VF.listWriter(list.getElementType());
 			for (int j = 0; j < list.length(); j++) {
 				writer.append(newchildren.get(j));
 			}
@@ -145,7 +147,7 @@ public class Visitable implements IVisitable {
 			return (T) res;		
 		} else if (iValue instanceof IMap) {
 			IMap map = (IMap) iValue;
-			IMapWriter writer = ValueFactory.getInstance().mapWriter(map.getKeyType(), map.getValueType());
+			IMapWriter writer = VF.mapWriter(map.getKeyType(), map.getValueType());
 			for (int j = 0; j < map.size(); j++) {
 				if (j == i) {
 					writer.insert(newchild);
@@ -156,7 +158,7 @@ public class Visitable implements IVisitable {
 			return (T) writer.done();
 		} else if (iValue instanceof ISet) {
 			ISet set = (ISet) iValue;
-			ISetWriter writer = ValueFactory.getInstance().setWriter(set.getElementType());
+			ISetWriter writer = VF.setWriter(set.getElementType());
 			for (int j = 0; j < set.size(); j++) {
 				if (j == i) {
 
@@ -168,7 +170,7 @@ public class Visitable implements IVisitable {
 			return (T) writer.done();
 		} else if (iValue instanceof IList) {
 			IList list = (IList) iValue;
-			IListWriter writer = ValueFactory.getInstance().listWriter(list.getElementType());
+			IListWriter writer = VF.listWriter(list.getElementType());
 			for (int j = 0; j < list.length(); j++) {
 				if (j == i) {
 					writer.append(newchild);

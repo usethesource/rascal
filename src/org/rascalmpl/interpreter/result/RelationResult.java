@@ -96,11 +96,6 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-			return result.compareRelation(this);
-		}
-
-		@Override
 		public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
 			return right.composeRelation(this);
 		}

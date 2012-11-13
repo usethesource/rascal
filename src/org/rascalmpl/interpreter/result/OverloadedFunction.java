@@ -391,58 +391,6 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(
-			Result<V> that) {
-		return that.compareOverloadedFunction(this);
-	}
-
-	@Override
-	public <U extends IValue> Result<U> compareOverloadedFunction(
-			OverloadedFunction that) {
-		if (that == this) {
-			return ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(0), ctx);
-		}
-
-		if (primaryCandidates.size() > that.primaryCandidates.size()) {
-			return  ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(1), ctx);
-		}
-
-		if (primaryCandidates.size() < that.primaryCandidates.size()) {
-			ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(-1), ctx);
-		}
-
-		for (AbstractFunction f : primaryCandidates) {
-			for (AbstractFunction g : that.primaryCandidates) {
-				Result<U> result = f.compare(g);
-
-				if (!((IInteger) result.getValue()).getStringRepresentation().equals("0")) {
-					return result;
-				}
-			}
-		}
-
-		if (defaultCandidates.size() > that.defaultCandidates.size()) {
-			return  ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(1), ctx);
-		}
-
-		if (defaultCandidates.size() < that.defaultCandidates.size()) {
-			ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(-1), ctx);
-		}
-
-		for (AbstractFunction f : defaultCandidates) {
-			for (AbstractFunction g : that.defaultCandidates) {
-				Result<U> result = f.compare(g);
-
-				if (!((IInteger) result.getValue()).getStringRepresentation().equals("0")) {
-					return result;
-				}
-			}
-		}
-
-		return ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(0), ctx);
-	}
-	
-	@Override
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
 		return that.addFunctionNonDeterministic(this);
 	}

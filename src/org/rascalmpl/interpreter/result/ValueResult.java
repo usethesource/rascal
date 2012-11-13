@@ -16,14 +16,13 @@
 package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
+import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 
 public class ValueResult extends ElementResult<IValue> {
 
@@ -46,34 +45,21 @@ public class ValueResult extends ElementResult<IValue> {
 		return equals(that).negate();
 	}
 
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
-		return bool((((IInteger) compare(that).getValue()).intValue() < 0), ctx);
-	}
+	
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(
 			Result<V> that) {
-		return bool((((IInteger) compare(that).getValue()).intValue() <= 0), ctx);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(
-			Result<V> that) {
-		return bool((((IInteger) compare(that).getValue()).intValue() > 0), ctx);
-	}
-
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(
-			Result<V> that) {
-		return bool((((IInteger) compare(that).getValue()).intValue() >= 0), ctx);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that) {
-		// the default fall back implementation for IValue-based results
-		// Note the use of runtime types here. 
-		return dynamicCompare(getValue(), that.getValue());
+	  Type thisRuntimeType = getValue().getType();
+    Type thatRuntimeType = that.getValue().getType();
+    
+    if (thisRuntimeType.comparable(thatRuntimeType)) {
+	    return makeResult(thisRuntimeType, getValue(), ctx).lessThanOrEqual(makeResult(thatRuntimeType, that.getValue(), ctx));
+	  }
+    else {
+      // incomparable means false
+      return bool(false, ctx);
+    }
 	}
 	
 	@Override
@@ -205,96 +191,5 @@ public class ValueResult extends ElementResult<IValue> {
 	@Override
 	protected <U extends IValue> Result<U> nonEqualToDateTime(DateTimeResult that) {
 		return nonEqualityBoolean(that);
-	}
-
-	@Override
-	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareReal(RealResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareString(StringResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareBool(BoolResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareTuple(TupleResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareList(ListResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareSet(SetResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareMap(MapResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareRelation(RelationResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareDateTime(DateTimeResult that) {
-		return typeCompare(that);
-	}
-
-	/* Utilities  */
-	
-	private <U extends IValue, V extends IValue> Result<U> typeCompare(Result<V> that) {
-		int result = getType().toString().compareTo(that.getType().toString());
-		return makeIntegerResult(result);
-	}
-	
-	private <U extends IValue> Result<U> dynamicCompare(IValue a, IValue b) {
-		// Since equals and compare must be total on all values, we are allowed
-		// to lift dynamic types here to static types. This makes the dynamic compare the 
-		// same as the static compare (to prevent surprises). However, if the static types
-		// do not implement a comparison (like [] == 1 compares a list to an int), 
-		// then we fall back to the comparison of type names.
-		try {
-			Result<?> aResult = ResultFactory.makeResult(a.getType(), a, ctx);
-			Result<?> bResult = ResultFactory.makeResult(b.getType(), b, ctx);
-			return aResult.compare(bResult);
-		}
-		catch (UnsupportedOperationError e) {
-			// to just compare type names based on names of types alphabetically
-			// would be unsound because of non-transitivity. This is because values under type
-			// num are ordered regardless of their actual type; then
-			// node < real < int could happen, while node > int.
-			
-			if (a.getType().isSubtypeOf(getTypeFactory().numberType())) {
-				return makeIntegerResult(-1);
-			}
-			else if (b.getType().isSubtypeOf(getTypeFactory().numberType())) {
-				return makeIntegerResult(1);
-			}
-			else {
-				return makeIntegerResult(a.getType().toString().compareTo(b.getType().toString()));
-			}
-		}
 	}
 }
