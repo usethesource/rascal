@@ -294,7 +294,7 @@ public class IO {
 				}
 				out.write('\n');
 			}
-			
+			String separatorAsString = new String(Character.toChars(separator));
 			for(IValue v : irel){
 				ITuple tup = (ITuple) v;
 				int sep = 0;
@@ -305,7 +305,8 @@ public class IO {
 						out.write(sep);
 					if(w.getType().isStringType()){
 						String s = ((IString)w).getValue();
-						if(s.contains("\n") || s.contains("\"")){
+						
+						if(s.contains(separatorAsString) || s.contains("\n") || s.contains("\"")){
 							s = s.replaceAll("\"", "\"\"");
 							out.write('"');
 							writeString(out,s);
