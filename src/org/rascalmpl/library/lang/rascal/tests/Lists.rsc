@@ -33,7 +33,7 @@ public test bool equal(list[&T] A) = A == A;
 public test bool equal(list[&T] A, list[&T] B) = (A == B) ==> isEqual(A,B); 
 
 public test bool notEqual(list[&T] A) = !(A != A);
-public test bool notEqual(list[&T] A, list[&T] B) = (A != B) ==> !isEqual(A,B);
+public test bool notEqual(list[&T] A, list[&T] B) = (A != B) ? !isEqual(A,B) : isEqual(A,B);
       
 // x in L?
 bool isIn(&T x, list[&T] L) = (false | it || (x == e) | e <- L);
