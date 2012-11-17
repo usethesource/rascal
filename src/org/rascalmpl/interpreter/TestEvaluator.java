@@ -69,7 +69,7 @@ public class TestEvaluator {
 					StringWriter sw = new StringWriter();
 					PrintWriter out = new PrintWriter(sw);
 					int maxDepth = Cobra.readIntTag(test, Cobra.MAXDEPTH, 5);
-					int tries = Cobra.readIntTag(test, Cobra.TRIES, 100);
+					int tries = Cobra.readIntTag(test, Cobra.TRIES, 200);
 
 					boolean result = qc.quickcheck(test, maxDepth, tries, false, out);
 					if (!result) {
