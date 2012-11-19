@@ -31,3 +31,8 @@ public test bool correctlyEncodingUTF32(str content) {
 		  writeFileEnc(aFile, "UTF32", content);
   return readFile(aFile) == content;
 }
+
+public test bool largeFileEncodingCorrectly(str content) {
+		  largeContent = (content | it + content | i <-[0..8192]);
+		  return correctlyEncodingUTF8(largeContent);
+}
