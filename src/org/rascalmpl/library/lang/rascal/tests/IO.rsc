@@ -19,3 +19,15 @@ public test bool writeReadValue(value x) {
   return x == y;
 }
 
+public test bool correctlyEncodingUTF8(str content) {
+		  writeFileEnc(aFile, "UTF8", content);
+  return readFile(aFile) == content;
+}
+public test bool correctlyEncodingUTF16(str content) {
+		  writeFileEnc(aFile, "UTF16", content);
+  return readFile(aFile) == content;
+}
+public test bool correctlyEncodingUTF32(str content) {
+		  writeFileEnc(aFile, "UTF32", content);
+  return readFile(aFile) == content;
+}
