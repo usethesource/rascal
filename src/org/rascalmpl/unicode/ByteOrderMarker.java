@@ -35,7 +35,7 @@ public class ByteOrderMarker {
 		return shouldBOM;
 	}
 
-	public static final ByteOrderMarker UTF8 = new ByteOrderMarker(Charset.forName("UTF-8"), null, new int[] {0xEF, 0xBB, 0xBF});
+	public static final ByteOrderMarker UTF8 = new ByteOrderMarker(Charset.forName("UTF-8"), null, false, new int[] {0xEF, 0xBB, 0xBF});
 	public static final ByteOrderMarker UTF16LE = new ByteOrderMarker(Charset.forName("UTF-16BE"),Charset.forName("UTF-16"), new int[] {0xFE, 0xFF});
 	public static final ByteOrderMarker UTF16BE = new ByteOrderMarker(Charset.forName("UTF-16LE"),Charset.forName("UTF-16"), new int[] {0xFF, 0xFE});
 	public static final ByteOrderMarker UTF32LE = new ByteOrderMarker(Charset.forName("UTF-32LE"),Charset.forName("UTF-32"), new int[] {0xFF, 0xFE, 0x00, 0x00});
