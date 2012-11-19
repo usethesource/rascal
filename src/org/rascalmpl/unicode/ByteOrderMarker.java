@@ -65,10 +65,10 @@ public class ByteOrderMarker {
 	public boolean matches(byte[] b) {
 		return matches(b, b.length);
 	}
-	public boolean matches(byte[] b, int len) {
+	public boolean matches(byte[] detectionBuffer, int len) {
 		if (header.length > len) return false;
 		for (int i = 0; i < header.length; i++) {
-			if (header[i] != b[i]) 
+			if (header[i] != (detectionBuffer[i] & 0xff))
 				return false;
 		}
 		return true;
