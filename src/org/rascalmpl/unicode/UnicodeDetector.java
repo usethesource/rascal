@@ -1,5 +1,7 @@
 package org.rascalmpl.unicode;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 
 public class UnicodeDetector {
@@ -124,6 +126,15 @@ public class UnicodeDetector {
 
 	public static int getSuggestedDetectionSampleSize() {
 		return 32;
+	}
+
+	public static Charset estimateCharset(InputStream in) throws IOException {
+		byte[] buffer = new byte[getSuggestedDetectionSampleSize()];
+		int totalRead = in.read(buffer);
+		ByteOrderMarker bom = detectBom(buffer, totalRead);
+		if (bom != null)
+			return bom.getCharset();
+		return detectByContent(buffer, totalRead);
 	}
 
 }
