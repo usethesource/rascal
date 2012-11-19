@@ -944,7 +944,7 @@ public class Prelude {
 			char[] buf = new char[4096];
 			int count;
 
-			while((count = in.read(buf)) != -1){
+			while((count = in.read(buf)) != -1) {
 				result.append(new java.lang.String(buf, 0, count));
 			}
 			
@@ -1181,7 +1181,7 @@ public class Prelude {
 
 			@Override
 			public int compare(IValue lhs, IValue rhs) {
-				if(lhs == rhs){
+				if(lhs.isEqual(rhs)){
 					return 0;
 				} else {
 					argArr[0] = lhs;
@@ -1218,7 +1218,7 @@ public class Prelude {
 
 			@Override
 			public int compare(IValue lhs, IValue rhs) {
-				if(lhs == rhs){
+				if(lhs.isEqual(rhs)){
 					return 0;
 				} else {
 					argArr[0] = lhs;
