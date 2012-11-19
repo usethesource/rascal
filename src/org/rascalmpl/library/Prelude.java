@@ -946,7 +946,7 @@ public class Prelude {
 	
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		try {
-			return consumeInputStream(sloc, new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), charset.getValue()), ctx);
+			return consumeInputStream(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), charset.getValue()), ctx);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
