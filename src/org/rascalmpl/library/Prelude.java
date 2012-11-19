@@ -33,7 +33,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -98,6 +100,8 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.unicode.UnicodeInputStreamReader;
+import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -929,18 +933,27 @@ public class Prelude {
 			w.insert(values.string(s));
 		}
 		return w.done();
-	}
+	} 
 	
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
-	  return readFileEnc(sloc, values.string("UTF8"), ctx);	
+		try {
+			return consumeInputStream(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI())), ctx);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
 	}
 	
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
+		try {
+			return consumeInputStream(sloc, new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), charset.getValue()), ctx);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+	}
+
+	private IValue consumeInputStream(ISourceLocation sloc, Reader in, IEvaluatorContext ctx) {
 		StringBuilder result = new StringBuilder(1024 * 1024);
-		
-		InputStreamReader in = null;
 		try{
-			in = new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), charset.getValue());
 			char[] buf = new char[4096];
 			int count;
 
@@ -1027,7 +1040,7 @@ public class Prelude {
 		}
 		
 		try{
-			out = new OutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue());
+			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue());
 			
 			for(IValue elem : V){
 				if (elem.getType().isStringType()) {
