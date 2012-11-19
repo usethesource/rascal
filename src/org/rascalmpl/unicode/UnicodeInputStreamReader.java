@@ -29,15 +29,6 @@ public class UnicodeInputStreamReader extends Reader {
 		wrapped = removeBOM(in, encoding);
 	}
 	
-	private static int readUnsignedBytes(InputStream in, int[] b) throws IOException {
-		byte[] signed = new byte[b.length];
-		int totalRead = in.read(signed);
-		for (int i =0; i < totalRead; i++) {
-			b[i] = (signed[i] & 0xff);
-		}
-		return totalRead;
-	}
-	
 	private static class ConcatInputStream extends InputStream {
 		private final InputStream first;
 		private boolean firstEmpty;
