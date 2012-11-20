@@ -4,76 +4,50 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PushbackInputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 
 public class UnicodeInputStreamReader extends Reader {
-	private static final Charset fallbackCharset = Charset.forName("UTF8");
-	
 	private Reader wrapped;
-	public UnicodeInputStreamReader(InputStream in) throws IOException {
-		wrapped = detectCharset(in);
+	private InputStream original;
+	private String encoding;
+	public UnicodeInputStreamReader(InputStream in)  {
+		original = in;
 	}
-	public UnicodeInputStreamReader(InputStream in, String encoding) throws IOException {
-		wrapped = removeBOM(in, encoding);
+	public UnicodeInputStreamReader(InputStream in, String encoding) {
+		original = in;
+		this.encoding = encoding;
 	}
 	
-	private static class ConcatInputStream extends InputStream {
-		private final InputStream first;
-		private boolean firstEmpty;
-		private final InputStream second;
-
-		public ConcatInputStream(InputStream first, InputStream second) {
-			this.first = first;
-			this.firstEmpty = false;
-			this.second = second;
-		}
-
-		@Override
-		public int read() throws IOException {
-			if (!firstEmpty) {
-				int firstResult = first.read();
-				if (firstResult != -1)  {
-					return firstResult;
-				} 
-				else {
-					firstEmpty = true;
-				}
+	@Override
+	public int read(char[] cbuf, int off, int len) throws IOException {
+		if (wrapped == null) {
+			if (encoding != null) {
+				// we have an encoding, so lets just skip the possible BOM
+				wrapped = removeBOM(original, encoding);
+				original = null;
 			}
-			return second.read();
-		}
-		
-		@Override
-		public int read(byte[] b, int off, int len) throws IOException {
-			// not strictly needed, but can speedup the concatting
-			if (!firstEmpty) {
-				int readTotal = first.read(b, off, len);
-				if (readTotal == len) {
-					return readTotal;
-				}
-				else {
-					if (readTotal < 0)
-						readTotal = 0;
-					firstEmpty = true;
-					int secondRead = second.read(b, off + readTotal, len - readTotal);
-					if (readTotal == 0 && secondRead <= 0) {
-						return -1;
-					}
-					if (secondRead < 0)
-						return readTotal;
-					else
-						return readTotal + secondRead;
-				}
-				
+			else {
+				// we have to try and detect the decoding
+				wrapped = detectCharset(original);
+				original = null;
 			}
-			return second.read(b, off, len);
 		}
-		
+		return wrapped.read(cbuf, off, len);
 	}
 
+	@Override
+	public void close() throws IOException {
+		if (wrapped != null) {
+			wrapped.close();
+		}
+		else {
+			original.close();
+		}
+	}
+	
 	private static Reader removeBOM(InputStream in, String encoding) throws IOException {
 		byte[] detectionBuffer = new byte[UnicodeDetector.getMaximumBOMLength()];
 		int bufferSize = in.read(detectionBuffer);
@@ -94,6 +68,7 @@ public class UnicodeInputStreamReader extends Reader {
 		}
 	}
 
+	private static final Charset fallbackCharset = Charset.forName("UTF8");
 	private static Reader detectCharset(InputStream in) throws IOException {
 		byte[] detectionBuffer = new byte[UnicodeDetector.getSuggestedDetectionSampleSize()];
 		int bufferSize = in.read(detectionBuffer);
@@ -109,15 +84,5 @@ public class UnicodeInputStreamReader extends Reader {
 		}
 		InputStream prefix = new ByteArrayInputStream(detectionBuffer, 0, bufferSize);
 		return new InputStreamReader(new ConcatInputStream(prefix, in), cs);
-	}
-
-	@Override
-	public int read(char[] cbuf, int off, int len) throws IOException {
-		return wrapped.read(cbuf, off, len);
-	}
-
-	@Override
-	public void close() throws IOException {
-		wrapped.close();
 	}
 }
