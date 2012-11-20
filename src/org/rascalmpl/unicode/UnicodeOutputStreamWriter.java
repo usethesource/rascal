@@ -24,6 +24,16 @@ public class UnicodeOutputStreamWriter extends OutputStreamWriter {
 	 	}
 	}
 
+	public UnicodeOutputStreamWriter(OutputStream out, String charsetName, boolean append) throws UnsupportedEncodingException {
+		this(out, charsetName);
+		if (append) {
+			// no writing of bom in case of append
+			firstWrite = false;
+			this.out = null;
+		}
+		
+	}
+
 	private static Charset getCharset(String charsetName) throws UnsupportedEncodingException {
 		ByteOrderMarker bom = ByteOrderMarker.fromString(charsetName);
 		if (bom != null) {

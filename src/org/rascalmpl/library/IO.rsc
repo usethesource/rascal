@@ -29,6 +29,21 @@ Append a textual representation of some values to an existing or a newly created
 public java void appendToFile(loc file, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
+@doc{
+Synopsis: Append a value to a file.
+
+Description:
+Append a textual representation of some values to an existing or a newly created file:
+* If a value is a simple string, the quotes are removed and the contents are de-escaped.
+* If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+* All other values are printed as-is.
+* Each value is terminated by a newline character.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses URI Resolver Registry}
+public java void appendToFileEnc(loc file, str charset, value V...)
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+
 @doc{returns all available character sets}
 @javaClass{org.rascalmpl.library.Prelude}
 public java set[str] charsets();
