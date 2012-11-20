@@ -68,7 +68,6 @@ public class UnicodeInputStreamReader extends Reader {
 		}
 	}
 
-	private static final Charset fallbackCharset = Charset.forName("UTF8");
 	private static Reader detectCharset(InputStream in) throws IOException {
 		byte[] detectionBuffer = new byte[UnicodeDetector.getSuggestedDetectionSampleSize()];
 		int bufferSize = in.read(detectionBuffer);
@@ -80,7 +79,7 @@ public class UnicodeInputStreamReader extends Reader {
 		}
 		Charset cs = UnicodeDetector.detectByContent(detectionBuffer, bufferSize);
 		if (cs == null) {
-			cs = fallbackCharset;
+			cs = Charset.defaultCharset();
 		}
 		InputStream prefix = new ByteArrayInputStream(detectionBuffer, 0, bufferSize);
 		return new InputStreamReader(new ConcatInputStream(prefix, in), cs);

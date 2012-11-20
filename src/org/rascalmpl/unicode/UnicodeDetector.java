@@ -19,6 +19,8 @@ public class UnicodeDetector {
 	/**
 	 * Try to detect an encoding, only UTF8 and UTF32 we can try to detect.
 	 * Other detection are to intensive.
+	 * <b>Warning, don't fallback to UTF8, if this method didn't return UTF8 as a encoding
+	 * it really isn't UTF8! Try Charset.defaultCharset().</b>
 	 * @return either the detected Charset or null
 	 */
 	public static Charset detectByContent(byte[] buffer, int bufferSize) {
@@ -128,6 +130,12 @@ public class UnicodeDetector {
 		return 32;
 	}
 
+	/**
+	 * Try to estimate if the content might be incoded in UTF-8/16/32.
+	 * <b>Warning, if this method does not return a charset, it can't be UTF8 or UTF32.
+	 * It might be UTF-16 (unlickely) or a strange codepoint.
+	 * </b>
+	 */
 	public static Charset estimateCharset(InputStream in) throws IOException {
 		byte[] buffer = new byte[getSuggestedDetectionSampleSize()];
 		int totalRead = in.read(buffer);

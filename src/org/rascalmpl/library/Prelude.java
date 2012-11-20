@@ -1050,6 +1050,9 @@ public class Prelude {
 			}
 			if (detected != null)
 				charset = values.string(detected.name());
+			else {
+				charset = values.string(Charset.defaultCharset().name());
+			}
 		}
 		writeFileEnc(sloc, charset, V, append, ctx);
 	}
