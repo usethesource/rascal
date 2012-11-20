@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/analysis/graphs</title>
 
-<meta name="description" content="Rascal/Libraries/analysis/graphs:  Analyzing relations as graphs">
+<meta name="description" content="Rascal/Libraries/analysis/graphs:  Analyzing unlabeled and labelled graphs.">
 
 <meta name="keywords" content="Rascal/Libraries/analysis/graphs, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Analyzing relations as graphs
+<span class="sectionHead">Synopsis</span>  Analyzing unlabeled and labelled graphs.
 
 </div>
 
@@ -57,33 +57,15 @@
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  Graphs are represented as relations in Rascal. So in general the idea is to use the <code>Relation</code> module to manipulate graphs.
+<span class="sectionHead">Description</span>  Graphs are represented as relations. So in general the idea is to use the <code>Relation</code> module to manipulate graphs.
  At the same time there are algorithms and analyses which make particular sense when we view a relation as a graph, hence the
  existence of the <code>Graph</code> and <code>LabeledGraph</code> libraries.
  <br/>
 <br/>
 
- <ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph.html">Graph</a>: A <code>Graph</code> datatype with associated functions.</li>
-<ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/bottom/bottom.html">bottom</a>: Determine the bottom nodes (leaves) of a graph.</li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph/Graph.html">Graph</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/order/order.html">order</a>: Compute topological order of the nodes in a graph.</li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/predecessors/predecessors.html">predecessors</a>: Determine the direct predecessors of a graph node.</li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/reach/reach.html">reach</a>: Determine the graph nodes reachable from a set of nodes.</li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/reachR/reachR.html">reachR</a>: Determine the graph nodes reachable from a set of nodes using a restricted set of intermediate nodes.</li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/reachX/reachX.html">reachX</a>: Determine the graph nodes reachable from a set of nodes excluding certain intermediate nodes.</li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/shortestPathPair/shortestPathPair.html">shortestPathPair</a>: Determine the shortest path between two graph nodes.</li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/successors/successors.html">successors</a>: Determine the direct successors of a graph node.</li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/top/top.html">top</a>: Determine the set of top nodes (roots) of a graph.</li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LabeledGraph.html">LabeledGraph</a>: </li>
-<ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/bottom/bottom.html">bottom</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LGraph/LGraph.html">LGraph</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/predecessors/predecessors.html">predecessors</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reach/reach.html">reach</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reachR/reachR.html">reachR</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reachX/reachX.html">reachX</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/successors/successors.html">successors</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/top/top.html">top</a>: </li>
-<ul></ul></ul></ul>
+ <ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph.html">Graph</a>: Graphs with associated functions.</li>
+<li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LabeledGraph.html">LabeledGraph</a>: Labelled graphs with associated functions.</li>
+</ul>
 </div>
 
   	                       

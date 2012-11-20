@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
 
 public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 
@@ -47,7 +48,7 @@ public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 				IValue result = parser.read(VF, new StringReader("$" + datePart));
 				return makeResult(TF.dateTimeType(), result, eval);
 			} catch (FactTypeUseException e) {
-				throw new ImplementationError(e.getMessage());
+				throw new DateTimeParseError(e.getMessage(), eval.getCurrentAST().getLocation());
 			} catch (IOException e) {
 				throw new ImplementationError(e.getMessage());
 			}

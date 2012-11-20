@@ -33,7 +33,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= aO?
 O ::= a
 */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "cast"})
 public class Optional1 extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_O = VF.constructor(Factory.Symbol_Sort, VF.string("O"));

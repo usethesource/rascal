@@ -73,19 +73,16 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  We use the factorial function described in <a href="/Recipes/Basic/Factorial/Factorial.html">Recipes:Factorial</a> as example:
- <pre class="screen"><span class="prompt">rascal></span>import Benchmark;
-|stdin:///|(7,9,&lt;1,7>,&lt;1,16>): Could not load module Benchmark: File rascal://Benchmark not found.
-
+ <pre class="screen"><span class="prompt">rascal></span>import util::Benchmark;
+ok
 <span class="prompt">rascal></span>import demo::basic::Factorial;
 ok
 </pre>  We measure two calls to the factorial function with arguments <code>100</code>, respectively, <code>200</code> (using by default <code>realkTime</code> that returns milliseconds):
 <pre class="screen"><span class="prompt">rascal></span>benchmark( (&quot;fac10&quot; : void() {fac(100);}, &quot;fac20&quot; : void() {fac(200);}) );
-|stdin:///|(0,9,&lt;1,0>,&lt;1,9>): Undeclared variable, function or constructor: benchmark
-
+map[str, num]: ("fac10":1,"fac20":2)
 </pre>  We can do the same using <a href="/Rascal/Libraries/util/Benchmark/userTime/userTime.html">userTime</a> that returns nanoseconds:
 <pre class="screen"><span class="prompt">rascal></span>benchmark( (&quot;fac10&quot; : void() {fac(100);}, &quot;fac20&quot; : void() {fac(200);}), userTime );
-|stdin:///|(0,9,&lt;1,0>,&lt;1,9>): Undeclared variable, function or constructor: benchmark
-
+map[str, num]: ("fac10":898000,"fac20":1678000)
 </pre>
 </div>
 
@@ -95,7 +92,7 @@ ok
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/Benchmark/benchmark&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/Benchmark/benchmark&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 3 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -17,7 +17,7 @@ the program is executed.
 ===The Type Lattice===
 
 The types are ordered in a so-called _type lattice_ shown in the following figure.
-![Type Lattice](../../Concepts/IntroStaticTyping/type-lattice.png|right|400px)
+![Type Lattice](type-lattice.png|right|400px)
 
 The arrows describe a _subtype-of_ relation between types. The type `void` is the _smallest_ type and 
 is included in all other types and the type `value` is the _largest_ type that includes all other types. 

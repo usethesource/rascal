@@ -94,7 +94,7 @@ private str getModuleDoc(Header header){
 // Handling of function declarations
 
 private bool isSimilarFunction(str functionName, Declaration decl){
-  return decl is Function && 
+  return decl is function && 
         normalizeName("<decl.functionDeclaration.signature.name>") == functionName && 
         "<decl.functionDeclaration.visibility>" == "public";
 }
@@ -123,12 +123,12 @@ private str getFunctionDoc(str mname, FunctionDeclaration fdecl, list[str] signa
 }
 
 private bool isUndocumentedDataOrAlias(Declaration decl){
-  return (decl is Data || decl is Alias) && getDoc(decl.tags) == "";
+  return (decl is \data || decl is \alias) && getDoc(decl.tags) == "";
 }
 
 private str getDataOrAliasSignature(Declaration decl){
   //println("getDataOrAliasSignature: <decl>");
-  if(decl is Alias){
+  if(decl is \alias){
    if(getDoc(decl.tags) == "")
      return "<decl>";
    return "alias <decl.user> = <decl.base>;";
@@ -204,11 +204,11 @@ private tuple[int,str] extractFunctionDeclaration(int current, bool writing){
 private tuple[int,str] extractDataOrAliasDeclaration(int current, bool writing){
   decl = declarations[current];
   userType = normalizeName("<decl.user>");
-  //println("userType = <userType>");
+  println("userType = <userType>");
   key = "<libRoot>/<moduleName>/<userType>";
   doc = "";
   if(!contentMap[key]?){
-     //println("extractDataOrAliasDeclaration: <userType>");
+     println("extractDataOrAliasDeclaration: <userType>");
      sigs = [getDataOrAliasSignature(decl)];
       while(current+1 < size(declarations) && isUndocumentedDataOrAlias(declarations[current+1])){
             sigs += getDataOrAliasSignature(declarations[current+1]);
@@ -298,15 +298,15 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   }
   
   declarations = [tl.declaration | Toplevel tl <- M.body.toplevels];
-
+  //("<size(declarations)> declarations");
   int i = 0;
   while(i < size(declarations)){
     Declaration decl = declarations[i];
-    if(decl is Function){
+    if(decl is function){
        <i, doc> = extractFunctionDeclaration(i, true);
-    } else if(decl is Data || decl is Alias){
+    } else if(decl is \data || decl is \alias){
       <i, doc> = extractDataOrAliasDeclaration(i, true);
-    } else if(decl is Annotation){
+    } else if(decl is \annotation){
       <i, doc> = extractAnnotationDeclaration(i, true);
     } else {
       i += 1;
@@ -323,6 +323,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
     println("Referred module has disappeared: <L>, as referred to in <root>");
     return ();
   }
+  println("AT END OF extractRemoteConcepts");
 }
 
 // ---- Functions for editing individual concepts in a library file ----
@@ -349,13 +350,13 @@ public str extractDoc(loc L, str itemName){
   int i = 0;
   while(i < size(declarations)){
     Declaration decl = declarations[i];
-    if(decl is Function){
+    if(decl is function){
        <i, doc> = extractFunctionDeclaration(i, false);
        if(normalizeName("<decl.functionDeclaration.signature.name>") == itemName) return doc;
-    } else if(decl is Data || decl is Alias){
+    } else if(decl is \data || decl is \alias){
       <i, doc> = extractDataOrAliasDeclaration(i, false);
       if(normalizeName("<decl.user>") == itemName) return doc;
-    } else if(decl is Annotation){
+    } else if(decl is \annotation){
       <i, doc> = extractAnnotationDeclaration(i, true);
       if(de_escape("<decl.name>") == itemName) return doc;
     } else {
@@ -406,9 +407,9 @@ public bool replaceDoc(loc L, str itemName, str newDocContent){
    		 	return replaceDoc(itemName, decl.tags, oldFileContent, newDocContent, L1);
    		 }
     case Declaration d: 
-   		 if((d is Data || d is Alias) && normalizeName("<d.user>") == itemName) {
+   		 if((d is \data || d is \alias) && normalizeName("<d.user>") == itemName) {
    		 	return replaceDoc(itemName, d.tags, oldFileContent, newDocContent, L1);
-   		 } else if(d is Annotation && de_escape("<d.name>") == itemName){
+   		 } else if(d is \annotation && de_escape("<d.name>") == itemName){
    		   return replaceDoc(itemName, d.tags, oldFileContent, newDocContent, L1);
    		 } 
   }

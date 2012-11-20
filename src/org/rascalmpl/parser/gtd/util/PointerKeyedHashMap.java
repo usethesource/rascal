@@ -12,7 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.util;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "cast"})
 public class PointerKeyedHashMap<K, V>{
 	private final static int DEFAULT_INITIAL_LOG_SIZE = 5;
 	

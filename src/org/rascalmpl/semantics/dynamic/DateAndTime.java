@@ -25,6 +25,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
 
 public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 
@@ -55,7 +56,7 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 				IValue result = parser.read(VF, new StringReader("$" + datePart + "T" + timePart));
 				return makeResult(TF.dateTimeType(), result, eval);
 			} catch (FactTypeUseException e) {
-				throw new ImplementationError(e.getMessage());
+				throw new DateTimeParseError(e.getMessage(), eval.getCurrentAST().getLocation());
 			} catch (IOException e) {
 				throw new ImplementationError(e.getMessage());
 			}

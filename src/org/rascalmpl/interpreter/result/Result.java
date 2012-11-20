@@ -991,7 +991,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public boolean hasInferredType() {
 		return inferredType;
 	}
-
+	
+	protected <U extends IValue> Result<U> subtractDateTime(
+			DateTimeResult that) {
+		return that.undefinedError(SUBTRACTION_STRING, this);
+	}
 	
 
 	

@@ -199,21 +199,20 @@ data Tree
      | amb(set[Tree] alternatives)  
      | char(int character)
      ;
-data Tree
-     = error(Production prod, list[Tree] args, list[Tree] rest) <img src="/images/2.png">
-     | expected(Symbol symbol)
-     | erroramb(set[Tree] alternatives)
-     | errorcycle(Symbol symbol, int cycleLength)
-     ;
+
 data Production 
      = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) <img src="/images/3.png">
      | regular(Symbol def)
+     | error(Production prod, int dot)
+     | skipped()
      ;
      
 data Attr 
      = \assoc(Associativity \assoc) <img src="/images/4.png">
-     | \bracket() 
+     | \bracket()
+     | \tag(value \tag) 
      ;
+     
 data Associativity 
      = \left() <img src="/images/5.png">
      | \right() 
@@ -292,11 +291,15 @@ data Production
   | \reference(Symbol def, str cons)
   ;
 
-@doc{Nested priority is flattened}
+@doc{
+Synopsis:  Nested priority is flattened.
+}
 public Production priority(Symbol s, [list[Production] a, priority(Symbol t, list[Production] b),list[Production] c])
   = priority(s,a+b+c);
    
-@doc{Choice under associativity is flattened}
+@doc{
+Synopsis: Choice under associativity is flattened.
+}
 public Production associativity(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) 
   = associativity(s, as, a+b); 
   
