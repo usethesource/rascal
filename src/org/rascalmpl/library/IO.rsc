@@ -394,8 +394,27 @@ Description:
 Return the contents of a file location as a single string.
 Also see [readFileLines].
 
+== Encoding ==
+A text file can be encoded in many different character sets, most common are UTF8, ISO-8859-1, and ASCII.
+If you know the encoding of the file, please use the [readFileEnc] and [readFileLinesEnc] overloads.
+If you do not know, we try to detect this. This detection shall be explained below:
+
+# Does the scheme of the [Location] (eg. ``|project:///|``) define the charset of the file? __Use the provided charset__
+# Does the file contain a UTF8/16/32 [BOM](http://en.wikipedia.org/BOM)? __Use the charset matching the BOM__
+# Try to use heuristics to determine if our default fallbacks can match:
+  ## Are the first 32 bytes valid UTF-8? __Use UTF-8__
+  ## Are the first 32 bytes valid UTF-32? __Use UTF-32__
+# Fallback to the system default
+
+To summarize, either the [Location] or the file header defines the charset, or we first try to use UTF-8 (highest chance), then UTF-32 and as a last resort the OS default.
+
 Pitfalls:
-The second version of `readFile` with a string argument is __deprecated__.
+- The second version of `readFile` with a string argument is __deprecated__.
+- In case encoding is not known, we try to estimate as best as we can.
+- We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
+  you might get an decoding error.
+
+
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
