@@ -148,7 +148,7 @@ public class LazyRelation implements IRelation {
 	}
 
 	@Override
-	public ISet select(String... fields) throws FactTypeUseException {
+	public ISet selectByFieldNames(String... fields) throws FactTypeUseException {
 		throw new IllegalOperationException("select over buffered relation", getType());
 	}
 
