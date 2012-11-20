@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 
 public class FileURIResolver implements IURIInputOutputResolver {
 	
@@ -101,5 +102,10 @@ public class FileURIResolver implements IURIInputOutputResolver {
 	
 	public boolean supportsHost() {
 		return false;
+	}
+
+	@Override
+	public Charset getCharset(URI uri) throws IOException {
+		return null;
 	}
 }

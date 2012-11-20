@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -129,6 +130,16 @@ public class URIResolverRegistry {
 		}
 		
 		return resolver.getInputStream(uri);
+	}
+	
+	public Charset getCharset(URI uri) throws IOException {
+		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		
+		if (resolver == null) {
+			throw new UnsupportedSchemeException(uri.getScheme());
+		}
+		
+		return resolver.getCharset(uri);
 	}
 	
 	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
