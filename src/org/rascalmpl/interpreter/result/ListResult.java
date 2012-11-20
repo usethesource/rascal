@@ -219,6 +219,7 @@ public class ListResult extends CollectionResult<IList> {
     OUTER:for (int iThat = 0, iThis = 0; iThat < val.length(); iThat++) {
       for (iThis = Math.max(iThis, iThat) ; iThis < value.length(); iThis++) {
         if (val.get(iThat).isEqual(value.get(iThis))) {
+          iThis++;
           continue OUTER;
         }
       }
