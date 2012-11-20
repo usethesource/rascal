@@ -36,3 +36,22 @@ public test bool largeFileEncodingCorrectly(str content) {
 		  largeContent = (content | it + content | i <-[0..8192]);
 		  return correctlyEncodingUTF8(largeContent);
 }
+
+data Encoding = utf8() | utf16le() | utf16be() | utf16() | utf32le() | utf32be() | utf32();
+map[Encoding, str] encodingNames = (utf8() : "UTF-8", utf16le() : "UTF-16LE",
+  utf16be() : "UTF-16BE", utf16(): "UTF-16", utf32le() : "UTF-32LE",
+  utf32be() : "UTF-32BE", utf32(): "UTF-32"
+);
+
+public test bool appendWorksCorrectly(Encoding enc, str a, str b) {
+	  writeFileEnc(aFile, encodingNames[enc], a);
+	  appendToFileEnc(aFile, encodingNames[enc], b);
+	  return readFile(aFile) == a + b;
+}
+
+public test bool appendWorksCorrectlyImplicit(Encoding enc, str a, str b) {
+	  writeFileEnc(aFile, encodingNames[enc], a);
+	  appendToFile(aFile, b);
+	  return readFile(aFile) == a + b;
+}
+
