@@ -40,7 +40,6 @@ public class ByteOrderMarker {
 	public static final ByteOrderMarker UTF16BE = new ByteOrderMarker(Charset.forName("UTF-16LE"),Charset.forName("UTF-16"), new int[] {0xFF, 0xFE});
 	public static final ByteOrderMarker UTF32LE = new ByteOrderMarker(Charset.forName("UTF-32LE"),Charset.forName("UTF-32"), new int[] {0xFF, 0xFE, 0x00, 0x00});
 	public static final ByteOrderMarker UTF32BE = new ByteOrderMarker(Charset.forName("UTF-32BE"),Charset.forName("UTF-32"), new int[] {0x00, 0x00, 0xFE, 0xFF});
-	public static final ByteOrderMarker Fallback = UTF8;
 	
 	private static final Map<Charset, ByteOrderMarker> names;
 	
