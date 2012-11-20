@@ -9,20 +9,32 @@ bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
      isEmpty(B) ==> C == A ||
      (slice(C, 0, size(A) - 1) == A && slice(C, size(A), size(C) - size(A)) == B);
 
+public test bool concat(list[&T] A, list[&T] B) = isConcat(A, B, A + B);
+public test bool concat(     &T  A, list[&T] B) = isConcat([A], B, A + B);
+public test bool concat(list[&T] A,      &T  B) = isConcat(A, [B], A + B);
+
 // is A - B == C?
 bool isDiff(list[&T] A, list[&T] B, list[&T] C) =
      isEmpty(A) ==> C == B ||
      isEmpty(B) ==> C == A ||
      all(x <- C, x in A && (x notin B || freq(x, A) > freq(x, B)));
 
+public test bool diff(list[&T] A, list[&T] B) = isDiff(A, B, A - B);
+
 // A == B?
 bool isEqual(list[&T] A, list[&T] B) = 
      size(A) == size(B) ? (true | (it && (A[i] == B[i])) | int i <- index(A)) : false;
-     
+
 // Its seems that a reducer cannot  be nested in a boolean expression.
 //bool isEqual(list[&T] A, list[&T] B) = 
 //     size(A) == size(B) && (true | (it && (A[i] == B[i])) | int i <- index(A));
-     
+
+public test bool equal(list[&T] A) = A == A;
+public test bool equal(list[&T] A, list[&T] B) = (A == B) ==> isEqual(A,B); 
+
+public test bool notEqual(list[&T] A) = !(A != A);
+public test bool notEqual(list[&T] A, list[&T] B) = (A != B) ? !isEqual(A,B) : isEqual(A,B);
+      
 // x in L?
 bool isIn(&T x, list[&T] L) = (false | it || (x == e) | e <- L);
 
@@ -108,6 +120,4 @@ public test bool subscription(list[&T] L){
        R = tail(R);
   }
   return true;  
-
-
 }

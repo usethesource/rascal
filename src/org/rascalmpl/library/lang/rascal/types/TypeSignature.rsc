@@ -248,6 +248,8 @@ public bool isVarArgsParameters(Parameters ps) {
 
 @doc{Given a module, return its signature.}
 public RSignature getModuleSignature(Tree t) {
+	cacheLoc = |tmp:///org.rascal-mpl/signatureCache|;
+	if (!exists(cacheLoc.parent)) mkDirectory(cacheLoc.parent);
 	return getModuleSignature(t, {});
 }
 

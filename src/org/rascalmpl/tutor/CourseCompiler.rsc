@@ -32,6 +32,7 @@ import RascalUtils;
 import util::Benchmark;
 import util::Math;
 import util::Monitor;
+import Warnings;
 
 // ------------------------ compile a course ----------------------------------------
 
@@ -194,7 +195,7 @@ public str getNavigationPanel(ConceptName rootConcept){
 public Concept compileAndGenerateConcept(ConceptName cn, bool updateParent){
 
    C = compileConcept(cn);
-   println("Compiling <cn> ... done.");
+   //println("Compiling <cn> ... done.");
    courseFile = courseDir + rootname(cn) + "course.value";
    try {
      theCourse = readTextValueFile(#Course, courseFile);
@@ -204,7 +205,7 @@ public Concept compileAndGenerateConcept(ConceptName cn, bool updateParent){
         pn = parentname(cn);
         if(rootname(pn) != pn) { // No update needed at root
            file = conceptFile(pn);
-           println("<cn>: updateParentDetails: pn = <pn>");
+           //println("<cn>: updateParentDetails: pn = <pn>");
            concepts[pn] =  compileConcept(pn);    
         }
      }
@@ -888,16 +889,17 @@ public str showQuestion(ConceptName cpid, Question q){
          //println("exp1 = <exp1>");
          try {
            tp = parseType("<evalType(setup + (exp1 + ";"))>");
+           //println("eval: " + setup + (exp1 + ";"));
            r = eval(setup + (exp1 + ";")).val;
            env[name] = <tp, "<r>">;
            //println("env[<name>] = <env[name]>");
          }
          catch ParseError(loc l):
-	           throw "Parse error while computing <name> = <exp1> at line <l.begin.line>, column <l.begin.column>";
+	           throw "Question <qid>. Parse error while computing <name> = <exp1> at line <l.begin.line>, column <l.begin.column>";
 	     catch StaticError(str msg, loc l):
-	           throw "Static error while computing <name> = <exp1>: <msg>, at line <l.begin.line>, column <l.begin.column>"; 
+	           throw "Question <qid>. Static error while computing <name> = <exp1>: <msg>, at line <l.begin.line>, column <l.begin.column>"; 
 	     catch value x: 
-	           throw "Something unexpected went wrong while computing <name> = <exp1>: Message: <x>";
+	           throw "Question <qid>. Something unexpected went wrong while computing <name> = <exp1>: Message: <x>";
       }
       //println("env = <env>");
       

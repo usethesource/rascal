@@ -15,7 +15,9 @@ import Relation;
 import lang::dot::Dot;
 import IO;
 
-@doc{Data Types belonging to Formal Concept Analysis }
+@doc{
+Synopsis: Data Types belonging to Formal Concept Analysis.
+}
 public alias FormalContext[&Object, &Attribute] = rel[&Object, &Attribute];
 public alias Concept[&Object, &Attribute] = tuple[set[&Object] objects, set[&Attribute] attributes];
 public alias ConceptLattice[&Object, &Attribute] = rel[Concept[&Object, &Attribute], Concept[&Object, &Attribute]];
@@ -24,13 +26,17 @@ public alias Object2Attributes[&Object, &Attribute] = map[&Object, set[&Attribut
 public alias Attribute2Objects[&Attribute, &Object] = map[&Attribute, set[&Object]];
 
                                                      
-@doc{Computes Concept Lattice given the Object Attribute Relation }
+@doc{
+Synopsis: Computes Concept Lattice given the Object Attribute Relation.
+}
 public ConceptLattice[&Object, &Attribute] fca (FormalContext[&Object, &Attribute] fc) {
     rel[set[&Attribute], set[&Attribute]] lat = createAttributeLattice(fc);
     return {<<tau(fc, c1), c1>, <tau(fc, c2), c2>>|<set[&Attribute] c1, set[&Attribute] c2><-lat};
 }
 
-@doc{Computes Dot Graph from Concept Lattice  }
+@doc{
+Synopsis: Computes Dot Graph from Concept Lattice.
+}
 public DotGraph toDot(ConceptLattice[&Object, &Attribute] cl) {
    return toDot(cl, true);
    }

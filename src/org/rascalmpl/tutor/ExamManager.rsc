@@ -140,7 +140,7 @@ void createReview(){
 	      if(!(sc.points[q])? || sc.points[q] == 0){
 	         if(<q, ans> notin seenAnswers){
 	          ga = (goodAnswers[q])? ? intercalate(" OR ", toList(goodAnswers[q])) : "";
-	          println(sc.expectedAnswers[q]);
+	          //println(sc.expectedAnswers[q]);
 	          if(sc.expectedAnswers[q]?)
 	             ga += sc.expectedAnswers[q];
 	          reviews += {<q, 0.0, ans, ga, "">};
