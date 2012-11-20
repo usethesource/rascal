@@ -1051,7 +1051,7 @@ public class Prelude {
 			if (detected != null)
 				charset = values.string(detected.name());
 		}
-		writeFileEnc(sloc, charset, V, false, ctx);
+		writeFileEnc(sloc, charset, V, append, ctx);
 	}
 	
 	public IBool canEncode(IString charset) {
@@ -1066,7 +1066,7 @@ public class Prelude {
 		}
 		
 		try{
-			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue());
+			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue(), append);
 			
 			for(IValue elem : V){
 				if (elem.getType().isStringType()) {
@@ -1096,6 +1096,9 @@ public class Prelude {
 	
 	public void appendToFile(ISourceLocation sloc, IList V, IEvaluatorContext ctx){
 		writeFile(sloc, V, true, ctx);
+	}
+	public void appendToFileEnc(ISourceLocation sloc, IString charset, IList V, IEvaluatorContext ctx){
+		writeFileEnc(sloc, charset, V, true, ctx);
 	}
 	
 	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
