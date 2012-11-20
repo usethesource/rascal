@@ -939,6 +939,9 @@ public class Prelude {
 	
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
 		try {
+			Charset c = ctx.getResolverRegistry().getCharset(sloc.getURI());
+			if (c != null)
+				return readFileEnc(sloc, values.string(c.name()), ctx);
 			return consumeInputStream(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI())), ctx);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -1033,8 +1036,11 @@ public class Prelude {
 			InputStream in = null;
 			Charset detected = null;
 			try {
-				in = ctx.getResolverRegistry().getInputStream(sloc.getURI());
-				detected = UnicodeDetector.estimateCharset(in);
+				detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
+				if (detected == null) {
+					in = ctx.getResolverRegistry().getInputStream(sloc.getURI());
+					detected = UnicodeDetector.estimateCharset(in);
+				}
 			}catch(FileNotFoundException fnfex){
 				throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 			} catch (IOException e) {
@@ -1107,6 +1113,9 @@ public class Prelude {
 	
 	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
 		try {
+			Charset detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
+			if (detected != null)
+				return readFileLinesEnc(sloc, values.string(detected.name()), ctx);
 			return consumeInputStreamLines(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI())), ctx);
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);

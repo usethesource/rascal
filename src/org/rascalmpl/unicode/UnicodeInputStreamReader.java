@@ -32,6 +32,9 @@ public class UnicodeInputStreamReader extends Reader {
 		this.encoding = encoding;
 	}
 	
+	public UnicodeInputStreamReader(InputStream in, Charset charset) {
+		this(in, charset == null ? null : charset.name());
+	}
 	@Override
 	public int read(char[] cbuf, int off, int len) throws IOException {
 		if (wrapped == null) {

@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -347,5 +348,26 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 
 	public boolean supportsHost() {
 		return false;
+	}
+
+	@Override
+	public Charset getCharset(URI uri) throws IOException {
+		try {
+			
+			if (uri.getScheme().equals(scheme())) {
+				String path = getPath(uri);
+
+				for (URI dir : collect()) {
+					URI full = getFullURI(path, dir);
+					if (reg.exists(full)) {
+						return reg.getCharset(full);
+					}
+				}
+			}
+			return null;
+		} 
+		catch (URISyntaxException e) {
+			return null;
+		}
 	}
 }

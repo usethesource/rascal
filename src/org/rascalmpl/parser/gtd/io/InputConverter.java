@@ -13,10 +13,11 @@ package org.rascalmpl.parser.gtd.io;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.unicode.UnicodeInputStreamReader;
 
 public class InputConverter{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
@@ -30,8 +31,8 @@ public class InputConverter{
 	}
 	
 	// NOTE: The user has to close the stream.
-	public static char[] toChar(InputStream inputStream) throws IOException{
-		return toChar(new InputStreamReader(inputStream, "UTF8"));
+	public static char[] toChar(InputStream inputStream, Charset charset) throws IOException{
+		return toChar(new UnicodeInputStreamReader(inputStream, charset));
 	}
 	
 	// NOTE: The user has to close the stream.
