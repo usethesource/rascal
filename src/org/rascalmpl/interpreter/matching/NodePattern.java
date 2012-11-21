@@ -138,7 +138,7 @@ public class NodePattern extends AbstractMatchingResult {
 			throw new UnsupportedOperationException();
 		}
 
-		public IValue select(String... fields) throws FactTypeUseException {
+		public IValue selectByFieldNames(String... fields) throws FactTypeUseException {
 			throw new UnsupportedOperationException();
 		}
 
