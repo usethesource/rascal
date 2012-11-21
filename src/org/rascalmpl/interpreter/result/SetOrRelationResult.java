@@ -114,12 +114,12 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 
 	@Override
 	protected <U extends IValue> Result<U> equalToSet(SetResult that) {
-		return that.equalityBoolean(this);
+		return bool(getValue().isEqual(that.getValue()), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> nonEqualToSet(SetResult that) {
-		return that.nonEqualityBoolean(this);
+		return bool(!getValue().isEqual(that.getValue()), ctx);
 	}
 
 	@Override
