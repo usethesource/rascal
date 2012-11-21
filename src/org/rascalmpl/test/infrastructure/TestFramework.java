@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -108,6 +109,11 @@ public class TestFramework {
 
 		public boolean supportsHost() {
 			return false;
+		}
+
+		@Override
+		public Charset getCharset(URI uri) throws IOException {
+			return null;
 		}
 	}
 	

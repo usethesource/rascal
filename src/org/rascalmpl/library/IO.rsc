@@ -23,10 +23,34 @@ Append a textual representation of some values to an existing or a newly created
 * If a value has a non-terminal type, the parse tree is unparsed to produce a value.
 * All other values are printed as-is.
 * Each value is terminated by a newline character.
+
+== Encoding ==
+The existing file can be stored using any character set possible, if you know the character set, please use [appendFileEnc].
+Else the same method of deciding the character set is used as in [readFile].
+
+Pitfalls:
+* The same encoding pitfalls as the [readFile] function.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void appendToFile(loc file, value V...)
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+
+@doc{
+Synopsis: Append a value to a file.
+
+Description:
+Append a textual representation of some values to an existing or a newly created file:
+* If a value is a simple string, the quotes are removed and the contents are de-escaped.
+* If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+* All other values are printed as-is.
+* Each value is terminated by a newline character.
+
+Files are encoded using the charset provided.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses URI Resolver Registry}
+public java void appendToFileEnc(loc file, str charset, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @doc{returns all available character sets}
@@ -379,8 +403,28 @@ Description:
 Return the contents of a file location as a single string.
 Also see [readFileLines].
 
+== Encoding ==
+A text file can be encoded in many different character sets, most common are UTF8, ISO-8859-1, and ASCII.
+If you know the encoding of the file, please use the [readFileEnc] and [readFileLinesEnc] overloads.
+If you do not know, we try to detect this. This detection shall be explained below:
+
+# Does the scheme of the [Location] (eg. `|project:///|`) define the charset of the file? __Use the provided charset__
+# Does the file contain a UTF8/16/32 [BOM](http://en.wikipedia.org/wiki/Byte_order_mark)? __Use the charset matching the BOM__
+# Try to use heuristics to determine if our default fallbacks can match:
+  ## Are the first 32 bytes valid UTF-8? __Use UTF-8__
+  ## Are the first 32 bytes valid UTF-32? __Use UTF-32__
+# Fallback to the system default
+
+__To summarize__, we use UTF-8 by default, except if the [Location] has available meta-data, the file contains a BOM, or
+the first 32 bytes of the file are not valid UTF-8.
+
 Pitfalls:
-The second version of `readFile` with a string argument is __deprecated__.
+* The second version of `readFile` with a string argument is __deprecated__.
+* In case encoding is not known, we try to estimate as best as we can.
+* We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
+  you might get an decoding error or just strange looking characters.
+
+
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
@@ -388,6 +432,13 @@ The second version of `readFile` with a string argument is __deprecated__.
 public java str readFile(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
+@doc{
+Synopsis: Read the contents of a location and return it as string value.
+
+Description:
+Return the contents (decoded using the Character set supplied) of a file location as a single string.
+Also see [readFileLinesEnc].
+}
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java str readFileEnc(loc file, str charset)
@@ -413,12 +464,27 @@ Synopsis: Read the contents of a file location and return it as a list of string
 Description:
 Return the contents of a file location as a list of lines.
 Also see [readFile].
+
+== Encoding ==
+Look at [readFile] to understand how this function chooses the character set. If you know the character set used, please use [readFileLinesEnc].
+
+Pitfalls:
+* In case encoding is not known, we try to estimate as best as we can (see [readFile]).
+* We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
+  you might get an decoding error or just strange looking characters (see [readFile]).
 }
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java list[str] readFileLines(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
+@doc{
+Synopsis: Read the contents of a file location and return it as a list of strings.
+
+Description:
+Return the contents (decoded using the Character set supplied) of a file location as a list of lines.
+Also see [readFileLines].
+}
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java list[str] readFileLinesEnc(loc file, str charset)
@@ -439,12 +505,26 @@ Write a textual representation of some values to a file:
 * If a value has a non-terminal type, the parse tree is unparsed to produce a value.
 * All other values are printed as-is.
 * Each value is terminated by a newline character.
+
+Files are encoded in UTF-8, in case this is not desired, use [writeFileEnc].
 }
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void writeFile(loc file, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
+@doc{
+Synopsis: Write values to a file.
+
+Description:
+Write a textual representation of some values to a file:
+* If a value is a simple string, the quotes are removed and the contents are de-escaped.
+* If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+* All other values are printed as-is.
+* Each value is terminated by a newline character.
+
+Files are encoded using the charset provided.
+}
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void writeFileEnc(loc file, str charset, value V...)
