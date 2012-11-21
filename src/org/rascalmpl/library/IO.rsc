@@ -53,11 +53,15 @@ Files are encoded using the charset provided.
 public java void appendToFileEnc(loc file, str charset, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
-@doc{returns all available character sets}
+@doc{
+Synopsis: Returns all available character sets
+}
 @javaClass{org.rascalmpl.library.Prelude}
 public java set[str] charsets();
 
-@doc{returns whether this charset can be used for encoding (use with writeFile)}
+@doc{
+Synopsis: Returns whether this charset can be used for encoding (use with writeFile)
+}
 @javaClass{org.rascalmpl.library.Prelude}
 public java set[str] canEncode(str charset);
 
@@ -84,13 +88,13 @@ public bool bprintln(value arg)
 
 /*
  The following functions are identical to printExp and printlnExp, I have removed them -- Paul
-@doc{Prints message and returns the value}
+@doc{Synopsis: Prints message and returns the value.}
 public &T discardPrintExp(str s, &T t){
 	print(s);
 	return t;
 }
 
-@doc{Prints message on a line and returns the value}
+@doc{Synopsis: Prints message on a line and returns the value.}
 public &T discardPrintlnExp(str s, &T t){
 	println(s);
 	return t;
@@ -490,12 +494,6 @@ Also see [readFileLines].
 public java list[str] readFileLinesEnc(loc file, str charset)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
-@doc{Write a textual representation of some values to a file
-   * If a value is a simple string, the quotes are removed and the contents are de-escaped.
-   * If a value has a non-terminal type, the parse tree is unparsed to produce a value.
-   * All other values are printed as-is.
-   * Each value is terminated by a newline character
-}
 @doc{
 Synopsis: Write values to a file.
 
