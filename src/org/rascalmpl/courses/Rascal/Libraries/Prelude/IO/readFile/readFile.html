@@ -66,15 +66,32 @@
 <div id="Description">
 <span class="sectionHead">Description</span>  Return the contents of a file location as a single string.
  Also see <a href="/Rascal/Libraries/Prelude/IO/readFileLines/readFileLines.html">readFileLines</a>.
-
+  <h1> Encoding </h1>
+ A text file can be encoded in many different character sets, most common are UTF8, ISO-8859-1, and ASCII.
+ If you know the encoding of the file, please use the <a href="/Rascal/Libraries/Prelude/IO/readFileEnc/readFileEnc.html">readFileEnc</a> and <a href="/Rascal/Libraries/Prelude/IO/readFileLinesEnc/readFileLinesEnc.html">readFileLinesEnc</a> overloads.
+ If you do not know, we try to detect this. This detection shall be explained below:
+  <ol><li> Does the scheme of the <a href="/Rascal/Expressions/Values/Location/Location.html">Location</a> (eg. <code>|project:///|</code>) define the charset of the file? <b>Use the provided charset</b></li>
+<li> Does the file contain a UTF8/16/32 <a href="http://en.wikipedia.org/wiki/Byte_order_mark">BOM<img src="/images/www-icon.png" with="20" height="20"></a>? <b>Use the charset matching the BOM</b></li>
+<li> Try to use heuristics to determine if our default fallbacks can match: <ol><li> Are the first 32 bytes valid UTF-8? <b>Use UTF-8</b></li>
+<li> Are the first 32 bytes valid UTF-32? <b>Use UTF-32</b></li>
+</ol></li>
+<li> Fallback to the system default<br/>
+<br/>
+ <b>To summarize</b>, we use UTF-8 by default, except if the <a href="/Rascal/Expressions/Values/Location/Location.html">Location</a> has available meta-data, the file contains a BOM, or
+ the first 32 bytes of the file are not valid UTF-8.
+</li>
+</ol>
 </div>
 
   	                       
   	                       
   	                       
 <div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  The second version of <code>readFile</code> with a string argument is <b>deprecated</b>.
-
+<span class="sectionHead">Pitfalls</span>  <ul><li> The second version of <code>readFile</code> with a string argument is <b>deprecated</b>.</li>
+<li> In case encoding is not known, we try to estimate as best as we can.</li>
+<li> We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8,    you might get an decoding error or just strange looking characters.
+</li>
+</ul>
 </div>
 
   	                       

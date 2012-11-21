@@ -6,11 +6,11 @@
 
 
 <head>
-<title>Rascal/Libraries/Prelude/IO/readFileLines</title>
+<title>Rascal/Libraries/Prelude/IO/readFileLinesEnc</title>
 
-<meta name="description" content="Rascal/Libraries/Prelude/IO/readFileLines:  Read the contents of a file location and return it as a list of strings.">
+<meta name="description" content="Rascal/Libraries/Prelude/IO/readFileLinesEnc:  Read the contents of a file location and return it as a list of strings.">
 
-<meta name="keywords" content="Rascal/Libraries/Prelude/IO/readFileLines, Rascal, meta-programming, software analysis, software transformation">
+<meta name="keywords" content="Rascal/Libraries/Prelude/IO/readFileLinesEnc, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/jquery-1.4.2.min.js"></script>
@@ -29,7 +29,7 @@
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
-    <input type="hidden" name="concept" value="Rascal/Libraries/Prelude/IO/readFileLines">
+    <input type="hidden" name="concept" value="Rascal/Libraries/Prelude/IO/readFileLinesEnc">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
   </form>
@@ -40,7 +40,7 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="/Rascal/Rascal.html">Rascal</a>/<a href="/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Rascal/Libraries/Prelude/Prelude.html">Prelude</a>/<a href="/Rascal/Libraries/Prelude/IO/IO.html">IO</a>/<a href="/Rascal/Libraries/Prelude/IO/readFileLines/readFileLines.html">readFileLines</a>
+<span class="sectionHead">Name</span> <a href="/Rascal/Rascal.html">Rascal</a>/<a href="/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Rascal/Libraries/Prelude/Prelude.html">Prelude</a>/<a href="/Rascal/Libraries/Prelude/IO/IO.html">IO</a>/<a href="/Rascal/Libraries/Prelude/IO/readFileLinesEnc/readFileLinesEnc.html">readFileLinesEnc</a>
 </div>
 
 <div id="Synopsis">
@@ -52,7 +52,7 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>list[str] readFileLines(loc file) throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg)</code>
+<span class="sectionHead">Function</span>  <code>list[str] readFileLinesEnc(loc file, str charset) throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg)</code>
 
 </div>
 
@@ -64,26 +64,17 @@
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  Return the contents of a file location as a list of lines.
- Also see <a href="/Rascal/Libraries/Prelude/IO/readFile/readFile.html">readFile</a>.
-  <h1> Encoding </h1>
- Look at <a href="/Rascal/Libraries/Prelude/IO/readFile/readFile.html">readFile</a> to understand how this function chooses the character set. If you know the character set used, please use <a href="/Rascal/Libraries/Prelude/IO/readFileLinesEnc/readFileLinesEnc.html">readFileLinesEnc</a>.
+<span class="sectionHead">Description</span>  Return the contents (decoded using the Character set supplied) of a file location as a list of lines.
+ Also see <a href="/Rascal/Libraries/Prelude/IO/readFileLines/readFileLines.html">readFileLines</a>.
 
 </div>
 
   	                       
   	                       
   	                       
-<div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  <ul><li> In case encoding is not known, we try to estimate as best as we can (see <a href="/Rascal/Libraries/Prelude/IO/readFile/readFile.html">readFile</a>).</li>
-<li> We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8,    you might get an decoding error or just strange looking characters (see <a href="/Rascal/Libraries/Prelude/IO/readFile/readFile.html">readFile</a>).
-</li>
-</ul>
-</div>
-
   	                       
-<a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/IO/readFileLines&new=false"><b>Edit</b></a>] | 
-               [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/IO/readFileLines&new=true"><b>New Subconcept</b></a>] |
+<a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/IO/readFileLinesEnc&new=false"><b>Edit</b></a>] | 
+               [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/IO/readFileLinesEnc&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
