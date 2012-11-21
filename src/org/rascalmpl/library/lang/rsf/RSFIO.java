@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.values.uptr.Factory;
 
 public class RSFIO {
@@ -68,7 +70,7 @@ public class RSFIO {
 		InputStream input = null;
 		try {
 			input = ctx.getResolverRegistry().getInputStream(nameRSFFile.getURI());
-			BufferedReader bufRead = new BufferedReader(new InputStreamReader(input));
+			BufferedReader bufRead = new BufferedReader(new UnicodeInputStreamReader(input, ctx.getResolverRegistry().getCharset(nameRSFFile.getURI())));
 			java.lang.String line = bufRead.readLine();
 
 			while (line != null) {
@@ -86,6 +88,15 @@ public class RSFIO {
 
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+		finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+						throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+				}
+			}
 		}
 
 		IMapWriter mw = values.mapWriter(strType, types.relType(strType, strType));
@@ -120,7 +131,6 @@ public class RSFIO {
 	 */
 	
 	public IValue readRSFRelation(IValue result, IString relName, ISourceLocation loc, IEvaluatorContext ctx){
-		InputStream in = null;
 		
 		Type resultType = tr.valueToType((IConstructor) result, new TypeStore());
 	
@@ -139,10 +149,13 @@ public class RSFIO {
 		IRelationWriter rw = values.relationWriter(resultType.getElementType());
 		String rname = relName.getValue();
 
+		InputStream in = null;
+		Reader reader = null;
 		try {
 			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
+			reader = new UnicodeInputStreamReader(in, ctx.getResolverRegistry().getCharset(loc.getURI()));
 			
-			java.lang.String line = readLine(in);
+			java.lang.String line = readLine(reader);
 
 			while (!line.isEmpty()) {
 				java.lang.String[] fields = line.split("\\s+");
@@ -153,8 +166,9 @@ public class RSFIO {
 					IValue v2 = getElementAsTypedValue(fields[2], elem2Type);
 					rw.insert(values.tuple(v1, v2));
 				}
-				line = readLine(in);
+				line = readLine(reader);
 			}
+			reader.close();
 			in.close();
 
 		} catch (IOException e) {
@@ -164,6 +178,9 @@ public class RSFIO {
 			if (in != null){
 				try {
 					in.close();
+					if (reader != null) {
+						reader.close();
+					}
 				} catch (IOException e){
 					throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
 				}
@@ -177,15 +194,15 @@ public class RSFIO {
 		return c == '\n' || c == '\r';
 	}
 	
-	private String readLine(InputStream in) throws IOException{
+	private String readLine(Reader reader) throws IOException{
 		StringWriter sw = new StringWriter();
-		int lastChar = in.read();
+		int lastChar = reader.read();
 		while(lastChar != -1){
 			if(isEOL(lastChar)){
 				return sw.toString();
 			}
 			sw.append((char)lastChar);
-			lastChar = in.read();
+			lastChar = reader.read();
 		}
 		return sw.toString();
 	}
@@ -203,11 +220,12 @@ public class RSFIO {
 		Type symbolType = Factory.Symbol;
 		
 		InputStream in = null;
-
+		Reader reader = null;
 		try {
 			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
+			reader = new UnicodeInputStreamReader(in, ctx.getResolverRegistry().getCharset(loc.getURI()));
 		
-			java.lang.String line = readLine(in);
+			java.lang.String line = readLine(reader);
 
 			while (!line.isEmpty()) {
 				System.err.println(line);
@@ -223,8 +241,9 @@ public class RSFIO {
 				} else
 					table.put(name, table.get(name).lub(t1t2Tuple));
 							
-				line = readLine(in);
+				line = readLine(reader);
 			}
+			reader.close();
 			in.close();
 
 		} catch (IOException e) {
@@ -234,6 +253,9 @@ public class RSFIO {
 			if (in != null){
 				try {
 					in.close();
+					if (reader != null) {
+						reader.close();
+					}
 				} catch (IOException e){
 					throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
 				}
