@@ -47,7 +47,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class JSonWriter implements IValueTextWriter {
 
-	static boolean typed = true;
+	static boolean typed = false;
 
 	static boolean debug = false;
 
