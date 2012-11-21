@@ -409,13 +409,13 @@ If you know the encoding of the file, please use the [readFileEnc] and [readFile
 If you do not know, we try to detect this. This detection shall be explained below:
 
 # Does the scheme of the [Location] (eg. `|project:///|`) define the charset of the file? __Use the provided charset__
-# Does the file contain a UTF8/16/32 [BOM](http://en.wikipedia.org/BOM)? __Use the charset matching the BOM__
+# Does the file contain a UTF8/16/32 [BOM](http://en.wikipedia.org/wiki/Byte_order_mark)? __Use the charset matching the BOM__
 # Try to use heuristics to determine if our default fallbacks can match:
   ## Are the first 32 bytes valid UTF-8? __Use UTF-8__
   ## Are the first 32 bytes valid UTF-32? __Use UTF-32__
 # Fallback to the system default
 
-To __summarize__, we ue UTF-8 by default, except if the [Location] has available meta-data, the file contains a BOM, or
+__To summarize__, we use UTF-8 by default, except if the [Location] has available meta-data, the file contains a BOM, or
 the first 32 bytes of the file are not valid UTF-8.
 
 Pitfalls:
