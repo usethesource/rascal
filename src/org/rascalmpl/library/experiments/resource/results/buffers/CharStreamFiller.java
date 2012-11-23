@@ -3,12 +3,12 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class CharStreamFiller implements ILazyFiller {
@@ -29,7 +29,7 @@ public class CharStreamFiller implements ILazyFiller {
 		try {
 			if (is == null) {
 				is = ctx.getResolverRegistry().getInputStream(source.getURI());
-				br = new BufferedReader(new InputStreamReader(is));
+				br = new BufferedReader(new UnicodeInputStreamReader(is, ctx.getResolverRegistry().getCharset(source.getURI())));
 			}
 			ArrayList<String> al = new ArrayList<String>();
 			int readChars = 0;

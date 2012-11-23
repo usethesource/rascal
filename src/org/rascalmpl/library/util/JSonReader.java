@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -40,12 +41,14 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.io.AbstractBinaryReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.unicode.UnicodeInputStreamReader;
 
 import com.ibm.icu.text.SimpleDateFormat;
 
@@ -62,7 +65,7 @@ public class JSonReader extends AbstractBinaryReader {
 	final boolean debug = false;
 
 	public IValue read(IValueFactory factory, TypeStore store, Type type,
-			InputStream stream) throws FactParseError, IOException {
+			Reader read) throws FactParseError, IOException {
 		this.vf = factory;
 		this.ts = store;
 		if (debug)
@@ -72,7 +75,7 @@ public class JSonReader extends AbstractBinaryReader {
 		annoKey = (IString) tf.stringType().make(vf, annos);
 		int firstToken;
 		do {
-			firstToken = stream.read();
+			firstToken = read.read();
 			if (firstToken == -1) {
 				throw new IOException("Premature EOF.");
 			}
@@ -82,7 +85,7 @@ public class JSonReader extends AbstractBinaryReader {
 		if (Character.isLetterOrDigit(typeByte) || typeByte == '_'
 				|| typeByte == '[' || typeByte == '{' || typeByte == '-'
 				|| typeByte == '.' || typeByte == '"' || typeByte == '#') {
-			JSonStream sreader = new JSonStream(stream);
+			JSonStream sreader = new JSonStream(read);
 			sreader.last_char = typeByte;
 			if (debug)
 				System.err.println("read2:" + type);
@@ -120,7 +123,10 @@ public class JSonReader extends AbstractBinaryReader {
 			break;
 		case 't':
 		case 'f':
-			result = parseBoolean(reader, expected);
+			result = parseBoolean(reader);
+			break;
+		case 'n':
+			result = parseNull(reader);
 			break;
 		case '"':
 			result = parseString(reader, expected);
@@ -250,17 +256,30 @@ public class JSonReader extends AbstractBinaryReader {
 		return result;
 	}
 
-	private IValue parseBoolean(JSonStream reader, Type expected)
+	private IValue parseBoolean(JSonStream reader)
 			throws IOException {
 		IValue result;
 		String str = parseBooleanLiteral(reader);
 		if (!str.equalsIgnoreCase("true") && !str.equalsIgnoreCase("false"))
 			throw new FactParseError("true or false expected but found:" + str
 					+ ".", reader.getPosition());
-		result = expected.make(vf, str.equalsIgnoreCase("true") ? true : false);
+		result = vf.bool(str.equalsIgnoreCase("true") ? true : false);
 		reader.readSkippingWS(); /* e */
 		return result;
 	}
+	
+	private IValue parseNull(JSonStream reader)
+			throws IOException {
+		IValue result;
+		String str = parseNullLiteral(reader);
+		if (!str.equalsIgnoreCase("null"))
+			throw new FactParseError("null expected but found:" + str
+					+ ".", reader.getPosition());
+		result = vf.string(str);
+		reader.readSkippingWS(); /* l */
+		return result;
+	}
+
 
 	private IValue parseList(JSonStream reader, Type expected)
 			throws IOException {
@@ -363,11 +382,30 @@ public class JSonReader extends AbstractBinaryReader {
 		do {
 			reader.read();
 			int lastChar = reader.getLastChar();
-			str.append((char) lastChar);
 			if (lastChar == -1)
 				throw new IOException("Premature EOF.");
+			str.append((char) lastChar);
 
 		} while (reader.getLastChar() != 'e');
+		return str.toString();
+	}
+	
+	private String parseNullLiteral(JSonStream reader) throws IOException {
+		StringBuilder str = new StringBuilder();
+		str.append((char) reader.getLastChar());
+		do {
+			reader.read();
+			int lastChar = reader.getLastChar();
+			if (lastChar == -1)
+				throw new IOException("Premature EOF.");
+			str.append((char) lastChar);
+
+		} while (reader.getLastChar() != 'l');
+		reader.read();
+		int lastChar = reader.getLastChar();
+		if (lastChar == -1)
+			throw new IOException("Premature EOF.");
+		str.append((char) lastChar);
 		return str.toString();
 	}
 
@@ -709,12 +747,12 @@ public class JSonReader extends AbstractBinaryReader {
 		private int limit;
 		private int bufferPos;
 
-		public JSonStream(InputStream reader) {
-			this(reader, INITIAL_BUFFER_SIZE);
+		public JSonStream(Reader read) {
+			this(read, INITIAL_BUFFER_SIZE);
 		}
 
-		public JSonStream(InputStream stream, int bufferSize) {
-			this.reader = new BufferedReader(new InputStreamReader(stream));
+		public JSonStream(Reader read, int bufferSize) {
+			this.reader = new BufferedReader(read);
 			last_char = -1;
 			pos = 0;
 
@@ -782,5 +820,11 @@ public class JSonReader extends AbstractBinaryReader {
 		public int getPosition() {
 			return pos;
 		}
+	}
+
+	@Override
+	public IValue read(IValueFactory factory, TypeStore store, Type type,
+			InputStream stream) throws FactTypeUseException, IOException {
+		return read(factory, store, type, new UnicodeInputStreamReader(stream));
 	}
 }
