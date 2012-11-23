@@ -10,7 +10,7 @@ import static org.rascalmpl.library.vis.Timer.TimerInfo_stopped;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -20,11 +20,11 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class Timer extends LayoutProxy {
-
-	private static final ValueFactory vf = ValueFactory.getInstance();
+	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	@SuppressWarnings("unused")
 	private static final boolean debug = true;
 	ExecuteTimer t;

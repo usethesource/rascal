@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Davy Landman - Davy.Landman@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 
 /*******************************************************************************
@@ -33,6 +35,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringReader;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
@@ -97,6 +100,9 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.unicode.UnicodeDetector;
+import org.rascalmpl.unicode.UnicodeInputStreamReader;
+import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -104,6 +110,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
 
 public class Prelude {
@@ -132,15 +139,6 @@ public class Prelude {
 	/*
 	 * DateTime
 	 */
-	
-	private IValue createNewTimeValue(Calendar jdt2) {
-		int hourOffset = jdt2.getTimeZone().getOffset(jdt2.getTimeInMillis())/3600000;
-		int minuteOffset = (jdt2.getTimeZone().getOffset(jdt2.getTimeInMillis())/60000)%60;				
-		return values.time(jdt2.get(Calendar.HOUR_OF_DAY), jdt2.get(Calendar.MINUTE),
-				jdt2.get(Calendar.SECOND), jdt2.get(Calendar.MILLISECOND), 
-				hourOffset, minuteOffset);
-	}		
-	
 	public IValue now()
 	//@doc{Get the current datetime.}
 	{
@@ -176,7 +174,6 @@ public class Prelude {
 				minute.intValue(), second.intValue(), millisecond.intValue());
 	}
 
-	
 	public IValue createDateTime(IInteger year, IInteger month, IInteger day,
 			IInteger hour, IInteger minute, IInteger second, IInteger millisecond, 
 			IInteger timezoneHourOffset, IInteger timezoneMinuteOffset)
@@ -222,18 +219,102 @@ public class Prelude {
 		return incrementDate(dt, Calendar.DAY_OF_MONTH, "days", n);	
 	}
 
-	private IValue incrementTime(IDateTime dt, int field, String fieldName, IInteger amount) {
-		if (!dt.isDate()) {
-			long millis = dt.getInstant();
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTimeInMillis(millis);
-			calendar.add(field, amount.intValue());
+	private String getTZString(int hourOffset, int minuteOffset) {
+		String tzString = "GMT" + 
+			((hourOffset < 0 || (0 == hourOffset && minuteOffset < 0)) ? "-" : "+") + 
+			String.format("%02d",hourOffset >= 0 ? hourOffset : hourOffset * -1) +
+			String.format("%02d",minuteOffset >= 0 ? minuteOffset : minuteOffset * -1);
+		return tzString;
+	}
+
+	private final int millisInAMinute = 1000 * 60;
+	private final int millisInAnHour = millisInAMinute * 60;
+
+	private IValue incrementDTField(IDateTime dt, int field, IInteger amount) {
+		Calendar cal = null;
+
+		cal = dateTimeToCalendar(dt);
+		
+		// Make sure lenient is true, since this allows wrapping of fields. For
+		// instance, if you have $2012-05-15, and subtract 15 months, this is
+		// an error if lenient is false, but gives $2012-02-15 (as expected)
+		// if lenient is true.
+		cal.setLenient(true);
+
+		cal.add(field, amount.intValue());
+
+		// Turn the calendar back into a date, time, or datetime value
+		if (dt.isDate()) {
+			return calendarToDate(cal);
+		} else {
 			if (dt.isTime()) {
-				return createNewTimeValue(calendar);
+				return calendarToTime(cal);
+			} else {
+				return calendarToDateTime(cal);
 			}
-			return values.datetime(calendar.getTimeInMillis());
 		}
-		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a date value.", null, null); 
+	}
+
+	private IValue calendarToDateTime(Calendar cal) {
+		int timezoneHours = cal.get(Calendar.ZONE_OFFSET) / millisInAnHour;
+		int timezoneMinutes = cal.get(Calendar.ZONE_OFFSET) % millisInAnHour / millisInAMinute;
+		return createDateTime(values.integer(cal.get(Calendar.YEAR)),
+				values.integer(cal.get(Calendar.MONTH)+1),
+				values.integer(cal.get(Calendar.DAY_OF_MONTH)),
+				values.integer(cal.get(Calendar.HOUR_OF_DAY)),
+				values.integer(cal.get(Calendar.MINUTE)),
+				values.integer(cal.get(Calendar.SECOND)),
+				values.integer(cal.get(Calendar.MILLISECOND)),
+				values.integer(timezoneHours),
+				values.integer(timezoneMinutes));
+	}
+
+	private IValue calendarToTime(Calendar cal) {
+		int timezoneHours = cal.get(Calendar.ZONE_OFFSET) / millisInAnHour;
+		int timezoneMinutes = cal.get(Calendar.ZONE_OFFSET) % millisInAnHour / millisInAMinute;
+		return createTime(values.integer(cal.get(Calendar.HOUR_OF_DAY)),
+				values.integer(cal.get(Calendar.MINUTE)),
+				values.integer(cal.get(Calendar.SECOND)),
+				values.integer(cal.get(Calendar.MILLISECOND)),
+				values.integer(timezoneHours),
+				values.integer(timezoneMinutes));
+	}
+
+	private IValue calendarToDate(Calendar cal) {
+		return createDate(values.integer(cal.get(Calendar.YEAR)),
+				values.integer(cal.get(Calendar.MONTH)+1),
+				values.integer(cal.get(Calendar.DAY_OF_MONTH)));
+	}
+
+	private Calendar dateTimeToCalendar(IDateTime dt) {
+		Calendar cal;
+		if (dt.isDate()) {
+			cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
+			cal.set(dt.getYear(), dt.getMonthOfYear()-1, dt.getDayOfMonth());
+		} else {
+			cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes())),Locale.getDefault());
+			if (dt.isTime()) {
+				cal.set(1970, 0, 1, dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
+			} else {
+				cal.set(dt.getYear(), dt.getMonthOfYear()-1, dt.getDayOfMonth(), dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
+			}
+			cal.set(Calendar.MILLISECOND, dt.getMillisecondsOfSecond());
+		}
+		return cal;
+	}
+	
+	private IValue incrementTime(IDateTime dt, int field, String fieldName, IInteger amount) {
+		if (dt.isDate())
+			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a date value.", null, null);
+		
+		return incrementDTField(dt, field, amount);
+	}
+
+	private IValue incrementDate(IDateTime dt, int field, String fieldName, IInteger amount) {
+		if (dt.isTime())
+			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a time value.", null, null);
+		
+		return incrementDTField(dt, field, amount);
 	}
 	
 	public IValue incrementHours(IDateTime dt, IInteger n)
@@ -260,21 +341,6 @@ public class Prelude {
 		return incrementTime(dt, Calendar.MILLISECOND, "milliseconds", n);
 	}
 
-	private IValue incrementDate(IDateTime dt, int field, String fieldName, IInteger amount) {
-		if (!dt.isTime()) {
-			long millis = dt.getInstant();
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTimeInMillis(millis);
-			calendar.add(field, amount.intValue());
-			if (dt.isDate()) {
-				return values.date(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-			}
-			return values.datetime(calendar.getTimeInMillis());
-		}
-		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a time value.", null, null); 
-
-	}
-	
 	public IValue decrementYears(IDateTime dt, IInteger n)
 	//@doc{Decrement the years by a given amount.}
 	{
@@ -324,7 +390,6 @@ public class Prelude {
 		endCal.setTimeInMillis(dEnd.getInstant());
 		
 		IValue duration = null;
-		
 		if (dStart.isDate()) {
 			if (dEnd.isDate()) {
 				duration = values.tuple(
@@ -869,22 +934,34 @@ public class Prelude {
 			w.insert(values.string(s));
 		}
 		return w.done();
-	}
+	} 
 	
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
-	  return readFileEnc(sloc, values.string("UTF8"), ctx);	
+		try {
+			Charset c = ctx.getResolverRegistry().getCharset(sloc.getURI());
+			if (c != null)
+				return readFileEnc(sloc, values.string(c.name()), ctx);
+			return consumeInputStream(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI())), ctx);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
 	}
 	
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
+		try {
+			return consumeInputStream(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), charset.getValue()), ctx);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+	}
+
+	private IValue consumeInputStream(ISourceLocation sloc, Reader in, IEvaluatorContext ctx) {
 		StringBuilder result = new StringBuilder(1024 * 1024);
-		
-		InputStreamReader in = null;
 		try{
-			in = new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), charset.getValue());
 			char[] buf = new char[4096];
 			int count;
 
-			while((count = in.read(buf)) != -1){
+			while((count = in.read(buf)) != -1) {
 				result.append(new java.lang.String(buf, 0, count));
 			}
 			
@@ -952,7 +1029,38 @@ public class Prelude {
 	}
 	
 	private void writeFile(ISourceLocation sloc, IList V, boolean append, IEvaluatorContext ctx){
-		 writeFileEnc(sloc, values.string("UTF8"), V, append, ctx);
+		IString charset = values.string("UTF8");
+		if (append) {
+			// in case the file already has a encoding, we have to correctly append that.
+			InputStream in = null;
+			Charset detected = null;
+			try {
+				detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
+				if (detected == null) {
+					in = ctx.getResolverRegistry().getInputStream(sloc.getURI());
+					detected = UnicodeDetector.estimateCharset(in);
+				}
+			}catch(FileNotFoundException fnfex){
+				throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			} catch (IOException e) {
+				throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			}
+			finally {
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e) {
+						throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+					}
+				}
+			}
+			if (detected != null)
+				charset = values.string(detected.name());
+			else {
+				charset = values.string(Charset.defaultCharset().name());
+			}
+		}
+		writeFileEnc(sloc, charset, V, append, ctx);
 	}
 	
 	public IBool canEncode(IString charset) {
@@ -967,7 +1075,7 @@ public class Prelude {
 		}
 		
 		try{
-			out = new OutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue());
+			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue(), append);
 			
 			for(IValue elem : V){
 				if (elem.getType().isStringType()) {
@@ -998,17 +1106,42 @@ public class Prelude {
 	public void appendToFile(ISourceLocation sloc, IList V, IEvaluatorContext ctx){
 		writeFile(sloc, V, true, ctx);
 	}
+	public void appendToFileEnc(ISourceLocation sloc, IString charset, IList V, IEvaluatorContext ctx){
+		writeFileEnc(sloc, charset, V, true, ctx);
+	}
 	
 	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
-	  return readFileLinesEnc(sloc, values.string("UTF8"), ctx);	
+		try {
+			Charset detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
+			if (detected != null)
+				return readFileLinesEnc(sloc, values.string(detected.name()), ctx);
+			return consumeInputStreamLines(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI())), ctx);
+		}catch(MalformedURLException e){
+		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
+		}catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+		}catch(IOException e){
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
 	}
 	
 	public IList readFileLinesEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
+		try {
+			return consumeInputStreamLines(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()),charset.getValue()), ctx);
+		}catch(MalformedURLException e){
+		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
+		}catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+		}catch(IOException e){
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+	}
+
+	private IList consumeInputStreamLines(ISourceLocation sloc,	Reader stream, IEvaluatorContext ctx ) {
 		IListWriter w = types.listType(types.stringType()).writer(values);
 		
 		BufferedReader in = null;
 		try{
-			InputStreamReader stream = new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()),charset.getValue());
 			in = new BufferedReader(stream);
 			java.lang.String line;
 			
@@ -1046,10 +1179,6 @@ public class Prelude {
 					}
 				}
 			}while(line != null);
-		}catch(MalformedURLException e){
-		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
-		}catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}finally{
@@ -1121,7 +1250,7 @@ public class Prelude {
 
 			@Override
 			public int compare(IValue lhs, IValue rhs) {
-				if(lhs == rhs){
+				if(lhs.isEqual(rhs)){
 					return 0;
 				} else {
 					argArr[0] = lhs;
@@ -1158,7 +1287,7 @@ public class Prelude {
 
 			@Override
 			public int compare(IValue lhs, IValue rhs) {
-				if(lhs == rhs){
+				if(lhs.isEqual(rhs)){
 					return 0;
 				} else {
 					argArr[0] = lhs;

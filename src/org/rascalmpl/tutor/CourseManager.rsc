@@ -173,7 +173,7 @@ private examResult validateAllAnswers(str timestamp, map[str,map[str,str]] param
       if(paramMaps[qid]["answer"] ?)
          answers[qid] = normalizeAnswer(qid, trim(paramMaps[qid]["answer"]));
       else
-         answer[qid] = "no answer";
+         answers[qid] = "no answer";
          
       if(v == "pass"){
          points[qid] = 1;
