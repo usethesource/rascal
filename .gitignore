@@ -1,8 +1,3 @@
-*.class
-*.jar
-*.war
-*.ear
-
 # eclipse stuff
 .metadata
 bin/**
@@ -16,3 +11,6 @@ local.properties
 .classpath
 .settings/
 .loadpath
+
+# maven stuff
+target/
