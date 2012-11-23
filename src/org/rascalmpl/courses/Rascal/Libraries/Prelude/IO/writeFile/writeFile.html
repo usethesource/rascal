@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/Prelude/IO/writeFile</title>
 
-<meta name="description" content="Rascal/Libraries/Prelude/IO/writeFile: ">
+<meta name="description" content="Rascal/Libraries/Prelude/IO/writeFile:  Write values to a file.">
 
 <meta name="keywords" content="Rascal/Libraries/Prelude/IO/writeFile, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -43,6 +43,11 @@
 <span class="sectionHead">Name</span> <a href="/Rascal/Rascal.html">Rascal</a>/<a href="/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Rascal/Libraries/Prelude/Prelude.html">Prelude</a>/<a href="/Rascal/Libraries/Prelude/IO/IO.html">IO</a>/<a href="/Rascal/Libraries/Prelude/IO/writeFile/writeFile.html">writeFile</a>
 </div>
 
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  Write values to a file.
+
+</div>
+
 	                       
                            
                            
@@ -55,11 +60,18 @@
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import IO;</code>
  </AUTOINSERTED>
- Write a textual representation of some values to a file
+
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  Write a textual representation of some values to a file:
  <ul><li> If a value is a simple string, the quotes are removed and the contents are de-escaped.</li>
 <li> If a value has a non-terminal type, the parse tree is unparsed to produce a value.</li>
 <li> All other values are printed as-is.</li>
-<li> Each value is terminated by a newline character</li>
+<li> Each value is terminated by a newline character.<br/>
+<br/>
+ Files are encoded in UTF-8, in case this is not desired, use <a href="/Rascal/Libraries/Prelude/IO/writeFileEnc/writeFileEnc.html">writeFileEnc</a>.
+</li>
 </ul>
 </div>
 

@@ -15,6 +15,7 @@ package org.rascalmpl.uri;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 
 public class StandardInputURIResolver implements IURIInputStreamResolver {
 	public boolean exists(URI uri) {
@@ -52,5 +53,10 @@ public class StandardInputURIResolver implements IURIInputStreamResolver {
 	
 	public boolean supportsHost() {
 		return false;
+	}
+
+	@Override
+	public Charset getCharset(URI uri) throws IOException {
+		return null;
 	}
 }
