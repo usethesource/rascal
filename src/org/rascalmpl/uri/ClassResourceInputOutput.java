@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 /**
  * This class implements both input and output methods for files that reside in Java resources of a certain class.
@@ -184,5 +185,11 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 	
 	public boolean supportsHost() {
 		return false;
+	}
+
+	@Override
+	public Charset getCharset(URI uri) throws IOException {
+		// TODO need to see if it is possible to detect the charset inside a class
+		return null;
 	}
 }

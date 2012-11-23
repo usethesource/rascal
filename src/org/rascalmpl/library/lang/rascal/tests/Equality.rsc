@@ -41,9 +41,5 @@ public test bool testMap(map[value, value] x, map[value, value] y) {
  rX = {<k,x[k]> | k <- x};
  rY = {<k,y[k]> | k <- y};
  
- return (x <= x + y) <==> (rX <= rX + rY);
+ return (y <= x + y) <==> (rX <= rX + rY);
 }
-
-
-
-
