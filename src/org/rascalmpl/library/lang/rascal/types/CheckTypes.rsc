@@ -4096,7 +4096,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
     
     if (!isFailType(atree@atype) && !concreteType(atree@atype)) {
         failtype = makeFailType("Assignable <ar> must have an actual type before assigning to a field", assn@\loc);
-        return < c, subscriptNode(atree, fldName)[@atype=failtype][@at=assn@\loc] >;
+        return < c, fieldAccessNode(atree, fldName)[@atype=failtype][@at=assn@\loc] >;
     }
     
     if (!isFailType(atree@atype)) {
