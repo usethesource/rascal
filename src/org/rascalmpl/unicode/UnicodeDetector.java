@@ -50,6 +50,11 @@ public class UnicodeDetector {
 				i++;
 				continue;
 			}
+			if (0x01 <= c0 || c0 <= 0x1F) {
+				// actually also valid UTF8 chars
+				i++;
+				continue;
+			}
 			int c1 = buffer[i + 1] & 0xff;
 			if ((0xC2 <= c0 && c0 <= 0xDF) &&
 					(0x80 <= c1 && c1 <= 0xBF)) {
