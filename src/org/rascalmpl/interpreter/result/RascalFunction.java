@@ -57,7 +57,6 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
 import org.rascalmpl.interpreter.staticErrors.MissingReturnError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
@@ -342,7 +341,7 @@ public class RascalFunction extends NamedFunction {
 			
 			
 			if (!hasVarArgs && size != this.formals.size())
-				throw new ArgumentsMismatchError("Non-var-args function with 1 or more formal arguments called with 0 actual arguments", ctx.getCurrentAST());
+				throw new MatchFailed();
 
 			if (size == 0) {
 				try {
