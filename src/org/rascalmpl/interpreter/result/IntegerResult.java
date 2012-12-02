@@ -454,7 +454,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
 		try {
 			// note the reverse division
-			return makeResult(n.getType(), n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+			return makeResult(n.getType(), n.getValue().divide(getValue(), getValueFactory().precision().intValue()), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
 		}

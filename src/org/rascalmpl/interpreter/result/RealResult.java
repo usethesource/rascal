@@ -18,15 +18,16 @@ import static org.rascalmpl.interpreter.result.IntegerResult.makeStepRangeFromTo
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.apache.commons.math.random.ValueServer;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RealResult extends ElementResult<IReal> {
-	public static final int PRECISION = 64;
 
 	public RealResult(IReal real, IEvaluatorContext ctx) {
 		this(real.getType(), real, ctx);
@@ -184,7 +185,8 @@ public class RealResult extends ElementResult<IReal> {
 	protected <U extends IValue> Result<U> divideReal(RealResult n) {
 		try {
 			// note the reverse division
-			return makeResult(type, n.getValue().divide(getValue(), PRECISION), ctx);
+			int prec = ValueFactoryFactory.getValueFactory().precision().intValue();
+			return makeResult(type, n.getValue().divide(getValue(), prec), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
 		}
@@ -341,7 +343,7 @@ public class RealResult extends ElementResult<IReal> {
 	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
 		try {
 			// note the reverse division
-			return makeResult(type, n.getValue().divide(getValue(), PRECISION), ctx);
+			return makeResult(type, n.getValue().divide(getValue(), 60 /* PRECISION */), ctx); // TODO
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
 		}
