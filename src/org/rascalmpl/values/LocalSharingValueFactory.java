@@ -135,6 +135,26 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public IReal real(String s) throws NumberFormatException{
 		return cachedReals.cache(valueFactory.real(s));
 	}
+	
+	@Override
+	public IReal real(String s, int p) throws NumberFormatException {
+		return cachedReals.cache(valueFactory.real(s, p));
+	}
+
+	@Override
+	public IReal real(double d, int p) {
+		return cachedReals.cache(valueFactory.real(d, p));
+	}
+
+	@Override
+	public IInteger precision() {
+		return cachedIntegers.cache(valueFactory.precision());
+	}
+
+	@Override
+	public IInteger setPrecision(int p) {
+		return cachedIntegers.cache(valueFactory.setPrecision(p));
+	}
 
 	public IString string(String s){
 		return cachedStrings.cache(valueFactory.string(s));
