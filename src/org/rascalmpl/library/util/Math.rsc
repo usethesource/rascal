@@ -100,7 +100,7 @@ Define the seed for the generation of arbitrary values such as [arbBool], [arbIn
 is used to choose arbitrary values. This can be used to generate a reproducible series of choices.
 }
 @javaClass{org.rascalmpl.library.util.Math}
-public java real arbSeed(int seed);
+public java void arbSeed(int seed);
 
 @doc{
 Synopsis: Generate an arbitrary rational value.
