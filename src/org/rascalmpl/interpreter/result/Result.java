@@ -18,7 +18,7 @@
 package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
-import static org.rascalmpl.interpreter.result.ResultFactory.bool;
+
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -219,11 +219,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(REMAINDER_STRING, that);
 	}
 
-	public <U extends IValue, V extends IValue> Result<U> in(Result<V> that) {
+	public <V extends IValue> Result<IBool> in(Result<V> that) {
 		return undefinedError(IN_STRING, that);
 	}
 
-	public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> that) {
+	public <V extends IValue> Result<IBool> notIn(Result<V> that) {
 		return undefinedError(NOTIN_STRING, that);
 	}
 	
@@ -235,7 +235,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(NEGATIVE_STRING);
 	}
 
-	public <U extends IValue> Result<U> negate() {
+	public Result<IBool> negate() {
 		return undefinedError(NEGATE_STRING);
 	}
 
@@ -247,28 +247,24 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(RANGE_STRING);
 	}
 
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		// e.g. for closures equality is undefined
 		return undefinedError(EQUALS_STRING, this);
 	}
 	
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
-		boolean eq = ((IBool) equals(that).getValue()).getValue();
-		
-		if (eq) return bool(true, ctx);
-		
-		return lessThanOrEqual(that);
+	public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
+		return lessThanOrEqual(that).isLess();
 	}
 	
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
-		return undefinedError(LESS_THAN_OR_EQUAL_STRING, that);
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
+		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> greaterThan(Result<V> that) {
 		return undefinedError(GREATER_THAN_STRING, that);
 	}
 	
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that) {
+	public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> that) {
 		return undefinedError(GREATER_THAN_OR_EQUAL_STRING, that);
 	}
 	
@@ -309,7 +305,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(SET_ANNO_STRING);
 	}
 	
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) { 
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) { 
 		return undefinedError(NON_EQUALS_STRING, that);
 	}
 	
@@ -514,35 +510,35 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(RANGE_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> inSet(SetResult that) {
+	protected Result<IBool> inSet(SetResult that) {
 		return that.undefinedError(IN_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> inRelation(RelationResult that) {
+	protected Result<IBool> inRelation(RelationResult that) {
 		return that.undefinedError(IN_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> inList(ListResult that) {
+	protected Result<IBool> inList(ListResult that) {
 		return that.undefinedError(IN_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> inMap(MapResult that) {
+	protected Result<IBool> inMap(MapResult that) {
 		return that.undefinedError(IN_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> notInSet(SetResult that) {
+	protected Result<IBool> notInSet(SetResult that) {
 		return that.undefinedError(NOTIN_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> notInRelation(RelationResult that) {
-		return that.undefinedError(NOTIN_STRING, this);
-	}
-	
-	protected <U extends IValue> Result<U> notInList(ListResult that) {
+	protected Result<IBool> notInRelation(RelationResult that) {
 		return that.undefinedError(NOTIN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> notInMap(MapResult that) {
+	protected Result<IBool> notInList(ListResult that) {
+		return that.undefinedError(NOTIN_STRING, this);
+	}
+	
+	protected Result<IBool> notInMap(MapResult that) {
 		return that.undefinedError(NOTIN_STRING, this);
 	}
 	
@@ -578,347 +574,347 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that) {
+	protected Result<IBool> equalToInteger(IntegerResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToRational(RationalResult that) {
+	protected Result<IBool> equalToRational(RationalResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToReal(RealResult that) {
+	protected Result<IBool> equalToReal(RealResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToString(StringResult that) {
+	protected Result<IBool> equalToString(StringResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToList(ListResult that) {
+	protected Result<IBool> equalToList(ListResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToSet(SetResult that) {
+	protected Result<IBool> equalToSet(SetResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToMap(MapResult that) {
+	protected Result<IBool> equalToMap(MapResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToNode(NodeResult that) {
+	protected Result<IBool> equalToNode(NodeResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToConcreteSyntax(ConcreteSyntaxResult that) {
+	protected Result<IBool> equalToConcreteSyntax(ConcreteSyntaxResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that) {
+	protected Result<IBool> equalToSourceLocation(SourceLocationResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToRelation(RelationResult that) {
+	protected Result<IBool> equalToRelation(RelationResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToTuple(TupleResult that) {
+	protected Result<IBool> equalToTuple(TupleResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToBool(BoolResult that) {
+	protected Result<IBool> equalToBool(BoolResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> equalToValue(ValueResult that) {
+	protected Result<IBool> equalToValue(ValueResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> equalToOverloadedFunction(OverloadedFunction that) {
+	public Result<IBool> equalToOverloadedFunction(OverloadedFunction that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> equalToConstructorFunction(ConstructorFunction that) {
+	public Result<IBool> equalToConstructorFunction(ConstructorFunction that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> equalToRascalFunction(RascalFunction that) {
+	public Result<IBool> equalToRascalFunction(RascalFunction that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> equalToDateTime(DateTimeResult that) {
+	protected Result<IBool> equalToDateTime(DateTimeResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToInteger(IntegerResult that) {
+	protected Result<IBool> nonEqualToInteger(IntegerResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToRational(RationalResult that) {
+	protected Result<IBool> nonEqualToRational(RationalResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToReal(RealResult that) {
+	protected Result<IBool> nonEqualToReal(RealResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToString(StringResult that) {
+	protected Result<IBool> nonEqualToString(StringResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToList(ListResult that) {
+	protected Result<IBool> nonEqualToList(ListResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToSet(SetResult that) {
+	protected Result<IBool> nonEqualToSet(SetResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToMap(MapResult that) {
+	protected Result<IBool> nonEqualToMap(MapResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that) {
+	protected Result<IBool> nonEqualToNode(NodeResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToConcreteSyntax(ConcreteSyntaxResult that) {
+	protected Result<IBool> nonEqualToConcreteSyntax(ConcreteSyntaxResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToSourceLocation(SourceLocationResult that) {
+	protected Result<IBool> nonEqualToSourceLocation(SourceLocationResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToRelation(RelationResult that) {
+	protected Result<IBool> nonEqualToRelation(RelationResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToTuple(TupleResult that) {
+	protected Result<IBool> nonEqualToTuple(TupleResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToBool(BoolResult that) {
+	protected Result<IBool> nonEqualToBool(BoolResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToValue(ValueResult that) {
+	protected Result<IBool> nonEqualToValue(ValueResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> nonEqualToDateTime(DateTimeResult that) {
+	protected Result<IBool> nonEqualToDateTime(DateTimeResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanInteger(IntegerResult that) {
+	protected Result<IBool> lessThanInteger(IntegerResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualInteger(IntegerResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualInteger(IntegerResult that) {
+    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanInteger(IntegerResult that) {
+	protected Result<IBool> greaterThanInteger(IntegerResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualInteger(IntegerResult that) {
+	protected Result<IBool> greaterThanOrEqualInteger(IntegerResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanRational(RationalResult that) {
+	protected Result<IBool> lessThanRational(RationalResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualRational(RationalResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualRational(RationalResult that) {
+    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanRational(RationalResult that) {
+	protected Result<IBool> greaterThanRational(RationalResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualRational(RationalResult that) {
+	protected Result<IBool> greaterThanOrEqualRational(RationalResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanReal(RealResult that) {
+	protected Result<IBool> lessThanReal(RealResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualReal(RealResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected LessThanOrEqualResult lessThanOrEqualReal(RealResult that) {
+		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanReal(RealResult that) {
+	protected Result<IBool> greaterThanReal(RealResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualReal(RealResult that) {
+	protected Result<IBool> greaterThanOrEqualReal(RealResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> lessThanString(StringResult that) {
+	protected Result<IBool> lessThanString(StringResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualString(StringResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected LessThanOrEqualResult lessThanOrEqualString(StringResult that) {
+		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanString(StringResult that) {
+	protected Result<IBool> greaterThanString(StringResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualString(StringResult that) {
+	protected Result<IBool> greaterThanOrEqualString(StringResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> lessThanTuple(TupleResult that) {
+	protected Result<IBool> lessThanTuple(TupleResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualTuple(TupleResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected LessThanOrEqualResult lessThanOrEqualTuple(TupleResult that) {
+		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanTuple(TupleResult that) {
+	protected Result<IBool> greaterThanTuple(TupleResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualTuple(TupleResult that) {
+	protected Result<IBool> greaterThanOrEqualTuple(TupleResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanNode(NodeResult that) {
+	protected Result<IBool> lessThanNode(NodeResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualNode(NodeResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected LessThanOrEqualResult lessThanOrEqualNode(NodeResult that) {
+		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanNode(NodeResult that) {
+	protected Result<IBool> greaterThanNode(NodeResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualNode(NodeResult that) {
+	protected Result<IBool> greaterThanOrEqualNode(NodeResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanBool(BoolResult that) {
+	protected Result<IBool> lessThanBool(BoolResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualBool(BoolResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected LessThanOrEqualResult lessThanOrEqualBool(BoolResult that) {
+		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanBool(BoolResult that) {
+	protected Result<IBool> greaterThanBool(BoolResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualBool(BoolResult that) {
+	protected Result<IBool> greaterThanOrEqualBool(BoolResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanMap(MapResult that) {
+	protected Result<IBool> lessThanMap(MapResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualMap(MapResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualMap(MapResult that) {
+		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanMap(MapResult that) {
+	protected Result<IBool> greaterThanMap(MapResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualMap(MapResult that) {
+	protected Result<IBool> greaterThanOrEqualMap(MapResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanSet(SetResult that) {
+	protected Result<IBool> lessThanSet(SetResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualSet(SetResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualSet(SetResult that) {
+    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanSet(SetResult that) {
+	protected Result<IBool> greaterThanSet(SetResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualSet(SetResult that) {
+	protected Result<IBool> greaterThanOrEqualSet(SetResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanRelation(RelationResult that) {
+	protected Result<IBool> lessThanRelation(RelationResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualRelation(RelationResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualRelation(RelationResult that) {
+    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanRelation(RelationResult that) {
+	protected Result<IBool> greaterThanRelation(RelationResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualRelation(RelationResult that) {
+	protected Result<IBool> greaterThanOrEqualRelation(RelationResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanList(ListResult that) {
+	protected Result<IBool> lessThanList(ListResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualList(ListResult that) {
+    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanList(ListResult that) {
+	protected Result<IBool> greaterThanList(ListResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that) {
+	protected Result<IBool> greaterThanOrEqualList(ListResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
 	// Comparison on DateTime
 
-	protected <U extends IValue> Result<U> lessThanDateTime(DateTimeResult that) {
+	protected Result<IBool> lessThanDateTime(DateTimeResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualDateTime(DateTimeResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualDateTime(DateTimeResult that) {
+    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanDateTime(DateTimeResult that) {
+	protected <U extends IValue>Result<IBool> greaterThanDateTime(DateTimeResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualDateTime(DateTimeResult that) {
+	protected Result<IBool> greaterThanOrEqualDateTime(DateTimeResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
 	// Comparison on SourceLocation
 	
-	protected <U extends IValue> Result<U> lessThanSourceLocation(SourceLocationResult that) {
+	protected Result<IBool> lessThanSourceLocation(SourceLocationResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualSourceLocation(SourceLocationResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualSourceLocation(SourceLocationResult that) {
+    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanSourceLocation(SourceLocationResult that) {
+	protected Result<IBool> greaterThanSourceLocation(SourceLocationResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualSourceLocation(SourceLocationResult that) {
+	protected Result<IBool> greaterThanOrEqualSourceLocation(SourceLocationResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
@@ -939,27 +935,27 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> equalToNumber(NumberResult that) {
+	protected Result<IBool> equalToNumber(NumberResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> nonEqualToNumber(NumberResult that) {
+	protected Result<IBool> nonEqualToNumber(NumberResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> lessThanNumber(NumberResult that) {
+	protected Result<IBool> lessThanNumber(NumberResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> lessThanOrEqualNumber(NumberResult that) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualNumber(NumberResult that) {
+    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
 	}
 
-	protected <U extends IValue> Result<U> greaterThanNumber(NumberResult that) {
+	protected Result<IBool> greaterThanNumber(NumberResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> greaterThanOrEqualNumber(NumberResult that) {
+	protected Result<IBool> greaterThanOrEqualNumber(NumberResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 
@@ -968,11 +964,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> is(Name name) {
+	public Result<IBool> is(Name name) {
 		return undefinedError(IS_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> has(Name name) {
+	public Result<IBool> has(Name name) {
 		return undefinedError(HAS_STRING, this);
 	}
 	

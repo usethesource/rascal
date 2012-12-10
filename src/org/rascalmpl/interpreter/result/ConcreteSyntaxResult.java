@@ -45,7 +45,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> is(Name name) {
+	public Result<IBool> is(Name name) {
 		if (TreeAdapter.isAppl(getValue())) {
 			String consName = TreeAdapter.getConstructorName(getValue());
 			if (consName != null) {
@@ -143,7 +143,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> has(Name name) {
+	public Result<IBool> has(Name name) {
 		if (TreeAdapter.isAppl(getValue())) {
 			IConstructor prod = TreeAdapter.getProduction(getValue());
 			IList syms = ProductionAdapter.getSymbols(prod);
@@ -162,23 +162,23 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToConcreteSyntax(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToConcreteSyntax(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToConcreteSyntax(
+	protected Result<IBool> nonEqualToConcreteSyntax(
 			ConcreteSyntaxResult that) {
 		return equalToConcreteSyntax(that).negate();
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToConcreteSyntax(ConcreteSyntaxResult that) {
+	protected Result<IBool> equalToConcreteSyntax(ConcreteSyntaxResult that) {
 		IConstructor left = this.getValue();
 		IConstructor right = that.getValue();
 		

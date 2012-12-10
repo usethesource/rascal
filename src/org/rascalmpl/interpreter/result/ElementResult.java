@@ -44,43 +44,43 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inSet(SetResult s) {
+	protected Result<IBool> inSet(SetResult s) {
 		return s.elementOf(this);
 	}
 	
 	
 	@Override
-	protected <U extends IValue> Result<U> notInSet(SetResult s) {
+	protected Result<IBool> notInSet(SetResult s) {
 		return s.notElementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inRelation(RelationResult s) {
+	protected Result<IBool> inRelation(RelationResult s) {
 		return s.elementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> notInRelation(RelationResult s) {
+	protected Result<IBool> notInRelation(RelationResult s) {
 		return s.notElementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inList(ListResult s) {
+	protected Result<IBool> inList(ListResult s) {
 		return s.elementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> notInList(ListResult s) {
+	protected Result<IBool> notInList(ListResult s) {
 		return s.notElementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inMap(MapResult s) {
+	protected Result<IBool> inMap(MapResult s) {
 		return s.elementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> notInMap(MapResult s) {
+	protected Result<IBool> notInMap(MapResult s) {
 		return s.notElementOf(this);
 	}
 	
@@ -132,36 +132,30 @@ public class ElementResult<T extends IValue> extends Result<T> {
 
 	
 	@Override
-  public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
-	  // TODO: it would be more efficient to directly implement lessThan and equals and forward lessThanOrEqual than 
-	  // the way we have it now. This is slow because we compute equality twice.
-    boolean eq = ((IBool) equals(that).getValue()).getValue();
-    
-    return bool(!eq && ((IBool) lessThanOrEqual(that).getValue()).getValue(), ctx);
+  public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
+    return lessThanOrEqual(that).isLess();
   }
   
   @Override
-  public <U extends IValue, V extends IValue> Result<U> greaterThan(
-      Result<V> that) {
+  public <V extends IValue> Result<IBool> greaterThan(Result<V> that) {
     return that.lessThan(this);
   }
   
   @Override
-  public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(
-      Result<V> that) {
+  public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> that) {
     return that.lessThanOrEqual(this);
   }
   
 	@Override
-	protected <U extends IValue> Result<U> equalToValue(ValueResult that) {
+	protected Result<IBool> equalToValue(ValueResult that) {
 		return that.equalityBoolean(this);
 	}
 
-	protected <U extends IValue, V extends IValue> Result<U> equalityBoolean(ElementResult<V> that) {
+	protected <V extends IValue> Result<IBool> equalityBoolean(ElementResult<V> that) {
 		return bool(that.getValue().isEqual(this.getValue()), ctx);
 	}
 
-	protected <U extends IValue, V extends IValue> Result<U> nonEqualityBoolean(ElementResult<V> that) {
+	protected <V extends IValue> Result<IBool> nonEqualityBoolean(ElementResult<V> that) {
 		return bool((!that.getValue().isEqual(this.getValue())), ctx);
 	}
 

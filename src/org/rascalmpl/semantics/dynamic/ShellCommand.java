@@ -121,7 +121,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			return org.rascalmpl.interpreter.result.ResultFactory.bool(__eval.runTests(__eval.getMonitor()), __eval);
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(TF.boolType(), VF.bool(__eval.runTests(__eval.getMonitor())), __eval);
 		}
 	}
 

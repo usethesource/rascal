@@ -18,6 +18,7 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -56,42 +57,42 @@ public class ListResult extends CollectionResult<IList> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> in(Result<V> result) {
+	public <V extends IValue> Result<IBool> in(Result<V> result) {
 		return result.inList(this);
 	}	
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> result) {
+	public <V extends IValue> Result<IBool> notIn(Result<V> result) {
 		return result.notInList(this);
 	}	
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToList(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToList(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
 		return that.lessThanList(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
 		return that.lessThanOrEqualList(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> greaterThan(Result<V> that) {
 		return that.greaterThanList(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that) {
+	public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> that) {
 		return that.greaterThanOrEqualList(this);
 	}
 
@@ -180,36 +181,36 @@ public class ListResult extends CollectionResult<IList> {
 		return makeResult(getType(), list.delete(value.getValue()), ctx);
 	}
 
-	<U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult) {
+	<V extends IValue> Result<IBool> elementOf(ElementResult<V> elementResult) {
 		return bool((getValue().contains(elementResult.getValue())), ctx);
 	}
 
-	<U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult) {
+	<V extends IValue> Result<IBool> notElementOf(ElementResult<V> elementResult) {
 		return bool((!getValue().contains(elementResult.getValue())), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToList(ListResult that) {
+	protected Result<IBool> equalToList(ListResult that) {
 		return that.equalityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToList(ListResult that) {
+	protected Result<IBool> nonEqualToList(ListResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanList(ListResult that) {
+	protected Result<IBool> greaterThanList(ListResult that) {
 	  return that.lessThanList(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that) {
+	protected Result<IBool> greaterThanOrEqualList(ListResult that) {
 	  return that.lessThanOrEqualList(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanList(ListResult that) {
+	protected Result<IBool> lessThanList(ListResult that) {
 	  IList val = that.getValue();
     
     if (val.length() > value.length()) {
@@ -230,11 +231,11 @@ public class ListResult extends CollectionResult<IList> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that) {
+	protected LessThanOrEqualResult lessThanOrEqualList(ListResult that) {
 	  IList val = that.getValue();
 	  
 	  if (val.length() > value.length()) {
-	    return bool(false, ctx);
+	    return new LessThanOrEqualResult(false, false, ctx);
 	  }
 	  
 		OUTER:for (int iThat = 0, iThis = 0; iThat < val.length(); iThat++) {
@@ -243,9 +244,9 @@ public class ListResult extends CollectionResult<IList> {
 		      continue OUTER;
 		    }
 		  }
-		  return bool(false, ctx);
+		  return new LessThanOrEqualResult(true, false, ctx);
 		}
 	  
-		return bool(true, ctx);
+		return new LessThanOrEqualResult(false, true, ctx);
 	}
 }

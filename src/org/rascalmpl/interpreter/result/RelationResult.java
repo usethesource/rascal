@@ -17,6 +17,7 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -51,7 +52,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 		
 		@Override
-		public <U extends IValue> Result<U> has(Name name) {
+		public Result<IBool> has(Name name) {
 			return ResultFactory.bool(getType().hasField(Names.name(name)), ctx);
 		}
 		
@@ -66,32 +67,32 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		public <V extends IValue> Result<IBool> equals(Result<V> that) {
 			return that.equalToRelation(this);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+		public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 			return that.nonEqualToRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+		public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
 			return that.lessThanRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+		public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
 			return that.lessThanOrEqualRelation(this);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that) {
+		public <V extends IValue> Result<IBool> greaterThan(Result<V> that) {
 			return that.greaterThanRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that) {
+		public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> that) {
 			return that.greaterThanOrEqualRelation(this);
 		}
 
@@ -111,12 +112,12 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> in(Result<V> that) {
+		public <V extends IValue> Result<IBool> in(Result<V> that) {
 			return that.inRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> that) {
+		public <V extends IValue> Result<IBool> notIn(Result<V> that) {
 			return that.notInRelation(this);
 		}
 		
@@ -207,12 +208,12 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		
 		
 		@Override
-		protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult) {
+		protected <V extends IValue> Result<IBool> elementOf(ElementResult<V> elementResult) {
 			return bool((getValue().contains(elementResult.getValue())), ctx);
 		}
 
 		@Override
-		protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult) {
+		protected <V extends IValue> Result<IBool> notElementOf(ElementResult<V> elementResult) {
 			return bool((!getValue().contains(elementResult.getValue())), ctx);
 		}
 		
