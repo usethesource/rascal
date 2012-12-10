@@ -13,7 +13,6 @@ package org.rascalmpl.interpreter.debug;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -92,11 +91,7 @@ public class DebugUpdater {
 
 				// 1: does current production application need an annotation?
 				if (hasBreakableAttributeTag(prod) || addBreakable && !isList) {
-										
-					final Map<String,IValue> annotations = arg.getAnnotations();
-					annotations.put("breakable", VF.bool(true));			
-					
-					arg = arg.setAnnotations(annotations);					
+					arg = arg.setAnnotation("breakable", VF.bool(true));
 				}
 				
 				// 2: push-down deferred production names.

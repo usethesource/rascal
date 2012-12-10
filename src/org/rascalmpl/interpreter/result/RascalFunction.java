@@ -340,6 +340,9 @@ public class RascalFunction extends NamedFunction {
 			int i = 0;
 			
 			
+			if (!hasVarArgs && size != this.formals.size())
+				throw new MatchFailed();
+
 			if (size == 0) {
 				try {
 					return runBody();

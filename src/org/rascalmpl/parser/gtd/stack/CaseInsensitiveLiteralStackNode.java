@@ -63,7 +63,7 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		this.result = result;
 	}
 	
-	private int[][] fill(int[] ciLiteral){
+	private static int[][] fill(int[] ciLiteral){
 		int nrOfCharacters = ciLiteral.length;
 		int[][] ciLiteralResult = new int[nrOfCharacters][];
 		for(int i = nrOfCharacters - 1; i >= 0; --i){

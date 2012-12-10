@@ -16,6 +16,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 
 public class HttpURIResolver implements IURIInputStreamResolver {
 
@@ -65,5 +66,19 @@ public class HttpURIResolver implements IURIInputStreamResolver {
 
 	public boolean supportsHost() {
 		return true;
+	}
+
+	@Override
+	public Charset getCharset(URI uri) throws IOException {
+		try {
+			String encoding = uri.toURL().openConnection().getContentEncoding();
+			if (Charset.isSupported(encoding)) {
+				return Charset.forName(encoding);
+			}
+			return null;
+		}
+		catch (IOException e) {
+			return null;
+		}
 	}
 }

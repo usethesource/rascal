@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Davy Landman - Davy.Landman@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 
 /*******************************************************************************
@@ -33,6 +35,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringReader;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
@@ -79,7 +82,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.impl.DateTimeValues.TimeValue;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
@@ -98,6 +100,9 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.unicode.UnicodeDetector;
+import org.rascalmpl.unicode.UnicodeInputStreamReader;
+import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -929,18 +934,30 @@ public class Prelude {
 			w.insert(values.string(s));
 		}
 		return w.done();
-	}
+	} 
 	
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
-	  return readFileEnc(sloc, values.string("UTF8"), ctx);	
+		try {
+			Charset c = ctx.getResolverRegistry().getCharset(sloc.getURI());
+			if (c != null)
+				return readFileEnc(sloc, values.string(c.name()), ctx);
+			return consumeInputStream(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI())), ctx);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
 	}
 	
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
+		try {
+			return consumeInputStream(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), charset.getValue()), ctx);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+	}
+
+	private IValue consumeInputStream(ISourceLocation sloc, Reader in, IEvaluatorContext ctx) {
 		StringBuilder result = new StringBuilder(1024 * 1024);
-		
-		InputStreamReader in = null;
 		try{
-			in = new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), charset.getValue());
 			char[] buf = new char[4096];
 			int count;
 
@@ -1012,7 +1029,38 @@ public class Prelude {
 	}
 	
 	private void writeFile(ISourceLocation sloc, IList V, boolean append, IEvaluatorContext ctx){
-		 writeFileEnc(sloc, values.string("UTF8"), V, append, ctx);
+		IString charset = values.string("UTF8");
+		if (append) {
+			// in case the file already has a encoding, we have to correctly append that.
+			InputStream in = null;
+			Charset detected = null;
+			try {
+				detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
+				if (detected == null) {
+					in = ctx.getResolverRegistry().getInputStream(sloc.getURI());
+					detected = UnicodeDetector.estimateCharset(in);
+				}
+			}catch(FileNotFoundException fnfex){
+				throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			} catch (IOException e) {
+				throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			}
+			finally {
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e) {
+						throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+					}
+				}
+			}
+			if (detected != null)
+				charset = values.string(detected.name());
+			else {
+				charset = values.string(Charset.defaultCharset().name());
+			}
+		}
+		writeFileEnc(sloc, charset, V, append, ctx);
 	}
 	
 	public IBool canEncode(IString charset) {
@@ -1027,7 +1075,7 @@ public class Prelude {
 		}
 		
 		try{
-			out = new OutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue());
+			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue(), append);
 			
 			for(IValue elem : V){
 				if (elem.getType().isStringType()) {
@@ -1058,17 +1106,42 @@ public class Prelude {
 	public void appendToFile(ISourceLocation sloc, IList V, IEvaluatorContext ctx){
 		writeFile(sloc, V, true, ctx);
 	}
+	public void appendToFileEnc(ISourceLocation sloc, IString charset, IList V, IEvaluatorContext ctx){
+		writeFileEnc(sloc, charset, V, true, ctx);
+	}
 	
 	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
-	  return readFileLinesEnc(sloc, values.string("UTF8"), ctx);	
+		try {
+			Charset detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
+			if (detected != null)
+				return readFileLinesEnc(sloc, values.string(detected.name()), ctx);
+			return consumeInputStreamLines(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI())), ctx);
+		}catch(MalformedURLException e){
+		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
+		}catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+		}catch(IOException e){
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
 	}
 	
 	public IList readFileLinesEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
+		try {
+			return consumeInputStreamLines(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()),charset.getValue()), ctx);
+		}catch(MalformedURLException e){
+		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
+		}catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+		}catch(IOException e){
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+	}
+
+	private IList consumeInputStreamLines(ISourceLocation sloc,	Reader stream, IEvaluatorContext ctx ) {
 		IListWriter w = types.listType(types.stringType()).writer(values);
 		
 		BufferedReader in = null;
 		try{
-			InputStreamReader stream = new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()),charset.getValue());
 			in = new BufferedReader(stream);
 			java.lang.String line;
 			
@@ -1106,10 +1179,6 @@ public class Prelude {
 					}
 				}
 			}while(line != null);
-		}catch(MalformedURLException e){
-		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
-		}catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}finally{

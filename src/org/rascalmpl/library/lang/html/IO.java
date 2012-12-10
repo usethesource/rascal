@@ -13,7 +13,6 @@ package org.rascalmpl.library.lang.html;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -31,6 +30,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.unicode.UnicodeInputStreamReader;
 
 public class IO {
 	private final IValueFactory factory;
@@ -44,7 +44,7 @@ public class IO {
 		try {
 			in = ctx.getResolverRegistry().getInputStream(file.getURI());
 			Constructor cons = new Constructor();
-			new ParserDelegator().parse(new InputStreamReader(in), cons, true);
+			new ParserDelegator().parse(new UnicodeInputStreamReader(in, ctx.getResolverRegistry().getCharset(file.getURI())), cons, true);
 			return cons.getValue();
 		} catch (MalformedURLException e) {
 			throw RuntimeExceptionFactory.malformedURI(file.getURI().toASCIIString(), null, null);
