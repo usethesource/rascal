@@ -16,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
@@ -163,5 +164,11 @@ public class JarURIResolver implements IURIInputStreamResolver{
 
 	public boolean supportsHost() {
 		return false;
+	}
+
+	@Override
+	public Charset getCharset(URI uri) throws IOException {
+		// TODO need to see if we can detect the charset inside a jar
+		return null;
 	}
 }

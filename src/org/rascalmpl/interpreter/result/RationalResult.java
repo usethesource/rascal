@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -381,7 +382,7 @@ public class RationalResult extends ElementResult<IRational> {
 	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
 		try {
 			// note the reverse division
-			return makeResult(n.getType(), n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+			return makeResult(n.getType(), n.getValue().divide(getValue(), getValueFactory().getPrecision()), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
 		}

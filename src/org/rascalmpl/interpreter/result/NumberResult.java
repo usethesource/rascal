@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class NumberResult extends ElementResult<INumber> {
 	public NumberResult(Type type, INumber value, IEvaluatorContext ctx) {
@@ -131,7 +132,8 @@ public class NumberResult extends ElementResult<INumber> {
 	protected <U extends IValue> Result<U> divideInteger(IntegerResult n) {
 		try {
 			// Note reversed args: we need n / this
-			return makeResult(type, n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+			int prec = ValueFactoryFactory.getValueFactory().getPrecision();
+			return makeResult(type, n.getValue().divide(getValue(), prec), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
 		}			
@@ -162,7 +164,8 @@ public class NumberResult extends ElementResult<INumber> {
 	protected <U extends IValue> Result<U> divideReal(RealResult n) {
 		try {
 			// note the reverse division
-			return makeResult(type, n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+			int prec = ValueFactoryFactory.getValueFactory().getPrecision();
+			return makeResult(type, n.getValue().divide(getValue(), prec), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
 		}			
@@ -219,7 +222,8 @@ public class NumberResult extends ElementResult<INumber> {
 	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
 		try {
 			// note the reverse division
-			return makeResult(type, n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+			int prec = ValueFactoryFactory.getValueFactory().getPrecision();
+			return makeResult(type, n.getValue().divide(getValue(), prec), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
 		}			

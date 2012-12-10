@@ -1311,7 +1311,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		
 		try {
 			inputStream = resolverRegistry.getInputStream(location);
-			data = InputConverter.toChar(inputStream);
+			data = InputConverter.toChar(inputStream, resolverRegistry.getCharset(location));
 		}
 		finally{
 			if(inputStream != null){

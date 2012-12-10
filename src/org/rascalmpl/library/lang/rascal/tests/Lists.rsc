@@ -30,7 +30,7 @@ bool isEqual(list[&T] A, list[&T] B) =
 //     size(A) == size(B) && (true | (it && (A[i] == B[i])) | int i <- index(A));
 
 public test bool equal(list[&T] A) = A == A;
-public test bool equal(list[&T] A, list[&T] B) = (A == B) ==> isEqual(A,B); 
+public test bool equal(list[&T] A, list[&T] B) = (A == B) ? isEqual(A,B) : !isEqual(A, B);
 
 public test bool notEqual(list[&T] A) = !(A != A);
 public test bool notEqual(list[&T] A, list[&T] B) = (A != B) ? !isEqual(A,B) : isEqual(A,B);

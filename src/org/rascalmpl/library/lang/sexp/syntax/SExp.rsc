@@ -1,10 +1,12 @@
 module lang::sexp::syntax::SExp
 
 // http://people.csail.mit.edu/rivest/Sexp.txt
+import String;
+import IO;
 
 start syntax SExp
   = string: String
-  | \list: List
+  | \list: "(" SExp* ")"
   ;
 
 syntax String
@@ -21,11 +23,11 @@ syntax SimpleString
   ;
 
 syntax Display
-  = "[" SimpleString "]"
+  = bracket "[" SimpleString "]"
   ;
 
-lexical Raw
-  = Decimal ":" Bytes
+syntax Raw
+  = raw: Decimal >> [:] ":" !>> [\ \t\n\r] Bytes
   ;
   
 lexical Decimal
@@ -34,18 +36,18 @@ lexical Decimal
   ; 
 
 lexical Bytes
-  = ![]*;  // any string of bytes, of the indicated length in Raw;-- does not work
+  = ![]*;  
   
 lexical Token
-  = TokenChar+
+  = TokenChar+ !>> [a-zA-Z0-9\-./_:*+=]
   ;
 
 syntax Base64
-  = "|" Base64Char* "|" // nb: whitespace allowed
+  = bracket "|" Base64Char* "|" // nb: whitespace allowed
   ;
 
 syntax HexaDecimal
-  = "#" HexDigit* "#"; // nb: whitespace allowed
+  = bracket "#" HexDigit* "#"; // nb: whitespace allowed
   
 lexical QuotedString
   = [\"] QSChar* [\"] 
@@ -61,9 +63,6 @@ lexical QSChar
   | [\\][\n][\r]
   ;
 
-syntax List
-  = "(" SExp* ")"
-  ;
 
 layout Whitespace
   = WS* !>> [\ \t\n\r]
@@ -100,3 +99,17 @@ lexical Base64Char
   | DecimalDigit
   | [+/=]
   ;
+  
+  
+public Raw raw(Decimal d, Bytes bs) {
+  int l = toInt(unparse(d));
+  str s = unparse(bs);
+  println("L = <l>");
+  println("s = \"<s>\"");
+  if (l != size(s)) {
+    filter;
+  }
+  else {
+    fail;
+  }
+}

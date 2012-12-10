@@ -248,7 +248,7 @@ public str allTableSchemas(str moduleName, loc uri) {
     
     // Generate the module, which will include accessors for each table.
     mbody = "module <moduleName>
-            'import JDBC;
+            'import resource::jdbc::JDBC;
             '
             '<for (tfun <- tfuns) {>
             '<tfun>
@@ -299,7 +299,7 @@ public str tableSchema(str moduleName, loc uri) {
     closeConnection(con);
     
     mbody = "module <moduleName>
-            'import JDBC;
+            'import resource::jdbc::JDBC;
             '
             'alias \\<tableName>RowType = <prettyPrintType(columnTuple)>;
             'alias \\<tableName>Type = rel[<intercalate(",",[prettyPrintType(ct) | ct <- columnTypes])>];
