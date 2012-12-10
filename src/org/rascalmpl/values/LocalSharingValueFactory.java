@@ -147,13 +147,13 @@ public class LocalSharingValueFactory implements IValueFactory{
 	}
 
 	@Override
-	public IInteger precision() {
-		return cachedIntegers.cache(valueFactory.precision());
+	public int getPrecision() {
+		return valueFactory.getPrecision();
 	}
 
 	@Override
-	public IInteger setPrecision(int p) {
-		return cachedIntegers.cache(valueFactory.setPrecision(p));
+	public int setPrecision(int p) {
+		return valueFactory.setPrecision(p);
 	}
 
 	public IString string(String s){
