@@ -34,37 +34,37 @@ public class BoolResult extends ElementResult<IBool> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToBool(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToBool(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result) {
+	public <V extends IValue> Result<IBool> lessThan(Result<V> result) {
 		return result.lessThanBool(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result) {
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> result) {
 		return result.lessThanOrEqualBool(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result) {
+	public <V extends IValue> Result<IBool> greaterThan(Result<V> result) {
 		return result.greaterThanBool(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result) {
+	public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> result) {
 		return result.greaterThanOrEqualBool(this);
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> negate() {
+	public Result<IBool> negate() {
 		return bool(getValue().not().getValue(), ctx);
 	}
 	
@@ -82,34 +82,35 @@ public class BoolResult extends ElementResult<IBool> {
 	
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToBool(BoolResult that) {
+	protected Result<IBool> equalToBool(BoolResult that) {
 		return that.equalityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToBool(BoolResult that) {
+	protected Result<IBool> nonEqualToBool(BoolResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualBool(BoolResult that) {
+	protected LessThanOrEqualResult lessThanOrEqualBool(BoolResult that) {
 	  // false < true or true <= true
-		return bool(!that.isTrue() || isTrue(), ctx);
+	  return new LessThanOrEqualResult(!that.isTrue(), isTrue(), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanBool(BoolResult that) {
+	protected Result<IBool> lessThanBool(BoolResult that) {
 	  return bool(!that.isTrue() && isTrue(), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanBool(BoolResult that) {
+	protected Result<IBool> greaterThanBool(BoolResult that) {
 	  return that.lessThanBool(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualBool(BoolResult that) {
-	  return that.lessThanOrEqualBool(this);
+	protected Result<IBool> greaterThanOrEqualBool(BoolResult that) {
+	   LessThanOrEqualResult r = that.lessThanOrEqualBool(this);
+	   return r;
 	}
 
 	@Override

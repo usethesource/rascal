@@ -16,6 +16,7 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
@@ -44,12 +45,12 @@ public class ConstructorResult extends NodeResult {
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> is(Name name) {
+	public Result<IBool> is(Name name) {
 		return ResultFactory.bool(getValue().getName().equals(Names.name(name)), ctx);
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> has(Name name) {
+	public Result<IBool> has(Name name) {
 		return ResultFactory.bool(getValue().has(Names.name(name)), ctx);
 	}
 	

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -545,94 +546,93 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToSourceLocation(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToSourceLocation(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
 		return that.lessThanSourceLocation(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
 		return that.lessThanOrEqualSourceLocation(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanSourceLocation(SourceLocationResult that) {
-	  boolean eq = getValue().isEqual(that.getValue());
-	  if (eq) return bool(false, ctx);
-	  return lessThanOrEqualSourceLocation(that);
+	protected Result<IBool> lessThanSourceLocation(SourceLocationResult that) {
+	  LessThanOrEqualResult loe = lessThanOrEqualSourceLocation(that);
+	  return bool(loe.isLess().getValue().getValue() && !loe.isEqual().isTrue(), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanSourceLocation(SourceLocationResult that) {
+	protected Result<IBool> greaterThanSourceLocation(SourceLocationResult that) {
 	  return that.lessThanSourceLocation(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualSourceLocation(SourceLocationResult that) {
+	protected Result<IBool> greaterThanOrEqualSourceLocation(SourceLocationResult that) {
 	  return that.lessThanSourceLocation(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualSourceLocation(SourceLocationResult that) {
+	protected LessThanOrEqualResult lessThanOrEqualSourceLocation(SourceLocationResult that) {
     ISourceLocation left = that.getValue();
     ISourceLocation right = this.getValue();
     
-    if (left.isEqual(right)) {
-      return bool(true, ctx);
-    }
-    
     int compare = left.getURI().toString().compareTo(right.getURI().toString());
-    if (compare == -1) {
-      return bool(true, ctx);
+    if (compare < 0) {
+      return new LessThanOrEqualResult(true, false, ctx);
+    }
+    else if (compare > 0) {
+      return new LessThanOrEqualResult(false, false, ctx);
     }
 
-    if (compare == 0) {
     // but the uri's are the same
     // note that line/column information is superfluous and does not matter for ordering
     
-      if (left.hasOffsetLength()) {
-        if (!right.hasOffsetLength()) {
-          return bool(false, ctx);
-        }
-
-        int roffset = right.getOffset();
-        int rlen = right.getLength();
-        int loffset = left.getOffset();
-        int llen = left.getLength();
-
-        if (loffset == roffset) {
-          return bool(llen <= rlen, ctx);
-        }
-
-        return bool(roffset < loffset && roffset + rlen >= loffset + llen, ctx);
+    if (left.hasOffsetLength()) {
+      if (!right.hasOffsetLength()) {
+        return new LessThanOrEqualResult(false, false, ctx);
       }
+
+      int roffset = right.getOffset();
+      int rlen = right.getLength();
+      int loffset = left.getOffset();
+      int llen = left.getLength();
+
+      if (loffset == roffset) {
+        return new LessThanOrEqualResult(llen < rlen, llen == rlen, ctx);
+      }
+
+      return new LessThanOrEqualResult(roffset < loffset && roffset + rlen >= loffset + llen, false, ctx);
     }
-    
+    else if (compare == 0) {
+      return new LessThanOrEqualResult(false, true, ctx);
+    }
+
     if (!right.hasOffsetLength()) {
       throw new ImplementationError("assertion failed");
     }
-    
-    return bool(false, ctx);
+
+    return new LessThanOrEqualResult(false, false, ctx);
 	}
 	
 	/////
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that) {
+	protected Result<IBool> equalToSourceLocation(SourceLocationResult that) {
 		return that.equalityBoolean(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToSourceLocation(SourceLocationResult that) {
+	protected Result<IBool> nonEqualToSourceLocation(SourceLocationResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	

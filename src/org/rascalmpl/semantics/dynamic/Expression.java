@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -692,11 +693,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				IBooleanResult gen = this.getBacktracker(__eval);
 				gen.init();
 				if (gen.hasNext() && gen.next()) {
-					return org.rascalmpl.interpreter.result.ResultFactory.bool(
-							true, __eval);
+					return org.rascalmpl.interpreter.result.ResultFactory.makeResult(TF.boolType(),
+							VF.bool(true), __eval);
 				}
-				return org.rascalmpl.interpreter.result.ResultFactory.bool(
-						false, __eval);
+				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(TF.boolType(),
+						VF.bool(false), __eval);
 			} finally {
 				__eval.unwind(old);
 			}
@@ -726,8 +727,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
-			return left.equals(right);
-
+			Result<IBool> result = left.equals(right);
+			return makeResult(TF.boolType(), result.getValue(), __eval);
 		}
 
 	}
@@ -913,8 +914,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
-			return left.greaterThan(right);
-
+			Result<IBool> result = left.greaterThan(right);
+			return makeResult(TF.boolType(), result.getValue(), __eval);
 		}
 
 	}
@@ -943,7 +944,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
-			return left.greaterThanOrEqual(right);
+			Result<IBool> result = left.greaterThanOrEqual(right);
+			return makeResult(TF.boolType(), result.getValue(), __eval);
 
 		}
 
@@ -1024,7 +1026,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 
-			return getExpression().interpret(__eval).has(getName());
+			Result<IBool> result = getExpression().interpret(__eval).has(getName());
+			return makeResult(TF.boolType(), result.getValue(), __eval);
 		}
 	}
 
@@ -1149,8 +1152,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
-			return right.in(left);
-
+			Result<IBool> result = right.in(left);
+			return makeResult(TF.boolType(), result.getValue(), __eval);
 		}
 
 	}
@@ -1206,7 +1209,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 
-			return getExpression().interpret(__eval).is(getName());
+			Result<IBool> result = getExpression().interpret(__eval).is(getName());
+			return makeResult(TF.boolType(), result.getValue(), __eval);
 		}
 	}
 
@@ -1315,7 +1319,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
-			return left.lessThan(right);
+			Result<IBool> result = left.lessThan(right);
+			return makeResult(TF.boolType(), result.getValue(), __eval);
 		}
 	}
 
@@ -1337,14 +1342,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
-			return left.lessThanOrEqual(right);
-
+			Result<IBool> result = left.lessThanOrEqual(right);
+			return ResultFactory.makeResult(result.getType(), result.getValue(),__eval);
 		}
 
 	}
@@ -1916,8 +1920,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
-			return left.nonEquals(right);
-
+			Result<IBool> result = left.nonEquals(right);
+			return makeResult(result.getType(), result.getValue(), __eval);
 		}
 
 	}
@@ -1944,7 +1948,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
-			return right.notIn(left);
+			Result<IBool> result = right.notIn(left);
+			return makeResult(result.getType(), result.getValue(), __eval);
 
 		}
 
@@ -2807,6 +2812,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 //				return ResultFactory.bool(true, ctx);
 //			}
 //		}
-		return ResultFactory.bool(mp.hasNext() && mp.next(), ctx);
+		return makeResult(TypeFactory.getInstance().boolType(), ctx.getValueFactory().bool(mp.hasNext() && mp.next()), ctx);
 	}
 }

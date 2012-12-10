@@ -44,9 +44,9 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected static final TypeFactory TF = TypeFactory.getInstance();
     
 	protected final Environment declarationEnvironment;
-    protected final IEvaluator<Result<IValue>> eval;
+	protected final IEvaluator<Result<IValue>> eval;
     
-    protected final FunctionType functionType;
+	protected final FunctionType functionType;
 	protected final boolean hasVarArgs;
 	
 	protected final static TypeStore hiddenStore = new TypeStore();
@@ -340,8 +340,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
-	  // TODO Auto-generated method stub
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
 	  return super.lessThanOrEqual(that);
 	}
 	
