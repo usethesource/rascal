@@ -117,8 +117,8 @@ public class NodeResult extends ElementResult<INode> {
        IValue rightArg = right.get(i);
        LessThanOrEqualResult loe = makeResult(leftArg.getType(), leftArg, ctx).lessThanOrEqual(makeResult(rightArg.getType(), rightArg,ctx));
        
-       if (loe.getLess()) {
-         return loe;
+       if (loe.getLess() && !loe.getEqual()) {
+         return new LessThanOrEqualResult(true, false, ctx);
        }
        
        if (!loe.getEqual()) { 
