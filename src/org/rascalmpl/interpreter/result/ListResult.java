@@ -232,15 +232,19 @@ public class ListResult extends CollectionResult<IList> {
 	
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualList(ListResult that) {
-	  IList val = that.getValue();
+	  IList left = that.getValue();
+	  IList right = getValue();
 	  
-	  if (val.length() > value.length()) {
+	  if (left.length() == 0) {
+	    return new LessThanOrEqualResult(right.length() > 0, right.length() == 0, ctx);
+	  }
+	  else if (left.length() > right.length()) {
 	    return new LessThanOrEqualResult(false, false, ctx);
 	  }
 	  
-		OUTER:for (int iThat = 0, iThis = 0; iThat < val.length(); iThat++) {
-		  for (iThis = Math.max(iThis, iThat) ; iThis < value.length(); iThis++) {
-		    if (val.get(iThat).isEqual(value.get(iThis))) {
+		OUTER:for (int iThat = 0, iThis = 0; iThat < left.length(); iThat++) {
+		  for (iThis = Math.max(iThis, iThat) ; iThis < right.length(); iThis++) {
+		    if (left.get(iThat).isEqual(right.get(iThis))) {
 		      continue OUTER;
 		    }
 		  }
