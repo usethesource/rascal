@@ -251,6 +251,6 @@ public class ListResult extends CollectionResult<IList> {
 		  return new LessThanOrEqualResult(true, false, ctx);
 		}
 	  
-		return new LessThanOrEqualResult(false, true, ctx);
+		return new LessThanOrEqualResult(left.length() < right.length(), left.length() == right.length(), ctx);
 	}
 }

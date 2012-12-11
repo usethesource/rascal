@@ -259,7 +259,7 @@ public class TupleResult extends ElementResult<ITuple> {
 	
 	@Override
 	protected Result<IBool> lessThanTuple(TupleResult that) {
-	  return that.greaterThan(this);
+	  return lessThanOrEqualTuple(that).isLess();
 	}
 	
 	@Override
