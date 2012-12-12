@@ -125,7 +125,7 @@ public class NumberResult extends ElementResult<INumber> {
 	protected <U extends IValue> Result<U> divideInteger(IntegerResult n) {
 		try {
 			// Note reversed args: we need n / this
-			int prec = ValueFactoryFactory.getValueFactory().precision().intValue();
+			int prec = ValueFactoryFactory.getValueFactory().getPrecision();
 			return makeResult(type, n.getValue().divide(getValue(), prec), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
@@ -157,7 +157,7 @@ public class NumberResult extends ElementResult<INumber> {
 	protected <U extends IValue> Result<U> divideReal(RealResult n) {
 		try {
 			// note the reverse division
-			int prec = ValueFactoryFactory.getValueFactory().precision().intValue();
+			int prec = ValueFactoryFactory.getValueFactory().getPrecision();
 			return makeResult(type, n.getValue().divide(getValue(), prec), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
@@ -287,7 +287,7 @@ public class NumberResult extends ElementResult<INumber> {
 	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
 		try {
 			// note the reverse division
-			int prec = ValueFactoryFactory.getValueFactory().precision().intValue();
+			int prec = ValueFactoryFactory.getValueFactory().getPrecision();
 			return makeResult(type, n.getValue().divide(getValue(), prec), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
