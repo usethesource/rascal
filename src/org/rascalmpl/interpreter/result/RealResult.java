@@ -185,7 +185,7 @@ public class RealResult extends ElementResult<IReal> {
 	protected <U extends IValue> Result<U> divideReal(RealResult n) {
 		try {
 			// note the reverse division
-			int prec = ValueFactoryFactory.getValueFactory().precision().intValue();
+			int prec = ValueFactoryFactory.getValueFactory().getPrecision();
 			return makeResult(type, n.getValue().divide(getValue(), prec), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);

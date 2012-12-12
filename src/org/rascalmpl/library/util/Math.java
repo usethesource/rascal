@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.interpreter.result.RealResult;
 
 public class Math {
 	private final IValueFactory values;
@@ -58,7 +57,7 @@ public class Math {
 	}
 	
 	public IValue cos(INumber x){
-		return x.toReal().cos(values.precision().intValue());
+		return x.toReal().cos(values.getPrecision());
 	}
 	
 	public IValue denominator(IRational n)
@@ -69,11 +68,11 @@ public class Math {
 	public IValue E()
 	//@doc{e -- returns the constant E}
 	{
-		return values.e(values.precision().intValue());
+		return values.e(values.getPrecision());
 	}
 	
 	public IValue exp(INumber x){
-		return x.toReal().exp(values.precision().intValue());
+		return x.toReal().exp(values.getPrecision());
 	}
 	
 	public IValue floor(INumber x){
@@ -81,11 +80,11 @@ public class Math {
 	}
 	
 	public IValue ln(INumber x) {
-		return x.toReal().ln(values.precision().intValue());
+		return x.toReal().ln(values.getPrecision());
 	}
 
 	public IValue log(INumber x, INumber base) {
-		return x.toReal().log(base.toReal(), values.precision().intValue());
+		return x.toReal().log(base.toReal(), values.getPrecision());
 	}
 	
 	public IValue numerator(IRational n)
@@ -94,13 +93,13 @@ public class Math {
 	}
 
 	public IValue nroot(INumber x, IInteger y){
-		return x.toReal().nroot(y, values.precision().intValue());
+		return x.toReal().nroot(y, values.getPrecision());
 	}
 	
 	public IValue PI()
 	//@doc{pi -- returns the constant PI}
 	{
-		return values.pi(values.precision().intValue());
+		return values.pi(values.getPrecision());
 	}
 	
 	public IValue pow(INumber x, IInteger y){
@@ -124,7 +123,7 @@ public class Math {
 	}
 	
 	public IValue setPrecision(IInteger precision){
-		return values.setPrecision(precision.intValue());
+		return values.integer(values.setPrecision(precision.intValue()));
 	}
 	
 	public IValue scale(INumber x){
@@ -149,15 +148,15 @@ public class Math {
 	}
 	
 	public IValue sin(INumber x){
-		return x.toReal().sin(values.precision().intValue());
+		return x.toReal().sin(values.getPrecision());
 	}
 	
 	public IValue sqrt(INumber x){
-		return x.toReal().sqrt(values.precision().intValue());
+		return x.toReal().sqrt(values.getPrecision());
 	}
 	
 	public IValue tan(INumber x){
-		return x.toReal().tan(values.precision().intValue());
+		return x.toReal().tan(values.getPrecision());
 	}
 	
 	public IValue toInt(INumber d)

@@ -25,9 +25,10 @@ public bool measure(){
 public bool measureOne(){
    return measure(["JHotDraw52.rsf"]);
 }
+
 public bool measure(list[str] names){
 
-	loc p = |rascal:///test/org/rascalmpl/benchmark/RSF/|;
+	loc p = |benchmarks:///RSF/|;
 	
 	for(str name <- names){
 		map[str, rel[str,str]] values = readRSF(p[path= p.path + name]);
