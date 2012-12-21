@@ -31,15 +31,14 @@ public test bool notEqual(map[&K, &V] A, map[&K, &V] B) = (A != B) ? !isEqual(A,
  
 public test bool intersection(map[&K, &V] A, map[&K, &V] B) = isEmpty(A & B) || all(x <- A & B, x in A, x in B, A[x] == B[x]);
 
-public test bool lesseq(set[int] A, set[int] B)  = A <= (A + B);
-public test bool less(set[int] A, set[int] B) = isEmpty(B) || A < (A + B);
+public test bool lesseq(map[int,int] A, map[int,int] B)  = A <= (A + B);
+public test bool less(map[int,int] A, map[int,int] B) = isEmpty(B) || A < (A + B);
 
-public test bool greatereq(set[int] A, set[int] B)  = (A + B) >= A;
-public test bool greater(set[int] A, set[int] B)  = isEmpty(B) || (A + B) > A;
+public test bool greatereq(map[int,int] A, map[int,int] B)  = (A + B) >= A;
+public test bool greater(map[int,int] A, map[int,int] B)  = isEmpty(B) || (A + B) > A;
 
 public test bool tst_in(&K key, &V val, map[&K, &V] M) = key in (M + (key : val)) && val == (M + (key : val))[key] &&
 														 key in ((key : val) + M) && val == ((key : val) + M)[key];
-public test bool tst_notin(int A, set[int] B) = A notin (B - A);
-
-public test bool splicing(set[&T] A, set[&T] B) = {*A, *B} == A + B && {A, *B} == {A} + B && {*A, B} == A + {B};
+														 
+public test bool tst_notin(int A, map[int,int] B) = A notin (B - (A:A));
 
