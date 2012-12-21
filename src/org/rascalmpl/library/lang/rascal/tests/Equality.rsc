@@ -36,10 +36,7 @@ public test bool strTransLTE(str x, str y, str z) = (x <= y && y <= z) ==> x <= 
 public test bool subsetOrdering1(set[value] x, set[value] y) = x <= x + y;
 public test bool subsetOrdering2(set[value] x, set[value] y) = (x <= y) <==> (x == {} || all(e <- x, e in y));
 
-// maps are ordered as sets of tuples
-public test bool testMap(map[value, value] x, map[value, value] y) {
- rX = {<k,x[k]> | k <- x};
- rY = {<k,y[k]> | k <- y};
- 
- return (y <= x + y) <==> (rX <= rX + rY);
-}
+// map are ordered via sub-map relation
+public test bool submapOrdering1(map[value,value] x, map[value,value] y) = x <= x + y;
+public test bool submapOrdering2(map[value,value]x, map[value,value] y) = (x <= y) <==> (x == () || all(e <- x, e in y));
+
