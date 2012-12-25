@@ -21,6 +21,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -66,6 +68,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 	private final ValueCache<IList> cachedLists;
 	private final ValueCache<ISet> cachedSets;
 	private final ValueCache<IRelation> cachedRelations;
+	private final ValueCache<IListRelation> cachedListRelations;
 	private final ValueCache<IMap> cachedMaps;
 	private final ValueCache<IDateTime> cachedDateTimes;
 	
@@ -88,6 +91,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 		cachedLists = new ValueCache<IList>();
 		cachedSets = new ValueCache<ISet>();
 		cachedRelations = new ValueCache<IRelation>();
+		cachedListRelations = new ValueCache<IListRelation>();
 		cachedMaps = new ValueCache<IMap>();
 		cachedDateTimes = new ValueCache<IDateTime>();
 	}
@@ -263,6 +267,14 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public IRelation relation(Type tupleType){
 		return cachedRelations.cache(valueFactory.relation(tupleType));
 	}
+	
+	public IListRelation listRelation(IValue... elems){
+		return cachedListRelations.cache(valueFactory.listRelation(elems));
+	}
+
+	public IListRelation listRelation(Type tupleType){
+		return cachedListRelations.cache(valueFactory.listRelation(tupleType));
+	}
 
 	public IRelationWriter relationWriter(Type type){
 		return new RelationCachingWriter(this, valueFactory.relationWriter(type));
@@ -270,6 +282,14 @@ public class LocalSharingValueFactory implements IValueFactory{
 	
 	public IRelationWriter relationWriter(){
 		return new RelationCachingWriter(this, valueFactory.relationWriter());
+	}
+	
+	public IListRelationWriter listRelationWriter(Type type){
+		return new ListRelationCachingWriter(this, valueFactory.listRelationWriter(type));
+	}
+	
+	public IListRelationWriter listRelationWriter(){
+		return new ListRelationCachingWriter(this, valueFactory.listRelationWriter());
 	}
 	
 	private static class ListCachingWriter implements IListWriter{
@@ -281,6 +301,10 @@ public class LocalSharingValueFactory implements IValueFactory{
 			
 			this.localSharingValueFactory = localSharingValueFactory;
 			this.listWriter = listWriter;
+		}
+		
+		public int size(){
+			return listWriter.size();
 		}
 
 		public IList done(){
@@ -389,6 +413,67 @@ public class LocalSharingValueFactory implements IValueFactory{
 
 		public int size(){
 			return relationWriter.size();
+		}
+	}
+	
+	private static class ListRelationCachingWriter implements IListRelationWriter{
+		private final LocalSharingValueFactory localSharingValueFactory;
+		private final IListRelationWriter listRelationWriter;
+		
+		public ListRelationCachingWriter(LocalSharingValueFactory localSharingValueFactory, IListRelationWriter relationWriter){
+			super();
+			
+			this.localSharingValueFactory = localSharingValueFactory;
+			this.listRelationWriter = relationWriter;
+		}
+
+		public IListRelation done(){
+			return localSharingValueFactory.cachedListRelations.cache(listRelationWriter.done());
+		}
+
+		public void delete(IValue v){
+			listRelationWriter.delete(v);
+		}
+		
+		public void delete(int i){
+			listRelationWriter.delete(i);
+		}
+
+		public void insert(IValue... v) throws FactTypeUseException{
+			listRelationWriter.insert(v);
+		}
+
+		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
+			listRelationWriter.insertAll(collection);
+		}
+
+		public int size(){
+			return listRelationWriter.size();
+		}
+
+		public void insert(IValue[] elems, int start, int length) throws FactTypeUseException, IndexOutOfBoundsException{
+			listRelationWriter.insert(elems, start, length);
+		}
+
+
+		public void insertAt(int index, IValue... value) throws FactTypeUseException, IndexOutOfBoundsException{
+			listRelationWriter.insertAt(index, value);
+		}
+
+		public void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeUseException, IndexOutOfBoundsException{
+			listRelationWriter.insertAt(index, elems, start, length);
+		}
+
+		public void replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException{
+			listRelationWriter.replaceAt(index, elem);
+		}
+		
+		public void append(IValue... value) throws FactTypeUseException{
+			listRelationWriter.append(value);
+		}
+
+		public void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
+			listRelationWriter.appendAll(collection);
 		}
 	}
 	
