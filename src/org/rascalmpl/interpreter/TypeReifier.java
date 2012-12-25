@@ -208,6 +208,9 @@ public class TypeReifier {
 		else if (cons == Factory.Symbol_Rel) {
 			return tf.relTypeFromTuple(symbolsToTupleType((IList) symbol.get("symbols"), store));
 		}
+		else if (cons == Factory.Symbol_ListRel) {
+			return tf.lrelTypeFromTuple(symbolsToTupleType((IList) symbol.get("symbols"), store));
+		}
 		else if (cons == Factory.Symbol_Set) {
 			return tf.setType(symbolToType((IConstructor) symbol.get("symbol"), store));
 		}
@@ -401,6 +404,24 @@ public class TypeReifier {
 				}
 				
 				return Factory.Symbol_Rel.make(vf, w.done());
+			}
+			
+			@Override
+			public IValue visitListRelationType(Type type) {
+				IListWriter w = vf.listWriter();
+
+				if (type.hasFieldNames()) {
+					for (int i = 0; i < type.getArity(); i++) {
+						w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+					}
+				}
+				else {
+					for (Type f : type.getFieldTypes()) {
+						w.append(f.accept(this));
+					}
+				}
+				
+				return Factory.Symbol_ListRel.make(vf, w.done());
 			}
 
 			@Override

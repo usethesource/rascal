@@ -24,6 +24,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -53,7 +54,6 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return s.elementOf(this);
 	}
 	
-	
 	@Override
 	protected <U extends IValue> Result<U> notInSet(SetResult s) {
 		return s.notElementOf(this);
@@ -66,6 +66,16 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	
 	@Override
 	protected <U extends IValue> Result<U> notInRelation(RelationResult s) {
+		return s.notElementOf(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> inListRelation(ListRelationResult s) {
+		return s.elementOf(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> notInListRelation(ListRelationResult s) {
 		return s.notElementOf(this);
 	}
 	
@@ -111,6 +121,14 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	
 	@Override
 	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
+		if (that.getValue().getElementType().isVoidType()) {
+			return makeResult(getTypeFactory().setType(this.getType()), that.getValue().insert(this.getValue()), ctx);
+		}
+		return super.addRelation(that);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addRelation(ListRelationResult that) {
 		if (that.getValue().getElementType().isVoidType()) {
 			return makeResult(getTypeFactory().setType(this.getType()), that.getValue().insert(this.getValue()), ctx);
 		}
@@ -193,6 +211,26 @@ public class ElementResult<T extends IValue> extends Result<T> {
 //			leftSet = leftSet.headSet(leftSet.last());
 //			rightSet = rightSet.headSet(rightSet.last());
 //		}
+		return 0;
+	}
+	
+	protected static int compareILists(IList left, IList right, IEvaluatorContext ctx) {
+		int compare = Integer.valueOf(left.length()).compareTo(Integer.valueOf(right.length()));
+		if (compare != 0) {
+			return compare;
+		}
+		
+		// Lists are of equal size from here on
+		if (left.isEqual(right)) {
+			return 0;
+		}
+		if (left.isSubListOf(right)) {
+			return -1;
+		}
+		if (right.isSubListOf(left)) {
+			return 1;
+		}
+		
 		return 0;
 	}
 	
