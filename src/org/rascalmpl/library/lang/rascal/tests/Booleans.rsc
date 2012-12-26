@@ -10,3 +10,8 @@ public test bool not(bool b) = !!b == b;
 
 public test bool not() = (!true == false) && (!false == true);
 
+public test bool equiv(bool b1, bool b2) = (b1 <==> b2) <==> (!b1 && !b2 || b1 && b2);
+
+public test bool impl(bool b1, bool b2) = (b1 ==> b2) <==> !(b1 && !b2);
+
+
