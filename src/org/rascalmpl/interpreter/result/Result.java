@@ -408,10 +408,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> addRelation(ListRelationResult that) {
-		return that.undefinedError(ADDITION_STRING, this);
-	}
-	
 	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
@@ -437,6 +433,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> Result<U> joinSet(SetResult that) {
+		return that.undefinedError(JOIN_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> joinList(ListResult that) {
 		return that.undefinedError(JOIN_STRING, this);
 	}
 	
