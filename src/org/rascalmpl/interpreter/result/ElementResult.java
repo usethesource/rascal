@@ -65,13 +65,13 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> notInRelation(RelationResult s) {
-		return s.notElementOf(this);
+	protected <U extends IValue> Result<U> inListRelation(ListRelationResult s) {
+		return s.elementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inListRelation(ListRelationResult s) {
-		return s.elementOf(this);
+	protected <U extends IValue> Result<U> notInRelation(RelationResult s) {
+		return s.notElementOf(this);
 	}
 	
 	@Override
@@ -128,11 +128,11 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> addRelation(ListRelationResult that) {
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
 		if (that.getValue().getElementType().isVoidType()) {
-			return makeResult(getTypeFactory().setType(this.getType()), that.getValue().insert(this.getValue()), ctx);
+			return makeResult(getTypeFactory().listType(this.getType()), that.getValue().append(this.getValue()), ctx);
 		}
-		return super.addRelation(that);
+		return super.addListRelation(that);
 	}
 
 	@Override

@@ -18,7 +18,6 @@ import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -35,9 +34,9 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 			}
 
 	protected <U extends IValue, V extends IValue> Result<U> notElementOf(
-			ElementResult<V> elementResult) {
-				return bool(!getValue().contains(elementResult.getValue()), ctx);
-			}
+		ElementResult<V> elementResult) {
+		return bool(!getValue().contains(elementResult.getValue()), ctx);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> addList(ListResult s) {
@@ -57,16 +56,16 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 
 	@Override
 	protected <U extends IValue> Result<U> subtractListRelation(ListRelationResult s) {
-				// note the reverse subtract
-				return makeResult(getType().lub(s.getType()), s.getValue().subtract(getValue()), ctx);
-			}
+		// note the reverse subtract
+		return makeResult(getType().lub(s.getType()), s.getValue().subtract(getValue()), ctx);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> multiplyListRelation(ListRelationResult that) {
-				Type tupleType = getTypeFactory().tupleType(that.type.getElementType(), type.getElementType());
-				// Note the reverse in .product
-				return makeResult(getTypeFactory().relTypeFromTuple(tupleType), that.getValue().product(getValue()), ctx);
-			}
+		Type tupleType = getTypeFactory().tupleType(that.type.getElementType(), type.getElementType());
+		// Note the reverse in .product
+		return makeResult(getTypeFactory().lrelTypeFromTuple(tupleType), that.getValue().product(getValue()), ctx);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> multiplyList(ListResult s) {
@@ -75,8 +74,6 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 		return makeResult(getTypeFactory().lrelTypeFromTuple(tupleType), s.getValue().product(getValue()), ctx);
 	}
 
-
-	
 	@Override
 	protected <U extends IValue> Result<U> intersectList(ListResult s) {
 		return makeResult(type.lub(s.type), getValue().intersect(s.getValue()), ctx);
@@ -84,34 +81,34 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 
 	@Override
 	protected <U extends IValue> Result<U> intersectListRelation(ListRelationResult s) {
-				return makeResult(type.lub(s.type), getValue().intersect(s.getValue()), ctx);
-			}
+		return makeResult(type.lub(s.type), getValue().intersect(s.getValue()), ctx);
+	}
 
 	@Override
 	protected <U extends IValue, V extends IValue> Result<U> insertElement(Result<V> valueResult) {
-				return addElement((ElementResult<V>) valueResult);
+		return addElement((ElementResult<V>) valueResult);
 	}
 
 	protected <U extends IValue, V extends IValue> Result<U> addElement(
 			ElementResult<V> that) {
-				Type newType = getTypeFactory().setType(that.getType().lub(getType().getElementType()));
-				return makeResult(newType, getValue().insert(that.getValue()), ctx);
-			}
+		Type newType = getTypeFactory().listType(that.getType().lub(getType().getElementType()));
+		return makeResult(newType, getValue().append(that.getValue()), ctx);
+	}
 
 	protected <U extends IValue, V extends IValue> Result<U> removeElement(
 			ElementResult<V> valueResult) {
-				return makeResult(type, getValue().delete(valueResult.getValue()), ctx);
-			}
+		return makeResult(type, getValue().delete(valueResult.getValue()), ctx);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> equalToListRelation(ListRelationResult that) {
-				return that.equalityBoolean(this);
-			}
+		return that.equalityBoolean(this);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> nonEqualToListRelation(ListRelationResult that) {
-				return that.nonEqualityBoolean(this);
-			}
+		return that.nonEqualityBoolean(this);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> equalToList(ListResult that) {
@@ -131,9 +128,9 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that) {
-				// note reversed args: we need that <= this
-				return bool(that.getValue().isSubListOf(getValue()), ctx);
-			}
+		// note reversed args: we need that <= this
+		return bool(that.getValue().isSubListOf(getValue()), ctx);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanList(ListResult that) {
@@ -143,34 +140,34 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that) {
-				// note reversed args: we need that >= this
-				return bool(getValue().isSubListOf(that.getValue()), ctx);
-			}
+		// note reversed args: we need that >= this
+		return bool(getValue().isSubListOf(that.getValue()), ctx);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> lessThanListRelation(ListRelationResult that) {
-				// note reversed args: we need that < this
-				return bool(that.getValue().isSubListOf(getValue()) && !that.getValue().isEqual(getValue()), ctx);
-			}
+		// note reversed args: we need that < this
+		return bool(that.getValue().isSubListOf(getValue()) && !that.getValue().isEqual(getValue()), ctx);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualListRelation(ListRelationResult that) {
-				// note reversed args: we need that <= this
-				return bool(that.getValue().isSubListOf(getValue()), ctx);
-			}
+		// note reversed args: we need that <= this
+		return bool(that.getValue().isSubListOf(getValue()), ctx);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanListRelation(ListRelationResult that) {
-				// note reversed args: we need that > this
-				return bool(getValue().isSubListOf(that.getValue()) && !getValue().isEqual(that.getValue()), ctx);
-			}
+		// note reversed args: we need that > this
+		return bool(getValue().isSubListOf(that.getValue()) && !getValue().isEqual(that.getValue()), ctx);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualListRelation(
 			ListRelationResult that) {
-				// note reversed args: we need that >= this
-				return bool(getValue().isSubListOf(that.getValue()), ctx);
-			}
+		// note reversed args: we need that >= this
+		return bool(getValue().isSubListOf(that.getValue()), ctx);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> compareList(ListResult that) {
@@ -180,10 +177,7 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 
 	@Override
 	protected <U extends IValue> Result<U> compareListRelation(ListRelationResult that) {
-				// Note reversed args.
-				return makeIntegerResult(compareILists(that.getValue(), this.getValue(), ctx));
-			}
-
-
-
+		// Note reversed args.
+		return makeIntegerResult(compareILists(that.getValue(), this.getValue(), ctx));
+	}
 }

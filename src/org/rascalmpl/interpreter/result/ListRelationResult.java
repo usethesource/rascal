@@ -290,10 +290,10 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			return makeResult(resultType, left.getValue().compose(right.getValue()), ctx);
 		}
 
-		<U extends IValue, V extends IValue> Result<U> insertTuple(TupleResult tuple) {
+		<U extends IValue, V extends IValue> Result<U> appendTuple(TupleResult tuple) {
 			// TODO: check arity 
 			Type newType = getTypeFactory().setType(tuple.getType().lub(getType().getElementType()));
-			return makeResult(newType, (IRelation) getValue().insert(tuple.getValue()), ctx);
+			return makeResult(newType, (IRelation) getValue().append(tuple.getValue()), ctx);
 		}
 
 		@Override
