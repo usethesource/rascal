@@ -1,6 +1,10 @@
 module lang::rascal::tests::Maps
 
 import Map;
+import Set;
+import List;
+import ListRelation;
+import util::Math;
 
 // is A + B == C?
 bool isUnion(map[&K, &V] A, map[&K, &V] B, map[&K, &V] C) =
@@ -35,11 +39,69 @@ public test bool lesseq(map[&K, &V] A, map[&K, &V] B)  = A <= (A + B);
 public test bool less(map[&K, &V] A, map[&K, &V] B) = isEmpty(B) || A < (A + B);
 
 public test bool greatereq(map[&K, &V] A, map[&K, &V] B)  = (A + B) >= A;
-public test bool greater(map[&K, &V] A, map[&K, &V] B)  = isEmpty(B) || (A + B) > A;
+public test bool greater(map[int, str] A, map[int, str] B)  = isEmpty(B) || (A + B) > A;
 
 public test bool tst_in(&K key, &V val, map[&K, &V] M) = key in M || (key in (M + (key : val)) && val == (M + (key : val))[key] &&
 														              key in ((key : val) + M) && val == ((key : val) + M)[key]);
 public test bool tst_notin(int A, set[int] B) = A notin (B - A);
 
 public test bool splicing(set[&T] A, set[&T] B) = {*A, *B} == A + B && {A, *B} == {A} + B && {*A, B} == A + {B};
+
+// Library functions
+
+public test bool tst_domain(map[str, int] X) = 
+   isEmpty(X) || 
+   {k | k <- X} == domain(X);
+
+private set[int] sample(map[int, int] X) {
+   c = domain(X) + range(X);
+   if(size(c) <= 2)
+   	  return {};
+   <r1, c> = takeOneFrom(c);
+   <r2, c> = takeOneFrom(c);
+  return {r1, r2};
+}
+
+public test bool tst_domainR(map[int, int] X) {
+   s = sample(X);
+   XR = domainR(X, s);
+   return isEmpty(XR) || all(k <- XR, k in s);
+}
+
+public test bool tst_domainX(map[int, int] X) {
+   s = sample(X);
+   XR = domainX(X, s);
+   return isEmpty(XR) || all(k <- XR, k notin s);
+}
+
+public test bool tst_invert(map[int, int] X) = isEmpty(X) || domain(invert(X)) == range(X) && domain(X) == {*invert(X)[k] | k <- invert(X)};
+
+public test bool tst_invertUnique(set[int] D, set[int] R) {
+ if(isEmpty(D) || isEmpty(R)) return true;
+ dList = toList(D);
+ rList = toList(R);
+ S = (dList[i] : rList[i] | i <- [0 .. min(size(D) -1 , size(R) -1 )]);
+ return domain(S) == range(invertUnique(S)) && range(S) == domain(invertUnique(S));
+}
+
+public test bool tst_range(map[str, int] X) = 
+   isEmpty(X) || 
+   {X[k] | k <- X} == range(X);
+
+public test bool tst_rangeR(map[int, int] X) {
+   s = sample(X);
+   XR = rangeR(X, s);
+   return isEmpty(XR) || all(k <- XR, X[k] in s);
+}
+
+public test bool tst_rangeX(map[int, int] X) {
+   s = sample(X);
+   XR = rangeX(X, s);
+   return isEmpty(XR) || all(k <- XR, X[k] notin s);
+}
+
+public test bool tst_toList(map[int,int] S) = isEmpty(S) || size(S) == size(toList(S)) && all(k <- S, <k, S[k]> in toList(S));
+
+public test bool tst_toRel(map[int,int] S) = isEmpty(S) || size(S) == size(toRel(S)) && all(k <- S, <k, S[k]> in toRel(S));
+
 
