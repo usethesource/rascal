@@ -102,7 +102,7 @@ public class MapResult extends ElementResult<IMap> {
 			return makeResult(getTypeFactory().setType(type.getValueType()), w.done(), ctx);
 		}
 
-		throw new UndeclaredFieldException(type, name);
+		throw new UndeclaredFieldError(name, type, ctx.getCurrentAST());
 	}
 	
 	@Override
