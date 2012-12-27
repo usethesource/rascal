@@ -99,6 +99,7 @@ import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.lang.rascal.newsyntax.RascalParser;
 import org.rascalmpl.library.lang.rascal.syntax.MetaRascalRascal;
 import org.rascalmpl.library.lang.rascal.syntax.ObjectRascalRascal;
 import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
@@ -1421,6 +1422,70 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		
 		return result;
 	}
+	
+	private IConstructor newParseModule(char[] data, URI location, ModuleEnvironment env, boolean declareImportsAndSyntax){
+    __setInterrupt(false);
+    IActionExecutor<IConstructor> actions = new NoActionExecutor();
+
+    startJob("Parsing", 10);
+    event("Pre-parsing: " + location);
+    IConstructor prefix = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+
+    IConstructor top = (IConstructor) TreeAdapter.getArgs(prefix).get(1);
+    
+    Module preModule = getBuilder().buildModule(top);
+    String name = getModuleName(preModule);
+    
+    if(env != null && isDeprecated(preModule)){
+      env.setDeprecatedMessage(getDeprecatedMessage(preModule));
+    }
+    
+    if(env == null){
+      env = heap.getModule(name);
+      if(env == null){
+        env = new ModuleEnvironment(name, heap);
+        heap.addModule(env);
+      }
+      env.setBootstrap(needBootstrapParser(preModule));
+    }
+
+    if (declareImportsAndSyntax) {
+      // take care of imports and declare syntax
+      env.setSyntaxDefined(false);
+      event("Declaring syntax for module " + name);
+      preModule.declareSyntax(this, true);
+    }
+    
+    event("Parsing concrete fragments: " + name);
+    IConstructor result;
+    try {
+      if (needBootstrapParser(preModule)) {
+//        parser = new MetaRascalRascal();
+//        result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+        result = prefix;
+      } 
+      else if (env.definesSyntax() && containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
+        // TODO: traverse the parse tree, create object sentences, parse them, replace them, and adapt the location information
+//        parser = getRascalParser(env, location);
+//        result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+        result = prefix;
+      }
+      else {
+        result = prefix;
+//        parser = new RascalRascal();
+//        result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+      } 
+    }
+    finally {
+      endJob(true);
+    }
+    
+    if (!suspendTriggerListeners.isEmpty()) {
+      result = DebugUpdater.pushDownAttributes(result);
+    }
+    
+    return result;
+  }
 	
 	private static boolean containsBackTick(char[] data, int offset) {
 		for (int i = data.length - 1; i >= offset; --i) {
