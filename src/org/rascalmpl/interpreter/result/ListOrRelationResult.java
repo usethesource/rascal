@@ -129,7 +129,8 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 	protected LessThanOrEqualResult lessThanOrEqualList(ListResult that) {
 		IList left = that.getValue();
     IList right = getValue();
-    return new LessThanOrEqualResult(left.isSubListOf(right), left.isEqual(right), ctx);
+    boolean eq = left.isEqual(right);
+    return new LessThanOrEqualResult(left.isSubListOf(right) && !eq, eq, ctx);
 	}
 
 	@Override
@@ -155,7 +156,8 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 	protected LessThanOrEqualResult lessThanOrEqualListRelation(ListRelationResult that) {
 	  IList left = that.getValue();
     IList right = getValue();
-    return new LessThanOrEqualResult(left.isSubListOf(right), left.isEqual(right), ctx);
+    boolean eq = left.isEqual(right);
+    return new LessThanOrEqualResult(left.isSubListOf(right) && !eq, eq, ctx);
 	}
 
 	@Override
