@@ -67,6 +67,8 @@ public interface IASTVisitor<T> {
 
   public T visitBasicTypeList(BasicType.List x);
 
+  public T visitBasicTypeListRelation(BasicType.ListRelation x);
+
   public T visitBasicTypeLoc(BasicType.Loc x);
 
   public T visitBasicTypeMap(BasicType.Map x);

@@ -21,6 +21,8 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -48,7 +50,6 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return s.elementOf(this);
 	}
 	
-	
 	@Override
 	protected Result<IBool> notInSet(SetResult s) {
 		return s.notElementOf(this);
@@ -60,7 +61,17 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	}
 	
 	@Override
+	protected Result<IBool> inListRelation(ListRelationResult s) {
+		return s.elementOf(this);
+	}
+	
+	@Override
 	protected Result<IBool> notInRelation(RelationResult s) {
+		return s.notElementOf(this);
+	}
+	
+	@Override
+	protected Result<IBool> notInListRelation(ListRelationResult s) {
 		return s.notElementOf(this);
 	}
 	
@@ -110,6 +121,14 @@ public class ElementResult<T extends IValue> extends Result<T> {
 			return makeResult(getTypeFactory().setType(this.getType()), that.getValue().insert(this.getValue()), ctx);
 		}
 		return super.addRelation(that);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		if (that.getValue().getElementType().isVoidType()) {
+			return makeResult(getTypeFactory().listType(this.getType()), that.getValue().append(this.getValue()), ctx);
+		}
+		return super.addListRelation(that);
 	}
 
 	@Override

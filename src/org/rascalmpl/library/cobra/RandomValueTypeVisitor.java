@@ -219,9 +219,8 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	public IValue visitInteger(Type type) {
 		return vf.integer(stRandom.nextInt());
 	}
-
-	@Override
-	public IValue visitList(Type type) {
+	
+	private IValue genList(Type type){
 		IListWriter writer = type.writer(vf);
 
 		if (maxDepth <= 0 || (stRandom.nextInt(2) == 0)) {
@@ -235,7 +234,11 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 			writer.appendAll((IList) visitor.generate(type));
 			return writer.done();
 		}
+	}
 
+	@Override
+	public IValue visitList(Type type) {
+		return genList(type);
 	}
 
 	@Override
@@ -301,6 +304,11 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	@Override
 	public IValue visitRelationType(Type type) {
 		return genSet(type);
+	}
+	
+	@Override
+	public IValue visitListRelationType(Type type) {
+		return genList(type);
 	}
 
 	@Override

@@ -202,6 +202,32 @@ public abstract class BasicType extends AbstractAST {
   
     	
   }
+  public boolean isListRelation() {
+    return false;
+  }
+
+  static public class ListRelation extends BasicType {
+    // Production: sig("ListRelation",[])
+  
+    
+  
+    public ListRelation(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isListRelation() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeListRelation(this);
+    }
+  
+    	
+  }
   public boolean isLoc() {
     return false;
   }
