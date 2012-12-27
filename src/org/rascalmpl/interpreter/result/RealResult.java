@@ -207,7 +207,7 @@ public class RealResult extends ElementResult<IReal> {
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualReal(RealResult that) {
 		// note reversed args: we need that <= this
-	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().isEqual(getValue()), ctx);
+	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
@@ -237,7 +237,7 @@ public class RealResult extends ElementResult<IReal> {
 	
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualInteger(IntegerResult that) {
-	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().isEqual(getValue()), ctx);
+	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
@@ -276,7 +276,7 @@ public class RealResult extends ElementResult<IReal> {
 	
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualRational(RationalResult that) {
-	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().isEqual(getValue()), ctx);
+	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
@@ -327,7 +327,7 @@ public class RealResult extends ElementResult<IReal> {
 	
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualNumber(NumberResult that) {
-	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().isEqual(getValue()), ctx);
+	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
