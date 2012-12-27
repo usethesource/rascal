@@ -47,7 +47,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -67,6 +66,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -441,11 +441,10 @@ public class Prelude {
 	//@doc{Parse an input date given as a string using the given format string}
 	{	
 		try {
-			SimpleDateFormat fmt = new SimpleDateFormat(formatString.getValue());
-			Date dt = fmt.parse(inputDate.getValue());
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(dt);
-			return values.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE));
+			java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(formatString.getValue());
+			fmt.parse(inputDate.getValue());
+			java.util.Calendar cal = fmt.getCalendar();
+			return values.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DATE));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() + 
 					" using format string: " + formatString.getValue(), null, null);
@@ -459,11 +458,10 @@ public class Prelude {
 	//@doc{Parse an input date given as a string using a specific locale and format string}
 	{
 		try {
-			SimpleDateFormat fmt = new SimpleDateFormat(formatString.getValue(), new Locale(locale.getValue()));
-			Date dt = fmt.parse(inputDate.getValue());
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(dt);
-			return values.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE));
+			java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(formatString.getValue(), new Locale(locale.getValue()));
+			fmt.parse(inputDate.getValue());
+			java.util.Calendar cal = fmt.getCalendar();
+			return values.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DATE));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() + 
 					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
@@ -477,10 +475,9 @@ public class Prelude {
 	//@doc{Parse an input time given as a string using the given format string}
 	{
 		try {
-			SimpleDateFormat fmt = new SimpleDateFormat(formatString.getValue());
-			Date dt = fmt.parse(inputTime.getValue());
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(dt);
+			java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(formatString.getValue());
+			fmt.parse(inputTime.getValue());
+			java.util.Calendar cal = fmt.getCalendar();
 			// The value for zone offset comes back in milliseconds. The number of
 			// hours is thus milliseconds / 1000 (to get to seconds) / 60 (to get to minutes)
 			// / 60 (to get to hours). Minutes is this except for the last division,
@@ -502,10 +499,9 @@ public class Prelude {
 	//@doc{Parse an input time given as a string using a specific locale and format string}
 	{
 		try {
-			SimpleDateFormat fmt = new SimpleDateFormat(formatString.getValue(), new ULocale(locale.getValue()));
-			Date dt = fmt.parse(inputTime.getValue());
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(dt);
+			java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(formatString.getValue(), new Locale(locale.getValue()));
+			fmt.parse(inputTime.getValue());
+			java.util.Calendar cal = fmt.getCalendar();
 			// The value for zone offset comes back in milliseconds. The number of
 			// hours is thus milliseconds / 1000 (to get to seconds) / 60 (to get to minutes)
 			// / 60 (to get to hours). Minutes is this except for the last division,
@@ -527,9 +523,13 @@ public class Prelude {
 	//@doc{Parse an input datetime given as a string using the given format string}
 	{
 		try {
-			SimpleDateFormat fmt = new SimpleDateFormat(formatString.getValue());
-			Date dt = fmt.parse(inputDateTime.getValue());
-			return values.datetime(dt.getTime());
+			java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(formatString.getValue());
+			fmt.setLenient(false);
+			fmt.parse(inputDateTime.getValue());
+			java.util.Calendar cal = fmt.getCalendar();
+			int zoneHours = cal.get(Calendar.ZONE_OFFSET) / (1000 * 60 * 60);
+			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60; 
+			return values.datetime(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() + 
 					" using format string: " + formatString.getValue(), null, null);
@@ -543,9 +543,12 @@ public class Prelude {
 	//@doc{Parse an input datetime given as a string using a specific locale and format string}
 	{
 		try {
-			SimpleDateFormat fmt = new SimpleDateFormat(formatString.getValue(), new ULocale(locale.getValue()));
-			Date dt = fmt.parse(inputDateTime.getValue());
-			return values.datetime(dt.getTime());
+			java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(formatString.getValue(), new Locale(locale.getValue()));
+			fmt.parse(inputDateTime.getValue());
+			java.util.Calendar cal = fmt.getCalendar();
+			int zoneHours = cal.get(Calendar.ZONE_OFFSET) / (1000 * 60 * 60);
+			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60; 
+			return values.datetime(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() + 
 					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
@@ -555,12 +558,51 @@ public class Prelude {
 		}
 	}
 
+	private Calendar getCalendarForDate(IDateTime inputDate) {
+		if (inputDate.isDate() || inputDate.isDateTime()) {
+			Calendar cal = Calendar.getInstance(TimeZone.getDefault(),Locale.getDefault());
+			cal.setLenient(false);
+			cal.set(inputDate.getYear(), inputDate.getMonthOfYear()-1, inputDate.getDayOfMonth());
+			return cal;
+		} else {
+			throw new IllegalArgumentException("Cannot get date for a datetime that only represents the time");
+		}
+	}
+	
+	private Calendar getCalendarForTime(IDateTime inputTime) {
+		if (inputTime.isTime() || inputTime.isDateTime()) {
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(inputTime.getTimezoneOffsetHours(),inputTime.getTimezoneOffsetMinutes())),Locale.getDefault());
+			cal.setLenient(false);
+			cal.set(Calendar.HOUR_OF_DAY, inputTime.getHourOfDay());
+			cal.set(Calendar.MINUTE, inputTime.getMinuteOfHour());
+			cal.set(Calendar.SECOND, inputTime.getSecondOfMinute());
+			cal.set(Calendar.MILLISECOND, inputTime.getMillisecondsOfSecond());
+			return cal;
+		} else {
+			throw new IllegalArgumentException("Cannot get time for a datetime that only represents the date");
+		}
+	}
+
+	private Calendar getCalendarForDateTime(IDateTime inputDateTime) {
+		if (inputDateTime.isDateTime()) {
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(inputDateTime.getTimezoneOffsetHours(),inputDateTime.getTimezoneOffsetMinutes())),Locale.getDefault());
+			cal.setLenient(false);
+			cal.set(inputDateTime.getYear(), inputDateTime.getMonthOfYear()-1, inputDateTime.getDayOfMonth(), inputDateTime.getHourOfDay(), inputDateTime.getMinuteOfHour(), inputDateTime.getSecondOfMinute());
+			cal.set(Calendar.MILLISECOND, inputDateTime.getMillisecondsOfSecond());
+			return cal;
+		} else {
+			throw new IllegalArgumentException("Cannot get date and time for a datetime that only represents the date or the time");
+		}
+	}
+
 	public IValue printDate(IDateTime inputDate, IString formatString) 
 	//@doc{Print an input date using the given format string}
 	{
 		try {
 			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue()); 
-			return values.string(sd.format(new Date(inputDate.getInstant())));
+			Calendar cal = getCalendarForDate(inputDate);
+			sd.setCalendar(cal);
+			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time with format " + formatString.getValue(), null, null);
 		}
@@ -570,7 +612,9 @@ public class Prelude {
 	//@doc{Print an input date using a default format string}
 	{
 		SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd"); 
-		return values.string(sd.format(new Date(inputDate.getInstant())));
+		Calendar cal = getCalendarForDate(inputDate);
+		sd.setCalendar(cal);
+		return values.string(sd.format(cal.getTime()));
 	}
 	
 	public IValue printDateInLocale(IDateTime inputDate, IString formatString, IString locale) 
@@ -578,7 +622,9 @@ public class Prelude {
 	{
 		try {
 			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue(),new ULocale(locale.getValue())); 
-			return values.string(sd.format(new Date(inputDate.getInstant())));
+			Calendar cal = getCalendarForDate(inputDate);
+			sd.setCalendar(cal);
+			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time with format " + formatString.getValue() + ", in locale: " + locale.getValue(), null, null);
 		}
@@ -589,7 +635,9 @@ public class Prelude {
 	{
 		try {
 			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd",new ULocale(locale.getValue())); 
-			return values.string(sd.format(new Date(inputDate.getInstant())));
+			Calendar cal = getCalendarForDate(inputDate);
+			sd.setCalendar(cal);
+			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time in locale: " + locale.getValue(), null, null);
 		}
@@ -600,7 +648,9 @@ public class Prelude {
 	{
 		try {
 			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue()); 
-			return values.string(sd.format(new Date(inputTime.getInstant())));
+			Calendar cal = getCalendarForTime(inputTime);
+			sd.setCalendar(cal);
+			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time with format: " + formatString.getValue(), null, null);
 		}			
@@ -610,7 +660,9 @@ public class Prelude {
 	//@doc{Print an input time using a default format string}
 	{
 		SimpleDateFormat sd = new SimpleDateFormat("HH:mm:ss.SSSZ"); 
-		return values.string(sd.format(new Date(inputTime.getInstant())));
+		Calendar cal = getCalendarForTime(inputTime);
+		sd.setCalendar(cal);
+		return values.string(sd.format(cal.getTime()));
 	}
 	
 	public IValue printTimeInLocale(IDateTime inputTime, IString formatString, IString locale) 
@@ -618,7 +670,9 @@ public class Prelude {
 	{
 		try {
 			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue(),new ULocale(locale.getValue())); 
-			return values.string(sd.format(new Date(inputTime.getInstant())));
+			Calendar cal = getCalendarForTime(inputTime);
+			sd.setCalendar(cal);
+			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time in locale: " + locale.getValue(), null, null);
 		}
@@ -629,7 +683,9 @@ public class Prelude {
 	{
 		try {
 			SimpleDateFormat sd = new SimpleDateFormat("HH:mm:ss.SSSZ",new ULocale(locale.getValue())); 
-			return values.string(sd.format(new Date(inputTime.getInstant())));
+			Calendar cal = getCalendarForTime(inputTime);
+			sd.setCalendar(cal);
+			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time in locale: " + locale.getValue(), null, null);
 		}
@@ -640,7 +696,9 @@ public class Prelude {
 	{
 		try {
 			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue()); 
-			return values.string(sd.format(new Date(inputDateTime.getInstant())));
+			Calendar cal = getCalendarForDateTime(inputDateTime);
+			sd.setCalendar(cal);
+			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime using format string: " + formatString.getValue(), null, null);
 		}		
@@ -650,7 +708,9 @@ public class Prelude {
 	//@doc{Print an input datetime using a default format string}
 	{
 		SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ"); 
-		return values.string(sd.format(new Date(inputDateTime.getInstant())));
+		Calendar cal = getCalendarForDateTime(inputDateTime);
+		sd.setCalendar(cal);
+		return values.string(sd.format(cal.getTime()));
 	}
 	
 	public IValue printDateTimeInLocale(IDateTime inputDateTime, IString formatString, IString locale) 
@@ -658,7 +718,9 @@ public class Prelude {
 	{
 		try {
 			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue(),new ULocale(locale.getValue())); 
-			return values.string(sd.format(new Date(inputDateTime.getInstant())));
+			Calendar cal = getCalendarForDateTime(inputDateTime);
+			sd.setCalendar(cal);
+			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime using format string: " + formatString.getValue() +
 					" in locale: " + locale.getValue(), null, null);
@@ -670,7 +732,9 @@ public class Prelude {
 	{
 		try {
 			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ",new ULocale(locale.getValue())); 
-			return values.string(sd.format(new Date(inputDateTime.getInstant())));
+			Calendar cal = getCalendarForDateTime(inputDateTime);
+			sd.setCalendar(cal);
+			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime in locale: " + locale.getValue(), null, null);
 		}
@@ -2280,6 +2344,30 @@ public class Prelude {
 		
 		return mapWriter.done();
 	}
+	
+	public IMap index(IListRelation s) {
+		Map<IValue, ISetWriter> map = new HashMap<IValue, ISetWriter>(s.length());
+		
+		for (IValue t : s) {
+			ITuple tuple = (ITuple) t;
+			IValue key = tuple.get(0);
+			IValue value = tuple.get(1);
+			
+			ISetWriter writer = map.get(key);
+			if (writer == null) {
+				writer = values.setWriter();
+				map.put(key, writer);
+			}
+			writer.insert(value);
+		}
+		
+		IMapWriter mapWriter = values.mapWriter();
+		for (IValue key : map.keySet()) {
+			mapWriter.put(key, map.get(key).done());
+		}
+		
+		return mapWriter.done();
+	}
 
 	public IValue takeOneFrom(ISet st)
 	// @doc{takeOneFrom -- remove an arbitrary element from a set,
@@ -2349,7 +2437,60 @@ public class Prelude {
 		return w.done();
 	}
 	
+	public IValue toMap(IListRelation st)
+	// @doc{toMap -- convert a list of tuples to a map; value in old map is associated with a set of keys in old map}
+	{
+		Type tuple = st.getElementType();
+		Type keyType = tuple.getFieldType(0);
+		Type valueType = tuple.getFieldType(1);
+		Type valueSetType = types.setType(valueType);
+
+		HashMap<IValue,ISetWriter> hm = new HashMap<IValue,ISetWriter>();
+
+		for (IValue v : st) {
+			ITuple t = (ITuple) v;
+			IValue key = t.get(0);
+			IValue val = t.get(1);
+			ISetWriter wValSet = hm.get(key);
+			if(wValSet == null){
+				wValSet = valueSetType.writer(values);
+				hm.put(key, wValSet);
+			}
+			wValSet.insert(val);
+		}
+		
+		Type resultType = types.mapType(keyType, valueSetType);
+		IMapWriter w = resultType.writer(values);
+		for(IValue v : hm.keySet()){
+			w.put(v, hm.get(v).done());
+		}
+		return w.done();
+	}
+	
+	
 	public IValue toMapUnique(IRelation st)
+	// @doc{toMapUnique -- convert a set of tuples to a map; keys are unique}
+	{
+		Type tuple = st.getElementType();
+		Type resultType = types.mapType(tuple.getFieldType(0), tuple
+				.getFieldType(1));
+
+		IMapWriter w = resultType.writer(values);
+		HashSet<IValue> seenKeys = new HashSet<IValue>();
+
+		for (IValue v : st) {
+			ITuple t = (ITuple) v;
+			IValue key = t.get(0);
+			IValue val = t.get(1);
+			if(seenKeys.contains(key)) 
+				throw RuntimeExceptionFactory.MultipleKey(key, null, null);
+			seenKeys.add(key);
+			w.put(key, val);
+		}
+		return w.done();
+	}
+	
+	public IValue toMapUnique(IListRelation st)
 	// @doc{toMapUnique -- convert a set of tuples to a map; keys are unique}
 	{
 		Type tuple = st.getElementType();

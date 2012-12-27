@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.INumber;
@@ -145,6 +146,14 @@ public class ResultFactory {
 			}
 			return new RelationResult(declaredType, (IRelation)value, ctx);
 		}
+		
+		@Override
+		public Result<? extends IValue> visitListRelationType(Type type) {
+			if (value != null && !(value instanceof IListRelation)) {
+				throw new ImplementationError("somehow a list relation value turned into a list, but its type did not change with it", ctx.getCurrentAST().getLocation());
+			}
+			return new ListRelationResult(declaredType, (IListRelation)value, ctx);
+		}
 
 		public SetOrRelationResult<ISet> visitSet(Type type) {
 			return new SetResult(declaredType, (ISet)value, ctx);
@@ -196,5 +205,7 @@ public class ResultFactory {
 		public Result<? extends IValue> visitDateTime(Type type) {
 			return new DateTimeResult(declaredType, (IDateTime)value, ctx);		
 		}
+
+		
 	}
 }

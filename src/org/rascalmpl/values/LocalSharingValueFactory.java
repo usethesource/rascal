@@ -21,6 +21,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -66,6 +68,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 	private final ValueCache<IList> cachedLists;
 	private final ValueCache<ISet> cachedSets;
 	private final ValueCache<IRelation> cachedRelations;
+	private final ValueCache<IListRelation> cachedListRelations;
 	private final ValueCache<IMap> cachedMaps;
 	private final ValueCache<IDateTime> cachedDateTimes;
 	
@@ -88,50 +91,62 @@ public class LocalSharingValueFactory implements IValueFactory{
 		cachedLists = new ValueCache<IList>();
 		cachedSets = new ValueCache<ISet>();
 		cachedRelations = new ValueCache<IRelation>();
+		cachedListRelations = new ValueCache<IListRelation>();
 		cachedMaps = new ValueCache<IMap>();
 		cachedDateTimes = new ValueCache<IDateTime>();
 	}
 
+	@Override
 	public IBool bool(boolean value){
 		return value ? trueValue : falseValue;
 	}
 
+	@Override
 	public IInteger integer(byte[] a){
 		return cachedIntegers.cache(valueFactory.integer(a));
 	}
 
+	@Override
 	public IInteger integer(int i){
 		return cachedIntegers.cache(valueFactory.integer(i));
 	}
 
+	@Override
 	public IInteger integer(long i){
 		return cachedIntegers.cache(valueFactory.integer(i));
 	}
 
+	@Override
 	public IInteger integer(String i) throws NumberFormatException{
 		return cachedIntegers.cache(valueFactory.integer(i));
 	}
 
+	@Override
 	public IRational rational(int a, int b) {
 		return cachedRationals.cache(valueFactory.rational(a, b));
 	}
 
+	@Override
 	public IRational rational(long a, long b) {
 		return cachedRationals.cache(valueFactory.rational(a, b));
 	}
 
+	@Override
 	public IRational rational(IInteger a, IInteger b) {
 		return cachedRationals.cache(valueFactory.rational(a, b));
 	}
 
+	@Override
 	public IRational rational(String rat) throws NumberFormatException {
 		return cachedRationals.cache(valueFactory.rational(rat));
 	}
 
+	@Override
 	public IReal real(double d){
 		return cachedReals.cache(valueFactory.real(d));
 	}
 
+	@Override
 	public IReal real(String s) throws NumberFormatException{
 		return cachedReals.cache(valueFactory.real(s));
 	}
@@ -156,120 +171,175 @@ public class LocalSharingValueFactory implements IValueFactory{
 		return valueFactory.setPrecision(p);
 	}
 
+	@Override
 	public IString string(String s){
 		return cachedStrings.cache(valueFactory.string(s));
 	}
 
+	@Override
 	public ISourceLocation sourceLocation(String path){
 		return cachedSourceLocations.cache(valueFactory.sourceLocation(path));
 	}
 
+	@Override
 	public ISourceLocation sourceLocation(URI uri){
 		return cachedSourceLocations.cache(valueFactory.sourceLocation(uri));
 	}
 
+	@Override
 	public ISourceLocation sourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
 		return cachedSourceLocations.cache(valueFactory.sourceLocation(path, offset, length, beginLine, endLine, beginCol, endCol));
 	}
 
+	@Override
 	public ISourceLocation sourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
 		return cachedSourceLocations.cache(valueFactory.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol));
 	}
 	
+	@Override
 	public ISourceLocation sourceLocation(URI uri, int offset, int length){
 		return cachedSourceLocations.cache(valueFactory.sourceLocation(uri, offset, length));
 	}
 
+	@Override
 	public ITuple tuple(){
 		return cachedTuples.cache(valueFactory.tuple());
 	}
 
+	@Override
 	public ITuple tuple(IValue... args){
 		return cachedTuples.cache(valueFactory.tuple(args));
 	}
 
+	@Override
 	public INode node(String name, IValue... children){
 		return cachedNodes.cache(valueFactory.node(name, children));
 	}
 
+	@Override
 	public INode node(String name, Map<String,IValue> annos, IValue... children){
 		return cachedNodes.cache(valueFactory.node(name, annos, children));
 	}
 	
+	@Override
 	public INode node(String name){
 		return cachedNodes.cache(valueFactory.node(name));
 	}
 
+	@Override
 	public IConstructor constructor(Type constructor, IValue... children) throws FactTypeUseException{
 		return cachedConstructors.cache(valueFactory.constructor(constructor, children));
 	}
 	
+	@Override
 	public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children) throws FactTypeUseException {
 		return cachedConstructors.cache(valueFactory.constructor(constructor, annotations, children));
 	}
 	
+	@Override
 	public IConstructor constructor(Type constructor){
 		return cachedConstructors.cache(valueFactory.constructor(constructor));
 	}
 
+	@Override
 	public IList list(IValue... elems){
 		return cachedLists.cache(valueFactory.list(elems));
 	}
 
+	@Override
 	public IList list(Type eltType){
 		return cachedLists.cache(valueFactory.list(eltType));
 	}
 
+	@Override
 	public IListWriter listWriter(Type eltType){
 		return new ListCachingWriter(this, valueFactory.listWriter(eltType));
 	}
 	
+	@Override
 	public IListWriter listWriter(){
 		return new ListCachingWriter(this, valueFactory.listWriter());
 	}
 
+	@Override
+	public IMap map(Type mapType){
+		return cachedMaps.cache(valueFactory.map(mapType));
+	}
+
+	@Override
 	public IMap map(Type key, Type value){
 		return cachedMaps.cache(valueFactory.map(key, value));
 	}
 
+	@Override
 	public IMapWriter mapWriter(Type key, Type value){
 		return new MapCachingWriter(this, valueFactory.mapWriter(key, value));
 	}
 	
+	@Override
+	public IMapWriter mapWriter(Type mapType){
+		return new MapCachingWriter(this, valueFactory.mapWriter(mapType));
+	}
+	
+	@Override
 	public IMapWriter mapWriter(){
 		return new MapCachingWriter(this, valueFactory.mapWriter());
 	}
 
+	@Override
 	public ISet set(IValue... elems){
 		return cachedSets.cache(valueFactory.set(elems));
 	}
 
+	@Override
 	public ISet set(Type eltType){
 		return cachedSets.cache(valueFactory.set(eltType));
 	}
 
+	@Override
 	public ISetWriter setWriter(Type eltType){
 		return new SetCachingWriter(this, valueFactory.setWriter(eltType));
 	}
 	
+	@Override
 	public ISetWriter setWriter(){
 		return new SetCachingWriter(this, valueFactory.setWriter());
 	}
 
+	@Override
 	public IRelation relation(IValue... elems){
 		return cachedRelations.cache(valueFactory.relation(elems));
 	}
 
+	@Override
 	public IRelation relation(Type tupleType){
 		return cachedRelations.cache(valueFactory.relation(tupleType));
 	}
+	
+	public IListRelation listRelation(IValue... elems){
+		return cachedListRelations.cache(valueFactory.listRelation(elems));
+	}
 
+	public IListRelation listRelation(Type tupleType){
+		return cachedListRelations.cache(valueFactory.listRelation(tupleType));
+	}
+
+	@Override
 	public IRelationWriter relationWriter(Type type){
 		return new RelationCachingWriter(this, valueFactory.relationWriter(type));
 	}
 	
+	@Override
 	public IRelationWriter relationWriter(){
 		return new RelationCachingWriter(this, valueFactory.relationWriter());
+	}
+	
+	public IListRelationWriter listRelationWriter(Type type){
+		return new ListRelationCachingWriter(this, valueFactory.listRelationWriter(type));
+	}
+	
+	public IListRelationWriter listRelationWriter(){
+		return new ListRelationCachingWriter(this, valueFactory.listRelationWriter());
 	}
 	
 	private static class ListCachingWriter implements IListWriter{
@@ -282,47 +352,62 @@ public class LocalSharingValueFactory implements IValueFactory{
 			this.localSharingValueFactory = localSharingValueFactory;
 			this.listWriter = listWriter;
 		}
+		
+		public int size(){
+			return listWriter.size();
+		}
 
+		@Override
 		public IList done(){
 			return localSharingValueFactory.cachedLists.cache(listWriter.done());
 		}
 
+		@Override
 		public void append(IValue... value) throws FactTypeUseException{
 			listWriter.append(value);
 		}
 
+		@Override
 		public void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			listWriter.appendAll(collection);
 		}
 
+		@Override
 		public void delete(int i){
 			listWriter.delete(i);
 		}
 
+		@Override
 		public void delete(IValue elem){
 			listWriter.delete(elem);
 		}
 
+		@Override
 		public void insert(IValue... value) throws FactTypeUseException{
 			listWriter.insert(value);
 		}
 
+		@Override
 		public void insert(IValue[] elems, int start, int length) throws FactTypeUseException, IndexOutOfBoundsException{
 			listWriter.insert(elems, start, length);
 		}
 
+		@Override
 		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			listWriter.insertAll(collection);
 		}
 
+		@Override
 		public void insertAt(int index, IValue... value) throws FactTypeUseException, IndexOutOfBoundsException{
 			listWriter.insertAt(index, value);
 		}
 
+		@Override
 		public void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeUseException, IndexOutOfBoundsException{
 			listWriter.insertAt(index, elems, start, length);
 		}
 
+		@Override
 		public void replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException{
 			listWriter.replaceAt(index, elem);
 		}
@@ -339,22 +424,27 @@ public class LocalSharingValueFactory implements IValueFactory{
 			this.setWriter = setWriter;
 		}
 
+		@Override
 		public ISet done(){
 			return localSharingValueFactory.cachedSets.cache(setWriter.done());
 		}
 
+		@Override
 		public void delete(IValue v){
 			setWriter.delete(v);
 		}
 
+		@Override
 		public void insert(IValue... v) throws FactTypeUseException{
 			setWriter.insert(v);
 		}
 
+		@Override
 		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			setWriter.insertAll(collection);
 		}
 
+		@Override
 		public int size(){
 			return setWriter.size();
 		}
@@ -371,24 +461,90 @@ public class LocalSharingValueFactory implements IValueFactory{
 			this.relationWriter = relationWriter;
 		}
 
+		@Override
 		public IRelation done(){
 			return localSharingValueFactory.cachedRelations.cache(relationWriter.done());
 		}
 
+		@Override
 		public void delete(IValue v){
 			relationWriter.delete(v);
 		}
 
+		@Override
 		public void insert(IValue... v) throws FactTypeUseException{
 			relationWriter.insert(v);
 		}
 
+		@Override
 		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			relationWriter.insertAll(collection);
 		}
 
+		@Override
 		public int size(){
 			return relationWriter.size();
+		}
+	}
+	
+	private static class ListRelationCachingWriter implements IListRelationWriter{
+		private final LocalSharingValueFactory localSharingValueFactory;
+		private final IListRelationWriter listRelationWriter;
+		
+		public ListRelationCachingWriter(LocalSharingValueFactory localSharingValueFactory, IListRelationWriter relationWriter){
+			super();
+			
+			this.localSharingValueFactory = localSharingValueFactory;
+			this.listRelationWriter = relationWriter;
+		}
+
+		public IListRelation done(){
+			return localSharingValueFactory.cachedListRelations.cache(listRelationWriter.done());
+		}
+
+		public void delete(IValue v){
+			listRelationWriter.delete(v);
+		}
+		
+		public void delete(int i){
+			listRelationWriter.delete(i);
+		}
+
+		public void insert(IValue... v) throws FactTypeUseException{
+			listRelationWriter.insert(v);
+		}
+
+		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
+			listRelationWriter.insertAll(collection);
+		}
+
+		public int size(){
+			return listRelationWriter.size();
+		}
+
+		public void insert(IValue[] elems, int start, int length) throws FactTypeUseException, IndexOutOfBoundsException{
+			listRelationWriter.insert(elems, start, length);
+		}
+
+
+		public void insertAt(int index, IValue... value) throws FactTypeUseException, IndexOutOfBoundsException{
+			listRelationWriter.insertAt(index, value);
+		}
+
+		public void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeUseException, IndexOutOfBoundsException{
+			listRelationWriter.insertAt(index, elems, start, length);
+		}
+
+		public void replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException{
+			listRelationWriter.replaceAt(index, elem);
+		}
+		
+		public void append(IValue... value) throws FactTypeUseException{
+			listRelationWriter.append(value);
+		}
+
+		public void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
+			listRelationWriter.appendAll(collection);
 		}
 	}
 	
@@ -403,52 +559,64 @@ public class LocalSharingValueFactory implements IValueFactory{
 			this.mapWriter = mapWriter;
 		}
 
+		@Override
 		public IMap done(){
 			return localSharingValueFactory.cachedMaps.cache(mapWriter.done());
 		}
 
+		@Override
 		public void put(IValue key, IValue value) throws FactTypeUseException{
 			mapWriter.put(key, value);
 		}
 
+		@Override
 		public void putAll(IMap map) throws FactTypeUseException{
 			mapWriter.putAll(map);
 		}
 
+		@Override
 		public void putAll(Map<IValue, IValue> map) throws FactTypeUseException{
 			mapWriter.putAll(map);
 		}
 
+		@Override
 		public void insert(IValue... value) throws FactTypeUseException{
 			mapWriter.insert(value);
 		}
 
+		@Override
 		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			mapWriter.insertAll(collection);
 		}
 	}
 
+	@Override
 	public IDateTime date(int year, int month, int day) {
 		return cachedDateTimes.cache(valueFactory.date(year, month, day));
 	}
 
+	@Override
 	public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond) {
 		return cachedDateTimes.cache(valueFactory.datetime(year, month, day, hour, minute, second, millisecond));
 	}
 
+	@Override
 	public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond, int hourOffset,
 			int minuteOffset) {
 		return cachedDateTimes.cache(valueFactory.datetime(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset));
 	}
 
+	@Override
 	public IDateTime datetime(long instant) {
 		return cachedDateTimes.cache(valueFactory.datetime(instant));
 	}
 	
+	@Override
 	public IDateTime time(int hour, int minute, int second, int millisecond) {
 		return cachedDateTimes.cache(valueFactory.time(hour, minute, second, millisecond));
 	}
 
+	@Override
 	public IDateTime time(int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
 		return cachedDateTimes.cache(valueFactory.time(hour, minute, second, millisecond, hourOffset, minuteOffset));
 	}

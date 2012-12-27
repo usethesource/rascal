@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -30,7 +31,7 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
-public class ListResult extends CollectionResult<IList> {
+public class ListResult extends ListOrRelationResult<IList> {
 	
 	public ListResult(Type type, IList list, IEvaluatorContext ctx) {
 		super(type, list, ctx);
@@ -44,6 +45,11 @@ public class ListResult extends CollectionResult<IList> {
 	@Override 
 	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result) {
 		return result.subtractList(this);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> join(Result<V> that) {
+		return that.joinList(this);
 	}
 	
 	@Override
@@ -176,16 +182,16 @@ public class ListResult extends CollectionResult<IList> {
 		return makeResult(newType, value.append(that.getValue()), ctx);
 	}
 
-	<U extends IValue, V extends IValue> Result<U> removeElement(ElementResult<V> value) {
+	protected <U extends IValue, V extends IValue> Result<U> removeElement(ElementResult<V> value) {
 		IList list = getValue();
 		return makeResult(getType(), list.delete(value.getValue()), ctx);
 	}
 
-	<V extends IValue> Result<IBool> elementOf(ElementResult<V> elementResult) {
+	protected <V extends IValue> Result<IBool> elementOf(ElementResult<V> elementResult) {
 		return bool((getValue().contains(elementResult.getValue())), ctx);
 	}
 
-	<V extends IValue> Result<IBool> notElementOf(ElementResult<V> elementResult) {
+	protected <V extends IValue> Result<IBool> notElementOf(ElementResult<V> elementResult) {
 		return bool((!getValue().contains(elementResult.getValue())), ctx);
 	}
 	
@@ -196,6 +202,11 @@ public class ListResult extends CollectionResult<IList> {
 	
 	@Override
 	protected Result<IBool> nonEqualToList(ListResult that) {
+		return that.nonEqualityBoolean(this);
+	}
+	
+	@Override
+	protected Result<IBool> nonEqualToListRelation(ListRelationResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
@@ -253,4 +264,42 @@ public class ListResult extends CollectionResult<IList> {
 	  
 		return new LessThanOrEqualResult(left.length() < right.length(), left.length() == right.length(), ctx);
 	}
+	
+	@Override
+	protected <U extends IValue> Result<U> joinListRelation(ListRelationResult that) {
+		// Note the reverse of arguments, we need "that join this"
+		int arity1 = that.getValue().arity();
+		Type eltType = getType().getElementType();
+		Type tupleType = that.getType().getElementType();
+		Type fieldTypes[] = new Type[arity1 + 1];
+		for (int i = 0;  i < arity1; i++) {
+			fieldTypes[i] = tupleType.getFieldType(i);
+		}
+		fieldTypes[arity1] = eltType;
+		Type resultTupleType = getTypeFactory().tupleType(fieldTypes);
+		IListWriter writer = getValueFactory().listWriter(resultTupleType);
+		IValue fieldValues[] = new IValue[arity1 + 1];
+		for (IValue relValue: that.getValue()) {
+			for (IValue setValue: this.getValue()) {
+				for (int i = 0; i < arity1; i++) {
+					fieldValues[i] = ((ITuple)relValue).get(i);
+				}
+				fieldValues[arity1] = setValue;
+				writer.append(getValueFactory().tuple(fieldValues));
+			}
+		}
+		Type resultType = getTypeFactory().lrelTypeFromTuple(resultTupleType);
+		return makeResult(resultType, writer.done(), ctx);
+	}
+
+	@Override
+	protected <U extends IValue> Result<U> joinList(ListResult that) {
+		// Note the reverse of arguments, we need "that join this"
+		// join between sets degenerates to product
+		Type tupleType = getTypeFactory().tupleType(that.getType().getElementType(), 
+				getType().getElementType());
+		return makeResult(getTypeFactory().lrelTypeFromTuple(tupleType),
+				that.getValue().product(getValue()), ctx);
+	}
+	
 }

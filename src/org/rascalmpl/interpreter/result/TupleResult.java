@@ -238,6 +238,11 @@ public class TupleResult extends ElementResult<ITuple> {
 	}
 	
 	@Override
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		return that.appendTuple(this);
+	}
+	
+	@Override
 	protected Result<IBool> equalToTuple(TupleResult that) {
 		return that.equalityBoolean(this);
 	}

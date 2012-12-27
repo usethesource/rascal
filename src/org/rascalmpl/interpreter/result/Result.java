@@ -17,8 +17,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
+import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -66,7 +66,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String GET_ANNO_STRING = "get-annotation";
 	private static final String SET_ANNO_STRING = "set-annotation";
 	private static final String NON_EQUALS_STRING = "inequality";
-	private static final String LESS_THAN_OR_EQUAL_STRING = "<=";
 	private static final String LESS_THAN_STRING = "<";
 	private static final String GREATER_THAN_OR_EQUAL_STRING = ">=";
 	private static final String GREATER_THAN_STRING = ">";
@@ -399,6 +398,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
+	
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
 
 	protected <U extends IValue> Result<U> addBool(BoolResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
@@ -424,11 +427,22 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(JOIN_STRING, this);
 	}
 	
+	protected <U extends IValue> Result<U> joinList(ListResult that) {
+		return that.undefinedError(JOIN_STRING, this);
+	}
+	
 	protected <U extends IValue> Result<U> multiplyRelation(RelationResult that) {
+		return that.undefinedError(MULTIPLICATION_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> multiplyListRelation(ListRelationResult that) {
 		return that.undefinedError(MULTIPLICATION_STRING, this);
 	}
 
 	protected <U extends IValue> Result<U> joinRelation(RelationResult that) {
+		return that.undefinedError(JOIN_STRING, this);
+	}
+	protected <U extends IValue> Result<U> joinListRelation(ListRelationResult that) {
 		return that.undefinedError(JOIN_STRING, this);
 	}
 
@@ -437,6 +451,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 
 	protected <U extends IValue> Result<U> subtractRelation(RelationResult that) {
+		return that.undefinedError(SUBTRACTION_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> subtractListRelation(ListRelationResult that) {
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
@@ -470,6 +488,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 
 	protected <U extends IValue> Result<U> intersectRelation(RelationResult that) {
+		return that.undefinedError(INTERSECTION_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> intersectListRelation(ListRelationResult that) {
 		return that.undefinedError(INTERSECTION_STRING, this);
 	}
 
@@ -518,9 +540,13 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(IN_STRING, this);
 	}
 
-	protected Result<IBool> inList(ListResult that) {
+	protected Result<IBool> inListRelation(ListRelationResult that) {
 		return that.undefinedError(IN_STRING, this);
 	}
+
+	protected Result<IBool> inList(ListResult that) {
+		return that.undefinedError(IN_STRING, this);
+	} 
 
 	protected Result<IBool> inMap(MapResult that) {
 		return that.undefinedError(IN_STRING, this);
@@ -534,6 +560,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(NOTIN_STRING, this);
 	}
 	
+	protected Result<IBool> notInListRelation(ListRelationResult that) {
+		return that.undefinedError(NOTIN_STRING, this);
+	}
+	
 	protected Result<IBool> notInList(ListResult that) {
 		return that.undefinedError(NOTIN_STRING, this);
 	}
@@ -543,6 +573,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> Result<U> composeRelation(RelationResult that) {
+		return that.undefinedError(COMPOSE_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> composeListRelation(ListRelationResult that) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
@@ -593,6 +627,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected Result<IBool> equalToList(ListResult that) {
 		return bool(false, ctx);
 	}
+	
+	protected Result<IBool> equalToListRelation(ListRelationResult that) {
+    return bool(false, ctx);
+  }
 	
 	protected Result<IBool> equalToSet(SetResult that) {
 		return bool(false, ctx);
@@ -664,6 +702,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	protected Result<IBool> nonEqualToList(ListResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
+	}
+	
+	protected Result<IBool> nonEqualToListRelation(ListRelationResult that) {
+	  return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
 	protected Result<IBool> nonEqualToSet(SetResult that) {
@@ -854,15 +896,32 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
+
 	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualRelation(RelationResult that) {
     return new LessThanOrEqualResult(false, false, ctx);
+  }
+  
+	protected Result<IBool> lessThanListRelation(ListRelationResult that) {
+		return that.undefinedError(LESS_THAN_STRING, this);
+	}
+	
+	protected LessThanOrEqualResult lessThanOrEqualListRelation(ListRelationResult that) {
+		return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanRelation(RelationResult that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
+	protected Result<IBool> greaterThanListRelation(ListRelationResult that) {
+		return that.undefinedError(GREATER_THAN_STRING, this);
+	}
+	
 	protected Result<IBool> greaterThanOrEqualRelation(RelationResult that) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
+	}
+	
+	protected Result<IBool> greaterThanOrEqualListRelation(ListRelationResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
@@ -992,6 +1051,9 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 			DateTimeResult that) {
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
+
+	
+	
 	
 
 	

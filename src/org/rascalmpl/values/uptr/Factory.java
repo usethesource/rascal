@@ -133,6 +133,7 @@ public class Factory {
 	public static final Type Symbol_Datetime = tf.constructor(uptr, Symbol,  "datetime");
 	public static final Type Symbol_Set = tf.constructor(uptr, Symbol, "set", Symbol, "symbol");
 	public static final Type Symbol_Rel = tf.constructor(uptr, Symbol, "rel", tf.listType(Symbol), "symbols");
+	public static final Type Symbol_ListRel = tf.constructor(uptr, Symbol, "lrel", tf.listType(Symbol), "symbols");
 	public static final Type Symbol_Tuple = tf.constructor(uptr, Symbol, "tuple", tf.listType(Symbol), "symbols");
 	public static final Type Symbol_List = tf.constructor(uptr, Symbol, "list", Symbol, "symbol");
 	public static final Type Symbol_Map = tf.constructor(uptr, Symbol, "map", Symbol, "from", Symbol, "to");
