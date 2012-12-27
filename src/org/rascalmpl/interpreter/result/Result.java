@@ -18,6 +18,7 @@
 package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
+import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -59,7 +60,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String IS_STRING = "is";
 	private static final String HAS_STRING = "has";
 	private static final String FIELD_ACCESS_STRING = "field access";
-	private static final String EQUALS_STRING = "equality";
 	private static final String FIELD_UPDATE_STRING = "field update";
 	private static final String RANGE_STRING = "range construction";
 	private static final String SUBSCRIPT_STRING = "subscript";
@@ -248,8 +248,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 
 	public <V extends IValue> Result<IBool> equals(Result<V> that) {
-		// e.g. for closures equality is undefined
-		return undefinedError(EQUALS_STRING, this);
+	  // equals is defined everywhere, but default is false
+		return ResultFactory.bool(false, ctx);
 	}
 	
 	public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
@@ -257,7 +257,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
-		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+		return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	public <V extends IValue> Result<IBool> greaterThan(Result<V> that) {
@@ -306,7 +306,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) { 
-		return undefinedError(NON_EQUALS_STRING, that);
+		return bool(true, ctx);
 	}
 	
 	public boolean isTrue() {
@@ -575,75 +575,75 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected Result<IBool> equalToInteger(IntegerResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToRational(RationalResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToReal(RealResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToString(StringResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToList(ListResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToSet(SetResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToMap(MapResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToNode(NodeResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToConcreteSyntax(ConcreteSyntaxResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToSourceLocation(SourceLocationResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToRelation(RelationResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToTuple(TupleResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToBool(BoolResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> equalToValue(ValueResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return ResultFactory.bool(false, ctx);
 	}
 	
 	public Result<IBool> equalToOverloadedFunction(OverloadedFunction that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	public Result<IBool> equalToConstructorFunction(ConstructorFunction that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	public Result<IBool> equalToRascalFunction(RascalFunction that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 
 	protected Result<IBool> equalToDateTime(DateTimeResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 	
 	protected Result<IBool> nonEqualToInteger(IntegerResult that) {
@@ -711,7 +711,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualInteger(IntegerResult that) {
-    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+    return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanInteger(IntegerResult that) {
@@ -727,7 +727,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualRational(RationalResult that) {
-    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+    return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanRational(RationalResult that) {
@@ -743,7 +743,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected LessThanOrEqualResult lessThanOrEqualReal(RealResult that) {
-		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+		return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanReal(RealResult that) {
@@ -759,7 +759,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected LessThanOrEqualResult lessThanOrEqualString(StringResult that) {
-		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+		return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanString(StringResult that) {
@@ -775,7 +775,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected LessThanOrEqualResult lessThanOrEqualTuple(TupleResult that) {
-		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+		return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanTuple(TupleResult that) {
@@ -791,7 +791,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected LessThanOrEqualResult lessThanOrEqualNode(NodeResult that) {
-		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+		return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanNode(NodeResult that) {
@@ -807,7 +807,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected LessThanOrEqualResult lessThanOrEqualBool(BoolResult that) {
-		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+		return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanBool(BoolResult that) {
@@ -823,7 +823,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualMap(MapResult that) {
-		throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+		return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanMap(MapResult that) {
@@ -839,7 +839,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualSet(SetResult that) {
-    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+    return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanSet(SetResult that) {
@@ -855,7 +855,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualRelation(RelationResult that) {
-    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+    return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanRelation(RelationResult that) {
@@ -871,7 +871,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualList(ListResult that) {
-    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+    return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanList(ListResult that) {
@@ -889,7 +889,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualDateTime(DateTimeResult that) {
-    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+    return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected <U extends IValue>Result<IBool> greaterThanDateTime(DateTimeResult that) {
@@ -907,7 +907,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualSourceLocation(SourceLocationResult that) {
-    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+    return new LessThanOrEqualResult(false, false, ctx);
 	}
 	
 	protected Result<IBool> greaterThanSourceLocation(SourceLocationResult that) {
@@ -936,7 +936,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 
 	protected Result<IBool> equalToNumber(NumberResult that) {
-		return that.undefinedError(EQUALS_STRING, this);
+		return bool(false, ctx);
 	}
 
 	protected Result<IBool> nonEqualToNumber(NumberResult that) {
@@ -948,7 +948,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 
 	protected <U extends IValue> LessThanOrEqualResult lessThanOrEqualNumber(NumberResult that) {
-    throw new UnsupportedOperationError(LESS_THAN_OR_EQUAL_STRING, getType(), that.getType(), ctx.getCurrentAST());
+    return new LessThanOrEqualResult(false, false, ctx);
 	}
 
 	protected Result<IBool> greaterThanNumber(NumberResult that) {

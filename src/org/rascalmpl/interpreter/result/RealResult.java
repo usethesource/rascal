@@ -317,12 +317,12 @@ public class RealResult extends ElementResult<IReal> {
 	
 	@Override
 	protected Result<IBool> equalToNumber(NumberResult that) {
-		return that.equalityBoolean(this);
+	  return bool(that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
 	protected Result<IBool> nonEqualToNumber(NumberResult that) {
-		return that.nonEqualityBoolean(this);
+	  return bool(!that.getValue().equal(getValue()).getValue(), ctx);
 	}
 	
 	@Override

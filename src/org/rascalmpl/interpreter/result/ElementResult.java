@@ -135,6 +135,11 @@ public class ElementResult<T extends IValue> extends Result<T> {
   public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
     return lessThanOrEqual(that).isLess();
   }
+	
+	@Override
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
+	  return new LessThanOrEqualResult(false, false, ctx);
+	}
   
   @Override
   public <V extends IValue> Result<IBool> greaterThan(Result<V> that) {

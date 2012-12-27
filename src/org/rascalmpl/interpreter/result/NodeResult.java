@@ -67,11 +67,6 @@ public class NodeResult extends ElementResult<INode> {
 			return ResultFactory.bool(false, ctx);
 	}
 	
-	@Override
-	public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> result) {
-		return result.greaterThanOrEqualNode(this);
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {

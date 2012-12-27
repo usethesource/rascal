@@ -13,6 +13,7 @@
 package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.IntegerResult.makeStepRangeFromToWithSecond;
+import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -174,23 +175,23 @@ public class NumberResult extends ElementResult<INumber> {
 	
 	@Override
 	protected Result<IBool> equalToReal(RealResult that) {
-		return that.equalityBoolean(this);
+	  return bool(that.getValue().equal(getValue()).getValue(), ctx);
 	}
 	
 	@Override
 	protected Result<IBool> nonEqualToReal(RealResult that) {
-		return that.nonEqualityBoolean(this);
+	  return bool(!that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
 	protected Result<IBool> equalToRational(RationalResult that) {
-		return that.equalityBoolean(this);
+	  return bool(that.getValue().equal(getValue()).getValue(), ctx);
 	}
 	
 	@Override
 	protected Result<IBool> nonEqualToRational(
 			RationalResult that) {
-		return that.nonEqualityBoolean(this);
+	  return bool(!that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
@@ -232,12 +233,12 @@ public class NumberResult extends ElementResult<INumber> {
 	
 	@Override
 	protected Result<IBool> equalToNumber(NumberResult that) {
-		return that.equalityBoolean(this);
+	  return bool(that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
 	protected Result<IBool> nonEqualToNumber(NumberResult that) {
-		return that.nonEqualityBoolean(this);
+	  return bool(!that.getValue().equal(getValue()).getValue(), ctx);
 	}
 	
 	@Override

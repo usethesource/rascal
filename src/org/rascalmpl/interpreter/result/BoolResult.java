@@ -94,7 +94,12 @@ public class BoolResult extends ElementResult<IBool> {
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualBool(BoolResult that) {
 	  // false < true or true <= true
-	  return new LessThanOrEqualResult(!that.isTrue(), isTrue(), ctx);
+	  if (that.isTrue()) {
+	    return new LessThanOrEqualResult(false, isTrue(), ctx);
+	  }
+	  else {
+	    return new LessThanOrEqualResult(isTrue(), !isTrue(), ctx);
+	  }
 	}
 	
 	@Override

@@ -16,7 +16,7 @@
 package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
-
+import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -62,17 +62,17 @@ public class ValueResult extends ElementResult<IValue> {
 	
 	@Override
 	protected Result<IBool> equalToInteger(IntegerResult that) {
-		return equalityBoolean(that);
+		return bool(false, ctx);
 	}
 
 	@Override
 	protected Result<IBool> equalToReal(RealResult that) {
-		return equalityBoolean(that);
+		return bool(false, ctx);
 	}
 
 	@Override
 	protected Result<IBool> equalToString(StringResult that) {
-		return equalityBoolean(that);
+	  return bool(false, ctx);
 	}
 	
 	@Override
@@ -117,7 +117,10 @@ public class ValueResult extends ElementResult<IValue> {
 	
 	@Override
 	protected Result<IBool> equalToValue(ValueResult that) {
-		return that.equalityBoolean(this);
+	  IValue leftValue = that.getValue();
+    IValue rightValue = getValue();
+    // value equality should simulate the dynamic equality on the specific types
+    return makeResult(rightValue.getType(), rightValue, ctx).equals(makeResult(leftValue.getType(), leftValue, ctx));
 	}
 
 	@Override

@@ -15,6 +15,7 @@
 package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
+import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -384,7 +385,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 	
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualRational(RationalResult that) {
-	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().isEqual(getValue()), ctx);
+	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
@@ -433,12 +434,12 @@ public class IntegerResult extends ElementResult<IInteger> {
 	
 	@Override
 	protected Result<IBool> equalToNumber(NumberResult that) {
-		return that.equalityBoolean(this);
+		return bool(that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
 	protected Result<IBool> nonEqualToNumber(NumberResult that) {
-		return that.nonEqualityBoolean(this);
+		return bool(!that.getValue().equal(getValue()).getValue(), ctx);
 	}
 	
 	
