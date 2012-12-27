@@ -46,6 +46,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1321,7 +1322,7 @@ public class Prelude {
 					argArr[1] = rhs;
 					Result<IValue> res = cmp.call(typeArr,argArr);
 					boolean leq = ((IBool)res.getValue()).getValue();
-					return leq ? -1 : 1;
+					return leq ? -1 : 0;
 				}
 			}
 		};
@@ -1358,7 +1359,7 @@ public class Prelude {
 					argArr[1] = rhs;
 					Result<IValue> res = cmp.call(typeArr,argArr);
 					boolean leq = ((IBool)res.getValue()).getValue();
-					return leq ? -1 : 1;
+					return leq ? -1 : 0;
 				}
 			}
 		};
