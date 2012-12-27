@@ -1,5 +1,6 @@
 module lang::rascal::tests::Equality
 
+import util::Math;
 
 // values have an equivalence relation
 public test bool reflexEq(value x) = x == x;
@@ -40,3 +41,13 @@ public test bool subsetOrdering2(set[value] x, set[value] y) = (x <= y) <==> (x 
 public test bool submapOrdering1(map[value,value] x, map[value,value] y) = x <= x + y;
 public test bool submapOrdering2(map[value,value]x, map[value,value] y) = (x <= y) <==> (x == () || all(e <- x, e in y));
 
+// conversions
+
+public test bool intToReal(int i) = i == toReal(i);
+public test bool ratToReal(rat r) = r == toReal(r);
+public test bool intToReal(int i) = i <= toReal(i);
+public test bool ratToReal(rat r) = r <= toReal(r);
+public test bool intToReal(int i) = toReal(i) >= i;
+public test bool ratToReal(rat r) = toReal(r) >= r;
+public test bool lessIntReal(int i) = !(i < toReal(i));
+public test bool lessRatReal(int i) = !(i < toReal(i));
