@@ -326,7 +326,7 @@ public set[set[&T]] power(set[&T] st)
   // if the nth bit of a number i is 1 then
   // the nth element of the set should be in the
   // ith subset 
-  stl = toList(st);
+  stl = [*st];
   i = 0;
   res = while(i < pow(2,size(st))) {
 	j = i;
@@ -338,10 +338,10 @@ public set[set[&T]] power(set[&T] st)
 	  elIndex += 1;
 	  j /= 2;
 	}
-	append toSet(sub);
+	append {*sub};
 	i+=1;
   }
-  return toSet(res);
+  return {*res};
 }
 
 @doc{
