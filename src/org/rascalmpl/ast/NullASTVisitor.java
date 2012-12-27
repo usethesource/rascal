@@ -117,6 +117,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitBasicTypeListRelation(BasicType.ListRelation x) { 
+    return null; 
+  }
+
   public T visitBasicTypeLoc(BasicType.Loc x) { 
     return null; 
   }

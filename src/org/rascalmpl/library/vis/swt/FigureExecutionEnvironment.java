@@ -133,6 +133,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	
 	public IConstructor executeRascalFigureCallBack(IValue callback,
 			Type[] argTypes, IValue[] argVals) {
+	  // TODO: this can return a null reference! and breaks all kinds of stuff.
 		IConstructor c = (IConstructor)executeRascalCallBack(callback, argTypes, argVals).getValue();
 		IEvaluator<Result<IValue>> evaluator = ctx.getEvaluator();
 		return (IConstructor)evaluator.call(getRascalContext(),"vis::Figure", "normalize", c);

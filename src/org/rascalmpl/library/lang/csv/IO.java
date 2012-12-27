@@ -3,6 +3,7 @@ package org.rascalmpl.library.lang.csv;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +25,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class IO {
@@ -105,9 +107,11 @@ public class IO {
 	private IValue read(Type resultType, ISourceLocation loc, IMap options, IEvaluatorContext ctx) {
 		setOptions(options);
 		InputStream in = null;
+		Reader reader = null;
 		try {
 			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
-			List<Record> records = loadRecords(in);
+			reader = new UnicodeInputStreamReader(in, ctx.getResolverRegistry().getCharset(loc.getURI()));
+			List<Record> records = loadRecords(reader);
 			if (resultType == null) {
 				resultType = inferType(records, ctx);
 				ctx.getStdOut().println("readCSV inferred the relation type: " + resultType);
@@ -125,6 +129,9 @@ public class IO {
 			if (in != null){
 				try {
 					in.close();
+					if (reader != null) {
+						reader.close();
+					}
 				} catch (IOException e){
 					throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
 				}
@@ -137,8 +144,8 @@ public class IO {
 		return ((IConstructor) new TypeReifier(values).typeToValue(csvResult.getType(), ctx).getValue());
 	}
 
-	private List<Record> loadRecords(InputStream in) throws IOException {
-		FieldReader reader = new FieldReader(in, separator);
+	private List<Record> loadRecords(Reader stream) throws IOException {
+		FieldReader reader = new FieldReader(stream, separator);
 		List<Record> records = new ArrayList<Record>();
 		while (reader.hasRecord()) {
 			// TODO: Record should not read from reader.
@@ -294,7 +301,7 @@ public class IO {
 				}
 				out.write('\n');
 			}
-			
+			String separatorAsString = new String(Character.toChars(separator));
 			for(IValue v : irel){
 				ITuple tup = (ITuple) v;
 				int sep = 0;
@@ -305,7 +312,8 @@ public class IO {
 						out.write(sep);
 					if(w.getType().isStringType()){
 						String s = ((IString)w).getValue();
-						if(s.contains("\n") || s.contains("\"")){
+						
+						if(s.contains(separatorAsString) || s.contains("\n") || s.contains("\"")){
 							s = s.replaceAll("\"", "\"\"");
 							out.write('"');
 							writeString(out,s);
@@ -370,14 +378,14 @@ public class IO {
 class FieldReader {
 	int lastChar = ';';
 	int separator = ';';
-	InputStream in;
+	Reader in;
 	boolean startOfLine = true;
 	
-	FieldReader(InputStream in, int sep) throws IOException{
-		this.in = in;
+	FieldReader(Reader reader, int sep) throws IOException{
+		this.in = reader;
 		this.separator = sep;
 		startOfLine = true;
-		lastChar = in.read();
+		lastChar = reader.read();
 	}
 	
 	private boolean isEOL(int c) {

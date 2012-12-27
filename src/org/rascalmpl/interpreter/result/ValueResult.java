@@ -15,15 +15,14 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
-
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 
 public class ValueResult extends ElementResult<IValue> {
 
@@ -36,265 +35,162 @@ public class ValueResult extends ElementResult<IValue> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToValue(this);
 	}
 	
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return equals(that).negate();
 	}
 
+	
+	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
-		return bool((((IInteger) compare(that).getValue()).intValue() < 0), ctx);
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
+	  Type thisRuntimeType = getValue().getType();
+    Type thatRuntimeType = that.getValue().getType();
+    
+    if (thisRuntimeType.comparable(thatRuntimeType)) {
+	    return makeResult(thisRuntimeType, getValue(), ctx).lessThanOrEqual(makeResult(thatRuntimeType, that.getValue(), ctx));
+	  }
+    else {
+      return new LessThanOrEqualResult(false, false, ctx);
+    }
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(
-			Result<V> that) {
-		return bool((((IInteger) compare(that).getValue()).intValue() <= 0), ctx);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(
-			Result<V> that) {
-		return bool((((IInteger) compare(that).getValue()).intValue() > 0), ctx);
+	protected Result<IBool> equalToInteger(IntegerResult that) {
+		return bool(false, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(
-			Result<V> that) {
-		return bool((((IInteger) compare(that).getValue()).intValue() >= 0), ctx);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that) {
-		// the default fall back implementation for IValue-based results
-		// Note the use of runtime types here. 
-		return dynamicCompare(getValue(), that.getValue());
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that) {
-		return equalityBoolean(that);
+	protected Result<IBool> equalToReal(RealResult that) {
+		return bool(false, ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> equalToReal(RealResult that) {
+	protected Result<IBool> equalToString(StringResult that) {
+	  return bool(false, ctx);
+	}
+	
+	@Override
+	protected Result<IBool> equalToList(ListResult that) {
 		return equalityBoolean(that);
+	}
+	
+	@Override
+	protected Result<IBool> equalToSet(SetResult that) {
+		return equalityBoolean(that);
+	}
+	
+	@Override
+	protected Result<IBool> equalToMap(MapResult that) {
+		return equalityBoolean(that);
+	}
+	
+	@Override
+	protected Result<IBool> equalToNode(NodeResult that) {
+		return equalityBoolean(that);
+	}
+	
+	@Override
+	protected Result<IBool> equalToSourceLocation(SourceLocationResult that) {
+		return equalityBoolean(that);
+	}
+	
+	@Override
+	protected Result<IBool> equalToRelation(RelationResult that) {
+		return equalityBoolean(that);
+	}
+	
+	@Override
+	protected Result<IBool> equalToTuple(TupleResult that) {
+		return equalityBoolean(that);
+	}
+	
+	@Override
+	protected Result<IBool> equalToBool(BoolResult that) {
+		return equalityBoolean(that);
+	}
+	
+	@Override
+	protected Result<IBool> equalToValue(ValueResult that) {
+	  IValue leftValue = that.getValue();
+    IValue rightValue = getValue();
+    // value equality should simulate the dynamic equality on the specific types
+    return makeResult(rightValue.getType(), rightValue, ctx).equals(makeResult(leftValue.getType(), leftValue, ctx));
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> equalToString(StringResult that) {
-		return equalityBoolean(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> equalToList(ListResult that) {
-		return equalityBoolean(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> equalToSet(SetResult that) {
-		return equalityBoolean(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> equalToMap(MapResult that) {
-		return equalityBoolean(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> equalToNode(NodeResult that) {
-		return equalityBoolean(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that) {
-		return equalityBoolean(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> equalToRelation(RelationResult that) {
-		return equalityBoolean(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> equalToTuple(TupleResult that) {
-		return equalityBoolean(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> equalToBool(BoolResult that) {
-		return equalityBoolean(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> equalToValue(ValueResult that) {
-		return that.equalityBoolean(this);
-	}
-
-	@Override
-	protected <U extends IValue> Result<U> equalToDateTime(DateTimeResult that) {
+	protected Result<IBool> equalToDateTime(DateTimeResult that) {
 		return equalityBoolean(that);
 	}
 
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToInteger(IntegerResult that) {
+	protected Result<IBool> nonEqualToInteger(IntegerResult that) {
 		return nonEqualityBoolean(that);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToReal(RealResult that) {
+	protected Result<IBool> nonEqualToReal(RealResult that) {
 		return nonEqualityBoolean(that);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToString(StringResult that) {
+	protected Result<IBool> nonEqualToString(StringResult that) {
 		return nonEqualityBoolean(that);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToList(ListResult that) {
+	protected Result<IBool> nonEqualToList(ListResult that) {
 		return nonEqualityBoolean(that);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToSet(SetResult that) {
+	protected Result<IBool> nonEqualToSet(SetResult that) {
 		return nonEqualityBoolean(that);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToMap(MapResult that) {
+	protected Result<IBool> nonEqualToMap(MapResult that) {
 		return nonEqualityBoolean(that);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that) {
+	protected Result<IBool> nonEqualToNode(NodeResult that) {
 		return nonEqualityBoolean(that);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToSourceLocation(SourceLocationResult that) {
+	protected Result<IBool> nonEqualToSourceLocation(SourceLocationResult that) {
 		return nonEqualityBoolean(that);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToRelation(RelationResult that) {
+	protected Result<IBool> nonEqualToRelation(RelationResult that) {
 		return nonEqualityBoolean(that);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToTuple(TupleResult that) {
+	protected Result<IBool> nonEqualToTuple(TupleResult that) {
 		return nonEqualityBoolean(that);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToBool(BoolResult that) {
+	protected Result<IBool> nonEqualToBool(BoolResult that) {
 		return nonEqualityBoolean(that);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToValue(ValueResult that) {
+	protected Result<IBool> nonEqualToValue(ValueResult that) {
 		return nonEqualityBoolean(this);
 	}	
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToDateTime(DateTimeResult that) {
+	protected Result<IBool> nonEqualToDateTime(DateTimeResult that) {
 		return nonEqualityBoolean(that);
-	}
-
-	@Override
-	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareReal(RealResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareString(StringResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareBool(BoolResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareTuple(TupleResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareList(ListResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareSet(SetResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareMap(MapResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareRelation(RelationResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that) {
-		return typeCompare(that);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareDateTime(DateTimeResult that) {
-		return typeCompare(that);
-	}
-
-	/* Utilities  */
-	
-	private <U extends IValue, V extends IValue> Result<U> typeCompare(Result<V> that) {
-		int result = getType().toString().compareTo(that.getType().toString());
-		return makeIntegerResult(result);
-	}
-	
-	private <U extends IValue> Result<U> dynamicCompare(IValue a, IValue b) {
-		// Since equals and compare must be total on all values, we are allowed
-		// to lift dynamic types here to static types. This makes the dynamic compare the 
-		// same as the static compare (to prevent surprises). However, if the static types
-		// do not implement a comparison (like [] == 1 compares a list to an int), 
-		// then we fall back to the comparison of type names.
-		try {
-			Result<?> aResult = ResultFactory.makeResult(a.getType(), a, ctx);
-			Result<?> bResult = ResultFactory.makeResult(b.getType(), b, ctx);
-			return aResult.compare(bResult);
-		}
-		catch (UnsupportedOperationError e) {
-			// to just compare type names based on names of types alphabetically
-			// would be unsound because of non-transitivity. This is because values under type
-			// num are ordered regardless of their actual type; then
-			// node < real < int could happen, while node > int.
-			
-			if (a.getType().isSubtypeOf(getTypeFactory().numberType())) {
-				return makeIntegerResult(-1);
-			}
-			else if (b.getType().isSubtypeOf(getTypeFactory().numberType())) {
-				return makeIntegerResult(1);
-			}
-			else {
-				return makeIntegerResult(a.getType().toString().compareTo(b.getType().toString()));
-			}
-		}
 	}
 }

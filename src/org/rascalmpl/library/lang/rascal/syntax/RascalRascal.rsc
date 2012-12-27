@@ -360,6 +360,8 @@ syntax Assignable
 lexical StringConstant
 	= @category="Constant" "\"" StringCharacter* "\"" ;
 
+
+
 syntax Assoc
 	= associative: "assoc" 
 	| left: "left" 
@@ -620,6 +622,7 @@ keyword RascalKeywords
 	| "extend" 
 	| "append" 
 	| "rel" 
+	| "lrel"
 	| "void" 
 	| "non-assoc" 
 	| "assoc" 
@@ -757,6 +760,7 @@ syntax BasicType
 	| \int: "int"
 	| rational: "rat" 
 	| relation: "rel" 
+	| listRelation: "lrel"
 	| \real: "real" 
 	| \tuple: "tuple" 
 	| string: "str" 

@@ -19,6 +19,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
@@ -91,12 +92,12 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToConstructorFunction(this);
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> equalToConstructorFunction(ConstructorFunction that) {
+	public Result<IBool> equalToConstructorFunction(ConstructorFunction that) {
 		return ResultFactory.bool((constructorType == that.constructorType), ctx);
 	}
 }

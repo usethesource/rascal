@@ -17,6 +17,7 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -58,49 +59,50 @@ public class SetResult extends SetOrRelationResult<ISet> {
 	
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> in(Result<V> result) {
+	public <V extends IValue> Result<IBool> in(Result<V> result) {
 		return result.inSet(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> result) {
+	public <V extends IValue> Result<IBool> notIn(Result<V> result) {
 		return result.notInSet(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToSet(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToSet(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
 		return that.lessThanSet(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
 		return that.lessThanOrEqualSet(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> greaterThan(Result<V> that) {
 		return that.greaterThanSet(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that) {
+	public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> that) {
 		return that.greaterThanOrEqualSet(this);
 	}
 
-
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareSet(this);
+	protected LessThanOrEqualResult lessThanOrEqualSet(SetResult that) {
+	  boolean isSubset = that.getValue().isSubsetOf(getValue());
+    boolean equals = that.getValue().isEqual(getValue());
+    return new LessThanOrEqualResult(isSubset && !equals, equals, ctx);
 	}
 	
 	@Override

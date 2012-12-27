@@ -15,9 +15,9 @@
 package org.rascalmpl.interpreter.result;
 
 
-import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INode;
@@ -39,53 +39,32 @@ public class NodeResult extends ElementResult<INode> {
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToNode(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToNode(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result) {
-		return result.lessThanNode(this);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result) {
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> result) {
 		return result.lessThanOrEqualNode(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result) {
-		return result.greaterThanNode(this);
-	}
-	
-	@Override
-	public <U extends IValue> Result<U> is(Name name) {
+	public Result<IBool> is(Name name) {
 		return ResultFactory.bool(getValue().getName().equals(Names.name(name)), ctx);
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> has(Name name) {
+	public Result<IBool> has(Name name) {
 		INode node = getValue();
 		if(node instanceof IConstructor)
 			return ResultFactory.bool(((IConstructor) node).has(Names.name(name)), ctx);
 		else
 			return ResultFactory.bool(false, ctx);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result) {
-		return result.greaterThanOrEqualNode(this);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(
-			Result<V> that) {
-		return that.compareNode(this);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -109,79 +88,50 @@ public class NodeResult extends ElementResult<INode> {
 	//////
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanNode(NodeResult that) {
-		// note reversed args: we need that < this
-		return bool((that.comparisonInts(this) < 0), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualNode(NodeResult that) {
-		// note reversed args: we need that <= this
-		return bool((that.comparisonInts(this) <= 0), ctx);
+	protected LessThanOrEqualResult lessThanOrEqualNode(NodeResult that) {
+	  INode left = that.getValue();
+	  INode right = getValue();
+	  
+	  int compare = left.getName().compareTo(right.getName());
+	  
+	  if (compare == -1) {
+	    return new LessThanOrEqualResult(true, false, ctx);
+	  }
+	  
+    if (compare == 1){
+      return new LessThanOrEqualResult(false, false, ctx);
+    }
+    
+    // if the names are not ordered, then we order lexicographically on the arguments:
+    
+    int leftArity = left.arity();
+    int rightArity = right.arity();
+    
+    for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
+       IValue leftArg = left.get(i);
+       IValue rightArg = right.get(i);
+       LessThanOrEqualResult loe = makeResult(leftArg.getType(), leftArg, ctx).lessThanOrEqual(makeResult(rightArg.getType(), rightArg,ctx));
+       
+       if (loe.getLess() && !loe.getEqual()) {
+         return new LessThanOrEqualResult(true, false, ctx);
+       }
+       
+       if (!loe.getEqual()) { 
+         return new LessThanOrEqualResult(false, false, ctx);
+       }
+    }
+    
+    return new LessThanOrEqualResult(leftArity < rightArity, leftArity == rightArity, ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanNode(NodeResult that) {
-		// note reversed args: we need that > this
-		return bool((that.comparisonInts(this) > 0), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualNode(NodeResult that) {
-		// note reversed args: we need that >= this
-		return bool((that.comparisonInts(this) >= 0), ctx);
-	}
-
-	@Override
-	protected <U extends IValue> Result<U> equalToNode(NodeResult that) {
+	protected Result<IBool> equalToNode(NodeResult that) {
 		return that.equalityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that) {
+	protected Result<IBool> nonEqualToNode(NodeResult that) {
 		return that.nonEqualityBoolean(this);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareNode(NodeResult that) {
-		// Note reversed args
-		INode left = that.getValue();
-		INode right = this.getValue();
-		
-		if (left.isEqual(right)) {
-			return makeIntegerResult(0);
-		}
-		
-		int str = left.getName().compareTo(right.getName());
-		
-		if (str == 0) {
-			int leftArity = left.arity();
-			int rightArity = right.arity();
-			
-			if (leftArity == rightArity) {
-				Type valueType = getTypeFactory().valueType();
-				
-				for (int i = 0; i < leftArity; i++) {
-					Result<IInteger> comp = makeResult(valueType, left.get(i), ctx).compare(makeResult(valueType, right.get(i), ctx));
-					int val = comp.getValue().intValue();
-					
-					if (val != 0) {
-						return makeIntegerResult(val);
-					}
-				}
-				
-				// this may happen when comparing nodes to constructors
-				return makeIntegerResult(0);
-			}
-			
-			if (left.arity() < right.arity()) {
-				return makeIntegerResult(-1);
-			}
-			
-			return makeIntegerResult(1);
-		}
-		
-		return makeIntegerResult(str);
 	}
 	
 	@Override

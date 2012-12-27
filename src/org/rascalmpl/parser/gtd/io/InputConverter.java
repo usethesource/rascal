@@ -13,10 +13,11 @@ package org.rascalmpl.parser.gtd.io;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.unicode.UnicodeInputStreamReader;
 
 public class InputConverter{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
@@ -30,39 +31,41 @@ public class InputConverter{
 	}
 	
 	// NOTE: The user has to close the stream.
-	public static char[] toChar(InputStream inputStream) throws IOException{
-		return toChar(new InputStreamReader(inputStream, "UTF8"));
+	public static char[] toChar(InputStream inputStream, Charset charset) throws IOException{
+		return toChar(new UnicodeInputStreamReader(inputStream, charset));
 	}
 	
 	// NOTE: The user has to close the stream.
 	private static char[] toChar(Reader reader) throws IOException {
 		ArrayList<char[]> segments = new ArrayList<char[]>();
+		ArrayList<Integer> segmentLengths = new ArrayList<Integer>();
 		
 		// Gather segments.
-		int nrOfWholeSegments = -1;
-		int bytesRead;
+		int charsRead = 0;
+		int totalNrOfChars = 0;
 		do{
 			char[] segment = new char[STREAM_READ_SEGMENT_SIZE];
-			bytesRead = reader.read(segment, 0, STREAM_READ_SEGMENT_SIZE);
-			
-			segments.add(segment);
-			++nrOfWholeSegments;
-		}while(bytesRead == STREAM_READ_SEGMENT_SIZE);
+			charsRead = reader.read(segment, 0, STREAM_READ_SEGMENT_SIZE);
+
+			if(charsRead > 0) {
+				segments.add(segment);
+				segmentLengths.add(charsRead);
+				totalNrOfChars += charsRead;
+			}
+		}while(charsRead != -1);
+
+		assert reader.read() == -1;
 		
 		// Glue the segments together.
-		char[] segment = segments.get(nrOfWholeSegments);
-		char[] input;
-		if(bytesRead != -1){
-			input = new char[(nrOfWholeSegments * STREAM_READ_SEGMENT_SIZE) + bytesRead];
-			System.arraycopy(segment, 0, input, (nrOfWholeSegments * STREAM_READ_SEGMENT_SIZE), bytesRead);
-		}else{
-			input = new char[(nrOfWholeSegments * STREAM_READ_SEGMENT_SIZE)];
+		char[] input = new char[totalNrOfChars];
+		int pos = 0;
+		for(int i = 0; i < segments.size(); i++) {
+			char segment[] = segments.get(i);
+			int length = segmentLengths.get(i);
+			System.arraycopy(segment, 0, input, pos, length);
+			pos += length;
 		}
-		for(int i = nrOfWholeSegments - 1; i >= 0; --i){
-			segment = segments.get(i);
-			System.arraycopy(segment, 0, input, (i * STREAM_READ_SEGMENT_SIZE), STREAM_READ_SEGMENT_SIZE);
-		}
-		
+		assert pos == totalNrOfChars;
 		return input;
 	}
 }

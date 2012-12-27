@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
@@ -108,6 +109,26 @@ public class LazyList implements IList {
 
 	@Override
 	public IList delete(int i) {
+		throw new IllegalOperationException("isEqual over buffered list", getType());
+	}
+	
+	@Override
+	public IListRelation product(IList e) {
+		throw new IllegalOperationException("isEqual over buffered list", getType());
+	}
+	
+	@Override
+	public IListRelation subtract(IList e) {
+		throw new IllegalOperationException("isEqual over buffered list", getType());
+	}
+	
+	@Override
+	public IListRelation intersect(IList e) {
+		throw new IllegalOperationException("isEqual over buffered list", getType());
+	}
+	
+	@Override
+	public boolean isSubListOf(IList e) {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
 

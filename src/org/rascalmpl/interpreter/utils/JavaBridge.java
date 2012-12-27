@@ -44,6 +44,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.INumber;
@@ -264,6 +265,11 @@ public class JavaBridge {
 
 		public Class<?> visitDateTime(Type type) {
 			return IDateTime.class;
+		}
+
+		@Override
+		public Class<?> visitListRelationType(Type type) {
+			return IListRelation.class;
 		}
 	}
 	

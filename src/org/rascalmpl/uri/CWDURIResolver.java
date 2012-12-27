@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 
 /**
  * For reading and writing files relative to the current working directory.
@@ -72,5 +73,10 @@ public class CWDURIResolver implements IURIInputOutputResolver {
 
 	public boolean supportsHost() {
 		return false;
+	}
+
+	@Override
+	public Charset getCharset(URI uri) throws IOException {
+		return null;
 	}
 }

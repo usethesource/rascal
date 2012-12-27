@@ -369,6 +369,31 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 	}
+	
+	static public class ListRelation extends org.rascalmpl.ast.BasicType.ListRelation {
+
+		public ListRelation(IConstructor __param1) {
+			super(__param1);
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type __evaluate(BasicTypeEvaluator __eval) {
+
+			return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
+					.lrelTypeFromTuple(__eval.__getTypeArgument());
+
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+
+			throw new NonWellformedTypeError(
+					"lrel should have at least one type argument, like lrel[value,value].",
+					this);
+
+		}
+
+	}
 
 	static public class Set extends org.rascalmpl.ast.BasicType.Set {
 

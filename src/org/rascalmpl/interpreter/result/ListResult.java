@@ -18,9 +18,11 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -29,7 +31,7 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
-public class ListResult extends CollectionResult<IList> {
+public class ListResult extends ListOrRelationResult<IList> {
 	
 	public ListResult(Type type, IList list, IEvaluatorContext ctx) {
 		super(type, list, ctx);
@@ -46,6 +48,11 @@ public class ListResult extends CollectionResult<IList> {
 	}
 	
 	@Override
+	public <U extends IValue, V extends IValue> Result<U> join(Result<V> that) {
+		return that.joinList(this);
+	}
+	
+	@Override
 	public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result) {
 		return result.intersectList(this);
 	}
@@ -56,47 +63,42 @@ public class ListResult extends CollectionResult<IList> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> in(Result<V> result) {
+	public <V extends IValue> Result<IBool> in(Result<V> result) {
 		return result.inList(this);
 	}	
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> result) {
+	public <V extends IValue> Result<IBool> notIn(Result<V> result) {
 		return result.notInList(this);
 	}	
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareList(this);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToList(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToList(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
 		return that.lessThanList(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
 		return that.lessThanOrEqualList(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> greaterThan(Result<V> that) {
 		return that.greaterThanList(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that) {
+	public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> that) {
 		return that.greaterThanOrEqualList(this);
 	}
 
@@ -180,81 +182,124 @@ public class ListResult extends CollectionResult<IList> {
 		return makeResult(newType, value.append(that.getValue()), ctx);
 	}
 
-	<U extends IValue, V extends IValue> Result<U> removeElement(ElementResult<V> value) {
+	protected <U extends IValue, V extends IValue> Result<U> removeElement(ElementResult<V> value) {
 		IList list = getValue();
 		return makeResult(getType(), list.delete(value.getValue()), ctx);
 	}
 
-	<U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult) {
+	protected <V extends IValue> Result<IBool> elementOf(ElementResult<V> elementResult) {
 		return bool((getValue().contains(elementResult.getValue())), ctx);
 	}
 
-	<U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult) {
+	protected <V extends IValue> Result<IBool> notElementOf(ElementResult<V> elementResult) {
 		return bool((!getValue().contains(elementResult.getValue())), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToList(ListResult that) {
+	protected Result<IBool> equalToList(ListResult that) {
 		return that.equalityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToList(ListResult that) {
+	protected Result<IBool> nonEqualToList(ListResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanList(ListResult that) {
-		// note reverse of arguments: we need that < this
-		// TODO: move to PDB:
-		if (that.getValue().isEqual(getValue())) {
-			return bool(false, ctx);
-		}
-		return lessThanOrEqualList(that);
+	protected Result<IBool> nonEqualToListRelation(ListRelationResult that) {
+		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that) {
-		for (IValue value: that.getValue()) {
-			if (!getValue().contains(value)) {
-				return bool(false, ctx);
+	protected Result<IBool> greaterThanList(ListResult that) {
+	  return that.lessThanList(this);
+	}
+	
+	@Override
+	protected Result<IBool> greaterThanOrEqualList(ListResult that) {
+	  return that.lessThanOrEqualList(this);
+	}
+	
+	@Override
+	protected Result<IBool> lessThanList(ListResult that) {
+	  IList val = that.getValue();
+    
+    if (val.length() > value.length()) {
+      return bool(false, ctx);
+    }
+    
+    OUTER:for (int iThat = 0, iThis = 0; iThat < val.length(); iThat++) {
+      for (iThis = Math.max(iThis, iThat) ; iThis < value.length(); iThis++) {
+        if (val.get(iThat).isEqual(value.get(iThis))) {
+          iThis++;
+          continue OUTER;
+        }
+      }
+      return bool(false, ctx);
+    }
+
+    return bool(val.length() != value.length(), ctx);
+	}
+	
+	@Override
+	protected LessThanOrEqualResult lessThanOrEqualList(ListResult that) {
+	  IList left = that.getValue();
+	  IList right = getValue();
+	  
+	  if (left.length() == 0) {
+	    return new LessThanOrEqualResult(right.length() > 0, right.length() == 0, ctx);
+	  }
+	  else if (left.length() > right.length()) {
+	    return new LessThanOrEqualResult(false, false, ctx);
+	  }
+	  
+		OUTER:for (int iThat = 0, iThis = 0; iThat < left.length(); iThat++) {
+		  for (iThis = Math.max(iThis, iThat) ; iThis < right.length(); iThis++) {
+		    if (left.get(iThat).isEqual(right.get(iThis))) {
+		      continue OUTER;
+		    }
+		  }
+		  return new LessThanOrEqualResult(true, false, ctx);
+		}
+	  
+		return new LessThanOrEqualResult(left.length() < right.length(), left.length() == right.length(), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> joinListRelation(ListRelationResult that) {
+		// Note the reverse of arguments, we need "that join this"
+		int arity1 = that.getValue().arity();
+		Type eltType = getType().getElementType();
+		Type tupleType = that.getType().getElementType();
+		Type fieldTypes[] = new Type[arity1 + 1];
+		for (int i = 0;  i < arity1; i++) {
+			fieldTypes[i] = tupleType.getFieldType(i);
+		}
+		fieldTypes[arity1] = eltType;
+		Type resultTupleType = getTypeFactory().tupleType(fieldTypes);
+		IListWriter writer = getValueFactory().listWriter(resultTupleType);
+		IValue fieldValues[] = new IValue[arity1 + 1];
+		for (IValue relValue: that.getValue()) {
+			for (IValue setValue: this.getValue()) {
+				for (int i = 0; i < arity1; i++) {
+					fieldValues[i] = ((ITuple)relValue).get(i);
+				}
+				fieldValues[arity1] = setValue;
+				writer.append(getValueFactory().tuple(fieldValues));
 			}
 		}
-		return bool(true, ctx);
+		Type resultType = getTypeFactory().lrelTypeFromTuple(resultTupleType);
+		return makeResult(resultType, writer.done(), ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanList(ListResult that) {
-		// note double reversal of arguments: that >  this
-		return that.lessThanList(this);
+	protected <U extends IValue> Result<U> joinList(ListResult that) {
+		// Note the reverse of arguments, we need "that join this"
+		// join between sets degenerates to product
+		Type tupleType = getTypeFactory().tupleType(that.getType().getElementType(), 
+				getType().getElementType());
+		return makeResult(getTypeFactory().lrelTypeFromTuple(tupleType),
+				that.getValue().product(getValue()), ctx);
 	}
-	
-	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that) {
-		// note double reversal of arguments: that >=  this
-		return that.lessThanOrEqualList(this);
-	}
-	
-	
-	@Override
-	protected <U extends IValue> Result<U> compareList(ListResult that) {
-		// Note reversed args
-		IList left = that.getValue();
-		IList right = this.getValue();
-		int compare = Integer.valueOf(left.length()).compareTo(Integer.valueOf(right.length()));
-	
-		// TODO: think about what <= on lists should mean
-		if (compare != 0) {
-			return makeIntegerResult(compare);
-		}
-		for (int i = 0; i < left.length(); i++) {
-			compare = compareIValues(left.get(i), right.get(i), ctx);
-			if (compare != 0) {
-				return makeIntegerResult(compare);
-			}
-		}
-		return makeIntegerResult(0);
-	}
-
 	
 }
