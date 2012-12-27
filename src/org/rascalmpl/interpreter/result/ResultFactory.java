@@ -44,8 +44,6 @@ import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.values.uptr.Factory;
 
 public class ResultFactory {
-	// TODO: do apply rules here and introduce normalizedResult. 
-	
 	@SuppressWarnings("unchecked")
 	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, IEvaluatorContext ctx) {
 		return (Result<T>) declaredType.accept(new Visitor(declaredType, value, ctx));

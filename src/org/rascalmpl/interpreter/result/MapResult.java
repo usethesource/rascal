@@ -214,7 +214,7 @@ public class MapResult extends ElementResult<IMap> {
 	protected LessThanOrEqualResult lessThanOrEqualMap(MapResult that) {
 	  boolean subMap = that.getValue().isSubMap(getValue());
 	  boolean equals = that.getValue().isEqual(getValue());
-	  return new LessThanOrEqualResult(subMap, equals, ctx);
+	  return new LessThanOrEqualResult(subMap && !equals, equals, ctx);
 	}
 
 	@Override
