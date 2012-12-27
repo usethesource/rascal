@@ -10,6 +10,8 @@
 
 module Boolean
 
+import Exception;
+
 @doc{
 Synopsis: Return an arbitrary Boolean value.
 
@@ -59,7 +61,7 @@ public bool fromString(str s)
   if (s == "false") {
     return false;
   }
-//  throw s + " is not \"true\" or \"false\";
+  throw IllegalArgument(s, "not \"true\" or \"false\"");
 }
 
 @doc{

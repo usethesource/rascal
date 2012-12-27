@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -30,6 +31,7 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.util.JSonReader;
 import org.rascalmpl.library.util.JSonWriter;
+import org.rascalmpl.unicode.UnicodeInputStreamReader;
 
 public class IO {
 	private final IValueFactory values;
@@ -69,9 +71,11 @@ public class IO {
 		Type start = new TypeReifier(ctx.getValueFactory()).valueToType(
 				(IConstructor) type, store);
 		InputStream in = null;
+		Reader read = null;
 		try {
 			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
-			return new JSonReader().read(values, store, start, in);
+			read = new UnicodeInputStreamReader(in, ctx.getResolverRegistry().getCharset(loc.getURI()));
+			return new JSonReader().read(values, store, start, read);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()),
 					null, null);
@@ -79,6 +83,9 @@ public class IO {
 			if (in != null) {
 				try {
 					in.close();
+					if (read != null) {
+						read.close();
+					}
 				} catch (IOException ioex) {
 					throw RuntimeExceptionFactory.io(
 							values.string(ioex.getMessage()), null, null);

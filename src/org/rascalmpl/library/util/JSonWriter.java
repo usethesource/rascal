@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
@@ -47,7 +48,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class JSonWriter implements IValueTextWriter {
 
-	static boolean typed = true;
+	static boolean typed = false;
 
 	static boolean debug = false;
 
@@ -154,7 +155,6 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
-		@SuppressWarnings("unused")
 		public IValue visitSet(ISet o) throws VisitorException {
 			if (debug)
 				System.err.println("VisitSet:" + o);
@@ -167,7 +167,6 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
-		@SuppressWarnings("unused")
 		public IValue visitTuple(ITuple o) throws VisitorException {
 			if (debug)
 				System.err.println("VisitTuple:" + o);
@@ -186,6 +185,13 @@ public class JSonWriter implements IValueTextWriter {
 			visitSequence(o.iterator());
 			if (typed || inNode > 0)
 				append('}');
+			return o;
+		}
+		
+		@Override
+		public IValue visitListRelation(IListRelation o)
+				throws VisitorException {
+			visitSequence(o.iterator());
 			return o;
 		}
 
@@ -348,6 +354,7 @@ public class JSonWriter implements IValueTextWriter {
 				append("]}");
 			return o;
 		}
+
 	}
 
 }

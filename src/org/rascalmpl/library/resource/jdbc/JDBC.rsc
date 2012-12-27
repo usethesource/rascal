@@ -203,7 +203,7 @@ public str allTableSchemas(str moduleName, loc uri) {
 
     // The URI should include the host and the database as well. The
     // path should just be the database name.
-    hostName = uri.host;
+    hostName = uri.authority;
     if (uri.path != "/<uri.file>") throw "Invalid path, should just include database name";
     dbName = uri.file;
     
@@ -221,7 +221,7 @@ public str allTableSchemas(str moduleName, loc uri) {
     con = createConnection(connectString);
 
     // Get back a list of table types, sorted by table name
-    ts = sort(toList(getTables(con)),bool(t1,t2) { return t1.tableName < t2.tableName; });
+    ts = sort(toList(getTables(con)),bool(resource::jdbc::JDBC::Table t1, resource::jdbc::JDBC::Table t2) { return t1.tableName < t2.tableName; });
     
     // Then, generate the accessor function for each
     list[str] tfuns = [ ];
@@ -248,7 +248,7 @@ public str allTableSchemas(str moduleName, loc uri) {
     
     // Generate the module, which will include accessors for each table.
     mbody = "module <moduleName>
-            'import JDBC;
+            'import resource::jdbc::JDBC;
             '
             '<for (tfun <- tfuns) {>
             '<tfun>
@@ -266,7 +266,7 @@ public str tableSchema(str moduleName, loc uri) {
 
     // The URI should include the host, the database, and the name of
     // the table. The path should just be database/table.
-    hostName = uri.host;
+    hostName = uri.authority;
     if (uri.path != "/<uri.parent.file>/<uri.file>") throw "Invalid path, should include database name/table name";
     tableName = uri.file;
     dbName = uri.parent.file;
@@ -299,7 +299,7 @@ public str tableSchema(str moduleName, loc uri) {
     closeConnection(con);
     
     mbody = "module <moduleName>
-            'import JDBC;
+            'import resource::jdbc::JDBC;
             '
             'alias \\<tableName>RowType = <prettyPrintType(columnTuple)>;
             'alias \\<tableName>Type = rel[<intercalate(",",[prettyPrintType(ct) | ct <- columnTypes])>];

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -340,6 +341,9 @@ public class RascalFunction extends NamedFunction {
 			int i = 0;
 			
 			
+			if (!hasVarArgs && size != this.formals.size())
+				throw new MatchFailed();
+
 			if (size == 0) {
 				try {
 					return runBody();
@@ -467,12 +471,12 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToRascalFunction(this);
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> equalToRascalFunction(RascalFunction that) {
+	public Result<IBool> equalToRascalFunction(RascalFunction that) {
 		return ResultFactory.bool((this == that), ctx);
 	}
 

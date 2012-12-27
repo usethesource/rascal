@@ -17,6 +17,7 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -56,37 +57,32 @@ public class StringResult extends ElementResult<IString> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareString(this);
-	}
-
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToString(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToString(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result) {
+	public <V extends IValue> Result<IBool> lessThan(Result<V> result) {
 		return result.lessThanString(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result) {
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> result) {
 		return result.lessThanOrEqualString(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result) {
+	public <V extends IValue> Result<IBool> greaterThan(Result<V> result) {
 		return result.greaterThanString(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result) {
+	public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> result) {
 		return result.greaterThanOrEqualString(this);
 	}
 	
@@ -106,19 +102,25 @@ public class StringResult extends ElementResult<IString> {
 	}	
 	
 	@Override
-	protected <U extends IValue> Result<U> compareString(StringResult that) {
-		// note reversed args
-		IString left = that.getValue();
-		IString right = this.getValue();
-		int result = left.compare(right);
-		return makeIntegerResult(result);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> equalToString(StringResult that) {
+	protected Result<IBool> equalToString(StringResult that) {
 		return that.equalityBoolean(this);
 	}
 	
+	@Override
+	protected Result<IBool> greaterThanString(StringResult that) {
+	  return bool(that.getValue().compare(getValue()) > 0, ctx);
+	}
+	
+	@Override
+	protected Result<IBool> greaterThanOrEqualString(StringResult that) {
+	  return bool(that.getValue().compare(getValue()) >= 0, ctx);
+	}
+	
+	@Override
+	protected Result<IBool> lessThanString(StringResult that) {
+	  return bool(that.getValue().compare(getValue()) < 0, ctx);
+	}
+
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		String name = getValue().getValue();
@@ -130,32 +132,14 @@ public class StringResult extends ElementResult<IString> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToString(StringResult that) {
+	protected Result<IBool> nonEqualToString(StringResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanString(StringResult that) {
-		// note reversed args: we need that < this
-		return bool((that.comparisonInts(this) < 0), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualString(StringResult that) {
-		// note reversed args: we need that <= this
-		return bool((that.comparisonInts(this) <= 0), ctx);
-	}
-
-	@Override
-	protected <U extends IValue> Result<U> greaterThanString(StringResult that) {
-		// note reversed args: we need that > this
-		return bool((that.comparisonInts(this) > 0), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualString(StringResult that) {
-		// note reversed args: we need that >= this
-		return bool((that.comparisonInts(this) >= 0), ctx);
+	protected LessThanOrEqualResult lessThanOrEqualString(StringResult that) {
+		int cmp = that.getValue().compare(getValue());
+    return new LessThanOrEqualResult(cmp < 0, cmp == 0, ctx);
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -56,38 +57,25 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToDateTime(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> equalToDateTime(DateTimeResult that) {
+	protected Result<IBool> equalToDateTime(DateTimeResult that) {
 		return that.equalityBoolean(this);
 	}
 		
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToDateTime(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToDateTime(DateTimeResult that) {
+	protected Result<IBool> nonEqualToDateTime(DateTimeResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that) {
-		return that.compareDateTime(this);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareDateTime(DateTimeResult that) {
-		checkDateTimeComparison(that);
-		
-		return makeIntegerResult(that.value.compareTo(this.value));
-	}
-
-	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		IValueFactory vf = getValueFactory();
@@ -302,47 +290,47 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> greaterThan(Result<V> that) {
 		return that.greaterThanDateTime(this);
 	}
 
-	@Override
-	protected <U extends IValue> Result<U> greaterThanDateTime(DateTimeResult that) {
+	@Override 
+	protected Result<IBool> greaterThanDateTime(DateTimeResult that) {
 		checkDateTimeComparison(that);
 		return bool(that.value.getInstant() > this.value.getInstant(), ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that) {
+	public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> that) {
 		return that.greaterThanOrEqualDateTime(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualDateTime(DateTimeResult that) {
+	protected Result<IBool> greaterThanOrEqualDateTime(DateTimeResult that) {
 		checkDateTimeComparison(that);
 		return bool(that.value.getInstant() >= this.value.getInstant(), ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
 		return that.lessThanDateTime(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> lessThanDateTime(DateTimeResult that) {
+	protected Result<IBool> lessThanDateTime(DateTimeResult that) {
 		checkDateTimeComparison(that);
 		return bool(that.value.getInstant() < this.value.getInstant(), ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
 		return that.lessThanOrEqualDateTime(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualDateTime(DateTimeResult that) {
+	protected LessThanOrEqualResult lessThanOrEqualDateTime(DateTimeResult that) {
 		checkDateTimeComparison(that);
-		return bool(that.value.getInstant() <= this.value.getInstant(), ctx);
+		return new LessThanOrEqualResult(that.value.getInstant() < this.value.getInstant(), that.value.getInstant() == this.value.getInstant(), ctx);
 	}
 
 	@Override

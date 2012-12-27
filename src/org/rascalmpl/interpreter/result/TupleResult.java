@@ -14,9 +14,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -83,7 +83,7 @@ public class TupleResult extends ElementResult<ITuple> {
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> has(Name name) {
+	public Result<IBool> has(Name name) {
 		return ResultFactory.bool(getType().hasField(Names.name(name)), ctx);
 	}
 	
@@ -151,37 +151,32 @@ public class TupleResult extends ElementResult<ITuple> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareTuple(this);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToTuple(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToTuple(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result) {
+	public <V extends IValue> Result<IBool> lessThan(Result<V> result) {
 		return result.lessThanTuple(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result) {
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> result) {
 		return result.lessThanOrEqualTuple(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result) {
+	public <V extends IValue> Result<IBool> greaterThan(Result<V> result) {
 		return result.greaterThanTuple(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result) {
+	public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> result) {
 		return result.greaterThanOrEqualTuple(this);
 	}
 	
@@ -243,54 +238,58 @@ public class TupleResult extends ElementResult<ITuple> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToTuple(TupleResult that) {
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		return that.appendTuple(this);
+	}
+	
+	@Override
+	protected Result<IBool> equalToTuple(TupleResult that) {
 		return that.equalityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToTuple(TupleResult that) {
+	protected Result<IBool> nonEqualToTuple(TupleResult that) {
 		return that.nonEqualityBoolean(this);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareTuple(TupleResult that) {
-		// Note reversed args
-		ITuple left = that.getValue();
-		ITuple right = this.getValue();
-		int compare = Integer.valueOf(left.arity()).compareTo(Integer.valueOf(right.arity()));
-		if (compare != 0) {
-			return makeIntegerResult(compare);
-		}
-		for (int i = 0; i < left.arity(); i++) {
-			compare = compareIValues(left.get(i), right.get(i), ctx);
-			if (compare != 0) {
-				return makeIntegerResult(compare);
-			}
-		}
-		return makeIntegerResult(0);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> lessThanTuple(TupleResult that) {
-		// note reversed args: we need that < this
-		return bool((that.comparisonInts(this) < 0), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualTuple(TupleResult that) {
-		// note reversed args: we need that <= this
-		return bool((that.comparisonInts(this) <= 0), ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanTuple(TupleResult that) {
-		// note reversed args: we need that > this
-		return bool((that.comparisonInts(this) > 0), ctx);
+	protected Result<IBool> greaterThanOrEqualTuple(TupleResult that) {
+	  return that.lessThanOrEqualTuple(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualTuple(TupleResult that) {
-		// note reversed args: we need that >= this
-		return bool((that.comparisonInts(this) >= 0), ctx);
+	protected Result<IBool> greaterThanTuple(TupleResult that) {
+	  LessThanOrEqualResult loe = that.lessThanOrEqualTuple(this);
+    return loe.isLess();
+	}
+	
+	@Override
+	protected Result<IBool> lessThanTuple(TupleResult that) {
+	  LessThanOrEqualResult loe = lessThanOrEqualTuple(that);
+    return loe.isLess();
+	}
+	
+	@Override
+	protected LessThanOrEqualResult lessThanOrEqualTuple(TupleResult that) {
+    ITuple left = that.getValue();
+    int leftArity = left.arity();
+    ITuple right = getValue();
+    int rightArity = right.arity();
+    
+    for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
+       IValue leftArg = left.get(i);
+       IValue rightArg = right.get(i);
+       LessThanOrEqualResult loe = makeResult(leftArg.getType(), leftArg, ctx).lessThanOrEqual(makeResult(rightArg.getType(), rightArg,ctx));
+       
+       if (loe.getLess()) {
+         return loe;
+       }
+       
+       if (!loe.getEqual()) { 
+         return new LessThanOrEqualResult(false, false, ctx);
+       }
+    }
+    
+    return new LessThanOrEqualResult(leftArity < rightArity, leftArity == rightArity, ctx);
 	}
 }

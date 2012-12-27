@@ -18,17 +18,14 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
@@ -49,43 +46,52 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inSet(SetResult s) {
+	protected Result<IBool> inSet(SetResult s) {
 		return s.elementOf(this);
 	}
 	
-	
 	@Override
-	protected <U extends IValue> Result<U> notInSet(SetResult s) {
+	protected Result<IBool> notInSet(SetResult s) {
 		return s.notElementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inRelation(RelationResult s) {
+	protected Result<IBool> inRelation(RelationResult s) {
 		return s.elementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> notInRelation(RelationResult s) {
+	protected Result<IBool> inListRelation(ListRelationResult s) {
+		return s.elementOf(this);
+	}
+	
+	@Override
+	protected Result<IBool> notInRelation(RelationResult s) {
 		return s.notElementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inList(ListResult s) {
-		return s.elementOf(this);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> notInList(ListResult s) {
+	protected Result<IBool> notInListRelation(ListRelationResult s) {
 		return s.notElementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inMap(MapResult s) {
+	protected Result<IBool> inList(ListResult s) {
 		return s.elementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> notInMap(MapResult s) {
+	protected Result<IBool> notInList(ListResult s) {
+		return s.notElementOf(this);
+	}
+	
+	@Override
+	protected Result<IBool> inMap(MapResult s) {
+		return s.elementOf(this);
+	}
+	
+	@Override
+	protected Result<IBool> notInMap(MapResult s) {
 		return s.notElementOf(this);
 	}
 	
@@ -116,6 +122,14 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		}
 		return super.addRelation(that);
 	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		if (that.getValue().getElementType().isVoidType()) {
+			return makeResult(getTypeFactory().listType(this.getType()), that.getValue().append(this.getValue()), ctx);
+		}
+		return super.addListRelation(that);
+	}
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> setAnnotation(String annoName, Result<V> anno, Environment env) {
@@ -135,77 +149,37 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return makeResult(getType(), annotatedBase, ctx);
 	}
 
+	
 	@Override
-	protected <U extends IValue> Result<U> equalToValue(ValueResult that) {
+  public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
+    return lessThanOrEqual(that).isLess();
+  }
+	
+	@Override
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
+	  return new LessThanOrEqualResult(false, false, ctx);
+	}
+  
+  @Override
+  public <V extends IValue> Result<IBool> greaterThan(Result<V> that) {
+    return that.lessThan(this);
+  }
+  
+  @Override
+  public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> that) {
+    return that.lessThanOrEqual(this);
+  }
+  
+	@Override
+	protected Result<IBool> equalToValue(ValueResult that) {
 		return that.equalityBoolean(this);
 	}
 
-	
-	protected static int compareIValues(IValue left, IValue right, IEvaluatorContext ctx) {
-		Result<IValue> leftResult = makeResult(TypeFactory.getInstance().valueType(), left, ctx);
-		Result<IValue> rightResult = makeResult(TypeFactory.getInstance().valueType(), right, ctx);
-		Result<IValue> resultResult = leftResult.compare(rightResult);
-		// compare always returns IntegerResult so we can cast its value.
-		return ((IInteger)resultResult.getValue()).intValue();
+	protected <V extends IValue> Result<IBool> equalityBoolean(ElementResult<V> that) {
+		return bool(that.getValue().isEqual(this.getValue()), ctx);
 	}
 
-	// FIXME: ast should not be passed at this level
-	private static SortedSet<IValue> sortedSet(Iterator<IValue> iter, final IEvaluatorContext ctx) {
-		Comparator<IValue> comparator = new Comparator<IValue>() {
-			public int compare(IValue o1, IValue o2) {
-				return compareIValues(o1, o2, ctx);
-			}
-		};
-		SortedSet<IValue> set = new TreeSet<IValue>(comparator);
-		while (iter.hasNext()) {
-			IValue value = iter.next();
-			set.add(value);
-		}
-		return set;
-	}
-
-	protected static int compareISets(ISet left, ISet right, IEvaluatorContext ctx) {
-		int compare = Integer.valueOf(left.size()).compareTo(Integer.valueOf(right.size()));
-		if (compare != 0) {
-			return compare;
-		}
-		
-		// Sets are of equal size from here on
-		if (left.isEqual(right)) {
-			return 0;
-		}
-		if (left.isSubsetOf(right)) {
-			return -1;
-		}
-		if (right.isSubsetOf(left)) {
-			return 1;
-		}
-		
-//		SortedSet<IValue> leftSet = sortedSet(left.iterator(), ctx);
-//		SortedSet<IValue> rightSet = sortedSet(right.iterator(), ctx);
-//		Comparator<? super IValue> comparator = leftSet.comparator();
-//	
-//		while (!leftSet.isEmpty()) {
-//			compare = comparator.compare(leftSet.last(), rightSet.last());
-//			if (compare != 0) {
-//				return compare;
-//			}
-//			leftSet = leftSet.headSet(leftSet.last());
-//			rightSet = rightSet.headSet(rightSet.last());
-//		}
-		return 0;
-	}
-	
-	protected <V extends IValue> int comparisonInts(Result<V> that) {
-		return ((IInteger)compare(that).getValue()).intValue();
-	}
-
-	protected <U extends IValue, V extends IValue> Result<U> equalityBoolean(ElementResult<V> that) {
-		// Do not delegate to comparison here, since it takes runtime types into account
-		return bool((((IInteger)compare(that).getValue()).intValue() == 0), ctx);
-	}
-
-	protected <U extends IValue, V extends IValue> Result<U> nonEqualityBoolean(ElementResult<V> that) {
+	protected <V extends IValue> Result<IBool> nonEqualityBoolean(ElementResult<V> that) {
 		return bool((!that.getValue().isEqual(this.getValue())), ctx);
 	}
 

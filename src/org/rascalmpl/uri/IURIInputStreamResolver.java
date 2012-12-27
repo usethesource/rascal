@@ -15,9 +15,11 @@ package org.rascalmpl.uri;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 
 public interface IURIInputStreamResolver {
 	InputStream getInputStream(URI uri) throws IOException;  
+	Charset getCharset(URI uri) throws IOException;
 	boolean exists(URI uri);
 	long lastModified(URI uri)  throws IOException; 
 	boolean isDirectory(URI uri);  

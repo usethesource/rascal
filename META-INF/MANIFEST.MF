@@ -1,11 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: CWI
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.5.2.qualifier
-Bundle-ClassPath: rascal.jar,
- src
+Bundle-Version: 0.5.4.qualifier
 Export-Package: 
  org.rascalmpl.ast,
  org.rascalmpl.checker,
@@ -20,7 +19,6 @@ Export-Package:
  org.rascalmpl.interpreter.types,
  org.rascalmpl.interpreter.utils,
  org.rascalmpl.library,
- org.rascalmpl.tutor,
  org.rascalmpl.library.experiments.resource,
  org.rascalmpl.library.experiments.resource.resources,
  org.rascalmpl.library.experiments.resource.resources.file,
@@ -52,13 +50,13 @@ Export-Package:
  org.rascalmpl.parser.gtd.result.error,
  org.rascalmpl.parser.gtd.result.out,
  org.rascalmpl.parser.gtd.result.struct,
- org.rascalmpl.parser.gtd.util,
  org.rascalmpl.parser.gtd.stack,
  org.rascalmpl.parser.gtd.stack.edge,
  org.rascalmpl.parser.gtd.stack.filter,
  org.rascalmpl.parser.gtd.stack.filter.follow,
  org.rascalmpl.parser.gtd.stack.filter.match,
  org.rascalmpl.parser.gtd.stack.filter.precede,
+ org.rascalmpl.parser.gtd.util,
  org.rascalmpl.parser.uptr,
  org.rascalmpl.semantics.dynamic,
  org.rascalmpl.tasks,
@@ -69,7 +67,8 @@ Export-Package:
  org.rascalmpl.values.errors,
  org.rascalmpl.values.locations,
  org.rascalmpl.values.uptr,
- org.rascalmpl.values.uptr.visitors
+ org.rascalmpl.values.uptr.visitors,
+ org.yaml.snakeyaml
 Require-Bundle: org.eclipse.imp.pdb.values;bundle-version="0.2.5",
  org.eclipse.swt,
  org.jdom;bundle-version="1.1.1",
@@ -94,4 +93,5 @@ Import-Package: javax.servlet,
  org.objectweb.asm;version="3.3.1",
  org.rascalmpl.library.vis,
  org.rascalmpl.values
-
+Bundle-ClassPath: lib/snakeyaml-1.11.jar,
+ .

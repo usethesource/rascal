@@ -84,7 +84,7 @@ public list[Symbol] args2symbols(Sym* args) {
   return [sym2symbol(s) | Sym s <- args];
 }
 
-private list[Symbol] separgs2symbols({Sym ","}+ args) {
+public list[Symbol] separgs2symbols({Sym ","}+ args) {
   return [sym2symbol(s) | Sym s <- args];
 }
 
