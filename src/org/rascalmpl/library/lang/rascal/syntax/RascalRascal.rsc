@@ -207,8 +207,10 @@ syntax Expression
 	| \tuple          : "\<" {Expression ","}+ elements "\>" 
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| \it             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
-	| qualifiedName  : QualifiedName qualifiedName 
+	| qualifiedName: QualifiedName qualifiedName 
 	| subscript    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" {Expression ","}+ subscripts "]" 
+	| slice    	   : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" OptionalExpression optFirst ".." OptionalExpression optLast "]" 
+	| sliceStep    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" OptionalExpression optFirst "," Expression second ".." OptionalExpression optLast "]" 
 	| fieldAccess  : Expression expression "." Name field 
 	| fieldUpdate  : Expression expression "[" Name key "=" Expression replacement "]" 
 	| fieldProject : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "\<" {Field ","}+ fields "\>" 
@@ -260,6 +262,10 @@ syntax Expression
 	> right ifThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp
 	; 
 
+syntax OptionalExpression =
+      expression: Expression expression
+    | noExpression: ()
+    ;
 syntax UserType
 	= name: QualifiedName name 
 	| parametric: QualifiedName name >> "[" "[" {Type ","}+ parameters "]" ;
