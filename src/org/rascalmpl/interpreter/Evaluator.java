@@ -40,6 +40,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -129,7 +130,6 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
 	private final IValueFactory vf;
@@ -1464,10 +1464,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     event("Parsing concrete fragments: " + name);
     IConstructor result;
     try {
-      if (needBootstrapParser(preModule)) {
-        result = parseFragments(prefix, env);
-      } 
-      else if (env.definesSyntax() && containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
+      if (needBootstrapParser(preModule) 
+          || (env.definesSyntax() && containsBackTick(data, preModule.getBody().getLocation().getOffset()))) {
         result = parseFragments(prefix, env);
       }
       else {
@@ -1589,11 +1587,40 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     return b.toString();
   }
 
-  private IConstructor replaceHolesByAntiQuotes(IConstructor fragment, Map<String, IConstructor> antiquotes) {
-    // TODO
-    return fragment;
+  private IConstructor replaceHolesByAntiQuotes(IConstructor fragment, final Map<String, IConstructor> antiquotes) {
+    try {
+      return (IConstructor) fragment.accept(new IdentityTreeVisitor() {
+        @Override
+        public IConstructor visitTreeAppl(IConstructor tree) throws VisitorException {
+          String cons = TreeAdapter.getConstructorName(tree);
+          if (cons == null || cons.equals("$MetaHole")) {
+            IListWriter w = vf.listWriter();
+            IList args = TreeAdapter.getArgs(tree);
+            for (IValue elem : args) {
+              w.append(elem.accept(this));
+            }
+            args = w.done();
+            
+            return TreeAdapter.setArgs(tree, args);
+          }
+          
+          return antiquotes.get(TreeAdapter.yield(tree));
+        }
+        
+        @Override
+        public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+          ISetWriter w = vf.setWriter();
+          for (IValue elem : TreeAdapter.getAlternatives(arg)) {
+            w.insert(elem.accept(this));
+          }
+          return arg.set("alternatives", w.done());
+        }
+      });
+    }
+    catch (VisitorException e) {
+      throw new ImplementationError("failure while parsing fragments", e);
+    }
   }
-
  
 
   private static boolean containsBackTick(char[] data, int offset) {
