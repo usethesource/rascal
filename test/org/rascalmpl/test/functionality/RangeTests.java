@@ -54,7 +54,7 @@ public class RangeTests extends TestFramework {
 	@Test
 	public void rangeMixed() {
 		assertTrue(runTest("{ [1 .. .1] == [1]; }"));
-		assertTrue(runTest("{ [1 .. 1.0] == []; }")); // is this desired?
+		assertTrue(runTest("{ [1 .. 1.0] == [1]; }"));
 		assertTrue(runTest("{ [1 .. 5.0] == [1, 2.0, 3.0, 4.0, 5.0]; }"));
 		assertTrue(runTest("{ [1 .. 5.5] == [1, 2.0, 3.0, 4.0, 5.0]; }"));
 		assertTrue(runTest("{ [1 ,1.5 .. 2.0] == [1.0, 1.5, 2.0]; }"));
