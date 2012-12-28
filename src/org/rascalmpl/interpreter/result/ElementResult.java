@@ -26,10 +26,12 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ElementResult<T extends IValue> extends Result<T> {
 	public ElementResult(Type type, T value, IEvaluatorContext ctx) {
@@ -182,5 +184,54 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	protected <V extends IValue> Result<IBool> nonEqualityBoolean(ElementResult<V> that) {
 		return bool((!that.getValue().isEqual(this.getValue())), ctx);
 	}
+	
+	@SuppressWarnings("unchecked")
+	private int getInt(Result<?> x){
+		Result<IValue> key = (Result<IValue>) x;
+		if (!key.getType().isIntegerType()) {
+			throw new UnexpectedTypeError(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
+		}
+		return ((IInteger)key.getValue()).intValue();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <U extends IValue, V extends IValue> Result<U> slice(Result<?> first, Result<?> second, Result<?> end, int len) {
+		
+		int firstIndex = 0;
+		int secondIndex = 1;
+		int endIndex = len;
+		
+		if(first != null){
+			firstIndex = getInt(first);
+			if(firstIndex < 0)
+				firstIndex += len;
+		}
+		if(end != null){
+			endIndex = getInt(end);
+			if(endIndex < 0){
+				endIndex += len;
+			}
+		}
+		
+		if(second == null){
+			secondIndex = firstIndex + ((firstIndex <= endIndex) ? 1 : -1);
+		} else {
+			secondIndex = getInt(second);
+			if(secondIndex < 0)
+				secondIndex += len;
+		}
+		
+		if (len == 0) {
+			throw RuntimeExceptionFactory.emptyList(ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+		if (firstIndex >= len) {
+			throw RuntimeExceptionFactory.indexOutOfBounds(getValueFactory().integer(firstIndex), ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+		if (endIndex > len ) {
+			throw RuntimeExceptionFactory.indexOutOfBounds(getValueFactory().integer(endIndex), ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+		return (Result<U>) makeSlice(firstIndex, secondIndex, endIndex);
+	}
 
+	
 }
