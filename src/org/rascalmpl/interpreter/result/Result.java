@@ -63,6 +63,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String FIELD_UPDATE_STRING = "field update";
 	private static final String RANGE_STRING = "range construction";
 	private static final String SUBSCRIPT_STRING = "subscript";
+	private static final String SLICE_STRING = "slice";
+	private static final String MAKE_SLICE_STRING = "make slice";
 	private static final String GET_ANNO_STRING = "get-annotation";
 	private static final String SET_ANNO_STRING = "set-annotation";
 	private static final String NON_EQUALS_STRING = "inequality";
@@ -293,6 +295,14 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		return undefinedError(SUBSCRIPT_STRING);
+	}
+	
+	public <U extends IValue, V extends IValue> Result<U> slice(Result<?> first, Result<?> second, Result<?> last) {
+		return undefinedError(SLICE_STRING);
+	}
+	
+	public  <U extends IValue, V extends IValue> Result<U> makeSlice(int firstIndex, int secondIndex, int endIndex) {
+		return undefinedError(MAKE_SLICE_STRING);
 	}
 
 	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env) {

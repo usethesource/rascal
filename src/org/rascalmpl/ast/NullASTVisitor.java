@@ -561,6 +561,14 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitExpressionSlice(Expression.Slice x) { 
+    return null; 
+  }
+
+  public T visitExpressionSliceStep(Expression.SliceStep x) { 
+    return null; 
+  }
+
   public T visitExpressionSplice(Expression.Splice x) { 
     return null; 
   }
@@ -818,6 +826,14 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitModuleParametersDefault(ModuleParameters.Default x) { 
+    return null; 
+  }
+
+  public T visitOptionalExpressionExpression(OptionalExpression.Expression x) { 
+    return null; 
+  }
+
+  public T visitOptionalExpressionNoExpression(OptionalExpression.NoExpression x) { 
     return null; 
   }
 
@@ -1864,6 +1880,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitRenamingsAmbiguity(Renamings.Ambiguity x) { 
+    return null; 
+  }
+
+  public T visitOptionalExpressionAmbiguity(OptionalExpression.Ambiguity x) { 
     return null; 
   }
 
