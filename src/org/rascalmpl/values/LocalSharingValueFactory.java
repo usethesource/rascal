@@ -557,4 +557,14 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public IString string(int ch) {
 		return cachedStrings.cache(valueFactory.string(ch));
 	}
+
+	@Override
+	public IMap map(Type mapType) {
+		return cachedMaps.cache(valueFactory.map(mapType));
+	}
+
+	@Override
+	public IMapWriter mapWriter(Type mapType) {
+		return new MapCachingWriter(this, valueFactory.mapWriter(mapType));
+	}
 }

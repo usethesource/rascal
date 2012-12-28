@@ -2401,6 +2401,63 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 	}
+	
+	static public class Slice extends
+	org.rascalmpl.ast.Expression.Slice {
+
+		public Slice(IConstructor __param1, org.rascalmpl.ast.Expression __param2, 
+				org.rascalmpl.ast.OptionalExpression __param3, org.rascalmpl.ast.OptionalExpression __param4) {
+			super(__param1, __param2, __param3, __param4);
+		}
+
+		@Override
+		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
+			return new BasicBooleanResult(eval, this);
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
+			Result<IValue> expr = this.getExpression().interpret(__eval);
+					
+			Result<?> first = this.getOptFirst().hasExpression() ? this.getOptFirst().getExpression().interpret(__eval) : null;
+			Result<?> last = this.getOptLast().hasExpression() ? this.getOptLast().getExpression().interpret(__eval) : null;
+			
+			return expr.slice(first, null, last);
+		}
+	}
+	
+	static public class SliceStep extends
+	org.rascalmpl.ast.Expression.SliceStep {
+
+		public SliceStep(IConstructor __param1, org.rascalmpl.ast.Expression __param2, 
+				org.rascalmpl.ast.OptionalExpression __param3, org.rascalmpl.ast.Expression __param4, org.rascalmpl.ast.OptionalExpression __param5) {
+			super(__param1, __param2, __param3, __param4, __param5);
+		}
+
+		@Override
+		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
+			return new BasicBooleanResult(eval, this);
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
+			Result<IValue> expr = this.getExpression().interpret(__eval);
+						
+			Result<?> first = this.getOptFirst().hasExpression() ? this.getOptFirst().getExpression().interpret(__eval) : null;
+			Result<?> second = this.getSecond().interpret(__eval);
+			Result<?> last = this.getOptLast().hasExpression() ? this.getOptLast().getExpression().interpret(__eval) : null;
+			
+			return expr.slice(first, second, last);
+		}
+	}
 
 	static public class Subscript extends
 			org.rascalmpl.ast.Expression.Subscript {
