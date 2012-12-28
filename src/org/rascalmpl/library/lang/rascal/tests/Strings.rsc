@@ -46,7 +46,7 @@ public str makeSlice(str L, int f, int s, int e){
   return res;
 }
 
-public test bool sliceFirstSecond(list[int] L) {
+public test bool sliceFirstSecond(str L) {
   if(isEmpty(L)) return true;
   f = arbInt(size(L));
   incr = 2;
