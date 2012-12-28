@@ -210,6 +210,11 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public ITuple tuple(IValue... args){
 		return cachedTuples.cache(valueFactory.tuple(args));
 	}
+	
+	@Override
+  public ITuple tuple(Type type, IValue... args){
+    return cachedTuples.cache(valueFactory.tuple(type, args));
+  }
 
 	@Override
 	public INode node(String name, IValue... children){
