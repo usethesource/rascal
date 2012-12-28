@@ -37,6 +37,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -45,6 +46,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
@@ -95,6 +97,7 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedInsertError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedReturnError;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.interpreter.strategy.StrategyContextStack;
+import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
@@ -125,6 +128,8 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
+import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
 	private final IValueFactory vf;
@@ -583,9 +588,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	@SuppressWarnings("unchecked")
-	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(ModuleEnvironment currentModule, URI loc, boolean force) {
+	private IGTD<IConstructor, IConstructor, ISourceLocation> getNewObjectParser(ModuleEnvironment currentModule, URI loc, boolean force) {
 		if (currentModule.getBootstrap()) {
-			return new ObjectRascalRascal();
+			return new RascalParser();
 		}
 		
 		if (currentModule.hasCachedParser()) {
@@ -614,7 +619,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		if (parser == null || force) {
 			String parserName = currentModule.getName(); // .replaceAll("::", ".");
 
-			parser = pg.getParser(this, loc, parserName, definitions);
+			parser = pg.getNewParser(this, loc, parserName, definitions);
 			getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
 		}
 
@@ -1460,20 +1465,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     IConstructor result;
     try {
       if (needBootstrapParser(preModule)) {
-//        parser = new MetaRascalRascal();
-//        result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-        result = prefix;
+        result = parseFragments(prefix, env);
       } 
       else if (env.definesSyntax() && containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
-        // TODO: traverse the parse tree, create object sentences, parse them, replace them, and adapt the location information
-//        parser = getRascalParser(env, location);
-//        result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-        result = prefix;
+        result = parseFragments(prefix, env);
       }
       else {
         result = prefix;
-//        parser = new RascalRascal();
-//        result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
       } 
     }
     finally {
@@ -1487,7 +1485,118 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     return result;
   }
 	
-	private static boolean containsBackTick(char[] data, int offset) {
+	/**
+	 * This function will reconstruct a parse tree of a module, where all nested concrete syntax fragments
+	 * have been parsed and their original flat literal strings replaced by fully structured parse trees.
+	 * 
+	 * @param module is a parse tree of a Rascal module containing flat concrete literals
+	 * @param parser is the parser to use for the concrete literals
+	 * @return parse tree of a module with structured concrete literals, or parse errors
+	 */
+	private IConstructor parseFragments(IConstructor module, final ModuleEnvironment env) {
+	  try {
+	   return (IConstructor) module.accept(new IdentityTreeVisitor() {
+	     @Override
+	     public IConstructor visitTreeAppl(IConstructor tree) throws VisitorException {
+	       if (!TreeAdapter.getSortName(tree).equals("Concrete")) {
+	         IListWriter w = vf.listWriter();
+	         IList args = TreeAdapter.getArgs(tree);
+	         for (IValue arg : args) {
+	           w.append(arg.accept(this));
+	         }
+	         args = w.done();
+	         
+	         return TreeAdapter.setArgs(tree, args);
+	       }
+
+	       return parseFragment(env, tree);
+	     }
+
+	     @Override
+	     public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+	       throw new ImplementationError("unexpected ambiguity: " + arg);
+	     }
+	   });
+	  } catch (VisitorException e) {
+	    throw new ImplementationError("unexpected error while parsing concrete syntax fragments", e.getCause());
+	  }
+  }
+
+	private IConstructor parseFragment(ModuleEnvironment env, IConstructor tree) {
+	  IList args = TreeAdapter.getArgs(tree);
+    int symbolPosition = 2;
+    IConstructor sym = (IConstructor) args.get(symbolPosition);
+    ASTBuilder builder = new ASTBuilder();
+    NonTerminalType type = (NonTerminalType) builder.buildSym(sym).typeOf(getCurrentModuleEnvironment());
+    
+    int fragmentPosition = 8;
+    IConstructor lit = (IConstructor) args.get(fragmentPosition);
+    Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
+    
+    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getNewObjectParser(env, env.getLocation().getURI(), false);
+    
+    char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
+    IConstructor fragment = (IConstructor) parser.parse(SymbolAdapter.getName(type.getSymbol()), getCurrentAST().getLocation().getURI(), input, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+    fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
+    
+    args = args.put(fragmentPosition, fragment);
+    return TreeAdapter.setArgs(tree, args);
+  }
+	
+	private char[] replaceAntiQuotesByHoles(IConstructor lit, Map<String, IConstructor> antiquotes) {
+	  IList parts = TreeAdapter.getArgs(lit);
+	  StringBuilder b = new StringBuilder();
+	  
+	  for (IValue elem : parts) {
+	    IConstructor part = (IConstructor) elem;
+	    String cons = TreeAdapter.getConstructorName(part);
+	    
+	    if (cons.equals("text")) {
+	      b.append(TreeAdapter.yield(part));
+	    }
+	    else if (cons.equals("newline")) {
+	      b.append('\n');
+	    }
+	    else if (cons.equals("lt")) {
+	      b.append('<');
+	    }
+	    else if (cons.equals("gt")) {
+	      b.append('>');
+	    }
+	    else if (cons.equals("bq")) {
+	      b.append('`');
+	    }
+	    else if (cons.equals("bs")) {
+	      b.append('\\');
+	    }
+	    else if (cons.equals("hole")) {
+        b.append(createHole(part, antiquotes));
+      }
+ 	  }
+	  
+	  return b.toString().toCharArray();
+	}
+
+  private String createHole(IConstructor part, Map<String, IConstructor> antiquotes) {
+    IConstructor sym = (IConstructor) TreeAdapter.getArgs(part).get(2);
+    StringBuilder b = new StringBuilder();
+    b.append((char) 0);
+    b.append(TreeAdapter.yield(sym).replaceAll("\\s", ""));
+    b.append(':');
+    b.append(antiquotes.size());
+    b.append((char) 0);
+    antiquotes.put(b.toString(), part);
+    return b.toString();
+  }
+
+  private IConstructor replaceHolesByAntiQuotes(IConstructor fragment, Map<String, IConstructor> antiquotes) {
+    // TODO
+    return fragment;
+  }
+
+ 
+
+  private static boolean containsBackTick(char[] data, int offset) {
 		for (int i = data.length - 1; i >= offset; --i) {
 			if (data[i] == '`')
 				return true;
@@ -1957,6 +2066,53 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public void setEventTrigger(AbstractInterpreterEventTrigger eventTrigger) {
 		this.eventTrigger = eventTrigger;
 	}
+
+  @SuppressWarnings("unchecked")
+  private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(ModuleEnvironment currentModule, URI loc, boolean force) {
+  	if (currentModule.getBootstrap()) {
+  		return new ObjectRascalRascal();
+  	}
+  	
+  	if (currentModule.hasCachedParser()) {
+  		String className = currentModule.getCachedParser();
+  		Class<?> clazz;
+  		for (ClassLoader cl: classLoaders) {
+  			try {
+  				clazz = cl.loadClass(className);
+  				return (IGTD<IConstructor, IConstructor, ISourceLocation>) clazz.newInstance();
+  			} catch (ClassNotFoundException e) {
+  				continue;
+  			} catch (InstantiationException e) {
+  				throw new ImplementationError("could not instantiate " + className + " to valid IGTD parser", e);
+  			} catch (IllegalAccessException e) {
+  				throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
+  			}
+  		}
+  		throw new ImplementationError("class for cached parser " + className + " could not be found");
+  	}
+  
+  	ParserGenerator pg = getParserGenerator();
+  	IMap definitions = currentModule.getSyntaxDefinition();
+  	
+  	Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = getHeap().getObjectParser(currentModule.getName(), definitions);
+  
+  	if (parser == null || force) {
+  		String parserName = currentModule.getName(); // .replaceAll("::", ".");
+  
+  		parser = pg.getParser(this, loc, parserName, definitions);
+  		getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
+  	}
+  
+  	try {
+  		return parser.newInstance();
+  	} catch (InstantiationException e) {
+  		throw new ImplementationError(e.getMessage(), e);
+  	} catch (IllegalAccessException e) {
+  		throw new ImplementationError(e.getMessage(), e);
+  	} catch (ExceptionInInitializerError e) {
+  		throw new ImplementationError(e.getMessage(), e);
+  	}
+  }
 		
 
 }

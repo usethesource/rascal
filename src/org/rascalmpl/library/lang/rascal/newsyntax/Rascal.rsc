@@ -45,7 +45,7 @@ lexical ConcretePart
   ;
   
 syntax ConcreteHole 
-  = \one: "\<" Pattern hole "\>"
+  = \one: "\<" Sym symbol Name name "\>"
   ;
   
 start syntax Module

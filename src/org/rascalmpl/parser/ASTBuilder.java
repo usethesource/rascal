@@ -163,6 +163,10 @@ public class ASTBuilder {
 		return buildSort(parseTree, "Command");
 	}
 	
+	public Command buildSym(IConstructor parseTree) {
+    return buildSort(parseTree, "Sym");
+  }
+	
 	public Commands buildCommands(IConstructor parseTree) {
 		return buildSort(parseTree, "Commands");
 	}
