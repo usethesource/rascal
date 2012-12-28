@@ -3,6 +3,7 @@ module lang::rascal::newgrammar::BootNewWithOld
 import lang::rascal::\newsyntax::Rascal; 
 
 import lang::rascal::grammar::ParserGenerator;
+import lang::rascal::newgrammar::NewParserGenerator;
 import lang::rascal::grammar::definition::Modules;
 
 import IO;
@@ -23,10 +24,18 @@ public Grammar getRascalGrammar() {
   return modules2grammar("lang::rascal::newsyntax::Rascal", {\module});
 }
 
-public void bootstrap() {
+public void bootstrapWithOld() {
   gr = getRascalGrammar();
   println("generating new root parser");
   source = generateRootParser(package,rootName, gr);
   println("writing rascal root parser");
   writeFile(outputFolder + "/<rootName>.java", source);
 }
+
+public void bootstrapWithNew() {
+  gr = getRascalGrammar();
+  println("generating new Rascal parser");
+  source = newGenerate(package, rootName, gr);
+  writeFile(outputFolder + "/<rootName>.java", source);
+}
+
