@@ -191,6 +191,10 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public ITuple tuple(IValue... args){
 		return cachedTuples.cache(valueFactory.tuple(args));
 	}
+	
+	public ITuple tuple(Type type, IValue... args) {
+		return cachedTuples.cache(valueFactory.tuple(args));
+	}
 
 	public INode node(String name, IValue... children){
 		return cachedNodes.cache(valueFactory.node(name, children));
@@ -567,4 +571,5 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public IMapWriter mapWriter(Type mapType) {
 		return new MapCachingWriter(this, valueFactory.mapWriter(mapType));
 	}
+
 }
