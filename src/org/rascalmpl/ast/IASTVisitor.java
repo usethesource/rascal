@@ -289,6 +289,10 @@ public interface IASTVisitor<T> {
 
   public T visitExpressionSetAnnotation(Expression.SetAnnotation x);
 
+  public T visitExpressionSlice(Expression.Slice x);
+
+  public T visitExpressionSliceStep(Expression.SliceStep x);
+
   public T visitExpressionSplice(Expression.Splice x);
 
   public T visitExpressionSplicePlus(Expression.SplicePlus x);
@@ -418,6 +422,10 @@ public interface IASTVisitor<T> {
   public T visitModuleActualsDefault(ModuleActuals.Default x);
 
   public T visitModuleParametersDefault(ModuleParameters.Default x);
+
+  public T visitOptionalExpressionExpression(OptionalExpression.Expression x);
+
+  public T visitOptionalExpressionNoExpression(OptionalExpression.NoExpression x);
 
   public T visitParametersDefault(Parameters.Default x);
 
@@ -874,6 +882,7 @@ public interface IASTVisitor<T> {
   public T visitFunctionBodyAmbiguity(FunctionBody.Ambiguity x);
   public T visitTagsAmbiguity(Tags.Ambiguity x);
   public T visitRenamingsAmbiguity(Renamings.Ambiguity x);
+  public T visitOptionalExpressionAmbiguity(OptionalExpression.Ambiguity x);
   public T visitExpressionAmbiguity(Expression.Ambiguity x);
   public T visitSyntaxDefinitionAmbiguity(SyntaxDefinition.Ambiguity x);
   public T visitPathTailAmbiguity(PathTail.Ambiguity x);

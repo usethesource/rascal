@@ -17,9 +17,14 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.io.StringWriter;
+
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -192,5 +197,29 @@ public class StringResult extends ElementResult<IString> {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		return makeResult(getType(), getValueFactory().string(getValue().getValue().substring(index.intValue(), index.intValue() + 1)), ctx);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> slice(Result<?> first, Result<?> second, Result<?> end) {
+		return super.slice(first, second, end, getValue().length());
+	}
+	
+	public Result<IValue> makeSlice(int first, int second, int end){
+		StringWriter sw = new StringWriter();
+		String s = getValue().getValue();
+		int increment = second - first;
+		if(first == end || increment == 0){
+			// nothing to be done
+		} else
+		if(first <= end){
+			for(int i = first; i >= 0 && i < end; i += increment){
+				sw.append(s.charAt(i));
+			}
+		} else {
+			for(int j = first; j >= 0 && j > end && j < getValue().length(); j += increment){
+				sw.append(s.charAt(j));
+			}
+		}
+		return makeResult(TypeFactory.getInstance().stringType(), getValueFactory().string(sw.toString()), ctx);
 	}
 }
