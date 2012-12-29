@@ -220,7 +220,7 @@ public str showConceptURL(ConceptName cn){
 
 public str showConceptPath(ConceptName cn){
   names = basenames(cn);
-  return "<for(int i <- [0 .. size(names)-1]){><(i==0)?"":"/"><showConceptURL(compose(names, 0, i))><}>";
+  return "<for(int i <- [0 .. size(names)]){><(i==0)?"":"/"><showConceptURL(compose(names, 0, i))><}>";
 }
 
 
