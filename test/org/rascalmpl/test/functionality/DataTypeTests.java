@@ -743,10 +743,10 @@ public class DataTypeTests extends TestFramework {
 	@Test
 	public void testRange() {
 		
-		assertTrue(runTest("[1 .. 1] == [1];"));
-		assertTrue(runTest("[1 .. 2] == [1, 2];"));
-		assertTrue(runTest("[1 .. -1] == [1, 0, -1];"));
-		assertTrue(runTest("[1, 2 .. 10] == [1,2,3,4,5,6,7,8,9,10];"));
+		assertTrue(runTest("[1 .. 1] == [];"));
+		assertTrue(runTest("[1 .. 2] == [1];"));
+		assertTrue(runTest("[1 .. -1] == [1, 0];"));
+		assertTrue(runTest("[1, 2 .. 10] == [1,2,3,4,5,6,7,8,9];"));
 		assertTrue(runTest("[1, 3 .. 10] == [1,3,5,7,9];"));
 		assertTrue(runTest("[1, -2 .. 10] == [];"));
 		assertTrue(runTest("[1, -3 .. -10] == [1,-3,-7];"));
