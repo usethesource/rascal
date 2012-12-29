@@ -8,6 +8,7 @@
  * Contributors:
 
  *   * Wietse Venema - wietsevenema@gmail.com - CWI
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.library.cobra;
 
@@ -28,7 +29,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
@@ -264,13 +264,27 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitNode(Type type) {
-		ITuple tup = (ITuple) visitTuple(type);
-		IValue[] args = new IValue[tup.arity()];
-		for (int i = 0; i < tup.arity(); i++) {
-			args[i] = tup.get(i);
+		
+//		if (maxDepth <= 0) {
+//			return null;
+//		}
+		int arity = stRandom.nextInt(5);
+		IValue[] args = new IValue[arity];
+		for (int i = 0; i < arity; i++) {
+			args[i] = visitValue(type);
 		}
+		
 		IString str = (IString) visitString(type);
 		return vf.node(str.getValue(), args);
+		
+		
+//		ITuple tup = (ITuple) visitTuple(type);
+//		IValue[] args = new IValue[tup.arity()];
+//		for (int i = 0; i < tup.arity(); i++) {
+//			args[i] = tup.get(i);
+//		}
+//		IString str = (IString) visitString(type);
+//		return vf.node(str.getValue(), args);
 	}
 
 	@Override
@@ -327,7 +341,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 			return vf.string("");
 		} else {
 			RandomValueTypeVisitor visitor = descend();
-			IString str = (IString) visitor.generate(type);
+			IString str = vf.string(visitor.generate(type).toString());
 			return str.concat(vf.string(RandomStringUtils.random(1)));
 		}
 	}
