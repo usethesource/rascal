@@ -107,7 +107,7 @@ public str getParent(Dotline g, str v) {
 /*--------------------------------------------------------------------------------------------------------------------------*/
 
 DotGraph g1(int n) {
-    Stms ts = [E(i, "<i>", (i+1) mod n) |int i<-[0,1..n-1]];
+    Stms ts = [E(i, "<i>", (i+1) mod n) |int i<-[0,1..n]];
     Stm t = S([A("rank","source"), N(5)]);
     return digraph("g1", ts+t);
     }

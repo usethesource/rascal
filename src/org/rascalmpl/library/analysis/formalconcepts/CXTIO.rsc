@@ -16,7 +16,7 @@ public FormalContext[str, str] readCxt(loc input)  {
     int idx = 5;
     map [str, set[str]] vb = ();
     for (str f <- e) {
-         set[str] b = {d[5+nRows+i]|int i<-[0, 1..(size(f)-1)], charAt(f,i)==88};
+         set[str] b = {d[5+nRows+i]|int i<-[0, 1..size(f))], charAt(f,i)==88};
          vb[d[idx]] = b;
          idx = idx+1;
          }

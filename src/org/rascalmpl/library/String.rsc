@@ -68,7 +68,7 @@ chars("abc");
 stringChars(chars("abc")) == "abc";
 </screen>
 }
-public list[int] chars(str s) = [ charAt(s,i) | i <- [0..size(s)-1]];
+public list[int] chars(str s) = [ charAt(s,i) | i <- [0..size(s)]];
 
 @doc{
 Synopsis: Check that a string contains another string.

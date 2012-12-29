@@ -9,6 +9,7 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
 @bootstrapParser
 module lang::rascal::\syntax::RascalRascal

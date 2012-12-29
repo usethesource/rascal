@@ -89,7 +89,7 @@ private Symbol et(\user(RName rn, list[Symbol] ps), STBuilder stb, ItemId cs) {
                 throw "Unexpected case, we have a different number of type parameters in the alias use and aliased type definition: <prettyPrintType(rt)> versus <prettyPrintType(resultType)>";            
             } else {
                 map[RName varName, Symbol varType] bindings = ( );
-                for (n <- [0..size(params)-1]) bindings = bindings + ( aliasParameters[n] : params[n] );
+                for (n <- [0..size(params)]) bindings = bindings + ( aliasParameters[n] : params[n] );
                 resultType = makeParameterizedAliasType(getAliasName(resultType), instantiateVars(getAliasedType(resultType),bindings), params);
             }
         }

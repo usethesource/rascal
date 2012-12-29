@@ -118,7 +118,7 @@ public test bool sliceFirst(list[&T] L) {
   if(isEmpty(L)) return true;
   f = arbInt(size(L));
   S = L[f..];
-  return S == [L[i] | i <- [f .. size(L) -1 ] ];
+  return S == [L[i] | i <- [f .. size(L) ] ];
 }
 
 // In an ideal world, this should work, but we have to adapt ranges first ...

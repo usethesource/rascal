@@ -24,14 +24,14 @@ import util::Math;
 alias Pos = tuple[int x,int y];
 
 list[tuple[&T,&T]] pairs(list[&T] p) =
-	[ <p[i],p[j]> | i <- [0..size(p)-2], j <- [i+1..size(p)-1]]; 
+	[ <p[i],p[j]> | i <- [0..size(p)-1], j <- [i+1..size(p)]]; 
 
 bool diagonalOverlap(Pos l, Pos r) = abs(l.x - r.x) == abs(l.y - r.y);
 
 bool isSolution(list[Pos] queens) = all(<l,r> <- pairs(queens), !diagonalOverlap(l,r));
 
 public list[list[Pos]] nQueens(int n) =
-    [queens | cols <- permutations([0..n-1]),
-              queens := [<i,cols[i]> | i <- [0..n-1]],
+    [queens | cols <- permutations([0..n]),
+              queens := [<i,cols[i]> | i <- [0..n]],
               isSolution(queens)];
 

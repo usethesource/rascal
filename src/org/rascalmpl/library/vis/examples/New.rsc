@@ -35,7 +35,7 @@ public void shape1(){
 public void path(int n){
 	render(overlay([
 		ellipse(shrink(0.02),fillColor("blue"),align((1.0/toReal(n)) * toReal(x) ,arbReal()))
-		| x <- [0..n]],shapeConnected(true),shapeCurved(true),shapeClosed(true),fillColor("red")));
+		| x <- [0..n+1]],shapeConnected(true),shapeCurved(true),shapeClosed(true),fillColor("red")));
 }
 
 
@@ -55,7 +55,7 @@ public void star(int n){
 	piInc = PI() / toReal(n);
 	angle = 0.0;
 	
-	coord = for(i <- [1..(2*n)]){
+	coord = for(i <- [1..(2*n)+1]){
 		radius = (i % 2 == 0) ? 0.5 : 0.2;
 		append <sin(angle) * radius + 0.5 ,cos(angle) * radius + 0.5>;
 		angle += piInc;
@@ -75,7 +75,7 @@ public void bubbles(int n){
 			fillColor(rrgba(arbReal(),arbReal(),arbReal(),arbReal())),
 			align(arbReal(),arbReal())
 		)
-		| i <- [1..n]]));
+		| i <- [1..n+1]]));
 }
 
 public void mondriaan(){
