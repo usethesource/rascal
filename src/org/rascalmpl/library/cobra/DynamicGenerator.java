@@ -50,7 +50,7 @@ public class DynamicGenerator extends AbstractFunction {
 
 		RandomValueTypeVisitor v = new RandomValueTypeVisitor(
 				getValueFactory(), (ModuleEnvironment) getEnv().getRoot(),
-				maxDepth.intValue(), generators);
+				maxDepth.intValue(), generators, ctx.getCurrentEnvt().getTypeBindings());
 
 		IValue returnVal = instantiatedReturnType.accept(v);
 

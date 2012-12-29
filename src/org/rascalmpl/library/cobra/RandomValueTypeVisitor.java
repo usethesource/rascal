@@ -47,13 +47,15 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	private final ModuleEnvironment rootEnv;
 	private final int maxDepth;
 	private final HashMap<Type, ICallableValue> generators;
+	private final Map<Type, Type> typeParameters;
 
 	public RandomValueTypeVisitor(IValueFactory vf, ModuleEnvironment rootEnv,
-			int maxDepth, HashMap<Type, ICallableValue> generators) {
+			int maxDepth, HashMap<Type, ICallableValue> generators, Map<Type, Type> typeParameters) {
 		this.vf = vf;
 		this.rootEnv = rootEnv;
 		this.maxDepth = maxDepth;
 		this.generators = generators;
+		this.typeParameters = typeParameters;
 	}
 
 	private IValue callGenerator(Type type, int depthLimit) {
@@ -70,7 +72,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	private RandomValueTypeVisitor descend() {
 		RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(vf,
-				rootEnv, maxDepth - 1, generators);
+				rootEnv, maxDepth - 1, generators, typeParameters);
 		return visitor;
 	}
 
@@ -293,7 +295,11 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	@Override
 	public IValue visitParameter(Type parameterType) {
 		// FIXME Type parameters binden aan echte type van actual value in call.
-		return this.generate(parameterType.getBound());
+		Type type = typeParameters.get(parameterType);
+		if(type == null){
+			throw new IllegalArgumentException("Unbound type parameter " + parameterType);
+		}
+		return this.generate(type);
 	}
 
 	@Override

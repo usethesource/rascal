@@ -8,12 +8,14 @@
  * Contributors:
 
  *   * Wietse Venema - wietsevenema@gmail.com - CWI
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI - added type parameters
  *******************************************************************************/
 package org.rascalmpl.library.cobra;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -39,10 +41,10 @@ public class QuickCheck {
 	}
 
 	public IValue arbitrary(Type type, int depthLimit, Environment env,
-			IValueFactory vf) {
+			IValueFactory vf, Map<Type, Type> typeParameters) {
 
 		RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(vf,
-				(ModuleEnvironment) env, depthLimit, generators);
+				(ModuleEnvironment) env, depthLimit, generators, typeParameters);
 
 		IValue result = visitor.generate(type);
 		if (result == null) {
@@ -84,11 +86,14 @@ public class QuickCheck {
 			tries = 1;
 		}
 
+		TypeParameterVisitor tpvisit = new TypeParameterVisitor();
+		
 		for (int i = 0; i < tries; i++) {
 			values = new IValue[formals.getArity()];
 
+			HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(formals);
 			for (int n = 0; n < formals.getArity(); n++) {
-				values[n] = arbitrary(types[n], maxDepth, declEnv.getRoot(), vf);
+				values[n] = arbitrary(types[n], maxDepth, declEnv.getRoot(), vf, tpbindings);
 			}
 
 			try {
