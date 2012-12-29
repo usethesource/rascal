@@ -65,7 +65,7 @@ public abstract class FunctionDeclaration extends
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
 			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
 
-			lambda.setPublic(this.getVisibility().isPublic());
+			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
 			return lambda;
 
 		}
@@ -102,7 +102,7 @@ public abstract class FunctionDeclaration extends
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
 			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
 
-			lambda.setPublic(this.getVisibility().isPublic());
+			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
 			return lambda;
 
 		}
@@ -139,7 +139,7 @@ public abstract class FunctionDeclaration extends
 			lambda = new RascalFunction(__eval, this, varArgs, __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
 			
-			lambda.setPublic(this.getVisibility().isPublic());
+			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
 			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
 			
@@ -188,7 +188,7 @@ public abstract class FunctionDeclaration extends
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
 			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
 
-			lambda.setPublic(this.getVisibility().isPublic());
+			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
 			return lambda;
 		}
 
