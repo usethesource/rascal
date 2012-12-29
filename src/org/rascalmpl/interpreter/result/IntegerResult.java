@@ -276,17 +276,17 @@ public class IntegerResult extends ElementResult<IInteger> {
 		
 		IListWriter w = vf.listWriter(resultType);
 		if (iFrom.lessEqual(iTo).getValue() && diff.greater(zero).getValue()) {
-			do {
+			 while (iFrom.less(iTo).getValue()) {
 				w.append(iFrom);
 				iFrom = iFrom.add(diff);
 				if (ctx.isInterrupted()) throw new InterruptException(ctx.getStackTrace(), ctx.getCurrentAST().getLocation());
-			} while (iFrom.lessEqual(iTo).getValue());
+			};
 		} 
 		else if (iFrom.greaterEqual(iTo).getValue() && diff.less(zero).getValue()) {
-			do {
+			 while (iFrom.greater(iTo).getValue()) {
 				w.append(iFrom);
 				iFrom = iFrom.add(diff);
-			} while (iFrom.greaterEqual(iTo).getValue());
+			};
 		}
 		return makeResult(tf.listType(resultType), w.done(), ctx);	
 	}
