@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -36,18 +36,18 @@ public abstract class DateTimeLiteral extends AbstractAST {
   public org.rascalmpl.ast.DateAndTime getDateAndTime() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasDate() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.JustDate getDate() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasTime() {
     return false;
   }
 
   public org.rascalmpl.ast.JustTime getTime() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasDate() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.JustDate getDate() {
     throw new UnsupportedOperationException();
   }
 
@@ -130,43 +130,6 @@ public abstract class DateTimeLiteral extends AbstractAST {
       return true;
     }	
   }
-  public boolean isDateLiteral() {
-    return false;
-  }
-
-  static public class DateLiteral extends DateTimeLiteral {
-    // Production: sig("DateLiteral",[arg("org.rascalmpl.ast.JustDate","date")])
-  
-    
-    private final org.rascalmpl.ast.JustDate date;
-  
-    public DateLiteral(IConstructor node , org.rascalmpl.ast.JustDate date) {
-      super(node);
-      
-      this.date = date;
-    }
-  
-    @Override
-    public boolean isDateLiteral() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitDateTimeLiteralDateLiteral(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.JustDate getDate() {
-      return this.date;
-    }
-  
-    @Override
-    public boolean hasDate() {
-      return true;
-    }	
-  }
   public boolean isTimeLiteral() {
     return false;
   }
@@ -201,6 +164,43 @@ public abstract class DateTimeLiteral extends AbstractAST {
   
     @Override
     public boolean hasTime() {
+      return true;
+    }	
+  }
+  public boolean isDateLiteral() {
+    return false;
+  }
+
+  static public class DateLiteral extends DateTimeLiteral {
+    // Production: sig("DateLiteral",[arg("org.rascalmpl.ast.JustDate","date")])
+  
+    
+    private final org.rascalmpl.ast.JustDate date;
+  
+    public DateLiteral(IConstructor node , org.rascalmpl.ast.JustDate date) {
+      super(node);
+      
+      this.date = date;
+    }
+  
+    @Override
+    public boolean isDateLiteral() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitDateTimeLiteralDateLiteral(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.JustDate getDate() {
+      return this.date;
+    }
+  
+    @Override
+    public boolean hasDate() {
       return true;
     }	
   }
