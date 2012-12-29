@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,32 +29,11 @@ public abstract class FunctionDeclaration extends AbstractAST {
   }
 
   
-  public boolean hasConditions() {
+  public boolean hasVisibility() {
     return false;
   }
 
-  public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasExpression() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasBody() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.FunctionBody getBody() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasSignature() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Signature getSignature() {
+  public org.rascalmpl.ast.Visibility getVisibility() {
     throw new UnsupportedOperationException();
   }
   public boolean hasTags() {
@@ -64,11 +43,32 @@ public abstract class FunctionDeclaration extends AbstractAST {
   public org.rascalmpl.ast.Tags getTags() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasVisibility() {
+  public boolean hasExpression() {
     return false;
   }
 
-  public org.rascalmpl.ast.Visibility getVisibility() {
+  public org.rascalmpl.ast.Expression getExpression() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasConditions() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasSignature() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Signature getSignature() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasBody() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.FunctionBody getBody() {
     throw new UnsupportedOperationException();
   }
 
@@ -254,76 +254,6 @@ public abstract class FunctionDeclaration extends AbstractAST {
       return true;
     }	
   }
-  public boolean isDefault() {
-    return false;
-  }
-
-  static public class Default extends FunctionDeclaration {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Signature","signature"),arg("org.rascalmpl.ast.FunctionBody","body")])
-  
-    
-    private final org.rascalmpl.ast.Tags tags;
-    private final org.rascalmpl.ast.Visibility visibility;
-    private final org.rascalmpl.ast.Signature signature;
-    private final org.rascalmpl.ast.FunctionBody body;
-  
-    public Default(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.FunctionBody body) {
-      super(node);
-      
-      this.tags = tags;
-      this.visibility = visibility;
-      this.signature = signature;
-      this.body = body;
-    }
-  
-    @Override
-    public boolean isDefault() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitFunctionDeclarationDefault(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Tags getTags() {
-      return this.tags;
-    }
-  
-    @Override
-    public boolean hasTags() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Visibility getVisibility() {
-      return this.visibility;
-    }
-  
-    @Override
-    public boolean hasVisibility() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Signature getSignature() {
-      return this.signature;
-    }
-  
-    @Override
-    public boolean hasSignature() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.FunctionBody getBody() {
-      return this.body;
-    }
-  
-    @Override
-    public boolean hasBody() {
-      return true;
-    }	
-  }
   public boolean isExpression() {
     return false;
   }
@@ -391,6 +321,76 @@ public abstract class FunctionDeclaration extends AbstractAST {
   
     @Override
     public boolean hasExpression() {
+      return true;
+    }	
+  }
+  public boolean isDefault() {
+    return false;
+  }
+
+  static public class Default extends FunctionDeclaration {
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Signature","signature"),arg("org.rascalmpl.ast.FunctionBody","body")])
+  
+    
+    private final org.rascalmpl.ast.Tags tags;
+    private final org.rascalmpl.ast.Visibility visibility;
+    private final org.rascalmpl.ast.Signature signature;
+    private final org.rascalmpl.ast.FunctionBody body;
+  
+    public Default(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.FunctionBody body) {
+      super(node);
+      
+      this.tags = tags;
+      this.visibility = visibility;
+      this.signature = signature;
+      this.body = body;
+    }
+  
+    @Override
+    public boolean isDefault() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitFunctionDeclarationDefault(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Tags getTags() {
+      return this.tags;
+    }
+  
+    @Override
+    public boolean hasTags() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Visibility getVisibility() {
+      return this.visibility;
+    }
+  
+    @Override
+    public boolean hasVisibility() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Signature getSignature() {
+      return this.signature;
+    }
+  
+    @Override
+    public boolean hasSignature() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.FunctionBody getBody() {
+      return this.body;
+    }
+  
+    @Override
+    public boolean hasBody() {
       return true;
     }	
   }

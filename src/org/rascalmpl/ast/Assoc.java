@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -72,54 +72,28 @@ public abstract class Assoc extends AbstractAST {
   
 
   
-  public boolean isAssociative() {
+  public boolean isRight() {
     return false;
   }
 
-  static public class Associative extends Assoc {
-    // Production: sig("Associative",[])
+  static public class Right extends Assoc {
+    // Production: sig("Right",[])
   
     
   
-    public Associative(IConstructor node ) {
+    public Right(IConstructor node ) {
       super(node);
       
     }
   
     @Override
-    public boolean isAssociative() { 
+    public boolean isRight() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitAssocAssociative(this);
-    }
-  
-    	
-  }
-  public boolean isLeft() {
-    return false;
-  }
-
-  static public class Left extends Assoc {
-    // Production: sig("Left",[])
-  
-    
-  
-    public Left(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isLeft() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitAssocLeft(this);
+      return visitor.visitAssocRight(this);
     }
   
     	
@@ -150,28 +124,54 @@ public abstract class Assoc extends AbstractAST {
   
     	
   }
-  public boolean isRight() {
+  public boolean isLeft() {
     return false;
   }
 
-  static public class Right extends Assoc {
-    // Production: sig("Right",[])
+  static public class Left extends Assoc {
+    // Production: sig("Left",[])
   
     
   
-    public Right(IConstructor node ) {
+    public Left(IConstructor node ) {
       super(node);
       
     }
   
     @Override
-    public boolean isRight() { 
+    public boolean isLeft() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitAssocRight(this);
+      return visitor.visitAssocLeft(this);
+    }
+  
+    	
+  }
+  public boolean isAssociative() {
+    return false;
+  }
+
+  static public class Associative extends Assoc {
+    // Production: sig("Associative",[])
+  
+    
+  
+    public Associative(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isAssociative() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitAssocAssociative(this);
     }
   
     	

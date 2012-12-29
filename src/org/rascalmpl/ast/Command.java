@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -43,13 +43,6 @@ public abstract class Command extends AbstractAST {
   public org.rascalmpl.ast.Expression getExpression() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasImported() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Import getImported() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasCommand() {
     return false;
   }
@@ -62,6 +55,13 @@ public abstract class Command extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Statement getStatement() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasImported() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Import getImported() {
     throw new UnsupportedOperationException();
   }
 
@@ -107,77 +107,40 @@ public abstract class Command extends AbstractAST {
   
 
   
-  public boolean isDeclaration() {
+  public boolean isShell() {
     return false;
   }
 
-  static public class Declaration extends Command {
-    // Production: sig("Declaration",[arg("org.rascalmpl.ast.Declaration","declaration")])
+  static public class Shell extends Command {
+    // Production: sig("Shell",[arg("org.rascalmpl.ast.ShellCommand","command")])
   
     
-    private final org.rascalmpl.ast.Declaration declaration;
+    private final org.rascalmpl.ast.ShellCommand command;
   
-    public Declaration(IConstructor node , org.rascalmpl.ast.Declaration declaration) {
+    public Shell(IConstructor node , org.rascalmpl.ast.ShellCommand command) {
       super(node);
       
-      this.declaration = declaration;
+      this.command = command;
     }
   
     @Override
-    public boolean isDeclaration() { 
+    public boolean isShell() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitCommandDeclaration(this);
+      return visitor.visitCommandShell(this);
     }
   
     
     @Override
-    public org.rascalmpl.ast.Declaration getDeclaration() {
-      return this.declaration;
+    public org.rascalmpl.ast.ShellCommand getCommand() {
+      return this.command;
     }
   
     @Override
-    public boolean hasDeclaration() {
-      return true;
-    }	
-  }
-  public boolean isExpression() {
-    return false;
-  }
-
-  static public class Expression extends Command {
-    // Production: sig("Expression",[arg("org.rascalmpl.ast.Expression","expression")])
-  
-    
-    private final org.rascalmpl.ast.Expression expression;
-  
-    public Expression(IConstructor node , org.rascalmpl.ast.Expression expression) {
-      super(node);
-      
-      this.expression = expression;
-    }
-  
-    @Override
-    public boolean isExpression() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitCommandExpression(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Expression getExpression() {
-      return this.expression;
-    }
-  
-    @Override
-    public boolean hasExpression() {
+    public boolean hasCommand() {
       return true;
     }	
   }
@@ -218,40 +181,40 @@ public abstract class Command extends AbstractAST {
       return true;
     }	
   }
-  public boolean isShell() {
+  public boolean isExpression() {
     return false;
   }
 
-  static public class Shell extends Command {
-    // Production: sig("Shell",[arg("org.rascalmpl.ast.ShellCommand","command")])
+  static public class Expression extends Command {
+    // Production: sig("Expression",[arg("org.rascalmpl.ast.Expression","expression")])
   
     
-    private final org.rascalmpl.ast.ShellCommand command;
+    private final org.rascalmpl.ast.Expression expression;
   
-    public Shell(IConstructor node , org.rascalmpl.ast.ShellCommand command) {
+    public Expression(IConstructor node , org.rascalmpl.ast.Expression expression) {
       super(node);
       
-      this.command = command;
+      this.expression = expression;
     }
   
     @Override
-    public boolean isShell() { 
+    public boolean isExpression() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitCommandShell(this);
+      return visitor.visitCommandExpression(this);
     }
   
     
     @Override
-    public org.rascalmpl.ast.ShellCommand getCommand() {
-      return this.command;
+    public org.rascalmpl.ast.Expression getExpression() {
+      return this.expression;
     }
   
     @Override
-    public boolean hasCommand() {
+    public boolean hasExpression() {
       return true;
     }	
   }
@@ -289,6 +252,43 @@ public abstract class Command extends AbstractAST {
   
     @Override
     public boolean hasStatement() {
+      return true;
+    }	
+  }
+  public boolean isDeclaration() {
+    return false;
+  }
+
+  static public class Declaration extends Command {
+    // Production: sig("Declaration",[arg("org.rascalmpl.ast.Declaration","declaration")])
+  
+    
+    private final org.rascalmpl.ast.Declaration declaration;
+  
+    public Declaration(IConstructor node , org.rascalmpl.ast.Declaration declaration) {
+      super(node);
+      
+      this.declaration = declaration;
+    }
+  
+    @Override
+    public boolean isDeclaration() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitCommandDeclaration(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Declaration getDeclaration() {
+      return this.declaration;
+    }
+  
+    @Override
+    public boolean hasDeclaration() {
       return true;
     }	
   }

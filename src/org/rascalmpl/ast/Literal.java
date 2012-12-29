@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,11 +29,18 @@ public abstract class Literal extends AbstractAST {
   }
 
   
-  public boolean hasBooleanLiteral() {
+  public boolean hasRegExpLiteral() {
     return false;
   }
 
-  public org.rascalmpl.ast.BooleanLiteral getBooleanLiteral() {
+  public org.rascalmpl.ast.RegExpLiteral getRegExpLiteral() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasLocationLiteral() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.LocationLiteral getLocationLiteral() {
     throw new UnsupportedOperationException();
   }
   public boolean hasDateTimeLiteral() {
@@ -50,20 +57,6 @@ public abstract class Literal extends AbstractAST {
   public org.rascalmpl.ast.IntegerLiteral getIntegerLiteral() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasLocationLiteral() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.LocationLiteral getLocationLiteral() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasRationalLiteral() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.RationalLiteral getRationalLiteral() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasRealLiteral() {
     return false;
   }
@@ -71,11 +64,18 @@ public abstract class Literal extends AbstractAST {
   public org.rascalmpl.ast.RealLiteral getRealLiteral() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasRegExpLiteral() {
+  public boolean hasBooleanLiteral() {
     return false;
   }
 
-  public org.rascalmpl.ast.RegExpLiteral getRegExpLiteral() {
+  public org.rascalmpl.ast.BooleanLiteral getBooleanLiteral() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasRationalLiteral() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.RationalLiteral getRationalLiteral() {
     throw new UnsupportedOperationException();
   }
   public boolean hasStringLiteral() {
@@ -128,6 +128,154 @@ public abstract class Literal extends AbstractAST {
   
 
   
+  public boolean isRational() {
+    return false;
+  }
+
+  static public class Rational extends Literal {
+    // Production: sig("Rational",[arg("org.rascalmpl.ast.RationalLiteral","rationalLiteral")])
+  
+    
+    private final org.rascalmpl.ast.RationalLiteral rationalLiteral;
+  
+    public Rational(IConstructor node , org.rascalmpl.ast.RationalLiteral rationalLiteral) {
+      super(node);
+      
+      this.rationalLiteral = rationalLiteral;
+    }
+  
+    @Override
+    public boolean isRational() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitLiteralRational(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.RationalLiteral getRationalLiteral() {
+      return this.rationalLiteral;
+    }
+  
+    @Override
+    public boolean hasRationalLiteral() {
+      return true;
+    }	
+  }
+  public boolean isLocation() {
+    return false;
+  }
+
+  static public class Location extends Literal {
+    // Production: sig("Location",[arg("org.rascalmpl.ast.LocationLiteral","locationLiteral")])
+  
+    
+    private final org.rascalmpl.ast.LocationLiteral locationLiteral;
+  
+    public Location(IConstructor node , org.rascalmpl.ast.LocationLiteral locationLiteral) {
+      super(node);
+      
+      this.locationLiteral = locationLiteral;
+    }
+  
+    @Override
+    public boolean isLocation() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitLiteralLocation(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.LocationLiteral getLocationLiteral() {
+      return this.locationLiteral;
+    }
+  
+    @Override
+    public boolean hasLocationLiteral() {
+      return true;
+    }	
+  }
+  public boolean isString() {
+    return false;
+  }
+
+  static public class String extends Literal {
+    // Production: sig("String",[arg("org.rascalmpl.ast.StringLiteral","stringLiteral")])
+  
+    
+    private final org.rascalmpl.ast.StringLiteral stringLiteral;
+  
+    public String(IConstructor node , org.rascalmpl.ast.StringLiteral stringLiteral) {
+      super(node);
+      
+      this.stringLiteral = stringLiteral;
+    }
+  
+    @Override
+    public boolean isString() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitLiteralString(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.StringLiteral getStringLiteral() {
+      return this.stringLiteral;
+    }
+  
+    @Override
+    public boolean hasStringLiteral() {
+      return true;
+    }	
+  }
+  public boolean isRegExp() {
+    return false;
+  }
+
+  static public class RegExp extends Literal {
+    // Production: sig("RegExp",[arg("org.rascalmpl.ast.RegExpLiteral","regExpLiteral")])
+  
+    
+    private final org.rascalmpl.ast.RegExpLiteral regExpLiteral;
+  
+    public RegExp(IConstructor node , org.rascalmpl.ast.RegExpLiteral regExpLiteral) {
+      super(node);
+      
+      this.regExpLiteral = regExpLiteral;
+    }
+  
+    @Override
+    public boolean isRegExp() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitLiteralRegExp(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.RegExpLiteral getRegExpLiteral() {
+      return this.regExpLiteral;
+    }
+  
+    @Override
+    public boolean hasRegExpLiteral() {
+      return true;
+    }	
+  }
   public boolean isBoolean() {
     return false;
   }
@@ -162,6 +310,43 @@ public abstract class Literal extends AbstractAST {
   
     @Override
     public boolean hasBooleanLiteral() {
+      return true;
+    }	
+  }
+  public boolean isReal() {
+    return false;
+  }
+
+  static public class Real extends Literal {
+    // Production: sig("Real",[arg("org.rascalmpl.ast.RealLiteral","realLiteral")])
+  
+    
+    private final org.rascalmpl.ast.RealLiteral realLiteral;
+  
+    public Real(IConstructor node , org.rascalmpl.ast.RealLiteral realLiteral) {
+      super(node);
+      
+      this.realLiteral = realLiteral;
+    }
+  
+    @Override
+    public boolean isReal() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitLiteralReal(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.RealLiteral getRealLiteral() {
+      return this.realLiteral;
+    }
+  
+    @Override
+    public boolean hasRealLiteral() {
       return true;
     }	
   }
@@ -236,191 +421,6 @@ public abstract class Literal extends AbstractAST {
   
     @Override
     public boolean hasIntegerLiteral() {
-      return true;
-    }	
-  }
-  public boolean isLocation() {
-    return false;
-  }
-
-  static public class Location extends Literal {
-    // Production: sig("Location",[arg("org.rascalmpl.ast.LocationLiteral","locationLiteral")])
-  
-    
-    private final org.rascalmpl.ast.LocationLiteral locationLiteral;
-  
-    public Location(IConstructor node , org.rascalmpl.ast.LocationLiteral locationLiteral) {
-      super(node);
-      
-      this.locationLiteral = locationLiteral;
-    }
-  
-    @Override
-    public boolean isLocation() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitLiteralLocation(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.LocationLiteral getLocationLiteral() {
-      return this.locationLiteral;
-    }
-  
-    @Override
-    public boolean hasLocationLiteral() {
-      return true;
-    }	
-  }
-  public boolean isRational() {
-    return false;
-  }
-
-  static public class Rational extends Literal {
-    // Production: sig("Rational",[arg("org.rascalmpl.ast.RationalLiteral","rationalLiteral")])
-  
-    
-    private final org.rascalmpl.ast.RationalLiteral rationalLiteral;
-  
-    public Rational(IConstructor node , org.rascalmpl.ast.RationalLiteral rationalLiteral) {
-      super(node);
-      
-      this.rationalLiteral = rationalLiteral;
-    }
-  
-    @Override
-    public boolean isRational() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitLiteralRational(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.RationalLiteral getRationalLiteral() {
-      return this.rationalLiteral;
-    }
-  
-    @Override
-    public boolean hasRationalLiteral() {
-      return true;
-    }	
-  }
-  public boolean isReal() {
-    return false;
-  }
-
-  static public class Real extends Literal {
-    // Production: sig("Real",[arg("org.rascalmpl.ast.RealLiteral","realLiteral")])
-  
-    
-    private final org.rascalmpl.ast.RealLiteral realLiteral;
-  
-    public Real(IConstructor node , org.rascalmpl.ast.RealLiteral realLiteral) {
-      super(node);
-      
-      this.realLiteral = realLiteral;
-    }
-  
-    @Override
-    public boolean isReal() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitLiteralReal(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.RealLiteral getRealLiteral() {
-      return this.realLiteral;
-    }
-  
-    @Override
-    public boolean hasRealLiteral() {
-      return true;
-    }	
-  }
-  public boolean isRegExp() {
-    return false;
-  }
-
-  static public class RegExp extends Literal {
-    // Production: sig("RegExp",[arg("org.rascalmpl.ast.RegExpLiteral","regExpLiteral")])
-  
-    
-    private final org.rascalmpl.ast.RegExpLiteral regExpLiteral;
-  
-    public RegExp(IConstructor node , org.rascalmpl.ast.RegExpLiteral regExpLiteral) {
-      super(node);
-      
-      this.regExpLiteral = regExpLiteral;
-    }
-  
-    @Override
-    public boolean isRegExp() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitLiteralRegExp(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.RegExpLiteral getRegExpLiteral() {
-      return this.regExpLiteral;
-    }
-  
-    @Override
-    public boolean hasRegExpLiteral() {
-      return true;
-    }	
-  }
-  public boolean isString() {
-    return false;
-  }
-
-  static public class String extends Literal {
-    // Production: sig("String",[arg("org.rascalmpl.ast.StringLiteral","stringLiteral")])
-  
-    
-    private final org.rascalmpl.ast.StringLiteral stringLiteral;
-  
-    public String(IConstructor node , org.rascalmpl.ast.StringLiteral stringLiteral) {
-      super(node);
-      
-      this.stringLiteral = stringLiteral;
-    }
-  
-    @Override
-    public boolean isString() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitLiteralString(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.StringLiteral getStringLiteral() {
-      return this.stringLiteral;
-    }
-  
-    @Override
-    public boolean hasStringLiteral() {
       return true;
     }	
   }

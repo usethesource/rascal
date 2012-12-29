@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -86,43 +86,6 @@ public abstract class Case extends AbstractAST {
   
 
   
-  public boolean isDefault() {
-    return false;
-  }
-
-  static public class Default extends Case {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Statement","statement")])
-  
-    
-    private final org.rascalmpl.ast.Statement statement;
-  
-    public Default(IConstructor node , org.rascalmpl.ast.Statement statement) {
-      super(node);
-      
-      this.statement = statement;
-    }
-  
-    @Override
-    public boolean isDefault() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitCaseDefault(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Statement getStatement() {
-      return this.statement;
-    }
-  
-    @Override
-    public boolean hasStatement() {
-      return true;
-    }	
-  }
   public boolean isPatternWithAction() {
     return false;
   }
@@ -157,6 +120,43 @@ public abstract class Case extends AbstractAST {
   
     @Override
     public boolean hasPatternWithAction() {
+      return true;
+    }	
+  }
+  public boolean isDefault() {
+    return false;
+  }
+
+  static public class Default extends Case {
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Statement","statement")])
+  
+    
+    private final org.rascalmpl.ast.Statement statement;
+  
+    public Default(IConstructor node , org.rascalmpl.ast.Statement statement) {
+      super(node);
+      
+      this.statement = statement;
+    }
+  
+    @Override
+    public boolean isDefault() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitCaseDefault(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Statement getStatement() {
+      return this.statement;
+    }
+  
+    @Override
+    public boolean hasStatement() {
       return true;
     }	
   }

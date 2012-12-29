@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,18 +29,18 @@ public abstract class PreModule extends AbstractAST {
   }
 
   
-  public boolean hasHeader() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Header getHeader() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasRest() {
     return false;
   }
 
   public org.rascalmpl.ast.Rest getRest() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasHeader() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Header getHeader() {
     throw new UnsupportedOperationException();
   }
 

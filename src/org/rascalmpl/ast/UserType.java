@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -86,43 +86,6 @@ public abstract class UserType extends AbstractAST {
   
 
   
-  public boolean isName() {
-    return false;
-  }
-
-  static public class Name extends UserType {
-    // Production: sig("Name",[arg("org.rascalmpl.ast.QualifiedName","name")])
-  
-    
-    private final org.rascalmpl.ast.QualifiedName name;
-  
-    public Name(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
-      super(node);
-      
-      this.name = name;
-    }
-  
-    @Override
-    public boolean isName() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitUserTypeName(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.QualifiedName getName() {
-      return this.name;
-    }
-  
-    @Override
-    public boolean hasName() {
-      return true;
-    }	
-  }
   public boolean isParametric() {
     return false;
   }
@@ -168,6 +131,43 @@ public abstract class UserType extends AbstractAST {
   
     @Override
     public boolean hasParameters() {
+      return true;
+    }	
+  }
+  public boolean isName() {
+    return false;
+  }
+
+  static public class Name extends UserType {
+    // Production: sig("Name",[arg("org.rascalmpl.ast.QualifiedName","name")])
+  
+    
+    private final org.rascalmpl.ast.QualifiedName name;
+  
+    public Name(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+      super(node);
+      
+      this.name = name;
+    }
+  
+    @Override
+    public boolean isName() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitUserTypeName(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.QualifiedName getName() {
+      return this.name;
+    }
+  
+    @Override
+    public boolean hasName() {
       return true;
     }	
   }

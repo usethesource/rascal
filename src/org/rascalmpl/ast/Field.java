@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -86,43 +86,6 @@ public abstract class Field extends AbstractAST {
   
 
   
-  public boolean isIndex() {
-    return false;
-  }
-
-  static public class Index extends Field {
-    // Production: sig("Index",[arg("org.rascalmpl.ast.IntegerLiteral","fieldIndex")])
-  
-    
-    private final org.rascalmpl.ast.IntegerLiteral fieldIndex;
-  
-    public Index(IConstructor node , org.rascalmpl.ast.IntegerLiteral fieldIndex) {
-      super(node);
-      
-      this.fieldIndex = fieldIndex;
-    }
-  
-    @Override
-    public boolean isIndex() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitFieldIndex(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.IntegerLiteral getFieldIndex() {
-      return this.fieldIndex;
-    }
-  
-    @Override
-    public boolean hasFieldIndex() {
-      return true;
-    }	
-  }
   public boolean isName() {
     return false;
   }
@@ -157,6 +120,43 @@ public abstract class Field extends AbstractAST {
   
     @Override
     public boolean hasFieldName() {
+      return true;
+    }	
+  }
+  public boolean isIndex() {
+    return false;
+  }
+
+  static public class Index extends Field {
+    // Production: sig("Index",[arg("org.rascalmpl.ast.IntegerLiteral","fieldIndex")])
+  
+    
+    private final org.rascalmpl.ast.IntegerLiteral fieldIndex;
+  
+    public Index(IConstructor node , org.rascalmpl.ast.IntegerLiteral fieldIndex) {
+      super(node);
+      
+      this.fieldIndex = fieldIndex;
+    }
+  
+    @Override
+    public boolean isIndex() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitFieldIndex(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.IntegerLiteral getFieldIndex() {
+      return this.fieldIndex;
+    }
+  
+    @Override
+    public boolean hasFieldIndex() {
       return true;
     }	
   }

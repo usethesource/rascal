@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,18 +29,18 @@ public abstract class ProdModifier extends AbstractAST {
   }
 
   
-  public boolean hasAssociativity() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Assoc getAssociativity() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasTag() {
     return false;
   }
 
   public org.rascalmpl.ast.Tag getTag() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasAssociativity() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Assoc getAssociativity() {
     throw new UnsupportedOperationException();
   }
 
