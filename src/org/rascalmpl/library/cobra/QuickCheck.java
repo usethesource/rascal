@@ -94,9 +94,9 @@ public class QuickCheck {
 			try {
 				IValue result = function.call(types, values).getValue();
 				if (!((IBool) result).getValue()) {
-					out.println("failed " + (formals.getArity() > 0 ? "with, " : ""));
+					out.println("Failed " + (formals.getArity() > 0 ? "with " : ""));
 					for (IValue arg : values) {
-						out.println(arg.getType() + ":" + arg);
+						out.println("\t"+ arg.getType() + ": " + arg);
 					}
 					out.println();
 					return false;
@@ -104,9 +104,9 @@ public class QuickCheck {
 					out.println((i + 1) + ": Checked with " + Arrays.toString(values) + ": true");
 				}
 			} catch (Throwable e) {
-				out.println("failed due to " + e.getMessage() + (formals.getArity() > 0 ? ", with ": ""));
+				out.println("Failed due to\n\t" + e.getMessage() + "\n" + (formals.getArity() > 0 ? "with ": ""));
 				for (IValue arg : values) {
-					out.println(arg.getType() + ":" + arg);
+					out.println("\t" + arg.getType() + ": " + arg);
 				}
 				out.println();
 				return false;
