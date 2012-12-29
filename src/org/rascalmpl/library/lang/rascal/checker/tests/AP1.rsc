@@ -57,7 +57,7 @@ public bool moreBlack2(ColoredTree t){
 
 bool divides(int a, int b) = b mod a == 0;
 
-public bool isPrime(int n) = !any(i <- [2 .. n-1], divides(i, n));
+public bool isPrime(int n) = !any(i <- [2 .. n], divides(i, n));
 
 public list[int] primes(int max) = [ i | i <- [2 .. max], isPrime(i) ];
 

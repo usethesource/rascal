@@ -687,7 +687,7 @@ test: mix(<L>, <M>) == <?>
 
 }
 public list[&T] mix(list[&T] l, list[&T] r){
-	return [l[i],r[i]| i <- [0 .. (min(size(l),size(r)) - 1)]] + drop(size(r),l) + drop(size(l),r);
+	return [l[i],r[i]| i <- [0 .. min(size(l),size(r))]] + drop(size(r),l) + drop(size(l),r);
 }
 
 @doc{

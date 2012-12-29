@@ -82,7 +82,7 @@ public test bool tst_invertUnique(set[int] D, set[int] R) {
  if(isEmpty(D) || isEmpty(R)) return true;
  dList = toList(D);
  rList = toList(R);
- S = (dList[i] : rList[i] | i <- [0 .. min(size(D) -1 , size(R) -1 )]);
+ S = (dList[i] : rList[i] | i <- [0 .. min(size(D) -1 , size(R) -1) + 1]);
  return domain(S) == range(invertUnique(S)) && range(S) == domain(invertUnique(S));
 }
 

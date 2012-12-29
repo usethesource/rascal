@@ -25,11 +25,11 @@ public Production ciliteral(str s) = prod(cilit(s),cistr2syms(s),{});
 
 public list[Symbol] str2syms(str x) {
   if (x == "") return [];
-  return [\char-class([range(c,c)]) | i <- [0..size(x)-1], int c:= charAt(x,i)]; 
+  return [\char-class([range(c,c)]) | i <- [0..size(x)], int c:= charAt(x,i)]; 
 }
 
 private list[Symbol] cistr2syms(str x) {
-  return for (i <- [0..size(x)-1], int c:= charAt(x,i)) {
+  return for (i <- [0..size(x)], int c:= charAt(x,i)) {
      if (c >= 101 && c <= 132) // A-Z
         append \char-class([range(c,c),range(c+40,c+40)]);
      else if (c >= 141 && c <= 172) // a-z

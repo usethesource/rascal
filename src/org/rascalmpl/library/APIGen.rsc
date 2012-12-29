@@ -128,7 +128,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
   str declareConstructorGetters(Production::cons(label(str cname,_), list[Symbol] args, set[Attr] _), str typeName){
      if(size(args) == 0) 
        return "";
-     return   "<for(i <- [0..size(args)-1]) {>public static <typeToSimpleJavaType(args[i])> <typeName>_<cname>_<args[i].name>(IConstructor c){
+     return   "<for(i <- [0..size(args)]) {>public static <typeToSimpleJavaType(args[i])> <typeName>_<cname>_<args[i].name>(IConstructor c){
               '  return <javaResult(args[i],"c.get(<i>)")>;
               '} 
               '<}>";
