@@ -264,7 +264,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitNode(Type type) {
-		
+// How to handle depth here?		
 //		if (maxDepth <= 0) {
 //			return null;
 //		}
@@ -275,16 +275,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 		}
 		
 		IString str = (IString) visitString(type);
-		return vf.node(str.getValue(), args);
-		
-		
-//		ITuple tup = (ITuple) visitTuple(type);
-//		IValue[] args = new IValue[tup.arity()];
-//		for (int i = 0; i < tup.arity(); i++) {
-//			args[i] = tup.get(i);
-//		}
-//		IString str = (IString) visitString(type);
-//		return vf.node(str.getValue(), args);
+		return vf.node(str.getValue(), args);	
 	}
 
 	@Override
