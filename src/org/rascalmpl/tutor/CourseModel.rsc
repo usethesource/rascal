@@ -181,7 +181,7 @@ public list[str] basenames(ConceptName cn){
 // Compose a sublist of a list of names to a ConceptName
 public str compose(list[str] names, int from, int to){
    str res = "";
-   for(int i <- [from .. to])
+   for(int i <- [from .. to+1])
    	res += (res == "") ? names[i] : ("/" + names[i]);
    return res;
 }
