@@ -8,12 +8,15 @@
  * Contributors:
 
  *   * Wietse Venema - wietsevenema@gmail.com - CWI
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI - added type parameters
  *******************************************************************************/
 package org.rascalmpl.library.cobra;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -117,11 +120,11 @@ public class Cobra {
 	}
 
 	public IValue arbitrary(IValue type, IInteger depthLimit,
-			IEvaluatorContext eval) {
+			IEvaluatorContext eval, Map<Type, Type> typeParameters) {
 		try {
 			IValue result = quickcheck.arbitrary(Cobra.reifyType(type),
 					depthLimit.intValue(), eval.getCurrentEnvt().getRoot(),
-					eval.getValueFactory());
+					eval.getValueFactory(), typeParameters);
 			return result;
 		} catch (IllegalArgumentException e) {
 			throw RuntimeExceptionFactory.illegalArgument(depthLimit,
