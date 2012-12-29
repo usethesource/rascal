@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,18 +29,11 @@ public abstract class Type extends AbstractAST {
   }
 
   
-  public boolean hasBasic() {
+  public boolean hasSymbol() {
     return false;
   }
 
-  public org.rascalmpl.ast.BasicType getBasic() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasSelector() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.DataTypeSelector getSelector() {
+  public org.rascalmpl.ast.Sym getSymbol() {
     throw new UnsupportedOperationException();
   }
   public boolean hasFunction() {
@@ -57,18 +50,11 @@ public abstract class Type extends AbstractAST {
   public org.rascalmpl.ast.StructuredType getStructured() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasSymbol() {
+  public boolean hasUser() {
     return false;
   }
 
-  public org.rascalmpl.ast.Sym getSymbol() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasType() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Type getType() {
+  public org.rascalmpl.ast.UserType getUser() {
     throw new UnsupportedOperationException();
   }
   public boolean hasTypeVar() {
@@ -78,11 +64,25 @@ public abstract class Type extends AbstractAST {
   public org.rascalmpl.ast.TypeVar getTypeVar() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasUser() {
+  public boolean hasSelector() {
     return false;
   }
 
-  public org.rascalmpl.ast.UserType getUser() {
+  public org.rascalmpl.ast.DataTypeSelector getSelector() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasType() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Type getType() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasBasic() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.BasicType getBasic() {
     throw new UnsupportedOperationException();
   }
 
@@ -165,43 +165,6 @@ public abstract class Type extends AbstractAST {
       return true;
     }	
   }
-  public boolean isBracket() {
-    return false;
-  }
-
-  static public class Bracket extends Type {
-    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Type","type")])
-  
-    
-    private final org.rascalmpl.ast.Type type;
-  
-    public Bracket(IConstructor node , org.rascalmpl.ast.Type type) {
-      super(node);
-      
-      this.type = type;
-    }
-  
-    @Override
-    public boolean isBracket() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitTypeBracket(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Type getType() {
-      return this.type;
-    }
-  
-    @Override
-    public boolean hasType() {
-      return true;
-    }	
-  }
   public boolean isFunction() {
     return false;
   }
@@ -239,43 +202,6 @@ public abstract class Type extends AbstractAST {
       return true;
     }	
   }
-  public boolean isSelector() {
-    return false;
-  }
-
-  static public class Selector extends Type {
-    // Production: sig("Selector",[arg("org.rascalmpl.ast.DataTypeSelector","selector")])
-  
-    
-    private final org.rascalmpl.ast.DataTypeSelector selector;
-  
-    public Selector(IConstructor node , org.rascalmpl.ast.DataTypeSelector selector) {
-      super(node);
-      
-      this.selector = selector;
-    }
-  
-    @Override
-    public boolean isSelector() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitTypeSelector(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.DataTypeSelector getSelector() {
-      return this.selector;
-    }
-  
-    @Override
-    public boolean hasSelector() {
-      return true;
-    }	
-  }
   public boolean isStructured() {
     return false;
   }
@@ -310,6 +236,117 @@ public abstract class Type extends AbstractAST {
   
     @Override
     public boolean hasStructured() {
+      return true;
+    }	
+  }
+  public boolean isVariable() {
+    return false;
+  }
+
+  static public class Variable extends Type {
+    // Production: sig("Variable",[arg("org.rascalmpl.ast.TypeVar","typeVar")])
+  
+    
+    private final org.rascalmpl.ast.TypeVar typeVar;
+  
+    public Variable(IConstructor node , org.rascalmpl.ast.TypeVar typeVar) {
+      super(node);
+      
+      this.typeVar = typeVar;
+    }
+  
+    @Override
+    public boolean isVariable() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitTypeVariable(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.TypeVar getTypeVar() {
+      return this.typeVar;
+    }
+  
+    @Override
+    public boolean hasTypeVar() {
+      return true;
+    }	
+  }
+  public boolean isBracket() {
+    return false;
+  }
+
+  static public class Bracket extends Type {
+    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Type","type")])
+  
+    
+    private final org.rascalmpl.ast.Type type;
+  
+    public Bracket(IConstructor node , org.rascalmpl.ast.Type type) {
+      super(node);
+      
+      this.type = type;
+    }
+  
+    @Override
+    public boolean isBracket() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitTypeBracket(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Type getType() {
+      return this.type;
+    }
+  
+    @Override
+    public boolean hasType() {
+      return true;
+    }	
+  }
+  public boolean isSelector() {
+    return false;
+  }
+
+  static public class Selector extends Type {
+    // Production: sig("Selector",[arg("org.rascalmpl.ast.DataTypeSelector","selector")])
+  
+    
+    private final org.rascalmpl.ast.DataTypeSelector selector;
+  
+    public Selector(IConstructor node , org.rascalmpl.ast.DataTypeSelector selector) {
+      super(node);
+      
+      this.selector = selector;
+    }
+  
+    @Override
+    public boolean isSelector() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitTypeSelector(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.DataTypeSelector getSelector() {
+      return this.selector;
+    }
+  
+    @Override
+    public boolean hasSelector() {
       return true;
     }	
   }
@@ -384,43 +421,6 @@ public abstract class Type extends AbstractAST {
   
     @Override
     public boolean hasUser() {
-      return true;
-    }	
-  }
-  public boolean isVariable() {
-    return false;
-  }
-
-  static public class Variable extends Type {
-    // Production: sig("Variable",[arg("org.rascalmpl.ast.TypeVar","typeVar")])
-  
-    
-    private final org.rascalmpl.ast.TypeVar typeVar;
-  
-    public Variable(IConstructor node , org.rascalmpl.ast.TypeVar typeVar) {
-      super(node);
-      
-      this.typeVar = typeVar;
-    }
-  
-    @Override
-    public boolean isVariable() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitTypeVariable(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.TypeVar getTypeVar() {
-      return this.typeVar;
-    }
-  
-    @Override
-    public boolean hasTypeVar() {
       return true;
     }	
   }

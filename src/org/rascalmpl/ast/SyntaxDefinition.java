@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,13 +29,6 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   
-  public boolean hasProduction() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Prod getProduction() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasStart() {
     return false;
   }
@@ -43,11 +36,11 @@ public abstract class SyntaxDefinition extends AbstractAST {
   public org.rascalmpl.ast.Start getStart() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasDefined() {
+  public boolean hasProduction() {
     return false;
   }
 
-  public org.rascalmpl.ast.Sym getDefined() {
+  public org.rascalmpl.ast.Prod getProduction() {
     throw new UnsupportedOperationException();
   }
   public boolean hasVis() {
@@ -55,6 +48,13 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Visibility getVis() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasDefined() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Sym getDefined() {
     throw new UnsupportedOperationException();
   }
 

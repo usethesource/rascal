@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -98,32 +98,6 @@ public abstract class FunctionModifier extends AbstractAST {
   
     	
   }
-  public boolean isJava() {
-    return false;
-  }
-
-  static public class Java extends FunctionModifier {
-    // Production: sig("Java",[])
-  
-    
-  
-    public Java(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isJava() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitFunctionModifierJava(this);
-    }
-  
-    	
-  }
   public boolean isTest() {
     return false;
   }
@@ -146,6 +120,32 @@ public abstract class FunctionModifier extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitFunctionModifierTest(this);
+    }
+  
+    	
+  }
+  public boolean isJava() {
+    return false;
+  }
+
+  static public class Java extends FunctionModifier {
+    // Production: sig("Java",[])
+  
+    
+  
+    public Java(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isJava() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitFunctionModifierJava(this);
     }
   
     	

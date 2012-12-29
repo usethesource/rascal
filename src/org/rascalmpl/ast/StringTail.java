@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -43,13 +43,6 @@ public abstract class StringTail extends AbstractAST {
   public org.rascalmpl.ast.MidStringChars getMid() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasPost() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.PostStringChars getPost() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasTail() {
     return false;
   }
@@ -62,6 +55,13 @@ public abstract class StringTail extends AbstractAST {
   }
 
   public org.rascalmpl.ast.StringTemplate getTemplate() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasPost() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.PostStringChars getPost() {
     throw new UnsupportedOperationException();
   }
 

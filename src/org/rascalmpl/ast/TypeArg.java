@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -86,43 +86,6 @@ public abstract class TypeArg extends AbstractAST {
   
 
   
-  public boolean isDefault() {
-    return false;
-  }
-
-  static public class Default extends TypeArg {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Type","type")])
-  
-    
-    private final org.rascalmpl.ast.Type type;
-  
-    public Default(IConstructor node , org.rascalmpl.ast.Type type) {
-      super(node);
-      
-      this.type = type;
-    }
-  
-    @Override
-    public boolean isDefault() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitTypeArgDefault(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Type getType() {
-      return this.type;
-    }
-  
-    @Override
-    public boolean hasType() {
-      return true;
-    }	
-  }
   public boolean isNamed() {
     return false;
   }
@@ -168,6 +131,43 @@ public abstract class TypeArg extends AbstractAST {
   
     @Override
     public boolean hasName() {
+      return true;
+    }	
+  }
+  public boolean isDefault() {
+    return false;
+  }
+
+  static public class Default extends TypeArg {
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Type","type")])
+  
+    
+    private final org.rascalmpl.ast.Type type;
+  
+    public Default(IConstructor node , org.rascalmpl.ast.Type type) {
+      super(node);
+      
+      this.type = type;
+    }
+  
+    @Override
+    public boolean isDefault() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitTypeArgDefault(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Type getType() {
+      return this.type;
+    }
+  
+    @Override
+    public boolean hasType() {
       return true;
     }	
   }

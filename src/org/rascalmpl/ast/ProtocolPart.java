@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,18 +29,18 @@ public abstract class ProtocolPart extends AbstractAST {
   }
 
   
+  public boolean hasTail() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.ProtocolTail getTail() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasExpression() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasPre() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.PreProtocolChars getPre() {
     throw new UnsupportedOperationException();
   }
   public boolean hasProtocolChars() {
@@ -50,11 +50,11 @@ public abstract class ProtocolPart extends AbstractAST {
   public org.rascalmpl.ast.ProtocolChars getProtocolChars() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasTail() {
+  public boolean hasPre() {
     return false;
   }
 
-  public org.rascalmpl.ast.ProtocolTail getTail() {
+  public org.rascalmpl.ast.PreProtocolChars getPre() {
     throw new UnsupportedOperationException();
   }
 
@@ -100,6 +100,43 @@ public abstract class ProtocolPart extends AbstractAST {
   
 
   
+  public boolean isNonInterpolated() {
+    return false;
+  }
+
+  static public class NonInterpolated extends ProtocolPart {
+    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.ProtocolChars","protocolChars")])
+  
+    
+    private final org.rascalmpl.ast.ProtocolChars protocolChars;
+  
+    public NonInterpolated(IConstructor node , org.rascalmpl.ast.ProtocolChars protocolChars) {
+      super(node);
+      
+      this.protocolChars = protocolChars;
+    }
+  
+    @Override
+    public boolean isNonInterpolated() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitProtocolPartNonInterpolated(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.ProtocolChars getProtocolChars() {
+      return this.protocolChars;
+    }
+  
+    @Override
+    public boolean hasProtocolChars() {
+      return true;
+    }	
+  }
   public boolean isInterpolated() {
     return false;
   }
@@ -156,43 +193,6 @@ public abstract class ProtocolPart extends AbstractAST {
   
     @Override
     public boolean hasTail() {
-      return true;
-    }	
-  }
-  public boolean isNonInterpolated() {
-    return false;
-  }
-
-  static public class NonInterpolated extends ProtocolPart {
-    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.ProtocolChars","protocolChars")])
-  
-    
-    private final org.rascalmpl.ast.ProtocolChars protocolChars;
-  
-    public NonInterpolated(IConstructor node , org.rascalmpl.ast.ProtocolChars protocolChars) {
-      super(node);
-      
-      this.protocolChars = protocolChars;
-    }
-  
-    @Override
-    public boolean isNonInterpolated() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitProtocolPartNonInterpolated(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.ProtocolChars getProtocolChars() {
-      return this.protocolChars;
-    }
-  
-    @Override
-    public boolean hasProtocolChars() {
       return true;
     }	
   }

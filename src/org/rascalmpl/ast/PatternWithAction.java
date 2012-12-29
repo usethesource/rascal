@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,13 +29,6 @@ public abstract class PatternWithAction extends AbstractAST {
   }
 
   
-  public boolean hasPattern() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getPattern() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasReplacement() {
     return false;
   }
@@ -48,6 +41,13 @@ public abstract class PatternWithAction extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Statement getStatement() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasPattern() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getPattern() {
     throw new UnsupportedOperationException();
   }
 
@@ -93,54 +93,6 @@ public abstract class PatternWithAction extends AbstractAST {
   
 
   
-  public boolean isArbitrary() {
-    return false;
-  }
-
-  static public class Arbitrary extends PatternWithAction {
-    // Production: sig("Arbitrary",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Statement","statement")])
-  
-    
-    private final org.rascalmpl.ast.Expression pattern;
-    private final org.rascalmpl.ast.Statement statement;
-  
-    public Arbitrary(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement statement) {
-      super(node);
-      
-      this.pattern = pattern;
-      this.statement = statement;
-    }
-  
-    @Override
-    public boolean isArbitrary() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitPatternWithActionArbitrary(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Expression getPattern() {
-      return this.pattern;
-    }
-  
-    @Override
-    public boolean hasPattern() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Statement getStatement() {
-      return this.statement;
-    }
-  
-    @Override
-    public boolean hasStatement() {
-      return true;
-    }	
-  }
   public boolean isReplacing() {
     return false;
   }
@@ -186,6 +138,54 @@ public abstract class PatternWithAction extends AbstractAST {
   
     @Override
     public boolean hasReplacement() {
+      return true;
+    }	
+  }
+  public boolean isArbitrary() {
+    return false;
+  }
+
+  static public class Arbitrary extends PatternWithAction {
+    // Production: sig("Arbitrary",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Statement","statement")])
+  
+    
+    private final org.rascalmpl.ast.Expression pattern;
+    private final org.rascalmpl.ast.Statement statement;
+  
+    public Arbitrary(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement statement) {
+      super(node);
+      
+      this.pattern = pattern;
+      this.statement = statement;
+    }
+  
+    @Override
+    public boolean isArbitrary() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitPatternWithActionArbitrary(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getPattern() {
+      return this.pattern;
+    }
+  
+    @Override
+    public boolean hasPattern() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Statement getStatement() {
+      return this.statement;
+    }
+  
+    @Override
+    public boolean hasStatement() {
       return true;
     }	
   }

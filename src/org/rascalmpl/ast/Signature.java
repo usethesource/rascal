@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,13 +29,6 @@ public abstract class Signature extends AbstractAST {
   }
 
   
-  public boolean hasExceptions() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.Type> getExceptions() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasModifiers() {
     return false;
   }
@@ -50,18 +43,25 @@ public abstract class Signature extends AbstractAST {
   public org.rascalmpl.ast.Name getName() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasParameters() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Parameters getParameters() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasExceptions() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Type> getExceptions() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasParameters() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Parameters getParameters() {
     throw new UnsupportedOperationException();
   }
 
