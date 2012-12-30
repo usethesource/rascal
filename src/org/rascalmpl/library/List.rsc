@@ -1199,10 +1199,10 @@ test: sort(<L>) == <?>
 
 }
 public list[&T] sort(list[&T] lst) =
-	sort(lst, bool (&T a,&T b) { return a <= b; } );
+	sort(lst, bool (&T a,&T b) { return a < b; } );
 	
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] sort(list[&T] l, bool (&T a, &T b) lessOrEqual) ;
+public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
 
 @doc{
 Synopsis: Sum the elements of a list.
