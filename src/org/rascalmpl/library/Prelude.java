@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Davy Landman - Davy.Landman@cwi.nl
@@ -1322,7 +1322,7 @@ public class Prelude {
 					argArr[1] = rhs;
 					Result<IValue> res = cmp.call(typeArr,argArr);
 					boolean leq = ((IBool)res.getValue()).getValue();
-					return leq ? -1 : 0;
+					return leq ? -1 : 1;
 				}
 			}
 		};
@@ -1359,7 +1359,7 @@ public class Prelude {
 					argArr[1] = rhs;
 					Result<IValue> res = cmp.call(typeArr,argArr);
 					boolean leq = ((IBool)res.getValue()).getValue();
-					return leq ? -1 : 0;
+					return leq ? -1 : 1;
 				}
 			}
 		};
