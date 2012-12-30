@@ -126,9 +126,6 @@ public class StringResult extends ElementResult<IString> {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		String name = getValue().getValue();
-		if (!getTypeFactory().isIdentifier(name)) {
-			throw RuntimeExceptionFactory.illegalIdentifier(name, ctx.getCurrentAST(), ctx.getStackTrace());
-		}
 		IValue node = getTypeFactory().nodeType().make(getValueFactory(), name, argValues);
 		return makeResult(getTypeFactory().nodeType(), node, ctx);
 	}
