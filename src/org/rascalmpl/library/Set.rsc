@@ -116,14 +116,12 @@ str getColor(str fruit) = color[fruit] ? "unknown";
 test: group({"apple", "berry", "cucumber", "banana"}, similar)  == <?>
 }
 public set[set[&T]] group(set[&T] input, bool (&T a, &T b) similar) {
-  sinput = sort(toList(input), bool (&T a, &T b) { return similar(a,b) ? a < b ; } );
+  sinput = sort(input, bool (&T a, &T b) { return similar(a,b) ? false : a < b ; } );
   lres = while (!isEmpty(sinput)) {
     h = head(sinput);
-    sim = h + 
-    takeWhile(tail(sinput),
-      bool (&T a) { return similar(a,h); });
-	  append toSet(sim);
-	  sinput = drop(size(sim),sinput);
+    sim = h + takeWhile(tail(sinput), bool (&T a) { return similar(a,h); });
+	append toSet(sim);
+	sinput = drop(size(sim), sinput);
   }
   return toSet(lres); 
 }
