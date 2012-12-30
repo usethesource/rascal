@@ -38,10 +38,10 @@ public test bool intersection(map[&K, &V] A, map[&K, &V] B) = isEmpty(A & B) || 
 
 public test bool lesseq(map[&K, &V] A, map[&K, &V] B)  = A <= (A + B);
 
-public test bool less(map[&K, &V] A, map[&K, &V] B) = isEmpty(B) || A == B || A < (A + B);
+public test bool less(map[&K, &V] A, map[&K, &V] B) = B <= A || A < (A + B);
 
 public test bool greatereq(map[&K, &V] A, map[&K, &V] B)  = (A + B) >= A;
-public test bool greater(map[int, str] A, map[int, str] B)  = isEmpty(B) || (A + B) > A;
+public test bool greater(map[int, str] A, map[int, str] B)  = B <= A || (A + B) > A;
 
 public test bool tst_in(&K key, &V val, map[&K, &V] M) = key in M || (key in (M + (key : val)) && val == (M + (key : val))[key] &&
 														              key in ((key : val) + M) && val == ((key : val) + M)[key]);
