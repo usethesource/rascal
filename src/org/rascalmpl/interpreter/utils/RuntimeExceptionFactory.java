@@ -16,6 +16,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -26,6 +29,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.LocationLiteral.Default;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -75,7 +79,9 @@ public class RuntimeExceptionFactory {
 	public static final Type NameMismatch = TF.constructor(TS, Exception, "NameMismatch", TF.stringType(), "expected", TF.stringType(), "got");
 	public static final Type ArityMismatch = TF.constructor(TS, Exception, "ArityMismatch", TF.integerType(), "expected", TF.integerType(), "got");
 
-	public static final Type Java = TF.constructor(TS, Exception, "Java", TF.stringType(), "message");
+	public static final Type Java = TF.constructor(TS, Exception, "Java", TF.stringType(), "class", TF.stringType(), "message");
+	public static final Type JavaWithCause = TF.constructor(TS, Exception, "Java", TF.stringType(), "class", TF.stringType(), "message", Exception, "cause");
+  
 	public static final Type Subversion = TF.constructor(TS, Exception, "Subversion", TF.stringType(), "message");
 	public static final Type JavaBytecodeError = TF.constructor(TS, Exception, "JavaBytecodeError", TF.stringType(), "message");
 
@@ -184,9 +190,46 @@ public class RuntimeExceptionFactory {
 		return new Throw(NoSuchAnnotation.make(VF, VF.string(label)), ast, trace);
 	}
 
-	public static Throw javaException(String message, AbstractAST ast, String trace) {
-		return new Throw(Java.make(VF, VF.string(message)), ast, trace);
+	private static Throw javaException(String clazz, String message, IValue cause, AbstractAST ast, String trace) {
+		return new Throw(Java.make(VF, VF.string(clazz), VF.string(message), cause), ast, trace);
 	}
+
+	private static Throw javaException(String clazz, String message, AbstractAST ast, String trace) {
+    return new Throw(Java.make(VF, VF.string(clazz), VF.string(message)), ast, trace);
+  }
+	
+  public static Throw javaException(Throwable targetException, AbstractAST ast, String rascalTrace) throws ImplementationError {
+    try {
+      String clazz = targetException.getClass().getSimpleName();
+      String msg = targetException.getMessage();
+      String traceStr = buildTrace(targetException, rascalTrace);
+      Throwable cause = targetException.getCause();
+
+      if (cause != null && cause != targetException) {
+        Throw throwCause = cause instanceof Throw ? (Throw) cause : javaException(cause, ast, rascalTrace);
+        return javaException(clazz, msg != null ? msg : "", throwCause.getException(), ast, traceStr);
+      }
+      else {
+        return javaException(clazz, msg != null ? msg : "", ast, traceStr);
+      }
+    } catch (IOException e1) {
+      throw new ImplementationError("Could not create stack trace", e1);
+    }
+  }
+
+  private static String buildTrace(Throwable targetException, String rascalTrace) throws IOException {
+    ByteArrayOutputStream trace = new ByteArrayOutputStream();
+    StackTraceElement[] stackTrace = targetException.getStackTrace();
+    if (stackTrace != null) {
+      for (StackTraceElement elem : stackTrace) {
+        if (elem.getMethodName().equals("invoke")) {
+          break;
+        }
+        trace.write(("\n\t" +  elem.getClassName() + "." + elem.getMethodName() + "(" + elem.getFileName() + ":" + elem.getLineNumber() + ")").getBytes());
+      }
+    }
+    return trace.toString() + "\n" + rascalTrace;
+  }
 
 	public static Throw noSuchField(String name, AbstractAST ast, String trace) {
 		return new Throw(NoSuchField.make(VF, VF.string(name)), ast, trace);
