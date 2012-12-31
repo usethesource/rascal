@@ -169,7 +169,7 @@ public class JavaMethod extends NamedFunction {
 				targetException.printStackTrace();
 			}
 			
-			throw RuntimeExceptionFactory.javaException(e, eval.getCurrentAST(), eval.getStackTrace());
+			throw RuntimeExceptionFactory.javaException(e.getTargetException(), eval.getCurrentAST(), eval.getStackTrace());
 		}
 	}
 
