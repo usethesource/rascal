@@ -97,8 +97,7 @@ public class TypeDeclarationEvaluator {
 					fields[i] = arg.getType().typeOf(env);
 
 					if (fields[i] == null) {
-						throw new UndeclaredTypeError(arg.getType()
-								.toString(), arg);
+						throw new UndeclaredTypeError(arg.hasName() ? Names.name(arg.getName()) : "?", arg);
 					}
 
 					if (arg.hasName()) {
