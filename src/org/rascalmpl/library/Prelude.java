@@ -1339,11 +1339,18 @@ public class Prelude {
 	    this.less = less;
     }
     
-    public Sorting sort() {
+    /**
+     * @throws IllegalArgument if comparator is illegal (i.e., if pivot equals pivot)
+     */
+    public Sorting sort(IEvaluatorContext eval) {
       if (size == 0) {
         return this;
       }
+      if(less.less(array[0], array[0])) {
+    	  throw RuntimeExceptionFactory.illegalArgument(less.less, eval.getCurrentAST(), null, "Bad comparator: Did you use less-or-equals instead of less-than?");
+      }
       sort(0, size - 1);
+
       return this;
     }
     
@@ -1358,7 +1365,7 @@ public class Prelude {
       IValue pivot = array[low + (high-low)/2];
       int oldLow = low;
       int oldHigh = high;
-
+      
       while (low < high) {
         for ( ; less.less(array[low], pivot); low++); 
         for ( ; less.less(pivot, array[high]); high--); 
@@ -1377,20 +1384,22 @@ public class Prelude {
     }
 	}
 	
-	public IList sort(IList l, IValue cmpv){
-    IValue[] tmpArr = new IValue[l.length()];
-    for(int i = 0 ; i < l.length() ; i++){
-      tmpArr[i] = l.get(i);
-    }
-    // we randomly swap some elements to make worst case complexity unlikely
-    new Sorting(tmpArr, new Less((ICallableValue) cmpv)).shuffle().sort();
-    
-    IListWriter writer = values.listWriter(l.getElementType());
-    writer.append(tmpArr);
-    return writer.done();
-  }
+	public IList sort(IList l, IValue cmpv, IEvaluatorContext eval){
+		IValue[] tmpArr = new IValue[l.length()];
+		for(int i = 0 ; i < l.length() ; i++){
+			tmpArr[i] = l.get(i);
+		}
+
+		// we randomly swap some elements to make worst case complexity unlikely
+		new Sorting(tmpArr, new Less((ICallableValue) cmpv)).shuffle().sort(eval);
+
+
+		IListWriter writer = values.listWriter(l.getElementType());
+		writer.append(tmpArr);
+		return writer.done();
+	}
 	
-	public IList sort(ISet l, IValue cmpv) {
+	public IList sort(ISet l, IValue cmpv, IEvaluatorContext eval) {
 		IValue[] tmpArr = new IValue[l.size()];
 		int i = 0;
 		
@@ -1400,7 +1409,7 @@ public class Prelude {
 			tmpArr[i++] = elem;
 		}
 		
-		new Sorting(tmpArr, new Less((ICallableValue) cmpv)).sort();
+		new Sorting(tmpArr, new Less((ICallableValue) cmpv)).sort(eval);
 		
 		IListWriter writer = values.listWriter(l.getElementType());
 		for(IValue v : tmpArr){
