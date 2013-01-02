@@ -17,8 +17,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -36,6 +34,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class JavaMethod extends NamedFunction {
 	private final Object instance;
@@ -170,24 +169,8 @@ public class JavaMethod extends NamedFunction {
 				targetException.printStackTrace();
 			}
 			
-			try {
-				String msg = targetException.getMessage() != null ? targetException.getMessage() : targetException.getClass().getName();
-				ByteArrayOutputStream trace = new ByteArrayOutputStream();
-			
-				StackTraceElement[] stackTrace = targetException.getStackTrace();
-				if(stackTrace != null) {
-					for (StackTraceElement elem : stackTrace) {
-						if (elem.getMethodName().equals("invoke")) {
-							break;
-						}
-						trace.write(("\n\t" +  elem.getClassName() + "." + elem.getMethodName() + "(" + elem.getFileName() + ":" + elem.getLineNumber() + ")").getBytes());
-					}
-				}
-				String traceStr = trace.toString() + "\n" + eval.getStackTrace();
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.javaException(msg, eval.getCurrentAST(), traceStr);
-			} catch (IOException e1) {
-				throw new ImplementationError("Could not create stack trace", e1);
-			}
+			throw RuntimeExceptionFactory.javaException(e.getTargetException(), eval.getCurrentAST(), eval.getStackTrace());
 		}
 	}
+
 }

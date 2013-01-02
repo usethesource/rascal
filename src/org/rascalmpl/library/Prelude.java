@@ -1382,7 +1382,6 @@ public class Prelude {
     for(int i = 0 ; i < l.length() ; i++){
       tmpArr[i] = l.get(i);
     }
-    
     // we randomly swap some elements to make worst case complexity unlikely
     new Sorting(tmpArr, new Less((ICallableValue) cmpv)).shuffle().sort();
     
