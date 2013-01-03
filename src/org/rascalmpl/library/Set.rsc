@@ -679,5 +679,4 @@ public list[&T] sort(set[&T] s) =
 	sort(s, bool (&T a,&T b) { return a < b; } );
 	
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Throw proper exception if comparator is unsuitable}
 public java list[&T] sort(set[&T] l, bool (&T a, &T b) less) ;
