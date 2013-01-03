@@ -844,7 +844,7 @@ syntax Pattern
 	| typedVariable       : Type type Name name 
 	| \map                 : "(" {Mapping[Pattern] ","}* mappings ")" 
 	| reifiedType         : "type" "(" Pattern symbol "," Pattern definitions ")" 
-	| callOrTree          : Pattern expression "(" {Pattern ","}* arguments ")" 
+	| callOrTree          : Pattern expression "(" {Pattern ","}* arguments KeyWordArguments keywordArguments ")" 
 	> variableBecomes     : Name name ":" Pattern pattern
 	| asType              : "[" Type type "]" Pattern argument 
 	| descendant          : "/" Pattern pattern 
