@@ -54,8 +54,23 @@ public test bool splicing(set[&T] A, set[&T] B) = {*A, *B} == A + B && {A, *B} =
 private bool similar(int a, int b) = a % 5 == b % 5;
 private int getClass(int a) = a % 5;
 
-public test bool tst_classify(set[int] S) = isEmpty(S) || { *classify(S, getClass)[c] | c <- classify(S, getClass) } == S && 
-                                                          all(c <- classify(S, getClass), all(x <- classify(S, getClass)[c], getClass(x) == c));
+public test bool tst_classify(set[int] S) {
+ if (isEmpty(S)) {
+   return true;
+ }
+ 
+ classes = classify(S, getClass);
+ 
+ if ({ *classify(S, getClass)[c] | c <- classes } != S) {
+   return false;
+ }
+ 
+ if (c <- classes, classes[x] != getClass(x)) {
+   return false;
+ }
+ 
+ return true;
+}
                                                      
 public test bool tst_getOneFrom(set[&A] S) = isEmpty(S) || getOneFrom(S) in S;
 
