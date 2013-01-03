@@ -51,6 +51,7 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public void setCurrentEnvt(Environment environment);
 	
 	public void pushEnv();
+	public void pushEnv(String name);
 	public void unwind(Environment old);
 	
 	public GlobalEnvironment getHeap();
