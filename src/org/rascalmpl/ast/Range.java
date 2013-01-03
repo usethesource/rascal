@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,6 +29,13 @@ public abstract class Range extends AbstractAST {
   }
 
   
+  public boolean hasCharacter() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Char getCharacter() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasEnd() {
     return false;
   }
@@ -41,13 +48,6 @@ public abstract class Range extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Char getStart() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasCharacter() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Char getCharacter() {
     throw new UnsupportedOperationException();
   }
 
@@ -93,6 +93,43 @@ public abstract class Range extends AbstractAST {
   
 
   
+  public boolean isCharacter() {
+    return false;
+  }
+
+  static public class Character extends Range {
+    // Production: sig("Character",[arg("org.rascalmpl.ast.Char","character")])
+  
+    
+    private final org.rascalmpl.ast.Char character;
+  
+    public Character(IConstructor node , org.rascalmpl.ast.Char character) {
+      super(node);
+      
+      this.character = character;
+    }
+  
+    @Override
+    public boolean isCharacter() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitRangeCharacter(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Char getCharacter() {
+      return this.character;
+    }
+  
+    @Override
+    public boolean hasCharacter() {
+      return true;
+    }	
+  }
   public boolean isFromTo() {
     return false;
   }
@@ -138,43 +175,6 @@ public abstract class Range extends AbstractAST {
   
     @Override
     public boolean hasEnd() {
-      return true;
-    }	
-  }
-  public boolean isCharacter() {
-    return false;
-  }
-
-  static public class Character extends Range {
-    // Production: sig("Character",[arg("org.rascalmpl.ast.Char","character")])
-  
-    
-    private final org.rascalmpl.ast.Char character;
-  
-    public Character(IConstructor node , org.rascalmpl.ast.Char character) {
-      super(node);
-      
-      this.character = character;
-    }
-  
-    @Override
-    public boolean isCharacter() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitRangeCharacter(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Char getCharacter() {
-      return this.character;
-    }
-  
-    @Override
-    public boolean hasCharacter() {
       return true;
     }	
   }

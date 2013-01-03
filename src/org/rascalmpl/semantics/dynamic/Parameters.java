@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Formals;
+import org.rascalmpl.ast.KeyWordFormals;
 import org.rascalmpl.interpreter.env.Environment;
 
 public abstract class Parameters extends org.rascalmpl.ast.Parameters {
@@ -30,8 +31,8 @@ public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 	}
 
 	static public class Default extends org.rascalmpl.ast.Parameters.Default {
-		public Default(IConstructor __param1, Formals __param2) {
-			super(__param1, __param2);
+		public Default(IConstructor __param1, Formals __param2, KeyWordFormals __param3) {
+			super(__param1, __param2, __param3);
 		}
 
 		@Override

@@ -196,7 +196,7 @@ syntax Expression
 	| \visit          : Label label Visit visit 
 	| reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
 	| reifiedType    : "type" "(" Expression symbol "," Expression definitions ")"  
-	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure!isDefined expression "(" {Expression ","}* arguments ")"
+	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure!isDefined expression "(" {Expression ","}* arguments KeyWordArguments keywordArguments ")"
 	| literal        : Literal literal 
 	| \any            : "any" "(" {Expression ","}+ generators ")" 
 	| \all            : "all" "(" {Expression ","}+ generators ")" 
@@ -405,9 +405,25 @@ lexical RegExpModifier
 	= [d i m s]* ;
 
 syntax Parameters
-	= \default: "(" Formals formals ")" 
+	= \default: "(" Formals formals KeyWordFormals keywordFormals")" 
 	| varArgs: "(" Formals formals "..." ")" ;
-
+//	| varArgs: "(" Formals formals "..." KeyWordFormals keywordFormals ")" ;  // Is this the right order?
+	
+	
+syntax KeyWordFormals
+	= \default: "," {KeyWordFormal ","}+ keywordFormals
+	| none: ()
+	;
+syntax KeyWordFormal 
+    = \default: Type type Name name "=" Expression
+ //   | remote: "**" Type type Name name                // Must be a tuple type (or record type when we add them).
+    ;
+syntax KeyWordArguments
+	= \default: "," {KeyWordArgument ","}+
+	| none: ()
+	;
+syntax KeyWordArgument = Name name "=" Expression expression ;
+    	
 lexical RegExp
 	= ![/ \< \> \\] 
 	| "\<" Name "\>" 
