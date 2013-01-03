@@ -1225,6 +1225,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		Environment env = new Environment(getCurrentEnvt(), getCurrentEnvt().getName());
 		setCurrentEnvt(env);
 	}
+	
+	@Override  
+  public void pushEnv(String name) {
+    Environment env = new Environment(getCurrentEnvt(), name);
+    setCurrentEnvt(env);
+  }
 
 	@Override	
 	public Environment pushEnv(Statement s) {
