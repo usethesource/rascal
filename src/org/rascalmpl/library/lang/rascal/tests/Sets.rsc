@@ -61,7 +61,7 @@ public test bool tst_classify(set[int] S) {
  
  classes = classify(S, getClass);
  
- if ({ *classify(S, getClass)[c] | c <- classes } != S) {
+ if ({ *classes[c] | c <- classes } != S) {
    return false;
  }
  
