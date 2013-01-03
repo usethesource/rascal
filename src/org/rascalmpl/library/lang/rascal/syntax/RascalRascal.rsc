@@ -411,18 +411,18 @@ syntax Parameters
 	
 	
 syntax KeyWordFormals
-	= \default: "," {KeyWordFormal ","}+ keywordFormals
+	= \default: ","? {KeyWordFormal ","}+ keywordFormals
 	| none: ()
 	;
 syntax KeyWordFormal 
-    = \default: Type type Name name "=" Expression
+    = \default: Type type Name name "=" Expression expression
  //   | remote: "**" Type type Name name                // Must be a tuple type (or record type when we add them).
     ;
 syntax KeyWordArguments
-	= \default: "," {KeyWordArgument ","}+
+	= \default:  ","? {KeyWordArgument ","}+ keywordArguments
 	| none: ()
 	;
-syntax KeyWordArgument = Name name "=" Expression expression ;
+syntax KeyWordArgument = \default: Name name "=" Expression expression ;
     	
 lexical RegExp
 	= ![/ \< \> \\] 

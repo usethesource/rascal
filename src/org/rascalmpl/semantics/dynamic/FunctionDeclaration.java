@@ -15,7 +15,9 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -24,6 +26,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.FunctionBody;
 import org.rascalmpl.ast.FunctionModifier;
+import org.rascalmpl.ast.KeyWordFormal;
+import org.rascalmpl.ast.KeyWordFormals;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.ast.Visibility;
@@ -94,6 +98,15 @@ public abstract class FunctionDeclaration extends
 			if (!this.getBody().isDefault()) {
 				throw new MissingModifierError("java", this);
 			}
+			
+//			List<KeyWordFormal> kwFormals = this.getSignature().getParameters().getKeywordFormals().getKeywordFormals();
+//			HashMap<String,Result<IValue>> kwMap = null;
+//			if(kwFormals.size() > 0){
+//				kwMap = new HashMap<String,Result<IValue>>();
+//				for(KeyWordFormal kwf : kwFormals){
+//					kwMap.put(kwf.getName().toString(), kwf.getExpression().interpret(__eval));
+//				}
+//			}
 
 			lambda = new RascalFunction(__eval, this, varArgs, __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());

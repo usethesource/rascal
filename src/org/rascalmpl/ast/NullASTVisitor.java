@@ -365,10 +365,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitExpressionCallOrTree(Expression.CallOrTree x) { 
-    return null; 
-  }
-
   public T visitExpressionClosure(Expression.Closure x) { 
     return null; 
   }
@@ -726,6 +722,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitIntegerLiteralOctalIntegerLiteral(IntegerLiteral.OctalIntegerLiteral x) { 
+    return null; 
+  }
+
+  public T visitKeyWordArgumentDefault(KeyWordArgument.Default x) { 
     return null; 
   }
 
@@ -1864,6 +1864,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitPreStringCharsAmbiguity(PreStringChars.Ambiguity x) { 
+    return null; 
+  }
+
+  public T visitKeyWordArgumentAmbiguity(KeyWordArgument.Ambiguity x) { 
     return null; 
   }
 
