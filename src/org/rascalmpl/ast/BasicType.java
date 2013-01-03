@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -72,80 +72,106 @@ public abstract class BasicType extends AbstractAST {
   
 
   
-  public boolean isMap() {
+  public boolean isBag() {
     return false;
   }
 
-  static public class Map extends BasicType {
-    // Production: sig("Map",[])
+  static public class Bag extends BasicType {
+    // Production: sig("Bag",[])
   
     
   
-    public Map(IConstructor node ) {
+    public Bag(IConstructor node ) {
       super(node);
       
     }
   
     @Override
-    public boolean isMap() { 
+    public boolean isBag() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeMap(this);
+      return visitor.visitBasicTypeBag(this);
     }
   
     	
   }
-  public boolean isRelation() {
+  public boolean isBool() {
     return false;
   }
 
-  static public class Relation extends BasicType {
-    // Production: sig("Relation",[])
+  static public class Bool extends BasicType {
+    // Production: sig("Bool",[])
   
     
   
-    public Relation(IConstructor node ) {
+    public Bool(IConstructor node ) {
       super(node);
       
     }
   
     @Override
-    public boolean isRelation() { 
+    public boolean isBool() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeRelation(this);
+      return visitor.visitBasicTypeBool(this);
     }
   
     	
   }
-  public boolean isReal() {
+  public boolean isDateTime() {
     return false;
   }
 
-  static public class Real extends BasicType {
-    // Production: sig("Real",[])
+  static public class DateTime extends BasicType {
+    // Production: sig("DateTime",[])
   
     
   
-    public Real(IConstructor node ) {
+    public DateTime(IConstructor node ) {
       super(node);
       
     }
   
     @Override
-    public boolean isReal() { 
+    public boolean isDateTime() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeReal(this);
+      return visitor.visitBasicTypeDateTime(this);
+    }
+  
+    	
+  }
+  public boolean isInt() {
+    return false;
+  }
+
+  static public class Int extends BasicType {
+    // Production: sig("Int",[])
+  
+    
+  
+    public Int(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isInt() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeInt(this);
     }
   
     	
@@ -202,292 +228,6 @@ public abstract class BasicType extends AbstractAST {
   
     	
   }
-  public boolean isType() {
-    return false;
-  }
-
-  static public class Type extends BasicType {
-    // Production: sig("Type",[])
-  
-    
-  
-    public Type(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isType() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeType(this);
-    }
-  
-    	
-  }
-  public boolean isDateTime() {
-    return false;
-  }
-
-  static public class DateTime extends BasicType {
-    // Production: sig("DateTime",[])
-  
-    
-  
-    public DateTime(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isDateTime() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeDateTime(this);
-    }
-  
-    	
-  }
-  public boolean isVoid() {
-    return false;
-  }
-
-  static public class Void extends BasicType {
-    // Production: sig("Void",[])
-  
-    
-  
-    public Void(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isVoid() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeVoid(this);
-    }
-  
-    	
-  }
-  public boolean isValue() {
-    return false;
-  }
-
-  static public class Value extends BasicType {
-    // Production: sig("Value",[])
-  
-    
-  
-    public Value(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isValue() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeValue(this);
-    }
-  
-    	
-  }
-  public boolean isString() {
-    return false;
-  }
-
-  static public class String extends BasicType {
-    // Production: sig("String",[])
-  
-    
-  
-    public String(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isString() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeString(this);
-    }
-  
-    	
-  }
-  public boolean isRational() {
-    return false;
-  }
-
-  static public class Rational extends BasicType {
-    // Production: sig("Rational",[])
-  
-    
-  
-    public Rational(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isRational() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeRational(this);
-    }
-  
-    	
-  }
-  public boolean isInt() {
-    return false;
-  }
-
-  static public class Int extends BasicType {
-    // Production: sig("Int",[])
-  
-    
-  
-    public Int(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isInt() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeInt(this);
-    }
-  
-    	
-  }
-  public boolean isTuple() {
-    return false;
-  }
-
-  static public class Tuple extends BasicType {
-    // Production: sig("Tuple",[])
-  
-    
-  
-    public Tuple(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isTuple() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeTuple(this);
-    }
-  
-    	
-  }
-  public boolean isBag() {
-    return false;
-  }
-
-  static public class Bag extends BasicType {
-    // Production: sig("Bag",[])
-  
-    
-  
-    public Bag(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isBag() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeBag(this);
-    }
-  
-    	
-  }
-  public boolean isBool() {
-    return false;
-  }
-
-  static public class Bool extends BasicType {
-    // Production: sig("Bool",[])
-  
-    
-  
-    public Bool(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isBool() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeBool(this);
-    }
-  
-    	
-  }
-  public boolean isNum() {
-    return false;
-  }
-
-  static public class Num extends BasicType {
-    // Production: sig("Num",[])
-  
-    
-  
-    public Num(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isNum() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeNum(this);
-    }
-  
-    	
-  }
   public boolean isLoc() {
     return false;
   }
@@ -510,6 +250,32 @@ public abstract class BasicType extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeLoc(this);
+    }
+  
+    	
+  }
+  public boolean isMap() {
+    return false;
+  }
+
+  static public class Map extends BasicType {
+    // Production: sig("Map",[])
+  
+    
+  
+    public Map(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isMap() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeMap(this);
     }
   
     	
@@ -540,6 +306,110 @@ public abstract class BasicType extends AbstractAST {
   
     	
   }
+  public boolean isNum() {
+    return false;
+  }
+
+  static public class Num extends BasicType {
+    // Production: sig("Num",[])
+  
+    
+  
+    public Num(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isNum() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeNum(this);
+    }
+  
+    	
+  }
+  public boolean isRational() {
+    return false;
+  }
+
+  static public class Rational extends BasicType {
+    // Production: sig("Rational",[])
+  
+    
+  
+    public Rational(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isRational() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeRational(this);
+    }
+  
+    	
+  }
+  public boolean isReal() {
+    return false;
+  }
+
+  static public class Real extends BasicType {
+    // Production: sig("Real",[])
+  
+    
+  
+    public Real(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isReal() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeReal(this);
+    }
+  
+    	
+  }
+  public boolean isRelation() {
+    return false;
+  }
+
+  static public class Relation extends BasicType {
+    // Production: sig("Relation",[])
+  
+    
+  
+    public Relation(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isRelation() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeRelation(this);
+    }
+  
+    	
+  }
   public boolean isSet() {
     return false;
   }
@@ -562,6 +432,136 @@ public abstract class BasicType extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeSet(this);
+    }
+  
+    	
+  }
+  public boolean isString() {
+    return false;
+  }
+
+  static public class String extends BasicType {
+    // Production: sig("String",[])
+  
+    
+  
+    public String(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isString() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeString(this);
+    }
+  
+    	
+  }
+  public boolean isTuple() {
+    return false;
+  }
+
+  static public class Tuple extends BasicType {
+    // Production: sig("Tuple",[])
+  
+    
+  
+    public Tuple(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isTuple() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeTuple(this);
+    }
+  
+    	
+  }
+  public boolean isType() {
+    return false;
+  }
+
+  static public class Type extends BasicType {
+    // Production: sig("Type",[])
+  
+    
+  
+    public Type(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isType() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeType(this);
+    }
+  
+    	
+  }
+  public boolean isValue() {
+    return false;
+  }
+
+  static public class Value extends BasicType {
+    // Production: sig("Value",[])
+  
+    
+  
+    public Value(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isValue() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeValue(this);
+    }
+  
+    	
+  }
+  public boolean isVoid() {
+    return false;
+  }
+
+  static public class Void extends BasicType {
+    // Production: sig("Void",[])
+  
+    
+  
+    public Void(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isVoid() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeVoid(this);
     }
   
     	

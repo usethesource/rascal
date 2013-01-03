@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,27 +29,6 @@ public abstract class Prod extends AbstractAST {
   }
 
   
-  public boolean hasArgs() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.Sym> getArgs() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasGroup() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Prod getGroup() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasLhs() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Prod getLhs() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasModifiers() {
     return false;
   }
@@ -57,11 +36,11 @@ public abstract class Prod extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.ProdModifier> getModifiers() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasRhs() {
+  public boolean hasArgs() {
     return false;
   }
 
-  public org.rascalmpl.ast.Prod getRhs() {
+  public java.util.List<org.rascalmpl.ast.Sym> getArgs() {
     throw new UnsupportedOperationException();
   }
   public boolean hasAssociativity() {
@@ -83,6 +62,27 @@ public abstract class Prod extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getReferenced() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasGroup() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Prod getGroup() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasLhs() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Prod getLhs() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasRhs() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Prod getRhs() {
     throw new UnsupportedOperationException();
   }
 
@@ -176,6 +176,54 @@ public abstract class Prod extends AbstractAST {
       return true;
     }	
   }
+  public boolean isAssociativityGroup() {
+    return false;
+  }
+
+  static public class AssociativityGroup extends Prod {
+    // Production: sig("AssociativityGroup",[arg("org.rascalmpl.ast.Assoc","associativity"),arg("org.rascalmpl.ast.Prod","group")])
+  
+    
+    private final org.rascalmpl.ast.Assoc associativity;
+    private final org.rascalmpl.ast.Prod group;
+  
+    public AssociativityGroup(IConstructor node , org.rascalmpl.ast.Assoc associativity,  org.rascalmpl.ast.Prod group) {
+      super(node);
+      
+      this.associativity = associativity;
+      this.group = group;
+    }
+  
+    @Override
+    public boolean isAssociativityGroup() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitProdAssociativityGroup(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Assoc getAssociativity() {
+      return this.associativity;
+    }
+  
+    @Override
+    public boolean hasAssociativity() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Prod getGroup() {
+      return this.group;
+    }
+  
+    @Override
+    public boolean hasGroup() {
+      return true;
+    }	
+  }
   public boolean isFirst() {
     return false;
   }
@@ -221,54 +269,6 @@ public abstract class Prod extends AbstractAST {
   
     @Override
     public boolean hasRhs() {
-      return true;
-    }	
-  }
-  public boolean isUnlabeled() {
-    return false;
-  }
-
-  static public class Unlabeled extends Prod {
-    // Production: sig("Unlabeled",[arg("java.util.List\<org.rascalmpl.ast.ProdModifier\>","modifiers"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","args")])
-  
-    
-    private final java.util.List<org.rascalmpl.ast.ProdModifier> modifiers;
-    private final java.util.List<org.rascalmpl.ast.Sym> args;
-  
-    public Unlabeled(IConstructor node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  java.util.List<org.rascalmpl.ast.Sym> args) {
-      super(node);
-      
-      this.modifiers = modifiers;
-      this.args = args;
-    }
-  
-    @Override
-    public boolean isUnlabeled() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitProdUnlabeled(this);
-    }
-  
-    
-    @Override
-    public java.util.List<org.rascalmpl.ast.ProdModifier> getModifiers() {
-      return this.modifiers;
-    }
-  
-    @Override
-    public boolean hasModifiers() {
-      return true;
-    }
-    @Override
-    public java.util.List<org.rascalmpl.ast.Sym> getArgs() {
-      return this.args;
-    }
-  
-    @Override
-    public boolean hasArgs() {
       return true;
     }	
   }
@@ -331,6 +331,32 @@ public abstract class Prod extends AbstractAST {
       return true;
     }	
   }
+  public boolean isOthers() {
+    return false;
+  }
+
+  static public class Others extends Prod {
+    // Production: sig("Others",[])
+  
+    
+  
+    public Others(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isOthers() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitProdOthers(this);
+    }
+  
+    	
+  }
   public boolean isReference() {
     return false;
   }
@@ -368,77 +394,51 @@ public abstract class Prod extends AbstractAST {
       return true;
     }	
   }
-  public boolean isOthers() {
+  public boolean isUnlabeled() {
     return false;
   }
 
-  static public class Others extends Prod {
-    // Production: sig("Others",[])
+  static public class Unlabeled extends Prod {
+    // Production: sig("Unlabeled",[arg("java.util.List\<org.rascalmpl.ast.ProdModifier\>","modifiers"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","args")])
   
     
+    private final java.util.List<org.rascalmpl.ast.ProdModifier> modifiers;
+    private final java.util.List<org.rascalmpl.ast.Sym> args;
   
-    public Others(IConstructor node ) {
+    public Unlabeled(IConstructor node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  java.util.List<org.rascalmpl.ast.Sym> args) {
       super(node);
       
+      this.modifiers = modifiers;
+      this.args = args;
     }
   
     @Override
-    public boolean isOthers() { 
+    public boolean isUnlabeled() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitProdOthers(this);
-    }
-  
-    	
-  }
-  public boolean isAssociativityGroup() {
-    return false;
-  }
-
-  static public class AssociativityGroup extends Prod {
-    // Production: sig("AssociativityGroup",[arg("org.rascalmpl.ast.Assoc","associativity"),arg("org.rascalmpl.ast.Prod","group")])
-  
-    
-    private final org.rascalmpl.ast.Assoc associativity;
-    private final org.rascalmpl.ast.Prod group;
-  
-    public AssociativityGroup(IConstructor node , org.rascalmpl.ast.Assoc associativity,  org.rascalmpl.ast.Prod group) {
-      super(node);
-      
-      this.associativity = associativity;
-      this.group = group;
-    }
-  
-    @Override
-    public boolean isAssociativityGroup() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitProdAssociativityGroup(this);
+      return visitor.visitProdUnlabeled(this);
     }
   
     
     @Override
-    public org.rascalmpl.ast.Assoc getAssociativity() {
-      return this.associativity;
+    public java.util.List<org.rascalmpl.ast.ProdModifier> getModifiers() {
+      return this.modifiers;
     }
   
     @Override
-    public boolean hasAssociativity() {
+    public boolean hasModifiers() {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.Prod getGroup() {
-      return this.group;
+    public java.util.List<org.rascalmpl.ast.Sym> getArgs() {
+      return this.args;
     }
   
     @Override
-    public boolean hasGroup() {
+    public boolean hasArgs() {
       return true;
     }	
   }
