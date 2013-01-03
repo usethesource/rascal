@@ -15,10 +15,13 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Formals;
 import org.rascalmpl.ast.KeyWordFormals;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 
@@ -38,6 +41,11 @@ public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 		@Override
 		public Type typeOf(Environment env) {
 			return this.getFormals().typeOf(env);
+		}
+		
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			return null;
 		}
 
 	}

@@ -32,6 +32,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Field;
+import org.rascalmpl.ast.KeyWordArgument;
+import org.rascalmpl.ast.KeyWordArguments;
 import org.rascalmpl.ast.Label;
 import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Name;
@@ -332,8 +334,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		public CallOrTree(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
-				java.util.List<org.rascalmpl.ast.Expression> __param3) {
-			super(__param1, __param2, __param3);
+				java.util.List<org.rascalmpl.ast.Expression> __param3, KeyWordArguments __param4) {
+			super(__param1, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -466,9 +468,19 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						throw new UninitializedPatternMatchError("The argument is of the type 'void'", args.get(i));
 					actuals[i] = resultElem.getValue();
 				}
+				
+				KeyWordArguments keywordArgs = this.getKeywordArguments();
+				HashMap<String,Result<IValue>> kwActuals = null;
+				if(keywordArgs.isDefault()){
+						kwActuals = new HashMap<String,Result<IValue>>();
+						
+						for(KeyWordArgument kwa : keywordArgs.getKeywordArguments()){
+							kwActuals.put(kwa.getName().toString(), kwa.getExpression().interpret(__eval));
+						}
+				}
 				Result<IValue> res = null;
 				try {
-					res = function.call(types, actuals);
+					res = function.call(types, actuals, kwActuals);
 				}
 				catch(MatchFailed e) {
 					if(function instanceof AbstractFunction) {

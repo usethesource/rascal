@@ -40,6 +40,9 @@ import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionDeclaration.Conditional;
 import org.rascalmpl.ast.FunctionDeclaration.Default;
 import org.rascalmpl.ast.FunctionModifier;
+import org.rascalmpl.ast.KeyWordFormal;
+import org.rascalmpl.ast.KeyWordFormals;
+import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Signature;
@@ -77,6 +80,7 @@ public class RascalFunction extends NamedFunction {
 	private final boolean isStatic;
 	private final String resourceScheme;
 	private final List<Expression> formals;
+	private final Map<String,Result<IValue>> keywordFormals;
 	private final String firstOutermostLabel;
 	private final IConstructor firstOutermostProduction;
 	private final Map<String, String> tags;
@@ -111,6 +115,7 @@ public class RascalFunction extends NamedFunction {
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
 		this.accumulators = (Stack<Accumulator>) accumulators.clone();
 		this.formals = cacheFormals();
+		this.keywordFormals = computeKeywordFormals();
 		this.firstOutermostLabel = computeFirstOutermostLabel(ast);
 		this.firstOutermostProduction = computeFirstOutermostProduction(ast);
 		this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
@@ -276,6 +281,35 @@ public class RascalFunction extends NamedFunction {
 		return formals;
 	}
 	
+	private Map<String, Result<IValue>> computeKeywordFormals(){
+		Parameters params;
+		if (ast instanceof FunctionDeclaration) {
+			params = ((FunctionDeclaration) ast).getSignature().getParameters();
+		}
+		else if (ast instanceof Closure) {
+			params = ((Closure) ast).getParameters();
+		}
+		else if (ast instanceof VoidClosure) {
+			params = ((VoidClosure) ast).getParameters();
+		}
+		else {
+			throw new ImplementationError("Unexpected kind of Rascal function: " + ast);
+		}
+		
+		Map<String,Result<IValue>> kwdefaults = null;
+		if(params.getKeywordFormals().isDefault()){
+			List<KeyWordFormal> kwformals = params.getKeywordFormals().getKeywordFormals();
+
+			if(kwformals.size() > 0){
+				kwdefaults = new HashMap<String,Result<IValue>>();
+				for(KeyWordFormal kwf : kwformals){
+					kwdefaults.put(kwf.getName().toString(), kwf.getExpression().interpret(this.eval));
+				}
+			}
+		}
+		return kwdefaults;
+	}
+	
 	@Override
 	public boolean isStatic() {
 		return isStatic;
@@ -316,7 +350,7 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
 		Environment old = ctx.getCurrentEnvt();
 		AbstractAST oldAST = ctx.getCurrentAST();
 		Stack<Accumulator> oldAccus = ctx.getAccumulators();
@@ -368,6 +402,7 @@ public class RascalFunction extends NamedFunction {
 					if (i == size - 1) {
 						// formals are now bound by side effect of the pattern matcher
 						try {
+							bindKeywordArgs(keyArgValues);
 							return runBody();
 						}
 						catch (Failure e) {
@@ -409,6 +444,34 @@ public class RascalFunction extends NamedFunction {
 			ctx.setCurrentEnvt(old);
 			ctx.setAccumulators(oldAccus);
 			ctx.setCurrentAST(oldAST);
+		}
+	}
+	
+	private void bindKeywordArgs(Map<String, Result<IValue>> keyArgValues){
+		Environment env = ctx.getCurrentEnvt();
+		if(keyArgValues == null){
+			if(keywordFormals != null){
+				for(String kwparam : keywordFormals.keySet()){
+					Result<IValue> r = keywordFormals.get(kwparam);
+					env.declareVariable(r.getType(), kwparam);
+					env.storeVariable(kwparam,r);
+				}
+			}
+			return;
+		}
+		if(keywordFormals == null)
+			return;
+		
+		for(String kwparam : keywordFormals.keySet()){
+			if(keyArgValues.containsKey(kwparam)){
+				Result<IValue> r = keyArgValues.get(kwparam);
+				env.declareVariable(r.getType(), kwparam);
+				env.storeVariable(kwparam, r);
+			} else {
+				Result<IValue> r = keywordFormals.get(kwparam);
+				env.declareVariable(r.getType(), kwparam);
+				env.storeVariable(kwparam, r);
+			}
 		}
 	}
 

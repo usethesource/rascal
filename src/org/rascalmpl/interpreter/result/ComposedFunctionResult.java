@@ -14,6 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
@@ -98,10 +100,10 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
-			IValue[] argValues) {
+			IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
-			return call(argTypes, argValues);
+			return call(argTypes, argValues, null);
 		}
 		finally {
 			ctx.getEvaluator().setMonitor(old);
@@ -109,9 +111,9 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
-		Result<IValue> rightResult = right.call(argTypes, argValues);
-		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() });
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
+		Result<IValue> rightResult = right.call(argTypes, argValues, null);
+		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, null);
 	}
 
 	@Override
@@ -193,12 +195,12 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		}
 				
 		@Override
-		public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 			Failure f1 = null;
 			ArgumentsMismatchError e1 = null;
 			try {
 				try {
-					return getRight().call(argTypes, argValues);
+					return getRight().call(argTypes, argValues, null);
 				} catch(ArgumentsMismatchError e) {
 					// try another one
 					e1 = e;
@@ -206,7 +208,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 					// try another one
 					f1 = e;
 				}
-				return getLeft().call(argTypes, argValues);
+				return getLeft().call(argTypes, argValues, null);
 			} catch(ArgumentsMismatchError e2) {
 				throw new ArgumentsMismatchError(
 						"The called signature does not match signatures in the '+' composition:\n" 

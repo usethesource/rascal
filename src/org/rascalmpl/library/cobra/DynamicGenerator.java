@@ -14,6 +14,7 @@ package org.rascalmpl.library.cobra;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -41,7 +42,7 @@ public class DynamicGenerator extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
 		Type returnType = getReturnType();
 		Type instantiatedReturnType = returnType.instantiate(ctx
 				.getCurrentEnvt().getTypeBindings());

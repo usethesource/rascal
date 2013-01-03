@@ -66,7 +66,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 		ICallableValue generator = generators.get(type);
 		Result<IValue> result = generator.call(new Type[] { tf.integerType() },
-				new IValue[] { vf.integer(depthLimit) });
+				new IValue[] { vf.integer(depthLimit) }, null);
 		return result.getValue();
 	}
 

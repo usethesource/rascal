@@ -191,8 +191,6 @@ public interface IASTVisitor<T> {
 
   public T visitExpressionCallOrTree(Expression.CallOrTree x);
 
-  public T visitExpressionCallOrTree(Expression.CallOrTree x);
-
   public T visitExpressionClosure(Expression.Closure x);
 
   public T visitExpressionComposition(Expression.Composition x);
@@ -372,6 +370,8 @@ public interface IASTVisitor<T> {
   public T visitIntegerLiteralHexIntegerLiteral(IntegerLiteral.HexIntegerLiteral x);
 
   public T visitIntegerLiteralOctalIntegerLiteral(IntegerLiteral.OctalIntegerLiteral x);
+
+  public T visitKeyWordArgumentDefault(KeyWordArgument.Default x);
 
   public T visitKeyWordArgumentsDefault(KeyWordArguments.Default x);
 
@@ -884,6 +884,7 @@ public interface IASTVisitor<T> {
   public T visitProtocolPartAmbiguity(ProtocolPart.Ambiguity x);
   public T visitNonterminalLabelAmbiguity(NonterminalLabel.Ambiguity x);
   public T visitPreStringCharsAmbiguity(PreStringChars.Ambiguity x);
+  public T visitKeyWordArgumentAmbiguity(KeyWordArgument.Ambiguity x);
   public T visitUserTypeAmbiguity(UserType.Ambiguity x);
   public T visitPostProtocolCharsAmbiguity(PostProtocolChars.Ambiguity x);
   public T visitImportAmbiguity(Import.Ambiguity x);
