@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -287,8 +286,8 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 
 		<U extends IValue, V extends IValue> Result<U> appendTuple(TupleResult tuple) {
 			// TODO: check arity 
-			Type newType = getTypeFactory().setType(tuple.getType().lub(getType().getElementType()));
-			return makeResult(newType, (IRelation) getValue().append(tuple.getValue()), ctx);
+			Type newType = getTypeFactory().listType(tuple.getType().lub(getType().getElementType()));
+			return makeResult(newType, (IListRelation) getValue().append(tuple.getValue()), ctx);
 		}
 
 		@Override

@@ -119,12 +119,14 @@ public class Cobra {
 
 	}
 
-	public IValue arbitrary(IValue type, IInteger depthLimit,
-			IEvaluatorContext eval, Map<Type, Type> typeParameters) {
+	public IValue arbitrary(IValue type, IInteger depthLimit, IEvaluatorContext eval) {
 		try {
-			IValue result = quickcheck.arbitrary(Cobra.reifyType(type),
+			TypeParameterVisitor tpvisit = new TypeParameterVisitor();
+			Type requestedType = Cobra.reifyType(type);
+			HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
+			IValue result = quickcheck.arbitrary(requestedType,
 					depthLimit.intValue(), eval.getCurrentEnvt().getRoot(),
-					eval.getValueFactory(), typeParameters);
+					eval.getValueFactory(), tpbindings);
 			return result;
 		} catch (IllegalArgumentException e) {
 			throw RuntimeExceptionFactory.illegalArgument(depthLimit,
