@@ -23,32 +23,32 @@ import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
-public abstract class KeyWordFormals extends AbstractAST {
-  public KeyWordFormals(IConstructor node) {
+public abstract class KeywordArgument extends AbstractAST {
+  public KeywordArgument(IConstructor node) {
     super();
   }
 
   
-  public boolean hasKeywordFormals() {
+  public boolean hasExpression() {
     return false;
   }
 
-  public java.util.List<org.rascalmpl.ast.KeyWordFormal> getKeywordFormals() {
+  public org.rascalmpl.ast.Expression getExpression() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasOptionalComma() {
+  public boolean hasName() {
     return false;
   }
 
-  public org.rascalmpl.ast.OptionalComma getOptionalComma() {
+  public org.rascalmpl.ast.Name getName() {
     throw new UnsupportedOperationException();
   }
 
-  static public class Ambiguity extends KeyWordFormals {
-    private final java.util.List<org.rascalmpl.ast.KeyWordFormals> alternatives;
+  static public class Ambiguity extends KeywordArgument {
+    private final java.util.List<org.rascalmpl.ast.KeywordArgument> alternatives;
     private final IConstructor node;
            
-    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.KeyWordFormals> alternatives) {
+    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.KeywordArgument> alternatives) {
       super(node);
       this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
@@ -74,12 +74,12 @@ public abstract class KeyWordFormals extends AbstractAST {
       throw new Ambiguous(src);
     }
     
-    public java.util.List<org.rascalmpl.ast.KeyWordFormals> getAlternatives() {
+    public java.util.List<org.rascalmpl.ast.KeywordArgument> getAlternatives() {
       return alternatives;
     }
     
     public <T> T accept(IASTVisitor<T> v) {
-    	return v.visitKeyWordFormalsAmbiguity(this);
+    	return v.visitKeywordArgumentAmbiguity(this);
     }
   }
 
@@ -90,18 +90,18 @@ public abstract class KeyWordFormals extends AbstractAST {
     return false;
   }
 
-  static public class Default extends KeyWordFormals {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeyWordFormal\>","keywordFormals")])
+  static public class Default extends KeywordArgument {
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","expression")])
   
     
-    private final org.rascalmpl.ast.OptionalComma optionalComma;
-    private final java.util.List<org.rascalmpl.ast.KeyWordFormal> keywordFormals;
+    private final org.rascalmpl.ast.Name name;
+    private final org.rascalmpl.ast.Expression expression;
   
-    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeyWordFormal> keywordFormals) {
+    public Default(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression expression) {
       super(node);
       
-      this.optionalComma = optionalComma;
-      this.keywordFormals = keywordFormals;
+      this.name = name;
+      this.expression = expression;
     }
   
     @Override
@@ -111,53 +111,27 @@ public abstract class KeyWordFormals extends AbstractAST {
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKeyWordFormalsDefault(this);
+      return visitor.visitKeywordArgumentDefault(this);
     }
   
     
     @Override
-    public org.rascalmpl.ast.OptionalComma getOptionalComma() {
-      return this.optionalComma;
+    public org.rascalmpl.ast.Name getName() {
+      return this.name;
     }
   
     @Override
-    public boolean hasOptionalComma() {
+    public boolean hasName() {
       return true;
     }
     @Override
-    public java.util.List<org.rascalmpl.ast.KeyWordFormal> getKeywordFormals() {
-      return this.keywordFormals;
+    public org.rascalmpl.ast.Expression getExpression() {
+      return this.expression;
     }
   
     @Override
-    public boolean hasKeywordFormals() {
+    public boolean hasExpression() {
       return true;
     }	
-  }
-  public boolean isNone() {
-    return false;
-  }
-
-  static public class None extends KeyWordFormals {
-    // Production: sig("None",[])
-  
-    
-  
-    public None(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isNone() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKeyWordFormalsNone(this);
-    }
-  
-    	
   }
 }

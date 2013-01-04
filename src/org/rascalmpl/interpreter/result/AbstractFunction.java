@@ -18,7 +18,6 @@
 package org.rascalmpl.interpreter.result;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -33,14 +32,8 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.FunctionDeclaration;
-import org.rascalmpl.ast.KeyWordFormal;
-import org.rascalmpl.ast.Parameters;
-import org.rascalmpl.ast.Expression.Closure;
-import org.rascalmpl.ast.Expression.VoidClosure;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
@@ -60,8 +53,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 
 	protected final AbstractAST ast;
 	protected final IValueFactory vf;
-
-//	protected final Map<String, Result<IValue>> keywordFormals;
 	
 	protected static int callNesting = 0;
 	protected static boolean callTracing = false;
@@ -75,7 +66,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		this.hasVarArgs = varargs;
 		this.declarationEnvironment = env;
 		this.vf = eval.getValueFactory();
-//		this.keywordFormals = computeKeywordFormals();
 	}
 
 	
@@ -151,6 +141,11 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
+	public boolean hasKeywordArgs() {
+		return false;
+	}
+	
+	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
@@ -187,78 +182,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	public abstract boolean isDefault();
-	
-//	private Map<String, Result<IValue>> computeKeywordFormals(){
-//		Parameters params;
-//		if (ast instanceof FunctionDeclaration) {
-//			FunctionDeclaration fd = (FunctionDeclaration) ast;
-//			if(!fd.hasBody())
-//				return null;
-//			params = fd.getSignature().getParameters();
-//		}
-//		else if (ast instanceof Closure) {
-//			params = ((Closure) ast).getParameters();
-//		}
-//		else if (ast instanceof VoidClosure) {
-//			params = ((VoidClosure) ast).getParameters();
-//		} else {
-//			return null;
-//			
-//		}
-////		else {
-////			throw new ImplementationError("Unexpected kind of Rascal function: " + ast);
-////		}
-//		
-//		Map<String,Result<IValue>> kwdefaults = null;
-//		if(params.getKeywordFormals().isDefault()){
-//			List<KeyWordFormal> kwformals = params.getKeywordFormals().getKeywordFormals();
-//
-//			if(kwformals.size() > 0){
-//				kwdefaults = new HashMap<String,Result<IValue>>();
-//				for(KeyWordFormal kwf : kwformals){
-//					kwdefaults.put(kwf.getName().toString(), kwf.getExpression().interpret(this.eval));
-//				}
-//			}
-//		}
-//		return kwdefaults;
-//	}
-	
-//	protected void bindKeywordArgs(Map<String, Result<IValue>> keyArgValues){
-//		//Environment env = ctx.getCurrentEnvt();
-//		Environment env = declarationEnvironment;
-//		if(keyArgValues == null){
-//			if(keywordFormals != null){
-//				for(String kwparam : keywordFormals.keySet()){
-//					Result<IValue> r = keywordFormals.get(kwparam);
-//					env.declareVariable(r.getType(), kwparam);
-//					env.storeVariable(kwparam,r);
-//				}
-//			}
-//			return;
-//		}
-//		if(keywordFormals == null)
-//			throw new ImplementationError("Function has no formal keyword parameters");
-//		
-//		int nactuals = 0;
-//		for(String kwparam : keywordFormals.keySet()){
-//			if(keyArgValues.containsKey(kwparam)){
-//				nactuals++;
-//				Result<IValue> r = keyArgValues.get(kwparam);
-//				env.declareVariable(r.getType(), kwparam);
-//				env.storeVariable(kwparam, r);
-//			} else {
-//				Result<IValue> r = keywordFormals.get(kwparam);
-//				env.declareVariable(r.getType(), kwparam);
-//				env.storeVariable(kwparam, r);
-//			}
-//		}
-//		if(nactuals != keyArgValues.size()){
-//			for(String kwparam : keyArgValues.keySet())
-//				if(!keywordFormals.containsKey(kwparam)){
-//					throw new ImplementationError("Actual keyword parameter " + kwparam + " could not be recognized");
-//				}
-//		}
-//	}
 
 	
 	private void printNesting(StringBuilder b) {
@@ -487,14 +410,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		
 		String kwFormals = "";
 		
-//		if(keywordFormals != null){
-//			sep = (strFormals.length() > 0) ? ", " : "";
-//				
-//			for(String kwparam: keywordFormals.keySet()){
-//				kwFormals += sep + kwparam + "=" + keywordFormals.get(kwparam).toString();
-//			}
-//		}
-		
 		return getReturnType() + " " + name + "(" + strFormals + kwFormals + ")";
 	}
 	
@@ -544,5 +459,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public boolean hasResourceScheme() {
 		return false;
 	}
+
+
+	
 	
 }

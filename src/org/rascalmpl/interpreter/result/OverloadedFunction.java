@@ -209,7 +209,10 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		throw new UnsupportedOperationException();
 	}
 
-
+	@Override
+	public boolean hasKeywordArgs() {
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public boolean isStatic() {
@@ -276,7 +279,8 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
 		for (AbstractFunction candidate : candidates) {
 			if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
-					|| candidate.getArity() == argValues.length) {
+					|| candidate.getArity() == argValues.length
+					|| candidate.hasKeywordArgs()) {
 				try {
 					return candidate.call(argTypes, argValues, keyArgValues);
 				}

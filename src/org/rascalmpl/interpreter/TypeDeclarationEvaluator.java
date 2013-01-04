@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
@@ -29,6 +30,7 @@ import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Declaration.Alias;
 import org.rascalmpl.ast.Declaration.Data;
 import org.rascalmpl.ast.Declaration.DataAbstract;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Toplevel;
@@ -39,6 +41,7 @@ import org.rascalmpl.ast.UserType;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.staticErrors.IllegalQualifiedDeclaration;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredFieldError;
@@ -89,8 +92,16 @@ public class TypeDeclarationEvaluator {
 
 			if (var.isNAryConstructor()) {
 				java.util.List<TypeArg> args = var.getArguments();
-				Type[] fields = new Type[args.size()];
-				String[] labels = new String[args.size()];
+				org.rascalmpl.interpreter.result.Result<IValue> r;
+				java.util.List<Pair<String,org.rascalmpl.interpreter.result.Result<IValue>>> kwargs = new java.util.LinkedList<Pair<String,org.rascalmpl.interpreter.result.Result<IValue>>> ();
+				if(var.getKeywordArguments().isDefault()){
+					for(KeywordFormal kwf : var.getKeywordArguments().getKeywordFormals()){
+						kwargs.add(new Pair(kwf.getName().toString(), kwf.getExpression().interpret(eval)));
+					}
+				}
+				int nAllArgs = args.size() + kwargs.size();
+				Type[] fields = new Type[nAllArgs];
+				String[] labels = new String[nAllArgs];
 
 				for (int i = 0; i < args.size(); i++) {
 					TypeArg arg = args.get(i);
@@ -105,6 +116,11 @@ public class TypeDeclarationEvaluator {
 					} else {
 						labels[i] = "arg" + java.lang.Integer.toString(i);
 					}
+				}
+				
+				for(int i = 0; i < kwargs.size(); i++){
+					fields[args.size() + i] = kwargs.get(i).getSecond().getType();
+					labels[args.size() + i] = kwargs.get(i).getFirst();
 				}
 
 				Type children = tf.tupleType(fields, labels);

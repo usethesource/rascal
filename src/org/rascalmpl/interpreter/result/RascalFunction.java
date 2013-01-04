@@ -40,7 +40,6 @@ import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionDeclaration.Conditional;
 import org.rascalmpl.ast.FunctionDeclaration.Default;
 import org.rascalmpl.ast.FunctionModifier;
-import org.rascalmpl.ast.KeyWordFormal;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Signature;
@@ -60,8 +59,6 @@ import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.staticErrors.MissingReturnError;
-import org.rascalmpl.interpreter.staticErrors.NoKeywordParametersError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameterError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
@@ -83,7 +80,6 @@ public class RascalFunction extends NamedFunction {
 	private final String firstOutermostLabel;
 	private final IConstructor firstOutermostProduction;
 	private final Map<String, String> tags;
-	private final Map<String, Result<IValue>> keywordFormals;
 	private static final String RESOURCE_TAG = "resource";
 
 
@@ -115,7 +111,6 @@ public class RascalFunction extends NamedFunction {
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
 		this.accumulators = (Stack<Accumulator>) accumulators.clone();
 		this.formals = cacheFormals();
-		this.keywordFormals = computeKeywordFormals();
 		this.firstOutermostLabel = computeFirstOutermostLabel(ast);
 		this.firstOutermostProduction = computeFirstOutermostProduction(ast);
 		this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
@@ -281,35 +276,6 @@ public class RascalFunction extends NamedFunction {
 		return formals;
 	}
 	
-	private Map<String, Result<IValue>> computeKeywordFormals(){
-		Parameters params;
-		if (ast instanceof FunctionDeclaration) {
-			params = ((FunctionDeclaration) ast).getSignature().getParameters();
-		}
-		else if (ast instanceof Closure) {
-			params = ((Closure) ast).getParameters();
-		}
-		else if (ast instanceof VoidClosure) {
-			params = ((VoidClosure) ast).getParameters();
-		}
-		else {
-			throw new ImplementationError("Unexpected kind of Rascal function: " + ast);
-		}
-		
-		Map<String,Result<IValue>> kwdefaults = null;
-		if(params.getKeywordFormals().isDefault()){
-			List<KeyWordFormal> kwformals = params.getKeywordFormals().getKeywordFormals();
-
-			if(kwformals.size() > 0){
-				kwdefaults = new HashMap<String,Result<IValue>>();
-				for(KeyWordFormal kwf : kwformals){
-					kwdefaults.put(kwf.getName().toString(), kwf.getExpression().interpret(this.eval));
-				}
-			}
-		}
-		return kwdefaults;
-	}
-	
 	@Override
 	public boolean isStatic() {
 		return isStatic;
@@ -448,73 +414,6 @@ public class RascalFunction extends NamedFunction {
 		}
 	}
 	
-	private void bindKeywordArgs(Map<String, Result<IValue>> keyArgValues){
-		Environment env = ctx.getCurrentEnvt();
-		if(keyArgValues == null){
-			if(keywordFormals != null){
-				for(String kwparam : keywordFormals.keySet()){
-					Result<IValue> r = keywordFormals.get(kwparam);
-					env.declareVariable(r.getType(), kwparam);
-					env.storeVariable(kwparam,r);
-				}
-			}
-			return;
-		}
-		if(keywordFormals == null)
-			throw new NoKeywordParametersError(getName(), ctx.getCurrentAST());
-		
-		int nactuals = 0;
-		for(String kwparam : keywordFormals.keySet()){
-			if(keyArgValues.containsKey(kwparam)){
-				nactuals++;
-				Result<IValue> r = keyArgValues.get(kwparam);
-				env.declareVariable(r.getType(), kwparam);
-				env.storeVariable(kwparam, r);
-			} else {
-				Result<IValue> r = keywordFormals.get(kwparam);
-				env.declareVariable(r.getType(), kwparam);
-				env.storeVariable(kwparam, r);
-			}
-		}
-		if(nactuals != keyArgValues.size()){
-			for(String kwparam : keyArgValues.keySet())
-				if(!keywordFormals.containsKey(kwparam)){
-					throw new UndeclaredKeywordParameterError(getName(), kwparam, ctx.getCurrentAST());
-				}
-		}
-	}
-	@Override
-	public String toString() {
-		return getHeader() + ";";
-	}
-	
-	public String getHeader(){
-		String sep = "";
-		String strFormals = "";
-		for(Type tp : getFormals()){
-			strFormals = strFormals + sep + tp;
-			sep = ", ";
-		}
-		
-		String name = getName();
-		if (name == null) {
-			name = "";
-		}
-		
-		
-		String kwFormals = "";
-		
-		if(keywordFormals != null){
-			sep = (strFormals.length() > 0) ? ", " : "";
-				
-			for(String kwparam: keywordFormals.keySet()){
-				Result<IValue> r = keywordFormals.get(kwparam);
-				kwFormals += sep + r.getType() + " " + kwparam + "=" + r.getValue();
-			}
-		}
-		
-		return getReturnType() + " " + name + "(" + strFormals + kwFormals + ")";
-	}
 
 	private Result<IValue> runBody() {
 		if (callTracing) {

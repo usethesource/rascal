@@ -196,7 +196,7 @@ syntax Expression
 	| \visit          : Label label Visit visit 
 	| reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
 	| reifiedType    : "type" "(" Expression symbol "," Expression definitions ")"  
-	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure!isDefined expression "(" {Expression ","}* arguments KeyWordArguments keywordArguments ")"
+	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure!isDefined expression "(" {Expression ","}* arguments KeywordArguments keywordArguments ")"
 	| literal        : Literal literal 
 	| \any            : "any" "(" {Expression ","}+ generators ")" 
 	| \all            : "all" "(" {Expression ","}+ generators ")" 
@@ -405,25 +405,25 @@ lexical RegExpModifier
 	= [d i m s]* ;
 
 syntax Parameters
-	= \default: "(" Formals formals KeyWordFormals keywordFormals")" 
-	| varArgs: "(" Formals formals "..." ")" ;
-//	| varArgs: "(" Formals formals "..." KeyWordFormals keywordFormals ")" ;  // Is this the right order?
+	= \default: "(" Formals formals KeywordFormals keywordFormals")" 
+	| varArgs: "(" Formals formals "..." KeywordFormals keywordFormals ")" 
+	;
 	
 lexical OptionalComma = \default: ","? ;
 
-syntax KeyWordFormals
-	= \default: OptionalComma optionalComma {KeyWordFormal ","}+ keywordFormals
+syntax KeywordFormals
+	= \default: OptionalComma optionalComma {KeywordFormal ","}+ keywordFormals
 	| none: ()
 	;
-syntax KeyWordFormal 
+syntax KeywordFormal 
     = \default: Type type Name name "=" Expression expression
  //   | remote: "**" Type type Name name                // Must be a tuple type (or record type when we add them).
     ;
-syntax KeyWordArguments
-	= \default:  OptionalComma optionalComma {KeyWordArgument ","}+ keywordArguments
+syntax KeywordArguments
+	= \default:  OptionalComma optionalComma {KeywordArgument ","}+ keywordArguments
 	| none: ()
 	;
-syntax KeyWordArgument = \default: Name name "=" Expression expression ;
+syntax KeywordArgument = \default: Name name "=" Expression expression ;
     	
 lexical RegExp
 	= ![/ \< \> \\] 
@@ -737,7 +737,7 @@ syntax Comprehension
 	| @breakable{results,generators} \list: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
 
 syntax Variant
-	= nAryConstructor: Name name "(" {TypeArg ","}* arguments  KeyWordFormals keywordArguments ")" ;
+	= nAryConstructor: Name name "(" {TypeArg ","}* arguments  KeywordFormals keywordArguments ")" ;
 
 syntax FunctionDeclaration
 	= abstract: Tags tags Visibility visibility Signature signature ";" 
@@ -845,7 +845,7 @@ syntax Pattern
 	| typedVariable       : Type type Name name 
 	| \map                 : "(" {Mapping[Pattern] ","}* mappings ")" 
 	| reifiedType         : "type" "(" Pattern symbol "," Pattern definitions ")" 
-	| callOrTree          : Pattern expression "(" {Pattern ","}* arguments KeyWordArguments keywordArguments ")" 
+	| callOrTree          : Pattern expression "(" {Pattern ","}* arguments KeywordArguments keywordArguments ")" 
 	> variableBecomes     : Name name ":" Pattern pattern
 	| asType              : "[" Type type "]" Pattern argument 
 	| descendant          : "/" Pattern pattern 

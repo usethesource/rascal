@@ -40,7 +40,7 @@ public abstract class Variant extends AbstractAST {
     return false;
   }
 
-  public org.rascalmpl.ast.KeywordArguments getKeywordArguments() {
+  public org.rascalmpl.ast.KeywordFormals getKeywordArguments() {
     throw new UnsupportedOperationException();
   }
   public boolean hasName() {
@@ -98,14 +98,14 @@ public abstract class Variant extends AbstractAST {
   }
 
   static public class NAryConstructor extends Variant {
-    // Production: sig("NAryConstructor",[arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.TypeArg\>","arguments"),arg("org.rascalmpl.ast.KeywordArguments","keywordArguments")])
+    // Production: sig("NAryConstructor",[arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.TypeArg\>","arguments"),arg("org.rascalmpl.ast.KeywordFormals","keywordArguments")])
   
     
     private final org.rascalmpl.ast.Name name;
     private final java.util.List<org.rascalmpl.ast.TypeArg> arguments;
-    private final org.rascalmpl.ast.KeywordArguments keywordArguments;
+    private final org.rascalmpl.ast.KeywordFormals keywordArguments;
   
-    public NAryConstructor(IConstructor node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.TypeArg> arguments,  org.rascalmpl.ast.KeywordArguments keywordArguments) {
+    public NAryConstructor(IConstructor node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.TypeArg> arguments,  org.rascalmpl.ast.KeywordFormals keywordArguments) {
       super(node);
       
       this.name = name;
@@ -143,7 +143,7 @@ public abstract class Variant extends AbstractAST {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.KeywordArguments getKeywordArguments() {
+    public org.rascalmpl.ast.KeywordFormals getKeywordArguments() {
       return this.keywordArguments;
     }
   
