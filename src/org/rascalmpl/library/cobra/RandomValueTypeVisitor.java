@@ -47,6 +47,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	private static final Random stRandom = new Random();
 
 	private final IValueFactory vf;
+	private final TypeFactory tf = TypeFactory.getInstance();
 	private final ModuleEnvironment rootEnv;
 	private final int maxDepth;
 	private final HashMap<Type, ICallableValue> generators;
@@ -269,18 +270,15 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitNode(Type type) {
-// How to handle depth here?		
-//		if (maxDepth <= 0) {
-//			return null;
-//		}
-		int arity = stRandom.nextInt(5);
+	  String str =  Math.random() > 0.5 ? RandomStringUtils.random(stRandom.nextInt(5)) : RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5));
+
+	  int arity = maxDepth <= 0 ? 0: stRandom.nextInt(5);
 		IValue[] args = new IValue[arity];
 		for (int i = 0; i < arity; i++) {
-			args[i] = visitValue(type);
+			args[i] = descend().generate(tf.valueType());
 		}
 		
-		IString str = (IString) visitString(type);
-		return vf.node(str.getValue(), args);	
+		return vf.node(str, args);	
 	}
 
 	@Override
@@ -337,7 +335,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	  }
 	  else {
       try {
-        String path = Math.random() < 0.9 ? RandomStringUtils.randomAlphanumeric(5) : RandomStringUtils.random(5);
+        String path = Math.random() < 0.9 ? RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5)) : RandomStringUtils.random(stRandom.nextInt(5));
         String nested = "";
         URI uri = URIUtil.assumeCorrect("tmp:///");
         
