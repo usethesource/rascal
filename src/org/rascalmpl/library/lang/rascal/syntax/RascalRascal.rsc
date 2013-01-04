@@ -737,7 +737,7 @@ syntax Comprehension
 	| @breakable{results,generators} \list: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
 
 syntax Variant
-	= nAryConstructor: Name name "(" {TypeArg ","}* arguments  KeywordArguments keywordArguments ")" ;
+	= nAryConstructor: Name name "(" {TypeArg ","}* arguments  KeyWordFormals keywordArguments ")" ;
 
 syntax FunctionDeclaration
 	= abstract: Tags tags Visibility visibility Signature signature ";" 
