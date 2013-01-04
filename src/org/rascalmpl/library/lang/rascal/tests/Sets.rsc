@@ -4,6 +4,7 @@ import Set;
 import List;
 import Relation;
 import Map;
+import IO;
 
 // Set operators
 
@@ -62,10 +63,12 @@ public test bool tst_classify(set[int] S) {
  classes = classify(S, getClass);
  
  if ({ *classes[c] | c <- classes } != S) {
+   println("failed for <S>: <classes>");
    return false;
  }
  
  if (c <- classes, e <- classes[c], getClass(e) notin classes) {
+   println("failed due to: classes: <classes>, class: <c>, elem: <e>, getClass(<e>): <getClass(e)>");
    return false;
  }
  
@@ -74,10 +77,12 @@ public test bool tst_classify(set[int] S) {
                                                      
 public test bool tst_getOneFrom(set[&A] S) = isEmpty(S) || getOneFrom(S) in S;
 
-public test bool tst_group(set[int] S) = isEmpty(S) || { *g | g <- group(S, similar) } == S && all(g <- group(S, similar), all(x <- g, y <- g, similar(x, y)));
+public test bool tst_group1(set[int] S) = isEmpty(S) || { *g | g <- group(S, similar) } == S;
+public test bool tst_group2(set[int] S) = isEmpty(S) || all(g <- group(S, similar), all(x <- g, y <- g, similar(x, y)));
 
-
-public test bool tst_index(set[int] S) = isEmpty(S) || domain(index(S)) == S && min(range(index(S))) == 0 && max(range(index(S))) == size(S) -1;
+public test bool tst_index1(set[int] S) = isEmpty(S) || domain(index(S)) == S;
+public test bool tst_index2(set[int] S) = isEmpty(S) || min(range(index(S))) == 0 ;
+public test bool tst_index3(set[int] S) = isEmpty(S) || max(range(index(S))) == size(S) - 1;
 
 // mapper
 
