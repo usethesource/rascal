@@ -41,8 +41,6 @@ import org.rascalmpl.ast.FunctionDeclaration.Conditional;
 import org.rascalmpl.ast.FunctionDeclaration.Default;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.KeyWordFormal;
-import org.rascalmpl.ast.KeyWordFormals;
-import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Signature;
@@ -62,6 +60,8 @@ import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.staticErrors.MissingReturnError;
+import org.rascalmpl.interpreter.staticErrors.NoKeywordParametersError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameterError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
@@ -80,10 +80,10 @@ public class RascalFunction extends NamedFunction {
 	private final boolean isStatic;
 	private final String resourceScheme;
 	private final List<Expression> formals;
-	private final Map<String,Result<IValue>> keywordFormals;
 	private final String firstOutermostLabel;
 	private final IConstructor firstOutermostProduction;
 	private final Map<String, String> tags;
+	private final Map<String, Result<IValue>> keywordFormals;
 	private static final String RESOURCE_TAG = "resource";
 
 
@@ -380,6 +380,7 @@ public class RascalFunction extends NamedFunction {
 
 			if (size == 0) {
 				try {
+					bindKeywordArgs(keyArgValues);
 					return runBody();
 				}
 				catch (Return e) {
@@ -460,10 +461,12 @@ public class RascalFunction extends NamedFunction {
 			return;
 		}
 		if(keywordFormals == null)
-			return;
+			throw new NoKeywordParametersError(getName(), ctx.getCurrentAST());
 		
+		int nactuals = 0;
 		for(String kwparam : keywordFormals.keySet()){
 			if(keyArgValues.containsKey(kwparam)){
+				nactuals++;
 				Result<IValue> r = keyArgValues.get(kwparam);
 				env.declareVariable(r.getType(), kwparam);
 				env.storeVariable(kwparam, r);
@@ -473,6 +476,44 @@ public class RascalFunction extends NamedFunction {
 				env.storeVariable(kwparam, r);
 			}
 		}
+		if(nactuals != keyArgValues.size()){
+			for(String kwparam : keyArgValues.keySet())
+				if(!keywordFormals.containsKey(kwparam)){
+					throw new UndeclaredKeywordParameterError(getName(), kwparam, ctx.getCurrentAST());
+				}
+		}
+	}
+	@Override
+	public String toString() {
+		return getHeader() + ";";
+	}
+	
+	public String getHeader(){
+		String sep = "";
+		String strFormals = "";
+		for(Type tp : getFormals()){
+			strFormals = strFormals + sep + tp;
+			sep = ", ";
+		}
+		
+		String name = getName();
+		if (name == null) {
+			name = "";
+		}
+		
+		
+		String kwFormals = "";
+		
+		if(keywordFormals != null){
+			sep = (strFormals.length() > 0) ? ", " : "";
+				
+			for(String kwparam: keywordFormals.keySet()){
+				Result<IValue> r = keywordFormals.get(kwparam);
+				kwFormals += sep + r.getType() + " " + kwparam + "=" + r.getValue();
+			}
+		}
+		
+		return getReturnType() + " " + name + "(" + strFormals + kwFormals + ")";
 	}
 
 	private Result<IValue> runBody() {

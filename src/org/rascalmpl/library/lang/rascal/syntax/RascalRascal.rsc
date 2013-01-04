@@ -409,9 +409,10 @@ syntax Parameters
 	| varArgs: "(" Formals formals "..." ")" ;
 //	| varArgs: "(" Formals formals "..." KeyWordFormals keywordFormals ")" ;  // Is this the right order?
 	
-	
+lexical OptionalComma = \default: ","? ;
+
 syntax KeyWordFormals
-	= \default: ","? {KeyWordFormal ","}+ keywordFormals
+	= \default: OptionalComma optionalComma {KeyWordFormal ","}+ keywordFormals
 	| none: ()
 	;
 syntax KeyWordFormal 
@@ -419,7 +420,7 @@ syntax KeyWordFormal
  //   | remote: "**" Type type Name name                // Must be a tuple type (or record type when we add them).
     ;
 syntax KeyWordArguments
-	= \default:  ","? {KeyWordArgument ","}+ keywordArguments
+	= \default:  OptionalComma optionalComma {KeyWordArgument ","}+ keywordArguments
 	| none: ()
 	;
 syntax KeyWordArgument = \default: Name name "=" Expression expression ;
@@ -736,7 +737,7 @@ syntax Comprehension
 	| @breakable{results,generators} \list: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
 
 syntax Variant
-	= nAryConstructor: Name name "(" {TypeArg ","}* arguments ")" ;
+	= nAryConstructor: Name name "(" {TypeArg ","}* arguments  KeywordArguments keywordArguments ")" ;
 
 syntax FunctionDeclaration
 	= abstract: Tags tags Visibility visibility Signature signature ";" 

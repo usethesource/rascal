@@ -36,6 +36,13 @@ public abstract class KeyWordFormals extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.KeyWordFormal> getKeywordFormals() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasOptionalComma() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.OptionalComma getOptionalComma() {
+    throw new UnsupportedOperationException();
+  }
 
   static public class Ambiguity extends KeyWordFormals {
     private final java.util.List<org.rascalmpl.ast.KeyWordFormals> alternatives;
@@ -84,14 +91,16 @@ public abstract class KeyWordFormals extends AbstractAST {
   }
 
   static public class Default extends KeyWordFormals {
-    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.KeyWordFormal\>","keywordFormals")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeyWordFormal\>","keywordFormals")])
   
     
+    private final org.rascalmpl.ast.OptionalComma optionalComma;
     private final java.util.List<org.rascalmpl.ast.KeyWordFormal> keywordFormals;
   
-    public Default(IConstructor node , java.util.List<org.rascalmpl.ast.KeyWordFormal> keywordFormals) {
+    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeyWordFormal> keywordFormals) {
       super(node);
       
+      this.optionalComma = optionalComma;
       this.keywordFormals = keywordFormals;
     }
   
@@ -106,6 +115,15 @@ public abstract class KeyWordFormals extends AbstractAST {
     }
   
     
+    @Override
+    public org.rascalmpl.ast.OptionalComma getOptionalComma() {
+      return this.optionalComma;
+    }
+  
+    @Override
+    public boolean hasOptionalComma() {
+      return true;
+    }
     @Override
     public java.util.List<org.rascalmpl.ast.KeyWordFormal> getKeywordFormals() {
       return this.keywordFormals;

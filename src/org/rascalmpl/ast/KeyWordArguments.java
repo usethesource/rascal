@@ -36,6 +36,13 @@ public abstract class KeyWordArguments extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.KeyWordArgument> getKeywordArguments() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasOptionalComma() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.OptionalComma getOptionalComma() {
+    throw new UnsupportedOperationException();
+  }
 
   static public class Ambiguity extends KeyWordArguments {
     private final java.util.List<org.rascalmpl.ast.KeyWordArguments> alternatives;
@@ -84,14 +91,16 @@ public abstract class KeyWordArguments extends AbstractAST {
   }
 
   static public class Default extends KeyWordArguments {
-    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.KeyWordArgument\>","keywordArguments")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeyWordArgument\>","keywordArguments")])
   
     
+    private final org.rascalmpl.ast.OptionalComma optionalComma;
     private final java.util.List<org.rascalmpl.ast.KeyWordArgument> keywordArguments;
   
-    public Default(IConstructor node , java.util.List<org.rascalmpl.ast.KeyWordArgument> keywordArguments) {
+    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeyWordArgument> keywordArguments) {
       super(node);
       
+      this.optionalComma = optionalComma;
       this.keywordArguments = keywordArguments;
     }
   
@@ -106,6 +115,15 @@ public abstract class KeyWordArguments extends AbstractAST {
     }
   
     
+    @Override
+    public org.rascalmpl.ast.OptionalComma getOptionalComma() {
+      return this.optionalComma;
+    }
+  
+    @Override
+    public boolean hasOptionalComma() {
+      return true;
+    }
     @Override
     public java.util.List<org.rascalmpl.ast.KeyWordArgument> getKeywordArguments() {
       return this.keywordArguments;

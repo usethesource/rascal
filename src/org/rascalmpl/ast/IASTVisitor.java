@@ -782,6 +782,8 @@ public interface IASTVisitor<T> {
 
   public T visitOctalIntegerLiteralLexical(OctalIntegerLiteral.Lexical x);
 
+  public T visitOptionalCommaLexical(OptionalComma.Lexical x);
+
   public T visitPathCharsLexical(PathChars.Lexical x);
 
   public T visitPostPathCharsLexical(PostPathChars.Lexical x);
@@ -902,6 +904,7 @@ public interface IASTVisitor<T> {
   public T visitExpressionAmbiguity(Expression.Ambiguity x);
   public T visitSyntaxDefinitionAmbiguity(SyntaxDefinition.Ambiguity x);
   public T visitPathTailAmbiguity(PathTail.Ambiguity x);
+  public T visitOptionalCommaAmbiguity(OptionalComma.Ambiguity x);
   public T visitKindAmbiguity(Kind.Ambiguity x);
   public T visitVisibilityAmbiguity(Visibility.Ambiguity x);
   public T visitTargetAmbiguity(Target.Ambiguity x);
