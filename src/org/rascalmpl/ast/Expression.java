@@ -33,7 +33,7 @@ public abstract class Expression extends AbstractAST {
     return false;
   }
 
-  public  getArguments() {
+  public java.util.List<org.rascalmpl.ast.Expression> getArguments() {
     throw new UnsupportedOperationException();
   }
   public boolean hasElements() {
@@ -676,14 +676,14 @@ public abstract class Expression extends AbstractAST {
   }
 
   static public class CallOrTree extends Expression {
-    // Production: sig("CallOrTree",[arg("org.rascalmpl.ast.Expression","expression"),arg("","arguments"),arg("org.rascalmpl.ast.KeyWordArguments","keywordArguments")])
+    // Production: sig("CallOrTree",[arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","arguments"),arg("org.rascalmpl.ast.KeyWordArguments","keywordArguments")])
   
     
     private final org.rascalmpl.ast.Expression expression;
-    private final  arguments;
+    private final java.util.List<org.rascalmpl.ast.Expression> arguments;
     private final org.rascalmpl.ast.KeyWordArguments keywordArguments;
   
-    public CallOrTree(IConstructor node , org.rascalmpl.ast.Expression expression,   arguments,  org.rascalmpl.ast.KeyWordArguments keywordArguments) {
+    public CallOrTree(IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> arguments,  org.rascalmpl.ast.KeyWordArguments keywordArguments) {
       super(node);
       
       this.expression = expression;
@@ -712,7 +712,7 @@ public abstract class Expression extends AbstractAST {
       return true;
     }
     @Override
-    public  getArguments() {
+    public java.util.List<org.rascalmpl.ast.Expression> getArguments() {
       return this.arguments;
     }
   

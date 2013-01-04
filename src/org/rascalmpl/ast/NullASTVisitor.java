@@ -1546,6 +1546,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitOptionalCommaLexical(OptionalComma.Lexical x) { 
+    return null; 
+  }
+
   public T visitPathCharsLexical(PathChars.Lexical x) { 
     return null; 
   }
@@ -1936,6 +1940,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitPathTailAmbiguity(PathTail.Ambiguity x) { 
+    return null; 
+  }
+
+  public T visitOptionalCommaAmbiguity(OptionalComma.Ambiguity x) { 
     return null; 
   }
 
