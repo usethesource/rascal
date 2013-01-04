@@ -65,7 +65,7 @@ public test bool tst_classify(set[int] S) {
    return false;
  }
  
- if (c <- classes, getClass(c) notin classes[c]) {
+ if (c <- classes, e <- classes[c], getClass(e) notin classes) {
    return false;
  }
  
