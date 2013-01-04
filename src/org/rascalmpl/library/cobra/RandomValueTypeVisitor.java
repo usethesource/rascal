@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.rascalmpl.library.cobra;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,6 +40,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.uri.URIUtil;
 
 public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
@@ -329,7 +332,31 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitSourceLocation(Type type) {
-		return vf.sourceLocation("tmp:///");
+	  if (maxDepth <= 0) {
+	    return vf.sourceLocation(URIUtil.assumeCorrect("tmp:///"));
+	  }
+	  else {
+      try {
+        String path = Math.random() < 0.9 ? RandomStringUtils.randomAlphanumeric(5) : RandomStringUtils.random(5);
+        String nested = "";
+        URI uri = URIUtil.assumeCorrect("tmp:///");
+        
+        if (Math.random() > 0.5) {
+          RandomValueTypeVisitor visitor = descend();
+          ISourceLocation loc = (ISourceLocation) visitor.generate(type);
+          uri = loc.getURI();
+          nested = uri.getPath();
+        }
+        
+        path = path.startsWith("/") ? path : "/" + path;
+        uri = URIUtil.changePath(uri, nested.length() > 0 && !nested.equals("/") ? nested + path : path);
+        
+        return vf.sourceLocation(uri);
+      } catch (URISyntaxException e) {
+        // generated illegal URI?
+        return vf.sourceLocation(URIUtil.assumeCorrect("tmp:///"));
+      }
+	  }
 	}
 
 	@Override
