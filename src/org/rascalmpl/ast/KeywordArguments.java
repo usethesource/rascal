@@ -23,32 +23,32 @@ import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
-public abstract class KeyWordArgument extends AbstractAST {
-  public KeyWordArgument(IConstructor node) {
+public abstract class KeywordArguments extends AbstractAST {
+  public KeywordArguments(IConstructor node) {
     super();
   }
 
   
-  public boolean hasExpression() {
+  public boolean hasKeywordArguments() {
     return false;
   }
 
-  public org.rascalmpl.ast.Expression getExpression() {
+  public java.util.List<org.rascalmpl.ast.KeywordArgument> getKeywordArguments() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasName() {
+  public boolean hasOptionalComma() {
     return false;
   }
 
-  public org.rascalmpl.ast.Name getName() {
+  public org.rascalmpl.ast.OptionalComma getOptionalComma() {
     throw new UnsupportedOperationException();
   }
 
-  static public class Ambiguity extends KeyWordArgument {
-    private final java.util.List<org.rascalmpl.ast.KeyWordArgument> alternatives;
+  static public class Ambiguity extends KeywordArguments {
+    private final java.util.List<org.rascalmpl.ast.KeywordArguments> alternatives;
     private final IConstructor node;
            
-    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.KeyWordArgument> alternatives) {
+    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.KeywordArguments> alternatives) {
       super(node);
       this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
@@ -74,12 +74,12 @@ public abstract class KeyWordArgument extends AbstractAST {
       throw new Ambiguous(src);
     }
     
-    public java.util.List<org.rascalmpl.ast.KeyWordArgument> getAlternatives() {
+    public java.util.List<org.rascalmpl.ast.KeywordArguments> getAlternatives() {
       return alternatives;
     }
     
     public <T> T accept(IASTVisitor<T> v) {
-    	return v.visitKeyWordArgumentAmbiguity(this);
+    	return v.visitKeywordArgumentsAmbiguity(this);
     }
   }
 
@@ -90,18 +90,18 @@ public abstract class KeyWordArgument extends AbstractAST {
     return false;
   }
 
-  static public class Default extends KeyWordArgument {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","expression")])
+  static public class Default extends KeywordArguments {
+    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordArgument\>","keywordArguments")])
   
     
-    private final org.rascalmpl.ast.Name name;
-    private final org.rascalmpl.ast.Expression expression;
+    private final org.rascalmpl.ast.OptionalComma optionalComma;
+    private final java.util.List<org.rascalmpl.ast.KeywordArgument> keywordArguments;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression expression) {
+    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordArgument> keywordArguments) {
       super(node);
       
-      this.name = name;
-      this.expression = expression;
+      this.optionalComma = optionalComma;
+      this.keywordArguments = keywordArguments;
     }
   
     @Override
@@ -111,27 +111,53 @@ public abstract class KeyWordArgument extends AbstractAST {
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKeyWordArgumentDefault(this);
+      return visitor.visitKeywordArgumentsDefault(this);
     }
   
     
     @Override
-    public org.rascalmpl.ast.Name getName() {
-      return this.name;
+    public org.rascalmpl.ast.OptionalComma getOptionalComma() {
+      return this.optionalComma;
     }
   
     @Override
-    public boolean hasName() {
+    public boolean hasOptionalComma() {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.Expression getExpression() {
-      return this.expression;
+    public java.util.List<org.rascalmpl.ast.KeywordArgument> getKeywordArguments() {
+      return this.keywordArguments;
     }
   
     @Override
-    public boolean hasExpression() {
+    public boolean hasKeywordArguments() {
       return true;
     }	
+  }
+  public boolean isNone() {
+    return false;
+  }
+
+  static public class None extends KeywordArguments {
+    // Production: sig("None",[])
+  
+    
+  
+    public None(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isNone() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitKeywordArgumentsNone(this);
+    }
+  
+    	
   }
 }

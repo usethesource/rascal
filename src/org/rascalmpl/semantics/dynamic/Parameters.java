@@ -9,6 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
@@ -18,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Formals;
-import org.rascalmpl.ast.KeyWordFormals;
+import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -34,7 +35,7 @@ public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 	}
 
 	static public class Default extends org.rascalmpl.ast.Parameters.Default {
-		public Default(IConstructor __param1, Formals __param2, KeyWordFormals __param3) {
+		public Default(IConstructor __param1, Formals __param2, KeywordFormals __param3) {
 			super(__param1, __param2, __param3);
 		}
 
@@ -52,8 +53,8 @@ public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 
 	static public class VarArgs extends org.rascalmpl.ast.Parameters.VarArgs {
 
-		public VarArgs(IConstructor __param1, Formals __param2) {
-			super(__param1, __param2);
+		public VarArgs(IConstructor __param1, Formals __param2, KeywordFormals __param3) {
+			super(__param1, __param2, __param3);
 		}
 
 		@Override

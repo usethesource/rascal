@@ -23,8 +23,8 @@ import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
-public abstract class KeyWordFormal extends AbstractAST {
-  public KeyWordFormal(IConstructor node) {
+public abstract class KeywordFormal extends AbstractAST {
+  public KeywordFormal(IConstructor node) {
     super();
   }
 
@@ -51,11 +51,11 @@ public abstract class KeyWordFormal extends AbstractAST {
     throw new UnsupportedOperationException();
   }
 
-  static public class Ambiguity extends KeyWordFormal {
-    private final java.util.List<org.rascalmpl.ast.KeyWordFormal> alternatives;
+  static public class Ambiguity extends KeywordFormal {
+    private final java.util.List<org.rascalmpl.ast.KeywordFormal> alternatives;
     private final IConstructor node;
            
-    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.KeyWordFormal> alternatives) {
+    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.KeywordFormal> alternatives) {
       super(node);
       this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
@@ -81,12 +81,12 @@ public abstract class KeyWordFormal extends AbstractAST {
       throw new Ambiguous(src);
     }
     
-    public java.util.List<org.rascalmpl.ast.KeyWordFormal> getAlternatives() {
+    public java.util.List<org.rascalmpl.ast.KeywordFormal> getAlternatives() {
       return alternatives;
     }
     
     public <T> T accept(IASTVisitor<T> v) {
-    	return v.visitKeyWordFormalAmbiguity(this);
+    	return v.visitKeywordFormalAmbiguity(this);
     }
   }
 
@@ -97,7 +97,7 @@ public abstract class KeyWordFormal extends AbstractAST {
     return false;
   }
 
-  static public class Default extends KeyWordFormal {
+  static public class Default extends KeywordFormal {
     // Production: sig("Default",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","expression")])
   
     
@@ -120,7 +120,7 @@ public abstract class KeyWordFormal extends AbstractAST {
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKeyWordFormalDefault(this);
+      return visitor.visitKeywordFormalDefault(this);
     }
   
     

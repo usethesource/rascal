@@ -225,5 +225,10 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		}
 
 	}
+
+	@Override
+	public boolean hasKeywordArgs() {
+		return false;
+	}
 	
 }

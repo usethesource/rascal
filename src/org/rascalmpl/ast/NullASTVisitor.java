@@ -725,27 +725,27 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitKeyWordArgumentDefault(KeyWordArgument.Default x) { 
+  public T visitKeywordArgumentDefault(KeywordArgument.Default x) { 
     return null; 
   }
 
-  public T visitKeyWordArgumentsDefault(KeyWordArguments.Default x) { 
+  public T visitKeywordArgumentsDefault(KeywordArguments.Default x) { 
     return null; 
   }
 
-  public T visitKeyWordArgumentsNone(KeyWordArguments.None x) { 
+  public T visitKeywordArgumentsNone(KeywordArguments.None x) { 
     return null; 
   }
 
-  public T visitKeyWordFormalDefault(KeyWordFormal.Default x) { 
+  public T visitKeywordFormalDefault(KeywordFormal.Default x) { 
     return null; 
   }
 
-  public T visitKeyWordFormalsDefault(KeyWordFormals.Default x) { 
+  public T visitKeywordFormalsDefault(KeywordFormals.Default x) { 
     return null; 
   }
 
-  public T visitKeyWordFormalsNone(KeyWordFormals.None x) { 
+  public T visitKeywordFormalsNone(KeywordFormals.None x) { 
     return null; 
   }
 
@@ -1711,10 +1711,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitKeyWordArgumentsAmbiguity(KeyWordArguments.Ambiguity x) { 
-    return null; 
-  }
-
   public T visitAssignmentAmbiguity(Assignment.Ambiguity x) { 
     return null; 
   }
@@ -1780,6 +1776,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x) { 
+    return null; 
+  }
+
+  public T visitKeywordFormalsAmbiguity(KeywordFormals.Ambiguity x) { 
     return null; 
   }
 
@@ -1871,10 +1871,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitKeyWordArgumentAmbiguity(KeyWordArgument.Ambiguity x) { 
-    return null; 
-  }
-
   public T visitUserTypeAmbiguity(UserType.Ambiguity x) { 
     return null; 
   }
@@ -1907,10 +1903,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitKeyWordFormalsAmbiguity(KeyWordFormals.Ambiguity x) { 
-    return null; 
-  }
-
   public T visitFunctionBodyAmbiguity(FunctionBody.Ambiguity x) { 
     return null; 
   }
@@ -1924,10 +1916,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitOptionalExpressionAmbiguity(OptionalExpression.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitKeyWordFormalAmbiguity(KeyWordFormal.Ambiguity x) { 
     return null; 
   }
 
@@ -2023,6 +2011,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitKeywordArgumentAmbiguity(KeywordArgument.Ambiguity x) { 
+    return null; 
+  }
+
   public T visitDataTypeSelectorAmbiguity(DataTypeSelector.Ambiguity x) { 
     return null; 
   }
@@ -2079,6 +2071,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitKeywordFormalAmbiguity(KeywordFormal.Ambiguity x) { 
+    return null; 
+  }
+
   public T visitDateAndTimeAmbiguity(DateAndTime.Ambiguity x) { 
     return null; 
   }
@@ -2100,6 +2096,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitLiteralAmbiguity(Literal.Ambiguity x) { 
+    return null; 
+  }
+
+  public T visitKeywordArgumentsAmbiguity(KeywordArguments.Ambiguity x) { 
     return null; 
   }
 
