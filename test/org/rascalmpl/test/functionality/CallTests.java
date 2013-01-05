@@ -18,9 +18,12 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
+import org.rascalmpl.interpreter.staticErrors.NoKeywordParametersError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameterError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
@@ -248,5 +251,75 @@ public class CallTests extends TestFramework{
 
 		assertTrue(runTestInSameEvaluator("[f(`x`),f(`y`),f(`z`)] == [1,2,3]"));
 	}
+	
+	@Test public void keywordTest1(){
+		prepare("int incr(int x, int delta=1) = x + delta;");
+		assertTrue(runTestInSameEvaluator("incr(3) == 4;"));
+		assertTrue(runTestInSameEvaluator("incr(3, delta=2) == 5;"));
+	}
+	
+	@Test public void keywordTest2(){
+		prepare("int sum(int x = 0, int y = 0) = x + y;");
+		assertTrue(runTestInSameEvaluator("sum() == 0;"));
+		assertTrue(runTestInSameEvaluator("sum(x=5, y=7) == 5 + 7;"));
+		assertTrue(runTestInSameEvaluator("sum(y=7, x=5) == 5 + 7;"));
+	}
+	
+	@Test public void keywordTest3(){
+		prepare("list[int] varargs(int x, int y ..., int z = 0, str q = \"a\") = y;");
+		assertTrue(runTestInSameEvaluator("varargs(1,2,3,4) == [2,3,4];"));
+		assertTrue(runTestInSameEvaluator("varargs(1,2,3,4,q=\"b\") == [2,3,4];"));
+		assertTrue(runTestInSameEvaluator("varargs(1,2,3,4,z=5) == [2,3,4];"));
+		assertTrue(runTestInSameEvaluator("varargs(1,2,3,4,q=\"b\",z=5) == [2,3,4];"));
+	}
+	
+	@Test public void keywordTest4(){
+		prepare("data Figure (real shrink = 1.0, str fillColor = \"white\", str lineColor = \"black\")  =  emptyFigure() | ellipse(Figure inner = emptyFigure()) | box(Figure inner = emptyFigure());");
+		
+		assertTrue(runTestInSameEvaluator("emptyFigure().fillColor == \"white\";"));
+		assertTrue(runTestInSameEvaluator("emptyFigure(shrink=0.5).fillColor == \"white\";"));
+		assertTrue(runTestInSameEvaluator("emptyFigure(lineColor=\"red\").fillColor == \"white\";"));
+		assertTrue(runTestInSameEvaluator("emptyFigure(lineColor=\"red\", shrink=0.5).fillColor == \"white\";"));
+		
+		assertTrue(runTestInSameEvaluator("emptyFigure(fillColor=\"red\").fillColor == \"red\";"));
+		assertTrue(runTestInSameEvaluator("emptyFigure(shrink=0.5,fillColor=\"red\").fillColor == \"red\";"));
+		assertTrue(runTestInSameEvaluator("emptyFigure(shrink=0.5,fillColor=\"red\", lineColor=\"black\").fillColor == \"red\";"));
+		assertTrue(runTestInSameEvaluator("emptyFigure(lineColor=\"red\", shrink=0.5).fillColor == \"white\";"));
+		
+		assertTrue(runTestInSameEvaluator("ellipse().fillColor == \"white\";"));
+		assertTrue(runTestInSameEvaluator("ellipse(inner=emptyFigure(fillColor=\"red\")).fillColor == \"white\";"));
+		assertTrue(runTestInSameEvaluator("ellipse(inner=emptyFigure(fillColor=\"red\")).inner.fillColor == \"red\";"));
+	}
+	
+	@Test(expected=ArgumentsMismatchError.class)
+	public void keywordError1() {
+		prepare("int incr(int x, int delta=1) = x + delta;");
+		runTestInSameEvaluator("incr(delta=3);");
+	}
+	
+	@Test(expected=ArgumentsMismatchError.class)
+	public void keywordError2() {
+		prepare("int incr(int x, int delta=1) = x + delta;");
+		runTestInSameEvaluator("incr(1, 3);");
+	}
+	
+	@Test(expected=UnexpectedKeywordArgumentTypeError.class)
+	public void keywordError3() {
+		prepare("int incr(int x, int delta=1) = x + delta;");
+		runTestInSameEvaluator("incr(3, delta=\"a\");");
+	}
+	
+	@Test(expected=UndeclaredKeywordParameterError.class)
+	public void keywordError4() {
+		prepare("int incr(int x, int delta=1) = x + delta;");
+		runTestInSameEvaluator("incr(3, d=5);");
+	}
+	
+	@Test(expected=NoKeywordParametersError.class)
+	public void keywordError5() {
+		prepare("int add1(int x) = x + 1;");
+		runTestInSameEvaluator("add1(3, delta=5);");
+	}
+	
 }
 
