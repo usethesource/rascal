@@ -29,6 +29,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.Pair;
+import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
 import org.rascalmpl.interpreter.staticErrors.NoKeywordParametersError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameterError;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -83,6 +84,7 @@ public class ConstructorFunction extends NamedFunction {
 		int missing = constructorType.getArity() - actualTypes.length;
 		if(missing == 0 || keywordParameterDefaults == null)
 			return actualTypes;
+		
 		Type[] extendedActualTypes = new Type[constructorType.getArity()];
 	
 		
@@ -93,15 +95,23 @@ public class ConstructorFunction extends NamedFunction {
 		int k = actualTypes.length;
 		
 		if(keyArgValues == null){
+			if(constructorType.getArity() < actualTypes.length + keywordParameterDefaults.size()){
+				throw new ArgumentsMismatchError("Too many arguments", ctx.getCurrentAST());
+			}
 			for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
 					extendedActualTypes[k++] = pair.getSecond().getType();
 			}
 			return extendedActualTypes;
 		}
 		
-		if(keywordParameterDefaults == null)
-			throw new NoKeywordParametersError(getName(), ctx.getCurrentAST());
-		
+//		if(keywordParameterDefaults == null)
+//			throw new NoKeywordParametersError(getName(), ctx.getCurrentAST());
+//		
+		if(constructorType.getArity() < actualTypes.length + keyArgValues.size()){
+			throw new ArgumentsMismatchError("Too many arguments", ctx.getCurrentAST());
+		}
+			
+			
 		int nBoundKeywordArgs = 0;
 		for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
 			String kwparam = pair.getFirst();
