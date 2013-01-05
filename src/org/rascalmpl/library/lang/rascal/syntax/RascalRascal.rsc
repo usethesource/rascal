@@ -7,9 +7,9 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
-@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
 @bootstrapParser
 module lang::rascal::\syntax::RascalRascal
@@ -146,7 +146,7 @@ syntax Header
 	| \default: Tags tags "module" QualifiedName name Import* imports ;
 
 lexical Name
-    // Names are surrounded by non-alphabetical characters, i.e. we want longest match.
+    // Names are surrounded by non-alphabetical characters, i.e. we want longest match of alphabetical characters
 	=  ([A-Z a-z _] !<< [A-Z _ a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) \ RascalKeywords 
 	| [\\] [A-Z _ a-z] [\- 0-9 A-Z _ a-z]* !>> [\- 0-9 A-Z _ a-z] 
 	;
@@ -404,6 +404,11 @@ lexical ProtocolChars
 lexical RegExpModifier
 	= [d i m s]* ;
 
+syntax CommonKeywordParameters =
+      absent: ()
+    | present: "(" {KeywordFormal ","}+ keywordFormalList ")"
+    ;
+    
 syntax Parameters
 	= \default: "(" Formals formals KeywordFormals keywordFormals")" 
 	| varArgs: "(" Formals formals "..." KeywordFormals keywordFormals ")" 
@@ -412,15 +417,14 @@ syntax Parameters
 lexical OptionalComma = \default: ","? ;
 
 syntax KeywordFormals
-	= \default: OptionalComma optionalComma {KeywordFormal ","}+ keywordFormals
+	= \default: OptionalComma optionalComma {KeywordFormal ","}+ keywordFormalList
 	| none: ()
 	;
 syntax KeywordFormal 
     = \default: Type type Name name "=" Expression expression
- //   | remote: "**" Type type Name name                // Must be a tuple type (or record type when we add them).
     ;
 syntax KeywordArguments
-	= \default:  OptionalComma optionalComma {KeywordArgument ","}+ keywordArguments
+	= \default:  OptionalComma optionalComma {KeywordArgument ","}+ keywordArgumentList
 	| none: ()
 	;
 syntax KeywordArgument = \default: Name name "=" Expression expression ;
@@ -713,7 +717,7 @@ syntax Declaration
 	| \alias       : Tags tags Visibility visibility "alias" UserType user "=" Type base ";" 
 	| \tag         : Tags tags Visibility visibility "tag" Kind kind Name name "on" {Type ","}+ types ";" 
 	| dataAbstract: Tags tags Visibility visibility "data" UserType user ";" 
-	| @Foldable \data : Tags tags Visibility visibility "data" UserType user "=" {Variant "|"}+ variants ";"
+	| @Foldable \data : Tags tags Visibility visibility "data" UserType user CommonKeywordParameters commonKeywordParameters"=" {Variant "|"}+ variants ";"
 	| function       : FunctionDeclaration functionDeclaration 
 	;
 

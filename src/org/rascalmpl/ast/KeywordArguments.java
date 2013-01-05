@@ -29,11 +29,11 @@ public abstract class KeywordArguments extends AbstractAST {
   }
 
   
-  public boolean hasKeywordArguments() {
+  public boolean hasKeywordArgumentList() {
     return false;
   }
 
-  public java.util.List<org.rascalmpl.ast.KeywordArgument> getKeywordArguments() {
+  public java.util.List<org.rascalmpl.ast.KeywordArgument> getKeywordArgumentList() {
     throw new UnsupportedOperationException();
   }
   public boolean hasOptionalComma() {
@@ -91,17 +91,17 @@ public abstract class KeywordArguments extends AbstractAST {
   }
 
   static public class Default extends KeywordArguments {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordArgument\>","keywordArguments")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordArgument\>","keywordArgumentList")])
   
     
     private final org.rascalmpl.ast.OptionalComma optionalComma;
-    private final java.util.List<org.rascalmpl.ast.KeywordArgument> keywordArguments;
+    private final java.util.List<org.rascalmpl.ast.KeywordArgument> keywordArgumentList;
   
-    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordArgument> keywordArguments) {
+    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordArgument> keywordArgumentList) {
       super(node);
       
       this.optionalComma = optionalComma;
-      this.keywordArguments = keywordArguments;
+      this.keywordArgumentList = keywordArgumentList;
     }
   
     @Override
@@ -125,12 +125,12 @@ public abstract class KeywordArguments extends AbstractAST {
       return true;
     }
     @Override
-    public java.util.List<org.rascalmpl.ast.KeywordArgument> getKeywordArguments() {
-      return this.keywordArguments;
+    public java.util.List<org.rascalmpl.ast.KeywordArgument> getKeywordArgumentList() {
+      return this.keywordArgumentList;
     }
   
     @Override
-    public boolean hasKeywordArguments() {
+    public boolean hasKeywordArgumentList() {
       return true;
     }	
   }

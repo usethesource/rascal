@@ -95,15 +95,6 @@ public abstract class FunctionDeclaration extends
 			if (!this.getBody().isDefault()) {
 				throw new MissingModifierError("java", this);
 			}
-			
-//			List<KeyWordFormal> kwFormals = this.getSignature().getParameters().getKeywordFormals().getKeywordFormals();
-//			HashMap<String,Result<IValue>> kwMap = null;
-//			if(kwFormals.size() > 0){
-//				kwMap = new HashMap<String,Result<IValue>>();
-//				for(KeyWordFormal kwf : kwFormals){
-//					kwMap.put(kwf.getName().toString(), kwf.getExpression().interpret(__eval));
-//				}
-//			}
 
 			lambda = new RascalFunction(__eval, this, varArgs, __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());

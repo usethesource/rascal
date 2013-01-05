@@ -39,7 +39,7 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	private final String name;
 
 	public AbstractPatternDispatchedFunction(IEvaluator<Result<IValue>> eval, String name, Type type, Map<String, List<AbstractFunction>> alternatives) {
-		super(null, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType()), checkVarArgs(alternatives), null); // ?? I don't know if this will work..
+		super(null, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType()), checkVarArgs(alternatives), null, null); // ?? I don't know if this will work..
 		this.type = type;
 		this.alternatives = alternatives;
 		this.arity = minArity(alternatives);

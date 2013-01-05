@@ -249,6 +249,14 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitCommonKeywordParametersAbsent(CommonKeywordParameters.Absent x) { 
+    return null; 
+  }
+
+  public T visitCommonKeywordParametersPresent(CommonKeywordParameters.Present x) { 
+    return null; 
+  }
+
   public T visitComprehensionList(Comprehension.List x) { 
     return null; 
   }
@@ -1728,6 +1736,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitAssignableAmbiguity(Assignable.Ambiguity x) { 
+    return null; 
+  }
+
+  public T visitCommonKeywordParametersAmbiguity(CommonKeywordParameters.Ambiguity x) { 
     return null; 
   }
 
