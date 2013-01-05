@@ -36,7 +36,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 
 	public ConcreteConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval,
 			Environment env) {
-		super(ast, eval, env, Factory.Tree_Appl);
+		super(ast, eval, env, Factory.Tree_Appl, null);
 	}
 	
 	@Override

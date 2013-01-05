@@ -13,6 +13,7 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
@@ -474,7 +475,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				if(keywordArgs.isDefault()){
 						kwActuals = new HashMap<String,Result<IValue>>();
 						
-						for(KeywordArgument kwa : keywordArgs.getKeywordArguments()){
+						for(KeywordArgument kwa : keywordArgs.getKeywordArgumentList()){
 							kwActuals.put(kwa.getName().toString(), kwa.getExpression().interpret(__eval));
 						}
 				}

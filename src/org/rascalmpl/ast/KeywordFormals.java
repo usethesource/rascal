@@ -29,11 +29,11 @@ public abstract class KeywordFormals extends AbstractAST {
   }
 
   
-  public boolean hasKeywordFormals() {
+  public boolean hasKeywordFormalList() {
     return false;
   }
 
-  public java.util.List<org.rascalmpl.ast.KeywordFormal> getKeywordFormals() {
+  public java.util.List<org.rascalmpl.ast.KeywordFormal> getKeywordFormalList() {
     throw new UnsupportedOperationException();
   }
   public boolean hasOptionalComma() {
@@ -91,17 +91,17 @@ public abstract class KeywordFormals extends AbstractAST {
   }
 
   static public class Default extends KeywordFormals {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordFormal\>","keywordFormals")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordFormal\>","keywordFormalList")])
   
     
     private final org.rascalmpl.ast.OptionalComma optionalComma;
-    private final java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormals;
+    private final java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList;
   
-    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormals) {
+    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList) {
       super(node);
       
       this.optionalComma = optionalComma;
-      this.keywordFormals = keywordFormals;
+      this.keywordFormalList = keywordFormalList;
     }
   
     @Override
@@ -125,12 +125,12 @@ public abstract class KeywordFormals extends AbstractAST {
       return true;
     }
     @Override
-    public java.util.List<org.rascalmpl.ast.KeywordFormal> getKeywordFormals() {
-      return this.keywordFormals;
+    public java.util.List<org.rascalmpl.ast.KeywordFormal> getKeywordFormalList() {
+      return this.keywordFormalList;
     }
   
     @Override
-    public boolean hasKeywordFormals() {
+    public boolean hasKeywordFormalList() {
       return true;
     }	
   }

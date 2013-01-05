@@ -33,29 +33,24 @@ import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.staticErrors.NoKeywordParametersError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameterError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.FunctionType;
 
 abstract public class NamedFunction extends AbstractFunction {
 	protected final String name;
-	protected final List<Pair<String, Result<IValue>>> keywordParameterDefaults;
+	//protected final List<Pair<String, Result<IValue>>> keywordParameterDefaults;
 	protected Type keywordParameterTypes[];
 	
 	public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, String name,
-			boolean varargs, Environment env) {
-		super(ast, eval, functionType, varargs, env);
+			boolean varargs, List<Pair<String, Result<IValue>>> keyargs, Environment env) {
+		super(ast, eval, functionType, varargs, keyargs, env);
 		this.name = name;
-		this.keywordParameterDefaults = computeKeywordParameterDefaults();
+		this.keywordParameterDefaults = (keyargs == null) ? computeKeywordParameterDefaults() : keyargs;
+		this.hasKeyArgs = keywordParameterDefaults != null && keywordParameterDefaults.size() > 0;
 	}
 
 	@Override
 	public String getName() {
 		return name;
-	}
-	
-	@Override
-	public boolean hasKeywordArgs() {
-		return keywordParameterDefaults != null;
 	}
 	
 	private List<KeywordFormal> getKeywordDefaults(){
@@ -67,7 +62,7 @@ abstract public class NamedFunction extends AbstractFunction {
 		else if(ast instanceof Variant){
 			Variant var = ((Variant) ast);
 			if(var.getKeywordArguments().isDefault()){
-				return var.getKeywordArguments().getKeywordFormals();
+				return var.getKeywordArguments().getKeywordFormalList();
 			}	
 		}
 		else if (ast instanceof Closure) {
@@ -81,7 +76,7 @@ abstract public class NamedFunction extends AbstractFunction {
 		}
 		if(params != null){
 			if(params.getKeywordFormals().isDefault())
-				return params.getKeywordFormals().getKeywordFormals();
+				return params.getKeywordFormals().getKeywordFormalList();
 		}
 		return null;
 	}
@@ -105,8 +100,14 @@ abstract public class NamedFunction extends AbstractFunction {
 				kwdefaults.add(new Pair<String,Result<IValue>>(kwf.getName().toString(), kwf.getExpression().interpret(this.eval)));
 			}
 		}
-
 		return kwdefaults;
+//		if(kwdefaults == null){
+//			return kwInherited;
+//		} else {
+//			if(kwInherited != null)
+//				kwdefaults.addAll(kwInherited);
+//			return kwdefaults;
+//		}
 	}
 	
 	protected void bindKeywordArgs(Map<String, Result<IValue>> keyArgValues){

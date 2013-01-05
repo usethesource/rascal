@@ -18,6 +18,7 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -37,8 +38,8 @@ import org.rascalmpl.values.uptr.Factory;
 public class ConstructorFunction extends NamedFunction {
 	private Type constructorType;
 
-	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType) {
-		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes()), constructorType.getName(), false, env);
+	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<Pair<String,Result<IValue>>> keyargs) {
+		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes()), constructorType.getName(), false, keyargs, env);
 		this.constructorType = constructorType;
 	}
 
@@ -146,11 +147,11 @@ public class ConstructorFunction extends NamedFunction {
 //		if(keywordParameterDefaults == null)
 //			throw new NoKeywordParametersError(getName(), ctx.getCurrentAST());
 		
-		int nBoundKeywordArgs = 0;
+//		int nBoundKeywordArgs = 0;
 		for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
 			String kwparam = pair.getFirst();
 			if(keyArgValues.containsKey(kwparam)){
-				nBoundKeywordArgs++;
+//				nBoundKeywordArgs++;
 				Result<IValue> r = keyArgValues.get(kwparam);
 				extendedActuals[k++] = r.getValue();
 			} else {

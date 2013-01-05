@@ -37,7 +37,7 @@ public class DynamicGenerator extends AbstractFunction {
 			HashMap<Type, ICallableValue> generators) {
 		super(null, eval, (FunctionType) RascalTypeFactory.getInstance()
 				.functionType(returnType,
-						TypeFactory.getInstance().integerType()), false, env);
+						TypeFactory.getInstance().integerType()), false, null, env);
 		this.generators = generators;
 	}
 

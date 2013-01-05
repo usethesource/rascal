@@ -507,9 +507,9 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType) {
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<Pair<String, Result<IValue>>> keyargs) {
 		Type cons = TF.constructorFromTuple(typeStore, adt, name, tupleType);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -518,9 +518,9 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name,
-			Object... childrenAndLabels) {
+			List<Pair<String, Result<IValue>>> keyargs, Object... childrenAndLabels) {
 		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -528,9 +528,9 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Type... children) {
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<Pair<String, Result<IValue>>> keyargs, Type... children) {
 		Type cons = TF.constructor(typeStore, nodeType, name, children);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);

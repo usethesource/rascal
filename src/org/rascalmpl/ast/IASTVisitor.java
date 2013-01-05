@@ -133,6 +133,10 @@ public interface IASTVisitor<T> {
 
   public T visitCommandsList(Commands.List x);
 
+  public T visitCommonKeywordParametersAbsent(CommonKeywordParameters.Absent x);
+
+  public T visitCommonKeywordParametersPresent(CommonKeywordParameters.Present x);
+
   public T visitComprehensionList(Comprehension.List x);
 
   public T visitComprehensionMap(Comprehension.Map x);
@@ -851,6 +855,7 @@ public interface IASTVisitor<T> {
   public T visitHexIntegerLiteralAmbiguity(HexIntegerLiteral.Ambiguity x);
   public T visitMapping_ExpressionAmbiguity(Mapping_Expression.Ambiguity x);
   public T visitAssignableAmbiguity(Assignable.Ambiguity x);
+  public T visitCommonKeywordParametersAmbiguity(CommonKeywordParameters.Ambiguity x);
   public T visitBasicTypeAmbiguity(BasicType.Ambiguity x);
   public T visitRegExpLiteralAmbiguity(RegExpLiteral.Ambiguity x);
   public T visitVariantAmbiguity(Variant.Ambiguity x);
