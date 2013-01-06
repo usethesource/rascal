@@ -29,6 +29,7 @@ import org.rascalmpl.ast.Variant;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.staticErrors.NoKeywordParametersError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameterError;
@@ -41,7 +42,7 @@ abstract public class NamedFunction extends AbstractFunction {
 	protected Type keywordParameterTypes[];
 	
 	public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, String name,
-			boolean varargs, List<Pair<String, Result<IValue>>> keyargs, Environment env) {
+			boolean varargs, List<KeywordParameter> keyargs, Environment env) {
 		super(ast, eval, functionType, varargs, keyargs, env);
 		this.name = name;
 		this.keywordParameterDefaults = (keyargs == null) ? computeKeywordParameterDefaults() : keyargs;
@@ -81,14 +82,14 @@ abstract public class NamedFunction extends AbstractFunction {
 		return null;
 	}
 	
-	private List<Pair<String, Result<IValue>>> computeKeywordParameterDefaults(){
-		LinkedList<Pair<String,Result<IValue>>> kwdefaults = null;
+	private List<KeywordParameter> computeKeywordParameterDefaults(){
+		LinkedList<KeywordParameter> kwdefaults = null;
 
 		List<KeywordFormal> kwformals = getKeywordDefaults();
 		
 		if(kwformals != null && kwformals.size() > 0){
 			keywordParameterTypes = new Type[kwformals.size()];
-			kwdefaults = new LinkedList<Pair<String,Result<IValue>>>();
+			kwdefaults = new LinkedList<KeywordParameter>();
 			
 			for(int i = 0; i < kwformals.size(); i++){
 				KeywordFormal kwf = kwformals.get(i);
@@ -97,7 +98,7 @@ abstract public class NamedFunction extends AbstractFunction {
 				if(!r.getType().isSubtypeOf(keywordParameterTypes[i])){
 					throw new UnexpectedKeywordArgumentTypeError(kwf.getName().toString(), keywordParameterTypes[i], r.getType(), ast);
 				}
-				kwdefaults.add(new Pair<String,Result<IValue>>(kwf.getName().toString(), kwf.getExpression().interpret(this.eval)));
+				kwdefaults.add(new KeywordParameter(kwf.getName().toString(), keywordParameterTypes[i], r));
 			}
 		}
 		return kwdefaults;
@@ -114,9 +115,9 @@ abstract public class NamedFunction extends AbstractFunction {
 		Environment env = ctx.getCurrentEnvt();
 		if(keyArgValues == null){
 			if(keywordParameterDefaults != null){
-				for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
-					String kwparam= pair.getFirst();
-					Result<IValue> r = pair.getSecond();
+				for(KeywordParameter pair : keywordParameterDefaults){
+					String kwparam= pair.getName();
+					Result<IValue> r = pair.getDefault();
 					env.declareVariable(r.getType(), kwparam);
 					env.storeVariable(kwparam,r);
 				}
@@ -128,8 +129,8 @@ abstract public class NamedFunction extends AbstractFunction {
 		
 		int nBoundKeywordArgs = 0;
 		int k = 0;
-		for(Pair<String, Result<IValue>> pair: keywordParameterDefaults){
-			String kwparam = pair.getFirst();
+		for(KeywordParameter kw: keywordParameterDefaults){
+			String kwparam = kw.getName();
 			if(keyArgValues.containsKey(kwparam)){
 				nBoundKeywordArgs++;
 				Result<IValue> r = keyArgValues.get(kwparam);
@@ -139,7 +140,7 @@ abstract public class NamedFunction extends AbstractFunction {
 				env.declareVariable(r.getType(), kwparam);
 				env.storeVariable(kwparam, r);
 			} else {
-				Result<IValue> r = pair.getSecond();
+				Result<IValue> r = kw.getDefault();
 				env.declareVariable(r.getType(), kwparam);
 				env.storeVariable(kwparam, r);
 			}
@@ -148,8 +149,8 @@ abstract public class NamedFunction extends AbstractFunction {
 		if(nBoundKeywordArgs != keyArgValues.size()){
 			main:
 			for(String kwparam : keyArgValues.keySet())
-				for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
-					if(kwparam.equals(pair.getFirst()))
+				for(KeywordParameter kw : keywordParameterDefaults){
+					if(kwparam.equals(kw.getName()))
 							continue main;
 					throw new UndeclaredKeywordParameterError(getName(), kwparam, ctx.getCurrentAST());
 				}
@@ -175,9 +176,9 @@ abstract public class NamedFunction extends AbstractFunction {
 		if(keywordParameterDefaults != null){
 			sep = (strFormals.length() > 0) ? ", " : "";
 				
-			for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
-				Result<IValue> r = pair.getSecond();
-				kwFormals += sep + r.getType() + " " + pair.getFirst() + "=" + r.getValue();
+			for(KeywordParameter kw : keywordParameterDefaults){
+				Result<IValue> r = kw.getDefault();
+				kwFormals += sep + r.getType() + " " + kw.getName() + "=" + r.getValue();
 				sep = ", ";
 			}
 		}

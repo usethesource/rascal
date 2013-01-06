@@ -506,7 +506,7 @@ public class ModuleEnvironment extends Environment {
 		return sort;
 	}
 	
-	private Type makeTupleType(Type adt, String name, Type tupleType, List<Pair<String, Result<IValue>>> keyargs){
+	private Type makeTupleType(Type adt, String name, Type tupleType, List<KeywordParameter> keyargs){
 		if(keyargs == null){
 			return TF.constructorFromTuple(typeStore, adt, name, tupleType);
 		} else {
@@ -515,7 +515,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<Pair<String, Result<IValue>>> keyargs) {
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordParameter> keyargs) {
 		Type cons = makeTupleType(adt, name, tupleType, keyargs);
 		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
 		storeFunction(name, function);
@@ -526,7 +526,7 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name,
-			List<Pair<String, Result<IValue>>> keyargs, Object... childrenAndLabels) {
+			List<KeywordParameter> keyargs, Object... childrenAndLabels) {
 		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels);
 		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
 		storeFunction(name, function);
@@ -536,7 +536,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<Pair<String, Result<IValue>>> keyargs, Type... children) {
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Type... children) {
 		Type cons = TF.constructor(typeStore, nodeType, name, children);
 		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
 		storeFunction(name, function);
