@@ -81,13 +81,21 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	protected Type[] addKeywordTypes(Type[] actualTypes, Map<String, Result<IValue>> keyArgValues){
-		int missing = constructorType.getArity() - actualTypes.length;
-		if(missing == 0 || keywordParameterDefaults == null)
+		if(constructorType.getArity() == actualTypes.length && keywordParameterDefaults == null)
 			return actualTypes;
 		
+		if(constructorType.getPositionalArity() < actualTypes.length){
+			throw new ArgumentsMismatchError("Too many arguments for constructor " + getName(), ctx.getCurrentAST());
+		}
+		if(constructorType.getPositionalArity() > actualTypes.length){
+			throw new ArgumentsMismatchError("Too few arguments for constructor " + getName(), ctx.getCurrentAST());
+		}
+		
+		if(!constructorType.hasDefaults() && keyArgValues != null)
+			throw new NoKeywordParametersError(getName(), ctx.getCurrentAST());
+
 		Type[] extendedActualTypes = new Type[constructorType.getArity()];
 	
-		
 		for(int i = 0; i < actualTypes.length; i++){
 			extendedActualTypes[i] = actualTypes[i];
 		}
@@ -95,23 +103,13 @@ public class ConstructorFunction extends NamedFunction {
 		int k = actualTypes.length;
 		
 		if(keyArgValues == null){
-			if(constructorType.getArity() < actualTypes.length + keywordParameterDefaults.size()){
-				throw new ArgumentsMismatchError("Too many arguments", ctx.getCurrentAST());
-			}
+			
 			for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
 					extendedActualTypes[k++] = pair.getSecond().getType();
 			}
 			return extendedActualTypes;
 		}
-		
-//		if(keywordParameterDefaults == null)
-//			throw new NoKeywordParametersError(getName(), ctx.getCurrentAST());
-//		
-		if(constructorType.getArity() < actualTypes.length + keyArgValues.size()){
-			throw new ArgumentsMismatchError("Too many arguments", ctx.getCurrentAST());
-		}
-			
-			
+	
 		int nBoundKeywordArgs = 0;
 		for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
 			String kwparam = pair.getFirst();
