@@ -151,6 +151,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return hasKeyArgs;
 	}
 	
+	public List<Pair<String, Result<IValue>>> getKeywordParameterDefaults(){
+		return keywordParameterDefaults;
+	}
+	
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
