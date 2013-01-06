@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.strategy;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -25,9 +27,9 @@ public class StrategyFunction extends AbstractStrategy {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		if (argTypes[0].comparable(function.getFormals().getFieldType(0))) {
-			return function.call(argTypes, argValues);
+			return function.call(argTypes, argValues, null);
 		}
 		
 		// identity

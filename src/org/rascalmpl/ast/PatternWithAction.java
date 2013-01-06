@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,6 +29,13 @@ public abstract class PatternWithAction extends AbstractAST {
   }
 
   
+  public boolean hasPattern() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getPattern() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasReplacement() {
     return false;
   }
@@ -41,13 +48,6 @@ public abstract class PatternWithAction extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Statement getStatement() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasPattern() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getPattern() {
     throw new UnsupportedOperationException();
   }
 
@@ -93,54 +93,6 @@ public abstract class PatternWithAction extends AbstractAST {
   
 
   
-  public boolean isReplacing() {
-    return false;
-  }
-
-  static public class Replacing extends PatternWithAction {
-    // Production: sig("Replacing",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Replacement","replacement")])
-  
-    
-    private final org.rascalmpl.ast.Expression pattern;
-    private final org.rascalmpl.ast.Replacement replacement;
-  
-    public Replacing(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Replacement replacement) {
-      super(node);
-      
-      this.pattern = pattern;
-      this.replacement = replacement;
-    }
-  
-    @Override
-    public boolean isReplacing() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitPatternWithActionReplacing(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Expression getPattern() {
-      return this.pattern;
-    }
-  
-    @Override
-    public boolean hasPattern() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Replacement getReplacement() {
-      return this.replacement;
-    }
-  
-    @Override
-    public boolean hasReplacement() {
-      return true;
-    }	
-  }
   public boolean isArbitrary() {
     return false;
   }
@@ -186,6 +138,54 @@ public abstract class PatternWithAction extends AbstractAST {
   
     @Override
     public boolean hasStatement() {
+      return true;
+    }	
+  }
+  public boolean isReplacing() {
+    return false;
+  }
+
+  static public class Replacing extends PatternWithAction {
+    // Production: sig("Replacing",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Replacement","replacement")])
+  
+    
+    private final org.rascalmpl.ast.Expression pattern;
+    private final org.rascalmpl.ast.Replacement replacement;
+  
+    public Replacing(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Replacement replacement) {
+      super(node);
+      
+      this.pattern = pattern;
+      this.replacement = replacement;
+    }
+  
+    @Override
+    public boolean isReplacing() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitPatternWithActionReplacing(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getPattern() {
+      return this.pattern;
+    }
+  
+    @Override
+    public boolean hasPattern() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Replacement getReplacement() {
+      return this.replacement;
+    }
+  
+    @Override
+    public boolean hasReplacement() {
       return true;
     }	
   }

@@ -57,6 +57,14 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 		iWroteItMySelf = false;
 	}
 	
+	public QualifiedNamePattern(IEvaluatorContext ctx){
+		super(ctx, null);
+		this.anonymous = true;
+		declaredType = TypeFactory.getInstance().valueType();
+		iWroteItMySelf = false;
+	}
+
+	
 	@Override
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
