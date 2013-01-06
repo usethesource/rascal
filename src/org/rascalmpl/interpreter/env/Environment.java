@@ -608,15 +608,15 @@ public class Environment {
 		return getRoot().concreteSyntaxType(name, symbol);
 	}
 
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<Pair<String, Result<IValue>>> keyargs) {
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordParameter> keyargs) {
 		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType, keyargs);
 	}
 
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<Pair<String, Result<IValue>>> keyargs, Object... childrenAndLabels ) {
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Object... childrenAndLabels ) {
 		return getRoot().constructor(ast, eval, nodeType, name, keyargs, childrenAndLabels);
 	}
 
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<Pair<String, Result<IValue>>> keyargs, Type... children ) {
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Type... children ) {
 		return getRoot().constructor(ast, eval, nodeType, name, keyargs, children);
 	}
 

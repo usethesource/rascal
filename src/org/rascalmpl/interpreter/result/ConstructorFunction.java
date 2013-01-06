@@ -28,7 +28,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.Pair;
+import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
 import org.rascalmpl.interpreter.staticErrors.NoKeywordParametersError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameterError;
@@ -39,7 +39,7 @@ import org.rascalmpl.values.uptr.Factory;
 public class ConstructorFunction extends NamedFunction {
 	private Type constructorType;
 
-	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<Pair<String,Result<IValue>>> keyargs) {
+	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<KeywordParameter> keyargs) {
 		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes()), constructorType.getName(), false, keyargs, env);
 		this.constructorType = constructorType;
 	}
@@ -104,28 +104,28 @@ public class ConstructorFunction extends NamedFunction {
 		
 		if(keyArgValues == null){
 			
-			for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
-					extendedActualTypes[k++] = pair.getSecond().getType();
+			for(KeywordParameter kw : keywordParameterDefaults){
+					extendedActualTypes[k++] = kw.getType();
 			}
 			return extendedActualTypes;
 		}
 	
 		int nBoundKeywordArgs = 0;
-		for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
-			String kwparam = pair.getFirst();
+		for(KeywordParameter kw : keywordParameterDefaults){
+			String kwparam = kw.getName();
 			if(keyArgValues.containsKey(kwparam)){
 				nBoundKeywordArgs++;
 				Result<IValue> r = keyArgValues.get(kwparam);
 				extendedActualTypes[k++] = r.getType();
 			} else {
-				extendedActualTypes[k++] = pair.getSecond().getType();
+				extendedActualTypes[k++] = kw.getType();
 			}
 		}
 		if(nBoundKeywordArgs != keyArgValues.size()){
 			main:
 			for(String kwparam : keyArgValues.keySet())
-				for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
-					if(kwparam.equals(pair.getFirst()))
+				for(KeywordParameter kw : keywordParameterDefaults){
+					if(kwparam.equals(kw.getName()))
 							continue main;
 					throw new UndeclaredKeywordParameterError(getName(), kwparam, ctx.getCurrentAST());
 				}
@@ -145,8 +145,8 @@ public class ConstructorFunction extends NamedFunction {
 		
 		if(keyArgValues == null){
 			if(keywordParameterDefaults != null){
-				for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
-					extendedActuals[k++] = pair.getSecond().getValue();
+				for(KeywordParameter kw : keywordParameterDefaults){
+					extendedActuals[k++] = kw.getValue();
 				}
 			}
 			return extendedActuals;
@@ -156,14 +156,14 @@ public class ConstructorFunction extends NamedFunction {
 //			throw new NoKeywordParametersError(getName(), ctx.getCurrentAST());
 		
 //		int nBoundKeywordArgs = 0;
-		for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
-			String kwparam = pair.getFirst();
+		for(KeywordParameter kw : keywordParameterDefaults){
+			String kwparam = kw.getName();
 			if(keyArgValues.containsKey(kwparam)){
 //				nBoundKeywordArgs++;
 				Result<IValue> r = keyArgValues.get(kwparam);
 				extendedActuals[k++] = r.getValue();
 			} else {
-				extendedActuals[k++] = pair.getSecond().getValue();
+				extendedActuals[k++] = kw.getValue();
 			}
 		}
 //		if(nBoundKeywordArgs != keyArgValues.size()){

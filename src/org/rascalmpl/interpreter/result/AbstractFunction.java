@@ -37,6 +37,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -51,7 +52,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected final FunctionType functionType;
 	protected final boolean hasVarArgs;
 	protected boolean hasKeyArgs;
-	protected List<Pair<String, Result<IValue>>> keywordParameterDefaults;
+	protected List<KeywordParameter> keywordParameterDefaults;
 	
 	protected final static TypeStore hiddenStore = new TypeStore();
 
@@ -62,7 +63,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected static boolean callTracing = false;
 	
 	// TODO: change arguments of these constructors to use EvaluatorContexts
-	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, boolean varargs, List<Pair<String, Result<IValue>>> keyargs, Environment env) {
+	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, boolean varargs, List<KeywordParameter> keyargs, Environment env) {
 		super(functionType, null, eval);
 		this.ast = ast;
 		this.functionType = functionType;
@@ -151,7 +152,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return hasKeyArgs;
 	}
 	
-	public List<Pair<String, Result<IValue>>> getKeywordParameterDefaults(){
+	public List<KeywordParameter> getKeywordParameterDefaults(){
 		return keywordParameterDefaults;
 	}
 	

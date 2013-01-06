@@ -41,6 +41,7 @@ import org.rascalmpl.ast.UserType;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.Result;
@@ -49,6 +50,7 @@ import org.rascalmpl.interpreter.staticErrors.RedeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredTypeError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.utils.Names;
 
 public class TypeDeclarationEvaluator {
@@ -88,11 +90,17 @@ public class TypeDeclarationEvaluator {
 		Type adt = declareAbstractDataType(x.getUser(), env);
 
 		// Evaluate the keyword parameters that are common for all variants
-		List<Pair<String, Result<IValue>>> commonKwargs = new LinkedList<Pair<String, Result<IValue>>> ();
+		List<KeywordParameter> commonKwargs = new LinkedList<KeywordParameter> ();
 		if(x.getCommonKeywordParameters().isPresent()){
 			List<KeywordFormal> common = x.getCommonKeywordParameters().getKeywordFormalList();
 			for(KeywordFormal kwf : common){
-				commonKwargs.add(new Pair<String, Result<IValue>>(kwf.getName().toString(), kwf.getExpression().interpret(eval)));
+				Type declaredType = kwf.getType().typeOf(env);
+				Result<IValue> r = kwf.getExpression().interpret(eval);
+				if(r.getType().isSubtypeOf(declaredType))
+					commonKwargs.add(new KeywordParameter(kwf.getName().toString(), declaredType, r));
+				else {
+					throw new UnexpectedTypeError(declaredType, r.getType(), kwf);
+				}
 			}
 		}
 		
@@ -101,10 +109,16 @@ public class TypeDeclarationEvaluator {
 
 			if (var.isNAryConstructor()) {
 				List<TypeArg> args = var.getArguments();
-				List<Pair<String, Result<IValue>>> kwargs = new LinkedList<Pair<String, Result<IValue>>> ();
+				List<KeywordParameter> kwargs = new LinkedList<KeywordParameter> ();
 				if(var.getKeywordArguments().isDefault()){					
 					for(KeywordFormal kwf :  var.getKeywordArguments().getKeywordFormalList()){
-						kwargs.add(new Pair<String, Result<IValue>>(kwf.getName().toString(), kwf.getExpression().interpret(eval)));
+						Type declaredType = kwf.getType().typeOf(env);
+						Result<IValue> r = kwf.getExpression().interpret(eval);
+						if(r.getType().isSubtypeOf(declaredType))
+							kwargs.add(new KeywordParameter(kwf.getName().toString(), declaredType, r));
+						else {
+							throw new UnexpectedTypeError(declaredType, r.getType(), kwf);
+						}
 					}
 				}
 				kwargs.addAll(commonKwargs);
@@ -128,8 +142,8 @@ public class TypeDeclarationEvaluator {
 				}
 				
 				for(int i = 0; i < kwargs.size(); i++){
-					fields[args.size() + i] = kwargs.get(i).getSecond().getType();
-					labels[args.size() + i] = kwargs.get(i).getFirst();
+					fields[args.size() + i] = kwargs.get(i).getType();
+					labels[args.size() + i] = kwargs.get(i).getName();
 				}
 
 				Type children = tf.tupleType(fields, labels);
