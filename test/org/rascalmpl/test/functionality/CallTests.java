@@ -357,5 +357,22 @@ public class CallTests extends TestFramework{
 		runTestInSameEvaluator("d(1, y=4);");
 	}
 	
+	@Test
+	public void keywordMatchTest(){
+		prepare("data POINT = point(int x, int y, str color = \"red\");");
+		
+		assertTrue(runTestInSameEvaluator("point(_,_,_) !:= point(1,2);"));
+		assertTrue(runTestInSameEvaluator("point(_,_,\"red\") !:= point(1,2);"));
+		assertTrue(runTestInSameEvaluator("point(_,_,\"green\") !:= point(1,2, color=\"green\");"));
+		assertTrue(runTestInSameEvaluator("point(_,_,color=\"green\") := point(1,2, color=\"green\");"));
+		assertTrue(runTestInSameEvaluator("point(1,2) := point(1,2);"));
+		assertTrue(runTestInSameEvaluator("point(1,2) !:= point(1,3);"));
+		assertTrue(runTestInSameEvaluator("point(1,2) := point(1,2,color=\"red\");"));
+		assertTrue(runTestInSameEvaluator("point(1,2,color=\"red\") := point(1,2,color=\"red\");"));
+		assertTrue(runTestInSameEvaluator("point(1,2,color=\"green\") !:= point(1,2);"));
+		assertTrue(runTestInSameEvaluator("point(1,2,color=\"green\") !:= point(1,2);"));
+	}
+	
+	
 }
 
