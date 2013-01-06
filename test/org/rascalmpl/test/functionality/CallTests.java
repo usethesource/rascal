@@ -321,5 +321,41 @@ public class CallTests extends TestFramework{
 		runTestInSameEvaluator("add1(3, delta=5);");
 	}
 	
+	@Test(expected=ArgumentsMismatchError.class)
+	public void keywordInConstructorError1() {
+		prepare("data D = d(int x, int y = 3);");
+		runTestInSameEvaluator("d();");
+	}
+	
+	@Test(expected=ArgumentsMismatchError.class)
+	public void keywordInConstructorError2() {
+		prepare("data D = d(int x, int y = 3);");
+		runTestInSameEvaluator("d(y=4);");
+	}
+	
+	@Test(expected=ArgumentsMismatchError.class)
+	public void keywordInConstructorError3() {
+		prepare("data D = d(int x, int y = 3);");
+		runTestInSameEvaluator("d(1, 4);");
+	}
+	
+	@Test(expected=ArgumentsMismatchError.class)
+	public void keywordInConstructorError4() {
+		prepare("data D = d(int x, int y = 3);");
+		runTestInSameEvaluator("d(1, y=\"a\");");
+	}
+	
+	@Test(expected=UndeclaredKeywordParameterError.class)
+	public void keywordInConstructorError5() {
+		prepare("data D = d(int x, int y = 3);");
+		runTestInSameEvaluator("d(1, z=4);");
+	}
+	
+	@Test(expected=NoKeywordParametersError.class)
+	public void keywordInConstructorError6() {
+		prepare("data D = d(int x);");
+		runTestInSameEvaluator("d(1, y=4);");
+	}
+	
 }
 
