@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,18 +29,18 @@ public abstract class ProtocolTail extends AbstractAST {
   }
 
   
-  public boolean hasTail() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.ProtocolTail getTail() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasExpression() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasMid() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.MidProtocolChars getMid() {
     throw new UnsupportedOperationException();
   }
   public boolean hasPost() {
@@ -50,11 +50,11 @@ public abstract class ProtocolTail extends AbstractAST {
   public org.rascalmpl.ast.PostProtocolChars getPost() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasMid() {
+  public boolean hasTail() {
     return false;
   }
 
-  public org.rascalmpl.ast.MidProtocolChars getMid() {
+  public org.rascalmpl.ast.ProtocolTail getTail() {
     throw new UnsupportedOperationException();
   }
 
@@ -100,43 +100,6 @@ public abstract class ProtocolTail extends AbstractAST {
   
 
   
-  public boolean isPost() {
-    return false;
-  }
-
-  static public class Post extends ProtocolTail {
-    // Production: sig("Post",[arg("org.rascalmpl.ast.PostProtocolChars","post")])
-  
-    
-    private final org.rascalmpl.ast.PostProtocolChars post;
-  
-    public Post(IConstructor node , org.rascalmpl.ast.PostProtocolChars post) {
-      super(node);
-      
-      this.post = post;
-    }
-  
-    @Override
-    public boolean isPost() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitProtocolTailPost(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.PostProtocolChars getPost() {
-      return this.post;
-    }
-  
-    @Override
-    public boolean hasPost() {
-      return true;
-    }	
-  }
   public boolean isMid() {
     return false;
   }
@@ -193,6 +156,43 @@ public abstract class ProtocolTail extends AbstractAST {
   
     @Override
     public boolean hasTail() {
+      return true;
+    }	
+  }
+  public boolean isPost() {
+    return false;
+  }
+
+  static public class Post extends ProtocolTail {
+    // Production: sig("Post",[arg("org.rascalmpl.ast.PostProtocolChars","post")])
+  
+    
+    private final org.rascalmpl.ast.PostProtocolChars post;
+  
+    public Post(IConstructor node , org.rascalmpl.ast.PostProtocolChars post) {
+      super(node);
+      
+      this.post = post;
+    }
+  
+    @Override
+    public boolean isPost() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitProtocolTailPost(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.PostProtocolChars getPost() {
+      return this.post;
+    }
+  
+    @Override
+    public boolean hasPost() {
       return true;
     }	
   }

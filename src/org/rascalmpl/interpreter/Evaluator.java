@@ -487,7 +487,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw new UndeclaredFunctionError(name, types, this, getCurrentAST());
 		}
 
-		return func.call(getMonitor(), types, args).getValue();
+		return func.call(getMonitor(), types, args, null).getValue();
 	}
 	
 	@Override	
@@ -1853,7 +1853,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			profiler = new Profiler(this);
 			profiler.start();
 			try {
-				return fun.call(monitor, argTypes, argValues);
+				return fun.call(monitor, argTypes, argValues, null);
 			} finally {
 				if (profiler != null) {
 					profiler.pleaseStop();
@@ -1863,7 +1863,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			}
 		}
 		else {
-			return fun.call(monitor, argTypes, argValues);
+			return fun.call(monitor, argTypes, argValues, null);
 		}
 	}
 	

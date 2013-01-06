@@ -15,6 +15,8 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -34,11 +36,11 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 
 	public ConcreteConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval,
 			Environment env) {
-		super(ast, eval, env, Factory.Tree_Appl);
+		super(ast, eval, env, Factory.Tree_Appl, null);
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
 		IConstructor prod = (IConstructor) actuals[0];
 		IList args = (IList) actuals[1];
 

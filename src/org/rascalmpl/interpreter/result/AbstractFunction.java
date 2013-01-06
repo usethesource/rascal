@@ -18,6 +18,7 @@
 package org.rascalmpl.interpreter.result;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -36,6 +37,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -48,6 +50,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
     
 	protected final FunctionType functionType;
 	protected final boolean hasVarArgs;
+	protected boolean hasKeyArgs;
+	protected List<Pair<String, Result<IValue>>> keywordParameterDefaults;
 	
 	protected final static TypeStore hiddenStore = new TypeStore();
 
@@ -58,12 +62,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected static boolean callTracing = false;
 	
 	// TODO: change arguments of these constructors to use EvaluatorContexts
-	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, boolean varargs, Environment env) {
+	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, boolean varargs, List<Pair<String, Result<IValue>>> keyargs, Environment env) {
 		super(functionType, null, eval);
 		this.ast = ast;
 		this.functionType = functionType;
 		this.eval = eval;
 		this.hasVarArgs = varargs;
+		this.hasKeyArgs = keyargs != null && keyargs.size() > 0;
+		this.keywordParameterDefaults = keyargs;
 		this.declarationEnvironment = env;
 		this.vf = eval.getValueFactory();
 	}
@@ -141,10 +147,19 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues) {
+	public boolean hasKeywordArgs() {
+		return hasKeyArgs;
+	}
+	
+	public List<Pair<String, Result<IValue>>> getKeywordParameterDefaults(){
+		return keywordParameterDefaults;
+	}
+	
+	@Override
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
-			return call(argTypes, argValues);
+			return call(argTypes, argValues, keyArgValues);
 		}
 		finally {
 			ctx.getEvaluator().setMonitor(old);
@@ -177,7 +192,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	public abstract boolean isDefault();
-	
+
 	
 	private void printNesting(StringBuilder b) {
 		for (int i = 0; i < callNesting; i++) {
@@ -401,7 +416,11 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		if (name == null) {
 			name = "";
 		}
-		return getReturnType() + " " + name + "(" + strFormals + ")";
+		
+		
+		String kwFormals = "";
+		
+		return getReturnType() + " " + name + "(" + strFormals + kwFormals + ")";
 	}
 	
 	public FunctionType getFunctionType() {
@@ -450,5 +469,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public boolean hasResourceScheme() {
 		return false;
 	}
+
+
+	
 	
 }
