@@ -242,7 +242,7 @@ public class CallTests extends TestFramework{
 
 		assertTrue(runTestInSameEvaluator("[f(x()),f(y()),f(z()),f(4)] == [1,2,3,4]"));
 	}
-	
+	@Ignore
 	@Test public void dispatchTest3() {
 		prepare("syntax X = \"x\" | \"y\" | \"z\";");
 		prepareMore("public int f((X) `x`) = 1;");
@@ -358,7 +358,7 @@ public class CallTests extends TestFramework{
 	}
 	
 	@Test
-	public void keywordMatchTest(){
+	public void keywordMatchTest1(){
 		prepare("data POINT = point(int x, int y, str color = \"red\");");
 		
 		assertTrue(runTestInSameEvaluator("point(_,_,_) !:= point(1,2);"));
@@ -371,6 +371,14 @@ public class CallTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("point(1,2,color=\"red\") := point(1,2,color=\"red\");"));
 		assertTrue(runTestInSameEvaluator("point(1,2,color=\"green\") !:= point(1,2);"));
 		assertTrue(runTestInSameEvaluator("point(1,2,color=\"green\") !:= point(1,2);"));
+	}
+	@Test
+	public void keywordMatchTest2(){
+		prepare("data POINT = point(int x, int y, list[str] colors = []);");
+		
+		assertTrue(runTestInSameEvaluator("point(_, _, colors=[\"blue\"]) := point(1,2, colors=[\"blue\"]);"));
+		assertTrue(runTestInSameEvaluator("point(_, _, colors=[*_,\"blue\",*_]) := point(1,2, colors=[\"red\",\"green\",\"blue\"]);"));
+		assertTrue(runTestInSameEvaluator("point(_, _, colors=[*_,*X,*_,*X, *_]) := point(1,2, colors=[\"red\",\"blue\",\"green\",\"blue\"]);"));
 	}
 	
 	
