@@ -1202,7 +1202,6 @@ public list[&T] sort(list[&T] lst) =
 	sort(lst, bool (&T a,&T b) { return a < b; } );
 	
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Throw proper exception if comparator is unsuitable}
 public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
 
 @doc{

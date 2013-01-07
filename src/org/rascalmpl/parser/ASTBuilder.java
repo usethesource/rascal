@@ -108,7 +108,7 @@ public class ASTBuilder {
 	public static <T extends AbstractAST> T make(String sort, String cons, ISourceLocation src, Object... args) {
 		Object[] newArgs = new Object[args.length + 1];
 		System.arraycopy(args, 0, newArgs, 1, args.length);
-		return (T) callMakerMethod(sort, cons, src, newArgs);
+		return (T) callMakerMethod(sort, cons, src, newArgs, null);
 	}
 
 	public ISourceLocation getLastSuccessLocation() {
@@ -329,7 +329,7 @@ public class ASTBuilder {
 			i++;
 		}
 
-		AbstractAST ast = callMakerMethod(sort, cons, tree.getAnnotations(), actuals);
+		AbstractAST ast = callMakerMethod(sort, cons, tree.getAnnotations(), actuals, null);
 		
 		// TODO: This is a horrible hack. The pattern Statement s : `whatever` should
 		// be a concrete syntax pattern, but is not recognized as such because of the
@@ -361,7 +361,7 @@ public class ASTBuilder {
 		}
 		Object actuals[] = new Object[] { tree, new String(TreeAdapter.yield(tree)) };
 
-		AbstractAST result = callMakerMethod(sort, "Lexical", tree.getAnnotations(), actuals);
+		AbstractAST result = callMakerMethod(sort, "Lexical", tree.getAnnotations(), actuals, null);
 		lexCache.putUnsafe(tree, result);
 		return result;
 	}
@@ -416,7 +416,7 @@ public class ASTBuilder {
 
 		Object actuals[] = new Object[] {  tree, altsOut };
 
-		AbstractAST ast = callMakerMethod(sort, "Ambiguity", tree.getAnnotations(), actuals);
+		AbstractAST ast = callMakerMethod(sort, "Ambiguity", tree.getAnnotations(), actuals, null);
 		
 		ast.setStats(ref != null ? ref : new ASTStatistics());
 		
@@ -859,8 +859,8 @@ public class ASTBuilder {
 		return sort.startsWith(RASCAL_SORT_PREFIX);
 	}
 
-	private static AbstractAST callMakerMethod(String sort, String cons, Map<String, IValue> annotations, Object actuals[]) {
-		return callMakerMethod(sort, cons, TreeAdapter.getLocation((IConstructor) actuals[0]), annotations, actuals);
+	private static AbstractAST callMakerMethod(String sort, String cons, Map<String, IValue> annotations, Object actuals[], Object keywordActuals[]) {
+		return callMakerMethod(sort, cons, TreeAdapter.getLocation((IConstructor) actuals[0]), annotations, actuals, keywordActuals);
 	}
 	
 	/**
@@ -869,14 +869,15 @@ public class ASTBuilder {
 	 *             {@link ASTBuilder#callMakerMethod(String, String, ISourceLocation, ISet, Object[]).
 	 */
 	@Deprecated
-	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Object actuals[]) {
-		return callMakerMethod(sort, cons, src, null, actuals);
+	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Object actuals[], Object keywordActuals[]) {
+		return callMakerMethod(sort, cons, src, null, actuals, null);
 	}
 	
-	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Map<String, IValue> annotations, Object actuals[]) {
+	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Map<String, IValue> annotations, Object actuals[], Object keywordActuals[]) {
 		try {
 			String name = sort + '$' + cons;
 			Constructor<?> constructor = astConstructors.get(name);
+//			System.err.println("name = " + name);
 			
 			if (constructor == null) {
 				Class<?> clazz = null;

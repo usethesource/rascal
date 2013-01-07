@@ -16,6 +16,8 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -55,7 +57,7 @@ public class ConstructorResult extends NodeResult {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		throw new UnsupportedOperationError("Can not call a constructed " + getType() + " node as a function", ctx.getCurrentAST());
 	}
 	

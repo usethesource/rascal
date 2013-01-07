@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.rascalmpl.library.cobra;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,12 +40,14 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.uri.URIUtil;
 
 public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	private static final Random stRandom = new Random();
 
 	private final IValueFactory vf;
+	private final TypeFactory tf = TypeFactory.getInstance();
 	private final ModuleEnvironment rootEnv;
 	private final int maxDepth;
 	private final HashMap<Type, ICallableValue> generators;
@@ -66,7 +70,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 		ICallableValue generator = generators.get(type);
 		Result<IValue> result = generator.call(new Type[] { tf.integerType() },
-				new IValue[] { vf.integer(depthLimit) });
+				new IValue[] { vf.integer(depthLimit) }, null);
 		return result.getValue();
 	}
 
@@ -266,18 +270,15 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitNode(Type type) {
-// How to handle depth here?		
-//		if (maxDepth <= 0) {
-//			return null;
-//		}
-		int arity = stRandom.nextInt(5);
+	  String str =  Math.random() > 0.5 ? RandomStringUtils.random(stRandom.nextInt(5)) : RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5));
+
+	  int arity = maxDepth <= 0 ? 0: stRandom.nextInt(5);
 		IValue[] args = new IValue[arity];
 		for (int i = 0; i < arity; i++) {
-			args[i] = visitValue(type);
+			args[i] = descend().generate(tf.valueType());
 		}
 		
-		IString str = (IString) visitString(type);
-		return vf.node(str.getValue(), args);	
+		return vf.node(str, args);	
 	}
 
 	@Override
@@ -329,7 +330,31 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitSourceLocation(Type type) {
-		return vf.sourceLocation("tmp:///");
+	  if (maxDepth <= 0) {
+	    return vf.sourceLocation(URIUtil.assumeCorrect("tmp:///"));
+	  }
+	  else {
+      try {
+        String path = Math.random() < 0.9 ? RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5)) : RandomStringUtils.random(stRandom.nextInt(5));
+        String nested = "";
+        URI uri = URIUtil.assumeCorrect("tmp:///");
+        
+        if (Math.random() > 0.5) {
+          RandomValueTypeVisitor visitor = descend();
+          ISourceLocation loc = (ISourceLocation) visitor.generate(type);
+          uri = loc.getURI();
+          nested = uri.getPath();
+        }
+        
+        path = path.startsWith("/") ? path : "/" + path;
+        uri = URIUtil.changePath(uri, nested.length() > 0 && !nested.equals("/") ? nested + path : path);
+        
+        return vf.sourceLocation(uri);
+      } catch (URISyntaxException e) {
+        // generated illegal URI?
+        return vf.sourceLocation(URIUtil.assumeCorrect("tmp:///"));
+      }
+	  }
 	}
 
 	@Override
