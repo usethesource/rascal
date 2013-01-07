@@ -22,6 +22,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -188,7 +189,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	///////
 	
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) throws MatchFailed {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) throws MatchFailed {
 		throw new UnsupportedOperationError("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
 	}
 	

@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
@@ -29,6 +30,7 @@ import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Declaration.Alias;
 import org.rascalmpl.ast.Declaration.Data;
 import org.rascalmpl.ast.Declaration.DataAbstract;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Toplevel;
@@ -39,14 +41,17 @@ import org.rascalmpl.ast.UserType;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.KeywordParameter;
+import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.IllegalQualifiedDeclaration;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredTypeError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.utils.Names;
-
 
 public class TypeDeclarationEvaluator {
 	private Evaluator eval;
@@ -84,13 +89,42 @@ public class TypeDeclarationEvaluator {
 		// from a shell instead of from a module
 		Type adt = declareAbstractDataType(x.getUser(), env);
 
+		// Evaluate the keyword parameters that are common for all variants
+		List<KeywordParameter> commonKwargs = new LinkedList<KeywordParameter> ();
+		if(x.getCommonKeywordParameters().isPresent()){
+			List<KeywordFormal> common = x.getCommonKeywordParameters().getKeywordFormalList();
+			for(KeywordFormal kwf : common){
+				Type declaredType = kwf.getType().typeOf(env);
+				Result<IValue> r = kwf.getExpression().interpret(eval);
+				if(r.getType().isSubtypeOf(declaredType))
+					commonKwargs.add(new KeywordParameter(kwf.getName().toString(), declaredType, r));
+				else {
+					throw new UnexpectedTypeError(declaredType, r.getType(), kwf);
+				}
+			}
+		}
+		
 		for (Variant var : x.getVariants()) {
 			String altName = Names.name(var.getName());
 
 			if (var.isNAryConstructor()) {
-				java.util.List<TypeArg> args = var.getArguments();
-				Type[] fields = new Type[args.size()];
-				String[] labels = new String[args.size()];
+				List<TypeArg> args = var.getArguments();
+				List<KeywordParameter> kwargs = new LinkedList<KeywordParameter> ();
+				if(var.getKeywordArguments().isDefault()){					
+					for(KeywordFormal kwf :  var.getKeywordArguments().getKeywordFormalList()){
+						Type declaredType = kwf.getType().typeOf(env);
+						Result<IValue> r = kwf.getExpression().interpret(eval);
+						if(r.getType().isSubtypeOf(declaredType))
+							kwargs.add(new KeywordParameter(kwf.getName().toString(), declaredType, r));
+						else {
+							throw new UnexpectedTypeError(declaredType, r.getType(), kwf);
+						}
+					}
+				}
+				kwargs.addAll(commonKwargs);
+				int nAllArgs = args.size() + kwargs.size();
+				Type[] fields = new Type[nAllArgs];
+				String[] labels = new String[nAllArgs];
 
 				for (int i = 0; i < args.size(); i++) {
 					TypeArg arg = args.get(i);
@@ -106,10 +140,15 @@ public class TypeDeclarationEvaluator {
 						labels[i] = "arg" + java.lang.Integer.toString(i);
 					}
 				}
+				
+				for(int i = 0; i < kwargs.size(); i++){
+					fields[args.size() + i] = kwargs.get(i).getType();
+					labels[args.size() + i] = kwargs.get(i).getName();
+				}
 
 				Type children = tf.tupleType(fields, labels);
 				try {
-					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, children);
+					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, children, kwargs);
 					cons.setPublic(true); // TODO: implement declared visibility
 				} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e) {
 					throw new RedeclaredTypeError(altName, var);

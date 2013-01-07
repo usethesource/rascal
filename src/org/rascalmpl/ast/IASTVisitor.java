@@ -17,135 +17,607 @@ package org.rascalmpl.ast;
 
 public interface IASTVisitor<T> {
 
+  public T visitAssignableAnnotation(Assignable.Annotation x);
+
+  public T visitAssignableBracket(Assignable.Bracket x);
+
+  public T visitAssignableConstructor(Assignable.Constructor x);
+
+  public T visitAssignableFieldAccess(Assignable.FieldAccess x);
+
+  public T visitAssignableIfDefinedOrDefault(Assignable.IfDefinedOrDefault x);
+
+  public T visitAssignableSubscript(Assignable.Subscript x);
+
+  public T visitAssignableTuple(Assignable.Tuple x);
+
+  public T visitAssignableVariable(Assignable.Variable x);
+
+  public T visitAssignmentAddition(Assignment.Addition x);
+
+  public T visitAssignmentAppend(Assignment.Append x);
+
+  public T visitAssignmentDefault(Assignment.Default x);
+
+  public T visitAssignmentDivision(Assignment.Division x);
+
+  public T visitAssignmentIfDefined(Assignment.IfDefined x);
+
+  public T visitAssignmentIntersection(Assignment.Intersection x);
+
+  public T visitAssignmentProduct(Assignment.Product x);
+
+  public T visitAssignmentSubtraction(Assignment.Subtraction x);
+
+  public T visitAssocAssociative(Assoc.Associative x);
+
+  public T visitAssocLeft(Assoc.Left x);
+
+  public T visitAssocNonAssociative(Assoc.NonAssociative x);
+
+  public T visitAssocRight(Assoc.Right x);
+
+  public T visitBasicTypeBag(BasicType.Bag x);
+
+  public T visitBasicTypeBool(BasicType.Bool x);
+
+  public T visitBasicTypeDateTime(BasicType.DateTime x);
+
+  public T visitBasicTypeInt(BasicType.Int x);
+
+  public T visitBasicTypeList(BasicType.List x);
+
+  public T visitBasicTypeListRelation(BasicType.ListRelation x);
+
+  public T visitBasicTypeLoc(BasicType.Loc x);
+
+  public T visitBasicTypeMap(BasicType.Map x);
+
+  public T visitBasicTypeNode(BasicType.Node x);
+
+  public T visitBasicTypeNum(BasicType.Num x);
+
+  public T visitBasicTypeRational(BasicType.Rational x);
+
+  public T visitBasicTypeReal(BasicType.Real x);
+
+  public T visitBasicTypeRelation(BasicType.Relation x);
+
+  public T visitBasicTypeSet(BasicType.Set x);
+
+  public T visitBasicTypeString(BasicType.String x);
+
+  public T visitBasicTypeTuple(BasicType.Tuple x);
+
+  public T visitBasicTypeType(BasicType.Type x);
+
+  public T visitBasicTypeValue(BasicType.Value x);
+
+  public T visitBasicTypeVoid(BasicType.Void x);
+
+  public T visitBodyToplevels(Body.Toplevels x);
+
+  public T visitBoundDefault(Bound.Default x);
+
+  public T visitBoundEmpty(Bound.Empty x);
+
+  public T visitCaseDefault(Case.Default x);
+
+  public T visitCasePatternWithAction(Case.PatternWithAction x);
+
+  public T visitCatchBinding(Catch.Binding x);
+
+  public T visitCatchDefault(Catch.Default x);
+
+  public T visitClassBracket(Class.Bracket x);
+
+  public T visitClassComplement(Class.Complement x);
+
+  public T visitClassDifference(Class.Difference x);
+
+  public T visitClassIntersection(Class.Intersection x);
+
+  public T visitClassSimpleCharclass(Class.SimpleCharclass x);
+
+  public T visitClassUnion(Class.Union x);
+
+  public T visitCommandDeclaration(Command.Declaration x);
+
+  public T visitCommandExpression(Command.Expression x);
+
+  public T visitCommandImport(Command.Import x);
+
+  public T visitCommandShell(Command.Shell x);
+
+  public T visitCommandStatement(Command.Statement x);
+
+  public T visitCommandsList(Commands.List x);
+
+  public T visitCommonKeywordParametersAbsent(CommonKeywordParameters.Absent x);
+
+  public T visitCommonKeywordParametersPresent(CommonKeywordParameters.Present x);
+
+  public T visitComprehensionList(Comprehension.List x);
+
+  public T visitComprehensionMap(Comprehension.Map x);
+
+  public T visitComprehensionSet(Comprehension.Set x);
+
   public T visitDataTargetEmpty(DataTarget.Empty x);
 
   public T visitDataTargetLabeled(DataTarget.Labeled x);
 
-  public T visitProdAll(Prod.All x);
+  public T visitDataTypeSelectorSelector(DataTypeSelector.Selector x);
 
-  public T visitProdFirst(Prod.First x);
+  public T visitDateTimeLiteralDateAndTimeLiteral(DateTimeLiteral.DateAndTimeLiteral x);
 
-  public T visitProdUnlabeled(Prod.Unlabeled x);
+  public T visitDateTimeLiteralDateLiteral(DateTimeLiteral.DateLiteral x);
 
-  public T visitProdLabeled(Prod.Labeled x);
+  public T visitDateTimeLiteralTimeLiteral(DateTimeLiteral.TimeLiteral x);
 
-  public T visitProdReference(Prod.Reference x);
+  public T visitDeclarationAlias(Declaration.Alias x);
 
-  public T visitProdOthers(Prod.Others x);
+  public T visitDeclarationAnnotation(Declaration.Annotation x);
 
-  public T visitProdAssociativityGroup(Prod.AssociativityGroup x);
+  public T visitDeclarationData(Declaration.Data x);
 
-  public T visitLocationLiteralDefault(LocationLiteral.Default x);
+  public T visitDeclarationDataAbstract(Declaration.DataAbstract x);
 
-  public T visitCasePatternWithAction(Case.PatternWithAction x);
+  public T visitDeclarationFunction(Declaration.Function x);
 
-  public T visitCaseDefault(Case.Default x);
+  public T visitDeclarationTag(Declaration.Tag x);
 
-  public T visitTagDefault(Tag.Default x);
+  public T visitDeclarationVariable(Declaration.Variable x);
 
-  public T visitTagExpression(Tag.Expression x);
+  public T visitDeclaratorDefault(Declarator.Default x);
 
-  public T visitTagEmpty(Tag.Empty x);
-
-  public T visitCatchDefault(Catch.Default x);
-
-  public T visitCatchBinding(Catch.Binding x);
-
-  public T visitFieldName(Field.Name x);
-
-  public T visitFieldIndex(Field.Index x);
-
-  public T visitSymNotFollow(Sym.NotFollow x);
-
-  public T visitSymSequence(Sym.Sequence x);
-
-  public T visitSymNonterminal(Sym.Nonterminal x);
-
-  public T visitSymParameter(Sym.Parameter x);
-
-  public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x);
-
-  public T visitSymColumn(Sym.Column x);
-
-  public T visitSymAlternative(Sym.Alternative x);
-
-  public T visitSymStart(Sym.Start x);
-
-  public T visitSymIterStarSep(Sym.IterStarSep x);
-
-  public T visitSymNotPrecede(Sym.NotPrecede x);
-
-  public T visitSymIter(Sym.Iter x);
-
-  public T visitSymParametrized(Sym.Parametrized x);
-
-  public T visitSymEmpty(Sym.Empty x);
-
-  public T visitSymExcept(Sym.Except x);
-
-  public T visitSymOptional(Sym.Optional x);
-
-  public T visitSymEndOfLine(Sym.EndOfLine x);
-
-  public T visitSymFollow(Sym.Follow x);
-
-  public T visitSymCharacterClass(Sym.CharacterClass x);
-
-  public T visitSymLabeled(Sym.Labeled x);
-
-  public T visitSymIterStar(Sym.IterStar x);
-
-  public T visitSymIterSep(Sym.IterSep x);
-
-  public T visitSymLiteral(Sym.Literal x);
-
-  public T visitSymUnequal(Sym.Unequal x);
-
-  public T visitSymPrecede(Sym.Precede x);
-
-  public T visitSymStartOfLine(Sym.StartOfLine x);
-
-  public T visitTypeVarFree(TypeVar.Free x);
-
-  public T visitTypeVarBounded(TypeVar.Bounded x);
+  public T visitEvalCommandDeclaration(EvalCommand.Declaration x);
 
   public T visitEvalCommandImport(EvalCommand.Import x);
 
   public T visitEvalCommandStatement(EvalCommand.Statement x);
 
-  public T visitEvalCommandDeclaration(EvalCommand.Declaration x);
+  public T visitExpressionAddition(Expression.Addition x);
 
-  public T visitLiteralRational(Literal.Rational x);
+  public T visitExpressionAll(Expression.All x);
 
-  public T visitLiteralLocation(Literal.Location x);
+  public T visitExpressionAnd(Expression.And x);
 
-  public T visitLiteralString(Literal.String x);
+  public T visitExpressionAnti(Expression.Anti x);
 
-  public T visitLiteralRegExp(Literal.RegExp x);
+  public T visitExpressionAny(Expression.Any x);
+
+  public T visitExpressionAppendAfter(Expression.AppendAfter x);
+
+  public T visitExpressionAsType(Expression.AsType x);
+
+  public T visitExpressionBracket(Expression.Bracket x);
+
+  public T visitExpressionCallOrTree(Expression.CallOrTree x);
+
+  public T visitExpressionClosure(Expression.Closure x);
+
+  public T visitExpressionComposition(Expression.Composition x);
+
+  public T visitExpressionComprehension(Expression.Comprehension x);
+
+  public T visitExpressionDescendant(Expression.Descendant x);
+
+  public T visitExpressionDivision(Expression.Division x);
+
+  public T visitExpressionEnumerator(Expression.Enumerator x);
+
+  public T visitExpressionEquals(Expression.Equals x);
+
+  public T visitExpressionEquivalence(Expression.Equivalence x);
+
+  public T visitExpressionFieldAccess(Expression.FieldAccess x);
+
+  public T visitExpressionFieldProject(Expression.FieldProject x);
+
+  public T visitExpressionFieldUpdate(Expression.FieldUpdate x);
+
+  public T visitExpressionGetAnnotation(Expression.GetAnnotation x);
+
+  public T visitExpressionGreaterThan(Expression.GreaterThan x);
+
+  public T visitExpressionGreaterThanOrEq(Expression.GreaterThanOrEq x);
+
+  public T visitExpressionHas(Expression.Has x);
+
+  public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x);
+
+  public T visitExpressionIfThenElse(Expression.IfThenElse x);
+
+  public T visitExpressionImplication(Expression.Implication x);
+
+  public T visitExpressionIn(Expression.In x);
+
+  public T visitExpressionInsertBefore(Expression.InsertBefore x);
+
+  public T visitExpressionIntersection(Expression.Intersection x);
+
+  public T visitExpressionIs(Expression.Is x);
+
+  public T visitExpressionIsDefined(Expression.IsDefined x);
+
+  public T visitExpressionIt(Expression.It x);
+
+  public T visitExpressionJoin(Expression.Join x);
+
+  public T visitExpressionLessThan(Expression.LessThan x);
+
+  public T visitExpressionLessThanOrEq(Expression.LessThanOrEq x);
+
+  public T visitExpressionList(Expression.List x);
+
+  public T visitExpressionLiteral(Expression.Literal x);
+
+  public T visitExpressionMap(Expression.Map x);
+
+  public T visitExpressionMatch(Expression.Match x);
+
+  public T visitExpressionModulo(Expression.Modulo x);
+
+  public T visitExpressionMultiVariable(Expression.MultiVariable x);
+
+  public T visitExpressionNegation(Expression.Negation x);
+
+  public T visitExpressionNegative(Expression.Negative x);
+
+  public T visitExpressionNoMatch(Expression.NoMatch x);
+
+  public T visitExpressionNonEmptyBlock(Expression.NonEmptyBlock x);
+
+  public T visitExpressionNonEquals(Expression.NonEquals x);
+
+  public T visitExpressionNotIn(Expression.NotIn x);
+
+  public T visitExpressionOr(Expression.Or x);
+
+  public T visitExpressionProduct(Expression.Product x);
+
+  public T visitExpressionQualifiedName(Expression.QualifiedName x);
+
+  public T visitExpressionRange(Expression.Range x);
+
+  public T visitExpressionReducer(Expression.Reducer x);
+
+  public T visitExpressionReifiedType(Expression.ReifiedType x);
+
+  public T visitExpressionReifyType(Expression.ReifyType x);
+
+  public T visitExpressionRemainder(Expression.Remainder x);
+
+  public T visitExpressionSet(Expression.Set x);
+
+  public T visitExpressionSetAnnotation(Expression.SetAnnotation x);
+
+  public T visitExpressionSlice(Expression.Slice x);
+
+  public T visitExpressionSliceStep(Expression.SliceStep x);
+
+  public T visitExpressionSplice(Expression.Splice x);
+
+  public T visitExpressionSplicePlus(Expression.SplicePlus x);
+
+  public T visitExpressionStepRange(Expression.StepRange x);
+
+  public T visitExpressionSubscript(Expression.Subscript x);
+
+  public T visitExpressionSubtraction(Expression.Subtraction x);
+
+  public T visitExpressionTransitiveClosure(Expression.TransitiveClosure x);
+
+  public T visitExpressionTransitiveReflexiveClosure(Expression.TransitiveReflexiveClosure x);
+
+  public T visitExpressionTuple(Expression.Tuple x);
+
+  public T visitExpressionTypedVariable(Expression.TypedVariable x);
+
+  public T visitExpressionTypedVariableBecomes(Expression.TypedVariableBecomes x);
+
+  public T visitExpressionVariableBecomes(Expression.VariableBecomes x);
+
+  public T visitExpressionVisit(Expression.Visit x);
+
+  public T visitExpressionVoidClosure(Expression.VoidClosure x);
+
+  public T visitFieldIndex(Field.Index x);
+
+  public T visitFieldName(Field.Name x);
+
+  public T visitFormalsDefault(Formals.Default x);
+
+  public T visitFunctionBodyDefault(FunctionBody.Default x);
+
+  public T visitFunctionDeclarationAbstract(FunctionDeclaration.Abstract x);
+
+  public T visitFunctionDeclarationConditional(FunctionDeclaration.Conditional x);
+
+  public T visitFunctionDeclarationDefault(FunctionDeclaration.Default x);
+
+  public T visitFunctionDeclarationExpression(FunctionDeclaration.Expression x);
+
+  public T visitFunctionModifierDefault(FunctionModifier.Default x);
+
+  public T visitFunctionModifierJava(FunctionModifier.Java x);
+
+  public T visitFunctionModifierTest(FunctionModifier.Test x);
+
+  public T visitFunctionModifiersList(FunctionModifiers.List x);
+
+  public T visitFunctionTypeTypeArguments(FunctionType.TypeArguments x);
+
+  public T visitHeaderDefault(Header.Default x);
+
+  public T visitHeaderParameters(Header.Parameters x);
+
+  public T visitImportDefault(Import.Default x);
+
+  public T visitImportExtend(Import.Extend x);
+
+  public T visitImportExternal(Import.External x);
+
+  public T visitImportSyntax(Import.Syntax x);
+
+  public T visitImportedModuleActuals(ImportedModule.Actuals x);
+
+  public T visitImportedModuleActualsRenaming(ImportedModule.ActualsRenaming x);
+
+  public T visitImportedModuleDefault(ImportedModule.Default x);
+
+  public T visitImportedModuleRenamings(ImportedModule.Renamings x);
+
+  public T visitIntegerLiteralDecimalIntegerLiteral(IntegerLiteral.DecimalIntegerLiteral x);
+
+  public T visitIntegerLiteralHexIntegerLiteral(IntegerLiteral.HexIntegerLiteral x);
+
+  public T visitIntegerLiteralOctalIntegerLiteral(IntegerLiteral.OctalIntegerLiteral x);
+
+  public T visitKeywordArgumentDefault(KeywordArgument.Default x);
+
+  public T visitKeywordArgumentsDefault(KeywordArguments.Default x);
+
+  public T visitKeywordArgumentsNone(KeywordArguments.None x);
+
+  public T visitKeywordFormalDefault(KeywordFormal.Default x);
+
+  public T visitKeywordFormalsDefault(KeywordFormals.Default x);
+
+  public T visitKeywordFormalsNone(KeywordFormals.None x);
+
+  public T visitKindAlias(Kind.Alias x);
+
+  public T visitKindAll(Kind.All x);
+
+  public T visitKindAnno(Kind.Anno x);
+
+  public T visitKindData(Kind.Data x);
+
+  public T visitKindFunction(Kind.Function x);
+
+  public T visitKindModule(Kind.Module x);
+
+  public T visitKindTag(Kind.Tag x);
+
+  public T visitKindVariable(Kind.Variable x);
+
+  public T visitKindView(Kind.View x);
+
+  public T visitLabelDefault(Label.Default x);
+
+  public T visitLabelEmpty(Label.Empty x);
 
   public T visitLiteralBoolean(Literal.Boolean x);
-
-  public T visitLiteralReal(Literal.Real x);
 
   public T visitLiteralDateTime(Literal.DateTime x);
 
   public T visitLiteralInteger(Literal.Integer x);
 
-  public T visitUserTypeParametric(UserType.Parametric x);
+  public T visitLiteralLocation(Literal.Location x);
 
-  public T visitUserTypeName(UserType.Name x);
+  public T visitLiteralRational(Literal.Rational x);
+
+  public T visitLiteralReal(Literal.Real x);
+
+  public T visitLiteralRegExp(Literal.RegExp x);
+
+  public T visitLiteralString(Literal.String x);
+
+  public T visitLocalVariableDeclarationDefault(LocalVariableDeclaration.Default x);
+
+  public T visitLocalVariableDeclarationDynamic(LocalVariableDeclaration.Dynamic x);
+
+  public T visitLocationLiteralDefault(LocationLiteral.Default x);
+
+  public T visitMapping_ExpressionDefault(Mapping_Expression.Default x);
+
+  public T visitModuleDefault(Module.Default x);
 
   public T visitModuleActualsDefault(ModuleActuals.Default x);
 
-  public T visitRangeFromTo(Range.FromTo x);
+  public T visitModuleParametersDefault(ModuleParameters.Default x);
+
+  public T visitOptionalExpressionExpression(OptionalExpression.Expression x);
+
+  public T visitOptionalExpressionNoExpression(OptionalExpression.NoExpression x);
+
+  public T visitParametersDefault(Parameters.Default x);
+
+  public T visitParametersVarArgs(Parameters.VarArgs x);
+
+  public T visitPathPartInterpolated(PathPart.Interpolated x);
+
+  public T visitPathPartNonInterpolated(PathPart.NonInterpolated x);
+
+  public T visitPathTailMid(PathTail.Mid x);
+
+  public T visitPathTailPost(PathTail.Post x);
+
+  public T visitPatternWithActionArbitrary(PatternWithAction.Arbitrary x);
+
+  public T visitPatternWithActionReplacing(PatternWithAction.Replacing x);
+
+  public T visitPreModuleDefault(PreModule.Default x);
+
+  public T visitProdAll(Prod.All x);
+
+  public T visitProdAssociativityGroup(Prod.AssociativityGroup x);
+
+  public T visitProdFirst(Prod.First x);
+
+  public T visitProdLabeled(Prod.Labeled x);
+
+  public T visitProdOthers(Prod.Others x);
+
+  public T visitProdReference(Prod.Reference x);
+
+  public T visitProdUnlabeled(Prod.Unlabeled x);
+
+  public T visitProdModifierAssociativity(ProdModifier.Associativity x);
+
+  public T visitProdModifierBracket(ProdModifier.Bracket x);
+
+  public T visitProdModifierTag(ProdModifier.Tag x);
+
+  public T visitProtocolPartInterpolated(ProtocolPart.Interpolated x);
+
+  public T visitProtocolPartNonInterpolated(ProtocolPart.NonInterpolated x);
+
+  public T visitProtocolTailMid(ProtocolTail.Mid x);
+
+  public T visitProtocolTailPost(ProtocolTail.Post x);
+
+  public T visitQualifiedNameDefault(QualifiedName.Default x);
 
   public T visitRangeCharacter(Range.Character x);
 
-  public T visitTargetEmpty(Target.Empty x);
+  public T visitRangeFromTo(Range.FromTo x);
 
-  public T visitTargetLabeled(Target.Labeled x);
+  public T visitRenamingDefault(Renaming.Default x);
 
-  public T visitStructuredTypeDefault(StructuredType.Default x);
+  public T visitRenamingsDefault(Renamings.Default x);
+
+  public T visitReplacementConditional(Replacement.Conditional x);
+
+  public T visitReplacementUnconditional(Replacement.Unconditional x);
+
+  public T visitShellCommandEdit(ShellCommand.Edit x);
+
+  public T visitShellCommandHelp(ShellCommand.Help x);
+
+  public T visitShellCommandHistory(ShellCommand.History x);
+
+  public T visitShellCommandListDeclarations(ShellCommand.ListDeclarations x);
+
+  public T visitShellCommandListModules(ShellCommand.ListModules x);
+
+  public T visitShellCommandQuit(ShellCommand.Quit x);
+
+  public T visitShellCommandSetOption(ShellCommand.SetOption x);
+
+  public T visitShellCommandTest(ShellCommand.Test x);
+
+  public T visitShellCommandUndeclare(ShellCommand.Undeclare x);
+
+  public T visitShellCommandUnimport(ShellCommand.Unimport x);
+
+  public T visitSignatureNoThrows(Signature.NoThrows x);
+
+  public T visitSignatureWithThrows(Signature.WithThrows x);
+
+  public T visitStartAbsent(Start.Absent x);
+
+  public T visitStartPresent(Start.Present x);
+
+  public T visitStatementAppend(Statement.Append x);
+
+  public T visitStatementAssert(Statement.Assert x);
+
+  public T visitStatementAssertWithMessage(Statement.AssertWithMessage x);
+
+  public T visitStatementAssignment(Statement.Assignment x);
+
+  public T visitStatementBreak(Statement.Break x);
+
+  public T visitStatementContinue(Statement.Continue x);
+
+  public T visitStatementDoWhile(Statement.DoWhile x);
+
+  public T visitStatementEmptyStatement(Statement.EmptyStatement x);
+
+  public T visitStatementExpression(Statement.Expression x);
+
+  public T visitStatementFail(Statement.Fail x);
+
+  public T visitStatementFilter(Statement.Filter x);
+
+  public T visitStatementFor(Statement.For x);
+
+  public T visitStatementFunctionDeclaration(Statement.FunctionDeclaration x);
+
+  public T visitStatementGlobalDirective(Statement.GlobalDirective x);
+
+  public T visitStatementIfThen(Statement.IfThen x);
+
+  public T visitStatementIfThenElse(Statement.IfThenElse x);
+
+  public T visitStatementInsert(Statement.Insert x);
+
+  public T visitStatementNonEmptyBlock(Statement.NonEmptyBlock x);
+
+  public T visitStatementReturn(Statement.Return x);
+
+  public T visitStatementSolve(Statement.Solve x);
+
+  public T visitStatementSwitch(Statement.Switch x);
+
+  public T visitStatementThrow(Statement.Throw x);
+
+  public T visitStatementTry(Statement.Try x);
+
+  public T visitStatementTryFinally(Statement.TryFinally x);
+
+  public T visitStatementVariableDeclaration(Statement.VariableDeclaration x);
+
+  public T visitStatementVisit(Statement.Visit x);
+
+  public T visitStatementWhile(Statement.While x);
+
+  public T visitStrategyBottomUp(Strategy.BottomUp x);
+
+  public T visitStrategyBottomUpBreak(Strategy.BottomUpBreak x);
+
+  public T visitStrategyInnermost(Strategy.Innermost x);
+
+  public T visitStrategyOutermost(Strategy.Outermost x);
+
+  public T visitStrategyTopDown(Strategy.TopDown x);
+
+  public T visitStrategyTopDownBreak(Strategy.TopDownBreak x);
+
+  public T visitStringLiteralInterpolated(StringLiteral.Interpolated x);
+
+  public T visitStringLiteralNonInterpolated(StringLiteral.NonInterpolated x);
+
+  public T visitStringLiteralTemplate(StringLiteral.Template x);
+
+  public T visitStringMiddleInterpolated(StringMiddle.Interpolated x);
+
+  public T visitStringMiddleMid(StringMiddle.Mid x);
+
+  public T visitStringMiddleTemplate(StringMiddle.Template x);
+
+  public T visitStringTailMidInterpolated(StringTail.MidInterpolated x);
+
+  public T visitStringTailMidTemplate(StringTail.MidTemplate x);
+
+  public T visitStringTailPost(StringTail.Post x);
+
+  public T visitStringTemplateDoWhile(StringTemplate.DoWhile x);
+
+  public T visitStringTemplateFor(StringTemplate.For x);
 
   public T visitStringTemplateIfThen(StringTemplate.IfThen x);
 
@@ -153,195 +625,57 @@ public interface IASTVisitor<T> {
 
   public T visitStringTemplateWhile(StringTemplate.While x);
 
-  public T visitStringTemplateDoWhile(StringTemplate.DoWhile x);
+  public T visitStructuredTypeDefault(StructuredType.Default x);
 
-  public T visitStringTemplateFor(StringTemplate.For x);
+  public T visitSymAlternative(Sym.Alternative x);
 
-  public T visitVisitDefaultStrategy(Visit.DefaultStrategy x);
+  public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x);
 
-  public T visitVisitGivenStrategy(Visit.GivenStrategy x);
+  public T visitSymCharacterClass(Sym.CharacterClass x);
 
-  public T visitDataTypeSelectorSelector(DataTypeSelector.Selector x);
+  public T visitSymColumn(Sym.Column x);
 
-  public T visitVisibilityPublic(Visibility.Public x);
+  public T visitSymEmpty(Sym.Empty x);
 
-  public T visitVisibilityDefault(Visibility.Default x);
+  public T visitSymEndOfLine(Sym.EndOfLine x);
 
-  public T visitVisibilityPrivate(Visibility.Private x);
+  public T visitSymExcept(Sym.Except x);
 
-  public T visitFunctionDeclarationAbstract(FunctionDeclaration.Abstract x);
+  public T visitSymFollow(Sym.Follow x);
 
-  public T visitFunctionDeclarationConditional(FunctionDeclaration.Conditional x);
+  public T visitSymIter(Sym.Iter x);
 
-  public T visitFunctionDeclarationExpression(FunctionDeclaration.Expression x);
+  public T visitSymIterSep(Sym.IterSep x);
 
-  public T visitFunctionDeclarationDefault(FunctionDeclaration.Default x);
+  public T visitSymIterStar(Sym.IterStar x);
 
-  public T visitFunctionBodyDefault(FunctionBody.Default x);
+  public T visitSymIterStarSep(Sym.IterStarSep x);
 
-  public T visitTagsDefault(Tags.Default x);
+  public T visitSymLabeled(Sym.Labeled x);
 
-  public T visitDeclarationAlias(Declaration.Alias x);
+  public T visitSymLiteral(Sym.Literal x);
 
-  public T visitDeclarationData(Declaration.Data x);
+  public T visitSymNonterminal(Sym.Nonterminal x);
 
-  public T visitDeclarationFunction(Declaration.Function x);
+  public T visitSymNotFollow(Sym.NotFollow x);
 
-  public T visitDeclarationAnnotation(Declaration.Annotation x);
+  public T visitSymNotPrecede(Sym.NotPrecede x);
 
-  public T visitDeclarationVariable(Declaration.Variable x);
+  public T visitSymOptional(Sym.Optional x);
 
-  public T visitDeclarationDataAbstract(Declaration.DataAbstract x);
+  public T visitSymParameter(Sym.Parameter x);
 
-  public T visitDeclarationTag(Declaration.Tag x);
+  public T visitSymParametrized(Sym.Parametrized x);
 
-  public T visitRenamingDefault(Renaming.Default x);
+  public T visitSymPrecede(Sym.Precede x);
 
-  public T visitExpressionProduct(Expression.Product x);
+  public T visitSymSequence(Sym.Sequence x);
 
-  public T visitExpressionSlice(Expression.Slice x);
+  public T visitSymStart(Sym.Start x);
 
-  public T visitExpressionDivision(Expression.Division x);
+  public T visitSymStartOfLine(Sym.StartOfLine x);
 
-  public T visitExpressionNonEquals(Expression.NonEquals x);
-
-  public T visitExpressionAny(Expression.Any x);
-
-  public T visitExpressionStepRange(Expression.StepRange x);
-
-  public T visitExpressionJoin(Expression.Join x);
-
-  public T visitExpressionEnumerator(Expression.Enumerator x);
-
-  public T visitExpressionNoMatch(Expression.NoMatch x);
-
-  public T visitExpressionAsType(Expression.AsType x);
-
-  public T visitExpressionTypedVariable(Expression.TypedVariable x);
-
-  public T visitExpressionComprehension(Expression.Comprehension x);
-
-  public T visitExpressionIn(Expression.In x);
-
-  public T visitExpressionAppendAfter(Expression.AppendAfter x);
-
-  public T visitExpressionFieldAccess(Expression.FieldAccess x);
-
-  public T visitExpressionSet(Expression.Set x);
-
-  public T visitExpressionFieldProject(Expression.FieldProject x);
-
-  public T visitExpressionEquals(Expression.Equals x);
-
-  public T visitExpressionImplication(Expression.Implication x);
-
-  public T visitExpressionBracket(Expression.Bracket x);
-
-  public T visitExpressionTransitiveClosure(Expression.TransitiveClosure x);
-
-  public T visitExpressionSubtraction(Expression.Subtraction x);
-
-  public T visitExpressionNonEmptyBlock(Expression.NonEmptyBlock x);
-
-  public T visitExpressionCallOrTree(Expression.CallOrTree x);
-
-  public T visitExpressionGetAnnotation(Expression.GetAnnotation x);
-
-  public T visitExpressionRange(Expression.Range x);
-
-  public T visitExpressionVariableBecomes(Expression.VariableBecomes x);
-
-  public T visitExpressionFieldUpdate(Expression.FieldUpdate x);
-
-  public T visitExpressionNegation(Expression.Negation x);
-
-  public T visitExpressionLiteral(Expression.Literal x);
-
-  public T visitExpressionClosure(Expression.Closure x);
-
-  public T visitExpressionSplice(Expression.Splice x);
-
-  public T visitExpressionLessThan(Expression.LessThan x);
-
-  public T visitExpressionSliceStep(Expression.SliceStep x);
-
-  public T visitExpressionMap(Expression.Map x);
-
-  public T visitExpressionTypedVariableBecomes(Expression.TypedVariableBecomes x);
-
-  public T visitExpressionAnti(Expression.Anti x);
-
-  public T visitExpressionEquivalence(Expression.Equivalence x);
-
-  public T visitExpressionMatch(Expression.Match x);
-
-  public T visitExpressionComposition(Expression.Composition x);
-
-  public T visitExpressionLessThanOrEq(Expression.LessThanOrEq x);
-
-  public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x);
-
-  public T visitExpressionVoidClosure(Expression.VoidClosure x);
-
-  public T visitExpressionRemainder(Expression.Remainder x);
-
-  public T visitExpressionOr(Expression.Or x);
-
-  public T visitExpressionAll(Expression.All x);
-
-  public T visitExpressionAddition(Expression.Addition x);
-
-  public T visitExpressionGreaterThan(Expression.GreaterThan x);
-
-  public T visitExpressionIfThenElse(Expression.IfThenElse x);
-
-  public T visitExpressionSubscript(Expression.Subscript x);
-
-  public T visitExpressionModulo(Expression.Modulo x);
-
-  public T visitExpressionReifyType(Expression.ReifyType x);
-
-  public T visitExpressionDescendant(Expression.Descendant x);
-
-  public T visitExpressionHas(Expression.Has x);
-
-  public T visitExpressionGreaterThanOrEq(Expression.GreaterThanOrEq x);
-
-  public T visitExpressionReifiedType(Expression.ReifiedType x);
-
-  public T visitExpressionIntersection(Expression.Intersection x);
-
-  public T visitExpressionTuple(Expression.Tuple x);
-
-  public T visitExpressionMultiVariable(Expression.MultiVariable x);
-
-  public T visitExpressionIs(Expression.Is x);
-
-  public T visitExpressionIsDefined(Expression.IsDefined x);
-
-  public T visitExpressionList(Expression.List x);
-
-  public T visitExpressionNotIn(Expression.NotIn x);
-
-  public T visitExpressionInsertBefore(Expression.InsertBefore x);
-
-  public T visitExpressionIt(Expression.It x);
-
-  public T visitExpressionAnd(Expression.And x);
-
-  public T visitExpressionSplicePlus(Expression.SplicePlus x);
-
-  public T visitExpressionNegative(Expression.Negative x);
-
-  public T visitExpressionQualifiedName(Expression.QualifiedName x);
-
-  public T visitExpressionTransitiveReflexiveClosure(Expression.TransitiveReflexiveClosure x);
-
-  public T visitExpressionReducer(Expression.Reducer x);
-
-  public T visitExpressionSetAnnotation(Expression.SetAnnotation x);
-
-  public T visitExpressionVisit(Expression.Visit x);
+  public T visitSymUnequal(Sym.Unequal x);
 
   public T visitSyntaxDefinitionKeyword(SyntaxDefinition.Keyword x);
 
@@ -351,529 +685,215 @@ public interface IASTVisitor<T> {
 
   public T visitSyntaxDefinitionLexical(SyntaxDefinition.Lexical x);
 
-  public T visitBodyToplevels(Body.Toplevels x);
+  public T visitTagDefault(Tag.Default x);
 
-  public T visitStringLiteralNonInterpolated(StringLiteral.NonInterpolated x);
+  public T visitTagEmpty(Tag.Empty x);
 
-  public T visitStringLiteralInterpolated(StringLiteral.Interpolated x);
+  public T visitTagExpression(Tag.Expression x);
 
-  public T visitStringLiteralTemplate(StringLiteral.Template x);
+  public T visitTagsDefault(Tags.Default x);
 
-  public T visitFunctionTypeTypeArguments(FunctionType.TypeArguments x);
+  public T visitTargetEmpty(Target.Empty x);
 
-  public T visitBasicTypeMap(BasicType.Map x);
-
-  public T visitBasicTypeRelation(BasicType.Relation x);
-
-  public T visitBasicTypeReal(BasicType.Real x);
-
-  public T visitBasicTypeList(BasicType.List x);
-
-  public T visitBasicTypeListRelation(BasicType.ListRelation x);
-
-  public T visitBasicTypeType(BasicType.Type x);
-
-  public T visitBasicTypeDateTime(BasicType.DateTime x);
-
-  public T visitBasicTypeVoid(BasicType.Void x);
-
-  public T visitBasicTypeValue(BasicType.Value x);
-
-  public T visitBasicTypeString(BasicType.String x);
-
-  public T visitBasicTypeRational(BasicType.Rational x);
-
-  public T visitBasicTypeInt(BasicType.Int x);
-
-  public T visitBasicTypeTuple(BasicType.Tuple x);
-
-  public T visitBasicTypeBag(BasicType.Bag x);
-
-  public T visitBasicTypeBool(BasicType.Bool x);
-
-  public T visitBasicTypeNum(BasicType.Num x);
-
-  public T visitBasicTypeLoc(BasicType.Loc x);
-
-  public T visitBasicTypeNode(BasicType.Node x);
-
-  public T visitBasicTypeSet(BasicType.Set x);
-
-  public T visitLocalVariableDeclarationDefault(LocalVariableDeclaration.Default x);
-
-  public T visitLocalVariableDeclarationDynamic(LocalVariableDeclaration.Dynamic x);
-
-  public T visitVariantNAryConstructor(Variant.NAryConstructor x);
-
-  public T visitStringTailMidInterpolated(StringTail.MidInterpolated x);
-
-  public T visitStringTailMidTemplate(StringTail.MidTemplate x);
-
-  public T visitStringTailPost(StringTail.Post x);
-
-  public T visitProtocolTailPost(ProtocolTail.Post x);
-
-  public T visitProtocolTailMid(ProtocolTail.Mid x);
-
-  public T visitQualifiedNameDefault(QualifiedName.Default x);
-
-  public T visitProtocolPartNonInterpolated(ProtocolPart.NonInterpolated x);
-
-  public T visitProtocolPartInterpolated(ProtocolPart.Interpolated x);
-
-  public T visitCommandShell(Command.Shell x);
-
-  public T visitCommandImport(Command.Import x);
-
-  public T visitCommandExpression(Command.Expression x);
-
-  public T visitCommandStatement(Command.Statement x);
-
-  public T visitCommandDeclaration(Command.Declaration x);
-
-  public T visitFunctionModifiersList(FunctionModifiers.List x);
-
-  public T visitOptionalExpressionExpression(OptionalExpression.Expression x);
-
-  public T visitOptionalExpressionNoExpression(OptionalExpression.NoExpression x);
+  public T visitTargetLabeled(Target.Labeled x);
 
   public T visitToplevelGivenVisibility(Toplevel.GivenVisibility x);
 
-  public T visitStartAbsent(Start.Absent x);
-
-  public T visitStartPresent(Start.Present x);
-
-  public T visitParametersVarArgs(Parameters.VarArgs x);
-
-  public T visitParametersDefault(Parameters.Default x);
-
   public T visitTypeBasic(Type.Basic x);
-
-  public T visitTypeFunction(Type.Function x);
-
-  public T visitTypeStructured(Type.Structured x);
-
-  public T visitTypeVariable(Type.Variable x);
 
   public T visitTypeBracket(Type.Bracket x);
 
+  public T visitTypeFunction(Type.Function x);
+
   public T visitTypeSelector(Type.Selector x);
+
+  public T visitTypeStructured(Type.Structured x);
 
   public T visitTypeSymbol(Type.Symbol x);
 
   public T visitTypeUser(Type.User x);
 
-  public T visitLabelEmpty(Label.Empty x);
+  public T visitTypeVariable(Type.Variable x);
 
-  public T visitLabelDefault(Label.Default x);
+  public T visitTypeArgDefault(TypeArg.Default x);
 
-  public T visitKindModule(Kind.Module x);
+  public T visitTypeArgNamed(TypeArg.Named x);
 
-  public T visitKindVariable(Kind.Variable x);
+  public T visitTypeVarBounded(TypeVar.Bounded x);
 
-  public T visitKindAnno(Kind.Anno x);
+  public T visitTypeVarFree(TypeVar.Free x);
 
-  public T visitKindFunction(Kind.Function x);
+  public T visitUserTypeName(UserType.Name x);
 
-  public T visitKindData(Kind.Data x);
-
-  public T visitKindTag(Kind.Tag x);
-
-  public T visitKindView(Kind.View x);
-
-  public T visitKindAlias(Kind.Alias x);
-
-  public T visitKindAll(Kind.All x);
-
-  public T visitProdModifierAssociativity(ProdModifier.Associativity x);
-
-  public T visitProdModifierBracket(ProdModifier.Bracket x);
-
-  public T visitProdModifierTag(ProdModifier.Tag x);
-
-  public T visitMapping_ExpressionDefault(Mapping_Expression.Default x);
-
-  public T visitModuleParametersDefault(ModuleParameters.Default x);
-
-  public T visitReplacementUnconditional(Replacement.Unconditional x);
-
-  public T visitReplacementConditional(Replacement.Conditional x);
-
-  public T visitImportExternal(Import.External x);
-
-  public T visitImportExtend(Import.Extend x);
-
-  public T visitImportDefault(Import.Default x);
-
-  public T visitImportSyntax(Import.Syntax x);
-
-  public T visitFormalsDefault(Formals.Default x);
-
-  public T visitStatementVariableDeclaration(Statement.VariableDeclaration x);
-
-  public T visitStatementGlobalDirective(Statement.GlobalDirective x);
-
-  public T visitStatementSolve(Statement.Solve x);
-
-  public T visitStatementFor(Statement.For x);
-
-  public T visitStatementWhile(Statement.While x);
-
-  public T visitStatementAssertWithMessage(Statement.AssertWithMessage x);
-
-  public T visitStatementExpression(Statement.Expression x);
-
-  public T visitStatementFilter(Statement.Filter x);
-
-  public T visitStatementIfThen(Statement.IfThen x);
-
-  public T visitStatementDoWhile(Statement.DoWhile x);
-
-  public T visitStatementAssignment(Statement.Assignment x);
-
-  public T visitStatementFail(Statement.Fail x);
-
-  public T visitStatementReturn(Statement.Return x);
-
-  public T visitStatementBreak(Statement.Break x);
-
-  public T visitStatementIfThenElse(Statement.IfThenElse x);
-
-  public T visitStatementFunctionDeclaration(Statement.FunctionDeclaration x);
-
-  public T visitStatementSwitch(Statement.Switch x);
-
-  public T visitStatementAppend(Statement.Append x);
-
-  public T visitStatementInsert(Statement.Insert x);
-
-  public T visitStatementNonEmptyBlock(Statement.NonEmptyBlock x);
-
-  public T visitStatementThrow(Statement.Throw x);
-
-  public T visitStatementTryFinally(Statement.TryFinally x);
-
-  public T visitStatementAssert(Statement.Assert x);
-
-  public T visitStatementTry(Statement.Try x);
-
-  public T visitStatementEmptyStatement(Statement.EmptyStatement x);
-
-  public T visitStatementVisit(Statement.Visit x);
-
-  public T visitStatementContinue(Statement.Continue x);
-
-  public T visitModuleDefault(Module.Default x);
-
-  public T visitDateTimeLiteralDateAndTimeLiteral(DateTimeLiteral.DateAndTimeLiteral x);
-
-  public T visitDateTimeLiteralTimeLiteral(DateTimeLiteral.TimeLiteral x);
-
-  public T visitDateTimeLiteralDateLiteral(DateTimeLiteral.DateLiteral x);
-
-  public T visitHeaderParameters(Header.Parameters x);
-
-  public T visitHeaderDefault(Header.Default x);
-
-  public T visitIntegerLiteralOctalIntegerLiteral(IntegerLiteral.OctalIntegerLiteral x);
-
-  public T visitIntegerLiteralHexIntegerLiteral(IntegerLiteral.HexIntegerLiteral x);
-
-  public T visitIntegerLiteralDecimalIntegerLiteral(IntegerLiteral.DecimalIntegerLiteral x);
-
-  public T visitAssignmentAddition(Assignment.Addition x);
-
-  public T visitAssignmentIfDefined(Assignment.IfDefined x);
-
-  public T visitAssignmentDivision(Assignment.Division x);
-
-  public T visitAssignmentProduct(Assignment.Product x);
-
-  public T visitAssignmentIntersection(Assignment.Intersection x);
-
-  public T visitAssignmentAppend(Assignment.Append x);
-
-  public T visitAssignmentSubtraction(Assignment.Subtraction x);
-
-  public T visitAssignmentDefault(Assignment.Default x);
-
-  public T visitPatternWithActionReplacing(PatternWithAction.Replacing x);
-
-  public T visitPatternWithActionArbitrary(PatternWithAction.Arbitrary x);
-
-  public T visitAssocRight(Assoc.Right x);
-
-  public T visitAssocNonAssociative(Assoc.NonAssociative x);
-
-  public T visitAssocLeft(Assoc.Left x);
-
-  public T visitAssocAssociative(Assoc.Associative x);
-
-  public T visitShellCommandUnimport(ShellCommand.Unimport x);
-
-  public T visitShellCommandQuit(ShellCommand.Quit x);
-
-  public T visitShellCommandEdit(ShellCommand.Edit x);
-
-  public T visitShellCommandListModules(ShellCommand.ListModules x);
-
-  public T visitShellCommandHistory(ShellCommand.History x);
-
-  public T visitShellCommandListDeclarations(ShellCommand.ListDeclarations x);
-
-  public T visitShellCommandHelp(ShellCommand.Help x);
-
-  public T visitShellCommandSetOption(ShellCommand.SetOption x);
-
-  public T visitShellCommandUndeclare(ShellCommand.Undeclare x);
-
-  public T visitShellCommandTest(ShellCommand.Test x);
-
-  public T visitRenamingsDefault(Renamings.Default x);
-
-  public T visitDeclaratorDefault(Declarator.Default x);
-
-  public T visitClassUnion(Class.Union x);
-
-  public T visitClassDifference(Class.Difference x);
-
-  public T visitClassSimpleCharclass(Class.SimpleCharclass x);
-
-  public T visitClassIntersection(Class.Intersection x);
-
-  public T visitClassComplement(Class.Complement x);
-
-  public T visitClassBracket(Class.Bracket x);
+  public T visitUserTypeParametric(UserType.Parametric x);
 
   public T visitVariableInitialized(Variable.Initialized x);
 
   public T visitVariableUnInitialized(Variable.UnInitialized x);
 
-  public T visitPreModuleDefault(PreModule.Default x);
+  public T visitVariantNAryConstructor(Variant.NAryConstructor x);
 
-  public T visitFunctionModifierDefault(FunctionModifier.Default x);
+  public T visitVisibilityDefault(Visibility.Default x);
 
-  public T visitFunctionModifierTest(FunctionModifier.Test x);
+  public T visitVisibilityPrivate(Visibility.Private x);
 
-  public T visitFunctionModifierJava(FunctionModifier.Java x);
+  public T visitVisibilityPublic(Visibility.Public x);
 
-  public T visitBoundEmpty(Bound.Empty x);
+  public T visitVisitDefaultStrategy(Visit.DefaultStrategy x);
 
-  public T visitBoundDefault(Bound.Default x);
+  public T visitVisitGivenStrategy(Visit.GivenStrategy x);
 
-  public T visitComprehensionSet(Comprehension.Set x);
-
-  public T visitComprehensionMap(Comprehension.Map x);
-
-  public T visitComprehensionList(Comprehension.List x);
-
-  public T visitStringMiddleTemplate(StringMiddle.Template x);
-
-  public T visitStringMiddleMid(StringMiddle.Mid x);
-
-  public T visitStringMiddleInterpolated(StringMiddle.Interpolated x);
-
-  public T visitCommandsList(Commands.List x);
-
-  public T visitTypeArgNamed(TypeArg.Named x);
-
-  public T visitTypeArgDefault(TypeArg.Default x);
-
-  public T visitPathPartNonInterpolated(PathPart.NonInterpolated x);
-
-  public T visitPathPartInterpolated(PathPart.Interpolated x);
-
-  public T visitPathTailMid(PathTail.Mid x);
-
-  public T visitPathTailPost(PathTail.Post x);
-
-  public T visitImportedModuleRenamings(ImportedModule.Renamings x);
-
-  public T visitImportedModuleActualsRenaming(ImportedModule.ActualsRenaming x);
-
-  public T visitImportedModuleActuals(ImportedModule.Actuals x);
-
-  public T visitImportedModuleDefault(ImportedModule.Default x);
-
-  public T visitStrategyOutermost(Strategy.Outermost x);
-
-  public T visitStrategyTopDownBreak(Strategy.TopDownBreak x);
-
-  public T visitStrategyBottomUpBreak(Strategy.BottomUpBreak x);
-
-  public T visitStrategyInnermost(Strategy.Innermost x);
-
-  public T visitStrategyBottomUp(Strategy.BottomUp x);
-
-  public T visitStrategyTopDown(Strategy.TopDown x);
-
-  public T visitSignatureNoThrows(Signature.NoThrows x);
-
-  public T visitSignatureWithThrows(Signature.WithThrows x);
-
-  public T visitAssignableTuple(Assignable.Tuple x);
-
-  public T visitAssignableVariable(Assignable.Variable x);
-
-  public T visitAssignableIfDefinedOrDefault(Assignable.IfDefinedOrDefault x);
-
-  public T visitAssignableSubscript(Assignable.Subscript x);
-
-  public T visitAssignableBracket(Assignable.Bracket x);
-
-  public T visitAssignableConstructor(Assignable.Constructor x);
-
-  public T visitAssignableFieldAccess(Assignable.FieldAccess x);
-
-  public T visitAssignableAnnotation(Assignable.Annotation x);
-
-
-  public T visitRegExpLiteralLexical(RegExpLiteral.Lexical x);
-
-  public T visitNamedRegExpLexical(NamedRegExp.Lexical x);
-
-  public T visitPreProtocolCharsLexical(PreProtocolChars.Lexical x);
-
-  public T visitDatePartLexical(DatePart.Lexical x);
-
-  public T visitHexIntegerLiteralLexical(HexIntegerLiteral.Lexical x);
-
-  public T visitPostStringCharsLexical(PostStringChars.Lexical x);
-
-  public T visitCharLexical(Char.Lexical x);
-
-  public T visitStringConstantLexical(StringConstant.Lexical x);
-
-  public T visitPrePathCharsLexical(PrePathChars.Lexical x);
-
-  public T visitRestLexical(Rest.Lexical x);
-
-  public T visitMidPathCharsLexical(MidPathChars.Lexical x);
-
-  public T visitJustTimeLexical(JustTime.Lexical x);
-
-  public T visitStringCharacterLexical(StringCharacter.Lexical x);
-
-  public T visitPostProtocolCharsLexical(PostProtocolChars.Lexical x);
-
-  public T visitURLCharsLexical(URLChars.Lexical x);
-
-  public T visitTimeZonePartLexical(TimeZonePart.Lexical x);
-
-  public T visitNonterminalLabelLexical(NonterminalLabel.Lexical x);
-
-  public T visitPreStringCharsLexical(PreStringChars.Lexical x);
 
   public T visitBackslashLexical(Backslash.Lexical x);
 
+  public T visitBooleanLiteralLexical(BooleanLiteral.Lexical x);
+
   public T visitCaseInsensitiveStringConstantLexical(CaseInsensitiveStringConstant.Lexical x);
 
-  public T visitNamedBackslashLexical(NamedBackslash.Lexical x);
-
-  public T visitMidProtocolCharsLexical(MidProtocolChars.Lexical x);
-
-  public T visitJustDateLexical(JustDate.Lexical x);
-
-  public T visitPostPathCharsLexical(PostPathChars.Lexical x);
-
-  public T visitTimePartNoTZLexical(TimePartNoTZ.Lexical x);
-
-  public T visitDecimalIntegerLiteralLexical(DecimalIntegerLiteral.Lexical x);
-
-  public T visitNameLexical(Name.Lexical x);
-
-  public T visitTagStringLexical(TagString.Lexical x);
-
-  public T visitLAYOUTLexical(LAYOUT.Lexical x);
-
-  public T visitNonterminalLexical(Nonterminal.Lexical x);
+  public T visitCharLexical(Char.Lexical x);
 
   public T visitCommentLexical(Comment.Lexical x);
 
-  public T visitBooleanLiteralLexical(BooleanLiteral.Lexical x);
+  public T visitDateAndTimeLexical(DateAndTime.Lexical x);
 
-  public T visitProtocolCharsLexical(ProtocolChars.Lexical x);
+  public T visitDatePartLexical(DatePart.Lexical x);
+
+  public T visitDecimalIntegerLiteralLexical(DecimalIntegerLiteral.Lexical x);
+
+  public T visitHexIntegerLiteralLexical(HexIntegerLiteral.Lexical x);
+
+  public T visitJustDateLexical(JustDate.Lexical x);
+
+  public T visitJustTimeLexical(JustTime.Lexical x);
+
+  public T visitLAYOUTLexical(LAYOUT.Lexical x);
+
+  public T visitMidPathCharsLexical(MidPathChars.Lexical x);
+
+  public T visitMidProtocolCharsLexical(MidProtocolChars.Lexical x);
 
   public T visitMidStringCharsLexical(MidStringChars.Lexical x);
 
-  public T visitRationalLiteralLexical(RationalLiteral.Lexical x);
+  public T visitNameLexical(Name.Lexical x);
 
-  public T visitRegExpModifierLexical(RegExpModifier.Lexical x);
+  public T visitNamedBackslashLexical(NamedBackslash.Lexical x);
 
-  public T visitRegExpLexical(RegExp.Lexical x);
+  public T visitNamedRegExpLexical(NamedRegExp.Lexical x);
 
-  public T visitDateAndTimeLexical(DateAndTime.Lexical x);
+  public T visitNonterminalLexical(Nonterminal.Lexical x);
 
-  public T visitRealLiteralLexical(RealLiteral.Lexical x);
-
-  public T visitUnicodeEscapeLexical(UnicodeEscape.Lexical x);
+  public T visitNonterminalLabelLexical(NonterminalLabel.Lexical x);
 
   public T visitOctalIntegerLiteralLexical(OctalIntegerLiteral.Lexical x);
 
+  public T visitOptionalCommaLexical(OptionalComma.Lexical x);
+
   public T visitPathCharsLexical(PathChars.Lexical x);
+
+  public T visitPostPathCharsLexical(PostPathChars.Lexical x);
+
+  public T visitPostProtocolCharsLexical(PostProtocolChars.Lexical x);
+
+  public T visitPostStringCharsLexical(PostStringChars.Lexical x);
+
+  public T visitPrePathCharsLexical(PrePathChars.Lexical x);
+
+  public T visitPreProtocolCharsLexical(PreProtocolChars.Lexical x);
+
+  public T visitPreStringCharsLexical(PreStringChars.Lexical x);
+
+  public T visitProtocolCharsLexical(ProtocolChars.Lexical x);
+
+  public T visitRationalLiteralLexical(RationalLiteral.Lexical x);
+
+  public T visitRealLiteralLexical(RealLiteral.Lexical x);
+
+  public T visitRegExpLexical(RegExp.Lexical x);
+
+  public T visitRegExpLiteralLexical(RegExpLiteral.Lexical x);
+
+  public T visitRegExpModifierLexical(RegExpModifier.Lexical x);
+
+  public T visitRestLexical(Rest.Lexical x);
+
+  public T visitStringCharacterLexical(StringCharacter.Lexical x);
+
+  public T visitStringConstantLexical(StringConstant.Lexical x);
+
+  public T visitTagStringLexical(TagString.Lexical x);
+
+  public T visitTimePartNoTZLexical(TimePartNoTZ.Lexical x);
+
+  public T visitTimeZonePartLexical(TimeZonePart.Lexical x);
+
+  public T visitURLCharsLexical(URLChars.Lexical x);
+
+  public T visitUnicodeEscapeLexical(UnicodeEscape.Lexical x);
 
 
   public T visitDataTargetAmbiguity(DataTarget.Ambiguity x);
   public T visitTagAmbiguity(Tag.Ambiguity x);
-  public T visitJustTimeAmbiguity(JustTime.Ambiguity x);
   public T visitModuleActualsAmbiguity(ModuleActuals.Ambiguity x);
+  public T visitJustTimeAmbiguity(JustTime.Ambiguity x);
   public T visitStringCharacterAmbiguity(StringCharacter.Ambiguity x);
   public T visitProdAmbiguity(Prod.Ambiguity x);
   public T visitCharAmbiguity(Char.Ambiguity x);
-  public T visitAssocAmbiguity(Assoc.Ambiguity x);
-  public T visitPrePathCharsAmbiguity(PrePathChars.Ambiguity x);
   public T visitStringConstantAmbiguity(StringConstant.Ambiguity x);
-  public T visitDateTimeLiteralAmbiguity(DateTimeLiteral.Ambiguity x);
+  public T visitPrePathCharsAmbiguity(PrePathChars.Ambiguity x);
+  public T visitAssocAmbiguity(Assoc.Ambiguity x);
   public T visitRestAmbiguity(Rest.Ambiguity x);
+  public T visitDateTimeLiteralAmbiguity(DateTimeLiteral.Ambiguity x);
   public T visitReplacementAmbiguity(Replacement.Ambiguity x);
   public T visitMidPathCharsAmbiguity(MidPathChars.Ambiguity x);
-  public T visitFunctionModifierAmbiguity(FunctionModifier.Ambiguity x);
   public T visitToplevelAmbiguity(Toplevel.Ambiguity x);
+  public T visitFunctionModifierAmbiguity(FunctionModifier.Ambiguity x);
   public T visitEvalCommandAmbiguity(EvalCommand.Ambiguity x);
   public T visitProdModifierAmbiguity(ProdModifier.Ambiguity x);
-  public T visitAssignmentAmbiguity(Assignment.Ambiguity x);
   public T visitTypeVarAmbiguity(TypeVar.Ambiguity x);
+  public T visitAssignmentAmbiguity(Assignment.Ambiguity x);
   public T visitPostStringCharsAmbiguity(PostStringChars.Ambiguity x);
   public T visitHexIntegerLiteralAmbiguity(HexIntegerLiteral.Ambiguity x);
-  public T visitAssignableAmbiguity(Assignable.Ambiguity x);
   public T visitMapping_ExpressionAmbiguity(Mapping_Expression.Ambiguity x);
+  public T visitAssignableAmbiguity(Assignable.Ambiguity x);
+  public T visitCommonKeywordParametersAmbiguity(CommonKeywordParameters.Ambiguity x);
   public T visitBasicTypeAmbiguity(BasicType.Ambiguity x);
   public T visitRegExpLiteralAmbiguity(RegExpLiteral.Ambiguity x);
   public T visitVariantAmbiguity(Variant.Ambiguity x);
-  public T visitComprehensionAmbiguity(Comprehension.Ambiguity x);
   public T visitFunctionModifiersAmbiguity(FunctionModifiers.Ambiguity x);
-  public T visitFunctionDeclarationAmbiguity(FunctionDeclaration.Ambiguity x);
+  public T visitComprehensionAmbiguity(Comprehension.Ambiguity x);
   public T visitPreProtocolCharsAmbiguity(PreProtocolChars.Ambiguity x);
   public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x);
+  public T visitFunctionDeclarationAmbiguity(FunctionDeclaration.Ambiguity x);
   public T visitDatePartAmbiguity(DatePart.Ambiguity x);
   public T visitBoundAmbiguity(Bound.Ambiguity x);
-  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x);
   public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x);
+  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x);
+  public T visitKeywordFormalsAmbiguity(KeywordFormals.Ambiguity x);
+  public T visitTypeAmbiguity(Type.Ambiguity x);
   public T visitJustDateAmbiguity(JustDate.Ambiguity x);
   public T visitFieldAmbiguity(Field.Ambiguity x);
   public T visitDeclarationAmbiguity(Declaration.Ambiguity x);
-  public T visitTypeAmbiguity(Type.Ambiguity x);
+  public T visitPostPathCharsAmbiguity(PostPathChars.Ambiguity x);
   public T visitPathPartAmbiguity(PathPart.Ambiguity x);
   public T visitClassAmbiguity(Class.Ambiguity x);
-  public T visitPostPathCharsAmbiguity(PostPathChars.Ambiguity x);
   public T visitCaseInsensitiveStringConstantAmbiguity(CaseInsensitiveStringConstant.Ambiguity x);
   public T visitBackslashAmbiguity(Backslash.Ambiguity x);
   public T visitLabelAmbiguity(Label.Ambiguity x);
   public T visitFunctionTypeAmbiguity(FunctionType.Ambiguity x);
   public T visitDeclaratorAmbiguity(Declarator.Ambiguity x);
   public T visitCaseAmbiguity(Case.Ambiguity x);
-  public T visitPreModuleAmbiguity(PreModule.Ambiguity x);
   public T visitStatementAmbiguity(Statement.Ambiguity x);
+  public T visitPreModuleAmbiguity(PreModule.Ambiguity x);
   public T visitURLCharsAmbiguity(URLChars.Ambiguity x);
   public T visitTimeZonePartAmbiguity(TimeZonePart.Ambiguity x);
+  public T visitStructuredTypeAmbiguity(StructuredType.Ambiguity x);
+  public T visitStringTemplateAmbiguity(StringTemplate.Ambiguity x);
   public T visitProtocolPartAmbiguity(ProtocolPart.Ambiguity x);
   public T visitNonterminalLabelAmbiguity(NonterminalLabel.Ambiguity x);
-  public T visitStringTemplateAmbiguity(StringTemplate.Ambiguity x);
-  public T visitStructuredTypeAmbiguity(StructuredType.Ambiguity x);
   public T visitPreStringCharsAmbiguity(PreStringChars.Ambiguity x);
-  public T visitImportAmbiguity(Import.Ambiguity x);
-  public T visitPostProtocolCharsAmbiguity(PostProtocolChars.Ambiguity x);
   public T visitUserTypeAmbiguity(UserType.Ambiguity x);
+  public T visitPostProtocolCharsAmbiguity(PostProtocolChars.Ambiguity x);
+  public T visitImportAmbiguity(Import.Ambiguity x);
   public T visitFormalsAmbiguity(Formals.Ambiguity x);
   public T visitStartAmbiguity(Start.Ambiguity x);
   public T visitBodyAmbiguity(Body.Ambiguity x);
@@ -882,49 +902,53 @@ public interface IASTVisitor<T> {
   public T visitFunctionBodyAmbiguity(FunctionBody.Ambiguity x);
   public T visitTagsAmbiguity(Tags.Ambiguity x);
   public T visitRenamingsAmbiguity(Renamings.Ambiguity x);
-  public T visitExpressionAmbiguity(Expression.Ambiguity x);
   public T visitOptionalExpressionAmbiguity(OptionalExpression.Ambiguity x);
+  public T visitExpressionAmbiguity(Expression.Ambiguity x);
   public T visitSyntaxDefinitionAmbiguity(SyntaxDefinition.Ambiguity x);
   public T visitPathTailAmbiguity(PathTail.Ambiguity x);
+  public T visitOptionalCommaAmbiguity(OptionalComma.Ambiguity x);
   public T visitKindAmbiguity(Kind.Ambiguity x);
   public T visitVisibilityAmbiguity(Visibility.Ambiguity x);
-  public T visitIntegerLiteralAmbiguity(IntegerLiteral.Ambiguity x);
   public T visitTargetAmbiguity(Target.Ambiguity x);
+  public T visitIntegerLiteralAmbiguity(IntegerLiteral.Ambiguity x);
   public T visitImportedModuleAmbiguity(ImportedModule.Ambiguity x);
   public T visitHeaderAmbiguity(Header.Ambiguity x);
   public T visitPatternWithActionAmbiguity(PatternWithAction.Ambiguity x);
+  public T visitVisitAmbiguity(Visit.Ambiguity x);
   public T visitTagStringAmbiguity(TagString.Ambiguity x);
   public T visitNameAmbiguity(Name.Ambiguity x);
   public T visitCommandAmbiguity(Command.Ambiguity x);
-  public T visitVisitAmbiguity(Visit.Ambiguity x);
   public T visitLAYOUTAmbiguity(LAYOUT.Ambiguity x);
   public T visitNonterminalAmbiguity(Nonterminal.Ambiguity x);
-  public T visitCommandsAmbiguity(Commands.Ambiguity x);
   public T visitProtocolTailAmbiguity(ProtocolTail.Ambiguity x);
+  public T visitCommandsAmbiguity(Commands.Ambiguity x);
   public T visitTimePartNoTZAmbiguity(TimePartNoTZ.Ambiguity x);
-  public T visitQualifiedNameAmbiguity(QualifiedName.Ambiguity x);
   public T visitSymAmbiguity(Sym.Ambiguity x);
+  public T visitQualifiedNameAmbiguity(QualifiedName.Ambiguity x);
   public T visitStringMiddleAmbiguity(StringMiddle.Ambiguity x);
+  public T visitKeywordArgumentAmbiguity(KeywordArgument.Ambiguity x);
   public T visitDataTypeSelectorAmbiguity(DataTypeSelector.Ambiguity x);
   public T visitDecimalIntegerLiteralAmbiguity(DecimalIntegerLiteral.Ambiguity x);
   public T visitStringTailAmbiguity(StringTail.Ambiguity x);
   public T visitUnicodeEscapeAmbiguity(UnicodeEscape.Ambiguity x);
   public T visitRangeAmbiguity(Range.Ambiguity x);
-  public T visitOctalIntegerLiteralAmbiguity(OctalIntegerLiteral.Ambiguity x);
-  public T visitTypeArgAmbiguity(TypeArg.Ambiguity x);
   public T visitVariableAmbiguity(Variable.Ambiguity x);
+  public T visitTypeArgAmbiguity(TypeArg.Ambiguity x);
+  public T visitOctalIntegerLiteralAmbiguity(OctalIntegerLiteral.Ambiguity x);
   public T visitShellCommandAmbiguity(ShellCommand.Ambiguity x);
   public T visitRenamingAmbiguity(Renaming.Ambiguity x);
   public T visitCatchAmbiguity(Catch.Ambiguity x);
   public T visitLocationLiteralAmbiguity(LocationLiteral.Ambiguity x);
-  public T visitPathCharsAmbiguity(PathChars.Ambiguity x);
   public T visitSignatureAmbiguity(Signature.Ambiguity x);
+  public T visitPathCharsAmbiguity(PathChars.Ambiguity x);
+  public T visitKeywordFormalAmbiguity(KeywordFormal.Ambiguity x);
   public T visitDateAndTimeAmbiguity(DateAndTime.Ambiguity x);
   public T visitModuleParametersAmbiguity(ModuleParameters.Ambiguity x);
   public T visitStrategyAmbiguity(Strategy.Ambiguity x);
   public T visitLocalVariableDeclarationAmbiguity(LocalVariableDeclaration.Ambiguity x);
   public T visitRealLiteralAmbiguity(RealLiteral.Ambiguity x);
   public T visitLiteralAmbiguity(Literal.Ambiguity x);
+  public T visitKeywordArgumentsAmbiguity(KeywordArguments.Ambiguity x);
   public T visitModuleAmbiguity(Module.Ambiguity x);
   public T visitParametersAmbiguity(Parameters.Ambiguity x);
   public T visitRegExpAmbiguity(RegExp.Ambiguity x);
