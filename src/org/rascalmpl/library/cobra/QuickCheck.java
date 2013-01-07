@@ -97,7 +97,7 @@ public class QuickCheck {
 			}
 
 			try {
-				IValue result = function.call(types, values).getValue();
+				IValue result = function.call(types, values, null).getValue();
 				if (!((IBool) result).getValue()) {
 					out.println("Failed " + (formals.getArity() > 0 ? "with " : ""));
 					for (IValue arg : values) {

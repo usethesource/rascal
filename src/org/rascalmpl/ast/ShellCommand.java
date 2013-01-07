@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -86,69 +86,6 @@ public abstract class ShellCommand extends AbstractAST {
   
 
   
-  public boolean isUnimport() {
-    return false;
-  }
-
-  static public class Unimport extends ShellCommand {
-    // Production: sig("Unimport",[arg("org.rascalmpl.ast.QualifiedName","name")])
-  
-    
-    private final org.rascalmpl.ast.QualifiedName name;
-  
-    public Unimport(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
-      super(node);
-      
-      this.name = name;
-    }
-  
-    @Override
-    public boolean isUnimport() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitShellCommandUnimport(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.QualifiedName getName() {
-      return this.name;
-    }
-  
-    @Override
-    public boolean hasName() {
-      return true;
-    }	
-  }
-  public boolean isQuit() {
-    return false;
-  }
-
-  static public class Quit extends ShellCommand {
-    // Production: sig("Quit",[])
-  
-    
-  
-    public Quit(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isQuit() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitShellCommandQuit(this);
-    }
-  
-    	
-  }
   public boolean isEdit() {
     return false;
   }
@@ -186,28 +123,28 @@ public abstract class ShellCommand extends AbstractAST {
       return true;
     }	
   }
-  public boolean isListModules() {
+  public boolean isHelp() {
     return false;
   }
 
-  static public class ListModules extends ShellCommand {
-    // Production: sig("ListModules",[])
+  static public class Help extends ShellCommand {
+    // Production: sig("Help",[])
   
     
   
-    public ListModules(IConstructor node ) {
+    public Help(IConstructor node ) {
       super(node);
       
     }
   
     @Override
-    public boolean isListModules() { 
+    public boolean isHelp() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitShellCommandListModules(this);
+      return visitor.visitShellCommandHelp(this);
     }
   
     	
@@ -264,28 +201,54 @@ public abstract class ShellCommand extends AbstractAST {
   
     	
   }
-  public boolean isHelp() {
+  public boolean isListModules() {
     return false;
   }
 
-  static public class Help extends ShellCommand {
-    // Production: sig("Help",[])
+  static public class ListModules extends ShellCommand {
+    // Production: sig("ListModules",[])
   
     
   
-    public Help(IConstructor node ) {
+    public ListModules(IConstructor node ) {
       super(node);
       
     }
   
     @Override
-    public boolean isHelp() { 
+    public boolean isListModules() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitShellCommandHelp(this);
+      return visitor.visitShellCommandListModules(this);
+    }
+  
+    	
+  }
+  public boolean isQuit() {
+    return false;
+  }
+
+  static public class Quit extends ShellCommand {
+    // Production: sig("Quit",[])
+  
+    
+  
+    public Quit(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isQuit() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitShellCommandQuit(this);
     }
   
     	
@@ -338,6 +301,32 @@ public abstract class ShellCommand extends AbstractAST {
       return true;
     }	
   }
+  public boolean isTest() {
+    return false;
+  }
+
+  static public class Test extends ShellCommand {
+    // Production: sig("Test",[])
+  
+    
+  
+    public Test(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isTest() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitShellCommandTest(this);
+    }
+  
+    	
+  }
   public boolean isUndeclare() {
     return false;
   }
@@ -375,30 +364,41 @@ public abstract class ShellCommand extends AbstractAST {
       return true;
     }	
   }
-  public boolean isTest() {
+  public boolean isUnimport() {
     return false;
   }
 
-  static public class Test extends ShellCommand {
-    // Production: sig("Test",[])
+  static public class Unimport extends ShellCommand {
+    // Production: sig("Unimport",[arg("org.rascalmpl.ast.QualifiedName","name")])
   
     
+    private final org.rascalmpl.ast.QualifiedName name;
   
-    public Test(IConstructor node ) {
+    public Unimport(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
       super(node);
       
+      this.name = name;
     }
   
     @Override
-    public boolean isTest() { 
+    public boolean isUnimport() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitShellCommandTest(this);
+      return visitor.visitShellCommandUnimport(this);
     }
   
-    	
+    
+    @Override
+    public org.rascalmpl.ast.QualifiedName getName() {
+      return this.name;
+    }
+  
+    @Override
+    public boolean hasName() {
+      return true;
+    }	
   }
 }

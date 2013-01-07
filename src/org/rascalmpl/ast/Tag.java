@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,13 +29,6 @@ public abstract class Tag extends AbstractAST {
   }
 
   
-  public boolean hasContents() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.TagString getContents() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasExpression() {
     return false;
   }
@@ -48,6 +41,13 @@ public abstract class Tag extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getName() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasContents() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.TagString getContents() {
     throw new UnsupportedOperationException();
   }
 
@@ -141,6 +141,43 @@ public abstract class Tag extends AbstractAST {
       return true;
     }	
   }
+  public boolean isEmpty() {
+    return false;
+  }
+
+  static public class Empty extends Tag {
+    // Production: sig("Empty",[arg("org.rascalmpl.ast.Name","name")])
+  
+    
+    private final org.rascalmpl.ast.Name name;
+  
+    public Empty(IConstructor node , org.rascalmpl.ast.Name name) {
+      super(node);
+      
+      this.name = name;
+    }
+  
+    @Override
+    public boolean isEmpty() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitTagEmpty(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Name getName() {
+      return this.name;
+    }
+  
+    @Override
+    public boolean hasName() {
+      return true;
+    }	
+  }
   public boolean isExpression() {
     return false;
   }
@@ -186,43 +223,6 @@ public abstract class Tag extends AbstractAST {
   
     @Override
     public boolean hasExpression() {
-      return true;
-    }	
-  }
-  public boolean isEmpty() {
-    return false;
-  }
-
-  static public class Empty extends Tag {
-    // Production: sig("Empty",[arg("org.rascalmpl.ast.Name","name")])
-  
-    
-    private final org.rascalmpl.ast.Name name;
-  
-    public Empty(IConstructor node , org.rascalmpl.ast.Name name) {
-      super(node);
-      
-      this.name = name;
-    }
-  
-    @Override
-    public boolean isEmpty() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitTagEmpty(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Name getName() {
-      return this.name;
-    }
-  
-    @Override
-    public boolean hasName() {
       return true;
     }	
   }

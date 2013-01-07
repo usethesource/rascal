@@ -105,7 +105,7 @@ public class RascalFunction extends NamedFunction {
 	@SuppressWarnings("unchecked")
 	public RascalFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, String name, FunctionType functionType,
 			boolean varargs, boolean isDefault, boolean isTest, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
-		super(ast, eval, functionType, name, varargs, env);
+		super(ast, eval, functionType, name, varargs, null, env);
 		this.body = body;
 		this.isDefault = isDefault;
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
@@ -316,7 +316,7 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
 		Environment old = ctx.getCurrentEnvt();
 		AbstractAST oldAST = ctx.getCurrentAST();
 		Stack<Accumulator> oldAccus = ctx.getAccumulators();
@@ -346,6 +346,7 @@ public class RascalFunction extends NamedFunction {
 
 			if (size == 0) {
 				try {
+					bindKeywordArgs(keyArgValues);
 					return runBody();
 				}
 				catch (Return e) {
@@ -368,6 +369,7 @@ public class RascalFunction extends NamedFunction {
 					if (i == size - 1) {
 						// formals are now bound by side effect of the pattern matcher
 						try {
+							bindKeywordArgs(keyArgValues);
 							return runBody();
 						}
 						catch (Failure e) {
@@ -411,6 +413,7 @@ public class RascalFunction extends NamedFunction {
 			ctx.setCurrentAST(oldAST);
 		}
 	}
+	
 
 	private Result<IValue> runBody() {
 		if (callTracing) {
