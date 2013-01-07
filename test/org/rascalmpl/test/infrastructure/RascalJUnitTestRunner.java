@@ -24,6 +24,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.TestEvaluator;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -56,15 +57,16 @@ public class RascalJUnitTestRunner extends Runner {
 	
 	public RascalJUnitTestRunner(Class<?> clazz) {
 		this(clazz.getAnnotation(RascalJUnitTestPrefix.class).value());
-		
-		RascalJUnitTestScheme scheme = clazz.getAnnotation(RascalJUnitTestScheme.class);
-		RascalJUnitTestRoot root = clazz.getAnnotation(RascalJUnitTestRoot.class);
-		
-		if (scheme != null) {
-		  evaluator.getResolverRegistry().registerInput(
-		      new ClassResourceInputOutput(evaluator.getResolverRegistry(), scheme.value(), clazz, root != null ? root.value() : ""));
-		  evaluator.addRascalSearchPath(URIUtil.rootScheme(scheme.value()));
-		}
+		try {
+      Object instance = clazz.newInstance();
+      if (instance instanceof IRascalJUnitTestSetup) {
+        ((IRascalJUnitTestSetup) instance).setup(evaluator);
+      }
+    } catch (InstantiationException e) {
+      throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
+    } catch (IllegalAccessException e) {
+      throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
+    }
 	}
 	
 	public RascalJUnitTestRunner(String prefix) {
