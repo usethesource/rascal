@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,46 +29,11 @@ public abstract class Declaration extends AbstractAST {
   }
 
   
-  public boolean hasVisibility() {
+  public boolean hasTypes() {
     return false;
   }
 
-  public org.rascalmpl.ast.Visibility getVisibility() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasTags() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Tags getTags() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasFunctionDeclaration() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.FunctionDeclaration getFunctionDeclaration() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasBase() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Type getBase() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasVariants() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.Variant> getVariants() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasKind() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Kind getKind() {
+  public java.util.List<org.rascalmpl.ast.Type> getTypes() {
     throw new UnsupportedOperationException();
   }
   public boolean hasVariables() {
@@ -78,6 +43,34 @@ public abstract class Declaration extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Variable> getVariables() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasVariants() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Variant> getVariants() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasCommonKeywordParameters() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.CommonKeywordParameters getCommonKeywordParameters() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasFunctionDeclaration() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.FunctionDeclaration getFunctionDeclaration() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasKind() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Kind getKind() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasName() {
     return false;
   }
@@ -85,11 +78,11 @@ public abstract class Declaration extends AbstractAST {
   public org.rascalmpl.ast.Name getName() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasUser() {
+  public boolean hasTags() {
     return false;
   }
 
-  public org.rascalmpl.ast.UserType getUser() {
+  public org.rascalmpl.ast.Tags getTags() {
     throw new UnsupportedOperationException();
   }
   public boolean hasAnnoType() {
@@ -99,18 +92,11 @@ public abstract class Declaration extends AbstractAST {
   public org.rascalmpl.ast.Type getAnnoType() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasType() {
+  public boolean hasBase() {
     return false;
   }
 
-  public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasTypes() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.Type> getTypes() {
+  public org.rascalmpl.ast.Type getBase() {
     throw new UnsupportedOperationException();
   }
   public boolean hasOnType() {
@@ -118,6 +104,27 @@ public abstract class Declaration extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Type getOnType() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasType() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Type getType() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasUser() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.UserType getUser() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasVisibility() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Visibility getVisibility() {
     throw new UnsupportedOperationException();
   }
 
@@ -233,113 +240,6 @@ public abstract class Declaration extends AbstractAST {
       return true;
     }	
   }
-  public boolean isData() {
-    return false;
-  }
-
-  static public class Data extends Declaration {
-    // Production: sig("Data",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.UserType","user"),arg("java.util.List\<org.rascalmpl.ast.Variant\>","variants")])
-  
-    
-    private final org.rascalmpl.ast.Tags tags;
-    private final org.rascalmpl.ast.Visibility visibility;
-    private final org.rascalmpl.ast.UserType user;
-    private final java.util.List<org.rascalmpl.ast.Variant> variants;
-  
-    public Data(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  java.util.List<org.rascalmpl.ast.Variant> variants) {
-      super(node);
-      
-      this.tags = tags;
-      this.visibility = visibility;
-      this.user = user;
-      this.variants = variants;
-    }
-  
-    @Override
-    public boolean isData() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitDeclarationData(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Tags getTags() {
-      return this.tags;
-    }
-  
-    @Override
-    public boolean hasTags() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Visibility getVisibility() {
-      return this.visibility;
-    }
-  
-    @Override
-    public boolean hasVisibility() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.UserType getUser() {
-      return this.user;
-    }
-  
-    @Override
-    public boolean hasUser() {
-      return true;
-    }
-    @Override
-    public java.util.List<org.rascalmpl.ast.Variant> getVariants() {
-      return this.variants;
-    }
-  
-    @Override
-    public boolean hasVariants() {
-      return true;
-    }	
-  }
-  public boolean isFunction() {
-    return false;
-  }
-
-  static public class Function extends Declaration {
-    // Production: sig("Function",[arg("org.rascalmpl.ast.FunctionDeclaration","functionDeclaration")])
-  
-    
-    private final org.rascalmpl.ast.FunctionDeclaration functionDeclaration;
-  
-    public Function(IConstructor node , org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
-      super(node);
-      
-      this.functionDeclaration = functionDeclaration;
-    }
-  
-    @Override
-    public boolean isFunction() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitDeclarationFunction(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.FunctionDeclaration getFunctionDeclaration() {
-      return this.functionDeclaration;
-    }
-  
-    @Override
-    public boolean hasFunctionDeclaration() {
-      return true;
-    }	
-  }
   public boolean isAnnotation() {
     return false;
   }
@@ -421,36 +321,38 @@ public abstract class Declaration extends AbstractAST {
       return true;
     }	
   }
-  public boolean isVariable() {
+  public boolean isData() {
     return false;
   }
 
-  static public class Variable extends Declaration {
-    // Production: sig("Variable",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Type","type"),arg("java.util.List\<org.rascalmpl.ast.Variable\>","variables")])
+  static public class Data extends Declaration {
+    // Production: sig("Data",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.UserType","user"),arg("org.rascalmpl.ast.CommonKeywordParameters","commonKeywordParameters"),arg("java.util.List\<org.rascalmpl.ast.Variant\>","variants")])
   
     
     private final org.rascalmpl.ast.Tags tags;
     private final org.rascalmpl.ast.Visibility visibility;
-    private final org.rascalmpl.ast.Type type;
-    private final java.util.List<org.rascalmpl.ast.Variable> variables;
+    private final org.rascalmpl.ast.UserType user;
+    private final org.rascalmpl.ast.CommonKeywordParameters commonKeywordParameters;
+    private final java.util.List<org.rascalmpl.ast.Variant> variants;
   
-    public Variable(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.Variable> variables) {
+    public Data(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.CommonKeywordParameters commonKeywordParameters,  java.util.List<org.rascalmpl.ast.Variant> variants) {
       super(node);
       
       this.tags = tags;
       this.visibility = visibility;
-      this.type = type;
-      this.variables = variables;
+      this.user = user;
+      this.commonKeywordParameters = commonKeywordParameters;
+      this.variants = variants;
     }
   
     @Override
-    public boolean isVariable() { 
+    public boolean isData() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitDeclarationVariable(this);
+      return visitor.visitDeclarationData(this);
     }
   
     
@@ -473,21 +375,30 @@ public abstract class Declaration extends AbstractAST {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.Type getType() {
-      return this.type;
+    public org.rascalmpl.ast.UserType getUser() {
+      return this.user;
     }
   
     @Override
-    public boolean hasType() {
+    public boolean hasUser() {
       return true;
     }
     @Override
-    public java.util.List<org.rascalmpl.ast.Variable> getVariables() {
-      return this.variables;
+    public org.rascalmpl.ast.CommonKeywordParameters getCommonKeywordParameters() {
+      return this.commonKeywordParameters;
     }
   
     @Override
-    public boolean hasVariables() {
+    public boolean hasCommonKeywordParameters() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Variant> getVariants() {
+      return this.variants;
+    }
+  
+    @Override
+    public boolean hasVariants() {
       return true;
     }	
   }
@@ -547,6 +458,43 @@ public abstract class Declaration extends AbstractAST {
   
     @Override
     public boolean hasUser() {
+      return true;
+    }	
+  }
+  public boolean isFunction() {
+    return false;
+  }
+
+  static public class Function extends Declaration {
+    // Production: sig("Function",[arg("org.rascalmpl.ast.FunctionDeclaration","functionDeclaration")])
+  
+    
+    private final org.rascalmpl.ast.FunctionDeclaration functionDeclaration;
+  
+    public Function(IConstructor node , org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
+      super(node);
+      
+      this.functionDeclaration = functionDeclaration;
+    }
+  
+    @Override
+    public boolean isFunction() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitDeclarationFunction(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.FunctionDeclaration getFunctionDeclaration() {
+      return this.functionDeclaration;
+    }
+  
+    @Override
+    public boolean hasFunctionDeclaration() {
       return true;
     }	
   }
@@ -628,6 +576,76 @@ public abstract class Declaration extends AbstractAST {
   
     @Override
     public boolean hasTypes() {
+      return true;
+    }	
+  }
+  public boolean isVariable() {
+    return false;
+  }
+
+  static public class Variable extends Declaration {
+    // Production: sig("Variable",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Type","type"),arg("java.util.List\<org.rascalmpl.ast.Variable\>","variables")])
+  
+    
+    private final org.rascalmpl.ast.Tags tags;
+    private final org.rascalmpl.ast.Visibility visibility;
+    private final org.rascalmpl.ast.Type type;
+    private final java.util.List<org.rascalmpl.ast.Variable> variables;
+  
+    public Variable(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.Variable> variables) {
+      super(node);
+      
+      this.tags = tags;
+      this.visibility = visibility;
+      this.type = type;
+      this.variables = variables;
+    }
+  
+    @Override
+    public boolean isVariable() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitDeclarationVariable(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Tags getTags() {
+      return this.tags;
+    }
+  
+    @Override
+    public boolean hasTags() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Visibility getVisibility() {
+      return this.visibility;
+    }
+  
+    @Override
+    public boolean hasVisibility() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Type getType() {
+      return this.type;
+    }
+  
+    @Override
+    public boolean hasType() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Variable> getVariables() {
+      return this.variables;
+    }
+  
+    @Override
+    public boolean hasVariables() {
       return true;
     }	
   }

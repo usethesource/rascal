@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.strategy;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -27,7 +29,7 @@ public class One extends AbstractStrategy {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		IValue res = argValues[0];
 		boolean entered = v.init(res);
 		
@@ -37,14 +39,14 @@ public class One extends AbstractStrategy {
 			if(v instanceof IContextualVisitable) {
 				IContextualVisitable cv = (IContextualVisitable) v;
 				IValue oldctx = cv.getContext().getValue();
-				IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
+				IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}, null).getValue();
 				IValue newctx = cv.getContext().getValue();
 				if (! oldctx.isEqual(newctx)) {
 					res = v.setChildAt(res, i, newchild);
 					break;
 				}
 			} else {
-				IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
+				IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}, null).getValue();
 				if (! newchild.isEqual(child)) {
 					res = v.setChildAt(res, i, newchild);
 					break;
