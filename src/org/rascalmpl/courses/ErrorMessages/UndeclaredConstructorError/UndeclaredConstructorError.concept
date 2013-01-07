@@ -1,0 +1,25 @@
+Name: UndeclaredConstructorError
+
+Synopsis: A function is used as constructor but has not been declared.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

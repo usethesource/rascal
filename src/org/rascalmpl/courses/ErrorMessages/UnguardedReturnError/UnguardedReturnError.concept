@@ -1,0 +1,25 @@
+Name: UnguardedReturnError
+
+Synopsis: A return statement occurs outside a function body.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

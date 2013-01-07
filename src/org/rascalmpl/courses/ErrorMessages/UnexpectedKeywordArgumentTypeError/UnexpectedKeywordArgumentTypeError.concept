@@ -1,0 +1,25 @@
+Name: UnexpectedKeywordArgumentTypeError
+
+Synopsis: The actual value of a keyword argument is not compatibel with its declared type.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       
