@@ -27,6 +27,7 @@ import org.rascalmpl.interpreter.TestEvaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -41,7 +42,7 @@ public class RascalJUnitTestRunner extends Runner {
 	private Description desc;
 	private String prefix;
 
-	static{
+	static {
 		heap = new GlobalEnvironment();
 		root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
 		
@@ -55,6 +56,15 @@ public class RascalJUnitTestRunner extends Runner {
 	
 	public RascalJUnitTestRunner(Class<?> clazz) {
 		this(clazz.getAnnotation(RascalJUnitTestPrefix.class).value());
+		
+		RascalJUnitTestScheme scheme = clazz.getAnnotation(RascalJUnitTestScheme.class);
+		RascalJUnitTestRoot root = clazz.getAnnotation(RascalJUnitTestRoot.class);
+		
+		if (scheme != null) {
+		  evaluator.getResolverRegistry().registerInput(
+		      new ClassResourceInputOutput(evaluator.getResolverRegistry(), scheme.value(), clazz, root != null ? root.value() : ""));
+		  evaluator.addRascalSearchPath(URIUtil.rootScheme(scheme.value()));
+		}
 	}
 	
 	public RascalJUnitTestRunner(String prefix) {
