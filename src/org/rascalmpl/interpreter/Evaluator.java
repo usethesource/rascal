@@ -232,7 +232,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		resolverRegistry.registerInputOutput(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
 		
-		ClassResourceInputOutput courses = new ClassResourceInputOutput(resolverRegistry, "courses", getClass(), "/org/rascalmpl/courses");
+		ClassResourceInputOutput courses = new ClassResourceInputOutput(resolverRegistry, "courses", getClass(), "src/org/rascalmpl/courses");
 		resolverRegistry.registerInputOutput(courses);
 		ClassResourceInputOutput tutor = new ClassResourceInputOutput(resolverRegistry, "tutor", getClass(), "/org/rascalmpl/tutor");
 		resolverRegistry.registerInputOutput(tutor);
