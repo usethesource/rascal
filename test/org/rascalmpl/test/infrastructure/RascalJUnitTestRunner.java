@@ -24,9 +24,11 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.TestEvaluator;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -41,7 +43,7 @@ public class RascalJUnitTestRunner extends Runner {
 	private Description desc;
 	private String prefix;
 
-	static{
+	static {
 		heap = new GlobalEnvironment();
 		root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
 		
@@ -55,6 +57,16 @@ public class RascalJUnitTestRunner extends Runner {
 	
 	public RascalJUnitTestRunner(Class<?> clazz) {
 		this(clazz.getAnnotation(RascalJUnitTestPrefix.class).value());
+		try {
+      Object instance = clazz.newInstance();
+      if (instance instanceof IRascalJUnitTestSetup) {
+        ((IRascalJUnitTestSetup) instance).setup(evaluator);
+      }
+    } catch (InstantiationException e) {
+      throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
+    } catch (IllegalAccessException e) {
+      throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
+    }
 	}
 	
 	public RascalJUnitTestRunner(String prefix) {
