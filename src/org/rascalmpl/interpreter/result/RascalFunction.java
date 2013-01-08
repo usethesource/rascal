@@ -58,10 +58,10 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
-import org.rascalmpl.interpreter.staticErrors.MissingReturnError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
+import org.rascalmpl.interpreter.staticErrors.MissingReturn;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
@@ -269,7 +269,7 @@ public class RascalFunction extends NamedFunction {
 				formals = replaceLast(formals, last);
 			}
 			else {
-				throw new UnsupportedPatternError("...", last);
+				throw new UnsupportedPattern("...", last);
 			}
 		}
 		
@@ -378,7 +378,7 @@ public class RascalFunction extends NamedFunction {
 								continue;
 							}
 							else {
-								throw new UnguardedFailError(getAst(), e);
+								throw new UnguardedFail(getAst(), e);
 							}
 //							ctx.unwind(olds[i]);
 //							i--;
@@ -430,7 +430,7 @@ public class RascalFunction extends NamedFunction {
 		}
 
 		if(!isVoidFunction){
-			throw new MissingReturnError(ast);
+			throw new MissingReturn(ast);
 		}
 
 		return makeResult(TF.voidType(), null, eval);
@@ -443,11 +443,11 @@ public class RascalFunction extends NamedFunction {
 		Type instantiatedReturnType = returnType.instantiate(ctx.getCurrentEnvt().getTypeBindings());
 
 		if(!result.getType().isSubtypeOf(instantiatedReturnType)){
-			throw new UnexpectedTypeError(instantiatedReturnType, result.getType(), e.getLocation());
+			throw new UnexpectedType(instantiatedReturnType, result.getType(), e.getLocation());
 		}
 
 		if (!returnType.isVoidType() && result.getType().isVoidType()) {
-			throw new UnexpectedTypeError(returnType, result.getType(), e.getLocation());
+			throw new UnexpectedType(returnType, result.getType(), e.getLocation());
 		}
 
 		return makeResult(instantiatedReturnType, result.getValue(), eval);

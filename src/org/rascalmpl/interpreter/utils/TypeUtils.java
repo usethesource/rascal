@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.PartiallyLabeledFieldsError;
+import org.rascalmpl.interpreter.staticErrors.PartiallyLabeledFields;
 import org.rascalmpl.semantics.dynamic.Statement.Expression;
 
 public final class TypeUtils {
@@ -54,7 +54,7 @@ public final class TypeUtils {
 
 		if (someLabeled && !allLabeled) {
 			// TODO: this ast is not the root of the cause
-			throw new PartiallyLabeledFieldsError(args.get(0));
+			throw new PartiallyLabeledFields(args.get(0));
 		}
 
 		if (!allLabeled) {

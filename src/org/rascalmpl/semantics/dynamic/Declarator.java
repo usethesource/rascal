@@ -23,8 +23,8 @@ import org.rascalmpl.ast.Variable;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 
 public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 
@@ -55,7 +55,7 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 
 					if (!__eval.getCurrentEnvt().declareVariable(declaredType,
 							var.getName())) {
-						throw new RedeclaredVariableError(varAsString, var);
+						throw new RedeclaredVariable(varAsString, var);
 					}
 
 					if (v.getType().isSubtypeOf(declaredType)) {
@@ -70,7 +70,7 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 								.makeResult(declaredType, v.getValue(), __eval);
 						__eval.getCurrentEnvt().storeVariable(var.getName(), r);
 					} else {
-						throw new UnexpectedTypeError(declaredType,
+						throw new UnexpectedType(declaredType,
 								v.getType(), var);
 					}
 				} else {
@@ -78,7 +78,7 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 
 					if (!__eval.getCurrentEnvt().declareVariable(declaredType,
 							var.getName())) {
-						throw new RedeclaredVariableError(varAsString, var);
+						throw new RedeclaredVariable(varAsString, var);
 					}
 				}
 			}

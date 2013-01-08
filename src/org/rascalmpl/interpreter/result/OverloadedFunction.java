@@ -36,8 +36,8 @@ import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
+import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
+import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 
 public class OverloadedFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -267,7 +267,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 			List<AbstractFunction> all = new ArrayList<AbstractFunction>(primaryCandidates.size() + defaultCandidates.size());
 			all.addAll(primaryCandidates);
 			all.addAll(defaultCandidates);
-			throw new ArgumentsMismatchError(name, all, argTypes, ctx.getCurrentAST());
+			throw new ArgumentsMismatch(name, all, argTypes, ctx.getCurrentAST());
 		}
 
 		return result;
@@ -296,7 +296,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		}
 
 		if (failed != null && mustSucceed) {
-			throw new UnguardedFailError(failed.ast, failure);
+			throw new UnguardedFail(failed.ast, failure);
 		}
 
 		return null;

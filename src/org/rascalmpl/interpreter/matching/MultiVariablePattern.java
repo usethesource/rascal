@@ -16,7 +16,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.utils.Names;
 
 public class MultiVariablePattern extends QualifiedNamePattern {
@@ -54,7 +54,7 @@ public class MultiVariablePattern extends QualifiedNamePattern {
 			// inferred declaration
 			declaredType = subject.getType();
 			if (!ctx.getCurrentEnvt().declareVariable(declaredType, getName())) {
-				throw new RedeclaredVariableError(getName(), ctx.getCurrentAST());
+				throw new RedeclaredVariable(getName(), ctx.getCurrentAST());
 			}
 			ctx.getCurrentEnvt().storeVariable(((org.rascalmpl.semantics.dynamic.QualifiedName.Default) name).lastName(), subject);
 			iWroteItMySelf = true;
@@ -63,7 +63,7 @@ public class MultiVariablePattern extends QualifiedNamePattern {
 		else if (varRes.getValue() == null) {
 			declaredType = varRes.getType();
 			if (!ctx.getCurrentEnvt().declareVariable(declaredType, getName())) {
-				throw new RedeclaredVariableError(getName(), ctx.getCurrentAST());
+				throw new RedeclaredVariable(getName(), ctx.getCurrentAST());
 			}
 			ctx.getCurrentEnvt().storeVariable(((org.rascalmpl.semantics.dynamic.QualifiedName.Default) name).lastName(), subject);
 			iWroteItMySelf = true;

@@ -28,7 +28,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
+import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 
 public class ComposedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -197,11 +197,11 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		@Override
 		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 			Failure f1 = null;
-			ArgumentsMismatchError e1 = null;
+			ArgumentsMismatch e1 = null;
 			try {
 				try {
 					return getRight().call(argTypes, argValues, null);
-				} catch(ArgumentsMismatchError e) {
+				} catch(ArgumentsMismatch e) {
 					// try another one
 					e1 = e;
 				} catch(Failure e) {
@@ -209,8 +209,8 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 					f1 = e;
 				}
 				return getLeft().call(argTypes, argValues, null);
-			} catch(ArgumentsMismatchError e2) {
-				throw new ArgumentsMismatchError(
+			} catch(ArgumentsMismatch e2) {
+				throw new ArgumentsMismatch(
 						"The called signature does not match signatures in the '+' composition:\n" 
 							+ ((e1 != null) ? (e1.getMessage() + e2.getMessage()) : e2.getMessage()), ctx.getCurrentAST());
 			} catch(Failure f2) {

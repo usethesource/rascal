@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 
@@ -173,7 +173,7 @@ public class DataDeclarationTests extends TestFramework {
 	}
 	
 	@Test(expected=StaticError.class)
-	public void undeclaredTypeError1() throws UndeclaredFieldError {
+	public void undeclaredTypeError1() throws UndeclaredField {
 		runTest("data D = anE(E e);");
 	}
 }

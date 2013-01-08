@@ -85,14 +85,14 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
-import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
+import org.rascalmpl.interpreter.staticErrors.ModuleImport;
+import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatch;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFunctionError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedInsertError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedReturnError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
+import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
+import org.rascalmpl.interpreter.staticErrors.UnguardedInsert;
+import org.rascalmpl.interpreter.staticErrors.UnguardedReturn;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.interpreter.strategy.StrategyContextStack;
 import org.rascalmpl.interpreter.utils.JavaBridge;
@@ -484,7 +484,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 		
 		if (func == null) {
-			throw new UndeclaredFunctionError(name, types, this, getCurrentAST());
+			throw new UndeclaredFunction(name, types, this, getCurrentAST());
 		}
 
 		return func.call(getMonitor(), types, args, null).getValue();
@@ -797,11 +797,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 				getEventTrigger().fireIdleEvent();
 			}
 		} catch (Return e) {
-			throw new UnguardedReturnError(stat);
+			throw new UnguardedReturn(stat);
 		} catch (Failure e) {
-			throw new UnguardedFailError(stat, e);
+			throw new UnguardedFail(stat, e);
 		} catch (Insert e) {
-			throw new UnguardedInsertError(stat);
+			throw new UnguardedInsert(stat);
 		}
 	}
 
@@ -1162,7 +1162,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 			if (module != null) {
 				if (!getModuleName(module).equals(name)) {
-					throw new ModuleNameMismatchError(getModuleName(module), name, vf.sourceLocation(errorLocation));
+					throw new ModuleNameMismatch(getModuleName(module), name, vf.sourceLocation(errorLocation));
 				}
 				heap.setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
@@ -1176,7 +1176,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw e;
 		} catch (IOException e) {
 			heap.removeModule(env);
-			throw new ModuleLoadError(name, e.getMessage(), vf.sourceLocation(errorLocation));
+			throw new ModuleImport(name, e.getMessage(), vf.sourceLocation(errorLocation));
 		}
 	}
 
@@ -1277,7 +1277,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public void addImportToCurrentModule(AbstractAST x, String name) {
 		ModuleEnvironment module = heap.getModule(name);
 		if (module == null) {
-			throw new UndeclaredModuleError(name, x);
+			throw new UndeclaredModule(name, x);
 		}
 		getCurrentModuleEnvironment().addImport(name, module);
 	}
@@ -1296,7 +1296,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		try{
 			data = getResourceContent(location);
 		}catch (IOException ioex){
-			throw new ModuleLoadError(location.toString(), ioex.getMessage(), cause);
+			throw new ModuleImport(location.toString(), ioex.getMessage(), cause);
 		}
 
 		URI resolved = rascalPathResolver.resolve(location);
@@ -1507,7 +1507,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			Module moduleAst = astBuilder.buildModule(tree);
 			
 //			if(isDeprecated(moduleAst))
-//				throw new ModuleLoadError(name, name + " is deprecated -- " + getDeprecatedMessage(moduleAst), astBuilder.getLastSuccessLocation());
+//				throw new ModuleImport(name, name + " is deprecated -- " + getDeprecatedMessage(moduleAst), astBuilder.getLastSuccessLocation());
 
 
 			if (moduleAst == null) {
@@ -1544,7 +1544,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 			if (module != null) {
 				if (!getModuleName(module).equals(name)) {
-					throw new ModuleNameMismatchError(getModuleName(module), name, x);
+					throw new ModuleNameMismatch(getModuleName(module), name, x);
 				}
 				heap.setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
@@ -1558,7 +1558,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			return;
 		} catch (IOException e) {
 			env.removeExtend(name);
-			throw new ModuleLoadError(name, e.getMessage(), x);
+			throw new ModuleImport(name, e.getMessage(), x);
 		} catch (RuntimeException e) {
 			env.removeExtend(name);
 			throw e;
@@ -1578,7 +1578,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 			if (module != null) {
 				if (!getModuleName(module).equals(name)) {
-					throw new ModuleNameMismatchError(getModuleName(module), name, x);
+					throw new ModuleNameMismatch(getModuleName(module), name, x);
 				}
 				heap.setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
@@ -1598,7 +1598,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw e;
 		} catch (IOException e) {
 			heap.removeModule(env);
-			throw new ModuleLoadError(name, e.getMessage(), x);
+			throw new ModuleImport(name, e.getMessage(), x);
 		}
 
 		heap.removeModule(env);
