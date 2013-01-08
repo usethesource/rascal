@@ -94,6 +94,10 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	// Debugging
 	private IDebugListener<P> debugListener;
 	
+	// Temporary instrumentation for accurate profiling
+	private long timestamp;
+	private boolean printTimes = false;
+	
 	public SGTDBF(){
 		super();
 		
@@ -1105,85 +1109,114 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 */
 	@SuppressWarnings("unchecked")
 	protected AbstractNode parse(AbstractStackNode<P> startNode, URI inputURI, int[] input, IRecoverer<P> recoverer, IDebugListener<P> debugListener){
-		if(invoked){
-			throw new RuntimeException("Can only invoke 'parse' once.");
-		}
-		invoked = true;
-		
-		// Initialize.
-		this.inputURI = inputURI;
-		this.input = input;
-		
-		this.recoverer = recoverer;
-		this.debugListener = debugListener;
-		
-		// Initialzed the position store.
-		positionStore.index(input);
-		
-		todoLists = new DoubleStack[DEFAULT_TODOLIST_CAPACITY];
-		
-		// Handle the initial expansion of the root node.
-		AbstractStackNode<P> rootNode = startNode;
-		rootNode.initEdges();
-		stacksToExpand.push(rootNode);
-		lookAheadChar = (input.length > 0) ? input[0] : 0;
-		
-		if(debugListener != null) debugListener.shifting(location, input, positionStore);
-		
-		expand();
-		
-		if(findFirstStacksToReduce()){
-			boolean shiftedLevel = (location != 0);
-			
-			do{
-				lookAheadChar = (location < input.length) ? input[location] : 0;
-				if(shiftedLevel){ // Nullable fix for the first level.
-					sharedNextNodes.clear();
-					cachedEdgesForExpect.clear();
-					
-					unexpandableNodes.dirtyClear();
-					unmatchableLeafNodes.dirtyClear();
-					unmatchableMidProductionNodes.dirtyClear();
-					filteredNodes.dirtyClear();
-					
-					if(debugListener != null) debugListener.shifting(location, input, positionStore);
-				}
-				
-				// Reduce-expand loop.
-				do{
-					if(debugListener != null) debugListener.iterating();
-					
-					reduce();
-					
-					expand();
-				}while(!stacksWithNonTerminalsToReduce.isEmpty() || !stacksWithTerminalsToReduce.isEmpty());
-				
-				shiftedLevel = true;
-			}while(findStacksToReduce());
-		}
-		
-		// Check if we were successful.
-		if(location == input.length){
-			EdgesSet<P> startNodeEdgesSet = startNode.getIncomingEdges();
-			int resultStoreId = getResultStoreId(startNode.getId());
-			if(startNodeEdgesSet != null && startNodeEdgesSet.getLastVisitedLevel(resultStoreId) == input.length){
-				// Parsing succeeded.
-				return startNodeEdgesSet.getLastResult(resultStoreId); // Success.
-			}
-		}
-		
-		// A parse error occured, and recovery failed as well
-		parseErrorOccured = true;
+	  initTime();
 
-		int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
-		int line = positionStore.findLine(errorLocation);
-		int column = positionStore.getColumn(errorLocation, line);
-		if (location == input.length) {
-			throw new ParseError("Parse error", inputURI, errorLocation, 0, line, line, column, column, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
-		}
-		
-		throw new ParseError("Parse error", inputURI, errorLocation, 1, line, line, column, column + 1, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
+	  try {
+
+	    if(invoked){
+	      throw new RuntimeException("Can only invoke 'parse' once.");
+	    }
+
+
+	    invoked = true;
+
+	    // Initialize.
+	    this.inputURI = inputURI;
+	    this.input = input;
+
+	    this.recoverer = recoverer;
+	    this.debugListener = debugListener;
+
+	    // Initialzed the position store.
+	    positionStore.index(input);
+
+	    todoLists = new DoubleStack[DEFAULT_TODOLIST_CAPACITY];
+
+	    // Handle the initial expansion of the root node.
+	    AbstractStackNode<P> rootNode = startNode;
+	    rootNode.initEdges();
+	    stacksToExpand.push(rootNode);
+	    lookAheadChar = (input.length > 0) ? input[0] : 0;
+
+	    if(debugListener != null) debugListener.shifting(location, input, positionStore);
+
+	    expand();
+
+	    if(findFirstStacksToReduce()){
+	      boolean shiftedLevel = (location != 0);
+
+	      do{
+	        lookAheadChar = (location < input.length) ? input[location] : 0;
+	        if(shiftedLevel){ // Nullable fix for the first level.
+	          sharedNextNodes.clear();
+	          cachedEdgesForExpect.clear();
+
+	          unexpandableNodes.dirtyClear();
+	          unmatchableLeafNodes.dirtyClear();
+	          unmatchableMidProductionNodes.dirtyClear();
+	          filteredNodes.dirtyClear();
+
+	          if(debugListener != null) debugListener.shifting(location, input, positionStore);
+	        }
+
+	        // Reduce-expand loop.
+	        do{
+	          if(debugListener != null) debugListener.iterating();
+
+	          reduce();
+
+	          expand();
+	        }while(!stacksWithNonTerminalsToReduce.isEmpty() || !stacksWithTerminalsToReduce.isEmpty());
+
+	        shiftedLevel = true;
+	      }while(findStacksToReduce());
+	    }
+
+	    // Check if we were successful.
+	    if(location == input.length){
+	      EdgesSet<P> startNodeEdgesSet = startNode.getIncomingEdges();
+	      int resultStoreId = getResultStoreId(startNode.getId());
+	      if(startNodeEdgesSet != null && startNodeEdgesSet.getLastVisitedLevel(resultStoreId) == input.length){
+	        // Parsing succeeded.
+	        return startNodeEdgesSet.getLastResult(resultStoreId); // Success.
+	      }
+	    }
+	  }
+	  finally {
+	    checkTime("Parsing");
+	  }
+
+	  try {
+	    // A parse error occured, and recovery failed as well
+	    parseErrorOccured = true;
+
+	    int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
+	    int line = positionStore.findLine(errorLocation);
+	    int column = positionStore.getColumn(errorLocation, line);
+	    if (location == input.length) {
+	      throw new ParseError("Parse error", inputURI, errorLocation, 0, line, line, column, column, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
+	    }
+
+	    throw new ParseError("Parse error", inputURI, errorLocation, 1, line, line, column, column + 1, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
+	  }
+	  finally {
+	    checkTime("Error handling");
+	  }
 	}
+
+	private void initTime() {
+	  timestamp = System.nanoTime();
+	}
+	
+  private void checkTime(String msg) {
+    long newStamp = System.nanoTime();
+		long duration = newStamp - timestamp;
+		timestamp = newStamp;
+		
+		if (printTimes) {
+		  System.err.println(msg + ": " + duration / (1000 * 1000));
+		}
+  }
 
 	private static int[] charsToInts(char[] input){
 		int[] result = new int[Character.codePointCount(input, 0, input.length)];
@@ -1247,7 +1280,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	}
 	
 	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory) {
+	  
 		AbstractNode result = parse(startNode, inputURI, charsToInts(input), null, null);
+		
 		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
 	}
 	
@@ -1255,27 +1290,33 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 * Constructed the final parse result using the given converter.
 	 */
 	protected T buildResult(AbstractNode result, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IActionExecutor<T> actionExecutor){
-		FilteringTracker filteringTracker = new FilteringTracker();
-		// Invoke the forest flattener, a.k.a. "the bulldozer".
-		Object rootEnvironment = actionExecutor != null ? actionExecutor.createRootEnvironment() : null;
-		T parseResult = null;
-		try {
-			parseResult = converter.convert(nodeConstructorFactory, result, positionStore, filteringTracker, actionExecutor, rootEnvironment);
-		}
-		finally {
-			actionExecutor.completed(rootEnvironment, (parseResult == null));
-		}
-		if(parseResult != null){
-			return parseResult; // Success.
-		}
-		
-		int offset = filteringTracker.getOffset();
-		int endOffset = filteringTracker.getEndOffset();
-		int length = endOffset - offset;
-		int beginLine = positionStore.findLine(offset);
-		int beginColumn = positionStore.getColumn(offset, beginLine);
-		int endLine = positionStore.findLine(endOffset);
-		int endColumn = positionStore.getColumn(endOffset, endLine);
-		throw new ParseError("All results were filtered", inputURI, offset, length, beginLine, endLine, beginColumn, endColumn);
+	  initTime();
+	  try {
+	    FilteringTracker filteringTracker = new FilteringTracker();
+	    // Invoke the forest flattener, a.k.a. "the bulldozer".
+	    Object rootEnvironment = actionExecutor != null ? actionExecutor.createRootEnvironment() : null;
+	    T parseResult = null;
+	    try {
+	      parseResult = converter.convert(nodeConstructorFactory, result, positionStore, filteringTracker, actionExecutor, rootEnvironment);
+	    }
+	    finally {
+	      actionExecutor.completed(rootEnvironment, (parseResult == null));
+	    }
+	    if(parseResult != null){
+	      return parseResult; // Success.
+	    }
+
+	    int offset = filteringTracker.getOffset();
+	    int endOffset = filteringTracker.getEndOffset();
+	    int length = endOffset - offset;
+	    int beginLine = positionStore.findLine(offset);
+	    int beginColumn = positionStore.getColumn(offset, beginLine);
+	    int endLine = positionStore.findLine(endOffset);
+	    int endColumn = positionStore.getColumn(endOffset, endLine);
+	    throw new ParseError("All results were filtered", inputURI, offset, length, beginLine, endLine, beginColumn, endColumn);
+	  }
+	  finally {
+	    checkTime("Unbinarizing, post-parse filtering, and mapping to UPTR");
+	  }
 	}
 }
