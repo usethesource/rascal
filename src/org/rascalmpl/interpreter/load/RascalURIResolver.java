@@ -290,6 +290,8 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 						return reg.listEntries(full);
 					}
 				}
+				
+				throw new FileNotFoundException(uri.toASCIIString());
 			}
 			throw new UnsupportedSchemeException(uri.toString());
 		} 
