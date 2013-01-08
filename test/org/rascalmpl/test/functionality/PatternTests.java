@@ -17,10 +17,10 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class PatternTests extends TestFramework {
@@ -127,7 +127,7 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{{1, *_, 4, 5} := {1, 2, 3, 4, 5};}"));
 	}
 	
-	@Test(expected=UndeclaredVariableError.class) 
+	@Test(expected=UndeclaredVariable.class) 
 	public void unguardedMatchNoEscape() {
 		// m should not be declared after the unguarded pattern match.
 		assertTrue(runTest("{int n = 3; int m := n; m == n; }"));
@@ -292,7 +292,7 @@ public class PatternTests extends TestFramework {
 		runTestInSameEvaluator("{p = or(t,t); and(t,t) := p;}");
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
+	@Test(expected=RedeclaredVariable.class)
 	public void matchListError12() {
 		runTest("{list[int] x = [1,2,3]; [1, list[int] L, 2, list[int] L] := x;}");
 	}
@@ -309,7 +309,7 @@ public class PatternTests extends TestFramework {
 		assertFalse(runTest("[1, list[str] L, 2] := [1,2,3];"));
 	}
 	
-	@Test(expected=UnexpectedTypeError.class)
+	@Test(expected=UnexpectedType.class)
 	@Ignore("this is disabled because such type check would break the visiting code")
 	public void matchListError22() {
 		runTest("{ list[int] l = [1,2,3]; [1, list[str] L, 2] := l; }");
@@ -873,7 +873,7 @@ public class PatternTests extends TestFramework {
 		assertFalse(runTest("{![1,2,3] := [1,2,3];}"));
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void antiPatternDoesNotDeclare() {
 		runTest("{![1,int X,3] := [1,2,4] && (X ? 10) == 10;}");
 	}

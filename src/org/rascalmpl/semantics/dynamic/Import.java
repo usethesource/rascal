@@ -38,7 +38,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.result.SourceLocationResult;
-import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
+import org.rascalmpl.interpreter.staticErrors.ModuleImport;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleProvider;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -194,7 +194,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				
 				return name;
 			}
-			catch (ModuleLoadError e) {
+			catch (ModuleImport e) {
 				// when a module does not load, the import should not fail here, rather it will fail when we evaluate the module
 				return null;
 			}
@@ -234,7 +234,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 					}
 				}
 			}
-			catch (ModuleLoadError e) {
+			catch (ModuleImport e) {
 				// when a module does not load, the import should not fail here, rather it will fail when we evaluate the module
 				return null;
 			}

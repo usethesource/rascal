@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
 
 public abstract class Formals extends org.rascalmpl.ast.Formals {
 
@@ -41,7 +41,7 @@ public abstract class Formals extends org.rascalmpl.ast.Formals {
 
 				if (type == null) {
 					// TODO: can this actually happen?
-					throw new UndeclaredTypeError(f.getType().toString(), f);
+					throw new UndeclaredType(f.getType().toString(), f);
 				}
 				types[index] = type;
 			}

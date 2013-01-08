@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class SubscriptTests extends TestFramework {
@@ -46,12 +46,12 @@ public class SubscriptTests extends TestFramework {
 		runTest("{list[int] L = [0,1,2,3]; L[4] = 44; L == [0,1,2,3,44];}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UninitializedListVariable1(){
 		runTest("{list[int] L; L[4];}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UninitializedListVariable2(){
 		runTest("{list[int] L; L[4] = 44;}");
 	}
@@ -95,12 +95,12 @@ public class SubscriptTests extends TestFramework {
 		runTest("{map[int,int] M  = (1:10,2:20); M[\"abc\"] = 3;}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UninitializedMapVariable1(){
 		runTest("{map[int,int] M; M[4];}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UninitializedMapVariable2(){
 		runTest("{map[int,int] M; M[4] = 44;}");
 	}
@@ -117,12 +117,12 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTest("<0, \"a\", 3.5>[2] == 3.5;"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UninitializedTupleVariable1(){
 		runTest("{tuple[int,int] T; T[1];}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UninitializedTupleVariable2(){
 		runTest("{tuple[int,int] T; T[1] = 10;}");
 	}
@@ -158,17 +158,17 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTest("{<1, \"a\", 10>, <2, \"b\", 20>, <1, \"abc\", 100>}[1,_] == {10, 100};"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UninitializedRelVariable1(){
 		runTest("{rel[int,int] R; R[1];}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UninitializedRelVariable2(){
 		runTest("{rel[int,int] R; R[1,2];}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UninitializedRelVariable3(){
 		runTest("{rel[int,int] R; R[1] = 10;}");
 	}

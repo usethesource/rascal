@@ -44,10 +44,10 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
+import org.rascalmpl.interpreter.staticErrors.UnguardedAppend;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
@@ -62,7 +62,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		
 		protected Accumulator getTarget(IEvaluator<Result<IValue>> __eval) {
 			if (__eval.__getAccumulators().empty()) { 
-				throw new AppendWithoutLoop(this);
+				throw new UnguardedAppend(this);
 			}
 			if (!this.getDataTarget().isEmpty()) {
 				String label = org.rascalmpl.interpreter.utils.Names.name(this.getDataTarget().getLabel());
@@ -71,7 +71,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						return accu;
 					}
 				}
-				throw new AppendWithoutLoop(this); // TODO: better error
+				throw new UnguardedAppend(this); // TODO: better error
 			}
 			return __eval.__getAccumulators().peek();
 		}
@@ -84,7 +84,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			
 			Accumulator target = null;
 			if (__eval.__getAccumulators().empty()) {
-				throw new AppendWithoutLoop(this);
+				throw new UnguardedAppend(this);
 			}
 			if (!this.getDataTarget().isEmpty()) {
 				String label = org.rascalmpl.interpreter.utils.Names.name(this
@@ -96,7 +96,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					}
 				}
 				if (target == null) {
-					throw new AppendWithoutLoop(this); // TODO: better error
+					throw new UnguardedAppend(this); // TODO: better error
 					// message
 				}
 			} else {
@@ -125,7 +125,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			Result<IValue> r = this.getExpression().interpret(__eval);
 			if (!r.getType().equals(
 					org.rascalmpl.interpreter.Evaluator.__getTf().boolType())) {
-				throw new UnexpectedTypeError(
+				throw new UnexpectedType(
 						org.rascalmpl.interpreter.Evaluator.__getTf()
 								.boolType(), r.getType(), this);
 			}
@@ -158,7 +158,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			Result<IValue> r = this.getExpression().interpret(__eval);
 			if (!r.getType().equals(
 					org.rascalmpl.interpreter.Evaluator.__getTf().boolType())) {
-				throw new UnexpectedTypeError(
+				throw new UnexpectedType(
 						org.rascalmpl.interpreter.Evaluator.__getTf()
 								.boolType(), r.getType(), this);
 			}
@@ -803,10 +803,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					Result<IValue> tmp = __eval.getCurrentEnvt().getSimpleVariable(var);
 					
 					if (tmp == null) {
-						throw new UndeclaredVariableError(Names.fullName(var), var);
+						throw new UndeclaredVariable(Names.fullName(var), var);
 					}
 					if (tmp.getValue() == null) {
-						throw new UninitializedVariableError(Names.fullName(var),
+						throw new UninitializedVariable(Names.fullName(var),
 								var);
 					}
 					currentValue[i] = tmp.getValue();
@@ -822,7 +822,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					Result<IValue> res = bound.getExpression()
 							.interpret(__eval);
 					if (!res.getType().isIntegerType()) {
-						throw new UnexpectedTypeError(
+						throw new UnexpectedType(
 								org.rascalmpl.interpreter.Evaluator.__getTf()
 										.integerType(), res.getType(), this);
 					}

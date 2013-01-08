@@ -24,7 +24,7 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.utils.Names;
 
 public class QualifiedNamePattern extends AbstractMatchingResult implements IVarPattern {
@@ -127,7 +127,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 			// inferred declaration
 			declaredType = subject.getType();
 			if (!ctx.getCurrentEnvt().declareVariable(declaredType, getName())) {
-				throw new RedeclaredVariableError(getName(), ctx.getCurrentAST());
+				throw new RedeclaredVariable(getName(), ctx.getCurrentAST());
 			}
 			ctx.getCurrentEnvt().storeVariable(name, subject);
 			iWroteItMySelf = true;
@@ -136,7 +136,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 		else if (varRes.getValue() == null) {
 			declaredType = varRes.getType();
 			if (!ctx.getCurrentEnvt().declareVariable(declaredType, getName())) {
-				throw new RedeclaredVariableError(getName(), ctx.getCurrentAST());
+				throw new RedeclaredVariable(getName(), ctx.getCurrentAST());
 			}
 			ctx.getCurrentEnvt().storeVariable(name, subject);
 			iWroteItMySelf = true;

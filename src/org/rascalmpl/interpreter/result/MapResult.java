@@ -32,10 +32,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -68,11 +68,11 @@ public class MapResult extends ElementResult<IMap> {
 	@SuppressWarnings("unchecked")
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length != 1) {
-			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> key = (Result<IValue>) subscripts[0];
 		if (!getType().getKeyType().comparable(key.getType())) {
-			throw new UnexpectedTypeError(getType().getKeyType(), key.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(getType().getKeyType(), key.getType(), ctx.getCurrentAST());
 		}
 		IValue v = getValue().get(key.getValue());
 		if (v == null){
@@ -102,19 +102,19 @@ public class MapResult extends ElementResult<IMap> {
 			return makeResult(getTypeFactory().setType(type.getValueType()), w.done(), ctx);
 		}
 
-		throw new UndeclaredFieldError(name, type, ctx.getCurrentAST());
+		throw new UndeclaredField(name, type, ctx.getCurrentAST());
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(
 			String name, Result<V> repl, TypeStore store) {
 		if (type.getKeyLabel().equals(name)) {
-			throw new UnsupportedOperationError("You can not update the keys of a map using the field update operator", ctx.getCurrentAST());
+			throw new UnsupportedOperation("You can not update the keys of a map using the field update operator", ctx.getCurrentAST());
 		}
 		else if (type.getValueLabel().equals(name)) {
 			// interesting operation, sets the image of all keys to one default
 			if (!repl.getType().isSubtypeOf(type.getValueType())) {
-				throw new UnexpectedTypeError(type.getValueType(), repl.getType(), ctx.getCurrentAST());
+				throw new UnexpectedType(type.getValueType(), repl.getType(), ctx.getCurrentAST());
 			}
 
 			IMapWriter w = getValueFactory().mapWriter(type.getKeyType(), type.getValueType());
@@ -279,7 +279,7 @@ public class MapResult extends ElementResult<IMap> {
 				try {
 					fieldIndices[i] = baseType.getFieldIndex(fieldName);
 				} catch (UndeclaredFieldException e) {
-					throw new UndeclaredFieldError(fieldName, baseType,
+					throw new UndeclaredField(fieldName, baseType,
 							ctx.getCurrentAST());
 				}
 			}

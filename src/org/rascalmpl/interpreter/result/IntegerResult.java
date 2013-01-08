@@ -27,7 +27,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class IntegerResult extends ElementResult<IInteger> {
@@ -263,7 +263,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 		
 		// I still think it is ugly to do it here...
 		if (!second.getType().isSubtypeOf(tf.numberType())) {
-			throw new UnexpectedTypeError(tf.numberType(), second.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(tf.numberType(), second.getType(), ctx.getCurrentAST());
 		}
 		
 		INumber iSecond = (INumber) second.getValue();

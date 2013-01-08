@@ -44,7 +44,7 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
@@ -346,7 +346,7 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new UndeclaredModuleError(modulename, name);
+				throw new UndeclaredModule(modulename, name);
 			}
 			
 			// TODO: will this not do a transitive closure? This should not happen...
@@ -627,7 +627,7 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new UndeclaredModuleError(modulename, name);
+				throw new UndeclaredModule(modulename, name);
 			}
 			
 			imported.storeVariable(name, result);
@@ -763,7 +763,7 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new UndeclaredModuleError(modulename, name);
+				throw new UndeclaredModule(modulename, name);
 			}
 			
 			imported.flagName(cons, flags);

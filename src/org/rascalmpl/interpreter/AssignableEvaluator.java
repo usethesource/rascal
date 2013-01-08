@@ -25,8 +25,8 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 
 
 /**
@@ -132,14 +132,14 @@ public class AssignableEvaluator {
 			// in which case the error is lost. Since we know that the left hand side of the addition
 			// is always the variable we are updating, the cause of the error must always be in the value
 			// on the right hand side
-			throw new UnexpectedTypeError(oldValue.getType(), rhsValue.getType(), this.__getEval().getCurrentAST());
+			throw new UnexpectedType(oldValue.getType(), rhsValue.getType(), this.__getEval().getCurrentAST());
 		}
 		switch(this.__getOperator()){
 			case Default:
 			case IsDefined:
 				return rhsValue;
 			default:
-				throw new UninitializedVariableError("assignment operator", this.__getEval().getCurrentAST());
+				throw new UninitializedVariable("assignment operator", this.__getEval().getCurrentAST());
 		}
 	}
 	
@@ -153,7 +153,7 @@ public class AssignableEvaluator {
 		case IsDefined:
 				return rhsValue;
 		default:
-			throw new UninitializedVariableError("assignment operator", this.__getEval().getCurrentAST());
+			throw new UninitializedVariable("assignment operator", this.__getEval().getCurrentAST());
 		}
 	}
 	

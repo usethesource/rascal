@@ -29,8 +29,8 @@ import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Visibility;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 
 public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
@@ -154,7 +154,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 					if (!__eval.getCurrentEnvt().declareVariable(declaredType,
 							var.getName())) {
-						throw new RedeclaredVariableError(
+						throw new RedeclaredVariable(
 								org.rascalmpl.interpreter.utils.Names.name(var
 										.getName()), var);
 					}
@@ -170,7 +170,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 						__eval.getCurrentModuleEnvironment().storeVariable(
 								var.getName(), r);
 					} else {
-						throw new UnexpectedTypeError(declaredType,
+						throw new UnexpectedType(declaredType,
 								v.getType(), var);
 					}
 				} else {

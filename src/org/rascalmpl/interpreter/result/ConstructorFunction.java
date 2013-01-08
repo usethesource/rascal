@@ -29,9 +29,9 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.KeywordParameter;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
-import org.rascalmpl.interpreter.staticErrors.NoKeywordParametersError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameterError;
+import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
+import org.rascalmpl.interpreter.staticErrors.NoKeywordParameters;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.Factory;
@@ -85,14 +85,14 @@ public class ConstructorFunction extends NamedFunction {
 			return actualTypes;
 		
 		if(constructorType.getPositionalArity() < actualTypes.length){
-			throw new ArgumentsMismatchError("Too many arguments for constructor " + getName(), ctx.getCurrentAST());
+			throw new ArgumentsMismatch("Too many arguments for constructor " + getName(), ctx.getCurrentAST());
 		}
 		if(constructorType.getPositionalArity() > actualTypes.length){
-			throw new ArgumentsMismatchError("Too few arguments for constructor " + getName(), ctx.getCurrentAST());
+			throw new ArgumentsMismatch("Too few arguments for constructor " + getName(), ctx.getCurrentAST());
 		}
 		
 		if(!constructorType.hasDefaults() && keyArgValues != null)
-			throw new NoKeywordParametersError(getName(), ctx.getCurrentAST());
+			throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
 
 		Type[] extendedActualTypes = new Type[constructorType.getArity()];
 	
@@ -127,7 +127,7 @@ public class ConstructorFunction extends NamedFunction {
 				for(KeywordParameter kw : keywordParameterDefaults){
 					if(kwparam.equals(kw.getName()))
 							continue main;
-					throw new UndeclaredKeywordParameterError(getName(), kwparam, ctx.getCurrentAST());
+					throw new UndeclaredKeywordParameter(getName(), kwparam, ctx.getCurrentAST());
 				}
 		}
 		return extendedActualTypes;
@@ -153,7 +153,7 @@ public class ConstructorFunction extends NamedFunction {
 		}
 		
 //		if(keywordParameterDefaults == null)
-//			throw new NoKeywordParametersError(getName(), ctx.getCurrentAST());
+//			throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
 		
 //		int nBoundKeywordArgs = 0;
 		for(KeywordParameter kw : keywordParameterDefaults){
@@ -172,7 +172,7 @@ public class ConstructorFunction extends NamedFunction {
 //				for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
 //					if(kwparam.equals(pair.getFirst()))
 //							continue main;
-//					throw new UndeclaredKeywordParameterError(getName(), kwparam, ctx.getCurrentAST());
+//					throw new UndeclaredKeywordParameter(getName(), kwparam, ctx.getCurrentAST());
 //				}
 //		}
 		return extendedActuals;

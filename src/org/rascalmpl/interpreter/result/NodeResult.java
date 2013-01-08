@@ -29,9 +29,9 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
@@ -74,10 +74,10 @@ public class NodeResult extends ElementResult<INode> {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length != 1) {
-			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		if (!((Result<IValue>)subscripts[0]).getType().isIntegerType()) {
-			throw new UnexpectedTypeError(getTypeFactory().integerType(), 
+			throw new UnexpectedType(getTypeFactory().integerType(), 
 					((Result<IValue>)subscripts[0]).getType(), ctx.getCurrentAST());
 		}
 		IInteger index = ((IntegerResult)subscripts[0]).getValue();
@@ -165,7 +165,7 @@ public class NodeResult extends ElementResult<INode> {
 		Type annoType = env.getAnnotationType(getType(), annoName);
 	
 		if (annoType == null) {
-			throw new UndeclaredAnnotationError(annoName, getType(), ctx.getCurrentAST());
+			throw new UndeclaredAnnotation(annoName, getType(), ctx.getCurrentAST());
 		}
 	
 		IValue annoValue = getValue().getAnnotation(annoName);

@@ -30,7 +30,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -160,7 +160,7 @@ public class ListPattern extends AbstractMatchingResult  {
 				String name = patVar.getName();
 				varName[i] = name;
 				if(!patVar.isAnonymous() && allVars.contains(name)){
-					throw new RedeclaredVariableError(name, getAST());
+					throw new RedeclaredVariable(name, getAST());
 				}
 				else if(childType.comparable(listSubject.getType())){                                   
 					/*
@@ -176,7 +176,7 @@ public class ListPattern extends AbstractMatchingResult  {
 				} else {
 					hasNext = false;
 					return;
-//					throw new UnexpectedTypeError(childType, listSubject.getType(), getAST());
+//					throw new UnexpectedType(childType, listSubject.getType(), getAST());
 				}
 			} 
 			else if(child instanceof MultiVariablePattern){
@@ -256,7 +256,7 @@ public class ListPattern extends AbstractMatchingResult  {
 				        	} else {
 				        		hasNext = false;
 				        		return;
-//				        		throw new UnexpectedTypeError(listSubjectType,varType, getAST());
+//				        		throw new UnexpectedType(listSubjectType,varType, getAST());
 				        	}
 				        } else {
 				        	if(varType instanceof NonTerminalType){
@@ -266,7 +266,7 @@ public class ListPattern extends AbstractMatchingResult  {
 				        	if(!varType.comparable(staticListSubjectElementType)){
 				        		hasNext = false;
 				        		return;
-//				        		throw new UnexpectedTypeError(listSubjectType, varType, getAST());
+//				        		throw new UnexpectedType(listSubjectType, varType, getAST());
 				        	}
 				        }
 					}
@@ -287,7 +287,7 @@ public class ListPattern extends AbstractMatchingResult  {
 				if(!(childType instanceof NonTerminalType) && !childType.comparable(staticListSubjectElementType)){
 					hasNext = false;
 					return;
-//					throw new UnexpectedTypeError(staticListSubjectElementType,childType, getAST());
+//					throw new UnexpectedType(staticListSubjectElementType,childType, getAST());
 				}
 				java.util.List<IVarPattern> childVars = child.getVariables();
 				if(!childVars.isEmpty()){

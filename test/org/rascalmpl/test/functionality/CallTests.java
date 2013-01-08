@@ -17,21 +17,21 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
-import org.rascalmpl.interpreter.staticErrors.NoKeywordParametersError;
+import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
+import org.rascalmpl.interpreter.staticErrors.NoKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameterError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 
 public class CallTests extends TestFramework{
 	
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void callError1() {
 		runTest("zap(1,2);");
 	}
@@ -45,17 +45,17 @@ public class CallTests extends TestFramework{
 		prepareMore("M::X f() { return x(); }");
 		assertTrue(runTestInSameEvaluator("f() == x();"));
 	}
-	@Test(expected=ArgumentsMismatchError.class)
+	@Test(expected=ArgumentsMismatch.class)
 	public void callError2() {
 		runTest("{ int f(int n) {return 2*n;}  f(\"abc\");}");
 	}
 	
-	@Test(expected=UndeclaredModuleError.class)
+	@Test(expected=UndeclaredModule.class)
 	public void callError3() {
 		runTest("zip::zap(1,2);");
 	}
 	
-	@Test(expected=UnsupportedOperationError.class)
+	@Test(expected=UnsupportedOperation.class)
 	public void callError4() {
 		runTest("{zap = 10; zap(1,2);}");
 	}
@@ -291,67 +291,67 @@ public class CallTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("ellipse(inner=emptyFigure(fillColor=\"red\")).inner.fillColor == \"red\";"));
 	}
 	
-	@Test(expected=ArgumentsMismatchError.class)
+	@Test(expected=ArgumentsMismatch.class)
 	public void keywordError1() {
 		prepare("int incr(int x, int delta=1) = x + delta;");
 		runTestInSameEvaluator("incr(delta=3);");
 	}
 	
-	@Test(expected=ArgumentsMismatchError.class)
+	@Test(expected=ArgumentsMismatch.class)
 	public void keywordError2() {
 		prepare("int incr(int x, int delta=1) = x + delta;");
 		runTestInSameEvaluator("incr(1, 3);");
 	}
 	
-	@Test(expected=UnexpectedKeywordArgumentTypeError.class)
+	@Test(expected=UnexpectedKeywordArgumentType.class)
 	public void keywordError3() {
 		prepare("int incr(int x, int delta=1) = x + delta;");
 		runTestInSameEvaluator("incr(3, delta=\"a\");");
 	}
 	
-	@Test(expected=UndeclaredKeywordParameterError.class)
+	@Test(expected=UndeclaredKeywordParameter.class)
 	public void keywordError4() {
 		prepare("int incr(int x, int delta=1) = x + delta;");
 		runTestInSameEvaluator("incr(3, d=5);");
 	}
 	
-	@Test(expected=NoKeywordParametersError.class)
+	@Test(expected=NoKeywordParameters.class)
 	public void keywordError5() {
 		prepare("int add1(int x) = x + 1;");
 		runTestInSameEvaluator("add1(3, delta=5);");
 	}
 	
-	@Test(expected=ArgumentsMismatchError.class)
+	@Test(expected=ArgumentsMismatch.class)
 	public void keywordInConstructorError1() {
 		prepare("data D = d(int x, int y = 3);");
 		runTestInSameEvaluator("d();");
 	}
 	
-	@Test(expected=ArgumentsMismatchError.class)
+	@Test(expected=ArgumentsMismatch.class)
 	public void keywordInConstructorError2() {
 		prepare("data D = d(int x, int y = 3);");
 		runTestInSameEvaluator("d(y=4);");
 	}
 	
-	@Test(expected=ArgumentsMismatchError.class)
+	@Test(expected=ArgumentsMismatch.class)
 	public void keywordInConstructorError3() {
 		prepare("data D = d(int x, int y = 3);");
 		runTestInSameEvaluator("d(1, 4);");
 	}
 	
-	@Test(expected=ArgumentsMismatchError.class)
+	@Test(expected=ArgumentsMismatch.class)
 	public void keywordInConstructorError4() {
 		prepare("data D = d(int x, int y = 3);");
 		runTestInSameEvaluator("d(1, y=\"a\");");
 	}
 	
-	@Test(expected=UndeclaredKeywordParameterError.class)
+	@Test(expected=UndeclaredKeywordParameter.class)
 	public void keywordInConstructorError5() {
 		prepare("data D = d(int x, int y = 3);");
 		runTestInSameEvaluator("d(1, z=4);");
 	}
 	
-	@Test(expected=NoKeywordParametersError.class)
+	@Test(expected=NoKeywordParameters.class)
 	public void keywordInConstructorError6() {
 		prepare("data D = d(int x);");
 		runTestInSameEvaluator("d(1, y=4);");
@@ -374,7 +374,7 @@ public class CallTests extends TestFramework{
 	}
 	@Test
 	public void keywordMatchTest2(){
-		prepare("data POINT = point(int x, int y, list[str] colors = []);");
+		prepare("data POINT = point(int x, int y, int z = 3, list[str] colors = []);");
 		
 		assertTrue(runTestInSameEvaluator("point(_, _, colors=[\"blue\"]) := point(1,2, colors=[\"blue\"]);"));
 		assertTrue(runTestInSameEvaluator("point(_, _, colors=[*_,\"blue\",*_]) := point(1,2, colors=[\"red\",\"green\",\"blue\"]);"));
