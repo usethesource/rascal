@@ -24,7 +24,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -130,7 +129,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 	}
 	
 	public Result<IValue> makeSlice(int first, int second, int end){
-		ListWriter w = new ListWriter(getType().getElementType());
+		IListWriter w = getValueFactory().listWriter(getType().getElementType());
 		int increment = second - first;
 		if(first == end || increment == 0){
 			// nothing to be done
