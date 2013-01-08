@@ -1,0 +1,25 @@
+Name: NoKeyworParametersError
+
+Synopsis: A function that is declared without keyword parameters is called with keyword parameters.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

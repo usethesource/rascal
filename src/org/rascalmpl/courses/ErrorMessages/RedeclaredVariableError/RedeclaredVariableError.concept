@@ -1,0 +1,25 @@
+Name: RedeclaredVariableError
+
+Synopsis: A variable with the same name has been declared in the same scope.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

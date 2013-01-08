@@ -61,6 +61,7 @@ Export-Package:
  org.rascalmpl.semantics.dynamic,
  org.rascalmpl.tasks,
  org.rascalmpl.tasks.facts,
+ org.rascalmpl.test.infrastructure,
  org.rascalmpl.tutor,
  org.rascalmpl.uri,
  org.rascalmpl.values,
