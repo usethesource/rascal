@@ -1,0 +1,30 @@
+Name: RedeclaredVariable
+
+Synopsis: A variable with the same name has been declared in the same scope.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+Remedy: rename one of the variables.
+
+Examples:
+<screen warning>
+int n = 3;
+int n = 4;
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

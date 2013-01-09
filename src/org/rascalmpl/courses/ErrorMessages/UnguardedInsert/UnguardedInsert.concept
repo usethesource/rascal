@@ -1,0 +1,25 @@
+Name: UnguardedInsert
+
+Synopsis: An `insert` occurs outside a `visit` expression.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

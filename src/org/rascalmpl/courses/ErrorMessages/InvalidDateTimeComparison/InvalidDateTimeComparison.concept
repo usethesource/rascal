@@ -1,0 +1,36 @@
+Name: InvalidDateTimeComparison
+
+Synopsis: Attempt to compare a date with a time.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+[$Rascal:Values/DateTime] values may contain two components: date and time.
+Datetime values that contain both a date and a time can be compared.
+Dates can also be compared with dates, and times with times.
+This error is generated when a date is compared with a time.
+
+Examples:
+<warning>Some problems with parsing dates here</warning>
+Comparing dates with dates:
+<screen>
+$2013-07-15 < $2014-07-15
+// Or times with times:
+$T09:15 < $T09:00;
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

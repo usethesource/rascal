@@ -13,8 +13,25 @@ Usage:
 Details:
 
 Description:
+This error is generated when a non-void value is needed, but only void is provided.
+The most prominent examples are splicing for [$Rascal:Values/List], [$Rascal:Values/Set], and [$Rascal:Values/Map].
+
+Remedy: replace the expression that computes void by an expression that computes a non-void value.
 
 Examples:
+First define a dummy function that returns void:
+<screen warnings>
+void dummy() { return; }
+[1, *dummy(), 2]
+{1, *dummy(), 2}
+</screen>
+A solution could be:
+
+<screen>
+int dummy() { return 17; }
+[1, *dummy(), 2]
+{1, *dummy(), 2}
+</screen>
 
 Benefits:
 
