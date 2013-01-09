@@ -20,10 +20,9 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Name;
@@ -94,7 +93,7 @@ public class NodeResult extends ElementResult<INode> {
 	}
 	
 	public Result<IValue> makeSlice(int first, int second, int end){
-		ListWriter w = new ListWriter(getType());
+		IListWriter w = getValueFactory().listWriter(getType());
 		int increment = second - first;
 		if(first == end || increment == 0){
 			// nothing to be done
