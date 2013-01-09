@@ -20,7 +20,7 @@ public class UndeclaredVariable extends StaticError {
 	private final String name;
 
 	public UndeclaredVariable(String name, AbstractAST ast) {
-		super("Undeclared variable, function or constructor: " + name, ast);
+		super("Undeclared variable: " + name, ast);
 		this.name = name;
 //		printStackTrace();
 	}
