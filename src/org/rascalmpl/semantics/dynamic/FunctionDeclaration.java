@@ -34,7 +34,7 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.JavaMethod;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.JavaMethodLink;
+import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.MissingModifier;
 import org.rascalmpl.parser.ASTBuilder;
 
@@ -87,9 +87,7 @@ public abstract class FunctionDeclaration extends
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
 			if (hasJavaModifier(this)) {
-				throw new JavaMethodLink(
-						"may not use java modifier with a function that has a body",
-						null, this, null);
+				throw new NonAbstractJavaFunction(this);
 			}
 
 			if (!this.getBody().isDefault()) {
@@ -132,9 +130,7 @@ public abstract class FunctionDeclaration extends
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
 			if (hasJavaModifier(this)) {
-				throw new JavaMethodLink(
-						"may not use java modifier with a function that has a body",
-						null, this, null);
+				throw new NonAbstractJavaFunction(this);
 			}
 
 			lambda = new RascalFunction(__eval, this, varArgs, __eval
@@ -169,9 +165,7 @@ public abstract class FunctionDeclaration extends
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
 			if (hasJavaModifier(this)) {
-				throw new JavaMethodLink(
-						"may not use java modifier with a function that has a body",
-						null, this, null);
+				throw new NonAbstractJavaFunction(this);
 			}
 
 			ISourceLocation src = this.getLocation();
