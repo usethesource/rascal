@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -15,7 +16,7 @@ public class CharStreamFiller implements ILazyFiller {
 
 	private ISourceLocation source;
 	private IEvaluatorContext ctx;
-	private InputStream is;
+	private Reader is;
 	private BufferedReader br;
 	
 	public CharStreamFiller(ISourceLocation source, IEvaluatorContext ctx) {
@@ -28,8 +29,8 @@ public class CharStreamFiller implements ILazyFiller {
 	public IValue[] refill(int pageSize) {
 		try {
 			if (is == null) {
-				is = ctx.getResolverRegistry().getInputStream(source.getURI());
-				br = new BufferedReader(new UnicodeInputStreamReader(is, ctx.getResolverRegistry().getCharset(source.getURI())));
+				is = ctx.getResolverRegistry().getCharacterReader(source.getURI());
+				br = new BufferedReader(is);
 			}
 			ArrayList<String> al = new ArrayList<String>();
 			int readChars = 0;
