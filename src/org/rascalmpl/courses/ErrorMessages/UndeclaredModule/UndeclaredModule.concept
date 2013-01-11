@@ -1,6 +1,6 @@
 Name: UndeclaredModule
 
-Synopsis: Attempt to import a non-existing module.
+Synopsis: Reference to a non-existing module.
 
 Syntax:
 
@@ -12,13 +12,18 @@ Usage:
 
 Details:
 
-Description:
+Description: It is an error to refer to a non-existing module.
+This can, for example, occur in a qualified name.
+
+Remedies:
+* Check that the offending module name is spelled correctly.
+* Create a module of that name.
 
 Examples:
-<warning>How to generate this message?</warning>
-Misspelling the name of a library module (`Lis` instead of `List`) gives an error:
+Referring to the non-existing module `M` gives errors:
 <screen warnings>
-import Lis;
+M::x = 3;
+M::f(3);
 </screen>
 
 Benefits:

@@ -13,8 +13,20 @@ Usage:
 Details:
 
 Description:
+Subscription is available for values of various types including: 
+[$Rascal:Values/String], [Rascal:Values/Node],
+[Rascal:List/Subscription], [Rascal:Map/Subscription], [Rascal:Tuple/Subscription] and [Rascal:Relation/Subscription].
+This error is generated when subscription is applied to a value that does support subscription but not the number
+of indices that are used.
+
+Remedies: correct the number of indices used in the subscription.
 
 Examples:
+<screen warnings>
+[1,2,3][2,1];
+("a":1, "b":2, "c":3)["c", "d"];
+<1, 2, 3>[5,6];
+</screen>
 
 Benefits:
 

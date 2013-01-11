@@ -52,7 +52,38 @@
                            
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  This error is generated when an unsupported operation is applied to (a combination of) values.
+ There can be many causes for this as illustrated below.
+ <br/>
+<br/>
+
+ Remedies: 
+ <ul><li> Change the operation to another operations that is supported on the given values.</li>
+<li> Change the values so that the operation can be applied to them.</li>
+<li> Rewrite the expression compleye to get the effect you intended.</li>
+</ul>
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>L = [1,2,3];
+list[int]: [1,2,3]
+</pre> Division is not supported on lists:
+<pre class="screen"><span class="prompt">rascal></span>[1, 2, 3] / 4;
+|stdin:///|(12,1,&lt;1,12>,&lt;1,13>): division not supported on list[int] and int
+
+</pre>  Combined multiplication and assignment is not supported either:
+<pre class="screen"><span class="prompt">rascal></span>L *= 3;
+|stdin:///|(5,1,&lt;1,5>,&lt;1,6>): multiplication not supported on list[int] and list[int]
+
+</pre>  Taking the time from a date-only value is not supported:
+<pre class="screen"><span class="prompt">rascal></span>$2010-07-15.justTime;
+|stdin:///|(0,11,&lt;1,0>,&lt;1,11>): Can not retrieve the time component of a date value
+
+</pre>
+</div>
+
   	                       
   	                       
   	                       

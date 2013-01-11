@@ -39,7 +39,7 @@ This is how the `size` function on lists is declared in the Rascal library:
 public java int size(list[&T] lst);
 </screen>
 This is the result of misspelling the function name (`siz` instead of `size`):
-<screen>
+<screen warnings>
 @javaClass{org.rascalmpl.library.Prelude}
 public java int siz(list[&T] lst);
 </screen>

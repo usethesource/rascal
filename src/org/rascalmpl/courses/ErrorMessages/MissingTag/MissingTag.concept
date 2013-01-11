@@ -38,7 +38,6 @@ public java int size(list[&T] lst);
 <warning>When is MissingTag generated?</warning>
 Without the `javaClass` tag this will generate the MissingTag error:
 <screen warning>
-@javaClass{}
 public java int size(list[&T] lst);
 </screen>
 

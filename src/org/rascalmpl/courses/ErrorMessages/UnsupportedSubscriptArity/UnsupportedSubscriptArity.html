@@ -52,7 +52,33 @@
                            
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  Subscription is available for values of various types including: 
+ <a href="/Rascal/Expressions/Values/String/String.html">Rascal:String</a>, <a href="/Rascal/Expressions/Values/Node/Node.html">Rascal:Values/Node</a>,
+ <a href="/Rascal/Expressions/Values/List/Subscription/Subscription.html">Rascal:List/Subscription</a>, <a href="/Rascal/Expressions/Values/Map/Subscription/Subscription.html">Rascal:Map/Subscription</a>, <a href="/Rascal/Expressions/Values/Tuple/Subscription/Subscription.html">Rascal:Tuple/Subscription</a> and <a href="/Rascal/Expressions/Values/Relation/Subscription/Subscription.html">Rascal:Relation/Subscription</a>.
+ This error is generated when subscription is applied to a value that does support subscription but not the number
+ of indices that are used.
+ <br/>
+<br/>
+
+ Remedies: correct the number of indices used in the subscription.
+
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>[1,2,3][2,1];
+|stdin:///|(10,1,&lt;1,10>,&lt;1,11>): Unsupported subscript arity of 2 on type list[int]
+
+<span class="prompt">rascal></span>(&quot;a&quot;:1, &quot;b&quot;:2, &quot;c&quot;:3)[&quot;c&quot;, &quot;d&quot;];
+|stdin:///|(27,3,&lt;1,27>,&lt;1,30>): Unsupported subscript arity of 2 on type map[str, int]
+
+<span class="prompt">rascal></span>&lt;1, 2, 3&gt;[5,6];
+|stdin:///|(12,1,&lt;1,12>,&lt;1,13>): Unsupported subscript arity of 2 on type tuple[int,int,int]
+
+</pre>
+</div>
+
   	                       
   	                       
   	                       

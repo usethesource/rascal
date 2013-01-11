@@ -24,11 +24,10 @@ Remedy: correct the type.
 Examples:
 <screen warnings>
 bool[int] x;
-list[int,str] L;
-map[str, int, int]  M;
-set[int,str];
+list[int,str] l;
+map[str, int, int]  m;
+set[int,str] s;
 </screen>
-<warning>set[int,str] should give an error</warning>
 Benefits:
 
 Pitfalls:

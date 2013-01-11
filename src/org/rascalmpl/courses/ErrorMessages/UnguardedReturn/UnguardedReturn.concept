@@ -13,9 +13,18 @@ Usage:
 Details:
 
 Description:
+A [Rascal:Return] statement is used to return a value from a function.
+It is an error to use it outside a function body.
 
 Examples:
-
+<screen>
+int triple(int n) { return 3 * n; }
+triple(5);
+</screen>
+Using return outside a function body gives an error:
+<screen warning>
+return 3;
+</screen>
 Benefits:
 
 Pitfalls:

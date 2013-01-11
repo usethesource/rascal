@@ -13,8 +13,24 @@ Usage:
 Details:
 
 Description:
+This error is generated when an unsupported operation is applied to (a combination of) values.
+There can be many causes for this as illustrated below.
+
+Remedies: 
+* Change the operation to another operations that is supported on the given values.
+* Change the values so that the operation can be applied to them.
+* Rewrite the expression compleye to get the effect you intended.
 
 Examples:
+<screen warnings>
+L = [1,2,3];
+//Division is not supported on lists:
+[1, 2, 3] / 4;
+// Combined multiplication and assignment is not supported either:
+L *= 3;
+// Taking the time from a date-only value is not supported:
+$2010-07-15.justTime;
+</screen>
 
 Benefits:
 

@@ -52,7 +52,25 @@
                            
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  A <a href="/Rascal/Statements/Return/Return.html">Rascal:Return</a> statement is used to return a value from a function.
+ It is an error to use it outside a function body.
+
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>int triple(int n) { return 3 * n; }
+int (int): int triple(int);
+<span class="prompt">rascal></span>triple(5);
+int: 15
+</pre> Using return outside a function body gives an error:
+ <pre class="screen"><span class="prompt">rascal></span>return 3;
+|stdin:///|(0,9,&lt;1,0>,&lt;1,9>): Return statement outside of function scope
+
+</pre>
+</div>
+
   	                       
   	                       
   	                       

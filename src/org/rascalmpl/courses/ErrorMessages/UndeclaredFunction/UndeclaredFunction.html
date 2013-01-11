@@ -73,7 +73,7 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Calling the undeclared function <code>triple</code> gives an error:
  <pre class="screen"><span class="prompt">rascal></span>triple(5)
-|stdin:///|(0,6,&lt;1,0>,&lt;1,6>): Undeclared variable, function or constructor: triple
+|stdin:///|(0,6,&lt;1,0>,&lt;1,6>): Undeclared variable: triple
 
 </pre>  We can remedy this by declaring the function:
 <pre class="screen"><span class="prompt">rascal></span>int triple(int n) = 3 * n;
@@ -82,7 +82,7 @@ int (int): int triple(int);
 int: 15
 </pre> Calling the library function <code>size</code> gives an error if the proper library (in this case: <code>List</code>) is not imported
  <pre class="screen"><span class="prompt">rascal></span>size([20, 1, 77]);
-|stdin:///|(0,4,&lt;1,0>,&lt;1,4>): Undeclared variable, function or constructor: size
+|stdin:///|(0,4,&lt;1,0>,&lt;1,4>): Undeclared variable: size
 
 </pre> The solution is:
  <pre class="screen"><span class="prompt">rascal></span>import List;
@@ -96,7 +96,7 @@ ok
 int: 3
 </pre> Using an undeclared variable gives an error:
  <pre class="screen"><span class="prompt">rascal></span>n + 1;
-|stdin:///|(0,1,&lt;1,0>,&lt;1,1>): Undeclared variable, function or constructor: n
+|stdin:///|(0,1,&lt;1,0>,&lt;1,1>): Undeclared variable: n
 
 </pre> A variable is introduced by just assigning to it (with or without its expected type):
  <pre class="screen"><span class="prompt">rascal></span>n = 3;

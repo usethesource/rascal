@@ -12,9 +12,30 @@ Usage:
 
 Details:
 
-Description: ZZZZ
+Description:
+Subscription is available for values of various types including: 
+[$Rascal:Values/String], [Rascal:Values/Node],
+[Rascal:List/Subscription], [Rascal:Map/Subscription], [Rascal:Tuple/Subscription] and [Rascal:Relation/Subscription].
+This error is generated when subscription is applied to a value for which it is not defined.
+
+Remedies:
+* Use another operation than subscription to extract the values you want.
+* Use another type (that does support subscription) to represent your data.
 
 Examples:
+Here are some correct uses of subscription:
+<screen>
+"abc"[1];
+[1,2,3][1];
+"f"(1,2,3)[1];
+("a":1, "b":2, "c":3)["b"]
+</screen>
+Here are some erroneous examples:
+<screen warnings>
+true[1];
+123[1];
+{1,2,3}[1];
+</screen>
 
 Benefits:
 

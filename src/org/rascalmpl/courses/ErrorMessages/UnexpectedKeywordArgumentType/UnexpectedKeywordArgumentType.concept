@@ -21,8 +21,10 @@ Remedies:
 * Change the type of the keyword parameter in the function declaration.
 
 Examples:
-<screen>
+<screen warning>
+// Declare `incr` function with keyword parameter `delta` of type `int`:
 int incr(int x, int delta = 1) = n + delta;
+// Erroneous use of `delta` with a string value:
 incr(3, delta="more");
 </screen>
 

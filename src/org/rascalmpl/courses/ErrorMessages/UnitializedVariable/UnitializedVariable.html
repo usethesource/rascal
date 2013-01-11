@@ -52,7 +52,30 @@
                            
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  A <a href="/Rascal/Declarations/Variable/Variable.html">Rascal:Variable</a> has to be initialized before it can be used.
+ This error is generated when an uninitialzed variable is used.
+ <br/>
+<br/>
+
+ Remedy: assign a value to the variable before its use:
+
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  Using the uninitialized variable <code>x</code> gives an error:
+ <pre class="screen"><span class="prompt">rascal></span>x + 5;
+|stdin:///|(0,1,&lt;1,0>,&lt;1,1>): Undeclared variable: x
+
+</pre>  This can be avoided by first initializing <code>x</code>:
+<pre class="screen"><span class="prompt">rascal></span>x = 3;
+int: 3
+<span class="prompt">rascal></span>x + 5;
+int: 8
+</pre>
+</div>
+
   	                       
   	                       
   	                       

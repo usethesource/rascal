@@ -8,7 +8,7 @@
 <head>
 <title>ErrorMessages/UnguardedFail</title>
 
-<meta name="description" content="ErrorMessages/UnguardedFail:  Use of `fail` statement outside a conditional context.">
+<meta name="description" content="ErrorMessages/UnguardedFail:  Use of `fail` statement outside a condtional context.">
 
 <meta name="keywords" content="ErrorMessages/UnguardedFail, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Use of <code>fail</code> statement outside a conditional context.
+<span class="sectionHead">Synopsis</span>  Use of <code>fail</code> statement outside a condtional context.
 
 </div>
 
@@ -52,7 +52,36 @@
                            
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  A <a href="/Rascal/Statements/Fail/Fail.html">Rascal:Fail</a> statement is only allowed inside conditional statements.
+ This error is generated when <code>fail</code> is used outside a conditional context.
+ <br/>
+<br/>
+
+ Remedies:
+ <ul><li> Surround the <code>fail</code> statement by a conditional conditional statement.</li>
+<li> Replace the <code>fail</code> statement by a <a href="/Rascal/Statements/Throw/Throw.html">Rascal:Throw</a> statement.</li>
+<li> replace the <code>fail</code> statement by a <a href="/Rascal/Statements/Return/Return.html">Rascal:Return</a> statement.</li>
+</ul>
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  Here is a correct (albeit not very useful) use of <code>fail</code> where the pattern match <code>int N := 35</code> acts as guard:
+ <pre class="screen"><span class="prompt">rascal></span>if(int N := 35){ if(N &gt; 10) fail; }
+ok
+</pre>  Any condition (non only one using pattern matching) can act as guard:
+<pre class="screen"><span class="prompt">rascal></span>if(true) { fail; }
+ok
+</pre> An error occurs when <code>fail</code> is used outside a conditional context:
+ <pre class="screen"><span class="prompt">rascal></span>fail;
+|stdin:///|(0,5,&lt;1,0>,&lt;1,5>): Use of fail outside a conditional context
+
+<span class="prompt">rascal></span>
+cancelled
+</pre>
+</div>
+
   	                       
   	                       
   	                       

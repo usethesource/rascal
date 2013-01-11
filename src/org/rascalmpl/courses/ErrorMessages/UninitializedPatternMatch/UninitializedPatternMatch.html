@@ -52,7 +52,29 @@
                            
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  <a href="/Rascal/Concepts/PatternMatching/PatternMatching.html">Rascal:PatternMatching</a> requires two ingredients:
+ <ul><li> One of the many <a href="/Rascal/Patterns/Patterns.html">Rascal:Patterns</a>.</li>
+<li> A non-void subject value to which the pattern is applied.</li>
+</ul> This error is generated when the subject is void.
+ <br/>
+<br/>
+
+ Remedy: replace the subject by a non-void value.
+
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  here is a (contrived) example that produces this error:
+ <pre class="screen"><span class="prompt">rascal></span>void dummy() { return; }
+void (): void dummy();
+<span class="prompt">rascal></span>int n := dummy();
+|stdin:///|(9,5,&lt;1,9>,&lt;1,14>): Uninitialized pattern match: trying to match a value of the type 'void'
+
+</pre>
+</div>
+
   	                       
   	                       
   	                       
