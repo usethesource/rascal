@@ -35,13 +35,13 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscript;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
@@ -66,11 +66,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (result == null || result.getValue() == null) {
 				// TODO: can this ever happen?
-				throw new UninitializedVariableError(this.getReceiver().toString(), this.getReceiver());
+				throw new UninitializedVariable(this.getReceiver().toString(), this.getReceiver());
 			}
 
 			if (!__eval.__getEnv().declaresAnnotation(result.getType(), label)) {
-				throw new UndeclaredAnnotationError(label, result.getType(),
+				throw new UndeclaredAnnotation(label, result.getType(),
 						this);
 			}
 
@@ -96,7 +96,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (!__eval.getCurrentEnvt().declaresAnnotation(receiver.getType(),
 					label)) {
-				throw new UndeclaredAnnotationError(label, receiver.getType(),
+				throw new UndeclaredAnnotation(label, receiver.getType(),
 						this);
 			}
 
@@ -135,7 +135,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (!valueType.isNodeType() && !valueType.isAbstractDataType()
 					&& !valueType.isConstructorType()) {
-				throw new UnexpectedTypeError(
+				throw new UnexpectedType(
 						org.rascalmpl.interpreter.AssignableEvaluator.__getTf()
 								.nodeType(), __eval.__getValue().getType(),
 						this);
@@ -239,7 +239,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (receiver == null || receiver.getValue() == null) {
 				// TODO:can this ever happen?
-				throw new UninitializedVariableError(this.getReceiver()
+				throw new UninitializedVariable(this.getReceiver()
 						.toString(), this.getReceiver());
 			}
 
@@ -247,7 +247,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 				int idx = receiver.getType().getFieldIndex(label);
 				if (idx < 0) {
-					throw new UndeclaredFieldError(label, receiver.getType(),
+					throw new UndeclaredField(label, receiver.getType(),
 							this);
 				}
 
@@ -267,7 +267,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 						.__getValue()));
 				
 				if (!result.getType().isSubtypeOf(receiver.getType())) {
-					throw new UnexpectedTypeError(receiver.getType(), result.getType(), __eval.getCurrentAST());
+					throw new UnexpectedType(receiver.getType(), result.getType(), __eval.getCurrentAST());
 				}
 				return __eval.recur(this, result);
 			}
@@ -283,7 +283,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				 */
 
 				if (!node.hasField(label)) {
-					throw new UndeclaredFieldError(label, receiver.getValue()
+					throw new UndeclaredField(label, receiver.getValue()
 							.getType(), this);
 				}
 
@@ -291,7 +291,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 				if (!__eval.__getValue().getType().isSubtypeOf(
 						node.getFieldType(index))) {
-					throw new UnexpectedTypeError(node.getFieldType(index),
+					throw new UnexpectedType(node.getFieldType(index),
 							__eval.__getValue().getType(), this);
 				}
 				__eval.__setValue(__eval.newResult(cons.get(index), __eval
@@ -317,7 +317,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				return __eval.recur(this, receiver.fieldUpdate(label, __eval
 						.__getValue(), __eval.__getEnv().getStore()));
 			} else {
-				throw new UndeclaredFieldError(label, receiver.getType(), this);
+				throw new UndeclaredField(label, receiver.getType(), this);
 			}
 
 		}
@@ -331,7 +331,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (receiver == null || receiver.getValue() == null) {
 				// TODO: can this ever happen?
-				throw new UndeclaredVariableError(
+				throw new UndeclaredVariable(
 						this.getReceiver().toString(), this.getReceiver());
 			}
 
@@ -356,7 +356,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 				if (!receiverType.hasField(label, __eval.getCurrentEnvt()
 						.getStore())) {
-					throw new UndeclaredFieldError(label, receiverType, this);
+					throw new UndeclaredField(label, receiverType, this);
 				}
 
 				if (!node.hasField(label)) {
@@ -371,7 +371,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			} else if (receiverType.isSourceLocationType()) {
 				return receiver.fieldAccess(label, new TypeStore());
 			} else {
-				throw new UndeclaredFieldError(label, receiverType, this);
+				throw new UndeclaredField(label, receiverType, this);
 			}
 
 		}
@@ -439,7 +439,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (rec == null || rec.getValue() == null) {
 				// TODO: can this ever happen?
-				throw new UninitializedVariableError(this.getReceiver()
+				throw new UninitializedVariable(this.getReceiver()
 						.toString(), this.getReceiver());
 			}
 
@@ -478,7 +478,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 									.lub(map.getType()) : rec.getType(), map,
 									__eval.__getEval());
 				} else {
-					throw new UnexpectedTypeError(keyType, subscript.getType(),
+					throw new UnexpectedType(keyType, subscript.getType(),
 							this.getSubscript());
 				}
 
@@ -523,13 +523,13 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				IValue sub = subscript.getValue();
 
 				if (rec.getType().getArity() != 2) {
-					throw new UnsupportedSubscriptError(rec.getType(),
+					throw new UnsupportedSubscript(rec.getType(),
 							subscript.getType(), this);
 				}
 
 				if (!__eval.__getValue().getType().isSubtypeOf(
 						rec.getType().getFieldType(1))) {
-					throw new UnexpectedTypeError(
+					throw new UnexpectedType(
 							rec.getType().getFieldType(1), __eval.__getValue()
 									.getType(), __eval.__getEval()
 									.getCurrentAST());
@@ -540,7 +540,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				result = org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(rec.getType(), rel, __eval.__getEval());
 			} else {
-				throw new UnsupportedSubscriptError(rec.getType(), subscript
+				throw new UnsupportedSubscript(rec.getType(), subscript
 						.getType(), this);
 				// TODO implement other subscripts
 			}
@@ -574,7 +574,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				return;
 			}
 			if (!given.isSubtypeOf(expected)) {
-				throw new UnexpectedTypeError(expected, given, this);
+				throw new UnexpectedType(expected, given, this);
 			}
 		}
 
@@ -586,7 +586,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (receiver == null || receiver.getValue() == null) {
 				// TODO:can this ever happen?
-				throw new UninitializedVariableError(this.getReceiver()
+				throw new UninitializedVariable(this.getReceiver()
 						.toString(), this.getReceiver());
 			}
 			
@@ -599,7 +599,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					return normalizedResult(__eval, type, result);
 				}
 
-				throw new UnexpectedTypeError(
+				throw new UnexpectedType(
 						org.rascalmpl.interpreter.Evaluator.__getTf()
 								.integerType(), subscript.getType(), this);
 			} else if (receiver.getType().isMapType()) {
@@ -620,11 +620,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 							.makeResult(type, result, __eval);
 				}
 
-				throw new UnexpectedTypeError(keyType, subscript.getType(),
+				throw new UnexpectedType(keyType, subscript.getType(),
 						this.getSubscript());
 			}
 			// TODO implement other subscripts
-			throw new UnsupportedOperationError("subscript",
+			throw new UnsupportedOperation("subscript",
 					receiver.getType(), this);
 
 		}
@@ -644,7 +644,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (!__eval.__getValue().getType().isTupleType()) {
 				// TODO construct a better expected type
-				throw new UnexpectedTypeError(
+				throw new UnexpectedType(
 						org.rascalmpl.interpreter.AssignableEvaluator.__getTf()
 								.tupleEmpty(), __eval.__getValue().getType(),
 						this);
@@ -710,7 +710,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				__eval.__getEnv().storeVariable(qname, __eval.__getValue());
 				return __eval.__getValue();
 			default:
-				throw new UninitializedVariableError(Names.fullName(qname), this);
+				throw new UninitializedVariable(Names.fullName(qname), this);
 			}
 
 			// TODO implement semantics of global keyword, when not given the

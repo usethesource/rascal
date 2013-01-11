@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class StatementTests extends TestFramework {
@@ -44,12 +44,12 @@ public class StatementTests extends TestFramework {
 		runTest("assert 3.5 : \"Wrong expression type\";");
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void assertError4() {
 		runTest("assert X;");
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void assertError5() {
 		runTest("assert X : \"Wrong expression type\";");
 	}

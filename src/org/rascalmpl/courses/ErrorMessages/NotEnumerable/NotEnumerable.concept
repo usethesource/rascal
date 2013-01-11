@@ -1,0 +1,34 @@
+Name: NotEnumerable
+
+Synopsis: A value that cannot be enumerated is used in an enumerator.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+A [Rascal:Enumerator] like `int n <- $V$` is used in [$Rascal:Expressions/Comprehensions] to enumerate the values in `V`.
+This error is produced when `V` is a value that does not support enumeration.
+This is typically the case for atomic values like numbers, Booleans and Strings,
+
+Remedy: modify the expression in the enumerator to return a value that supports enumeration.
+
+Examples:
+<screen warnings>
+int x <- 17
+b <- true
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

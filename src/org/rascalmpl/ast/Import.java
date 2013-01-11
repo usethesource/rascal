@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,11 +29,11 @@ public abstract class Import extends AbstractAST {
   }
 
   
-  public boolean hasSyntax() {
+  public boolean hasModule() {
     return false;
   }
 
-  public org.rascalmpl.ast.SyntaxDefinition getSyntax() {
+  public org.rascalmpl.ast.ImportedModule getModule() {
     throw new UnsupportedOperationException();
   }
   public boolean hasAt() {
@@ -43,18 +43,18 @@ public abstract class Import extends AbstractAST {
   public org.rascalmpl.ast.LocationLiteral getAt() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasModule() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.ImportedModule getModule() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.QualifiedName getName() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasSyntax() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.SyntaxDefinition getSyntax() {
     throw new UnsupportedOperationException();
   }
 
@@ -100,6 +100,80 @@ public abstract class Import extends AbstractAST {
   
 
   
+  public boolean isDefault() {
+    return false;
+  }
+
+  static public class Default extends Import {
+    // Production: sig("Default",[arg("org.rascalmpl.ast.ImportedModule","module")])
+  
+    
+    private final org.rascalmpl.ast.ImportedModule module;
+  
+    public Default(IConstructor node , org.rascalmpl.ast.ImportedModule module) {
+      super(node);
+      
+      this.module = module;
+    }
+  
+    @Override
+    public boolean isDefault() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitImportDefault(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.ImportedModule getModule() {
+      return this.module;
+    }
+  
+    @Override
+    public boolean hasModule() {
+      return true;
+    }	
+  }
+  public boolean isExtend() {
+    return false;
+  }
+
+  static public class Extend extends Import {
+    // Production: sig("Extend",[arg("org.rascalmpl.ast.ImportedModule","module")])
+  
+    
+    private final org.rascalmpl.ast.ImportedModule module;
+  
+    public Extend(IConstructor node , org.rascalmpl.ast.ImportedModule module) {
+      super(node);
+      
+      this.module = module;
+    }
+  
+    @Override
+    public boolean isExtend() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitImportExtend(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.ImportedModule getModule() {
+      return this.module;
+    }
+  
+    @Override
+    public boolean hasModule() {
+      return true;
+    }	
+  }
   public boolean isExternal() {
     return false;
   }
@@ -145,80 +219,6 @@ public abstract class Import extends AbstractAST {
   
     @Override
     public boolean hasAt() {
-      return true;
-    }	
-  }
-  public boolean isExtend() {
-    return false;
-  }
-
-  static public class Extend extends Import {
-    // Production: sig("Extend",[arg("org.rascalmpl.ast.ImportedModule","module")])
-  
-    
-    private final org.rascalmpl.ast.ImportedModule module;
-  
-    public Extend(IConstructor node , org.rascalmpl.ast.ImportedModule module) {
-      super(node);
-      
-      this.module = module;
-    }
-  
-    @Override
-    public boolean isExtend() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitImportExtend(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.ImportedModule getModule() {
-      return this.module;
-    }
-  
-    @Override
-    public boolean hasModule() {
-      return true;
-    }	
-  }
-  public boolean isDefault() {
-    return false;
-  }
-
-  static public class Default extends Import {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.ImportedModule","module")])
-  
-    
-    private final org.rascalmpl.ast.ImportedModule module;
-  
-    public Default(IConstructor node , org.rascalmpl.ast.ImportedModule module) {
-      super(node);
-      
-      this.module = module;
-    }
-  
-    @Override
-    public boolean isDefault() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitImportDefault(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.ImportedModule getModule() {
-      return this.module;
-    }
-  
-    @Override
-    public boolean hasModule() {
       return true;
     }	
   }

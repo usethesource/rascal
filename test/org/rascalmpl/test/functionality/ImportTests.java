@@ -18,15 +18,15 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
+import org.rascalmpl.interpreter.staticErrors.ModuleImport;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class ImportTests extends TestFramework {
 	
 
-	@Test(expected=ModuleLoadError.class)
+	@Test(expected=ModuleImport.class)
 	public void importError() {
 		runTest("import zap;");
 	}
@@ -56,14 +56,14 @@ public class ImportTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ int n = 4; n == 4;}"));
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void UndefinedPrivateVar1(){
 		prepareModule("M", "module M\n" +
 		         "private int m = 3;");
 		runTestInSameEvaluator("m != 3;");
 	}
 	
-	@Ignore @Test(expected=UninitializedVariableError.class)
+	@Ignore @Test(expected=UninitializedVariable.class)
 	public void UndefinedPrivateVar2(){
 		prepareModule("M", "module M\n" +
 		         "private int m = 3;");
@@ -71,7 +71,7 @@ public class ImportTests extends TestFramework {
 		runTestInSameEvaluator("int n = m;");
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void UndefinedPrivateFunction(){
 		prepareModule("M", "module M\n" +
 		         "private int f() {return 3;}");

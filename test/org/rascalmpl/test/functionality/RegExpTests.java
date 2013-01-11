@@ -17,7 +17,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
@@ -51,7 +51,7 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("/<x:\\/>/ := \"/\" && x == \"/\";"));
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
+	@Test(expected=RedeclaredVariable.class)
 	public void RedeclaredError(){
 		assertTrue(runTest("(/<x:[a-z]+>-<x:[a-z]+>/ := \"abc-abc\") && (x == \"abc\");"));
 	}

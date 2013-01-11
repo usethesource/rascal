@@ -18,40 +18,40 @@ package org.rascalmpl.test.functionality;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class ScopeTests extends TestFramework {
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void noEscapeFromToplevelMatch() {
 		runTest("{ bool a := true; a;}");
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void noEscapeFromToplevelMatchStatement() {
 		runTest("bool a := true;");
 		runTestInSameEvaluator("a;");
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void noEscapeFromToplevelMatchExpression() {
 		runTest("bool a := true"); // notice the necessary lack of a semi-colon here
 		runTestInSameEvaluator("a;");
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
+	@Test(expected=RedeclaredVariable.class)
 	public void localRedeclarationError1(){
 		runTest("{int n; int n;}");
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
+	@Test(expected=RedeclaredVariable.class)
 	public void localRedeclarationError2(){
 		runTest("{int n = 1; int n;}");
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
+	@Test(expected=RedeclaredVariable.class)
 	public void localRedeclarationError3(){
 		runTest("{int n = 1; int n = 2;}");
 	}
@@ -101,7 +101,7 @@ public class ScopeTests extends TestFramework {
 		assertTrue(runTest("{int n; L = [n | int n <- [1 .. 10]]; L == [1 .. 10];}"));
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
+	@Test(expected=RedeclaredVariable.class)
 	public void moduleRedeclarationError1(){
 		prepareModule("XX", "module XX public int n = 1; public int n = 2;");
 		runTestInSameEvaluator("import XX;");
@@ -123,17 +123,17 @@ public class ScopeTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{int n = 2; n == 2;}"));
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void ifNoLeak1(){
 		runTest("{if(int n := 3){n == 3;}else{n != 3;} n == 3;}");
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void ifNoLeak2(){
 		runTest("{if(int n <- [1 .. 3], n>=3){n == 3;}else{n != 3;} n == 3;}");
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void blockNoLeak1(){
 		runTest("{int n = 1; {int m = 2;}; n == 1 && m == 2;}");
 	}
@@ -143,12 +143,12 @@ public class ScopeTests extends TestFramework {
 		assertTrue(runTest("{int n = 1; {int m = 2;}; int m = 3; n == 1 && m == 3;}"));
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void innerImplicitlyDeclared(){
 		assertTrue(runTest("{int n = 1; {m = 2;}; n == 1 && m == 2;}"));
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void varsInEnumeratorExpressionsShouldNotLeak(){
 		assertTrue(runTest("{int n <- [1,2]; n == 1;}"));
 	}

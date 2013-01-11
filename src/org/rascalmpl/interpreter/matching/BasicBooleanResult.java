@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 
 
 public class BasicBooleanResult extends AbstractBooleanResult {
@@ -56,7 +56,7 @@ public class BasicBooleanResult extends AbstractBooleanResult {
 				return false;
 			}
 
-			throw new UnexpectedTypeError(tf.boolType(), result.getType(), expr);
+			throw new UnexpectedType(tf.boolType(), result.getType(), expr);
 		}
 		
 		return false;

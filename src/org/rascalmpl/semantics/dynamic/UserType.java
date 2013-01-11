@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
 
 public abstract class UserType extends org.rascalmpl.ast.UserType {
 
@@ -57,7 +57,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 				}
 			}
 
-			throw new UndeclaredTypeError(name, this);
+			throw new UndeclaredType(name, this);
 
 		}
 
@@ -109,7 +109,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 				return type.instantiate(bindings).instantiate(__eval.getTypeBindings());
 			}
 
-			throw new UndeclaredTypeError(name, this);
+			throw new UndeclaredType(name, this);
 
 		}
 

@@ -16,22 +16,22 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 
 public class AnnotationTests extends TestFramework{
 	
 	
-	@Test(expected=UndeclaredAnnotationError.class)
+	@Test(expected=UndeclaredAnnotation.class)
 	public void annotationNotAllowed(){
 		prepare("data POS = pos(int n);");
 		runTestInSameEvaluator("1 [@pos=3];");
 	}
 	
-	@Test(expected=UnsupportedOperationError.class)
+	@Test(expected=UnsupportedOperation.class)
 	public void annotationNotAllowed2(){
 		runTest("1 @ pos;");
 	}
@@ -43,28 +43,28 @@ public class AnnotationTests extends TestFramework{
 		runTestInSameEvaluator("f[@pos=true];");
 	}
 	
-	@Test(expected=UndeclaredAnnotationError.class)
+	@Test(expected=UndeclaredAnnotation.class)
 	public void annotationNotAllowed4(){
 		prepare("data F = f() | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
 		runTestInSameEvaluator("f() [@wrongpos=true];");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UndefinedValueError1(){
 		prepare("data F = f() | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
 		runTestInSameEvaluator("{F someF; someF @ pos;}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UndefinedValueError2(){
 		prepare("data F = f() | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
 		runTestInSameEvaluator("{F someF; someF [@pos=3];}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UninitializedVariableError(){
 		prepare("data F = f() | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");

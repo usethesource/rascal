@@ -22,9 +22,9 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.staticErrors.AmbiguousFunctionReferenceError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
+import org.rascalmpl.interpreter.staticErrors.AmbiguousFunctionReference;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
 
 public abstract class DataTypeSelector extends
 		org.rascalmpl.ast.DataTypeSelector {
@@ -49,7 +49,7 @@ public abstract class DataTypeSelector extends
 								.moduleName(sort));
 
 				if (mod == null) {
-					throw new UndeclaredModuleError(
+					throw new UndeclaredModule(
 							org.rascalmpl.interpreter.utils.Names
 									.moduleName(sort), sort);
 				}
@@ -60,7 +60,7 @@ public abstract class DataTypeSelector extends
 			}
 
 			if (adt == null) {
-				throw new UndeclaredTypeError(name, this);
+				throw new UndeclaredType(name, this);
 			}
 
 			String constructor = org.rascalmpl.interpreter.utils.Names
@@ -68,9 +68,9 @@ public abstract class DataTypeSelector extends
 			Set<Type> constructors = env.lookupConstructor(adt, constructor);
 
 			if (constructors.size() == 0) {
-				throw new UndeclaredTypeError(name + "." + constructor, this);
+				throw new UndeclaredType(name + "." + constructor, this);
 			} else if (constructors.size() > 1) {
-				throw new AmbiguousFunctionReferenceError(name + "."
+				throw new AmbiguousFunctionReference(name + "."
 						+ constructor, this);
 			} else {
 				return constructors.iterator().next();

@@ -15,6 +15,7 @@ package org.rascalmpl.interpreter.strategy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -30,7 +31,7 @@ public class All extends AbstractStrategy {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		IValue res = argValues[0];
 		boolean entered = v.init(res);
 		
@@ -38,7 +39,7 @@ public class All extends AbstractStrategy {
 		for (int i = 0; i < v.getChildrenNumber(res); i++) {
 			IValue child = v.getChildAt(res, i);
 			v.mark(child);
-			newchildren.add(function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue());
+			newchildren.add(function.call(new Type[]{child.getType()}, new IValue[]{child}, null).getValue());
 		}
 		res = v.setChildren(res, newchildren);
 		

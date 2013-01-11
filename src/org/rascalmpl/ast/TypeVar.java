@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,18 +29,18 @@ public abstract class TypeVar extends AbstractAST {
   }
 
   
-  public boolean hasBound() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Type getBound() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasBound() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Type getBound() {
     throw new UnsupportedOperationException();
   }
 
@@ -86,43 +86,6 @@ public abstract class TypeVar extends AbstractAST {
   
 
   
-  public boolean isFree() {
-    return false;
-  }
-
-  static public class Free extends TypeVar {
-    // Production: sig("Free",[arg("org.rascalmpl.ast.Name","name")])
-  
-    
-    private final org.rascalmpl.ast.Name name;
-  
-    public Free(IConstructor node , org.rascalmpl.ast.Name name) {
-      super(node);
-      
-      this.name = name;
-    }
-  
-    @Override
-    public boolean isFree() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitTypeVarFree(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Name getName() {
-      return this.name;
-    }
-  
-    @Override
-    public boolean hasName() {
-      return true;
-    }	
-  }
   public boolean isBounded() {
     return false;
   }
@@ -168,6 +131,43 @@ public abstract class TypeVar extends AbstractAST {
   
     @Override
     public boolean hasBound() {
+      return true;
+    }	
+  }
+  public boolean isFree() {
+    return false;
+  }
+
+  static public class Free extends TypeVar {
+    // Production: sig("Free",[arg("org.rascalmpl.ast.Name","name")])
+  
+    
+    private final org.rascalmpl.ast.Name name;
+  
+    public Free(IConstructor node , org.rascalmpl.ast.Name name) {
+      super(node);
+      
+      this.name = name;
+    }
+  
+    @Override
+    public boolean isFree() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitTypeVarFree(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Name getName() {
+      return this.name;
+    }
+  
+    @Override
+    public boolean hasName() {
       return true;
     }	
   }

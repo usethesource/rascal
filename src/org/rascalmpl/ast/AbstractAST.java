@@ -33,7 +33,7 @@ import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -179,7 +179,7 @@ public abstract class AbstractAST implements IVisitable {
 	 * Recursively build a matching data-structure, use getMatcher if you are just a client of IMatchingResult.
 	 */
 	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-		throw new UnsupportedPatternError(toString(), this);
+		throw new UnsupportedPattern(toString(), this);
 	}
 	
 	public IMatchingResult getMatcher(IEvaluatorContext eval) {
