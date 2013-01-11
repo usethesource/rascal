@@ -81,7 +81,7 @@ public class JavaToRascal {
 	}
 
 	public void voidValue(String command, String location) {
-		evaluator.eval(null, command, URI.create(location));
+		evaluator.eval(null, command, URIUtil.assumeCorrect(location));
 	}
 
 	/**

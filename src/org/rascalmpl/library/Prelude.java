@@ -1005,7 +1005,7 @@ public class Prelude {
 			Charset c = ctx.getResolverRegistry().getCharset(sloc.getURI());
 			if (c != null)
 				return readFileEnc(sloc, values.string(c.name()), ctx);
-			return consumeInputStream(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI())), ctx);
+			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI()), ctx);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
@@ -1013,7 +1013,7 @@ public class Prelude {
 	
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		try {
-			return consumeInputStream(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), charset.getValue()), ctx);
+			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI(), charset.getValue()), ctx);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
@@ -1179,7 +1179,7 @@ public class Prelude {
 			Charset detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
 			if (detected != null)
 				return readFileLinesEnc(sloc, values.string(detected.name()), ctx);
-			return consumeInputStreamLines(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI())), ctx);
+			return consumeInputStreamLines(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI()), ctx);
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
@@ -1191,7 +1191,7 @@ public class Prelude {
 	
 	public IList readFileLinesEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		try {
-			return consumeInputStreamLines(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()),charset.getValue()), ctx);
+			return consumeInputStreamLines(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI(),charset.getValue()), ctx);
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
