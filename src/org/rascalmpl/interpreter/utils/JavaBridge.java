@@ -128,12 +128,14 @@ public class JavaBridge {
 		if (tags.hasTags()) {
 			for (Tag tag : tags.getTags()) {
 				if (Names.name(tag.getName()).equals(JAVA_CLASS_TAG)) {
-					String contents = ((TagString.Lexical) tag.getContents()).getString();
-					
-					if (contents.length() > 2 && contents.startsWith("{")) {
-						contents = contents.substring(1, contents.length() - 1);
+					if(tag.hasContents()){
+						String contents = ((TagString.Lexical) tag.getContents()).getString();
+
+						if (contents.length() > 2 && contents.startsWith("{")) {
+							contents = contents.substring(1, contents.length() - 1);
+						}
+						return contents;
 					}
-					return contents;
 				}
 			}
 		}
