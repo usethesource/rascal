@@ -16,13 +16,13 @@ package org.rascalmpl.test.functionality;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
+import org.rascalmpl.interpreter.staticErrors.UnguardedAppend;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 
 public class AccumulatingTests extends TestFramework {
 
-	@Test(expected=AppendWithoutLoop.class)
+	@Test(expected=UnguardedAppend.class)
 	public void appendWithoutFor() {
 		runTest("append 3;");
 	}
@@ -64,13 +64,13 @@ public class AccumulatingTests extends TestFramework {
 				" == [[1,2,3],[1,2,3],[1,2,3]];"));
 	}
 	
-	@Test(expected=AppendWithoutLoop.class)
+	@Test(expected=UnguardedAppend.class)
 	public void testAppendHasLexicalScopingFunction() {
 		prepare("public void f() { append 3; }");
 		runTestInSameEvaluator("{ for (x <- [1,2,3]) f(); }");
 	}
 	
-	@Test(expected=AppendWithoutLoop.class)
+	@Test(expected=UnguardedAppend.class)
 	public void testAppendHasLexicalScopingClosure() {
 		assertTrue(runTest("{ f = () { append 3; }; for (x <- [1,2,3]) { f(); } }" +
 			" == [3,3,3];"));

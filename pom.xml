@@ -70,8 +70,7 @@
 				</executions>
 				<configuration>
 					<includes>
-						<include>**/org/rascalmpl/test/**/*.java</include>
-						<include>**/org/rascalmpl/benchmark/**/*.java</include>
+						<include>**/org/rascalmpl/test/AllSuite.java</include>
 					</includes>
 				</configuration>
 			</plugin>

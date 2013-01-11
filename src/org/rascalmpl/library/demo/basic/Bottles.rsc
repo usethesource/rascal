@@ -7,7 +7,7 @@ str bottles(1)     = "1 bottle";
 default str bottles(int n) = "<n> bottles"; /*2*/
 
 public void sing(){ /*3*/
-  for(n <- [99 .. 1]){
+  for(n <- [99 .. 0]){
        println("<bottles(n)> of beer on the wall, <bottles(n)> of beer.");
        println("Take one down, pass it around, <bottles(n-1)> of beer on the wall.\n");
   }  

@@ -59,7 +59,7 @@ public TetrisState
 	initialState(int rows, int columns,int maxSpin, int nrInvisbleLines) {
 	pf = emptyPF(rows + nrInvisbleLines,columns);
 	currentTetromino = initialPT(randomTetromino(),pf,nrInvisbleLines);
-	next = [ randomTetromino() | i <- [1  ..  numberNext]];
+	next = [ randomTetromino() | i <- [1  ..  numberNext+1]];
 	s = tetrisState(   0,0,pf,[],currentTetromino,
 	                   next,nothing(),false,false,0,maxSpin,nrInvisbleLines);
 	return update(s);

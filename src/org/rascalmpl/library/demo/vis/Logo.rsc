@@ -270,8 +270,8 @@ int height = 50;
 
 public Figure logo(){
 	list[list[Figure]] boxes;
-	boxes = for(i <- [0..height-1]){
-		        append for(j <- [0..width-1]){
+	boxes = for(i <- [0..height]){
+		        append for(j <- [0..width]){
 			               append box(fillColor(LogoData[i*50+j]),lineWidth(0));
 		}
 	}

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Davy Landman - Davy.Landman@cwi.nl
@@ -46,7 +46,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1006,7 +1005,7 @@ public class Prelude {
 			Charset c = ctx.getResolverRegistry().getCharset(sloc.getURI());
 			if (c != null)
 				return readFileEnc(sloc, values.string(c.name()), ctx);
-			return consumeInputStream(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI())), ctx);
+			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI()), ctx);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
@@ -1014,7 +1013,7 @@ public class Prelude {
 	
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		try {
-			return consumeInputStream(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), charset.getValue()), ctx);
+			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI(), charset.getValue()), ctx);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
@@ -1180,7 +1179,7 @@ public class Prelude {
 			Charset detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
 			if (detected != null)
 				return readFileLinesEnc(sloc, values.string(detected.name()), ctx);
-			return consumeInputStreamLines(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI())), ctx);
+			return consumeInputStreamLines(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI()), ctx);
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
@@ -1192,7 +1191,7 @@ public class Prelude {
 	
 	public IList readFileLinesEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		try {
-			return consumeInputStreamLines(sloc, new UnicodeInputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()),charset.getValue()), ctx);
+			return consumeInputStreamLines(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI(),charset.getValue()), ctx);
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
@@ -1299,76 +1298,124 @@ public class Prelude {
 	
 	private WeakReference<IList> indexes;
 
+	
+	
+	/**
+	 * A mini class to wrap a lessThan function
+	 */
+	private class Less {
+	  private final ICallableValue less;
+	  private final IValue[] args = new IValue[2];
+	  private final Type[] types = new Type[2];
+	  
+    Less(ICallableValue less) {
+	    this.less = less;
+	    FunctionType func = (FunctionType) less.getType();
+	    types[0] = func.getArgumentTypes().getFieldType(0);
+	    types[1] = func.getArgumentTypes().getFieldType(1);
+	  }
+    
+    public boolean less(IValue x, IValue y) {
+      args[0] = x;
+      args[1] = y;
+      return ((IBool) less.call(types, args, null).getValue()).getValue();
+    }
+	}
+	
+	private class Sorting {
+	  private final IValue[] array;
+	  private final int size;
+    private final Less less;
+
+	  private void swap(int i, int j) {
+	    IValue tmp = array[i];
+	    array[i] = array[j];
+	    array[j] = tmp;
+	  }
+	  
+    public Sorting(IValue[] array, Less less) {
+	    this.array = array;
+	    this.size = array.length;
+	    this.less = less;
+    }
+    
+    /**
+     * @throws IllegalArgument if comparator is illegal (i.e., if pivot equals pivot)
+     */
+    public Sorting sort() {
+      if (size == 0) {
+        return this;
+      }
+      if(less.less(array[0], array[0])) {
+    	  throw RuntimeExceptionFactory.illegalArgument(less.less, null, null, "Bad comparator: Did you use less-or-equals instead of less-than?");
+      }
+      sort(0, size - 1);
+
+      return this;
+    }
+    
+    public Sorting shuffle() {
+      for (int i = 0; i < size; i++) {
+        swap(i, i + (int) (Math.random() * (size-i)));
+      }
+      return this;
+    }
+    
+    private void sort(int low, int high) {
+      IValue pivot = array[low + (high-low)/2];
+      int oldLow = low;
+      int oldHigh = high;
+      
+      while (low < high) {
+        for ( ; less.less(array[low], pivot); low++); 
+        for ( ; less.less(pivot, array[high]); high--); 
+
+        if (low <= high) {
+          swap(low, high);
+          low++;
+          high--;
+        }
+      }
+      
+      if (oldLow < high)
+        sort(oldLow, high);
+      if (low < oldHigh)
+        sort(low, oldHigh);
+    }
+	}
+	
 	public IList sort(IList l, IValue cmpv){
-		final ICallableValue cmp = (ICallableValue) cmpv;
-		final IValue[] argArr = new IValue[2]; // this creates less garbage
-		FunctionType ftype = (FunctionType) cmpv.getType();
-		Type argTypes = ftype.getArgumentTypes();
-		final Type[] typeArr = 
-				new Type[] {argTypes.getFieldType(0),argTypes.getFieldType(1)};
-		
 		IValue[] tmpArr = new IValue[l.length()];
 		for(int i = 0 ; i < l.length() ; i++){
 			tmpArr[i] = l.get(i);
 		}
-		Comparator<IValue> cmpj = new Comparator<IValue>() {
 
-			@Override
-			public int compare(IValue lhs, IValue rhs) {
-				if(lhs.isEqual(rhs)){
-					return 0;
-				} else {
-					argArr[0] = lhs;
-					argArr[1] = rhs;
-					Result<IValue> res = cmp.call(typeArr,argArr);
-					boolean leq = ((IBool)res.getValue()).getValue();
-					return leq ? -1 : 0;
-				}
-			}
-		};
-		Arrays.sort(tmpArr,cmpj);
-		
+		// we randomly swap some elements to make worst case complexity unlikely
+		new Sorting(tmpArr, new Less((ICallableValue) cmpv)).shuffle().sort();
+
+
 		IListWriter writer = values.listWriter(l.getElementType());
-		for(IValue v : tmpArr){
-			writer.append(v);
-		}
+		writer.append(tmpArr);
 		return writer.done();
 	}
 	
-	public IList sort(ISet l, IValue cmpv){
-		final ICallableValue cmp = (ICallableValue) cmpv;
-		final IValue[] argArr = new IValue[2]; // this creates less garbage
-		FunctionType ftype = (FunctionType) cmpv.getType();
-		Type argTypes = ftype.getArgumentTypes();
-		final Type[] typeArr = 
-				new Type[] {argTypes.getFieldType(0),argTypes.getFieldType(1)};
-		
+	public IList sort(ISet l, IValue cmpv) {
 		IValue[] tmpArr = new IValue[l.size()];
 		int i = 0;
-		for(IValue elem : l){
+		
+		// we assume that the set is reasonably randomly ordered, such
+		// that the worst case of quicksort is unlikely
+		for (IValue elem : l){
 			tmpArr[i++] = elem;
 		}
-		Comparator<IValue> cmpj = new Comparator<IValue>() {
-
-			@Override
-			public int compare(IValue lhs, IValue rhs) {
-				if(lhs.isEqual(rhs)){
-					return 0;
-				} else {
-					argArr[0] = lhs;
-					argArr[1] = rhs;
-					Result<IValue> res = cmp.call(typeArr,argArr);
-					boolean leq = ((IBool)res.getValue()).getValue();
-					return leq ? -1 : 0;
-				}
-			}
-		};
-		Arrays.sort(tmpArr,cmpj);
+		
+		new Sorting(tmpArr, new Less((ICallableValue) cmpv)).sort();
 		
 		IListWriter writer = values.listWriter(l.getElementType());
 		for(IValue v : tmpArr){
 			writer.append(v);
 		}
+		
 		return writer.done();
 	}
 	

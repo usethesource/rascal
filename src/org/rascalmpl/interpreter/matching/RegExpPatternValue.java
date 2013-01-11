@@ -31,7 +31,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.semantics.dynamic.RegExpLiteral;
 import org.rascalmpl.semantics.dynamic.RegExpLiteral.InterpolationElement;
@@ -155,7 +155,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 			// Initialize all pattern variables to ""
 			for(String name : patternVars){
 				if(!ctx.getCurrentEnvt().declareVariable(tf.stringType(), name))
-					throw new RedeclaredVariableError(name, ctx.getCurrentAST());
+					throw new RedeclaredVariable(name, ctx.getCurrentAST());
 				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), empty, ctx));
 			}
 		}

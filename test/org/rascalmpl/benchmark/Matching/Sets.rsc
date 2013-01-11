@@ -7,7 +7,7 @@ import Benchmark;
 import Grammar;import ParseTree;import IO;
 
 private set[int] genset(int n){
-   return { arbInt() | int i <- [0 .. n] };
+   return { arbInt() | int i <- [0 .. n+1] };
 }
 
 public int fac(int N)

@@ -41,7 +41,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	private final String name;
 
 	public ConcretePatternDispatchedFunction(IEvaluator<Result<IValue>> eval, String name, Type type, Map<IConstructor, List<AbstractFunction>> alternatives) {
-		super(null, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType()), checkVarArgs(alternatives), null); // ?? I don't know if this will work..
+		super(null, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType()), checkVarArgs(alternatives), null, null); // ?? I don't know if this will work..
 		this.type = type;
 		this.alternatives = alternatives;
 		this.arity = minArity(alternatives);
@@ -143,7 +143,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues) {
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		IConstructor label = null;
 		
 		if (argTypes.length == 0) {
@@ -159,7 +159,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 					if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
 							|| candidate.getArity() == argValues.length) {
 						try {
-							return candidate.call(argTypes, argValues);
+							return candidate.call(argTypes, argValues, null);
 						}
 						catch (MatchFailed m) {
 							// could happen if pattern dispatched
@@ -178,8 +178,8 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
-		return call(null, argTypes, argValues);
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
+		return call(null, argTypes, argValues, null);
 	}
 
 	@Override

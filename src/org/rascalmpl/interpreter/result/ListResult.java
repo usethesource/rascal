@@ -27,8 +27,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ListResult extends ListOrRelationResult<IList> {
@@ -107,11 +107,11 @@ public class ListResult extends ListOrRelationResult<IList> {
 	@SuppressWarnings("unchecked")
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length != 1) {
-			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> key = (Result<IValue>) subscripts[0];
 		if (!key.getType().isIntegerType()) {
-			throw new UnexpectedTypeError(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
 		}
 		if (getValue().length() == 0) {
 			throw RuntimeExceptionFactory.emptyList(ctx.getCurrentAST(), ctx.getStackTrace());
@@ -121,6 +121,29 @@ public class ListResult extends ListOrRelationResult<IList> {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		return makeResult(getType().getElementType(), getValue().get(index.intValue()), ctx);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> slice(Result<?> first, Result<?> second, Result<?> end) {
+		return super.slice(first, second, end, getValue().length());
+	}
+	
+	public Result<IValue> makeSlice(int first, int second, int end){
+		IListWriter w = getValueFactory().listWriter(getType().getElementType());
+		int increment = second - first;
+		if(first == end || increment == 0){
+			// nothing to be done
+		} else
+		if(first <= end){
+			for(int i = first; i >= 0 && i < end; i += increment){
+				w.append(getValue().get(i));
+			}
+		} else {
+			for(int j = first; j >= 0 && j > end && j < getValue().length(); j += increment){
+				w.append(getValue().get(j));
+			}
+		}
+		return makeResult(TypeFactory.getInstance().listType(getType().getElementType()), w.done(), ctx);
 	}
 
 	/////

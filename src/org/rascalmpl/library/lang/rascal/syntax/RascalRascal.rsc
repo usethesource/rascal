@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
@@ -145,7 +146,7 @@ syntax Header
 	| \default: Tags tags "module" QualifiedName name Import* imports ;
 
 lexical Name
-    // Names are surrounded by non-alphabetical characters, i.e. we want longest match.
+    // Names are surrounded by non-alphabetical characters, i.e. we want longest match of alphabetical characters
 	=  ([A-Z a-z _] !<< [A-Z _ a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) \ RascalKeywords 
 	| [\\] [A-Z _ a-z] [\- 0-9 A-Z _ a-z]* !>> [\- 0-9 A-Z _ a-z] 
 	;
@@ -195,7 +196,7 @@ syntax Expression
 	| \visit          : Label label Visit visit 
 	| reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
 	| reifiedType    : "type" "(" Expression symbol "," Expression definitions ")"  
-	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure!isDefined expression "(" {Expression ","}* arguments ")"
+	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure!isDefined expression "(" {Expression ","}* arguments KeywordArguments keywordArguments ")"
 	| literal        : Literal literal 
 	| \any            : "any" "(" {Expression ","}+ generators ")" 
 	| \all            : "all" "(" {Expression ","}+ generators ")" 
@@ -207,8 +208,10 @@ syntax Expression
 	| \tuple          : "\<" {Expression ","}+ elements "\>" 
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| \it             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
-	| qualifiedName  : QualifiedName qualifiedName 
+	| qualifiedName: QualifiedName qualifiedName 
 	| subscript    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" {Expression ","}+ subscripts "]" 
+	| slice    	   : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" OptionalExpression optFirst ".." OptionalExpression optLast "]" 
+	| sliceStep    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" OptionalExpression optFirst "," Expression second ".." OptionalExpression optLast "]" 
 	| fieldAccess  : Expression expression "." Name field 
 	| fieldUpdate  : Expression expression "[" Name key "=" Expression replacement "]" 
 	| fieldProject : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "\<" {Field ","}+ fields "\>" 
@@ -260,6 +263,10 @@ syntax Expression
 	> right ifThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp
 	; 
 
+syntax OptionalExpression =
+      expression: Expression expression
+    | noExpression: ()
+    ;
 syntax UserType
 	= name: QualifiedName name 
 	| parametric: QualifiedName name >> "[" "[" {Type ","}+ parameters "]" ;
@@ -397,10 +404,31 @@ lexical ProtocolChars
 lexical RegExpModifier
 	= [d i m s]* ;
 
+syntax CommonKeywordParameters =
+      absent: ()
+    | present: "(" {KeywordFormal ","}+ keywordFormalList ")"
+    ;
+    
 syntax Parameters
-	= \default: "(" Formals formals ")" 
-	| varArgs: "(" Formals formals "..." ")" ;
+	= \default: "(" Formals formals KeywordFormals keywordFormals")" 
+	| varArgs: "(" Formals formals "..." KeywordFormals keywordFormals ")" 
+	;
+	
+lexical OptionalComma = \default: ","? ;
 
+syntax KeywordFormals
+	= \default: OptionalComma optionalComma {KeywordFormal ","}+ keywordFormalList
+	| none: ()
+	;
+syntax KeywordFormal 
+    = \default: Type type Name name "=" Expression expression
+    ;
+syntax KeywordArguments
+	= \default:  OptionalComma optionalComma {KeywordArgument ","}+ keywordArgumentList
+	| none: ()
+	;
+syntax KeywordArgument = \default: Name name "=" Expression expression ;
+    	
 lexical RegExp
 	= ![/ \< \> \\] 
 	| "\<" Name "\>" 
@@ -689,7 +717,7 @@ syntax Declaration
 	| \alias       : Tags tags Visibility visibility "alias" UserType user "=" Type base ";" 
 	| \tag         : Tags tags Visibility visibility "tag" Kind kind Name name "on" {Type ","}+ types ";" 
 	| dataAbstract: Tags tags Visibility visibility "data" UserType user ";" 
-	| @Foldable \data : Tags tags Visibility visibility "data" UserType user "=" {Variant "|"}+ variants ";"
+	| @Foldable \data : Tags tags Visibility visibility "data" UserType user CommonKeywordParameters commonKeywordParameters"=" {Variant "|"}+ variants ";"
 	| function       : FunctionDeclaration functionDeclaration 
 	;
 
@@ -713,7 +741,7 @@ syntax Comprehension
 	| @breakable{results,generators} \list: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
 
 syntax Variant
-	= nAryConstructor: Name name "(" {TypeArg ","}* arguments ")" ;
+	= nAryConstructor: Name name "(" {TypeArg ","}* arguments  KeywordFormals keywordArguments ")" ;
 
 syntax FunctionDeclaration
 	= abstract: Tags tags Visibility visibility Signature signature ";" 
@@ -821,7 +849,7 @@ syntax Pattern
 	| typedVariable       : Type type Name name 
 	| \map                 : "(" {Mapping[Pattern] ","}* mappings ")" 
 	| reifiedType         : "type" "(" Pattern symbol "," Pattern definitions ")" 
-	| callOrTree          : Pattern expression "(" {Pattern ","}* arguments ")" 
+	| callOrTree          : Pattern expression "(" {Pattern ","}* arguments KeywordArguments keywordArguments ")" 
 	> variableBecomes     : Name name ":" Pattern pattern
 	| asType              : "[" Type type "]" Pattern argument 
 	| descendant          : "/" Pattern pattern 

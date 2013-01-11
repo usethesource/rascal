@@ -165,7 +165,7 @@ public bool isScheme(list[Symbol] q,list[str] b) {
      list[Symbol] f = [p|Symbol p<-q, layouts(_)!:=p];
      // println("b=<b>  f=<f>");
      if (size(b)!=size(f)) return false;
-     list[tuple[Symbol,str]] r=[<f[i],b[i]>|int i<-[0..size(b)-1]];
+     list[tuple[Symbol,str]] r=[<f[i],b[i]>|int i<-[0..size(b)]];
      for (<Symbol s,str z><-r) {
           if (!isTerminal(s)) {
                if (z!="N"&&!isNonTerminal(s,z)) return false;
@@ -186,7 +186,7 @@ bool isBody(list[Symbol] q) {
      }
 
 public list[int] isBody(list[Symbol] q, list[Tree] t,int idx) {
-     list[Tree] b = [t[i]|int i<-[0,1..size(t)-1], layouts(_)!:=q[i]];
+     list[Tree] b = [t[i]|int i<-[0,1..size(t)], layouts(_)!:=q[i]];
      Tree g=b[idx];
      return (isBody(g)&&userDefined(g)==NULL())?[idx]:[];
      }
@@ -200,7 +200,7 @@ public bool isBlock(Tree c) {
      }
 
 public list[int] isBlock(list[Symbol] q, list[Tree] t,int idx) {
-     list[Tree] b = [t[i]|int i<-[0,1..size(t)-1], layouts(_)!:=q[i]];
+     list[Tree] b = [t[i]|int i<-[0,1..size(t)], layouts(_)!:=q[i]];
      list[int] r =  (isBlock(g)&&userDefined(g)==NULL())?[idx]:[];
      return r;
      }
@@ -214,7 +214,7 @@ public bool isBody(Tree c) {
 
 str toString(Attributes att) {
      if (\attrs(list[Attr] a):=att) {
-          return (""|it+"_<a[i]>"|i<-[0..size(a)-1]);
+          return (""|it+"_<a[i]>"|i<-[0..size(a)]);
           }
      return "<att>";
      }
@@ -485,11 +485,11 @@ public list[Box] getArgs(Tree g) {
      if (isEmpty(r)) return r;
      list[Box] q = [];
      if (size(r)%2==0)
-     for (int i<-[0,2..size(r)-1]) {
+     for (int i<-[0,2..size(r)]) {
           q += H(0, [r[i], r[i+1]]);
           }
      else {
-     for (int i<-[0,2..size(r)-3]) {
+     for (int i<-[0,2..size(r)-2]) {
           q += H(0, [r[i], r[i+1]]);
           }
      q+=H(0, [r[size(r)-1]]);

@@ -36,7 +36,7 @@ public class InputConverter{
 	}
 	
 	// NOTE: The user has to close the stream.
-	private static char[] toChar(Reader reader) throws IOException {
+	public static char[] toChar(Reader reader) throws IOException {
 		ArrayList<char[]> segments = new ArrayList<char[]>();
 		ArrayList<Integer> segmentLengths = new ArrayList<Integer>();
 		

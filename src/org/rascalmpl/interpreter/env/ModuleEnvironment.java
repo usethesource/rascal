@@ -44,7 +44,7 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
@@ -346,7 +346,7 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new UndeclaredModuleError(modulename, name);
+				throw new UndeclaredModule(modulename, name);
 			}
 			
 			// TODO: will this not do a transitive closure? This should not happen...
@@ -506,10 +506,18 @@ public class ModuleEnvironment extends Environment {
 		return sort;
 	}
 	
+	private Type makeTupleType(Type adt, String name, Type tupleType, List<KeywordParameter> keyargs){
+		if(keyargs == null){
+			return TF.constructorFromTuple(typeStore, adt, name, tupleType);
+		} else {
+			return TF.constructorFromTuple(typeStore, adt, name, tupleType, tupleType.getArity() - keyargs.size());
+		}
+	}
+	
 	@Override
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType) {
-		Type cons = TF.constructorFromTuple(typeStore, adt, name, tupleType);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordParameter> keyargs) {
+		Type cons = makeTupleType(adt, name, tupleType, keyargs);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -518,9 +526,9 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name,
-			Object... childrenAndLabels) {
+			List<KeywordParameter> keyargs, Object... childrenAndLabels) {
 		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -528,9 +536,9 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Type... children) {
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Type... children) {
 		Type cons = TF.constructor(typeStore, nodeType, name, children);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -619,7 +627,7 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new UndeclaredModuleError(modulename, name);
+				throw new UndeclaredModule(modulename, name);
 			}
 			
 			imported.storeVariable(name, result);
@@ -755,7 +763,7 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new UndeclaredModuleError(modulename, name);
+				throw new UndeclaredModule(modulename, name);
 			}
 			
 			imported.flagName(cons, flags);

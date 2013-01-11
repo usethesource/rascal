@@ -28,7 +28,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.Factory;
@@ -104,7 +104,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 		}
 	
 		if (!anonymous && !iDeclaredItMyself && !ctx.getCurrentEnvt().declareVariable(declaredType, name)) {
-			throw new RedeclaredVariableError(name, ctx.getCurrentAST());
+			throw new RedeclaredVariable(name, ctx.getCurrentAST());
 		}
 		
 		iDeclaredItMyself = true;

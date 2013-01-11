@@ -45,7 +45,7 @@ Box makeBody(Tree body) {
    bs = [b | Box b<-bs, COMM(_)!:=b];
    bs = adjoin(bs);
    /* Size(bs) is uneven */
-   Box b = V(0, [I([bs[i]])|int i <-[0,1..(size(bs)-1)]]);
+   Box b = V(0, [I([bs[i]])|int i <-[0,1..size(bs)]]);
    return b;
    }
    

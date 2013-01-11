@@ -17,8 +17,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 
@@ -65,22 +65,22 @@ public class AssignmentTests extends TestFramework {
 		assertTrue(runTest("{           N ?= 2; N==2;}"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void integerError1(){
 		runTest("N += 2;");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void integerError2(){
 		runTest("N -= 2;");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void integerError3(){
 		runTest("N *= 2;");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void integerError4(){
 		runTest("N /= 2;");
 	}
@@ -111,7 +111,7 @@ public class AssignmentTests extends TestFramework {
 		assertTrue(runTest("{list[list[int]] L = [[1,2,3],[10,20,30]]; L[0] ?= [4]; L==[[1,2,3],[10,20,30]];}"));
 	}
 	
-	@Test(expected=UnexpectedTypeError.class)
+	@Test(expected=UnexpectedType.class)
 	public void errorList(){
 		assertTrue(runTest("{list[int] L = {1,2,3}; L *= [4]; L==[<1,4>,<2,4>,<3,4>];}"));
 	}
@@ -126,7 +126,7 @@ public class AssignmentTests extends TestFramework {
 		assertTrue(runTest("{                               M ?= (3:30); M==(3:30);}"));
 	}
 	
-	@Test(expected=UnexpectedTypeError.class)
+	@Test(expected=UnexpectedType.class)
 	public void errorMap(){
 		assertTrue(runTest("{map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] *= [4]; M==(0:[<1,4>,<2,4>,<3,4>],1:[10,20,30]);}"));
 
@@ -150,7 +150,7 @@ public class AssignmentTests extends TestFramework {
 		assertTrue(runTest("{                       L ?= {4}; L=={4};}"));
 	}
 	
-	@Test(expected=UnexpectedTypeError.class)
+	@Test(expected=UnexpectedType.class)
 	public void errorSet(){
 		assertTrue(runTest("{set[int] L = {1,2,3}; L *= {4}; L=={<1,4>,<2,4>,<3,4>};}"));
 	}
@@ -182,35 +182,35 @@ public class AssignmentTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{F X = f();              X @ pos ?= 3;  X @ pos == 3;}"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void annotationError1(){
 		prepare("data F = f() | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
 		runTestInSameEvaluator("X @ pos = 1;");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void annotationError2(){
 		prepare("data F = f() | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
 		runTestInSameEvaluator("X @ pos += 1;");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void annotationError3(){
 		prepare("data F = f() | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
 		runTestInSameEvaluator("X @ pos -= 1;");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void annotationError4(){
 		prepare("data F = f() | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
 		runTestInSameEvaluator("X @ pos *= 1;");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void annotationError5(){
 		prepare("data F = f() | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");

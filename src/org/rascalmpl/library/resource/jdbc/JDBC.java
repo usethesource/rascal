@@ -44,7 +44,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -115,6 +115,8 @@ public class JDBC {
 	public void registerJDBCClass(IString className, IEvaluatorContext eval) {
 		List<ClassLoader> loaders = eval.getEvaluator().getClassLoaders();
 		Class<?> driverClass = null;
+		Throwable ex = null;
+		
 		for (ClassLoader loader : loaders) {
 			try {
 				driverClass = loader.loadClass(className.getValue());
@@ -123,22 +125,26 @@ public class JDBC {
 					DriverManager.registerDriver(new DriverShim(driver));
 				}
 			} catch (ClassNotFoundException e) {
+			  ex = e;
 				continue;
 			} catch (InstantiationException e) {
 				driverClass = null;
+				ex = e;
 				continue;
 			} catch (IllegalAccessException e) {
 				driverClass = null;
+				ex = e;
 				continue;
 			} catch (SQLException e) {
 				driverClass = null;
+				ex = e;
 				continue;
 			}
 			break;
 		}
 		
 		if (driverClass == null) {
-			throw RuntimeExceptionFactory.javaException("An appropriate class loader to load class " + className.getValue() + " could not be found, either this class does not exist or the jar containing this class has not been added to the classpath.", eval.getCurrentAST(), null);
+		  RuntimeExceptionFactory.javaException(new RuntimeException("An appropriate class loader to load class " + className.getValue() + " could not be found, either this class does not exist or the jar containing this class has not been added to the classpath.", ex), eval.getCurrentAST(), null);
 		}
 	}
 	
@@ -388,7 +394,7 @@ public class JDBC {
 
 		switch(columnType) {
 			case Types.ARRAY:
-				throw new UnsupportedOperationError("JDBC Array types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Array types are currently not supported", null);
 			case Types.BIGINT:
 				res = TF.integerType();
 				break;
@@ -411,7 +417,7 @@ public class JDBC {
 				res = TF.stringType();
 				break;
 			case Types.DATALINK:
-				throw new UnsupportedOperationError("JDBC Datalink types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Datalink types are currently not supported", null);
 			case Types.DATE:
 				res = TF.dateTimeType();
 				break;
@@ -419,7 +425,7 @@ public class JDBC {
 				res = TF.realType();
 				break;
 			case Types.DISTINCT:
-				throw new UnsupportedOperationError("JDBC Distinct types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Distinct types are currently not supported", null);
 			case Types.DOUBLE:
 				res = TF.realType();
 				break;
@@ -430,7 +436,7 @@ public class JDBC {
 				res = TF.integerType();
 				break;
 			case Types.JAVA_OBJECT:
-				throw new UnsupportedOperationError("JDBC JavaObject types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC JavaObject types are currently not supported", null);
 			case Types.LONGNVARCHAR:
 				res = TF.stringType();
 				break;
@@ -447,7 +453,7 @@ public class JDBC {
 				res = TF.stringType();
 				break;
 			case Types.NULL:
-				throw new UnsupportedOperationError("JDBC Null types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Null types are currently not supported", null);
 			case Types.NUMERIC:
 				res = TF.realType();
 				break;
@@ -455,21 +461,21 @@ public class JDBC {
 				res = TF.stringType();
 				break;
 			case Types.OTHER:
-				throw new UnsupportedOperationError("JDBC Other types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Other types are currently not supported", null);
 			case Types.REAL:
 				res = TF.realType();
 				break;
 			case Types.REF:
-				throw new UnsupportedOperationError("JDBC Ref types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Ref types are currently not supported", null);
 			case Types.ROWID:
-				throw new UnsupportedOperationError("JDBC RowID types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC RowID types are currently not supported", null);
 			case Types.SMALLINT:
 				res = TF.integerType();
 				break;
 			case Types.SQLXML:
-				throw new UnsupportedOperationError("JDBC SQLXML types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC SQLXML types are currently not supported", null);
 			case Types.STRUCT:
-				throw new UnsupportedOperationError("JDBC Struct types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Struct types are currently not supported", null);
 			case Types.TIME:
 				res = TF.dateTimeType();
 				break;
@@ -511,7 +517,7 @@ public class JDBC {
 			
 			switch(jdbcColumnType) {
 				case Types.ARRAY:
-					throw new UnsupportedOperationError("JDBC Array types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Array types are currently not supported", null);
 				case Types.BIGINT:
 					if (rs.getBigDecimal(idx) != null)
 						res = vf.integer(rs.getBigDecimal(idx).toString());
@@ -571,7 +577,7 @@ public class JDBC {
 					res = lw.done();
 					break;
 				case Types.DATALINK:
-					throw new UnsupportedOperationError("JDBC Datalink types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Datalink types are currently not supported", null);
 				case Types.DATE:
 					if (rs.getDate(idx) != null) {
 						c = Calendar.getInstance();
@@ -587,7 +593,7 @@ public class JDBC {
 						res = vf.real(0.0);
 					break;
 				case Types.DISTINCT:
-					throw new UnsupportedOperationError("JDBC Distinct types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Distinct types are currently not supported", null);
 				case Types.DOUBLE:
 					res = vf.real(rs.getDouble(idx));
 					break;
@@ -598,7 +604,7 @@ public class JDBC {
 					res = vf.integer(rs.getInt(idx));
 					break;
 				case Types.JAVA_OBJECT:
-					throw new UnsupportedOperationError("JDBC JavaObject types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC JavaObject types are currently not supported", null);
 				case Types.LONGNVARCHAR:
 					if (rs.getString(idx) != null)
 						res = vf.string(rs.getString(idx));
@@ -644,7 +650,7 @@ public class JDBC {
 					res = lw.done();
 					break;
 				case Types.NULL:
-					throw new UnsupportedOperationError("JDBC Null types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Null types are currently not supported", null);
 				case Types.NUMERIC:
 					if (rs.getBigDecimal(idx) != null) {
 						res = vf.real(rs.getBigDecimal(idx).toString());
@@ -659,21 +665,21 @@ public class JDBC {
 						res = vf.string("");
 					break;
 				case Types.OTHER:
-					throw new UnsupportedOperationError("JDBC Other types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Other types are currently not supported", null);
 				case Types.REAL:
 					res = vf.real(rs.getDouble(idx));
 					break;
 				case Types.REF:
-					throw new UnsupportedOperationError("JDBC Ref types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Ref types are currently not supported", null);
 				case Types.ROWID:
-					throw new UnsupportedOperationError("JDBC RowID types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC RowID types are currently not supported", null);
 				case Types.SMALLINT:
 					res = vf.integer(rs.getInt(idx));
 					break;
 				case Types.SQLXML:
-					throw new UnsupportedOperationError("JDBC SQLXML types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC SQLXML types are currently not supported", null);
 				case Types.STRUCT:
-					throw new UnsupportedOperationError("JDBC Struct types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Struct types are currently not supported", null);
 				case Types.TIME:
 					if (rs.getTime(idx) != null) {
 						c = Calendar.getInstance();

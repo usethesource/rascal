@@ -635,7 +635,7 @@ str v2i(value v) {
         case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
 	    case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>"; 
         case int i         : return i < 0 ? "min_<-i>" : "<i>";
-        case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)-1]);
+        case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)]);
         case str s()       : return escId(s);
         case node n        : return "<escId(getName(n))>_<("" | it + "_" + v2i(c) | c <- getChildren(n))>";
         case list[value] l : return ("" | it + "_" + v2i(e) | e <- l);

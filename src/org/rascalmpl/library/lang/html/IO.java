@@ -40,11 +40,9 @@ public class IO {
 	}
 	
 	public IValue readHTMLFile(ISourceLocation file, IEvaluatorContext ctx) {
-		InputStream in;
 		try {
-			in = ctx.getResolverRegistry().getInputStream(file.getURI());
 			Constructor cons = new Constructor();
-			new ParserDelegator().parse(new UnicodeInputStreamReader(in, ctx.getResolverRegistry().getCharset(file.getURI())), cons, true);
+			new ParserDelegator().parse(ctx.getResolverRegistry().getCharacterReader(file.getURI()), cons, true);
 			return cons.getValue();
 		} catch (MalformedURLException e) {
 			throw RuntimeExceptionFactory.malformedURI(file.getURI().toASCIIString(), null, null);

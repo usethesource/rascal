@@ -16,7 +16,7 @@ package org.rascalmpl.test.functionality;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class VisitTests extends TestFramework {
@@ -335,7 +335,7 @@ public class VisitTests extends TestFramework {
 
 	}
 	
-	@Test(expected=UnexpectedTypeError.class)
+	@Test(expected=UnexpectedType.class)
 	public void WrongInsert()  {
 		String vs = "visit ([1,2,3]) {case 1: insert \"abc\";}";
 		assertTrue(runTestInSameEvaluator(vs + " == [\"abc\", 2, 3];"));

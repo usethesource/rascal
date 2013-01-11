@@ -158,7 +158,7 @@ public class NodeTests extends TestFramework {
 	@Test
 	public void toStringTest() {
 		prepare("import Node;");
-		assertTrue(runTestInSameEvaluator("{node n = \"f\"(1, 2, 3); toString(n) == \"f(1,2,3)\";}"));
+		assertTrue(runTestInSameEvaluator("{node n = \"f\"(1, 2, 3); toString(n) == \"\\\"f\\\"(1,2,3)\";}"));
 	}
 
 }

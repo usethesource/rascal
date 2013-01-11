@@ -26,7 +26,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 
 public class LiteralPattern extends AbstractMatchingResult {
 	private IValue literal;
@@ -68,7 +68,7 @@ public class LiteralPattern extends AbstractMatchingResult {
 				return ((IBool) literal).getValue(); 
 			}
 			
-			throw new UnexpectedTypeError(tf.boolType(), literal.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(tf.boolType(), literal.getType(), ctx.getCurrentAST());
 		}
 		
 		
