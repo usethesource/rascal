@@ -357,11 +357,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	@Override	
-	public boolean __getConcreteListsShouldBeSpliced() {
-		return concreteListsShouldBeSpliced;
-	}
-
-	@Override	
 	public void __setInterrupt(boolean interrupt) {
 		this.interrupt = interrupt;
 	}
