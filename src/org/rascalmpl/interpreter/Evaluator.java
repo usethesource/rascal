@@ -145,13 +145,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private AbstractAST currentAST; // used in runtime errormessages
 
 	private static boolean doProfiling = false;
+	private boolean useNewParser = true;
 	private Profiler profiler;
 
 	private final TypeDeclarationEvaluator typeDeclarator;
 
 	private final List<ClassLoader> classLoaders;
 	private final ModuleEnvironment rootScope;
-	private boolean concreteListsShouldBeSpliced;
 
 	private final PrintWriter defStderr;
 	private final PrintWriter defStdout;
@@ -1368,6 +1368,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	private IConstructor parseModule(char[] data, URI location, ModuleEnvironment env, boolean declareImportsAndSyntax){
 		__setInterrupt(false);
+		
+		if (useNewParser) {
+		  return newParseModule(data, location, env, declareImportsAndSyntax);
+		}
+		
 		IActionExecutor<IConstructor> actions = new NoActionExecutor();
 
 		startJob("Parsing", 10);
@@ -1435,7 +1440,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     startJob("Parsing", 10);
     event("Pre-parsing: " + location);
-    IConstructor prefix = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+    IConstructor prefix = new RascalParser().parse("start__Module", location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
     IConstructor top = (IConstructor) TreeAdapter.getArgs(prefix).get(1);
     
