@@ -9,9 +9,9 @@ public &F (&V) fix( ( &F (&V) ) ( &F (&V) ) f ) = &F (&V v) { return f(fix(f))(v
 public &F (&V) (&F (&V)) FGen(&F (&F (&V), &V) f) = &F (&V) (&F (&V) f1) { return &F (&V v) { return f(f1, v); }; };
 
 @doc{Composition}
-public &V2 (&V1) (&V2 (&V1)) o(&V2 (&V2 (&V1), &V1) f1, &V2 (&V2 (&V2), &V2) f2) 
+public &V2 (&V1) (&V2 (&V1)) comp(&V2 (&V2 (&V1), &V1) f1, &V2 (&V2 (&V2), &V2) f2) 
 			= &V2 (&V1) (&V2 (&V1) f) { return FGen(f2)(FGen(f1)(f)); };
-public &V2 (&V1) (&V2 (&V1)) o(&V2 (&V1) (&V2 (&V1)) f1, &V2 (&V2 (&V2), &V2) f2) 
+public &V2 (&V1) (&V2 (&V1)) comp(&V2 (&V1) (&V2 (&V1)) f1, &V2 (&V2 (&V2), &V2) f2) 
 			= &V2 (&V1) (&V2 (&V1) f) { return FGen(f2)(f1(f)); };
 
 @doc{Fibonacci function reformulated using a fix point combinator}
@@ -24,12 +24,12 @@ public str pfibfix(int n) = fix(FGen(fpfib))(n);
 public str pfactfix(int n) = fix(FGen(fpfact))(n);
 
 @doc{Fibonacci function extended with the println functionality}
-public int fibprintfix(int n) = fix( o(ffib, fprint1) )(n);
+public int fibprintfix(int n) = fix( comp(ffib, fprint1) )(n);
 @doc{Factorial function extended with the println functionality}
-public int factprintfix(int n) = fix( o(ffact, fprint1) )(n);
+public int factprintfix(int n) = fix( comp(ffact, fprint1) )(n);
 
 @doc{Weird Factorial function extended with the println functionality: fact(n) = (n+1)*fact(n-1);}
-public int factweird(int n) = fix( o( o(ffact, ffactweird), fprint1) )(n);
+public int factweird(int n) = fix( comp( comp(ffact, ffactweird), fprint1) )(n);
 
 @doc{Anonymous Fibonacci and Factorial functions}
 public void anonymousFib(int n) {
