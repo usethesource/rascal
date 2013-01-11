@@ -20,8 +20,8 @@
 package org.rascalmpl.interpreter;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1313,15 +1313,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	private char[] getResourceContent(URI location) throws IOException{
 		char[] data;
-		InputStream inputStream = null;
+		Reader textStream = null;
 		
 		try {
-			inputStream = resolverRegistry.getInputStream(location);
-			data = InputConverter.toChar(inputStream, resolverRegistry.getCharset(location));
+			textStream = resolverRegistry.getCharacterReader(location);
+			data = InputConverter.toChar(textStream);
 		}
 		finally{
-			if(inputStream != null){
-				inputStream.close();
+			if(textStream != null){
+				textStream.close();
 			}
 		}
 		

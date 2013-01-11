@@ -70,22 +70,17 @@ public class IO {
 		TypeStore store = ctx.getCurrentEnvt().getStore();
 		Type start = new TypeReifier(ctx.getValueFactory()).valueToType(
 				(IConstructor) type, store);
-		InputStream in = null;
 		Reader read = null;
 		try {
-			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
-			read = new UnicodeInputStreamReader(in, ctx.getResolverRegistry().getCharset(loc.getURI()));
+			read = ctx.getResolverRegistry().getCharacterReader(loc.getURI());
 			return new JSonReader().read(values, store, start, read);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()),
 					null, null);
 		} finally {
-			if (in != null) {
+			if (read != null) {
 				try {
-					in.close();
-					if (read != null) {
-						read.close();
-					}
+					read.close();
 				} catch (IOException ioex) {
 					throw RuntimeExceptionFactory.io(
 							values.string(ioex.getMessage()), null, null);
