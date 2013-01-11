@@ -49,6 +49,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
+import org.rascalmpl.uri.URIUtil;
 
 import com.ibm.icu.text.SimpleDateFormat;
 
@@ -601,7 +602,7 @@ public class JSonReader extends AbstractBinaryReader {
 		}
 		if (funname.equals("#loc")) {
 			try {
-				final URI uri = new URI(((IString) a[0]).getValue());
+				final URI uri = URIUtil.createFromEncoded(((IString) a[0]).getValue());
 				return vf.sourceLocation(uri);
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
