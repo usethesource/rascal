@@ -95,7 +95,6 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	 */
 	public Stack<Accumulator> __getAccumulators();
 	public ModuleEnvironment __getRootScope();
-	public boolean __getConcreteListsShouldBeSpliced();
 	public GlobalEnvironment __getHeap();
 	public boolean __getInterrupt();
 	public void __setInterrupt(boolean interrupt);	
