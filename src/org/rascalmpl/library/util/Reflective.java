@@ -27,6 +27,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
 
 public class Reflective {
 	private final IValueFactory values;
@@ -82,7 +83,7 @@ public class Reflective {
 	}
 	
 	public IValue getModuleLocation(IString modulePath, IEvaluatorContext ctx) {
-		URI uri = ctx.getEvaluator().getRascalResolver().resolve(URI.create("rascal://" + modulePath.getValue()));
+		URI uri = ctx.getEvaluator().getRascalResolver().resolve(URIUtil.createRascalModule(modulePath.getValue()));
 		if (uri == null) throw RuntimeExceptionFactory.moduleNotFound(modulePath, ctx.getCurrentAST(), null);
 		return ctx.getValueFactory().sourceLocation(uri);
 	}
