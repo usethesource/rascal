@@ -27,7 +27,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class IntegerResult extends ElementResult<IInteger> {
@@ -263,7 +263,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 		
 		// I still think it is ugly to do it here...
 		if (!second.getType().isSubtypeOf(tf.numberType())) {
-			throw new UnexpectedTypeError(tf.numberType(), second.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(tf.numberType(), second.getType(), ctx.getCurrentAST());
 		}
 		
 		INumber iSecond = (INumber) second.getValue();
@@ -276,17 +276,17 @@ public class IntegerResult extends ElementResult<IInteger> {
 		
 		IListWriter w = vf.listWriter(resultType);
 		if (iFrom.lessEqual(iTo).getValue() && diff.greater(zero).getValue()) {
-			do {
+			 while (iFrom.less(iTo).getValue()) {
 				w.append(iFrom);
 				iFrom = iFrom.add(diff);
 				if (ctx.isInterrupted()) throw new InterruptException(ctx.getStackTrace(), ctx.getCurrentAST().getLocation());
-			} while (iFrom.lessEqual(iTo).getValue());
+			};
 		} 
 		else if (iFrom.greaterEqual(iTo).getValue() && diff.less(zero).getValue()) {
-			do {
+			 while (iFrom.greater(iTo).getValue()) {
 				w.append(iFrom);
 				iFrom = iFrom.add(diff);
-			} while (iFrom.greaterEqual(iTo).getValue());
+			};
 		}
 		return makeResult(tf.listType(resultType), w.done(), ctx);	
 	}

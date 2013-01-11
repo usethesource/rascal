@@ -21,7 +21,7 @@ import IO;
 /*
 public void s1(int s){
     dt1 = [10, 20, 10, 30];
-	b = shape([ vertex(i * 50, 10 * dt1[i], ellipse(size(s), lineWidth(0), fillColor("red"))) | int i <- [0 .. size(dt1) -1]],
+	b = shape([ vertex(i * 50, 10 * dt1[i], ellipse(size(s), lineWidth(0), fillColor("red"))) | int i <- [0 .. size(dt1)]],
                 lineColor("blue"),
                 lineWidth(2),
                 shapeConnected(true),
@@ -32,7 +32,7 @@ public void s1(int s){
 
 public void s2(int s){
     dt1 = [10, 20, 0, 30];
-	b = shape( [ vertex(i * 50, 10 * dt1[i], ellipse(size(s), lineWidth(0), fillColor("red"))) | int i <- [0 .. size(dt1) -1]],
+	b = shape( [ vertex(i * 50, 10 * dt1[i], ellipse(size(s), lineWidth(0), fillColor("red"))) | int i <- [0 .. size(dt1)]],
                 lineColor("blue"),
                 lineWidth(2),
                 shapeConnected(true), shapeClosed(true),
@@ -47,7 +47,7 @@ public void s2(int s){
 
 public void s3(int s){
     dt1 = [10, 20, 10, 30];
-	b = shape([ vertex(i * 50, 10 * dt1[i], ellipse(size(s), lineWidth(0), fillColor("lightblue"))) | int i <- [0 .. size(dt1) -1]],
+	b = shape([ vertex(i * 50, 10 * dt1[i], ellipse(size(s), lineWidth(0), fillColor("lightblue"))) | int i <- [0 .. size(dt1)]],
                 lineColor("blue"),
                 lineWidth(2),
 	            fillColor("lightgreen"),
@@ -67,7 +67,7 @@ public void s4(){
 	            fillColor(color("lightblue", 0.5)),
 	            shapeCurved(true), shapeClosed(true)               
                );
-    sh2 = shape([ vertex(i * 50, 10 * dt2[i], ellipse(size(10), lineWidth(0), fillColor("black"))) | int i <- [0 .. size(dt2) -1]],
+    sh2 = shape([ vertex(i * 50, 10 * dt2[i], ellipse(size(10), lineWidth(0), fillColor("black"))) | int i <- [0 .. size(dt2)]],
                 lineColor("green"),
                 lineWidth(2),
 	            fillColor(color("lightgreen", 0.5)),

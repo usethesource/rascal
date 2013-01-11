@@ -34,7 +34,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.util.Eval;
 import org.rascalmpl.library.util.Eval.EvalTimer;
@@ -189,7 +189,7 @@ public class HTMLGenerator {
 			if (expected != null) {
 				Type typ = tr.valueToType((IConstructor) expected);
 				if (!result.getType().isSubtypeOf(typ)) {
-					throw new UnexpectedTypeError(typ, result.getType(), ctx.getCurrentAST());
+					throw new UnexpectedType(typ, result.getType(), ctx.getCurrentAST());
 				}
 			}
 			return result;

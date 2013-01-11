@@ -212,10 +212,9 @@ public class LocalSharingValueFactory implements IValueFactory{
 	}
 	
 	@Override
-  public ITuple tuple(Type type, IValue... args){
-    return cachedTuples.cache(valueFactory.tuple(type, args));
-  }
-
+    public ITuple tuple(Type type, IValue... args){
+		return cachedTuples.cache(valueFactory.tuple(type, args));
+    }
 	@Override
 	public INode node(String name, IValue... children){
 		return cachedNodes.cache(valueFactory.node(name, children));
@@ -267,11 +266,6 @@ public class LocalSharingValueFactory implements IValueFactory{
 	}
 
 	@Override
-	public IMap map(Type mapType){
-		return cachedMaps.cache(valueFactory.map(mapType));
-	}
-
-	@Override
 	public IMap map(Type key, Type value){
 		return cachedMaps.cache(valueFactory.map(key, value));
 	}
@@ -279,11 +273,6 @@ public class LocalSharingValueFactory implements IValueFactory{
 	@Override
 	public IMapWriter mapWriter(Type key, Type value){
 		return new MapCachingWriter(this, valueFactory.mapWriter(key, value));
-	}
-	
-	@Override
-	public IMapWriter mapWriter(Type mapType){
-		return new MapCachingWriter(this, valueFactory.mapWriter(mapType));
 	}
 	
 	@Override
@@ -645,4 +634,15 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public IString string(int ch) {
 		return cachedStrings.cache(valueFactory.string(ch));
 	}
+
+	@Override
+	public IMap map(Type mapType) {
+		return cachedMaps.cache(valueFactory.map(mapType));
+	}
+
+	@Override
+	public IMapWriter mapWriter(Type mapType) {
+		return new MapCachingWriter(this, valueFactory.mapWriter(mapType));
+	}
+
 }

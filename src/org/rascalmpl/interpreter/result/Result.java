@@ -22,6 +22,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -36,8 +37,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
@@ -63,6 +64,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String FIELD_UPDATE_STRING = "field update";
 	private static final String RANGE_STRING = "range construction";
 	private static final String SUBSCRIPT_STRING = "subscript";
+	private static final String SLICE_STRING = "slice";
+	private static final String MAKE_SLICE_STRING = "make slice";
 	private static final String GET_ANNO_STRING = "get-annotation";
 	private static final String SET_ANNO_STRING = "set-annotation";
 	private static final String NON_EQUALS_STRING = "inequality";
@@ -89,7 +92,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 			//System.err.println(value.getType());
 			//System.err.println(type); 
 			//System.err.println(value.getType().isSubtypeOf(type));
-			throw new UnexpectedTypeError(type, value.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(type, value.getType(), ctx.getCurrentAST());
 		}
 	
 	    this.type = type;
@@ -177,17 +180,17 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	// Error aux methods
 	
 	protected <U extends IValue> Result<U> undefinedError(String operator) {
-		throw new UnsupportedOperationError(operator, getType(), ctx.getCurrentAST());
+		throw new UnsupportedOperation(operator, getType(), ctx.getCurrentAST());
 	}
 	
 	protected <U extends IValue> Result<U> undefinedError(String operator, Result<?> arg) {
-		throw new UnsupportedOperationError(operator, getType(), arg.getType(), ctx.getCurrentAST());
+		throw new UnsupportedOperation(operator, getType(), arg.getType(), ctx.getCurrentAST());
 	}
 	
 	///////
 	
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) throws MatchFailed {
-		throw new UnsupportedOperationError("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) throws MatchFailed {
+		throw new UnsupportedOperation("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
 	}
 	
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
@@ -293,6 +296,14 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		return undefinedError(SUBSCRIPT_STRING);
+	}
+	
+	public <U extends IValue, V extends IValue> Result<U> slice(Result<?> first, Result<?> second, Result<?> last) {
+		return undefinedError(SLICE_STRING);
+	}
+	
+	public  <U extends IValue, V extends IValue> Result<U> makeSlice(int firstIndex, int secondIndex, int endIndex) {
+		return undefinedError(MAKE_SLICE_STRING);
 	}
 
 	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env) {

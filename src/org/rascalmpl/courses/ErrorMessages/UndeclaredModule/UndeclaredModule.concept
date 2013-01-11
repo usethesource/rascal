@@ -1,0 +1,30 @@
+Name: UndeclaredModule
+
+Synopsis: Attempt to import a non-existing module.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Examples:
+<warning>How to generate this message?</warning>
+Misspelling the name of a library module (`Lis` instead of `List`) gives an error:
+<screen warnings>
+import Lis;
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

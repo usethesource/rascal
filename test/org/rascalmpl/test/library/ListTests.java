@@ -228,6 +228,9 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{sort([2, 1]) == [1,2];}"));
 		assertTrue(runTestInSameEvaluator("{List::sort([2,-1,4,-2,3]) == [-2,-1,2,3, 4];}"));
 		assertTrue(runTestInSameEvaluator("{sort([2,-1,4,-2,3]) == [-2,-1,2,3, 4];}"));
+		assertTrue(runTestInSameEvaluator("{sort([1,2,3,4,5,6]) == [1,2,3,4,5,6];}"));
+		assertTrue(runTestInSameEvaluator("{sort([1,1,1,1,1,1]) == [1,1,1,1,1,1];}"));
+		assertTrue(runTestInSameEvaluator("{sort([1,1,0,1,1]) == [0,1,1,1,1];}"));
 	}
 	
 	@Test
@@ -244,9 +247,12 @@ public class ListTests extends TestFramework {
 	@Test
 	public void sortWithCompareFunction() {
 		prepare("import List;");
+		prepareMore("import Exception;");
 		assertTrue(runTestInSameEvaluator("{sort([1, 2, 3]) == [1,2,3];}"));
 		assertTrue(runTestInSameEvaluator("{sort([1, 2, 3], bool(int a, int b){return a < b;}) == [1,2,3];}"));
 		assertTrue(runTestInSameEvaluator("{sort([1, 2, 3], bool(int a, int b){return a > b;}) == [3,2,1];}"));
+		assertTrue(runTestInSameEvaluator("{try { sort([1, 2, 3], bool(int a, int b){return a <= b;}); throw \"Should fail\"; } catch IllegalArgument(_,_): ;}"));
+		assertTrue(runTestInSameEvaluator("{try { sort([1, 0, 1], bool(int a, int b){return a <= b;}); throw \"Should fail\"; } catch IllegalArgument(_,_): ;}"));
 	}
 
 	@Test

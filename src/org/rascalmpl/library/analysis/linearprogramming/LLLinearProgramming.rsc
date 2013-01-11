@@ -36,7 +36,7 @@ public num llRunObjFul(LLObjectiveFun f, LLVariableVals vals) =
 	 var <- index(f.coefficients));
 
 list[num] padToSize(list[num] l, int s) =
-	l + [0.0 | _ <- [1,2..s - size(l)]];
+	l + [0.0 | _ <- [1,2..s - size(l) + 1]];
 
 public tuple[LLConstraints constraints, LLObjectiveFun f]
 normalize(LLConstraints constraints, LLObjectiveFun f){

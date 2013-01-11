@@ -14,6 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
@@ -26,7 +28,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
+import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 
 public class ComposedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -98,10 +100,10 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
-			IValue[] argValues) {
+			IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
-			return call(argTypes, argValues);
+			return call(argTypes, argValues, null);
 		}
 		finally {
 			ctx.getEvaluator().setMonitor(old);
@@ -109,9 +111,9 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
-		Result<IValue> rightResult = right.call(argTypes, argValues);
-		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() });
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
+		Result<IValue> rightResult = right.call(argTypes, argValues, null);
+		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, null);
 	}
 
 	@Override
@@ -193,22 +195,22 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		}
 				
 		@Override
-		public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 			Failure f1 = null;
-			ArgumentsMismatchError e1 = null;
+			ArgumentsMismatch e1 = null;
 			try {
 				try {
-					return getRight().call(argTypes, argValues);
-				} catch(ArgumentsMismatchError e) {
+					return getRight().call(argTypes, argValues, null);
+				} catch(ArgumentsMismatch e) {
 					// try another one
 					e1 = e;
 				} catch(Failure e) {
 					// try another one
 					f1 = e;
 				}
-				return getLeft().call(argTypes, argValues);
-			} catch(ArgumentsMismatchError e2) {
-				throw new ArgumentsMismatchError(
+				return getLeft().call(argTypes, argValues, null);
+			} catch(ArgumentsMismatch e2) {
+				throw new ArgumentsMismatch(
 						"The called signature does not match signatures in the '+' composition:\n" 
 							+ ((e1 != null) ? (e1.getMessage() + e2.getMessage()) : e2.getMessage()), ctx.getCurrentAST());
 			} catch(Failure f2) {
@@ -222,6 +224,11 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 			return getLeft().toString() + " '+' " + getRight().toString();
 		}
 
+	}
+
+	@Override
+	public boolean hasKeywordArgs() {
+		return false;
 	}
 	
 }

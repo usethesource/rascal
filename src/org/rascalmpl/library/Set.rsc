@@ -46,11 +46,7 @@ str getColor(str fruit) = color[fruit] ? "unknown";
 test: classify({"apple", "berry", "cucumber", "banana"}, getColor) == <?>
 
 }
-public map[&K,set[&V]] classify(set[&V] input, &K (&V) getClass) {
-  set[set[&V]] grouped = 
-     group(input,bool (&V a,&V b) { return getClass(a) == getClass(b); });
-  return ( getClass(getOneFrom(s)) : s | s <- grouped);
-}
+public map[&K,set[&V]] classify(set[&V] input, &K (&V) getClass) = toMap({<getClass(e),e> | e <- input});
 
 @doc{
 Synopsis: Pick a random element from a set.
@@ -116,14 +112,12 @@ str getColor(str fruit) = color[fruit] ? "unknown";
 test: group({"apple", "berry", "cucumber", "banana"}, similar)  == <?>
 }
 public set[set[&T]] group(set[&T] input, bool (&T a, &T b) similar) {
-  sinput = sort(toList(input), bool (&T a, &T b) { return similar(a,b) ? a < b ; } );
+  sinput = sort(input, bool (&T a, &T b) { return similar(a,b) ? false : a < b ; } );
   lres = while (!isEmpty(sinput)) {
     h = head(sinput);
-    sim = h + 
-    takeWhile(tail(sinput),
-      bool (&T a) { return similar(a,h); });
-	  append toSet(sim);
-	  sinput = drop(size(sim),sinput);
+    sim = h + takeWhile(tail(sinput), bool (&T a) { return similar(a,h); });
+	append toSet(sim);
+	sinput = drop(size(sim), sinput);
   }
   return toSet(lres); 
 }
@@ -678,7 +672,7 @@ test: sort(<L>) == <?>
 
 }
 public list[&T] sort(set[&T] s) =
-	sort(s, bool (&T a,&T b) { return a <= b; } );
+	sort(s, bool (&T a,&T b) { return a < b; } );
 	
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] sort(set[&T] l, bool (&T a, &T b) lessOrEqual) ;
+public java list[&T] sort(set[&T] l, bool (&T a, &T b) less) ;

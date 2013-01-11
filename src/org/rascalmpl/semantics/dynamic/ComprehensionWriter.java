@@ -10,7 +10,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 
 public abstract class ComprehensionWriter {
 	protected org.eclipse.imp.pdb.facts.type.Type elementType1;
@@ -35,7 +35,7 @@ public abstract class ComprehensionWriter {
 			org.eclipse.imp.pdb.facts.type.Type t, String kind,
 			Expression expr) {
 		if (!r.getType().isSubtypeOf(t)) {
-			throw new UnexpectedTypeError(t, r.getType(), expr);
+			throw new UnexpectedType(t, r.getType(), expr);
 		}
 	}
 

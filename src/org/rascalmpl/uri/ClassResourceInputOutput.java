@@ -59,7 +59,7 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 		if (path.contains("//")) {
 			path = path.replaceAll("//","/");
 		}
-		return prefix + "/" + path;
+		return prefix + (prefix.endsWith("/") ? "" : "/") + path;
 	}
 	
 	public boolean exists(URI uri) {

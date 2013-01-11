@@ -427,11 +427,11 @@ public str generateMap(RascalType kt, RascalType vt, VarEnv env){
 }
 
 public str generateTuple(list[RascalType] ets, VarEnv env){
-   return "\<<for(int i <- [0 .. size(ets)-1]){><(i==0)?"":", "><generateValue(ets[i], env)><}>\>";
+   return "\<<for(int i <- [0 .. size(ets)]){><(i==0)?"":", "><generateValue(ets[i], env)><}>\>";
 }
 
 public str generateRel(list[RascalType] ets, VarEnv env){
-   return "\<<for(int i <- [0 .. size(elts)-1]){><(i==0)?"":", "><generateValue(ets[i], env)><}>\>";
+   return "\<<for(int i <- [0 .. size(elts)]){><(i==0)?"":", "><generateValue(ets[i], env)><}>\>";
 }
 
 public str generateArb(int n, list[RascalType] prefs, VarEnv env){
@@ -449,7 +449,7 @@ public str generateArb(int n, list[RascalType] prefs, VarEnv env){
 
 public RascalType generateArbTupleType(int n, list[RascalType] prefs, VarEnv env){
    n = 1 + arbInt(5);
-   return \tuple([generateArbType(n - 1, prefs, env) | int i <- [0 .. n] ]);
+   return \tuple([generateArbType(n - 1, prefs, env) | int i <- [0 .. n+1] ]);
 }
 
 public RascalType generateArbRelType(int n, list[RascalType] prefs, VarEnv env){

@@ -23,7 +23,7 @@ import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
+import org.rascalmpl.interpreter.staticErrors.DateTimeSyntax;
 
 public abstract class JustTime extends org.rascalmpl.ast.JustTime {
 
@@ -48,7 +48,7 @@ public abstract class JustTime extends org.rascalmpl.ast.JustTime {
 				IValue result = parser.read(VF, new StringReader("$T" + timePart));
 				return makeResult(TF.dateTimeType(), result, eval);
 			} catch (FactTypeUseException e) {
-				throw new DateTimeParseError(e.getMessage(), eval.getCurrentAST().getLocation());
+				throw new DateTimeSyntax(e.getMessage(), eval.getCurrentAST().getLocation());
 			} catch (IOException e) {
 				throw new ImplementationError(e.getMessage());
 			}

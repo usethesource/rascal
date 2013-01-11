@@ -13,6 +13,7 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
@@ -32,6 +33,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Field;
+import org.rascalmpl.ast.KeywordArgument;
+import org.rascalmpl.ast.KeywordArguments;
 import org.rascalmpl.ast.Label;
 import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Name;
@@ -76,16 +79,16 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
-import org.rascalmpl.interpreter.staticErrors.ItOutsideOfReducer;
+import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
+import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatchError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
@@ -112,7 +115,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -332,8 +335,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		public CallOrTree(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
-				java.util.List<org.rascalmpl.ast.Expression> __param3) {
-			super(__param1, __param2, __param3);
+				java.util.List<org.rascalmpl.ast.Expression> __param3, KeywordArguments __param4) {
+			super(__param1, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -364,7 +367,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			eval.getCurrentEnvt().getAllFunctions(cons, functions);
 			
 			if (functions.isEmpty()) {
-				throw new UndeclaredVariableError(Names.fullName(nameExpr.getQualifiedName()), this);
+				throw new UndeclaredVariable(Names.fullName(nameExpr.getQualifiedName()), this);
 			}
 
 			Type signature = getArgumentTypes(eval);
@@ -463,12 +466,22 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					Result<IValue> resultElem = args.get(i).interpret(__eval);
 					types[i] = resultElem.getType();
 					if(types[i].isVoidType()) 
-						throw new UninitializedPatternMatchError("The argument is of the type 'void'", args.get(i));
+						throw new UninitializedPatternMatch("The argument is of the type 'void'", args.get(i));
 					actuals[i] = resultElem.getValue();
+				}
+				
+				KeywordArguments keywordArgs = this.getKeywordArguments();
+				HashMap<String,Result<IValue>> kwActuals = null;
+				if(keywordArgs.isDefault()){
+						kwActuals = new HashMap<String,Result<IValue>>();
+						
+						for(KeywordArgument kwa : keywordArgs.getKeywordArgumentList()){
+							kwActuals.put(kwa.getName().toString(), kwa.getExpression().interpret(__eval));
+						}
 				}
 				Result<IValue> res = null;
 				try {
-					res = function.call(types, actuals);
+					res = function.call(types, actuals, kwActuals);
 				}
 				catch(MatchFailed e) {
 					if(function instanceof AbstractFunction) {
@@ -476,7 +489,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						java.util.List<AbstractFunction> fs = new ArrayList<AbstractFunction>();
 						fs.add(f);
 						String name = (f.getName() != null) ? f.getName() : "(evaluated from the expression) ";
-						throw new ArgumentsMismatchError(name, fs, types, this);
+						throw new ArgumentsMismatch(name, fs, types, this);
 					} else {
 						throw e;
 					}
@@ -508,7 +521,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}
 			}
 
-			throw new UnsupportedPatternError(lambda + "(...)", this);
+			throw new UnsupportedPattern(lambda + "(...)", this);
 		}
 	}
 
@@ -522,7 +535,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -567,7 +580,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -600,7 +613,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -648,7 +661,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
-			throw new UnexpectedTypeError(TF.boolType(), interpret(eval.getEvaluator()).getType(), this);
+			throw new UnexpectedType(TF.boolType(), interpret(eval.getEvaluator()).getType(), this);
 		}
 
 	
@@ -802,7 +815,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -835,7 +848,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -975,16 +988,16 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type expected = getType().typeOf(__eval.getCurrentEnvt());
 
 			if (!(expected instanceof NonTerminalType)) {
-				throw new UnsupportedOperationError("inline parsing", expected, this);
+				throw new UnsupportedOperation("inline parsing", expected, this);
 			}
 			
 			if (!result.getType().isSubtypeOf(TF.stringType())) {
-				throw new UnsupportedOperationError("inline parsing", result.getType(), this);
+				throw new UnsupportedOperation("inline parsing", result.getType(), this);
 			}
 			
 			IConstructor symbol = ((NonTerminalType) expected).getSymbol();
 			if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol)) {
-				throw new UnsupportedOperationError("inline parsing", expected, this);
+				throw new UnsupportedOperation("inline parsing", expected, this);
 			}
 
 			__eval.__setInterrupt(false);
@@ -1048,7 +1061,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			try {
 				return this.getLhs().interpret(__eval);
-			} catch (UninitializedVariableError e) {
+			} catch (UninitializedVariable e) {
 				return this.getRhs().interpret(__eval);
 			} catch (Throw e) {
 				// TODO For now we __evaluate any Throw here, restrict to
@@ -1088,7 +1101,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				Result<IValue> cval = this.getCondition().interpret(__eval);
 
 				if (!cval.getType().isBoolType()) {
-					throw new UnexpectedTypeError(TF.boolType(),
+					throw new UnexpectedType(TF.boolType(),
 							cval.getType(), this);
 				}
 
@@ -1170,7 +1183,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -1265,7 +1278,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> v = __eval.getCurrentEnvt().getVariable(
 					org.rascalmpl.interpreter.Evaluator.IT);
 			if (v == null) {
-				throw new ItOutsideOfReducer(this);
+				throw new UnguardedIt(this);
 			}
 			return v;
 
@@ -1362,7 +1375,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 		}
@@ -1529,7 +1542,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (this.getLiteral().isBoolean()) {
 				return new BasicBooleanResult(eval, this);
 			}
-			throw new UnexpectedTypeError(TF.boolType(), interpret(eval.getEvaluator()).getType(), this);
+			throw new UnexpectedType(TF.boolType(), interpret(eval.getEvaluator()).getType(), this);
 		}
 
 		
@@ -1562,7 +1575,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 		}
@@ -1656,7 +1669,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 		}
@@ -1686,7 +1699,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -1729,12 +1742,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
 
 			if (variable == null) {
-				throw new UndeclaredVariableError(
+				throw new UndeclaredVariable(
 						org.rascalmpl.interpreter.utils.Names.name(name), name);
 			}
 
 			if (variable.getValue() == null) {
-				throw new UninitializedVariableError(
+				throw new UninitializedVariable(
 						org.rascalmpl.interpreter.utils.Names.name(name), name);
 			}
 
@@ -1777,12 +1790,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
 
 			if (variable == null) {
-				throw new UndeclaredVariableError(
+				throw new UndeclaredVariable(
 						org.rascalmpl.interpreter.utils.Names.name(name), name);
 			}
 
 			if (variable.getValue() == null) {
-				throw new UninitializedVariableError(
+				throw new UninitializedVariable(
 						org.rascalmpl.interpreter.utils.Names.name(name), name);
 			}
 
@@ -1833,7 +1846,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 		}
@@ -1987,7 +2000,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -2068,13 +2081,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
 
 			if (variable == null) {
-				throw new UndeclaredVariableError(
+				throw new UndeclaredVariable(
 						org.rascalmpl.interpreter.utils.Names.fullName(name),
 						name);
 			}
 
 			if (variable.getValue() == null) {
-				throw new UninitializedVariableError(
+				throw new UninitializedVariable(
 						org.rascalmpl.interpreter.utils.Names.fullName(name),
 						name);
 			}
@@ -2100,7 +2113,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -2210,11 +2223,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> declarations = getDefinitions().interpret(__eval);
 			
 			if (!symbol.getType().isSubtypeOf(Factory.Symbol)) {
-				throw new UnexpectedTypeError(Factory.Symbol, symbol.getType(), getSymbol());
+				throw new UnexpectedType(Factory.Symbol, symbol.getType(), getSymbol());
 			}
 			
 			if (!declarations.getType().isSubtypeOf(defType)) {
-				throw new UnexpectedTypeError(defType, declarations.getType(), getSymbol());
+				throw new UnexpectedType(defType, declarations.getType(), getSymbol());
 			}
 			
 			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
@@ -2264,7 +2277,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -2351,7 +2364,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -2384,7 +2397,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -2405,6 +2418,63 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
+	}
+	
+	static public class Slice extends
+	org.rascalmpl.ast.Expression.Slice {
+
+		public Slice(IConstructor __param1, org.rascalmpl.ast.Expression __param2, 
+				org.rascalmpl.ast.OptionalExpression __param3, org.rascalmpl.ast.OptionalExpression __param4) {
+			super(__param1, __param2, __param3, __param4);
+		}
+
+		@Override
+		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
+			return new BasicBooleanResult(eval, this);
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
+			Result<IValue> expr = this.getExpression().interpret(__eval);
+					
+			Result<?> first = this.getOptFirst().hasExpression() ? this.getOptFirst().getExpression().interpret(__eval) : null;
+			Result<?> last = this.getOptLast().hasExpression() ? this.getOptLast().getExpression().interpret(__eval) : null;
+			
+			return expr.slice(first, null, last);
+		}
+	}
+	
+	static public class SliceStep extends
+	org.rascalmpl.ast.Expression.SliceStep {
+
+		public SliceStep(IConstructor __param1, org.rascalmpl.ast.Expression __param2, 
+				org.rascalmpl.ast.OptionalExpression __param3, org.rascalmpl.ast.Expression __param4, org.rascalmpl.ast.OptionalExpression __param5) {
+			super(__param1, __param2, __param3, __param4, __param5);
+		}
+
+		@Override
+		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
+			return new BasicBooleanResult(eval, this);
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
+			Result<IValue> expr = this.getExpression().interpret(__eval);
+						
+			Result<?> first = this.getOptFirst().hasExpression() ? this.getOptFirst().getExpression().interpret(__eval) : null;
+			Result<?> second = this.getSecond().interpret(__eval);
+			Result<?> last = this.getOptLast().hasExpression() ? this.getOptLast().getExpression().interpret(__eval) : null;
+			
+			return expr.slice(first, second, last);
+		}
 	}
 
 	static public class Subscript extends
@@ -2461,7 +2531,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -2494,7 +2564,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 		}
@@ -2524,7 +2594,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 
@@ -2554,7 +2624,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 		}
@@ -2611,7 +2681,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			throw new UninitializedVariableError(Names.name(getName()), this);
+			throw new UninitializedVariable(Names.name(getName()), this);
 		}
 
 		@Override
@@ -2644,7 +2714,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				return result;
 			}
 
-			throw new UninitializedVariableError(
+			throw new UninitializedVariable(
 					org.rascalmpl.interpreter.utils.Names.name(this.getName()),
 					this);
 
@@ -2762,7 +2832,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new UnexpectedTypeError(TF.boolType(), this
+			throw new UnexpectedType(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
 

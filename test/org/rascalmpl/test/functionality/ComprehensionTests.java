@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class ComprehensionTests extends TestFramework {
@@ -256,32 +256,32 @@ public class ComprehensionTests extends TestFramework {
 	@Test
 	public void setComprehension4(){
 		prepare("set[int] f(int n) { return {n, 3*n}; }");
-		assertTrue(runTestInSameEvaluator("{f(n) | n <- [ 1 .. 3 ]} == {{1,3},{2,6},{3,9}};"));
-		assertTrue(runTestInSameEvaluator("{*f(n) | n <- [ 1 .. 3 ]} == {1,3,2,6,3,9};"));
+		assertTrue(runTestInSameEvaluator("{f(n) | n <- [ 1 .. 4 ]} == {{1,3},{2,6},{3,9}};"));
+		assertTrue(runTestInSameEvaluator("{*f(n) | n <- [ 1 .. 4 ]} == {1,3,2,6,3,9};"));
 		
-		assertTrue(runTestInSameEvaluator("{{n, 3*n} | n <- [ 1 .. 3 ]} == {{1,3},{2,6},{3,9}};"));
-		assertTrue(runTestInSameEvaluator("{*{n, 3*n} | n <- [ 1 .. 3 ]} == {1,3,2,6,3,9};"));
-		assertTrue(runTestInSameEvaluator("{n, 3*n | n <- [ 1 .. 3 ]} == {1,3,2,6,3,9};"));
+		assertTrue(runTestInSameEvaluator("{{n, 3*n} | n <- [ 1 .. 4 ]} == {{1,3},{2,6},{3,9}};"));
+		assertTrue(runTestInSameEvaluator("{*{n, 3*n} | n <- [ 1 .. 4 ]} == {1,3,2,6,3,9};"));
+		assertTrue(runTestInSameEvaluator("{n, 3*n | n <- [ 1 .. 4 ]} == {1,3,2,6,3,9};"));
 	
-		assertTrue(runTestInSameEvaluator("{{5*n, f(n)} | n <- [ 1 .. 3 ]} == {{5,{1,3}},{10,{2,6}},{15,{3,9}}};"));
-		assertTrue(runTestInSameEvaluator("{{5*n, *f(n)} | n <- [ 1 .. 3 ]} == {{5,1,3},{10,2,6},{15,3,9}};"));
-		assertTrue(runTestInSameEvaluator("{5*n, f(n) | n <- [ 1 .. 3 ]} == {5,{1,3},10,{2,6},15,{3,9}};"));
-		assertTrue(runTestInSameEvaluator("{5*n, *f(n) | n <- [ 1 .. 3 ]} == {5,1,3,10,2,6,15,3,9};"));
+		assertTrue(runTestInSameEvaluator("{{5*n, f(n)} | n <- [ 1 .. 4 ]} == {{5,{1,3}},{10,{2,6}},{15,{3,9}}};"));
+		assertTrue(runTestInSameEvaluator("{{5*n, *f(n)} | n <- [ 1 .. 4 ]} == {{5,1,3},{10,2,6},{15,3,9}};"));
+		assertTrue(runTestInSameEvaluator("{5*n, f(n) | n <- [ 1 .. 4 ]} == {5,{1,3},10,{2,6},15,{3,9}};"));
+		assertTrue(runTestInSameEvaluator("{5*n, *f(n) | n <- [ 1 .. 4 ]} == {5,1,3,10,2,6,15,3,9};"));
 		
-		assertTrue(runTestInSameEvaluator("{{5*n, f(n)} | n <- [ 1 .. 3 ]} == {{5,{1,3}},{10,{2,6}},{15,{3,9}}};"));
-		assertTrue(runTestInSameEvaluator("{{5*n, *f(n)} | n <- [ 1 .. 3 ]} == {{5,1,3},{10,2,6},{15,3,9}};"));
-		assertTrue(runTestInSameEvaluator("{5*n, f(n) | n <- [ 1 .. 3 ]} == {5,{1,3},10,{2,6},15,{3,9}};"));
-		assertTrue(runTestInSameEvaluator("{5*n, *f(n) | n <- [ 1 .. 3 ]} == {5,1,3,10,2,6,15,3,9};"));
+		assertTrue(runTestInSameEvaluator("{{5*n, f(n)} | n <- [ 1 .. 4 ]} == {{5,{1,3}},{10,{2,6}},{15,{3,9}}};"));
+		assertTrue(runTestInSameEvaluator("{{5*n, *f(n)} | n <- [ 1 .. 4 ]} == {{5,1,3},{10,2,6},{15,3,9}};"));
+		assertTrue(runTestInSameEvaluator("{5*n, f(n) | n <- [ 1 .. 4 ]} == {5,{1,3},10,{2,6},15,{3,9}};"));
+		assertTrue(runTestInSameEvaluator("{5*n, *f(n) | n <- [ 1 .. 4 ]} == {5,1,3,10,2,6,15,3,9};"));
 	}
 	
 	@Test
 	public void setComprehensionNested() {
-		assertTrue(runTest("{ {X + y | int y <- [1..X]} | int X <- {1,2,3}} == {{2}, {3,4}, {4,5,6}};"));
-		assertTrue(runTest("{ *{X + y | int y <- [1..X]} | int X <- {1,2,3}} == {2, 3, 4, 5, 6};"));
-		assertTrue(runTest("{ {X + y | int y <- [1..X], X < 2} | int X <- [1,2,3]} == {{2}, {}};"));
-		assertTrue(runTest("{ *{X + y | int y <- [1..X], X < 2} | int X <- [1,2,3]} == {2};"));
-		assertTrue(runTest("{ {X + y | int y <- [1..X], X > 2} | int X <- [1,2,3]} == {{}, {4,5,6}};"));
-		assertTrue(runTest("{ *{X + y | int y <- [1..X], X > 2} | int X <- [1,2,3]} == {4, 5, 6};"));
+		assertTrue(runTest("{ {X + y | int y <- [1..X+1]} | int X <- {1,2,3}} == {{2}, {3,4}, {4,5,6}};"));
+		assertTrue(runTest("{ *{X + y | int y <- [1..X+1]} | int X <- {1,2,3}} == {2, 3, 4, 5, 6};"));
+		assertTrue(runTest("{ {X + y | int y <- [1..X+1], X < 2} | int X <- [1,2,3]} == {{2}, {}};"));
+		assertTrue(runTest("{ *{X + y | int y <- [1..X+1], X < 2} | int X <- [1,2,3]} == {2};"));
+		assertTrue(runTest("{ {X + y | int y <- [1..X+1], X > 2} | int X <- [1,2,3]} == {{}, {4,5,6}};"));
+		assertTrue(runTest("{ *{X + y | int y <- [1..X+1], X > 2} | int X <- [1,2,3]} == {4, 5, 6};"));
 	}
 	
 	@Test
@@ -393,26 +393,26 @@ public class ComprehensionTests extends TestFramework {
 	@Test
 	public void listComprehension4(){
 		prepare("list[int] f(int n) { return [n, 3*n]; }");
-		assertTrue(runTestInSameEvaluator("[f(n) | n <- [ 1 .. 3 ]] == [[1,3],[2,6],[3,9]];"));
-		assertTrue(runTestInSameEvaluator("[*f(n) | n <- [ 1 .. 3 ]] == [1,3,2,6,3,9];"));
+		assertTrue(runTestInSameEvaluator("[f(n) | n <- [ 1 .. 4 ]] == [[1,3],[2,6],[3,9]];"));
+		assertTrue(runTestInSameEvaluator("[*f(n) | n <- [ 1 .. 4 ]] == [1,3,2,6,3,9];"));
 
-		assertTrue(runTestInSameEvaluator("[[n, 3*n] | n <- [ 1 .. 3 ]] == [[1,3],[2,6],[3,9]];"));
+		assertTrue(runTestInSameEvaluator("[[n, 3*n] | n <- [ 1 .. 4 ]] == [[1,3],[2,6],[3,9]];"));
 		
-		assertTrue(runTestInSameEvaluator("[5*n, f(n) | n <- [ 1 .. 3 ]] == [5,[1,3],10,[2,6],15,[3,9]];"));
-		assertTrue(runTestInSameEvaluator("[5*n, *f(n) | n <- [ 1 .. 3 ]] == [5,1,3,10,2,6,15,3,9];"));
+		assertTrue(runTestInSameEvaluator("[5*n, f(n) | n <- [ 1 .. 4 ]] == [5,[1,3],10,[2,6],15,[3,9]];"));
+		assertTrue(runTestInSameEvaluator("[5*n, *f(n) | n <- [ 1 .. 4 ]] == [5,1,3,10,2,6,15,3,9];"));
 		
-		assertTrue(runTestInSameEvaluator("[[5*n, f(n)] | n <- [ 1 .. 3 ]] == [[5,[1,3]],[10,[2,6]],[15,[3,9]]];"));
-		assertTrue(runTestInSameEvaluator("[[5*n, *f(n)] | n <- [ 1 .. 3 ]] == [[5,1,3],[10,2,6],[15,3,9]];"));
+		assertTrue(runTestInSameEvaluator("[[5*n, f(n)] | n <- [ 1 .. 4 ]] == [[5,[1,3]],[10,[2,6]],[15,[3,9]]];"));
+		assertTrue(runTestInSameEvaluator("[[5*n, *f(n)] | n <- [ 1 .. 4 ]] == [[5,1,3],[10,2,6],[15,3,9]];"));
 	}
 	
 	@Test
 	public void listComprehensionNested() {
-		assertTrue(runTest("[  [y | int y <- [0..X]] | int X <- [1,2,3]] == [[0,1], [0,1,2], [0,1,2,3]];"));
-		assertTrue(runTest("[ *[y | int y <- [0..X]] | int X <- [1,2,3]] == [0,1, 0,1,2, 0,1,2,3];"));
-		assertTrue(runTest("[ [y | int y <- [0..X], X < 2] | int X <- [1,2,3]] == [[0,1], [], []];"));
-		assertTrue(runTest("[ *[y | int y <- [0..X], X < 2] | int X <- [1,2,3]] == [0,1];"));
-		assertTrue(runTest("[ [y | int y <- [0..X], X > 2] | int X <- [1,2,3]] == [[], [], [0,1,2,3]];"));
-		assertTrue(runTest("[ *[y | int y <- [0..X], X > 2] | int X <- [1,2,3]] == [0,1,2,3];"));
+		assertTrue(runTest("[  [y | int y <- [0..X+1]] | int X <- [1,2,3]] == [[0,1], [0,1,2], [0,1,2,3]];"));
+		assertTrue(runTest("[ *[y | int y <- [0..X+1]] | int X <- [1,2,3]] == [0,1, 0,1,2, 0,1,2,3];"));
+		assertTrue(runTest("[ [y | int y <- [0..X+1], X < 2] | int X <- [1,2,3]] == [[0,1], [], []];"));
+		assertTrue(runTest("[ *[y | int y <- [0..X+1], X < 2] | int X <- [1,2,3]] == [0,1];"));
+		assertTrue(runTest("[ [y | int y <- [0..X+1], X > 2] | int X <- [1,2,3]] == [[], [], [0,1,2,3]];"));
+		assertTrue(runTest("[ *[y | int y <- [0..X+1], X > 2] | int X <- [1,2,3]] == [0,1,2,3];"));
 		
 	}
 	
@@ -488,9 +488,9 @@ public class ComprehensionTests extends TestFramework {
 	
 	@Test
 	public void mapComprehensionNested() {
-		assertTrue(runTest("( X: (2 * X + y : y | int y <- [1..X]) | int X <- [1,2,3] ) == (1:(3:1),2:(5:1,6:2),3:(7:1,8:2,9:3));"));
-		assertTrue(runTest("( X: (2 * X + y : y | int y <- [1..X], X < 2) | int X <- [1,2,3] ) == (1:(3:1), 2:(), 3:());"));
-		assertTrue(runTest("( X: (2 * X + y : y | int y <- [1..X], X > 2) | int X <- [1,2,3] ) == (1:(),2:(),3:(7:1,8:2,9:3));"));
+		assertTrue(runTest("( X: (2 * X + y : y | int y <- [1..X+1]) | int X <- [1,2,3] ) == (1:(3:1),2:(5:1,6:2),3:(7:1,8:2,9:3));"));
+		assertTrue(runTest("( X: (2 * X + y : y | int y <- [1..X+1], X < 2) | int X <- [1,2,3] ) == (1:(3:1), 2:(), 3:());"));
+		assertTrue(runTest("( X: (2 * X + y : y | int y <- [1..X+1], X > 2) | int X <- [1,2,3] ) == (1:(),2:(),3:(7:1,8:2,9:3));"));
 	}
 	
 	@Test public void nodeGenerator()  {
@@ -531,13 +531,13 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("{S | /@<S:[a-z]+>@/ <- {\"@abc@\", \"@def@\"}} == {\"abc\", \"def\"};"));
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void NoLeakFromNextGenerator1(){
-		assertTrue(runTest("[<N,M> | int N <- [1 .. 2], ((N==1) ? true : M > 0), int M <- [10 .. 11]] == [<1,10>,<1,11>,<2,10><2,11>];"));
+		assertTrue(runTest("[<N,M> | int N <- [1 .. 3], ((N==1) ? true : M > 0), int M <- [10 .. 12]] == [<1,10>,<1,11>,<2,10><2,11>];"));
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void NoLeakFromNextGenerator2(){
-		assertTrue(runTest("[<N,M> | int N <- [1 .. 2], ((N==1) ? true : M > 0), int M := N] == [<1,1>,<2,2>];"));
+		assertTrue(runTest("[<N,M> | int N <- [1 .. 3], ((N==1) ? true : M > 0), int M := N] == [<1,1>,<2,2>];"));
 	}
 }

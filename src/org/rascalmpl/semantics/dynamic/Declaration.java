@@ -20,6 +20,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.CommonKeywordParameters;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.Tags;
@@ -28,8 +29,8 @@ import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Visibility;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 
 public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
@@ -81,8 +82,8 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 	static public class Data extends org.rascalmpl.ast.Declaration.Data {
 
 		public Data(IConstructor __param1, Tags __param2, Visibility __param3,
-				UserType __param4, List<Variant> __param5) {
-			super(__param1, __param2, __param3, __param4, __param5);
+				UserType __param4, CommonKeywordParameters __param5, List<Variant> __param6) {
+			super(__param1, __param2, __param3, __param4, __param5, __param6);
 		}
 
 		@Override
@@ -153,7 +154,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 					if (!__eval.getCurrentEnvt().declareVariable(declaredType,
 							var.getName())) {
-						throw new RedeclaredVariableError(
+						throw new RedeclaredVariable(
 								org.rascalmpl.interpreter.utils.Names.name(var
 										.getName()), var);
 					}
@@ -169,7 +170,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 						__eval.getCurrentModuleEnvironment().storeVariable(
 								var.getName(), r);
 					} else {
-						throw new UnexpectedTypeError(declaredType,
+						throw new UnexpectedType(declaredType,
 								v.getType(), var);
 					}
 				} else {
