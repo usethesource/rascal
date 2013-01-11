@@ -77,7 +77,7 @@ public class GuardedPattern extends AbstractMatchingResult {
 			pat.initMatch(subject);
 			// this code triggers during a visit which might encounter other stuff that would never match
 //			if (!mayMatch(pat.getType(env), type)) {
-//				throw new UnexpectedTypeError(pat.getType(env), type, ctx.getCurrentAST());
+//				throw new UnexpectedType(pat.getType(env), type, ctx.getCurrentAST());
 //			}
 			this.hasNext = pat.getType(env, null).equivalent(type);
 		}

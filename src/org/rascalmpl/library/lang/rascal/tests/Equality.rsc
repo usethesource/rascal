@@ -40,7 +40,7 @@ public test bool strAntiSymmetricLTE(str x, str y) = (x <= y && y <= x) ==> (x =
 public test bool strTransLTE(str x, str y, str z) = (x <= y && y <= z) ==> x <= z;
 
 // sets are ordered via sub-set relation
-public test bool subsetOrdering1(set[value] x, set[value] y) = x <= x + y;
+public test bool subsetOrdering1(set[value] x, set[value] y) = x <= x + y; 
 public test bool subsetOrdering2(set[value] x, set[value] y) = (x <= y) <==> (x == {} || all(e <- x, e in y));
 
 // sets are partially ordered
@@ -49,8 +49,8 @@ public test bool setAntiSymmetricLTE(set[value] x, set[value] y) = (x <= y && y 
 public test bool setTransLTE(set[value] x, set[value] y, set[value] z) = (x <= y && y <= z) ==> x <= z;
 
 // map are ordered via sub-map relation
-public test bool submapOrdering1(map[value,value] x, map[value,value] y) = x <= x + y;
-public test bool submapOrdering2(map[value,value]x, map[value,value] y) = (x <= y) <==> (x == () || all(e <- x, e in y));
+public test bool submapOrdering1(map[value,value] x, map[value,value] y) = x <= y + x; // remember map join is not commutative
+public test bool submapOrdering2(map[value,value]x, map[value,value] y) = (x <= y) <==> (x == () || all(e <- x, e in y, y[e] == x[e]));
 
 // maps are partially ordered
 public test bool setReflexLTE(map[value,value] x) = (x <= x);

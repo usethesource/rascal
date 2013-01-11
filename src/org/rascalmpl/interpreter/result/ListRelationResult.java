@@ -33,10 +33,10 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.staticErrors.ArityError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
+import org.rascalmpl.interpreter.staticErrors.Arity;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -130,7 +130,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			// TODO: must go to PDB
 			int nSubs = subscripts.length;
 			if (nSubs >= getType().getArity()) {
-				throw new UnsupportedSubscriptArityError(getType(), nSubs, ctx.getCurrentAST());
+				throw new UnsupportedSubscriptArity(getType(), nSubs, ctx.getCurrentAST());
 			}
 			int relArity = getType().getArity();
 			
@@ -157,7 +157,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 						subscriptIsSet[i] = false;
 					} 
 					else {
-						throw new UnexpectedTypeError(relFieldType, subscriptType[i], ctx.getCurrentAST());
+						throw new UnexpectedType(relFieldType, subscriptType[i], ctx.getCurrentAST());
 					}
 				} else {
 					resFieldType[i - nSubs] = relFieldType;
@@ -223,7 +223,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			if (getValue().arity() == 0 || getValue().arity() == 2) {
 				return makeResult(type, getValue().closure(), ctx);
 			}
-			throw new ArityError(2, getValue().arity(), ctx.getCurrentAST());
+			throw new Arity(2, getValue().arity(), ctx.getCurrentAST());
 		}
 		
 
@@ -232,7 +232,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			if (getValue().arity() == 0 || getValue().arity() == 2) {
 				return makeResult(type, getValue().closureStar(), ctx);
 			}
-			throw new ArityError(2, getValue().arity(), ctx.getCurrentAST());
+			throw new Arity(2, getValue().arity(), ctx.getCurrentAST());
 		}
 		
 		
@@ -241,11 +241,11 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			Type tupleType = getType().getFieldTypes();	
 			
 			if (!getType().hasFieldNames()) {
-				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 			
 			if (!getType().hasField(name, store)) {
-				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 			
 			try {
@@ -257,7 +257,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			}
 			// TODO: why catch this exception here?
 			catch (UndeclaredFieldException e) {
-				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 		}
 		
@@ -274,11 +274,11 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			int rightArity = rightrelType.getArity();
 				
 			if (leftArity != 0 && leftArity != 2) {
-				throw new ArityError(2, leftArity, ctx.getCurrentAST());
+				throw new Arity(2, leftArity, ctx.getCurrentAST());
 			}
 				
 			if (rightArity != 0 && rightArity != 2) {
-				throw new ArityError(2, rightArity, ctx.getCurrentAST());
+				throw new Arity(2, rightArity, ctx.getCurrentAST());
 			}
 			Type resultType = leftrelType.compose(rightrelType);
 			return makeResult(resultType, left.getValue().compose(right.getValue()), ctx);
@@ -378,7 +378,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 					try {
 						fieldIndices[i] = baseType.getFieldIndex(fieldName);
 					} catch (UndeclaredFieldException e) {
-						throw new UndeclaredFieldError(fieldName, baseType,
+						throw new UndeclaredField(fieldName, baseType,
 								ctx.getCurrentAST());
 					}
 				}

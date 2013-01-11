@@ -58,10 +58,10 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
-import org.rascalmpl.interpreter.staticErrors.MissingReturnError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
+import org.rascalmpl.interpreter.staticErrors.MissingReturn;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
@@ -105,7 +105,7 @@ public class RascalFunction extends NamedFunction {
 	@SuppressWarnings("unchecked")
 	public RascalFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, String name, FunctionType functionType,
 			boolean varargs, boolean isDefault, boolean isTest, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
-		super(ast, eval, functionType, name, varargs, env);
+		super(ast, eval, functionType, name, varargs, null, env);
 		this.body = body;
 		this.isDefault = isDefault;
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
@@ -269,7 +269,7 @@ public class RascalFunction extends NamedFunction {
 				formals = replaceLast(formals, last);
 			}
 			else {
-				throw new UnsupportedPatternError("...", last);
+				throw new UnsupportedPattern("...", last);
 			}
 		}
 		
@@ -316,7 +316,7 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
 		Environment old = ctx.getCurrentEnvt();
 		AbstractAST oldAST = ctx.getCurrentAST();
 		Stack<Accumulator> oldAccus = ctx.getAccumulators();
@@ -346,6 +346,7 @@ public class RascalFunction extends NamedFunction {
 
 			if (size == 0) {
 				try {
+					bindKeywordArgs(keyArgValues);
 					return runBody();
 				}
 				catch (Return e) {
@@ -368,6 +369,7 @@ public class RascalFunction extends NamedFunction {
 					if (i == size - 1) {
 						// formals are now bound by side effect of the pattern matcher
 						try {
+							bindKeywordArgs(keyArgValues);
 							return runBody();
 						}
 						catch (Failure e) {
@@ -376,7 +378,7 @@ public class RascalFunction extends NamedFunction {
 								continue;
 							}
 							else {
-								throw new UnguardedFailError(getAst(), e);
+								throw new UnguardedFail(getAst(), e);
 							}
 //							ctx.unwind(olds[i]);
 //							i--;
@@ -411,6 +413,7 @@ public class RascalFunction extends NamedFunction {
 			ctx.setCurrentAST(oldAST);
 		}
 	}
+	
 
 	private Result<IValue> runBody() {
 		if (callTracing) {
@@ -427,7 +430,7 @@ public class RascalFunction extends NamedFunction {
 		}
 
 		if(!isVoidFunction){
-			throw new MissingReturnError(ast);
+			throw new MissingReturn(ast);
 		}
 
 		return makeResult(TF.voidType(), null, eval);
@@ -440,11 +443,11 @@ public class RascalFunction extends NamedFunction {
 		Type instantiatedReturnType = returnType.instantiate(ctx.getCurrentEnvt().getTypeBindings());
 
 		if(!result.getType().isSubtypeOf(instantiatedReturnType)){
-			throw new UnexpectedTypeError(instantiatedReturnType, result.getType(), e.getLocation());
+			throw new UnexpectedType(instantiatedReturnType, result.getType(), e.getLocation());
 		}
 
 		if (!returnType.isVoidType() && result.getType().isVoidType()) {
-			throw new UnexpectedTypeError(returnType, result.getType(), e.getLocation());
+			throw new UnexpectedType(returnType, result.getType(), e.getLocation());
 		}
 
 		return makeResult(instantiatedReturnType, result.getValue(), eval);

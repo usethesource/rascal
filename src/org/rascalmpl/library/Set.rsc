@@ -46,11 +46,7 @@ str getColor(str fruit) = color[fruit] ? "unknown";
 test: classify({"apple", "berry", "cucumber", "banana"}, getColor) == <?>
 
 }
-public map[&K,set[&V]] classify(set[&V] input, &K (&V) getClass) {
-  set[set[&V]] grouped = 
-     group(input,bool (&V a,&V b) { return getClass(a) == getClass(b); });
-  return ( getClass(getOneFrom(s)) : s | s <- grouped);
-}
+public map[&K,set[&V]] classify(set[&V] input, &K (&V) getClass) = toMap({<getClass(e),e> | e <- input});
 
 @doc{
 Synopsis: Pick a random element from a set.

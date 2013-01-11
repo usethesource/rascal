@@ -71,11 +71,11 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.JavaCompilationError;
-import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
-import org.rascalmpl.interpreter.staticErrors.MissingTagError;
-import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunctionError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethodError;
+import org.rascalmpl.interpreter.staticErrors.JavaCompilation;
+import org.rascalmpl.interpreter.staticErrors.JavaMethodLink;
+import org.rascalmpl.interpreter.staticErrors.MissingTag;
+import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
 
 
 public class JavaBridge {
@@ -116,9 +116,9 @@ public class JavaBridge {
 			fileManagerCache.put(result, javaCompiler.getFileManager());
 			return result;
 		} catch (ClassCastException e) {
-			throw new JavaCompilationError(e.getMessage(), vf.sourceLocation(loc));
+			throw new JavaCompilation(e.getMessage(), vf.sourceLocation(loc));
 		} catch (JavaCompilerException e) {
-			throw new JavaCompilationError(e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), vf.sourceLocation(loc));
+			throw new JavaCompilation(e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), vf.sourceLocation(loc));
 		}
 	}
 
@@ -323,35 +323,35 @@ public class JavaBridge {
 			}
 		} 
 		catch(NoClassDefFoundError e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		}
 		catch (IllegalArgumentException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		} catch (InstantiationException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		} catch (IllegalAccessException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		} catch (InvocationTargetException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		} catch (SecurityException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		} catch (NoSuchMethodException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		}
 		
-		throw new JavaMethodLinkError(className, "class not found", func, null);
+		throw new JavaMethodLink(className, "class not found", func, null);
 	}
 
 	public Method lookupJavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, Environment env, boolean hasReflectiveAccess){
 		if(!func.isAbstract()){
-			throw new NonAbstractJavaFunctionError(func);
+			throw new NonAbstractJavaFunction(func);
 		}
 		
 		String className = getClassName(func);
 		String name = Names.name(func.getSignature().getName());
 		
 		if(className.length() == 0){
-			throw new MissingTagError(JAVA_CLASS_TAG, func);
+			throw new MissingTag(JAVA_CLASS_TAG, func);
 		}
 		
 		for(ClassLoader loader : loaders){
@@ -373,14 +373,14 @@ public class JavaBridge {
 				}catch(SecurityException e){
 					throw RuntimeExceptionFactory.permissionDenied(vf.string(e.getMessage()), eval.getCurrentAST(), eval.getStackTrace());
 				}catch(NoSuchMethodException e){
-					throw new UndeclaredJavaMethodError(e.getMessage(), func);
+					throw new UndeclaredJavaMethod(e.getMessage(), func);
 				}
 			}catch(ClassNotFoundException e){
 				continue;
 			}
 		}
 		
-		throw new UndeclaredJavaMethodError(className + "." + name, func);
+		throw new UndeclaredJavaMethod(className + "." + name, func);
 	}
 
 	/**

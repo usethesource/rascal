@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -34,6 +34,13 @@ public abstract class Parameters extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Formals getFormals() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasKeywordFormals() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.KeywordFormals getKeywordFormals() {
     throw new UnsupportedOperationException();
   }
 
@@ -79,20 +86,70 @@ public abstract class Parameters extends AbstractAST {
   
 
   
+  public boolean isDefault() {
+    return false;
+  }
+
+  static public class Default extends Parameters {
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")])
+  
+    
+    private final org.rascalmpl.ast.Formals formals;
+    private final org.rascalmpl.ast.KeywordFormals keywordFormals;
+  
+    public Default(IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
+      super(node);
+      
+      this.formals = formals;
+      this.keywordFormals = keywordFormals;
+    }
+  
+    @Override
+    public boolean isDefault() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitParametersDefault(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Formals getFormals() {
+      return this.formals;
+    }
+  
+    @Override
+    public boolean hasFormals() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.KeywordFormals getKeywordFormals() {
+      return this.keywordFormals;
+    }
+  
+    @Override
+    public boolean hasKeywordFormals() {
+      return true;
+    }	
+  }
   public boolean isVarArgs() {
     return false;
   }
 
   static public class VarArgs extends Parameters {
-    // Production: sig("VarArgs",[arg("org.rascalmpl.ast.Formals","formals")])
+    // Production: sig("VarArgs",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")])
   
     
     private final org.rascalmpl.ast.Formals formals;
+    private final org.rascalmpl.ast.KeywordFormals keywordFormals;
   
-    public VarArgs(IConstructor node , org.rascalmpl.ast.Formals formals) {
+    public VarArgs(IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
       super(node);
       
       this.formals = formals;
+      this.keywordFormals = keywordFormals;
     }
   
     @Override
@@ -114,42 +171,14 @@ public abstract class Parameters extends AbstractAST {
     @Override
     public boolean hasFormals() {
       return true;
-    }	
-  }
-  public boolean isDefault() {
-    return false;
-  }
-
-  static public class Default extends Parameters {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Formals","formals")])
-  
-    
-    private final org.rascalmpl.ast.Formals formals;
-  
-    public Default(IConstructor node , org.rascalmpl.ast.Formals formals) {
-      super(node);
-      
-      this.formals = formals;
+    }
+    @Override
+    public org.rascalmpl.ast.KeywordFormals getKeywordFormals() {
+      return this.keywordFormals;
     }
   
     @Override
-    public boolean isDefault() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitParametersDefault(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Formals getFormals() {
-      return this.formals;
-    }
-  
-    @Override
-    public boolean hasFormals() {
+    public boolean hasKeywordFormals() {
       return true;
     }	
   }

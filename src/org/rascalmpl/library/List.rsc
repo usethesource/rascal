@@ -1162,7 +1162,7 @@ Synopsis: Sort the elements of a list.
 Description:
 Sort the elements of a list:
 # Use the built-in ordering on values to compare list elements.
-# Give an additional `lessThanOrEqual` function that will be used to compare elements.
+# Give an additional `lessThan` function that will be used to compare elements.
 
 Examples:
 <screen>
