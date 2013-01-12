@@ -1,0 +1,5 @@
+Name: Static
+Synopsis: All static errors that can occur before executing of a Rascal program.
+
+Description:
+<toc Errors/Static>
