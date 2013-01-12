@@ -85,4 +85,15 @@ public abstract class StaticError extends RuntimeException {
 		}
 		setStackTrace(stackTrace);
 	}
+	
+	public String getAdvice(){
+		String prefix = "http://127.0.0.1:9000/ErrorMessages/";
+		String cn = getClass().getSimpleName();
+		return "<A HREF=\"" + prefix + cn + "/" + cn + ".html\"" + ">Advice</A>";
+	}
+	
+	@Override
+	public String getMessage(){
+		return super.getMessage() + "\n" + getAdvice();
+	}
 }
