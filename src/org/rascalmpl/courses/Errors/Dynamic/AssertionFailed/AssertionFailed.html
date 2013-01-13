@@ -52,7 +52,52 @@
                            
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  An <a href="/Rascal/Statements/Assert/Assert.html">Rascal:Assert</a> statement can be used to check assumptions during the execution of a Rascal program.
+ This error is generated if an assertion is not true.
+ <br/>
+<br/>
+
+ Remedies:
+ <ul><li> Modify your code to make the assertion true.</li>
+<li> Modify your assertion to reflect the current behaviour of your code.</li>
+<li> Catch the <code>AssertionFailed</code> yourself, see <a href="/Rascal/Statements/TryCatch/TryCatch.html">Rascal:TryCatch</a>.</li>
+</ul>
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>    A false assertion gives an error:
+<pre class="screen"><span class="prompt">rascal></span>assert 3 &gt; 4;
+|stdin:///|(0,13,&lt;1,0>,&lt;1,13>): AssertionFailed()
+	somewhere in: ___SCREEN_INSTANCE___
+
+
+</pre>  Define a function that only increments positive integers:
+<pre class="screen"><span class="prompt">rascal></span>int incrPositive(int n) { assert n &gt; 0; return n + 1; }
+int (int): int incrPositive(int);
+</pre>  Calling it with a positive integer is fine:
+<pre class="screen"><span class="prompt">rascal></span>incrPositive(3);
+int: 4
+</pre>  But a negative argument gives an error:
+<pre class="screen"><span class="prompt">rascal></span>incrPositive(-3);
+|stdin:///|(26,13,&lt;1,26>,&lt;1,39>): AssertionFailed()
+	somewhere in: incrPositive
+	somewhere in: ___SCREEN_INSTANCE___
+
+
+</pre>  We can also catch the <code>AssertionFailed</code> error. First import the Rascal exceptions (which are also included in <code>Prelude</code>)
+  and <code>IO</code>:
+<pre class="screen"><span class="prompt">rascal></span>import Exception;
+ok
+<span class="prompt">rascal></span>import IO;
+ok
+<span class="prompt">rascal></span>try println(incrPositive(-3)); catch AssertionFailed(): println(&quot;incrPositive applied to an not positive argument&quot;);
+incrPositive applied to an not positive argument
+ok
+</pre>
+</div>
+
   	                       
   	                       
   	                       

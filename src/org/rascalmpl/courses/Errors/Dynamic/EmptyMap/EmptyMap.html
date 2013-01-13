@@ -8,7 +8,7 @@
 <head>
 <title>Errors/Dynamic/EmptyMap</title>
 
-<meta name="description" content="Errors/Dynamic/EmptyMap:  Operation on empty map.">
+<meta name="description" content="Errors/Dynamic/EmptyMap:  Illegal operation on an empty set.">
 
 <meta name="keywords" content="Errors/Dynamic/EmptyMap, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Operation on empty map.
+<span class="sectionHead">Synopsis</span>  Illegal operation on an empty set.
 
 </div>
 
@@ -52,7 +52,45 @@
                            
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  Rascal provides many operations and functions on maps, see <a href="/Rascal/Expressions/Values/Map/Map.html">Rascal:Values/Map</a> and <a href="/Rascal/Libraries/Prelude/Map/Map.html">Rascal:Prelude/Map</a>.
+ This error is generated when a function or operations cannot handle the empty map.
+ <br/>
+<br/>
+
+ Remedies: 
+ <ul><li> Guard the function or operation with a test on the empty map (<a href="/Rascal/Libraries/Prelude/Map/isEmpty/isEmpty.html">Rascal:isEmpty</a>) and    take alternative action in that case.
+</li>
+<li> Catch the <code>EmptyMap</code> yourself, see <a href="/Rascal/Statements/TryCatch/TryCatch.html">Rascal:TryCatch</a>.</li>
+</ul>
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>    Import the <code>Map</code> library and introduce <code>M</code> with an empty map as value:
+<pre class="screen"><span class="prompt">rascal></span>import Map;
+ok
+<span class="prompt">rascal></span>M = ();
+map[void, void]: ()
+</pre>  Trying to get an arbitrary value from it gives an error:
+<pre class="screen"><span class="prompt">rascal></span>getOneFrom(M);
+|std:///Map.rsc|(1553,389,&lt;77,0>,&lt;92,43>): EmptyMap()
+	/Map.rsc:77,0
+	somewhere in: getOneFrom
+
+
+</pre>  We can also catch the <code>EmptyMap</code> error. First import the Rascal exceptions (which are also included in <code>Prelude</code>)
+  and <code>IO</code>:
+<pre class="screen"><span class="prompt">rascal></span>import Exception;
+ok
+<span class="prompt">rascal></span>import IO;
+ok
+<span class="prompt">rascal></span>try println(getOneFrom(M)); catch EmptyMap(): println(&quot;Cannot use getOneFrom on empty map&quot;);
+Cannot use getOneFrom on empty map
+ok
+</pre>
+</div>
+
   	                       
   	                       
   	                       

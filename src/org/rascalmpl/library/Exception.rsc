@@ -62,7 +62,7 @@ data RuntimeException =
      | FileNotFound(str file)
      | SchemeNotSupported(loc l)
      | HostNotFound(loc l)
-     | AccessDenied(loc l)
+//     | AccessDenied(loc l)
      | PermissionDenied()
      | PermissionDenied(str message)
      | ModuleNotFound(str name)

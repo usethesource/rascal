@@ -6,11 +6,11 @@
 
 
 <head>
-<title>Errors/Dynamic/EmptyList</title>
+<title>Errors/Dynamic/ArithmeticException</title>
 
-<meta name="description" content="Errors/Dynamic/EmptyList:  Illegal operation on an empty list.">
+<meta name="description" content="Errors/Dynamic/ArithmeticException:  An arihmetic error occurred">
 
-<meta name="keywords" content="Errors/Dynamic/EmptyList, Rascal, meta-programming, software analysis, software transformation">
+<meta name="keywords" content="Errors/Dynamic/ArithmeticException, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/jquery-1.4.2.min.js"></script>
@@ -29,7 +29,7 @@
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
-    <input type="hidden" name="concept" value="Errors/Dynamic/EmptyList">
+    <input type="hidden" name="concept" value="Errors/Dynamic/ArithmeticException">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
   </form>
@@ -40,11 +40,11 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="/Errors/Errors.html">Errors</a>/<a href="/Errors/Dynamic/Dynamic.html">Dynamic</a>/<a href="/Errors/Dynamic/EmptyList/EmptyList.html">EmptyList</a>
+<span class="sectionHead">Name</span> <a href="/Errors/Errors.html">Errors</a>/<a href="/Errors/Dynamic/Dynamic.html">Dynamic</a>/<a href="/Errors/Dynamic/ArithmeticException/ArithmeticException.html">ArithmeticException</a>
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Illegal operation on an empty list.
+<span class="sectionHead">Synopsis</span>  An arihmetic error occurred
 
 </div>
 
@@ -53,47 +53,40 @@
                            
                            
 <div id="Description">
-<span class="sectionHead">Description</span>  Rascal provides many operations and functions on lists, see <a href="/Rascal/Expressions/Values/List/List.html">Rascal:Values/List</a> and <a href="/Rascal/Libraries/Prelude/List/List.html">Rascal:Prelude/List</a>.
- This error is generated when a function or operation cannot handle the empty list.
+<span class="sectionHead">Description</span>  This error is generated when an illegal arithmetic operation occurs or when
+ a numeric function  is called with an out-of-range argument.
  <br/>
 <br/>
 
  Remedies:
- <ul><li> Guard the function or operation with a test on the empty list (<a href="/Rascal/Libraries/Prelude/List/isEmpty/isEmpty.html">Rascal:isEmpty</a>) and    take alternative action in that case.
-</li>
-<li> Catch the <code>EmptyList</code> yourself, see <a href="/Rascal/Statements/TryCatch/TryCatch.html">Rascal:TryCatch</a>.</li>
+ <ul><li> Check the validity of the argument before you call the function or apply the operator.</li>
+<li> Catch the <code>ArithmeticException</code> yourself, see <a href="/Rascal/Statements/TryCatch/TryCatch.html">Rascal:TryCatch</a>.</li>
 </ul>
 </div>
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>    Import the <code>List</code> library and introduce <code>L</code> with an empty list as value:
-<pre class="screen"><span class="prompt">rascal></span>import List;
+<span class="sectionHead">Examples</span>    Division by 0 gives an error:
+<pre class="screen"><span class="prompt">rascal></span>3/0;
+|stdin:///|(2,1,&lt;1,2>,&lt;1,3>): ArithmeticException("/ by zero")
+
+</pre>  Giving an out-of-range argument to a mathematical function also gives an error:
+<pre class="screen"><span class="prompt">rascal></span>import util::Math;
 ok
-<span class="prompt">rascal></span>L = [];
-list[void]: []
-</pre>  Taking the head of an empty list gives an error:
-<pre class="screen"><span class="prompt">rascal></span>head(L);
-|std:///List.rsc|(4608,1037,&lt;211,0>,&lt;250,51>): EmptyList()
-	/List.rsc:211,0
-	somewhere in: head
+<span class="prompt">rascal></span>tan(-550000000000000000000000);
+|std:///util/Math.rsc|(9177,247,&lt;478,0>,&lt;491,28>): ArithmeticException("Division impossible")
+	/util/Math.rsc:478,0
+	somewhere in: tan
 
 
-</pre>  This is the case when taking the tail as well:
-<pre class="screen"><span class="prompt">rascal></span>tail(L);
-|std:///List.rsc|(25112,941,&lt;1237,0>,&lt;1281,40>): EmptyList()
-	/List.rsc:1237,0
-	somewhere in: tail
-
-
-</pre>  We can also catch the <code>EmptyList</code> error. First import the Rascal exceptions (which are also included in <code>Prelude</code>)
+</pre>  We can also catch the <code>ArithmeticException</code> error. First import the Rascal exceptions (which are also included in <code>Prelude</code>)
   and <code>IO</code>:
 <pre class="screen"><span class="prompt">rascal></span>import Exception;
 ok
 <span class="prompt">rascal></span>import IO;
 ok
-<span class="prompt">rascal></span>try println(head(L)); catch EmptyList(): println(&quot;Cannot take head of empty list&quot;);
-Cannot take head of empty list
+<span class="prompt">rascal></span>try println(3/0); catch ArithmeticException(msg): println(&quot;The message is: &lt;msg&gt;&quot;);
+The message is: / by zero
 ok
 </pre>
 </div>
@@ -101,8 +94,8 @@ ok
   	                       
   	                       
   	                       
-<a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Dynamic/EmptyList&new=false"><b>Edit</b></a>] | 
-               [<a id="newAction" href="/edit?concept=Errors/Dynamic/EmptyList&new=true"><b>New Subconcept</b></a>] |
+<a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Dynamic/ArithmeticException&new=false"><b>Edit</b></a>] | 
+               [<a id="newAction" href="/edit?concept=Errors/Dynamic/ArithmeticException&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Errors/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>

@@ -487,6 +487,7 @@ import util::Math;
 tan(45 * PI() / 180)
 </screen>
 }
+
 @javaClass{org.rascalmpl.library.util.Math}
 public java real tan(num x);
 

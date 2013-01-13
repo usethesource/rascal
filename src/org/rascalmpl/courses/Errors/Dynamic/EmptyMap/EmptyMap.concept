@@ -1,6 +1,6 @@
 Name: EmptyMap
 
-Synopsis: Operation on empty map.
+Synopsis: Illegal operation on an empty set.
 
 Syntax:
 
@@ -13,8 +13,27 @@ Usage:
 Details:
 
 Description:
+Rascal provides many operations and functions on maps, see [Rascal:Values/Map] and [Rascal:Prelude/Map].
+This error is generated when a function or operations cannot handle the empty map.
+
+Remedies: 
+* Guard the function or operation with a test on the empty map ([$Rascal:Map/isEmpty]) and 
+  take alternative action in that case.
+* Catch the `EmptyMap` yourself, see [Rascal:TryCatch].
 
 Examples:
+<screen warnings>
+// Import the `Map` library and introduce `M` with an empty map as value:
+import Map;
+M = ();
+// Trying to get an arbitrary value from it gives an error:
+getOneFrom(M);
+// We can also catch the `EmptyMap` error. First import the Rascal exceptions (which are also included in `Prelude`)
+// and `IO`:
+import Exception;
+import IO;
+try println(getOneFrom(M)); catch EmptyMap(): println("Cannot use getOneFrom on empty map");
+</screen>
 
 Benefits:
 
@@ -22,4 +41,5 @@ Pitfalls:
 
 Questions:
 
+       
        

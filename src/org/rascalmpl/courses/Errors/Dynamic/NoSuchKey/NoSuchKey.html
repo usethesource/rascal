@@ -52,7 +52,51 @@
                            
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  Rascal provides many operations and functions on maps, see <a href="/Rascal/Expressions/Values/Map/Map.html">Rascal:Values/Map</a> and <a href="/Rascal/Libraries/Prelude/Map/Map.html">Rascal:Prelude/Map</a>.
+ This error is generated when a function or operation cannot find a requested key value in a map.
+ <br/>
+<br/>
+
+ Remedies: 
+ <ul><li> Use the <a href="/Rascal/Expressions/Values/Boolean/IsDefined/IsDefined.html">Rascal:IsDefined</a> or <a href="/Rascal/Expressions/Values/Boolean/IfDefinedElse/IfDefinedElse.html">Rascal:IfDefinedElse</a> operator to guard a lookup in a map.</li>
+<li> Catch the <code>NoSuchKey</code> yourself, see <a href="/Rascal/Statements/TryCatch/TryCatch.html">Rascal:TryCatch</a>.</li>
+</ul>
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>    Import the <code>Map</code> and <code>IO</code> libraries and introduce map <code>M</code>:
+<pre class="screen"><span class="prompt">rascal></span>import Map;
+ok
+<span class="prompt">rascal></span>import IO;
+ok
+<span class="prompt">rascal></span>M = (&quot;a&quot; : 1, &quot;b&quot; : 2);
+map[str, int]: ("b":2,"a":1)
+</pre>  Indexing <code>M</code> with a non-existing key gives an error:
+<pre class="screen"><span class="prompt">rascal></span>M[&quot;c&quot;]
+|stdin:///|(2,3,&lt;1,2>,&lt;1,5>): NoSuchKey("c")
+	somewhere in: ___SCREEN_INSTANCE___
+
+
+</pre>  Use the postfix isDefined operator <code>?</code> to test whether the value is defined:
+<pre class="screen"><span class="prompt">rascal></span>if(M[&quot;c&quot;]?) println(&quot;defined&quot;); else println(&quot;not defined&quot;);
+not defined
+ok
+</pre>  Or use the binary ifDefinedElse operator <code>?</code> to return an alternative value
+  when the value of <code>M["c"]</code> is undefined:
+<pre class="screen"><span class="prompt">rascal></span>M[&quot;c&quot;] ? 3
+int: 3
+</pre>  Yet another solution is to use try/catch.
+  First we import the Rascal exceptions (which are also included in <code>Prelude</code>):
+<pre class="screen"><span class="prompt">rascal></span>import Exception;
+ok
+<span class="prompt">rascal></span>try println(M[&quot;c&quot;]); catch NoSuchKey(k): println(&quot;Key &lt;k&gt; does not exist&quot;);
+Key c does not exist
+ok
+</pre>
+</div>
+
   	                       
   	                       
   	                       
