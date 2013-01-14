@@ -1,6 +1,6 @@
 Name: IllegalArgument
 
-Synopsis: A function is called with an illegal argument value.
+Synopsis: A function or operation is applied to an illegal argument value.
 
 Syntax:
 

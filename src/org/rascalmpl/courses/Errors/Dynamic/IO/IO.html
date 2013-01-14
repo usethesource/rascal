@@ -52,7 +52,53 @@
                            
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  This error can be generated for many reasons.
+ <br/>
+<br/>
+
+ First there may be a problem in the <a href="/Rascal/Expressions/Values/Location/Location.html">Rascal:Location</a> that is used.
+ It maybe that the <i>schemes</i> is not supported.
+ Examples of supported schemes include <code>http</code>, <code>file</code>, <code>home</code>, <code>std</code>, <code>rascal</code> and <code>project</code>.
+ It can also be the case that the <i>host</i> that occurs in the location cannot be found.
+ <br/>
+<br/>
+
+ Second, while trying to open the file things can go wrong like insufficient access rights
+ <br/>
+<br/>
+
+ Finally, actual reading or writing can fail (device failure, device full, and the like).
+ <br/>
+<br/>
+
+ Remedies:
+ <ul><li> Check for any errors in the location you are using.</li>
+<li> Check that you are allowed to read or write the resource indicated by the location.</li>
+<li> Catch <code>IO</code> using a <a href="/Rascal/Statements/TryCatch/TryCatch.html">Rascal:TryCatch</a>.</li>
+</ul>
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  Import the <code>IO</code> library and attempt to use a non-existing scheme:
+ <pre class="screen"><span class="prompt">rascal></span>import IO;
+ok
+<span class="prompt">rascal></span>readFile(|myScheme:///example.rsc|);
+|std:///IO.rsc|(9841,1648,&lt;403,0>,&lt;437,72>): IO("Unsupported scheme myScheme")
+	/IO.rsc:403,0
+	somewhere in: readFile
+
+
+</pre>  We can catch this <code>IO</code> error. First import the Rascal exceptions (which are also included in <code>Prelude</code>):
+<pre class="screen"><span class="prompt">rascal></span>import Exception;
+ok
+<span class="prompt">rascal></span>try readFileLines(|myScheme:///example.rsc|); catch IO(msg): println(&quot;This did not work: &lt;msg&gt;&quot;);
+This did not work: Unsupported scheme myScheme
+ok
+</pre>
+</div>
+
   	                       
   	                       
   	                       

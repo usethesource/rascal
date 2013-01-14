@@ -8,7 +8,7 @@
 <head>
 <title>Errors/Dynamic/IllegalArgument</title>
 
-<meta name="description" content="Errors/Dynamic/IllegalArgument:  A function is called with an illegal argument value.">
+<meta name="description" content="Errors/Dynamic/IllegalArgument:  A function or operation is applied to an illegal argument value.">
 
 <meta name="keywords" content="Errors/Dynamic/IllegalArgument, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  A function is called with an illegal argument value.
+<span class="sectionHead">Synopsis</span>  A function or operation is applied to an illegal argument value.
 
 </div>
 
@@ -57,132 +57,7 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>NOW = $2013-01-13T22:16:51.740+01:00;
 datetime: $2013-01-13T22:16:51.740+01:00
 <span class="prompt">rascal></span>NOW.month = 13;
-org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException: Cannot create datetime with provided values.(internal error)	somewhere in: shell
-	somewhere in: markup
-	somewhere in: markup
-	somewhere in: compileConcept
-	somewhere in: compileCourse
-	somewhere in: compile
-	somewhere in: ___TUTOR___
-org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException: Cannot create datetime with provided values.
-	at org.eclipse.imp.pdb.facts.impl.DateTimeValues$DateTimeValue.&lt;init>(DateTimeValues.java:565)
-	at org.eclipse.imp.pdb.facts.impl.BaseValueFactory.datetime(BaseValueFactory.java:230)
-	at org.rascalmpl.interpreter.result.DateTimeResult.fieldUpdate(DateTimeResult.java:260)
-	at org.rascalmpl.semantics.dynamic.Assignable$FieldAccess.assignment(Assignable.java:317)
-	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:195)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:788)
-	at org.rascalmpl.semantics.dynamic.Command$Statement.interpret(Command.java:115)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:1007)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:872)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:822)
-	at org.rascalmpl.tutor.HTMLGenerator.eval(HTMLGenerator.java:182)
-	at org.rascalmpl.tutor.HTMLGenerator.shell(HTMLGenerator.java:116)
-	at sun.reflect.GeneratedMethodAccessor129.invoke(Unknown Source)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
-	at java.lang.reflect.Method.invoke(Method.java:597)
-	at org.rascalmpl.interpreter.result.JavaMethod.invoke(JavaMethod.java:134)
-	at org.rascalmpl.interpreter.result.JavaMethod.call(JavaMethod.java:108)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:484)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:351)
-	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:194)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:747)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:929)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:922)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:747)
-	at org.rascalmpl.semantics.dynamic.Statement$While.interpret(Statement.java:1080)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:929)
-	at org.rascalmpl.semantics.dynamic.Statement$TryFinally.interpret(Statement.java:974)
-	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:425)
-	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:373)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:484)
-	at org.rascalmpl.semantics.dynamic.Expression$Tuple.interpret(Expression.java:2650)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:351)
-	at org.rascalmpl.semantics.dynamic.Statement$Return.interpret(Statement.java:771)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:747)
-	at org.rascalmpl.interpreter.Evaluator.matchAndEval(Evaluator.java:1642)
-	at org.rascalmpl.interpreter.utils.Cases$DefaultBlock.matchAndEval(Cases.java:199)
-	at org.rascalmpl.semantics.dynamic.Statement$Switch.interpret(Statement.java:888)
-	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:425)
-	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:373)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:484)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:351)
-	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:194)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:747)
-	at org.rascalmpl.semantics.dynamic.Statement$While.interpret(Statement.java:1080)
-	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:425)
-	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:373)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:484)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:466)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:351)
-	at org.rascalmpl.interpreter.StringTemplateConverter<i>Visitor</i>IndentingAppend.interpret(StringTemplateConverter.java:110)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:747)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:747)
-	at org.rascalmpl.semantics.dynamic.Statement$For.interpret(Statement.java:454)
-	at org.rascalmpl.semantics.dynamic.Literal$String.interpret(Literal.java:237)
-	at org.rascalmpl.semantics.dynamic.Expression$Literal.interpret(Expression.java:1560)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:351)
-	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:194)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:747)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:929)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:922)
-	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:425)
-	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:373)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:484)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:351)
-	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:194)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:747)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:929)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:922)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:747)
-	at org.rascalmpl.semantics.dynamic.Statement$For.interpret(Statement.java:454)
-	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:425)
-	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:373)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:484)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:351)
-	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:194)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:747)
-	at org.rascalmpl.semantics.dynamic.Statement$IfThenElse.interpret(Statement.java:667)
-	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:425)
-	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:373)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:251)
-	at org.rascalmpl.interpreter.Evaluator.call(Evaluator.java:490)
-	at org.rascalmpl.tutor.Compile.doGet(Compile.java:40)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:707)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
-	at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:547)
-	at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:481)
-	at org.eclipse.jetty.server.session.SessionHandler.doHandle(SessionHandler.java:225)
-	at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:940)
-	at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:409)
-	at org.eclipse.jetty.server.session.SessionHandler.doScope(SessionHandler.java:186)
-	at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:874)
-	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:117)
-	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:110)
-	at org.eclipse.jetty.server.Server.handle(Server.java:349)
-	at org.eclipse.jetty.server.HttpConnection.handleRequest(HttpConnection.java:441)
-	at org.eclipse.jetty.server.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:904)
-	at org.eclipse.jetty.http.HttpParser.parseNext(HttpParser.java:565)
-	at org.eclipse.jetty.http.HttpParser.parseAvailable(HttpParser.java:217)
-	at org.eclipse.jetty.server.AsyncHttpConnection.handle(AsyncHttpConnection.java:46)
-	at org.eclipse.jetty.io.nio.SelectChannelEndPoint.handle(SelectChannelEndPoint.java:545)
-	at org.eclipse.jetty.io.nio.SelectChannelEndPoint$1.run(SelectChannelEndPoint.java:43)
-	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:598)
-	at org.eclipse.jetty.util.thread.QueuedThreadPool$3.run(QueuedThreadPool.java:533)
-	at java.lang.Thread.run(Thread.java:680)
+|stdin:///|(12,2,&lt;1,12>,&lt;1,14>): IllegalArgument(13,"Cannot create datetime with provided values.")
 
 </pre>
 </div>
