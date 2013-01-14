@@ -136,8 +136,11 @@ public str prod2rascal(Production p) {
     case prod(label(str n,Symbol rhs),list[Symbol] lhs,set[Attr] as) :
         return "<for (a <- as) {><attr2mod(a)><}> <reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
  
+    case prod(Symbol rhs,list[Symbol] lhs,{}) :
+      	return "<for(s <- lhs){><symbol2rascal(s)> <}>";
+ 
     case prod(Symbol rhs,list[Symbol] lhs,set[Attr] as) :
-      	return "<for (a <- as) {><attr2mod(a)><}> <for(s <- lhs){><symbol2rascal(s)> <}>";
+      	return "<for (a <- as) {><attr2mod(a)><}>: <for(s <- lhs){><symbol2rascal(s)> <}>";
  
     case regular(_) :
     	    return "";
@@ -179,8 +182,7 @@ public str attr2mod(Attr a) {
     case \bracket(): return "bracket";
     case \tag(str x(str y)) : return "@<x>=\"<escape(y)>\"";
     case \tag(str x()) : return "@<x>";
-    case \tag(value x) : return "/*<x>*/";
-    default : return "/*<a>*/";
+    default : return "@Unsupported(\"<escape("<a>")>\")";
   }
 }
 
