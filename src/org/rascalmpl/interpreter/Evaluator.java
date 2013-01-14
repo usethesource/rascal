@@ -145,7 +145,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private AbstractAST currentAST; // used in runtime errormessages
 
 	private static boolean doProfiling = false;
-	private boolean useNewParser = false;
+	private boolean useNewParser = true;
 	private Profiler profiler;
 
 	private final TypeDeclarationEvaluator typeDeclarator;
