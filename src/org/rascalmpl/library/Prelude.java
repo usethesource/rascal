@@ -962,7 +962,10 @@ public class Prelude {
 	public IValue lastModified(ISourceLocation sloc, IEvaluatorContext ctx) {
 		try {
 			return values.datetime(ctx.getResolverRegistry().lastModified(sloc.getURI()));
-		} catch (IOException e) {
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+		}
+		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
@@ -987,6 +990,8 @@ public class Prelude {
 				w.append(values.string(entry));
 			}
 			return w.done();
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
 		} 
@@ -1006,7 +1011,10 @@ public class Prelude {
 			if (c != null)
 				return readFileEnc(sloc, values.string(c.name()), ctx);
 			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI()), ctx);
-		} catch (IOException e) {
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
+		}
+		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
@@ -1014,6 +1022,8 @@ public class Prelude {
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		try {
 			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI(), charset.getValue()), ctx);
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
@@ -1037,15 +1047,15 @@ public class Prelude {
 			
 			return values.string(str);
 		}catch(FileNotFoundException fnfex){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 		}finally{
 			if(in != null){
 				try{
 					in.close();
 				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 				}
 			}
 		}
@@ -1068,17 +1078,17 @@ public class Prelude {
 			
 			return values.string(new String(md.digest()));
 		}catch(FileNotFoundException fnfex){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 		} catch (NoSuchAlgorithmException e) {
-			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), null, null);
+			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), ctx.getCurrentAST(), null);
 		}finally{
 			if(in != null){
 				try{
 					in.close();
 				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 				}
 			}
 		}
@@ -1105,16 +1115,16 @@ public class Prelude {
 					detected = UnicodeDetector.estimateCharset(in);
 				}
 			}catch(FileNotFoundException fnfex){
-				throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+				throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 			} catch (IOException e) {
-				throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+				throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
 			}
 			finally {
 				if (in != null) {
 					try {
 						in.close();
 					} catch (IOException e) {
-						throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+						throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
 					}
 				}
 			}
@@ -1151,15 +1161,15 @@ public class Prelude {
 				}
 			}
 		}catch(FileNotFoundException fnfex){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 		}finally{
 			if(out != null){
 				try{
 					out.close();
 				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 				}
 			}
 		}
@@ -1183,9 +1193,9 @@ public class Prelude {
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
 		}
 	}
 	
@@ -1195,9 +1205,9 @@ public class Prelude {
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
 		}
 	}
 
@@ -1244,13 +1254,13 @@ public class Prelude {
 				}
 			}while(line != null);
 		}catch(IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
 		}finally{
 			if(in != null){
 				try{
 					in.close();
 				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 				}
 			}
 		}
@@ -1276,15 +1286,15 @@ public class Prelude {
 				}
 			}while(read != -1);
 		}catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
 		}finally{
 			if(in != null){
 				try{
 					in.close();
 				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 				}
 			}
 		}
