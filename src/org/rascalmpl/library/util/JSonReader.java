@@ -43,6 +43,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+
 import org.eclipse.imp.pdb.facts.io.AbstractBinaryReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -51,6 +52,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 
 import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.util.Calendar;
 
 // TODO: add support for values of type Value, for this we need overloading resolving
 public class JSonReader extends AbstractBinaryReader {
@@ -251,13 +253,15 @@ public class JSonReader extends AbstractBinaryReader {
 			throws IOException {
 		IValue result;
 		String str = parseStringLiteral(reader);
-		result = expected.make(vf, str);
+		if (expected.isDateTimeType())
+			result = dateTime(str);
+		else
+			result = expected.make(vf, str);
 		reader.readSkippingWS(); /* " */
 		return result;
 	}
 
-	private IValue parseBoolean(JSonStream reader)
-			throws IOException {
+	private IValue parseBoolean(JSonStream reader) throws IOException {
 		IValue result;
 		String str = parseBooleanLiteral(reader);
 		if (!str.equalsIgnoreCase("true") && !str.equalsIgnoreCase("false"))
@@ -267,19 +271,17 @@ public class JSonReader extends AbstractBinaryReader {
 		reader.readSkippingWS(); /* e */
 		return result;
 	}
-	
-	private IValue parseNull(JSonStream reader)
-			throws IOException {
+
+	private IValue parseNull(JSonStream reader) throws IOException {
 		IValue result;
 		String str = parseNullLiteral(reader);
 		if (!str.equalsIgnoreCase("null"))
-			throw new FactParseError("null expected but found:" + str
-					+ ".", reader.getPosition());
+			throw new FactParseError("null expected but found:" + str + ".",
+					reader.getPosition());
 		result = vf.string(str);
 		reader.readSkippingWS(); /* l */
 		return result;
 	}
-
 
 	private IValue parseList(JSonStream reader, Type expected)
 			throws IOException {
@@ -389,7 +391,7 @@ public class JSonReader extends AbstractBinaryReader {
 		} while (reader.getLastChar() != 'e');
 		return str.toString();
 	}
-	
+
 	private String parseNullLiteral(JSonStream reader) throws IOException {
 		StringBuilder str = new StringBuilder();
 		str.append((char) reader.getLastChar());
@@ -471,9 +473,19 @@ public class JSonReader extends AbstractBinaryReader {
 	IValue dateTime(String s) {
 		final String formatString = "yyyy-MM-dd HH:mm:ss.SSSZ";
 		try {
-			SimpleDateFormat fmt = new SimpleDateFormat(formatString);
-			Date dt = fmt.parse(s);
-			return vf.datetime(dt.getTime());
+			java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(
+					formatString);
+			fmt.setLenient(false);
+			fmt.parse(s);
+			java.util.Calendar cal = fmt.getCalendar();
+			int zoneHours = cal.get(Calendar.ZONE_OFFSET) / (1000 * 60 * 60);
+			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60;
+			return vf.datetime(cal.get(Calendar.YEAR),
+					cal.get(Calendar.MONTH) + 1,
+					cal.get(Calendar.DAY_OF_MONTH),
+					cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE),
+					cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND),
+					zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError(
 					"Cannot parse input datetime: " + s
@@ -547,6 +559,74 @@ public class JSonReader extends AbstractBinaryReader {
 		return w.done();
 	}
 
+	private IValue[] toArray(IList a) {
+		IValue[] r = new IValue[a.length()];
+		for (int i = 0; i < r.length; i++)
+			r[i] = a.get(i);
+		return r;
+	}
+
+	private IValue[] matched(Type found, IValue[] computed) {
+		if (!found.isConstructorType())
+			return null;
+		if (found.getArity() != computed.length)
+			return null;
+		int n = found.getArity();
+		IValue[] b = new IValue[n];
+		int i = 0;
+		for (; i < n; i++) {
+			if (debug)
+				System.err.println("matched:" + computed[i].getType() + " "
+						+ computed[i].getType().isListType());
+			if (computed[i].getType().isListType()) {
+				IList v = (IList) computed[i];
+				if (found.getFieldType(i).isSetType())
+					b[i] = vf.set(toArray(v));
+				else if (found.getFieldType(i).isTupleType())
+					b[i] = vf.tuple(toArray(v));
+				else if (found.getFieldType(i).isRationalType()) {
+					IValue[] w = toArray(v);
+					int dn = ((IInteger) w[0]).intValue(), nm = ((IInteger) w[1])
+							.intValue();
+					b[i] = vf.rational(dn, nm);
+				} else if (found.getFieldType(i).isMapType()) {
+					IValue[] g = toArray(v);
+					IMapWriter w = vf.mapWriter();
+					for (int j = 0; j < g.length; j++) {
+						w.put(((IList) g[j]).get(0), ((IList) g[j]).get(1));
+					}
+					b[i] = w.done();
+				} else if (found.getFieldType(i).isListType())
+					b[i] = computed[i];
+				else
+					break;
+			} else if (computed[i].getType().isStringType()) {
+				if (found.getFieldType(i).isSourceLocationType()) {
+					try {
+						final URI uri = new URI(
+								((IString) computed[i]).getValue());
+						b[i] = vf.sourceLocation(uri);
+					} catch (URISyntaxException e) {
+						b[i] = null;
+					}
+
+				} else if (found.getFieldType(i).isDateTimeType()) {
+					b[i] = dateTime(((IString) computed[i]).getValue());
+				} else if (found.getFieldType(i).isStringType()) {
+					b[i] = computed[i];
+				}
+			} else {
+				if (computed[i].getType().isSubtypeOf(found.getFieldType(i)))
+					b[i] = computed[i];
+				else
+					break;
+			}
+		}
+		if (i == n)
+			return b;
+		return null;
+	}
+
 	@SuppressWarnings("unused")
 	private IValue buildTerm(IMap t, Type type) {
 		INode result;
@@ -583,7 +663,7 @@ public class JSonReader extends AbstractBinaryReader {
 		HashMap<String, IValue> map = new HashMap<String, IValue>();
 		IMap annoMap = (IMap) t.get(annoKey);
 		if (annoMap != null) {
-			Iterator<IValue> iterator = annoMap.iterator();		
+			Iterator<IValue> iterator = annoMap.iterator();
 			while (iterator.hasNext()) {
 				IValue k = iterator.next();
 				String ky = ((IString) k).getValue();
@@ -620,36 +700,52 @@ public class JSonReader extends AbstractBinaryReader {
 		if (funname.equals("#datetime"))
 			return dateTime(((IString) a[0]).getValue());
 
-		Type types = tf.tupleType(b);
+		Type computed = tf.tupleType(b);
 		if (debug)
 			System.err.println("lookupFirstConstructor:" + funname + " "
-					+ types + " " + type);
-		Type node = null;
+					+ computed + " " + type);
+		Type found = null;
 		if (type.isAbstractDataType())
-			node = ts.lookupConstructor(type, funname, types);
-		if (node == null)
-			node = ts.lookupFirstConstructor(funname, types);
-		if (node == null) {
+			found = ts.lookupConstructor(type, funname, computed);
+		if (found == null)
+			found = ts.lookupFirstConstructor(funname, computed);
+		ArrayList<IValue[]> r = new ArrayList<IValue[]>();
+		ArrayList<Type> f = new ArrayList<Type>();
+		if (found == null) {
 			Set<Type> nodes = ts.lookupConstructors(funname);
+			if (debug)
+				System.err.println("Number of nodes found:" + nodes.size());
 			Iterator<Type> it = nodes.iterator();
 			while (it.hasNext()) {
-				node = it.next();
-				if (types.getArity() == node.getArity())
+				found = it.next();
+				IValue[] v = matched(found, a);
+				if (v == null)
 					break;
-				node = null;
+				r.add(v);
+				f.add(found);
+			}
+			if (r.size() != 1)
+				found = null;
+			else {
+				found = f.get(0);
+				a = r.get(0);
 			}
 		}
 		if (debug)
-			System.err.println("node2=" + node);
-		if (node == null) {
+			System.err.println("JSonReader found:" + r.size());
+		if (debug)
+			System.err.println("node2=" + found);
+		if (found == null) {
 			result = vf.node(funname, a);
 		} else {
-			if (node.isAliasType())
-				node = node.getAliased();
-			result = (INode) node.make(vf, a);
+			if (found.isAliasType())
+				found = found.getAliased();
+			result = (INode) found.make(vf, a);
+			if (debug)
+				System.err.println("JSonReader result:" + result);
 		}
 		if (annoMap != null)
-			result=result.setAnnotations(map);
+			result = result.setAnnotations(map);
 		return result;
 	}
 
