@@ -106,11 +106,9 @@ public class IO {
 	
 	private IValue read(Type resultType, ISourceLocation loc, IMap options, IEvaluatorContext ctx) {
 		setOptions(options);
-		InputStream in = null;
 		Reader reader = null;
 		try {
-			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
-			reader = new UnicodeInputStreamReader(in, ctx.getResolverRegistry().getCharset(loc.getURI()));
+			reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI());
 			List<Record> records = loadRecords(reader);
 			if (resultType == null) {
 				resultType = inferType(records, ctx);
@@ -126,12 +124,9 @@ public class IO {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		finally {
-			if (in != null){
+			if (reader != null) {
 				try {
-					in.close();
-					if (reader != null) {
-						reader.close();
-					}
+					reader.close();
 				} catch (IOException e){
 					throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
 				}

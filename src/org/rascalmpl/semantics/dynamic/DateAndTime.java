@@ -18,6 +18,7 @@ import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -56,6 +57,8 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 				IValue result = parser.read(VF, new StringReader("$" + datePart + "T" + timePart));
 				return makeResult(TF.dateTimeType(), result, eval);
 			} catch (FactTypeUseException e) {
+				throw new DateTimeSyntax(e.getMessage(), eval.getCurrentAST().getLocation());
+			} catch (FactParseError e) {
 				throw new DateTimeSyntax(e.getMessage(), eval.getCurrentAST().getLocation());
 			} catch (IOException e) {
 				throw new ImplementationError(e.getMessage());

@@ -72,7 +72,7 @@ public class HttpURIResolver implements IURIInputStreamResolver {
 	public Charset getCharset(URI uri) throws IOException {
 		try {
 			String encoding = uri.toURL().openConnection().getContentEncoding();
-			if (Charset.isSupported(encoding)) {
+			if (encoding != null && Charset.isSupported(encoding)) {
 				return Charset.forName(encoding);
 			}
 			return null;
