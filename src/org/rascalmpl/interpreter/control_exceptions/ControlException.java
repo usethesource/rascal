@@ -10,11 +10,9 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anya Helene Bagge - anya@ii.uib.no
 *******************************************************************************/
 package org.rascalmpl.interpreter.control_exceptions;
-
-import java.io.PrintStream;
-import java.io.PrintWriter;
 
 public class ControlException extends RuntimeException {
 	private final static long serialVersionUID = -5118318371303187359L;
@@ -40,23 +38,7 @@ public class ControlException extends RuntimeException {
 		return null;
 	}
 	
-	@Override
-	public void printStackTrace(){
-		return;
-	}
-	
-	@Override
-	public void printStackTrace(PrintStream s){
-		return;
-	}
-	
-	@Override
-	public void printStackTrace(PrintWriter s){
-		return;
-	}
-	
-	@Override
-	public StackTraceElement[] getStackTrace(){
-		return null;
+	protected Throwable reallyFillInStackTrace() {
+		return super.fillInStackTrace();
 	}
 }
