@@ -136,9 +136,7 @@ public class RuntimeExceptionFactory {
 		return new Throw(IllegalArgument.make(VF,v,VF.string(message)), ast, trace);	
 	}
 	
-	public static Throw implodeError(String msg, AbstractAST ast, String trace) {
-		return new Throw(ImplodeError.make(VF, VF.string(msg)), ast, trace);
-	}
+	
 	
 	public static Throw indexOutOfBounds(IInteger i, AbstractAST ast, String trace) {
     	return new Throw(IndexOutOfBounds.make(VF, i), ast, trace);
@@ -197,9 +195,7 @@ public class RuntimeExceptionFactory {
 		return new Throw(NoSuchAnnotation.make(VF, VF.string(label)), ast, trace);
 	}
 
-	public static Throw noSuchElement(IValue v, AbstractAST ast, String trace) {
-		return new Throw(NoSuchElement.make(VF,v), ast, trace);	
-	}
+	
 
 	public static Throw noSuchKey(IValue v, AbstractAST ast, String trace) {
 		return new Throw(NoSuchKey.make(VF, v), ast, trace);
@@ -251,6 +247,10 @@ public class RuntimeExceptionFactory {
 	public static Throw illegalTypeArgument(String type, AbstractAST ast, String trace){
 		return new Throw(IllegalTypeArgument.make(VF,VF.string(type)), ast, trace);	
 	}
+	
+	public static Throw implodeError(String msg, AbstractAST ast, String trace) {
+		return new Throw(ImplodeError.make(VF, VF.string(msg)), ast, trace);
+	}
 
 	public static Throw invalidUseOfLocation(String msg, AbstractAST ast, String trace) {
 		return new Throw(InvalidUseOfLocation.make(VF, VF.string(msg)), ast, trace);
@@ -290,6 +290,10 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw noParent(ISourceLocation loc, AbstractAST ast, String trace) {
 		return new Throw(NoParent.make(VF, loc), ast, trace);
+	}
+	
+	public static Throw noSuchElement(IValue v, AbstractAST ast, String trace) {
+		return new Throw(NoSuchElement.make(VF,v), ast, trace);	
 	}
 
 	public static Throw noSuchField(String name, AbstractAST ast, String trace) {
