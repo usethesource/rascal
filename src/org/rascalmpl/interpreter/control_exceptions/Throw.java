@@ -70,6 +70,11 @@ public final class Throw extends ControlException {
 	}
 
 	@Override
+	public Throwable fillInStackTrace() {
+		return reallyFillInStackTrace();
+	}
+	
+	@Override
 	public String getMessage() {
 		if (loc != null) {
 			URI url = loc.getURI();
