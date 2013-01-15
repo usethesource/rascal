@@ -387,7 +387,7 @@ lexical StringCharacter
 	= "\\" [\" \' \< \> \\ b f n r t] 
 	| UnicodeEscape 
 	| ![\" \' \< \> \\]
-	| [\n][\ \t \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000]* [\'] // margin 
+	| [\n][\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* [\'] // margin 
 	;
 
 lexical JustTime
@@ -399,7 +399,7 @@ lexical MidStringChars
 	= @category="Constant" [\>] StringCharacter* [\<] ;
 
 lexical ProtocolChars
-	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000];
+	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000];
 
 lexical RegExpModifier
 	= [d i m s]* ;
@@ -555,7 +555,7 @@ syntax StringLiteral
 
 lexical Comment
 	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
-	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
+	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
 	;
 	
 
@@ -810,7 +810,7 @@ syntax Prod
 	= reference: ":" Name referenced
 	| labeled: ProdModifier* modifiers Name name ":" Sym* args 
 	| others: "..." 
-	| unlabeled: ProdModifier* modifiers Sym* args
+	| unlabeled: ProdModifier* modifiers ":" Sym* args
 	| @Foldable associativityGroup: Assoc associativity "(" Prod group ")" 
 	// | TODO add bracket rule for easy readability
 	> left \all   : Prod lhs "|" Prod rhs 

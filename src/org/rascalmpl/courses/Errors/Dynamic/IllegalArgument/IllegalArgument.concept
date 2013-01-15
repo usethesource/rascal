@@ -1,0 +1,29 @@
+Name: IllegalArgument
+
+Synopsis: A function or operation is applied to an illegal argument value.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Examples:
+<screen warnings>
+NOW = $2013-01-13T22:16:51.740+01:00;
+NOW.month = 13;
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

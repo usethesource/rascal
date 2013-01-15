@@ -1,0 +1,45 @@
+Name: EmptySet
+
+Synopsis: Illegal operation on an empty set.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+Rascal provides many operations and functions on sets, see [Rascal:Values/Set] and [Rascal:Prelude/Set].
+This error is generated when a function or operations cannot handle the empty set.
+
+Remedies:
+* Guard the function or operation with a test on the empty set ([$Rascal:Set/isEmpty]) and 
+  take alternative action in that case.
+* Catch the `EmptySet` yourself, see [Rascal:TryCatch].
+
+Examples:
+<screen warnings>
+// Import the `Set` library and introduce `S` with an empty set as value:
+import Set;
+S = {};
+// Taking an element from an empty set gives an error:
+getOneFrom(S);
+// We can also catch the `EmptySet` error. First import the Rascal exceptions (which are also included in `Prelude`)
+// and `IO`:
+import Exception;
+import IO;
+try println(getOneFrom(S)); catch EmptySet(): println("Cannot apply getOneFrom to empty set");
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       
+       
