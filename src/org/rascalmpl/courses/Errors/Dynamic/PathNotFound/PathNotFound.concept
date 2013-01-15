@@ -6,9 +6,8 @@ Syntax:
 
 Types:
 
-Function:
-       
-Usage:
+Function: `data RunTimeException = PathNotFound(loc location);`
+Usage: `import Exception;`
 
 Details:
 

@@ -6,9 +6,8 @@ Syntax:
 
 Types:
 
-Function:
-       
-Usage:
+Function: `data RunTimeException = NoSuchKey(value key);`
+Usage: `import Exception;`
 
 Details:
 

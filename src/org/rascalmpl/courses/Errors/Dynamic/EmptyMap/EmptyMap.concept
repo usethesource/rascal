@@ -7,8 +7,10 @@ Syntax:
 Types:
 
 Function:
+`data RunTimeException = EmptyMap();`
        
 Usage:
+`import Exception;`
 
 Details:
 

@@ -30,6 +30,8 @@ L = [1,2,3];
 L *= 3;
 // Taking the time from a date-only value is not supported:
 $2010-07-15.justTime;
+// Calling an integer as a function is not supported:
+17(3, "abc");
 </screen>
 
 Benefits:

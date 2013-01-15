@@ -13,8 +13,18 @@ Usage:
 Details:
 
 Description:
+When the same name is declared in different modules, a qualified name can be used to refer to a specific version of that name.
+This error is generated when a qualified name is used in a declaration.
+
+Remedy: remove the qualification.
 
 Examples:
+<screen warnings>
+// Using a qualified name gives an error:
+data M::D = d();
+// Without the qualification, this is correct:
+data D = d();
+</screen>
 
 Benefits:
 

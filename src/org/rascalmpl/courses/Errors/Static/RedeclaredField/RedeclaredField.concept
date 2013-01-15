@@ -33,8 +33,8 @@ This can be corrected by choosing other names for the labels:
 data D = d1(int intKey) | d2(str strKey);
 </screen>
 
-<warning>I would expect an error here</warning>
-<screen>
+<screen warnings>
+// A tuple declaration with a duplicate field name also gives an error:
 tuple[int x, str x] Q = <3,"abc">;
 </screen>
 

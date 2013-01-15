@@ -6,9 +6,8 @@ Syntax:
 
 Types:
 
-Function:
-       
-Usage:
+Function: `data RunTimeException = IO(str message);`
+Usage: `import Exception;`
 
 Details:
 

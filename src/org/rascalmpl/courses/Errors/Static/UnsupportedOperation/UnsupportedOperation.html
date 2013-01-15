@@ -84,6 +84,11 @@ list[int]: [1,2,3]
 |stdin:///|(0,11,&lt;1,0>,&lt;1,11>): Can not retrieve the time component of a date value
 &lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UnsupportedOperation/UnsupportedOperation.html">Advice&lt;/A>
 
+</pre>  Calling an integer as a function is not supported:
+<pre class="screen"><span class="prompt">rascal></span>17(3, &quot;abc&quot;);
+|stdin:///|(6,5,&lt;1,6>,&lt;1,11>): A value of type int is not something you can call like a function, a constructor or a closure.
+&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UnsupportedOperation/UnsupportedOperation.html">Advice&lt;/A>
+
 </pre>
 </div>
 

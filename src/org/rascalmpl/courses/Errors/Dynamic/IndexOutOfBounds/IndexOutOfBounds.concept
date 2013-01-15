@@ -6,9 +6,9 @@ Syntax:
 
 Types:
 
-Function:
-       
-Usage:
+Function: `data RunTimeException = IndexOutOfBounds(int index);`
+
+Usage: `import Exception;`
 
 Details:
 
@@ -23,7 +23,7 @@ Remedies:
 * Make your code less dependent on index values. Suggestions:
   ** Use the [Rascal:List/index] to produce all legal indices of a list. 
      Instead of `for(int i <- [0..size(L)]) { ... }` use `for(int i <- index(L)) { ... }`.
-  ** Use list splicing to automate part of the index computation. <warning>doc needed</warning>
+  ** Use list splicing to automate part of the index computation. <warning>ref to doc needed</warning>
 * Catch the `IndexOutOfBounds` yourself, see [Rascal:TryCatch].
 
 

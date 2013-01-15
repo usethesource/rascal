@@ -6,9 +6,8 @@ Syntax:
 
 Types:
 
-Function:
-       
-Usage:
+Function: `data RunTimeException = StackOverflow();`
+Usage: `import Exception;`
 
 Details:
 
@@ -19,8 +18,10 @@ The most likely cause is that you have a non-terminating, recursive, function.
 
 Remedies:
 * Rewrite the function to avoid non-termination.
-* If the function is correct but (too) deeply  recursive, increase the size of the Java stack.
-<warning>Add here how to do that</warning>
+* If the function is correct but (too) deeply  recursive, increase the size of the Java stack:
+  ** On the command line: add the arguyment `-Xss1m` to get a stack of 1 Megabyte. 
+     See [Java documentation](http://docs.oracle.com/javase/6/docs/technotes/tools/windows/java.html).
+  ** In Eclipse: in the `eclipse.ini` file add after the line `-vmargs` on a single line the text `-Xss1m`.
 * Catch the `StackOverflow` yourself, see [Rascal:TryCatch].
 
 Examples:

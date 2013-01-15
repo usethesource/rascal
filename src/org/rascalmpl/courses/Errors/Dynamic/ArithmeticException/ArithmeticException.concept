@@ -3,12 +3,15 @@ Name: ArithmeticException
 Synopsis: An arihmetic error occurred
 
 Syntax:
+data RunTimeException = ArithmeticException(str message);
 
 Types:
 
 Function:
+`data RunTimeException = ArithmeticException(str message);`
        
 Usage:
+import Exception;
 
 Details:
 

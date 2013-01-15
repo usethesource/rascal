@@ -7,8 +7,9 @@ Syntax:
 Types:
 
 Function:
+`data RunTimeException = EmptyList();`
        
-Usage:
+Usage: `import Exception;`
 
 Details:
 

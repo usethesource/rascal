@@ -8,7 +8,7 @@
 <head>
 <title>Errors/Dynamic/NoSuchAnnotation</title>
 
-<meta name="description" content="Errors/Dynamic/NoSuchAnnotation:  Requested annotation does not exist.">
+<meta name="description" content="Errors/Dynamic/NoSuchAnnotation:  Annotation without a value.">
 
 <meta name="keywords" content="Errors/Dynamic/NoSuchAnnotation, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Requested annotation does not exist.
+<span class="sectionHead">Synopsis</span>  Annotation without a value.
 
 </div>
 
@@ -52,7 +52,56 @@
                            
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  An <a href="/Rascal/Declarations/Annotation/Annotation.html">Rascal:Declarations/Annotation</a> can be associated with any node value
+ (including any <a href="/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">Rascal:AlgebraicDataType</a>).
+ This error is generated when the value of an annotation is requested but has not been defined.
+ <br/>
+<br/>
+
+ Remedies:
+ <ul><li> Ensure that the annotation value is properly initialized for all relevant parts of the node value. </li>
+<li> Use the <a href="/Rascal/Expressions/Values/Boolean/IsDefined/IsDefined.html">Rascal:isDefined</a> and <a href="/Rascal/Expressions/Values/Boolean/IfDefinedElse/IfDefinedElse.html">Rascal:ifDefinedElse</a> operators to check whether the annotation value is set and act accordingly.</li>
+<li> Catch the <code>NoSuchAnnotation yourself</code>, see <a href="/Rascal/Statements/TryCatch/TryCatch.html">Rascal:TryCatch</a>.</li>
+</ul>
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>data Fruit = apple(int n) | orange(int n);
+ok
+<span class="prompt">rascal></span>anno str Fruit @ quality;
+ok
+<span class="prompt">rascal></span>piece = orange(13);
+Fruit: orange(13)
+<span class="prompt">rascal></span>piece @ quality;
+|stdin:///|(0,5,&lt;1,0>,&lt;1,5>): NoSuchAnnotation("quality")
+
+</pre>  Use the unary postfix operator isDefined <code>?</code> to check whether the <code>quality</code> annotation is set:
+<pre class="screen"><span class="prompt">rascal></span>piece @ quality?;
+bool: false
+</pre>  Use the ternary operator ifDefinedElse <code>?</code> to compute an alternative value when the <code>quality</code> annotation is not set:
+<pre class="screen"><span class="prompt">rascal></span>piece @ quality ? &quot;no quality value&quot;;
+str: "no quality value"
+</pre>  We can also catch the <code>NoSuchAnnotation</code> error. First import the Rascal exceptions (which are also included in <code>Prelude</code>)
+  and <code>IO</code>:
+<pre class="screen"><span class="prompt">rascal></span>import Exception;
+ok
+<span class="prompt">rascal></span>import IO;
+ok
+<span class="prompt">rascal></span>try piece @ quality; catch NoSuchAnnotation(l): println(&quot;No such annotation: &lt;l&gt;&quot;);
+No such annotation: quality
+ok
+</pre>  Finally, we can just assign a value to the <code>quality</code> annotation:
+<pre class="screen"><span class="prompt">rascal></span>piece @ quality = &quot;excellent&quot;;
+Fruit: orange(13)[
+  @quality="excellent"
+]
+<span class="prompt">rascal></span>piece @ quality;
+str: "excellent"
+</pre>
+</div>
+
   	                       
   	                       
   	                       

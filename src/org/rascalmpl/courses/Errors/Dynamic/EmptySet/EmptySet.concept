@@ -6,9 +6,9 @@ Syntax:
 
 Types:
 
-Function:
+Function: `data RunTimeException = EmptyMap();`
        
-Usage:
+Usage: `import Exception`;
 
 Details:
 

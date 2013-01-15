@@ -51,11 +51,21 @@
 	                       
                            
                            
+<div id="Function">
+<span class="sectionHead">Function</span>  <code>data RunTimeException = IndexOutOfBounds(int index);</code>
+
+</div>
+
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Exception;</code>
+
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Subscription is possible on various ordered types, including <a href="/Rascal/Expressions/Values/List/Subscription/Subscription.html">Rascal:List/Subscription</a>,
  <a href="/Rascal/Expressions/Values/Tuple/Subscription/Subscription.html">Rascal:Tuple/Subscription</a>, and
- <span class="inlineError">unknown: Rascal:Node/Subscription</span>.
+ <a href="/Rascal/Expressions/Values/Node/Subscription/Subscription.html">Rascal:Node/Subscription</a>.
  This error is generated when a subscript is out of bounds for the value that is being subscripted.
  <br/>
 <br/>
@@ -64,7 +74,7 @@
  <ul><li> Guard the subscription with a test that the index is within bounds.</li>
 <li> Make your code less dependent on index values. Suggestions: <ul><li> Use the <a href="/Rascal/Libraries/Prelude/List/index/index.html">Rascal:List/index</a> to produce all legal indices of a list.       Instead of <code>for(int i &lt;- [0..size(L)]) { ... }</code> use <code>for(int i &lt;- index(L)) { ... }</code>.
 </li>
-<li> Use list splicing to automate part of the index computation. <warning>doc needed</warning></li>
+<li> Use list splicing to automate part of the index computation. <warning>ref to doc needed</warning></li>
 </ul></li>
 <li> Catch the <code>IndexOutOfBounds</code> yourself, see <a href="/Rascal/Statements/TryCatch/TryCatch.html">Rascal:TryCatch</a>.</li>
 </ul>
@@ -99,7 +109,7 @@ ok
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Dynamic/IndexOutOfBounds&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Dynamic/IndexOutOfBounds&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Errors/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Errors/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

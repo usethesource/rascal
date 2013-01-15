@@ -52,7 +52,29 @@
                            
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  When the same name is declared in different modules, a qualified name can be used to refer to a specific version of that name.
+ This error is generated when a qualified name is used in a declaration.
+ <br/>
+<br/>
+
+ Remedy: remove the qualification.
+
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>    Using a qualified name gives an error:
+<pre class="screen"><span class="prompt">rascal></span>data M::D = d();
+|stdin:///|(5,4,&lt;1,5>,&lt;1,9>): Declaration of qualified names is not allowed
+&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/IllegalQualifiedDeclaration/IllegalQualifiedDeclaration.html">Advice&lt;/A>
+
+</pre>  Without the qualification, this is correct:
+<pre class="screen"><span class="prompt">rascal></span>data D = d();
+ok
+</pre>
+</div>
+
   	                       
   	                       
   	                       

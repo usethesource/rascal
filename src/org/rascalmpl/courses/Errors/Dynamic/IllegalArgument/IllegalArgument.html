@@ -51,10 +51,31 @@
 	                       
                            
                            
+<div id="Function">
+<span class="sectionHead">Function</span>  <code>data RunTimeException = IllegalArgument() | IllegalArgument(value v) | IllegalArgument(value v, str message);</code>
+
+</div>
+
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Exception;</code>
+
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  This error is generated when a function or operation is applied to a value that it does not expect.
+ <br/>
+<br/>
+
+ Remedies:
+ <ul><li> Check the value or values to which you apply the function or operation.</li>
+</ul>
+</div>
+
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>NOW = $2013-01-13T22:16:51.740+01:00;
+<span class="sectionHead">Examples</span>    Changing the month of a <a href="/Rascal/Expressions/Values/DateTime/DateTime.html">Rascal:DateTime</a> to an illegal month:
+<pre class="screen"><span class="prompt">rascal></span>NOW = $2013-01-13T22:16:51.740+01:00;
 datetime: $2013-01-13T22:16:51.740+01:00
 <span class="prompt">rascal></span>NOW.month = 13;
 |stdin:///|(12,2,&lt;1,12>,&lt;1,14>): IllegalArgument(13,"Cannot create datetime with provided values.")
