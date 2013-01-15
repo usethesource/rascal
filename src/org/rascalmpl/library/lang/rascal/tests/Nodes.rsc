@@ -13,6 +13,25 @@ import IO;
 //      append L[i];
 //}
 
+public test bool subscription(node N){
+  R = getChildren(N);
+  for(int i <- [0..arity(N)]){
+      if(head(R) != N[i])
+         return false;
+       R = tail(R);
+  }
+  return true;  
+}
+
+public test bool subscriptionWrapped(node N){
+  for(int i <- [0 .. arity(N)]){
+      if(N[i] != N[i - arity(N)]){
+      	 return false;
+      }
+  }
+  return true;
+}
+
 public list[value] makeSlice(list[value] L, int f, int s, int e){
   res = [];
   int i = f;
