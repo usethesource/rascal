@@ -126,7 +126,15 @@ public class Prelude {
 		this.tr = new TypeReifier(values);
 		random = new Random();
 	}
+/*	// Only here for test purposes: 
+	public IValue f1(IInteger x, IInteger y){
+		return values.integer(x.intValue() + y.intValue());
+	}
 	
+	public IValue f2(IInteger x, IList LS, IString y, IBool z){
+		return values.string("x : " + x.intValue() + ", LS = " + LS + ", y ; " + y + ", z : " + z);
+	}
+*/	
 	/*
 	 * Boolean
 	 */
