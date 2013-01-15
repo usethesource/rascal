@@ -67,7 +67,7 @@
 </div>
 
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Rascal/Expressions/Values/Node/Equal/Equal.html">Equal</a> &#032 <a href="/Rascal/Expressions/Values/Node/GreaterThan/GreaterThan.html">GreaterThan</a> &#032 <a href="/Rascal/Expressions/Values/Node/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a> &#032 <a href="/Rascal/Expressions/Values/Node/LessThan/LessThan.html">LessThan</a> &#032 <a href="/Rascal/Expressions/Values/Node/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a> &#032 <a href="/Rascal/Expressions/Values/Node/NotEqual/NotEqual.html">NotEqual</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Rascal/Expressions/Values/Node/Equal/Equal.html">Equal</a> &#032 <a href="/Rascal/Expressions/Values/Node/GreaterThan/GreaterThan.html">GreaterThan</a> &#032 <a href="/Rascal/Expressions/Values/Node/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a> &#032 <a href="/Rascal/Expressions/Values/Node/LessThan/LessThan.html">LessThan</a> &#032 <a href="/Rascal/Expressions/Values/Node/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a> &#032 <a href="/Rascal/Expressions/Values/Node/NotEqual/NotEqual.html">NotEqual</a> &#032 <a href="/Rascal/Expressions/Values/Node/Subscription/Subscription.html">Subscription</a> &#032 
 </div>
 
 <div id="Description">
@@ -85,6 +85,7 @@
 <li><a href="/Rascal/Expressions/Values/Node/LessThan/LessThan.html">LessThan</a>: Less than operator on node values.</li>
 <li><a href="/Rascal/Expressions/Values/Node/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a>: Less than or equal operator on node values.</li>
 <li><a href="/Rascal/Expressions/Values/Node/NotEqual/NotEqual.html">NotEqual</a>: Not equal operator on node values.</li>
+<li><a href="/Rascal/Expressions/Values/Node/Subscription/Subscription.html">Subscription</a>: Retrieve an argument of a node via its index.</li>
 </ul>
 </div>
 
@@ -92,12 +93,12 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>    A node with name "my_node" and three arguments
 <pre class="screen"><span class="prompt">rascal></span>&quot;my_node&quot;(1, true, &quot;abc&quot;);
-node: my_node(1,true,"abc")
+node: "my_node"(1,true,"abc")
 </pre>  A nested node structure:
 <pre class="screen"><span class="prompt">rascal></span>&quot;my_node1&quot;(1, &quot;my_node2&quot;(3.5, [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]), true);
-node: my_node1(
+node: "my_node1"(
   1,
-  my_node2(
+  "my_node2"(
     3.5,
     ["a","b","c"]),
   true)
