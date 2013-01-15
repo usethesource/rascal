@@ -172,10 +172,14 @@ public class StringResult extends ElementResult<IString> {
 			throw RuntimeExceptionFactory.illegalArgument(ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		IInteger index = ((IInteger)key.getValue());
-		if ( (index.intValue() >= getValue().getValue().length()) || (index.intValue() < 0) ) {
+		int idx = index.intValue();
+		if(idx < 0){
+			idx = idx + getValue().getValue().length();
+		}
+		if ( (idx >= getValue().getValue().length()) || (idx < 0) ) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		return makeResult(getType(), getValueFactory().string(getValue().getValue().substring(index.intValue(), index.intValue() + 1)), ctx);
+		return makeResult(getType(), getValueFactory().string(getValue().getValue().substring(idx, idx + 1)), ctx);
 	}
 	
 	@Override

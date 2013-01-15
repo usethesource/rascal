@@ -141,12 +141,16 @@ public class TupleResult extends ElementResult<ITuple> {
 			throw new UnsupportedSubscript(getTypeFactory().integerType(), subsBase.getType(), ctx.getCurrentAST());
 		}
 		IInteger index = (IInteger)subsBase.getValue();
-		if (index.intValue() >= getValue().arity()) {
+		int idx = index.intValue();
+		if(idx < 0){
+			idx = idx + getValue().arity();
+		}
+		if ( (idx >= getValue().arity()) || (idx < 0)) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		
-		Type elementType = getType().getFieldType(index.intValue());
-		IValue element = getValue().get(index.intValue());
+		Type elementType = getType().getFieldType(idx);
+		IValue element = getValue().get(idx);
 		return makeResult(elementType, element, ctx);
 	}
 	
