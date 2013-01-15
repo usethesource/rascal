@@ -3,6 +3,24 @@ module lang::rascal::tests::Strings
 import String;
 import util::Math;
 
+
+public test bool subscription(str S){
+  R = "";
+  for(int i <- [0..size(S)]){
+      R += S[i];
+  }
+  return R == S;
+}
+
+public test bool subscriptionWrapped(str S){
+  for(int i <- [0 .. size(S)]){
+      if(S[i] != S[i - size(S)]){
+      	 return false;
+      }
+  }
+  return true;
+}
+
 public test bool sliceFirst(str L) {
   if(isEmpty(L)) return true;
   f = arbInt(size(L));

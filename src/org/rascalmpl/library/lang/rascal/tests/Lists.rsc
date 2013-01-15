@@ -106,6 +106,15 @@ public test bool subscription(list[&T] L){
   return true;  
 }
 
+public test bool subscriptionWrapped(list[&T] L){
+  for(int i <- index(L)){
+      if(L[i] != L[i - size(L)]){
+      	 return false;
+      }
+  }
+  return true;
+}
+
 public test bool sliceFirst(list[int] L) {
   if(isEmpty(L)) return true;
   f = arbInt(size(L));
