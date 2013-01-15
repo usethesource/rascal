@@ -31,7 +31,11 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.KeywordParameter;
+import org.rascalmpl.interpreter.staticErrors.NoKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
@@ -81,6 +85,7 @@ public class JavaMethod extends NamedFunction {
 		else {
 			oActuals = actuals;
 		}
+		oActuals = addKeywordActuals(oActuals, formals, keyArgValues);
 
 		if (hasReflectiveAccess) {
 			oActuals = addCtxActual(oActuals);
@@ -128,6 +133,59 @@ public class JavaMethod extends NamedFunction {
 		newActuals[oActuals.length] = ctx;
 		return newActuals;
 	}
+	
+	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, Result<IValue>> keyArgValues){
+		if(keywordParameterDefaults == null){
+			if(keyArgValues != null){
+				throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
+			}
+			return oldActuals;
+		}
+		Object[] newActuals = new Object[formals.getArity() + keywordParameterDefaults.size()];
+		System.arraycopy(oldActuals, 0, newActuals, 0, oldActuals.length);
+		int posArity = formals.getArity();
+		
+		if(keyArgValues == null){
+			if(keywordParameterDefaults != null){
+				for(int i = 0; i < keywordParameterDefaults.size(); i++){
+					KeywordParameter kw = keywordParameterDefaults.get(i);
+					Result<IValue> r = kw.getDefault();
+					newActuals[posArity + i] = r.getValue();
+				}
+			}
+			return newActuals;
+		}
+		if(keywordParameterDefaults == null)
+			throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
+		
+		int nBoundKeywordArgs = 0;
+		for(int i = 0; i < keywordParameterDefaults.size(); i++){
+			KeywordParameter kw = keywordParameterDefaults.get(i);
+			String kwparam = kw.getName();
+			if(keyArgValues.containsKey(kwparam)){
+				nBoundKeywordArgs++;
+				Result<IValue> r = keyArgValues.get(kwparam);
+				if(!r.getType().isSubtypeOf(keywordParameterTypes[i])){
+					throw new UnexpectedKeywordArgumentType(kwparam, keywordParameterTypes[i], r.getType(), ctx.getCurrentAST());
+				}
+				newActuals[posArity + i] = r.getValue();
+			} else {
+				Result<IValue> r = kw.getDefault();
+				newActuals[posArity + i] = r.getValue();
+			}
+		}
+		if(nBoundKeywordArgs != keyArgValues.size()){
+			main:
+			for(String kwparam : keyArgValues.keySet())
+				for(KeywordParameter kw : keywordParameterDefaults){
+					if(kwparam.equals(kw.getName()))
+							continue main;
+					throw new UndeclaredKeywordParameter(getName(), kwparam, ctx.getCurrentAST());
+				}
+		}
+		return newActuals;
+	}
+	
 
 	public IValue invoke(Object[] oActuals) {
 		try {

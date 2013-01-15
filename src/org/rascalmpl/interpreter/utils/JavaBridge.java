@@ -61,6 +61,7 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
@@ -147,8 +148,16 @@ public class JavaBridge {
 	private Class<?>[] getJavaTypes(Parameters parameters, Environment env, boolean hasReflectiveAccess) {
 		List<Expression> formals = parameters.getFormals().getFormals();
 		int arity = formals.size();
-		Class<?>[] classes = new Class<?>[arity + (hasReflectiveAccess ? 1 : 0)];
-		for (int i = 0; i < arity;) {
+		int kwArity = 0;
+		List<KeywordFormal> keywordFormals = null;
+		if(parameters.getKeywordFormals().isDefault()){
+			keywordFormals = parameters.getKeywordFormals().getKeywordFormalList();
+			kwArity = keywordFormals.size();
+		}		
+		
+		Class<?>[] classes = new Class<?>[arity + kwArity + (hasReflectiveAccess ? 1 : 0)];
+		int i = 0;
+		while (i < arity) {
 			Class<?> clazz;
 			
 			if (i == arity - 1 && parameters.isVarArgs()) {
@@ -161,6 +170,13 @@ public class JavaBridge {
 			if (clazz != null) {
 			  classes[i++] = clazz;
 			}
+		}
+		
+		while(i < arity + kwArity){
+			Class<?> clazz = toJavaClass(keywordFormals.get(i - arity).getExpression(), env);
+			if (clazz != null) {
+				  classes[i++] = clazz;
+				}
 		}
 		
 		if (hasReflectiveAccess) {
@@ -352,7 +368,8 @@ public class JavaBridge {
 		String className = getClassName(func);
 		String name = Names.name(func.getSignature().getName());
 		
-		if(className.length() == 0){
+		if(className.length() == 0){	// TODO: Can this ever be thrown since the Class instance has 
+										// already been identified via the javaClass tag.
 			throw new MissingTag(JAVA_CLASS_TAG, func);
 		}
 		
