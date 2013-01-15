@@ -67,7 +67,7 @@
 </div>
 
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Comprehension</a> &#032 <a href="/Rascal/Expressions/Values/Map/Difference/Difference.html">Difference</a> &#032 <a href="/Rascal/Expressions/Values/Map/Equal/Equal.html">Equal</a> &#032 <a href="/Rascal/Expressions/Values/Map/in/in.html">in</a> &#032 <a href="/Rascal/Expressions/Values/Map/Intersection/Intersection.html">Intersection</a> &#032 <a href="/Rascal/Expressions/Values/Map/NotEqual/NotEqual.html">NotEqual</a> &#032 <a href="/Rascal/Expressions/Values/Map/notin/notin.html">notin</a> &#032 <a href="/Rascal/Expressions/Values/Map/StrictSubMap/StrictSubMap.html">StrictSubMap</a> &#032 <a href="/Rascal/Expressions/Values/Map/StrictSuperMap/StrictSuperMap.html">StrictSuperMap</a> &#032 <a href="/Rascal/Expressions/Values/Map/SubMap/SubMap.html">SubMap</a> &#032 <a href="/Rascal/Expressions/Values/Map/Subscription/Subscription.html">Subscription</a> &#032 <a href="/Rascal/Expressions/Values/Map/SuperMap/SuperMap.html">SuperMap</a> &#032 <a href="/Rascal/Expressions/Values/Map/Union/Union.html">Union</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Rascal/Expressions/Values/Map/Composition/Composition.html">Composition</a> &#032 <a href="/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Comprehension</a> &#032 <a href="/Rascal/Expressions/Values/Map/Difference/Difference.html">Difference</a> &#032 <a href="/Rascal/Expressions/Values/Map/Equal/Equal.html">Equal</a> &#032 <a href="/Rascal/Expressions/Values/Map/in/in.html">in</a> &#032 <a href="/Rascal/Expressions/Values/Map/Intersection/Intersection.html">Intersection</a> &#032 <a href="/Rascal/Expressions/Values/Map/NotEqual/NotEqual.html">NotEqual</a> &#032 <a href="/Rascal/Expressions/Values/Map/notin/notin.html">notin</a> &#032 <a href="/Rascal/Expressions/Values/Map/StrictSubMap/StrictSubMap.html">StrictSubMap</a> &#032 <a href="/Rascal/Expressions/Values/Map/StrictSuperMap/StrictSuperMap.html">StrictSuperMap</a> &#032 <a href="/Rascal/Expressions/Values/Map/SubMap/SubMap.html">SubMap</a> &#032 <a href="/Rascal/Expressions/Values/Map/Subscription/Subscription.html">Subscription</a> &#032 <a href="/Rascal/Expressions/Values/Map/SuperMap/SuperMap.html">SuperMap</a> &#032 <a href="/Rascal/Expressions/Values/Map/Union/Union.html">Union</a> &#032 
 </div>
 
 <div id="Description">
@@ -82,7 +82,8 @@
  <br/>
 <br/>
 
- <ul><li><a href="/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Comprehension</a>: A map comprehension generates a map value.</li>
+ <ul><li><a href="/Rascal/Expressions/Values/Map/Composition/Composition.html">Composition</a>: Composition of two map values.</li>
+<li><a href="/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Comprehension</a>: A map comprehension generates a map value.</li>
 <li><a href="/Rascal/Expressions/Values/Map/Difference/Difference.html">Difference</a>: The difference between two maps.</li>
 <li><a href="/Rascal/Expressions/Values/Map/Equal/Equal.html">Equal</a>: Equality operator on maps.</li>
 <li><a href="/Rascal/Expressions/Values/Map/in/in.html">in</a>: Membership test on the keys of a map.</li>
@@ -131,14 +132,17 @@ map[str, int]: ("apple":3,"pear":1,"banana":0)
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Map_1:answer" id="Rascal/Expressions/Values/Map_1_2" value="0@2@[2,6,4]">
-<label for="Rascal/Expressions/Values/Map_1_2">All keys should have the same type and all values should have the same type. The type of keys and values may be different. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Map_1:answer" id="Rascal/Expressions/Values/Map_1_6" value="1@6@[2,6,4]">
+<input type="radio" name="Rascal_Expressions_Values_Map_1:answer" id="Rascal/Expressions/Values/Map_1_6" value="0@6@[6,5,3,1]">
 <label for="Rascal/Expressions/Values/Map_1_6">All keys are sorted. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Map_1:answer" id="Rascal/Expressions/Values/Map_1_4" value="2@4@[2,6,4]">
-<label for="Rascal/Expressions/Values/Map_1_4">All values have to be unique. </label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Map_1:answer" id="Rascal/Expressions/Values/Map_1_5" value="1@5@[6,5,3,1]">
+<label for="Rascal/Expressions/Values/Map_1_5">All keys and values have to be unique. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Map_1:answer" id="Rascal/Expressions/Values/Map_1_3" value="2@3@[6,5,3,1]">
+<label for="Rascal/Expressions/Values/Map_1_3">All keys should have the same type and all values should have the same type. The type of keys and values should be the same. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Map_1:answer" id="Rascal/Expressions/Values/Map_1_1" value="3@1@[6,5,3,1]">
+<label for="Rascal/Expressions/Values/Map_1_1">All keys have the same type. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
