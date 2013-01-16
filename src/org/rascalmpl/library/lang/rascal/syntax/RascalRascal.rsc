@@ -180,9 +180,9 @@ syntax Target
 	| labeled: Name name ;
 
 syntax IntegerLiteral
-	= /*prefer()*/ decimalIntegerLiteral: DecimalIntegerLiteral decimal 
-	| /*prefer()*/ hexIntegerLiteral: HexIntegerLiteral hex 
-	| /*prefer()*/ octalIntegerLiteral: OctalIntegerLiteral octal ;
+	=  decimalIntegerLiteral: DecimalIntegerLiteral decimal 
+	|  hexIntegerLiteral: HexIntegerLiteral hex 
+	|  octalIntegerLiteral: OctalIntegerLiteral octal ;
 
 syntax FunctionBody
 	= \default: "{" Statement* statements "}" ;
@@ -812,7 +812,7 @@ syntax Prod
 	= reference: ":" Name referenced
 	| labeled: ProdModifier* modifiers Name name ":" Sym* args 
 	| others: "..." 
-	| unlabeled: ProdModifier* modifiers ":" Sym* args
+	| unlabeled: ProdModifier* modifiers Sym* args
 	| @Foldable associativityGroup: Assoc associativity "(" Prod group ")" 
 	// | TODO add bracket rule for easy readability
 	> left \all   : Prod lhs "|" Prod rhs 
@@ -820,9 +820,9 @@ syntax Prod
 	;
 
 syntax DateTimeLiteral
-	= /*prefer()*/ dateLiteral: JustDate date 
-	| /*prefer()*/ timeLiteral: JustTime time 
-	| /*prefer()*/ dateAndTimeLiteral: DateAndTime dateAndTime ;
+	=  dateLiteral: JustDate date 
+	|  timeLiteral: JustTime time 
+	|  dateAndTimeLiteral: DateAndTime dateAndTime ;
 
 lexical PrePathChars
 	= URLChars "\<" ;
