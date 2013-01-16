@@ -37,6 +37,14 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitAssignableSlice(Assignable.Slice x) { 
+    return null; 
+  }
+
+  public T visitAssignableSliceStep(Assignable.SliceStep x) { 
+    return null; 
+  }
+
   public T visitAssignableSubscript(Assignable.Subscript x) { 
     return null; 
   }
