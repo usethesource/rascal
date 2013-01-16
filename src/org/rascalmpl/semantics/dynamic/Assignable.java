@@ -690,6 +690,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					}
 					//__eval.__setValue(__eval.newResult(list.get(indexFirst), __eval.__getValue()));
 					list = list.replace(indexFirst, indexLast, (IList) repl);
+					if(!list.getType().isSubtypeOf(rec.getValue().getType())){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
 					result = org.rascalmpl.interpreter.result.ResultFactory
 							.makeResult(rec.hasInferredType() ? rec.getType()
 									.lub(list.getType()) : rec.getType(), list,
