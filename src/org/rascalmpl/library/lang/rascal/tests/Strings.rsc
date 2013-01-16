@@ -138,7 +138,6 @@ public test bool assignSlice(str L, str R){
   b = arbInt(size(L));
   e = arbInt(size(L));
   LL[b..e] = R;
-  println("b = <b>, e = <e>, LL = <LL>");
   if(b <= e)
   	return LL == L[0..b] + R + L[e..];
   else
