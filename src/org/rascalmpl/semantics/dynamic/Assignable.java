@@ -44,6 +44,7 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSlice;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscript;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
@@ -732,13 +733,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 							.__getEval().getStackTrace());
 				}
 			} else {
-				throw new UnsupportedSubscript(rec.getType(), first
-						.getType(), this);
-				// TODO implement other subscripts
+				throw new UnsupportedSlice(rec.getType(), this);
+				// TODO implement other slices
 			}
 
 			return __eval.recur(this, result);
-
 		}
 
 		/**
