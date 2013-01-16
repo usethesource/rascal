@@ -27,6 +27,10 @@ public interface IASTVisitor<T> {
 
   public T visitAssignableIfDefinedOrDefault(Assignable.IfDefinedOrDefault x);
 
+  public T visitAssignableSlice(Assignable.Slice x);
+
+  public T visitAssignableSliceStep(Assignable.SliceStep x);
+
   public T visitAssignableSubscript(Assignable.Subscript x);
 
   public T visitAssignableTuple(Assignable.Tuple x);

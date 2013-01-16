@@ -1,5 +1,6 @@
 module lang::rascal::tests::Strings
 
+import IO;
 import String;
 import util::Math;
 
@@ -126,5 +127,21 @@ public test bool sliceSecondNegative(str L) {
   incr = 2;
   S = L[, -incr ..];
   return S == makeSlice(L, 0, size(L) - incr, size(L));
+}
+
+public test bool assignSlice(str L, str R){
+ LL = L;
+ if(isEmpty(L)) {
+ 	L[..] = R;
+ 	return L == R;
+ }
+  b = arbInt(size(L));
+  e = arbInt(size(L));
+  LL[b..e] = R;
+  println("b = <b>, e = <e>, LL = <LL>");
+  if(b <= e)
+  	return LL == L[0..b] + R + L[e..];
+  else
+    return  LL == L[0..min(e+1, size(L)-1)] + reverse(R) + ((b < size(L) - 1) ? L[b + 1 ..] : "");
 }
 
