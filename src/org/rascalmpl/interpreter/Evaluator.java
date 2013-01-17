@@ -126,25 +126,38 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
-	private final IValueFactory vf;
-	private static final TypeFactory tf = TypeFactory.getInstance();
-	protected Environment currentEnvt;
-	private final StrategyContextStack strategyContextStack;
+	private final IValueFactory vf; // sharable
+	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
+	protected Environment currentEnvt; // not sharable
 
-	private final GlobalEnvironment heap;
+	private final StrategyContextStack strategyContextStack; // not sharable 
+
+	private final GlobalEnvironment heap; // shareable if frozen
+	/**
+	 * True if an interrupt has been signalled and we should abort execution
+	 */
 	private boolean interrupt = false;
 
-	private final JavaBridge javaBridge;
+	private final JavaBridge javaBridge; // TODO: sharable if synchronized
 
-	private AbstractAST currentAST; // used in runtime errormessages
+	/**
+	 * Used in runtime error messages
+	 */
+	private AbstractAST currentAST;
 
+	/**
+	 * True if we're doing profiling
+	 */
 	private static boolean doProfiling = false;
+	/**
+	 * The current profiler; private to this evaluator
+	 */
 	private Profiler profiler;
 
-	private final TypeDeclarationEvaluator typeDeclarator;
+	private final TypeDeclarationEvaluator typeDeclarator; // not sharable
 
-	private final List<ClassLoader> classLoaders;
-	private final ModuleEnvironment rootScope;
+	private final List<ClassLoader> classLoaders; // sharable if frozen
+	private final ModuleEnvironment rootScope; // sharable if frozen
 	private boolean concreteListsShouldBeSpliced;
 
 	private final PrintWriter defStderr;
@@ -152,6 +165,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private PrintWriter curStderr = null;
 	private PrintWriter curStdout = null;
 
+	/**
+	 * Probably not sharable
+	 */
 	private ITestResultListener testReporter;
 	/**
 	 * To avoid null pointer exceptions, avoid passing this directly to other classes, use
@@ -159,17 +175,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 */
 	private IRascalMonitor monitor;
 	
-	private AbstractInterpreterEventTrigger eventTrigger;	
+	private AbstractInterpreterEventTrigger eventTrigger; // TODO: can this be shared?	
 
-	private final List<IRascalSuspendTriggerListener> suspendTriggerListeners;	
+	private final List<IRascalSuspendTriggerListener> suspendTriggerListeners;	 // TODO: can this be shared?
 	
-	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
-	private final Stack<String> indentStack = new Stack<String>();
-	private final RascalURIResolver rascalPathResolver;
+	private Stack<Accumulator> accumulators = new Stack<Accumulator>(); // not sharable
+	private final Stack<String> indentStack = new Stack<String>(); // not sharable
+	private final RascalURIResolver rascalPathResolver; // sharable if frozen
 
-	private final URIResolverRegistry resolverRegistry;
+	private final URIResolverRegistry resolverRegistry; // sharable
 
-	private final Map<IConstructorDeclared,Object> constructorDeclaredListeners;
+	private final Map<IConstructorDeclared,Object> constructorDeclaredListeners; // TODO: can this be shared?
 	private static final Object dummy = new Object();	
 	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
@@ -236,6 +252,34 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		resolverRegistry.registerInputOutput(courses);
 		ClassResourceInputOutput tutor = new ClassResourceInputOutput(resolverRegistry, "tutor", getClass(), "/org/rascalmpl/tutor");
 		resolverRegistry.registerInputOutput(tutor);
+		
+		// default event trigger to swallow events
+		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
+	}
+
+	private Evaluator(Evaluator parent, ModuleEnvironment scope) {
+		super();
+		
+		this.vf = parent.vf;
+		this.strategyContextStack = new StrategyContextStack();
+		this.heap = parent.heap;
+		this.typeDeclarator = new TypeDeclarationEvaluator(this);
+		// TODO: this is probably not OK
+		this.currentEnvt = scope;
+		this.rootScope = scope;
+		// TODO: this is probably not OK
+		heap.addModule(scope);
+		this.classLoaders = parent.classLoaders;
+		// TODO: the Java bridge is probably sharable if its methods are synchronized
+		this.javaBridge = new JavaBridge(classLoaders, vf);
+		this.rascalPathResolver = parent.rascalPathResolver;
+		this.resolverRegistry = parent.resolverRegistry;
+		this.defStderr = parent.defStderr;
+		this.defStdout = parent.defStdout;
+		this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>(parent.constructorDeclaredListeners);
+		this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>(parent.suspendTriggerListeners);
+		
+		updateProperties();
 		
 		// default event trigger to swallow events
 		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
@@ -1897,6 +1941,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 	public void setEventTrigger(AbstractInterpreterEventTrigger eventTrigger) {
 		this.eventTrigger = eventTrigger;
+	}
+
+	@Override
+	public void freeze() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public IEvaluator<Result<IValue>> fork() {
+		return new Evaluator(this, rootScope);
 	}
 		
 

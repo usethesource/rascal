@@ -285,7 +285,7 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 
-	private class DeclarationCollector extends NullASTVisitor<Declaration> {
+	private static class DeclarationCollector extends NullASTVisitor<Declaration> {
 		private Set<UserType> abstractDataTypes;
 		private Set<Data> constructorDecls;
 		private Set<Alias> aliasDecls;
