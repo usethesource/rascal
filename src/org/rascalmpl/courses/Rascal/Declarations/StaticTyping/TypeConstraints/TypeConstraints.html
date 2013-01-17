@@ -86,10 +86,10 @@ real: 3.5
   <pre class="screen"><span class="prompt">rascal></span>import Node;
 ok
 <span class="prompt">rascal></span>nd = &quot;f&quot;(10, &quot;abc&quot;);
-node: f(10,"abc")
+node: "f"(10,"abc")
 </pre>  First we apply <code>setAnnotations</code> to a node value:
 <pre class="screen"><span class="prompt">rascal></span>setAnnotations(nd, (&quot;color&quot; : &quot;red&quot;, &quot;size&quot; : &quot;large&quot;));
-node: f(10,"abc")[
+node: "f"(10,"abc")[
   @color="red",
   @size="large"
 ]

@@ -34,6 +34,14 @@ All operators are summarized in the following table. They are listed from highes
                                                        [Map/Subscription], 
                                                        [Tuple/Subscription],
                                                        [Relation/Subscription]</td>      <td>Retrieve values for given index/key from list, map, tuple or relation.</td></tr>
+
+<tr><td>`$Exp_1$ [ $Exp_2$ , $Exp_3$ .. $Exp_4$ ]`</td> <td>[List/Slicing],
+                                                       [String/Slicing],
+                                                       [Node/Slicing], [Tuple/Slicing]</td>  <td>Retrieve a slice from a list, string, node or tuple.</td></tr>
+
+
+
+
 <tr><td> `$Exp$?`</td>                             <td>[Boolean/IsDefined]</td>          <td>Test whether an expression has a defined value</td></tr>
 <tr><td> `!$Exp$`</td>                             <td>[Boolean/Negation]</td>           <td>Negate a Boolean value</td></tr>
 <tr><td>`- $Exp$`</td>                             <td> [Number/Negation]</td>	         <td>Negation of numbers</td></tr>

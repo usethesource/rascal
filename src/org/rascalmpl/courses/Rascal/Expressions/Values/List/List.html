@@ -67,7 +67,7 @@
 </div>
 
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Rascal/Expressions/Values/List/Append/Append.html">Append</a> &#032 <a href="/Rascal/Expressions/Values/List/Comprehension/Comprehension.html">Comprehension</a> &#032 <a href="/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">Concatenation</a> &#032 <a href="/Rascal/Expressions/Values/List/Difference/Difference.html">Difference</a> &#032 <a href="/Rascal/Expressions/Values/List/Equal/Equal.html">Equal</a> &#032 <a href="/Rascal/Expressions/Values/List/in/in.html">in</a> &#032 <a href="/Rascal/Expressions/Values/List/Insert/Insert.html">Insert</a> &#032 <a href="/Rascal/Expressions/Values/List/Intersection/Intersection.html">Intersection</a> &#032 <a href="/Rascal/Expressions/Values/List/NotEqual/NotEqual.html">NotEqual</a> &#032 <a href="/Rascal/Expressions/Values/List/notin/notin.html">notin</a> &#032 <a href="/Rascal/Expressions/Values/List/Product/Product.html">Product</a> &#032 <a href="/Rascal/Expressions/Values/List/StrictSubList/StrictSubList.html">StrictSubList</a> &#032 <a href="/Rascal/Expressions/Values/List/StrictSuperList/StrictSuperList.html">StrictSuperList</a> &#032 <a href="/Rascal/Expressions/Values/List/SubList/SubList.html">SubList</a> &#032 <a href="/Rascal/Expressions/Values/List/Subscription/Subscription.html">Subscription</a> &#032 <a href="/Rascal/Expressions/Values/List/SuperList/SuperList.html">SuperList</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Rascal/Expressions/Values/List/Append/Append.html">Append</a> &#032 <a href="/Rascal/Expressions/Values/List/Comprehension/Comprehension.html">Comprehension</a> &#032 <a href="/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">Concatenation</a> &#032 <a href="/Rascal/Expressions/Values/List/Difference/Difference.html">Difference</a> &#032 <a href="/Rascal/Expressions/Values/List/Equal/Equal.html">Equal</a> &#032 <a href="/Rascal/Expressions/Values/List/in/in.html">in</a> &#032 <a href="/Rascal/Expressions/Values/List/Insert/Insert.html">Insert</a> &#032 <a href="/Rascal/Expressions/Values/List/Intersection/Intersection.html">Intersection</a> &#032 <a href="/Rascal/Expressions/Values/List/NotEqual/NotEqual.html">NotEqual</a> &#032 <a href="/Rascal/Expressions/Values/List/notin/notin.html">notin</a> &#032 <a href="/Rascal/Expressions/Values/List/Product/Product.html">Product</a> &#032 <a href="/Rascal/Expressions/Values/List/Slicing/Slicing.html">Slicing</a> &#032 <a href="/Rascal/Expressions/Values/List/StrictSubList/StrictSubList.html">StrictSubList</a> &#032 <a href="/Rascal/Expressions/Values/List/StrictSuperList/StrictSuperList.html">StrictSuperList</a> &#032 <a href="/Rascal/Expressions/Values/List/SubList/SubList.html">SubList</a> &#032 <a href="/Rascal/Expressions/Values/List/Subscription/Subscription.html">Subscription</a> &#032 <a href="/Rascal/Expressions/Values/List/SuperList/SuperList.html">SuperList</a> &#032 
 </div>
 
 <div id="Description">
@@ -98,6 +98,7 @@
 <li><a href="/Rascal/Expressions/Values/List/NotEqual/NotEqual.html">NotEqual</a>: Not equal operator on lists.</li>
 <li><a href="/Rascal/Expressions/Values/List/notin/notin.html">notin</a>: Negated membership test on lists.</li>
 <li><a href="/Rascal/Expressions/Values/List/Product/Product.html">Product</a>: Compute the product of two lists.</li>
+<li><a href="/Rascal/Expressions/Values/List/Slicing/Slicing.html">Slicing</a>: Retrieve a slice of a list.</li>
 <li><a href="/Rascal/Expressions/Values/List/StrictSubList/StrictSubList.html">StrictSubList</a>: The strict sublist operator on lists.</li>
 <li><a href="/Rascal/Expressions/Values/List/StrictSuperList/StrictSuperList.html">StrictSuperList</a>: The strict super list operator on lists.</li>
 <li><a href="/Rascal/Expressions/Values/List/SubList/SubList.html">SubList</a>: The sublist operator on lists.</li>
@@ -156,7 +157,7 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>[1, 2, 3];
 list[int]: [1,2,3]
 <span class="prompt">rascal></span>[&lt;1,10&gt;, &lt;2,20&gt;, &lt;3,30&gt;];
-list[tuple[int,int]]: [
+lrel[int, int]: [
   &lt;1,10>,
   &lt;2,20>,
   &lt;3,30>
@@ -164,7 +165,7 @@ list[tuple[int,int]]: [
 <span class="prompt">rascal></span>[1, &quot;b&quot;, 3];
 list[value]: [1,"b",3]
 <span class="prompt">rascal></span>[&lt;&quot;a&quot;,10&gt;, &lt;&quot;b&quot;,20&gt;, &lt;&quot;c&quot;,30&gt;];
-list[tuple[str,int]]: [
+lrel[str, int]: [
   &lt;"a",10>,
   &lt;"b",20>,
   &lt;"c",30>
@@ -214,14 +215,20 @@ list[int]: [10,1,2,3,20]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_5" value="0@5@[5,1,4]">
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_4" value="0@4@[4,3,5,2,0]">
+<label for="Rascal/Expressions/Values/List_1_4">The least upper bound of the type of two arbitrary elements. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_3" value="1@3@[4,3,5,2,0]">
+<label for="Rascal/Expressions/Values/List_1_3">The average of the type of the elements with the smallest and the largest type. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_5" value="2@5@[4,3,5,2,0]">
 <label for="Rascal/Expressions/Values/List_1_5">The type of two arbitrary elements. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_1" value="1@1@[5,1,4]">
-<label for="Rascal/Expressions/Values/List_1_1">The types of all the elements in the list. </label><br/>
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_2" value="3@2@[4,3,5,2,0]">
+<label for="Rascal/Expressions/Values/List_1_2">The type of the element that was first added to the list. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_4" value="2@4@[5,1,4]">
-<label for="Rascal/Expressions/Values/List_1_4">The least upper bound of the type of two arbitrary elements. </label><br/>
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_0" value="4@0@[4,3,5,2,0]">
+<label for="Rascal/Expressions/Values/List_1_0">The least upper bound of the type of all elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -246,9 +253,9 @@ list[int]: [10,1,2,3,20]
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_2:B" value="&quot;Blueberry&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_List_2:A" value="[&quot;Blackcurrant&quot;, &quot;G&quot;, &quot;Celery&quot;, &quot;S&quot;]">
-<pre class="prequestion">[&quot;Blackcurrant&quot;, &quot;G&quot;, &quot;Celery&quot;, &quot;S&quot;] <input type="text" size="30" name="Rascal_Expressions_Values_List_2:answer" class="answerText"> &quot;Blueberry&quot; == [&quot;Blackcurrant&quot;,&quot;G&quot;,&quot;Celery&quot;,&quot;S&quot;,&quot;Blueberry&quot;]</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_2:B" value="&quot;Anise&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_List_2:A" value="[&quot;Raspberry&quot;, &quot;Cookie Monster&quot;, &quot;Fig&quot;, &quot;Yoda&quot;]">
+<pre class="prequestion">[&quot;Raspberry&quot;, &quot;Cookie Monster&quot;, &quot;Fig&quot;, &quot;Yoda&quot;] <input type="text" size="30" name="Rascal_Expressions_Values_List_2:answer" class="answerText"> &quot;Anise&quot; == [&quot;Raspberry&quot;,&quot;Cookie Monster&quot;,&quot;Fig&quot;,&quot;Yoda&quot;,&quot;Anise&quot;]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_2:another" value="yes">
@@ -403,9 +410,9 @@ list[int]: [10,1,2,3,20]
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_8:A" value="[2, 19, 17]">
-<input type="hidden" name="Rascal_Expressions_Values_List_8:B" value="[-14, -13]">
-<pre class="prequestion">[2, 19, 17] <input type="text" size="30" name="Rascal_Expressions_Values_List_8:answer" class="answerText"> [-14, -13] == [2,19,17,-14,-13]</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_8:A" value="[&quot;Rosemary&quot;, &quot;B&quot;, &quot;Wasabi&quot;]">
+<input type="hidden" name="Rascal_Expressions_Values_List_8:B" value="[&quot;Count Von Count&quot;, &quot;Q&quot;, &quot;Jar Jar Binks&quot;]">
+<pre class="prequestion">[&quot;Rosemary&quot;, &quot;B&quot;, &quot;Wasabi&quot;] <input type="text" size="30" name="Rascal_Expressions_Values_List_8:answer" class="answerText"> [&quot;Count Von Count&quot;, &quot;Q&quot;, &quot;Jar Jar Binks&quot;] == [&quot;Rosemary&quot;,&quot;B&quot;,&quot;Wasabi&quot;,&quot;Count Von Count&quot;,&quot;Q&quot;,&quot;Jar Jar Binks&quot;]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_8:another" value="yes">
@@ -429,9 +436,9 @@ list[int]: [10,1,2,3,20]
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_9:ELM" value="6">
-<input type="hidden" name="Rascal_Expressions_Values_List_9:A" value="[7, 3, 7, 7]">
-<pre class="prequestion">6 <input type="text" size="30" name="Rascal_Expressions_Values_List_9:answer" class="answerText"> [7, 3, 7, 7] == true</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_9:ELM" value="9">
+<input type="hidden" name="Rascal_Expressions_Values_List_9:A" value="[6, 6, 7]">
+<pre class="prequestion">9 <input type="text" size="30" name="Rascal_Expressions_Values_List_9:answer" class="answerText"> [6, 6, 7] == true</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_9:another" value="yes">

@@ -70,18 +70,18 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>{1, 2, 3} * {9};
 rel[int, int]: {
+  &lt;1,9>,
   &lt;3,9>,
-  &lt;2,9>,
-  &lt;1,9>
+  &lt;2,9>
 }
 <span class="prompt">rascal></span>{1, 2, 3} * {10, 11};
 rel[int, int]: {
-  &lt;1,11>,
   &lt;1,10>,
   &lt;2,10>,
+  &lt;3,10>,
   &lt;3,11>,
   &lt;2,11>,
-  &lt;3,10>
+  &lt;1,11>
 }
 </pre>
 </div>
@@ -110,9 +110,9 @@ rel[int, int]: {
 <span id="answerFeedback_Rascal_Expressions_Values_Relation_CartesianProduct_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Relation_CartesianProduct_1:S1" value="{9, 10}">
-<input type="hidden" name="Rascal_Expressions_Values_Relation_CartesianProduct_1:S2" value="{7, 6, -15}">
-The type of <tt>{9, 10} * {7, 6, -15}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Relation_CartesianProduct_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Relation_CartesianProduct_1:S1" value="{17, -20, 1}">
+<input type="hidden" name="Rascal_Expressions_Values_Relation_CartesianProduct_1:S2" value="{16, 7}">
+The type of <tt>{17, -20, 1} * {16, 7}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Relation_CartesianProduct_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -136,9 +136,9 @@ The type of <tt>{9, 10} * {7, 6, -15}</tt> is <input type="text" size="30" name=
 <span id="answerFeedback_Rascal_Expressions_Values_Relation_CartesianProduct_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Relation_CartesianProduct_2:S1" value="{17, 18}">
-<input type="hidden" name="Rascal_Expressions_Values_Relation_CartesianProduct_2:S2" value="{19, -3}">
-<pre class="prequestion">{17, 18} * {19, -3} == <input type="text" size="30" name="Rascal_Expressions_Values_Relation_CartesianProduct_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Relation_CartesianProduct_2:S1" value="{-18, -7}">
+<input type="hidden" name="Rascal_Expressions_Values_Relation_CartesianProduct_2:S2" value="{-16, 17}">
+<pre class="prequestion">{-18, -7} * {-16, 17} == <input type="text" size="30" name="Rascal_Expressions_Values_Relation_CartesianProduct_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Relation_CartesianProduct_2:another" value="yes">

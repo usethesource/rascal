@@ -70,27 +70,27 @@
 <span class="continuation">>>>>>>></span>{&lt;"mon", 1, 100>, &lt;"tue", 2, 150>, &lt;"wed", 3, 125>, 
 <span class="continuation">>>>>>>></span> &lt;"thur", 4, 110>, &lt;"fri", 5, 90>};
 rel[str day, int daynum, int length]: {
-  &lt;"wed",3,125>,
   &lt;"mon",1,100>,
-  &lt;"fri",5,90>,
+  &lt;"wed",3,125>,
   &lt;"thur",4,110>,
+  &lt;"fri",5,90>,
   &lt;"tue",2,150>
 }
 <span class="prompt">rascal></span>Traffic&lt;length,daynum&gt;;
 rel[int length, int daynum]: {
-  &lt;150,2>,
   &lt;100,1>,
+  &lt;90,5>,
   &lt;110,4>,
   &lt;125,3>,
-  &lt;90,5>
+  &lt;150,2>
 }
 <span class="prompt">rascal></span>Traffic&lt;2,day&gt;;
 rel[int length, str day]: {
-  &lt;100,"mon">,
-  &lt;90,"fri">,
-  &lt;150,"tue">,
   &lt;125,"wed">,
-  &lt;110,"thur">
+  &lt;150,"tue">,
+  &lt;110,"thur">,
+  &lt;100,"mon">,
+  &lt;90,"fri">
 }
 </pre> Field projection thus selects parts from a larger value that has a fixed number of parts. The selection is based on position and not on value and can be used to completely reorder or remove the parts of a larger value.
 

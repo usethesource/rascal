@@ -70,7 +70,7 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>{ N * N | int N &lt;- [0 .. 10]};
-set[int]: {25,9,100,36,4,81,49,1,64,16,0}
+set[int]: {25,9,36,4,81,49,1,64,16,0}
 <span class="prompt">rascal></span>{ N * N | int N &lt;- [0 .. 10], N % 3 == 0};
 set[int]: {9,36,81,0}
 </pre>
@@ -101,8 +101,8 @@ set[int]: {9,36,81,0}
  <br/>
 
 <form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_1:I" value="3">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_1:J" value="9">
-The type of <tt>{ N + 1 | int N &lt;- [3 .. 9] }</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_1:answer" class="answerText"><br/>
+<input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_1:J" value="7">
+The type of <tt>{ N + 1 | int N &lt;- [3 .. 7] }</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -151,8 +151,8 @@ The type of <tt>{ N + 1 | int N &lt;- [3 .. 9] }</tt> is <input type="text" size
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Comprehension_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_3:S" value="{19, -6}">
-<pre class="prequestion">{ 2 * N | int N &lt;- {19, -6} } == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_3:S" value="{3, 1, -10, 9, 13}">
+<pre class="prequestion">{ 2 * N | int N &lt;- {3, 1, -10, 9, 13} } == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_3:another" value="yes">
@@ -176,8 +176,8 @@ The type of <tt>{ N + 1 | int N &lt;- [3 .. 9] }</tt> is <input type="text" size
  Complete this comprehension:
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_4:S" value="{-3, 8, -1, -20, 5}">
-<pre class="prequestion">{ <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_4:answer" class="answerText"> | int N &lt;- {-3, 8, -1, -20, 5} } == {-2,-4,-21,7,4}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_4:S" value="{16}">
+<pre class="prequestion">{ <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_4:answer" class="answerText"> | int N &lt;- {16} } == {15}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_4:another" value="yes">

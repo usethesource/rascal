@@ -164,6 +164,7 @@
 <ul></ul><li><a href="/Rascal/Expressions/Values/List/NotEqual/NotEqual.html">NotEqual</a>: Not equal operator on lists.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/List/notin/notin.html">notin</a>: Negated membership test on lists.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/List/Product/Product.html">Product</a>: Compute the product of two lists.</li>
+<ul></ul><li><a href="/Rascal/Expressions/Values/List/Slicing/Slicing.html">Slicing</a>: Retrieve a slice of a list.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/List/StrictSubList/StrictSubList.html">StrictSubList</a>: The strict sublist operator on lists.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/List/StrictSuperList/StrictSuperList.html">StrictSuperList</a>: The strict super list operator on lists.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/List/SubList/SubList.html">SubList</a>: The sublist operator on lists.</li>
@@ -179,7 +180,8 @@
 <ul></ul><li><a href="/Rascal/Expressions/Values/Location/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a>: The less than or equal operator on location values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Location/NotEqual/NotEqual.html">NotEqual</a>: The not equal operator on location values.</li>
 <ul></ul></ul><li><a href="/Rascal/Expressions/Values/Map/Map.html">Map</a>: Map values.</li>
-<ul><li><a href="/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Comprehension</a>: A map comprehension generates a map value.</li>
+<ul><li><a href="/Rascal/Expressions/Values/Map/Composition/Composition.html">Composition</a>: Composition of two map values.</li>
+<ul></ul><li><a href="/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Comprehension</a>: A map comprehension generates a map value.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Map/Difference/Difference.html">Difference</a>: The difference between two maps.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Map/Equal/Equal.html">Equal</a>: Equality operator on maps.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Map/in/in.html">in</a>: Membership test on the keys of a map.</li>
@@ -199,6 +201,7 @@
 <ul></ul><li><a href="/Rascal/Expressions/Values/Node/LessThan/LessThan.html">LessThan</a>: Less than operator on node values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Node/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a>: Less than or equal operator on node values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Node/NotEqual/NotEqual.html">NotEqual</a>: Not equal operator on node values.</li>
+<ul></ul><li><a href="/Rascal/Expressions/Values/Node/Subscription/Subscription.html">Subscription</a>: Retrieve an argument of a node via its index.</li>
 <ul></ul></ul><li><a href="/Rascal/Expressions/Values/Number/Number.html">Number</a>: Numeric values.</li>
 <ul><li><a href="/Rascal/Expressions/Values/Number/Addition/Addition.html">Addition</a>: Addition on numeric values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Number/Conditional/Conditional.html">Conditional</a>: Conditional expression for numeric values.</li>
@@ -246,6 +249,7 @@
 <ul></ul><li><a href="/Rascal/Expressions/Values/String/LessThan/LessThan.html">LessThan</a>: Less than operator on string values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/String/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a>: Less than or equal operator on string values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/String/NotEqual/NotEqual.html">NotEqual</a>: Not equal operator on string values.</li>
+<ul></ul><li><a href="/Rascal/Expressions/Values/String/Subscription/Subscription.html">Subscription</a>: Retrieve a substring via its index.</li>
 <ul></ul></ul><li><a href="/Rascal/Expressions/Values/Tuple/Tuple.html">Tuple</a>: Tuple values.</li>
 <ul><li><a href="/Rascal/Expressions/Values/Tuple/Concatenation/Concatenation.html">Concatenation</a>: Concatenate two tuple values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Tuple/Equal/Equal.html">Equal</a>: Equality operator on tuple values.</li>
@@ -350,9 +354,10 @@
 <ul><li><a href="/Rascal/Libraries/Prelude/Exception/RuntimeException/RuntimeException.html">RuntimeException</a>: The <code>Exception</code> datatype used in all Rascal exceptions.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/IO.html">IO</a>: Library functions for input/output.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/IO/appendToFile/appendToFile.html">appendToFile</a>: Append a value to a file.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/appendToFileEnc/appendToFileEnc.html">appendToFileEnc</a>: Append a value to a file.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/bprintln/bprintln.html">bprintln</a>: Print a value and return true.</li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/canEncode/canEncode.html">canEncode</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/charsets/charsets.html">charsets</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/canEncode/canEncode.html">canEncode</a>: Returns whether this charset can be used for encoding (use with writeFile)</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/charsets/charsets.html">charsets</a>: Returns all available character sets</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/exists/exists.html">exists</a>: Check whether a given location exists.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/find/find.html">find</a>: Find a named file in a list of locations.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/iprint/iprint.html">iprint</a>: Print an indented representation of a value.</li>
@@ -371,11 +376,14 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/printlnExp/printlnExp.html">printlnExp</a>: Print a value followed by a newline and return it as result.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/readFile/readFile.html">readFile</a>: Read the contents of a location and return it as string value.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/readFileBytes/readFileBytes.html">readFileBytes</a>: Read the contents of a file and return it as a list of bytes.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/readFileEnc/readFileEnc.html">readFileEnc</a>: Read the contents of a location and return it as string value.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/readFileLines/readFileLines.html">readFileLines</a>: Read the contents of a file location and return it as a list of strings.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/readFileLinesEnc/readFileLinesEnc.html">readFileLinesEnc</a>: Read the contents of a file location and return it as a list of strings.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/rprint/rprint.html">rprint</a>: Raw print of a value.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/rprintln/rprintln.html">rprintln</a>: Raw print of a value followed by newline.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/touch/touch.html">touch</a>: Changes the last modification date of a file.</li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/writeFile/writeFile.html">writeFile</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/writeFile/writeFile.html">writeFile</a>: Write values to a file.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/writeFileEnc/writeFileEnc.html">writeFileEnc</a>: Write values to a file.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/List/List.html">List</a>: Library functions for lists.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/List/delete/delete.html">delete</a>: Delete an element from a list.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/List/distribution/distribution.html">distribution</a>: Get the distribution of the elements of the list. That is how often does each element occur in the list? </li>
@@ -633,8 +641,11 @@
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/percent/percent.html">percent</a>: Compute the ratio between two numbers as a percentage.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/PI/PI.html">PI</a>: The constant pi.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/pow/pow.html">pow</a>: Calculate an arbitrary power of a numeric value.</li>
+<ul></ul><li><a href="/Rascal/Libraries/util/Math/precision/precision.html">precision</a>: Return the precision of a real number.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/remainder/remainder.html">remainder</a>: Return the remainder of dividing the numerator by the denominator.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/round/round.html">round</a>: Round a number to the nearest multiple of a given number (default 1).</li>
+<ul></ul><li><a href="/Rascal/Libraries/util/Math/scale/scale.html">scale</a>: Return the scale of a real number.</li>
+<ul></ul><li><a href="/Rascal/Libraries/util/Math/setPrecision/setPrecision.html">setPrecision</a>: Define the precision for numeric calculations; returns the previous precision.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/sin/sin.html">sin</a>: Calculate the sine of a numeric value.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/sqrt/sqrt.html">sqrt</a>: Calculate the square root of a numeric value.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/tan/tan.html">tan</a>: Calculate the tangent of a numeric value.</li>

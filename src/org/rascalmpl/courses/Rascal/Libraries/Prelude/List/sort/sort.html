@@ -53,7 +53,7 @@
                            
 <div id="Function">
 <span class="sectionHead">Function</span>  <ol><li> <code>list[&amp;T] sort(list[&amp;T] lst)</code></li>
-<li> <code>list[&amp;T] sort(list[&amp;T] l, bool (&amp;T a, &amp;T b) lessOrEqual)</code></li>
+<li> <code>list[&amp;T] sort(list[&amp;T] l, bool (&amp;T a, &amp;T b) less)</code></li>
 </ol>
 </div>
 
@@ -67,7 +67,7 @@
 <div id="Description">
 <span class="sectionHead">Description</span>  Sort the elements of a list:
  <ol><li> Use the built-in ordering on values to compare list elements.</li>
-<li> Give an additional <code>lessThanOrEqual</code> function that will be used to compare elements.</li>
+<li> Give an additional <code>lessThan</code> function that will be used to compare elements.</li>
 </ol>
 </div>
 
@@ -84,7 +84,11 @@ list[str]: ["mango","strawberry","pear","pineapple","banana","grape","kiwi"]
 <span class="prompt">rascal></span>sort(fruits);
 list[str]: ["banana","grape","kiwi","mango","pear","pineapple","strawberry"]
 <span class="prompt">rascal></span>sort(fruits, bool(str a, str b){ return size(a) &gt;= size(b); });
-list[str]: ["strawberry","pineapple","banana","mango","grape","pear","kiwi"]
+|std:///List.rsc|(24611,105,&lt;1204,0>,&lt;1205,63>): IllegalArgument(bool (str, str);,"Bad comparator: Did you use less-or-equals instead of less-than?")
+	/List.rsc:1204,0
+	somewhere in: sort
+
+
 </pre>
 </div>
 
@@ -114,14 +118,14 @@ list[str]: ["strawberry","pineapple","banana","mango","grape","pear","kiwi"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_0" value="0@0@[0,3,1]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_0" value="0@0@[0,1,2]">
 <label for="Rascal/Libraries/Prelude/List/sort_1_0">N elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_3" value="1@3@[0,3,1]">
-<label for="Rascal/Libraries/Prelude/List/sort_1_3">N * (N - 1) elements. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_1" value="2@1@[0,3,1]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_1" value="1@1@[0,1,2]">
 <label for="Rascal/Libraries/Prelude/List/sort_1_1">N - 1 elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_2" value="2@2@[0,1,2]">
+<label for="Rascal/Libraries/Prelude/List/sort_1_2">N! elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -145,8 +149,8 @@ list[str]: ["strawberry","pineapple","banana","mango","grape","pear","kiwi"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_sort_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_2:L" value="[&quot;Cardamon&quot;, &quot;Cardamon&quot;, &quot;Joh Yowza&quot;, &quot;G&quot;]">
-The type of <tt>sort([&quot;Cardamon&quot;, &quot;Cardamon&quot;, &quot;Joh Yowza&quot;, &quot;G&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_sort_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_2:L" value="[-12, -20, -8]">
+The type of <tt>sort([-12, -20, -8])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_sort_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -170,8 +174,8 @@ The type of <tt>sort([&quot;Cardamon&quot;, &quot;Cardamon&quot;, &quot;Joh Yowz
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_sort_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_3:L" value="[0, -5]">
-<pre class="prequestion">sort([0, -5]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_sort_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_3:L" value="[&quot;Yoda&quot;, &quot;Jar Jar Binks&quot;, &quot;K&quot;, &quot;Telly Monster&quot;]">
+<pre class="prequestion">sort([&quot;Yoda&quot;, &quot;Jar Jar Binks&quot;, &quot;K&quot;, &quot;Telly Monster&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_sort_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_3:another" value="yes">
@@ -189,7 +193,7 @@ The type of <tt>sort([&quot;Cardamon&quot;, &quot;Cardamon&quot;, &quot;Joh Yowz
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/List/sort&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/List/sort&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

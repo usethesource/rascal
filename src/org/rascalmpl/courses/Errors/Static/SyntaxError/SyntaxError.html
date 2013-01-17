@@ -68,13 +68,13 @@
 <li> All semi-colons are present.</li>
 <li> All tests in <code>if</code>, <code>for</code>, <code>while</code> statement are surrounded by <code>(...)</code>.</li>
 </ul> When you are completely desparate and cannot find the syntax error, the following <i>binary search</i> strategy may help:
- <ul><li> Surround all text in the module (except the module header) with <code>/*</code> and <code>*/</code>. Now your module should parse. If not the syntax error is in the module header.</li>
+ <ol><li> Surround all text in the module (except the module header) with <code>/*</code> and <code>*/</code>. Now your module should parse. If not the syntax error is in the module header.</li>
 <li> Move the upper comment symbol <code>/*</code> to the middle of the file. Now there are two possibilities: <ul><li> The module parses. The top part is correct and the syntax error is in the bottom part.       Move the <code>/*</code> marker to the middle of the bottom part and repeat.
 </li>
 <li> The module does not parse. The syntax error is in the top part.      Move the <code>/*</code> marker to the middle of the top part and repeat.
 </li>
 </ul></li>
-</ul>
+</ol>
 </div>
 
   	                       

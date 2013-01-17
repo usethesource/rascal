@@ -68,14 +68,14 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Node;
 ok
 <span class="prompt">rascal></span>G = setAnnotations(&quot;g&quot;(&quot;def&quot;), (&quot;level&quot; : &quot;20&quot;, &quot;direction&quot; : &quot;north&quot;));
-node: g("def")[
+node: "g"("def")[
   @direction="north",
   @level="20"
 ]
 <span class="prompt">rascal></span>F = setAnnotations(&quot;f&quot;(10, G), (&quot;color&quot; : &quot;red&quot;, &quot;size&quot; : &quot;large&quot;));
-node: f(
+node: "f"(
   10,
-  g("def")[
+  "g"("def")[
     @direction="north",
     @level="20"
   ])[
@@ -83,9 +83,9 @@ node: f(
   @size="large"
 ]
 <span class="prompt">rascal></span>delAnnotationsRec(F);
-node: f(
+node: "f"(
   10,
-  g("def"))
+  "g"("def"))
 </pre>
 </div>
 
