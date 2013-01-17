@@ -93,8 +93,6 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.staticErrors.UnguardedInsert;
 import org.rascalmpl.interpreter.staticErrors.UnguardedReturn;
-import org.rascalmpl.interpreter.strategy.IStrategyContext;
-import org.rascalmpl.interpreter.strategy.StrategyContextStack;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
@@ -129,8 +127,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private final IValueFactory vf; // sharable
 	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
 	protected Environment currentEnvt; // not sharable
-
-	private final StrategyContextStack strategyContextStack; // not sharable 
 
 	private final GlobalEnvironment heap; // shareable if frozen
 	/**
@@ -196,7 +192,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		super();
 		
 		this.vf = vf;
-		this.strategyContextStack = new StrategyContextStack();
 		this.heap = heap;
 		this.typeDeclarator = new TypeDeclarationEvaluator(this);
 		this.currentEnvt = scope;
@@ -261,7 +256,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		super();
 		
 		this.vf = parent.vf;
-		this.strategyContextStack = new StrategyContextStack();
 		this.heap = parent.heap;
 		this.typeDeclarator = new TypeDeclarationEvaluator(this);
 		// TODO: this is probably not OK
@@ -1843,21 +1837,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	@Override	
 	public IValueFactory getValueFactory() {
 		return __getVf();
-	}
-
-	@Override	
-	public IStrategyContext getStrategyContext() {
-		return strategyContextStack.getCurrentContext();
-	}
-
-	@Override	
-	public void pushStrategyContext(IStrategyContext strategyContext) {
-		strategyContextStack.pushContext(strategyContext);
-	}
-
-	@Override	
-	public void popStrategyContext() {
-		strategyContextStack.popContext();
 	}
 
 	public void setAccumulators(Accumulator accu) {

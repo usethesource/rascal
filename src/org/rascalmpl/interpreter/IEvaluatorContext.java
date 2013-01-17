@@ -25,7 +25,6 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -60,10 +59,6 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	
 	public IValueFactory getValueFactory();
 	
-	// strategy related
-	public IStrategyContext getStrategyContext();
-	public void pushStrategyContext(IStrategyContext strategyContext);
-	public void popStrategyContext();
 	public void setAccumulators(Stack<Accumulator> accumulators);
 	public Stack<Accumulator> getAccumulators();
 	
