@@ -200,87 +200,108 @@ public class JavaBridge {
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>> {
 
+		@Override
 		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
 			return IBool.class;
 		}
 
+		@Override
 		public Class<?> visitReal(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IReal.class;
 		}
 
+		@Override
 		public Class<?> visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IInteger.class;
 		}
 		
+		@Override
 		public Class<?> visitRational(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IRational.class;
 		}
 		
+		@Override
 		public Class<?> visitNumber(org.eclipse.imp.pdb.facts.type.Type type) {
 			return INumber.class;
 		}
 
+		@Override
 		public Class<?> visitList(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IList.class;
 		}
 
+		@Override
 		public Class<?> visitMap(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IMap.class;
 		}
 
+		@Override
 		public Class<?> visitAlias(org.eclipse.imp.pdb.facts.type.Type type) {
 			return type.getAliased().accept(this);
 		}
 
+		@Override
 		public Class<?> visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IConstructor.class;
 		}
 
+		@Override
 		public Class<?> visitRelationType(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IRelation.class;
 		}
 
+		@Override
 		public Class<?> visitSet(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ISet.class;
 		}
 
+		@Override
 		public Class<?> visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ISourceLocation.class;
 		}
 
+		@Override
 		public Class<?> visitString(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IString.class;
 		}
 
+		@Override
 		public Class<?> visitNode(org.eclipse.imp.pdb.facts.type.Type type) {
 			return INode.class;
 		}
 
+		@Override
 		public Class<?> visitConstructor(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IConstructor.class;
 		}
 
+		@Override
 		public Class<?> visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ITuple.class;
 		}
 
+		@Override
 		public Class<?> visitValue(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IValue.class;
 		}
 
+		@Override
 		public Class<?> visitVoid(org.eclipse.imp.pdb.facts.type.Type type) {
 			return null;
 		}
 
+		@Override
 		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
 		}
 
+		@Override
 		public Class<?> visitExternal(
 				org.eclipse.imp.pdb.facts.type.Type externalType) {
 			return IValue.class;
 		}
 
+		@Override
 		public Class<?> visitDateTime(Type type) {
 			return IDateTime.class;
 		}
