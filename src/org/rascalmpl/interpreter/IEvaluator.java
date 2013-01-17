@@ -116,7 +116,6 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	
 	public Module preParseModule(URI location, ISourceLocation cause);
 		
-	public void pushEnv();
 	public Environment pushEnv(Statement s);
 
 	public List<ClassLoader> getClassLoaders();
@@ -161,4 +160,25 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
 			IMap robust, URI location);
 
+	/**
+	 *  Freeze the global state of this evaluator so that it can no longer be updated.
+	 * 
+	 *  Any attempt to modify global variables or load/remove/change modules will
+	 *  result in an UnsupportedOperationException.
+	 *  
+	 *  This method is not guaranteed to be thread safe itself, but after it returns
+	 *  other methods that do not touch the execution stack should be thread safe.
+	 */
+	public void freeze();
+	
+	/**
+	 * Fork the evaluator, creating an exact copy with its own stack.
+	 * 
+	 * Modules and global data will be shared between the old and new environment.
+	 * 
+	 * The current environment must be frozen (@see{#freeze}) before calling this method.
+	 * 
+	 * @return A new evaluator, identical to the current one except for the stack
+	 */
+	public IEvaluator<T> fork();
 }
