@@ -61,7 +61,7 @@ import org.rascalmpl.values.uptr.Factory;
  */
 public class ModuleEnvironment extends Environment {
 	protected final GlobalEnvironment heap;
-	protected Map<String, ModuleEnvironment> importedModules;
+	protected Set<String> importedModules;
 	protected Set<String> extended;
 	protected Set<String> haveExtended;
 	protected TypeStore typeStore;
@@ -81,7 +81,7 @@ public class ModuleEnvironment extends Environment {
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
 		super(name);
 		this.heap = heap;
-		this.importedModules = new HashMap<String, ModuleEnvironment>();
+		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.productions = new HashSet<IValue>();
 		this.typeStore = new TypeStore();
@@ -114,7 +114,7 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public void reset() {
 		super.reset();
-		this.importedModules = new HashMap<String, ModuleEnvironment>();
+		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.typeStore = new TypeStore();
 		this.productions = new HashSet<IValue>();
@@ -217,7 +217,7 @@ public class ModuleEnvironment extends Environment {
 				result.put(VF.string(m), t);
 			}else if(m == getName()){ // This is the root scope.
 				ISetWriter importWriter = VF.setWriter(TF.stringType());
-				for(String impname : importedModules.keySet()){
+				for(String impname : importedModules){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					importWriter.insert(VF.string(impname));
@@ -249,7 +249,8 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void addImport(String name, ModuleEnvironment env) {
-		importedModules.put(name, env);
+		assert heap.getModule(name).equals(env);
+		importedModules.add(name);
 		typeStore.importStore(env.typeStore);
 	}
 	
@@ -293,7 +294,7 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public Set<String> getImports() {
-		return importedModules.keySet();
+		return Collections.unmodifiableSet(importedModules);
 	}
 	
 	public Set<String> getImportsTransitive() {
@@ -321,8 +322,8 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void unImport(String moduleName) {
-		ModuleEnvironment old = importedModules.remove(moduleName);
-		if (old != null) {
+		if(importedModules.remove(moduleName)) {
+			ModuleEnvironment old = heap.getModule(moduleName);
 			typeStore.unimportStores(new TypeStore[] { old.getStore() });
 		}
 	}
@@ -390,7 +391,7 @@ public class ModuleEnvironment extends Environment {
 		}
 		else {
 			for (String i : getImports()) {
-				ModuleEnvironment module = importedModules.get(i);
+				ModuleEnvironment module = heap.getModule(i);
 				result = module.getLocalPublicVariable(name);
 
 				if (result != null) {
@@ -627,12 +628,17 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public String toString() {
-		return "Environment [ " + getName() + ", imports: " + ((importedModules != null) ? importedModules.keySet() : "") + ", extends: " + ((extended != null) ? extended : "") + "]"; 
+		return "Environment [ " + getName() + ", imports: " + ((importedModules != null) ? importedModules : "") + ", extends: " + ((extended != null) ? extended : "") + "]"; 
 	}
 
 	@Override
 	public ModuleEnvironment getImport(String moduleName) {
-		return importedModules.get(moduleName);
+		if(importedModules.contains(moduleName)) {
+			return heap.getModule(moduleName);
+		}
+		else {
+			return null;
+		}
 	}
 	
 	@Override
