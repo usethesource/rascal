@@ -103,6 +103,18 @@ public class Environment {
 		}
 	}
 
+	protected Environment(Environment old) {
+		this.parent = old.parent;
+		this.loc = old.loc;
+		this.name = old.name;
+		this.callerScope = old.callerScope;
+		this.callerLocation = old.callerLocation;
+		this.variableEnvironment = old.variableEnvironment;
+		this.functionEnvironment = old.functionEnvironment;
+		this.typeParameters = old.typeParameters;
+		this.nameFlags = old.nameFlags;
+	}
+
 	/**
 	 * @return the name of this environment/stack frame for use in tracing
 	 */
