@@ -6,7 +6,7 @@ Syntax:
 
 Types:
 
-Function: `AstNode createAstFromFile(loc file)`
+Function: `AstNode createAstFromFile(loc file, bool collectBindings = true)`
        
 Usage:
 
