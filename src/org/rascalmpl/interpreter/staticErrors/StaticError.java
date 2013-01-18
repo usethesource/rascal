@@ -87,9 +87,10 @@ public abstract class StaticError extends RuntimeException {
 	}
 	
 	public String getAdvice(){
-		String prefix = "http://127.0.0.1:9000/ErrorMessages/";
+		String prefix = "http://tutor.rascal-mpl.org/Errors/Static/";
 		String cn = getClass().getSimpleName();
-		return "<A HREF=\"" + prefix + cn + "/" + cn + ".html\"" + ">Advice</A>";
+		//  p.m. lefthand is \u261C
+		return "\uE007[\u261E Advice](" + prefix + cn + "/" + cn + ".html)";
 	}
 	
 	@Override
