@@ -252,26 +252,28 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 	}
 
-	private Evaluator(Evaluator parent, ModuleEnvironment scope) {
+	private Evaluator(Evaluator source, ModuleEnvironment scope) {
 		super();
 		
-		this.vf = parent.vf;
-		this.heap = parent.heap;
+		// this.accumulators = source.accumulators;
+		// this.testReporter = source.testReporter;
+		this.vf = source.vf;
+		this.heap = source.heap;
 		this.typeDeclarator = new TypeDeclarationEvaluator(this);
 		// TODO: this is probably not OK
 		this.currentEnvt = scope;
 		this.rootScope = scope;
 		// TODO: this is probably not OK
 		heap.addModule(scope);
-		this.classLoaders = parent.classLoaders;
+		this.classLoaders = source.classLoaders;
 		// TODO: the Java bridge is probably sharable if its methods are synchronized
 		this.javaBridge = new JavaBridge(classLoaders, vf);
-		this.rascalPathResolver = parent.rascalPathResolver;
-		this.resolverRegistry = parent.resolverRegistry;
-		this.defStderr = parent.defStderr;
-		this.defStdout = parent.defStdout;
-		this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>(parent.constructorDeclaredListeners);
-		this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>(parent.suspendTriggerListeners);
+		this.rascalPathResolver = source.rascalPathResolver;
+		this.resolverRegistry = source.resolverRegistry;
+		this.defStderr = source.defStderr;
+		this.defStdout = source.defStdout;
+		this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>(source.constructorDeclaredListeners);
+		this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>(source.suspendTriggerListeners);
 		
 		updateProperties();
 		

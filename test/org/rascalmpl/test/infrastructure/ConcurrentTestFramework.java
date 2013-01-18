@@ -46,9 +46,9 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class ConcurrentTestFramework {
-	private final static int N = 1;
+	private final static int N = 400;
 	private final static Evaluator evaluator;
-	private final static Evaluator[] evaluators = new Evaluator[N];
+	private Evaluator[] evaluators = null;
 	private final static TestModuleResolver modules;
 
 	private final static PrintWriter stderr;
@@ -153,14 +153,16 @@ public class ConcurrentTestFramework {
 		evaluator.getHeap().clear();
 		evaluator.__getRootScope().reset();
 		modules.reset();
-
+		evaluators = null; 
 		evaluator.getAccumulators().clear();
 	}
 
 	private void forkEvaluators() {
 		evaluator.freeze();
+		evaluators = new Evaluator[N];
 		synchronized(evaluators) {
-			for(int i = 0; i < evaluators.length; i++) {
+			evaluators[0] = evaluator;
+			for(int i = 1; i < evaluators.length; i++) {
 				evaluators[i]= (Evaluator) evaluator.fork();
 			}
 		}
@@ -168,6 +170,9 @@ public class ConcurrentTestFramework {
 
 	@After
 	public void assureEvaluatorIsSane() {
+		assertTrue(evaluator.getCurrentEnvt().isRootScope());
+		assertTrue(evaluator.getCurrentEnvt().isRootStackFrame());
+		assertTrue("When we are at the root scope and stack frame, the accumulators should be empty as well", evaluator.getAccumulators().empty());
 		for(int i = 0; i < evaluators.length; i++) {
 			assertTrue(evaluators[i].getCurrentEnvt().isRootScope());
 			assertTrue(evaluators[i].getCurrentEnvt().isRootStackFrame());
@@ -181,36 +186,17 @@ public class ConcurrentTestFramework {
 		return executeInThreads(command);
 	}
 
-	public boolean runRascalTests(String command) {
+	public boolean runRascalTests(final String command) {
 		try {
 			reset();
 			forkEvaluators();
-			execute(command);
-			final boolean[] results = new boolean[N];
-			final Thread[] threads = new Thread[N];
-
-			for(int i = 0; i < N; i++) {
-				threads[i] = new Thread(new ForkedRunnable(i, results) {
+			return runConcurrently(new ForkedRunnable() {
 					@Override
 					public boolean run(Evaluator eval) {
+						execute(command, eval);
 						return eval.runTests(eval.getMonitor());
 					}
 				});
-			}
-			for(int i = 0; i < N; i++) {
-				try {
-					threads[i].join();
-				} catch (InterruptedException e) {
-					throw new RuntimeException("Thread interrupted", e);
-				}
-			}
-			boolean result = true;
-			synchronized(results) {
-				for(int i = 0; i < N; i++) {
-					result &= results[i];
-				}
-			}
-			return result;
 		}
 		finally {
 			stderr.flush();
@@ -219,19 +205,22 @@ public class ConcurrentTestFramework {
 	}
 
 	public boolean runTestInSameEvaluator(String command) {
+		if(evaluators == null) {
+			forkEvaluators();
+		}
 		return executeInThreads(command);
 	}
 
 	public boolean runTest(String command1, String command2) {
 		reset();
-		execute(command1);
+		execute(command1, evaluator);
 		return executeInThreads(command2);
 	}
 
 	public ConcurrentTestFramework prepare(String command) {
 		try {
 			reset();
-			execute(command);
+			execute(command, evaluator);
 		}
 		catch (StaticError e) {
 			throw e;
@@ -246,7 +235,7 @@ public class ConcurrentTestFramework {
 
 	public ConcurrentTestFramework prepareMore(String command) {
 		try {
-			execute(command);
+			execute(command, evaluator);
 
 		}
 		catch (StaticError e) {
@@ -265,8 +254,8 @@ public class ConcurrentTestFramework {
 		return true;
 	}
 
-	private boolean execute(String command){
-		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme("stdin"));
+	private boolean execute(String command, Evaluator eval){
+		Result<IValue> result = eval.eval(null, command, URIUtil.rootScheme("stdin"));
 
 		if (result.getType().isVoidType()) {
 			return true;
@@ -284,29 +273,46 @@ public class ConcurrentTestFramework {
 	}
 
 	private boolean executeInThreads(final String command){
+		return runConcurrently(new ForkedRunnable() {
+			@Override
+			public boolean run(Evaluator eval) {
+				Result<IValue> result = eval.eval(null, command, URIUtil.rootScheme("stdin"));
+
+				if (result.getType().isVoidType()) {
+					return true;
+
+				}
+				if (result.getValue() == null) {
+					return false;
+				}
+
+				if (result.getType() == TypeFactory.getInstance().boolType()) {
+					return ((IBool) result.getValue()).getValue();
+				}
+				return false;
+			}});
+	}
+
+	boolean runConcurrently(final ForkedRunnable runner) {
 		final boolean[] results = new boolean[N];
 		final Thread[] threads = new Thread[N];
 
 		for(int i = 0; i < N; i++) {
-			threads[i] = new Thread(new ForkedRunnable(i, results) {
+			final int threadNumber = i;
+			threads[i] = new Thread(new Runnable() {
 				@Override
-				public boolean run(Evaluator eval) {
-					Result<IValue> result = eval.eval(null, command, URIUtil.rootScheme("stdin"));
-
-					if (result.getType().isVoidType()) {
-						return true;
-
+				public void run() {
+					Evaluator eval;
+					synchronized(evaluators) {
+						eval = evaluators[threadNumber];
 					}
-					if (result.getValue() == null) {
-						return false;
+					boolean result = runner.run(eval);
+					System.err.println(threadNumber + ": " + System.identityHashCode(eval.hashCode()) + ", " + System.identityHashCode(eval.getAccumulators()));
+					synchronized(results) {
+						results[threadNumber] = result;
 					}
-
-					if (result.getType() == TypeFactory.getInstance().boolType()) {
-						return ((IBool) result.getValue()).getValue();
-					}
-					return false;
-				}}
-					);
+				}			
+			});
 			threads[i].run();
 		}
 		for(int i = 0; i < N; i++) {
@@ -316,38 +322,18 @@ public class ConcurrentTestFramework {
 				throw new RuntimeException("Thread interrupted", e);
 			}
 		}
-		boolean result = true;
 		synchronized(results) {
 			for(int i = 0; i < N; i++) {
-				result &= results[i];
+				if(!results[i]) {
+					return false;
+				}
 			}
 		}
-		return result;
+		return true;
+
 	}
-
-	abstract class ForkedRunnable implements Runnable {
-		private final int threadNumber;
-		private final boolean[] results;
-		public ForkedRunnable(int n, boolean[] results) {
-			assert n < results.length;
-			this.threadNumber = n;
-			this.results = results;
-		}
-
-		public abstract boolean run(Evaluator eval);
-
-		@Override
-		public void run() {
-			Evaluator eval;
-			synchronized(evaluators) {
-				eval = evaluators[threadNumber];
-			}
-			boolean result = run(eval);
-			synchronized(results) {
-				results[threadNumber] = result;
-			}
-		}			
-
-
+	
+	interface ForkedRunnable {
+		boolean run(Evaluator eval);
 	}
 }
