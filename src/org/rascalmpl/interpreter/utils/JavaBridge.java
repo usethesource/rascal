@@ -29,6 +29,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -88,15 +90,15 @@ public class JavaBridge {
 	
 	private final IValueFactory vf;
 	
-	private final HashMap<Class<?>, Object> instanceCache;
+	private final Map<Class<?>, Object> instanceCache;
 	
-	private final HashMap<Class<?>, JavaFileManager> fileManagerCache;
+	private final Map<Class<?>, JavaFileManager> fileManagerCache;
 
 	public JavaBridge(List<ClassLoader> classLoaders, IValueFactory valueFactory) {
 		this.loaders = classLoaders;
 		this.vf = valueFactory;
 		this.instanceCache = new HashMap<Class<?>, Object>();
-		this.fileManagerCache = new HashMap<Class<?>, JavaFileManager>();
+		this.fileManagerCache = new ConcurrentHashMap<Class<?>, JavaFileManager>();
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
 			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
@@ -312,7 +314,7 @@ public class JavaBridge {
 		}
 	}
 	
-	public Object getJavaClassInstance(Class<?> clazz){
+	public synchronized Object getJavaClassInstance(Class<?> clazz){
 		Object instance = instanceCache.get(clazz);
 		if(instance != null){
 			return instance;
@@ -338,7 +340,7 @@ public class JavaBridge {
 		} 
 	}
 	
-	public Object getJavaClassInstance(FunctionDeclaration func){
+	public synchronized Object getJavaClassInstance(FunctionDeclaration func){
 		String className = getClassName(func);
 
 		try {
