@@ -46,19 +46,16 @@ public class LinkifiedString {
 	}
 	
 
-	// scan for both \uE007 + [Title](url) and \uE007 + |loc|
+	// scan for both \uE007 + [Title](url) and all |loc|'s
 	private static final Pattern findLinks = Pattern.compile(
-			"\\uE007" // signaling char
-			+ "(?:" // non capturing group to make sure \uE007 is eaten by the replace
-				+ "(?:" // first alternative, Markdown
-					+ "\\[([^\\]]*)\\]" // [Title]
-					+ "\\(([^\\)]*)\\)" // (link)
-				+ ")"
-				+ "|"
-				+ "(" // or the other alternative, a rascal location 
-					+ "\\|[^\\|]*\\|" // |location|
-					+ "(?:\\([^\\)]*\\))?" // (optional offset)
-				+ ")"
+			"(?:\\uE007" // first alternative, Markdown
+				+ "\\[([^\\]]*)\\]" // [Title]
+				+ "\\(([^\\)]*)\\)" // (link)
+			+ ")"
+			+ "|"
+			+ "(" // or the other alternative, any rascal location 
+				+ "\\|[^\\|]*\\|" // |location|
+				+ "(?:\\([^\\)]*\\))?" // (optional offset)
 			+ ")");
 	
 	public LinkifiedString(String input) {
@@ -67,28 +64,36 @@ public class LinkifiedString {
 		StringBuffer sb = null; 
 		Matcher m = findLinks.matcher(input);
 		while (m.find()) {
-			if (sb == null) {
-				// first link found, initialize the needed containers
-				sb = new StringBuffer(input.length());
+			if (linkOffsets == null) {
 				linkOffsets = new ArrayList<Integer>();
 				linkLengths = new ArrayList<Integer>();
 				linkTargets = new ArrayList<String>();
 			}
 			if (m.group(3) == null) {
+				if (sb == null) {
+					// first link found, so we have to recut the string
+					sb = new StringBuffer(input.length());
+				}
 				// markdown link
 				String name = m.group(1);
 				String url = m.group(2);
 				linkTargets.add(url);
 				m.appendReplacement(sb, name);
-				linkOffsets.add(sb.length() - name.length());
+				linkOffsets.add((sb.length() - name.length()) + 1);
 				linkLengths.add(name.length());
 			}
 			else {
 				// source location
 				String loc = m.group(3);
 				linkTargets.add(loc);
-				m.appendReplacement(sb, loc);
-				linkOffsets.add(sb.length() - loc.length());
+				if (sb != null) {
+					// we are re-appending
+					m.appendReplacement(sb, loc);
+					linkOffsets.add((sb.length() - loc.length()) + 1);
+				}
+				else {
+					linkOffsets.add(m.start() + 1);
+				}
 				linkLengths.add(loc.length());
 			}
 		}
