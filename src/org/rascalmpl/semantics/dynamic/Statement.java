@@ -194,9 +194,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 			
 			Result<IValue> right = this.getStatement().interpret(__eval);
-			if(this.getAssignable().isSlice() && !this.getOperator().isDefault()){
-				throw new UnsupportedOperation("Slicing assignment only implemented for simple assignment operator (=)", __eval.getCurrentAST());
-			}
+//			if(this.getAssignable().isSlice() && !this.getOperator().isDefault()){
+//				throw new UnsupportedOperation("Slicing assignment only implemented for simple assignment operator (=)", __eval.getCurrentAST());
+//			}
 			return this.getAssignable().assignment(
 					new AssignableEvaluator(__eval.getCurrentEnvt(), this
 							.getOperator(), right, __eval));

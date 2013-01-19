@@ -89,7 +89,8 @@ public test bool sliceSecondEnd(node N) {
   if(isEmpty(L)) return true;
   e = arbInt(size(L));
   incr = 2;
-  return N[,incr..e] == makeSlice(L, 0, incr, e);
+  first = incr > e ? size(L)-1 : 0;
+  return N[,incr..e] == makeSlice(L, first, incr, e);
 }
 
 public tuple[int,int] arbFirstEnd(list[value] L){
