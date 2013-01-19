@@ -47,7 +47,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class ConcurrentTestFramework {
-	private final static int N = 400;
+	private final static int N = 12;
 	private final static Evaluator evaluator;
 	private Evaluator[] evaluators = null;
 	private final static TestModuleResolver modules;
@@ -192,12 +192,12 @@ public class ConcurrentTestFramework {
 			reset();
 			forkEvaluators();
 			return runConcurrently(new ForkedRunnable() {
-					@Override
-					public boolean run(Evaluator eval) {
-						execute(command, eval);
-						return eval.runTests(eval.getMonitor());
-					}
-				});
+				@Override
+				public boolean run(Evaluator eval) {
+					execute(command, eval);
+					return eval.runTests(eval.getMonitor());
+				}
+			});
 		}
 		finally {
 			stderr.flush();
@@ -295,7 +295,8 @@ public class ConcurrentTestFramework {
 	}
 
 	boolean runConcurrently(final ForkedRunnable runner) {
-		final boolean[] results = new boolean[N];
+		final RuntimeException failure = new RuntimeException();
+		final RuntimeException[] results = new RuntimeException[N];
 		final Thread[] threads = new Thread[N];
 
 		for(int i = 0; i < N; i++) {
@@ -307,14 +308,21 @@ public class ConcurrentTestFramework {
 					synchronized(evaluators) {
 						eval = evaluators[threadNumber];
 					}
-					boolean result = runner.run(eval);
-					System.err.println(threadNumber + ": " + System.identityHashCode(eval.hashCode()) + ", " + System.identityHashCode(eval.getAccumulators()));
-					synchronized(results) {
-						results[threadNumber] = result;
+					try {
+						boolean result = runner.run(eval);
+						synchronized(results) {
+							results[threadNumber] = result ? null : failure;
+						}
 					}
+					catch(RuntimeException e) {
+						synchronized(results) {
+							results[threadNumber] = e;
+						}
+					}
+					// System.err.println(threadNumber + ": " + System.identityHashCode(eval.hashCode()) + ", " + System.identityHashCode(eval.getAccumulators()));
 				}			
 			});
-			threads[i].run();
+			threads[i].start();
 		}
 		for(int i = 0; i < N; i++) {
 			try {
@@ -325,15 +333,18 @@ public class ConcurrentTestFramework {
 		}
 		synchronized(results) {
 			for(int i = 0; i < N; i++) {
-				if(!results[i]) {
+				if(results[i] == failure) {
 					return false;
+				}
+				else if(results[i] != null) {
+					throw results[i];
 				}
 			}
 		}
 		return true;
 
 	}
-	
+
 	interface ForkedRunnable {
 		boolean run(Evaluator eval);
 	}
