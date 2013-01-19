@@ -653,9 +653,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				first = this.getOptFirst().getExpression().interpret(
 					(Evaluator) __eval.__getEval());
 			}
-			Result<IValue> last = null;
+			Result<IValue> end = null;
 			if(this.getOptLast().hasExpression()){
-				last = this.getOptLast().getExpression().interpret(
+				end = this.getOptLast().getExpression().interpret(
 					(Evaluator) __eval.__getEval());
 			}
 			Result<IValue> result;
@@ -670,27 +670,42 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
 			}
 					
-			if( !(last == null || last.getType().isIntegerType()) ){
-				throw new UnsupportedSubscript(rec.getType(), last.getType(), this);
+			if( !(end == null || end.getType().isIntegerType()) ){
+				throw new UnsupportedSubscript(rec.getType(), end.getType(), this);
 			}
+			int len = rec.getType().isListType() ? ((IList) rec.getValue()).length()
+					 : rec.getType().isStringType() ? ((IString) rec.getValue()).length() : 0;
+
+			int firstIndex = 0;
+			int secondIndex = 1;
+			int endIndex = len;
+
+			if(first != null){
+				firstIndex = ((IInteger) first.getValue()).intValue();
+				if(firstIndex < 0)
+					firstIndex += len;
+			}
+
+			if(end != null){
+				endIndex =  ((IInteger) end.getValue()).intValue();
+				if(endIndex < 0){
+					endIndex += len;
+				}
+			}
+
+			secondIndex = firstIndex <= endIndex ? firstIndex + 1 : firstIndex - 1;
 
 			if (rec.getType().isListType()) {
 				try {
 					IList list = (IList) rec.getValue();
-					int indexFirst = (first == null) ? 0 : ((IInteger) first.getValue()).intValue();
-					if(indexFirst < 0){
-						indexFirst = list.length() + indexFirst;
-					}
-					int indexLast = (last == null) ? list.length() : ((IInteger) last.getValue()).intValue();
-					if(indexLast < 0){
-						indexLast = list.length() + indexLast;
-					}
+					
 					IValue repl = __eval.__getValue().getValue();
 					if(!repl.getType().isListType()){
 						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
-					list = list.replace(indexFirst, indexLast, (IList) repl);
+					
 					__eval.__setValue(__eval.newResult(list, __eval.__getValue()));
+					list = list.replace(firstIndex, secondIndex, endIndex, (IList) repl);
 					
 					result = org.rascalmpl.interpreter.result.ResultFactory
 							.makeResult(rec.hasInferredType() ? rec.getType()
@@ -705,21 +720,15 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			} else if (rec.getType().isStringType()) {
 				try {
 					IString str = (IString) rec.getValue();
-					int indexFirst = (first == null) ? 0 : ((IInteger) first.getValue()).intValue();
-					if(indexFirst < 0){
-						indexFirst = str.length() + indexFirst;
-					}
-					int indexLast = (last == null) ? str.length() : ((IInteger) last.getValue()).intValue();
-					if(indexLast < 0){
-						indexLast = str.length() + indexLast;
-					}
+					
 					IValue repl = __eval.__getValue().getValue();
 					if(!repl.getType().isStringType()){
 						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 					
-					//__eval.__setValue(__eval.newResult(str.get(indexFirst), __eval.__getValue()));
-					str = str.replace(indexFirst, indexLast, (IString) repl);
+					__eval.__setValue(__eval.newResult(str, __eval.__getValue()));
+					str = str.replace(firstIndex, secondIndex, endIndex, (IString) repl);
+					
 					result = org.rascalmpl.interpreter.result.ResultFactory
 							.makeResult(rec.hasInferredType() ? rec.getType()
 									.lub(str.getType()) : rec.getType(), str,
@@ -737,85 +746,133 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			return __eval.recur(this, result);
 		}
+	}
+	
+	static public class SliceStep extends
+	org.rascalmpl.ast.Assignable.SliceStep {
 
-		/**
-		 * Return an evaluation result that is already in normal form, i.e., all
-		 * potential rules have already been applied to it.
-		 */
-		private Result<IValue> normalizedResult(IEvaluator<Result<IValue>> __eval, Type t, IValue v) {
-			Map<Type, Type> bindings = __eval.getCurrentEnvt().getTypeBindings();
-			Type instance;
-
-			if (bindings.size() > 0) {
-				instance = t.instantiate(bindings);
-			} else {
-				instance = t;
-			}
-
-			if (v != null) {
-				checkType(v.getType(), instance);
-			}
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(instance, v, __eval);
-		}
-
-		private void checkType(Type given, Type expected) {
-			if (expected instanceof FunctionType) {
-				return;
-			}
-			if (!given.isSubtypeOf(expected)) {
-				throw new UnexpectedType(expected, given, this);
-			}
+		public SliceStep(IConstructor __param1, org.rascalmpl.ast.Assignable __param2,
+				OptionalExpression __param3, Expression __param4, OptionalExpression __param5) {
+			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+		public Result<IValue> assignment(AssignableEvaluator __eval) {
 
-			Result<IValue> receiver = this.getReceiver().interpret(__eval);
-			Result<IValue> subscript = this.getSubscript().interpret(__eval);
+			Result<IValue> rec = this.getReceiver().interpret(
+					(Evaluator) __eval.__getEval());
+			Result<IValue> first = null;
+			if(this.getOptFirst().hasExpression()){
+				first = this.getOptFirst().getExpression().interpret(
+					(Evaluator) __eval.__getEval());
+			}
+			Result<IValue> second = this.getSecond().interpret((Evaluator) __eval.__getEval());
+			Result<IValue> end = null;
+			if(this.getOptLast().hasExpression()){
+				end = this.getOptLast().getExpression().interpret(
+					(Evaluator) __eval.__getEval());
+			}
+			Result<IValue> result;
 
-			if (receiver == null || receiver.getValue() == null) {
-				// TODO:can this ever happen?
+			if (rec == null || rec.getValue() == null) {
+				// TODO: can this ever happen?
 				throw new UninitializedVariable(this.getReceiver()
 						.toString(), this.getReceiver());
 			}
-
-			if (receiver.getType().isListType()) {
-				if (subscript.getType().isIntegerType()) {
-					IList list = (IList) receiver.getValue();
-					IValue result = list.get(((IInteger) subscript.getValue())
-							.intValue());
-					Type type = receiver.getType().getElementType();
-					return normalizedResult(__eval, type, result);
-				}
-
-				throw new UnexpectedType(
-						org.rascalmpl.interpreter.Evaluator.__getTf()
-						.integerType(), subscript.getType(), this);
-			} else if (receiver.getType().isMapType()) {
-				Type keyType = receiver.getType().getKeyType();
-
-				if (receiver.hasInferredType()
-						|| subscript.getType().isSubtypeOf(keyType)) {
-					IValue result = ((IMap) receiver.getValue()).get(subscript
-							.getValue());
-
-					if (result == null) {
-						throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
-						.noSuchKey(subscript.getValue(), this, __eval
-								.getStackTrace());
-					}
-					Type type = receiver.getType().getValueType();
-					return org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(type, result, __eval);
-				}
-
-				throw new UnexpectedType(keyType, subscript.getType(),
-						this.getSubscript());
+			
+			if( !(first == null || first.getType().isIntegerType()) ){
+				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
 			}
-			// TODO implement other subscripts
-			throw new UnsupportedOperation("subscript",
-					receiver.getType(), this);
+			
+			if(!second.getType().isIntegerType()){
+				throw new UnsupportedSubscript(rec.getType(), second.getType(), this);
+			}
+					
+			if( !(end == null || end.getType().isIntegerType()) ){
+				throw new UnsupportedSubscript(rec.getType(), end.getType(), this);
+			}
+			
+			int len = rec.getType().isListType() ? ((IList) rec.getValue()).length()
+					 : rec.getType().isStringType() ? ((IString) rec.getValue()).length() : 0;
 
+			int firstIndex = 0;
+			int secondIndex = 1;
+			int endIndex = len;
+
+			if(first != null){
+				firstIndex = ((IInteger) first.getValue()).intValue();
+				if(firstIndex < 0)
+					firstIndex += len;
+			}
+
+			if(end != null){
+				endIndex =  ((IInteger) end.getValue()).intValue();
+				if(endIndex < 0){
+					endIndex += len;
+				}
+			}
+
+			secondIndex = ((IInteger)second.getValue()).intValue();
+			if(secondIndex < 0)
+				secondIndex += len;
+
+			if(!(first == null && end == null)){
+				if(first == null && secondIndex > endIndex)
+					firstIndex = len - 1;
+				if(end == null && secondIndex < firstIndex)
+					endIndex = -1;
+			}
+
+			if (rec.getType().isListType()) {
+				try {
+					IList list = (IList) rec.getValue();					
+					
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isListType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+					
+					__eval.__setValue(__eval.newResult(list, __eval.__getValue()));					
+					list = list.replace(firstIndex, secondIndex, endIndex, (IList) repl);
+					
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(list.getType()) : rec.getType(), list,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+			} else if (rec.getType().isStringType()) {
+				try {
+					IString str = (IString) rec.getValue();
+
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isStringType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+					
+					__eval.__setValue(__eval.newResult(str, __eval.__getValue()));
+					str = str.replace(firstIndex, secondIndex, endIndex, (IString) repl);
+					
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(str.getType()) : rec.getType(), str,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+			} else {
+				throw new UnsupportedSlice(rec.getType(), this);
+				// TODO implement other slices
+			}
+
+			return __eval.recur(this, result);
 		}
 
 	}

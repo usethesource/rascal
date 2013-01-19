@@ -140,7 +140,7 @@ public class LazyList implements IList {
 	}
 
 	@Override
-	public <ListOrRel extends IList> ListOrRel replace(int b, int e, IList r)
+	public <ListOrRel extends IList> ListOrRel replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
 		throw new IllegalOperationException("replace over buffered list", getType());
 	}

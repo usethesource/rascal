@@ -111,7 +111,8 @@ public class NodeResult extends ElementResult<INode> {
 				w.append(getValue().get(j));
 			}
 		}
-		return makeResult(TypeFactory.getInstance().listType(getType()), w.done(), ctx);
+		TypeFactory tf = TypeFactory.getInstance();
+		return makeResult(tf.listType(tf.valueType()), w.done(), ctx);
 	}
 	
 	//////

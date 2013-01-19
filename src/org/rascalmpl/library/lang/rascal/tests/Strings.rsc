@@ -83,7 +83,8 @@ public test bool sliceSecondEnd(str L) {
   if(isEmpty(L)) return true;
   e = arbInt(size(L));
   incr = 2;
-  return L[,incr..e] == makeSlice(L, 0, incr, e);
+  first = incr > e ? size(L)-1 : 0;
+  return L[,incr..e] == makeSlice(L, first, incr, e);
 }
 
 public tuple[int,int] arbFirstEnd(str L){
@@ -129,18 +130,26 @@ public test bool sliceSecondNegative(str L) {
   return S == makeSlice(L, 0, size(L) - incr, size(L));
 }
 
-public test bool assignSlice(str L, str R){
- LL = L;
- if(isEmpty(L)) {
- 	L[..] = R;
- 	return L == R;
- }
-  b = arbInt(size(L));
-  e = arbInt(size(L));
-  LL[b..e] = R;
-  if(b <= e)
-  	return LL == L[0..b] + R + L[e..];
-  else
-    return  LL == L[0..min(e+1, size(L)-1)] + reverse(R) + ((b < size(L) - 1) ? L[b + 1 ..] : "");
-}
+public test bool assignSlice() { L = "abcdefghij"; L[..] = "XY"; return L == "XYXYXYXYXY";}
+public test bool assignSlice() { L = "abcdefghij"; L[2..] = "XY"; return   L == "abXYXYXYXY";}
+public test bool assignSlice() { L = "abcdefghij"; L[2..6] = "XY"; return L == "abXYXYghij";}
+public test bool assignSlice() { L = "abcdefghij"; L[8..3] = "XY"; return L == "abcdXYXYXj";}
+
+public test bool assignStep() { L = "abcdefghij"; L[,2..] = "X"; return L == "XbXdXfXhXj";}
+public test bool assignStep() { L = "abcdefghij"; L[,2..] = "XY"; return L == "XbYdXfYhXj";}
+public test bool assignStep() { L = "abcdefghij"; L[,2..] = "X"; return L == "XbXdXfXhXj";}
+public test bool assignStep() { L = "abcdefghij"; L[,2..] = "XY"; return L == "XbYdXfYhXj";}
+public test bool assignStep() { L = "abcdefghij"; L[,2..] = "XYZ"; return L == "XbYdZfXhYj";}
+public test bool assignStep() { L = "abcdefghij"; L[,2..] = "XYZPQRS"; return L == "XbYdZfPhQjRS";}
+
+public test bool assignStep() { L = "abcdefghij"; L[2,4..] = "X"; return L == "abXdXfXhXj";}
+public test bool assignStep() { L = "abcdefghij"; L[2,4..6] = "X"; return L == "abXdXfghij";}
+
+public test bool assignStep() { L = "abcdefghij"; L[,6..1] = "X"; return L == "abcXefXhiX";}
+public test bool assignStep() { L = "abcdefghij"; L[8,6..] = "X"; return L == "XbXdXfXhXj";}
+public test bool assignStep() { L = "abcdefghij"; L[8,6..3] = "X"; return L == "abcdXfXhXj";}
+
+
+public test bool assignStep() { L = "abcdefghij"; L[-1,-2..] = "XYZPQ"; return L == "QPZYXQPZYX";}
+public test bool assignStep() { L = "abcdefghij"; L[-1,-3..] = "XYZPQ"; return L == "aQcPeZgYiX";}
 

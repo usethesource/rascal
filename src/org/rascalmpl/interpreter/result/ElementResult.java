@@ -219,6 +219,12 @@ public class ElementResult<T extends IValue> extends Result<T> {
 			secondIndex = getInt(second);
 			if(secondIndex < 0)
 				secondIndex += len;
+			if(!(first == null && end == null)){
+				if(first == null && secondIndex > endIndex)
+					firstIndex = len - 1;
+				if(end == null && secondIndex < firstIndex)
+					endIndex = -1;
+			}
 		}
 		
 		if (len == 0) {

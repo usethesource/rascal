@@ -177,7 +177,8 @@ public test bool sliceSecondEnd(list[int] L) {
   if(isEmpty(L)) return true;
   e = arbInt(size(L));
   incr = 2;
-  return L[,incr..e] == makeSlice(L, 0, incr, e);
+  first = incr > e ? size(L)-1 : 0;
+  return L[,incr..e] == makeSlice(L, first, incr, e);
 }
 
 public tuple[int,int] arbFirstEnd(list[int] L){
@@ -223,17 +224,31 @@ public test bool sliceSecondNegative(list[int] L) {
   return S == makeSlice(L, 0, size(L) - incr, size(L));
 }
 
-public test bool assignSlice(list[int] L, list[int] R){
- LL = L;
- if(isEmpty(L)) {
- 	L[..] = R;
- 	return L == R;
- }
-  b = arbInt(size(L));
-  e = arbInt(size(L));
-  LL[b..e] = R;
-  if(b <= e)
-  	return LL == L[0..b] + R + L[e..];
-  else
-    return  LL == L[0..min(e+1, size(L)-1)] + reverse(R) + ((b < size(L) - 1) ? L[b + 1 ..] : []);
-}
+
+public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] = [10,20]; return L == [10,20,10,20,10,20,10,20,10,20];}
+public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] = [10,20]; return   L == [0,1,10,20,10,20,10,20,10,20];}
+public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] = [10,20]; return L == [0,1,10,20,10,20,6,7,8,9];}
+public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] = [10,20]; return L == [0,1,2,3,10,20,10,20,10,9];}
+
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10]; return L == [10,1,10,3,10,5,10,7,10,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20]; return L == [10,1,20,3,10,5,20,7,10,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10]; return L == [10,1,10,3,10,5,10,7,10,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20]; return L == [10,1,20,3,10,5,20,7,10,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20,30]; return L == [10,1,20,3,30,5,10,7,20,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20,30,40,50,60,70]; return L == [10,1,20,3,30,5,40,7,50,9,60,70];}
+
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[2,4..] = [10]; return L == [0,1,10,3,10,5,10,7,10,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[2,4..6] = [10]; return L == [0,1,10,3,10,5,6,7,8,9];}
+
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,6..1] = [10]; return L == [0,1,2,10,4,5,10,7,8,10];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[8,6..] = [10]; return L == [10,1,10,3,10,5,10,7,10,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[8,6..3] = [10]; return L == [0,1,2,3,10,5,10,7,10,9];}
+
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-2..] = [10,20,30,40,50]; return L == [50,40,30,20,10,50,40,30,20,10];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-3..] = [10,20,30,40,50]; return L == [0,50,2,40,4,30,6,20,8,10];}
+
+//public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] += [10]; return L == [10,11,12,13,14,15,16,17,18,19]; }
+//public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] += [10]; return L == [0,1,12,13,14,15,16,17,18,19]; }
+//public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] += [10]; return L == [0,1,12,13,14,15,6,7,8,9];}
+//public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] += [10]; return L == [0,1,2,3,14,15,16,17,18,9];}
+
