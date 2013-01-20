@@ -85,9 +85,9 @@
  <br/>
 <br/>
 
- <tr><td><code><i>Exp</i><sub>1</sub> [ <i>Exp</i><sub>2</sub> , <i>Exp</i><sub>3</sub> .. <i>Exp</i><sub>4</sub> ]</code></td> <td><a href="/Rascal/Expressions/Values/List/Slicing/Slicing.html">List/Slicing</a>,
-                                                        <a href="/Rascal/Expressions/Values/String/Slicing/Slicing.html">String/Slicing</a>,
-                                                        <a href="/Rascal/Expressions/Values/Node/Slicing/Slicing.html">Node/Slicing</a>, <span class="inlineError">unknown: Rascal:Tuple/Slicing</span></td>  <td>Retrieve a slice from a list, string, node or tuple.</td></tr>
+ <tr><td><code><i>Exp</i><sub>1</sub> [ <i>Exp</i><sub>2</sub> , <i>Exp</i><sub>3</sub> .. <i>Exp</i><sub>4</sub> ]</code></td> <td><a href="/Rascal/Expressions/Values/List/Slice/Slice.html">Values/List/Slice</a>,
+                                                        <a href="/Rascal/Expressions/Values/String/Slice/Slice.html">String/Slice</a>,
+                                                        <a href="/Rascal/Expressions/Values/Node/Slice/Slice.html">Node/Slice</a></td>  				<td>Retrieve a slice from a list, string, or node.</td></tr>
  <br/>
 <br/>
 
@@ -107,7 +107,8 @@
  <tr><td><code><i>Exp</i> *</code></td>                             <td><a href="/Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.html">ReflexiveTransitiveClosure</a></td>                                                                                                                                         <td>Reflexive transitive closure on relation</td></tr>
  <tr><td><code><i>Exp</i> @ <i>Name</i></code></td>	                   <td><a href="/Rascal/Expressions/Selection/Selection.html">Expressions/Selection</a></td>	     <td>Value of annotation <code><i>Name</i></code> of <code><i>Exp</i></code>'s value</td></tr>
  <tr><td><code><i>Exp</i><sub>1</sub> [@ <i>Name</i> = <i>Exp</i><sub>2</sub>]</code></td>	       <td><a href="/Rascal/Expressions/Replacement/Replacement.html">Expressions/Replacement</a></td>     <td>Assign value of <code><i>Exp</i><sub>2</sub></code> to annotation <code><i>Name</i></code> of <code><i>Exp</i><sub>1</sub></code>'s value</td></tr>
- <tr><td><code><i>Exp</i><sub>1</sub> o <i>Exp</i><sub>2</sub></code></td>	               <td><span class="inlineError">ambiguous: Rascal:Composition</span></td>	             <td><code><i>Exp</i><sub>1</sub></code> and <code><i>Exp</i><sub>2</sub></code> should evaluate to a relation; return their composition. Note: the letter "o" is thus a keyword!</td></tr>
+ <tr><td><code><i>Exp</i><sub>1</sub> o <i>Exp</i><sub>2</sub></code></td>	               <td><a href="/Rascal/Expressions/Values/Relation/Composition/Composition.html">Relation/Composition</a>, 
+                                                        <a href="/Rascal/Expressions/Values/Map/Composition/Composition.html">Map/Composition</a></td>	         <td><code><i>Exp</i><sub>1</sub></code> and <code><i>Exp</i><sub>2</sub></code> should evaluate to a relation or map; return their composition. Note: the letter "o" is thus a keyword!</td></tr>
  <tr><td><code><i>Exp</i><sub>1</sub> / <i>Exp</i><sub>2</sub></code></td>	               <td><a href="/Rascal/Expressions/Values/Number/Division/Division.html">Number/Division</a></td>	         <td>Divide two numbers</td></tr>
  <tr><td><code><i>Exp</i><sub>1</sub> % <i>Exp</i><sub>2</sub></code></td>	               <td><a href="/Rascal/Expressions/Values/Number/Remainder/Remainder.html">Number/Remainder</a></td>	         <td>Remainder on numbers</td></tr>
  <tr><td><code><i>Exp</i><sub>1</sub> * <i>Exp</i><sub>2</sub></code></td>	               <td><a href="/Rascal/Expressions/Values/Number/Multiplication/Multiplication.html">Number/Multiplication</a>,
@@ -213,7 +214,7 @@
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Operators&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Operators&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

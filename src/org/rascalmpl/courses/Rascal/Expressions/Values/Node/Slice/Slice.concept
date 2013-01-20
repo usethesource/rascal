@@ -1,4 +1,4 @@
-Name: Slicing
+Name: Slice
 
 Synopsis: Retrieve a slice of a node's argument list.
 
@@ -19,7 +19,7 @@ Function:
 Details:
 
 Description:
-Node slicing is similar to [List/Slicing] and uses the integer values of $Exp_2$ and $Exp_4$ to determine the `begin` (__inclusive__) and `end` (__exclusive__)
+A Node slice is similar to a list [$Values/List/Slice] and uses the integer values of $Exp_2$ and $Exp_4$ to determine the `begin` (__inclusive__) and `end` (__exclusive__)
 of a slice from the children of the node value $ND$ of $Exp_1$. Negative indices count from the end of the list of children backwards.
 Using the second form, an extra index $Exp_3$ is given that determines the
 index of the second element in the slice and establishes the `step` between

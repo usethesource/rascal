@@ -1,4 +1,4 @@
-Name: Slicing
+Name: Slice
 
 Synopsis: Retrieve a slice of a string.
 
@@ -19,7 +19,7 @@ Function:
 Details:
 
 Description:
-String slicing is similar to [List/Slicing] and uses the integer values of $Exp_2$ and $Exp_4$ to determine the `begin` (__inclusive__) and `end` (__exclusive__)
+A String slice is similar to a list [$Values/List/Slice] and uses the integer values of $Exp_2$ and $Exp_4$ to determine the `begin` (__inclusive__) and `end` (__exclusive__)
 of a slice from the string value $S$ of $Exp_1$. Negative indices count from the end of the string backwards.
 Using the second form, an extra index $Exp_3$ is given that determines the
 index of the second element in the slice and establishes the `step` between

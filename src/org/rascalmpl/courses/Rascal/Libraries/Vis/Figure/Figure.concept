@@ -48,7 +48,7 @@ The Figure library provides two data types:
   ** _Atomic Figures_: [text], [$Figures/outline].
   ** _Containers_: [box], [ellipse], [space].
   ** _Compositions_: [hcat], [vcat], [hvcat], [overlay], [pack], [grid], [$Figures/tree], [treemap], [$Figures/graph].
-  ** _Transformations_: [scale], [rotate].
+  ** _Transformations_: [$Figures/scale], [rotate].
 
 Examples:
 

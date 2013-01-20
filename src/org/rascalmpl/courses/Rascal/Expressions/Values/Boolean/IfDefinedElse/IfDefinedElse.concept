@@ -18,7 +18,7 @@ Description:
 If no exception is generated during the evaluation of $Exp_1$, the result of `$Exp_1$ ? $Exp_2$` is the value of $Exp_1$.
 Otherwise, it is the value of $Exp_2$.
 
-Also see [isDefined] and [Assignment].
+Also see [$Boolean/isDefined] and [Assignment].
 
 Examples:
 This test can, for instance, be used to handle the case that a certain key value is not in a map:

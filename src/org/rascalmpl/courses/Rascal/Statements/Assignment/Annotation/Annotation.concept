@@ -16,7 +16,7 @@ Description:
  The value $V$ of $Assignable$ is determined and should be of a type that has an annotation $Name$.
  A new value $V$' is created that is a copy of $V$ but with the value of annotation $Name$ replaced by the value of $Exp$.
  $V$' is assigned to $Assignable$.
- See [Annotation].
+ See [$Declarations/Annotation].
 
 Examples:
 <screen>

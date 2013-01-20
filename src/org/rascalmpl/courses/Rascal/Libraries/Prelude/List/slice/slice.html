@@ -65,7 +65,7 @@
 
 <div id="Description">
 <span class="sectionHead">Description</span>  Returns a sublist of <code>lst</code> from index <code>start</code> of length <code>len</code>.
- Sublists can more easily be obtained using <a href="/Rascal/Expressions/Values/List/Slicing/Slicing.html">List/Slicing</a>.
+ Sublists can more easily be obtained using <span class="inlineError">unknown: Rascal:List/Slicing</span>.
 
 </div>
 
@@ -111,14 +111,17 @@ list[str]: ["elephant","snake"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_3" value="0@3@[3,0,4]">
-<label for="Rascal/Libraries/Prelude/List/slice_1_3">N - 1 elements. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_0" value="1@0@[3,0,4]">
-<label for="Rascal/Libraries/Prelude/List/slice_1_0">N elements. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_4" value="2@4@[3,0,4]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_4" value="0@4@[4,1,2,0]">
 <label for="Rascal/Libraries/Prelude/List/slice_1_4">B - 1 elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_1" value="1@1@[4,1,2,0]">
+<label for="Rascal/Libraries/Prelude/List/slice_1_1">B elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_2" value="2@2@[4,1,2,0]">
+<label for="Rascal/Libraries/Prelude/List/slice_1_2">B + N elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_0" value="3@0@[4,1,2,0]">
+<label for="Rascal/Libraries/Prelude/List/slice_1_0">N elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -142,10 +145,10 @@ list[str]: ["elephant","snake"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_slice_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:L" value="[-16, 8, -14, -11]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:B" value="1">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:E" value="4">
-The type of <tt>slice([-16, 8, -14, -11],1,4)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:L" value="[&quot;Dill&quot;, &quot;Parsley&quot;, &quot;V&quot;]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:B" value="0">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:E" value="3">
+The type of <tt>slice([&quot;Dill&quot;, &quot;Parsley&quot;, &quot;V&quot;],0,3)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -169,10 +172,10 @@ The type of <tt>slice([-16, 8, -14, -11],1,4)</tt> is <input type="text" size="3
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_slice_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:L" value="[17, -3, -11, 17]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:B" value="1">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:E" value="2">
-<pre class="prequestion">slice([17, -3, -11, 17],1,2) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:L" value="[&quot;Guava&quot;, &quot;Anakin Skywalker&quot;, &quot;Dill&quot;]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:B" value="0">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:E" value="3">
+<pre class="prequestion">slice([&quot;Guava&quot;, &quot;Anakin Skywalker&quot;, &quot;Dill&quot;],0,3) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:another" value="yes">
@@ -190,7 +193,7 @@ The type of <tt>slice([-16, 8, -14, -11],1,4)</tt> is <input type="text" size="3
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/List/slice&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/List/slice&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

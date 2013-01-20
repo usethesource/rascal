@@ -35,9 +35,9 @@ All operators are summarized in the following table. They are listed from highes
                                                        [Tuple/Subscription],
                                                        [Relation/Subscription]</td>      <td>Retrieve values for given index/key from list, map, tuple or relation.</td></tr>
 
-<tr><td>`$Exp_1$ [ $Exp_2$ , $Exp_3$ .. $Exp_4$ ]`</td> <td>[List/Slicing],
-                                                       [String/Slicing],
-                                                       [Node/Slicing], [Tuple/Slicing]</td>  <td>Retrieve a slice from a list, string, node or tuple.</td></tr>
+<tr><td>`$Exp_1$ [ $Exp_2$ , $Exp_3$ .. $Exp_4$ ]`</td> <td>[Values/List/Slice],
+                                                       [String/Slice],
+                                                       [Node/Slice]</td>  				<td>Retrieve a slice from a list, string, or node.</td></tr>
 
 
 
@@ -49,7 +49,8 @@ All operators are summarized in the following table. They are listed from highes
 <tr><td>`$Exp$ *`</td>                             <td>[ReflexiveTransitiveClosure]</td>                                                                                                                                         <td>Reflexive transitive closure on relation</td></tr>
 <tr><td>`$Exp$ @ $Name$`</td>	                   <td>[Expressions/Selection]</td>	     <td>Value of annotation $Name$ of $Exp$'s value</td></tr>
 <tr><td>`$Exp_1$ [@ $Name$ = $Exp_2$]`</td>	       <td>[Expressions/Replacement]</td>     <td>Assign value of $Exp_2$ to annotation $Name$ of $Exp_1$'s value</td></tr>
-<tr><td>`$Exp_1$ o $Exp_2$`</td>	               <td>[Composition]</td>	             <td>$Exp_1$ and $Exp_2$ should evaluate to a relation; return their composition. Note: the letter "o" is thus a keyword!</td></tr>
+<tr><td>`$Exp_1$ o $Exp_2$`</td>	               <td>[Relation/Composition], 
+                                                       [Map/Composition]</td>	         <td>$Exp_1$ and $Exp_2$ should evaluate to a relation or map; return their composition. Note: the letter "o" is thus a keyword!</td></tr>
 <tr><td>`$Exp_1$ / $Exp_2$`</td>	               <td>[Number/Division]</td>	         <td>Divide two numbers</td></tr>
 <tr><td>`$Exp_1$ % $Exp_2$`</td>	               <td>[Number/Remainder]</td>	         <td>Remainder on numbers</td></tr>
 <tr><td>`$Exp_1$ * $Exp_2$`</td>	               <td>[Number/Multiplication],

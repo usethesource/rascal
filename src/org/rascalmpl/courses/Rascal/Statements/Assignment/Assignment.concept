@@ -22,7 +22,7 @@ Types:
 
 Function:
 
-Details: Variable Subscription Slicing Field Multiple IsDefined Annotation Constructor
+Details: Variable Subscription Slice Field Multiple IsDefined Annotation Constructor
 
 Description:
 The purpose of an assignment is to assign a new value to a simple variable or to an element of a more complex data structure. 

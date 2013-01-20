@@ -28,7 +28,7 @@ The expression is the basic unit of evaluation and may consist of the ingredient
      The value returned by the function is used as value of the function call. See [Call].
   ** A _constructor_. First the arguments are evaluated and then a data value is constructed for the 
      corresponding type. This data value is used as value of the constructor. 
-     Constructors are functions that can be used in all contexts where functions can be used. See [Constructor].
+     Constructors are functions that can be used in all contexts where functions can be used. See [$Values/Constructor].
 
 * An operator expression. The operator is applied to the arguments; the evaluation order of the arguments depends 
   on the operator. The result returned by the operator is used as value of the operator expression.  See [Operators].

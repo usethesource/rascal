@@ -1,4 +1,4 @@
-Name: Slicing
+Name: Slice
 
 Synopsis: Assign to a slice of a list or string.
 
@@ -18,7 +18,7 @@ Details:
 
 Description:
 
-Slicing assignment is defined for [$Values/List], [$Values/String] and [$Values/Node] and aims to replace a slice from the old value of the assignable by a new value. See [List/Slicing], [String/Slicing] or [Node/Slicing] for a more detailed explanation of slicing.
+A slice assignment is defined for [$Values/List], [$Values/String] and [$Values/Node] and aims to replace a slice from the old value of the assignable by a new value. See [Values/List/Slice], [String/Slice] or [Node/Slice] for a more detailed explanation of slicing.
 
 Let $V$ be the current value of $Assignable$.
 

@@ -69,15 +69,15 @@
 ok
 <span class="prompt">rascal></span>G = setAnnotations(&quot;g&quot;(&quot;def&quot;), (&quot;level&quot; : &quot;20&quot;, &quot;direction&quot; : &quot;north&quot;));
 node: "g"("def")[
-  @direction="north",
-  @level="20"
+  @level="20",
+  @direction="north"
 ]
 <span class="prompt">rascal></span>F = setAnnotations(&quot;f&quot;(10, G), (&quot;color&quot; : &quot;red&quot;, &quot;size&quot; : &quot;large&quot;));
 node: "f"(
   10,
   "g"("def")[
-    @direction="north",
-    @level="20"
+    @level="20",
+    @direction="north"
   ])[
   @color="red",
   @size="large"
