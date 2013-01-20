@@ -60,7 +60,7 @@
                            
                            
 <div id="Description">
-<span class="sectionHead">Description</span>  Slicing assignment is defined for <a href="/Rascal/Expressions/Values/List/List.html">List</a> and <a href="/Rascal/Expressions/Values/String/String.html">String</a> and aims to replace a slice from the old value of the assignable by a new value. See <a href="/Rascal/Expressions/Values/List/Slicing/Slicing.html">List/Slicing</a> or <a href="/Rascal/Expressions/Values/String/Slicing/Slicing.html">String/Slicing</a> for a more detailed explanation of slicing.
+<span class="sectionHead">Description</span>  Slicing assignment is defined for <a href="/Rascal/Expressions/Values/List/List.html">List</a>, <a href="/Rascal/Expressions/Values/String/String.html">String</a> and <a href="/Rascal/Expressions/Values/Node/Node.html">Node</a> and aims to replace a slice from the old value of the assignable by a new value. See <a href="/Rascal/Expressions/Values/List/Slicing/Slicing.html">List/Slicing</a>, <a href="/Rascal/Expressions/Values/String/Slicing/Slicing.html">String/Slicing</a> or <a href="/Rascal/Expressions/Values/Node/Slicing/Slicing.html">Node/Slicing</a> for a more detailed explanation of slicing.
  <br/>
 <br/>
 
@@ -116,6 +116,87 @@ str: "aXcYeXgYij"
 str: "abcdefghij"
 <span class="prompt">rascal></span>S[1,3..8] = &quot;UVWXYZ&quot;;
 str: "aUcVeWgXYZij"
+<span class="prompt">rascal></span>
+cancelled
+</pre>  Replace the elements with index 3, 4, 5 in node <code>N</code>:
+<pre class="screen"><span class="prompt">rascal></span>N = &quot;f&quot;(0,true,2,&quot;abc&quot;,4,5.5,6,{7,77},8,{9,99,999});
+node: "f"(
+  0,
+  true,
+  2,
+  "abc",
+  4,
+  5.5,
+  6,
+  {77,7},
+  8,
+  {9,999,99})
+<span class="prompt">rascal></span>N[3..6] = [100,200,300,400,500];
+node: "f"(
+  0,
+  true,
+  2,
+  100,
+  200,
+  300,
+  400,
+  500,
+  6,
+  {77,7},
+  8,
+  {9,999,99})
+</pre>  Replace the elements with index 1, 3, 5, 7 in <code>L</code> (note how the elements from <code>[100,200]</code> are used in a circular way):
+<pre class="screen"><span class="prompt">rascal></span>N = &quot;f&quot;(0,true,2,&quot;abc&quot;,4,5.5,6,{7,77},8,{9,99,999});
+node: "f"(
+  0,
+  true,
+  2,
+  "abc",
+  4,
+  5.5,
+  6,
+  {77,7},
+  8,
+  {9,999,99})
+<span class="prompt">rascal></span>N[1,3..8] = [100,200];
+node: "f"(
+  0,
+  100,
+  2,
+  200,
+  4,
+  100,
+  6,
+  200,
+  8,
+  {9,999,99})
+</pre>  Replace the elements with index 1, 3, 5, 7 in <code>L</code> (note how the unused elements from <code>[100,200,300,400,500]</code> 
+  are insert at index 7):
+<pre class="screen"><span class="prompt">rascal></span>N = &quot;f&quot;(0,true,2,&quot;abc&quot;,4,5.5,6,{7,77},8,{9,99,999});
+node: "f"(
+  0,
+  true,
+  2,
+  "abc",
+  4,
+  5.5,
+  6,
+  {77,7},
+  8,
+  {9,999,99})
+<span class="prompt">rascal></span>N[1,3..8] = [100,200,300,400,500];
+node: "f"(
+  0,
+  100,
+  2,
+  200,
+  4,
+  300,
+  6,
+  400,
+  500,
+  8,
+  {9,999,99})
 </pre>
 </div>
 
