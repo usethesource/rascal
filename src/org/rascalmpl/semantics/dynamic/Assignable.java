@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -673,8 +674,10 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			if( !(end == null || end.getType().isIntegerType()) ){
 				throw new UnsupportedSubscript(rec.getType(), end.getType(), this);
 			}
-			int len = rec.getType().isListType() ? ((IList) rec.getValue()).length()
-					 : rec.getType().isStringType() ? ((IString) rec.getValue()).length() : 0;
+			int len =  rec.getType().isListType() ? ((IList) rec.getValue()).length()
+					 : rec.getType().isStringType() ? ((IString) rec.getValue()).length()
+					 : rec.getType().isNodeType() ?((INode) rec.getValue()).arity() 
+					 : 0 ;
 
 			int firstIndex = 0;
 			int secondIndex = 1;
@@ -739,6 +742,29 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
 				}
+			} else if (rec.getType().isNodeType()) {
+
+				try {
+					INode node = (INode) rec.getValue();
+
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isListType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+
+					__eval.__setValue(__eval.newResult(node, __eval.__getValue()));
+					node = node.replace(firstIndex, secondIndex, endIndex, (IList) repl);
+
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(node.getType()) : rec.getType(), node,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
 			} else {
 				throw new UnsupportedSlice(rec.getType(), this);
 				// TODO implement other slices
@@ -793,7 +819,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			}
 			
 			int len = rec.getType().isListType() ? ((IList) rec.getValue()).length()
-					 : rec.getType().isStringType() ? ((IString) rec.getValue()).length() : 0;
+					 : rec.getType().isStringType() ? ((IString) rec.getValue()).length()
+					 :  rec.getType().isNodeType() ?((INode) rec.getValue()).arity() 
+					 : 0 ;
 
 			int firstIndex = 0;
 			int secondIndex = 1;
@@ -860,6 +888,30 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					result = org.rascalmpl.interpreter.result.ResultFactory
 							.makeResult(rec.hasInferredType() ? rec.getType()
 									.lub(str.getType()) : rec.getType(), str,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+				
+			} else if (rec.getType().isNodeType()) {
+
+				try {
+					INode node = (INode) rec.getValue();
+
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isListType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+
+					__eval.__setValue(__eval.newResult(node, __eval.__getValue()));
+					node = node.replace(firstIndex, secondIndex, endIndex, (IList) repl);
+
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(node.getType()) : rec.getType(), node,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
 					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
