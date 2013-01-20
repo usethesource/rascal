@@ -204,7 +204,6 @@ private tuple[int,str] extractFunctionDeclaration(int current, bool writing){
 private tuple[int,str] extractDataOrAliasDeclaration(int current, bool writing){
   decl = declarations[current];
   userType = normalizeName("<decl.user>");
-  println("userType = <userType>");
   key = "<libRoot>/<moduleName>/<userType>";
   doc = "";
   if(!contentMap[key]?){
