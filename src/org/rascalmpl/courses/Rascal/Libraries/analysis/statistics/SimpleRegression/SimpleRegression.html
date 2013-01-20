@@ -101,7 +101,7 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import analysis::statistics::SimpleRegression;
 |std:///analysis/statistics/SimpleRegression.rsc|(332,469,&lt;11,0>,&lt;20,100>): No such Java method: org.rascalmpl.library.analysis.statistics.SimpleRegressions.intercept(org.eclipse.imp.pdb.facts.IListRelation)
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredJavaMethod/UndeclaredJavaMethod.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredJavaMethod/UndeclaredJavaMethod.html)
 
 </pre> Take data that are roughly related to the line: <code>y = 2 + 3 * x</code>.
 <pre class="screen"><span class="prompt">rascal></span>list[tuple[num,num]] D = [&lt;1.0,4.7&gt;, &lt;2.0,8.3&gt;, &lt;3.0,10.1&gt;,&lt;4.0,14.5&gt;];
@@ -113,25 +113,25 @@ lrel[num, num]: [
 ]
 <span class="prompt">rascal></span>intercept(D);
 |stdin:///|(0,9,&lt;1,0>,&lt;1,9>): Undeclared variable: intercept
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredVariable/UndeclaredVariable.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
 
 <span class="prompt">rascal></span>slope(D);
 |stdin:///|(0,5,&lt;1,0>,&lt;1,5>): Undeclared variable: slope
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredVariable/UndeclaredVariable.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
 
 </pre>  So we infer from the data that the line is actually: <code>y = 1.6 + 3.1 * x</code>.
   We use this to predict the value of <code>y</code> for <code>x</code> = 5:
 <pre class="screen"><span class="prompt">rascal></span>predict(D, 5);
 |stdin:///|(0,7,&lt;1,0>,&lt;1,7>): Undeclared variable: predict
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredVariable/UndeclaredVariable.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
 
 <span class="prompt">rascal></span>meanSquareError(D);
 |stdin:///|(0,15,&lt;1,0>,&lt;1,15>): Undeclared variable: meanSquareError
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredVariable/UndeclaredVariable.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
 
 <span class="prompt">rascal></span>R(D);
 |stdin:///|(0,1,&lt;1,0>,&lt;1,1>): Undeclared variable: R
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredVariable/UndeclaredVariable.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
 
 </pre>
 </div>

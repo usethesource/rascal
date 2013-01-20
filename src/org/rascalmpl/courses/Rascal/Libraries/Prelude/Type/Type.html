@@ -149,176 +149,28 @@ type[B]: type(
 <span class="prompt">rascal></span>syntax A = &quot;a&quot;;
 ok
 <span class="prompt">rascal></span>#A;
-org.rascalmpl.interpreter.asserts.ImplementationError: Unexpected error in Rascal interpreter: Exception while loading parser generator: Parse error caused by Parse error(internal error)	somewhere in: shell
-	somewhere in: markup
-	somewhere in: markup
-	somewhere in: compileConcept
-	somewhere in: compileCourse
-	somewhere in: compile
-	somewhere in: ___TUTOR___
-org.rascalmpl.interpreter.asserts.ImplementationError: Unexpected error in Rascal interpreter: Exception while loading parser generator: Parse error caused by Parse error
-	at org.rascalmpl.parser.ParserGenerator.&lt;init>(ParserGenerator.java:67)
-	at org.rascalmpl.interpreter.Evaluator.getParserGenerator(Evaluator.java:714)
-	at org.rascalmpl.interpreter.Evaluator.getGrammar(Evaluator.java:657)
-	at org.rascalmpl.interpreter.TypeReifier$1.visitNonTerminalType(TypeReifier.java:600)
-	at org.rascalmpl.interpreter.TypeReifier$1.visitExternal(TypeReifier.java:574)
-	at org.rascalmpl.interpreter.TypeReifier$1.visitExternal(TypeReifier.java:1)
-	at org.rascalmpl.interpreter.types.NonTerminalType.accept(NonTerminalType.java:93)
-	at org.rascalmpl.interpreter.TypeReifier.reify(TypeReifier.java:339)
-	at org.rascalmpl.interpreter.TypeReifier.typeToValue(TypeReifier.java:69)
-	at org.rascalmpl.semantics.dynamic.Expression$ReifyType.interpret(Expression.java:2266)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:356)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:788)
-	at org.rascalmpl.semantics.dynamic.Command$Statement.interpret(Command.java:115)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:1007)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:872)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:822)
-	at org.rascalmpl.tutor.HTMLGenerator.eval(HTMLGenerator.java:182)
-	at org.rascalmpl.tutor.HTMLGenerator.shell(HTMLGenerator.java:116)
-	at sun.reflect.GeneratedMethodAccessor132.invoke(Unknown Source)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
-	at java.lang.reflect.Method.invoke(Method.java:597)
-	at org.rascalmpl.interpreter.result.JavaMethod.invoke(JavaMethod.java:192)
-	at org.rascalmpl.interpreter.result.JavaMethod.call(JavaMethod.java:113)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:484)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:356)
-	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:196)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:752)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:934)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:927)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:752)
-	at org.rascalmpl.semantics.dynamic.Statement$While.interpret(Statement.java:1085)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:934)
-	at org.rascalmpl.semantics.dynamic.Statement$TryFinally.interpret(Statement.java:979)
-	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:425)
-	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:373)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:484)
-	at org.rascalmpl.semantics.dynamic.Expression$Tuple.interpret(Expression.java:2650)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:356)
-	at org.rascalmpl.semantics.dynamic.Statement$Return.interpret(Statement.java:776)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:752)
-	at org.rascalmpl.interpreter.Evaluator.matchAndEval(Evaluator.java:1642)
-	at org.rascalmpl.interpreter.utils.Cases$DefaultBlock.matchAndEval(Cases.java:211)
-	at org.rascalmpl.semantics.dynamic.Statement$Switch.interpret(Statement.java:893)
-	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:425)
-	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:373)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:484)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:356)
-	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:196)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:752)
-	at org.rascalmpl.semantics.dynamic.Statement$While.interpret(Statement.java:1085)
-	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:425)
-	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:373)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:484)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:466)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:356)
-	at org.rascalmpl.interpreter.StringTemplateConverter<i>Visitor</i>IndentingAppend.interpret(StringTemplateConverter.java:110)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:752)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:752)
-	at org.rascalmpl.semantics.dynamic.Statement$For.interpret(Statement.java:459)
-	at org.rascalmpl.semantics.dynamic.Literal$String.interpret(Literal.java:237)
-	at org.rascalmpl.semantics.dynamic.Expression$Literal.interpret(Expression.java:1560)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:356)
-	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:196)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:752)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:934)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:927)
-	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:425)
-	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:373)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:484)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:356)
-	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:196)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:752)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:934)
-	at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:927)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:752)
-	at org.rascalmpl.semantics.dynamic.Statement$For.interpret(Statement.java:459)
-	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:425)
-	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:373)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:484)
-	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:356)
-	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:196)
-	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:752)
-	at org.rascalmpl.semantics.dynamic.Statement$IfThenElse.interpret(Statement.java:672)
-	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:425)
-	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:373)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.callWith(OverloadedFunction.java:285)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:260)
-	at org.rascalmpl.interpreter.result.OverloadedFunction.call(OverloadedFunction.java:251)
-	at org.rascalmpl.interpreter.Evaluator.call(Evaluator.java:490)
-	at org.rascalmpl.tutor.Compile.doGet(Compile.java:40)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:707)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
-	at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:547)
-	at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:481)
-	at org.eclipse.jetty.server.session.SessionHandler.doHandle(SessionHandler.java:225)
-	at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:940)
-	at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:409)
-	at org.eclipse.jetty.server.session.SessionHandler.doScope(SessionHandler.java:186)
-	at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:874)
-	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:117)
-	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:110)
-	at org.eclipse.jetty.server.Server.handle(Server.java:349)
-	at org.eclipse.jetty.server.HttpConnection.handleRequest(HttpConnection.java:441)
-	at org.eclipse.jetty.server.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:904)
-	at org.eclipse.jetty.http.HttpParser.parseNext(HttpParser.java:565)
-	at org.eclipse.jetty.http.HttpParser.parseAvailable(HttpParser.java:217)
-	at org.eclipse.jetty.server.AsyncHttpConnection.handle(AsyncHttpConnection.java:46)
-	at org.eclipse.jetty.io.nio.SelectChannelEndPoint.handle(SelectChannelEndPoint.java:545)
-	at org.eclipse.jetty.io.nio.SelectChannelEndPoint$1.run(SelectChannelEndPoint.java:43)
-	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:598)
-	at org.eclipse.jetty.util.thread.QueuedThreadPool$3.run(QueuedThreadPool.java:533)
-	at java.lang.Thread.run(Thread.java:680)
-Caused by: Parse error
-at std:///lang/rascal/grammar/definition/Productions.rsc offset=2621 length=1 begin=70:45 end=70:46
-	at org.rascalmpl.parser.gtd.SGTDBF.parse(SGTDBF.java:1200)
-	at org.rascalmpl.parser.gtd.SGTDBF.parse(SGTDBF.java:1238)
-	at org.rascalmpl.parser.gtd.SGTDBF.parse(SGTDBF.java:1243)
-	at org.rascalmpl.parser.gtd.SGTDBF.parse(SGTDBF.java:1255)
-	at org.rascalmpl.interpreter.Evaluator.parseModule(Evaluator.java:1409)
-	at org.rascalmpl.interpreter.Evaluator.parseModule(Evaluator.java:1350)
-	at org.rascalmpl.interpreter.Evaluator.parseModule(Evaluator.java:1344)
-	at org.rascalmpl.interpreter.Evaluator.loadModule(Evaluator.java:1505)
-	at org.rascalmpl.interpreter.Evaluator.evalRascalModule(Evaluator.java:1577)
-	at org.rascalmpl.semantics.dynamic.Import.importModule(Import.java:300)
-	at org.rascalmpl.semantics.dynamic.Import$Default.interpret(Import.java:248)
-	at org.rascalmpl.semantics.dynamic.Header$Default.visitImports(Header.java:60)
-	at org.rascalmpl.semantics.dynamic.Header$Default.interpret(Header.java:54)
-	at org.rascalmpl.semantics.dynamic.Module$Default.interpret(Module.java:131)
-	at org.rascalmpl.interpreter.Evaluator.evalRascalModule(Evaluator.java:1590)
-	at org.rascalmpl.semantics.dynamic.Import.importModule(Import.java:300)
-	at org.rascalmpl.semantics.dynamic.Import$Default.interpret(Import.java:248)
-	at org.rascalmpl.semantics.dynamic.Header$Default.visitImports(Header.java:60)
-	at org.rascalmpl.semantics.dynamic.Header$Default.interpret(Header.java:54)
-	at org.rascalmpl.semantics.dynamic.Module$Default.interpret(Module.java:131)
-	at org.rascalmpl.interpreter.Evaluator.evalRascalModule(Evaluator.java:1590)
-	at org.rascalmpl.semantics.dynamic.Import.importModule(Import.java:300)
-	at org.rascalmpl.semantics.dynamic.Import$Default.interpret(Import.java:248)
-	at org.rascalmpl.semantics.dynamic.Header$Default.visitImports(Header.java:60)
-	at org.rascalmpl.semantics.dynamic.Header$Default.interpret(Header.java:54)
-	at org.rascalmpl.semantics.dynamic.Module$Default.interpret(Module.java:131)
-	at org.rascalmpl.interpreter.Evaluator.evalRascalModule(Evaluator.java:1590)
-	at org.rascalmpl.semantics.dynamic.Import.importModule(Import.java:289)
-	at org.rascalmpl.semantics.dynamic.Import$Default.interpret(Import.java:248)
-	at org.rascalmpl.semantics.dynamic.Command$Import.interpret(Command.java:75)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:1007)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:872)
-	at org.rascalmpl.interpreter.Evaluator.doImport(Evaluator.java:1046)
-	at org.rascalmpl.parser.ParserGenerator.&lt;init>(ParserGenerator.java:56)
-	... 123 more
-
+type[A]: type(
+  sort("A"),
+  (
+    sort("A"):choice(
+      sort("A"),
+      {prod(
+          sort("A"),
+          [lit("a")],
+          {})}),
+    empty():choice(
+      empty(),
+      {prod(
+          empty(),
+          [],
+          {})}),
+    layouts("<i>default</i>"):choice(
+      layouts("<i>default</i>"),
+      {prod(
+          layouts("<i>default</i>"),
+          [],
+          {})})
+  ))
 <span class="prompt">rascal></span>type(\int(),())
 type[value]: type(
   int(),
@@ -332,7 +184,7 @@ type[value]: type(
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/Type&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/Type&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

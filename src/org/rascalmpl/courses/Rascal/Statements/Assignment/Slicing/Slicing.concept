@@ -1,0 +1,70 @@
+Name: Slicing
+
+Synopsis: Assign to a slice of a list or string.
+
+Syntax:
+#  `$Assignable$ [ $Exp_1$ .. $Exp_3$ ] = $Exp_4$`
+#  `$Assignable$ [ $Exp_1$, $Exp_2$ .. $Exp_3$ ] = $Exp_4$`
+
+
+`$Exp_1$` and `$Exp_3$` are optional
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Slicing assignment is defined for [$Values/List] and [$Values/String] and aims to replace a slice from the old value of the assignable by a new value. See [List/Slicing] or [String/Slicing] for a more detailed explanation of slicing.
+
+Let $V$ be the current value of $Assignable$.
+
+# `$Assignable$ [ $Exp_1$ .. $Exp_3$ ] = $Exp_4$`:
+   The slice `[ $Exp_1$ .. $Exp_3$ ]` determines two indices `begin` (inclusive) and `end`   
+  (exclusive) in $V$.
+  A new value $V$' is computed that is a copy of $V$ but with all the elements in $V$ with `begin <= index < end` replaced by the elements of the value of $Exp_4$.
+  Note that the size of $V$ and $V$' may differ.
+  $V$' is assigned to the $Assignable$. 
+
+# `$Assignable$ [ $Exp_1$, $Exp_2$ .. $Exp_3$ ] = $Exp_4$`:
+  The slice `[ $Exp_1$, $Exp_2$ .. $Exp_3 ]` determines two indices `begin` (inclusive) and `end` (exclusive)
+  and a `step` between indices in $V$.
+  A new value $V$' is computed that is a copy of $V$ but with all the elements in $V$ with indices 
+  `begin`, `begin+step`. ... `end-step` <= `index < end` replaced by the successive elements of the value of $Exp_4$.
+  Note that the size of $V$ and $V$' may differ.  $V$' is assigned to the $Assignable$. 
+ 
+  If the number of indices in the slice and the number of elements in the value of $Exp_4$ is not equal the following is done:
+  ** If the number of elements in the slice is larger: the elements of $Exp_4$ are used in a circular manner.
+  ** If the number of elements in the slice is smaller: the remaining elements of $Exp_4$ is inserted after the last index in the slice.
+
+Examples:
+<screen>
+// Replace the elements with index 3, 4, 5 in `L`:
+L = [0,1,2,3,4,5,6,7,8,9];
+L[3..6] = [100,200,300,400,500];
+// Replace the elements with index 1, 3, 5, 7 in `L` (note how the elements from `[100,200]` are used in a circular way):
+L = [0,1,2,3,4,5,6,7,8,9];
+L[1,3..8] = [100,200];
+// Replace the elements with index 1, 3, 5, 7 in `L` (note how the unused elements from `[100,200,300,400,500]` 
+// are insert at index 7):
+L = [0,1,2,3,4,5,6,7,8,9];
+L[1,3..8] = [100,200,300,400,500];
+// Similar examples for slicing assignment on strings:
+S = "abcdefghij";
+S[3..6] = "UVWXYZ";
+S = "abcdefghij";
+S[1,3..8] = "XY";
+S = "abcdefghij";
+S[1,3..8] = "UVWXYZ";
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

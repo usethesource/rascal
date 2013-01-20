@@ -106,22 +106,22 @@ real: 0.847318545739313442237695301445819365361600242897486018389686
  We can also compute it directly using the <code>tTest</code> functions:
 <pre class="screen"><span class="prompt">rascal></span>import analysis::statistics::Inference;
 |std:///analysis/statistics/Inference.rsc|(324,831,&lt;10,0>,&lt;29,74>): No such Java method: org.rascalmpl.library.analysis.statistics.Inferences.chiSquare(org.eclipse.imp.pdb.facts.IListRelation)
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredJavaMethod/UndeclaredJavaMethod.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredJavaMethod/UndeclaredJavaMethod.html)
 
 <span class="prompt">rascal></span>tTest(s1, s2);
 |stdin:///|(0,5,&lt;1,0>,&lt;1,5>): Undeclared variable: tTest
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredVariable/UndeclaredVariable.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
 
 </pre>  Observe that this is a smaller value than comes out directly of the formula.
   Recall that: <i>The number returned is the smallest significance level at which one can reject the null hypothesis that the two means are equal in favor of the two-sided alternative that they are different.</i>
   Finally, we perform the test around the significance level we just obtained:
 <pre class="screen"><span class="prompt">rascal></span>tTest(s1,s2,0.40);
 |stdin:///|(0,5,&lt;1,0>,&lt;1,5>): Undeclared variable: tTest
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredVariable/UndeclaredVariable.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
 
 <span class="prompt">rascal></span>tTest(s1,s2,0.50);
 |stdin:///|(0,5,&lt;1,0>,&lt;1,5>): Undeclared variable: tTest
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredVariable/UndeclaredVariable.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
 
 </pre>
 </div>

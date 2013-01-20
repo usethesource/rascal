@@ -60,17 +60,17 @@
  You can use this library module to define the menu structure and menu items, after which you need to register it with the IDE:
  <pre class="screen"><span class="prompt">rascal></span>import util::IDE;
 |eclipse-std:///util/IDE.rsc|(1362,13,&lt;43,46>,&lt;43,59>): selection
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/RedeclaredField/RedeclaredField.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/RedeclaredField/RedeclaredField.html)
 
 <span class="prompt">rascal></span>import ParseTree;
 ok
 <span class="prompt">rascal></span>m1 = popup(menu(&quot;MyMenu&quot;, [action(&quot;Example item&quot;, void (Tree t, loc s) { println(&quot;&lt;t&gt; @ &lt;s&gt;&quot;);})]));
 |stdin:///|(5,5,&lt;1,5>,&lt;1,10>): Undeclared variable: popup
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredVariable/UndeclaredVariable.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
 
 <span class="prompt">rascal></span>registerContributions(&quot;myLanguage&quot;, {m1});
 |stdin:///|(0,21,&lt;1,0>,&lt;1,21>): Undeclared variable: registerContributions
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredVariable/UndeclaredVariable.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
 
 </pre>
 </div>

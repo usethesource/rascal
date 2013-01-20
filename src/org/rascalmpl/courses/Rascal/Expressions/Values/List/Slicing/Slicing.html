@@ -100,7 +100,7 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  Consider the list <code>L = [0, 10, 20, 30, 40, 50, 60, 70];</code> as running example.
+<span class="sectionHead">Examples</span>  Consider the list <code>L = [0, 10, 20, 30, 40, 50, 60, 70, 80];</code> as running example.
  <br/>
 <br/>
 
@@ -108,7 +108,7 @@
  <br/>
 <br/>
 
-  <table><col align="left" /><col align="center" /><col align="center" /><col align="center" /><col align="center" /><col align="center" /><col align="center" /><col align="center" /><col align="center" /><col align="center" /><tr><th align="left"><code><i>i</i></code>        </th><th align="center"> 0 </th><th align="center"> 1 </th><th align="center"> 2 </th><th align="center"> 3 </th><th align="center"> 4 </th><th align="center"> 5 </th><th align="center"> 6 </th><th align="center"> 7 </th><th align="center"> 8 </th></tr><tr><td align="left"><code>L[<i>i</i>]</code>     </td><td align="center"> 0 </td><td align="center"> 10</td><td align="center"> 20</td><td align="center"> 30</td><td align="center"> 40</td><td align="center"> 50</td><td align="center"> 60</td><td align="center"> 70</td><td align="center">80 </td></tr><tr><td align="left"><code>-<i>i</i></code>       </td><td align="center"> -9</td><td align="center"> -8</td><td align="center"> -7</td><td align="center"> -6</td><td align="center"> -5</td><td align="center"> -3</td><td align="center"> -4</td><td align="center"> -2</td><td align="center"> -1</td></tr></table> <br/>
+  <table><col align="left" /><col align="center" /><col align="center" /><col align="center" /><col align="center" /><col align="center" /><col align="center" /><col align="center" /><col align="center" /><col align="center" /><tr><th align="left"><code><i>i</i></code>        </th><th align="center"> 0 </th><th align="center"> 1 </th><th align="center"> 2 </th><th align="center"> 3 </th><th align="center"> 4 </th><th align="center"> 5 </th><th align="center"> 6 </th><th align="center"> 7 </th><th align="center"> 8 </th></tr><tr><td align="left"><code>L[<i>i</i>]</code>     </td><td align="center"> 0 </td><td align="center"> 10</td><td align="center"> 20</td><td align="center"> 30</td><td align="center"> 40</td><td align="center"> 50</td><td align="center"> 60</td><td align="center"> 70</td><td align="center">80 </td></tr><tr><td align="left"><code>-<i>i</i></code>       </td><td align="center"> -9</td><td align="center"> -8</td><td align="center"> -7</td><td align="center"> -6</td><td align="center"> -5</td><td align="center"> -4</td><td align="center"> -3</td><td align="center"> -2</td><td align="center"> -1</td></tr></table> <br/>
 <br/>
 
  Some common use cases (with <code>begin</code> &lt;= <code>end</code>):
@@ -116,31 +116,31 @@
 <br/>
 
   <table><col align="left" /><col align="left" /><tr><th align="left"> Slice           </th><th align="left"> Means:                                                     </th></tr><tr><td align="left"> <code>L[begin..end]</code> </td><td align="left"> elements with indices <code>begin</code> through <code>end-1</code>              </td></tr><tr><td align="left"> <code>L[begin..]</code>    </td><td align="left"> elements with indices <code>begin</code> through the rest of the list </td></tr><tr><td align="left"> <code>L[..end]</code>      </td><td align="left"> elements with indices from the beginning through <code>end-1</code>   </td></tr><tr><td align="left"> <code>L[..]</code>         </td><td align="left"> the whole list                                             </td></tr><tr><td align="left"> <code>L[-1]</code>         </td><td align="left"> last element of the list                                   </td></tr><tr><td align="left"> <code>L[-2..]</code>       </td><td align="left"> the last two elements of the list                          </td></tr><tr><td align="left"> <code>L[..-2]</code>       </td><td align="left"> all elements except the last two.                          </td></tr></table> Let's put this into practice now.
-  <pre class="screen"><span class="prompt">rascal></span>L = [0, 10, 20, 30, 40, 50, 60, 70];
-list[int]: [0,10,20,30,40,50,60,70]
+  <pre class="screen"><span class="prompt">rascal></span>L = [0, 10, 20, 30, 40, 50, 60, 70, 80];
+list[int]: [0,10,20,30,40,50,60,70,80]
 </pre>  Slices with begin &lt; end
 <pre class="screen"><span class="prompt">rascal></span>L[1..3];
 list[int]: [10,20]
 <span class="prompt">rascal></span>L[1..];       // empty end =&gt; end of list
-list[int]: [10,20,30,40,50,60,70]
+list[int]: [10,20,30,40,50,60,70,80]
 <span class="prompt">rascal></span>L[..3];       // empty begin =&gt; first element of list
 list[int]: [0,10,20]
 <span class="prompt">rascal></span>L[..];        // both empty =&gt; whole list
-list[int]: [0,10,20,30,40,50,60,70]
+list[int]: [0,10,20,30,40,50,60,70,80]
 </pre>  Slices with  begin >= end
 <pre class="screen"><span class="prompt">rascal></span>L[3..1];      // slice contains elements with indices 3 and 2 (in that order)
 list[int]: [30,20]
 <span class="prompt">rascal></span>L[3..3];      // empty slice when begin == end
 list[int]: []
 </pre>  Slices with negative begin or end:
-<pre class="screen"><span class="prompt">rascal></span>L[2..-2];     // equivalent to L[2..6]
-list[int]: [20,30,40,50]
-<span class="prompt">rascal></span>L[2..6];
-list[int]: [20,30,40,50]
-<span class="prompt">rascal></span>L[-4..-2];    // equivalent to L[4..6]
-list[int]: [40,50]
-<span class="prompt">rascal></span>L[4..6];
-list[int]: [40,50]
+<pre class="screen"><span class="prompt">rascal></span>L[2..-2];     // equivalent to L[2..7]
+list[int]: [20,30,40,50,60]
+<span class="prompt">rascal></span>L[2..7];
+list[int]: [20,30,40,50,60]
+<span class="prompt">rascal></span>L[-4..-2];    // equivalent to L[5..7]
+list[int]: [50,60]
+<span class="prompt">rascal></span>L[5..7];
+list[int]: [50,60]
 </pre>  Slices with an explicit second index:
 <pre class="screen"><span class="prompt">rascal></span>L[1,3..6];
 list[int]: [10,30,50]

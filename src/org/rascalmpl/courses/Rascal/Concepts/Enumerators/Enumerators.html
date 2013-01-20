@@ -90,7 +90,7 @@ bool: false
 bool: true
 <span class="prompt">rascal></span>x;
 |stdin:///|(0,1,&lt;1,0>,&lt;1,1>): Undeclared variable: x
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UndeclaredVariable/UndeclaredVariable.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
 
 </pre> Well, this is a disappointing experience. The generator returned <code>true</code> since it did produce a value.
  Apparently, we cannot inspect the value of the variable <code>x</code> that was bound.
@@ -100,7 +100,7 @@ bool: true
  Another example that results in an error:
  <pre class="screen"><span class="prompt">rascal></span>str x &lt;- {1, 3, 5, 7, 11 };
 |stdin:///|(22,2,&lt;1,22>,&lt;1,24>): Expected int, but got str
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/UnexpectedType/UnexpectedType.html">Advice&lt;/A>
+[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UnexpectedType/UnexpectedType.html)
 
 </pre> Here, the enumerator produces its first integer value, an attempt is made to assign this to variable <code>x</code> that is declared as string,
  and an error results.

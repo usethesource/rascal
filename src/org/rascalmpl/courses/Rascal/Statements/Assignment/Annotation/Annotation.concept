@@ -1,0 +1,36 @@
+Name: Annotation
+
+Synopsis: Assign to annotation.
+
+Syntax:`$Assignable$ @ $Name$ = $Exp$`
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+ The value $V$ of $Assignable$ is determined and should be of a type that has an annotation $Name$.
+ A new value $V$' is created that is a copy of $V$ but with the value of annotation $Name$ replaced by the value of $Exp$.
+ $V$' is assigned to $Assignable$.
+ See [Annotation].
+
+Examples:
+<screen>
+data FREQ = wf(str word, int freq);
+W = wf("rascal", 1000);
+anno str FREQ@color;
+W @ color = "red";
+W @ color;
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

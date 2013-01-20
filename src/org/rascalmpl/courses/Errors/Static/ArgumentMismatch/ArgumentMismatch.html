@@ -77,7 +77,7 @@ int: 15
 |stdin:///|(12,1,&lt;1,12>,&lt;1,13>): The called signature: triple(list[int]),
 does not match the declared signature:	int triple(int);
 
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/ArgumentsMismatch/ArgumentsMismatch.html">Advice&lt;/A>
+[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/ArgumentsMismatch/ArgumentsMismatch.html)
 
 </pre>  We can define a new version of <code>triple</code> function that accepts lists:
 <pre class="screen"><span class="prompt">rascal></span>list[int] triple(list[int] L) = [3 * x | x &lt;- L];

@@ -1,0 +1,32 @@
+Name: Field
+
+Synopsis: Assign to a field of a tuple, relation or datatype.
+
+Syntax: `$Assignable$ . $Name$ = $Exp$`
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+The value `V` of $Assignable$ is determined and should be of a type that has a field $Name$.
+The value of that field is replaced in $V$ by the value of $Exp$ resulting in a new value $V$' that is assigned to $Assignable$.
+
+Examples:
+<screen>
+data FREQ = wf(str word, int freq);
+W = wf("rascal", 1000);
+W.freq = 100000;
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

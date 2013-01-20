@@ -71,7 +71,7 @@ ok
 </pre> This is incorrect since <code>key</code> is used as <code>int</code> and as <code>str</code>.
  <pre class="screen"><span class="prompt">rascal></span>data D = d1(int key) | d2(str key);
 |stdin:///|(23,11,&lt;1,23>,&lt;1,34>): The field name key is illegally used for both str and int in type D
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/RedeclaredField/RedeclaredField.html">Advice&lt;/A>
+[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/RedeclaredField/RedeclaredField.html)
 
 </pre> This can be corrected by choosing other names for the labels:
  <pre class="screen"><span class="prompt">rascal></span>data D = d1(int intKey) | d2(str strKey);
@@ -79,7 +79,7 @@ ok
 </pre>   A tuple declaration with a duplicate field name also gives an error:
 <pre class="screen"><span class="prompt">rascal></span>tuple[int x, str x] Q = &lt;3,&quot;abc&quot;&gt;;
 |stdin:///|(13,5,&lt;1,13>,&lt;1,18>): x
-&lt;A HREF="http://127.0.0.1:9000/ErrorMessages/RedeclaredField/RedeclaredField.html">Advice&lt;/A>
+[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/RedeclaredField/RedeclaredField.html)
 
 </pre>
 </div>

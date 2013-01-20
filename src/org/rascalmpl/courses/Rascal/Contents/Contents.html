@@ -201,6 +201,7 @@
 <ul></ul><li><a href="/Rascal/Expressions/Values/Node/LessThan/LessThan.html">LessThan</a>: Less than operator on node values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Node/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a>: Less than or equal operator on node values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Node/NotEqual/NotEqual.html">NotEqual</a>: Not equal operator on node values.</li>
+<ul></ul><li><a href="/Rascal/Expressions/Values/Node/Slicing/Slicing.html">Slicing</a>: Retrieve a slice of a node's argument list.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Node/Subscription/Subscription.html">Subscription</a>: Retrieve an argument of a node via its index.</li>
 <ul></ul></ul><li><a href="/Rascal/Expressions/Values/Number/Number.html">Number</a>: Numeric values.</li>
 <ul><li><a href="/Rascal/Expressions/Values/Number/Addition/Addition.html">Addition</a>: Addition on numeric values.</li>
@@ -249,6 +250,7 @@
 <ul></ul><li><a href="/Rascal/Expressions/Values/String/LessThan/LessThan.html">LessThan</a>: Less than operator on string values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/String/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a>: Less than or equal operator on string values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/String/NotEqual/NotEqual.html">NotEqual</a>: Not equal operator on string values.</li>
+<ul></ul><li><a href="/Rascal/Expressions/Values/String/Slicing/Slicing.html">Slicing</a>: Retrieve a slice of a string.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/String/Subscription/Subscription.html">Subscription</a>: Retrieve a substring via its index.</li>
 <ul></ul></ul><li><a href="/Rascal/Expressions/Values/Tuple/Tuple.html">Tuple</a>: Tuple values.</li>
 <ul><li><a href="/Rascal/Expressions/Values/Tuple/Concatenation/Concatenation.html">Concatenation</a>: Concatenate two tuple values.</li>
@@ -278,15 +280,23 @@
 <ul></ul><li><a href="/Rascal/Expressions/Comprehensions/Filter/Filter.html">Filter</a>: Filter values in a <a href="/Rascal/Expressions/Values/List/Comprehension/Comprehension.html">List/Comprehension</a>, <a href="/Rascal/Expressions/Values/Set/Comprehension/Comprehension.html">Set/Comprehension</a> or <a href="/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Map/Comprehension</a>.</li>
 <ul></ul></ul><li><a href="/Rascal/Expressions/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a>: Concrete syntax is a notation for patterns that match parse trees and expressions that generate them.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Reducer/Reducer.html">Reducer</a>: Reduce generated values to a single value.</li>
-<ul></ul><li><a href="/Rascal/Expressions/Replacement/Replacement.html">Replacement</a>: Set the value of an <a href="/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>.</li>
-<ul></ul><li><a href="/Rascal/Expressions/Selection/Selection.html">Selection</a>: Retrieve the value of an <a href="/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>.</li>
+<ul></ul><li><a href="/Rascal/Expressions/Replacement/Replacement.html">Replacement</a>: Set the value of an <span class="inlineError">ambiguous: Rascal:Annotation</span>.</li>
+<ul></ul><li><a href="/Rascal/Expressions/Selection/Selection.html">Selection</a>: Retrieve the value of an <span class="inlineError">ambiguous: Rascal:Annotation</span>.</li>
 <ul></ul><li><a href="/Rascal/Expressions/StatementAsExpression/StatementAsExpression.html">StatementAsExpression</a>: Statements that have a value and can be used as expressions.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Visit/Visit.html">Visit</a>: Visit the elements in a tree or value.</li>
 <ul></ul></ul><li><a href="/Rascal/Statements/Statements.html">Statements</a>: All Rascal statements.</li>
 <ul><li><a href="/Rascal/Statements/Append/Append.html">Append</a>: Append an element to the list value produced by various loop statements.</li>
 <ul></ul><li><a href="/Rascal/Statements/Assert/Assert.html">Assert</a>: An executable assertion.</li>
-<ul></ul><li><a href="/Rascal/Statements/Assignment/Assignment.html">Assignment</a>: Assign a value to a variable.</li>
-<ul></ul><li><a href="/Rascal/Statements/Block/Block.html">Block</a>: Group statements into a block.</li>
+<ul></ul><li><a href="/Rascal/Statements/Assignment/Assignment.html">Assignment</a>: Assign a value to a variable or more complex data structure.</li>
+<ul><li><a href="/Rascal/Statements/Assignment/Variable/Variable.html">Variable</a>: Assign to a variable.</li>
+<ul></ul><li><a href="/Rascal/Statements/Assignment/Subscription/Subscription.html">Subscription</a>: Assign a single element of a structured value.</li>
+<ul></ul><li><a href="/Rascal/Statements/Assignment/Slicing/Slicing.html">Slicing</a>: Assign to a slice of a list or string.</li>
+<ul></ul><li><a href="/Rascal/Statements/Assignment/Field/Field.html">Field</a>: Assign to a field of a tuple, relation or datatype.</li>
+<ul></ul><li><a href="/Rascal/Statements/Assignment/Multiple/Multiple.html">Multiple</a>: Assign to multiple assignables.</li>
+<ul></ul><li><a href="/Rascal/Statements/Assignment/IsDefined/IsDefined.html">IsDefined</a>: Assign but replace if value is not defined.</li>
+<ul></ul><li><a href="/Rascal/Statements/Assignment/Annotation/Annotation.html">Annotation</a>: Assign to annotation.</li>
+<ul></ul><li><a href="/Rascal/Statements/Assignment/Constructor/Constructor.html">Constructor</a>: Assign to constructor.</li>
+<ul></ul></ul><li><a href="/Rascal/Statements/Block/Block.html">Block</a>: Group statements into a block.</li>
 <ul></ul><li><a href="/Rascal/Statements/Break/Break.html">Break</a>: End the execution of a while, do or for loop.</li>
 <ul></ul><li><a href="/Rascal/Statements/Continue/Continue.html">Continue</a>: Continue with the next iteration of while, do or for loop.</li>
 <ul></ul><li><a href="/Rascal/Statements/Do/Do.html">Do</a>: Repeat statements while condition holds.</li>
@@ -930,7 +940,7 @@
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Contents&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Contents&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 4 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 6 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
