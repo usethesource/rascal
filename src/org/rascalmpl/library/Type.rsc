@@ -329,7 +329,7 @@ since values may escape the scope in which they've been constructed leaving thei
 @javaClass{org.rascalmpl.library.Type}
 @reflect
 public java Symbol typeOf(value v);
-
+/*
 @doc{Tests to make sure a lub a == a.}
 test bool lubIdent01() = lub(\int(), \int()) == \int();
 test bool lubIdent02() = lub(\real(), \real()) == \real();
@@ -366,7 +366,7 @@ test bool lubParam03() = lub(\int(), \parameter("t", \num())) == \num();
 test bool lubTuple01() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\int()),\label("f2",\bool())])) == \tuple([\label("f1",\int()),\label("f2",\bool())]);
 test bool lubTuple02() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\int()),\label("f3",\bool())])) == \tuple([\int(),\bool()]);
 test bool lubTuple03() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\real()),\label("f2",\str())])) == \tuple([\label("f1",\num()),\label("f2",\value())]);
-
+*/
 @doc{
 Synopsis: Determine if the given type is an int.
 }
