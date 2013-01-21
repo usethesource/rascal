@@ -41,6 +41,7 @@ extend Map;
 extend Node;
 extend ParseTree;
 // extend Rational;
+extend ListRelation;
 extend Relation;
 extend Set;
 extend String;
