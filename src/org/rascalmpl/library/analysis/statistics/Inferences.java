@@ -15,6 +15,7 @@ import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
 import org.apache.commons.math.stat.inference.TTestImpl;
 import org.apache.commons.math.stat.ranking.NaturalRanking;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -36,7 +37,7 @@ public class Inferences {
 	double [] expected;
 	long [] observed;
 
-	void makeChi(IList dataValues){
+	void makeChi(IListRelation dataValues){
 		int n = dataValues.length();
 		expected = new double[n];
 		observed = new long[n];
@@ -66,12 +67,12 @@ public class Inferences {
 		return data;
 	}
 	
-	public IValue chiSquare(IList dataValues){
+	public IValue chiSquare(IListRelation dataValues){
 		makeChi(dataValues);
 		return values.real(new ChiSquareTestImpl().chiSquare(expected, observed));
 	}
 	
-	public IValue chiSquareTest(IList dataValues){
+	public IValue chiSquareTest(IListRelation dataValues){
 		makeChi(dataValues);
 		try {
 			return values.real(new ChiSquareTestImpl().chiSquareTest(expected, observed));
@@ -82,7 +83,7 @@ public class Inferences {
 		}
 	}
 	
-	public IValue chiSquareTest(IList dataValues, IReal alpha){
+	public IValue chiSquareTest(IListRelation dataValues, IReal alpha){
 		makeChi(dataValues);
 		try {
 			return values.bool(new ChiSquareTestImpl().chiSquareTest(expected, observed, alpha.doubleValue()));
@@ -133,7 +134,7 @@ public class Inferences {
 	}
 	
 	
-	public IValue gini(IList dataValues){
+	public IValue gini(IListRelation dataValues){
 		
 		if(dataValues.length() < 2)
 			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "At least 2 observations required");
@@ -205,7 +206,7 @@ public class Inferences {
 		}
 	}
 	
-	public IValue anovaTest(IList categoryData, INumber alpha){
+	public IValue anovaTest(IListRelation categoryData, INumber alpha){
 		try {
 			return values.bool(new OneWayAnovaImpl().anovaTest(makeAnova(categoryData), alpha.toReal().doubleValue()));
 		} catch (IllegalArgumentException e) {
