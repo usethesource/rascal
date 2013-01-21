@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -147,12 +148,12 @@ public class ReadEvalPrintDialogMessages {
 		return "\"" + val + "\"";
 	}
 
-	public static String throwableMessage(Throwable e, String rascalTrace) {
+	public static String throwableMessage(Throwable e, StackTrace rascalTrace) {
 		StringWriter w = new StringWriter();
 		PrintWriter p = new PrintWriter(w);
 		p.append(e.toString());
 		p.append("(internal error)");
-		p.append(rascalTrace);
+		p.append(rascalTrace.toLinkedString());
 		e.printStackTrace(p);
 		p.flush();
 		w.flush();
@@ -172,9 +173,9 @@ public class ReadEvalPrintDialogMessages {
 	public static String throwMessage(Throw e) {
 		String content;
 		content = e.getLocation() + ": " + e.getException().toString() + '\n';
-		String trace = e.getTrace();
+		StackTrace trace = e.getTrace();
 		if (trace != null) {
-			content += trace + '\n';
+			content += trace.toLinkedString() + '\n';
 		}
 		return content;
 	}
