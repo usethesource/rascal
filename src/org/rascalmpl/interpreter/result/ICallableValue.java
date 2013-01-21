@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
@@ -24,6 +25,8 @@ public interface ICallableValue extends IValue {
 	public boolean hasKeywordArgs();
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues);
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues);
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds);
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds);
 	public boolean isStatic();
 	
 	public IEvaluator<Result<IValue>> getEval();

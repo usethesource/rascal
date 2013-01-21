@@ -79,6 +79,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.result.TraverseFunction;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
@@ -134,6 +135,39 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
+	}
+	
+	static class ClosedRecursiveAddition extends org.rascalmpl.ast.Expression.ClosedRecursiveAddition {
+		
+		public ClosedRecursiveAddition(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
+				org.rascalmpl.ast.Expression __param3) {
+			super(__param1, __param2, __param3);
+		}
+		
+		@Override
+		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
+
+			throw new UnexpectedType(TF.boolType(), this
+					.interpret(__eval.getEvaluator()).getType(),
+					this);
+
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);
+			
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
+			
+			__eval.setCurrentAST(this);
+			
+			return left.addClosedRecursive(right);
+			
+		}
+		
 	}
 
 	static public class All extends org.rascalmpl.ast.Expression.All {
@@ -600,6 +634,38 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
+	}
+	
+	static public class ClosedRecursiveComposition extends org.rascalmpl.ast.Expression.ClosedRecursiveComposition {
+		
+		public ClosedRecursiveComposition (IConstructor __param1, org.rascalmpl.ast.Expression __param2, 
+				org.rascalmpl.ast.Expression __param3) {
+			super(__param1, __param2, __param3);
+		}
+		
+		@Override
+		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
+
+			throw new UnexpectedType(TF.boolType(), this
+					.interpret(__eval.getEvaluator()).getType(),
+					this);
+
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);
+			
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
+			
+			__eval.setCurrentAST(this);
+			
+			return left.composeClosedRecursive(right);
+		}
+		
 	}
 
 	static public class Comprehension extends
@@ -2081,6 +2147,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
 
 			if (variable == null) {
+				if(Names.fullName(name).equals("fvisit"))
+					return new TraverseFunction(__eval);
 				throw new UndeclaredVariable(
 						org.rascalmpl.interpreter.utils.Names.fullName(name),
 						name);

@@ -15,6 +15,7 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -53,6 +54,11 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 		NonTerminalType concreteType = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(newAppl);
 
 		return makeResult(concreteType, newAppl, ctx);
+	}
+	
+	@Override
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+		return call(actualTypes, actuals, keyArgValues);
 	}
 
 	private IValue flatten(IConstructor prod, IList args) {

@@ -19,6 +19,7 @@ package org.rascalmpl.interpreter.result;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -125,6 +126,11 @@ public class JavaMethod extends NamedFunction {
 			}
 			ctx.unwind(old);
 		}
+	}
+	
+	@Override
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+		return call(actualTypes, actuals, keyArgValues);
 	}
 	
 	private Object[] addCtxActual(Object[] oActuals) {

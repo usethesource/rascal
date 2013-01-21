@@ -316,7 +316,7 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		Environment old = ctx.getCurrentEnvt();
 		AbstractAST oldAST = ctx.getCurrentAST();
 		Stack<Accumulator> oldAccus = ctx.getAccumulators();
@@ -329,6 +329,41 @@ public class RascalFunction extends NamedFunction {
 			IMatchingResult[] matchers = prepareFormals(ctx);
 			ctx.setAccumulators(accumulators);
 			ctx.pushEnv();
+			
+			/* 
+			 * The body of a function is parameterized with:
+			 * - the self reference ( e.g., f = F(f) );
+			 * - the mutually recursive self references
+			 * - the 'it' special variable; 
+			 */
+			if(selfParams != null && selfParamBounds != null)
+				for(int i = 0; i < selfParams.size(); i++) {
+					if(!selfParams.get(i).equals(name)) {
+						ctx.pushEnv();
+						ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(selfParams.get(i), selfParamBounds.get(i));
+					}
+				}
+			java.util.List<AbstractFunction> functions = new java.util.LinkedList<AbstractFunction>();
+			Result<IValue> it = self;
+			if(self == null) {
+				if(isAnonymous()) {
+					functions.add(this);
+					it = new OverloadedFunction(Names.name(org.rascalmpl.interpreter.Evaluator.IT), functions);
+				} else { 
+					declarationEnvironment.getAllFunctions(name, functions);
+					self = new OverloadedFunction(name, functions);
+					it = self;
+				}
+			}
+			// binding '<name>'
+			if(self != null && !isAnonymous()) {
+				ctx.pushEnv();
+				ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, self);
+			}
+			// binding 'it' 
+			ctx.pushEnv();
+			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(Names.name(org.rascalmpl.interpreter.Evaluator.IT), it);
+			
 
 			Type actualTypesTuple = TF.tupleType(actualTypes);
 			if (hasVarArgs) {
@@ -565,4 +600,10 @@ public class RascalFunction extends NamedFunction {
 	public boolean hasResourceScheme() {
 		return this.resourceScheme != null;
 	}
+	
+	@Override
+	public String getSelfParam() {
+		return (this.isAnonymous()) ? "" : this.getName();
+	}
+	
 }
