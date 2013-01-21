@@ -70,8 +70,6 @@ int (int): int incr(int, int delta=1);
 </pre>  Calling <code>incr</code> with a wrong keyword parameter gives an error:
 <pre class="screen"><span class="prompt">rascal></span>incr(3, diff=5);
 |stdin:///|(13,1,&lt;1,13>,&lt;1,14>): Function incr has no keyword parameter diff
-[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredKeywordParameter/UndeclaredKeywordParameter.html)
-
 </pre>  This can be fixed by using the correct name for the keyword parameter:
 <pre class="screen"><span class="prompt">rascal></span>incr(3, delta=5);
 int: 8
