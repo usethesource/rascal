@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+  * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -31,10 +32,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -67,11 +68,11 @@ public class MapResult extends ElementResult<IMap> {
 	@SuppressWarnings("unchecked")
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length != 1) {
-			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> key = (Result<IValue>) subscripts[0];
 		if (!getType().getKeyType().comparable(key.getType())) {
-			throw new UnexpectedTypeError(getType().getKeyType(), key.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(getType().getKeyType(), key.getType(), ctx.getCurrentAST());
 		}
 		IValue v = getValue().get(key.getValue());
 		if (v == null){
@@ -81,7 +82,7 @@ public class MapResult extends ElementResult<IMap> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToMap(this);
 	}
 
@@ -101,81 +102,78 @@ public class MapResult extends ElementResult<IMap> {
 			return makeResult(getTypeFactory().setType(type.getValueType()), w.done(), ctx);
 		}
 
-		throw new UndeclaredFieldException(type, name);
+		throw new UndeclaredField(name, type, ctx.getCurrentAST());
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(
 			String name, Result<V> repl, TypeStore store) {
-		if (type.getKeyLabel().equals(name)) {
-			throw new UnsupportedOperationError("You can not update the keys of a map using the field update operator", ctx.getCurrentAST());
-		}
-		else if (type.getValueLabel().equals(name)) {
-			// interesting operation, sets the image of all keys to one default
-			if (!repl.getType().isSubtypeOf(type.getValueType())) {
-				throw new UnexpectedTypeError(type.getValueType(), repl.getType(), ctx.getCurrentAST());
+		if(type.getKeyLabel() != null){
+			if (type.getKeyLabel().equals(name)) {
+				throw new UnsupportedOperation("You can not update the keys of a map using the field update operator", ctx.getCurrentAST());
 			}
+			else if (type.getValueLabel().equals(name)) {
+				// interesting operation, sets the image of all keys to one default
+				if (!repl.getType().isSubtypeOf(type.getValueType())) {
+					throw new UnexpectedType(type.getValueType(), repl.getType(), ctx.getCurrentAST());
+				}
 
-			IMapWriter w = getValueFactory().mapWriter(type.getKeyType(), type.getValueType());
-			
-			for (IValue key : value) {
-				w.put(key, repl.getValue());
+				IMapWriter w = getValueFactory().mapWriter(type.getKeyType(), type.getValueType());
+
+				for (IValue key : value) {
+					w.put(key, repl.getValue());
+				}
+
+				return makeResult(type, w.done(), ctx);
 			}
-			
-			return makeResult(type, w.done(), ctx);
 		}
 		
 		throw new UndeclaredFieldException(type, name);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToMap(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
 		return that.lessThanMap(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
 		return that.lessThanOrEqualMap(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> greaterThan(Result<V> that) {
 		return that.greaterThanMap(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that) {
+	public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> that) {
 		return that.greaterThanOrEqualMap(this);
 	}
 
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareMap(this);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> in(Result<V> result) {
+	public <V extends IValue> Result<IBool> in(Result<V> result) {
 		return result.inMap(this);
 	}	
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> result) {
+	public <V extends IValue> Result<IBool> notIn(Result<V> result) {
 		return result.notInMap(this);
 	}	
 	
 	////
 	
-	protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult) {
+	protected <V extends IValue> Result<IBool> elementOf(ElementResult<V> elementResult) {
 		return bool(getValue().containsKey(elementResult.getValue()), ctx);
 	}
 
-	protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult) {
+	protected <V extends IValue> Result<IBool> notElementOf(ElementResult<V> elementResult) {
 		return bool(!getValue().containsKey(elementResult.getValue()), ctx);
 	}
 	
@@ -199,58 +197,42 @@ public class MapResult extends ElementResult<IMap> {
 
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToMap(MapResult that) {
+	protected Result<IBool> equalToMap(MapResult that) {
 		return that.equalityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToMap(MapResult that) {
+	protected Result<IBool> nonEqualToMap(MapResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanMap(MapResult that) {
+	protected Result<IBool> lessThanMap(MapResult that) {
 		// note reversed args: we need that < this
 		return bool(that.getValue().isSubMap(getValue()) && !that.getValue().isEqual(getValue()), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualMap(MapResult that) {
-		// note reversed args: we need that <= this
-		return bool(that.getValue().isSubMap(getValue()), ctx);
+	protected LessThanOrEqualResult lessThanOrEqualMap(MapResult that) {
+	  boolean subMap = that.getValue().isSubMap(getValue());
+	  boolean equals = that.getValue().isEqual(getValue());
+	  return new LessThanOrEqualResult(subMap && !equals, equals, ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanMap(MapResult that) {
-		// note reversed args: we need that > this
-		return bool(getValue().isSubMap(that.getValue()) && !getValue().isEqual(that.getValue()), ctx);
+	protected Result<IBool> greaterThanMap(MapResult that) {
+		LessThanOrEqualResult loe = that.lessThanOrEqualMap(this);
+		if (!loe.getEqual()) {
+		  return loe.isLess();
+		}
+		return bool(false, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualMap(MapResult that) {
-		// note reversed args: we need that >= this
-		return bool(getValue().isSubMap(that.getValue()), ctx);
+	protected Result<IBool> greaterThanOrEqualMap(MapResult that) {
+	  return that.lessThanOrEqualMap(this);
 	}
 	
-	@Override
-	protected <U extends IValue> Result<U> compareMap(MapResult that) {
-		// Note reversed args
-		IMap left = that.getValue();
-		IMap right = this.getValue();
-		
-		if (left.isEqual(right)) {
-			return makeIntegerResult(0);
-		}
-		if (left.isSubMap(right)) {
-			return makeIntegerResult(-1);
-		}
-		if (right.isSubMap(left)) {
-			return makeIntegerResult(1);
-		}
-		
-		 // so they are incomparable
-		return makeIntegerResult(1);
-	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(
@@ -299,7 +281,7 @@ public class MapResult extends ElementResult<IMap> {
 				try {
 					fieldIndices[i] = baseType.getFieldIndex(fieldName);
 				} catch (UndeclaredFieldException e) {
-					throw new UndeclaredFieldError(fieldName, baseType,
+					throw new UndeclaredField(fieldName, baseType,
 							ctx.getCurrentAST());
 				}
 			}

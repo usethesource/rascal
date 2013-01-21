@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ Blocks rotateCCW(Blocks t, int size) = transpose(mirrorCols(t,size));
 
 list[Blocks] rotations(Shape s) {
     Blocks t = s.blocks;
-    return for(_ <- [1..s.nrRotations]){
+    return for(_ <- [1..s.nrRotations+1]){
         append t;
         t = rotateCW(t,s.size-1);
     }
@@ -47,7 +47,7 @@ alias Offset =  tuple[int row,int col];
 alias Offsets = list[Offset];
 
 list[Offset] offsets(int maxRow, int maxCol) = 
-    [ <i,j> | i <- [-maxRow .. maxRow], j <- [-maxCol .. maxCol]];
+    [ <i,j> | i <- [-maxRow .. maxRow+1], j <- [-maxCol .. maxCol+1]];
 
 int distSqrd(Offset a) = a.row*a.row + a.col*a.col;
 // we try offsets with a smaller distance first, 

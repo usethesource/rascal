@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -414,7 +414,7 @@ public str jsCoursePrelude(str courseName, list[str] baseConcepts, map[ConceptNa
 
 public str mkJsArray(list[str] elms, str nullCase){
   int n = size(elms);
-  return (n > 0) ? "new Array(<for(int i <- [0 .. (n-1)]){><(i==0)?"":",">\"<escapeForJavascript(elms[i])>\"<}>)"
+  return (n > 0) ? "new Array(<for(int i <- [0 .. n]){><(i==0)?"":",">\"<escapeForJavascript(elms[i])>\"<}>)"
                  : nullCase;
 }
 

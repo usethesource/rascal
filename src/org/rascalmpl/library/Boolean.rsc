@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 module Boolean
+
+import Exception;
 
 @doc{
 Synopsis: Return an arbitrary Boolean value.
@@ -59,7 +61,7 @@ public bool fromString(str s)
   if (s == "false") {
     return false;
   }
-//  throw s + " is not \"true\" or \"false\";
+  throw IllegalArgument(s, "not \"true\" or \"false\"");
 }
 
 @doc{

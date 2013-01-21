@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 
 public class SetPattern extends AbstractMatchingResult {
 	private List<IMatchingResult> patternChildren; // The elements of the set pattern
@@ -213,7 +213,7 @@ public class SetPattern extends AbstractMatchingResult {
 				Type childType = child.getType(env, null);
 				String name = ((TypedVariablePattern)child).getName();
 				if(!patVar.isAnonymous() && allVars.containsKey(name)){
-					throw new RedeclaredVariableError(name, getAST());
+					throw new RedeclaredVariable(name, getAST());
 				}
 				if(childType.comparable(staticSetSubjectType) || childType.comparable(staticSubjectElementType)){
 					/*
@@ -232,7 +232,7 @@ public class SetPattern extends AbstractMatchingResult {
 				} else {
 					hasNext = false;
 					return;
-					// We would like to throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
+					// We would like to throw new UnexpectedType(setSubject.getType(), childType, getAST());
 					// but we can't do this in the context of a visit, because we might actually visit another set!
 				}
 				
@@ -243,7 +243,7 @@ public class SetPattern extends AbstractMatchingResult {
 				MultiVariablePattern multiVar = (MultiVariablePattern) child;
 				String name = multiVar.getName();
 				if(!multiVar.isAnonymous() && allVars.containsKey(name)){
-					throw new RedeclaredVariableError(name, getAST());
+					throw new RedeclaredVariable(name, getAST());
 				}
 				varName[nVar] = name;
 				varPat[nVar] = child;
@@ -321,7 +321,7 @@ public class SetPattern extends AbstractMatchingResult {
 					        } else {
 					        	hasNext = false; 
 					        	return;
-					        	// can't throw type error: throw new UnexpectedTypeError(staticSetSubjectType,varType, getAST());
+					        	// can't throw type error: throw new UnexpectedType(staticSetSubjectType,varType, getAST());
 					        }
 					    } 
 					    else {
@@ -352,7 +352,7 @@ public class SetPattern extends AbstractMatchingResult {
 				IValue lit = ((LiteralPattern) child).toIValue(env);
 				Type childType = child.getType(env, null);
 				if(!childType.comparable(staticSubjectElementType)){
-//					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
+//					throw new UnexpectedType(setSubject.getType(), childType, getAST());
 					hasNext = false;
 					return;
 				}
@@ -366,7 +366,7 @@ public class SetPattern extends AbstractMatchingResult {
 				if(!childType.comparable(staticSubjectElementType)){
 					hasNext = false;
 					return;
-					// can't throw type error: throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
+					// can't throw type error: throw new UnexpectedType(setSubject.getType(), childType, getAST());
 				}
 				java.util.List<IVarPattern> childVars = child.getVariables();
 				if(!childVars.isEmpty()){

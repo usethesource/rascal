@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -1065,8 +1065,8 @@ public Figure palleteKey (str name, str key,FProperty props...){
  return  _nominalKey(p12,Figure (list[value] orig) { 
  		Figure inner;
  		if(size(orig) == 0) inner = space(); 
- 		else inner = grid([[box(fillColor(p12[i])),text(toString(orig[i]),left())] | i <- [0..size(orig)-1]],hgrow(1.05),vgrow(1.1));
- 		// SPLICING: else inner = grid([[box(fillColor(p12[i])),text(toString(orig[i]),left())] | i <- [0..size(orig)-1]],hgrow(1.05),vgrow(1.1));
+ 		else inner = grid([[box(fillColor(p12[i])),text(toString(orig[i]),left())] | i <- [0..size(orig)]],hgrow(1.05),vgrow(1.1));
+ 		// SPLICING: else inner = grid([[box(fillColor(p12[i])),text(toString(orig[i]),left())] | i <- [0..size(orig)]],hgrow(1.05),vgrow(1.1));
  		return vcat([
  		text(name,fontSize(13)),
  		box(
@@ -1079,7 +1079,7 @@ public Figure hPalleteKey (str name, str key,FProperty props...){
  return  _nominalKey(p12,Figure (list[value] orig) { 
  		Figure inner;
  		if(size(orig) == 0) inner = space(); 
- 		else inner = hcat([vcat([box(fillColor(p12[i])),text(toString(orig[i]))],hgrow(1.05)) | i <- [0..size(orig)-1]],hgrow(1.05));
+ 		else inner = hcat([vcat([box(fillColor(p12[i])),text(toString(orig[i]))],hgrow(1.05)) | i <- [0..size(orig)]],hgrow(1.05));
  		return box(hcat([
  		text(name,fontSize(13)),
  		inner

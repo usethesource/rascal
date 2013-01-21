@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -982,7 +982,7 @@ public list[tuple[Expression mapDomain, Expression mapRange]] getMapExpressionCo
     list[Tree] mm = getMapMappings(exp); // What comes back is in the form [domain,range,domain,range,...]
 
     if (size(mm) > 0)
-        return [ <el, er> | n <- [0..size(mm)-1], n % 2 == 0, Expression el := mm[n], Expression er := mm[n+1] ];
+        return [ <el, er> | n <- [0..size(mm)], n % 2 == 0, Expression el := mm[n], Expression er := mm[n+1] ];
     else
         return [ ];
 }
@@ -998,7 +998,7 @@ public list[tuple[Pattern mapDomain, Pattern mapRange]] getMapPatternContents(Pa
     list[Tree] mm = getMapMappings(pat); // What comes back is in the form [domain,range,domain,range,...]
 
     if (size(mm) > 0)
-        return [ <pl, pr> | n <- [0..size(mm)-1], n % 2 == 0, Pattern pl := mm[n], Pattern pr := mm[n+1] ];
+        return [ <pl, pr> | n <- [0..size(mm)], n % 2 == 0, Pattern pl := mm[n], Pattern pr := mm[n+1] ];
     else
         return [ ];
 }

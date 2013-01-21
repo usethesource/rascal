@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,12 +8,15 @@
  * Contributors:
 
  *   * Wietse Venema - wietsevenema@gmail.com - CWI
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI - added type parameters
  *******************************************************************************/
 package org.rascalmpl.library.cobra;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -116,12 +119,14 @@ public class Cobra {
 
 	}
 
-	public IValue arbitrary(IValue type, IInteger depthLimit,
-			IEvaluatorContext eval) {
+	public IValue arbitrary(IValue type, IInteger depthLimit, IEvaluatorContext eval) {
 		try {
-			IValue result = quickcheck.arbitrary(Cobra.reifyType(type),
+			TypeParameterVisitor tpvisit = new TypeParameterVisitor();
+			Type requestedType = Cobra.reifyType(type);
+			HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
+			IValue result = quickcheck.arbitrary(requestedType,
 					depthLimit.intValue(), eval.getCurrentEnvt().getRoot(),
-					eval.getValueFactory());
+					eval.getValueFactory(), tpbindings);
 			return result;
 		} catch (IllegalArgumentException e) {
 			throw RuntimeExceptionFactory.illegalArgument(depthLimit,

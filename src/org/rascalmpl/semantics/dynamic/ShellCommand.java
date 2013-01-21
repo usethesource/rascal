@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -121,7 +121,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			return org.rascalmpl.interpreter.result.ResultFactory.bool(__eval.runTests(__eval.getMonitor()), __eval);
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(TF.boolType(), VF.bool(__eval.runTests(__eval.getMonitor())), __eval);
 		}
 	}
 

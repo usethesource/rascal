@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -28,12 +28,12 @@ public int nrRows(PlayField b)            = size(b);
 public int nrCols(PlayField b)             = size(b[0].elems); 
 public int maxRowIndex(PlayField b)      = nrRows(b)-1;
 public int maxColIndex(PlayField b)      = nrCols(b)-1;
-public list[int] rowIndexes(PlayField b) = [0 .. maxRowIndex(b) ];
-public list[int] colIndexes(PlayField b) = [0 .. maxColIndex(b) ];
+public list[int] rowIndexes(PlayField b) = [0 .. maxRowIndex(b)+1 ];
+public list[int] colIndexes(PlayField b) = [0 .. maxColIndex(b)+1 ];
 
 public PlayField emptyPF(int rows,int cols) =
-    [emptyPFRow(cols) | _ <- [1,2..rows] ];
-Row emptyPFRow(int cols) = row([empty() | _ <- [1..cols]]);
+    [emptyPFRow(cols) | _ <- [1,2..rows+1] ];
+Row emptyPFRow(int cols) = row([empty() | _ <- [1..cols+1]]);
    
 bool isRowFull(Row r) = (true | it && (block(_) := e) | e <- r.elems);
 

@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -100,7 +100,7 @@ Define the seed for the generation of arbitrary values such as [arbBool], [arbIn
 is used to choose arbitrary values. This can be used to generate a reproducible series of choices.
 }
 @javaClass{org.rascalmpl.library.util.Math}
-public java real arbSeed(int seed);
+public java void arbSeed(int seed);
 
 @doc{
 Synopsis: Generate an arbitrary rational value.
@@ -380,6 +380,30 @@ pow(12345678901234567890.0, 1000)
 public java real pow(num x, int y);
 
 @doc{
+Synopsis: Return the precision of a real number.
+}
+@javaClass{org.rascalmpl.library.util.Math}
+public java int precision(num x);
+
+@doc{
+Synopsis: Return a real number with given precision
+}
+@javaClass{org.rascalmpl.library.util.Math}
+public java real precision(num x, int p);
+
+@doc{
+Synopsis: Define the precision for numeric calculations; returns the previous precision.
+}
+@javaClass{org.rascalmpl.library.util.Math}
+public java int setPrecision(int p);
+
+@doc{
+Synopsis: Return the scale of a real number.
+}
+@javaClass{org.rascalmpl.library.util.Math}
+public java int scale(num x);
+
+@doc{
 Synopsis: Return the remainder of dividing the numerator by the denominator.
 }
 @javaClass{org.rascalmpl.library.util.Math}
@@ -463,6 +487,7 @@ import util::Math;
 tan(45 * PI() / 180)
 </screen>
 }
+
 @javaClass{org.rascalmpl.library.util.Math}
 public java real tan(num x);
 

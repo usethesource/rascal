@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,6 @@
 package org.rascalmpl.interpreter.result;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +37,9 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.env.KeywordParameter;
+import org.rascalmpl.interpreter.env.Pair;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
@@ -46,10 +47,12 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected static final TypeFactory TF = TypeFactory.getInstance();
     
 	protected final Environment declarationEnvironment;
-    protected final IEvaluator<Result<IValue>> eval;
+	protected final IEvaluator<Result<IValue>> eval;
     
-    protected final FunctionType functionType;
+	protected final FunctionType functionType;
 	protected final boolean hasVarArgs;
+	protected boolean hasKeyArgs;
+	protected List<KeywordParameter> keywordParameterDefaults;
 	
 	protected final static TypeStore hiddenStore = new TypeStore();
 
@@ -60,12 +63,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected static boolean callTracing = false;
 	
 	// TODO: change arguments of these constructors to use EvaluatorContexts
-	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, boolean varargs, Environment env) {
+	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, boolean varargs, List<KeywordParameter> keyargs, Environment env) {
 		super(functionType, null, eval);
 		this.ast = ast;
 		this.functionType = functionType;
 		this.eval = eval;
 		this.hasVarArgs = varargs;
+		this.hasKeyArgs = keyargs != null && keyargs.size() > 0;
+		this.keywordParameterDefaults = keyargs;
 		this.declarationEnvironment = env;
 		this.vf = eval.getValueFactory();
 	}
@@ -143,15 +148,19 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues) {
-		return call(monitor, argTypes, argValues, null, null, null);
+	public boolean hasKeywordArgs() {
+		return hasKeyArgs;
+	}
+	
+	public List<KeywordParameter> getKeywordParameterDefaults(){
+		return keywordParameterDefaults;
 	}
 	
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
-			return call(argTypes, argValues, self, selfParams, selfParamBounds);
+			return call(argTypes, argValues, keyArgValues);
 		}
 		finally {
 			ctx.getEvaluator().setMonitor(old);
@@ -184,6 +193,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	public abstract boolean isDefault();
+
 	
 	private void printNesting(StringBuilder b) {
 		for (int i = 0; i < callNesting; i++) {
@@ -249,7 +259,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			env.storeTypeBindings(bindings);
 		}
 		catch (FactTypeUseException e) {
-			throw new UnexpectedTypeError(formals, actualTypes, ast);
+			throw new UnexpectedType(formals, actualTypes, ast);
 		}
 	}	
 	
@@ -344,98 +354,52 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return other == this;
 	}
 	
+	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that) {
-		return that.compareFunction(this);
-	}
-
-	@Override
-	public <U extends IValue> Result<U> compareFunction(AbstractFunction that) {
-		if (that == this) {
-			return ResultFactory.makeResult(TF.integerType(), vf.integer(0), ctx);
-		}
-		
-		int result;
-		
-		result = getName().compareTo(that.getName());
-		
-		if (result != 0) {
-			return ResultFactory.makeResult(TF.integerType(), vf.integer(result), ctx);
-		}
-		
-		result = getType().compareTo(that.getType());
-		
-		return ResultFactory.makeResult(TF.integerType(), vf.integer(result), ctx);
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
+	  return super.lessThanOrEqual(that);
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
-		return that.addFunctionNonDeterministic(this, true);
+		return that.addFunctionNonDeterministic(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> addClosedRecursive(Result<V> right) {
-		return right.addFunctionNonDeterministic(this, false);
-	}
-	
-	@Override
-	public Result<IValue> addFunctionNonDeterministic(AbstractFunction that, boolean isOpenRecursive) {
-		return (new OverloadedFunction(this)).addFunctionNonDeterministic(that, isOpenRecursive);
+	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that) {
+		return (new OverloadedFunction(this)).add(that);
 	}
 
 	@Override
-	public Result<IValue> addFunctionNonDeterministic(OverloadedFunction that, boolean isOpenRecursive) {
-		return (new OverloadedFunction(this)).addFunctionNonDeterministic(that, isOpenRecursive);
+	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that) {
+		return (new OverloadedFunction(this)).join(that);
 	}
 
 	@Override
-	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult.NonDeterministic(that, this, ctx);
-		result.setOpenRecursive(isOpenRecursive);
-		return result;
+	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that) {
+		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		List<String> selfParams = new LinkedList<String>();
-		List<Result<IValue>> selfParamBounds = new LinkedList<Result<IValue>>();
-		return right.composeFunction(this, selfParams, selfParamBounds, true);
+		return right.composeFunction(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, List<String> selfs, List<Result<IValue>> selfBounds) {
-		return right.composeFunction(this, selfs, selfBounds, true);
+	public ComposedFunctionResult composeFunction(AbstractFunction that) {
+		return new ComposedFunctionResult(that, this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> composeClosedRecursive(Result<V> right) {
-		return right.composeFunction(this, null, null, false);
+	public ComposedFunctionResult composeFunction(OverloadedFunction that) {
+		return new ComposedFunctionResult(that, this, ctx);
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
-	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, selfs, selfBounds, ctx);
-		result.setOpenRecursive(isOpenRecursive);
-		return (Result<U>) result;
+	public ComposedFunctionResult composeFunction(ComposedFunctionResult that) {
+		return new ComposedFunctionResult(that, this, ctx);
 	}
 	
-	@Override
-	@SuppressWarnings("unchecked")
-	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, selfs, selfBounds, ctx);
-		result.setOpenRecursive(isOpenRecursive);
-		return (Result<U>) result;
-	}
-	
-	@Override
-	@SuppressWarnings("unchecked")
-	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, selfs, selfBounds, ctx);
-		result.setOpenRecursive(isOpenRecursive);
-		return (Result<U>) result;
-	}
-
 	@Override
 	public String toString() {
 		return getHeader() + ";";
@@ -453,7 +417,11 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		if (name == null) {
 			name = "";
 		}
-		return getReturnType() + " " + name + "(" + strFormals + ")";
+		
+		
+		String kwFormals = "";
+		
+		return getReturnType() + " " + name + "(" + strFormals + kwFormals + ")";
 	}
 	
 	public FunctionType getFunctionType() {
@@ -502,10 +470,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public boolean hasResourceScheme() {
 		return false;
 	}
+
+
 	
-	@Override
-	public String getSelfParam() {
-		return this.getName();
-	}
 	
 }

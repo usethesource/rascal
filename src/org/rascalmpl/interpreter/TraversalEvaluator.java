@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,7 @@ import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -453,7 +453,7 @@ public class TraversalEvaluator {
 			tr.matched = true;
 			Result<IValue> toBeInserted = e.getValue();
 			if (!toBeInserted.getType().equivalent(subject.getType())) {
-				throw new UnexpectedTypeError(subject.getType(), toBeInserted.getType(), eval.getCurrentAST());
+				throw new UnexpectedType(subject.getType(), toBeInserted.getType(), eval.getCurrentAST());
 			}
 			return e.getValue().getValue();
 		}
@@ -534,7 +534,7 @@ public class TraversalEvaluator {
 					tr.changed = true;
 					subjectCursor += end;
 				} else {
-					throw new UnexpectedTypeError(tf.stringType(),repl.getType(), eval.getCurrentAST());
+					throw new UnexpectedType(tf.stringType(),repl.getType(), eval.getCurrentAST());
 				}
 			}
 		}

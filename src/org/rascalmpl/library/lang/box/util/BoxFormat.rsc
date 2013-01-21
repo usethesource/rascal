@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -45,7 +45,7 @@ Box makeBody(Tree body) {
    bs = [b | Box b<-bs, COMM(_)!:=b];
    bs = adjoin(bs);
    /* Size(bs) is uneven */
-   Box b = V(0, [I([bs[i]])|int i <-[0,1..(size(bs)-1)]]);
+   Box b = V(0, [I([bs[i]])|int i <-[0,1..size(bs)]]);
    return b;
    }
    

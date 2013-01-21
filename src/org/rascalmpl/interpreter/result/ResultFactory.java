@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.INumber;
@@ -44,8 +45,6 @@ import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.values.uptr.Factory;
 
 public class ResultFactory {
-	// TODO: do apply rules here and introduce normalizedResult. 
-	
 	@SuppressWarnings("unchecked")
 	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, IEvaluatorContext ctx) {
 		return (Result<T>) declaredType.accept(new Visitor(declaredType, value, ctx));
@@ -63,11 +62,10 @@ public class ResultFactory {
 	}
 	
 
-	@SuppressWarnings("unchecked")
-	public static <T extends IValue> Result<T> bool(boolean b, IEvaluatorContext ctx) {
+	public static Result<IBool> bool(boolean b, IEvaluatorContext ctx) {
 		IValueFactory vf = ctx.getValueFactory();
 		IBool result = vf.bool(b);
-		return (Result<T>) new BoolResult(result.getType(), result, ctx);
+		return new BoolResult(result.getType(), result, ctx);
 	}
 	
 	private static class Visitor implements ITypeVisitor<Result<? extends IValue>> {
@@ -148,6 +146,14 @@ public class ResultFactory {
 			}
 			return new RelationResult(declaredType, (IRelation)value, ctx);
 		}
+		
+		@Override
+		public Result<? extends IValue> visitListRelationType(Type type) {
+			if (value != null && !(value instanceof IListRelation)) {
+				throw new ImplementationError("somehow a list relation value turned into a list, but its type did not change with it", ctx.getCurrentAST().getLocation());
+			}
+			return new ListRelationResult(declaredType, (IListRelation)value, ctx);
+		}
 
 		public SetOrRelationResult<ISet> visitSet(Type type) {
 			return new SetResult(declaredType, (ISet)value, ctx);
@@ -199,5 +205,7 @@ public class ResultFactory {
 		public Result<? extends IValue> visitDateTime(Type type) {
 			return new DateTimeResult(declaredType, (IDateTime)value, ctx);		
 		}
+
+		
 	}
 }

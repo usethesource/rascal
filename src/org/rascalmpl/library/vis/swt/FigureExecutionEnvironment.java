@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2013 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+*******************************************************************************/
 package org.rascalmpl.library.vis.swt;
 
 import java.io.OutputStream;
@@ -133,6 +140,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	
 	public IConstructor executeRascalFigureCallBack(IValue callback,
 			Type[] argTypes, IValue[] argVals) {
+	  // TODO: this can return a null reference! and breaks all kinds of stuff.
 		IConstructor c = (IConstructor)executeRascalCallBack(callback, argTypes, argVals).getValue();
 		IEvaluator<Result<IValue>> evaluator = ctx.getEvaluator();
 		return (IConstructor)evaluator.call(getRascalContext(),"vis::Figure", "normalize", c);
@@ -144,7 +152,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		Result<IValue> result = null;
 		try {
 			synchronized (ctx) {
-				result = ((ICallableValue) callback).call(argTypes, argVals);
+				result = ((ICallableValue) callback).call(argTypes, argVals, null);
 			}
 		} catch (Throw e) {
 			e.printStackTrace(ctx.getStdErr());

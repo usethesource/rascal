@@ -1,3 +1,10 @@
+@license{
+  Copyright (c) 2009-2013 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 @bootstrapParser
 module lang::rascal::grammar::definition::Symbols
 
@@ -84,7 +91,7 @@ public list[Symbol] args2symbols(Sym* args) {
   return [sym2symbol(s) | Sym s <- args];
 }
 
-private list[Symbol] separgs2symbols({Sym ","}+ args) {
+public list[Symbol] separgs2symbols({Sym ","}+ args) {
   return [sym2symbol(s) | Sym s <- args];
 }
 

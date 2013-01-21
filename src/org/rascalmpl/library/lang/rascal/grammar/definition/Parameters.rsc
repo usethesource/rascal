@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -27,11 +27,11 @@ private Symbol delabel(Symbol l) {
 
 set[Production] expand(set[Production] prods) {
   // First we collect all the parametrized definitions
-  defs = { p | p <- prods, \parameterized-sort(_,[\parameter(_),_*]) := delabel(p.def) };
+  defs = { p | p <- prods, Symbol s := delabel(p.def),  s is \parameterized-sort || s is \parameterized-lex};
   result = prods - defs;
   
   // Then we collect all the uses of parameterized sorts in the other productions
-  uses = { s | /Symbol s:\parameterized-sort(_,_) <- result};
+  uses = { s | /Symbol s <- result, s is \parameterized-sort || s is \parameterized-lex};
   
   // Now we copy each definition for each use and rename the parameters
   // Note that we assume normalization will remove the duplicates we introduce by instantiating the a definition twice
@@ -40,8 +40,11 @@ set[Production] expand(set[Production] prods) {
   instantiated = {};
   while (uses != {}) {
     instances = {};
-    for (\parameterized-sort(name,actuals) <- uses, def <- defs, \parameterized-sort(name,formals) := def.def) {
-       instantiated += {\parameterized-sort(name,actuals)};
+    for (u <- uses, def <- defs, def.def.name == u.name) {
+       name = u.name;
+       actuals = u.parameters;
+       formals = def.def.parameters;
+       instantiated += {u};
        substs = (formals[i]:actuals[i] | int i <- domain(actuals) & domain(formals));
        instances = {*instances, visit (def) {
          case Symbol par:\parameter(_) => substs[par]?par
@@ -49,7 +52,7 @@ set[Production] expand(set[Production] prods) {
     }
   
     // now, we may have created more uses of parameterized symbols, by instantiating nested parameterized symbols
-    uses = { s | /Symbol s:\parameterized-sort(_,_) <- instances, s notin instantiated};
+    uses = { s | /Symbol s <- instances, s is \parameterized-sort || s is \parameterized-lex, s notin instantiated};
     result += instances;
   }
   

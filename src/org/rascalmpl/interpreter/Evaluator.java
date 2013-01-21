@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,8 @@
 package org.rascalmpl.interpreter;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,16 +85,14 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
-import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
+import org.rascalmpl.interpreter.staticErrors.ModuleImport;
+import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatch;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFunctionError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedInsertError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedReturnError;
-import org.rascalmpl.interpreter.strategy.IStrategyContext;
-import org.rascalmpl.interpreter.strategy.StrategyContextStack;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
+import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
+import org.rascalmpl.interpreter.staticErrors.UnguardedInsert;
+import org.rascalmpl.interpreter.staticErrors.UnguardedReturn;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
@@ -126,25 +124,36 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
-	private final IValueFactory vf;
-	private static final TypeFactory tf = TypeFactory.getInstance();
-	protected Environment currentEnvt;
-	private final StrategyContextStack strategyContextStack;
+	private final IValueFactory vf; // sharable
+	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
+	protected Environment currentEnvt; // not sharable
 
-	private final GlobalEnvironment heap;
+	private final GlobalEnvironment heap; // shareable if frozen
+	/**
+	 * True if an interrupt has been signalled and we should abort execution
+	 */
 	private boolean interrupt = false;
 
-	private final JavaBridge javaBridge;
+	private final JavaBridge javaBridge; // TODO: sharable if synchronized
 
-	private AbstractAST currentAST; // used in runtime errormessages
+	/**
+	 * Used in runtime error messages
+	 */
+	private AbstractAST currentAST;
 
+	/**
+	 * True if we're doing profiling
+	 */
 	private static boolean doProfiling = false;
+	/**
+	 * The current profiler; private to this evaluator
+	 */
 	private Profiler profiler;
 
-	private final TypeDeclarationEvaluator typeDeclarator;
+	private final TypeDeclarationEvaluator typeDeclarator; // not sharable
 
-	private final List<ClassLoader> classLoaders;
-	private final ModuleEnvironment rootScope;
+	private final List<ClassLoader> classLoaders; // sharable if frozen
+	private final ModuleEnvironment rootScope; // sharable if frozen
 	private boolean concreteListsShouldBeSpliced;
 
 	private final PrintWriter defStderr;
@@ -152,6 +161,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private PrintWriter curStderr = null;
 	private PrintWriter curStdout = null;
 
+	/**
+	 * Probably not sharable
+	 */
 	private ITestResultListener testReporter;
 	/**
 	 * To avoid null pointer exceptions, avoid passing this directly to other classes, use
@@ -159,17 +171,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 */
 	private IRascalMonitor monitor;
 	
-	private AbstractInterpreterEventTrigger eventTrigger;	
+	private AbstractInterpreterEventTrigger eventTrigger; // TODO: can this be shared?	
 
-	private final List<IRascalSuspendTriggerListener> suspendTriggerListeners;	
+	private final List<IRascalSuspendTriggerListener> suspendTriggerListeners;	 // TODO: can this be shared?
 	
-	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
-	private final Stack<String> indentStack = new Stack<String>();
-	private final RascalURIResolver rascalPathResolver;
+	private Stack<Accumulator> accumulators = new Stack<Accumulator>(); // not sharable
+	private final Stack<String> indentStack = new Stack<String>(); // not sharable
+	private final RascalURIResolver rascalPathResolver; // sharable if frozen
 
-	private final URIResolverRegistry resolverRegistry;
+	private final URIResolverRegistry resolverRegistry; // sharable
 
-	private final Map<IConstructorDeclared,Object> constructorDeclaredListeners;
+	private final Map<IConstructorDeclared,Object> constructorDeclaredListeners; // TODO: can this be shared?
 	private static final Object dummy = new Object();	
 	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
@@ -180,7 +192,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		super();
 		
 		this.vf = vf;
-		this.strategyContextStack = new StrategyContextStack();
 		this.heap = heap;
 		this.typeDeclarator = new TypeDeclarationEvaluator(this);
 		this.currentEnvt = scope;
@@ -232,10 +243,39 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		resolverRegistry.registerInputOutput(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
 		
-		ClassResourceInputOutput courses = new ClassResourceInputOutput(resolverRegistry, "courses", getClass(), "/org/rascalmpl/courses");
+		ClassResourceInputOutput courses = new ClassResourceInputOutput(resolverRegistry, "courses", getClass(), "src/org/rascalmpl/courses");
 		resolverRegistry.registerInputOutput(courses);
 		ClassResourceInputOutput tutor = new ClassResourceInputOutput(resolverRegistry, "tutor", getClass(), "/org/rascalmpl/tutor");
 		resolverRegistry.registerInputOutput(tutor);
+		
+		// default event trigger to swallow events
+		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
+	}
+
+	private Evaluator(Evaluator source, ModuleEnvironment scope) {
+		super();
+		
+		// this.accumulators = source.accumulators;
+		// this.testReporter = source.testReporter;
+		this.vf = source.vf;
+		this.heap = source.heap;
+		this.typeDeclarator = new TypeDeclarationEvaluator(this);
+		// TODO: this is probably not OK
+		this.currentEnvt = scope;
+		this.rootScope = scope;
+		// TODO: this is probably not OK
+		heap.addModule(scope);
+		this.classLoaders = source.classLoaders;
+		// TODO: the Java bridge is probably sharable if its methods are synchronized
+		this.javaBridge = new JavaBridge(classLoaders, vf);
+		this.rascalPathResolver = source.rascalPathResolver;
+		this.resolverRegistry = source.resolverRegistry;
+		this.defStderr = source.defStderr;
+		this.defStdout = source.defStdout;
+		this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>(source.constructorDeclaredListeners);
+		this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>(source.suspendTriggerListeners);
+		
+		updateProperties();
 		
 		// default event trigger to swallow events
 		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
@@ -484,10 +524,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 		
 		if (func == null) {
-			throw new UndeclaredFunctionError(name, types, this, getCurrentAST());
+			throw new UndeclaredFunction(name, types, this, getCurrentAST());
 		}
 
-		return func.call(getMonitor(), types, args).getValue();
+		return func.call(getMonitor(), types, args, null).getValue();
 	}
 	
 	@Override	
@@ -797,11 +837,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 				getEventTrigger().fireIdleEvent();
 			}
 		} catch (Return e) {
-			throw new UnguardedReturnError(stat);
+			throw new UnguardedReturn(stat);
 		} catch (Failure e) {
-			throw new UnguardedFailError(stat, e);
+			throw new UnguardedFail(stat, e);
 		} catch (Insert e) {
-			throw new UnguardedInsertError(stat);
+			throw new UnguardedInsert(stat);
 		}
 	}
 
@@ -1162,7 +1202,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 			if (module != null) {
 				if (!getModuleName(module).equals(name)) {
-					throw new ModuleNameMismatchError(getModuleName(module), name, vf.sourceLocation(errorLocation));
+					throw new ModuleNameMismatch(getModuleName(module), name, vf.sourceLocation(errorLocation));
 				}
 				heap.setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
@@ -1176,7 +1216,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw e;
 		} catch (IOException e) {
 			heap.removeModule(env);
-			throw new ModuleLoadError(name, e.getMessage(), vf.sourceLocation(errorLocation));
+			throw new ModuleImport(name, e.getMessage(), vf.sourceLocation(errorLocation));
 		}
 	}
 
@@ -1225,6 +1265,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		Environment env = new Environment(getCurrentEnvt(), getCurrentEnvt().getName());
 		setCurrentEnvt(env);
 	}
+	
+	@Override  
+  public void pushEnv(String name) {
+    Environment env = new Environment(getCurrentEnvt(), name);
+    setCurrentEnvt(env);
+  }
 
 	@Override	
 	public Environment pushEnv(Statement s) {
@@ -1271,7 +1317,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public void addImportToCurrentModule(AbstractAST x, String name) {
 		ModuleEnvironment module = heap.getModule(name);
 		if (module == null) {
-			throw new UndeclaredModuleError(name, x);
+			throw new UndeclaredModule(name, x);
 		}
 		getCurrentModuleEnvironment().addImport(name, module);
 	}
@@ -1290,7 +1336,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		try{
 			data = getResourceContent(location);
 		}catch (IOException ioex){
-			throw new ModuleLoadError(location.toString(), ioex.getMessage(), cause);
+			throw new ModuleImport(location.toString(), ioex.getMessage(), cause);
 		}
 
 		URI resolved = rascalPathResolver.resolve(location);
@@ -1307,15 +1353,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	private char[] getResourceContent(URI location) throws IOException{
 		char[] data;
-		InputStream inputStream = null;
+		Reader textStream = null;
 		
 		try {
-			inputStream = resolverRegistry.getInputStream(location);
-			data = InputConverter.toChar(inputStream, resolverRegistry.getCharset(location));
+			textStream = resolverRegistry.getCharacterReader(location);
+			data = InputConverter.toChar(textStream);
 		}
 		finally{
-			if(inputStream != null){
-				inputStream.close();
+			if(textStream != null){
+				textStream.close();
 			}
 		}
 		
@@ -1501,7 +1547,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			Module moduleAst = astBuilder.buildModule(tree);
 			
 //			if(isDeprecated(moduleAst))
-//				throw new ModuleLoadError(name, name + " is deprecated -- " + getDeprecatedMessage(moduleAst), astBuilder.getLastSuccessLocation());
+//				throw new ModuleImport(name, name + " is deprecated -- " + getDeprecatedMessage(moduleAst), astBuilder.getLastSuccessLocation());
 
 
 			if (moduleAst == null) {
@@ -1538,7 +1584,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 			if (module != null) {
 				if (!getModuleName(module).equals(name)) {
-					throw new ModuleNameMismatchError(getModuleName(module), name, x);
+					throw new ModuleNameMismatch(getModuleName(module), name, x);
 				}
 				heap.setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
@@ -1552,7 +1598,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			return;
 		} catch (IOException e) {
 			env.removeExtend(name);
-			throw new ModuleLoadError(name, e.getMessage(), x);
+			throw new ModuleImport(name, e.getMessage(), x);
 		} catch (RuntimeException e) {
 			env.removeExtend(name);
 			throw e;
@@ -1572,7 +1618,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 			if (module != null) {
 				if (!getModuleName(module).equals(name)) {
-					throw new ModuleNameMismatchError(getModuleName(module), name, x);
+					throw new ModuleNameMismatch(getModuleName(module), name, x);
 				}
 				heap.setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
@@ -1592,7 +1638,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw e;
 		} catch (IOException e) {
 			heap.removeModule(env);
-			throw new ModuleLoadError(name, e.getMessage(), x);
+			throw new ModuleImport(name, e.getMessage(), x);
 		}
 
 		heap.removeModule(env);
@@ -1796,21 +1842,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return __getVf();
 	}
 
-	@Override	
-	public IStrategyContext getStrategyContext() {
-		return strategyContextStack.getCurrentContext();
-	}
-
-	@Override	
-	public void pushStrategyContext(IStrategyContext strategyContext) {
-		strategyContextStack.pushContext(strategyContext);
-	}
-
-	@Override	
-	public void popStrategyContext() {
-		strategyContextStack.popContext();
-	}
-
 	public void setAccumulators(Accumulator accu) {
 		__getAccumulators().push(accu);
 	}
@@ -1848,7 +1879,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			profiler = new Profiler(this);
 			profiler.start();
 			try {
-				return fun.call(monitor, argTypes, argValues);
+				return fun.call(monitor, argTypes, argValues, null);
 			} finally {
 				if (profiler != null) {
 					profiler.pleaseStop();
@@ -1858,7 +1889,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			}
 		}
 		else {
-			return fun.call(monitor, argTypes, argValues);
+			return fun.call(monitor, argTypes, argValues, null);
 		}
 	}
 	
@@ -1892,6 +1923,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 	public void setEventTrigger(AbstractInterpreterEventTrigger eventTrigger) {
 		this.eventTrigger = eventTrigger;
+	}
+
+	@Override
+	public void freeze() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public IEvaluator<Result<IValue>> fork() {
+		return new Evaluator(this, rootScope);
 	}
 		
 

@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -152,7 +152,7 @@ text hskip(int n) {
 text vskip(int n) {
     text r = [];
     // println("OK<n>");
-   for (int i<-[0, 1..n-1])  r=vv(r,[""]);
+   for (int i<-[0, 1..n])  r=vv(r,[""]);
    // println(size(r));
    return r;
 }
@@ -341,7 +341,7 @@ text font(text t, str tg) {
        }
    text r = [];
    r+=h;
-   for (int i <-[1, 2..(n-1)]) {
+   for (int i <-[1, 2..n]) {
        r+=t[i];
       }
    r+=(t[n]+"\r}<tg>");
@@ -413,7 +413,7 @@ list[int] Awidth(list[list[Box]] a) {
      if (isEmpty(a)) return [];
      int m = size(head(a));  // Rows have the same length
      list[int] r = [];
-     for (int k<-[0..m-1]) {
+     for (int k<-[0..m]) {
            r+=[max([b[k]@width|b<-a])];
            }
      return r;

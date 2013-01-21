@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -2337,7 +2337,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> || <Expr
     // when it would not have been visible outside of the nested or.
     leftVars = ( );
     if (leftEndRange > leftStartRange) {
-       leftVars = ( vn : v | idx <- [leftStartRange .. leftEndRange], idx in cOrLeft.store, sh := head(cOrLeft.stack), v:variable(vn,_,_,sh,_) := cOrLeft.store[idx], idx := cOrLeft.fcvEnv[vn]);
+       leftVars = ( vn : v | idx <- [leftStartRange .. leftEndRange+1], idx in cOrLeft.store, sh := head(cOrLeft.stack), v:variable(vn,_,_,sh,_) := cOrLeft.store[idx], idx := cOrLeft.fcvEnv[vn]);
     }
 
     cOr = exitBooleanScope(cOrLeft, cOr);
@@ -2351,7 +2351,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> || <Expr
     // Similarly to the above, this finds vars added in the right-hand branch.
     rightVars = ( );
     if (rightEndRange > rightStartRange) {
-       rightVars = ( vn : v | idx <- [rightStartRange .. rightEndRange], idx in cOrRight.store, sh := head(cOrRight.stack), v:variable(vn,_,_,sh,_) := cOrRight.store[idx], idx := cOrRight.fcvEnv[vn]);
+       rightVars = ( vn : v | idx <- [rightStartRange .. rightEndRange+1], idx in cOrRight.store, sh := head(cOrRight.stack), v:variable(vn,_,_,sh,_) := cOrRight.store[idx], idx := cOrRight.fcvEnv[vn]);
     }
     
     cOr = exitBooleanScope(cOrRight, cOr);
@@ -4096,7 +4096,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
     
     if (!isFailType(atree@atype) && !concreteType(atree@atype)) {
         failtype = makeFailType("Assignable <ar> must have an actual type before assigning to a field", assn@\loc);
-        return < c, subscriptNode(atree, fldName)[@atype=failtype][@at=assn@\loc] >;
+        return < c, fieldAccessNode(atree, fldName)[@atype=failtype][@at=assn@\loc] >;
     }
     
     if (!isFailType(atree@atype)) {

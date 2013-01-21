@@ -17,17 +17,17 @@ private int tapeSize = 42;
 public void visInterpreter(Program prog){
 	int fps = 12;
 	bool hadChange = true;
-	state = initialState(prog,[false | i <- [1..tapeSize]]);
+	state = initialState(prog,[false | i <- [1..tapeSize+1]]);
 	bool running = false;
 	tape = hcat([box(computeFigure(Figure() { return (state.pos == i) ? ellipse(fillColor("red"),shrink(0.5)) : space(); }),
 		 fillColor(Color () {
 		 	return state.tape[i] ? color("green") : color("white"); }), onMouseDown(bool (int z, map[KeyModifier,bool] m) { if(z == 1){state.tape[i] = !state.tape[i];} else { state.pos=i; } return false; })
-		 ) | i <- [0..size(state.tape)-1]],vsize(60),vresizable(false));
+		 ) | i <- [0..size(state.tape)]],vsize(60),vresizable(false));
 	progView = hcat([vcat([
 		box(text("<i+1>\t<compile(state.prog[i])>",left()), fillColor(Color () { return (i + 1 == state.line) ? color("green") : color("white"); }), 
 				onMouseDown(bool (int z, map[KeyModifier,bool] m) { state.line = i + 1; return false; }))
-		| i <- [j*instructionsPerCollumn..min((j+1)*instructionsPerCollumn,size(state.prog))-1]],vresizable(false),top())
-		| j <- [0..size(state.prog)/instructionsPerCollumn]]);
+		| i <- [j*instructionsPerCollumn..min((j+1)*instructionsPerCollumn,size(state.prog))]],vresizable(false),top())
+		| j <- [0 .. 1+size(state.prog)/instructionsPerCollumn]]);
 	slide = hcat([scaleSlider(int() { return 1; } , int () { return 35; }, int() { return fps; }, void (int n){fps=n;},width(200)),text(str() { return " <fps> fps";})]);
 	view = vcat([
 			hcat([text(str() { return isFinished(state) ? "finished!" : (running ? "pause" : "run");})

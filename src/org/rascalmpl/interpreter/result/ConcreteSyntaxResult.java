@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,8 +27,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -45,7 +45,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> is(Name name) {
+	public Result<IBool> is(Name name) {
 		if (TreeAdapter.isAppl(getValue())) {
 			String consName = TreeAdapter.getConstructorName(getValue());
 			if (consName != null) {
@@ -126,24 +126,24 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 					IList args = TreeAdapter.getArgs(tree).put(found, repl.getValue());
 					return makeResult(getType(), tree.set("args", args), ctx);
 				}
-				throw new UnexpectedTypeError(nont, repl.getType(), ctx.getCurrentAST());
+				throw new UnexpectedType(nont, repl.getType(), ctx.getCurrentAST());
 			}
 			
 			if (Factory.Tree_Appl.hasField(name)) {
 				Type fieldType = Factory.Tree_Appl.getFieldType(name);
 				if (repl.getType().isSubtypeOf(fieldType)) {
-					throw new UnsupportedOperationError("changing " + name + " in concrete tree", ctx.getCurrentAST());
+					throw new UnsupportedOperation("changing " + name + " in concrete tree", ctx.getCurrentAST());
 				}
-				throw new UnexpectedTypeError(fieldType, repl.getType(), ctx.getCurrentAST());
+				throw new UnexpectedType(fieldType, repl.getType(), ctx.getCurrentAST());
 			}
 
 			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		throw new UnsupportedOperationError("field update", ctx.getCurrentAST());
+		throw new UnsupportedOperation("field update", ctx.getCurrentAST());
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> has(Name name) {
+	public Result<IBool> has(Name name) {
 		if (TreeAdapter.isAppl(getValue())) {
 			IConstructor prod = TreeAdapter.getProduction(getValue());
 			IList syms = ProductionAdapter.getSymbols(prod);
@@ -162,23 +162,23 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToConcreteSyntax(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToConcreteSyntax(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToConcreteSyntax(
+	protected Result<IBool> nonEqualToConcreteSyntax(
 			ConcreteSyntaxResult that) {
 		return equalToConcreteSyntax(that).negate();
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToConcreteSyntax(ConcreteSyntaxResult that) {
+	protected Result<IBool> equalToConcreteSyntax(ConcreteSyntaxResult that) {
 		IConstructor left = this.getValue();
 		IConstructor right = that.getValue();
 		

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatchError;
+import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -45,7 +45,7 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 	
 	public void initMatch(Result<IValue> subject) {
 		if(subject.isVoid()) 
-			throw new UninitializedPatternMatchError("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
+			throw new UninitializedPatternMatch("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
 		init();
 		this.subject = subject;
 	}

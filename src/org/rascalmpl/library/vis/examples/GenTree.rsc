@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -26,7 +26,7 @@ public Figure genTree(int leafChance,int minDepth,int maxDepth, int minKids, int
 	
 	
 	return tree(root,
-		[ genTree(leafChance,minDepth-1,maxDepth-1,minKids,maxKids,minX,minY,maxX,maxY) | i <- [0..nr]]);	
+		[ genTree(leafChance,minDepth-1,maxDepth-1,minKids,maxKids,minX,minY,maxX,maxY) | i <- [0..nr+1]]);	
 }
 
 public void testTree(){
@@ -87,7 +87,7 @@ public Figure genTreeMap(int leafChance,int minDepth,int maxDepth, int minKids, 
 	int nr = arbInt(maxKids-minKids) + minKids;
 
 	return treemap(
-		[ genTreeMap(leafChance,minDepth-1,maxDepth-1,minKids,maxKids,minArea) | i <- [0..nr]],p);	
+		[ genTreeMap(leafChance,minDepth-1,maxDepth-1,minKids,maxKids,minArea) | i <- [0..nr+1]],p);	
 }
 
 

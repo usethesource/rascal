@@ -1,3 +1,10 @@
+@license{
+  Copyright (c) 2009-2013 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 module lang::rascal::semantics::GenOperators
 
 import Relation;
@@ -118,7 +125,7 @@ public str classNameForOp(str op) = op;
 public str genMethod(str op, list[str] types) {
    // todo: do we need the return type or will we just cast?
    types = [ type2iface(t) | t <- types ];
-   params = [ "<types[i]> arg<i>" | i <- [0,1..size(types) - 1] ];
+   params = [ "<types[i]> arg<i>" | i <- [0,1..size(types)] ];
    return "public static abstract class <op>On<intercalate("And", types)> extends <classNameForOp(op)> {
           '  public IValue interpret(<intercalate(", ", params)>) {
           '    throw new ImplementationError(\"Operator <op> is not implemented for argument types <intercalate(" and ", types)>\");

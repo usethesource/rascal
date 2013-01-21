@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -31,10 +32,10 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.staticErrors.ArityError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
+import org.rascalmpl.interpreter.staticErrors.Arity;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -51,7 +52,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 		
 		@Override
-		public <U extends IValue> Result<U> has(Name name) {
+		public Result<IBool> has(Name name) {
 			return ResultFactory.bool(getType().hasField(Names.name(name)), ctx);
 		}
 		
@@ -66,38 +67,33 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		public <V extends IValue> Result<IBool> equals(Result<V> that) {
 			return that.equalToRelation(this);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+		public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 			return that.nonEqualToRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+		public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
 			return that.lessThanRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+		public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
 			return that.lessThanOrEqualRelation(this);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that) {
+		public <V extends IValue> Result<IBool> greaterThan(Result<V> that) {
 			return that.greaterThanRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that) {
+		public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> that) {
 			return that.greaterThanOrEqualRelation(this);
-		}
-
-		@Override
-		public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-			return result.compareRelation(this);
 		}
 
 		@Override
@@ -116,12 +112,12 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> in(Result<V> that) {
+		public <V extends IValue> Result<IBool> in(Result<V> that) {
 			return that.inRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> that) {
+		public <V extends IValue> Result<IBool> notIn(Result<V> that) {
 			return that.notInRelation(this);
 		}
 		
@@ -133,7 +129,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			// TODO: must go to PDB
 			int nSubs = subscripts.length;
 			if (nSubs >= getType().getArity()) {
-				throw new UnsupportedSubscriptArityError(getType(), nSubs, ctx.getCurrentAST());
+				throw new UnsupportedSubscriptArity(getType(), nSubs, ctx.getCurrentAST());
 			}
 			int relArity = getType().getArity();
 			
@@ -160,7 +156,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 						subscriptIsSet[i] = false;
 					} 
 					else {
-						throw new UnexpectedTypeError(relFieldType, subscriptType[i], ctx.getCurrentAST());
+						throw new UnexpectedType(relFieldType, subscriptType[i], ctx.getCurrentAST());
 					}
 				} else {
 					resFieldType[i - nSubs] = relFieldType;
@@ -212,12 +208,12 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		
 		
 		@Override
-		protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult) {
+		protected <V extends IValue> Result<IBool> elementOf(ElementResult<V> elementResult) {
 			return bool((getValue().contains(elementResult.getValue())), ctx);
 		}
 
 		@Override
-		protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult) {
+		protected <V extends IValue> Result<IBool> notElementOf(ElementResult<V> elementResult) {
 			return bool((!getValue().contains(elementResult.getValue())), ctx);
 		}
 		
@@ -226,7 +222,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			if (getValue().arity() == 0 || getValue().arity() == 2) {
 				return makeResult(type, getValue().closure(), ctx);
 			}
-			throw new ArityError(2, getValue().arity(), ctx.getCurrentAST());
+			throw new Arity(2, getValue().arity(), ctx.getCurrentAST());
 		}
 		
 
@@ -235,7 +231,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			if (getValue().arity() == 0 || getValue().arity() == 2) {
 				return makeResult(type, getValue().closureStar(), ctx);
 			}
-			throw new ArityError(2, getValue().arity(), ctx.getCurrentAST());
+			throw new Arity(2, getValue().arity(), ctx.getCurrentAST());
 		}
 		
 		
@@ -244,11 +240,11 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			Type tupleType = getType().getFieldTypes();	
 			
 			if (!getType().hasFieldNames()) {
-				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 			
 			if (!getType().hasField(name, store)) {
-				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 			
 			try {
@@ -260,7 +256,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			}
 			// TODO: why catch this exception here?
 			catch (UndeclaredFieldException e) {
-				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 		}
 		
@@ -277,11 +273,11 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			int rightArity = rightrelType.getArity();
 				
 			if (leftArity != 0 && leftArity != 2) {
-				throw new ArityError(2, leftArity, ctx.getCurrentAST());
+				throw new Arity(2, leftArity, ctx.getCurrentAST());
 			}
 				
 			if (rightArity != 0 && rightArity != 2) {
-				throw new ArityError(2, rightArity, ctx.getCurrentAST());
+				throw new Arity(2, rightArity, ctx.getCurrentAST());
 			}
 			Type resultType = leftrelType.compose(rightrelType);
 			return makeResult(resultType, left.getValue().compose(right.getValue()), ctx);
@@ -381,7 +377,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 					try {
 						fieldIndices[i] = baseType.getFieldIndex(fieldName);
 					} catch (UndeclaredFieldException e) {
-						throw new UndeclaredFieldError(fieldName, baseType,
+						throw new UndeclaredField(fieldName, baseType,
 								ctx.getCurrentAST());
 					}
 				}

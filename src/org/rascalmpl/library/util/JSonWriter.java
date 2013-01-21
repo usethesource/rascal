@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
@@ -48,6 +49,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 public class JSonWriter implements IValueTextWriter {
 
 	static boolean typed = false;
+	
+	static boolean nodeTyped = false;
 
 	static boolean debug = false;
 
@@ -270,7 +273,7 @@ public class JSonWriter implements IValueTextWriter {
 			Iterator<IValue> nodeIterator = o.iterator();
 			Map<String, IValue> annotations = o.getAnnotations();
 			Iterator<String> annoIterator = annotations.keySet().iterator();
-			inNode++;
+			if (nodeTyped) inNode++;
 			append("{\"" + name + "\":");
 			append('\"');
 			append(o.getName().replaceAll("\"", "\\\\\"")
@@ -307,7 +310,7 @@ public class JSonWriter implements IValueTextWriter {
 //				// append(']');
 			}
 			append('}');
-			inNode--;
+			if (nodeTyped) inNode--;
 			return o;
 		}
 
@@ -342,10 +345,20 @@ public class JSonWriter implements IValueTextWriter {
 			append('\"');
 			SimpleDateFormat sd = new SimpleDateFormat(
 					"yyyy-MM-dd HH:mm:ss.SSSZ");
+//			SimpleDateFormat sd = new SimpleDateFormat(
+//					"yyyy-MM-dd HH:mm:ss.SSS");
 			append(sd.format(new Date(o.getInstant())));
 			append('\"');
 			if (typed || inNode > 0)
 				append("]}");
+			return o;
+		}
+
+		@Override
+		public IValue visitListRelation(IListRelation o)
+				throws VisitorException {
+			// TODO Auto-generated method stub
+			visitSequence(o.iterator());
 			return o;
 		}
 	}

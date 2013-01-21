@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ public Figure tunnel(real hal, real val){
 	
 	return ( box(fillColor("black")) 
 	       | box(mouseOver(it),shrink(0.95),fillColor(rrgba(toReal(i)/50.0,0.0,0.0,1.0)),align(hal,val)) 
-	       | i <- [1..50]);
+	       | i <- [1..51]);
 }
 
 public void straightTunnel(){
@@ -48,7 +48,7 @@ public void leftUpTunnel(){
 public void increaseSize(){
 	render( box(( box(fillColor("black")) 
 	       | box(mouseOver(it),hshrink(0.95),vshrink(1.05),fillColor(rrgba(toReal(i)/50.0,0.0,0.0,1.0))) 
-	       | i <- [1..50]),vshrink(0.1),fillColor("red")));
+	       | i <- [1..51]),vshrink(0.1),fillColor("red")));
 }
   
 

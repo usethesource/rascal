@@ -1,7 +1,9 @@
 module lang::rascal::tests::Lists
 
+import IO;
 import List;
 import Boolean;
+import util::Math;
 
 // is A + B == C?
 bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
@@ -75,7 +77,7 @@ public list[&T] mergeUnOrdered(list[&T] A, list[&T] B) {
            }
     return res;
 }
-     
+
 public test bool inList(list[&T] A, list[&T] B) {
   C =  mergeUnOrdered(A, B);
   return (true | it && b in C | b <- B);
@@ -104,3 +106,149 @@ public test bool subscription(list[&T] L){
   }
   return true;  
 }
+
+public test bool subscriptionWrapped(list[&T] L){
+  for(int i <- index(L)){
+      if(L[i] != L[i - size(L)]){
+      	 return false;
+      }
+  }
+  return true;
+}
+
+public test bool sliceFirst(list[int] L) {
+  if(isEmpty(L)) return true;
+  f = arbInt(size(L));
+  e = f + arbInt(size(L) - f);
+  S = L[f .. e];
+  return S == makeSlice(L, f, f + 1, e);
+}
+
+public test bool sliceFirst(list[&T] L) {
+  if(isEmpty(L)) return true;
+  f = arbInt(size(L));
+  S = L[f..];
+  return S == [L[i] | i <- [f .. size(L) ] ];
+}
+
+// In an ideal world, this should work, but we have to adapt ranges first ...
+
+//public list[int] makeSlice(list[int] L, int b, int s, int e){
+//  return
+//    for(int i <- [b, s .. e])
+//      append L[i];
+//}
+
+public list[int] makeSlice(list[int] L, int f, int s, int e){
+  res = [];
+  int i = f;
+  int delta = s - f;
+  if(delta == 0 || f == e)
+     return res;
+  if(f <= e){
+     while(i >= 0 && i < size(L) && i < e ){
+        res += L[i];
+        i += delta;
+     }
+  } else {
+    while(i >= 0 && i < size(L) && i > e){
+        res += L[i];
+        i += delta;
+     }
+  }
+  return res;
+}
+
+public test bool sliceFirstSecond(list[int] L) {
+  if(isEmpty(L)) return true;
+  f = arbInt(size(L));
+  incr = 2;
+  return L[f, f + incr..] == makeSlice(L, f, f + incr, size(L));
+}
+
+
+public test bool sliceEnd(list[int] L) {
+  if(isEmpty(L)) return true;
+  e = arbInt(size(L));
+  return L[..e] == makeSlice(L, 0, 1, e);
+}
+
+public test bool sliceSecondEnd(list[int] L) {
+  if(isEmpty(L)) return true;
+  e = arbInt(size(L));
+  incr = 2;
+  first = incr > e ? size(L)-1 : 0;
+  return L[,incr..e] == makeSlice(L, first, incr, e);
+}
+
+public tuple[int,int] arbFirstEnd(list[int] L){
+  if(isEmpty(L)) throw "No beging/end indices possible";
+  if(size(L) == 1) return <0,0>;
+  f = arbInt(size(L));
+  e = f + arbInt(size(L) - f);
+  return <f, e>;
+}
+public test bool sliceFirstSecondEnd(list[int] L) {
+  if(isEmpty(L)) return true;
+  <f, e> = arbFirstEnd(L);
+  incr = 2;
+  return L[f, f + incr .. e] == makeSlice(L, f, f + incr, e);
+}
+
+public test bool sliceFirstNegative(list[int] L) {
+  if(isEmpty(L)) return true;
+  f = 1;
+  return L[-f..] == makeSlice(L, size(L) - f,  size(L) - f + 1, size(L));
+}
+
+public test bool sliceEndNegative(list[int] L) {
+  if(isEmpty(L)) return true;
+  e = arbInt(size(L));
+  return L[..-e] == makeSlice(L, 0, 1, e == 0 ? e : size(L) - e);
+}
+
+public test bool sliceFirstNegativeSecondNegative(list[int] L) {
+  if(isEmpty(L)) return true;
+  f = arbInt(size(L));
+  incr = 2;
+  if(f == 0)
+     return L[0, -incr..] == makeSlice(L, 0, size(L) - incr, size(L));
+  else
+     return L[-f, -(f + incr)..] == makeSlice(L, size(L) - f, size(L) - (f + incr), -1);
+}
+
+public test bool sliceSecondNegative(list[int] L) {
+  if(isEmpty(L)) return true;
+  incr = 2;
+  S = L[, -incr ..];
+  return S == makeSlice(L, 0, size(L) - incr, size(L));
+}
+
+
+public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] = [10,20]; return L == [10,20,10,20,10,20,10,20,10,20];}
+public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] = [10,20]; return   L == [0,1,10,20,10,20,10,20,10,20];}
+public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] = [10,20]; return L == [0,1,10,20,10,20,6,7,8,9];}
+public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] = [10,20]; return L == [0,1,2,3,10,20,10,20,10,9];}
+
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10]; return L == [10,1,10,3,10,5,10,7,10,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20]; return L == [10,1,20,3,10,5,20,7,10,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10]; return L == [10,1,10,3,10,5,10,7,10,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20]; return L == [10,1,20,3,10,5,20,7,10,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20,30]; return L == [10,1,20,3,30,5,10,7,20,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20,30,40,50,60,70]; return L == [10,1,20,3,30,5,40,7,50,9,60,70];}
+
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[2,4..] = [10]; return L == [0,1,10,3,10,5,10,7,10,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[2,4..6] = [10]; return L == [0,1,10,3,10,5,6,7,8,9];}
+
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,6..1] = [10]; return L == [0,1,2,10,4,5,10,7,8,10];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[8,6..] = [10]; return L == [10,1,10,3,10,5,10,7,10,9];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[8,6..3] = [10]; return L == [0,1,2,3,10,5,10,7,10,9];}
+
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-2..] = [10,20,30,40,50]; return L == [50,40,30,20,10,50,40,30,20,10];}
+public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-3..] = [10,20,30,40,50]; return L == [0,50,2,40,4,30,6,20,8,10];}
+
+//public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] += [10]; return L == [10,11,12,13,14,15,16,17,18,19]; }
+//public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] += [10]; return L == [0,1,12,13,14,15,16,17,18,19]; }
+//public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] += [10]; return L == [0,1,12,13,14,15,6,7,8,9];}
+//public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] += [10]; return L == [0,1,2,3,14,15,16,17,18,9];}
+

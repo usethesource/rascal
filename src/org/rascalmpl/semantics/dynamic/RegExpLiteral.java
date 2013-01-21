@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,10 +26,10 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 
 public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 
@@ -131,7 +131,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 				if (m.end(2) > -1) { /* case (1): <X:regexp> */
 
 					if (patternVars.contains(varName)) {
-						throw new RedeclaredVariableError(varName, this);
+						throw new RedeclaredVariable(varName, this);
 					}
 					patternVars.add(varName);
 					resultRegExp.add(new StaticInterpolationElement("("));
@@ -218,12 +218,12 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 			Result<IValue> variable = env.getCurrentEnvt().getVariable(name);
 			
 			if (variable == null) {
-				throw new UndeclaredVariableError(name, env.getCurrentAST());
+				throw new UndeclaredVariable(name, env.getCurrentAST());
 			}
 			
 			IValue value = variable.getValue();
 			if (value == null) {
-				throw new UninitializedVariableError(name, env.getCurrentAST());
+				throw new UninitializedVariable(name, env.getCurrentAST());
 			}
 			
 			return escape(value);

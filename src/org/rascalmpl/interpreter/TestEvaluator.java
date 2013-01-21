@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,41 +60,41 @@ public class TestEvaluator {
 	private void runTests(ModuleEnvironment env, List<AbstractFunction> tests) {
 		testResultListener.start(tests.size());
 
-		try {
-			for(int i = tests.size() - 1; i >= 0; i--) {
-				AbstractFunction test = tests.get(i);
+//		try {
+		for (int i = tests.size() - 1; i >= 0; i--) {
+		  AbstractFunction test = tests.get(i);
 
-				try{
-					QuickCheck qc = QuickCheck.getInstance();
-					StringWriter sw = new StringWriter();
-					PrintWriter out = new PrintWriter(sw);
-					int maxDepth = Cobra.readIntTag(test, Cobra.MAXDEPTH, 5);
-					int tries = Cobra.readIntTag(test, Cobra.TRIES, 200);
+		  try{
+		    QuickCheck qc = QuickCheck.getInstance();
+		    StringWriter sw = new StringWriter();
+		    PrintWriter out = new PrintWriter(sw);
+		    int maxDepth = Cobra.readIntTag(test, Cobra.MAXDEPTH, 5);
+		    int tries = Cobra.readIntTag(test, Cobra.TRIES, 200);
 
-					boolean result = qc.quickcheck(test, maxDepth, tries, false, out);
-					if (!result) {
-						out.flush();
-						testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer()
-								.toString());
-					} else {
-						testResultListener.report(true, test.getName(), test.getAst().getLocation(), sw.getBuffer()
-								.toString());
-					}
-				}
-				catch(StaticError e) {
-					testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage());
-				}
-				catch(Throw e){
-					testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage());
-				}
-				catch(Throwable e){
-					testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage());
-				}
-			}
+		    boolean result = qc.quickcheck(test, maxDepth, tries, false, out);
+		    if (!result) {
+		      out.flush();
+		      testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer()
+		          .toString());
+		    } else {
+		      testResultListener.report(true, test.getName(), test.getAst().getLocation(), sw.getBuffer()
+		          .toString());
+		    }
+		  }
+		  catch(StaticError e) {
+		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage());
+		  }
+		  catch(Throw e){
+		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage());
+		  }
+		  catch(Throwable e){
+		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage());
+		  }
 		}
-		finally {
-			testResultListener.done();
-		}
+		//		}
+		//		finally {
+		testResultListener.done();
+		//		}
 	}
 
 

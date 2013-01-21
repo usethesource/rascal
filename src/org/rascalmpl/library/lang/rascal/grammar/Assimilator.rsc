@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -33,7 +33,8 @@ bool isNonterminal(Symbol x) {
        && \layouts(_) !:= x
        && \keywords(_) !:= x
        && \start(_) !:= x
-       && \parameterized-sort(_,[\parameter(_),_*]) !:= x;
+       && \parameterized-sort(_,[\parameter(_),_*]) !:= x
+       && \parameterized-lex(_,[\parameter(_),_*]) !:= x;
 }
   
 @doc{
@@ -104,6 +105,7 @@ private list[Symbol] symbolLiterals(Symbol sym) {
     case \alt(alts) : return [lit("("),rl,*tail(tail(tail([rl,lit("|"),rl,*symbolLiterals(t) | t <- alts ]))),rl,lit(")")]; 
     case \seq(elems) : return [lit("("),rl,*tail([rl,*symbolLiterals(t) | t <- elems]),rl,lit(")")];  
     case \parameterized-sort(n, params) : return [lit(n),rl,lit("["),rl,*tail(tail(tail([rl,lit(","),rl,*symbolLiterals(p) | p <- params]))),rl,lit("]")]; //SPLICE
+    case \parameterized-lex(n, params) : return [lit(n),rl,lit("["),rl,*tail(tail(tail([rl,lit(","),rl,*symbolLiterals(p) | p <- params]))),rl,lit("]")]; //SPLICE
     case \parameter(n) : return [lit("&"),rl,lit(n)];
     case \char-class(list[CharRange] ranges) : return [lit("["),rl,*tail([rl,*rangeLiterals(r) | r <- ranges]),rl,lit("]")];    
     default: throw "unsupported symbol <sym>";

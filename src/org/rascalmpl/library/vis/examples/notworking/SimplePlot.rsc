@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ public Figure simplePlot(str title, list[NamedPairSeries] facts, PlotProperty se
 public Figure simplePlot(str title, list[num] xval, list[list[num]] yval, PlotProperty settings ...) {
    if (size(xval)==0 || size(xval)!=size(yval)) return text("<size(xval)>=size(xval)!=size(yval)=<size(yval)>");
    int n = size(yval[0]);
-   list[NamedPairSeries] facts = [<"<k>", [<xval[i], yval[i][k]>|int i<-[0.. size(xval)-1]]>|int k<-[0 .. n-1]];
+   list[NamedPairSeries] facts = [<"<k>", [<xval[i], yval[i][k]>|int i<-[0.. size(xval)]]>|int k<-[0 .. n]];
    return _simplePlot(title, facts, settings);
    }
    
@@ -44,7 +44,7 @@ public Figure simplePlot(str title, list[num] xval, list[list[num]] yval, PlotPr
     }  
 public Figure simplePlot(str title, list[list[num]] val, PlotProperty settings ...) {
    int n = size(val[0]);
-   list[NamedPairSeries] facts = [<"<k>", [<val[i][0], val[i][k]>|int i<-[0..size(val)-1]]>|int k<-[1 .. n-1]];
+   list[NamedPairSeries] facts = [<"<k>", [<val[i][0], val[i][k]>|int i<-[0..size(val)]]>|int k<-[1 .. n]];
    return _simplePlot(title, facts, settings);
    }
    
@@ -232,7 +232,7 @@ private Figure ylabel(num n){
 
 private Figure xaxis(str title, num \start, num incr, num end, num scale){
    // println("START:<\start> incr:<incr> end: <end> scale: <scale>");
-   Figure ticks = grid( [ xtick(n) | num n <- [\start, (\start + incr) .. end]],
+   Figure ticks = grid( [ xtick(n) | num n <- [\start, (\start + incr) .. end + 1]],
                  gap(incr * scale), width(chartWidth), top() // vcenter() 
                );
    println("grid:<grid>");
@@ -241,7 +241,7 @@ private Figure xaxis(str title, num \start, num incr, num end, num scale){
 
 private Figure xlabels(str title, num \start, num incr, num end, num scale){
 // println("START:<\start> incr:<incr> end: <end> scale: <scale>");
-   Figure ticks = grid( [ xlabel(n) | num n <- [\start, (\start + incr) .. end]],
+   Figure ticks = grid( [ xlabel(n) | num n <- [\start, (\start + incr) .. end + 1]],
                  gap(incr * scale), width(chartWidth), top() // vcenter() 
                );
    println("grid:<grid>");
@@ -251,14 +251,14 @@ private Figure xlabels(str title, num \start, num incr, num end, num scale){
 // Y-axis
 
 private Figure yaxis(str title,  num \start, num incr, num end, num scale){
-   Figure ticks = grid( [ ytick(n) | num n <- [end, (end - incr) .. \start]],
+   Figure ticks = grid( [ ytick(n) | num n <- [end, (end - incr) .. \start - 1]],
                  gap(incr * scale), height(chartHeight), left() // right()
                );
    return ticks;
 }
 
 private Figure ylabels(str title,  num \start, num incr, num end, num scale){
-   Figure ticks = hcat([makeSubTitle(title), grid( [ ylabel(n) | num n <- [end, (end - incr) .. \start]],
+   Figure ticks = hcat([makeSubTitle(title), grid( [ ylabel(n) | num n <- [end, (end - incr) .. \start - 1]],
                  gap(incr * scale), height(chartHeight), right()
                )], vcenter());
    return ticks;

@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -47,34 +47,41 @@ println(N);
 }
 
 data RuntimeException = 
-       EmptyList()
-     | EmptyMap() 
-     | EmptySet()
-     | IndexOutOfBounds(int index)
+       ArithmeticException(str message)
      | AssertionFailed() 
      | AssertionFailed(str label)
-     | NoSuchElement(value v)
-     | IllegalArgument(value v, str message)
-     | IllegalArgument(value v)
+     | EmptyList()
+     | EmptyMap() 
+     | EmptySet()
      | IllegalArgument()
+     | IllegalArgument(value v)
+     | IllegalArgument(value v, str message)
+     | IndexOutOfBounds(int index)
      | IO(str message)
+     | Java(str class, str message)
+     | Java(str class, str message, RuntimeException cause)
+     | ModuleNotFound(str name)
+     | NoSuchAnnotation(str label)
+ 
+     | NoSuchKey(value key)
+     | ParseError(loc location)
      | PathNotFound(loc l)
-     | FileNotFound(str file)
-     | SchemeNotSupported(loc l)
-     | HostNotFound(loc l)
-     | AccessDenied(loc l)
+     | StackOverflow()
+     
+// Status to be determined:     
+     
+//   | AccessDenied(loc l)
+//   | FileNotFound(str file)
+//   | IllegalIdentifier(str name)
+//   | SchemeNotSupported(loc l)
+//   | HostNotFound(loc l)
+     | ImplodeError(str message)
+//   | MissingCase(value x)
+     | NoSuchElement(value v)
      | PermissionDenied()
      | PermissionDenied(str message)
-     | ModuleNotFound(str name)
-     | NoSuchKey(value key)
-     | NoSuchAnnotation(str label)
-     | Java(str message)
-     | ParseError(loc location)
-     | IllegalIdentifier(str name)
-     | MissingCase(value x)
-     | Subversion(str message)
-     | StackOverflow()
+//   | Subversion(str message)
      | Timeout()
-     | ImplodeError(str message)
-     | ArithmeticException(str message)
+
+   
 	 ;

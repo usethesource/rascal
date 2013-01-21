@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ public class RandomType {
 		atomicTypes.add(tf.numberType());
 		atomicTypes.add(tf.sourceLocationType());
 		atomicTypes.add(tf.stringType());
-		// FIXME atomicTypes.add(tf.nodeType());
+		atomicTypes.add(tf.nodeType());
 		atomicTypes.add(tf.boolType());
 		atomicTypes.add(tf.dateTimeType());
 		this.random = new Random();
@@ -53,7 +53,7 @@ public class RandomType {
 	}
 
 	private Type getRecursiveType(int maxDepth) {
-		// list, set, map, relation, tuple
+		// list, set, map, relation, list relation, tuple
 		switch (random.nextInt(5)) {
 		case 0:
 			return tf.listType(getType(maxDepth));
@@ -64,6 +64,8 @@ public class RandomType {
 		case 3:
 			return getRelationType(maxDepth);
 		case 4:
+			return getListRelationType(maxDepth);
+		case 5:
 			return getTupleType(maxDepth);
 		}
 		return null;
@@ -77,6 +79,11 @@ public class RandomType {
 	private Type getRelationType(int maxDepth) {
 		List<Type> l = getTypeList(maxDepth, 1);
 		return tf.relType(l.toArray(new Type[l.size()]));
+	}
+	
+	private Type getListRelationType(int maxDepth) {
+		List<Type> l = getTypeList(maxDepth, 1);
+		return tf.lrelType(l.toArray(new Type[l.size()]));
 	}
 
 	private List<Type> getTypeList(int maxLength, int minLength) {

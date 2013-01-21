@@ -1,6 +1,6 @@
 
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -687,7 +687,7 @@ test: mix(<L>, <M>) == <?>
 
 }
 public list[&T] mix(list[&T] l, list[&T] r){
-	return [l[i],r[i]| i <- [0 .. (min(size(l),size(r)) - 1)]] + drop(size(r),l) + drop(size(l),r);
+	return [l[i],r[i]| i <- [0 .. min(size(l),size(r))]] + drop(size(r),l) + drop(size(l),r);
 }
 
 @doc{
@@ -1162,7 +1162,7 @@ Synopsis: Sort the elements of a list.
 Description:
 Sort the elements of a list:
 # Use the built-in ordering on values to compare list elements.
-# Give an additional `lessThanOrEqual` function that will be used to compare elements.
+# Give an additional `lessThan` function that will be used to compare elements.
 
 Examples:
 <screen>
@@ -1199,10 +1199,10 @@ test: sort(<L>) == <?>
 
 }
 public list[&T] sort(list[&T] lst) =
-	sort(lst, bool (&T a,&T b) { return a <= b; } );
+	sort(lst, bool (&T a,&T b) { return a < b; } );
 	
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] sort(list[&T] l, bool (&T a, &T b) lessOrEqual) ;
+public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
 
 @doc{
 Synopsis: Sum the elements of a list.

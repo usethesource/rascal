@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,13 @@ public abstract class Parameters extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Formals getFormals() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasKeywordFormals() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.KeywordFormals getKeywordFormals() {
     throw new UnsupportedOperationException();
   }
 
@@ -84,15 +91,17 @@ public abstract class Parameters extends AbstractAST {
   }
 
   static public class Default extends Parameters {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Formals","formals")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")])
   
     
     private final org.rascalmpl.ast.Formals formals;
+    private final org.rascalmpl.ast.KeywordFormals keywordFormals;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Formals formals) {
+    public Default(IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
       super(node);
       
       this.formals = formals;
+      this.keywordFormals = keywordFormals;
     }
   
     @Override
@@ -114,6 +123,15 @@ public abstract class Parameters extends AbstractAST {
     @Override
     public boolean hasFormals() {
       return true;
+    }
+    @Override
+    public org.rascalmpl.ast.KeywordFormals getKeywordFormals() {
+      return this.keywordFormals;
+    }
+  
+    @Override
+    public boolean hasKeywordFormals() {
+      return true;
     }	
   }
   public boolean isVarArgs() {
@@ -121,15 +139,17 @@ public abstract class Parameters extends AbstractAST {
   }
 
   static public class VarArgs extends Parameters {
-    // Production: sig("VarArgs",[arg("org.rascalmpl.ast.Formals","formals")])
+    // Production: sig("VarArgs",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")])
   
     
     private final org.rascalmpl.ast.Formals formals;
+    private final org.rascalmpl.ast.KeywordFormals keywordFormals;
   
-    public VarArgs(IConstructor node , org.rascalmpl.ast.Formals formals) {
+    public VarArgs(IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
       super(node);
       
       this.formals = formals;
+      this.keywordFormals = keywordFormals;
     }
   
     @Override
@@ -150,6 +170,15 @@ public abstract class Parameters extends AbstractAST {
   
     @Override
     public boolean hasFormals() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.KeywordFormals getKeywordFormals() {
+      return this.keywordFormals;
+    }
+  
+    @Override
+    public boolean hasKeywordFormals() {
       return true;
     }	
   }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,11 +40,9 @@ public class IO {
 	}
 	
 	public IValue readHTMLFile(ISourceLocation file, IEvaluatorContext ctx) {
-		InputStream in;
 		try {
-			in = ctx.getResolverRegistry().getInputStream(file.getURI());
 			Constructor cons = new Constructor();
-			new ParserDelegator().parse(new UnicodeInputStreamReader(in, ctx.getResolverRegistry().getCharset(file.getURI())), cons, true);
+			new ParserDelegator().parse(ctx.getResolverRegistry().getCharacterReader(file.getURI()), cons, true);
 			return cons.getValue();
 		} catch (MalformedURLException e) {
 			throw RuntimeExceptionFactory.malformedURI(file.getURI().toASCIIString(), null, null);

@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -68,7 +68,7 @@ chars("abc");
 stringChars(chars("abc")) == "abc";
 </screen>
 }
-public list[int] chars(str s) = [ charAt(s,i) | i <- [0..size(s)-1]];
+public list[int] chars(str s) = [ charAt(s,i) | i <- [0..size(s)]];
 
 @doc{
 Synopsis: Check that a string contains another string.

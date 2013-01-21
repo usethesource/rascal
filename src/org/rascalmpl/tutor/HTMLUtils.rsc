@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -220,7 +220,7 @@ public str showConceptURL(ConceptName cn){
 
 public str showConceptPath(ConceptName cn){
   names = basenames(cn);
-  return "<for(int i <- [0 .. size(names)-1]){><(i==0)?"":"/"><showConceptURL(compose(names, 0, i))><}>";
+  return "<for(int i <- [0 .. size(names)]){><(i==0)?"":"/"><showConceptURL(compose(names, 0, i))><}>";
 }
 
 

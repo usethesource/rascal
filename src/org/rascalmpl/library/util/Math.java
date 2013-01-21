@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,9 +18,10 @@ import java.util.Random;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.interpreter.result.RealResult;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class Math {
 	private final IValueFactory values;
@@ -57,7 +58,11 @@ public class Math {
 	}
 	
 	public IValue cos(INumber x){
-		return x.toReal().cos(RealResult.PRECISION);
+		try {
+			return x.toReal().cos(values.getPrecision());
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
+		}
 	}
 	
 	public IValue denominator(IRational n)
@@ -68,11 +73,15 @@ public class Math {
 	public IValue E()
 	//@doc{e -- returns the constant E}
 	{
-		return values.e(RealResult.PRECISION);
+		return values.e(values.getPrecision());
 	}
 	
 	public IValue exp(INumber x){
-		return x.toReal().exp(RealResult.PRECISION);
+		try {
+			return x.toReal().exp(values.getPrecision());
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
+		}
 	}
 	
 	public IValue floor(INumber x){
@@ -80,11 +89,19 @@ public class Math {
 	}
 	
 	public IValue ln(INumber x) {
-		return x.toReal().ln(RealResult.PRECISION);
+		try {
+			return x.toReal().ln(values.getPrecision());
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
+		}
 	}
 
 	public IValue log(INumber x, INumber base) {
-		return x.toReal().log(base.toReal(), RealResult.PRECISION);
+		try {
+			return x.toReal().log(base.toReal(), values.getPrecision());
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
+		}
 	}
 	
 	public IValue numerator(IRational n)
@@ -93,19 +110,63 @@ public class Math {
 	}
 
 	public IValue nroot(INumber x, IInteger y){
-		return x.toReal().nroot(y, RealResult.PRECISION);
+		try {
+			return x.toReal().nroot(y, values.getPrecision());
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
+		}
 	}
 	
 	public IValue PI()
 	//@doc{pi -- returns the constant PI}
 	{
-		return values.pi(RealResult.PRECISION);
+		return values.pi(values.getPrecision());
 	}
 	
 	public IValue pow(INumber x, IInteger y){
-		return x.toReal().pow(y);
+		try {
+			return x.toReal().pow(y);
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
+		}
 	}
 	
+	public IValue precision(INumber x){
+		if(x.getType().isIntegerType()){
+			IInteger k = (IInteger) x;
+			return values.integer(k.toReal().precision());
+		}
+		if(x.getType().isRationalType()){
+			IRational k = (IRational) x;
+			return values.integer(k.toReal().precision());
+		}
+		return values.integer(((IReal) x).precision());
+	}
+	
+	public IValue precision(INumber x, IInteger precision){
+		return values.real(x.toString(), precision.intValue());
+	}
+	
+	public IValue setPrecision(IInteger precision){
+		return values.integer(values.setPrecision(precision.intValue()));
+	}
+	
+	public IValue scale(INumber x){
+		try {
+			if(x.getType().isIntegerType()){
+				IInteger k = (IInteger) x;
+				return values.integer(k.toReal().scale());
+			}
+			if(x.getType().isRationalType()){
+				IRational k = (IRational) x;
+				return values.integer(k.toReal().scale());
+			}
+			return values.integer(((IReal) x).scale());
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
+		}
+	}
+
 	public IValue remainder(IRational n)
 	{
 	  return n.remainder();
@@ -116,15 +177,27 @@ public class Math {
 	}
 	
 	public IValue sin(INumber x){
-		return x.toReal().sin(RealResult.PRECISION);
+		try {
+			return x.toReal().sin(values.getPrecision());
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
+		}
 	}
 	
 	public IValue sqrt(INumber x){
-		return x.toReal().sqrt(RealResult.PRECISION);
+		try {
+			return x.toReal().sqrt(values.getPrecision());
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
+		}
 	}
 	
 	public IValue tan(INumber x){
-		return x.toReal().tan(RealResult.PRECISION);
+		try {
+			return x.toReal().tan(values.getPrecision());
+		} catch (ArithmeticException ae) {
+			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
+		}
 	}
 	
 	public IValue toInt(INumber d)

@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -73,7 +73,7 @@ public list[Tree] getTupleItems(Tree t) {
             if (size(tupleItems) > 0) {
                 // The tuple items include layout and commas, so we use a mod 4 to account for this: we have
                 // item layout comma layout item layout comma layout etc
-                tupleParts = [ tupleItems[n] | n <- [0..size(tupleItems)-1], n % 4 == 0];
+                tupleParts = [ tupleItems[n] | n <- [0..size(tupleItems)], n % 4 == 0];
             }
         }
     }
@@ -91,10 +91,10 @@ public list[Tree] getMapMappings(Tree t) {
             if (size(mapItems) > 0) {
                 // The map items include layout and commas, so we use a mod 4 to account for this: we have
                 // item layout comma layout item layout comma layout etc
-                list[Tree] mapMappings = [ mapItems[n] | n <- [0..size(mapItems)-1], n % 4 == 0];
+                list[Tree] mapMappings = [ mapItems[n] | n <- [0..size(mapItems)], n % 4 == 0];
 
                 // Each item should have the domain and range inside. It is organized as pat layout : layout pat
-                for (n <- [0..size(mapMappings)-1]) {
+                for (n <- [0..size(mapMappings)]) {
                     if (appl(_,list[Tree] mapContents) := mapMappings[n]) {
                         if (size(mapContents) == 5, Tree tl := mapContents[0], Tree tr := mapContents[4]) {
                             mapParts = mapParts + [ tl, tr ]; 
