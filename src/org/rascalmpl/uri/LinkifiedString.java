@@ -75,7 +75,7 @@ public class LinkifiedString {
 					sb = new StringBuffer(input.length());
 				}
 				// markdown link
-				String name =  m.group(1) + "\uD83D\uDD17" ;
+				String name =  "\u261E " + m.group(1) ;
 				String url = m.group(2);
 				linkTargets.add(url);
 				m.appendReplacement(sb, name);
