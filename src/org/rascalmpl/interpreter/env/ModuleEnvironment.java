@@ -80,7 +80,7 @@ public class ModuleEnvironment extends Environment {
 	public final static String SHELL_MODULE = "$shell$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
-		super(name);
+		super(null, name);
 		this.heap = heap;
 		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
