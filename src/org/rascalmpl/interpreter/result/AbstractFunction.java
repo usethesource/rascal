@@ -18,6 +18,7 @@
 package org.rascalmpl.interpreter.result;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -158,9 +159,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
+		return call(monitor, argTypes, argValues, keyArgValues, null, null, null);
+	}
+	
+	@Override
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
-			return call(argTypes, argValues, keyArgValues);
+			return call(argTypes, argValues, keyArgValues, self, selfParams, selfParamBounds);
 		}
 		finally {
 			ctx.getEvaluator().setMonitor(old);
@@ -362,44 +368,72 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
-		return that.addFunctionNonDeterministic(this);
+		return that.addFunctionNonDeterministic(this, true);
 	}
 	
 	@Override
-	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that) {
-		return (new OverloadedFunction(this)).add(that);
+	public <U extends IValue, V extends IValue> Result<U> addClosedRecursive(Result<V> right) {
+		return right.addFunctionNonDeterministic(this, false);
+	}
+	
+	@Override
+	public Result<IValue> addFunctionNonDeterministic(AbstractFunction that, boolean isOpenRecursive) {
+		return (new OverloadedFunction(this)).addFunctionNonDeterministic(that, isOpenRecursive);
 	}
 
 	@Override
-	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that) {
-		return (new OverloadedFunction(this)).join(that);
+	public Result<IValue> addFunctionNonDeterministic(OverloadedFunction that, boolean isOpenRecursive) {
+		return (new OverloadedFunction(this)).addFunctionNonDeterministic(that, isOpenRecursive);
 	}
 
 	@Override
-	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that) {
-		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this);
+		List<String> selfParams = new LinkedList<String>();
+		List<Result<IValue>> selfParamBounds = new LinkedList<Result<IValue>>();
+		return right.composeFunction(this, selfParams, selfParamBounds, true);
 	}
 	
 	@Override
-	public ComposedFunctionResult composeFunction(AbstractFunction that) {
-		return new ComposedFunctionResult(that, this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, List<String> selfs, List<Result<IValue>> selfBounds) {
+		return right.composeFunction(this, selfs, selfBounds, true);
 	}
 	
 	@Override
-	public ComposedFunctionResult composeFunction(OverloadedFunction that) {
-		return new ComposedFunctionResult(that, this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> composeClosedRecursive(Result<V> right) {
+		return right.composeFunction(this, null, null, false);
 	}
 	
 	@Override
-	public ComposedFunctionResult composeFunction(ComposedFunctionResult that) {
-		return new ComposedFunctionResult(that, this, ctx);
+	@SuppressWarnings("unchecked")
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, selfs, selfBounds, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return (Result<U>) result;
 	}
 	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, selfs, selfBounds, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return (Result<U>) result;
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, selfs, selfBounds, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return (Result<U>) result;
+	}
+
 	@Override
 	public String toString() {
 		return getHeader() + ";";
@@ -470,8 +504,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public boolean hasResourceScheme() {
 		return false;
 	}
-
-
 	
+	@Override
+	public String getSelfParam() {
+		return this.getName();
+	}
 	
 }

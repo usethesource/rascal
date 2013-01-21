@@ -17,11 +17,11 @@ import org.junit.Test;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class FunctionCompositionTests extends TestFramework {
-	
+
 	/*
-	 * Tests of the 'o' composition operator
+	 * Tests of the 'o.' composition operator (closed recursive)
 	 */
-	
+
 	String fib1 = 
 			" public int fib(0) = 0; "; 
 	String fib2 =
@@ -40,21 +40,21 @@ public class FunctionCompositionTests extends TestFramework {
 			" public str printResult(int n) = \" <n>; \"; ";
 	String printResult2 =
 			" public str printResult(str s) = s + s; ";
-	
+
 	String f1 = 
 			" public int f(0) = 0; ";
 	String f2 =
 			" public int f(1) = 1; ";
 	String f3 =
 			" public default int f(int n) = n + 1; ";
-	
+
 	String g1 = 
 			" public int g(0) { fail; } ";
 	String g2 =
 			" public int g(1) = 1; ";
 	String g3 =
 			" public default int g(int n) = n + 2; ";
-	
+
 	@Test
 	public void testFactorialFibonacci() {
 		prepare(fib1);
@@ -67,12 +67,12 @@ public class FunctionCompositionTests extends TestFramework {
 				" { " +
 				" list[int] inputs = [0,1,2,3,4,5,6,7,8,9]; " +
 				" list[int] outputs1 = [ fact(fib(i)) | int i <- inputs ]; " +
-				" list[int] outputs2 = [ (fact o fib)(i) | int i <- inputs ]; " +
+				" list[int] outputs2 = [ (fact o. fib)(i) | int i <- inputs ]; " +
 				" outputs1 == outputs2; " +
 				" } ";
 		assertTrue(runTestInSameEvaluator(test));
 	}
-	
+
 	@Test
 	public void testFactorialFibonacciPrint() {
 		prepare(fib1);
@@ -87,28 +87,28 @@ public class FunctionCompositionTests extends TestFramework {
 				" { " +
 				" list[int] inputs = [0,1,2,3,4,5,6,7,8,9]; " +
 				" list[str] outputs1 = [ printResult(fact(fib(i))) | int i <- inputs ]; " +
-				" list[str] outputs2 = [ (printResult o fact o fib)(i) | int i <- inputs ]; " +
+				" list[str] outputs2 = [ (printResult o. fact o. fib)(i) | int i <- inputs ]; " +
 				// associativity check of the 'o' operator
-				" list[str] outputs3 = [ ( (printResult o fact) o fib)(i) | int i <- inputs ]; " +
-				" list[str] outputs4 = [ (printResult o (fact o fib))(i) | int i <- inputs ]; " +	
+				" list[str] outputs3 = [ ( (printResult o. fact) o. fib)(i) | int i <- inputs ]; " +
+				" list[str] outputs4 = [ (printResult o. (fact o. fib))(i) | int i <- inputs ]; " +	
 				" (outputs1 == outputs2) && (outputs1 == outputs3) && (outputs1 == outputs4); " +
 				" } "; 
-		
+
 		String test2 =
 				" { " +
 				" list[int] inputs = [0,1,2,3,4,5,6,7,8,9]; " +
 				" list[str] outputs1 = [ printResult(printResult(fact(fib(i)))) | int i <- inputs ]; " +
-				" list[str] outputs2 = [ (str (str s) { return s + s; } o printResult o fact o fib)(i) | int i <- inputs ]; " +
+				" list[str] outputs2 = [ (str (str s) { return s + s; } o. printResult o. fact o. fib)(i) | int i <- inputs ]; " +
 				// associativity check of the 'o' operator
-				" list[str] outputs3 = [ ( (printResult o printResult) o (fact o fib) )(i) | int i <- inputs ]; " +
-				" list[str] outputs4 = [ ( printResult o (str (int n) { return \" <n>; \"; } o fact) o fib )(i) | int i <- inputs ]; " +
+				" list[str] outputs3 = [ ( (printResult o. printResult) o. (fact o. fib) )(i) | int i <- inputs ]; " +
+				" list[str] outputs4 = [ ( printResult o. (str (int n) { return \" <n>; \"; } o. fact) o. fib )(i) | int i <- inputs ]; " +
 				" (outputs1 == outputs2) && (outputs1 == outputs3) && (outputs1 == outputs4); " +
 				" } ";
-		
+
 		assertTrue(runTestInSameEvaluator(test1));
 		assertTrue(runTestInSameEvaluator(test2));
 	}
-	
+
 	@Test
 	public void testAnonymousFunctionComposition() {
 		String test =
@@ -118,14 +118,14 @@ public class FunctionCompositionTests extends TestFramework {
 				" 							( int (int n) { switch(n) { case 0: return 0; case 1: return 1; case int n: return (n-1) + (n-2); } } " + 
 				"								(i)) | int i <- inputs ]; " +
 				" list[int] outputs2 = [ (int (int n) { switch(n) { case 0: return 1; case 1: return 1; case int n: return n*(n-1); } } " +
-				"							o int (int n) { switch(n) { case 0: return 0; case 1: return 1; case int n: return (n-1) + (n-2); } }) " +
+				"							o. int (int n) { switch(n) { case 0: return 0; case 1: return 1; case int n: return (n-1) + (n-2); } }) " +
 				"						(i) | int i <- inputs ]; " +
 				" outputs1 == outputs2; " +
 				" } ";
-		
+
 		assertTrue(runTest(test));
 	}
-	
+
 	@Test
 	public void testComposedOverloadedFunctions() {
 		prepare(f1);
@@ -136,15 +136,15 @@ public class FunctionCompositionTests extends TestFramework {
 		prepareMore(g3);
 		String test =
 				" { " +
-				" (g o f)(0) == 2; " +
+				" (g o. f)(0) == 2; " +
 				" } ";
 		assertTrue(runTestInSameEvaluator(test));
 	}
-	
+
 	/*
-	 * Tests of the '+' composition operator
+	 * Tests of the '.+.' composition operator (closed recursive)
 	 */
-	
+
 	String h1 =
 			" public str h(0) = \"0\"; ";
 	String h2 =
@@ -158,23 +158,23 @@ public class FunctionCompositionTests extends TestFramework {
 			" public str i(1) = \"2\"; ";
 	String i3 =
 			" public default str i(int n) = \"<n + 1>\"; ";
-	
+
 	String j0 = 
 			" public int j0(0) = 0;";
 	String j1 =
 			" public int j1(1) = 1; ";
-	
+
 	String j3 = 
 			" public default int j3(int n) = 2*n; ";
-	
+
 	String j4 = 
 			" public default int j4(int n) = 2*n - 1; ";
-		
+
 	String k = 
 			" public int k(int n) = (n%2 == 0) ? { fail; } : 2*n; ";
 	String l = 
 			" public int l(int n) = (n%2 == 0) ? n*(n-1) : { fail; }; ";
-	
+
 	@Test
 	public void testNonDeterministicChoiceAndNormalComposition() {
 		prepare(h1);
@@ -193,38 +193,38 @@ public class FunctionCompositionTests extends TestFramework {
 				" { " +
 				" list[int] inputs = [2,3];" +
 				" list[str] outputs1 = [ i(n) | int n <- inputs ]; " +
-				" list[str] outputs2 = [ (h + i)(n) | int n <- inputs ]; " +
-				" list[str] outputs3 = [ (i + h)(n) | int n <- inputs ]; " +
+				" list[str] outputs2 = [ (h .+. i)(n) | int n <- inputs ]; " +
+				" list[str] outputs3 = [ (i .+. h)(n) | int n <- inputs ]; " +
 				" outputs1 == outputs2 && outputs1 == outputs3 && " +
-				" ( (h + i)(0) == \"0\" || (h + i)(0) == \"1\" ) &&" +
-				" ( (h + i)(1) == \"1\" || (h + i)(1) == \"2\" ) &&" +
-				" ( (i + h)(0) == \"0\" || (i + h)(0) == \"1\" ) &&" +
-				" ( (i + h)(1) == \"1\" || (i + h)(1) == \"2\" ); " +
+				" ( (h .+. i)(0) == \"0\" || (h .+. i)(0) == \"1\" ) &&" +
+				" ( (h .+. i)(1) == \"1\" || (h .+. i)(1) == \"2\" ) &&" +
+				" ( (i .+. h)(0) == \"0\" || (i .+. h)(0) == \"1\" ) &&" +
+				" ( (i .+. h)(1) == \"1\" || (i .+. h)(1) == \"2\" ); " +
 				" } ";
 		String test2 =
 				" { " +
 				" list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; " +
 				" list[int] outputs = [ (n%2 == 0) ? n*(n - 1) : 2*n | int n <- inputs ]; " +
-				" list[int] outputs1 = [ (k + l)(n) | int n <- inputs ]; " +
-				" list[int] outputs2 = [ (l + k)(n) | int n <- inputs ]; " +
-				" list[int] outputs3 = [ ( (k + l) o (l + k) )(n) | int n <- inputs ]; " +
+				" list[int] outputs1 = [ (k .+. l)(n) | int n <- inputs ]; " +
+				" list[int] outputs2 = [ (l .+. k)(n) | int n <- inputs ]; " +
+				" list[int] outputs3 = [ ( (k .+. l) o. (l .+. k) )(n) | int n <- inputs ]; " +
 				" list[int] outputs4 = [ n*(n - 1) | int n <- outputs ]; " +
-				" list[int] outputs5 = [ (j0 + j1 + (k + l) o j3)(n) | int n <- inputs ]; " +
-				" list[int] outputs6 = [ ((k + l) o j4 + j0 + j1)(n) | int n <- inputs ]; " +
+				" list[int] outputs5 = [ (j0 .+. j1 .+. (k .+. l) o. j3)(n) | int n <- inputs ]; " +
+				" list[int] outputs6 = [ ((k .+. l) o. j4 .+. j0 .+. j1)(n) | int n <- inputs ]; " +
 				" list[int] outputs7 = [0,1] + [ 2*n*(2*n - 1) | int n <- inputs - [0,1] ]; " +
 				" list[int] outputs8 = [0,1] + [ 2*(2*n-1) | int n <- inputs - [0,1] ]; " +
 				" list[int] outputs9 = [ 2*n*(2*n - 1) | int n <- inputs ]; " +
 				" list[int] outputs10 = [ 2*(2*n-1) | int n <- inputs ]; " +
-				" list[int] outputs11 = [ (( int (int n) { return (n%2 == 0) ? { fail; } : 2*n; } + l) o (int (int n) { return 2*n - 1; }) + j0 + j1)(n) | int n <- inputs ]; " +
+				" list[int] outputs11 = [ (( int (int n) { return (n%2 == 0) ? { fail; } : 2*n; } .+. l) o. (int (int n) { return 2*n - 1; }) .+. j0 .+. j1)(n) | int n <- inputs ]; " +
 				" outputs == outputs1 " +
 				" && outputs == outputs2 " +
 				" && outputs3 == outputs4 " +
 				" && ( outputs5 == outputs7 || outputs5 == outputs9 ) " +
 				" && ( outputs6 == outputs8 || outputs6 == outputs10 ) " +
 				" && ( outputs11 == outputs8 || outputs11 == outputs10 ); " +
-				
+
 				" } ";
-		
+
 		assertTrue(runTestInSameEvaluator(test1));
 		assertTrue(runTestInSameEvaluator(test2));
 	}

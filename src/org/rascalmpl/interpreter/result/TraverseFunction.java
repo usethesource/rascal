@@ -15,6 +15,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -39,41 +40,41 @@ public class TraverseFunction extends AbstractFunction {
 	public TraverseFunction(IEvaluator<Result<IValue>> eval) {
 		super(null, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().parameterType("T"), 
 																					  TypeFactory.getInstance().tupleType(TypeFactory.getInstance().parameterType("T"))),
-				false, eval.getCurrentEnvt());
+				false, null, eval.getCurrentEnvt());
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		if(actuals.length != 0) {
 			if(self == null) 
 				self = this;
 			IValue arg = actuals[0];
 			Type type = arg.getType();
 			if(type.isAbstractDataType())
-				arg = call((IConstructor) arg, self, selfParams, selfParamBounds);
+				arg = call((IConstructor) arg, keyArgValues, self, selfParams, selfParamBounds);
 			else if(type.isNodeType())
-				arg = call((INode) arg, self, selfParams, selfParamBounds);
+				arg = call((INode) arg, keyArgValues, self, selfParams, selfParamBounds);
 			else if(type.isListType())
-				arg = call((IList) arg, self, selfParams, selfParamBounds);
+				arg = call((IList) arg, keyArgValues, self, selfParams, selfParamBounds);
 			else if(type.isSetType())
-				arg = call((ISet) arg, self, selfParams, selfParamBounds);
+				arg = call((ISet) arg, keyArgValues, self, selfParams, selfParamBounds);
 			else if(type.isMapType())
-				arg = call((IMap) arg, self, selfParams, selfParamBounds);
+				arg = call((IMap) arg, keyArgValues, self, selfParams, selfParamBounds);
 			else if(type.isTupleType())
-				arg = call((ITuple) arg, self, selfParams, selfParamBounds);
+				arg = call((ITuple) arg, keyArgValues, self, selfParams, selfParamBounds);
 			else if(type.isStringType())
-				arg = call((IString) arg, self, selfParams, selfParamBounds);
+				arg = call((IString) arg, keyArgValues, self, selfParams, selfParamBounds);
 			return makeResult(actualTypes[0], arg, ctx);
 		}
 		return null;
 	}
 	
-	private IConstructor call(IConstructor arg, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	private IConstructor call(IConstructor arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		if(arg.arity() != 0) {
 			IValue args[] = new IValue[arg.arity()];
 			for(int i = 0; i < arg.arity(); i++) {
 				IValue child = arg.get(i);
-				Result<IValue> result = self.call(new Type[] { child.getType() }, new IValue[] { child }, self, selfParams, selfParamBounds);
+				Result<IValue> result = self.call(new Type[] { child.getType() }, new IValue[] { child }, keyArgValues, self, selfParams, selfParamBounds);
 				args[i] = result.getValue();
 			}
 			Type t = arg.getConstructorType();
@@ -82,12 +83,12 @@ public class TraverseFunction extends AbstractFunction {
 		return arg;
 	}
 	
-	private INode call(INode arg, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	private INode call(INode arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		if(arg.arity() != 0) {
 			IValue args[] = new IValue[arg.arity()];
 			for(int i = 0; i < arg.arity(); i++) {
 				IValue child = arg.get(i);
-				Result<IValue> result = self.call(new Type[] { child.getType() }, new IValue[] { child }, self, selfParams, selfParamBounds);
+				Result<IValue> result = self.call(new Type[] { child.getType() }, new IValue[] { child }, keyArgValues, self, selfParams, selfParamBounds);
 				args[i] = result.getValue();
 			}
 			return ctx.getValueFactory().node(arg.getName(), args);
@@ -95,11 +96,11 @@ public class TraverseFunction extends AbstractFunction {
 		return arg;
 	}
 	
-	private IList call(IList arg, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	private IList call(IList arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		if(arg.length() != 0) {
 			IListWriter w = arg.getType().writer(ctx.getValueFactory());
 			for(int i = 0; i < arg.length(); i++) {
-				Result<IValue> result = self.call(new Type[] { arg.get(i).getType() }, new IValue[] { arg.get(i) }, self, selfParams, selfParamBounds);
+				Result<IValue> result = self.call(new Type[] { arg.get(i).getType() }, new IValue[] { arg.get(i) }, keyArgValues, self, selfParams, selfParamBounds);
 				w.append(result.getValue());
 			}
 			return w.done();
@@ -107,11 +108,11 @@ public class TraverseFunction extends AbstractFunction {
 		return arg;
 	}
 	
-	private ISet call(ISet arg, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	private ISet call(ISet arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		if(arg.size() != 0) {
 			ISetWriter w = arg.getType().writer(ctx.getValueFactory());
 			for(IValue elem : arg) {
-				Result<IValue> result = self.call(new Type[] { elem.getType() }, new IValue[] { elem }, self, selfParams, selfParamBounds);
+				Result<IValue> result = self.call(new Type[] { elem.getType() }, new IValue[] { elem }, keyArgValues, self, selfParams, selfParamBounds);
 				w.insert(result.getValue());
 			}
 			return w.done();
@@ -119,14 +120,14 @@ public class TraverseFunction extends AbstractFunction {
 		return arg;
 	}
 	
-	private IMap call(IMap arg, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	private IMap call(IMap arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		if(!arg.isEmpty()) {
 			IMapWriter w = arg.getType().writer(ctx.getValueFactory());
 			Iterator<Entry<IValue, IValue>> iter = arg.entryIterator();
 			while(iter.hasNext()) {
 				Entry<IValue, IValue> elem = iter.next();
-				Result<IValue> keyResult = self.call(new Type[] { elem.getKey().getType() }, new IValue[] { elem.getKey() }, self, selfParams, selfParamBounds);
-				Result<IValue> valueResult = self.call(new Type[] { elem.getValue().getType() }, new IValue[] { elem.getValue() }, self, selfParams, selfParamBounds);
+				Result<IValue> keyResult = self.call(new Type[] { elem.getKey().getType() }, new IValue[] { elem.getKey() }, keyArgValues, self, selfParams, selfParamBounds);
+				Result<IValue> valueResult = self.call(new Type[] { elem.getValue().getType() }, new IValue[] { elem.getValue() }, keyArgValues, self, selfParams, selfParamBounds);
 				w.put(keyResult.getValue(), valueResult.getValue());
 			}
 			return w.done();
@@ -134,11 +135,11 @@ public class TraverseFunction extends AbstractFunction {
 		return arg;
 	}
 
-	private ITuple call(ITuple arg, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	private ITuple call(ITuple arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		if(arg.arity() != 0) {
 			IValue args[] = new IValue[arg.arity()];
 			for(int i = 0; i < arg.arity(); i++) {
-				Result<IValue> result = self.call(new Type[] { arg.get(i).getType() }, new IValue[] { arg.get(i) }, self, selfParams, selfParamBounds);
+				Result<IValue> result = self.call(new Type[] { arg.get(i).getType() }, new IValue[] { arg.get(i) }, keyArgValues, self, selfParams, selfParamBounds);
 				args[i] = result.getValue();
 			}
 			return ctx.getValueFactory().tuple(args);
@@ -146,7 +147,7 @@ public class TraverseFunction extends AbstractFunction {
 		return arg;
 	}
 	
-	private IString call(IString arg, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	private IString call(IString arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
 		return arg;
 	}
 

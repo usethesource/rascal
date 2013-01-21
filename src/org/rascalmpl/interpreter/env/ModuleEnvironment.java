@@ -472,8 +472,19 @@ public class ModuleEnvironment extends Environment {
 		}
 	}
 	
-
+	public void getAllImportedFunctions(String name, List<AbstractFunction> collection) {
+		for (String moduleName : getImports()) {
+			ModuleEnvironment mod = getImport(moduleName);
+			mod.getLocalPublicFunctions(name, collection);
+		}
+	}
 	
+	public void getAllImportedFunctions(Type returnType, String name, List<AbstractFunction> collection) {
+		for (String moduleName : getImports()) {
+			ModuleEnvironment mod = getImport(moduleName);
+			mod.getLocalPublicFunctions(returnType, name, collection);
+		}
+	}
 	
 	private Result<IValue> getLocalPublicVariable(String name) {
 		Result<IValue> var = null;
