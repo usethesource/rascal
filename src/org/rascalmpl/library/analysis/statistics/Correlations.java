@@ -11,6 +11,7 @@ import org.apache.commons.math.MathException;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.stat.correlation.Covariance;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -49,7 +50,7 @@ public class Correlations {
 		}
 	}
 
-	public IValue PearsonsCorrelation(IList dataValues){
+	public IValue PearsonsCorrelation(IListRelation dataValues){
 		make(dataValues);
 		return values.real(new org.apache.commons.math.stat.correlation.PearsonsCorrelation().correlation(xvalues, yvalues));
 	}
@@ -64,13 +65,13 @@ public class Correlations {
 		return w.done();
 	}
 	
-	public IValue PearsonsCorrelationStandardErrors(IList dataValues){
+	public IValue PearsonsCorrelationStandardErrors(IListRelation dataValues){
 		make(dataValues);
 		RealMatrix errors = new org.apache.commons.math.stat.correlation.PearsonsCorrelation(xyvalues).getCorrelationStandardErrors();
 		return RealMatrix2List(errors);
 	}
 	
-	public IValue PearsonsCorrelationPValues(IList dataValues){
+	public IValue PearsonsCorrelationPValues(IListRelation dataValues){
 		make(dataValues);
 		RealMatrix errors;
 		try {
@@ -83,12 +84,12 @@ public class Correlations {
 		return null;
 	}
 	
-	public IValue SpearmansCorrelation(IList dataValues){
+	public IValue SpearmansCorrelation(IListRelation dataValues){
 		make(dataValues);
 		return values.real(new org.apache.commons.math.stat.correlation.SpearmansCorrelation().correlation(xvalues, yvalues));
 	}
 	
-	public IValue covariance(IList dataValues){
+	public IValue covariance(IListRelation dataValues){
 		make(dataValues);
 		return values.real(new Covariance().covariance(xvalues, yvalues, false));
 	}
