@@ -13,30 +13,30 @@ module ListRelation
 import List;
 
 @doc{
-Synopsis: Return the set of all elements in any tuple in a relation.
+Synopsis: Return the set of all elements in any tuple in a list relation.
 
 Examples:
 <screen>
-import Relation;
-carrier({<1,10>, <2,20>});
-carrier({<1,10,100,1000>, <2,20,200,2000>});
+import ListRelation;
+carrier([<1,10>, <2,20>]);
+carrier([<1,10,100,1000>, <2,20,200,2000>]);
 </screen>
 
 Questions:
 
 QType:
-prep: import Relation;
-make: R = set[tuple[int,int]]
+prep: import ListRelation;
+make: R = list[tuple[int,int]]
 test: carrier(<R>)
 
 QType:
-prep: import Relation;
-make: R = set[tuple[str,int]]
+prep: import ListRelation;
+make: R = list[tuple[str,int]]
 test: carrier(<R>)
 
 QValue:
-prep: import Relation;
-make: R = set[tuple[str,int]]
+prep: import ListRelation;
+make: R = list[tuple[str,int]]
 expr: H = carrier(<R>)
 hint: <H>
 test: carrier(<R>) == <?>
@@ -65,28 +65,28 @@ public list[&T]  carrier (lrel[&T,&T,&T,&T,&T] R)
 }
 
 @doc{
-Synopsis: A relation restricted to certain element values in tuples.
+Synopsis: A list relation restricted to certain element values in tuples.
 
 Description:
-Returns relation `R` restricted to tuples with elements in set `S`.
+Returns list relation `R` restricted to tuples with elements in set `S`.
 
 Examples:
 <screen>
-import Relation;
-carrierR({<1,10>, <2,20>, <3,30>}, {10, 1, 20});
+import ListRelation;
+carrierR([<1,10>, <2,20>, <3,30>], {10, 1, 20});
 </screen>
 
 Questions:
 
 QType:
-prep: import Relation;
-make: R = set[tuple[int[0,10],int[10,20]]]
+prep: import ListRelation;
+make: R = list[tuple[int[0,10],int[10,20]]]
 make: S = set[int[0,20]]
 test: carrierR(<R>, <S>)
 
 QValue:
-prep: import Relation;
-make: R = set[tuple[int[0,10],int[10,20]]]
+prep: import ListRelation;
+make: R = list[tuple[int[0,10],int[10,20]]]
 make: S = set[int[0,20]]
 expr: H = carrierR(<R>, <S>)
 hint: <H>
@@ -114,40 +114,40 @@ public lrel[&T,&T,&T,&T,&T] carrierR (lrel[&T,&T,&T,&T,&T] R, set[&T] S)
 }
 
 @doc{
-Synopsis: A relation excluding tuples that contain certain element values.
+Synopsis: A list relation excluding tuples that contain certain element values.
 
 Examples:
 <screen>
-import Relation;
-carrierX({<1,10>, <2,20>, <3,30>}, {10, 1, 20});
+import ListRelation;
+carrierX([<1,10>, <2,20>, <3,30>], {10, 1, 20});
 </screen>
 
 Questions:
 
 QType:
-prep: import Relation;
-make: R = set[tuple[int[0,10],int[10,20]]]
+prep: import ListRelation;
+make: R = list[tuple[int[0,10],int[10,20]]]
 make: S = set[int[0,20]]
 test: carrierX(<R>, <S>)
 
 QValue:
-prep: import Relation;
-make: R = set[tuple[int[0,10],int[10,20]]]
+prep: import ListRelation;
+make: R = list[tuple[int[0,10],int[10,20]]]
 make: S = set[int[0,20]]
 expr: H = carrierR(<R>, <S>)
 hint: <H>
 test: carrierX(<R>, <S>) == <?>
 }
 @doc{
-Synopsis: A relation excluded tuples containing certain values.
+Synopsis: A list relation excluding tuples containing certain values.
 
 Description:
-Returns relation `R` excluding tuples with some element in `S`.
+Returns list relation `R` excluding tuples with some element in `S`.
 
 Examples:
 <screen>
-import Relation;
-carrierX({<1,10>, <2,20>, <3,30>}, {10, 1, 20});
+import ListRelation;
+carrierX([<1,10>, <2,20>, <3,30>], {10, 1, 20});
 </screen>
 }
 public lrel[&T,&T] carrierX (lrel[&T,&T] R, set[&T] S)
@@ -172,34 +172,34 @@ public lrel[&T,&T,&T,&T,&T] carrierX (lrel[&T,&T,&T,&T,&T] R, set[&T] S)
 }
 
 @doc{
-Synopsis: Complement of a relation.
+Synopsis: Complement of a list relation.
 
 Description:
-Given a relation `R` a new relation `U` can be constructed that contains
+Given a list relation `R` a new relation `U` can be constructed that contains
 all possible tuples with element values that occur at corresponding tuple positions in `R`.
 The function `complement` returns the complement of `R` relative to `U`, in other words: `U - R`.
 
 Examples:
 <screen>
-import Relation;
+import ListRelation;
 // Declare `R` and compute corresponding `U`:
-R = {<1,10>, <2, 20>, <3, 30>};
+R = [<1,10>, <2, 20>, <3, 30>];
 U = domain(R) * range(R);
 // Here is the complement of `R` computed in two ways:
 U - R;
-complement({<1,10>, <2, 20>, <3, 30>});
+complement([<1,10>, <2, 20>, <3, 30>]);
 </screen>
 
 Questions:
 
 QType:
-prep: import Relation;
-make: R = set[tuple[str,int],2,3]
+prep: import ListRelation;
+make: R = list[tuple[str,int],2,3]
 test: complement(<R>)
 
 QValue:
-prep: import Relation;
-make: R = set[tuple[str,int],2,3]
+prep: import ListRelation;
+make: R = list[tuple[str,int],2,3]
 expr: H = complement(<R>)
 hint: <H>
 test: complement(<R>) == <?>
@@ -226,25 +226,25 @@ public lrel[&T0, &T1, &T2, &T3, &T4] complement(lrel[&T0, &T1, &T2, &T3, &T4] R)
 }
 
 @doc{
-Synopsis: Domain of a  relation: a set consisting of the first element of each tuple.
+Synopsis: Domain of a list relation: a list consisting of the first element of each tuple.
 
 Examples:
 <screen>
-import Relation;
-domain({<1,10>, <2,20>});
-domain({<"mon", 1>, <"tue", 2>});
+import ListRelation;
+domain([<1,10>, <2,20>]);
+domain([<"mon", 1>, <"tue", 2>]);
 </screen>
 
 Questions:
 
 QType:
-prep: import Relation;
-make: R = set[tuple[str,int]]
+prep: import ListRelation;
+make: R = list[tuple[str,int]]
 test: domain(<R>)
 
 QValue:
-prep: import Relation;
-make: R = set[tuple[str,int]]
+prep: import ListRelation;
+make: R = list[tuple[str,int]]
 expr: H = domain(<R>)
 hint: <H>
 test: domain(<R>) == <?>
@@ -270,28 +270,28 @@ public list[&T0] domain (lrel[&T0,&T1,&T2,&T3,&T4] R)
 }
 
 @doc{
-Synopsis: Relation restricted to certain domain elements.
+Synopsis: List relation restricted to certain domain elements.
 
 Description:
-Restriction of a relation `R` to tuples with first element in `S`.
+Restriction of a list relation `R` to tuples with first element in `S`.
 
 Examples:
 <screen>
-import Relation;
-domainR({<1,10>, <2,20>, <3,30>}, {3, 1});
+import ListRelation;
+domainR([<1,10>, <2,20>, <3,30>], {3, 1});
 </screen>
 
 Questions:
 
 QType:
-prep: import Relation;
-make: R = set[tuple[int[0,10],int[10,20]]]
+prep: import ListRelation;
+make: R = list[tuple[int[0,10],int[10,20]]]
 make: S = set[int[0,20]]
 test: domainR(<R>, <S>)
 
 QValue:
-prep: import Relation;
-make: R = set[tuple[int[0,10],int[10,20]]]
+prep: import ListRelation;
+make: R = list[tuple[int[0,10],int[10,20]]]
 make: S = set[int[0,20]]
 expr: H = domainR(<R>, <S>)
 hint: <H>
@@ -318,28 +318,28 @@ public lrel[&T0,&T1,&T2,&T3,&T4] domainR (lrel[&T0,&T1,&T2,&T3,&T4] R, set[&T0] 
 }
 
 @doc{
-Synopsis: Relation excluding certain domain values.
+Synopsis: List relation excluding certain domain values.
 
 Description:
-Relation `R` excluded tuples with first element in `S`.
+List relation `R` excluding tuples with first element in `S`.
 
 Examples:
 <screen>
-import Relation;
-domainX({<1,10>, <2,20>, <3,30>}, {3, 1});
+import ListRelation;
+domainX([<1,10>, <2,20>, <3,30>], {3, 1});
 </screen>
 
 Questions:
 
 QType:
-prep: import Relation;
-make: R = set[tuple[int[0,10],int[10,20]]]
+prep: import ListRelation;
+make: R = list[tuple[int[0,10],int[10,20]]]
 make: S = set[int[0,20]]
 test: domainX(<R>, <S>)
 
 QValue:
-prep: import Relation;
-make: R = set[tuple[int[0,10],int[10,20]]]
+prep: import ListRelation;
+make: R = list[tuple[int[0,10],int[10,20]]]
 make: S = set[int[0,20],6,8]
 expr: H = domainX(<R>, <S>)
 hint: <H>
@@ -371,12 +371,12 @@ Synopsis: Make sets of elements in the domain that relate to the same element in
 Examples:
 
 <screen>
-import Relation;
-legs = {<"bird", 2>, <"dog", 4>, <"human", 2>, <"spider", 8>, <"millepede", 1000>, <"crab", 8>, <"cat", 4>};
-groupDomainByRange(legs);
+import ListRelation;
+legs = [<"bird", 2>, <"dog", 4>, <"human", 2>, <"spider", 8>, <"millepede", 1000>, <"crab", 8>, <"cat", 4>];
+DomainByRange(legs);
 </screen>
 }
-public set[set[&U]] groupDomainByRange(rel[&U dom, &T ran] input) {
+public set[list[&U]] groupDomainByRange(lrel[&U dom, &T ran] input) {
    return ( i : (input<ran, dom>)[i] | i <- input.ran )<1>;
 }
 
@@ -386,36 +386,36 @@ Synopsis: Make sets of elements in the range that relate to the same element in 
 Description:
 <screen>
 import Relation;
-skins = {<"bird", "feather">, <"dog", "fur">, <"tortoise", "shell">, <"human", "skin">, <"fish", "scale">, <"lizard", "scale">, <"crab", "shell">, <"cat", "fur">};
+skins = [<"bird", "feather">, <"dog", "fur">, <"tortoise", "shell">, <"human", "skin">, <"fish", "scale">, <"lizard", "scale">, <"crab", "shell">, <"cat", "fur">];
 groupRangeByDomain(skins);
 </screen>
 }
-public set[set[&T]] groupRangeByDomain(rel[&U dom, &T ran] input) {
+public set[list[&T]] groupRangeByDomain(lrel[&U dom, &T ran] input) {
    return ( i : input[i] | i <- input.dom )<1>;
 }
 
 @doc{
-Synopsis: The identity relation.
+Synopsis: The identity list relation.
 
 Description:
-The identity relation for set `S`.
+The identity list relation for set `S`.
 
 Examples:
 <screen>
-import Relation;
-ident({"mon", "tue", "wed"});
+import ListRelation;
+ident(["mon", "tue", "wed"]);
 </screen>
 
 Questions:
 
 QType:
-prep: import Relation;
-make: S = set[int[0,20],3,4]
+prep: import ListRelation;
+make: S = list[int[0,20],3,4]
 test: ident(<S>)
 
 QValue:
-prep: import Relation;
-make: S = set[int[0,20],3,4]
+prep: import ListRelation;
+make: S = list[int[0,20],3,4]
 expr: H =  ident(<S>) 
 hint: <H>
 test: ident(<S>) == <?>
@@ -428,24 +428,24 @@ public lrel[&T, &T] ident (list[&T] S)
 }
 
 @doc{
-Synopsis: Invert the tuples in a relation.
+Synopsis: Invert the tuples in a list relation.
 
 Examples:
 <screen>
-import Relation;
-invert({<1,10>, <2,20>});
+import ListRelation;
+invert([<1,10>, <2,20>]);
 </screen>
 
 Questions:
 
 QType:
-prep: import Relation;
-make: R = set[tuple[arb[int,str],arb[int,str]]]
+prep: import ListRelation;
+make: R = list[tuple[arb[int,str],arb[int,str]]]
 test: invert(<R>)
 
 QValue:
-prep: import Relation;
-make: R = set[tuple[arb[int,str],arb[int,str]]]
+prep: import ListRelation;
+make: R = list[tuple[arb[int,str],arb[int,str]]]
 expr: H = invert(<R>)
 hint: <H>
 test: invert(<R>) == <?>
@@ -473,26 +473,26 @@ public rel[&T4, &T3, &T2, &T1, &T0] invert (rel[&T0, &T1, &T2, &T3, &T4] R)
 }
 
 @doc{
-Synopsis: The range (i.e., all but the first element of each tuple) of a relation.
+Synopsis: The range (i.e., all but the first element of each tuple) of a list relation.
 
 Examples:
 <screen>
-import Relation;
-range({<1,10>, <2,20>});
-range({<"mon", 1>, <"tue", 2>});
+import ListRelation;
+range([<1,10>, <2,20>]);
+range([<"mon", 1>, <"tue", 2>]);
 </screen>
 
 Questions:
 
 
 QType:
-prep: import Relation;
-make: R = set[tuple[str,int]]
+prep: import ListRelation;
+make: R = list[tuple[str,int]]
 test: range(<R>)
 
 QValue:
-prep: import Relation;
-make: R = set[tuple[str,int]]
+prep: import ListRelation;
+make: R = list[tuple[str,int]]
 expr: H = range(<R>)
 hint: <H>
 test: range(<R>) == <?>
@@ -518,28 +518,28 @@ public lrel[&T1,&T2,&T3,&T4] range (lrel[&T0,&T1,&T2,&T3,&T4] R)
 }
 
 @doc{
-Synopsis: Relation restricted to certain range values.
+Synopsis: List relation restricted to certain range values.
 
 Description:
-Restriction of binary relation `R` to tuples with second element in set `S`.
+Restriction of binary list relation `R` to tuples with second element in set `S`.
 
 Examples:
 <screen>
-import Relation;
-rangeR({<1,10>, <2,20>, <3,30>}, {30, 10});
+import ListRelation;
+rangeR([<1,10>, <2,20>, <3,30>], {30, 10});
 </screen>
 
 Questions:
 
 QType:
-prep: import Relation;
-make: R = set[tuple[int[0,10],int[10,20]]]
+prep: import ListRelation;
+make: R = list[tuple[int[0,10],int[10,20]]]
 make: S = set[int[0,20]]
 test: rangeR(<R>, <S>)
 
 QValue:
-prep: import Relation;
-make: R = set[tuple[int[0,10],int[10,20]]]
+prep: import ListRelation;
+make: R = list[tuple[int[0,10],int[10,20]]]
 make: S = set[int[0,20]]
 expr: H = rangeR(<R>, <S>)
 hint: <H>
@@ -552,28 +552,28 @@ public lrel[&T0,&T1] rangeR (lrel[&T0,&T1] R, set[&T2] S)
 }
 
 @doc{ 
-Synopsis: Relation excluding certain range values.
+Synopsis: List relation excluding certain range values.
 
 Description:
-Restriction of binary relation `R` to tuples with second element not in set `S`.
+Restriction of binary list relation `R` to tuples with second element not in set `S`.
 
 Examples:
 <screen>
-import Relation;
-rangeX({<1,10>, <2,20>, <3,30>}, {30, 10});
+import ListRelation;
+rangeX([<1,10>, <2,20>, <3,30>], {30, 10});
 </screen>
 
 Questions:
 
 QType:
-prep: import Relation;
-make: R = set[tuple[int[0,10],int[10,20]]]
+prep: import ListRelation;
+make: R = list[tuple[int[0,10],int[10,20]]]
 make: S = set[int[0,20]]
 test: rangeX(<R>, <S>)
 
 QValue:
-prep: import Relation;
-make: R = set[tuple[int[0,10],int[10,20]]]
+prep: import ListRelation;
+make: R = list[tuple[int[0,10],int[10,20]]]
 make: S = set[int[0,20]]
 expr: H = rangeX(<R>, <S>)
 hint: <H>
@@ -585,15 +585,15 @@ public lrel[&T0,&T1] rangeX (lrel[&T0,&T1] R, set[&T2] S)
 }
 
 @doc{
-Synopsis: Indexes a binary relation as a map
+Synopsis: Listes a binary list relation as a map
 
 Description:
-Converts a binary relation to a map of the domain to a set of the range.
+Converts a binary list relation to a map of the domain to a set of the range.
 
 Examples:
 <screen>
 import Relation;
-index({<1,10>, <2,20>, <3,30>, <30,10>});
+index([<1,10>, <2,20>, <3,30>, <30,10>]);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
