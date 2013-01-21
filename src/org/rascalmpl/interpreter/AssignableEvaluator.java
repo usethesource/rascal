@@ -177,7 +177,7 @@ public class AssignableEvaluator {
 		return this.__getEval().getHeap();
 	}
 
-	public String getStackTrace() {
+	public StackTrace getStackTrace() {
 		return this.__getEval().getStackTrace();
 	}
 

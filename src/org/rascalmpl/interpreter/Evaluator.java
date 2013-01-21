@@ -781,27 +781,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	@Override	
-	public String getStackTrace() {
-		StringBuilder b = new StringBuilder(1024*1024);
+	public StackTrace getStackTrace() {
+		StackTrace trace = new StackTrace();
 		Environment env = currentEnvt;
 		while (env != null) {
-			ISourceLocation loc = env.getLocation();
-			String name = env.getName();
-			if (loc != null) {
-				URI uri = loc.getURI();
-				b.append('\t');
-				b.append(uri.getRawPath() + ":" + loc.getBeginLine() + "," + loc.getBeginColumn());
-				if(name != null)
-					b.append(": " + name);
-				b.append('\n');
-			} else if (name != null) {
-				b.append('\t');
-				b.append("somewhere in: " + name);
-				b.append('\n');
-			}
+			trace.add(env.getLocation(), env.getName());
 			env = env.getCallerScope();
 		}
-		return b.toString();
+		return trace.freeze();
 	}
 
 	/**
@@ -1262,15 +1249,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 	@Override	
 	public void pushEnv() {
-		Environment env = new Environment(getCurrentEnvt(), getCurrentEnvt().getName());
+		Environment env = new Environment(getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, getCurrentEnvt().getName());
 		setCurrentEnvt(env);
 	}
 	
 	@Override  
-  public void pushEnv(String name) {
-    Environment env = new Environment(getCurrentEnvt(), name);
-    setCurrentEnvt(env);
-  }
+	public void pushEnv(String name) {
+		Environment env = new Environment(getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, name);
+		setCurrentEnvt(env);
+	}
 
 	@Override	
 	public Environment pushEnv(Statement s) {

@@ -207,7 +207,7 @@ private tuple[int,str] extractDataOrAliasDeclaration(int current, bool writing){
   key = "<libRoot>/<moduleName>/<userType>";
   doc = "";
   if(!contentMap[key]?){
-     println("extractDataOrAliasDeclaration: <userType>");
+     //println("extractDataOrAliasDeclaration: <userType>");
      sigs = [getDataOrAliasSignature(decl)];
       while(current+1 < size(declarations) && isUndocumentedDataOrAlias(declarations[current+1])){
             sigs += getDataOrAliasSignature(declarations[current+1]);
@@ -313,10 +313,6 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   }
   return contentMap;
 
-  }
-  catch FileNotFound(_): {
-    println("Referred module has disappeared: <L>, as referred to in <root>");
-    return ();
   }
   catch PathNotFound(_): {
     println("Referred module has disappeared: <L>, as referred to in <root>");

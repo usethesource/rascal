@@ -206,7 +206,7 @@ public class Inferences {
 		}
 	}
 	
-	public IValue anovaTest(IListRelation categoryData, INumber alpha){
+	public IValue anovaTest(IList categoryData, INumber alpha){
 		try {
 			return values.bool(new OneWayAnovaImpl().anovaTest(makeAnova(categoryData), alpha.toReal().doubleValue()));
 		} catch (IllegalArgumentException e) {
