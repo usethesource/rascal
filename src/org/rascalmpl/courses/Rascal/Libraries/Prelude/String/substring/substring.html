@@ -67,8 +67,7 @@
 <div id="Description">
 <span class="sectionHead">Description</span>  <ol><li> Yields substring of string <code>s</code> from index <code>begin</code> to the end of the string.</li>
 <li> Yields substring of string <code>s</code> from index <code>begin</code> to (but not including) index <code>end</code>.</li>
-</ol> <a href="/Rascal/Expressions/Values/String/Slice/Slice.html">String/Slice</a> is a more flexible manner to obtain substrings.
-
+</ol>
 </div>
 
   	                       
@@ -78,11 +77,6 @@ ok
 <span class="prompt">rascal></span>substring(&quot;abcdef&quot;, 2);
 str: "cdef"
 <span class="prompt">rascal></span>substring(&quot;abcdef&quot;, 2, 4);
-str: "cd"
-</pre>  The same examples using string slicing:
-<pre class="screen"><span class="prompt">rascal></span>&quot;abcdef&quot;[2..];
-str: "cdef"
-<span class="prompt">rascal></span>&quot;abcdef&quot;[2..4];
 str: "cd"
 </pre>
 </div>

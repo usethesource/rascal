@@ -45,8 +45,12 @@ All operators are summarized in the following table. They are listed from highes
 <tr><td> `$Exp$?`</td>                             <td>[Boolean/IsDefined]</td>          <td>Test whether an expression has a defined value</td></tr>
 <tr><td> `!$Exp$`</td>                             <td>[Boolean/Negation]</td>           <td>Negate a Boolean value</td></tr>
 <tr><td>`- $Exp$`</td>                             <td> [Number/Negation]</td>	         <td>Negation of numbers</td></tr>
-<tr><td>`$Exp$ +`</td>	                           <td>[TransitiveClosure]</td>	         <td>Transitive closure on relation</td></tr>
-<tr><td>`$Exp$ *`</td>                             <td>[ReflexiveTransitiveClosure]</td>                                                                                                                                         <td>Reflexive transitive closure on relation</td></tr>
+<tr><td>`$Exp$ +`</td>	                           <td>[Relation/TransitiveClosure]
+                                                       [ListRelation/TransitiveClosure]</td>	         
+                                                       									<td>Transitive closure on relation or list relation</td></tr>
+<tr><td>`$Exp$ *`</td>                             <td>[Relation/ReflexiveTransitiveClosure]
+                                                       [ListRelation/ReflexiveTransitiveClosure]
+                                                     </td>                               <td>Reflexive transitive closure on relation or list relation</td></tr>
 <tr><td>`$Exp$ @ $Name$`</td>	                   <td>[Expressions/Selection]</td>	     <td>Value of annotation $Name$ of $Exp$'s value</td></tr>
 <tr><td>`$Exp_1$ [@ $Name$ = $Exp_2$]`</td>	       <td>[Expressions/Replacement]</td>     <td>Assign value of $Exp_2$ to annotation $Name$ of $Exp_1$'s value</td></tr>
 <tr><td>`$Exp_1$ o $Exp_2$`</td>	               <td>[Relation/Composition], 
