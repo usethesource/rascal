@@ -28,6 +28,7 @@ import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
@@ -197,19 +198,18 @@ public class JavaMethod extends NamedFunction {
 			if (targetException instanceof Throw) {
 				Throw th = (Throw) targetException;
 				
-				String trace = th.getTrace();
-				if(trace == null) {
-					trace = "";
-				}
+				StackTrace trace = new StackTrace();
+				trace.addAll(th.getTrace());
 				
 				ISourceLocation loc = th.getLocation();
 				if (loc == null) {
 				  loc = getAst().getLocation();
 				}
-				trace += "\t" + loc.getURI().getRawPath() + ":" + loc.getBeginLine() + "," + loc.getBeginColumn() + "\n" + trace;
+				trace.add(loc, null);
 
 				th.setLocation(loc);
-				th.setTrace(trace + eval.getStackTrace());
+				trace.addAll(eval.getStackTrace());
+				th.setTrace(trace.freeze());
 				throw th;
 			}
 			else if (targetException instanceof StaticError) {

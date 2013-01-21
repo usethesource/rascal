@@ -179,7 +179,7 @@ public class Eval {
 		}
 		catch (StaticError e) {
 			if (forRascal)
-				throw new Throw(Exception_StaticError.make(values, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, (String) null);
+				throw new Throw(Exception_StaticError.make(values, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, ctx.getStackTrace());
 			throw e;
 		} catch (URISyntaxException e) {
 			// this should never happen
