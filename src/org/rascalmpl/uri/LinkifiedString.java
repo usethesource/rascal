@@ -54,7 +54,7 @@ public class LinkifiedString {
 			+ ")"
 			+ "|"
 			+ "(" // or the other alternative, any rascal location 
-				+ "\\|[^\\|]*\\|" // |location|
+				+ "\\|[^\\t-\\n\\r\\ \\<\\|]*://[^\\t-\\n\\r\\ \\<\\|]*\\|" // |location|
 				+ "(?:\\([^\\)]*\\))?" // (optional offset)
 			+ ")");
 	
@@ -75,7 +75,7 @@ public class LinkifiedString {
 					sb = new StringBuffer(input.length());
 				}
 				// markdown link
-				String name = m.group(1);
+				String name =  m.group(1) + "\uD83D\uDD17" ;
 				String url = m.group(2);
 				linkTargets.add(url);
 				m.appendReplacement(sb, name);
