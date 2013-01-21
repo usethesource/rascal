@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,7 @@ public final class Throw extends ControlException {
 	private volatile ISourceLocation loc;
 	private volatile String trace;
 	
-	// It is *not* the idea that these exceptions get references to AbstractAST's!
+	// It is *not* the idea that these exceptions store references to AbstractAST's!
 	public Throw(IValue value, ISourceLocation loc, String trace) {
 		super(value.toString());
 		this.exception = value;
@@ -44,6 +44,7 @@ public final class Throw extends ControlException {
 		this.trace = trace;
 	}
 	
+  //	 It is *not* the idea that these exceptions store references to AbstractAST's!
 	public Throw(IValue value, AbstractAST ast, String trace) {
 		this(value, ast != null ? ast.getLocation() : null, trace);
 	}
@@ -68,6 +69,11 @@ public final class Throw extends ControlException {
 		this.loc = loc;
 	}
 
+	@Override
+	public Throwable fillInStackTrace() {
+		return reallyFillInStackTrace();
+	}
+	
 	@Override
 	public String getMessage() {
 		if (loc != null) {

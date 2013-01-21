@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -45,7 +45,8 @@ public str generateRootParser(str package, str name, Grammar gr) {
     case s:sort(_) => meta(s)
     case s:\lex(_) => meta(s)
     case s:keywords(_) => meta(s)
-    case s:\parameterized-sort(_,_) => meta(s) 
+    case s:\parameterized-sort(_,_) => meta(s)
+    case s:\parameterized-lex(_,_) => meta(s) 
     case s:layouts(_) => meta(s) 
   }
   int uniqueItem = -3; // -1 and -2 are reserved by the SGTDBF implementation
@@ -401,6 +402,7 @@ private bool isNonterminal(Symbol s) {
     case \keywords(_) : return true;
     case \meta(x) : return isNonterminal(x);
     case \parameterized-sort(_,_) : return true;
+    case \parameterized-lex(_,_) : return true;
     case \start(_) : return true;
     case \layouts(_) : return true;
     default: return false;
@@ -536,6 +538,8 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \parameterized-sort(n,args): 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+        case \parameterized-lex(n,args): 
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \parameter(n) :
             throw "All parameters should have been instantiated by now: <sym>";
         case \start(s) : 
@@ -628,10 +632,11 @@ str v2i(value v) {
         case keywords(str s)   : return "<s>";
         case meta(Symbol s) : return "$<v2i(s)>";
         case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
+        case \parameterized-lex(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
         case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
 	    case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>"; 
         case int i         : return i < 0 ? "min_<-i>" : "<i>";
-        case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)-1]);
+        case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)]);
         case str s()       : return escId(s);
         case node n        : return "<escId(getName(n))>_<("" | it + "_" + v2i(c) | c <- getChildren(n))>";
         case list[value] l : return ("" | it + "_" + v2i(e) | e <- l);

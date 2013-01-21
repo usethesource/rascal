@@ -71,7 +71,7 @@ ok
 <span class="prompt">rascal></span>import lang::xml::DOM;
 ok
 <span class="prompt">rascal></span>F = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
-str: "\&lt;note\>\n\&lt;to\>Jurgen\&lt;/to\>\n\&lt;to\>Tijs\&lt;/to\>\n\&lt;from\>Paul\&lt;/from\>\n\&lt;date\>2012-04-01\&lt;/date\>\n\&lt;heading font=\"bold\"\>Reminder\&lt;/heading\>\n\&lt;body\>Don\'\\t forget to run the Rascal tests!\&lt;/body\>\n\&lt;/note\>"
+str: "\&lt;note\>\n\&lt;to\>Jurgen\&lt;/to\>\n\&lt;to\>Tijs\&lt;/to\>\n\&lt;from\>Paul\&lt;/from\>\n\&lt;date\>2012-04-01\&lt;/date\>\n\&lt;heading font=\"bold\"\>Reminder\&lt;/heading\>\n\&lt;body\>Don\'t forget to run the Rascal tests!\&lt;/body\>\n\&lt;/note\>"
 <span class="prompt">rascal></span>println(F);
 &lt;note>
 &lt;to>Jurgen&lt;/to>
@@ -83,7 +83,7 @@ str: "\&lt;note\>\n\&lt;to\>Jurgen\&lt;/to\>\n\&lt;to\>Tijs\&lt;/to\>\n\&lt;from
 &lt;/note>
 ok
 <span class="prompt">rascal></span>S = xmlRaw(parseXMLDOM(F));
-str: "\&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?\>\r\n\&lt;note\>\r\n\&lt;to\>Jurgen\&lt;/to\>\r\n\&lt;to\>Tijs\&lt;/to\>\r\n\&lt;from\>Paul\&lt;/from\>\r\n\&lt;date\>2012-04-01\&lt;/date\>\r\n\&lt;heading font=\"bold\"\>Reminder\&lt;/heading\>\r\n\&lt;body\>Don\'\\t forget to run the Rascal tests!\&lt;/body\>\r\n\&lt;/note\>\r\n"
+str: "\&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?\>\r\n\&lt;note\>\r\n\&lt;to\>Jurgen\&lt;/to\>\r\n\&lt;to\>Tijs\&lt;/to\>\r\n\&lt;from\>Paul\&lt;/from\>\r\n\&lt;date\>2012-04-01\&lt;/date\>\r\n\&lt;heading font=\"bold\"\>Reminder\&lt;/heading\>\r\n\&lt;body\>Don\'t forget to run the Rascal tests!\&lt;/body\>\r\n\&lt;/note\>\r\n"
 <span class="prompt">rascal></span>println(S);
 &lt;?xml version="1.0" encoding="UTF-8"?>
 &lt;note>

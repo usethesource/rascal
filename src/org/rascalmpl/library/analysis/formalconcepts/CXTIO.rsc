@@ -1,3 +1,10 @@
+@license{
+  Copyright (c) 2009-2013 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 module analysis::formalconcepts::CXTIO
 import IO;
 import String;
@@ -16,7 +23,7 @@ public FormalContext[str, str] readCxt(loc input)  {
     int idx = 5;
     map [str, set[str]] vb = ();
     for (str f <- e) {
-         set[str] b = {d[5+nRows+i]|int i<-[0, 1..(size(f)-1)], charAt(f,i)==88};
+         set[str] b = {d[5+nRows+i]|int i<-[0, 1..size(f)], charAt(f,i)==88};
          vb[d[idx]] = b;
          idx = idx+1;
          }

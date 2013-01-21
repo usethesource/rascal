@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,7 +41,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	private final String name;
 
 	public ConcretePatternDispatchedFunction(IEvaluator<Result<IValue>> eval, String name, Type type, Map<IConstructor, List<AbstractFunction>> alternatives) {
-		super(null, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType()), checkVarArgs(alternatives), null); // ?? I don't know if this will work..
+		super(null, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType()), checkVarArgs(alternatives), null, null); // ?? I don't know if this will work..
 		this.type = type;
 		this.alternatives = alternatives;
 		this.arity = minArity(alternatives);
@@ -143,7 +143,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		IConstructor label = null;
 		
 		if (argTypes.length == 0) {
@@ -159,7 +159,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 					if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
 							|| candidate.getArity() == argValues.length) {
 						try {
-							return candidate.call(argTypes, argValues, self, selfParams, selfParamBounds);
+							return candidate.call(argTypes, argValues, null);
 						}
 						catch (MatchFailed m) {
 							// could happen if pattern dispatched
@@ -178,8 +178,8 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
-		return call(null, argTypes, argValues, self, selfParams, selfParamBounds);
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
+		return call(null, argTypes, argValues, null);
 	}
 
 	@Override
@@ -200,7 +200,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	public boolean isDefault() {
 		return false;
 	}
-		
+	
 	@Override
 	public String getName() {
 		return this.name;

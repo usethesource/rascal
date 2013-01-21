@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,9 +8,12 @@
  * Contributors:
 
  *   * Wietse Venema - wietsevenema@gmail.com - CWI
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.library.cobra;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,7 +31,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
@@ -38,22 +40,26 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.uri.URIUtil;
 
 public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	private static final Random stRandom = new Random();
 
 	private final IValueFactory vf;
+	private final TypeFactory tf = TypeFactory.getInstance();
 	private final ModuleEnvironment rootEnv;
 	private final int maxDepth;
 	private final HashMap<Type, ICallableValue> generators;
+	private final Map<Type, Type> typeParameters;
 
 	public RandomValueTypeVisitor(IValueFactory vf, ModuleEnvironment rootEnv,
-			int maxDepth, HashMap<Type, ICallableValue> generators) {
+			int maxDepth, HashMap<Type, ICallableValue> generators, Map<Type, Type> typeParameters) {
 		this.vf = vf;
 		this.rootEnv = rootEnv;
 		this.maxDepth = maxDepth;
 		this.generators = generators;
+		this.typeParameters = typeParameters;
 	}
 
 	private IValue callGenerator(Type type, int depthLimit) {
@@ -64,13 +70,13 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 		ICallableValue generator = generators.get(type);
 		Result<IValue> result = generator.call(new Type[] { tf.integerType() },
-				new IValue[] { vf.integer(depthLimit) });
+				new IValue[] { vf.integer(depthLimit) }, null);
 		return result.getValue();
 	}
 
 	private RandomValueTypeVisitor descend() {
 		RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(vf,
-				rootEnv, maxDepth - 1, generators);
+				rootEnv, maxDepth - 1, generators, typeParameters);
 		return visitor;
 	}
 
@@ -219,9 +225,8 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	public IValue visitInteger(Type type) {
 		return vf.integer(stRandom.nextInt());
 	}
-
-	@Override
-	public IValue visitList(Type type) {
+	
+	private IValue genList(Type type){
 		IListWriter writer = type.writer(vf);
 
 		if (maxDepth <= 0 || (stRandom.nextInt(2) == 0)) {
@@ -235,7 +240,11 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 			writer.appendAll((IList) visitor.generate(type));
 			return writer.done();
 		}
+	}
 
+	@Override
+	public IValue visitList(Type type) {
+		return genList(type);
 	}
 
 	@Override
@@ -261,13 +270,15 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitNode(Type type) {
-		ITuple tup = (ITuple) visitTuple(type);
-		IValue[] args = new IValue[tup.arity()];
-		for (int i = 0; i < tup.arity(); i++) {
-			args[i] = tup.get(i);
+	  String str =  Math.random() > 0.5 ? RandomStringUtils.random(stRandom.nextInt(5)) : RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5));
+
+	  int arity = maxDepth <= 0 ? 0: stRandom.nextInt(5);
+		IValue[] args = new IValue[arity];
+		for (int i = 0; i < arity; i++) {
+			args[i] = descend().generate(tf.valueType());
 		}
-		IString str = (IString) visitString(type);
-		return vf.node(str.getValue(), args);
+		
+		return vf.node(str, args);	
 	}
 
 	@Override
@@ -285,7 +296,11 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	@Override
 	public IValue visitParameter(Type parameterType) {
 		// FIXME Type parameters binden aan echte type van actual value in call.
-		return this.generate(parameterType.getBound());
+		Type type = typeParameters.get(parameterType);
+		if(type == null){
+			throw new IllegalArgumentException("Unbound type parameter " + parameterType);
+		}
+		return this.generate(type);
 	}
 
 	@Override
@@ -302,6 +317,11 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	public IValue visitRelationType(Type type) {
 		return genSet(type);
 	}
+	
+	@Override
+	public IValue visitListRelationType(Type type) {
+		return genList(type);
+	}
 
 	@Override
 	public IValue visitSet(Type type) {
@@ -310,7 +330,31 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitSourceLocation(Type type) {
-		return vf.sourceLocation("tmp:///");
+	  if (maxDepth <= 0) {
+	    return vf.sourceLocation(URIUtil.assumeCorrect("tmp:///"));
+	  }
+	  else {
+      try {
+        String path = Math.random() < 0.9 ? RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5)) : RandomStringUtils.random(stRandom.nextInt(5));
+        String nested = "";
+        URI uri = URIUtil.assumeCorrect("tmp:///");
+        
+        if (Math.random() > 0.5) {
+          RandomValueTypeVisitor visitor = descend();
+          ISourceLocation loc = (ISourceLocation) visitor.generate(type);
+          uri = loc.getURI();
+          nested = uri.getPath();
+        }
+        
+        path = path.startsWith("/") ? path : "/" + path;
+        uri = URIUtil.changePath(uri, nested.length() > 0 && !nested.equals("/") ? nested + path : path);
+        
+        return vf.sourceLocation(uri);
+      } catch (URISyntaxException e) {
+        // generated illegal URI?
+        return vf.sourceLocation(URIUtil.assumeCorrect("tmp:///"));
+      }
+	  }
 	}
 
 	@Override
@@ -319,7 +363,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 			return vf.string("");
 		} else {
 			RandomValueTypeVisitor visitor = descend();
-			IString str = (IString) visitor.generate(type);
+			IString str = vf.string(visitor.generate(type).toString());
 			return str.concat(vf.string(RandomStringUtils.random(1)));
 		}
 	}

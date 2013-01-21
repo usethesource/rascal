@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,8 +16,10 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.Map;
+
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -25,11 +27,11 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
@@ -45,28 +47,28 @@ public class ConstructorResult extends NodeResult {
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> is(Name name) {
+	public Result<IBool> is(Name name) {
 		return ResultFactory.bool(getValue().getName().equals(Names.name(name)), ctx);
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> has(Name name) {
+	public Result<IBool> has(Name name) {
 		return ResultFactory.bool(getValue().has(Names.name(name)), ctx);
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
-		throw new UnsupportedOperationError("Can not call a constructed " + getType() + " node as a function", ctx.getCurrentAST());
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
+		throw new UnsupportedOperation("Can not call a constructed " + getType() + " node as a function", ctx.getCurrentAST());
 	}
 	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		try {
 			if (!getType().hasField(name, store)) {
-				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 		} catch (UndeclaredAbstractDataTypeException e) {
-			throw new UndeclaredTypeError(getType().toString(), ctx.getCurrentAST());
+			throw new UndeclaredType(getType().toString(), ctx.getCurrentAST());
 		}
 		Type nodeType = getValue().getConstructorType();
 		if (!nodeType.hasField(name)) {
@@ -79,7 +81,7 @@ public class ConstructorResult extends NodeResult {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		if (!getType().hasField(name, store)) {
-			throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+			throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 		}
 		Type nodeType = getValue().getConstructorType();
 		if (!nodeType.hasField(name)) {
@@ -88,60 +90,17 @@ public class ConstructorResult extends NodeResult {
 		int index = nodeType.getFieldIndex(name);
 		Type fieldType = nodeType.getFieldType(index);
 		if (!repl.getType().isSubtypeOf(fieldType)) {
-			throw new UnexpectedTypeError(fieldType, repl.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(fieldType, repl.getType(), ctx.getCurrentAST());
 		}
 		return makeResult(getType(), getValue().set(index, repl.getValue()), ctx);
 	}
 
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareConstructor(this);
-	}
-	
-	//
-	
-	@Override
-	protected <U extends IValue> Result<U> compareConstructor(NodeResult that) {
-		// Note reversed args
-		INode left = that.getValue();
-		INode right = this.getValue();
-		return makeIntegerResult(compareNodes(left, right));
-	}
-	
-	private int compareNodes(INode left, INode right) {
-		// NOTE: left and right are in normal (non-reversed) order
-		int compare = left.getName().compareTo(right.getName());
-		if (compare != 0){
-			return compare;
-		}
-		compare = Integer.valueOf(left.arity()).compareTo(Integer.valueOf(right.arity()));
-		if (compare != 0) {
-			return compare;
-		}
-		return compareChildren(left, right);
-	}
-	
-	private int compareChildren(INode left, INode right) {
-		// NOTE: left and right are in normal (non-reversed) order
-		int i = 0;
-		for (IValue leftKid: left.getChildren()) {
-			IValue rightKid = right.get(i);
-			int compare = compareIValues(leftKid, rightKid, ctx);
-			if (compare != 0) {
-				return compare;
-			}
-			i++;
-		}
-		return 0;
-	}
-	
 	@Override
 	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env) {
 		Type annoType = env.getAnnotationType(getType(), annoName);
 	
 		if (annoType == null) {
-			throw new UndeclaredAnnotationError(annoName, getType(), ctx.getCurrentAST());
+			throw new UndeclaredAnnotation(annoName, getType(), ctx.getCurrentAST());
 		}
 	
 		IValue annoValue = getValue().getAnnotation(annoName);

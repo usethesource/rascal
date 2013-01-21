@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,65 +44,43 @@ public class UnicodeDetector {
 		int i = 0;
 		while (match && i + 3 < bufferSize) {
 			int c0 = buffer[i] & 0xff;
-			if (c0 == 0x09 || c0 == 0x0A || c0 == 0x0D || 
-					(0x20 <= c0 && c0 <= 0x7E)) {
-				// just plain ASCII
+			if (0x01 <= c0 && c0 <= 0x7F) {
+				// one byte UTF8
 				i++;
 				continue;
 			}
 			int c1 = buffer[i + 1] & 0xff;
-			if ((0xC2 <= c0 && c0 <= 0xDF) &&
-					(0x80 <= c1 && c1 <= 0xBF)) {
-				// non-overlong 2-byte
+			if (0xC0 <= c0 && c0 < 0xE0 
+					&& (c1 & 0xC0) == 0x80) {
+				// two byte UTF8
 				i += 2;
 				continue;
 			}
 			int c2 = buffer[i + 2] & 0xff;
-	        if( (// excluding overlongs
-	                c0 == 0xE0 &&
-	                (0xA0 <= c1 && c1 <= 0xBF) &&
-	                (0x80 <= c2 && c2 <= 0xBF)
-	            ) ||
-	            (// straight 3-byte
-	                ((0xE1 <= c0 && c0 <= 0xEC) ||
-	                    c0 == 0xEE ||
-	                    c0 == 0xEF) &&
-	                (0x80 <= c1 && c1 <= 0xBF) &&
-	                (0x80 <= c2 && c2 <= 0xBF)
-	            ) ||
-	            (// excluding surrogates
-	                c0 == 0xED &&
-	                (0x80 <= c1 && c1 <= 0x9F) &&
-	                (0x80 <= c2 && c2 <= 0xBF)
-	            )
-	        ) {
-				i += 3;
-	            continue;
-	        }
+			if (0xE0 <= c0 && c0 < 0xF0 
+					&& (c1 & 0xC0) == 0x80
+					&& (c2 & 0xC0) == 0x80) {
+				if (c0 == 0xED && 0xA0 <= c1 && c1 <= 0xBF && 0x80 <= c2 && c2 <= 0xBF) {
+					// this is a UTF-16 surrogate pair, which are not allowed in UTF-8
+					match = false;
+					break;
+				}
+				else {
+					// three byte UTF8
+					i += 3;
+					continue;
+				}
+			}
 	
 			int c3 = buffer[i + 3] & 0xff;
-	        if( (// planes 1-3
-	                c0 == 0xF0 &&
-	                (0x90 <= c1 && c1 <= 0xBF) &&
-	                (0x80 <= c2 && c2 <= 0xBF) &&
-	                (0x80 <= c3 && c3 <= 0xBF)
-	            ) ||
-	            (// planes 4-15
-	                (0xF1 <= c0 && c0 <= 0xF3) &&
-	                (0x80 <= c1 && c1 <= 0xBF) &&
-	                (0x80 <= c2 && c2 <= 0xBF) &&
-	                (0x80 <= c3 && c3 <= 0xBF)
-	            ) ||
-	            (// plane 16
-	                c0 == 0xF4 &&
-	                (0x80 <= c1 && c1 <= 0x8F) &&
-	                (0x80 <= c2 && c2 <= 0xBF) &&
-	                (0x80 <= c3 && c3 <= 0xBF)
-	            )
-	        ) {
+			if (0xF0 <= c0 && c0 < 0xF8 
+					&& (c1 & 0xC0) == 0x80
+					&& (c2 & 0xC0) == 0x80
+					&& (c3 & 0xC0) == 0x80) {
+				// four byte UTF8
 				i += 4;
-	            continue;
-	        }	
+				continue;
+			}
 	        match = false;
 	        break;
 		}

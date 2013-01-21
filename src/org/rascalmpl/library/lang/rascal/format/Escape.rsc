@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -165,7 +165,7 @@ public str makeCharClassChar(int ch){
   }
 }
 
-private list[str] hex = ["<i>" | i <- [0..9]] + ["A","B","C","D","E","F"];
+private list[str] hex = ["<i>" | i <- [0..10]] + ["A","B","C","D","E","F"];
 
 @doc{
   Creates a Rascal escaped string character from a given decimal index into the UTF8 table.
@@ -201,7 +201,7 @@ test bool testHex() = makeStringChar(0xABCDEF) == "\\UABCDEF";
 }
 public str escape(str s){
   if (s == "") return s;
-  return (""| it + makeStringChar(charAt(s, i)) | i <- [0..size(s)-1]);
+  return (""| it + makeStringChar(charAt(s, i)) | i <- [0..size(s)]);
 }
 
 @doc{

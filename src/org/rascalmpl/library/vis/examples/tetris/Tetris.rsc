@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -61,7 +61,7 @@ Highscores readHighscores(){
 	if(exists(highscoresFile)){
 		return readBinaryValueFile(#Highscores, highscoresFile);
 	} else {
-		return [<"No one",0> | i <- [1 .. nrHighscores]];
+		return [<"No one",0> | i <- [1 .. nrHighscores+1]];
 	}
 }
 void writeHighscores(Highscores highscores) { 
@@ -111,8 +111,8 @@ Figure tetrominoFigure(int tetromino){
 	<blocks,nrR,nrC> = getCanconicalRep(tetromino);
 	Color getColor(int r, int c) = 
 		<r,c> in blocks ? blockColors[tetromino] : color("black");
-	elems = for (r <- [0..nrR-1]) {
-		append for (c <- [0..nrC-1]) {
+	elems = for (r <- [0..nrR]) {
+		append for (c <- [0..nrC]) {
 			append box(fillColor(getColor(r,c)));
 		}
 	}
@@ -232,7 +232,7 @@ public Figure tetris(){
 		hcat([text(str () { return highscores[i][0]; },left()), 
 			  text(str () { return "<highscores[i][1]>"; },right())]);
 	highScoresFig = box(
-		vcat([highScoreFig(i) | i <- [0..nrHighscores-1]],vgrow(1.03)),
+		vcat([highScoreFig(i) | i <- [0..nrHighscores]],vgrow(1.03)),
 		fillColor("black"),grow(1.1));
 		
 	Color() spinColor(int i) =
@@ -241,7 +241,7 @@ public Figure tetris(){
 		 };
 	spinFig = box(
 		vcat([box(fillColor(spinColor(i)))
-		    | i <- [0..state.maxSpinCounter-1]]),
+		    | i <- [0..state.maxSpinCounter]]),
 		fillColor("black"),aspectRatio(0.5)); 	
 		
 	leftBarFig = vcat([storedFig,
@@ -253,7 +253,7 @@ public Figure tetris(){
 					   highScoresFig],hshrink(0.25),vgrow(1.05));
 	
 	Figure nextFig(int i) = tetrominoFig(int () { return state.next[i]; });
-	nextsFig = vcat([ nextFig(i) | i <- [0..nrNext-1]],vgrow(1.2));
+	nextsFig = vcat([ nextFig(i) | i <- [0..nrNext]],vgrow(1.2));
 	rightBarFig = vcat([text("next:",bottom()), nextsFig],
 					   hshrink(0.15));
 					   

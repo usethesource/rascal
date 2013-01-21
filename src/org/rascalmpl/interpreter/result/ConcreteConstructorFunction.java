@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
-import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -36,11 +36,11 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 
 	public ConcreteConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval,
 			Environment env) {
-		super(ast, eval, env, Factory.Tree_Appl);
+		super(ast, eval, env, Factory.Tree_Appl, null);
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
 		IConstructor prod = (IConstructor) actuals[0];
 		IList args = (IList) actuals[1];
 
@@ -53,11 +53,6 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 		NonTerminalType concreteType = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(newAppl);
 
 		return makeResult(concreteType, newAppl, ctx);
-	}
-	
-	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
-		return call(actualTypes, actuals);
 	}
 
 	private IValue flatten(IConstructor prod, IList args) {

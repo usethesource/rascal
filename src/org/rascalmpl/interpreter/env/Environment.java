@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Emilie Balland - (CWI)
+ *   * Anya Helene Bagge - (UiB)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
@@ -102,6 +103,18 @@ public class Environment {
 		if (parent == this) {
 			throw new ImplementationError("internal error: cyclic environment");
 		}
+	}
+
+	protected Environment(Environment old) {
+		this.parent = old.parent;
+		this.loc = old.loc;
+		this.name = old.name;
+		this.callerScope = old.callerScope;
+		this.callerLocation = old.callerLocation;
+		this.variableEnvironment = old.variableEnvironment;
+		this.functionEnvironment = old.functionEnvironment;
+		this.typeParameters = old.typeParameters;
+		this.nameFlags = old.nameFlags;
 	}
 
 	/**
@@ -609,16 +622,16 @@ public class Environment {
 		return getRoot().concreteSyntaxType(name, symbol);
 	}
 
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType) {
-		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordParameter> keyargs) {
+		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType, keyargs);
 	}
 
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Object... childrenAndLabels ) {
-		return getRoot().constructor(ast, eval, nodeType, name, childrenAndLabels);
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Object... childrenAndLabels ) {
+		return getRoot().constructor(ast, eval, nodeType, name, keyargs, childrenAndLabels);
 	}
 
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Type... children ) {
-		return getRoot().constructor(ast, eval, nodeType, name, children);
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Type... children ) {
+		return getRoot().constructor(ast, eval, nodeType, name, keyargs, children);
 	}
 
 	public Type aliasType(String name, Type aliased, Type...parameters) {

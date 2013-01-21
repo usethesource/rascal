@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@ import IO;
 // sort1: uses list indexing and a for-loop
 
 public list[int] sort1(list[int] Numbers){
-  for(int I <- [0 .. size(Numbers) - 2 ]){
+  for(int I <- [0 .. size(Numbers) - 1 ]){
      if(Numbers[I] > Numbers[I+1]){
        <Numbers[I], Numbers[I+1]> = <Numbers[I+1], Numbers[I]>;
        return sort1(Numbers);

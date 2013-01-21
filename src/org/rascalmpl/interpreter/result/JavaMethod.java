@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,11 +17,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -33,10 +31,15 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.KeywordParameter;
+import org.rascalmpl.interpreter.staticErrors.NoKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class JavaMethod extends NamedFunction {
 	private final Object instance;
@@ -44,7 +47,7 @@ public class JavaMethod extends NamedFunction {
 	private final boolean hasReflectiveAccess;
 	
 	public JavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		super(func, eval, (FunctionType) func.getSignature().typeOf(env), Names.name(func.getSignature().getName()), varargs, env);
+		super(func, eval, (FunctionType) func.getSignature().typeOf(env), Names.name(func.getSignature().getName()), varargs, null, env);
 		
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
 		this.instance = javaBridge.getJavaClassInstance(func);
@@ -71,7 +74,7 @@ public class JavaMethod extends NamedFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
 		Type actualTypesTuple;
 		Type formals = getFormals();
 		Object[] oActuals;
@@ -82,6 +85,7 @@ public class JavaMethod extends NamedFunction {
 		else {
 			oActuals = actuals;
 		}
+		oActuals = addKeywordActuals(oActuals, formals, keyArgValues);
 
 		if (hasReflectiveAccess) {
 			oActuals = addCtxActual(oActuals);
@@ -94,7 +98,7 @@ public class JavaMethod extends NamedFunction {
 		Environment old = ctx.getCurrentEnvt();
 
 		try {
-			ctx.pushEnv();
+			ctx.pushEnv(getName());
 
 			if (hasVarArgs) {
 				actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
@@ -123,77 +127,110 @@ public class JavaMethod extends NamedFunction {
 		}
 	}
 	
-	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
-		return call(actualTypes, actuals);
-	}
-	
 	private Object[] addCtxActual(Object[] oActuals) {
 		Object[] newActuals = new Object[oActuals.length + 1];
 		System.arraycopy(oActuals, 0, newActuals, 0, oActuals.length);
 		newActuals[oActuals.length] = ctx;
 		return newActuals;
 	}
+	
+	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, Result<IValue>> keyArgValues){
+		if(keywordParameterDefaults == null){
+			if(keyArgValues != null){
+				throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
+			}
+			return oldActuals;
+		}
+		Object[] newActuals = new Object[formals.getArity() + keywordParameterDefaults.size()];
+		System.arraycopy(oldActuals, 0, newActuals, 0, oldActuals.length);
+		int posArity = formals.getArity();
+		
+		if(keyArgValues == null){
+			if(keywordParameterDefaults != null){
+				for(int i = 0; i < keywordParameterDefaults.size(); i++){
+					KeywordParameter kw = keywordParameterDefaults.get(i);
+					Result<IValue> r = kw.getDefault();
+					newActuals[posArity + i] = r.getValue();
+				}
+			}
+			return newActuals;
+		}
+		if(keywordParameterDefaults == null)
+			throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
+		
+		int nBoundKeywordArgs = 0;
+		for(int i = 0; i < keywordParameterDefaults.size(); i++){
+			KeywordParameter kw = keywordParameterDefaults.get(i);
+			String kwparam = kw.getName();
+			if(keyArgValues.containsKey(kwparam)){
+				nBoundKeywordArgs++;
+				Result<IValue> r = keyArgValues.get(kwparam);
+				if(!r.getType().isSubtypeOf(keywordParameterTypes[i])){
+					throw new UnexpectedKeywordArgumentType(kwparam, keywordParameterTypes[i], r.getType(), ctx.getCurrentAST());
+				}
+				newActuals[posArity + i] = r.getValue();
+			} else {
+				Result<IValue> r = kw.getDefault();
+				newActuals[posArity + i] = r.getValue();
+			}
+		}
+		if(nBoundKeywordArgs != keyArgValues.size()){
+			main:
+			for(String kwparam : keyArgValues.keySet())
+				for(KeywordParameter kw : keywordParameterDefaults){
+					if(kwparam.equals(kw.getName()))
+							continue main;
+					throw new UndeclaredKeywordParameter(getName(), kwparam, ctx.getCurrentAST());
+				}
+		}
+		return newActuals;
+	}
+	
 
 	public IValue invoke(Object[] oActuals) {
 		try {
 			return (IValue) method.invoke(instance, oActuals);
-		} catch (SecurityException e) {
-			throw new ImplementationError("Unexpected security exception", e);
-		} catch (IllegalArgumentException e) {
-			throw new ImplementationError("An illegal argument was generated for a generated method", e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError("Unexpected illegal access exception", e);
-		} catch (InvocationTargetException e) {
+		}
+		catch (InvocationTargetException e) {
 			Throwable targetException = e.getTargetException();
 			
 			if (targetException instanceof Throw) {
 				Throw th = (Throw) targetException;
+				
 				String trace = th.getTrace();
-				if(trace == null)
+				if(trace == null) {
 					trace = "";
-				ISourceLocation loc = th.getLocation();
-				if(loc != null) {
-					trace = "\t" + loc.getURI().getRawPath() + ":" + loc.getBeginLine() + "," + loc.getBeginColumn() + "\n" + trace;
 				}
-				trace = trace + "\t" + "somewhere in: " + method.toString() + "\n";
-				((Throw) targetException).setLocation(eval.getCurrentAST().getLocation());
-				((Throw) targetException).setTrace(trace + eval.getStackTrace());
+				
+				ISourceLocation loc = th.getLocation();
+				if (loc == null) {
+				  loc = getAst().getLocation();
+				}
+				trace += "\t" + loc.getURI().getRawPath() + ":" + loc.getBeginLine() + "," + loc.getBeginColumn() + "\n" + trace;
+
+				th.setLocation(loc);
+				th.setTrace(trace + eval.getStackTrace());
 				throw th;
 			}
 			else if (targetException instanceof StaticError) {
 				throw (StaticError) targetException;
 			}
 			else if (targetException instanceof ImplementationError) {
-				ImplementationError ex = (ImplementationError) targetException;
-			    throw ex;
+			  throw (ImplementationError) targetException;
 			}
-			else if (targetException instanceof OutOfMemoryError) {
-				throw new ImplementationError("out of memory", targetException);
-			}
-			
+
 			if(Configuration.printErrors()){
 				targetException.printStackTrace();
 			}
 			
-			try {
-				String msg = targetException.getMessage() != null ? targetException.getMessage() : targetException.getClass().getName();
-				ByteArrayOutputStream trace = new ByteArrayOutputStream();
-			
-				StackTraceElement[] stackTrace = targetException.getStackTrace();
-				if(stackTrace != null) {
-					for (StackTraceElement elem : stackTrace) {
-						if (elem.getMethodName().equals("invoke")) {
-							break;
-						}
-						trace.write(("\n\t" +  elem.getClassName() + "." + elem.getMethodName() + "(" + elem.getFileName() + ":" + elem.getLineNumber() + ")").getBytes());
-					}
-				}
-				String traceStr = trace.toString() + "\n" + eval.getStackTrace();
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.javaException(msg, eval.getCurrentAST(), traceStr);
-			} catch (IOException e1) {
-				throw new ImplementationError("Could not create stack trace", e1);
-			}
+			throw RuntimeExceptionFactory.javaException(e.getTargetException(), getAst(), eval.getStackTrace());
+		}
+		catch (Throwable e) {
+		  if(Configuration.printErrors()){
+        e.printStackTrace();
+      }
+		  
+		  throw RuntimeExceptionFactory.javaException(e, getAst(), eval.getStackTrace());
 		}
 	}
 }

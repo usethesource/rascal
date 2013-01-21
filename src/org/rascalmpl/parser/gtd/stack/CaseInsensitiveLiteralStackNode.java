@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,7 +63,7 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		this.result = result;
 	}
 	
-	private int[][] fill(int[] ciLiteral){
+	private static int[][] fill(int[] ciLiteral){
 		int nrOfCharacters = ciLiteral.length;
 		int[][] ciLiteralResult = new int[nrOfCharacters][];
 		for(int i = nrOfCharacters - 1; i >= 0; --i){

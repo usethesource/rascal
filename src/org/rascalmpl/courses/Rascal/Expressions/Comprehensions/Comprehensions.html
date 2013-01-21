@@ -80,10 +80,10 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>    A list comprehension:
 <pre class="screen"><span class="prompt">rascal></span>[ 3 * X | int X &lt;- [1 .. 10] ];
-list[int]: [3,6,9,12,15,18,21,24,27,30]
+list[int]: [3,6,9,12,15,18,21,24,27]
 </pre>  A list comprehension with a filter:
 <pre class="screen"><span class="prompt">rascal></span>[ 3 * X | int X &lt;- [1 .. 10], X &gt; 5];
-list[int]: [18,21,24,27,30]
+list[int]: [18,21,24,27]
 </pre>  A list comprehension with multiple contributing expressions:
 <pre class="screen"><span class="prompt">rascal></span>[X, X * X | int X &lt;- [1, 2, 3, 4, 5], X &gt;= 3];
 list[int]: [3,9,4,16,5,25]
@@ -93,8 +93,8 @@ set[int]: {5,4,3}
 </pre>  A set comprehension that constructs a relation:
 <pre class="screen"><span class="prompt">rascal></span>{&lt;X, Y&gt; | int X &lt;- {1, 2, 3}, int Y &lt;- {2, 3, 4}, X &gt;= Y};
 rel[int, int]: {
-  &lt;2,2>,
   &lt;3,3>,
+  &lt;2,2>,
   &lt;3,2>
 }
 <span class="prompt">rascal></span>{&lt;Y, X&gt; | &lt;int X, int Y&gt; &lt;- {&lt;1,10&gt;, &lt;2,20&gt;}};

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
@@ -33,8 +34,8 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.JavaMethod;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
-import org.rascalmpl.interpreter.staticErrors.MissingModifierError;
+import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
+import org.rascalmpl.interpreter.staticErrors.MissingModifier;
 import org.rascalmpl.parser.ASTBuilder;
 
 public abstract class FunctionDeclaration extends
@@ -54,7 +55,7 @@ public abstract class FunctionDeclaration extends
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
 			if (!hasJavaModifier(this)) {
-				throw new MissingModifierError("java", this);
+				throw new MissingModifier("java", this);
 			}
 
 			AbstractFunction lambda = new JavaMethod(__eval, this, varArgs,
@@ -65,7 +66,7 @@ public abstract class FunctionDeclaration extends
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
 			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
 
-			lambda.setPublic(this.getVisibility().isPublic());
+			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
 			return lambda;
 
 		}
@@ -86,13 +87,11 @@ public abstract class FunctionDeclaration extends
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
 			if (hasJavaModifier(this)) {
-				throw new JavaMethodLinkError(
-						"may not use java modifier with a function that has a body",
-						null, this, null);
+				throw new NonAbstractJavaFunction(this);
 			}
 
 			if (!this.getBody().isDefault()) {
-				throw new MissingModifierError("java", this);
+				throw new MissingModifier("java", this);
 			}
 
 			lambda = new RascalFunction(__eval, this, varArgs, __eval
@@ -102,7 +101,7 @@ public abstract class FunctionDeclaration extends
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
 			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
 
-			lambda.setPublic(this.getVisibility().isPublic());
+			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
 			return lambda;
 
 		}
@@ -131,15 +130,13 @@ public abstract class FunctionDeclaration extends
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
 			if (hasJavaModifier(this)) {
-				throw new JavaMethodLinkError(
-						"may not use java modifier with a function that has a body",
-						null, this, null);
+				throw new NonAbstractJavaFunction(this);
 			}
 
 			lambda = new RascalFunction(__eval, this, varArgs, __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
 			
-			lambda.setPublic(this.getVisibility().isPublic());
+			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
 			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
 			
@@ -168,9 +165,7 @@ public abstract class FunctionDeclaration extends
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
 			if (hasJavaModifier(this)) {
-				throw new JavaMethodLinkError(
-						"may not use java modifier with a function that has a body",
-						null, this, null);
+				throw new NonAbstractJavaFunction(this);
 			}
 
 			ISourceLocation src = this.getLocation();
@@ -188,7 +183,7 @@ public abstract class FunctionDeclaration extends
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
 			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
 
-			lambda.setPublic(this.getVisibility().isPublic());
+			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
 			return lambda;
 		}
 

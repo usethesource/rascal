@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -40,8 +40,14 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
         prods += prod2prod(sort("<n>"), p);
         starts += \start(sort("<n>"));
       }
-      case (SyntaxDefinition) `syntax <Sym s> = <Prod p>;` : {
-        prods += prod2prod(sym2symbol(s), p);
+      case (SyntaxDefinition) `syntax <Nonterminal n>[<{Sym ","}+ syms>] = <Prod p>;` : {
+        prods += prod2prod(\parameterized-sort("<n>",separgs2symbols(syms)), p);
+      }
+      case (SyntaxDefinition) `syntax <Nonterminal n> = <Prod p>;` : {
+        prods += prod2prod(\sort("<n>"), p);
+      }
+      case (SyntaxDefinition) `lexical <Nonterminal n>[<{Sym ","}+ syms>] = <Prod p>;` : {
+        prods += prod2prod(\parameterized-lex("<n>",separgs2symbols(syms)), p);
       }
       case (SyntaxDefinition) `lexical <Nonterminal n> = <Prod p>;` : {
         prods += prod2prod(\lex("<n>"), p);

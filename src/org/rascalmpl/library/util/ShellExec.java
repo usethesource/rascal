@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -123,7 +123,7 @@ public class ShellExec {
 			runningProcesses.put(processCounter, newProcess);
 			return processCounter;
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e.toString(), null, Arrays.toString(e.getStackTrace()));
+			throw RuntimeExceptionFactory.javaException(e, null, Arrays.toString(e.getStackTrace()));
 		}
 	}
 
@@ -175,7 +175,7 @@ public class ShellExec {
 			}
 			return vf.string(line.toString());
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e.toString(), null, Arrays.toString(e.getStackTrace()));
+			throw RuntimeExceptionFactory.javaException(e, null, Arrays.toString(e.getStackTrace()));
 		}
 	}
 	
@@ -193,7 +193,7 @@ public class ShellExec {
 			if (br != null) br.close();
 			return vf.string(lines.toString());
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e.toString(), null, Arrays.toString(e.getStackTrace()));
+			throw RuntimeExceptionFactory.javaException(e, null, Arrays.toString(e.getStackTrace()));
 		}
 	}
 
@@ -211,7 +211,7 @@ public class ShellExec {
 			if (br != null) br.close();
 			return vf.string(lines.toString());
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e.toString(), null, Arrays.toString(e.getStackTrace()));
+			throw RuntimeExceptionFactory.javaException(e, null, Arrays.toString(e.getStackTrace()));
 		}
 	}
 
@@ -230,7 +230,7 @@ public class ShellExec {
 			osw.append(msg.getValue());
 			osw.flush();
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e.toString(), null, Arrays.toString(e.getStackTrace()));
+			throw RuntimeExceptionFactory.javaException(e, null, Arrays.toString(e.getStackTrace()));
 		}
 	}
 

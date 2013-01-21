@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -44,6 +46,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.INumber;
@@ -60,6 +63,7 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
@@ -70,11 +74,11 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.JavaCompilationError;
-import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
-import org.rascalmpl.interpreter.staticErrors.MissingTagError;
-import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunctionError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethodError;
+import org.rascalmpl.interpreter.staticErrors.JavaCompilation;
+import org.rascalmpl.interpreter.staticErrors.JavaMethodLink;
+import org.rascalmpl.interpreter.staticErrors.MissingTag;
+import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
 
 
 public class JavaBridge {
@@ -86,15 +90,15 @@ public class JavaBridge {
 	
 	private final IValueFactory vf;
 	
-	private final HashMap<Class<?>, Object> instanceCache;
+	private final Map<Class<?>, Object> instanceCache;
 	
-	private final HashMap<Class<?>, JavaFileManager> fileManagerCache;
+	private final Map<Class<?>, JavaFileManager> fileManagerCache;
 
 	public JavaBridge(List<ClassLoader> classLoaders, IValueFactory valueFactory) {
 		this.loaders = classLoaders;
 		this.vf = valueFactory;
 		this.instanceCache = new HashMap<Class<?>, Object>();
-		this.fileManagerCache = new HashMap<Class<?>, JavaFileManager>();
+		this.fileManagerCache = new ConcurrentHashMap<Class<?>, JavaFileManager>();
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
 			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
@@ -115,9 +119,9 @@ public class JavaBridge {
 			fileManagerCache.put(result, javaCompiler.getFileManager());
 			return result;
 		} catch (ClassCastException e) {
-			throw new JavaCompilationError(e.getMessage(), vf.sourceLocation(loc));
+			throw new JavaCompilation(e.getMessage(), vf.sourceLocation(loc));
 		} catch (JavaCompilerException e) {
-			throw new JavaCompilationError(e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), vf.sourceLocation(loc));
+			throw new JavaCompilation(e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), vf.sourceLocation(loc));
 		}
 	}
 
@@ -127,12 +131,14 @@ public class JavaBridge {
 		if (tags.hasTags()) {
 			for (Tag tag : tags.getTags()) {
 				if (Names.name(tag.getName()).equals(JAVA_CLASS_TAG)) {
-					String contents = ((TagString.Lexical) tag.getContents()).getString();
-					
-					if (contents.length() > 2 && contents.startsWith("{")) {
-						contents = contents.substring(1, contents.length() - 1);
+					if(tag.hasContents()){
+						String contents = ((TagString.Lexical) tag.getContents()).getString();
+
+						if (contents.length() > 2 && contents.startsWith("{")) {
+							contents = contents.substring(1, contents.length() - 1);
+						}
+						return contents;
 					}
-					return contents;
 				}
 			}
 		}
@@ -144,8 +150,16 @@ public class JavaBridge {
 	private Class<?>[] getJavaTypes(Parameters parameters, Environment env, boolean hasReflectiveAccess) {
 		List<Expression> formals = parameters.getFormals().getFormals();
 		int arity = formals.size();
-		Class<?>[] classes = new Class<?>[arity + (hasReflectiveAccess ? 1 : 0)];
-		for (int i = 0; i < arity;) {
+		int kwArity = 0;
+		List<KeywordFormal> keywordFormals = null;
+		if(parameters.getKeywordFormals().isDefault()){
+			keywordFormals = parameters.getKeywordFormals().getKeywordFormalList();
+			kwArity = keywordFormals.size();
+		}		
+		
+		Class<?>[] classes = new Class<?>[arity + kwArity + (hasReflectiveAccess ? 1 : 0)];
+		int i = 0;
+		while (i < arity) {
 			Class<?> clazz;
 			
 			if (i == arity - 1 && parameters.isVarArgs()) {
@@ -158,6 +172,13 @@ public class JavaBridge {
 			if (clazz != null) {
 			  classes[i++] = clazz;
 			}
+		}
+		
+		while(i < arity + kwArity){
+			Class<?> clazz = toJavaClass(keywordFormals.get(i - arity).getExpression(), env);
+			if (clazz != null) {
+				  classes[i++] = clazz;
+				}
 		}
 		
 		if (hasReflectiveAccess) {
@@ -181,93 +202,119 @@ public class JavaBridge {
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>> {
 
+		@Override
 		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
 			return IBool.class;
 		}
 
+		@Override
 		public Class<?> visitReal(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IReal.class;
 		}
 
+		@Override
 		public Class<?> visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IInteger.class;
 		}
 		
+		@Override
 		public Class<?> visitRational(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IRational.class;
 		}
 		
+		@Override
 		public Class<?> visitNumber(org.eclipse.imp.pdb.facts.type.Type type) {
 			return INumber.class;
 		}
 
+		@Override
 		public Class<?> visitList(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IList.class;
 		}
 
+		@Override
 		public Class<?> visitMap(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IMap.class;
 		}
 
+		@Override
 		public Class<?> visitAlias(org.eclipse.imp.pdb.facts.type.Type type) {
 			return type.getAliased().accept(this);
 		}
 
+		@Override
 		public Class<?> visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IConstructor.class;
 		}
 
+		@Override
 		public Class<?> visitRelationType(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IRelation.class;
 		}
 
+		@Override
 		public Class<?> visitSet(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ISet.class;
 		}
 
+		@Override
 		public Class<?> visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ISourceLocation.class;
 		}
 
+		@Override
 		public Class<?> visitString(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IString.class;
 		}
 
+		@Override
 		public Class<?> visitNode(org.eclipse.imp.pdb.facts.type.Type type) {
 			return INode.class;
 		}
 
+		@Override
 		public Class<?> visitConstructor(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IConstructor.class;
 		}
 
+		@Override
 		public Class<?> visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ITuple.class;
 		}
 
+		@Override
 		public Class<?> visitValue(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IValue.class;
 		}
 
+		@Override
 		public Class<?> visitVoid(org.eclipse.imp.pdb.facts.type.Type type) {
 			return null;
 		}
 
+		@Override
 		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
 		}
 
+		@Override
 		public Class<?> visitExternal(
 				org.eclipse.imp.pdb.facts.type.Type externalType) {
 			return IValue.class;
 		}
 
+		@Override
 		public Class<?> visitDateTime(Type type) {
 			return IDateTime.class;
 		}
+
+		@Override
+		public Class<?> visitListRelationType(Type type) {
+			return IListRelation.class;
+		}
 	}
 	
-	public Object getJavaClassInstance(Class<?> clazz){
+	public synchronized Object getJavaClassInstance(Class<?> clazz){
 		Object instance = instanceCache.get(clazz);
 		if(instance != null){
 			return instance;
@@ -293,7 +340,7 @@ public class JavaBridge {
 		} 
 	}
 	
-	public Object getJavaClassInstance(FunctionDeclaration func){
+	public synchronized Object getJavaClassInstance(FunctionDeclaration func){
 		String className = getClassName(func);
 
 		try {
@@ -317,35 +364,36 @@ public class JavaBridge {
 			}
 		} 
 		catch(NoClassDefFoundError e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		}
 		catch (IllegalArgumentException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		} catch (InstantiationException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		} catch (IllegalAccessException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		} catch (InvocationTargetException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		} catch (SecurityException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		} catch (NoSuchMethodException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		}
 		
-		throw new JavaMethodLinkError(className, "class not found", func, null);
+		throw new JavaMethodLink(className, "class not found", func, null);
 	}
 
 	public Method lookupJavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, Environment env, boolean hasReflectiveAccess){
 		if(!func.isAbstract()){
-			throw new NonAbstractJavaFunctionError(func);
+			throw new NonAbstractJavaFunction(func);
 		}
 		
 		String className = getClassName(func);
 		String name = Names.name(func.getSignature().getName());
 		
-		if(className.length() == 0){
-			throw new MissingTagError(JAVA_CLASS_TAG, func);
+		if(className.length() == 0){	// TODO: Can this ever be thrown since the Class instance has 
+										// already been identified via the javaClass tag.
+			throw new MissingTag(JAVA_CLASS_TAG, func);
 		}
 		
 		for(ClassLoader loader : loaders){
@@ -367,14 +415,14 @@ public class JavaBridge {
 				}catch(SecurityException e){
 					throw RuntimeExceptionFactory.permissionDenied(vf.string(e.getMessage()), eval.getCurrentAST(), eval.getStackTrace());
 				}catch(NoSuchMethodException e){
-					throw new UndeclaredJavaMethodError(e.getMessage(), func);
+					throw new UndeclaredJavaMethod(e.getMessage(), func);
 				}
 			}catch(ClassNotFoundException e){
 				continue;
 			}
 		}
 		
-		throw new UndeclaredJavaMethodError(className + "." + name, func);
+		throw new UndeclaredJavaMethod(className + "." + name, func);
 	}
 
 	/**

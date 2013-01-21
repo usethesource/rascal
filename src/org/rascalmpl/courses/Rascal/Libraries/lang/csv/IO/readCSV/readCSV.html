@@ -116,9 +116,9 @@
 ok
 <span class="prompt">rascal></span>R1 = readCSV(#rel[int position, str artist, str title, int year],  |courses:///Rascal/Libraries/lang/csv/ex1.csv|, (&quot;separator&quot; : &quot;;&quot;));
 rel[int position, str artist, str title, int year]: {
-  &lt;1,"Eagles","Hotel California",1977>,
   &lt;2,"Queen","Bohemian rhapsody",1975>,
-  &lt;3,"Boudewijn de Groot","Avond",1997>
+  &lt;3,"Boudewijn de Groot","Avond",1997>,
+  &lt;1,"Eagles","Hotel California",1977>
 }
 </pre> Now we can, for instance, select one of the fields of <code>R1</code>:
 <pre class="screen"><span class="prompt">rascal></span>R1.artist;
@@ -127,9 +127,9 @@ set[str]: {"Eagles","Boudewijn de Groot","Queen"}
 <pre class="screen"><span class="prompt">rascal></span>R1 = readCSV(|courses:///Rascal/Libraries/lang/csv/ex1.csv|, (&quot;separator&quot; : &quot;;&quot;));
 readCSV inferred the relation type: rel[int \position, str \artist, str \title, int \year]
 value: {
-  &lt;1,"Eagles","Hotel California",1977>,
   &lt;2,"Queen","Bohemian rhapsody",1975>,
-  &lt;3,"Boudewijn de Groot","Avond",1997>
+  &lt;3,"Boudewijn de Groot","Avond",1997>,
+  &lt;1,"Eagles","Hotel California",1977>
 }
 </pre>
 </div>

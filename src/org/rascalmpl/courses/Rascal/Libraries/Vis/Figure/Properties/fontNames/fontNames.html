@@ -67,7 +67,7 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import vis::Figure;
 ok
 <span class="prompt">rascal></span>fontNames();
-|stdin:///|(0,9,&lt;1,0>,&lt;1,9>): Java("Invalid thread access")
+|std:///vis/Figure.rsc|(4215,128,&lt;145,0>,&lt;147,34>): Java("SWTException","Invalid thread access")
 
 	org.eclipse.swt.SWT.error(SWT.java:4282)
 	org.eclipse.swt.SWT.error(SWT.java:4197)
@@ -75,9 +75,9 @@ ok
 	org.eclipse.swt.widgets.Display.error(Display.java:1065)
 	org.eclipse.swt.widgets.Display.checkDevice(Display.java:618)
 	org.eclipse.swt.graphics.Device.getFontList(Device.java:365)
-	org.rascalmpl.library.vis.swt.SWTFontsAndColors.fontNames(SWTFontsAndColors.java:47)
+	org.rascalmpl.library.vis.swt.SWTFontsAndColors.fontNames(SWTFontsAndColors.java:54)
 	sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-2)
-	somewhere in: ___SCREEN_INSTANCE___
+	somewhere in: fontNames
 
 
 </pre> The available fonts (on the machine on which this page was generated) are

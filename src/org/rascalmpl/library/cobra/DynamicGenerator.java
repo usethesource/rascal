@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@ package org.rascalmpl.library.cobra;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -37,12 +37,12 @@ public class DynamicGenerator extends AbstractFunction {
 			HashMap<Type, ICallableValue> generators) {
 		super(null, eval, (FunctionType) RascalTypeFactory.getInstance()
 				.functionType(returnType,
-						TypeFactory.getInstance().integerType()), false, env);
+						TypeFactory.getInstance().integerType()), false, null, env);
 		this.generators = generators;
 	}
 
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
 		Type returnType = getReturnType();
 		Type instantiatedReturnType = returnType.instantiate(ctx
 				.getCurrentEnvt().getTypeBindings());
@@ -51,17 +51,12 @@ public class DynamicGenerator extends AbstractFunction {
 
 		RandomValueTypeVisitor v = new RandomValueTypeVisitor(
 				getValueFactory(), (ModuleEnvironment) getEnv().getRoot(),
-				maxDepth.intValue(), generators);
+				maxDepth.intValue(), generators, ctx.getCurrentEnvt().getTypeBindings());
 
 		IValue returnVal = instantiatedReturnType.accept(v);
 
 		return makeResult(instantiatedReturnType, returnVal, eval);
 
-	}
-	
-	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
-		return call(actualTypes, actuals);
 	}
 
 	@Override
@@ -73,5 +68,5 @@ public class DynamicGenerator extends AbstractFunction {
 	public boolean isStatic() {
 		return false;
 	}
-	
+
 }

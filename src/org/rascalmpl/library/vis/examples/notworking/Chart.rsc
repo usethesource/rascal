@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -93,7 +93,7 @@ public void graph(int n){
 			leftAxis("Lines of code","y",
 				overlay([
 					ellipse(shrink(0.02),fillColor("blue"),hpos(convert( toReal(x) , "x")),vpos(convert(((x == 0) ? 0 :arbReal()),"y")))
-					| x <- [0..n]],shapeConnected(true),shapeCurved(true))
+					| x <- [0..n+1]],shapeConnected(true),shapeCurved(true))
 			) )			
 		));
 }

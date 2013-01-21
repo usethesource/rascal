@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -181,7 +181,7 @@ public list[str] basenames(ConceptName cn){
 // Compose a sublist of a list of names to a ConceptName
 public str compose(list[str] names, int from, int to){
    str res = "";
-   for(int i <- [from .. to])
+   for(int i <- [from .. to+1])
    	res += (res == "") ? names[i] : ("/" + names[i]);
    return res;
 }

@@ -22,7 +22,7 @@ Values of type `node` represent untyped trees and are constructed as follows:
 * zero or more expressions of type `value` are the node\'s children.
 
 
-Nodes can have [Annotation]s.
+Nodes can have [$Declarations/Annotation]s.
 
 The following are provided for nodes:
 <toc Rascal/Expressions/Values/Node 1>

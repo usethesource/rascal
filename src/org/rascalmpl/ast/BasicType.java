@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -198,6 +198,32 @@ public abstract class BasicType extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeList(this);
+    }
+  
+    	
+  }
+  public boolean isListRelation() {
+    return false;
+  }
+
+  static public class ListRelation extends BasicType {
+    // Production: sig("ListRelation",[])
+  
+    
+  
+    public ListRelation(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isListRelation() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeListRelation(this);
     }
   
     	

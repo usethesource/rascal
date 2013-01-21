@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,6 +48,13 @@ public abstract class Declaration extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Variant> getVariants() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasCommonKeywordParameters() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.CommonKeywordParameters getCommonKeywordParameters() {
     throw new UnsupportedOperationException();
   }
   public boolean hasFunctionDeclaration() {
@@ -319,20 +326,22 @@ public abstract class Declaration extends AbstractAST {
   }
 
   static public class Data extends Declaration {
-    // Production: sig("Data",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.UserType","user"),arg("java.util.List\<org.rascalmpl.ast.Variant\>","variants")])
+    // Production: sig("Data",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.UserType","user"),arg("org.rascalmpl.ast.CommonKeywordParameters","commonKeywordParameters"),arg("java.util.List\<org.rascalmpl.ast.Variant\>","variants")])
   
     
     private final org.rascalmpl.ast.Tags tags;
     private final org.rascalmpl.ast.Visibility visibility;
     private final org.rascalmpl.ast.UserType user;
+    private final org.rascalmpl.ast.CommonKeywordParameters commonKeywordParameters;
     private final java.util.List<org.rascalmpl.ast.Variant> variants;
   
-    public Data(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  java.util.List<org.rascalmpl.ast.Variant> variants) {
+    public Data(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.CommonKeywordParameters commonKeywordParameters,  java.util.List<org.rascalmpl.ast.Variant> variants) {
       super(node);
       
       this.tags = tags;
       this.visibility = visibility;
       this.user = user;
+      this.commonKeywordParameters = commonKeywordParameters;
       this.variants = variants;
     }
   
@@ -372,6 +381,15 @@ public abstract class Declaration extends AbstractAST {
   
     @Override
     public boolean hasUser() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.CommonKeywordParameters getCommonKeywordParameters() {
+      return this.commonKeywordParameters;
+    }
+  
+    @Override
+    public boolean hasCommonKeywordParameters() {
       return true;
     }
     @Override

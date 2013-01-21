@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,8 +33,8 @@ import org.rascalmpl.interpreter.matching.NodePattern;
 import org.rascalmpl.interpreter.matching.SetPattern;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -75,11 +75,11 @@ public abstract class Tree {
 		Result<IValue> variable = eval.getCurrentEnvt().getVariable(name);
 
 		if (variable == null) {
-			throw new UndeclaredVariableError(name, this);
+			throw new UndeclaredVariable(name, this);
 		}
 
 		if (variable.getValue() == null) {
-			throw new UninitializedVariableError(name, this);
+			throw new UninitializedVariable(name, this);
 		}
 		
 		return variable;

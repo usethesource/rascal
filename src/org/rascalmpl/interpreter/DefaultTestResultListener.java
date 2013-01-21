@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 public class DefaultTestResultListener implements ITestResultListener{
 	private PrintWriter err;
 	private int successes;
-	private final int failures;
+	private int failures;
 	private int errors;
 	private int count;
 	
@@ -58,10 +58,13 @@ public class DefaultTestResultListener implements ITestResultListener{
 		err.print(loc.getBeginColumn());
 		err.print(":");
 		err.print(successful ? "success : " : "failed  : ");
-		if (successful)
+		if (successful) {
 			successes++;
-		else
-			errors++;
+		}
+		else {
+			failures++;
+		}
+		
 		if (test.length() <= 50) {
 			err.println(test);
 		} else {

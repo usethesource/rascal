@@ -1,0 +1,30 @@
+Name: Variable
+
+Synopsis: Assign to a variable.
+
+Syntax: `$Var$ = $Exp$`
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+The expression $Exp$ is evaluated and its value is assigned to the variable $Var$.
+
+Examples:
+<screen>
+N = 3;
+N;
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -124,7 +124,7 @@ private Figure ytick(num n){
 // X-axis
 
 public Figure xaxis(str title, num length, num \start, num incr, num end, num scale){
-   ticks = grid( [ xtick(n) | num n <- [\start, (\start + incr) .. end]],
+   ticks = grid( [ xtick(n) | num n <- [\start, (\start + incr) .. end+1]],
                  gap(incr * scale), width(length), vcenter() 
                );
    
@@ -139,7 +139,7 @@ public Figure xaxis(str title, num length, num \start, num incr, num end, num sc
 
 public Figure yaxis(str title, num length, num \start, num incr, num end, num scale){
 
-   ticks = grid( [ ytick(n) | num n <- [end, (end - incr) .. \start]],
+   ticks = grid( [ ytick(n) | num n <- [end, (end - incr) .. \start-1]],
                  gap(incr * scale), width(1), right()
                );
    
@@ -356,7 +356,7 @@ public Figure barChart(str title, list[str] categories, NamedNumberSeries facts,
     fcolorName = palette(size(funColors));
     funColors += <fname, color(fcolorName)>;
     funColorsMap[fname] = color(fcolorName);
-    for(int i <- [0 .. size(values)-1]){
+    for(int i <- [0 .. size(values)]){
         num bw = barWidth;
         num bh = values[i] * yscale;
         if(!isVertical)
@@ -364,7 +364,7 @@ public Figure barChart(str title, list[str] categories, NamedNumberSeries facts,
      	fns[i] = (fns[i] ? []) + box(size(bw, bh), lineWidth(0), fillColor(funColorsMap[fname]));
      }
   }
-  for(num i <- [0 .. size(categories)-1]){
+  for(num i <- [0 .. size(categories)]){
     if(fns[i]?)
   	   funPlots += isStackedBars ? (isVertical ? vcat(reverse(fns[i]), bottom(), gap(0))
   	                                           : hcat(fns[i], bottom(), gap(0)))

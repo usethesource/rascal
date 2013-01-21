@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,13 @@ package org.rascalmpl.uri;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.rascalmpl.unicode.UnicodeInputStreamReader;
 
 public class URIResolverRegistry {
 	private final Map<String,IURIInputStreamResolver> inputResolvers;
@@ -122,6 +125,19 @@ public class URIResolverRegistry {
 		return resolver.listEntries(uri);
 	}
 	
+	
+	public Reader getCharacterReader(URI uri) throws IOException {
+		return getCharacterReader(uri, getCharset(uri));
+	}
+	
+	public Reader getCharacterReader(URI uri, String encoding) throws IOException {
+		return getCharacterReader(uri, Charset.forName(encoding));
+	}
+	
+	public Reader getCharacterReader(URI uri, Charset encoding) throws IOException {
+		return new UnicodeInputStreamReader(getInputStream(uri), encoding);
+		
+	}
 	public InputStream getInputStream(URI uri) throws IOException {
 		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
 		

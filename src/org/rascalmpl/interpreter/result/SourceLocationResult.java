@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,9 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -38,9 +40,9 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
 
@@ -54,21 +56,21 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] actuals) {
+	public Result<IValue> call(Type[] argTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
 		if (actuals.length >= 2) {
 			if (!argTypes[0].isSubtypeOf(getTypeFactory().integerType())) {
-				throw new UnexpectedTypeError(getTypeFactory().integerType(), argTypes[0], ctx.getCurrentAST());
+				throw new UnexpectedType(getTypeFactory().integerType(), argTypes[0], ctx.getCurrentAST());
 			}
 			if (!argTypes[1].isSubtypeOf(getTypeFactory().integerType())) {
-				throw new UnexpectedTypeError(getTypeFactory().integerType(), argTypes[1], ctx.getCurrentAST());
+				throw new UnexpectedType(getTypeFactory().integerType(), argTypes[1], ctx.getCurrentAST());
 			}
 			
 			if (actuals.length == 4) {
 				if (!argTypes[2].isSubtypeOf(intTuple)) {
-					throw new UnexpectedTypeError(intTuple, argTypes[2], ctx.getCurrentAST());
+					throw new UnexpectedType(intTuple, argTypes[2], ctx.getCurrentAST());
 				}
 				if (!argTypes[3].isSubtypeOf(intTuple)) {
-					throw new UnexpectedTypeError(intTuple, argTypes[3], ctx.getCurrentAST());
+					throw new UnexpectedType(intTuple, argTypes[3], ctx.getCurrentAST());
 				}
 			}
 			else if (actuals.length != 2) {
@@ -131,7 +133,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		}
 		else if (name.equals("host")) {
 			if (!ctx.getResolverRegistry().supportsHost(uri)) {
-				throw new UndeclaredFieldError(name, "The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 			}
 			String host = uri.getHost();
 			return makeResult(getTypeFactory().stringType(), vf.string(host != null ? host : ""), ctx);
@@ -220,14 +222,14 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		}
 		else if (name.equals("user")) {
 			if (!ctx.getResolverRegistry().supportsHost(uri)) {
-				throw new UndeclaredFieldError(name, "The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 			}
 			String user = uri.getUserInfo();
 			return makeResult(getTypeFactory().stringType(), vf.string(user != null ? user : ""), ctx);
 		}
 		else if (name.equals("port")) {
 			if (!ctx.getResolverRegistry().supportsHost(uri)) {
-				throw new UndeclaredFieldError(name, "The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 			}
 			return makeResult(getTypeFactory().integerType(), vf.integer(uri.getPort()), ctx);
 		}
@@ -273,7 +275,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(getTypeFactory().sourceLocationType(), vf.sourceLocation(uri), ctx);
 		} 
 		else {
-			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+			throw new UndeclaredField(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 		}
 	}
 
@@ -294,34 +296,34 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		try {
 			if (name.equals("uri")) {
 				if (!replType.isStringType()) {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				uri = URIUtil.createFromEncoded(((IString)repl.getValue()).getValue());
 			} 
 			else if (name.equals("scheme")) {
 				if (!replType.isStringType()) {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				uri = URIUtil.changeScheme(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("authority")) {
 				if (!replType.isStringType()) {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				uri = URIUtil.changeAuthority(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("host")) {
 				if (!replType.isStringType()) {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				if (!ctx.getResolverRegistry().supportsHost(uri)) {
-					throw new UndeclaredFieldError(name, "The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+					throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 				}
 				uri = URIUtil.changeHost(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("path")) {
 				if (!replType.isStringType()) {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				String path = ((IString) repl.getValue()).getValue();
 				if(!path.startsWith("/"))
@@ -330,7 +332,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 			else if (name.equals("file")) {
 				if (!replType.isStringType()) {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				
 				String path = uri.getPath();
@@ -345,7 +347,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 			else if (name.equals("parent")) {
 				if (!replType.isStringType()) {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				
 				String path = uri.getPath();
@@ -363,11 +365,11 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 			}
 			else if (name.equals("ls")) {
-				throw new UnsupportedOperationError("can not update the children of a location", ctx.getCurrentAST());
+				throw new UnsupportedOperation("can not update the children of a location", ctx.getCurrentAST());
 			}
 			else if (name.equals("extension")) {
 				if (!replType.isStringType()) {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				String path = uri.getPath();
 				String ext = ((IString) repl.getValue()).getValue();
@@ -396,27 +398,27 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					uri = ((ISourceLocation) repl.getValue()).getURI();
 				}
 				else {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 			}
 			else if (name.equals("fragment")) {
 				if (!replType.isStringType()) {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				uri = URIUtil.changeFragment(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("query")) {
 				if (!replType.isStringType()) {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				uri = URIUtil.changeFragment(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("user")) {
 				if (!replType.isStringType()) {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				if (!ctx.getResolverRegistry().supportsHost(uri)) {
-					throw new UndeclaredFieldError(name, "The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+					throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 				}
 				if (uri.getHost() != null) {
 					uri = URIUtil.changeUserInformation(uri, ((IString) repl.getValue()).getValue());
@@ -424,11 +426,11 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 			else if (name.equals("port")) {
 				if (!replType.isIntegerType()) {
-					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				
 				if (!ctx.getResolverRegistry().supportsHost(uri)) {
-					throw new UndeclaredFieldError(name, "The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+					throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 				}
 				if (uri.getHost() != null) {
 					int port = Integer.parseInt(((IInteger) repl.getValue()).getStringRepresentation());
@@ -437,7 +439,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 			else if (name.equals("length")){
 				if (!replType.isIntegerType()) {
-					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				iLength = ((IInteger) replValue).intValue();
 				
@@ -447,7 +449,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			} 
 			else if (name.equals("offset")){
 				if (!replType.isIntegerType()) {
-					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
+					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				iOffset = ((IInteger) replValue).intValue();
 				
@@ -457,7 +459,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			} 
 			else if (name.equals("begin")) {
 				if (!replType.isSubtypeOf(intTuple)) {
-					throw new UnexpectedTypeError(intTuple, replType, ctx.getCurrentAST());
+					throw new UnexpectedType(intTuple, replType, ctx.getCurrentAST());
 				}
 				iBeginLine = ((IInteger) ((ITuple) replValue).get(0)).intValue();
 				iBeginColumn = ((IInteger) ((ITuple) replValue).get(1)).intValue();
@@ -468,7 +470,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 			else if (name.equals("end")) {
 				if (!replType.isSubtypeOf(intTuple)) {
-					throw new UnexpectedTypeError(intTuple, replType, ctx.getCurrentAST());
+					throw new UnexpectedType(intTuple, replType, ctx.getCurrentAST());
 				}
 				iEndLine = ((IInteger) ((ITuple) replValue).get(0)).intValue();
 				iEndColumn = ((IInteger) ((ITuple) replValue).get(1)).intValue();
@@ -479,7 +481,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 			else {
 				// TODO: is this the right exception? How so "undeclared"?
-				throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 			}
 			
 			if (loc.hasLineColumn()) {
@@ -545,82 +547,96 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToSourceLocation(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToSourceLocation(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+	public <V extends IValue> Result<IBool> lessThan(Result<V> that) {
 		return that.lessThanSourceLocation(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
 		return that.lessThanOrEqualSourceLocation(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that) {
-		return that.greaterThanSourceLocation(this);
+	protected Result<IBool> lessThanSourceLocation(SourceLocationResult that) {
+	  LessThanOrEqualResult loe = lessThanOrEqualSourceLocation(that);
+	  return bool(loe.isLess().getValue().getValue() && !loe.isEqual().isTrue(), ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that) {
-		return that.greaterThanOrEqualSourceLocation(this);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> lessThanSourceLocation(SourceLocationResult that) {
-		// note reversed args: we need that < this
-		return bool((that.compareSourceLocationInt(this) < 0), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualSourceLocation(SourceLocationResult that) {
-		// note reversed args: we need that <= this
-		return bool((that.compareSourceLocationInt(this) <= 0), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> greaterThanSourceLocation(SourceLocationResult that) {
-		// note reversed args: we need that > this
-		return bool((that.compareSourceLocationInt(this) > 0), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualSourceLocation(SourceLocationResult that) {
-		// note reversed args: we need that >= this
-		return bool((that.compareSourceLocationInt(this) >= 0), ctx);
+	protected Result<IBool> greaterThanSourceLocation(SourceLocationResult that) {
+	  return that.lessThanSourceLocation(this);
 	}
 
+	@Override
+	protected Result<IBool> greaterThanOrEqualSourceLocation(SourceLocationResult that) {
+	  return that.lessThanSourceLocation(this);
+	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareSourceLocation(this);
+	protected LessThanOrEqualResult lessThanOrEqualSourceLocation(SourceLocationResult that) {
+    ISourceLocation left = that.getValue();
+    ISourceLocation right = this.getValue();
+    
+    int compare = left.getURI().toString().compareTo(right.getURI().toString());
+    if (compare < 0) {
+      return new LessThanOrEqualResult(true, false, ctx);
+    }
+    else if (compare > 0) {
+      return new LessThanOrEqualResult(false, false, ctx);
+    }
+
+    // but the uri's are the same
+    // note that line/column information is superfluous and does not matter for ordering
+    
+    if (left.hasOffsetLength()) {
+      if (!right.hasOffsetLength()) {
+        return new LessThanOrEqualResult(false, false, ctx);
+      }
+
+      int roffset = right.getOffset();
+      int rlen = right.getLength();
+      int loffset = left.getOffset();
+      int llen = left.getLength();
+
+      if (loffset == roffset) {
+        return new LessThanOrEqualResult(llen < rlen, llen == rlen, ctx);
+      }
+
+      return new LessThanOrEqualResult(roffset < loffset && roffset + rlen >= loffset + llen, false, ctx);
+    }
+    else if (compare == 0) {
+      return new LessThanOrEqualResult(false, true, ctx);
+    }
+
+    if (!right.hasOffsetLength()) {
+      throw new ImplementationError("assertion failed");
+    }
+
+    return new LessThanOrEqualResult(false, false, ctx);
 	}
 	
 	/////
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that) {
+	protected Result<IBool> equalToSourceLocation(SourceLocationResult that) {
 		return that.equalityBoolean(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToSourceLocation(SourceLocationResult that) {
+	protected Result<IBool> nonEqualToSourceLocation(SourceLocationResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
-	@Override
-	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that) {
-		return makeIntegerResult(that.compareSourceLocationInt(this));
-	}
-
 	protected int compareSourceLocationInt(SourceLocationResult that) {
 		// Note args have already been reversed.
 		

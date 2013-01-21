@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -59,7 +59,7 @@ public TetrisState
 	initialState(int rows, int columns,int maxSpin, int nrInvisbleLines) {
 	pf = emptyPF(rows + nrInvisbleLines,columns);
 	currentTetromino = initialPT(randomTetromino(),pf,nrInvisbleLines);
-	next = [ randomTetromino() | i <- [1  ..  numberNext]];
+	next = [ randomTetromino() | i <- [1  ..  numberNext+1]];
 	s = tetrisState(   0,0,pf,[],currentTetromino,
 	                   next,nothing(),false,false,0,maxSpin,nrInvisbleLines);
 	return update(s);

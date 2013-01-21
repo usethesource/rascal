@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,20 +14,20 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
+import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INumber;
-import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class IntegerResult extends ElementResult<IInteger> {
@@ -78,37 +78,32 @@ public class IntegerResult extends ElementResult<IInteger> {
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-		return result.compareInteger(this);
-	}
-	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToInteger(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+	public <V extends IValue> Result<IBool> nonEquals(Result<V> that) {
 		return that.nonEqualToInteger(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result) {
+	public <V extends IValue> Result<IBool> lessThan(Result<V> result) {
 		return result.lessThanInteger(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result) {
+	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> result) {
 		return result.lessThanOrEqualInteger(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result) {
+	public <V extends IValue> Result<IBool> greaterThan(Result<V> result) {
 		return result.greaterThanInteger(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result) {
+	public <V extends IValue> Result<IBool> greaterThanOrEqual(Result<V> result) {
 		return result.greaterThanOrEqualInteger(this);
 	}
 	
@@ -268,7 +263,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 		
 		// I still think it is ugly to do it here...
 		if (!second.getType().isSubtypeOf(tf.numberType())) {
-			throw new UnexpectedTypeError(tf.numberType(), second.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(tf.numberType(), second.getType(), ctx.getCurrentAST());
 		}
 		
 		INumber iSecond = (INumber) second.getValue();
@@ -281,17 +276,17 @@ public class IntegerResult extends ElementResult<IInteger> {
 		
 		IListWriter w = vf.listWriter(resultType);
 		if (iFrom.lessEqual(iTo).getValue() && diff.greater(zero).getValue()) {
-			do {
+			 while (iFrom.less(iTo).getValue()) {
 				w.append(iFrom);
 				iFrom = iFrom.add(diff);
 				if (ctx.isInterrupted()) throw new InterruptException(ctx.getStackTrace(), ctx.getCurrentAST().getLocation());
-			} while (iFrom.lessEqual(iTo).getValue());
+			};
 		} 
 		else if (iFrom.greaterEqual(iTo).getValue() && diff.less(zero).getValue()) {
-			do {
+			 while (iFrom.greater(iTo).getValue()) {
 				w.append(iFrom);
 				iFrom = iFrom.add(diff);
-			} while (iFrom.greaterEqual(iTo).getValue());
+			};
 		}
 		return makeResult(tf.listType(resultType), w.done(), ctx);	
 	}
@@ -300,130 +295,107 @@ public class IntegerResult extends ElementResult<IInteger> {
 	
 	
 	@Override
-	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {
-		// note: reversed arguments
-		IInteger left = that.getValue();
-		IInteger right = this.getValue();
-		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(left.compare(right)), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareRational(RationalResult that) {
-		IRational left = that.getValue();
-		IInteger right = this.getValue();
-		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(left.compare(right)), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareReal(RealResult that) {
-		return that.compare(widenToReal());
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> compareNumber(NumberResult that) {
-		// note: reversed arguments
-		// note: reversed arguments
-		INumber left = that.getValue();
-		IInteger right = this.getValue();
-		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(left.compare(right)), ctx);
-	}
-
-	@Override
-	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that) {
+	protected Result<IBool> equalToInteger(IntegerResult that) {
 		return that.equalityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToInteger(IntegerResult that) {
+	protected Result<IBool> nonEqualToInteger(IntegerResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToReal(RealResult that) {
+	protected Result<IBool> nonEqualToReal(RealResult that) {
 		return that.nonEquals(widenToReal());
 	}
 
+
 	@Override
-	protected <U extends IValue> Result<U> lessThanInteger(IntegerResult that) {
-		// note reversed args: we need that < this
-		return bool((that.comparisonInts(this) < 0), ctx);
+	protected Result<IBool> greaterThanInteger(IntegerResult that) {
+	   return makeResult(getTypeFactory().boolType(), that.getValue().greater(getValue()), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualInteger(IntegerResult that) {
-		// note reversed args: we need that <= this
-		return bool((that.comparisonInts(this) <= 0), ctx);
-	}
-
-	@Override
-	protected <U extends IValue> Result<U> greaterThanInteger(IntegerResult that) {
-		// note reversed args: we need that > this
-		return bool((that.comparisonInts(this) > 0), ctx);
+	protected Result<IBool> greaterThanNumber(NumberResult that) {
+	  return makeResult(getTypeFactory().boolType(), that.getValue().greater(getValue()), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualInteger(IntegerResult that) {
-		// note reversed args: we need that >= this
-		return bool((that.comparisonInts(this) >= 0), ctx);
+	protected Result<IBool> greaterThanOrEqualInteger(IntegerResult that) {
+	  return makeResult(getTypeFactory().boolType(), that.getValue().greaterEqual(getValue()), ctx);
 	}
-
+	
 	@Override
-	protected <U extends IValue> Result<U> equalToReal(RealResult that) {
+	protected Result<IBool> greaterThanOrEqualNumber(NumberResult that) {
+	  return makeResult(getTypeFactory().boolType(), that.getValue().greaterEqual(getValue()), ctx);
+	}
+	
+	@Override
+	protected Result<IBool> lessThanInteger(IntegerResult that) {
+	  return makeResult(getTypeFactory().boolType(), that.getValue().less(getValue()), ctx);
+	}
+	
+	@Override
+	protected Result<IBool> lessThanNumber(NumberResult that) {
+	  return makeResult(getTypeFactory().boolType(), that.getValue().less(getValue()), ctx);
+	}
+	
+	@Override
+	protected LessThanOrEqualResult lessThanOrEqualInteger(IntegerResult that) {
+	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
+	}
+	
+	@Override
+	protected Result<IBool> equalToReal(RealResult that) {
 		return that.equals(widenToReal());
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToRational(RationalResult that) {
+	protected Result<IBool> equalToRational(RationalResult that) {
 		return that.equalToInteger(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanReal(RealResult that) {
+	protected Result<IBool> lessThanReal(RealResult that) {
 		return that.lessThan(widenToReal());
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualReal(RealResult that) {
-		// note reversed args: we need that <= this
-		return that.lessThanOrEqual(widenToReal());
+	protected LessThanOrEqualResult lessThanOrEqualReal(RealResult that) {
+	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanReal(RealResult that) {
-		// note reversed args: we need that > this
-		return that.greaterThan(widenToReal());
+	protected Result<IBool> greaterThanReal(RealResult that) {
+	  return makeResult(getTypeFactory().boolType(), that.getValue().greater(getValue()), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualReal(RealResult that) {
-		// note reversed args: we need that >= this
-		return that.greaterThanOrEqual(widenToReal());
+	protected Result<IBool> greaterThanOrEqualReal(RealResult that) {
+	  return makeResult(getTypeFactory().boolType(), that.getValue().greaterEqual(getValue()), ctx);
 	}
 
 
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanRational(RationalResult that) {
+	protected Result<IBool> lessThanRational(RationalResult that) {
 		// note reversed args: we need that < this
 		return that.lessThan(widenToRational());
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualRational(RationalResult that) {
-		// note reversed args: we need that <= this
-		return that.lessThanOrEqual(widenToRational());
+	protected LessThanOrEqualResult lessThanOrEqualRational(RationalResult that) {
+	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanRational(RationalResult that) {
-		// note reversed args: we need that > this
-		return that.greaterThan(widenToRational());
+	protected Result<IBool> greaterThanRational(RationalResult that) {
+	  return makeResult(getTypeFactory().boolType(), that.getValue().greater(getValue()), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualRational(RationalResult that) {
-		// note reversed args: we need that >= this
-		return that.greaterThanOrEqual(widenToRational());
+	protected Result<IBool> greaterThanOrEqualRational(RationalResult that) {
+	  return makeResult(getTypeFactory().boolType(), that.getValue().greaterEqual(getValue()), ctx);
 	}
 
 	<U extends IValue> Result<U> widenToReal() {
@@ -454,45 +426,26 @@ public class IntegerResult extends ElementResult<IInteger> {
 	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
 		try {
 			// note the reverse division
-			return makeResult(n.getType(), n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+			return makeResult(n.getType(), n.getValue().divide(getValue(), getValueFactory().getPrecision()), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
 		}
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToNumber(NumberResult that) {
-		return that.equalityBoolean(this);
+	protected Result<IBool> equalToNumber(NumberResult that) {
+		return bool(that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToNumber(NumberResult that) {
-		return that.nonEqualityBoolean(this);
+	protected Result<IBool> nonEqualToNumber(NumberResult that) {
+		return bool(!that.getValue().equal(getValue()).getValue(), ctx);
 	}
 	
-	@Override
-	protected <U extends IValue> Result<U> lessThanNumber(NumberResult that) {
-		// note reversed args: we need that < this
-		return bool((that.comparisonInts(this) < 0), ctx);
-	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualNumber(NumberResult that) {
-		// note reversed args: we need that <= this
-		return bool((that.comparisonInts(this) <= 0), ctx);
+	protected LessThanOrEqualResult lessThanOrEqualNumber(NumberResult that) {
+	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
 	}
-
-	@Override
-	protected <U extends IValue> Result<U> greaterThanNumber(NumberResult that) {
-		// note reversed args: we need that > this
-		return bool((that.comparisonInts(this) > 0), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualNumber(NumberResult that) {
-		// note reversed args: we need that >= this
-		return bool((that.comparisonInts(this) >= 0), ctx);
-	}
-	
 	
 }

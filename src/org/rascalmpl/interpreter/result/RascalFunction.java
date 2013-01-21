@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -57,10 +58,10 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
-import org.rascalmpl.interpreter.staticErrors.MissingReturnError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
+import org.rascalmpl.interpreter.staticErrors.MissingReturn;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
@@ -87,7 +88,7 @@ public class RascalFunction extends NamedFunction {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
 				(FunctionType) func.getSignature().typeOf(env),
-				varargs, isDefault(func), hasTestMod(func.getSignature()),
+				varargs, isDefault(func),hasTestMod(func.getSignature()),
 				func.getBody().getStatements(), env, accumulators);
 	}
 
@@ -103,9 +104,8 @@ public class RascalFunction extends NamedFunction {
 
 	@SuppressWarnings("unchecked")
 	public RascalFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, String name, FunctionType functionType,
-			boolean varargs, boolean isDefault, boolean isTest,
-			List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
-		super(ast, eval, functionType, name, varargs, env);
+			boolean varargs, boolean isDefault, boolean isTest, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
+		super(ast, eval, functionType, name, varargs, null, env);
 		this.body = body;
 		this.isDefault = isDefault;
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
@@ -269,7 +269,7 @@ public class RascalFunction extends NamedFunction {
 				formals = replaceLast(formals, last);
 			}
 			else {
-				throw new UnsupportedPatternError("...", last);
+				throw new UnsupportedPattern("...", last);
 			}
 		}
 		
@@ -314,9 +314,9 @@ public class RascalFunction extends NamedFunction {
 	public boolean isDefault() {
 		return isDefault;
 	}
-			
+	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
 		Environment old = ctx.getCurrentEnvt();
 		AbstractAST oldAST = ctx.getCurrentAST();
 		Stack<Accumulator> oldAccus = ctx.getAccumulators();
@@ -329,41 +329,7 @@ public class RascalFunction extends NamedFunction {
 			IMatchingResult[] matchers = prepareFormals(ctx);
 			ctx.setAccumulators(accumulators);
 			ctx.pushEnv();
-			
-			/* 
-			 * The body of a function is parameterized with:
-			 * - the self reference ( e.g., f = F(f) );
-			 * - the mutually recursive self references
-			 * - the 'it' special variable; 
-			 */
-			if(selfParams != null && selfParamBounds != null)
-				for(int i = 0; i < selfParams.size(); i++) {
-					if(!selfParams.get(i).equals(name)) {
-						ctx.pushEnv();
-						ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(selfParams.get(i), selfParamBounds.get(i));
-					}
-				}
-			java.util.List<AbstractFunction> functions = new java.util.LinkedList<AbstractFunction>();
-			Result<IValue> it = self;
-			if(self == null) {
-				if(isAnonymous()) {
-					functions.add(this);
-					it = new OverloadedFunction(Names.name(org.rascalmpl.interpreter.Evaluator.IT), functions);
-				} else { 
-					declarationEnvironment.getAllFunctions(name, functions);
-					self = new OverloadedFunction(name, functions);
-					it = self;
-				}
-			}
-			// binding '<name>'
-			if(self != null && !isAnonymous()) {
-				ctx.pushEnv();
-				ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, self);
-			}
-			// binding 'it' 
-			ctx.pushEnv();
-			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(Names.name(org.rascalmpl.interpreter.Evaluator.IT), it);
-			
+
 			Type actualTypesTuple = TF.tupleType(actualTypes);
 			if (hasVarArgs) {
 				actuals = computeVarArgsActuals(actuals, getFormals());
@@ -375,8 +341,12 @@ public class RascalFunction extends NamedFunction {
 			int i = 0;
 			
 			
+			if (!hasVarArgs && size != this.formals.size())
+				throw new MatchFailed();
+
 			if (size == 0) {
 				try {
+					bindKeywordArgs(keyArgValues);
 					return runBody();
 				}
 				catch (Return e) {
@@ -399,6 +369,7 @@ public class RascalFunction extends NamedFunction {
 					if (i == size - 1) {
 						// formals are now bound by side effect of the pattern matcher
 						try {
+							bindKeywordArgs(keyArgValues);
 							return runBody();
 						}
 						catch (Failure e) {
@@ -407,7 +378,7 @@ public class RascalFunction extends NamedFunction {
 								continue;
 							}
 							else {
-								throw new UnguardedFailError(getAst(), e);
+								throw new UnguardedFail(getAst(), e);
 							}
 //							ctx.unwind(olds[i]);
 //							i--;
@@ -442,6 +413,7 @@ public class RascalFunction extends NamedFunction {
 			ctx.setCurrentAST(oldAST);
 		}
 	}
+	
 
 	private Result<IValue> runBody() {
 		if (callTracing) {
@@ -458,7 +430,7 @@ public class RascalFunction extends NamedFunction {
 		}
 
 		if(!isVoidFunction){
-			throw new MissingReturnError(ast);
+			throw new MissingReturn(ast);
 		}
 
 		return makeResult(TF.voidType(), null, eval);
@@ -471,11 +443,11 @@ public class RascalFunction extends NamedFunction {
 		Type instantiatedReturnType = returnType.instantiate(ctx.getCurrentEnvt().getTypeBindings());
 
 		if(!result.getType().isSubtypeOf(instantiatedReturnType)){
-			throw new UnexpectedTypeError(instantiatedReturnType, result.getType(), e.getLocation());
+			throw new UnexpectedType(instantiatedReturnType, result.getType(), e.getLocation());
 		}
 
 		if (!returnType.isVoidType() && result.getType().isVoidType()) {
-			throw new UnexpectedTypeError(returnType, result.getType(), e.getLocation());
+			throw new UnexpectedType(returnType, result.getType(), e.getLocation());
 		}
 
 		return makeResult(instantiatedReturnType, result.getValue(), eval);
@@ -502,12 +474,12 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToRascalFunction(this);
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> equalToRascalFunction(RascalFunction that) {
+	public Result<IBool> equalToRascalFunction(RascalFunction that) {
 		return ResultFactory.bool((this == that), ctx);
 	}
 
@@ -593,10 +565,4 @@ public class RascalFunction extends NamedFunction {
 	public boolean hasResourceScheme() {
 		return this.resourceScheme != null;
 	}
-	
-	@Override
-	public String getSelfParam() {
-		return (this.isAnonymous()) ? "" : this.getName();
-	}
-	
 }

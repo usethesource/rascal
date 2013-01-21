@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Emilie Balland - (CWI)
+ *   * Anya Helene Bagge - (UiB)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
@@ -44,8 +45,7 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
-import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
@@ -62,7 +62,7 @@ import org.rascalmpl.values.uptr.Factory;
  */
 public class ModuleEnvironment extends Environment {
 	protected final GlobalEnvironment heap;
-	protected Map<String, ModuleEnvironment> importedModules;
+	protected Set<String> importedModules;
 	protected Set<String> extended;
 	protected Set<String> haveExtended;
 	protected TypeStore typeStore;
@@ -82,7 +82,7 @@ public class ModuleEnvironment extends Environment {
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
 		super(name);
 		this.heap = heap;
-		this.importedModules = new HashMap<String, ModuleEnvironment>();
+		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.productions = new HashSet<IValue>();
 		this.typeStore = new TypeStore();
@@ -92,10 +92,30 @@ public class ModuleEnvironment extends Environment {
 		this.resourceImporters = new HashMap<String, AbstractFunction>();
 	}
 	
+	/**
+	 * This constructor creates a shallow copy of the given environment
+	 * 
+	 * @param env
+	 */
+	protected ModuleEnvironment(ModuleEnvironment env) {
+		super(env);
+		this.heap = env.heap;
+		this.importedModules = env.importedModules;
+		this.concreteSyntaxTypes = env.concreteSyntaxTypes;
+		this.productions = env.productions;
+		this.typeStore = env.typeStore;
+		this.initialized = env.initialized;
+		this.syntaxDefined = env.syntaxDefined;
+		this.bootstrap = env.bootstrap;
+		this.resourceImporters = env.resourceImporters;
+		this.cachedParser = env.cachedParser;
+		this.deprecated = env.deprecated;
+	}
+
 	@Override
 	public void reset() {
 		super.reset();
-		this.importedModules = new HashMap<String, ModuleEnvironment>();
+		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.typeStore = new TypeStore();
 		this.productions = new HashSet<IValue>();
@@ -198,7 +218,7 @@ public class ModuleEnvironment extends Environment {
 				result.put(VF.string(m), t);
 			}else if(m == getName()){ // This is the root scope.
 				ISetWriter importWriter = VF.setWriter(TF.stringType());
-				for(String impname : importedModules.keySet()){
+				for(String impname : importedModules){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					importWriter.insert(VF.string(impname));
@@ -230,7 +250,8 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void addImport(String name, ModuleEnvironment env) {
-		importedModules.put(name, env);
+		assert heap.getModule(name).equals(env);
+		importedModules.add(name);
 		typeStore.importStore(env.typeStore);
 	}
 	
@@ -274,7 +295,7 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public Set<String> getImports() {
-		return importedModules.keySet();
+		return Collections.unmodifiableSet(importedModules);
 	}
 	
 	public Set<String> getImportsTransitive() {
@@ -302,8 +323,8 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void unImport(String moduleName) {
-		ModuleEnvironment old = importedModules.remove(moduleName);
-		if (old != null) {
+		if(importedModules.remove(moduleName)) {
+			ModuleEnvironment old = heap.getModule(moduleName);
 			typeStore.unimportStores(new TypeStore[] { old.getStore() });
 		}
 	}
@@ -347,7 +368,7 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new UndeclaredModuleError(modulename, name);
+				throw new UndeclaredModule(modulename, name);
 			}
 			
 			// TODO: will this not do a transitive closure? This should not happen...
@@ -371,7 +392,7 @@ public class ModuleEnvironment extends Environment {
 		}
 		else {
 			for (String i : getImports()) {
-				ModuleEnvironment module = importedModules.get(i);
+				ModuleEnvironment module = heap.getModule(i);
 				result = module.getLocalPublicVariable(name);
 
 				if (result != null) {
@@ -451,19 +472,8 @@ public class ModuleEnvironment extends Environment {
 		}
 	}
 	
-	public void getAllImportedFunctions(String name, List<AbstractFunction> collection) {
-		for (String moduleName : getImports()) {
-			ModuleEnvironment mod = getImport(moduleName);
-			mod.getLocalPublicFunctions(name, collection);
-		}
-	}
+
 	
-	public void getAllImportedFunctions(Type returnType, String name, List<AbstractFunction> collection) {
-		for (String moduleName : getImports()) {
-			ModuleEnvironment mod = getImport(moduleName);
-			mod.getLocalPublicFunctions(returnType, name, collection);
-		}
-	}
 	
 	private Result<IValue> getLocalPublicVariable(String name) {
 		Result<IValue> var = null;
@@ -518,10 +528,18 @@ public class ModuleEnvironment extends Environment {
 		return sort;
 	}
 	
+	private Type makeTupleType(Type adt, String name, Type tupleType, List<KeywordParameter> keyargs){
+		if(keyargs == null){
+			return TF.constructorFromTuple(typeStore, adt, name, tupleType);
+		} else {
+			return TF.constructorFromTuple(typeStore, adt, name, tupleType, tupleType.getArity() - keyargs.size());
+		}
+	}
+	
 	@Override
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType) {
-		Type cons = TF.constructorFromTuple(typeStore, adt, name, tupleType);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordParameter> keyargs) {
+		Type cons = makeTupleType(adt, name, tupleType, keyargs);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -530,9 +548,9 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name,
-			Object... childrenAndLabels) {
+			List<KeywordParameter> keyargs, Object... childrenAndLabels) {
 		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -540,9 +558,9 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Type... children) {
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Type... children) {
 		Type cons = TF.constructor(typeStore, nodeType, name, children);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -611,12 +629,17 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public String toString() {
-		return "Environment [ " + getName() + ", imports: " + ((importedModules != null) ? importedModules.keySet() : "") + ", extends: " + ((extended != null) ? extended : "") + "]"; 
+		return "Environment [ " + getName() + ", imports: " + ((importedModules != null) ? importedModules : "") + ", extends: " + ((extended != null) ? extended : "") + "]"; 
 	}
 
 	@Override
 	public ModuleEnvironment getImport(String moduleName) {
-		return importedModules.get(moduleName);
+		if(importedModules.contains(moduleName)) {
+			return heap.getModule(moduleName);
+		}
+		else {
+			return null;
+		}
 	}
 	
 	@Override
@@ -631,7 +654,7 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new UndeclaredModuleError(modulename, name);
+				throw new UndeclaredModule(modulename, name);
 			}
 			
 			imported.storeVariable(name, result);
@@ -767,7 +790,7 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new UndeclaredModuleError(modulename, name);
+				throw new UndeclaredModule(modulename, name);
 			}
 			
 			imported.flagName(cons, flags);

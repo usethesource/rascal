@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,13 @@ public abstract class Variant extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.TypeArg> getArguments() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasKeywordArguments() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.KeywordFormals getKeywordArguments() {
     throw new UnsupportedOperationException();
   }
   public boolean hasName() {
@@ -91,17 +98,19 @@ public abstract class Variant extends AbstractAST {
   }
 
   static public class NAryConstructor extends Variant {
-    // Production: sig("NAryConstructor",[arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.TypeArg\>","arguments")])
+    // Production: sig("NAryConstructor",[arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.TypeArg\>","arguments"),arg("org.rascalmpl.ast.KeywordFormals","keywordArguments")])
   
     
     private final org.rascalmpl.ast.Name name;
     private final java.util.List<org.rascalmpl.ast.TypeArg> arguments;
+    private final org.rascalmpl.ast.KeywordFormals keywordArguments;
   
-    public NAryConstructor(IConstructor node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
+    public NAryConstructor(IConstructor node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.TypeArg> arguments,  org.rascalmpl.ast.KeywordFormals keywordArguments) {
       super(node);
       
       this.name = name;
       this.arguments = arguments;
+      this.keywordArguments = keywordArguments;
     }
   
     @Override
@@ -131,6 +140,15 @@ public abstract class Variant extends AbstractAST {
   
     @Override
     public boolean hasArguments() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.KeywordFormals getKeywordArguments() {
+      return this.keywordArguments;
+    }
+  
+    @Override
+    public boolean hasKeywordArguments() {
       return true;
     }	
   }

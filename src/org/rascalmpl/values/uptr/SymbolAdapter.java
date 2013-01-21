@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -111,7 +111,10 @@ public class SymbolAdapter {
 	public static boolean isParameterizedSort(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_ParameterizedSort;
 	}
-
+	
+	public static boolean isParameterizedLex(IConstructor tree) {
+    return tree.getConstructorType() == Factory.Symbol_ParameterizedLex;
+  }
 	
 	public static boolean isLiteral(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Lit;
@@ -220,7 +223,7 @@ public class SymbolAdapter {
 		if (isCILiteral(symbol)) {
 			return '\'' + ((IString) symbol.get("string")).getValue() + '\'';
 		}
-		if (isParameterizedSort(symbol)) {
+		if (isParameterizedSort(symbol) || isParameterizedLex(symbol)) {
 			StringBuilder b = new StringBuilder();
 			b.append(getName(symbol));
 			IList params = (IList) symbol.get("parameters");
@@ -464,6 +467,10 @@ public class SymbolAdapter {
 		if (isParameterizedSort(l) && isParameterizedSort(r)) {
 			return getName(l).equals(getName(r)) && isEqual(getParameters(l), getParameters(r));
 		}
+		
+		if (isParameterizedLex(l) && isParameterizedLex(r)) {
+      return getName(l).equals(getName(r)) && isEqual(getParameters(l), getParameters(r));
+    }
 		
 		if (isParameter(l) && isParameter(r)) {
 			return getName(l).equals(getName(r));

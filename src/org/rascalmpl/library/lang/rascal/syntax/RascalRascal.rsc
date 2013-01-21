@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2012 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
@@ -145,7 +146,7 @@ syntax Header
 	| \default: Tags tags "module" QualifiedName name Import* imports ;
 
 lexical Name
-    // Names are surrounded by non-alphabetical characters, i.e. we want longest match.
+    // Names are surrounded by non-alphabetical characters, i.e. we want longest match of alphabetical characters
 	=  ([A-Z a-z _] !<< [A-Z _ a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) \ RascalKeywords 
 	| [\\] [A-Z _ a-z] [\- 0-9 A-Z _ a-z]* !>> [\- 0-9 A-Z _ a-z] 
 	;
@@ -179,9 +180,9 @@ syntax Target
 	| labeled: Name name ;
 
 syntax IntegerLiteral
-	= /*prefer()*/ decimalIntegerLiteral: DecimalIntegerLiteral decimal 
-	| /*prefer()*/ hexIntegerLiteral: HexIntegerLiteral hex 
-	| /*prefer()*/ octalIntegerLiteral: OctalIntegerLiteral octal ;
+	=  decimalIntegerLiteral: DecimalIntegerLiteral decimal 
+	|  hexIntegerLiteral: HexIntegerLiteral hex 
+	|  octalIntegerLiteral: OctalIntegerLiteral octal ;
 
 syntax FunctionBody
 	= \default: "{" Statement* statements "}" ;
@@ -195,7 +196,7 @@ syntax Expression
 	| \visit          : Label label Visit visit 
 	| reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
 	| reifiedType    : "type" "(" Expression symbol "," Expression definitions ")"  
-	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure!isDefined expression "(" {Expression ","}* arguments ")"
+	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure!isDefined expression "(" {Expression ","}* arguments KeywordArguments keywordArguments ")"
 	| literal        : Literal literal 
 	| \any            : "any" "(" {Expression ","}+ generators ")" 
 	| \all            : "all" "(" {Expression ","}+ generators ")" 
@@ -207,8 +208,10 @@ syntax Expression
 	| \tuple          : "\<" {Expression ","}+ elements "\>" 
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| \it             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
-	| qualifiedName  : QualifiedName qualifiedName 
+	| qualifiedName: QualifiedName qualifiedName 
 	| subscript    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" {Expression ","}+ subscripts "]" 
+	| slice    	   : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" OptionalExpression optFirst ".." OptionalExpression optLast "]" 
+	| sliceStep    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" OptionalExpression optFirst "," Expression second ".." OptionalExpression optLast "]" 
 	| fieldAccess  : Expression expression "." Name field 
 	| fieldUpdate  : Expression expression "[" Name key "=" Expression replacement "]" 
 	| fieldProject : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "\<" {Field ","}+ fields "\>" 
@@ -263,6 +266,10 @@ syntax Expression
 	> right ifThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp
 	; 
 
+syntax OptionalExpression =
+      expression: Expression expression
+    | noExpression: ()
+    ;
 syntax UserType
 	= name: QualifiedName name 
 	| parametric: QualifiedName name >> "[" "[" {Type ","}+ parameters "]" ;
@@ -351,17 +358,21 @@ syntax Assignment
 	;
 
 syntax Assignable
-	= bracket \bracket   : "(" Assignable arg ")"
+	= bracket \bracket  : "(" Assignable arg ")"
 	| variable          : QualifiedName qualifiedName
     | subscript         : Assignable receiver "[" Expression subscript "]" 
+    | slice    	        : Assignable receiver "[" OptionalExpression optFirst ".." OptionalExpression optLast "]" 
+	| sliceStep         : Assignable receiver "[" OptionalExpression optFirst "," Expression second ".." OptionalExpression optLast "]" 
 	| fieldAccess       : Assignable receiver "." Name field 
 	| ifDefinedOrDefault: Assignable receiver "?" Expression defaultExpression 
 	| constructor       : Name name "(" {Assignable ","}+ arguments ")"  
-	| \tuple             : "\<" {Assignable ","}+ elements "\>" 
+	| \tuple            : "\<" {Assignable ","}+ elements "\>" 
 	| annotation        : Assignable receiver "@" Name annotation  ;
 
 lexical StringConstant
 	= @category="Constant" "\"" StringCharacter* "\"" ;
+
+
 
 syntax Assoc
 	= associative: "assoc" 
@@ -381,7 +392,7 @@ lexical StringCharacter
 	= "\\" [\" \' \< \> \\ b f n r t] 
 	| UnicodeEscape 
 	| ![\" \' \< \> \\]
-	| [\n][\ \t \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000]* [\'] // margin 
+	| [\n][\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* [\'] // margin 
 	;
 
 lexical JustTime
@@ -393,15 +404,36 @@ lexical MidStringChars
 	= @category="Constant" [\>] StringCharacter* [\<] ;
 
 lexical ProtocolChars
-	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000];
+	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000];
 
 lexical RegExpModifier
 	= [d i m s]* ;
 
+syntax CommonKeywordParameters =
+      absent: ()
+    | present: "(" {KeywordFormal ","}+ keywordFormalList ")"
+    ;
+    
 syntax Parameters
-	= \default: "(" Formals formals ")" 
-	| varArgs: "(" Formals formals "..." ")" ;
+	= \default: "(" Formals formals KeywordFormals keywordFormals")" 
+	| varArgs: "(" Formals formals "..." KeywordFormals keywordFormals ")" 
+	;
+	
+lexical OptionalComma = \default: ","? ;
 
+syntax KeywordFormals
+	= \default: OptionalComma optionalComma {KeywordFormal ","}+ keywordFormalList
+	| none: ()
+	;
+syntax KeywordFormal 
+    = \default: Type type Name name "=" Expression expression
+    ;
+syntax KeywordArguments
+	= \default:  OptionalComma optionalComma {KeywordArgument ","}+ keywordArgumentList
+	| none: ()
+	;
+syntax KeywordArgument = \default: Name name "=" Expression expression ;
+    	
 lexical RegExp
 	= ![/ \< \> \\] 
 	| "\<" Name "\>" 
@@ -528,7 +560,7 @@ syntax StringLiteral
 
 lexical Comment
 	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
-	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
+	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
 	;
 	
 
@@ -623,6 +655,7 @@ keyword RascalKeywords
 	| "extend" 
 	| "append" 
 	| "rel" 
+	| "lrel"
 	| "void" 
 	| "non-assoc" 
 	| "assoc" 
@@ -689,7 +722,7 @@ syntax Declaration
 	| \alias       : Tags tags Visibility visibility "alias" UserType user "=" Type base ";" 
 	| \tag         : Tags tags Visibility visibility "tag" Kind kind Name name "on" {Type ","}+ types ";" 
 	| dataAbstract: Tags tags Visibility visibility "data" UserType user ";" 
-	| @Foldable \data : Tags tags Visibility visibility "data" UserType user "=" {Variant "|"}+ variants ";"
+	| @Foldable \data : Tags tags Visibility visibility "data" UserType user CommonKeywordParameters commonKeywordParameters"=" {Variant "|"}+ variants ";"
 	| function       : FunctionDeclaration functionDeclaration 
 	;
 
@@ -713,7 +746,7 @@ syntax Comprehension
 	| @breakable{results,generators} \list: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
 
 syntax Variant
-	= nAryConstructor: Name name "(" {TypeArg ","}* arguments ")" ;
+	= nAryConstructor: Name name "(" {TypeArg ","}* arguments  KeywordFormals keywordArguments ")" ;
 
 syntax FunctionDeclaration
 	= abstract: Tags tags Visibility visibility Signature signature ";" 
@@ -760,6 +793,7 @@ syntax BasicType
 	| \int: "int"
 	| rational: "rat" 
 	| relation: "rel" 
+	| listRelation: "lrel"
 	| \real: "real" 
 	| \tuple: "tuple" 
 	| string: "str" 
@@ -789,9 +823,9 @@ syntax Prod
 	;
 
 syntax DateTimeLiteral
-	= /*prefer()*/ dateLiteral: JustDate date 
-	| /*prefer()*/ timeLiteral: JustTime time 
-	| /*prefer()*/ dateAndTimeLiteral: DateAndTime dateAndTime ;
+	=  dateLiteral: JustDate date 
+	|  timeLiteral: JustTime time 
+	|  dateAndTimeLiteral: DateAndTime dateAndTime ;
 
 lexical PrePathChars
 	= URLChars "\<" ;
@@ -820,7 +854,7 @@ syntax Pattern
 	| typedVariable       : Type type Name name 
 	| \map                 : "(" {Mapping[Pattern] ","}* mappings ")" 
 	| reifiedType         : "type" "(" Pattern symbol "," Pattern definitions ")" 
-	| callOrTree          : Pattern expression "(" {Pattern ","}* arguments ")" 
+	| callOrTree          : Pattern expression "(" {Pattern ","}* arguments KeywordArguments keywordArguments ")" 
 	> variableBecomes     : Name name ":" Pattern pattern
 	| asType              : "[" Type type "]" Pattern argument 
 	| descendant          : "/" Pattern pattern 
