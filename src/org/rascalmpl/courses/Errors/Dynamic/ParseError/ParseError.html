@@ -87,15 +87,11 @@ ok
 |file://-|: Java compilation failed due to /Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/interpreter/result/DateTimeResult.java:38: cannot find symbol
 symbol  : class Calendar
 location: package com.ibm.icu.util
-[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/JavaCompilation/JavaCompilation.html)
-
 </pre>  But gives an error when parsing an input that it cannot accept:
 <pre class="screen"><span class="prompt">rascal></span>parse(#As, &quot;aaaabaaa&quot;);
 |file://-|: Java compilation failed due to /Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/interpreter/result/DateTimeResult.java:38: cannot find symbol
 symbol  : class Calendar
 location: package com.ibm.icu.util
-[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/JavaCompilation/JavaCompilation.html)
-
 </pre>  We can also catch the ParseError. First import the Rascal exceptions (which are also included in Prelude) and IO:
 <pre class="screen"><span class="prompt">rascal></span>import Exception;
 ok
@@ -105,8 +101,6 @@ ok
 |file://-|: Java compilation failed due to /Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/interpreter/result/DateTimeResult.java:38: cannot find symbol
 symbol  : class Calendar
 location: package com.ibm.icu.util
-[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/JavaCompilation/JavaCompilation.html)
-
 </pre>
 </div>
 

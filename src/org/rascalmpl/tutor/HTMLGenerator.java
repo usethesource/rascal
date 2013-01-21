@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -160,7 +161,7 @@ public class HTMLGenerator {
 			throw new Throw(ShellError.make(values, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch(Throwable e){
-			content.append(throwableMessage(e, eval != null ? ctx.getStackTrace() : ""));
+			content.append(throwableMessage(e, eval != null ? ctx.getStackTrace() : null));
 			content.append('\n');
 			throw new Throw(ShellError.make(values, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
 		}

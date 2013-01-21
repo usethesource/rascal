@@ -516,7 +516,7 @@ private str markupScreen(list[str] lines, bool generatesError){
      }
      catch error(str msg) : {
        codeLines += printShellInput(first);
-       codeLines += markupCode(msg);
+       codeLines += markupCode(stripEmbeddedLink(msg));
        if (!generatesError) {
          addWarning("screen command failed: \"<first>\"");
        }
@@ -533,6 +533,12 @@ private str markupScreen(list[str] lines, bool generatesError){
    codeLines += "\</pre\>";
 
    return replaceAll(codeLines, "\<pre class=\"screen\"\>\</pre\>", "");
+}
+
+private str stripEmbeddedLink(str msg){
+   k = findFirst(msg, "\uE007");
+   
+   return k >= 0 ? msg[..k] : msg; // also consume the \n preceeding the link symbol.
 }
 
 public str limitWidth(str txt, int limit){

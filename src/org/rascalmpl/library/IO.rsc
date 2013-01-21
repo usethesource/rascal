@@ -131,11 +131,11 @@ import IO;
 find("IO.rsc", [|std:///|]);
 </screen>
 }
-public loc find(str name, list[loc] path) throws FileNotFound {
+public loc find(str name, list[loc] path) throws PathNotFound {
   if (dir <- path, f := dir + "/<name>", exists(f)) { 
     return f;
   }
-  throw FileNotFound(name);
+  throw PathNotFound(name);
 }
 
 @doc{

@@ -82,12 +82,8 @@ public class Environment {
 	protected final String name;
 	private Environment myRoot;
 
-	public Environment(String name) {
-		this(null, null, null, null, name);
-	}
-
-	public Environment(Environment parent, String name) {
-		this(parent, null, null, null, name);
+	public Environment(ISourceLocation loc, String name) {
+		this(null, null, null, loc, name);
 	}
 
 	public Environment(Environment parent, ISourceLocation loc, String name) {
@@ -96,6 +92,9 @@ public class Environment {
 
 	public Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, ISourceLocation loc, String name) {
 		this.parent = parent;
+		if(loc == null && !(this instanceof ModuleEnvironment)) {
+			System.err.println("*** Environment created with empty location");
+		}
 		this.loc = loc;
 		this.name = name;
 		this.callerScope = callerScope;

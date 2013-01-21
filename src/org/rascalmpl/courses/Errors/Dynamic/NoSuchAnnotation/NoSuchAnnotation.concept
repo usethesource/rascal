@@ -19,7 +19,7 @@ This error is generated when the value of an annotation is requested but has not
 
 Remedies:
 * Ensure that the annotation value is properly initialized for all relevant parts of the node value. 
-* Use the [Rascal:isDefined] and [Rascal:ifDefinedElse] operators to check whether the annotation value is set and act accordingly.
+* Use the [Rascal:Boolean/isDefined] and [Rascal:Boolean/ifDefinedElse] operators to check whether the annotation value is set and act accordingly.
 * Catch the `NoSuchAnnotation yourself`, see [Rascal:TryCatch].
 
 Examples:

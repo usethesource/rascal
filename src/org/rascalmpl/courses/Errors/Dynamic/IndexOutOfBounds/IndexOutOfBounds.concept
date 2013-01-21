@@ -23,7 +23,7 @@ Remedies:
 * Make your code less dependent on index values. Suggestions:
   ** Use the [Rascal:List/index] to produce all legal indices of a list. 
      Instead of `for(int i <- [0..size(L)]) { ... }` use `for(int i <- index(L)) { ... }`.
-  ** Use list splicing to automate part of the index computation. <warning>ref to doc needed</warning>
+  ** Use a [Rascal:Values/List/Slice] to automate part of the index computation.
 * Catch the `IndexOutOfBounds` yourself, see [Rascal:TryCatch].
 
 

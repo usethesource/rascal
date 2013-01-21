@@ -105,24 +105,16 @@ real: 0.847318545739313442237695301445819365361600242897486018389686
 </pre> This is the same result as obtained in the cited example.
  We can also compute it directly using the <code>tTest</code> functions:
 <pre class="screen"><span class="prompt">rascal></span>import analysis::statistics::Inference;
-|std:///analysis/statistics/Inference.rsc|(324,831,&lt;10,0>,&lt;29,74>): No such Java method: org.rascalmpl.library.analysis.statistics.Inferences.chiSquare(org.eclipse.imp.pdb.facts.IListRelation)
-[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredJavaMethod/UndeclaredJavaMethod.html)
-
+ok
 <span class="prompt">rascal></span>tTest(s1, s2);
-|stdin:///|(0,5,&lt;1,0>,&lt;1,5>): Undeclared variable: tTest
-[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
-
+num: 0.4115203997374087
 </pre>  Observe that this is a smaller value than comes out directly of the formula.
   Recall that: <i>The number returned is the smallest significance level at which one can reject the null hypothesis that the two means are equal in favor of the two-sided alternative that they are different.</i>
   Finally, we perform the test around the significance level we just obtained:
 <pre class="screen"><span class="prompt">rascal></span>tTest(s1,s2,0.40);
-|stdin:///|(0,5,&lt;1,0>,&lt;1,5>): Undeclared variable: tTest
-[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
-
+bool: false
 <span class="prompt">rascal></span>tTest(s1,s2,0.50);
-|stdin:///|(0,5,&lt;1,0>,&lt;1,5>): Undeclared variable: tTest
-[☞ Advice](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html)
-
+bool: true
 </pre>
 </div>
 
@@ -132,7 +124,7 @@ real: 0.847318545739313442237695301445819365361600242897486018389686
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/analysis/statistics/Inference/tTest&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/analysis/statistics/Inference/tTest&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 4 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

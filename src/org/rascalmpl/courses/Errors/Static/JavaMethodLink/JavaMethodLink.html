@@ -80,16 +80,12 @@ int (list[&amp;T]): int size(list[&amp;T]);
  <pre class="screen"><span class="prompt">rascal></span>@javaClass{org.rascalmpl.library.Preludexxx}
 <span class="continuation">>>>>>>></span>public java int size(list[&amp;T] lst);
 |stdin:///|(0,80,&lt;1,0>,&lt;2,35>): Cannot link method org.rascalmpl.library.Preludexxx because: class not found
-[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)
-
 </pre> The same error message is generated if the function declaration contains a body:
  <pre class="screen"><span class="prompt">rascal></span>@javaClass{org.rascalmpl.library.Preludexxx}
 <span class="continuation">>>>>>>></span>public java int size(list[&amp;T] lst){
 <span class="continuation">>>>>>>></span>  return 0;
 <span class="continuation">>>>>>>></span>}
 |stdin:///|(0,94,&lt;1,0>,&lt;4,1>): Java function has a body
-[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/NonAbstractJavaFunction/NonAbstractJavaFunction.html)
-
 </pre>
 </div>
 

@@ -74,7 +74,7 @@
  <ul><li> Guard the subscription with a test that the index is within bounds.</li>
 <li> Make your code less dependent on index values. Suggestions: <ul><li> Use the <a href="/Rascal/Libraries/Prelude/List/index/index.html">Rascal:List/index</a> to produce all legal indices of a list.       Instead of <code>for(int i &lt;- [0..size(L)]) { ... }</code> use <code>for(int i &lt;- index(L)) { ... }</code>.
 </li>
-<li> Use list splicing to automate part of the index computation. <warning>ref to doc needed</warning></li>
+<li> Use a <a href="/Rascal/Expressions/Values/List/Slice/Slice.html">Rascal:Values/List/Slice</a> to automate part of the index computation.</li>
 </ul></li>
 <li> Catch the <code>IndexOutOfBounds</code> yourself, see <a href="/Rascal/Statements/TryCatch/TryCatch.html">Rascal:TryCatch</a>.</li>
 </ul>

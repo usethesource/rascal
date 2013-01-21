@@ -13,7 +13,7 @@ Usage:
 Details:
 
 Description:
-An [Rascal:Annotation] cn be used to add information to an instance of an [Rascal:AlgebraicDataType].
+An [Rascal:Declarations/Annotation] can be used to add information to an instance of an [Rascal:AlgebraicDataType].
 An annotation has to declared beforehand. This error is generated when an undeclared annotation is used.
 
 Remedies:

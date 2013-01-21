@@ -79,8 +79,8 @@ ok
 list[int]: [20,30]
 </pre>  Try an error case:
 <pre class="screen"><span class="prompt">rascal></span>tail([]);
-|std:///List.rsc|(25348,941,&lt;1239,0>,&lt;1283,40>): EmptyList()
-	/List.rsc:1239,0
+|std:///List.rsc|(25111,941,&lt;1237,0>,&lt;1281,40>): EmptyList()
+	/List.rsc:1237,0
 	somewhere in: tail
 
 
@@ -89,8 +89,8 @@ list[int]: [20,30]
 list[int]: [40,50,60]
 </pre>  Try an error case:
 <pre class="screen"><span class="prompt">rascal></span>tail([10, 20, 30, 40, 50, 60], 10);
-|std:///List.rsc|(26292,120,&lt;1285,0>,&lt;1286,78>): IndexOutOfBounds(4)
-	/List.rsc:1285,0
+|std:///List.rsc|(26055,120,&lt;1283,0>,&lt;1284,78>): IndexOutOfBounds(4)
+	/List.rsc:1283,0
 	somewhere in: tail
 
 
@@ -123,14 +123,14 @@ list[int]: [40,50,60]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_2" value="0@2@[2,0,3]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_2" value="0@2@[2,3,0]">
 <label for="Rascal/Libraries/Prelude/List/tail_1_2">N elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_0" value="1@0@[2,0,3]">
-<label for="Rascal/Libraries/Prelude/List/tail_1_0">M elements. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_3" value="2@3@[2,0,3]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_3" value="1@3@[2,3,0]">
 <label for="Rascal/Libraries/Prelude/List/tail_1_3">N * M elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_0" value="2@0@[2,3,0]">
+<label for="Rascal/Libraries/Prelude/List/tail_1_0">M elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -154,9 +154,9 @@ list[int]: [40,50,60]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_tail_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_2:L" value="[false, true, true, false]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_tail_2:N" value="0">
-The type of <tt>tail([false, true, true, false], 0)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_tail_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_2:L" value="[3, 7, -19, 0]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_tail_2:N" value="2">
+The type of <tt>tail([3, 7, -19, 0], 2)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_tail_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -180,9 +180,9 @@ The type of <tt>tail([false, true, true, false], 0)</tt> is <input type="text" s
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_tail_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:L" value="[true, true, false, true]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:N" value="0">
-<pre class="prequestion">tail([true, true, false, true],0) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_tail_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:L" value="[&quot;Redcurrant&quot;, &quot;Redcurrant&quot;, &quot;Cinnamon&quot;, &quot;C-3PO&quot;, &quot;Luke Skywalker&quot;]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:N" value="2">
+<pre class="prequestion">tail([&quot;Redcurrant&quot;, &quot;Redcurrant&quot;, &quot;Cinnamon&quot;, &quot;C-3PO&quot;, &quot;Luke Skywalker&quot;],2) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_tail_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:another" value="yes">

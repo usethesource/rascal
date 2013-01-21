@@ -65,7 +65,6 @@
 
 <div id="Description">
 <span class="sectionHead">Description</span>  Returns a sublist of <code>lst</code> from index <code>start</code> of length <code>len</code>.
- Sublists can more easily be obtained using <span class="inlineError">unknown: Rascal:List/Slicing</span>.
 
 </div>
 
@@ -76,11 +75,6 @@ ok
 <span class="prompt">rascal></span>slice([10, 20, 30, 40, 50, 60], 2, 3);
 list[int]: [30,40,50]
 <span class="prompt">rascal></span>slice([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;], 1, 2);
-list[str]: ["elephant","snake"]
-</pre>  The same examples using list slicing (note the use of an exclusive end index instead of a length):
-<pre class="screen"><span class="prompt">rascal></span>[10, 20, 30, 40, 50, 60][2..5];
-list[int]: [30,40,50]
-<span class="prompt">rascal></span>[&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;][1..3];
 list[str]: ["elephant","snake"]
 </pre>
 </div>
@@ -111,16 +105,19 @@ list[str]: ["elephant","snake"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_4" value="0@4@[4,1,2,0]">
-<label for="Rascal/Libraries/Prelude/List/slice_1_4">B - 1 elements. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_1" value="1@1@[4,1,2,0]">
-<label for="Rascal/Libraries/Prelude/List/slice_1_1">B elements. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_2" value="2@2@[4,1,2,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_2" value="0@2@[2,4,1,3,0]">
 <label for="Rascal/Libraries/Prelude/List/slice_1_2">B + N elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_0" value="3@0@[4,1,2,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_4" value="1@4@[2,4,1,3,0]">
+<label for="Rascal/Libraries/Prelude/List/slice_1_4">B - 1 elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_1" value="2@1@[2,4,1,3,0]">
+<label for="Rascal/Libraries/Prelude/List/slice_1_1">B elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_3" value="3@3@[2,4,1,3,0]">
+<label for="Rascal/Libraries/Prelude/List/slice_1_3">N - 1 elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_0" value="4@0@[2,4,1,3,0]">
 <label for="Rascal/Libraries/Prelude/List/slice_1_0">N elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
@@ -145,10 +142,10 @@ list[str]: ["elephant","snake"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_slice_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:L" value="[&quot;Dill&quot;, &quot;Parsley&quot;, &quot;V&quot;]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:B" value="0">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:L" value="[&quot;Jar Jar Binks&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Jabba the Hut&quot;, &quot;Grape&quot;, &quot;Barkley the Dog&quot;]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:B" value="1">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:E" value="3">
-The type of <tt>slice([&quot;Dill&quot;, &quot;Parsley&quot;, &quot;V&quot;],0,3)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_2:answer" class="answerText"><br/>
+The type of <tt>slice([&quot;Jar Jar Binks&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Jabba the Hut&quot;, &quot;Grape&quot;, &quot;Barkley the Dog&quot;],1,3)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -172,10 +169,10 @@ The type of <tt>slice([&quot;Dill&quot;, &quot;Parsley&quot;, &quot;V&quot;],0,3
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_slice_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:L" value="[&quot;Guava&quot;, &quot;Anakin Skywalker&quot;, &quot;Dill&quot;]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:L" value="[-2, 9, -6, 6]">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:B" value="0">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:E" value="3">
-<pre class="prequestion">slice([&quot;Guava&quot;, &quot;Anakin Skywalker&quot;, &quot;Dill&quot;],0,3) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_3:answer" class="answerText"></pre>
+<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:E" value="2">
+<pre class="prequestion">slice([-2, 9, -6, 6],0,2) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:another" value="yes">
@@ -193,7 +190,7 @@ The type of <tt>slice([&quot;Dill&quot;, &quot;Parsley&quot;, &quot;V&quot;],0,3
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/List/slice&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/List/slice&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -13,7 +13,7 @@ Usage:
 Details:
 
 Description:
-Various operators like [Rascal:Composition], [Rascal:TransitiveClosure] and [Rascal:ReflexiveTransitiveClosure] 
+Various operators like [Rascal:Relation/Composition], [Rascal:Relation/TransitiveClosure] and [Rascal:Relation/ReflexiveTransitiveClosure] 
 expect binary relations or tuples as arguments.
 
 Examples:

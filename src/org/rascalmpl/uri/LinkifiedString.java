@@ -54,7 +54,7 @@ public class LinkifiedString {
 			+ ")"
 			+ "|"
 			+ "(" // or the other alternative, any rascal location 
-				+ "\\|[^\\t-\\n\\r\\ \\<\\|]*://[^\\t-\\n\\r\\ \\<\\|]*\\|" // |location|
+				+ "\\|[^\\t-\\n\\r\\s\\|]*://[^\\t-\\n\\r\\s\\|]*\\|" // |location|
 				+ "(?:\\([^\\)]*\\))?" // (optional offset)
 			+ ")");
 	

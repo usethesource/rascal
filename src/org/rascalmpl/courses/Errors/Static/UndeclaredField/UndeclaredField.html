@@ -53,7 +53,7 @@
                            
                            
 <div id="Description">
-<span class="sectionHead">Description</span>  Fields of <a href="/Rascal/Expressions/Values/Tuple/Tuple.html">Rascal:Tuple</a> (hence also of <a href="/Rascal/Expressions/Values/Relation/Relation.html">Rascal:Relation</a> and <span class="inlineError">unknown: Rascal:Values/ListRelation</span>)
+<span class="sectionHead">Description</span>  Fields of <a href="/Rascal/Expressions/Values/Tuple/Tuple.html">Rascal:Tuple</a> (hence also of <a href="/Rascal/Expressions/Values/Relation/Relation.html">Rascal:Relation</a> and <a href="/Rascal/Expressions/Values/ListRelation/ListRelation.html">Rascal:ListRelation</a>)
  and constructors of <a href="/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">Rascal:AlgebraicDataType</a>s may have names.
  This error is generated when a reference is made to an undeclared field.
  <br/>
@@ -72,8 +72,6 @@
 tuple[str name,int age]: &lt;"Jo",33>
 <span class="prompt">rascal></span>Jo.gender;
 |stdin:///|(0,2,&lt;1,0>,&lt;1,2>): Undeclared field: gender for tuple[str name,int age]
-[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredField/UndeclaredField.html)
-
 </pre> A similar example now expressed as ADT:
  <pre class="screen"><span class="prompt">rascal></span>data Person = person(str name, int age);
 ok
@@ -81,8 +79,6 @@ ok
 Person: person("Jo",33)
 <span class="prompt">rascal></span>jo.gender;
 |stdin:///|(0,2,&lt;1,0>,&lt;1,2>): Undeclared field: gender for Person
-[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/UndeclaredField/UndeclaredField.html)
-
 </pre>
 </div>
 
@@ -92,7 +88,7 @@ Person: person("Jo",33)
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Static/UndeclaredField&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Static/UndeclaredField&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Errors/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Errors/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

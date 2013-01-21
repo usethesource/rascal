@@ -16,7 +16,7 @@ Rascal provides many operations and functions on maps, see [Rascal:Values/Map] a
 This error is generated when a function or operation cannot find a requested key value in a map.
 
 Remedies: 
-* Use the [Rascal:IsDefined] or [Rascal:IfDefinedElse] operator to guard a lookup in a map.
+* Use the [Rascal:Boolean/IsDefined] or [Rascal:Boolean/IfDefinedElse] operator to guard a lookup in a map.
 * Catch the `NoSuchKey` yourself, see [Rascal:TryCatch].
 
 Examples:

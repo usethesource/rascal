@@ -7,7 +7,7 @@ Synopsis: Library functions for relations.
 
 Description:
 
-Operations on Relations are describing in [Values/Relation].
+Operations on Relations are described in [Values/Relation].
 All operations on [Values/Set] are also applicable to relations.
 
 The following functions are provided on relations:

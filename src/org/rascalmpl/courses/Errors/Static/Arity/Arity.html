@@ -53,7 +53,7 @@
                            
                            
 <div id="Description">
-<span class="sectionHead">Description</span>  Various operators like <span class="inlineError">ambiguous: Rascal:Composition</span>, <a href="/Rascal/Expressions/Values/Relation/TransitiveClosure/TransitiveClosure.html">Rascal:TransitiveClosure</a> and <a href="/Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.html">Rascal:ReflexiveTransitiveClosure</a> 
+<span class="sectionHead">Description</span>  Various operators like <a href="/Rascal/Expressions/Values/Relation/Composition/Composition.html">Rascal:Relation/Composition</a>, <a href="/Rascal/Expressions/Values/Relation/TransitiveClosure/TransitiveClosure.html">Rascal:Relation/TransitiveClosure</a> and <a href="/Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.html">Rascal:Relation/ReflexiveTransitiveClosure</a> 
  expect binary relations or tuples as arguments.
 
 </div>
@@ -69,8 +69,6 @@ rel[int, int]: {
 </pre> This is not, since the first argument has arity 3:
  <pre class="screen"><span class="prompt">rascal></span>{&lt;1,5,10&gt;, &lt;2,6,20&gt;} o {&lt;10,100&gt;, &lt;20, 200&gt;};
 |stdin:///|(39,3,&lt;1,39>,&lt;1,42>): Expected arity : 2, unequal to 3
-[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/Arity/Arity.html)
-
 </pre> These transitive closures are correct:
  <pre class="screen"><span class="prompt">rascal></span>{&lt;1,2&gt;, &lt;2,3&gt;,&lt;4,5&gt;}+
 rel[int, int]: {
@@ -94,12 +92,8 @@ rel[int, int]: {
 </pre> But these are incorrect:
  <pre class="screen"><span class="prompt">rascal></span>{&lt;1,2,3&gt;, &lt;2,3,4&gt;,&lt;4,5,6&gt;}+
 |stdin:///|(23,1,&lt;1,23>,&lt;1,24>): Expected arity : 2, unequal to 3
-[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/Arity/Arity.html)
-
 <span class="prompt">rascal></span>{&lt;1,2,3&gt;, &lt;2,3,4&gt;,&lt;4,5,6&gt;}*
 |stdin:///|(23,1,&lt;1,23>,&lt;1,24>): Expected arity : 2, unequal to 3
-[☞ Advice ☜](http://tutor.rascal-mpl.org/Errors/Static/Arity/Arity.html)
-
 </pre>
 </div>
 
@@ -109,7 +103,7 @@ rel[int, int]: {
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Static/Arity&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Static/Arity&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Errors/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Errors/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

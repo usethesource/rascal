@@ -36,7 +36,7 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	/** for error messaging */
 	public AbstractAST getCurrentAST();
 	public void setCurrentAST(AbstractAST ast);
-	public String getStackTrace();
+	public StackTrace getStackTrace();
 	
 	/** for standard IO */
 	public PrintWriter getStdOut();

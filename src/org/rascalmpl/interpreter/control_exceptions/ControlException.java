@@ -33,6 +33,7 @@ public class ControlException extends RuntimeException {
 		super(cause);
 	}
 	
+	@SuppressWarnings("sync-override")
 	@Override
 	public Throwable fillInStackTrace(){
 		return null;
