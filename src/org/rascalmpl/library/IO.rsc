@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -131,11 +131,11 @@ import IO;
 find("IO.rsc", [|std:///|]);
 </screen>
 }
-public loc find(str name, list[loc] path) throws FileNotFound {
+public loc find(str name, list[loc] path) throws PathNotFound {
   if (dir <- path, f := dir + "/<name>", exists(f)) { 
     return f;
   }
-  throw FileNotFound(name);
+  throw PathNotFound(name);
 }
 
 @doc{

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
@@ -166,7 +166,7 @@ public class Eval {
 				if (expected != null) {
 					Type typ = tr.valueToType((IConstructor) expected);
 					if (!result.getType().isSubtypeOf(typ)) {
-						throw new UnexpectedTypeError(typ, result.getType(), ctx.getCurrentAST());
+						throw new UnexpectedType(typ, result.getType(), ctx.getCurrentAST());
 					}
 				}
 				return result;
@@ -179,7 +179,7 @@ public class Eval {
 		}
 		catch (StaticError e) {
 			if (forRascal)
-				throw new Throw(Exception_StaticError.make(values, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, (String) null);
+				throw new Throw(Exception_StaticError.make(values, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, ctx.getStackTrace());
 			throw e;
 		} catch (URISyntaxException e) {
 			// this should never happen

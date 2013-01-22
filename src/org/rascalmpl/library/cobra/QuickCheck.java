@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,10 +18,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -29,6 +31,8 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.FunctionType;
 
 public class QuickCheck {
+	
+	private final String EXPECT_TAG = "expected";
 
 	private static class InstanceHolder {
 		public static final QuickCheck sInstance = new QuickCheck();
@@ -74,6 +78,12 @@ public class QuickCheck {
 		Environment declEnv = function.getEnv();
 		IValueFactory vf = function.getEval().getValueFactory();
 		Type formals = function.getFormals();
+		String expected = null;
+		
+		if(function.hasTag(EXPECT_TAG)){
+			expected = function.getTag(EXPECT_TAG);
+		}
+		
 
 		Type[] types = new Type[formals.getArity()];
 		IValue[] values = new IValue[formals.getArity()];
@@ -95,7 +105,7 @@ public class QuickCheck {
 			for (int n = 0; n < formals.getArity(); n++) {
 				values[n] = arbitrary(types[n], maxDepth, declEnv.getRoot(), vf, tpbindings);
 			}
-
+			boolean expectedThrown = false;
 			try {
 				IValue result = function.call(types, values, null).getValue();
 				if (!((IBool) result).getValue()) {
@@ -108,15 +118,21 @@ public class QuickCheck {
 				} else if (verbose && formals.getArity() > 0) {
 					out.println((i + 1) + ": Checked with " + Arrays.toString(values) + ": true");
 				}
-			} catch (Throwable e) {
-				out.println("Failed due to\n\t" + e.getMessage() + "\n" + (formals.getArity() > 0 ? "with ": ""));
-				for (IValue arg : values) {
-					out.println("\t" + arg.getType() + ": " + arg);
+			} catch (Throw e){
+				if(expected == null || !((IConstructor)e.getException()).getName().equals(expected)){
+					return reportFailed(e.getMessage(), formals, values, out);
 				}
-				out.println();
-				return false;
+				expectedThrown = true;
 			}
-
+			catch (Throwable e) {
+				if(expected == null || !e.getClass().toString().endsWith("." + expected)){
+					return reportFailed(e.getMessage(), formals, values, out);
+				}
+				expectedThrown = true;
+			}
+			if(expected != null && !expectedThrown){
+				return reportMissingException(expected, out);
+			}
 		}
 
 		out.println(formals.getArity() > 0 ? "Not refuted after " + tries + " tries with maximum depth " + maxDepth
@@ -124,6 +140,20 @@ public class QuickCheck {
 
 		return true;
 
+	}
+	
+	private boolean reportFailed(String msg, Type formals, IValue[] values, PrintWriter out){
+		out.println("Failed due to\n\t" + msg + "\n" + (formals.getArity() > 0 ? "with ": ""));
+		for (IValue arg : values) {
+			out.println("\t" + arg.getType() + ": " + arg);
+		}
+		out.println();
+		return false;
+	}
+	
+	private boolean reportMissingException(String msg, PrintWriter out){
+		out.println("Failed due to\n\tmissing exception: " + msg + "\n");
+		return false;
 	}
 
 	public void resetGenerator(IValue type) {

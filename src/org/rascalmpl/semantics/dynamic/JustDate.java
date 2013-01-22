@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,12 +18,13 @@ import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
+import org.rascalmpl.interpreter.staticErrors.DateTimeSyntax;
 
 public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 
@@ -48,7 +49,9 @@ public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 				IValue result = parser.read(VF, new StringReader("$" + datePart));
 				return makeResult(TF.dateTimeType(), result, eval);
 			} catch (FactTypeUseException e) {
-				throw new DateTimeParseError(e.getMessage(), eval.getCurrentAST().getLocation());
+				throw new DateTimeSyntax(e.getMessage(), eval.getCurrentAST().getLocation());
+			} catch (FactParseError e) {
+					throw new DateTimeSyntax(e.getMessage(), eval.getCurrentAST().getLocation());
 			} catch (IOException e) {
 				throw new ImplementationError(e.getMessage());
 			}

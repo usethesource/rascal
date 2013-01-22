@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,7 +45,7 @@ public class Compile extends TutorHttpServlet {
 			out.println(escapeForHtml(e.getMessage()));
 			e.printStackTrace(out);
 			out.println("Rascal stacktrace:");
-			out.println(escapeForHtml(evaluator.getStackTrace()));
+			out.println(escapeForHtml(evaluator.getStackTrace().toString()));
 		}
 		finally {
 			out.close();

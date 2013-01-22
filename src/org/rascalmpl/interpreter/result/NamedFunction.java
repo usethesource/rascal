@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,9 +31,9 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.env.Pair;
-import org.rascalmpl.interpreter.staticErrors.NoKeywordParametersError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameterError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentTypeError;
+import org.rascalmpl.interpreter.staticErrors.NoKeywordParameters;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.types.FunctionType;
 
 abstract public class NamedFunction extends AbstractFunction {
@@ -96,7 +96,7 @@ abstract public class NamedFunction extends AbstractFunction {
 				keywordParameterTypes[i] = kwf.getType().typeOf(eval.getCurrentEnvt());
 				Result<IValue> r = kwf.getExpression().interpret(this.eval);
 				if(!r.getType().isSubtypeOf(keywordParameterTypes[i])){
-					throw new UnexpectedKeywordArgumentTypeError(kwf.getName().toString(), keywordParameterTypes[i], r.getType(), ast);
+					throw new UnexpectedKeywordArgumentType(kwf.getName().toString(), keywordParameterTypes[i], r.getType(), ast);
 				}
 				kwdefaults.add(new KeywordParameter(kwf.getName().toString(), keywordParameterTypes[i], r));
 			}
@@ -125,7 +125,7 @@ abstract public class NamedFunction extends AbstractFunction {
 			return;
 		}
 		if(keywordParameterDefaults == null)
-			throw new NoKeywordParametersError(getName(), ctx.getCurrentAST());
+			throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
 		
 		int nBoundKeywordArgs = 0;
 		int k = 0;
@@ -135,7 +135,7 @@ abstract public class NamedFunction extends AbstractFunction {
 				nBoundKeywordArgs++;
 				Result<IValue> r = keyArgValues.get(kwparam);
 				if(!r.getType().isSubtypeOf(keywordParameterTypes[k])){
-					throw new UnexpectedKeywordArgumentTypeError(kwparam, keywordParameterTypes[k], r.getType(), ctx.getCurrentAST());
+					throw new UnexpectedKeywordArgumentType(kwparam, keywordParameterTypes[k], r.getType(), ctx.getCurrentAST());
 				}
 				env.declareVariable(r.getType(), kwparam);
 				env.storeVariable(kwparam, r);
@@ -152,7 +152,7 @@ abstract public class NamedFunction extends AbstractFunction {
 				for(KeywordParameter kw : keywordParameterDefaults){
 					if(kwparam.equals(kw.getName()))
 							continue main;
-					throw new UndeclaredKeywordParameterError(getName(), kwparam, ctx.getCurrentAST());
+					throw new UndeclaredKeywordParameter(getName(), kwparam, ctx.getCurrentAST());
 				}
 		}
 	}

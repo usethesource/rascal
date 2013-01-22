@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,8 +29,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ElementResult<T extends IValue> extends Result<T> {
@@ -139,10 +139,10 @@ public class ElementResult<T extends IValue> extends Result<T> {
 
 		if (getType() != getTypeFactory().nodeType()) {
 			if (getType() != getTypeFactory().nodeType() && annoType == null) {
-				throw new UndeclaredAnnotationError(annoName, getType(), ctx.getCurrentAST());
+				throw new UndeclaredAnnotation(annoName, getType(), ctx.getCurrentAST());
 			}
 			if (!anno.getType().isSubtypeOf(annoType)){
-				throw new UnexpectedTypeError(annoType, anno.getType(), ctx.getCurrentAST());
+				throw new UnexpectedType(annoType, anno.getType(), ctx.getCurrentAST());
 			}
 		}
 
@@ -189,7 +189,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	private int getInt(Result<?> x){
 		Result<IValue> key = (Result<IValue>) x;
 		if (!key.getType().isIntegerType()) {
-			throw new UnexpectedTypeError(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
 		}
 		return ((IInteger)key.getValue()).intValue();
 	}
@@ -219,6 +219,12 @@ public class ElementResult<T extends IValue> extends Result<T> {
 			secondIndex = getInt(second);
 			if(secondIndex < 0)
 				secondIndex += len;
+			if(!(first == null && end == null)){
+				if(first == null && secondIndex > endIndex)
+					firstIndex = len - 1;
+				if(end == null && secondIndex < firstIndex)
+					endIndex = -1;
+			}
 		}
 		
 		if (len == 0) {

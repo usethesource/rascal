@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,7 +77,7 @@ public class GuardedPattern extends AbstractMatchingResult {
 			pat.initMatch(subject);
 			// this code triggers during a visit which might encounter other stuff that would never match
 //			if (!mayMatch(pat.getType(env), type)) {
-//				throw new UnexpectedTypeError(pat.getType(env), type, ctx.getCurrentAST());
+//				throw new UnexpectedType(pat.getType(env), type, ctx.getCurrentAST());
 //			}
 			this.hasNext = pat.getType(env, null).equivalent(type);
 		}

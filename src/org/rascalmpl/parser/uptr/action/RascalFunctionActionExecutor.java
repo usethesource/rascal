@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@ import org.rascalmpl.interpreter.control_exceptions.Filtered;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
+import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
@@ -116,7 +116,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 				
 				return (IConstructor) result.getValue();
 			}
-			catch (ArgumentsMismatchError e) {
+			catch (ArgumentsMismatch e) {
 				return ambCluster;
 			}
 		}
@@ -205,7 +205,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 			}
 			
 			return function.call(types, actuals, null);
-		}catch(ArgumentsMismatchError e){
+		}catch(ArgumentsMismatch e){
 //			e.printStackTrace();
 			return null;
 		}catch(Failure f){

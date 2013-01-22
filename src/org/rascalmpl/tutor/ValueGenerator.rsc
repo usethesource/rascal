@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -74,6 +74,7 @@ public RascalType parseType(str txt){
      case /^tuple\[<ets:.+>\]$/:	return \tuple(parseTypeList(ets));
      					
      case /^rel\[<ets:.+>\]$/:		return \set(\tuple(parseTypeList(ets)), minSize, maxSize);
+     case /^lrel\[<ets:.+>\]$/:		return \list(\tuple(parseTypeList(ets)), minSize, maxSize);
      case /^value$/: 				return \value();
      case /^void$/:					return \void();
      					
@@ -160,6 +161,8 @@ public str toString(RascalType t){
        								return "tuple[<for(i<-index(ets)){><(i>0)?",":""><toString(ets[i])><}>]";
        case \rel(list[RascalType] ets):	
        								return "rel[<for(i<-index(ets)){><(i>0)?",":""><toString(ets[i])><}>]";
+       case \lrel(list[RascalType] ets):	
+       								return "lrel[<for(i<-index(ets)){><(i>0)?",":""><toString(ets[i])><}>]";
        case \value():				return "value";
        case \void():				return "void";
      }
@@ -186,12 +189,12 @@ public RascalType generateType(RascalType t, VarEnv env){
        case \list(RascalType et, int f, int t): 	return \list(generateType(et, env), f, t);
        case \set(RascalType et,  int f, int t):		return \set(generateType(et, env), f, t);
        case \map(RascalType kt, RascalType vt):  	return \map(generateType(kt, env), generateType(vt, env));
-       case \tuple(list[RascalType] ets):	return generateTupleType(ets, env);
-       case \rel(list[RascalType] ets):		return generateRelType(ets, env);
-       case \arb(int d, list[RascalType] tps):
-       										return generateArbType(d, tps, env);
-       case \same(str name):				return env[name].rtype;
-       default:								return t;
+       case \tuple(list[RascalType] ets):			return generateTupleType(ets, env);
+       case \rel(list[RascalType] ets):				return generateRelType(ets, env);
+       case \lrel(list[RascalType] ets):			return generateLRelType(ets, env);
+       case \arb(int d, list[RascalType] tps):		return generateArbType(d, tps, env);
+       case \same(str name):						return env[name].rtype;
+       default:										return t;
      }
      throw "Unknown type: <t>";
 }
@@ -214,6 +217,10 @@ public RascalType generateTupleType(list[RascalType] ets, VarEnv env){
 
 public RascalType generateRelType(list[RascalType] ets, VarEnv env){
    return \rel([generateType(et, env) | et <- ets ]);
+}
+
+public RascalType generateRelType(list[RascalType] ets, VarEnv env){
+   return \lrel([generateTyLpe(et, env) | et <- ets ]);
 }
 
 /*
@@ -274,6 +281,8 @@ public str generateValue(RascalType tp, VarEnv env){
        								return generateTuple(ets, env);
        case \rel(list[RascalType] ets):	
        								return generateSet(\tuple(ets), minSize, maxSize, env);
+       case \lrel(list[RascalType] ets):	
+       								return generateList(\tuple(ets), minSize, maxSize, env);
        case \value():				return generateArb(0, baseTypes, env);
        case \arb(d, tps):   		return generateArb(d, tps, env);
        case \same(name):			return generateValue(env[name].rtype, env);
@@ -431,6 +440,10 @@ public str generateTuple(list[RascalType] ets, VarEnv env){
 }
 
 public str generateRel(list[RascalType] ets, VarEnv env){
+   return "\<<for(int i <- [0 .. size(elts)]){><(i==0)?"":", "><generateValue(ets[i], env)><}>\>";
+}
+
+public str generateLRel(list[RascalType] ets, VarEnv env){
    return "\<<for(int i <- [0 .. size(elts)]){><(i==0)?"":", "><generateValue(ets[i], env)><}>\>";
 }
 

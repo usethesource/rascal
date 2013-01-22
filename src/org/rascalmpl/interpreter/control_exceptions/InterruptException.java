@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,15 +12,24 @@
 package org.rascalmpl.interpreter.control_exceptions;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.StackTrace;
 
 public class InterruptException extends ControlException {
 	private static final long serialVersionUID = -6244185056015873062L;
-	private final String stackTrace;
+	private final StackTrace stackTrace;
 	private final ISourceLocation loc;
+	private final String message;
 	
-	public InterruptException(String stackTrace, ISourceLocation loc) {
+	public InterruptException(StackTrace stackTrace, ISourceLocation loc) {
 		this.stackTrace = stackTrace;
 		this.loc = loc;
+		this.message = null;
+	}
+
+	public InterruptException(String message, ISourceLocation loc) {
+		this.stackTrace = null;
+		this.loc = loc;
+		this.message = message;
 	}
 
 	@Override
@@ -28,7 +37,7 @@ public class InterruptException extends ControlException {
 		return toString();
 	}
 	
-	public String getRascalStackTrace() {
+	public StackTrace getRascalStackTrace() {
 		return stackTrace;
 	}
 	
@@ -38,6 +47,13 @@ public class InterruptException extends ControlException {
 	
 	@Override
 	public String toString() {
-		return "interrupted" + ((stackTrace != null && stackTrace.length() != 0) ? (": " + stackTrace) : "");
+		String str = "interrupted";
+		if(message != null) {
+			str += ": " + message;
+		}
+		if(stackTrace != null) {
+			str += ":\n" + stackTrace.toString();
+		}
+		return str;
 	}
 }

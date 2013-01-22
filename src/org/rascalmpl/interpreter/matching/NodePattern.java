@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,7 +35,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatchError;
+import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.utils.Names;
 
 public class NodePattern extends AbstractMatchingResult {
@@ -82,7 +82,7 @@ public class NodePattern extends AbstractMatchingResult {
 		super.initMatch(subject);
 		hasNext = false;
 		if(subject.isVoid()) 
-			throw new UninitializedPatternMatchError("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
+			throw new UninitializedPatternMatch("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
 
 		if (!subject.getValue().getType().isNodeType()) {
 			return;
@@ -402,7 +402,7 @@ public class NodePattern extends AbstractMatchingResult {
 //	@Override
 //	public void initMatch(Result<IValue> subject) {
 //		if(subject.isVoid()) 
-//			throw new UninitializedPatternMatchError("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
+//			throw new UninitializedPatternMatch("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
 //		if (!subject.getValue().getType().isNodeType()) {
 //			hasNext = false;
 //			return;

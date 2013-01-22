@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,7 +38,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.result.SourceLocationResult;
-import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
+import org.rascalmpl.interpreter.staticErrors.ModuleImport;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleProvider;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -194,7 +194,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				
 				return name;
 			}
-			catch (ModuleLoadError e) {
+			catch (ModuleImport e) {
 				// when a module does not load, the import should not fail here, rather it will fail when we evaluate the module
 				return null;
 			}
@@ -234,7 +234,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 					}
 				}
 			}
-			catch (ModuleLoadError e) {
+			catch (ModuleImport e) {
 				// when a module does not load, the import should not fail here, rather it will fail when we evaluate the module
 				return null;
 			}

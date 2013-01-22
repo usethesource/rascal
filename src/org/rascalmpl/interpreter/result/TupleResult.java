@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,10 +26,10 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscript;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -67,7 +67,7 @@ public class TupleResult extends ElementResult<ITuple> {
 				try {
 					fieldIndices[i] = baseType.getFieldIndex(fieldName);
 				} catch (UndeclaredFieldException e) {
-					throw new UndeclaredFieldError(fieldName, baseType,
+					throw new UndeclaredField(fieldName, baseType,
 							ctx.getCurrentAST());
 				}
 			}
@@ -90,11 +90,11 @@ public class TupleResult extends ElementResult<ITuple> {
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 			if (!getType().hasFieldNames()) {
-				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 			
 			if (!getType().hasField(name, store)) {
-				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 			
 			try {
@@ -103,25 +103,25 @@ public class TupleResult extends ElementResult<ITuple> {
 				return makeResult(type, getValue().get(index), ctx);
 			} 
 			catch (UndeclaredFieldException e){
-				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 	}
 		
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		if (!getType().hasFieldNames()) {
-			throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+			throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 		}
 
 		try {
 			int index = getType().getFieldIndex(name);
 			Type type = getType().getFieldType(index);
 			if(!type.isSubtypeOf(repl.getType())){
-				throw new UnexpectedTypeError(type, repl.getType(), ctx.getCurrentAST());
+				throw new UnexpectedType(type, repl.getType(), ctx.getCurrentAST());
 			}
 			return makeResult(getType(), getValue().set(index, repl.getValue()), ctx);
 		} catch (UndeclaredFieldException e) {
-			throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+			throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 		}
 	}
 	
@@ -129,24 +129,28 @@ public class TupleResult extends ElementResult<ITuple> {
 	@SuppressWarnings("unchecked")
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length > 1) {
-			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> subsBase = (Result<IValue>)subscripts[0];
 		if(subsBase == null)
 			/*
 			 * Wild card not allowed as tuple subscript
 			 */
-			throw new UnsupportedSubscriptError(type, null, ctx.getCurrentAST());
+			throw new UnsupportedSubscript(type, null, ctx.getCurrentAST());
 		if (!subsBase.getType().isIntegerType()){
-			throw new UnsupportedSubscriptError(getTypeFactory().integerType(), subsBase.getType(), ctx.getCurrentAST());
+			throw new UnsupportedSubscript(getTypeFactory().integerType(), subsBase.getType(), ctx.getCurrentAST());
 		}
 		IInteger index = (IInteger)subsBase.getValue();
-		if (index.intValue() >= getValue().arity()) {
+		int idx = index.intValue();
+		if(idx < 0){
+			idx = idx + getValue().arity();
+		}
+		if ( (idx >= getValue().arity()) || (idx < 0)) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		
-		Type elementType = getType().getFieldType(index.intValue());
-		IValue element = getValue().get(index.intValue());
+		Type elementType = getType().getFieldType(idx);
+		IValue element = getValue().get(idx);
 		return makeResult(elementType, element, ctx);
 	}
 	

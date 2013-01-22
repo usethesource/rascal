@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 
 public class MatchResult extends AbstractBooleanResult {
 	private boolean positive;
@@ -54,7 +54,7 @@ public class MatchResult extends AbstractBooleanResult {
     	mp.initMatch(result);
 
     	if(!mp.mayMatch(subjectType, ctx.getCurrentEnvt())) {
-    		throw new UnexpectedTypeError(mp.getType(ctx.getCurrentEnvt(), null), subjectType, ctx.getCurrentAST());
+    		throw new UnexpectedType(mp.getType(ctx.getCurrentEnvt(), null), subjectType, ctx.getCurrentAST());
     	}
     	
     	firstTime = true;

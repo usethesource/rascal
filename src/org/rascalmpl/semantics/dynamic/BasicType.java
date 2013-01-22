@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.BasicTypeEvaluator;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.NonWellformedTypeError;
+import org.rascalmpl.interpreter.staticErrors.NonWellformedType;
 
 public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
@@ -36,7 +36,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
 
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"bag should have one type argument, like bag[value].", this);
 
 		}
@@ -56,7 +56,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.boolType();
 			}
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"bool cannot have type arguments.", this);
 
 		}
@@ -83,7 +83,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.dateTimeType();
 			}
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"datetime cannot have type arguments.", this);
 
 		}
@@ -108,7 +108,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.integerType();
 			}
-			throw new NonWellformedTypeError("int cannot have type arguments.",
+			throw new NonWellformedType("int cannot have type arguments.",
 					this);
 
 		}
@@ -136,7 +136,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.integerType();
 			}
-			throw new NonWellformedTypeError("rat cannot have type arguments.",
+			throw new NonWellformedType("rat cannot have type arguments.",
 					this);
 
 		}
@@ -164,7 +164,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.listType(__eval.__getTypeArgument().getFieldType(0));
 			}
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"list should have exactly one type argument, like list[value]",
 					this);
 
@@ -172,7 +172,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"list should have one type argument, like list[value].",
 					this);
 		}
@@ -192,7 +192,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.sourceLocationType();
 			}
-			throw new NonWellformedTypeError("loc cannot have type arguments.",
+			throw new NonWellformedType("loc cannot have type arguments.",
 					this);
 
 		}
@@ -219,7 +219,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.mapTypeFromTuple(__eval.__getTypeArgument());
 			}
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"map should have exactly two type arguments, like map[value,value]",
 					this);
 
@@ -228,7 +228,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
 
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"map should have at two type arguments, like map[value,value].",
 					this);
 
@@ -249,7 +249,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.nodeType();
 			}
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"node cannot have type arguments.", this);
 
 		}
@@ -276,7 +276,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.numberType();
 			}
-			throw new NonWellformedTypeError("num cannot have type arguments.",
+			throw new NonWellformedType("num cannot have type arguments.",
 					this);
 
 		}
@@ -303,7 +303,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.realType();
 			}
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"real cannot have type arguments.", this);
 
 		}
@@ -330,7 +330,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 						.getInstance().reifiedType(
 								__eval.__getTypeArgument().getFieldType(0));
 			}
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"type should have exactly one type argument, like type[value]",
 					this);
 
@@ -338,7 +338,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"type should have at one type argument, like type[value].",
 					this);
 		}
@@ -362,7 +362,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
 
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"rel should have at least one type argument, like rel[value,value].",
 					this);
 
@@ -387,7 +387,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
 
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"lrel should have at least one type argument, like lrel[value,value].",
 					this);
 
@@ -408,7 +408,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.setType(__eval.__getTypeArgument().getFieldType(0));
 			}
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"set should have exactly one type argument, like set[value]",
 					this);
 
@@ -417,7 +417,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
 
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"set should have one type argument, like set[value].", this);
 
 		}
@@ -437,7 +437,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.stringType();
 			}
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"string cannot have type arguments.", this);
 
 		}
@@ -466,7 +466,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
 
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"tuple should have type arguments, like tuple[value,value].",
 					this);
 
@@ -487,7 +487,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.valueType();
 			}
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"value cannot have type arguments.", this);
 
 		}
@@ -512,7 +512,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.voidType();
 			}
-			throw new NonWellformedTypeError(
+			throw new NonWellformedType(
 					"void cannot have type arguments.", this);
 		}
 

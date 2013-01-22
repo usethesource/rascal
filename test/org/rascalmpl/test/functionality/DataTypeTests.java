@@ -21,9 +21,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 
@@ -518,17 +518,17 @@ public class DataTypeTests extends TestFramework {
 	
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UndefinedLocationError1(){
 		runTest("{ loc Loc; Loc.url;}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UndefinedLocationError2(){
 		runTest("{ loc Loc; Loc.url = \"abc\";}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UndefinedLocationError3(){
 		runTest("{ loc Loc; Loc[url = \"abc\"];}");
 	}
@@ -670,7 +670,7 @@ public class DataTypeTests extends TestFramework {
 		runTest("[1,2][5];");
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void SubscriptError2() {
 		runTest("L[5];");
 	}
@@ -1075,7 +1075,7 @@ public class DataTypeTests extends TestFramework {
 
 	}
 	
-    @Test(expected=UndeclaredVariableError.class)
+    @Test(expected=UndeclaredVariable.class)
     public void UndefinedSetElementError(){
     	runTest("{X};");
     }
@@ -1211,12 +1211,12 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{map[str,list[int]] m = (\"a\": [1,2], \"b\": [], \"c\": [4,5,6]); m[\"a\"] == [1,2];}"));
 	}
 	
-	 @Test(expected=UndeclaredVariableError.class)
+	 @Test(expected=UndeclaredVariable.class)
 	    public void UndefinedMapElementError1(){
 	    	runTest("(X:2);");
 	    }
 	 
-	 @Test(expected=UndeclaredVariableError.class)
+	 @Test(expected=UndeclaredVariable.class)
 	    public void UndefinedMapElementError2(){
 	    	runTest("(1:Y);");
 	    }
@@ -1279,7 +1279,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("<1, \"a\", true> + <1.5, \"def\"> == <1, \"a\", true> + <1.5, \"def\">;"));
 	}
 	
-	 @Test(expected=UndeclaredVariableError.class)
+	 @Test(expected=UndeclaredVariable.class)
 	    public void UndefinedTupleElementError1(){
 	    	runTest("<1,X,3>;");
 	    }
@@ -1293,12 +1293,12 @@ public class DataTypeTests extends TestFramework {
 		
 	}
 	
-	@Test(expected=UndeclaredFieldError.class)
+	@Test(expected=UndeclaredField.class)
 	public void tupleError1(){
 		runTest("{tuple[int key, str val] T = <1, \"abc\">; T.zip == \"abc\";}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void tupleError2(){
 		runTest("{tuple[int key, str val] T; T.key;}");
 	}
@@ -1372,17 +1372,17 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>}* == {<1,2>, <2,3>, <3,4>, <4,2>, <4,5>, <1, 3>, <2, 4>, <3, 2>, <3, 5>, <4, 3>, <1, 4>, <2, 2>, <2, 5>, <3, 3>, <4, 4>, <1, 5>, <1, 1>, <5, 5>};"));
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void UndeRelationElementError1(){
 		runTest("{<1,10>, <X,20>};");
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void UndefinedRelationElementError2(){
 		runTest("{<1,10>, <10, Y>};");
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void UndefinedRelationElementError3(){
 		runTest("{<1,10>, T, <3,30>};");
 	}
@@ -1410,7 +1410,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.from == {1,2};}"));
 		assertTrue(runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.to == {10,20};}"));
 	}
-	@Test(expected=UndeclaredFieldError.class)
+	@Test(expected=UndeclaredField.class)
 	public void namedRelationError(){
 		runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.zip == {10,20};}");
 	}
@@ -1486,13 +1486,13 @@ public class DataTypeTests extends TestFramework {
 		assertFalse(runTestInSameEvaluator("f(i(1), l([i(2), i(3)]))    > f(i(1), l([i(2),i(3)]));"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UndefinedDataTypeAccess1(){
 		prepare("data D = d(int ival);");
 		runTestInSameEvaluator("{D someD; someD.ival;}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariable.class)
 	public void UndefinedDataTypeAccess2(){
 		prepare("data D = d(int ival);");
 		runTestInSameEvaluator("{D someD; someD.ival = 3;}");

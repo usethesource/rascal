@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
@@ -20,13 +21,16 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.ast.OptionalExpression;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.AssignableEvaluator.AssignmentOperator;
@@ -35,13 +39,14 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSlice;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscript;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
@@ -66,11 +71,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (result == null || result.getValue() == null) {
 				// TODO: can this ever happen?
-				throw new UninitializedVariableError(this.getReceiver().toString(), this.getReceiver());
+				throw new UninitializedVariable(this.getReceiver().toString(), this.getReceiver());
 			}
 
 			if (!__eval.__getEnv().declaresAnnotation(result.getType(), label)) {
-				throw new UndeclaredAnnotationError(label, result.getType(),
+				throw new UndeclaredAnnotation(label, result.getType(),
 						this);
 			}
 
@@ -96,7 +101,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (!__eval.getCurrentEnvt().declaresAnnotation(receiver.getType(),
 					label)) {
-				throw new UndeclaredAnnotationError(label, receiver.getType(),
+				throw new UndeclaredAnnotation(label, receiver.getType(),
 						this);
 			}
 
@@ -135,7 +140,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (!valueType.isNodeType() && !valueType.isAbstractDataType()
 					&& !valueType.isConstructorType()) {
-				throw new UnexpectedTypeError(
+				throw new UnexpectedType(
 						org.rascalmpl.interpreter.AssignableEvaluator.__getTf()
 								.nodeType(), __eval.__getValue().getType(),
 						this);
@@ -239,7 +244,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (receiver == null || receiver.getValue() == null) {
 				// TODO:can this ever happen?
-				throw new UninitializedVariableError(this.getReceiver()
+				throw new UninitializedVariable(this.getReceiver()
 						.toString(), this.getReceiver());
 			}
 
@@ -247,7 +252,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 				int idx = receiver.getType().getFieldIndex(label);
 				if (idx < 0) {
-					throw new UndeclaredFieldError(label, receiver.getType(),
+					throw new UndeclaredField(label, receiver.getType(),
 							this);
 				}
 
@@ -267,7 +272,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 						.__getValue()));
 				
 				if (!result.getType().isSubtypeOf(receiver.getType())) {
-					throw new UnexpectedTypeError(receiver.getType(), result.getType(), __eval.getCurrentAST());
+					throw new UnexpectedType(receiver.getType(), result.getType(), __eval.getCurrentAST());
 				}
 				return __eval.recur(this, result);
 			}
@@ -283,7 +288,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				 */
 
 				if (!node.hasField(label)) {
-					throw new UndeclaredFieldError(label, receiver.getValue()
+					throw new UndeclaredField(label, receiver.getValue()
 							.getType(), this);
 				}
 
@@ -291,7 +296,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 				if (!__eval.__getValue().getType().isSubtypeOf(
 						node.getFieldType(index))) {
-					throw new UnexpectedTypeError(node.getFieldType(index),
+					throw new UnexpectedType(node.getFieldType(index),
 							__eval.__getValue().getType(), this);
 				}
 				__eval.__setValue(__eval.newResult(cons.get(index), __eval
@@ -317,7 +322,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				return __eval.recur(this, receiver.fieldUpdate(label, __eval
 						.__getValue(), __eval.__getEnv().getStore()));
 			} else {
-				throw new UndeclaredFieldError(label, receiver.getType(), this);
+				throw new UndeclaredField(label, receiver.getType(), this);
 			}
 
 		}
@@ -331,7 +336,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (receiver == null || receiver.getValue() == null) {
 				// TODO: can this ever happen?
-				throw new UndeclaredVariableError(
+				throw new UndeclaredVariable(
 						this.getReceiver().toString(), this.getReceiver());
 			}
 
@@ -356,7 +361,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 				if (!receiverType.hasField(label, __eval.getCurrentEnvt()
 						.getStore())) {
-					throw new UndeclaredFieldError(label, receiverType, this);
+					throw new UndeclaredField(label, receiverType, this);
 				}
 
 				if (!node.hasField(label)) {
@@ -371,7 +376,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			} else if (receiverType.isSourceLocationType()) {
 				return receiver.fieldAccess(label, new TypeStore());
 			} else {
-				throw new UndeclaredFieldError(label, receiverType, this);
+				throw new UndeclaredField(label, receiverType, this);
 			}
 
 		}
@@ -439,7 +444,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (rec == null || rec.getValue() == null) {
 				// TODO: can this ever happen?
-				throw new UninitializedVariableError(this.getReceiver()
+				throw new UninitializedVariable(this.getReceiver()
 						.toString(), this.getReceiver());
 			}
 
@@ -478,7 +483,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 									.lub(map.getType()) : rec.getType(), map,
 									__eval.__getEval());
 				} else {
-					throw new UnexpectedTypeError(keyType, subscript.getType(),
+					throw new UnexpectedType(keyType, subscript.getType(),
 							this.getSubscript());
 				}
 
@@ -523,13 +528,13 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				IValue sub = subscript.getValue();
 
 				if (rec.getType().getArity() != 2) {
-					throw new UnsupportedSubscriptError(rec.getType(),
+					throw new UnsupportedSubscript(rec.getType(),
 							subscript.getType(), this);
 				}
 
 				if (!__eval.__getValue().getType().isSubtypeOf(
 						rec.getType().getFieldType(1))) {
-					throw new UnexpectedTypeError(
+					throw new UnexpectedType(
 							rec.getType().getFieldType(1), __eval.__getValue()
 									.getType(), __eval.__getEval()
 									.getCurrentAST());
@@ -540,7 +545,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				result = org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(rec.getType(), rel, __eval.__getEval());
 			} else {
-				throw new UnsupportedSubscriptError(rec.getType(), subscript
+				throw new UnsupportedSubscript(rec.getType(), subscript
 						.getType(), this);
 				// TODO implement other subscripts
 			}
@@ -574,7 +579,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				return;
 			}
 			if (!given.isSubtypeOf(expected)) {
-				throw new UnexpectedTypeError(expected, given, this);
+				throw new UnexpectedType(expected, given, this);
 			}
 		}
 
@@ -586,7 +591,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (receiver == null || receiver.getValue() == null) {
 				// TODO:can this ever happen?
-				throw new UninitializedVariableError(this.getReceiver()
+				throw new UninitializedVariable(this.getReceiver()
 						.toString(), this.getReceiver());
 			}
 			
@@ -599,7 +604,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					return normalizedResult(__eval, type, result);
 				}
 
-				throw new UnexpectedTypeError(
+				throw new UnexpectedType(
 						org.rascalmpl.interpreter.Evaluator.__getTf()
 								.integerType(), subscript.getType(), this);
 			} else if (receiver.getType().isMapType()) {
@@ -620,13 +625,306 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 							.makeResult(type, result, __eval);
 				}
 
-				throw new UnexpectedTypeError(keyType, subscript.getType(),
+				throw new UnexpectedType(keyType, subscript.getType(),
 						this.getSubscript());
 			}
 			// TODO implement other subscripts
-			throw new UnsupportedOperationError("subscript",
+			throw new UnsupportedOperation("subscript",
 					receiver.getType(), this);
 
+		}
+
+	}
+	
+	static public class Slice extends
+	org.rascalmpl.ast.Assignable.Slice {
+
+		public Slice(IConstructor __param1, org.rascalmpl.ast.Assignable __param2,
+				OptionalExpression __param3, OptionalExpression __param4) {
+			super(__param1, __param2, __param3, __param4);
+		}
+
+		@Override
+		public Result<IValue> assignment(AssignableEvaluator __eval) {
+
+			Result<IValue> rec = this.getReceiver().interpret(
+					(Evaluator) __eval.__getEval());
+			Result<IValue> first = null;
+			if(this.getOptFirst().hasExpression()){
+				first = this.getOptFirst().getExpression().interpret(
+					(Evaluator) __eval.__getEval());
+			}
+			Result<IValue> end = null;
+			if(this.getOptLast().hasExpression()){
+				end = this.getOptLast().getExpression().interpret(
+					(Evaluator) __eval.__getEval());
+			}
+			Result<IValue> result;
+
+			if (rec == null || rec.getValue() == null) {
+				// TODO: can this ever happen?
+				throw new UninitializedVariable(this.getReceiver()
+						.toString(), this.getReceiver());
+			}
+			
+			if( !(first == null || first.getType().isIntegerType()) ){
+				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
+			}
+					
+			if( !(end == null || end.getType().isIntegerType()) ){
+				throw new UnsupportedSubscript(rec.getType(), end.getType(), this);
+			}
+			int len =  rec.getType().isListType() ? ((IList) rec.getValue()).length()
+					 : rec.getType().isStringType() ? ((IString) rec.getValue()).length()
+					 : rec.getType().isNodeType() ?((INode) rec.getValue()).arity() 
+					 : 0 ;
+
+			int firstIndex = 0;
+			int secondIndex = 1;
+			int endIndex = len;
+
+			if(first != null){
+				firstIndex = ((IInteger) first.getValue()).intValue();
+				if(firstIndex < 0)
+					firstIndex += len;
+			}
+
+			if(end != null){
+				endIndex =  ((IInteger) end.getValue()).intValue();
+				if(endIndex < 0){
+					endIndex += len;
+				}
+			}
+
+			secondIndex = firstIndex <= endIndex ? firstIndex + 1 : firstIndex - 1;
+
+			if (rec.getType().isListType()) {
+				try {
+					IList list = (IList) rec.getValue();
+					
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isListType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+					
+					__eval.__setValue(__eval.newResult(list, __eval.__getValue()));
+					list = list.replace(firstIndex, secondIndex, endIndex, (IList) repl);
+					
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(list.getType()) : rec.getType(), list,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+			} else if (rec.getType().isStringType()) {
+				try {
+					IString str = (IString) rec.getValue();
+					
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isStringType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+					
+					__eval.__setValue(__eval.newResult(str, __eval.__getValue()));
+					str = str.replace(firstIndex, secondIndex, endIndex, (IString) repl);
+					
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(str.getType()) : rec.getType(), str,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+			} else if (rec.getType().isNodeType()) {
+
+				try {
+					INode node = (INode) rec.getValue();
+
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isListType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+
+					__eval.__setValue(__eval.newResult(node, __eval.__getValue()));
+					node = node.replace(firstIndex, secondIndex, endIndex, (IList) repl);
+
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(node.getType()) : rec.getType(), node,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+			} else {
+				throw new UnsupportedSlice(rec.getType(), this);
+				// TODO implement other slices
+			}
+
+			return __eval.recur(this, result);
+		}
+	}
+	
+	static public class SliceStep extends
+	org.rascalmpl.ast.Assignable.SliceStep {
+
+		public SliceStep(IConstructor __param1, org.rascalmpl.ast.Assignable __param2,
+				OptionalExpression __param3, Expression __param4, OptionalExpression __param5) {
+			super(__param1, __param2, __param3, __param4, __param5);
+		}
+
+		@Override
+		public Result<IValue> assignment(AssignableEvaluator __eval) {
+
+			Result<IValue> rec = this.getReceiver().interpret(
+					(Evaluator) __eval.__getEval());
+			Result<IValue> first = null;
+			if(this.getOptFirst().hasExpression()){
+				first = this.getOptFirst().getExpression().interpret(
+					(Evaluator) __eval.__getEval());
+			}
+			Result<IValue> second = this.getSecond().interpret((Evaluator) __eval.__getEval());
+			Result<IValue> end = null;
+			if(this.getOptLast().hasExpression()){
+				end = this.getOptLast().getExpression().interpret(
+					(Evaluator) __eval.__getEval());
+			}
+			Result<IValue> result;
+
+			if (rec == null || rec.getValue() == null) {
+				// TODO: can this ever happen?
+				throw new UninitializedVariable(this.getReceiver()
+						.toString(), this.getReceiver());
+			}
+			
+			if( !(first == null || first.getType().isIntegerType()) ){
+				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
+			}
+			
+			if(!second.getType().isIntegerType()){
+				throw new UnsupportedSubscript(rec.getType(), second.getType(), this);
+			}
+					
+			if( !(end == null || end.getType().isIntegerType()) ){
+				throw new UnsupportedSubscript(rec.getType(), end.getType(), this);
+			}
+			
+			int len = rec.getType().isListType() ? ((IList) rec.getValue()).length()
+					 : rec.getType().isStringType() ? ((IString) rec.getValue()).length()
+					 :  rec.getType().isNodeType() ?((INode) rec.getValue()).arity() 
+					 : 0 ;
+
+			int firstIndex = 0;
+			int secondIndex = 1;
+			int endIndex = len;
+
+			if(first != null){
+				firstIndex = ((IInteger) first.getValue()).intValue();
+				if(firstIndex < 0)
+					firstIndex += len;
+			}
+
+			if(end != null){
+				endIndex =  ((IInteger) end.getValue()).intValue();
+				if(endIndex < 0){
+					endIndex += len;
+				}
+			}
+
+			secondIndex = ((IInteger)second.getValue()).intValue();
+			if(secondIndex < 0)
+				secondIndex += len;
+
+			if(!(first == null && end == null)){
+				if(first == null && secondIndex > endIndex)
+					firstIndex = len - 1;
+				if(end == null && secondIndex < firstIndex)
+					endIndex = -1;
+			}
+
+			if (rec.getType().isListType()) {
+				try {
+					IList list = (IList) rec.getValue();					
+					
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isListType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+					
+					__eval.__setValue(__eval.newResult(list, __eval.__getValue()));					
+					list = list.replace(firstIndex, secondIndex, endIndex, (IList) repl);
+					
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(list.getType()) : rec.getType(), list,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+			} else if (rec.getType().isStringType()) {
+				try {
+					IString str = (IString) rec.getValue();
+
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isStringType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+					
+					__eval.__setValue(__eval.newResult(str, __eval.__getValue()));
+					str = str.replace(firstIndex, secondIndex, endIndex, (IString) repl);
+					
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(str.getType()) : rec.getType(), str,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+				
+			} else if (rec.getType().isNodeType()) {
+
+				try {
+					INode node = (INode) rec.getValue();
+
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isListType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+
+					__eval.__setValue(__eval.newResult(node, __eval.__getValue()));
+					node = node.replace(firstIndex, secondIndex, endIndex, (IList) repl);
+
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(node.getType()) : rec.getType(), node,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+			} else {
+				throw new UnsupportedSlice(rec.getType(), this);
+				// TODO implement other slices
+			}
+
+			return __eval.recur(this, result);
 		}
 
 	}
@@ -644,7 +942,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (!__eval.__getValue().getType().isTupleType()) {
 				// TODO construct a better expected type
-				throw new UnexpectedTypeError(
+				throw new UnexpectedType(
 						org.rascalmpl.interpreter.AssignableEvaluator.__getTf()
 								.tupleEmpty(), __eval.__getValue().getType(),
 						this);
@@ -710,7 +1008,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				__eval.__getEnv().storeVariable(qname, __eval.__getValue());
 				return __eval.__getValue();
 			default:
-				throw new UninitializedVariableError(Names.fullName(qname), this);
+				throw new UninitializedVariable(Names.fullName(qname), this);
 			}
 
 			// TODO implement semantics of global keyword, when not given the
