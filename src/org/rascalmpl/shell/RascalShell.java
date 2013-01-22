@@ -40,6 +40,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -243,10 +244,7 @@ public class RascalShell {
 		}
 		catch (Throw e) {
 			System.err.println("Uncaught Rascal Exception: " + e.getMessage());
-			String trace = e.getTrace();
-			if (trace != null) {
-				System.err.println(trace);
-			}
+			System.err.println(e.getTrace().toLinkedString());
 		}
 		catch (ImplementationError e) {
 			e.printStackTrace();
