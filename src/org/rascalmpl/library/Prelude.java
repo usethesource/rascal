@@ -1312,6 +1312,10 @@ public class Prelude {
 		return w.done();
 	}
 	
+	public IString createLink(IString title, IString target) {
+		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
+	}
+	
 	/*
 	 * List
 	 */
