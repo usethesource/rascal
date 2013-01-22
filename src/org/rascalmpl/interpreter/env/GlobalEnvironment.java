@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.gtd.IGTD;
 
@@ -94,7 +94,7 @@ public class GlobalEnvironment {
 	public ModuleEnvironment getModule(QualifiedName name, AbstractAST ast) {
 		ModuleEnvironment module = getModule(Names.fullName(name));
 		if (module == null) {
-			throw new UndeclaredModuleError(Names.fullName(name), ast);
+			throw new UndeclaredModule(Names.fullName(name), ast);
 		}
 		return module;
 	}
@@ -142,7 +142,7 @@ public class GlobalEnvironment {
 		if (Names.isQualified(name)) {
 			ModuleEnvironment mod = getModule(Names.moduleName(name));
 			if (mod == null) {
-				throw new UndeclaredModuleError(Names.moduleName(name), name);
+				throw new UndeclaredModule(Names.moduleName(name), name);
 			}
 			return mod;
 		}

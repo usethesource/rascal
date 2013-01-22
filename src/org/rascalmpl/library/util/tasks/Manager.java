@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,7 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.tasks.IIValueTask;
 import org.rascalmpl.tasks.ITaskRegistry;
@@ -100,7 +100,7 @@ public class Manager {
 			throw RuntimeExceptionFactory.noSuchKey(vf.string(typeReifier.valueToType((IConstructor) key).toString() + ":" + name.toString()), 
 					ctx.getCurrentAST(), ctx.getStackTrace());
 		else if(!fact.getType().isSubtypeOf(typeReifier.valueToType((IConstructor) key)))
-			throw new UnexpectedTypeError(typeReifier.valueToType((IConstructor) key), fact.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(typeReifier.valueToType((IConstructor) key), fact.getType(), ctx.getCurrentAST());
 		else
 			return fact;
 	}
@@ -125,7 +125,7 @@ public class Manager {
 
 		Type keyType = typeReifier.valueToType((IConstructor) key);
 		if(!value.getType().isSubtypeOf(keyType))
-			throw new UnexpectedTypeError(keyType, value.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(keyType, value.getType(), ctx.getCurrentAST());
 		else
 			transaction(tr).setFact(keyType, name, value);
 	}
@@ -197,7 +197,7 @@ public class Manager {
 			if(result.getValue() instanceof IBool)
 				return ((IBool)result.getValue()).getValue();
 			else
-				throw new UnexpectedTypeError(TypeFactory.getInstance().boolType(), result.getType(), ctx.getCurrentAST());
+				throw new UnexpectedType(TypeFactory.getInstance().boolType(), result.getType(), ctx.getCurrentAST());
 				
 		}
 		

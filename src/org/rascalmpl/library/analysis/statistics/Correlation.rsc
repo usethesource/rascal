@@ -1,3 +1,10 @@
+@license{
+  Copyright (c) 2009-2013 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 module analysis::statistics::Correlation
 
 @doc{
@@ -13,19 +20,19 @@ Use [SpearmansCorrelation] when there is a __monotonous dependence__ between the
 
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
-public java num PearsonsCorrelation(list[tuple[num x,num y]] values);
+public java num PearsonsCorrelation(lrel[num x,num y] values);
 
 @doc{
 Synopsis: Standard errors associated with Pearson correlation. 
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
-public java list[real] PearsonsCorrelationStandardErrors(list[tuple[num x,num y]] values);
+public java list[real] PearsonsCorrelationStandardErrors(lrel[num x,num y] values);
 
 @doc{
 Synopsis: P-values (significance) associated with Pearson correlation.
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
-public java list[real] PearsonsCorrelationPValues(list[tuple[num x,num y]] values);
+public java list[real] PearsonsCorrelationPValues(lrel[num x,num y] values);
 
 @doc{
 Synopsis: Spearman's rank correlation coefficient.
@@ -40,7 +47,7 @@ Pitfalls: Spearman's correlation can only be applied when there is a __monotonou
 Use [PearsonsCorrelation] when there is a __linear dependence__ between the variables.
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
-public java num SpearmansCorrelation(list[tuple[num x,num y]] values);
+public java num SpearmansCorrelation(lrel[num x,num y] values);
 
 @doc{
 Synopsis: Covariance of data values.
@@ -56,4 +63,4 @@ covariance([<1,12>,<3,12>,<3,11>,<5,7>]);
 </screen>
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
-public java num covariance(list[tuple[num x,num y]] values);
+public java num covariance(lrel[num x,num y] values);

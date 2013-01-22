@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,8 +37,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
@@ -92,7 +92,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 			//System.err.println(value.getType());
 			//System.err.println(type); 
 			//System.err.println(value.getType().isSubtypeOf(type));
-			throw new UnexpectedTypeError(type, value.getType(), ctx.getCurrentAST());
+			throw new UnexpectedType(type, value.getType(), ctx.getCurrentAST());
 		}
 	
 	    this.type = type;
@@ -180,17 +180,17 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	// Error aux methods
 	
 	protected <U extends IValue> Result<U> undefinedError(String operator) {
-		throw new UnsupportedOperationError(operator, getType(), ctx.getCurrentAST());
+		throw new UnsupportedOperation(operator, getType(), ctx.getCurrentAST());
 	}
 	
 	protected <U extends IValue> Result<U> undefinedError(String operator, Result<?> arg) {
-		throw new UnsupportedOperationError(operator, getType(), arg.getType(), ctx.getCurrentAST());
+		throw new UnsupportedOperation(operator, getType(), arg.getType(), ctx.getCurrentAST());
 	}
 	
 	///////
 	
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) throws MatchFailed {
-		throw new UnsupportedOperationError("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
+		throw new UnsupportedOperation("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
 	}
 	
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {

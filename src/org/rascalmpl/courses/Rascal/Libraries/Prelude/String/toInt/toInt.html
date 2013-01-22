@@ -81,9 +81,9 @@ int: 11
 int: 9
 </pre>  Now try an erroneous argument:
 <pre class="screen"><span class="prompt">rascal></span>toInt(&quot;abc&quot;);
-|stdin:///|(6,5,&lt;1,6>,&lt;1,11>): IllegalArgument()
-	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.toInt(org.eclipse.imp.pdb.facts.IString)
-	somewhere in: ___SCREEN_INSTANCE___
+|std:///String.rsc|(9576,431,&lt;410,0>,&lt;430,52>): IllegalArgument()
+	/String.rsc:410,0
+	somewhere in: toInt
 
 
 </pre>

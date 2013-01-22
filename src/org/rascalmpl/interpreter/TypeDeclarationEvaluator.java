@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
+ *   * Anya Helene Bagge - UiB
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
@@ -46,11 +47,11 @@ import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.IllegalQualifiedDeclaration;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredTypeError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredField;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredType;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Names;
 
 public class TypeDeclarationEvaluator {
@@ -99,7 +100,7 @@ public class TypeDeclarationEvaluator {
 				if(r.getType().isSubtypeOf(declaredType))
 					commonKwargs.add(new KeywordParameter(kwf.getName().toString(), declaredType, r));
 				else {
-					throw new UnexpectedTypeError(declaredType, r.getType(), kwf);
+					throw new UnexpectedType(declaredType, r.getType(), kwf);
 				}
 			}
 		}
@@ -117,7 +118,7 @@ public class TypeDeclarationEvaluator {
 						if(r.getType().isSubtypeOf(declaredType))
 							kwargs.add(new KeywordParameter(kwf.getName().toString(), declaredType, r));
 						else {
-							throw new UnexpectedTypeError(declaredType, r.getType(), kwf);
+							throw new UnexpectedType(declaredType, r.getType(), kwf);
 						}
 					}
 				}
@@ -131,7 +132,7 @@ public class TypeDeclarationEvaluator {
 					fields[i] = arg.getType().typeOf(env);
 
 					if (fields[i] == null) {
-						throw new UndeclaredTypeError(arg.hasName() ? Names.name(arg.getName()) : "?", arg);
+						throw new UndeclaredType(arg.hasName() ? Names.name(arg.getName()) : "?", arg);
 					}
 
 					if (arg.hasName()) {
@@ -151,9 +152,9 @@ public class TypeDeclarationEvaluator {
 					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, children, kwargs);
 					cons.setPublic(true); // TODO: implement declared visibility
 				} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e) {
-					throw new RedeclaredTypeError(altName, var);
+					throw new RedeclaredType(altName, var);
 				} catch (RedeclaredFieldNameException e) {
-					throw new RedeclaredFieldError(e.getMessage(), var);
+					throw new RedeclaredField(e.getMessage(), var);
 				}
 			} 
 		}
@@ -176,7 +177,7 @@ public class TypeDeclarationEvaluator {
 				declareAlias(trial, env);
 				countdown = todo.size();
 			}
-			catch (UndeclaredTypeError e) {
+			catch (UndeclaredType e) {
 				if (countdown == 0) {	
 					// Cycle
 					throw e;
@@ -192,7 +193,7 @@ public class TypeDeclarationEvaluator {
 			Type base = x.getBase().typeOf(env);
 
 			if (base == null) {
-				throw new UndeclaredTypeError(x.getBase().toString(), x
+				throw new UndeclaredType(x.getBase().toString(), x
 						.getBase());
 			}
 			
@@ -205,7 +206,7 @@ public class TypeDeclarationEvaluator {
 					computeTypeParameters(x.getUser(), env));
 		} 
 		catch (FactTypeRedeclaredException e) {
-			throw new RedeclaredTypeError(e.getName(), x);
+			throw new RedeclaredType(e.getName(), x);
 		}
 		catch (FactTypeDeclarationException e) {
 			throw new ImplementationError("Unknown FactTypeDeclarationException: " + e.getMessage());
@@ -228,7 +229,7 @@ public class TypeDeclarationEvaluator {
 				declareAbstractDataType(trial, env);
 				countdown = todo.size();
 			}
-			catch (UndeclaredTypeError e) {
+			catch (UndeclaredType e) {
 				if (countdown == 0) {	
 					// Cycle
 					throw e;
@@ -285,7 +286,7 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 
-	private class DeclarationCollector extends NullASTVisitor<Declaration> {
+	private static class DeclarationCollector extends NullASTVisitor<Declaration> {
 		private Set<UserType> abstractDataTypes;
 		private Set<Data> constructorDecls;
 		private Set<Alias> aliasDecls;

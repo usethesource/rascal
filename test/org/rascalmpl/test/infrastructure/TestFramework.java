@@ -71,10 +71,12 @@ public class TestFramework {
 			modules.put(name, contents);
 		}
 		
+		@Override
 		public boolean exists(URI uri) {
 			return modules.containsKey(uri.getPath());
 		}
 
+		@Override
 		public InputStream getInputStream(URI uri) throws IOException {
 			String contents = modules.get(uri.getPath());
 			if (contents != null) {
@@ -87,26 +89,32 @@ public class TestFramework {
 			modules = new HashMap<String,String>();
 		}
 
+		@Override
 		public String scheme() {
 			return "test-modules";
 		}
 
+		@Override
 		public boolean isDirectory(URI uri) {
 			return false;
 		}
 
+		@Override
 		public boolean isFile(URI uri) {
 			return false;
 		}
 
+		@Override
 		public long lastModified(URI uri) {
 			return 0;
 		}
 
+		@Override
 		public String[] listEntries(URI uri) {
 			return null;
 		}
 
+		@Override
 		public boolean supportsHost() {
 			return false;
 		}

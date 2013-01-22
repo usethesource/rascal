@@ -21,8 +21,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class ConcreteSyntaxTests extends TestFramework {
@@ -75,7 +75,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("a := `a`;"));
 	}
 	
-	@Test(expected=UndeclaredVariableError.class)
+	@Test(expected=UndeclaredVariable.class)
 	public void singleAUnquoted2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -96,7 +96,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("`a b` := `a   b`;"));
 	}
 	
-	@Test(expected=UnsupportedPatternError.class)
+	@Test(expected=UnsupportedPattern.class)
 	public void varAQuoted(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -234,7 +234,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 
 	
-	@Test(expected=UnsupportedPatternError.class)
+	@Test(expected=UnsupportedPattern.class)
 	public void Dvars(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");

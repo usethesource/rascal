@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -155,7 +155,7 @@ public class JDBC {
 			connectionMap.put(newKey, conn);
 			return vf.constructor(JDBC.jdbcConnection, newKey);
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connectString, null, sqle.getMessage(), "Could not connect with given connect string");
+			throw RuntimeExceptionFactory.illegalArgument(connectString, null, null, addMessage("Could not connect with given connect string", sqle));
 		}
 	}
 	
@@ -170,7 +170,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage(), "Could not close the given connection");
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -189,7 +189,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage(), "Could not close the given connection");
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -214,7 +214,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage(), "Could not close the given connection");
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -239,7 +239,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage(), "Could not close the given connection");
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", null));
 		}
 	}
 
@@ -282,7 +282,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage(), "Could not close the given connection");
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
 		}		
 	}
 	
@@ -307,7 +307,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage(), "Could not close the given connection");
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -394,7 +394,7 @@ public class JDBC {
 
 		switch(columnType) {
 			case Types.ARRAY:
-				throw new UnsupportedOperationError("JDBC Array types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Array types are currently not supported", null);
 			case Types.BIGINT:
 				res = TF.integerType();
 				break;
@@ -417,7 +417,7 @@ public class JDBC {
 				res = TF.stringType();
 				break;
 			case Types.DATALINK:
-				throw new UnsupportedOperationError("JDBC Datalink types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Datalink types are currently not supported", null);
 			case Types.DATE:
 				res = TF.dateTimeType();
 				break;
@@ -425,7 +425,7 @@ public class JDBC {
 				res = TF.realType();
 				break;
 			case Types.DISTINCT:
-				throw new UnsupportedOperationError("JDBC Distinct types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Distinct types are currently not supported", null);
 			case Types.DOUBLE:
 				res = TF.realType();
 				break;
@@ -436,7 +436,7 @@ public class JDBC {
 				res = TF.integerType();
 				break;
 			case Types.JAVA_OBJECT:
-				throw new UnsupportedOperationError("JDBC JavaObject types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC JavaObject types are currently not supported", null);
 			case Types.LONGNVARCHAR:
 				res = TF.stringType();
 				break;
@@ -453,7 +453,7 @@ public class JDBC {
 				res = TF.stringType();
 				break;
 			case Types.NULL:
-				throw new UnsupportedOperationError("JDBC Null types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Null types are currently not supported", null);
 			case Types.NUMERIC:
 				res = TF.realType();
 				break;
@@ -461,21 +461,21 @@ public class JDBC {
 				res = TF.stringType();
 				break;
 			case Types.OTHER:
-				throw new UnsupportedOperationError("JDBC Other types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Other types are currently not supported", null);
 			case Types.REAL:
 				res = TF.realType();
 				break;
 			case Types.REF:
-				throw new UnsupportedOperationError("JDBC Ref types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Ref types are currently not supported", null);
 			case Types.ROWID:
-				throw new UnsupportedOperationError("JDBC RowID types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC RowID types are currently not supported", null);
 			case Types.SMALLINT:
 				res = TF.integerType();
 				break;
 			case Types.SQLXML:
-				throw new UnsupportedOperationError("JDBC SQLXML types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC SQLXML types are currently not supported", null);
 			case Types.STRUCT:
-				throw new UnsupportedOperationError("JDBC Struct types are currently not supported", null);
+				throw new UnsupportedOperation("JDBC Struct types are currently not supported", null);
 			case Types.TIME:
 				res = TF.dateTimeType();
 				break;
@@ -491,6 +491,8 @@ public class JDBC {
 			case Types.VARCHAR:
 				res = TF.stringType();
 				break;
+			default:
+				throw new UnsupportedOperation("Unknown column type: " + columnType, null);
 		}
 		
 		if (nullable) {
@@ -517,7 +519,7 @@ public class JDBC {
 			
 			switch(jdbcColumnType) {
 				case Types.ARRAY:
-					throw new UnsupportedOperationError("JDBC Array types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Array types are currently not supported", null);
 				case Types.BIGINT:
 					if (rs.getBigDecimal(idx) != null)
 						res = vf.integer(rs.getBigDecimal(idx).toString());
@@ -577,7 +579,7 @@ public class JDBC {
 					res = lw.done();
 					break;
 				case Types.DATALINK:
-					throw new UnsupportedOperationError("JDBC Datalink types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Datalink types are currently not supported", null);
 				case Types.DATE:
 					if (rs.getDate(idx) != null) {
 						c = Calendar.getInstance();
@@ -593,7 +595,7 @@ public class JDBC {
 						res = vf.real(0.0);
 					break;
 				case Types.DISTINCT:
-					throw new UnsupportedOperationError("JDBC Distinct types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Distinct types are currently not supported", null);
 				case Types.DOUBLE:
 					res = vf.real(rs.getDouble(idx));
 					break;
@@ -604,7 +606,7 @@ public class JDBC {
 					res = vf.integer(rs.getInt(idx));
 					break;
 				case Types.JAVA_OBJECT:
-					throw new UnsupportedOperationError("JDBC JavaObject types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC JavaObject types are currently not supported", null);
 				case Types.LONGNVARCHAR:
 					if (rs.getString(idx) != null)
 						res = vf.string(rs.getString(idx));
@@ -650,7 +652,7 @@ public class JDBC {
 					res = lw.done();
 					break;
 				case Types.NULL:
-					throw new UnsupportedOperationError("JDBC Null types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Null types are currently not supported", null);
 				case Types.NUMERIC:
 					if (rs.getBigDecimal(idx) != null) {
 						res = vf.real(rs.getBigDecimal(idx).toString());
@@ -665,21 +667,21 @@ public class JDBC {
 						res = vf.string("");
 					break;
 				case Types.OTHER:
-					throw new UnsupportedOperationError("JDBC Other types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Other types are currently not supported", null);
 				case Types.REAL:
 					res = vf.real(rs.getDouble(idx));
 					break;
 				case Types.REF:
-					throw new UnsupportedOperationError("JDBC Ref types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Ref types are currently not supported", null);
 				case Types.ROWID:
-					throw new UnsupportedOperationError("JDBC RowID types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC RowID types are currently not supported", null);
 				case Types.SMALLINT:
 					res = vf.integer(rs.getInt(idx));
 					break;
 				case Types.SQLXML:
-					throw new UnsupportedOperationError("JDBC SQLXML types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC SQLXML types are currently not supported", null);
 				case Types.STRUCT:
-					throw new UnsupportedOperationError("JDBC Struct types are currently not supported", null);
+					throw new UnsupportedOperation("JDBC Struct types are currently not supported", null);
 				case Types.TIME:
 					if (rs.getTime(idx) != null) {
 						c = Calendar.getInstance();
@@ -715,6 +717,8 @@ public class JDBC {
 					else
 						res = vf.string("");
 					break;
+				default:
+					throw new UnsupportedOperation("Unknown column type: " + jdbcColumnType, null);
 			}
 
 			if(rs.getMetaData().isNullable(idx) != ResultSetMetaData.columnNoNulls) {
@@ -768,7 +772,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
 		}
 	}
 
@@ -802,7 +806,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
 		}
 	}
 
@@ -834,7 +838,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
 		}
 	}
 
@@ -866,7 +870,16 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
+		}
+	}
+	
+	private String addMessage(String msg, SQLException sqle) {
+		if(sqle.getMessage() != null) {
+			return msg + ": " + sqle.getMessage();
+		}
+		else {
+			return msg;
 		}
 	}
 }
@@ -876,24 +889,31 @@ class DriverShim implements Driver {
 	DriverShim(Driver d) {
 		this.driver = d;
 	}
+	
 	public boolean acceptsURL(String u) throws SQLException {
 		return this.driver.acceptsURL(u);
 	}
+
 	public Connection connect(String u, Properties p) throws SQLException {
 		return this.driver.connect(u, p);
 	}
+
 	public int getMajorVersion() {
 		return this.driver.getMajorVersion();
 	}
+
 	public int getMinorVersion() {
 		return this.driver.getMinorVersion();
 	}
+
 	public DriverPropertyInfo[] getPropertyInfo(String u, Properties p) throws SQLException {
 		return this.driver.getPropertyInfo(u, p);
 	}
+
 	public boolean jdbcCompliant() {
 		return this.driver.jdbcCompliant();
 	}
+
 	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
 		// TODO Auto-generated method stub
 		return null;

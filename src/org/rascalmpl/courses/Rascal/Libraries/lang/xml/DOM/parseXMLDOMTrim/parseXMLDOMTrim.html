@@ -71,7 +71,7 @@ ok
 <span class="prompt">rascal></span>import lang::xml::DOM;
 ok
 <span class="prompt">rascal></span>N = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
-str: "\&lt;note\>\n\&lt;to\>Jurgen\&lt;/to\>\n\&lt;to\>Tijs\&lt;/to\>\n\&lt;from\>Paul\&lt;/from\>\n\&lt;date\>2012-04-01\&lt;/date\>\n\&lt;heading font=\"bold\"\>Reminder\&lt;/heading\>\n\&lt;body\>Don\'\\t forget to run the Rascal tests!\&lt;/body\>\n\&lt;/note\>"
+str: "\&lt;note\>\n\&lt;to\>Jurgen\&lt;/to\>\n\&lt;to\>Tijs\&lt;/to\>\n\&lt;from\>Paul\&lt;/from\>\n\&lt;date\>2012-04-01\&lt;/date\>\n\&lt;heading font=\"bold\"\>Reminder\&lt;/heading\>\n\&lt;body\>Don\'t forget to run the Rascal tests!\&lt;/body\>\n\&lt;/note\>"
 <span class="prompt">rascal></span>parseXMLDOMTrim(N);
 Node: document(element(
     none(),
@@ -106,7 +106,7 @@ Node: document(element(
       element(
         none(),
         "body",
-        [charData("Don\'\\t forget to run the Rascal tests!")])
+        [charData("Don\'t forget to run the Rascal tests!")])
     ]))
 </pre> All whitespace characters have been removed and do not occur in the trimmed DOM instance.
  Compare this with the output of <a href="/Rascal/Libraries/lang/xml/DOM/parseXMLDOM/parseXMLDOM.html">parseXMLDOM</a>.

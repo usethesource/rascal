@@ -15,9 +15,9 @@ package org.rascalmpl.test.functionality;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class DeclarationTests extends TestFramework {
@@ -43,7 +43,7 @@ public class DeclarationTests extends TestFramework {
 		runTestInSameEvaluator("x;");
 	}
 	
-	@Test(expected=UndeclaredTypeError.class)
+	@Test(expected=UndeclaredType.class)
 	public void undeclaredType1(){
 		runTest("X N;");
 	}
@@ -58,7 +58,7 @@ public class DeclarationTests extends TestFramework {
 		assertTrue(runTest("{N = 1; {int N = 2;}; N == 1;}"));
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
+	@Test(expected=RedeclaredVariable.class)
 	public void doubleDeclaration3(){
 		assertTrue(runTest("{int f(int N){int N = 1; return N;} f(3) == 1;}"));
 	}

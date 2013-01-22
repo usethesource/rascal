@@ -1,0 +1,31 @@
+Name: Subscription
+
+Synopsis: Retrieve a substring via its index.
+
+Syntax:
+`$Exp_1$ [ $Exp_2$ ]`
+
+Types:
+| `$Exp_1$`     | `$Exp_2$` | `$Exp_1$ [ $Exp_2$ ]` |
+|:--------------|:----------|:----------------------|
+| `str`         | `int`     | `str`                 |
+
+Function:
+
+Details:
+
+Description:
+String subscription uses the integer value of $Exp_2$ as index in the string value of $Exp_1$.
+The value of $Exp_2$ should be greater or equal 0 and less than the number of characters in the string.
+If this is not the case, the exception `IndexOutOfBounds` is thrown.
+
+Examples:
+<screen errors>
+// Introduce a string, assign it to S and retrieve the element with index 1:
+S = "abc";
+S[1];
+// Explore an error case:
+S[5];
+</screen>
+
+       

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,7 @@ public class InputConverter{
 	}
 	
 	// NOTE: The user has to close the stream.
-	private static char[] toChar(Reader reader) throws IOException {
+	public static char[] toChar(Reader reader) throws IOException {
 		ArrayList<char[]> segments = new ArrayList<char[]>();
 		ArrayList<Integer> segmentLengths = new ArrayList<Integer>();
 		

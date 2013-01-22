@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,9 +28,9 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.NotEnumerableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
+import org.rascalmpl.interpreter.staticErrors.NotEnumerable;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.TypeReachability;
@@ -57,13 +57,13 @@ public class IteratorFactory {
 				}
 			}
 
-			throw new NotEnumerableError(subjectType.toString(), ctx.getCurrentAST());
+			throw new NotEnumerable(subjectType.toString(), ctx.getCurrentAST());
 		} 
 		else if (subjectType.isNodeType() || subjectType.isAbstractDataType() || subjectType.isTupleType()) {
 			return TypeFactory.getInstance().valueType();			
 		}
 		
-		throw new NotEnumerableError(subjectType.toString(), ctx.getCurrentAST());
+		throw new NotEnumerable(subjectType.toString(), ctx.getCurrentAST());
 	}
 
 	public static Iterator<IValue> make(IEvaluatorContext ctx, IMatchingResult matchPattern, 
@@ -125,7 +125,7 @@ public class IteratorFactory {
 				}
 			}
 
-			throw new NotEnumerableError(subjectType.toString(), ctx.getCurrentAST());
+			throw new NotEnumerable(subjectType.toString(), ctx.getCurrentAST());
 			// Node and ADT
 		} else if(subjectType.isNodeType() || subjectType.isAbstractDataType()){			
 			if (shallow){
@@ -139,7 +139,7 @@ public class IteratorFactory {
 				int nElems = subjectType.getArity();
 				for(int i = 0; i < nElems; i++){
 					if(!subjectType.getFieldType(i).isSubtypeOf(patType)) {
-						throw new UnexpectedTypeError(patType, subjectType.getFieldType(i), ctx.getCurrentAST());
+						throw new UnexpectedType(patType, subjectType.getFieldType(i), ctx.getCurrentAST());
 					}
 				}
 				return new TupleElementIterator((ITuple)subjectValue);
@@ -155,17 +155,17 @@ public class IteratorFactory {
 				subjectType.isDateTimeType())
 		{
 			if (shallow) {
-				throw new NotEnumerableError(subjectType.toString(), ctx.getCurrentAST());
+				throw new NotEnumerable(subjectType.toString(), ctx.getCurrentAST());
 			}
 			return new SingleIValueIterator(subjectValue);
 		} else {
-			throw new UnsupportedOperationError("makeIterator", subjectType, ctx.getCurrentAST());
+			throw new UnsupportedOperation("makeIterator", subjectType, ctx.getCurrentAST());
 		}
 	}
 
 	private static void checkMayOccur(Type patType, Type rType, IEvaluatorContext ctx){
 		if(!TypeReachability.mayOccurIn(rType, patType, ctx.getCurrentEnvt())) {
-			throw new UnexpectedTypeError(rType, patType, ctx.getCurrentAST());
+			throw new UnexpectedType(rType, patType, ctx.getCurrentAST());
 		}
 	}
 

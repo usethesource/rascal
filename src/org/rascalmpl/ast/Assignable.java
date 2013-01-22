@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,6 +64,13 @@ public abstract class Assignable extends AbstractAST {
   public org.rascalmpl.ast.Expression getDefaultExpression() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasSecond() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getSecond() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasSubscript() {
     return false;
   }
@@ -90,6 +97,20 @@ public abstract class Assignable extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getName() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasOptFirst() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.OptionalExpression getOptFirst() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasOptLast() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.OptionalExpression getOptLast() {
     throw new UnsupportedOperationException();
   }
   public boolean hasQualifiedName() {
@@ -368,6 +389,135 @@ public abstract class Assignable extends AbstractAST {
   
     @Override
     public boolean hasDefaultExpression() {
+      return true;
+    }	
+  }
+  public boolean isSlice() {
+    return false;
+  }
+
+  static public class Slice extends Assignable {
+    // Production: sig("Slice",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.OptionalExpression","optLast")])
+  
+    
+    private final org.rascalmpl.ast.Assignable receiver;
+    private final org.rascalmpl.ast.OptionalExpression optFirst;
+    private final org.rascalmpl.ast.OptionalExpression optLast;
+  
+    public Slice(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.OptionalExpression optLast) {
+      super(node);
+      
+      this.receiver = receiver;
+      this.optFirst = optFirst;
+      this.optLast = optLast;
+    }
+  
+    @Override
+    public boolean isSlice() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitAssignableSlice(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Assignable getReceiver() {
+      return this.receiver;
+    }
+  
+    @Override
+    public boolean hasReceiver() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.OptionalExpression getOptFirst() {
+      return this.optFirst;
+    }
+  
+    @Override
+    public boolean hasOptFirst() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.OptionalExpression getOptLast() {
+      return this.optLast;
+    }
+  
+    @Override
+    public boolean hasOptLast() {
+      return true;
+    }	
+  }
+  public boolean isSliceStep() {
+    return false;
+  }
+
+  static public class SliceStep extends Assignable {
+    // Production: sig("SliceStep",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.Expression","second"),arg("org.rascalmpl.ast.OptionalExpression","optLast")])
+  
+    
+    private final org.rascalmpl.ast.Assignable receiver;
+    private final org.rascalmpl.ast.OptionalExpression optFirst;
+    private final org.rascalmpl.ast.Expression second;
+    private final org.rascalmpl.ast.OptionalExpression optLast;
+  
+    public SliceStep(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.OptionalExpression optLast) {
+      super(node);
+      
+      this.receiver = receiver;
+      this.optFirst = optFirst;
+      this.second = second;
+      this.optLast = optLast;
+    }
+  
+    @Override
+    public boolean isSliceStep() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitAssignableSliceStep(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Assignable getReceiver() {
+      return this.receiver;
+    }
+  
+    @Override
+    public boolean hasReceiver() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.OptionalExpression getOptFirst() {
+      return this.optFirst;
+    }
+  
+    @Override
+    public boolean hasOptFirst() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getSecond() {
+      return this.second;
+    }
+  
+    @Override
+    public boolean hasSecond() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.OptionalExpression getOptLast() {
+      return this.optLast;
+    }
+  
+    @Override
+    public boolean hasOptLast() {
       return true;
     }	
   }

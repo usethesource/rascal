@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2012 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -180,9 +180,9 @@ syntax Target
 	| labeled: Name name ;
 
 syntax IntegerLiteral
-	= /*prefer()*/ decimalIntegerLiteral: DecimalIntegerLiteral decimal 
-	| /*prefer()*/ hexIntegerLiteral: HexIntegerLiteral hex 
-	| /*prefer()*/ octalIntegerLiteral: OctalIntegerLiteral octal ;
+	=  decimalIntegerLiteral: DecimalIntegerLiteral decimal 
+	|  hexIntegerLiteral: HexIntegerLiteral hex 
+	|  octalIntegerLiteral: OctalIntegerLiteral octal ;
 
 syntax FunctionBody
 	= \default: "{" Statement* statements "}" ;
@@ -355,13 +355,15 @@ syntax Assignment
 	;
 
 syntax Assignable
-	= bracket \bracket   : "(" Assignable arg ")"
+	= bracket \bracket  : "(" Assignable arg ")"
 	| variable          : QualifiedName qualifiedName
     | subscript         : Assignable receiver "[" Expression subscript "]" 
+    | slice    	        : Assignable receiver "[" OptionalExpression optFirst ".." OptionalExpression optLast "]" 
+	| sliceStep         : Assignable receiver "[" OptionalExpression optFirst "," Expression second ".." OptionalExpression optLast "]" 
 	| fieldAccess       : Assignable receiver "." Name field 
 	| ifDefinedOrDefault: Assignable receiver "?" Expression defaultExpression 
 	| constructor       : Name name "(" {Assignable ","}+ arguments ")"  
-	| \tuple             : "\<" {Assignable ","}+ elements "\>" 
+	| \tuple            : "\<" {Assignable ","}+ elements "\>" 
 	| annotation        : Assignable receiver "@" Name annotation  ;
 
 lexical StringConstant
@@ -387,7 +389,7 @@ lexical StringCharacter
 	= "\\" [\" \' \< \> \\ b f n r t] 
 	| UnicodeEscape 
 	| ![\" \' \< \> \\]
-	| [\n][\ \t \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000]* [\'] // margin 
+	| [\n][\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* [\'] // margin 
 	;
 
 lexical JustTime
@@ -399,7 +401,7 @@ lexical MidStringChars
 	= @category="Constant" [\>] StringCharacter* [\<] ;
 
 lexical ProtocolChars
-	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000];
+	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000];
 
 lexical RegExpModifier
 	= [d i m s]* ;
@@ -555,7 +557,7 @@ syntax StringLiteral
 
 lexical Comment
 	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
-	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
+	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
 	;
 	
 
@@ -818,9 +820,9 @@ syntax Prod
 	;
 
 syntax DateTimeLiteral
-	= /*prefer()*/ dateLiteral: JustDate date 
-	| /*prefer()*/ timeLiteral: JustTime time 
-	| /*prefer()*/ dateAndTimeLiteral: DateAndTime dateAndTime ;
+	=  dateLiteral: JustDate date 
+	|  timeLiteral: JustTime time 
+	|  dateAndTimeLiteral: DateAndTime dateAndTime ;
 
 lexical PrePathChars
 	= URLChars "\<" ;

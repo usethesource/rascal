@@ -1,0 +1,36 @@
+Name: UnitializedVariable
+
+Synopsis: Use of a variable that has not been initialized.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+A [$Rascal:Declarations/Variable] has to be initialized before it can be used.
+This error is generated when an uninitialzed variable is used.
+
+Remedy: assign a value to the variable before its use:
+
+Examples:
+Using the uninitialized variable `x` gives an error:
+<screen warning>
+x + 5;
+// This can be avoided by first initializing `x`:
+x = 3;
+x + 5;
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

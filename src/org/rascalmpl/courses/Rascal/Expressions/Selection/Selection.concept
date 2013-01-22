@@ -1,6 +1,6 @@
 Name: Selection
 
-Synopsis: Retrieve the value of an [Annotation].
+Synopsis: Retrieve the value of an [$Declarations/Annotation].
 
 Syntax:
 `$Expr$ @ $Name$`

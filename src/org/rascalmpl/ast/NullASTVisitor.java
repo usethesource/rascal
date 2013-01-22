@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,14 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitAssignableIfDefinedOrDefault(Assignable.IfDefinedOrDefault x) { 
+    return null; 
+  }
+
+  public T visitAssignableSlice(Assignable.Slice x) { 
+    return null; 
+  }
+
+  public T visitAssignableSliceStep(Assignable.SliceStep x) { 
     return null; 
   }
 

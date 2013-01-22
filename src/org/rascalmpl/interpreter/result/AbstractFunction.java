@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.env.Pair;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
@@ -259,7 +259,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			env.storeTypeBindings(bindings);
 		}
 		catch (FactTypeUseException e) {
-			throw new UnexpectedTypeError(formals, actualTypes, ast);
+			throw new UnexpectedType(formals, actualTypes, ast);
 		}
 	}	
 	

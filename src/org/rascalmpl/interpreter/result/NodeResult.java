@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,18 +20,17 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
@@ -74,18 +73,22 @@ public class NodeResult extends ElementResult<INode> {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length != 1) {
-			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		if (!((Result<IValue>)subscripts[0]).getType().isIntegerType()) {
-			throw new UnexpectedTypeError(getTypeFactory().integerType(), 
+			throw new UnexpectedType(getTypeFactory().integerType(), 
 					((Result<IValue>)subscripts[0]).getType(), ctx.getCurrentAST());
 		}
 		IInteger index = ((IntegerResult)subscripts[0]).getValue();
-		if (index.intValue() >= getValue().arity()) {
+		int idx = index.intValue();
+		if(idx < 0){
+			idx = idx + getValue().arity();
+		}
+		if ( (idx >= getValue().arity()) || (idx < 0)) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		Type elementType = getTypeFactory().valueType();
-		return makeResult(elementType, getValue().get(index.intValue()), ctx);
+		return makeResult(elementType, getValue().get(idx), ctx);
 	}
 	
 	@Override
@@ -94,7 +97,7 @@ public class NodeResult extends ElementResult<INode> {
 	}
 	
 	public Result<IValue> makeSlice(int first, int second, int end){
-		ListWriter w = new ListWriter(getType());
+		IListWriter w = getValueFactory().listWriter(getType());
 		int increment = second - first;
 		if(first == end || increment == 0){
 			// nothing to be done
@@ -108,7 +111,8 @@ public class NodeResult extends ElementResult<INode> {
 				w.append(getValue().get(j));
 			}
 		}
-		return makeResult(TypeFactory.getInstance().listType(getType()), w.done(), ctx);
+		TypeFactory tf = TypeFactory.getInstance();
+		return makeResult(tf.listType(tf.valueType()), w.done(), ctx);
 	}
 	
 	//////
@@ -165,7 +169,7 @@ public class NodeResult extends ElementResult<INode> {
 		Type annoType = env.getAnnotationType(getType(), annoName);
 	
 		if (annoType == null) {
-			throw new UndeclaredAnnotationError(annoName, getType(), ctx.getCurrentAST());
+			throw new UndeclaredAnnotation(annoName, getType(), ctx.getCurrentAST());
 		}
 	
 		IValue annoValue = getValue().getAnnotation(annoName);

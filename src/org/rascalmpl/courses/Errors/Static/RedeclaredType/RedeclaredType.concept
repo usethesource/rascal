@@ -1,0 +1,38 @@
+Name: RedeclaredType
+
+Synopsis: A type with the same name has been declared before.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+Some declarations introduce new type names. Most important are an [Rascal:AlgebraicDataType] and [Rascal:Alias]
+This error signals that the same type name is used for incompatible purposes.
+
+Remedy: rename one of the type names.
+
+Examples:
+<screen warnings>
+data D = d(int x);
+alias D = str;
+</screen>
+
+<screen warnings>
+alias D = int;
+alias D = str;
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

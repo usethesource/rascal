@@ -1,0 +1,65 @@
+Name: ListRelation
+
+Synopsis: ListRelation values.
+
+Syntax:
+`[ <$Exp_11$, $Exp_12$, ... > , <$Exp_21$, $Exp_22$, ... > , ... ]`
+
+Types:
+| `$Exp_11$` |  `$Exp_12$` |  ...  | `{ <$Exp_11$, $Exp_12$, ... > , ... }`  |
+|:-----------|:------------|:------|:----------------------------------------|
+| `$T_1$`    |    `$T_2$`  |  ...  |  `lrel[$T_1$, $T_2$, ... ]`              |
+
+Usage: `import ListRelation;` (included in [Prelude])
+
+Function:
+
+Details:
+
+Description:
+A list relation is a list of elements with the following property:
+
+* All elements have the same static tuple type.
+
+
+ListRelations are thus nothing more than lists of tuples, but since they are used so often we provide a shorthand notation for them.
+ListRelations are represented by the type `lrel[$T_1$ $L_1$, $T_2$ $L_2$, ... ]`, where $T_1$, $T_2$, ... are arbitrary types and
+$L_1$, $L_2$, ... are optional labels. It is a shorthand for `list[tuple[$T_1$ $L_1$, $T_2$ $L_2$, ... ]]`.
+
+An n-ary list relation with m tuples is denoted by
+ `[<$E_11$, $E_12$, ..., $E_1n$>,<$E_21$, $E_22$, ..., $E_2n$>, ..., <$E_m1$, $E_m2$, ..., $E_mn$>]`, 
+where the $E_ij$ are expressions that yield the desired element type $T_i$.
+
+Since list relations are a form of list all operations (see [$Values/List]) and functions
+(see [Prelude/List]) are also applicable to relations.
+
+The following additional operators are provided for list relations:
+<toc Rascal/Expressions/Values/ListRelation 1>
+
+The following additional functions are provided on list relations:
+<toc Rascal/Libraries/Prelude/ListRelation 1>
+
+
+Examples:
+<screen>
+[<1,10>, <2,20>, <3,30>]
+// instead of lrel[int,int] we can also give `list[tuple[int,int]]` as type of the above expression
+// remember that these types are interchangeable.
+[<"a",10>, <"b",20>, <"c",30>]
+[<"a", 1, "b">, <"c", 2, "d">]
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+QChoice: A relation:
+g: Is a set of tuples.
+b: Is a list of tuples.
+b: Is a tuple of tuples.
+b: Has ordered elements.
+b: Can contain duplicates.
+b: Has a fixed length.
+
