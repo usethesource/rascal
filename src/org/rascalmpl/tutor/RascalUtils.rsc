@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -204,11 +204,10 @@ private tuple[int,str] extractFunctionDeclaration(int current, bool writing){
 private tuple[int,str] extractDataOrAliasDeclaration(int current, bool writing){
   decl = declarations[current];
   userType = normalizeName("<decl.user>");
-  println("userType = <userType>");
   key = "<libRoot>/<moduleName>/<userType>";
   doc = "";
   if(!contentMap[key]?){
-     println("extractDataOrAliasDeclaration: <userType>");
+     //println("extractDataOrAliasDeclaration: <userType>");
      sigs = [getDataOrAliasSignature(decl)];
       while(current+1 < size(declarations) && isUndocumentedDataOrAlias(declarations[current+1])){
             sigs += getDataOrAliasSignature(declarations[current+1]);
@@ -314,10 +313,6 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   }
   return contentMap;
 
-  }
-  catch FileNotFound(_): {
-    println("Referred module has disappeared: <L>, as referred to in <root>");
-    return ();
   }
   catch PathNotFound(_): {
     println("Referred module has disappeared: <L>, as referred to in <root>");

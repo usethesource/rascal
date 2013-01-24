@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -80,11 +80,15 @@ public class NodeResult extends ElementResult<INode> {
 					((Result<IValue>)subscripts[0]).getType(), ctx.getCurrentAST());
 		}
 		IInteger index = ((IntegerResult)subscripts[0]).getValue();
-		if (index.intValue() >= getValue().arity()) {
+		int idx = index.intValue();
+		if(idx < 0){
+			idx = idx + getValue().arity();
+		}
+		if ( (idx >= getValue().arity()) || (idx < 0)) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		Type elementType = getTypeFactory().valueType();
-		return makeResult(elementType, getValue().get(index.intValue()), ctx);
+		return makeResult(elementType, getValue().get(idx), ctx);
 	}
 	
 	@Override
@@ -107,7 +111,8 @@ public class NodeResult extends ElementResult<INode> {
 				w.append(getValue().get(j));
 			}
 		}
-		return makeResult(TypeFactory.getInstance().listType(getType()), w.done(), ctx);
+		TypeFactory tf = TypeFactory.getInstance();
+		return makeResult(tf.listType(tf.valueType()), w.done(), ctx);
 	}
 	
 	//////

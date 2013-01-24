@@ -1,0 +1,51 @@
+Name: Composition
+
+Synopsis: Composition of two list relation values.
+
+Syntax:
+`$Exp_1$ o $Exp_2$`
+
+Types:
+|`$Exp_1$`             | `$Exp_2$`            | `$Exp_1$ o $Exp_2$` |
+|:---------------------|:---------------------|:--------------------|
+| `lrel[$T_1$, $T_2$]` | `lrel[$T_2$, $T_3$]` | `lrel[$T_1$, $T_3$]`|
+
+Function:
+
+Details:
+
+Description:
+Returns the composition of two binary list relations.
+
+Examples:
+<screen>
+[<1,10>, <2,20>, <3,15>] o [<10,100>, <20,200>];
+</screen>
+
+Benefits:
+
+Pitfalls:
+We use the letter `o` as operator and this may conflict other defined names.
+
+Questions:
+
+QType:
+prep: import List;
+make: C = list[int,3,3]
+make: A = list[int,3,3]
+make: B = list[int,3,3]
+expr: S1 = zip(<A>,<C>)
+expr: S2 = zip(<C>, <B>)
+test: <S1> o <S2>
+
+QValue:
+prep: import List;
+make: C = list[int,3,3]
+make: A = list[int,3,3]
+make: B = list[int,3,3]
+expr: S1 = zip(<A>,<C>)
+expr: S2 = zip(<C>, <B>)
+expr: H = <S1> o <S2>
+hint: <H>
+test: <S1> o <S2>
+

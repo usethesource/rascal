@@ -1,0 +1,33 @@
+Name: Multiple
+
+Synopsis: Assign to multiple assignables.
+
+Syntax:  `< $Assignable_1$, $Assignable_2$, ..., $Assignable_n$ > = $Exp$`
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+First the value $Exp$ is determined and should be a tuple of the form `<$V_1$, $V_2$, ..., $V_n$>`.
+Next the assignments `$Assignable_i$ = $V_i$` are performed for 1 <= i <= n.
+
+Examples:
+<screen>
+<A, B, C> = <"abc", 2.5, [1,2,3]>;
+A;
+B;
+C;
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,6 +48,7 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedAppend;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
@@ -191,7 +192,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
 
+			
 			Result<IValue> right = this.getStatement().interpret(__eval);
+//			if(this.getAssignable().isSlice() && !this.getOperator().isDefault()){
+//				throw new UnsupportedOperation("Slicing assignment only implemented for simple assignment operator (=)", __eval.getCurrentAST());
+//			}
 			return this.getAssignable().assignment(
 					new AssignableEvaluator(__eval.getCurrentEnvt(), this
 							.getOperator(), right, __eval));

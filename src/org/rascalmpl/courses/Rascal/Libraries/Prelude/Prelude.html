@@ -53,7 +53,7 @@
                            
                            
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Rascal/Libraries/Prelude/Boolean/Boolean.html">Boolean</a> &#032 <a href="/Rascal/Libraries/Prelude/DateTime/DateTime.html">DateTime</a> &#032 <a href="/Rascal/Libraries/Prelude/Exception/Exception.html">Exception</a> &#032 <a href="/Rascal/Libraries/Prelude/IO/IO.html">IO</a> &#032 <a href="/Rascal/Libraries/Prelude/List/List.html">List</a> &#032 <a href="/Rascal/Libraries/Prelude/Map/Map.html">Map</a> &#032 <a href="/Rascal/Libraries/Prelude/Message/Message.html">Message</a> &#032 <a href="/Rascal/Libraries/Prelude/Node/Node.html">Node</a> &#032 <a href="/Rascal/Libraries/Prelude/ParseTree/ParseTree.html">ParseTree</a> &#032 <a href="/Rascal/Libraries/Prelude/Relation/Relation.html">Relation</a> &#032 <a href="/Rascal/Libraries/Prelude/Set/Set.html">Set</a> &#032 <a href="/Rascal/Libraries/Prelude/String/String.html">String</a> &#032 <a href="/Rascal/Libraries/Prelude/Type/Type.html">Type</a> &#032 <a href="/Rascal/Libraries/Prelude/ValueIO/ValueIO.html">ValueIO</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Rascal/Libraries/Prelude/Boolean/Boolean.html">Boolean</a> &#032 <a href="/Rascal/Libraries/Prelude/DateTime/DateTime.html">DateTime</a> &#032 <a href="/Rascal/Libraries/Prelude/Exception/Exception.html">Exception</a> &#032 <a href="/Rascal/Libraries/Prelude/IO/IO.html">IO</a> &#032 <a href="/Rascal/Libraries/Prelude/List/List.html">List</a> &#032 <a href="/Rascal/Libraries/Prelude/ListRelation/ListRelation.html">ListRelation</a> &#032 <a href="/Rascal/Libraries/Prelude/Map/Map.html">Map</a> &#032 <a href="/Rascal/Libraries/Prelude/Message/Message.html">Message</a> &#032 <a href="/Rascal/Libraries/Prelude/Node/Node.html">Node</a> &#032 <a href="/Rascal/Libraries/Prelude/ParseTree/ParseTree.html">ParseTree</a> &#032 <a href="/Rascal/Libraries/Prelude/Relation/Relation.html">Relation</a> &#032 <a href="/Rascal/Libraries/Prelude/Set/Set.html">Set</a> &#032 <a href="/Rascal/Libraries/Prelude/String/String.html">String</a> &#032 <a href="/Rascal/Libraries/Prelude/Type/Type.html">Type</a> &#032 <a href="/Rascal/Libraries/Prelude/ValueIO/ValueIO.html">ValueIO</a> &#032 
 </div>
 
 <div id="Description">
@@ -120,9 +120,10 @@
 <ul><li><a href="/Rascal/Libraries/Prelude/Exception/RuntimeException/RuntimeException.html">RuntimeException</a>: The <code>Exception</code> datatype used in all Rascal exceptions.</li>
 </ul><li><a href="/Rascal/Libraries/Prelude/IO/IO.html">IO</a>: Library functions for input/output.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/IO/appendToFile/appendToFile.html">appendToFile</a>: Append a value to a file.</li>
+<li><a href="/Rascal/Libraries/Prelude/IO/appendToFileEnc/appendToFileEnc.html">appendToFileEnc</a>: Append a value to a file.</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/bprintln/bprintln.html">bprintln</a>: Print a value and return true.</li>
-<li><a href="/Rascal/Libraries/Prelude/IO/canEncode/canEncode.html">canEncode</a>: </li>
-<li><a href="/Rascal/Libraries/Prelude/IO/charsets/charsets.html">charsets</a>: </li>
+<li><a href="/Rascal/Libraries/Prelude/IO/canEncode/canEncode.html">canEncode</a>: Returns whether this charset can be used for encoding (use with writeFile)</li>
+<li><a href="/Rascal/Libraries/Prelude/IO/charsets/charsets.html">charsets</a>: Returns all available character sets</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/exists/exists.html">exists</a>: Check whether a given location exists.</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/find/find.html">find</a>: Find a named file in a list of locations.</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/iprint/iprint.html">iprint</a>: Print an indented representation of a value.</li>
@@ -141,11 +142,14 @@
 <li><a href="/Rascal/Libraries/Prelude/IO/printlnExp/printlnExp.html">printlnExp</a>: Print a value followed by a newline and return it as result.</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/readFile/readFile.html">readFile</a>: Read the contents of a location and return it as string value.</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/readFileBytes/readFileBytes.html">readFileBytes</a>: Read the contents of a file and return it as a list of bytes.</li>
+<li><a href="/Rascal/Libraries/Prelude/IO/readFileEnc/readFileEnc.html">readFileEnc</a>: Read the contents of a location and return it as string value.</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/readFileLines/readFileLines.html">readFileLines</a>: Read the contents of a file location and return it as a list of strings.</li>
+<li><a href="/Rascal/Libraries/Prelude/IO/readFileLinesEnc/readFileLinesEnc.html">readFileLinesEnc</a>: Read the contents of a file location and return it as a list of strings.</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/rprint/rprint.html">rprint</a>: Raw print of a value.</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/rprintln/rprintln.html">rprintln</a>: Raw print of a value followed by newline.</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/touch/touch.html">touch</a>: Changes the last modification date of a file.</li>
-<li><a href="/Rascal/Libraries/Prelude/IO/writeFile/writeFile.html">writeFile</a>: </li>
+<li><a href="/Rascal/Libraries/Prelude/IO/writeFile/writeFile.html">writeFile</a>: Write values to a file.</li>
+<li><a href="/Rascal/Libraries/Prelude/IO/writeFileEnc/writeFileEnc.html">writeFileEnc</a>: Write values to a file.</li>
 </ul><li><a href="/Rascal/Libraries/Prelude/List/List.html">List</a>: Library functions for lists.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/List/delete/delete.html">delete</a>: Delete an element from a list.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/distribution/distribution.html">distribution</a>: Get the distribution of the elements of the list. That is how often does each element occur in the list? </li>
@@ -191,6 +195,22 @@
 <li><a href="/Rascal/Libraries/Prelude/List/unzip/unzip.html">unzip</a>: Make a pair (triple) of lists from a list of pairs (triples).</li>
 <li><a href="/Rascal/Libraries/Prelude/List/upTill/upTill.html">upTill</a>: Returns the list 0,1..n-1.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/zip/zip.html">zip</a>: Make a list of pairs from two (three) lists of the same length.</li>
+</ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/ListRelation.html">ListRelation</a>: Library functions for list relations.  Description Operations on list elations are described in <a href="/Rascal/Expressions/Values/ListRelation/ListRelation.html">Values/ListRelation</a>. All operations on <a href="/Rascal/Expressions/Values/List/List.html">Values/List</a> are also applicable to list relations.  The following functions are provided on list relations: <toc Rascal/Libraries/Prelude/ListRelation 1></li>
+<ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/carrier/carrier.html">carrier</a>: Return the set of all elements in any tuple in a list relation.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/carrierR/carrierR.html">carrierR</a>: A list relation restricted to certain element values in tuples.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/carrierX/carrierX.html">carrierX</a>: A list relation excluding tuples that contain certain element values.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/complement/complement.html">complement</a>: Complement of a list relation.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/domain/domain.html">domain</a>: Domain of a list relation: a list consisting of the first element of each tuple.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/domainR/domainR.html">domainR</a>: List relation restricted to certain domain elements.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/domainX/domainX.html">domainX</a>: List relation excluding certain domain values.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/groupDomainByRange/groupDomainByRange.html">groupDomainByRange</a>: Make sets of elements in the domain that relate to the same element in the range.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/groupRangeByDomain/groupRangeByDomain.html">groupRangeByDomain</a>: Make sets of elements in the range that relate to the same element in the domain.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/ident/ident.html">ident</a>: The identity list relation.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/index/index.html">index</a>: Indexes a binary list relation as a map</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/invert/invert.html">invert</a>: Invert the tuples in a list relation.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/range/range.html">range</a>: The range (i.e., all but the first element of each tuple) of a list relation.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/rangeR/rangeR.html">rangeR</a>: List relation restricted to certain range values.</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/rangeX/rangeX.html">rangeX</a>: List relation excluding certain range values.</li>
 </ul><li><a href="/Rascal/Libraries/Prelude/Map/Map.html">Map</a>: Library functions for maps.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/Map/domain/domain.html">domain</a>: Determine the domain (set of keys) of a map.</li>
 <li><a href="/Rascal/Libraries/Prelude/Map/domainR/domainR.html">domainR</a>: Map restricted to certain keys.</li>

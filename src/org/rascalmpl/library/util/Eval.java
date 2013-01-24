@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -179,7 +179,7 @@ public class Eval {
 		}
 		catch (StaticError e) {
 			if (forRascal)
-				throw new Throw(Exception_StaticError.make(values, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, (String) null);
+				throw new Throw(Exception_StaticError.make(values, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, ctx.getStackTrace());
 			throw e;
 		} catch (URISyntaxException e) {
 			// this should never happen
