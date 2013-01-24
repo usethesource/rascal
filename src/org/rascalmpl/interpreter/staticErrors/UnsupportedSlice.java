@@ -7,21 +7,18 @@
  *
  * Contributors:
 
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Emilie Balland - (CWI)
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.interpreter.strategy;
+package org.rascalmpl.interpreter.staticErrors;
 
-import java.util.List;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.AbstractAST;
 
-import org.eclipse.imp.pdb.facts.IValue;
+public class UnsupportedSlice extends StaticError {
+	private static final long serialVersionUID = -3153224466166484727L;
 
-public interface IStrategyContext {
+	public UnsupportedSlice(Type receiver, AbstractAST ast) {
+		super("Unsupported slice on type " + receiver, ast);
+	}
 
-	public void update(IValue oldvalue, IValue newvalue);
-
-	public IValue getValue();
-
-	public List<IValue> getChildren(IValue value);
 }

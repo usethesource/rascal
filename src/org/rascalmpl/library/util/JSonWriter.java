@@ -49,6 +49,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 public class JSonWriter implements IValueTextWriter {
 
 	static boolean typed = false;
+	
+	static boolean nodeTyped = false;
 
 	static boolean debug = false;
 
@@ -155,6 +157,7 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
+		@SuppressWarnings("unused")
 		public IValue visitSet(ISet o) throws VisitorException {
 			if (debug)
 				System.err.println("VisitSet:" + o);
@@ -167,6 +170,7 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
+		@SuppressWarnings("unused")
 		public IValue visitTuple(ITuple o) throws VisitorException {
 			if (debug)
 				System.err.println("VisitTuple:" + o);
@@ -185,13 +189,6 @@ public class JSonWriter implements IValueTextWriter {
 			visitSequence(o.iterator());
 			if (typed || inNode > 0)
 				append('}');
-			return o;
-		}
-		
-		@Override
-		public IValue visitListRelation(IListRelation o)
-				throws VisitorException {
-			visitSequence(o.iterator());
 			return o;
 		}
 
@@ -276,7 +273,7 @@ public class JSonWriter implements IValueTextWriter {
 			Iterator<IValue> nodeIterator = o.iterator();
 			Map<String, IValue> annotations = o.getAnnotations();
 			Iterator<String> annoIterator = annotations.keySet().iterator();
-			inNode++;
+			if (nodeTyped) inNode++;
 			append("{\"" + name + "\":");
 			append('\"');
 			append(o.getName().replaceAll("\"", "\\\\\"")
@@ -313,7 +310,7 @@ public class JSonWriter implements IValueTextWriter {
 //				// append(']');
 			}
 			append('}');
-			inNode--;
+			if (nodeTyped) inNode--;
 			return o;
 		}
 
@@ -348,6 +345,8 @@ public class JSonWriter implements IValueTextWriter {
 			append('\"');
 			SimpleDateFormat sd = new SimpleDateFormat(
 					"yyyy-MM-dd HH:mm:ss.SSSZ");
+//			SimpleDateFormat sd = new SimpleDateFormat(
+//					"yyyy-MM-dd HH:mm:ss.SSS");
 			append(sd.format(new Date(o.getInstant())));
 			append('\"');
 			if (typed || inNode > 0)
@@ -355,6 +354,13 @@ public class JSonWriter implements IValueTextWriter {
 			return o;
 		}
 
+		@Override
+		public IValue visitListRelation(IListRelation o)
+				throws VisitorException {
+			// TODO Auto-generated method stub
+			visitSequence(o.iterator());
+			return o;
+		}
 	}
 
 }

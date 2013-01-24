@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import java.net.URI;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.interpreter.StackTrace;
 
 /**
  * This class is for representing all run-time exceptions in Rascal.
@@ -34,41 +35,85 @@ public final class Throw extends ControlException {
 	private static final long serialVersionUID = -7290501865940548332L;
 	private final IValue exception;
 	private volatile ISourceLocation loc;
-	private volatile String trace;
+	private volatile StackTrace trace;
 	
 	// It is *not* the idea that these exceptions store references to AbstractAST's!
-	public Throw(IValue value, ISourceLocation loc, String trace) {
+	/**
+	 * Make a new Rascal exception.
+	 * 
+	 * @param value The Rascal exception value
+	 * @param loc A source location, or null if unavailable
+	 * @param trace A stack trace, or null
+	 */
+	public Throw(IValue value, ISourceLocation loc, StackTrace trace) {
 		super(value.toString());
 		this.exception = value;
 		this.loc = loc;
+		if(trace == null) {
+			trace = StackTrace.EMPTY_STACK_TRACE;
+		}
 		this.trace = trace;
 	}
 	
   //	 It is *not* the idea that these exceptions store references to AbstractAST's!
-	public Throw(IValue value, AbstractAST ast, String trace) {
+	/**
+	 * Make a new Rascal exception.
+	 * 
+	 * The AbstractAST (if non-null) is used to find the current source location.
+	 *  
+	 * @param value The Rascal exception value
+	 * @param ast An AbstractAST, or null
+	 * @param trace A stack trace, or null
+	 */
+	public Throw(IValue value, AbstractAST ast, StackTrace trace) {
 		this(value, ast != null ? ast.getLocation() : null, trace);
 	}
 	
-	public String getTrace() {
+	/**
+	 * @return The Rascal stack trace, guaranteed to never be null
+	 */
+	public StackTrace getTrace() {
 		return trace;
 	}
 	
-	public void setTrace(String trace) {
+	/**
+	 * Update the Rascal stack trace.
+	 * 
+	 * @param trace The new trace, or null for an empty trace
+	 */
+	public void setTrace(StackTrace trace) {
+		if(trace == null) {
+			trace = StackTrace.EMPTY_STACK_TRACE;
+		}
 		this.trace = trace;
 	}
 	
+	/**
+	 * @return The Rascal exception value
+	 */
 	public IValue getException() {
 		return exception;
 	}
 	
+	/**
+	 * @return The source location where this exception occurred, or null
+	 */
 	public ISourceLocation getLocation() {
 		return loc;
 	}
 	
+	/**
+	 * @param loc The source location, or null
+	 */
 	public void setLocation(ISourceLocation loc) {
 		this.loc = loc;
 	}
 
+	@Override
+	public Throwable fillInStackTrace() {
+		return reallyFillInStackTrace(); // ensure that we have proper Java traces as well
+	}
+	
 	@Override
 	public String getMessage() {
 		if (loc != null) {

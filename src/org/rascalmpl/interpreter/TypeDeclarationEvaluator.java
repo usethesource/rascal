@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
+ *   * Anya Helene Bagge - UiB
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
@@ -285,7 +286,7 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 
-	private class DeclarationCollector extends NullASTVisitor<Declaration> {
+	private static class DeclarationCollector extends NullASTVisitor<Declaration> {
 		private Set<UserType> abstractDataTypes;
 		private Set<Data> constructorDecls;
 		private Set<Alias> aliasDecls;

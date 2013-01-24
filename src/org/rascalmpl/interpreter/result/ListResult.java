@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -117,10 +117,15 @@ public class ListResult extends ListOrRelationResult<IList> {
 			throw RuntimeExceptionFactory.emptyList(ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		IInteger index = ((IInteger)key.getValue());
-		if ( (index.intValue() >= getValue().length()) || (index.intValue() < 0) ) {
+		
+		int idx = index.intValue();
+		if(idx < 0){
+			idx = idx + getValue().length();
+		}
+		if ( (idx >= getValue().length()) || (idx < 0) ) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		return makeResult(getType().getElementType(), getValue().get(index.intValue()), ctx);
+		return makeResult(getType().getElementType(), getValue().get(idx), ctx);
 	}
 	
 	@Override

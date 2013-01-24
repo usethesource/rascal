@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+  * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -108,22 +108,24 @@ public class MapResult extends ElementResult<IMap> {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(
 			String name, Result<V> repl, TypeStore store) {
-		if (type.getKeyLabel().equals(name)) {
-			throw new UnsupportedOperation("You can not update the keys of a map using the field update operator", ctx.getCurrentAST());
-		}
-		else if (type.getValueLabel().equals(name)) {
-			// interesting operation, sets the image of all keys to one default
-			if (!repl.getType().isSubtypeOf(type.getValueType())) {
-				throw new UnexpectedType(type.getValueType(), repl.getType(), ctx.getCurrentAST());
+		if(type.getKeyLabel() != null){
+			if (type.getKeyLabel().equals(name)) {
+				throw new UnsupportedOperation("You can not update the keys of a map using the field update operator", ctx.getCurrentAST());
 			}
+			else if (type.getValueLabel().equals(name)) {
+				// interesting operation, sets the image of all keys to one default
+				if (!repl.getType().isSubtypeOf(type.getValueType())) {
+					throw new UnexpectedType(type.getValueType(), repl.getType(), ctx.getCurrentAST());
+				}
 
-			IMapWriter w = getValueFactory().mapWriter(type.getKeyType(), type.getValueType());
-			
-			for (IValue key : value) {
-				w.put(key, repl.getValue());
+				IMapWriter w = getValueFactory().mapWriter(type.getKeyType(), type.getValueType());
+
+				for (IValue key : value) {
+					w.put(key, repl.getValue());
+				}
+
+				return makeResult(type, w.done(), ctx);
 			}
-			
-			return makeResult(type, w.done(), ctx);
 		}
 		
 		throw new UndeclaredFieldException(type, name);
