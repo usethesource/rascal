@@ -16,8 +16,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -173,6 +174,38 @@ public class RuntimeExceptionFactory {
 			throw new ImplementationError("Could not create stack trace", e1);
 		}
 	}
+	
+	 /*
+     * Robust version of sourceLocation, to be called only from error situations to avoid nested
+     * error traces.
+     */
+    private static ISourceLocation robustSourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
+    	if (!path.startsWith("/")) {
+			path = "/" + path;
+		}
+    	URI uri = null;
+		try {
+			uri = new URI("file", "", path, null);
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+		}
+    	
+    	if (offset < 0) 
+    		offset = 0;
+		if (length < 0) 
+			length = 0;
+		if (beginLine < 0) 
+			beginLine = 0;
+		if (beginCol < 0) 
+			beginCol = 0;
+		if (endCol < 0) 
+			endCol = 0;
+		if (endLine < beginLine) 
+			endLine = beginLine;
+		if (endLine == beginLine && endCol < beginCol) 
+			endCol = beginCol;
+		return VF.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
+    }
 
 	private static StackTrace buildTrace(Throwable targetException, StackTrace rascalTrace) throws IOException {
 		StackTraceElement[] stackTrace = targetException.getStackTrace();
@@ -181,7 +214,7 @@ public class RuntimeExceptionFactory {
 			if (elem.getMethodName().equals("invoke")) {
 				break;
 			}
-			newTrace.add(VF.sourceLocation(elem.getFileName(), -1, -1, elem.getLineNumber(), elem.getLineNumber(), 0, 0), elem.getClassName() + "." + elem.getMethodName());
+			newTrace.add(robustSourceLocation(elem.getFileName(), 0, 0, elem.getLineNumber(), elem.getLineNumber(), 0, 0), elem.getClassName() + "." + elem.getMethodName());
 		}
 		newTrace.addAll(rascalTrace);
 		return newTrace.freeze();
