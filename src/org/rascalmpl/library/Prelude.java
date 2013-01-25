@@ -2311,7 +2311,8 @@ public class Prelude {
 			
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
-				return values.node(constructorName, implodeArgs(store, type, args, ctx));
+				INode ast = values.node(constructorName, implodeArgs(store, type, args, ctx));
+				return ast.setAnnotation("location", TreeAdapter.getLocation(tree));
 			}
 			
 			// make a typed constructor
