@@ -45,7 +45,6 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -90,11 +89,12 @@ import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
@@ -103,12 +103,12 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.unicode.UnicodeDetector;
-import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.Calendar;
@@ -2148,6 +2148,27 @@ public class Prelude {
 			return values.string(TreeAdapter.yield(tree));
 		}
 
+		if (SymbolAdapter.isStartSort(TreeAdapter.getType(tree))) {
+			IList args = TreeAdapter.getArgs(tree);
+			IConstructor before = (IConstructor) args.get(0);
+			IConstructor ast = (IConstructor) args.get(1);
+			IConstructor after = (IConstructor) args.get(2);
+			IValue result = implode(store, type, ast, splicing, ctx);
+			if (result.getType().isNodeType()) {
+				IMapWriter comments = values.mapWriter();
+				comments.putAll((IMap)((INode)result).getAnnotation("comments"));
+				IList beforeComments = extractComments(before);
+				if (!beforeComments.isEmpty()) {
+					comments.put(values.integer(-1), beforeComments);
+				}
+				IList afterComments = extractComments(after);
+				if (!afterComments.isEmpty()) {
+					comments.put(values.integer(((INode)result).arity()), afterComments);
+				}
+				result = ((INode)result).setAnnotation("comments", comments.done());
+			}
+			return result;
+		}
 		
 		if (TreeAdapter.isLexical(tree)) {
 			java.lang.String constructorName = unescapedConsName(tree);
@@ -2270,18 +2291,40 @@ public class Prelude {
 		
 		if (TreeAdapter.isAppl(tree)) {
 			IList args = TreeAdapter.getASTArgs(tree);
-			// this could be optimized.
-			int i = 0;
-			int length = args.length();
-			while (i < length) {
-				if (TreeAdapter.isEmpty((IConstructor) args.get(i))) {
-					length--;
-					args = args.delete(i);
+			
+			int j = 0;
+			IMapWriter cw = values.mapWriter(types.integerType(), types.listType(types.stringType()));
+			IListWriter aw = values.listWriter();
+			for (IValue kid : TreeAdapter.getArgs(tree)) {
+				if (TreeAdapter.isLayout((IConstructor) kid)) {
+					IList cts = extractComments((IConstructor) kid);
+					if (!cts.isEmpty()) {
+					  cw.put(values.integer(j), cts);
+					}
+					j++;
 				}
-				else {
-					i++;
+				else if (!TreeAdapter.isLiteral((IConstructor) kid) && 
+						!TreeAdapter.isCILiteral((IConstructor) kid) && 
+						!TreeAdapter.isEmpty((IConstructor) kid)) {
+					aw.append(kid);
 				}
 			}
+			args = aw.done();
+			int length = args.length();
+			IMap comments = cw.done();
+			
+//			// this could be optimized.
+//			i = 0;
+//			int length = args.length();
+//			while (i < length) {
+//				if (TreeAdapter.isEmpty((IConstructor) args.get(i))) {
+//					length--;
+//					args = args.delete(i);
+//				}
+//				else {
+//					i++;
+//				}
+//			}
 			
 			
 			java.lang.String constructorName = unescapedConsName(tree);			
@@ -2312,7 +2355,7 @@ public class Prelude {
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
 				INode ast = values.node(constructorName, implodeArgs(store, type, args, ctx));
-				return ast.setAnnotation("location", TreeAdapter.getLocation(tree));
+				return ast.setAnnotation("location", TreeAdapter.getLocation(tree)).setAnnotation("comments", comments);
 			}
 			
 			// make a typed constructor
@@ -2328,7 +2371,7 @@ public class Prelude {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args, ctx);
 					IConstructor ast = makeConstructor(constructorName, ctx, implodedArgs);
-					return ast.setAnnotation("location", loc);
+					return ast.setAnnotation("location", loc).setAnnotation("comments", comments);
 				}
 				catch (Backtrack b) {
 					continue;
@@ -2340,6 +2383,53 @@ public class Prelude {
 		throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
 				"Cannot find a constructor for " + type));
 	}
+	
+	private IList extractComments(IConstructor layout) {
+		final IListWriter comments = values.listWriter();
+		TreeVisitor visitor = new TreeVisitor() {
+
+			@Override
+			public IConstructor visitTreeAppl(IConstructor arg)
+					throws VisitorException {
+				if (TreeAdapter.isComment(arg)) {
+					comments.append(values.string(TreeAdapter.yield(arg)));
+				}
+				else {
+					for (IValue t: TreeAdapter.getArgs(arg)) {
+						t.accept(this);
+					}
+				}
+				return arg;
+			}
+
+			@Override
+			public IConstructor visitTreeAmb(IConstructor arg)
+					throws VisitorException {
+				return arg;
+			}
+
+			@Override
+			public IConstructor visitTreeChar(IConstructor arg)
+					throws VisitorException {
+				return arg;
+			}
+
+			@Override
+			public IConstructor visitTreeCycle(IConstructor arg)
+					throws VisitorException {
+				return arg;
+			}
+			
+		};
+		try {
+			layout.accept(visitor);
+		}
+		catch (VisitorException e) {
+			throw new ImplementationError(e.getMessage());
+		}
+		return comments.done();
+	}
+
 	private boolean isUntypedNodeType(Type type) {
 		return type.isNodeType() && !type.isConstructorType() && !type.isAbstractDataType();
 	}
