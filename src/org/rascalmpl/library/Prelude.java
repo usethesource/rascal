@@ -2110,7 +2110,8 @@ public class Prelude {
 		TypeStore store = new TypeStore();
 		Type type = tr.valueToType((IConstructor) reifiedType, store);
 		try {
-			return implode(store, type, tree, false, ctx);
+			IValue result = implode(store, type, tree, false, ctx); 
+			return result;
 		}
 		catch (Backtrack b) {
 			throw b.exception;
@@ -2133,13 +2134,21 @@ public class Prelude {
 		int length = args.length();
 		IValue implodedArgs[] = new IValue[length];
 		for (int i = 0; i < length; i++) {
-			implodedArgs[i] = implode(store, type.getFieldType(i), (IConstructor)args.get(i), false, ctx);
+			Type argType = isUntypedNodeType(type) ? type : type.getFieldType(i);
+			implodedArgs[i] = implode(store, argType, (IConstructor)args.get(i), false, ctx);
 		}
 		return implodedArgs;
 	}
 	
 	
 	private IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, IEvaluatorContext ctx) {
+
+		// always yield if expected type is str 
+		if (type.isStringType()) {
+			return values.string(TreeAdapter.yield(tree));
+		}
+
+		
 		if (TreeAdapter.isLexical(tree)) {
 			java.lang.String constructorName = unescapedConsName(tree);
 			java.lang.String yield = TreeAdapter.yield(tree);
@@ -2180,7 +2189,8 @@ public class Prelude {
 				}
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Bool type does not match with " + yield));
 			}
-			if (type.isStringType()) {
+			if (type.isStringType() || isUntypedNodeType(type)) {
+				// NB: in "node space" all lexicals become strings
 				return values.string(yield);
 			}
 			
@@ -2282,7 +2292,12 @@ public class Prelude {
 					return implode(store, type, (IConstructor) args.get(0), splicing, ctx);
 				}
 				
-				// make a tuple
+				
+				// make a tuple if we're in node space
+				if (isUntypedNodeType(type)) {
+					return values.tuple(implodeArgs(store, type, args, ctx));
+				}
+
 				if (!type.isTupleType()) {
 					throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor does not match with " + type));
 				}
@@ -2294,8 +2309,12 @@ public class Prelude {
 				return values.tuple(implodeArgs(store, type, args, ctx));
 			}
 			
+			// if in node space, make untyped nodes
+			if (isUntypedNodeType(type)) {
+				return values.node(constructorName, implodeArgs(store, type, args, ctx));
+			}
 			
-			// make a constructor
+			// make a typed constructor
 			if (!type.isAbstractDataType()) {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type));
 			}
@@ -2317,7 +2336,11 @@ public class Prelude {
 			
 		}
 		
-		throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type));
+		throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
+				"Cannot find a constructor for " + type));
+	}
+	private boolean isUntypedNodeType(Type type) {
+		return type.isNodeType() && !type.isConstructorType() && !type.isAbstractDataType();
 	}
 	
 	
