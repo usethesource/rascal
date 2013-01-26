@@ -17,6 +17,8 @@ public class UndeclaredNonTerminalException extends RuntimeException{
 	private final String name;
 	private final Class<?> clazz;
 	
+	// TODO find the location in the Rascal source of the offending non-terminal
+	
 	public UndeclaredNonTerminalException(String name, Class<?> clazz){
 		super();
 		
@@ -26,6 +28,10 @@ public class UndeclaredNonTerminalException extends RuntimeException{
 	
 	public String getName(){
 		return name;
+	}
+	
+	public String getClassName(){
+		return clazz.getSimpleName();
 	}
 	
 	public String getMessage(){
