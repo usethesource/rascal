@@ -195,6 +195,7 @@ public class JavaMethod extends NamedFunction {
 	
 
 	public IValue invoke(Object[] oActuals) {
+		Configuration.printErrors();
 		try {
 			return (IValue) method.invoke(instance, oActuals);
 		}
