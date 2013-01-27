@@ -74,6 +74,7 @@ data Symbol                            // Labels
 data Symbol                            // Composite types.
      = \set(Symbol symbol)
      | \rel(list[Symbol] symbols)
+     | \lrel(list[Symbol] symbols)
      | \tuple(list[Symbol] symbols)
      | \list(Symbol symbol)
      | \map(Symbol from, Symbol to)
