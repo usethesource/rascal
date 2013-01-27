@@ -313,7 +313,7 @@ public java str unparse(Tree tree);
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses Evaluator to create constructors in the caller scope (to fire rewrite rules).}
 @doc{
-Synopsis: Implode a parse tree according to a given ADT.
+Synopsis: Implode a parse tree according to a given (ADT) type.
 
 Description:
 
@@ -332,8 +332,8 @@ Abstract syntax has the following properties:
 
 
 The function `implode` bridges the gap between parse tree and abstract syntax tree.
-Given a parse tree and the type of an ADT it traverses them simultaneously and constructs
-an abstract syntax tree (a value of the given ADT type) as follows:
+Given a parse tree and a Rascal type it traverses them simultaneously and constructs
+an abstract syntax tree (a value of the given type) as follows:
 
 # Literals, layout and empty (i.e. ()) nodes are skipped.
 
@@ -341,6 +341,9 @@ an abstract syntax tree (a value of the given ADT type) as follows:
   expected in the ADT.
 
 # Ambiguities are imploded to `set`s.
+
+# If the expected type is `str` the tree is unparsed into a string. This happens for both 
+  lexical and context-free parse trees.
 
 # If a tree's production has no label and a single AST (i.e. non-layout, non-literal) argument
   (for instance, an injection), the tree node is skipped, and implosion continues 
@@ -362,6 +365,10 @@ an abstract syntax tree (a value of the given ADT type) as follows:
 # For trees with (cons-)labeled productions, the corresponding constructor
   in the ADT corresponding to the non-terminal of the production is found in
   order to make the AST.
+  
+# If the provided type is `node`, (cons-)labeled trees will be imploded to untyped `node`s.
+  This means that any subtrees below it will be untyped nodes (if there is a label), tuples of 
+  nodes (if a label is absent), and strings for lexicals. 
 
 # Unlabeled lexicals are imploded to str, int, real, bool depending on the expected type in
   the ADT. To implode lexical into types other than str, the PDB parse functions for 
@@ -432,7 +439,7 @@ Can be imploded into:
 data Exp = add(Exp, Exp);
 </listing>
 }
-public java &T<:node implode(type[&T<:node] t, Tree tree);
+public java &T<:value implode(type[&T<:value] t, Tree tree);
 
 @doc{
 Synopsis: Annotate a parse tree node with an (error) message.

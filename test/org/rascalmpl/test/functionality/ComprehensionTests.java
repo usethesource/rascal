@@ -187,6 +187,10 @@ public class ComprehensionTests extends TestFramework {
 		
 		assertFalse(runTest("any(<int X, int Y> <- {<1,10>,<30,3>,<2,20>}, X > 100*Y);"));
 		assertFalse(runTest("any(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X > 100*Y);"));
+		
+		assertFalse(runTest("any(_ <- [])"));
+		assertFalse(runTest("any(_ <- {})"));
+		assertFalse(runTest("any(_ <- ())"));
 	}
 	
 	
@@ -219,7 +223,13 @@ public class ComprehensionTests extends TestFramework {
 		assertFalse(runTest("all(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X < Y);"));
 		
 		assertTrue(runTest("all(int i <- [0, 1] && [0, 1][i] == i);"));
+		
+		assertTrue(runTest("all(_ <- [])"));
+		assertTrue(runTest("all(_ <- {})"));
+		assertTrue(runTest("all(_ <- ())"));
+		assertTrue(runTest("all(i <- [1,2,3], (i % 2 == 0 || i % 2 == 1))"));
 	}
+	
 	
 	@Test(expected=StaticError.class)
 	public void noLeaking() {
