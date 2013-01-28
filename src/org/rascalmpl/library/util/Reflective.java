@@ -16,6 +16,7 @@ package org.rascalmpl.library.util;
 import java.io.IOException;
 import java.net.URI;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -65,6 +66,11 @@ public class Reflective {
 		}
 	}
 
+	// TODO: remove when bootstrapping is done again
+	public void newParser(IBool on, IEvaluatorContext ctx) {
+	  ((Evaluator) ctx.getEvaluator()).useNewParser = on.getValue();
+	}
+	
 	private Evaluator getPrivateEvaluator(IEvaluatorContext ctx) {
 		if (cachedEvaluator == null || robin++ > maxCacheRounds) {
 			robin = 0;

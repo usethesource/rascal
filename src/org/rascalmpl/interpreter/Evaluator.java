@@ -151,7 +151,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 * True if we're doing profiling
 	 */
 	private static boolean doProfiling = false;
-	private boolean useNewParser = true;
+	
+	// TODO: remove this after bootstrapping is complete again.
+	public boolean useNewParser = false;
 
 	/**
 	 * The current profiler; private to this evaluator

@@ -16,6 +16,10 @@ import ParseTree;
 import Grammar;
 import IO;
 
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses Evaluator to access private boolean that controls bootstrapping mode}
+public java void newParser(bool on);
+
 public Tree getModuleParseTree(str modulePath) {
     mloc = getModuleLocation(modulePath);
     return parseModule(mloc);
