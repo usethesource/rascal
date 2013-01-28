@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
@@ -20,13 +21,16 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.ast.OptionalExpression;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.AssignableEvaluator.AssignmentOperator;
@@ -41,6 +45,7 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSlice;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscript;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
@@ -627,6 +632,299 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			throw new UnsupportedOperation("subscript",
 					receiver.getType(), this);
 
+		}
+
+	}
+	
+	static public class Slice extends
+	org.rascalmpl.ast.Assignable.Slice {
+
+		public Slice(IConstructor __param1, org.rascalmpl.ast.Assignable __param2,
+				OptionalExpression __param3, OptionalExpression __param4) {
+			super(__param1, __param2, __param3, __param4);
+		}
+
+		@Override
+		public Result<IValue> assignment(AssignableEvaluator __eval) {
+
+			Result<IValue> rec = this.getReceiver().interpret(
+					(Evaluator) __eval.__getEval());
+			Result<IValue> first = null;
+			if(this.getOptFirst().hasExpression()){
+				first = this.getOptFirst().getExpression().interpret(
+					(Evaluator) __eval.__getEval());
+			}
+			Result<IValue> end = null;
+			if(this.getOptLast().hasExpression()){
+				end = this.getOptLast().getExpression().interpret(
+					(Evaluator) __eval.__getEval());
+			}
+			Result<IValue> result;
+
+			if (rec == null || rec.getValue() == null) {
+				// TODO: can this ever happen?
+				throw new UninitializedVariable(this.getReceiver()
+						.toString(), this.getReceiver());
+			}
+			
+			if( !(first == null || first.getType().isIntegerType()) ){
+				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
+			}
+					
+			if( !(end == null || end.getType().isIntegerType()) ){
+				throw new UnsupportedSubscript(rec.getType(), end.getType(), this);
+			}
+			int len =  rec.getType().isListType() ? ((IList) rec.getValue()).length()
+					 : rec.getType().isStringType() ? ((IString) rec.getValue()).length()
+					 : rec.getType().isNodeType() ?((INode) rec.getValue()).arity() 
+					 : 0 ;
+
+			int firstIndex = 0;
+			int secondIndex = 1;
+			int endIndex = len;
+
+			if(first != null){
+				firstIndex = ((IInteger) first.getValue()).intValue();
+				if(firstIndex < 0)
+					firstIndex += len;
+			}
+
+			if(end != null){
+				endIndex =  ((IInteger) end.getValue()).intValue();
+				if(endIndex < 0){
+					endIndex += len;
+				}
+			}
+
+			secondIndex = firstIndex <= endIndex ? firstIndex + 1 : firstIndex - 1;
+
+			if (rec.getType().isListType()) {
+				try {
+					IList list = (IList) rec.getValue();
+					
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isListType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+					
+					__eval.__setValue(__eval.newResult(list, __eval.__getValue()));
+					list = list.replace(firstIndex, secondIndex, endIndex, (IList) repl);
+					
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(list.getType()) : rec.getType(), list,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+			} else if (rec.getType().isStringType()) {
+				try {
+					IString str = (IString) rec.getValue();
+					
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isStringType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+					
+					__eval.__setValue(__eval.newResult(str, __eval.__getValue()));
+					str = str.replace(firstIndex, secondIndex, endIndex, (IString) repl);
+					
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(str.getType()) : rec.getType(), str,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+			} else if (rec.getType().isNodeType()) {
+
+				try {
+					INode node = (INode) rec.getValue();
+
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isListType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+
+					__eval.__setValue(__eval.newResult(node, __eval.__getValue()));
+					node = node.replace(firstIndex, secondIndex, endIndex, (IList) repl);
+
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(node.getType()) : rec.getType(), node,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+			} else {
+				throw new UnsupportedSlice(rec.getType(), this);
+				// TODO implement other slices
+			}
+
+			return __eval.recur(this, result);
+		}
+	}
+	
+	static public class SliceStep extends
+	org.rascalmpl.ast.Assignable.SliceStep {
+
+		public SliceStep(IConstructor __param1, org.rascalmpl.ast.Assignable __param2,
+				OptionalExpression __param3, Expression __param4, OptionalExpression __param5) {
+			super(__param1, __param2, __param3, __param4, __param5);
+		}
+
+		@Override
+		public Result<IValue> assignment(AssignableEvaluator __eval) {
+
+			Result<IValue> rec = this.getReceiver().interpret(
+					(Evaluator) __eval.__getEval());
+			Result<IValue> first = null;
+			if(this.getOptFirst().hasExpression()){
+				first = this.getOptFirst().getExpression().interpret(
+					(Evaluator) __eval.__getEval());
+			}
+			Result<IValue> second = this.getSecond().interpret((Evaluator) __eval.__getEval());
+			Result<IValue> end = null;
+			if(this.getOptLast().hasExpression()){
+				end = this.getOptLast().getExpression().interpret(
+					(Evaluator) __eval.__getEval());
+			}
+			Result<IValue> result;
+
+			if (rec == null || rec.getValue() == null) {
+				// TODO: can this ever happen?
+				throw new UninitializedVariable(this.getReceiver()
+						.toString(), this.getReceiver());
+			}
+			
+			if( !(first == null || first.getType().isIntegerType()) ){
+				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
+			}
+			
+			if(!second.getType().isIntegerType()){
+				throw new UnsupportedSubscript(rec.getType(), second.getType(), this);
+			}
+					
+			if( !(end == null || end.getType().isIntegerType()) ){
+				throw new UnsupportedSubscript(rec.getType(), end.getType(), this);
+			}
+			
+			int len = rec.getType().isListType() ? ((IList) rec.getValue()).length()
+					 : rec.getType().isStringType() ? ((IString) rec.getValue()).length()
+					 :  rec.getType().isNodeType() ?((INode) rec.getValue()).arity() 
+					 : 0 ;
+
+			int firstIndex = 0;
+			int secondIndex = 1;
+			int endIndex = len;
+
+			if(first != null){
+				firstIndex = ((IInteger) first.getValue()).intValue();
+				if(firstIndex < 0)
+					firstIndex += len;
+			}
+
+			if(end != null){
+				endIndex =  ((IInteger) end.getValue()).intValue();
+				if(endIndex < 0){
+					endIndex += len;
+				}
+			}
+
+			secondIndex = ((IInteger)second.getValue()).intValue();
+			if(secondIndex < 0)
+				secondIndex += len;
+
+			if(!(first == null && end == null)){
+				if(first == null && secondIndex > endIndex)
+					firstIndex = len - 1;
+				if(end == null && secondIndex < firstIndex)
+					endIndex = -1;
+			}
+
+			if (rec.getType().isListType()) {
+				try {
+					IList list = (IList) rec.getValue();					
+					
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isListType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+					
+					__eval.__setValue(__eval.newResult(list, __eval.__getValue()));					
+					list = list.replace(firstIndex, secondIndex, endIndex, (IList) repl);
+					
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(list.getType()) : rec.getType(), list,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+			} else if (rec.getType().isStringType()) {
+				try {
+					IString str = (IString) rec.getValue();
+
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isStringType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+					
+					__eval.__setValue(__eval.newResult(str, __eval.__getValue()));
+					str = str.replace(firstIndex, secondIndex, endIndex, (IString) repl);
+					
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(str.getType()) : rec.getType(), str,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+				
+			} else if (rec.getType().isNodeType()) {
+
+				try {
+					INode node = (INode) rec.getValue();
+
+					IValue repl = __eval.__getValue().getValue();
+					if(!repl.getType().isListType()){
+						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+					}
+
+					__eval.__setValue(__eval.newResult(node, __eval.__getValue()));
+					node = node.replace(firstIndex, secondIndex, endIndex, (IList) repl);
+
+					result = org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(rec.hasInferredType() ? rec.getType()
+									.lub(node.getType()) : rec.getType(), node,
+									__eval.__getEval());
+				} catch (IndexOutOfBoundsException e) { // include last in message
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					.indexOutOfBounds((IInteger) first.getValue(),
+							__eval.__getEval().getCurrentAST(), __eval
+							.__getEval().getStackTrace());
+				}
+			} else {
+				throw new UnsupportedSlice(rec.getType(), this);
+				// TODO implement other slices
+			}
+
+			return __eval.recur(this, result);
 		}
 
 	}

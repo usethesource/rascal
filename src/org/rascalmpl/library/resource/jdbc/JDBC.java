@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -155,7 +155,7 @@ public class JDBC {
 			connectionMap.put(newKey, conn);
 			return vf.constructor(JDBC.jdbcConnection, newKey);
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connectString, null, sqle.getMessage(), "Could not connect with given connect string");
+			throw RuntimeExceptionFactory.illegalArgument(connectString, null, null, addMessage("Could not connect with given connect string", sqle));
 		}
 	}
 	
@@ -170,7 +170,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage(), "Could not close the given connection");
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -189,7 +189,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage(), "Could not close the given connection");
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -214,7 +214,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage(), "Could not close the given connection");
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -239,7 +239,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage(), "Could not close the given connection");
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", null));
 		}
 	}
 
@@ -282,7 +282,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage(), "Could not close the given connection");
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
 		}		
 	}
 	
@@ -307,7 +307,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage(), "Could not close the given connection");
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -491,6 +491,8 @@ public class JDBC {
 			case Types.VARCHAR:
 				res = TF.stringType();
 				break;
+			default:
+				throw new UnsupportedOperation("Unknown column type: " + columnType, null);
 		}
 		
 		if (nullable) {
@@ -715,6 +717,8 @@ public class JDBC {
 					else
 						res = vf.string("");
 					break;
+				default:
+					throw new UnsupportedOperation("Unknown column type: " + jdbcColumnType, null);
 			}
 
 			if(rs.getMetaData().isNullable(idx) != ResultSetMetaData.columnNoNulls) {
@@ -768,7 +772,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
 		}
 	}
 
@@ -802,7 +806,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
 		}
 	}
 
@@ -834,7 +838,7 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
 		}
 	}
 
@@ -866,7 +870,16 @@ public class JDBC {
 				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
+		}
+	}
+	
+	private String addMessage(String msg, SQLException sqle) {
+		if(sqle.getMessage() != null) {
+			return msg + ": " + sqle.getMessage();
+		}
+		else {
+			return msg;
 		}
 	}
 }
@@ -876,24 +889,31 @@ class DriverShim implements Driver {
 	DriverShim(Driver d) {
 		this.driver = d;
 	}
+	
 	public boolean acceptsURL(String u) throws SQLException {
 		return this.driver.acceptsURL(u);
 	}
+
 	public Connection connect(String u, Properties p) throws SQLException {
 		return this.driver.connect(u, p);
 	}
+
 	public int getMajorVersion() {
 		return this.driver.getMajorVersion();
 	}
+
 	public int getMinorVersion() {
 		return this.driver.getMinorVersion();
 	}
+
 	public DriverPropertyInfo[] getPropertyInfo(String u, Properties p) throws SQLException {
 		return this.driver.getPropertyInfo(u, p);
 	}
+
 	public boolean jdbcCompliant() {
 		return this.driver.jdbcCompliant();
 	}
+
 	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
 		// TODO Auto-generated method stub
 		return null;

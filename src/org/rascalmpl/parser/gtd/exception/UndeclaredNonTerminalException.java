@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2011-2013 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+
+ *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+*******************************************************************************/
 package org.rascalmpl.parser.gtd.exception;
 
 public class UndeclaredNonTerminalException extends RuntimeException{
@@ -5,6 +16,8 @@ public class UndeclaredNonTerminalException extends RuntimeException{
 	
 	private final String name;
 	private final Class<?> clazz;
+	
+	// TODO find the location in the Rascal source of the offending non-terminal
 	
 	public UndeclaredNonTerminalException(String name, Class<?> clazz){
 		super();
@@ -15,6 +28,10 @@ public class UndeclaredNonTerminalException extends RuntimeException{
 	
 	public String getName(){
 		return name;
+	}
+	
+	public String getClassName(){
+		return clazz.getSimpleName();
 	}
 	
 	public String getMessage(){

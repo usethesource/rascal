@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -74,6 +74,7 @@ data Symbol                            // Labels
 data Symbol                            // Composite types.
      = \set(Symbol symbol)
      | \rel(list[Symbol] symbols)
+     | \lrel(list[Symbol] symbols)
      | \tuple(list[Symbol] symbols)
      | \list(Symbol symbol)
      | \map(Symbol from, Symbol to)
@@ -151,7 +152,9 @@ public bool subtype(\rat(), \num()) = true;
 public bool subtype(\real(), \num()) = true;
 public bool subtype(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = subtype(l, r);
 public bool subtype(\rel(list[Symbol] l), \rel(list[Symbol] r)) = subtype(l, r);
-public bool subtype(\list(Symbol s), \list(Symbol t)) = subtype(s, t);  
+public bool subtype(\list(Symbol s), \list(Symbol t)) = subtype(s, t); 
+public bool subtype(\list(Symbol s), \lrel(Symbol t)) = subtype(s, t); 
+public bool subtype(\lrel(Symbol s), \list(Symbol t)) = subtype(s, t); 
 public bool subtype(\set(Symbol s), \set(Symbol t)) = subtype(s, t);
 public bool subtype(\set(Symbol s), \rel(list[Symbol] ls)) = subtype(s,\tuple(ls));
 public bool subtype(\rel(list[Symbol] ls), \set(Symbol s)) = subtype(\tuple(ls),s);
@@ -243,6 +246,7 @@ public Symbol lub(\num(), \rat()) = \num();
 
 public Symbol lub(\set(Symbol s), \set(Symbol t)) = \set(lub(s, t));  
 public Symbol lub(\set(Symbol s), \rel(list[Symbol] ts)) = \set(lub(s,\tuple(ts)));  
+
 public Symbol lub(\rel(list[Symbol] ts), \set(Symbol s)) = \set(lub(s,\tuple(ts)));
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
@@ -250,6 +254,15 @@ public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(l
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \set(\value()) when size(l) != size(r);
+
+public Symbol lub(\lrel(list[Symbol] ts), \list(Symbol s)) = \list(lub(s,\tuple(ts)));
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \list(\value()) when size(l) != size(r);
+
 public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
 public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
 public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
@@ -329,7 +342,7 @@ since values may escape the scope in which they've been constructed leaving thei
 @javaClass{org.rascalmpl.library.Type}
 @reflect
 public java Symbol typeOf(value v);
-
+/*
 @doc{Tests to make sure a lub a == a.}
 test bool lubIdent01() = lub(\int(), \int()) == \int();
 test bool lubIdent02() = lub(\real(), \real()) == \real();
@@ -366,7 +379,7 @@ test bool lubParam03() = lub(\int(), \parameter("t", \num())) == \num();
 test bool lubTuple01() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\int()),\label("f2",\bool())])) == \tuple([\label("f1",\int()),\label("f2",\bool())]);
 test bool lubTuple02() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\int()),\label("f3",\bool())])) == \tuple([\int(),\bool()]);
 test bool lubTuple03() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\real()),\label("f2",\str())])) == \tuple([\label("f1",\num()),\label("f2",\value())]);
-
+*/
 @doc{
 Synopsis: Determine if the given type is an int.
 }
@@ -485,6 +498,15 @@ public bool isRelType(\parameter(_,Symbol tvb)) = isRelType(tvb);
 public bool isRelType(\label(_,Symbol lt)) = isRelType(lt);
 public bool isRelType(\rel(_)) = true;
 public default bool isRelType(Symbol _) = false;
+
+@doc{
+Synopsis: Determine if the given type is a list relation.
+}
+public bool isLRelType(\alias(_,_,Symbol at)) = isLRelType(at);
+public bool isLRelType(\parameter(_,Symbol tvb)) = isLRelType(tvb);
+public bool isLRelType(\label(_,Symbol lt)) = isLRelType(lt);
+public bool isLRelType(\lrel(_)) = true;
+public default bool isLRelType(Symbol _) = false;
 
 @doc{
 Synopsis: Determine if the given type is a tuple.

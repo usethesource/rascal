@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,7 +45,6 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -90,23 +89,26 @@ import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.unicode.UnicodeDetector;
-import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.Calendar;
@@ -126,7 +128,15 @@ public class Prelude {
 		this.tr = new TypeReifier(values);
 		random = new Random();
 	}
+/*	// Only here for test purposes: 
+	public IValue f1(IInteger x, IInteger y){
+		return values.integer(x.intValue() + y.intValue());
+	}
 	
+	public IValue f2(IInteger x, IList LS, IString y, IBool z){
+		return values.string("x : " + x.intValue() + ", LS = " + LS + ", y ; " + y + ", z : " + z);
+	}
+*/	
 	/*
 	 * Boolean
 	 */
@@ -962,7 +972,10 @@ public class Prelude {
 	public IValue lastModified(ISourceLocation sloc, IEvaluatorContext ctx) {
 		try {
 			return values.datetime(ctx.getResolverRegistry().lastModified(sloc.getURI()));
-		} catch (IOException e) {
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+		}
+		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
@@ -987,6 +1000,8 @@ public class Prelude {
 				w.append(values.string(entry));
 			}
 			return w.done();
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
 		} 
@@ -1006,7 +1021,10 @@ public class Prelude {
 			if (c != null)
 				return readFileEnc(sloc, values.string(c.name()), ctx);
 			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI()), ctx);
-		} catch (IOException e) {
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
+		}
+		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
@@ -1014,6 +1032,8 @@ public class Prelude {
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		try {
 			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI(), charset.getValue()), ctx);
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
@@ -1037,15 +1057,15 @@ public class Prelude {
 			
 			return values.string(str);
 		}catch(FileNotFoundException fnfex){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 		}finally{
 			if(in != null){
 				try{
 					in.close();
 				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 				}
 			}
 		}
@@ -1068,17 +1088,17 @@ public class Prelude {
 			
 			return values.string(new String(md.digest()));
 		}catch(FileNotFoundException fnfex){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 		} catch (NoSuchAlgorithmException e) {
-			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), null, null);
+			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), ctx.getCurrentAST(), null);
 		}finally{
 			if(in != null){
 				try{
 					in.close();
 				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 				}
 			}
 		}
@@ -1105,16 +1125,16 @@ public class Prelude {
 					detected = UnicodeDetector.estimateCharset(in);
 				}
 			}catch(FileNotFoundException fnfex){
-				throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+				throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 			} catch (IOException e) {
-				throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+				throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
 			}
 			finally {
 				if (in != null) {
 					try {
 						in.close();
 					} catch (IOException e) {
-						throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+						throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
 					}
 				}
 			}
@@ -1151,15 +1171,15 @@ public class Prelude {
 				}
 			}
 		}catch(FileNotFoundException fnfex){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 		}finally{
 			if(out != null){
 				try{
 					out.close();
 				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 				}
 			}
 		}
@@ -1183,9 +1203,9 @@ public class Prelude {
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
 		}
 	}
 	
@@ -1195,9 +1215,9 @@ public class Prelude {
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
 		}
 	}
 
@@ -1244,13 +1264,13 @@ public class Prelude {
 				}
 			}while(line != null);
 		}catch(IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
 		}finally{
 			if(in != null){
 				try{
 					in.close();
 				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 				}
 			}
 		}
@@ -1276,15 +1296,15 @@ public class Prelude {
 				}
 			}while(read != -1);
 		}catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
 		}finally{
 			if(in != null){
 				try{
 					in.close();
 				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 				}
 			}
 		}
@@ -1982,6 +2002,9 @@ public class Prelude {
 			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
+		catch (UndeclaredNonTerminalException e){
+			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+		}
 	}
 
 	public IValue parse(IValue start, IString input, IEvaluatorContext ctx) {
@@ -2006,6 +2029,9 @@ public class Prelude {
 			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
+		catch (UndeclaredNonTerminalException e){
+			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+		}
 	}
 	
 	public IValue parse(IValue start, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
@@ -2029,6 +2055,9 @@ public class Prelude {
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+		catch (UndeclaredNonTerminalException e){
+			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
 		}
 	}
 	
@@ -2081,7 +2110,8 @@ public class Prelude {
 		TypeStore store = new TypeStore();
 		Type type = tr.valueToType((IConstructor) reifiedType, store);
 		try {
-			return implode(store, type, tree, false, ctx);
+			IValue result = implode(store, type, tree, false, ctx); 
+			return result;
 		}
 		catch (Backtrack b) {
 			throw b.exception;
@@ -2104,13 +2134,42 @@ public class Prelude {
 		int length = args.length();
 		IValue implodedArgs[] = new IValue[length];
 		for (int i = 0; i < length; i++) {
-			implodedArgs[i] = implode(store, type.getFieldType(i), (IConstructor)args.get(i), false, ctx);
+			Type argType = isUntypedNodeType(type) ? type : type.getFieldType(i);
+			implodedArgs[i] = implode(store, argType, (IConstructor)args.get(i), false, ctx);
 		}
 		return implodedArgs;
 	}
 	
 	
 	private IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, IEvaluatorContext ctx) {
+
+		// always yield if expected type is str 
+		if (type.isStringType()) {
+			return values.string(TreeAdapter.yield(tree));
+		}
+
+		if (SymbolAdapter.isStartSort(TreeAdapter.getType(tree))) {
+			IList args = TreeAdapter.getArgs(tree);
+			IConstructor before = (IConstructor) args.get(0);
+			IConstructor ast = (IConstructor) args.get(1);
+			IConstructor after = (IConstructor) args.get(2);
+			IValue result = implode(store, type, ast, splicing, ctx);
+			if (result.getType().isNodeType()) {
+				IMapWriter comments = values.mapWriter();
+				comments.putAll((IMap)((INode)result).getAnnotation("comments"));
+				IList beforeComments = extractComments(before);
+				if (!beforeComments.isEmpty()) {
+					comments.put(values.integer(-1), beforeComments);
+				}
+				IList afterComments = extractComments(after);
+				if (!afterComments.isEmpty()) {
+					comments.put(values.integer(((INode)result).arity()), afterComments);
+				}
+				result = ((INode)result).setAnnotation("comments", comments.done());
+			}
+			return result;
+		}
+		
 		if (TreeAdapter.isLexical(tree)) {
 			java.lang.String constructorName = unescapedConsName(tree);
 			java.lang.String yield = TreeAdapter.yield(tree);
@@ -2151,7 +2210,8 @@ public class Prelude {
 				}
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Bool type does not match with " + yield));
 			}
-			if (type.isStringType()) {
+			if (type.isStringType() || isUntypedNodeType(type)) {
+				// NB: in "node space" all lexicals become strings
 				return values.string(yield);
 			}
 			
@@ -2231,18 +2291,40 @@ public class Prelude {
 		
 		if (TreeAdapter.isAppl(tree)) {
 			IList args = TreeAdapter.getASTArgs(tree);
-			// this could be optimized.
-			int i = 0;
-			int length = args.length();
-			while (i < length) {
-				if (TreeAdapter.isEmpty((IConstructor) args.get(i))) {
-					length--;
-					args = args.delete(i);
+			
+			int j = 0;
+			IMapWriter cw = values.mapWriter(types.integerType(), types.listType(types.stringType()));
+			IListWriter aw = values.listWriter();
+			for (IValue kid : TreeAdapter.getArgs(tree)) {
+				if (TreeAdapter.isLayout((IConstructor) kid)) {
+					IList cts = extractComments((IConstructor) kid);
+					if (!cts.isEmpty()) {
+					  cw.put(values.integer(j), cts);
+					}
+					j++;
 				}
-				else {
-					i++;
+				else if (!TreeAdapter.isLiteral((IConstructor) kid) && 
+						!TreeAdapter.isCILiteral((IConstructor) kid) && 
+						!TreeAdapter.isEmpty((IConstructor) kid)) {
+					aw.append(kid);
 				}
 			}
+			args = aw.done();
+			int length = args.length();
+			IMap comments = cw.done();
+			
+//			// this could be optimized.
+//			i = 0;
+//			int length = args.length();
+//			while (i < length) {
+//				if (TreeAdapter.isEmpty((IConstructor) args.get(i))) {
+//					length--;
+//					args = args.delete(i);
+//				}
+//				else {
+//					i++;
+//				}
+//			}
 			
 			
 			java.lang.String constructorName = unescapedConsName(tree);			
@@ -2253,7 +2335,12 @@ public class Prelude {
 					return implode(store, type, (IConstructor) args.get(0), splicing, ctx);
 				}
 				
-				// make a tuple
+				
+				// make a tuple if we're in node space
+				if (isUntypedNodeType(type)) {
+					return values.tuple(implodeArgs(store, type, args, ctx));
+				}
+
 				if (!type.isTupleType()) {
 					throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor does not match with " + type));
 				}
@@ -2265,8 +2352,13 @@ public class Prelude {
 				return values.tuple(implodeArgs(store, type, args, ctx));
 			}
 			
+			// if in node space, make untyped nodes
+			if (isUntypedNodeType(type)) {
+				INode ast = values.node(constructorName, implodeArgs(store, type, args, ctx));
+				return ast.setAnnotation("location", TreeAdapter.getLocation(tree)).setAnnotation("comments", comments);
+			}
 			
-			// make a constructor
+			// make a typed constructor
 			if (!type.isAbstractDataType()) {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type));
 			}
@@ -2279,7 +2371,7 @@ public class Prelude {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args, ctx);
 					IConstructor ast = makeConstructor(constructorName, ctx, implodedArgs);
-					return ast.setAnnotation("location", loc);
+					return ast.setAnnotation("location", loc).setAnnotation("comments", comments);
 				}
 				catch (Backtrack b) {
 					continue;
@@ -2288,7 +2380,58 @@ public class Prelude {
 			
 		}
 		
-		throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type));
+		throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
+				"Cannot find a constructor for " + type));
+	}
+	
+	private IList extractComments(IConstructor layout) {
+		final IListWriter comments = values.listWriter();
+		TreeVisitor visitor = new TreeVisitor() {
+
+			@Override
+			public IConstructor visitTreeAppl(IConstructor arg)
+					throws VisitorException {
+				if (TreeAdapter.isComment(arg)) {
+					comments.append(values.string(TreeAdapter.yield(arg)));
+				}
+				else {
+					for (IValue t: TreeAdapter.getArgs(arg)) {
+						t.accept(this);
+					}
+				}
+				return arg;
+			}
+
+			@Override
+			public IConstructor visitTreeAmb(IConstructor arg)
+					throws VisitorException {
+				return arg;
+			}
+
+			@Override
+			public IConstructor visitTreeChar(IConstructor arg)
+					throws VisitorException {
+				return arg;
+			}
+
+			@Override
+			public IConstructor visitTreeCycle(IConstructor arg)
+					throws VisitorException {
+				return arg;
+			}
+			
+		};
+		try {
+			layout.accept(visitor);
+		}
+		catch (VisitorException e) {
+			throw new ImplementationError(e.getMessage());
+		}
+		return comments.done();
+	}
+
+	private boolean isUntypedNodeType(Type type) {
+		return type.isNodeType() && !type.isConstructorType() && !type.isAbstractDataType();
 	}
 	
 	

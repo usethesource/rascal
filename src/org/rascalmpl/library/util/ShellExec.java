@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ShellExec {
@@ -83,7 +84,7 @@ public class ShellExec {
 					if (arguments.get(n) instanceof IString) 
 						args[n+1] = ((IString)arguments.get(n)).getValue();
 					else
-						throw RuntimeExceptionFactory.illegalArgument(arguments.get(n),null, "");
+						throw RuntimeExceptionFactory.illegalArgument(arguments.get(n),null, null);
 				}
 			} else {
 				args = new String[1];
@@ -103,10 +104,10 @@ public class ShellExec {
 							IString strVal = (IString) varVal;
 							vars[keyCount] = strKey + " = " + strVal;
 						} else {
-							throw RuntimeExceptionFactory.illegalArgument(varVal,null, "");
+							throw RuntimeExceptionFactory.illegalArgument(varVal,null, null);
 						}
 					} else {
-						throw RuntimeExceptionFactory.illegalArgument(varKey,null, "");
+						throw RuntimeExceptionFactory.illegalArgument(varKey,null, null);
 					}
 					keyCount++;
 				}
@@ -123,7 +124,7 @@ public class ShellExec {
 			runningProcesses.put(processCounter, newProcess);
 			return processCounter;
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e, null, Arrays.toString(e.getStackTrace()));
+			throw RuntimeExceptionFactory.javaException(e, null, null);
 		}
 	}
 
@@ -175,7 +176,7 @@ public class ShellExec {
 			}
 			return vf.string(line.toString());
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e, null, Arrays.toString(e.getStackTrace()));
+			throw RuntimeExceptionFactory.javaException(e, null, null);
 		}
 	}
 	
@@ -193,7 +194,7 @@ public class ShellExec {
 			if (br != null) br.close();
 			return vf.string(lines.toString());
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e, null, Arrays.toString(e.getStackTrace()));
+			throw RuntimeExceptionFactory.javaException(e, null, null);
 		}
 	}
 
@@ -211,7 +212,7 @@ public class ShellExec {
 			if (br != null) br.close();
 			return vf.string(lines.toString());
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e, null, Arrays.toString(e.getStackTrace()));
+			throw RuntimeExceptionFactory.javaException(e, null, null);
 		}
 	}
 
@@ -230,7 +231,7 @@ public class ShellExec {
 			osw.append(msg.getValue());
 			osw.flush();
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e, null, Arrays.toString(e.getStackTrace()));
+			throw RuntimeExceptionFactory.javaException(e, null, null);
 		}
 	}
 

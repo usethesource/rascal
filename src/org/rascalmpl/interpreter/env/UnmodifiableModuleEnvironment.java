@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,14 +7,14 @@
  *
  * Contributors:
 
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Emilie Balland - (CWI)
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anya Helene Bagge - (UiB)
 *******************************************************************************/
-package org.rascalmpl.interpreter.strategy;
+package org.rascalmpl.interpreter.env;
 
+public class UnmodifiableModuleEnvironment extends ModuleEnvironment {
 
-public interface IContextualVisitable extends IVisitable {
-		
-	public IStrategyContext getContext();
+	public UnmodifiableModuleEnvironment(String name, GlobalEnvironment heap) {
+		super(name, heap);
+	}
+
 }

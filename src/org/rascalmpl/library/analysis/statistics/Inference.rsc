@@ -1,3 +1,10 @@
+@license{
+  Copyright (c) 2009-2013 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 module analysis::statistics::Inference
 
 @doc{
@@ -19,7 +26,7 @@ chiSquare([<50, 44>, <50, 56>])
 
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
-public java num chiSquare(list[tuple[num expected, int observed]] values);
+public java num chiSquare(lrel[num expected, int observed] values);
 
 @doc{
 Synopsis: Chi-square test on data values.
@@ -36,10 +43,10 @@ comparing observed frequency counts to expected counts.
 can be rejected with confidence 1 - `alpha`.
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
-public java num chiSquareTest(list[tuple[num expected, int observed]] values);
+public java num chiSquareTest(lrel[num expected, int observed] values);
 
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
-public java bool chiSquareTest(list[tuple[num expected, int observed]] values, real alpha);
+public java bool chiSquareTest(lrel[num expected, int observed] values, real alpha);
 
 @doc{
 Synopsis: T-test on sample data.
@@ -171,5 +178,5 @@ gini([<998000, 1>, <20000, 3>, <117500, 1>, <70000, 2>, <23500, 5>, <45200,1>]);
 }
 
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
-public java real gini(list[tuple[num observation,int frequency]] values);
+public java real gini(lrel[num observation,int frequency] values);
 
