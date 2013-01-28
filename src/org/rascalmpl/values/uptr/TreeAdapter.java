@@ -133,6 +133,14 @@ public class TreeAdapter {
 		throw new ImplementationError("Node has no args: " + tree.getName());
 	}		
 	
+	public static IConstructor setProduction(IConstructor tree, IConstructor prod) {
+    if (isAppl(tree)) {
+      return tree.set("prod", prod);
+    }
+
+    throw new ImplementationError("Node has no args: " + tree.getName());
+  } 
+	
 	public static boolean isLiteral(IConstructor tree) {
 		return isAppl(tree) ? ProductionAdapter.isLiteral(getProduction(tree))
 				: false;

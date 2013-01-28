@@ -128,6 +128,8 @@ import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.TempURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
@@ -1596,7 +1598,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     
     char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
     IConstructor fragment = (IConstructor) parser.parse(SymbolAdapter.getName(type.getSymbol()), getCurrentAST().getLocation().getURI(), input, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-    return replaceHolesByAntiQuotes(fragment, antiquotes);
+    fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
+    
+    IConstructor prod = TreeAdapter.getProduction(tree);
+    IConstructor sym = ProductionAdapter.getDefined(prod);
+    sym = SymbolAdapter.delabel(sym); 
+    prod = ProductionAdapter.setDefined(prod, (IConstructor) Factory.Symbol_Label.make(vf, vf.string("$parsed"), sym));
+    return TreeAdapter.setProduction(TreeAdapter.setArgs(tree, args.put(fragmentPosition, fragment)), prod);
   }
 	
 	private char[] replaceAntiQuotesByHoles(IConstructor lit, Map<String, IConstructor> antiquotes) {
@@ -1607,7 +1615,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	    IConstructor part = (IConstructor) elem;
 	    String cons = TreeAdapter.getConstructorName(part);
 	    
-	    if (cons.equals("text")) {
+	    if (cons == null /* TODO: remove when layout problem is fixed */ || cons.equals("text")) {
 	      b.append(TreeAdapter.yield(part));
 	    }
 	    else if (cons.equals("newline")) {
@@ -1634,7 +1642,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
   private String createHole(IConstructor part, Map<String, IConstructor> antiquotes) {
-    IConstructor sym = (IConstructor) TreeAdapter.getArgs(part).get(2);
+    IConstructor hole = (IConstructor) TreeAdapter.getArgs(part).get(0); // skip chain rule
+    IConstructor sym = (IConstructor) TreeAdapter.getArgs(hole).get(2);
     StringBuilder b = new StringBuilder();
     b.append((char) 0);
     b.append(TreeAdapter.yield(sym).replaceAll("\\s", ""));

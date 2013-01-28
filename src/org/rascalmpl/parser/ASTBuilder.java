@@ -223,7 +223,7 @@ public class ASTBuilder {
 			return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
 		}
 		
-		if (sortName(tree).equals("Pattern") && isEmbedding(tree)) {
+		if (sortName(tree).equals("Pattern")) {
 		  if (isEmbedding(tree)) {
 		    return lift(tree, true);
 		  }
@@ -628,7 +628,7 @@ public class ASTBuilder {
 				return stats(tree, result, stats);
 			}
 			
-			if (cons != null && (cons.equals("ConcreteHole"))) {
+			if (cons != null && (cons.equals("hole"))) { // TODO: this is unsafe, what if somebody named their own production "hole"??
 			  result = liftHole(tree);
 			  stats.setNestedMetaVariables(1);
         return stats(tree, result, stats);
@@ -729,8 +729,9 @@ public class ASTBuilder {
 	}
 
 	private Expression liftHole(IConstructor tree) {
+	  tree = (IConstructor) TreeAdapter.getArgs(tree).get(0);
 		IList args = TreeAdapter.getArgs(tree);
-		IConstructor type = Symbols.typeToSymbol((Sym) buildValue((IConstructor) args.get(2)), false, "?");
+		IConstructor type = Symbols.typeToSymbol((Sym) buildValue(args.get(2)), false, "???");
 		IConstructor nameTree = (IConstructor) args.get(4);
 		ISourceLocation src = TreeAdapter.getLocation(tree);
 		Expression result = new Tree.MetaVariable(tree, type, TreeAdapter.yield(nameTree));
@@ -858,7 +859,17 @@ public class ASTBuilder {
 	
 	private boolean isNewEmbedding(IConstructor tree) {
     String name = TreeAdapter.getConstructorName(tree);
-    return name.equals("concrete"); 
+    assert name != null;
+    
+    if (name.equals("concrete")) {
+      tree = (IConstructor) TreeAdapter.getArgs(tree).get(0);
+      name = TreeAdapter.getConstructorName(tree);
+      
+      if (name.equals("$parsed")) {
+        return true;
+      }
+    }
+    return false;
   }
 
 	private boolean isLexical(IConstructor tree) {
@@ -893,13 +904,14 @@ public class ASTBuilder {
   			return cached;
   		}
   		
-  		IConstructor pattern = (IConstructor) TreeAdapter.getArgs(tree).get(0);
-  		Expression ast = liftRec(pattern, false,  getPatternLayout(tree));
+  		IConstructor concrete = (IConstructor) TreeAdapter.getArgs(tree).get(0);
+  		IConstructor fragment = (IConstructor) TreeAdapter.getArgs(concrete).get(8);
+  		Expression ast = liftRec(fragment, false,  getPatternLayout(tree));
   		
   		if (ast != null) {
   			ASTStatistics stats = ast.getStats();
   			stats.setConcreteFragmentCount(1);
-  			ISourceLocation location = TreeAdapter.getLocation(pattern);
+  			ISourceLocation location = TreeAdapter.getLocation(tree);
   			stats.setConcreteFragmentSize(location.getLength());
   		}
   		
