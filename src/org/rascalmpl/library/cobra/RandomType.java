@@ -40,7 +40,7 @@ public class RandomType {
 
 	// Vanuit value
 	public Type getType(int maxDepth) {
-		int cntRecursiveTypes = 5; // list, set, map, relation, tuple
+		int cntRecursiveTypes = 6; // list, set, map, relation, list relation, tuple
 		int cntAtomicTypes = atomicTypes.size();
 
 		if (maxDepth <= 0
