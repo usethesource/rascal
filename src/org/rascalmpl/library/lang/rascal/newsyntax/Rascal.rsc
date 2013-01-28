@@ -32,7 +32,7 @@ syntax Expression = concrete: Concrete concrete;
 syntax Pattern    = concrete: Concrete concrete;
 
 syntax Concrete 
-  = typed: "(" Sym ")" "`" ConcretePart* parts "`";
+  = typed: "(" Sym symbol ")" "`" ConcretePart* parts "`";
 
 lexical ConcretePart
   = text   : ![`\<\>\\\n]
