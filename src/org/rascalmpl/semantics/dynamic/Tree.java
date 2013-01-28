@@ -54,7 +54,6 @@ public abstract class Tree {
 		return true;
 	}
 	
-  // TODO: this class is not used yet, but it will be when we simplify implosion to AST	
   static public class MetaVariable extends org.rascalmpl.ast.Expression {
 	private final String name;
 	private final Type type;

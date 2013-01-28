@@ -36,6 +36,10 @@ import org.rascalmpl.values.uptr.Factory;
 public class Symbols {
 	private static IValueFactory factory = ValueFactoryFactory.getValueFactory();
 	
+	public static IConstructor typeToSymbol(Sym type, boolean lex, String layout) {
+	  return (IConstructor) symbolAST2SymbolConstructor(type, lex, layout);
+  }
+  
 	public static IConstructor typeToSymbol(Type type, boolean lex, String layout) {
 		if (type.isUser()) {
 			if (lex) {
