@@ -225,6 +225,8 @@ public interface IASTVisitor<T> {
 
   public T visitExpressionFieldUpdate(Expression.FieldUpdate x);
 
+  public T visitExpressionFvisit(Expression.Fvisit x);
+
   public T visitExpressionGetAnnotation(Expression.GetAnnotation x);
 
   public T visitExpressionGreaterThan(Expression.GreaterThan x);
@@ -314,6 +316,8 @@ public interface IASTVisitor<T> {
   public T visitExpressionSubscript(Expression.Subscript x);
 
   public T visitExpressionSubtraction(Expression.Subtraction x);
+
+  public T visitExpressionTpfvisit(Expression.Tpfvisit x);
 
   public T visitExpressionTransitiveClosure(Expression.TransitiveClosure x);
 
