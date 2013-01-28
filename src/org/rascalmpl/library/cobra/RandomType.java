@@ -54,7 +54,7 @@ public class RandomType {
 
 	private Type getRecursiveType(int maxDepth) {
 		// list, set, map, relation, list relation, tuple
-		switch (random.nextInt(5)) {
+		switch (random.nextInt(6)) {
 		case 0:
 			return tf.listType(getType(maxDepth));
 		case 1:
