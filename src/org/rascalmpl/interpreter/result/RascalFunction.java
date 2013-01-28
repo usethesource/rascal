@@ -316,7 +316,7 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 		Environment old = ctx.getCurrentEnvt();
 		AbstractAST oldAST = ctx.getCurrentAST();
 		Stack<Accumulator> oldAccus = ctx.getAccumulators();
@@ -336,11 +336,11 @@ public class RascalFunction extends NamedFunction {
 			 * - the mutually recursive self references
 			 * - the 'it' special variable; 
 			 */
-			if(selfParams != null && selfParamBounds != null)
-				for(int i = 0; i < selfParams.size(); i++) {
-					if(!selfParams.get(i).equals(name)) {
+			if(openFunctions != null)
+				for(String param : openFunctions.keySet()) {
+					if(!param.equals(name)) {
 						ctx.pushEnv();
-						ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(selfParams.get(i), selfParamBounds.get(i));
+						ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(param, openFunctions.get(param));
 					}
 				}
 			java.util.List<AbstractFunction> functions = new java.util.LinkedList<AbstractFunction>();
@@ -599,11 +599,6 @@ public class RascalFunction extends NamedFunction {
 	@Override
 	public boolean hasResourceScheme() {
 		return this.resourceScheme != null;
-	}
-	
-	@Override
-	public String getSelfParam() {
-		return (this.isAnonymous()) ? "" : this.getName();
 	}
 	
 }
