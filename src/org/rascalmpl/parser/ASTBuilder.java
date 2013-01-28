@@ -40,6 +40,7 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -223,13 +224,21 @@ public class ASTBuilder {
 		}
 		
 		if (sortName(tree).equals("Pattern") && isEmbedding(tree)) {
-			return lift(tree, true);
+		  if (isEmbedding(tree)) {
+		    return lift(tree, true);
+		  }
+		  else if (isNewEmbedding(tree)) {
+		    return newLift(tree, true);
+		  }
 		}
 
 		if (sortName(tree).equals("Expression")) {
 			if (isEmbedding(tree)) {
 				return lift(tree, false);
 			}
+			else if (isNewEmbedding(tree)) {
+        return newLift(tree, false);
+      }
 		}
 		
 		return buildContextFreeNode((IConstructor) arg);
@@ -581,6 +590,10 @@ public class ASTBuilder {
 			return SymbolAdapter.getName(sym);
 		}
 		
+		if (cons.equals("concrete")) {
+      return "???";
+    }
+		
 		throw new ImplementationError("Unexpected embedding syntax:" + prod);
 	}
 
@@ -608,11 +621,17 @@ public class ASTBuilder {
 		if (TreeAdapter.isAppl(tree)) {
 			String cons = TreeAdapter.getConstructorName(tree);
 			
+			// TODO: remove this once bootstrapping is complete
 			if (cons != null && (cons.equals("MetaVariable") || cons.equals("TypedMetaVariable"))) {
-				
 				result = liftVariable(tree, lexicalFather, layoutOfFather);
 				stats.setNestedMetaVariables(1);
 				return stats(tree, result, stats);
+			}
+			
+			if (cons != null && (cons.equals("ConcreteHole"))) {
+			  result = liftHole(tree);
+			  stats.setNestedMetaVariables(1);
+        return stats(tree, result, stats);
 			}
 
 			boolean lex = lexicalFather ? !TreeAdapter.isSort(tree) : TreeAdapter.isLexical(tree);
@@ -709,11 +728,10 @@ public class ASTBuilder {
 		}
 	}
 
-	// TODO: this is the new one to construct variables, which we'll use when the meta syntax for variables has been simplified
-	private Expression liftVariable(IConstructor tree) {
-		IConstructor type = TreeAdapter.getType(tree);
+	private Expression liftHole(IConstructor tree) {
 		IList args = TreeAdapter.getArgs(tree);
-		IConstructor nameTree = (IConstructor) args.get(args.length() - 3);
+		IConstructor type = Symbols.typeToSymbol((Sym) buildValue((IConstructor) args.get(2)), false, "?");
+		IConstructor nameTree = (IConstructor) args.get(4);
 		ISourceLocation src = TreeAdapter.getLocation(tree);
 		Expression result = new Tree.MetaVariable(tree, type, TreeAdapter.yield(nameTree));
 		result.setSourceLocation(src);
@@ -750,8 +768,7 @@ public class ASTBuilder {
 		}
 		throw new ImplementationError("Unexpected meta variable while lifting pattern");
 	}
-
-
+	
 	private boolean correctlyNestedPattern(IConstructor expected, Expression exp, boolean lexicalFather, String layout) {
 		if (exp.isTypedVariable()) {
 			IConstructor expressionType = Symbols.typeToSymbol(exp.getType(), lexicalFather, layout);
@@ -836,9 +853,13 @@ public class ASTBuilder {
 	private boolean isEmbedding(IConstructor tree) {
 		String name = TreeAdapter.getConstructorName(tree);
 		return name.equals("ConcreteQuoted") 
-//		|| name.equals("ConcreteUnquoted") 
 		|| name.equals("ConcreteTypedQuoted");
 	}
+	
+	private boolean isNewEmbedding(IConstructor tree) {
+    String name = TreeAdapter.getConstructorName(tree);
+    return name.equals("concrete"); 
+  }
 
 	private boolean isLexical(IConstructor tree) {
 		if (TreeAdapter.isRascalLexical(tree)) {
@@ -863,7 +884,30 @@ public class ASTBuilder {
 		return sort.startsWith(RASCAL_SORT_PREFIX);
 	}
 
-	private static AbstractAST callMakerMethod(String sort, String cons, Map<String, IValue> annotations, Object actuals[], Object keywordActuals[]) {
+	private AbstractAST newLift(IConstructor tree, boolean match) {
+  		AbstractAST cached = constructorCache.get(tree);
+  		if (cached != null) {
+  			if (cached == dummyEmptyTree) {
+  				return null;
+  			}
+  			return cached;
+  		}
+  		
+  		IConstructor pattern = (IConstructor) TreeAdapter.getArgs(tree).get(0);
+  		Expression ast = liftRec(pattern, false,  getPatternLayout(tree));
+  		
+  		if (ast != null) {
+  			ASTStatistics stats = ast.getStats();
+  			stats.setConcreteFragmentCount(1);
+  			ISourceLocation location = TreeAdapter.getLocation(pattern);
+  			stats.setConcreteFragmentSize(location.getLength());
+  		}
+  		
+  		constructorCache.putUnsafe(tree, ast);
+  		return ast;
+  	}
+
+  private static AbstractAST callMakerMethod(String sort, String cons, Map<String, IValue> annotations, Object actuals[], Object keywordActuals[]) {
 		return callMakerMethod(sort, cons, TreeAdapter.getLocation((IConstructor) actuals[0]), annotations, actuals, keywordActuals);
 	}
 	

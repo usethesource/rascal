@@ -59,6 +59,7 @@ import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.PreModule;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.TagString.Lexical;
@@ -97,10 +98,12 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.staticErrors.UnguardedInsert;
 import org.rascalmpl.interpreter.staticErrors.UnguardedReturn;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.library.lang.rascal.newsyntax.RascalParser;
 import org.rascalmpl.library.lang.rascal.syntax.MetaRascalRascal;
 import org.rascalmpl.library.lang.rascal.syntax.ObjectRascalRascal;
@@ -1468,6 +1471,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     __setInterrupt(false);
     IActionExecutor<IConstructor> actions = new NoActionExecutor();
 
+    // TODO: this already maps the tree to an AST, and then this is done again later.
+    // We only need to map to AST because we are looking for concrete syntax definitions and want 
+    // to declare these before parsing the concrete syntax fragments.
     startJob("Parsing", 10);
     event("Pre-parsing: " + location);
     IConstructor prefix = new RascalParser().parse("start__Module", location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
@@ -1503,6 +1509,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       if (needBootstrapParser(preModule) 
           || (env.definesSyntax() && containsBackTick(data, preModule.getBody().getLocation().getOffset()))) {
         result = parseFragments(prefix, env);
+        
+        // TODO: update source code locations!
       }
       else {
         result = prefix;
@@ -1532,7 +1540,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	   return (IConstructor) module.accept(new IdentityTreeVisitor() {
 	     @Override
 	     public IConstructor visitTreeAppl(IConstructor tree) throws VisitorException {
-	       if (!TreeAdapter.getSortName(tree).equals("Concrete")) {
+	       IConstructor pattern = getConcretePattern(tree);
+	       
+	       if (pattern != null) {
+	         IConstructor parsedFragment = parseFragment(env, (IConstructor) TreeAdapter.getArgs(tree).get(0));
+	         return TreeAdapter.setArgs(tree, vf.list(parsedFragment));
+	       }
+	       else {
 	         IListWriter w = vf.listWriter();
 	         IList args = TreeAdapter.getArgs(tree);
 	         for (IValue arg : args) {
@@ -1542,11 +1556,20 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	         
 	         return TreeAdapter.setArgs(tree, args);
 	       }
-
-	       return parseFragment(env, tree);
 	     }
 
-	     @Override
+	     private IConstructor getConcretePattern(IConstructor tree) {
+	       String sort = TreeAdapter.getSortName(tree);
+	       if (sort.equals("Expression") || sort.equals("Pattern")) {
+	         String cons = TreeAdapter.getConstructorName(tree);
+	         if (cons.equals("concrete")) {
+	           return (IConstructor) TreeAdapter.getArgs(tree).get(0);
+	         }
+	       }
+	       return null;
+      }
+
+      @Override
 	     public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
 	       throw new ImplementationError("unexpected ambiguity: " + arg);
 	     }
@@ -1559,22 +1582,21 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private IConstructor parseFragment(ModuleEnvironment env, IConstructor tree) {
 	  IList args = TreeAdapter.getArgs(tree);
     int symbolPosition = 2;
-    IConstructor sym = (IConstructor) args.get(symbolPosition);
     ASTBuilder builder = new ASTBuilder();
-    NonTerminalType type = (NonTerminalType) builder.buildSym(sym).typeOf(getCurrentModuleEnvironment());
+    
+    IConstructor symTree = (IConstructor) args.get(symbolPosition);
+    IConstructor symbol = Symbols.typeToSymbol((Sym) builder.buildValue(symTree), false, "?");
+    NonTerminalType type = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(symbol);
     
     int fragmentPosition = 8;
     IConstructor lit = (IConstructor) args.get(fragmentPosition);
     Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
     
-    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getNewObjectParser(env, env.getLocation().getURI(), false);
+    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getNewObjectParser(env, getCurrentAST().getLocation().getURI(), false);
     
     char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
     IConstructor fragment = (IConstructor) parser.parse(SymbolAdapter.getName(type.getSymbol()), getCurrentAST().getLocation().getURI(), input, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-    fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
-    
-    args = args.put(fragmentPosition, fragment);
-    return TreeAdapter.setArgs(tree, args);
+    return replaceHolesByAntiQuotes(fragment, antiquotes);
   }
 	
 	private char[] replaceAntiQuotesByHoles(IConstructor lit, Map<String, IConstructor> antiquotes) {
@@ -1629,7 +1651,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         @Override
         public IConstructor visitTreeAppl(IConstructor tree) throws VisitorException {
           String cons = TreeAdapter.getConstructorName(tree);
-          if (cons == null || cons.equals("$MetaHole")) {
+          if (cons == null || !cons.equals("$MetaHole") ) {
             IListWriter w = vf.listWriter();
             IList args = TreeAdapter.getArgs(tree);
             for (IValue elem : args) {
@@ -1658,8 +1680,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
   }
  
-
-  private static boolean containsBackTick(char[] data, int offset) {
+ private static boolean containsBackTick(char[] data, int offset) {
 		for (int i = data.length - 1; i >= offset; --i) {
 			if (data[i] == '`')
 				return true;
