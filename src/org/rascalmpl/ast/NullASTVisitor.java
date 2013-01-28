@@ -277,6 +277,14 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitConcreteTyped(Concrete.Typed x) { 
+    return null; 
+  }
+
+  public T visitConcreteHoleOne(ConcreteHole.One x) { 
+    return null; 
+  }
+
   public T visitDataTargetEmpty(DataTarget.Empty x) { 
     return null; 
   }
@@ -390,6 +398,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitExpressionComprehension(Expression.Comprehension x) { 
+    return null; 
+  }
+
+  public T visitExpressionConcrete(Expression.Concrete x) { 
     return null; 
   }
 
@@ -1498,6 +1510,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitConcretePartLexical(ConcretePart.Lexical x) { 
+    return null; 
+  }
+
   public T visitDateAndTimeLexical(DateAndTime.Lexical x) { 
     return null; 
   }
@@ -1775,11 +1791,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x) { 
+  public T visitFunctionDeclarationAmbiguity(FunctionDeclaration.Ambiguity x) { 
     return null; 
   }
 
-  public T visitFunctionDeclarationAmbiguity(FunctionDeclaration.Ambiguity x) { 
+  public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x) { 
     return null; 
   }
 
@@ -1939,6 +1955,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitConcretePartAmbiguity(ConcretePart.Ambiguity x) { 
+    return null; 
+  }
+
   public T visitExpressionAmbiguity(Expression.Ambiguity x) { 
     return null; 
   }
@@ -2032,6 +2052,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitKeywordArgumentAmbiguity(KeywordArgument.Ambiguity x) { 
+    return null; 
+  }
+
+  public T visitConcreteAmbiguity(Concrete.Ambiguity x) { 
     return null; 
   }
 
@@ -2140,6 +2164,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitProtocolCharsAmbiguity(ProtocolChars.Ambiguity x) { 
+    return null; 
+  }
+
+  public T visitConcreteHoleAmbiguity(ConcreteHole.Ambiguity x) { 
     return null; 
   }
 

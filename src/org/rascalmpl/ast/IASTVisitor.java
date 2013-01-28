@@ -147,6 +147,10 @@ public interface IASTVisitor<T> {
 
   public T visitComprehensionSet(Comprehension.Set x);
 
+  public T visitConcreteTyped(Concrete.Typed x);
+
+  public T visitConcreteHoleOne(ConcreteHole.One x);
+
   public T visitDataTargetEmpty(DataTarget.Empty x);
 
   public T visitDataTargetLabeled(DataTarget.Labeled x);
@@ -204,6 +208,8 @@ public interface IASTVisitor<T> {
   public T visitExpressionComposition(Expression.Composition x);
 
   public T visitExpressionComprehension(Expression.Comprehension x);
+
+  public T visitExpressionConcrete(Expression.Concrete x);
 
   public T visitExpressionDescendant(Expression.Descendant x);
 
@@ -758,6 +764,8 @@ public interface IASTVisitor<T> {
 
   public T visitCommentLexical(Comment.Lexical x);
 
+  public T visitConcretePartLexical(ConcretePart.Lexical x);
+
   public T visitDateAndTimeLexical(DateAndTime.Lexical x);
 
   public T visitDatePartLexical(DatePart.Lexical x);
@@ -866,8 +874,8 @@ public interface IASTVisitor<T> {
   public T visitFunctionModifiersAmbiguity(FunctionModifiers.Ambiguity x);
   public T visitComprehensionAmbiguity(Comprehension.Ambiguity x);
   public T visitPreProtocolCharsAmbiguity(PreProtocolChars.Ambiguity x);
-  public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x);
   public T visitFunctionDeclarationAmbiguity(FunctionDeclaration.Ambiguity x);
+  public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x);
   public T visitDatePartAmbiguity(DatePart.Ambiguity x);
   public T visitBoundAmbiguity(Bound.Ambiguity x);
   public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x);
@@ -907,6 +915,7 @@ public interface IASTVisitor<T> {
   public T visitTagsAmbiguity(Tags.Ambiguity x);
   public T visitRenamingsAmbiguity(Renamings.Ambiguity x);
   public T visitOptionalExpressionAmbiguity(OptionalExpression.Ambiguity x);
+  public T visitConcretePartAmbiguity(ConcretePart.Ambiguity x);
   public T visitExpressionAmbiguity(Expression.Ambiguity x);
   public T visitSyntaxDefinitionAmbiguity(SyntaxDefinition.Ambiguity x);
   public T visitPathTailAmbiguity(PathTail.Ambiguity x);
@@ -931,6 +940,7 @@ public interface IASTVisitor<T> {
   public T visitQualifiedNameAmbiguity(QualifiedName.Ambiguity x);
   public T visitStringMiddleAmbiguity(StringMiddle.Ambiguity x);
   public T visitKeywordArgumentAmbiguity(KeywordArgument.Ambiguity x);
+  public T visitConcreteAmbiguity(Concrete.Ambiguity x);
   public T visitDataTypeSelectorAmbiguity(DataTypeSelector.Ambiguity x);
   public T visitDecimalIntegerLiteralAmbiguity(DecimalIntegerLiteral.Ambiguity x);
   public T visitStringTailAmbiguity(StringTail.Ambiguity x);
@@ -958,6 +968,7 @@ public interface IASTVisitor<T> {
   public T visitRegExpAmbiguity(RegExp.Ambiguity x);
   public T visitBooleanLiteralAmbiguity(BooleanLiteral.Ambiguity x);
   public T visitProtocolCharsAmbiguity(ProtocolChars.Ambiguity x);
+  public T visitConcreteHoleAmbiguity(ConcreteHole.Ambiguity x);
   public T visitMidStringCharsAmbiguity(MidStringChars.Ambiguity x);
   public T visitRationalLiteralAmbiguity(RationalLiteral.Ambiguity x);
   public T visitRegExpModifierAmbiguity(RegExpModifier.Ambiguity x);

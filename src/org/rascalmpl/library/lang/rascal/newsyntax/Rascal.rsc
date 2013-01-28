@@ -363,6 +363,8 @@ syntax Assignable
 	= bracket \bracket   : "(" Assignable arg ")"
 	| variable          : QualifiedName qualifiedName
     | subscript         : Assignable receiver "[" Expression subscript "]" 
+    | slice             : Assignable receiver "[" OptionalExpression optFirst ".." OptionalExpression optLast "]" 
+    | sliceStep         : Assignable receiver "[" OptionalExpression optFirst "," Expression second ".." OptionalExpression optLast "]"     
 	| fieldAccess       : Assignable receiver "." Name field 
 	| ifDefinedOrDefault: Assignable receiver "?" Expression defaultExpression 
 	| constructor       : Name name "(" {Assignable ","}+ arguments ")"  
@@ -709,7 +711,7 @@ keyword RascalKeywords
 
 syntax Type
 	= bracket \bracket: "(" Type type ")" 
-	| user: UserType user 
+	| user: UserType user \ HeaderKeyword
 	| function: FunctionType function 
 	| structured: StructuredType structured 
 	| basic: BasicType basic 
