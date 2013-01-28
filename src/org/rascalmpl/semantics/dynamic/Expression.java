@@ -630,7 +630,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
-			return left.compose(right);
+			return left.compose(right, new HashMap<String, Result<IValue>>(), true);
 
 		}
 
@@ -663,7 +663,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			__eval.setCurrentAST(this);
 			
-			return left.composeClosedRecursive(right);
+			return left.compose(right);
 		}
 		
 	}
@@ -2147,8 +2147,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
 
 			if (variable == null) {
-				if(Names.fullName(name).equals("fvisit"))
-					return new TraverseFunction(__eval);
 				throw new UndeclaredVariable(
 						org.rascalmpl.interpreter.utils.Names.fullName(name),
 						name);
@@ -2888,6 +2886,84 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 	}
+	
+	static public class Fvisit extends org.rascalmpl.ast.Expression.Fvisit {
+
+		public Fvisit(IConstructor __param1, org.rascalmpl.ast.Expression __param2, 
+				org.rascalmpl.ast.Expression __param3, org.rascalmpl.ast.Expression __param4) {
+			super(__param1, __param2, __param3, __param4);
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);		
+			
+			Type type = this.getTermType().getType().typeOf(__eval.getCurrentEnvt());
+			Type algebraType = this.getAlgebraType().getType().typeOf(__eval.getCurrentEnvt());
+			Result<IValue> algebra = this.getAlgebra().interpret(__eval);
+			
+			assert(algebraType.equivalent(algebra.getType()));
+			
+			java.util.Map<String, AbstractFunction> functions = new HashMap<String, AbstractFunction>();	
+			
+			TraverseFunction.generateTraverseFunctions(type, algebra, functions, __eval);
+			Type types[] = new Type[functions.keySet().size()];
+			String labels[] = new String[functions.keySet().size()];
+			IValue args[] = new IValue[functions.keySet().size()];
+			int i = 0;
+			System.out.println(functions.size());
+			for(String s : functions.keySet()) {
+				types[i] = functions.get(s).getType();
+				System.out.println(functions.get(s).getType());
+				labels[i] = functions.get(s).getName();
+				if(labels[i] == null) System.out.println(functions.get(s).getName());
+				args[i] = functions.get(s);
+				if(args[i] == null) System.out.println(functions.get(s).getName());
+				i = i + 1;
+			}
+			for(int j = 0; j < types.length; j++) 
+	    		System.out.println(types[j]);
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(TypeFactory.getInstance().tupleType(types, labels), __eval.__getVf().tuple(args), __eval);
+			
+		}
+
+	}
+	
+	static public class Tpfvisit extends org.rascalmpl.ast.Expression.Tpfvisit {
+
+		public Tpfvisit(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
+			Type type = this.getRtype().getType().typeOf(__eval.getCurrentEnvt());			
+			
+			java.util.Map<String, AbstractFunction> functions = new HashMap<String, AbstractFunction>();		
+			TraverseFunction.generateTraverseFunctions(type, null, functions, __eval);
+			Type[] types = new Type[functions.keySet().size()];
+			String[] labels = new String[functions.keySet().size()];
+			IValue[] args = new IValue[functions.keySet().size()];
+			int i = 0;
+			for(String s : functions.keySet()) {
+				types[i] = functions.get(s).getType();
+				labels[i] = functions.get(s).getName();
+				args[i] = functions.get(s);
+				i = i + 1;
+			}
+			
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(TypeFactory.getInstance().tupleType(types, labels), __eval.__getVf().tuple(args), __eval);
+
+		}
+
+	}
+
 
 	static public class VoidClosure extends
 			org.rascalmpl.ast.Expression.VoidClosure {
