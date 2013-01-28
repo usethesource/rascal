@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 
 public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
@@ -72,6 +73,8 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			if (onType.isAbstractDataType() || onType.isConstructorType() || onType.isNodeType()) {
 				__eval.getCurrentModuleEnvironment().declareAnnotation(onType,
 						name, annoType);
+			} else {
+				throw new UnsupportedOperation("Can only declare annotations on node and ADT types",getOnType());
 			}
 
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();

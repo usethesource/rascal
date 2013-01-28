@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Emilie Balland - (CWI)
+ *   * Anya Helene Bagge - (UiB)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
@@ -61,7 +62,7 @@ import org.rascalmpl.values.uptr.Factory;
  */
 public class ModuleEnvironment extends Environment {
 	protected final GlobalEnvironment heap;
-	protected Map<String, ModuleEnvironment> importedModules;
+	protected Set<String> importedModules;
 	protected Set<String> extended;
 	protected Set<String> haveExtended;
 	protected TypeStore typeStore;
@@ -79,9 +80,9 @@ public class ModuleEnvironment extends Environment {
 	public final static String SHELL_MODULE = "$shell$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
-		super(name);
+		super(null, name);
 		this.heap = heap;
-		this.importedModules = new HashMap<String, ModuleEnvironment>();
+		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.productions = new HashSet<IValue>();
 		this.typeStore = new TypeStore();
@@ -91,10 +92,30 @@ public class ModuleEnvironment extends Environment {
 		this.resourceImporters = new HashMap<String, AbstractFunction>();
 	}
 	
+	/**
+	 * This constructor creates a shallow copy of the given environment
+	 * 
+	 * @param env
+	 */
+	protected ModuleEnvironment(ModuleEnvironment env) {
+		super(env);
+		this.heap = env.heap;
+		this.importedModules = env.importedModules;
+		this.concreteSyntaxTypes = env.concreteSyntaxTypes;
+		this.productions = env.productions;
+		this.typeStore = env.typeStore;
+		this.initialized = env.initialized;
+		this.syntaxDefined = env.syntaxDefined;
+		this.bootstrap = env.bootstrap;
+		this.resourceImporters = env.resourceImporters;
+		this.cachedParser = env.cachedParser;
+		this.deprecated = env.deprecated;
+	}
+
 	@Override
 	public void reset() {
 		super.reset();
-		this.importedModules = new HashMap<String, ModuleEnvironment>();
+		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.typeStore = new TypeStore();
 		this.productions = new HashSet<IValue>();
@@ -197,7 +218,7 @@ public class ModuleEnvironment extends Environment {
 				result.put(VF.string(m), t);
 			}else if(m == getName()){ // This is the root scope.
 				ISetWriter importWriter = VF.setWriter(TF.stringType());
-				for(String impname : importedModules.keySet()){
+				for(String impname : importedModules){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					importWriter.insert(VF.string(impname));
@@ -229,7 +250,8 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void addImport(String name, ModuleEnvironment env) {
-		importedModules.put(name, env);
+		assert heap.getModule(name).equals(env);
+		importedModules.add(name);
 		typeStore.importStore(env.typeStore);
 	}
 	
@@ -273,7 +295,7 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public Set<String> getImports() {
-		return importedModules.keySet();
+		return Collections.unmodifiableSet(importedModules);
 	}
 	
 	public Set<String> getImportsTransitive() {
@@ -301,8 +323,8 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void unImport(String moduleName) {
-		ModuleEnvironment old = importedModules.remove(moduleName);
-		if (old != null) {
+		if(importedModules.remove(moduleName)) {
+			ModuleEnvironment old = heap.getModule(moduleName);
 			typeStore.unimportStores(new TypeStore[] { old.getStore() });
 		}
 	}
@@ -370,7 +392,7 @@ public class ModuleEnvironment extends Environment {
 		}
 		else {
 			for (String i : getImports()) {
-				ModuleEnvironment module = importedModules.get(i);
+				ModuleEnvironment module = heap.getModule(i);
 				result = module.getLocalPublicVariable(name);
 
 				if (result != null) {
@@ -607,12 +629,17 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public String toString() {
-		return "Environment [ " + getName() + ", imports: " + ((importedModules != null) ? importedModules.keySet() : "") + ", extends: " + ((extended != null) ? extended : "") + "]"; 
+		return "Environment [ " + getName() + ", imports: " + ((importedModules != null) ? importedModules : "") + ", extends: " + ((extended != null) ? extended : "") + "]"; 
 	}
 
 	@Override
 	public ModuleEnvironment getImport(String moduleName) {
-		return importedModules.get(moduleName);
+		if(importedModules.contains(moduleName)) {
+			return heap.getModule(moduleName);
+		}
+		else {
+			return null;
+		}
 	}
 	
 	@Override

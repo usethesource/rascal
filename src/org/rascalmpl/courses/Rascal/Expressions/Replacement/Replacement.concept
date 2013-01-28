@@ -1,6 +1,6 @@
 Name: Replacement
 
-Synopsis: Set the value of an [Annotation].
+Synopsis: Set the value of an [$Declarations/Annotation].
 
 Syntax:
 `$Exp_1$[@$Name$ = $Exp_2$]`

@@ -84,9 +84,9 @@ ok
 map[int, str]: (3:"orange",2:"pear",1:"apple")
 </pre> Here is an examples that generates an exception:
 <pre class="screen"><span class="prompt">rascal></span>invertUnique((&quot;apple&quot;: 1, &quot;pear&quot;: 2, &quot;orange&quot;: 1));
-|stdin:///|(47,1,&lt;1,47>,&lt;1,48>): MultipleKey(1)
-	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.invertUnique(org.eclipse.imp.pdb.facts.IMap)
-	somewhere in: ___SCREEN_INSTANCE___
+|std:///Map.rsc|(2342,682,&lt;110,0>,&lt;131,54>): MultipleKey(1)
+	/Map.rsc:110,0
+	somewhere in: invertUnique
 
 
 </pre>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Emilie Balland - (CWI)
+ *   * Anya Helene Bagge - (UiB)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
@@ -25,7 +26,6 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -36,7 +36,7 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	/** for error messaging */
 	public AbstractAST getCurrentAST();
 	public void setCurrentAST(AbstractAST ast);
-	public String getStackTrace();
+	public StackTrace getStackTrace();
 	
 	/** for standard IO */
 	public PrintWriter getStdOut();
@@ -60,10 +60,6 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	
 	public IValueFactory getValueFactory();
 	
-	// strategy related
-	public IStrategyContext getStrategyContext();
-	public void pushStrategyContext(IStrategyContext strategyContext);
-	public void popStrategyContext();
 	public void setAccumulators(Stack<Accumulator> accumulators);
 	public Stack<Accumulator> getAccumulators();
 	

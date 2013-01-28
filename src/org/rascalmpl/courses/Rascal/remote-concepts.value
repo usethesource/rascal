@@ -5,6 +5,7 @@
 <"Rascal/Libraries/Prelude",|std:///Map.rsc|>,
 <"Rascal/Libraries/Prelude",|std:///Node.rsc|>,
 <"Rascal/Libraries/Prelude",|std:///Relation.rsc|>,
+<"Rascal/Libraries/Prelude",|std:///ListRelation.rsc|>,
 <"Rascal/Libraries/Prelude",|std:///Set.rsc|>,
 <"Rascal/Libraries/Prelude",|std:///String.rsc|>,
 <"Rascal/Libraries/Prelude",|std:///Exception.rsc|>,

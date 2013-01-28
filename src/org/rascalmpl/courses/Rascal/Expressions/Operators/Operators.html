@@ -82,14 +82,37 @@
                                                         <a href="/Rascal/Expressions/Values/Map/Subscription/Subscription.html">Map/Subscription</a>, 
                                                         <a href="/Rascal/Expressions/Values/Tuple/Subscription/Subscription.html">Tuple/Subscription</a>,
                                                         <a href="/Rascal/Expressions/Values/Relation/Subscription/Subscription.html">Relation/Subscription</a></td>      <td>Retrieve values for given index/key from list, map, tuple or relation.</td></tr>
+ <br/>
+<br/>
+
+ <tr><td><code><i>Exp</i><sub>1</sub> [ <i>Exp</i><sub>2</sub> , <i>Exp</i><sub>3</sub> .. <i>Exp</i><sub>4</sub> ]</code></td> <td><a href="/Rascal/Expressions/Values/List/Slice/Slice.html">Values/List/Slice</a>,
+                                                        <a href="/Rascal/Expressions/Values/String/Slice/Slice.html">String/Slice</a>,
+                                                        <a href="/Rascal/Expressions/Values/Node/Slice/Slice.html">Node/Slice</a></td>  				<td>Retrieve a slice from a list, string, or node.</td></tr>
+ <br/>
+<br/>
+
+ <br/>
+<br/>
+
+ <br/>
+<br/>
+
+ <br/>
+<br/>
+
  <tr><td> <code><i>Exp</i>?</code></td>                             <td><a href="/Rascal/Expressions/Values/Boolean/IsDefined/IsDefined.html">Boolean/IsDefined</a></td>          <td>Test whether an expression has a defined value</td></tr>
  <tr><td> <code>!<i>Exp</i></code></td>                             <td><a href="/Rascal/Expressions/Values/Boolean/Negation/Negation.html">Boolean/Negation</a></td>           <td>Negate a Boolean value</td></tr>
  <tr><td><code>- <i>Exp</i></code></td>                             <td> <a href="/Rascal/Expressions/Values/Number/Negation/Negation.html">Number/Negation</a></td>	         <td>Negation of numbers</td></tr>
- <tr><td><code><i>Exp</i> +</code></td>	                           <td><a href="/Rascal/Expressions/Values/Relation/TransitiveClosure/TransitiveClosure.html">TransitiveClosure</a></td>	         <td>Transitive closure on relation</td></tr>
- <tr><td><code><i>Exp</i> *</code></td>                             <td><a href="/Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.html">ReflexiveTransitiveClosure</a></td>                                                                                                                                         <td>Reflexive transitive closure on relation</td></tr>
+ <tr><td><code><i>Exp</i> +</code></td>	                           <td><a href="/Rascal/Expressions/Values/Relation/TransitiveClosure/TransitiveClosure.html">Relation/TransitiveClosure</a>
+                                                        <a href="/Rascal/Expressions/Values/ListRelation/TransitiveClosure/TransitiveClosure.html">ListRelation/TransitiveClosure</a></td>	         
+                                                        									<td>Transitive closure on relation or list relation</td></tr>
+ <tr><td><code><i>Exp</i> *</code></td>                             <td><a href="/Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.html">Relation/ReflexiveTransitiveClosure</a>
+                                                        <a href="/Rascal/Expressions/Values/ListRelation/ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.html">ListRelation/ReflexiveTransitiveClosure</a>
+                                                      </td>                               <td>Reflexive transitive closure on relation or list relation</td></tr>
  <tr><td><code><i>Exp</i> @ <i>Name</i></code></td>	                   <td><a href="/Rascal/Expressions/Selection/Selection.html">Expressions/Selection</a></td>	     <td>Value of annotation <code><i>Name</i></code> of <code><i>Exp</i></code>'s value</td></tr>
  <tr><td><code><i>Exp</i><sub>1</sub> [@ <i>Name</i> = <i>Exp</i><sub>2</sub>]</code></td>	       <td><a href="/Rascal/Expressions/Replacement/Replacement.html">Expressions/Replacement</a></td>     <td>Assign value of <code><i>Exp</i><sub>2</sub></code> to annotation <code><i>Name</i></code> of <code><i>Exp</i><sub>1</sub></code>'s value</td></tr>
- <tr><td><code><i>Exp</i><sub>1</sub> o <i>Exp</i><sub>2</sub></code></td>	               <td><a href="/Rascal/Expressions/Values/Relation/Composition/Composition.html">Composition</a></td>	             <td><code><i>Exp</i><sub>1</sub></code> and <code><i>Exp</i><sub>2</sub></code> should evaluate to a relation; return their composition. Note: the letter "o" is thus a keyword!</td></tr>
+ <tr><td><code><i>Exp</i><sub>1</sub> o <i>Exp</i><sub>2</sub></code></td>	               <td><a href="/Rascal/Expressions/Values/Relation/Composition/Composition.html">Relation/Composition</a>, 
+                                                        <a href="/Rascal/Expressions/Values/Map/Composition/Composition.html">Map/Composition</a></td>	         <td><code><i>Exp</i><sub>1</sub></code> and <code><i>Exp</i><sub>2</sub></code> should evaluate to a relation or map; return their composition. Note: the letter "o" is thus a keyword!</td></tr>
  <tr><td><code><i>Exp</i><sub>1</sub> / <i>Exp</i><sub>2</sub></code></td>	               <td><a href="/Rascal/Expressions/Values/Number/Division/Division.html">Number/Division</a></td>	         <td>Divide two numbers</td></tr>
  <tr><td><code><i>Exp</i><sub>1</sub> % <i>Exp</i><sub>2</sub></code></td>	               <td><a href="/Rascal/Expressions/Values/Number/Remainder/Remainder.html">Number/Remainder</a></td>	         <td>Remainder on numbers</td></tr>
  <tr><td><code><i>Exp</i><sub>1</sub> * <i>Exp</i><sub>2</sub></code></td>	               <td><a href="/Rascal/Expressions/Values/Number/Multiplication/Multiplication.html">Number/Multiplication</a>,

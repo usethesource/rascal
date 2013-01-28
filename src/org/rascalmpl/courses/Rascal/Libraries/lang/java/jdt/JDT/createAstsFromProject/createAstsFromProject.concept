@@ -6,7 +6,7 @@ Syntax:
 
 Types:
 
-Function: `set[AstNode] createAstsFromProject(loc project)`
+Function: `set[AstNode] createAstsFromProject(loc project, bool collectBindings = true)`
        
 Usage:
 

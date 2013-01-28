@@ -1,0 +1,34 @@
+Name: Constructor
+
+Synopsis: Assign to constructor.
+
+Syntax:`$Name$ ( $Assignable_1$, $Assignable_2$, ...) = $Exp$`
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+ First the value $Exp$ is determined and should be a data value of the form `$Name$($V_1$, $V_2$, ..., $V_n$). 
+  Next the assignments `$Assignable_i$ = $V_i$` are performed for 1 <= i <= n.
+
+Examples:
+<screen>
+data FREQ = wf(str word, int freq);
+W = wf("rascal", 1000);
+wf(S, I) = W;
+S;
+I;
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

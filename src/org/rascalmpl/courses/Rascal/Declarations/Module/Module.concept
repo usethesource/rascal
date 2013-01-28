@@ -43,7 +43,7 @@ occur directly following the imports) for:
 * [Function]
 * [AlgebraicDataType]
 * [Alias]
-* [Annotation]
+* [$Declarations/Annotation]
 * [Tag]
 
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Emilie Balland - (CWI)
+ *   * Anya Helene Bagge - (UiB)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
@@ -80,12 +81,8 @@ public class Environment {
 	protected final String name;
 	private Environment myRoot;
 
-	public Environment(String name) {
-		this(null, null, null, null, name);
-	}
-
-	public Environment(Environment parent, String name) {
-		this(parent, null, null, null, name);
+	public Environment(ISourceLocation loc, String name) {
+		this(null, null, null, loc, name);
 	}
 
 	public Environment(Environment parent, ISourceLocation loc, String name) {
@@ -94,6 +91,9 @@ public class Environment {
 
 	public Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, ISourceLocation loc, String name) {
 		this.parent = parent;
+		if(loc == null && !(this instanceof ModuleEnvironment)) {
+			System.err.println("*** Environment created with empty location");
+		}
 		this.loc = loc;
 		this.name = name;
 		this.callerScope = callerScope;
@@ -101,6 +101,18 @@ public class Environment {
 		if (parent == this) {
 			throw new ImplementationError("internal error: cyclic environment");
 		}
+	}
+
+	protected Environment(Environment old) {
+		this.parent = old.parent;
+		this.loc = old.loc;
+		this.name = old.name;
+		this.callerScope = old.callerScope;
+		this.callerLocation = old.callerLocation;
+		this.variableEnvironment = old.variableEnvironment;
+		this.functionEnvironment = old.functionEnvironment;
+		this.typeParameters = old.typeParameters;
+		this.nameFlags = old.nameFlags;
 	}
 
 	/**

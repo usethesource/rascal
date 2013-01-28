@@ -1,0 +1,32 @@
+Name: AmbiguousFunctionReference
+
+Synopsis: An ambiguous function name
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+<warning>How to generate this error? </warning>
+
+Examples:
+<screen>
+data D = d(int x);
+data D2 = d(str x);
+d(3).x
+d("a").x
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       
