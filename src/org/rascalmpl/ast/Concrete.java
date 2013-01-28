@@ -37,6 +37,14 @@ public abstract class Concrete extends AbstractAST {
     throw new UnsupportedOperationException();
   }
 
+  public boolean hasSymbol() {
+    return false;
+  }
+
+  public Sym getSymbol() {
+    throw new UnsupportedOperationException();
+  }
+
   static public class Ambiguity extends Concrete {
     private final java.util.List<org.rascalmpl.ast.Concrete> alternatives;
     private final IConstructor node;
@@ -88,13 +96,25 @@ public abstract class Concrete extends AbstractAST {
   
     
     private final java.util.List<org.rascalmpl.ast.ConcretePart> parts;
+    private final Sym symbol;
   
-    public Typed(IConstructor node , java.util.List<org.rascalmpl.ast.ConcretePart> parts) {
+    public Typed(IConstructor node , Sym symbol, java.util.List<org.rascalmpl.ast.ConcretePart> parts) {
       super(node);
       
       this.parts = parts;
+      this.symbol = symbol;
     }
   
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }
+    
+    @Override
+    public Sym getSymbol() {
+      return symbol;
+    }
+    
     @Override
     public boolean isTyped() { 
       return true; 
