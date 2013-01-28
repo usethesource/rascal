@@ -143,7 +143,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 		IConstructor label = null;
 		
 		if (argTypes.length == 0) {
@@ -159,7 +159,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 					if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
 							|| candidate.getArity() == argValues.length) {
 						try {
-							return candidate.call(argTypes, argValues, null, self, selfParams, selfParamBounds);
+							return candidate.call(argTypes, argValues, null, self, openFunctions);
 						}
 						catch (MatchFailed m) {
 							// could happen if pattern dispatched
@@ -178,8 +178,8 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
-		return call(null, argTypes, argValues, null, self, selfParams, selfParamBounds);
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
+		return call(null, argTypes, argValues, null, self, openFunctions);
 	}
 
 	@Override

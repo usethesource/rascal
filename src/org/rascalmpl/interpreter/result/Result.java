@@ -22,7 +22,6 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -191,10 +190,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	///////
 
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) throws MatchFailed {
-		return call(argTypes, argValues, keyArgValues, null, null, null);
+		return call(argTypes, argValues, keyArgValues, null, null);
 	}
 	
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) throws MatchFailed {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) throws MatchFailed {
 		throw new UnsupportedOperation("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
 	}
 	
@@ -242,11 +241,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(COMPOSE_STRING, right);
 	}
 
-	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, List<String> selfs, List<Result<IValue>> selfBounds) {
-		return undefinedError(COMPOSE_STRING, right);
-	}
-
-	public <U extends IValue, V extends IValue> Result<U> composeClosedRecursive(Result<V> right) {
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
 		return undefinedError(COMPOSE_STRING, right);
 	}
 
@@ -628,19 +623,19 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 
-	public <U extends IValue> Result<U> composeFunction(TupleResult that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
+	public <U extends IValue> Result<U> composeFunction(TupleResult that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
@@ -1095,9 +1090,5 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public boolean isComposedFunctionResult() {
 		return false;
 	}
-	
-	public String getSelfParam() {
-		return "";
-	}
-	
+		
 }

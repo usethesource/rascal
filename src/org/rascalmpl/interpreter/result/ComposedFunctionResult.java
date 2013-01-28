@@ -14,7 +14,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
@@ -38,75 +37,62 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	private final Result<IValue> left;
 	private final Result<IValue> right;
 	private final boolean isStatic;
+	
 	private Type type;
 	
 	private boolean isOpenRecursive = false;
 	private boolean isMixin = false;
 	
 	private Result<IValue> self;
-	private final List<String> selfParams;
-	private final List<Result<IValue>> selfParamBounds;
+	private Map<String, Result<IValue>> openFunctions;
 	
 	public <T extends Result<IValue> & IExternalValue & ICallableValue, 
 			U extends Result<IValue> & IExternalValue & ICallableValue> 
-				ComposedFunctionResult(T left, U right, List<String> selfParams, List<Result<IValue>> selfParamBounds, Type type, IEvaluatorContext ctx) {
+				ComposedFunctionResult(T left, U right, Map<String, Result<IValue>> openFunctions, Type type, IEvaluatorContext ctx) {
 					super(type, null, ctx);
 					this.left = left;
+					this.right = right;
 					if(isComposedWithMixin(left, right)) {
-						this.right = new ComposedFunctionResult(right, selfParams, selfParamBounds, this, ctx);
 						this.type = ((FunctionType) left.getType()).getReturnType();
 						this.isMixin = true;
-					} else {
-						this.right = right;
 					}
 					this.type = type;
 					this.isStatic = left.isStatic() && right.isStatic();
+					
 					this.self = null;
-					this.selfParams = selfParams;
-					this.selfParamBounds = selfParamBounds;
-					if(this.selfParams != null) this.selfParams.add(right.getSelfParam());
-					if(this.selfParamBounds != null) this.selfParamBounds.add(this);
+					this.openFunctions = openFunctions;
+					if(this.openFunctions != null 
+						&& right.getName() != null && !right.getName().equals("")) 
+						this.openFunctions.put(right.getName(), this);
 				}
 	
 	public <T extends Result<IValue> & IExternalValue & ICallableValue, 
 			U extends Result<IValue> & IExternalValue & ICallableValue> 
-				ComposedFunctionResult(T left, U right, List<String> selfParams, List<Result<IValue>> selfParamBounds, IEvaluatorContext ctx) {
-					super(TF.voidType(), null, ctx);
-					this.left = left;
-					if(isComposedWithMixin(left, right)) {
-						this.right = new ComposedFunctionResult(right, selfParams, selfParamBounds, this, ctx);
-						this.type = ((FunctionType) left.getType()).getReturnType();
-						this.isMixin = true;
-					} else {
-						this.right = right;
-						this.type = super.type;
-						try {
-							// trying to compute the composed type 
-							type = left.getType().compose(right.getType());
-						} catch(IllegalOperationException e) {
-							// if the type of one of the arguments is of the type 'value' (e.g., the type of an overloaded function can be of the type 'value')
-						}
-					}
-					this.isStatic = left.isStatic() && right.isStatic();
-					this.self = null;
-					this.selfParams = selfParams;
-					this.selfParamBounds = selfParamBounds;
-					if(this.selfParams != null) this.selfParams.add(right.getSelfParam());
-					if(this.selfParamBounds != null) this.selfParamBounds.add(this);
+				ComposedFunctionResult(T left, U right, Map<String, Result<IValue>> openFunctions, IEvaluatorContext ctx) {
+					this(left, right, openFunctions, computeType(left.getType(), right.getType()), ctx);
 				}
 	
-	public <U extends Result<IValue> & IExternalValue & ICallableValue> 
-				ComposedFunctionResult(U right, List<String> selfParams, List<Result<IValue>> selfParamBounds, Result<IValue> self, IEvaluatorContext ctx) {
-					super(right.getType(), null, ctx);
-					this.left = null;
-					this.right = right;
-					this.type = super.type;
-					this.isStatic = right.isStatic();
-					this.self = self;
-					this.selfParams = selfParams;
-					this.selfParamBounds = selfParamBounds;
-					this.isOpenRecursive = true;
-				}
+	// Wrapper to compose with mixins under open recursion
+	private ComposedFunctionResult(Result<IValue> right, Map<String, Result<IValue>> openFunctions, Result<IValue> self, IEvaluatorContext ctx) {
+		super(right.getType(), null, ctx);
+		this.left = null;
+		this.right = right;
+		this.type = super.type;
+		this.isStatic = ((ICallableValue) right).isStatic();
+		this.self = self;
+		this.openFunctions = openFunctions;
+	}
+	
+	private static Type computeType(Type left, Type right) {
+		Type result = TF.voidType();
+		try {
+			// trying to compose types
+			result = left.compose(right);
+		} catch(IllegalOperationException e) {
+			// if the type of any of the arguments is 'value' (e.g., the type of an overloaded function)
+		}
+		return result;
+	}
 
 	public boolean isNonDeterministic() {
 		return false;
@@ -123,6 +109,16 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 	
 	@Override
+	public boolean isStatic() {
+		return isStatic;
+	}
+
+	@Override
+	public String getName() {
+		return null;
+	}
+	
+	@Override
 	public boolean isComposedFunctionResult() {
 		return true;
 	}
@@ -135,12 +131,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	public void setOpenRecursive(boolean isOpenRecursive) {
 		this.isOpenRecursive = isOpenRecursive;
 	}
-	
-	@Override
-	public boolean isStatic() {
-		return isStatic;
-	}
-	
+		
 	@Override
 	public Type getType() {
 		return this.type;
@@ -156,30 +147,22 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		return (U) this.right;
 	}
 	
-	public List<String> getSelfParams() {
-		return this.selfParams;
+	public Map<String, Result<IValue>> getOpenFunctions(){
+		return this.openFunctions;
 	}
-	
-	public List<Result<IValue>> getSelfParamBounds() {
-		return this.selfParamBounds;
-	}
-	
-	public void setSelf(Result<IValue> self) {
-		this.self = self;
-	}
-	
+		
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, 
 			IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
-		return call(monitor, argTypes, argValues, keyArgValues, null, null, null);
+		return call(monitor, argTypes, argValues, keyArgValues, null, null);
 	}
 	
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
-			IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+			IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
-			return call(argTypes, argValues, keyArgValues, self, selfParams, selfParamBounds);
+			return call(argTypes, argValues, keyArgValues, self, openFunctions);
 		}
 		finally {
 			ctx.getEvaluator().setMonitor(old);
@@ -188,23 +171,26 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
-		return call(argTypes, argValues, keyArgValues, null, null, null);
+		return call(argTypes, argValues, keyArgValues, null, null);
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
-		if(isMixin && isOpenRecursive) {
-			if(self != null)
-				((ComposedFunctionResult) right).setSelf(self);
-			return left.call(new Type[] { right.getType() }, new IValue[] { right.getValue() }, null)
-					   .call(argTypes, argValues, null, null, null, null);
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
+		if(isMixin) {
+			ComposedFunctionResult right_ = null;
+			if(isOpenRecursive) {
+				if(self != null) right_ = new ComposedFunctionResult(this.right, this.openFunctions, self, ctx); 
+				else right_ = new ComposedFunctionResult(this.right, this.openFunctions, this, ctx);
+				right_.setOpenRecursive(isOpenRecursive);
+			}
+			right_ = new ComposedFunctionResult(this.right, this.openFunctions, null, ctx);
+			return left.call(new Type[] { right_.getType() }, new IValue[] { right_.getValue() }, null)
+					   .call(argTypes, argValues, keyArgValues, null, null);
 		}
-		Result<IValue> rightResult = null;
-		if(isOpenRecursive && self == null) 
-			if(this.self == null) self = this;
-			else self = this.self;
-		rightResult = right.call(argTypes, argValues, null, self, this.selfParams, this.selfParamBounds);
-		return (left != null) ? left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, null) : rightResult;
+		if(this.left == null)
+			return right.call(argTypes, argValues, keyArgValues, this.self, this.openFunctions);
+		Result<IValue> rightResult = right.call(argTypes, argValues, keyArgValues, self, this.openFunctions);
+		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, null);
 	}
 
 	@Override
@@ -240,39 +226,34 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this, null, null, true);
+		return right.composeFunction(this, null, false);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, List<String> selfs, List<Result<IValue>> selfBounds) {
-		return right.composeFunction(this, selfs, selfBounds, true);
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
+		return right.composeFunction(this, openFunctions, isOpenRecursive);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> composeClosedRecursive(Result<V> right) {
-		return right.composeFunction(this, null, null, false);
-	}
-	
-	@Override
 	@SuppressWarnings("unchecked")
-	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, selfs, selfBounds, ctx);
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, openFunctions, ctx);
 		result.setOpenRecursive(isOpenRecursive);
 		return (Result<U>) result;
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, selfs, selfBounds, ctx);
+	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, openFunctions, ctx);
 		result.setOpenRecursive(isOpenRecursive);
 		return (Result<U>) result;
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that, List<String> selfs, List<Result<IValue>> selfBounds, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, selfs, selfBounds, ctx);
+	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, openFunctions, ctx);
 		result.setOpenRecursive(isOpenRecursive);
 		return (Result<U>) result;
 	}
@@ -318,7 +299,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		public <T extends Result<IValue> & IExternalValue & ICallableValue, 
 				U extends Result<IValue> & IExternalValue & ICallableValue> 
 					NonDeterministic(T left, U right, IEvaluatorContext ctx) {	
-						super(left, right, null, null, TF.voidType().lub(left.getType()).lub(right.getType()), ctx);
+						super(left, right, null, TF.voidType().lub(left.getType()).lub(right.getType()), ctx);
 					}
 		
 		@Override
@@ -327,13 +308,13 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		}
 				
 		@Override
-		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, List<String> selfParams, List<Result<IValue>> selfParamBounds) {
+		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 			Failure f1 = null;
 			ArgumentsMismatch e1 = null;
 			if(this.isOpenRecursive() && self == null) self = this;
 			try {
 				try {
-					return getRight().call(argTypes, argValues, null, self, this.getSelfParams(), this.getSelfParamBounds());
+					return getRight().call(argTypes, argValues, null, self, this.getOpenFunctions());
 				} catch(ArgumentsMismatch e) {
 					// try another one
 					e1 = e;
@@ -341,7 +322,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 					// try another one
 					f1 = e;
 				}
-				return getLeft().call(argTypes, argValues, null, self, this.getSelfParams(), this.getSelfParamBounds());
+				return getLeft().call(argTypes, argValues, null, self, this.getOpenFunctions());
 			} catch(ArgumentsMismatch e2) {
 				throw new ArgumentsMismatch(
 						"The called signature does not match signatures in the '+' composition:\n" 
