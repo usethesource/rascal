@@ -371,8 +371,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> addClosedRecursive(Result<V> right) {
-		return right.addFunctionNonDeterministic(this, false);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> right, boolean isOpenRecursive) {
+		return right.addFunctionNonDeterministic(this, isOpenRecursive);
 	}
 	
 	@Override
@@ -394,7 +394,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this, null, false);
+		return right.composeFunction(this, new HashMap<String, Result<IValue>>(), true);
 	}
 	
 	@Override

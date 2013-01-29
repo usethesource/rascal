@@ -164,7 +164,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			__eval.setCurrentAST(this);
 			
-			return left.addClosedRecursive(right);
+			return left.add(right, false);
 			
 		}
 		
@@ -630,7 +630,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
-			return left.compose(right, new HashMap<String, Result<IValue>>(), true);
+			return left.compose(right);
 
 		}
 
@@ -663,7 +663,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			__eval.setCurrentAST(this);
 			
-			return left.compose(right);
+			return left.compose(right, null, false);
 		}
 		
 	}

@@ -417,7 +417,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this, null, false);
+		return right.composeFunction(this, new HashMap<String, Result<IValue>>(), true);
 	}
 	
 	@Override
@@ -431,8 +431,8 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> addClosedRecursive(Result<V> that) {
-		return that.addFunctionNonDeterministic(this, false);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that, boolean isOpenRecursive) {
+		return that.addFunctionNonDeterministic(this, isOpenRecursive);
 	}
 	
 	@Override
