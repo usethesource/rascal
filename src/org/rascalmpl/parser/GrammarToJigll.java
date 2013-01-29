@@ -7,23 +7,40 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.jgll.grammar.Character;
 import org.jgll.grammar.CharacterClass;
 import org.jgll.grammar.Grammar;
 import org.jgll.grammar.GrammarSlot;
 import org.jgll.grammar.LastGrammarSlot;
 import org.jgll.grammar.Nonterminal;
-import org.jgll.grammar.Character;
 import org.jgll.grammar.NonterminalGrammarSlot;
 import org.jgll.grammar.Range;
 import org.jgll.grammar.TerminalGrammarSlot;
 
 public class GrammarToJigll {
-
+  public GrammarToJigll(IValueFactory vf) {
+  }
+  
+  public void generate(IString name, IConstructor grammar) {
+    IConstructor start = null;
+    for (IValue st : (ISet) grammar.get("starts")) {
+      start = (IConstructor) st;
+    }
+    
+    Grammar g = convert(name.getValue(), start, grammar);
+    
+    for (Nonterminal n : g.getNonterminals()) {
+      System.err.println(n.code());
+    }
+  }
+  
   static public Grammar convert(String name, IConstructor start, IConstructor grammar) {
     IMap definitions = (IMap) grammar.get("rules");
     Map<IValue, Nonterminal> nonterminals = new HashMap<IValue, Nonterminal>();
