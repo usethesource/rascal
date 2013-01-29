@@ -27,6 +27,7 @@ public interface ICallableValue extends IValue {
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions);
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions);
 	public boolean isStatic();
+	
 	public String getName();
 	
 	public IEvaluator<Result<IValue>> getEval();

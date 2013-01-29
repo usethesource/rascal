@@ -14,6 +14,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
@@ -188,7 +189,8 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 					   .call(argTypes, argValues, keyArgValues, null, null);
 		}
 		if(this.left == null)
-			return right.call(argTypes, argValues, keyArgValues, this.self, this.openFunctions);
+				return right.call(argTypes, argValues, keyArgValues, this.self, this.openFunctions);
+		if(self == null && isOpenRecursive) self = this;
 		Result<IValue> rightResult = right.call(argTypes, argValues, keyArgValues, self, this.openFunctions);
 		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, null);
 	}
@@ -199,8 +201,8 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> addClosedRecursive(Result<V> right) {
-		return right.addFunctionNonDeterministic(this, false);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> right, boolean isOpenRecursive) {
+		return right.addFunctionNonDeterministic(this, isOpenRecursive);
 	}
 	
 	@Override
@@ -226,7 +228,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this, null, false);
+		return right.composeFunction(this, new HashMap<String, Result<IValue>>(), true);
 	}
 	
 	@Override

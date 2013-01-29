@@ -363,7 +363,7 @@ public class RascalFunction extends NamedFunction {
 			// binding 'it' 
 			ctx.pushEnv();
 			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(Names.name(org.rascalmpl.interpreter.Evaluator.IT), it);
-			
+			// ---------
 
 			Type actualTypesTuple = TF.tupleType(actualTypes);
 			if (hasVarArgs) {

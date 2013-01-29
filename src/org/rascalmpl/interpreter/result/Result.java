@@ -201,7 +201,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(ADDITION_STRING, that);
 	}
 
-	public <U extends IValue, V extends IValue> Result<U> addClosedRecursive(Result<V> that) {
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that, boolean isOpenRecursive) {
 		return undefinedError(ADDITION_STRING, that);
 	}
 
