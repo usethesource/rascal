@@ -277,9 +277,9 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitConcreteTyped(Concrete.Typed x) { 
-    return null; 
-  }
+//  public T visitConcreteTyped(Concrete.Typed x) { 
+//    return null; 
+//  }
 
   public T visitConcreteHoleOne(ConcreteHole.One x) { 
     return null; 

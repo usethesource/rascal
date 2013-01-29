@@ -905,7 +905,7 @@ public class ASTBuilder {
   		}
   		
   		IConstructor concrete = (IConstructor) TreeAdapter.getArgs(tree).get(0);
-  		IConstructor fragment = (IConstructor) TreeAdapter.getArgs(concrete).get(8);
+  		IConstructor fragment = (IConstructor) TreeAdapter.getArgs(concrete).get(7);
   		Expression ast = liftRec(fragment, false,  getPatternLayout(tree));
   		
   		if (ast != null) {

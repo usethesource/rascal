@@ -31,10 +31,8 @@ syntax Literal
 syntax Expression = concrete: Concrete concrete;
 syntax Pattern    = concrete: Concrete concrete;
 
-syntax Concrete 
-  = typed: "(" Sym symbol ")" "`" ConcreteParts parts "`";
-
-lexical ConcreteParts = parts: ConcretePart* parts;
+lexical Concrete 
+  = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
 
 lexical ConcretePart
   = text   : ![`\<\>\\\n]
@@ -713,7 +711,7 @@ keyword RascalKeywords
 
 syntax Type
 	= bracket \bracket: "(" Type type ")" 
-	| user: UserType user \ HeaderKeyword
+	| user: UserType user
 	| function: FunctionType function 
 	| structured: StructuredType structured 
 	| basic: BasicType basic 

@@ -45,6 +45,32 @@ public abstract class Concrete extends AbstractAST {
     throw new UnsupportedOperationException();
   }
 
+  static public class Lexical extends Concrete {
+    private final java.lang.String string;
+    public Lexical(IConstructor node, java.lang.String string) {
+      super(node);
+      this.string = string;
+    }
+    public java.lang.String getString() {
+      return string;
+    }
+
+    @Override
+    public AbstractAST findNode(int offset) {
+      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
+        return this;
+      }
+      return null;
+    }
+
+    public java.lang.String toString() {
+      return string;
+    }
+    public <T> T accept(IASTVisitor<T> v) {
+      throw new UnsupportedOperationException();
+    }
+  }
+    
   static public class Ambiguity extends Concrete {
     private final java.util.List<org.rascalmpl.ast.Concrete> alternatives;
     private final IConstructor node;
@@ -77,63 +103,11 @@ public abstract class Concrete extends AbstractAST {
     
     public java.util.List<org.rascalmpl.ast.Concrete> getAlternatives() {
       return alternatives;
-    }
+    } 
     
     public <T> T accept(IASTVisitor<T> v) {
-    	return v.visitConcreteAmbiguity(this);
+    	 throw new UnsupportedOperationException();
     }
   }
 
-  
-
-  
-  public boolean isTyped() {
-    return false;
-  }
-
-  static public class Typed extends Concrete {
-    // Production: sig("Typed",[arg("java.util.List\<org.rascalmpl.ast.ConcretePart\>","parts")])
-  
-    
-    private final java.util.List<org.rascalmpl.ast.ConcretePart> parts;
-    private final Sym symbol;
-  
-    public Typed(IConstructor node , Sym symbol, java.util.List<org.rascalmpl.ast.ConcretePart> parts) {
-      super(node);
-      
-      this.parts = parts;
-      this.symbol = symbol;
-    }
-  
-    @Override
-    public boolean hasSymbol() {
-      return true;
-    }
-    
-    @Override
-    public Sym getSymbol() {
-      return symbol;
-    }
-    
-    @Override
-    public boolean isTyped() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitConcreteTyped(this);
-    }
-  
-    
-    @Override
-    public java.util.List<org.rascalmpl.ast.ConcretePart> getParts() {
-      return this.parts;
-    }
-  
-    @Override
-    public boolean hasParts() {
-      return true;
-    }	
-  }
 }
