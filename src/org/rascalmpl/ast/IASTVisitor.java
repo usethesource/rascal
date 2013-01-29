@@ -147,7 +147,7 @@ public interface IASTVisitor<T> {
 
   public T visitComprehensionSet(Comprehension.Set x);
 
-  public T visitConcreteTyped(Concrete.Typed x);
+//  public T visitConcreteTyped(Concrete.Typed x);
 
   public T visitConcreteHoleOne(ConcreteHole.One x);
 

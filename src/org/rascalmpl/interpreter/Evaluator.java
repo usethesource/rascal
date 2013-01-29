@@ -112,6 +112,7 @@ import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
@@ -1580,7 +1581,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	    throw new ImplementationError("unexpected error while parsing concrete syntax fragments", e.getCause());
 	  }
   }
-
 	private IConstructor parseFragment(ModuleEnvironment env, IConstructor tree) {
 	  IList args = TreeAdapter.getArgs(tree);
     int symbolPosition = 2;
@@ -1590,21 +1590,28 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     IConstructor symbol = Symbols.typeToSymbol((Sym) builder.buildValue(symTree), false, "?");
     NonTerminalType type = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(symbol);
     
-    int fragmentPosition = 8;
+    int fragmentPosition = 7;
     IConstructor lit = (IConstructor) args.get(fragmentPosition);
     Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
     
     IGTD<IConstructor, IConstructor, ISourceLocation> parser = getNewObjectParser(env, getCurrentAST().getLocation().getURI(), false);
     
     char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
-    IConstructor fragment = (IConstructor) parser.parse(SymbolAdapter.getName(type.getSymbol()), getCurrentAST().getLocation().getURI(), input, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-    fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
-    
-    IConstructor prod = TreeAdapter.getProduction(tree);
-    IConstructor sym = ProductionAdapter.getDefined(prod);
-    sym = SymbolAdapter.delabel(sym); 
-    prod = ProductionAdapter.setDefined(prod, (IConstructor) Factory.Symbol_Label.make(vf, vf.string("$parsed"), sym));
-    return TreeAdapter.setProduction(TreeAdapter.setArgs(tree, args.put(fragmentPosition, fragment)), prod);
+    try {
+      IConstructor fragment = (IConstructor) parser.parse(SymbolAdapter.getName(type.getSymbol()), getCurrentAST().getLocation().getURI(), input, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+      fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
+
+      IConstructor prod = TreeAdapter.getProduction(tree);
+      IConstructor sym = ProductionAdapter.getDefined(prod);
+      sym = SymbolAdapter.delabel(sym); 
+      prod = ProductionAdapter.setDefined(prod, (IConstructor) Factory.Symbol_Label.make(vf, vf.string("$parsed"), sym));
+      return TreeAdapter.setProduction(TreeAdapter.setArgs(tree, args.put(fragmentPosition, fragment)), prod);
+    }
+    catch (ParseError e) {
+      getStdErr().println("failed on :" + new String(input));
+      getStdErr().println(e);
+      return tree;
+    }
   }
 	
 	private char[] replaceAntiQuotesByHoles(IConstructor lit, Map<String, IConstructor> antiquotes) {
@@ -1615,7 +1622,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	    IConstructor part = (IConstructor) elem;
 	    String cons = TreeAdapter.getConstructorName(part);
 	    
-	    if (cons == null /* TODO: remove when layout problem is fixed */ || cons.equals("text")) {
+	    if (cons.equals("text")) {
 	      b.append(TreeAdapter.yield(part));
 	    }
 	    else if (cons.equals("newline")) {
