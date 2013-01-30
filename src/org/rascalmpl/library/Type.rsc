@@ -151,13 +151,35 @@ public bool subtype(\int(), \num()) = true;
 public bool subtype(\rat(), \num()) = true;
 public bool subtype(\real(), \num()) = true;
 public bool subtype(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = subtype(l, r);
-public bool subtype(\rel(list[Symbol] l), \rel(list[Symbol] r)) = subtype(l, r);
+
+
+// list and lrel
 public bool subtype(\list(Symbol s), \list(Symbol t)) = subtype(s, t); 
-public bool subtype(\list(Symbol s), \lrel(list[Symbol] ls)) = subtype(s,\tuple(ls));
-public bool subtype(\lrel(list[Symbol] ls), \list(Symbol s)) = subtype(\tuple(ls),s);
+
+public bool subtype(\lrel([\void()]), \lrel(list[Symbol] r)) = true;
+public default bool subtype(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = subtype(l, r);
+
+public bool subtype(\lrel([\void()]), \list(Symbol s)) = true;
+public default bool subtype(\lrel(list[Symbol] ls), \list(Symbol s)) = subtype(\tuple(ls),s);
+
+public bool subtype(\list(\void()), \lrel(list[Symbol] ls)) = true;
+public default bool subtype(\list(Symbol s), \lrel(list[Symbol] ls)) = subtype(s,\tuple(ls));
+
+// set and rel
+
 public bool subtype(\set(Symbol s), \set(Symbol t)) = subtype(s, t);
-public bool subtype(\set(Symbol s), \rel(list[Symbol] ls)) = subtype(s,\tuple(ls));
+
+public bool subtype(\rel([\void()]), \rel(list[Symbol] r)) = true;
+public default bool subtype(\rel(list[Symbol] l), \rel(list[Symbol] r)) = subtype(l, r);
+
+public bool subtype(\rel([\void()]), \set(Symbol r)) = true;
+public default bool subtype(\rel(list[Symbol] l), \set(Symbol r)) = subtype(l, r);
+
+public bool subtype(\set(\void()), \rel(list[Symbol] ls)) = true;
+public default bool subtype(\set(Symbol s), \rel(list[Symbol] ls)) = subtype(s,\tuple(ls));
+
 public bool subtype(\rel(list[Symbol] ls), \set(Symbol s)) = subtype(\tuple(ls),s);
+
 public bool subtype(\bag(Symbol s), \bag(Symbol t)) = subtype(s, t);  
 public bool subtype(\map(Symbol from1, Symbol to1), \map(Symbol from2, Symbol to2)) = subtype(from1, from2) && subtype(to1, to2);
 public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1), Symbol::\func(Symbol r2, list[Symbol] p2)) = subtype(r1, r2) && subtype(p2, p1); // note the contra-variance of the argument types
