@@ -1477,6 +1477,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     // TODO: this already maps the tree to an AST, and then this is done again later.
     // We only need to map to AST because we are looking for concrete syntax definitions and want 
     // to declare these before parsing the concrete syntax fragments.
+    // What we might do is supply the syntax definitions of the other modules via the environment,
+    // but the syntax definitions from the current module directly from the module itself to the 
+    // grammar normalizer. This way we do not need to construct an AST before parsing and we safe
+    // half the processing time per module...
     startJob("Parsing", 10);
     event("Pre-parsing: " + location);
     IConstructor prefix = new RascalParser().parse("start__Module", location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());

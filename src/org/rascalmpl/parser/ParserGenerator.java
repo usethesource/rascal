@@ -20,6 +20,8 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.util.List;
 
+import javax.management.monitor.Monitor;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
@@ -180,6 +182,10 @@ public class ParserGenerator {
 		return (IRelation) evaluator.call(monitor, "doNotNest", g);
 	}
 
+	public String getParserMethodName(IConstructor symbol) {
+	  return ((IString) evaluator.call(null, "value2id", symbol)).getValue();
+	}
+	
   /**
    * Generate a parser from a Rascal syntax definition (a set of production rules).
    * 
