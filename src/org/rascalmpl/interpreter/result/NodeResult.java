@@ -97,7 +97,7 @@ public class NodeResult extends ElementResult<INode> {
 	}
 	
 	public Result<IValue> makeSlice(int first, int second, int end){
-		IListWriter w = getValueFactory().listWriter(getType());
+		IListWriter w = getValueFactory().listWriter();
 		int increment = second - first;
 		if(first == end || increment == 0){
 			// nothing to be done
