@@ -601,7 +601,7 @@ public str esc(str s){
     return escape(s, javaStringEscapes);
 }
 
-private map[str,str] javaIdEscapes = javaStringEscapes + ("-":"_");
+private map[str,str] javaIdEscapes = javaStringEscapes + ("-":"_", "_": "__");
 
 public str escId(str s){
     return escape(s, javaIdEscapes);
