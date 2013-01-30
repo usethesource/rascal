@@ -274,7 +274,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 		// Use declared types here
 		Type resultType = second.getType().lub(from.getType().lub(to.getType()));
 		
-		IListWriter w = vf.listWriter(resultType);
+		IListWriter w = vf.listWriter();
 		if (iFrom.lessEqual(iTo).getValue() && diff.greater(zero).getValue()) {
 			 while (iFrom.less(iTo).getValue()) {
 				w.append(iFrom);
