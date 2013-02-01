@@ -37,47 +37,22 @@ bool isNonterminal(Symbol x) {
   
 public Grammar addHoles(Grammar object) = compose(object, grammar({}, holes(object)));
 
+public str createHole(ConcretePart hole, int idx) = createHole(hole.hole);
+public str createHole(ConcreteHole hole, int idx) = "\u0000<sym2symbol(hole.symbol)>:<idx>\u0000";
+
 public set[Production] holes(Grammar object) {
   // syntax N = [\a00] "N" ":" [0-9]+ [\a00];
-  return  { prod(label("$MetaHole",nont),[\char-class([range(0,0)]),*symbolLiterals(nont),lit(":"),iter(\char-class([range(48,57)])),\char-class([range(0,0)])],{})  
+  return  { prod(label("$MetaHole",getTargetSymbol(nont)),[\char-class([range(0,0)]),lit("<nont>"),lit(":"),iter(\char-class([range(48,57)])),\char-class([range(0,0)])],{})  
           | Symbol nont <- object.rules, isNonterminal(nont)};
 }
 
-private list[Symbol] symbolLiterals(Symbol sym) {
-  switch (sym) {
-    case \sort(n) : return [lit(n)];
-    case \lex(n) : return [lit(n)];
-    case \conditional(s,_) : return symbolLiterals(s);
-    case \keywords(n): return [lit(n)];
-    case \empty() : return [lit("("), lit(")")];
-    case \opt(s) : return [*symbolLiterals(s),lit("?")]; 
-    case \start(s) : return [lit("start"),lit("["),*symbolLiterals(s),lit("]")]; 
-    case \label(n,s) : return symbolLiterals(s); 
-    case \lit(n) : return [lit(quote(n))];
-    case \cilit(n) : return [lit(ciquote(n))]; 
-    case \layouts(n) : return [];
-    case \iter(s) : return [*symbolLiterals(s),lit("+")];
-    case \iter-star(s) : return [*symbolLiterals(s),lit("*")];  
-    case \iter-seps(s, [layouts(_)]) : return [*symbolLiterals(s),lit("+")]; 
-    case \iter-seps(s, [layouts(_),sep,layouts(_)]) : return [lit("{"),*symbolLiterals(s),*symbolLiterals(sep),lit("}"),lit("+")];  
-    case \iter-seps(s, seps) : return [lit("{"),*symbolLiterals(s),*tail([*symbolLiterals(t) | t <- seps]),lit("}"),lit("+")]; 
-    case \iter-star-seps(s, [layouts(_)]) : return [*symbolLiterals(s),lit("*")]; 
-    case \iter-star-seps(s, [layouts(_),sep,layouts(_)]) : return [lit("{"),*symbolLiterals(s),*symbolLiterals(sep),lit("}"),lit("*")]; 
-    case \iter-star-seps(s, seps) : return [lit("{"),*symbolLiterals(s),*tail([*symbolLiterals(t) | t <- seps]),lit("}"),lit("*")]; 
-    case \alt(alts) : return [lit("("),*tail(tail(tail([lit("|"),*symbolLiterals(t) | t <- alts ]))),lit(")")]; 
-    case \seq(elems) : return [lit("("),*tail([*symbolLiterals(t) | t <- elems]),lit(")")];  
-    case \parameterized-sort(n, params) : return [lit(n),lit("["),*tail(tail(tail([lit(","),*symbolLiterals(p) | p <- params]))),lit("]")]; //SPLICE
-    case \parameterized-lex(n, params) : return [lit(n),lit("["),*tail(tail(tail([lit(","),*symbolLiterals(p) | p <- params]))),lit("]")]; //SPLICE
-    case \parameter(n) : return [lit("&"),lit(n)];
-    case \char-class(list[CharRange] ranges) : return [lit("["),*tail([*rangeLiterals(r) | r <- ranges]),lit("]")];    
-    default: throw "unsupported symbol <sym>";
-  }
+@doc{This is needed such that list variables can be repeatedly used as elements of the same list}
+private Symbol getTargetSymbol(Symbol sym) {
+  switch(sym) {
+    case \iter(s) : return s;
+    case \iter-star(s) : return s;  
+    case \iter-seps(s, seps) : return s; 
+    case \iter-star-seps(s, seps) : return s; 
+    default: return sym;
+  } 
 }
-
-private list[Symbol] rangeLiterals(CharRange r) {
-  switch (r) {
-    case range(c,c) : return [lit(makeCharClassChar(c))];
-    case range(c,d) : return [lit(makeCharClassChar(c)),lit("-"),lit(makeCharClassChar(d))];
-  }
-}
-

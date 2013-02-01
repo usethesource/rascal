@@ -1586,30 +1586,22 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	  }
   }
 	private IConstructor parseFragment(ModuleEnvironment env, IConstructor tree) {
-	  IList args = TreeAdapter.getArgs(tree);
-    int symbolPosition = 2;
-    ASTBuilder builder = new ASTBuilder();
-    
-    IConstructor symTree = (IConstructor) args.get(symbolPosition);
-    IConstructor symbol = Symbols.typeToSymbol((Sym) builder.buildValue(symTree), false, "?");
-    NonTerminalType type = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(symbol);
-    
-    int fragmentPosition = 7;
-    IConstructor lit = (IConstructor) args.get(fragmentPosition);
+    IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
+    IConstructor lit = TreeAdapter.getArg(tree, "parts");
     Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
     
     IGTD<IConstructor, IConstructor, ISourceLocation> parser = getNewObjectParser(env, getCurrentAST().getLocation().getURI(), false);
     
     char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
     try {
-      IConstructor fragment = (IConstructor) parser.parse(SymbolAdapter.getName(type.getSymbol()), getCurrentAST().getLocation().getURI(), input, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+      IConstructor fragment = (IConstructor) parser.parse(getParserGenerator().getParserMethodName(symTree), getCurrentAST().getLocation().getURI(), input, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
       fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
 
       IConstructor prod = TreeAdapter.getProduction(tree);
       IConstructor sym = ProductionAdapter.getDefined(prod);
       sym = SymbolAdapter.delabel(sym); 
       prod = ProductionAdapter.setDefined(prod, (IConstructor) Factory.Symbol_Label.make(vf, vf.string("$parsed"), sym));
-      return TreeAdapter.setProduction(TreeAdapter.setArgs(tree, args.put(fragmentPosition, fragment)), prod);
+      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
     }
     catch (ParseError e) {
       getStdErr().println("failed on :" + new String(input));
@@ -1653,16 +1645,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
   private String createHole(IConstructor part, Map<String, IConstructor> antiquotes) {
-    IConstructor hole = (IConstructor) TreeAdapter.getArgs(part).get(0); // skip chain rule
-    IConstructor sym = (IConstructor) TreeAdapter.getArgs(hole).get(2);
-    StringBuilder b = new StringBuilder();
-    b.append((char) 0);
-    b.append(TreeAdapter.yield(sym).replaceAll("\\s", ""));
-    b.append(':');
-    b.append(antiquotes.size());
-    b.append((char) 0);
-    antiquotes.put(b.toString(), part);
-    return b.toString();
+    String ph = getParserGenerator().createHole(part, antiquotes.size());
+    antiquotes.put(ph, part);
+    return ph;
   }
 
   private IConstructor replaceHolesByAntiQuotes(IConstructor fragment, final Map<String, IConstructor> antiquotes) {
