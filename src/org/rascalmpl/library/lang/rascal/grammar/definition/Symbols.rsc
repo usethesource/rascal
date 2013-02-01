@@ -15,6 +15,8 @@ import ParseTree;
 import String;
 import IO;
 
+
+
 public bool match(Symbol checked, Symbol referenced) {
   while (checked is conditional || checked is label)
     checked = checked.symbol;
@@ -53,10 +55,6 @@ public Symbol sym2symbol(Sym sym) {
     case (Sym) `<Sym s>*`  : 
       return \iter-star(sym2symbol(s));
     case (Sym) `<Sym s>+`  : 
-      return \iter(sym2symbol(s));
-    case (Sym) `<Sym s> *?` : 
-      return \iter-star(sym2symbol(s));
-    case (Sym) `<Sym s> +?` : 
       return \iter(sym2symbol(s));
     case (Sym) `{<Sym s> <Sym sep>}*`  : 
       return \iter-star-seps(sym2symbol(s), [sym2symbol(sep)]);

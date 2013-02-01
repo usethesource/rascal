@@ -35,6 +35,11 @@ private alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]]
 public anno str Symbol@prefix;
 anno int Symbol@id;
 
+public str getParserMethodName(Sym sym) = getParserMethodName(sym2symbol(sym));
+private str getParserMethodName(label(_,Symbol s)) = getParserMethodName(s);
+private str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
+private default str getParserMethodName(Symbol s) = value2id(s);
+
 public str newGenerate(str package, str name, Grammar gr) {
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
