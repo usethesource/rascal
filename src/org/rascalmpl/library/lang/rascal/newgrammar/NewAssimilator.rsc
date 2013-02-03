@@ -40,14 +40,19 @@ bool isNonterminal(Symbol x) {
 public Grammar addHoles(Grammar object) = compose(object, grammar({}, holes(object)));
 
 public str createHole(ConcretePart hole, int idx) = createHole(hole.hole, idx);
-public str createHole(ConcreteHole hole, int idx) = "\u0000<getTargetSymbol(sym2symbol(hole.symbol))>:<idx>\u0000";
+public str createHole(ConcreteHole hole, int idx) = "\u0000<getTargetSymbol(lexToSort(sym2symbol(hole.symbol)))>:<idx>\u0000";
 
 public set[Production] holes(Grammar object) {
   // syntax N = [\a00] "N" ":" [0-9]+ [\a00];
   return  { regular(iter(\char-class([range(48,57)]))), 
-            prod(label("$MetaHole",target),[\char-class([range(0,0)]),lit("<target>"),lit(":"),iter(\char-class([range(48,57)])),\char-class([range(0,0)])],{})  
+            prod(label("$MetaHole",target),[\char-class([range(0,0)]),lit("<lexToSort(target)>"),lit(":"),iter(\char-class([range(48,57)])),\char-class([range(0,0)])],{})  
           | Symbol nont <- object.rules, isNonterminal(nont), target := getTargetSymbol(nont)};
 }
+
+@doc{In Rascal programs with type literals, it's hard to see easily if it is a lex or sort, so we normalize here}
+private Symbol lexToSort(Symbol s) = visit (s) { 
+  case \lex(n) => \sort(n)
+};
 
 @doc{This is needed such that list variables can be repeatedly used as elements of the same list}
 private Symbol getTargetSymbol(Symbol sym) {
