@@ -18,8 +18,10 @@ import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Modules;
 import lang::rascal::grammar::definition::Priorities;
 import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Keywords;
 
+import lang::rascal::newsyntax::Rascal;
 import lang::rascal::newgrammar::NewAssimilator;
 import ParseTree;
 import String;
@@ -44,14 +46,15 @@ public str newGenerate(str package, str name, Grammar gr) {
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
   
-    println("generating syntax for holes");
-    gr = addHoles(gr);
-    
     println("expanding parameterized symbols");
     gr = expandParameterizedSymbols(gr);
     
     println("generating stubs for regular");
     gr = makeRegularStubs(gr);
+    
+    println("generating syntax for holes");
+    gr = addHoles(gr);
+ 
     
     println("generating literals");
     gr = literals(gr);
