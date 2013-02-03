@@ -18,9 +18,11 @@ import List;
 import IO;
 import ParseTree;
 import Grammar;
+import lang::rascal::newsyntax::Rascal;
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Regular;
+import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::format::Escape;
 
 bool isNonterminal(Symbol x) { 
@@ -37,12 +39,13 @@ bool isNonterminal(Symbol x) {
   
 public Grammar addHoles(Grammar object) = compose(object, grammar({}, holes(object)));
 
-public str createHole(ConcretePart hole, int idx) = createHole(hole.hole);
+public str createHole(ConcretePart hole, int idx) = createHole(hole.hole, idx);
 public str createHole(ConcreteHole hole, int idx) = "\u0000<sym2symbol(hole.symbol)>:<idx>\u0000";
 
 public set[Production] holes(Grammar object) {
   // syntax N = [\a00] "N" ":" [0-9]+ [\a00];
-  return  { prod(label("$MetaHole",getTargetSymbol(nont)),[\char-class([range(0,0)]),lit("<nont>"),lit(":"),iter(\char-class([range(48,57)])),\char-class([range(0,0)])],{})  
+  return  { regular(iter(\char-class([range(48,57)]))), 
+            prod(label("$MetaHole",getTargetSymbol(nont)),[\char-class([range(0,0)]),lit("<nont>"),lit(":"),iter(\char-class([range(48,57)])),\char-class([range(0,0)])],{})  
           | Symbol nont <- object.rules, isNonterminal(nont)};
 }
 

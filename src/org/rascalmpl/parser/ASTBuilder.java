@@ -134,21 +134,9 @@ public class ASTBuilder {
 			return buildSort(parseTree, MODULE_SORT);
 		}
 		if (TreeAdapter.isAmb(tree)) {
-			ISet alts = TreeAdapter.getAlternatives(tree);
-			for (IValue val: alts) {
-				IConstructor t = (IConstructor) TreeAdapter.getArgs((IConstructor)val).get(1);
-				// This *prefers* the first Rascal Module it encounters in the set of alts.
-				// So if the Rascal syntax for modules itself would be ambiguous
-				// you get just one of them (unknown which).
-				if (sortName((IConstructor) val).equals(MODULE_SORT)) {
-					// t must be an appl so call buildValue directly
-					return (Module) buildValue(t);
-				}
-				else if (sortName((IConstructor) val).equals(PRE_MODULE_SORT)) {
-					throw new Ambiguous(parseTree);
-				}
-			}
+		  throw new ImplementationError("Parse of module returned ambiguous tree?");
 		}
+		
 		throw new ImplementationError("Parse of module returned invalid tree.");
 	}
 	

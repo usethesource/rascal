@@ -59,7 +59,6 @@ import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.PreModule;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.TagString.Lexical;
@@ -97,13 +96,11 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.staticErrors.UnguardedInsert;
 import org.rascalmpl.interpreter.staticErrors.UnguardedReturn;
-import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.library.lang.rascal.newsyntax.RascalParser;
 import org.rascalmpl.library.lang.rascal.syntax.MetaRascalRascal;
 import org.rascalmpl.library.lang.rascal.syntax.ObjectRascalRascal;
@@ -523,6 +520,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	@Override
 	public IValue call(String name, IValue... args) {
+	  RascalTypeFactory rtf = RascalTypeFactory.getInstance();
 		QualifiedName qualifiedName = Names.toQualifiedName(name);
 		OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
 
@@ -530,7 +528,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 		int i = 0;
 		for (IValue v : args) {
-			types[i++] = v.getType();
+			Type type = v.getType();
+      types[i++] = type.isSubtypeOf(Factory.Tree) ? rtf.nonTerminalType((IConstructor) v) : type;
 		}
 		
 		if (func == null) {
