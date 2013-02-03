@@ -1603,8 +1603,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
     }
     catch (ParseError e) {
-      getStdErr().println("failed on :" + new String(input));
-      getStdErr().println(e);
+      // have to deal with this parse error later when interpreting the AST, for now we just reconstruct the unparsed tree.
+      getStdErr().println("failed on: [" + new String(input) + "], " + e);
       return tree;
     }
   }

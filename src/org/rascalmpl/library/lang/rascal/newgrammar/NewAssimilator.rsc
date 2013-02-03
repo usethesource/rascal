@@ -40,13 +40,13 @@ bool isNonterminal(Symbol x) {
 public Grammar addHoles(Grammar object) = compose(object, grammar({}, holes(object)));
 
 public str createHole(ConcretePart hole, int idx) = createHole(hole.hole, idx);
-public str createHole(ConcreteHole hole, int idx) = "\u0000<sym2symbol(hole.symbol)>:<idx>\u0000";
+public str createHole(ConcreteHole hole, int idx) = "\u0000<getTargetSymbol(sym2symbol(hole.symbol))>:<idx>\u0000";
 
 public set[Production] holes(Grammar object) {
   // syntax N = [\a00] "N" ":" [0-9]+ [\a00];
   return  { regular(iter(\char-class([range(48,57)]))), 
-            prod(label("$MetaHole",getTargetSymbol(nont)),[\char-class([range(0,0)]),lit("<nont>"),lit(":"),iter(\char-class([range(48,57)])),\char-class([range(0,0)])],{})  
-          | Symbol nont <- object.rules, isNonterminal(nont)};
+            prod(label("$MetaHole",target),[\char-class([range(0,0)]),lit("<target>"),lit(":"),iter(\char-class([range(48,57)])),\char-class([range(0,0)])],{})  
+          | Symbol nont <- object.rules, isNonterminal(nont), target := getTargetSymbol(nont)};
 }
 
 @doc{This is needed such that list variables can be repeatedly used as elements of the same list}
