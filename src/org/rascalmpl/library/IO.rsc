@@ -547,3 +547,6 @@ MD5 hash the contents of a file location.
 @reflect{Uses URI Resolver Registry}
 public java str md5HashFile(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java str createLink(str title, str target);
