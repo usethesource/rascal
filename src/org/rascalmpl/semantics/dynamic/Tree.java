@@ -25,6 +25,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.BasicBooleanResult;
 import org.rascalmpl.interpreter.matching.ConcreteApplicationPattern;
 import org.rascalmpl.interpreter.matching.ConcreteListPattern;
+import org.rascalmpl.interpreter.matching.ConcreteListVariablePattern;
 import org.rascalmpl.interpreter.matching.ConcreteOptPattern;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
@@ -35,6 +36,7 @@ import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
+import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -86,7 +88,13 @@ public abstract class Tree {
 	
 	@Override
 	public IMatchingResult buildMatcher(IEvaluatorContext ctx) {
-		return new TypedVariablePattern(ctx, this, type, name);
+	  IConstructor symbol = ((NonTerminalType) type).getSymbol();
+    if (SymbolAdapter.isStarList(symbol) || SymbolAdapter.isPlusList(symbol)) {
+	    return new ConcreteListVariablePattern(ctx, this, type, name);
+	  }
+	  else {
+	    return new TypedVariablePattern(ctx, this, type, name);
+	  }
 	}
 	  
   }

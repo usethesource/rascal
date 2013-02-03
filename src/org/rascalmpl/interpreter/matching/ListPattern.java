@@ -197,19 +197,19 @@ public class ListPattern extends AbstractMatchingResult  {
 					if (varRes == null) {
 						isBindingVar[i] = true;
 					} else {
-						isBindingVar[i] = false;
-				        Type varType = varRes.getType();
-				        if (isAnyListType(varType)){  
-				        	if (!varType.comparable(listSubjectType)) {     
-				        		hasNext = false;
-				        		return;
-				        	}
-				        } else {
-				        	if(!(varType instanceof NonTerminalType) && !(varType.comparable(staticListSubjectElementType))) {
-				        		hasNext = false;
-				        		return;
-				        	}
-				        }
+					  isBindingVar[i] = false;
+					  Type varType = varRes.getType();
+					  if (isAnyListType(varType)){  
+					    if (!varType.comparable(listSubjectType)) {     
+					      hasNext = false;
+					      return;
+					    }
+					  } else {
+					    if(!(varType instanceof NonTerminalType) && !(varType.comparable(staticListSubjectElementType))) {
+					      hasNext = false;
+					      return;
+					    }
+					  }
 					}
 				}
 			} else if (child instanceof ConcreteListVariablePattern) {
