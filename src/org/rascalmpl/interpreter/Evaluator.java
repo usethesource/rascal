@@ -1666,7 +1666,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return TreeAdapter.setArgs(tree, args);
           }
           
-          return antiquotes.get(TreeAdapter.yield(tree));
+          return antiquotes.get(TreeAdapter.yield(tree)).setAnnotation("holeType", TreeAdapter.getType(tree));
         }
         
         @Override
