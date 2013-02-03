@@ -717,9 +717,10 @@ public class ASTBuilder {
 	}
 
 	private Expression liftHole(IConstructor tree) {
+	  assert tree.hasAnnotation("holeType");
+	  IConstructor type = (IConstructor) tree.getAnnotation("holeType");
 	  tree = (IConstructor) TreeAdapter.getArgs(tree).get(0);
 		IList args = TreeAdapter.getArgs(tree);
-		IConstructor type = Symbols.typeToSymbol((Sym) buildValue(args.get(2)), false, "???");
 		IConstructor nameTree = (IConstructor) args.get(4);
 		ISourceLocation src = TreeAdapter.getLocation(tree);
 		Expression result = new Tree.MetaVariable(tree, type, TreeAdapter.yield(nameTree));
