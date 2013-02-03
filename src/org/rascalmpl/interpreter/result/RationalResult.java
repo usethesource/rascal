@@ -256,6 +256,16 @@ public class RationalResult extends ElementResult<IRational> {
 	}
 	
 	@Override
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		return that.addRational(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
+		return that.addRational(this);
+	}
+	
+	@Override
 	protected Result<IBool> equalToRational(RationalResult that) {
 		return bool(that.getValue().equal(getValue()).getValue(), ctx);
 	}
