@@ -159,6 +159,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	// TODO: remove this after bootstrapping is complete again.
 	public boolean useNewParser = true;
+	
+	/**
+	 * This flag helps preventing non-terminating bootstrapping cycles. If 
+	 * it is set we do not allow loading of another nested Parser Generator.
+	 */
+	private boolean isBootstrapper = false;
 
 	/**
 	 * The current profiler; private to this evaluator
@@ -758,10 +764,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	private ParserGenerator parserGenerator;
+  
 	
 	private ParserGenerator getParserGenerator() {
 		startJob("Loading parser generator", 40);
-		if(parserGenerator == null){
+		if(parserGenerator == null ){
+		  if (isBootstrapper()) {
+		    throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
+		  }
 			parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory());
 		}
 		endJob(true);
@@ -2250,4 +2260,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return new Evaluator(this, rootScope);
 	}
 
+  public void setBootstrapperProperty(boolean b) {
+    this.isBootstrapper = b;
+  }
+  
+  public boolean isBootstrapper() {
+    return isBootstrapper;
+  }
 }

@@ -32,27 +32,27 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   
   for (sd <- defs) {
     switch (sd) {
-      case (SyntaxDefinition) `layout <Nonterminal n> = <Prod p>;` : {
+      case \layout(_, nonterminal(Nonterminal n), Prod p) : {
         prods += prod2prod(\layouts("<n>"), p);
       }
-      case (SyntaxDefinition) `start syntax <Nonterminal n> = <Prod p>;` : {
+      case \language(present() /*start*/, nonterminal(Nonterminal n), Prod p) : {
         prods += prod(\start(sort("<n>")),[label("top", sort("<n>"))],{}); 
         prods += prod2prod(sort("<n>"), p);
         starts += \start(sort("<n>"));
       }
-      case (SyntaxDefinition) `syntax <Nonterminal n>[<{Sym ","}+ syms>] = <Prod p>;` : {
+      case \language(absent(), parameterized(Nonterminal l, {Sym ","}+ syms), Prod p) : {
         prods += prod2prod(\parameterized-sort("<n>",separgs2symbols(syms)), p);
       }
-      case (SyntaxDefinition) `syntax <Nonterminal n> = <Prod p>;` : {
+      case \language(absent(), nonterminal(Nonterminal n), Prod p) : {
         prods += prod2prod(\sort("<n>"), p);
       }
-      case (SyntaxDefinition) `lexical <Nonterminal n>[<{Sym ","}+ syms>] = <Prod p>;` : {
+      case \lexical(absent(), parameterized(Nonterminal l, {Sym ","}+ syms), Prod p) : {
         prods += prod2prod(\parameterized-lex("<n>",separgs2symbols(syms)), p);
       }
-      case (SyntaxDefinition) `lexical <Nonterminal n> = <Prod p>;` : {
+      case \lexical(absent(), nonterminal(Nonterminal n), Prod p) : {
         prods += prod2prod(\lex("<n>"), p);
       }
-      case (SyntaxDefinition) `keyword <Nonterminal n> = <Prod p>;` : {
+      case \keyword(absent(), nonterminal(Nonterminal n), Prod p) : {
         prods += prod2prod(keywords("<n>"), p);
       }
       default: { rprintln(sd); throw "unsupported kind of syntax definition? <sd> at <sd@\loc>"; }
@@ -64,6 +64,7 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
    
 private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
+    case labeled(ProdModifier* ms, Name n, [empty()]) :
     case (Prod) `<ProdModifier* ms> <Name n> : ()` :
       return prod(label("<n>",nt), [], mods2attrs(ms));
     case (Prod) `<ProdModifier* ms> ()` :

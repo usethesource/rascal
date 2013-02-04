@@ -49,6 +49,7 @@ public class ParserGenerator {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment scope = new ModuleEnvironment("___parsergenerator___", heap);
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, scope,heap);
+		this.evaluator.setBootstrapperProperty(true);
 		this.evaluator.useNewParser = true;
 		this.vf = factory;
 		
