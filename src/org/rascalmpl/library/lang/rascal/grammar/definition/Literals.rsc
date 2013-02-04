@@ -6,7 +6,6 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@bootstrapParser
 module lang::rascal::grammar::definition::Literals
 
 import lang::rascal::newsyntax::Rascal;
@@ -51,11 +50,8 @@ public test bool quoteTest() = unescape((StringConstant) `"\\\\\\""`) == "\\\"";
 public test bool utf8Test() { println(unescape((StringConstant) `"\\u00e9"`)); return false; }
 
 public str unescape(StringConstant s) {
-  if ((StringConstant) `"<StringCharacter* x>"` := s) {
-    Tree y = x; // workaround for buggy matching in lexicals
-    return "<for (StringCharacter ch <- y.args) {><character(ch)><}>";
-  }
-  throw "unexpected string constant <s>";
+  Tree y = x; // workaround for buggy matching in lexicals
+  return "<for (StringCharacter ch <- y.args) {><character(ch)><}>";
 }
 
 private str character(StringCharacter c) {

@@ -5,7 +5,6 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@bootstrapParser
 module lang::rascal::grammar::definition::Attributes
 
 import lang::rascal::newsyntax::Rascal;
@@ -24,15 +23,15 @@ public set[Attr] mods2attrs(ProdModifier* mods) {
  
 public Attr mod2attr(ProdModifier m) {
   switch (m) {
-    case (ProdModifier) `left`: return \assoc(\left());
-    case (ProdModifier) `right`: return \assoc(\right());
-    case (ProdModifier) `non-assoc`: return \assoc(\non-assoc());
-    case (ProdModifier) `assoc`: return \assoc(\assoc());
-    case (ProdModifier) `bracket`: return \bracket();
-    case (ProdModifier) `@ <Name n> = <StringConstant s>` : return \tag("<n>"(unescape(s)));
-    case (ProdModifier) `@ <Name n> = <Literal l>` : return \tag("<n>"("<l>"));
-    case (ProdModifier) `@ <Name n>` : return \tag("<n>"());
-    case (ProdModifier) `@ <Name n> <TagString s>` : return \tag("<n>"("<s>"));
+    case left()  : return \assoc(\left());
+    case right() : return \assoc(\right());
+    case \non-assoc(): return \assoc(\non-assoc());
+    case \assoc(): return \assoc(\assoc());
+    case \bracket(): return \bracket();
+    case \tag(\default(Name n, TagString s)) : return \tag("<n>"("<s>"));
+    case \tag(\empty(Name n)) : return \tag("<n>"()); 
+    case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l))))) : return \tag("<n>"("<l>"));
+    case \tag(\expression(Name n, literal(Literal l))) : return \tag("<n>"("<l>"));
     default: throw "missed a case <m>";
   }
 }

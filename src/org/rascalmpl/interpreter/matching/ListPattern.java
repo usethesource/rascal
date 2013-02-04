@@ -32,7 +32,9 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ListPattern extends AbstractMatchingResult  {
 	private List<IMatchingResult> patternChildren;	// The elements of this list pattern
@@ -114,6 +116,22 @@ public class ListPattern extends AbstractMatchingResult  {
 		
 		if(debug) {
 			System.err.println("List: initMatch: subject=" + subject);
+		}
+		
+		if (subject.getType().isSubtypeOf(Factory.Tree)) {
+		  IConstructor tree = (IConstructor) subject.getValue();
+      if (TreeAdapter.isList(tree)) {
+		    this.subject = ResultFactory.makeResult(Factory.Tree, TreeAdapter.getArgs(tree), ctx);
+		    IConstructor rhs = TreeAdapter.getType(tree);
+		    
+	      if (SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)) {
+	        this.delta = SymbolAdapter.getSeparators(rhs).length() + 1;
+	      }
+		  }
+      else {
+        hasNext = false;
+        return;
+      }
 		}
 		
 		if (!subject.getValue().getType().isListType()) {

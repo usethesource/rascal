@@ -6,7 +6,6 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@bootstrapParser
 module lang::rascal::grammar::definition::Modules
 
 import lang::rascal::newsyntax::Rascal;
@@ -71,10 +70,10 @@ public tuple[str, set[str], set[str]] getModuleMetaInf(Module \mod) {
   // TODO: implement module type parameters
   // Tags tags "module" QualifiedName name ModuleParameters params Import* imports
   switch (\mod) {
-    case (Module) `<Tags _> module <QualifiedName name> <ModuleParameters _> <Import* is> <Body _>` :
+    case \default(parameters(_, QualifiedName name, _, Import* is),_) :
     return <deslash("<name>"), { "<i>" | (Import) `import <QualifiedName  i>;` <- is } 
-                    , { "<i>" | (Import) `extend <QualifiedName  i>;` <- is }>; 
-    case (Module) `<Tags _> module <QualifiedName name> <Import* is> <Body _>`:
+                    , { "<i>" | (Import) `extend <QualifiedName  i>;` <- is }>;
+    case \default(\default(_, QualifiedName name, Import* is), _) : 
     return <deslash("<name>"), { "<i>" | (Import) `import <QualifiedName  i>;` <- is } 
                     , { "<i>" | (Import) `extend <QualifiedName  i>;` <- is }>; 
   }
