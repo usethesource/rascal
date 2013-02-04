@@ -7,7 +7,6 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-@bootstrapParser
 module lang::rascal::grammar::definition::Productions
      
 import lang::rascal::newsyntax::Rascal;
@@ -64,29 +63,34 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
    
 private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
-    case labeled(ProdModifier* ms, Name n, [empty()]) :
-    case (Prod) `<ProdModifier* ms> <Name n> : ()` :
-      return prod(label("<n>",nt), [], mods2attrs(ms));
-    case (Prod) `<ProdModifier* ms> ()` :
-      return prod(nt, [], mods2attrs(ms));
-    case (Prod) `<ProdModifier* ms> <Name n> : <Sym* args>` :
-      return prod(label(unescape("<n>"),nt),args2symbols(args),mods2attrs(ms));
-    case (Prod) `<ProdModifier* ms> <Sym* args>` :
-      return prod(nt, args2symbols(args), mods2attrs(ms));
-    case (Prod) `<Prod l> | <Prod r>` :
+    case labeled(ProdModifier* ms, Name n, Sym* args) : 
+      if ([empty()] := syms.args) {
+        return prod(label("<n>",nt), [], mods2attrs(ms));
+      }
+      else {
+        return prod(label(unescape("<n>"),nt),args2symbols(args),mods2attrs(ms));
+      }
+    case unlabeled(ProdModifier* ms, Sym* args) :
+      if ([empty()] := syms.args) {
+        return prod(nt, [], mods2attrs(ms));
+      }
+      else {
+        return prod(nt,args2symbols(args),mods2attrs(ms));
+      }     
+    case \all(Prod l, Prod r) :
       return choice(nt,{prod2prod(nt, l), prod2prod(nt, r)});
-    case (Prod) `<Prod l> \> <Prod r>` : 
+    case \first(Prod l, Prod r) : 
       return priority(nt,[prod2prod(nt, l), prod2prod(nt, r)]);
-    case (Prod) `left (<Prod q>)` :
+    case associativityGroup(\left(), Prod q) :
       return associativity(nt, \left(), {prod2prod(nt, q)});
-    case (Prod) `right (<Prod q>)` :
+    case associativityGroup(\right(), Prod q) :
       return associativity(nt, \right(), {prod2prod(nt, q)});
-    case (Prod) `non-assoc (<Prod q>)` :
+    case associativityGroup(\non-assoc(), Prod q) :      
       return associativity(nt, \non-assoc(), {prod2prod(nt, q)});
-    case (Prod) `assoc(<Prod q>)` :
+    case associativityGroup(\assoc(), Prod q) :      
       return associativity(nt, \left(), {prod2prod(nt, q)});
-    case (Prod) `...`: return \others(nt);
-    case (Prod) `: <Name n>`: return \reference(nt, "<n>");
+    case others(): return \others(nt);
+    case reference(Name n): return \reference(nt, "<n>");
     default: throw "missed a case <p>";
   } 
 }
