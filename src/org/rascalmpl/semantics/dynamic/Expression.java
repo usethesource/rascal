@@ -367,9 +367,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			eval.getCurrentEnvt().getAllFunctions(cons, functions);
 			
 			if (functions.isEmpty()) {
-				throw new UndeclaredVariable(Names.fullName(nameExpr.getQualifiedName()), this);
+			  return null;
+//				throw new UndeclaredVariable(Names.fullName(nameExpr.getQualifiedName()), this);
 			}
-
+			
 			Type signature = getArgumentTypes(eval);
 			Type constructorType = TF.nodeType();
 			

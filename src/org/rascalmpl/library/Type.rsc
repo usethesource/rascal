@@ -533,6 +533,7 @@ public bool isListType(\alias(_,_,Symbol at)) = isListType(at);
 public bool isListType(\parameter(_,Symbol tvb)) = isListType(tvb);
 public bool isListType(\label(_,Symbol lt)) = isListType(lt);
 public bool isListType(\list(_)) = true;
+public bool isListType(\lrel(_)) = true;
 public default bool isListType(Symbol _) = false;
 
 @doc{
