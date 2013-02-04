@@ -477,7 +477,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						kwActuals = new HashMap<String,Result<IValue>>();
 						
 						for(KeywordArgument kwa : keywordArgs.getKeywordArgumentList()){
-							kwActuals.put(kwa.getName().toString(), kwa.getExpression().interpret(__eval));
+							kwActuals.put(Names.name(kwa.getName()), kwa.getExpression().interpret(__eval));
 						}
 				}
 				Result<IValue> res = null;
