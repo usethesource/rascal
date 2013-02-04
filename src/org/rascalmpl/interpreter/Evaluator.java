@@ -39,7 +39,9 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -1604,7 +1606,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
     catch (ParseError e) {
       // have to deal with this parse error later when interpreting the AST, for now we just reconstruct the unparsed tree.
-      getStdErr().println("failed on: [" + new String(input) + "], " + e);
+      getStdErr().println("At: " + TreeAdapter.getLocation(tree) + ", failed on: [" + new String(input) + "], " + e);
       return tree;
     }
   }
@@ -1666,9 +1668,27 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return TreeAdapter.setArgs(tree, args);
           }
           
-          return antiquotes.get(TreeAdapter.yield(tree)).setAnnotation("holeType", TreeAdapter.getType(tree));
+          IConstructor type = retrieveHoleType(tree);
+          return antiquotes.get(TreeAdapter.yield(tree)).setAnnotation("holeType", type);
         }
         
+        private IConstructor retrieveHoleType(IConstructor tree) {
+          IConstructor prod = TreeAdapter.getProduction(tree);
+          ISet attrs = ProductionAdapter.getAttributes(prod);
+
+          for (IValue attr : attrs) {
+            if (((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
+              IValue arg = ((IConstructor) attr).get(0);
+              
+              if (arg.getType().isNodeType() && ((INode) arg).getName().equals("holeType")) {
+                return (IConstructor) ((INode) arg).get(0);
+              }
+            }
+          }
+          
+          throw new ImplementationError("expected to find a holeType, but did not: " + tree);
+        }
+
         @Override
         public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
           ISetWriter w = vf.setWriter();

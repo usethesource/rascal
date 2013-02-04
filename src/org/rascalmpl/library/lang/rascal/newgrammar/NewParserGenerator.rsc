@@ -22,7 +22,7 @@ import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Keywords;
 
 import lang::rascal::newsyntax::Rascal;
-import lang::rascal::newgrammar::NewAssimilator;
+import lang::rascal::newgrammar::ConcreteSyntax;
 import ParseTree;
 import String;
 import List;
