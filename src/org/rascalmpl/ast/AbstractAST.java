@@ -145,11 +145,10 @@ public abstract class AbstractAST implements IVisitable {
 	@Override
 	@Deprecated
 	/**
-	 * @deprecated because this does not print the actual source code of the AST anymore! Use getString() instead on lexicals.
-	 * For debugging purposes
+	 * @deprecated YOU SHOULD NOT USE THIS METHOD. Use {@link Names}.
 	 */
 	public String toString() {
-		return src + ":" + getClass();
+		throw new UnsupportedOperationException("This method was deprecated a while ago");
 	}
 
 	public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
