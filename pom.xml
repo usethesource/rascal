@@ -10,8 +10,14 @@
 	</parent>
 
 	<artifactId>rascal</artifactId>
-	<version>0.5.4.qualifier</version>
+	<version>0.6.0.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.7</maven.compiler.source>
+	</properties>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -47,10 +53,6 @@
 						<goals>
 							<goal>testCompile</goal>
 						</goals>
-						<configuration>
-							<testSource>1.6</testSource>
-							<testTarget>1.6</testTarget>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -69,6 +71,10 @@
 					</execution>
 				</executions>
 				<configuration>
+					<argLine>
+						-Xmx1g
+						-Xss128m
+					</argLine>				
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuite.java</include>
 					</includes>
