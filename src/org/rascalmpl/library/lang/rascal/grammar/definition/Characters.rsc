@@ -364,7 +364,7 @@ test bool diff2() = difference(\char-class([range(10,30), range(40,50)]), \char-
 
 public Symbol cc2ranges(Class cc) {
    switch(cc) {
-     case \simpleClarclass(Range* ranges) : return \char-class([range(r) | r <- ranges]);
+     case \simpleCharclass(Range* ranges) : return \char-class([range(r) | r <- ranges]);
      case \bracket(Class c): return cc2ranges(c);
      case \complement(Class c) : return complement(cc2ranges(c));
      case \intersection(Class l, Class r) : return intersection(cc2ranges(l), cc2ranges(r));
