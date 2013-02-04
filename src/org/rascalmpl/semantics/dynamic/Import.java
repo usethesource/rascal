@@ -30,6 +30,7 @@ import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.LocationLiteral;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.SyntaxDefinition;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -187,8 +188,15 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 			try {
 				eval.getCurrentModuleEnvironment().addExtend(name);
 
+				org.rascalmpl.ast.Module mod; 
+				
 				if (withImports) {
-					org.rascalmpl.ast.Module mod = eval.preParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
+				  if (((Evaluator) eval).useNewParser) {
+				    mod = ((Evaluator) eval).newPreParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
+				  }
+				  else {
+				    mod = eval.preParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
+				  }
 					mod.declareSyntax(eval, true);
 				}
 				
@@ -223,7 +231,19 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				eval.addImportToCurrentModule(this, name);
 
 				if (withImports) {
-					org.rascalmpl.ast.Module mod = eval.preParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
+				  org.rascalmpl.ast.Module mod;
+				  
+				  if (((Evaluator) eval).useNewParser) {
+				    // TODO: it is strange that we have to parse the imported module here again, and costly. Possibly this can be avoided.
+//				    long now = System.currentTimeMillis();
+//				    System.err.println("Parsing starts: " + name);
+				    mod = ((Evaluator) eval).newPreParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
+//				    System.err.println("Parsing ends: " + name + ":" + (System.currentTimeMillis() - now));
+				  }
+				  else {
+					  mod = eval.preParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
+				  }
+				  
 					Environment old = eval.getCurrentEnvt();
 					try {
 						eval.setCurrentEnvt(heap.getModule(name));

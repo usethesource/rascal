@@ -10,7 +10,7 @@
 @bootstrapParser
 module lang::rascal::grammar::definition::Productions
      
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::newsyntax::Rascal;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Attributes;
@@ -74,7 +74,7 @@ private Production prod2prod(Symbol nt, Prod p) {
       return prod(nt, args2symbols(args), mods2attrs(ms));
     case (Prod) `<Prod l> | <Prod r>` :
       return choice(nt,{prod2prod(nt, l), prod2prod(nt, r)});
-    case (Prod) `<Prod l> > <Prod r>` : 
+    case (Prod) `<Prod l> \> <Prod r>` : 
       return priority(nt,[prod2prod(nt, l), prod2prod(nt, r)]);
     case (Prod) `left (<Prod q>)` :
       return associativity(nt, \left(), {prod2prod(nt, q)});

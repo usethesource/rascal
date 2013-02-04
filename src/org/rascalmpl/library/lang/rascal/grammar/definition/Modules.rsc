@@ -9,7 +9,7 @@
 @bootstrapParser
 module lang::rascal::grammar::definition::Modules
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::newsyntax::Rascal;
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Layout;
 import lang::rascal::grammar::definition::Literals;
@@ -67,7 +67,7 @@ public GrammarModule module2grammar(Module \mod) {
   return \module(name, imps, exts, syntax2grammar(collect(\mod)));
 } 
 
-public tuple[str, set[str], set[str]] getModuleMetaInf(\mod) {
+public tuple[str, set[str], set[str]] getModuleMetaInf(Module \mod) {
   // TODO: implement module type parameters
   // Tags tags "module" QualifiedName name ModuleParameters params Import* imports
   switch (\mod) {
