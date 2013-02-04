@@ -9,19 +9,22 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
+ *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.interpreter.staticErrors;
+package org.rascalmpl.test.library;
 
-import org.rascalmpl.ast.AbstractAST;
+import static org.junit.Assert.assertTrue;
 
-public class UninitializedVariable extends StaticError {
-	private static final long serialVersionUID = -7290225483329876543L;
-    
-	public UninitializedVariable(String name, AbstractAST ast) {
-	  super("Uninitialized variable: " + name, ast);
-	}
+import org.junit.Test;
+import org.rascalmpl.test.infrastructure.TestFramework;
+
+public class TupleTests extends TestFramework {
 	
-	public UninitializedVariable(AbstractAST ast) {
-    super("Uninitialized variable", ast);
-  }
+	@Test
+	public void tupleExpressions() {
+		assertTrue(runTest("{ value n = 1; value s = \"string\"; tuple[int, int] _ := < n, n > && tuple[str, str] _ := < s, s > && tuple[int, str] _ := < n , s >; }"));
+	}
+
+
 }

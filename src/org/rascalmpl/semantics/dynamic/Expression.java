@@ -366,9 +366,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			eval.getCurrentEnvt().getAllFunctions(cons, functions);
 			
 			if (functions.isEmpty()) {
-				throw new UndeclaredVariable(Names.fullName(nameExpr.getQualifiedName()), this);
+			  return null;
+//				throw new UndeclaredVariable(Names.fullName(nameExpr.getQualifiedName()), this);
 			}
-
+			
 			Type signature = getArgumentTypes(eval);
 			Type constructorType = TF.nodeType();
 			
@@ -1432,7 +1433,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			}
 
 			Type resultType = TF.listType(elementType);
-			IListWriter w = resultType.writer(__eval.__getVf());
+			IListWriter w = __eval.__getVf().listWriter();
 			w.appendAll(results);
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(resultType, w.done(), __eval);
 		}
@@ -1541,7 +1542,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			}
 
 			Type type = TF.mapType(keyType, valueType);
-			IMapWriter w = type.writer(__eval.__getVf());
+			IMapWriter w = __eval.__getVf().mapWriter();
 			w.putAll(result);
 
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
@@ -2234,8 +2235,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						 * Splice the elements in the set
 						 * __eval.
 						 */
+						elementType = elementType.lub(resultElem.getType().getElementType());
 						for (IValue val : (Iterable<IValue>) resultElem.getValue()) {
-							elementType = elementType.lub(val.getType());
 							results.add(val);
 						}
 					continue;
@@ -2250,7 +2251,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				results.add(results.size(), resultElem.getValue());
 			}
 			Type resultType = TF.setType(elementType);
-			ISetWriter w = resultType.writer(__eval.__getVf());
+			ISetWriter w = __eval.__getVf().setWriter();
 			w.insertAll(results);
 			// Was: return makeResult(resultType, applyRules(w.done()));
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
