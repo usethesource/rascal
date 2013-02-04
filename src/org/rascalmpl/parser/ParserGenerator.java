@@ -64,7 +64,7 @@ public class ParserGenerator {
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Literals");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Parameters");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Symbols");
-			evaluator.doImport(monitor, "lang::rascal::newgrammar::NewAssimilator");
+			evaluator.doImport(monitor, "lang::rascal::newgrammar::ConcreteSyntax");
 			evaluator.doImport(monitor, "Ambiguity");
 		}
 		catch (Throwable e) {

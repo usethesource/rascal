@@ -227,4 +227,9 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			HashMap<String, IVarPattern> patternVars) {
 		return myType;
 	}
+	
+	@Override
+	public String toString() {
+	  return production.toString();
+	}
 }
