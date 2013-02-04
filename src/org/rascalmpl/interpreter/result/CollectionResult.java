@@ -61,6 +61,11 @@ public class CollectionResult<T extends IValue> extends ElementResult<T> {
 		return insertElement(n);
 	}
 	
+	@Override
+	protected <U extends IValue> Result<U> addDateTime(DateTimeResult n) {
+		return insertElement(n);
+	}
+	
 	@Override 
 	protected <U extends IValue> Result<U> addTuple(TupleResult t) {
 		return insertElement(t);

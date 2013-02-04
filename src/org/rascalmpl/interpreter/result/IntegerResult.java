@@ -191,6 +191,15 @@ public class IntegerResult extends ElementResult<IInteger> {
 		return n.addInteger(this);
 	}
 	
+	@Override
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		return that.addInteger(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
+		return that.addInteger(this);
+	}
 	
 	@Override
 	protected <U extends IValue> Result<U> multiplyReal(RealResult n) {

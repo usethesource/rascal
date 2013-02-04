@@ -184,6 +184,11 @@ public class MapResult extends ElementResult<IMap> {
 	}
 	
 	@Override
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		return that.addMap(this);
+	}
+	
+	@Override
 	protected <U extends IValue> Result<U> subtractMap(MapResult m) {
 		// Note the reverse
 		return makeResult(m.getType(), m.getValue().remove(getValue()), ctx);
