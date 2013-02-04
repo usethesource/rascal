@@ -15,7 +15,7 @@
 @bootstrapParser
 module lang::rascal::grammar::definition::Characters
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::newsyntax::Rascal;
 import ParseTree;
 import String;
 import Grammar;

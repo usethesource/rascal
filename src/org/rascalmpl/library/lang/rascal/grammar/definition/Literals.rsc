@@ -9,7 +9,7 @@
 @bootstrapParser
 module lang::rascal::grammar::definition::Literals
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::newsyntax::Rascal;
 import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;
@@ -47,8 +47,8 @@ public str unescape(CaseInsensitiveStringConstant s) {
   throw "unexpected string constant <s>";
 }
 
-public test bool quoteTest() = unescape((StringConstant) `"\\\""`) == "\\\"";
-public test bool utf8Test() { println(unescape((StringConstant) `"\u00e9"`)); return false; }
+public test bool quoteTest() = unescape((StringConstant) `"\\\\\\""`) == "\\\"";
+public test bool utf8Test() { println(unescape((StringConstant) `"\\u00e9"`)); return false; }
 
 public str unescape(StringConstant s) {
   if ((StringConstant) `"<StringCharacter* x>"` := s) {

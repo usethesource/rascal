@@ -10,7 +10,7 @@ module lang::rascal::grammar::definition::Symbols
 
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Characters;
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::newsyntax::Rascal;
 import ParseTree;
 import String;
 import IO;
@@ -68,15 +68,15 @@ public Symbol sym2symbol(Sym sym) {
       return conditional(sym2symbol(s), {\end-of-line()});
     case (Sym) `<Sym s> @ <IntegerLiteral i>` : 
       return conditional(sym2symbol(s), {\at-column(toInt("<i>"))}); 
-    case (Sym) `<Sym s> >> <Sym r>` : 
+    case (Sym) `<Sym s> \>\> <Sym r>` : 
       return conditional(sym2symbol(s), {\follow(sym2symbol(r))});
-    case (Sym) `<Sym s> !>> <Sym r>` : 
+    case (Sym) `<Sym s> !\>\> <Sym r>` : 
       return conditional(sym2symbol(s), {\not-follow(sym2symbol(r))});
-    case (Sym) `<Sym s> << <Sym r>` : 
+    case (Sym) `<Sym s> \<\< <Sym r>` : 
       return conditional(sym2symbol(r), {\precede(sym2symbol(s))});
-    case (Sym) `<Sym s> !<< <Sym r>` : 
+    case (Sym) `<Sym s> !\<\< <Sym r>` : 
       return conditional(sym2symbol(r), {\not-precede(sym2symbol(s))});
-    case (Sym) `<Sym s> \ <Sym r>` : 
+    case (Sym) `<Sym s> \\ <Sym r>` : 
       return conditional(sym2symbol(s), {\delete(sym2symbol(r))});
     case (Sym) `<Sym s> ! <NonterminalLabel n>`:
       return conditional(sym2symbol(s), {\except("<n>")});

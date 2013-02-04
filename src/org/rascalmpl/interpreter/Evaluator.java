@@ -158,7 +158,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private static boolean doProfiling = false;
 	
 	// TODO: remove this after bootstrapping is complete again.
-	public boolean useNewParser = false;
+	public boolean useNewParser = true;
 
 	/**
 	 * The current profiler; private to this evaluator
@@ -1349,6 +1349,34 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return getBuilder().buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
 	}
 	
+	
+  public Module newPreParseModule(URI location, ISourceLocation cause) {
+    char[] data;
+    try{
+      data = getResourceContent(location);
+    }catch (IOException ioex){
+      throw new ModuleImport(location.toString(), ioex.getMessage(), cause);
+    }
+
+    System.err.println("\tpreparsing module: " + location);
+    URI resolved = rascalPathResolver.resolve(location);
+    if(resolved != null){
+      location = resolved;
+    }
+    
+    __setInterrupt(false);
+    IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
+
+    IConstructor prefix = new RascalParser().parse("start__Module", location, data, actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+    
+//    System.err.println("starting module builder:" + location);
+    try {
+    return getBuilder().buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
+    } finally {
+//      System.err.println("module was build: " + location);
+    }
+  }
+  
 	private char[] getResourceContent(URI location) throws IOException{
 		char[] data;
 		Reader textStream = null;
@@ -1410,6 +1438,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  return newParseModule(data, location, env, declareImportsAndSyntax);
 		}
 		
+		if (true) throw new ImplementationError("did not expect the old stuff");
 		IActionExecutor<IConstructor> actions = new NoActionExecutor();
 
 		startJob("Parsing", 10);
@@ -1437,6 +1466,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			}
 			env.setBootstrap(needBootstrapParser(preModule));
 		}
+		
 		if (declareImportsAndSyntax) {
 			// take care of imports and declare syntax
 			env.setSyntaxDefined(false);
@@ -1475,6 +1505,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     __setInterrupt(false);
     IActionExecutor<IConstructor> actions = new NoActionExecutor();
 
+    System.err.println("PARSING MODULE: " + location);
     // TODO: this already maps the tree to an AST, and then this is done again later.
     // We only need to map to AST because we are looking for concrete syntax definitions and want 
     // to declare these before parsing the concrete syntax fragments.
@@ -1503,6 +1534,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       }
       env.setBootstrap(needBootstrapParser(preModule));
     }
+    
 
     if (declareImportsAndSyntax) {
       // take care of imports and declare syntax
@@ -1591,7 +1623,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     IConstructor lit = TreeAdapter.getArg(tree, "parts");
     Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
     
-    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getNewObjectParser(env, getCurrentAST().getLocation().getURI(), false);
+    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getNewObjectParser(env, TreeAdapter.getLocation(tree).getURI(), false);
     
     char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
     try {
@@ -1857,7 +1889,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 					throw new ModuleNameMismatch(getModuleName(module), name, x);
 				}
 				heap.setModuleURI(name, module.getLocation().getURI());
-				env.setInitialized(false);
+				env.setInitialized(true);
 				
 				// TODO: is this declare syntax necessary? (again!)
 				module.declareSyntax(this, true);

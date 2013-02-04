@@ -8,7 +8,7 @@
 @bootstrapParser
 module lang::rascal::grammar::definition::Attributes
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::newsyntax::Rascal;
 import lang::rascal::grammar::definition::Literals;
 import ParseTree;
 import IO;
