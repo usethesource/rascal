@@ -56,8 +56,9 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 					if(isComposedWithMixin(left, right)) {
 						this.type = ((FunctionType) left.getType()).getReturnType();
 						this.isMixin = true;
+					} else {
+						this.type = type;
 					}
-					this.type = type;
 					this.isStatic = left.isStatic() && right.isStatic();
 					
 					this.self = null;
@@ -183,8 +184,10 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 				if(self != null) right_ = new ComposedFunctionResult(this.right, this.openFunctions, self, ctx); 
 				else right_ = new ComposedFunctionResult(this.right, this.openFunctions, this, ctx);
 				right_.setOpenRecursive(isOpenRecursive);
+			} else {
+				right_ = new ComposedFunctionResult(this.right, this.openFunctions, null, ctx);
+				right_.setOpenRecursive(false);
 			}
-			right_ = new ComposedFunctionResult(this.right, this.openFunctions, null, ctx);
 			return left.call(new Type[] { right_.getType() }, new IValue[] { right_.getValue() }, null)
 					   .call(argTypes, argValues, keyArgValues, null, null);
 		}

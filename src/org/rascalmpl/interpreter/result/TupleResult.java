@@ -16,6 +16,7 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -301,7 +302,7 @@ public class TupleResult extends ElementResult<ITuple> {
 	
 		@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this, null, false);
+		return right.composeFunction(this, new HashMap<String, Result<IValue>>(), true);
 	}
 	
 	@Override 
