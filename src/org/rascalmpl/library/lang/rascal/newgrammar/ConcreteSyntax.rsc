@@ -10,7 +10,6 @@
 @doc{
   This module provides functionality for merging the Rascal grammar and arbitrary user-defined grammars
 }
-@bootstrapParser
 module lang::rascal::newgrammar::ConcreteSyntax
 
 import ValueIO;

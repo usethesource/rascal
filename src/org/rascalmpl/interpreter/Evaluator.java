@@ -1558,6 +1558,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     try {
       if (needBootstrapParser(preModule) 
           || (env.definesSyntax() && containsBackTick(data, preModule.getBody().getLocation().getOffset()))) {
+        
+        if (isBootstrapper()) {
+          return prefix;
+        }
         result = parseFragments(prefix, env);
         
         // TODO: update source code locations!
@@ -1899,7 +1903,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 					throw new ModuleNameMismatch(getModuleName(module), name, x);
 				}
 				heap.setModuleURI(name, module.getLocation().getURI());
-				env.setInitialized(true);
+				env.setInitialized(false);
 				
 				// TODO: is this declare syntax necessary? (again!)
 				module.declareSyntax(this, true);
