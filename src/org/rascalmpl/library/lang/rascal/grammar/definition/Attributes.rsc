@@ -13,25 +13,21 @@ import ParseTree;
 import IO;
 
 @doc{adds an attribute to all productions it can find}
-public Production attribute(Production p, Attr a) {
-  return p[attributes=p.attributes+{a}];
-}
+public Production attribute(Production p, Attr a) = p[attributes=p.attributes+{a}];
 
-public set[Attr] mods2attrs(ProdModifier* mods) {
-  return {mod2attr(m) | ProdModifier m <- mods};
-}
+public set[Attr] mods2attrs(ProdModifier* mods) = {mod2attr(m) | ProdModifier m <- mods};
  
 public Attr mod2attr(ProdModifier m) {
   switch (m) {
-    case associativity(\left())  : return \assoc(\left());
-    case associativity(\right()) : return \assoc(\right());
-    case associativity(\non-assoc()): return \assoc(\non-assoc());
-    case associativity(\assoc()): return \assoc(\assoc());
-    case \bracket(): return \bracket();
-    case \tag(\default(Name n, TagString s)) : return \tag("<n>"("<s>"));
-    case \tag(\empty(Name n)) : return \tag("<n>"()); 
-    case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l))))) : return \tag("<n>"("<l>"));
-    case \tag(\expression(Name n, literal(Literal l))) : return \tag("<n>"("<l>"));
+    case \associativity(\left())        : return \assoc(\left());
+    case \associativity(\right())       : return \assoc(\right());
+    case \associativity(\non-assoc())   : return \assoc(\non-assoc());
+    case \associativity(\assoc())       : return \assoc(\assoc());
+    case \bracket()                     : return \bracket();
+    case \tag(\default(Name n, TagString s))    : return \tag("<n>"("<s>"));
+    case \tag(\empty(Name n))                   : return \tag("<n>"()); 
+    case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l)))))  : return \tag("<n>"("<l>"));
+    case \tag(\expression(Name n, literal(Literal l)))                                  : return \tag("<n>"("<l>"));
     default: { rprintln(m); throw "missed a case <m>"; }
   }
 }
