@@ -247,7 +247,7 @@ public class MapResult extends ElementResult<IMap> {
 	
 	@Override
 	public <U extends IValue> Result<U> composeMap(MapResult left) {
-		if (left.getType().getValueType().isSubtypeOf(getType().getKeyType())) {
+		if (left.getType().getValueType().comparable(getType().getKeyType())) {		
 			Type mapType = getTypeFactory().mapType(left.getType().getKeyType(), getType().getValueType());
 			return ResultFactory.makeResult(mapType, left.getValue().compose(getValue()), ctx);
 		}
