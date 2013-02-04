@@ -134,7 +134,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 	}
 	
 	public Result<IValue> makeSlice(int first, int second, int end){
-		IListWriter w = getValueFactory().listWriter(getType().getElementType());
+		IListWriter w = getValueFactory().listWriter();
 		int increment = second - first;
 		if(first == end || increment == 0){
 			// nothing to be done
@@ -177,7 +177,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 		Type t2 = type.getElementType();
 		// Note: reverse
 		Type type = getTypeFactory().listType(getTypeFactory().tupleType(t1, t2));
-		IListWriter w = type.writer(getValueFactory());
+		IListWriter w = this.getValueFactory().listWriter();
 		for (IValue v1 : that.getValue()) {
 			for (IValue v2 : getValue()) {
 				w.append(getValueFactory().tuple(v1, v2));	
@@ -189,7 +189,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 	@Override
 	protected <U extends IValue> Result<U> intersectList(ListResult that) {
 		// Note the reversal of args
-		IListWriter w = type.writer(getValueFactory());
+		IListWriter w = this.getValueFactory().listWriter();
 		Type type = getType().lub(that.getType());
 		for(IValue v : that.getValue())
 			if(getValue().contains(v))
@@ -305,7 +305,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 		}
 		fieldTypes[arity1] = eltType;
 		Type resultTupleType = getTypeFactory().tupleType(fieldTypes);
-		IListWriter writer = getValueFactory().listWriter(resultTupleType);
+		IListWriter writer = getValueFactory().listWriter();
 		IValue fieldValues[] = new IValue[arity1 + 1];
 		for (IValue relValue: that.getValue()) {
 			for (IValue setValue: this.getValue()) {
