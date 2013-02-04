@@ -72,6 +72,7 @@ private Symbol denormalize(Symbol s) = visit (s) {
   case \iter-star-seps(u,[layouts(_),t,layouts(_)]) => \iter-star-seps(u,[t])
   case \iter-seps(u,[layouts(_)]) => \iter(u)
   case \iter-star-seps(u,[layouts(_)]) => \iter-star(u)
+  // TODO: add rule for seq
 };
 
 @doc{This is needed such that list variables can be repeatedly used as elements of the same list}
