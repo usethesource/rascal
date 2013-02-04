@@ -30,7 +30,12 @@ public class CollectionResult<T extends IValue> extends ElementResult<T> {
 		super(type, value, null, ctx);
 	}
 
-	
+
+	@Override
+	protected <U extends IValue> Result<U> addRational(RationalResult n) {
+		return insertElement(n);
+	}
+
 	@Override
 	protected <U extends IValue> Result<U> addReal(RealResult n) {
 		return insertElement(n);
@@ -53,6 +58,11 @@ public class CollectionResult<T extends IValue> extends ElementResult<T> {
 	
 	@Override
 	protected <U extends IValue> Result<U> addBool(BoolResult n) {
+		return insertElement(n);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addDateTime(DateTimeResult n) {
 		return insertElement(n);
 	}
 	

@@ -25,7 +25,14 @@ public class TypeParameterVisitor implements ITypeVisitor<IValue> {
 	public IValue visitParameter(Type parameterType) {
 		Type type = typeParameters.get(parameterType);
 		if(type == null){
-			type = randomType.getType(5);
+			Type bound = parameterType.getBound();
+			while(bound.isParameterType()){
+				bound = typeParameters.get(bound.getName());
+			}
+			
+			do {
+				type = randomType.getType(5);
+			} while (bound != null && !type.isSubtypeOf(bound));
 			typeParameters.put(parameterType,  type);
 		}
 		return null;
