@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.test.library;
 
@@ -16,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 
@@ -183,4 +185,20 @@ public class SetTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("Set::toString({1}) == \"{1}\";"));
 		assertTrue(runTestInSameEvaluator("{ S = Set::toString({1, 2}); (S == \"{1,2}\") || (S == \"{2,1}\");}"));
 	}
+	
+	@Test(expected = UnexpectedType.class) 
+	public void setExpressions1() {
+		runTest("{ value n = 1; set[int] l = { *{n, n} }; }");
+	}
+	
+	@Test(expected = UnexpectedType.class) 
+	public void setExpressions2() {
+		runTest("{ value n = 1; set[int] l = { 1, *{n, n}, 2 }; }");
+	}
+	
+	@Test
+	public void setExpressions3() {
+		assertTrue(runTest("{ value n = 1; value s = \"string\"; set[int] _ := { n } && set[str] _ := { s, s, *{ s, s } }; }"));
+	}
+
 }

@@ -40,7 +40,7 @@ public class RandomType {
 
 	// Vanuit value
 	public Type getType(int maxDepth) {
-		int cntRecursiveTypes = 5; // list, set, map, relation, tuple
+		int cntRecursiveTypes = 6; // list, set, map, relation, list relation, tuple
 		int cntAtomicTypes = atomicTypes.size();
 
 		if (maxDepth <= 0
@@ -54,7 +54,7 @@ public class RandomType {
 
 	private Type getRecursiveType(int maxDepth) {
 		// list, set, map, relation, list relation, tuple
-		switch (random.nextInt(5)) {
+		switch (random.nextInt(6)) {
 		case 0:
 			return tf.listType(getType(maxDepth));
 		case 1:

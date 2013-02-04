@@ -42,9 +42,7 @@ public class Accumulator {
 	
 	public void append(Result<IValue> value) {
 		if (writer == null) {
-			// Init the type here; static checkers should
-			// ensure that appends all produces the same type.
-			writer = factory.listWriter(value.getType()); 
+			writer = factory.listWriter(); 
 		}
 		writer.append(value.getValue());
 	}

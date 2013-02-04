@@ -169,10 +169,10 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			
 			if (yieldList){
 				resultType = getTypeFactory().listType(resFieldType[0]);
-				wset = resultType.writer(getValueFactory());
+				wset = this.getValueFactory().listWriter();
 			} else {
 				resultType = getTypeFactory().lrelType(resFieldType);
-				wrel = resultType.writer(getValueFactory());
+				wrel = this.getValueFactory().listRelationWriter();
 			}
 
 			
@@ -249,7 +249,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			}
 			
 			try {
-				IListWriter w = getValueFactory().listWriter(tupleType.getFieldType(name));
+				IListWriter w = getValueFactory().listWriter();
 				for (IValue e : getValue()) {
 					w.append(((ITuple) e).get(tupleType.getFieldIndex(name)));
 				}
@@ -305,7 +305,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 				fieldTypes[i] = tupleType2.getFieldType(i - arity1);
 			}
 			Type tupleType = getTypeFactory().tupleType(fieldTypes);
-			IListWriter writer = getValueFactory().listWriter(tupleType);
+			IListWriter writer = getValueFactory().listWriter();
 			IValue fieldValues[] = new IValue[arity1 + arity2];
 			for (IValue tuple1: that.getValue()) {
 				for (IValue tuple2: this.getValue()) {
@@ -334,7 +334,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 				fieldTypes[i] = tupleType.getFieldType(i);
 			}
 			Type resultTupleType = getTypeFactory().tupleType(fieldTypes);
-			ISetWriter writer = getValueFactory().setWriter(resultTupleType);
+			ISetWriter writer = getValueFactory().setWriter();
 			IValue fieldValues[] = new IValue[1 + arity2];
 			for (IValue setValue: that.getValue()) {
 				for (IValue relValue: this.getValue()) {
