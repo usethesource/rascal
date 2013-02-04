@@ -39,12 +39,12 @@ private list[Symbol] cistr2syms(str x) {
 }
 
 public str unescape(CaseInsensitiveStringConstant s) {
-    Tree y = x; // workaround for buggy matching in lexicals
+    Tree y = s; // workaround for buggy matching in lexicals
     return "<for (StringCharacter ch <- y.args) {><character(ch)><}>";
 }
 
 public str unescape(StringConstant s) {
-  Tree y = x; // workaround for buggy matching in lexicals
+  Tree y = s; // workaround for buggy matching in lexicals
   return "<for (StringCharacter ch <- y.args) {><character(ch)><}>";
 }
 

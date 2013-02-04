@@ -64,14 +64,14 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
 private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
     case labeled(ProdModifier* ms, Name n, Sym* args) : 
-      if ([empty()] := syms.args) {
+      if ([Sym x] := args.args, x is empty) {
         return prod(label("<n>",nt), [], mods2attrs(ms));
       }
       else {
         return prod(label(unescape("<n>"),nt),args2symbols(args),mods2attrs(ms));
       }
     case unlabeled(ProdModifier* ms, Sym* args) :
-      if ([empty()] := syms.args) {
+      if ([Sym x] := args.args, x is empty) {
         return prod(nt, [], mods2attrs(ms));
       }
       else {

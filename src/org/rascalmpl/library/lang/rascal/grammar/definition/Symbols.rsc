@@ -39,7 +39,7 @@ public Symbol sym2symbol(Sym sym) {
       return cilit(unescape(l));
     case \parameterized(Nonterminal n, {Sym ","}+ syms) : 
       return \parameterized-sort("<n>",separgs2symbols(syms)); 
-    case labeled(Sym s, NonterminalLabel) : 
+    case labeled(Sym s, NonterminalLabel n) : 
       return label("<n>", sym2symbol(s));
     case optional(Sym s)  : 
       return opt(sym2symbol(s));

@@ -23,15 +23,15 @@ public set[Attr] mods2attrs(ProdModifier* mods) {
  
 public Attr mod2attr(ProdModifier m) {
   switch (m) {
-    case left()  : return \assoc(\left());
-    case right() : return \assoc(\right());
-    case \non-assoc(): return \assoc(\non-assoc());
-    case \assoc(): return \assoc(\assoc());
+    case associativity(\left())  : return \assoc(\left());
+    case associativity(\right()) : return \assoc(\right());
+    case associativity(\non-assoc()): return \assoc(\non-assoc());
+    case associativity(\assoc()): return \assoc(\assoc());
     case \bracket(): return \bracket();
     case \tag(\default(Name n, TagString s)) : return \tag("<n>"("<s>"));
     case \tag(\empty(Name n)) : return \tag("<n>"()); 
     case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l))))) : return \tag("<n>"("<l>"));
     case \tag(\expression(Name n, literal(Literal l))) : return \tag("<n>"("<l>"));
-    default: throw "missed a case <m>";
+    default: { rprintln(m); throw "missed a case <m>"; }
   }
 }
