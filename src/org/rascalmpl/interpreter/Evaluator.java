@@ -24,6 +24,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1640,6 +1641,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     IGTD<IConstructor, IConstructor, ISourceLocation> parser = getNewObjectParser(env, TreeAdapter.getLocation(tree).getURI(), false);
     
     char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
+    getStdErr().println("input: [" + Arrays.toString(input) + "]");
+    
     try {
       IConstructor fragment = (IConstructor) parser.parse(getParserGenerator().getParserMethodName(symTree), getCurrentAST().getLocation().getURI(), input, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
       fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
@@ -1652,7 +1655,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
     catch (ParseError e) {
       // have to deal with this parse error later when interpreting the AST, for now we just reconstruct the unparsed tree.
-      getStdErr().println("At: " + TreeAdapter.getLocation(tree) + ", failed on: [" + new String(input) + "], " + e);
+      getStdOut().println("At: " + TreeAdapter.getLocation(tree) + ", failed on: [" + new String(input) + "], " + e);
       return tree;
     }
   }

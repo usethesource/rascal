@@ -371,7 +371,7 @@ syntax Assignable
 	| annotation        : Assignable receiver "@" Name annotation  ;
 
 lexical StringConstant
-	= @category="Constant" "\"" StringCharacter* "\"" ;
+	= @category="Constant" "\"" StringCharacter* chars "\"" ;
 
 
 

@@ -26,6 +26,8 @@ syntax T
      
 layout WS = [\t\n\ ]* !>> [\t\n\ ];
    
+A x = parse(#A,"a");
+   
 public A a = (A) `a`;  
 public A b = (A) `b`;  
 public A aa = (A) `a a`; 

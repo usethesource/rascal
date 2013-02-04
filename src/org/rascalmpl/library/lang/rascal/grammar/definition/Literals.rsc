@@ -38,15 +38,9 @@ private list[Symbol] cistr2syms(str x) {
   } 
 }
 
-public str unescape(CaseInsensitiveStringConstant s) {
-    Tree y = s; // workaround for buggy matching in lexicals
-    return "<for (StringCharacter ch <- y.args) {><character(ch)><}>";
-}
+public str unescape(CaseInsensitiveStringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
 
-public str unescape(StringConstant s) {
-  Tree y = s; // workaround for buggy matching in lexicals
-  return "<for (StringCharacter ch <- y.args) {><character(ch)><}>";
-}
+public str unescape(StringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
 
 private str character(StringCharacter c) {
   switch (c) {

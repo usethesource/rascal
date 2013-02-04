@@ -633,6 +633,23 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	}
 
+	static public class Concrete extends org.rascalmpl.ast.Expression.Concrete {
+
+    public Concrete(IConstructor node, org.rascalmpl.ast.Concrete concrete) {
+      super(node, concrete);
+    }
+    
+    @Override
+    public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+      throw new SyntaxError("concrete syntax fragment", getLocation());
+    }
+    
+    @Override
+    public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+      throw new SyntaxError("concrete syntax fragment", getLocation());
+    }
+	  
+	}
 	static public class Descendant extends
 			org.rascalmpl.ast.Expression.Descendant {
 
