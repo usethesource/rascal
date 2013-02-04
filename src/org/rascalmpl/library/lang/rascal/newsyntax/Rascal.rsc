@@ -35,7 +35,7 @@ lexical Concrete
   = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
 
 lexical ConcretePart
-  = @category="MetaSkipped" text   : ![`\<\>\\\n]
+  = @category="MetaSkipped" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
   | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000]* "\'"
   | @category="MetaSkipped" hole : ConcreteHole hole
   | @category="MetaSkipped" lt: "\\\<"
