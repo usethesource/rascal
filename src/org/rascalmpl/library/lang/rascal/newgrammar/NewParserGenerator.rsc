@@ -8,7 +8,6 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-@bootstrapParser
 module lang::rascal::newgrammar::NewParserGenerator
 
 import Grammar;

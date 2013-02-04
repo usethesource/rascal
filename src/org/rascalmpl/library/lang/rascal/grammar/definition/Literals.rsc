@@ -39,15 +39,9 @@ private list[Symbol] cistr2syms(str x) {
 }
 
 public str unescape(CaseInsensitiveStringConstant s) {
-   if ((CaseInsensitiveStringConstant) `'<StringCharacter* x>'` := s) {
     Tree y = x; // workaround for buggy matching in lexicals
     return "<for (StringCharacter ch <- y.args) {><character(ch)><}>";
-  }
-  throw "unexpected string constant <s>";
 }
-
-public test bool quoteTest() = unescape((StringConstant) `"\\\\\\""`) == "\\\"";
-public test bool utf8Test() { println(unescape((StringConstant) `"\\u00e9"`)); return false; }
 
 public str unescape(StringConstant s) {
   Tree y = x; // workaround for buggy matching in lexicals

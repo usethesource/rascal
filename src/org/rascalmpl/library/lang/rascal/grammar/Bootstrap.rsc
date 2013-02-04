@@ -8,7 +8,6 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-@bootstrapParser
 module lang::rascal::grammar::Bootstrap
 
 import lang::rascal::\syntax::RascalRascal; 
