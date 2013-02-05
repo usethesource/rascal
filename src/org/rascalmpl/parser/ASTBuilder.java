@@ -19,7 +19,6 @@ package org.rascalmpl.parser;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,22 +29,16 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.rascalmpl.ast.ASTStatistics;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.ast.Sym;
-import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -59,32 +52,16 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * UPTR parse node of a rascal program.
  */
 public class ASTBuilder {
-	private static final String RASCAL_SORT_PREFIX = "_";
 	private static final String MODULE_SORT = "Module";
-	private static final String PRE_MODULE_SORT = "PreModule";
 
-	// this tree should never appear in "nature", so we can use it as a dummy
-    private static Expression dummyEmptyTree;
-    
-    private final PointerKeyedHashMap<IConstructor, AbstractAST> ambCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
     private final PointerKeyedHashMap<IConstructor, AbstractAST> sortCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
     private final PointerKeyedHashMap<IConstructor, AbstractAST> lexCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
     
     private final PointerKeyedHashMap<IValue, Expression> constructorCache = new PointerKeyedHashMap<IValue, Expression>();
-    private ISourceLocation lastSuccess = null;
     
     private final static HashMap<String, Constructor<?>> astConstructors = new HashMap<String,Constructor<?>>();
 	private final static ClassLoader classLoader = ASTBuilder.class.getClassLoader();
     
-	public ASTBuilder(){
-		super();
-		
-		if(dummyEmptyTree == null){
-			IValueFactory vf = ValueFactoryFactory.getValueFactory();
-			dummyEmptyTree = makeAmb("Expression", vf.sourceLocation("/dev/null"), Collections.<Expression>emptyList());
-		}
-	}
-	
 	public static <T extends AbstractAST> T make(String sort, ISourceLocation src, Object... args) {
 		return make(sort, "Default", src, args);
 	}
@@ -95,10 +72,6 @@ public class ASTBuilder {
 	
 	public static <T extends Statement> T makeStat(String cons, ISourceLocation src, Object... args) {
 		return make("Statement", cons, src, args);
-	}
-	
-	public static <T extends AbstractAST> T makeAmb(String sort, ISourceLocation src, Object... args) {
-		return make(sort, "Ambiguity", src, args);
 	}
 	
 	public static <T extends AbstractAST> T makeLex(String sort, ISourceLocation src, Object... args) {
@@ -112,10 +85,6 @@ public class ASTBuilder {
 		return (T) callMakerMethod(sort, cons, src, newArgs, null);
 	}
 
-	public ISourceLocation getLastSuccessLocation() {
-		return lastSuccess;
-	}
-	
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
 		IConstructor tree =  parseTree;
 		
@@ -123,13 +92,6 @@ public class ASTBuilder {
 			if (sortName(tree).equals(MODULE_SORT)) {
 				// t must be an appl so call buildValue directly
 				return (Module) buildValue(tree);
-			}
-			else if (sortName(tree).equals(PRE_MODULE_SORT)) {
-				// TODO temporary solution while bootstrapping (if we regenerate the ast hierarchy this can be solved more elegantly)
-				IList moduleArgs = (IList) tree.get(1);
-				IConstructor headerTree = (IConstructor) moduleArgs.get(0);
-				Header header = (Header) buildValue(headerTree);
-				return make("Module", TreeAdapter.getLocation(tree), header, make("Body","Toplevels", (ISourceLocation) ((IConstructor) moduleArgs.get(2)).getAnnotation("loc"), Collections.<Toplevel>emptyList())); 
 			}
 			return buildSort(parseTree, MODULE_SORT);
 		}
@@ -197,7 +159,8 @@ public class ASTBuilder {
 		}
 		
 		if (TreeAdapter.isAmb(tree)) {
-			return filter(tree);
+		  throw new Ambiguous(tree);
+//			return filter(tree);
 		}
 		
 		if (!TreeAdapter.isAppl(tree)) {
@@ -212,19 +175,13 @@ public class ASTBuilder {
 		}
 		
 		if (sortName(tree).equals("Pattern")) {
-		  if (isEmbedding(tree)) {
-		    return lift(tree, true);
-		  }
-		  else if (isNewEmbedding(tree)) {
+		  if (isNewEmbedding(tree)) {
 		    return newLift(tree, true);
 		  }
 		}
 
 		if (sortName(tree).equals("Expression")) {
-			if (isEmbedding(tree)) {
-				return lift(tree, false);
-			}
-			else if (isNewEmbedding(tree)) {
+			if (isNewEmbedding(tree)) {
         return newLift(tree, false);
       }
 		}
@@ -236,27 +193,7 @@ public class ASTBuilder {
 		IList args = TreeAdapter.getListASTArgs(in);
 		List<AbstractAST> result = new ArrayList<AbstractAST>(args.length());
 		for (IValue arg: args) {
-			IConstructor tree = (IConstructor) arg;
-
-			if (TreeAdapter.isAmbiguousList(tree)) {
-				// unflattened list due to nested ambiguity
-				List<AbstractAST> elems = filterList(tree);
-				
-				if (elems != null) {
-					result.addAll(elems);
-				}
-				else {
-					return null;
-				}
-			}
-			else {
-				AbstractAST elem = buildValue(arg);
-
-				if (elem == null) {
-					return null; // filtered
-				}
-				result.add(elem);
-			}
+		  result.add(buildValue(arg));
 		}
 		return result;
 	}
@@ -289,7 +226,6 @@ public class ASTBuilder {
 		int arity = args.length();
 		Object actuals[] = new Object[arity+1];
 		actuals[0] = tree;
-		ASTStatistics total = new ASTStatistics();
 
 		int i = 1;
 		for (IValue arg : args) {
@@ -297,35 +233,9 @@ public class ASTBuilder {
 
 			if (TreeAdapter.isList(argTree)) {
 				actuals[i] = buildList((IConstructor) arg);
-
-				if (actuals[i] == null) { // filtered
-					return null;
-				}
-
-				for (Object ast : ((java.util.List<?>) actuals[i])) {
-					total.add(((AbstractAST) ast).getStats());
-				}
-			}
-			else if (TreeAdapter.isAmbiguousList(argTree)) {
-				actuals[i] = filterList(argTree);
-
-				if (actuals[i] == null) { // filtered
-					return null;
-				}
-
-				for (Object ast : ((java.util.List<?>) actuals[i])) {
-					ASTStatistics stats = ((AbstractAST) ast).getStats();
-					total.add(stats);
-				}
 			}
 			else {
 				actuals[i] = buildValue(arg);
-				if (actuals[i] == null) { // filtered
-					return null;
-				}
-
-				ASTStatistics stats = ((AbstractAST) actuals[i]).getStats();
-				total.add(stats);
 			}
 			i++;
 		}
@@ -344,9 +254,7 @@ public class ASTBuilder {
 			}
 		}
 		
-		ast.setStats(total);
 		sortCache.putUnsafe(tree, ast);
-		lastSuccess = ast.getLocation();
 		return ast;
 	}
 	
@@ -367,229 +275,20 @@ public class ASTBuilder {
 		return result;
 	}
 	
-	private AbstractAST filter(IConstructor tree) {
-		AbstractAST cached = ambCache.get(tree);
-		if (cached != null) {
-			return cached;
-		}
-		ISet altsIn = TreeAdapter.getAlternatives(tree);
-		java.util.List<AbstractAST> altsOut = new ArrayList<AbstractAST>(altsIn.size());
-		String sort = "";
-		ASTStatistics ref = null;
-		Ambiguous lastCaughtACP = null;
-		
-		for (IValue alt : altsIn) {
-			sort = sortName((IConstructor) alt);
-			AbstractAST ast = null;
-			try {
-				ast = buildValue(alt);
-			} catch (Ambiguous acp) {
-				lastCaughtACP = acp;
-			}
-			
-			if (ast == null) {
-				continue;
-			}
-			
-			if (ref == null) {
-				ref = ast.getStats();
-				altsOut.add(ast);
-			}
-			else {
-				ref = filter(altsOut, ast, ref);
-			}
-		}
-		
-		if (altsOut.size() == 0) {
-			if (null != lastCaughtACP) {
-				throw lastCaughtACP;
-			}
-			return null; // this could happen in case of nested ambiguity
-//			throw new SyntaxError("concrete syntax pattern", tree.getLocation());
-		}
-		
-		if (altsOut.size() == 1) {
-			return altsOut.iterator().next();
-		}
-
-		// Concrete syntax is lifted to Expression
-		sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
-
-		Object actuals[] = new Object[] {  tree, altsOut };
-
-		AbstractAST ast = callMakerMethod(sort, "Ambiguity", tree.getAnnotations(), actuals, null);
-		
-		ast.setStats(ref != null ? ref : new ASTStatistics());
-		
-		ambCache.putUnsafe(tree, ast);
-		return ast;
-	}
-
-	private <T extends AbstractAST> ASTStatistics filter(java.util.List<T> altsOut, T ast, ASTStatistics ref) {
-		ASTStatistics stats = ast.getStats();
-		return filter(altsOut, ast, ref, stats);
-	}
-
-	private <T> ASTStatistics filter(java.util.List<T> altsOut, T ast, ASTStatistics ref, ASTStatistics stats) {
-		switch(ref.compareTo(stats)) {
-		case 1:
-			ref = stats;
-			altsOut.clear();
-			altsOut.add(ast);
-			break;
-		case 0:
-			altsOut.add(ast);
-			break;
-		case -1:
-			// do nothing
-		}
-		return ref;
-	}
-
-	private List<AbstractAST> filterList(IConstructor argTree) {
-		ISet alts = TreeAdapter.getAlternatives(argTree);
-		ASTStatistics ref = new ASTStatistics();
-		List<List<AbstractAST>> result = new ArrayList<List<AbstractAST>>(/* size unknown */);
-	
-		for (IValue alt : alts) {
-			List<AbstractAST> list = buildList((IConstructor) alt);
-			
-			if (list == null) {
-				continue;
-			}
-			
-			ASTStatistics listStats = new ASTStatistics();
-			
-			for (AbstractAST ast : list) {
-				ASTStatistics stats = ast.getStats();
-				listStats.add(stats);
-			}
-			
-			if (ref == null) {
-				ref = listStats;
-				result.add(list);
-			}
-			else {
-				ref = filter(result, list, ref, listStats);
-			}
-		}
-		
-		switch(result.size()) {
-		case 1:
-			return result.get(0);
-		case 0: 
-			return null;
-//			throw new ImplementationError("Accidentally all ambiguous derivations of a list have been filtered", argTree.getLocation());
-		default:
-			throw new Ambiguous(argTree);
-		}
-	}
-
-	/**
-	 * Removes patterns like <PROGRAM p> where the <...> hole is not nested in a place
-	 * where a PROGRAM is expected. Also, patterns that directly nest concrete syntax patterns
-	 * again, like `<`...`>` are filtered.
-	 */
-	private Expression filterNestedPattern(IConstructor antiQuote, IConstructor pattern, boolean lexicalFather, String layout) {
-		ISet alternatives = TreeAdapter.getAlternatives(pattern);
-		List<Expression> result = new ArrayList<Expression>(alternatives.size());
-		 
-		IConstructor expected = TreeAdapter.getType(antiQuote);
-
-		// any alternative that is a typed variable must be parsed using a 
-		// MetaVariable that produced exactly the same type as is declared inside
-		// the < > brackets.
-		for (IValue alt : alternatives) {
-			if (isEmbedding((IConstructor) alt)) {
-				continue; // filter direct nesting
-			}
-			
-			Expression exp = (Expression) buildValue(alt);
-		
-			if (exp != null && correctlyNestedPattern(expected, exp, lexicalFather, layout)) {
-				result.add(exp);
-			}
-		}
-		
-		if (result.size() == 1) {
-			return result.get(0);
-		}
-		
-		if (result.size() == 0) {
-			return null;
-		}
-		
-		return makeAmb("Expression", TreeAdapter.getLocation(antiQuote), result);
-	}
-
-	private AbstractAST lift(IConstructor tree, boolean match) {
-		AbstractAST cached = constructorCache.get(tree);
-		if (cached != null) {
-			if (cached == dummyEmptyTree) {
-				return null;
-			}
-			return cached;
-		}
-		
-		if (TreeAdapter.isEpsilon(tree)) {
-			constructorCache.putUnsafe(tree, dummyEmptyTree);
-			return null;
-		}
-		
-		IConstructor pattern = getConcretePattern(tree);
-		Expression ast = liftRec(pattern, false,  getPatternLayout(tree));
-		
-		if (ast != null) {
-			ASTStatistics stats = ast.getStats();
-			stats.setConcreteFragmentCount(1);
-			ISourceLocation location = TreeAdapter.getLocation(pattern);
-			stats.setConcreteFragmentSize(location.getLength());
-			
-//			if (stats.isAmbiguous()) {
-//				throw new Ambiguous(ast.getTree());
-//			}
-		}
-		
-		constructorCache.putUnsafe(tree, ast);
-		return ast;
-	}
-
 	private String getPatternLayout(IConstructor tree) {
 		IConstructor prod = TreeAdapter.getProduction(tree);
 		String cons = ProductionAdapter.getConstructorName(prod);
 		
-		IList symbols = ProductionAdapter.getSymbols(prod);
-		
-		if (cons.equals("ConcreteQuoted")) {
-			IConstructor sym = (IConstructor) symbols.get(1);
-			if (!SymbolAdapter.isLayouts(sym)) {
-				throw new ImplementationError("?? expected layout symbol but got " + sym);
-			}
-			return SymbolAdapter.getName(sym);
-		}
-		
-		if (cons.equals("ConcreteTypedQuoted")) {
-			// the type name is an arbitrary length list of literals, so we better start from the end
-			IConstructor sym = (IConstructor) symbols.get(symbols.length() - 2);
-			if (!SymbolAdapter.isLayouts(sym)) {
-				throw new ImplementationError("?? expected layout symbol but got " + sym);
-			}
-			
-			return SymbolAdapter.getName(sym);
-		}
-		
 		if (cons.equals("concrete")) {
+		  // TODO
       return "???";
     }
 		
 		throw new ImplementationError("Unexpected embedding syntax:" + prod);
 	}
 
-	private Expression stats(IConstructor in, Expression out, ASTStatistics a) {
+	private Expression cache(IConstructor in, Expression out) {
 		constructorCache.putUnsafe(in, out);
-		if (out != null) {
-			out.setStats(a);
-		}
 		return out;
 	}
 	
@@ -603,39 +302,14 @@ public class ASTBuilder {
 			throw new ImplementationError("layout is null");
 		}
 		
-		ASTStatistics stats = new ASTStatistics();
-		Expression result;
-		
 		if (TreeAdapter.isAppl(tree)) {
 			String cons = TreeAdapter.getConstructorName(tree);
 			
-			// TODO: remove this once bootstrapping is complete
-			if (cons != null && (cons.equals("MetaVariable") || cons.equals("TypedMetaVariable"))) {
-				result = liftVariable(tree, lexicalFather, layoutOfFather);
-				stats.setNestedMetaVariables(1);
-				return stats(tree, result, stats);
-			}
-			
 			if (cons != null && (cons.equals("hole"))) { // TODO: this is unsafe, what if somebody named their own production "hole"??
-			  result = liftHole(tree);
-			  stats.setNestedMetaVariables(1);
-        return stats(tree, result, stats);
+			  return liftHole(tree);
 			}
 
 			boolean lex = lexicalFather ? !TreeAdapter.isSort(tree) : TreeAdapter.isLexical(tree);
-			boolean inj = TreeAdapter.isInjectionOrSingleton(tree);
-			boolean star = TreeAdapter.isNonEmptyStarList(tree);
-			
-			if (!lex || inj) {
-				stats.setInjections(1);
-			}
-			else if (star) {
-				stats.setInjections(1);
-			}
-			else {
-				stats.setInjections(0);
-			}
-				
 			
 			IList args = TreeAdapter.getArgs(tree);
 			String layout = layoutOfFather;
@@ -657,21 +331,20 @@ public class ASTBuilder {
 					return null;
 				}
 				kids.add(ast);
-				stats.add(ast.getStats());
 			}
 
 			if (TreeAdapter.isLexical(tree)) {
-				return stats(tree, new Tree.Lexical(tree, kids), stats);
+				return cache(tree, new Tree.Lexical(tree, kids));
 			}
 			else if (TreeAdapter.isList(tree)) {
 				// TODO: splice element lists (can happen in case of ambiguous lists)
-				return stats(tree, new Tree.List(tree, kids), stats);
+				return cache(tree, new Tree.List(tree, kids));
 			}
 			else if (TreeAdapter.isOpt(tree)) {
-				return stats(tree, new Tree.Optional(tree, kids), stats);
+				return cache(tree, new Tree.Optional(tree, kids));
 			}
 			else { 
-				return stats(tree, new Tree.Appl(tree, kids), stats);
+				return cache(tree, new Tree.Appl(tree, kids));
 			}
 		}
 		else if (TreeAdapter.isCycle(tree)) {
@@ -681,38 +354,25 @@ public class ASTBuilder {
 			ISet args = TreeAdapter.getAlternatives(tree);
 			java.util.List<Expression> kids = new ArrayList<Expression>(args.size());
 			
-			ASTStatistics ref = null;
-			
 			for (IValue arg : args) {
-				Expression ast = liftRec((IConstructor) arg, lexicalFather, layoutOfFather);
-				if (ast != null) {
-					if (ref == null) {
-						ref = ast.getStats();
-						kids.add(ast);
-					}
-					else {
-						ref = filter(kids, ast, ref);
-					}
-				}
+				kids.add(liftRec((IConstructor) arg, lexicalFather, layoutOfFather));
 			}
 			
 			if (kids.size() == 0) {
 				return null;
 			}
 			
-			stats = ref != null ? ref : new ASTStatistics();
 			if (kids.size() == 1) {
 				return kids.get(0);
 			}
 			
-			stats.setAmbiguous(true);
-			return stats(tree, new Tree.Amb(tree, kids), stats);
+			return cache(tree, new Tree.Amb(tree, kids));
 		}
 		else {
 			if (!TreeAdapter.isChar(tree)) {
 				throw new ImplementationError("unexpected tree type: " + tree);
 			}
-			return stats(tree, new Tree.Char(tree), new ASTStatistics()); 
+			return cache(tree, new Tree.Char(tree)); 
 		}
 	}
 
@@ -740,65 +400,13 @@ public class ASTBuilder {
 		return null;
 	}
 
-	private Expression liftVariable(IConstructor tree, boolean lexicalFather, String layout) {
-		String cons = TreeAdapter.getConstructorName(tree);
-		
-		if (cons.equals("MetaVariable")) {
-			IConstructor arg = (IConstructor) getASTArgs(tree).get(0);
-			
-			if (arg.getConstructorType() == Factory.Tree_Amb) {
-				return filterNestedPattern(tree, arg, lexicalFather, layout); 
-			}
-			Expression result = (Expression) buildValue(arg);
-		
-			if (result != null && correctlyNestedPattern(TreeAdapter.getType(tree), result, lexicalFather, layout)) {
-				return result;
-			}
-			return null;
-		}
-		throw new ImplementationError("Unexpected meta variable while lifting pattern");
-	}
-	
-	private boolean correctlyNestedPattern(IConstructor expected, Expression exp, boolean lexicalFather, String layout) {
-		if (exp.isTypedVariable()) {
-			IConstructor expressionType = Symbols.typeToSymbol(exp.getType(), lexicalFather, layout);
-
-			
-			// the declared type inside the pattern must match the produced type outside the brackets
-			// "<" Pattern ">" -> STAT in the grammar and "<STAT t>" in the pattern. STAT == STAT.
-			if (SymbolAdapter.isEqual(expressionType, expected)) {
-				return true;
-			}
-			
-			if (SymbolAdapter.isAnyList(expressionType) || SymbolAdapter.isOpt(expressionType)) {
-				IConstructor elem = SymbolAdapter.getSymbol(expressionType);
-				return SymbolAdapter.isEqual(elem, expected);
-			}
-			
-			return false;
-		}else if (exp.isAsType()) {
-			IConstructor expressionType = Symbols.typeToSymbol(exp.getType(), lexicalFather, layout);
-
-			// the declared type inside the pattern must match the produced type outside the brackets
-			// "<" [Type] Pattern ">" -> STAT in the grammar and "<[STAT] pattern>" in the pattern. STAT == STAT.
-			return (SymbolAdapter.isEqual(expressionType, expected));
-		}
-		
-		return true;
-	}
-
-	private IConstructor getConcretePattern(IConstructor tree) {
-		IList args = TreeAdapter.getArgs(tree);
-		return  (IConstructor) args.get(args.length() - 3);
-	}
-
 	private IList getASTArgs(IConstructor tree) {
 		IList children = TreeAdapter.getArgs(tree);
 		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
 	
 		for (int i = 0; i < children.length(); i++) {
 			IConstructor kid = (IConstructor) children.get(i);
-			if (!TreeAdapter.isLiteral(kid) && !TreeAdapter.isCILiteral(kid) && !isRascalLiteral(kid) && !TreeAdapter.isEmpty(kid)) {
+			if (!TreeAdapter.isLiteral(kid) && !TreeAdapter.isCILiteral(kid) && !TreeAdapter.isEmpty(kid)) {
 				writer.append(kid);	
 			} 
 			// skip layout
@@ -810,13 +418,7 @@ public class ASTBuilder {
 
 	private String sortName(IConstructor tree) {
 		if (TreeAdapter.isAppl(tree)) {
-			String sortName = TreeAdapter.getSortName(tree);
-			
-			if (isRascalSort(sortName)) {
-				sortName = sortName.substring(1);
-			}
-			
-			return sortName;
+			return TreeAdapter.getSortName(tree);
 		}
 		if (TreeAdapter.isAmb(tree)) {
 			// all alternatives in an amb cluster have the same sort
@@ -840,12 +442,6 @@ public class ASTBuilder {
 		return new ImplementationError("Unexpected error in AST construction: " + e, e);
 	}
 
-	private boolean isEmbedding(IConstructor tree) {
-		String name = TreeAdapter.getConstructorName(tree);
-		return name.equals("ConcreteQuoted") 
-		|| name.equals("ConcreteTypedQuoted");
-	}
-	
 	private boolean isNewEmbedding(IConstructor tree) {
     String name = TreeAdapter.getConstructorName(tree);
     assert name != null;
@@ -868,41 +464,15 @@ public class ASTBuilder {
 		return false;
 	}
 
-	private boolean isRascalLiteral(IConstructor tree) {
-		if (TreeAdapter.isAppl(tree)) {
-			IConstructor prod = TreeAdapter.getProduction(tree);
-			IConstructor rhs = ProductionAdapter.getType(prod);
-			
-			if (SymbolAdapter.isParameterizedSort(rhs) && SymbolAdapter.getName(rhs).equals("_WrappedLiteral")) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean isRascalSort(String sort) {
-		return sort.startsWith(RASCAL_SORT_PREFIX);
-	}
-
 	private AbstractAST newLift(IConstructor tree, boolean match) {
   		AbstractAST cached = constructorCache.get(tree);
   		if (cached != null) {
-  			if (cached == dummyEmptyTree) {
-  				return null;
-  			}
   			return cached;
   		}
   		
   		IConstructor concrete = (IConstructor) TreeAdapter.getArgs(tree).get(0);
   		IConstructor fragment = (IConstructor) TreeAdapter.getArgs(concrete).get(7);
   		Expression ast = liftRec(fragment, false,  getPatternLayout(tree));
-  		
-  		if (ast != null) {
-  			ASTStatistics stats = ast.getStats();
-  			stats.setConcreteFragmentCount(1);
-  			ISourceLocation location = TreeAdapter.getLocation(tree);
-  			stats.setConcreteFragmentSize(location.getLength());
-  		}
   		
   		constructorCache.putUnsafe(tree, ast);
   		return ast;
