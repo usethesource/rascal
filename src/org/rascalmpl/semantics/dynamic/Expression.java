@@ -74,6 +74,7 @@ import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.matching.VariableBecomesPattern;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.BoolResult;
+import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
@@ -374,7 +375,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type constructorType = TF.nodeType();
 			
 			for (AbstractFunction candidate : functions) {
-				if (candidate.getReturnType().isAbstractDataType() && candidate.match(signature)) {
+				if (candidate instanceof ConstructorFunction && candidate.match(signature)) {
 					Type decl = eval.getCurrentEnvt().getConstructor(candidate.getReturnType(), cons, signature);
 					if (decl != null) {
 						constructorType = decl;
