@@ -40,7 +40,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public abstract class AbstractAST implements IVisitable {
 	protected ISourceLocation src;
 	protected Map<String, IValue> annotations;
-	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
 	protected final TypeFactory TF = TypeFactory.getInstance();
 	protected final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
@@ -104,14 +103,6 @@ public abstract class AbstractAST implements IVisitable {
 		return src;
 	}
 
-	public ASTStatistics getStats() {
-		return stats;
-	}
-	
-	public void setStats(ASTStatistics stats) {
-		this.stats = stats;
-	}
-	
 	@Override
 	public boolean equals(Object obj) {
 		if(obj == null)
