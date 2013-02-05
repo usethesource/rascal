@@ -375,7 +375,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type constructorType = TF.nodeType();
 			
 			for (AbstractFunction candidate : functions) {
-				if (candidate instanceof ConstructorFunction && candidate.match(signature)) {
+				if (candidate.getReturnType().isAbstractDataType() && candidate.match(signature)) {
 					Type decl = eval.getCurrentEnvt().getConstructor(candidate.getReturnType(), cons, signature);
 					if (decl != null) {
 						constructorType = decl;
