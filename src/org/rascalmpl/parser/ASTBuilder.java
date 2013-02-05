@@ -38,7 +38,6 @@ import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -125,27 +124,14 @@ public class ASTBuilder {
 	@SuppressWarnings("unchecked")
 	private <T extends AbstractAST> T buildSort(IConstructor parseTree, String sort) {
 		if (TreeAdapter.isAppl(parseTree)) {
-			IConstructor tree = (IConstructor) TreeAdapter.getArgs(parseTree).get(1);
-			
-			if (TreeAdapter.isAmb(tree)) {
-				throw new Ambiguous(tree);
-			}
+			IConstructor tree = TreeAdapter.getStartTop(parseTree);
 			
 			if (sortName(tree).equals(sort)) {
 				return (T) buildValue(tree);
 			}
-		} else if (TreeAdapter.isAmb(parseTree)) {
-			for (IValue alt : TreeAdapter.getAlternatives(parseTree)) {
-				IConstructor tree = (IConstructor) alt;
-
-				if (sortName(tree).equals(sort)) {
-					AbstractAST value = buildValue(tree);
-					if (value != null) {
-						return (T) value;
-					}
-				}
-			}
-			throw new SyntaxError(sort, TreeAdapter.getLocation(parseTree)); // TODO Always @ offset = 0?
+		} 
+		else if (TreeAdapter.isAmb(parseTree)) {
+		  throw new Ambiguous(parseTree);
 		}
 		
 		throw new ImplementationError("This is not a " + sort +  ": " + parseTree);
