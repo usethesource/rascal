@@ -210,23 +210,15 @@ public abstract class Import {
 			// deal with a fresh module that needs initialization
 			heap.addModule(new ModuleEnvironment(name, heap));
 			loadModule(src, name, eval);
-			addImportToCurrentModule(src, name, eval);
 		} 
 		else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
 			// in the root scope we treat an import as a "reload"
 			heap.resetModule(name);
 			loadModule(src, name, eval);
-			addImportToCurrentModule(src, name, eval);
 		} 
-		else {
-			// otherwise simply add the current imported name to the imports
-			// of the current module
-			if (!heap.getModule(name).isInitialized()) {
-				loadModule(src, name, eval);
-			}
-			addImportToCurrentModule(src, name, eval);
-		}
-	
+		
+		addImportToCurrentModule(src, name, eval);
+		
 		if (heap.getModule(name).isDeprecated()) {
 			eval.getStdErr().println(src + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
 		}
@@ -243,10 +235,9 @@ public abstract class Import {
       // deal with a fresh module that needs initialization
       heap.addModule(new ModuleEnvironment(name, heap));
       other = loadModule(x, name, eval);
-      eval.getCurrentModuleEnvironment().extend(other);
     } 
     else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
-      // in the root scope we treat an import as a "reload"
+      // in the root scope we treat an extend as a "reload"
       heap.resetModule(name);
       other = loadModule(x, name, eval);
     } 
