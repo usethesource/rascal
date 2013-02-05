@@ -698,6 +698,25 @@ public class Environment {
 	}
 	
 	public void extend(Environment other) {
+	  // note that the flags need to be extended before other things, since
+	  // they govern how overloading is handled in functions.
+	  if (other.nameFlags != null) {
+      if (this.nameFlags == null) {
+        this.nameFlags = new HashMap<String, NameFlags>();
+      }
+      
+      for (String name : other.nameFlags.keySet()) {
+        NameFlags flags = this.nameFlags.get(name);
+        
+        if (flags != null) {
+          flags.setFlags(flags.getFlags() | other.nameFlags.get(name).getFlags());
+        }
+        else {
+          this.nameFlags.put(name, other.nameFlags.get(name));
+        }
+      }
+    }
+	  
 	  if (other.variableEnvironment != null) {
 	    if (this.variableEnvironment == null) {
 	      this.variableEnvironment = new HashMap<String, Result<IValue>>();
@@ -728,12 +747,7 @@ public class Environment {
 	    this.typeParameters.putAll(other.typeParameters);
 	  }
 	  
-	  if (other.nameFlags != null) {
-	    if (this.nameFlags == null) {
-	      this.nameFlags = new HashMap<String, NameFlags>();
-	    }
-	    this.nameFlags.putAll(other.nameFlags);
-	  }
+	  
 	}
 
 	// TODO: We should have an extensible environment model that doesn't
