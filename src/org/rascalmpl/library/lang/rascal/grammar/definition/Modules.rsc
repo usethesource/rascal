@@ -80,6 +80,8 @@ public tuple[str, set[str], set[str]] getModuleMetaInf(Module \mod) {
   
   throw "unexpected module syntax <\mod>";
 } 
+
+public set[SyntaxDefinition] getModuleSyntaxDefinitions(Module \mod) = collect(\mod);
  
 str deslash(str input) {
   return visit(input) {

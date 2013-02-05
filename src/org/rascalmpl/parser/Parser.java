@@ -18,7 +18,6 @@ public class Parser{
 	public static final String START_COMMAND = "start__Command";
 	public static final String START_COMMANDS = "start__Commands";
 	public static final String START_MODULE = "start__Module";
-	public static final String START_PRE_MODULE = "start__PreModule";
 	
 	
 }

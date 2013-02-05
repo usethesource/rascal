@@ -35,7 +35,6 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -697,11 +696,46 @@ public class Environment {
 		this.typeParameters = null;
 		this.nameFlags = null;
 	}
-
-	public void declareProduction(SyntaxDefinition x) {
-		getRoot().declareProduction(x);
-	}
 	
+	public void extend(Environment other) {
+	  if (other.variableEnvironment != null) {
+	    if (this.variableEnvironment == null) {
+	      this.variableEnvironment = new HashMap<String, Result<IValue>>();
+	    }
+	    this.variableEnvironment.putAll(other.variableEnvironment);
+	  }
+	  
+	  if (other.functionEnvironment != null) {
+	    if (this.functionEnvironment == null) {
+	      this.functionEnvironment = new HashMap<String, List<AbstractFunction>>();
+	    }
+	    
+	    for (String name : other.functionEnvironment.keySet()) {
+	      List<AbstractFunction> functions = other.functionEnvironment.get(name);
+	      
+	      if (functions != null) {
+	        for (AbstractFunction function : functions) {
+	          storeFunction(name, function);
+	        }
+	      }
+	    }
+	  }
+	  
+	  if (other.typeParameters != null) {
+	    if (this.typeParameters == null) {
+	      this.typeParameters = new HashMap<Type, Type>();
+	    }
+	    this.typeParameters.putAll(other.typeParameters);
+	  }
+	  
+	  if (other.nameFlags != null) {
+	    if (this.nameFlags == null) {
+	      this.nameFlags = new HashMap<String, NameFlags>();
+	    }
+	    this.nameFlags.putAll(other.nameFlags);
+	  }
+	}
+
 	// TODO: We should have an extensible environment model that doesn't
 	// require this type of checking, but instead stores all the info on
 	// a name in one location...

@@ -632,4 +632,8 @@ public class TreeAdapter {
 	public static IConstructor getCycleType(IConstructor tree) {
 		return (IConstructor) tree.get("symbol");
 	}
+
+  public static IConstructor getStartTop(IConstructor prefix) {
+    return (IConstructor) getArgs(prefix).get(1);
+  }
 }

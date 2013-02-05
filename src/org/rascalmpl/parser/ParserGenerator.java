@@ -23,8 +23,10 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Evaluator;
@@ -67,9 +69,6 @@ public class ParserGenerator {
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Symbols");
 			evaluator.doImport(monitor, "lang::rascal::newgrammar::ConcreteSyntax");
 			evaluator.doImport(monitor, "Ambiguity");
-		}
-		catch (Throwable e) {
-			throw new ImplementationError("Exception while loading parser generator: " + e.getMessage(), e);
 		}
 		finally {
 			monitor.endJob(true);
