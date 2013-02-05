@@ -711,10 +711,10 @@ public class Environment {
 	    }
 	    
 	    for (String name : other.functionEnvironment.keySet()) {
-	      List<AbstractFunction> functions = other.functionEnvironment.get(name);
+	      List<AbstractFunction> otherFunctions = other.functionEnvironment.get(name);
 	      
-	      if (functions != null) {
-	        for (AbstractFunction function : functions) {
+	      if (otherFunctions != null) {
+	        for (AbstractFunction function : otherFunctions) {
 	          storeFunction(name, function);
 	        }
 	      }
