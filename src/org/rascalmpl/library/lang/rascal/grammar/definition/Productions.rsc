@@ -45,13 +45,13 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
       case \language(absent(), nonterminal(Nonterminal n), Prod p) : {
         prods += prod2prod(\sort("<n>"), p);
       }
-      case \lexical(absent(), parameterized(Nonterminal l, {Sym ","}+ syms), Prod p) : {
+      case \lexical(parameterized(Nonterminal l, {Sym ","}+ syms), Prod p) : {
         prods += prod2prod(\parameterized-lex("<n>",separgs2symbols(syms)), p);
       }
-      case \lexical(absent(), nonterminal(Nonterminal n), Prod p) : {
+      case \lexical(nonterminal(Nonterminal n), Prod p) : {
         prods += prod2prod(\lex("<n>"), p);
       }
-      case \keyword(absent(), nonterminal(Nonterminal n), Prod p) : {
+      case \keyword(nonterminal(Nonterminal n), Prod p) : {
         prods += prod2prod(keywords("<n>"), p);
       }
       default: { rprintln(sd); throw "unsupported kind of syntax definition? <sd> at <sd@\loc>"; }
