@@ -2282,7 +2282,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type elementType = TF.voidType();
 
 			for (org.rascalmpl.ast.Expression elt : getElements()) {
-				elementType = elementType.lub(elt.typeOf(env));
+				Type eltType = elt.typeOf(env);
+				
+				// TODO: here we need to properly deal with splicing operators!!!
+				if (eltType.isSetType()) {
+				  eltType = eltType.getElementType();
+				}
+        elementType = elementType.lub(eltType);
 			}
 
 			return TF.setType(elementType);
