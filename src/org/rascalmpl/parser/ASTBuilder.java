@@ -160,7 +160,6 @@ public class ASTBuilder {
 		
 		if (TreeAdapter.isAmb(tree)) {
 		  throw new Ambiguous(tree);
-//			return filter(tree);
 		}
 		
 		if (!TreeAdapter.isAppl(tree)) {
@@ -241,18 +240,6 @@ public class ASTBuilder {
 		}
 
 		AbstractAST ast = callMakerMethod(sort, cons, tree.getAnnotations(), actuals, null);
-		
-		// TODO: This is a horrible hack. The pattern Statement s : `whatever` should
-		// be a concrete syntax pattern, but is not recognized as such because of the
-		// Statement s in front (the "concrete-ness" is nested inside). This propagates
-		// the pattern type up to this level. It would be good to find a more principled
-		// way to do this.
-		if (ast instanceof org.rascalmpl.ast.Expression.TypedVariableBecomes || ast instanceof org.rascalmpl.ast.Expression.VariableBecomes) {
-			org.rascalmpl.ast.Expression astExp = (org.rascalmpl.ast.Expression)ast;
-			if (astExp.hasPattern() && astExp.getPattern()._getType() != null) {
-				astExp._setType(astExp.getPattern()._getType());
-			}
-		}
 		
 		sortCache.putUnsafe(tree, ast);
 		return ast;
