@@ -1275,33 +1275,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return ((ModuleEnvironment) currentEnvt);
 	}
 
-  public Module preParseModule(URI location, ISourceLocation cause) {
-    char[] data;
-    try{
-      data = getResourceContent(location);
-    }catch (IOException ioex){
-      throw new ModuleImport(location.toString(), ioex.getMessage(), cause);
-    }
-
-    System.err.println("\tpreparsing module: " + location);
-    URI resolved = rascalPathResolver.resolve(location);
-    if(resolved != null){
-      location = resolved;
-    }
-    
-    __setInterrupt(false);
-    IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-
-    IConstructor prefix = new RascalParser().parse("start__Module", location, data, actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-    
-//    System.err.println("starting module builder:" + location);
-    try {
-    return getBuilder().buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
-    } finally {
-//      System.err.println("module was build: " + location);
-    }
-  }
-  
 	private char[] getResourceContent(URI location) throws IOException{
 		char[] data;
 		Reader textStream = null;

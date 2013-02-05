@@ -104,8 +104,6 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	
 	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input);
 	
-	public Module preParseModule(URI location, ISourceLocation cause);
-		
 	public Environment pushEnv(Statement s);
 
 	public List<ClassLoader> getClassLoaders();
