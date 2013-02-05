@@ -16,7 +16,8 @@ public class Modules {
   }
   
   public static ISet getExtends(IConstructor tree) {
-    return get(tree, "extend");
+    ISet iSet = get(tree, "extend");
+    return iSet;
   }
   
   public static ISet getExternals(IConstructor tree) {

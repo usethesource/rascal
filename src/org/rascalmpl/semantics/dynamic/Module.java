@@ -38,36 +38,6 @@ public abstract class Module {
 			super(__param1, __param2, __param3);
 		}
 
-		public Result<IValue> interpretInCurrentEnv(Evaluator eval) {
-			String name = getModuleName(this);
-			Environment env = eval.getCurrentModuleEnvironment();
-
-			Environment oldEnv = eval.getCurrentEnvt();
-			eval.setCurrentEnvt(env); 
-			
-			try {
-				this.getHeader().interpret(eval);
-
-				List<Toplevel> decls = this.getBody().getToplevels();
-				eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt());
-
-				for (Toplevel l : decls) {
-					l.interpret(eval);
-				}
-			}
-			catch (RuntimeException e) {
-				throw e;
-			}
-			finally {
-				eval.setCurrentEnvt(oldEnv);
-			}
-
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
-					org.rascalmpl.interpreter.Evaluator.__getTf().stringType(),
-					eval.__getVf().string(name), eval);
-
-		}
-		
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			String name = getModuleName(this);
@@ -85,6 +55,7 @@ public abstract class Module {
 			try {
 			  // the header is already evaluated at parse time, 
 			  // including imports and extends and syntax definitions
+//			  getHeader().interpret(eval);
 
 			  List<Toplevel> decls = this.getBody().getToplevels();
 			  eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt());
