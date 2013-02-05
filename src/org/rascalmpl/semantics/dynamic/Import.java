@@ -192,7 +192,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				
 				if (withImports) {
 				  if (((Evaluator) eval).useNewParser) {
-				    mod = ((Evaluator) eval).newPreParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
+				    mod = ((Evaluator) eval).preParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
 				  }
 				  else {
 				    mod = eval.preParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
@@ -237,7 +237,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				    // TODO: it is strange that we have to parse the imported module here again, and costly. Possibly this can be avoided.
 //				    long now = System.currentTimeMillis();
 //				    System.err.println("Parsing starts: " + name);
-				    mod = ((Evaluator) eval).newPreParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
+				    mod = ((Evaluator) eval).preParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
 //				    System.err.println("Parsing ends: " + name + ":" + (System.currentTimeMillis() - now));
 				  }
 				  else {
