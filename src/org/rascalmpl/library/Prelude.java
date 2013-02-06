@@ -2143,8 +2143,8 @@ public class Prelude {
 	
 	private IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, IEvaluatorContext ctx) {
 
-		// always yield if expected type is str 
-		if (type.isStringType()) {
+		// always yield if expected type is str, except if regular 
+		if (type.isStringType() && !(TreeAdapter.isList(tree) || TreeAdapter.isOpt(tree))) {
 			return values.string(TreeAdapter.yield(tree));
 		}
 
