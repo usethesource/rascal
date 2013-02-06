@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,9 +111,28 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
-			__eval.__getTypeDeclarator().declareAbstractADT(this,
-					__eval.getCurrentEnvt());
+			
+			Type type = null;
+			List<Type> mutualTypes = new ArrayList<Type>();
+			for(org.rascalmpl.ast.Tag tag : this.getTags().getTags()) {
+				if(tag.isFunctor()) {
+					type = tag.getType().getType().typeOf(__eval.getCurrentEnvt());
+					if(tag.getMutualTypes().isTuple()) {
+						for(org.rascalmpl.ast.Expression mt : tag.getMutualTypes().getElements()) {
+							if(mt.isReifyType()) {
+								mutualTypes.add(mt.getType().typeOf(__eval.getCurrentEnvt()));
+							}
+						}
+					}
+				}
+			}
+			if(type != null && !mutualTypes.isEmpty()) {
+				__eval.__getTypeDeclarator().declareConstructor(this, type, mutualTypes,
+						__eval.getCurrentEnvt());
+			} else {
+				__eval.__getTypeDeclarator().declareAbstractADT(this,
+						__eval.getCurrentEnvt());
+			}
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		}

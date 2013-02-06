@@ -317,8 +317,6 @@ public interface IASTVisitor<T> {
 
   public T visitExpressionSubtraction(Expression.Subtraction x);
 
-  public T visitExpressionTpfvisit(Expression.Tpfvisit x);
-
   public T visitExpressionTransitiveClosure(Expression.TransitiveClosure x);
 
   public T visitExpressionTransitiveReflexiveClosure(Expression.TransitiveReflexiveClosure x);
@@ -702,6 +700,8 @@ public interface IASTVisitor<T> {
   public T visitTagEmpty(Tag.Empty x);
 
   public T visitTagExpression(Tag.Expression x);
+
+  public T visitTagFunctor(Tag.Functor x);
 
   public T visitTagsDefault(Tags.Default x);
 

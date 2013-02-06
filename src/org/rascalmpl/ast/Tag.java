@@ -36,6 +36,20 @@ public abstract class Tag extends AbstractAST {
   public org.rascalmpl.ast.Expression getExpression() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasMutualTypes() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getMutualTypes() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasType() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getType() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasName() {
     return false;
   }
@@ -223,6 +237,54 @@ public abstract class Tag extends AbstractAST {
   
     @Override
     public boolean hasExpression() {
+      return true;
+    }	
+  }
+  public boolean isFunctor() {
+    return false;
+  }
+
+  static public class Functor extends Tag {
+    // Production: sig("Functor",[arg("org.rascalmpl.ast.Expression","type"),arg("org.rascalmpl.ast.Expression","mutualTypes")])
+  
+    
+    private final org.rascalmpl.ast.Expression type;
+    private final org.rascalmpl.ast.Expression mutualTypes;
+  
+    public Functor(IConstructor node , org.rascalmpl.ast.Expression type,  org.rascalmpl.ast.Expression mutualTypes) {
+      super(node);
+      
+      this.type = type;
+      this.mutualTypes = mutualTypes;
+    }
+  
+    @Override
+    public boolean isFunctor() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitTagFunctor(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getType() {
+      return this.type;
+    }
+  
+    @Override
+    public boolean hasType() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getMutualTypes() {
+      return this.mutualTypes;
+    }
+  
+    @Override
+    public boolean hasMutualTypes() {
       return true;
     }	
   }

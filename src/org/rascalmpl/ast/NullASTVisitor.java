@@ -617,10 +617,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitExpressionTpfvisit(Expression.Tpfvisit x) { 
-    return null; 
-  }
-
   public T visitExpressionTransitiveClosure(Expression.TransitiveClosure x) { 
     return null; 
   }
@@ -1386,6 +1382,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitTagExpression(Tag.Expression x) { 
+    return null; 
+  }
+
+  public T visitTagFunctor(Tag.Functor x) { 
     return null; 
   }
 

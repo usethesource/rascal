@@ -16,9 +16,11 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
@@ -80,6 +82,34 @@ public class TypeDeclarationEvaluator {
 	private void declareConstructors(Set<Data> constructorDecls) {
 		for (Data data : constructorDecls) {
 			declareConstructor(data, env);
+		}
+	}
+	
+	public void declareConstructor(DataAbstract x, Type type, List<Type> mutualTypes, Environment env) {
+		TypeFactory tf = TypeFactory.getInstance();
+		Type adt = declareAbstractDataType(x.getUser(), env);
+		int size = adt.getTypeParameters().getArity();
+		Map<Type, Type> map = new HashMap<Type, Type>();
+		if(size == mutualTypes.size()) {
+			for(int i = 0; i < size; i++) {
+				map.put(mutualTypes.get(i), adt.getTypeParameters().getFieldType(i));
+			}
+		}
+		Set<Type> alternatives = env.lookupAlternatives(type);
+		for(Type alt : alternatives) {
+			int arity = alt.getFieldTypes().getArity();
+			String[] labels = new String[arity];
+			Type[] types = new Type[arity];
+			for(int i = 0; i < arity; i++) {
+				labels[i] = alt.getFieldName(i);	
+				if(map.containsKey(alt.getFieldType(i)))
+					types[i] = map.get(alt.getFieldType(i));
+				else
+					types[i] = alt.getFieldType(i);
+			}
+			ConstructorFunction cons = env.constructorFromTuple(x, eval, adt, alt.getName(), 
+											tf.tupleType(types, labels), new LinkedList<KeywordParameter>());
+			cons.setPublic(true);
 		}
 	}
 
