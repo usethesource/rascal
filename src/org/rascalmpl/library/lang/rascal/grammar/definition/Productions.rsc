@@ -39,14 +39,14 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
         prods += prod2prod(sort("<n>"), p);
         starts += \start(sort("<n>"));
       }
-      case \language(absent(), parameterized(Nonterminal l, {Sym ","}+ syms), Prod p) : {
-        prods += prod2prod(\parameterized-sort("<n>",separgs2symbols(syms)), p);
+      case \language(absent(), parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : {
+        prods += prod2prod(\parameterized-sort("<l>",separgs2symbols(syms)), p);
       }
       case \language(absent(), nonterminal(Nonterminal n), Prod p) : {
         prods += prod2prod(\sort("<n>"), p);
       }
-      case \lexical(parameterized(Nonterminal l, {Sym ","}+ syms), Prod p) : {
-        prods += prod2prod(\parameterized-lex("<n>",separgs2symbols(syms)), p);
+      case \lexical(parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : {
+        prods += prod2prod(\parameterized-lex("<l>",separgs2symbols(syms)), p);
       }
       case \lexical(nonterminal(Nonterminal n), Prod p) : {
         prods += prod2prod(\lex("<n>"), p);
@@ -85,9 +85,9 @@ private Production prod2prod(Symbol nt, Prod p) {
       return associativity(nt, \left(), {prod2prod(nt, q)});
     case associativityGroup(\right(), Prod q) :
       return associativity(nt, \right(), {prod2prod(nt, q)});
-    case associativityGroup(\non-assoc(), Prod q) :      
+    case associativityGroup(\nonAssociative(), Prod q) :      
       return associativity(nt, \non-assoc(), {prod2prod(nt, q)});
-    case associativityGroup(\assoc(), Prod q) :      
+    case associativityGroup(\associative(), Prod q) :      
       return associativity(nt, \left(), {prod2prod(nt, q)});
     case others(): return \others(nt);
     case reference(Name n): return \reference(nt, "<n>");
