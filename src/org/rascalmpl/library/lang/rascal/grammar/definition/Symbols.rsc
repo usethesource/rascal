@@ -37,7 +37,7 @@ public Symbol sym2symbol(Sym sym) {
       return lit(unescape(l));
     case caseInsensitiveLiteral(CaseInsensitiveStringConstant l): 
       return cilit(unescape(l));
-    case \parameterized(Nonterminal n, {Sym ","}+ syms) : 
+    case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
       return \parameterized-sort("<n>",separgs2symbols(syms)); 
     case labeled(Sym s, NonterminalLabel n) : 
       return label("<n>", sym2symbol(s));

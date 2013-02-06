@@ -1321,7 +1321,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     __setInterrupt(false);
     IActionExecutor<IConstructor> actions = new NoActionExecutor();
 
-    System.err.println("PARSING MODULE: " + location);
+    System.err.print("PARSING MODULE: " + location + "\r");
 
     startJob("Parsing", 10);
     event("Pre-parsing: " + location);
