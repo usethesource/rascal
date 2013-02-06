@@ -147,9 +147,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 */
 	private static boolean doProfiling = false;
 	
-	// TODO: remove this after bootstrapping is complete again.
-	public boolean useNewParser = true;
-	
 	/**
 	 * This flag helps preventing non-terminating bootstrapping cycles. If 
 	 * it is set we do not allow loading of another nested Parser Generator.
@@ -870,6 +867,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		__setInterrupt(false);
     IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
 		IConstructor tree = new RascalParser().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		
+		if (!noBacktickOutsideStringConstant(command)) {
+		  tree = parseFragments(tree, getCurrentModuleEnvironment());
+		}
+		
 		Command stat = getBuilder().buildCommand(tree);
 		
 		if (stat == null) {
@@ -884,12 +886,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		__setInterrupt(false);
 		IConstructor tree;
 		
-		if (noBacktickOutsideStringConstant(command)) {
-			IActionExecutor<IConstructor> actionExecutor = new NoActionExecutor();
-			tree = new RascalParser().parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-		} else {
-		  assert false; // NYI
-		  throw new NotYetImplemented("concrete syntax in commands");
+		IActionExecutor<IConstructor> actionExecutor = new NoActionExecutor();
+		tree = new RascalParser().parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+	
+	  if (!noBacktickOutsideStringConstant(command)) {
+	    tree = parseFragments(tree, getCurrentModuleEnvironment());
 		}
 
 		Commands stat = getBuilder().buildCommands(tree);
