@@ -241,7 +241,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("`<Xs>` := `d d`;"));
 	}
 	
-	@Test 
+	@Test @Ignore("not supported")
 	public void DvarsTyped(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ D+ Xs := (D+) `d d` && Xs == (D+) `d d`; }"));
@@ -565,21 +565,21 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void Pico1(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{t1 = `begin declare x: natural; x := 10 end`;true;}"));
+		assertTrue(runTestInSameEvaluator("{t1 = (Program) `begin declare x: natural; x := 10 end`;true;}"));
 	}
 	
 	@Test
 	public void Pico2(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{Program P := `begin declare x: natural; x := 10 end`;}"));
+		assertTrue(runTestInSameEvaluator("{Program P := (Program) `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
 	public void Pico3(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{`<Program P>` := `begin declare x: natural; x := 10 end`;}"));
+		assertTrue(runTestInSameEvaluator("{(Program) `<Program P>` := (Program) `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
@@ -650,17 +650,17 @@ public class ConcreteSyntaxTests extends TestFramework {
 	private String QmoduleM = "module M\n" +
 	                         "import lang::pico::syntax::Main;\n" +
 	                         "import ParseTree;\n" +
-	                         "public Tree t1 = `begin declare x: natural; x := 10 end`;\n" +
-	                         "public Tree t2 = `declare x : natural;`;\n";
+	                         "public Tree t1 = (Program) `begin declare x: natural; x := 10 end`;\n" +
+	                         "public Tree t2 = (Decls) `declare x : natural;`;\n";
 	
 	@Test
 	public void PicoQuoted0() {
-		prepareModule("M", QmoduleM + "public bool match1() { return `<Program program>` := t1; }\n");
+		prepareModule("M", QmoduleM + "public bool match1() { return (Program) `<Program program>` := t1; }\n");
 	}
 	
 	@Test
 	public void PicoQuoted1(){
-		prepareModule("M", QmoduleM + "public bool match1() { return `<Program program>` := t1; }\n");
+		prepareModule("M", QmoduleM + "public bool match1() { return (Program) `<Program program>` := t1; }\n");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match1();"));
@@ -677,7 +677,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted3(){
-		prepareModule("M", QmoduleM + "public bool match3() { return `begin <decls> <stats> end` := t1; }\n");
+		prepareModule("M", QmoduleM + "public bool match3() { return (Program) `begin <Decls decls> <{Statement \";\"}* stats> end` := t1; }\n");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match3();"));
@@ -694,7 +694,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test
 	public void PicoQuoted5(){
-		prepareModule("M", QmoduleM + "public bool match5() { return `begin <decls> <{Statement \";\"}* stats> end` := t1; }");
+		prepareModule("M", QmoduleM + "public bool match5() { return (Program) `begin <Decls decls> <{Statement \";\"}* stats> end` := t1; }");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match5();"));
@@ -703,7 +703,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted6(){
-		prepareModule("M", QmoduleM + "public bool match6() { return `begin <Decls decls> <{Statement \";\"}* stats> end` := t1; }");
+		prepareModule("M", QmoduleM + "public bool match6() { return (Program) `begin <Decls decls> <{Statement \";\"}* stats> end` := t1; }");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match6();"));
