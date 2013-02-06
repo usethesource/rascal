@@ -54,174 +54,174 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("parse(#DS, |testdata:///DS.trm|) == (DS)`d d d`;"));
 	}
 
-	@Test
+	@Test @Ignore("not supported")
 	public void singleA(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a` := `a`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void singleATyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("(A)`a` := `a`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void singleAUnquoted1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("a := `a`;"));
 	}
 	
-	@Test(expected=UndeclaredVariable.class)
+	@Test(expected=UndeclaredVariable.class) @Ignore("not supported")
 	public void singleAUnquoted2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("a := a;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void AB(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a b` := `a b`;"));
 	}
 	
-	@Test
-	public void ABspaces1(){
+	@Test @Ignore("not supported")
+	public void ABspaces1(){ 
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a b` := `a   b`;"));
 	}
 	
-	@Test(expected=UnsupportedPattern.class)
+	@Test(expected=UnsupportedPattern.class) @Ignore("not supported")
 	public void varAQuoted(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		runTestInSameEvaluator("`<someA>` := `a`;");
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void varAassign(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		runTestInSameEvaluator("{someA := `a` && someA == `a`;}");
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void varAQuotedTyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`<A someA>` := `a`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void varAQuotedDeclaredBefore(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{A someA; (A)`<someA>` := `a`;}"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported") 
 	public void VarATypedInsertAmbiguous(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA>` := `a` && someA == `a`; }"));
 	}
 
-	@Test
+	@Test @Ignore("not supported")
 	public void VarATypedInsert(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA>` := `a` && someA == `a`; }"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void ABvars1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a <someB>` := `a b`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void ABvars1Typed(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a <B someB>` := `a b`;"));
 	}
 	
-	@Test // (expected=AmbiguousConcretePattern.class)
+	@Test @Ignore("not supported")
 	public void ABvars2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`<someA> <someB>` := `a b`;"));
 	}
 
-	@Test
+	@Test @Ignore("not supported")
 	public void ABvars2Typed(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`<A someA> <B someB>` := `a b`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void ABvars2TypedEq(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{`<A someA> <B someB>` := `a b` && someA ==`a` && someB == `b`;}"));
 	}
 	
-	@Test // (expected=AmbiguousConcretePattern.class)
+	@Test @Ignore("not supported")
 	public void ABvars2TypedInsertWithoutTypes(){ 
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA><B someB>` := `a b` &&  `<someA><someB>` == `a b`;}"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void ABvars2TypedInsertWithTypes(){ 
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA><B someB>` := `a b` && (C)`<someA><someB>` == `a b`;}"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void ABequal1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a b` == `a b`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void ABequal5(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a b` == `a  b`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void D1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`d` := `d`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void D2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`d d` := `d d`;"));
 	}
 
-	@Test
+	@Test @Ignore("not supported")
 	public void D3(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("(DS)`d d` := `d d`;"));
 	}
 
-	@Test
+	@Test @Ignore("not supported")
 	public void D4(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`d d` := (DS)`d d`;"));
@@ -234,20 +234,20 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 
 	
-	@Test(expected=UnsupportedPattern.class)
+	@Test(expected=UnsupportedPattern.class) @Ignore("not supported")
 	public void Dvars(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`<Xs>` := `d d`;"));
 	}
 	
-	@Test
+	@Test 
 	public void DvarsTyped(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ D+ Xs := (D+) `d d` && Xs == (D+) `d d`; }"));
 	}
 	
-	@Test
+	@Test 
 	public void DvarsTypedInsert2(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ (DS)`<D+ Xs>` := (DS)`d`; }"));
@@ -260,21 +260,21 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 
 	
-	@Test(expected=StaticError.class)
+	@Test(expected=StaticError.class) @Ignore("not supported")
 	public void DvarsTypedInsert2Untyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<D+ Xs>` := `d`; }"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void DvarsTypedInsert32(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<D+ Xs>` := (D+) `d d`; }"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void DvarsTypedInsert4UnTyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -288,7 +288,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("(DS)`d <D+ Xs>` := (DS)`d d` && (DS)`d <D+ Xs>` == (DS)`d d`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void DvarsTypedInsert5Untyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -302,48 +302,48 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ (DS)`d <D+ Xs>` := (DS)`d d d` && (DS)`d <D+ Xs>` == (DS)`d d d`; }"));
 	}
 
-	@Test
+	@Test @Ignore("not supported")
 	public void E1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`e` := `e`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void E2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`e, e` := `e, e`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void E2spaces1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`e, e` := `e , e`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void E2spaces2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`e, e` := `e ,  e`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void Evars1(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ Xs := `e, e` && Xs == `e, e`;}"));
 	}
 	
-	@Test
+	@Test 
 	@Ignore("Functionality subject to future/current change")
 	public void Evar1Typed(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ {E \",\"}+ Xs := ({E \",\"}+) `e, e` && Xs == ({E \",\"}+)  `e, e`;}"));
 	}
 	
-	@Test // (expected=AmbiguousConcretePattern.class)
+	@Test @Ignore("not supported") // (expected=AmbiguousConcretePattern.class)
 	public void Evars2(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `e, <Xs>` := `e, e` && Xs == `e`;}"));
@@ -388,7 +388,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertFalse(runTestInSameEvaluator("{E \",\"}+ Zs := ({E \",\"}*) ``;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void emptyListVariablePatternShouldBeSplicedInbetweenSeparators() {
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -420,6 +420,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test // (expected=AmbiguousConcretePattern.class)
+	@Ignore("not supported")
 	// @Ignore("needs to be reinstated when we have a type checker")
 	public void Evars3(){
 		prepare("import GrammarABCDE;");
@@ -475,7 +476,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ `<{E \",\"}+ Xs>` := `e, e` && `e, <{E \",\"}+ Xs>` == `e, e, e`; }"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void EvarsTypedInsert3(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
