@@ -54,7 +54,7 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
       case \keyword(nonterminal(Nonterminal n), Prod p) : {
         prods += prod2prod(keywords("<n>"), p);
       }
-      default: { rprintln(sd); throw "unsupported kind of syntax definition? <sd> at <sd@\loc>"; }
+      default: { iprintln(sd); throw "unsupported kind of syntax definition? <sd> at <sd@\loc>"; }
     }
   }
 
