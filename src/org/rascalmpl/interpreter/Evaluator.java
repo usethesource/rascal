@@ -1449,9 +1449,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     IConstructor lit = TreeAdapter.getArg(tree, "parts");
     Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
     
-    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getNewObjectParser(env, TreeAdapter.getLocation(tree).getURI(), false);
-    
-    
+    IGTD<IConstructor, IConstructor, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getNewObjectParser(env, TreeAdapter.getLocation(tree).getURI(), false);
     
     try {
       String parserMethodName = getParserGenerator().getParserMethodName(symTree);
