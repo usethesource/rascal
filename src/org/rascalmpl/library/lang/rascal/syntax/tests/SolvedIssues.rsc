@@ -12,7 +12,7 @@ This is just to make sure the bugs are not re-introduced accidentally.
 }
 module lang::rascal::syntax::tests::SolvedIssues
 
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::newsyntax::Rascal;
 import ParseTree;
 
 public bool notAmb(Tree t) = /amb(_) !:= t;

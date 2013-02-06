@@ -163,7 +163,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    }
            '  }
            '	
-           '  protected static java.lang.String _concat(String ...args) {
+           '  protected static java.lang.String _concat(java.lang.String ...args) {
            '    int length = 0;
            '    for (java.lang.String s :args) {
            '      length += s.length();
@@ -218,7 +218,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    return result;
            '  }
            '  
-           '  protected boolean hasNestingRestrictions(String name){
+           '  protected boolean hasNestingRestrictions(java.lang.String name){
            '		return (_dontNest.size() != 0); // TODO Make more specific.
            '  }
            '    
