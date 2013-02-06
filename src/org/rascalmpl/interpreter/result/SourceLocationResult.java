@@ -683,4 +683,14 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
 		return that.addSourceLocation(this);
 	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		return that.addSourceLocation(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
+		return that.addSourceLocation(this);
+	}
 }

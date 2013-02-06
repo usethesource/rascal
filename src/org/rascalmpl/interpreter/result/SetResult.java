@@ -117,7 +117,7 @@ public class SetResult extends SetOrRelationResult<ISet> {
 		}
 		fieldTypes[arity1] = eltType;
 		Type resultTupleType = getTypeFactory().tupleType(fieldTypes);
-		ISetWriter writer = getValueFactory().setWriter(resultTupleType);
+		ISetWriter writer = getValueFactory().setWriter();
 		IValue fieldValues[] = new IValue[arity1 + 1];
 		for (IValue relValue: that.getValue()) {
 			for (IValue setValue: this.getValue()) {
