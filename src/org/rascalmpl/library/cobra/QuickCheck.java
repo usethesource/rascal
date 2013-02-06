@@ -111,7 +111,7 @@ public class QuickCheck {
 				if (!((IBool) result).getValue()) {
 					out.println("Failed " + (formals.getArity() > 0 ? "with " : ""));
 					for (IValue arg : values) {
-						out.println("\t"+ arg.getType() + ": " + arg);
+						out.println("\t"+ arg.getType() + ": " + arg); // TODO replace parameterized type by its instantiated type
 					}
 					out.println();
 					return false;
