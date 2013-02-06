@@ -43,6 +43,13 @@ public abstract class Expression extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Expression> getElements() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasExpressions() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Expression> getExpressions() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasGenerators() {
     return false;
   }
@@ -83,20 +90,6 @@ public abstract class Expression extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Comprehension getComprehension() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasAlgebra() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getAlgebra() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasAlgebraType() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getAlgebraType() {
     throw new UnsupportedOperationException();
   }
   public boolean hasArgument() {
@@ -190,13 +183,6 @@ public abstract class Expression extends AbstractAST {
   public org.rascalmpl.ast.Expression getRhs() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasRtype() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getRtype() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasSecond() {
     return false;
   }
@@ -209,13 +195,6 @@ public abstract class Expression extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getSymbol() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasTermType() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getTermType() {
     throw new UnsupportedOperationException();
   }
   public boolean hasThenExp() {
@@ -1387,19 +1366,15 @@ public abstract class Expression extends AbstractAST {
   }
 
   static public class Fvisit extends Expression {
-    // Production: sig("Fvisit",[arg("org.rascalmpl.ast.Expression","termType"),arg("org.rascalmpl.ast.Expression","algebraType"),arg("org.rascalmpl.ast.Expression","algebra")])
+    // Production: sig("Fvisit",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","expressions")])
   
     
-    private final org.rascalmpl.ast.Expression termType;
-    private final org.rascalmpl.ast.Expression algebraType;
-    private final org.rascalmpl.ast.Expression algebra;
+    private final java.util.List<org.rascalmpl.ast.Expression> expressions;
   
-    public Fvisit(IConstructor node , org.rascalmpl.ast.Expression termType,  org.rascalmpl.ast.Expression algebraType,  org.rascalmpl.ast.Expression algebra) {
+    public Fvisit(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> expressions) {
       super(node);
       
-      this.termType = termType;
-      this.algebraType = algebraType;
-      this.algebra = algebra;
+      this.expressions = expressions;
     }
   
     @Override
@@ -1414,30 +1389,12 @@ public abstract class Expression extends AbstractAST {
   
     
     @Override
-    public org.rascalmpl.ast.Expression getTermType() {
-      return this.termType;
+    public java.util.List<org.rascalmpl.ast.Expression> getExpressions() {
+      return this.expressions;
     }
   
     @Override
-    public boolean hasTermType() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Expression getAlgebraType() {
-      return this.algebraType;
-    }
-  
-    @Override
-    public boolean hasAlgebraType() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Expression getAlgebra() {
-      return this.algebra;
-    }
-  
-    @Override
-    public boolean hasAlgebra() {
+    public boolean hasExpressions() {
       return true;
     }	
   }
@@ -3510,43 +3467,6 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasRhs() {
-      return true;
-    }	
-  }
-  public boolean isTpfvisit() {
-    return false;
-  }
-
-  static public class Tpfvisit extends Expression {
-    // Production: sig("Tpfvisit",[arg("org.rascalmpl.ast.Expression","rtype")])
-  
-    
-    private final org.rascalmpl.ast.Expression rtype;
-  
-    public Tpfvisit(IConstructor node , org.rascalmpl.ast.Expression rtype) {
-      super(node);
-      
-      this.rtype = rtype;
-    }
-  
-    @Override
-    public boolean isTpfvisit() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionTpfvisit(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Expression getRtype() {
-      return this.rtype;
-    }
-  
-    @Override
-    public boolean hasRtype() {
       return true;
     }	
   }

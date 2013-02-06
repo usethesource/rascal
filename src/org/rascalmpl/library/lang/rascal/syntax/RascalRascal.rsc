@@ -209,8 +209,7 @@ syntax Expression
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| \it             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
 	| qualifiedName: QualifiedName qualifiedName 
-	| \fvisit       : "fvisit" "[" Expression termType "," Expression algebraType "," Expression algebra "]"
-	| tpfvisit      : "fvisit" "[" Expression rtype "]"
+	| \fvisit       : "fvisit" "[" { Expression ","}+ expressions "]"
 	| subscript    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" {Expression ","}+ subscripts "]" 
 	| slice    	   : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" OptionalExpression optFirst ".." OptionalExpression optLast "]" 
 	| sliceStep    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" OptionalExpression optFirst "," Expression second ".." OptionalExpression optLast "]" 
@@ -688,6 +687,7 @@ keyword RascalKeywords
 	| "throws" 
 	| "visit" 
 	| "fvisit"
+	| "functor"
 	| "tuple" 
 	| "for" 
 	| "assert" 
@@ -868,7 +868,8 @@ syntax Pattern
 syntax Tag
 	= @Folded @category="Comment" \default   : "@" Name name TagString contents 
 	| @Folded @category="Comment" empty     : "@" Name name 
-	| @Folded @category="Comment" expression: "@" Name name "=" Expression expression ;
+	| @Folded @category="Comment" expression: "@" Name name "=" Expression expression 
+	| @Folded @category="Comment" \functor: "@" "functor" Expression type Expression mutualTypes;
 
 syntax ModuleActuals
 	= \default: "[" {Type ","}+ types "]" ;
