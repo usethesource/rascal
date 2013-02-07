@@ -60,6 +60,7 @@ import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
@@ -1318,7 +1319,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	private IConstructor newParseModule(char[] data, URI location, ModuleEnvironment env, boolean declareImportsAndSyntax){
-    __setInterrupt(false);
+
+	  __setInterrupt(false);
     IActionExecutor<IConstructor> actions = new NoActionExecutor();
 
     System.err.print("PARSING MODULE: " + location + "\r");
@@ -1327,6 +1329,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     event("Pre-parsing: " + location);
     IConstructor tree = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
+    if (TreeAdapter.isAmb(tree)) {
+      throw new Ambiguous(tree);
+    }
     IConstructor top = TreeAdapter.getStartTop(tree);
     
     String name = Modules.getName(top);
