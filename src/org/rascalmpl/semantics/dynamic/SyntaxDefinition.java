@@ -38,7 +38,7 @@ public abstract class SyntaxDefinition extends
 		}
 		
 		@Override
-		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			Sym type = getDefined();
 			IValueFactory vf = eval.getValueFactory();
 			
@@ -47,7 +47,7 @@ public abstract class SyntaxDefinition extends
 				eval.getCurrentEnvt().concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Sort.make(vf, vf.string(nt)));
 			}
 			
-			eval.getCurrentEnvt().declareProduction(this);
+			eval.getCurrentModuleEnvironment().declareProduction(getTree());
 			return null;
 		}
 	}
@@ -66,17 +66,17 @@ public abstract class SyntaxDefinition extends
 		}
 		
 		@Override
-		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
-			Sym type = getDefined();
-			IValueFactory vf = eval.getValueFactory();
-			
-			if (type.isNonterminal()) {
-				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-				eval.getCurrentEnvt().concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Lex.make(vf, vf.string(nt)));
-			}
-			
-			eval.getCurrentEnvt().declareProduction(this);
-			return null;
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+		  Sym type = getDefined();
+      IValueFactory vf = eval.getValueFactory();
+      
+      if (type.isNonterminal()) {
+        String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
+        eval.getCurrentEnvt().concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Sort.make(vf, vf.string(nt)));
+      }
+      
+      eval.getCurrentModuleEnvironment().declareProduction(getTree());
+      return null;
 		}
 	}
 	
@@ -95,17 +95,17 @@ public abstract class SyntaxDefinition extends
 		}
 		
 		@Override
-		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
-			Sym type = getDefined();
-			IValueFactory vf = eval.getValueFactory();
-			
-			if (type.isNonterminal()) {
-				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-				eval.getCurrentEnvt().concreteSyntaxType(nt, (IConstructor) Factory.Symbol_LayoutX.make(vf, vf.string(nt)));
-			}
-			
-			eval.getCurrentEnvt().declareProduction(this);
-			return null;
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+		  Sym type = getDefined();
+      IValueFactory vf = eval.getValueFactory();
+      
+      if (type.isNonterminal()) {
+        String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
+        eval.getCurrentEnvt().concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Sort.make(vf, vf.string(nt)));
+      }
+      
+      eval.getCurrentModuleEnvironment().declareProduction(getTree());
+      return null;
 		}
 	}
 	
@@ -123,7 +123,7 @@ public abstract class SyntaxDefinition extends
 		}
 
 		@Override
-		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			Sym type = getDefined();
 			IValueFactory vf = eval.getValueFactory();
 			
@@ -132,7 +132,7 @@ public abstract class SyntaxDefinition extends
 				eval.getCurrentEnvt().concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Keyword.make(vf, vf.string(nt)));
 			}
 			
-			eval.getCurrentEnvt().declareProduction(this);
+			eval.getCurrentModuleEnvironment().declareProduction(getTree());
 			return null;
 		}
 	}

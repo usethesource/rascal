@@ -85,6 +85,13 @@ public abstract class Expression extends AbstractAST {
   public org.rascalmpl.ast.Comprehension getComprehension() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasConcrete() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Concrete getConcrete() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasArgument() {
     return false;
   }
@@ -871,6 +878,43 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasComprehension() {
+      return true;
+    }	
+  }
+  public boolean isConcrete() {
+    return false;
+  }
+
+  static public class Concrete extends Expression {
+    // Production: sig("Concrete",[arg("org.rascalmpl.ast.Concrete","concrete")])
+  
+    
+    private final org.rascalmpl.ast.Concrete concrete;
+  
+    public Concrete(IConstructor node , org.rascalmpl.ast.Concrete concrete) {
+      super(node);
+      
+      this.concrete = concrete;
+    }
+  
+    @Override
+    public boolean isConcrete() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionConcrete(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Concrete getConcrete() {
+      return this.concrete;
+    }
+  
+    @Override
+    public boolean hasConcrete() {
       return true;
     }	
   }

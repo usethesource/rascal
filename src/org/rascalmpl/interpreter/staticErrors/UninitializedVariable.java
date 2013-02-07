@@ -17,7 +17,11 @@ import org.rascalmpl.ast.AbstractAST;
 public class UninitializedVariable extends StaticError {
 	private static final long serialVersionUID = -7290225483329876543L;
     
-    public UninitializedVariable(String name, AbstractAST ast) {
-		super("Uninitialized variable: " + name, ast);
+	public UninitializedVariable(String name, AbstractAST ast) {
+	  super("Uninitialized variable: " + name, ast);
 	}
+	
+	public UninitializedVariable(AbstractAST ast) {
+    super("Uninitialized variable", ast);
+  }
 }

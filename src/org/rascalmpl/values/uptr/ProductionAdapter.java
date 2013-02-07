@@ -55,6 +55,10 @@ public class ProductionAdapter {
 		return (IConstructor) tree.get("def");
 	}
 	
+	public static IConstructor setDefined(IConstructor tree, IConstructor sym) {
+    return (IConstructor) tree.set("def", sym);
+  }
+	
 	public static boolean isSkipped(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Production_Skipped;
 	}

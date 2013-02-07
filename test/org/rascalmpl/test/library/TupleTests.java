@@ -8,16 +8,23 @@
  * Contributors:
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.parser;
+package org.rascalmpl.test.library;
+
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+import org.rascalmpl.test.infrastructure.TestFramework;
+
+public class TupleTests extends TestFramework {
+	
+	@Test
+	public void tupleExpressions() {
+		assertTrue(runTest("{ value n = 1; value s = \"string\"; tuple[int, int] _ := < n, n > && tuple[str, str] _ := < s, s > && tuple[int, str] _ := < n , s >; }"));
+	}
 
 
-public class Parser{
-	public static final String START_COMMAND = "start__Command";
-	public static final String START_COMMANDS = "start__Commands";
-	public static final String START_MODULE = "start__Module";
-	
-	
 }

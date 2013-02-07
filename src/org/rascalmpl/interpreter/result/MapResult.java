@@ -89,12 +89,12 @@ public class MapResult extends ElementResult<IMap> {
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		if (name.equals(type.getKeyLabel())) {
-			ISetWriter w = getValueFactory().setWriter(type.getKeyType());
+			ISetWriter w = getValueFactory().setWriter();
 			w.insertAll(value);
 			return makeResult(getTypeFactory().setType(type.getKeyType()), w.done(), ctx);
 		}
 		else if (name.equals(type.getValueLabel())) {
-			ISetWriter w = getValueFactory().setWriter(type.getValueType());
+			ISetWriter w = getValueFactory().setWriter();
 			Iterator<IValue> it = value.valueIterator();
 			while (it.hasNext()) {
 				w.insert(it.next());
@@ -118,7 +118,7 @@ public class MapResult extends ElementResult<IMap> {
 					throw new UnexpectedType(type.getValueType(), repl.getType(), ctx.getCurrentAST());
 				}
 
-				IMapWriter w = getValueFactory().mapWriter(type.getKeyType(), type.getValueType());
+				IMapWriter w = getValueFactory().mapWriter();
 
 				for (IValue key : value) {
 					w.put(key, repl.getValue());
@@ -184,6 +184,11 @@ public class MapResult extends ElementResult<IMap> {
 	}
 	
 	@Override
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		return that.addMap(this);
+	}
+	
+	@Override
 	protected <U extends IValue> Result<U> subtractMap(MapResult m) {
 		// Note the reverse
 		return makeResult(m.getType(), m.getValue().remove(getValue()), ctx);
@@ -242,7 +247,7 @@ public class MapResult extends ElementResult<IMap> {
 	
 	@Override
 	public <U extends IValue> Result<U> composeMap(MapResult left) {
-		if (left.getType().getValueType().isSubtypeOf(getType().getKeyType())) {
+		if (left.getType().getValueType().comparable(getType().getKeyType())) {		
 			Type mapType = getTypeFactory().mapType(left.getType().getKeyType(), getType().getValueType());
 			return ResultFactory.makeResult(mapType, left.getValue().compose(getValue()), ctx);
 		}
@@ -252,7 +257,7 @@ public class MapResult extends ElementResult<IMap> {
 	
 	@Override
 	public Result<IValue> fieldSelect(int[] selectedFields) {
-		IRelationWriter w = getValueFactory().relationWriter(type.getFieldTypes());
+		IRelationWriter w = getValueFactory().relationWriter();
 		
 		// TODO: poor mans implementation can be made much faster without intermediate relation building
 		Iterator<Entry<IValue,IValue>> it = value.entryIterator();

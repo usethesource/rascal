@@ -15,7 +15,6 @@
 package org.rascalmpl.library.lang.json;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
@@ -31,7 +30,6 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.util.JSonReader;
 import org.rascalmpl.library.util.JSonWriter;
-import org.rascalmpl.unicode.UnicodeInputStreamReader;
 
 public class IO {
 	private final IValueFactory values;

@@ -40,7 +40,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public abstract class AbstractAST implements IVisitable {
 	protected ISourceLocation src;
 	protected Map<String, IValue> annotations;
-	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
 	protected final TypeFactory TF = TypeFactory.getInstance();
 	protected final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
@@ -104,14 +103,6 @@ public abstract class AbstractAST implements IVisitable {
 		return src;
 	}
 
-	public ASTStatistics getStats() {
-		return stats;
-	}
-	
-	public void setStats(ASTStatistics stats) {
-		this.stats = stats;
-	}
-	
 	@Override
 	public boolean equals(Object obj) {
 		if(obj == null)
@@ -145,11 +136,10 @@ public abstract class AbstractAST implements IVisitable {
 	@Override
 	@Deprecated
 	/**
-	 * @deprecated because this does not print the actual source code of the AST anymore! Use getString() instead on lexicals.
-	 * For debugging purposes
+	 * @deprecated YOU SHOULD NOT USE THIS METHOD. Use {@link Names}.
 	 */
 	public String toString() {
-		return src + ":" + getClass();
+		throw new UnsupportedOperationException("This method was deprecated a while ago");
 	}
 
 	public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
@@ -190,6 +180,7 @@ public abstract class AbstractAST implements IVisitable {
 	 * Recursively build a back-tracking data-structure, use getBacktracker if you are just a client of IBooleanResult
 	 */
 	public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
+	  System.err.println("ambiguity at " + getLocation());
 		throw new NotYetImplemented(this);
 	}
 	

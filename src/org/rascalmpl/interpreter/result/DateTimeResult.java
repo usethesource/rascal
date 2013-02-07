@@ -414,4 +414,14 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 		}
 	}
 	
+	@Override
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		return that.addDateTime(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
+		return that.addDateTime(this);
+	}
+	
 }

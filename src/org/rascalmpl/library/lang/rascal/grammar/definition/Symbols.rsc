@@ -5,15 +5,16 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@bootstrapParser
 module lang::rascal::grammar::definition::Symbols
 
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Characters;
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::syntax::Rascal;
 import ParseTree;
 import String;
 import IO;
+
+
 
 public bool match(Symbol checked, Symbol referenced) {
   while (checked is conditional || checked is label)
@@ -28,59 +29,55 @@ public Symbol delabel(Symbol s) = visit(s) { case label(_,t) => t };
 
 public Symbol sym2symbol(Sym sym) {
   switch (sym) {
-    case (Sym) `<Nonterminal n>`          : 
+    case nonterminal(Nonterminal n) : 
       return sort("<n>");
-    case (Sym) `start[<Nonterminal n>]` : 
+    case \start(Nonterminal n) : 
       return \start(sort("<n>"));
-    case (Sym) `<StringConstant l>` : 
+    case literal(StringConstant l): 
       return lit(unescape(l));
-    case (Sym) `<CaseInsensitiveStringConstant l>`: 
+    case caseInsensitiveLiteral(CaseInsensitiveStringConstant l): 
       return cilit(unescape(l));
-    case (Sym) `<Nonterminal n>[<{Sym ","}+ syms>]` : 
+    case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
       return \parameterized-sort("<n>",separgs2symbols(syms)); 
-    case (Sym) `<Sym s> <NonterminalLabel n>` : 
+    case labeled(Sym s, NonterminalLabel n) : 
       return label("<n>", sym2symbol(s));
-    case (Sym) `<Sym s> ?`  : 
+    case optional(Sym s)  : 
       return opt(sym2symbol(s));
-    case (Sym) `<Class cc>` : 
+    case characterClass(Class cc): 
       return cc2ranges(cc);
-    case (Sym) `&<Nonterminal n>` : 
+    case parameter(Nonterminal n) : 
       return \parameter("<n>");
-    case (Sym) `()` : 
+    case empty() : 
       return \empty();
-    case (Sym) `( <Sym first> | <{Sym "|"}+ alts>)` : 
+    case alternative(Sym first, {Sym "|"}+ alts) : 
       return alt({sym2symbol(first)} + {sym2symbol(elem) | elem <- alts});
-    case (Sym) `<Sym s>*`  : 
+    case iterStar(Sym s)  : 
       return \iter-star(sym2symbol(s));
-    case (Sym) `<Sym s>+`  : 
+    case iter(Sym s)  : 
       return \iter(sym2symbol(s));
-    case (Sym) `<Sym s> *?` : 
-      return \iter-star(sym2symbol(s));
-    case (Sym) `<Sym s> +?` : 
-      return \iter(sym2symbol(s));
-    case (Sym) `{<Sym s> <Sym sep>}*`  : 
+    case iterStarSep(Sym s, Sym sep)  : 
       return \iter-star-seps(sym2symbol(s), [sym2symbol(sep)]);
-    case (Sym) `{<Sym s> <Sym sep>}+`  : 
+    case iterSep(Sym s, Sym sep)  : 
       return \iter-seps(sym2symbol(s), [sym2symbol(sep)]);
-    case (Sym) `(<Sym first> <Sym+ sequence>)` : 
+    case sequence(Sym first, Sym+ sequence) : 
       return seq([sym2symbol(first)] + [sym2symbol(elem) | elem <- sequence]);
-    case (Sym) `^ <Sym s>` : 
+    case startOfLine(Sym s) : 
       return conditional(sym2symbol(s), {\begin-of-line()});
-    case (Sym) `<Sym s> $` : 
+    case endOfLine(Sym s) : 
       return conditional(sym2symbol(s), {\end-of-line()});
-    case (Sym) `<Sym s> @ <IntegerLiteral i>` : 
+    case column(Sym s, IntegerLiteral i) : 
       return conditional(sym2symbol(s), {\at-column(toInt("<i>"))}); 
-    case (Sym) `<Sym s> >> <Sym r>` : 
+    case follow(Sym s, Sym r) : 
       return conditional(sym2symbol(s), {\follow(sym2symbol(r))});
-    case (Sym) `<Sym s> !>> <Sym r>` : 
+    case notFollow(Sym s, Sym r) : 
       return conditional(sym2symbol(s), {\not-follow(sym2symbol(r))});
-    case (Sym) `<Sym s> << <Sym r>` : 
+    case precede(Sym s, Sym r) : 
       return conditional(sym2symbol(r), {\precede(sym2symbol(s))});
-    case (Sym) `<Sym s> !<< <Sym r>` : 
+    case notPrecede(Sym s, Sym r) : 
       return conditional(sym2symbol(r), {\not-precede(sym2symbol(s))});
-    case (Sym) `<Sym s> \ <Sym r>` : 
+    case unequal(Sym s, Sym r) : 
       return conditional(sym2symbol(s), {\delete(sym2symbol(r))});
-    case (Sym) `<Sym s> ! <NonterminalLabel n>`:
+    case except(Sym s, NonterminalLabel n):
       return conditional(sym2symbol(s), {\except("<n>")});
     default: 
       throw "missed a case <sym>";

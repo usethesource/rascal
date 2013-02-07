@@ -30,6 +30,7 @@ import org.rascalmpl.ast.Replacement;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
 import org.rascalmpl.semantics.dynamic.Tree;
@@ -256,16 +257,35 @@ public class Cases  {
 					.getType();
 
 			if (subjectType.isSubtypeOf(TF.nodeType())) {
-				List<DefaultBlock> alts = table.get(((INode) value).getName());
-				if (alts != null) {
-					for (DefaultBlock c : alts) {
-						if (c.matchAndEval(eval, subject)) {
-							return true;
-						}
-					}
-				}
+	       boolean isTree = subjectType.isSubtypeOf(Factory.Tree);
+	       
+	       if (isTree) { // matching abstract with concrete
+	         TreeAsNode wrap = new TreeAsNode((IConstructor) subject.getValue());
+	         Result<IValue> asTree = ResultFactory.makeResult(TF.nodeType(), wrap, eval);
+	         
+	         if (tryCases(eval, asTree)) {
+	           return true;
+	         }
+	       }
+	       else if (tryCases(eval, subject)) {
+	         return true;
+	       }
 			}
 			return false;
 		}
+
+    protected boolean tryCases(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
+      List<DefaultBlock> alts = table.get(((INode) subject.getValue()).getName());
+        
+       if (alts != null) {
+         for (DefaultBlock c : alts) {
+           if (c.matchAndEval(eval, subject)) {
+             return true;
+           }
+         }
+       }
+       
+       return false;
+    }
 	}
 }
