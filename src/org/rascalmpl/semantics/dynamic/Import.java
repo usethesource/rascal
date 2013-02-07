@@ -148,13 +148,6 @@ public abstract class Import {
 			}
 		}
 		
-		@Override
-		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
-			// TODO: this means that external imports do not support syntax definition for now
-			return Names.fullName(getName());
-		}
-
-
 		private ICallableValue getImporter(String s, Environment currentEnvt) {
 			return currentEnvt.getHeap().getResourceImporter(s);
 		}

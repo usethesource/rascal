@@ -150,10 +150,6 @@ public abstract class AbstractAST implements IVisitable {
 		throw new NotYetImplemented(this);
 	}
 	
-	public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
-		throw new NotYetImplemented(this);
-	}
-
 	/**
 	 * Computes internal type representations for type literals and patterns. 
 	 */
