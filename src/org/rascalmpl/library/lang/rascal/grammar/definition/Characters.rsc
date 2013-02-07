@@ -12,10 +12,9 @@
   
   It also provides a number of convenience functions on character classes.
 }
-@bootstrapParser
 module lang::rascal::grammar::definition::Characters
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::syntax::Rascal;
 import ParseTree;
 import String;
 import Grammar;
@@ -365,20 +364,20 @@ test bool diff2() = difference(\char-class([range(10,30), range(40,50)]), \char-
 
 public Symbol cc2ranges(Class cc) {
    switch(cc) {
-     case (Class) `[<Range* ranges>]` : return \char-class([range(r) | r <- ranges]);
-     case (Class) `(<Class c>)`: return cc2ranges(c);
-     case (Class) `! <Class c>`: return complement(cc2ranges(c));
-     case (Class) `<Class l> && <Class r>`: return intersection(cc2ranges(l), cc2ranges(r));
-     case (Class) `<Class l> || <Class r>`: return union(cc2ranges(l), cc2ranges(r));
-     case (Class) `<Class l> - <Class r>`: return difference(cc2ranges(l), cc2ranges(r));
+     case \simpleCharclass(Range* ranges) : return \char-class([range(r) | r <- ranges]);
+     case \bracket(Class c): return cc2ranges(c);
+     case \complement(Class c) : return complement(cc2ranges(c));
+     case \intersection(Class l, Class r) : return intersection(cc2ranges(l), cc2ranges(r));
+     case \union(Class l, Class r): return union(cc2ranges(l), cc2ranges(r));
+     case \difference(Class l, Class r): return difference(cc2ranges(l), cc2ranges(r));
      default: throw "missed a case <cc>";
    }
 }
       
 private CharRange range(Range r) {
   switch (r) {
-    case (Range) `<Char c>` : return range(character(c),character(c));
-    case (Range) `<Char l> - <Char r>`: return range(character(l),character(r));
+    case character(Char c) : return range(character(c),character(c));
+    case fromTo(Char l, Char r) : return range(character(l),character(r));
     default: throw "missed a case <r>";
   }
 } 

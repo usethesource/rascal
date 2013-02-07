@@ -13,7 +13,7 @@ end up in SolvedIssues
 @bootstrapParser
 module lang::rascal::syntax::tests::KnownIssues
 
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::syntax::Rascal;
 import ParseTree;
 
 public bool isAmb(Tree t) = /amb(_) := t;

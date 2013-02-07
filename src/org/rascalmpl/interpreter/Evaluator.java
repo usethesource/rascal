@@ -24,6 +24,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,29 +38,28 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.EvalCommand;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Module;
+import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.PreModule;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.ast.Tag;
-import org.rascalmpl.ast.TagString;
-import org.rascalmpl.ast.TagString.Lexical;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
@@ -85,25 +85,23 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.ModuleImport;
-import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatch;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.staticErrors.UnguardedInsert;
 import org.rascalmpl.interpreter.staticErrors.UnguardedReturn;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.JavaBridge;
+import org.rascalmpl.interpreter.utils.Modules;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.lang.rascal.syntax.MetaRascalRascal;
-import org.rascalmpl.library.lang.rascal.syntax.ObjectRascalRascal;
-import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
@@ -120,14 +118,17 @@ import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.TempURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
 	private final IValueFactory vf; // sharable
 	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
 	protected Environment currentEnvt; // not sharable
-
+ 
 	private final GlobalEnvironment heap; // shareable if frozen
 	/**
 	 * True if an interrupt has been signalled and we should abort execution
@@ -145,6 +146,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 * True if we're doing profiling
 	 */
 	private static boolean doProfiling = false;
+	
+	/**
+	 * This flag helps preventing non-terminating bootstrapping cycles. If 
+	 * it is set we do not allow loading of another nested Parser Generator.
+	 */
+	private boolean isBootstrapper = false;
+
 	/**
 	 * The current profiler; private to this evaluator
 	 */
@@ -154,7 +162,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 	private final List<ClassLoader> classLoaders; // sharable if frozen
 	private final ModuleEnvironment rootScope; // sharable if frozen
-	private boolean concreteListsShouldBeSpliced;
 
 	private final PrintWriter defStderr;
 	private final PrintWriter defStdout;
@@ -391,11 +398,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	@Override	
-	public boolean __getConcreteListsShouldBeSpliced() {
-		return concreteListsShouldBeSpliced;
-	}
-
-	@Override	
 	public void __setInterrupt(boolean interrupt) {
 		this.interrupt = interrupt;
 	}
@@ -513,6 +515,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	@Override
 	public IValue call(String name, IValue... args) {
+	  RascalTypeFactory rtf = RascalTypeFactory.getInstance();
 		QualifiedName qualifiedName = Names.toQualifiedName(name);
 		OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
 
@@ -520,7 +523,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 		int i = 0;
 		for (IValue v : args) {
-			types[i++] = v.getType();
+			Type type = v.getType();
+      types[i++] = type.isSubtypeOf(Factory.Tree) ? rtf.nonTerminalType((IConstructor) v) : type;
 		}
 		
 		if (func == null) {
@@ -532,6 +536,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	@Override	
 	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input){
+	  assert false;
 		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(location);
 		String name = "";
 		if (SymbolAdapter.isStartSort(startSort)) {
@@ -618,13 +623,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(URI loc){
-		return getObjectParser((ModuleEnvironment) getCurrentEnvt().getRoot(), loc, false);
+		return getNewObjectParser((ModuleEnvironment) getCurrentEnvt().getRoot(), loc, false);
 	}
 
 	@SuppressWarnings("unchecked")
-	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(ModuleEnvironment currentModule, URI loc, boolean force) {
+	private IGTD<IConstructor, IConstructor, ISourceLocation> getNewObjectParser(ModuleEnvironment currentModule, URI loc, boolean force) {
 		if (currentModule.getBootstrap()) {
-			return new ObjectRascalRascal();
+			return new RascalParser();
 		}
 		
 		if (currentModule.hasCachedParser()) {
@@ -653,7 +658,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		if (parser == null || force) {
 			String parserName = currentModule.getName(); // .replaceAll("::", ".");
 
-			parser = pg.getParser(this, loc, parserName, definitions);
+			parser = pg.getNewParser(this, loc, parserName, definitions);
 			getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
 		}
 
@@ -664,29 +669,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		} catch (IllegalAccessException e) {
 			throw new ImplementationError(e.getMessage(), e);
 		} catch (ExceptionInInitializerError e) {
-			throw new ImplementationError(e.getMessage(), e);
-		}
-	}
-
-	private IGTD<IConstructor, IConstructor, ISourceLocation> getRascalParser(ModuleEnvironment env, URI input) {
-		ParserGenerator pg = getParserGenerator();
-		IMap productions = env.getSyntaxDefinition();
-		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = getHeap().getRascalParser(env.getName(), productions);
-
-		if (parser == null) {
-			String parserName = env.getName(); 
-
-			// force regeneration of object parser such that super class name aligns... (a workaround)
-			IGTD<IConstructor, IConstructor, ISourceLocation> objectParser = getObjectParser(env, input, true);
-			parser = pg.getRascalParser(this, input, parserName, productions, objectParser);
-			getHeap().storeRascalParser(env.getName(), productions, parser);
-		}
-
-		try {
-			return parser.newInstance();
-		} catch (InstantiationException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (IllegalAccessException e) {
 			throw new ImplementationError(e.getMessage(), e);
 		}
 	}
@@ -747,10 +729,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	private ParserGenerator parserGenerator;
+  
 	
 	private ParserGenerator getParserGenerator() {
 		startJob("Loading parser generator", 40);
-		if(parserGenerator == null){
+		if(parserGenerator == null ){
+		  if (isBootstrapper()) {
+		    throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
+		  }
 			parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory());
 		}
 		endJob(true);
@@ -879,17 +865,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private Result<IValue> eval(String command, URI location)
 			throws ImplementationError {
 		__setInterrupt(false);
-		IConstructor tree;
+    IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
+		IConstructor tree = new RascalParser().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		
-		if (noBacktickOutsideStringConstant(command)) {
-			IActionExecutor<IConstructor> actionExecutor = new NoActionExecutor();
-			tree = new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-		} else {
-			IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-			IGTD<IConstructor, IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
-			tree = (IConstructor) rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		if (!noBacktickOutsideStringConstant(command)) {
+		  tree = parseFragments(tree, getCurrentModuleEnvironment());
 		}
-
+		
 		Command stat = getBuilder().buildCommand(tree);
 		
 		if (stat == null) {
@@ -904,13 +886,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		__setInterrupt(false);
 		IConstructor tree;
 		
-		if (noBacktickOutsideStringConstant(command)) {
-			IActionExecutor<IConstructor> actionExecutor = new NoActionExecutor();
-			tree = new RascalRascal().parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-		} else {
-			IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-			IGTD<IConstructor, IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
-			tree = (IConstructor) rp.parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		IActionExecutor<IConstructor> actionExecutor = new NoActionExecutor();
+		tree = new RascalParser().parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+	
+	  if (!noBacktickOutsideStringConstant(command)) {
+	    tree = parseFragments(tree, getCurrentModuleEnvironment());
 		}
 
 		Commands stat = getBuilder().buildCommands(tree);
@@ -956,15 +936,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	private IConstructor parseCommand(String command, URI location) {
 		__setInterrupt(false);
-		
-		if (!command.contains("`")) {
-			IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-			return new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+    IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
+		IConstructor tree =  new RascalParser().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+
+		if (!noBacktickOutsideStringConstant(command)) {
+		  tree = parseFragments(tree, getCurrentModuleEnvironment());
 		}
 		
-		IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-		IGTD<IConstructor, IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
-		return (IConstructor) rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		return tree;
 	}
 
 	@Override
@@ -972,15 +951,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			__setInterrupt(false);
-			
-			if (!commands.contains("`")) {
-				IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-				return new RascalRascal().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		  IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
+      IConstructor tree = new RascalParser().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+  
+			if (!noBacktickOutsideStringConstant(commands)) {
+			  tree = parseFragments(tree, getCurrentModuleEnvironment());
 			}
-
-			IActionExecutor<IConstructor> actionExecutor = new NoActionExecutor();
-			IGTD<IConstructor, IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
-			return (IConstructor) rp.parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+			
+			return tree;
 		}
 		finally {
 			setMonitor(old);
@@ -1185,26 +1163,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		heap.addModule(env);
 
 		try {
-			Module module = loadModule(name, env);
-
-			if (module != null) {
-				if (!getModuleName(module).equals(name)) {
-					throw new ModuleNameMismatch(getModuleName(module), name, vf.sourceLocation(errorLocation));
-				}
-				heap.setModuleURI(name, module.getLocation().getURI());
-				env.setInitialized(false);
-				module.interpret(this);
-			}
+			ISourceLocation loc = getValueFactory().sourceLocation(errorLocation);
+      org.rascalmpl.semantics.dynamic.Import.loadModule(loc, name, this);
 		} catch (StaticError e) {
 			heap.removeModule(env);
 			throw e;
 		} catch (Throw e) {
 			heap.removeModule(env);
 			throw e;
-		} catch (IOException e) {
-			heap.removeModule(env);
-			throw new ModuleImport(name, e.getMessage(), vf.sourceLocation(errorLocation));
-		}
+		} 
 	}
 
 	/**
@@ -1299,16 +1266,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	// Modules -------------------------------------------------------------
-
-	@Override	
-	public void addImportToCurrentModule(AbstractAST x, String name) {
-		ModuleEnvironment module = heap.getModule(name);
-		if (module == null) {
-			throw new UndeclaredModule(name, x);
-		}
-		getCurrentModuleEnvironment().addImport(name, module);
-	}
-
 	@Override	
 	public ModuleEnvironment getCurrentModuleEnvironment() {
 		if (!(currentEnvt instanceof ModuleEnvironment)) {
@@ -1317,27 +1274,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return ((ModuleEnvironment) currentEnvt);
 	}
 
-	@Override	
-	public Module preParseModule(URI location, ISourceLocation cause) {
-		char[] data;
-		try{
-			data = getResourceContent(location);
-		}catch (IOException ioex){
-			throw new ModuleImport(location.toString(), ioex.getMessage(), cause);
-		}
-
-		URI resolved = rascalPathResolver.resolve(location);
-		if(resolved != null){
-			location = resolved;
-		}
-		
-		__setInterrupt(false);
-		IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-
-		IConstructor prefix = new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-		return getBuilder().buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
-	}
-	
 	private char[] getResourceContent(URI location) throws IOException{
 		char[] data;
 		Reader textStream = null;
@@ -1374,88 +1310,281 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
 		IRascalMonitor old = setMonitor(monitor);
 		try {
-			return parseModule(data, location, env, true);
+			return newParseModule(data, location, env, true);
 		}
 		finally{
 			setMonitor(old);
 		}
 	}
 	
-	@Override
-	public IConstructor parseModuleWithoutIncludingExtends(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
-		IRascalMonitor old = setMonitor(monitor);
-		try{
-			return parseModule(data, location, env, false);
-		}finally{
-			setMonitor(old);
-		}
-	}
-	
-	
-	private IConstructor parseModule(char[] data, URI location, ModuleEnvironment env, boolean declareImportsAndSyntax){
-		__setInterrupt(false);
-		IActionExecutor<IConstructor> actions = new NoActionExecutor();
+	private IConstructor newParseModule(char[] data, URI location, ModuleEnvironment env, boolean declareImportsAndSyntax){
+	  __setInterrupt(false);
+	  IActionExecutor<IConstructor> actions = new NoActionExecutor();
 
-		startJob("Parsing", 10);
-		event("Pre-parsing: " + location);
-		IConstructor prefix = new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+	  try {
+	    startJob("Parsing + location", 10);
+	    event("initial parse");
+	    IConstructor tree = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
-		if (TreeAdapter.isAmb(prefix)) {
-			throw new Ambiguous(prefix);
-		}
-		
-		IConstructor top = (IConstructor) TreeAdapter.getArgs(prefix).get(1);
-		
-		Module preModule = getBuilder().buildModule(top);
-		String name = getModuleName(preModule);
-		
-		if(env != null && isDeprecated(preModule)){
-			env.setDeprecatedMessage(getDeprecatedMessage(preModule));
-		}
-		
-		if(env == null){
-			env = heap.getModule(name);
-			if(env == null){
-				env = new ModuleEnvironment(name, heap);
-				heap.addModule(env);
-			}
-			env.setBootstrap(needBootstrapParser(preModule));
-		}
-		if (declareImportsAndSyntax) {
-			// take care of imports and declare syntax
-			env.setSyntaxDefined(false);
-			event("Declaring syntax for module " + name);
-			preModule.declareSyntax(this, true);
-		}
-		IGTD<IConstructor, IConstructor, ISourceLocation> parser = null;
-		IConstructor result = null;
-		event("Parsing: " + name);
-		try {
-			if (needBootstrapParser(preModule)) {
-				parser = new MetaRascalRascal();
-				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-			} 
-			else if (env.definesSyntax() && containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
-				parser = getRascalParser(env, location);
-				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-			}
-			else {
-				parser = new RascalRascal();
-				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-			} 
-		}
-		finally {
-			endJob(true);
-		}
-		
-		if (!suspendTriggerListeners.isEmpty()) {
-			result = DebugUpdater.pushDownAttributes(result);
-		}
-		
-		return result;
-	}
+	    if (TreeAdapter.isAmb(tree)) {
+	      // Ambiguity is dealt with elsewhere
+	      return tree;
+	    }
+
+	    IConstructor top = TreeAdapter.getStartTop(tree);
+
+	    String name = Modules.getName(top);
+
+	    // create the current module if it does not exist yet
+	    if (env == null){
+	      env = heap.getModule(name);
+	      if(env == null){
+	        env = new ModuleEnvironment(name, heap);
+	        heap.addModule(env);
+	      }
+	      env.setBootstrap(needBootstrapParser(data));
+	    }
+
+	    // make sure all the imported and extended modules are loaded
+	    // since they may provide additional syntax definitions\
+	    Environment old = getCurrentEnvt();
+	    try {
+	      setCurrentEnvt(env);
+	      env.setInitialized(true);
+
+	      event("defining syntax");
+	      ISet rules = Modules.getSyntax(top);
+	      for (IValue rule : rules) {
+	        evalImport((IConstructor) rule);
+	      }
+
+	      event("importing modules");
+	      ISet imports = Modules.getImports(top);
+	      for (IValue mod : imports) {
+	        evalImport((IConstructor) mod);
+	      }
+
+	      event("extending modules");
+	      ISet extend = Modules.getExtends(top);
+	      for (IValue mod : extend) {
+	        evalImport((IConstructor) mod);
+	      }
+
+	      event("generating modules");
+	      ISet externals = Modules.getExternals(top);
+	      for (IValue mod : externals) {
+	        evalImport((IConstructor) mod);
+	      }
+
+	    }
+	    finally {
+	      setCurrentEnvt(old);
+	    }
+
+	    // parse the embedded concrete syntax fragments of the current module
+	    IConstructor result = tree;
+	    if (!isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
+	      event("parsing concrete syntax");
+	      result = parseFragments(tree, env);
+	    }
+
+	    if (!suspendTriggerListeners.isEmpty()) {
+	      result = DebugUpdater.pushDownAttributes(result);
+	    }
+
+	    return result;
+	  } 
+	  finally {
+	    endJob(true);
+	  }
+  }
 	
-	private static boolean containsBackTick(char[] data, int offset) {
+	private void evalImport(IConstructor mod) {
+    Import imp = (Import) getBuilder().buildValue(mod);
+    imp.interpret(this);
+  }
+
+  /**
+	 * This function will reconstruct a parse tree of a module, where all nested concrete syntax fragments
+	 * have been parsed and their original flat literal strings replaced by fully structured parse trees.
+	 * 
+	 * @param module is a parse tree of a Rascal module containing flat concrete literals
+	 * @param parser is the parser to use for the concrete literals
+	 * @return parse tree of a module with structured concrete literals, or parse errors
+	 */
+	private IConstructor parseFragments(IConstructor module, final ModuleEnvironment env) {
+	  // TODO: update source code locations!!
+	  
+	  try {
+	   return (IConstructor) module.accept(new IdentityTreeVisitor() {
+	     @Override
+	     public IConstructor visitTreeAppl(IConstructor tree) throws VisitorException {
+	       IConstructor pattern = getConcretePattern(tree);
+	       
+	       if (pattern != null) {
+	         IConstructor parsedFragment = parseFragment(env, (IConstructor) TreeAdapter.getArgs(tree).get(0));
+	         return TreeAdapter.setArgs(tree, vf.list(parsedFragment));
+	       }
+	       else {
+	         IListWriter w = vf.listWriter();
+	         IList args = TreeAdapter.getArgs(tree);
+	         for (IValue arg : args) {
+	           w.append(arg.accept(this));
+	         }
+	         args = w.done();
+	         
+	         return TreeAdapter.setArgs(tree, args);
+	       }
+	     }
+
+	     private IConstructor getConcretePattern(IConstructor tree) {
+	       String sort = TreeAdapter.getSortName(tree);
+	       if (sort.equals("Expression") || sort.equals("Pattern")) {
+	         String cons = TreeAdapter.getConstructorName(tree);
+	         if (cons.equals("concrete")) {
+	           return (IConstructor) TreeAdapter.getArgs(tree).get(0);
+	         }
+	       }
+	       return null;
+      }
+
+      @Override
+	     public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+	       throw new ImplementationError("unexpected ambiguity: " + arg);
+	     }
+	   });
+	  } catch (VisitorException e) {
+	    throw new ImplementationError("unexpected error while parsing concrete syntax fragments", e.getCause());
+	  }
+  }
+	private IConstructor parseFragment(ModuleEnvironment env, IConstructor tree) {
+    IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
+    IConstructor lit = TreeAdapter.getArg(tree, "parts");
+    Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
+    
+    IGTD<IConstructor, IConstructor, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getNewObjectParser(env, TreeAdapter.getLocation(tree).getURI(), false);
+    
+    try {
+      String parserMethodName = getParserGenerator().getParserMethodName(symTree);
+      URI uri = getCurrentAST().getLocation().getURI();
+      DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation> converter = new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>();
+      UPTRNodeFactory nodeFactory = new UPTRNodeFactory();
+    
+      char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
+      
+      getStdOut().println("Parsing: [" + Arrays.toString(input) + "]");
+      
+      IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri, input, converter, nodeFactory);
+      fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
+
+      IConstructor prod = TreeAdapter.getProduction(tree);
+      IConstructor sym = ProductionAdapter.getDefined(prod);
+      sym = SymbolAdapter.delabel(sym); 
+      prod = ProductionAdapter.setDefined(prod, (IConstructor) Factory.Symbol_Label.make(vf, vf.string("$parsed"), sym));
+      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
+    }
+    catch (ParseError e) {
+      // have to deal with this parse error later when interpreting the AST, for now we just reconstruct the unparsed tree.
+      getStdOut().println("Failed at: " + TreeAdapter.getLocation(tree) + ", failed on: [" + new String(replaceAntiQuotesByHoles(lit, antiquotes)) + "], " + e);
+      throw e;
+//      return tree;
+    }
+  }
+	
+	private char[] replaceAntiQuotesByHoles(IConstructor lit, Map<String, IConstructor> antiquotes) {
+	  IList parts = TreeAdapter.getArgs(lit);
+	  StringBuilder b = new StringBuilder();
+	  
+	  for (IValue elem : parts) {
+	    IConstructor part = (IConstructor) elem;
+	    String cons = TreeAdapter.getConstructorName(part);
+	    
+	    if (cons.equals("text")) {
+	      b.append(TreeAdapter.yield(part));
+	    }
+	    else if (cons.equals("newline")) {
+	      b.append('\n');
+	    }
+	    else if (cons.equals("lt")) {
+	      b.append('<');
+	    }
+	    else if (cons.equals("gt")) {
+	      b.append('>');
+	    }
+	    else if (cons.equals("bq")) {
+	      b.append('`');
+	    }
+	    else if (cons.equals("bs")) {
+	      b.append('\\');
+	    }
+	    else if (cons.equals("hole")) {
+        b.append(createHole(part, antiquotes));
+      }
+ 	  }
+	  
+	  return b.toString().toCharArray();
+	}
+
+  private String createHole(IConstructor part, Map<String, IConstructor> antiquotes) {
+    String ph = getParserGenerator().createHole(part, antiquotes.size());
+    antiquotes.put(ph, part);
+    return ph;
+  }
+
+  private IConstructor replaceHolesByAntiQuotes(IConstructor fragment, final Map<String, IConstructor> antiquotes) {
+    try {
+      return (IConstructor) fragment.accept(new IdentityTreeVisitor() {
+        @Override
+        public IConstructor visitTreeAppl(IConstructor tree) throws VisitorException {
+          String cons = TreeAdapter.getConstructorName(tree);
+          if (cons == null || !cons.equals("$MetaHole") ) {
+            IListWriter w = vf.listWriter();
+            IList args = TreeAdapter.getArgs(tree);
+            for (IValue elem : args) {
+              w.append(elem.accept(this));
+            }
+            args = w.done();
+            
+            return TreeAdapter.setArgs(tree, args);
+          }
+          
+          IConstructor type = retrieveHoleType(tree);
+          return antiquotes.get(TreeAdapter.yield(tree)).setAnnotation("holeType", type);
+        }
+        
+        private IConstructor retrieveHoleType(IConstructor tree) {
+          IConstructor prod = TreeAdapter.getProduction(tree);
+          ISet attrs = ProductionAdapter.getAttributes(prod);
+
+          for (IValue attr : attrs) {
+            if (((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
+              IValue arg = ((IConstructor) attr).get(0);
+              
+              if (arg.getType().isNodeType() && ((INode) arg).getName().equals("holeType")) {
+                return (IConstructor) ((INode) arg).get(0);
+              }
+            }
+          }
+          
+          throw new ImplementationError("expected to find a holeType, but did not: " + tree);
+        }
+
+        @Override
+        public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+          ISetWriter w = vf.setWriter();
+          for (IValue elem : TreeAdapter.getAlternatives(arg)) {
+            w.insert(elem.accept(this));
+          }
+          return arg.set("alternatives", w.done());
+        }
+      });
+    }
+    catch (VisitorException e) {
+      throw new ImplementationError("failure while parsing fragments", e);
+    }
+  }
+ 
+ private static boolean containsBackTick(char[] data, int offset) {
 		for (int i = data.length - 1; i >= offset; --i) {
 			if (data[i] == '`')
 				return true;
@@ -1463,187 +1592,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return false;
 	}
 	
-	@Override	
-	public boolean needBootstrapParser(Module preModule) {
-		for (Tag tag : preModule.getHeader().getTags().getTags()) {
-			if (((Name.Lexical) tag.getName()).getString().equals("bootstrapParser")) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-	
-	@Override	
-	public boolean needBootstrapParser(PreModule preModule) {
-		for (Tag tag : preModule.getHeader().getTags().getTags()) {
-			if (((Name.Lexical) tag.getName()).getString().equals("bootstrapParser")) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-	
-	@Override	
-	public String getCachedParser(Module preModule) {
-		for (Tag tag : preModule.getHeader().getTags().getTags()) {
-			if (((Name.Lexical) tag.getName()).getString().equals("cachedParser")) {
-				String tagString = ((TagString.Lexical)tag.getContents()).getString();
-				return tagString.substring(1, tagString.length() - 1);
-			}
-		}
-		return null;
-	}
-	
-	@Override	
-	public String getCachedParser(PreModule preModule) {
-		for (Tag tag : preModule.getHeader().getTags().getTags()) {
-			if (((Name.Lexical) tag.getName()).getString().equals("cachedParser")) {
-				String tagString = ((TagString.Lexical)tag.getContents()).getString();
-				return tagString.substring(1, tagString.length() - 1);
-			}
-		}
-		return null;
-	}
-	
-	public boolean isDeprecated(Module preModule){
-		for (Tag tag : preModule.getHeader().getTags().getTags()) {
-			if (((Name.Lexical) tag.getName()).getString().equals("deprecated")) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public String getDeprecatedMessage(Module preModule){
-		for (Tag tag : preModule.getHeader().getTags().getTags()) {
-			if (((Name.Lexical) tag.getName()).getString().equals("deprecated")) {
-				String contents = ((Lexical) tag.getContents()).getString();
-				return contents.substring(1, contents.length() -1);
-			}
-		}
-		return "";
-	}
-
-	private Module loadModule(String name, ModuleEnvironment env) throws IOException {
-		try {
-			event("Loading module " + name);
-			IConstructor tree = parseModule(this, URIUtil.createRascalModule(name), env);
-			ASTBuilder astBuilder = getBuilder();
-			Module moduleAst = astBuilder.buildModule(tree);
-			
-//			if(isDeprecated(moduleAst))
-//				throw new ModuleImport(name, name + " is deprecated -- " + getDeprecatedMessage(moduleAst), astBuilder.getLastSuccessLocation());
-
-
-			if (moduleAst == null) {
-				throw new ImplementationError("After this, all ambiguous ast's have been filtered in " + name, astBuilder.getLastSuccessLocation());
-			}
-			return moduleAst;
-		} catch (FactTypeUseException e) {
-			throw new ImplementationError("Unexpected PDB typecheck exception", e);
-		}
+	public boolean needBootstrapParser(char[] input) {
+	  return new String(input).contains("@bootstrapParser");
 	}
 	
 	@Override	
 	public ASTBuilder getBuilder() {
 		return new ASTBuilder();
-	}
-	
-	@Override	
-	public void extendCurrentModule(ISourceLocation x, String name) {
-		ModuleEnvironment env = getCurrentModuleEnvironment();
-		
-		if (env == rootScope) {
-			throw new NotYetImplemented("extend is currently not support by the root scope (shell)");
-		}
-		if (env.hasExtended(name)) {
-			getStdErr().println("Extending again?? " + name);
-			return;
-		}
-		
-		
-		env.addExtend(name);
-		
-		try {
-			Module module = loadModule(name, env);
-
-			if (module != null) {
-				if (!getModuleName(module).equals(name)) {
-					throw new ModuleNameMismatch(getModuleName(module), name, x);
-				}
-				heap.setModuleURI(name, module.getLocation().getURI());
-				env.setInitialized(false);
-				if (__getInterrupt()) {
-					throw new InterruptException("while extending " + name, getCurrentAST().getLocation());
-				}
-				((org.rascalmpl.semantics.dynamic.Module.Default)module).interpretInCurrentEnv(this);
-			}
-			
-			env.haveExtended(name);
-			return;
-		} catch (IOException e) {
-			env.removeExtend(name);
-			throw new ModuleImport(name, e.getMessage(), x);
-		} catch (RuntimeException e) {
-			env.removeExtend(name);
-			throw e;
-		}
-	}
-	
-	@Override	
-	public Module evalRascalModule(AbstractAST x, String name) {
-		ModuleEnvironment env = heap.getModule(name);
-		if (env == null) {
-			env = new ModuleEnvironment(name, heap);
-			heap.addModule(env);
-		}
-		try {
-			startJob("Loading module " + name);
-			Module module = loadModule(name, env);
-
-			if (module != null) {
-				if (!getModuleName(module).equals(name)) {
-					throw new ModuleNameMismatch(getModuleName(module), name, x);
-				}
-				heap.setModuleURI(name, module.getLocation().getURI());
-				env.setInitialized(false);
-				
-				// TODO: is this declare syntax necessary? (again!)
-				module.declareSyntax(this, true);
-				
-				event("Running toplevel declarations in " + name);
-				module.interpret(this);
-				return module;
-			}
-		} catch (StaticError e) {
-			heap.removeModule(env);
-			throw e;
-		} catch (Throw e) {
-			heap.removeModule(env);
-			throw e;
-		} catch (IOException e) {
-			heap.removeModule(env);
-			throw new ModuleImport(name, e.getMessage(), x);
-		}
-
-		heap.removeModule(env);
-		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
-	}
-
-	@Override	
-	public String getModuleName(Module module) {
-		return Names.fullName(module.getHeader().getName());
-	}
-	
-	@Override	
-	public String getModuleName(PreModule module) {
-		String name = Names.fullName(module.getHeader().getName());
-		if (name.startsWith("\\")) {
-			name = name.substring(1);
-		}
-		return name;
 	}
 	
 	@Override	
@@ -1911,16 +1866,21 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		this.eventTrigger = eventTrigger;
 	}
 
-	@Override
+  @Override
 	public void freeze() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public IEvaluator<Result<IValue>> fork() {
 		return new Evaluator(this, rootScope);
 	}
-		
 
+  public void setBootstrapperProperty(boolean b) {
+    this.isBootstrapper = b;
+  }
+  
+  public boolean isBootstrapper() {
+    return isBootstrapper;
+  }
 }

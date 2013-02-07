@@ -1058,6 +1058,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return inferredType;
 	}
 	
+	protected <U extends IValue> Result<U> addDateTime(
+			DateTimeResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+	
 	protected <U extends IValue> Result<U> subtractDateTime(
 			DateTimeResult that) {
 		return that.undefinedError(SUBTRACTION_STRING, this);

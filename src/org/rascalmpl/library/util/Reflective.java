@@ -16,6 +16,7 @@ package org.rascalmpl.library.util;
 import java.io.IOException;
 import java.net.URI;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
