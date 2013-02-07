@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.staticErrors.NoKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.utils.Names;
 
 abstract public class NamedFunction extends AbstractFunction {
 	protected final String name;
@@ -95,9 +96,9 @@ abstract public class NamedFunction extends AbstractFunction {
 				keywordParameterTypes[i] = kwf.getType().typeOf(eval.getCurrentEnvt());
 				Result<IValue> r = kwf.getExpression().interpret(this.eval);
 				if(!r.getType().isSubtypeOf(keywordParameterTypes[i])){
-					throw new UnexpectedKeywordArgumentType(kwf.getName().toString(), keywordParameterTypes[i], r.getType(), ast);
+					throw new UnexpectedKeywordArgumentType(Names.name(kwf.getName()), keywordParameterTypes[i], r.getType(), ast);
 				}
-				kwdefaults.add(new KeywordParameter(kwf.getName().toString(), keywordParameterTypes[i], r));
+				kwdefaults.add(new KeywordParameter(Names.name(kwf.getName()), keywordParameterTypes[i], r));
 			}
 		}
 		return kwdefaults;
