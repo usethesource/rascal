@@ -81,7 +81,7 @@ public class ASTBuilder {
 	public static <T extends AbstractAST> T make(String sort, String cons, ISourceLocation src, Object... args) {
 		Object[] newArgs = new Object[args.length + 1];
 		System.arraycopy(args, 0, newArgs, 1, args.length);
-		return (T) callMakerMethod(sort, cons, src, newArgs, null);
+		return (T) callMakerMethod(sort, cons, src, null, newArgs, null);
 	}
 
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
@@ -94,8 +94,9 @@ public class ASTBuilder {
 			}
 			return buildSort(parseTree, MODULE_SORT);
 		}
+		
 		if (TreeAdapter.isAmb(tree)) {
-		  throw new ImplementationError("Parse of module returned ambiguous tree?");
+		  throw new Ambiguous(tree);
 		}
 		
 		throw new ImplementationError("Parse of module returned invalid tree.");
@@ -455,21 +456,10 @@ public class ASTBuilder {
 		return callMakerMethod(sort, cons, TreeAdapter.getLocation((IConstructor) actuals[0]), annotations, actuals, keywordActuals);
 	}
 	
-	/**
-	 * @deprecated Does not propagate <code>attributes</code>. 
-	 *             Use the following instead:
-	 *             {@link ASTBuilder#callMakerMethod(String, String, ISourceLocation, ISet, Object[]).
-	 */
-	@Deprecated
-	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Object actuals[], Object keywordActuals[]) {
-		return callMakerMethod(sort, cons, src, null, actuals, null);
-	}
-	
 	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Map<String, IValue> annotations, Object actuals[], Object keywordActuals[]) {
 		try {
 			String name = sort + '$' + cons;
 			Constructor<?> constructor = astConstructors.get(name);
-//			System.err.println("name = " + name);
 			
 			if (constructor == null) {
 				Class<?> clazz = null;
