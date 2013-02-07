@@ -28,8 +28,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Module;
-import org.rascalmpl.ast.PreModule;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.env.Environment;

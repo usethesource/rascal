@@ -9,6 +9,7 @@ package org.rascalmpl.library.analysis.statistics;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.inference.ChiSquareTestImpl;
 import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
