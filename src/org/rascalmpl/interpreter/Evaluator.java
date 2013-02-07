@@ -60,7 +60,6 @@ import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
@@ -1319,78 +1318,85 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	private IConstructor newParseModule(char[] data, URI location, ModuleEnvironment env, boolean declareImportsAndSyntax){
-
 	  __setInterrupt(false);
-    IActionExecutor<IConstructor> actions = new NoActionExecutor();
+	  IActionExecutor<IConstructor> actions = new NoActionExecutor();
 
-    System.err.print("PARSING MODULE: " + location + "\r");
+	  try {
+	    startJob("Parsing + location", 10);
+	    event("initial parse");
+	    IConstructor tree = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
-    startJob("Parsing", 10);
-    event("Pre-parsing: " + location);
-    IConstructor tree = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+	    if (TreeAdapter.isAmb(tree)) {
+	      // Ambiguity is dealt with elsewhere
+	      return tree;
+	    }
 
-    if (TreeAdapter.isAmb(tree)) {
-      // Ambiguity is dealt with elsewhere
-      return tree;
-    }
-    
-    IConstructor top = TreeAdapter.getStartTop(tree);
-    
-    String name = Modules.getName(top);
-    
-    // create the current module if it does not exist yet
-    if (env == null){
-      env = heap.getModule(name);
-      if(env == null){
-        env = new ModuleEnvironment(name, heap);
-        heap.addModule(env);
-      }
-      env.setBootstrap(needBootstrapParser(data));
-    }
-    
-    // make sure all the imported and extended modules are loaded
-    // since they may provide additional syntax definitions
-    Environment old = getCurrentEnvt();
-    try {
-      setCurrentEnvt(env);
-      env.setInitialized(true);
-      
-      ISet rules = Modules.getSyntax(top);
-      for (IValue rule : rules) {
-        evalImport((IConstructor) rule);
-      }
-      
-      ISet imports = Modules.getImports(top);
-      for (IValue mod : imports) {
-        evalImport((IConstructor) mod);
-      }
-      
-      ISet extend = Modules.getExtends(top);
-      for (IValue mod : extend) {
-        evalImport((IConstructor) mod);
-      }
-      
-      ISet externals = Modules.getExternals(top);
-      for (IValue mod : externals) {
-        evalImport((IConstructor) mod);
-      }
-      
-    }
-    finally {
-      setCurrentEnvt(old);
-    }
-    
-    // parse the embedded concrete syntax fragments of the current module
-    IConstructor result = tree;
-    if (!isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
-      result = parseFragments(tree, env);
-    }
-    
-    if (!suspendTriggerListeners.isEmpty()) {
-      result = DebugUpdater.pushDownAttributes(result);
-    }
-    
-    return result;
+	    IConstructor top = TreeAdapter.getStartTop(tree);
+
+	    String name = Modules.getName(top);
+
+	    // create the current module if it does not exist yet
+	    if (env == null){
+	      env = heap.getModule(name);
+	      if(env == null){
+	        env = new ModuleEnvironment(name, heap);
+	        heap.addModule(env);
+	      }
+	      env.setBootstrap(needBootstrapParser(data));
+	    }
+
+	    // make sure all the imported and extended modules are loaded
+	    // since they may provide additional syntax definitions\
+	    Environment old = getCurrentEnvt();
+	    try {
+	      setCurrentEnvt(env);
+	      env.setInitialized(true);
+
+	      event("defining syntax");
+	      ISet rules = Modules.getSyntax(top);
+	      for (IValue rule : rules) {
+	        evalImport((IConstructor) rule);
+	      }
+
+	      event("importing modules");
+	      ISet imports = Modules.getImports(top);
+	      for (IValue mod : imports) {
+	        evalImport((IConstructor) mod);
+	      }
+
+	      event("extending modules");
+	      ISet extend = Modules.getExtends(top);
+	      for (IValue mod : extend) {
+	        evalImport((IConstructor) mod);
+	      }
+
+	      event("generating modules");
+	      ISet externals = Modules.getExternals(top);
+	      for (IValue mod : externals) {
+	        evalImport((IConstructor) mod);
+	      }
+
+	    }
+	    finally {
+	      setCurrentEnvt(old);
+	    }
+
+	    // parse the embedded concrete syntax fragments of the current module
+	    IConstructor result = tree;
+	    if (!isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
+	      event("parsing concrete syntax");
+	      result = parseFragments(tree, env);
+	    }
+
+	    if (!suspendTriggerListeners.isEmpty()) {
+	      result = DebugUpdater.pushDownAttributes(result);
+	    }
+
+	    return result;
+	  } 
+	  finally {
+	    endJob(true);
+	  }
   }
 	
 	private void evalImport(IConstructor mod) {

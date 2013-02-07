@@ -20,6 +20,7 @@ import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Keywords;
 
+import util::Monitor;
 import lang::rascal::syntax::Rascal;
 import lang::rascal::grammar::ConcreteSyntax;
 import ParseTree;
@@ -42,33 +43,32 @@ private str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(
 private default str getParserMethodName(Symbol s) = value2id(s);
 
 public str newGenerate(str package, str name, Grammar gr) {
+    startJob("Generating parser <package>.<name>");
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
   
-    println("expanding parameterized symbols");
+    event("expanding parameterized symbols");
     gr = expandParameterizedSymbols(gr);
     
-    println("generating stubs for regular");
+    event("generating stubs for regular");
     gr = makeRegularStubs(gr);
     
-    println("generating syntax for holes");
+    event("generating syntax for holes");
     gr = addHoles(gr);
  
-    
-    println("generating literals");
+    event("generating literals");
     gr = literals(gr);
     
-    
-    println("establishing production set");
+    event("establishing production set");
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_) := p};
  
-    println("assigning unique ids to symbols");
+    event("assigning unique ids to symbols");
     gr = visit(gr) { case Symbol s => s[@id=newItem()] }
         
-    println("generating item allocations");
+    event("generating item allocations");
     newItems = generateNewItems(gr);
     
-    println("computing priority and associativity filter");
+    event("computing priority and associativity filter");
     rel[int parent, int child] dontNest = computeDontNests(newItems, gr);
     // this creates groups of children that forbidden below certain parents
     rel[set[int] children, set[int] parents] dontNestGroups = 
@@ -80,9 +80,9 @@ public str newGenerate(str package, str name, Grammar gr) {
     //println("optimizing lookahead automaton");
     //gr = compileLookaheads(gr);
    
-    println("printing the source code of the parser class");
+    event("printing the source code of the parser class");
     
-    return "package <package>;
+    src =  "package <package>;
            '
            'import java.io.IOException;
            'import java.io.StringReader;
@@ -232,6 +232,8 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  <for (Symbol nont <- sort(gr.rules.sort), isNonterminal(nont)) { >
            '  <generateParseMethod(newItems, gr.rules[nont])><}>
            '}";
+   endJob(true);
+   return src;
 }  
 
 private rel[int,int] computeDontNests(Items items, Grammar grammar) {
