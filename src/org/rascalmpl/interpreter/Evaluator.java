@@ -1330,8 +1330,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     IConstructor tree = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
     if (TreeAdapter.isAmb(tree)) {
-      throw new Ambiguous(tree);
+      // Ambiguity is dealt with elsewhere
+      return tree;
     }
+    
     IConstructor top = TreeAdapter.getStartTop(tree);
     
     String name = Modules.getName(top);
