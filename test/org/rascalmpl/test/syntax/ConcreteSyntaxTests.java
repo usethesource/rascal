@@ -595,7 +595,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void Pico5(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{`begin <Decls decls> <{Statement \";\"}* stats> end` := `begin declare x: natural; x := 10 end`;}"));
+		assertTrue(runTestInSameEvaluator("{`begin <Declarations decls> <{Statement \";\"}* stats> end` := `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
@@ -603,7 +603,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void Pico6(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{Decls decls; {Statement \";\"}* stats; `begin <decls> <stats> end` := `begin declare x: natural; x := 10 end`;}"));
+		assertTrue(runTestInSameEvaluator("{Declarations decls; {Statement \";\"}* stats; `begin <decls> <stats> end` := `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
@@ -611,7 +611,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void Pico7a(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{`begin <Decls decls> <{Statement \";\"}+ stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
+		assertTrue(runTestInSameEvaluator("{`begin <Declarations decls> <{Statement \";\"}+ stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
 				                          "(decls == `declare x: natural;`);}"));
 	}
 	
@@ -620,7 +620,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void Pico7b(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{`begin <Decls decls> <{Statement \";\"}+ stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
+		assertTrue(runTestInSameEvaluator("{`begin <Declarations decls> <{Statement \";\"}+ stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
 				                          "(decls == `declare x: natural;`) && (stats == ({Statement \";\"}+)`x := 1; x := 2`);}"));
 	}
 	
@@ -629,7 +629,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void Pico7c(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{`begin <Decls decls> <{Statement \";\"}* stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
+		assertTrue(runTestInSameEvaluator("{`begin <Declarations decls> <{Statement \";\"}* stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
 				                          "(decls == `declare x: natural;`) && (stats == ({Statement \";\"}*)`x := 1; x := 2`);}"));
 	}
 	
@@ -639,7 +639,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ bool B;" +
-				                          "  if(`begin <Decls decls> <{Statement \";\"}* stats> end` := `begin declare x: natural; x := 1; x := 2 end`){" +
+				                          "  if(`begin <Declarations decls> <{Statement \";\"}* stats> end` := `begin declare x: natural; x := 1; x := 2 end`){" +
 				                          "            B = (decls == `declare x: natural;`);" +
 				                          "  } else" +
 				                          "     B = false; " +
@@ -651,7 +651,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	                         "import lang::pico::syntax::Main;\n" +
 	                         "import ParseTree;\n" +
 	                         "public Tree t1 = (Program) `begin declare x: natural; x := 10 end`;\n" +
-	                         "public Tree t2 = (Decls) `declare x : natural;`;\n";
+	                         "public Tree t2 = (Declarations) `declare x : natural;`;\n";
 	
 	@Test
 	public void PicoQuoted0() {
@@ -677,7 +677,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted3(){
-		prepareModule("M", QmoduleM + "public bool match3() { return (Program) `begin <Decls decls> <{Statement \";\"}* stats> end` := t1; }\n");
+		prepareModule("M", QmoduleM + "public bool match3() { return (Program) `begin <Declarations decls> <{Statement \";\"}* stats> end` := t1; }\n");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match3();"));
@@ -686,7 +686,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted4(){
-		prepareModule("M", QmoduleM + "public bool match4() { return `begin <Decls decls> <stats> end` := t1; }");
+		prepareModule("M", QmoduleM + "public bool match4() { return `begin <Declarations decls> <stats> end` := t1; }");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match4();"));
@@ -694,7 +694,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test
 	public void PicoQuoted5(){
-		prepareModule("M", QmoduleM + "public bool match5() { return (Program) `begin <Decls decls> <{Statement \";\"}* stats> end` := t1; }");
+		prepareModule("M", QmoduleM + "public bool match5() { return (Program) `begin <Declarations decls> <{Statement \";\"}* stats> end` := t1; }");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match5();"));
@@ -703,7 +703,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted6(){
-		prepareModule("M", QmoduleM + "public bool match6() { return (Program) `begin <Decls decls> <{Statement \";\"}* stats> end` := t1; }");
+		prepareModule("M", QmoduleM + "public bool match6() { return (Program) `begin <Declarations decls> <{Statement \";\"}* stats> end` := t1; }");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match6();"));
@@ -760,7 +760,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test @Ignore
 	public void PicoUnQuoted4(){
-		prepareModule("M", UQmoduleM + "public bool match4() { return begin <Decls decls> <stats> end := t1; }");
+		prepareModule("M", UQmoduleM + "public bool match4() { return begin <Declarations decls> <stats> end := t1; }");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match4();"));
@@ -776,7 +776,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test @Ignore
 	public void PicoUnQuoted6(){
-		prepareModule("M", UQmoduleM + "public bool match6() { return begin <Decls decls> <{Statement \";\"}* stats> end := t1; }");
+		prepareModule("M", UQmoduleM + "public bool match6() { return begin <Declarations decls> <{Statement \";\"}* stats> end := t1; }");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match6();"));
