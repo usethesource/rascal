@@ -10,14 +10,14 @@
 @doc{
   This module provides functionality for merging the Rascal grammar and arbitrary user-defined grammars
 }
-module lang::rascal::newgrammar::ConcreteSyntax
+module lang::rascal::grammar::ConcreteSyntax
 
 import ValueIO;
 import List;
 import IO;
 import ParseTree;
 import Grammar;
-import lang::rascal::newsyntax::Rascal;
+import lang::rascal::syntax::Rascal;
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Regular;

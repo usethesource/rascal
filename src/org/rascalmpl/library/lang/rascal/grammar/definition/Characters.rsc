@@ -14,7 +14,7 @@
 }
 module lang::rascal::grammar::definition::Characters
 
-import lang::rascal::newsyntax::Rascal;
+import lang::rascal::syntax::Rascal;
 import ParseTree;
 import String;
 import Grammar;
