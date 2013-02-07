@@ -581,9 +581,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			Result<IValue> receiver = this.getReceiver().interpret(__eval);
 			Result<IValue> subscript = this.getSubscript().interpret(__eval);
 
-			if (receiver == null || receiver.getValue() == null) {
-				throw new UninitializedVariable("receiver", this.getReceiver());
-			}
+			assert receiver != null && receiver.getValue() != null;
 			
 			if (receiver.getType().isListType()) {
 				if (subscript.getType().isIntegerType()) {
@@ -651,9 +649,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			}
 			Result<IValue> result;
 
-			if (rec == null || rec.getValue() == null) {
-				throw new UninitializedVariable("receiver", this.getReceiver());
-			}
+      assert rec != null && rec.getValue() != null;
 			
 			if( !(first == null || first.getType().isIntegerType()) ){
 				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
@@ -788,9 +784,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			}
 			Result<IValue> result;
 
-			if (rec == null || rec.getValue() == null) {
-				throw new UninitializedVariable("receiver", this.getReceiver());
-			}
+			assert rec != null && rec.getValue() != null;
 			
 			if( !(first == null || first.getType().isIntegerType()) ){
 				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
