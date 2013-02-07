@@ -1,4 +1,4 @@
-package org.rascalmpl.library.lang.rascal.newsyntax;
+package org.rascalmpl.library.lang.rascal.syntax;
 
 import java.io.IOException;
 import java.io.StringReader;

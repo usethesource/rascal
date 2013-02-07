@@ -23,10 +23,8 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Evaluator;
@@ -57,16 +55,14 @@ public class ParserGenerator {
 		monitor.startJob("Loading parser generator", 100, 139);
 		try {
 			evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
-			evaluator.doImport(monitor, "lang::rascal::newgrammar::NewParserGenerator");
+			evaluator.doImport(monitor, "lang::rascal::grammar::ConcreteSyntax");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Modules");
-			evaluator.doImport(monitor, "lang::rascal::grammar::Assimilator");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Priorities");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Regular");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Keywords");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Literals");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Parameters");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Symbols");
-			evaluator.doImport(monitor, "lang::rascal::newgrammar::ConcreteSyntax");
 			evaluator.doImport(monitor, "Ambiguity");
 		}
 		finally {

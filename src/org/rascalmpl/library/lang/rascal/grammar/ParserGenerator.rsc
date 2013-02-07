@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2011 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -17,9 +17,11 @@ import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Modules;
 import lang::rascal::grammar::definition::Priorities;
 import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Keywords;
-import lang::rascal::grammar::Lookahead;
-import lang::rascal::grammar::Assimilator;
+
+import lang::rascal::syntax::Rascal;
+import lang::rascal::grammar::ConcreteSyntax;
 import ParseTree;
 import String;
 import List;
@@ -34,68 +36,24 @@ private alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]]
 public anno str Symbol@prefix;
 anno int Symbol@id;
 
-@doc{Used in bootstrapping only, to generate a parser for Rascal modules without concrete syntax.}
-public str generateRootParser(str package, str name, Grammar gr) {
-  // first we expand parameterized symbols, since wrapping sorts with 'meta' will break that code
-  gr = expandParameterizedSymbols(gr);
-  
-  // we annotate the grammar to generate identifiers that are different from object grammar identifiers
-  gr = visit (gr) { 
-    case s:sort(_) => meta(s)
-    case s:\lex(_) => meta(s)
-    case s:keywords(_) => meta(s)
-    case s:\parameterized-sort(_,_) => meta(s)
-    case s:\parameterized-lex(_,_) => meta(s) 
-    case s:layouts(_) => meta(s) 
-  }
-  int uniqueItem = -3; // -1 and -2 are reserved by the SGTDBF implementation
-  int newItem() { uniqueItem -= 1; return uniqueItem; };
- 
-  return generate(package, name, "org.rascalmpl.parser.gtd.SGTDBF\<IConstructor, IConstructor, ISourceLocation\>", newItem, false, true, quotes, gr);
-}
+public str getParserMethodName(Sym sym) = getParserMethodName(sym2symbol(sym));
+private str getParserMethodName(label(_,Symbol s)) = getParserMethodName(s);
+private str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
+private default str getParserMethodName(Symbol s) = value2id(s);
 
-@doc{Used to generate parser that parse object language only}
-public str generateObjectParser(str package, str name, Grammar gr) {
-  int uniqueItem = 2;
-  int newItem() { uniqueItem += 2; return uniqueItem; };
-  // make sure the < is expected for every non-terminal
-  rel[Symbol,Symbol] quotes = {<x,\char-class([range(60,60)])> | Symbol x:sort(_) <- gr.rules} // any sort could start with <
-                            + {<x,\char-class([range(60,60)])> | Symbol x:layouts(_) <- gr.rules}
-                            + {<layouts("$QUOTES"),\char-class([range(0,65535)])>} // always expect quoting layout (because the actual content is unknown at generation time)
-                            ; 
-  // prepare definitions for quoting layout
-  gr = compose(gr, grammar({}, layoutProductions(gr)));
-  return generate(package, name, "org.rascalmpl.library.lang.rascal.syntax.RascalRascal", newItem, false, false, quotes, gr);
-}
-
-@doc{
-  Used to generate subclasses of object grammars that can be used to parse Rascal modules
-  with embedded concrete syntax fragments.
-}   
-public str generateMetaParser(str package, str name, str super, Grammar gr) {
-  int uniqueItem = 1; // we use the odd numbers here
-  int newItem() { uniqueItem += 2; return uniqueItem; };
+public str newGenerate(str package, str name, Grammar gr) {
+    int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
+    int newItem() { uniqueItem += 1; return uniqueItem; };
   
-  gr = expandParameterizedSymbols(gr);
-  gr = makeRegularStubs(gr);
-  
-  fr = grammar({}, fromRascal(gr));
-  tr = grammar({}, toRascal(gr));
-  q = grammar({}, quotes()); // TODO parametrize quotes to use quote definitions
-  kw = grammar({}, getKeywords(gr));
-  //l = grammar({}, layoutProductions(gr)); // commented out because layout prods are already in object parser
-  
-  full = compose(kw, compose(fr, compose(tr, q)));
-  
-  return generate(package, name, super, newItem, true, false, {}, full);
-}
-
-public str generate(str package, str name, str super, int () newItem, bool callSuper, bool isRoot, rel[Symbol,Symbol] extraLookaheads, Grammar gr) {
     println("expanding parameterized symbols");
     gr = expandParameterizedSymbols(gr);
     
     println("generating stubs for regular");
     gr = makeRegularStubs(gr);
+    
+    println("generating syntax for holes");
+    gr = addHoles(gr);
+ 
     
     println("generating literals");
     gr = literals(gr);
@@ -149,9 +107,9 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            'import org.rascalmpl.values.uptr.Factory;
            '
            '@SuppressWarnings(\"all\")
-           'public class <name> extends <super> {
+           'public class <name> extends org.rascalmpl.parser.gtd.SGTDBF\<IConstructor, IConstructor, ISourceLocation\> {
            '  protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
-           '  <if (isRoot) {>
+           '
            '  protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
            '    try {
            '      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new StringReader(s));
@@ -175,7 +133,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    return b.toString();
            '  }
            '  protected static final TypeFactory _tf = TypeFactory.getInstance();
-           '  <}>
+           ' 
            '  private static final IntegerMap _resultStoreIdMappings;
            '  private static final IntegerKeyedHashMap\<IntegerList\> _dontNest;
            '	
@@ -193,7 +151,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '  }
            '    
            '  protected static IntegerKeyedHashMap\<IntegerList\> _initDontNest() {
-           '    IntegerKeyedHashMap\<IntegerList\> result = <if (!isRoot) {><super>._initDontNest()<} else {>new IntegerKeyedHashMap\<IntegerList\>()<}>; 
+           '    IntegerKeyedHashMap\<IntegerList\> result = new IntegerKeyedHashMap\<IntegerList\>(); 
            '    
            '    <if (true) { int i = 0;>
            '    <for (<f,c> <- sort(dontNest)) { i += 1;>
@@ -207,7 +165,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '  }
            '    
            '  protected static IntegerMap _initDontNestGroups() {
-           '    IntegerMap result = <if (!isRoot) {><super>._initDontNestGroups()<} else {>new IntegerMap()<}>;
+           '    IntegerMap result = new IntegerMap();
            '    int resultStoreId = result.size();
            '    
            '    <for (<childrenIds, parentIds> <- sort(dontNestGroups)) {>
@@ -234,7 +192,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    
            '  // Production declarations
            '	<for (p <- sort(uniqueProductions)) {>
-           '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<unmeta(p)>")>\", Factory.Production);<}>
+           '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<p>")>\", Factory.Production);<}>
            '    
            '  // Item declarations
            '	<for (Symbol s <- sort(newItems<0>), isNonterminal(s)) {
@@ -264,31 +222,19 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '      builder.addAlternative(<name>.<id>, tmp);
            '	}<}>
            '    public static void init(ExpectBuilder\<IConstructor\> builder){
-           '      <if (callSuper) {><super>.<value2id(s)>.init(builder);
-           '      <}>
            '      <for(Production alt <- sort(alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '        _init_<id>(builder);
            '      <}>
            '    }
            '  }<}>
            '	
-           '  public <name>() {
-           '    super();
-           '  }
-           '
            '  // Parse methods    
            '  <for (Symbol nont <- sort(gr.rules.sort), isNonterminal(nont)) { >
            '  <generateParseMethod(newItems, gr.rules[nont])><}>
            '}";
 }  
 
-public &T <: value unmeta(&T <: value p) {
-  return visit(p) {
-    case meta(s) => s
-  }
-}
-
-rel[int,int] computeDontNests(Items items, Grammar grammar) {
+private rel[int,int] computeDontNests(Items items, Grammar grammar) {
   // first we compute a map from productions to their last items (which identify each production)
   prodItems = (p:items[getType(rhs)][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
   
@@ -398,7 +344,6 @@ private bool isNonterminal(Symbol s) {
     case \sort(_) : return true;
     case \lex(_) : return true;
     case \keywords(_) : return true;
-    case \meta(x) : return isNonterminal(x);
     case \parameterized-sort(_,_) : return true;
     case \parameterized-lex(_,_) : return true;
     case \start(_) : return true;
@@ -523,7 +468,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
     	filters += ", null";
     }
     
-    switch ((meta(_) := sym) ? sym.wrapped : sym) {
+    switch (sym) {
         case \sort(n) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \empty() : 
@@ -609,7 +554,6 @@ public str escId(str s){
 public str sym2name(Symbol s){
     switch(s){
         case sort(x) : return "<x>";
-        case meta(x) : return "$<sym2name(x)>";
         case label(_,x) : return sym2name(x);
         default      : return value2id(s);
     }
@@ -628,7 +572,6 @@ str v2i(value v) {
         case sort(str s)   : return "<s>";
         case \lex(str s)   : return "<s>";
         case keywords(str s)   : return "<s>";
-        case meta(Symbol s) : return "$<v2i(s)>";
         case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
         case \parameterized-lex(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
         case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
