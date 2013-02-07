@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Body;
 import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.Toplevel;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;

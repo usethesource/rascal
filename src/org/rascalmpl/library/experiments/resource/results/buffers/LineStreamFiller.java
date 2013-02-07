@@ -9,14 +9,12 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class LineStreamFiller implements ILazyFiller {
