@@ -4,7 +4,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: CWI
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.5.4.qualifier
+Bundle-Version: 0.6.0.qualifier
 Export-Package: 
  org.rascalmpl.ast,
  org.rascalmpl.checker,
@@ -70,7 +70,7 @@ Export-Package:
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors,
  org.yaml.snakeyaml
-Require-Bundle: org.eclipse.imp.pdb.values;bundle-version="0.2.5",
+Require-Bundle: org.eclipse.imp.pdb.values;bundle-version="0.4.0",
  org.eclipse.swt,
  org.jdom;bundle-version="1.1.1",
  org.objectweb.asm;bundle-version="3.3.1",
