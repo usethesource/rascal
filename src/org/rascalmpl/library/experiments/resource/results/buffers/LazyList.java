@@ -64,27 +64,32 @@ public class LazyList implements IList {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+  @Override
 	public IList reverse() {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+  @Override
 	public IList append(IValue e) {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+  @Override
 	public IList insert(IValue e) {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+  @Override
 	public IList concat(IList o) {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+  @Override
 	public IList put(int i, IValue e) throws FactTypeUseException, IndexOutOfBoundsException {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
@@ -94,7 +99,8 @@ public class LazyList implements IList {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+  @Override
 	public IList sublist(int offset, int length) {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
@@ -109,12 +115,14 @@ public class LazyList implements IList {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+  @Override
 	public IList delete(IValue e) {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+  @Override
 	public IList delete(int i) {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
@@ -124,12 +132,14 @@ public class LazyList implements IList {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
+  @Override
 	public IListRelation subtract(IList e) {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
+  @Override
 	public IListRelation intersect(IList e) {
 		throw new IllegalOperationException("isEqual over buffered list", getType());
 	}

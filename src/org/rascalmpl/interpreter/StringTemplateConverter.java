@@ -34,7 +34,6 @@ import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.StringLiteral.NonInterpolated;
-import org.rascalmpl.ast.StringMiddle.Ambiguity;
 import org.rascalmpl.ast.StringMiddle.Interpolated;
 import org.rascalmpl.ast.StringMiddle.Mid;
 import org.rascalmpl.ast.StringMiddle.Template;
@@ -44,7 +43,6 @@ import org.rascalmpl.ast.StringTemplate.For;
 import org.rascalmpl.ast.StringTemplate.IfThen;
 import org.rascalmpl.ast.StringTemplate.IfThenElse;
 import org.rascalmpl.ast.StringTemplate.While;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
@@ -420,36 +418,5 @@ public class StringTemplateConverter {
 			return x.getPost().accept(this);
 		}
 	
-		@Override
-		public Statement visitStringMiddleAmbiguity(Ambiguity x) {
-			throw new ImplementationError("ambiguous middle string: " + x);
-		}
-	
-		@Override
-		public Statement visitStringTailAmbiguity(org.rascalmpl.ast.StringTail.Ambiguity x) {
-			throw new ImplementationError("ambiguous string tail: " + x);
-		}
-		
-		@Override
-		public Statement visitStringTemplateAmbiguity(org.rascalmpl.ast.StringTemplate.Ambiguity x) {
-			throw new ImplementationError("ambiguous string template: " + x);
-		}
-		
-		@Override
-		public Statement visitMidStringCharsAmbiguity(
-				org.rascalmpl.ast.MidStringChars.Ambiguity x) {
-			throw new ImplementationError("ambiguous mid string chars: " + x);
-		}
-		
-		@Override
-		public Statement visitPreStringCharsAmbiguity(
-				org.rascalmpl.ast.PreStringChars.Ambiguity x) {
-			throw new ImplementationError("ambiguous pre string chars: " + x);
-		}
-		
-		@Override
-		public Statement visitPostStringCharsAmbiguity(org.rascalmpl.ast.PostStringChars.Ambiguity x) {
-			throw new ImplementationError("ambiguous post string chars: " + x);
-		}
 	}
 }

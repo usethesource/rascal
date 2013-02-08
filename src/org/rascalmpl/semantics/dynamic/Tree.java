@@ -18,13 +18,13 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.BasicBooleanResult;
 import org.rascalmpl.interpreter.matching.ConcreteApplicationPattern;
 import org.rascalmpl.interpreter.matching.ConcreteListPattern;
+import org.rascalmpl.interpreter.matching.ConcreteListVariablePattern;
 import org.rascalmpl.interpreter.matching.ConcreteOptPattern;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
@@ -35,6 +35,7 @@ import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
+import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -45,16 +46,6 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * These classes special case Expression.CallOrTree for concrete syntax patterns
  */
 public abstract class Tree {
-	protected static boolean isConstant(java.util.List<Expression> args) {
-		for (org.rascalmpl.ast.Expression e : args) { 
-			if (e.getStats().getNestedMetaVariables() > 0) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
-  // TODO: this class is not used yet, but it will be when we simplify implosion to AST	
   static public class MetaVariable extends org.rascalmpl.ast.Expression {
 	private final String name;
 	private final Type type;
@@ -87,7 +78,13 @@ public abstract class Tree {
 	
 	@Override
 	public IMatchingResult buildMatcher(IEvaluatorContext ctx) {
-		return new TypedVariablePattern(ctx, this, type, name);
+	  IConstructor symbol = ((NonTerminalType) type).getSymbol();
+    if (SymbolAdapter.isStarList(symbol) || SymbolAdapter.isPlusList(symbol)) {
+	    return new ConcreteListVariablePattern(ctx, this, type, name);
+	  }
+	  else {
+	    return new TypedVariablePattern(ctx, this, type, name);
+	  }
 	}
 	  
   }
@@ -104,7 +101,7 @@ public abstract class Tree {
 		this.production = TreeAdapter.getProduction(node);
 		this.type = RascalTypeFactory.getInstance().nonTerminalType(production);
 		this.args = args;
-		this.constant = isConstant(args);
+		this.constant = false; // TODO! isConstant(args);
 		this.node = this.constant ? node : null;
 	}
 
@@ -284,7 +281,7 @@ public abstract class Tree {
 		super(node);
 		this.type = RascalTypeFactory.getInstance().nonTerminalType(node);
 		this.alts = alternatives;
-		this.constant = isConstant(alternatives);
+		this.constant = false; // TODO! isConstant(alternatives);
 		this.node = this.constant ? node : null;
 	}
 	
