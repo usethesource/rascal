@@ -49,23 +49,27 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class NodePattern extends AbstractMatchingResult {
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private Type type;
-	private final Type constructorType;
+	private final Type patternConstructorType;
 	private QualifiedName qName;
-	private List<IMatchingResult> children;
-	private List<IMatchingResult> orgChildren;
+	private List<IMatchingResult> patternChildren;
+	private List<IMatchingResult> patternOriginalChildren;
 	private INode subject;
 	private int nextChild;
 	private IMatchingResult namePattern;
-	private final int positionalArity;
-	private int subjectPositionalArity;
-	private LinkedList<String> keywordParameterNames;
-	private LinkedList<IMatchingResult> orgKeywordChildren;
+	private int patternPositionalArity;   	// Arity of pattern including only positional arguments
+	private final int patternTotalArity;  	// Arity of pattern including keyword arguments
+	private int subjectPositionalArity;		// Arity of subject including only positional arguments
+	private int subjectTotalArity; 			// Arity of subject including keyword arguments
+	private LinkedList<String> patternKeywordParameterNames;
+	private LinkedList<IMatchingResult> patternOriginalKeywordChildren;
+	private String[] patternKeywordArguments;
+	private String[] subjectKeywordArguments;
 	
 	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, Type constructorType, List<IMatchingResult> list){
 		super(ctx, x);
-		this.constructorType = constructorType;
-		this.orgChildren = list;
-		positionalArity = orgChildren.size();
+		this.patternConstructorType = constructorType;
+		this.patternOriginalChildren = list;
+		patternPositionalArity = patternOriginalChildren.size();
 		if (matchPattern != null) {
 			namePattern = matchPattern;
 		}
@@ -73,20 +77,24 @@ public class NodePattern extends AbstractMatchingResult {
 			qName = name;
 		}
 		KeywordArguments keywordArgs = x.getKeywordArguments();
-		this.orgKeywordChildren = new LinkedList<IMatchingResult>();
-		this.keywordParameterNames = new LinkedList<String>();
-		this.orgKeywordChildren = new LinkedList<IMatchingResult>();
+		this.patternOriginalKeywordChildren = new LinkedList<IMatchingResult>();
+		this.patternKeywordParameterNames = new LinkedList<String>();
+		this.patternOriginalKeywordChildren = new LinkedList<IMatchingResult>();
 		if(keywordArgs.isDefault()){
 				for(KeywordArgument kwa : keywordArgs.getKeywordArgumentList()){
 					IMatchingResult mr = kwa.getExpression().buildMatcher(ctx.getEvaluator());
-					keywordParameterNames.add(Names.name(kwa.getName()));
-					orgKeywordChildren.add(mr);
+					patternKeywordParameterNames.add(Names.name(kwa.getName()));
+					patternOriginalKeywordChildren.add(mr);
 				}
+				patternTotalArity = patternPositionalArity + patternKeywordParameterNames.size();
+		} else {
+			patternTotalArity = patternPositionalArity;
 		}
 	}
 	
 	@Override
 	public void initMatch(Result<IValue> subject){
+		boolean nodeSubject = false;
 		super.initMatch(subject);
 		hasNext = false;
 		if(subject.isVoid()) 
@@ -122,24 +130,40 @@ public class NodePattern extends AbstractMatchingResult {
 		Type patternType = getType(ctx.getCurrentEnvt(), null);
 		
 		Type subjectType = this.subject.getType();
-		subjectPositionalArity = 0;
+		subjectPositionalArity = subjectTotalArity = this.subject.arity();
 		
+		if(patternTotalArity > subjectTotalArity)
+			return;
 		if (subjectType.isAbstractDataType()) {
-			 subjectType = ((IConstructor) this.subject).getConstructorType();
-			if(subjectType.hasDefaults()){
+			subjectType = ((IConstructor) this.subject).getConstructorType();
+			if(subjectType.hasKeywordArguments()){
 				subjectPositionalArity = subjectType.getPositionalArity();
-				
-				if (positionalArity != subjectPositionalArity  ||
-					positionalArity + keywordParameterNames.size() > this.subject.arity()){
+				subjectTotalArity = subjectType.getArity();
+				if (patternPositionalArity != subjectPositionalArity || patternTotalArity > subjectTotalArity){
 					return;
 				}
 			} else {
-				if(this.subject.arity() != positionalArity){
+				if(patternTotalArity != subjectTotalArity){
 					return;
 				}
 			}
+		} else if(subjectType.isNodeType()){
+			nodeSubject = true;
+			 INode node = ((INode) this.subject);
+			 if(node.hasKeywordArguments()){
+				 subjectKeywordArguments = node.getKeywordArgumentNames();
+				 subjectPositionalArity = node.positionalArity();
+				 subjectTotalArity = node.arity();
+					if (patternPositionalArity != subjectPositionalArity || patternTotalArity > subjectTotalArity){
+						return;
+					}
+			 } else {
+					if(patternTotalArity != subjectTotalArity){
+						return;
+					}
+			 }
 		} else {
-			if (this.subject.arity() != positionalArity){
+			if (patternTotalArity != subjectTotalArity){
 				return;
 			}
 		}
@@ -150,34 +174,41 @@ public class NodePattern extends AbstractMatchingResult {
 			return;
 		}
 		
-		children = new ArrayList<IMatchingResult>();
+		patternChildren = new ArrayList<IMatchingResult>();
 		
-		int kwpositions[] = new int[this.subject.arity()];
+		int kwpositions[] = new int[subjectTotalArity];
 		
 		for(int i = 0; i < kwpositions.length; i++){
 			kwpositions[i] = -1;
 		}
-		if(keywordParameterNames != null){
-			for(int i = 0; i < keywordParameterNames.size(); i++){
-				String kwname = keywordParameterNames.get(i);
-				int pos = subjectType.getFieldIndex(kwname);
-				kwpositions[pos] = i;
+	
+		if(patternKeywordParameterNames != null){
+			for(int i = 0; i < patternKeywordParameterNames.size(); i++){
+				String kwname = patternKeywordParameterNames.get(i);
+				int pos = nodeSubject ? ((INode) this.subject).getKeywordIndex(kwname)
+						              : subjectType.getFieldIndex(kwname);
+				if(pos >= 0){
+					kwpositions[pos] = i;
+				} else {
+					hasNext = false;
+					return;
+				}
 			}
 		}
 	
-		for (int i = 0; i < this.subject.arity(); i += 1){
-			IValue childValue = this.subject.get(i);
-			IMatchingResult child;
-			if(i < positionalArity){
-				child = orgChildren.get(i);
+		for (int i = 0; i < subjectTotalArity; i += 1){
+			IValue subjectChild = this.subject.get(i);
+			IMatchingResult patternChild;
+			if(i < patternPositionalArity){
+				patternChild = patternOriginalChildren.get(i);
 			} else if(kwpositions[i] >= 0){
-				child = orgKeywordChildren.get(kwpositions[i]);
+				patternChild = patternOriginalKeywordChildren.get(kwpositions[i]);
 			} else {
-				child = new QualifiedNamePattern(ctx);
+				patternChild = new QualifiedNamePattern(ctx);
 			} 
-			child.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
-			children.add(child);
-			hasNext = child.hasNext();
+			patternChild.initMatch(ResultFactory.makeResult(subjectChild.getType(), subjectChild, ctx));
+			patternChildren.add(patternChild);
+			hasNext = patternChild.hasNext();
 			if (!hasNext) {
 				break; // saves time!
 			}
@@ -202,17 +233,17 @@ public class NodePattern extends AbstractMatchingResult {
 	}
 
 	public Type getConstructorType(Environment env) {
-		 return constructorType;
+		 return patternConstructorType;
 	}
 	
 	@Override
 	public List<IVarPattern> getVariables(){
 		java.util.LinkedList<IVarPattern> res = new java.util.LinkedList<IVarPattern> ();
-		for (int i = 0; i < orgChildren.size(); i += 1) {
-			res.addAll(orgChildren.get(i).getVariables());
+		for (int i = 0; i < patternOriginalChildren.size(); i += 1) {
+			res.addAll(patternOriginalChildren.get(i).getVariables());
 		}
-		for (int i = 0; i < orgKeywordChildren.size(); i += 1) {
-			res.addAll(orgKeywordChildren.get(i).getVariables());
+		for (int i = 0; i < patternOriginalKeywordChildren.size(); i += 1) {
+			res.addAll(patternOriginalKeywordChildren.get(i).getVariables());
 		}
 		
 		return res;
@@ -226,22 +257,22 @@ public class NodePattern extends AbstractMatchingResult {
 			return false;
 		}
 
-		if (children.size() == 0) {
+		if (patternChildren.size() == 0) {
 			hasNext = false;
 			return true;
 		}
 		
 		while (nextChild >= 0) {
-			IMatchingResult nextPattern = children.get(nextChild);
+			IMatchingResult nextPattern = patternChildren.get(nextChild);
 
 			if (nextPattern.hasNext() && nextPattern.next()) {
-				if (nextChild == children.size() - 1) {
+				if (nextChild == patternChildren.size() - 1) {
 					// We need to make sure if there are no
 					// more possible matches for any of the tuple's fields, 
 					// then the next call to hasNext() will definitely returns false.
 					hasNext = false;
 					for (int i = nextChild; i >= 0; i--) {
-						hasNext |= children.get(i).hasNext();
+						hasNext |= patternChildren.get(i).hasNext();
 					}
 					return true;
 				}
@@ -252,9 +283,9 @@ public class NodePattern extends AbstractMatchingResult {
 				nextChild--;
 
 				if (nextChild >= 0) {
-					for (int i = nextChild + 1; i < children.size(); i++) {
+					for (int i = nextChild + 1; i < patternChildren.size(); i++) {
 						IValue childValue = subject.get(i);
-						IMatchingResult tailChild = children.get(i);
+						IMatchingResult tailChild = patternChildren.get(i);
 						tailChild.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
 					}
 				}
@@ -266,7 +297,7 @@ public class NodePattern extends AbstractMatchingResult {
 	
 	@Override
 	public String toString(){
-		int n = orgChildren.size();
+		int n = patternOriginalChildren.size();
 		if(n == 1){
 			return Names.fullName(qName) + "()";
 		}
@@ -274,17 +305,17 @@ public class NodePattern extends AbstractMatchingResult {
 		res.append("(");
 		String sep = "";
 		
-		for (int i = 0; i < orgChildren.size(); i++){
-			IBooleanResult mp = orgChildren.get(i);
+		for (int i = 0; i < patternOriginalChildren.size(); i++){
+			IBooleanResult mp = patternOriginalChildren.get(i);
 			res.append(sep);
 			sep = ", ";
 			res.append(mp.toString());
 		}
-		for(int i = 0; i < orgKeywordChildren.size(); i++){
-			IBooleanResult mp = orgKeywordChildren.get(i);
+		for(int i = 0; i < patternOriginalKeywordChildren.size(); i++){
+			IBooleanResult mp = patternOriginalKeywordChildren.get(i);
 			res.append(sep);
 			sep = ", ";
-			res.append(keywordParameterNames.get(i));
+			res.append(patternKeywordParameterNames.get(i));
 			res.append("=");
 			res.append(mp.toString());
 		}
@@ -399,6 +430,35 @@ public class NodePattern extends AbstractMatchingResult {
         IndexOutOfBoundsException {
       throw new UnsupportedOperationException();
     }
+
+	@Override
+	public IValue getKeywordArgumentValue(String name) {
+		 throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean hasKeywordArguments() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String[] getKeywordArgumentNames() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getKeywordIndex(String name) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int positionalArity() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	}
 }
 
