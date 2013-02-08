@@ -277,6 +277,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitConcreteHoleOne(ConcreteHole.One x) { 
+    return null; 
+  }
+
   public T visitDataTargetEmpty(DataTarget.Empty x) { 
     return null; 
   }
@@ -390,6 +394,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitExpressionComprehension(Expression.Comprehension x) { 
+    return null; 
+  }
+
+  public T visitExpressionConcrete(Expression.Concrete x) { 
     return null; 
   }
 
@@ -906,10 +914,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitPatternWithActionReplacing(PatternWithAction.Replacing x) { 
-    return null; 
-  }
-
-  public T visitPreModuleDefault(PreModule.Default x) { 
     return null; 
   }
 
@@ -1498,6 +1502,14 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitConcreteLexical(Concrete.Lexical x) { 
+    return null; 
+  }
+
+  public T visitConcretePartLexical(ConcretePart.Lexical x) { 
+    return null; 
+  }
+
   public T visitDateAndTimeLexical(DateAndTime.Lexical x) { 
     return null; 
   }
@@ -1618,10 +1630,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitRestLexical(Rest.Lexical x) { 
-    return null; 
-  }
-
   public T visitStringCharacterLexical(StringCharacter.Lexical x) { 
     return null; 
   }
@@ -1647,511 +1655,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitUnicodeEscapeLexical(UnicodeEscape.Lexical x) { 
-    return null; 
-  }
-
-
-  public T visitDataTargetAmbiguity(DataTarget.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitTagAmbiguity(Tag.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitModuleActualsAmbiguity(ModuleActuals.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitJustTimeAmbiguity(JustTime.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitStringCharacterAmbiguity(StringCharacter.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitProdAmbiguity(Prod.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitCharAmbiguity(Char.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitStringConstantAmbiguity(StringConstant.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitPrePathCharsAmbiguity(PrePathChars.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitAssocAmbiguity(Assoc.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitRestAmbiguity(Rest.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitDateTimeLiteralAmbiguity(DateTimeLiteral.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitReplacementAmbiguity(Replacement.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitMidPathCharsAmbiguity(MidPathChars.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitToplevelAmbiguity(Toplevel.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitFunctionModifierAmbiguity(FunctionModifier.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitEvalCommandAmbiguity(EvalCommand.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitProdModifierAmbiguity(ProdModifier.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitTypeVarAmbiguity(TypeVar.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitAssignmentAmbiguity(Assignment.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitPostStringCharsAmbiguity(PostStringChars.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitHexIntegerLiteralAmbiguity(HexIntegerLiteral.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitMapping_ExpressionAmbiguity(Mapping_Expression.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitAssignableAmbiguity(Assignable.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitCommonKeywordParametersAmbiguity(CommonKeywordParameters.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeAmbiguity(BasicType.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitRegExpLiteralAmbiguity(RegExpLiteral.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitVariantAmbiguity(Variant.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitFunctionModifiersAmbiguity(FunctionModifiers.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitComprehensionAmbiguity(Comprehension.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitPreProtocolCharsAmbiguity(PreProtocolChars.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitFunctionDeclarationAmbiguity(FunctionDeclaration.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitDatePartAmbiguity(DatePart.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitBoundAmbiguity(Bound.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitKeywordFormalsAmbiguity(KeywordFormals.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitTypeAmbiguity(Type.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitJustDateAmbiguity(JustDate.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitFieldAmbiguity(Field.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitDeclarationAmbiguity(Declaration.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitPostPathCharsAmbiguity(PostPathChars.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitPathPartAmbiguity(PathPart.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitClassAmbiguity(Class.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitCaseInsensitiveStringConstantAmbiguity(CaseInsensitiveStringConstant.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitBackslashAmbiguity(Backslash.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitLabelAmbiguity(Label.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitFunctionTypeAmbiguity(FunctionType.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitDeclaratorAmbiguity(Declarator.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitCaseAmbiguity(Case.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitStatementAmbiguity(Statement.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitPreModuleAmbiguity(PreModule.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitURLCharsAmbiguity(URLChars.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitTimeZonePartAmbiguity(TimeZonePart.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitStructuredTypeAmbiguity(StructuredType.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitStringTemplateAmbiguity(StringTemplate.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitProtocolPartAmbiguity(ProtocolPart.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitNonterminalLabelAmbiguity(NonterminalLabel.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitPreStringCharsAmbiguity(PreStringChars.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitUserTypeAmbiguity(UserType.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitPostProtocolCharsAmbiguity(PostProtocolChars.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitImportAmbiguity(Import.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitFormalsAmbiguity(Formals.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitStartAmbiguity(Start.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitBodyAmbiguity(Body.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitCommentAmbiguity(Comment.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitStringLiteralAmbiguity(StringLiteral.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitFunctionBodyAmbiguity(FunctionBody.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitTagsAmbiguity(Tags.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitRenamingsAmbiguity(Renamings.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitOptionalExpressionAmbiguity(OptionalExpression.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitExpressionAmbiguity(Expression.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitSyntaxDefinitionAmbiguity(SyntaxDefinition.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitPathTailAmbiguity(PathTail.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitOptionalCommaAmbiguity(OptionalComma.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitKindAmbiguity(Kind.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitVisibilityAmbiguity(Visibility.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitTargetAmbiguity(Target.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitIntegerLiteralAmbiguity(IntegerLiteral.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitImportedModuleAmbiguity(ImportedModule.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitHeaderAmbiguity(Header.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitPatternWithActionAmbiguity(PatternWithAction.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitVisitAmbiguity(Visit.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitTagStringAmbiguity(TagString.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitNameAmbiguity(Name.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitCommandAmbiguity(Command.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitLAYOUTAmbiguity(LAYOUT.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitNonterminalAmbiguity(Nonterminal.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitProtocolTailAmbiguity(ProtocolTail.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitCommandsAmbiguity(Commands.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitTimePartNoTZAmbiguity(TimePartNoTZ.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitSymAmbiguity(Sym.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitQualifiedNameAmbiguity(QualifiedName.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitStringMiddleAmbiguity(StringMiddle.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitKeywordArgumentAmbiguity(KeywordArgument.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitDataTypeSelectorAmbiguity(DataTypeSelector.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitDecimalIntegerLiteralAmbiguity(DecimalIntegerLiteral.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitStringTailAmbiguity(StringTail.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitUnicodeEscapeAmbiguity(UnicodeEscape.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitRangeAmbiguity(Range.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitVariableAmbiguity(Variable.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitTypeArgAmbiguity(TypeArg.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitOctalIntegerLiteralAmbiguity(OctalIntegerLiteral.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitShellCommandAmbiguity(ShellCommand.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitRenamingAmbiguity(Renaming.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitCatchAmbiguity(Catch.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitLocationLiteralAmbiguity(LocationLiteral.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitSignatureAmbiguity(Signature.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitPathCharsAmbiguity(PathChars.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitKeywordFormalAmbiguity(KeywordFormal.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitDateAndTimeAmbiguity(DateAndTime.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitModuleParametersAmbiguity(ModuleParameters.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitStrategyAmbiguity(Strategy.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitLocalVariableDeclarationAmbiguity(LocalVariableDeclaration.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitRealLiteralAmbiguity(RealLiteral.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitLiteralAmbiguity(Literal.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitKeywordArgumentsAmbiguity(KeywordArguments.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitModuleAmbiguity(Module.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitParametersAmbiguity(Parameters.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitRegExpAmbiguity(RegExp.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitBooleanLiteralAmbiguity(BooleanLiteral.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitProtocolCharsAmbiguity(ProtocolChars.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitMidStringCharsAmbiguity(MidStringChars.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitRationalLiteralAmbiguity(RationalLiteral.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitRegExpModifierAmbiguity(RegExpModifier.Ambiguity x) { 
     return null; 
   }
 

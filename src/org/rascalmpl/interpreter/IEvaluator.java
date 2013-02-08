@@ -28,8 +28,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Module;
-import org.rascalmpl.ast.PreModule;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.env.Environment;
@@ -62,7 +60,6 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	 */
 	public Result<IValue> eval(Statement stat);
 	public Result<IValue> eval(IRascalMonitor monitor, Command command);	
-	public Module evalRascalModule(AbstractAST x, String name);	
 	
 	/*
 	 * Indentations. Methods solely used in {@link StringTemplateConverter}.
@@ -80,23 +77,13 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	/*
 	 * Module stuff.
 	 */
-	public void addImportToCurrentModule(AbstractAST x, String name);
-	public void extendCurrentModule(ISourceLocation src, String name);
 	public ModuleEnvironment getCurrentModuleEnvironment();
 
-	public String getModuleName(Module module);
-	public String getModuleName(PreModule module);	
-	public String getCachedParser(Module preModule);
-	public String getCachedParser(PreModule preModule);	
-	public boolean needBootstrapParser(Module preModule);
-	public boolean needBootstrapParser(PreModule preModule);
-		
 	/*
 	 * Misc.
 	 */
 	public Stack<Accumulator> __getAccumulators();
 	public ModuleEnvironment __getRootScope();
-	public boolean __getConcreteListsShouldBeSpliced();
 	public GlobalEnvironment __getHeap();
 	public boolean __getInterrupt();
 	public void __setInterrupt(boolean interrupt);	
@@ -115,8 +102,6 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	
 	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input);
 	
-	public Module preParseModule(URI location, ISourceLocation cause);
-		
 	public Environment pushEnv(Statement s);
 
 	public List<ClassLoader> getClassLoaders();
@@ -144,9 +129,6 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 
 	public Result<IValue> evalMore(IRascalMonitor monitor, String commands,
 			URI location);
-
-	public IConstructor parseModuleWithoutIncludingExtends(IRascalMonitor monitor,
-			char[] data, URI location, ModuleEnvironment env);
 
 	public IConstructor getGrammar(IRascalMonitor monitor, URI uri);
 

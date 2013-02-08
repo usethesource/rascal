@@ -74,7 +74,8 @@ public class StaticChecker {
 		return initialized;
 	}
 	
-	private IConstructor resolveImports(IRascalMonitor monitor, IConstructor moduleParseTree) {
+	@SuppressWarnings("unused")
+  private IConstructor resolveImports(IRascalMonitor monitor, IConstructor moduleParseTree) {
 		ISet imports = (ISet) eval.call(monitor, "importedModules", moduleParseTree);
 		
 		eval.getStdErr().println("imports: " + imports);

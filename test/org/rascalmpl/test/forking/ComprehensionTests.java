@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.test.infrastructure.ConcurrentTestFramework;
-import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class ComprehensionTests extends ConcurrentTestFramework {
 	

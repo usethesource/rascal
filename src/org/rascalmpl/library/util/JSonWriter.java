@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
@@ -157,7 +158,6 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
-		@SuppressWarnings("unused")
 		public IValue visitSet(ISet o) throws VisitorException {
 			if (debug)
 				System.err.println("VisitSet:" + o);
@@ -170,7 +170,6 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
-		@SuppressWarnings("unused")
 		public IValue visitTuple(ITuple o) throws VisitorException {
 			if (debug)
 				System.err.println("VisitTuple:" + o);
