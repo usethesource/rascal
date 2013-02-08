@@ -13,6 +13,10 @@
 	<version>0.6.0.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
 
+	<scm>
+		<developerConnection>scm:git:https://github.com/cwi-swat/rascal.git</developerConnection>			
+	</scm>
+
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
@@ -61,5 +65,13 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.imp</groupId>
+			<artifactId>org.eclipse.imp.pdb.values</artifactId>
+			<version>0.4.0.qualifier</version>
+		</dependency>
+	</dependencies>
 
 </project>
