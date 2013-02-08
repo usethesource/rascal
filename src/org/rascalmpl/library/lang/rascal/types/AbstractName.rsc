@@ -13,7 +13,7 @@ import List;
 import String;
 import ParseTree;
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 
 @doc{Abstract syntax for names.} 
 data RName =

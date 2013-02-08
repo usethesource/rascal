@@ -22,7 +22,7 @@ import lang::rascal::types::AbstractKind;
 import lang::rascal::types::AbstractType;
 import lang::rascal::types::ConvertType;
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 
 //
 // TODOs for this module

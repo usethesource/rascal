@@ -16,7 +16,7 @@ import List;
 import String;    
 import util::Math;
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 
 public Module treeToModule(Tree t) {
     if (Module m := t)
