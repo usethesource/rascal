@@ -9,7 +9,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module lang::rascal::grammar::definition::Productions
      
-import lang::rascal::syntax::Rascal;
+import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Attributes;

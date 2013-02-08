@@ -9,7 +9,7 @@ module lang::rascal::grammar::definition::Symbols
 
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Characters;
-import lang::rascal::syntax::Rascal;
+import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import String;
 import IO;

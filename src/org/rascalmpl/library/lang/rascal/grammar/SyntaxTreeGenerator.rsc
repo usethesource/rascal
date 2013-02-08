@@ -93,8 +93,6 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
            '<for (leaf(sn) <- sort(asts)) {>
            '  public T visit<sn>Lexical(<sn>.Lexical x);
            '<}>
-           '<for (sn <- { a.name | a <- sort(asts)}) { >
-           '  public T visit<sn>Ambiguity(<sn>.Ambiguity x);<}>
            '}";
 
   loggedWriteFile(outdir + "/IASTVisitor.java", ivisit);
@@ -112,11 +110,6 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
               '    return null; 
               '  }
               '<}>
-              '<for (sn <- {a.name | a <- sort(asts)}) {>
-              '  public T visit<sn>Ambiguity(<sn>.Ambiguity x) { 
-              '    return null; 
-              '  }
-              '<}>
               '}";
 
    loggedWriteFile(outdir + "/NullASTVisitor.java", nullVisit);
@@ -124,7 +117,7 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
 
 public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   for (a <- sort(asts)) {
-     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor", "org.rascalmpl.interpreter.asserts.Ambiguous","org.eclipse.imp.pdb.facts.IValue","org.rascalmpl.interpreter.IEvaluator","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.result.Result"], a); 
+     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor", "org.rascalmpl.interpreter.asserts.Ambiguous","org.rascalmpl.interpreter.IEvaluator","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.result.Result"], a); 
      loggedWriteFile(outdir + "/<a.name>.java", class); 
   }
 }
@@ -149,8 +142,6 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          '  public <typ> get<clabel>() {
          '    throw new UnsupportedOperationException();
          '  }<}>
-         '
-         '  <ambiguityClass(pkg, ast.name)>
          '
          '  <if (leaf(_) := ast) {><lexicalClass(ast.name)><}>
          '
@@ -194,48 +185,6 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '  }<}>	
          '}";
 }
-
-public str ambiguityClass(str pkg, str name) {
-  return "static public class Ambiguity extends <name> {
-         '  private final java.util.List\<<pkg>.<name>\> alternatives;
-         '  private final IConstructor node;
-         
-         '  public Ambiguity(IConstructor node, java.util.List\<<pkg>.<name>\> alternatives) {
-         '    super(node);
-         '    this.node = node;
-         '    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         '  }
-         '  
-         '  @Override
-         '  public IConstructor getTree() {
-         '    return node;
-         '  }
-         '
-         '  @Override
-         '  public AbstractAST findNode(int offset) {
-         '    return null;
-         '  }
-         '
-         '  @Override
-         '  public Result\<IValue\> interpret(IEvaluator\<Result\<IValue\>\> __eval) {
-         '    throw new Ambiguous(src);
-         '  }
-         '    
-         '  @Override
-         '  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-         '    throw new Ambiguous(src);
-         '  }
-         '  
-         '  public java.util.List\<<pkg>.<name>\> getAlternatives() {
-         '    return alternatives;
-         '  }
-         '  
-         '  public \<T\> T accept(IASTVisitor\<T\> v) {
-         '  	return v.visit<name>Ambiguity(this);
-         '  }
-         '}";
-}
-
 
 public str lexicalClass(str name) {
   return "static public class Lexical extends <name> {

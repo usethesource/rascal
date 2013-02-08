@@ -17,11 +17,6 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Concrete extends AbstractAST {
   public Concrete(IConstructor node) {
@@ -29,85 +24,32 @@ public abstract class Concrete extends AbstractAST {
   }
 
   
-  public boolean hasParts() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.ConcretePart> getParts() {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean hasSymbol() {
-    return false;
-  }
-
-  public Sym getSymbol() {
-    throw new UnsupportedOperationException();
-  }
 
   static public class Lexical extends Concrete {
-    private final java.lang.String string;
-    public Lexical(IConstructor node, java.lang.String string) {
-      super(node);
-      this.string = string;
-    }
-    public java.lang.String getString() {
-      return string;
-    }
-
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      return null;
-    }
-
-    public java.lang.String toString() {
-      return string;
-    }
-    public <T> T accept(IASTVisitor<T> v) {
-      throw new UnsupportedOperationException();
-    }
+  private final java.lang.String string;
+  public Lexical(IConstructor node, java.lang.String string) {
+    super(node);
+    this.string = string;
   }
-    
-  static public class Ambiguity extends Concrete {
-    private final java.util.List<org.rascalmpl.ast.Concrete> alternatives;
-    private final IConstructor node;
-           
-    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Concrete> alternatives) {
-      super(node);
-      this.node = node;
-      this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-    }
-    
-    @Override
-    public IConstructor getTree() {
-      return node;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      return null;
-    }
-  
-    @Override
-    public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-      throw new Ambiguous(src);
-    }
-      
-    @Override
-    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(src);
-    }
-    
-    public java.util.List<org.rascalmpl.ast.Concrete> getAlternatives() {
-      return alternatives;
-    } 
-    
-    public <T> T accept(IASTVisitor<T> v) {
-    	 throw new UnsupportedOperationException();
-    }
+  public java.lang.String getString() {
+    return string;
   }
 
+  @Override
+  public AbstractAST findNode(int offset) {
+    if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
+      return this;
+    }
+    return null;
+  }
+
+  public java.lang.String toString() {
+    return string;
+  }
+  public <T> T accept(IASTVisitor<T> v) {
+    return v.visitConcreteLexical(this);
+  }
+}
+
+  
 }

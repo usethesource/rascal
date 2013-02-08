@@ -8,10 +8,10 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::rascal::grammar::definition::Modules
 
-import lang::rascal::syntax::Rascal;
+import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Layout;
-import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::definition::Literals; 
 import lang::rascal::grammar::definition::Names;
 import Grammar;
 import Set;
