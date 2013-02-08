@@ -39,7 +39,6 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
@@ -64,7 +63,6 @@ public class ModuleEnvironment extends Environment {
 	protected final GlobalEnvironment heap;
 	protected Set<String> importedModules;
 	protected Set<String> extended;
-	protected Set<String> haveExtended;
 	protected TypeStore typeStore;
 	protected Set<IValue> productions;
 	protected Map<String, NonTerminalType> concreteSyntaxTypes;
@@ -123,8 +121,52 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = false;
 		this.bootstrap = false;
 		this.extended = new HashSet<String>();
-		this.haveExtended = new HashSet<String>();
 		this.deprecated = null;
+	}
+	
+	public void extend(ModuleEnvironment other) {
+	  super.extend(other);
+	  
+	  if (other.importedModules != null) {
+	    if (this.importedModules == null) {
+	      this.importedModules = new HashSet<String>();
+	    }
+	    this.importedModules.addAll(other.importedModules);
+	  }
+	  
+	  if (other.concreteSyntaxTypes != null) {
+	    if (this.concreteSyntaxTypes == null) {
+	      this.concreteSyntaxTypes = new HashMap<String,NonTerminalType>();
+	    }
+	    this.concreteSyntaxTypes.putAll(other.concreteSyntaxTypes);
+	  }
+	  
+	  if (other.typeStore != null) {
+	    if (this.typeStore == null) {
+	      this.typeStore = new TypeStore();
+	    }
+	    this.typeStore.extendStore(other.typeStore);
+	  }
+	  
+	  if (other.productions != null) {
+	    if (this.productions == null) {
+	      this.productions = new HashSet<IValue>();
+	    }
+	    this.productions.addAll(other.productions);
+	  }
+	  
+	  if (other.extended != null) {
+	    if (this.extended == null) {
+	      this.extended = new HashSet<String>();
+	    }
+	    this.extended.addAll(other.extended);
+	  }
+	  
+	  this.initialized &= other.initialized;
+	  this.syntaxDefined |= other.syntaxDefined;
+	  this.bootstrap |= other.bootstrap;
+	  
+	  addExtend(other.getName());
 	}
 	
 	@Override
@@ -140,10 +182,8 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = val;
 	}
 	
-	@SuppressWarnings("deprecation")
-	@Override
-	public void declareProduction(SyntaxDefinition x) {
-		productions.add(x.getTree());
+	public void declareProduction(IConstructor sd) {
+	  productions.add(sd);
 	}
 	
 	public boolean definesSyntax() {
@@ -260,21 +300,6 @@ public class ModuleEnvironment extends Environment {
 			extended = new HashSet<String>();
 		}
 		extended.add(name);
-	}
-	
-	// register that this module has been extended with the named module (extension has executed)
-	public void haveExtended(String name) {
-		if (haveExtended == null) {
-			haveExtended = new HashSet<String>();
-		}
-		haveExtended.add(name);
-	}
-	
-	public boolean hasExtended(String name) {
-		if (haveExtended != null) {
-			return haveExtended.contains(name);
-		}
-		return false;
 	}
 	
 	public List<AbstractFunction> getTests() {

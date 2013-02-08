@@ -158,11 +158,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		}
 
 		public IValue get(int i) throws IndexOutOfBoundsException {
-			IConstructor arg = (IConstructor) subjectArgs.get(i);
-//			if (TreeAdapter.isList(arg)) {
-//				return TreeAdapter.getArgs(arg);
-//			}
-			return arg;
+			return subjectArgs.get(i);
 		}
 	}
 	
@@ -204,10 +200,6 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	
 	@Override
 	public boolean hasNext() {
-		if (!hasNext) {
-			return false;
-		}
-		
 		if (!isLiteral) {
 			return tupleMatcher.hasNext();
 		}
@@ -234,5 +226,10 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	public Type getType(Environment env,
 			HashMap<String, IVarPattern> patternVars) {
 		return myType;
+	}
+	
+	@Override
+	public String toString() {
+	  return production.toString();
 	}
 }

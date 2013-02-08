@@ -13,7 +13,6 @@ package org.rascalmpl.interpreter.utils;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.TypeArg;
