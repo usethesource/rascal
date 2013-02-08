@@ -136,10 +136,10 @@ public abstract class AbstractAST implements IVisitable {
 	@Override
 	@Deprecated
 	/**
-	 * @deprecated YOU SHOULD NOT USE THIS METHOD. Use {@link Names}.
+	 * @deprecated YOU SHOULD NOT USE THIS METHOD for user information. Use {@link Names}.
 	 */
 	public String toString() {
-		throw new UnsupportedOperationException("This method was deprecated a while ago");
+		return "AST debug info: " + getClass().getName() + " at " + src;
 	}
 
 	public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
