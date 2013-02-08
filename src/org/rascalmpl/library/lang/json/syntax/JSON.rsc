@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
-module lang::json::syntax::JSON
+module lang::json::\syntax::JSON
 
 /* This JSON parser is based on the JSON grammar found in RFC4627.
    http://www.ietf.org/rfc/rfc4627

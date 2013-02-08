@@ -29,7 +29,7 @@ import lang::rascal::checker::Annotations;
 import lang::rascal::scoping::SymbolTable;
 import lang::rascal::scoping::ScopedTypes;
 
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::\syntax::RascalRascal;
 
 // 
 // TODOs

@@ -1,4 +1,4 @@
-module lang::uri::syntax::RFC3986
+module lang::uri::\syntax::RFC3986
 
 start syntax Top = URI;
 
