@@ -14,5 +14,5 @@ import org.rascalmpl.test.infrastructure.RascalJUnitTestPrefix;
 import org.rascalmpl.test.infrastructure.RascalJUnitTestRunner;
 
 @RunWith(RascalJUnitTestRunner.class)
-@RascalJUnitTestPrefix("lang::rascal::syntax::tests")
+@RascalJUnitTestPrefix("lang::rascal::\\syntax::tests")
 public class RunRascalSyntaxTestModules { }

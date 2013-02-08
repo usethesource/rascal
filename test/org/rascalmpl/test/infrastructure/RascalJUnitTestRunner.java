@@ -69,7 +69,8 @@ public class RascalJUnitTestRunner extends Runner {
 	}
 	
 	public RascalJUnitTestRunner(String prefix) {
-		this.prefix = prefix;
+	  // remove all the escapes (for example in 'lang::rascal::\syntax')
+		this.prefix = prefix.replaceAll("\\", " ").replaceAll(" ","");
 	}
 	
 	static protected String computeTestName(String name, ISourceLocation loc) {
