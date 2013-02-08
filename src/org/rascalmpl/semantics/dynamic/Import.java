@@ -196,7 +196,7 @@ public abstract class Import {
 		}
 	}
 
-	protected static void importModule(String name, ISourceLocation src, IEvaluator<Result<IValue>> eval) {
+	public static void importModule(String name, ISourceLocation src, IEvaluator<Result<IValue>> eval) {
 		GlobalEnvironment heap = eval.__getHeap();
 		
 		if (!heap.existsModule(name)) {
