@@ -1,7 +1,7 @@
 module lang::dimacs::IO
 
 import lang::logic::Propositions;
-import lang::dimacs::syntax::Dimacs;
+import lang::dimacs::\syntax::Dimacs;
 
 /*
 c A sample .cnf file.

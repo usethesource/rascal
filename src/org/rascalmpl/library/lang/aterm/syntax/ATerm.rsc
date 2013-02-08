@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen Vinju - Jurgen.Vinju@cwi.nl}
-module lang::aterm::syntax::ATerm
+module lang::aterm::\syntax::ATerm
 
 syntax AFun = Quoted: StrCon |
               Unquoted: IdCon

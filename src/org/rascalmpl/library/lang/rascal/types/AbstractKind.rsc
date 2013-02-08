@@ -11,7 +11,7 @@ module lang::rascal::types::AbstractKind
 
 import ParseTree;
 import Type;
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::\syntax::RascalRascal;
 
 @doc{Kinds of tags}
 data TagKind 

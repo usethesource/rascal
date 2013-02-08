@@ -24,7 +24,7 @@ import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 import lang::rascal::types::TypeSignature;
 
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::\syntax::RascalRascal;
 
 //
 // Rascal Namespaces. Rascal has separate namespaces for modules, labels,

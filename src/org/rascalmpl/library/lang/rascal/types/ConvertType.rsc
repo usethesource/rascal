@@ -26,7 +26,7 @@ import IO;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::\syntax::RascalRascal;
 
 @doc{Annotations for adding error and warning information to types}
 anno set[Message] Symbol@errinfo;
