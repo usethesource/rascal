@@ -13,7 +13,7 @@ import lang::box::util::Box;
 import IO;
 import List;
 
-import lang::box::syntax::Box;
+import lang::box::\syntax::Box;
 
 /*
 alias UserDefinedFilter = Box(Tree t) ;

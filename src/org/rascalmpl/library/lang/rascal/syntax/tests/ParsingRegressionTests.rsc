@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-module lang::rascal::syntax::tests::ParsingRegressionTests
+module lang::rascal::\syntax::tests::ParsingRegressionTests
 
 import util::Reflective;
 import IO;
