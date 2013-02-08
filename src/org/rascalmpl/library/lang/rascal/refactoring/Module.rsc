@@ -8,7 +8,7 @@
 @bootstrapParser
 module lang::rascal::refactoring::Module
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 
 public Module renameModule(Module m, str new) {
    if ((QualifiedName) `<{Name "::"}* prefix>::<Name _>` := m.header.name) {
