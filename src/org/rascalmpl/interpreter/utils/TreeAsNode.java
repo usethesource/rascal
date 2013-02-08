@@ -120,4 +120,33 @@ public class TreeAsNode implements INode {
       IndexOutOfBoundsException {
     throw new UnsupportedOperationException();
   }
+
+@Override
+public IValue getKeywordArgumentValue(String name) {
+	throw new UnsupportedOperationException();
+}
+
+@Override
+public boolean hasKeywordArguments() {
+	// TODO Auto-generated method stub
+	return false;
+}
+
+@Override
+public String[] getKeywordArgumentNames() {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public int getKeywordIndex(String name) {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+@Override
+public int positionalArity() {
+	// TODO Auto-generated method stub
+	return 0;
+}
 }
