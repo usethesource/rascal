@@ -149,10 +149,14 @@ public class ResultFactory {
 		
 		@Override
 		public Result<? extends IValue> visitListRelationType(Type type) {
-			if (value != null && !(value instanceof IListRelation)) {
+			if (value != null && !type.getElementType().isVoidType() && !(value instanceof IListRelation)) {
 				throw new ImplementationError("somehow a list relation value turned into a list, but its type did not change with it", ctx.getCurrentAST().getLocation());
 			}
-			return new ListRelationResult(declaredType, (IListRelation)value, ctx);
+			if(value instanceof IListRelation){
+				return new ListRelationResult(declaredType, (IListRelation)value, ctx);
+			} else {
+				return new ListResult(declaredType, (IList)value, ctx);
+			}
 		}
 
 		public SetOrRelationResult<ISet> visitSet(Type type) {

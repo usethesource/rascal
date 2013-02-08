@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.test.library;
 
@@ -150,5 +151,11 @@ public class MapTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("toString(()) == \"()\";"));
 		assertTrue(runTestInSameEvaluator("toString((1:10)) == \"(1:10)\";"));
 	}
+	
+	@Test
+	public void mapExpressions() {
+		assertTrue(runTest("{ value n = 1; value s = \"string\"; map[int, int] _ := ( n : n ) && map[str, str] _ := ( s : s ) && map[int, str] _ := ( n : s ); }"));
+	}
+
 
 }

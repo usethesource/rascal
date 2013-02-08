@@ -45,6 +45,44 @@ public class TreeAdapter {
 		return tree.getConstructorType() == Factory.Tree_Appl;
 	}
 
+	private static int findLabelPosition(IConstructor tree, String label) {
+	  if (!TreeAdapter.isAppl(tree)) {
+      throw new ImplementationError("can not call getArg on a non-tree");
+    }
+    
+    IConstructor prod = TreeAdapter.getProduction(tree);
+
+    if (!ProductionAdapter.isDefault(prod)) {
+      return -1;
+    }
+    
+    IList syms = ProductionAdapter.getSymbols(prod);
+
+    for (int i = 0; i < syms.length(); i++) {
+      IConstructor sym = (IConstructor) syms.get(i);
+
+      while (SymbolAdapter.isConditional(sym)) {
+        sym = SymbolAdapter.getSymbol(sym);
+      }
+
+      if (SymbolAdapter.isLabel(sym)) {
+        if (SymbolAdapter.getLabel(sym).equals(label)) {
+          return i;
+        }
+      }
+    }
+    
+    return -1;
+	}
+	
+	public static IConstructor getArg(IConstructor tree, String label) {
+	  return (IConstructor) getArgs(tree).get(findLabelPosition(tree, label));
+	}
+	
+	public static IConstructor setArg(IConstructor tree, String label, IConstructor newArg) {
+	  return setArgs(tree, getArgs(tree).put(findLabelPosition(tree, label), newArg));
+	}
+	
 	public static boolean isAmb(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Amb;
 	}
@@ -132,6 +170,14 @@ public class TreeAdapter {
 
 		throw new ImplementationError("Node has no args: " + tree.getName());
 	}		
+	
+	public static IConstructor setProduction(IConstructor tree, IConstructor prod) {
+    if (isAppl(tree)) {
+      return tree.set("prod", prod);
+    }
+
+    throw new ImplementationError("Node has no args: " + tree.getName());
+  } 
 	
 	public static boolean isLiteral(IConstructor tree) {
 		return isAppl(tree) ? ProductionAdapter.isLiteral(getProduction(tree))
@@ -586,4 +632,8 @@ public class TreeAdapter {
 	public static IConstructor getCycleType(IConstructor tree) {
 		return (IConstructor) tree.get("symbol");
 	}
+
+  public static IConstructor getStartTop(IConstructor prefix) {
+    return (IConstructor) getArgs(prefix).get(1);
+  }
 }
