@@ -1048,7 +1048,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IRascalMonitor old = setMonitor(monitor);
 		interrupt = false;
 		try {
-			eval("import " + string + ";", URIUtil.rootScheme("import"));
+		  ISourceLocation uri = vf.sourceLocation(URIUtil.rootScheme("import"));
+      org.rascalmpl.semantics.dynamic.Import.importModule(string, uri, this);
 		}
 		finally {
 			setMonitor(old);

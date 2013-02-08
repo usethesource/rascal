@@ -83,7 +83,7 @@ public class RascalJUnitTestRunner extends Runner {
 		this.desc = desc;
 		
 		try {
-			String[] modules = evaluator.getResolverRegistry().listEntries(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/").replaceAll("\\\\", "")));
+			String[] modules = evaluator.getResolverRegistry().listEntries(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/")));
 			
 			for (String module : modules) {
 				if (!module.endsWith(".rsc")) {
