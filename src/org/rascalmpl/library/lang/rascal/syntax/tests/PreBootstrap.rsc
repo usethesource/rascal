@@ -1,7 +1,7 @@
 @bootstrapParser
-module lang::rascal::tests::PreBootstrap
+module lang::rascal::\syntax::tests::PreBootstrap
 
-import lang::rascal::syntax::Rascal;
+import lang::rascal::\syntax::Rascal;
 
 public test bool expr() = Expression y := (Expression) `1`;
 public test bool lit() = (Sym) `<CaseInsensitiveStringConstant l>` :=  (Sym) `'hello'`;

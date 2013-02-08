@@ -7,7 +7,7 @@
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module lang::box::util::Parse
-import lang::box::syntax::Box;
+import lang::box::\syntax::Box;
 import lang::box::util::Box;
 // import lang::box::util::BoxFormat;
 import lang::box::util::Concrete;

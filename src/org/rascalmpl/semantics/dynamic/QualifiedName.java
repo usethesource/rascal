@@ -82,7 +82,8 @@ public abstract class QualifiedName extends org.rascalmpl.ast.QualifiedName {
 				Iterator<Name> iter = prefix.iterator();
 
 				while (iter.hasNext()) {
-					tmp.append(((Name.Lexical) iter.next()).getString());
+					String part = Names.name(iter.next());
+          tmp.append(part);
 					if (iter.hasNext()) {
 						tmp.append("::");
 					}
