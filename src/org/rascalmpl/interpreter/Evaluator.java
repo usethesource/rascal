@@ -1463,8 +1463,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     
       char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
       
-      getStdOut().println("Parsing: [" + Arrays.toString(input) + "]");
-      
       IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri, input, converter, nodeFactory);
       fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
 
