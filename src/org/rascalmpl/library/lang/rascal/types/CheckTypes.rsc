@@ -119,7 +119,11 @@ import lang::rascal::syntax::RascalRascal;
 //     them to enforce they are constructors for runtime exception.
 //
 // 25. Need to account for default functions and constructors which have the same signature,
-//     this is allowed, and we give precedence to the function
+//     this is allowed, and we give precedence to the function DONE
+//
+// 25a. We should mark a function with the same signature and name as a constructor but with
+//      a different return type as an error. This is currently being done at the point of use,
+//      but should be done at the point of definition.
 //
 // 26. Need to pre-populate the type and name environments with the constructors for
 //     reified types, since we get these back if someone uses #type.
@@ -177,6 +181,9 @@ data AbstractValue
     | blockScope(int containedIn, loc at) 
     ;
 
+data LabelStackItem = labelStackItem(RName labelName, LabelSource labelSource, Symbol labelType);
+data Timing = timing(str tmsg,datetime tstart,datetime tend);
+
 @doc{Configurations provide the state used during evaluation.}
 data Configuration = config(set[Message] messages, 
                             map[loc,Symbol] locationTypes, 
@@ -195,15 +202,17 @@ data Configuration = config(set[Message] messages,
                             rel[int,loc] uses,
                             rel[int,int] adtConstructors,
                             list[int] stack,
-                            list[tuple[RName labelName,LabelSource labelSource,Symbol labelType]] labelStack,
-                            list[tuple[str tmsg,datetime tstart,datetime tend]] timings,
+                            list[LabelStackItem] labelStack,
+                            list[Timing] timings,
                             int nextLoc,
                             int uniqueify
                            );
 
 public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},{},{},{},[],[],[],0,0);
 
-public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + <m,s,e>];
+public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
+
+public set[&T] filterSet(set[&T] xs, bool (&T) f) = { x | x <- xs, f(x) };
 
 @doc{Add a new location type.}
 public CheckResult markLocationType(Configuration c, loc l, Symbol t) {
@@ -762,9 +771,9 @@ public CheckResult checkExp(Expression exp:(Expression)`<Label l> <Visit v>`, Co
         labelName = convertName(n);
         if (labelExists(cVisit,labelName)) cVisit = addMessage(cVisit,error("Cannot reuse label names: <n>", l@\loc));
         cVisit = addLabel(cVisit,labelName,l@\loc,visitLabel());
-        cVisit.labelStack = < labelName, visitLabel(), \void() > + cVisit.labelStack;
+        cVisit.labelStack = labelStackItem(labelName, visitLabel(), \void()) + cVisit.labelStack;
     } else {
-        cVisit.labelStack = < RSimpleName(""), visitLabel(), \void() > + cVisit.labelStack;
+        cVisit.labelStack = labelStackItem(RSimpleName(""), visitLabel(), \void()) + cVisit.labelStack;
     }
     
     < cVisit, vt > = checkVisit(v,cVisit);
@@ -877,57 +886,46 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     if (size(failures) > 0)
         return markLocationFailed(c, exp@\loc, failures);
     
-    tuple[set[Symbol] matches, set[str] failures] matchAlts(set[Symbol] alts) {
+    tuple[set[Symbol] matches, set[str] failures] matchFunctionAlts(set[Symbol] alts) {
         set[Symbol] matches = { };
         set[str] failureReasons = { };
-        for (a <- alts) {
-            if (isFunctionType(a)) {
-                list[Symbol] args = getFunctionArgumentTypes(a);
-                // NOTE: We cannot assume the annotation is set, since we only set it when we add a
-                // function (and have the info available); we don't have the information when we only
-                // have a function type, such as with a function parameter.
-                bool varArgs = ( ((a@isVarArgs)?) ? a@isVarArgs : false );
-                if (!varArgs) {
-                    if (size(epsList) == size(args) && size(epsList) == 0) {
-                        matches += a;
-                    } else if (size(epsList) == size(args) && all(idx <- index(epsList), subtype(tl[idx],args[idx]))) {
+        for (a <- alts, isFunctionType(a)) {
+            list[Symbol] args = getFunctionArgumentTypes(a);
+            // NOTE: We cannot assume the annotation is set, since we only set it when we add a
+            // function (and have the info available); we don't have the information when we only
+            // have a function type, such as with a function parameter.
+            bool varArgs = ( ((a@isVarArgs)?) ? a@isVarArgs : false );
+            if (!varArgs) {
+                if (size(epsList) == size(args) && size(epsList) == 0) {
+                    matches += a;
+                } else if (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | (idx <- index(epsList)) }) {
+                    matches += a;
+                } else {
+                    failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                }
+            } else {
+                if (size(epsList) >= size(args)-1) {
+                    if (size(epsList) == 0) {
                         matches += a;
                     } else {
-                        failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
-                    }
-                } else {
-                    if (size(epsList) >= size(args)-1) {
-                        if (size(epsList) == 0) {
-                            matches += a;
-                        } else {
-                            list[Symbol] fixedPart = head(tl,size(args)-1);
-                            list[Symbol] varPart = tail(tl,size(tl)-size(args)+1);
-                            list[Symbol] fixedArgs = head(args,size(args)-1);
-                            Symbol varArgsType = getListElementType(last(args));
-                            if (size(fixedPart) == 0 || all(idx <- index(fixedPart), subtype(fixedPart[idx],fixedArgs[idx]))) {
-                                if (size(varPart) == 0) {
-                                    matches += a;
-                                } else if (size(varPart) == 1 && subtype(varPart[0],last(args))) {
-                                    matches += a;
-                                } else if (all(idx2 <- index(varPart),subtype(varPart[idx2],varArgsType))) {
-                                    matches += a;
-                                } else {
-                                    failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
-                                }
+                        list[Symbol] fixedPart = head(tl,size(args)-1);
+                        list[Symbol] varPart = tail(tl,size(tl)-size(args)+1);
+                        list[Symbol] fixedArgs = head(args,size(args)-1);
+                        Symbol varArgsType = getListElementType(last(args));
+                        if (size(fixedPart) == 0 || all(idx <- index(fixedPart), subtype(fixedPart[idx],fixedArgs[idx]))) {
+                            if (size(varPart) == 0) {
+                                matches += a;
+                            } else if (size(varPart) == 1 && subtype(varPart[0],last(args))) {
+                                matches += a;
+                            } else if (all(idx2 <- index(varPart),subtype(varPart[idx2],varArgsType))) {
+                                matches += a;
                             } else {
                                 failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
                             }
+                        } else {
+                            failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
                         }
                     }
-                }
-            } else if (isConstructorType(a)) {
-                list[Symbol] args = getConstructorArgumentTypes(a);
-                if (size(epsList) == size(args) && size(epsList) == 0) {
-                    matches += a;
-                } else if (size(epsList) == size(args) && all(idx <- index(epsList), subtype(tl[idx],args[idx]))) {
-                    matches += a;
-                } else {
-                    failureReasons += "Constructor of type <prettyPrintType(a)> cannot be built with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
                 }
             }
         }
@@ -937,108 +935,173 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         return < matches, failureReasons >;
     }
     
+   tuple[set[Symbol] matches, set[str] failures] matchConstructorAlts(set[Symbol] alts) {
+        set[Symbol] matches = { };
+        set[str] failureReasons = { };
+        for (a <- alts, isConstructorType(a)) {
+            list[Symbol] args = getConstructorArgumentTypes(a);
+            if (size(epsList) == size(args) && size(epsList) == 0) {
+                matches += a;
+            } else if (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) {
+                matches += a;
+            } else {
+                failureReasons += "Constructor of type <prettyPrintType(a)> cannot be built with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+            }
+        }
+        // TODO: Here would be a good place to filter out constructors that are "masked" by functions with the
+        // same name and signature. We already naturally mask function declarations by using a set, but we do
+        // need to keep track there of possible matching IDs so we can link things up correctly.
+        return < matches, failureReasons >;
+    }
+        
     // e was either a name or an expression that evaluated to a function, a constructor,
     // a source location, or a string
     if (isFunctionType(t1) || isConstructorType(t1) || isOverloadedType(t1)) {
         set[Symbol] alts = (isFunctionType(t1) || isConstructorType(t1)) ? { t1 } : getOverloadOptions(t1);
-        < matches, failureReasons > = matchAlts(alts);
-        if (size(matches) == 0) {
-            return markLocationFailed(c,exp@\loc,{makeFailType(reason,exp@\loc) | reason <- failureReasons});
-        } else if (size(matches) > 1) {
-            return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions or constructors found which could be applied",exp@\loc));
-        } else {
-            rt = getOneFrom(matches);
-            if (isFunctionType(rt)) {
-                if (typeContainsTypeVars(rt)) {
-                    // If the function is parametric, we need to calculate the actual types of the
-                    // parameters and make sure they fall within the proper bounds.
-                    formalArgs = getFunctionArgumentTypes(rt);
-                    bool varArgs = ( ((rt@isVarArgs)?) ? rt@isVarArgs : false );
-                    set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
-                    map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
-                    
-                    bool cannotInstantiate = false;
-                    if (!varArgs) {
-                        // First try to get the bindings between the type vars and the actual types for each of the
-                        // function parameters. Here this is not a varargs function, so there are the same number of
-                        // formals as actuals.
-                        for (idx <- index(tl)) {
-                            try {
-                                bindings = match(formalArgs[idx],tl[idx],bindings);
-                            } catch : {
-                                c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
-                                cannotInstantiate = true;  
-                            }
-                        }
-                    } else {
-                        // Get the bindings between the type vars and the actual types for each function parameter. Since
-                        // this is a var-args function, we need to take that into account. The first for loop takes care
-                        // of the fixes parameters, while the second takes care of those that are mapped to the var-args
-                        // parameter.
-                        for (idx <- index(tl), idx < size(formalArgs)) {
-                            try {
-                                bindings = match(formalArgs[idx],tl[idx],bindings);
-                            } catch : {
-                                c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
-                                cannotInstantiate = true;  
-                            }
-                        }
-                        for (idx <- index(tl), idx >= size(formalArgs)) {
-                            try {
-                                bindings = match(getListElementType(formalArgs[size(formalArgs)-1]),tl[idx],bindings);
-                            } catch : {
-                                c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(getListElementType(formalArgs[size(formalArgs)-1]))>", epsList[idx]@\loc);
-                                cannotInstantiate = true;  
-                            }
-                        }
-                    }
-                    // Based on the above, either give an error message (if we could not match the function's parameter types) or
-                    // try to instantiate the entire function type. The instantiation should only fail if we cannot instantiate
-                    // the return type correctly, for instance if the instantiation would violate the bounds.
-                    // NOTE: We may instantiate and still have type parameters, since we may be calling this from inside
-                    // a function, using a value with a type parameter as its type.
-                    if (cannotInstantiate) {
-                        return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in function invocation", exp@\loc));
-                    } else {
-                        try {
-                            rt = instantiate(rt, bindings);
-                        } catch : {
-                            return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in function invocation", exp@\loc));
-                        }
-                    }
-                } 
-                < c, rtp > = markLocationType(c,e@\loc,rt);
-                return markLocationType(c,exp@\loc,getFunctionReturnType(rt));
-            } else {
-                if (typeContainsTypeVars(rt)) {
-                    // If the constructor is parametric, we need to calculate the actual types of the
-                    // parameters and make sure they fall within the proper bounds.
-                    formalArgs = getConstructorArgumentTypes(rt);
-                    set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
-                    map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
-                    bool cannotInstantiate = false;
+        < functionMatches, functionFailureReasons > = matchFunctionAlts(alts);
+        < constructorMatches, constructorFailureReasons > = matchConstructorAlts(alts);
+        
+        if (size(functionMatches) == 0 && size(constructorMatches) == 0) {
+            return markLocationFailed(c,exp@\loc,{makeFailType(reason,exp@\loc) | reason <- (functionFailureReasons + constructorFailureReasons)});
+        } else if (size(functionMatches) > 1 && size(constructorMatches) > 1) {
+            return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions and constructors found which could be applied",exp@\loc));
+        } else if (size(functionMatches) > 1 ) {
+            return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions found which could be applied",exp@\loc));
+        } else if (size(constructorMatches) > 1) {
+            return markLocationFailed(c,exp@\loc,makeFailType("Multiple constructors found which could be applied",exp@\loc));
+        } 
+        
+        set[Symbol] finalMatches = { };
+        bool cannotInstantiateFunction = false;
+        bool cannotInstantiateConstructor = false;
+        
+        if (size(functionMatches) == 1) {
+            rt = getOneFrom(functionMatches);
+            if (typeContainsTypeVars(rt)) {
+                // If the function is parametric, we need to calculate the actual types of the
+                // parameters and make sure they fall within the proper bounds.
+                formalArgs = getFunctionArgumentTypes(rt);
+                bool varArgs = ( ((rt@isVarArgs)?) ? rt@isVarArgs : false );
+                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
+                map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
+                
+                if (!varArgs) {
+                    // First try to get the bindings between the type vars and the actual types for each of the
+                    // function parameters. Here this is not a varargs function, so there are the same number of
+                    // formals as actuals.
                     for (idx <- index(tl)) {
                         try {
                             bindings = match(formalArgs[idx],tl[idx],bindings);
                         } catch : {
                             c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
-                            cannotInstantiate = true;  
+                            cannotInstantiateFunction = true;  
                         }
                     }
-                    if (cannotInstantiate) {
-                        return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in constructor", exp@\loc));
-                    } else {
+                } else {
+                    // Get the bindings between the type vars and the actual types for each function parameter. Since
+                    // this is a var-args function, we need to take that into account. The first for loop takes care
+                    // of the fixes parameters, while the second takes care of those that are mapped to the var-args
+                    // parameter.
+                    for (idx <- index(tl), idx < size(formalArgs)) {
                         try {
-                            rt = instantiate(rt, bindings);
+                            bindings = match(formalArgs[idx],tl[idx],bindings);
                         } catch : {
-                            return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in constructor", exp@\loc));
+                            c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
+                            cannotInstantiateFunction = true;  
+                        }
+                    }
+                    for (idx <- index(tl), idx >= size(formalArgs)) {
+                        try {
+                            bindings = match(getListElementType(formalArgs[size(formalArgs)-1]),tl[idx],bindings);
+                        } catch : {
+                            c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(getListElementType(formalArgs[size(formalArgs)-1]))>", epsList[idx]@\loc);
+                            cannotInstantiateFunction = true;  
                         }
                     }
                 }
-                < c, rtp > = markLocationType(c,e@\loc,rt);
-                return markLocationType(c,exp@\loc,getConstructorResultType(rt));
-            }       
+                // Based on the above, either give an error message (if we could not match the function's parameter types) or
+                // try to instantiate the entire function type. The instantiation should only fail if we cannot instantiate
+                // the return type correctly, for instance if the instantiation would violate the bounds.
+                // NOTE: We may instantiate and still have type parameters, since we may be calling this from inside
+                // a function, using a value with a type parameter as its type.
+                if (!cannotInstantiateFunction) {
+                    try {
+                        rt = instantiate(rt, bindings);
+                        finalMatches += rt;
+                    } catch : {
+                        cannotIstantiateFunction = true;
+                    }
+                }
+            } else {
+            	finalMatches += rt;
+            }
+		} 
+		
+		if (size(constructorMatches) == 1) {
+            rt = getOneFrom(constructorMatches);
+            if (typeContainsTypeVars(rt)) {
+                // If the constructor is parametric, we need to calculate the actual types of the
+                // parameters and make sure they fall within the proper bounds.
+                formalArgs = getConstructorArgumentTypes(rt);
+                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
+                map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
+                for (idx <- index(tl)) {
+                    try {
+                        bindings = match(formalArgs[idx],tl[idx],bindings);
+                    } catch : {
+                        c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
+                        cannotInstantiateConstructor = true;  
+                    }
+                }
+                if (!cannotInstantiateConstructor) {
+                    try {
+                        rt = instantiate(rt, bindings);
+                        finalMatches += rt;
+                    } catch : {
+                        cannotInstantiateConstructor = true;
+                    }
+                }
+            } else {
+            	finalMatches += rt;
+            }
         }
+        
+        if (cannotInstantiateFunction && cannotInstantiateConstructor) {
+        	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in function invocation and constructor", exp@\loc));
+        } else if (cannotInstantiateFunction) {
+        	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in function invocation", exp@\loc));
+        } else if (cannotInstantiateConstructor) {
+        	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in constructor", exp@\loc));
+        } else {
+        	if (size(finalMatches) == 1) {
+        		finalMatch = getOneFrom(finalMatches);
+        		if (isFunctionType(finalMatch)) {
+				    < c, rtp > = markLocationType(c,e@\loc,finalMatch);
+				    return markLocationType(c,exp@\loc,getFunctionReturnType(finalMatch));
+				} else if (isConstructorType(finalMatch)) {
+			        < c, rtp > = markLocationType(c,e@\loc,finalMatch);
+			        return markLocationType(c,exp@\loc,getConstructorResultType(finalMatch));
+				}
+			} else {
+				// Make sure the function and constructor variants have the same return type, else we
+				// have a conflict.
+				functionVariant = getOneFrom(filterSet(finalMatches, isFunctionType));
+				constructorVariant = getOneFrom(filterSet(finalMatches, isConstructorType));
+				if (equivalent(getFunctionReturnType(functionVariant),getConstructorResultType(constructorVariant))) {
+					finalType = makeOverloadedType(finalMatches);
+				    < c, rtp > = markLocationType(c,e@\loc,finalType);
+				    return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
+				} else {
+					// TODO: This should also result in an error on the function
+					// declaration, since we should not have a function with the same name
+					// and parameters but a different return type
+					println("WARNING: call at <e@\loc> uses a function with a bad return type");
+				    < c, rtp > = markLocationType(c,e@\loc,constructorVariant);
+				    return markLocationType(c,exp@\loc,getConstructorResultType(constructorVariant));
+				}
+			}
+        }
+        
     } else if (isLocType(t1)) {
         if (size(tl) == 4) {
             // We are expecting a signature of int, int, tuple[int,int], tuple[int,int], make sure we got it
@@ -1105,8 +1168,7 @@ public CheckResult checkExp(Expression exp:(Expression)`any ( <{Expression ","}+
         } 
     }
     
-    // Then, exit the boolean scope, which discards any of the names
-    // bound inside.
+    // Then, exit the boolean scope, which discards any of the names bound inside.
     c = exitBooleanScope(cAny, c);
     
     if (size(failures) > 0) return markLocationFailed(c, exp@\loc, collapseFailTypes(failures));
@@ -1253,6 +1315,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
     list[Symbol] tl = [ ];
     set[Symbol] failures = { };
     < c, t1 > = checkExp(e, c);
+    eslist = [ esi | esi <- es ];
     if (isFailType(t1)) failures = failures + t1;
     for (esi <- es) {
         // Subscripts can also use the "_" character, which means to ignore that position; we do
@@ -1271,7 +1334,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
         // the type properly, so return right away with the failures. 
         return markLocationFailed(c, exp@\loc, failures);
     }
-    if (isListType(t1)) {
+    if (isListType(t1) && !isListRelType(t1)) {
         if (size(tl) != 1)
             return markLocationFailed(c,exp@\loc,makeFailType("Expected only 1 subscript for a list expression, not <size(tl)>",exp@\loc));
         else if (!isIntType(tl[0]))
@@ -1290,6 +1353,19 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
                 return markLocationType(c,exp@\loc,\set(last(relFields)));
             else
                 return markLocationType(c,exp@\loc,\rel(tail(relFields,size(relFields)-size(tl))));
+        }
+    } else if (isListRelType(t1)) {
+        if (size(tl) >= size(getListRelFields(t1)))
+            return markLocationFailed(c,exp@\loc,makeFailType("For a list relation with arity <size(getListRelFields(t1))> you can have at most <size(getListRelFields(t1))-1> subscripts",exp@\loc));
+        else {
+            relFields = getListRelFields(t1);
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to list relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), !comparable(tl[idx],relFields[idx]) };
+            if (size(failures) > 0)
+                return markLocationFailed(c,exp@\loc,failures);
+            else if ((size(relFields) - size(tl)) == 1)
+                return markLocationType(c,exp@\loc,\set(last(relFields)));
+            else
+                return markLocationType(c,exp@\loc,\lrel(tail(relFields,size(relFields)-size(tl))));
         }
     } else if (isMapType(t1)) {
         if (size(tl) != 1)
@@ -1310,7 +1386,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("Expected only 1 subscript for a tuple expression, not <size(tl)>",exp@\loc));
         else if (!isIntType(tl[0]))
             return markLocationFailed(c,exp@\loc,makeFailType("Expected subscript of type int, not <prettyPrintType(tl[0])>",exp@\loc));
-        else
+        else if ((Expression)`<DecimalIntegerLiteral dil>` := head(eslist)) {
+        	tupleIndex = toInt("<dil>");
+        	if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(t1)))
+        		return markLocationFailed(c,exp@\loc,makeFailType("Tuple index must be between 0 and <size(getTupleFields(t1))-1>",exp@\loc));
+        	else
+        		return markLocationType(c,exp@\loc,getTupleFields(t1)[tupleIndex]);
+        } else
             return markLocationType(c,exp@\loc,lubList(getTupleFields(t1)));
     } else if (isStrType(t1)) {
         if (size(tl) != 1)
@@ -1327,8 +1409,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
 @doc{Field names and types for built-ins}
 private map[Symbol,map[str,Symbol]] fieldMap =
     ( \loc() :
-        ( "scheme" : \str(), "authority" : \str(), "host" : \str(), "path" : \str(), "parent" : \loc(),
-          "file" : \str(), "ls" : \list(\loc()), "extension" : \str(), "fragment" : \str(), 
+        ( "scheme" : \str(), "authority" : \str(), "host" : \str(), "path" : \str(), "parent" : \str(),
+          "file" : \str(), "ls" : \list(\str()), "extension" : \str(), "fragment" : \str(), 
           "query" : \str(), "user" : \str(), "port" : \int(), "length" : \int(), "offset" : \int(), 
           "begin" : \tuple([\label("line",\int()),\label("column",\int())]), 
           "end" : \tuple([\label("line",\int()),\label("column",\int())]), "uri" : \str(), "top" : \loc()
@@ -1341,7 +1423,7 @@ private map[Symbol,map[str,Symbol]] fieldMap =
         )
     );
 
-private rel[Symbol,str] writableFields = ({ \loc() } * { "uri","scheme","authority","host","path","file","parent","extension","fragment","query","user","port","length","offset","begin","end" })
+private rel[Symbol,str] writableFields = ({ \loc() } * { "uri","scheme","authority","host","path","file","parent","extension","top","fragment","query","user","port","length","offset","begin","end" })
                                        + ({ \datetime() } * { "year", "month", "day", "hour", "minute", "second", "millisecond","timezoneOffsetHours", "timezoneOffsetMinutes" });
                                        
 @doc{Check the types of Rascal expressions: Field Access (DONE)}
@@ -1374,18 +1456,39 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
             return \set(getTupleFieldType(rt, fAsString));
         else
             return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+    } else if (isListRelType(t1)) {
+        rt = getListRelElementType(t1);
+        if (tupleHasField(rt, fAsString))
+            return \list(getTupleFieldType(rt, fAsString));
+        else
+            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
     } else if (isMapType(t1)) {
         rt = getMapFieldsAsTuple(t1);
         if (tupleHasField(rt, fAsString))
             return getTupleFieldType(rt, fAsString);
         else
             return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+	} else if (isReifiedType(t1)) {
+		if (fAsString == "symbol") {
+			typeName = RSimpleName("Symbol");
+			if (typeName in c.typeEnv && isADTType(c.store[c.typeEnv[typeName]].rtype)) {
+				return c.store[c.typeEnv[typeName]].rtype;			
+			} else {
+				return makeFailType("The type of field <fAsString>, <prettyPrintName(typeName)>, is not in scope", l);
+			}
+		} else {
+			return makeFailType("Field <fAsString> does not exist on type type", l);
+		}
     } else if (isADTType(t1)) {
         adtName = RSimpleName(getADTName(t1));
-        if (<c.typeEnv[adtName],fAsString> notin c.adtFields)
-            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
-        else
-            return c.adtFields[<c.typeEnv[adtName],fAsString>];  
+        if (adtName in c.typeEnv) {
+	        if (<c.typeEnv[adtName],fAsString> notin c.adtFields)
+	            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+	        else
+	            return c.adtFields[<c.typeEnv[adtName],fAsString>];
+	    } else {
+	    	return makeFailType("Cannot compute type of field <fAsString>, user type <prettyPrintType(t1)> has not been declared", l); 
+	    }  
     } else if (isTupleType(t1)) {
         if (tupleHasField(t1, fAsString))
             return getTupleFieldType(t1, fAsString);
@@ -1430,6 +1533,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> < <{Field
     Symbol rt = \void();
     if (isRelType(t1)) {
         rt = getRelElementType(t1);
+    } else if (isListRelType(t1)) {
+    	rt = getListRelElementType(t1);
     } else if (isMapType(t1)) {
         rt = getMapFieldsAsTuple(t1);
     } else if (isTupleType(t1)) {
@@ -1438,22 +1543,28 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> < <{Field
         return markLocationFailed(c, exp@\loc, makeFailType("Type <prettyPrintType(t1)> does not allow fields", exp@\loc));
     }
     
-    // Get back the types of each of the subscripts
-    // TODO: Need to enforce uniqueness of field labels
+    // Find the field type and name for each index
     set[Symbol] failures = { };
     list[Symbol] subscripts = [ ];
+    list[str] fieldNames = [ ];
+    bool maintainFieldNames = tupleHasFieldNames(rt);
+    
     for (f <- fs) {
         if ((Field)`<IntegerLiteral il>` := f) {
             int offset = toInt("<il>");
             if (!tupleHasField(rt, offset))
                 failures += makeFailType("Field subscript <il> out of range", f@\loc);
-            else
+            else {
                 subscripts += getTupleFieldType(rt, offset);
+                if (maintainFieldNames) fieldNames += getTupleFieldName(rt, offset);
+            }
         } else if ((Field)`<Name fn>` := f) {
             if (tupleHasField(rt, "<fn>"))
                 failures += makeFailType("Field <prettyPrintName(fn)> does not exist", f@\loc);
-            else
-                subscripts += getTupleFieldType(rt, "<fn>");
+            else {
+                subscripts += getTupleFieldType(rt, fnAsString);
+                if (maintainFieldNames) fieldNames += "<fn>";
+            }
         } else {
             throw "Unhandled field case: <f>";
         }
@@ -1461,9 +1572,17 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> < <{Field
     
     if (size(failures) > 0) return markLocationFailed(c, exp@\loc, failures);
 
+	// Keep the field names if all fields are named and if we have unique names
+	if (size(subscripts) > 1 && size(subscripts) == size(fieldNames) && size(fieldNames) == size(toSet(fieldNames))) {
+		subscripts = [ \label(fieldNames[idx],subscripts[idx]) | idx <- index(subscripts) ];
+	}
+	
     if (isRelType(t1)) {
         if (size(subscripts) > 1) return markLocationType(c, exp@\loc, \rel(subscripts));
         return markLocationType(c, exp@\loc, \set(head(subscripts)));
+    } else if (isListRelType(t1)) {
+        if (size(subscripts) > 1) return markLocationType(c, exp@\loc, \lrel(subscripts));
+        return markLocationType(c, exp@\loc, \list(head(subscripts)));
     } else if (isMapType(t1)) {
         if (size(subscripts) > 1) return markLocationType(c, exp@\loc, \rel(subscripts));
         return markLocationType(c, exp@\loc, \set(head(subscripts)));
@@ -1538,7 +1657,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> has <Name
     < cHas, t1 > = checkExp(e, cHas);
     c = needNewScope ? exitBooleanScope(cHas, c) : cHas;
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
-    if (isRelType(t1) || isTupleType(t1) || isADTType(t1)) return markLocationType(c,exp@\loc,\bool());
+    if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1)) return markLocationType(c,exp@\loc,\bool());
     return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected relation, tuple, or ADT types, found <prettyPrintType(t1)>", e@\loc));
 }
 
@@ -1547,8 +1666,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> +`, Confi
     < c, t1 > = checkExp(e, c);
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
 
-    if (isRelType(t1)) {
-        list[Symbol] flds = getRelFields(t1);
+    if (isRelType(t1) || isListRelType(t1)) {
+        list[Symbol] flds = isRelType(t1) ? getRelFields(t1) : getListRelFields(t1);
         if (size(flds) == 0) {
             return markLocationType(c,exp@\loc,t1);
         } else if (size(flds) == 2 && equivalent(flds[0],flds[1])) {    
@@ -1568,8 +1687,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> *`, Confi
     < c, t1 > = checkExp(e, c);
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
 
-    if (isRelType(t1)) {
-        list[Symbol] flds = getRelFields(t1);
+    if (isRelType(t1) || isListRelType(t1)) {
+        list[Symbol] flds = isRelType(t1) ? getRelFields(t1) : getListRelFields(t1);
         if (size(flds) == 0) {
             return markLocationType(c,exp@\loc,t1);
         } else if (size(flds) == 2 && equivalent(flds[0],flds[1])) {    
@@ -1621,6 +1740,7 @@ public CheckResult checkExp(Expression exp:(Expression)`* <Expression e>`, Confi
     if (isSetType(t1)) return markLocationType(c, exp@\loc, getSetElementType(t1));
     if (isBagType(t1)) return markLocationType(c, exp@\loc, getBagElementType(t1));
     if (isRelType(t1)) return markLocationType(c, exp@\loc, getRelElementType(t1));
+    if (isListRelType(t1)) return markLocationType(c, exp@\loc, getListRelElementType(t1));
     return markLocationType(c, exp@\loc, t1);
 }
 
@@ -1675,6 +1795,23 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
             return markLocationType(c, exp@\loc, \rel([lflds[0],rflds[1]])); 
     }
 
+    if (isListRelType(t1) && isListRelType(t2)) {
+        list[Symbol] lflds = getListRelFields(t1);
+        list[Symbol] rflds = getListRelFields(t2);
+        set[Symbol] failures = { };
+        if (size(lflds) != 0 && size(lflds) != 2)
+            failures += makeFailType("List relation <prettyPrintType(t1)> should have arity of 0 or 2", e1@\loc); 
+        if (size(rflds) != 0 && size(rflds) != 2)
+            failures += makeFailType("List relation <prettyPrintType(t2)> should have arity of 0 or 2", e2@\loc);
+        if (!comparable(lflds[1],rflds[0]))
+            failures += makeFailType("Range of list relation <prettyPrintType(t1)> must be comparable to domain of list relation <prettyPrintType(t1)>", exp@\loc);
+        if (size(failures) > 0) return markLocationFailed(c, exp@\loc, failures);
+        if (size(lflds) == 0 || size(rflds) == 0)
+            return markLocationType(c, exp@\loc, \lrel([]));
+        else
+            return markLocationType(c, exp@\loc, \lrel([lflds[0],rflds[1]])); 
+    }
+
     if (isFunctionType(t1) && isFunctionType(t2)) {
         compositeArgs = getFunctionArgumentTypes(t2);
         compositeRet = getFunctionReturnType(t1);
@@ -1718,6 +1855,8 @@ Symbol computeProductType(Symbol t1, Symbol t2, loc l) {
         return \list(\tuple([getListElementType(t1),getListElementType(t2)]));
     if (isRelType(t1) && isRelType(t2))
         return \rel([getRelElementType(t1),getRelElementType(t2)]);
+    if (isListRelType(t1) && isListRelType(t2))
+        return \lrel([getListRelElementType(t1),getListRelElementType(t2)]);
     if (isSetType(t1) && isSetType(t2))
         return \rel([getSetElementType(t1),getSetElementType(t2)]);
     
@@ -1733,9 +1872,9 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> join <Ex
 
 	Symbol stripLabel(Symbol t) = (\label(s,lt) := t) ? stripLabel(lt) : t;
 	
-    if (isRelType(t1) && isRelType(t2)) {
-        list[Symbol] lflds = getRelFields(t1);
-        list[Symbol] rflds = getRelFields(t2);
+    if ((isRelType(t1) && isRelType(t2)) || (isListRelType(t1) && isListRelType(t2))) {
+        list[Symbol] lflds = isRelType(t1) ? getRelFields(t1) : getListRelFields(t1);
+        list[Symbol] rflds = isRelType(t2) ? getRelFields(t2) : getListRelFields(t2);
         
         // If possible, we want to maintain the field names; check here to see if that
         // is possible. We can when 1) both relations use field names, and 2) the names
@@ -1744,10 +1883,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> join <Ex
         list[str] rlabels = [ s | \label(s,_) <- rflds ];
         set[str] labelSet = toSet(llabels) + toSet(rlabels);
         if (size(llabels) == size(lflds) && size(rlabels) == size(rflds) && size(labelSet) == size(llabels) + size(rlabels)) {
-        	rt = \rel(lflds+rflds);
+        	rt = isRelType(t1) ? \rel(lflds+rflds) : \lrel(lflds+rflds);
         	return markLocationType(c, exp@\loc, rt);
         } else {
-        	rt = \rel([ stripLabel(t) | t <- (lflds+rflds) ]); 
+        	rt = isRelType(t1) ? \rel([ stripLabel(t) | t <- (lflds+rflds) ]) : \lrel([ stripLabel(t) | t <- (lflds+rflds) ]); 
         	return markLocationType(c, exp@\loc, rt);
         }
     }
@@ -1757,6 +1896,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> join <Ex
 	
 	if (isSetType(t1) && isRelType(t2))
 		return markLocationType(c, exp@\loc, \rel( getSetElementType(t1) + [ stripLabel(t) | t <- getRelFields(t2) ] ));
+	
+	// TODO: Can we use join on list/lrel combinations?
 	
 	if (isSetType(t1) && isSetType(t2))
 		return markLocationType(c, exp@\loc, \rel([ getSetElementType(t1), getSetElementType(t2) ]));
@@ -1796,6 +1937,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> & <Expre
 }
 
 Symbol computeIntersectionType(Symbol t1, Symbol t2, loc l) {
+    if (isListRelType(t1) && isListRelType(t2))
+        return lub(t1,t2);
     if (isListType(t1) && isListType(t2))
         return lub(t1,t2);
     if (isRelType(t1) && isRelType(t2))
@@ -1833,9 +1976,19 @@ Symbol computeAdditionType(Symbol t1, Symbol t2, loc l) {
     if (isLocType(t1) && isStrType(t2))
         return \loc();
         
-    // TODO: Need to properly handle field name propagation here
-    if (isTupleType(t1) && isTupleType(t2))
-        return \tuple(getTupleFields(t1),getTupleFields(t2));
+    if (isTupleType(t1) && isTupleType(t2)) {
+    	if (tupleHasFieldNames(t1) && tupleHasFieldNames(t2)) {
+	    	tflds1 = getTupleFields(t1);
+	    	tflds2 = getTupleFields(t2);
+	    	if (size(toSet(tflds1)+toSet(tflds2)) == size(tflds1+tflds2)) {
+	    		return \tuple(tflds1+tflds2);
+	    	} else {
+	    		return \tuple(getTupleFieldTypes(t1) + getTupleFieldTypes(t2));
+	    	}
+		} else {    	
+        	return \tuple(getTupleFieldTypes(t1) + getTupleFieldTypes(t2));
+		}
+    }
                 
     if (isListType(t1) && isListType(t2))
         return lub(t1,t2);
@@ -1969,6 +2122,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> notin <E
             return markLocationType(c,exp@\loc,\bool());
         else
             return markLocationFailed(c,exp@\loc,makeFailType("Cannot compare <prettyPrintType(t1)> with domain type of <prettyPrintType(t2)>",exp@\loc));
+    } else if (isListRelType(t2)) {
+        et = getListRelElementType(t2);
+        if (comparable(t1,et))
+            return markLocationType(c,exp@\loc,\bool());
+        else
+            return markLocationFailed(c,exp@\loc,makeFailType("Cannot compare <prettyPrintType(t1)> with element type of <prettyPrintType(t2)>",exp@\loc));
     } else if (isListType(t2)) {
         et = getListElementType(t2);
         if (comparable(t1,et))
@@ -2006,7 +2165,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> in <Expr
             return markLocationType(c,exp@\loc,\bool());
         else
             return markLocationFailed(c,exp@\loc,makeFailType("Cannot compare <prettyPrintType(t1)> with domain type of <prettyPrintType(t2)>",exp@\loc));
-    } else if (isListType(t2)) {
+   } else if (isListRelType(t2)) {
+        et = getListRelElementType(t2);
+        if (comparable(t1,et))
+            return markLocationType(c,exp@\loc,\bool());
+        else
+            return markLocationFailed(c,exp@\loc,makeFailType("Cannot compare <prettyPrintType(t1)> with element type of <prettyPrintType(t2)>",exp@\loc));
+     } else if (isListType(t2)) {
         et = getListElementType(t2);
         if (comparable(t1,et))
             return markLocationType(c,exp@\loc,\bool());
@@ -2033,6 +2198,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> >= <Expr
     if (isDateTimeType(t1) && isDateTimeType(t2))
         return markLocationType(c,exp@\loc,\bool());
     if (isBoolType(t1) && isBoolType(t2))
+        return markLocationType(c,exp@\loc,\bool());
+    if (isListRelType(t1) && isListRelType(t2) && comparable(getListRelElementType(t1),getListRelElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
     if (isListType(t1) && isListType(t2) && comparable(getListElementType(t1),getListElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
@@ -2074,6 +2241,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> <= <Expr
         return markLocationType(c,exp@\loc,\bool());
     if (isBoolType(t1) && isBoolType(t2))
         return markLocationType(c,exp@\loc,\bool());
+    if (isListRelType(t1) && isListRelType(t2) && comparable(getListRelElementType(t1),getListRelElementType(t2)))
+        return markLocationType(c,exp@\loc,\bool());
     if (isListType(t1) && isListType(t2) && comparable(getListElementType(t1),getListElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
     if (isMapType(t1) && isMapType(t2) && comparable(getMapDomainType(t1),getMapDomainType(t2)) && comparable(getMapRangeType(t1),getMapRangeType(t2)))
@@ -2114,6 +2283,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> < <Expre
         return markLocationType(c,exp@\loc,\bool());
     if (isBoolType(t1) && isBoolType(t2))
         return markLocationType(c,exp@\loc,\bool());
+    if (isListRelType(t1) && isListRelType(t2) && comparable(getListRelElementType(t1),getListRelElementType(t2)))
+        return markLocationType(c,exp@\loc,\bool());
     if (isListType(t1) && isListType(t2) && comparable(getListElementType(t1),getListElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
     if (isMapType(t1) && isMapType(t2) && comparable(getMapDomainType(t1),getMapDomainType(t2)) && comparable(getMapRangeType(t1),getMapRangeType(t2)))
@@ -2153,6 +2324,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> > <Expre
     if (isDateTimeType(t1) && isDateTimeType(t2))
         return markLocationType(c,exp@\loc,\bool());
     if (isBoolType(t1) && isBoolType(t2))
+        return markLocationType(c,exp@\loc,\bool());
+    if (isListRelType(t1) && isListRelType(t2) && comparable(getListRelElementType(t1),getListRelElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
     if (isListType(t1) && isListType(t2) && comparable(getListElementType(t1),getListElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
@@ -2442,13 +2615,13 @@ public CheckResult checkLiteral(Literal l:(Literal)`<RegExpLiteral rl>`, Configu
     // as Name:RegExp, but the : is interpreted as defining a variable becomes pattern instead, which causes an
     // exception to be thrown in the interpreter.
     //
-    // TODO: This is wrong, since we need to account for the order -- we could have a name that is defined and then
-    // used to the left.
     list[Tree] nameUses = [];
     list[Tree] nameDefs = [];
     rel[Tree,Tree] defUses = { };
-    
-    visit(rl) {
+
+	// NOTE: Using a top-down visit should enforce the correct order, ensuring
+	// that uses follow declarations. Just to be sure, we sort them below.    
+    top-down visit(rl) {
         case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : nameUses += prds[1];
         case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : nameDefs += prds[1];
         case \appl(\prod(lex("NamedRegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : defUses += < last(nameDefs), prds[1] >;
@@ -2500,32 +2673,32 @@ public CheckResult checkLiteral(Literal l:(Literal)`<StringLiteral sl>`, Configu
 
 @doc{Check the types of Rascal literals: LocationLiteral}
 public CheckResult checkLiteral(Literal l:(Literal)`<LocationLiteral ll>`, Configuration c) {
-    set[Symbol] failures = { };
-    list[Expression] ipl = prodFilter(ll, bool(Production prd) { return prod(\label(_,\sort("Expression")),_,_) := prd; });
-    for (ipe <- ipl) {
-        if (`<Expression ipee>` := ipe) {
-            < c, t1 > = checkExp(ipee, c);
-            if (isFailType(t1)) failures = failures + t1;
-        }
-    }
-    if (size(failures) > 0)
-        return markLocationFailed(c, l@\loc, failures);
-    else
-        return markLocationType(c, l@\loc, \loc());
+	< c, t1 > = checkLocationLiteral(ll,c);
+	return markLocationType(c, l@\loc, t1);
 }
 
 @doc{Check the types of Rascal parameters: Default (DONE) }
-public CheckResult checkParameters((Parameters)`( <Formals fs> )`, Configuration c) = checkFormals(fs, c);
+public CheckResult checkParameters((Parameters)`( <Formals fs> )`, Configuration c) = checkFormals(fs, false, c);
 
 @doc{Check the types of Rascal parameters: VarArgs (DONE) }
-public CheckResult checkParameters((Parameters)`( <Formals fs> ... )`, Configuration c) = checkFormals(fs, c);
+public CheckResult checkParameters((Parameters)`( <Formals fs> ... )`, Configuration c) = checkFormals(fs, true, c);
 
 @doc{Check the types of Rascal formals: Default}
-public CheckResult checkFormals((Formals)`<{Pattern ","}* ps>`, Configuration c) {
+public CheckResult checkFormals((Formals)`<{Pattern ","}* ps>`, bool isVarArgs, Configuration c) {
     list[Symbol] formals = [ ];
-    for (p <- ps) {
-        < c, t > = calculatePatternType(p, c);
-        formals += t;
+    list[Pattern] patterns = [ p | p <- ps ];
+    for (idx <- index(patterns)) {
+        < c, t > = calculatePatternType(patterns[idx], c);
+        if (size(patterns) == (idx + 1) && isVarArgs && !isFailType(t)) {
+        	if ((Pattern)`<Type pt> <Name pn>` := patterns[idx]) {
+        		c.store[c.fcvEnv[convertName(pn)]].rtype = \list(t);
+        	} else if (!isFailType(t)) {
+        		t = makeFailType("A var-args parameter must be a type name followed by a variable name", patterns[idx]@\loc);
+        	}
+        	formals += \list(t);
+        } else {
+        	formals += t;
+        }
     }
     return < c, \tuple(formals) >;
 }
@@ -2533,19 +2706,25 @@ public CheckResult checkFormals((Formals)`<{Pattern ","}* ps>`, Configuration c)
 @doc{Defs and uses of names; allows marking them while still keeping them in the same list or set.}
 data DefOrUse = def(RName name) | use(RName name);
 
+data LiteralNodeInfo = literalNodeInfo(DefOrUse,loc);
+data MapNodeInfo = mapNodeInfo(PatternTree,PatternTree);
+
 @doc{A compact representation of patterns}
 data PatternTree 
     = setNode(list[PatternTree] children)
     | listNode(list[PatternTree] children)
     | nameNode(RName name)
     | multiNameNode(RName name)
-    | spliceNode(PatternTree child)
+    | spliceNodePlus(RName name)
+    | spliceNodePlus(RName name, loc at, Symbol rtype)
+    | spliceNodeStar(RName name)
+    | spliceNodeStar(RName name, loc at, Symbol rtype)
     | negativeNode(PatternTree child)
     | literalNode(Symbol rtype)
-    | literalNode(list[tuple[DefOrUse,loc]] names)
+    | literalNode(list[LiteralNodeInfo] names)
     | tupleNode(list[PatternTree] children)
     | typedNameNode(RName name, loc at, Symbol rtype)
-    | mapNode(list[tuple[PatternTree,PatternTree]] mapChildren)
+    | mapNode(list[MapNodeInfo] mapChildren)
     | reifiedTypeNode(PatternTree s, PatternTree d)
     | callOrTreeNode(PatternTree head, list[PatternTree] args)
     | varBecomesNode(RName name, loc at, PatternTree child)
@@ -2579,16 +2758,18 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<QualifiedName qn>*`,
     return < c, multiNameNode(convertName(qn))[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`* <QualifiedName qn>`, Configuration c) {
-    return < c, multiNameNode(convertName(qn))[@at = pat@\loc] >;
+    return < c, spliceNodeStar(convertName(qn))[@at = pat@\loc] >;
 }
-public BindResult extractPatternTree(Pattern pat:(Pattern)`* <Pattern p>`, Configuration c) {
-    throw "Not yet implemented";
+public BindResult extractPatternTree(Pattern pat:(Pattern)`* <Type t> <Name n>`, Configuration c) {
+    < c, rt > = convertAndExpandType(t,c);
+    return < c, spliceNodeStar(convertName(n), n@\loc, rt)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`+ <QualifiedName qn>`, Configuration c) {
-    return < c, multiNameNode(convertName(qn))[@at = pat@\loc] >;
+    return < c, spliceNodePlus(convertName(qn))[@at = pat@\loc] >;
 }
-public BindResult extractPatternTree(Pattern pat:(Pattern)`+ <Pattern p>`, Configuration c) {
-    throw "Not yet implemented";
+public BindResult extractPatternTree(Pattern pat:(Pattern)`+ <Type t> <Name n>`, Configuration c) {
+    < c, rt > = convertAndExpandType(t,c);
+    return < c, spliceNodePlus(convertName(n), n@\loc, rt)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`- <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
@@ -2610,23 +2791,25 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<RationalLiteral rl>`
     return < c, literalNode(\rat())[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<RegExpLiteral rl>`, Configuration c) {
-    list[tuple[DefOrUse,loc]] names = [ ];
+    list[LiteralNodeInfo] names = [ ];
         
     top-down visit(rl) {
-        case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : names += < use(convertName(prds[1])), prds[1]@\loc >;
-        case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : names += < def(convertName(prds[1])), prds[1]@\loc >;
-        case \appl(\prod(lex("NamedRegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : names += < use(convertName(prds[1])), prds[1]@\loc >;
+        case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : 
+        	names += literalNodeInfo(use(convertName(prds[1])), prds[1]@\loc );
+        case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : 
+        	names += literalNodeInfo(def(convertName(prds[1])), prds[1]@\loc);
+        case \appl(\prod(lex("NamedRegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : 
+        	names += literalNodeInfo(use(convertName(prds[1])), prds[1]@\loc);
     }
     
     return < c, literalNode(names)[@at = pat@\loc] >;
 }
-// TODO: Should account for comprehensions in strings and locations
-// TODO: Need to expand out converted types, which probably means modifying this
-// code to also take and return the configuration. However, that is cumbersome...
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<StringLiteral sl>`, Configuration c) {
+	< c, t1 > = checkStringLiteral(sl,c);
     return < c, literalNode(\str())[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<LocationLiteral ll>`, Configuration c) {
+	< c, t1 > = checkLocationLiteral(ll,c);
     return < c, literalNode(\loc())[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`< <Pattern p1>, <{Pattern ","}* ps> >`, Configuration c) {
@@ -2640,11 +2823,11 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Type t> <Name n>`, C
     return < c, typedNameNode(convertName(n), n@\loc, rt)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`( <{Mapping[Pattern] ","}* mps> )`, Configuration c) {
-    list[tuple[PatternTree,PatternTree]] res = [ ];
+    list[MapNodeInfo] res = [ ];
     for ((Mapping[Pattern])`<Pattern pd> : <Pattern pr>` <- mps) {
         < c, pdt > = extractPatternTree(pd,c);
         < c, prt > = extractPatternTree(pr,c);
-        res += < pdt, prt >;
+        res += mapNodeInfo(pdt, prt);
     }
     return < c, mapNode(res)[@at = pat@\loc] >;
 }
@@ -2691,6 +2874,12 @@ public anno set[int] PatternTree@defs;
 @doc{Is this node in head position in a call or tree node?}
 public anno bool PatternTree@headPosition;
 
+@doc{Do we have possible constructors here that do not match arity?}
+public anno set[Symbol] PatternTree@arityMismatches;
+
+@doc{Do we have too many matching constructors here?}
+public anno set[Symbol] PatternTree@tooManyMatches;
+
 @doc{A quick predicate to say whether we can use the type in a type calculation}
 public bool concreteType(Symbol t) = size({ ti | /Symbol ti := t, \failure(_) := ti || \inferred(_) := ti }) == 0; 
 
@@ -2708,51 +2897,77 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     // literals and guarded patterns).
     pt = top-down visit(pt) {
         case ptn:setNode(ptns) : {
-            for (idx <- index(ptns), multiNameNode(n) := ptns[idx]) {
-                if (RSimpleName("_") == n) {
-                    rt = \inferred(c.uniqueify);
-                    c.uniqueify = c.uniqueify + 1;
-                    c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
-                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-                } else if (!fcvExists(c, n)) {
-                    rt = \inferred(c.uniqueify);
-                    c.uniqueify = c.uniqueify + 1;
-                    c = addVariable(c, n, true, ptns[idx]@at, \set(rt));
-                    ptns[idx] = ptns[idx][@rtype = rt];
-                } else {
-                    c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
-                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
-                    if (isSetType(rt))
-                        ptns[idx] = ptns[idx][@rtype = getSetElementType(rt)];
-                    else
-                        failures += makeFailType("Expected type set, not <prettyPrintType(rt)>", ptns[idx]@at);
-                    c = addNameWarning(c,n,ptns[idx]@at);
-                }
+            for (idx <- index(ptns), multiNameNode(n) := ptns[idx] || spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx]) {
+            	if (spliceNodePlus(_,_,rt) := ptns[idx] || spliceNodeStar(_,_,rt) := ptns[idx]) {
+	                if (RSimpleName("_") == n) {
+                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+	                } else {
+	                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
+	                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
+	                	// a set pattern or, below, a list pattern)
+	                    c = addVariable(c, n, true, ptns[idx]@at, \set(rt));
+	                    ptns[idx] = ptns[idx][@rtype = rt];
+	                } 
+            	} else {
+	                if (RSimpleName("_") == n) {
+	                    rt = \inferred(c.uniqueify);
+	                    c.uniqueify = c.uniqueify + 1;
+	                    c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+	                } else if (!fcvExists(c, n)) {
+	                    rt = \inferred(c.uniqueify);
+	                    c.uniqueify = c.uniqueify + 1;
+	                    c = addVariable(c, n, true, ptns[idx]@at, \set(rt));
+	                    ptns[idx] = ptns[idx][@rtype = rt];
+	                } else {
+	                    c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+	                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
+	                    // TODO: Keep this now that we have splicing?
+	                    if (isSetType(rt))
+	                        ptns[idx] = ptns[idx][@rtype = getSetElementType(rt)];
+	                    else
+	                        failures += makeFailType("Expected type set, not <prettyPrintType(rt)>", ptns[idx]@at);
+	                    c = addNameWarning(c,n,ptns[idx]@at);
+	                }
+            	}
             }
+            
             insert(ptn[children=ptns]);
         }
 
         case ptn:listNode(ptns) : {
-            for (idx <- index(ptns), multiNameNode(n) := ptns[idx]) {
-                if (RSimpleName("_") == n) {
-                    rt = \inferred(c.uniqueify);
-                    c.uniqueify = c.uniqueify + 1;
-                    c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
-                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-                } else if (!fcvExists(c, n)) {
-                    rt = \inferred(c.uniqueify);
-                    c.uniqueify = c.uniqueify + 1;
-                    c = addVariable(c, n, true, ptns[idx]@at, \list(rt));
-                    ptns[idx] = ptns[idx][@rtype = rt];
-                } else {
-                    c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
-                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
-                    if (isListType(rt))
-                        ptns[idx] = ptns[idx][@rtype = getListElementType(rt)];
-                    else
-                        failures += makeFailType("Expected type list, not <prettyPrintType(rt)>", ptns[idx]@at); 
-                    c = addNameWarning(c,n,ptns[idx]@at);
-                }
+            for (idx <- index(ptns), multiNameNode(n) := ptns[idx] || spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx]) {
+            	if (spliceNodePlus(_,_,rt) := ptns[idx] || spliceNodeStar(_,_,rt) := ptns[idx]) {
+	                if (RSimpleName("_") == n) {
+                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+	                } else {
+	                    c = addVariable(c, n, true, ptns[idx]@at, \set(rt));
+	                    ptns[idx] = ptns[idx][@rtype = rt];
+	                } 
+            	} else {
+	                if (RSimpleName("_") == n) {
+	                    rt = \inferred(c.uniqueify);
+	                    c.uniqueify = c.uniqueify + 1;
+	                    c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
+	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+	                } else if (!fcvExists(c, n)) {
+	                    rt = \inferred(c.uniqueify);
+	                    c.uniqueify = c.uniqueify + 1;
+	                    c = addVariable(c, n, true, ptns[idx]@at, \list(rt));
+	                    ptns[idx] = ptns[idx][@rtype = rt];
+	                } else {
+	                    c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+	                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
+	                    // TODO: Keep this now that we have splicing?
+	                    if (isListType(rt))
+	                        ptns[idx] = ptns[idx][@rtype = getListElementType(rt)];
+	                    else
+	                        failures += makeFailType("Expected type list, not <prettyPrintType(rt)>", ptns[idx]@at); 
+	                    c = addNameWarning(c,n,ptns[idx]@at);
+	                }
+	            }
             }
             insert(ptn[children=ptns]);
         }
@@ -2783,8 +2998,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         
         case ptn:literalNode(Symbol rt) => ptn[@rtype = rt]
         
-        case ptn:literalNode(list[tuple[DefOrUse,loc]] names) : {
-            for ( < d, l > <- names ) {
+        case ptn:literalNode(list[LiteralNodeInfo] names) : {
+            for ( literalNodeInfo(d, l) <- names ) {
                 if (def(n) := d) {
                     c = addVariable(c, n, false, l, \str());
                 } else if (use(n) := d) {
@@ -2858,6 +3073,12 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         modified = true;
         return pt[@rtype = rt];
     }
+
+    PatternTree updateBindProblems(PatternTree pt, set[Symbol] arityMismatches, set[Symbol] tooManyMatches) {
+    	// We intentionally don't set modified here, since these are just error markers.
+    	if (size(tooManyMatches) > 0) arityMismatches = { }; // only report arity problems if they are the only ones we have
+        return pt[@arityMismatches = arityMismatches][@tooManyMatches = tooManyMatches];
+    }
     
     // Step 2: push types up from the leaves to the root, and back down from the root to the leaves,
     // until the type stabilizes
@@ -2877,11 +3098,12 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             case ptn:listNode([]) => updateRT(ptn, \list(\void()))
             
             case ptn:listNode(ptns) => updateRT(ptn,\list(lubList([pti@rtype | pti <- ptns]))) 
-                                      when all(idx <- index(ptns), (ptns[idx]@rtype)?, concreteType(ptns[idx]@rtype))
+                                       when all(idx <- index(ptns), (ptns[idx]@rtype)?, concreteType(ptns[idx]@rtype))
                                       
             case ptn:spliceNode(cp) : throw "Not yet implemented";
     
-            case ptn:negativeNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype) && !isVoidType(cp@rtype) && subtype(cp@rtype, \num())
+            case ptn:negativeNode(cp) => updateRT(ptn, cp@rtype) 
+            							 when (cp@rtype)? && concreteType(cp@rtype) && !isVoidType(cp@rtype) && subtype(cp@rtype, \num())
     
             case ptn:negativeNode(cp) :
                 if ( (cp@rtype)? && concreteType(cp@rtype))
@@ -2892,8 +3114,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                         
             case ptn:mapNode([]) => updateRT(ptn,\map(\void(),\void()))
                                         
-            case ptn:mapNode(ptns) => updateRT(ptn,\map(lubList([d@rtype|<d,_> <- ptns]),lubList([r@rtype|<_,r><-ptns])))
-                                      when all(idx <- index(ptns), <d,r> := ptns[idx], (d@rtype)?, (r@rtype)?, concreteType(d@rtype), concreteType(r@rtype))
+            case ptn:mapNode(ptns) => updateRT(ptn,\map(lubList([d@rtype|mapNodeInfo(d,_) <- ptns]),lubList([r@rtype|mapNodeInfo(_,r)<-ptns])))
+                                      when all(idx <- index(ptns), mapNodeInfo(d,r) := ptns[idx], (d@rtype)?, (r@rtype)?, concreteType(d@rtype), concreteType(r@rtype))
                                       
             case ptn:deepNode(cp) => updateRT(ptn, \value()) when (cp@rtype)? && concreteType(cp@rtype)
 
@@ -2944,24 +3166,32 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 if ( (ph@rtype)? && concreteType(ph@rtype) ) {
                     if (isConstructorType(ph@rtype) || isOverloadedType(ph@rtype)) {
                         // alts contains all possible constructors of this name
-                        set[Symbol] alts = (isOverloadedType(ph@rtype)) ? { \o | \o <- getOverloadOptions(ph@rtype), isConstructorType(\o) } : {ph@rtype};
+                        set[Symbol] alts = (isOverloadedType(ph@rtype)) ? filterSet(getOverloadOptions(ph@rtype), isConstructorType) : {ph@rtype};
                         // matches holds all the constructors that match the arity and types in the pattern
                         set[Symbol] matches = { };
+                        set[Symbol] nonMatches = { };
+                        ptn@arityMismatches = { };
+                        ptn@tooManyMatches = { };
                         
-                        if (size(pargs) == 0) {
-                            // if we have no arguments, then all the alternatives could match
-                            matches = alts;
-                        } else {
+                        //if (size(pargs) == 0) {
+                        //    // if we have no arguments, then all the alternatives could match
+                        //    // TODO: Is this true? It seems that we can only match if the arity matches, so, disabling for now...
+                        //    matches = alts;
+                        //} else {
                             // filter first based on the arity of the constructor
-                            for (a <- alts, size(getConstructorArgumentTypes(a)) == size(pargs)) {
-                                // next, find the bad matches, which are those argument positions where we have concrete
-                                // type information and that information does not match the alternative
-                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !subtype(pargs[idx]@rtype, getConstructorArgumentTypes(a)[idx]) };
-                                if (size(badMatches) == 0) 
-                                    // if we had no bad matches, this is a valid alternative
-                                    matches += a;
+                            for (a <- alts) {
+                            	if (size(getConstructorArgumentTypes(a)) == size(pargs)) {
+	                                // next, find the bad matches, which are those argument positions where we have concrete
+	                                // type information and that information does not match the alternative
+	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !subtype(pargs[idx]@rtype, getConstructorArgumentTypes(a)[idx]) };
+	                                if (size(badMatches) == 0) 
+	                                    // if we had no bad matches, this is a valid alternative
+	                                    matches += a;
+								} else {
+									nonMatches += a;
+								}
                             }
-                        }
+                        //}
                         
                         if (size(matches) == 1) {
                             // Push the binding back down the tree with the information in the constructor type; if
@@ -3011,7 +3241,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 insert updateRT(ptn[head=ph[@rtype=matchType]][args=newChildren], getConstructorResultType(matchType));
                             }
                         } else {
-                            println("Found <matches> matches");
+                        	insert updateBindProblems(ptn, nonMatches, matches);
                         }
                     } else if (isStrType(ph@rtype)) {
                         insert updateRT(ptn, \node());
@@ -3045,31 +3275,43 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     set[PatternTree] unknownConstructorFailures(PatternTree pt) {
         return { ptih | /PatternTree pti:callOrTreeNode(PatternTree ptih,_) := pt, (ptih@rtype)?, isInferredType(ptih@rtype) };
     }
-    
+
+    set[PatternTree] arityFailures(PatternTree pt) {
+        return { pti | /PatternTree pti:callOrTreeNode(_,_) := pt, (pti@arityMismatches)?, size(pti@arityMismatches) > 0 };
+    }
+
+    set[PatternTree] tooManyMatchesFailures(PatternTree pt) {
+        return { pti | /PatternTree pti:callOrTreeNode(_,_) := pt, (pti@tooManyMatches)?, size(pti@tooManyMatches) > 0 };
+    }
+
+	set[PatternTree] unresolved = { };
     if ( (pt@rtype)? ) {
         unresolved = { pti | /PatternTree pti := pt, !((pti@rtype)?) || ((pti@rtype)? && !concreteType(pti@rtype)) };
-        if (size(unresolved) > 0) {
-            unknowns = unknownConstructorFailures(pt);
-            if (size(unknowns) == 0) {
-                //println("<pt@at>: Pattern tree is <pt>, with subjects <subjects>");
-                return < c, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
-            } else {
-                for (unk <- unknowns) failures += makeFailType("Constructor name is not in scope", unk@at);
-                return < c, collapseFailTypes(failures) >;
-            }
-        } else {
-            c.locationTypes = c.locationTypes + ( ptnode@at : ptnode@rtype | /PatternTree ptnode := pt, (ptnode@rtype)? );  
-            return < c, pt@rtype >;
-        }
-    } else {
+    }
+    
+    if ( (pt@rtype)? == false || size(unresolved) > 0) {
         unknowns = unknownConstructorFailures(pt);
-        if (size(unknowns) == 0) {
+        arityProblems = arityFailures(pt);
+        tooManyMatches = tooManyMatchesFailures(pt);
+        if (size(unknowns) == 0 && size(arityProblems) == 0 && size(tooManyMatches) == 0) {
             //println("<pt@at>: Pattern tree is <pt>, with subjects <subjects>");
             return < c, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
         } else {
-            for (unk <- unknowns) failures += makeFailType("Constructor name is not in scope", unk@at);
+    		for (pt <- tooManyMatches)
+    			failures += makeFailType("Multiple constructors match this pattern, add additional type annotations", pt@at);
+        	
+    		for (pt <- arityProblems)
+    			failures += makeFailType("Only constructors with a different arity are available", pt@at);
+
+            for (unk <- unknowns)
+            	failures += makeFailType("Constructor name is not in scope", unk@at);
+        	
+        	failures += makeFailType("Type of pattern could not be computed", pat@\loc);
             return < c, collapseFailTypes(failures) >;
         }
+    } else {
+		c.locationTypes = c.locationTypes + ( ptnode@at : ptnode@rtype | /PatternTree ptnode := pt, (ptnode@rtype)? );  
+		return < c, pt@rtype >;
     }
 }
 
@@ -3197,7 +3439,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
                 return < c, pt >;
         }
         
-        case literalNode(list[tuple[DefOrUse,loc]] names) : {
+        case literalNode(list[LiteralNodeInfo] names) : {
             if (!isInferredType(rt) && !comparable(pt@rtype,rt))
                 throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
             else
@@ -3227,13 +3469,13 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
                 throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
         }
         
-        case mapNode(list[tuple[PatternTree,PatternTree]] mapChildren) : {
+        case mapNode(list[MapNodeInfo] mapChildren) : {
             if (isMapType(rt)) {
-                list[tuple[PatternTree,PatternTree]] res = [ ];
-                for (<d1,r1> <- mapChildren) { 
+                list[MapNodeInfo] res = [ ];
+                for (mapNodeInfo(d1,r1) <- mapChildren) { 
                     < c, pt1 > = bind(d1, getMapDomainType(rt), c); 
                     < c, pt2 > = bind(r1, getMapRangeType(rt), c); 
-                    res += < pt1, pt2 >; 
+                    res += mapNodeInfo(pt1, pt2); 
                 }
                 return < c, pt[children = res] >; 
             } else if (isValueType(rt)) {
@@ -3334,9 +3576,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> <Visit v>`, 
         labelName = convertName(n);
         if (labelExists(cVisit,labelName)) cVisit = addMessage(cVisit,error("Cannot reuse label names: <n>", lbl@\loc));
         cVisit = addLabel(cVisit,labelName,lbl@\loc,visitLabel());
-        cVisit.labelStack = < labelName, visitLabel(), \void() > + cVisit.labelStack;
+        cVisit.labelStack = labelStackItem(labelName, visitLabel(), \void()) + cVisit.labelStack;
     } else {
-        cVisit.labelStack = < RSimpleName(""), visitLabel(), \void() > + cVisit.labelStack;
+        cVisit.labelStack = labelStackItem(RSimpleName(""), visitLabel(), \void()) + cVisit.labelStack;
     }
     
     < cVisit, vt > = checkVisit(v,cVisit);
@@ -3365,9 +3607,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Ex
         labelName = convertName(n);
         if (labelExists(cWhile,labelName)) cWhile = addMessage(cWhile,error("Cannot reuse label names: <n>", lbl@\loc));
         cWhile = addLabel(cWhile,labelName,lbl@\loc,whileLabel());
-        cWhile.labelStack = < labelName, whileLabel(), \void() > + cWhile.labelStack;
+        cWhile.labelStack = labelStackItem(labelName, whileLabel(), \void()) + cWhile.labelStack;
     } else {
-        cWhile.labelStack = < RSimpleName(""), whileLabel(), \void() > + cWhile.labelStack;
+        cWhile.labelStack = labelStackItem(RSimpleName(""), whileLabel(), \void()) + cWhile.labelStack;
     }
 
     // Enter a boolean scope, for both the conditionals and the statement body.
@@ -3415,7 +3657,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Ex
 
     // Get out any append info, which is used to calculate the loop type, and then
     // pop the label stack.         
-    < _, _, loopElements > = head(cWhile.labelStack);
+    loopElementType  = head(cWhile.labelStack).labelType;
     cWhile.labelStack = tail(cWhile.labelStack);
 
     // Now, return to the scope on entry, removing the label
@@ -3424,7 +3666,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Ex
     if (size(failures) > 0)
         return markLocationFailed(c, stmt@\loc, failures);
     else
-        return markLocationType(c, stmt@\loc, \list(loopElements)); 
+        return markLocationType(c, stmt@\loc, \list(loopElementType)); 
 }
 
 @doc{Check the type of Rascal statements: DoWhile}
@@ -3442,9 +3684,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> do <Statemen
         labelName = convertName(n);
         if (labelExists(cDoWhile,labelName)) cDoWhile = addMessage(cDoWhile,error("Cannot reuse label names: <n>", lbl@\loc));
         cDoWhile = addLabel(cDoWhile,labelName,lbl@\loc,doWhileLabel());
-        cDoWhile.labelStack = < labelName, doWhileLabel(), \void() > + cDoWhile.labelStack;
+        cDoWhile.labelStack = labelStackItem(labelName, doWhileLabel(), \void()) + cDoWhile.labelStack;
     } else {
-        cDoWhile.labelStack = < RSimpleName(""), doWhileLabel(), \void() > + cDoWhile.labelStack;
+        cDoWhile.labelStack = labelStackItem(RSimpleName(""), doWhileLabel(), \void()) + cDoWhile.labelStack;
     }
 
     // Check the body of the loop               
@@ -3465,7 +3707,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> do <Statemen
 
     // Get out any append info, which is used to calculate the loop type, and then
     // pop the label stack.         
-    < _, _, loopElements > = head(cDoWhile.labelStack);
+    loopElementType = head(cDoWhile.labelStack).labelType;
     cDoWhile.labelStack = tail(cDoWhile.labelStack);
 
     // Now, return to the scope on entry, removing the label
@@ -3474,7 +3716,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> do <Statemen
     if (size(failures) > 0)
         return markLocationFailed(c, stmt@\loc, failures);
     else
-        return markLocationType(c, stmt@\loc, \list(loopElements)); 
+        return markLocationType(c, stmt@\loc, \list(loopElementType)); 
 }
 
 @doc{Check the type of Rascal statements: For}
@@ -3492,9 +3734,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> for ( <{Expr
         labelName = convertName(n);
         if (labelExists(cFor,labelName)) cFor = addMessage(cFor,error("Cannot reuse label names: <n>", lbl@\loc));
         cFor = addLabel(cFor,labelName,lbl@\loc,forLabel());
-        cFor.labelStack = < labelName, forLabel(), \void() > + cFor.labelStack;
+        cFor.labelStack = labelStackItem(labelName, forLabel(), \void()) + cFor.labelStack;
     } else {
-        cFor.labelStack = < RSimpleName(""), forLabel(), \void() > + cFor.labelStack;
+        cFor.labelStack = labelStackItem(RSimpleName(""), forLabel(), \void()) + cFor.labelStack;
     }
 
     // Enter a boolean scope, for both the conditionals and the statement body.
@@ -3521,7 +3763,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> for ( <{Expr
 
     // Get out any append info, which is used to calculate the loop type, and then
     // pop the label stack.         
-    < _, _, loopElements > = head(cFor.labelStack);
+    loopElementType = head(cFor.labelStack).labelType;
     cFor.labelStack = tail(cFor.labelStack);
 
     // Now, return to the scope on entry, removing the label
@@ -3530,7 +3772,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> for ( <{Expr
     if (size(failures) > 0)
         return markLocationFailed(c, stmt@\loc, failures);
     else
-        return markLocationType(c, stmt@\loc, \list(loopElements)); 
+        return markLocationType(c, stmt@\loc, \list(loopElementType)); 
 }
 
 @doc{Check the type of Rascal statements: IfThen (DONE)}
@@ -3548,9 +3790,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> if ( <{Expre
         labelName = convertName(n);
         if (labelExists(cIf,labelName)) cIf = addMessage(cIf,error("Cannot reuse label names: <n>", lbl@\loc));
         cIf = addLabel(cIf,labelName,lbl@\loc,ifLabel());
-        cIf.labelStack = < labelName, ifLabel(), \void() > + cIf.labelStack;
+        cIf.labelStack = labelStackItem(labelName, ifLabel(), \void()) + cIf.labelStack;
     } else {
-        cIf.labelStack = < RSimpleName(""), ifLabel(), \void() > + cIf.labelStack;
+        cIf.labelStack = labelStackItem(RSimpleName(""), ifLabel(), \void()) + cIf.labelStack;
     }
 
     // Enter a boolean scope, for both the conditionals and the statement body.
@@ -3602,9 +3844,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> if ( <{Expre
         labelName = convertName(n);
         if (labelExists(cIf,labelName)) cIf = addMessage(cIf,error("Cannot reuse label names: <n>", lbl@\loc));
         cIf = addLabel(cIf,labelName,lbl@\loc,ifLabel());
-        cIf.labelStack = < labelName, ifLabel(), \void() > + cIf.labelStack;
+        cIf.labelStack = labelStackItem(labelName, ifLabel(), \void()) + cIf.labelStack;
     } else {
-        cIf.labelStack = < RSimpleName(""), ifLabel(), \void() > + cIf.labelStack;
+        cIf.labelStack = labelStackItem(RSimpleName(""), ifLabel(), \void()) + cIf.labelStack;
     }
 
     // Enter a boolean scope, for both the conditionals and the statement body.
@@ -3662,9 +3904,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> switch ( <Ex
         labelName = convertName(n);
         if (labelExists(cSwitch,labelName)) cSwitch = addMessage(cSwitch,error("Cannot reuse label names: <n>", lbl@\loc));
         cSwitch = addLabel(cSwitch,labelName,lbl@\loc,switchLabel());
-        cSwitch.labelStack = < labelName, switchLabel(), \void() > + cSwitch.labelStack;
+        cSwitch.labelStack = labelStackItem(labelName, switchLabel(), \void()) + cSwitch.labelStack;
     } else {
-        cSwitch.labelStack = < RSimpleName(""), switchLabel(), \void() > + cSwitch.labelStack;
+        cSwitch.labelStack = labelStackItem(RSimpleName(""), switchLabel(), \void()) + cSwitch.labelStack;
     }
 
     // Enter a boolean scope, for both the conditionals and the statement body.
@@ -3798,9 +4040,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> { <Statement
         labelName = convertName(n);
         if (labelExists(cBlock,labelName)) cBlock = addMessage(cBlock,error("Cannot reuse label names: <n>", lbl@\loc));
         cBlock = addLabel(cBlock,labelName,lbl@\loc,blockLabel());
-        cBlock.labelStack = < labelName, blockLabel(), \void() > + cBlock.labelStack;
+        cBlock.labelStack = labelStackItem(labelName, blockLabel(), \void()) + cBlock.labelStack;
     } else {
-        cBlock.labelStack = < RSimpleName(""), blockLabel(), \void() > + cBlock.labelStack;
+        cBlock.labelStack = labelStackItem(RSimpleName(""), blockLabel(), \void()) + cBlock.labelStack;
     }
 
     list[Symbol] stmtTypes = [];
@@ -4780,8 +5022,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         if (!isFailType(funType)) {
             cFun = setExpectedReturn(c, getFunctionReturnType(funType));
         } else {
-            // TODO: These need to appear in the error log
-            cFun = setExpectedReturn(c, \void());
+            // If we couldn't calculate the function type, use value here so we don't also
+            // get errors on the return type not matching.
+            cFun = setExpectedReturn(c, \value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
         < cFun, tExp > = checkExp(exp, cFun);
@@ -5455,7 +5698,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     // We slightly abuse the label stack by putting cases in there as well. This allows us to  
     // keep track of inserted types without needing to invent a new mechanism for doing so.
     if (labelTypeInStack(c,{visitLabel()})) {
-        c.labelStack = < getFirstLabeledName(c,{visitLabel()}), caseLabel(), pt > + c.labelStack;
+        c.labelStack = labelStackItem(getFirstLabeledName(c,{visitLabel()}), caseLabel(), pt) + c.labelStack;
     }
 
     // Second, calculate the statement type. This is done in the same environment, so the names
@@ -5550,6 +5793,22 @@ public RName getFirstLabeledName(Configuration c, set[LabelSource] ls) {
     } else {
         return c.labelStack[possibleIndexes[0]].labelName;
     }
+}
+
+@doc{Check the type of a Rascal location literal}
+public CheckResult checkLocationLiteral(LocationLiteral ll, Configuration c) {
+    set[Symbol] failures = { };
+    list[Expression] ipl = prodFilter(ll, bool(Production prd) { return prod(\label(_,\sort("Expression")),_,_) := prd; });
+    for (ipe <- ipl) {
+        if (`<Expression ipee>` := ipe) {
+            < c, t1 > = checkExp(ipee, c);
+            if (isFailType(t1)) failures = failures + t1;
+        }
+    }
+    if (size(failures) > 0)
+        return markLocationFailed(c, l@\loc, failures);
+    else
+        return markLocationType(c, l@\loc, \loc());
 }
 
 @doc{Check the type of a Rascal string literal: Template}
@@ -5939,3 +6198,94 @@ public Module check(Module m) {
             [@docLinks = docLinks];
 }
 
+public default Module check(Tree t) {
+	if (t has top && Module m := t.top)
+		return check(m);
+	else
+		throw "Cannot check arbitrary trees";
+}
+
+public CheckResult checkExpString(str expString, list[str] importedModules = [], list[str] initialDecls = []) {
+    map[RName,RSignature] sigMap = ( );
+    map[RName,int] moduleIds = ( );
+    map[RName,loc] moduleLocs = ( );
+    list[RName] importOrder = [ ];
+    imports = [ RSimpleName(mn) | mn <- importedModules ];
+    
+	c = newConfiguration();
+	moduleName = RSimpleName("TestAnExpression");
+    c = addModule(c, moduleName, |file:///tmp/TestAnExpression.rsc|);
+    currentModuleId = head(c.stack);
+            
+    // Get the information about each import, including the module signature
+    for (importItem <- imports) {
+        try {
+            dt1 = now();
+            modName = importItem;
+            modTree = getModuleParseTree(prettyPrintName(modName));
+            sigMap[modName] = getModuleSignature(modTree);
+            moduleLocs[modName] = modTree@\loc;
+            importOrder = importOrder + modName;
+            c = addModule(c,modName,modTree@\loc);
+            moduleIds[modName] = head(c.stack);
+            c = popModule(c);
+            c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
+        } catch perror : {
+            c = addScopeError(c, "Cannot calculate signature for imported module", |file:///tmp/TestAnExpression.rsc|);
+        }
+    }
+    
+    // Add all the aliases and ADTs from each module without descending. Do tags here to, although
+    // (when they are really used) we need to add them in a reasonable order. Right now we just
+    // ignore them. So, TODO: Handle tags appropriately.
+    dt1 = now();
+    for (modName <- importOrder) {
+        sig = sigMap[modName];
+        c.stack = moduleIds[modName] + c.stack;
+        for (item <- sig.datatypes) c = importADT(item.adtName, item.adtType, item.at, publicVis(), false, c);
+        for (item <- sig.aliases) c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), false, c);
+        for (item <- sig.tags) c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), false, c);
+        c.stack = tail(c.stack);
+    }
+
+    // Now, descend into each alias and ADT, ensuring all parameters are correctly added and the
+    // aliased type is handled correctly. As above, we do tags here as well.
+    for (modName <- importOrder) {
+        sig = sigMap[modName];
+        c.stack = currentModuleId + c.stack;
+        for (item <- sig.datatypes) c = importADT(item.adtName, item.adtType, item.at, publicVis(), true, c);
+        for (item <- sig.aliases) c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), true, c);
+        for (item <- sig.tags) c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), true, c);
+        c.stack = tail(c.stack);
+    }
+
+    // Add constructors next, ensuring they are visible for the imported functions.
+    // NOTE: This is one area where we could have problems. Once the checker is working
+    // correctly, TODO: calculate the types in the signature, so we don't risk clashes
+    // over constructor names (or inadvertent visibility of constructor names) that would
+    // not have been an issue before, when we did not have parameters with patterns.
+    for (modName <- importOrder) {
+        sig = sigMap[modName];
+        c.stack = currentModuleId + c.stack;
+        for (item <- sig.publicConstructors) c = importConstructor(item.conName, item.adtType, item.argTypes, item.adtAt, item.at, publicVis(), c);
+        c.stack = tail(c.stack);
+    }
+    
+    // Now, bring in all public names, including annotations, public vars, and public functions.
+    for (modName <- importOrder) {
+        sig = sigMap[modName];
+        c.stack = currentModuleId + c.stack;
+        for (item <- sig.publicVariables) c = importVariable(item.variableName, item.variableType, item.at, publicVis(), c);
+        for (item <- sig.publicFunctions) c = importFunction(item.functionName, item.sig, item.at, publicVis(), c);
+        for (item <- sig.annotations) c = importAnnotation(item.annName, item.annType, item.onType, item.at, publicVis(), c);
+        c.stack = tail(c.stack);
+    }
+    
+    c = pushTiming(c, "Imported module signatures", dt1, now());
+
+    c.stack = currentModuleId + c.stack;
+	pt = parseExpression(expString);
+	< c, rt > = checkExp(pt, c);
+	c.stack = tail(c.stack);
+	return < c, rt >;
+}

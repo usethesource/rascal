@@ -108,6 +108,7 @@ private RSignature createRSignature(Tree t, set[RName] visitedAlready) {
 		sig = createModuleBodySignature(b,sig,b@\loc);
 		return sig;
 	}
+	if (t has top && Module m := t.top) t = m;
 	if ((Module) `<Header h> <Body b>` := t) {
 		switch(h) {
 			case (Header)`<Tags t> module <QualifiedName n> <Import* i>` :
