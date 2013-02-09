@@ -282,6 +282,9 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 
 	protected static Result<IValue> importModule(QualifiedName imported, IEvaluator<Result<IValue>> __eval) {
 		String name = Names.fullName(imported);
+		//System.err.println("importModule: " + name);
+		//long before = System.currentTimeMillis();
+		
 		GlobalEnvironment heap = __eval.__getHeap();
 		if (!heap.existsModule(name)) {
 			// deal with a fresh module that needs initialization
@@ -305,6 +308,10 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		if (heap.getModule(name).isDeprecated()) {
 			__eval.getStdErr().println(imported.getLocation() + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
 		}
+		
+		//long after = System.currentTimeMillis();
+		//System.err.println("Evaluator: Importing " + name + " takes " + (after - before) + " msec.");
+
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 	}
 }

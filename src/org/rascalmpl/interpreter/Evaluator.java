@@ -1070,7 +1070,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IRascalMonitor old = setMonitor(monitor);
 		interrupt = false;
 		try {
-			eval("import " + string + ";", URIUtil.rootScheme("import"));
+			eval("import " + string + ";", URIUtil.rootScheme("import"));		
 		}
 		finally {
 			setMonitor(old);
