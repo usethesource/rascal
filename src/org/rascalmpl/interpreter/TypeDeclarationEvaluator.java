@@ -16,7 +16,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -85,30 +84,31 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 	
-	public void declareConstructor(DataAbstract x, Type type, List<Type> mutualTypes, Environment env) {
+	public void declareAbstractDataTypeFunctor(Data x, String type, Type[] tparams, Map<Type, Type> types, Environment env) {
 		TypeFactory tf = TypeFactory.getInstance();
 		Type adt = declareAbstractDataType(x.getUser(), env);
-		int size = adt.getTypeParameters().getArity();
-		Map<Type, Type> map = new HashMap<Type, Type>();
-		if(size == mutualTypes.size()) {
-			for(int i = 0; i < size; i++) {
-				map.put(mutualTypes.get(i), adt.getTypeParameters().getFieldType(i));
-			}
-		}
-		Set<Type> alternatives = env.lookupAlternatives(type);
+		int arity = adt.getTypeParameters().getArity();
+		Type[] typeParameters = new Type[arity + tparams.length];
+		for(int i = 0; i < arity; i++)
+			typeParameters[i] = adt.getTypeParameters().getFieldType(i);
+		for(int i = 0; i < tparams.length; i++)
+			typeParameters[arity + i] = tparams[i];
+		Type functor = env.abstractDataType(type, typeParameters);
+		org.rascalmpl.interpreter.env.IsomorphicTypes.declareAsIsomorphic(adt, functor);
+		org.rascalmpl.interpreter.env.IsomorphicTypes.storeParameterization(functor, types);
+		Set<Type> alternatives = env.lookupAlternatives(adt);
 		for(Type alt : alternatives) {
-			int arity = alt.getFieldTypes().getArity();
+			arity = alt.getFieldTypes().getArity();
 			String[] labels = new String[arity];
-			Type[] types = new Type[arity];
+			Type[] childTypes = new Type[arity];
 			for(int i = 0; i < arity; i++) {
 				labels[i] = alt.getFieldName(i);	
-				if(map.containsKey(alt.getFieldType(i)))
-					types[i] = map.get(alt.getFieldType(i));
-				else
-					types[i] = alt.getFieldType(i);
+				if(types.containsKey(alt.getFieldType(i)))
+					childTypes[i] = types.get(alt.getFieldType(i));
+				else childTypes[i] = alt.getFieldType(i);
 			}
-			ConstructorFunction cons = env.constructorFromTuple(x, eval, adt, alt.getName(), 
-											tf.tupleType(types, labels), new LinkedList<KeywordParameter>());
+			ConstructorFunction cons = env.constructorFromTuple(x, eval, functor, alt.getName(), 
+											tf.tupleType(childTypes, labels), new LinkedList<KeywordParameter>());
 			cons.setPublic(true);
 		}
 	}

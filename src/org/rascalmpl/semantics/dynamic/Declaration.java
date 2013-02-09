@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +32,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
+import org.rascalmpl.interpreter.utils.Names;
 
 public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
@@ -95,6 +95,30 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 			__eval.__getTypeDeclarator().declareConstructor(this,
 					__eval.getCurrentEnvt());
+			
+			for(org.rascalmpl.ast.Tag tag : this.getTags().getTags()) {
+				if(tag.isFunctor()) {
+					String type = null;
+					Type[] tparams = null;
+					Map<Type, Type> types = new HashMap<Type, Type>();
+					type = Names.fullName(tag.getType().getQualifiedName());
+					tparams = new Type[tag.getTypes().size()];
+					int i = 0;
+					for(org.rascalmpl.ast.Expression expr : tag.getTypes()) {
+						assert(expr.getElements().size() == 2);
+						Type tparam = TF.parameterType(Names.fullName(expr.getElements().get(1).getQualifiedName()));
+						tparams[i] = tparam;
+						i = i + 1;
+						types.put(expr.getElements().get(0).getType().typeOf(__eval.getCurrentEnvt()),
+									tparam);
+					}
+					if(type != null && !types.isEmpty()) {
+						__eval.__getTypeDeclarator().declareAbstractDataTypeFunctor(this, type, tparams, types,
+								__eval.getCurrentEnvt());
+					}
+				}
+			}
+			
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		}
@@ -112,27 +136,8 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			
-			Type type = null;
-			List<Type> mutualTypes = new ArrayList<Type>();
-			for(org.rascalmpl.ast.Tag tag : this.getTags().getTags()) {
-				if(tag.isFunctor()) {
-					type = tag.getType().getType().typeOf(__eval.getCurrentEnvt());
-					if(tag.getMutualTypes().isTuple()) {
-						for(org.rascalmpl.ast.Expression mt : tag.getMutualTypes().getElements()) {
-							if(mt.isReifyType()) {
-								mutualTypes.add(mt.getType().typeOf(__eval.getCurrentEnvt()));
-							}
-						}
-					}
-				}
-			}
-			if(type != null && !mutualTypes.isEmpty()) {
-				__eval.__getTypeDeclarator().declareConstructor(this, type, mutualTypes,
-						__eval.getCurrentEnvt());
-			} else {
-				__eval.__getTypeDeclarator().declareAbstractADT(this,
-						__eval.getCurrentEnvt());
-			}
+			__eval.__getTypeDeclarator().declareAbstractADT(this,
+					__eval.getCurrentEnvt());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		}
