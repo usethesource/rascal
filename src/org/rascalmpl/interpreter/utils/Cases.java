@@ -260,7 +260,9 @@ public class Cases  {
 	       boolean isTree = subjectType.isSubtypeOf(Factory.Tree);
 	       
 	       if (isTree) { // matching abstract with concrete
-	         Result<IValue> asTree = ResultFactory.makeResult(TF.nodeType(), new TreeAsNode((IConstructor) subject.getValue()), eval);
+	         TreeAsNode wrap = new TreeAsNode((IConstructor) subject.getValue());
+	         Result<IValue> asTree = ResultFactory.makeResult(TF.nodeType(), wrap, eval);
+	         
 	         if (tryCases(eval, asTree)) {
 	           return true;
 	         }

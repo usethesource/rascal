@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
 
 public class UndeclaredModule extends StaticError {
@@ -21,5 +22,9 @@ public class UndeclaredModule extends StaticError {
 	public UndeclaredModule(String module, AbstractAST node) {
 		super("Undeclared module: " + module, node);
 	}
+	
+	public UndeclaredModule(String module, ISourceLocation node) {
+    super("Undeclared module: " + module, node);
+  }
 
 }

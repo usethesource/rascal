@@ -9,6 +9,7 @@ package org.rascalmpl.library.analysis.statistics;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.inference.ChiSquareTestImpl;
 import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
@@ -21,16 +22,13 @@ import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class Inferences {
 	private final IValueFactory values;
-	private TypeFactory types;
 	
 	public Inferences(IValueFactory values){
 		super();
-		this.types = TypeFactory.getInstance();
 		this.values = values;
 	}
 	

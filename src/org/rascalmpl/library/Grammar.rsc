@@ -36,6 +36,7 @@ anno loc Production@\loc;
  
 public Grammar grammar(set[Symbol] starts, set[Production] prods) {
   rules = ();
+
   for (p <- prods) {
     t = (p.def is label) ? p.def.symbol : p.def;
     rules[t] = t in rules ? choice(t, {p, rules[t]}) : choice(t, {p});
