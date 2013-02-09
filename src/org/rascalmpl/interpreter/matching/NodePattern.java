@@ -104,7 +104,7 @@ public class NodePattern extends AbstractMatchingResult {
 			return;
 		}
 		
-		if (subject.getType().isSubtypeOf(Factory.Tree)) {
+		if (subject.getType().isSubtypeOf(Factory.Tree) && TreeAdapter.isAppl((IConstructor) subject.getValue())) {
 		  this.subject = new TreeAsNode((IConstructor) subject.getValue());
 		}
 		else {
@@ -330,7 +330,7 @@ public class NodePattern extends AbstractMatchingResult {
 
     public TreeAsNode(IConstructor tree) {
 	    this.name = TreeAdapter.getConstructorName(tree);
-	    this.args = TreeAdapter.getASTArgs(tree);
+	    this.args = TreeAdapter.isContextFree(tree) ? TreeAdapter.getASTArgs(tree) : TreeAdapter.getArgs(tree);
     }
     
     @Override

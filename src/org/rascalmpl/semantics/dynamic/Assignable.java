@@ -331,8 +331,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (receiver == null || receiver.getValue() == null) {
 				// TODO: can this ever happen?
-				throw new UndeclaredVariable(
-						this.getReceiver().toString(), this.getReceiver());
+				throw new UndeclaredVariable(label, this.getReceiver());
 			}
 
 			Type receiverType = receiver.getType();
@@ -582,11 +581,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			Result<IValue> receiver = this.getReceiver().interpret(__eval);
 			Result<IValue> subscript = this.getSubscript().interpret(__eval);
 
-			if (receiver == null || receiver.getValue() == null) {
-				// TODO:can this ever happen?
-				throw new UninitializedVariable(this.getReceiver()
-						.toString(), this.getReceiver());
-			}
+			assert receiver != null && receiver.getValue() != null;
 			
 			if (receiver.getType().isListType()) {
 				if (subscript.getType().isIntegerType()) {
@@ -654,11 +649,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			}
 			Result<IValue> result;
 
-			if (rec == null || rec.getValue() == null) {
-				// TODO: can this ever happen?
-				throw new UninitializedVariable(this.getReceiver()
-						.toString(), this.getReceiver());
-			}
+      assert rec != null && rec.getValue() != null;
 			
 			if( !(first == null || first.getType().isIntegerType()) ){
 				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
@@ -793,11 +784,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			}
 			Result<IValue> result;
 
-			if (rec == null || rec.getValue() == null) {
-				// TODO: can this ever happen?
-				throw new UninitializedVariable(this.getReceiver()
-						.toString(), this.getReceiver());
-			}
+			assert rec != null && rec.getValue() != null;
 			
 			if( !(first == null || first.getType().isIntegerType()) ){
 				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);

@@ -29,6 +29,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 
@@ -96,7 +97,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 				IConstructor tree = (IConstructor)subject.getValue();
 
 				NonTerminalType nt = (NonTerminalType)declaredType;
-				if (nt.getSymbol().isEqual(TreeAdapter.getType(tree))) {
+				if (SymbolAdapter.isEqual(nt.getSymbol(), TreeAdapter.getType(tree))) {
 					if(anonymous) { 
 						return true;
 					}		

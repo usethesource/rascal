@@ -18,7 +18,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 

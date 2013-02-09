@@ -23,7 +23,6 @@ import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -80,11 +79,11 @@ import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
-import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
@@ -634,6 +633,23 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	}
 
+	static public class Concrete extends org.rascalmpl.ast.Expression.Concrete {
+
+    public Concrete(IConstructor node, org.rascalmpl.ast.Concrete concrete) {
+      super(node, concrete);
+    }
+    
+    @Override
+    public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+      throw new SyntaxError("concrete syntax fragment", getLocation());
+    }
+    
+    @Override
+    public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+      throw new SyntaxError("concrete syntax fragment", getLocation());
+    }
+	  
+	}
 	static public class Descendant extends
 			org.rascalmpl.ast.Expression.Descendant {
 
@@ -1389,7 +1405,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@SuppressWarnings("unchecked")
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
@@ -1398,125 +1413,46 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type elementType = TF.voidType();
 			java.util.List<IValue> results = new ArrayList<IValue>();
 
-			// Splicing is true for the complete list; a terrible, terrible
-			// hack.
-			boolean splicing = __eval.__getConcreteListsShouldBeSpliced();
-			boolean first = true;
-			int skip = 0;
-
 			for (org.rascalmpl.ast.Expression expr : elements) {
 				boolean isSplicedElem = expr.isSplice() || expr.isSplicePlus();
 				
-				Type resultType = null;
 				Result<IValue> resultElem = null;
-				if(!isSplicedElem){
+
+				if (!isSplicedElem) {
 					resultElem = expr.interpret(__eval);
 
 					if (resultElem.getType().isVoidType()) {
 						throw new NonVoidTypeRequired(expr);
 					}
 
-					if (skip > 0) {
-						skip--;
-						continue;
-					}
-
-					resultType = resultElem.getType();
 				}
-				if (!isSplicedElem && splicing && resultType instanceof NonTerminalType) {
-					IConstructor sym = ((NonTerminalType) resultType)
-							.getSymbol();
+			
+				if (isSplicedElem){
+				  resultElem = expr.getArgument().interpret(__eval);
+				  if (resultElem.getType().isVoidType()) {
+				    throw new NonVoidTypeRequired(expr);
+				  }
 
-					if (org.rascalmpl.values.uptr.SymbolAdapter.isAnyList(sym)) {
-						IConstructor appl = ((IConstructor) resultElem
-								.getValue());
-						IList listElems = org.rascalmpl.values.uptr.TreeAdapter
-								.getArgs(appl);
-						// Splice elements in list if element types permit
-						// __eval
-
-						if (!listElems.isEmpty()) {
-							elementType = elementType.lub(resultElem.getType().getElementType());
-							for (IValue val : listElems) {
-								results.add(val);
-							}
-						} else {
-							// make sure to remove surrounding sep
-							if (!first) {
-								if (org.rascalmpl.values.uptr.SymbolAdapter
-										.isIterStarSeps(sym)) {
-									for (@SuppressWarnings("unused")
-									IValue sep : org.rascalmpl.values.uptr.SymbolAdapter
-											.getSeparators(sym)) {
-										results.remove(results.size() - 1);
-									}
-								}
-							} else {
-								if (org.rascalmpl.values.uptr.SymbolAdapter
-										.isIterStarSeps(sym)) {
-									skip = org.rascalmpl.values.uptr.SymbolAdapter
-											.getSeparators(sym).length();
-								}
-							}
-						}
-					} else {
-						// Just add it.
-						elementType = elementType.lub(resultElem.getType());
-						results.add(results.size(), resultElem.getValue());
-					}
-				} else {
-					/* = no concrete syntax */
-					if(isSplicedElem){
-						resultElem = expr.getArgument().interpret(__eval);
-						if (resultElem.getType().isVoidType()) {
-							throw new NonVoidTypeRequired(expr);
-						}
-
-						if(resultElem.getType().isListType()|| resultElem.getType().isSetType()){
-							/*
-							 * Splice elements in list
-							 */
-							elementType = elementType.lub(resultElem.getType().getElementType());
-							for (IValue val : (Iterable<IValue>) resultElem.getValue()) {
-								results.add(val);
-							}
-							first = false;
-							continue;
-						} 
-					}
-					
-					elementType = elementType.lub(resultElem.getType());
-					results.add(results.size(), resultElem.getValue());
+				  if(resultElem.getType().isListType()|| resultElem.getType().isSetType()){
+				    /*
+				     * Splice elements in list
+				     */
+				    for (IValue val : (Iterable<IValue>) resultElem.getValue()) {
+				      elementType = elementType.lub(val.getType());
+				      results.add(val);
+				    }
+				    continue;
+				  } 
 				}
-//					if (resultElem.getType().isListType()
-//							&& !expr.isList()
-//							&& elementType.isSubtypeOf(resultElem.getType()
-//									.getElementType())) {
-//						/*
-//						 * Splice elements in list if element types permit
-//						 * __eval
-//						 */
-//						for (IValue val : ((IList) resultElem.getValue())) {
-//							elementType = elementType.lub(val.getType());
-//							results.add(val);
-//						}
-//						System.err.println("AUTOMATIC LIST SPLICING: " + __eval.getCurrentAST().getLocation());
-//					} else {
-//						elementType = elementType.lub(resultElem.getType());
-//
-//						results.add(results.size(), resultElem.getValue());
-//					}
-//				}
 
-				first = false;
+				elementType = elementType.lub(resultElem.getType());
+				results.add(results.size(), resultElem.getValue());
 			}
+
 			Type resultType = TF.listType(elementType);
 			IListWriter w = __eval.__getVf().listWriter();
 			w.appendAll(results);
-			// Was: return makeResult(resultType, applyRules(w.done()));
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
-					resultType, w.done(), __eval);
-
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(resultType, w.done(), __eval);
 		}
 
 		@Override
@@ -2345,7 +2281,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type elementType = TF.voidType();
 
 			for (org.rascalmpl.ast.Expression elt : getElements()) {
-				elementType = elementType.lub(elt.typeOf(env));
+				Type eltType = elt.typeOf(env);
+				
+				// TODO: here we need to properly deal with splicing operators!!!
+				if (eltType.isSetType()) {
+				  eltType = eltType.getElementType();
+				}
+        elementType = elementType.lub(eltType);
 			}
 
 			return TF.setType(elementType);

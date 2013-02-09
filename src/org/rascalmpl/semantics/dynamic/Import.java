@@ -28,9 +28,15 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.LocationLiteral;
+import org.rascalmpl.ast.Module;
+import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.SyntaxDefinition;
+import org.rascalmpl.ast.Tag;
+import org.rascalmpl.ast.TagString.Lexical;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -39,6 +45,9 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.result.SourceLocationResult;
 import org.rascalmpl.interpreter.staticErrors.ModuleImport;
+import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatch;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleProvider;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -47,7 +56,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public abstract class Import extends org.rascalmpl.ast.Import {
+public abstract class Import {
 	
 	static public class External extends org.rascalmpl.ast.Import.External {
 
@@ -132,26 +141,19 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 					throw RuntimeExceptionFactory.moduleNotFound(mn, eval.getCurrentAST(), eval.getStackTrace());
 				}
 				
-				return importModule(this.getName(), eval);
+				importModule(Names.fullName(this.getName()), getLocation(), eval);
+				return ResultFactory.nothing();
 			} else {
 				throw new UndeclaredModuleProvider(resourceScheme, eval.getCurrentAST());
 			}
 		}
 		
-		@Override
-		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
-			// TODO: this means that external imports do not support syntax definition for now
-			return Names.fullName(getName());
-		}
-
-
 		private ICallableValue getImporter(String s, Environment currentEnvt) {
 			return currentEnvt.getHeap().getResourceImporter(s);
 		}
 	}
 	
 	static public class Extend extends org.rascalmpl.ast.Import.Extend {
-
 		public Extend(IConstructor node, ImportedModule module) {
 			super(node, module);
 		}
@@ -159,159 +161,160 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			String name = Names.fullName(this.getModule().getName());
-			eval.extendCurrentModule(this.getLocation(), name);
-			
-			GlobalEnvironment heap = eval.getHeap();
-			if (heap.getModule(name).isDeprecated()) {
-				eval.getStdErr().println(getLocation() + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
-			}
+			extendCurrentModule(this.getLocation(), name, eval);
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
-		
-		@Override
-		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
-			String name = Names.fullName(this.getModule().getName());
-
-			GlobalEnvironment heap = eval.__getHeap();
-			if (!heap.existsModule(name)) {
-				// deal with a fresh module that needs initialization
-				heap.addModule(new ModuleEnvironment(name, heap));
-			}
-			
-			ModuleEnvironment env = eval.getCurrentModuleEnvironment();
-			
-			if (env.getExtends().contains(name)) {
-				return name;
-			}
-
-			try {
-				eval.getCurrentModuleEnvironment().addExtend(name);
-
-				if (withImports) {
-					org.rascalmpl.ast.Module mod = eval.preParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
-					mod.declareSyntax(eval, true);
-				}
-				
-				return name;
-			}
-			catch (ModuleImport e) {
-				// when a module does not load, the import should not fail here, rather it will fail when we evaluate the module
-				return null;
-			}
-		}
-		
-		
 	}
 
 	static public class Default extends org.rascalmpl.ast.Import.Default {
-
 		public Default(IConstructor __param1, ImportedModule __param2) {
 			super(__param1, __param2);
 		}
 
 		@Override
-		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
-			String name = Names.fullName(this.getModule().getName());
-
-			GlobalEnvironment heap = eval.__getHeap();
-			if (!heap.existsModule(name)) {
-				// deal with a fresh module that needs initialization
-				heap.addModule(new ModuleEnvironment(name, heap));
-			}
-
-			try {
-				eval.addImportToCurrentModule(this, name);
-
-				if (withImports) {
-					org.rascalmpl.ast.Module mod = eval.preParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
-					Environment old = eval.getCurrentEnvt();
-					try {
-						eval.setCurrentEnvt(heap.getModule(name));
-						mod.declareSyntax(eval, false);
-					}
-					finally {
-						eval.setCurrentEnvt(old);
-					}
-				}
-			}
-			catch (ModuleImport e) {
-				// when a module does not load, the import should not fail here, rather it will fail when we evaluate the module
-				return null;
-			}
-
-			return null;
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+			 importModule(Names.fullName(getModule().getName()), getLocation(), eval);
+			 return ResultFactory.nothing();
 		}
-		
-		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			// TODO support for full complexity of import declarations
-			return importModule(this.getModule().getName(), __eval);
-
-		}
-
 	}
 
 	static public class Syntax extends org.rascalmpl.ast.Import.Syntax {
-
 		public Syntax(IConstructor __param1, SyntaxDefinition __param2) {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
-			return getSyntax().declareSyntax(eval, withImports);
-		}
-		
-		@Override
+    @Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			String parseTreeModName = "ParseTree";
 			if (!eval.__getHeap().existsModule(parseTreeModName)) {
-				eval.evalRascalModule(this, parseTreeModName);
+				loadModule(getLocation(), parseTreeModName, eval);
 			}
-			eval.addImportToCurrentModule(this, parseTreeModName);
+			addImportToCurrentModule(getLocation(), parseTreeModName, eval);
 
-			declareSyntax(eval, false);
+			getSyntax().interpret(eval);
 			return nothing();
 		}
-
 	}
 
-	public Import(IConstructor __param1) {
-		super(__param1);
-	}
-
-	protected static Result<IValue> importModule(QualifiedName imported, IEvaluator<Result<IValue>> __eval) {
-		String name = Names.fullName(imported);
+	public static void importModule(String name, ISourceLocation src, IEvaluator<Result<IValue>> eval) {
 		//System.err.println("importModule: " + name);
 		//long before = System.currentTimeMillis();
 		
-		GlobalEnvironment heap = __eval.__getHeap();
+		GlobalEnvironment heap = eval.__getHeap();
+		
 		if (!heap.existsModule(name)) {
 			// deal with a fresh module that needs initialization
 			heap.addModule(new ModuleEnvironment(name, heap));
-			__eval.evalRascalModule(imported, name);
-			__eval.addImportToCurrentModule(imported, name);
-		} else if (__eval.getCurrentEnvt() == __eval.__getRootScope()) {
+			loadModule(src, name, eval);
+		} 
+		else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
 			// in the root scope we treat an import as a "reload"
 			heap.resetModule(name);
-			__eval.evalRascalModule(imported, name);
-			__eval.addImportToCurrentModule(imported, name);
-		} else {
-			// otherwise simply add the current imported name to the imports
-			// of the current module
-			if (!heap.getModule(name).isInitialized()) {
-				__eval.evalRascalModule(imported, name);
-			}
-			__eval.addImportToCurrentModule(imported, name);
-		}
-	
+			loadModule(src, name, eval);
+		} 
+		
+		addImportToCurrentModule(src, name, eval);
+		
 		if (heap.getModule(name).isDeprecated()) {
-			__eval.getStdErr().println(imported.getLocation() + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
+			eval.getStdErr().println(src + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
 		}
 		
 		//long after = System.currentTimeMillis();
 		//System.err.println("Evaluator: Importing " + name + " takes " + (after - before) + " msec.");
 
-		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
+		return;
 	}
+	
+	public static void extendCurrentModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
+    eval.getStdErr().println("extending " + name);
+    GlobalEnvironment heap = eval.__getHeap();
+    ModuleEnvironment other = heap.getModule(name);;
+    
+    if (other == null) {
+      // deal with a fresh module that needs initialization
+      heap.addModule(new ModuleEnvironment(name, heap));
+      other = loadModule(x, name, eval);
+    } 
+    else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
+      // in the root scope we treat an extend as a "reload"
+      heap.resetModule(name);
+      other = loadModule(x, name, eval);
+    } 
+    
+    // now simply extend the current module
+    eval.getCurrentModuleEnvironment().extend(heap.getModule(name));
+  }
+	
+  public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
+    GlobalEnvironment heap = eval.getHeap();
+    
+    ModuleEnvironment env = heap.getModule(name);
+    if (env == null) {
+      env = new ModuleEnvironment(name, heap);
+      heap.addModule(env);
+    }
+    
+    try {
+      Module module = buildModule(name, env, eval);
+
+      if (isDeprecated(module)) {
+        eval.getStdErr().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
+      }
+      
+      if (module != null) {
+        String internalName = org.rascalmpl.semantics.dynamic.Module.getModuleName(module);
+        if (!internalName.equals(name)) {
+          throw new ModuleNameMismatch(internalName, name, x);
+        }
+        heap.setModuleURI(name, module.getLocation().getURI());
+        module.interpret(eval);
+        
+        return env;
+      }
+    } catch (StaticError e) {
+      heap.removeModule(env);
+      throw e;
+    } catch (Throw e) {
+      heap.removeModule(env);
+      throw e;
+    } catch (IOException e) {
+      heap.removeModule(env);
+      throw new ModuleImport(name, e.getMessage(), x);
+    }
+
+    heap.removeModule(env);
+    throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x);
+  }
+  
+  private static boolean isDeprecated(Module preModule){
+    for (Tag tag : preModule.getHeader().getTags().getTags()) {
+      if (((Name.Lexical) tag.getName()).getString().equals("deprecated")) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  private static String getDeprecatedMessage(Module preModule){
+    for (Tag tag : preModule.getHeader().getTags().getTags()) {
+      if (((Name.Lexical) tag.getName()).getString().equals("deprecated")) {
+        String contents = ((Lexical) tag.getContents()).getString();
+        return contents.substring(1, contents.length() -1);
+      }
+    }
+    return "";
+  }
+  
+  private static Module buildModule(String name, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
+    IConstructor tree = eval.parseModule(eval, URIUtil.createRascalModule(name), env);
+    return eval.getBuilder().buildModule(tree);
+  }
+  
+  private static void addImportToCurrentModule(ISourceLocation src, String name, IEvaluator<Result<IValue>> eval) {
+    ModuleEnvironment module = eval.getHeap().getModule(name);
+    if (module == null) {
+      throw new UndeclaredModule(name, src);
+    }
+    eval.getCurrentModuleEnvironment().addImport(name, module);
+  }
 }

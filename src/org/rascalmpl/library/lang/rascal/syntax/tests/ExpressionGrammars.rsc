@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-module lang::rascal::syntax::tests::ExpressionGrammars
+module lang::rascal::\syntax::tests::ExpressionGrammars
 
 lexical Id = [a-z] !<< [a-z]+ !>> [a-z];
 lexical Num = [0-9]+;

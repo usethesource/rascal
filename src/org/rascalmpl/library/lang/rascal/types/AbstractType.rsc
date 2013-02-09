@@ -18,7 +18,7 @@ import Message;
 import ParseTree;
 
 import lang::rascal::types::AbstractName;
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 
 @doc{Extension to add new types used internally during name resolution and checking.}
 public data Symbol =

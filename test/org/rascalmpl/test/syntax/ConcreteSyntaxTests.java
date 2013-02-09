@@ -54,174 +54,174 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("parse(#DS, |testdata:///DS.trm|) == (DS)`d d d`;"));
 	}
 
-	@Test
+	@Test @Ignore("not supported")
 	public void singleA(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a` := `a`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void singleATyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("(A)`a` := `a`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void singleAUnquoted1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("a := `a`;"));
 	}
 	
-	@Test(expected=UndeclaredVariable.class)
+	@Test(expected=UndeclaredVariable.class) @Ignore("not supported")
 	public void singleAUnquoted2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("a := a;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void AB(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a b` := `a b`;"));
 	}
 	
-	@Test
-	public void ABspaces1(){
+	@Test @Ignore("not supported")
+	public void ABspaces1(){ 
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a b` := `a   b`;"));
 	}
 	
-	@Test(expected=UnsupportedPattern.class)
+	@Test(expected=UnsupportedPattern.class) @Ignore("not supported")
 	public void varAQuoted(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		runTestInSameEvaluator("`<someA>` := `a`;");
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void varAassign(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		runTestInSameEvaluator("{someA := `a` && someA == `a`;}");
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void varAQuotedTyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`<A someA>` := `a`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void varAQuotedDeclaredBefore(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{A someA; (A)`<someA>` := `a`;}"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported") 
 	public void VarATypedInsertAmbiguous(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA>` := `a` && someA == `a`; }"));
 	}
 
-	@Test
+	@Test @Ignore("not supported")
 	public void VarATypedInsert(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA>` := `a` && someA == `a`; }"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void ABvars1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a <someB>` := `a b`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void ABvars1Typed(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a <B someB>` := `a b`;"));
 	}
 	
-	@Test // (expected=AmbiguousConcretePattern.class)
+	@Test @Ignore("not supported")
 	public void ABvars2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`<someA> <someB>` := `a b`;"));
 	}
 
-	@Test
+	@Test @Ignore("not supported")
 	public void ABvars2Typed(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`<A someA> <B someB>` := `a b`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void ABvars2TypedEq(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{`<A someA> <B someB>` := `a b` && someA ==`a` && someB == `b`;}"));
 	}
 	
-	@Test // (expected=AmbiguousConcretePattern.class)
+	@Test @Ignore("not supported")
 	public void ABvars2TypedInsertWithoutTypes(){ 
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA><B someB>` := `a b` &&  `<someA><someB>` == `a b`;}"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void ABvars2TypedInsertWithTypes(){ 
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA><B someB>` := `a b` && (C)`<someA><someB>` == `a b`;}"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void ABequal1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a b` == `a b`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void ABequal5(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`a b` == `a  b`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void D1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`d` := `d`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void D2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`d d` := `d d`;"));
 	}
 
-	@Test
+	@Test @Ignore("not supported")
 	public void D3(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("(DS)`d d` := `d d`;"));
 	}
 
-	@Test
+	@Test @Ignore("not supported")
 	public void D4(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`d d` := (DS)`d d`;"));
@@ -234,20 +234,20 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 
 	
-	@Test(expected=UnsupportedPattern.class)
+	@Test(expected=UnsupportedPattern.class) @Ignore("not supported")
 	public void Dvars(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`<Xs>` := `d d`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void DvarsTyped(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ D+ Xs := (D+) `d d` && Xs == (D+) `d d`; }"));
 	}
 	
-	@Test
+	@Test 
 	public void DvarsTypedInsert2(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ (DS)`<D+ Xs>` := (DS)`d`; }"));
@@ -260,21 +260,21 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 
 	
-	@Test(expected=StaticError.class)
+	@Test(expected=StaticError.class) @Ignore("not supported")
 	public void DvarsTypedInsert2Untyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<D+ Xs>` := `d`; }"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void DvarsTypedInsert32(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<D+ Xs>` := (D+) `d d`; }"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void DvarsTypedInsert4UnTyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -288,7 +288,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("(DS)`d <D+ Xs>` := (DS)`d d` && (DS)`d <D+ Xs>` == (DS)`d d`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void DvarsTypedInsert5Untyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -302,48 +302,48 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ (DS)`d <D+ Xs>` := (DS)`d d d` && (DS)`d <D+ Xs>` == (DS)`d d d`; }"));
 	}
 
-	@Test
+	@Test @Ignore("not supported")
 	public void E1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`e` := `e`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void E2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`e, e` := `e, e`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void E2spaces1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`e, e` := `e , e`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void E2spaces2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`e, e` := `e ,  e`;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void Evars1(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ Xs := `e, e` && Xs == `e, e`;}"));
 	}
 	
-	@Test
+	@Test 
 	@Ignore("Functionality subject to future/current change")
 	public void Evar1Typed(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ {E \",\"}+ Xs := ({E \",\"}+) `e, e` && Xs == ({E \",\"}+)  `e, e`;}"));
 	}
 	
-	@Test // (expected=AmbiguousConcretePattern.class)
+	@Test @Ignore("not supported") // (expected=AmbiguousConcretePattern.class)
 	public void Evars2(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `e, <Xs>` := `e, e` && Xs == `e`;}"));
@@ -388,7 +388,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertFalse(runTestInSameEvaluator("{E \",\"}+ Zs := ({E \",\"}*) ``;"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void emptyListVariablePatternShouldBeSplicedInbetweenSeparators() {
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -420,6 +420,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test // (expected=AmbiguousConcretePattern.class)
+	@Ignore("not supported")
 	// @Ignore("needs to be reinstated when we have a type checker")
 	public void Evars3(){
 		prepare("import GrammarABCDE;");
@@ -475,7 +476,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ `<{E \",\"}+ Xs>` := `e, e` && `e, <{E \",\"}+ Xs>` == `e, e, e`; }"));
 	}
 	
-	@Test
+	@Test @Ignore("not supported")
 	public void EvarsTypedInsert3(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -562,29 +563,29 @@ public class ConcreteSyntaxTests extends TestFramework {
 
 	@Test
 	public void Pico1(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{t1 = `begin declare x: natural; x := 10 end`;true;}"));
+		assertTrue(runTestInSameEvaluator("{t1 = (Program) `begin declare x: natural; x := 10 end`;true;}"));
 	}
 	
 	@Test
 	public void Pico2(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{Program P := `begin declare x: natural; x := 10 end`;}"));
+		assertTrue(runTestInSameEvaluator("{Program P := (Program) `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
 	public void Pico3(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{`<Program P>` := `begin declare x: natural; x := 10 end`;}"));
+		assertTrue(runTestInSameEvaluator("{(Program) `<Program P>` := (Program) `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void Pico4(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{`begin <decls> <stats> end` := `begin declare x: natural; x := 10 end`;}"));
 	}
@@ -592,53 +593,53 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void Pico5(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{`begin <Decls decls> <{Statement \";\"}* stats> end` := `begin declare x: natural; x := 10 end`;}"));
+		assertTrue(runTestInSameEvaluator("{`begin <Declarations decls> <{Statement \";\"}* stats> end` := `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void Pico6(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{Decls decls; {Statement \";\"}* stats; `begin <decls> <stats> end` := `begin declare x: natural; x := 10 end`;}"));
+		assertTrue(runTestInSameEvaluator("{Declarations decls; {Statement \";\"}* stats; `begin <decls> <stats> end` := `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void Pico7a(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{`begin <Decls decls> <{Statement \";\"}+ stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
+		assertTrue(runTestInSameEvaluator("{`begin <Declarations decls> <{Statement \";\"}+ stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
 				                          "(decls == `declare x: natural;`);}"));
 	}
 	
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void Pico7b(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{`begin <Decls decls> <{Statement \";\"}+ stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
+		assertTrue(runTestInSameEvaluator("{`begin <Declarations decls> <{Statement \";\"}+ stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
 				                          "(decls == `declare x: natural;`) && (stats == ({Statement \";\"}+)`x := 1; x := 2`);}"));
 	}
 	
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void Pico7c(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{`begin <Decls decls> <{Statement \";\"}* stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
+		assertTrue(runTestInSameEvaluator("{`begin <Declarations decls> <{Statement \";\"}* stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
 				                          "(decls == `declare x: natural;`) && (stats == ({Statement \";\"}*)`x := 1; x := 2`);}"));
 	}
 	
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void Pico8(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ bool B;" +
-				                          "  if(`begin <Decls decls> <{Statement \";\"}* stats> end` := `begin declare x: natural; x := 1; x := 2 end`){" +
+				                          "  if(`begin <Declarations decls> <{Statement \";\"}* stats> end` := `begin declare x: natural; x := 1; x := 2 end`){" +
 				                          "            B = (decls == `declare x: natural;`);" +
 				                          "  } else" +
 				                          "     B = false; " +
@@ -647,19 +648,19 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	private String QmoduleM = "module M\n" +
-	                         "import lang::pico::syntax::Main;\n" +
+	                         "import lang::pico::\\syntax::Main;\n" +
 	                         "import ParseTree;\n" +
-	                         "public Tree t1 = `begin declare x: natural; x := 10 end`;\n" +
-	                         "public Tree t2 = `declare x : natural;`;\n";
+	                         "public Tree t1 = (Program) `begin declare x: natural; x := 10 end`;\n" +
+	                         "public Tree t2 = (Declarations) `declare x : natural;`;\n";
 	
 	@Test
 	public void PicoQuoted0() {
-		prepareModule("M", QmoduleM + "public bool match1() { return `<Program program>` := t1; }\n");
+		prepareModule("M", QmoduleM + "public bool match1() { return (Program) `<Program program>` := t1; }\n");
 	}
 	
 	@Test
 	public void PicoQuoted1(){
-		prepareModule("M", QmoduleM + "public bool match1() { return `<Program program>` := t1; }\n");
+		prepareModule("M", QmoduleM + "public bool match1() { return (Program) `<Program program>` := t1; }\n");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match1();"));
@@ -676,7 +677,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted3(){
-		prepareModule("M", QmoduleM + "public bool match3() { return `begin <decls> <stats> end` := t1; }\n");
+		prepareModule("M", QmoduleM + "public bool match3() { return (Program) `begin <Declarations decls> <{Statement \";\"}* stats> end` := t1; }\n");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match3();"));
@@ -685,7 +686,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted4(){
-		prepareModule("M", QmoduleM + "public bool match4() { return `begin <Decls decls> <stats> end` := t1; }");
+		prepareModule("M", QmoduleM + "public bool match4() { return `begin <Declarations decls> <stats> end` := t1; }");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match4();"));
@@ -693,7 +694,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test
 	public void PicoQuoted5(){
-		prepareModule("M", QmoduleM + "public bool match5() { return `begin <decls> <{Statement \";\"}* stats> end` := t1; }");
+		prepareModule("M", QmoduleM + "public bool match5() { return (Program) `begin <Declarations decls> <{Statement \";\"}* stats> end` := t1; }");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match5();"));
@@ -702,7 +703,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted6(){
-		prepareModule("M", QmoduleM + "public bool match6() { return `begin <Decls decls> <{Statement \";\"}* stats> end` := t1; }");
+		prepareModule("M", QmoduleM + "public bool match6() { return (Program) `begin <Declarations decls> <{Statement \";\"}* stats> end` := t1; }");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match6();"));
@@ -727,7 +728,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	private String UQmoduleM = "module M\n" +
-    "import lang::pico::syntax::Main;\n" +
+    "import lang::pico::\\syntax::Main;\n" +
     "import ParseTree;" +
     "public Tree t1 = begin declare x: natural; x := 10 end;\n";
 
@@ -759,7 +760,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test @Ignore
 	public void PicoUnQuoted4(){
-		prepareModule("M", UQmoduleM + "public bool match4() { return begin <Decls decls> <stats> end := t1; }");
+		prepareModule("M", UQmoduleM + "public bool match4() { return begin <Declarations decls> <stats> end := t1; }");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match4();"));
@@ -775,7 +776,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test @Ignore
 	public void PicoUnQuoted6(){
-		prepareModule("M", UQmoduleM + "public bool match6() { return begin <Decls decls> <{Statement \";\"}* stats> end := t1; }");
+		prepareModule("M", UQmoduleM + "public bool match6() { return begin <Declarations decls> <{Statement \";\"}* stats> end := t1; }");
 		prepareMore("import ParseTree;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match6();"));
@@ -784,7 +785,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatement1Untyped(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `a:=1` ]; L == [ `a:=1` ];}"));
 	}
@@ -792,7 +793,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatement1Typed(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | Statement X <- `a:=1` ]; L == [ `a:=1` ];}"));
 	}
@@ -800,7 +801,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatementsUntyped(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `a:=1;a:=2;a:=3` ]; L == [`a:=1`, `a:=2`, `a:=3`];}"));
 	}
@@ -808,7 +809,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatementsTyped(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | Statement X <- `a:=1;a:=2;a:=3` ]; L == [`a:=1`, `a:=2`, `a:=3`];}"));
 	}
@@ -816,7 +817,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatementsConcretePattern1(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | `<\\PICO-ID X>:=1` <- `a:=1;b:=2;c:=1` ]; L == [ `a`, `c` ];}"));
 	}
@@ -824,7 +825,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatementsConcretePattern2(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | /`b:=<EXP X>` <- `a:=1;b:=2;c:=3` ]; L == [ (EXP)`2` ];}"));
 	}
@@ -832,7 +833,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatementsConcretePattern3(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [Id | /`<\\PICO-ID Id> : <TYPE Tp>` <- `x : natural, y : string` ]; L == [ `x`, `y` ];}"));
 	}
@@ -840,7 +841,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatementsConcretePattern4(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = []; for(/`<\\PICO-ID Id> : <TYPE Tp>` <- `x : natural, y : string`){L += Id;} L == [ `x`, `y` ];}"));
 	}
@@ -848,14 +849,14 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void forPicoStatementsTyped1(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | /Statement X <- `a:=1;a:=2;a:=3` ]; L == [`a:=1`, `a:=2`, `a:=3`];}"));
 	}
 	
 	@Test
 	public void forPicoStatementsTyped2(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 //		assertTrue(runTestInSameEvaluator("{L = [X | /Statement X <- `begin declare a : natural; a:=1;a:=2;a:=3 end` ]; L == [`a:=1`, `a:=2`, `a:=3`];}"));
 	}
@@ -863,21 +864,21 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	@Ignore("Functionality subject to future/current change")
 	public void forPicoStatementsTyped3(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | /EXP X <- `begin declare a : natural; a:=1;b:=2;c:=3 end` ]; L == [(EXP)`1`, (EXP)`2`, (EXP)`3` ];}"));
 	}
 	
 	@Test
 	public void PicoStringDoesNotOverrideRascalString1(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{str s = \"abc\"; s == \"abc\";}"));
 	}
 	
 	@Test
 	public void PicoStringDoesNotOverrideRascalString2(){
-		prepare("import lang::pico::syntax::Main;");
+		prepare("import lang::pico::\\syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{int n = 3; s = \"abc<n>\"; s == \"abc3\";}"));
 	}

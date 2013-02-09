@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -25,7 +24,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ShellExec {
