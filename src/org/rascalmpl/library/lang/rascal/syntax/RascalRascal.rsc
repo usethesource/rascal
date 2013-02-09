@@ -869,7 +869,7 @@ syntax Tag
 	= @Folded @category="Comment" \default   : "@" Name name TagString contents 
 	| @Folded @category="Comment" empty     : "@" Name name 
 	| @Folded @category="Comment" expression: "@" Name name "=" Expression expression 
-	| @Folded @category="Comment" \functor: "@" "functor" Expression type Expression mutualTypes;
+	| @Folded @category="Comment" \functor: "@" "functor" Expression type { Expression "," }+ types;
 
 syntax ModuleActuals
 	= \default: "[" {Type ","}+ types "]" ;

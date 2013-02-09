@@ -29,18 +29,18 @@ public abstract class Tag extends AbstractAST {
   }
 
   
+  public boolean hasTypes() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Expression> getTypes() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasExpression() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasMutualTypes() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getMutualTypes() {
     throw new UnsupportedOperationException();
   }
   public boolean hasType() {
@@ -245,17 +245,17 @@ public abstract class Tag extends AbstractAST {
   }
 
   static public class Functor extends Tag {
-    // Production: sig("Functor",[arg("org.rascalmpl.ast.Expression","type"),arg("org.rascalmpl.ast.Expression","mutualTypes")])
+    // Production: sig("Functor",[arg("org.rascalmpl.ast.Expression","type"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","types")])
   
     
     private final org.rascalmpl.ast.Expression type;
-    private final org.rascalmpl.ast.Expression mutualTypes;
+    private final java.util.List<org.rascalmpl.ast.Expression> types;
   
-    public Functor(IConstructor node , org.rascalmpl.ast.Expression type,  org.rascalmpl.ast.Expression mutualTypes) {
+    public Functor(IConstructor node , org.rascalmpl.ast.Expression type,  java.util.List<org.rascalmpl.ast.Expression> types) {
       super(node);
       
       this.type = type;
-      this.mutualTypes = mutualTypes;
+      this.types = types;
     }
   
     @Override
@@ -279,12 +279,12 @@ public abstract class Tag extends AbstractAST {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.Expression getMutualTypes() {
-      return this.mutualTypes;
+    public java.util.List<org.rascalmpl.ast.Expression> getTypes() {
+      return this.types;
     }
   
     @Override
-    public boolean hasMutualTypes() {
+    public boolean hasTypes() {
       return true;
     }	
   }
