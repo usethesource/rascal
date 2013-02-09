@@ -54,7 +54,7 @@ We define:
 * Parameters that represent a type variable.
 }  
 data Symbol                            //  Atomic types.
-     =  \int()
+     = \int()
      | \bool()
      | \real()
      | \rat()
@@ -84,6 +84,7 @@ data Symbol                            // Composite types.
      | \func(Symbol ret, list[Symbol] parameters)
      | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
      | \reified(Symbol symbol)
+     | \lrel(list[Symbol] symbols)
      ;
 
 data Symbol
@@ -109,6 +110,7 @@ data Attr
      = \tag(value \tag) 
      ;
 
+@doc{Transformations to create canonical forms of some types}
 public Symbol \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg) =
               \func(ret, parameters + \list(varArg));
 
@@ -124,8 +126,9 @@ public Production choice(Symbol s, {set[Production] a, choice(Symbol t, set[Prod
   
 
 @doc{Functions with variable argument lists are normalized to normal functions}
-public Production \var-func(Symbol ret, str name, list[tuple[Symbol typ, str label]] parameters, Symbol varArg, str varLabel) =
-       \func(ret, name, parameters + [<\list(varArg), varLabel>]);
+// TODO: What is this? Not sure why this is here...
+//public Production \var-func(Symbol ret, str name, list[tuple[Symbol typ, str label]] parameters, Symbol varArg, str varLabel) =
+//       \func(ret, name, parameters + [<\list(varArg), varLabel>]);
 
 @doc{
 Synopsis: Subtype on types.
@@ -151,7 +154,10 @@ public bool subtype(\rat(), \num()) = true;
 public bool subtype(\real(), \num()) = true;
 public bool subtype(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = subtype(l, r);
 public bool subtype(\rel(list[Symbol] l), \rel(list[Symbol] r)) = subtype(l, r);
-public bool subtype(\list(Symbol s), \list(Symbol t)) = subtype(s, t);  
+public bool subtype(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = subtype(l, r);
+public bool subtype(\list(Symbol s), \list(Symbol t)) = subtype(s, t);
+public bool subtype(\list(Symbol s), \lrel(list[Symbol] ls)) = subtype(s,\tuple(ls));
+public bool subtype(\lrel(list[Symbol] ls), \list(Symbol s)) = subtype(\tuple(ls),s);  
 public bool subtype(\set(Symbol s), \set(Symbol t)) = subtype(s, t);
 public bool subtype(\set(Symbol s), \rel(list[Symbol] ls)) = subtype(s,\tuple(ls));
 public bool subtype(\rel(list[Symbol] ls), \set(Symbol s)) = subtype(\tuple(ls),s);
@@ -256,6 +262,14 @@ public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLa
 public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
 public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
 public Symbol lub(\list(Symbol s), \list(Symbol t)) = \list(lub(s, t));  
+public Symbol lub(\list(Symbol s), \lrel(list[Symbol] ts)) = \list(lub(s,\tuple(ts)));  
+public Symbol lub(\lrel(list[Symbol] ts), \list(Symbol s)) = \list(lub(s,\tuple(ts)));
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \list(\value()) when size(l) != size(r);
 public Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when lfl == rfl && ltl == rtl;
 public Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(lub(lf,rf), lub(lt,rt)) when lfl != rfl || ltl != rtl;
 public Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(Symbol rf, Symbol rt)) = \map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when \label(_,_) !:= rf && \label(_,_) !:= rt;
@@ -329,44 +343,7 @@ since values may escape the scope in which they've been constructed leaving thei
 @javaClass{org.rascalmpl.library.Type}
 @reflect
 public java Symbol typeOf(value v);
-/*
-@doc{Tests to make sure a lub a == a.}
-test bool lubIdent01() = lub(\int(), \int()) == \int();
-test bool lubIdent02() = lub(\real(), \real()) == \real();
-test bool lubIdent03() = lub(\num(), \num()) == \num();
-test bool lubIdent04() = lub(\datetime(), \datetime()) == \datetime();
-test bool lubIdent05() = lub(\str(), \str()) == \str();
 
-@doc{Tests for numeric lubs.}
-test bool lubNumeric01() = lub(\int(), \real()) == \num();
-test bool lubNumeric02() = lub(\int(), \rat()) == \num();
-test bool lubNumeric03() = lub(\int(), \num()) == \num();
-test bool lubNumeric04() = lub(\real(), \int()) == \num();
-test bool lubNumeric05() = lub(\real(), \num()) == \num();
-test bool lubNumeric06() = lub(\real(), \rat()) == \num();
-test bool lubNumeric07() = lub(\num(), \int()) == \num();
-test bool lubNumeric08() = lub(\num(), \real()) == \num();
-test bool lubNumeric09() = lub(\num(), \rat()) == \num();
-test bool lubNumeric10() = lub(\rat(), \int()) == \num();
-test bool lubNumeric11() = lub(\rat(), \real()) == \num();
-test bool lubNumeric12() = lub(\rat(), \num()) == \num();
-
-@doc{Tests for lubs of incomparable types.}
-test bool lubIncomp01() = lub(\num(), \str()) == \value();
-test bool lubIncomp02() = lub(\num(), \datetime()) == \value();
-test bool lubIncomp03() = lub(\num(), \bool()) == \value();
-test bool lubIncomp04() = lub(\num(), \node()) == \value();
-
-@doc{Tests for lubs against parameters.}
-test bool lubParam01() = lub(\num(), \parameter("t", \node())) == \value();
-test bool lubParam02() = lub(\num(), \parameter("t", \int())) == \num();
-test bool lubParam03() = lub(\int(), \parameter("t", \num())) == \num();
-
-@doc{Tests lubs of tuples.}
-test bool lubTuple01() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\int()),\label("f2",\bool())])) == \tuple([\label("f1",\int()),\label("f2",\bool())]);
-test bool lubTuple02() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\int()),\label("f3",\bool())])) == \tuple([\int(),\bool()]);
-test bool lubTuple03() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\real()),\label("f2",\str())])) == \tuple([\label("f1",\num()),\label("f2",\value())]);
-*/
 @doc{
 Synopsis: Determine if the given type is an int.
 }
@@ -502,7 +479,17 @@ public bool isListType(\alias(_,_,Symbol at)) = isListType(at);
 public bool isListType(\parameter(_,Symbol tvb)) = isListType(tvb);
 public bool isListType(\label(_,Symbol lt)) = isListType(lt);
 public bool isListType(\list(_)) = true;
+public bool isListType(\lrel(_)) = true;
 public default bool isListType(Symbol _) = false;
+
+@doc{
+Synopsis: Determine if the given type is a list relation.
+}
+public bool isListRelType(\alias(_,_,Symbol at)) = isListRelType(at);
+public bool isListRelType(\parameter(_,Symbol tvb)) = isListRelType(tvb);
+public bool isListRelType(\label(_,Symbol lt)) = isListRelType(lt);
+public bool isListRelType(\lrel(_)) = true;
+public default bool isListRelType(Symbol _) = false;
 
 @doc{
 Synopsis: Determine if the given type is a map.
