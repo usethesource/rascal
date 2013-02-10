@@ -18,7 +18,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.UnguardedAppend;
 import org.rascalmpl.test.infrastructure.ConcurrentTestFramework;
-import org.rascalmpl.test.infrastructure.TestFramework;
 
 
 public class AccumulatingTests extends ConcurrentTestFramework {

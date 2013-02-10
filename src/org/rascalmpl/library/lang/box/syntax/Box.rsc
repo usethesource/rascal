@@ -7,7 +7,7 @@
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 
-module lang::box::syntax::Box
+module lang::box::\syntax::Box
 
 start syntax Main = Boxx WhitespaceAndComment*;
 

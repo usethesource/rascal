@@ -12,7 +12,6 @@
 package org.rascalmpl.library.lang.html;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -30,7 +29,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.unicode.UnicodeInputStreamReader;
 
 public class IO {
 	private final IValueFactory factory;

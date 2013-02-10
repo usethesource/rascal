@@ -1,7 +1,6 @@
 package org.rascalmpl.library.lang.csv;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
@@ -25,7 +24,6 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class IO {

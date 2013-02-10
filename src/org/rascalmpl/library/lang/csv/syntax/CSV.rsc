@@ -1,4 +1,4 @@
-module lang::csv::syntax::CSV
+module lang::csv::\syntax::CSV
 
 start syntax Table 
   = table: {Record EOL}*

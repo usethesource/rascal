@@ -14,7 +14,6 @@
 package org.rascalmpl.interpreter.utils;
 
 import java.io.PrintWriter;
-import java.net.URI;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +27,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -51,20 +49,20 @@ class Count {
 
 public class Profiler extends Thread {
 	private Evaluator eval;
-	private HashMap<AbstractAST,Count> data;
+	private HashMap<ISourceLocation,Count> data;
 	private volatile boolean running;
 	private long resolution = 1;
 	
 	public Profiler(Evaluator ev){
 		this.eval = ev;
-		this.data = new HashMap<AbstractAST,Count>();
+		this.data = new HashMap<ISourceLocation,Count>();
 		running = true;
 	}
 	
 	@Override
 	public void run(){
 		while(running){
-			AbstractAST stat = eval.getCurrentAST();
+			ISourceLocation stat = eval.getCurrentAST().getLocation();
 			if(stat != null){
 				Count currentCount = data.get(stat);
 				if(currentCount == null)
@@ -89,17 +87,16 @@ public class Profiler extends Thread {
 	 * sort it with descending tick values.
 	 */
 	
-	private List<Map.Entry<AbstractAST, Count>> sortData(){
-		 List<Map.Entry<AbstractAST, Count>> sortedData = new Vector<Entry<AbstractAST, Count>>(data.entrySet());
+	private List<Map.Entry<ISourceLocation, Count>> sortData(){
+	  List<Map.Entry<ISourceLocation, Count>> sortedData = new Vector<Entry<ISourceLocation, Count>>(data.entrySet());
 
-        java.util.Collections.sort(sortedData, new Comparator<Map.Entry<AbstractAST, Count>>(){
-			public int compare(Entry<AbstractAST, Count> entry1,
-					Entry<AbstractAST, Count> entry2) {
-				 return (entry1.getValue().equals(entry2.getValue()) ? 0 : 
-					 (entry1.getValue().getTicks() < entry2.getValue().getTicks() ? 1 : -1));
-			}
-        });
-        return sortedData;
+	  java.util.Collections.sort(sortedData, new Comparator<Map.Entry<ISourceLocation, Count>>(){
+	    public int compare(Entry<ISourceLocation, Count> entry1, Entry<ISourceLocation, Count> entry2) {
+	      return (entry1.getValue().equals(entry2.getValue()) ? 0 : 
+	        (entry1.getValue().getTicks() < entry2.getValue().getTicks() ? 1 : -1));
+	    }
+	  });
+	  return sortedData;
 	}
 	
 	public IList getProfileData(){
@@ -108,53 +105,42 @@ public class Profiler extends Thread {
 		Type listType = TF.listType(elemType);
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
 		IListWriter w = listType.writer(VF);
-		for(Map.Entry<AbstractAST, Count> e : sortData()){
-			w.insert(VF.tuple(e.getKey().getLocation(), VF.integer(e.getValue().getTicks())));
+		for(Map.Entry<ISourceLocation, Count> e : sortData()){
+			w.insert(VF.tuple(e.getKey(), VF.integer(e.getValue().getTicks())));
 		}
 		return w.done();
 	}
 	
-	public void report(){
-		
-		List<Map.Entry<AbstractAST, Count>> sortedData = sortData();
-        
-        int maxURL = 1;
-        long nTicks = 0;
-        
-        for(Map.Entry<AbstractAST, Count> e : sortedData){
-        	URI url = e.getKey().getLocation().getURI();
-        	int sz = url.toString().length();
-        	if(sz > maxURL)
-        		maxURL = sz;
-        	nTicks += e.getValue().getTicks();
-        }
-        PrintWriter out = eval.getStdOut();
-        String URLFormat = "%" + maxURL + "s";
-        out.printf("PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", data.size(), nTicks, resolution);
-        out.printf(URLFormat + "%11s%8s%9s  %s\n", " Source File", "Lines", "Ticks", "%", "Source");
-    	
-        for(Map.Entry<AbstractAST, Count> e : sortedData){
-        	ISourceLocation L = e.getKey().getLocation();
-        	
-        	String uri = L.getURI().toString();
-        	String filePrefix = "file://";
-        	if(uri.startsWith(filePrefix))
-        		uri = uri.substring(filePrefix.length());
-        	
-        	int bgn = L.getBeginLine();
-        	int end = L.getEndLine();
-        	String range = (end==bgn) ? Integer.toString(bgn) : bgn + ".." + end;
-        	
-        	int ticks = e.getValue().getTicks();
-        	double perc = (ticks * 100.0)/nTicks;
-        	
-        	String source = String.format("%-30.30s", e.getKey().toString().replaceFirst("^[\\s]+", "").replaceAll("[\\s]+", " "));
- 
-        	out.printf(URLFormat + "%11s%8d%8.1f%%  %s\n", uri, range, ticks, perc, source);
-        }
-        // Make sure that our output is seen:
-        out.flush();
-        
+	public void report() {
+	  List<Map.Entry<ISourceLocation, Count>> sortedData = sortData();
+
+	  int maxURL = 1;
+	  long nTicks = 0;
+
+	  for(Map.Entry<ISourceLocation, Count> e : sortedData){
+	    int sz = e.getKey().getURI().toString().length();
+	    if(sz > maxURL)
+	      maxURL = sz;
+	    nTicks += e.getValue().getTicks();
+	  }
+	  PrintWriter out = eval.getStdOut();
+	  String URLFormat = "%" + maxURL + "s";
+	  out.printf("PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", data.size(), nTicks, resolution);
+	  out.printf(URLFormat + "%8s%9s  %s\n", " Source File", "Ticks", "%", "Source");
+
+	  for(Map.Entry<ISourceLocation, Count> e : sortedData){
+	    String L = e.getKey().getURI().toString();
+
+	    int ticks = e.getValue().getTicks();
+	    double perc = (ticks * 100.0)/nTicks;
+
+	    String source = String.format("%s", e.getKey().toString());
+
+	    out.printf(URLFormat + "%8d%8.1f%%  %s\n", L, ticks, perc, source);
+	  }
+	  
+	  // Make sure that our output is seen:
+	  out.flush();
 	}
 
 }

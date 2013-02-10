@@ -398,6 +398,9 @@ public class TypeReifier {
 					}
 				}
 				else {
+				  if (type.getFieldTypes().isVoidType()) {
+				    return Factory.Symbol_Set.make(vf, Factory.Symbol_Void.make(vf));
+				  }
 					for (Type f : type.getFieldTypes()) {
 						w.append(f.accept(this));
 					}
@@ -416,6 +419,10 @@ public class TypeReifier {
 					}
 				}
 				else {
+				  if (type.getFieldTypes().isVoidType()) {
+            return Factory.Symbol_List.make(vf, Factory.Symbol_Void.make(vf));
+          }
+				  
 					for (Type f : type.getFieldTypes()) {
 						w.append(f.accept(this));
 					}

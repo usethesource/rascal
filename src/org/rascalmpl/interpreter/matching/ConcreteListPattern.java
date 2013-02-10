@@ -106,4 +106,9 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	public List<IVarPattern> getVariables() {
 		return pat.getVariables();
 	}
+	
+	@Override
+	public String toString() {
+	  return "concrete: " + pat.toString();
+	}
 }

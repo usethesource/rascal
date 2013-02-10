@@ -23,7 +23,7 @@ import Grammar;
 import lang::rascal::grammar::definition::Names;
 import lang::rascal::grammar::definition::Characters; 
 import lang::sdf2::util::Load;
-import lang::sdf2::syntax::Sdf2;   
+import lang::sdf2::\syntax::Sdf2;   
 
 public Symbol label(str s, conditional(Symbol t, set[Condition] cs)) = conditional(label(s, t), cs);
 public Symbol conditional(conditional(Symbol s, set[Condition] c1), set[Condition] c2) = conditional(s, c1 + c2);

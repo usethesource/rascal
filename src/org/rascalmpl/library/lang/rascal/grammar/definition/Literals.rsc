@@ -6,10 +6,9 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@bootstrapParser
 module lang::rascal::grammar::definition::Literals
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;
@@ -39,24 +38,9 @@ private list[Symbol] cistr2syms(str x) {
   } 
 }
 
-public str unescape(CaseInsensitiveStringConstant s) {
-   if ((CaseInsensitiveStringConstant) `'<StringCharacter* x>'` := s) {
-    Tree y = x; // workaround for buggy matching in lexicals
-    return "<for (StringCharacter ch <- y.args) {><character(ch)><}>";
-  }
-  throw "unexpected string constant <s>";
-}
+public str unescape(CaseInsensitiveStringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
 
-public test bool quoteTest() = unescape((StringConstant) `"\\\""`) == "\\\"";
-public test bool utf8Test() { println(unescape((StringConstant) `"\u00e9"`)); return false; }
-
-public str unescape(StringConstant s) {
-  if ((StringConstant) `"<StringCharacter* x>"` := s) {
-    Tree y = x; // workaround for buggy matching in lexicals
-    return "<for (StringCharacter ch <- y.args) {><character(ch)><}>";
-  }
-  throw "unexpected string constant <s>";
-}
+public str unescape(StringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
 
 private str character(StringCharacter c) {
   switch (c) {

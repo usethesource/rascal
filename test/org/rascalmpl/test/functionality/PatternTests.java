@@ -525,7 +525,7 @@ public class PatternTests extends TestFramework {
 	}
 
 	@Test
-	public void matchNode() {
+	public void matchADT() {
 
 		prepare("data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);");
 		
@@ -540,6 +540,61 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("f(_,_)                 := f(1,2);"));
 		assertTrue(runTestInSameEvaluator("f(_,_,_)               := f(1,2.5,true);"));
 	}
+	
+	@Test
+	public void matchADTWithKeywords() {
+
+		prepare("data F = f(int N, int M = 10, bool B = false) | f(str S);");
+		
+		assertTrue(runTestInSameEvaluator("f(1)                   := f(1);"));
+		assertTrue(runTestInSameEvaluator("f(1, M=10)             := f(1);"));
+		assertTrue(runTestInSameEvaluator("f(1, B=false, M=10)    := f(1);"));
+		assertTrue(runTestInSameEvaluator("f(1, M=20)             := f(1, B=false, M=20);"));
+		assertTrue(runTestInSameEvaluator("f(1, M=X)             := f(1, B=false, M=20) && X == 20;"));
+	}
+	
+	@Test
+	public void matchNode() {
+		
+		assertTrue(runTestInSameEvaluator("\"f\"(1)                := \"f\"(1);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(1, \"g\"(\"abc\"), true) := \"f\"(1, \"g\"(\"abc\"), true);"));
+		assertFalse(runTestInSameEvaluator("\"g\"(1)               := \"f\"(1);"));
+		assertTrue(runTestInSameEvaluator("\"g\"(1)                !:= \"f\"(1);"));
+		assertFalse(runTestInSameEvaluator("\"f\"(1, 2)            := \"f\"(1);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(1, 2)             !:= \"f\"(1);"));
+		
+		assertTrue(runTestInSameEvaluator("\"f\"(_)                := \"f\"(1);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(_,_)              := \"f\"(1,2);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(_,_,_)            := \"f\"(1,2.5,true);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(1,_,3)            := \"f\"(1,2,3);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(_,2,_)            := \"f\"(1,2,3);"));
+	}
+	
+	@Test
+	public void matchNodeWithKeywords() {
+		
+		assertTrue(runTestInSameEvaluator("\"f\"(1)                := \"f\"(1);"));
+		assertFalse(runTestInSameEvaluator("\"f\"(1)               := \"f\"(2);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(1, M=10)          := \"f\"(1, M=10);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(1)                := \"f\"(1, M=10);"));
+		assertFalse(runTestInSameEvaluator("\"f\"(1, M=10)         := \"f\"(1, M=20);"));
+		assertFalse(runTestInSameEvaluator("\"f\"(1, M=10)         := \"f\"(1);"));
+		assertFalse(runTestInSameEvaluator("\"f\"(1, M=10)         := \"f\"(1, B=false);"));
+		
+		
+		assertTrue(runTestInSameEvaluator("\"f\"(1, B=false, M=10) := \"f\"(1, M=10, B=false);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(1, M=20, B=false) := \"f\"(1, B=false, M=20);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(1, M=20)          := \"f\"(1, B=false, M=20);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(1)                := \"f\"(1, B=false, M=20);"));
+		assertFalse(runTestInSameEvaluator("\"f\"(1, B=false, M=10):= \"f\"(1, M=20, B=false);"));
+		assertFalse(runTestInSameEvaluator("\"f\"(1, M=10, B=false):= \"f\"(1, B=false, M=20);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(1, M=_, B=false)  := \"f\"(1, B=false, M=20);"));
+		assertTrue(runTestInSameEvaluator("\"f\"(_, M=20, B=false) := \"f\"(1, B=false, M=20);"));
+		
+		assertTrue(runTestInSameEvaluator("\"f\"(1, M=X)           := \"f\"(1, B=false, M=20) && X == 20;"));
+	}
+	
+	
 	
 	@Ignore @Test(expected=StaticError.class)
 	public void NoDataDecl(){

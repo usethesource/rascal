@@ -12,7 +12,7 @@ import lang::box::util::Concrete;
 import lang::box::util::Box;
 import IO;
 
-import lang::pico::syntax::Main;
+import lang::pico::\syntax::Main;
 
 /*
 alias UserDefinedFilter = Box(Tree t) ;

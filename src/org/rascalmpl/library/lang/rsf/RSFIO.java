@@ -13,8 +13,6 @@ package org.rascalmpl.library.lang.rsf;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -33,8 +31,6 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.unicode.UnicodeInputStreamReader;
-import org.rascalmpl.values.uptr.Factory;
 
 public class RSFIO {
 	private static final TypeFactory types = TypeFactory.getInstance();
@@ -210,8 +206,8 @@ public class RSFIO {
 	{
 		HashMap<java.lang.String, Type> table = new HashMap<java.lang.String, Type>();
 	
-		Type strType = types.stringType();
-		Type symbolType = Factory.Symbol;
+//		Type strType = types.stringType();
+//		Type symbolType = Factory.Symbol;
 		
 		Reader reader = null;
 		try {
