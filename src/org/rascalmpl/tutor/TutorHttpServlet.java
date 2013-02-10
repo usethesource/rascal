@@ -76,8 +76,7 @@ public class TutorHttpServlet extends HttpServlet {
 		  if(debug) System.err.println("StringParameter " + paramName + " = " + paramString);
 		  return (paramString == null) ? "" : paramString;
 	}
-	  
-	  @SuppressWarnings("unchecked")
+	 
 	public static String getParametersAsMap(HttpServletRequest request){
 		  Enumeration<String> pnames = request.getParameterNames();
 
