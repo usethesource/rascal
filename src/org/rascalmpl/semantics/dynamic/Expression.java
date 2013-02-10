@@ -1437,8 +1437,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				    /*
 				     * Splice elements in list
 				     */
+					elementType = elementType.lub(resultElem.getType().getElementType());
 				    for (IValue val : (Iterable<IValue>) resultElem.getValue()) {
-				      elementType = elementType.lub(val.getType());
 				      results.add(val);
 				    }
 				    continue;
