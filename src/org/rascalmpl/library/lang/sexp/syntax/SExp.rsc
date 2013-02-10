@@ -1,4 +1,4 @@
-module lang::sexp::syntax::SExp
+module lang::sexp::\syntax::SExp
 
 // http://people.csail.mit.edu/rivest/Sexp.txt
 import String;

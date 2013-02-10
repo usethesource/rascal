@@ -1,4 +1,4 @@
-module lang::dimacs::syntax::Dimacs
+module lang::dimacs::\syntax::Dimacs
 
 /*
 c A sample .cnf file.

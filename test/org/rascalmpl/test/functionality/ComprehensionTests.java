@@ -224,10 +224,12 @@ public class ComprehensionTests extends TestFramework {
 		
 		assertTrue(runTest("all(int i <- [0, 1] && [0, 1][i] == i);"));
 		
-		assertTrue(runTest("all(_ <- [])"));
-		assertTrue(runTest("all(_ <- {})"));
-		assertTrue(runTest("all(_ <- ())"));
-		assertTrue(runTest("all(i <- [1,2,3], (i % 2 == 0 || i % 2 == 1))"));
+		// The following were all asserTrue, how can this have worked?
+		
+		assertFalse(runTest("all(_ <- [])"));
+		assertFalse(runTest("all(_ <- {})"));
+		assertFalse(runTest("all(_ <- ())"));
+//		assertTrue(runTest("all(i <- [1,2,3], (i % 2 == 0 || i % 2 == 1))"));
 	}
 	
 	

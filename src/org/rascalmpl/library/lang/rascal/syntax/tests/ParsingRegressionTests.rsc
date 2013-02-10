@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-module lang::rascal::syntax::tests::ParsingRegressionTests
+module lang::rascal::\syntax::tests::ParsingRegressionTests
 
 import util::Reflective;
 import IO;
@@ -14,18 +14,12 @@ import Exception;
 import String;
 import ParseTree;
 
-public Tree removeConcreteSyntax(Tree m) = innermost visit (m) {
-  case appl(prod(     label("ConcreteQuoted",_),_,_),_) => appl(skipped(),[])
-  case appl(prod(label("ConcreteTypedQuoted",_),_,_),_) => appl(skipped(),[])
-  case amb({t}) => t
-};
-
 public bool hasAmb(Tree x) = /a:amb(_) := x;
 
 public bool testModule(loc f) {
   println(f);
   try {
-    if (hasAmb(removeConcreteSyntax(parseModule(f)))) {
+    if (hasAmb(parseModule(f))) {
       println("Ambiguity found while parsing: <f>");
     }
     else {

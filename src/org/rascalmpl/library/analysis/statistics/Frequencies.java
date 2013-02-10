@@ -13,7 +13,6 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class Frequencies {

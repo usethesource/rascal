@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: CWI
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.5.4.qualifier
+Bundle-Version: 0.6.0.qualifier
 Export-Package: 
  org.rascalmpl.ast,
  org.rascalmpl.checker,
@@ -70,10 +70,10 @@ Export-Package:
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors,
  org.yaml.snakeyaml
-Require-Bundle: org.eclipse.imp.pdb.values;bundle-version="0.2.5",
+Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.swt,
- org.jdom;bundle-version="1.1.1",
- org.objectweb.asm;bundle-version="3.3.1",
+ org.jdom,
+ org.objectweb.asm,
  org.apache.commons.math,
  org.apache.commons.lang,
  org.eclipse.jetty.http;bundle-version="7.5.1",
@@ -91,7 +91,7 @@ Import-Package: javax.servlet,
  javax.servlet.http,
  org.apache.commons.math.optimization;version="2.1.0",
  org.eclipse.swt,
- org.objectweb.asm;version="3.3.1",
+ org.objectweb.asm,
  org.rascalmpl.library.vis,
  org.rascalmpl.values
 Bundle-ClassPath: lib/snakeyaml-1.11.jar,

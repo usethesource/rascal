@@ -18,15 +18,21 @@ package org.rascalmpl.interpreter.matching;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.KeywordArgument;
 import org.rascalmpl.ast.KeywordArguments;
@@ -37,27 +43,33 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class NodePattern extends AbstractMatchingResult {
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private Type type;
-	private final Type constructorType;
+	private final Type patternConstructorType;
 	private QualifiedName qName;
-	private List<IMatchingResult> children;
-	private List<IMatchingResult> orgChildren;
+	private List<IMatchingResult> patternChildren;
+	private List<IMatchingResult> patternOriginalChildren;
 	private INode subject;
 	private int nextChild;
 	private IMatchingResult namePattern;
-	private final int positionalArity;
-	private int subjectPositionalArity;
-	private LinkedList<String> keywordParameterNames;
-	private LinkedList<IMatchingResult> orgKeywordChildren;
+	private int patternPositionalArity;   	// Arity of pattern including only positional arguments
+	private final int patternTotalArity;  	// Arity of pattern including keyword arguments
+	private int subjectPositionalArity;		// Arity of subject including only positional arguments
+	private int subjectTotalArity; 			// Arity of subject including keyword arguments
+	private LinkedList<String> patternKeywordParameterNames;
+	private LinkedList<IMatchingResult> patternOriginalKeywordChildren;
+	private String[] patternKeywordArguments;
+	private String[] subjectKeywordArguments;
 	
 	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, Type constructorType, List<IMatchingResult> list){
 		super(ctx, x);
-		this.constructorType = constructorType;
-		this.orgChildren = list;
-		positionalArity = orgChildren.size();
+		this.patternConstructorType = constructorType;
+		this.patternOriginalChildren = list;
+		patternPositionalArity = patternOriginalChildren.size();
 		if (matchPattern != null) {
 			namePattern = matchPattern;
 		}
@@ -65,20 +77,24 @@ public class NodePattern extends AbstractMatchingResult {
 			qName = name;
 		}
 		KeywordArguments keywordArgs = x.getKeywordArguments();
-		this.orgKeywordChildren = new LinkedList<IMatchingResult>();
-		this.keywordParameterNames = new LinkedList<String>();
-		this.orgKeywordChildren = new LinkedList<IMatchingResult>();
+		this.patternOriginalKeywordChildren = new LinkedList<IMatchingResult>();
+		this.patternKeywordParameterNames = new LinkedList<String>();
+		this.patternOriginalKeywordChildren = new LinkedList<IMatchingResult>();
 		if(keywordArgs.isDefault()){
 				for(KeywordArgument kwa : keywordArgs.getKeywordArgumentList()){
 					IMatchingResult mr = kwa.getExpression().buildMatcher(ctx.getEvaluator());
-					keywordParameterNames.add(kwa.getName().toString());
-					orgKeywordChildren.add(mr);
+					patternKeywordParameterNames.add(Names.name(kwa.getName()));
+					patternOriginalKeywordChildren.add(mr);
 				}
+				patternTotalArity = patternPositionalArity + patternKeywordParameterNames.size();
+		} else {
+			patternTotalArity = patternPositionalArity;
 		}
 	}
 	
 	@Override
 	public void initMatch(Result<IValue> subject){
+		boolean nodeSubject = false;
 		super.initMatch(subject);
 		hasNext = false;
 		if(subject.isVoid()) 
@@ -87,7 +103,13 @@ public class NodePattern extends AbstractMatchingResult {
 		if (!subject.getValue().getType().isNodeType()) {
 			return;
 		}
-		this.subject = (INode) subject.getValue();
+		
+		if (subject.getType().isSubtypeOf(Factory.Tree) && TreeAdapter.isAppl((IConstructor) subject.getValue())) {
+		  this.subject = new TreeAsNode((IConstructor) subject.getValue());
+		}
+		else {
+		  this.subject = (INode) subject.getValue();
+		}
 		
 		String sname = this.subject.getName();
 		if(qName != null){
@@ -105,30 +127,43 @@ public class NodePattern extends AbstractMatchingResult {
 		
 		// Determine type compatibility between pattern and subject
 		
-		Type patternType = getConstructorType(ctx.getCurrentEnvt());
-		if (patternType.isConstructorType()) {
-			patternType = patternType.getAbstractDataType();
-		}
+		Type patternType = getType(ctx.getCurrentEnvt(), null);
 		
 		Type subjectType = this.subject.getType();
-		subjectPositionalArity = 0;
+		subjectPositionalArity = subjectTotalArity = this.subject.arity();
 		
+		if(patternTotalArity > subjectTotalArity)
+			return;
 		if (subjectType.isAbstractDataType()) {
-			 subjectType = ((IConstructor) this.subject).getConstructorType();
-			if(subjectType.hasDefaults()){
+			subjectType = ((IConstructor) this.subject).getConstructorType();
+			if(subjectType.hasKeywordArguments()){
 				subjectPositionalArity = subjectType.getPositionalArity();
-				
-				if (positionalArity != subjectPositionalArity  ||
-					positionalArity + keywordParameterNames.size() > this.subject.arity()){
+				subjectTotalArity = subjectType.getArity();
+				if (patternPositionalArity != subjectPositionalArity || patternTotalArity > subjectTotalArity){
 					return;
 				}
 			} else {
-				if(this.subject.arity() != positionalArity){
+				if(patternTotalArity != subjectTotalArity){
 					return;
 				}
 			}
+		} else if(subjectType.isNodeType()){
+			nodeSubject = true;
+			 INode node = ((INode) this.subject);
+			 if(node.hasKeywordArguments()){
+				 subjectKeywordArguments = node.getKeywordArgumentNames();
+				 subjectPositionalArity = node.positionalArity();
+				 subjectTotalArity = node.arity();
+					if (patternPositionalArity != subjectPositionalArity || patternTotalArity > subjectTotalArity){
+						return;
+					}
+			 } else {
+					if(patternTotalArity != subjectTotalArity){
+						return;
+					}
+			 }
 		} else {
-			if (this.subject.arity() != positionalArity){
+			if (patternTotalArity != subjectTotalArity){
 				return;
 			}
 		}
@@ -139,34 +174,41 @@ public class NodePattern extends AbstractMatchingResult {
 			return;
 		}
 		
-		children = new ArrayList<IMatchingResult>();
+		patternChildren = new ArrayList<IMatchingResult>();
 		
-		int kwpositions[] = new int[this.subject.arity()];
+		int kwpositions[] = new int[subjectTotalArity];
 		
 		for(int i = 0; i < kwpositions.length; i++){
 			kwpositions[i] = -1;
 		}
-		if(keywordParameterNames != null){
-			for(int i = 0; i < keywordParameterNames.size(); i++){
-				String kwname = keywordParameterNames.get(i);
-				int pos = subjectType.getFieldIndex(kwname);
-				kwpositions[pos] = i;
+	
+		if(patternKeywordParameterNames != null){
+			for(int i = 0; i < patternKeywordParameterNames.size(); i++){
+				String kwname = patternKeywordParameterNames.get(i);
+				int pos = nodeSubject ? ((INode) this.subject).getKeywordIndex(kwname)
+						              : subjectType.getFieldIndex(kwname);
+				if(pos >= 0){
+					kwpositions[pos] = i;
+				} else {
+					hasNext = false;
+					return;
+				}
 			}
 		}
 	
-		for (int i = 0; i < this.subject.arity(); i += 1){
-			IValue childValue = this.subject.get(i);
-			IMatchingResult child;
-			if(i < positionalArity){
-				child = orgChildren.get(i);
+		for (int i = 0; i < subjectTotalArity; i += 1){
+			IValue subjectChild = this.subject.get(i);
+			IMatchingResult patternChild;
+			if(i < patternPositionalArity){
+				patternChild = patternOriginalChildren.get(i);
 			} else if(kwpositions[i] >= 0){
-				child = orgKeywordChildren.get(kwpositions[i]);
+				patternChild = patternOriginalKeywordChildren.get(kwpositions[i]);
 			} else {
-				child = new QualifiedNamePattern(ctx);
+				patternChild = new QualifiedNamePattern(ctx);
 			} 
-			child.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
-			children.add(child);
-			hasNext = child.hasNext();
+			patternChild.initMatch(ResultFactory.makeResult(subjectChild.getType(), subjectChild, ctx));
+			patternChildren.add(patternChild);
+			hasNext = patternChild.hasNext();
 			if (!hasNext) {
 				break; // saves time!
 			}
@@ -179,25 +221,29 @@ public class NodePattern extends AbstractMatchingResult {
 		if (type == null) {
 			type = getConstructorType(env);
 
-			if (type.isConstructorType()) {
+			if (type != null && type.isConstructorType()) {
 				type = getConstructorType(env).getAbstractDataType();
+			}
+			
+			if (type == null) {
+			  type = TypeFactory.getInstance().nodeType();
 			}
 		}
 		return type;
 	}
 
 	public Type getConstructorType(Environment env) {
-		 return constructorType;
+		 return patternConstructorType;
 	}
 	
 	@Override
 	public List<IVarPattern> getVariables(){
 		java.util.LinkedList<IVarPattern> res = new java.util.LinkedList<IVarPattern> ();
-		for (int i = 0; i < orgChildren.size(); i += 1) {
-			res.addAll(orgChildren.get(i).getVariables());
+		for (int i = 0; i < patternOriginalChildren.size(); i += 1) {
+			res.addAll(patternOriginalChildren.get(i).getVariables());
 		}
-		for (int i = 0; i < orgKeywordChildren.size(); i += 1) {
-			res.addAll(orgKeywordChildren.get(i).getVariables());
+		for (int i = 0; i < patternOriginalKeywordChildren.size(); i += 1) {
+			res.addAll(patternOriginalKeywordChildren.get(i).getVariables());
 		}
 		
 		return res;
@@ -211,22 +257,22 @@ public class NodePattern extends AbstractMatchingResult {
 			return false;
 		}
 
-		if (children.size() == 0) {
+		if (patternChildren.size() == 0) {
 			hasNext = false;
 			return true;
 		}
 		
 		while (nextChild >= 0) {
-			IMatchingResult nextPattern = children.get(nextChild);
+			IMatchingResult nextPattern = patternChildren.get(nextChild);
 
 			if (nextPattern.hasNext() && nextPattern.next()) {
-				if (nextChild == children.size() - 1) {
+				if (nextChild == patternChildren.size() - 1) {
 					// We need to make sure if there are no
 					// more possible matches for any of the tuple's fields, 
 					// then the next call to hasNext() will definitely returns false.
 					hasNext = false;
 					for (int i = nextChild; i >= 0; i--) {
-						hasNext |= children.get(i).hasNext();
+						hasNext |= patternChildren.get(i).hasNext();
 					}
 					return true;
 				}
@@ -237,9 +283,9 @@ public class NodePattern extends AbstractMatchingResult {
 				nextChild--;
 
 				if (nextChild >= 0) {
-					for (int i = nextChild + 1; i < children.size(); i++) {
+					for (int i = nextChild + 1; i < patternChildren.size(); i++) {
 						IValue childValue = subject.get(i);
-						IMatchingResult tailChild = children.get(i);
+						IMatchingResult tailChild = patternChildren.get(i);
 						tailChild.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
 					}
 				}
@@ -251,25 +297,25 @@ public class NodePattern extends AbstractMatchingResult {
 	
 	@Override
 	public String toString(){
-		int n = orgChildren.size();
+		int n = patternOriginalChildren.size();
 		if(n == 1){
-			return qName + "()";
+			return Names.fullName(qName) + "()";
 		}
 		StringBuilder res = new StringBuilder(Names.fullName(qName));
 		res.append("(");
 		String sep = "";
 		
-		for (int i = 0; i < orgChildren.size(); i++){
-			IBooleanResult mp = orgChildren.get(i);
+		for (int i = 0; i < patternOriginalChildren.size(); i++){
+			IBooleanResult mp = patternOriginalChildren.get(i);
 			res.append(sep);
 			sep = ", ";
 			res.append(mp.toString());
 		}
-		for(int i = 0; i < orgKeywordChildren.size(); i++){
-			IBooleanResult mp = orgKeywordChildren.get(i);
+		for(int i = 0; i < patternOriginalKeywordChildren.size(); i++){
+			IBooleanResult mp = patternOriginalKeywordChildren.get(i);
 			res.append(sep);
 			sep = ", ";
-			res.append(keywordParameterNames.get(i));
+			res.append(patternKeywordParameterNames.get(i));
 			res.append("=");
 			res.append(mp.toString());
 		}
@@ -278,209 +324,142 @@ public class NodePattern extends AbstractMatchingResult {
 		return res.toString();
 	}
 	
+	private class TreeAsNode implements INode {
+	  private final String name;
+    private final IList args;
+
+    public TreeAsNode(IConstructor tree) {
+	    this.name = TreeAdapter.getConstructorName(tree);
+	    this.args = TreeAdapter.isContextFree(tree) ? TreeAdapter.getASTArgs(tree) : TreeAdapter.getArgs(tree);
+    }
+    
+    @Override
+    public Type getType() {
+      return TypeFactory.getInstance().nodeType();
+    }
+
+    @Override
+    public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isEqual(IValue other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IValue get(int i) throws IndexOutOfBoundsException {
+      // TODO: this should deal with regular expressions in the "right" way, such as skipping 
+      // over optionals and alternatives.
+      return args.get(i);
+    }
+
+    @Override
+    public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int arity() {
+      return args.length();
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public Iterable<IValue> getChildren() {
+      return args;
+    }
+
+    @Override
+    public Iterator<IValue> iterator() {
+      return args.iterator();
+    }
+
+    @Override
+    public IValue getAnnotation(String label) throws FactTypeUseException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public INode setAnnotation(String label, IValue newValue) throws FactTypeUseException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean hasAnnotation(String label) throws FactTypeUseException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean hasAnnotations() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<String, IValue> getAnnotations() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public INode setAnnotations(Map<String, IValue> annotations) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public INode joinAnnotations(Map<String, IValue> annotations) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public INode removeAnnotation(String key) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public INode removeAnnotations() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException,
+        IndexOutOfBoundsException {
+      throw new UnsupportedOperationException();
+    }
+
+	@Override
+	public IValue getKeywordArgumentValue(String name) {
+		 throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean hasKeywordArguments() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String[] getKeywordArgumentNames() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getKeywordIndex(String name) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int positionalArity() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	}
 }
 
 
-//public class NodePattern extends AbstractMatchingResult {
-//	private final TypeFactory tf = TypeFactory.getInstance();
-//	private final TuplePattern tuple;
-//	private INode subject;
-//	private final NodeWrapperTuple tupleSubject;
-//	private QualifiedName qName;
-//	private Type type;
-//	private final Type constructorType;
-//	
-//	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, Type constructorType, List<IMatchingResult> list){
-//		super(ctx, x);
-//		this.constructorType = constructorType;
-//		
-//		if (matchPattern != null) {
-//			list.add(0, matchPattern);
-//		}
-//		else if (name != null) {
-//			IString nameVal = ctx.getValueFactory().string(((org.rascalmpl.semantics.dynamic.QualifiedName.Default) name).lastName());
-//			list.add(0, new ValuePattern(ctx, x, ResultFactory.makeResult(tf.stringType(), nameVal, ctx)));
-//			qName = name;
-//		}
-//		
-//		this.tuple = new TuplePattern(ctx, x, list);
-//		this.tupleSubject = new NodeWrapperTuple();
-//	}
-//	
-//	private class NodeWrapperTuple implements ITuple {
-//		private Type type;
-//		
-//		public int arity() {
-//			return 1 + subject.arity();
-//		}
-//
-//		public IValue get(int i) throws IndexOutOfBoundsException {
-//			if (i == 0) {
-//				return ctx.getValueFactory().string(subject.getName());
-//			}
-//			return subject.get(i - 1);
-//		}
-//
-//		public Type getType() {
-//			if (type == null) {
-//				Type[] kids = new Type[1 + subject.arity()];
-//				kids[0] = tf.stringType();
-//				for (int i = 0; i < subject.arity(); i++) {
-//					kids[i+1] = subject.get(i).getType();
-//				}
-//				type = tf.tupleType(kids);
-//			}
-//			return type;
-//		}
-//		
-//		public boolean isEqual(IValue other) {
-//			if (!other.getType().isTupleType()) {
-//				return false;
-//			}
-//			if (other.getType().getArity() != subject.arity()) {
-//				return false;
-//			}
-//			for (int i = 0; i < arity(); i++) {
-//				if (!get(i).isEqual(((ITuple)other).get(i))) {
-//					return false;
-//				}
-//			}
-//			return true;
-//		}
-//		
-//		public Iterator<IValue> iterator() {
-//			return new Iterator<IValue>() {
-//
-//				boolean first = true;
-//				Iterator<IValue> subjectIter = subject.iterator();
-//				
-//				public boolean hasNext() {
-//					return first || subjectIter.hasNext(); 
-//				}
-//
-//				public IValue next() {
-//					if (first) {
-//						first = false;
-//						return get(0);
-//					}
-//					return subjectIter.next();
-//				}
-//
-//				public void remove() {
-//					throw new UnsupportedOperationException();
-//				}
-//				
-//			};
-//		}
-//		
-//		public IValue get(String label) throws FactTypeUseException {
-//			throw new UnsupportedOperationException();
-//		}
-//
-//		public IValue select(int... fields) throws IndexOutOfBoundsException {
-//			throw new UnsupportedOperationException();
-//		}
-//
-//		@Override
-//		public IValue selectByFieldNames(String... fields) throws FactTypeUseException {
-//			throw new UnsupportedOperationException();
-//		}
-//
-//		public ITuple set(int i, IValue arg) throws IndexOutOfBoundsException {
-//			throw new UnsupportedOperationException();
-//		}
-//
-//		public ITuple set(String label, IValue arg) throws FactTypeUseException {
-//			throw new UnsupportedOperationException();
-//		}
-//
-//		public <T> T accept(IValueVisitor<T> v) throws VisitorException {
-//			throw new UnsupportedOperationException();
-//		}
-//	}
-//	
-//	@Override
-//	public void initMatch(Result<IValue> subject) {
-//		if(subject.isVoid()) 
-//			throw new UninitializedPatternMatch("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
-//		if (!subject.getValue().getType().isNodeType()) {
-//			hasNext = false;
-//			return;
-//		}
-//		this.subject = (INode) subject.getValue();
-//		
-//		// We should only call initMatch if the node types line up, otherwise the tuple matcher might throw a "static error" exception.
-//		// The following decision code decides whether it is worth it and safe to call initMatch on the tuple matcher.
-//		Type patternType = getConstructorType(ctx.getCurrentEnvt());
-//		if (patternType.isConstructorType()) {
-//			patternType = patternType.getAbstractDataType();
-//		}
-//		Type subjectType = subject.getType();
-//		if (patternType.comparable(subjectType)) {
-//			tuple.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
-//			hasNext = tuple.hasNext;
-//		}
-//		else {
-//			hasNext = false;
-//		}  
-//	}
-//	
-//	@Override
-//	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
-//		if (type == null) {
-//			type = getConstructorType(env);
-//
-//			if (type.isConstructorType()) {
-//				type = getConstructorType(env).getAbstractDataType();
-//			}
-//		}
-//		return type;
-//	}
-//
-//	public Type getConstructorType(Environment env) {
-//		 return constructorType;
-//	}
-//	
-//	@Override
-//	public List<IVarPattern> getVariables() {
-//		return tuple.getVariables();
-//	}
-//	
-//	@Override
-//	public boolean hasNext(){
-//		if (!hasNext) {
-//			return false;
-//		}
-//		return tuple.hasNext();
-//	}
-//	
-//	@Override
-//	public boolean next() {
-//		if (hasNext) {
-//			return tuple.next();
-//		}
-//		return false;
-//	}
-//	
-//	@Override
-//	public String toString(){
-//		List<IMatchingResult> children = tuple.getChildren();
-//		int n = children.size();
-//		if(n == 1){
-//			return qName + "()";
-//		}
-//		StringBuilder res = new StringBuilder(Names.fullName(qName));
-//		res.append("(");
-//		String sep = "";
-//		
-//		for (int i = 1; i < children.size(); i++){
-//			IBooleanResult mp = children.get(i);
-//			res.append(sep);
-//			sep = ", ";
-//			res.append(mp.toString());
-//		}
-//		res.append(")");
-//		
-//		return res.toString();
-//	}
-//}

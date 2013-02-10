@@ -10,7 +10,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module HalloTest
 
-import languages::pico::syntax::Pico;
+import languages::pico::\syntax::Pico;
 import IO;
 
 public Tree simple = 

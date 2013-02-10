@@ -74,6 +74,7 @@ data Symbol                            // Labels
 data Symbol                            // Composite types.
      = \set(Symbol symbol)
      | \rel(list[Symbol] symbols)
+     | \lrel(list[Symbol] symbols)
      | \tuple(list[Symbol] symbols)
      | \list(Symbol symbol)
      | \map(Symbol from, Symbol to)
@@ -153,14 +154,21 @@ public bool subtype(\int(), \num()) = true;
 public bool subtype(\rat(), \num()) = true;
 public bool subtype(\real(), \num()) = true;
 public bool subtype(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = subtype(l, r);
-public bool subtype(\rel(list[Symbol] l), \rel(list[Symbol] r)) = subtype(l, r);
+
+// list and lrel
+public bool subtype(\list(Symbol s), \list(Symbol t)) = subtype(s, t); 
 public bool subtype(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = subtype(l, r);
-public bool subtype(\list(Symbol s), \list(Symbol t)) = subtype(s, t);
-public bool subtype(\list(Symbol s), \lrel(list[Symbol] ls)) = subtype(s,\tuple(ls));
-public bool subtype(\lrel(list[Symbol] ls), \list(Symbol s)) = subtype(\tuple(ls),s);  
+
+public bool subtype(\list(Symbol s), \lrel(list[Symbol] r)) = (s == \void()) ? true : subtype(s, (size(r) == 1) ? r[0] : \tuple(r));
+public bool subtype(\lrel(list[Symbol] l), \list(Symbol r)) = subtype((size(l) == 1) ? l[0] : \tuple(l), r);
+
+// set and rel
 public bool subtype(\set(Symbol s), \set(Symbol t)) = subtype(s, t);
-public bool subtype(\set(Symbol s), \rel(list[Symbol] ls)) = subtype(s,\tuple(ls));
-public bool subtype(\rel(list[Symbol] ls), \set(Symbol s)) = subtype(\tuple(ls),s);
+public bool subtype(\rel(list[Symbol] l), \rel(list[Symbol] r)) = subtype(l, r);
+
+public bool subtype(\set(Symbol s), \rel(list[Symbol] r)) = (s == \void()) ? true : subtype(s, (size(r) == 1) ? r[0] : \tuple(r));
+public bool subtype(\rel(list[Symbol] l), \set(Symbol r)) = subtype((size(l) == 1) ? l[0] : \tuple(l), r);
+
 public bool subtype(\bag(Symbol s), \bag(Symbol t)) = subtype(s, t);  
 public bool subtype(\map(Symbol from1, Symbol to1), \map(Symbol from2, Symbol to2)) = subtype(from1, from2) && subtype(to1, to2);
 public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1), Symbol::\func(Symbol r2, list[Symbol] p2)) = subtype(r1, r2) && subtype(p2, p1); // note the contra-variance of the argument types
@@ -249,6 +257,7 @@ public Symbol lub(\num(), \rat()) = \num();
 
 public Symbol lub(\set(Symbol s), \set(Symbol t)) = \set(lub(s, t));  
 public Symbol lub(\set(Symbol s), \rel(list[Symbol] ts)) = \set(lub(s,\tuple(ts)));  
+
 public Symbol lub(\rel(list[Symbol] ts), \set(Symbol s)) = \set(lub(s,\tuple(ts)));
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
@@ -256,6 +265,15 @@ public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(l
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \set(\value()) when size(l) != size(r);
+
+public Symbol lub(\lrel(list[Symbol] ts), \list(Symbol s)) = \list(lub(s,\tuple(ts)));
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \list(\value()) when size(l) != size(r);
+
 public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
 public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
 public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
@@ -462,6 +480,15 @@ public bool isRelType(\parameter(_,Symbol tvb)) = isRelType(tvb);
 public bool isRelType(\label(_,Symbol lt)) = isRelType(lt);
 public bool isRelType(\rel(_)) = true;
 public default bool isRelType(Symbol _) = false;
+
+@doc{
+Synopsis: Determine if the given type is a list relation.
+}
+public bool isLRelType(\alias(_,_,Symbol at)) = isLRelType(at);
+public bool isLRelType(\parameter(_,Symbol tvb)) = isLRelType(tvb);
+public bool isLRelType(\label(_,Symbol lt)) = isLRelType(lt);
+public bool isLRelType(\lrel(_)) = true;
+public default bool isLRelType(Symbol _) = false;
 
 @doc{
 Synopsis: Determine if the given type is a tuple.

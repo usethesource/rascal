@@ -9,7 +9,7 @@
 
 module Plugin
 
-import lang::dot::syntax::Dot;
+import lang::dot::\syntax::Dot;
 
 import util::IDE;
 import ParseTree;
