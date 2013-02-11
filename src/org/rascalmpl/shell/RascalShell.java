@@ -57,6 +57,8 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RascalShell {
 	private final static int LINE_LIMIT = 200;
+
+	private static final boolean PRINTCOMMANDTIME = false;
 	
 	private final ConsoleReader console;
 	private final Evaluator evaluator;
@@ -160,20 +162,23 @@ public class RascalShell {
 	}
 	
 	private String handleInput(String statement){
+		long start = System.currentTimeMillis();
 		Result<IValue> value = evaluator.eval(null, statement, URIUtil.rootScheme("prompt"));
+		long stop = System.currentTimeMillis();
 
 		if (value.getValue() == null) {
-			return "ok";
+			return "ok" + (PRINTCOMMANDTIME ? "(" + (stop - start) + "ms)" : "");
 		}
 
 		IValue v = value.getValue();
 		Type type = value.getType();
 
 		if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
-			return "`" + TreeAdapter.yield((IConstructor) v) + "`\n" + value.toString(LINE_LIMIT);
+			return "`" + TreeAdapter.yield((IConstructor) v) + "`\n" + value.toString(LINE_LIMIT)
+					+ (PRINTCOMMANDTIME ? "\n (" + (stop-start) + "ms)" : "");
 		}
 
-		return ((v != null) ? value.toString(LINE_LIMIT) : null);
+		return ((v != null) ? value.toString(LINE_LIMIT) + (PRINTCOMMANDTIME ? "\n (" + (stop-start) + "ms)" : "") : null);
 	}
 
 	private boolean completeStatement(String command) throws FactTypeUseException {
