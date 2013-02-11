@@ -1872,4 +1872,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   public boolean isBootstrapper() {
     return isBootstrapper;
   }
+
+  public void removeSearchPathContributor(IRascalSearchPathContributor contrib) {
+    rascalPathResolver.remove(contrib);
+  }
 }
