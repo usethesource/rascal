@@ -72,7 +72,9 @@ public class DefaultTestResultListener implements ITestResultListener{
 			err.println("...");
 		}
 		err.print("\t" + message + "\n");
-		t.printStackTrace(err);
+		if (t != null) {
+		  t.printStackTrace(err);
+		}
 		err.flush();
 	}
 
