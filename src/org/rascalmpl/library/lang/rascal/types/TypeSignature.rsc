@@ -217,7 +217,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 				case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> = <{Variant "|"}+ vars> ;` : {
 					sig.datatypes = sig.datatypes + ADTSigItem(convertName(getUserTypeRawName(typ)), typ, t@\loc);
 					for (var <- vars) {
-						if (`<Name n> ( <{TypeArg ","}* args> )` := var) {
+						if ((Variant) `<Name n> ( <{TypeArg ","}* args> )` := var) {
 							sig.publicConstructors = sig.publicConstructors + ConstructorSigItem(convertName(n), typ, [ targ | targ <- args ], t@\loc, var@\loc);
 						}
 					}
@@ -244,7 +244,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 
 @doc{Return true if the parameter list is a varargs list}
 public bool isVarArgsParameters(Parameters ps) {
-	return `( <Formals _> ...)` := ps;
+	return (Parameters)`( <Formals fs> ...)` := ps;
 }
 
 @doc{Given a module, return its signature.}
