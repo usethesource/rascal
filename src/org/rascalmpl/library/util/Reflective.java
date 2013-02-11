@@ -87,8 +87,7 @@ public class Reflective {
 	
 	public IValue parseModule(ISourceLocation loc, final IList searchPath, IEvaluatorContext ctx) {
     Evaluator ownEvaluator = getPrivateEvaluator(ctx);
-    
-    ownEvaluator.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
+    IRascalSearchPathContributor contrib = new IRascalSearchPathContributor() {
       @Override
       public String getName() {
         return "reflective";
@@ -100,12 +99,16 @@ public class Reflective {
           path.add(((ISourceLocation) elem).getURI());
         }
       }
-    });
+    };
+    ownEvaluator.addRascalSearchPathContributor(contrib);
     
     try { 
       return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc.getURI(), null);
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+    }
+    finally {
+      ownEvaluator.removeSearchPathContributor(contrib);
     }
   }
 	
