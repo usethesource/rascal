@@ -50,6 +50,7 @@ public str prettyPrintType(\label(str s, Symbol t)) = "<prettyPrintType(t)> <s>"
 public str prettyPrintType(\parameter(str pn, Symbol t)) = "&<pn> \<: <prettyPrintType(t)>";
 public str prettyPrintType(\set(Symbol t)) = "set[<prettyPrintType(t)>]";
 public str prettyPrintType(\rel(list[Symbol] ts)) = "rel[<intercalate(", ", [ prettyPrintType(t) | t <- ts ])>]";
+public str prettyPrintType(\lrel(list[Symbol] ts)) = "lrel[<intercalate(", ", [ prettyPrintType(t) | t <- ts ])>]";
 public str prettyPrintType(\tuple(list[Symbol] ts)) = "tuple[<intercalate(", ", [ prettyPrintType(t) | t <- ts ])>]";
 public str prettyPrintType(\list(Symbol t)) = "list[<prettyPrintType(t)>]";
 public str prettyPrintType(\map(Symbol d, Symbol r)) = "map[<prettyPrintType(d)>, <prettyPrintType(r)>]";
@@ -116,6 +117,18 @@ public Symbol makeRelType(Symbol elementTypes...) {
 @doc{Create a new rel type based on a given tuple type.}
 public Symbol makeRelTypeFromTuple(Symbol t) = \rel(getTupleFields(t));
 
+@doc{Create a new list rel type, given the element types of the fields. Check any given labels for consistency.}
+public Symbol makeListRelType(Symbol elementTypes...) {
+	set[str] labels = { l | \label(l,_) <- elementTypes };
+	if (size(labels) == 0 || size(labels) == size(elementTypes)) 
+		return \lrel(elementTypes);
+	else
+		throw "For lrel types, either all fields much be given a distinct label or no fields should be labeled."; 
+}
+
+@doc{Create a new lrel type based on a given tuple type.}
+public Symbol makeListRelTypeFromTuple(Symbol t) = \lrel(getTupleFields(t));
+
 @doc{Create a new tuple type, given the element types of the fields. Check any given labels for consistency.}
 public Symbol makeTupleType(Symbol elementTypes...) {
 	set[str] labels = { l | \label(l,_) <- elementTypes };
@@ -150,7 +163,6 @@ public Symbol makeMapTypeFromTuple(Symbol t) {
 	return makeMapType(tf[0],tf[1]);
 }
 
-
 @doc{Create a new bag type, given the element type of the bag.}
 public Symbol makeBagType(Symbol elementType) = \bag(elementType);
 
@@ -159,7 +171,6 @@ public Symbol makeADTType(str n) = \adt(n,[]);
 
 @doc{Create a new parameterized ADT type with the given type parameters}
 public Symbol makeParameterizedADTType(str n, Symbol p...) = \adt(n,p);
-
 
 @doc{Create a new constructor type.}
 public Symbol makeConstructorType(Symbol adtType, Symbol consArgs...) {    
@@ -243,6 +254,31 @@ public list[str] getRelFieldNames(Symbol t) {
 public list[Symbol] getRelFields(Symbol t) {
     if (\rel(tls) := unwrapType(t)) return tls;
     throw "getRelFields given non-Relation type <prettyPrintType(t)>";
+}
+
+@doc{Get the type of the list relation fields as a tuple.}
+public Symbol getListRelElementType(Symbol t) {
+    if (\lrel(ets) := unwrapType(t)) return \tuple(ets);
+    throw "Error: Cannot get list relation element type from type <prettyPrintType(t)>";
+}
+
+@doc{Get whether the list rel has field names or not.}
+public bool listRelHasFieldNames(Symbol t) {
+    if (\lrel(tls) := \unwrapType(t)) return size(tls) == size([ti | ti:\label(_,_) <- tls]);
+    throw "listRelHasFieldNames given non-List-Relation type <prettyPrintType(t)>";
+}
+
+@doc{Get the field names of the list rel fields.}
+public list[str] getListRelFieldNames(Symbol t) {
+    if (\lrel(tls) := unwrapType(t) && listRelHasFieldNames(t)) return [ l | \label(l,_) <- tls ];
+    if (\lrel(_) := unwrapType(t)) throw "getListRelFieldNames given lrel type without field names: <prettyPrintType(t)>";        
+    throw "getListRelFieldNames given non-List-Relation type <prettyPrintType(t)>";
+}
+
+@doc{Get the fields of a list relation.}
+public list[Symbol] getListRelFields(Symbol t) {
+    if (\lrel(tls) := unwrapType(t)) return tls;
+    throw "getListRelFields given non-List-Relation type <prettyPrintType(t)>";
 }
 
 @doc{Get the name of a type variable.}
@@ -339,6 +375,13 @@ public Symbol getTupleFieldType(Symbol t, int fn) {
     throw "getTupleFieldType given unexpected type <prettyPrintType(t)>";
 }
 
+@doc{Get the types of the tuple fields, with labels removed}
+public list[Symbol] getTupleFieldTypes(Symbol t) {
+	if (\tuple(tas) := unwrapType(t))
+		return [ (\label(_,v) := li) ? v : li | li <- tas ];
+    throw "Cannot get tuple field types from type <prettyPrintType(t)>"; 
+}
+
 @doc{Get the fields of a tuple as a list.}
 public list[Symbol] getTupleFields(Symbol t) {
 	if (\tuple(tas) := unwrapType(t)) return tas;
@@ -412,7 +455,7 @@ public bool mapHasFieldNames(Symbol t) = tupleHasFieldNames(getMapFieldsAsTuple(
 @doc{Get the field names from the map fields.}
 public tuple[str domainName, str rangeName] getMapFieldNames(Symbol t) {
 	if (mapHasFieldNames(t),[\label(l1,_),\label(l2,_)] := getMapFields(t)) {
-		return [l1, l2];
+		return < l1, l2 >;
 	}
     throw "getMapFieldNames given map type without field names: <prettyPrintType(t)>";        
 }
@@ -446,6 +489,7 @@ public Symbol getConstructorResultType(Symbol ct) {
 @doc{Get the element type of a list.}
 public Symbol getListElementType(Symbol t) {
 	if (\list(et) := unwrapType(t)) return et;
+    if (\lrel(ets) := unwrapType(t)) return \tuple(ets);	
 	throw "Error: Cannot get list element type from type <prettyPrintType(t)>";
 }
 
@@ -555,10 +599,16 @@ public set[Symbol] getOverloadOptions(Symbol t) {
 }
 
 @doc{Construct a new overloaded type.}
-public Symbol makeOverloadedType(set[Symbol] options) = \overloaded(options);
+public Symbol makeOverloadedType(set[Symbol] options) {
+	flattened = { (\overloaded(opts) := opt) ? *opts : opt | opt <- options }; 
+	return \overloaded(flattened);
+}
 
 @doc{Ensure that sets of tuples are treated as relations.}
 public Symbol \set(Symbol t) = \rel(getTupleFields(t)) when isTupleType(t);
+
+@doc{Ensure that lists of tuples are treated as list relations.}
+public Symbol \list(Symbol t) = \lrel(getTupleFields(t)) when isTupleType(t);
 
 @doc{Calculate the lub of a list of types.}
 public Symbol lubList(list[Symbol] ts) {

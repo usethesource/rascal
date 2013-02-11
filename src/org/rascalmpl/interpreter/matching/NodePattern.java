@@ -62,8 +62,6 @@ public class NodePattern extends AbstractMatchingResult {
 	private int subjectTotalArity; 			// Arity of subject including keyword arguments
 	private LinkedList<String> patternKeywordParameterNames;
 	private LinkedList<IMatchingResult> patternOriginalKeywordChildren;
-	private String[] patternKeywordArguments;
-	private String[] subjectKeywordArguments;
 	
 	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, Type constructorType, List<IMatchingResult> list){
 		super(ctx, x);
@@ -151,7 +149,6 @@ public class NodePattern extends AbstractMatchingResult {
 			nodeSubject = true;
 			 INode node = ((INode) this.subject);
 			 if(node.hasKeywordArguments()){
-				 subjectKeywordArguments = node.getKeywordArgumentNames();
 				 subjectPositionalArity = node.positionalArity();
 				 subjectTotalArity = node.arity();
 					if (patternPositionalArity != subjectPositionalArity || patternTotalArity > subjectTotalArity){
