@@ -153,7 +153,7 @@ public class RascalJUnitTestRunner extends Runner {
 			notifier.fireTestStarted(desc);
 			
 			if (!successful) {
-				notifier.fireTestFailure(new Failure(desc, t));
+				notifier.fireTestFailure(new Failure(desc, t != null ? t : new Exception(message)));
 			}
 			else {
 				notifier.fireTestFinished(desc);
