@@ -227,7 +227,7 @@ public Name getUserTypeRawName(UserType ut) {
 public Symbol convertTypeVar(TypeVar tv) {
     switch(tv) {
         case (TypeVar) `& <Name n>` : return \parameter("<n>",\value());
-        case (TypeVar) `& <Name n> <: <Type tb>` : return \parameter("<n>",convertType(tb));
+        case (TypeVar) `& <Name n> \<: <Type tb>` : return \parameter("<n>",convertType(tb));
     }
 }
 
