@@ -50,7 +50,7 @@ public class DefaultTestResultListener implements ITestResultListener{
 	
 
 	@Override
-	public void report(boolean successful, String test, ISourceLocation loc, String message) {
+	public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
 		err.print(loc.getURI());
 		err.print(":");
 		err.print(loc.getBeginLine());
@@ -72,6 +72,7 @@ public class DefaultTestResultListener implements ITestResultListener{
 			err.println("...");
 		}
 		err.print("\t" + message + "\n");
+		t.printStackTrace(err);
 		err.flush();
 	}
 
