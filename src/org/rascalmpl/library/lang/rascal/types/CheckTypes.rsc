@@ -151,9 +151,9 @@ data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doW
 data Modifier = javaModifier() | testModifier() | defaultModifier();
 
 @doc{Convert from the concrete to the abstract representation of modifiers.}
-Modifier getModifier(FunctionModifier fmod:`java`) = javaModifier();
-Modifier getModifier(FunctionModifier fmod:`test`) = testModifier();
-Modifier getModifier(FunctionModifier fmod:`default`) = defaultModifier();
+Modifier getModifier(FunctionModifier fmod:(FunctionModifier)`java`) = javaModifier();
+Modifier getModifier(FunctionModifier fmod:(FunctionModifier)`test`) = testModifier();
+Modifier getModifier(FunctionModifier fmod:(FunctionModifier)`default`) = defaultModifier();
 
 @doc{Visibility of declarations.}
 data Vis = publicVis() | privateVis() | defaultVis();
@@ -1251,7 +1251,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <Expression ef> .. <Ex
 }
 
 @doc{Check the types of Rascal expressions: Tuple (DONE)}
-public CheckResult checkExp(Expression exp:(Expression)`< <Expression e1>, <{Expression ","}* es> >`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`\< <Expression e1>, <{Expression ","}* es> \>`, Configuration c) {
     < c, t1 > = checkExp(e1, c);
     list[Symbol] tl = [ t1 ];
     for (e <- es) { < c, t2 > = checkExp(e,c); tl += t2; }
@@ -1522,7 +1522,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Name n
 }
 
 @doc{Check the types of Rascal expressions: Field Project (DONE)}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e> < <{Field ","}+ fs> >`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e> \< <{Field ","}+ fs> \>`, Configuration c) {
     < c, t1 > = checkExp(e, c);
     
     // If the type is a failure, we don't know how to look up the field name, so just return
@@ -1639,7 +1639,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> @ <Name n
     }
 }
 
-@doc{Check the types of Rascal expressions: Is (DONE)}
+    @doc{Check the types of Rascal expressions: Is (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e> is <Name n>`, Configuration c) {
     needNewScope = !inBooleanScope(c);
     cIs = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
@@ -2069,7 +2069,7 @@ public Symbol computeSubtractionType(Symbol t1, Symbol t2, loc l) {
 }
 
 @doc{Check the types of Rascal expressions: AppendAfter (DONE)}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> << <Expression e2>`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \<\< <Expression e2>`, Configuration c) {
     // TODO: Revisit once this feature has been implemented
     < c, t1 > = checkExp(e1, c);
     < c, t2 > = checkExp(e2, c);
@@ -2078,7 +2078,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> << <Expr
 }
 
 @doc{Check the types of Rascal expressions: InsertBefore (DONE)}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> >> <Expression e2>`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \>\> <Expression e2>`, Configuration c) {
     // TODO: Revisit once this feature has been implemented
     < c, t1 > = checkExp(e1, c);
     < c, t2 > = checkExp(e2, c);
@@ -2182,7 +2182,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> in <Expr
 }
 
 @doc{Check the types of Rascal expressions: Greater Than or Equal (DONE)}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> >= <Expression e2>`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \>= <Expression e2>`, Configuration c) {
     needNewScope = !inBooleanScope(c);
     cGtEq = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
     < cGtEq, t1 > = checkExp(e1, cGtEq);
@@ -2224,7 +2224,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> >= <Expr
 }
 
 @doc{Check the types of Rascal expressions: Less Than or Equal (DONE)}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> <= <Expression e2>`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \<= <Expression e2>`, Configuration c) {
     needNewScope = !inBooleanScope(c);
     cLtEq = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
     < cLtEq, t1 > = checkExp(e1, cLtEq);
@@ -2266,7 +2266,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> <= <Expr
 }
 
 @doc{Check the types of Rascal expressions: Less Than (DONE)}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> < <Expression e2>`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \< <Expression e2>`, Configuration c) {
     needNewScope = !inBooleanScope(c);
     cLt = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
     < cLt, t1 > = checkExp(e1, cLt);
@@ -2308,7 +2308,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> < <Expre
 }
 
 @doc{Check the types of Rascal expressions: Greater Than (DONE)}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> > <Expression e2>`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \> <Expression e2>`, Configuration c) {
     needNewScope = !inBooleanScope(c);
     cGt = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
     < cGt, t1 > = checkExp(e1, cGt);
@@ -2422,7 +2422,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> := <Expressi
 }
 
 @doc{Check the types of Rascal expressions: Enumerator}
-public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> <- <Expression e>`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> \<- <Expression e>`, Configuration c) {
     // TODO: For concrete lists, what should we use as the type?
     // TODO: For nodes, ADTs, and tuples, would it be better to use the lub of all the possible types?
     needNewScope = !inBooleanScope(c);
@@ -2451,7 +2451,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> <- <Expressi
 }
 
 @doc{Check the types of Rascal expressions: Implication (DONE)}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> ==> <Expression e2>`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> ==\> <Expression e2>`, Configuration c) {
     needNewScope = !inBooleanScope(c);
     cImp = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
     < cImp, t1 > = checkExp(e1, cImp);
@@ -2463,7 +2463,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> ==> <Exp
 }
 
 @doc{Check the types of Rascal expressions: Equivalence (DONE)}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> <==> <Expression e2>`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \<==\> <Expression e2>`, Configuration c) {
     needNewScope = !inBooleanScope(c);
     cEquiv = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
     < cEquiv, t1 > = checkExp(e1, cEquiv);
@@ -2812,7 +2812,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<LocationLiteral ll>`
 	< c, t1 > = checkLocationLiteral(ll,c);
     return < c, literalNode(\loc())[@at = pat@\loc] >;
 }
-public BindResult extractPatternTree(Pattern pat:(Pattern)`< <Pattern p1>, <{Pattern ","}* ps> >`, Configuration c) {
+public BindResult extractPatternTree(Pattern pat:(Pattern)`\< <Pattern p1>, <{Pattern ","}* ps> \>`, Configuration c) {
     < c, pt1 > = extractPatternTree(p1, c);
     list[PatternTree] ptlist = [ pt1 ];
     for (p <- ps) { < c, pti > = extractPatternTree(p,c); ptlist = ptlist + pti; }
@@ -4369,9 +4369,8 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Name n> ( <{As
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: Tuple (DONE)}
-public ATResult buildAssignableTree(Assignable assn:(Assignable)`< <Assignable a1>, <{Assignable ","}* as> >`, bool top, Configuration c) {
-    < c, atree > = buildAssignableTree(a1, true, c);
-    list[AssignableTree] trees = [ atree ];
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`\< <{Assignable ","}+ as> \>`, bool top, Configuration c) {
+    list[AssignableTree] trees = [ ];
 
     for (ai <- as) {
         < c, atree > = buildAssignableTree(ai, true, c);
@@ -4620,7 +4619,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable 
 }
 
 @doc{Check the type of Rascal assignments: Append}
-public CheckResult checkAssignment(Assignment assn:(Assignment)`<<=`, Assignable a, Symbol st, Configuration c) {
+public CheckResult checkAssignment(Assignment assn:(Assignment)`\<\<=`, Assignable a, Symbol st, Configuration c) {
     < c, atree > = buildAssignableTree(a, true, c);
     if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
     throw "Not yet implemented";
@@ -5656,7 +5655,7 @@ public Configuration checkCase(Case cs:(Case)`default : <Statement stmt>`, Symbo
 }
 
 @doc{Check the type of Rascal pattern with action constructs: Replacing (DONE)}
-public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAction)`<Pattern p> => <Replacement r>`, Symbol expected, Configuration c) {
+public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAction)`<Pattern p> =\> <Replacement r>`, Symbol expected, Configuration c) {
     cOnEntry = c;
     
     // First, calculate the pattern type. The expected type, which is the type of the item being
@@ -5800,15 +5799,15 @@ public CheckResult checkLocationLiteral(LocationLiteral ll, Configuration c) {
     set[Symbol] failures = { };
     list[Expression] ipl = prodFilter(ll, bool(Production prd) { return prod(\label(_,\sort("Expression")),_,_) := prd; });
     for (ipe <- ipl) {
-        if (`<Expression ipee>` := ipe) {
+        if ((Expression)`<Expression ipee>` := ipe) {
             < c, t1 > = checkExp(ipee, c);
             if (isFailType(t1)) failures = failures + t1;
         }
     }
     if (size(failures) > 0)
-        return markLocationFailed(c, l@\loc, failures);
+        return markLocationFailed(c, ll@\loc, failures);
     else
-        return markLocationType(c, l@\loc, \loc());
+        return markLocationType(c, ll@\loc, \loc());
 }
 
 @doc{Check the type of a Rascal string literal: Template}

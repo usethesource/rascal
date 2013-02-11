@@ -492,11 +492,11 @@ public default bool isRelType(Symbol _) = false;
 @doc{
 Synopsis: Determine if the given type is a list relation.
 }
-public bool isLRelType(\alias(_,_,Symbol at)) = isLRelType(at);
-public bool isLRelType(\parameter(_,Symbol tvb)) = isLRelType(tvb);
-public bool isLRelType(\label(_,Symbol lt)) = isLRelType(lt);
-public bool isLRelType(\lrel(_)) = true;
-public default bool isLRelType(Symbol _) = false;
+public bool isListRelType(\alias(_,_,Symbol at)) = isListRelType(at);
+public bool isListRelType(\parameter(_,Symbol tvb)) = isListRelType(tvb);
+public bool isListRelType(\label(_,Symbol lt)) = isListRelType(lt);
+public bool isListRelType(\lrel(_)) = true;
+public default bool isListRelType(Symbol _) = false;
 
 @doc{
 Synopsis: Determine if the given type is a tuple.
