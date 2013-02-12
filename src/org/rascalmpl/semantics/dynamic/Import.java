@@ -196,7 +196,10 @@ public abstract class Import {
 		}
 	}
 
-	protected static void importModule(String name, ISourceLocation src, IEvaluator<Result<IValue>> eval) {
+	public static void importModule(String name, ISourceLocation src, IEvaluator<Result<IValue>> eval) {
+		//System.err.println("importModule: " + name);
+		//long before = System.currentTimeMillis();
+		
 		GlobalEnvironment heap = eval.__getHeap();
 		
 		if (!heap.existsModule(name)) {
@@ -216,6 +219,9 @@ public abstract class Import {
 			eval.getStdErr().println(src + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
 		}
 		
+		//long after = System.currentTimeMillis();
+		//System.err.println("Evaluator: Importing " + name + " takes " + (after - before) + " msec.");
+
 		return;
 	}
 	

@@ -1,6 +1,6 @@
 module lang::dimacs::IO
 
-import lang::logic::Propositions;
+import lang::logic::\syntax::Propositions;
 import lang::dimacs::\syntax::Dimacs;
 
 /*
