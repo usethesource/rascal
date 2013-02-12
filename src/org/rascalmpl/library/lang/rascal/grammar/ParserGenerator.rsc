@@ -33,14 +33,14 @@ import IO;
 import Exception;
   
 // TODO: replace this complex data structure with several simple ones
-private alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
+alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
 public anno str Symbol@prefix;
 anno int Symbol@id;
 
 public str getParserMethodName(Sym sym) = getParserMethodName(sym2symbol(sym));
-private str getParserMethodName(label(_,Symbol s)) = getParserMethodName(s);
-private str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
-private default str getParserMethodName(Symbol s) = value2id(s);
+str getParserMethodName(label(_,Symbol s)) = getParserMethodName(s);
+str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
+default str getParserMethodName(Symbol s) = value2id(s);
 
 public str newGenerate(str package, str name, Grammar gr) {
     startJob("Generating parser <package>.<name>");
@@ -236,7 +236,7 @@ public str newGenerate(str package, str name, Grammar gr) {
    return src;
 }  
 
-private rel[int,int] computeDontNests(Items items, Grammar grammar) {
+rel[int,int] computeDontNests(Items items, Grammar grammar) {
   // first we compute a map from productions to their last items (which identify each production)
   prodItems = (p:items[getType(rhs)][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
   
@@ -251,7 +251,7 @@ private rel[int,int] computeDontNests(Items items, Grammar grammar) {
        + {<getItemId(t, pos, child), prodItems[child]> | <regular(s),pos,child> <- dnn, /Symbol t := grammar, s == t};
 }
 
-private int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol] _, set[Attr] _)) {
+int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol] _, set[Attr] _)) {
   switch (s) {
     case \opt(t) : return t@id; 
     case \iter(t) : return t@id;
@@ -269,16 +269,16 @@ private int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol
 
 
 
-private Symbol getType(Production p) = getType(p.def);
-private Symbol getType(label(str _, Symbol s)) = getType(s);
-private Symbol getType(conditional(Symbol s, set[Condition] cs)) = getType(s);
-private default Symbol getType(Symbol s) = s;
+Symbol getType(Production p) = getType(p.def);
+Symbol getType(label(str _, Symbol s)) = getType(s);
+Symbol getType(conditional(Symbol s, set[Condition] cs)) = getType(s);
+default Symbol getType(Symbol s) = s;
 
 
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
 We first collect these in a map, such that we can generate static fields. It's a simple matter of caching
 constants to improve run-time efficiency of the generated parser}
-private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
+map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
   map[Symbol,map[Item,tuple[str new, int itemId]]] items = ();
   map[Item,tuple[str new, int itemId]] fresh = ();
   
@@ -330,7 +330,7 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
   return items;
 }
 
-private str split(str x) {
+str split(str x) {
   if (size(x) <= 20000) {
     return "\"<esc(x)>\"";
   }
@@ -340,7 +340,7 @@ private str split(str x) {
 }
 
 @doc{this function selects all symbols for which a parse method should be generated}
-private bool isNonterminal(Symbol s) {
+bool isNonterminal(Symbol s) {
   switch (s) {
     case \label(_,x) : return isNonterminal(x);
     case \sort(_) : return true;
@@ -427,7 +427,7 @@ public str ciliterals2ints(list[Symbol] chars){
 }
 
 public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int dot){
-    if (sym is label)  // ignore labels 
+    if (sym is \label)  // ignore labels 
       sym = sym.symbol;
       
     itemId = sym@id;
@@ -541,13 +541,13 @@ public str esc(Symbol s){
     return esc("<s>");
 }
 
-private map[str,str] javaStringEscapes = ( "\n":"\\n", "\"":"\\\"", "\t":"\\t", "\r":"\\r","\\u":"\\\\u","\\":"\\\\");
+map[str,str] javaStringEscapes = ( "\n":"\\n", "\"":"\\\"", "\t":"\\t", "\r":"\\r","\\u":"\\\\u","\\":"\\\\");
 
 public str esc(str s){
     return escape(s, javaStringEscapes);
 }
 
-private map[str,str] javaIdEscapes = javaStringEscapes + ("-":"_", "_": "__");
+map[str,str] javaIdEscapes = javaStringEscapes + ("-":"_", "_": "__");
 
 public str escId(str s){
     return escape(s, javaIdEscapes);
@@ -583,7 +583,7 @@ str v2i(value v) {
         case str s()       : return escId(s);
         case node n        : return "<escId(getName(n))>_<("" | it + "_" + v2i(c) | c <- getChildren(n))>";
         case list[value] l : return ("" | it + "_" + v2i(e) | e <- l);
-        case set[value] s  : return ("" | it + "_" + v2i(e) | e <- s);
+        case set[value] s  : return ("" | it + "_" + v2i(e) | e <- sort(s));
         default            : throw "value not supported <v>";
     }
 }
