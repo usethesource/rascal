@@ -1744,10 +1744,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			new TestEvaluator(this, new ITestResultListener() {
 
 				@Override
-				public void report(boolean successful, String test, ISourceLocation loc, String message) {
+				public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
 					if (!successful)
 						allOk[0] = false;
-					l.report(successful, test, loc, message);
+					l.report(successful, test, loc, message, t);
 				}
 
 				@Override
@@ -1871,5 +1871,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   
   public boolean isBootstrapper() {
     return isBootstrapper;
+  }
+
+  public void removeSearchPathContributor(IRascalSearchPathContributor contrib) {
+    rascalPathResolver.remove(contrib);
   }
 }

@@ -75,20 +75,20 @@ public class TestEvaluator {
 		    if (!result) {
 		      out.flush();
 		      testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer()
-		          .toString());
+		          .toString(), null);
 		    } else {
 		      testResultListener.report(true, test.getName(), test.getAst().getLocation(), sw.getBuffer()
-		          .toString());
+		          .toString(), null);
 		    }
 		  }
 		  catch(StaticError e) {
-		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage());
+		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
 		  }
 		  catch(Throw e){
-		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage());
+		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
 		  }
 		  catch(Throwable e){
-		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage());
+		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
 		  }
 		}
 		//		}

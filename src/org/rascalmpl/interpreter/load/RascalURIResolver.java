@@ -372,4 +372,8 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 			return null;
 		}
 	}
+
+  public void remove(IRascalSearchPathContributor contrib) {
+    contributors.remove(contrib);
+  }
 }
