@@ -55,6 +55,7 @@ public class FineGrainedStrongFact<V> extends AbstractFact<V> {
 			return false;
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	public synchronized void changed(IFact<?> fact, Change change, Object moreInfo) {
 		switch(change) {
 		case CHANGED:

@@ -66,8 +66,18 @@ public class CollectionResult<T extends IValue> extends ElementResult<T> {
 		return insertElement(n);
 	}
 	
+	@Override
+	protected <U extends IValue> Result<U> addSourceLocation(SourceLocationResult n) {
+		return insertElement(n);
+	}
+	
 	@Override 
 	protected <U extends IValue> Result<U> addTuple(TupleResult t) {
+		return insertElement(t);
+	}
+	
+	@Override 
+	protected <U extends IValue> Result<U> addMap(MapResult t) {
 		return insertElement(t);
 	}
 

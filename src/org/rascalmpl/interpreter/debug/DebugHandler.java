@@ -198,6 +198,7 @@ public final class DebugHandler implements IDebugHandler {
 		this.suspendRequested = suspendRequested;
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void processMessage(IDebugMessage message) {
 		switch (message.getSubject()) {

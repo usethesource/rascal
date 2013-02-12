@@ -18,6 +18,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -127,7 +128,14 @@ public class StringResult extends ElementResult<IString> {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		String name = getValue().getValue();
-		IValue node = getTypeFactory().nodeType().make(getValueFactory(), name, argValues);
+		Map<String,IValue> kvMap = null;
+		if(keyArgValues != null){
+			kvMap = new HashMap<String,IValue>();
+			for(String key : keyArgValues.keySet()){
+				kvMap.put(key,  keyArgValues.get(key).getValue());
+			}
+		}
+		IValue node = getTypeFactory().nodeType().make(getValueFactory(), name, argValues, kvMap);
 		return makeResult(getTypeFactory().nodeType(), node, ctx);
 	}
 	

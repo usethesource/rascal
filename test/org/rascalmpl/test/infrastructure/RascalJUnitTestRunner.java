@@ -70,7 +70,7 @@ public class RascalJUnitTestRunner extends Runner {
 	
 	public RascalJUnitTestRunner(String prefix) {
 	  // remove all the escapes (for example in 'lang::rascal::\syntax')
-		this.prefix = prefix.replaceAll("\\", " ").replaceAll(" ","");
+		this.prefix = prefix;
 	}
 	
 	static protected String computeTestName(String name, ISourceLocation loc) {
@@ -94,7 +94,7 @@ public class RascalJUnitTestRunner extends Runner {
 				Description modDesc = Description.createSuiteDescription(name);
 				desc.addChild(modDesc);
 				
-				for (AbstractFunction f : heap.getModule(name).getTests()) {
+				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
 					modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
 				}
 			}
@@ -148,12 +148,12 @@ public class RascalJUnitTestRunner extends Runner {
 		}
 	
 		@Override
-		public void report(boolean successful, String test, ISourceLocation loc,	String message) {
+		public void report(boolean successful, String test, ISourceLocation loc,	String message, Throwable t) {
 			Description desc = getDescription(test, loc);
 			notifier.fireTestStarted(desc);
 			
 			if (!successful) {
-				notifier.fireTestFailure(new Failure(desc, new Exception(loc + " : " + message)));
+				notifier.fireTestFailure(new Failure(desc, t != null ? t : new Exception(message)));
 			}
 			else {
 				notifier.fireTestFinished(desc);
