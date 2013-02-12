@@ -77,6 +77,7 @@ import org.rascalmpl.interpreter.matching.VariableBecomesPattern;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.BoolResult;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
@@ -2916,18 +2917,26 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					org.rascalmpl.interpreter.env.IsomorphicTypes.collectAllTypes(type, allTypes, __eval);
 				}
 			
+			System.out.println(allTypes);
+			
 			boolean isCatamorphism = true; // for the simplicity reasons, given as the third argument to the visit for now
 			
 			if(expressions.size() == 3) {
 				if(expressions.get(1).isTuple()) // the second argument is a tuple expression (algebra functions)
 					for(org.rascalmpl.ast.Expression expr : expressions.get(1).getElements()) {
 						Result<IValue> f = expr.interpret(__eval);
-						Type type = ((FunctionType) f.getType()).getArgumentTypes().getFieldType(0);
+						Type type = null;
+						if(f.getType() instanceof OverloadedFunctionType)
+							type = ((OverloadedFunctionType) f.getType()).getAlternatives().iterator().next().getArgumentTypes().getFieldType(0);
+						else type = ((FunctionType) f.getType()).getArgumentTypes().getFieldType(0);
 						algebra.put(type.getTypeParameters().getFieldType(0), f); // type[&T]
 					}
-				if(expressions.get(3).interpret(__eval).getValue().equals(__eval.getValueFactory().bool(false)))
+				if(expressions.get(2).interpret(__eval).getValue().equals(__eval.getValueFactory().bool(false)))
 					isCatamorphism = false;
 			} 
+			
+			for(Type key : algebra.keySet())
+				System.out.println(key.toString() + " - " + algebra.get(key).getValue().toString());
 			
 			java.util.Map<Type, AbstractFunction> functions = new HashMap<Type, AbstractFunction>();	
 			

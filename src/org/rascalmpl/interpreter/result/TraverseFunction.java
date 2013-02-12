@@ -35,6 +35,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 
@@ -66,8 +67,10 @@ public class TraverseFunction extends AbstractFunction {
 		for(Type type : allTypes)
 			if(!isTP && isCatamorphism) {
 				if(algebra.containsKey(type)) {
-					FunctionType ftype = (FunctionType) algebra.get(type).getType();
-					Type returnType = ftype.getReturnType();
+					Type returnType = null;
+					if(algebra.get(type).getType() instanceof OverloadedFunctionType)
+						returnType = ((OverloadedFunctionType) algebra.get(type).getType()).getReturnType();
+					else returnType = ((FunctionType) algebra.get(type).getType()).getReturnType();
 					functions.put(type, new TraverseFunction((FunctionType) RTF.functionType(returnType, TF.tupleType(type)), 
 											type, algebra.get(type), isCatamorphism, functions, eval));
 				} else {
