@@ -2900,27 +2900,30 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);		
-			
+						
 			java.util.List<org.rascalmpl.ast.Expression> expressions = this.getExpressions();
-			assert(expressions.size() <= 2);
-			java.util.Set<Type> types = new HashSet<Type>(); // type parameters
-			java.util.Set<Type> allTypes = new HashSet<Type>(); // all recursive types
-			java.util.Map<Type, Result<IValue>> algebra = new HashMap<Type, Result<IValue>>();
 			
-			if(expressions.get(0).isTuple())
+			assert(expressions.size() >= 1 && expressions.size() <= 3);
+			
+			java.util.Set<Type> types = new HashSet<Type>(); // type arguments to the visit
+			java.util.Set<Type> allTypes = new HashSet<Type>(); // types of all the children to be visited 
+			java.util.Map<Type, Result<IValue>> algebra = new HashMap<Type, Result<IValue>>(); // algebra function arguments to the visit
+			
+			if(expressions.get(0).isTuple()) // the first argument is a tuple expression (types)
 				for(org.rascalmpl.ast.Expression expr : expressions.get(0).getElements()) {
 					Type type = expr.getType().typeOf(__eval.getCurrentEnvt());
 					types.add(type);
 					org.rascalmpl.interpreter.env.IsomorphicTypes.collectAllTypes(type, allTypes, __eval);
 				}
 			
-			boolean isCatamorphism = true;
+			boolean isCatamorphism = true; // for the simplicity reasons, given as the third argument to the visit for now
+			
 			if(expressions.size() == 3) {
-				if(expressions.get(1).isTuple())
+				if(expressions.get(1).isTuple()) // the second argument is a tuple expression (algebra functions)
 					for(org.rascalmpl.ast.Expression expr : expressions.get(1).getElements()) {
 						Result<IValue> f = expr.interpret(__eval);
 						Type type = ((FunctionType) f.getType()).getArgumentTypes().getFieldType(0);
-						algebra.put(type.getTypeParameters().getFieldType(0), f);
+						algebra.put(type.getTypeParameters().getFieldType(0), f); // type[&T]
 					}
 				if(expressions.get(3).interpret(__eval).getValue().equals(__eval.getValueFactory().bool(false)))
 					isCatamorphism = false;
@@ -2929,6 +2932,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			java.util.Map<Type, AbstractFunction> functions = new HashMap<Type, AbstractFunction>();	
 			
 			TraverseFunction.generateTraverseFunctions(allTypes, algebra, isCatamorphism, functions, __eval);
+			
 //			Type types[] = new Type[functions.keySet().size()];
 //			String labels[] = new String[functions.keySet().size()];
 //			IValue args[] = new IValue[functions.keySet().size()];
