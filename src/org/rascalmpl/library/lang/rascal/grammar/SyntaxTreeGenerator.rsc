@@ -117,7 +117,7 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
 
 public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   for (a <- sort(asts)) {
-     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor", "org.rascalmpl.interpreter.asserts.Ambiguous","org.rascalmpl.interpreter.IEvaluator","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.result.Result"], a); 
+     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor"], a); 
      loggedWriteFile(outdir + "/<a.name>.java", class); 
   }
 }

@@ -24,7 +24,7 @@ public Grammar getRascalGrammar() {
   event("parsing the rascal definition of rascal");
   Module \module = parse(#start[Module], inputFolder + "/Rascal.rsc").top;
   event("imploding the syntax definition and normalizing and desugaring it");
-  return modules2grammar("lang::rascal::\syntax::Rascal", {\module});
+  return modules2grammar("lang::rascal::syntax::Rascal", {\module});
 }
 
 public void bootstrap() {
