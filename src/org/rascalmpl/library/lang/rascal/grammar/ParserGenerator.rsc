@@ -21,7 +21,7 @@ import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Keywords;
 
 import util::Monitor;
-import lang::rascal::syntax::Rascal;
+import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::ConcreteSyntax;
 import ParseTree;
 import String;

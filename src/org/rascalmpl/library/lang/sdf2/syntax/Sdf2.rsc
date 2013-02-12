@@ -7,7 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl - CWI}
-module lang::sdf2::syntax::Sdf2
+module lang::sdf2::\syntax::Sdf2
 
 lexical Sort 
   = OneChar: [A-Z] !>> [A-Za-z0-9]

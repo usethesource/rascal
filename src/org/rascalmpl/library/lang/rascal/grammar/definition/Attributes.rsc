@@ -7,7 +7,7 @@
 }
 module lang::rascal::grammar::definition::Attributes
 
-import lang::rascal::syntax::Rascal;
+import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Literals;
 import ParseTree;
 import IO;
@@ -15,6 +15,7 @@ import IO;
 @doc{adds an attribute to all productions it can find}
 public Production attribute(Production p, Attr a) = p[attributes=p.attributes+{a}];
 
+// TODO: the result set is always empty it seems. FixMe!
 public set[Attr] mods2attrs(ProdModifier* mods) = {mod2attr(m) | ProdModifier m <- mods};
  
 public Attr mod2attr(ProdModifier m) {

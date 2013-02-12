@@ -24,7 +24,6 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1048,7 +1047,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IRascalMonitor old = setMonitor(monitor);
 		interrupt = false;
 		try {
-			eval("import " + string + ";", URIUtil.rootScheme("import"));
+		  ISourceLocation uri = vf.sourceLocation(URIUtil.rootScheme("import"));
+		  org.rascalmpl.semantics.dynamic.Import.importModule(string, uri, this);
 		}
 		finally {
 			setMonitor(old);
@@ -1103,46 +1103,37 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			dependingImports.addAll(getImportingModules(names));
 			dependingExtends.addAll(getExtendingModules(names));
 
-			try {
-				monitor.startJob("Reconnecting importers of affected modules", dependingImports.size());
-				for (String mod : dependingImports) {
-					ModuleEnvironment env = heap.getModule(mod);
-					Set<String> todo = new HashSet<String>(env.getImports());
-					for (String imp : todo) {
-						if (names.contains(imp)) {
-							env.unImport(imp);
-							ModuleEnvironment imported = heap.getModule(imp);
-							if (imported != null) {
-								env.addImport(imp, imported);
-							}
-						}
+			monitor.event("Reconnecting importers of affected modules");
+			for (String mod : dependingImports) {
+			  ModuleEnvironment env = heap.getModule(mod);
+			  Set<String> todo = new HashSet<String>(env.getImports());
+			  for (String imp : todo) {
+			    if (names.contains(imp)) {
+			      env.unImport(imp);
+			      ModuleEnvironment imported = heap.getModule(imp);
+			      if (imported != null) {
+			        env.addImport(imp, imported);
+			      }
+			    }
 
-					}
-					monitor.event("Reconnected " + mod, 1);
-				}
+			  }
+			  monitor.event("Reconnected " + mod, 1);
 			}
-			finally {
-				monitor.endJob(true);
-			}
-				
-			try {
-				monitor.startJob("Reconnecting extenders of affected modules", dependingExtends.size());
-				for (String mod : dependingExtends) {
-					ModuleEnvironment env = heap.getModule(mod);
-					Set<String> todo = new HashSet<String>(env.getExtends());
-					for (String ext : todo) {
-						if (names.contains(ext)) {
-							env.unExtend(ext);
-							ModuleEnvironment extended = heap.getModule(ext);
-							if (extended != null) {
-								env.addExtend(ext);
-							}
-						}
-					}
-					monitor.event("Reconnected " + mod, 1);
-				}
-			} finally {
-				monitor.endJob(true);
+
+			monitor.event("Reconnecting extenders of affected modules");
+			for (String mod : dependingExtends) {
+			  ModuleEnvironment env = heap.getModule(mod);
+			  Set<String> todo = new HashSet<String>(env.getExtends());
+			  for (String ext : todo) {
+			    if (names.contains(ext)) {
+			      env.unExtend(ext);
+			      ModuleEnvironment extended = heap.getModule(ext);
+			      if (extended != null) {
+			        env.addExtend(ext);
+			      }
+			    }
+			  }
+			  monitor.event("Reconnected " + mod, 1);
 			}
 			
 			if (recurseToExtending && !extendingModules.isEmpty()) {
@@ -1472,8 +1463,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     
       char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
       
-      getStdOut().println("Parsing: [" + Arrays.toString(input) + "]");
-      
       IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri, input, converter, nodeFactory);
       fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
 
@@ -1755,10 +1744,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			new TestEvaluator(this, new ITestResultListener() {
 
 				@Override
-				public void report(boolean successful, String test, ISourceLocation loc, String message) {
+				public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
 					if (!successful)
 						allOk[0] = false;
-					l.report(successful, test, loc, message);
+					l.report(successful, test, loc, message, t);
 				}
 
 				@Override
@@ -1882,5 +1871,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   
   public boolean isBootstrapper() {
     return isBootstrapper;
+  }
+
+  public void removeSearchPathContributor(IRascalSearchPathContributor contrib) {
+    rascalPathResolver.remove(contrib);
   }
 }

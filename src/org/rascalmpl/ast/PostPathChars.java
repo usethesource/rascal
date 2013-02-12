@@ -17,11 +17,6 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.Result;
 
 public abstract class PostPathChars extends AbstractAST {
   public PostPathChars(IConstructor node) {
@@ -29,45 +24,6 @@ public abstract class PostPathChars extends AbstractAST {
   }
 
   
-
-  static public class Ambiguity extends PostPathChars {
-    private final java.util.List<org.rascalmpl.ast.PostPathChars> alternatives;
-    private final IConstructor node;
-           
-    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.PostPathChars> alternatives) {
-      super(node);
-      this.node = node;
-      this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-    }
-    
-    @Override
-    public IConstructor getTree() {
-      return node;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      return null;
-    }
-  
-    @Override
-    public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-      throw new Ambiguous(src);
-    }
-      
-    @Override
-    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(src);
-    }
-    
-    public java.util.List<org.rascalmpl.ast.PostPathChars> getAlternatives() {
-      return alternatives;
-    }
-    
-    public <T> T accept(IASTVisitor<T> v) {
-    	return v.visitPostPathCharsAmbiguity(this);
-    }
-  }
 
   static public class Lexical extends PostPathChars {
   private final java.lang.String string;

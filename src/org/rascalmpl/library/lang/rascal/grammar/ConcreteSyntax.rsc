@@ -17,7 +17,7 @@ import List;
 import IO;
 import ParseTree;
 import Grammar;
-import lang::rascal::syntax::Rascal;
+import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Regular;

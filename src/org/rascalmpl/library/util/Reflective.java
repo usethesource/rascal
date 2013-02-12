@@ -15,8 +15,10 @@ package org.rascalmpl.library.util;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -26,6 +28,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
 
@@ -81,6 +84,33 @@ public class Reflective {
 		Evaluator ownEvaluator = getPrivateEvaluator(ctx);
 		return ownEvaluator.parseModule(ownEvaluator.getMonitor(), str.getValue().toCharArray(), loc.getURI(), null);
 	}
+	
+	public IValue parseModule(ISourceLocation loc, final IList searchPath, IEvaluatorContext ctx) {
+    Evaluator ownEvaluator = getPrivateEvaluator(ctx);
+    IRascalSearchPathContributor contrib = new IRascalSearchPathContributor() {
+      @Override
+      public String getName() {
+        return "reflective";
+      }
+      
+      @Override
+      public void contributePaths(List<URI> path) {
+        for (IValue elem : searchPath) {
+          path.add(((ISourceLocation) elem).getURI());
+        }
+      }
+    };
+    ownEvaluator.addRascalSearchPathContributor(contrib);
+    
+    try { 
+      return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc.getURI(), null);
+    } catch (IOException e) {
+      throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+    }
+    finally {
+      ownEvaluator.removeSearchPathContributor(contrib);
+    }
+  }
 	
 	public IValue getModuleLocation(IString modulePath, IEvaluatorContext ctx) {
 		URI uri = ctx.getEvaluator().getRascalResolver().resolve(URIUtil.createRascalModule(modulePath.getValue()));

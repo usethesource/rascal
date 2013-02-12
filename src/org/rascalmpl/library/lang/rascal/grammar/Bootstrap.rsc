@@ -3,24 +3,28 @@ module lang::rascal::grammar::Bootstrap
 import lang::rascal::\syntax::Rascal; 
 
 import lang::rascal::grammar::ParserGenerator;
+import lang::rascal::grammar::SyntaxTreeGenerator;
 import lang::rascal::grammar::definition::Modules;
+import lang::rascal::grammar::definition::Parameters;
 
 import IO;
 import ValueIO;  
 import Grammar;
+import util::Monitor;
 
 private str package = "org.rascalmpl.library.lang.rascal.syntax";
 private loc inputFolder = |rascal:///lang/rascal/syntax|;
 private loc outputFolder = |boot:///src/org/rascalmpl/library/lang/rascal/syntax|;
+private loc astFolder = |boot:///src/org/rascalmpl/ast|;
 
 private str grammarName = "Rascal";
 private str rootName = "RascalParser";
 
 public Grammar getRascalGrammar() {
-  println("parsing the rascal definition of rascal");
+  event("parsing the rascal definition of rascal");
   Module \module = parse(#start[Module], inputFolder + "/Rascal.rsc").top;
-  println("imploding the syntax definition and normalizing and desugaring it");
-  return modules2grammar("lang::rascal::syntax::Rascal", {\module});
+  event("imploding the syntax definition and normalizing and desugaring it");
+  return modules2grammar("lang::rascal::\syntax::Rascal", {\module});
 }
 
 public void bootstrap() {
@@ -29,9 +33,8 @@ public void bootstrap() {
   bootAST(gr);
 }
 
-public void bootParser() {
-  gr = getRascalGrammar();
-  println("generating new Rascal parser");
+public void bootParser(Grammar gr) {
+  event("generating new Rascal parser");
   source = newGenerate(package, rootName, gr);
   writeFile(outputFolder + "/<rootName>.java", source);
 }

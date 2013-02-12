@@ -17,11 +17,6 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Range extends AbstractAST {
   public Range(IConstructor node) {
@@ -49,45 +44,6 @@ public abstract class Range extends AbstractAST {
 
   public org.rascalmpl.ast.Char getStart() {
     throw new UnsupportedOperationException();
-  }
-
-  static public class Ambiguity extends Range {
-    private final java.util.List<org.rascalmpl.ast.Range> alternatives;
-    private final IConstructor node;
-           
-    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Range> alternatives) {
-      super(node);
-      this.node = node;
-      this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-    }
-    
-    @Override
-    public IConstructor getTree() {
-      return node;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      return null;
-    }
-  
-    @Override
-    public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-      throw new Ambiguous(src);
-    }
-      
-    @Override
-    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(src);
-    }
-    
-    public java.util.List<org.rascalmpl.ast.Range> getAlternatives() {
-      return alternatives;
-    }
-    
-    public <T> T accept(IASTVisitor<T> v) {
-    	return v.visitRangeAmbiguity(this);
-    }
   }
 
   
