@@ -16,10 +16,10 @@ import ParseTree;
 
 public bool hasAmb(Tree x) = /a:amb(_) := x;
 
-public bool testModule(loc f) {
+public bool testModule(loc f, list[loc] path) {
   println(f);
   try {
-    if (hasAmb(parseModule(f))) {
+    if (hasAmb(parseModule(f, path))) {
       println("Ambiguity found while parsing: <f>");
     }
     else {
@@ -33,7 +33,8 @@ public bool testModule(loc f) {
   return false;
 }
 
-public test bool StandardLibrary() = (true | testModule(f) && it | /file(f) <- crawl(|std:///|), endsWith(f.path, ".rsc"));
+public test bool StandardLibrary() = (true | testModule(f, []) && it | /file(f) <- crawl(|std:///|), endsWith(f.path, ".rsc"));
 
-public test bool testTutor() = (true | testModule(f) && it | /file(f) <- crawl(|tutor:///|), endsWith(f.path, ".rsc"));
+public test bool testTutor() = (true | testModule(f, [|tutor:///|]) && it | /file(f) <- crawl(|tutor:///|), endsWith(f.path, ".rsc"));
+
 
