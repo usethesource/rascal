@@ -103,10 +103,15 @@ public class IsomorphicTypes {
 	public static void collectAllTypes(Type type, Set<Type> types, IEvaluator<Result<IValue>> __eval) {
 		if(types.contains(type)) return ;
 		types.add(type);
-		if(type.isAbstractDataType())
-			for(Type alt : __eval.getCurrentEnvt().lookupAlternatives(type))
+		if(type.isAbstractDataType()) {
+			Type adt = __eval.getCurrentEnvt().lookupAbstractDataType(type.getName()); // handles type constructors
+			Map<Type, Type> bindings = new HashMap<Type, Type>();
+			for(int i = 0; i < adt.getTypeParameters().getArity(); i++)
+				bindings.put(adt.getTypeParameters().getFieldType(i), type.getTypeParameters().getFieldType(i));
+			for(Type alt : __eval.getCurrentEnvt().lookupAlternatives(adt))
 				for(int i = 0; i < alt.getFieldTypes().getArity(); i++)
-					collectAllTypes(alt.getFieldTypes().getFieldType(i), types, __eval);
+					collectAllTypes(alt.getFieldTypes().getFieldType(i).instantiate(bindings), types, __eval);
+		}
 		if(type.isListType() || type.isListRelationType() || type.isSetType() || type.isRelationType())
 			collectAllTypes(type.getElementType(), types, __eval);
 		if(type.isMapType()) {
