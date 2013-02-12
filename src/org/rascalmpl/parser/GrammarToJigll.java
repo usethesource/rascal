@@ -45,6 +45,7 @@ public class GrammarToJigll {
 
 	  NonterminalSymbolNode parse = parser.parse(str.getValue(), g, symbol.toString());
 	  parse.accept(new ModelBuilderVisitor<>(new ParsetreeBuilder()));
+	  System.out.println((IConstructor) parse.getObject());
 	  return (IConstructor) parse.getObject();
 	}
 	
@@ -101,13 +102,13 @@ public class GrammarToJigll {
 		Rule rule = new Rule(head, body);
 
 		if (rhs.length() == 0) { // epsilon
-			convertEpsilonProduction(nonterminals, slots, rule, slot);
+			convertEpsilonProduction(nonterminals, slots, rule, slot, prod);
 		} else {
-			convertNonEpsilonProduction(nonterminals, slots, rule, slot);
+			convertNonEpsilonProduction(nonterminals, slots, rule, slot, prod);
 		}
 	}
 
-	static private void convertNonEpsilonProduction(Map<IValue, Nonterminal> nonterminals, List<BodyGrammarSlot> slots, Rule rule, BodyGrammarSlot slot) {
+	static private void convertNonEpsilonProduction(Map<IValue, Nonterminal> nonterminals, List<BodyGrammarSlot> slots, Rule rule, BodyGrammarSlot slot, IConstructor prod) {
 		int index = 0;
 		for (Symbol s : rule.getBody()) {
 			if(s instanceof Terminal) {
@@ -123,11 +124,11 @@ public class GrammarToJigll {
 			}
 			index++;
 		}
-		slots.add(new LastGrammarSlot(rule, slots.size() + nonterminals.size(), rule.getBody().size(), slot));
+		slots.add(new LastGrammarSlot(rule, slots.size() + nonterminals.size(), rule.getBody().size(), slot, prod));
 	}
 
-	static private void convertEpsilonProduction(Map<IValue, Nonterminal> nonterminals, List<BodyGrammarSlot> slots, Rule rule, BodyGrammarSlot slot) {
-		slot = new EpsilonGrammarSlot(rule, slots.size() + nonterminals.size(), 0, slot, null);
+	static private void convertEpsilonProduction(Map<IValue, Nonterminal> nonterminals, List<BodyGrammarSlot> slots, Rule rule, BodyGrammarSlot slot, IConstructor prod) {
+		slot = new EpsilonGrammarSlot(rule, slots.size() + nonterminals.size(), 0, slot, new HashSet<Terminal>(), prod);
 		slots.add(slot);
 		rule.getHead().addAlternate(slot);
 	}
