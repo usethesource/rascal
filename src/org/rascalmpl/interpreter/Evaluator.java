@@ -19,6 +19,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -37,26 +39,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.EvalCommand;
-import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Import;
-import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -64,10 +58,8 @@ import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
-import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.debug.DebugUpdater;
 import org.rascalmpl.interpreter.debug.IRascalSuspendTrigger;
 import org.rascalmpl.interpreter.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.env.Environment;
@@ -77,8 +69,6 @@ import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
-import org.rascalmpl.interpreter.matching.IBooleanResult;
-import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
@@ -91,7 +81,6 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedInsert;
 import org.rascalmpl.interpreter.staticErrors.UnguardedReturn;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.JavaBridge;
-import org.rascalmpl.interpreter.utils.Modules;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -100,7 +89,6 @@ import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
-import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
@@ -118,10 +106,7 @@ import org.rascalmpl.uri.TempURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
-import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
 	private final IValueFactory vf; // sharable
@@ -622,54 +607,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(URI loc){
-		return getNewObjectParser((ModuleEnvironment) getCurrentEnvt().getRoot(), loc, false);
-	}
-
-	@SuppressWarnings("unchecked")
-	private IGTD<IConstructor, IConstructor, ISourceLocation> getNewObjectParser(ModuleEnvironment currentModule, URI loc, boolean force) {
-		if (currentModule.getBootstrap()) {
-			return new RascalParser();
-		}
-		
-		if (currentModule.hasCachedParser()) {
-			String className = currentModule.getCachedParser();
-			Class<?> clazz;
-			for (ClassLoader cl: classLoaders) {
-				try {
-					clazz = cl.loadClass(className);
-					return (IGTD<IConstructor, IConstructor, ISourceLocation>) clazz.newInstance();
-				} catch (ClassNotFoundException e) {
-					continue;
-				} catch (InstantiationException e) {
-					throw new ImplementationError("could not instantiate " + className + " to valid IGTD parser", e);
-				} catch (IllegalAccessException e) {
-					throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
-				}
-			}
-			throw new ImplementationError("class for cached parser " + className + " could not be found");
-		}
-
-		ParserGenerator pg = getParserGenerator();
-		IMap definitions = currentModule.getSyntaxDefinition();
-		
-		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = getHeap().getObjectParser(currentModule.getName(), definitions);
-
-		if (parser == null || force) {
-			String parserName = currentModule.getName(); // .replaceAll("::", ".");
-
-			parser = pg.getNewParser(this, loc, parserName, definitions);
-			getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
-		}
-
-		try {
-			return parser.newInstance();
-		} catch (InstantiationException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (ExceptionInInitializerError e) {
-			throw new ImplementationError(e.getMessage(), e);
-		}
+		return org.rascalmpl.semantics.dynamic.Import.getParser(this, (ModuleEnvironment) getCurrentEnvt().getRoot(), loc, false);
 	}
 
 	@Override
@@ -730,7 +668,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private ParserGenerator parserGenerator;
   
 	
-	private ParserGenerator getParserGenerator() {
+	public ParserGenerator getParserGenerator() {
 		startJob("Loading parser generator", 40);
 		if(parserGenerator == null ){
 		  if (isBootstrapper()) {
@@ -868,10 +806,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IConstructor tree = new RascalParser().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		
 		if (!noBacktickOutsideStringConstant(command)) {
-		  tree = parseFragments(tree, getCurrentModuleEnvironment());
+		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, getCurrentModuleEnvironment());
 		}
 		
-		Command stat = getBuilder().buildCommand(tree);
+		Command stat = new ASTBuilder().buildCommand(tree);
 		
 		if (stat == null) {
 			throw new ImplementationError("Disambiguation failed: it removed all alternatives");
@@ -889,10 +827,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		tree = new RascalParser().parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	
 	  if (!noBacktickOutsideStringConstant(command)) {
-	    tree = parseFragments(tree, getCurrentModuleEnvironment());
+	    tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, getCurrentModuleEnvironment());
 		}
 
-		Commands stat = getBuilder().buildCommands(tree);
+		Commands stat = new ASTBuilder().buildCommands(tree);
 		
 		if (stat == null) {
 			throw new ImplementationError("Disambiguation failed: it removed all alternatives");
@@ -939,7 +877,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IConstructor tree =  new RascalParser().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
 		if (!noBacktickOutsideStringConstant(command)) {
-		  tree = parseFragments(tree, getCurrentModuleEnvironment());
+		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, getCurrentModuleEnvironment());
 		}
 		
 		return tree;
@@ -954,7 +892,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       IConstructor tree = new RascalParser().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
   
 			if (!noBacktickOutsideStringConstant(commands)) {
-			  tree = parseFragments(tree, getCurrentModuleEnvironment());
+			  tree = parseFragments(this, tree, getCurrentModuleEnvironment());
 			}
 			
 			return tree;
@@ -1301,401 +1239,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
 		IRascalMonitor old = setMonitor(monitor);
 		try {
-			return newParseModule(data, location, env, true);
+			return org.rascalmpl.semantics.dynamic.Import.parseModule(data, location, env, this);
 		}
 		finally{
 			setMonitor(old);
 		}
 	}
-	
-	private IConstructor newParseModule(char[] data, URI location, ModuleEnvironment env, boolean declareImportsAndSyntax){
-	  __setInterrupt(false);
-	  IActionExecutor<IConstructor> actions = new NoActionExecutor();
-
-	  try {
-	    startJob("Parsing + location", 10);
-	    event("initial parse");
-	    IConstructor tree = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-
-	    if (TreeAdapter.isAmb(tree)) {
-	      // Ambiguity is dealt with elsewhere
-	      return tree;
-	    }
-
-	    IConstructor top = TreeAdapter.getStartTop(tree);
-
-	    String name = Modules.getName(top);
-
-	    // create the current module if it does not exist yet
-	    if (env == null){
-	      env = heap.getModule(name);
-	      if(env == null){
-	        env = new ModuleEnvironment(name, heap);
-	        heap.addModule(env);
-	      }
-	      env.setBootstrap(needBootstrapParser(data));
-	    }
-
-	    // make sure all the imported and extended modules are loaded
-	    // since they may provide additional syntax definitions\
-	    Environment old = getCurrentEnvt();
-	    try {
-	      setCurrentEnvt(env);
-	      env.setInitialized(true);
-
-	      event("defining syntax");
-	      ISet rules = Modules.getSyntax(top);
-	      for (IValue rule : rules) {
-	        evalImport((IConstructor) rule);
-	      }
-
-	      event("importing modules");
-	      ISet imports = Modules.getImports(top);
-	      for (IValue mod : imports) {
-	        evalImport((IConstructor) mod);
-	      }
-
-	      event("extending modules");
-	      ISet extend = Modules.getExtends(top);
-	      for (IValue mod : extend) {
-	        evalImport((IConstructor) mod);
-	      }
-
-	      event("generating modules");
-	      ISet externals = Modules.getExternals(top);
-	      for (IValue mod : externals) {
-	        evalImport((IConstructor) mod);
-	      }
-
-	    }
-	    finally {
-	      setCurrentEnvt(old);
-	    }
-
-	    // parse the embedded concrete syntax fragments of the current module
-	    IConstructor result = tree;
-	    if (!isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
-	      event("parsing concrete syntax");
-	      result = parseFragments(tree, env);
-	    }
-
-	    if (!suspendTriggerListeners.isEmpty()) {
-	      result = DebugUpdater.pushDownAttributes(result);
-	    }
-
-	    return result;
-	  } 
-	  finally {
-	    endJob(true);
-	  }
-  }
-	
-	private void evalImport(IConstructor mod) {
-    Import imp = (Import) getBuilder().buildValue(mod);
-    imp.interpret(this);
-  }
-
-  /**
-	 * This function will reconstruct a parse tree of a module, where all nested concrete syntax fragments
-	 * have been parsed and their original flat literal strings replaced by fully structured parse trees.
-	 * 
-	 * @param module is a parse tree of a Rascal module containing flat concrete literals
-	 * @param parser is the parser to use for the concrete literals
-	 * @return parse tree of a module with structured concrete literals, or parse errors
-	 */
-	private IConstructor parseFragments(IConstructor module, final ModuleEnvironment env) {
-	  // TODO: update source code locations!!
-	  
-	  try {
-	   return (IConstructor) module.accept(new IdentityTreeVisitor() {
-	     @Override
-	     public IConstructor visitTreeAppl(IConstructor tree) throws VisitorException {
-	       IConstructor pattern = getConcretePattern(tree);
-	       
-	       if (pattern != null) {
-	         IConstructor parsedFragment = parseFragment(env, (IConstructor) TreeAdapter.getArgs(tree).get(0));
-	         return TreeAdapter.setArgs(tree, vf.list(parsedFragment));
-	       }
-	       else {
-	         IListWriter w = vf.listWriter();
-	         IList args = TreeAdapter.getArgs(tree);
-	         for (IValue arg : args) {
-	           w.append(arg.accept(this));
-	         }
-	         args = w.done();
-	         
-	         return TreeAdapter.setArgs(tree, args);
-	       }
-	     }
-
-	     private IConstructor getConcretePattern(IConstructor tree) {
-	       String sort = TreeAdapter.getSortName(tree);
-	       if (sort.equals("Expression") || sort.equals("Pattern")) {
-	         String cons = TreeAdapter.getConstructorName(tree);
-	         if (cons.equals("concrete")) {
-	           return (IConstructor) TreeAdapter.getArgs(tree).get(0);
-	         }
-	       }
-	       return null;
-      }
-
-      @Override
-	     public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
-	       throw new ImplementationError("unexpected ambiguity: " + arg);
-	     }
-	   });
-	  } catch (VisitorException e) {
-	    throw new ImplementationError("unexpected error while parsing concrete syntax fragments", e.getCause());
-	  }
-  }
-	private IConstructor parseFragment(ModuleEnvironment env, IConstructor tree) {
-    IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
-    IConstructor lit = TreeAdapter.getArg(tree, "parts");
-    Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
-    
-    IGTD<IConstructor, IConstructor, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getNewObjectParser(env, TreeAdapter.getLocation(tree).getURI(), false);
-    
-    try {
-      String parserMethodName = getParserGenerator().getParserMethodName(symTree);
-      URI uri = getCurrentAST().getLocation().getURI();
-      DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation> converter = new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>();
-      UPTRNodeFactory nodeFactory = new UPTRNodeFactory();
-    
-      char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
-      
-      IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri, input, converter, nodeFactory);
-      fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
-
-      IConstructor prod = TreeAdapter.getProduction(tree);
-      IConstructor sym = ProductionAdapter.getDefined(prod);
-      sym = SymbolAdapter.delabel(sym); 
-      prod = ProductionAdapter.setDefined(prod, (IConstructor) Factory.Symbol_Label.make(vf, vf.string("$parsed"), sym));
-      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
-    }
-    catch (ParseError e) {
-      // have to deal with this parse error later when interpreting the AST, for now we just reconstruct the unparsed tree.
-      getStdOut().println("Failed at: " + TreeAdapter.getLocation(tree) + ", failed on: [" + new String(replaceAntiQuotesByHoles(lit, antiquotes)) + "], " + e);
-      throw e;
-//      return tree;
-    }
-  }
-	
-	private char[] replaceAntiQuotesByHoles(IConstructor lit, Map<String, IConstructor> antiquotes) {
-	  IList parts = TreeAdapter.getArgs(lit);
-	  StringBuilder b = new StringBuilder();
-	  
-	  for (IValue elem : parts) {
-	    IConstructor part = (IConstructor) elem;
-	    String cons = TreeAdapter.getConstructorName(part);
-	    
-	    if (cons.equals("text")) {
-	      b.append(TreeAdapter.yield(part));
-	    }
-	    else if (cons.equals("newline")) {
-	      b.append('\n');
-	    }
-	    else if (cons.equals("lt")) {
-	      b.append('<');
-	    }
-	    else if (cons.equals("gt")) {
-	      b.append('>');
-	    }
-	    else if (cons.equals("bq")) {
-	      b.append('`');
-	    }
-	    else if (cons.equals("bs")) {
-	      b.append('\\');
-	    }
-	    else if (cons.equals("hole")) {
-        b.append(createHole(part, antiquotes));
-      }
- 	  }
-	  
-	  return b.toString().toCharArray();
-	}
-
-  private String createHole(IConstructor part, Map<String, IConstructor> antiquotes) {
-    String ph = getParserGenerator().createHole(part, antiquotes.size());
-    antiquotes.put(ph, part);
-    return ph;
-  }
-
-  private IConstructor replaceHolesByAntiQuotes(IConstructor fragment, final Map<String, IConstructor> antiquotes) {
-    try {
-      return (IConstructor) fragment.accept(new IdentityTreeVisitor() {
-        @Override
-        public IConstructor visitTreeAppl(IConstructor tree) throws VisitorException {
-          String cons = TreeAdapter.getConstructorName(tree);
-          if (cons == null || !cons.equals("$MetaHole") ) {
-            IListWriter w = vf.listWriter();
-            IList args = TreeAdapter.getArgs(tree);
-            for (IValue elem : args) {
-              w.append(elem.accept(this));
-            }
-            args = w.done();
-            
-            return TreeAdapter.setArgs(tree, args);
-          }
-          
-          IConstructor type = retrieveHoleType(tree);
-          return antiquotes.get(TreeAdapter.yield(tree)).setAnnotation("holeType", type);
-        }
-        
-        private IConstructor retrieveHoleType(IConstructor tree) {
-          IConstructor prod = TreeAdapter.getProduction(tree);
-          ISet attrs = ProductionAdapter.getAttributes(prod);
-
-          for (IValue attr : attrs) {
-            if (((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
-              IValue arg = ((IConstructor) attr).get(0);
-              
-              if (arg.getType().isNodeType() && ((INode) arg).getName().equals("holeType")) {
-                return (IConstructor) ((INode) arg).get(0);
-              }
-            }
-          }
-          
-          throw new ImplementationError("expected to find a holeType, but did not: " + tree);
-        }
-
-        @Override
-        public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
-          ISetWriter w = vf.setWriter();
-          for (IValue elem : TreeAdapter.getAlternatives(arg)) {
-            w.insert(elem.accept(this));
-          }
-          return arg.set("alternatives", w.done());
-        }
-      });
-    }
-    catch (VisitorException e) {
-      throw new ImplementationError("failure while parsing fragments", e);
-    }
-  }
- 
- private static boolean containsBackTick(char[] data, int offset) {
-		for (int i = data.length - 1; i >= offset; --i) {
-			if (data[i] == '`')
-				return true;
-		}
-		return false;
-	}
-	
-	public boolean needBootstrapParser(char[] input) {
-	  return new String(input).contains("@bootstrapParser");
-	}
-	
-	@Override	
-	public ASTBuilder getBuilder() {
-		return new ASTBuilder();
-	}
-	
-	@Override	
-	public boolean matchAndEval(Result<IValue> subject, Expression pat, Statement stat) {
-		boolean debug = false;
-		Environment old = getCurrentEnvt();
-		pushEnv();
-
-		try {
-			IMatchingResult mp = pat.getMatcher(this);
-			mp.initMatch(subject);
-
-			while (mp.hasNext()) {
-				pushEnv();
-				
-				if (interrupt) {
-					throw new InterruptException(getStackTrace(), getCurrentAST().getLocation());
-				}
-
-				if (mp.next()) {
-					try {
-						try {
-							stat.interpret(this);
-						} catch (Insert e) {
-							// Make sure that the match pattern is set
-							if (e.getMatchPattern() == null) {
-								e.setMatchPattern(mp);
-							}
-							throw e;
-						}
-						return true;
-					} catch (Failure e) {
-						// unwind(old); // can not clean up because you don't
-						// know how far to roll back
-					}
-				}
-			}
-		} finally {
-			if (debug)
-				System.err.println("Unwind to old env");
-			unwind(old);
-		}
-		return false;
-	}
-
-	@Override	
-	public boolean matchEvalAndReplace(Result<IValue> subject, Expression pat, List<Expression> conditions, Expression replacementExpr) {
-		Environment old = getCurrentEnvt();
-		try {
-			IMatchingResult mp = pat.getMatcher(this);
-			mp.initMatch(subject);
-
-			while (mp.hasNext()) {
-				if (interrupt)
-					throw new InterruptException(getStackTrace(), getCurrentAST().getLocation());
-				if (mp.next()) {
-					int size = conditions.size();
-					
-					if (size == 0) {
-						throw new Insert(replacementExpr.interpret(this), mp);
-					}
-					
-					IBooleanResult[] gens = new IBooleanResult[size];
-					Environment[] olds = new Environment[size];
-					Environment old2 = getCurrentEnvt();
-
-					int i = 0;
-					try {
-						olds[0] = getCurrentEnvt();
-						pushEnv();
-						gens[0] = conditions.get(0).getBacktracker(this);
-						gens[0].init();
-
-						while (i >= 0 && i < size) {
-
-							if (__getInterrupt()) {
-								throw new InterruptException(getStackTrace(), getCurrentAST().getLocation());
-							}
-							if (gens[i].hasNext() && gens[i].next()) {
-								if (i == size - 1) {
-									// in IfThen the body is executed, here we insert the expression
-									// NB: replaceMentExpr sees the latest bindings of the when clause 
-									throw new Insert(replacementExpr.interpret(this), mp);
-								}
-
-								i++;
-								gens[i] = conditions.get(i).getBacktracker(this);
-								gens[i].init();
-								olds[i] = getCurrentEnvt();
-								pushEnv();
-							} else {
-								unwind(olds[i]);
-								pushEnv();
-								i--;
-							}
-						}
-					} finally {
-						unwind(old2);
-					}
-				}
-			}
-		} finally {
-			unwind(old);
-		}
-		return false;
-	}
-
-	public static final Name IT = ASTBuilder.makeLex("Name", null, "<it>");
 	
 	@Override	
 	public void updateProperties() {
@@ -1875,5 +1424,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
   public void removeSearchPathContributor(IRascalSearchPathContributor contrib) {
     rascalPathResolver.remove(contrib);
+  }
+ 
+  @Override
+  public List<IRascalSuspendTriggerListener> getSuspendTriggerListeners() {
+    return suspendTriggerListeners;
   }
 }
