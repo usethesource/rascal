@@ -30,12 +30,24 @@ import org.jgll.grammar.Rule;
 import org.jgll.grammar.Symbol;
 import org.jgll.grammar.Terminal;
 import org.jgll.grammar.TerminalGrammarSlot;
+import org.jgll.parser.GrammarInterpreter;
+import org.jgll.sppf.NonterminalSymbolNode;
+import org.jgll.traversal.ModelBuilderVisitor;
 
 public class GrammarToJigll {
 	
 	public GrammarToJigll(IValueFactory vf) {
 	}
 
+	public IConstructor jparse(IConstructor symbol, IConstructor grammar, IString str) {
+	  Grammar g = convert("inmemory", grammar);
+	  GrammarInterpreter parser = new GrammarInterpreter();
+
+	  NonterminalSymbolNode parse = parser.parse(str.getValue(), g, symbol.toString());
+	  parse.accept(new ModelBuilderVisitor<>(new ParsetreeBuilder()));
+	  return (IConstructor) parse.getObject();
+	}
+	
 	public void generate(IString name, IConstructor grammar) {
 
 		Grammar g = convert(name.getValue(), grammar);
