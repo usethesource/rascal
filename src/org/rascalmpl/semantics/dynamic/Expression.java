@@ -70,6 +70,7 @@ import org.rascalmpl.interpreter.matching.QualifiedNamePattern;
 import org.rascalmpl.interpreter.matching.ReifiedTypePattern;
 import org.rascalmpl.interpreter.matching.SetPattern;
 import org.rascalmpl.interpreter.matching.TuplePattern;
+import org.rascalmpl.interpreter.matching.TypedMultiVariablePattern;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.matching.VariableBecomesPattern;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -1711,6 +1712,17 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 			org.rascalmpl.ast.Expression arg = this.getArgument();
+			if (arg.hasType() && arg.hasName()) {
+				Environment env = eval.getCurrentEnvt();
+				Type type = arg.getType().typeOf(env);
+				type = type.instantiate(env.getTypeBindings());
+				
+				// TODO: Question, should we allow non terminal types in splices?
+				if (type instanceof NonTerminalType) {
+					throw new ImplementationError(null);
+				}				
+				return new TypedMultiVariablePattern(eval, this, type, arg.getName());
+			}
 			if(arg.hasQualifiedName()){
 				return new MultiVariablePattern(eval, this, arg.getQualifiedName());
 			}
