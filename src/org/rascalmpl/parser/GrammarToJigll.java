@@ -64,9 +64,8 @@ public class GrammarToJigll {
 		Map<IValue, Nonterminal> nonterminals = new HashMap<IValue, Nonterminal>();
 		List<BodyGrammarSlot> slots = new ArrayList<>();
 
-		int id = 0;
 		for (IValue nonterminal : definitions) {
-			nonterminals.put(nonterminal, new Nonterminal(id, nonterminal.toString(), false));
+			nonterminals.put(nonterminal, new Nonterminal(nonterminals.size(), nonterminal.toString(), false));
 		}
 
 		for (IValue nonterminal : definitions) {
@@ -109,21 +108,22 @@ public class GrammarToJigll {
 	}
 
 	static private void convertNonEpsilonProduction(Map<IValue, Nonterminal> nonterminals, List<BodyGrammarSlot> slots, Rule rule, BodyGrammarSlot slot) {
-		int symId = 0;
+		int index = 0;
 		for (Symbol s : rule.getBody()) {
 			if(s instanceof Terminal) {
-				slot = new TerminalGrammarSlot(rule, slots.size() + nonterminals.size(), symId++, slot, (Terminal) s);
+				slot = new TerminalGrammarSlot(rule, slots.size() + nonterminals.size(), index, slot, (Terminal) s);
 			} else {
-				slot = new NonterminalGrammarSlot(rule, slots.size() + nonterminals.size(), symId++, slot, (Nonterminal) s, null);
+				// TODO: plug the actual test set here.
+				slot = new NonterminalGrammarSlot(rule, slots.size() + nonterminals.size(), index, slot, (Nonterminal) s, new HashSet<Terminal>());
 			}
+			slots.add(slot);			
 
-			if (symId == 0) {
-				slots.add(slot);
+			if (index == 0) {
 				rule.getHead().addAlternate(slot);
 			}
-
-			slots.add(new LastGrammarSlot(rule, slots.size() + nonterminals.size(), rule.getBody().size(), slot));
+			index++;
 		}
+		slots.add(new LastGrammarSlot(rule, slots.size() + nonterminals.size(), rule.getBody().size(), slot));
 	}
 
 	static private void convertEpsilonProduction(Map<IValue, Nonterminal> nonterminals, List<BodyGrammarSlot> slots, Rule rule, BodyGrammarSlot slot) {
@@ -149,12 +149,14 @@ public class GrammarToJigll {
 		List<Symbol> result = new ArrayList<>();
 		for (IValue elem : rhs) {
 			IConstructor symbol = (IConstructor) elem;
-			switch (symbol.getName()) {
-			case "char-class":
-				List<Range> targetRanges = buildRanges(symbol);
-				result.add(new CharacterClass(targetRanges));
-			default:
-				result.add(nonterminals.get(symbol));
+			switch (symbol.getName()) {			
+				case "char-class":
+					List<Range> targetRanges = buildRanges(symbol);
+					result.add(new CharacterClass(targetRanges));
+					break;
+					
+				default:
+					result.add(nonterminals.get(symbol));
 			}
 		}
 		return result;
