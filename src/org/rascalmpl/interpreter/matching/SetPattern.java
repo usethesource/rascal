@@ -10,7 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
+ *   * Mark Hills - Mark.Hills@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
@@ -208,7 +208,33 @@ public class SetPattern extends AbstractMatchingResult {
 		for(int i = 0; i < patternSize; i++){
 			IMatchingResult child = patternChildren.get(i);
 			if(debug)System.err.println("child = " + child);
-			if(child instanceof TypedVariablePattern){
+			
+			if (child instanceof TypedMultiVariablePattern) {
+				TypedMultiVariablePattern tmvVar = (TypedMultiVariablePattern) child;
+				Type childType = child.getType(env, null);
+				String name = tmvVar.getName();
+				
+				if (!tmvVar.isAnonymous() && allVars.containsKey(name)) {
+					throw new RedeclaredVariable(name, getAST());
+				}
+				
+				if (childType.comparable(staticSubjectElementType)) {
+					tmvVar.covertToSetType();
+					if (!tmvVar.isAnonymous()) {
+						patVars.add(name);
+						allVars.put(name,  (IVarPattern)child);
+					}
+					varName[nVar] = name;
+					varPat[nVar] = child;
+					isSetVar[nVar] = true;
+					isBinding[nVar] = true;
+					isNested[nVar] = false;
+					++nVar;
+				} else {
+					hasNext = false;
+					return;
+				}
+			} else if(child instanceof TypedVariablePattern){
 				TypedVariablePattern patVar = (TypedVariablePattern) child;
 				Type childType = child.getType(env, null);
 				String name = ((TypedVariablePattern)child).getName();
