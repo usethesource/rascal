@@ -171,7 +171,32 @@ public class ListPattern extends AbstractMatchingResult  {
       isListVar[i] = false;
       isBindingVar[i] = false;
       Environment env = ctx.getCurrentEnvt();
-      if(child instanceof TypedVariablePattern && isAnyListType(child.getType(env, null))){  // <------
+      
+      if (child instanceof TypedMultiVariablePattern) {
+    	  TypedMultiVariablePattern tmvVar = (TypedMultiVariablePattern) child;
+    	  Type tmvType = tmvVar.getType(env, null);
+    	  String name = tmvVar.getName();
+    	  
+    	  varName[i] = name;
+    	  isListVar[i] = true;
+		  listVarOccurrences[i] = 1;
+    	  ++nListVar;
+    	  
+    	  if(!tmvVar.isAnonymous() && allVars.contains(name)) {
+    		  throw new RedeclaredVariable(name, getAST());
+    	  } else if (tmvType.comparable(listSubject.getType().getElementType())) {
+    		  tmvVar.covertToListType();
+    		  if (!tmvVar.isAnonymous()) {
+    			  allVars.add(name);
+    		  }
+    		  isBindingVar[i] = true;
+    	  } else {
+    		  hasNext = false;
+    		  return;
+    	  }
+    	  
+      }
+      else if(child instanceof TypedVariablePattern && isAnyListType(child.getType(env, null))){  // <------
         TypedVariablePattern patVar = (TypedVariablePattern) child;
         Type childType = child.getType(env, null);
         String name = patVar.getName();

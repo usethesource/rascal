@@ -9,6 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
+ *   * Mark Hills - Mark.Hills@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.test.functionality;
 
@@ -111,8 +112,11 @@ public class PatternTests extends TestFramework {
 	@Test
 	public void matchListSpliceVars(){
 		assertTrue(runTest("{[1, *L, 4, 5] := [1, 2, 3, 4, 5] && L == [2, 3];}"));
+		assertTrue(runTest("{[1, * int L, 4, 5] := [1, 2, 3, 4, 5] && L == [2, 3];}"));
 		assertTrue(runTest("{[1, *_, 4, 5] := [1, 2, 3, 4, 5];}"));
-		assertTrue(runTest("{[1, *L, 4, L, 5] := [1, 2, 3, 4, 2, 3, 5] && L == [2, 3];}"));
+		assertTrue(runTest("{[1, * int _, 4, 5] := [1, 2, 3, 4, 5];}"));
+		assertTrue(runTest("{[1, *L, 4, *L, 5] := [1, 2, 3, 4, 2, 3, 5] && L == [2, 3];}"));
+		assertTrue(runTest("{[1, * int L, 4, *L, 5] := [1, 2, 3, 4, 2, 3, 5] && L == [2, 3];}"));
 	}
 	
 	@Test
@@ -124,7 +128,9 @@ public class PatternTests extends TestFramework {
 	@Test
 	public void matchSetSpliceVars(){
 		assertTrue(runTest("{{1, *S, 4, 5}:= {1, 2, 3, 4, 5} && S == {2, 3};}"));
+		assertTrue(runTest("{{1, * int S, 4, 5}:= {1, 2, 3, 4, 5} && S == {2, 3};}"));
 		assertTrue(runTest("{{1, *_, 4, 5} := {1, 2, 3, 4, 5};}"));
+		assertTrue(runTest("{{1, * int _, 4, 5} := {1, 2, 3, 4, 5};}"));
 	}
 	
 	@Test(expected=UndeclaredVariable.class) 
@@ -307,6 +313,11 @@ public class PatternTests extends TestFramework {
 	
 	public void matchListError2() {
 		assertFalse(runTest("[1, list[str] L, 2] := [1,2,3];"));
+	}
+	
+	@Test(expected=RedeclaredVariable.class)
+	public void matchListErrorRedeclaredSpliceVar() {
+		runTest("{list[int] x = [1,2,3]; [1, * int L, * int L] := x;}");
 	}
 	
 	@Test(expected=UnexpectedType.class)
@@ -813,6 +824,11 @@ public class PatternTests extends TestFramework {
 	@Test(expected=StaticError.class) @Ignore
 	public void matchSetWrongElemError4() {
 		runTest("{set[str] S = {\"a\"}; {1, S, 2} := {1,2,3};}");
+	}
+	
+	@Test(expected=RedeclaredVariable.class)
+	public void matchSetErrorRedeclaredSpliceVar() {
+		runTest("{set[int] x = {1,2,3}; {1, * int L, * int L} := x;}");
 	}
 	
 	@Test
