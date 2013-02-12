@@ -24,16 +24,6 @@ import org.rascalmpl.interpreter.utils.TypeUtils;
 
 public abstract class StructuredType extends org.rascalmpl.ast.StructuredType {
 
-	static public class Ambiguity extends
-			org.rascalmpl.ast.StructuredType.Ambiguity {
-
-		public Ambiguity(IConstructor __param1,
-				List<org.rascalmpl.ast.StructuredType> __param2) {
-			super(__param1, __param2);
-		}
-
-	}
-
 	static public class Default extends
 			org.rascalmpl.ast.StructuredType.Default {
 

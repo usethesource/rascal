@@ -18,7 +18,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.test.infrastructure.ConcurrentTestFramework;
-import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class VisitTests extends ConcurrentTestFramework {
 	

@@ -16,7 +16,7 @@ import Exception;
 import IO;
 import String;
 import List;
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 import util::Reflective;
 import ParseTree;
 import Node;

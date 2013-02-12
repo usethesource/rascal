@@ -156,8 +156,8 @@ lexical Name
 
 syntax SyntaxDefinition
 	=  @Foldable \layout  : Visibility vis "layout"  Sym defined "=" Prod production ";" 
-	|  @Foldable lexical : "lexical" Sym defined "=" Prod production ";" 
-	|  @Foldable keyword : "keyword" Sym defined "=" Prod production ";"
+	|  @Foldable \lexical : "lexical" Sym defined "=" Prod production ";" 
+	|  @Foldable \keyword : "keyword" Sym defined "=" Prod production ";"
 	|  @Foldable language: Start start "syntax" Sym defined "=" Prod production ";" ;
 
 syntax Kind
@@ -278,8 +278,8 @@ syntax UserType
 syntax Import
 	= \extend: "extend" ImportedModule module ";" 
 	| \default: "import" ImportedModule module ";"
-	| external: "import" QualifiedName name "=" LocationLiteral at ";"
-	| syntax: SyntaxDefinition syntax ;
+	| \external: "import" QualifiedName name "=" LocationLiteral at ";"
+	| \syntax: SyntaxDefinition syntax ;
 
 syntax Body
 	= toplevels: Toplevel* toplevels ;
@@ -638,6 +638,9 @@ syntax Bound
 
 keyword RascalKeywords
 	= "o"
+	| "syntax"
+	| "keyword"
+	| "lexical"
 	| "int"
 	| "break"
 	| "continue"

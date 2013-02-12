@@ -26,7 +26,7 @@ import lang::rascal::types::ConvertType;
 import lang::rascal::types::TypeSignature;
 import lang::rascal::types::TypeExceptions;
 import lang::rascal::scoping::SymbolTable;
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 
 @doc{Replace any user types with the type the name points to (an ADT or alias).}
 private default Symbol et(Symbol t, STBuilder stb, ItemId cs) = t;

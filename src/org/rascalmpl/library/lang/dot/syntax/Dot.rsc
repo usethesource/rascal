@@ -7,7 +7,7 @@
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl}
 
-module lang::dot::syntax::Dot
+module lang::dot::\syntax::Dot
 
 start syntax DOT  = LAYOUT* Graph  Id "{" StatementList "}" "\n"?;
 

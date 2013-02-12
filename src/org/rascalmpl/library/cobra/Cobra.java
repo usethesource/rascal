@@ -72,12 +72,17 @@ public class Cobra {
 	public IValue _quickcheck(IValue function, IBool verbose, IBool maxVerbose, IInteger maxDepth, IInteger tries,
 			IEvaluatorContext eval) {
 
-		PrintWriter out = (verbose.getValue()) ? eval.getStdOut()
-				: new PrintWriter(new NullOutputStream());
+		NullOutputStream nullStream = new NullOutputStream();
+		PrintWriter printer = new PrintWriter(nullStream);
+		PrintWriter out = (verbose.getValue()) ? eval.getStdOut() : printer;
 
 		ArrayList<AbstractFunction> functions = extractFunctions(function, eval);
 
 		if (!isReturnTypeBool(functions)) {
+			if(out == printer){
+				out.close(); 
+				printer.close();
+			}
 			throw RuntimeExceptionFactory.illegalArgument(function,
 					eval.getCurrentAST(), null, "Return type should be bool.");
 		}

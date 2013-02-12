@@ -158,7 +158,6 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
-		@SuppressWarnings("unused")
 		public IValue visitSet(ISet o) throws VisitorException {
 			if (debug)
 				System.err.println("VisitSet:" + o);
@@ -171,7 +170,6 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
-		@SuppressWarnings("unused")
 		public IValue visitTuple(ITuple o) throws VisitorException {
 			if (debug)
 				System.err.println("VisitTuple:" + o);

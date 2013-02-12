@@ -1,4 +1,4 @@
-module lang::rascal::tests::ConcreteSyntax
+module lang::rascal::\syntax::tests::ConcreteSyntax
 
 import IO;
 

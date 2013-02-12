@@ -1,6 +1,6 @@
 module lang::sexp::SExp
 
-import lang::sexp::syntax::SExp;
+import lang::sexp::\syntax::SExp;
 import ParseTree;
 
 data SExp
@@ -26,4 +26,4 @@ data Raw
   ;
 
 public SExp parseSExp(str src, loc l) 
-  = implode(#SExp, parse(#lang::sexp::syntax::SExp::SExp, src, l)); 
+  = implode(#SExp, parse(#lang::sexp::\syntax::SExp::SExp, src, l)); 
