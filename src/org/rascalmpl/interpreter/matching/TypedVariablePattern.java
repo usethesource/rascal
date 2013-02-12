@@ -12,6 +12,7 @@
  *   * Emilie Balland - (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Mark Hills - Mark.Hills@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
@@ -35,9 +36,10 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TypedVariablePattern extends AbstractMatchingResult implements IVarPattern {
 	private String name;
-	org.eclipse.imp.pdb.facts.type.Type declaredType;
+	protected org.eclipse.imp.pdb.facts.type.Type declaredType;
 	private boolean anonymous = false;
 	private boolean debug = false;
+	protected boolean alreadyStored = false;
 
 	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, org.eclipse.imp.pdb.facts.type.Type type, org.rascalmpl.ast.Name name) {
 		super(ctx, x);
@@ -103,6 +105,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 					}		
 					
 					ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
+					this.alreadyStored = true;
 					return true;
 				}
 			}
@@ -136,6 +139,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 			
 		
 			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(tmp, subject.getValue(), ctx));
+			this.alreadyStored = true;
 			return true;
 		}
 		
@@ -162,4 +166,5 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 	public Type getType() {
 		return declaredType;
 	}
+	 
 }
