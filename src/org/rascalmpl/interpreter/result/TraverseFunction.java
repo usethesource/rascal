@@ -113,8 +113,8 @@ public class TraverseFunction extends AbstractFunction {
 			result = call(type, (ISet) arg, keyArgValues, self, openFunctions);
 //		else if(type.isMapType())
 //			result = call(type, (IMap) arg, keyArgValues, self, openFunctions);
-//		else if(type.isTupleType())
-//			result = call(type, (ITuple) arg, keyArgValues, self, openFunctions);
+		else if(type.isTupleType())
+			result = call(type, (ITuple) arg, keyArgValues, self, openFunctions);
 //		else if(type.isStringType())
 //			result = call(type, (IString) arg, keyArgValues, self, openFunctions);
 		return result;
@@ -301,20 +301,29 @@ public class TraverseFunction extends AbstractFunction {
 //		return makeResult(arg.getType(), arg, ctx);
 //	}
 //
-//	private Result<IValue> call(ITuple arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
-//		Type tupleTypes = arg.getType().getFieldTypes();
-//		if(arg.arity() != 0) {
-//			IValue args[] = new IValue[arg.arity()];
-//			for(int i = 0; i < arg.arity(); i++) {
-//				Result<IValue> result = functions.get(getFunctionName(tupleTypes.getFieldType(i)))
-//						.call(new Type[] { arg.get(i).getType() }, new IValue[] { arg.get(i) }, keyArgValues, null, null);
-//				args[i] = result.getValue();
-//			}
-//			arg =  ctx.getValueFactory().tuple(args);
-//			return makeResult(arg.getType(), arg, ctx);
-//		}
-//		return makeResult(arg.getType(), arg, ctx);
-//	}
+	private Result<IValue> call(Type type, ITuple arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
+		AbstractFunction[] visitFunctions = new AbstractFunction[this.type.getArity()];
+		Type[] childrenTypes = new Type[type.getArity()];
+		
+		for(int i = 0; i < this.type.getArity(); i++)
+			visitFunctions[i] = this.functions.get(this.type.getFieldType(i));
+		
+		for(int i = 0; i < type.getArity(); i++)
+			childrenTypes[i] = type.getFieldType(i);
+		
+		if(arg.arity() != 0) {
+			Type targs[] = new Type[type.getArity()];
+			IValue args[] = new IValue[arg.arity()];
+			for(int i = 0; i < arg.arity(); i++) {
+				Result<IValue> result = visitFunctions[i].call(new Type[] { childrenTypes[0] }, new IValue[] { arg.get(i) }, keyArgValues, null, null);
+				targs[i] = result.getType();
+				args[i] = result.getValue();
+			}
+			arg =  ctx.getValueFactory().tuple(args);
+			return makeResult(arg.getType(), arg, ctx);
+		}
+		return null;
+	}
 //	
 //	private Result<IValue> call(IString arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 //		return makeResult(arg.getType(), arg, ctx);
