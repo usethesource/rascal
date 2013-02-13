@@ -9,7 +9,7 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module experiments::Concept::GetFigure
 
-import analysis::formalconcepts::Fca;
+import analysis::formalconcepts::FCA;
 import experiments::Concept::Types;
 import IO;
 import vis::Figure; 
