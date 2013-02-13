@@ -2906,7 +2906,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			assert(expressions.size() >= 1 && expressions.size() <= 3);
 			
-			java.util.Set<Type> types = new HashSet<Type>(); // type arguments to the visit
+			java.util.List<Type> types = new LinkedList<Type>(); // type arguments to the visit, the order does matter
 			java.util.Set<Type> allTypes = new HashSet<Type>(); // types of all the children to be visited 
 			java.util.Map<Type, Result<IValue>> algebra = new HashMap<Type, Result<IValue>>(); // algebra function arguments to the visit
 			
@@ -2922,19 +2922,25 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			boolean isCatamorphism = true; // for the simplicity reasons, given as the third argument to the visit for now
 			
 			if(expressions.size() == 3) {
-				if(expressions.get(1).isTuple()) // the second argument is a tuple expression (algebra functions)
+				if(expressions.get(1).isTuple()) // the second argument is a tuple expression (algebra functions with the keyword type parameter)
 					for(org.rascalmpl.ast.Expression expr : expressions.get(1).getElements()) {
+						System.out.println(expr);
 						Result<IValue> f = expr.interpret(__eval);
 						Type type = null;
-						if(f.getType() instanceof OverloadedFunctionType)
-							type = ((OverloadedFunctionType) f.getType()).getAlternatives().iterator().next().getArgumentTypes().getFieldType(0);
-						else type = ((FunctionType) f.getType()).getArgumentTypes().getFieldType(0);
+						if(f instanceof OverloadedFunction) {
+							type = ((OverloadedFunction) f).getFunctions().get(0)
+									.getKeywordParameterDefaults().get(0)
+									.getType();
+						} else 
+							type = ((AbstractFunction) f).getKeywordParameterDefaults().get(0)
+									.getType();
 						algebra.put(type.getTypeParameters().getFieldType(0), f); // type[&T]
 					}
 				if(expressions.get(2).interpret(__eval).getValue().equals(__eval.getValueFactory().bool(false)))
 					isCatamorphism = false;
 			} 
 			
+			System.out.println("Algebra functions: ");
 			for(Type key : algebra.keySet())
 				System.out.println(key.toString() + " - " + algebra.get(key).getValue().toString());
 			
@@ -2942,17 +2948,23 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			TraverseFunction.generateTraverseFunctions(allTypes, algebra, isCatamorphism, functions, __eval);
 			
-//			Type types[] = new Type[functions.keySet().size()];
-//			String labels[] = new String[functions.keySet().size()];
-//			IValue args[] = new IValue[functions.keySet().size()];
-//			int i = 0;
-//			for(String s : functions.keySet()) {
-//				types[i] = functions.get(s).getType();
-//				labels[i] = functions.get(s).getName();
-//				args[i] = functions.get(s);
-//				i = i + 1;
-//			}
-			return org.rascalmpl.interpreter.result.ResultFactory.nothing();//makeResult(TypeFactory.getInstance().tupleType(types, labels), __eval.__getVf().tuple(args), __eval);
+			System.out.println("Visit functions: ");
+			for(Type key : functions.keySet())
+				System.out.println(key.toString() + " - " + functions.get(key).getValue().toString());
+			
+			java.util.List<AbstractFunction> results = new LinkedList<AbstractFunction>();
+			java.util.List<Type> resultTypes = new LinkedList<Type>();
+			
+			for(Type key : functions.keySet())
+				if(types.contains(key)) {
+					resultTypes.add(functions.get(key).getType());
+					results.add(functions.get(key));
+				}
+			
+			AbstractFunction[] resultArray = new AbstractFunction[types.size()];
+			Type[] resultTypeArray = new Type[types.size()];
+			
+			return makeResult(TypeFactory.getInstance().tupleType(resultTypes.toArray(resultTypeArray)), __eval.__getVf().tuple(results.toArray(resultArray)), __eval);
 			
 		}
 
