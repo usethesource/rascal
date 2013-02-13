@@ -104,7 +104,16 @@ public class TraverseFunction extends AbstractFunction {
 		
 		if(self == null) self = this;
 		
+		boolean isCatamorphism = (this.algebra != null && this.isCatamorphism);
+		boolean isAnamorphism = (this.algebra != null && !this.isCatamorphism);
+		
 		Result<IValue> result = makeResult(actualTypes[0], arg, ctx);
+		
+		if(isAnamorphism) {
+			result = this.algebra.call(actualTypes, actuals, keyArgValues);
+			type = result.getType();
+			arg = result.getValue();
+		}
 		
 		if(type.isAbstractDataType())
 			result = call(type, (IConstructor) arg, keyArgValues, self, openFunctions);
@@ -120,6 +129,9 @@ public class TraverseFunction extends AbstractFunction {
 			result = call(type, (ITuple) arg, keyArgValues, self, openFunctions);
 //		else if(type.isStringType())
 //			result = call(type, (IString) arg, keyArgValues, self, openFunctions);
+		if(isCatamorphism) 
+			result = this.algebra.call(new Type[] { result.getType() }, new IValue[] { result.getValue() }, keyArgValues);
+		
 		return result;
 	}
 	
@@ -142,7 +154,18 @@ public class TraverseFunction extends AbstractFunction {
 				targs[i] = result.getType();
 				args[i] = result.getValue();
 			}
-			Type resultConstrType = ctx.getCurrentEnvt().lookupFirstConstructor(arg.getConstructorType().getName(), TF.tupleType(targs));
+			Type adt = arg.getConstructorType().getAbstractDataType();
+			boolean isCatamorphism = (this.algebra != null && this.isCatamorphism);
+			// boolean isAnamorphism = (this.algebra != null && !this.isCatamorphism);
+			
+			if(isCatamorphism) {
+				if(this.algebra.getType() instanceof OverloadedFunctionType)
+					adt = ctx.getCurrentEnvt().lookupAbstractDataType(((OverloadedFunctionType) this.algebra.getType()).getAlternatives().iterator().next().getArgumentTypes().getFieldType(0).getName());
+				else 
+					adt = ctx.getCurrentEnvt().lookupAbstractDataType(((FunctionType) this.algebra.getType()).getArgumentTypes().getFieldType(0).getName());
+			}
+			
+			Type resultConstrType = ctx.getCurrentEnvt().lookupConstructor(adt, arg.getConstructorType().getName(), TF.tupleType(targs));
 			arg = ctx.getValueFactory().constructor(resultConstrType, args);
 			return makeResult(arg.getType(), arg, ctx);
 		}
@@ -278,9 +301,9 @@ public class TraverseFunction extends AbstractFunction {
 		}
 		arg = w.done();
 		if(isCatamorphism) 
-			type = TF.listType(TF.tupleType(visitFunctions[0].getReturnType(), visitFunctions[1].getReturnType()));
+			type = TF.setType(TF.tupleType(visitFunctions[0].getReturnType(), visitFunctions[1].getReturnType()));
 		if(isAnamorphism) 
-			type = TF.listType(visitFunctions[1].getReturnType());
+			type = TF.setType(visitFunctions[1].getReturnType());
 		return makeResult(type, arg, ctx);
 
 		
