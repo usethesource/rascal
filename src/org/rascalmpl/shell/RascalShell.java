@@ -49,6 +49,7 @@ import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
+import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -162,12 +163,13 @@ public class RascalShell {
 	}
 	
 	private String handleInput(String statement){
-		long start = System.currentTimeMillis();
+		Timing tm = new Timing();
+		tm.start();
 		Result<IValue> value = evaluator.eval(null, statement, URIUtil.rootScheme("prompt"));
-		long stop = System.currentTimeMillis();
+		long duration = tm.duration();
 
 		if (value.getValue() == null) {
-			return "ok" + (PRINTCOMMANDTIME ? "(" + (stop - start) + "ms)" : "");
+			return "ok" + (PRINTCOMMANDTIME ? "(" + duration + "ms)" : "");
 		}
 
 		IValue v = value.getValue();
@@ -175,10 +177,10 @@ public class RascalShell {
 
 		if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
 			return "`" + TreeAdapter.yield((IConstructor) v) + "`\n" + value.toString(LINE_LIMIT)
-					+ (PRINTCOMMANDTIME ? "\n (" + (stop-start) + "ms)" : "");
+					+ (PRINTCOMMANDTIME ? "\n (" + duration + "ms)" : "");
 		}
 
-		return ((v != null) ? value.toString(LINE_LIMIT) + (PRINTCOMMANDTIME ? "\n (" + (stop-start) + "ms)" : "") : null);
+		return ((v != null) ? value.toString(LINE_LIMIT) + (PRINTCOMMANDTIME ? "\n (" + duration + "ms)" : "") : null);
 	}
 
 	private boolean completeStatement(String command) throws FactTypeUseException {
