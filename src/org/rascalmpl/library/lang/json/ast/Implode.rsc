@@ -36,7 +36,7 @@ public AValue convertValue((Value)`true`) = boolean(true);
 
 public map[str,AValue] convertObject((Object)`{ < {Member ","}* ms > }`) {
 	map[str,AValue] res = ( );
-	for (`<StringLiteral memberName> : < lang::json::\syntax::JSON::Value memberValue>` <- ms) {
+	for ((Member) `<StringLiteral memberName> : < lang::json::\syntax::JSON::Value memberValue>` <- ms) {
 		mn = removeEnds("<memberName>");
 		av = convertValue(memberValue);
 		if (mn notin res) {
