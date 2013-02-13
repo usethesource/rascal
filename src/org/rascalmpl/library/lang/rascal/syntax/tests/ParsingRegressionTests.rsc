@@ -13,14 +13,17 @@ import util::FileSystem;
 import Exception;
 import String;
 import ParseTree;
+import Ambiguity;
 
 public bool hasAmb(Tree x) = /a:amb(_) := x;
 
 public bool testModule(loc f, list[loc] path) {
   println(f);
   try {
-    if (hasAmb(parseModule(f, path))) {
+    t = parseModule(f, path);
+    if (hasAmb(t)) {
       println("Ambiguity found while parsing: <f>");
+      println(diagnose(t));
     }
     else {
       return true;

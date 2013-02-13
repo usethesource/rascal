@@ -36,7 +36,7 @@ public class Reflective {
 	private final IValueFactory values;
 	private Evaluator cachedEvaluator;
 	private int robin = 0;
-	private static final int maxCacheRounds = 5;
+	private static final int maxCacheRounds = 5000;
 
 	public Reflective(IValueFactory values){
 		super();
@@ -63,8 +63,12 @@ public class Reflective {
 		try {
 			Evaluator ownEvaluator = getPrivateEvaluator(ctx);
 			return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc.getURI(), null);
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+		catch (Throwable e) {
+		  throw RuntimeExceptionFactory.javaException(e, null, null);
 		}
 	}
 
@@ -106,6 +110,9 @@ public class Reflective {
       return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc.getURI(), null);
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+    }
+    catch (Throwable e) {
+      throw RuntimeExceptionFactory.javaException(e, null, null);
     }
     finally {
       ownEvaluator.removeSearchPathContributor(contrib);
