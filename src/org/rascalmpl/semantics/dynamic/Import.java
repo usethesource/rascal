@@ -82,8 +82,6 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 
-import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
-
 public abstract class Import {
 	
 	static public class External extends org.rascalmpl.ast.Import.External {
@@ -276,7 +274,6 @@ public abstract class Import {
   public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
     GlobalEnvironment heap = eval.getHeap();
     
-    eval.getStdOut().println("loading " + name);
     ModuleEnvironment env = heap.getModule(name);
     if (env == null) {
       env = new ModuleEnvironment(name, heap);
