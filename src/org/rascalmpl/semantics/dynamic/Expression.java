@@ -39,7 +39,6 @@ import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
@@ -102,8 +101,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
-
-	
+  private static final Name IT = ASTBuilder.makeLex("Name", null, "<it>");
 	
 	static public class Addition extends org.rascalmpl.ast.Expression.Addition {
 
@@ -1293,8 +1291,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
-			Result<IValue> v = __eval.getCurrentEnvt().getVariable(
-					org.rascalmpl.interpreter.Evaluator.IT);
+			Result<IValue> v = __eval.getCurrentEnvt().getVariable(IT);
 			if (v == null) {
 				throw new UnguardedIt(this);
 			}
@@ -2121,7 +2118,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
-							__eval.getCurrentEnvt().storeVariable(Evaluator.IT, it);
+							__eval.getCurrentEnvt().storeVariable(IT, it);
 							it = result.interpret(__eval);
 							__eval.unwind(olds[i]);
 							__eval.pushEnv();
