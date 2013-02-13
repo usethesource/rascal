@@ -942,9 +942,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						handled = true;
 						break;
 					}
-
-					// TODO: Throw should contain Result<IValue> instead of IValue
-					if (eval.matchAndEval(makeResult(eValue.getType(), eValue, eval), c.getPattern(), c.getBody())) {
+ 
+					if (Cases.matchAndEval(makeResult(eValue.getType(), eValue, eval), c.getPattern(), c.getBody(), eval)) {
 						handled = true;
 						break;
 					}

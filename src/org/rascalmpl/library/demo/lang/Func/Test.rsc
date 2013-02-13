@@ -1,11 +1,11 @@
-module demo::func::Test
+module demo::lang::Func::Test
 
-import demo::func::AST;
-import demo::func::Load;
-import demo::func::Eval0;
-import demo::func::Eval1;
-import demo::func::Eval2;
-import demo::func::Eval3;
+import demo::lang::Func::AST;
+import demo::lang::Func::Load;
+import demo::lang::Func::Eval0;
+import demo::lang::Func::Eval1;
+import demo::lang::Func::Eval2; 
+import demo::lang::Func::Eval3;
 
 
 public str fact0 = "fact(n) = 

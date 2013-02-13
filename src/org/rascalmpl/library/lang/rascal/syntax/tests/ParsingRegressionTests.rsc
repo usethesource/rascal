@@ -26,9 +26,7 @@ public bool testModule(loc f, list[loc] path) {
       return true;
     }
   }
-  catch ParseError(_) : println("Parsing failed for: <f>");   
-  catch Java("Parse error"): println("Parsing failed for: <f>");  
-  catch RuntimeException e : println("Parsing failed for: <f> error:(<e>)"); 
+  catch value e : println("Parsing failed for <f>: <e>");   
   
   return false;
 }
