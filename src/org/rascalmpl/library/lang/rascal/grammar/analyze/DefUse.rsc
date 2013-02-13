@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::rascal::grammar::analyze::DefUse
 
-import analysis::grammars::Grammar;
+import Grammar;
 import ParseTree;
 
 private bool definable(Symbol s) {
