@@ -16,6 +16,7 @@ module List
 import Exception;
 import util::Math;
 import Map;
+import ToString;
 
 @doc{
 Synopsis: Delete an element from a list.
