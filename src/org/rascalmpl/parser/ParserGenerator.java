@@ -207,7 +207,7 @@ public class ParserGenerator {
   		monitor.event("Importing and normalizing grammar:" + name, 30);
   		IConstructor grammar = getGrammar(monitor, name, definition);
   		debugOutput(grammar.toString(), System.getProperty("java.io.tmpdir") + "/grammar.trm");
-  		String normName = name.replaceAll("::", "_");
+  		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
   		monitor.event("Generating java source code for parser: " + name,30);
   		IString classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
   		debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
