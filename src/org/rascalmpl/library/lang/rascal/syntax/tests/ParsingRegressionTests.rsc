@@ -14,13 +14,14 @@ import Exception;
 import String;
 import ParseTree;
 import Ambiguity;
+import util::Monitor;
 
 public bool hasAmb(Tree x) = /a:amb(_) := x;
 
 public bool testModules(list[loc] files, list[loc] path) {
   errors = [];
   for (f <- files) {
-    println("parsing <f>");
+    event("parsing <f>");
     
     try {
       t = parseModule(f, path);

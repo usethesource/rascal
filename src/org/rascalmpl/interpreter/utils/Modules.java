@@ -1,6 +1,7 @@
 package org.rascalmpl.interpreter.utils;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -34,6 +35,7 @@ public class Modules {
     IConstructor imports = TreeAdapter.getArg(header, "imports");
     
     for (IValue imp : TreeAdapter.getListASTArgs(imports)) {
+      System.err.println("Processing import: " + TreeAdapter.yield((IConstructor) imp));
       String cons = TreeAdapter.getConstructorName((IConstructor) imp);
       if (cons.equals(type)) {
         set.insert(imp);
@@ -44,6 +46,29 @@ public class Modules {
   }
   
   public static String getName(IConstructor tree) {
-    return TreeAdapter.yield(TreeAdapter.getArg(TreeAdapter.getArg(tree, "header"),"name"));
+    IConstructor name = TreeAdapter.getArg(TreeAdapter.getArg(tree, "header"),"name");
+    IConstructor parts = TreeAdapter.getArg(name, "names");
+    IList args = TreeAdapter.getListASTArgs(parts);
+    StringBuilder result = new StringBuilder();
+    
+    boolean first = true;
+    for (IValue elem : args) {
+      if (!first) {
+        result.append("::");
+      }
+      else {
+        first = false;
+      }
+      
+      String p = TreeAdapter.yield((IConstructor) elem);
+      
+      if (p.startsWith("\\")) {
+        p = p.substring(1);
+      }
+      
+      result.append(p);
+    }
+    
+    return result.toString();
   }
 }
