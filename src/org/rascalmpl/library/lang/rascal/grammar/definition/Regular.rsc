@@ -31,15 +31,15 @@ public Grammar expandRegularSymbols(Grammar G) {
 public set[Production] expand(Symbol s) {
   switch (s) {
     case \opt(t) : 
-      return {choice(s,{prod(s,[],{}),prod(s,[t],{})})};
+      return {choice(s,{prod(label("absent",s),[],{}),prod(label("present",s),[t],{})})};
     case \iter(t) : 
-      return {choice(s,{prod(s,[t],{}),prod(s,[t,s],{})})};
+      return {choice(s,{prod(label("single",s),[t],{}),prod(label("multiple",s),[t,s],{})})};
     case \iter-star(t) : 
-      return {choice(s,{prod(s,[],{}),prod(s,[\iter(t)],{})})} + expand(\iter(t));
+      return {choice(s,{prod(label("empty",s),[],{}),prod(label("nonEmpty",s),[\iter(t)],{})})} + expand(\iter(t));
     case \iter-seps(t,list[Symbol] seps) : 
-      return {choice(s, {prod(s,[t],{}),prod(s,[t,*seps,s],{})})};
+      return {choice(s, {prod(label("single",s),[t],{}),prod(label("multiple",s),[t,*seps,s],{})})};
     case \iter-star-seps(t, list[Symbol] seps) : 
-      return {choice(s,{prod(s,[],{}),prod(s,[\iter-seps(t,seps)],{})})} 
+      return {choice(s,{prod(label("empty",s),[],{}),prod(label("nonEmpty",s),[\iter-seps(t,seps)],{})})} 
              + expand(\iter-seps(t,seps));
     case \alt(set[Symbol] alts) :
       return {choice(s, {prod(s,[a],{}) | a <- alts})};
