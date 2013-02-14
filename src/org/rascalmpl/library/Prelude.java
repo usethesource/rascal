@@ -93,6 +93,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
@@ -2105,6 +2106,24 @@ public class Prelude {
 //		}
 //		return null;
 //	}
+	
+	public IValue makeAdtNode(IValue reifiedType, IString constructorName, IList args, IEvaluatorContext ctx) {
+		IValue[] arguments = new IValue[args.length()];
+		for(int i = 0; i < args.length(); i++)
+			arguments[i] = args.get(i);
+		IConstructor node = makeConstructor(constructorName.getValue(), ctx, arguments);
+		Type type = tr.valueToType((IConstructor) reifiedType, new TypeStore());
+		if(node.getType().equals(type))
+				return node;
+		throw new Failure("Could not construct an adt node from: " + constructorName.getValue() + " and " + args.toString());
+	}
+	
+	public IValue makeTupleNode(IValue reifiedType, IList args, IEvaluatorContext ctx) {
+		IValue tuple = ctx.getValueFactory().tuple(args);
+		if(tuple.getType().equals(tr.valueToType((IConstructor) reifiedType, new TypeStore())))
+			return tuple;
+		throw new Failure("Could not construct a tuple from: " + args.toString());
+	}
 
 	public IValue implode(IValue reifiedType, IConstructor tree, IEvaluatorContext ctx) {
 		TypeStore store = new TypeStore();
