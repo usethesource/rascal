@@ -39,14 +39,17 @@ public class GrammarToJigll {
 	public GrammarToJigll(IValueFactory vf) {
 	}
 
-	public IConstructor jparse(IConstructor symbol, IConstructor grammar, IString str) {
+	public IConstructor jparse(IValue type, IConstructor symbol, IConstructor grammar, IString str) {
 	  Grammar g = convert("inmemory", grammar);
 	  GrammarInterpreter parser = new GrammarInterpreter();
-
+	
+	  System.out.println("Jigll started.");
 	  NonterminalSymbolNode parse = parser.parse(str.getValue(), g, symbol.toString());
+	  long start = System.nanoTime();
 	  parse.accept(new ModelBuilderVisitor<>(new ParsetreeBuilder()));
-	  System.out.println((IConstructor) parse.getObject());
-	  return (IConstructor) parse.getObject();
+	  long end = System.nanoTime();
+	  System.out.println("Flattening: " + (end - start) / 1000000);
+	  return parse.<IConstructor>getResult().getObject();
 	}
 	
 	public void generate(IString name, IConstructor grammar) {
