@@ -13,10 +13,8 @@ public void generate(str name, type[&T <: Tree] nont) {
 }
 
 public &T jparse(type[&T <: Tree] nont, str input) {
-  x = jparse(nont.symbol, literals(grammar({nont.symbol}, nont.definitions)), input);
-  rprintln(x);
-  return x;
+  return jparse(nont, nont.symbol, literals(grammar({nont.symbol}, nont.definitions)), input);
 }
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
-public java &T jparse(Symbol nonterminal, Grammar grammar, str input);
+public java &T jparse(type[&T <: Tree] nont, Symbol nonterminal, Grammar grammar, str input);
