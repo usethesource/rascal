@@ -42,7 +42,7 @@ public Grammar addHoles(Grammar object) = compose(object, grammar({}, holes(obje
   we make sure that the literal that is generated is first normalized to remove all lex names.   
 }
 public set[Production] holes(Grammar object) {
-  // syntax N = @holeType=<N> [\a00] "N" ":" [0-9]+ [\a00];
+  // syntax N = @holeType=<N> [-1] "N" ":" [0-9]+ [-1];
   return  { regular(iter(\char-class([range(48,57)]))), 
             prod(label("$MetaHole",getTargetSymbol(nont)),
                  [ \char-class([range(0,0)]),

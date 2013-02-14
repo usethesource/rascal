@@ -16,6 +16,7 @@ module List
 import Exception;
 import util::Math;
 import Map;
+import ToString;
 
 @doc{
 Synopsis: Delete an element from a list.
@@ -283,7 +284,7 @@ hint: <H>
 test: headTail(<L>) == <?>
 }
 public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
-  if ([&T h, list[&T] t] := lst)
+  if ([&T h, * &T t] := lst)
     return <h, t>;
   throw EmptyList();
 }
