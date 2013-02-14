@@ -293,6 +293,8 @@ public abstract class Import {
           throw new ModuleNameMismatch(internalName, name, x);
         }
         heap.setModuleURI(name, module.getLocation().getURI());
+        
+        System.err.println("interpreting " + name);
         module.interpret(eval);
         
         return env;
@@ -332,7 +334,7 @@ public abstract class Import {
   }
   
   private static Module buildModule(String name, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
-    IConstructor tree = eval.parseModule(eval, URIUtil.createRascalModule(name), env);
+    IConstructor tree = eval.parseModule(eval, URIUtil.createRascalModule(name));
     return getBuilder().buildModule(tree);
   }
   
@@ -348,12 +350,12 @@ public abstract class Import {
     eval.getCurrentModuleEnvironment().addImport(name, module);
   }
   
-  public static IConstructor parseModule(char[] data, URI location, ModuleEnvironment env, IEvaluator<Result<IValue>> eval){
+  public static IConstructor parseModule(char[] data, URI location, IEvaluator<Result<IValue>> eval){
     eval.__setInterrupt(false);
     IActionExecutor<IConstructor> actions = new NoActionExecutor();
 
     try {
-      eval.startJob("Parsing + location", 10);
+      eval.startJob("Parsing " + location, 10);
       eval.event("initial parse");
       IConstructor tree = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
@@ -367,15 +369,13 @@ public abstract class Import {
       String name = Modules.getName(top);
 
       // create the current module if it does not exist yet
-      if (env == null){
-        GlobalEnvironment heap = eval.getHeap();
-        env = heap.getModule(name);
-        if(env == null){
-          env = new ModuleEnvironment(name, heap);
-          heap.addModule(env);
-        }
-        env.setBootstrap(needBootstrapParser(data));
+      GlobalEnvironment heap = eval.getHeap();
+      ModuleEnvironment env = heap.getModule(name);
+      if(env == null){
+        env = new ModuleEnvironment(name, heap);
+        heap.addModule(env);
       }
+      env.setBootstrap(needBootstrapParser(data));
 
       // make sure all the imported and extended modules are loaded
       // since they may provide additional syntax definitions\
@@ -567,8 +567,8 @@ public abstract class Import {
     catch (ParseError e) {
       // have to deal with this parse error later when interpreting the AST, for now we just reconstruct the unparsed tree.
       eval.getStdOut().println("Failed at: " + TreeAdapter.getLocation(tree) + ", failed on: [" + new String(replaceAntiQuotesByHoles(eval, lit, antiquotes)) + "], " + e);
-      throw e;
-//      return tree;
+//      throw e;
+      return tree;
     }
   }
   
