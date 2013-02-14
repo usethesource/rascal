@@ -37,20 +37,20 @@ Box getUserDefined(Tree q) {
   if (StrCon a:=q) { return L("<a>"); }
   if ((Boxx) `<BoxOperator op> [ <Boxx* boxs> ]`:=q) {
     switch (op) {
-      case (Boxx) `H <SpaceOption* s>`: return annotateBox(H(getArgs(boxs)),getA(s));
-      case (Boxx)`V <SpaceOption* s>`: return annotateBox(V(getArgs(boxs)),getA(s));
-      case (Boxx)`HV <SpaceOption* s>`: return annotateBox(HV(getArgs(boxs)),getA(s));
-      case (Boxx)`HOV <SpaceOption* s>`: return annotateBox(HOV(getArgs(boxs)),getA(s));
-      case (Boxx)`WD`: return WD(getArgs(boxs));
-      case (Boxx)`I <SpaceOption* s>`: return annotateBox(HOV(getArgs(boxs)),getA(s));
-      case (Boxx)`A <AlignmentOptions alignments> <SpaceOption* s>`:
+      case (BoxOperator)`H <SpaceOption* s>`: return annotateBox(H(getArgs(boxs)),getA(s));
+      case (BoxOperator)`V <SpaceOption* s>`: return annotateBox(V(getArgs(boxs)),getA(s));
+      case (BoxOperator)`HV <SpaceOption* s>`: return annotateBox(HV(getArgs(boxs)),getA(s));
+      case (BoxOperator)`HOV <SpaceOption* s>`: return annotateBox(HOV(getArgs(boxs)),getA(s));
+      case (BoxOperator)`WD`: return WD(getArgs(boxs));
+      case (BoxOperator)`I <SpaceOption* s>`: return annotateBox(HOV(getArgs(boxs)),getA(s));
+      case (BoxOperator)`A <AlignmentOptions alignments> <SpaceOption* s>`:
            if ((AlignmentOptions) `( <{AlignmentOption ","}* at> )`:=alignments) {
              list[Tree] as = getA(at);
              Box b = annotateBox(A(getArgs(boxs)),getA(s));
              b@format = ["<al>"|Tree t<-as,AlignmentOption al:=t];
              return b;
              }
-      case (Boxx) `R`: return R(getArgs(boxs));
+      case (BoxOperator) `R`: return R(getArgs(boxs));
       }
     }
   if ((Boxx) `<FontOperator op> [ <Boxx* boxs> ]`:=q) {

@@ -108,6 +108,7 @@ public class QuickCheck {
 			boolean expectedThrown = false;
 			try {
 				IValue result = function.call(types, values, null).getValue();
+				function.getEval().getStdOut().flush();
 				if (!((IBool) result).getValue()) {
 					reportFailed("Test returns false", tpbindings, formals, values, out);
 					return false;
