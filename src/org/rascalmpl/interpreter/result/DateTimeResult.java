@@ -75,7 +75,8 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 
 	@Override
 	protected Result<IBool> nonEqualToDateTime(DateTimeResult that) {
-		return that.nonEqualityBoolean(this);
+		checkDateTimeComparison(that);
+		return bool(that.value.getInstant() != this.value.getInstant(), ctx);
 	}
 
 	@Override
