@@ -1752,7 +1752,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Type typeOf(Environment env) {
 			// we return the element type here, such that lub at a higher level
 			// does the right thing!
-			return getQualifiedName().typeOf(env);
+			org.rascalmpl.ast.Expression arg = this.getArgument();
+			if (arg.hasType() && arg.hasName()) {
+				return arg.getType().typeOf(env);
+			}
+			if(arg.hasQualifiedName()){
+				return arg.getQualifiedName().typeOf(env);
+			}
+			throw new ImplementationError(null);
 		}
 
 	}
