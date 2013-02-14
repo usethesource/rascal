@@ -293,6 +293,8 @@ public abstract class Import {
           throw new ModuleNameMismatch(internalName, name, x);
         }
         heap.setModuleURI(name, module.getLocation().getURI());
+        
+        System.err.println("interpreting " + name);
         module.interpret(eval);
         
         return env;
@@ -565,8 +567,8 @@ public abstract class Import {
     catch (ParseError e) {
       // have to deal with this parse error later when interpreting the AST, for now we just reconstruct the unparsed tree.
       eval.getStdOut().println("Failed at: " + TreeAdapter.getLocation(tree) + ", failed on: [" + new String(replaceAntiQuotesByHoles(eval, lit, antiquotes)) + "], " + e);
-      throw e;
-//      return tree;
+//      throw e;
+      return tree;
     }
   }
   

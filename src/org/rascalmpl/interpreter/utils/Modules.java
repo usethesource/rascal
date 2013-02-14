@@ -35,7 +35,6 @@ public class Modules {
     IConstructor imports = TreeAdapter.getArg(header, "imports");
     
     for (IValue imp : TreeAdapter.getListASTArgs(imports)) {
-      System.err.println("Processing import: " + TreeAdapter.yield((IConstructor) imp));
       String cons = TreeAdapter.getConstructorName((IConstructor) imp);
       if (cons.equals(type)) {
         set.insert(imp);
