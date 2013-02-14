@@ -43,6 +43,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -1701,8 +1702,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class Splice extends
 	org.rascalmpl.ast.Expression.Splice {
 
-		public Splice(IConstructor __param1,
-				org.rascalmpl.ast.Expression __param2) {
+		public Splice(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
 
