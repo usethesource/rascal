@@ -15,7 +15,7 @@ import ParseTree;
 import String;
 import lang::box::util::Highlight;
 import lang::box::util::HighlightToHTML;
-import Reflective;
+import util::Reflective;
 
 public map[str,str] mathLiterals = (
 		"o": 		"&circ;",

@@ -17,7 +17,6 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -196,21 +195,22 @@ public class StringResult extends ElementResult<IString> {
 	}
 	
 	public Result<IValue> makeSlice(int first, int second, int end){
-		StringWriter sw = new StringWriter();
-		String s = getValue().getValue();
+		StringBuilder buffer = new StringBuilder();
+		IString s = getValue();
 		int increment = second - first;
 		if(first == end || increment == 0){
 			// nothing to be done
 		} else
 		if(first <= end){
 			for(int i = first; i >= 0 && i < end; i += increment){
-				sw.append(s.charAt(i));
+				buffer.appendCodePoint(s.charAt(i));
 			}
 		} else {
 			for(int j = first; j >= 0 && j > end && j < getValue().length(); j += increment){
-				sw.append(s.charAt(j));
+				buffer.appendCodePoint(s.charAt(j));
 			}
 		}
-		return makeResult(TypeFactory.getInstance().stringType(), getValueFactory().string(sw.toString()), ctx);
+		return makeResult(TypeFactory.getInstance().stringType(), getValueFactory().string(buffer.toString()), ctx);
 	}
+	
 }

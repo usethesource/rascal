@@ -750,7 +750,21 @@ public class Prelude {
 		}
 	}
 	
-	/*
+    public IValue daysDiff(IDateTime dtStart, IDateTime dtEnd)
+    //@doc{Increment the years by a given amount.}
+    {
+            if (!(dtStart.isTime() || dtEnd.isTime())) {
+                    Calendar startCal = Calendar.getInstance();
+                    startCal.setTimeInMillis(dtStart.getInstant());
+                    Calendar endCal = Calendar.getInstance();
+                    endCal.setTimeInMillis(dtEnd.getInstant());
+                    
+                    return values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.DAY_OF_MONTH));
+            }
+            throw RuntimeExceptionFactory.invalidUseOfTimeException("Both inputs must include dates.", null, null);
+    }
+
+    /*
 	 * Graph
 	 */
 	

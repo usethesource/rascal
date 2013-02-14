@@ -42,6 +42,14 @@ public class URIResolverRegistry {
 		outputResolvers.put(resolver.scheme(), resolver);
 	}
 	
+	public boolean supportsInputScheme(String scheme) {
+	  return inputResolvers.containsKey(scheme);
+	}
+	
+	public boolean supportsOutputScheme(String scheme) {
+	  return outputResolvers.containsKey(scheme);
+	}
+	
 	public void registerInputOutput(IURIInputOutputResolver resolver) {
 		registerInput(resolver);
 		registerOutput(resolver);

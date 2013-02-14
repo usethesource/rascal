@@ -108,25 +108,22 @@ public class QuickCheck {
 			boolean expectedThrown = false;
 			try {
 				IValue result = function.call(types, values, null).getValue();
+				function.getEval().getStdOut().flush();
 				if (!((IBool) result).getValue()) {
-					out.println("Failed " + (formals.getArity() > 0 ? "with " : ""));
-					for (IValue arg : values) {
-						out.println("\t"+ arg.getType() + ": " + arg); // TODO replace parameterized type by its instantiated type
-					}
-					out.println();
+					reportFailed("Test returns false", tpbindings, formals, values, out);
 					return false;
 				} else if (verbose && formals.getArity() > 0) {
 					out.println((i + 1) + ": Checked with " + Arrays.toString(values) + ": true");
 				}
 			} catch (Throw e){
 				if(expected == null || !((IConstructor)e.getException()).getName().equals(expected)){
-					return reportFailed(e.getMessage(), formals, values, out);
+					return reportFailed(e.getMessage(), tpbindings, formals, values, out);
 				}
 				expectedThrown = true;
 			}
 			catch (Throwable e) {
 				if(expected == null || !e.getClass().toString().endsWith("." + expected)){
-					return reportFailed(e.getMessage(), formals, values, out);
+					return reportFailed(e.getMessage(), tpbindings, formals, values, out);
 				}
 				expectedThrown = true;
 			}
@@ -142,10 +139,18 @@ public class QuickCheck {
 
 	}
 	
-	private boolean reportFailed(String msg, Type formals, IValue[] values, PrintWriter out){
-		out.println("Failed due to\n\t" + msg + "\n" + (formals.getArity() > 0 ? "with ": ""));
-		for (IValue arg : values) {
-			out.println("\t" + arg.getType() + ": " + arg);
+	private boolean reportFailed(String msg, HashMap<Type, Type> tpbindings, Type formals, IValue[] values, PrintWriter out){
+		out.println("Failed due to\n\t" + msg + "\n");
+		if(tpbindings.size() > 0){
+			out.println("Type parameters:");
+			for(Type key : tpbindings.keySet()){
+				out.println("\t" + key + " => " + tpbindings.get(key));
+			}
+		}
+		out.println("Actual parameters:");
+		for (int i = 0; i < formals.getArity(); i++) {
+			IValue arg = values[i];
+			out.println("\t" + formals.getFieldType(i) + " " + "=>" + arg);
 		}
 		out.println();
 		return false;
