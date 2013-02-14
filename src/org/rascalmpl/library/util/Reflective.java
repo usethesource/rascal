@@ -65,7 +65,7 @@ public class Reflective {
 	public IValue parseModule(ISourceLocation loc, IEvaluatorContext ctx) {
 		try {
 			Evaluator ownEvaluator = getPrivateEvaluator(ctx);
-			return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc.getURI(), null);
+			return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc.getURI());
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -94,7 +94,7 @@ public class Reflective {
 	
 	public IValue parseModule(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
 		Evaluator ownEvaluator = getPrivateEvaluator(ctx);
-		return ownEvaluator.parseModule(ownEvaluator.getMonitor(), str.getValue().toCharArray(), loc.getURI(), null);
+		return ownEvaluator.parseModule(ownEvaluator.getMonitor(), str.getValue().toCharArray(), loc.getURI());
 	}
 	
 	public IValue parseModule(ISourceLocation loc, final IList searchPath, IEvaluatorContext ctx) {
@@ -115,7 +115,7 @@ public class Reflective {
     ownEvaluator.addRascalSearchPathContributor(contrib);
     
     try { 
-      return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc.getURI(), null);
+      return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc.getURI());
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
     }

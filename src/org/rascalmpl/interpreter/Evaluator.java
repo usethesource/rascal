@@ -1226,20 +1226,20 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 * effect of declaring non-terminal types in the given environment.
 	 */
 	@Override
-	public IConstructor parseModule(IRascalMonitor monitor, URI location, ModuleEnvironment env) throws IOException{
+	public IConstructor parseModule(IRascalMonitor monitor, URI location) throws IOException{
 	  // TODO remove this code and replace by facility in rascal-eclipse to retrieve the
 	  // correct file references from a rascal:// URI
 	  URI resolved = rascalPathResolver.resolve(location);
 	  if(resolved != null){
 	    location = resolved;
 	  }
-		return parseModule(monitor, getResourceContent(location), location, env);
+		return parseModule(monitor, getResourceContent(location), location);
 	}
 	
-	public IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
+	public IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location){
 		IRascalMonitor old = setMonitor(monitor);
 		try {
-			return org.rascalmpl.semantics.dynamic.Import.parseModule(data, location, env, this);
+			return org.rascalmpl.semantics.dynamic.Import.parseModule(data, location, this);
 		}
 		finally{
 			setMonitor(old);

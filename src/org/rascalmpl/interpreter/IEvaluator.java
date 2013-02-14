@@ -108,8 +108,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public IConstructor parseCommand(IRascalMonitor monitor, String command,
 			URI location);
 
-	public IConstructor parseModule(IRascalMonitor monitor, URI location,
-			ModuleEnvironment env) throws IOException;
+	public IConstructor parseModule(IRascalMonitor monitor, URI location) throws IOException;
 
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml);
 
