@@ -1,5 +1,9 @@
 module lang::rascal::tests::Booleans
 
+import Boolean;
+
+// Operators
+
 public test bool sanity() = true != false;
 
 public test bool or(bool b) { if (true || b == true, b || true == true, false || false == false) return true; else return false; }  
@@ -14,4 +18,19 @@ public test bool equiv(bool b1, bool b2) = (b1 <==> b2) <==> (!b1 && !b2 || b1 &
 
 public test bool impl(bool b1, bool b2) = (b1 ==> b2) <==> !(b1 && !b2);
 
+// Library functions
 
+public test bool tstArbBool() { b = arbBool() ; return b == true || b == false; }
+
+public test bool tstFromInt(int n) = fromInt(n) <==> (n != 0);
+
+public test bool fromString1() = fromString("true") == true && fromString("false") == false;
+
+@expected{IllegalArgument}
+public test bool fromString1(str s) = fromString(s); // will fail in there rare situtaion that "true" or "false" are passed as argument.
+
+public test bool tstToInt() = toInt(false) == 0 && toInt(true) == 1;
+
+public test bool tstToReal() = toReal(false) == 0.0 && toInt(true) == 1.0;
+
+public test bool tstToString() = toString(false) == "false" && toString(true) == "true";
