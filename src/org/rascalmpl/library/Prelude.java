@@ -2108,19 +2108,28 @@ public class Prelude {
 //	}
 	
 	public IValue makeAdtNode(IValue reifiedType, IString constructorName, IList args, IEvaluatorContext ctx) {
+		Type[] types = new Type[args.length()];
 		IValue[] arguments = new IValue[args.length()];
-		for(int i = 0; i < args.length(); i++)
+		for(int i = 0; i < args.length(); i++) {
+			types[i] = args.get(i).getType();
 			arguments[i] = args.get(i);
-		IConstructor node = makeConstructor(constructorName.getValue(), ctx, arguments);
-		Type type = tr.valueToType((IConstructor) reifiedType, new TypeStore());
+		}
+		TypeStore store = new TypeStore();
+		Type type = tr.valueToType((IConstructor) reifiedType, store); // declares the type to a type store
+		Type constructorType = store.lookupConstructor(type, constructorName.getValue(), TypeFactory.getInstance().tupleType(types));
+		IConstructor node = ctx.getValueFactory().constructor(constructorType, arguments);
+		type = reifiedType.getType().getTypeParameters().getFieldType(0);
 		if(node.getType().equals(type))
 				return node;
 		throw new Failure("Could not construct an adt node from: " + constructorName.getValue() + " and " + args.toString());
 	}
 	
 	public IValue makeTupleNode(IValue reifiedType, IList args, IEvaluatorContext ctx) {
-		IValue tuple = ctx.getValueFactory().tuple(args);
-		if(tuple.getType().equals(tr.valueToType((IConstructor) reifiedType, new TypeStore())))
+		IValue[] arguments = new IValue[args.length()];
+		for(int i = 0; i < args.length(); i++)
+			arguments[i] = args.get(i);
+		IValue tuple = ctx.getValueFactory().tuple(arguments);
+		if(tuple.getType().equals(reifiedType.getType().getTypeParameters().getFieldType(0)))
 			return tuple;
 		throw new Failure("Could not construct a tuple from: " + args.toString());
 	}
