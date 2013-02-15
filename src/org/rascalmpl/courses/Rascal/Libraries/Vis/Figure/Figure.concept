@@ -45,7 +45,7 @@ The Figure library provides two data types:
   ** _Other_: [id]
 
 * `Figure` describes an actual visual element such as (also see [Figures]):
-  ** _Atomic Figures_: [text], [$Figures/outline].
+  ** _Atomic Figures_: [$Figures/text], [$Figures/outline].
   ** _Containers_: [box], [ellipse], [space].
   ** _Compositions_: [hcat], [vcat], [hvcat], [overlay], [pack], [grid], [$Figures/tree], [treemap], [$Figures/graph].
   ** _Transformations_: [$Figures/scale], [rotate].

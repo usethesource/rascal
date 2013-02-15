@@ -84,7 +84,7 @@ list[str]: ["mango","strawberry","pear","pineapple","banana","grape","kiwi"]
 <span class="prompt">rascal></span>sort(fruits);
 list[str]: ["banana","grape","kiwi","mango","pear","pineapple","strawberry"]
 <span class="prompt">rascal></span>sort(fruits, bool(str a, str b){ return size(a) &gt; size(b); });
-list[str]: ["strawberry","pineapple","banana","grape","mango","pear","kiwi"]
+list[str]: ["strawberry","pineapple","banana","grape","mango","kiwi","pear"]
 </pre>
 </div>
 
@@ -114,16 +114,13 @@ list[str]: ["strawberry","pineapple","banana","grape","mango","pear","kiwi"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_2" value="0@2@[2,1,3,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_2" value="0@2@[2,1,0]">
 <label for="Rascal/Libraries/Prelude/List/sort_1_2">N! elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_1" value="1@1@[2,1,3,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_1" value="1@1@[2,1,0]">
 <label for="Rascal/Libraries/Prelude/List/sort_1_1">N - 1 elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_3" value="2@3@[2,1,3,0]">
-<label for="Rascal/Libraries/Prelude/List/sort_1_3">N * (N - 1) elements. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_0" value="3@0@[2,1,3,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_0" value="2@0@[2,1,0]">
 <label for="Rascal/Libraries/Prelude/List/sort_1_0">N elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
@@ -148,8 +145,8 @@ list[str]: ["strawberry","pineapple","banana","grape","mango","pear","kiwi"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_sort_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_2:L" value="[&quot;Prince Charming&quot;]">
-The type of <tt>sort([&quot;Prince Charming&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_sort_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_2:L" value="[3, -4, 11, 17, -3]">
+The type of <tt>sort([3, -4, 11, 17, -3])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_sort_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -173,8 +170,8 @@ The type of <tt>sort([&quot;Prince Charming&quot;])</tt> is <input type="text" s
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_sort_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_3:L" value="[&quot;K&quot;, &quot;Sy Snootles&quot;]">
-<pre class="prequestion">sort([&quot;K&quot;, &quot;Sy Snootles&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_sort_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_3:L" value="[&quot;Luke Skywalker&quot;, &quot;Slimey the Worm&quot;, &quot;A&quot;, &quot;Prince Charming&quot;, &quot;Luke Skywalker&quot;]">
+<pre class="prequestion">sort([&quot;Luke Skywalker&quot;, &quot;Slimey the Worm&quot;, &quot;A&quot;, &quot;Prince Charming&quot;, &quot;Luke Skywalker&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_sort_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_3:another" value="yes">

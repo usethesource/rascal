@@ -70,6 +70,7 @@ data Symbol                            // Labels
 data Symbol                            // Composite types.
      = \set(Symbol symbol)
      | \rel(list[Symbol] symbols)
+     | \lrel(list[Symbol] symbols)
      | \tuple(list[Symbol] symbols)
      | \list(Symbol symbol)
      | \map(Symbol from, Symbol to)
@@ -80,6 +81,7 @@ data Symbol                            // Composite types.
      | \func(Symbol ret, list[Symbol] parameters)
      | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
      | \reified(Symbol symbol)
+     | \lrel(list[Symbol] symbols)
      ;
 data Symbol
      = \parameter(str name, Symbol bound) // Parameter

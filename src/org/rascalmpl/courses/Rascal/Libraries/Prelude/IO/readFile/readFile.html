@@ -75,12 +75,10 @@
 <li> Try to use heuristics to determine if our default fallbacks can match: <ol><li> Are the first 32 bytes valid UTF-8? <b>Use UTF-8</b></li>
 <li> Are the first 32 bytes valid UTF-32? <b>Use UTF-32</b></li>
 </ol></li>
-<li> Fallback to the system default<br/>
-<br/>
- <b>To summarize</b>, we use UTF-8 by default, except if the <a href="/Rascal/Expressions/Values/Location/Location.html">Location</a> has available meta-data, the file contains a BOM, or
+<li> Fallback to the system default</li>
+</ol> <b>To summarize</b>, we use UTF-8 by default, except if the <a href="/Rascal/Expressions/Values/Location/Location.html">Location</a> has available meta-data, the file contains a BOM, or
  the first 32 bytes of the file are not valid UTF-8.
-</li>
-</ol>
+
 </div>
 
   	                       
