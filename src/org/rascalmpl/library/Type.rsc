@@ -122,7 +122,7 @@ Synopsis: Choice between alternative productions.
 Description:
 Nested choice is flattened.
 }
-public Production choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})
+public Production choice(Symbol s, {*Production a, choice(Symbol t, set[Production] b)})
   = choice(s, a+b);
   
 

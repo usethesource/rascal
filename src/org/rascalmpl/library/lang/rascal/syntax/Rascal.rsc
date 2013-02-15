@@ -36,7 +36,7 @@ lexical Concrete
 lexical ConcretePart
   = @category="MetaSkipped" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
   | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000]* "\'"
-  | @category="MetaSkipped" hole : ConcreteHole hole
+  | @category="MetaVariable" hole : ConcreteHole hole
   | @category="MetaSkipped" lt: "\\\<"
   | @category="MetaSkipped" gt: "\\\>"
   | @category="MetaSkipped" bq: "\\`"

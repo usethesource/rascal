@@ -30,10 +30,10 @@ public CharRange range(int from, int to) {
     fail;
 }
 
-public Symbol \char-class([list[CharRange] a,\empty-range(),list[CharRange] b]) 
+public Symbol \char-class([*CharRange a, \empty-range(), *CharRange b]) 
   = \char-class(a+b);
 
-public Symbol \char-class([list[CharRange] a,range(int from1, int to1),list[CharRange] b,range(int from2, int to2),list[CharRange] c]) {
+public Symbol \char-class([*CharRange a, range(int from1, int to1), *CharRange b, range(int from2, int to2), *CharRange c]) {
   if ((from1 <= from2 && to1 >= from2 - 1) 
      || (from2 <= from1 && to2 >= from1 - 1)
      || (from1 >= from2 && to1 <= to2)
@@ -43,7 +43,7 @@ public Symbol \char-class([list[CharRange] a,range(int from1, int to1),list[Char
       fail;
 }
  
-public Symbol \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, range(int \o, int p), list[CharRange] c]) {
+public Symbol \char-class([*CharRange a, range(int n,int m), *CharRange b, range(int \o, int p), *CharRange c]) {
   if (p < n) 
     return \char-class(a + [range(\o,p)]+b+[range(n,m)]+c);
   else 

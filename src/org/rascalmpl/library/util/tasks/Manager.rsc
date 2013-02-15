@@ -20,9 +20,9 @@ public java void registerProducer(Task producer, set[value] keys);
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java void unregisterProducer(Task producer);
 
-@doc{Lock the producer registry – use this before adding/removing a
+@doc{Lock the producer registry ‚Äì use this before adding/removing a
 	set of related producers. Remember to enclose the critical section in
-	try { ... } finally { unlockProducerRegistry(); } }
+	try { ...¬†} finally { unlockProducerRegistry(); } }
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 private java void lockProducerRegistry();
 
