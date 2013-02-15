@@ -93,9 +93,9 @@ public list[Symbol] separgs2symbols({Sym ","}+ args) {
 }
 
 // flattening rules for regular expressions
-public Symbol \seq([list[Symbol] a, \seq(list[Symbol] b), list[Symbol] c]) = \seq(a + b + c);
+public Symbol \seq([*Symbol a, \seq(list[Symbol] b), *Symbol c]) = \seq(a + b + c);
 
-public Symbol \alt({set[Symbol] a, \alt(set[Symbol] b)}) = \alt(a + b);
+public Symbol \alt({*Symbol a, \alt(set[Symbol] b)}) = \alt(a + b);
 
 // flattening for conditionals
 

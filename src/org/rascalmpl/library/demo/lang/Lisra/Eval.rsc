@@ -28,7 +28,7 @@ public Result eval(List([Atom("if"), Lval tst, Lval conseq, Lval alt]), Env e) =
        eval(tst, e).val != FALSE ? eval(conseq, e) : eval(alt, e);
        
                                                              /*6*/
-public Result eval(List([Atom("begin"), list[Lval] exps]) , Env e) {
+public Result eval(List([Atom("begin"), *Lval exps]) , Env e) {
   val = FALSE;
   for(Lval exp <- exps){
       <val, e> = eval(exp, e);

@@ -313,8 +313,8 @@ public test bool tstInsertAt(list[&T] L, &T e){
   return insertAt(L, n, e) == L[..n] + e + L[n..];
 }
 
-// sep = "\"\\\"\\\"孯\"謩";
-// L = [<({-113949296r42589197}:797878609r38010066)>,$4551-10-12T12:45:25.024+01:00,"𘅂笠"({|tmp:///|})];
+// sep = "\"\\\"\\\"Â≠Ø\"Ë¨©";
+// L = [<({-113949296r42589197}:797878609r38010066)>,$4551-10-12T12:45:25.024+01:00,"òÖÇÔß∏"({|tmp:///|})];
 
 public test bool tstIntercalate(str sep, list[value] L) = 
        intercalate(sep, L) == (isEmpty(sep) ? "<for(v <- L){><v><}>"
