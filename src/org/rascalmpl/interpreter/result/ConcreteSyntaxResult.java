@@ -255,4 +255,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 				new StringResult(that.getType(),ctx.getValueFactory().string(TreeAdapter.yield(getValue())), ctx), ctx);
 	}
 
+	@Override
+	public String toString() {
+	  return super.toString() + "\n"  + TreeAdapter.yield(getValue());
+	}
 }

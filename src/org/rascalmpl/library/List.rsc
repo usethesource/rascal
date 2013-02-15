@@ -722,7 +722,7 @@ test: last(<L>) == <?>
 }
 public &T last(list[&T] lst) throws EmptyList {
   if(lst == [] ) { throw EmptyList(); }
-  if([list[&T] p, &T l] := lst){
+  if([*&T p, &T l] := lst){
   	return l;
   }
 }
