@@ -305,7 +305,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		int i;
 		
 		for (i = 0; i < arity - 1; i++) {
-			types[i] = formals.getFieldType(i);
+			types[i] = actualTypes.getFieldType(i);
 			labels[i] = formals.getFieldName(i);
 		}
 		
@@ -332,7 +332,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		int i;
 		
 		for (i = 0; i < arity - 1; i++) {
-			types[i] = formals.getFieldType(i);
+			types[i] = actualTypes[i];
 		}
 		
 		Type lub = TF.voidType();
