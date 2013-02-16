@@ -277,7 +277,7 @@ public test bool tstDrop(list[&T] L) {
 
 public test bool tstDup(list[&T] L) {  // L = [{{{[<-121590445r651299473>]}},{},{{[]},{}}},{}];
   seen = {};
-  d = for(e <- L) { if(e notin seen){seen += e; append e;} };
+  d = for(e <- L) { if(e notin seen){seen = seen + {e}; append e;} };
   return d == dup(d);
 }
 
