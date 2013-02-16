@@ -6,6 +6,7 @@ import Set;
 import String;
 import Boolean;
 import util::Math;
+import Type;
 
 // is A + B == C?
 bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
@@ -441,7 +442,7 @@ public test bool tstUpTill(int n) = n < 0 || n > 10000 || upTill(n) == [0 .. n];
 
 public test bool tstZip(list[&T] L) = zip(L, L) == [<x, x> | x <- L];
 
-// Tests related to the correctness of the dynamic types of lists produced by the library functions; 
+// Tests that check the correctness of the dynamic types of lists produced by the library functions; 
 // incorrect dynamic types make pattern matching fail;
 
 public test bool dtstSlice(list[&T] lst) {
