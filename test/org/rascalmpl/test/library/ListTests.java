@@ -387,6 +387,8 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ list[value] lst = [1,2,\"3\"]; list[int] _ := prefix(1,2,\"3\"); }"));
 		assertTrue(runTestInSameEvaluator("{ list[value] lst = [\"1\",2,3]; list[int] _ := tail(lst); }"));
 		assertTrue(runTestInSameEvaluator("{ list[value] lst = [1,2,\"3\"]; list[int] _ := take(2, lst); }"));
+		
+		assertTrue(runTestInSameEvaluator("{ [str _, *int _] := [\"1\",2,3]; }"));
 	}
 		
 }
