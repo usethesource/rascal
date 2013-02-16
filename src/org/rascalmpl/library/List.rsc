@@ -177,7 +177,7 @@ test: dup(<L1>) == <?>
 public list[&T] dup(list[&T] lst) {
   done = {};
   return for (e <- lst, e notin done) {
-    done += e;
+    done = done + {e};
     append e;
   }
 }
