@@ -440,3 +440,50 @@ public test bool tstUnzip3(list[tuple[&A, &B, &C]] L) =
 public test bool tstUpTill(int n) = n < 0 || n > 10000 || upTill(n) == [0 .. n];
 
 public test bool tstZip(list[&T] L) = zip(L, L) == [<x, x> | x <- L];
+
+// Tests related to the correctness of the dynamic types of lists produced by the library functions; 
+// incorrect dynamic types make pattern matching fail;
+
+public test bool dtstSlice(list[&T] lst) {
+if(isEmpty(lst)) return true;
+int b = 0;
+if(size(lst) != 1) b = arbInt(size(lst) - 1);
+int len = arbInt(size(lst) - b);
+if(len == 0) return true;
+return typeOf(slice(lst, b, len)) == typeOf(lst[b..(len + b)]);
+}
+
+public test bool dtstDelete(list[&T] lst) {
+if(isEmpty(lst)) return true;
+int index = 0;
+if(size(lst) != 1) index = arbInt(size(lst) - 1);
+return typeOf(delete(lst, index)) == typeOf([ lst[i] | int i <- [0..size(lst)], i != index ]);
+}
+
+public test bool dtstDrop(list[&T] lst) {
+if(isEmpty(lst)) return true;
+int n = 0;
+if(size(lst) != 1) n = arbInt(size(lst) - 1);
+return typeOf(drop(n, lst)) == typeOf([ lst[i] | int i <- [n..size(lst)] ]);
+}
+
+public test bool dtstHead(list[&T] lst) {
+if(isEmpty(lst)) return true;
+int n = 0;
+if(size(lst) != 1) n = arbInt(size(lst) - 1);
+if(n == 0) return true;
+return typeOf(head(lst, n)) == typeOf([ lst[i] | int i <- [0..n] ]) && typeOf(head(lst, n) == typeOf(take(n, lst)));
+}
+
+public test bool dtstTail(list[&T] lst) {
+if(isEmpty(lst)) return true;
+int n = 0;
+if(size(lst) != 1) n = arbInt(size(lst) - 1);
+if(n == 0) return true;
+return typeOf(tail(lst, n)) == typeOf([ lst[i] | int i <- [(size(lst) - n)..size(lst)] ]);
+}
+
+public test bool dtstPrefix(list[&T] lst) {
+if(isEmpty(lst) || size(lst) == 1) return true;
+return typeOf(prefix(lst)) == typeOf([ lst[i] | int i <- [0..(size(lst) - 1)] ]);
+}
