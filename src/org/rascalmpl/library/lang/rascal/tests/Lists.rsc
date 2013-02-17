@@ -15,8 +15,8 @@ bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
      (slice(C, 0, size(A) - 1) == A && slice(C, size(A), size(C) - size(A)) == B);
 
 public test bool concat(list[&T] A, list[&T] B) = isConcat(A, B, A + B);
-public test bool concat(     &T  A, list[&T] B) = isConcat([A], B, A + B);
-public test bool concat(list[&T] A,      &T  B) = isConcat(A, [B], A + B);
+public test bool concat(     &T  A, list[&T] B) = isConcat([A], B, [A] + B);
+public test bool concat(list[&T] A,      &T  B) = isConcat(A, [B], A + [B]);
 
 // is A - B == C?
 bool isDiff(list[&T] A, list[&T] B, list[&T] C) =
@@ -72,10 +72,10 @@ public list[&T] mergeUnOrdered(list[&T] A, list[&T] B) {
    while(!(isEmpty(A) && isEmpty(B))){
             if(arbBool() && size(A) > 0){
                <x, A> = takeOneFrom(A);
-               res += x;
+               res = res + [x];
             } else if(size(B) > 0){
                <x, B> = takeOneFrom(B);
-               res += x;
+               res = res + [x];
             };
            }
     return res;
@@ -442,49 +442,68 @@ public test bool tstUpTill(int n) = n < 0 || n > 10000 || upTill(n) == [0 .. n];
 
 public test bool tstZip(list[&T] L) = zip(L, L) == [<x, x> | x <- L];
 
-// Tests that check the correctness of the dynamic types of lists produced by the library functions; 
-// incorrect dynamic types make pattern matching fail;
-
-public test bool dtstSlice(list[&T] lst) {
-if(isEmpty(lst)) return true;
-int b = 0;
-if(size(lst) != 1) b = arbInt(size(lst) - 1);
-int len = arbInt(size(lst) - b);
-if(len == 0) return true;
-return typeOf(slice(lst, b, len)) == typeOf(lst[b..(len + b)]);
-}
-
-public test bool dtstDelete(list[&T] lst) {
-if(isEmpty(lst)) return true;
-int index = 0;
-if(size(lst) != 1) index = arbInt(size(lst) - 1);
-return typeOf(delete(lst, index)) == typeOf([ lst[i] | int i <- [0..size(lst)], i != index ]);
-}
-
-public test bool dtstDrop(list[&T] lst) {
-if(isEmpty(lst)) return true;
-int n = 0;
-if(size(lst) != 1) n = arbInt(size(lst) - 1);
-return typeOf(drop(n, lst)) == typeOf([ lst[i] | int i <- [n..size(lst)] ]);
-}
-
-public test bool dtstHead(list[&T] lst) {
-if(isEmpty(lst)) return true;
-int n = 0;
-if(size(lst) != 1) n = arbInt(size(lst) - 1);
-if(n == 0) return true;
-return typeOf(head(lst, n)) == typeOf([ lst[i] | int i <- [0..n] ]) && typeOf(head(lst, n) == typeOf(take(n, lst)));
-}
-
-public test bool dtstTail(list[&T] lst) {
-if(isEmpty(lst)) return true;
-int n = 0;
-if(size(lst) != 1) n = arbInt(size(lst) - 1);
-if(n == 0) return true;
-return typeOf(tail(lst, n)) == typeOf([ lst[i] | int i <- [(size(lst) - n)..size(lst)] ]);
-}
-
-public test bool dtstPrefix(list[&T] lst) {
-if(isEmpty(lst) || size(lst) == 1) return true;
-return typeOf(prefix(lst)) == typeOf([ lst[i] | int i <- [0..(size(lst) - 1)] ]);
-}
+//// Tests that check the correctness of the dynamic types of lists produced by the library functions; 
+//// incorrect dynamic types make pattern matching fail;
+//
+//public test bool dtstSlice(list[&T] lst) {
+//if(isEmpty(lst)) return true;
+//int b = 0;
+//if(size(lst) != 1) b = arbInt(size(lst) - 1);
+//int len = arbInt(size(lst) - b);
+//if(len == 0) return true;
+//return typeOf(slice(lst, b, len)) == typeOf(lst[b..(len + b)]);
+//}
+//
+//public test bool dtstDelete(list[&T] lst) {
+//if(isEmpty(lst)) return true;
+//int index = 0;
+//if(size(lst) != 1) index = arbInt(size(lst) - 1);
+//return typeOf(delete(lst, index)) == typeOf([ lst[i] | int i <- [0..size(lst)], i != index ]);
+//}
+//
+//public test bool dtstDrop(list[&T] lst) {
+//if(isEmpty(lst)) return true;
+//int n = 0;
+//if(size(lst) != 1) n = arbInt(size(lst) - 1);
+//return typeOf(drop(n, lst)) == typeOf([ lst[i] | int i <- [n..size(lst)] ]);
+//}
+//
+//public test bool dtstHead(list[&T] lst) {
+//if(isEmpty(lst)) return true;
+//int n = 0;
+//if(size(lst) != 1) n = arbInt(size(lst) - 1);
+//if(n == 0) return true;
+//return typeOf(head(lst, n)) == typeOf([ lst[i] | int i <- [0..n] ]) && typeOf(head(lst, n)) == typeOf(take(n, lst));
+//}
+//
+//public test bool dtstTail(list[&T] lst) {
+//if(isEmpty(lst)) return true;
+//int n = 0;
+//if(size(lst) != 1) n = arbInt(size(lst) - 1);
+//if(n == 0) return true;
+//return typeOf(tail(lst, n)) == typeOf([ lst[i] | int i <- [(size(lst) - n)..size(lst)] ]);
+//}
+//
+//public test bool dtstPrefix(list[&T] lst) {
+//if(isEmpty(lst) || size(lst) == 1) return true;
+//return typeOf(prefix(lst)) == typeOf([ lst[i] | int i <- [0..(size(lst) - 1)] ]);
+//}
+//
+//public test bool dtstDifference(list[&T] lst) {
+//	if(isEmpty(lst)) return true;
+//	bool check = true;
+//	for(int i <- [0..size(lst)]) {
+//		&T elem = lst[i];
+//		bool deleted = false;
+//		check = check && (/*typeOf*/(lst - [elem]) == /*typeOf*/([ *( (elem == el && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ]));
+//	}
+//	return check;
+//}
+//
+//public test bool dtstIntersection(list[&T] lst) {
+//	if(isEmpty(lst)) return true;
+//	bool check = true;
+//	for([*&T l1, *&T l2] := lst)
+//		check = check && (/*typeOf*/(lst & l1) == /*typeOf*/([ el | &T el <- lst, el in l1 ])) && (/*typeOf*/(lst & l2) == /*typeOf*/([ el | &T el <- lst, el in l2 ]));
+//	return check;
+//}
