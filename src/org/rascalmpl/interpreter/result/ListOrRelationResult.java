@@ -39,12 +39,12 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 
 	@Override
 	protected <U extends IValue> Result<U> addList(ListResult s) {
-		return makeResult(type.lub(s.type), getValue().concat(s.getValue()), ctx);
+		return makeResult(type.lub(s.type), s.getValue().concat(getValue()), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> addListRelation(ListRelationResult s) {
-		return makeResult(type.lub(s.type), getValue().concat(s.getValue()), ctx);
+		return makeResult(type.lub(s.type), s.getValue().concat(getValue()), ctx);
 	}
 
 	@Override
