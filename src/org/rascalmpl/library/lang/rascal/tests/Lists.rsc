@@ -311,7 +311,7 @@ public test bool tstInsertAt(list[&T] L, &T e){
   if(isEmpty(L))
   	 return insertAt(L, 0, e) == [e];
   n = arbInt(size(L));
-  return insertAt(L, n, e) == L[..n] + e + L[n..];
+  return insertAt(L, n, e) == L[..n] + [e] + L[n..];
 }
 
 // sep = "\"\\\"\\\"Â≠Ø\"Ë¨©";
