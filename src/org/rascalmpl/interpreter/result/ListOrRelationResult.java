@@ -100,12 +100,12 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 
 	@Override
 	protected <U extends IValue> Result<U> intersectList(ListResult s) {
-		return makeResult(type.lub(s.type), getValue().intersect(s.getValue()), ctx);
+		return makeResult(type.lub(s.type), s.getValue().intersect(getValue()), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> intersectListRelation(ListRelationResult s) {
-		return makeResult(type.lub(s.type), getValue().intersect(s.getValue()), ctx);
+		return makeResult(type.lub(s.type), s.getValue().intersect(getValue()), ctx);
 	}
 
 	@Override
