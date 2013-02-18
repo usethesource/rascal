@@ -5,6 +5,9 @@ import List;
 import Relation;
 import Map;
 import IO;
+import Type;
+
+public test bool eqSet(value a, value b) = eq(a,b) <==> size({a,b}) == 1;
 
 // Set operators
 
