@@ -19,8 +19,10 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
@@ -35,6 +37,29 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 
 	protected <V extends IValue> Result<IBool> notElementOf(ElementResult<V> elementResult) {
 		return bool(!getValue().contains(elementResult.getValue()), ctx);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> slice(Result<?> first, Result<?> second, Result<?> end) {
+		return super.slice(first, second, end, getValue().length());
+	}
+	
+	public Result<IValue> makeSlice(int first, int second, int end){
+		IListWriter w = getValueFactory().listWriter();
+		int increment = second - first;
+		if(first == end || increment == 0){
+			// nothing to be done
+		} else
+		if(first <= end){
+			for(int i = first; i >= 0 && i < end; i += increment){
+				w.append(getValue().get(i));
+			}
+		} else {
+			for(int j = first; j >= 0 && j > end && j < getValue().length(); j += increment){
+				w.append(getValue().get(j));
+			}
+		}
+		return makeResult(TypeFactory.getInstance().listType(getType().getElementType()), w.done(), ctx);
 	}
 
 	@Override

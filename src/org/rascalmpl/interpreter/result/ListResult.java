@@ -128,29 +128,6 @@ public class ListResult extends ListOrRelationResult<IList> {
 		return makeResult(getType().getElementType(), getValue().get(idx), ctx);
 	}
 	
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> slice(Result<?> first, Result<?> second, Result<?> end) {
-		return super.slice(first, second, end, getValue().length());
-	}
-	
-	public Result<IValue> makeSlice(int first, int second, int end){
-		IListWriter w = getValueFactory().listWriter();
-		int increment = second - first;
-		if(first == end || increment == 0){
-			// nothing to be done
-		} else
-		if(first <= end){
-			for(int i = first; i >= 0 && i < end; i += increment){
-				w.append(getValue().get(i));
-			}
-		} else {
-			for(int j = first; j >= 0 && j > end && j < getValue().length(); j += increment){
-				w.append(getValue().get(j));
-			}
-		}
-		return makeResult(TypeFactory.getInstance().listType(getType().getElementType()), w.done(), ctx);
-	}
-
 	/////
 	
 	@Override
