@@ -11,6 +11,7 @@
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -242,9 +243,24 @@ public class TupleResult extends ElementResult<ITuple> {
 	}
 	
 	@Override
+	protected <U extends IValue> Result<U> subtractRelation(RelationResult that) {
+		if(that.getType().getElementType().getArity() == this.getType().getArity())
+			return that.removeElement(this);
+		return super.subtractRelation(that);
+	}
+	
+	@Override
 	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
 		return that.appendTuple(this);
 	}
+		
+	@Override
+	protected <U extends IValue> Result<U> subtractListRelation(ListRelationResult that) {
+		if(that.getType().getElementType().getArity() == this.getType().getArity())
+			return that.removeElement(this);
+		return super.subtractListRelation(that);
+	}
+
 	
 	@Override
 	protected Result<IBool> equalToTuple(TupleResult that) {
