@@ -3,6 +3,7 @@ module lang::rascal::tests::Equality
 import util::Math;
 import Set;
 import Map;
+import Type;
 
 // values have an equivalence relation
 public test bool reflexEq(value x) = x == x;
@@ -76,3 +77,9 @@ public test bool differentElement2(int i, real r) = i == r ==> size({i,r}) == 2;
 public test bool differentKeys(int i,real r) = (i:10,r:20)[toReal(i)]?0 == 0;
 public test bool differentKeys2(int i,rat r) = (i:10,r:20)[toRat(i,1)]?0 == 0;
 public test bool differentKeys3(int i) = size((i:10) + (toRat(i,1):20) + (toReal(i):30)) == 3;
+
+// == vs eq
+public test bool eqImpliesEquals(value x, value y) = eq(x,y) ==> (x == y);
+public test bool nonComparabilityImpliesNonEq(value x, value y) = !comparable(typeOf(x),typeOf(y)) ==> !eq(x,y);
+public test bool comparabilityImpliesEquivalence(value x, value y) = comparable(typeOf(x),typeOf(y)) ==> (eq(x,y) <==> x == y);
+
