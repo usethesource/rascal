@@ -34,6 +34,18 @@ public class URIResolverRegistry {
 		this.outputResolvers = new HashMap<String, IURIOutputStreamResolver>();
 	}
 	
+	public void copyResolverRegistries(URIResolverRegistry source) {
+		for (String key : source.inputResolvers.keySet()) {
+			if (! inputResolvers.containsKey(key))
+				inputResolvers.put(key, source.inputResolvers.get(key));
+		}
+		
+		for (String key : source.outputResolvers.keySet()) {
+			if (! outputResolvers.containsKey(key))
+				outputResolvers.put(key, source.outputResolvers.get(key));
+		}
+	}
+	
 	public void registerInput(IURIInputStreamResolver resolver) {
 		inputResolvers.put(resolver.scheme(), resolver);
 	}

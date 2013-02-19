@@ -83,7 +83,7 @@
 <li><a href="/Rascal/Libraries/Prelude/DateTime/createInterval/createInterval.html">createInterval</a>: Given two datetime values, create an interval.</li>
 <li><a href="/Rascal/Libraries/Prelude/DateTime/createTime/createTime.html">createTime</a>: Create a new time (with optional timezone offset).</li>
 <li><a href="/Rascal/Libraries/Prelude/DateTime/dateRangeByDay/dateRangeByDay.html">dateRangeByDay</a>: Given an interval, return a list of days.</li>
-<li><a href="/Rascal/Libraries/Prelude/DateTime/daysDiff/daysDiff.html">daysDiff</a>: </li>
+<li><a href="/Rascal/Libraries/Prelude/DateTime/daysDiff/daysDiff.html">daysDiff</a>: Return the difference between two dates and/or datetimes in days.</li>
 <li><a href="/Rascal/Libraries/Prelude/DateTime/daysInInterval/daysInInterval.html">daysInInterval</a>: Return the number of days in an interval, including the begin and end days.</li>
 <li><a href="/Rascal/Libraries/Prelude/DateTime/decrementDays/decrementDays.html">decrementDays</a>: Decrement the days by a given amount or by 1.</li>
 <li><a href="/Rascal/Libraries/Prelude/DateTime/decrementHours/decrementHours.html">decrementHours</a>: Decrement the hours by a given amount or by 1.</li>
@@ -92,7 +92,7 @@
 <li><a href="/Rascal/Libraries/Prelude/DateTime/decrementMonths/decrementMonths.html">decrementMonths</a>: Decrement the months by a given amount or by 1.</li>
 <li><a href="/Rascal/Libraries/Prelude/DateTime/decrementSeconds/decrementSeconds.html">decrementSeconds</a>: Decrement the seconds by a given amount or by 1.</li>
 <li><a href="/Rascal/Libraries/Prelude/DateTime/decrementYears/decrementYears.html">decrementYears</a>: Decrement the years by a given amount or by 1.</li>
-<li><a href="/Rascal/Libraries/Prelude/DateTime/duration/duration.html">duration</a>: </li>
+<li><a href="/Rascal/Libraries/Prelude/DateTime/Duration/Duration.html">Duration</a>: A duration of time, measured in individual years, months, etc.</li>
 <li><a href="/Rascal/Libraries/Prelude/DateTime/incrementDays/incrementDays.html">incrementDays</a>: Increment the days by given amount or by 1.</li>
 <li><a href="/Rascal/Libraries/Prelude/DateTime/incrementHours/incrementHours.html">incrementHours</a>: Increment the hours by a given amount or by 1.`</li>
 <li><a href="/Rascal/Libraries/Prelude/DateTime/incrementMilliseconds/incrementMilliseconds.html">incrementMilliseconds</a>: Increment the milliseconds by a given amount or by 1.</li>
@@ -195,7 +195,7 @@
 <li><a href="/Rascal/Libraries/Prelude/List/unzip/unzip.html">unzip</a>: Make a pair (triple) of lists from a list of pairs (triples).</li>
 <li><a href="/Rascal/Libraries/Prelude/List/upTill/upTill.html">upTill</a>: Returns the list 0,1..n-1.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/zip/zip.html">zip</a>: Make a list of pairs from two (three) lists of the same length.</li>
-</ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/ListRelation.html">ListRelation</a>: Library functions for list relations.  Description Operations on list elations are described in <a href="/Rascal/Expressions/Values/ListRelation/ListRelation.html">Values/ListRelation</a>. All operations on <a href="/Rascal/Expressions/Values/List/List.html">Values/List</a> are also applicable to list relations.  The following functions are provided on list relations: <toc Rascal/Libraries/Prelude/ListRelation 1></li>
+</ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/ListRelation.html">ListRelation</a>: Library functions for list relations.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/carrier/carrier.html">carrier</a>: Return the set of all elements in any tuple in a list relation.</li>
 <li><a href="/Rascal/Libraries/Prelude/ListRelation/carrierR/carrierR.html">carrierR</a>: A list relation restricted to certain element values in tuples.</li>
 <li><a href="/Rascal/Libraries/Prelude/ListRelation/carrierX/carrierX.html">carrierX</a>: A list relation excluding tuples that contain certain element values.</li>
@@ -206,13 +206,14 @@
 <li><a href="/Rascal/Libraries/Prelude/ListRelation/groupDomainByRange/groupDomainByRange.html">groupDomainByRange</a>: Make sets of elements in the domain that relate to the same element in the range.</li>
 <li><a href="/Rascal/Libraries/Prelude/ListRelation/groupRangeByDomain/groupRangeByDomain.html">groupRangeByDomain</a>: Make sets of elements in the range that relate to the same element in the domain.</li>
 <li><a href="/Rascal/Libraries/Prelude/ListRelation/ident/ident.html">ident</a>: The identity list relation.</li>
-<li><a href="/Rascal/Libraries/Prelude/ListRelation/index/index.html">index</a>: Indexes a binary list relation as a map</li>
+<li><a href="/Rascal/Libraries/Prelude/ListRelation/index/index.html">index</a>: Listes a binary list relation as a map</li>
 <li><a href="/Rascal/Libraries/Prelude/ListRelation/invert/invert.html">invert</a>: Invert the tuples in a list relation.</li>
 <li><a href="/Rascal/Libraries/Prelude/ListRelation/range/range.html">range</a>: The range (i.e., all but the first element of each tuple) of a list relation.</li>
 <li><a href="/Rascal/Libraries/Prelude/ListRelation/rangeR/rangeR.html">rangeR</a>: List relation restricted to certain range values.</li>
 <li><a href="/Rascal/Libraries/Prelude/ListRelation/rangeX/rangeX.html">rangeX</a>: List relation excluding certain range values.</li>
 </ul><li><a href="/Rascal/Libraries/Prelude/Map/Map.html">Map</a>: Library functions for maps.</li>
-<ul><li><a href="/Rascal/Libraries/Prelude/Map/domain/domain.html">domain</a>: Determine the domain (set of keys) of a map.</li>
+<ul><li><a href="/Rascal/Libraries/Prelude/Map/delete/delete.html">delete</a>: Delete a key from a map.</li>
+<li><a href="/Rascal/Libraries/Prelude/Map/domain/domain.html">domain</a>: Determine the domain (set of keys) of a map.</li>
 <li><a href="/Rascal/Libraries/Prelude/Map/domainR/domainR.html">domainR</a>: Map restricted to certain keys.</li>
 <li><a href="/Rascal/Libraries/Prelude/Map/domainX/domainX.html">domainX</a>: Map with certain keys excluded.</li>
 <li><a href="/Rascal/Libraries/Prelude/Map/getOneFrom/getOneFrom.html">getOneFrom</a>: Get a n arbitrary key from a map.</li>
@@ -244,7 +245,7 @@
 <ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/associativity/associativity.html">associativity</a>: Choice under associativity is flattened.</li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/doc/doc.html">doc</a>: Annotate a parse tree node with a documentation string.</li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/docs/docs.html">docs</a>: Annotate a parse tree node with documentation strings for several locations.</li>
-<li><a href="/Rascal/Libraries/Prelude/ParseTree/implode/implode.html">implode</a>: Implode a parse tree according to a given ADT.</li>
+<li><a href="/Rascal/Libraries/Prelude/ParseTree/implode/implode.html">implode</a>: Implode a parse tree according to a given (ADT) type.</li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/link/link.html">link</a>: Annotate a parse tree node with the target of a reference.</li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/links/links.html">links</a>: Annotate a parse tree node with multiple targets for a reference.</li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/loc/loc.html">loc</a>: Annotate a parse tree node with a source location.</li>
@@ -339,6 +340,7 @@
 <li><a href="/Rascal/Libraries/Prelude/Type/isDateTimeType/isDateTimeType.html">isDateTimeType</a>: Determine if the given type is a <code>datetime</code>.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/isFunctionType/isFunctionType.html">isFunctionType</a>: Determine if the given type is a function.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/isIntType/isIntType.html">isIntType</a>: Determine if the given type is an int.</li>
+<li><a href="/Rascal/Libraries/Prelude/Type/isListRelType/isListRelType.html">isListRelType</a>: Determine if the given type is a list relation.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/isListType/isListType.html">isListType</a>: Determine if the given type is a list.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/isLocType/isLocType.html">isLocType</a>: Determine if the given type is a loc.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/isMapType/isMapType.html">isMapType</a>: Determine if the given type is a map.</li>
@@ -356,7 +358,7 @@
 <li><a href="/Rascal/Libraries/Prelude/Type/isVoidType/isVoidType.html">isVoidType</a>: Determine if the given type is a void.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/lub/lub.html">lub</a>: The least-upperbound (lub) between two types.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/Production/Production.html">Production</a>: A production in a grammar or constructor in a data type.</li>
-<li><a href="/Rascal/Libraries/Prelude/Type/subtype/subtype.html">subtype</a>: Subtype on types.</li>
+<li><a href="/Rascal/Libraries/Prelude/Type/subtype/subtype.html">subtype</a>: </li>
 <li><a href="/Rascal/Libraries/Prelude/Type/Symbol/Symbol.html">Symbol</a>: A Symbol represents a Rascal Type.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/typeOf/typeOf.html">typeOf</a>: returns the dynamic type of a value as a reified type</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/var-func/var-func.html">var-func</a>: Functions with variable argument lists are normalized to a normal function.</li>
@@ -389,7 +391,7 @@
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

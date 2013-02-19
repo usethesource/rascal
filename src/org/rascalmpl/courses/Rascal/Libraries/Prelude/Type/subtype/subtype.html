@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/Prelude/Type/subtype</title>
 
-<meta name="description" content="Rascal/Libraries/Prelude/Type/subtype:  Subtype on types.">
+<meta name="description" content="Rascal/Libraries/Prelude/Type/subtype: ">
 
 <meta name="keywords" content="Rascal/Libraries/Prelude/Type/subtype, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -43,11 +43,6 @@
 <span class="sectionHead">Name</span> <a href="/Rascal/Rascal.html">Rascal</a>/<a href="/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Rascal/Libraries/Prelude/Prelude.html">Prelude</a>/<a href="/Rascal/Libraries/Prelude/Type/Type.html">Type</a>/<a href="/Rascal/Libraries/Prelude/Type/subtype/subtype.html">subtype</a>
 </div>
 
-<div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Subtype on types.
-
-</div>
-
 	                       
                            
                            
@@ -67,11 +62,14 @@
 <li> <code>bool subtype(\rat(), \num())</code></li>
 <li> <code>bool subtype(\real(), \num())</code></li>
 <li> <code>bool subtype(\tuple(list[Symbol] l), \tuple(list[Symbol] r))</code></li>
-<li> <code>bool subtype(\rel(list[Symbol] l), \rel(list[Symbol] r))</code></li>
 <li> <code>bool subtype(\list(Symbol s), \list(Symbol t))</code></li>
+<li> <code>bool subtype(\lrel(list[Symbol] l), \lrel(list[Symbol] r))</code></li>
+<li> <code>bool subtype(\list(Symbol s), \lrel(list[Symbol] r))</code></li>
+<li> <code>bool subtype(\lrel(list[Symbol] l), \list(Symbol r))</code></li>
 <li> <code>bool subtype(\set(Symbol s), \set(Symbol t))</code></li>
-<li> <code>bool subtype(\set(Symbol s), \rel(list[Symbol] ls))</code></li>
-<li> <code>bool subtype(\rel(list[Symbol] ls), \set(Symbol s))</code></li>
+<li> <code>bool subtype(\rel(list[Symbol] l), \rel(list[Symbol] r))</code></li>
+<li> <code>bool subtype(\set(Symbol s), \rel(list[Symbol] r))</code></li>
+<li> <code>bool subtype(\rel(list[Symbol] l), \set(Symbol r))</code></li>
 <li> <code>bool subtype(\bag(Symbol s), \bag(Symbol t))</code></li>
 <li> <code>bool subtype(\map(Symbol from1, Symbol to1), \map(Symbol from2, Symbol to2))</code></li>
 <li> <code>bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1), Symbol::\func(Symbol r2, list[Symbol] p2))</code></li>
@@ -90,6 +88,7 @@
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Type;</code>
  </AUTOINSERTED>
+ Functions with variable argument lists are normalized to normal function
 
 </div>
 
