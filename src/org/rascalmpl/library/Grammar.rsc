@@ -23,7 +23,7 @@ import IO;
   stored in a map for efficient access.
 }
 data Grammar 
-  = \grammar(set[Symbol] starts, map[Symbol sort, Production def] rules)
+  = \grammar(set[Symbol] starts, map[Symbol sort, Production def] rules, map[str label, value info] about = ())
   ;
 
 data GrammarModule
