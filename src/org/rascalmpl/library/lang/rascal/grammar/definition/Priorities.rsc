@@ -25,6 +25,16 @@ public DoNotNest doNotNest(Grammar g) {
        ;
 }
 
+public alias NotAllowedSets = map[tuple[Production, int] slot, set[Production] notallowed];
+
+public Grammar addNotAllowedSets(Grammar g) {
+ g.about["notAllowed"]= getNotAllowed(g);
+ return g;
+}
+
+private NotAllowedSet getNotAllowed(Grammar g) 
+ = (<father, index> : dnn[father,index] | dnn := doNotNest(g), <father, index, _> <- dnn);
+
 @doc{
 This one-liner searches a given production for "except restrictions". 
 For every position in the production that is restricted, and for every restriction it finds 

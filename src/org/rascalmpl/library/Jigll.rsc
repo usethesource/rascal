@@ -3,6 +3,7 @@ module Jigll
 import Grammar;
 import ParseTree;
 import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::definition::Priorities;
 import IO;
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
@@ -13,7 +14,7 @@ public void generate(str name, type[&T <: Tree] nont) {
 }
 
 public &T jparse(type[&T <: Tree] nont, str input) {
-  return jparse(nont, nont.symbol, literals(grammar({nont.symbol}, nont.definitions)), input);
+  return jparse(nont, nont.symbol, addNotAllowedSets(literals(grammar({nont.symbol}, nont.definitions))), input);
 }
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
