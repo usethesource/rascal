@@ -12,6 +12,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -125,11 +126,25 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	}
 	
 	@Override
+	protected <U extends IValue> Result<U> subtractRelation(RelationResult that) {
+		if(that.getType().getElementType().isVoidType())
+			return makeResult(that.getType(), that.getValue(), ctx);
+		return super.subtractRelation(that);
+	}
+	
+	@Override
 	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
 		if (that.getValue().getElementType().isVoidType()) {
 			return makeResult(getTypeFactory().listType(this.getType()), that.getValue().append(this.getValue()), ctx);
 		}
 		return super.addListRelation(that);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> subtractListRelation(ListRelationResult that) {
+		if(that.getType().getElementType().isVoidType())
+			return makeResult(that.getType(), that.getValue(), ctx);
+		return super.subtractListRelation(that);
 	}
 
 	@Override

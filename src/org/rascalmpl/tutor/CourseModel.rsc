@@ -481,8 +481,8 @@ void extractAndCacheRemoteConcepts(loc file, str root){
      rmap =  remoteContentMap[rootname(root)] ? ();
      cmap = extractRemoteConcepts(file1, root);
      println("Extracted <size(cmap)> concepts from <file1>: <domain(cmap)>");
-     //for(cn <- cmap)
-     //    println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
+     for(cn <- cmap)
+         println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
      for(cn <- cmap)
          rmap[cn] = cmap[cn];
      remoteContentMap[rootname(root)] = rmap;
