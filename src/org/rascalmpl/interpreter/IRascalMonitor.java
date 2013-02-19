@@ -12,6 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
 public interface IRascalMonitor {
 	/**
 	 * Used to indicate an unknown amount of work to be done.
@@ -75,4 +77,9 @@ public interface IRascalMonitor {
 	 * @param work Amount of work remaining to be done, or 0 for unknown.
 	 */
 	public void todo(int work);
+	
+	/**
+	 * Inform about a warning
+	 */
+	public void warning(String message, ISourceLocation src);
 }
