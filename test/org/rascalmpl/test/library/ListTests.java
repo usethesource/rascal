@@ -372,9 +372,9 @@ public class ListTests extends TestFramework {
 		assertTrue(runTest("{ value n = 1; value s = \"string\"; list[int] _ := [ n ] && list[str] _ := [ s, s, *[ s, s ] ]; }"));
 	}
 	
-//	// Tests related to the correctness of the dynamic types of lists produced by the library functions;
-//	// incorrect dynamic types make pattern matching fail;
-//
+	// Tests related to the correctness of the dynamic types of lists produced by the library functions;
+	// incorrect dynamic types make pattern matching fail;
+
 //	@Test
 //	public void testDynamicTypes() {
 //		prepare("import List;");
@@ -383,8 +383,8 @@ public class ListTests extends TestFramework {
 //		assertTrue(runTestInSameEvaluator("{ list[value] lst = [\"1\",2,3]; list[int] _ := lst - [\"1\"]; }"));
 //		assertTrue(runTestInSameEvaluator("{ list[value] lst = [\"1\",2,3]; list[int] _ := delete(lst, 0); }"));
 //		assertTrue(runTestInSameEvaluator("{ list[value] lst = [\"1\",2,3]; list[int] _ := drop(1, lst); }"));
-//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [1,2,\"3\"]; list[int] _ := head(2, lst); }"));
-//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [1,2,\"3\"]; list[int] _ := prefix(1,2,\"3\"); }"));
+//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [1,2,\"3\"]; list[int] _ := head(lst, 2); }"));
+//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [1,2,\"3\"]; list[int] _ := prefix(lst); }"));
 //		assertTrue(runTestInSameEvaluator("{ list[value] lst = [\"1\",2,3]; list[int] _ := tail(lst); }"));
 //		assertTrue(runTestInSameEvaluator("{ list[value] lst = [1,2,\"3\"]; list[int] _ := take(2, lst); }"));
 //		
