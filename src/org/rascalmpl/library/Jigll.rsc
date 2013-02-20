@@ -10,11 +10,11 @@ import IO;
 public java void generate(str name, Grammar grammar);
 
 public void generate(str name, type[&T <: Tree] nont) {
-  generate(name, grammar({nont.symbol}, nont.definitions));
+  generate(name, grammar({nont.symbol}, nont.definitions), ());
 }
 
 public &T jparse(type[&T <: Tree] nont, str input) {
-  return jparse(nont, nont.symbol, addNotAllowedSets(literals(grammar({nont.symbol}, nont.definitions))), input);
+  return jparse(nont, nont.symbol, addNotAllowedSets(literals(grammar({nont.symbol}, nont.definitions, ()))), input);
 }
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}

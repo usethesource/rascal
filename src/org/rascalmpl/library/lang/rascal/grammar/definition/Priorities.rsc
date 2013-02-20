@@ -25,7 +25,7 @@ public DoNotNest doNotNest(Grammar g) {
        ;
 }
 
-public alias NotAllowedSets = map[tuple[Production, int] slot, set[Production] notallowed];
+public alias NotAllowedSet = map[tuple[Production, int] slot, set[Production] notallowed];
 
 public Grammar addNotAllowedSets(Grammar g) {
  g.about["notAllowed"]= getNotAllowed(g);
