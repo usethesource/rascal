@@ -49,6 +49,7 @@ public class GrammarToJigll {
 	
 	// A map from a prod to its alternate index
 	private Map<IValue, Integer> alternatesMap;
+	private List<BodyGrammarSlot> slots;
 
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
@@ -91,7 +92,7 @@ public class GrammarToJigll {
 		notAllowed = (IMap) ((IMap) grammar.get("about")).get(vf.string("notAllowed"));
 		nonterminals = new HashMap<>();
 		alternatesMap = new HashMap<>();
-		List<BodyGrammarSlot> slots = new ArrayList<>();
+		slots = new ArrayList<>();
 
 		for (IValue nonterminal : definitions) {
 			nonterminals.put(nonterminal, new Nonterminal(nonterminals.size(), nonterminal.toString(), false));
@@ -99,7 +100,7 @@ public class GrammarToJigll {
 
 		for (IValue nonterminal : definitions) {
 			IConstructor choice = (IConstructor) definitions.get(nonterminal);
-			convertNonterminal(nonterminals, slots, nonterminal, choice);
+			convertNonterminal(nonterminal, choice);
 		}
 		
 		Set<Nonterminal> startSymbols = new HashSet<>();
@@ -110,18 +111,18 @@ public class GrammarToJigll {
 		return new Grammar(name, new ArrayList<>(nonterminals.values()), slots, startSymbols);
 	}
 
-	private void convertNonterminal(Map<IValue, Nonterminal> nonterminals, List<BodyGrammarSlot> slots, IValue nonterminal, IConstructor choice) {
+	private void convertNonterminal(IValue nonterminal, IConstructor choice) {
 		assert choice.getName().equals("choice");
 		Nonterminal head = nonterminals.get(nonterminal);
 		ISet alts = (ISet) choice.get("alternatives");
 
 		for (IValue alt : alts) {
 			IConstructor prod = (IConstructor) alt;
-			convertProduction(nonterminals, slots, head, prod);
+			convertProduction(head, prod);
 		}
 	}
 
-	private void convertProduction(Map<IValue, Nonterminal> nonterminals, List<BodyGrammarSlot> slots, Nonterminal head, IConstructor prod) {
+	private void convertProduction(Nonterminal head, IConstructor prod) {
 		assert prod.getName().equals("prod");
 		BodyGrammarSlot slot = null;
 
@@ -130,13 +131,13 @@ public class GrammarToJigll {
 		Rule rule = new Rule(head, body);
 
 		if (rhs.length() == 0) { // epsilon
-			convertEpsilonProduction(nonterminals, slots, rule, slot, prod);
+			convertEpsilonProduction(rule, slot, prod);
 		} else {
-			convertNonEpsilonProduction(nonterminals, slots, rule, slot, prod);
+			convertNonEpsilonProduction(rule, slot, prod);
 		}
 	}
 
-	private void convertNonEpsilonProduction(Map<IValue, Nonterminal> nonterminals, List<BodyGrammarSlot> slots, Rule rule, BodyGrammarSlot slot, IConstructor prod) {
+	private void convertNonEpsilonProduction(Rule rule, BodyGrammarSlot slot, IConstructor prod) {
 		int index = 0;
 		for (Symbol s : rule.getBody()) {
 			if(s instanceof Terminal) {
@@ -158,7 +159,7 @@ public class GrammarToJigll {
 		slotsMap.put(vf.tuple(prod, vf.integer(rule.getBody().size())), slot);
 	}
 
-	private void convertEpsilonProduction(Map<IValue, Nonterminal> nonterminals, List<BodyGrammarSlot> slots, Rule rule, BodyGrammarSlot slot, IConstructor prod) {
+	private void convertEpsilonProduction(Rule rule, BodyGrammarSlot slot, IConstructor prod) {
 		slot = new EpsilonGrammarSlot(rule, slots.size() + nonterminals.size(), 0, slot, new HashSet<Terminal>(), prod);
 		slots.add(slot);
 		rule.getHead().addAlternate(slot);
