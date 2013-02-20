@@ -23,7 +23,7 @@ import IO;
   stored in a map for efficient access.
 }
 data Grammar 
-  = \grammar(set[Symbol] starts, map[Symbol sort, Production def] rules, map[str label, value info] about = ())
+  = \grammar(set[Symbol] starts, map[Symbol sort, Production def] rules, map[str label, value info] about)
   ;
 
 data GrammarModule
@@ -41,7 +41,7 @@ public Grammar grammar(set[Symbol] starts, set[Production] prods) {
     t = (p.def is label) ? p.def.symbol : p.def;
     rules[t] = t in rules ? choice(t, {p, rules[t]}) : choice(t, {p});
   } 
-  return grammar(starts, rules);
+  return grammar(starts, rules, ());
 } 
            
 
