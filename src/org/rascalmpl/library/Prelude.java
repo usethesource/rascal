@@ -1422,6 +1422,19 @@ public class Prelude {
     }
 	}
 	
+	public IValue elementAt(IList lst, IInteger index) {
+		if(lst.length() == 0)
+			throw RuntimeExceptionFactory.emptyList(null, null);
+		try {
+			int i = index.intValue();
+			if(index.intValue() < 0)
+				i = i + lst.length();
+			return lst.get(i);
+		} catch (IndexOutOfBoundsException e){
+			 throw RuntimeExceptionFactory.indexOutOfBounds(index, null, null);
+		}
+	}
+	
 	public IList sort(IList l, IValue cmpv){
 		IValue[] tmpArr = new IValue[l.length()];
 		for(int i = 0 ; i < l.length() ; i++){

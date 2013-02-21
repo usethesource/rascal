@@ -5,7 +5,7 @@ Usage: `import ListRelation;`
 
 Synopsis: Library functions for list relations.
 
-Description
+Description:
 Operations on list elations are described in [Values/ListRelation].
 All operations on [Values/List] are also applicable to list relations.
 

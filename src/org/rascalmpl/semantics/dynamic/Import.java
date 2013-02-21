@@ -294,7 +294,6 @@ public abstract class Import {
         }
         heap.setModuleURI(name, module.getLocation().getURI());
         
-        System.err.println("interpreting " + name);
         module.interpret(eval);
         
         return env;
@@ -373,7 +372,7 @@ public abstract class Import {
       ModuleEnvironment env = heap.getModule(name);
       if(env == null){
         env = new ModuleEnvironment(name, heap);
-        heap.addModule(env);
+//        heap.addModule(env);
       }
       env.setBootstrap(needBootstrapParser(data));
 

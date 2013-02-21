@@ -89,7 +89,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	}
 
 	private IValue genSet(Type type) {
-		ISetWriter writer = type.writer(vf);
+		ISetWriter writer = vf.setWriter(); // type.writer(vf);
 
 		if (maxDepth <= 0 || (stRandom.nextInt(2) == 0)) {
 			return writer.done();
@@ -227,7 +227,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	}
 	
 	private IValue genList(Type type){
-		IListWriter writer = type.writer(vf);
+		IListWriter writer = vf.listWriter(); // type.writer(vf);
 
 		if (maxDepth <= 0 || (stRandom.nextInt(2) == 0)) {
 			return writer.done();
@@ -249,7 +249,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitMap(Type type) {
-		IMapWriter writer = type.writer(vf);
+		IMapWriter writer = vf.mapWriter(); // type.writer(vf);
 
 		if (maxDepth <= 0 || (stRandom.nextInt(2) == 0)) {
 			return writer.done();

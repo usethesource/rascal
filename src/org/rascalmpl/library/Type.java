@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.library;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -27,6 +28,10 @@ public class Type {
 	
 	public IValue typeOf(IValue v, IEvaluatorContext ctx) {
 		return ((IConstructor) new TypeReifier(vf).typeToValue(v.getType(), ctx).getValue()).get("symbol");
+	}
+	
+	public IBool eq(IValue x, IValue y) {
+	  return vf.bool(x.isEqual(y));
 	}
 	
 }

@@ -80,7 +80,7 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>assert 1==2 : &quot;is never true&quot;;
 |stdin:///|(14,15,&lt;1,14>,&lt;1,29>): AssertionFailed("is never true")
-	somewhere in: ___SCREEN_INSTANCE___
+	at ___SCREEN_INSTANCE___(*** somewhere ***)
 
 
 <span class="prompt">rascal></span>int div(int x, int y) {
@@ -90,8 +90,8 @@
 int (int, int): int div(int, int);
 <span class="prompt">rascal></span>div(4,0);
 |stdin:///|(42,20,&lt;2,18>,&lt;2,38>): AssertionFailed("y must be non-zero")
-	somewhere in: div
-	somewhere in: ___SCREEN_INSTANCE___
+	at div(|stdin:///|(6,1,&lt;1,6>,&lt;1,7>))
+	at ___SCREEN_INSTANCE___(|stdin:///|(0,9,&lt;1,0>,&lt;1,9>))
 
 
 </pre>
