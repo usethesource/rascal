@@ -287,7 +287,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 		<U extends IValue, V extends IValue> Result<U> appendTuple(TupleResult tuple) {
 			// TODO: check arity 
 			Type newType = getTypeFactory().listType(tuple.getType().lub(getType().getElementType()));
-			return makeResult(newType, (IListRelation) getValue().append(tuple.getValue()), ctx);
+			return makeResult(newType, /*(IListRelation)*/ getValue().append(tuple.getValue()), ctx); // do not see a reason for the unsafe downcast
 		}
 
 		@Override

@@ -1,0 +1,19 @@
+define M1 {module M1 int x = 0;}
+
+define Y {int y = 1;}
+
+test  { x = 1; } expect {int x}
+
+test { x = 1; x = false; } expect {/Expected int/}
+
+test { use M1 :: x; } expect {int x}
+
+test { use Y :: y; } expect {int y}
+
+test { int y = 1; x = y;} expect {int x}
+
+define triple {int triple(int x) = 3 * x;}
+
+test { use triple :: triple([1,2,3]); } expect {ArgumentMismatch}
+
+test { x = 3; x = 3.5; } expect{num x}

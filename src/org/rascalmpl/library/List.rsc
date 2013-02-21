@@ -177,7 +177,7 @@ test: dup(<L1>) == <?>
 public list[&T] dup(list[&T] lst) {
   done = {};
   return for (e <- lst, e notin done) {
-    done += e;
+    done = done + {e};
     append e;
   }
 }
@@ -284,8 +284,8 @@ hint: <H>
 test: headTail(<L>) == <?>
 }
 public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
-  if ([&T h, * &T t] := lst)
-    return <h, t>;
+	 if(!isEmpty(lst))
+    return <head(lst), tail(lst)>;
   throw EmptyList();
 }
 
@@ -688,7 +688,7 @@ test: mix(<L>, <M>) == <?>
 
 }
 public list[&T] mix(list[&T] l, list[&T] r){
-	return [l[i],r[i]| i <- [0 .. min(size(l),size(r))]] + drop(size(r),l) + drop(size(l),r);
+	return [elementAt(l,i),elementAt(r,i)| i <- [0 .. min(size(l),size(r))]] + drop(size(r),l) + drop(size(l),r);
 }
 
 @doc{
@@ -722,7 +722,7 @@ test: last(<L>) == <?>
 }
 public &T last(list[&T] lst) throws EmptyList {
   if(lst == [] ) { throw EmptyList(); }
-  if([list[&T] p, &T l] := lst){
+  if([*p, l] := lst){
   	return l;
   }
 }
@@ -835,7 +835,6 @@ distribution([4,4,4,3,1,2,1,1,3,4]);
 </screen>
 }
 public map[&T element, int occurs] distribution(list[&T] lst) {
-	lst = sort(lst);
 	res = while(!isEmpty(lst)) {
 		<<e,occurs>,lst> = takeSame(lst);
 		append <e,occurs>;
@@ -844,10 +843,10 @@ public map[&T element, int occurs] distribution(list[&T] lst) {
 }
 
 tuple[tuple[&T el, int occurs] head, list[&T] rest] takeSame(list[&T] lst){
-	h = head(lst);
-	int i = 1; 
-	while(i < size(lst) && lst[i] == h) { i += 1; }
-	return <<h,i>,drop(i,lst)>;
+	&T h = head(lst);
+	int occrs = size([el | &T el <- lst, el == h]);
+	list[&T] rst = [el | &T el <- lst, el != h];
+	return <<h, occrs>, rst>;
 }
 
 @doc{
@@ -1504,7 +1503,7 @@ test: toRel(<L>) == <?>
 
 }
 public rel[&T,&T] toRel(list[&T] lst) {
-  return { <from,to> | [_*, &T from, &T to, _*] := lst };
+  return { <from,to> | [_*, from, to, _*] := lst };
 }
 
 @doc{
@@ -1674,12 +1673,15 @@ test: zip(<L>, <M>) == <?>
 public list[tuple[&T first, &U second]] zip(list[&T] a, list[&U] b) {
 	if(size(a) != size(b))
 		throw IllegalArgument(<size(a),size(b)>, "List size mismatch");
-	return [<a[i], b[i]> | i <- index(a)];
+	return [<elementAt(a,i), elementAt(b,i)> | i <- index(a)];
 }
 
 public list[tuple[&T first, &U second, &V third]] zip(list[&T] a, list[&U] b, list[&V] c) {
 	if(size(a) != size(b) || size(a) != size(c))
 		throw IllegalArgument(<size(a),size(b),size(c)>, "List size mismatch");
-	return [<a[i], b[i], c[i]> | i <- index(a)];
+	return [<elementAt(a,i), elementAt(b,i), elementAt(c,i)> | i <- index(a)];
 }
 
+@deprecated{use the indexing instead}
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T elementAt(list[&T] lst, int index); 

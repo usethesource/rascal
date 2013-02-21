@@ -580,7 +580,7 @@ public Symbol getSymbol(Sym sym, bool isLex) {
   }
 }
 
-public Symbol alt({alt(set[Symbol] ss), set[Symbol] rest}) = alt(ss + rest);
+public Symbol alt({alt(set[Symbol] ss), *Symbol rest}) = alt(ss + rest);
 
 test bool test40() = getSymbol((Sym) `"abc"`, false) 		== lit("abc");
 test bool test41() = getSymbol((Sym) `"a\\\\c"`, false) 		== lit("a\\c");

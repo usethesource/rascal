@@ -2,6 +2,7 @@ module lang::rascal::tests::Strings
 
 import IO;
 import String;
+import List;
 import util::Math;
 
 
@@ -153,3 +154,121 @@ public test bool assignStep() { L = "abcdefghij"; L[8,6..3] = "X"; return L == "
 public test bool assignStep() { L = "abcdefghij"; L[-1,-2..] = "XYZPQ"; return L == "QPZYXQPZYX";}
 public test bool assignStep() { L = "abcdefghij"; L[-1,-3..] = "XYZPQ"; return L == "aQcPeZgYiX";}
 
+// Library functions
+
+public test bool tstCenter1(str S) { c = center(S, size(S) + 5); return contains(c, S) && startsWith(c, " ") && endsWith(c, " "); }
+public test bool tstCenter2(str S) { c = center(S, size(S) + 5, "x"); return contains(c, S) && startsWith(c, "x") && endsWith(c, "x"); }
+
+public test bool  tstCharAt(str S) {  
+  for(i <- [0 .. size(S)])
+      if(charAt(S, i) != chars(S[i])[0]) return false;
+  return true;
+}
+
+public test bool tstChars(str S) = S == stringChars(chars(S));
+
+public test bool tstContains(str S1, str S2, str S3) = contains(S1+S2+S3, S1) && contains(S1+S2+S3, S2) && contains(S1+S2+S3, S3);
+
+public test bool tstEndsWith(str S1, str S2) = endsWith(S1+S2, S2);
+
+public test bool tstEscape(str S, str K1, str R1, str K2, str R2){
+  if(isEmpty(K1) || isEmpty(K2) || K1[0] == K2[0]) return true;
+  T = K1[0] + S + K2[0] + S + K2[0] + S + K1[0];
+  return escape(T, (K1[0] : R1, K2[0] : R2)) == R1 + S + R2 + S + R2 + S + R1;
+}
+
+public test bool tstFindAll(str S1, str S2){
+  S = S2 + S1 + S2 + S1 + S2;
+  for(i <- findAll(S, S2))
+      if(!startsWith((i < size(S) ? S[i..] : ""), S2)) return false;
+  return true;
+}
+
+public test bool tstFindFirst(str S1, str S2){
+  S = S1 + S2 + S1 + S2;
+  i = findFirst(S, S2);
+  return i >= 0 && startsWith((i < size(S) ? S[i..] : ""), S2);
+}
+
+public test bool tstFindLast(str S1, str S2){
+  S = S1 + S2 + S1 + S2 + S1;
+  i = findLast(S, S2);
+  return i >= 0 && startsWith((i < size(S) ? S[i..] : ""), S2);
+}
+
+public test bool tstIsEmpty(str S) = isEmpty(S) ==> size(S) == 0;
+
+public test bool tstStringChar(str S) {
+  for(i <- [0 .. size(S)])
+     if(stringChar(chars(S)[i]) != S[i]) return false;
+  return true;
+}
+
+public test bool tstIsValidCharacter(str S) = isEmpty(S) || all(i <- [0 .. size(S)], isValidCharacter(chars(S[i])[0]));
+
+public test bool tstLeft1(str S) { l = left(S, size(S) + 5); return startsWith(l, S) && endsWith(l, " "); }
+public test bool tstLeft2(str S) { l = left(S, size(S) + 5, "x"); return startsWith(l, S) && endsWith(l, "x"); }
+
+
+public test bool tstReplaceAll(str S1, str S2, str S3) {
+  if(contains(S1, S2)) return true;
+  S = S1 + S2 + S1 + S2 + S1;
+  return replaceAll(S, S2, S3) == S1 + S3 + S1 + S3 + S1;
+}
+
+public test bool tstReplaceFirst(str S1, str S2, str S3) {
+  if(contains(S1, S2)) return true;
+  S = S1 + S2 + S1 + S2 + S1;
+  return replaceFirst(S, S2, S3) == S1 + S3 + S1 + S2 + S1;
+}
+
+public test bool tstReplaceLast(str S1, str S2, str S3) {
+  if(contains(S1, S2)) return true;
+  S = S1 + S2 + S1 + S2 + S1;
+  return replaceLast(S, S2, S3) == S1 + S2 + S1 + S3 + S1;
+}
+
+public test bool tstReverse(str S) = S == reverse(reverse(S));
+
+// rexpMatch
+
+public test bool tstRight1(str S) { r = right(S, size(S) + 5); return endsWith(r, S) && startsWith(r, " "); }
+public test bool tstRight2(str S) { r = right(S, size(S) + 5, "x"); return endsWith(r, S) && startsWith(r, "x"); }
+
+public test bool tstSize(str S) = size(S) == size(chars(S));
+
+public test bool tstSplit(str S1, str S2) = isEmpty(S1) || isEmpty(S2) || contains(S2, S1) || split(S1, S2 + S1 + S2 + S1) == [S2, S2];
+
+// squeeze
+
+public test bool tstStartsWith(str S1, str S2) = startsWith(S1+S2, S1);
+
+public test bool tstSubstring1(str S){
+  for(i <- [0 .. size(S)])
+      if(substring(S, i) != (i < size(S) ? S[i..] : "")) return false;
+  return true;
+}
+
+public test bool tstSubstring2(str S){
+  for(i <- [0 .. size(S)])
+      for(j <- [i .. size(S)])
+          if(substring(S, i, j) != (i < size(S) ? S[i..j] : "")) return false;
+  return true;
+}
+
+public test bool toInt(int N) = N == toInt("<N>");
+
+public test bool tstToLowerCase(str S) = /[A-Z]/ !:= toLowerCase(S);
+
+public test bool toReal(real R) = R == toReal("<R>");
+
+public test bool tstToUpperCase(str S) = /[a-z]/ !:= toUpperCase(S);
+
+public test bool tstTrim(str S) = trim(S) == trim(" \t\n" + S + "\r\b\t ");
+
+public test bool tstWrap(str S1 , str S2) {
+  if(contains(S1, "\n") || contains(S2, "\n")) return true;
+  S = S1 + " " + S2 + " " + S1 + " " + S2;
+  n = max(size(S1), size(S2)) + 2;
+  return trim(S) == trim(replaceAll(wrap(S, n), "\n", " "));
+}

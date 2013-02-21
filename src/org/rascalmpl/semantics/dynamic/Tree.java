@@ -223,37 +223,35 @@ public abstract class Tree {
 		return makeResult(type, Factory.Tree_Appl.make(eval.getValueFactory(), production, flatten(w.done())), eval);
 	}
 
-	private void appendSeparators(IList args, IListWriter result, int delta, int i) {
-		for (int j = i - delta; j > 0 && j < i; j++) {
-			result.append(args.get(j));
-		}
+	private void appendPreviousSeparators(IList args, IListWriter result, int delta, int i, boolean previousWasEmpty) {
+	  if (!previousWasEmpty) {
+	    for (int j = i - delta; j > 0 && j < i; j++) {
+	      result.append(args.get(j));
+	    }
+	  }
 	}
 
 	private IList flatten(IList args) {
 		IListWriter result = Factory.Args.writer(VF);
+		boolean previousWasEmpty = false;
 		
-		for (int i = 0; i < args.length(); i+=(delta + 1)) {
-			IConstructor tree = (IConstructor) args.get(i);
-			if (TreeAdapter.isList(tree) && TreeAdapter.isAppl(tree)) {
-				if (ProductionAdapter.shouldFlatten(production, TreeAdapter.getProduction(tree))) {
-					IList nestedArgs = TreeAdapter.getArgs(tree);
-					if (nestedArgs.length() > 0) {
-						appendSeparators(args, result, delta, i);
-						result.appendAll(nestedArgs);
-					}
-					else {
-						// skip following separators
-						i += delta;
-					}
-				}
-				else {
-					appendSeparators(args, result, delta, i);
-					result.append(tree);
-				}
+		for (int i = 0; i < args.length(); i+=(delta+1)) {
+		  IConstructor tree = (IConstructor) args.get(i);
+			
+			if (TreeAdapter.isList(tree) && ProductionAdapter.shouldFlatten(production, TreeAdapter.getProduction(tree))) {
+			  IList nestedArgs = TreeAdapter.getArgs(tree);
+			  if (nestedArgs.length() > 0) {
+			    appendPreviousSeparators(args, result, delta, i, previousWasEmpty);
+			    result.appendAll(nestedArgs);
+			  }
+			  else {
+			    previousWasEmpty = true;
+			  }
 			}
 			else {
-				appendSeparators(args, result, delta, i);
-				result.append(tree);
+			  appendPreviousSeparators(args, result, delta, i, previousWasEmpty);
+			  result.append(tree);
+			  previousWasEmpty = false;
 			}
 		}
 		

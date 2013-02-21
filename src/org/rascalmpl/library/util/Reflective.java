@@ -82,7 +82,7 @@ public class Reflective {
 			GlobalEnvironment heap = new GlobalEnvironment();
 			ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___full_module_parser___", heap));
 			cachedEvaluator = new Evaluator(callingEval.getValueFactory(), callingEval.getStdErr(), callingEval.getStdOut(), root, heap);
-			
+			cachedEvaluator.getResolverRegistry().copyResolverRegistries(ctx.getResolverRegistry());
 		  // clone the classloaders
 	    for (ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
 	      cachedEvaluator.addClassLoader(loader);
