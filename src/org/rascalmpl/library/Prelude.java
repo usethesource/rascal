@@ -2119,8 +2119,7 @@ public class Prelude {
 		Type constructorType = store.lookupConstructor(type, constructorName.getValue(), TypeFactory.getInstance().tupleType(types));
 		IConstructor node = ctx.getValueFactory().constructor(constructorType, arguments);
 		type = reifiedType.getType().getTypeParameters().getFieldType(0);
-		if(node.getType().equals(type))
-				return node;
+		if(node.getType().isSubtypeOf(type)) return node;
 		throw new Failure("Could not construct an adt node from: " + constructorName.getValue() + " and " + args.toString());
 	}
 	

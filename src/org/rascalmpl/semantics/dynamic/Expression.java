@@ -2904,53 +2904,56 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						
 			java.util.List<org.rascalmpl.ast.Expression> expressions = this.getExpressions();
 			
-			assert(expressions.size() >= 1 && expressions.size() <= 3);
+			assert(expressions.size() >= 1 && expressions.size() <= 2);
 			
 			java.util.List<Type> types = new LinkedList<Type>(); // type arguments to the visit, the order does matter
 			java.util.Set<Type> allTypes = new HashSet<Type>(); // types of all the children to be visited 
-			java.util.Map<Type, Result<IValue>> algebra = new HashMap<Type, Result<IValue>>(); // algebra function arguments to the visit
+			java.util.Map<Type, Result<IValue>> algebra = new HashMap<Type, Result<IValue>>(); // algebra functions of the visit
 			
-			if(expressions.get(0).isTuple()) // the first argument is a tuple expression (types)
+			if(expressions.get(0).isTuple()) // the tuple of type expressions
 				for(org.rascalmpl.ast.Expression expr : expressions.get(0).getElements()) {
 					Type type = expr.getType().typeOf(__eval.getCurrentEnvt());
 					types.add(type);
 					org.rascalmpl.interpreter.env.IsomorphicTypes.collectAllTypes(type, allTypes, __eval);
 				}
 			
-			System.out.println(allTypes);
+			boolean isCatamorphism = false;
+			boolean isAnamorphism = false;
+			boolean isTP = true;
 			
-			boolean isCatamorphism = true; // for the simplicity reasons, given as the third argument to the visit for now
-			
-			if(expressions.size() == 3) {
-				if(expressions.get(1).isTuple()) // the second argument is a tuple expression (algebra functions with the keyword type parameter)
+			if(expressions.size() == 2) {
+				// Potentially, non type preserving
+				isTP = false;
+				isCatamorphism = true;
+				isAnamorphism = true;
+				if(expressions.get(1).isTuple()) // the tuple of algebra functions
 					for(org.rascalmpl.ast.Expression expr : expressions.get(1).getElements()) {
-						System.out.println(expr);
 						Result<IValue> f = expr.interpret(__eval);
 						Type type = null;
+						Type returnType = null;
+						Type argumentType = null;
+						// type[T] -> T
 						if(f instanceof OverloadedFunction) {
-							type = ((OverloadedFunction) f).getFunctions().get(0)
-									.getKeywordParameterDefaults().get(0)
-									.getType();
-						} else 
-							type = ((AbstractFunction) f).getKeywordParameterDefaults().get(0)
-									.getType();
-						algebra.put(type.getTypeParameters().getFieldType(0), f); // type[&T]
+							AbstractFunction alg = ((OverloadedFunction) f).getFunctions().get(0);
+							type = alg.getKeywordParameterDefaults().get(0).getType();
+							returnType = alg.getReturnType();
+							argumentType = ((FunctionType) alg.getType()).getArgumentTypes().getFieldType(0);
+						} else { 
+							AbstractFunction alg = (AbstractFunction) f;
+							type = alg.getKeywordParameterDefaults().get(0).getType();
+							returnType = alg.getReturnType();
+							argumentType = ((FunctionType) alg.getType()).getArgumentTypes().getFieldType(0);
+						}
+						algebra.put(type.getTypeParameters().getFieldType(0), f);
+						isCatamorphism = isCatamorphism && org.rascalmpl.interpreter.env.IsomorphicTypes.isIsomorphic(__eval.getCurrentEnvt().lookupAbstractDataType(type.getName()), 
+								__eval.getCurrentEnvt().lookupAbstractDataType(argumentType.getName()));
+						isAnamorphism = isAnamorphism && org.rascalmpl.interpreter.env.IsomorphicTypes.isIsomorphic(__eval.getCurrentEnvt().lookupAbstractDataType(type.getName()), 
+								__eval.getCurrentEnvt().lookupAbstractDataType(returnType.getName()));
 					}
-				if(expressions.get(2).interpret(__eval).getValue().equals(__eval.getValueFactory().bool(false)))
-					isCatamorphism = false;
 			} 
 			
-			System.out.println("Algebra functions: ");
-			for(Type key : algebra.keySet())
-				System.out.println(key.toString() + " - " + algebra.get(key).getValue().toString());
-			
 			java.util.Map<Type, AbstractFunction> functions = new HashMap<Type, AbstractFunction>();	
-			
 			TraverseFunction.generateTraverseFunctions(allTypes, algebra, isCatamorphism, functions, __eval);
-			
-			System.out.println("Visit functions: ");
-			for(Type key : functions.keySet())
-				System.out.println(key.toString() + " - " + functions.get(key).getValue().toString());
 			
 			java.util.List<AbstractFunction> results = new LinkedList<AbstractFunction>();
 			java.util.List<Type> resultTypes = new LinkedList<Type>();
@@ -2961,11 +2964,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					results.add(functions.get(key));
 				}
 			
+			if(results.size() == 1)
+				return makeResult(resultTypes.get(0), results.get(0), __eval);
+			
 			AbstractFunction[] resultArray = new AbstractFunction[types.size()];
 			Type[] resultTypeArray = new Type[types.size()];
 			
 			return makeResult(TypeFactory.getInstance().tupleType(resultTypes.toArray(resultTypeArray)), __eval.__getVf().tuple(results.toArray(resultArray)), __eval);
-			
 		}
 
 	}

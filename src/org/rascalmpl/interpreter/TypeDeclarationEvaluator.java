@@ -84,31 +84,36 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 	
-	public void declareAbstractDataTypeFunctor(Data x, String type, Type[] tparams, Map<Type, Type> types, Environment env) {
+	public void declareAbstractDataTypeFunctor(Data x, String functorName, Type[] typeParameters, Map<Type, Type> parameterizationOfTypes, Environment env) {
 		TypeFactory tf = TypeFactory.getInstance();
-		Type adt = declareAbstractDataType(x.getUser(), env);
-		int arity = adt.getTypeParameters().getArity();
-		Type[] typeParameters = new Type[arity + tparams.length];
+		Type adt = declareAbstractDataType(x.getUser(), env); // the algebraic data type annotated with @functor
+		int arity = adt.getTypeParameters().getArity(); // the algebraic data type can be a type constructor
+		
+		Type[] extendedTypeParameters = new Type[arity + typeParameters.length];
 		for(int i = 0; i < arity; i++)
-			typeParameters[i] = adt.getTypeParameters().getFieldType(i);
-		for(int i = 0; i < tparams.length; i++)
-			typeParameters[arity + i] = tparams[i];
-		Type functor = env.abstractDataType(type, typeParameters);
-		org.rascalmpl.interpreter.env.IsomorphicTypes.declareAsIsomorphic(adt, functor);
-		org.rascalmpl.interpreter.env.IsomorphicTypes.storeParameterization(functor, types);
+			extendedTypeParameters[i] = adt.getTypeParameters().getFieldType(i);
+		for(int i = 0; i < typeParameters.length; i++)
+			extendedTypeParameters[arity + i] = typeParameters[i];
+		
+		Type functor = env.abstractDataType(functorName, extendedTypeParameters); // declares the functor type
+		
+		org.rascalmpl.interpreter.env.IsomorphicTypes.declareAsIsomorphic(adt, functor); // relates the type and its functor
+		org.rascalmpl.interpreter.env.IsomorphicTypes.storeParameterizationOfTypes(functor, parameterizationOfTypes); // logs the parameterization of types used to construct the functor
+		
+		// builds the functor's constructors based on the adt's ones
 		Set<Type> alternatives = env.lookupAlternatives(adt);
 		for(Type alt : alternatives) {
 			arity = alt.getFieldTypes().getArity();
 			String[] labels = new String[arity];
-			Type[] childTypes = new Type[arity];
+			Type[] childrenTypes = new Type[arity];
 			for(int i = 0; i < arity; i++) {
 				labels[i] = alt.getFieldName(i);	
-				if(types.containsKey(alt.getFieldType(i)))
-					childTypes[i] = types.get(alt.getFieldType(i));
-				else childTypes[i] = alt.getFieldType(i);
+				if(parameterizationOfTypes.containsKey(alt.getFieldType(i)))
+					childrenTypes[i] = parameterizationOfTypes.get(alt.getFieldType(i));
+				else childrenTypes[i] = alt.getFieldType(i);
 			}
 			ConstructorFunction cons = env.constructorFromTuple(x, eval, functor, alt.getName(), 
-											tf.tupleType(childTypes, labels), new LinkedList<KeywordParameter>());
+											tf.tupleType(childrenTypes, labels), new LinkedList<KeywordParameter>());
 			cons.setPublic(true);
 		}
 	}
