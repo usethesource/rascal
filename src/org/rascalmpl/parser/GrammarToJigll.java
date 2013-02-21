@@ -47,8 +47,8 @@ public class GrammarToJigll {
 	
 	private Map<IValue, GrammarSlot> slotsMap;
 	
-	// A map from a prod to its alternate index
-	private Map<IValue, Integer> alternatesMap;
+	// A map from a prod to its first grammar slot of an alterante
+	private Map<IValue, GrammarSlot> alternatesMap;
 	private List<BodyGrammarSlot> slots;
 
 	public GrammarToJigll(IValueFactory vf) {
@@ -58,10 +58,10 @@ public class GrammarToJigll {
 	public IConstructor jparse(IValue type, IConstructor symbol, IConstructor grammar, IString str) {
 	  Grammar g = convert("inmemory", grammar);
 	  
-	  g = applyRestrictions(g);
+	  applyRestrictions(g);
 	  
 	  
-	  // TODO calculate the actual lenght of longest terminals
+	  // TODO calculate the actual length of longest terminals
 	  g.setLongestTerminalChain(1);
 	  
 	  GrammarInterpreter parser = new GrammarInterpreter();
@@ -150,7 +150,7 @@ public class GrammarToJigll {
 			slots.add(slot);
 
 			if (index == 0) {
-				alternatesMap.put(prod, rule.getHead().getAlternates().size());
+				alternatesMap.put(prod, slot);
 				rule.getHead().addAlternate(slot);
 			}
 			index++;
@@ -165,7 +165,7 @@ public class GrammarToJigll {
 		rule.getHead().addAlternate(slot);
 	}
 	
-	private Grammar applyRestrictions(Grammar grammar) {
+	private void applyRestrictions(Grammar grammar) {
 		Map<ISet, Nonterminal> restrictedNonterminals = new HashMap<ISet, Nonterminal>();
 		
 		Iterator<Entry<IValue, IValue>> it = notAllowed.entryIterator();
@@ -177,26 +177,20 @@ public class GrammarToJigll {
 			
 			Nonterminal restrictedNonterminal = restrictedNonterminals.get(set);
 			if(restrictedNonterminal == null) {
-				restrictedNonterminal = new Nonterminal(nonterminals.size() + restrictedNonterminals.size(), "dummy" + Integer.toString(0), false);
+				restrictedNonterminal = new Nonterminal(nonterminals.size() + restrictedNonterminals.size(), "dummy" + restrictedNonterminals.size(), false);
 				List<BodyGrammarSlot> alternates = grammarSlot.getNonterminal().getAlternates();
 				Iterator<IValue> iterator = set.iterator();
 				while(iterator.hasNext()) {
-					Integer i = alternatesMap.get(iterator.next());
-					alternates.remove(i.intValue());
+					alternates.remove(alternatesMap.get(iterator.next()));
 				}
 				for(BodyGrammarSlot alt : alternates) {
 					restrictedNonterminal.addAlternate(alt);
 				}
-				restrictedNonterminals.put(set, restrictedNonterminal);	
+				restrictedNonterminals.put(set, restrictedNonterminal);
 			}
 			
 			grammarSlot.setNonterminal(restrictedNonterminal);
-		}
-		
-		List<Nonterminal> list = new ArrayList<>();
-		list.addAll(nonterminals.values());
-		list.addAll(restrictedNonterminals.values());
-		return new Grammar(grammar.getName(), list, grammar.getGrammarSlots(), grammar.getStartSymbols());
+		}		
 	}
 
 	static private List<Range> buildRanges(IConstructor symbol) {
