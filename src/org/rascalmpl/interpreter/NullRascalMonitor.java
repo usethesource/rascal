@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
 public class NullRascalMonitor implements IRascalMonitor {
 	@Override
 	public int endJob(boolean succeeded) {
@@ -51,4 +53,9 @@ public class NullRascalMonitor implements IRascalMonitor {
 	public boolean isCanceled() {
 		return false;
 	}
+
+  @Override
+  public void warning(String message, ISourceLocation src) {
+    return;
+  }
 }
