@@ -97,23 +97,24 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 					__eval.getCurrentEnvt());
 			
 			for(org.rascalmpl.ast.Tag tag : this.getTags().getTags()) {
+				
+				// The @functor tag declares the functor view on the recursive algebraic data type
 				if(tag.isFunctor()) {
-					String type = null;
-					Type[] tparams = null;
-					Map<Type, Type> types = new HashMap<Type, Type>();
-					type = Names.fullName(tag.getType().getQualifiedName());
-					tparams = new Type[tag.getTypes().size()];
+					String functorName = null;
+					Type[] typeParameters = null;
+					Map<Type, Type> parameterizationOfTypes = new HashMap<Type, Type>();
+					functorName = Names.fullName(tag.getType().getQualifiedName());
+					typeParameters = new Type[tag.getTypes().size()];
 					int i = 0;
 					for(org.rascalmpl.ast.Expression expr : tag.getTypes()) {
-						assert(expr.getElements().size() == 2);
-						Type tparam = TF.parameterType(Names.fullName(expr.getElements().get(1).getQualifiedName()));
-						tparams[i] = tparam;
+						Type typeParameter = TF.parameterType("TP" + (functorName.hashCode() + i));
+						typeParameters[i] = typeParameter;
 						i = i + 1;
-						types.put(expr.getElements().get(0).getType().typeOf(__eval.getCurrentEnvt()),
-									tparam);
+						parameterizationOfTypes.put(expr.getType().typeOf(__eval.getCurrentEnvt()), typeParameter);
 					}
-					if(type != null && !types.isEmpty()) {
-						__eval.__getTypeDeclarator().declareAbstractDataTypeFunctor(this, type, tparams, types,
+					// If you are silly to forget the functor name or its type parameters, do not expect anything but nothing
+					if(functorName != null || !parameterizationOfTypes.isEmpty()) {
+						__eval.__getTypeDeclarator().declareAbstractDataTypeFunctor(this, functorName, typeParameters, parameterizationOfTypes,
 								__eval.getCurrentEnvt());
 					}
 				}

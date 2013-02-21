@@ -513,14 +513,14 @@ public bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
 public bool sameType(Symbol s, s) = true;
 public default bool sameType(Symbol s, Symbol t) = false;
 
-@doc{Algebraic view on parsing}
+@doc{Algebraic view on parsing and implode semantics}
 
 data Option[&T] = some(&T opt) | none();
 
 public &T parseToAdt(type[&T] \type, Tree::appl(Production prod, list[Tree] args)) {
 	args = filterTrees(args); // filters out layouts, literals and empties 
 	if(some(str l) := getLabel(prod)) return makeAdtNode(\type, l, args);
-	if(none() := getLabel(prod) && size(args == 1)) return parseToAdt(\type, args[0]);
+	if(none() := getLabel(prod) && size(args) == 1) return parseToAdt(\type, args[0]);
 	throw "parse error: Tree -\> Adt";
 }
 

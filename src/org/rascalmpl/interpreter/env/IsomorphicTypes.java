@@ -10,21 +10,22 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
-
+/*
+ * Note that the data and methods assume that the types are the adt and functor declarations, 
+ * i.e., uninstantiated types
+ */
 public class IsomorphicTypes {
 	
 	private static Map<Type, Type> isomorphicTypes = new HashMap<Type, Type>();
 	
-	// Map that specifies the parameterizaion of ADTs with type paramaters, e.g., #Expr -> &T
+	// Map that specifies the parameterizaion of algebraic data types with type paramaters
 	private static Map<Type, Map<Type, Type>> functors = new HashMap<Type, Map<Type,Type>>();
 	
 	private static Set<Type> builtInBasicTypes = new HashSet<Type>();
-	private static Map<Type, Type> builtInIsomorphicTypes = new HashMap<Type, Type>();
 	
 	private static TypeFactory TF = TypeFactory.getInstance();
 	
-	static {
-		
+	static {	
 		builtInBasicTypes.add(TF.boolType());
 		builtInBasicTypes.add(TF.integerType());
 		builtInBasicTypes.add(TF.realType());
@@ -32,42 +33,41 @@ public class IsomorphicTypes {
 		builtInBasicTypes.add(TF.numberType());
 		builtInBasicTypes.add(TF.dateTimeType());
 		builtInBasicTypes.add(TF.sourceLocationType());
-		
-		builtInIsomorphicTypes.put(TF.setType(TF.parameterType("T")), 
-									TF.setType(TF.tupleType(TF.parameterType("T1"), TF.parameterType("T2"))));
-		builtInIsomorphicTypes.put(TF.listType(TF.parameterType("T")),
-									TF.listType(TF.tupleType(TF.parameterType("T1"), TF.parameterType("T2"))));
 	}
 		
-	public static void declareAsIsomorphic(Type type1, Type type2) {
-		if(isomorphicTypes.containsKey(type2))
-			return ;
-		else {
-			isomorphicTypes.put(type2, type1);
-		}
-			
+	public static void declareAsIsomorphic(Type adt, Type functor) {
+		if(isomorphicTypes.containsKey(functor)) return ;
+		else isomorphicTypes.put(functor, adt); // one adt can possibly have multiple functors
 	}
 	
 	public static boolean isBasicType(Type type) {
 		return builtInBasicTypes.contains(type);
 	}
 	
-	public static boolean isIsomorphic(Type type1, Type type2) {
-		return (isomorphicTypes.containsKey(type2) && isomorphicTypes.get(type2).equivalent(type1))
-				|| (builtInIsomorphicTypes.containsKey(type2) && builtInIsomorphicTypes.get(type2).equivalent(type1));
+	public static boolean isIsomorphic(Type adt, Type functor) {
+		return (isomorphicTypes.containsKey(functor) && isomorphicTypes.get(functor).equals(adt))
+				|| (isBuiltInIsomorphic(adt, functor));
+	}
+	
+	private static boolean isBuiltInIsomorphic(Type adt, Type functor) {
+		return (adt.isSetType() && functor.isSetType() && functor.getElementType().isTupleType() && functor.getElementType().getArity() == 2)
+				|| (adt.isListType() && functor.isListType() && functor.getElementType().isTupleType() && functor.getElementType().getArity() == 2);
 	}
 	
 	public static Type getIsomorphicType(Type functor) {
-		return (isomorphicTypes.containsKey(functor)) ? isomorphicTypes.get(functor) 
-				: (builtInIsomorphicTypes.containsKey(functor)) ? builtInIsomorphicTypes.get(functor) 
-						: null;
+		if(isomorphicTypes.containsKey(functor)) return isomorphicTypes.get(functor); 
+		if(functor.isListType() && functor.getElementType().isTupleType() && functor.getElementType().getArity() == 2)
+			return TypeFactory.getInstance().listType(TypeFactory.getInstance().parameterType("T"));
+		if(functor.isSetType() && functor.getElementType().isTupleType() && functor.getElementType().getArity() == 2)
+			return TypeFactory.getInstance().listType(TypeFactory.getInstance().parameterType("T"));
+		return null;
 	}
 	
-	public static Map<Type, Type> getParameterization(Type functor) {
+	public static Map<Type, Type> getParameterizationOfTypes(Type functor) {
 		return functors.get(functor);
 	}
 	
-	public static Map<Type, Type> getReverseParameterization(Type functor) {
+	public static Map<Type, Type> getReverseParameterizationOfTypes(Type functor) {
 		Map<Type, Type> bindings = functors.get(functor);
 		Map<Type, Type> reverse = new HashMap<Type, Type>();
 		for(Type key : bindings.keySet())
@@ -75,31 +75,31 @@ public class IsomorphicTypes {
 		return reverse;
 	}
 	
-	public static void storeParameterization(Type functor, Map<Type,Type> types) {
-		functors.put(functor, types);
+	public static void storeParameterizationOfTypes(Type functor, Map<Type,Type> parameterizationOfTypes) {
+		functors.put(functor, parameterizationOfTypes);
 	}
 		
-	// collects all the directly or indirectly used recursive types
-	public static void collectAllRecursiveTypes(Type type, Set<Type> types, IEvaluator<Result<IValue>> eval) {
+	// Collects all the directly or indirectly used (recursive) algebraic data types
+	public static void collectAllRecursiveAdtTypes(Type type, Set<Type> types, IEvaluator<Result<IValue>> eval) {
 		if( types.contains(type) || !(type.isAbstractDataType() 
 										|| type.isNodeType() 
-										|| type.isListType() || type.isListRelationType() 
-										|| type.isSetType() || type.isRelationType()
+										|| type.isListType() 
+										|| type.isSetType()
 										|| type.isMapType()) ) return ;
 		types.add(type);
 		if(type.isAbstractDataType())
 			for(Type alt : eval.getCurrentEnvt().lookupAlternatives(type))
 				for(int i = 0; i < alt.getFieldTypes().getArity(); i++)
-					collectAllRecursiveTypes(alt.getFieldTypes().getFieldType(i), types, eval);
-		if(type.isListType() || type.isListRelationType() || type.isSetType() || type.isRelationType())
-			collectAllRecursiveTypes(type.getElementType(), types, eval);
+					collectAllRecursiveAdtTypes(alt.getFieldTypes().getFieldType(i), types, eval);
+		if(type.isListType() || type.isSetType())
+			collectAllRecursiveAdtTypes(type.getElementType(), types, eval);
 		if(type.isMapType()) {
-			collectAllRecursiveTypes(type.getKeyType(), types, eval);
-			collectAllRecursiveTypes(type.getValueType(), types, eval);
+			collectAllRecursiveAdtTypes(type.getKeyType(), types, eval);
+			collectAllRecursiveAdtTypes(type.getValueType(), types, eval);
 		}
 	}
 	
-	// collects all the directly or indirectly used types
+	// Collects all the directly or indirectly used types
 	public static void collectAllTypes(Type type, Set<Type> types, IEvaluator<Result<IValue>> __eval) {
 		if(types.contains(type)) return ;
 		types.add(type);
