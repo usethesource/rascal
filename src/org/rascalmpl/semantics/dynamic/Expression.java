@@ -27,6 +27,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -633,22 +634,22 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	}
 
 	static public class Concrete extends org.rascalmpl.ast.Expression.Concrete {
-
+  
     public Concrete(IConstructor node, org.rascalmpl.ast.Concrete concrete) {
       super(node, concrete);
     }
     
     @Override
     public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-      throw new SyntaxError("concrete syntax fragment", getLocation());
+      throw new SyntaxError("concrete syntax fragment", (ISourceLocation) getAnnotations().get("parseError"));
     }
     
     @Override
     public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-      throw new SyntaxError("concrete syntax fragment", getLocation());
+      throw new SyntaxError("concrete syntax fragment", (ISourceLocation) getAnnotations().get("parseError"));
     }
-	  
-	}
+    
+  }
 	static public class Descendant extends
 			org.rascalmpl.ast.Expression.Descendant {
 
