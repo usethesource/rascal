@@ -128,7 +128,7 @@ public class TraverseFunction extends AbstractFunction {
 //		else if(argType.isStringType())
 //			result = call(argType, (IString) arg, keyArgValues, self, openFunctions);
 		
-		// Catamporphic transformation is bottom-up
+		// Catamorphic transformation is bottom-up
 		if(isCatamorphism) 
 			result = this.algebra.call(new Type[] { result.getType() }, new IValue[] { result.getValue() }, keyArgValues);
 		
@@ -221,7 +221,6 @@ public class TraverseFunction extends AbstractFunction {
 				// in case of anamorphism, e.g., list[tuple[int, int]] -> list[Expr], int -> Expr, int -> list[Expr]
 				childrenTypes[0] = type.getElementType().getFieldType(0);
 				childrenTypes[1] = type.getElementType().getFieldType(1);
-				
 				ITuple tuple = (ITuple) arg.get(0);
 				Result<IValue> elem0 = visitFunctions[0].call(new Type[] { childrenTypes[0] }, new IValue[] { tuple.get(0) }, keyArgValues);
 				Result<IValue> elem1 = visitFunctions[1].call(new Type[] { childrenTypes[1] }, new IValue[] { tuple.get(1) }, keyArgValues);

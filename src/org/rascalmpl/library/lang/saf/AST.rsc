@@ -6,21 +6,26 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Anastasia Izmaylova - A.Izmaylova@cwi.nl}
 module lang::saf::AST
 
+@functor FFighter #str, #list[Spec]
 data Fighter = fighter(str name, list[Spec] specs);
 
+@functor FSpec #str, #int, #Cond, #Action
 data Spec 
   = attribute(str name, int strength)
   | behavior(Cond cond, Action move, Action fight)
   ;
 
+@functor FCond #str, #Cond
 data Cond
   = const(str name)
   | and(Cond lhs, Cond rhs)
   | or(Cond lhs, Cond rhs)
   ;
 
+@functor FAction #str, #list[str]
 data Action 
   = action(str name)
   | choose(list[str] actions)
