@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -272,17 +273,24 @@ public class IO {
 		OutputStream out = null;
 		
 		Type paramType = ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T"));
-		
-		if(!paramType.isRelationType()){
+		if(!paramType.isRelationType() && !paramType.isListRelationType()){
 			throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType,ctx.getCurrentAST(), 
 					ctx.getStackTrace());
 		}
 		
 		try{
+			boolean isListRel = rel instanceof IListRelation;
 			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
-			IRelation irel = (IRelation) rel;
+			IRelation irel = null;
+			IListRelation lrel = null;
+			if (isListRel) {
+				lrel = (IListRelation)rel;
+			}
+			else {
+				irel = (IRelation) rel;
+			}
 			
-			int nfields = irel.arity();
+			int nfields = isListRel ? lrel.arity() : irel.arity();
 			if(header){
 				for(int i = 0; i < nfields; i++){
 					if(i > 0)
@@ -295,7 +303,7 @@ public class IO {
 				out.write('\n');
 			}
 			String separatorAsString = new String(Character.toChars(separator));
-			for(IValue v : irel){
+			for(IValue v : (isListRel ? lrel : irel)){
 				ITuple tup = (ITuple) v;
 				int sep = 0;
 				for(IValue w : tup){
