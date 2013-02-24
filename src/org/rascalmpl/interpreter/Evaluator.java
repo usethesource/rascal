@@ -1430,4 +1430,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   public List<IRascalSuspendTriggerListener> getSuspendTriggerListeners() {
     return suspendTriggerListeners;
   }
+
+  @Override
+  public void warning(String message, ISourceLocation src) {
+    if (monitor != null) {
+      monitor.warning(message, src);
+    }
+  }
 }
