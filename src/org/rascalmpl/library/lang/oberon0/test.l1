@@ -1,0 +1,36 @@
+MODULE testL1;
+
+(* skadjklasjdlkasjd *)
+CONST
+	c = 20;
+	d = c * 2;
+	e = 3 * z;
+
+TYPE
+  X = INTEGER;
+
+VAR
+  x : X;
+  z : BOOLEAN;
+  y : INTEGER;
+  y : X;
+
+BEGIN
+    y := d;
+	IF x > 3 THEN
+		WHILE x > 3 DO
+		  	  z := y;
+		  	  c := 3
+		END
+	END;
+	WHILE x = z DO
+		x := 5;
+		IF z > 3 THEN
+			y := x * a
+		ELSE
+			y := x DIV (c * z)
+		END
+	END
+
+	
+END testL1 .
