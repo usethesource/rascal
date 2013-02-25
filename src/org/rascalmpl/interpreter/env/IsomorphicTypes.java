@@ -26,6 +26,7 @@ public class IsomorphicTypes {
 	private static TypeFactory TF = TypeFactory.getInstance();
 	
 	static {	
+		builtInBasicTypes.add(TF.stringType());
 		builtInBasicTypes.add(TF.boolType());
 		builtInBasicTypes.add(TF.integerType());
 		builtInBasicTypes.add(TF.realType());
@@ -41,6 +42,7 @@ public class IsomorphicTypes {
 	}
 	
 	public static boolean isBasicType(Type type) {
+		System.out.println(type);
 		return builtInBasicTypes.contains(type);
 	}
 	

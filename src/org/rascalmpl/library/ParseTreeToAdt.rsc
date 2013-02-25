@@ -14,10 +14,13 @@ import ParseTree;
 import Set;
 import String;
 
+import IO;
+
 @doc{Algebraic view on parsing and implode semantics}
 data Option[&T] = some(&T opt) | none();
 
 public &T parseToAdt(type[&T] \type, Tree::appl(Production prod, list[Tree] args)) {
+	println(prod);
 	args = filterTrees(args); // filters out layouts, literals and empties 
 	Option[str] lbl = getLabel(prod);
 	if(none() := lbl && size(args) == 1) return parseToAdt(\type, args[0]);
@@ -26,31 +29,39 @@ public &T parseToAdt(type[&T] \type, Tree::appl(Production prod, list[Tree] args
 }
 
 public &T parseToTuple(type[&T] \type, Tree::appl(Production prod, list[Tree] args)) {
+	println(prod);
 	args = filterTrees(args); // filters out layouts, literals and empties
 	if(none() := getLabel(prod)) return makeTupleNode(\type, args);
 	throw "parse error: Tree -\> tuple[...]: <\type>";
 }
 
 public list[tuple[Tree, Tree]] parseToList(t:appl(Production prod, list[Tree] args)) {
+	println(prod);
 	args = filterTrees(args); // filters out layouts, literals and empties
 	if(isRegularLists(prod))
 		return (!isEmpty(args)) ? [<args[0], makeAdtNode(#Tree, "appl", prod, tail(args))>] : [];
 	if(isOptional(prod)) {
-		args = [ *( (appl(Production prod, list[Tree] args0) := arg 
-					&& none() := getLabel(prod)) ? args0 : [ arg ] )  | Tree arg <- args ];
+		args = [ *( (appl(Production p, list[Tree] args0) := arg 
+					&& none() := getLabel(p) 
+					&& list[Tree] args00 := filterTrees(args0) 
+					&& size(args00) == 1 
+					&& appl(Production p0, list[Tree] args000) := args00[0]
+					&& isRegularLists(p0) ) ? filterTrees(args000) : [ arg ] )  | Tree arg <- args ];
 		return (!isEmpty(args)) ? [<args[0], makeAdtNode(#Tree, "appl", prod, tail(args))>] : [];
 	}
 	throw "parse error: Tree -\> list[tuple[Tree, Tree]]";
 }
 
 public set[tuple[Tree, Tree]] parseToSet(Tree::appl(Production prod, list[Tree] args)) {
+	println(prod);
 	args = filterTrees(args); // filters out layouts, literals and empties
 	if(isRegularLists(prod)) return (!isEmpty(args)) ? {<args[0], makeAdtNode(#Tree, "appl", prod, tail(args))>} : {};
 	throw "parse error: Tree -\> set[tuple[Tree, Tree]]";
 }
 
 public int parseToInt(Tree::appl(Production prod, list[Tree] args)) {
-	if(isLexical(prod)) {
+	println(prod);
+	if(isLexical(prod) || isRegular(prod)) {
 		args = flatten(args);
 		list[int] chars = [ ch | Tree arg <- args, char(int ch) := arg ];
 		if(size(args) == size(chars)) return toInt(stringChars(chars));
@@ -59,7 +70,8 @@ public int parseToInt(Tree::appl(Production prod, list[Tree] args)) {
 }
 
 public str parseToStr(Tree::appl(Production prod, list[Tree] args)) {
-	if(isLexical(prod)) {
+	println(prod);
+	if(isLexical(prod) || isRegular(prod)) {
 		args = flatten(args);
 		list[int] chars = [ ch | Tree arg <- args, char(int ch) := arg ];
 		if(size(args) == size(chars)) return stringChars(chars);
@@ -68,9 +80,10 @@ public str parseToStr(Tree::appl(Production prod, list[Tree] args)) {
 }
 
 public bool parseToBool(Tree::appl(Production prod, list[Tree] args)) {
+	println(prod);
 	args = filterTrees(args);
 	if(isOptional(prod)) return isEmpty(args);
-	if(isLexical(prod)) {
+	if(isLexical(prod) || isRegular(prod)) {
 		args = flatten(args);
 		list[int] chars = [ ch | Tree arg <- args, char(int ch) := arg ];
 		if(size(args) == size(chars)) return fromString(stringChars(chars));
@@ -142,6 +155,7 @@ public bool isRegularLists(Symbol sym) = ( (\iter(Symbol _) := sym)
      										|| (\iter-star-seps(Symbol _, list[Symbol] _) := sym) ) ? true : false;
 
 public bool isOptional(prod(Symbol def, list[Symbol] _, set[Attr] _)) = isOptional(def);
+public bool isOptional(regular(Symbol def)) = isOptional(def);
 public default bool isOptional(Production _) = false;
 
 public bool isOptional(Symbol sym) = (\opt(Symbol _) := sym) ? true : false;
