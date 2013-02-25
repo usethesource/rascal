@@ -144,7 +144,6 @@ public class TraverseFunction extends AbstractFunction {
 			
 			Type targs[] = new Type[arg.arity()]; 
 			IValue args[] = new IValue[arg.arity()];
-			
 			for(int i = 0; i < arg.arity(); i++) {
 				IValue child = arg.get(i);
 				Result<IValue> result = visitFunctions[i].call(new Type[] { childrenTypes.getFieldType(i) }, 
@@ -241,7 +240,7 @@ public class TraverseFunction extends AbstractFunction {
 		if(isCatamorphism) 
 			type = TF.listType(TF.tupleType(visitFunctions[0].getReturnType(), visitFunctions[1].getReturnType()));
 		if(isAnamorphism) 
-			type = TF.listType(visitFunctions[1].getReturnType());
+			type = visitFunctions[1].getReturnType();
 		return makeResult(type, arg, ctx);
 	}
 	
@@ -300,7 +299,7 @@ public class TraverseFunction extends AbstractFunction {
 		if(isCatamorphism) 
 			type = TF.setType(TF.tupleType(visitFunctions[0].getReturnType(), visitFunctions[1].getReturnType()));
 		if(isAnamorphism) 
-			type = TF.setType(visitFunctions[1].getReturnType());
+			type = visitFunctions[1].getReturnType();
 		return makeResult(type, arg, ctx);
 
 		

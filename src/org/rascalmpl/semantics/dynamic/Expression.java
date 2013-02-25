@@ -2935,20 +2935,22 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						// type[T] -> T
 						if(f instanceof OverloadedFunction) {
 							AbstractFunction alg = ((OverloadedFunction) f).getFunctions().get(0);
-							type = alg.getKeywordParameterDefaults().get(0).getType();
+							type = alg.getKeywordParameterDefaults().get(0).getType().getTypeParameters().getFieldType(0);
 							returnType = alg.getReturnType();
 							argumentType = ((FunctionType) alg.getType()).getArgumentTypes().getFieldType(0);
 						} else { 
 							AbstractFunction alg = (AbstractFunction) f;
-							type = alg.getKeywordParameterDefaults().get(0).getType();
+							type = alg.getKeywordParameterDefaults().get(0).getType().getTypeParameters().getFieldType(0);
 							returnType = alg.getReturnType();
 							argumentType = ((FunctionType) alg.getType()).getArgumentTypes().getFieldType(0);
 						}
-						algebra.put(type.getTypeParameters().getFieldType(0), f);
-						isCatamorphism = isCatamorphism && org.rascalmpl.interpreter.env.IsomorphicTypes.isIsomorphic(__eval.getCurrentEnvt().lookupAbstractDataType(type.getName()), 
-								__eval.getCurrentEnvt().lookupAbstractDataType(argumentType.getName()));
-						isAnamorphism = isAnamorphism && org.rascalmpl.interpreter.env.IsomorphicTypes.isIsomorphic(__eval.getCurrentEnvt().lookupAbstractDataType(type.getName()), 
-								__eval.getCurrentEnvt().lookupAbstractDataType(returnType.getName()));
+						algebra.put(type, f);
+						if(type.isAbstractDataType() && argumentType.isAbstractDataType())
+							isCatamorphism = isCatamorphism && org.rascalmpl.interpreter.env.IsomorphicTypes.isIsomorphic(__eval.getCurrentEnvt().lookupAbstractDataType(type.getName()), 
+									__eval.getCurrentEnvt().lookupAbstractDataType(argumentType.getName()));
+						if(type.isAbstractDataType() && returnType.isAbstractDataType())
+							isAnamorphism = isAnamorphism && org.rascalmpl.interpreter.env.IsomorphicTypes.isIsomorphic(__eval.getCurrentEnvt().lookupAbstractDataType(type.getName()), 
+									__eval.getCurrentEnvt().lookupAbstractDataType(returnType.getName()));
 					}
 			} 
 			
