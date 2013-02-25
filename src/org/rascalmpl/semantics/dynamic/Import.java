@@ -223,9 +223,6 @@ public abstract class Import {
 	}
 
 	public static void importModule(String name, ISourceLocation src, IEvaluator<Result<IValue>> eval) {
-		//System.err.println("importModule: " + name);
-		//long before = System.currentTimeMillis();
-		
 		GlobalEnvironment heap = eval.__getHeap();
 		
 		if (!heap.existsModule(name)) {
@@ -245,9 +242,6 @@ public abstract class Import {
 			eval.getStdErr().println(src + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
 		}
 		
-		//long after = System.currentTimeMillis();
-		//System.err.println("Evaluator: Importing " + name + " takes " + (after - before) + " msec.");
-
 		return;
 	}
 	
@@ -432,7 +426,13 @@ public abstract class Import {
   
   private static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod) {
     org.rascalmpl.ast.Import imp = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
-    imp.interpret(eval);
+    try {
+      imp.interpret(eval);
+    }
+    catch (Throwable e) {
+      // parsing the current module should be robust wrt errors in modules it depends on.
+      eval.getMonitor().warning("could not load module " + Names.fullName(imp.getModule().getName()), imp.getLocation());
+    }
   }
 
   /**
@@ -564,10 +564,10 @@ public abstract class Import {
       return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
     }
     catch (ParseError e) {
-      // have to deal with this parse error later when interpreting the AST, for now we just reconstruct the unparsed tree.
-      eval.getStdOut().println("Failed at: " + TreeAdapter.getLocation(tree) + ", failed on: [" + new String(replaceAntiQuotesByHoles(eval, lit, antiquotes)) + "], " + e);
-//      throw e;
-      return tree;
+      ISourceLocation loc = TreeAdapter.getLocation(tree);
+      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
+      eval.getMonitor().warning("parse error in concrete syntax", src);
+      return tree.setAnnotation("parseError", src);
     }
   }
   
