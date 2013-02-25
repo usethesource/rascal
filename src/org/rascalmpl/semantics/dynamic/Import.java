@@ -431,7 +431,7 @@ public abstract class Import {
     }
     catch (Throwable e) {
       // parsing the current module should be robust wrt errors in modules it depends on.
-      eval.getMonitor().warning("could not load module " + Names.fullName(imp.getName()), imp.getLocation());
+      eval.getMonitor().warning("could not load module " + Names.fullName(imp.getModule().getName()), imp.getLocation());
     }
   }
 
