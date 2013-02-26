@@ -284,8 +284,7 @@ public class TraversalEvaluator {
 		}
 
 		if (tr.changed) {
-			Type t = cons.getConstructorType();
-			IConstructor rcons = eval.getValueFactory().constructor(t, args);
+			IConstructor rcons = (IConstructor) eval.call(cons.getName(), args);
 
 			if (cons.hasAnnotations()) {
 				rcons = rcons.setAnnotations(cons.getAnnotations());
@@ -511,7 +510,7 @@ public class TraversalEvaluator {
 					} 
 					else if (lastPattern instanceof LiteralPattern || lastPattern instanceof TypedVariablePattern){
 						start = 0;
-						end = ((IString)repl).getValue().length();
+						end = subjectString.length();
 					} 
 					else {
 						throw new SyntaxError("Illegal pattern " + lastPattern + " in string visit", eval.getCurrentAST().getLocation());
