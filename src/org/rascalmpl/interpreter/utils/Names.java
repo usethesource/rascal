@@ -74,4 +74,11 @@ public class Names {
 		list.add(toName(name));
 		return ASTBuilder.make("QualifiedName", null, list);
 	}
+
+	static public QualifiedName toQualifiedName(String returnType, String name) {
+    List<Name> list = new LinkedList<Name>();
+    list.add(toName(returnType));
+    list.add(toName(name));
+    return ASTBuilder.make("QualifiedName", null, list);
+  }
 }
