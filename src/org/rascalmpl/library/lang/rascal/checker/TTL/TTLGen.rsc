@@ -77,7 +77,7 @@ void generate(loc src){
        	     if(decls[name]?) throw "Ambiguous name <name> at <item@\loc>";
        	     if(modules[name]?) throw "Redeclared module name <name> at <item@\loc>";
              modules[name] = item.moduleText;
-             writeFile(src.parent + "<item.name>", item.moduleText);
+             writeFile(TTLRoot + "generated/<item.name>", item.moduleText); // TODO: Imports from different ttl files could conflict
        } else if(defDecl(name, declaration) := item){
        		if(modules[name]?) throw "Ambiguous name <name> at <item@\loc>";
        	     if(decls[name]?) throw "Redeclared declaration name <name> at <item@\loc>";
