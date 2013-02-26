@@ -510,7 +510,7 @@ public class TraversalEvaluator {
 					} 
 					else if (lastPattern instanceof LiteralPattern || lastPattern instanceof TypedVariablePattern){
 						start = 0;
-						end = ((IString)repl).getValue().length();
+						end = subjectString.length();
 					} 
 					else {
 						throw new SyntaxError("Illegal pattern " + lastPattern + " in string visit", eval.getCurrentAST().getLocation());
