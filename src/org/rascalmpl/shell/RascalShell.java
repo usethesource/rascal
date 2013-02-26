@@ -50,6 +50,7 @@ import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
+import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -58,11 +59,12 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RascalShell {
 	private final static int LINE_LIMIT = 200;
+
+	private static final boolean PRINTCOMMANDTIME = false;
 	
 	private final ConsoleReader console;
 	private final Evaluator evaluator;
 	private volatile boolean running;
-	
 	
 	// TODO: cleanup these constructors.
 	public RascalShell() throws IOException {
@@ -161,20 +163,24 @@ public class RascalShell {
 	}
 	
 	private String handleInput(String statement){
+		Timing tm = new Timing();
+		tm.start();
 		Result<IValue> value = evaluator.eval(null, statement, URIUtil.rootScheme("prompt"));
+		long duration = tm.duration();
 
 		if (value.getValue() == null) {
-			return "ok";
+			return "ok" + (PRINTCOMMANDTIME ? "(" + duration + "ms)" : "");
 		}
 
 		IValue v = value.getValue();
 		Type type = value.getType();
 
 		if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
-			return "`" + TreeAdapter.yield((IConstructor) v) + "`\n" + value.toString(LINE_LIMIT);
+			return "`" + TreeAdapter.yield((IConstructor) v) + "`\n" + value.toString(LINE_LIMIT)
+					+ (PRINTCOMMANDTIME ? "\n (" + duration + "ms)" : "");
 		}
 
-		return ((v != null) ? value.toString(LINE_LIMIT) : null);
+		return ((v != null) ? value.toString(LINE_LIMIT) + (PRINTCOMMANDTIME ? "\n (" + duration + "ms)" : "") : null);
 	}
 
 	private boolean completeStatement(String command) throws FactTypeUseException {
