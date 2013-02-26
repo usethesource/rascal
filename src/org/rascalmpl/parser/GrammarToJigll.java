@@ -178,7 +178,7 @@ public class GrammarToJigll {
 			Nonterminal restrictedNonterminal = restrictedNonterminals.get(set);
 			if(restrictedNonterminal == null) {
 				restrictedNonterminal = new Nonterminal(nonterminals.size() + restrictedNonterminals.size(), "dummy" + restrictedNonterminals.size(), false);
-				List<BodyGrammarSlot> alternates = grammarSlot.getNonterminal().getAlternates();
+				List<BodyGrammarSlot> alternates = grammarSlot.getNonterminal().copyAlternates();
 				Iterator<IValue> iterator = set.iterator();
 				while(iterator.hasNext()) {
 					alternates.remove(alternatesMap.get(iterator.next()));
