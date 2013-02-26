@@ -127,6 +127,8 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public IConstructor getGrammar(IRascalMonitor monitor, URI uri);
 
 	public IValue call(String name, IValue... args);
+	
+	public IValue call(String returnType, String name, IValue... args);
 
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
 			IMap robust, String input, ISourceLocation loc);
