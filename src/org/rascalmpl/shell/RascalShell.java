@@ -40,7 +40,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.StackTrace;
+import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -228,7 +228,7 @@ public class RascalShell {
 		}
 		try {
 			evaluator.doImport(null, module);
-			IValue v = evaluator.call(null, "main", w.done());
+			IValue v = evaluator.call((IRascalMonitor) null, "main", w.done());
 			if (v != null) {
 				System.out.println(v.toString());
 			}
@@ -289,7 +289,7 @@ public class RascalShell {
 		System.err.flush();
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		ISourceLocation loc = vf.sourceLocation(file.getAbsolutePath());
-		IString str = (IString) evaluator.call(null, "rascalDoc2Latex", loc);
+		IString str = (IString) evaluator.call((IRascalMonitor) null, "rascalDoc2Latex", loc);
 		FileWriter writer = new FileWriter(dest);
 		writer.write(str.getValue());
 		writer.close();
