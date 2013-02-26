@@ -284,7 +284,7 @@ public class TraversalEvaluator {
 		}
 
 		if (tr.changed) {
-			IConstructor rcons = (IConstructor) eval.call(cons.getName(), args);
+			IConstructor rcons = (IConstructor) eval.call(cons.getType().getName(), cons.getName(), args);
 
 			if (cons.hasAnnotations()) {
 				rcons = rcons.setAnnotations(cons.getAnnotations());
