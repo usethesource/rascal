@@ -52,7 +52,7 @@ public class RascalJUnitTestRunner extends Runner {
 		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
 		
 		resolverRegistry.registerInput(new JarURIResolver(TestFramework.class));
-	}
+	}  
 	
 	public RascalJUnitTestRunner(Class<?> clazz) {
 		this(clazz.getAnnotation(RascalJUnitTestPrefix.class).value());

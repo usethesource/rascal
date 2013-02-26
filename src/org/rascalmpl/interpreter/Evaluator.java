@@ -475,6 +475,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 	
+	public IValue call(String returnType, String name, IValue... args) {
+	  return call(Names.toQualifiedName(returnType, name), args);
+	};
+	
 	/**
 	 * Call a Rascal function with a number of arguments
 	 * 
@@ -499,10 +503,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	@Override
 	public IValue call(String name, IValue... args) {
-	  RascalTypeFactory rtf = RascalTypeFactory.getInstance();
-		QualifiedName qualifiedName = Names.toQualifiedName(name);
-		OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
-
+	  QualifiedName qualifiedName = Names.toQualifiedName(name);
+		return call(qualifiedName, args);
+	}
+	
+  private IValue call(QualifiedName qualifiedName, IValue... args) {
+    OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
+		RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+    
 		Type[] types = new Type[args.length];
 
 		int i = 0;
@@ -512,11 +520,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 		
 		if (func == null) {
-			throw new UndeclaredFunction(name, types, this, getCurrentAST());
+			throw new UndeclaredFunction(Names.fullName(qualifiedName), types, this, getCurrentAST());
 		}
 
 		return func.call(getMonitor(), types, args, null).getValue();
-	}
+  }
+	
+	
 	
 	@Override	
 	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input){
