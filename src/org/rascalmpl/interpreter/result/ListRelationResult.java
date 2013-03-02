@@ -122,13 +122,29 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			return that.notInListRelation(this);
 		}
 		
-		
 		@Override
 		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 			if(getType().getElementType().isVoidType()) throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 			
 			// TODO: must go to PDB
 			int nSubs = subscripts.length;
+			//TODO: A (temporary) fix to solve the confusion between indexing a list and querying a relation
+			// When there is one integer subscript, we just index the list relation as a list
+			if(nSubs == 1 && subscripts[0].getType().isIntegerType()){
+				if (getValue().length() == 0) {
+					throw RuntimeExceptionFactory.emptyList(ctx.getCurrentAST(), ctx.getStackTrace());
+				}
+				IInteger index = (IInteger) subscripts[0].getValue();
+				
+				int idx = index.intValue();
+				if(idx < 0){
+					idx = idx + getValue().length();
+				}
+				if ( (idx >= getValue().length()) || (idx < 0) ) {
+					throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
+				}
+				return makeResult(getType().getElementType(), getValue().get(idx), ctx);
+			}
 			if (nSubs >= getType().getArity()) {
 				throw new UnsupportedSubscriptArity(getType(), nSubs, ctx.getCurrentAST());
 			}
