@@ -45,26 +45,26 @@ public class BackTrackingTests extends TestFramework {
 	
 	@Test public void testSet() {
 		
-		assertTrue(runTest("{({set[int] S1, int N} := {1,2,3,4}) && (N == 1);}"));
-		assertTrue(runTest("{({set[int] S1, int N} := {1,2,3,4}) && (N == 2);}"));
-		assertTrue(runTest("{({set[int] S1, int N} := {1,2,3,4}) && (N == 3);}"));
-		assertTrue(runTest("{({set[int] S1, int N} := {1,2,3,4}) && (N == 4);}"));
+		assertTrue(runTest("{({*set[int] S1, int N} := {1,2,3,4}) && (N == 1);}"));
+		assertTrue(runTest("{({*set[int] S1, int N} := {1,2,3,4}) && (N == 2);}"));
+		assertTrue(runTest("{({*set[int] S1, int N} := {1,2,3,4}) && (N == 3);}"));
+		assertTrue(runTest("{({*set[int] S1, int N} := {1,2,3,4}) && (N == 4);}"));
 
 		
-		assertTrue(runTest("{({set[int] S1, int N, set[int] S2} := {1,2,3,4}) && (N == 1);}"));
-		assertTrue(runTest("{({set[int] S1, int N, set[int] S2} := {1,2,3,4}) && (N == 2);}"));
-		assertTrue(runTest("{({set[int] S1, int N, set[int] S2} := {1,2,3,4}) && (N == 3);}"));
-		assertTrue(runTest("{({set[int] S1, int N, set[int] S2} := {1,2,3,4}) && (N == 4);}"));
+		assertTrue(runTest("{({*set[int] S1, int N, *set[int] S2} := {1,2,3,4}) && (N == 1);}"));
+		assertTrue(runTest("{({*set[int] S1, int N, *set[int] S2} := {1,2,3,4}) && (N == 2);}"));
+		assertTrue(runTest("{({*set[int] S1, int N, *set[int] S2} := {1,2,3,4}) && (N == 3);}"));
+		assertTrue(runTest("{({*set[int] S1, int N, *set[int] S2} := {1,2,3,4}) && (N == 4);}"));
 		
-		assertTrue(runTest("{{1, {set[int] S1, int N}, 3} := {1, {1,2,3}, 3};}"));
-		assertTrue(runTest("{{set[int] S1, int N}:= {1,2,3,2} && N == 1;}"));
-		assertTrue(runTest("{{set[int] S1, int N}:= {1,2,3,2} && N == 2;}"));
-		assertTrue(runTest("{{set[int] S1, int N}:= {1,2,3,2} && N == 3;}"));
+		assertTrue(runTest("{{1, {*set[int] S1, int N}, 3} := {1, {1,2,3}, 3};}"));
+		assertTrue(runTest("{{*set[int] S1, int N}:= {1,2,3,2} && N == 1;}"));
+		assertTrue(runTest("{{*set[int] S1, int N}:= {1,2,3,2} && N == 2;}"));
+		assertTrue(runTest("{{*set[int] S1, int N}:= {1,2,3,2} && N == 3;}"));
 		
-		assertTrue(runTest("{{1, {set[int] S1, int N, set[int] S2}, 3} := {1, {1,2,3}, 3};}"));
-//		assertTrue(runTest("{{1, {set[int] S1, int N, set[int] S2}, 3} := {1, {1,2,3}, 3} && N == 1;}"));
-//		assertTrue(runTest("{{1, {set[int] S1, int N, set[int] S2}, 3} := {1, {1,2,3}, 3} && N == 2;}"));
-//		assertTrue(runTest("{{1, {set[int] S1, int N, set[int] S2}, 3} := {1, {1,2,3}, 3} && N == 3;}"));
+		assertTrue(runTest("{{1, {*set[int] S1, int N, *set[int] S2}, 3} := {1, {1,2,3}, 3};}"));
+//		assertTrue(runTest("{{1, {*set[int] S1, int N, *set[int] S2}, 3} := {1, {1,2,3}, 3} && N == 1;}"));
+//		assertTrue(runTest("{{1, {*set[int] S1, int N, *set[int] S2}, 3} := {1, {1,2,3}, 3} && N == 2;}"));
+//		assertTrue(runTest("{{1, {*set[int] S1, int N, *set[int] S2}, 3} := {1, {1,2,3}, 3} && N == 3;}"));
 	}
 	
 	@Test public void and(){

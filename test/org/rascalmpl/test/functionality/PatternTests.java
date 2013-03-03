@@ -386,7 +386,7 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("({a(), f([a(), b(), DATA X7])} := {a(), f([a(),b(),c()])}) && (X7 == c());"));
 
 		assertTrue(runTestInSameEvaluator("([a(), f({a(), b(), DATA X8}), *list[DATA] Y8] := [a(), f({a(),b(),c()}), b()]) && (X8 == c() && Y8 == [b()]);"));
-		assertTrue(runTestInSameEvaluator("({a(), f([a(), b(), DATA X9]), set[DATA] Y9} := {a(), f([a(),b(),c()]), b()}) && (X9 == c() && Y9 == {b()});"));
+		assertTrue(runTestInSameEvaluator("({a(), f([a(), b(), DATA X9]), *set[DATA] Y9} := {a(), f([a(),b(),c()]), b()}) && (X9 == c() && Y9 == {b()});"));
 
 		assertTrue(runTestInSameEvaluator("([DATA A1, f({A1, b(), DATA X10})] := [a(), f({a(),b(),c()})]) && (A1 == a());"));
 		assertTrue(runTestInSameEvaluator("({DATA A2, f([A2, b(), DATA X11])} := {a(), f([a(),b(),c()])}) && (A2 == a());"));
@@ -645,10 +645,10 @@ public class PatternTests extends TestFramework {
 		assertFalse(runTest("{1} := {2};"));
 		assertFalse(runTest("{1,2} := {1,3};"));
 
-		assertTrue(runTest("{ {set[int] X} := {} && X == {};}"));
+		assertTrue(runTest("{ {*set[int] X} := {} && X == {};}"));
 
-		assertTrue(runTest("{ {set[int] X} := {1} && X == {1};}"));
-		assertTrue(runTest("{ {set[int] X} := {1,2} && X == {1,2};}"));
+		assertTrue(runTest("{ {*set[int] X} := {1} && X == {1};}"));
+		assertTrue(runTest("{ {*set[int] X} := {1,2} && X == {1,2};}"));
 		
 		assertTrue(runTest("{ {Y*} := {1,2} && Y == {1,2};}"));
 //TODO: Test related to + multivariables are commented out since they are not yet supported by
@@ -657,7 +657,7 @@ public class PatternTests extends TestFramework {
 //		assertTrue(runTest("{ {Y+} := {1,2} && Y == {1,2};}"));
 		
 		
-		assertTrue(runTest("{ {set[int] _} := {1,2}; }"));
+		assertTrue(runTest("{ {*set[int] _} := {1,2}; }"));
 		assertTrue(runTest("{ {_*} := {1,2}; }"));
 //		assertTrue(runTest("{ {_+} := {1,2}; }"));
 		
@@ -670,7 +670,7 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{set[int] S = {3}; {S, 2, 1} := {1,2,3};}"));
 		assertTrue(runTest("{set[int] S = {2, 3}; {S, 1} := {1,2,3};}"));
 
-		assertTrue(runTest("{ {1, set[int] X, 2} := {1,2} && X == {};}"));
+		assertTrue(runTest("{ {1, *set[int] X, 2} := {1,2} && X == {};}"));
 		assertTrue(runTest("{ {1, X*, 2} := {1,2} && X == {};}"));
 		assertTrue(runTest("{ {1, _*, 2} := {1,2};}"));
 //		assertFalse(runTest("{ {1, X+, 2} := {1,2};}"));
@@ -679,44 +679,44 @@ public class PatternTests extends TestFramework {
 		assertFalse(runTest("{ {1, X*, 2} := {1,3};}"));
 		assertFalse(runTest("{ {1, _*, 2} := {1,3};}"));
 		
-		assertTrue(runTest("{ {1, set[int] X, 2} := {1,2,3} && X == {3};}"));
+		assertTrue(runTest("{ {1, *set[int] X, 2} := {1,2,3} && X == {3};}"));
 		assertTrue(runTest("{ {1, X*, 2} := {1,2,3} && X == {3};}"));
 //		assertTrue(runTest("{ {1, X+, 2} := {1,2,3} && X == {3};}"));
 		assertTrue(runTest("{ {1, _*, 2} := {1,2,3};}"));
 //		assertTrue(runTest("{ {1, _+, 2} := {1,2,3};}"));
 		
-		assertTrue(runTest("{ {1, set[int] X, 2} := {1,2,3,4} && X == {3,4};}"));
+		assertTrue(runTest("{ {1, *set[int] X, 2} := {1,2,3,4} && X == {3,4};}"));
 
-		assertTrue(runTest("{ {set[int] X, set[int] Y} := {} && X == {} && Y == {};}"));
-		assertTrue(runTest("{ {1, set[int] X, set[int] Y} := {1} && X == {} && Y == {};}"));
-		assertTrue(runTest("{ {set[int] X, 1, set[int] Y} := {1} && X == {} && Y == {};}"));
-		assertTrue(runTest("{ {set[int] X, set[int] Y, 1} := {1} && X == {} && Y == {};}"));
+		assertTrue(runTest("{ {*set[int] X, *set[int] Y} := {} && X == {} && Y == {};}"));
+		assertTrue(runTest("{ {1, *set[int] X, *set[int] Y} := {1} && X == {} && Y == {};}"));
+		assertTrue(runTest("{ {*set[int] X, 1, *set[int] Y} := {1} && X == {} && Y == {};}"));
+		assertTrue(runTest("{ {*set[int] X, *set[int] Y, 1} := {1} && X == {} && Y == {};}"));
 
-		assertFalse(runTest("{ {set[int] X, set[int] Y, 1} := {2};}"));
+		assertFalse(runTest("{ {*set[int] X, *set[int] Y, 1} := {2};}"));
 		assertFalse(runTest("{ {X*, Y*, 1} := {2};}"));
 		
-		assertTrue(runTest("{ {set[int] X, set[int] Y} := {1} && ((X == {} && Y == {1}) || (X == {1} && Y == {}));}"));
+		assertTrue(runTest("{ {*set[int] X, *set[int] Y} := {1} && ((X == {} && Y == {1}) || (X == {1} && Y == {}));}"));
 		assertTrue(runTest("{ {X*, Y*} := {1} && ((X == {} && Y == {1}) || (X == {1} && Y == {}));}"));
 
-		assertTrue(runTest("{ {set[int] X, set[int] Y, set[int] Z} := {} && X == {} && Y == {} && Z == {};}"));
+		assertTrue(runTest("{ {*set[int] X, *set[int] Y, *set[int] Z} := {} && X == {} && Y == {} && Z == {};}"));
 		assertTrue(runTest("{ {X*, Y*, Z*} := {} && X == {} && Y == {} && Z == {};}"));
-		assertTrue(runTest("{ {set[int] X, set[int] Y, set[int] Z} := {1} && (X == {1} && Y == {} && Z == {}) || (X == {} && Y == {1} && Z == {}) || (X == {} && Y == {} && Z == {1});}"));
+		assertTrue(runTest("{ {*set[int] X, *set[int] Y, *set[int] Z} := {1} && (X == {1} && Y == {} && Z == {}) || (X == {} && Y == {1} && Z == {}) || (X == {} && Y == {} && Z == {1});}"));
 		assertTrue(runTest("{ {X*, Y*, Z*} := {1} && (X == {1} && Y == {} && Z == {}) || (X == {} && Y == {1} && Z == {}) || (X == {} && Y == {} && Z == {1});}"));
 
-		assertTrue(runTest("{ {int X, set[int] Y} := {1} && X == 1 && Y == {};}"));
-		assertTrue(runTest("{ {set[int] X, int Y} := {1} && X == {} && Y == 1;}"));
+		assertTrue(runTest("{ {int X, *set[int] Y} := {1} && X == 1 && Y == {};}"));
+		assertTrue(runTest("{ {*set[int] X, int Y} := {1} && X == {} && Y == 1;}"));
 		assertTrue(runTest("{ {X*, int Y} := {1} && X == {} && Y == 1;}"));
 //		assertFalse(runTest("{ {X+, int Y} := {1};}"));
-		assertTrue(runTest("{ {set[int] _, int _} := {1}; }"));
+		assertTrue(runTest("{ {*set[int] _, int _} := {1}; }"));
 		assertTrue(runTest("{ {_*, int _} := {1}; }"));
 		assertTrue(runTest("{ {_*, _} := {1}; }"));
 //		assertFalse(runTest("{ {_+, _} := {1}; }"));
 
-		assertTrue(runTest("{ {set[int] X, int Y} := {1, 2} && (X == {1} && Y == 2) || (X == {2} && Y == 1);}"));
+		assertTrue(runTest("{ {*set[int] X, int Y} := {1, 2} && (X == {1} && Y == 2) || (X == {2} && Y == 1);}"));
 		assertTrue(runTest("{ {X*, int Y} := {1, 2} && (X == {1} && Y == 2) || (X == {2} && Y == 1);}"));
 		
-		assertTrue(runTest("{ {set[int] X, int Y} := {1, 2} && (X == {1} && Y == 2) || (X == {2} && Y == 1);}"));
-		assertTrue(runTest("{ {set[int] X, set[real] Y} := { 1, 5.5, 2, 6.5} && (X == {1,2} && Y == {5.5, 6.5});}"));
+		assertTrue(runTest("{ {*set[int] X, int Y} := {1, 2} && (X == {1} && Y == 2) || (X == {2} && Y == 1);}"));
+		assertTrue(runTest("{ {*set[int] X, *set[real] Y} := { 1, 5.5, 2, 6.5} && (X == {1,2} && Y == {5.5, 6.5});}"));
 		assertTrue(runTest("{ {X*, Y*} := { 1, 5.5, 2, 6.5} && (X == {1, 5.5, 2, 6.5} && Y == {});}"));
 		
 		assertTrue(runTest("{ set[int] x = {}; {} := x; }"));
@@ -743,21 +743,21 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("({a(), s({a(), b(), DATA X6})} := {a(), s({a(),b(),c()})}) && (X6 == c());"));
 		assertTrue(runTestInSameEvaluator("({s({a(), b(), DATA X7}), a()} := {a(), s({a(),b(),c()})}) && (X7 == c());"));
 
-		assertTrue(runTestInSameEvaluator("({a(), s({a(), b(), DATA X8}), set[DATA] Y8} := {a(), b(), s({a(),b(),c()})}) && (X8 == c() && Y8 == {b()});"));
+		assertTrue(runTestInSameEvaluator("({a(), s({a(), b(), DATA X8}), *set[DATA] Y8} := {a(), b(), s({a(),b(),c()})}) && (X8 == c() && Y8 == {b()});"));
 		assertTrue(runTestInSameEvaluator("({DATA A1, s({A1, b(), DATA X9})} := {a(), s({a(),b(),c()})}) && (A1 == a());"));
 		assertTrue(runTestInSameEvaluator("({DATA A2, s({A2, b(), DATA X10})} := {s({a(),b(),c()}), a()}) && (A2 == a());"));
 
-		assertTrue(runTestInSameEvaluator("({DATA A3, s({A3, b(), set[DATA] SX1}), SX1} := {a(), s({a(),b(),c()}), c()}) && (A3== a()) && (SX1 =={c()});"));
-		assertTrue(runTestInSameEvaluator("({DATA A4, s({A4, b(), set[DATA] SX2}), SX2} := {s({a(),b(),c()}), a(), c()}) && (A4== a()) && (SX2 =={c()});"));
-		assertTrue(runTestInSameEvaluator("({DATA A5, s({A5, b(), set[DATA] SX3}), SX3} := {c(), s({a(),b(),c()}), a()}) && (A5 == a()) && (SX3 =={c()});"));
+		assertTrue(runTestInSameEvaluator("({DATA A3, s({A3, b(), *set[DATA] SX1}), SX1} := {a(), s({a(),b(),c()}), c()}) && (A3== a()) && (SX1 =={c()});"));
+		assertTrue(runTestInSameEvaluator("({DATA A4, s({A4, b(), *set[DATA] SX2}), SX2} := {s({a(),b(),c()}), a(), c()}) && (A4== a()) && (SX2 =={c()});"));
+		assertTrue(runTestInSameEvaluator("({DATA A5, s({A5, b(), *set[DATA] SX3}), SX3} := {c(), s({a(),b(),c()}), a()}) && (A5 == a()) && (SX3 =={c()});"));
 
-		assertFalse(runTestInSameEvaluator("({DATA A6, s({A6, b(), set[DATA] SX4}), SX4} := {d(), s({a(),b(),c()}), a()});"));
-		assertFalse(runTestInSameEvaluator("({DATA A7, s({A7, b(), set[DATA] SX5}), SX5} := {c(), s({a(),b(),c()}), d()});"));
+		assertFalse(runTestInSameEvaluator("({DATA A6, s({A6, b(), *set[DATA] SX4}), SX4} := {d(), s({a(),b(),c()}), a()});"));
+		assertFalse(runTestInSameEvaluator("({DATA A7, s({A7, b(), *set[DATA] SX5}), SX5} := {c(), s({a(),b(),c()}), d()});"));
 		
 		assertTrue(runTestInSameEvaluator("({DATA A8, s({A8, b()})} := {s({a(),b()}), a()}) && (A8 == a());"));
 		assertTrue(runTestInSameEvaluator("({s({DATA A9, b()}), A9} := {s({a(),b()}), a()});"));
 		assertTrue(runTestInSameEvaluator("({s({DATA A9, b()}), A9} := {s({a(),b()}), a()}) && (A9 == a());"));
-		assertTrue(runTestInSameEvaluator("({s({DATA A10, b(), set[DATA] SX6}), A10, SX6} := {c(), s({a(),b(),c()}), a()}) && (A10 == a()) && (SX6 =={c()});"));
+		assertTrue(runTestInSameEvaluator("({s({DATA A10, b(), *set[DATA] SX6}), A10, SX6} := {c(), s({a(),b(),c()}), a()}) && (A10 == a()) && (SX6 =={c()});"));
 	}
 	
 	@Test
@@ -807,13 +807,13 @@ public class PatternTests extends TestFramework {
 	
 	@Test(expected=StaticError.class)
 	public void matchSetDoubleDeclError() {
-		runTest("{1, set[int] L, 2, set[int] L} := {1,2,3};");
+		runTest("{1, *set[int] L, 2, *set[int] L} := {1,2,3};");
 	}
 	
 	@Test(expected=StaticError.class)
 	@Ignore("This can only be correctly checked by the type checker, the current implementation broke set matching in visits")
 	public void matchSetWrongElemError() {
-		runTest("{1, \"a\", 2, set[int] L} := {1,2,3};");
+		runTest("{1, \"a\", 2, *set[int] L} := {1,2,3};");
 	}	
 	
 	@Test(expected=StaticError.class) @Ignore
@@ -838,7 +838,7 @@ public class PatternTests extends TestFramework {
 	
 	@Test
 	public void matchSetExternalVar() {
-		runTest("{set[int] S; {1, S, 2} := {1,2,3} && S == {3};}");
+		runTest("{set[int] S; {1, *S, 2} := {1,2,3} && S == {3};}");
 	}
 	
 	@Test(expected=StaticError.class)
@@ -1066,7 +1066,7 @@ public class PatternTests extends TestFramework {
 		String cnt = 
 		      "int cnt(set[int] S){" +
 		      "  int count = 0;" +
-		      "  while ({int N, set[int] Ns} := S) { " +
+		      "  while ({int N, *set[int] Ns} := S) { " +
 		      "         count = count + 1;" +
 		      "         S = S - {N};" +
 		      "  }" +
@@ -1081,7 +1081,7 @@ public class PatternTests extends TestFramework {
 		String cnt = 
 		      "int cnt(set[int] S){" +
 		      "  int count = 0;" +
-		      "  while ({int N, set[int] _} := S) { " +
+		      "  while ({int N, *set[int] _} := S) { " +
 		      "         count = count + 1;" +
 		      "         S = S - {N};" +
 		      "  }" +
@@ -1096,7 +1096,7 @@ public class PatternTests extends TestFramework {
 		String cnt = 
 		      "int cnt(set[int] S){" +
 		      "  int count = 0;" +
-		      "  while ({N, set[int] _} := S) { " +
+		      "  while ({N, *set[int] _} := S) { " +
 		      "         count = count + 1;" +
 		      "         S = S - {N};" +
 		      "  }" +
@@ -1109,13 +1109,13 @@ public class PatternTests extends TestFramework {
 	@Test
 	public void nodeMatchBacktracking() {
 		prepare("import List;");
-		runTestInSameEvaluator("{ x = for(\"f\"({int a, int b, set[int] c}) := \"f\"({1,2,3,4})) append <a,b>; size(x) == 12;}"); 
+		runTestInSameEvaluator("{ x = for(\"f\"({int a, int b, *set[int] c}) := \"f\"({1,2,3,4})) append <a,b>; size(x) == 12;}"); 
 	}
 	
 	@Test
 	public void tupleMatchBacktracking() {
 		prepare("import List;");
-		runTestInSameEvaluator("{ x = for(<{int a, int b, set[int] c}> := <{1,2,3,4}>) append <a,b>; size(x) == 12;}"); 
+		runTestInSameEvaluator("{ x = for(<{int a, int b, *set[int] c}> := <{1,2,3,4}>) append <a,b>; size(x) == 12;}"); 
 	}
 	
 	@Test 
