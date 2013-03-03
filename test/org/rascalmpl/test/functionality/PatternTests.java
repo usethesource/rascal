@@ -63,35 +63,40 @@ public class PatternTests extends TestFramework {
 
 		assertTrue(runTest("[1, [2, 3], 4] := [1, [2, 3], 4];"));
 		assertFalse(runTest("[1, [2, 3], 4] := [1, [2, 3, 4], 4];"));
-
-		assertTrue(runTest("([list[int] L] := []) && (L == []);"));
-		assertTrue(runTest("{ list[int] X = []; ([list[int] L] := X) && (L == []); }"));
-		assertTrue(runTest("([list[int] L] := ([1] - [1])) && (L == []);"));
-		assertTrue(runTest("([list[int] L] := [1]) && (L == [1]);"));
-		assertTrue(runTest("([list[int] L] := [1,2]) && (L == [1,2]);"));
-
-		assertTrue(runTest("([1, list[int] L] := [1]) && (L == []);"));
-		assertTrue(runTest("([1, list[int] L] := [1, 2]) && (L == [2]);"));
-		assertTrue(runTest("([1, list[int] L] := [1, 2, 3]) && (L == [2, 3]);"));
-
-		assertTrue(runTest("([list[int] L, 10] := [10]) && (L == []);"));
-		assertTrue(runTest("([list[int] L, 10] := [1,10]) && (L == [1]);"));
-		assertTrue(runTest("([list[int] L, 10] := [1,2,10]) && (L == [1,2]);"));
-
-		assertTrue(runTest("([1, list[int] L, 10] := [1,10]) && (L == []);"));
-		assertTrue(runTest("([1, list[int] L, 10] := [1,2,10]) && (L == [2]);"));
-		assertTrue(runTest("([1, list[int] L, 10, list[int] M, 20] := [1,10,20]) && (L == []) && (M == []);"));
-		assertTrue(runTest("([1, list[int] L, 10, list[int] M, 20] := [1,2,10,20]) && (L == [2]) && (M == []);"));
-		assertTrue(runTest("([1, list[int] L, 10, list[int] M, 20] := [1,2,10,3,20]) && (L == [2]) && (M==[3]);"));
-		assertTrue(runTest("([1, list[int] L, 10, list[int] M, 20] := [1,2,3,10,4,5,20]) && (L == [2,3]) && (M==[4,5]);"));
 		
-		assertTrue(runTest("([1, list[int] L, 10, L, 20] := [1,2,3,10,2,3,20]) && (L == [2,3]);"));
-		assertFalse(runTest("([1, list[int] L, 10, L, 20] := [1,2,3,10,2,4,20]);"));
+		assertTrue(runTest("([list[int] L] := [[]]) && (L == []);"));
+		assertTrue(runTest("([1, list[int] L] := [1, [2]]) && (L == [2]);"));
+		assertTrue(runTest("([1, list[int] L, 10] := [1,[],10]) && (L == []);"));
+		assertTrue(runTest("([1, list[int] L, 10] := [1,[2],10]) && (L == [2]);"));
+
+		assertTrue(runTest("([*list[int] L] := []) && (L == []);"));
+		assertTrue(runTest("{ list[int] X = []; ([*list[int] L] := X) && (L == []); }"));
+		assertTrue(runTest("([*list[int] L] := ([1] - [1])) && (L == []);"));
+		assertTrue(runTest("([*list[int] L] := [1]) && (L == [1]);"));
+		assertTrue(runTest("([*list[int] L] := [1,2]) && (L == [1,2]);"));
+
+		assertTrue(runTest("([1, *list[int] L] := [1]) && (L == []);"));
+		assertTrue(runTest("([1, *list[int] L] := [1, 2]) && (L == [2]);"));
+		assertTrue(runTest("([1, *list[int] L] := [1, 2, 3]) && (L == [2, 3]);"));
+
+		assertTrue(runTest("([*list[int] L, 10] := [10]) && (L == []);"));
+		assertTrue(runTest("([*list[int] L, 10] := [1,10]) && (L == [1]);"));
+		assertTrue(runTest("([*list[int] L, 10] := [1,2,10]) && (L == [1,2]);"));
+
+		assertTrue(runTest("([1, *list[int] L, 10] := [1,10]) && (L == []);"));
+		assertTrue(runTest("([1, *list[int] L, 10] := [1,2,10]) && (L == [2]);"));
+		assertTrue(runTest("([1, *list[int] L, 10, *list[int] M, 20] := [1,10,20]) && (L == []) && (M == []);"));
+		assertTrue(runTest("([1, *list[int] L, 10, *list[int] M, 20] := [1,2,10,20]) && (L == [2]) && (M == []);"));
+		assertTrue(runTest("([1, *list[int] L, 10, *list[int] M, 20] := [1,2,10,3,20]) && (L == [2]) && (M==[3]);"));
+		assertTrue(runTest("([1, *list[int] L, 10, *list[int] M, 20] := [1,2,3,10,4,5,20]) && (L == [2,3]) && (M==[4,5]);"));
 		
-		assertTrue(runTest("[list[int] _] := [];"));
-		assertTrue(runTest("[list[int] _] := [1];"));
-		assertTrue(runTest("[list[int] _] := [1,2];"));
-		assertTrue(runTest("([1, list[int] _, 10, list[int] _, 20] := [1,2,10,20]);"));
+		assertTrue(runTest("([1, *list[int] L, 10, L, 20] := [1,2,3,10,2,3,20]) && (L == [2,3]);"));
+		assertFalse(runTest("([1,*list[int] L, 10, L, 20] := [1,2,3,10,2,4,20]);"));
+		
+		assertTrue(runTest("[*list[int] _] := [];"));
+		assertTrue(runTest("[*list[int] _] := [1];"));
+		assertTrue(runTest("[*list[int] _] := [1,2];"));
+		assertTrue(runTest("([1, *list[int] _, 10, *list[int] _, 20] := [1,2,10,20]);"));
 		
 	//	assertTrue(runTest("([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);"));
 	}
@@ -263,17 +268,17 @@ public class PatternTests extends TestFramework {
 
 		assertTrue(runTestInSameEvaluator("([a(), f([a(), b(), DATA X6])] := [a(), f([a(),b(),c()])]) && (X6 == c());"));
 
-		assertTrue(runTestInSameEvaluator("([a(), f([a(), b(), DATA X7]), list[DATA] Y7] := [a(), f([a(),b(),c()]), b()]) && (X7 == c() && Y7 == [b()]);"));
+		assertTrue(runTestInSameEvaluator("([a(), f([a(), b(), DATA X7]), *list[DATA] Y7] := [a(), f([a(),b(),c()]), b()]) && (X7 == c() && Y7 == [b()]);"));
 		assertTrue(runTestInSameEvaluator("([DATA A1, f([A1, b(), DATA X8])] := [a(), f([a(),b(),c()])]) && (A1 == a());"));
 		assertTrue(runTestInSameEvaluator("([A1, f([A1, b(), DATA X8])] := [a(), f([a(),b(),c()])]) && (A1 == a());"));
 		
 		assertTrue(runTestInSameEvaluator("([f([DATA A1, b(), DATA X8]), A1] := [f([a(),b(),c()]), a()]) && (A1 == a());"));
 		assertTrue(runTestInSameEvaluator("([f([A1, b(), DATA X8]), A1] := [f([a(),b(),c()]), a()]) && (A1 == a());"));
 
-		assertTrue(runTestInSameEvaluator("([DATA A2, f([A2, b(), list[DATA] SX1]), SX1] := [a(), f([a(),b(),c()]), c()]) && (A2 == a()) && (SX1 ==[c()]);"));
+		assertTrue(runTestInSameEvaluator("([DATA A2, f([A2, b(), *list[DATA] SX1]), SX1] := [a(), f([a(),b(),c()]), c()]) && (A2 == a()) && (SX1 ==[c()]);"));
 
-		assertFalse(runTestInSameEvaluator("([DATA A3, f([A3, b(), list[DATA] SX2]), SX2] := [d(), f([a(),b(),c()]), a()]);"));
-		assertFalse(runTestInSameEvaluator("([DATA A4, f([A4, b(), list[DATA] SX3]), SX3] := [c(), f([a(),b(),c()]), d()]);"));
+		assertFalse(runTestInSameEvaluator("([DATA A3, f([A3, b(), *list[DATA] SX2]), SX2] := [d(), f([a(),b(),c()]), a()]);"));
+		assertFalse(runTestInSameEvaluator("([DATA A4, f([A4, b(), *list[DATA] SX3]), SX3] := [c(), f([a(),b(),c()]), d()]);"));
 
 	}
 	
@@ -300,7 +305,7 @@ public class PatternTests extends TestFramework {
 	
 	@Test(expected=RedeclaredVariable.class)
 	public void matchListError12() {
-		runTest("{list[int] x = [1,2,3]; [1, list[int] L, 2, list[int] L] := x;}");
+		runTest("{list[int] x = [1,2,3]; [1, *list[int] L, 2, *list[int] L] := x;}");
 	}
 	
 	public void matchListError1() {
@@ -380,7 +385,7 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("([a(), f({a(), b(), DATA X6})] := [a(), f({a(),b(),c()})]) && (X6 == c());"));
 		assertTrue(runTestInSameEvaluator("({a(), f([a(), b(), DATA X7])} := {a(), f([a(),b(),c()])}) && (X7 == c());"));
 
-		assertTrue(runTestInSameEvaluator("([a(), f({a(), b(), DATA X8}), list[DATA] Y8] := [a(), f({a(),b(),c()}), b()]) && (X8 == c() && Y8 == [b()]);"));
+		assertTrue(runTestInSameEvaluator("([a(), f({a(), b(), DATA X8}), *list[DATA] Y8] := [a(), f({a(),b(),c()}), b()]) && (X8 == c() && Y8 == [b()]);"));
 		assertTrue(runTestInSameEvaluator("({a(), f([a(), b(), DATA X9]), set[DATA] Y9} := {a(), f([a(),b(),c()]), b()}) && (X9 == c() && Y9 == {b()});"));
 
 		assertTrue(runTestInSameEvaluator("([DATA A1, f({A1, b(), DATA X10})] := [a(), f({a(),b(),c()})]) && (A1 == a());"));
@@ -890,10 +895,10 @@ public class PatternTests extends TestFramework {
 	@Test
 	public void matchTypedVariableBecomes() {
 		assertTrue(runTest("{int N : 3 := 3 && N == 3;}"));
-		assertTrue(runTest("{list[int] L1 : [int N, list[int] L2, int M] := [1,2,3] && L1 == [1,2,3] && N == 1 && L2 == [2] && M == 3;}"));
+		assertTrue(runTest("{list[int] L1 : [int N, *list[int] L2, int M] := [1,2,3] && L1 == [1,2,3] && N == 1 && L2 == [2] && M == 3;}"));
 		assertTrue(runTest("{[1, list[int] L: [int N], 2] := [1,[2],2] && L == [2];}"));
-		assertTrue(runTest("{[1, list[int] L1: [list[int] L2, int N], 5] := [1,[2,3,4],5] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
-		assertTrue(runTest("{[1, list[int] L1: [list[int] L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
+		assertTrue(runTest("{[1, list[int] L1: [*list[int] L2, int N], 5] := [1,[2,3,4],5] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
+		assertTrue(runTest("{[1, list[int] L1: [*list[int] L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
 	}
 	
 	@Test(expected=StaticError.class)
@@ -914,10 +919,10 @@ public class PatternTests extends TestFramework {
 	@Test
 	public void matchVariableBecomes() {
 		assertTrue(runTest("{N : 3 := 3 && N == 3;}"));
-		assertTrue(runTest("{L1 : [int N, list[int] L2, int M] := [1,2,3] && L1 == [1,2,3] && N == 1 && L2 == [2] && M == 3;}"));
+		assertTrue(runTest("{L1 : [int N, *list[int] L2, int M] := [1,2,3] && L1 == [1,2,3] && N == 1 && L2 == [2] && M == 3;}"));
 		assertTrue(runTest("{[1, L: [int N], 2] := [1,[2],2] && L == [2];}"));
-		assertTrue(runTest("{[1, L1: [list[int] L2, int N], 5] := [1,[2,3,4],5] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
-		assertTrue(runTest("{[1, L1: [list[int] L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
+		assertTrue(runTest("{[1, L1: [*list[int] L2, int N], 5] := [1,[2,3,4],5] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
+		assertTrue(runTest("{[1, L1: [*list[int] L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
 	}
 	
 	public void variableBecomesEquality(){
@@ -1013,7 +1018,7 @@ public class PatternTests extends TestFramework {
 		String cnt = 
 		      "int cnt(list[int] L){" +
 		      "  int count = 0;" +
-		      "  while ([int N, list[int] Ns] := L) { " +
+		      "  while ([int N, *list[int] Ns] := L) { " +
 		      "         count = count + 1;" +
 		      "         L = tail(L);" +
 		      "  }" +
@@ -1029,7 +1034,7 @@ public class PatternTests extends TestFramework {
 		String cnt = 
 		      "int cnt(list[int] L){" +
 		      "  int count = 0;" +
-		      "  while ([int N, list[int] _] := L) { " +
+		      "  while ([int N, *list[int] _] := L) { " +
 		      "         count = count + 1;" +
 		      "         L = tail(L);" +
 		      "  }" +
@@ -1045,7 +1050,7 @@ public class PatternTests extends TestFramework {
 		String cnt = 
 		      "int cnt(list[int] L){" +
 		      "  int count = 0;" +
-		      "  while ([N, list[int] _] := L) { " +
+		      "  while ([N, *list[int] _] := L) { " +
 		      "         count = count + 1;" +
 		      "         L = tail(L);" +
 		      "  }" +
