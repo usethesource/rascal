@@ -107,7 +107,12 @@ public class QuickCheck {
 			}
 			boolean expectedThrown = false;
 			try {
-				IValue result = function.call(types, values, null).getValue();
+				Type[] actualTypes = new Type[formals.getArity()];
+				for(int j = 0; j < types.length; j ++) {
+					actualTypes[j] = types[j].instantiate(tpbindings);
+				}
+				IValue result = function.call(actualTypes, values, null).getValue();
+				function.getEval().getStdOut().flush();
 				if (!((IBool) result).getValue()) {
 					reportFailed("Test returns false", tpbindings, formals, values, out);
 					return false;

@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/Prelude/ParseTree/implode</title>
 
-<meta name="description" content="Rascal/Libraries/Prelude/ParseTree/implode:  Implode a parse tree according to a given ADT.">
+<meta name="description" content="Rascal/Libraries/Prelude/ParseTree/implode:  Implode a parse tree according to a given (ADT) type.">
 
 <meta name="keywords" content="Rascal/Libraries/Prelude/ParseTree/implode, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Implode a parse tree according to a given ADT.
+<span class="sectionHead">Synopsis</span>  Implode a parse tree according to a given (ADT) type.
 
 </div>
 
@@ -52,7 +52,7 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>&amp;T&lt;:node implode(type[&amp;T&lt;:node] t, Tree tree)</code>
+<span class="sectionHead">Function</span>  <code>&amp;T&lt;:value implode(type[&amp;T&lt;:value] t, Tree tree)</code>
 
 </div>
 
@@ -79,12 +79,14 @@
 <li> While a language has one grammar (also known as, <i>concrete syntax</i>) it may have several abstract syntaxes   for different purposes: type analysis, code generation, etc.
 </li>
 </ul> The function <code>implode</code> bridges the gap between parse tree and abstract syntax tree.
- Given a parse tree and the type of an ADT it traverses them simultaneously and constructs
- an abstract syntax tree (a value of the given ADT type) as follows:
+ Given a parse tree and a Rascal type it traverses them simultaneously and constructs
+ an abstract syntax tree (a value of the given type) as follows:
   <ol><li> Literals, layout and empty (i.e. ()) nodes are skipped.</li>
 <li> Regular */+ lists are imploded to <code>list</code>s or <code>set</code>s depending on what is    expected in the ADT.
 </li>
 <li> Ambiguities are imploded to <code>set</code>s.</li>
+<li> If the expected type is <code>str</code> the tree is unparsed into a string. This happens for both    lexical and context-free parse trees.
+</li>
 <li> If a tree's production has no label and a single AST (i.e. non-layout, non-literal) argument   (for instance, an injection), the tree node is skipped, and implosion continues 
    with the lone argument. The same applies to bracket productions, even if they
    are labeled.
@@ -99,6 +101,9 @@
 </li>
 <li> For trees with (cons-)labeled productions, the corresponding constructor   in the ADT corresponding to the non-terminal of the production is found in
    order to make the AST.
+</li>
+<li> If the provided type is <code>node</code>, (cons-)labeled trees will be imploded to untyped <code>node</code>s.   This means that any subtrees below it will be untyped nodes (if there is a label), tuples of 
+   nodes (if a label is absent), and strings for lexicals. 
 </li>
 <li> Unlabeled lexicals are imploded to str, int, real, bool depending on the expected type in   the ADT. To implode lexical into types other than str, the PDB parse functions for 
    integers and doubles are used. Boolean lexicals should match "true" or "false". 

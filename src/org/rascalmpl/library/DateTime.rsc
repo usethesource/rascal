@@ -7,9 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
-//@doc{
-//Synopsis: DataTime libraryf
-//}
+
 module DateTime
 
 import List;
@@ -453,6 +451,20 @@ daysInInterval(I);
 public int daysInInterval(interval i) {
 	return daysDiff(i.begin,i.end);
 }
+
+@doc{
+Synopsis: Return the difference between two dates and/or datetimes in days.
+
+Examples:
+<screen>
+import DateTime;
+B = now();
+E = incrementDays(B, 2);
+daysDiff(B, E);
+</screen>
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java int daysDiff(datetime begin, datetime end);
 
 @doc{
 Synopsis: Given an interval, return a list of days.

@@ -25,5 +25,5 @@ public Formula or({Formula x}) = x;
 public Formula and({Formula x}) = x;
 public Formula and(Formula a, Formula b) = and({a,b});
 public Formula or(Formula a, Formula b) = or({a,b});
-public Formula and({set[Formula] a, and(set[Formula] b)}) = and(a + b);
-public Formula or({set[Formula] a, or(set[Formula] b)}) = or(a + b);
+public Formula and({*Formula a, and(set[Formula] b)}) = and(a + b);
+public Formula or({*Formula a, or(set[Formula] b)}) = or(a + b);

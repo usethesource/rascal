@@ -43,7 +43,9 @@ import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -284,14 +286,27 @@ public class TraversalEvaluator {
 		}
 
 		if (tr.changed) {
-			Type t = cons.getConstructorType();
-			IConstructor rcons = eval.getValueFactory().constructor(t, args);
+		  IConstructor rcons;
+		  
+		  try {
+		    rcons = (IConstructor) eval.call(cons.getType().getName(), cons.getName(), args);
+		  }
+		  catch (UndeclaredFunction | ArgumentsMismatch e) {
+		    // This may happen when visiting data constructors dynamically which are not 
+		    // defined in the current scope. For example, when data was serialized and the format
+		    // has changed in the meantime. We issue a warning, because it is indicative of a bug
+		    // and normalizing "rewrite rules" will not trigger at all, but we can gracefully continue 
+		    // because we know what the tree looked like before we started visiting.
+		    eval.warning("In visit: " + e.getMessage(), eval.getCurrentAST().getLocation());
+		    rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(), args);
+		  }
+		  
+		  if (cons.hasAnnotations()) {
+		    rcons = rcons.setAnnotations(cons.getAnnotations());
+		  }
+		    
 
-			if (cons.hasAnnotations()) {
-				rcons = rcons.setAnnotations(cons.getAnnotations());
-			}
-
-			return rcons;
+		    return rcons;
 		}
 		else {
 			return subject;
@@ -511,7 +526,7 @@ public class TraversalEvaluator {
 					} 
 					else if (lastPattern instanceof LiteralPattern || lastPattern instanceof TypedVariablePattern){
 						start = 0;
-						end = ((IString)repl).getValue().length();
+						end = subjectString.length();
 					} 
 					else {
 						throw new SyntaxError("Illegal pattern " + lastPattern + " in string visit", eval.getCurrentAST().getLocation());

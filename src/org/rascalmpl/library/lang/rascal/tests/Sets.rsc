@@ -5,6 +5,9 @@ import List;
 import Relation;
 import Map;
 import IO;
+import Type;
+
+public test bool eqSet(value a, value b) = eq(a,b) <==> size({a,b}) == 1;
 
 // Set operators
 
@@ -119,5 +122,24 @@ public test bool tst_toMapUnique(set[int] D, set[int] R) {
 
 // toString
 
-
-
+//// Tests that check the correctness of the dynamic types of sets produced by the library functions; 
+//// incorrect dynamic types make pattern matching fail;
+//
+//public test bool dtstDifference(set[&T] s) {
+//	if(isEmpty(s)) return true;
+//	bool check = true;
+//	for(int i <- [0..size(s)]) {
+//		&T elem = getOneFrom(s);
+//		check = check && (typeOf(s - {elem}) == typeOf({ el | &T el <- s, el != elem }));
+//	}
+//	return check;
+//}
+//
+//public test bool dtstIntersection(set[&T] s) {
+//	if(isEmpty(s)) return true;
+//	set[set[&T]] subs = power(s);
+//	bool check = true;
+//	for(set[&T] sub <- subs)
+//		check = check && (typeOf(s & sub) == typeOf({ el | &T el <- s, el in sub }));	
+//	return check;
+//}

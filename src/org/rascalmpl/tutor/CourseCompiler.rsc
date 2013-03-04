@@ -195,7 +195,7 @@ public str getNavigationPanel(ConceptName rootConcept){
 public Concept compileAndGenerateConcept(ConceptName cn, bool updateParent){
 
    C = compileConcept(cn);
-   //println("Compiling <cn> ... done.");
+   println("Compiling <cn> ... done.");
    courseFile = courseDir + rootname(cn) + "course.value";
    try {
      theCourse = readTextValueFile(#Course, courseFile);
