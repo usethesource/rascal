@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Anastasia Izmaylova - A.Izmaylova@cwi.nl}
-@doc{This is a malicious Oberon0ToC prettyprinter :-): it compiles to Oberon0 to C string replacing all the integer literals with their sum}
+@doc{This is a malicious Oberon0ToC prettyprinter :-): it compiles Oberon0 to C string replacing all the integer literals with their sum over the entire program}
 module lang::oberon0::AttrAlgebraicToCv2
 
 import lang::oberon0::AST;
