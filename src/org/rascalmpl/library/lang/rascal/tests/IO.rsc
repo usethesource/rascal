@@ -3,7 +3,7 @@ module lang::rascal::tests::IO
 import IO;
 import ValueIO;
 
-private loc aFile = |cwd:///rascal-test/wr.txt|;
+private loc aFile = |tmp:///rascal-test/wr.txt|;
 
 public test bool writeReadFile(str content) {
   writeFile(aFile, content);

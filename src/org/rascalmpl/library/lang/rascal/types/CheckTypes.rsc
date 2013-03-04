@@ -32,6 +32,7 @@ import lang::rascal::types::ConvertType;
 import lang::rascal::types::TypeSignature;
 import lang::rascal::types::TypeInstantiation;
 import lang::rascal::checker::ParserHelper;
+import lang::rascal::grammar::definition::Symbols;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -863,6 +864,23 @@ public CheckResult checkExp(Expression exp:(Expression)`type ( <Expression es> ,
         return markLocationFailed(c,exp@\loc,collapseFailTypes({t1,t2}));
     else
         return markLocationType(c,exp@\loc,\type(\value()));
+}
+
+@doc{Check the types of Rascal expressions: Concete Syntax Fragments (TODO)}
+public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, Configuration c) {
+  set[Symbol] failures = { };
+  
+  for ((ConcreteHole) `\<<Sym s> <Name n>\>` <- concrete.parts) {
+    <c, p2> = checkExp((Expression) `<Name n>`, c);
+    // TODO: check if return type is indeed of type s
+    if (isFailType(t1)) failures += t1;  
+  }
+  
+  if (size(failures) > 0)
+    return markLocationFailed(c, exp@\loc, failures);
+  
+  // TODO: lookup type names in the symbol, whether they are lex, layout, keyword or cf  
+  return <c, sym2symbol(concrete.symbol)>;  
 }
 
 @doc{Check the types of Rascal expressions: CallOrTree}
@@ -2727,6 +2745,7 @@ data PatternTree
     | mapNode(list[MapNodeInfo] mapChildren)
     | reifiedTypeNode(PatternTree s, PatternTree d)
     | callOrTreeNode(PatternTree head, list[PatternTree] args)
+    | concreteSyntaxNode(Symbol rtype, list[PatternTree] args)
     | varBecomesNode(RName name, loc at, PatternTree child)
     | asTypeNode(Symbol rtype, PatternTree child)
     | deepNode(PatternTree child)
@@ -2835,6 +2854,13 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
     < c, pti1 > = extractPatternTree(s,c);
     < c, pti2 > = extractPatternTree(d,c);
     return < c, reifiedTypeNode(pti1,pti2)[@at = pat@\loc] >;
+}
+public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
+  // TODO: make sure that c is used to find out whether sym is cf, lex, layout or keyword
+  psList = [ typedNameNode(convertName(n), n@\loc, sym2symbol(sym))[@at = n@\loc] | (ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts];
+  
+  // TODO: same for the outermost type find out whether it is lex, cf, layout or keyword
+  return <c, concreteSyntaxNode(sym2symbol(concrete.sym, psList))>;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> )`, Configuration c) { 
     < c, pti > = extractPatternTree(p,c);

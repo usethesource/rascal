@@ -67,18 +67,7 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import vis::Figure;
 ok
 <span class="prompt">rascal></span>fontNames();
-|std:///vis/Figure.rsc|(4215,128,&lt;145,0>,&lt;147,34>): Java("SWTException","Invalid thread access")
-	at org.eclipse.swt.SWT.error(|file:///SWT.java|(0,0,&lt;4361,0>,&lt;4361,0>))
-	at org.eclipse.swt.SWT.error(|file:///SWT.java|(0,0,&lt;4276,0>,&lt;4276,0>))
-	at org.eclipse.swt.SWT.error(|file:///SWT.java|(0,0,&lt;4247,0>,&lt;4247,0>))
-	at org.eclipse.swt.widgets.Display.error(|file:///Display.java|(0,0,&lt;1068,0>,&lt;1068,0>))
-	at org.eclipse.swt.widgets.Display.checkDevice(|file:///Display.java|(0,0,&lt;621,0>,&lt;621,0>))
-	at org.eclipse.swt.graphics.Device.getFontList(|file:///Device.java|(0,0,&lt;365,0>,&lt;365,0>))
-	at org.rascalmpl.library.vis.swt.SWTFontsAndColors.fontNames(|file:///SWTFontsAndColors.java|(0,0,&lt;54,0>,&lt;54,0>))
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(|file:///NativeMethodAccessorImpl.java|(0,0,&lt;0,0>,&lt;0,0>))
-	at fontNames(|stdin:///|(0,9,&lt;1,0>,&lt;1,9>))
-
-
+|stdin:///|(0,9,&lt;1,0>,&lt;1,9>): Undeclared variable: fontNames
 </pre> The available fonts (on the machine on which this page was generated) are
  <xfigure f1.png>
  //samples =  [ text(f, font(f), fontSize(12), left()) | f &lt;- fontNames()];
