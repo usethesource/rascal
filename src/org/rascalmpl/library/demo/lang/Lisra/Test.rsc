@@ -2,7 +2,6 @@ module demo::lang::Lisra::Test
 
 import demo::lang::Lisra::Runtime;
 import demo::lang::Lisra::Eval;
-import demo::lang::Lisra::Console;
 
 public test bool t01() =  eval("42").val == Integer(42);
 public test bool t02() =  eval("x").val == Atom("x");

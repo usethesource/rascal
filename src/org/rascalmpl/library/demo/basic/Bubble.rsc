@@ -31,7 +31,7 @@ public list[int] sort1(list[int] Numbers){
 
 public list[int] sort2(list[int] Numbers){
   switch(Numbers){
-    case [list[int] Nums1, int P, int Q, list[int] Nums2]:
+    case [*int Nums1, int P, int Q, *int Nums2]:
        if(P > Q){
           return sort2(Nums1 + [Q, P] + Nums2);
        } else {
@@ -44,7 +44,7 @@ public list[int] sort2(list[int] Numbers){
 // sort3: uses list matching and while
 
 public list[int] sort3(list[int] Numbers){
-  while([list[int] Nums1, int P, list[int] Nums2, int Q, list[int] Nums3] := Numbers && P > Q)
+  while([*int Nums1, int P, *int Nums2, int Q, *int Nums3] := Numbers && P > Q)
         Numbers = Nums1 + [Q] + Nums2 + [P] + Nums3;
   return Numbers;
 }
@@ -59,7 +59,7 @@ public list[int] sort4(list[int] Numbers){
 }
 
 // sort5: using recursion instead of iteration, and splicing instead of concat
-public list[int] sort5([list[int] Nums1, int P, list[int] Nums2, int Q, list[int] Nums3]) {
+public list[int] sort5([*int Nums1, int P, *int Nums2, int Q, *int Nums3]) {
   if (P > Q) 
     return sort5([*Nums1, Q, *Nums2, P, *Nums3]); 
   else 
@@ -69,7 +69,7 @@ public list[int] sort5([list[int] Nums1, int P, list[int] Nums2, int Q, list[int
 public default list[int] sort5(list[int] x) = x;
 
 // finally, sort 6 inlines the condition into a when:
-public list[int] sort6([list[int] Nums1, int P, list[int] Nums2, int Q, list[int] Nums3]) 
+public list[int] sort6([*int Nums1, int P, *int Nums2, int Q, *int Nums3]) 
   = sort6([*Nums1, Q, *Nums2, P, *Nums3])
   when P > Q; 
 

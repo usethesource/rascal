@@ -35,7 +35,7 @@ import org.rascalmpl.parser.gtd.IGTD;
 
 
 /**
- * The global environment represents the stack and the heap of Rascal.
+ * The global environment represents the heap of Rascal.
  * The stack is initialized with a bottom frame, which represent the shell
  * environment.
  * 
@@ -51,6 +51,8 @@ public class GlobalEnvironment {
 	/** Keeping track of generated parsers */
 	private final HashMap<String,ParserTuple> objectParsersForModules = new HashMap<String,ParserTuple>();
 	private final HashMap<String,ParserTuple> rascalParsersForModules = new HashMap<String,ParserTuple>();
+
+  private boolean bootstrapper;
 	
 	public void clear() {
 		moduleEnvironment.clear();
@@ -247,4 +249,12 @@ public class GlobalEnvironment {
 		}
 		return null;
 	}
+
+	public void isBootstrapper(boolean b) {
+	  this.bootstrapper = b;
+	}
+	
+  public boolean isBootstrapper() {
+    return bootstrapper;
+  }
 }

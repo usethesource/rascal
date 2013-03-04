@@ -21,6 +21,8 @@ import util::Reflective;
 import ParseTree;
 import Node;
 
+list[loc] libSearchPath = [|std:///|, |eclipse-std:///|];
+
 // Rascal utilities
 // ------------------ Extract and replace concepts from Rascal sources external to the Tutor ----------------
 
@@ -280,7 +282,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   //println("extractRemoteConcepts: <L>, <L1>, <root>");
 
   try {
-    Module M = parseModule(readFile(L1), L1).top;
+    Module M = parseModule(L1, libSearchPath).top;
   
  
   declarations = [];
@@ -333,7 +335,7 @@ public str extractDoc(loc L, str itemName){
  // L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
   L1 = L.top;
   //println("extractDoc: <L1>, <itemName>");
-  Module M = parseModule(readFile(L1), L1).top;
+  Module M = parseModule(L1, libSearchPath).top;
   Header header = M.header;
   moduleName = basename(normalizeName("<header.name>")); 
   if(moduleName == itemName) 
@@ -390,7 +392,7 @@ public bool replaceDoc(loc L, str itemName, str newDocContent){
   L1 = L.top;
   //println("replaceDoc: <L1>, <itemName>, <newDocContent>");
   oldFileContent = readFile(L1);
-  M = parseModule(oldFileContent, L1);
+  M = parseModule(L1, libSearchPath);
   newDocContent = removeAUTOINSERTED(newDocContent);
   top-down visit(M){
     case Header header: 

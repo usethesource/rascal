@@ -7,18 +7,20 @@
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module lang::box::util::Parse
+
 import lang::box::\syntax::Box;
 import lang::box::util::Box;
 // import lang::box::util::BoxFormat;
-import lang::box::util::Concrete;
+// import lang::box::util::Concrete;
 import IO;
 import List;
 import String;
 import ParseTree;
+
 Box annotateBox(Box b,list[Tree] tl) {
   for (Tree t<-tl) {
     if (SpaceOption so:=t) {
-      if (`<SpaceSymbol sp> = <NatCon n>`:=so) {
+      if ((SpaceOption) `<SpaceSymbol sp> = <NatCon n>`:=so) {
         switch (sp) {
           case hs: b@hs = toInt("<n>");
           case vs: b@vs = toInt("<n>");
@@ -33,34 +35,34 @@ Box annotateBox(Box b,list[Tree] tl) {
 
 Box getUserDefined(Tree q) {
   if (StrCon a:=q) { return L("<a>"); }
-  if (`<BoxOperator op> [ <Boxx* boxs> ]`:=q) {
+  if ((Boxx) `<BoxOperator op> [ <Boxx* boxs> ]`:=q) {
     switch (op) {
-      case `H <SpaceOption* s>`: return annotateBox(H(getArgs(boxs)),getA(s));
-      case `V <SpaceOption* s>`: return annotateBox(V(getArgs(boxs)),getA(s));
-      case `HV <SpaceOption* s>`: return annotateBox(HV(getArgs(boxs)),getA(s));
-      case `HOV <SpaceOption* s>`: return annotateBox(HOV(getArgs(boxs)),getA(s));
-      case `WD`: return WD(getArgs(boxs));
-      case `I <SpaceOption* s>`: return annotateBox(HOV(getArgs(boxs)),getA(s));
-      case `A <AlignmentOptions alignments> <SpaceOption* s>`:
-           if (`( <{AlignmentOption ","}* at> )`:=alignments) {
+      case (BoxOperator)`H <SpaceOption* s>`: return annotateBox(H(getArgs(boxs)),getA(s));
+      case (BoxOperator)`V <SpaceOption* s>`: return annotateBox(V(getArgs(boxs)),getA(s));
+      case (BoxOperator)`HV <SpaceOption* s>`: return annotateBox(HV(getArgs(boxs)),getA(s));
+      case (BoxOperator)`HOV <SpaceOption* s>`: return annotateBox(HOV(getArgs(boxs)),getA(s));
+      case (BoxOperator)`WD`: return WD(getArgs(boxs));
+      case (BoxOperator)`I <SpaceOption* s>`: return annotateBox(HOV(getArgs(boxs)),getA(s));
+      case (BoxOperator)`A <AlignmentOptions alignments> <SpaceOption* s>`:
+           if ((AlignmentOptions) `( <{AlignmentOption ","}* at> )`:=alignments) {
              list[Tree] as = getA(at);
              Box b = annotateBox(A(getArgs(boxs)),getA(s));
              b@format = ["<al>"|Tree t<-as,AlignmentOption al:=t];
              return b;
              }
-      case `R`: return R(getArgs(boxs));
+      case (BoxOperator) `R`: return R(getArgs(boxs));
       }
     }
-  if (`<FontOperator op> [ <Boxx* boxs> ]`:=q) {
+  if ((Boxx) `<FontOperator op> [ <Boxx* boxs> ]`:=q) {
     list[Box] bs = getArgs(boxs);
     switch (op) {
-      case `KW`: return KW(bs);
-      case `VAR`: return VR(bs);
-      case `NUM`: return NM(bs);
-      case `STRING`: return SG(bs);
-      case `ESC`: return SC(bs);
-      case `COMM`: return CT(bs);
-      case `MATH`: return MT(bs);
+      case (FontOperator) `KW`: return KW(bs);
+      case (FontOperator)`VAR`: return VR(bs);
+      case (FontOperator)`NUM`: return NM(bs);
+      case (FontOperator)`STRING`: return SG(bs);
+      case (FontOperator)`ESC`: return SC(bs);
+      case (FontOperator)`COMM`: return CT(bs);
+      case (FontOperator)`MATH`: return MT(bs);
       }
     }
   return NULL();

@@ -96,7 +96,7 @@ private Production prod2prod(Symbol nt, Prod p) {
 }
 
 @doc{"..." in a choice is a no-op}   
-public Production choice(Symbol s, {set[Production] a, others(Symbol t)}) {
+public Production choice(Symbol s, {*Production a, others(Symbol t)}) {
   if (a == {})
     return others(t);
   else
@@ -104,5 +104,5 @@ public Production choice(Symbol s, {set[Production] a, others(Symbol t)}) {
 }
 
 @doc{This implements the semantics of "..." under a priority group}
-public Production choice(Symbol s, {set[Production] a, priority(Symbol t, [list[Production] b, others(Symbol u), list[Production] c])}) 
+public Production choice(Symbol s, {*Production a, priority(Symbol t, [*Production b, others(Symbol u), *Production c])}) 
   = priority(s, b + [choice(s, a)] + c);

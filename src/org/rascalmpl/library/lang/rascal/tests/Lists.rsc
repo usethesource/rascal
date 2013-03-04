@@ -2,8 +2,11 @@ module lang::rascal::tests::Lists
 
 import IO;
 import List;
+import Set;
+import String;
 import Boolean;
 import util::Math;
+import Type;
 
 // is A + B == C?
 bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
@@ -12,8 +15,8 @@ bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
      (slice(C, 0, size(A) - 1) == A && slice(C, size(A), size(C) - size(A)) == B);
 
 public test bool concat(list[&T] A, list[&T] B) = isConcat(A, B, A + B);
-public test bool concat(     &T  A, list[&T] B) = isConcat([A], B, A + B);
-public test bool concat(list[&T] A,      &T  B) = isConcat(A, [B], A + B);
+public test bool concat(     &T  A, list[&T] B) = isConcat([A], B, [A] + B);
+public test bool concat(list[&T] A,      &T  B) = isConcat(A, [B], A + [B]);
 
 // is A - B == C?
 bool isDiff(list[&T] A, list[&T] B, list[&T] C) =
@@ -25,7 +28,7 @@ public test bool diff(list[&T] A, list[&T] B) = isDiff(A, B, A - B);
 
 // A == B?
 bool isEqual(list[&T] A, list[&T] B) = 
-     size(A) == size(B) ? (true | (it && (A[i] == B[i])) | int i <- index(A)) : false;
+     size(A) == size(B) ? (true | (it && (elementAt(A,i) == elementAt(B,i))) | int i <- index(A)) : false;
 
 // Its seems that a reducer cannot  be nested in a boolean expression.
 //bool isEqual(list[&T] A, list[&T] B) = 
@@ -41,7 +44,7 @@ public test bool notEqual(list[&T] A, list[&T] B) = (A != B) ? !isEqual(A,B) : i
 bool isIn(&T x, list[&T] L) = (false | it || (x == e) | e <- L);
 
 // Is L sorted?
-public bool isSorted(list[int] L) = !any(int i <- index(L), int j <- index(L), i < j && L[i] > L[j]);
+public bool isSorted(list[int] L) = !any(int i <- index(L), int j <- index(L), i < j && elementAt(L,i) > elementAt(L,j));
 
 // Frequency of x in L
 bool freq(&T x, list[&T] L) = (0 | e == x ? it + 1 : it | e <- L);
@@ -53,10 +56,10 @@ public list[&T] mergeOrdered(list[&T] A, list[&T] B) {
    res = [];
    while(i < size(A) || j < size(B)){
             if(i < size(A) && arbBool()){
-               res += A[i];
+               res = res + [elementAt(A,i)];
                i += 1;
             } else if(j < size(B)) {
-              res += B[j];
+              res = res + [elementAt(B,j)];
               j += 1;
             };
            };
@@ -69,10 +72,10 @@ public list[&T] mergeUnOrdered(list[&T] A, list[&T] B) {
    while(!(isEmpty(A) && isEmpty(B))){
             if(arbBool() && size(A) > 0){
                <x, A> = takeOneFrom(A);
-               res += x;
+               res = res + [x];
             } else if(size(B) > 0){
                <x, B> = takeOneFrom(B);
-               res += x;
+               res = res + [x];
             };
            }
     return res;
@@ -128,7 +131,7 @@ public test bool sliceFirst(list[&T] L) {
   if(isEmpty(L)) return true;
   f = arbInt(size(L));
   S = L[f..];
-  return S == [L[i] | i <- [f .. size(L) ] ];
+  return S == [elementAt(L,i) | i <- [f .. size(L) ] ];
 }
 
 // In an ideal world, this should work, but we have to adapt ranges first ...
@@ -147,12 +150,12 @@ public list[int] makeSlice(list[int] L, int f, int s, int e){
      return res;
   if(f <= e){
      while(i >= 0 && i < size(L) && i < e ){
-        res += L[i];
+        res = res + [elementAt(L,i)];
         i += delta;
      }
   } else {
     while(i >= 0 && i < size(L) && i > e){
-        res += L[i];
+        res = res + [elementAt(L,i)];
         i += delta;
      }
   }
@@ -224,7 +227,6 @@ public test bool sliceSecondNegative(list[int] L) {
   return S == makeSlice(L, 0, size(L) - incr, size(L));
 }
 
-
 public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] = [10,20]; return L == [10,20,10,20,10,20,10,20,10,20];}
 public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] = [10,20]; return   L == [0,1,10,20,10,20,10,20,10,20];}
 public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] = [10,20]; return L == [0,1,10,20,10,20,6,7,8,9];}
@@ -252,3 +254,255 @@ public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-3..] = [10,20,3
 //public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] += [10]; return L == [0,1,12,13,14,15,6,7,8,9];}
 //public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] += [10]; return L == [0,1,2,3,14,15,16,17,18,9];}
 
+// Library functions
+
+public test bool tstDelete(list[&T] L) {
+  if(size(L) > 1){
+   n = arbInt(size(L));
+   return delete(L, n) == L[..n] + ((n == size(L)-1) ? [] : L[n+1 ..]);
+ }
+ return true;
+}
+   
+// TODO: distribution
+
+public test bool tstDomain(list[&T] L) = domain(L) == toSet([0..size(L)]);
+
+public test bool tstDrop(list[&T] L) {
+ if(size(L) > 1){
+   n = arbInt(size(L));
+   return drop(n, L) == (n < size(L) ? L[n ..] : []);
+ }
+ return true;
+}
+
+public test bool tstDup(list[&T] L) {  // L = [{{{[<-121590445r651299473>]}},{},{{[]},{}}},{}];
+  seen = {};
+  d = for(e <- L) { if(e notin seen){seen = seen + {e}; append e;} };
+  return d == dup(d);
+}
+
+public test bool tstGetOneFrom(list[&T] L) = isEmpty(L) || getOneFrom(L) in L;
+
+public test bool tstHead(list[&T] L) = isEmpty(L) || head(L) == elementAt(L,0);
+
+public test bool tstHeadN(list[&T] L) {
+  if(size(L) > 1){
+    n = arbInt(size(L));
+    return head(L, n) == L[..n];
+  }
+  return true;
+}
+
+public test bool tstHeadTail(list[&T] L) = isEmpty(L) || headTail(L) == <elementAt(L,0), size(L) == 1 ? [] : L[1..]>;
+   
+public test bool tstIndex(list[&T] L) = index(L) == [0..size(L)];
+
+public test bool tstIndexOf(list[int] L) {
+  int n = -1;
+  e = isEmpty(L) ? 0 : getOneFrom(L);
+  for(int i <- index(L)){
+    if(elementAt(L,i) == e){ n = i; break; }
+  }
+  return indexOf(L, e) == n;
+}
+
+public test bool tstInsertAt(list[&T] L, &T e){
+  if(isEmpty(L))
+  	 return insertAt(L, 0, e) == [e];
+  n = arbInt(size(L));
+  return insertAt(L, n, e) == L[..n] + [e] + L[n..];
+}
+
+// sep = "\"\\\"\\\"Â≠Ø\"Ë¨©";
+// L = [<({-113949296r42589197}:797878609r38010066)>,$4551-10-12T12:45:25.024+01:00,"òÖÇÔß∏"({|tmp:///|})];
+
+public test bool tstIntercalate(str sep, list[value] L) = 
+       intercalate(sep, L) == (isEmpty(sep) ? "<for(v <- L){><v><}>"
+                                            : (isEmpty("<for(v <- L){><v><}>")
+                                                          ? ""
+                                                          : "<for(v <- L){><sep><v><}>"[size(sep)..]));
+
+public test bool tstIsEmpty(list[&T] L) = isEmpty(L) ==> (size(L) == 0);
+
+public test bool tstLast(list[&T] L) = isEmpty(L) || last(L) == elementAt(L,-1);
+
+public test bool tstLastIndexOf(list[int] L) {
+  int n = -1;
+  e = isEmpty(L) ? 0 : getOneFrom(L);
+  for(int i <- reverse(index(L))){
+    if(elementAt(L,i) == e){ n = i; break; }
+  }
+  return lastIndexOf(L, e) == n;
+}
+
+public test bool tstMapper(list[int] L) {
+  int incr(int x) { return x + 1; };
+  return mapper(L, incr) == [x + 1 | x <- L];
+}
+
+public test bool tstMax(list[int] L) = isEmpty(L) || all(x <- L, max(L) >= x);
+
+public test bool tstMerge(list[int] L, list[int] R) = isSorted(merge(sort(L), sort(R)));
+
+public test bool tstMin(list[int] L) = isEmpty(L) || all(x <- L, min(L) <= x);
+
+public test bool tstMix(list[&T] L, list[&U] R) {
+  if(isEmpty(L))
+     return mix(L, R) == R;
+  if(isEmpty(R))
+     return mix(L, R) == L;
+  n = min(size(L), size(R));
+  res = [elementAt(L,i), elementAt(R,i) | i <- [0..n]] + 
+        (size(L) > n ? L[n..] : []) +
+        (size(R) > n ? R[n..] : []);
+  return mix(L,R) == res;
+}
+
+public int factorial(int n) = (n <= 0) ? 1 : n * factorial(n -1);
+
+public test bool tstPermutations(list[&T] L) =
+  size(permutations(L)) <= factorial(size(L)) &&
+  all(P <- permutations(L), size(P) == size(L), isEmpty(L - P), isEmpty(P - L));
+  
+public test bool tstPop(list[&T] L) = isEmpty(L) || pop(L) == <elementAt(L,0), size(L) == 1 ? [] : L[1..]>;
+
+public test bool tstPrefix(list[&T] L) = prefix(L) == (isEmpty(L) ? [] : L[..-1]);
+
+public test bool tstPush(&T elem, list[&T] L) = push(elem, L) == [elem, *L];
+
+public test bool tstReverse(list[&T] L) = reverse(reverse(L)) == L;
+
+public test bool tstSize(list[&T] L) = size(L) == (0 | it + 1 | e <- L);
+
+// TODO: slice
+
+public test bool tstSort(list[int] L) = isSorted(sort(L));
+
+public test bool tstSplit(list[&T] L) {
+  <L1, L2> = split(L);
+  return L1 + L2 == L;
+}
+
+public test bool tstSum(list[int] L) = sum(L) == (0 | it + x | x <- L);
+
+public test bool tstTail(list[&T] L) = isEmpty(L) || (tail(L) == (size(L) == 1 ? [] : L[1..]));
+
+public test bool tstTailN(list[&T] L){
+ if(isEmpty(L))
+    return true;
+  n = arbInt(size(L));
+  return tail(L, n) == (n > 0 ? L[-n..] : []);
+}
+
+public test bool tstTake(list[&T] L){
+if(size(L) > 1){
+   n = arbInt(size(L));
+   return take(n, L) == L[..n];
+ }
+ return true;
+}
+
+public test bool tstTakeOneFrom(list[int] L){
+ if(size(L) > 1){
+  <elem, R> = takeOneFrom(L);
+   return elem in L && (size(R) == size(L) - 1) && (toSet(L) == toSet(R) + elem);
+ }
+ return true;
+}
+
+bool isEven(int a) = a mod 2 == 0;
+
+list[int] takeEven(list[int] L) = (isEmpty(L) || !isEven(elementAt(L,0))) ? [] 
+                                                                : elementAt(L,0) + takeEven(size(L) == 1 ? [] : L[1..]);
+
+public test bool tstTakeWhile(list[int] L){
+  return takeWhile(L, isEven) == takeEven(L);
+}
+
+public test bool tstToMap(list[tuple[&A, &B]] L) = toMap(L) == toMap(toSet(L));
+
+public test bool tstToMapUnique(list[tuple[&A, &B]] L) =
+  domain(L) == L<0> ==> toMapUnique(L) == toMapUnique(toSet(L));
+
+public test bool tstTop(list[&T] L) = isEmpty(L) || top(L) == elementAt(L,0);
+
+public test bool tstToRel(list[&T] L) = isEmpty(L) || toRel(L) == {<elementAt(L,i), elementAt(L,i+1)> | i <- [0 .. size(L) - 1]};
+
+public test bool tstToSet(list[&T] L) = toSet(L) == {x | x <- L};
+
+// TODO public test bool tstToString(list[&T] L) = toString(L) == "[" + intercalate(",", L) + "]";
+
+public test bool tstUnzip2(list[tuple[&A, &B]] L) = unzip(L) == <[a | <a,b> <- L], [b | <a,b> <- L]>;
+
+public test bool tstUnzip3(list[tuple[&A, &B, &C]] L) = 
+     isEmpty(L) || unzip(L) == <[a | <a,b,c> <- L], [b | <a,b,c> <- L], [c | <a,b,c> <- L]>;
+     
+public test bool tstUpTill(int n) = n < 0 || n > 10000 || upTill(n) == [0 .. n];
+
+public test bool tstZip(list[&T] L) = zip(L, L) == [<x, x> | x <- L];
+
+// Tests that check the correctness of the dynamic types of lists produced by the library functions; 
+// incorrect dynamic types make pattern matching fail;
+
+public test bool dtstSlice(list[&T] lst) {
+if(isEmpty(lst)) return true;
+int b = 0;
+if(size(lst) != 1) b = arbInt(size(lst) - 1);
+int len = arbInt(size(lst) - b);
+if(len == 0) return true;
+return /*typeOf*/(slice(lst, b, len)) == /*typeOf*/(lst[b..(len + b)]);
+}
+
+public test bool dtstDelete(list[&T] lst) {
+if(isEmpty(lst)) return true;
+int index = 0;
+if(size(lst) != 1) index = arbInt(size(lst) - 1);
+return /*typeOf*/(delete(lst, index)) == /*typeOf*/([ elementAt(lst,i) | int i <- [0..size(lst)], i != index ]);
+}
+
+public test bool dtstDrop(list[&T] lst) {
+if(isEmpty(lst)) return true;
+int n = 0;
+if(size(lst) != 1) n = arbInt(size(lst) - 1);
+return /*typeOf*/(drop(n, lst)) == /*typeOf*/([ elementAt(lst,i) | int i <- [n..size(lst)] ]);
+}
+
+public test bool dtstHead(list[&T] lst) {
+if(isEmpty(lst)) return true;
+int n = 0;
+if(size(lst) != 1) n = arbInt(size(lst) - 1);
+if(n == 0) return true;
+return /*typeOf*/(head(lst, n)) == /*typeOf*/([ elementAt(lst,i) | int i <- [0..n] ]) && /*typeOf*/(head(lst, n)) == /*typeOf*/(take(n, lst));
+}
+
+public test bool dtstTail(list[&T] lst) {
+if(isEmpty(lst)) return true;
+int n = 0;
+if(size(lst) != 1) n = arbInt(size(lst) - 1);
+if(n == 0) return true;
+return /*typeOf*/(tail(lst, n)) == /*typeOf*/([ elementAt(lst,i) | int i <- [(size(lst) - n)..size(lst)] ]);
+}
+
+public test bool dtstPrefix(list[&T] lst) {
+if(isEmpty(lst) || size(lst) == 1) return true;
+return /*typeOf*/(prefix(lst)) == /*typeOf*/([ elementAt(lst,i) | int i <- [0..(size(lst) - 1)] ]);
+}
+
+public test bool dtstDifference(list[&T] lst) {
+	if(isEmpty(lst)) return true;
+	bool check = true;
+	for(&T elem <- lst) {
+		bool deleted = false;
+		check = check && (/*typeOf*/(lst - [elem]) == /*typeOf*/([ *( (elem == el && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ]));
+	}
+	return check;
+}
+
+public test bool dtstIntersection(list[&T] lst) {
+	if(isEmpty(lst)) return true;
+	bool check = true;
+	for([*l1, *l2] := lst)
+check = check && (/*typeOf*/(lst & l1) == /*typeOf*/([ el | &T el <- lst, el in l1 ])) && (/*typeOf*/(lst & l2) == /*typeOf*/([ el | &T el <- lst, el in l2 ]));
+	return check;
+}

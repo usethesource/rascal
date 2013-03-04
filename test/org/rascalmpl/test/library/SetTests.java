@@ -200,5 +200,17 @@ public class SetTests extends TestFramework {
 	public void setExpressions3() {
 		assertTrue(runTest("{ value n = 1; value s = \"string\"; set[int] _ := { n } && set[str] _ := { s, s, *{ s, s } }; }"));
 	}
+	
+//	// Tests related to the correctness of the dynamic types of sets produced by the library functions;
+//	// incorrect dynamic types make pattern matching fail;
+//
+//	@Test
+//	public void testDynamicTypes() {
+//		prepare("import Set;");
+//		assertTrue(runTestInSameEvaluator("{ set[value] s = {\"1\",2,3}; set[int] _ := s - \"1\"; }"));
+//		assertTrue(runTestInSameEvaluator("{ set[value] s = {\"1\",2,3}; set[int] _ := s - {\"1\"}; }"));
+//		assertTrue(runTestInSameEvaluator("{ set[value] s = {\"1\",2,3}; set[int] _ := s & {2,3}; }"));
+//		assertTrue(runTestInSameEvaluator("{ {\"1\", *int _} := {\"1\",2,3}; }"));
+//	}
 
 }

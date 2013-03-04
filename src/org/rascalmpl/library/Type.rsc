@@ -122,7 +122,7 @@ Synopsis: Choice between alternative productions.
 Description:
 Nested choice is flattened.
 }
-public Production choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})
+public Production choice(Symbol s, {*Production a, choice(Symbol t, set[Production] b)})
   = choice(s, a+b);
   
 
@@ -232,6 +232,24 @@ public bool comparable(Symbol s, Symbol t) = subtype(s,t) || subtype(t,s);
 Synopsis: Check if two types are equivalent.
 }
 public bool equivalent(Symbol s, Symbol t) = subtype(s,t) && subtype(t,s);
+
+
+@doc{
+Synopsis: structural equality between values. 
+
+Description: this function provides the same semantics as the == operator ([Equality]), with a minor difference.
+The difference is that no implicit coercions are done between values of incomparable types, such as == does for
+int, real and rat.
+
+Examples:
+
+<screen>
+1 == 1.0
+eq(1,1.0)
+</screen>
+}
+@javaClass{org.rascalmpl.library.Type}
+public java bool eq(value x, value y);
 
 //data Symbol 
 //  | \func(Symbol ret, list[Symbol] parameters)

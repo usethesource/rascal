@@ -216,31 +216,31 @@ data Production
 @doc{
 Synopsis:  Nested priority is flattened.
 }
-public Production priority(Symbol s, [list[Production] a, priority(Symbol t, list[Production] b),list[Production] c])
+public Production priority(Symbol s, [*Production a, priority(Symbol t, list[Production] b), *Production c])
   = priority(s,a+b+c);
    
 @doc{
 Synopsis: Choice under associativity is flattened.
 }
-public Production associativity(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) 
+public Production associativity(Symbol s, Associativity as, {*Production a, choice(Symbol t, set[Production] b)}) 
   = associativity(s, as, a+b); 
   
 @doc{Nested (equal) associativity is flattened}             
-public Production associativity(Symbol rhs, Associativity a, {associativity(Symbol rhs2, Associativity b, set[Production] alts), set[Production] rest}) {
+public Production associativity(Symbol rhs, Associativity a, {associativity(Symbol rhs2, Associativity b, set[Production] alts), *Production rest}) {
   if (a == b)  
     return associativity(rhs, a, rest + alts) ;
   else
     fail;
 }
 
-public Production associativity(Symbol rhs, Associativity a, {prod(Symbol rhs, list[Symbol] lhs, set[Attr] as), set[Production] rest}) {
+public Production associativity(Symbol rhs, Associativity a, {prod(Symbol rhs, list[Symbol] lhs, set[Attr] as), *Production rest}) {
   if (!(\assoc(_) <- as)) 
     return \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})});
   else fail;
 }
 
 @doc{Priority under an associativity group defaults to choice}
-public Production associativity(Symbol s, Associativity as, {set[Production] a, priority(Symbol t, list[Production] b)}) 
+public Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
   = associativity(s, as, a + { e | e <- b}); 
              
 @doc{
