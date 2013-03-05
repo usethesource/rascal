@@ -318,10 +318,8 @@ public test bool tstInsertAt(list[&T] L, &T e){
 // L = [<({-113949296r42589197}:797878609r38010066)>,$4551-10-12T12:45:25.024+01:00,"òÖÇÔß∏"({|tmp:///|})];
 
 public test bool tstIntercalate(str sep, list[value] L) = 
-       intercalate(sep, L) == (isEmpty(sep) ? "<for(v <- L){><v><}>"
-                                            : (isEmpty("<for(v <- L){><v><}>")
-                                                          ? ""
-                                                          : "<for(v <- L){><sep><v><}>"[size(sep)..]));
+       intercalate(sep, L) == (isEmpty(L) ? ""
+                                          : "<L[0]><for(int i <- [1..size(L)]){><sep><L[i]><}>");
 
 public test bool tstIsEmpty(list[&T] L) = isEmpty(L) ==> (size(L) == 0);
 
