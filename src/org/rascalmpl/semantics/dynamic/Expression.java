@@ -363,7 +363,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				org.rascalmpl.ast.Expression nameExpr) {
 			java.util.List<AbstractFunction> functions = new LinkedList<AbstractFunction>();
 			String cons = Names.consName(nameExpr.getQualifiedName());
-			eval.getCurrentEnvt().getAllFunctions(cons, functions);
+			Type adt = eval.getCurrentEnvt().lookupAbstractDataType(Names.moduleName(nameExpr.getQualifiedName()));
+			if(adt != null)
+				eval.getCurrentEnvt().getAllFunctions(adt, cons, functions);
+			else eval.getCurrentEnvt().getAllFunctions(cons, functions);
 			
 			if (functions.isEmpty()) {
 			  return null;
