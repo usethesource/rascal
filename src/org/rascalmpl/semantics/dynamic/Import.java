@@ -246,7 +246,6 @@ public abstract class Import {
 	}
 	
 	public static void extendCurrentModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
-    eval.getStdErr().println("extending " + name);
     GlobalEnvironment heap = eval.__getHeap();
     ModuleEnvironment other = heap.getModule(name);;
     

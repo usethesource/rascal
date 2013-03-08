@@ -79,8 +79,8 @@ public FormalContext[&Object, &Attribute] toFormalContext(Attribute2Objects attr
 
 set[&T] intersection(set[set[&T]] st)
 {
-  set[str] result = isEmpty(st)?{}:getOneFrom(st);
-  for(set[str] elm <- st){
+  set[&T] result = isEmpty(st)?{}:getOneFrom(st);
+  for(set[&T] elm <- st){
     result = result & elm;
   }
   return result;
