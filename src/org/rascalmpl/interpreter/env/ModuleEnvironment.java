@@ -440,7 +440,10 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			var = mod.getLocalPublicVariable(name);
+			
+			if (mod != null) { // TODO: how can this happen?
+			  var = mod.getLocalPublicVariable(name);
+			}
 			
 			if (var != null) {
 				return var;
