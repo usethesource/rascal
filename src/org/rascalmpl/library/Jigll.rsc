@@ -15,7 +15,7 @@ public void generate(str name, type[&T <: Tree] nont) {
 }
 
 public &T jparse(type[&T <: Tree] nont, str input) {
-  return jparse(nont, nont.symbol, expandRegularSymbols(flattenPriorities(addNotAllowedSets(literals(grammar({nont.symbol}, nont.definitions, ()))))), input);
+  return jparse(nont, nont.symbol, removeLables(expandRegularSymbols(makeRegularStubs(flattenPriorities(addNotAllowedSets(literals(grammar({nont.symbol}, nont.definitions, ()))))))), input);
 }
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
@@ -25,3 +25,9 @@ private Grammar flattenPriorities(Grammar g)
 		   = visit(g) {
 		   	  case priority(s, l) => choice(s, {*l})
 		   };
+		   
+private Grammar removeLables(Grammar g) 
+	   = visit (g) {
+	      case label(name, s) => s
+	   };
+		

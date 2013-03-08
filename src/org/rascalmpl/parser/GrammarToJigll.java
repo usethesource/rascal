@@ -3,7 +3,6 @@ package org.rascalmpl.parser;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -21,36 +20,23 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.jgll.grammar.BodyGrammarSlot;
 import org.jgll.grammar.CharacterClass;
-import org.jgll.grammar.EpsilonGrammarSlot;
 import org.jgll.grammar.Grammar;
-import org.jgll.grammar.GrammarSlot;
-import org.jgll.grammar.LastGrammarSlot;
+import org.jgll.grammar.GrammarInterpreter;
+import org.jgll.grammar.LevelSynchronizedGrammarInterpretter;
 import org.jgll.grammar.Nonterminal;
-import org.jgll.grammar.NonterminalGrammarSlot;
 import org.jgll.grammar.Range;
 import org.jgll.grammar.Rule;
 import org.jgll.grammar.Symbol;
-import org.jgll.grammar.Terminal;
-import org.jgll.grammar.TerminalGrammarSlot;
-import org.jgll.parser.GrammarInterpreter;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 
 public class GrammarToJigll {
 	
-	private IMap definitions;
 	private final IValueFactory vf;
-	private IMap notAllowed;
-	private Map<IValue, Nonterminal> nonterminals;
 	
-	private Map<IValue, GrammarSlot> slotsMap;
+	private Map<IValue, Rule> rulesMap;
 	
-	// A map from a prod to its first grammar slot of an alterante
-	private Map<IValue, GrammarSlot> alternatesMap;
-	private List<BodyGrammarSlot> slots;
-
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
 	}
@@ -58,13 +44,10 @@ public class GrammarToJigll {
 	public IConstructor jparse(IValue type, IConstructor symbol, IConstructor grammar, IString str) {
 	  Grammar g = convert("inmemory", grammar);
 	  
-	  applyRestrictions(g);
+	  IMap notAllowed = (IMap) ((IMap) grammar.get("about")).get(vf.string("notAllowed"));
+	  applyRestrictions(g, notAllowed);
 	  
-	  
-	  // TODO calculate the actual length of longest terminals
-	  g.setLongestTerminalChain(1);
-	  
-	  GrammarInterpreter parser = new GrammarInterpreter();
+	  GrammarInterpreter parser = new LevelSynchronizedGrammarInterpretter();
 	
 	  System.out.println("Jigll started.");
 	  NonterminalSymbolNode parse = parser.parse(str.getValue(), g, symbol.toString());
@@ -87,109 +70,46 @@ public class GrammarToJigll {
 	}
 
 	public Grammar convert(String name, IConstructor grammar) {
-		slotsMap = new HashMap<>();
-		definitions = (IMap) grammar.get("rules");
-		notAllowed = (IMap) ((IMap) grammar.get("about")).get(vf.string("notAllowed"));
-		nonterminals = new HashMap<>();
-		alternatesMap = new HashMap<>();
-		slots = new ArrayList<>();
+		IMap definitions = (IMap) grammar.get("rules");
+		List<Rule> rules = new ArrayList<>();
 
 		for (IValue nonterminal : definitions) {
-			nonterminals.put(nonterminal, new Nonterminal(nonterminals.size(), nonterminal.toString(), false));
-		}
-
-		for (IValue nonterminal : definitions) {
+			Nonterminal head = new Nonterminal(nonterminal.toString());
 			IConstructor choice = (IConstructor) definitions.get(nonterminal);
-			convertNonterminal(nonterminal, choice);
+			assert choice.getName().equals("choice");
+			ISet alts = (ISet) choice.get("alternatives");
+			
+			for (IValue alt : alts) {
+				IConstructor prod = (IConstructor) alt;
+				IList rhs = (IList) prod.get("symbols");
+				List<Symbol> body = getSymbolList(rhs);
+				Rule rule = new Rule(head, body, prod);
+				rulesMap.put(prod, rule);
+				rules.add(rule);
+			}			
 		}
-		
-		Set<Nonterminal> startSymbols = new HashSet<>();
-		for (IValue st : (ISet) grammar.get("starts")) {
-			startSymbols.add(nonterminals.get(st));
-		}
 
-		return new Grammar(name, new ArrayList<>(nonterminals.values()), slots, startSymbols);
-	}
-
-	private void convertNonterminal(IValue nonterminal, IConstructor choice) {
-		assert choice.getName().equals("choice");
-		Nonterminal head = nonterminals.get(nonterminal);
-		ISet alts = (ISet) choice.get("alternatives");
-
-		for (IValue alt : alts) {
-			IConstructor prod = (IConstructor) alt;
-			convertProduction(head, prod);
-		}
-	}
-
-	private void convertProduction(Nonterminal head, IConstructor prod) {
-		assert prod.getName().equals("prod");
-		BodyGrammarSlot slot = null;
-
-		IList rhs = (IList) prod.get("symbols");
-		List<Symbol> body = getSymbolList(rhs, nonterminals);
-		Rule rule = new Rule(head, body);
-
-		if (rhs.length() == 0) { // epsilon
-			convertEpsilonProduction(rule, slot, prod);
-		} else {
-			convertNonEpsilonProduction(rule, slot, prod);
-		}
-	}
-
-	private void convertNonEpsilonProduction(Rule rule, BodyGrammarSlot slot, IConstructor prod) {
-		int index = 0;
-		for (Symbol s : rule.getBody()) {
-			if(s instanceof Terminal) {
-				slot = new TerminalGrammarSlot(rule, slots.size() + nonterminals.size(), index, slot, (Terminal) s);
-			} else {
-				// TODO: plug the actual test set here.
-				slot = new NonterminalGrammarSlot(rule, slots.size() + nonterminals.size(), index, slot, (Nonterminal) s, new HashSet<Terminal>());
-			}
-			slotsMap.put(vf.tuple(prod, vf.integer(index)), slot);
-			slots.add(slot);
-
-			if (index == 0) {
-				alternatesMap.put(prod, slot);
-				rule.getHead().addAlternate(slot);
-			}
-			index++;
-		}
-		slots.add(new LastGrammarSlot(rule, slots.size() + nonterminals.size(), rule.getBody().size(), slot, prod));
-		slotsMap.put(vf.tuple(prod, vf.integer(rule.getBody().size())), slot);
-	}
-
-	private void convertEpsilonProduction(Rule rule, BodyGrammarSlot slot, IConstructor prod) {
-		slot = new EpsilonGrammarSlot(rule, slots.size() + nonterminals.size(), 0, slot, new HashSet<Terminal>(), prod);
-		slots.add(slot);
-		rule.getHead().addAlternate(slot);
+		return Grammar.fromRules(name, rules);
 	}
 	
-	private void applyRestrictions(Grammar grammar) {
-		Map<ISet, Nonterminal> restrictedNonterminals = new HashMap<ISet, Nonterminal>();
-		
+	private void applyRestrictions(Grammar grammar, IMap notAllowed) {
 		Iterator<Entry<IValue, IValue>> it = notAllowed.entryIterator();
 		while(it.hasNext()) {
 			Entry<IValue, IValue> next = it.next();
+			
+			// Tuple(prod, position)
 			ITuple key = (ITuple) next.getKey();
 			ISet set = (ISet) next.getValue();
-			NonterminalGrammarSlot grammarSlot = (NonterminalGrammarSlot) slotsMap.get(key);
 			
-			Nonterminal restrictedNonterminal = restrictedNonterminals.get(set);
-			if(restrictedNonterminal == null) {
-				restrictedNonterminal = new Nonterminal(nonterminals.size() + restrictedNonterminals.size(), "dummy" + restrictedNonterminals.size(), false);
-				List<BodyGrammarSlot> alternates = grammarSlot.getNonterminal().copyAlternates();
-				Iterator<IValue> iterator = set.iterator();
-				while(iterator.hasNext()) {
-					alternates.remove(alternatesMap.get(iterator.next()));
-				}
-				for(BodyGrammarSlot alt : alternates) {
-					restrictedNonterminal.addAlternate(alt);
-				}
-				restrictedNonterminals.put(set, restrictedNonterminal);
+			Rule rule = (Rule) key.get(0);
+			int position = ((IInteger) key.get(0)).intValue();
+				
+			Set<Rule> filterList = new HashSet<>();
+			Iterator<IValue> iterator = set.iterator();
+			while(iterator.hasNext()) {
+				filterList.add(rulesMap.get(iterator.next()));
 			}
-			
-			grammarSlot.setNonterminal(restrictedNonterminal);
+			grammar.filter(rule, position, filterList);
 		}		
 	}
 
@@ -206,7 +126,7 @@ public class GrammarToJigll {
 	}
 	
 	
-	private static List<Symbol> getSymbolList(IList rhs, Map<IValue, Nonterminal> nonterminals) {
+	private static List<Symbol> getSymbolList(IList rhs) {
 		List<Symbol> result = new ArrayList<>();
 		for (IValue elem : rhs) {
 			IConstructor symbol = (IConstructor) elem;
@@ -217,7 +137,7 @@ public class GrammarToJigll {
 					break;
 					
 				default:
-					result.add(nonterminals.get(symbol));
+					result.add(new Nonterminal(symbol.getName()));
 			}
 		}
 		return result;
