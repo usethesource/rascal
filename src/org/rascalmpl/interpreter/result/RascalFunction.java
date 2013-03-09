@@ -40,6 +40,7 @@ import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionDeclaration.Conditional;
 import org.rascalmpl.ast.FunctionDeclaration.Default;
 import org.rascalmpl.ast.FunctionModifier;
+import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Signature;
@@ -343,12 +344,13 @@ public class RascalFunction extends NamedFunction {
 						ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(param, openFunctions.get(param));
 					}
 				}
+			Name IT = ASTBuilder.makeLex("Name", null, "<it>");
 			java.util.List<AbstractFunction> functions = new java.util.LinkedList<AbstractFunction>();
 			Result<IValue> it = self;
 			if(self == null) {
 				if(isAnonymous()) {
 					functions.add(this);
-					it = new OverloadedFunction(Names.name(org.rascalmpl.interpreter.Evaluator.IT), functions);
+					it = new OverloadedFunction(Names.name(IT), functions);
 				} else { 
 					declarationEnvironment.getAllFunctions(name, functions);
 					self = new OverloadedFunction(name, functions);
@@ -362,7 +364,7 @@ public class RascalFunction extends NamedFunction {
 			}
 			// binding 'it' 
 			ctx.pushEnv();
-			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(Names.name(org.rascalmpl.interpreter.Evaluator.IT), it);
+			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(Names.name(IT), it);
 			// ---------
 
 			Type actualTypesTuple = TF.tupleType(actualTypes);
