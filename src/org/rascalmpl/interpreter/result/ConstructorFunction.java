@@ -91,7 +91,7 @@ public class ConstructorFunction extends NamedFunction {
 			throw new ArgumentsMismatch("Too few arguments for constructor " + getName(), ctx.getCurrentAST());
 		}
 		
-		if(!constructorType.hasDefaults() && keyArgValues != null)
+		if(!constructorType.hasKeywordArguments() && keyArgValues != null)
 			throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
 
 		Type[] extendedActualTypes = new Type[constructorType.getArity()];

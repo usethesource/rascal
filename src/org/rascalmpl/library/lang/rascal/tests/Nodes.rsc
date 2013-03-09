@@ -5,6 +5,8 @@ import List;
 import util::Math;
 import IO;
 
+// Operators
+
 // In an ideal world, this should work, but we have to adapt ranges first ...
 
 //public list[int] makeSlice(list[int] L, int b, int s, int e){
@@ -161,3 +163,12 @@ public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[8,6..3] = [10]; 
 
 public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[-1,-2..] = [10,20,30,40,50]; return L == "f"(50,40,30,20,10,50,40,30,20,10);}
 public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[-1,-3..] = [10,20,30,40,50]; return L == "f"(0,50,2,40,4,30,6,20,8,10);}
+
+// Library functions
+
+public test bool tstNode1(node N) = N == makeNode(getName(N), getChildren(N));
+
+public test bool tstNode2(str name, list[value] children) = arity(makeNode(name, children)) == size(children) &&
+                                                               getName(makeNode(name, children)) == name &&
+                                                               getChildren(makeNode(name, children)) == children;
+                                                               

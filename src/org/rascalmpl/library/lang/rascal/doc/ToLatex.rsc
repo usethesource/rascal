@@ -12,7 +12,7 @@ module lang::rascal::doc::ToLatex
 
 import lang::box::util::Highlight;
 import lang::box::util::HighlightToLatex;
-import Reflective;
+import util::Reflective;
 import ParseTree;
 import String;
 import Map;

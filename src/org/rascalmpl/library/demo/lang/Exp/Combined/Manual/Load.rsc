@@ -9,9 +9,9 @@ public Exp load(str txt) = load(parse(txt));           /*4*/
      
 public Exp load((Exp)`<IntegerLiteral l>`)             /*5*/
        = con(toInt("<l>"));       
-public Exp load((Exp)`<demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e1> * <demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e2>`) 
+public Exp load((Exp)`<Exp e1> * <Exp e2>`) 
        = mul(load(e1), load(e2));  
-public Exp load((Exp)`<demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e1> + <demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e2>`)
+public Exp load((Exp)`<Exp e1> + <Exp e2>`)
        = add(load(e1), load(e2)); 
-public Exp load((Exp)`( <demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e> )`) 
+public Exp load((Exp)`( <Exp e> )`) 
        = load(e);                    

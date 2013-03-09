@@ -199,6 +199,7 @@ public class FigureFactory {
     
     
 	
+	@SuppressWarnings("incomplete-switch")
 	public static Figure make(IFigureConstructionEnv env, IConstructor c, PropertyManager properties, IList childProps){
 		String ename = c.getName();
 		properties = PropertyManager.extendProperties(env, c, properties, childProps);

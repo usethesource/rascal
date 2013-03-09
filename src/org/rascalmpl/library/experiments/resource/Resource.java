@@ -29,6 +29,7 @@ import org.rascalmpl.interpreter.result.ResourceResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.parser.ASTBuilder;
 
 public class Resource {
 
@@ -110,7 +111,7 @@ public class Resource {
 		sb.append("public ").append(tagStr).append("Type ").append(tagStr).append("() { ");
 		sb.append(" return getTypedResource(").append(uriLoc.toString()).append(",#").append(tagStr).append("Type); }");
 		IConstructor declTree = ctx.getEvaluator().parseCommand(ctx.getEvaluator().getMonitor(), sb.toString(), ctx.getCurrentAST().getLocation().getURI());
-		Command cmd = ctx.getEvaluator().getBuilder().buildCommand(declTree);
+		Command cmd = new ASTBuilder().buildCommand(declTree);
 		Environment env = ctx.getCurrentEnvt();
 		ctx.setCurrentEnvt(env.getRoot());
 		Result<IValue> fun0 = ctx.getEvaluator().eval(ctx.getEvaluator().getMonitor(), cmd);

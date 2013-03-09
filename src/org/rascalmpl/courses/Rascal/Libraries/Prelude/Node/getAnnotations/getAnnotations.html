@@ -75,8 +75,8 @@ ok
 </pre>  Create a node with two annotations:
 <pre class="screen"><span class="prompt">rascal></span>F = setAnnotations(&quot;f&quot;(10, &quot;abc&quot;), (&quot;color&quot; : &quot;red&quot;, &quot;size&quot; : &quot;large&quot;));
 node: "f"(10,"abc")[
-  @size="large",
-  @color="red"
+  @color="red",
+  @size="large"
 ]
 </pre>  and retrieve those annotations:
 <pre class="screen"><span class="prompt">rascal></span>getAnnotations(F);

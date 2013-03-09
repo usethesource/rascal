@@ -12,10 +12,9 @@
   
   It also provides a number of convenience functions on character classes.
 }
-@bootstrapParser
 module lang::rascal::grammar::definition::Characters
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import String;
 import Grammar;
@@ -31,10 +30,10 @@ public CharRange range(int from, int to) {
     fail;
 }
 
-public Symbol \char-class([list[CharRange] a,\empty-range(),list[CharRange] b]) 
+public Symbol \char-class([*CharRange a, \empty-range(), *CharRange b]) 
   = \char-class(a+b);
 
-public Symbol \char-class([list[CharRange] a,range(int from1, int to1),list[CharRange] b,range(int from2, int to2),list[CharRange] c]) {
+public Symbol \char-class([*CharRange a, range(int from1, int to1), *CharRange b, range(int from2, int to2), *CharRange c]) {
   if ((from1 <= from2 && to1 >= from2 - 1) 
      || (from2 <= from1 && to2 >= from1 - 1)
      || (from1 >= from2 && to1 <= to2)
@@ -44,7 +43,7 @@ public Symbol \char-class([list[CharRange] a,range(int from1, int to1),list[Char
       fail;
 }
  
-public Symbol \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, range(int \o, int p), list[CharRange] c]) {
+public Symbol \char-class([*CharRange a, range(int n,int m), *CharRange b, range(int \o, int p), *CharRange c]) {
   if (p < n) 
     return \char-class(a + [range(\o,p)]+b+[range(n,m)]+c);
   else 
@@ -181,7 +180,7 @@ public CharRange intersect(CharRange r1, CharRange r2) {
 }
 
 public list[CharRange] complement(list[CharRange] s) {
-  return difference([range(0,0xFFFFFF)],s);
+  return difference([range(1,0xFFFFFF)],s); // the 0 character is excluded
 }
 
 public list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
@@ -365,20 +364,20 @@ test bool diff2() = difference(\char-class([range(10,30), range(40,50)]), \char-
 
 public Symbol cc2ranges(Class cc) {
    switch(cc) {
-     case (Class) `[<Range* ranges>]` : return \char-class([range(r) | r <- ranges]);
-     case (Class) `(<Class c>)`: return cc2ranges(c);
-     case (Class) `! <Class c>`: return complement(cc2ranges(c));
-     case (Class) `<Class l> && <Class r>`: return intersection(cc2ranges(l), cc2ranges(r));
-     case (Class) `<Class l> || <Class r>`: return union(cc2ranges(l), cc2ranges(r));
-     case (Class) `<Class l> - <Class r>`: return difference(cc2ranges(l), cc2ranges(r));
+     case \simpleCharclass(Range* ranges) : return \char-class([range(r) | r <- ranges]);
+     case \bracket(Class c): return cc2ranges(c);
+     case \complement(Class c) : return complement(cc2ranges(c));
+     case \intersection(Class l, Class r) : return intersection(cc2ranges(l), cc2ranges(r));
+     case \union(Class l, Class r): return union(cc2ranges(l), cc2ranges(r));
+     case \difference(Class l, Class r): return difference(cc2ranges(l), cc2ranges(r));
      default: throw "missed a case <cc>";
    }
 }
       
 private CharRange range(Range r) {
   switch (r) {
-    case (Range) `<Char c>` : return range(character(c),character(c));
-    case (Range) `<Char l> - <Char r>`: return range(character(l),character(r));
+    case character(Char c) : return range(character(c),character(c));
+    case fromTo(Char l, Char r) : return range(character(l),character(r));
     default: throw "missed a case <r>";
   }
 } 

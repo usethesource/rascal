@@ -27,9 +27,17 @@ import org.rascalmpl.ast.Case;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.Replacement;
+import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.control_exceptions.Failure;
+import org.rascalmpl.interpreter.control_exceptions.Insert;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
 import org.rascalmpl.semantics.dynamic.Tree;
@@ -199,22 +207,84 @@ public class Cases  {
 		}
 
 		@Override
-		public boolean matchAndEval(IEvaluator<Result<IValue>> __eval, Result<IValue> subject) {
+		public boolean matchAndEval(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
 			if (theCase.isDefault()) {
-				theCase.getStatement().interpret(__eval);
+				theCase.getStatement().interpret(eval);
 				return true;
 			}
 			
 			PatternWithAction rule = theCase.getPatternWithAction();
 			
 			if (rule.hasStatement()) {
-				return __eval.matchAndEval(subject, rule.getPattern(), pattern.getStatement());
+				return Cases.matchAndEval(subject, rule.getPattern(), pattern.getStatement(), eval);
 			}
 			else {
-				return __eval.matchEvalAndReplace(subject, rule.getPattern(), conditions, insert);
+				return matchEvalAndReplace(subject, rule.getPattern(), conditions, insert, eval);
 			}
 		}
+		 
+	  public static boolean matchEvalAndReplace(Result<IValue> subject, Expression pat, List<Expression> conditions, Expression replacementExpr, IEvaluator<Result<IValue>> eval) {
+	    Environment old = eval.getCurrentEnvt();
+	    try {
+	      IMatchingResult mp = pat.getMatcher(eval);
+	      mp.initMatch(subject);
+
+	      while (mp.hasNext()) {
+	        if (eval.__getInterrupt())
+	          throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
+	        if (mp.next()) {
+	          int size = conditions.size();
+	          
+	          if (size == 0) {
+	            throw new Insert(replacementExpr.interpret(eval), mp);
+	          }
+	          
+	          IBooleanResult[] gens = new IBooleanResult[size];
+	          Environment[] olds = new Environment[size];
+	          Environment old2 = eval.getCurrentEnvt();
+
+	          int i = 0;
+	          try {
+	            olds[0] = eval.getCurrentEnvt();
+	            eval.pushEnv();
+	            gens[0] = conditions.get(0).getBacktracker(eval);
+	            gens[0].init();
+
+	            while (i >= 0 && i < size) {
+
+	              if (eval.__getInterrupt()) {
+	                throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
+	              }
+	              if (gens[i].hasNext() && gens[i].next()) {
+	                if (i == size - 1) {
+	                  // in IfThen the body is executed, here we insert the expression
+	                  // NB: replaceMentExpr sees the latest bindings of the when clause 
+	                  throw new Insert(replacementExpr.interpret(eval), mp);
+	                }
+
+	                i++;
+	                gens[i] = conditions.get(i).getBacktracker(eval);
+	                gens[i].init();
+	                olds[i] = eval.getCurrentEnvt();
+	                eval.pushEnv();
+	              } else {
+	                eval.unwind(olds[i]);
+	                eval.pushEnv();
+	                i--;
+	              }
+	            }
+	          } finally {
+	            eval.unwind(old2);
+	          }
+	        }
+	      }
+	    } finally {
+	      eval.unwind(old);
+	    }
+	    return false;
+	  }
 	}
+	
 
 	private static class NodeCaseBlock extends CaseBlock {
 		private final Hashtable<String, List<DefaultBlock>> table = new Hashtable<String, List<DefaultBlock>>();
@@ -256,16 +326,78 @@ public class Cases  {
 					.getType();
 
 			if (subjectType.isSubtypeOf(TF.nodeType())) {
-				List<DefaultBlock> alts = table.get(((INode) value).getName());
-				if (alts != null) {
-					for (DefaultBlock c : alts) {
-						if (c.matchAndEval(eval, subject)) {
-							return true;
-						}
-					}
-				}
+	       boolean isTree = subjectType.isSubtypeOf(Factory.Tree);
+	       
+	       if (isTree) { // matching abstract with concrete
+	         TreeAsNode wrap = new TreeAsNode((IConstructor) subject.getValue());
+	         Result<IValue> asTree = ResultFactory.makeResult(TF.nodeType(), wrap, eval);
+	         
+	         if (tryCases(eval, asTree)) {
+	           return true;
+	         }
+	       }
+	       else if (tryCases(eval, subject)) {
+	         return true;
+	       }
 			}
 			return false;
 		}
+
+    protected boolean tryCases(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
+      List<DefaultBlock> alts = table.get(((INode) subject.getValue()).getName());
+        
+       if (alts != null) {
+         for (DefaultBlock c : alts) {
+           if (c.matchAndEval(eval, subject)) {
+             return true;
+           }
+         }
+       }
+       
+       return false;
+    }
 	}
+
+
+  public static boolean matchAndEval(Result<IValue> subject, Expression pat, Statement stat, IEvaluator<Result<IValue>> eval) {
+    boolean debug = false;
+    Environment old = eval.getCurrentEnvt();
+    eval.pushEnv();
+  
+    try {
+      IMatchingResult mp = pat.getMatcher(eval);
+      mp.initMatch(subject);
+  
+      while (mp.hasNext()) {
+        eval.pushEnv();
+        
+        if (eval.__getInterrupt()) {
+          throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
+        }
+  
+        if (mp.next()) {
+          try {
+            try {
+              stat.interpret(eval);
+            } catch (Insert e) {
+              // Make sure that the match pattern is set
+              if (e.getMatchPattern() == null) {
+                e.setMatchPattern(mp);
+              }
+              throw e;
+            }
+            return true;
+          } catch (Failure e) {
+            // unwind(old); // can not clean up because you don't
+            // know how far to roll back
+          }
+        }
+      }
+    } finally {
+      if (debug)
+        System.err.println("Unwind to old env");
+      eval.unwind(old);
+    }
+    return false;
+  }
 }

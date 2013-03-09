@@ -122,13 +122,29 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			return that.notInListRelation(this);
 		}
 		
-		
 		@Override
 		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 			if(getType().getElementType().isVoidType()) throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 			
 			// TODO: must go to PDB
 			int nSubs = subscripts.length;
+			//TODO: A (temporary) fix to solve the confusion between indexing a list and querying a relation
+			// When there is one integer subscript, we just index the list relation as a list
+			if(nSubs == 1 && subscripts[0].getType().isIntegerType()){
+				if (getValue().length() == 0) {
+					throw RuntimeExceptionFactory.emptyList(ctx.getCurrentAST(), ctx.getStackTrace());
+				}
+				IInteger index = (IInteger) subscripts[0].getValue();
+				
+				int idx = index.intValue();
+				if(idx < 0){
+					idx = idx + getValue().length();
+				}
+				if ( (idx >= getValue().length()) || (idx < 0) ) {
+					throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
+				}
+				return makeResult(getType().getElementType(), getValue().get(idx), ctx);
+			}
 			if (nSubs >= getType().getArity()) {
 				throw new UnsupportedSubscriptArity(getType(), nSubs, ctx.getCurrentAST());
 			}
@@ -169,10 +185,10 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			
 			if (yieldList){
 				resultType = getTypeFactory().listType(resFieldType[0]);
-				wset = resultType.writer(getValueFactory());
+				wset = this.getValueFactory().listWriter();
 			} else {
 				resultType = getTypeFactory().lrelType(resFieldType);
-				wrel = resultType.writer(getValueFactory());
+				wrel = this.getValueFactory().listRelationWriter();
 			}
 
 			
@@ -249,7 +265,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			}
 			
 			try {
-				IListWriter w = getValueFactory().listWriter(tupleType.getFieldType(name));
+				IListWriter w = getValueFactory().listWriter();
 				for (IValue e : getValue()) {
 					w.append(((ITuple) e).get(tupleType.getFieldIndex(name)));
 				}
@@ -287,7 +303,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 		<U extends IValue, V extends IValue> Result<U> appendTuple(TupleResult tuple) {
 			// TODO: check arity 
 			Type newType = getTypeFactory().listType(tuple.getType().lub(getType().getElementType()));
-			return makeResult(newType, (IListRelation) getValue().append(tuple.getValue()), ctx);
+			return makeResult(newType, /*(IListRelation)*/ getValue().append(tuple.getValue()), ctx); // do not see a reason for the unsafe downcast
 		}
 
 		@Override
@@ -305,7 +321,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 				fieldTypes[i] = tupleType2.getFieldType(i - arity1);
 			}
 			Type tupleType = getTypeFactory().tupleType(fieldTypes);
-			IListWriter writer = getValueFactory().listWriter(tupleType);
+			IListWriter writer = getValueFactory().listWriter();
 			IValue fieldValues[] = new IValue[arity1 + arity2];
 			for (IValue tuple1: that.getValue()) {
 				for (IValue tuple2: this.getValue()) {
@@ -334,7 +350,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 				fieldTypes[i] = tupleType.getFieldType(i);
 			}
 			Type resultTupleType = getTypeFactory().tupleType(fieldTypes);
-			ISetWriter writer = getValueFactory().setWriter(resultTupleType);
+			ISetWriter writer = getValueFactory().setWriter();
 			IValue fieldValues[] = new IValue[1 + arity2];
 			for (IValue setValue: that.getValue()) {
 				for (IValue relValue: this.getValue()) {

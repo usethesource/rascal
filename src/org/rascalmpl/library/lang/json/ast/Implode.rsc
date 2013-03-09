@@ -8,13 +8,13 @@
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 module lang::json::ast::Implode
 
-import lang::json::syntax::JSON;
+import lang::json::\syntax::JSON;
 import lang::json::ast::JSON;
 import String;
 
 alias AValue = lang::json::ast::JSON::Value;
 
-alias CValue = lang::json::syntax::JSON::Value;
+alias CValue = lang::json::\syntax::JSON::Value;
 
 public str removeEnds(str s) {
 	return substring(substring(s,0,size(s)-1),1);
@@ -36,7 +36,7 @@ public AValue convertValue((Value)`true`) = boolean(true);
 
 public map[str,AValue] convertObject((Object)`{ < {Member ","}* ms > }`) {
 	map[str,AValue] res = ( );
-	for (`<StringLiteral memberName> : < lang::json::syntax::JSON::Value memberValue>` <- ms) {
+	for ((Member) `<StringLiteral memberName> : <Value memberValue>` <- ms) {
 		mn = removeEnds("<memberName>");
 		av = convertValue(memberValue);
 		if (mn notin res) {

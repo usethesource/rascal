@@ -35,7 +35,6 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -698,11 +697,60 @@ public class Environment {
 		this.typeParameters = null;
 		this.nameFlags = null;
 	}
-
-	public void declareProduction(SyntaxDefinition x) {
-		getRoot().declareProduction(x);
-	}
 	
+	public void extend(Environment other) {
+	  // note that the flags need to be extended before other things, since
+	  // they govern how overloading is handled in functions.
+	  if (other.nameFlags != null) {
+      if (this.nameFlags == null) {
+        this.nameFlags = new HashMap<String, NameFlags>();
+      }
+      
+      for (String name : other.nameFlags.keySet()) {
+        NameFlags flags = this.nameFlags.get(name);
+        
+        if (flags != null) {
+          flags.setFlags(flags.getFlags() | other.nameFlags.get(name).getFlags());
+        }
+        else {
+          this.nameFlags.put(name, other.nameFlags.get(name));
+        }
+      }
+    }
+	  
+	  if (other.variableEnvironment != null) {
+	    if (this.variableEnvironment == null) {
+	      this.variableEnvironment = new HashMap<String, Result<IValue>>();
+	    }
+	    this.variableEnvironment.putAll(other.variableEnvironment);
+	  }
+	  
+	  if (other.functionEnvironment != null) {
+	    if (this.functionEnvironment == null) {
+	      this.functionEnvironment = new HashMap<String, List<AbstractFunction>>();
+	    }
+	    
+	    for (String name : other.functionEnvironment.keySet()) {
+	      List<AbstractFunction> otherFunctions = other.functionEnvironment.get(name);
+	      
+	      if (otherFunctions != null) {
+	        for (AbstractFunction function : otherFunctions) {
+	          storeFunction(name, function);
+	        }
+	      }
+	    }
+	  }
+	  
+	  if (other.typeParameters != null) {
+	    if (this.typeParameters == null) {
+	      this.typeParameters = new HashMap<Type, Type>();
+	    }
+	    this.typeParameters.putAll(other.typeParameters);
+	  }
+	  
+	  
+	}
+
 	// TODO: We should have an extensible environment model that doesn't
 	// require this type of checking, but instead stores all the info on
 	// a name in one location...

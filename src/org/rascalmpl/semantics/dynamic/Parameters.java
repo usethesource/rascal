@@ -13,8 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.List;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -25,14 +23,6 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Parameters extends org.rascalmpl.ast.Parameters {
-
-	static public class Ambiguity extends
-			org.rascalmpl.ast.Parameters.Ambiguity {
-		public Ambiguity(IConstructor __param1,
-				List<org.rascalmpl.ast.Parameters> __param2) {
-			super(__param1, __param2);
-		}
-	}
 
 	static public class Default extends org.rascalmpl.ast.Parameters.Default {
 		public Default(IConstructor __param1, Formals __param2, KeywordFormals __param3) {

@@ -243,7 +243,7 @@ public str symbol2rascal(Symbol sym) {
      	return "<symbol2rascal(lhs)> -  <symbol2rascal(rhs)>";
     case complement(lhs):
      	return "!<symbol2rascal(lhs)>";
-    case conditional(Symbol s, {Condition c, Condition d, set[Condition] r}):
+    case conditional(Symbol s, {Condition c, Condition d, *Condition r}):
         return symbol2rascal(conditional(conditional(s, {c}), {d, *r})); 
     case conditional(s, {delete(t)}) :
         return "<symbol2rascal(s)> \\ <symbol2rascal(t)>"; 

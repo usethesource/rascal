@@ -1,6 +1,5 @@
 module lang::rascal::checker::tests::Life
 
-// import vis::Chart;
 import vis::Figure;
 import vis::Render;
 import Set;

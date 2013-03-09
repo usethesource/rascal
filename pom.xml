@@ -10,8 +10,12 @@
 	</parent>
 
 	<artifactId>rascal</artifactId>
-	<version>0.5.4.qualifier</version>
+	<version>0.6.0.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
+
+	<scm>
+		<developerConnection>scm:git:https://github.com/cwi-swat/rascal.git</developerConnection>			
+	</scm>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -36,25 +40,6 @@
 		</testResources>
 
 		<plugins>
- 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.5.1</version>
-				<executions>
-					<execution>
-						<id>compile-tests</id>
-						<phase>test-compile</phase>
-						<goals>
-							<goal>testCompile</goal>
-						</goals>
-						<configuration>
-							<testSource>1.6</testSource>
-							<testTarget>1.6</testTarget>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -69,6 +54,10 @@
 					</execution>
 				</executions>
 				<configuration>
+					<argLine>
+						-Xmx1g
+						-Xss128m
+					</argLine>				
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuite.java</include>
 					</includes>
@@ -79,10 +68,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.11</version>
-			<scope>test</scope>
+			<groupId>org.eclipse.imp</groupId>
+			<artifactId>org.eclipse.imp.pdb.values</artifactId>
+			<version>0.4.0.qualifier</version>
 		</dependency>
 	</dependencies>
 

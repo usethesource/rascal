@@ -122,4 +122,14 @@ public class BoolResult extends ElementResult<IBool> {
 	public boolean isTrue() {
 		return getValue().getValue();
 	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		return that.addBool(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
+		return that.addBool(this);
+	}
 }

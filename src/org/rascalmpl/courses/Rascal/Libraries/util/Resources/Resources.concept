@@ -30,7 +30,7 @@ The root of an Eclipse workspace also contains other resources, in particular `p
 
 Each Resource, but the root, has an `id` field that explains the exact location of the resource.
 
-The schema `project` that is supported by source locations (see [Location]) gives direct access to Eclipse projects.
+The schema `project` that is supported by source locations (see [$Values/Location]) gives direct access to Eclipse projects.
 
 The `Resource` library provides the following:
 <toc Rascal/Libraries/util/Resources 1>

@@ -12,6 +12,7 @@
  *   * Emilie Balland - (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Mark Hills - Mark.Hills@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
@@ -29,14 +30,16 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 
 public class TypedVariablePattern extends AbstractMatchingResult implements IVarPattern {
 	private String name;
-	org.eclipse.imp.pdb.facts.type.Type declaredType;
+	protected org.eclipse.imp.pdb.facts.type.Type declaredType;
 	private boolean anonymous = false;
 	private boolean debug = false;
+	protected boolean alreadyStored = false;
 
 	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, org.eclipse.imp.pdb.facts.type.Type type, org.rascalmpl.ast.Name name) {
 		super(ctx, x);
@@ -96,12 +99,13 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 				IConstructor tree = (IConstructor)subject.getValue();
 
 				NonTerminalType nt = (NonTerminalType)declaredType;
-				if (nt.getSymbol().isEqual(TreeAdapter.getType(tree))) {
+				if (SymbolAdapter.isEqual(nt.getSymbol(), TreeAdapter.getType(tree))) {
 					if(anonymous) { 
 						return true;
 					}		
 					
 					ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
+					this.alreadyStored = true;
 					return true;
 				}
 			}
@@ -135,6 +139,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 			
 		
 			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(tmp, subject.getValue(), ctx));
+			this.alreadyStored = true;
 			return true;
 		}
 		
@@ -161,4 +166,5 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 	public Type getType() {
 		return declaredType;
 	}
+	 
 }

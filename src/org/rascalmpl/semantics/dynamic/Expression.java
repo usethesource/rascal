@@ -19,16 +19,15 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -41,7 +40,6 @@ import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
@@ -72,23 +70,21 @@ import org.rascalmpl.interpreter.matching.QualifiedNamePattern;
 import org.rascalmpl.interpreter.matching.ReifiedTypePattern;
 import org.rascalmpl.interpreter.matching.SetPattern;
 import org.rascalmpl.interpreter.matching.TuplePattern;
+import org.rascalmpl.interpreter.matching.TypedMultiVariablePattern;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.matching.VariableBecomesPattern;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.BoolResult;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.result.TraverseFunction;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
@@ -106,8 +102,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
-
-	
+  private static final Name IT = ASTBuilder.makeLex("Name", null, "<it>");
 	
 	static public class Addition extends org.rascalmpl.ast.Expression.Addition {
 
@@ -138,39 +133,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-	}
-	
-	static class ClosedRecursiveAddition extends org.rascalmpl.ast.Expression.ClosedRecursiveAddition {
-		
-		public ClosedRecursiveAddition(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
-				org.rascalmpl.ast.Expression __param3) {
-			super(__param1, __param2, __param3);
-		}
-		
-		@Override
-		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-
-			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
-					this);
-
-		}
-
-		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
-			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);
-			
-			Result<IValue> left = this.getLhs().interpret(__eval);
-			Result<IValue> right = this.getRhs().interpret(__eval);
-			
-			__eval.setCurrentAST(this);
-			
-			return left.add(right, false);
-			
-		}
-		
 	}
 
 	static public class All extends org.rascalmpl.ast.Expression.All {
@@ -401,17 +363,21 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				org.rascalmpl.ast.Expression nameExpr) {
 			java.util.List<AbstractFunction> functions = new LinkedList<AbstractFunction>();
 			String cons = Names.consName(nameExpr.getQualifiedName());
-			eval.getCurrentEnvt().getAllFunctions(cons, functions);
+			Type adt = eval.getCurrentEnvt().lookupAbstractDataType(Names.moduleName(nameExpr.getQualifiedName()));
+			if(adt != null)
+				eval.getCurrentEnvt().getAllFunctions(adt, cons, functions);
+			else eval.getCurrentEnvt().getAllFunctions(cons, functions);
 			
 			if (functions.isEmpty()) {
-				throw new UndeclaredVariable(Names.fullName(nameExpr.getQualifiedName()), this);
+			  return null;
+//				throw new UndeclaredVariable(Names.fullName(nameExpr.getQualifiedName()), this);
 			}
-
+			
 			Type signature = getArgumentTypes(eval);
 			Type constructorType = TF.nodeType();
 			
 			for (AbstractFunction candidate : functions) {
-				if (candidate.match(signature)) {
+				if (candidate.getReturnType().isAbstractDataType() && !candidate.getReturnType().isVoidType() && candidate.match(signature)) {
 					Type decl = eval.getCurrentEnvt().getConstructor(candidate.getReturnType(), cons, signature);
 					if (decl != null) {
 						constructorType = decl;
@@ -513,7 +479,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						kwActuals = new HashMap<String,Result<IValue>>();
 						
 						for(KeywordArgument kwa : keywordArgs.getKeywordArgumentList()){
-							kwActuals.put(kwa.getName().toString(), kwa.getExpression().interpret(__eval));
+							kwActuals.put(Names.name(kwa.getName()), kwa.getExpression().interpret(__eval));
 						}
 				}
 				Result<IValue> res = null;
@@ -638,38 +604,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 	}
-	
-	static public class ClosedRecursiveComposition extends org.rascalmpl.ast.Expression.ClosedRecursiveComposition {
-		
-		public ClosedRecursiveComposition (IConstructor __param1, org.rascalmpl.ast.Expression __param2, 
-				org.rascalmpl.ast.Expression __param3) {
-			super(__param1, __param2, __param3);
-		}
-		
-		@Override
-		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-
-			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
-					this);
-
-		}
-
-		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
-			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);
-			
-			Result<IValue> left = this.getLhs().interpret(__eval);
-			Result<IValue> right = this.getRhs().interpret(__eval);
-			
-			__eval.setCurrentAST(this);
-			
-			return left.compose(right, null, false);
-		}
-		
-	}
 
 	static public class Comprehension extends
 			org.rascalmpl.ast.Expression.Comprehension {
@@ -702,6 +636,23 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	}
 
+	static public class Concrete extends org.rascalmpl.ast.Expression.Concrete {
+  
+    public Concrete(IConstructor node, org.rascalmpl.ast.Concrete concrete) {
+      super(node, concrete);
+    }
+    
+    @Override
+    public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+      throw new SyntaxError("concrete syntax fragment", (ISourceLocation) getAnnotations().get("parseError"));
+    }
+    
+    @Override
+    public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+      throw new SyntaxError("concrete syntax fragment", (ISourceLocation) getAnnotations().get("parseError"));
+    }
+    
+  }
 	static public class Descendant extends
 			org.rascalmpl.ast.Expression.Descendant {
 
@@ -1344,8 +1295,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
-			Result<IValue> v = __eval.getCurrentEnvt().getVariable(
-					org.rascalmpl.interpreter.Evaluator.IT);
+			Result<IValue> v = __eval.getCurrentEnvt().getVariable(IT);
 			if (v == null) {
 				throw new UnguardedIt(this);
 			}
@@ -1457,7 +1407,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@SuppressWarnings("unchecked")
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
@@ -1466,125 +1415,46 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type elementType = TF.voidType();
 			java.util.List<IValue> results = new ArrayList<IValue>();
 
-			// Splicing is true for the complete list; a terrible, terrible
-			// hack.
-			boolean splicing = __eval.__getConcreteListsShouldBeSpliced();
-			boolean first = true;
-			int skip = 0;
-
 			for (org.rascalmpl.ast.Expression expr : elements) {
 				boolean isSplicedElem = expr.isSplice() || expr.isSplicePlus();
 				
-				Type resultType = null;
 				Result<IValue> resultElem = null;
-				if(!isSplicedElem){
+
+				if (!isSplicedElem) {
 					resultElem = expr.interpret(__eval);
 
 					if (resultElem.getType().isVoidType()) {
 						throw new NonVoidTypeRequired(expr);
 					}
 
-					if (skip > 0) {
-						skip--;
-						continue;
-					}
-
-					resultType = resultElem.getType();
 				}
-				if (!isSplicedElem && splicing && resultType instanceof NonTerminalType) {
-					IConstructor sym = ((NonTerminalType) resultType)
-							.getSymbol();
+			
+				if (isSplicedElem){
+				  resultElem = expr.getArgument().interpret(__eval);
+				  if (resultElem.getType().isVoidType()) {
+				    throw new NonVoidTypeRequired(expr);
+				  }
 
-					if (org.rascalmpl.values.uptr.SymbolAdapter.isAnyList(sym)) {
-						IConstructor appl = ((IConstructor) resultElem
-								.getValue());
-						IList listElems = org.rascalmpl.values.uptr.TreeAdapter
-								.getArgs(appl);
-						// Splice elements in list if element types permit
-						// __eval
-
-						if (!listElems.isEmpty()) {
-							for (IValue val : listElems) {
-								elementType = elementType.lub(val.getType());
-								results.add(val);
-							}
-						} else {
-							// make sure to remove surrounding sep
-							if (!first) {
-								if (org.rascalmpl.values.uptr.SymbolAdapter
-										.isIterStarSeps(sym)) {
-									for (@SuppressWarnings("unused")
-									IValue sep : org.rascalmpl.values.uptr.SymbolAdapter
-											.getSeparators(sym)) {
-										results.remove(results.size() - 1);
-									}
-								}
-							} else {
-								if (org.rascalmpl.values.uptr.SymbolAdapter
-										.isIterStarSeps(sym)) {
-									skip = org.rascalmpl.values.uptr.SymbolAdapter
-											.getSeparators(sym).length();
-								}
-							}
-						}
-					} else {
-						// Just add it.
-						elementType = elementType.lub(resultElem.getType());
-						results.add(results.size(), resultElem.getValue());
-					}
-				} else {
-					/* = no concrete syntax */
-					if(isSplicedElem){
-						resultElem = expr.getArgument().interpret(__eval);
-						if (resultElem.getType().isVoidType()) {
-							throw new NonVoidTypeRequired(expr);
-						}
-
-						if(resultElem.getType().isListType()|| resultElem.getType().isSetType()){
-							/*
-							 * Splice elements in list
-							 */
-							for (IValue val : (Iterable<IValue>) resultElem.getValue()) {
-								elementType = elementType.lub(val.getType());
-								results.add(val);
-							}
-							first = false;
-							continue;
-						} 
-					}
-					
-					elementType = elementType.lub(resultElem.getType());
-					results.add(results.size(), resultElem.getValue());
+				  if(resultElem.getType().isListType()|| resultElem.getType().isSetType()){
+				    /*
+				     * Splice elements in list
+				     */
+					elementType = elementType.lub(resultElem.getType().getElementType());
+				    for (IValue val : (Iterable<IValue>) resultElem.getValue()) {
+				      results.add(val);
+				    }
+				    continue;
+				  } 
 				}
-//					if (resultElem.getType().isListType()
-//							&& !expr.isList()
-//							&& elementType.isSubtypeOf(resultElem.getType()
-//									.getElementType())) {
-//						/*
-//						 * Splice elements in list if element types permit
-//						 * __eval
-//						 */
-//						for (IValue val : ((IList) resultElem.getValue())) {
-//							elementType = elementType.lub(val.getType());
-//							results.add(val);
-//						}
-//						System.err.println("AUTOMATIC LIST SPLICING: " + __eval.getCurrentAST().getLocation());
-//					} else {
-//						elementType = elementType.lub(resultElem.getType());
-//
-//						results.add(results.size(), resultElem.getValue());
-//					}
-//				}
 
-				first = false;
+				elementType = elementType.lub(resultElem.getType());
+				results.add(results.size(), resultElem.getValue());
 			}
-			Type resultType = TF.listType(elementType);
-			IListWriter w = resultType.writer(__eval.__getVf());
-			w.appendAll(results);
-			// Was: return makeResult(resultType, applyRules(w.done()));
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
-					resultType, w.done(), __eval);
 
+			Type resultType = TF.listType(elementType);
+			IListWriter w = __eval.__getVf().listWriter();
+			w.appendAll(results);
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(resultType, w.done(), __eval);
 		}
 
 		@Override
@@ -1691,7 +1561,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			}
 
 			Type type = TF.mapType(keyType, valueType);
-			IMapWriter w = type.writer(__eval.__getVf());
+			IMapWriter w = __eval.__getVf().mapWriter();
 			w.putAll(result);
 
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
@@ -1835,14 +1705,24 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class Splice extends
 	org.rascalmpl.ast.Expression.Splice {
 
-		public Splice(IConstructor __param1,
-				org.rascalmpl.ast.Expression __param2) {
+		public Splice(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 			org.rascalmpl.ast.Expression arg = this.getArgument();
+			if (arg.hasType() && arg.hasName()) {
+				Environment env = eval.getCurrentEnvt();
+				Type type = arg.getType().typeOf(env);
+				type = type.instantiate(env.getTypeBindings());
+				
+				// TODO: Question, should we allow non terminal types in splices?
+				if (type instanceof NonTerminalType) {
+					throw new ImplementationError(null);
+				}				
+				return new TypedMultiVariablePattern(eval, this, type, arg.getName());
+			}
 			if(arg.hasQualifiedName()){
 				return new MultiVariablePattern(eval, this, arg.getQualifiedName());
 			}
@@ -1875,7 +1755,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Type typeOf(Environment env) {
 			// we return the element type here, such that lub at a higher level
 			// does the right thing!
-			return getQualifiedName().typeOf(env);
+			org.rascalmpl.ast.Expression arg = this.getArgument();
+			if (arg.hasType() && arg.hasName()) {
+				return arg.getType().typeOf(env);
+			}
+			if(arg.hasQualifiedName()){
+				return arg.getQualifiedName().typeOf(env);
+			}
+			throw new ImplementationError(null);
 		}
 
 	}
@@ -2241,7 +2128,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
-							__eval.getCurrentEnvt().storeVariable(Evaluator.IT, it);
+							__eval.getCurrentEnvt().storeVariable(IT, it);
 							it = result.interpret(__eval);
 							__eval.unwind(olds[i]);
 							__eval.pushEnv();
@@ -2384,8 +2271,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						 * Splice the elements in the set
 						 * __eval.
 						 */
+						elementType = elementType.lub(resultElem.getType().getElementType());
 						for (IValue val : (Iterable<IValue>) resultElem.getValue()) {
-							elementType = elementType.lub(val.getType());
 							results.add(val);
 						}
 					continue;
@@ -2400,7 +2287,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				results.add(results.size(), resultElem.getValue());
 			}
 			Type resultType = TF.setType(elementType);
-			ISetWriter w = resultType.writer(__eval.__getVf());
+			ISetWriter w = __eval.__getVf().setWriter();
 			w.insertAll(results);
 			// Was: return makeResult(resultType, applyRules(w.done()));
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
@@ -2413,7 +2300,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type elementType = TF.voidType();
 
 			for (org.rascalmpl.ast.Expression elt : getElements()) {
-				elementType = elementType.lub(elt.typeOf(env));
+				Type eltType = elt.typeOf(env);
+				
+				// TODO: here we need to properly deal with splicing operators!!!
+				if (eltType.isSetType()) {
+				  eltType = eltType.getElementType();
+				}
+        elementType = elementType.lub(eltType);
 			}
 
 			return TF.setType(elementType);
@@ -2889,94 +2782,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 	}
-	
-	static public class Fvisit extends org.rascalmpl.ast.Expression.Fvisit {
 
-		public Fvisit(IConstructor __param1, java.util.List<org.rascalmpl.ast.Expression> __param2) {
-			super(__param1, __param2);
-		}
-
-		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
-			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);		
-						
-			java.util.List<org.rascalmpl.ast.Expression> expressions = this.getExpressions();
-			
-			assert(expressions.size() >= 1 && expressions.size() <= 2);
-			
-			java.util.List<Type> types = new LinkedList<Type>(); // type arguments to the visit, the order does matter
-			java.util.Set<Type> allTypes = new HashSet<Type>(); // types of all the children to be visited 
-			java.util.Map<Type, Result<IValue>> algebra = new HashMap<Type, Result<IValue>>(); // algebra functions of the visit
-			
-			if(expressions.get(0).isTuple()) // the tuple of type expressions
-				for(org.rascalmpl.ast.Expression expr : expressions.get(0).getElements()) {
-					Type type = expr.getType().typeOf(__eval.getCurrentEnvt());
-					types.add(type);
-					org.rascalmpl.interpreter.env.IsomorphicTypes.collectAllTypes(type, allTypes, __eval);
-				}
-			
-			boolean isCatamorphism = false;
-			boolean isAnamorphism = false;
-			boolean isTP = true;
-			
-			if(expressions.size() == 2) {
-				// Potentially, non type preserving
-				isTP = false;
-				isCatamorphism = true;
-				isAnamorphism = true;
-				if(expressions.get(1).isTuple()) // the tuple of algebra functions
-					for(org.rascalmpl.ast.Expression expr : expressions.get(1).getElements()) {
-						Result<IValue> f = expr.interpret(__eval);
-						Type type = null;
-						Type returnType = null;
-						Type argumentType = null;
-						// type[T] -> T
-						if(f instanceof OverloadedFunction) {
-							AbstractFunction alg = ((OverloadedFunction) f).getFunctions().get(0);
-							type = alg.getKeywordParameterDefaults().get(0).getType().getTypeParameters().getFieldType(0);
-							returnType = alg.getReturnType();
-							argumentType = ((FunctionType) alg.getType()).getArgumentTypes().getFieldType(0);
-						} else { 
-							AbstractFunction alg = (AbstractFunction) f;
-							type = alg.getKeywordParameterDefaults().get(0).getType().getTypeParameters().getFieldType(0);
-							returnType = alg.getReturnType();
-							argumentType = ((FunctionType) alg.getType()).getArgumentTypes().getFieldType(0);
-						}
-						algebra.put(type, f);
-						if(type.isAbstractDataType() && argumentType.isAbstractDataType())
-							isCatamorphism = isCatamorphism && org.rascalmpl.interpreter.env.IsomorphicTypes.isIsomorphic(__eval.getCurrentEnvt().lookupAbstractDataType(type.getName()), 
-									__eval.getCurrentEnvt().lookupAbstractDataType(argumentType.getName()));
-						if(type.isAbstractDataType() && returnType.isAbstractDataType())
-							isAnamorphism = isAnamorphism && org.rascalmpl.interpreter.env.IsomorphicTypes.isIsomorphic(__eval.getCurrentEnvt().lookupAbstractDataType(type.getName()), 
-									__eval.getCurrentEnvt().lookupAbstractDataType(returnType.getName()));
-					}
-			} 
-			
-			java.util.Map<Type, AbstractFunction> functions = new HashMap<Type, AbstractFunction>();	
-			TraverseFunction.generateTraverseFunctions(allTypes, algebra, isCatamorphism, functions, __eval);
-			
-			java.util.List<AbstractFunction> results = new LinkedList<AbstractFunction>();
-			java.util.List<Type> resultTypes = new LinkedList<Type>();
-			
-			for(Type key : functions.keySet())
-				if(types.contains(key)) {
-					resultTypes.add(functions.get(key).getType());
-					results.add(functions.get(key));
-				}
-			
-			if(results.size() == 1)
-				return makeResult(resultTypes.get(0), results.get(0), __eval);
-			
-			AbstractFunction[] resultArray = new AbstractFunction[types.size()];
-			Type[] resultTypeArray = new Type[types.size()];
-			
-			return makeResult(TypeFactory.getInstance().tupleType(resultTypes.toArray(resultTypeArray)), __eval.__getVf().tuple(results.toArray(resultArray)), __eval);
-		}
-
-	}
-	
 	static public class VoidClosure extends
 			org.rascalmpl.ast.Expression.VoidClosure {
 

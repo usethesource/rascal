@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-module C
+module lang::c90::\syntax::C
 
 import ParseTree;
 
