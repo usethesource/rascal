@@ -6,10 +6,9 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@bootstrapParser
 module lang::rascal::grammar::definition::Layout
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;

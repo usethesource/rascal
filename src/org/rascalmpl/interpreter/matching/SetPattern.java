@@ -10,7 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
+ *   * Mark Hills - Mark.Hills@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
@@ -81,16 +81,19 @@ public class SetPattern extends AbstractMatchingResult {
 		
 		Type elemType = tf.voidType();
 		for(int i = 0; i < patternSize; i++){
-			Type childType = patternChildren.get(i).getType(env, patternVars);
+			IMatchingResult child = patternChildren.get(i);
+			Type childType = child.getType(env, patternVars);
 			patternVars = merge(patternVars, patternChildren.get(i).getVariables());
 			if(debug)System.err.println(" i = " + i + ": " + patternChildren.get(i) + ", type = " + childType);
-			if(childType.isSetType()){
+			boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof TypedMultiVariablePattern;
+			  
+			if(childType.isSetType() && isMultiVar){
 				elemType = elemType.lub(childType.getElementType());
 			} else {
 				elemType = elemType.lub(childType);
 			}
 		}
-		if(debug)System.err.println("getType: " + this + " returns " + tf.setType(elemType));
+		if(debug)System.err.println("SetPattern.getType: " + this + " returns " + tf.setType(elemType));
 		return tf.setType(elemType);
 	}
 	
@@ -104,8 +107,7 @@ public class SetPattern extends AbstractMatchingResult {
 	}
 	
 	private boolean isSetVar(int i){
-		IVarPattern def = allVars.get(varName[i]);
-		return isSetVar[i] || (def != null && def.getType().isSetType());
+		return isSetVar[i];
 	}
 	
 	// Sort the variables: element variables and non-literal patterns should 
@@ -208,14 +210,41 @@ public class SetPattern extends AbstractMatchingResult {
 		for(int i = 0; i < patternSize; i++){
 			IMatchingResult child = patternChildren.get(i);
 			if(debug)System.err.println("child = " + child);
-			if(child instanceof TypedVariablePattern){
+			
+			if (child instanceof TypedMultiVariablePattern) {
+				TypedMultiVariablePattern tmvVar = (TypedMultiVariablePattern) child;
+				Type childType = child.getType(env, null);
+				String name = tmvVar.getName();
+				
+				if (!tmvVar.isAnonymous() && allVars.containsKey(name)) {
+					throw new RedeclaredVariable(name, getAST());
+				}
+				
+				if((childType.isSetType() && childType.comparable(staticSetSubjectType) ||
+		          (!childType.isSetType() && childType.comparable(staticSubjectElementType)))) {
+					tmvVar.covertToSetType();
+					if (!tmvVar.isAnonymous()) {
+						patVars.add(name);
+						allVars.put(name,  (IVarPattern)child);
+					}
+					varName[nVar] = name;
+					varPat[nVar] = child;
+					isSetVar[nVar] = true;
+					isBinding[nVar] = true;
+					isNested[nVar] = false;
+					++nVar;
+				} else {
+					hasNext = false;
+					return;
+				}
+			} else if(child instanceof TypedVariablePattern){
 				TypedVariablePattern patVar = (TypedVariablePattern) child;
 				Type childType = child.getType(env, null);
 				String name = ((TypedVariablePattern)child).getName();
 				if(!patVar.isAnonymous() && allVars.containsKey(name)){
 					throw new RedeclaredVariable(name, getAST());
 				}
-				if(childType.comparable(staticSetSubjectType) || childType.comparable(staticSubjectElementType)){
+				if(childType.comparable(staticSubjectElementType)){
 					/*
 					 * An explicitly declared set or element variable.
 					 */
@@ -225,7 +254,7 @@ public class SetPattern extends AbstractMatchingResult {
 					}
 					varName[nVar] = name;
 					varPat[nVar] = child;
-					isSetVar[nVar] = childType.isSetType();
+					isSetVar[nVar] = false;
 					isBinding[nVar] = true;
 					isNested[nVar] = false;
 					nVar++;

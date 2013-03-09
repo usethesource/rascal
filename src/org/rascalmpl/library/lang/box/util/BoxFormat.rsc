@@ -8,12 +8,12 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module lang::box::util::BoxFormat
 import ParseTree;
-import lang::box::util::Concrete;
+// import lang::box::util::Concrete;
 import lang::box::util::Box;
 import IO;
 import List;
 
-import lang::box::syntax::Box;
+import lang::box::\syntax::Box;
 
 /*
 alias UserDefinedFilter = Box(Tree t) ;
@@ -52,11 +52,11 @@ Box makeBody(Tree body) {
 
 public Box getUserDefined(Tree q) {
       if (Boxx a:=q) {
-          if (`<FontOperator op> [ <Boxx* boxs> ]`:=a) {
+          if ((Boxx) `<FontOperator op> [ <Boxx* boxs> ]`:=a) {
           list[Box] bs = getArgs(boxs);
           return   H(0, [evPt(op), L("["), H(1, bs), L("]")]);
          }
-         if (`<BoxOperator op> [ <Boxx* boxs> ]`:=a) {
+         if ((Boxx) `<BoxOperator op> [ <Boxx* boxs> ]`:=a) {
           return   V(0, [H(0, [evPt(op), L("[")]), makeBody(boxs), L("]")]);
          }
       }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.test.library;
 
@@ -16,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 
@@ -354,4 +356,39 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{List::toString([1]) == \"[1]\";}"));
 		assertTrue(runTestInSameEvaluator("{List::toString([1, 2]) == \"[1,2]\";}"));
 	}
+	
+	@Test(expected = UnexpectedType.class) 
+	public void listExpressions1() {
+		runTest("{ value n = 1; list[int] l = [ *[n, n] ]; }");
+	}
+	
+	@Test(expected = UnexpectedType.class) 
+	public void listExpressions2() {
+		runTest("{ value n = 1; list[int] l = [ 1, *[n, n], 2 ]; }");
+	}
+	
+	@Test
+	public void listExpressions3() {
+		assertTrue(runTest("{ value n = 1; value s = \"string\"; list[int] _ := [ n ] && list[str] _ := [ s, s, *[ s, s ] ]; }"));
+	}
+	
+	// Tests related to the correctness of the dynamic types of lists produced by the library functions;
+	// incorrect dynamic types make pattern matching fail;
+
+//	@Test
+//	public void testDynamicTypes() {
+//		prepare("import List;");
+//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [\"1\",2,3]; list[int] _ := slice(lst, 1, 2); }"));
+//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [\"1\",2,3]; list[int] _ := lst - \"1\"; }"));
+//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [\"1\",2,3]; list[int] _ := lst - [\"1\"]; }"));
+//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [\"1\",2,3]; list[int] _ := delete(lst, 0); }"));
+//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [\"1\",2,3]; list[int] _ := drop(1, lst); }"));
+//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [1,2,\"3\"]; list[int] _ := head(lst, 2); }"));
+//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [1,2,\"3\"]; list[int] _ := prefix(lst); }"));
+//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [\"1\",2,3]; list[int] _ := tail(lst); }"));
+//		assertTrue(runTestInSameEvaluator("{ list[value] lst = [1,2,\"3\"]; list[int] _ := take(2, lst); }"));
+//		
+//		assertTrue(runTestInSameEvaluator("{ [str _, *int _] := [\"1\",2,3]; }"));
+//	}
+	
 }

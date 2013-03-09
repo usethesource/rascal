@@ -64,7 +64,8 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 
 	@Override
 	protected Result<IBool> equalToDateTime(DateTimeResult that) {
-		return that.equalityBoolean(this);
+		checkDateTimeComparison(that);
+		return bool(that.value.getInstant() == this.value.getInstant(), ctx);
 	}
 		
 	@Override
@@ -74,7 +75,8 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 
 	@Override
 	protected Result<IBool> nonEqualToDateTime(DateTimeResult that) {
-		return that.nonEqualityBoolean(this);
+		checkDateTimeComparison(that);
+		return bool(that.value.getInstant() != this.value.getInstant(), ctx);
 	}
 
 	@Override
@@ -412,6 +414,16 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a datetime and a time with no date.", ctx.getCurrentAST(), null);					
 			}
 		}
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
+		return that.addDateTime(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
+		return that.addDateTime(this);
 	}
 	
 }

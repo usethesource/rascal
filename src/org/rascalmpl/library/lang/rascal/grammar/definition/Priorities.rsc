@@ -5,7 +5,6 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@bootstrapParser
 module lang::rascal::grammar::definition::Priorities
 
 import ParseTree;
@@ -67,17 +66,17 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
 
 public DoNotNest doNotNest(Production p) {
   switch (p) {
-    case prod(s, [list[Symbol] \o,t],{_*,\assoc(left())}) :
+    case prod(s, [*Symbol \o, t],{_*,\assoc(left())}) :
       if (match(t, s)) return {<p, size(\o), p>};
-    case prod(s,[list[Symbol] \o,t],{_*,\assoc(\assoc())}) :
+    case prod(s,[*Symbol \o, t],{_*,\assoc(\assoc())}) :
       if (match(t, s)) return {<p, size(\o), p>};
     case prod(s,[t,_*],{_*,\assoc(\right())}) :
       if (match(t, s)) return {<p, 0, p>}; 
-    case prod(s,[t,list[Symbol] \o,u],{_*,\assoc(\non-assoc())}) :
+    case prod(s,[t, *Symbol \o, u],{_*,\assoc(\non-assoc())}) :
       if (match(t, s) && match(u, s)) return {<p, 0, p>,<p,size(\o) + 1,p>};       
     case prod(s,[t,_*],{_*,\assoc(\non-assoc())}) :
       if (match(t, s)) return {<p, 0, p>}; 
-    case prod(s,[list[Symbol] \o,t],{_*,\assoc(\non-assoc())}) :
+    case prod(s,[*Symbol \o, t],{_*,\assoc(\non-assoc())}) :
       if (match(t, s)) return {<p, size(\o), p>};
     case choice(_, set[Production] alts) :
       return {*doNotNest(a) | a <- alts}; 
@@ -97,7 +96,7 @@ DoNotNest associativity(Associativity a, set[Production] alts) {
   
   // note that there are nested groups and that each member of a nested group needs to be paired
   // with all the members of the other nested group. This explains the use of the / deep match operator.
-  for ({Production pivot, set[Production] rest} := alts,  Production child:prod(_,_,_) := pivot) {
+  for ({Production pivot, *Production rest} := alts,  Production child:prod(_,_,_) := pivot) {
     switch (a) {
       case \left(): 
         for (/Production father:prod(Symbol rhs, lhs:[_*,Symbol r],_) <- rest, match(r,rhs)) 

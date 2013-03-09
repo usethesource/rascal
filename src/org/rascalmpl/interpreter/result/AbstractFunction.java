@@ -38,7 +38,6 @@ import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.KeywordParameter;
-import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;

@@ -17,11 +17,6 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.Result;
 
 public abstract class StringConstant extends AbstractAST {
   public StringConstant(IConstructor node) {
@@ -29,45 +24,6 @@ public abstract class StringConstant extends AbstractAST {
   }
 
   
-
-  static public class Ambiguity extends StringConstant {
-    private final java.util.List<org.rascalmpl.ast.StringConstant> alternatives;
-    private final IConstructor node;
-           
-    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.StringConstant> alternatives) {
-      super(node);
-      this.node = node;
-      this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-    }
-    
-    @Override
-    public IConstructor getTree() {
-      return node;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      return null;
-    }
-  
-    @Override
-    public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-      throw new Ambiguous(src);
-    }
-      
-    @Override
-    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(src);
-    }
-    
-    public java.util.List<org.rascalmpl.ast.StringConstant> getAlternatives() {
-      return alternatives;
-    }
-    
-    public <T> T accept(IASTVisitor<T> v) {
-    	return v.visitStringConstantAmbiguity(this);
-    }
-  }
 
   static public class Lexical extends StringConstant {
   private final java.lang.String string;

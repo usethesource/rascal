@@ -34,8 +34,8 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.JavaMethod;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.MissingModifier;
+import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.parser.ASTBuilder;
 
 public abstract class FunctionDeclaration extends

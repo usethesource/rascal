@@ -15,8 +15,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
+import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
+
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IBool;

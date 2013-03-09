@@ -11,7 +11,6 @@ import Grammar;
 import ParseTree;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Productions;
-import lang::rascal::grammar::Assimilator;
 import IO;
 
 public Grammar expandKeywords(Grammar g) {
@@ -29,7 +28,7 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
     for (cond <- todo, !(cond in done)) {
       todo -= {cond};
       
-      if (cond has symbol, keywords(str name) := cond.symbol || meta(keywords(str name)) := cond.symbol) {
+      if (cond has symbol, keywords(str name) := cond.symbol) {
         if (name in names) {
           continue;
         }

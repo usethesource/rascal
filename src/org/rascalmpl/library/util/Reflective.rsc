@@ -44,5 +44,9 @@ public java Tree parseModule(str moduleContent, loc location);
 public java Tree parseModule(loc location);
 
 @javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses Evaluator to access the Rascal module parser}
+public java Tree parseModule(loc location, list[loc] searchPath);
+
+@javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to resolve a module name into a source location}
 public java loc getModuleLocation(str modulePath);

@@ -16,17 +16,18 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.debug;
 
+import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullEventTrigger;
+
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.debug.IDebugMessage.Detail;
-
-import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.*;
+import org.rascalmpl.interpreter.env.Environment;
 
 public final class DebugHandler implements IDebugHandler {
 
@@ -197,6 +198,7 @@ public final class DebugHandler implements IDebugHandler {
 		this.suspendRequested = suspendRequested;
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void processMessage(IDebugMessage message) {
 		switch (message.getSubject()) {

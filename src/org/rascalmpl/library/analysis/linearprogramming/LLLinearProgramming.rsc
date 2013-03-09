@@ -7,7 +7,7 @@
 }
 
 // Low level linear programming interface
-module util::LLLinearProgramming
+module analysis::linearprogramming::LLLinearProgramming
 
 import List;
 import util::Maybe;

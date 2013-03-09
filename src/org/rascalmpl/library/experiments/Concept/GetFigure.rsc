@@ -8,7 +8,8 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module experiments::Concept::GetFigure
-import experiments::Concept::Fca;
+
+import analysis::formalconcepts::FCA;
 import experiments::Concept::Types;
 import IO;
 import vis::Figure; 

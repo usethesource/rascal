@@ -6,13 +6,12 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@bootstrapParser
 module lang::rascal::grammar::definition::Modules
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Layout;
-import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::definition::Literals; 
 import lang::rascal::grammar::definition::Names;
 import Grammar;
 import Set;
@@ -67,20 +66,22 @@ public GrammarModule module2grammar(Module \mod) {
   return \module(name, imps, exts, syntax2grammar(collect(\mod)));
 } 
 
-public tuple[str, set[str], set[str]] getModuleMetaInf(\mod) {
+public tuple[str, set[str], set[str]] getModuleMetaInf(Module \mod) {
   // TODO: implement module type parameters
   // Tags tags "module" QualifiedName name ModuleParameters params Import* imports
   switch (\mod) {
-    case (Module) `<Tags _> module <QualifiedName name> <ModuleParameters _> <Import* is> <Body _>` :
-    return <deslash("<name>"), { "<i>" | (Import) `import <QualifiedName  i>;` <- is } 
-                    , { "<i>" | (Import) `extend <QualifiedName  i>;` <- is }>; 
-    case (Module) `<Tags _> module <QualifiedName name> <Import* is> <Body _>`:
-    return <deslash("<name>"), { "<i>" | (Import) `import <QualifiedName  i>;` <- is } 
-                    , { "<i>" | (Import) `extend <QualifiedName  i>;` <- is }>; 
+    case \default(parameters(_, QualifiedName name, _, Import* is),_) :
+    return <deslash("<name>"), { "<i>" | \import(\default(QualifiedName i)) <- is } 
+                    , { "<i>" | \extend(\default(QualifiedName i)) <- is }>;
+    case \default(\default(_, QualifiedName name, Import* is), _) : 
+    return <deslash("<name>"), { "<i>" |  \import(\default(QualifiedName i)) <- is } 
+                    , { "<i>" | \extend(\default(QualifiedName i)) <- is }>; 
   }
   
   throw "unexpected module syntax <\mod>";
 } 
+
+public set[SyntaxDefinition] getModuleSyntaxDefinitions(Module \mod) = collect(\mod);
  
 str deslash(str input) {
   return visit(input) {
@@ -89,7 +90,7 @@ str deslash(str input) {
 }
 
 public Grammar imports2grammar(set[Import] imports) {
-  return syntax2grammar({ s | (Import) `<SyntaxDefinition s>` <- imports});
+  return syntax2grammar({ s | \syntax(SyntaxDefinition s) <- imports});
 }
  
 private set[SyntaxDefinition] collect(Module \mod) {

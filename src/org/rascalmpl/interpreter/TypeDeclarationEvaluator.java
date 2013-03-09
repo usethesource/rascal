@@ -44,7 +44,6 @@ import org.rascalmpl.ast.Variant;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.KeywordParameter;
-import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.IllegalQualifiedDeclaration;
@@ -133,7 +132,7 @@ public class TypeDeclarationEvaluator {
 				Type declaredType = kwf.getType().typeOf(env);
 				Result<IValue> r = kwf.getExpression().interpret(eval);
 				if(r.getType().isSubtypeOf(declaredType))
-					commonKwargs.add(new KeywordParameter(kwf.getName().toString(), declaredType, r));
+					commonKwargs.add(new KeywordParameter(Names.name(kwf.getName()), declaredType, r));
 				else {
 					throw new UnexpectedType(declaredType, r.getType(), kwf);
 				}
@@ -151,7 +150,7 @@ public class TypeDeclarationEvaluator {
 						Type declaredType = kwf.getType().typeOf(env);
 						Result<IValue> r = kwf.getExpression().interpret(eval);
 						if(r.getType().isSubtypeOf(declaredType))
-							kwargs.add(new KeywordParameter(kwf.getName().toString(), declaredType, r));
+							kwargs.add(new KeywordParameter(Names.name(kwf.getName()), declaredType, r));
 						else {
 							throw new UnexpectedType(declaredType, r.getType(), kwf);
 						}
@@ -227,10 +226,7 @@ public class TypeDeclarationEvaluator {
 		try {
 			Type base = x.getBase().typeOf(env);
 
-			if (base == null) {
-				throw new UndeclaredType(x.getBase().toString(), x
-						.getBase());
-			}
+			assert base != null;
 			
 			QualifiedName name = x.getUser().getName();
 			if (Names.isQualified(name)) {

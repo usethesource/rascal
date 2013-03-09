@@ -229,6 +229,12 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public INode node(String name){
 		return cachedNodes.cache(valueFactory.node(name));
 	}
+	
+	@Override
+	public INode node(String name, IValue[] children,
+			Map<String, IValue> keyArgValues) throws FactTypeUseException {
+		return cachedNodes.cache(valueFactory.node(name, children, keyArgValues));
+	}
 
 	@Override
 	public IConstructor constructor(Type constructor, IValue... children) throws FactTypeUseException{
@@ -644,5 +650,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public IMapWriter mapWriter(Type mapType) {
 		return new MapCachingWriter(this, valueFactory.mapWriter(mapType));
 	}
+
+	
 
 }

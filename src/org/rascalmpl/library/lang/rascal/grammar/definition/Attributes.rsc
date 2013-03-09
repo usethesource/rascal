@@ -5,34 +5,30 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@bootstrapParser
 module lang::rascal::grammar::definition::Attributes
 
-import lang::rascal::\syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Literals;
 import ParseTree;
 import IO;
 
 @doc{adds an attribute to all productions it can find}
-public Production attribute(Production p, Attr a) {
-  return p[attributes=p.attributes+{a}];
-}
+public Production attribute(Production p, Attr a) = p[attributes=p.attributes+{a}];
 
-public set[Attr] mods2attrs(ProdModifier* mods) {
-  return {mod2attr(m) | ProdModifier m <- mods};
-}
+// TODO: the result set is always empty it seems. FixMe!
+public set[Attr] mods2attrs(ProdModifier* mods) = {mod2attr(m) | ProdModifier m <- mods};
  
 public Attr mod2attr(ProdModifier m) {
   switch (m) {
-    case (ProdModifier) `left`: return \assoc(\left());
-    case (ProdModifier) `right`: return \assoc(\right());
-    case (ProdModifier) `non-assoc`: return \assoc(\non-assoc());
-    case (ProdModifier) `assoc`: return \assoc(\assoc());
-    case (ProdModifier) `bracket`: return \bracket();
-    case (ProdModifier) `@ <Name n> = <StringConstant s>` : return \tag("<n>"(unescape(s)));
-    case (ProdModifier) `@ <Name n> = <Literal l>` : return \tag("<n>"("<l>"));
-    case (ProdModifier) `@ <Name n>` : return \tag("<n>"());
-    case (ProdModifier) `@ <Name n> <TagString s>` : return \tag("<n>"("<s>"));
-    default: throw "missed a case <m>";
+    case \associativity(\left())        : return \assoc(\left());
+    case \associativity(\right())       : return \assoc(\right());
+    case \associativity(\nonAssociative())   : return \assoc(\non-assoc());
+    case \associativity(\associative())       : return \assoc(\assoc());
+    case \bracket()                     : return \bracket();
+    case \tag(\default(Name n, TagString s))    : return \tag("<n>"("<s>"));
+    case \tag(\empty(Name n))                   : return \tag("<n>"()); 
+    case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l)))))  : return \tag("<n>"("<unescape(l)>"));
+    case \tag(\expression(Name n, literal(Literal l)))                                  : return \tag("<n>"("<unescape(l)>"));
+    default: { rprintln(m); throw "missed a case <m>"; }
   }
 }

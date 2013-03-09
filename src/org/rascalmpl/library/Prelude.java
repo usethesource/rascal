@@ -751,7 +751,21 @@ public class Prelude {
 		}
 	}
 	
-	/*
+    public IValue daysDiff(IDateTime dtStart, IDateTime dtEnd)
+    //@doc{Increment the years by a given amount.}
+    {
+            if (!(dtStart.isTime() || dtEnd.isTime())) {
+                    Calendar startCal = Calendar.getInstance();
+                    startCal.setTimeInMillis(dtStart.getInstant());
+                    Calendar endCal = Calendar.getInstance();
+                    endCal.setTimeInMillis(dtEnd.getInstant());
+                    
+                    return values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.DAY_OF_MONTH));
+            }
+            throw RuntimeExceptionFactory.invalidUseOfTimeException("Both inputs must include dates.", null, null);
+    }
+
+    /*
 	 * Graph
 	 */
 	
@@ -1313,6 +1327,10 @@ public class Prelude {
 		return w.done();
 	}
 	
+	public IString createLink(IString title, IString target) {
+		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
+	}
+	
 	/*
 	 * List
 	 */
@@ -1403,6 +1421,19 @@ public class Prelude {
       if (low < oldHigh)
         sort(low, oldHigh);
     }
+	}
+	
+	public IValue elementAt(IList lst, IInteger index) {
+		if(lst.length() == 0)
+			throw RuntimeExceptionFactory.emptyList(null, null);
+		try {
+			int i = index.intValue();
+			if(index.intValue() < 0)
+				i = i + lst.length();
+			return lst.get(i);
+		} catch (IndexOutOfBoundsException e){
+			 throw RuntimeExceptionFactory.indexOutOfBounds(index, null, null);
+		}
 	}
 	
 	public IList sort(IList l, IValue cmpv){
@@ -2170,8 +2201,8 @@ public class Prelude {
 	
 	private IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, IEvaluatorContext ctx) {
 
-		// always yield if expected type is str 
-		if (type.isStringType()) {
+		// always yield if expected type is str, except if regular 
+		if (type.isStringType() && !splicing) {
 			return values.string(TreeAdapter.yield(tree));
 		}
 

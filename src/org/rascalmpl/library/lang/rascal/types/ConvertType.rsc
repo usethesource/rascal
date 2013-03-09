@@ -26,7 +26,7 @@ import IO;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::\syntax::Rascal;
 
 @doc{Annotations for adding error and warning information to types}
 anno set[Message] Symbol@errinfo;
@@ -227,7 +227,7 @@ public Name getUserTypeRawName(UserType ut) {
 public Symbol convertTypeVar(TypeVar tv) {
     switch(tv) {
         case (TypeVar) `& <Name n>` : return \parameter("<n>",\value());
-        case (TypeVar) `& <Name n> <: <Type tb>` : return \parameter("<n>",convertType(tb));
+        case (TypeVar) `& <Name n> \<: <Type tb>` : return \parameter("<n>",convertType(tb));
     }
 }
 
