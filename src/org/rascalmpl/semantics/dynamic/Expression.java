@@ -19,6 +19,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -76,9 +77,11 @@ import org.rascalmpl.interpreter.matching.VariableBecomesPattern;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.BoolResult;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.result.TraverseFunction;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -133,6 +136,39 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
+	}
+	
+	static class ClosedRecursiveAddition extends org.rascalmpl.ast.Expression.ClosedRecursiveAddition {
+		
+		public ClosedRecursiveAddition(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
+				org.rascalmpl.ast.Expression __param3) {
+			super(__param1, __param2, __param3);
+		}
+		
+		@Override
+		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
+
+			throw new UnexpectedType(TF.boolType(), this
+					.interpret(__eval.getEvaluator()).getType(),
+					this);
+
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);
+			
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
+			
+			__eval.setCurrentAST(this);
+			
+			return left.add(right, false);
+			
+		}
+		
 	}
 
 	static public class All extends org.rascalmpl.ast.Expression.All {
@@ -603,6 +639,38 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
+	}
+	
+	static public class ClosedRecursiveComposition extends org.rascalmpl.ast.Expression.ClosedRecursiveComposition {
+		
+		public ClosedRecursiveComposition (IConstructor __param1, org.rascalmpl.ast.Expression __param2, 
+				org.rascalmpl.ast.Expression __param3) {
+			super(__param1, __param2, __param3);
+		}
+		
+		@Override
+		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
+
+			throw new UnexpectedType(TF.boolType(), this
+					.interpret(__eval.getEvaluator()).getType(),
+					this);
+
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);
+			
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
+			
+			__eval.setCurrentAST(this);
+			
+			return left.compose(right, null, false);
+		}
+		
 	}
 
 	static public class Comprehension extends
@@ -2782,7 +2850,94 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 	}
+	
+	static public class Fvisit extends org.rascalmpl.ast.Expression.Fvisit {
 
+		public Fvisit(IConstructor __param1, java.util.List<org.rascalmpl.ast.Expression> __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);		
+						
+			java.util.List<org.rascalmpl.ast.Expression> expressions = this.getExpressions();
+			
+			assert(expressions.size() >= 1 && expressions.size() <= 2);
+			
+			java.util.List<Type> types = new LinkedList<Type>(); // type arguments to the visit, the order does matter
+			java.util.Set<Type> allTypes = new HashSet<Type>(); // types of all the children to be visited 
+			java.util.Map<Type, Result<IValue>> algebra = new HashMap<Type, Result<IValue>>(); // algebra functions of the visit
+			
+			if(expressions.get(0).isTuple()) // the tuple of type expressions
+				for(org.rascalmpl.ast.Expression expr : expressions.get(0).getElements()) {
+					Type type = expr.getType().typeOf(__eval.getCurrentEnvt());
+					types.add(type);
+					org.rascalmpl.interpreter.env.IsomorphicTypes.collectAllTypes(type, allTypes, __eval);
+				}
+			
+			boolean isCatamorphism = false;
+			boolean isAnamorphism = false;
+			boolean isTP = true;
+			
+			if(expressions.size() == 2) {
+				// Potentially, non type preserving
+				isTP = false;
+				isCatamorphism = true;
+				isAnamorphism = true;
+				if(expressions.get(1).isTuple()) // the tuple of algebra functions
+					for(org.rascalmpl.ast.Expression expr : expressions.get(1).getElements()) {
+						Result<IValue> f = expr.interpret(__eval);
+						Type type = null;
+						Type returnType = null;
+						Type argumentType = null;
+						// type[T] -> T
+						if(f instanceof OverloadedFunction) {
+							AbstractFunction alg = ((OverloadedFunction) f).getFunctions().get(0);
+							type = alg.getKeywordParameterDefaults().get(0).getType().getTypeParameters().getFieldType(0);
+							returnType = alg.getReturnType();
+							argumentType = ((FunctionType) alg.getType()).getArgumentTypes().getFieldType(0);
+						} else { 
+							AbstractFunction alg = (AbstractFunction) f;
+							type = alg.getKeywordParameterDefaults().get(0).getType().getTypeParameters().getFieldType(0);
+							returnType = alg.getReturnType();
+							argumentType = ((FunctionType) alg.getType()).getArgumentTypes().getFieldType(0);
+						}
+						algebra.put(type, f);
+						if(type.isAbstractDataType() && argumentType.isAbstractDataType())
+							isCatamorphism = isCatamorphism && org.rascalmpl.interpreter.env.IsomorphicTypes.isIsomorphic(__eval.getCurrentEnvt().lookupAbstractDataType(type.getName()), 
+									__eval.getCurrentEnvt().lookupAbstractDataType(argumentType.getName()));
+						if(type.isAbstractDataType() && returnType.isAbstractDataType())
+							isAnamorphism = isAnamorphism && org.rascalmpl.interpreter.env.IsomorphicTypes.isIsomorphic(__eval.getCurrentEnvt().lookupAbstractDataType(type.getName()), 
+									__eval.getCurrentEnvt().lookupAbstractDataType(returnType.getName()));
+					}
+			} 
+			
+			java.util.Map<Type, AbstractFunction> functions = new HashMap<Type, AbstractFunction>();	
+			TraverseFunction.generateTraverseFunctions(allTypes, algebra, isCatamorphism, functions, __eval);
+			
+			java.util.List<AbstractFunction> results = new LinkedList<AbstractFunction>();
+			java.util.List<Type> resultTypes = new LinkedList<Type>();
+			
+			for(Type key : functions.keySet())
+				if(types.contains(key)) {
+					resultTypes.add(functions.get(key).getType());
+					results.add(functions.get(key));
+				}
+			
+			if(results.size() == 1)
+				return makeResult(resultTypes.get(0), results.get(0), __eval);
+			
+			AbstractFunction[] resultArray = new AbstractFunction[types.size()];
+			Type[] resultTypeArray = new Type[types.size()];
+			
+			return makeResult(TypeFactory.getInstance().tupleType(resultTypes.toArray(resultTypeArray)), __eval.__getVf().tuple(results.toArray(resultArray)), __eval);
+		}
+
+	}
+	
 	static public class VoidClosure extends
 			org.rascalmpl.ast.Expression.VoidClosure {
 
