@@ -6,13 +6,13 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
-module lang::oberon0::syntax::Declarations
+module lang::oberon0::\syntax::Declarations
 
-import lang::oberon0::syntax::Layout;
-import lang::oberon0::syntax::Statements;
-import lang::oberon0::syntax::Types;
-import lang::oberon0::syntax::Lexical;
-import lang::oberon0::syntax::Expressions;
+import lang::oberon0::\syntax::Layout;
+import lang::oberon0::\syntax::Statements;
+import lang::oberon0::\syntax::Types;
+import lang::oberon0::\syntax::Lexical;
+import lang::oberon0::\syntax::Expressions;
 
 syntax Declarations 
 	= decls: ConstSect? consts TypeSect? types VarSect? vars

@@ -6,11 +6,11 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
-module lang::oberon0::syntax::Modules
+module lang::oberon0::\syntax::Modules
 
-import lang::oberon0::syntax::Layout;
-import lang::oberon0::syntax::Lexical;
-import lang::oberon0::syntax::Declarations;
+import lang::oberon0::\syntax::Layout;
+import lang::oberon0::\syntax::Lexical;
+import lang::oberon0::\syntax::Declarations;
 
 
 start syntax Module = \mod: "MODULE" Ident name ";" Declarations decls Body? body "END" Ident ".";

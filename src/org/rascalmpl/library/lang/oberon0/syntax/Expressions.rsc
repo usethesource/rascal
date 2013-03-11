@@ -6,10 +6,10 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
-module lang::oberon0::syntax::Expressions
+module lang::oberon0::\syntax::Expressions
 
-import lang::oberon0::syntax::Layout;
-import lang::oberon0::syntax::Lexical;
+import lang::oberon0::\syntax::Layout;
+import lang::oberon0::\syntax::Lexical;
 
 syntax Expression 
 	= nat: Natural value
