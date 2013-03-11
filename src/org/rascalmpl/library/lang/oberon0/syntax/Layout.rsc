@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
-module lang::oberon0::syntax::Layout
+module lang::oberon0::\syntax::Layout
 
 lexical Layout 
 	= whitespace: [\t-\n\r\ ] 
