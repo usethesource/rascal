@@ -38,18 +38,18 @@ public abstract class Tag extends AbstractAST {
   public org.rascalmpl.ast.Expression getExpression() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasType() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getType() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasType() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Name getType() {
     throw new UnsupportedOperationException();
   }
   public boolean hasContents() {
@@ -201,13 +201,13 @@ public abstract class Tag extends AbstractAST {
   }
 
   static public class Functor extends Tag {
-    // Production: sig("Functor",[arg("org.rascalmpl.ast.Expression","type"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","types")])
+    // Production: sig("Functor",[arg("org.rascalmpl.ast.Name","type"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","types")])
   
     
-    private final org.rascalmpl.ast.Expression type;
+    private final org.rascalmpl.ast.Name type;
     private final java.util.List<org.rascalmpl.ast.Expression> types;
   
-    public Functor(IConstructor node , org.rascalmpl.ast.Expression type,  java.util.List<org.rascalmpl.ast.Expression> types) {
+    public Functor(IConstructor node , org.rascalmpl.ast.Name type,  java.util.List<org.rascalmpl.ast.Expression> types) {
       super(node);
       
       this.type = type;
@@ -226,7 +226,7 @@ public abstract class Tag extends AbstractAST {
   
     
     @Override
-    public org.rascalmpl.ast.Expression getType() {
+    public org.rascalmpl.ast.Name getType() {
       return this.type;
     }
   

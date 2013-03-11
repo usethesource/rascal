@@ -103,7 +103,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 					String functorName = null;
 					Type[] typeParameters = null;
 					Map<Type, Type> parameterizationOfTypes = new HashMap<Type, Type>();
-					functorName = Names.fullName(tag.getType().getQualifiedName());
+					functorName = Names.name(tag.getType());
 					typeParameters = new Type[tag.getTypes().size()];
 					int i = 0;
 					for(org.rascalmpl.ast.Expression expr : tag.getTypes()) {

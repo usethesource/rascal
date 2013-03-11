@@ -224,13 +224,16 @@ syntax Expression
 	| is           : Expression expression "is" Name name
 	| has          : Expression expression "has" Name name
 	| transitiveClosure: Expression argument "+" !>> "="
-    | transitiveReflexiveClosure: Expression argument "*" !>> "=" 
+    | transitiveReflexiveClosure: Expression argument "*" !>> "="
+    | \fvisit : "fvisit" "[" { Expression "," }+ expressions "]" 
 	> isDefined    : Expression argument "?" 
 	> negation     : "!" Expression!match!noMatch argument 
 	| negative     : "-" Expression argument 
 	| non-assoc splice : "*" Expression argument
 	| asType       : "[" Type type "]" Expression!match!noMatch argument
-	> left composition: Expression lhs "o" Expression rhs 
+	> left ( composition: Expression lhs "o" Expression rhs
+		   | closedRecursiveComposition: Expression lhs "o." Expression rhs
+		   )
 	> left ( product: Expression lhs "*" () !>> "*" Expression!noMatch!match rhs  
 		   | \join   : Expression lhs "join" Expression rhs 
 	       | remainder: Expression lhs "%" Expression rhs
@@ -238,6 +241,7 @@ syntax Expression
 	     )
 	> left intersection: Expression lhs "&" !>> "&" Expression rhs 
 	> left ( addition   : Expression lhs "+" Expression!noMatch!match rhs  
+		   | closedRecursiveAddition: Expression lhs ".+." Expression!noMatch!match rhs
 		   | subtraction: Expression!transitiveClosure!transitiveReflexiveClosure lhs "-" Expression rhs
 		   | appendAfter: Expression lhs "\<\<" !>> "=" Expression rhs
 		   | insertBefore: Expression lhs "\>\>" Expression rhs 
@@ -692,6 +696,7 @@ keyword RascalKeywords
 	| "str" 
 	| "throws" 
 	| "visit" 
+	| "fvisit"
 	| "tuple" 
 	| "for" 
 	| "assert" 
@@ -872,7 +877,8 @@ syntax Pattern
 syntax Tag
 	= @Folded @category="Comment" \default   : "@" Name name TagString contents 
 	| @Folded @category="Comment" empty     : "@" Name name 
-	| @Folded @category="Comment" expression: "@" Name name "=" Expression expression ;
+	| @Folded @category="Comment" expression: "@" Name name "=" Expression expression 
+	| @category = "Comment" functor: "@" "functor" Name type {Expression ","}+ types;
 
 syntax ModuleActuals
 	= \default: "[" {Type ","}+ types "]" ;
