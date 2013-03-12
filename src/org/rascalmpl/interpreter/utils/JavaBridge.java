@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -428,8 +429,8 @@ public class JavaBridge {
 	/**
 	 * Same as saveToJar("", clazz, outPath, false);
 	 */
-	public void saveToJar(Class<?> clazz, String outPath) throws IOException {
-		saveToJar("", clazz, outPath, false);
+	public void saveToJar(Class<?> clazz, OutputStream outStream) throws IOException {
+		saveToJar("", clazz, outStream, false);
 	}
 	
 	/**
@@ -440,13 +441,13 @@ public class JavaBridge {
 	 * 
 	 * @param packageName package name prefix to search for classes, or "" for all 
 	 * @param clazz a class that has been previously compiled by this bridge
-	 * @param outPath name of output jar file
+	 * @param outStream output stream
 	 * @param recursive whether to retrieve classes from rest of the the JavaFileManager hierarchy
 	 * 	
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public void saveToJar(String packageName, Class<?> clazz, String outPath,
+	public void saveToJar(String packageName, Class<?> clazz, OutputStream outStream,
 			boolean recursive) throws IOException {
 		JavaFileManager manager = fileManagerCache.get(clazz);
 		Iterable<JavaFileObject> list = null;
@@ -457,7 +458,7 @@ public class JavaBridge {
 			Manifest manifest = new Manifest();
 			manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION,
 					"1.0");
-			JarOutputStream target = new JarOutputStream(new FileOutputStream(outPath), manifest);
+			JarOutputStream target = new JarOutputStream(outStream, manifest);
 			JarEntry entry = new JarEntry("META-INF/");
 			target.putNextEntry(entry);
 			Collection<String> dirs = new ArrayList<String>();
