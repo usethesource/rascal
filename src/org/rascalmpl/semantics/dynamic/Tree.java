@@ -135,7 +135,7 @@ public abstract class Tree {
 		java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
 		annos.put("loc", getLocation());
 		
-		return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, annos, w.done()), eval);
+		return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, annos, production, w.done()), eval);
 	}
 	
 	@Override
@@ -224,7 +224,10 @@ public abstract class Tree {
 			w.append(arg.interpret(eval).getValue());
 		}
 		
-		return makeResult(type, Factory.Tree_Appl.make(eval.getValueFactory(), production, flatten(w.done())), eval);
+	  java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
+    annos.put("loc", getLocation());
+    
+    return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, annos, production, flatten(w.done())), eval);
 	}
 
 	private void appendPreviousSeparators(IList args, IListWriter result, int delta, int i, boolean previousWasEmpty) {
