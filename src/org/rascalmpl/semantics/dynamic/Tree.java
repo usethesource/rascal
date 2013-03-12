@@ -104,6 +104,7 @@ public abstract class Tree {
 		this.args = args;
 		this.constant = false; // TODO! isConstant(args);
 		this.node = this.constant ? node : null;
+		this.setSourceLocation(TreeAdapter.getLocation(node));
 	}
 
 	public IConstructor getProduction() {
