@@ -11,6 +11,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -131,7 +132,10 @@ public abstract class Tree {
 			w.append(arg.interpret(eval).getValue());
 		}
 		
-		return makeResult(type, Factory.Tree_Appl.make(eval.getValueFactory(), production, w.done()), eval);
+		java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
+		annos.put("loc", getLocation());
+		
+		return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, annos, w.done()), eval);
 	}
 	
 	@Override
