@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -104,7 +105,11 @@ public abstract class Tree {
 		this.args = args;
 		this.constant = false; // TODO! isConstant(args);
 		this.node = this.constant ? node : null;
-		this.setSourceLocation(TreeAdapter.getLocation(node));
+		ISourceLocation src = TreeAdapter.getLocation(node);
+		
+		if (src != null) {
+		  this.setSourceLocation(src);
+		}
 	}
 
 	public IConstructor getProduction() {
@@ -133,10 +138,16 @@ public abstract class Tree {
 			w.append(arg.interpret(eval).getValue());
 		}
 		
-		java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
-		annos.put("loc", getLocation());
+		ISourceLocation location = getLocation();
 		
-		return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, annos, production, w.done()), eval);
+		if (location != null) {
+		  java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
+		  annos.put("loc", location);
+		  return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, annos, production, w.done()), eval);
+		}
+		else {
+		  return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, production, w.done()), eval);
+		}
 	}
 	
 	@Override
@@ -225,10 +236,16 @@ public abstract class Tree {
 			w.append(arg.interpret(eval).getValue());
 		}
 		
-	  java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
-    annos.put("loc", getLocation());
+		ISourceLocation location = getLocation();
     
-    return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, annos, production, flatten(w.done())), eval);
+    if (location != null) {
+      java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
+      annos.put("loc", location);
+      return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, annos, production, flatten(w.done())), eval);
+    }
+    else {
+      return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, production, flatten(w.done())), eval);
+    }
 	}
 
 	private void appendPreviousSeparators(IList args, IListWriter result, int delta, int i, boolean previousWasEmpty) {
