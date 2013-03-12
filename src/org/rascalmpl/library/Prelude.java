@@ -2096,8 +2096,8 @@ public class Prelude {
 		return values.string(TreeAdapter.yield(tree));
 	}
 	
-	private IConstructor makeConstructor(String name, IEvaluatorContext ctx,  IValue ...args) {
-		IValue value = ctx.getEvaluator().call(name, args);
+	private IConstructor makeConstructor(Type returnType, String name, IEvaluatorContext ctx,  IValue ...args) {
+		IValue value = ctx.getEvaluator().call(returnType.getName(), name, args);
 		Type type = value.getType();
 		if (type.isAbstractDataType()) {
 			return (IConstructor)value;
@@ -2217,7 +2217,7 @@ public class Prelude {
 						@SuppressWarnings("unused")
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
-						IConstructor ast = makeConstructor(constructorName, ctx, values.string(yield));
+						IConstructor ast = makeConstructor(type, constructorName, ctx, values.string(yield));
 						return ast.setAnnotation("location", loc);
 					}
 					catch (Backtrack b) {
@@ -2401,7 +2401,7 @@ public class Prelude {
 					Type cons = iter.next();
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args, ctx);
-					IConstructor ast = makeConstructor(constructorName, ctx, implodedArgs);
+					IConstructor ast = makeConstructor(type, constructorName, ctx, implodedArgs);
 					return ast.setAnnotation("location", loc).setAnnotation("comments", comments);
 				}
 				catch (Backtrack b) {
