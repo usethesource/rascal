@@ -37,29 +37,29 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 public class ListPattern extends AbstractMatchingResult  {
   private List<IMatchingResult> patternChildren;  // The elements of this list pattern
   private int patternSize;            // The number of elements in this list pattern
-  private int delta = 1;                          // increment to next list elements:
+  private int delta = 1;              // increment to next list elements:
   // delta=1 abstract lists
   // delta=2 skip layout between elements
   // delta=4 skip layout, separator, layout between elements
-  private int reducedPatternSize;                 //  (patternSize + delta - 1)/delta                                    
-  private IList listSubject;            // The subject as list
-  private Type listSubjectType;         // The type of the subject
+  private int reducedPatternSize;     //  (patternSize + delta - 1)/delta                                    
+  private IList listSubject;          // The subject as list
+  private Type listSubjectType;       // The type of the subject
   private int subjectSize;            // Length of the subject
-  private int reducedSubjectSize;                 // (subjectSize + delta - 1) / delta
-  private boolean [] isListVar;         // Determine which elements are list or variables
-  private boolean [] isBindingVar;        // Determine which elements are binding occurrences of variables
-  private String [] varName;            // Name of ith variable
-  private HashSet<String> allVars;        // Names of list variables declared in this pattern
-  private int [] listVarStart;          // Cursor start position list variable; indexed by pattern position
-  private int [] listVarLength;         // Current length matched by list variable
-  private int [] listVarMinLength;        // Minimal length to be matched by list variable
-  private int [] listVarMaxLength;        // Maximal length that can be matched by list variable
-  private int [] listVarOccurrences;        // Number of occurrences of list variable in the pattern
+  private int reducedSubjectSize;     // (subjectSize + delta - 1) / delta
+  private boolean [] isListVar;       // Determine which elements are list or variables
+  private boolean [] isBindingVar;    // Determine which elements are binding occurrences of variables
+  private String [] varName;          // Name of ith variable
+  private HashSet<String> allVars;    // Names of list variables declared in this pattern
+  private int [] listVarStart;        // Cursor start position list variable; indexed by pattern position
+  private int [] listVarLength;       // Current length matched by list variable
+  private int [] listVarMinLength;    // Minimal length to be matched by list variable
+  private int [] listVarMaxLength;    // Maximal length that can be matched by list variable
+  private int [] listVarOccurrences;  // Number of occurrences of list variable in the pattern
 
-  private int subjectCursor;            // Cursor in the subject
-  private int patternCursor;            // Cursor in the pattern
+  private int subjectCursor;          // Cursor in the subject
+  private int patternCursor;          // Cursor in the pattern
 
-  private boolean firstMatch;           // First match after initialization?
+  private boolean firstMatch;         // First match after initialization?
   private boolean forward;            // Moving to the right?
 
   private boolean debug = false;
@@ -184,8 +184,9 @@ public class ListPattern extends AbstractMatchingResult  {
 
         if(!tmvVar.isAnonymous() && allVars.contains(name)) {
           throw new RedeclaredVariable(name, getAST());
-        } else if (tmvType.comparable(listSubject.getType().getElementType())) {
-          tmvVar.covertToListType();
+        } else if((isAnyListType(tmvType) && tmvType.comparable(listSubject.getType()) ||
+                  (!isAnyListType(tmvType) && tmvType.comparable(listSubject.getType().getElementType())))) {
+          tmvVar.convertToListType();
           if (!tmvVar.isAnonymous()) {
             allVars.add(name);
           }
@@ -194,33 +195,7 @@ public class ListPattern extends AbstractMatchingResult  {
           hasNext = false;
           return;
         }
-
       }
-      else if(child instanceof TypedVariablePattern && isAnyListType(child.getType(env, null))){  // <------
-        TypedVariablePattern patVar = (TypedVariablePattern) child;
-        Type childType = child.getType(env, null);
-        String name = patVar.getName();
-        varName[i] = name;
-        if(!patVar.isAnonymous() && allVars.contains(name)){
-          throw new RedeclaredVariable(name, getAST());
-        }
-        else if(childType.comparable(listSubject.getType())){                                   
-          /*
-           * An explicitly declared list variable.
-           */
-          if(!patVar.isAnonymous()) {
-            allVars.add(name);
-          }
-          isListVar[i] = isAnyListType(childType);
-          isBindingVar[i] = true;
-          listVarOccurrences[i] = 1;
-          nListVar++;
-        } else {
-          hasNext = false;
-          return;
-          //          throw new UnexpectedType(childType, listSubject.getType(), getAST());
-        }
-      } 
       else if(child instanceof MultiVariablePattern){
         MultiVariablePattern multiVar = (MultiVariablePattern) child;
         String name = multiVar.getName();
@@ -254,7 +229,8 @@ public class ListPattern extends AbstractMatchingResult  {
             }
           }
         }
-      } else if (child instanceof ConcreteListVariablePattern) {
+      } 
+      else if (child instanceof ConcreteListVariablePattern) {
         ConcreteListVariablePattern listVar = (ConcreteListVariablePattern) child;
         String name = listVar.getName();
         varName[i] = name;
@@ -298,7 +274,6 @@ public class ListPattern extends AbstractMatchingResult  {
               } else {
                 hasNext = false;
                 return;
-                //                    throw new UnexpectedType(listSubjectType,varType, getAST());
               }
             } else {
               if(varType instanceof NonTerminalType){
@@ -308,7 +283,6 @@ public class ListPattern extends AbstractMatchingResult  {
                 if(!varType.comparable(staticListSubjectElementType)){
                   hasNext = false;
                   return;
-                  //                    throw new UnexpectedType(listSubjectType, varType, getAST());
                 }
             }
           }
@@ -329,7 +303,6 @@ public class ListPattern extends AbstractMatchingResult  {
         if(!(childType instanceof NonTerminalType) && !childType.comparable(staticListSubjectElementType)){
           hasNext = false;
           return;
-          //          throw new UnexpectedType(staticListSubjectElementType,childType, getAST());
         }
         java.util.List<IVarPattern> childVars = child.getVariables();
         if(!childVars.isEmpty()){
@@ -375,10 +348,12 @@ public class ListPattern extends AbstractMatchingResult  {
 
     Type elemType = tf.voidType();
     for(int i = 0; i < patternSize; i += delta){
-      Type childType = patternChildren.get(i).getType(env, patternVars);
+      IMatchingResult child = patternChildren.get(i);
+      Type childType = child.getType(env, patternVars);
       patternVars = merge(patternVars, patternChildren.get(i).getVariables());
-
-      if(childType.isListType()){
+      boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof TypedMultiVariablePattern;
+      
+      if(childType.isListType() && isMultiVar){
         elemType = elemType.lub(childType.getElementType());
       } else {
         elemType = elemType.lub(childType);
