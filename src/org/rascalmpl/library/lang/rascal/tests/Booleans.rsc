@@ -1,7 +1,7 @@
 module lang::rascal::tests::Booleans
 
 import Boolean;
-
+import Exception;
 // Operators
 
 public test bool sanity() = true != false;
@@ -34,3 +34,8 @@ public test bool tstToInt() = toInt(false) == 0 && toInt(true) == 1;
 public test bool tstToReal() = toReal(false) == 0.0 && toInt(true) == 1.0;
 
 public test bool tstToString() = toString(false) == "false" && toString(true) == "true";
+
+public test bool shortCircuiting() { 
+	try { return false ==> (1/0 == 0) && true || (1/0 == 0) && !(false && (1/0 == 0)); }
+	catch ArithmeticException(str _): { return false; }
+	}
