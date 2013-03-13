@@ -26,19 +26,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -49,6 +48,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -211,7 +211,11 @@ public class RascalShell {
 				System.exit(1);
 			} 
 		}
-		if (args[0].equals("-latex")) {
+		
+		if (new RascalManifest().hasManifest(RascalShell.class)) {
+		  runManifest(args);
+		}
+		else if (args[0].equals("-latex")) {
 			toLatex(args[1]);
 		}
 		else {
@@ -219,22 +223,51 @@ public class RascalShell {
 		}
 	}
 
-	private static void runModule(String args[]) {
+	private static void runManifest(String[] args) {
+    RascalManifest mf = new RascalManifest();
+    String module = mf.getMainModule(RascalShell.class);
+    String main = mf.getMainFunction(RascalShell.class);
+    List<String> roots = mf.getSourceRoots(RascalShell.class);
+    Evaluator eval = getDefaultEvaluator();
+
+    try {
+      for (String root : roots) {
+        eval.addRascalSearchPath(RascalShell.class.getResource(root).toURI());
+      }
+    } catch (URISyntaxException e) {
+      System.err.println("Problem loading modules from jar: " + e.getMessage());
+    }
+    
+    eval.doImport(null, module);
+    IValue v = eval.call(null, module, main, commandLineArgs(eval.getValueFactory(), args, 0));
+    
+    if (v != null) {
+      System.out.println(v.toString());
+    }
+  }
+
+  private static IValue[] commandLineArgs(IValueFactory vf, String[] args, int skip) {
+    IValue[] result = new IValue[args.length - skip];
+    for (int i = skip, j = 0; i < args.length; i++) {
+      result[j++] = vf.string(args[i]);
+    }
+    
+    return result;
+  }
+
+  private static void runModule(String args[]) {
 		String module = args[0];
 		if (module.endsWith(".rsc")) {
 			module = module.substring(0, module.length() - 4);
 		}
 		module = module.replaceAll("/", "::");
 		Evaluator evaluator = getDefaultEvaluator();
-		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		TypeFactory tf = TypeFactory.getInstance();
-		IListWriter w = vf.listWriter(tf.stringType());
-		for (int i = 1; i < args.length; i++) {
-			w.append(vf.string(args[i]));
-		}
+
 		try {
 			evaluator.doImport(null, module);
-			IValue v = evaluator.call((IRascalMonitor) null, "main", w.done());
+			
+			IValue v = evaluator.call((IRascalMonitor) null, "main", commandLineArgs(evaluator.getValueFactory(), args, 1));
+		
 			if (v != null) {
 				System.out.println(v.toString());
 			}
