@@ -31,6 +31,7 @@ import org.jgll.grammar.Rule;
 import org.jgll.grammar.Symbol;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
 	
@@ -55,7 +56,7 @@ public class GrammarToJigll {
 	  long start = System.nanoTime();
 	  parse.accept(new ModelBuilderVisitor<>(new ParsetreeBuilder()), null);
 	  long end = System.nanoTime();
-	  System.out.println("Flattening: " + (end - start) / 1000000);
+	  System.out.println("Flattening: " + (end - start) / 1000_000);
 	  return parse.<IConstructor>getResult().getObject();
 	}
 	
@@ -76,18 +77,29 @@ public class GrammarToJigll {
 		rulesMap = new HashMap<>();
 
 		for (IValue nonterminal : definitions) {
-			Nonterminal head = new Nonterminal(nonterminal.toString());
+			boolean ebnf = isEBNF((IConstructor) nonterminal);
+			Nonterminal head = new Nonterminal(nonterminal.toString(), ebnf);
 			IConstructor choice = (IConstructor) definitions.get(nonterminal);
 			assert choice.getName().equals("choice");
 			ISet alts = (ISet) choice.get("alternatives");
 			
 			for (IValue alt : alts) {
+				
 				IConstructor prod = (IConstructor) alt;
-				IList rhs = (IList) prod.get("symbols");
-				List<Symbol> body = getSymbolList(rhs);
-				Rule rule = new Rule(head, body, prod);
-				rulesMap.put(prod, rule);
-				rules.add(rule);
+				Object object;
+				if(ebnf) {
+					object = getRegularDefinition(alts);
+				} else {
+					object = alt;
+				}
+				
+				if(!prod.getName().equals("regular")) {
+					IList rhs = (IList) prod.get("symbols");
+					List<Symbol> body = getSymbolList(rhs);
+					Rule rule = new Rule(head, body, object);
+					rulesMap.put(prod, rule);
+					rules.add(rule);
+				}
 			}
 		}
 
@@ -115,7 +127,7 @@ public class GrammarToJigll {
 		}		
 	}
 
-	static private List<Range> buildRanges(IConstructor symbol) {
+   private static List<Range> buildRanges(IConstructor symbol) {
 		List<Range> targetRanges = new LinkedList<Range>();
 		IList ranges = (IList) symbol.get("ranges");
 		for (IValue r : ranges) {
@@ -125,8 +137,7 @@ public class GrammarToJigll {
 			targetRanges.add(new Range(begin, end));
 		}
 		return targetRanges;
-	}
-	
+	}	
 	
 	private static List<Symbol> getSymbolList(IList rhs) {
 		List<Symbol> result = new ArrayList<>();
@@ -143,6 +154,24 @@ public class GrammarToJigll {
 			}
 		}
 		return result;
+	}
+	
+	private boolean isEBNF(IConstructor value) {
+		return SymbolAdapter.isIterStarSeps(value) ||
+			   SymbolAdapter.isIterStar(value) ||
+			   SymbolAdapter.isIterPlus(value) ||
+			   SymbolAdapter.isIterPlusSeps(value);
+	}
+	
+	private IConstructor getRegularDefinition(ISet alts) {
+		IConstructor value = null;
+		for (IValue alt : alts) {
+			IConstructor prod = (IConstructor) alt;
+			if(prod.getName().equals("regular")) {
+				value = prod;
+			}
+		}
+		return value;
 	}
 
 }

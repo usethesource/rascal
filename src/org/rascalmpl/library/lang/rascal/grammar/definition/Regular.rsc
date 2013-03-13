@@ -21,7 +21,7 @@ public Grammar expandRegularSymbols(Grammar G) {
       Production init = choice(def,{});
       
       for (p <- expand(def)) {
-        G.rules[p.def] = choice(p.def, {p, G.rules[p.def]?\init} - {regular(def)});
+        G.rules[p.def] = choice(p.def, {p, G.rules[p.def]?\init});
       }
     }
   }
