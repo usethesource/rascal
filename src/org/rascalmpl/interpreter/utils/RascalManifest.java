@@ -63,10 +63,20 @@ public class RascalManifest {
       try {
         Manifest manifest = new Manifest(mf);
         String source = manifest.getMainAttributes().getValue(label);
-        return Arrays.<String>asList(trim(source.split(",")));
+        
+        if (source != null) {
+          return Arrays.<String>asList(trim(source.split(",")));
+        }
       }
       catch (IOException e) {
         // ignore
+      }
+      finally {
+        try {
+          mf.close();
+        } catch (IOException e) {
+          // too bad
+        }
       }
     }
 
@@ -85,6 +95,13 @@ public class RascalManifest {
       }
       catch (IOException e) {
         // ignore;
+      }
+      finally {
+        try {
+          is.close();
+        } catch (IOException e) {
+          // too bad
+        }
       }
     }
 
