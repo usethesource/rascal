@@ -3,6 +3,7 @@ package org.rascalmpl.parser;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -52,7 +53,7 @@ public class GrammarToJigll {
 	  System.out.println("Jigll started.");
 	  NonterminalSymbolNode parse = parser.parse(str.getValue(), g, symbol.toString());
 	  long start = System.nanoTime();
-	  parse.accept(new ModelBuilderVisitor<>(new ParsetreeBuilder()));
+	  parse.accept(new ModelBuilderVisitor<>(new ParsetreeBuilder()), null);
 	  long end = System.nanoTime();
 	  System.out.println("Flattening: " + (end - start) / 1000000);
 	  return parse.<IConstructor>getResult().getObject();
@@ -72,6 +73,7 @@ public class GrammarToJigll {
 	public Grammar convert(String name, IConstructor grammar) {
 		IMap definitions = (IMap) grammar.get("rules");
 		List<Rule> rules = new ArrayList<>();
+		rulesMap = new HashMap<>();
 
 		for (IValue nonterminal : definitions) {
 			Nonterminal head = new Nonterminal(nonterminal.toString());
@@ -86,7 +88,7 @@ public class GrammarToJigll {
 				Rule rule = new Rule(head, body, prod);
 				rulesMap.put(prod, rule);
 				rules.add(rule);
-			}			
+			}
 		}
 
 		return Grammar.fromRules(name, rules);
@@ -101,8 +103,8 @@ public class GrammarToJigll {
 			ITuple key = (ITuple) next.getKey();
 			ISet set = (ISet) next.getValue();
 			
-			Rule rule = (Rule) key.get(0);
-			int position = ((IInteger) key.get(0)).intValue();
+			Rule rule = (Rule) rulesMap.get(key.get(0));
+			int position = ((IInteger) key.get(1)).intValue();
 				
 			Set<Rule> filterList = new HashSet<>();
 			Iterator<IValue> iterator = set.iterator();
@@ -137,7 +139,7 @@ public class GrammarToJigll {
 					break;
 					
 				default:
-					result.add(new Nonterminal(symbol.getName()));
+					result.add(new Nonterminal(symbol.toString()));
 			}
 		}
 		return result;
