@@ -51,7 +51,7 @@ public class RascalManifest {
   }
   
   protected String getMainFunction(InputStream project) {
-    return getAttribute(project, MAIN_FUNCTION, DEFAULT_MAIN_MODULE);
+    return getAttribute(project, MAIN_FUNCTION, DEFAULT_MAIN_FUNCTION);
   }
   
   protected InputStream manifest(Class<?> clazz) {
@@ -87,10 +87,10 @@ public class RascalManifest {
     if (is != null) {
       try {
         Manifest manifest = new Manifest(is);
-        String result = manifest.getMainAttributes().getValue(label).trim();
+        String result = manifest.getMainAttributes().getValue(label);
 
         if (result != null) {
-          return result;
+          return result.trim();
         }
       }
       catch (IOException e) {

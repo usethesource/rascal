@@ -504,6 +504,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	@Override
 	public IValue call(String name, IValue... args) {
 	  QualifiedName qualifiedName = Names.toQualifiedName(name);
+	  setCurrentAST(qualifiedName);
 		return call(qualifiedName, args);
 	}
 	
