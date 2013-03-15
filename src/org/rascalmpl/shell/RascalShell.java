@@ -40,6 +40,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -225,6 +226,8 @@ public class RascalShell {
 
 	private static void runManifest(String[] args) {
     RascalManifest mf = new RascalManifest();
+    assert mf.hasManifest(RascalShell.class);
+    
     String module = mf.getMainModule(RascalShell.class);
     String main = mf.getMainFunction(RascalShell.class);
     List<String> roots = mf.getSourceRoots(RascalShell.class);
@@ -237,22 +240,18 @@ public class RascalShell {
     } catch (URISyntaxException e) {
       System.err.println("Problem loading modules from jar: " + e.getMessage());
     }
+    IRascalMonitor monitor = new NullRascalMonitor();
     
-    eval.doImport(null, module);
-    IValue v = eval.call(null, module, main, commandLineArgs(eval.getValueFactory(), args, 0));
+    eval.doImport(monitor, module);
+    
+    module = module != null ? module : RascalManifest.DEFAULT_MAIN_MODULE;
+    main = main != null ? main : RascalManifest.DEFAULT_MAIN_FUNCTION;
+    
+    IValue v = eval.main(monitor, module, main, args);
     
     if (v != null) {
       System.out.println(v.toString());
     }
-  }
-
-  private static IValue[] commandLineArgs(IValueFactory vf, String[] args, int skip) {
-    IValue[] result = new IValue[args.length - skip];
-    for (int i = skip, j = 0; i < args.length; i++) {
-      result[j++] = vf.string(args[i]);
-    }
-    
-    return result;
   }
 
   private static void runModule(String args[]) {
@@ -265,8 +264,10 @@ public class RascalShell {
 
 		try {
 			evaluator.doImport(null, module);
+			String[] realArgs = new String[args.length - 1];
+			System.arraycopy(args, 1, realArgs, 0, args.length - 1);
 			
-			IValue v = evaluator.call((IRascalMonitor) null, "main", commandLineArgs(evaluator.getValueFactory(), args, 1));
+			IValue v = evaluator.main(null, module, "main", realArgs);
 		
 			if (v != null) {
 				System.out.println(v.toString());
