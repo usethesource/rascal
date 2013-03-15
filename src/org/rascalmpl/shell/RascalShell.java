@@ -235,7 +235,7 @@ public class RascalShell {
 
     try {
       for (String root : roots) {
-        eval.addRascalSearchPath(RascalShell.class.getResource(root).toURI());
+        eval.addRascalSearchPath(RascalShell.class.getResource("/" + root).toURI());
       }
     } catch (URISyntaxException e) {
       System.err.println("Problem loading modules from jar: " + e.getMessage());
