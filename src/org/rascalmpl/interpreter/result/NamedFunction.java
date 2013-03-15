@@ -157,6 +157,53 @@ abstract public class NamedFunction extends AbstractFunction {
 		}
 	}
 	
+	protected void bindKeywordArgs2(Map<String, IValue> keyArgValues){
+    Environment env = ctx.getCurrentEnvt();
+    if(keyArgValues == null){
+      if(keywordParameterDefaults != null){
+        for(KeywordParameter pair : keywordParameterDefaults){
+          String kwparam= pair.getName();
+          Result<IValue> r = pair.getDefault();
+          env.declareVariable(r.getType(), kwparam);
+          env.storeVariable(kwparam,r);
+        }
+      }
+      return;
+    }
+    if(keywordParameterDefaults == null)
+      throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
+    
+    int nBoundKeywordArgs = 0;
+    int k = 0;
+    for(KeywordParameter kw: keywordParameterDefaults){
+      String kwparam = kw.getName();
+      if(keyArgValues.containsKey(kwparam)){
+        nBoundKeywordArgs++;
+        IValue r = keyArgValues.get(kwparam);
+        if(!r.getType().isSubtypeOf(keywordParameterTypes[k])){
+          throw new UnexpectedKeywordArgumentType(kwparam, keywordParameterTypes[k], r.getType(), ctx.getCurrentAST());
+        }
+        env.declareVariable(r.getType(), kwparam);
+        env.storeVariable(kwparam, ResultFactory.makeResult(kw.getType(), r, ctx));
+      } else {
+        Result<IValue> r = kw.getDefault();
+        env.declareVariable(r.getType(), kwparam);
+        env.storeVariable(kwparam, r);
+      }
+      k++;
+    }
+    if(nBoundKeywordArgs != keyArgValues.size()){
+      main:for (String kwparam : keyArgValues.keySet()) {
+        for (KeywordParameter kw : keywordParameterDefaults){
+          if (kwparam.equals(kw.getName())) {
+              continue main;
+          }
+          throw new UndeclaredKeywordParameter(getName(), kwparam, ctx.getCurrentAST());
+        }
+      }
+    }
+  }
+	
 	public String getHeader(){
 		String sep = "";
 		String strFormals = "";

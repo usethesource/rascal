@@ -63,5 +63,6 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	
 	// URI resolver related
 	public URIResolverRegistry getResolverRegistry();
+ 
 	
 }

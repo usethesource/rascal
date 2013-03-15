@@ -107,7 +107,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 			ICallableValue func = (ICallableValue) var;
 			try {
 				Result<IValue> result = func.call(
-						new Type[] {TF.setType(type)}, new IValue[] {alts}, null
+						new Type[] {TF.setType(type)}, null, new IValue[] {alts}
 				);
 				
 				if (result.getType().isVoidType()) {
@@ -163,11 +163,6 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 						result = call(function, TreeAdapter.getArgs(tree));
 					}
 					
-					// TODO: Little experiment by Sebastian and Jurgen, don't ask.
-					if (result == null){
-						result = call(function, VF.list(tree));
-					}
-					
 					if (result == null) {
 						return tree;
 					}
@@ -204,9 +199,8 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 				actuals[i] = arg;
 			}
 			
-			return function.call(types, actuals, null);
+			return function.call(types, null, actuals);
 		}catch(ArgumentsMismatch e){
-//			e.printStackTrace();
 			return null;
 		}catch(Failure f){
 			return null;

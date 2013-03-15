@@ -22,8 +22,17 @@ public interface ICallableValue extends IValue {
 	public int getArity();
 	public boolean hasVarArgs();
 	public boolean hasKeywordArgs();
+	
+	@Deprecated
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues);
+	
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, Map<String, IValue> keyArgValues, IValue[] argValues);
+	
+	@Deprecated
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues);
+	
+	public Result<IValue> call(Type[] argTypes, Map<String, IValue> keyArgValues, IValue[] argValues);
+	
 	public boolean isStatic();
 	
 	public IEvaluator<Result<IValue>> getEval();

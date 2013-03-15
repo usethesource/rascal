@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -141,7 +140,8 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
+	@Deprecated
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		String label = null;
 		
 		if (argTypes.length == 0) {
@@ -174,11 +174,41 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 		
 		throw new MatchFailed();
 	}
-
+	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
-		return call(null, argTypes, argValues, null);
-	}
+  public Result<IValue> call(Type[] argTypes, Map<String, IValue> keyArgValues, IValue[] argValues) {
+    String label = null;
+    
+    if (argTypes.length == 0) {
+      throw new MatchFailed();
+    }
+    
+    if (argTypes[0].isAbstractDataType() || argTypes[0].isConstructorType()) {
+      label = ((IConstructor) argValues[0]).getConstructorType().getName();
+      List<AbstractFunction> funcs = alternatives.get(label);
+      
+      if (funcs != null) {
+        for (AbstractFunction candidate : funcs) {
+          if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
+              || candidate.getArity() == argValues.length) {
+            try {
+              return candidate.call(argTypes, keyArgValues, argValues);
+            }
+            catch (MatchFailed m) {
+              // could happen if pattern dispatched
+            }
+            catch (Failure e) {
+              // could happen if function body throws fail
+            }
+          }
+        }
+
+        throw new MatchFailed();
+      }
+    }
+    
+    throw new MatchFailed();
+  }
 
 	@Override
 	public boolean isStatic() {
