@@ -7,10 +7,19 @@ import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+/**
+ * The META-INF/RASCAL.MF file contains information about 
+ *   - project configuration options, such as location of source code relative to the root
+ *   - deployment configuration options, such as which is the main module and the main function to cal
+ *   
+ * This class is intended to be sub-classed for different build and execution environments, yet
+ * all available options are intended to be retrieved from this class. Sub-classes will add mainly
+ * information on where to find the META-INF/RASCAL.MF file.
+ */
 public class RascalManifest {
-  protected static final String DEFAULT_MAIN_MODULE = "Plugin";
-  protected static final String DEFAULT_MAIN_FUNCTION = "main";
-  protected static final String DEFAULT_SRC = "src";
+  public static final String DEFAULT_MAIN_MODULE = "Plugin";
+  public static final String DEFAULT_MAIN_FUNCTION = "main";
+  public static final String DEFAULT_SRC = "src";
   protected static final String SOURCE = "Source";
   protected static final String META_INF = "META-INF";
   protected static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
@@ -30,34 +39,62 @@ public class RascalManifest {
     return manifest(clazz) != null;
   }
   
+  /**
+   * @return a list of paths relative to the root of the jar, if no such option is configured
+   *         it will return ["src"].
+   */
   public List<String> getSourceRoots(Class<?> clazz) {
     return getSourceRoots(manifest(clazz));
   }
   
+  /**
+   * @return the name of the main function of a deployment unit, or 'null' if none is configured.
+   */
   public String getMainFunction(Class<?> clazz) {
     return getMainFunction(manifest(clazz));
   }
   
+  /**
+   * @return the name of the main module of a deployment unit, or 'null' if none is configured.
+   */
   public String getMainModule(Class<?> clazz) {
     return getMainModule(manifest(clazz));
   }
   
+  /**
+   * @return a list of paths relative to the root of the jar, if no such option is configured
+   *         it will return ["src"].
+   */
   protected List<String> getSourceRoots(InputStream project) {
     return getAttributeList(project, SOURCE, DEFAULT_SRC);
   }
   
+  /**
+   * @return the name of the main module of a deployment unit, or 'null' if none is configured.
+   */
   protected String getMainModule(InputStream project) {
-    return getAttribute(project, MAIN_MODULE, DEFAULT_MAIN_FUNCTION);
+    return getAttribute(project, MAIN_MODULE, null);
   }
   
+  /**
+   * @return the name of the main function of a deployment unit, or 'null' if none is configured.
+   */
   protected String getMainFunction(InputStream project) {
-    return getAttribute(project, MAIN_FUNCTION, DEFAULT_MAIN_FUNCTION);
+    return getAttribute(project, MAIN_FUNCTION, null);
   }
   
   protected InputStream manifest(Class<?> clazz) {
     return clazz.getResourceAsStream(META_INF_RASCAL_MF);
   }
   
+  /**
+   * This is to read a comma separated value for a certain label in the manifest.
+   * 
+   * @param mf    stream to the manifest file, will be closed by this function.
+   * @param label the configuration option from the manifest to find
+   * @param def   may be null, returned if the configuration option with label is not defined
+   * @return the list of strings labeled by the given option.
+   */
   protected List<String> getAttributeList(InputStream mf, String label, String def) {
     if (mf != null) {
       try {
@@ -83,6 +120,14 @@ public class RascalManifest {
     return Arrays.<String>asList(new String[] { def });
   }
   
+  /**
+   * This is to read a value for a certain label in the manifest.
+   * 
+   * @param mf    stream to the manifest file, will be closed by this function.
+   * @param label the configuration option from the manifest to find
+   * @param def   may be null, returned if the configuration option with label is not defined
+   * @return either the configured option, or the given default value
+   */
   protected String getAttribute(InputStream is, String label, String def) {
     if (is != null) {
       try {
