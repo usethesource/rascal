@@ -102,13 +102,6 @@ abstract public class NamedFunction extends AbstractFunction {
 			}
 		}
 		return kwdefaults;
-//		if(kwdefaults == null){
-//			return kwInherited;
-//		} else {
-//			if(kwInherited != null)
-//				kwdefaults.addAll(kwInherited);
-//			return kwdefaults;
-//		}
 	}
 	
 	protected void bindKeywordArgs(Map<String, Result<IValue>> keyArgValues){
