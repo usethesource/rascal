@@ -3123,26 +3123,6 @@ public class Prelude {
 		return values.integer(-1);
 	}
 	
-
-		
-	/*
-	 * ToString
-	 */
-	
-	public IString toString(IValue value)
-	{
-		if (value.getType() == Factory.Tree) {
-			return values.string(TreeAdapter.yield((IConstructor) value));
-		}
-		else if (value.getType().isSubtypeOf(Factory.Type)) {
-			return values.string(SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol")));
-		}
-		if (value.getType().isStringType()) {
-			return (IString) value;
-		}
-		return values.string(value.toString());
-	}
-	
 	/*
 	 *  !!EXPERIMENTAL!!
 	 * Tuple
