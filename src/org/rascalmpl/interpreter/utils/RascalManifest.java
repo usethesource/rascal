@@ -99,7 +99,7 @@ public class RascalManifest {
   }
   
   protected InputStream manifest(Class<?> clazz) {
-    return clazz.getResourceAsStream(META_INF_RASCAL_MF);
+    return clazz.getResourceAsStream("/" + META_INF_RASCAL_MF);
   }
   
   /**
