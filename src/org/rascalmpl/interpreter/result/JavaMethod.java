@@ -75,7 +75,7 @@ public class JavaMethod extends NamedFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
+	public Result<IValue> call(Type[] actualTypes, Map<String, IValue> keyArgValues, IValue[] actuals) {
 		Type actualTypesTuple;
 		Type formals = getFormals();
 		Object[] oActuals;
@@ -135,7 +135,7 @@ public class JavaMethod extends NamedFunction {
 		return newActuals;
 	}
 	
-	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, Result<IValue>> keyArgValues){
+	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, IValue> keyArgValues){
 		if(keywordParameterDefaults == null){
 			if(keyArgValues != null){
 				throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
@@ -165,14 +165,14 @@ public class JavaMethod extends NamedFunction {
 			String kwparam = kw.getName();
 			if(keyArgValues.containsKey(kwparam)){
 				nBoundKeywordArgs++;
-				Result<IValue> r = keyArgValues.get(kwparam);
+				IValue r = keyArgValues.get(kwparam);
 				if(!r.getType().isSubtypeOf(keywordParameterTypes[i])){
 					throw new UnexpectedKeywordArgumentType(kwparam, keywordParameterTypes[i], r.getType(), ctx.getCurrentAST());
 				}
-				newActuals[posArity + i] = r.getValue();
+				newActuals[posArity + i] = r;
 			} else {
 				Result<IValue> r = kw.getDefault();
-				newActuals[posArity + i] = r.getValue();
+				newActuals[posArity + i] = r;
 			}
 		}
 		if(nBoundKeywordArgs != keyArgValues.size()){

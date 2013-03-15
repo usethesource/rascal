@@ -143,44 +143,39 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
-		IConstructor label = null;
-		
-		if (argTypes.length == 0) {
-			throw new MatchFailed();
-		}
-		
-		if (argTypes[0].isSubtypeOf(Factory.Tree)) {
-			label = TreeAdapter.getProduction((IConstructor) argValues[0]);
-			List<AbstractFunction> funcs = alternatives.get(label);
-			
-			if (funcs != null) {
-				for (AbstractFunction candidate : funcs) {
-					if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
-							|| candidate.getArity() == argValues.length) {
-						try {
-							return candidate.call(argTypes, argValues, null);
-						}
-						catch (MatchFailed m) {
-							// could happen if pattern dispatched
-						}
-						catch (Failure e) {
-							// could happen if function body throws fail
-						}
-					}
-				}
+  public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, Map<String, IValue> keyArgValues, IValue[] argValues) {
+    IConstructor label = null;
+    
+    if (argTypes.length == 0) {
+      throw new MatchFailed();
+    }
+    
+    if (argTypes[0].isSubtypeOf(Factory.Tree)) {
+      label = TreeAdapter.getProduction((IConstructor) argValues[0]);
+      List<AbstractFunction> funcs = alternatives.get(label);
+      
+      if (funcs != null) {
+        for (AbstractFunction candidate : funcs) {
+          if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
+              || candidate.getArity() == argValues.length) {
+            try {
+              return candidate.call(argTypes, keyArgValues, argValues);
+            }
+            catch (MatchFailed m) {
+              // could happen if pattern dispatched
+            }
+            catch (Failure e) {
+              // could happen if function body throws fail
+            }
+          }
+        }
 
-				throw new MatchFailed();
-			}
-		}
-		
-		throw new MatchFailed();
-	}
-
-	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
-		return call(null, argTypes, argValues, null);
-	}
+        throw new MatchFailed();
+      }
+    }
+    
+    throw new MatchFailed();
+  }
 
 	@Override
 	public boolean isStatic() {

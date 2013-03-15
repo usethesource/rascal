@@ -111,7 +111,7 @@ public class QuickCheck {
 				for(int j = 0; j < types.length; j ++) {
 					actualTypes[j] = types[j].instantiate(tpbindings);
 				}
-				IValue result = function.call(actualTypes, values, null).getValue();
+				IValue result = function.call(actualTypes, null, values).getValue();
 				function.getEval().getStdOut().flush();
 				if (!((IBool) result).getValue()) {
 					reportFailed("Test returns false", tpbindings, formals, values, out);
