@@ -36,7 +36,20 @@ public class RascalManifest {
   }
   
   public boolean hasManifest(Class<?> clazz) {
-    return manifest(clazz) != null;
+    return hasManifest(manifest(clazz));
+  }
+  
+  protected boolean hasManifest(InputStream is) {
+    try {
+      return is != null;
+    }
+    finally {
+      try {
+        is.close();
+      } catch (IOException e) {
+        // too bad
+      }
+    }
   }
   
   /**
