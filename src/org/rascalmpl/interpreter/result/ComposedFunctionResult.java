@@ -99,11 +99,11 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 	
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, Map<String, IValue> keyArgValues,
-	    IValue[] argValues) {
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues,
+	    Map<String, IValue> keyArgValues) {
 	  IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 	  try {
-	    return call(argTypes, keyArgValues, argValues);
+	    return call(argTypes, argValues, keyArgValues);
 	  }
 	  finally {
 	    ctx.getEvaluator().setMonitor(old);
@@ -111,9 +111,9 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 	
 	@Override
-  public Result<IValue> call(Type[] argTypes, Map<String, IValue> keyArgValues, IValue[] argValues) {
-    Result<IValue> rightResult = right.call(argTypes, null, argValues);
-    return left.call(new Type[] { rightResult.getType() }, keyArgValues, new IValue[] { rightResult.getValue() });
+  public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
+    Result<IValue> rightResult = right.call(argTypes, argValues, null);
+    return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, keyArgValues);
   }
 	
 	@Override
@@ -195,12 +195,12 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		}
 				
 		@Override
-		public Result<IValue> call(Type[] argTypes, Map<String, IValue> keyArgValues, IValue[] argValues) {
+		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 			Failure f1 = null;
 			ArgumentsMismatch e1 = null;
 			try {
 				try {
-					return getRight().call(argTypes, keyArgValues, argValues);
+					return getRight().call(argTypes, argValues, keyArgValues);
 				} catch(ArgumentsMismatch e) {
 					// try another one
 					e1 = e;
@@ -208,7 +208,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 					// try another one
 					f1 = e;
 				}
-				return getLeft().call(argTypes, keyArgValues, argValues);
+				return getLeft().call(argTypes, argValues, keyArgValues);
 			} catch(ArgumentsMismatch e2) {
 				throw new ArgumentsMismatch(
 						"The called signature does not match signatures in the '+' composition:\n" 

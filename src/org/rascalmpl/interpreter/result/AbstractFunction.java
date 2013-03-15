@@ -156,10 +156,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-  public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,  Map<String, IValue> keyArgValues, IValue[] argValues) {
+  public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,  IValue[] argValues, Map<String, IValue> keyArgValues) {
     IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
     try {
-      return call(argTypes,keyArgValues,  argValues);
+      return call(argTypes,argValues,  keyArgValues);
     }
     finally {
       ctx.getEvaluator().setMonitor(old);
