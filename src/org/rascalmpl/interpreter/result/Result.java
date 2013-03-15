@@ -193,6 +193,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		throw new UnsupportedOperation("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
 	}
 	
+	public Result<IValue> call(Type[] argTypes, Map<String, IValue> keyArgValues, IValue[] argValues) throws MatchFailed {
+    throw new UnsupportedOperation("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
+  }
+	
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
 		return undefinedError(ADDITION_STRING, that);
 	}

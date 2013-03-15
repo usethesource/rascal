@@ -253,6 +253,18 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 			ctx.getEvaluator().setMonitor(old);
 		}
 	}
+	
+	 @Override
+   public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, Map<String, IValue> keyArgValues,
+       IValue[] argValues) {
+    IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
+     try {
+       return call(argTypes, keyArgValues, argValues);
+     }
+     finally {
+       ctx.getEvaluator().setMonitor(old);
+     }
+   }
 
 	@Override 
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {

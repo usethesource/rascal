@@ -98,17 +98,28 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		return this.right;
 	}
 	
-	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
 			IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
-			return call(argTypes, argValues, null);
+			return call(argTypes, argValues, keyArgValues);
 		}
 		finally {
 			ctx.getEvaluator().setMonitor(old);
 		}
 	}
+	
+	 @Override
+	  public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, Map<String, IValue> keyArgValues,
+	      IValue[] argValues) {
+	   IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
+	    try {
+	      return call(argTypes, keyArgValues, argValues);
+	    }
+	    finally {
+	      ctx.getEvaluator().setMonitor(old);
+	    }
+	  }
 	
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
@@ -116,6 +127,12 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, null);
 	}
 
+	@Override
+  public Result<IValue> call(Type[] argTypes, Map<String, IValue> keyArgValues, IValue[] argValues) {
+    Result<IValue> rightResult = right.call(argTypes, argValues, null);
+    return left.call(new Type[] { rightResult.getType() }, keyArgValues, new IValue[] { rightResult.getValue() });
+  }
+	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> right) {
 		return right.addFunctionNonDeterministic(this);
@@ -230,5 +247,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	public boolean hasKeywordArgs() {
 		return false;
 	}
+
+ 
 	
 }
