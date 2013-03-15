@@ -75,7 +75,7 @@ public class JavaMethod extends NamedFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] actualTypes, Map<String, IValue> keyArgValues, IValue[] actuals) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		Type actualTypesTuple;
 		Type formals = getFormals();
 		Object[] oActuals;

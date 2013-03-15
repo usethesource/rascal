@@ -124,7 +124,7 @@ public class StringResult extends ElementResult<IString> {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, Map<String, IValue> keyArgValues, IValue[] argValues) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 		String name = getValue().getValue();
 		IValue node = getTypeFactory().nodeType().make(getValueFactory(), name, argValues, keyArgValues);
 		return makeResult(getTypeFactory().nodeType(), node, ctx);

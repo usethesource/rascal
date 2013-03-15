@@ -243,11 +243,11 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	 @Override
-   public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, Map<String, IValue> keyArgValues,
-       IValue[] argValues) {
+   public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues,
+       Map<String, IValue> keyArgValues) {
     IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
      try {
-       return call(argTypes, keyArgValues, argValues);
+       return call(argTypes, argValues, keyArgValues);
      }
      finally {
        ctx.getEvaluator().setMonitor(old);
@@ -255,7 +255,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
    }
 
 	@Override 
-	public Result<IValue> call(Type[] argTypes, Map<String, IValue> keyArgValues, IValue[] argValues) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues, keyArgValues, defaultCandidates.size() <= 0);
 
 		if (result == null && defaultCandidates.size() > 0) {
@@ -281,7 +281,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 					|| candidate.getArity() == argValues.length
 					|| candidate.hasKeywordArgs()) {
 				try {
-					return candidate.call(argTypes, keyArgValues, argValues);
+					return candidate.call(argTypes, argValues, keyArgValues);
 				}
 				catch (MatchFailed m) {
 					// could happen if pattern dispatched

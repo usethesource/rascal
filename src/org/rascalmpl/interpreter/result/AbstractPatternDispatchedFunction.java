@@ -140,7 +140,7 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-  public Result<IValue> call(Type[] argTypes, Map<String, IValue> keyArgValues, IValue[] argValues) {
+  public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
     String label = null;
     
     if (argTypes.length == 0) {
@@ -156,7 +156,7 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
           if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
               || candidate.getArity() == argValues.length) {
             try {
-              return candidate.call(argTypes, keyArgValues, argValues);
+              return candidate.call(argTypes, argValues, keyArgValues);
             }
             catch (MatchFailed m) {
               // could happen if pattern dispatched

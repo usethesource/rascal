@@ -1356,7 +1356,7 @@ public class Prelude {
     public boolean less(IValue x, IValue y) {
       args[0] = x;
       args[1] = y;
-      return ((IBool) less.call(types, null, args).getValue()).getValue();
+      return ((IBool) less.call(types, args, null).getValue()).getValue();
     }
 	}
 	

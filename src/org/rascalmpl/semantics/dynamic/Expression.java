@@ -484,7 +484,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}
 				Result<IValue> res = null;
 				try {
-					res = function.call(types, kwActuals, actuals);
+					res = function.call(types, actuals, kwActuals);
 				}
 				catch(MatchFailed e) {
 					if(function instanceof AbstractFunction) {

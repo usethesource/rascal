@@ -104,7 +104,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 			ICallableValue func = (ICallableValue) var;
 			try {
 				Result<IValue> result = func.call(
-						new Type[] {TF.setType(type)}, null, new IValue[] {alts}
+						new Type[] {TF.setType(type)}, new IValue[] {alts}, null
 				);
 				
 				if (result.getType().isVoidType()) {
@@ -196,7 +196,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 				actuals[i] = arg;
 			}
 			
-			return function.call(types, null, actuals);
+			return function.call(types, actuals, null);
 		}catch(ArgumentsMismatch e){
 			return null;
 		}catch(Failure f){

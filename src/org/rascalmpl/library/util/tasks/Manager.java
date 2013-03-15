@@ -193,7 +193,7 @@ public class Manager {
 			Transaction t = (Transaction)tr;
 			IValue reifiedKey = reify(ctx, key);
 			Result<IValue> result = fun.call(monitor, new Type[] {t.getType(), reifiedKey.getType(), name.getType()},
-					null, new IValue[] {t, reifiedKey, name});
+					new IValue[] {t, reifiedKey, name}, null);
 			if(result.getValue() instanceof IBool)
 				return ((IBool)result.getValue()).getValue();
 			else

@@ -128,7 +128,7 @@ public abstract class Import {
 				
 				// Invoke the importer, which should generate the text of the module that we need
 				// to actually import.
-				IValue module = importer.call(argTypes, null, argValues).getValue();
+				IValue module = importer.call(argTypes, argValues, null).getValue();
 				String moduleText = module.getType().isStringType() ? ((IString) module).getValue() : TreeAdapter.yield((IConstructor) module);
 				
 				moduleText = "@generated\n" + moduleText;

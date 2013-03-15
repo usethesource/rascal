@@ -547,7 +547,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       
       Map<String, IValue> args = parseCommandLineArgs(monitor, commandline, func.getFunctions().get(0));
 
-      return func.call(getMonitor(), new Type[] { },args, new IValue[] {}).getValue();
+      return func.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
     }
     finally {
       setMonitor(old);
@@ -665,7 +665,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw new UndeclaredFunction(Names.fullName(qualifiedName), types, this, getCurrentAST());
 		}
 
-		return func.call(getMonitor(), types, kwArgs, args).getValue();
+		return func.call(getMonitor(), types, args, kwArgs).getValue();
   }
 	
 	
@@ -1510,7 +1510,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			profiler = new Profiler(this);
 			profiler.start();
 			try {
-				return fun.call(monitor, argTypes, null, argValues);
+				return fun.call(monitor, argTypes, argValues, null);
 			} finally {
 				if (profiler != null) {
 					profiler.pleaseStop();
@@ -1520,7 +1520,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			}
 		}
 		else {
-			return fun.call(monitor, argTypes, null, argValues);
+			return fun.call(monitor, argTypes, argValues, null);
 		}
 	}
 	
