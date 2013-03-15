@@ -45,7 +45,9 @@ public class RascalManifest {
     }
     finally {
       try {
-        is.close();
+        if (is != null) {
+          is.close();
+        }
       } catch (IOException e) {
         // too bad
       }
