@@ -474,17 +474,17 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}
 				
 				KeywordArguments keywordArgs = this.getKeywordArguments();
-				HashMap<String,Result<IValue>> kwActuals = null;
+				HashMap<String,IValue> kwActuals = null;
 				if(keywordArgs.isDefault()){
-						kwActuals = new HashMap<String,Result<IValue>>();
+						kwActuals = new HashMap<String,IValue>();
 						
 						for(KeywordArgument kwa : keywordArgs.getKeywordArgumentList()){
-							kwActuals.put(Names.name(kwa.getName()), kwa.getExpression().interpret(__eval));
+							kwActuals.put(Names.name(kwa.getName()), kwa.getExpression().interpret(__eval).getValue());
 						}
 				}
 				Result<IValue> res = null;
 				try {
-					res = function.call(types, actuals, kwActuals);
+					res = function.call(types, kwActuals, actuals);
 				}
 				catch(MatchFailed e) {
 					if(function instanceof AbstractFunction) {

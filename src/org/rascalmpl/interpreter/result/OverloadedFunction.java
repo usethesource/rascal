@@ -242,18 +242,6 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		return lub;
 	}
 
-	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
-			IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
-		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
-		try {
-			return call(argTypes, argValues, keyArgValues);
-		}
-		finally {
-			ctx.getEvaluator().setMonitor(old);
-		}
-	}
-	
 	 @Override
    public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, Map<String, IValue> keyArgValues,
        IValue[] argValues) {
@@ -267,7 +255,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
    }
 
 	@Override 
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
+	public Result<IValue> call(Type[] argTypes, Map<String, IValue> keyArgValues, IValue[] argValues) {
 		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues, keyArgValues, defaultCandidates.size() <= 0);
 
 		if (result == null && defaultCandidates.size() > 0) {
@@ -284,7 +272,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		return result;
 	}
 
-	private static Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, boolean mustSucceed) {
+	private static Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues, boolean mustSucceed) {
 		AbstractFunction failed = null;
 		Failure failure = null;
 
@@ -293,7 +281,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 					|| candidate.getArity() == argValues.length
 					|| candidate.hasKeywordArgs()) {
 				try {
-					return candidate.call(argTypes, argValues, keyArgValues);
+					return candidate.call(argTypes, keyArgValues, argValues);
 				}
 				catch (MatchFailed m) {
 					// could happen if pattern dispatched

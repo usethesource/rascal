@@ -643,8 +643,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
   }
 	
-	@Override
-	public IValue call(String name, Map<String,IValue> kwArgs, IValue[] args) {
+	private IValue call(String name, Map<String,IValue> kwArgs, IValue[] args) {
 	  QualifiedName qualifiedName = Names.toQualifiedName(name);
 	  setCurrentAST(qualifiedName);
 		return call(qualifiedName, kwArgs, args);
@@ -666,7 +665,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw new UndeclaredFunction(Names.fullName(qualifiedName), types, this, getCurrentAST());
 		}
 
-		return func.call(getMonitor(), types, args, null).getValue();
+		return func.call(getMonitor(), types, kwArgs, args).getValue();
   }
 	
 	
