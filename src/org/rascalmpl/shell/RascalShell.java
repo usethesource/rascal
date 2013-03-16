@@ -53,6 +53,8 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.uri.ClassResourceInputOutput;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
@@ -232,13 +234,13 @@ public class RascalShell {
     String main = mf.getMainFunction(RascalShell.class);
     List<String> roots = mf.getSourceRoots(RascalShell.class);
     Evaluator eval = getDefaultEvaluator();
-
-    try {
-      for (String root : roots) {
-        eval.addRascalSearchPath(RascalShell.class.getResource("/" + root).toURI());
-      }
-    } catch (URISyntaxException e) {
-      System.err.println("Problem loading modules from jar: " + e.getMessage());
+    URIResolverRegistry reg = eval.getResolverRegistry();
+    
+    int count = 0;
+    for (String root : roots) {
+      String scheme = "root" + count;
+      reg.registerInput(new ClassResourceInputOutput(reg, scheme, RascalShell.class, "/" + root));
+      eval.addRascalSearchPath(URIUtil.rootScheme(scheme));
     }
     IRascalMonitor monitor = new NullRascalMonitor();
     
