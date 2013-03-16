@@ -26,12 +26,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -48,6 +48,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.CommandlineError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
@@ -204,7 +205,10 @@ public class RascalShell {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		if (args.length == 0) {
+	  if (new RascalManifest().hasManifest(RascalShell.class)) {
+      runManifest(args);
+    }
+	  else if (args.length == 0) {
 			// interactive mode
 			try {
 				new RascalShell().run();
@@ -213,10 +217,6 @@ public class RascalShell {
 				System.err.println("unexpected error: " + e.getMessage());
 				System.exit(1);
 			} 
-		}
-		
-		if (new RascalManifest().hasManifest(RascalShell.class)) {
-		  runManifest(args);
 		}
 		else if (args[0].equals("-latex")) {
 			toLatex(args[1]);
@@ -249,10 +249,20 @@ public class RascalShell {
     module = module != null ? module : RascalManifest.DEFAULT_MAIN_MODULE;
     main = main != null ? main : RascalManifest.DEFAULT_MAIN_FUNCTION;
     
-    IValue v = eval.main(monitor, module, main, args);
-    
-    if (v != null) {
-      System.out.println(v.toString());
+    try {
+      IValue v = eval.main(monitor, module, main, args);
+
+      if (v.getType().isIntegerType()) {
+        System.exit(((IInteger) v).intValue());
+      }
+      else {
+        System.out.println(v);
+        System.exit(0);
+      }
+    }
+    catch (CommandlineError e) {
+      System.err.println(e.getMessage());
+      System.err.println(e.help("java -jar ..."));
     }
   }
 
