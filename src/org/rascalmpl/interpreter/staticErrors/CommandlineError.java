@@ -6,12 +6,12 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 
-public class CommandlineError extends StaticError {
+public class CommandlineError extends RuntimeException {
   private static final long serialVersionUID = -5679812063174925071L;
   private final AbstractFunction main;
   
   public CommandlineError(String message, AbstractFunction main) {
-    super(message, main.getAst());
+    super(message);
     this.main = main;
   }
   
@@ -30,10 +30,10 @@ public class CommandlineError extends StaticError {
         b.append("\t-");
         b.append(param.getName());
         if (param.getType().isSubtypeOf(tf.boolType())) {
-          b.append("\t[arg]: one of nothing (true), \'1\', \'0\', \'true\' or \'false\';");
+          b.append("\t[arg]: one of nothing (true), \'1\', \'0\', \'true\' or \'false\';\n");
         }
         else {
-          b.append("\t[arg]: a " + param.getType());
+          b.append("\t[arg]: " + param.getType() + " argument;\n");
         }
       }
     }
