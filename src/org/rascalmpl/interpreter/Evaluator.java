@@ -43,10 +43,10 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -614,11 +614,20 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         else if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
           throw new CommandlineError("expected option for " + label, func);
         }
-        else if (expected.isSubtypeOf(tf.listType(tf.valueType())) || expected.isSubtypeOf(tf.setType(tf.valueType()))) {
-          IWriter writer = expected.writer(vf);
+        else if (expected.isSubtypeOf(tf.listType(tf.valueType()))) {
+          IListWriter writer = expected.writer(vf);
           
-          while (++i < commandline.length && !commandline[i].startsWith("-")) {
-            writer.insert(parseCommandlineOption(func, expected.getElementType(), commandline[i]));
+          while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
+            writer.append(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
+          }
+          
+          params.put(label, writer.done());
+        }
+        else if (expected.isSubtypeOf(tf.setType(tf.valueType()))) {
+          ISetWriter writer = expected.writer(vf);
+          
+          while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
+            writer.insert(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
           }
           
           params.put(label, writer.done());
