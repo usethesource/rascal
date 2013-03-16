@@ -38,15 +38,14 @@ import org.rascalmpl.interpreter.utils.Names;
 
 abstract public class NamedFunction extends AbstractFunction {
 	protected final String name;
-	//protected final List<Pair<String, Result<IValue>>> keywordParameterDefaults;
-	protected Type keywordParameterTypes[];
+	protected final Type[] keywordParameterTypes;
 	
 	public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, String name,
 			boolean varargs, List<KeywordParameter> keyargs, Environment env) {
-		super(ast, eval, functionType, varargs, keyargs, env);
+		super(ast, eval, functionType, varargs, (keyargs == null) ? computeKeywordParameterDefaults(ast, eval) : keyargs, env);
 		this.name = name;
-		this.keywordParameterDefaults = (keyargs == null) ? computeKeywordParameterDefaults() : keyargs;
 		this.hasKeyArgs = keywordParameterDefaults != null && keywordParameterDefaults.size() > 0;
+		this.keywordParameterTypes = computeKeywordParameterTypes(ast, eval);
 	}
 
 	@Override
@@ -54,7 +53,8 @@ abstract public class NamedFunction extends AbstractFunction {
 		return name;
 	}
 	
-	private List<KeywordFormal> getKeywordDefaults(){
+	private static List<KeywordFormal> getKeywordDefaults(AbstractAST ast){
+	 
 		//System.err.println(getName() + ast.getClass());
 		Parameters params = null;
 		if (ast instanceof FunctionDeclaration) {
@@ -82,75 +82,46 @@ abstract public class NamedFunction extends AbstractFunction {
 		return null;
 	}
 	
-	private List<KeywordParameter> computeKeywordParameterDefaults(){
+	private static List<KeywordParameter> computeKeywordParameterDefaults(AbstractAST ast, IEvaluator<Result<IValue>> eval){
 		LinkedList<KeywordParameter> kwdefaults = null;
 
-		List<KeywordFormal> kwformals = getKeywordDefaults();
+		List<KeywordFormal> kwformals = getKeywordDefaults(ast);
 		
 		if(kwformals != null && kwformals.size() > 0){
-			keywordParameterTypes = new Type[kwformals.size()];
 			kwdefaults = new LinkedList<KeywordParameter>();
 			
 			for(int i = 0; i < kwformals.size(); i++){
 				KeywordFormal kwf = kwformals.get(i);
-				keywordParameterTypes[i] = kwf.getType().typeOf(eval.getCurrentEnvt());
-				Result<IValue> r = kwf.getExpression().interpret(this.eval);
-				if(!r.getType().isSubtypeOf(keywordParameterTypes[i])){
-					throw new UnexpectedKeywordArgumentType(Names.name(kwf.getName()), keywordParameterTypes[i], r.getType(), ast);
+				Result<IValue> r = kwf.getExpression().interpret(eval);
+				Type kwType = kwf.getType().typeOf(eval.getCurrentEnvt());
+        if(!r.getType().isSubtypeOf(kwType)) {
+					throw new UnexpectedKeywordArgumentType(Names.name(kwf.getName()), kwType, r.getType(), ast);
 				}
-				kwdefaults.add(new KeywordParameter(Names.name(kwf.getName()), keywordParameterTypes[i], r));
+				kwdefaults.add(new KeywordParameter(Names.name(kwf.getName()), kwType, r));
 			}
 		}
 		return kwdefaults;
 	}
 	
-	protected void bindKeywordArgs(Map<String, Result<IValue>> keyArgValues){
-		Environment env = ctx.getCurrentEnvt();
-		if(keyArgValues == null){
-			if(keywordParameterDefaults != null){
-				for(KeywordParameter pair : keywordParameterDefaults){
-					String kwparam= pair.getName();
-					Result<IValue> r = pair.getDefault();
-					env.declareVariable(r.getType(), kwparam);
-					env.storeVariable(kwparam,r);
-				}
-			}
-			return;
-		}
-		if(keywordParameterDefaults == null)
-			throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
-		
-		int nBoundKeywordArgs = 0;
-		int k = 0;
-		for(KeywordParameter kw: keywordParameterDefaults){
-			String kwparam = kw.getName();
-			if(keyArgValues.containsKey(kwparam)){
-				nBoundKeywordArgs++;
-				Result<IValue> r = keyArgValues.get(kwparam);
-				if(!r.getType().isSubtypeOf(keywordParameterTypes[k])){
-					throw new UnexpectedKeywordArgumentType(kwparam, keywordParameterTypes[k], r.getType(), ctx.getCurrentAST());
-				}
-				env.declareVariable(r.getType(), kwparam);
-				env.storeVariable(kwparam, r);
-			} else {
-				Result<IValue> r = kw.getDefault();
-				env.declareVariable(r.getType(), kwparam);
-				env.storeVariable(kwparam, r);
-			}
-			k++;
-		}
-		if(nBoundKeywordArgs != keyArgValues.size()){
-			main:
-			for(String kwparam : keyArgValues.keySet())
-				for(KeywordParameter kw : keywordParameterDefaults){
-					if(kwparam.equals(kw.getName()))
-							continue main;
-					throw new UndeclaredKeywordParameter(getName(), kwparam, ctx.getCurrentAST());
-				}
-		}
-	}
+	private static Type[] computeKeywordParameterTypes(AbstractAST ast, IEvaluator<Result<IValue>> eval){
+    List<KeywordFormal> kwformals = getKeywordDefaults(ast);
+    
+    if (kwformals == null) {
+      return null;
+    }
+    
+    Type[] kwTypes = new Type[kwformals.size()];
+    
+    if(kwformals != null && kwformals.size() > 0){
+      for(int i = 0; i < kwformals.size(); i++){
+        KeywordFormal kwf = kwformals.get(i);
+        kwTypes[i] = kwf.getType().typeOf(eval.getCurrentEnvt());
+      }
+    }
+    return kwTypes;
+  }
 	
-	protected void bindKeywordArgs2(Map<String, IValue> keyArgValues){
+	protected void bindKeywordArgs(Map<String, IValue> keyArgValues){
     Environment env = ctx.getCurrentEnvt();
     if(keyArgValues == null){
       if(keywordParameterDefaults != null){
