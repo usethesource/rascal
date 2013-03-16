@@ -40,6 +40,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -541,13 +542,22 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         throw new UndeclaredVariable(function, name);
       }
       
+      AbstractFunction main = func.getFunctions().get(0);
+      
       if (func.getFunctions().size() > 1) {
-        throw new CommandlineError("should only have one main function", func.getFunctions().get(0));
+        throw new CommandlineError("should only have one main function", main);
       }
       
-      Map<String, IValue> args = parseCommandLineArgs(monitor, commandline, func.getFunctions().get(0));
-
-      return func.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
+      if (main.getArity() == 1) {
+        return func.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
+      }
+      else if (main.hasKeywordArgs() && main.getArity() == 0) {
+        Map<String, IValue> args = parseKeywordCommandLineArgs(monitor, commandline, main);
+        return func.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
+      }
+      else {
+        throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main);
+      }
     }
     finally {
       setMonitor(old);
@@ -555,7 +565,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
   }
 
-  public Map<String, IValue> parseCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
+  private IList parsePlainCommandLineArgs(String[] commandline) {
+    IListWriter w = vf.listWriter();
+    for (String arg : commandline) {
+      w.append(vf.string(arg));
+    }
+    return w.done();
+  }
+
+  public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
     List<KeywordParameter> kwps = func.getKeywordParameterDefaults();
     Map<String, Type> expectedTypes = new HashMap<String,Type>();
     
@@ -566,7 +584,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     Map<String, IValue> params = new HashMap<String,IValue>();
     
     for (int i = 0; i < commandline.length; i++) {
-      if (commandline[i].startsWith("-")) {
+      if (commandline[i].equals("-help")) {
+        throw new CommandlineError("Help", func);
+      }
+      else if (commandline[i].startsWith("-")) {
         String label = commandline[i].replaceFirst("^-+", "");
         Type expected = expectedTypes.get(label);
         
