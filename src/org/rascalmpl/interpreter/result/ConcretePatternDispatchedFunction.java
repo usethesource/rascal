@@ -143,6 +143,11 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) throws MatchFailed {
+	  return call(null, argTypes, argValues, keyArgValues);
+	}
+	
+	@Override
   public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
     IConstructor label = null;
     
