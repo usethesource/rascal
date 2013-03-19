@@ -29,9 +29,9 @@ public class RascalManifest {
   public Manifest getDefaultManifest() {
     Manifest manifest = new Manifest();
     Attributes mainAttributes = manifest.getMainAttributes();
-    mainAttributes.put(SOURCE, DEFAULT_SRC);
-    mainAttributes.put(MAIN_MODULE, DEFAULT_MAIN_MODULE);
-    mainAttributes.put(MAIN_FUNCTION, DEFAULT_MAIN_FUNCTION);
+    mainAttributes.put(new Attributes.Name(SOURCE), DEFAULT_SRC);
+    mainAttributes.put(new Attributes.Name(MAIN_MODULE), DEFAULT_MAIN_MODULE);
+    mainAttributes.put(new Attributes.Name(MAIN_FUNCTION), DEFAULT_MAIN_FUNCTION);
     return manifest;
   }
   
