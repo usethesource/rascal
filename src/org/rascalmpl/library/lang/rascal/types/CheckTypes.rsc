@@ -174,6 +174,7 @@ data AbstractValue
     | \module(RName name, loc at)
     | overload(set[int] items, Symbol rtype)
     | datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
+    | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
     | constructor(RName name, Symbol rtype, int containedIn, loc at)
     | annotation(RName name, Symbol rtype, set[Symbol] onTypes, int containedIn, loc at)
     | \tag(RName name, TagKind tkind, set[Symbol] onTypes, int containedIn, loc at)
@@ -198,10 +199,12 @@ data Configuration = config(set[Message] messages,
                             map[int,Vis] visibilities,
                             map[int,AbstractValue] store,
                             map[tuple[int,str],Symbol] adtFields,
+                            map[tuple[int,str],Symbol] nonterminalFields,
                             rel[int,Modifier] functionModifiers,
                             rel[int,loc] definitions,
                             rel[int,loc] uses,
                             rel[int,int] adtConstructors,
+                            rel[int,int] nonterminalConstructors,
                             list[int] stack,
                             list[LabelStackItem] labelStack,
                             list[Timing] timings,
@@ -209,7 +212,7 @@ data Configuration = config(set[Message] messages,
                             int uniqueify
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},{},{},{},[],[],[],0,0);
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),(),{},{},{},{},{},[],[],[],0,0);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -377,6 +380,29 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
     return c;
 }
 
+// TODO: JV copied this from addADT, but I do not fully understand what is going on here
+public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort) {
+    // TODO: We currently always treat datatype declarations as public, so we just
+    // ignore the visibility here. If we decide to allow private datatype declarations,
+    // revisit this.
+    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+    if (n notin c.typeEnv) {
+        // When we initially add the name, add it as:
+        // * the bare name
+        // * the name appended to the name of the module
+        // This ensures that all valid lookups will be successful.
+        c.typeEnv[n] = c.nextLoc;
+        c.typeEnv[appendName(moduleName,n)] = c.nextLoc;
+        c.store[c.nextLoc] = sorttype(n,sort,head([i | i <- c.stack, \module(_,_) := c.store[i]]),{ });
+        c.definitions = c.definitions + < c.nextLoc, l >;
+        c.nextLoc = c.nextLoc + 1;
+    } else {
+        c.definitions = c.definitions + < c.typeEnv[n], l >;
+    }
+    c.store[c.typeEnv[n]].ats = c.store[c.typeEnv[n]].ats + l; 
+    return c;
+}
+
 public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol rt) {
     // TODO: We currently always treat datatype declarations as public, so we just
     // ignore the visibility here. If we decide to allow private datatype declarations,
@@ -490,6 +516,29 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
     } else {
         throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
     }
+    return c;
+}
+
+public Configuration addProduction(Configuration c, RName n, loc l, Production prod) {
+    assert prod.def is label && prod.def.symbol has name;
+     
+    sortName = RSimpleName(prod.def.symbol.name);
+    if (sortName notin c.typeEnv) { 
+      throw "Unexpected error, syntax nonterminal <prettyPrintName(sortName)> not found!";
+    }
+    sortId = c.typeEnv[sortName];
+    
+    args = prod.symbols;
+    if ([*_, \label(fn,_), *_, label(fn,_), *_] := prod.symbols) {
+       c = addScopeError(c,"Field name <fn> cannot be repeated in the same production", l);
+    }
+    
+    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+    // TODO: think about production overload when we start to create ability to construct concrete trees from abstract names
+    c.store[c.nextLoc] = prod;
+    c.definitions = c.definitions + < c.nextLoc, l >;
+    c.nonterminalConstructors = c.nonterminalConstructors + < sortId, c.nextLoc >;
+    c.nextLoc = c.nextLoc + 1;
     return c;
 }
 
@@ -5280,6 +5329,10 @@ public Configuration importADT(RName adtName, UserType adtType, loc at, Vis vis,
     return c;
 }
 
+public Configuration importNonterminal(RName sort, Symbol sym, loc at, Configuration c) {
+  return addNonterminal(c, sort, at, sym); // TODO: something with descend?
+}
+
 @doc{Import a signature item: Constructor}
 public Configuration importConstructor(RName conName, UserType adtType, list[TypeArg] argTypes, loc adtAt, loc at, Vis vis, Configuration c) {
     // NOTE: We do not have a separate descend stage. Instead, we just add these after the types (aliases
@@ -5289,6 +5342,14 @@ public Configuration importConstructor(RName conName, UserType adtType, list[Typ
     list[Symbol] targs = [ ];
     for (varg <- argTypes) { < c, vargT > = convertAndExpandTypeArg(varg, c); targs = targs + vargT; } 
     return addConstructor(c, conName, at, Symbol::\cons(rt,targs));         
+}
+
+@doc{Import a signature item: Constructor}
+public Configuration importProduction(RSignatureItem item, Configuration c) {
+    if (label(str l, Symbol s) := item.prod.def) {
+      c = addProduction(c, l, item.at, item.prod);
+    }
+    return c;
 }
 
 @doc{Import a signature item: Annotation}
@@ -5348,11 +5409,10 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
             } catch perror : {
                 c = addScopeError(c, "Cannot calculate signature for imported module", importItem@\loc);
             }
-        } else {
-            // This is where we would need to add support for syntax.
-            ;
-        }
+        } 
     }
+    
+    
     
     // Add all the aliases and ADTs from each module without descending. Do tags here to, although
     // (when they are really used) we need to add them in a reasonable order. Right now we just
@@ -5361,9 +5421,16 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     for (modName <- importOrder) {
         sig = sigMap[modName];
         c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
-        for (item <- sig.datatypes) c = importADT(item.adtName, item.adtType, item.at, publicVis(), false, c);
-        for (item <- sig.aliases) c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), false, c);
-        for (item <- sig.tags) c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), false, c);
+        
+        for (item <- sig.datatypes) 
+          c = importADT(item.adtName, item.adtType, item.at, publicVis(), false, c);
+        for (item <- sig.aliases) 
+          c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), false, c);
+        for (item <- sig.tags) 
+          c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), false, c);
+        for (item <- sig.lexicalNonterminals + sig.contextfreeNonterminals + sig.layoutNonterminals + sig.keywordNonterminals)
+          c = importNonterminal(item.sortName, item.at, c);
+          
         c.stack = tail(c.stack);
     }
 
@@ -5386,7 +5453,10 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     for (modName <- importOrder) {
         sig = sigMap[modName];
         c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
-        for (item <- sig.publicConstructors) c = importConstructor(item.conName, item.adtType, item.argTypes, item.adtAt, item.at, publicVis(), c);
+        for (item <- sig.publicConstructors) 
+          c = importConstructor(item.conName, item.adtType, item.argTypes, item.adtAt, item.at, publicVis(), c);
+        for (item <- sig.publicProductions)
+          c = importProduction(item, c);
         c.stack = tail(c.stack);
     }
     
@@ -5411,6 +5481,12 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     c = pushTiming(c, "Imported module signatures", dt1, now());
             
     // Process the current module
+    syntaxConfig = processSyntax(moduleName, importList);
+    for (prodItem <- syntaxConfig.publicProductions)
+      c = importProduction(prodItem, c);
+    for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals)
+      c = importNonterminal(item.sortName, item.at, c);    
+    
     if ((Body)`<Toplevel* tls>` := body) {
         dt1 = now();
         list[Declaration] typesAndTags = [ ];
