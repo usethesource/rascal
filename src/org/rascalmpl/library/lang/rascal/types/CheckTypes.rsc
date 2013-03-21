@@ -6290,6 +6290,8 @@ public Module check(Module m) {
             toAdd = { c.store[itm].at | itm <- items };
         } else if (datatype(_,_,_,ats) := c.store[i]) {
             toAdd = ats;
+        } else if (sorttype(_,_,_,ats) := c.store[i]) {
+           toAdd = ats;
         } else {
             toAdd = { c.store[i].at };
         }   
