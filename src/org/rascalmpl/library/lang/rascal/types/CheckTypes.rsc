@@ -176,6 +176,7 @@ data AbstractValue
     | datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
     | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
     | constructor(RName name, Symbol rtype, int containedIn, loc at)
+    | production(RName name, Symbol rtype, int containedIn, loc at)
     | annotation(RName name, Symbol rtype, set[Symbol] onTypes, int containedIn, loc at)
     | \tag(RName name, TagKind tkind, set[Symbol] onTypes, int containedIn, loc at)
     | \alias(RName name, Symbol rtype, int containedIn, loc at)
@@ -535,7 +536,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
     
     moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
     // TODO: think about production overload when we start to create ability to construct concrete trees from abstract names
-    c.store[c.nextLoc] = prod;
+    c.store[c.nextLoc] = production(RSimpleName(prod.def.name), prod.def.symbol, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
     c.definitions = c.definitions + < c.nextLoc, l >;
     c.nonterminalConstructors = c.nonterminalConstructors + < sortId, c.nextLoc >;
     c.nextLoc = c.nextLoc + 1;
@@ -5330,7 +5331,10 @@ public Configuration importADT(RName adtName, UserType adtType, loc at, Vis vis,
 }
 
 public Configuration importNonterminal(RName sort, Symbol sym, loc at, Configuration c) {
-  return addNonterminal(c, sort, at, sym); // TODO: something with descend?
+  c = addNonterminal(c, sort, at, sym); // TODO: something with descend?
+  //id = getOneFrom(invert(c.definitions)[at]); // TODO: ??
+  //c.store[id].rtype = sym;
+  return c;
 }
 
 @doc{Import a signature item: Constructor}
@@ -5347,7 +5351,7 @@ public Configuration importConstructor(RName conName, UserType adtType, list[Typ
 @doc{Import a signature item: Constructor}
 public Configuration importProduction(RSignatureItem item, Configuration c) {
     if (label(str l, Symbol s) := item.prod.def) {
-      c = addProduction(c, l, item.at, item.prod);
+      c = addProduction(c, RSimpleName(l), item.at, item.prod);
     }
     return c;
 }
@@ -5482,11 +5486,11 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
             
     // Process the current module
     syntaxConfig = processSyntax(moduleName, importList);
+    for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals)
+      c = importNonterminal(item.sortName, item.sort, item.at, c);    
     for (prodItem <- syntaxConfig.publicProductions)
       c = importProduction(prodItem, c);
-    for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals)
-      c = importNonterminal(item.sortName, item.at, c);    
-    
+  
     if ((Body)`<Toplevel* tls>` := body) {
         dt1 = now();
         list[Declaration] typesAndTags = [ ];
@@ -5631,6 +5635,9 @@ public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c)
                     } else {
                         return < c, makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
                     }
+                } else if (ut is \lex || ut is \sort || ut is \keyword || ut is \layout) {
+                  // TODO: add support for parameterized sorts
+                  ;
                 } else {
                     throw "User type should not refer to type <prettyPrintType(ut)>";
                 }
