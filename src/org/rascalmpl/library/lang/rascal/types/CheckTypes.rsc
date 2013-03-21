@@ -929,8 +929,7 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
   if (size(failures) > 0)
     return markLocationFailed(c, exp@\loc, failures);
   
-  // TODO: lookup type names in the symbol, whether they are lex, layout, keyword or cf  
-  return <c, sym2symbol(concrete.symbol)>;  
+  return <c, resolveSorts(sym2symbol(concrete.symbol), c)>;  
 }
 
 @doc{Check the types of Rascal expressions: CallOrTree}
@@ -2906,11 +2905,8 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
     return < c, reifiedTypeNode(pti1,pti2)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
-  // TODO: make sure that c is used to find out whether sym is cf, lex, layout or keyword
-  psList = [ typedNameNode(convertName(n), n@\loc, sym2symbol(sym))[@at = n@\loc] | (ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts];
-  
-  // TODO: same for the outermost type find out whether it is lex, cf, layout or keyword
-  return <c, concreteSyntaxNode(sym2symbol(concrete.sym, psList))>;
+  psList = [ typedNameNode(convertName(n), n@\loc, resolveSorts(sym2symbol(sym),c))[@at = n@\loc] | (ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts];
+  return <c, concreteSyntaxNode(resolveSorts(sym2symbol(concrete.sym, psList),c))>;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> )`, Configuration c) { 
     < c, pti > = extractPatternTree(p,c);
@@ -5636,8 +5632,7 @@ public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c)
                         return < c, makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
                     }
                 } else if (ut is \lex || ut is \sort || ut is \keyword || ut is \layout) {
-                  // TODO: add support for parameterized sorts
-                  ;
+                  return < c, ut >;
                 } else {
                     throw "User type should not refer to type <prettyPrintType(ut)>";
                 }
@@ -6412,3 +6407,7 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 	c.stack = tail(c.stack);
 	return < c, rt >;
 }
+
+Symbol resolveSorts(Symbol sym, Configuration c) = visit(sym) {
+   case sort(str name) => c.store[c.typeEnv[RSimpleName(name)]].rtype when bprintln("<name>: <c.store[c.typeEnv[RSimpleName(name)]].rtype>")
+};
