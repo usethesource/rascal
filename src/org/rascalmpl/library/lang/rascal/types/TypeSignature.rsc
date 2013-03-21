@@ -148,26 +148,26 @@ public RSignature processSyntax(RName name, list[Import] defs) {
   for ((Import) `<SyntaxDefinition sd>` <- defs) {
     rule = rule2prod(sd);
     
-    for (prod <- rule.prods) {
-      prods += ProductionSigItem(prod, sd.defined@\loc, sd@\loc);
+    for (/pr:prod(_,_,_) <- rule.prods) {
+      prods += ProductionSigItem(pr, sd.defined@\loc, sd@\loc);
       
-      sym = prod.def is label ? prod.def.symbol : prod.def;
+      sym = pr.def is label ? pr.def.symbol : pr.def;
       
       switch (sym) {
         case sort(str name) : 
-          sig[contextfreeNonterminals = sig.contextfreeNonterminals + ContextfreeSigItem(RSimpleName(name), sym, sd.defined@\loc)];
+          sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(name), sym, sd.defined@\loc)];
         case lex(str name) : 
-          sig[lexicalNonterminals = sig.lexicalNonterminals + LexicalSigItem(RSimpleName(name), sym, sd.defined@\loc)];
+          sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(name), sym, sd.defined@\loc)];
         case layouts(str name) : 
-          sig[layoutNonterminals = sig.layoutNonterminals + LayoutSigItem(RSimpleName(name), sym, sd.defined@\loc)];
+          sig.layoutNonterminals += [LayoutSigItem(RSimpleName(name), sym, sd.defined@\loc)];
         case keywords(str name) : 
-          sig[keywordNonterminals = sig.keywordNonterminals + KeywordSigItem(RSimpleName(name), sym, sd.defined@\loc)];  
+          sig.keywordNonterminals += [KeywordSigItem(RSimpleName(name), sym, sd.defined@\loc)];  
         case \parameterized-sort(str name, list[Symbol] parameters) : 
-          sig[contextfreeNonterminals = sig.contextfreeNonterminals + ContextfreeSigItem(RSimpleName(name), sym, sd.defined@\loc)];
+          sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(name), sym, sd.defined@\loc)];
         case \parameterized-lex(str name, list[Symbol] parameters) : 
-          sig[lexicalNonterminals = sig.lexicalNonterminals + LexicalSigItem(RSimpleName(name), sym, sd.defined@\loc)];
+          sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(name), sym, sd.defined@\loc)];
         default: 
-          throw "unexpected non-terminal definition <prod.def>"; 
+          throw "unexpected non-terminal definition <pr.def>"; 
       }
     } 
   }
