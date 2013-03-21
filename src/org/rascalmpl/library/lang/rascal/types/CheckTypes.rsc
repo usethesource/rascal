@@ -921,15 +921,16 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
   set[Symbol] failures = { };
   
   for ((ConcreteHole) `\<<Sym s> <Name n>\>` <- concrete.parts) {
-    <c, p2> = checkExp((Expression) `<Name n>`, c);
+    <c, rt> = convertSymbol(s, c);
+    <c, p2> = checkExp((Expression) `<Name n>`[@\loc=n@\loc], c);
     // TODO: check if return type is indeed of type s
-    if (isFailType(t1)) failures += t1;  
+    if (isFailType(p2)) failures += t1;  
   }
   
   if (size(failures) > 0)
     return markLocationFailed(c, exp@\loc, failures);
   
-  return <c, resolveSorts(sym2symbol(concrete.symbol), c)>;  
+  return convertAndExpandSymbol(concrete.symbol, c);  
 }
 
 @doc{Check the types of Rascal expressions: CallOrTree}
@@ -2906,7 +2907,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
   psList = [ typedNameNode(convertName(n), n@\loc, resolveSorts(sym2symbol(sym),c))[@at = n@\loc] | (ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts];
-  return <c, concreteSyntaxNode(resolveSorts(sym2symbol(concrete.symbol, psList),c))>;
+  return <c, concreteSyntaxNode(resolveSorts(sym2symbol(concrete.symbol),c))>;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> )`, Configuration c) { 
     < c, pti > = extractPatternTree(p,c);
@@ -5540,6 +5541,11 @@ public RName getHeaderName((Header)`<Tags tags> module <QualifiedName qn> <Impor
 @doc{Get the list of imports from the header.}
 public list[Import] getHeaderImports((Header)`<Tags tags> module <QualifiedName qn> <ModuleParameters mps> <Import* imports>`) = [i | i<-imports];
 public list[Import] getHeaderImports((Header)`<Tags tags> module <QualifiedName qn> <Import* imports>`) = [i | i<-imports];
+
+public CheckResult convertAndExpandSymbol(Sym t, Configuration c) {
+    rt = resolveSorts(convertSymbol(t), c);
+    return expandType(rt, t@\loc, c);
+}
 
 public CheckResult convertAndExpandType(Type t, Configuration c) {
     rt = convertType(t);
