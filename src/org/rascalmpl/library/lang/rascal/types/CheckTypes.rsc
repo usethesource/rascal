@@ -2906,7 +2906,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
   psList = [ typedNameNode(convertName(n), n@\loc, resolveSorts(sym2symbol(sym),c))[@at = n@\loc] | (ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts];
-  return <c, concreteSyntaxNode(resolveSorts(sym2symbol(concrete.sym, psList),c))>;
+  return <c, concreteSyntaxNode(resolveSorts(sym2symbol(concrete.symbol, psList),c))>;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> )`, Configuration c) { 
     < c, pti > = extractPatternTree(p,c);
