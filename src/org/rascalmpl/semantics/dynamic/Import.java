@@ -69,6 +69,7 @@ import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
@@ -567,6 +568,18 @@ public abstract class Import {
       ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
       eval.getMonitor().warning("parse error in concrete syntax", src);
       return tree.setAnnotation("parseError", src);
+    }
+    catch (StaticError e) {
+      ISourceLocation loc = TreeAdapter.getLocation(tree);
+      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+      eval.getMonitor().warning(e.getMessage(), e.getLocation());
+      return tree.setAnnotation("can not parse fragment due to " + e.getMessage(), src);
+    }
+    catch (UndeclaredNonTerminalException e) {
+      ISourceLocation loc = TreeAdapter.getLocation(tree);
+      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+      eval.getMonitor().warning(e.getMessage(), src);
+      return tree.setAnnotation("can not parse fragment due to " + e.getMessage(), src);
     }
   }
   
