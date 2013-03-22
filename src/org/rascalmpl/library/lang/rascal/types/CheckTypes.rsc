@@ -921,10 +921,17 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
   set[Symbol] failures = { };
   
   for ((ConcreteHole) `\<<Sym s> <Name n>\>` <- concrete.parts) {
-    <c, rt> = convertSymbol(s, c);
-    <c, p2> = checkExp((Expression) `<Name n>`[@\loc=n@\loc], c);
-    // TODO: check if return type is indeed of type s
-    if (isFailType(p2)) failures += t1;  
+    <c, rt> = convertAndExpandSymbol(s, c);
+    if (isFailType(rt)) failures += t1;  
+    
+    n = RSimpleName("<n>")[@at = n@\loc];
+    
+    if (fcvExists(c, n)) {
+        c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
+        return markLocationType(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
+    } else {
+        return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(n)> is not in scope", exp@\loc));
+    }
   }
   
   if (size(failures) > 0)
