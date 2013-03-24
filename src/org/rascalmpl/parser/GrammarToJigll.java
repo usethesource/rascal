@@ -23,14 +23,16 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.jgll.grammar.CharacterClass;
 import org.jgll.grammar.Grammar;
-import org.jgll.grammar.GrammarInterpreter;
-import org.jgll.grammar.LevelSynchronizedGrammarInterpretter;
 import org.jgll.grammar.Nonterminal;
 import org.jgll.grammar.Range;
 import org.jgll.grammar.Rule;
 import org.jgll.grammar.Symbol;
+import org.jgll.parser.GLLParser;
+import org.jgll.parser.LevelSynchronizedGrammarInterpretter;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
+import org.jgll.traversal.Result;
+import org.jgll.util.Input;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
@@ -43,21 +45,28 @@ public class GrammarToJigll {
 		this.vf = vf;
 	}
 
+	@SuppressWarnings("unchecked")
 	public IConstructor jparse(IValue type, IConstructor symbol, IConstructor grammar, IString str) {
 	  Grammar g = convert("inmemory", grammar);
 	  
 	  IMap notAllowed = (IMap) ((IMap) grammar.get("about")).get(vf.string("notAllowed"));
 	  applyRestrictions(g, notAllowed);
 	  
-	  GrammarInterpreter parser = new LevelSynchronizedGrammarInterpretter();
+	  GLLParser parser = new LevelSynchronizedGrammarInterpretter();
 	
 	  System.out.println("Jigll started.");
-	  NonterminalSymbolNode parse = parser.parse(str.getValue(), g, symbol.toString());
+	  Input input = Input.fromString(str.getValue());
+	  
+	  NonterminalSymbolNode sppf = parser.parse(input, g, symbol.toString());
+	  
 	  long start = System.nanoTime();
-	  parse.accept(new ModelBuilderVisitor<>(new ParsetreeBuilder()), null);
+	  
+	  sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder()));
+	  
 	  long end = System.nanoTime();
 	  System.out.println("Flattening: " + (end - start) / 1000_000);
-	  return parse.<IConstructor>getResult().getObject();
+	  
+	  return ((Result<IConstructor>)sppf.getObject()).getObject();
 	}
 	
 	public void generate(IString name, IConstructor grammar) {
