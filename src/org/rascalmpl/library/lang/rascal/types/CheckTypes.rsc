@@ -5544,13 +5544,15 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 }
 
 public Configuration checkSyntax(list[Import] defs, Configuration c) {
-  for ((Import) `<SyntaxDefinition syn>` <- defs, /Nonterminal t := syn.production) {
+  for ((Import) `<SyntaxDefinition syn>` <- defs, /Nonterminal t := syn.production, t notin getParameters(syn.defined)) {
     <rt,c> = resolveSorts(sort("<t>"), t@\loc, c);
-    //<c,et> = expandType(rt[@at=t@\loc], t@\loc, c);
   }
   
   return c;
 }
+
+list[Nonterminal] getParameters((Sym) `<Nonterminal _>[<{Sym ","}+ params>]`) = [ t | (Sym) `&<Nonterminal t>` <- params];
+default list[Nonterminal] getParameters(Sym _) = []; 
 
 @doc{Get the module name from the header.}
 public RName getHeaderName((Header)`<Tags tags> module <QualifiedName qn> <ModuleParameters mps> <Import* imports>`) = convertName(qn);
