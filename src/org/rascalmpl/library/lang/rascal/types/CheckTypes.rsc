@@ -2913,8 +2913,9 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
     return < c, reifiedTypeNode(pti1,pti2)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
-  psList = [ typedNameNode(convertName(n), n@\loc, resolveSorts(sym2symbol(sym),c))[@at = n@\loc] | (ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts];
-  return <c, concreteSyntaxNode(resolveSorts(sym2symbol(concrete.symbol),c))>;
+  psList = [ typedNameNode(convertName(n), n@\loc, resolveSorts(sym2symbol(sym),sym@\loc,c))[@at = n@\loc] | (ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts];
+  <sym, c> = resolveSorts(sym2symbol(concrete.symbol),pat@\loc, c);
+  return <c, concreteSyntaxNode(sym)>;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> )`, Configuration c) { 
     < c, pti > = extractPatternTree(p,c);
@@ -4890,7 +4891,6 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
         < c, ot > = convertAndExpandType(onType,c);
         
         rn = convertName(n);
-        
         c = addAnnotation(c,rn,at,ot,getVis(vis),decl@\loc);
     }
     return c;   
@@ -5494,6 +5494,8 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
       c = importNonterminal(item.sortName, item.sort, item.at, c);    
     for (prodItem <- syntaxConfig.publicProductions)
       c = importProduction(prodItem, c);
+    
+    c = checkSyntax(importList, c);  
   
     if ((Body)`<Toplevel* tls>` := body) {
         dt1 = now();
@@ -5541,6 +5543,15 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     return c;
 }
 
+public Configuration checkSyntax(list[Import] defs, Configuration c) {
+  for ((Import) `<SyntaxDefinition syn>` <- defs, /Nonterminal t := syn.production) {
+    <rt,c> = resolveSorts(sort("<t>"), t@\loc, c);
+    //<c,et> = expandType(rt[@at=t@\loc], t@\loc, c);
+  }
+  
+  return c;
+}
+
 @doc{Get the module name from the header.}
 public RName getHeaderName((Header)`<Tags tags> module <QualifiedName qn> <ModuleParameters mps> <Import* imports>`) = convertName(qn);
 public RName getHeaderName((Header)`<Tags tags> module <QualifiedName qn> <Import* imports>`) = convertName(qn);
@@ -5550,7 +5561,7 @@ public list[Import] getHeaderImports((Header)`<Tags tags> module <QualifiedName 
 public list[Import] getHeaderImports((Header)`<Tags tags> module <QualifiedName qn> <Import* imports>`) = [i | i<-imports];
 
 public CheckResult convertAndExpandSymbol(Sym t, Configuration c) {
-    rt = resolveSorts(convertSymbol(t), c);
+    <rt,c> = resolveSorts(convertSymbol(t), t@\loc, c);
     return expandType(rt, t@\loc, c);
 }
 
@@ -6421,6 +6432,19 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 	return < c, rt >;
 }
 
-Symbol resolveSorts(Symbol sym, Configuration c) = visit(sym) {
-   case sort(str name) => c.store[c.typeEnv[RSimpleName(name)]].rtype when bprintln("<name>: <c.store[c.typeEnv[RSimpleName(name)]].rtype>")
-};
+tuple[Symbol,Configuration] resolveSorts(Symbol sym, loc l, Configuration c) {
+  sym = visit(sym) {
+   case sort(str name) : {
+     sname = RSimpleName(name);
+     if (sname notin c.typeEnv) {
+       c = addScopeMessage(c,error("Syntax type <name> is not not defined", l));
+     }
+     else {
+       c.uses = c.uses + < c.typeEnv[sname], l >;
+       insert c.store[c.typeEnv[sname]].rtype;
+     } // TODO finish
+   }
+  }
+  
+  return <sym, c>;
+}
