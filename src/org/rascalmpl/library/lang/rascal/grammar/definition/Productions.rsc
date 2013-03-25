@@ -47,7 +47,7 @@ public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefini
       case \language(present() /*start*/, nonterminal(Nonterminal n), Prod p) : 
         return < {prod(\start(sort("<n>")),[label("top", sort("<n>"))],{})
                 ,prod2prod(sort("<n>"), p)}
-               ,\start(sort("<n>"))>;
+               ,just(\start(sort("<n>")))>;
       case \language(absent(), parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : 
         return <{prod2prod(\parameterized-sort("<l>",separgs2symbols(syms)), p)}, nothing()>;
       case \language(absent(), nonterminal(Nonterminal n), Prod p) : 
