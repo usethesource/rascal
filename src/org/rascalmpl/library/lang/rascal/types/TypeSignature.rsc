@@ -172,6 +172,7 @@ public RSignature processSyntax(RName name, list[Import] defs) {
     } 
   }
   
+    
   sig.publicProductions = prods;
   
   return sig;   
