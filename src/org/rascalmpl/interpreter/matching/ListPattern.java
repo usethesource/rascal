@@ -184,8 +184,7 @@ public class ListPattern extends AbstractMatchingResult  {
 
         if(!tmvVar.isAnonymous() && allVars.contains(name)) {
           throw new RedeclaredVariable(name, getAST());
-        } else if((isAnyListType(tmvType) && tmvType.comparable(listSubject.getType()) ||
-                  (!isAnyListType(tmvType) && tmvType.comparable(listSubject.getType().getElementType())))) {
+        } else if(tmvType.comparable(listSubject.getType().getElementType())) {
           tmvVar.convertToListType();
           if (!tmvVar.isAnonymous()) {
             allVars.add(name);
