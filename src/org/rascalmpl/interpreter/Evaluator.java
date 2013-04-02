@@ -829,9 +829,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			ParserGenerator pgen = getParserGenerator();
 			String main = uri.getAuthority();
 			ModuleEnvironment env = getHeap().getModule(main);
+			monitor.startJob("Expanding Grammar");
 			return pgen.getExpandedGrammar(monitor, main, env.getSyntaxDefinition());
 		}
 		finally {
+			monitor.endJob(true);
 			setMonitor(old);
 		}
 	}
