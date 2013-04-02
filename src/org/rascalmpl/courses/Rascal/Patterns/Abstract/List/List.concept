@@ -12,31 +12,47 @@ Details:
 
 Description:
 
-A list pattern matches a list value, provided that $Pat_1$, $Pat_2$, ..., $Pat_n$ match the elements of that list in order. 
-Two special cases exist when one of the patterns $Pat_i$ is
+A list pattern matches a list value (the subject), provided that $Pat_1$, $Pat_2$, ..., $Pat_n$ match the elements of that list in order. 
+Special cases exist when one of the patterns $Pat_i$ is
 
-* a variable declaration pattern with a list type that is identical to the type of the list that is being matched.
+# a [VariableDeclaration] pattern with a type that is identical to the element type of the subject list: the variable is matched with the value at the corresponding position in the subject list.
 
-* a variable pattern, where the variable has been declared, but not initialized, outside the pattern with a list type that is identical to the type of the list that is being matched.
+# a [MultiVariable] pattern, with an optional element type that is identical to the element type of the subject list: list matching is applied and the variable can match an arbitrary number of elements of the subject list.
 
+# a [$Abstract/Variable] pattern, where the variable has been declared with a list type, but not initialized, outside the pattern: list matching is applied and the variable can match an arbitrary number of elements of the subject list.
 
-In both cases list matching is applied and the variable can match an arbitrary number of elements of the subject list.
+# a [$Abstract/Variable] pattern, where the variable has been declared with a type equal to the element type of the subject, but not initialized, outside the pattern: the variable is matched with the value at the corresponding position in the subject list.
+
 
 Examples:
 <screen>
 import IO;
-if([10, list[int] L, 50] := [10, 20, 30, 40, 50])
+// 1. A single variable
+if([10, int N, 30, 40, 50] := [10, 20, 30, 40, 50])
+   println("Match succeeded, N = <N>");
+// 2. An untyped multi-variable:
+if([10, *L, 50] := [10, 20, 30, 40, 50])
    println("Match succeeded, L = <L>");
-// Using a [MultiVariable] this can be abbreviated to:
-if([10, L*, 50] := [10, 20, 30, 40, 50])
+// 2. A typed multi-variable:
+if([10, *int L, 50] := [10, 20, 30, 40, 50])
    println("Match succeeded, L = <L>");
-// A list pattern may also be __non-linear__, i.e., it may contain uses of variables that were bound earlier in the pattern.
+// A list pattern may also be __non-linear__, i.e., it may contain uses of variables that were bound earlier in the pattern:
+if([10, *L, 40, L, 50] := [10, 20, 30, 40, 20, 30, 50])
+   println("Match succeeded, L = <L>");
 // Here we see an example, where all pairs of equal elements in a list are printed:
-for([L1*, int N, L2*, N, L3*] := [ 5, 10, 20, 30, 40, 30, 15, 20, 10])
+for([*L1, int N, *L2, N, *L3] := [ 5, 10, 20, 30, 40, 30, 15, 20, 10])
     println("N = <N>");
 // Here we print all ways in which a given list can be partitioned in two lists:
-for([L1*, L2*] := [10, 20, 30, 40, 50]) 
+for([*L1, *L2] := [10, 20, 30, 40, 50]) 
     println("<L1> and <L2>");
+// 3. Already declared list variable:
+list[int] L;
+if([10, L, 50] := [10, 20, 30, 40, 50])
+   println("Match succeeded, L = <L>");
+// 4. Already declared element variable:
+int N;
+if([10, N, 30, 40, 50] := [10, 20, 30, 40, 50])
+   println("Match succeeded, N = <N>");
 </screen>
 
 Benefits:
