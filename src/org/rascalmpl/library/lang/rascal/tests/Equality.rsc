@@ -31,7 +31,7 @@ public test bool intValueReflex(int x) { value y = x; return x == y && y == x; }
 public test bool realTotalLTE(real x, real y) = x <= y || y <= x;
 public test bool realAntiSymmetricLTE(real x, real y) = (x <= y && y <= x) ==> (x == y);
 public test bool realTransLTE(real x, real y, real z) = (x <= y && y <= z) ==> (x <= z);
-public test bool realValueReflex(num x) { value y = x; return x == y && y == x; }
+public test bool realValueReflex(real x) { value y = x; return x == y && y == x; }
 
 // rat are totally ordered
 public test bool ratTotalLTE(rat x, rat y) = x <= y || y <= x;
