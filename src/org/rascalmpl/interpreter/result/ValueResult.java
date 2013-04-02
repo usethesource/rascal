@@ -69,6 +69,16 @@ public class ValueResult extends ElementResult<IValue> {
 	protected Result<IBool> equalToReal(RealResult that) {
 	  return equalityBoolean(that);
 	}
+	
+	@Override
+	protected Result<IBool> equalToRational(RationalResult that) {
+		return equalityBoolean(that);
+	}
+	
+	@Override
+	protected Result<IBool> equalToNumber(NumberResult that) {
+		return equalityBoolean(that);
+	}
 
 	@Override
 	protected Result<IBool> equalToString(StringResult that) {
