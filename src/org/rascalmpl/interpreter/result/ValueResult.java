@@ -15,7 +15,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.Iterator;
@@ -63,17 +62,17 @@ public class ValueResult extends ElementResult<IValue> {
 	
 	@Override
 	protected Result<IBool> equalToInteger(IntegerResult that) {
-		return bool(false, ctx);
+	  return equalityBoolean(that);
 	}
 
 	@Override
 	protected Result<IBool> equalToReal(RealResult that) {
-		return bool(false, ctx);
+	  return equalityBoolean(that);
 	}
 
 	@Override
 	protected Result<IBool> equalToString(StringResult that) {
-	  return bool(false, ctx);
+	  return equalityBoolean(that);
 	}
 	
 	@Override
