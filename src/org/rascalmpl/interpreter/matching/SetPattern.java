@@ -220,8 +220,7 @@ public class SetPattern extends AbstractMatchingResult {
 					throw new RedeclaredVariable(name, getAST());
 				}
 				
-				if((childType.isSetType() && childType.comparable(staticSetSubjectType) ||
-		          (!childType.isSetType() && childType.comparable(staticSubjectElementType)))) {
+				if(childType.comparable(staticSubjectElementType)) {
 					tmvVar.covertToSetType();
 					if (!tmvVar.isAnonymous()) {
 						patVars.add(name);
