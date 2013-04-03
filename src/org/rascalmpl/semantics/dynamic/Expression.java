@@ -1675,7 +1675,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);		
+			__eval.warning("Var* is deprecated, use *Var or *Type Var instead", this.getLocation());
+			System.err.println(this.getLocation() + ": Var* is deprecated, use *Var instead");
 			
 			Name name = this.getName();
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
