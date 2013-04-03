@@ -1481,6 +1481,74 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
     }
 }
 
+@doc{Check the types of Rascal expressions: Slice (DONE)}
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <OptionalExpression ofirst> .. <OptionalExpression olast> ]`, Configuration c) {
+    set[Symbol] failures = { };
+
+    < c, t1 > = checkExp(e, c);
+    
+    if ((OptionalExpression)`<Expression efirst>` := ofirst) {
+    	< c, t2 > = checkExp(efirst, c);
+    	if (isFailType(t2)) failures += t2;
+    	if (!isIntType(t2)) failures += makeFailType("The first slice index must be of type int", efirst@\loc);
+    }
+    
+    if ((OptionalExpression)`<Expression elast>` := olast) {
+    	< c, t3 > = checkExp(elast, c);
+    	if (isFailType(t3)) failures += t3;
+    	if (!isIntType(t3)) failures += makeFailType("The last slice index must be of type int", elast@\loc);
+    }
+    
+    res = makeFailType("Slices can only be used on lists, strings, and nodes", exp@\loc);
+    
+	if (isListType(t1) || isStrType(t1)) {
+		res = t1;	
+	} else if (isNodeType(t1)) {
+		res = \list(\value());
+	}
+	
+	if (isFailType(res))
+		return markLocationFailed(c, exp@\loc, failures + res);
+	else
+		return markLocationType(c, exp@\loc, res);
+}
+
+@doc{Check the types of Rascal expressions: Slice Step (DONE)}
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <OptionalExpression ofirst>, <Expression second> .. <OptionalExpression olast> ]`, Configuration c) {
+    set[Symbol] failures = { };
+
+    < c, t1 > = checkExp(e, c);
+	    
+    if ((OptionalExpression)`<Expression efirst>` := ofirst) {
+    	< c, t2 > = checkExp(efirst, c);
+    	if (isFailType(t2)) failures += t2;
+    	if (!isIntType(t2)) failures += makeFailType("The first slice index must be of type int", efirst@\loc);
+    }
+    
+	< c, t3 > = checkExp(second, c);
+	if (!isIntType(t3)) failures += makeFailType("The slice step must be of type int", second@\loc);
+	    
+    if ((OptionalExpression)`<Expression elast>` := olast) {
+    	< c, t4 > = checkExp(elast, c);
+    	if (isFailType(t4)) failures += t4;
+    	if (!isIntType(t4)) failures += makeFailType("The last slice index must be of type int", elast@\loc);
+    }
+
+    res = makeFailType("Slices can only be used on lists, strings, and nodes", exp@\loc);
+    
+	if (isListType(t1) || isStrType(t1)) {
+		res = t1;	
+	} else if (isNodeType(t1)) {
+		res = \list(\value());
+	}
+	
+	if (isFailType(res))
+		return markLocationFailed(c, exp@\loc, failures + res);
+	else
+		return markLocationType(c, exp@\loc, res);
+}
+
+
 @doc{Field names and types for built-ins}
 private map[Symbol,map[str,Symbol]] fieldMap =
     ( \loc() :
@@ -5437,7 +5505,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         for (item <- sig.tags) 
           c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), false, c);
         for (item <- sig.lexicalNonterminals + sig.contextfreeNonterminals + sig.layoutNonterminals + sig.keywordNonterminals)
-          c = importNonterminal(item.sortName, item.at, c);
+          c = importNonterminal(item.sortName, item.sort, item.at, c);
           
         c.stack = tail(c.stack);
     }
