@@ -245,7 +245,7 @@ public class SymbolAdapter {
 		}
 		
 		if (isSet(symbol) || isList(symbol) || isBag(symbol) || isReifiedType(symbol)) {
-			return getName(symbol) + "[" + toString((IConstructor) symbol.get("symbol")) + "]";
+			return symbol.getName() + "[" + toString((IConstructor) symbol.get("symbol")) + "]";
 		}
 		
 		if (isRel(symbol) || isTuple(symbol)) {
@@ -305,10 +305,12 @@ public class SymbolAdapter {
 	private static String toString(IList symbols) {
 		StringBuilder b = new StringBuilder();
 		
-		b.append(toString((IConstructor) symbols.get(0)));
-		for (int i = 1; i < symbols.length(); i++) {
-			b.append(',');
-			b.append(toString((IConstructor) symbols.get(i)));
+		if (symbols.length() > 0) {
+			b.append(toString((IConstructor) symbols.get(0)));
+			for (int i = 1; i < symbols.length(); i++) {
+				b.append(',');
+				b.append(toString((IConstructor) symbols.get(i)));
+			}
 		}
 		
 		return b.toString();
