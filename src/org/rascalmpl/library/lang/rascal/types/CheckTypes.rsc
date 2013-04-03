@@ -2980,9 +2980,14 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
     < c, pti2 > = extractPatternTree(d,c);
     return < c, reifiedTypeNode(pti1,pti2)[@at = pat@\loc] >;
 }
+
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
-  psList = [ typedNameNode(convertName(n), n@\loc, resolveSorts(sym2symbol(sym),sym@\loc,c))[@at = n@\loc] | (ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts];
-  <sym, c> = resolveSorts(sym2symbol(concrete.symbol),pat@\loc, c);
+  psList = for ((ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts) {
+    <c, rt> = resolveSorts(sym2symbol(sym),sym@\loc,c);
+    append typedNameNode(convertName(n), n@\loc, rt)[@at = n@\loc];
+  }
+  
+  <c, sym> = resolveSorts(sym2symbol(concrete.symbol),pat.symbol@\loc, c);
   return <c, concreteSyntaxNode(sym)>;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> )`, Configuration c) { 
@@ -5613,7 +5618,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 
 public Configuration checkSyntax(list[Import] defs, Configuration c) {
   for ((Import) `<SyntaxDefinition syn>` <- defs, /Nonterminal t := syn.production, t notin getParameters(syn.defined)) {
-    <rt,c> = resolveSorts(sort("<t>"), t@\loc, c);
+    <c,rt> = resolveSorts(sort("<t>"), t@\loc, c);
   }
   
   return c;
@@ -5631,7 +5636,7 @@ public list[Import] getHeaderImports((Header)`<Tags tags> module <QualifiedName 
 public list[Import] getHeaderImports((Header)`<Tags tags> module <QualifiedName qn> <Import* imports>`) = [i | i<-imports];
 
 public CheckResult convertAndExpandSymbol(Sym t, Configuration c) {
-    <rt,c> = resolveSorts(convertSymbol(t), t@\loc, c);
+    <c,rt> = resolveSorts(convertSymbol(t), t@\loc, c);
     return expandType(rt, t@\loc, c);
 }
 
@@ -6502,7 +6507,7 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 	return < c, rt >;
 }
 
-tuple[Symbol,Configuration] resolveSorts(Symbol sym, loc l, Configuration c) {
+CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
   sym = visit(sym) {
    case sort(str name) : {
      sname = RSimpleName(name);
@@ -6516,5 +6521,5 @@ tuple[Symbol,Configuration] resolveSorts(Symbol sym, loc l, Configuration c) {
    }
   }
   
-  return <sym, c>;
+  return <c, sym>;
 }
