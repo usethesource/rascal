@@ -205,10 +205,10 @@ public class RascalShell {
 	}
 	
 	public static void main(String[] args) throws IOException {
-	  if (new RascalManifest().hasManifest(RascalShell.class)) {
-      runManifest(args);
-    }
-	  else if (args.length == 0) {
+		if (new RascalManifest().hasManifest(RascalShell.class)
+				&& new RascalManifest().hasMainModule(RascalShell.class)) {
+			runManifest(args);
+		} else if (args.length == 0) {
 			// interactive mode
 			try {
 				new RascalShell().run();
@@ -216,57 +216,59 @@ public class RascalShell {
 			} catch (IOException e) {
 				System.err.println("unexpected error: " + e.getMessage());
 				System.exit(1);
-			} 
-		}
-		else if (args[0].equals("-latex")) {
+			}
+		} else if (args[0].equals("-latex")) {
 			toLatex(args[1]);
-		}
-		else {
+		} else {
 			runModule(args);
 		}
 	}
 
 	private static void runManifest(String[] args) {
-    RascalManifest mf = new RascalManifest();
-    assert mf.hasManifest(RascalShell.class);
-    
-    String module = mf.getMainModule(RascalShell.class);
-    String main = mf.getMainFunction(RascalShell.class);
-    List<String> roots = mf.getSourceRoots(RascalShell.class);
-    Evaluator eval = getDefaultEvaluator();
-    URIResolverRegistry reg = eval.getResolverRegistry();
-    
-    int count = 0;
-    for (String root : roots) {
-      String scheme = "root" + count;
-      reg.registerInput(new ClassResourceInputOutput(reg, scheme, RascalShell.class, "/" + root));
-      eval.addRascalSearchPath(URIUtil.rootScheme(scheme));
-    }
-    IRascalMonitor monitor = new NullRascalMonitor();
-    
-    eval.doImport(monitor, module);
-    
-    module = module != null ? module : RascalManifest.DEFAULT_MAIN_MODULE;
-    main = main != null ? main : RascalManifest.DEFAULT_MAIN_FUNCTION;
-    
-    try {
-      IValue v = eval.main(monitor, module, main, args);
+		RascalManifest mf = new RascalManifest();
+		assert mf.hasManifest(RascalShell.class);
 
-      if (v.getType().isIntegerType()) {
-        System.exit(((IInteger) v).intValue());
-      }
-      else {
-        System.out.println(v);
-        System.exit(0);
-      }
-    }
-    catch (CommandlineError e) {
-      System.err.println(e.getMessage());
-      System.err.println(e.help("java -jar ..."));
-    }
-  }
+		List<String> roots = mf.getSourceRoots(RascalShell.class);
+		Evaluator eval = getDefaultEvaluator();
+		URIResolverRegistry reg = eval.getResolverRegistry();
 
-  private static void runModule(String args[]) {
+		int count = 0;
+		for (String root : roots) {
+			String scheme = "root" + count;
+			reg.registerInput(new ClassResourceInputOutput(reg, scheme, RascalShell.class, "/" + root));
+			eval.addRascalSearchPath(URIUtil.rootScheme(scheme));
+		}
+		IRascalMonitor monitor = new NullRascalMonitor();
+
+		String module = mf.getMainModule(RascalShell.class);
+		assert module != null;
+		eval.doImport(monitor, module);
+
+		/*
+		 * Backwards compatibility support doesn't work here, because if no main
+		 * module is found, interactive mode is used.
+		 */
+		// module = module != null ? module : RascalManifest.DEFAULT_MAIN_MODULE;
+
+		String main = mf.getMainFunction(RascalShell.class);
+		main = main != null ? main : RascalManifest.DEFAULT_MAIN_FUNCTION;
+
+		try {
+			IValue v = eval.main(monitor, module, main, args);
+
+			if (v.getType().isIntegerType()) {
+				System.exit(((IInteger) v).intValue());
+			} else {
+				System.out.println(v);
+				System.exit(0);
+			}
+		} catch (CommandlineError e) {
+			System.err.println(e.getMessage());
+			System.err.println(e.help("java -jar ..."));
+		}
+	}
+
+	private static void runModule(String args[]) {
 		String module = args[0];
 		if (module.endsWith(".rsc")) {
 			module = module.substring(0, module.length() - 4);
