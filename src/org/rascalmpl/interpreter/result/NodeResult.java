@@ -124,11 +124,11 @@ public class NodeResult extends ElementResult<INode> {
 	  
 	  int compare = left.getName().compareTo(right.getName());
 	  
-	  if (compare == -1) {
+	  if (compare <= -1) {
 	    return new LessThanOrEqualResult(true, false, ctx);
 	  }
 	  
-    if (compare == 1){
+    if (compare >= 1){
       return new LessThanOrEqualResult(false, false, ctx);
     }
     

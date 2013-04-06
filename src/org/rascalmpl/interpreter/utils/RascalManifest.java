@@ -75,6 +75,13 @@ public class RascalManifest {
   public String getMainModule(Class<?> clazz) {
     return getMainModule(manifest(clazz));
   }
+
+  /**
+   * @return 'true' if the main module of a deployment unit exists, or 'false' if none is configured.
+   */
+  public boolean hasMainModule(Class<?> clazz) {
+    return getMainModule(manifest(clazz)) != null;
+  }  
   
   /**
    * @return a list of paths relative to the root of the jar, if no such option is configured
