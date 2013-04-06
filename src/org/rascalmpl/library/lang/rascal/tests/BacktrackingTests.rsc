@@ -26,3 +26,25 @@ public test bool test1() {
 			&& l2 == l6
 			&& l3 == l7;	
 }
+
+// Backtracking for generators with regular expressions
+public test bool test2() {
+	str s = "abc";
+	
+	// Comprehensions
+	res0 = [ <S0,S> | /@<S0:[a-z]+>@/ <- ["@abc@", "@def@"], /@<S:[a-z]+>@/ <- ["@abc@", "@def@"] ];
+	res1 = [ <S0,S> | [/@<S0:[a-z]+>@/] <- [["@abc@"], ["@def@"]], /@<S:[a-z]+>@/ <- ["@abc@", "@def@"] ];
+	res2 = [ <S0,S> | /@<S0:<s>>@/ <- ["@abc@", "@def@"], /@<S:[a-z]+>@/ <- ["@abc@", "@def@"] ];
+	
+	// For-loops
+	res3 = for(/@<S0:[a-z]+>@/ <- ["@abc@", "@def@"], /@<S:[a-z]+>@/ <- ["@abc@", "@def@"]) append <S0,S>;
+	res4 = for([/@<S0:[a-z]+>@/] <- [["@abc@"], ["@def@"]], /@<S:[a-z]+>@/ <- ["@abc@", "@def@"]) append <S0,S>;
+	res5 = for(/@<S0:<s>>@/ <- ["@abc@", "@def@"], /@<S:[a-z]+>@/ <- ["@abc@", "@def@"]) append <S0,S>;
+	
+	return res0 == [<"abc","abc">,<"abc","def">,<"def","abc">,<"def","def">]
+			&& res1 == [<"abc","abc">,<"abc","def">,<"def","abc">,<"def","def">]
+			&& res2 == [<"abc","abc">,<"abc","def">]
+			&& res0 == res3
+			&& res1 == res4
+			&& res2 == res5;
+}
