@@ -11,19 +11,33 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.ArrayList;
+
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class ConcatStringResult extends StringResult {
-	private final StringResult left;
-	private final StringResult right;
 	private final int length;
+	private final ArrayList<StringResult> components;
 	
 	/*package*/ ConcatStringResult(Type type, StringResult left, StringResult right, IEvaluatorContext ctx) {
 		super(type, null, ctx);
-		this.left = left;
-		this.right = right;
+		if(left instanceof ConcatStringResult){
+			components = ((ConcatStringResult) left).components;
+			if(right instanceof ConcatStringResult){
+				components.addAll(((ConcatStringResult) right).components);
+			} else {
+				components.add(right);
+			}
+		} else if(left instanceof ConcatStringResult){
+			components = ((ConcatStringResult) right).components;
+			components.add(0, left);
+		} else {
+			components = new ArrayList<StringResult>();
+			components.add(left);
+			components.add(right);
+		}
 		this.length = left.length() + right.length();
 	}
 	
@@ -34,8 +48,9 @@ public class ConcatStringResult extends StringResult {
 	
 	@Override
 	protected void yield(StringBuilder b) {
-		left.yield(b);
-		right.yield(b);
+		for(StringResult r : components){
+			r.yield(b);
+		}
 	}
 
 	@Override
