@@ -196,11 +196,11 @@ public Symbol makeParameterizedAliasType(str n, Symbol t, list[Symbol] params) =
 public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes...) {
 	set[str] labels = { l | \label(l,_) <- paramTypes };
 	if (size(labels) == 0 || size(labels) == size(paramTypes))
-		if (isVarArgs) { 
-			return \var-func(retType, head(paramTypes,size(paramTypes)-1), last(paramTypes));
-		} else {
+		//if (isVarArgs) { 
+		//	return \var-func(retType, head(paramTypes,size(paramTypes)-1), last(paramTypes));
+		//} else {
 			return Symbol::\func(retType, paramTypes);
-		}
+		//}
 	else
 		throw "For function types, either all parameters much be given a distinct label or no parameters should be labeled."; 
 }
