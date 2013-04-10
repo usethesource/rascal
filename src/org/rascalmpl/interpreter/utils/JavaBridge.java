@@ -94,11 +94,14 @@ public class JavaBridge {
 	
 	private final Map<Class<?>, JavaFileManager> fileManagerCache;
 
-	public JavaBridge(List<ClassLoader> classLoaders, IValueFactory valueFactory) {
+  private final Configuration config;
+
+	public JavaBridge(List<ClassLoader> classLoaders, IValueFactory valueFactory, Configuration config) {
 		this.loaders = classLoaders;
 		this.vf = valueFactory;
 		this.instanceCache = new HashMap<Class<?>, Object>();
 		this.fileManagerCache = new ConcurrentHashMap<Class<?>, JavaFileManager>();
+		this.config = config;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
 			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
@@ -112,7 +115,7 @@ public class JavaBridge {
 	public <T> Class<T> compileJava(URI loc, String className, Class<?> parent, String source) {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
-			List<String> commandline = Arrays.asList(new String[] {"-cp", Configuration.getRascalJavaClassPathProperty()});
+			List<String> commandline = Arrays.asList(new String[] {"-cp", config.getRascalJavaClassPathProperty()});
 			
 			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), fileManagerCache.get(parent), commandline);
 			Class<T> result = javaCompiler.compile(className, source, null, Object.class);
@@ -121,7 +124,7 @@ public class JavaBridge {
 		} catch (ClassCastException e) {
 			throw new JavaCompilation(e.getMessage(), vf.sourceLocation(loc));
 		} catch (JavaCompilerException e) {
-			throw new JavaCompilation(e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), vf.sourceLocation(loc));
+			throw new JavaCompilation("with classpath [" + config.getRascalJavaClassPathProperty() + "]: " + e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), vf.sourceLocation(loc));
 		}
 	}
 

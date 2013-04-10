@@ -189,7 +189,6 @@ public class JavaMethod extends NamedFunction {
 	
 
 	public IValue invoke(Object[] oActuals) {
-		Configuration.printErrors();
 		try {
 			return (IValue) method.invoke(instance, oActuals);
 		}
@@ -220,14 +219,14 @@ public class JavaMethod extends NamedFunction {
 			  throw (ImplementationError) targetException;
 			}
 
-			if(Configuration.printErrors()){
+			if(ctx.getConfiguration().printErrors()) {
 				targetException.printStackTrace();
 			}
 			
 			throw RuntimeExceptionFactory.javaException(e.getTargetException(), getAst(), eval.getStackTrace());
 		}
 		catch (Throwable e) {
-		  if(Configuration.printErrors()){
+		  if(ctx.getConfiguration().printErrors()){
         e.printStackTrace();
       }
 		  
