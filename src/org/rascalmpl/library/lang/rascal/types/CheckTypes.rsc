@@ -1481,6 +1481,74 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
     }
 }
 
+@doc{Check the types of Rascal expressions: Slice (DONE)}
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <OptionalExpression ofirst> .. <OptionalExpression olast> ]`, Configuration c) {
+    set[Symbol] failures = { };
+
+    < c, t1 > = checkExp(e, c);
+    
+    if ((OptionalExpression)`<Expression efirst>` := ofirst) {
+    	< c, t2 > = checkExp(efirst, c);
+    	if (isFailType(t2)) failures += t2;
+    	if (!isIntType(t2)) failures += makeFailType("The first slice index must be of type int", efirst@\loc);
+    }
+    
+    if ((OptionalExpression)`<Expression elast>` := olast) {
+    	< c, t3 > = checkExp(elast, c);
+    	if (isFailType(t3)) failures += t3;
+    	if (!isIntType(t3)) failures += makeFailType("The last slice index must be of type int", elast@\loc);
+    }
+    
+    res = makeFailType("Slices can only be used on lists, strings, and nodes", exp@\loc);
+    
+	if (isListType(t1) || isStrType(t1)) {
+		res = t1;	
+	} else if (isNodeType(t1)) {
+		res = \list(\value());
+	}
+	
+	if (isFailType(res))
+		return markLocationFailed(c, exp@\loc, failures + res);
+	else
+		return markLocationType(c, exp@\loc, res);
+}
+
+@doc{Check the types of Rascal expressions: Slice Step (DONE)}
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <OptionalExpression ofirst>, <Expression second> .. <OptionalExpression olast> ]`, Configuration c) {
+    set[Symbol] failures = { };
+
+    < c, t1 > = checkExp(e, c);
+	    
+    if ((OptionalExpression)`<Expression efirst>` := ofirst) {
+    	< c, t2 > = checkExp(efirst, c);
+    	if (isFailType(t2)) failures += t2;
+    	if (!isIntType(t2)) failures += makeFailType("The first slice index must be of type int", efirst@\loc);
+    }
+    
+	< c, t3 > = checkExp(second, c);
+	if (!isIntType(t3)) failures += makeFailType("The slice step must be of type int", second@\loc);
+	    
+    if ((OptionalExpression)`<Expression elast>` := olast) {
+    	< c, t4 > = checkExp(elast, c);
+    	if (isFailType(t4)) failures += t4;
+    	if (!isIntType(t4)) failures += makeFailType("The last slice index must be of type int", elast@\loc);
+    }
+
+    res = makeFailType("Slices can only be used on lists, strings, and nodes", exp@\loc);
+    
+	if (isListType(t1) || isStrType(t1)) {
+		res = t1;	
+	} else if (isNodeType(t1)) {
+		res = \list(\value());
+	}
+	
+	if (isFailType(res))
+		return markLocationFailed(c, exp@\loc, failures + res);
+	else
+		return markLocationType(c, exp@\loc, res);
+}
+
+
 @doc{Field names and types for built-ins}
 private map[Symbol,map[str,Symbol]] fieldMap =
     ( \loc() :
@@ -5442,7 +5510,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         for (item <- sig.tags) 
           c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), false, c);
         for (item <- sig.lexicalNonterminals + sig.contextfreeNonterminals + sig.layoutNonterminals + sig.keywordNonterminals)
-          c = importNonterminal(item.sortName, item.at, c);
+          c = importNonterminal(item.sortName, item.sort, item.at, c);
           
         c.stack = tail(c.stack);
     }
@@ -6339,104 +6407,6 @@ public default Module check(Tree t) {
 		return check(m);
 	else
 		throw "Cannot check arbitrary trees";
-}
-
-public CheckResult checkStatementsString(str statementsString, list[str] importedModules = [], list[str] initialDecls = []) {
-	map[RName,RSignature] sigMap = ( );
-	map[RName,int] moduleIds = ( );
-	map[RName,loc] moduleLocs = ( );
-	list[RName] importOrder = [ ];
-	imports = [ RSimpleName(mn) | mn <- importedModules ];
-    
-	c = newConfiguration();
-	moduleName = RSimpleName("CheckStatementsString");
-	c = addModule(c, moduleName, |file:///tmp/CheckStatementsString.rsc|);
-	currentModuleId = head(c.stack);
-            
-	// Get the information about each import, including the module signature
-	for (importItem <- imports) {
-		try {
-			dt1 = now();
-			modName = importItem;
-			modTree = getModuleParseTree(prettyPrintName(modName));
-			sigMap[modName] = getModuleSignature(modTree);
-			moduleLocs[modName] = modTree@\loc;
-			importOrder = importOrder + modName;
-			c = addModule(c,modName,modTree@\loc);
-			moduleIds[modName] = head(c.stack);
-			c = popModule(c);
-			c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
-		} catch perror : {
-			c = addScopeError(c, "Cannot calculate signature for imported module", |file:///tmp/CheckStatementsString.rsc|);
-		}
-	}
-    
-	// Add all the aliases and ADTs from each module without descending. Do tags here to, although
-	// (when they are really used) we need to add them in a reasonable order. Right now we just
-	// ignore them. So, TODO: Handle tags appropriately.
-	dt1 = now();
-	for (modName <- importOrder) {
-		sig = sigMap[modName];
-		c.stack = moduleIds[modName] + c.stack;
-		for (item <- sig.datatypes)
-			c = importADT(item.adtName, item.adtType, item.at, publicVis(), false, c);
-		for (item <- sig.aliases)
-			c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), false, c);
-		for (item <- sig.tags)
-			c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), false, c);
-		c.stack = tail(c.stack);
-	}
-
-	// Now, descend into each alias and ADT, ensuring all parameters are correctly added and the
-	// aliased type is handled correctly. As above, we do tags here as well.
-	for (modName <- importOrder) {
-		sig = sigMap[modName];
-		c.stack = currentModuleId + c.stack;
-		for (item <- sig.datatypes)
-			c = importADT(item.adtName, item.adtType, item.at, publicVis(), true, c);
-		for (item <- sig.aliases)
-			c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), true, c);
-		for (item <- sig.tags)
-			c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), true, c);
-		c.stack = tail(c.stack);
-	}
-
-	// Add constructors next, ensuring they are visible for the imported functions.
-	// NOTE: This is one area where we could have problems. Once the checker is working
-	// correctly, TODO: calculate the types in the signature, so we don't risk clashes
-	// over constructor names (or inadvertent visibility of constructor names) that would
-	// not have been an issue before, when we did not have parameters with patterns.
-	for (modName <- importOrder) {
-		sig = sigMap[modName];
-		c.stack = currentModuleId + c.stack;
-		for (item <- sig.publicConstructors)
-			c = importConstructor(item.conName, item.adtType, item.argTypes, item.adtAt, item.at, publicVis(), c);
-		c.stack = tail(c.stack);
-	}
-    
-	// Now, bring in all public names, including annotations, public vars, and public functions.
-	for (modName <- importOrder) {
-		sig = sigMap[modName];
-		c.stack = currentModuleId + c.stack;
-		for (item <- sig.publicVariables)
-			c = importVariable(item.variableName, item.variableType, item.at, publicVis(), c);
-		for (item <- sig.publicFunctions)
-			c = importFunction(item.functionName, item.sig, item.at, publicVis(), c);
-		for (item <- sig.annotations)
-			c = importAnnotation(item.annName, item.annType, item.onType, item.at, publicVis(), c);
-		c.stack = tail(c.stack);
-	}
-    
-	c = pushTiming(c, "Imported module signatures", dt1, now());
-
-	c.stack = currentModuleId + c.stack;
-	pt = parseStatement("{ <statementsString> }");
-	rt = \void();
-	if ((Statement)`{ <Statement+ sl> }` := pt) {
-		for (stmt <- sl) < c, rt > = checkStmt(stmt, c);
-	}
-	c.stack = tail(c.stack);
-	return < c, rt >;
 }
 
 CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {

@@ -101,6 +101,7 @@ void generate(loc src){
           'import Type;
           'import IO;
           'import util::Eval;
+          'import lang::rascal::types::TestChecker;
           '<tests>
           '";
    writeFile(TTLRoot + "generated/<basename(src)>.rsc", code);
@@ -119,7 +120,7 @@ str genTest(TestItem item,  map[Name, Declaration] declarations,  map[Name, Modu
   	
   inferredChecks = "";
   for(<var, tp> <- inferred){
-    inferredChecks += "if(!hasType(\"<var>\", #<tp>, checkResult)) return false;";
+    inferredChecks += "if(!getTypeForName(checkResult, \"<var>\") == #<tp>) return false;";
   }
   
   messageChecks = intercalate(" || ", ["<msg> := msg" | msg <- messages]);
@@ -134,7 +135,7 @@ str genTest(TestItem item,  map[Name, Declaration] declarations,  map[Name, Modu
     
   return "<exception>
   		 'test bool tst(){
-         '  checkResult = checkExpString(\"<code>\", importedModules=<imports>, initialDecls = <decls>);
+         '  checkResult = checkStatementsString(\"<code>\", importedModules=<imports>, initialDecls = <decls>);
          '  <checks>
          '  return true;
          '}";
