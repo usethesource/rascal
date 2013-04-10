@@ -160,3 +160,11 @@ public Symbol getTypeForName(Configuration c, str name) {
 	if (splitRN in c.fcvEnv) return c.store[c.fcvEnv[splitRN]].rtype;
 	throw "Name <prettyPrintName(splitRN)> not found";
 }
+
+public set[RName] getVariablesInScope(Configuration c) {
+	return { n | l <- c.fcvEnv, i:variable(n,_,_,_,_) := c.store[c.fcvEnv[l]] };
+}
+
+public set[RName] getFunctionsInScope(Configuration c) {
+	return { n | l <- c.fcvEnv, i:function(n,_,_,_,_,_) := c.store[c.fcvEnv[l]] };
+}
