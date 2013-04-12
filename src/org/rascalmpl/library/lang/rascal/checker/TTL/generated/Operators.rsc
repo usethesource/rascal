@@ -3,6 +3,7 @@ import lang::rascal::checker::TTL::Library;
 import Type;
 import IO;
 import util::Eval;
+import lang::rascal::types::TestChecker;
 // Testing infix BooleanOperators && for bool x bool -> bool 
 test bool tst(bool arg1, bool arg2){ 
   ltype = typeOf(arg1);

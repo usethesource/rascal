@@ -4,7 +4,7 @@ define Y {int y = 1;}
 
 test  { x = 1; } expect {int x}
 
-test { x = 1; x = false; } expect {/Expected int/}
+test { x = 1; x = false; } expect {value x}
 
 test { use M1 :: x; } expect {int x}
 
@@ -14,6 +14,6 @@ test { int y = 1; x = y;} expect {int x}
 
 define triple {int triple(int x) = 3 * x;}
 
-test { use triple :: triple([1,2,3]); } expect {ArgumentMismatch}
+test { use triple :: triple([1,2,3]); } expect {/cannot be called with argument/}
 
 test { x = 3; x = 3.5; } expect{num x}
