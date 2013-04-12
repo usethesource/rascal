@@ -12,7 +12,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -281,16 +281,16 @@ public class IO {
 		try{
 			boolean isListRel = rel instanceof IListRelation;
 			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
-			IRelation irel = null;
+			ISet irel = null;
 			IListRelation lrel = null;
 			if (isListRel) {
 				lrel = (IListRelation)rel;
 			}
 			else {
-				irel = (IRelation) rel;
+				irel = (ISet) rel;
 			}
 			
-			int nfields = isListRel ? lrel.arity() : irel.arity();
+			int nfields = isListRel ? lrel.arity() : irel.asRelation().arity();
 			if(header){
 				for(int i = 0; i < nfields; i++){
 					if(i > 0)

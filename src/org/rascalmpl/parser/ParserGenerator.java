@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -175,9 +175,9 @@ public class ParserGenerator {
 		return g;
 	}
 
-	public IRelation getNestingRestrictions(IRascalMonitor monitor,
+	public ISet getNestingRestrictions(IRascalMonitor monitor,
 			IConstructor g) {
-		return (IRelation) evaluator.call(monitor, "doNotNest", g);
+		return (ISet) evaluator.call(monitor, "doNotNest", g);
 	}
 
 	/** 

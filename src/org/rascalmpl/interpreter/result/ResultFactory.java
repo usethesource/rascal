@@ -27,7 +27,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -141,10 +140,10 @@ public class ResultFactory {
 		}
 
 		public SetOrRelationResult<?> visitRelationType(Type type) {
-			if (value != null && !(value instanceof IRelation)) {
+			if (value != null && !(value.getType().isRelationType())) {
 				throw new ImplementationError("somehow a relation value turned into a set, but its type did not change with it", ctx.getCurrentAST().getLocation());
 			}
-			return new RelationResult(declaredType, (IRelation)value, ctx);
+			return new RelationResult(declaredType, (ISet)value, ctx);
 		}
 		
 		@Override
