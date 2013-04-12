@@ -20,7 +20,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -58,7 +58,7 @@ public class RSFIO {
 	public IValue readRSF(ISourceLocation nameRSFFile, IEvaluatorContext ctx)
 	//@doc{readRSF -- read an RSF file}
 	{
-		HashMap<java.lang.String, IRelationWriter> table = new HashMap<java.lang.String, IRelationWriter>();
+		HashMap<java.lang.String, ISetWriter> table = new HashMap<java.lang.String, ISetWriter>();
 	
 		Type strType = types.stringType();
 		Type tupleType = types.tupleType(strType, strType);
@@ -76,7 +76,7 @@ public class RSFIO {
 				if (!table.containsKey(name)) {
 					table.put(name, values.relationWriter(tupleType));
 				}
-				IRelationWriter rw = table.get(name);
+				ISetWriter rw = table.get(name);
 				rw.insert(values.tuple(values.string(fields[1]), values.string(fields[2])));
 				line = bufRead.readLine();
 			}
@@ -97,7 +97,7 @@ public class RSFIO {
 
 		IMapWriter mw = values.mapWriter(strType, types.relType(strType, strType));
 
-		for (Map.Entry<java.lang.String, IRelationWriter> entry : table.entrySet()) {
+		for (Map.Entry<java.lang.String, ISetWriter> entry : table.entrySet()) {
 			mw.insert(values.tuple(values.string(entry.getKey()), entry.getValue().done()));
 		}
 		return mw.done();
@@ -142,7 +142,7 @@ public class RSFIO {
 		
 		Type elem1Type = resultType.getFieldType(0);
 		Type elem2Type = resultType.getFieldType(1);
-		IRelationWriter rw = values.relationWriter(resultType.getElementType());
+		ISetWriter rw = values.relationWriter(resultType.getElementType());
 		String rname = relName.getValue();
 
 		Reader reader = null;

@@ -108,7 +108,7 @@ public class SetResult extends SetOrRelationResult<ISet> {
 	@Override
 	protected <U extends IValue> Result<U> joinRelation(RelationResult that) {
 		// Note the reverse of arguments, we need "that join this"
-		int arity1 = that.getValue().arity();
+		int arity1 = that.getValue().asRelation().arity();
 		Type eltType = getType().getElementType();
 		Type tupleType = that.getType().getElementType();
 		Type fieldTypes[] = new Type[arity1 + 1];

@@ -52,7 +52,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -252,7 +251,7 @@ public class JavaBridge {
 
 		@Override
 		public Class<?> visitRelationType(org.eclipse.imp.pdb.facts.type.Type type) {
-			return IRelation.class;
+			return ISet.class;
 		}
 
 		@Override
