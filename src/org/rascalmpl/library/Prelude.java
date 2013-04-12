@@ -71,8 +71,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -776,7 +774,7 @@ public class Prelude {
 	
 	private HashMap<IValue, LinkedList<IValue>> adjacencyList;
 	
-	private void buildAdjacencyListAndDistance(IRelation G){
+	private void buildAdjacencyListAndDistance(ISet G){
 		adjacencyList = new HashMap<IValue, LinkedList<IValue>> ();
 		distance = new HashMap<IValue, Distance>();
 		
@@ -798,7 +796,7 @@ public class Prelude {
 		}
 	}
 	
-	public IValue shortestPathPair(IRelation G, IValue From, IValue To){
+	public IValue shortestPathPair(ISet G, IValue From, IValue To){
 		buildAdjacencyListAndDistance(G);
 		distance.put(From, new Distance(0));
 		
@@ -1897,7 +1895,7 @@ public class Prelude {
 	  Type valueType = M.getValueType();
 	  
 	  Type resultType = types.relType(keyType, valueType);
-	  IRelationWriter w = resultType.writer(values);
+	  ISetWriter w = resultType.writer(values);
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
@@ -2543,7 +2541,7 @@ public class Prelude {
 		return values.integer(st.size());
 	}
 	
-	public IMap index(IRelation s) {
+	public IMap index(ISet s) {
 		Map<IValue, ISetWriter> map = new HashMap<IValue, ISetWriter>(s.size());
 		
 		for (IValue t : s) {
@@ -2629,7 +2627,7 @@ public class Prelude {
 		return w.done();
 	}
 
-	public IValue toMap(IRelation st)
+	public IValue toMap(ISet st)
 	// @doc{toMap -- convert a set of tuples to a map; value in old map is associated with a set of keys in old map}
 	{
 		Type tuple = st.getElementType();
@@ -2690,7 +2688,7 @@ public class Prelude {
 	}
 	
 	
-	public IValue toMapUnique(IRelation st)
+	public IValue toMapUnique(ISet st)
 	// @doc{toMapUnique -- convert a set of tuples to a map; keys are unique}
 	{
 		Type tuple = st.getElementType();

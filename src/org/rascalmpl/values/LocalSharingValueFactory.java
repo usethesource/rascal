@@ -29,8 +29,6 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -67,7 +65,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 	private final ValueCache<IConstructor> cachedConstructors;
 	private final ValueCache<IList> cachedLists;
 	private final ValueCache<ISet> cachedSets;
-	private final ValueCache<IRelation> cachedRelations;
+	private final ValueCache<ISet> cachedRelations;
 	private final ValueCache<IListRelation> cachedListRelations;
 	private final ValueCache<IMap> cachedMaps;
 	private final ValueCache<IDateTime> cachedDateTimes;
@@ -90,7 +88,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 		cachedConstructors = new ValueCache<IConstructor>();
 		cachedLists = new ValueCache<IList>();
 		cachedSets = new ValueCache<ISet>();
-		cachedRelations = new ValueCache<IRelation>();
+		cachedRelations = new ValueCache<ISet>();
 		cachedListRelations = new ValueCache<IListRelation>();
 		cachedMaps = new ValueCache<IMap>();
 		cachedDateTimes = new ValueCache<IDateTime>();
@@ -307,12 +305,12 @@ public class LocalSharingValueFactory implements IValueFactory{
 	}
 
 	@Override
-	public IRelation relation(IValue... elems){
+	public ISet relation(IValue... elems){
 		return cachedRelations.cache(valueFactory.relation(elems));
 	}
 
 	@Override
-	public IRelation relation(Type tupleType){
+	public ISet relation(Type tupleType){
 		return cachedRelations.cache(valueFactory.relation(tupleType));
 	}
 	
@@ -325,12 +323,12 @@ public class LocalSharingValueFactory implements IValueFactory{
 	}
 
 	@Override
-	public IRelationWriter relationWriter(Type type){
+	public ISetWriter relationWriter(Type type){
 		return new RelationCachingWriter(this, valueFactory.relationWriter(type));
 	}
 	
 	@Override
-	public IRelationWriter relationWriter(){
+	public ISetWriter relationWriter(){
 		return new RelationCachingWriter(this, valueFactory.relationWriter());
 	}
 	
@@ -450,11 +448,11 @@ public class LocalSharingValueFactory implements IValueFactory{
 		}
 	}
 	
-	private static class RelationCachingWriter implements IRelationWriter{
+	private static class RelationCachingWriter implements ISetWriter{
 		private final LocalSharingValueFactory localSharingValueFactory;
-		private final IRelationWriter relationWriter;
+		private final ISetWriter relationWriter;
 		
-		public RelationCachingWriter(LocalSharingValueFactory localSharingValueFactory, IRelationWriter relationWriter){
+		public RelationCachingWriter(LocalSharingValueFactory localSharingValueFactory, ISetWriter relationWriter){
 			super();
 			
 			this.localSharingValueFactory = localSharingValueFactory;
@@ -462,7 +460,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 		}
 
 		@Override
-		public IRelation done(){
+		public ISet done(){
 			return localSharingValueFactory.cachedRelations.cache(relationWriter.done());
 		}
 
