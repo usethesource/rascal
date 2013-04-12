@@ -28,7 +28,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -182,7 +181,7 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
-		public IValue visitRelation(IRelation o) throws VisitorException {
+		public IValue visitRelation(ISet o) throws VisitorException {
 			if (typed || inNode > 0)
 				append("{\"" + name + "\":\"#set\",\"" + args + "\":");
 			visitSequence(o.iterator());

@@ -22,7 +22,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -516,7 +516,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			} else if (rec.getType().isRelationType()
 					&& subscript.getType().isSubtypeOf(
 							rec.getType().getFieldType(0))) {
-				IRelation rel = (IRelation) rec.getValue();
+				ISet rel = (ISet) rec.getValue();
 				IValue sub = subscript.getValue();
 
 				if (rec.getType().getArity() != 2) {
