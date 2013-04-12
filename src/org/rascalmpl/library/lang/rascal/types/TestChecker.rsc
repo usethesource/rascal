@@ -13,6 +13,7 @@ import List;
 import String;
 import Type;
 import DateTime;
+import Message;
 import util::Reflective;
 import ParseTree;
 
@@ -167,4 +168,15 @@ public set[RName] getVariablesInScope(Configuration c) {
 
 public set[RName] getFunctionsInScope(Configuration c) {
 	return { n | l <- c.fcvEnv, i:function(n,_,_,_,_,_) := c.store[c.fcvEnv[l]] };
+}
+
+public set[str] getFailureMessages(CheckResult r){
+   res = {};
+   if(failure(set[Message] msgs) := r.res){
+      for(m <- msgs){
+        res += m.msg;
+      }
+   }	  
+   return res;
+
 }
