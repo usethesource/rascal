@@ -21,8 +21,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
-import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -66,7 +64,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 	private final ValueCache<IList> cachedLists;
 	private final ValueCache<ISet> cachedSets;
 	private final ValueCache<ISet> cachedRelations;
-	private final ValueCache<IListRelation> cachedListRelations;
+	private final ValueCache<IList> cachedListRelations;
 	private final ValueCache<IMap> cachedMaps;
 	private final ValueCache<IDateTime> cachedDateTimes;
 	
@@ -89,7 +87,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 		cachedLists = new ValueCache<IList>();
 		cachedSets = new ValueCache<ISet>();
 		cachedRelations = new ValueCache<ISet>();
-		cachedListRelations = new ValueCache<IListRelation>();
+		cachedListRelations = new ValueCache<IList>();
 		cachedMaps = new ValueCache<IMap>();
 		cachedDateTimes = new ValueCache<IDateTime>();
 	}
@@ -314,11 +312,11 @@ public class LocalSharingValueFactory implements IValueFactory{
 		return cachedRelations.cache(valueFactory.relation(tupleType));
 	}
 	
-	public IListRelation listRelation(IValue... elems){
+	public IList listRelation(IValue... elems){
 		return cachedListRelations.cache(valueFactory.listRelation(elems));
 	}
 
-	public IListRelation listRelation(Type tupleType){
+	public IList listRelation(Type tupleType){
 		return cachedListRelations.cache(valueFactory.listRelation(tupleType));
 	}
 
@@ -332,11 +330,11 @@ public class LocalSharingValueFactory implements IValueFactory{
 		return new RelationCachingWriter(this, valueFactory.relationWriter());
 	}
 	
-	public IListRelationWriter listRelationWriter(Type type){
+	public IListWriter listRelationWriter(Type type){
 		return new ListRelationCachingWriter(this, valueFactory.listRelationWriter(type));
 	}
 	
-	public IListRelationWriter listRelationWriter(){
+	public IListWriter listRelationWriter(){
 		return new ListRelationCachingWriter(this, valueFactory.listRelationWriter());
 	}
 	
@@ -485,18 +483,18 @@ public class LocalSharingValueFactory implements IValueFactory{
 		}
 	}
 	
-	private static class ListRelationCachingWriter implements IListRelationWriter{
+	private static class ListRelationCachingWriter implements IListWriter{
 		private final LocalSharingValueFactory localSharingValueFactory;
-		private final IListRelationWriter listRelationWriter;
+		private final IListWriter listRelationWriter;
 		
-		public ListRelationCachingWriter(LocalSharingValueFactory localSharingValueFactory, IListRelationWriter relationWriter){
+		public ListRelationCachingWriter(LocalSharingValueFactory localSharingValueFactory, IListWriter relationWriter){
 			super();
 			
 			this.localSharingValueFactory = localSharingValueFactory;
 			this.listRelationWriter = relationWriter;
 		}
 
-		public IListRelation done(){
+		public IList done(){
 			return localSharingValueFactory.cachedListRelations.cache(listRelationWriter.done());
 		}
 

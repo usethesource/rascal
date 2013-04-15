@@ -19,8 +19,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IListRelation;
-import org.eclipse.imp.pdb.facts.IListRelationWriter;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -41,9 +40,9 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class ListRelationResult extends ListOrRelationResult<IListRelation> {
+public class ListRelationResult extends ListOrRelationResult<IList> {
 
-		public ListRelationResult(Type type, IListRelation rel, IEvaluatorContext ctx) {
+		public ListRelationResult(Type type, IList rel, IEvaluatorContext ctx) {
 			super(type, rel, ctx);
 		}
 
@@ -181,7 +180,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 			}
 			Type resultType;
 			IListWriter wset = null;
-			IListRelationWriter wrel = null;
+			IListWriter wrel = null;
 			
 			if (yieldList){
 				resultType = getTypeFactory().listType(resFieldType[0]);
@@ -236,19 +235,19 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 		
 		@Override
 		public  <U extends IValue> Result<U> transitiveClosure() {
-			if (getValue().arity() == 0 || getValue().arity() == 2) {
-				return makeResult(type, getValue().closure(), ctx);
+			if (getValue().asRelation().arity() == 0 || getValue().asRelation().arity() == 2) {
+				return makeResult(type, getValue().asRelation().closure(), ctx);
 			}
-			throw new Arity(2, getValue().arity(), ctx.getCurrentAST());
+			throw new Arity(2, getValue().asRelation().arity(), ctx.getCurrentAST());
 		}
 		
 
 		@Override
 		public  <U extends IValue> Result<U> transitiveReflexiveClosure() {
-			if (getValue().arity() == 0 || getValue().arity() == 2) {
-				return makeResult(type, getValue().closureStar(), ctx);
+			if (getValue().asRelation().arity() == 0 || getValue().asRelation().arity() == 2) {
+				return makeResult(type, getValue().asRelation().closureStar(), ctx);
 			}
-			throw new Arity(2, getValue().arity(), ctx.getCurrentAST());
+			throw new Arity(2, getValue().asRelation().arity(), ctx.getCurrentAST());
 		}
 		
 		
@@ -297,20 +296,20 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 				throw new Arity(2, rightArity, ctx.getCurrentAST());
 			}
 			Type resultType = leftrelType.compose(rightrelType);
-			return makeResult(resultType, left.getValue().compose(right.getValue()), ctx);
+			return makeResult(resultType, left.getValue().asRelation().compose(right.getValue()), ctx);
 		}
 
 		<U extends IValue, V extends IValue> Result<U> appendTuple(TupleResult tuple) {
 			// TODO: check arity 
 			Type newType = getTypeFactory().listType(tuple.getType().lub(getType().getElementType()));
-			return makeResult(newType, /*(IListRelation)*/ getValue().append(tuple.getValue()), ctx); // do not see a reason for the unsafe downcast
+			return makeResult(newType, /*(IList)*/ getValue().append(tuple.getValue()), ctx); // do not see a reason for the unsafe downcast
 		}
 
 		@Override
 		protected <U extends IValue> Result<U> joinListRelation(ListRelationResult that) {
 			// Note the reverse of arguments, we need "that join this"
-			int arity1 = that.getValue().arity();
-			int arity2 = this.getValue().arity();
+			int arity1 = that.getValue().asRelation().arity();
+			int arity2 = this.getValue().asRelation().arity();
 			Type tupleType1 = that.getType().getElementType();
 			Type tupleType2 = this.getType().getElementType();
 			Type fieldTypes[] = new Type[arity1 + arity2];
@@ -341,7 +340,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 		@Override
 		protected <U extends IValue> Result<U> joinSet(SetResult that) {
 			// Note the reverse of arguments, we need "that join this"
-			int arity2 = this.getValue().arity();
+			int arity2 = this.getValue().asRelation().arity();
 			Type eltType = that.getType().getElementType();
 			Type tupleType = this.getType().getElementType();
 			Type fieldTypes[] = new Type[1 + arity2];
@@ -374,7 +373,7 @@ public class ListRelationResult extends ListOrRelationResult<IListRelation> {
 					}
 				}
 			}
-		   return makeResult(type.select(selectedFields), value.select(selectedFields), ctx);
+		   return makeResult(type.select(selectedFields), value.asRelation().project(selectedFields), ctx);
 		}
 		
 		@Override

@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -279,18 +279,18 @@ public class IO {
 		}
 		
 		try{
-			boolean isListRel = rel instanceof IListRelation;
+			boolean isListRel = rel instanceof IList;
 			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
 			ISet irel = null;
-			IListRelation lrel = null;
+			IList lrel = null;
 			if (isListRel) {
-				lrel = (IListRelation)rel;
+				lrel = (IList)rel;
 			}
 			else {
 				irel = (ISet) rel;
 			}
 			
-			int nfields = isListRel ? lrel.arity() : irel.asRelation().arity();
+			int nfields = isListRel ? lrel.asRelation().arity() : irel.asRelation().arity();
 			if(header){
 				for(int i = 0; i < nfields; i++){
 					if(i > 0)
