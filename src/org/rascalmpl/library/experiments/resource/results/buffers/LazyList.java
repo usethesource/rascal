@@ -10,6 +10,7 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -181,7 +182,7 @@ public class LazyList implements IList {
 	}
 
 	@Override
-	public IRelationalAlgebra<IList> asRelation() {
+	public IListRelation<IList> asRelation() {
 		throw new IllegalOperationException(
 				"Relational operations are not supported on lazy representation.",
 				getType());
