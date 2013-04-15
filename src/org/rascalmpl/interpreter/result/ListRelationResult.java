@@ -296,7 +296,7 @@ public class ListRelationResult extends ListOrRelationResult<IList> {
 				throw new Arity(2, rightArity, ctx.getCurrentAST());
 			}
 			Type resultType = leftrelType.compose(rightrelType);
-			return makeResult(resultType, left.getValue().asRelation().compose(right.getValue()), ctx);
+			return makeResult(resultType, left.getValue().asRelation().compose(right.getValue().asRelation()), ctx);
 		}
 
 		<U extends IValue, V extends IValue> Result<U> appendTuple(TupleResult tuple) {
