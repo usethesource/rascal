@@ -65,7 +65,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -2581,7 +2580,7 @@ public class Prelude {
 		return mapWriter.done();
 	}
 	
-	public IMap index(IListRelation s) {
+	public IMap index(IList s) {
 		Map<IValue, ISetWriter> map = new HashMap<IValue, ISetWriter>(s.length());
 		
 		for (IValue t : s) {
@@ -2673,60 +2672,7 @@ public class Prelude {
 		return w.done();
 	}
 	
-	public IValue toMap(IListRelation st)
-	// @doc{toMap -- convert a list of tuples to a map; value in old map is associated with a set of keys in old map}
-	{
-		Type tuple = st.getElementType();
-		Type keyType = tuple.getFieldType(0);
-		Type valueType = tuple.getFieldType(1);
-		Type valueSetType = types.setType(valueType);
-
-		HashMap<IValue,ISetWriter> hm = new HashMap<IValue,ISetWriter>();
-
-		for (IValue v : st) {
-			ITuple t = (ITuple) v;
-			IValue key = t.get(0);
-			IValue val = t.get(1);
-			ISetWriter wValSet = hm.get(key);
-			if(wValSet == null){
-				wValSet = valueSetType.writer(values);
-				hm.put(key, wValSet);
-			}
-			wValSet.insert(val);
-		}
-		
-		Type resultType = types.mapType(keyType, valueSetType);
-		IMapWriter w = resultType.writer(values);
-		for(IValue v : hm.keySet()){
-			w.put(v, hm.get(v).done());
-		}
-		return w.done();
-	}
-	
-	
 	public IValue toMapUnique(ISet st)
-	// @doc{toMapUnique -- convert a set of tuples to a map; keys are unique}
-	{
-		Type tuple = st.getElementType();
-		Type resultType = types.mapType(tuple.getFieldType(0), tuple
-				.getFieldType(1));
-
-		IMapWriter w = resultType.writer(values);
-		HashSet<IValue> seenKeys = new HashSet<IValue>();
-
-		for (IValue v : st) {
-			ITuple t = (ITuple) v;
-			IValue key = t.get(0);
-			IValue val = t.get(1);
-			if(seenKeys.contains(key)) 
-				throw RuntimeExceptionFactory.MultipleKey(key, null, null);
-			seenKeys.add(key);
-			w.put(key, val);
-		}
-		return w.done();
-	}
-	
-	public IValue toMapUnique(IListRelation st)
 	// @doc{toMapUnique -- convert a set of tuples to a map; keys are unique}
 	{
 		Type tuple = st.getElementType();

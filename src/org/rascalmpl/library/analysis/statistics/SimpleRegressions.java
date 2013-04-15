@@ -9,7 +9,7 @@ package org.rascalmpl.library.analysis.statistics;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.regression.SimpleRegression;
-import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -25,7 +25,7 @@ public class SimpleRegressions {
 		this.values = values;
 	}
 	
-	SimpleRegression make(IListRelation dataValues){
+	SimpleRegression make(IList dataValues){
 		if(dataValues.length() <= 2)
 			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "SimpleRegression data should have more than 2 elements");
 		SimpleRegression simple = new SimpleRegression();
@@ -39,7 +39,7 @@ public class SimpleRegressions {
 	}
 
 	
-	public IValue intercept(IListRelation dataValues) {
+	public IValue intercept(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getIntercept());
 		} catch(NumberFormatException e){
@@ -47,7 +47,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue interceptStdErr(IListRelation dataValues) {
+	public IValue interceptStdErr(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getInterceptStdErr());
 		} catch(NumberFormatException e){
@@ -55,7 +55,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue meanSquareError(IListRelation dataValues) {
+	public IValue meanSquareError(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getMeanSquareError());
 		} catch(NumberFormatException e){
@@ -63,7 +63,7 @@ public class SimpleRegressions {
 		}
 	}
 
-	public IValue R(IListRelation dataValues) {
+	public IValue R(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getR());
 		} catch(NumberFormatException e){
@@ -71,7 +71,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue RSquare(IListRelation dataValues) {
+	public IValue RSquare(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getRSquare());
 		} catch(NumberFormatException e){
@@ -79,7 +79,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue regressionSumSquares(IListRelation dataValues) {
+	public IValue regressionSumSquares(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getRegressionSumSquares());
 		} catch(NumberFormatException e){
@@ -87,7 +87,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue significance(IListRelation dataValues) {
+	public IValue significance(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getSignificance());
 		} catch (MathException e) {
@@ -97,7 +97,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue slope(IListRelation dataValues) {
+	public IValue slope(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getSlope());
 		} catch(NumberFormatException e){
@@ -105,7 +105,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue slopeConfidenceInterval(IListRelation dataValues) {
+	public IValue slopeConfidenceInterval(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getSlopeConfidenceInterval());
 		} catch (MathException e) {
@@ -115,7 +115,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue slopeConfidenceInterval(IListRelation dataValues, INumber alpha) {
+	public IValue slopeConfidenceInterval(IList dataValues, INumber alpha) {
 		try {
 			return values.real(make(dataValues).getSlopeConfidenceInterval(alpha.toReal().doubleValue()));
 		} catch (MathException e) {
@@ -126,7 +126,7 @@ public class SimpleRegressions {
 	}
 	
 	
-	public IValue slopeStdErr(IListRelation dataValues) {
+	public IValue slopeStdErr(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getSlopeStdErr());
 		} catch(NumberFormatException e){
@@ -134,7 +134,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue sumOfCrossProducts(IListRelation dataValues) {
+	public IValue sumOfCrossProducts(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getSumOfCrossProducts());
 		} catch(NumberFormatException e){
@@ -142,7 +142,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue sumSquaredErrors(IListRelation dataValues) {
+	public IValue sumSquaredErrors(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getSumSquaredErrors());
 		} catch(NumberFormatException e){
@@ -150,7 +150,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue totalSumSquares(IListRelation dataValues) {
+	public IValue totalSumSquares(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getTotalSumSquares());
 		} catch(NumberFormatException e){
@@ -158,7 +158,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue XSumSquares(IListRelation dataValues) {
+	public IValue XSumSquares(IList dataValues) {
 		try {
 			return values.real(make(dataValues).getXSumSquares());
 		} catch(NumberFormatException e){
@@ -166,7 +166,7 @@ public class SimpleRegressions {
 		}
 	}
 	
-	public IValue predict(IListRelation dataValues, INumber x) {
+	public IValue predict(IList dataValues, INumber x) {
 		try {
 			return values.real(make(dataValues).predict(x.toReal().doubleValue()));
 		} catch(NumberFormatException e){
