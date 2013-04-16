@@ -26,6 +26,8 @@ The following functions are provided:
 
 module lang::xml::DOM
 
+import Node;
+
 @doc{
 Synopsis: Datatypes for representing an instance of the DOM.
 }
@@ -61,6 +63,11 @@ public value implode(element(Namespace _, str name, list[Node] kids)) {
 public value implode(charData(str t)) = t;
 public value implode(cdata(str t)) = t;
 public default value implode(Node x) { throw "can not implode node"(x); }
+
+public Node toXML(node x) 
+  = element(none(), getName(x), 
+           [toXML(c) | c <- getChildren(x)] + [attribute(none(),"<key>","<annos[key]>") | annos := getAnnotations(x), key <- annos]);
+public default Node toXML(value x) = charData("<x> ");
 
 @doc{
 Synopsis: Auxiliary constructor for XML attribute without namespace.
