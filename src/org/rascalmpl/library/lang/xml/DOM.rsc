@@ -47,6 +47,21 @@ data Namespace
      | none()
      ;
 
+anno map[str key,str val] node@attrs; 
+
+public value implode(document(Node root)) = implode(root);
+public value implode(element(Namespace _, str name, list[Node] kids)) {
+  result = name ([implode(e) | e <- kids, !(e is attribute)]);
+  
+  if (attribute(_,_,_) <- kids) 
+    result@attrs = (k:v | attribute(_,k,v) <- kids);
+  
+  return result;
+}
+public value implode(charData(str t)) = t;
+public value implode(cdata(str t)) = t;
+public default value implode(Node x) { throw "can not implode node"(x); }
+
 @doc{
 Synopsis: Auxiliary constructor for XML attribute without namespace.
 }
@@ -150,6 +165,7 @@ Observe that the elements inside `<note> ... </note>` are indented.
 }
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java str xmlPretty(Node x);
+
 
 
 
