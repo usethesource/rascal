@@ -27,12 +27,8 @@ public class TypeReachability {
 		// TODO: this should probably be a visitor as well
 
 		if (small.isVoidType())
-			return true;
-		if (large.isVoidType())
 			return false;
-		if (small.isValueType())
-			return true;
-		if (small.isSubtypeOf(large))
+		if (small.comparable(large))
 			return true;
 		if (large.isListType() || large.isSetType())
 			return mayOccurIn(small, large.getElementType(), seen, env);
@@ -82,7 +78,7 @@ public class TypeReachability {
 			}
 			return false;
 		}
-		return small.isSubtypeOf(large);
+		return small.comparable(large);
 	}
 
 }
