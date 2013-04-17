@@ -123,6 +123,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	protected Environment currentEnvt; // not sharable
  
 	private final GlobalEnvironment heap; // shareable if frozen
+	private final Configuration config = new Configuration();
 	/**
 	 * True if an interrupt has been signalled and we should abort execution
 	 */
@@ -198,7 +199,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		this.rootScope = scope;
 		heap.addModule(scope);
 		this.classLoaders = classLoaders;
-		this.javaBridge = new JavaBridge(classLoaders, vf);
+		this.javaBridge = new JavaBridge(classLoaders, vf, config);
 		this.rascalPathResolver = rascalPathResolver;
 		this.resolverRegistry = rascalPathResolver.getRegistry();
 		this.defStderr = stderr;
@@ -267,7 +268,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		heap.addModule(scope);
 		this.classLoaders = source.classLoaders;
 		// TODO: the Java bridge is probably sharable if its methods are synchronized
-		this.javaBridge = new JavaBridge(classLoaders, vf);
+		this.javaBridge = new JavaBridge(classLoaders, vf, config);
 		this.rascalPathResolver = source.rascalPathResolver;
 		this.resolverRegistry = source.resolverRegistry;
 		this.defStderr = source.defStderr;
@@ -858,7 +859,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  if (isBootstrapper()) {
 		    throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
 		  }
-			parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory());
+			parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
 		}
 		endJob(true);
 		return parserGenerator;
@@ -1432,11 +1433,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	@Override	
 	public void updateProperties() {
-		Evaluator.doProfiling = Configuration.getProfilingProperty();
+		Evaluator.doProfiling = config.getProfilingProperty();
 
-		AbstractFunction.setCallTracing(Configuration.getTracingProperty());
+		AbstractFunction.setCallTracing(config.getTracingProperty());
 	}
 
+	public Configuration getConfiguration() {
+	  return config;
+	}
+	
 	public Stack<Environment> getCallStack() {
 		Stack<Environment> stack = new Stack<Environment>();
 		Environment env = currentEnvt;

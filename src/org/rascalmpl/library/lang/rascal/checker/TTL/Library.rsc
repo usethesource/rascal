@@ -99,17 +99,3 @@ value escape(value v){
    }
    return v;
 }
-
-/*
-value escape(value v){
-   if(str s := v){
-    return "\"" + escape(s, 
-	     ("\<" : "\\\\\<",
-	     "\>" :"\\\>",
-	     "\"/" : "\\\\\"",
-	     "\'" : "\\\\\'",
-	     "\\" : "\\\\\\")) + "\"";
-   }
-   return v;
-}
-*/

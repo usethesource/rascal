@@ -148,7 +148,15 @@ ceil(-3.2);
 </screen>
 
 }
-public int ceil(num x) = floor(x + 1);
+public int ceil(num x) { 
+	int i = toInt(x);
+	if (i == x || x < 0) {
+		return i;
+	}
+	else {
+		return i + 1;	
+	}
+}
 
 @doc{
 Synopsis: Calculate the cosine of a numeric value.
@@ -208,7 +216,15 @@ floor(-3.2);
 </screen>
 }
 @javaClass{org.rascalmpl.library.util.Math}
-public java int floor(num x);
+public int floor(num x) {
+	i = toInt(x);
+	if (i == x || x >= 0) {
+		return i;
+	}
+	else {
+		return i - 1;	
+	} 
+}
 
 @doc{
 Synopsis: Calculate the natural log of a numeric value.

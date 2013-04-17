@@ -5,6 +5,21 @@ import IO;
 import String;
 import List;
 
+// TTL : Typechecker Test Language
+// A DSL for writing type-related tests aiming at:
+// - testing the Rascal type checker
+// - testing compatibility between Rascal type checker and evaluator
+// A TTL definition may contain the following elements:
+// - definition of a module to be imported in tests in the same file
+// - definition of a named declaration that can be used in tests in the same file
+// - test definitions:
+//   (a) A general test: a sequence of Rascal declarations and statements
+//   (b) An operator test (infix, prefix or postfix)
+// - Each test defines an expectation about its outcome:
+//   (a) specific type of a variable
+//   (b) specific error message
+//   (c) specific exception 
+
 start syntax TTL = ttl: TestItem* items;
 
 start syntax TestItem =
@@ -54,9 +69,12 @@ start syntax Expect =
        | message: RegExpLiteral regexp
        | exception: Name name
        ;  
-       
-loc TTLRoot = |project://RascalStandardLibrary/lang/rascal/checker/TTL/|;
-str TTL = "ttl";
+              
+loc TTLRoot = |rascal:///lang/rascal/checker/TTL/|;         // where TTL resides
+str modulePrefix = "lang::rascal::checker::TTL::generated"; // where modules defined in TTL files reside
+str TTL = "ttl"; 											// TTL language extension
+
+// Main: compile all TTL specifications to Rascal tests
 
 void main() { 
   for(ttl <- (TTLRoot + "specs").ls, ttl.extension == TTL)
@@ -67,6 +85,7 @@ str basename(loc l) = l.file[ .. findFirst(l.file, ".")];
        
 data Symbol = LUB(Symbol l, Symbol r);
 
+// Generate tests for one TTL file
 void generate(loc src){
    spec = parse(#TTL, src);
    map[Name, Declaration] decls = ();
@@ -101,11 +120,13 @@ void generate(loc src){
           'import Type;
           'import IO;
           'import util::Eval;
+          'import lang::rascal::types::TestChecker;
           '<tests>
           '";
    writeFile(TTLRoot + "generated/<basename(src)>.rsc", code);
 }
 
+// Generate code for a single TTL test
 str genTest(TestItem item,  map[Name, Declaration] declarations,  map[Name, Module] modules){
   <imports, decls> = expandUsedNames(getUsedNames(item.use), declarations, modules);
   <inferred, messages, exception> = getExpectations([e | e <- item.expectations]);
@@ -119,25 +140,28 @@ str genTest(TestItem item,  map[Name, Declaration] declarations,  map[Name, Modu
   	
   inferredChecks = "";
   for(<var, tp> <- inferred){
-    inferredChecks += "if(!hasType(\"<var>\", #<tp>, checkResult)) return false;";
+    inferredChecks += "if(!(getTypeForName(checkResult.conf, \"<var>\") == (#<tp>).symbol)) return false;";
   }
   
   messageChecks = intercalate(" || ", ["<msg> := msg" | msg <- messages]);
   if(!isEmpty(messageChecks)){
-     messageChecks = "for(msg \<-  getMessages(checkResult)){
+     messageChecks = "for(msg \<-  getFailureMessages(checkResult)){
 		 			 '      if(<messageChecks>)
 		 			 '	      return true;
-					 '}";
+					 '}
+					 'return false;";
   }
   checks = (isEmpty(inferredChecks) ? "" : inferredChecks) +
   		   (isEmpty(messageChecks) ? "" : "\n" + messageChecks);
     
-  return "<exception>
+  return "
+  		 '/* <item> */ <exception>
   		 'test bool tst(){
-         '  checkResult = checkExpString(\"<code>\", importedModules=<imports>, initialDecls = <decls>);
+         '  checkResult = checkStatementsString(\"<code>\", importedModules=<imports>, initialDecls = <decls>);
          '  <checks>
          '  return true;
-         '}";
+         '}
+         '";
 }
 
 list[Name] getUsedNames(Use u){
@@ -149,7 +173,7 @@ tuple[list[str],list[str]] expandUsedNames(list[Name] names, map[Name, Declarati
     decls = [];
     for(name <- names){
       if(modules[name]?)
-         imports += "<name>";
+         imports += "<modulePrefix>::<name>";
       else if(declarations[name]?)
          decls += "<declarations[name]>";
       else
@@ -184,6 +208,7 @@ str genCondition(sig){
     return typeCondition;
 }
 
+// Generete code for TTL test for infix operator
 str genInfix(TestItem item){
   tests = "";
   for(operator <- item.operators){
@@ -220,6 +245,7 @@ str genInfix(TestItem item){
   return tests;
 }
 
+// Generete code for TTL test for unary (prefix or postfix) operator
 str genUnary(TestItem item, bool prefix){
   tests = "";
   for(operator <- item.operators){
