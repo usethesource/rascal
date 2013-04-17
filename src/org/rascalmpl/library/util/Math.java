@@ -84,10 +84,6 @@ public class Math {
 		}
 	}
 	
-	public IValue floor(INumber x){
-		return x.toReal().floor().toInteger();
-	}
-	
 	public IValue ln(INumber x) {
 		try {
 			return x.toReal().ln(values.getPrecision());

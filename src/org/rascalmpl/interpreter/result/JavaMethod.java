@@ -26,7 +26,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Tag;
-import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -189,7 +188,6 @@ public class JavaMethod extends NamedFunction {
 	
 
 	public IValue invoke(Object[] oActuals) {
-		Configuration.printErrors();
 		try {
 			return (IValue) method.invoke(instance, oActuals);
 		}
@@ -220,14 +218,14 @@ public class JavaMethod extends NamedFunction {
 			  throw (ImplementationError) targetException;
 			}
 
-			if(Configuration.printErrors()){
+			if(ctx.getConfiguration().printErrors()) {
 				targetException.printStackTrace();
 			}
 			
 			throw RuntimeExceptionFactory.javaException(e.getTargetException(), getAst(), eval.getStackTrace());
 		}
 		catch (Throwable e) {
-		  if(Configuration.printErrors()){
+		  if(ctx.getConfiguration().printErrors()){
         e.printStackTrace();
       }
 		  
