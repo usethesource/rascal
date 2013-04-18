@@ -53,6 +53,7 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public void unwind(Environment old);
 	
 	public GlobalEnvironment getHeap();
+	public Configuration getConfiguration();
 	
 	public boolean runTests(IRascalMonitor monitor);
 	

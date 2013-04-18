@@ -13,6 +13,7 @@ import List;
 import String;
 import Type;
 import DateTime;
+import Message;
 import util::Reflective;
 import ParseTree;
 
@@ -159,4 +160,23 @@ public Symbol getTypeForName(Configuration c, str name) {
 	splitRN = (size(splitName)==1) ? RSimpleName(splitName[0]) : RCompoundName(splitName);
 	if (splitRN in c.fcvEnv) return c.store[c.fcvEnv[splitRN]].rtype;
 	throw "Name <prettyPrintName(splitRN)> not found";
+}
+
+public set[RName] getVariablesInScope(Configuration c) {
+	return { n | l <- c.fcvEnv, i:variable(n,_,_,_,_) := c.store[c.fcvEnv[l]] };
+}
+
+public set[RName] getFunctionsInScope(Configuration c) {
+	return { n | l <- c.fcvEnv, i:function(n,_,_,_,_,_) := c.store[c.fcvEnv[l]] };
+}
+
+public set[str] getFailureMessages(CheckResult r){
+   res = {};
+   if(failure(set[Message] msgs) := r.res){
+      for(m <- msgs){
+        res += m.msg;
+      }
+   }	  
+   return res;
+
 }
