@@ -129,19 +129,20 @@ public class IteratorFactory {
 			// Node and ADT
 		} else if(subjectType.isNodeType() || subjectType.isAbstractDataType()){			
 			if (shallow){
-				checkMayOccur(patType, subjectType, ctx);
+				if(subjectType.isAbstractDataType()) 
+					checkMayOccur(patType, subjectType, ctx);
 				return new NodeChildIterator((INode) subjectValue);
 			}
 			return new DescendantReader(subjectValue, false);
 
 		} else if(subjectType.isTupleType()){
 			if(shallow){
+				Type lub = TypeFactory.getInstance().voidType();
 				int nElems = subjectType.getArity();
-				for(int i = 0; i < nElems; i++){
-					if(!subjectType.getFieldType(i).isSubtypeOf(patType)) {
-						throw new UnexpectedType(patType, subjectType.getFieldType(i), ctx.getCurrentAST());
-					}
-				}
+				for(int i = 0; i < nElems; i++)
+					lub = lub.lub(subjectType.getFieldType(i));
+				if(!lub.comparable(patType))
+					throw new UnexpectedType(patType, subjectType, ctx.getCurrentAST());	
 				return new TupleElementIterator((ITuple)subjectValue);
 			}
 			return new DescendantReader(subjectValue, false);
@@ -164,7 +165,7 @@ public class IteratorFactory {
 	}
 
 	private static void checkMayOccur(Type patType, Type rType, IEvaluatorContext ctx){
-		if(!TypeReachability.mayOccurIn(rType, patType, ctx.getCurrentEnvt())) {
+		if(!TypeReachability.mayOccurIn(patType, rType, ctx.getCurrentEnvt())) {
 			throw new UnexpectedType(rType, patType, ctx.getCurrentAST());
 		}
 	}
