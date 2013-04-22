@@ -469,6 +469,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public boolean hasResourceScheme() {
 		return false;
 	}
+	
+	public String getResolverScheme() {
+		return null;
+	}
+	
+	public boolean hasResolverScheme() {
+		return false;
+	}
 
 
 	

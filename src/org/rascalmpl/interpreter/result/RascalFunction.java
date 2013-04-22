@@ -76,12 +76,13 @@ public class RascalFunction extends NamedFunction {
 	private final boolean isTest;
 	private final boolean isStatic;
 	private final String resourceScheme;
+	private final String resolverScheme;
 	private final List<Expression> formals;
 	private final String firstOutermostLabel;
 	private final IConstructor firstOutermostProduction;
 	private final Map<String, String> tags;
 	private static final String RESOURCE_TAG = "resource";
-
+	private static final String RESOLVER_TAG = "resolver";
 
 	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
@@ -118,15 +119,12 @@ public class RascalFunction extends NamedFunction {
 		
 		if (ast instanceof FunctionDeclaration) {
 			tags = parseTags((FunctionDeclaration) ast);
-			String resourceScheme = RascalFunction.getResourceScheme((FunctionDeclaration)ast);
-			if (resourceScheme.equals("")) {
-					this.resourceScheme = null;
-			} else { 
-				this.resourceScheme = resourceScheme;
-			}
+			this.resourceScheme = getResourceScheme((FunctionDeclaration) ast);
+			this.resolverScheme = getResolverScheme((FunctionDeclaration) ast);
 		} else {
 			tags = new HashMap<String, String>();
 			this.resourceScheme = null;
+			this.resolverScheme = null;
 		}
 	}
 	
@@ -159,11 +157,19 @@ public class RascalFunction extends NamedFunction {
 	}
 
 	private static String getResourceScheme(FunctionDeclaration declaration) {
+		return getScheme(RESOURCE_TAG, declaration);
+	}
+	
+	private static String getResolverScheme(FunctionDeclaration declaration) {
+		return getScheme(RESOLVER_TAG, declaration);
+	}
+	
+	private static String getScheme(String schemeTag, FunctionDeclaration declaration) {
 		Tags tags = declaration.getTags();
 		
 		if (tags.hasTags()) {
 			for (Tag tag : tags.getTags()) {
-				if (Names.name(tag.getName()).equals(RESOURCE_TAG)) {
+				if (Names.name(tag.getName()).equals(schemeTag)) {
 					String contents = ((TagString.Lexical) tag.getContents()).getString();
 					
 					if (contents.length() > 2 && contents.startsWith("{")) {
@@ -174,7 +180,7 @@ public class RascalFunction extends NamedFunction {
 			}
 		}
 		
-		return "";
+		return null;
 	}
 	
 	private String computeFirstOutermostLabel(AbstractAST ast) {
@@ -566,6 +572,16 @@ public class RascalFunction extends NamedFunction {
 	@Override
 	public boolean hasResourceScheme() {
 		return this.resourceScheme != null;
+	}
+	
+	@Override
+	public boolean hasResolverScheme() {
+		return this.resolverScheme != null;
+	}
+	
+	@Override
+	public String getResolverScheme() {
+		return this.resolverScheme;
 	}
 
  
