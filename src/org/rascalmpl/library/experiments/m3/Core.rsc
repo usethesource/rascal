@@ -1,7 +1,7 @@
 module experiments::m3::Core
 
 data M3 = m3(loc project, 
-             rel[Definition from, Definition to] containment, 
+             rel[Definition from, Definition to] containment 
              rel[Definition from, Definition to] inheritance = {},
              rel[Definition from, Definition to] access = {},
              rel[Definition from, Definition to] reference = {},
@@ -86,7 +86,7 @@ data AST = compilationUnit(Option[AST] package, list[AST] imports, list[AST] typ
 				| characterLiteral(str charValue)
 				| classInstanceCreation(Option[AST] optionalExpression, AST \type, list[AST] genericTypes, list[AST] typedArguments, Option[AST] anonymousClassDeclaration)
 				| conditionalExpression(AST expression, AST thenBranch, AST elseBranch)
-				| fieldAccess(AST expression, str name, set[Definition] binding = {})
+				| fieldAccess(AST expression, str name set[Definition] binding = {})
 				| infixExpression(str operator, AST leftSide, AST rightSide, list[AST] extendedOperands)
 				| instanceofExpression(AST leftSide, AST rightSide)
 				| methodInvocation(Option[AST] optionalExpression, list[AST] genericTypes, str name, list[AST] typedArguments)
