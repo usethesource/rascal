@@ -139,6 +139,10 @@ public class Math {
 		return values.integer(((IReal) x).precision());
 	}
 	
+	public IValue unscaled(IReal x) {
+	  return x.unscaled();
+	}
+	
 	public IValue precision(INumber x, IInteger precision){
 		return values.real(x.toString(), precision.intValue());
 	}
