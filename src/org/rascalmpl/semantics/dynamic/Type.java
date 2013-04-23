@@ -146,7 +146,8 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 				param = TF.parameterType(Names.name(var.getName()));
 			}
 
-			// TODO: this is smelly, should probably remove
+			// This is needed to be able to produce uninstantiated types for 
+			// type reification
 			if (env != null) {
 				return param.instantiate(env.getTypeBindings());
 			}
