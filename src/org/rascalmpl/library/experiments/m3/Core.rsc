@@ -4,7 +4,7 @@ import experiments::m3::AST;
 
 data M3 = m3(loc project,
              map[loc name, loc src] source,
-             rel[loc from, loc to] containment,
+             rel[loc from, loc to] containment
              rel[loc from, loc to] inheritance = {},
              rel[loc from, loc to] access = {},
              rel[loc from, loc to] reference = {},
