@@ -2220,7 +2220,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 
-			Type t = getType().typeOf(__eval.getCurrentEnvt());
+			Type t = getType().typeOf(null /* to not instantiate type parameters */);
 			return new TypeReifier(__eval.__getVf()).typeToValue(t, __eval);
 		}
 	}
