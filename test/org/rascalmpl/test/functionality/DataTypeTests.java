@@ -1063,7 +1063,13 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{R = for({*S1, *S2} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}"));
 
 		assertTrue(runTest("{R = for({*S1, *S2} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}"));
-		assertTrue(runTest("{R = for({*S1, *S2} := {100, 200}) append <S1, S2>; R == [<{200,100}, {}>, <{200}, {100}>, <{100}, {200}>, <{}, {200,100}>];}"));
+		/*
+		 * TODO: the following test requires a specific implementation specific
+		 * set representation and, thus, should be refactored. To check
+		 * splicing, without taking order into account, the list 'R' is now
+		 * converted to a set.
+		 */
+		assertTrue(runTest("{R = for({*S1, *S2} := {100, 200}) append <S1, S2>; {*R} == {<{200,100}, {}>, <{200}, {100}>, <{100}, {200}>, <{}, {200,100}>};}"));
 		assertTrue(runTest("{R = for({*int S1, *S2} := {100, \"a\"})  append <S1, S2>; R == [<{100}, {\"a\"}>, <{},{100,\"a\"}>];}"));
 		assertTrue(runTest("{R = for({*int S1, *str S2} := {100, \"a\"}) append <S1, S2>; R == [<{100}, {\"a\"}>];}"));
 		

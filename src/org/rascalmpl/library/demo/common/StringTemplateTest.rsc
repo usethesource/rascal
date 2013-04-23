@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 //START
 module demo::common::StringTemplateTest
@@ -26,6 +27,13 @@ public str cperson =
   // Do not change a single space in the string below!
   "public class Person {
     '  
+    '  private String address;
+    '  public void setAddress(String address) {
+    '    this.address = address;
+    '  }
+    '  public String getAddress() {
+    '    return address;
+    '  }
     '  private Integer age;
     '  public void setAge(Integer age) {
     '    this.age = age;
@@ -39,13 +47,6 @@ public str cperson =
     '  }
     '  public String getName() {
     '    return name;
-    '  }
-    '  private String address;
-    '  public void setAddress(String address) {
-    '    this.address = address;
-    '  }
-    '  public String getAddress() {
-    '    return address;
     '  }
     '}";
 
