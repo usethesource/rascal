@@ -355,7 +355,7 @@ public class PatternTests extends TestFramework {
 	public void matchListError12() {
 		runTest("{list[int] x = [1,2,3]; [1, *int L, 2, *int L] := x;}");
 	}
-	
+	 
 	public void matchListError1() {
 		assertTrue(runTest("{list[int] x = [1,2,3]; [1, list[int] L, 2, list[int] M] := x;}"));
 	}
