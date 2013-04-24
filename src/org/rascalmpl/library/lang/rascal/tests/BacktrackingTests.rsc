@@ -248,3 +248,15 @@ public test bool test11() {
 			&& [ el | list[value] el <- [ [1], [2], [3], [4] ] ] == [ [1], [2], [3], [4] ]
 			&& { k | str k <- (1 : 1, "2" : 2, 3 : 3, "4" : 4) } == {"2","4"};
 }
+
+data DATA = d1(set[int] s) | d2(list[int] l);
+public test bool test12() {
+	l0 = for( { d1({e,*r}) } := { d1({1,2}) } ) append <e,r>;
+	l1 = for( [ d1({e,*r}) ] := [ d1({1,2}) ] ) append <e,r>;
+	l2 = for( { d2([*l,*r]) } := { d2([1,2]) } ) append <l,r>;
+	l3 = for( [ d2([*l,*r]) ] := [ d2([1,2]) ] ) append <l,r>;
+	return {*l0} == {<2,{1}>,<1,{2}>}
+		&& {*l1} == {*l0}
+		&& l2 == [<[],[1,2]>,<[1],[2]>,<[1,2],[]>]
+		&& l3 == l2;
+}
