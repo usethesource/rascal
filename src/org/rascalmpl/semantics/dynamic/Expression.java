@@ -428,31 +428,30 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
-			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+			eval.setCurrentAST(this);
+			eval.notifyAboutSuspension(this);			
 
 			try {
-				if (__eval.__getInterrupt()) {
-					throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
+				if (eval.__getInterrupt()) {
+					throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
 				}
 
-				__eval.setCurrentAST(this);
+				eval.setCurrentAST(this);
 
 				Result<IValue> function = this.cachedPrefix;
 
 				// If the name expression is just a name, enable caching of the name lookup result.
 				// Also, if we have not yet registered a handler when we cache the result, do so now.
 				if (function == null) {
-					function = this.getExpression().interpret(__eval);
+					function = this.getExpression().interpret(eval);
 					
 					if (this.getExpression().isQualifiedName() && function instanceof ICallableValue && ((ICallableValue) function).isStatic()) {
 						org.rascalmpl.ast.QualifiedName qname = this.getExpression().getQualifiedName();
 						
-						if (__eval.getCurrentEnvt().isNameFinal(qname)) {
+						if (eval.getCurrentEnvt().isNameFinal(qname)) {
 							this.cachedPrefix = function;
-							registerCacheHandler(__eval);
+							registerCacheHandler(eval);
 						}
 					}
 					else {
@@ -466,7 +465,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				IValue[] actuals = new IValue[args.size()];
 				Type[] types = new Type[args.size()];
 				for (int i = 0; i < args.size(); i++) {
-					Result<IValue> resultElem = args.get(i).interpret(__eval);
+					Result<IValue> resultElem = args.get(i).interpret(eval);
 					types[i] = resultElem.getType();
 					if(types[i].isVoidType()) 
 						throw new UninitializedPatternMatch("The argument is of the type 'void'", args.get(i));
@@ -479,7 +478,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						kwActuals = new HashMap<String,IValue>();
 						
 						for(KeywordArgument kwa : keywordArgs.getKeywordArgumentList()){
-							kwActuals.put(Names.name(kwa.getName()), kwa.getExpression().interpret(__eval).getValue());
+							kwActuals.put(Names.name(kwa.getName()), kwa.getExpression().interpret(eval).getValue());
 						}
 				}
 				Result<IValue> res = null;
@@ -501,7 +500,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			}
 			
 			catch (StackOverflowError e) {
-				throw RuntimeExceptionFactory.stackOverflow(this, __eval.getStackTrace());
+				throw RuntimeExceptionFactory.stackOverflow(this, eval.getStackTrace());
 			}
 		}
 
@@ -548,20 +547,18 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
 			Type formals = getParameters().typeOf(__eval.getCurrentEnvt(), true);
 			Type returnType = typeOf(__eval.getCurrentEnvt(), true);
-			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
-					.getInstance();
+			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+			
 			return new RascalFunction(this, __eval, null,
 					(FunctionType) RTF
 					.functionType(returnType, formals), this.getParameters()
 					.isVarArgs(), false, false, this.getStatements(), __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
-
 		}
 
 		@Override

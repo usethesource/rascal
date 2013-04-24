@@ -405,10 +405,10 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void storeVariable(String name, Result<IValue> value) {
-		if (value instanceof AbstractFunction) {
-			storeFunction(name, (AbstractFunction) value);
-			return;
-		}
+//		if (value instanceof AbstractFunction) {
+//			storeFunction(name, (AbstractFunction) value);
+//			return;
+//		}
 		
 		Result<IValue> result = super.getVariable(name);
 		

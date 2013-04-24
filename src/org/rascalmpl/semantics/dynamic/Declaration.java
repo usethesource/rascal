@@ -29,9 +29,11 @@ import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Visibility;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
+import org.rascalmpl.interpreter.utils.Names;
 
 public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
@@ -143,23 +145,18 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
-			Result<IValue> r = org.rascalmpl.interpreter.result.ResultFactory
-					.nothing();
-			__eval.setCurrentAST(this);
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+			Result<IValue> r = ResultFactory.nothing();
+			eval.setCurrentAST(this);
 
 			for (org.rascalmpl.ast.Variable var : this.getVariables()) {
-				Type declaredType = getType().typeOf(__eval.getCurrentEnvt(), true);
+				Type declaredType = getType().typeOf(eval.getCurrentEnvt(), true);
 
 				if (var.isInitialized()) {
-					Result<IValue> v = var.getInitial().interpret(__eval);
+					Result<IValue> v = var.getInitial().interpret(eval);
 
-					if (!__eval.getCurrentEnvt().declareVariable(declaredType,
-							var.getName())) {
-						throw new RedeclaredVariable(
-								org.rascalmpl.interpreter.utils.Names.name(var
-										.getName()), var);
+					if (!eval.getCurrentEnvt().declareVariable(declaredType, var.getName())) {
+						throw new RedeclaredVariable(Names.name(var.getName()), var);
 					}
 
 					if (v.getType().isSubtypeOf(declaredType)) {
@@ -168,27 +165,20 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 						Map<Type, Type> bindings = new HashMap<Type, Type>();
 						declaredType.match(v.getType(), bindings);
 						declaredType = declaredType.instantiate(bindings);
-						r = org.rascalmpl.interpreter.result.ResultFactory
-								.makeResult(declaredType, v.getValue(), __eval);
-						__eval.getCurrentModuleEnvironment().storeVariable(
-								var.getName(), r);
+						r = ResultFactory.makeResult(declaredType, v.getValue(), eval);
+						eval.getCurrentModuleEnvironment().storeVariable(var.getName(), r);
 					} else {
 						throw new UnexpectedType(declaredType,
 								v.getType(), var);
 					}
 				} else {
-					__eval.getCurrentModuleEnvironment().storeVariable(
-							var.getName(),
-							org.rascalmpl.interpreter.result.ResultFactory
-									.nothing(declaredType));
+					eval.getCurrentModuleEnvironment().storeVariable(var.getName(), ResultFactory.nothing(declaredType));
 				}
 			}
 
 			r.setPublic(this.getVisibility().isPublic());
 			return r;
-
 		}
-
 	}
 
 	public Declaration(IConstructor __param1) {
