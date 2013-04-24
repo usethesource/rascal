@@ -184,8 +184,8 @@ public class ListPattern extends AbstractMatchingResult  {
 
         if(!tmvVar.isAnonymous() && allVars.contains(name)) {
           throw new RedeclaredVariable(name, getAST());
-        } else if((isAnyListType(tmvType) && tmvType.comparable(listSubject.getType()) ||
-                  (!isAnyListType(tmvType) && tmvType.comparable(listSubject.getType().getElementType())))) {
+        } else if(tmvType.comparable(listSubject.getType().getElementType()) 
+        		|| (tmvVar.bindingInstance() && tmvType.comparable(listSubject.getType()))) {
           tmvVar.convertToListType();
           if (!tmvVar.isAnonymous()) {
             allVars.add(name);
@@ -211,7 +211,7 @@ public class ListPattern extends AbstractMatchingResult  {
           allVars.add(name);
           Result<IValue> varRes = env.getVariable(name);
 
-          if (varRes == null) {
+          if (varRes == null || multiVar.bindingInstance()) {
             isBindingVar[i] = true;
           } else {
             isBindingVar[i] = false;
@@ -259,7 +259,7 @@ public class ListPattern extends AbstractMatchingResult  {
         } else {
           Result<IValue> varRes = env.getVariable(name);
 
-          if(varRes == null){ 
+          if(varRes == null || qualName.bindingInstance()){ 
             // A completely new non-list variable, nothing to do
           } else {
             Type varType = varRes.getType();

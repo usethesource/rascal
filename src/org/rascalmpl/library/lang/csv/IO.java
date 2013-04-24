@@ -314,7 +314,7 @@ public class IO {
 					if(w.getType().isStringType()){
 						String s = ((IString)w).getValue();
 						
-						if(s.contains(separatorAsString) || s.contains("\n") || s.contains("\"")){
+						if(s.contains(separatorAsString) || s.contains("\n") || s.contains("\r") || s.contains("\"")){
 							s = s.replaceAll("\"", "\"\"");
 							out.write('"');
 							writeString(out,s);

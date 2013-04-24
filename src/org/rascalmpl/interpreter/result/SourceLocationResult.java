@@ -56,7 +56,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
+	public Result<IValue> call(Type[] argTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		if (actuals.length >= 2) {
 			if (!argTypes[0].isSubtypeOf(getTypeFactory().integerType())) {
 				throw new UnexpectedType(getTypeFactory().integerType(), argTypes[0], ctx.getCurrentAST());

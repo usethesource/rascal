@@ -846,17 +846,17 @@ public class DataTypeTests extends TestFramework {
 	public void testSet2(){
 		prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
 		
-		assertTrue(runTestInSameEvaluator("{INTERSECT({TYPESET t1, *set[TYPESET] rest}), TYPESET t2} :=  {INTERSECT({SET(\"a\"), SET(\"b\")}), SET(\"c\")}"));
-		assertTrue(runTestInSameEvaluator("{INTERSECT({TYPESET t1, *set[TYPESET] rest}),  t1} :=  {INTERSECT({SET(\"a\"), SET(\"b\")}), SET(\"a\")}"));
-		assertTrue(runTestInSameEvaluator("{INTERSECT({TYPESET t1, *set[TYPESET] rest}),  t1} :=  {INTERSECT({SET(\"b\"), SET(\"a\")}), SET(\"a\")}"));
+		assertTrue(runTestInSameEvaluator("{INTERSECT({TYPESET t1, *TYPESET rest}), TYPESET t2} :=  {INTERSECT({SET(\"a\"), SET(\"b\")}), SET(\"c\")}"));
+		assertTrue(runTestInSameEvaluator("{INTERSECT({TYPESET t1, *TYPESET rest}),  t1} :=  {INTERSECT({SET(\"a\"), SET(\"b\")}), SET(\"a\")}"));
+		assertTrue(runTestInSameEvaluator("{INTERSECT({TYPESET t1, *TYPESET rest}),  t1} :=  {INTERSECT({SET(\"b\"), SET(\"a\")}), SET(\"a\")}"));
 
-		assertTrue(auxTest("{ <t1, t2> | INTERSECT({TYPESET t1, *set[TYPESET] t2}) :=  INTERSECT({SET(\"b\"), SET(\"a\")})}",
+		assertTrue(auxTest("{ <t1, t2> | INTERSECT({TYPESET t1, *TYPESET t2}) :=  INTERSECT({SET(\"b\"), SET(\"a\")})}",
 						   "{ <SET(\"b\"),{SET(\"a\")}>, <SET(\"a\"),{SET(\"b\")}>	}"));
 		
-		assertTrue(auxTest("{<t1, rest, t2> | {INTERSECT({TYPESET t1, *set[TYPESET] rest}),  t2} :=  {INTERSECT({SET(\"a\"), SET(\"b\")}), SET(\"b\")}}",
+		assertTrue(auxTest("{<t1, rest, t2> | {INTERSECT({TYPESET t1, *TYPESET rest}),  t2} :=  {INTERSECT({SET(\"a\"), SET(\"b\")}), SET(\"b\")}}",
 				           "{ <SET(\"a\"),{SET(\"b\")},SET(\"b\")>, <SET(\"b\"),{SET(\"a\")},SET(\"b\")>}"));
 
-		assertTrue(auxTest("{<t1, rest> | {INTERSECT({TYPESET t1, *set[TYPESET] rest}),  t1} :=  {INTERSECT({SET(\"a\"), SET(\"b\")}), SET(\"b\")}}",
+		assertTrue(auxTest("{<t1, rest> | {INTERSECT({TYPESET t1, *TYPESET rest}),  t1} :=  {INTERSECT({SET(\"a\"), SET(\"b\")}), SET(\"b\")}}",
 				           "{<SET(\"b\"),{SET(\"a\")}>}"));	
 	}
 	
@@ -988,7 +988,7 @@ public class DataTypeTests extends TestFramework {
 		prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
 		
 		prepareMore("public TYPESET simp(TYPESET ts){" +
-			           "for(INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, *set[TYPESET] rest})), TYPESET tset1, *set[TYPESET] rest1 }) := ts){" +
+			           "for(INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, *TYPESET rest})), TYPESET tset1, *TYPESET rest1 }) := ts){" +
 			                "if(tset == tset1) return simp(INTERSECT({ SUBTYPES(INTERSECT(rest)), tset1, *rest1 }));" +
 			                "else  fail;" +
 			           "}" +
@@ -1007,7 +1007,7 @@ public class DataTypeTests extends TestFramework {
 		prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
 		
 		prepareMore("public TYPESET simp(TYPESET ts){" +
-			           "if(INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, *set[TYPESET] rest})), tset, *set[TYPESET] rest1 }) := ts){" +
+			           "if(INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, *TYPESET rest})), tset, *TYPESET rest1 }) := ts){" +
 			                "return simp(INTERSECT({ SUBTYPES(INTERSECT(rest)), tset, *rest1 }));" +
 			           "}" +
 			           "return ts;" +
@@ -1026,7 +1026,7 @@ public class DataTypeTests extends TestFramework {
 		prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
 		
 		prepareMore("public TYPESET simp(TYPESET ts){" +
-			           "if(INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, *set[TYPESET] rest})), tset, *set[TYPESET] rest1 }) := ts){" +
+			           "if(INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, *TYPESET rest})), tset, *TYPESET rest1 }) := ts){" +
 			                "return simp(INTERSECT({ SUBTYPES(simp(INTERSECT(rest))), tset, *rest1 }));" +
 			           "}" +
 			           "return ts;" +
@@ -1044,7 +1044,7 @@ public class DataTypeTests extends TestFramework {
 	public void testSet6()  {
 		prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
 		
-		prepareMore("public TYPESET INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, *set[TYPESET] rest})), tset, *set[TYPESET] rest1 }) {" +
+		prepareMore("public TYPESET INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, *TYPESET rest})), tset, *TYPESET rest1 }) {" +
 		               " return INTERSECT({ SUBTYPES(INTERSECT(rest)), tset, *rest1 });" +
 				    "}");
 
@@ -1053,25 +1053,31 @@ public class DataTypeTests extends TestFramework {
 	
 	@Test
 	public void testSetMultiVariable()  {
-		assertTrue(runTest("{*set[value] S1, *set[value] S2} := {} && (S1 == {}) && (S2 == {});"));
-		assertTrue(runTest("{S1*, S2*} := {} && (S1 == {}) && (S2 == {});"));
+		assertTrue(runTest("{*value S1, *value S2} := {} && (S1 == {}) && (S2 == {});"));
+		assertTrue(runTest("{*S1, *S2} := {} && (S1 == {}) && (S2 == {});"));
 		
-		assertTrue(runTest("{*set[int] S1, *set[int] S2} := {100} && ((S1 == {100} && S2 == {}) || (S1 == {} && S2 == {100}));"));
-		assertTrue(runTest("{S1*, S2*} := {100} && ((S1 == {100} && S2 == {}) || (S1 == {} && S2 == {100}));"));
+		assertTrue(runTest("{*int S1, *int S2} := {100} && ((S1 == {100} && S2 == {}) || (S1 == {} && S2 == {100}));"));
+		assertTrue(runTest("{*S1, *S2} := {100} && ((S1 == {100} && S2 == {}) || (S1 == {} && S2 == {100}));"));
 		
-		assertTrue(runTest("{R = for({*set[int] S1, *set[int] S2} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}"));
-		assertTrue(runTest("{R = for({S1*, S2*} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}"));
+		assertTrue(runTest("{R = for({*int S1, *int S2} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}"));
+		assertTrue(runTest("{R = for({*S1, *S2} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}"));
 
-		assertTrue(runTest("{R = for({S1*, S2*} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}"));
-		assertTrue(runTest("{R = for({S1*, S2*} := {100, 200}) append <S1, S2>; R == [<{200,100}, {}>, <{200}, {100}>, <{100}, {200}>, <{}, {200,100}>];}"));
-		assertTrue(runTest("{R = for({*set[int] S1, S2*} := {100, \"a\"})  append <S1, S2>; R == [<{100}, {\"a\"}>, <{},{100,\"a\"}>];}"));
-		assertTrue(runTest("{R = for({*set[int] S1, *set[str] S2} := {100, \"a\"}) append <S1, S2>; R == [<{100}, {\"a\"}>];}"));
+		assertTrue(runTest("{R = for({*S1, *S2} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}"));
+		/*
+		 * TODO: the following test requires a specific implementation specific
+		 * set representation and, thus, should be refactored. To check
+		 * splicing, without taking order into account, the list 'R' is now
+		 * converted to a set.
+		 */
+		assertTrue(runTest("{R = for({*S1, *S2} := {100, 200}) append <S1, S2>; {*R} == {<{200,100}, {}>, <{200}, {100}>, <{100}, {200}>, <{}, {200,100}>};}"));
+		assertTrue(runTest("{R = for({*int S1, *S2} := {100, \"a\"})  append <S1, S2>; R == [<{100}, {\"a\"}>, <{},{100,\"a\"}>];}"));
+		assertTrue(runTest("{R = for({*int S1, *str S2} := {100, \"a\"}) append <S1, S2>; R == [<{100}, {\"a\"}>];}"));
 		
-		assertTrue(runTest("{R = for({*set[str] S1, S2*} := {100, \"a\"})  append <S1, S2>; R == [<{\"a\"},{100}>, <{},{100,\"a\"}>];}"));
-		assertTrue(runTest("{R = for({*set[str] S1, *set[int] S2} := {100, \"a\"})  append <S1, S2>; R == [<{\"a\"},{100}>];}"));
+		assertTrue(runTest("{R = for({*str S1, *S2} := {100, \"a\"})  append <S1, S2>; R == [<{\"a\"},{100}>, <{},{100,\"a\"}>];}"));
+		assertTrue(runTest("{R = for({*str S1, *int S2} := {100, \"a\"})  append <S1, S2>; R == [<{\"a\"},{100}>];}"));
 		
-		assertFalse(runTest("{*set[str] S1, *set[str] S2} := {100, \"a\"};"));
-		assertFalse(runTest("{*set[int] S1, *set[int] S2} := {100, \"a\"};"));
+		assertFalse(runTest("{*str S1, *str S2} := {100, \"a\"};"));
+		assertFalse(runTest("{*int S1, *int S2} := {100, \"a\"};"));
 
 	}
 	

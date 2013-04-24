@@ -84,10 +84,6 @@ public class Math {
 		}
 	}
 	
-	public IValue floor(INumber x){
-		return x.toReal().floor().toInteger();
-	}
-	
 	public IValue ln(INumber x) {
 		try {
 			return x.toReal().ln(values.getPrecision());
@@ -141,6 +137,10 @@ public class Math {
 			return values.integer(k.toReal().precision());
 		}
 		return values.integer(((IReal) x).precision());
+	}
+	
+	public IValue unscaled(IReal x) {
+	  return x.unscaled();
 	}
 	
 	public IValue precision(INumber x, IInteger precision){

@@ -180,6 +180,9 @@ public class RuntimeExceptionFactory {
      * error traces.
      */
     private static ISourceLocation robustSourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
+    	if (path == null) {
+    		path = "UNKNOWN_FILENAME";
+    	}
     	if (!path.startsWith("/")) {
 			path = "/" + path;
 		}

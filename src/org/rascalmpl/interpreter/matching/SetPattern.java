@@ -220,8 +220,8 @@ public class SetPattern extends AbstractMatchingResult {
 					throw new RedeclaredVariable(name, getAST());
 				}
 				
-				if((childType.isSetType() && childType.comparable(staticSetSubjectType) ||
-		          (!childType.isSetType() && childType.comparable(staticSubjectElementType)))) {
+				if(childType.comparable(staticSubjectElementType)
+						|| (tmvVar.bindingInstance() && childType.comparable(staticSetSubjectType))) {
 					tmvVar.covertToSetType();
 					if (!tmvVar.isAnonymous()) {
 						patVars.add(name);
@@ -271,9 +271,7 @@ public class SetPattern extends AbstractMatchingResult {
 				 */
 				MultiVariablePattern multiVar = (MultiVariablePattern) child;
 				String name = multiVar.getName();
-				if(!multiVar.isAnonymous() && allVars.containsKey(name)){
-					throw new RedeclaredVariable(name, getAST());
-				}
+
 				varName[nVar] = name;
 				varPat[nVar] = child;
 				isSetVar[nVar] = true;

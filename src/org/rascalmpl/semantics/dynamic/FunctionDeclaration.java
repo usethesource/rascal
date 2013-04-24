@@ -107,8 +107,8 @@ public abstract class FunctionDeclaration extends
 		}
 
 		@Override
-		public Type typeOf(Environment __eval) {
-			return this.getSignature().typeOf(__eval);
+		public Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
+			return this.getSignature().typeOf(__eval, instantiateTypeParameters);
 		}
 	}
 

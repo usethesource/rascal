@@ -42,6 +42,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
+import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -62,6 +63,7 @@ public class NodePattern extends AbstractMatchingResult {
 	private int subjectTotalArity; 			// Arity of subject including keyword arguments
 	private LinkedList<String> patternKeywordParameterNames;
 	private LinkedList<IMatchingResult> patternOriginalKeywordChildren;
+	private final boolean matchUPTR;
 	
 	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, Type constructorType, List<IMatchingResult> list){
 		super(ctx, x);
@@ -70,9 +72,14 @@ public class NodePattern extends AbstractMatchingResult {
 		patternPositionalArity = patternOriginalChildren.size();
 		if (matchPattern != null) {
 			namePattern = matchPattern;
+			matchUPTR = false;
 		}
 		else if (name != null) {
 			qName = name;
+			matchUPTR = Cases.IUPTR_NAMES.contains(Names.fullName(qName));
+		}
+		else {
+			matchUPTR = false;
 		}
 		KeywordArguments keywordArgs = x.getKeywordArguments();
 		this.patternOriginalKeywordChildren = new LinkedList<IMatchingResult>();
@@ -102,7 +109,7 @@ public class NodePattern extends AbstractMatchingResult {
 			return;
 		}
 		
-		if (subject.getType().isSubtypeOf(Factory.Tree) && TreeAdapter.isAppl((IConstructor) subject.getValue())) {
+		if (!matchUPTR && subject.getType().isSubtypeOf(Factory.Tree) && TreeAdapter.isAppl((IConstructor) subject.getValue())) {
 		  this.subject = new TreeAsNode((IConstructor) subject.getValue());
 		}
 		else {

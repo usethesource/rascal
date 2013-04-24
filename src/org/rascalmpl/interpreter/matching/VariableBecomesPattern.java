@@ -9,6 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
@@ -26,6 +27,8 @@ import org.rascalmpl.interpreter.result.Result;
 public class VariableBecomesPattern extends AbstractMatchingResult {
 	private IMatchingResult pat;
 	private IMatchingResult var;
+	
+	private boolean firstTime;
 
 	public VariableBecomesPattern(IEvaluatorContext ctx, Expression x, IMatchingResult var, IMatchingResult pat){
 		super(ctx, x);
@@ -48,6 +51,12 @@ public class VariableBecomesPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
+	public void init() {
+		super.init();
+		firstTime = true;
+	}
+	
+	@Override
 	public List<IVarPattern> getVariables() {
 		List<IVarPattern> first = var.getVariables();
 		List<IVarPattern> second = pat.getVariables();
@@ -64,14 +73,24 @@ public class VariableBecomesPattern extends AbstractMatchingResult {
 	
 	@Override
 	public boolean hasNext(){
-		return hasNext && pat.hasNext() && var.hasNext();
+		return hasNext && pat.hasNext();
 	}
 
 	@Override
 	public boolean next() {
-		if (!pat.next()) {
-			return false;
+		if(hasNext && pat.hasNext() && pat.next()) {
+			if(firstTime) {
+				if(var.hasNext() && var.next()) {
+					firstTime = false;
+					return true;
+				} else {
+					hasNext = false;
+					return false;
+				}
+			}
+			return true;
 		}
-		return var.next();
+		hasNext = false;
+		return false;
 	}
 }

@@ -129,7 +129,7 @@ public class TypeDeclarationEvaluator {
 		if(x.getCommonKeywordParameters().isPresent()){
 			List<KeywordFormal> common = x.getCommonKeywordParameters().getKeywordFormalList();
 			for(KeywordFormal kwf : common){
-				Type declaredType = kwf.getType().typeOf(env);
+				Type declaredType = kwf.getType().typeOf(env, true);
 				Result<IValue> r = kwf.getExpression().interpret(eval);
 				if(r.getType().isSubtypeOf(declaredType))
 					commonKwargs.add(new KeywordParameter(Names.name(kwf.getName()), declaredType, r));
@@ -147,7 +147,7 @@ public class TypeDeclarationEvaluator {
 				List<KeywordParameter> kwargs = new LinkedList<KeywordParameter> ();
 				if(var.getKeywordArguments().isDefault()){					
 					for(KeywordFormal kwf :  var.getKeywordArguments().getKeywordFormalList()){
-						Type declaredType = kwf.getType().typeOf(env);
+						Type declaredType = kwf.getType().typeOf(env, true);
 						Result<IValue> r = kwf.getExpression().interpret(eval);
 						if(r.getType().isSubtypeOf(declaredType))
 							kwargs.add(new KeywordParameter(Names.name(kwf.getName()), declaredType, r));
@@ -163,7 +163,7 @@ public class TypeDeclarationEvaluator {
 
 				for (int i = 0; i < args.size(); i++) {
 					TypeArg arg = args.get(i);
-					fields[i] = arg.getType().typeOf(env);
+					fields[i] = arg.getType().typeOf(env, true);
 
 					if (fields[i] == null) {
 						throw new UndeclaredType(arg.hasName() ? Names.name(arg.getName()) : "?", arg);
@@ -224,7 +224,7 @@ public class TypeDeclarationEvaluator {
 	
 	public void declareAlias(Alias x, Environment env) {
 		try {
-			Type base = x.getBase().typeOf(env);
+			Type base = x.getBase().typeOf(env, true);
 
 			assert base != null;
 			
@@ -295,7 +295,7 @@ public class TypeDeclarationEvaluator {
 									+ formal + " is not allowed", formal.getLocation());
 				}
 				TypeVar var = formal.getTypeVar();	
-				Type bound = var.hasBound() ? var.getBound().typeOf(env) : tf
+				Type bound = var.hasBound() ? var.getBound().typeOf(env, true) : tf
 						.valueType();
 				params[i++] = tf
 						.parameterType(Names.name(var.getName()), bound);

@@ -53,7 +53,10 @@ public class TestEvaluator {
 
 		for (String i : topModule.getImports()) {
 			ModuleEnvironment mod = topModule.getImport(i);
-			runTests(mod, mod.getTests());
+			
+			if (mod != null) {
+			  runTests(mod, mod.getTests());
+			}
 		}
 	}
 

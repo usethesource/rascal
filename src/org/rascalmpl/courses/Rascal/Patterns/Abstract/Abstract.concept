@@ -7,7 +7,7 @@ Syntax:<br>
 |+---------------------|+----------------------------------------------------------------------------|
 | Literal              | [$Values/Boolean], [$Values/Integer], [$Values/Real], [$Values/Number], [$Values/String], [$Values/Location], or [$Values/DateTime] |
 | Variable declaration | `$Type$ $Var$`                                                              |
-| Multi-variable       | `$Var$*`                                                                    |
+| Multi-variable       | `*$Var$`, `*$Type$ $Var$`                                                   |
 | Variable             | `$Var$`                                                                     |
 | List                 | `[ $Pat_1$, $Pat_2$, ..., $Pat_n$ ]`                                        |
 | Set                  | `{ $Pat_1$, $Pat_2$, ..., $Pat_n$ }`                                        |

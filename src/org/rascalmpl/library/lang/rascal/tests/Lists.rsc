@@ -449,21 +449,27 @@ int b = 0;
 if(size(lst) != 1) b = arbInt(size(lst) - 1);
 int len = arbInt(size(lst) - b);
 if(len == 0) return true;
-return /*typeOf*/(slice(lst, b, len)) == /*typeOf*/(lst[b..(len + b)]);
+lhs = slice(lst, b, len);
+rhs = lst[b..(len + b)];
+return lhs == rhs && typeOf(lhs) == typeOf(rhs);
 }
 
 public test bool dtstDelete(list[&T] lst) {
 if(isEmpty(lst)) return true;
 int index = 0;
 if(size(lst) != 1) index = arbInt(size(lst) - 1);
-return /*typeOf*/(delete(lst, index)) == /*typeOf*/([ elementAt(lst,i) | int i <- [0..size(lst)], i != index ]);
+lhs = delete(lst, index);
+rhs = [ lst[i] | int i <- [0..size(lst)], i != index ];
+return lhs == rhs && typeOf(lhs) == typeOf(rhs);
 }
 
 public test bool dtstDrop(list[&T] lst) {
 if(isEmpty(lst)) return true;
 int n = 0;
 if(size(lst) != 1) n = arbInt(size(lst) - 1);
-return /*typeOf*/(drop(n, lst)) == /*typeOf*/([ elementAt(lst,i) | int i <- [n..size(lst)] ]);
+lhs = drop(n, lst);
+rhs = [ lst[i] | int i <- [n..size(lst)] ];
+return lhs == rhs && typeOf(lhs) == typeOf(rhs);
 }
 
 public test bool dtstHead(list[&T] lst) {
@@ -471,7 +477,10 @@ if(isEmpty(lst)) return true;
 int n = 0;
 if(size(lst) != 1) n = arbInt(size(lst) - 1);
 if(n == 0) return true;
-return /*typeOf*/(head(lst, n)) == /*typeOf*/([ elementAt(lst,i) | int i <- [0..n] ]) && /*typeOf*/(head(lst, n)) == /*typeOf*/(take(n, lst));
+lhs = head(lst, n);
+rhs1 = [ lst[i] | int i <- [0..n] ];
+rhs2 = take(n, lst);
+return lhs == rhs1 && lhs == rhs2 && typeOf(lhs) == typeOf(rhs1) && typeOf(lhs) == typeOf(rhs2);
 }
 
 public test bool dtstTail(list[&T] lst) {
@@ -479,12 +488,16 @@ if(isEmpty(lst)) return true;
 int n = 0;
 if(size(lst) != 1) n = arbInt(size(lst) - 1);
 if(n == 0) return true;
-return /*typeOf*/(tail(lst, n)) == /*typeOf*/([ elementAt(lst,i) | int i <- [(size(lst) - n)..size(lst)] ]);
+lhs = tail(lst, n);
+rhs = [ lst[i] | int i <- [(size(lst) - n)..size(lst)] ];
+return lhs == rhs && typeOf(lhs) == typeOf(rhs);
 }
 
 public test bool dtstPrefix(list[&T] lst) {
 if(isEmpty(lst) || size(lst) == 1) return true;
-return /*typeOf*/(prefix(lst)) == /*typeOf*/([ elementAt(lst,i) | int i <- [0..(size(lst) - 1)] ]);
+lhs = prefix(lst);
+rhs = [ lst[i] | int i <- [0..(size(lst) - 1)] ];
+return lhs == rhs && typeOf(lhs) == typeOf(rhs);
 }
 
 public test bool dtstDifference(list[&T] lst) {
@@ -492,7 +505,9 @@ public test bool dtstDifference(list[&T] lst) {
 	bool check = true;
 	for(&T elem <- lst) {
 		bool deleted = false;
-		check = check && (/*typeOf*/(lst - [elem]) == /*typeOf*/([ *( (elem == el && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ]));
+		lhs = lst - [elem];
+		rhs = [ *( (elem == el && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
+		check = check && lhs == rhs && typeOf(lhs) == typeOf(rhs);
 	}
 	return check;
 }
@@ -500,7 +515,12 @@ public test bool dtstDifference(list[&T] lst) {
 public test bool dtstIntersection(list[&T] lst) {
 	if(isEmpty(lst)) return true;
 	bool check = true;
-	for([*l1, *l2] := lst)
-check = check && (/*typeOf*/(lst & l1) == /*typeOf*/([ el | &T el <- lst, el in l1 ])) && (/*typeOf*/(lst & l2) == /*typeOf*/([ el | &T el <- lst, el in l2 ]));
+	for([*l1, *l2] := lst) {
+	lhs1 = lst & l1;
+	rhs1 = [ el | &T el <- lst, el in l1 ];
+	lhs2 = lst & l2;
+	rhs2 = [ el | &T el <- lst, el in l2 ];
+check = check && lhs1 == rhs1 && typeOf(lhs1) == typeOf(rhs1) && lhs2 == rhs2 && typeOf(lhs2) == typeOf(rhs2);
+}
 	return check;
 }

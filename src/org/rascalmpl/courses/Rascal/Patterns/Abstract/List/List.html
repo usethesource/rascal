@@ -58,37 +58,48 @@
                            
                            
 <div id="Description">
-<span class="sectionHead">Description</span>  A list pattern matches a list value, provided that <code><i>Pat</i><sub>1</sub></code>, <code><i>Pat</i><sub>2</sub></code>, ..., <code><i>Pat</i><sub>n</sub></code> match the elements of that list in order. 
- Two special cases exist when one of the patterns <code><i>Pat</i><sub>i</sub></code> is
-  <ul><li> a variable declaration pattern with a list type that is identical to the type of the list that is being matched.</li>
-<li> a variable pattern, where the variable has been declared, but not initialized, outside the pattern with a list type that is identical to the type of the list that is being matched.</li>
-</ul> In both cases list matching is applied and the variable can match an arbitrary number of elements of the subject list.
-
+<span class="sectionHead">Description</span>  A list pattern matches a list value (the subject), provided that <code><i>Pat</i><sub>1</sub></code>, <code><i>Pat</i><sub>2</sub></code>, ..., <code><i>Pat</i><sub>n</sub></code> match the elements of that list in order. 
+ Special cases exist when one of the patterns <code><i>Pat</i><sub>i</sub></code> is
+  <ol><li> a <a href="/Rascal/Patterns/Abstract/VariableDeclaration/VariableDeclaration.html">VariableDeclaration</a> pattern with a type that is identical to the element type of the subject list: the variable is matched with the value at the corresponding position in the subject list.</li>
+<li> a <a href="/Rascal/Patterns/Abstract/MultiVariable/MultiVariable.html">MultiVariable</a> pattern, with an optional element type that is identical to the element type of the subject list: list matching is applied and the variable can match an arbitrary number of elements of the subject list.</li>
+<li> a <a href="/Rascal/Patterns/Abstract/Variable/Variable.html">Variable</a> pattern, where the variable has been declared with a list type, but not initialized, outside the pattern: list matching is applied and the variable can match an arbitrary number of elements of the subject list.</li>
+<li> a <a href="/Rascal/Patterns/Abstract/Variable/Variable.html">Variable</a> pattern, where the variable has been declared with a type equal to the element type of the subject, but not initialized, outside the pattern: the variable is matched with the value at the corresponding position in the subject list.</li>
+</ol>
 </div>
 
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<span class="prompt">rascal></span>if([10, list[int] L, 50] := [10, 20, 30, 40, 50])
+</pre>  1. A single variable
+<pre class="screen"><span class="prompt">rascal></span>if([10, int N, 30, 40, 50] := [10, 20, 30, 40, 50])
+<span class="continuation">>>>>>>></span>   println("Match succeeded, N = &lt;N>");
+Match succeeded, N = 20
+ok
+</pre>  2. An untyped multi-variable:
+<pre class="screen"><span class="prompt">rascal></span>if([10, *L, 50] := [10, 20, 30, 40, 50])
 <span class="continuation">>>>>>>></span>   println("Match succeeded, L = &lt;L>");
 Match succeeded, L = [20,30,40]
 ok
-</pre>  Using a <a href="/Rascal/Patterns/Abstract/MultiVariable/MultiVariable.html">MultiVariable</a> this can be abbreviated to:
-<pre class="screen"><span class="prompt">rascal></span>if([10, L*, 50] := [10, 20, 30, 40, 50])
+</pre>  2. A typed multi-variable:
+<pre class="screen"><span class="prompt">rascal></span>if([10, *int L, 50] := [10, 20, 30, 40, 50])
 <span class="continuation">>>>>>>></span>   println("Match succeeded, L = &lt;L>");
 Match succeeded, L = [20,30,40]
 ok
-</pre>  A list pattern may also be <b>non-linear</b>, i.e., it may contain uses of variables that were bound earlier in the pattern.
-  Here we see an example, where all pairs of equal elements in a list are printed:
-<pre class="screen"><span class="prompt">rascal></span>for([L1*, int N, L2*, N, L3*] := [ 5, 10, 20, 30, 40, 30, 15, 20, 10])
+</pre>  A list pattern may also be <b>non-linear</b>, i.e., it may contain uses of variables that were bound earlier in the pattern:
+<pre class="screen"><span class="prompt">rascal></span>if([10, *L, 40, L, 50] := [10, 20, 30, 40, 20, 30, 50])
+<span class="continuation">>>>>>>></span>   println("Match succeeded, L = &lt;L>");
+Match succeeded, L = [20,30]
+ok
+</pre>  Here we see an example, where all pairs of equal elements in a list are printed:
+<pre class="screen"><span class="prompt">rascal></span>for([*L1, int N, *L2, N, *L3] := [ 5, 10, 20, 30, 40, 30, 15, 20, 10])
 <span class="continuation">>>>>>>></span>    println("N = &lt;N>");
 N = 10
 N = 20
 N = 30
 list[void]: []
 </pre>  Here we print all ways in which a given list can be partitioned in two lists:
-<pre class="screen"><span class="prompt">rascal></span>for([L1*, L2*] := [10, 20, 30, 40, 50]) 
+<pre class="screen"><span class="prompt">rascal></span>for([*L1, *L2] := [10, 20, 30, 40, 50]) 
 <span class="continuation">>>>>>>></span>    println("&lt;L1> and &lt;L2>");
 [] and [10,20,30,40,50]
 [10] and [20,30,40,50]
@@ -97,6 +108,20 @@ list[void]: []
 [10,20,30,40] and [50]
 [10,20,30,40,50] and []
 list[void]: []
+</pre>  3. Already declared list variable:
+<pre class="screen"><span class="prompt">rascal></span>list[int] L;
+ok
+<span class="prompt">rascal></span>if([10, L, 50] := [10, 20, 30, 40, 50])
+<span class="continuation">>>>>>>></span>   println("Match succeeded, L = &lt;L>");
+Match succeeded, L = [20,30,40]
+ok
+</pre>  4. Already declared element variable:
+<pre class="screen"><span class="prompt">rascal></span>int N;
+ok
+<span class="prompt">rascal></span>if([10, N, 30, 40, 50] := [10, 20, 30, 40, 50])
+<span class="continuation">>>>>>>></span>   println("Match succeeded, N = &lt;N>");
+Match succeeded, N = 20
+ok
 </pre>
 </div>
 

@@ -382,7 +382,7 @@ public class TreeAdapter {
 		}
 
 		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isLexical(tree)) {
-			IList children = TreeAdapter.getASTArgs(tree);
+			IList children = TreeAdapter.getArgs(tree); //TreeAdapter.getASTArgs(tree);
 
 			for (IValue child : children) {
 				ISourceLocation childLoc = TreeAdapter

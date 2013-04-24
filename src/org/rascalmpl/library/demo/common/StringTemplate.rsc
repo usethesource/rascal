@@ -7,12 +7,15 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 //START
 module demo::common::StringTemplate
 
 import String;
 import IO;
+import Set;
+import List;
 
 // Capitalize the first character of a string
 
@@ -35,11 +38,11 @@ private str genGetter(map[str,str] fields, str x) {
 }
 
 // Generate a class with given name and fields.
-
+// The field names are processed in sorted order.
 public str genClass(str name, map[str,str] fields) { /*2*/
   return 
     "public class <name> {
-    '  <for (x <- fields) {>
+    '  <for (x <- sort([f | f <- fields])) {>
     '  private <fields[x]> <x>;
     '  <genSetter(fields, x)>
     '  <genGetter(fields, x)><}>
