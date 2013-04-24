@@ -152,8 +152,9 @@ public abstract class AbstractAST implements IVisitable {
 	
 	/**
 	 * Computes internal type representations for type literals and patterns. 
+	 * @param instantiateTypeParameters TODO
 	 */
-	public Type typeOf(Environment env) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 		throw new NotYetImplemented(this);
 	}
 
