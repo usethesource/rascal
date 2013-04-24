@@ -2878,7 +2878,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			for(org.rascalmpl.ast.Expression expr : expressions) {
 				if(expr.isReifyType()) {
 					// collect all the type arguments
-					Type type = expr.getType().typeOf(__eval.getCurrentEnvt());
+					Type type = expr.getType().typeOf(__eval.getCurrentEnvt(), true);
 					types.add(type);
 					org.rascalmpl.interpreter.env.IsomorphicTypes.collectAllTypes(type, allTypes, __eval);
 				}

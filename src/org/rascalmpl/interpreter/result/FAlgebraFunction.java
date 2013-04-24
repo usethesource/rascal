@@ -87,7 +87,7 @@ public class FAlgebraFunction extends AbstractFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) throws MatchFailed {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) throws MatchFailed {
 		return null;
 //		Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), null, null, "Anonymous Function");
 //		ctx.setCurrentEnvt(environment);	
@@ -204,7 +204,7 @@ public class FAlgebraFunction extends AbstractFunction {
 		}
 		
 		@Override
-		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) throws MatchFailed {
+		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) throws MatchFailed {
 			IValue inh = argValues[0];
 			Result<IValue> e = ctx.getCurrentEnvt().getVariable("e");
 			IConstructor value = (IConstructor) e.getValue();

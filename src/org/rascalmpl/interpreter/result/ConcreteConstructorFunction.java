@@ -56,7 +56,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 		return call(actualTypes, actuals, keyArgValues);
 	}
 

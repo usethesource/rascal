@@ -156,15 +156,20 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-  public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,  IValue[] argValues, Map<String, IValue> keyArgValues) {
-    IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
-    try {
-      return call(argTypes,argValues,  keyArgValues);
-    }
-    finally {
-      ctx.getEvaluator().setMonitor(old);
-    }
-  }
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
+		return call(monitor, argTypes, argValues, keyArgValues, null, null);
+	}
+	
+	@Override
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
+		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
+		try {
+			return call(argTypes, argValues, keyArgValues, self, openFunctions);
+		}
+		finally {
+			ctx.getEvaluator().setMonitor(old);
+		}
+	}
 	
 	private boolean matchVarArgsFunction(Type actuals) {
 		int arity = getFormals().getArity();
@@ -361,44 +366,65 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
-		return that.addFunctionNonDeterministic(this);
+		return that.addFunctionNonDeterministic(this, true);
 	}
 	
 	@Override
-	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that) {
-		return (new OverloadedFunction(this)).add(that);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> right, boolean isOpenRecursive) {
+		return right.addFunctionNonDeterministic(this, isOpenRecursive);
+	}
+	
+	@Override
+	public Result<IValue> addFunctionNonDeterministic(AbstractFunction that, boolean isOpenRecursive) {
+		return (new OverloadedFunction(this)).addFunctionNonDeterministic(that, isOpenRecursive);
 	}
 
 	@Override
-	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that) {
-		return (new OverloadedFunction(this)).join(that);
+	public Result<IValue> addFunctionNonDeterministic(OverloadedFunction that, boolean isOpenRecursive) {
+		return (new OverloadedFunction(this)).addFunctionNonDeterministic(that, isOpenRecursive);
 	}
 
 	@Override
-	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that) {
-		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this);
+		return right.composeFunction(this, new HashMap<String, Result<IValue>>(), true);
 	}
 	
 	@Override
-	public ComposedFunctionResult composeFunction(AbstractFunction that) {
-		return new ComposedFunctionResult(that, this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
+		return right.composeFunction(this, openFunctions, isOpenRecursive);
+	}
+		
+	@Override
+	@SuppressWarnings("unchecked")
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, openFunctions, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return (Result<U>) result;
 	}
 	
 	@Override
-	public ComposedFunctionResult composeFunction(OverloadedFunction that) {
-		return new ComposedFunctionResult(that, this, ctx);
+	@SuppressWarnings("unchecked")
+	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, openFunctions, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return (Result<U>) result;
 	}
 	
 	@Override
-	public ComposedFunctionResult composeFunction(ComposedFunctionResult that) {
-		return new ComposedFunctionResult(that, this, ctx);
+	@SuppressWarnings("unchecked")
+	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, openFunctions, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return (Result<U>) result;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getHeader() + ";";
@@ -478,7 +504,20 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return false;
 	}
 
+	public boolean isAna() {
+		return false;
+	}
+	
+	public boolean isCata() {
+		return false;
+	}
+	
+	public FunctionType getTraverseFunctionType() {
+		return this.getFunctionType();
+	}
+	
+	public Type getIsomorphicAdt() {
+		return null;
+	}
 
-	
-	
 }
