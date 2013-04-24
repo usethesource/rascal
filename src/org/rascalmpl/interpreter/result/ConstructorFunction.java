@@ -55,9 +55,9 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 		if (constructorType == Factory.Tree_Appl) {
-			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, keyArgValues);
+			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, keyArgValues, self, openFunctions);
 		}
 		Type[] allArgumentTypes = addKeywordTypes(actualTypes, keyArgValues);
 		

@@ -100,7 +100,7 @@ public class TraverseFunction extends AbstractFunction {
 //	}
 		
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 		if (!(actualTypes.length == 1 
 				&& actuals.length == 1)) throw new MatchFailed();	
 		
@@ -154,7 +154,7 @@ public class TraverseFunction extends AbstractFunction {
 		return result;
 	}
 	
-	private Result<IValue> call(Type type, IConstructor arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
+	private Result<IValue> call(Type type, IConstructor arg, Map<String, IValue> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 		if(arg.arity() != 0) {	
 			for(int i = 1; i < arg.arity(); i++) { 
 				 
@@ -188,7 +188,7 @@ public class TraverseFunction extends AbstractFunction {
 	}
 	
 	// TODO: Have to think of the node functor
-	private Result<IValue> call(Type type, INode arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
+	private Result<IValue> call(Type type, INode arg, Map<String, IValue> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 		if(arg.arity() != 0) {
 			IValue args[] = new IValue[arg.arity()];
 			Type targs[] = new Type[arg.arity()];
@@ -206,7 +206,7 @@ public class TraverseFunction extends AbstractFunction {
 		return makeResult(type, arg, ctx);
 	}
 	
-	private Result<IValue> call(Type type, IList arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
+	private Result<IValue> call(Type type, IList arg, Map<String, IValue> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 
 		AbstractFunction[] visitFunctions = new AbstractFunction[2];
 		visitFunctions[0] = this.functions.get(this.isomorphicAdt.getElementType());
@@ -262,7 +262,7 @@ public class TraverseFunction extends AbstractFunction {
 		return makeResult(type, arg, ctx);
 	}
 	
-	private Result<IValue> call(Type type, ISet arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
+	private Result<IValue> call(Type type, ISet arg, Map<String, IValue> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 
 		AbstractFunction[] visitFunctions = new AbstractFunction[2];
 		visitFunctions[0] = this.functions.get(this.isomorphicAdt.getElementType());
@@ -344,7 +344,7 @@ public class TraverseFunction extends AbstractFunction {
 //		return makeResult(arg.getType(), arg, ctx);
 //	}
 //
-	private Result<IValue> call(Type type, ITuple arg, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
+	private Result<IValue> call(Type type, ITuple arg, Map<String, IValue> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
 		AbstractFunction[] visitFunctions = new AbstractFunction[this.isomorphicAdt.getArity()];
 		Type[] childrenTypes = new Type[type.getArity()];
 		

@@ -110,7 +110,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 						Type typeParameter = TF.parameterType("TP" + (functorName.hashCode() + i));
 						typeParameters[i] = typeParameter;
 						i = i + 1;
-						parameterizationOfTypes.put(expr.getType().typeOf(__eval.getCurrentEnvt()), typeParameter);
+						parameterizationOfTypes.put(expr.getType().typeOf(__eval.getCurrentEnvt(), true), typeParameter);
 					}
 					// If you are silly to forget the functor name or its type parameters, do not expect anything but nothing
 					if(functorName != null || !parameterizationOfTypes.isEmpty()) {

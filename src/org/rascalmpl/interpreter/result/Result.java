@@ -190,10 +190,18 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	///////
 	
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) throws MatchFailed {
-    throw new UnsupportedOperation("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
+		return call(argTypes, argValues, keyArgValues, null, null);
   }
+
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) throws MatchFailed {
+		throw new UnsupportedOperation("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
+	}
 	
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
+		return undefinedError(ADDITION_STRING, that);
+	}
+
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that, boolean isOpenRecursive) {
 		return undefinedError(ADDITION_STRING, that);
 	}
 
@@ -232,7 +240,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
 		return undefinedError(COMPOSE_STRING, right);
 	}
-	
+
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
+		return undefinedError(COMPOSE_STRING, right);
+	}
+
 	public <U extends IValue> Result<U> negative() {
 		return undefinedError(NEGATIVE_STRING);
 	}
@@ -595,27 +607,35 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> addFunctionNonDeterministic(AbstractFunction that) {
-		return that.undefinedError(ADDITION_STRING, this);
-	}
-	
-	public <U extends IValue> Result<U> addFunctionNonDeterministic(OverloadedFunction that) {
-		return that.undefinedError(ADDITION_STRING, this);
-	}
-	
-	public <U extends IValue> Result<U> addFunctionNonDeterministic(ComposedFunctionResult that) {
-		return that.undefinedError(ADDITION_STRING, this);
-	}
-	
-	public <U extends IValue> Result<U> composeFunction(AbstractFunction that) {
+	public <U extends IValue> Result<U> composeTuple(TupleResult that) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that) {
+	public <U extends IValue> Result<U> addFunctionNonDeterministic(AbstractFunction that, boolean isOpenRecursive) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+	
+	public <U extends IValue> Result<U> addFunctionNonDeterministic(OverloadedFunction that, boolean isOpenRecursive) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+	
+	public <U extends IValue> Result<U> addFunctionNonDeterministic(ComposedFunctionResult that, boolean isOpenRecursive) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+	
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that) {
+	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
+		return that.undefinedError(COMPOSE_STRING, this);
+	}
+	
+	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
+		return that.undefinedError(COMPOSE_STRING, this);
+	}
+
+	public <U extends IValue> Result<U> composeFunction(TupleResult that, Map<String, Result<IValue>> openFunctions, boolean isOpenRecursive) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
@@ -1067,10 +1087,13 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 			DateTimeResult that) {
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
+	
+	public boolean isOpenRecursive() {
+		return false;
+	}
 
-	
-	
-	
-
-	
+	public boolean isComposedFunctionResult() {
+		return false;
+	}
+		
 }
