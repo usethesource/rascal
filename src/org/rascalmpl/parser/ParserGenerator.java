@@ -16,6 +16,7 @@ package org.rascalmpl.parser;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -44,12 +46,13 @@ public class ParserGenerator {
 	private static final String packageName = "org.rascalmpl.java.parser.object";
 	private static final boolean debug = true;
 
-	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IValueFactory factory) {
-		this.bridge = new JavaBridge(loaders, factory);
+	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment scope = new ModuleEnvironment("___parsergenerator___", heap);
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, scope,heap);
 		this.evaluator.setBootstrapperProperty(true);
+		this.evaluator.getConfiguration().setRascalJavaClassPathProperty(config.getRascalJavaClassPathProperty());
+		this.bridge = new JavaBridge(loaders, factory, this.evaluator.getConfiguration());
 		this.vf = factory;
 		
 		monitor.startJob("Loading parser generator", 100, 139);
@@ -197,16 +200,39 @@ public class ParserGenerator {
    * @param monitor a progress monitor; this method will contribute 100 work units
    * @param loc     a location for error reporting
    * @param name    the name of the parser for use in code generation and for later reference
-   * @param imports a set of syntax definitions (which are imports in the Rascal grammar)
-   * @return
+   * @param definition a map of syntax definitions (which are imports in the Rascal grammar)
+   * @return A parser class, ready for instantiation
    */
   public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, URI loc, String name, IMap definition) {
-  	monitor.startJob("Generating parser:" + name, 100, 90);
+	  	monitor.startJob("Generating parser:" + name, 100, 130);
   	
   	try {
   		monitor.event("Importing and normalizing grammar:" + name, 30);
   		IConstructor grammar = getGrammar(monitor, name, definition);
   		debugOutput(grammar.toString(), System.getProperty("java.io.tmpdir") + "/grammar.trm");
+  		return getNewParser(monitor, loc, name, grammar);
+  	}  catch (ClassCastException e) {
+  		throw new ImplementationError("parser generator:" + e.getMessage(), e);
+  	} catch (Throw e) {
+  		throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
+  	} finally {
+  		monitor.endJob(true);
+  	}
+  	
+  }
+
+  /**
+   * Generate a parser from a Rascal grammar.
+   * 
+   * @param monitor a progress monitor; this method will contribute 100 work units
+   * @param loc     a location for error reporting
+   * @param name    the name of the parser for use in code generation and for later reference
+   * @param grammar a grammar
+   * @return A parser class, ready for instantiation
+   */
+  public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, URI loc, String name, IConstructor grammar) {
+  	monitor.startJob("Generating parser:" + name, 100, 60);
+  	try {
   		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
   		monitor.event("Generating java source code for parser: " + name,30);
   		IString classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
@@ -220,6 +246,17 @@ public class ParserGenerator {
   	} finally {
   		monitor.endJob(true);
   	}
+  }
+
+  /**
+   * Save a generated parser class to a jar file
+   * 
+   * @param parserClass The parser class
+   * @param outStream An output stream
+   * @throws IOException on IO error
+   */
+  public void saveToJar(Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass, OutputStream outStream) throws IOException {
+	  bridge.saveToJar(parserClass, outStream);
   }
 
   public String createHole(IConstructor part, int size) {

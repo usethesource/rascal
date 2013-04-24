@@ -26,8 +26,8 @@ public abstract class TypeArg extends org.rascalmpl.ast.TypeArg {
 		}
 
 		@Override
-		public Type typeOf(Environment __eval) {
-			return this.getType().typeOf(__eval);
+		public Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
+			return this.getType().typeOf(__eval, instantiateTypeParameters);
 		}
 
 	}
@@ -40,8 +40,8 @@ public abstract class TypeArg extends org.rascalmpl.ast.TypeArg {
 		}
 
 		@Override
-		public Type typeOf(Environment __eval) {
-			return this.getType().typeOf(__eval);
+		public Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
+			return this.getType().typeOf(__eval, instantiateTypeParameters);
 		}
 
 	}

@@ -26,7 +26,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Tag;
-import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -48,7 +47,7 @@ public class JavaMethod extends NamedFunction {
 	private final boolean hasReflectiveAccess;
 	
 	public JavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		super(func, eval, (FunctionType) func.getSignature().typeOf(env), Names.name(func.getSignature().getName()), varargs, null, env);
+		super(func, eval, (FunctionType) func.getSignature().typeOf(env, true), Names.name(func.getSignature().getName()), varargs, null, env);
 		
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
 		this.instance = javaBridge.getJavaClassInstance(func);
@@ -75,7 +74,7 @@ public class JavaMethod extends NamedFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		Type actualTypesTuple;
 		Type formals = getFormals();
 		Object[] oActuals;
@@ -140,7 +139,7 @@ public class JavaMethod extends NamedFunction {
 		return newActuals;
 	}
 	
-	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, Result<IValue>> keyArgValues){
+	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, IValue> keyArgValues){
 		if(keywordParameterDefaults == null){
 			if(keyArgValues != null){
 				throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
@@ -170,14 +169,14 @@ public class JavaMethod extends NamedFunction {
 			String kwparam = kw.getName();
 			if(keyArgValues.containsKey(kwparam)){
 				nBoundKeywordArgs++;
-				Result<IValue> r = keyArgValues.get(kwparam);
+				IValue r = keyArgValues.get(kwparam);
 				if(!r.getType().isSubtypeOf(keywordParameterTypes[i])){
 					throw new UnexpectedKeywordArgumentType(kwparam, keywordParameterTypes[i], r.getType(), ctx.getCurrentAST());
 				}
-				newActuals[posArity + i] = r.getValue();
+				newActuals[posArity + i] = r;
 			} else {
 				Result<IValue> r = kw.getDefault();
-				newActuals[posArity + i] = r.getValue();
+				newActuals[posArity + i] = r;
 			}
 		}
 		if(nBoundKeywordArgs != keyArgValues.size()){
@@ -194,7 +193,6 @@ public class JavaMethod extends NamedFunction {
 	
 
 	public IValue invoke(Object[] oActuals) {
-		Configuration.printErrors();
 		try {
 			return (IValue) method.invoke(instance, oActuals);
 		}
@@ -225,14 +223,14 @@ public class JavaMethod extends NamedFunction {
 			  throw (ImplementationError) targetException;
 			}
 
-			if(Configuration.printErrors()){
+			if(ctx.getConfiguration().printErrors()) {
 				targetException.printStackTrace();
 			}
 			
 			throw RuntimeExceptionFactory.javaException(e.getTargetException(), getAst(), eval.getStackTrace());
 		}
 		catch (Throwable e) {
-		  if(Configuration.printErrors()){
+		  if(ctx.getConfiguration().printErrors()){
         e.printStackTrace();
       }
 		  

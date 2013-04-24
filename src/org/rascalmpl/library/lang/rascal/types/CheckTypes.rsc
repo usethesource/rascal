@@ -174,7 +174,9 @@ data AbstractValue
     | \module(RName name, loc at)
     | overload(set[int] items, Symbol rtype)
     | datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
+    | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
     | constructor(RName name, Symbol rtype, int containedIn, loc at)
+    | production(RName name, Symbol rtype, int containedIn, loc at)
     | annotation(RName name, Symbol rtype, set[Symbol] onTypes, int containedIn, loc at)
     | \tag(RName name, TagKind tkind, set[Symbol] onTypes, int containedIn, loc at)
     | \alias(RName name, Symbol rtype, int containedIn, loc at)
@@ -198,10 +200,12 @@ data Configuration = config(set[Message] messages,
                             map[int,Vis] visibilities,
                             map[int,AbstractValue] store,
                             map[tuple[int,str],Symbol] adtFields,
+                            map[tuple[int,str],Symbol] nonterminalFields,
                             rel[int,Modifier] functionModifiers,
                             rel[int,loc] definitions,
                             rel[int,loc] uses,
                             rel[int,int] adtConstructors,
+                            rel[int,int] nonterminalConstructors,
                             list[int] stack,
                             list[LabelStackItem] labelStack,
                             list[Timing] timings,
@@ -209,7 +213,7 @@ data Configuration = config(set[Message] messages,
                             int uniqueify
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},{},{},{},[],[],[],0,0);
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),(),{},{},{},{},{},[],[],[],0,0);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -377,6 +381,29 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
     return c;
 }
 
+// TODO: JV copied this from addADT, but I do not fully understand what is going on here
+public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort) {
+    // TODO: We currently always treat datatype declarations as public, so we just
+    // ignore the visibility here. If we decide to allow private datatype declarations,
+    // revisit this.
+    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+    if (n notin c.typeEnv) {
+        // When we initially add the name, add it as:
+        // * the bare name
+        // * the name appended to the name of the module
+        // This ensures that all valid lookups will be successful.
+        c.typeEnv[n] = c.nextLoc;
+        c.typeEnv[appendName(moduleName,n)] = c.nextLoc;
+        c.store[c.nextLoc] = sorttype(n,sort,head([i | i <- c.stack, \module(_,_) := c.store[i]]),{ });
+        c.definitions = c.definitions + < c.nextLoc, l >;
+        c.nextLoc = c.nextLoc + 1;
+    } else {
+        c.definitions = c.definitions + < c.typeEnv[n], l >;
+    }
+    c.store[c.typeEnv[n]].ats = c.store[c.typeEnv[n]].ats + l; 
+    return c;
+}
+
 public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol rt) {
     // TODO: We currently always treat datatype declarations as public, so we just
     // ignore the visibility here. If we decide to allow private datatype declarations,
@@ -490,6 +517,29 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
     } else {
         throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
     }
+    return c;
+}
+
+public Configuration addProduction(Configuration c, RName n, loc l, Production prod) {
+    assert prod.def is label && prod.def.symbol has name;
+     
+    sortName = RSimpleName(prod.def.symbol.name);
+    if (sortName notin c.typeEnv) { 
+      throw "Unexpected error, syntax nonterminal <prettyPrintName(sortName)> not found!";
+    }
+    sortId = c.typeEnv[sortName];
+    
+    args = prod.symbols;
+    if ([*_, \label(fn,_), *_, label(fn,_), *_] := prod.symbols) {
+       c = addScopeError(c,"Field name <fn> cannot be repeated in the same production", l);
+    }
+    
+    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+    // TODO: think about production overload when we start to create ability to construct concrete trees from abstract names
+    c.store[c.nextLoc] = production(RSimpleName(prod.def.name), prod.def.symbol, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
+    c.definitions = c.definitions + < c.nextLoc, l >;
+    c.nonterminalConstructors = c.nonterminalConstructors + < sortId, c.nextLoc >;
+    c.nextLoc = c.nextLoc + 1;
     return c;
 }
 
@@ -871,16 +921,23 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
   set[Symbol] failures = { };
   
   for ((ConcreteHole) `\<<Sym s> <Name n>\>` <- concrete.parts) {
-    <c, p2> = checkExp((Expression) `<Name n>`, c);
-    // TODO: check if return type is indeed of type s
-    if (isFailType(t1)) failures += t1;  
+    <c, rt> = convertAndExpandSymbol(s, c);
+    if (isFailType(rt)) failures += t1;  
+    
+    n = RSimpleName("<n>")[@at = n@\loc];
+    
+    if (fcvExists(c, n)) {
+        c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
+        return markLocationType(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
+    } else {
+        return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(n)> is not in scope", exp@\loc));
+    }
   }
   
   if (size(failures) > 0)
     return markLocationFailed(c, exp@\loc, failures);
   
-  // TODO: lookup type names in the symbol, whether they are lex, layout, keyword or cf  
-  return <c, sym2symbol(concrete.symbol)>;  
+  return convertAndExpandSymbol(concrete.symbol, c);  
 }
 
 @doc{Check the types of Rascal expressions: CallOrTree}
@@ -1423,6 +1480,74 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
         return markLocationFailed(c,exp@\loc,makeFailType("Expressions of type <prettyPrintType(t1)> cannot be subscripted", exp@\loc));
     }
 }
+
+@doc{Check the types of Rascal expressions: Slice (DONE)}
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <OptionalExpression ofirst> .. <OptionalExpression olast> ]`, Configuration c) {
+    set[Symbol] failures = { };
+
+    < c, t1 > = checkExp(e, c);
+    
+    if ((OptionalExpression)`<Expression efirst>` := ofirst) {
+    	< c, t2 > = checkExp(efirst, c);
+    	if (isFailType(t2)) failures += t2;
+    	if (!isIntType(t2)) failures += makeFailType("The first slice index must be of type int", efirst@\loc);
+    }
+    
+    if ((OptionalExpression)`<Expression elast>` := olast) {
+    	< c, t3 > = checkExp(elast, c);
+    	if (isFailType(t3)) failures += t3;
+    	if (!isIntType(t3)) failures += makeFailType("The last slice index must be of type int", elast@\loc);
+    }
+    
+    res = makeFailType("Slices can only be used on lists, strings, and nodes", exp@\loc);
+    
+	if (isListType(t1) || isStrType(t1)) {
+		res = t1;	
+	} else if (isNodeType(t1)) {
+		res = \list(\value());
+	}
+	
+	if (isFailType(res))
+		return markLocationFailed(c, exp@\loc, failures + res);
+	else
+		return markLocationType(c, exp@\loc, res);
+}
+
+@doc{Check the types of Rascal expressions: Slice Step (DONE)}
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <OptionalExpression ofirst>, <Expression second> .. <OptionalExpression olast> ]`, Configuration c) {
+    set[Symbol] failures = { };
+
+    < c, t1 > = checkExp(e, c);
+	    
+    if ((OptionalExpression)`<Expression efirst>` := ofirst) {
+    	< c, t2 > = checkExp(efirst, c);
+    	if (isFailType(t2)) failures += t2;
+    	if (!isIntType(t2)) failures += makeFailType("The first slice index must be of type int", efirst@\loc);
+    }
+    
+	< c, t3 > = checkExp(second, c);
+	if (!isIntType(t3)) failures += makeFailType("The slice step must be of type int", second@\loc);
+	    
+    if ((OptionalExpression)`<Expression elast>` := olast) {
+    	< c, t4 > = checkExp(elast, c);
+    	if (isFailType(t4)) failures += t4;
+    	if (!isIntType(t4)) failures += makeFailType("The last slice index must be of type int", elast@\loc);
+    }
+
+    res = makeFailType("Slices can only be used on lists, strings, and nodes", exp@\loc);
+    
+	if (isListType(t1) || isStrType(t1)) {
+		res = t1;	
+	} else if (isNodeType(t1)) {
+		res = \list(\value());
+	}
+	
+	if (isFailType(res))
+		return markLocationFailed(c, exp@\loc, failures + res);
+	else
+		return markLocationType(c, exp@\loc, res);
+}
+
 
 @doc{Field names and types for built-ins}
 private map[Symbol,map[str,Symbol]] fieldMap =
@@ -2855,12 +2980,15 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
     < c, pti2 > = extractPatternTree(d,c);
     return < c, reifiedTypeNode(pti1,pti2)[@at = pat@\loc] >;
 }
+
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
-  // TODO: make sure that c is used to find out whether sym is cf, lex, layout or keyword
-  psList = [ typedNameNode(convertName(n), n@\loc, sym2symbol(sym))[@at = n@\loc] | (ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts];
+  psList = for ((ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts) {
+    <c, rt> = resolveSorts(sym2symbol(sym),sym@\loc,c);
+    append typedNameNode(convertName(n), n@\loc, rt)[@at = n@\loc];
+  }
   
-  // TODO: same for the outermost type find out whether it is lex, cf, layout or keyword
-  return <c, concreteSyntaxNode(sym2symbol(concrete.sym, psList))>;
+  <c, sym> = resolveSorts(sym2symbol(concrete.symbol),pat.symbol@\loc, c);
+  return <c, concreteSyntaxNode(sym)>;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> )`, Configuration c) { 
     < c, pti > = extractPatternTree(p,c);
@@ -4836,7 +4964,6 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
         < c, ot > = convertAndExpandType(onType,c);
         
         rn = convertName(n);
-        
         c = addAnnotation(c,rn,at,ot,getVis(vis),decl@\loc);
     }
     return c;   
@@ -5280,6 +5407,13 @@ public Configuration importADT(RName adtName, UserType adtType, loc at, Vis vis,
     return c;
 }
 
+public Configuration importNonterminal(RName sort, Symbol sym, loc at, Configuration c) {
+  c = addNonterminal(c, sort, at, sym); // TODO: something with descend?
+  //id = getOneFrom(invert(c.definitions)[at]); // TODO: ??
+  //c.store[id].rtype = sym;
+  return c;
+}
+
 @doc{Import a signature item: Constructor}
 public Configuration importConstructor(RName conName, UserType adtType, list[TypeArg] argTypes, loc adtAt, loc at, Vis vis, Configuration c) {
     // NOTE: We do not have a separate descend stage. Instead, we just add these after the types (aliases
@@ -5289,6 +5423,14 @@ public Configuration importConstructor(RName conName, UserType adtType, list[Typ
     list[Symbol] targs = [ ];
     for (varg <- argTypes) { < c, vargT > = convertAndExpandTypeArg(varg, c); targs = targs + vargT; } 
     return addConstructor(c, conName, at, Symbol::\cons(rt,targs));         
+}
+
+@doc{Import a signature item: Constructor}
+public Configuration importProduction(RSignatureItem item, Configuration c) {
+    if (label(str l, Symbol s) := item.prod.def) {
+      c = addProduction(c, RSimpleName(l), item.at, item.prod);
+    }
+    return c;
 }
 
 @doc{Import a signature item: Annotation}
@@ -5348,11 +5490,10 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
             } catch perror : {
                 c = addScopeError(c, "Cannot calculate signature for imported module", importItem@\loc);
             }
-        } else {
-            // This is where we would need to add support for syntax.
-            ;
-        }
+        } 
     }
+    
+    
     
     // Add all the aliases and ADTs from each module without descending. Do tags here to, although
     // (when they are really used) we need to add them in a reasonable order. Right now we just
@@ -5361,9 +5502,16 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     for (modName <- importOrder) {
         sig = sigMap[modName];
         c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
-        for (item <- sig.datatypes) c = importADT(item.adtName, item.adtType, item.at, publicVis(), false, c);
-        for (item <- sig.aliases) c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), false, c);
-        for (item <- sig.tags) c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), false, c);
+        
+        for (item <- sig.datatypes) 
+          c = importADT(item.adtName, item.adtType, item.at, publicVis(), false, c);
+        for (item <- sig.aliases) 
+          c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), false, c);
+        for (item <- sig.tags) 
+          c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), false, c);
+        for (item <- sig.lexicalNonterminals + sig.contextfreeNonterminals + sig.layoutNonterminals + sig.keywordNonterminals)
+          c = importNonterminal(item.sortName, item.sort, item.at, c);
+          
         c.stack = tail(c.stack);
     }
 
@@ -5386,7 +5534,10 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     for (modName <- importOrder) {
         sig = sigMap[modName];
         c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
-        for (item <- sig.publicConstructors) c = importConstructor(item.conName, item.adtType, item.argTypes, item.adtAt, item.at, publicVis(), c);
+        for (item <- sig.publicConstructors) 
+          c = importConstructor(item.conName, item.adtType, item.argTypes, item.adtAt, item.at, publicVis(), c);
+        for (item <- sig.publicProductions)
+          c = importProduction(item, c);
         c.stack = tail(c.stack);
     }
     
@@ -5411,6 +5562,14 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     c = pushTiming(c, "Imported module signatures", dt1, now());
             
     // Process the current module
+    syntaxConfig = processSyntax(moduleName, importList);
+    for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals)
+      c = importNonterminal(item.sortName, item.sort, item.at, c);    
+    for (prodItem <- syntaxConfig.publicProductions)
+      c = importProduction(prodItem, c);
+    
+    c = checkSyntax(importList, c);  
+  
     if ((Body)`<Toplevel* tls>` := body) {
         dt1 = now();
         list[Declaration] typesAndTags = [ ];
@@ -5457,6 +5616,17 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     return c;
 }
 
+public Configuration checkSyntax(list[Import] defs, Configuration c) {
+  for ((Import) `<SyntaxDefinition syn>` <- defs, /Nonterminal t := syn.production, t notin getParameters(syn.defined)) {
+    <c,rt> = resolveSorts(sort("<t>"), t@\loc, c);
+  }
+  
+  return c;
+}
+
+list[Nonterminal] getParameters((Sym) `<Nonterminal _>[<{Sym ","}+ params>]`) = [ t | (Sym) `&<Nonterminal t>` <- params];
+default list[Nonterminal] getParameters(Sym _) = []; 
+
 @doc{Get the module name from the header.}
 public RName getHeaderName((Header)`<Tags tags> module <QualifiedName qn> <ModuleParameters mps> <Import* imports>`) = convertName(qn);
 public RName getHeaderName((Header)`<Tags tags> module <QualifiedName qn> <Import* imports>`) = convertName(qn);
@@ -5464,6 +5634,11 @@ public RName getHeaderName((Header)`<Tags tags> module <QualifiedName qn> <Impor
 @doc{Get the list of imports from the header.}
 public list[Import] getHeaderImports((Header)`<Tags tags> module <QualifiedName qn> <ModuleParameters mps> <Import* imports>`) = [i | i<-imports];
 public list[Import] getHeaderImports((Header)`<Tags tags> module <QualifiedName qn> <Import* imports>`) = [i | i<-imports];
+
+public CheckResult convertAndExpandSymbol(Sym t, Configuration c) {
+    <c,rt> = resolveSorts(convertSymbol(t), t@\loc, c);
+    return expandType(rt, t@\loc, c);
+}
 
 public CheckResult convertAndExpandType(Type t, Configuration c) {
     rt = convertType(t);
@@ -5555,6 +5730,8 @@ public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c)
                     } else {
                         return < c, makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
                     }
+                } else if (ut is \lex || ut is \sort || ut is \keyword || ut is \layout) {
+                  return < c, ut >;
                 } else {
                     throw "User type should not refer to type <prettyPrintType(ut)>";
                 }
@@ -6207,6 +6384,8 @@ public Module check(Module m) {
             toAdd = { c.store[itm].at | itm <- items };
         } else if (datatype(_,_,_,ats) := c.store[i]) {
             toAdd = ats;
+        } else if (sorttype(_,_,_,ats) := c.store[i]) {
+           toAdd = ats;
         } else {
             toAdd = { c.store[i].at };
         }   
@@ -6230,100 +6409,19 @@ public default Module check(Tree t) {
 		throw "Cannot check arbitrary trees";
 }
 
-public CheckResult checkStatementsString(str statementsString, list[str] importedModules = [], list[str] initialDecls = []) {
-	map[RName,RSignature] sigMap = ( );
-	map[RName,int] moduleIds = ( );
-	map[RName,loc] moduleLocs = ( );
-	list[RName] importOrder = [ ];
-	imports = [ RSimpleName(mn) | mn <- importedModules ];
-    
-	c = newConfiguration();
-	moduleName = RSimpleName("CheckStatementsString");
-	c = addModule(c, moduleName, |file:///tmp/CheckStatementsString.rsc|);
-	currentModuleId = head(c.stack);
-            
-	// Get the information about each import, including the module signature
-	for (importItem <- imports) {
-		try {
-			dt1 = now();
-			modName = importItem;
-			modTree = getModuleParseTree(prettyPrintName(modName));
-			sigMap[modName] = getModuleSignature(modTree);
-			moduleLocs[modName] = modTree@\loc;
-			importOrder = importOrder + modName;
-			c = addModule(c,modName,modTree@\loc);
-			moduleIds[modName] = head(c.stack);
-			c = popModule(c);
-			c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
-		} catch perror : {
-			c = addScopeError(c, "Cannot calculate signature for imported module", |file:///tmp/CheckStatementsString.rsc|);
-		}
-	}
-    
-	// Add all the aliases and ADTs from each module without descending. Do tags here to, although
-	// (when they are really used) we need to add them in a reasonable order. Right now we just
-	// ignore them. So, TODO: Handle tags appropriately.
-	dt1 = now();
-	for (modName <- importOrder) {
-		sig = sigMap[modName];
-		c.stack = moduleIds[modName] + c.stack;
-		for (item <- sig.datatypes)
-			c = importADT(item.adtName, item.adtType, item.at, publicVis(), false, c);
-		for (item <- sig.aliases)
-			c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), false, c);
-		for (item <- sig.tags)
-			c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), false, c);
-		c.stack = tail(c.stack);
-	}
-
-	// Now, descend into each alias and ADT, ensuring all parameters are correctly added and the
-	// aliased type is handled correctly. As above, we do tags here as well.
-	for (modName <- importOrder) {
-		sig = sigMap[modName];
-		c.stack = currentModuleId + c.stack;
-		for (item <- sig.datatypes)
-			c = importADT(item.adtName, item.adtType, item.at, publicVis(), true, c);
-		for (item <- sig.aliases)
-			c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), true, c);
-		for (item <- sig.tags)
-			c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), true, c);
-		c.stack = tail(c.stack);
-	}
-
-	// Add constructors next, ensuring they are visible for the imported functions.
-	// NOTE: This is one area where we could have problems. Once the checker is working
-	// correctly, TODO: calculate the types in the signature, so we don't risk clashes
-	// over constructor names (or inadvertent visibility of constructor names) that would
-	// not have been an issue before, when we did not have parameters with patterns.
-	for (modName <- importOrder) {
-		sig = sigMap[modName];
-		c.stack = currentModuleId + c.stack;
-		for (item <- sig.publicConstructors)
-			c = importConstructor(item.conName, item.adtType, item.argTypes, item.adtAt, item.at, publicVis(), c);
-		c.stack = tail(c.stack);
-	}
-    
-	// Now, bring in all public names, including annotations, public vars, and public functions.
-	for (modName <- importOrder) {
-		sig = sigMap[modName];
-		c.stack = currentModuleId + c.stack;
-		for (item <- sig.publicVariables)
-			c = importVariable(item.variableName, item.variableType, item.at, publicVis(), c);
-		for (item <- sig.publicFunctions)
-			c = importFunction(item.functionName, item.sig, item.at, publicVis(), c);
-		for (item <- sig.annotations)
-			c = importAnnotation(item.annName, item.annType, item.onType, item.at, publicVis(), c);
-		c.stack = tail(c.stack);
-	}
-    
-	c = pushTiming(c, "Imported module signatures", dt1, now());
-
-	c.stack = currentModuleId + c.stack;
-	pt = parseStatement("{ <statementsString> }");
-	rt = \void();
-	if ((Statement)`{ <Statement+ sl> }` := pt) {
-		for (stmt <- sl) < c, rt > = checkStmt(stmt, c);
-	}
-	c.stack = tail(c.stack);
-	return < c, rt >;
+CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
+  sym = visit(sym) {
+   case sort(str name) : {
+     sname = RSimpleName(name);
+     if (sname notin c.typeEnv) {
+       c = addScopeMessage(c,error("Syntax type <name> is not not defined", l));
+     }
+     else {
+       c.uses = c.uses + < c.typeEnv[sname], l >;
+       insert c.store[c.typeEnv[sname]].rtype;
+     } // TODO finish
+   }
+  }
+  
+  return <c, sym>;
 }

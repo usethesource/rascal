@@ -50,6 +50,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private int start;							// start of last match in current subject
 	private int end;							// end of last match in current subject
 	
+	private boolean iWroteItMySelf;
 	
 	
 //	private static HashMap<String,Matcher> matcherCache = 
@@ -61,6 +62,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		this.regexp = regexp;
 		this.patternVars = patternVars;
 		initialized = false;
+		this.iWroteItMySelf = false;
 	}
 	
 	private String interpolate(IEvaluatorContext env) {
@@ -154,10 +156,12 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 			
 			// Initialize all pattern variables to ""
 			for(String name : patternVars){
-				if(!ctx.getCurrentEnvt().declareVariable(tf.stringType(), name))
+				if(!this.iWroteItMySelf 
+						&& !ctx.getCurrentEnvt().declareVariable(tf.stringType(), name))
 					throw new RedeclaredVariable(name, ctx.getCurrentAST());
 				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), empty, ctx));
 			}
+			this.iWroteItMySelf = true;
 		}
 		
 		try {
@@ -185,5 +189,9 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	@Override
 	public AbstractAST getAST() {
 		return ctx.getCurrentAST();
+	}
+	
+	public boolean bindingInstance() {
+		return this.iWroteItMySelf;
 	}
 }

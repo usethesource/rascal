@@ -386,5 +386,45 @@ public class MathTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("toString(3.14) == \"3.14\";"));
 
 	}
+	
+	@Test
+	public void ceilInt() {
+		prepare("import util::Math;");
+		assertTrue(runTestInSameEvaluator("ceil(-3) == -3;"));
+		assertTrue(runTestInSameEvaluator("ceil(0) == 0;"));
+		assertTrue(runTestInSameEvaluator("ceil(3) == 3;"));
+	}
 
+	@Test
+	public void ceilReal() {
+		prepare("import util::Math;");
+		assertTrue(runTestInSameEvaluator("ceil(-3.3) == -3;"));
+		assertTrue(runTestInSameEvaluator("ceil(-3.0) == -3;"));
+		assertTrue(runTestInSameEvaluator("ceil(-0.001) == 0;"));
+		assertTrue(runTestInSameEvaluator("ceil(0.0) == 0;"));
+		assertTrue(runTestInSameEvaluator("ceil(0.001) == 1;"));
+		assertTrue(runTestInSameEvaluator("ceil(3.0) == 3.0;"));
+		assertTrue(runTestInSameEvaluator("ceil(3.3) == 4;"));
+	}
+	
+	
+	@Test
+	public void floorInt() {
+		prepare("import util::Math;");
+		assertTrue(runTestInSameEvaluator("floor(-3) == -3;"));
+		assertTrue(runTestInSameEvaluator("floor(0) == 0;"));
+		assertTrue(runTestInSameEvaluator("floor(3) == 3;"));
+	}
+
+	@Test
+	public void floorReal() {
+		prepare("import util::Math;");
+		assertTrue(runTestInSameEvaluator("floor(-3.3) == -4;"));
+		assertTrue(runTestInSameEvaluator("floor(-3.0) == -3;"));
+		assertTrue(runTestInSameEvaluator("floor(-0.001) == -1;"));
+		assertTrue(runTestInSameEvaluator("floor(0.0) == 0;"));
+		assertTrue(runTestInSameEvaluator("floor(0.001) == 0;"));
+		assertTrue(runTestInSameEvaluator("floor(3.0) == 3.0;"));
+		assertTrue(runTestInSameEvaluator("floor(3.3) == 3;"));
+	}
 }

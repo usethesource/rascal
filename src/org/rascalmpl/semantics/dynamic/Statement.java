@@ -500,7 +500,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					} else {
 						__eval.unwind(olds[i]);
 						i--;
-						__eval.pushEnv();
 					}
 				}
 				// TODO: this is not enough, we must also detect

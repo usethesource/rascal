@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -118,6 +119,8 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 
 	public IValue call(IRascalMonitor monitor, String name, IValue... args);
 
+	public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue[] args);
+	 
 	public IConstructor parseCommands(IRascalMonitor monitor, String commands,
 			URI location);
 
@@ -164,4 +167,6 @@ public interface IEvaluator<T> extends IEvaluatorContext {
   public ParserGenerator getParserGenerator();
 
   public List<IRascalSuspendTriggerListener> getSuspendTriggerListeners();
+
+ 
 }

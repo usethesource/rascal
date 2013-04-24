@@ -440,7 +440,10 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			var = mod.getLocalPublicVariable(name);
+			
+			if (mod != null) { 
+			  var = mod.getLocalPublicVariable(name);
+			}
 			
 			if (var != null) {
 				return var;
@@ -466,7 +469,7 @@ public class ModuleEnvironment extends Environment {
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
 			Result<IValue> r = null;
-			if (mod.variableEnvironment != null) 
+			if (mod != null && mod.variableEnvironment != null) 
 				r = mod.variableEnvironment.get(name);
 			
 			if (r != null && r.isPublic()) {
@@ -483,7 +486,10 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			mod.getLocalPublicFunctions(name, collection);
+			
+			if (mod != null) {
+			  mod.getLocalPublicFunctions(name, collection);
+			}
 		}
 	}
 	
@@ -493,7 +499,10 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			mod.getLocalPublicFunctions(returnType, name, collection);
+			
+			if (mod != null) {
+			  mod.getLocalPublicFunctions(returnType, name, collection);
+			}
 		}
 	}
 	
@@ -717,6 +726,9 @@ public class ModuleEnvironment extends Environment {
 			for (String i : getImports()) {
 				ModuleEnvironment mod = getImport(i);
 				
+				if (mod == null) {
+				  continue;
+				}
 				// don't recurse here (cyclic imports!)
 				type = mod.concreteSyntaxTypes.get(name);
 				

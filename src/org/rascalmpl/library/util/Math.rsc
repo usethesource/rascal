@@ -148,7 +148,15 @@ ceil(-3.2);
 </screen>
 
 }
-public int ceil(num x) = floor(x + 1);
+public int ceil(num x) { 
+	int i = toInt(x);
+	if (i == x || x < 0) {
+		return i;
+	}
+	else {
+		return i + 1;	
+	}
+}
 
 @doc{
 Synopsis: Calculate the cosine of a numeric value.
@@ -208,7 +216,15 @@ floor(-3.2);
 </screen>
 }
 @javaClass{org.rascalmpl.library.util.Math}
-public java int floor(num x);
+public int floor(num x) {
+	i = toInt(x);
+	if (i == x || x >= 0) {
+		return i;
+	}
+	else {
+		return i - 1;	
+	} 
+}
 
 @doc{
 Synopsis: Calculate the natural log of a numeric value.
@@ -385,6 +401,8 @@ Synopsis: Return the precision of a real number.
 @javaClass{org.rascalmpl.library.util.Math}
 public java int precision(num x);
 
+
+
 @doc{
 Synopsis: Return a real number with given precision
 }
@@ -402,6 +420,12 @@ Synopsis: Return the scale of a real number.
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java int scale(num x);
+
+@doc{
+Synopsis: Return the unscaled integer of a real.
+}
+@javaClass{org.rascalmpl.library.util.Math}
+public java int unscaled(real x);
 
 @doc{
 Synopsis: Return the remainder of dividing the numerator by the denominator.
@@ -538,6 +562,8 @@ toString(3.14)
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java str toString(num N);
+
+
 
 
 

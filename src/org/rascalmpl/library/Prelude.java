@@ -1031,10 +1031,14 @@ public class Prelude {
 	} 
 	
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  
 		try {
 			Charset c = ctx.getResolverRegistry().getCharset(sloc.getURI());
-			if (c != null)
+			if (c != null) {
 				return readFileEnc(sloc, values.string(c.name()), ctx);
+			}
+			sloc = ctx.getHeap().resolveSourceLocation(sloc);
 			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI()), ctx);
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
@@ -1045,6 +1049,8 @@ public class Prelude {
 	}
 	
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  
 		try {
 			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI(), charset.getValue()), ctx);
 		} catch(FileNotFoundException e){
@@ -1128,6 +1134,8 @@ public class Prelude {
 	}
 	
 	private void writeFile(ISourceLocation sloc, IList V, boolean append, IEvaluatorContext ctx){
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  
 		IString charset = values.string("UTF8");
 		if (append) {
 			// in case the file already has a encoding, we have to correctly append that.
@@ -1167,6 +1175,8 @@ public class Prelude {
 	}
 	
 	private void writeFileEnc(ISourceLocation sloc, IString charset, IList V, boolean append, IEvaluatorContext ctx){
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  
 		OutputStreamWriter out = null;
 		
 		if (!Charset.forName(charset.getValue()).canEncode()) {
@@ -1210,10 +1220,13 @@ public class Prelude {
 	}
 	
 	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  
 		try {
 			Charset detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
-			if (detected != null)
+			if (detected != null) {
 				return readFileLinesEnc(sloc, values.string(detected.name()), ctx);
+			}
 			return consumeInputStreamLines(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI()), ctx);
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
@@ -1225,6 +1238,8 @@ public class Prelude {
 	}
 	
 	public IList readFileLinesEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  
 		try {
 			return consumeInputStreamLines(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI(),charset.getValue()), ctx);
 		}catch(MalformedURLException e){
@@ -1295,6 +1310,7 @@ public class Prelude {
 	
 	public IList readFileBytes(ISourceLocation sloc, IEvaluatorContext ctx){
 		IListWriter w = types.listType(types.integerType()).writer(values);
+		sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		
 		BufferedInputStream in = null;
 		try{
@@ -2097,8 +2113,8 @@ public class Prelude {
 		return values.string(TreeAdapter.yield(tree));
 	}
 	
-	private IConstructor makeConstructor(String name, IEvaluatorContext ctx,  IValue ...args) {
-		IValue value = ctx.getEvaluator().call(name, args);
+	private IConstructor makeConstructor(Type returnType, String name, IEvaluatorContext ctx,  IValue ...args) {
+		IValue value = ctx.getEvaluator().call(returnType.getName(), name, args);
 		Type type = value.getType();
 		if (type.isAbstractDataType()) {
 			return (IConstructor)value;
@@ -2244,7 +2260,7 @@ public class Prelude {
 						@SuppressWarnings("unused")
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
-						IConstructor ast = makeConstructor(constructorName, ctx, values.string(yield));
+						IConstructor ast = makeConstructor(type, constructorName, ctx, values.string(yield));
 						return ast.setAnnotation("location", loc);
 					}
 					catch (Backtrack b) {
@@ -2428,7 +2444,7 @@ public class Prelude {
 					Type cons = iter.next();
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args, ctx);
-					IConstructor ast = makeConstructor(constructorName, ctx, implodedArgs);
+					IConstructor ast = makeConstructor(type, constructorName, ctx, implodedArgs);
 					return ast.setAnnotation("location", loc).setAnnotation("comments", comments);
 				}
 				catch (Backtrack b) {
@@ -3150,26 +3166,6 @@ public class Prelude {
 		return values.integer(-1);
 	}
 	
-
-		
-	/*
-	 * ToString
-	 */
-	
-	public IString toString(IValue value)
-	{
-		if (value.getType() == Factory.Tree) {
-			return values.string(TreeAdapter.yield((IConstructor) value));
-		}
-		else if (value.getType().isSubtypeOf(Factory.Type)) {
-			return values.string(SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol")));
-		}
-		if (value.getType().isStringType()) {
-			return (IString) value;
-		}
-		return values.string(value.toString());
-	}
-	
 	/*
 	 *  !!EXPERIMENTAL!!
 	 * Tuple
@@ -3199,6 +3195,7 @@ public class Prelude {
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc, IEvaluatorContext ctx){
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
+		loc = ctx.getHeap().resolveSourceLocation(loc);
 		
 		InputStream in = null;
 		try{
@@ -3221,6 +3218,8 @@ public class Prelude {
 	}
 	
 	public IValue readTextValueFile(IValue type, ISourceLocation loc, IEvaluatorContext ctx){
+	  loc = ctx.getHeap().resolveSourceLocation(loc);
+	  
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
@@ -3256,6 +3255,8 @@ public class Prelude {
 	}
 	
 	public void writeBinaryValueFile(ISourceLocation loc, IValue value, IEvaluatorContext ctx){
+	  loc = ctx.getHeap().resolveSourceLocation(loc);
+	  
 		OutputStream out = null;
 		try{
 			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false); 
@@ -3274,6 +3275,8 @@ public class Prelude {
 	}
 	
 	public void writeTextValueFile(ISourceLocation loc, IValue value, IEvaluatorContext ctx){
+	  loc = ctx.getHeap().resolveSourceLocation(loc);
+	  
 		OutputStream out = null;
 		try{
 			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
