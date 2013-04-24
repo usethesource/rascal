@@ -62,11 +62,6 @@ public class ConstructorResult extends NodeResult {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, Result<IValue> self, Map<String, Result<IValue>> openFunctions) {
-		throw new UnsupportedOperation("Can not call a constructed " + getType() + " node as a function", ctx.getCurrentAST());
-	}
-	
-	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		try {
 			if (!getType().hasField(name, store)) {
