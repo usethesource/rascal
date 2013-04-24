@@ -33,10 +33,10 @@ public abstract class StructuredType extends org.rascalmpl.ast.StructuredType {
 		}
 
 		@Override
-		public Type typeOf(Environment __eval) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			return this.getBasicType().__evaluate(
-					new BasicTypeEvaluator(__eval, TypeUtils.typeOf(this
-							.getArguments(), __eval), null));
+					new BasicTypeEvaluator(env, TypeUtils.typeOf(this
+							.getArguments(), env, instantiateTypeParameters), null));
 		}
 
 	}
