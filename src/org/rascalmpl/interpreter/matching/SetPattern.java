@@ -271,9 +271,7 @@ public class SetPattern extends AbstractMatchingResult {
 				 */
 				MultiVariablePattern multiVar = (MultiVariablePattern) child;
 				String name = multiVar.getName();
-				if(!multiVar.isAnonymous() && allVars.containsKey(name)){
-					throw new RedeclaredVariable(name, getAST());
-				}
+
 				varName[nVar] = name;
 				varPat[nVar] = child;
 				isSetVar[nVar] = true;
