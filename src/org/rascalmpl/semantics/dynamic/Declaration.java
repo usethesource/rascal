@@ -64,11 +64,11 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			Type annoType = getAnnoType().typeOf(__eval.getCurrentEnvt());
+			Type annoType = getAnnoType().typeOf(__eval.getCurrentEnvt(), true);
 			String name = org.rascalmpl.interpreter.utils.Names.name(this
 					.getName());
 
-			Type onType = getOnType().typeOf(__eval.getCurrentEnvt());
+			Type onType = getOnType().typeOf(__eval.getCurrentEnvt(), true);
 			
 			if (onType.isAbstractDataType() || onType.isConstructorType() || onType.isNodeType()) {
 				__eval.getCurrentModuleEnvironment().declareAnnotation(onType,
@@ -150,7 +150,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			__eval.setCurrentAST(this);
 
 			for (org.rascalmpl.ast.Variable var : this.getVariables()) {
-				Type declaredType = getType().typeOf(__eval.getCurrentEnvt());
+				Type declaredType = getType().typeOf(__eval.getCurrentEnvt(), true);
 
 				if (var.isInitialized()) {
 					Result<IValue> v = var.getInitial().interpret(__eval);

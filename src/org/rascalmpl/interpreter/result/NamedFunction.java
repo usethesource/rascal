@@ -93,7 +93,7 @@ abstract public class NamedFunction extends AbstractFunction {
 			for(int i = 0; i < kwformals.size(); i++){
 				KeywordFormal kwf = kwformals.get(i);
 				Result<IValue> r = kwf.getExpression().interpret(eval);
-				Type kwType = kwf.getType().typeOf(eval.getCurrentEnvt());
+				Type kwType = kwf.getType().typeOf(eval.getCurrentEnvt(), true);
         if(!r.getType().isSubtypeOf(kwType)) {
 					throw new UnexpectedKeywordArgumentType(Names.name(kwf.getName()), kwType, r.getType(), ast);
 				}
@@ -115,7 +115,7 @@ abstract public class NamedFunction extends AbstractFunction {
     if(kwformals != null && kwformals.size() > 0){
       for(int i = 0; i < kwformals.size(); i++){
         KeywordFormal kwf = kwformals.get(i);
-        kwTypes[i] = kwf.getType().typeOf(eval.getCurrentEnvt());
+        kwTypes[i] = kwf.getType().typeOf(eval.getCurrentEnvt(), true);
       }
     }
     return kwTypes;

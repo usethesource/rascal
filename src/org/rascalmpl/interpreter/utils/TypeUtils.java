@@ -19,20 +19,11 @@ import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.PartiallyLabeledFields;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredField;
-import org.rascalmpl.semantics.dynamic.Statement.Expression;
 
 public final class TypeUtils {
 	private static TypeFactory TF = TypeFactory.getInstance();
 	
-	public static Type typeOf(Expression pattern, Environment env) {
-		return pattern.typeOf(env);
-	}
-	
-	public static Type typeOf(org.rascalmpl.ast.Type t, Environment env) {
-		return t.typeOf(env);
-	}
-	
-	public static Type typeOf(List<TypeArg> args, Environment env) {
+	public static Type typeOf(List<TypeArg> args, Environment env, boolean instantiateTypeParameters) {
 		Type[] fieldTypes = new Type[args.size()];
 		String[] fieldLabels = new String[args.size()];
 
@@ -41,7 +32,7 @@ public final class TypeUtils {
 		boolean someLabeled = false;
 
 		for (TypeArg arg : args) {
-			fieldTypes[i] = arg.getType().typeOf(env);
+			fieldTypes[i] = arg.getType().typeOf(env, instantiateTypeParameters);
 
 			if (arg.isNamed()) {
 				fieldLabels[i] = Names.name(arg.getName());
