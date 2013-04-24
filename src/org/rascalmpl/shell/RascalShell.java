@@ -207,7 +207,7 @@ public class RascalShell {
 	public static void main(String[] args) throws IOException {
 		if (new RascalManifest().hasManifest(RascalShell.class)
 				&& new RascalManifest().hasMainModule(RascalShell.class)) {
-			runManifest(args); 
+			runManifest(args);
 		} else if (args.length == 0) {
 			// interactive mode
 			try {
