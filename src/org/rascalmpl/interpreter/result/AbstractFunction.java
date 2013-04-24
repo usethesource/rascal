@@ -496,4 +496,20 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return false;
 	}
 	
+	public boolean isAna() {
+		return false;
+	}
+	
+	public boolean isCata() {
+		return false;
+	}
+	
+	public FunctionType getTraverseFunctionType() {
+		return this.getFunctionType();
+	}
+	
+	public Type getIsomorphicAdt() {
+		return null;
+	}
+
 }

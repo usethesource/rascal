@@ -46,6 +46,16 @@ public class IsomorphicTypes {
 		return builtInBasicTypes.contains(type);
 	}
 	
+	public static boolean isAdt(Type type) {
+		return type.isAbstractDataType() || type.isNodeType() || type.isListType() || type.isSetType() || type.isTupleType();
+	}
+	
+	public static boolean isFunctor(Type adt) {
+		return isomorphicTypes.containsKey(adt) 
+				|| (adt.isListType() && adt.getElementType().isTupleType() && adt.getElementType().getArity() == 2)
+				|| (adt.isSetType() && adt.getElementType().isTupleType() && adt.getElementType().getArity() == 2);
+ 	}
+	
 	public static boolean isIsomorphic(Type adt, Type functor) {
 		return (isomorphicTypes.containsKey(functor) && isomorphicTypes.get(functor).equals(adt))
 				|| (isBuiltInIsomorphic(adt, functor));

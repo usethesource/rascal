@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -76,6 +77,7 @@ import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.matching.VariableBecomesPattern;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.BoolResult;
+import org.rascalmpl.interpreter.result.FAlgebraFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.RascalFunction;
@@ -2862,61 +2864,57 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);		
-						
+					
+			// Expressions as arguments to fvisit[...]
 			java.util.List<org.rascalmpl.ast.Expression> expressions = this.getExpressions();
 			
-			assert(expressions.size() >= 1 && expressions.size() <= 2);
+			java.util.List<Type> types = new LinkedList<Type>(); // type arguments, the order does matter
+			java.util.Set<Type> allTypes = new HashSet<Type>();  // all the child types
 			
-			java.util.List<Type> types = new LinkedList<Type>(); // type arguments to the visit, the order does matter
-			java.util.Set<Type> allTypes = new HashSet<Type>(); // types of all the children to be visited 
-			java.util.Map<Type, Result<IValue>> algebra = new HashMap<Type, Result<IValue>>(); // algebra functions of the visit
+			// F-algebra functions passed or generated from attribute functions
+			java.util.Map<Type, AbstractFunction> phis = new HashMap<Type, AbstractFunction>();
 			
-			if(expressions.get(0).isTuple()) // the tuple of type expressions
-				for(org.rascalmpl.ast.Expression expr : expressions.get(0).getElements()) {
+			for(org.rascalmpl.ast.Expression expr : expressions) {
+				if(expr.isReifyType()) {
+					// collect all the type arguments
 					Type type = expr.getType().typeOf(__eval.getCurrentEnvt());
 					types.add(type);
 					org.rascalmpl.interpreter.env.IsomorphicTypes.collectAllTypes(type, allTypes, __eval);
 				}
-			
-			boolean isCatamorphism = false;
-			boolean isAnamorphism = false;
-			boolean isTP = true;
-			
-			if(expressions.size() == 2) {
-				// Potentially, non type preserving
-				isTP = false;
-				isCatamorphism = true;
-				isAnamorphism = true;
-				if(expressions.get(1).isTuple()) // the tuple of algebra functions
-					for(org.rascalmpl.ast.Expression expr : expressions.get(1).getElements()) {
-						Result<IValue> f = expr.interpret(__eval);
-						Type type = null;
-						Type returnType = null;
-						Type argumentType = null;
-						// type[T] -> T
-						if(f instanceof OverloadedFunction) {
-							AbstractFunction alg = ((OverloadedFunction) f).getFunctions().get(0);
-							type = alg.getKeywordParameterDefaults().get(0).getType().getTypeParameters().getFieldType(0);
-							returnType = alg.getReturnType();
-							argumentType = ((FunctionType) alg.getType()).getArgumentTypes().getFieldType(0);
-						} else { 
-							AbstractFunction alg = (AbstractFunction) f;
-							type = alg.getKeywordParameterDefaults().get(0).getType().getTypeParameters().getFieldType(0);
-							returnType = alg.getReturnType();
-							argumentType = ((FunctionType) alg.getType()).getArgumentTypes().getFieldType(0);
+				else if(expr.isTuple() && expr.getElements().size() == 2) {
+					// must be attribute functions in tuples
+					Result<IValue> f = expr.getElements().get(0).interpret(__eval);
+					Result<IValue> g = expr.getElements().get(1).interpret(__eval);
+					
+					if(f instanceof OverloadedFunction 
+							&& g instanceof OverloadedFunction) {
+						java.util.Map<Type, Entry<FunctionType, Result<IValue>>> fs = new HashMap<Type, Entry<FunctionType, Result<IValue>>>();
+						java.util.Map<Type, Entry<FunctionType, Result<IValue>>> gs = new HashMap<Type, Entry<FunctionType, Result<IValue>>>();
+						
+						for(Entry<FunctionType, Result<IValue>> entry : FAlgebraFunction.computeOverloadedFunctions(((OverloadedFunction) f).getFunctions()).entrySet())
+							fs.put(entry.getKey().getArgumentTypes(), entry);
+						for(Entry<FunctionType, Result<IValue>> entry : FAlgebraFunction.computeOverloadedFunctions(((OverloadedFunction) g).getFunctions()).entrySet())
+							gs.put(entry.getKey().getArgumentTypes(), entry);
+						
+						for(Entry<Type, Entry<FunctionType, Result<IValue>>> fentry : fs.entrySet()) {
+							Entry<FunctionType, Result<IValue>> gentry = gs.get(fentry.getKey()); 
+							FAlgebraFunction alg = new FAlgebraFunction(fentry.getValue().getKey(), fentry.getValue().getValue(), gentry.getKey(), gentry.getValue(), __eval);
+							phis.put(alg.getIsomorphicAdt(), alg);
 						}
-						algebra.put(type, f);
-						if(type.isAbstractDataType() && argumentType.isAbstractDataType())
-							isCatamorphism = isCatamorphism && org.rascalmpl.interpreter.env.IsomorphicTypes.isIsomorphic(__eval.getCurrentEnvt().lookupAbstractDataType(type.getName()), 
-									__eval.getCurrentEnvt().lookupAbstractDataType(argumentType.getName()));
-						if(type.isAbstractDataType() && returnType.isAbstractDataType())
-							isAnamorphism = isAnamorphism && org.rascalmpl.interpreter.env.IsomorphicTypes.isIsomorphic(__eval.getCurrentEnvt().lookupAbstractDataType(type.getName()), 
-									__eval.getCurrentEnvt().lookupAbstractDataType(returnType.getName()));
 					}
-			} 
+				} else {
+					Result<IValue> phi = expr.interpret(__eval);
+					if(phi instanceof OverloadedFunction) {
+						for(Entry<FunctionType, Result<IValue>> entry : FAlgebraFunction.computeOverloadedFunctions(((OverloadedFunction) phi).getFunctions()).entrySet()) {
+							FAlgebraFunction alg = new FAlgebraFunction(entry.getKey(), entry.getValue(), __eval);
+							phis.put(alg.getIsomorphicAdt(), alg);
+						}
+					}
+				}
+			}
 			
 			java.util.Map<Type, AbstractFunction> functions = new HashMap<Type, AbstractFunction>();	
-			TraverseFunction.generateTraverseFunctions(allTypes, algebra, isCatamorphism, functions, __eval);
+			TraverseFunction.generateTraverseFunctions(allTypes, phis, functions, __eval);
 			
 			java.util.List<AbstractFunction> results = new LinkedList<AbstractFunction>();
 			java.util.List<Type> resultTypes = new LinkedList<Type>();
