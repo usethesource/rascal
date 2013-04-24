@@ -31,7 +31,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 		}
 
 		@Override
-		public Type typeOf(Environment __eval) {
+		public Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 			Environment theEnv = __eval.getHeap().getEnvironmentForName(
 					getName(), __eval);
 			String name = org.rascalmpl.interpreter.utils.Names.typeName(this
@@ -72,7 +72,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 		}
 
 		@Override
-		public Type typeOf(Environment __eval) {
+		public Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 			String name;
 			Type type = null;
 			Environment theEnv = __eval.getHeap().getEnvironmentForName(
@@ -95,7 +95,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 
 				int i = 0;
 				for (org.rascalmpl.ast.Type param : this.getParameters()) {
-					params[i++] = param.typeOf(__eval);
+					params[i++] = param.typeOf(__eval, instantiateTypeParameters);
 				}
 
 				// __eval has side-effects that we might need?

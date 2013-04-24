@@ -242,7 +242,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			return TypeFactory.getInstance().voidType();
 		}
 	}
@@ -506,8 +506,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
-			Type lambda = getExpression().typeOf(env);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+			Type lambda = getExpression().typeOf(env, instantiateTypeParameters);
 
 			if (lambda.isStringType()) {
 				return TF.nodeType();
@@ -552,8 +552,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
-			Type formals = getParameters().typeOf(__eval.getCurrentEnvt());
-			Type returnType = typeOf(__eval.getCurrentEnvt());
+			Type formals = getParameters().typeOf(__eval.getCurrentEnvt(), true);
+			Type returnType = typeOf(__eval.getCurrentEnvt(), true);
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
 					.getInstance();
 			return new RascalFunction(this, __eval, null,
@@ -565,8 +565,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
-			return getType().typeOf(env);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+			return getType().typeOf(env, instantiateTypeParameters);
 		}
 
 	}
@@ -667,7 +667,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			return TypeFactory.getInstance().valueType();
 		}
 
@@ -993,7 +993,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			Type type = getType().typeOf(eval.getCurrentEnvt());
+			Type type = getType().typeOf(eval.getCurrentEnvt(), true);
 			IMatchingResult absPat = this.getArgument().buildMatcher(eval);
 			return new GuardedPattern(eval, this, type, absPat);
 		}
@@ -1005,7 +1005,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.notifyAboutSuspension(this);			
 
 			Result<IValue> result = this.getArgument().interpret(__eval);
-			Type expected = getType().typeOf(__eval.getCurrentEnvt());
+			Type expected = getType().typeOf(__eval.getCurrentEnvt(), true);
 
 			if (!(expected instanceof NonTerminalType)) {
 				throw new UnsupportedOperation("inline parsing", expected, this);
@@ -1035,8 +1035,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
-			return getType().typeOf(env);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+			return getType().typeOf(env, instantiateTypeParameters);
 		}
 
 	}
@@ -1458,11 +1458,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			Type elementType = TF.voidType();
 
 			for (org.rascalmpl.ast.Expression elt : getElements()) {
-				elementType = elementType.lub(elt.typeOf(env));
+				elementType = elementType.lub(elt.typeOf(env, instantiateTypeParameters));
 			}
 
 			return TF.listType(elementType);
@@ -1500,8 +1500,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
-			return getLiteral().typeOf(env);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+			return getLiteral().typeOf(env, instantiateTypeParameters);
 		}
 
 	}
@@ -1570,8 +1570,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
-			return TF.mapType(getKey().typeOf(env), getValue().typeOf(env));
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+			return TF.mapType(getKey().typeOf(env, instantiateTypeParameters), getValue().typeOf(env, instantiateTypeParameters));
 		}
 
 	}
@@ -1696,10 +1696,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			// we return the element type here, such that lub at a higher level
 			// does the right thing!
-			return getQualifiedName().typeOf(env);
+			return getQualifiedName().typeOf(env, instantiateTypeParameters);
 		}
 
 	}
@@ -1716,7 +1716,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			org.rascalmpl.ast.Expression arg = this.getArgument();
 			if (arg.hasType() && arg.hasName()) {
 				Environment env = eval.getCurrentEnvt();
-				Type type = arg.getType().typeOf(env);
+				Type type = arg.getType().typeOf(env, true);
 				type = type.instantiate(env.getTypeBindings());
 				
 				// TODO: Question, should we allow non terminal types in splices?
@@ -1754,15 +1754,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			// we return the element type here, such that lub at a higher level
 			// does the right thing!
 			org.rascalmpl.ast.Expression arg = this.getArgument();
 			if (arg.hasType() && arg.hasName()) {
-				return arg.getType().typeOf(env);
+				return arg.getType().typeOf(env, instantiateTypeParameters);
 			}
 			if(arg.hasQualifiedName()){
-				return arg.getQualifiedName().typeOf(env);
+				return arg.getQualifiedName().typeOf(env, instantiateTypeParameters);
 			}
 			throw new ImplementationError(null);
 		}
@@ -1790,7 +1790,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			return TF.boolType();
 		}
 
@@ -2055,8 +2055,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
-			return getQualifiedName().typeOf(env);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+			return getQualifiedName().typeOf(env, instantiateTypeParameters);
 		}
 
 	}
@@ -2200,7 +2200,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			// TODO: check if this would do it?
 			return RascalTypeFactory.getInstance().reifiedType(TF.valueType());
 		}
@@ -2215,13 +2215,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
-			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+			eval.setCurrentAST(this);
+			eval.notifyAboutSuspension(this);			
 
-			Type t = getType().typeOf(null /* to not instantiate type parameters */);
-			return new TypeReifier(__eval.__getVf()).typeToValue(t, __eval);
+			Type t = getType().typeOf(eval.getCurrentEnvt(), false);
+			return new TypeReifier(eval.__getVf()).typeToValue(t, eval);
 		}
 	}
 
@@ -2298,11 +2297,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			Type elementType = TF.voidType();
 
 			for (org.rascalmpl.ast.Expression elt : getElements()) {
-				Type eltType = elt.typeOf(env);
+				Type eltType = elt.typeOf(env, instantiateTypeParameters);
 				
 				// TODO: here we need to properly deal with splicing operators!!!
 				if (eltType.isSetType()) {
@@ -2624,12 +2623,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			java.util.List<org.rascalmpl.ast.Expression> fields = getElements();
 			Type fieldTypes[] = new Type[fields.size()];
 
 			for (int i = 0; i < fields.size(); i++) {
-				fieldTypes[i] = fields.get(i).typeOf(env);
+				fieldTypes[i] = fields.get(i).typeOf(env, instantiateTypeParameters);
 			}
 
 			return TF.tupleType(fieldTypes);
@@ -2651,7 +2650,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 			Environment env = eval.getCurrentEnvt();
-			Type type = getType().typeOf(env);
+			Type type = getType().typeOf(env, true);
 
 			type = type.instantiate(env.getTypeBindings());
 			
@@ -2685,8 +2684,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
-			return getType().typeOf(env);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+			return getType().typeOf(env, instantiateTypeParameters);
 		}
 	}
 
@@ -2708,7 +2707,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			Type type = getType().typeOf(eval.getCurrentEnvt());
+			Type type = getType().typeOf(eval.getCurrentEnvt(), true);
 			IMatchingResult pat = this.getPattern().buildMatcher(eval);
 			IMatchingResult var = new TypedVariablePattern(eval, this, type, this.getName());
 			return new VariableBecomesPattern(eval, this, var, pat);
@@ -2726,8 +2725,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
-			return getType().typeOf(env);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+			return getType().typeOf(env, instantiateTypeParameters);
 		}
 
 	}
@@ -2760,8 +2759,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
-			return getPattern().typeOf(env);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+			return getPattern().typeOf(env, instantiateTypeParameters);
 		}
 
 	}
@@ -2810,7 +2809,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
-			Type formals = getParameters().typeOf(__eval.getCurrentEnvt());
+			Type formals = getParameters().typeOf(__eval.getCurrentEnvt(), true);
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
 					.getInstance();
 			return new RascalFunction(this, __eval, null, (FunctionType) RTF

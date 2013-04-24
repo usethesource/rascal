@@ -200,7 +200,7 @@ public class JavaBridge {
 	}
 	
 	private org.eclipse.imp.pdb.facts.type.Type toValueType(Expression formal, Environment env) {
-		return formal.typeOf(env);
+		return formal.typeOf(env, true);
 	}
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>> {

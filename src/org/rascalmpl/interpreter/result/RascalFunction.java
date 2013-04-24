@@ -88,7 +88,7 @@ public class RascalFunction extends NamedFunction {
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
-				(FunctionType) func.getSignature().typeOf(env),
+				(FunctionType) func.getSignature().typeOf(env, true),
 				varargs, isDefault(func),hasTestMod(func.getSignature()),
 				func.getBody().getStatements(), env, accumulators);
 	}
@@ -97,7 +97,7 @@ public class RascalFunction extends NamedFunction {
 			Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
-				(FunctionType) func.getSignature().typeOf(env), 
+				(FunctionType) func.getSignature().typeOf(env, true), 
 				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getLocation(), ASTBuilder.makeStat("Expression", func.getLocation(), func.getExpression()))}),
 				env, accumulators);

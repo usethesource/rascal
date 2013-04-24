@@ -27,8 +27,8 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
-			return getNonterminal().typeOf(env);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+			return getNonterminal().typeOf(env, instantiateTypeParameters);
 		}
 	}
 
