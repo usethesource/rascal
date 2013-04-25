@@ -373,16 +373,6 @@ public class LocalSharingValueFactory implements IValueFactory{
 		}
 
 		@Override
-		public void delete(int i){
-			listWriter.delete(i);
-		}
-
-		@Override
-		public void delete(IValue elem){
-			listWriter.delete(elem);
-		}
-
-		@Override
 		public void insert(IValue... value) throws FactTypeUseException{
 			listWriter.insert(value);
 		}
@@ -430,11 +420,6 @@ public class LocalSharingValueFactory implements IValueFactory{
 		}
 
 		@Override
-		public void delete(IValue v){
-			setWriter.delete(v);
-		}
-
-		@Override
 		public void insert(IValue... v) throws FactTypeUseException{
 			setWriter.insert(v);
 		}
@@ -467,11 +452,6 @@ public class LocalSharingValueFactory implements IValueFactory{
 		}
 
 		@Override
-		public void delete(IValue v){
-			relationWriter.delete(v);
-		}
-
-		@Override
 		public void insert(IValue... v) throws FactTypeUseException{
 			relationWriter.insert(v);
 		}
@@ -500,14 +480,6 @@ public class LocalSharingValueFactory implements IValueFactory{
 
 		public IListRelation done(){
 			return localSharingValueFactory.cachedListRelations.cache(listRelationWriter.done());
-		}
-
-		public void delete(IValue v){
-			listRelationWriter.delete(v);
-		}
-		
-		public void delete(int i){
-			listRelationWriter.delete(i);
 		}
 
 		public void insert(IValue... v) throws FactTypeUseException{
