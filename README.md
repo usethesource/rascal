@@ -4,3 +4,5 @@ the standard library, the online documentation and the type checker.
 Rascal is used in practice, but we consider it to be alpha software because we are still improving the language.
 
 Please visit http://www.rascal-mpl.org
+
+For questions use the [rascal tag on StackOverflow](http://stackoverflow.com/questions/tagged/rascal).
