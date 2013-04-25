@@ -48,6 +48,7 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -78,7 +79,7 @@ public class ModuleEnvironment extends Environment {
 	public final static String SHELL_MODULE = "$shell$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
-		super(null, name);
+		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", name, "")), name);
 		this.heap = heap;
 		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();

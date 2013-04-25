@@ -488,7 +488,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	
 	public IValue call(String returnType, String name, IValue... args) {
-	  return call(Names.toQualifiedName(returnType, name), null, args);
+	  return call(Names.toQualifiedName(returnType, name, getCurrentEnvt().getLocation()), null, args);
 	};
 	
 	@Override
@@ -536,7 +536,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       ModuleEnvironment modEnv = getHeap().getModule(module);
       setCurrentEnvt(modEnv);
       
-      Name name = Names.toName(function);
+      Name name = Names.toName(function, modEnv.getLocation());
       OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(name);
       
       if (func == null) {
@@ -675,7 +675,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   }
 	
 	private IValue call(String name, Map<String,IValue> kwArgs, IValue[] args) {
-	  QualifiedName qualifiedName = Names.toQualifiedName(name);
+	  QualifiedName qualifiedName = Names.toQualifiedName(name, getCurrentEnvt().getLocation());
 	  setCurrentAST(qualifiedName);
 		return call(qualifiedName, kwArgs, args);
 	}
