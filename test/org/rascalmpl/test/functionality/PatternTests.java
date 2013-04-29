@@ -419,7 +419,7 @@ public class PatternTests extends TestFramework {
 	@Test
 	public void matchListSet() {
 
-		prepare("data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] S) | f(set[DATA] S);");
+		prepare("data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] L) | f(set[DATA] S);");
 
 		assertTrue(runTestInSameEvaluator("[a(), b()] := [a(), b()];"));
 		assertTrue(runTestInSameEvaluator("([DATA X1, b()] := [a(), b()]) && (X1 == a());"));
