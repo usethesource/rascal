@@ -1,19 +1,44 @@
-define M1 {module M1 int x = 0;}
+define M1 {module M1 public int x = 0;}
 
 define Y {int y = 1;}
 
-test  { x = 1; } expect {int x}
+define triple {int triple(int x) = 3 * x;}
+
+/*
+// Experiment, a parameter x generates a declaration + initialization for variable named "x"
+// $x$ insert the type of x
+
+test(x) { } expect {$x$ x}
+
+test(x) { y = x; } expect {$x$ y}
+
+test(x) { $x$ y = x;  } expect {$x$ y}
+
+test(x, y) { {$y$ x = y;} } expect {$x$ x, $y$ y}
+
+test(x) { if(true) y = x; else y = 0; } expect{ x.type y, y == y.val }
+*/
+
+test { int x = 1; } expect {int x}
+
+test { x = 1; } expect {int x}
+
+test { x = 1; y = "a";} expect {int x, str y}
 
 test { x = 1; x = false; } expect {value x}
 
-test { use M1 :: x; } expect {int x}
+test { int x = 1; x = false; } expect {/Unable to bind subject type/}
 
 test { use Y :: y; } expect {int y}
 
-test { int y = 1; x = y;} expect {int x}
-
-define triple {int triple(int x) = 3 * x;}
+test { int y = 1; x = y;} expect {int x, int y}
 
 test { use triple :: triple([1,2,3]); } expect {/cannot be called with argument/}
 
 test { x = 3; x = 3.5; } expect{num x}
+
+test {int x = 3; y = x + "a";} expect{/Addition not defined/}
+test {int x = 3; y = x - "a";} expect{/Subtraction not defined/}
+
+
+test { use M1 :: x; } expect {int x}

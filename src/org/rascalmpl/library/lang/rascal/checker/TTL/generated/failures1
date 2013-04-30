@@ -1,0 +1,52 @@
+Failed test: Intersection & for map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
+                                                           
+arg1=(), arg2=(""():[|tmp:///Mx|,|tmp:///%E7%9E%B8%EF%BD%9A|])
+expectedType: map(node(),list(\loc())), actualType: failure({error("Intersection not defined on map[void,void] and map[node,list[\\loc()]]",|file://-|(2,57,<1,2>,<1,59>))})
+
+Failed test: Intersection & for set[&L] x set[&R]                    -> set[LUB(&L,&R)]
+arg1={<0.17682382260042218>}, arg2={}
+expectedType: set(real()), actualType: set(tuple([real()]))
+
+Failed test: Closure + for lrel[&L,&L]			-> lrel[&L,&L]
+arg1=[]
+expectedType: lrel([void(),void()]), actualType: failure({error("Invalid type: expected a binary relation, found list[void]",|file://-|(2,4,<1,2>,<1,6>))})
+
+Failed test: Composition o for lrel[&A,&B] x lrel[&B,&C] -> lrel[&A,&C]
+arg1=[], arg2=[]
+expectedType: lrel([void(),void()]), actualType: failure({error("Composition not defined for list[void] and list[void]",|file://-|(2,11,<1,2>,<1,13>))})
+
+Failed test: Closure * for rel[&L,&L]  			-> rel[&L,&L]
+                                                     
+arg1={}
+expectedType: rel([void(),void()]), actualType: failure({error("Invalid type: expected a binary relation, found set[void]",|file://-|(2,4,<1,2>,<1,6>))})
+
+Failed test: Closure * for lrel[&L,&L]			-> lrel[&L,&L]
+arg1=[]
+expectedType: lrel([void(),void()]), actualType: failure({error("Invalid type: expected a binary relation, found list[void]",|file://-|(2,4,<1,2>,<1,6>))})
+
+Failed test: Closure + for rel[&L,&L]  			-> rel[&L,&L]
+                                                     
+arg1={}
+expectedType: rel([void(),void()]), actualType: failure({error("Invalid type: expected a binary relation, found set[void]",|file://-|(2,4,<1,2>,<1,6>))})
+
+Failed test: Addition + for &L x set[&R]                        -> set[LUB(&L,&R)] when &L is not a list
+arg1=({[<<1730960656>>,<<-1152878543>>]}:false,{[]}:true,{}:false), arg2={}
+expectedType: set(map(set(lrel([tuple([int()])])),bool())), actualType: failure({error("Addition not defined on map[set[list[tuple[tuple[int]]]],bool] and set[void]",|file://-|(2,70,<1,2>,<1,72>))})
+
+Failed test: Difference - for map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
+                                                           
+arg1=(0.8082493190392922:436690239r313838005,0.539132275972856:913123987r1768325693), arg2=(1304848789:-425204936r582663053)
+expectedType: map(num(),rat()), actualType: failure({error("Map of type map[real,rat] could never contain a sub-map of type map[int,rat]",|file://-|(2,119,<1,2>,<1,121>))})
+
+Failed test: Product * for list[&L] x list[&R]                  -> lrel[&L,&R]
+arg1=[<"믤甸纥"(<"挝"(true)>)>], arg2=[<""({<|tmp:///|>},($5203-11-26T15:32:41.059+01:00:1776803065r1501546196),|tmp:///H3|,"꼨瓰"("",|tmp:///A|,|tmp:///%EA%B7%A8%EF%A1%A5|)),false>,<""(-1681473418),true>,<"w"($2014-07-08T22:15:14.338+01:00,-1288831941),true>,<""(),false>]
+expectedType: lrel([node(),tuple([node(),bool()])]), actualType: lrel([tuple([node()]),tuple([node(),bool()])])
+
+Failed test: Composition o for map[&A,&B] x map[&B,&C] -> map[&A,&C]
+                                                           
+arg1=(([0.8827919043633843,0.9047998550528499]:0.05373933544663201):"6na"(2108661891r810489298,[],0.5520309023784599),():"󪀋"($1451-04-02T02:26:41.655+01:00)), arg2=()
+expectedType: map(map(list(real()),real()),void()), actualType: failure({error("node must be a subtype of void",|file://-|(2,161,<1,2>,<1,163>))})
+
+Failed test: Composition o for rel[&A,&B] x rel[&B,&C] -> rel[&A,&C]
+arg1={<20950907r1820145559,3790469r16525289>}, arg2={}
+expectedType: rel([rat(),void()]), actualType: failure({error("Composition not defined for rel[rat,rat] and set[void]",|file://-|(2,49,<1,2>,<1,51>))})
