@@ -146,7 +146,7 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 		if ((Statement)`{ < Statement* sl > }` := parseStatement("{ <statementsString> }"))
 			stmts = [ s | s <- sl ];			
 	} catch perror : {
-		c = addScopeError(c, "Cannot parse statement <s>",  |file:///tmp/CheckStatementsString.rsc|);
+		c = addScopeError(c, "Cannot parse statement <statementsString>",  |file:///tmp/CheckStatementsString.rsc|);
 	}
 	
 	for (stmt <- stmts) < c, rt > = checkStmt(stmt, c);
