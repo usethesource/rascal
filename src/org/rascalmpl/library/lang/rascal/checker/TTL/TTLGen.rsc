@@ -4,6 +4,7 @@ extend lang::rascal::\syntax::Rascal;
 import IO;
 import String;
 import List;
+import lang::rascal::checker::TTL::Library;
 
 // TTL : Typechecker Test Language
 // A DSL for writing type-related tests aiming at:
@@ -74,9 +75,14 @@ loc TTLRoot = |rascal:///lang/rascal/checker/TTL/|;         // where TTL resides
 str modulePrefix = "lang::rascal::checker::TTL::generated"; // where modules defined in TTL files reside
 str TTL = "ttl"; 											// TTL language extension
 
+private int tcnt = 0;
+
+private int genSym() { tcnt += 1; return tcnt; }
+
 // Main: compile all TTL specifications to Rascal tests
 
 void main() { 
+  tcnt = 0;
   for(ttl <- (TTLRoot + "specs").ls, ttl.extension == TTL)
       generate(ttl); 
 }
@@ -85,6 +91,12 @@ str basename(loc l) = l.file[ .. findFirst(l.file, ".")];
        
 data Symbol = LUB(Symbol l, Symbol r);
 
+str addModulePrefix(Module m){
+  if(/\s*module\s+<mname:[a-zA-Z0-9]+><rest:.*$>/ := "<m>"){
+    return "module <modulePrefix>::<mname>\n<rest>";
+  }
+  return "Malformed Module";
+}
 // Generate tests for one TTL file
 void generate(loc src){
    spec = parse(#TTL, src);
@@ -96,7 +108,7 @@ void generate(loc src){
        	     if(decls[name]?) throw "Ambiguous name <name> at <item@\loc>";
        	     if(modules[name]?) throw "Redeclared module name <name> at <item@\loc>";
              modules[name] = item.moduleText;
-             writeFile(TTLRoot + "generated/<item.name>", item.moduleText); // TODO: Imports from different ttl files could conflict
+             writeFile(TTLRoot + "generated/<item.name>.rsc", addModulePrefix(item.moduleText)); // TODO: Imports from different ttl files could conflict
        } else if(defDecl(name, declaration) := item){
        		if(modules[name]?) throw "Ambiguous name <name> at <item@\loc>";
        	     if(decls[name]?) throw "Redeclared declaration name <name> at <item@\loc>";
@@ -140,7 +152,7 @@ str genTest(TestItem item,  map[Name, Declaration] declarations,  map[Name, Modu
   	
   inferredChecks = "";
   for(<var, tp> <- inferred){
-    inferredChecks += "if(!(getTypeForName(checkResult.conf, \"<var>\") == (#<tp>).symbol)) return false;";
+    inferredChecks += "if(getTypeForName(checkResult.conf, \"<var>\") != (#<tp>).symbol) return false;";
   }
   
   messageChecks = intercalate(" || ", ["<msg> := msg" | msg <- messages]);
@@ -156,7 +168,7 @@ str genTest(TestItem item,  map[Name, Declaration] declarations,  map[Name, Modu
     
   return "
   		 '/* <item> */ <exception>
-  		 'test bool tst(){
+  		 'test bool tst<genSym()>(){
          '  checkResult = checkStatementsString(\"<code>\", importedModules=<imports>, initialDecls = <decls>);
          '  <checks>
          '  return true;
@@ -221,7 +233,7 @@ str genInfix(TestItem item){
 	        typeCondition = "if(is<tname>Type(bindings[\"<sig.condition.name>\"])) return true;";
 	     }
 	     tests += "// Testing infix <item.name> <operatorName> for <sig>
-	     		  'test bool tst(<sig.left> arg1, <sig.right> arg2){ 
+	     		  'test bool tst<genSym()>(<sig.left> arg1, <sig.right> arg2){ 
 	              '  ltype = typeOf(arg1);
 	              '  rtype = typeOf(arg2);
 	              '  if(isDateTimeType(ltype) || isDateTimeType(rtype))
@@ -231,12 +243,10 @@ str genInfix(TestItem item){
 				  '  if(lmatches && rmatches){
 	              '     bindings = merge(lbindings, rbindings); 
 	              '     <genCondition(sig)>
-	              '     if(result(v) := eval(\"(\<escape(arg1)\>) <operatorName> (\<escape(arg2)\>);\")){ // apply the operator to its arguments
-	              '        actualType = typeOf(v); 
-	              '        expectedType = normalize(<toSymbol(sig.result)>, bindings);
-	              '//      println(\"actual = \<actualType\>, expected = \<expectedType\>\");
-	              '        return subtype(actualType, expectedType);
-	              '     }
+	              '     checkResult = checkStatementsString(\"(\<escape(arg1)\>) <operatorName> (\<escape(arg2)\>);\", importedModules=[], initialDecls = []); // apply the operator to its arguments
+	              '     actualType = checkResult.res; 
+	              '     expectedType = normalize(<toSymbol(sig.result)>, bindings);
+	              '     return validate(actualType, expectedType, arg1, arg2, <escape("<item.name> <operatorName> for <sig>")>);
 	              '  }
 	              '  return false;
 	              '}\n";
@@ -252,20 +262,18 @@ str genUnary(TestItem item, bool prefix){
 	  operatorName = "<operator>"[1..-1]; 
 	  for(sig <- item.signatures){
 	     expression = prefix ? "\"<operatorName> (\<escape(arg1)\>);\"" : "\"(\<escape(arg1)\>) <operatorName>;\"";
-	     tests += "// Testing <prefix ? "prefix" : "postfix"> <item.name> <operatorName>
-	     		  'test bool tst(<sig.left> arg1){ 
+	     tests += "// Testing <prefix ? "prefix" : "postfix"> <item.name> <operatorName> for <sig>
+	     		  'test bool tst<genSym()>(<sig.left> arg1){ 
 	              '  ltype = typeOf(arg1);
 	              '  if(isDateTimeType(ltype))
 	              '		return true;
 	     		  '  <genArgument(sig.left, "l")>
 				  '  if(lmatches){
 				  '     <genCondition(sig)>
-				  '	    if(result(v) := eval(<expression>)){ // apply the operator to its arguments
-	              '        actualType = typeOf(v);
-	              '        expectedType = normalize(<toSymbol(sig.result)>, lbindings);
-	              '//      println(\"actual = \<actualType\>, expected = \<expectedType\>\");
-	              '        return subtype(actualType, expectedType);
-	              '		}
+				  '	    checkResult = checkStatementsString(<expression>, importedModules=[], initialDecls = []); // apply the operator to its arguments
+	              '     actualType = checkResult.res; 
+	              '     expectedType = normalize(<toSymbol(sig.result)>, lbindings);
+	              '     return validate(actualType, expectedType, arg1, <escape("<item.name> <operatorName> for <sig>")>);
 	              '  }
 	              '  return false;
 	              '}\n";
@@ -274,9 +282,8 @@ str genUnary(TestItem item, bool prefix){
   return tests;
 }
 
-str genArgument(ExtendedType a, str side) = "\<<side>matches, <side>bindings\> = bind(<toSymbol(a)>, <side>type);
-                                    '// tp = <toSymbol(a)>; println(\"\<tp\>, <side>type = \<<side>type\>, <side>matches = \<<side>matches\> \<<side>bindings\>\");";
-
+str genArgument(ExtendedType a, str side) = "\<<side>matches, <side>bindings\> = bind(<toSymbol(a)>, <side>type);\n";
+                                    
 str toSymbol(ExtendedType t){
   if( t is intType) return  "\\int()";
   if( t is boolType) return  "\\bool()";

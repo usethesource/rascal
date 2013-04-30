@@ -99,3 +99,17 @@ value escape(value v){
    }
    return v;
 }
+
+bool validate(Symbol actualType, Symbol expectedType, value arg1, value arg2, str descr){
+  if(subtype(actualType, expectedType))
+     return true;
+  println("Failed test: <descr>\narg1=<arg1>, arg2=<arg2>\nexpectedType: <expectedType>, actualType: <actualType>\n");
+  return false;
+}
+
+bool validate(Symbol actualType, Symbol expectedType, value arg1, str descr){
+  if(subtype(actualType, expectedType))
+     return true;
+  println("Failed test: <descr>\narg1=<arg1>\nexpectedType: <expectedType>, actualType: <actualType>\n");
+  return false;
+}
