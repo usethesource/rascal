@@ -56,7 +56,7 @@ public class Correlations {
 	
 	private IList RealMatrix2List(RealMatrix m){
 		Type listType = types.listType(types.realType());
-		IListWriter w = listType.writer(values);
+		IListWriter w = values.listWriter(listType.getElementType());
 		int n = m.getColumnDimension();
 		for(int i = 0; i < n; i++){
 			w.append(values.real(m.getEntry(i,0)));

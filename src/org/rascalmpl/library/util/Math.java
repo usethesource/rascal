@@ -128,11 +128,11 @@ public class Math {
 	}
 	
 	public IValue precision(INumber x){
-		if(x.getType().isIntegerType()){
+		if(x.getType().isInteger()){
 			IInteger k = (IInteger) x;
 			return values.integer(k.toReal().precision());
 		}
-		if(x.getType().isRationalType()){
+		if(x.getType().isRational()){
 			IRational k = (IRational) x;
 			return values.integer(k.toReal().precision());
 		}
@@ -153,11 +153,11 @@ public class Math {
 	
 	public IValue scale(INumber x){
 		try {
-			if(x.getType().isIntegerType()){
+			if(x.getType().isInteger()){
 				IInteger k = (IInteger) x;
 				return values.integer(k.toReal().scale());
 			}
-			if(x.getType().isRationalType()){
+			if(x.getType().isRational()){
 				IRational k = (IRational) x;
 				return values.integer(k.toReal().scale());
 			}
