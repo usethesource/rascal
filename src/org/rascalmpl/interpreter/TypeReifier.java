@@ -336,7 +336,7 @@ public class TypeReifier {
 	}
 
 	private IConstructor reify(Type t, final Map<IConstructor, IConstructor> definitions, final IEvaluatorContext ctx, final TypeStore store) {
-		return (IConstructor) t.accept(new ITypeVisitor<IValue>() {
+		return (IConstructor) t.accept(new ITypeVisitor<IValue, RuntimeException>() {
 			private Map<Type,IValue> cache = new HashMap<Type, IValue>();
 			
 			@Override

@@ -66,7 +66,7 @@ public class ResultFactory {
 		return new BoolResult(result.getType(), result, ctx);
 	}
 	
-	private static class Visitor implements ITypeVisitor<Result<? extends IValue>> {
+	private static class Visitor implements ITypeVisitor<Result<? extends IValue>, RuntimeException> {
 		private IValue value;
 		private Type declaredType;
 		private IEvaluatorContext ctx;
