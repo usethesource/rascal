@@ -76,7 +76,7 @@ public class TypeReifier {
 		for (Map.Entry<IConstructor, IConstructor> entry : definitions.entrySet()) {
 			defs.put(entry.getKey(), entry.getValue());
 		}
-		IValue result = Factory.Type_Reified.instantiate(bindings).make(vf, symbol, defs.done());
+		IValue result = vf.constructor(Factory.Type_Reified.instantiate(bindings), symbol, defs.done());
 		
 		return ResultFactory.makeResult(typeType, result, ctx);
 	}
@@ -324,7 +324,7 @@ public class TypeReifier {
 		
 		if (adt == null) {
 			Type params = symbolsToTupleType((IList) symbol.get("parameters"), store);
-			if (params.isVoidType() || params.getArity() == 0) {
+			if (params.isBottom() || params.getArity() == 0) {
 				adt = tf.abstractDataType(store, name);
 			}
 			else {

@@ -123,13 +123,13 @@ public class ListRelationResult extends ListOrRelationResult<IList> {
 		
 		@Override
 		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
-			if(getType().getElementType().isVoidType()) throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
+			if(getType().getElementType().isBottom()) throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 			
 			// TODO: must go to PDB
 			int nSubs = subscripts.length;
 			//TODO: A (temporary) fix to solve the confusion between indexing a list and querying a relation
 			// When there is one integer subscript, we just index the list relation as a list
-			if(nSubs == 1 && subscripts[0].getType().isIntegerType()){
+			if(nSubs == 1 && subscripts[0].getType().isInteger()){
 				if (getValue().length() == 0) {
 					throw RuntimeExceptionFactory.emptyList(ctx.getCurrentAST(), ctx.getStackTrace());
 				}
@@ -164,7 +164,7 @@ public class ListRelationResult extends ListOrRelationResult<IList> {
 			for (int i = 0; i < relArity; i++) {
 				Type relFieldType = getType().getFieldType(i);
 				if (i < nSubs) {
-					if (subscriptType[i].isSetType() && 
+					if (subscriptType[i].isSet() && 
 							relFieldType.comparable(subscriptType[i].getElementType())){
 						subscriptIsSet[i] = true;
 					} 
@@ -366,7 +366,7 @@ public class ListRelationResult extends ListOrRelationResult<IList> {
 		
 		@Override
 		public Result<IValue> fieldSelect(int[] selectedFields) {
-			if (!getType().getElementType().isVoidType()) {
+			if (!getType().getElementType().isBottom()) {
 				for (int i : selectedFields) {
 					if (i < 0 || i >= getType().getArity()) {
 						throw RuntimeExceptionFactory.indexOutOfBounds(ctx.getValueFactory().integer(i), ctx.getCurrentAST(), ctx.getStackTrace());
@@ -398,7 +398,7 @@ public class ListRelationResult extends ListOrRelationResult<IList> {
 					}
 				}
 
-				if (fieldIndices[i] < 0 || (fieldIndices[i] > baseType.getArity() && !getType().getElementType().isVoidType())) {
+				if (fieldIndices[i] < 0 || (fieldIndices[i] > baseType.getArity() && !getType().getElementType().isBottom())) {
 					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
 							.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(fieldIndices[i]),
 									ctx.getCurrentAST(), ctx.getStackTrace());

@@ -58,7 +58,7 @@ public class BoxADT {
 		IConstructor create(IValue... t) {
 			IValue r = t[0];
 			// if (this== VAR) System.err.println("QQ:"+t[0]);
-			if (!r.getType().isListType() && this.ordinal() < L.ordinal()) {
+			if (!r.getType().isList() && this.ordinal() < L.ordinal()) {
 				r = vf.list(t);
 			}
 			if (DEBUG)
@@ -171,7 +171,7 @@ public class BoxADT {
 		for (IValue a : t) {
 			if (a == null)
 				continue;
-			if (a.getType().isListType()) {
+			if (a.getType().isList()) {
 				q = q.concat((IList) a);
 			} else
 				q = q.append(a);
@@ -208,7 +208,7 @@ public class BoxADT {
 		for (IValue a : t) {
 			if (a == null)
 				continue;
-			if (a.getType().isListType()) {
+			if (a.getType().isList()) {
 				q = q.concat((IList) a);
 			} else
 				q = q.append(a);
@@ -244,7 +244,7 @@ public class BoxADT {
 		for (IValue a : t) {
 			if (a == null)
 				continue;
-			if (a.getType().isListType()) {
+			if (a.getType().isList()) {
 
 				q = q.concat(indent ? makeIndent((IList) a, q.isEmpty())
 						: (IList) a);
@@ -292,7 +292,7 @@ public class BoxADT {
 		for (IValue a : t) {
 			if (a == null)
 				continue;
-			if (a.getType().isListType()) {
+			if (a.getType().isList()) {
 				q = q.concat(indent ? makeIndent((IList) a, q.isEmpty())
 						: (IList) a);
 			} else
@@ -310,7 +310,7 @@ public class BoxADT {
 		for (IValue a : t) {
 			if (a == null)
 				continue;
-			if (a.getType().isListType()) {
+			if (a.getType().isList()) {
 				q = q.concat(indent ? makeIndent((IList) a, q.isEmpty())
 						: (IList) a);
 			} else

@@ -166,7 +166,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 
 	private IValue wrapWithListProd(IValue subject) {
 		IList args = (IList) subject;
-		IValue prod = Factory.Production_Regular.make(ctx.getValueFactory(), declaredType.getSymbol());
+		IValue prod = ctx.getValueFactory().constructor(Factory.Production_Regular, declaredType.getSymbol());
 		
 		if (args.length() == 1) {
 			IConstructor arg = (IConstructor) args.get(0);
@@ -176,7 +176,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 			}
 		}
 		
-		return Factory.Tree_Appl.make(ctx.getValueFactory(), prod, subject);
+		return ctx.getValueFactory().constructor(Factory.Tree_Appl, prod, subject);
 	}
 
 	@Override

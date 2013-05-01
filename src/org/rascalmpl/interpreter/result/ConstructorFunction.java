@@ -68,7 +68,7 @@ public class ConstructorFunction extends NamedFunction {
 		Type formalTypeParameters = constructorType.getAbstractDataType().getTypeParameters();
 		Type instantiated = constructorType;
 
-		if (!formalTypeParameters.isVoidType()) {
+		if (!formalTypeParameters.isBottom()) {
 			for (Type field : formalTypeParameters) {
 				if (!bindings.containsKey(field)) {
 					bindings.put(field, TF.voidType());
@@ -77,7 +77,7 @@ public class ConstructorFunction extends NamedFunction {
 			instantiated = constructorType.instantiate(bindings);
 		}
 
-		return makeResult(instantiated, instantiated.make(getValueFactory(), ctx.getCurrentEnvt().getStore(), addKeywordArgs(actuals, keyArgValues)), ctx);
+		return makeResult(instantiated, ctx.getValueFactory().constructor(instantiated, addKeywordArgs(actuals, keyArgValues)), ctx);
 	}
 	
 	protected Type[] addKeywordTypes(Type[] actualTypes, Map<String, IValue> keyArgValues){

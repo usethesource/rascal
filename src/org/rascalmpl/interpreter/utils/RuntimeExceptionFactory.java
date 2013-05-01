@@ -103,57 +103,57 @@ public class RuntimeExceptionFactory {
 	// The "official" exceptions that a Rascal program can catch (alphabetical order)
 	
 	public static Throw arithmeticException(String msg, AbstractAST ast, StackTrace trace) {
-		return new Throw(ArithmeticException.make(VF, VF.string(msg)), ast, trace);
+		return new Throw(VF.constructor(ArithmeticException, VF.string(msg)), ast, trace);
 	}
 	
 	public static Throw assertionFailed(AbstractAST ast, StackTrace trace) {
-		return new Throw(AssertionFailed.make(VF), ast, trace);
+		return new Throw(VF.constructor(AssertionFailed), ast, trace);
 	}
 	
 	public static Throw assertionFailed(IString msg, AbstractAST ast, StackTrace trace) {
-    	return new Throw(LabeledAssertionFailed.make(VF, msg), ast, trace);
+    	return new Throw(VF.constructor(LabeledAssertionFailed, msg), ast, trace);
     }
 	
 	public static Throw emptyList(AbstractAST ast, StackTrace trace) {
-		return new Throw(EmptyList.make(VF), ast, trace);
+		return new Throw(VF.constructor(EmptyList), ast, trace);
 	}
 	
 	public static Throw emptySet(AbstractAST ast, StackTrace trace) {
-		return new Throw(EmptySet.make(VF), ast, trace);
+		return new Throw(VF.constructor(EmptySet), ast, trace);
 	}
 	
 	public static Throw emptyMap(AbstractAST ast, StackTrace trace) {
-		return new Throw(EmptyMap.make(VF), ast, trace);
+		return new Throw(VF.constructor(EmptyMap), ast, trace);
 	}
 	
 	public static Throw illegalArgument(AbstractAST ast, StackTrace trace) {
-		return new Throw(AnonymousIllegalArgument.make(VF), ast, trace);	
+		return new Throw(VF.constructor(AnonymousIllegalArgument), ast, trace);	
 	}
 	
 	public static Throw illegalArgument(IValue v, AbstractAST ast, StackTrace trace) {
-		return new Throw(IllegalArgument.make(VF,v), ast, trace);	
+		return new Throw(VF.constructor(IllegalArgument), ast, trace);	
 	}
 	
 	public static Throw illegalArgument(IValue v, AbstractAST ast, StackTrace trace, String message) {
-		return new Throw(IllegalArgument.make(VF,v,VF.string(message)), ast, trace);	
+		return new Throw(VF.constructor(IllegalArgument, v, VF.string(message)), ast, trace);	
 	}
 	
 	
 	
 	public static Throw indexOutOfBounds(IInteger i, AbstractAST ast, StackTrace trace) {
-    	return new Throw(IndexOutOfBounds.make(VF, i), ast, trace);
+    	return new Throw(VF.constructor(IndexOutOfBounds, i), ast, trace);
     }
 	
 	public static Throw io(IString msg, AbstractAST ast, StackTrace trace) {
-		return new Throw(IO.make(VF, msg), ast, trace);
+		return new Throw(VF.constructor(IO, msg), ast, trace);
 	}
 	
 	private static Throw javaException(String clazz, String message, IValue cause, AbstractAST ast, StackTrace trace) {
-		return new Throw(Java.make(VF, VF.string(clazz), VF.string(message), cause), ast, trace);
+		return new Throw(VF.constructor(Java, VF.string(clazz), VF.string(message), cause), ast, trace);
 	}
 
 	private static Throw javaException(String clazz, String message, AbstractAST ast, StackTrace trace) {
-		return new Throw(Java.make(VF, VF.string(clazz), VF.string(message)), ast, trace);
+		return new Throw(VF.constructor(Java, VF.string(clazz), VF.string(message)), ast, trace);
 	}
 	
 	public static Throw javaException(Throwable targetException, AbstractAST ast, StackTrace rascalTrace) throws ImplementationError {
@@ -224,51 +224,51 @@ public class RuntimeExceptionFactory {
 	}
 	
 	public static Throw moduleNotFound(IString module, AbstractAST ast, StackTrace trace) {
-		return new Throw(ModuleNotFound.make(VF, module), ast, trace);
+		return new Throw(VF.constructor(ModuleNotFound, module), ast, trace);
 	}
 	
 	public static Throw noSuchAnnotation(String label, AbstractAST ast, StackTrace trace) {
-		return new Throw(NoSuchAnnotation.make(VF, VF.string(label)), ast, trace);
+		return new Throw(VF.constructor(NoSuchAnnotation, VF.string(label)), ast, trace);
 	}
 
 	
 
 	public static Throw noSuchKey(IValue v, AbstractAST ast, StackTrace trace) {
-		return new Throw(NoSuchKey.make(VF, v), ast, trace);
+		return new Throw(VF.constructor(NoSuchKey, v), ast, trace);
 	}
 	
 	public static Throw parseError(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
-		return new Throw(ParseError.make(VF, loc), ast, trace);
+		return new Throw(VF.constructor(ParseError, loc), ast, trace);
 	}
 	
 	public static Throw pathNotFound(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
-		return new Throw(PathNotFound.make(VF, loc), ast, trace);
+		return new Throw(VF.constructor(PathNotFound, loc), ast, trace);
 	}
 	
 	public static Throw stackOverflow(AbstractAST ast, StackTrace trace) {
-		return new Throw(StackOverflow.make(VF), ast, trace);
+		return new Throw(VF.constructor(StackOverflow), ast, trace);
 	}
 	
 	// The status of the following exceptions is to be determined (alphabetical order)
 	
 	public static Throw arityMismatch(int expected, int got, AbstractAST ast, StackTrace trace) {
-		return new Throw(ArityMismatch.make(VF, VF.integer(expected), VF.integer(got)), ast, trace);
+		return new Throw(VF.constructor(ArityMismatch, VF.integer(expected), VF.integer(got)), ast, trace);
 	}
 	
 	public static Throw dateTimeParsingError(String message, AbstractAST ast, StackTrace trace) {
-		return new Throw(DateTimeParsingError.make(VF, VF.string(message)), ast, trace);
+		return new Throw(VF.constructor(DateTimeParsingError, VF.string(message)), ast, trace);
 	}
 	
 	public static Throw dateTimePrintingError(String message, AbstractAST ast, StackTrace trace) {
-		return new Throw(DateTimePrintingError.make(VF, VF.string(message)), ast, trace);
+		return new Throw(VF.constructor(DateTimePrintingError, VF.string(message)), ast, trace);
 	}	
 	
 	public static Throw figureException(String message, IValue v, AbstractAST ast, StackTrace trace) {
-		return new Throw(Figure.make(VF, VF.string(message), v), ast, trace);
+		return new Throw(VF.constructor(Figure, VF.string(message), v), ast, trace);
 	}
 	
 	public static Throw illegalCharacter(IInteger i, AbstractAST ast, StackTrace trace) {
-		return new Throw(IllegalChar.make(VF, i), ast, trace);
+		return new Throw(VF.constructor(IllegalChar, i), ast, trace);
 	}
 	
 //	public static Throw illegalIdentifier(String name,
@@ -277,31 +277,31 @@ public class RuntimeExceptionFactory {
 //	}
 	
 	public static Throw illegalTypeArgument(String type, AbstractAST ast, StackTrace trace, String message){
-		return new Throw(IllegalTypeArgument.make(VF,VF.string(type),VF.string(message)), ast, trace);	
+		return new Throw(VF.constructor(IllegalTypeArgument,VF.string(type),VF.string(message)), ast, trace);	
 	}
 	
 	public static Throw illegalTypeArgument(String type, AbstractAST ast, StackTrace trace){
-		return new Throw(IllegalTypeArgument.make(VF,VF.string(type)), ast, trace);	
+		return new Throw(VF.constructor(IllegalTypeArgument,VF.string(type)), ast, trace);	
 	}
 	
 	public static Throw implodeError(String msg, AbstractAST ast, StackTrace trace) {
-		return new Throw(ImplodeError.make(VF, VF.string(msg)), ast, trace);
+		return new Throw(VF.constructor(ImplodeError, VF.string(msg)), ast, trace);
 	}
 
 	public static Throw invalidUseOfLocation(String msg, AbstractAST ast, StackTrace trace) {
-		return new Throw(InvalidUseOfLocation.make(VF, VF.string(msg)), ast, trace);
+		return new Throw(VF.constructor(InvalidUseOfLocation, VF.string(msg)), ast, trace);
 	}	
 	
 	public static Throw invalidUseOfDateException(String message, AbstractAST ast, StackTrace trace) {
-		return new Throw(InvalidUseOfDate.make(VF, VF.string(message)), ast, trace);
+		return new Throw(VF.constructor(InvalidUseOfDate, VF.string(message)), ast, trace);
 	}
 	
 	public static Throw invalidUseOfTimeException(String message, AbstractAST ast, StackTrace trace) {
-		return new Throw(InvalidUseOfTime.make(VF, VF.string(message)), ast, trace);
+		return new Throw(VF.constructor(InvalidUseOfTime, VF.string(message)), ast, trace);
 	}
 	
 	public static Throw invalidUseOfDateTimeException(String message, AbstractAST ast, StackTrace trace) {
-		return new Throw(InvalidUseOfDateTime.make(VF, VF.string(message)), ast, trace);
+		return new Throw(VF.constructor(InvalidUseOfDateTime, VF.string(message)), ast, trace);
 	}
 	
 //	public static Throw javaBytecodeError(String message, AbstractAST ast, StackTrace trace) {
@@ -313,39 +313,39 @@ public class RuntimeExceptionFactory {
 //	}
 	
 	public static Throw malformedURI(String uri, Default x, StackTrace trace) {
-		return new Throw(MalFormedURI.make(VF, VF.string(uri)), x, trace);
+		return new Throw(VF.constructor(MalFormedURI, VF.string(uri)), x, trace);
 	}
 	
 	public static Throw MultipleKey(IValue v, AbstractAST ast, StackTrace trace) {
-		return new Throw(MultipleKey.make(VF, v), ast, trace);
+		return new Throw(VF.constructor(MultipleKey, v), ast, trace);
 	}
 	
 	public static Throw nameMismatch(String expected, String got, AbstractAST ast, StackTrace trace) {
-		return new Throw(NameMismatch.make(VF, VF.string(expected), VF.string(got)), ast, trace);
+		return new Throw(VF.constructor(NameMismatch, VF.string(expected), VF.string(got)), ast, trace);
 	}
 	
 	public static Throw noParent(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
-		return new Throw(NoParent.make(VF, loc), ast, trace);
+		return new Throw(VF.constructor(NoParent, loc), ast, trace);
 	}
 	
 	public static Throw noSuchElement(IValue v, AbstractAST ast, StackTrace trace) {
-		return new Throw(NoSuchElement.make(VF,v), ast, trace);	
+		return new Throw(VF.constructor(NoSuchElement,v), ast, trace);	
 	}
 
 	public static Throw noSuchField(String name, AbstractAST ast, StackTrace trace) {
-		return new Throw(NoSuchField.make(VF, VF.string(name)), ast, trace);
+		return new Throw(VF.constructor(NoSuchField, VF.string(name)), ast, trace);
 	}
 	
 	public static Throw permissionDenied(AbstractAST ast, StackTrace trace) {
-		return new Throw(AnonymousPermissionDenied.make(VF), ast, trace);
+		return new Throw(VF.constructor(AnonymousPermissionDenied), ast, trace);
 	}
 	
 	public static Throw permissionDenied(IString msg, AbstractAST ast, StackTrace trace) {
-		return new Throw(PermissionDenied.make(VF, msg), ast, trace);
+		return new Throw(VF.constructor(PermissionDenied, msg), ast, trace);
 	}
 
 	public static Throw unavailableInformation(AbstractAST ast, StackTrace trace){
-		return new Throw(UnavailableInformation.make(VF), ast, trace);	
+		return new Throw(VF.constructor(UnavailableInformation), ast, trace);	
 	}
 
 //	public static Throw subversionException(String message, AbstractAST ast, StackTrace trace) {
@@ -354,11 +354,11 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw schemeNotSupported(ISourceLocation file,
 			AbstractAST ast, StackTrace trace) {
-		return new Throw(SchemeNotSupported.make(VF, file), ast, trace);
+		return new Throw(VF.constructor(SchemeNotSupported, file), ast, trace);
 	}
 	
 	public static Throw timeout(AbstractAST ast, StackTrace trace) {
-    	return new Throw(Timeout.make(VF), ast, trace);
+    	return new Throw(VF.constructor(Timeout), ast, trace);
     }
 	
 }
