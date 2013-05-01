@@ -50,7 +50,7 @@ public class ProductionAdapter {
 	
 	public static IConstructor getDefined(IConstructor tree) {
 		if (isSkipped(tree)) {
-			return (IConstructor) Factory.Symbol_Empty.make(ValueFactoryFactory.getValueFactory());
+			return ValueFactoryFactory.getValueFactory().constructor(Factory.Symbol_Empty);
 		}
 		return (IConstructor) tree.get("def");
 	}
@@ -80,8 +80,7 @@ public class ProductionAdapter {
 		}
 
 		IList children = getSymbols(tree);
-		IListWriter writer = Factory.Args.writer(ValueFactoryFactory
-				.getValueFactory());
+		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter(Factory.Args.getElementType());
 
 		for (int i = 0; i < children.length(); i++) {
 			IConstructor kid = (IConstructor) children.get(i);
@@ -171,9 +170,9 @@ public class ProductionAdapter {
 	public static String getCategory(IConstructor tree) {
 		if (!isRegular(tree)) {
 			for (IValue attr : getAttributes(tree)) {
-				if (attr.getType().isAbstractDataType() && ((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
+				if (attr.getType().isAbstractData() && ((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
 					IValue value = ((IConstructor)attr).get("tag");
-					if (value.getType().isNodeType() && ((INode) value).getName().equals("category")) {
+					if (value.getType().isNode() && ((INode) value).getName().equals("category")) {
 						return ((IString) ((INode) value).get(0)).getValue();
 					}
 				}

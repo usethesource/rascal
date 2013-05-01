@@ -199,7 +199,7 @@ public class JSonWriter implements IValueTextWriter {
 		 */
 		public IValue visitMap(IMap o) throws VisitorException {
 			Iterator<IValue> mapIterator = o.iterator();
-			if (o.getKeyType().isStringType()) {
+			if (o.getKeyType().isString()) {
 				append('{');
 				if (mapIterator.hasNext()) {
 					IValue key = mapIterator.next();
