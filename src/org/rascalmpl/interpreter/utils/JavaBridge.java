@@ -249,11 +249,6 @@ public class JavaBridge {
 		}
 
 		@Override
-		public Class<?> visitRelationType(org.eclipse.imp.pdb.facts.type.Type type) {
-			return ISet.class;
-		}
-
-		@Override
 		public Class<?> visitSet(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ISet.class;
 		}
@@ -309,10 +304,6 @@ public class JavaBridge {
 			return IDateTime.class;
 		}
 
-		@Override
-		public Class<?> visitListRelationType(Type type) {
-			return IList.class;
-		}
 	}
 	
 	public synchronized Object getJavaClassInstance(Class<?> clazz){
