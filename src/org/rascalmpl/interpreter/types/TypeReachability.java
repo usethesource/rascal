@@ -14,7 +14,6 @@ package org.rascalmpl.interpreter.types;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.type.DefaultTypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.env.Environment;
@@ -34,7 +33,7 @@ public class TypeReachability {
       return true;
 	  }
 	  
-	  return large.accept(new DefaultTypeVisitor<Boolean, RuntimeException>(false) {
+	  return large.accept(new DefaultRascalTypeVisitor<Boolean, RuntimeException>(false) {
 	    @Override
 	    public Boolean visitList(Type type)  {
 	      return mayOccurIn(small, large.getElementType(), seen, env);
@@ -62,35 +61,28 @@ public class TypeReachability {
 	    }
 	    
 	    @Override
-	    public Boolean visitExternal(Type type)  {
-	      assert type instanceof RascalType;
-	      return ((RascalType) type).accept(new IRascalTypeVisitor<Boolean, RuntimeException>() {
+	    public Boolean visitFunction(RascalType type)  {
+	      return false;
+	    }
 
-          @Override
-          public Boolean visitFunction(RascalType type)  {
-            return false;
-          }
+	    @Override
+	    public Boolean visitOverloadedFunction(RascalType type) throws RuntimeException {
+	      return false;
+	    }
 
-          @Override
-          public Boolean visitOverloadedFunction(RascalType type) throws RuntimeException {
-            return false;
-          }
+	    @Override
+	    public Boolean visitReified(RascalType type) throws RuntimeException {
+	      // TODO: we can be more precise here because we know only Symbols and Definitions can occur in 
+	      // reified types
+	      return true;
+	    }
 
-          @Override
-          public Boolean visitReified(RascalType type) throws RuntimeException {
-            // TODO: we can be more precise here because we know only Symbols and Definitions can occur in 
-            // reified types
-            return true;
-          }
-
-          @Override
-          public Boolean visitNonTerminal(RascalType type) throws RuntimeException {
-            // TODO: Until we have more precise info about the types in the
-            // concrete syntax
-            // we just return true here.
-            return true;
-          }
-	      });
+	    @Override
+	    public Boolean visitNonTerminal(RascalType type) throws RuntimeException {
+	      // TODO: Until we have more precise info about the types in the
+	      // concrete syntax
+	      // we just return true here.
+	      return true;
 	    }
 	    
 	    @Override
