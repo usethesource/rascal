@@ -76,7 +76,8 @@ public class ResultFactory {
 			this.value = value;
 			this.ctx = ctx;
 		}
-
+		
+		@Override
 		public ElementResult<? extends IValue> visitAbstractData(Type type) {
 			// TODO: rename constructor result to AbstractData
 			if (type.equals(Factory.Tree)) {
@@ -84,15 +85,18 @@ public class ResultFactory {
 			}
 			return new ConstructorResult(declaredType, (IConstructor)value, ctx);
 		}
-
+		
+		@Override
 		public Result<? extends IValue> visitAlias(Type type) {
 			return type.getAliased().accept(this);
 		}
 
+		@Override
 		public BoolResult visitBool(Type boolType) {
 			return new BoolResult(declaredType, (IBool)value, ctx);
 		}
 
+		@Override
 		public Result<? extends IValue> visitConstructor(Type type) {
 			if (type.equals(Factory.Tree)) {
 				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
@@ -102,31 +106,44 @@ public class ResultFactory {
 			}
 			return new ConstructorResult(declaredType.getAbstractDataType(), (IConstructor)value, ctx);
 		}
-
+		
+		@Override
 		public RealResult visitReal(Type type) {
 			return new RealResult(declaredType, (IReal)value, ctx);
 		}
-
+		
+		@Override
 		public IntegerResult visitInteger(Type type) {
 			return new IntegerResult(declaredType, (IInteger)value, ctx);
 		}
 		
+		@Override
 		public RationalResult visitRational(Type type) {
 			return new RationalResult(declaredType, (IRational)value, ctx);
 		}
 		
+		@Override
 		public NumberResult visitNumber(Type type) {
 			return new NumberResult(declaredType, (INumber) value, ctx);
 		}
+		
+		@Override
+		public ListOrRelationResult<IList> visitList(Type type) {
+				if (value != null && !(value.getType().isListRelation()))
+					throw new ImplementationError("somehow a list relation value turned into a list, but its type did not change with it", ctx.getCurrentAST().getLocation());
+				
+				if(declaredType.isRelation())
+					return new ListRelationResult(declaredType, (IList)value, ctx);
 
-		public ListResult visitList(Type type) {
 			return new ListResult(declaredType, (IList)value, ctx);
 		}
 
+		@Override
 		public MapResult visitMap(Type type) {
 			return new MapResult(declaredType, (IMap)value, ctx);
 		}
 
+		@Override
 		public ElementResult<? extends IValue> visitNode(Type type) {
 			if (type.equals(Factory.Tree)) {
 				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
@@ -134,49 +151,48 @@ public class ResultFactory {
 			return new NodeResult(declaredType, (INode)value, ctx);
 		}
 
+		@Override
 		public Result<? extends IValue> visitParameter(Type parameterType) {
 			return parameterType.getBound().accept(this);
 		}
-
-		public SetOrRelationResult<?> visitRelationType(Type type) {
-			if (value != null && !(value.getType().isRelationType())) {
-				throw new ImplementationError("somehow a relation value turned into a set, but its type did not change with it", ctx.getCurrentAST().getLocation());
-			}
-			return new RelationResult(declaredType, (ISet)value, ctx);
-		}
 		
 		@Override
-		public Result<? extends IValue> visitListRelationType(Type type) {
-			if (value != null && !(value.getType().isListRelationType())) {
-				throw new ImplementationError("somehow a list relation value turned into a list, but its type did not change with it", ctx.getCurrentAST().getLocation());
-			}
-			return new ListRelationResult(declaredType, (IList)value, ctx);
-		}
-
 		public SetOrRelationResult<ISet> visitSet(Type type) {
+			if (value != null && !(value.getType().isRelation()))
+				throw new ImplementationError("somehow a relation value turned into a set, but its type did not change with it", ctx.getCurrentAST().getLocation());
+			
+			if(declaredType.isRelation())
+				return new RelationResult(declaredType, (ISet)value, ctx);
+			
 			return new SetResult(declaredType, (ISet)value, ctx);
 		}
 
+		@Override
 		public SourceLocationResult visitSourceLocation(Type type) {
 			return new SourceLocationResult(declaredType, (ISourceLocation)value, ctx);		
 		}
 
+		@Override
 		public StringResult visitString(Type type) {
 			return new StringResult(declaredType, (IString)value, ctx);
 		}
 
+		@Override
 		public TupleResult visitTuple(Type type) {
 			return new TupleResult(declaredType, (ITuple)value, ctx);
 		}
 
+		@Override
 		public ValueResult visitValue(Type type) {
 			return new ValueResult(declaredType, value, ctx);
 		}
 
+		@Override
 		public VoidResult visitVoid(Type type) {
 			return new VoidResult(declaredType, ctx);
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
 		public Result<? extends IValue> visitExternal(Type externalType) {
 			if (externalType instanceof FunctionType) {
@@ -200,6 +216,7 @@ public class ResultFactory {
 			
 		}
 
+		@Override
 		public Result<? extends IValue> visitDateTime(Type type) {
 			return new DateTimeResult(declaredType, (IDateTime)value, ctx);		
 		}
