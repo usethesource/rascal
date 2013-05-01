@@ -6,7 +6,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 
-public class TypeParameterVisitor implements ITypeVisitor<IValue> {
+public class TypeParameterVisitor implements ITypeVisitor<IValue,RuntimeException> {
 	
 	private HashMap<Type, Type> typeParameters;
 	private final RandomType randomType;
@@ -26,7 +26,7 @@ public class TypeParameterVisitor implements ITypeVisitor<IValue> {
 		Type type = typeParameters.get(parameterType);
 		if(type == null){
 			Type bound = parameterType.getBound();
-			while(bound.isParameterType()){
+			while (bound.isOpen()){
 				bound = typeParameters.get(bound.getName());
 			}
 			
@@ -86,18 +86,6 @@ public class TypeParameterVisitor implements ITypeVisitor<IValue> {
 	@Override
 	public IValue visitAlias(Type type) {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IValue visitRelationType(Type type) {
-		type.getElementType().accept(this);
-		return null;
-	}
-
-	@Override
-	public IValue visitListRelationType(Type type) {
-		type.getElementType().accept(this);
 		return null;
 	}
 

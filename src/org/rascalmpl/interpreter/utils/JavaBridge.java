@@ -201,7 +201,7 @@ public class JavaBridge {
 		return formal.typeOf(env, true);
 	}
 	
-	private static class JavaClasses implements ITypeVisitor<Class<?>> {
+	private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {
 
 		@Override
 		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
