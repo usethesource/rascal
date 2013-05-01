@@ -88,15 +88,13 @@ public class Eval {
 	public IValue eval (IValue typ, IString input, IInteger duration, IEvaluatorContext ctx) {
 		Result<IValue> result = doEval(typ, ValueFactoryFactory.getValueFactory().list(input), duration,  getSharedEvaluator(ctx), true);
 		
-		if(result.getType().isVoidType()){
-		//if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
-			return Result_void.make(values);
+		if(result.getType().isBottom()){
+		  return values.constructor(Result_void);
 		}
 		else {
 			Map<Type,Type> bindings = new HashMap<Type,Type>();
 			bindings.put(param, result.getType());
-			IValue res = Result_value.instantiate(bindings).make(values, result.getValue());
-			return res;
+			return values.constructor(Result_value.instantiate(bindings), result.getValue());
 		}
 	}
 	
@@ -107,14 +105,14 @@ public class Eval {
 	public IValue eval (IValue typ, IList commands, IInteger duration, IEvaluatorContext ctx) {
 		Result<IValue> result = doEval(typ, commands, duration,  getSharedEvaluator(ctx), true);
 		
-		if(result.getType().isVoidType()){
+		if(result.getType().isBottom()){
 		//if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
-			return Result_void.make(values);
+			return values.constructor(Result_void);
 		}
 		else {
 			Map<Type,Type> bindings = new HashMap<Type,Type>();
 			bindings.put(param, result.getType());
-			return Result_value.instantiate(bindings).make(values, result.getValue());
+			return values.constructor(Result_value.instantiate(bindings), result.getValue());
 		}
 	}
 	
@@ -178,8 +176,9 @@ public class Eval {
 			throw e;
 		}
 		catch (StaticError e) {
-			if (forRascal)
-				throw new Throw(Exception_StaticError.make(values, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, ctx.getStackTrace());
+			if (forRascal) {
+			  throw new Throw(values.constructor(Exception_StaticError, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, ctx.getStackTrace());
+			}
 			throw e;
 		} catch (URISyntaxException e) {
 			// this should never happen
