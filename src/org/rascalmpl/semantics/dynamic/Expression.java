@@ -377,7 +377,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type constructorType = TF.nodeType();
 			
 			for (AbstractFunction candidate : functions) {
-				if (candidate.getReturnType().isAbstractDataType() && !candidate.getReturnType().isVoidType() && candidate.match(signature)) {
+				if (candidate.getReturnType().isAbstractData() && !candidate.getReturnType().isBottom() && candidate.match(signature)) {
 					Type decl = eval.getCurrentEnvt().getConstructor(candidate.getReturnType(), cons, signature);
 					if (decl != null) {
 						constructorType = decl;
@@ -467,7 +467,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				for (int i = 0; i < args.size(); i++) {
 					Result<IValue> resultElem = args.get(i).interpret(eval);
 					types[i] = resultElem.getType();
-					if(types[i].isVoidType()) 
+					if(types[i].isBottom()) 
 						throw new UninitializedPatternMatch("The argument is of the type 'void'", args.get(i));
 					actuals[i] = resultElem.getValue();
 				}
@@ -508,10 +508,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			Type lambda = getExpression().typeOf(env, instantiateTypeParameters);
 
-			if (lambda.isStringType()) {
+			if (lambda.isString()) {
 				return TF.nodeType();
 			}
-			if (lambda.isSourceLocationType()) {
+			if (lambda.isSourceLocation()) {
 				return lambda;
 			}
 			if (lambda.isExternalType()) {
@@ -1117,7 +1117,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			try {
 				Result<IValue> cval = this.getCondition().interpret(__eval);
 
-				if (!cval.getType().isBoolType()) {
+				if (!cval.getType().isBool()) {
 					throw new UnexpectedType(TF.boolType(),
 							cval.getType(), this);
 				}
@@ -1420,7 +1420,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				if (!isSplicedElem) {
 					resultElem = expr.interpret(__eval);
 
-					if (resultElem.getType().isVoidType()) {
+					if (resultElem.getType().isBottom()) {
 						throw new NonVoidTypeRequired(expr);
 					}
 
@@ -1428,11 +1428,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 				if (isSplicedElem){
 				  resultElem = expr.getArgument().interpret(__eval);
-				  if (resultElem.getType().isVoidType()) {
+				  if (resultElem.getType().isBottom()) {
 				    throw new NonVoidTypeRequired(expr);
 				  }
 
-				  if(resultElem.getType().isListType()|| resultElem.getType().isSetType()){
+				  if(resultElem.getType().isList()|| resultElem.getType().isSet()){
 				    /*
 				     * Splice elements in list
 				     */
@@ -1536,11 +1536,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				Result<IValue> keyResult = mapping.getFrom().interpret(__eval);
 				Result<IValue> valueResult = mapping.getTo().interpret(__eval);
 
-				if (keyResult.getType().isVoidType()) {
+				if (keyResult.getType().isBottom()) {
 					throw new NonVoidTypeRequired(mapping.getFrom());
 				}
 
-				if (valueResult.getType().isVoidType()) {
+				if (valueResult.getType().isBottom()) {
 					throw new NonVoidTypeRequired(mapping.getTo());
 				}
 
@@ -2260,11 +2260,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				
 				if(expr.isSplice() || expr.isSplicePlus()){
 					resultElem = expr.getArgument().interpret(__eval);
-					if (resultElem.getType().isVoidType()) {
+					if (resultElem.getType().isBottom()) {
 						throw new NonVoidTypeRequired(expr.getArgument());
 					}
 
-					if (resultElem.getType().isSetType() || resultElem.getType().isListType()){
+					if (resultElem.getType().isSet() || resultElem.getType().isList()){
 						/*
 						 * Splice the elements in the set
 						 * __eval.
@@ -2277,7 +2277,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					}
 				} else {
 					resultElem = expr.interpret(__eval);
-					if (resultElem.getType().isVoidType()) {
+					if (resultElem.getType().isBottom()) {
 						throw new NonVoidTypeRequired(expr);
 					}
 				}
@@ -2301,7 +2301,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				Type eltType = elt.typeOf(env, instantiateTypeParameters);
 				
 				// TODO: here we need to properly deal with splicing operators!!!
-				if (eltType.isSetType()) {
+				if (eltType.isSet()) {
 				  eltType = eltType.getElementType();
 				}
         elementType = elementType.lub(eltType);
