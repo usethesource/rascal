@@ -833,7 +833,7 @@ public class Prelude {
 	
 	private IList extractPath(IValue start, IValue u){
 		Type listType = types.listType(start.getType());
-		IListWriter w = listType.writer(values);
+		IListWriter w = values.listWriter(listType.getElementType());
 		
 		if(!start.isEqual(u)){
 			w.insert(u);
@@ -851,7 +851,7 @@ public class Prelude {
 		PrintWriter currentOutStream = eval.getStdOut();
 		
 		try{
-			if(arg.getType().isStringType()){
+			if(arg.getType().isString()){
 				currentOutStream.print(((IString) arg).getValue().toString());
 			}
 			else if(arg.getType().isSubtypeOf(Factory.Tree)){
@@ -906,7 +906,7 @@ public class Prelude {
 		PrintWriter currentOutStream = eval.getStdOut();
 		
 		try{
-			if(arg.getType().isStringType()){
+			if(arg.getType().isString()){
 				currentOutStream.print(((IString) arg).getValue());
 			}
 			else if(arg.getType().isSubtypeOf(Factory.Tree)){
@@ -947,7 +947,7 @@ public class Prelude {
 
 	@Deprecated
 	public IValue readFile(IString filename){
-		IListWriter w = types.listType(types.stringType()).writer(values);
+		IListWriter w = values.listWriter(types.stringType());
 		
 		BufferedReader in = null;
 		try{
@@ -1183,7 +1183,7 @@ public class Prelude {
 			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue(), append);
 			
 			for(IValue elem : V){
-				if (elem.getType().isStringType()) {
+				if (elem.getType().isString()) {
 					out.append(((IString) elem).getValue());
 				}else if (elem.getType().isSubtypeOf(Factory.Tree)) {
 					out.append(TreeAdapter.yield((IConstructor) elem));
@@ -1248,7 +1248,7 @@ public class Prelude {
 	}
 
 	private IList consumeInputStreamLines(ISourceLocation sloc,	Reader stream, IEvaluatorContext ctx ) {
-		IListWriter w = types.listType(types.stringType()).writer(values);
+		IListWriter w = values.listWriter(types.stringType());
 		
 		BufferedReader in = null;
 		try{
@@ -1305,7 +1305,7 @@ public class Prelude {
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc, IEvaluatorContext ctx){
-		IListWriter w = types.listType(types.integerType()).writer(values);
+		IListWriter w = values.listWriter(types.integerType());
 		sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		
 		BufferedInputStream in = null;
@@ -1681,7 +1681,7 @@ public class Prelude {
 	   if(n > 0){
 	   	  int k = random.nextInt(n);
 	   	  IValue pick = lst.get(0);
-	   	  IListWriter w = lst.getType().writer(values);
+	   	  IListWriter w = values.listWriter(lst.getType().getElementType());
 	  
 	      for(int i = n - 1; i >= 0; i--) {
 	         if(i == k){
@@ -1712,14 +1712,14 @@ public class Prelude {
 			IValue val = t.get(1);
 			ISetWriter wValSet = hm.get(key);
 			if(wValSet == null){
-				wValSet = valueSetType.writer(values);
+				wValSet = values.setWriter(valueSetType.getElementType());
 				hm.put(key, wValSet);
 			}
 			wValSet.insert(val);
 		}
 		
 		Type resultType = types.mapType(keyType, valueSetType);
-		IMapWriter w = resultType.writer(values);
+		IMapWriter w = values.mapWriter(resultType);
 		for(IValue v : hm.keySet()){
 			w.put(v, hm.get(v).done());
 		}
@@ -1735,7 +1735,7 @@ public class Prelude {
 	   Type tuple = lst.getElementType();
 	   Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
 	  
-	   IMapWriter w = resultType.writer(values);
+	   IMapWriter w = values.mapWriter(resultType);
 	   HashSet<IValue> seenKeys = new HashSet<IValue>();
 	   for(IValue v : lst){
 		   ITuple t = (ITuple) v;
@@ -1752,7 +1752,7 @@ public class Prelude {
 	//@doc{toSet -- convert a list to a set}
 	{
 	  Type resultType = types.setType(lst.getElementType());
-	  ISetWriter w = resultType.writer(values);
+	  ISetWriter w = values.setWriter(resultType.getElementType());
 	  
 	  for(IValue v : lst){
 	    w.insert(v);
@@ -1778,7 +1778,7 @@ public class Prelude {
 	  Type keyType = M.getKeyType();
 	  
 	  Type resultType = types.setType(keyType);
-	  ISetWriter w = resultType.writer(values);
+	  ISetWriter w = values.setWriter(resultType.getElementType());
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
@@ -1814,7 +1814,7 @@ public class Prelude {
 		Type keyType = M.getKeyType();
 		Type valueType = M.getValueType();
 		Type resultType = types.mapType(valueType, keyType);
-		IMapWriter w = resultType.writer(values);
+		IMapWriter w = values.mapWriter(resultType);
 		HashSet<IValue> seenValues = new HashSet<IValue>();
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
