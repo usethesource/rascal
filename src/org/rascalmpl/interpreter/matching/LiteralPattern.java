@@ -64,7 +64,7 @@ public class LiteralPattern extends AbstractMatchingResult {
 			return subject.equals(makeResult(literal.getType(), literal, ctx)).isTrue();
 		}
 		else if (!isPattern) {
-			if (literal.getType().isBoolType()) {
+			if (literal.getType().isBool()) {
 				return ((IBool) literal).getValue(); 
 			}
 			

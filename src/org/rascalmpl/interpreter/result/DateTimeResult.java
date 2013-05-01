@@ -189,7 +189,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 				if (dt.isTime()) {
 					throw new UnsupportedOperation("Can not update the year on a time value",ctx.getCurrentAST());
 				}			
-				if (!replType.isIntegerType()) {
+				if (!replType.isInteger()) {
 					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				year = ((IInteger) replValue).intValue();
@@ -197,7 +197,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 				if (dt.isTime()) {
 					throw new UnsupportedOperation("Can not update the month on a time value",ctx.getCurrentAST());
 				}			
-				if (!replType.isIntegerType()) {
+				if (!replType.isInteger()) {
 					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				month = ((IInteger) replValue).intValue();				
@@ -205,7 +205,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 				if (dt.isTime()) {
 					throw new UnsupportedOperation("Can not update the day on a time value",ctx.getCurrentAST());
 				}			
-				if (!replType.isIntegerType()) {
+				if (!replType.isInteger()) {
 					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				day = ((IInteger) replValue).intValue();				
@@ -213,7 +213,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 				if (dt.isDate()) {
 					throw new UnsupportedOperation("Can not update the hour on a date value",ctx.getCurrentAST());
 				}			
-				if (!replType.isIntegerType()) {
+				if (!replType.isInteger()) {
 					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				hour = ((IInteger) replValue).intValue();				
@@ -221,7 +221,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 				if (dt.isDate()) {
 					throw new UnsupportedOperation("Can not update the minute on a date value",ctx.getCurrentAST());
 				}			
-				if (!replType.isIntegerType()) {
+				if (!replType.isInteger()) {
 					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				minute = ((IInteger) replValue).intValue();				
@@ -229,7 +229,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 				if (dt.isDate()) {
 					throw new UnsupportedOperation("Can not update the second on a date value",ctx.getCurrentAST());
 				}			
-				if (!replType.isIntegerType()) {
+				if (!replType.isInteger()) {
 					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				second = ((IInteger) replValue).intValue();				
@@ -237,7 +237,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 				if (dt.isDate()) {
 					throw new UnsupportedOperation("Can not update the millisecond on a date value",ctx.getCurrentAST());
 				}			
-				if (!replType.isIntegerType()) {
+				if (!replType.isInteger()) {
 					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				milli = ((IInteger) replValue).intValue();			
@@ -245,7 +245,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 				if (dt.isDate()) {
 					throw new UnsupportedOperation("Can not update the timezone offset hours on a date value",ctx.getCurrentAST());
 				}			
-				if (!replType.isIntegerType()) {
+				if (!replType.isInteger()) {
 					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				tzOffsetHour = ((IInteger) replValue).intValue();				
@@ -253,7 +253,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 				if (dt.isDate()) {
 					throw new UnsupportedOperation("Can not update the timezone offset minutes on a date value",ctx.getCurrentAST());
 				}			
-				if (!replType.isIntegerType()) {
+				if (!replType.isInteger()) {
 					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				tzOffsetMin = ((IInteger) replValue).intValue();				

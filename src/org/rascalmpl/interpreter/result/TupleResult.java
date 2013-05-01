@@ -138,7 +138,7 @@ public class TupleResult extends ElementResult<ITuple> {
 			 * Wild card not allowed as tuple subscript
 			 */
 			throw new UnsupportedSubscript(type, null, ctx.getCurrentAST());
-		if (!subsBase.getType().isIntegerType()){
+		if (!subsBase.getType().isInteger()){
 			throw new UnsupportedSubscript(getTypeFactory().integerType(), subsBase.getType(), ctx.getCurrentAST());
 		}
 		IInteger index = (IInteger)subsBase.getValue();

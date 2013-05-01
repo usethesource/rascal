@@ -98,7 +98,7 @@ public class DebugUpdater {
 				Set<Integer> pushdownPositions = getChildProductionPositionsForPushdown(prod);				
 											
 				// update children by recursively applying this visitor.
-				IListWriter writer = Factory.Args.writer(VF);
+				IListWriter writer = VF.listWriter(Factory.Args.getElementType());
 
 				Iterator<IValue> iter = TreeAdapter.getArgs(arg).iterator();
 				for (Integer pos = 0; iter.hasNext(); pos++) {
@@ -135,7 +135,7 @@ public class DebugUpdater {
 			String[] result = {};
 			for (IValue attributeValue : attributes) {
 				
-				if (attributeValue.getType().isAbstractDataType() && !attributeValue.getType().isVoidType()) {
+				if (attributeValue.getType().isAbstractData() && !attributeValue.getType().isBottom()) {
 					IConstructor attributeConstructor = (IConstructor)attributeValue;
 
 					if (attributeConstructor.getName().equals("tag")) {
@@ -171,7 +171,7 @@ public class DebugUpdater {
 	
 					IValue kidValue = iter.next();
 	
-					if (kidValue.getType().isAbstractDataType() && !kidValue.getType().isVoidType()) {
+					if (kidValue.getType().isAbstractData() && !kidValue.getType().isBottom()) {
 						IConstructor kidConstructor = (IConstructor)kidValue;
 						
 						if (kidConstructor.getName().equals("label")) {
