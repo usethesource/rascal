@@ -102,6 +102,14 @@ public class NonTerminalType extends RascalType {
 	}
 	
 	@Override
+	protected boolean isSupertypeOf(Type type) {
+		if(type.isAbstractData() && getName() == type.getName()) {
+			return type.getTypeParameters().isSubtypeOf(this.getTypeParameters());
+		}
+		return super.isSupertypeOf(type);
+	}
+	
+	@Override
 	protected boolean isSupertypeOf(RascalType type) {
 	  return type.isSubtypeOfNonTerminal(this);
 	}
