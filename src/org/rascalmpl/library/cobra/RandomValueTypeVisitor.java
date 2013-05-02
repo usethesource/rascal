@@ -177,7 +177,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 			if (argument == null) {
 				return null;
 				/*
-				 * Het is onmogelijk om de constructor te bouwen als ŽŽn
+				 * Het is onmogelijk om de constructor te bouwen als een
 				 * argument null is.
 				 */
 			}
