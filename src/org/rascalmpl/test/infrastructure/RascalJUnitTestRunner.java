@@ -110,6 +110,9 @@ public class RascalJUnitTestRunner extends Runner {
 
 	@Override
 	public void run(final RunNotifier notifier) {
+		if (desc == null) {
+			return;
+		}
 		notifier.fireTestRunStarted(desc);
 
 		for (Description mod : desc.getChildren()) {
