@@ -129,11 +129,11 @@ public class ResultFactory {
 		
 		@Override
 		public ListOrRelationResult<IList> visitList(Type type) {
+			if(declaredType.isRelation()) {
 				if (value != null && !(value.getType().isListRelation()))
 					throw new ImplementationError("somehow a list relation value turned into a list, but its type did not change with it", ctx.getCurrentAST().getLocation());
-				
-				if(declaredType.isRelation())
-					return new ListRelationResult(declaredType, (IList)value, ctx);
+				return new ListRelationResult(declaredType, (IList)value, ctx);
+			}
 
 			return new ListResult(declaredType, (IList)value, ctx);
 		}
@@ -158,11 +158,11 @@ public class ResultFactory {
 		
 		@Override
 		public SetOrRelationResult<ISet> visitSet(Type type) {
-			if (value != null && !(value.getType().isRelation()))
-				throw new ImplementationError("somehow a relation value turned into a set, but its type did not change with it", ctx.getCurrentAST().getLocation());
-			
-			if(declaredType.isRelation())
+			if(declaredType.isRelation()) {
+				if (value != null && !(value.getType().isRelation()))
+					throw new ImplementationError("somehow a relation value turned into a set, but its type did not change with it", ctx.getCurrentAST().getLocation());
 				return new RelationResult(declaredType, (ISet)value, ctx);
+			}
 			
 			return new SetResult(declaredType, (ISet)value, ctx);
 		}

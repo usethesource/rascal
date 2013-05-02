@@ -186,11 +186,12 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				results[i] = argResult.getValue();
 				resultTypes[i] = argType;
 			}
-
+			
 			if (!nodeType.isAbstractData() && !nodeType.isConstructor()) {
+				// TODO: can this be the case?
 				return org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(nodeType, nodeType.make(__eval.__getEval()
-								.getValueFactory(), node.getName(), results),
+						.makeResult(nodeType, __eval.__getEval()
+								.getValueFactory().node(node.getName(), results),
 								__eval.__getEval());
 			}
 
@@ -209,8 +210,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			}
 
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
-					constructor.getAbstractDataType(), constructor.make(__eval
-							.__getEval().getValueFactory(), results), __eval
+					constructor.getAbstractDataType(), __eval.__getEval().getValueFactory().constructor(constructor, results), __eval
 							.__getEval());
 
 		}
@@ -947,8 +947,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
 					org.rascalmpl.interpreter.AssignableEvaluator.__getTf()
-							.tupleType(resultTypes), tupleType.make(__eval
-							.__getEval().getValueFactory(), results), __eval
+							.tupleType(resultTypes), __eval
+							.__getEval().getValueFactory().tuple(results), __eval
 							.__getEval());
 
 		}
