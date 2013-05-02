@@ -1927,6 +1927,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
 
     if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 
+	// Special handling for list[void] and set[void], these should be treated as lrel[void,void]
+	// and rel[void,void], respectively
+	if (isListType(t1) && isVoidType(getListElementType(t1))) t1 = makeListRelType(makeVoidType(),makeVoidType());
+	if (isListType(t2) && isVoidType(getListElementType(t2))) t2 = makeListRelType(makeVoidType(),makeVoidType());
+	if (isSetType(t1) && isVoidType(getSetElementType(t1))) t1 = makeRelType(makeVoidType(),makeVoidType());
+	if (isSetType(t2) && isVoidType(getSetElementType(t2))) t2 = makeRelType(makeVoidType(),makeVoidType());
+	
     if (isMapType(t1) && isMapType(t2)) {
         if (subtype(getMapRangeType(t1),getMapDomainType(t2))) {
             return markLocationType(c, exp@\loc, makeMapType(stripLabel(getMapDomainType(t1)),stripLabel(getMapRangeType(t2))));
