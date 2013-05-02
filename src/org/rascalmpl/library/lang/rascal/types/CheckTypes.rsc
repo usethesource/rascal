@@ -2110,7 +2110,18 @@ CheckResult computeIntersectionType(Configuration c, Symbol t1, Symbol t2, loc l
 	{
     	if (!comparable(t1,t2))
     		c = addScopeWarning(c, "Types <prettyPrintType(t1)> and <prettyPrintType(t2)> are not comparable", l);
-        return < c, t1 >;
+    		
+    	if (subtype(t2, t1))
+    		return < c, t2 >;
+    		
+    	if (subtype(t1, t2))
+    		return < c, t1 >;
+    		
+    	if (isListRelType(t1)) return < c, makeListRelType(makeVoidType(),makeVoidType()) >;
+    	if (isListType(t1)) return < c, makeListType(makeVoidType()) >;
+    	if (isRelType(t1)) return < c, makeRelType(makeVoidType(), makeVoidType()) >;
+    	if (isSetType(t1)) return < c, makeSetType(makeVoidType()) >;
+    	if (isMapType(t1)) return < c, makeMapType(makeVoidType(),makeVoidType()) >;
     }
     return < c, makeFailType("Intersection not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l) >;
 }
