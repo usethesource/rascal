@@ -233,7 +233,7 @@ public class TestFramework {
 	private boolean execute(String command){
 		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme("stdin"));
 
-		if (result.getType().isVoidType()) {
+		if (result.getType().isBottom()) {
 			return true;
 			
 		}

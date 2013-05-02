@@ -2188,7 +2188,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
 			bindings.put(Factory.TypeParam, new TypeReifier(VF).symbolToType((IConstructor) symbol.getValue(), (IMap) declarations.getValue()));
 			
-			IValue val = Factory.Type_Reified.instantiate(bindings).make(VF, symbol.getValue(), declarations.getValue());
+			IValue val = VF.constructor(Factory.Type_Reified.instantiate(bindings), symbol.getValue(), declarations.getValue());
 			
 			bindings.put(Factory.TypeParam, TF.valueType());
 			Type typ = Factory.Type.instantiate(bindings);

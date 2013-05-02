@@ -103,7 +103,7 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	protected boolean isSupertypeOf(RascalType type) {
-	  return isSubtypeOfNonTerminal(this);
+	  return type.isSubtypeOfNonTerminal(this);
 	}
 	
 	@Override

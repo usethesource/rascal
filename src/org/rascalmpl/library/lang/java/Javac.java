@@ -31,7 +31,7 @@ public class Javac{
 	}
 	
 	public IList compile(IList opts) throws Exception{
-		if(!opts.getType().getElementType().isStringType()){
+		if(!opts.getType().getElementType().isString()){
 			throw RuntimeExceptionFactory.illegalArgument(opts, null, null);
 		}
 		

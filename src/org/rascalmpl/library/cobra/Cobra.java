@@ -162,7 +162,7 @@ public class Cobra {
 
 	private boolean isReturnTypeBool(List<AbstractFunction> functions) {
 		for(AbstractFunction f: functions){
-			if (!f.getReturnType().isBoolType()) {
+			if (!f.getReturnType().isBool()) {
 				return false;
 			}
 		}
