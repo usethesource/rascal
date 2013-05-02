@@ -170,6 +170,14 @@ public set[RName] getFunctionsInScope(Configuration c) {
 	return { n | l <- c.fcvEnv, i:function(n,_,_,_,_,_) := c.store[c.fcvEnv[l]] };
 }
 
+public set[AbstractValue] getPatternVariableValues(Configuration c) {
+	return { i | i:variable(_,_,_,n,_) <- c.store<1>, booleanScope(_,_) := c.store[n] };
+}
+
+public map[RName,Symbol] getPatternVariables(Configuration c) {
+	return ( n : t | variable(n,t,_,_,_) <- getPatternVariableValues(c) );
+}
+
 public set[str] getFailureMessages(CheckResult r){
    res = {};
    if(failure(set[Message] msgs) := r.res){
