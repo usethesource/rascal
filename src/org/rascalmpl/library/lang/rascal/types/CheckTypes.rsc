@@ -1809,6 +1809,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> +`, Confi
     < c, t1 > = checkExp(e, c);
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
 
+	// Special case: if we have list[void] or set[void], these become lrel[void,void] and rel[void,void]
+	if (isListType(t1) && isVoidType(getListElementType(t1)))
+		return markLocationType(c,exp@\loc,makeListRelType([makeVoidType(),makeVoidType()]));
+	if (isSetType(t1) && isVoidType(getSetElementType(t1)))
+		return markLocationType(c,exp@\loc,makeRelType([makeVoidType(),makeVoidType()]));
+		
+	// Normal case: we have an actual list or relation
     if (isRelType(t1) || isListRelType(t1)) {
         list[Symbol] flds = isRelType(t1) ? getRelFields(t1) : getListRelFields(t1);
         if (size(flds) == 0) {
@@ -1830,6 +1837,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> *`, Confi
     < c, t1 > = checkExp(e, c);
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
 
+	// Special case: if we have list[void] or set[void], these become lrel[void,void] and rel[void,void]
+	if (isListType(t1) && isVoidType(getListElementType(t1)))
+		return markLocationType(c,exp@\loc,makeListRelType([makeVoidType(),makeVoidType()]));
+	if (isSetType(t1) && isVoidType(getSetElementType(t1)))
+		return markLocationType(c,exp@\loc,makeRelType([makeVoidType(),makeVoidType()]));
+		
+	// Normal case: we have an actual list or relation
     if (isRelType(t1) || isListRelType(t1)) {
         list[Symbol] flds = isRelType(t1) ? getRelFields(t1) : getListRelFields(t1);
         if (size(flds) == 0) {
