@@ -2076,22 +2076,22 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> & <Expre
     < c, t1 > = checkExp(e1, c);
     < c, t2 > = checkExp(e2, c);
     if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-    return markLocationType(c,exp@\loc,computeIntersectionType(t1,t2,exp@\loc));
+    < c, itype > = computeIntersectionType(c,t1,t2,exp@\loc);
+    return markLocationType(c,exp@\loc,itype);
 }
 
-Symbol computeIntersectionType(Symbol t1, Symbol t2, loc l) {
-    if (isListRelType(t1) && isListRelType(t2))
-        return lub(t1,t2);
-    if (isListType(t1) && isListType(t2))
-        return lub(t1,t2);
-    if (isRelType(t1) && isRelType(t2))
-        return lub(t1,t2);
-    if (isSetType(t1) && isSetType(t2))
-        return lub(t1,t2);
-    if (isMapType(t1) && isMapType(t2) && equivalent(getMapDomainType(t1),getMapDomainType(t2)) && equivalent(getMapRangeType(t1),getMapRangeType(t2)))
-        return t1;
-    
-    return makeFailType("Intersection not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
+CheckResult computeIntersectionType(Configuration c, Symbol t1, Symbol t2, loc l) {
+    if ( ( isListRelType(t1) && isListRelType(t2) ) || 
+         ( isListType(t1) && isListType(t2) ) || 
+         ( isRelType(t1) && isRelType(t2) ) || 
+         ( isSetType(t1) && isSetType(t2) ) || 
+         ( isMapType(t1) && isMapType(t2) ) )
+	{
+    	if (!comparable(t1,t2))
+    		c = addScopeWarning(c, "Types <prettyPrintType(t1)> and <prettyPrintType(t2)> are not comparable", l);
+        return < c, t1 >;
+    }
+    return < c, makeFailType("Intersection not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l) >;
 }
 
 @doc{Check the types of Rascal expressions: Addition (DONE)}
