@@ -129,7 +129,7 @@ public class ResultFactory {
 		
 		@Override
 		public ListOrRelationResult<IList> visitList(Type type) {
-			if(declaredType.isRelation()) {
+			if(declaredType.isListRelation()) {
 				if (value != null && !(value.getType().isListRelation()))
 					throw new ImplementationError("somehow a list relation value turned into a list, but its type did not change with it", ctx.getCurrentAST().getLocation());
 				return new ListRelationResult(declaredType, (IList)value, ctx);
