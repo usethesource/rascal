@@ -259,7 +259,7 @@ public class ConcurrentTestFramework {
 	private boolean execute(String command, Evaluator eval){
 		Result<IValue> result = eval.eval(null, command, URIUtil.rootScheme("stdin"));
 
-		if (result.getType().isBottom()) {
+		if (result.getType().isVoidType()) {
 			return true;
 
 		}
@@ -280,7 +280,7 @@ public class ConcurrentTestFramework {
 			public boolean run(Evaluator eval) {
 				Result<IValue> result = eval.eval(null, command, URIUtil.rootScheme("stdin"));
 
-				if (result.getType().isBottom()) {
+				if (result.getType().isVoidType()) {
 					return true;
 
 				}
