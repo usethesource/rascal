@@ -97,6 +97,9 @@ public class FunctionType extends RascalType {
 	protected Type lubWithFunction(RascalType type) {
 	  FunctionType o = (FunctionType) type;
 
+	  if(this == o)
+		  return this;
+	  
 	  if (this.returnType == o.returnType) {
 	    Set<FunctionType> alts = new HashSet<FunctionType>();
 	    alts.add(this);
