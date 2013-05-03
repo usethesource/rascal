@@ -146,7 +146,7 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 		if ((Statement)`{ < Statement* sl > }` := parseStatement("{ <statementsString> }"))
 			stmts = [ s | s <- sl ];			
 	} catch perror : {
-		c = addScopeError(c, "Cannot parse statement <s>",  |file:///tmp/CheckStatementsString.rsc|);
+		c = addScopeError(c, "Cannot parse statement <statementsString>",  |file:///tmp/CheckStatementsString.rsc|);
 	}
 	
 	for (stmt <- stmts) < c, rt > = checkStmt(stmt, c);
@@ -168,6 +168,14 @@ public set[RName] getVariablesInScope(Configuration c) {
 
 public set[RName] getFunctionsInScope(Configuration c) {
 	return { n | l <- c.fcvEnv, i:function(n,_,_,_,_,_) := c.store[c.fcvEnv[l]] };
+}
+
+public set[AbstractValue] getPatternVariableValues(Configuration c) {
+	return { i | i:variable(_,_,_,n,_) <- c.store<1>, booleanScope(_,_) := c.store[n] };
+}
+
+public map[RName,Symbol] getPatternVariables(Configuration c) {
+	return ( n : t | variable(n,t,_,_,_) <- getPatternVariableValues(c) );
 }
 
 public set[str] getFailureMessages(CheckResult r){
