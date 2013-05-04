@@ -768,7 +768,7 @@ public class JSonReader extends AbstractBinaryReader {
 		if (debug)
 			System.err.println("ParseTerms2:" + base + " " + elementType);
 		if (base.isList() || base.isTop()) {
-			IListWriter w = vf.listWriter(expected.getElementType());
+			IListWriter w = vf.listWriter(base.isTop() ? tf.valueType() : expected.getElementType());
 			for (int i = terms.length - 1; i >= 0; i--) {
 				w.insert(terms[i]);
 			}
