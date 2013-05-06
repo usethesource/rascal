@@ -376,7 +376,7 @@ public class ASTBuilder {
 
 	private IList getASTArgs(IConstructor tree) {
 		IList children = TreeAdapter.getArgs(tree);
-		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
+		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter(Factory.Args.getElementType());
 	
 		for (int i = 0; i < children.length(); i++) {
 			IConstructor kid = (IConstructor) children.get(i);

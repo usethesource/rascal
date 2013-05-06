@@ -14,8 +14,6 @@
 package org.rascalmpl.interpreter.types;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.type.ExternalType;
-import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
@@ -28,7 +26,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * This is an "extension" of the PDB's type system with a special kind of type
  * that implements the connection between Rascal's non-terminals and Rascal types. 
  */
-public class NonTerminalType extends ExternalType {
+public class NonTerminalType extends RascalType {
 	private IConstructor symbol;
 
 	/*package*/ NonTerminalType(IConstructor cons) {
@@ -58,16 +56,6 @@ public class NonTerminalType extends ExternalType {
 		return symbol;
 	}
 	
-	@Override
-	public boolean isAbstractDataType() {
-		return true;
-	}
-	
-	@Override
-	public boolean isNodeType() {
-		return true;
-	}
-	
 	public boolean isConcreteListType() {
 		return SymbolAdapter.isAnyList(getSymbol());
 	}
@@ -89,67 +77,61 @@ public class NonTerminalType extends ExternalType {
 	}
 	
 	@Override
-	public <T> T accept(ITypeVisitor<T> visitor) {
-		return visitor.visitExternal(this);
+	public <T, E extends Throwable> T accept(IRascalTypeVisitor<T,E> visitor) throws E {
+		return visitor.visitNonTerminal(this);
 	}
 	
 	@Override
-	public boolean isSubtypeOf(Type other) {
-		
-		if (other.equals(this)) {
-			return true;
-		}
-		
-		if (other == Factory.Tree) {
-			return true;
-		}
-		
-		if (other.isParameterType() && other.getBound().isSubtypeOf(Factory.Tree)) {
-			return true;
-		}
-		
-		if (other instanceof NonTerminalType) {
-			IConstructor otherSym = ((NonTerminalType)other).symbol;
-			if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
-				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(symbol), SymbolAdapter.getSymbol(otherSym));
-			}
-			
-			if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
-				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(symbol), SymbolAdapter.getSymbol(otherSym))
-				    && SymbolAdapter.isEqual(SymbolAdapter.getSeparators(symbol), SymbolAdapter.getSeparators(otherSym));
-			}
-			
-			return SymbolAdapter.isEqual(otherSym, symbol);
-		}
-		
-		if (other.isAbstractDataType() || other.isConstructorType()) {
-			return false;
-		}
-		
-		if (other.isNodeType()) {
-			return true;
-		}
-		
-		if (other.isVoidType()) {
-			return false;
-		}
-		
-		if (other.isParameterType()) {
-			return isSubtypeOf(other.getBound());
-		}
-		
-		return super.isSubtypeOf(other);
+	protected boolean isSubtypeOfAbstractData(Type type) {
+	  return type.equivalent(Factory.Tree);
 	}
 	
 	@Override
-	public Type lub(Type other) {
-		if (other.equals(this)) {
-			return this;
+	protected boolean isSubtypeOfNode(Type type) {
+	  return true;
+	}
+	
+	@Override
+	protected Type lubWithNode(Type type) {
+	  return type;
+	}
+	
+	@Override
+	protected Type lubWithAbstractData(Type type) {
+	  return type.equivalent(Factory.Tree) ? type : TF.nodeType(); 
+	}
+	
+	@Override
+	protected boolean isSupertypeOf(Type type) {
+		if(type.isAbstractData() && getName() == type.getName()) {
+			return type.getTypeParameters().isSubtypeOf(this.getTypeParameters());
 		}
-		else if (other.isSubtypeOf(Factory.Tree)) {
-			return Factory.Tree;
-		}
-		return super.lub(other);
+		return super.isSupertypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSupertypeOf(RascalType type) {
+	  return type.isSubtypeOfNonTerminal(this);
+	}
+	
+	@Override
+	protected Type lub(RascalType type) {
+	  return type.lubWithNonTerminal(this);
+	}
+	
+	@Override
+	public boolean isSubtypeOfNonTerminal(RascalType other) {
+	  IConstructor otherSym = ((NonTerminalType)other).symbol;
+	  if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
+	    return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(symbol), SymbolAdapter.getSymbol(otherSym));
+	  }
+
+	  if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
+	    return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(symbol), SymbolAdapter.getSymbol(otherSym))
+	        && SymbolAdapter.isEqual(SymbolAdapter.getSeparators(symbol), SymbolAdapter.getSeparators(otherSym));
+	  }
+
+	  return SymbolAdapter.isEqual(otherSym, symbol);
 	}
 	
 	@Override

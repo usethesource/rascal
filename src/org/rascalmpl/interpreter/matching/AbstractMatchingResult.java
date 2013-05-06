@@ -113,7 +113,7 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 		if(small.equivalent(large))
 			return true;
 
-		if(small.isVoidType() || large.isVoidType())
+		if(small.isBottom() || large.isBottom())
 			return false;
 
 		if(small.isSubtypeOf(large) || large.isSubtypeOf(small))
@@ -131,13 +131,13 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 			return small.isSubtypeOf(Factory.Tree);
 		}
 		
-		if(small.isListType() && large.isListType() || 
-				small.isSetType() && large.isSetType())
+		if(small.isList() && large.isList() || 
+				small.isSet() && large.isSet())
 			return mayMatch(small.getElementType(),large.getElementType());
-		if(small.isMapType() && large.isMapType())
+		if(small.isMap() && large.isMap())
 			return mayMatch(small.getKeyType(), large.getKeyType()) &&
 			mayMatch(small.getValueType(), large.getValueType());
-		if(small.isTupleType() && large.isTupleType()){
+		if(small.isTuple() && large.isTuple()){
 			if(small.getArity() != large.getArity())
 				return false;
 			for(int i = 0; i < large.getArity(); i++){
@@ -146,7 +146,7 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 			}
 			return false;
 		}
-		if(small.isConstructorType() && large.isConstructorType()){
+		if(small.isConstructor() && large.isConstructor()){
 			if(small.getName().equals(large.getName()))
 				return false;
 			for(int i = 0; i < large.getArity(); i++){
@@ -155,10 +155,10 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 			}
 			return false;
 		}
-		if(small.isConstructorType() && large.isAbstractDataType())
+		if(small.isConstructor() && large.isAbstractData())
 			return small.getAbstractDataType().equivalent(large);
 		
-		if(small.isAbstractDataType() && large.isConstructorType())
+		if(small.isAbstractData() && large.isConstructor())
 			return small.equivalent(large.getAbstractDataType());
 		
 		

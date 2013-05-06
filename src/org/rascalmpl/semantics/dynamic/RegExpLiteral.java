@@ -194,7 +194,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 		
 		private String escape(IValue val) {
 			String name;
-			if (val.getType().isStringType()) {
+			if (val.getType().isString()) {
 				name = ((IString) val).getValue();
 			}
 			else {

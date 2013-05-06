@@ -324,13 +324,13 @@ public class NumberResult extends ElementResult<INumber> {
 
 	@Override
 	protected <U extends IValue> Result<U> makeRangeFromNumber(NumberResult from) {
-		if (getType().lub(from.getType()).isIntegerType()) {
+		if (getType().lub(from.getType()).isInteger()) {
 			return makeRangeWithDefaultStep(from, getValueFactory().integer(1));
 		}
-		if (getType().lub(from.getType()).isRealType()) {
+		if (getType().lub(from.getType()).isReal()) {
 			return makeRangeWithDefaultStep(from, getValueFactory().real(1.0));
 		}
-		if (getType().lub(from.getType()).isNumberType()) {
+		if (getType().lub(from.getType()).isNumber()) {
 			return makeRangeWithDefaultStep(from, getValueFactory().integer(1));
 		}
 		throw new ImplementationError("Unknown number type in makeRangeFromNumber");

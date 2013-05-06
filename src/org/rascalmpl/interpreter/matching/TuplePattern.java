@@ -45,7 +45,7 @@ public class TuplePattern extends AbstractMatchingResult {
 		super.initMatch(subject);
 		hasNext = false;
 		
-		if (!subject.getValue().getType().isTupleType()) {
+		if (!subject.getValue().getType().isTuple()) {
 			return;
 		}
 		treeSubject = (ITuple) subject.getValue();

@@ -169,7 +169,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		Type subjectType = subject.getValue().getType();
 		super.initMatch(subject);
 
-		if(subjectType.isAbstractDataType()){
+		if(subjectType.isAbstractData()){
 			IConstructor treeSubject = (IConstructor)subject.getValue();
 		
 			if (!TreeAdapter.isAppl(treeSubject)) {

@@ -833,7 +833,7 @@ public class Prelude {
 	
 	private IList extractPath(IValue start, IValue u){
 		Type listType = types.listType(start.getType());
-		IListWriter w = listType.writer(values);
+		IListWriter w = values.listWriter(listType.getElementType());
 		
 		if(!start.isEqual(u)){
 			w.insert(u);
@@ -851,7 +851,7 @@ public class Prelude {
 		PrintWriter currentOutStream = eval.getStdOut();
 		
 		try{
-			if(arg.getType().isStringType()){
+			if(arg.getType().isString()){
 				currentOutStream.print(((IString) arg).getValue().toString());
 			}
 			else if(arg.getType().isSubtypeOf(Factory.Tree)){
@@ -906,7 +906,7 @@ public class Prelude {
 		PrintWriter currentOutStream = eval.getStdOut();
 		
 		try{
-			if(arg.getType().isStringType()){
+			if(arg.getType().isString()){
 				currentOutStream.print(((IString) arg).getValue());
 			}
 			else if(arg.getType().isSubtypeOf(Factory.Tree)){
@@ -947,7 +947,7 @@ public class Prelude {
 
 	@Deprecated
 	public IValue readFile(IString filename){
-		IListWriter w = types.listType(types.stringType()).writer(values);
+		IListWriter w = values.listWriter(types.stringType());
 		
 		BufferedReader in = null;
 		try{
@@ -1183,7 +1183,7 @@ public class Prelude {
 			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue(), append);
 			
 			for(IValue elem : V){
-				if (elem.getType().isStringType()) {
+				if (elem.getType().isString()) {
 					out.append(((IString) elem).getValue());
 				}else if (elem.getType().isSubtypeOf(Factory.Tree)) {
 					out.append(TreeAdapter.yield((IConstructor) elem));
@@ -1248,7 +1248,7 @@ public class Prelude {
 	}
 
 	private IList consumeInputStreamLines(ISourceLocation sloc,	Reader stream, IEvaluatorContext ctx ) {
-		IListWriter w = types.listType(types.stringType()).writer(values);
+		IListWriter w = values.listWriter(types.stringType());
 		
 		BufferedReader in = null;
 		try{
@@ -1305,7 +1305,7 @@ public class Prelude {
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc, IEvaluatorContext ctx){
-		IListWriter w = types.listType(types.integerType()).writer(values);
+		IListWriter w = values.listWriter(types.integerType());
 		sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		
 		BufferedInputStream in = null;
@@ -1681,7 +1681,7 @@ public class Prelude {
 	   if(n > 0){
 	   	  int k = random.nextInt(n);
 	   	  IValue pick = lst.get(0);
-	   	  IListWriter w = lst.getType().writer(values);
+	   	  IListWriter w = values.listWriter(lst.getType().getElementType());
 	  
 	      for(int i = n - 1; i >= 0; i--) {
 	         if(i == k){
@@ -1712,14 +1712,14 @@ public class Prelude {
 			IValue val = t.get(1);
 			ISetWriter wValSet = hm.get(key);
 			if(wValSet == null){
-				wValSet = valueSetType.writer(values);
+				wValSet = values.setWriter(valueSetType.getElementType());
 				hm.put(key, wValSet);
 			}
 			wValSet.insert(val);
 		}
 		
 		Type resultType = types.mapType(keyType, valueSetType);
-		IMapWriter w = resultType.writer(values);
+		IMapWriter w = values.mapWriter(resultType);
 		for(IValue v : hm.keySet()){
 			w.put(v, hm.get(v).done());
 		}
@@ -1735,7 +1735,7 @@ public class Prelude {
 	   Type tuple = lst.getElementType();
 	   Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
 	  
-	   IMapWriter w = resultType.writer(values);
+	   IMapWriter w = values.mapWriter(resultType);
 	   HashSet<IValue> seenKeys = new HashSet<IValue>();
 	   for(IValue v : lst){
 		   ITuple t = (ITuple) v;
@@ -1752,7 +1752,7 @@ public class Prelude {
 	//@doc{toSet -- convert a list to a set}
 	{
 	  Type resultType = types.setType(lst.getElementType());
-	  ISetWriter w = resultType.writer(values);
+	  ISetWriter w = values.setWriter(resultType.getElementType());
 	  
 	  for(IValue v : lst){
 	    w.insert(v);
@@ -1778,7 +1778,7 @@ public class Prelude {
 	  Type keyType = M.getKeyType();
 	  
 	  Type resultType = types.setType(keyType);
-	  ISetWriter w = resultType.writer(values);
+	  ISetWriter w = values.setWriter(resultType.getElementType());
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
@@ -1814,7 +1814,7 @@ public class Prelude {
 		Type keyType = M.getKeyType();
 		Type valueType = M.getValueType();
 		Type resultType = types.mapType(valueType, keyType);
-		IMapWriter w = resultType.writer(values);
+		IMapWriter w = values.mapWriter(resultType);
 		HashSet<IValue> seenValues = new HashSet<IValue>();
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
@@ -1844,14 +1844,14 @@ public class Prelude {
 			IValue val = entry.getValue();
 			ISetWriter wKeySet = hm.get(val);
 			if(wKeySet == null){
-				wKeySet = keySetType.writer(values);
+				wKeySet = values.setWriter(keySetType.getElementType());
 				hm.put(val, wKeySet);
 			}
 			wKeySet.insert(key);
 		}
 		
 		Type resultType = types.mapType(valueType, keySetType);
-		IMapWriter w = resultType.writer(values);
+		IMapWriter w = values.mapWriter(resultType);
 		
 		iter = M.entryIterator();
 		for(IValue v : hm.keySet()){
@@ -1872,7 +1872,7 @@ public class Prelude {
 	  Type valueType = M.getValueType();
 	  
 	  Type resultType = types.setType(valueType);
-	  ISetWriter w = resultType.writer(values);
+	  ISetWriter w = values.setWriter(resultType.getElementType());
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
@@ -1894,7 +1894,7 @@ public class Prelude {
 	  Type elementType = types.tupleType(keyType,valueType);
 	  
 	  Type resultType = types.listType(elementType);
-	  IListWriter w = resultType.writer(values);
+	  IListWriter w = values.listWriter(resultType.getElementType());
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
@@ -1910,7 +1910,7 @@ public class Prelude {
 	  Type valueType = M.getValueType();
 	  
 	  Type resultType = types.relType(keyType, valueType);
-	  ISetWriter w = resultType.writer(values);
+	  ISetWriter w = values.setWriter(resultType.getElementType());
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
@@ -1938,7 +1938,7 @@ public class Prelude {
 	//@doc{getChildren -- get the children of a node}
 	{
 		Type resultType = types.listType(types.valueType());
-		IListWriter w = resultType.writer(values);
+		IListWriter w = values.listWriter(resultType.getElementType());
 		
 		for(IValue v : T.getChildren()){
 			w.append(v);
@@ -2112,7 +2112,7 @@ public class Prelude {
 	private IConstructor makeConstructor(Type returnType, String name, IEvaluatorContext ctx,  IValue ...args) {
 		IValue value = ctx.getEvaluator().call(returnType.getName(), name, args);
 		Type type = value.getType();
-		if (type.isAbstractDataType()) {
+		if (type.isAbstractData()) {
 			return (IConstructor)value;
 		}
 		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor", 
@@ -2188,7 +2188,7 @@ public class Prelude {
 	private IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, IEvaluatorContext ctx) {
 
 		// always yield if expected type is str, except if regular 
-		if (type.isStringType() && !splicing) {
+		if (type.isString() && !splicing) {
 			return values.string(TreeAdapter.yield(tree));
 		}
 
@@ -2198,7 +2198,7 @@ public class Prelude {
 			IConstructor ast = (IConstructor) args.get(1);
 			IConstructor after = (IConstructor) args.get(2);
 			IValue result = implode(store, type, ast, splicing, ctx);
-			if (result.getType().isNodeType()) {
+			if (result.getType().isNode()) {
 				IMapWriter comments = values.mapWriter();
 				comments.putAll((IMap)((INode)result).getAnnotation("comments"));
 				IList beforeComments = extractComments(before);
@@ -2220,7 +2220,7 @@ public class Prelude {
 			if (constructorName != null) {
 				// make a single argument constructor  with yield as argument
 				// if there is a singleton constructor with a str argument
-				if (!type.isAbstractDataType()) {
+				if (!type.isAbstractData()) {
 					throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type);
 				}
 				Set<Type> conses = findConstructors(type, constructorName, 1, store);
@@ -2239,13 +2239,13 @@ public class Prelude {
 				}
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type));
 			}
-			if (type.isIntegerType()) {
+			if (type.isInteger()) {
 				return values.integer(yield);
 			}
-			if (type.isRealType()) {
+			if (type.isReal()) {
 				return values.real(yield);
 			}
-			if (type.isBoolType()) {
+			if (type.isBool()) {
 				if (yield.equals("true")) {
 					return values.bool(true);
 				}
@@ -2254,7 +2254,7 @@ public class Prelude {
 				}
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Bool type does not match with " + yield));
 			}
-			if (type.isStringType() || isUntypedNodeType(type)) {
+			if (type.isString() || isUntypedNodeType(type)) {
 				// NB: in "node space" all lexicals become strings
 				return values.string(yield);
 			}
@@ -2264,7 +2264,7 @@ public class Prelude {
 		
 		//Set implementation added here by Jurgen at 19/07/12 16:45
 		if (TreeAdapter.isList(tree)) {
-			if (type.isListType() || splicing) {
+			if (type.isList() || splicing) {
 				Type elementType = splicing ? type : type.getElementType();
 				IListWriter w = values.listWriter(elementType);
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
@@ -2272,7 +2272,7 @@ public class Prelude {
 				}
 				return w.done();
 			}
-			else if (type.isSetType()) {
+			else if (type.isSet()) {
 				Type elementType = splicing ? type : type.getElementType();
 				ISetWriter w = values.setWriter(elementType);
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
@@ -2286,7 +2286,7 @@ public class Prelude {
 		}
 		//Changes end here
 		
-		if (TreeAdapter.isOpt(tree) && type.isBoolType()) {
+		if (TreeAdapter.isOpt(tree) && type.isBool()) {
 			IList args = TreeAdapter.getArgs(tree);
 			if (args.isEmpty()) {
 				return values.bool(false);
@@ -2295,7 +2295,7 @@ public class Prelude {
 		}
 		
 		if (TreeAdapter.isOpt(tree)) {
-			if (!type.isListType()) {
+			if (!type.isList()) {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Optional should match with a list and not " + type));
 			}
 			Type elementType = type.getElementType();
@@ -2318,7 +2318,7 @@ public class Prelude {
 		}
 		
 		if (TreeAdapter.isAmb(tree)) {
-			if (!type.isSetType()) {
+			if (!type.isSet()) {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Ambiguous node should match with set and not " + type));
 			}
 			Type elementType = type.getElementType();
@@ -2385,7 +2385,7 @@ public class Prelude {
 					return values.tuple(implodeArgs(store, type, args, ctx));
 				}
 
-				if (!type.isTupleType()) {
+				if (!type.isTuple()) {
 					throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor does not match with " + type));
 				}
 				
@@ -2403,7 +2403,7 @@ public class Prelude {
 			}
 			
 			// make a typed constructor
-			if (!type.isAbstractDataType()) {
+			if (!type.isAbstractData()) {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type));
 			}
 
@@ -2475,7 +2475,7 @@ public class Prelude {
 	}
 
 	private boolean isUntypedNodeType(Type type) {
-		return type.isNodeType() && !type.isConstructorType() && !type.isAbstractDataType();
+		return type.isNode() && !type.isConstructor() && !type.isAbstractData();
 	}
 	
 	
@@ -2614,7 +2614,7 @@ public class Prelude {
 			int i = 0;
 			int k = random.nextInt(n);
 			IValue pick = null;
-			ISetWriter w = st.getType().writer(values);
+			ISetWriter w = values.setWriter(st.getType().getElementType());
 
 			for (IValue v : st) {
 				if (i == k) {
@@ -2633,7 +2633,7 @@ public class Prelude {
 	// @doc{toList -- convert a set to a list}
 	{
 		Type resultType = types.listType(st.getElementType());
-		IListWriter w = resultType.writer(values);
+		IListWriter w = values.listWriter(resultType.getElementType());
 
 		for (IValue v : st) {
 			w.insert(v);
@@ -2658,14 +2658,14 @@ public class Prelude {
 			IValue val = t.get(1);
 			ISetWriter wValSet = hm.get(key);
 			if(wValSet == null){
-				wValSet = valueSetType.writer(values);
+				wValSet = values.setWriter(valueSetType.getElementType());
 				hm.put(key, wValSet);
 			}
 			wValSet.insert(val);
 		}
 		
 		Type resultType = types.mapType(keyType, valueSetType);
-		IMapWriter w = resultType.writer(values);
+		IMapWriter w = values.mapWriter(resultType);
 		for(IValue v : hm.keySet()){
 			w.put(v, hm.get(v).done());
 		}
@@ -2679,7 +2679,7 @@ public class Prelude {
 		Type resultType = types.mapType(tuple.getFieldType(0), tuple
 				.getFieldType(1));
 
-		IMapWriter w = resultType.writer(values);
+		IMapWriter w = values.mapWriter(resultType);
 		HashSet<IValue> seenKeys = new HashSet<IValue>();
 
 		for (IValue v : st) {
@@ -3089,13 +3089,13 @@ public class Prelude {
 	 */
 	
 	public IList fieldsOf(IValue v){
-		if(!v.getType().isTupleType())
+		if(!v.getType().isTuple())
 			throw RuntimeExceptionFactory.illegalArgument(v, null, null, "argument of type tuple is required");
 		ITuple tp = (ITuple) v;
 		Type tt = tp.getType();
 		int a = tt.getArity();
 		Type listType = types.listType(types.stringType());
-		IListWriter w = listType.writer(values);
+		IListWriter w = values.listWriter(listType.getElementType());
 		for(int i = 0; i < a; i++){
 			String fname = tt.getFieldName(i);
 			if(fname == null)

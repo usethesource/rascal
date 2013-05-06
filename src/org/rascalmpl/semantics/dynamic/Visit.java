@@ -78,7 +78,7 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 			// that's correct...
 			Type subjectType = subject.getType();
 
-			if (subjectType.isConstructorType()) {
+			if (subjectType.isConstructor()) {
 				subjectType = subjectType.getAbstractDataType();
 			}
 

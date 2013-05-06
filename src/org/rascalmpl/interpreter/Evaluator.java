@@ -616,7 +616,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
           throw new CommandlineError("expected option for " + label, func);
         }
         else if (expected.isSubtypeOf(tf.listType(tf.valueType()))) {
-          IListWriter writer = expected.writer(vf);
+          IListWriter writer = vf.listWriter(expected.getElementType());
           
           while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
             writer.append(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
@@ -625,7 +625,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
           params.put(label, writer.done());
         }
         else if (expected.isSubtypeOf(tf.setType(tf.valueType()))) {
-          ISetWriter writer = expected.writer(vf);
+          ISetWriter writer = vf.setWriter(expected.getElementType());
           
           while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
             writer.insert(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
