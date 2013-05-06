@@ -170,7 +170,7 @@ public class IO {
 			}
 			for (int i = 0; i < ftypes.size(); i++){
 				fieldTypes[i] = fieldTypes[i].lub(ftypes.get(i));
-				if(fieldTypes[i].isValueType()) {
+				if(fieldTypes[i].isTop()) {
 					fieldTypes[i] = types.stringType();
 				}
 			}
@@ -204,14 +204,14 @@ public class IO {
 	
 	public IValue buildCollection(Type type, List<Record> records, IEvaluatorContext ctx) {
 		IWriter writer;
-		while (type.isAliasType()) {
+		while (type.isAliased()) {
 			type = type.getAliased();
 		}
 		
-		if (type.isListType()) {
+		if (type.isList()) {
 			writer = values.listWriter(type.getElementType());
 		}
-		else if (type.isRelationType()) {
+		else if (type.isRelation()) {
 			writer = values.relationWriter(type.getElementType());
 		}
 		else {
@@ -239,7 +239,7 @@ public class IO {
 		if (record.getType().isSubtypeOf(eltType)) {
 			return;
 		}
-		if (eltType.isTupleType()) {
+		if (eltType.isTuple()) {
 			int expectedArity = eltType.getArity();
 			int actualArity = record.getType().getArity();
 			if (expectedArity == actualArity) {
@@ -273,7 +273,7 @@ public class IO {
 		OutputStream out = null;
 		
 		Type paramType = ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T"));
-		if(!paramType.isRelationType() && !paramType.isListRelationType()){
+		if(!paramType.isRelation() && !paramType.isListRelation()){
 			throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType,ctx.getCurrentAST(), 
 					ctx.getStackTrace());
 		}
@@ -311,7 +311,7 @@ public class IO {
 						sep = separator;
 					else
 						out.write(sep);
-					if(w.getType().isStringType()){
+					if(w.getType().isString()){
 						String s = ((IString)w).getValue();
 						
 						if(s.contains(separatorAsString) || s.contains("\n") || s.contains("\r") || s.contains("\"")){
@@ -538,16 +538,16 @@ class Record implements Iterable<String> {
 		IValue  fieldValues[] = new IValue[rfields.size()];
 		for(int i = 0; i < rfields.size(); i++){
 			if(rfields.get(i) == null){
-				if(fieldTypes.getFieldType(i).isBoolType())
+				if(fieldTypes.getFieldType(i).isBool())
 					rfields.set(i, values.bool(false));
-				else if(fieldTypes.getFieldType(i).isIntegerType())
+				else if(fieldTypes.getFieldType(i).isInteger())
 					rfields.set(i, values.integer(0));
-				else if(fieldTypes.getFieldType(i).isRealType())
+				else if(fieldTypes.getFieldType(i).isReal())
 					rfields.set(i, values.real(0));
 				else
 					rfields.set(i, values.string(""));
 			}
-			if(fieldTypes.getFieldType(i).isStringType() && !rfields.get(i).getType().isStringType())
+			if(fieldTypes.getFieldType(i).isString() && !rfields.get(i).getType().isString())
 				rfields.set(i, values.string(rfields.get(i).toString()));
 			fieldValues[i] = rfields.get(i);
 		}

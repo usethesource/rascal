@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.env.Environment;
 
 public class TypeReachability {
@@ -23,62 +23,98 @@ public class TypeReachability {
 		return mayOccurIn(small, large, new HashSet<Type>(), env);
 	}
 
-	static private boolean mayOccurIn(Type small, Type large, Set<Type> seen, Environment env) {
+	static private boolean mayOccurIn(final Type small, final Type large, final Set<Type> seen, final Environment env) {
 		// TODO: this should probably be a visitor as well
+	  if (small.isBottom()) {
+	    return false;
+	  }
+	  
+	  if (small.comparable(large)) {
+      return true;
+	  }
+	  
+	  return large.accept(new DefaultRascalTypeVisitor<Boolean, RuntimeException>(false) {
+	    @Override
+	    public Boolean visitList(Type type)  {
+	      return mayOccurIn(small, large.getElementType(), seen, env);
+	    }
+	    
+	    @Override
+      public Boolean visitSet(Type type)  {
+        return mayOccurIn(small, large.getElementType(), seen, env);
+      }
+	    
+	    @Override
+      public Boolean visitMap(Type type)  {
+        return mayOccurIn(small, large.getKeyType(), seen, env)
+            ||  mayOccurIn(small, large.getValueType(), seen, env);
+      }
+	    
+	    @Override
+	    public Boolean visitTuple(Type type)  {
+	      for (int i = 0; i < large.getArity(); i++) {
+	        if (mayOccurIn(small, large.getFieldType(i), seen, env)) {
+	          return true;
+	        }
+	      }
+	      return false;
+	    }
+	    
+	    @Override
+	    public Boolean visitFunction(RascalType type)  {
+	      return false;
+	    }
 
-		if (small.isVoidType())
-			return false;
-		if (small.comparable(large))
-			return true;
-		if (large.isListType() || large.isSetType())
-			return mayOccurIn(small, large.getElementType(), seen, env);
-		if (large.isMapType())
-			return mayOccurIn(small, large.getKeyType(), seen, env) || mayOccurIn(small, large.getValueType(), seen, env);
-		if (large.isTupleType()) {
-			for (int i = 0; i < large.getArity(); i++) {
-				if (mayOccurIn(small, large.getFieldType(i), seen, env))
-					return true;
-			}
-			return false;
-		}
+	    @Override
+	    public Boolean visitOverloadedFunction(RascalType type) throws RuntimeException {
+	      return false;
+	    }
 
-		if (large instanceof NonTerminalType && small instanceof NonTerminalType) {
-			// TODO: Until we have more precise info about the types in the
-			// concrete syntax
-			// we just return true here.
-			return true;
-		}
+	    @Override
+	    public Boolean visitReified(RascalType type) throws RuntimeException {
+	      // TODO: we can be more precise here because we know only Symbols and Definitions can occur in 
+	      // reified types
+	      return true;
+	    }
 
-		if (large.isConstructorType()) {
-			for (int i = 0; i < large.getArity(); i++) {
-				if (mayOccurIn(small, large.getFieldType(i), seen, env)) {
-					return true;
-				}
-			}
-			return false;
-		}
-		if (large.isAbstractDataType()) {
-			if (small.isNodeType() && !small.isAbstractDataType()) {
-				return true;
-			}
-			if (small.isConstructorType() && small.getAbstractDataType().equivalent(large.getAbstractDataType())) {
-				return true;
-			}
-			seen.add(large);
-			for (Type alt : env.lookupAlternatives(large)) {
-				if (alt.isConstructorType()) {
-					for (int i = 0; i < alt.getArity(); i++) {
-						Type fType = alt.getFieldType(i);
-						if (seen.add(fType) && mayOccurIn(small, fType, seen, env))
-							return true;
-					}
-				} else {
-					throw new ImplementationError("ADT");
-				}
-			}
-			return false;
-		}
-		return small.comparable(large);
+	    @Override
+	    public Boolean visitNonTerminal(RascalType type) throws RuntimeException {
+	      // TODO: Until we have more precise info about the types in the
+	      // concrete syntax
+	      // we just return true here.
+	      return true;
+	    }
+	    
+	    @Override
+	    public Boolean visitConstructor(Type type)  {
+	      for (int i = 0; i < type.getArity(); i++) {
+	        if (mayOccurIn(small, type.getFieldType(i), seen, env)) {
+	          return true;
+	        }
+	      }
+	      return false;
+	    }
+	    
+	    
+	    @Override
+	    public Boolean visitAbstractData(Type type)  {
+	      if (small.equivalent(TypeFactory.getInstance().nodeType())) {
+	        return true;
+	      }
+	      
+	      seen.add(large);
+	      
+	      for (Type alt : env.lookupAlternatives(large)) {
+	        for (int i = 0; i < alt.getArity(); i++) {
+	          Type fType = alt.getFieldType(i);
+	          if (seen.add(fType) && mayOccurIn(small, fType, seen, env)) {
+	            return true;
+	          }
+	        }
+	      }
+	      return false;
+	    }
+    });
 	}
 
 }

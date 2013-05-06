@@ -201,7 +201,7 @@ public class JavaBridge {
 		return formal.typeOf(env, true);
 	}
 	
-	private static class JavaClasses implements ITypeVisitor<Class<?>> {
+	private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {
 
 		@Override
 		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
@@ -246,11 +246,6 @@ public class JavaBridge {
 		@Override
 		public Class<?> visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IConstructor.class;
-		}
-
-		@Override
-		public Class<?> visitRelationType(org.eclipse.imp.pdb.facts.type.Type type) {
-			return ISet.class;
 		}
 
 		@Override
@@ -309,10 +304,6 @@ public class JavaBridge {
 			return IDateTime.class;
 		}
 
-		@Override
-		public Class<?> visitListRelationType(Type type) {
-			return IList.class;
-		}
 	}
 	
 	public synchronized Object getJavaClassInstance(Class<?> clazz){

@@ -107,7 +107,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 						new Type[] {TF.setType(type)}, new IValue[] {alts}, null
 				);
 				
-				if (result.getType().isVoidType()) {
+				if (result.getType().isBottom()) {
 					return ambCluster;
 				}
 				
@@ -164,7 +164,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 						return tree;
 					}
 					
-					if (result.getType().isVoidType()) {
+					if (result.getType().isBottom()) {
 						return tree;
 					}
 					

@@ -33,7 +33,19 @@ import org.rascalmpl.tasks.facts.AbstractFact;
 
 public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue,
 IExpirationListener<IValue> {
-	public static final Type TransactionType = new ExternalType() {};
+	public static final Type TransactionType = new ExternalType() {
+
+		@Override
+		protected Type lubWithExternal(Type type) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		protected boolean isSubtypeOfExternal(Type type) {
+			// TODO Auto-generated method stub
+			return false;
+		}};
 	private final Transaction parent;
 	private final boolean commitEnabled;
 	private final Map<Key, IFact<IValue>> map = new HashMap<Key, IFact<IValue>>();

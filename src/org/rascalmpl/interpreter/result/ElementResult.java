@@ -119,7 +119,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	
 	@Override
 	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
-		if (that.getValue().getElementType().isVoidType()) {
+		if (that.getValue().getElementType().isBottom()) {
 			return makeResult(getTypeFactory().setType(this.getType()), that.getValue().insert(this.getValue()), ctx);
 		}
 		return super.addRelation(that);
@@ -127,14 +127,14 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	
 	@Override
 	protected <U extends IValue> Result<U> subtractRelation(RelationResult that) {
-		if(that.getType().getElementType().isVoidType())
+		if(that.getType().getElementType().isBottom())
 			return makeResult(that.getType(), that.getValue(), ctx);
 		return super.subtractRelation(that);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
-		if (that.getValue().getElementType().isVoidType()) {
+		if (that.getValue().getElementType().isBottom()) {
 			return makeResult(getTypeFactory().listType(this.getType()), that.getValue().append(this.getValue()), ctx);
 		}
 		return super.addListRelation(that);
@@ -142,7 +142,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	
 	@Override
 	protected <U extends IValue> Result<U> subtractListRelation(ListRelationResult that) {
-		if(that.getType().getElementType().isVoidType())
+		if(that.getType().getElementType().isBottom())
 			return makeResult(that.getType(), that.getValue(), ctx);
 		return super.subtractListRelation(that);
 	}
@@ -202,7 +202,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	@SuppressWarnings("unchecked")
 	private int getInt(Result<?> x){
 		Result<IValue> key = (Result<IValue>) x;
-		if (!key.getType().isIntegerType()) {
+		if (!key.getType().isInteger()) {
 			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
 		}
 		return ((IInteger)key.getValue()).intValue();

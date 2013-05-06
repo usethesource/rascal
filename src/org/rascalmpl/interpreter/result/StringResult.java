@@ -126,7 +126,7 @@ public class StringResult extends ElementResult<IString> {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 		String name = getValue().getValue();
-		IValue node = getTypeFactory().nodeType().make(getValueFactory(), name, argValues, keyArgValues);
+		IValue node = this.getValueFactory().node(name, argValues, keyArgValues);
 		return makeResult(getTypeFactory().nodeType(), node, ctx);
 	}
 	
@@ -164,7 +164,7 @@ public class StringResult extends ElementResult<IString> {
 			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!key.getType().isIntegerType()) {
+		if (!key.getType().isInteger()) {
 			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
 		}
 		if (getValue().getValue().length() == 0) {

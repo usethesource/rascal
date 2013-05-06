@@ -22,7 +22,7 @@ public class ListComprehensionWriter extends ComprehensionWriter {
 		for (Expression resExpr : this.resultExprs) {
 			if(resExpr.isSplice() || resExpr.isSplicePlus()){
 				Result<IValue> list = resExpr.getArgument().interpret(this.ev);
-				if (list.getType().isListType() || list.getType().isSetType()) {
+				if (list.getType().isList() || list.getType().isSet()) {
 					elementType1 = elementType1.lub(list.getType().getElementType());
 					((IListWriter)writer).appendAll((Iterable<IValue>)list.getValue());
 				}

@@ -257,7 +257,7 @@ public abstract class Tree {
 	}
 
 	private IList flatten(IList args) {
-		IListWriter result = Factory.Args.writer(VF);
+		IListWriter result = VF.listWriter(Factory.Args.getElementType());
 		boolean previousWasEmpty = false;
 		
 		for (int i = 0; i < args.length(); i+=(delta+1)) {
@@ -319,7 +319,7 @@ public abstract class Tree {
 		for (org.rascalmpl.ast.Expression a : alts) {
 			w.insert(a.interpret(eval).getValue());
 		}
-		return makeResult(type, Factory.Tree_Amb.make(eval.getValueFactory(), (IValue) w.done()), eval);
+		return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Amb, (IValue) w.done()), eval);
 	}
 	
 	@Override
@@ -389,12 +389,12 @@ public abstract class Tree {
 
 	  @Override
 	  public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-		  return makeResult(Factory.Tree, Factory.Tree_Cycle.make(VF, node, VF.integer(length)), eval);
+		  return makeResult(Factory.Tree, VF.constructor(Factory.Tree_Cycle, node, VF.integer(length)), eval);
 	  }
 
 	  @Override
 	  public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-		  return new LiteralPattern(eval, this,  Factory.Tree_Cycle.make(VF, node, VF.integer(length)));
+		  return new LiteralPattern(eval, this, VF.constructor(Factory.Tree_Cycle, node, VF.integer(length)));
 	  }
 
 	  @Override

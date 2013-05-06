@@ -105,7 +105,7 @@ public class NodePattern extends AbstractMatchingResult {
 		if(subject.isVoid()) 
 			throw new UninitializedPatternMatch("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
 
-		if (!subject.getValue().getType().isNodeType()) {
+		if (!subject.getValue().getType().isNode()) {
 			return;
 		}
 		
@@ -139,7 +139,7 @@ public class NodePattern extends AbstractMatchingResult {
 		
 		if(patternTotalArity > subjectTotalArity)
 			return;
-		if (subjectType.isAbstractDataType()) {
+		if (subjectType.isAbstractData()) {
 			subjectType = ((IConstructor) this.subject).getConstructorType();
 			if(subjectType.hasKeywordArguments()){
 				subjectPositionalArity = subjectType.getPositionalArity();
@@ -152,7 +152,7 @@ public class NodePattern extends AbstractMatchingResult {
 					return;
 				}
 			}
-		} else if(subjectType.isNodeType()){
+		} else if(subjectType.isNode()){
 			nodeSubject = true;
 			 INode node = ((INode) this.subject);
 			 if(node.hasKeywordArguments()){
@@ -225,7 +225,7 @@ public class NodePattern extends AbstractMatchingResult {
 		if (type == null) {
 			type = getConstructorType(env);
 
-			if (type != null && type.isConstructorType()) {
+			if (type != null && type.isConstructor()) {
 				type = getConstructorType(env).getAbstractDataType();
 			}
 			

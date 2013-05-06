@@ -190,7 +190,7 @@ public class TreeAdapter {
 					"This is not a context-free list production: " + tree);
 		}
 		IList children = getArgs(tree);
-		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
+		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter(Factory.Args.getElementType());
 
 		for (int i = 0; i < children.length(); ++i) {
 			IValue kid = children.get(i);
@@ -240,8 +240,7 @@ public class TreeAdapter {
 		}
 
 		IList children = getArgs(tree);
-		IListWriter writer = Factory.Args.writer(ValueFactoryFactory
-				.getValueFactory());
+		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter(Factory.Args.getElementType());
 
 		for (int i = 0; i < children.length(); i++) {
 			IConstructor kid = (IConstructor) children.get(i);
@@ -545,8 +544,7 @@ public class TreeAdapter {
 	}
 
 	public static IList searchCategory(IConstructor tree, String category) {
-		IListWriter writer = Factory.Args.writer(ValueFactoryFactory
-				.getValueFactory());
+		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter(Factory.Args.getElementType());
 		if (isAppl(tree)) {
 			String s = ProductionAdapter.getCategory(getProduction(tree));
 			if (s == category)
