@@ -179,7 +179,7 @@ public class RascalShell {
 		IValue v = value.getValue();
 		Type type = value.getType();
 
-		if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
+		if (type.isAbstractData() && type.isSubtypeOf(Factory.Tree)) {
 			return "`" + TreeAdapter.yield((IConstructor) v) + "`\n" + value.toString(LINE_LIMIT)
 					+ (PRINTCOMMANDTIME ? "\n (" + duration + "ms)" : "");
 		}
@@ -256,7 +256,7 @@ public class RascalShell {
 		try {
 			IValue v = eval.main(monitor, module, main, args);
 
-			if (v.getType().isIntegerType()) {
+			if (v.getType().isInteger()) {
 				System.exit(((IInteger) v).intValue());
 			} else {
 				System.out.println(v);
