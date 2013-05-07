@@ -139,6 +139,8 @@ public class Cases  {
 		if (c.isDefault()) {
 			return false;
 		}
+		
+		
 		org.rascalmpl.ast.Expression pattern = c.getPatternWithAction()
 				.getPattern();
 		if (pattern.isVariableBecomes() || pattern.isTypedVariableBecomes()) {
