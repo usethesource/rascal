@@ -15,6 +15,14 @@ import IO;
 //      append L[i];
 //}
 
+public test bool visitNode() { 
+  switch ("x"()) { 
+    case "x"() :
+      return true; 
+  }
+  return false;
+}
+
 public test bool subscription(node N){
   R = getChildren(N);
   for(int i <- [0..arity(N)]){

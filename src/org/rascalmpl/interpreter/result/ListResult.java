@@ -110,7 +110,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!key.getType().isIntegerType()) {
+		if (!key.getType().isInteger()) {
 			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
 		}
 		if (getValue().length() == 0) {
@@ -273,7 +273,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 	@Override
 	protected <U extends IValue> Result<U> joinListRelation(ListRelationResult that) {
 		// Note the reverse of arguments, we need "that join this"
-		int arity1 = that.getValue().arity();
+		int arity1 = that.getValue().asRelation().arity();
 		Type eltType = getType().getElementType();
 		Type tupleType = that.getType().getElementType();
 		Type fieldTypes[] = new Type[arity1 + 1];

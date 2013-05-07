@@ -22,6 +22,7 @@ import java.util.List;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.vector.Coordinate;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 /**
  * A GraphNode is created for each "node" constructor that occurs in the graph.
@@ -62,7 +63,7 @@ public class LayeredGraphNode extends Figure /*implements Comparable<LayeredGrap
 	private double virtHeight = 20;
 	
 	LayeredGraphNode(LayeredGraph g, String name, Figure fig){
-		super(g.prop);
+		super(fig != null ? fig.prop : g.prop);
 		this.graph = g;
 		this.name = name;
 		this.figure = fig;
@@ -76,6 +77,7 @@ public class LayeredGraphNode extends Figure /*implements Comparable<LayeredGrap
 		out = new LinkedList<LayeredGraphNode>();
 		root = align = sink = this;
 		shift = DINFINITY;
+		
 	}
 	
 	LayeredGraphNode(LayeredGraph g, String name, double vw, double vh){
@@ -556,6 +558,11 @@ public class LayeredGraphNode extends Figure /*implements Comparable<LayeredGrap
 		return figure != null ? figure.prop.getStr(LAYER): "";
 	}
 
+	public boolean mouseInside(Coordinate c) {
+		if(figure!=null) return figure.mouseInside(c);
+		else return false;
+	}
+	
 	@Override
 	public void resizeElement(Rectangle view) {
 		localLocation.set(0, 0);

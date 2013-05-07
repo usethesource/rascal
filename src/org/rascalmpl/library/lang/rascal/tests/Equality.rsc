@@ -19,26 +19,31 @@ public test bool transLTE(value x, value y, value z) = (x <= y && y <= z) ==> x 
 public test bool numTotalLTE(num x, num y) = x <= y || y <= x;
 public test bool numAntiSymmetricLTE(num x, num y) = (x <= y && y <= x) ==> (x == y);
 public test bool numTransLTE(num x, num y, num z) = (x <= y && y <= z) ==> (x <= z);
+public test bool numValueReflex(num x) { value y = x; return x == y && y == x; }
 
 // ints are totally ordered
 public test bool intTotalLTE(int x, int y) = x <= y || y <= x;
 public test bool intAntiSymmetricLTE(int x, int y) = (x <= y && y <= x) ==> (x == y);
 public test bool intTransLTE(int x, int y, int z) = (x <= y && y <= z) ==> (x <= z);
+public test bool intValueReflex(int x) { value y = x; return x == y && y == x; }
 
 // reals are totally ordered
 public test bool realTotalLTE(real x, real y) = x <= y || y <= x;
 public test bool realAntiSymmetricLTE(real x, real y) = (x <= y && y <= x) ==> (x == y);
 public test bool realTransLTE(real x, real y, real z) = (x <= y && y <= z) ==> (x <= z);
+public test bool realValueReflex(real x) { value y = x; return x == y && y == x; }
 
 // rat are totally ordered
 public test bool ratTotalLTE(rat x, rat y) = x <= y || y <= x;
 public test bool ratAntiSymmetricLTE(rat x, rat y) = (x <= y && y <= x) ==> (x == y);
 public test bool ratTransLTE(rat x, rat y, rat z) = (x <= y && y <= z) ==> (x <= z);
+public test bool ratValueReflex(rat x) { value y = x; return x == y && y == x; }
 
 // strings are totally ordered
 public test bool numTotalLTE(str x, str y) = x <= y || y <= x;
 public test bool strAntiSymmetricLTE(str x, str y) = (x <= y && y <= x) ==> (x == y);
 public test bool strTransLTE(str x, str y, str z) = (x <= y && y <= z) ==> x <= z;
+public test bool strValueReflex(rat x) { value y = x; return x == y && y == x; }
 
 // sets are ordered via sub-set relation
 public test bool subsetOrdering1(set[value] x, set[value] y) = x <= x + y; 

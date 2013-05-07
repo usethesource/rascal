@@ -1,0 +1,74 @@
+
+=====================
+tst6: exp =  X0 : [rat X1, X2, -920958486r133691087, 182598194r518141909] := ([]:[-827226035r443478259,-236941099r219624533,-920958486r133691087,182598194r518141909]);
+checkResult = <config({error("Type of pattern could not be computed, please add additional type annotations",|file://-|(3,60,<1,3>,<1,63>))},(|file://-|(3,154,<1,3>,<1,157>):failure({error("Type of pattern could not be computed, please add additional type annotations",|file://-|(3,60,<1,3>,<1,63>))}),|file://-|(3,153,<1,3>,<1,156>):failure({error("Type of pattern could not be computed, please add additional type annotations",|file://-|(3,60,<1,3>,<1,63>))}),|file://-|(67,89,<1,67>,<1,156>):map(list(void()),list(rat())),|file://-|(71,84,<1,71>,<1,155>):list(rat()),|file://-|(135,19,<1,135>,<1,154>):rat(),|file://-|(114,20,<1,114>,<1,134>):rat(),|file://-|(115,19,<1,115>,<1,134>):rat(),|file://-|(93,20,<1,93>,<1,113>):rat(),|file://-|(94,19,<1,94>,<1,113>):rat(),|file://-|(72,20,<1,72>,<1,92>):rat(),|file://-|(73,19,<1,73>,<1,92>):rat(),|file://-|(68,2,<1,68>,<1,70>):list(void())),void(),(),(),(),(RSimpleName("CheckStatementsString"):0),(),(),(),(4:variable(RSimpleName("X2")[@at=|file://-|(17,2,<1,17>,<1,19>)],inferred(1),true,1,|file://-|(17,2,<1,17>,<1,19>)),3:variable(RSimpleName("X1"),rat(),false,1,|file://-|(13,2,<1,13>,<1,15>)),2:variable(RSimpleName("X0"),inferred(0),true,1,|file://-|(3,2,<1,3>,<1,5>)),1:booleanScope(0,|file://-|(3,153,<1,3>,<1,156>)),0:module(RSimpleName("CheckStatementsString"),|file:///tmp/CheckStatementsString.rsc|)),(),(),{},{<3,|file://-|(13,2,<1,13>,<1,15>)>,<4,|file://-|(17,2,<1,17>,<1,19>)>,<2,|file://-|(3,2,<1,3>,<1,5>)>,<0,|file:///tmp/CheckStatementsString.rsc|>},{},{},{},[0],[],[timing("Imported module signatures",$2013-05-03T21:24:23.160+01:00,$2013-05-03T21:24:23.160+01:00)],5,2),failure({error("Type of pattern could not be computed, please add additional type annotations",|file://-|(3,60,<1,3>,<1,63>))})>
+pvars = (RSimpleName("X2")[@at=|file://-|(17,2,<1,17>,<1,19>)]:inferred(1),RSimpleName("X1"):rat(),RSimpleName("X0"):inferred(0))
+
+=====================
+tst6: exp =  X0 : {{tuple[real,map[void,void]] X1, <-1107.8344881690646, X3>, <real X4, map[void,void] X5>, <X6, ()>}} := (998161626:{{<-1107.8344881690646,()>,<-2082.6636052104604,()>,<2404.627176449003,()>,<-2878.4732019455014,()>}});
+checkResult = <config({error("Type of pattern could not be computed, please add additional type annotations",|file://-|(3,105,<1,3>,<1,108>))},(|file://-|(3,223,<1,3>,<1,226>):failure({error("Type of pattern could not be computed, please add additional type annotations",|file://-|(3,105,<1,3>,<1,108>))}),|file://-|(3,222,<1,3>,<1,225>):failure({error("Type of pattern could not be computed, please add additional type annotations",|file://-|(3,105,<1,3>,<1,108>))}),|file://-|(112,113,<1,112>,<1,225>):map(int(),set(rel([real(),map(void(),void())]))),|file://-|(123,101,<1,123>,<1,224>):set(rel([real(),map(void(),void())])),|file://-|(124,99,<1,124>,<1,223>):rel([real(),map(void(),void())]),|file://-|(198,24,<1,198>,<1,222>):tuple([real(),map(void(),void())]),|file://-|(219,2,<1,219>,<1,221>):map(void(),void()),|file://-|(199,19,<1,199>,<1,218>):real(),|file://-|(200,18,<1,200>,<1,218>):real(),|file://-|(175,22,<1,175>,<1,197>):tuple([real(),map(void(),void())]),|file://-|(194,2,<1,194>,<1,196>):map(void(),void()),|file://-|(176,17,<1,176>,<1,193>):real(),|file://-|(150,24,<1,150>,<1,174>):tuple([real(),map(void(),void())]),|file://-|(171,2,<1,171>,<1,173>):map(void(),void()),|file://-|(151,19,<1,151>,<1,170>):real(),|file://-|(152,18,<1,152>,<1,170>):real(),|file://-|(125,24,<1,125>,<1,149>):tuple([real(),map(void(),void())]),|file://-|(146,2,<1,146>,<1,148>):map(void(),void()),|file://-|(126,19,<1,126>,<1,145>):real(),|file://-|(127,18,<1,127>,<1,145>):real(),|file://-|(113,9,<1,113>,<1,122>):int()),void(),(),(),(),(RSimpleName("CheckStatementsString"):0),(),(),(),(7:variable(RSimpleName("X6")[@at=|file://-|(99,2,<1,99>,<1,101>)],inferred(2),true,1,|file://-|(99,2,<1,99>,<1,101>)),6:variable(RSimpleName("X5"),map(void(),void()),false,1,|file://-|(93,2,<1,93>,<1,95>)),5:variable(RSimpleName("X4"),real(),false,1,|file://-|(74,2,<1,74>,<1,76>)),4:variable(RSimpleName("X3")[@at=|file://-|(63,2,<1,63>,<1,65>)],inferred(1),true,1,|file://-|(63,2,<1,63>,<1,65>)),3:variable(RSimpleName("X1"),tuple([real(),map(void(),void())]),false,1,|file://-|(37,2,<1,37>,<1,39>)),2:variable(RSimpleName("X0"),inferred(0),true,1,|file://-|(3,2,<1,3>,<1,5>)),1:booleanScope(0,|file://-|(3,222,<1,3>,<1,225>)),0:module(RSimpleName("CheckStatementsString"),|file:///tmp/CheckStatementsString.rsc|)),(),(),{},{<5,|file://-|(74,2,<1,74>,<1,76>)>,<6,|file://-|(93,2,<1,93>,<1,95>)>,<4,|file://-|(63,2,<1,63>,<1,65>)>,<7,|file://-|(99,2,<1,99>,<1,101>)>,<3,|file://-|(37,2,<1,37>,<1,39>)>,<2,|file://-|(3,2,<1,3>,<1,5>)>,<0,|file:///tmp/CheckStatementsString.rsc|>},{},{},{},[0],[],[timing("Imported module signatures",$2013-05-03T13:54:44.493+01:00,$2013-05-03T13:54:44.493+01:00)],8,3),failure({error("Type of pattern could not be computed, please add additional type annotations",|file://-|(3,105,<1,3>,<1,108>))})>
+pvars = (RSimpleName("X6")[@at=|file://-|(99,2,<1,99>,<1,101>)]:inferred(2),RSimpleName("X5"):map(void(),void()),RSimpleName("X4"):real(),RSimpleName("X3")[@at=|file://-|(63,2,<1,63>,<1,65>)]:inferred(1),RSimpleName("X1"):tuple([real(),map(void(),void())]),RSimpleName("X0"):inferred(0))
+Failed test: variable X6; exp =  X0 : {{tuple[real,map[void,void]] X1, <-1107.8344881690646, X3>, <real X4, map[void,void] X5>, <X6, ()>}} := (998161626:{{<-1107.8344881690646,()>,<-2082.6636052104604,()>,<2404.627176449003,()>,<-2878.4732019455014,()>}});
+arg1=(661146801:{{<0.7110105095363045,()>},{<0.4408900262411183,()>},{}})
+expectedType: real(), actualType: inferred(2)
+=====================
+"<#loc>" gives "\loc()" instead of "loc"
+=====================
+Ambiguities:
+	-1 := -1
+	-1.5 := -1.5
+	-1r2 := -1r2
+=====================
+
+Failed test: Intersection & for map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
+                                                           
+arg1=(), arg2=(""():[|tmp:///Mx|,|tmp:///%E7%9E%B8%EF%BD%9A|])
+expectedType: map(node(),list(\loc())), actualType: failure({error("Intersection not defined on map[void,void] and map[node,list[\\loc()]]",|file://-|(2,57,<1,2>,<1,59>))})
+
+Failed test: Intersection & for set[&L] x set[&R]                    -> set[LUB(&L,&R)]
+arg1={<0.17682382260042218>}, arg2={}
+expectedType: set(real()), actualType: set(tuple([real()]))
+
+Failed test: Closure + for lrel[&L,&L]			-> lrel[&L,&L]
+arg1=[]
+expectedType: lrel([void(),void()]), actualType: failure({error("Invalid type: expected a binary relation, found list[void]",|file://-|(2,4,<1,2>,<1,6>))})
+
+Failed test: Composition o for lrel[&A,&B] x lrel[&B,&C] -> lrel[&A,&C]
+arg1=[], arg2=[]
+expectedType: lrel([void(),void()]), actualType: failure({error("Composition not defined for list[void] and list[void]",|file://-|(2,11,<1,2>,<1,13>))})
+
+Failed test: Closure * for rel[&L,&L]  			-> rel[&L,&L]
+                                                     
+arg1={}
+expectedType: rel([void(),void()]), actualType: failure({error("Invalid type: expected a binary relation, found set[void]",|file://-|(2,4,<1,2>,<1,6>))})
+
+Failed test: Closure * for lrel[&L,&L]			-> lrel[&L,&L]
+arg1=[]
+expectedType: lrel([void(),void()]), actualType: failure({error("Invalid type: expected a binary relation, found list[void]",|file://-|(2,4,<1,2>,<1,6>))})
+
+Failed test: Closure + for rel[&L,&L]  			-> rel[&L,&L]
+                                                     
+arg1={}
+expectedType: rel([void(),void()]), actualType: failure({error("Invalid type: expected a binary relation, found set[void]",|file://-|(2,4,<1,2>,<1,6>))})
+
+Failed test: Addition + for &L x set[&R]                        -> set[LUB(&L,&R)] when &L is not a list
+arg1=({[<<1730960656>>,<<-1152878543>>]}:false,{[]}:true,{}:false), arg2={}
+expectedType: set(map(set(lrel([tuple([int()])])),bool())), actualType: failure({error("Addition not defined on map[set[list[tuple[tuple[int]]]],bool] and set[void]",|file://-|(2,70,<1,2>,<1,72>))})
+
+Failed test: Difference - for map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
+                                                           
+arg1=(0.8082493190392922:436690239r313838005,0.539132275972856:913123987r1768325693), arg2=(1304848789:-425204936r582663053)
+expectedType: map(num(),rat()), actualType: failure({error("Map of type map[real,rat] could never contain a sub-map of type map[int,rat]",|file://-|(2,119,<1,2>,<1,121>))})
+
+Failed test: Product * for list[&L] x list[&R]                  -> lrel[&L,&R]
+arg1=[<"믤甸纥"(<"挝"(true)>)>], arg2=[<""({<|tmp:///|>},($5203-11-26T15:32:41.059+01:00:1776803065r1501546196),|tmp:///H3|,"꼨瓰"("",|tmp:///A|,|tmp:///%EA%B7%A8%EF%A1%A5|)),false>,<""(-1681473418),true>,<"w"($2014-07-08T22:15:14.338+01:00,-1288831941),true>,<""(),false>]
+expectedType: lrel([node(),tuple([node(),bool()])]), actualType: lrel([tuple([node()]),tuple([node(),bool()])])
+
+Failed test: Composition o for map[&A,&B] x map[&B,&C] -> map[&A,&C]
+                                                           
+arg1=(([0.8827919043633843,0.9047998550528499]:0.05373933544663201):"6na"(2108661891r810489298,[],0.5520309023784599),():"󪀋"($1451-04-02T02:26:41.655+01:00)), arg2=()
+expectedType: map(map(list(real()),real()),void()), actualType: failure({error("node must be a subtype of void",|file://-|(2,161,<1,2>,<1,163>))})
+
+Failed test: Composition o for rel[&A,&B] x rel[&B,&C] -> rel[&A,&C]
+arg1={<20950907r1820145559,3790469r16525289>}, arg2={}
+expectedType: rel([rat(),void()]), actualType: failure({error("Composition not defined for rel[rat,rat] and set[void]",|file://-|(2,49,<1,2>,<1,51>))})

@@ -97,7 +97,7 @@ public class ListPattern extends AbstractMatchingResult  {
   }
 
   public static boolean isAnyListType(Type type){
-    return type.isListType()|| isConcreteListType(type); 
+    return type.isList()|| isConcreteListType(type); 
   }
 
   public static boolean isConcreteListType(Type type){
@@ -133,14 +133,14 @@ public class ListPattern extends AbstractMatchingResult  {
 
     super.initMatch(subject);
 
-    if (!subject.getValue().getType().isListType()) {
+    if (!subject.getValue().getType().isList()) {
       hasNext = false;
       return;
     }
     listSubject = (IList) subject.getValue();
     listSubjectType = listSubject.getType(); 
     staticListSubjectType = subject.getType();
-    staticListSubjectElementType = staticListSubjectType.isListType() ? subject.getType().getElementType() : tf.valueType();
+    staticListSubjectElementType = staticListSubjectType.isList() ? subject.getType().getElementType() : tf.valueType();
 
     subjectCursor = 0;
     patternCursor = 0;
@@ -184,8 +184,8 @@ public class ListPattern extends AbstractMatchingResult  {
 
         if(!tmvVar.isAnonymous() && allVars.contains(name)) {
           throw new RedeclaredVariable(name, getAST());
-        } else if((isAnyListType(tmvType) && tmvType.comparable(listSubject.getType()) ||
-                  (!isAnyListType(tmvType) && tmvType.comparable(listSubject.getType().getElementType())))) {
+        } else if(tmvType.comparable(listSubject.getType().getElementType()) 
+        		|| (tmvVar.bindingInstance() && tmvType.comparable(listSubject.getType()))) {
           tmvVar.convertToListType();
           if (!tmvVar.isAnonymous()) {
             allVars.add(name);
@@ -211,7 +211,7 @@ public class ListPattern extends AbstractMatchingResult  {
           allVars.add(name);
           Result<IValue> varRes = env.getVariable(name);
 
-          if (varRes == null) {
+          if (varRes == null || multiVar.bindingInstance()) {
             isBindingVar[i] = true;
           } else {
             isBindingVar[i] = false;
@@ -259,7 +259,7 @@ public class ListPattern extends AbstractMatchingResult  {
         } else {
           Result<IValue> varRes = env.getVariable(name);
 
-          if(varRes == null){ 
+          if(varRes == null || qualName.bindingInstance()){ 
             // A completely new non-list variable, nothing to do
           } else {
             Type varType = varRes.getType();
@@ -332,7 +332,7 @@ public class ListPattern extends AbstractMatchingResult  {
 
     firstMatch = true;
 
-    hasNext = subject.getValue().getType().isListType() && 
+    hasNext = subject.getValue().getType().isList() && 
         reducedSubjectSize >= reducedPatternSize - nListVar;
 
         if(debug) {
@@ -353,7 +353,7 @@ public class ListPattern extends AbstractMatchingResult  {
       patternVars = merge(patternVars, patternChildren.get(i).getVariables());
       boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof TypedMultiVariablePattern;
       
-      if(childType.isListType() && isMultiVar){
+      if(childType.isList() && isMultiVar){
         elemType = elemType.lub(childType.getElementType());
       } else {
         elemType = elemType.lub(childType);
@@ -564,15 +564,15 @@ public class ListPattern extends AbstractMatchingResult  {
       } 
       else if(isListVar[patternCursor] && 
           !isBindingVar[patternCursor] && 
-          ctx.getCurrentEnvt().getVariable(varName[patternCursor]).getType().isListType()){
+          ctx.getCurrentEnvt().getVariable(varName[patternCursor]).getType().isList()){
         if(forward){
           listVarStart[patternCursor] = subjectCursor;
 
           Result<IValue> varRes = ctx.getCurrentEnvt().getVariable(varName[patternCursor]);
           IValue varVal = varRes.getValue();
 
-          if(varRes.getType().isListType()){
-            assert varVal != null && varVal.getType().isListType();
+          if(varRes.getType().isList()){
+            assert varVal != null && varVal.getType().isList();
 
             int varLength = ((IList)varVal).length();
             listVarLength[patternCursor] = varLength;

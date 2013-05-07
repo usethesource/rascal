@@ -33,6 +33,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -143,6 +145,13 @@ public class TestFramework {
 		
 		evaluator.addRascalSearchPath(URIUtil.rootScheme("benchmarks"));
 		resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
+		try {
+			assert (false);
+			throw new RuntimeException("Make sure you enable the assert statement in your run configuration ( add -ea )");
+		}
+		catch (AssertionError e) {
+			
+		}
 	}
 	
 	public TestFramework() {
@@ -233,7 +242,7 @@ public class TestFramework {
 	private boolean execute(String command){
 		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme("stdin"));
 
-		if (result.getType().isVoidType()) {
+		if (result.getType().isBottom()) {
 			return true;
 			
 		}

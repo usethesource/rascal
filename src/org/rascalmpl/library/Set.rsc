@@ -632,10 +632,14 @@ public java str toString(set[&T] st);
 @doc{ 
 Synopsis: Sort the elements of a set.
 
-Description:
 Sort the elements of a set:
 # Use the built-in ordering on values to compare list elements.
-# Give an additional `lessThanOrEqual` function that will be used to compare elements.
+# Give an additional `lessThan` function that will be used to compare elements. 
+
+This function `lessThan` (<) function should implement a strict partial order, meaning:
+   # that it is not reflexive, i.e. never `a < a`
+   # is anti-symmetric, i.e. never `a < b && b < a`.
+   # is transitive, i.e. if `a < b` and `b < c` then `a < c`.
 
 Examples:
 <screen>
@@ -644,7 +648,7 @@ import String;
 sort({10, 4, -2, 11, 100, 5});
 fruits = {"mango", "strawberry", "pear", "pineapple", "banana", "grape", "kiwi"};
 sort(fruits);
-sort(fruits, bool(str a, str b){ return size(a) >= size(b); });
+sort(fruits, bool(str a, str b){ return size(a) > size(b); });
 </screen>
 
 Questions:

@@ -69,6 +69,7 @@ import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
@@ -129,7 +130,7 @@ public abstract class Import {
 				// Invoke the importer, which should generate the text of the module that we need
 				// to actually import.
 				IValue module = importer.call(argTypes, argValues, null).getValue();
-				String moduleText = module.getType().isStringType() ? ((IString) module).getValue() : TreeAdapter.yield((IConstructor) module);
+				String moduleText = module.getType().isString() ? ((IString) module).getValue() : TreeAdapter.yield((IConstructor) module);
 				
 				moduleText = "@generated\n" + moduleText;
 				
@@ -559,7 +560,7 @@ public abstract class Import {
       IConstructor sym = ProductionAdapter.getDefined(prod);
       sym = SymbolAdapter.delabel(sym); 
       IValueFactory vf = eval.getValueFactory();
-      prod = ProductionAdapter.setDefined(prod, (IConstructor) Factory.Symbol_Label.make(vf, vf.string("$parsed"), sym));
+      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
       return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
     }
     catch (ParseError e) {
@@ -567,6 +568,18 @@ public abstract class Import {
       ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
       eval.getMonitor().warning("parse error in concrete syntax", src);
       return tree.setAnnotation("parseError", src);
+    }
+    catch (StaticError e) {
+      ISourceLocation loc = TreeAdapter.getLocation(tree);
+      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+      eval.getMonitor().warning(e.getMessage(), e.getLocation());
+      return tree.setAnnotation("can not parse fragment due to " + e.getMessage(), src);
+    }
+    catch (UndeclaredNonTerminalException e) {
+      ISourceLocation loc = TreeAdapter.getLocation(tree);
+      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+      eval.getMonitor().warning(e.getMessage(), src);
+      return tree.setAnnotation("can not parse fragment due to " + e.getMessage(), src);
     }
   }
   
@@ -641,7 +654,7 @@ public abstract class Import {
             if (((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
               IValue arg = ((IConstructor) attr).get(0);
               
-              if (arg.getType().isNodeType() && ((INode) arg).getName().equals("holeType")) {
+              if (arg.getType().isNode() && ((INode) arg).getName().equals("holeType")) {
                 return (IConstructor) ((INode) arg).get(0);
               }
             }

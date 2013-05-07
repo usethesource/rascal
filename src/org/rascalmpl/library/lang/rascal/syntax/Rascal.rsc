@@ -1,4 +1,4 @@
-@license{
+ @license{
   Copyright (c) 2009-2012 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
@@ -546,7 +546,7 @@ syntax ProtocolTail
 	| post: PostProtocolChars post ;
 
 lexical Nonterminal
-	= [A-Z] !<< [A-Z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z] \ RascalReservedKeywords;
+	= [A-Z] !<< [A-Z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z] \ RascalKeywords;
 
 syntax PathTail
 	= mid: MidPathChars mid Expression expression PathTail tail 

@@ -132,7 +132,7 @@ public class StringTemplateConverter {
 				else if (value.getType().isSubtypeOf(Factory.Type)) {
 					b.append(SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol")));
 				}
-				else if (value.getType().isStringType()) {
+				else if (value.getType().isString()) {
 					b.append(((IString) value).getValue());
 				} 
 				else {

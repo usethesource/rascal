@@ -32,11 +32,11 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
 					.getInstance();
-			return RTF.functionType(getType().typeOf(env), getParameters()
-					.typeOf(env));
+			return RTF.functionType(getType().typeOf(env, instantiateTypeParameters), getParameters()
+					.typeOf(env, instantiateTypeParameters));
 		}
 	}
 
@@ -49,10 +49,10 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-			return RTF.functionType(getType().typeOf(env), getParameters()
-					.typeOf(env));
+			return RTF.functionType(getType().typeOf(env, instantiateTypeParameters), getParameters()
+					.typeOf(env, instantiateTypeParameters));
 		}
 
 	}

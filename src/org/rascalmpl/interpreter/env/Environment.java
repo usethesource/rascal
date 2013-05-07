@@ -90,7 +90,7 @@ public class Environment {
 
 	public Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, ISourceLocation loc, String name) {
 		this.parent = parent;
-		if(loc == null && !(this instanceof ModuleEnvironment)) {
+		if(loc == null) {
 			System.err.println("*** Environment created with empty location");
 		}
 		this.loc = loc;
@@ -470,6 +470,10 @@ public class Environment {
 			if (getRoot() instanceof ModuleEnvironment) {
 				((ModuleEnvironment)getRoot()).addResourceImporter(function);
 			}
+		}
+		
+		if (function.hasResolverScheme()) {
+			getRoot().getHeap().registerSourceResolver(function.getResolverScheme(), function);
 		}
 	}
 

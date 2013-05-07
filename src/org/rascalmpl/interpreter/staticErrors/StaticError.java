@@ -72,6 +72,8 @@ public abstract class StaticError extends RuntimeException {
 			mod = uri.getAuthority();
 		else
 			mod = uri.getPath().replaceAll("^.*/", "").replaceAll("\\..*$", "");
+		if(mod == null)
+			mod = "<empty>";
 		
 		if (loc.hasLineColumn()) {
 			stackTrace[i++] = new StackTraceElement(mod, "?", loc.getURI().getPath(), loc.getBeginLine());

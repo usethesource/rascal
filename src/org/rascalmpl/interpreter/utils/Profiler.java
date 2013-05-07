@@ -102,9 +102,8 @@ public class Profiler extends Thread {
 	public IList getProfileData(){
 		TypeFactory TF = TypeFactory.getInstance();
 		Type elemType = TF.tupleType(TF.sourceLocationType(), TF.integerType());
-		Type listType = TF.listType(elemType);
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
-		IListWriter w = listType.writer(VF);
+		IListWriter w = VF.listWriter(elemType);
 		for(Map.Entry<ISourceLocation, Count> e : sortData()){
 			w.insert(VF.tuple(e.getKey(), VF.integer(e.getValue().getTicks())));
 		}

@@ -125,29 +125,52 @@ public final class DebugHandler implements IDebugHandler {
 				
 			case STEP_OVER:
 				// TODO: remove cast to {@link Evaluator} and rework {@link IEvaluator}.
-				int currentEnvironmentStackSize = ((Evaluator) evaluator).getCallStack().size();
+				// TODO: optimize {@link Evaluator.getCallStack()}; currently it is expensive because of environment traversal
+				Integer currentEnvironmentStackSize = ((Evaluator) evaluator).getCallStack().size();
 
 				/*
 				 * Stepping over implies:
-				 * * either there is a next statement in the same environment stack frame
+				 * * either there is a next statement in the same environment stack frame (which might
+				 *   equal the reference statement in case of recursion or single statement loops)
 				 * * or there is no next statement in the same stack frame and thus the stack frame 
 				 *   eventually gets popped from the stack. As long the calls in deeper nesting levels 
 				 *   are executed, no action needs to be taken.
-				 */	
-				if (currentEnvironmentStackSize <= getReferenceEnvironmentStackSize()) {
-					
+				 */
+				switch (currentEnvironmentStackSize.compareTo(
+						getReferenceEnvironmentStackSize())) {
+				case 0:
 					/*
-					 * For the case that we are still within the same stack frame, positions are compared to
-					 * ensure that the statement was finished executing.
-					 */					
+					 * For the case that we are still within the same stack
+					 * frame, positions are compared to ensure that the
+					 * statement was finished executing.
+					 */
 					int referenceStart = getReferenceAST().getLocation().getOffset();
-					int referenceEnd   = getReferenceAST().getLocation().getOffset() + getReferenceAST().getLocation().getLength();
-					int currentStart   = currentAST.getLocation().getOffset();
-					
-					if (! (referenceStart <= currentStart && currentStart < referenceEnd)) {
+					int referenceAfter = getReferenceAST().getLocation().getOffset() + getReferenceAST().getLocation().getLength();
+					int currentStart = currentAST.getLocation().getOffset();
+					int currentAfter = currentAST.getLocation().getOffset() + currentAST.getLocation().getLength();
+
+					if (currentStart < referenceStart
+							|| currentStart >= referenceAfter
+							|| currentStart == referenceStart
+								&& currentAfter == referenceAfter) {
 						updateSuspensionState(evaluator, currentAST);
 						getEventTrigger().fireSuspendByStepEndEvent();
 					}
+					break;
+
+				case -1:
+					// lower stack size: left scope, thus over
+					updateSuspensionState(evaluator, currentAST);
+					getEventTrigger().fireSuspendByStepEndEvent();
+					break;
+
+				case +1:
+					// higher stack size: not over yet
+					break;
+
+				default:
+					throw new RuntimeException(
+							"Requires compareTo() to return exactly either -1, 0, or +1.");
 				}
 				break;
 
