@@ -16,6 +16,7 @@ package org.rascalmpl.interpreter.utils;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.parser.ASTBuilder;
@@ -65,20 +66,20 @@ public class Names {
 		return null;
 	}
 	
-	static public Name toName(String name) {
-		return ASTBuilder.make("Name", "Lexical", null, name);
+	static public Name toName(String name, ISourceLocation loc) {
+		return ASTBuilder.make("Name", "Lexical", loc, name);
 	}
 	
-	static public QualifiedName toQualifiedName(String name) {
+	static public QualifiedName toQualifiedName(String name, ISourceLocation loc) {
 		List<Name> list = new LinkedList<Name>();
-		list.add(toName(name));
-		return ASTBuilder.make("QualifiedName", null, list);
+		list.add(toName(name, loc));
+		return ASTBuilder.make("QualifiedName", loc, list);
 	}
 
-	static public QualifiedName toQualifiedName(String returnType, String name) {
+	static public QualifiedName toQualifiedName(String returnType, String name, ISourceLocation loc) {
     List<Name> list = new LinkedList<Name>();
-    list.add(toName(returnType));
-    list.add(toName(name));
-    return ASTBuilder.make("QualifiedName", null, list);
+    list.add(toName(returnType, loc));
+    list.add(toName(name, loc));
+    return ASTBuilder.make("QualifiedName", loc, list);
   }
 }

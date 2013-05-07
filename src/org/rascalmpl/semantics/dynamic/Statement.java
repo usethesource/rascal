@@ -500,7 +500,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					} else {
 						__eval.unwind(olds[i]);
 						i--;
-						__eval.pushEnv();
 					}
 				}
 				// TODO: this is not enough, we must also detect
@@ -825,7 +824,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				if (bound.isDefault()) {
 					Result<IValue> res = bound.getExpression()
 							.interpret(__eval);
-					if (!res.getType().isIntegerType()) {
+					if (!res.getType().isInteger()) {
 						throw new UnexpectedType(
 								org.rascalmpl.interpreter.Evaluator.__getTf()
 										.integerType(), res.getType(), this);

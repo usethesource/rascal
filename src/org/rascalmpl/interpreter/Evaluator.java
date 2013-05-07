@@ -24,6 +24,7 @@ import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,11 +40,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
@@ -51,6 +56,7 @@ import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.EvalCommand;
+import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -64,6 +70,7 @@ import org.rascalmpl.interpreter.debug.IRascalSuspendTrigger;
 import org.rascalmpl.interpreter.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
+import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
@@ -74,8 +81,10 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.CommandlineError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.staticErrors.UnguardedInsert;
 import org.rascalmpl.interpreter.staticErrors.UnguardedReturn;
@@ -114,6 +123,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	protected Environment currentEnvt; // not sharable
  
 	private final GlobalEnvironment heap; // shareable if frozen
+	private final Configuration config = new Configuration();
 	/**
 	 * True if an interrupt has been signalled and we should abort execution
 	 */
@@ -189,7 +199,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		this.rootScope = scope;
 		heap.addModule(scope);
 		this.classLoaders = classLoaders;
-		this.javaBridge = new JavaBridge(classLoaders, vf);
+		this.javaBridge = new JavaBridge(classLoaders, vf, config);
 		this.rascalPathResolver = rascalPathResolver;
 		this.resolverRegistry = rascalPathResolver.getRegistry();
 		this.defStderr = stderr;
@@ -234,7 +244,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		resolverRegistry.registerInputOutput(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
 		
-		ClassResourceInputOutput courses = new ClassResourceInputOutput(resolverRegistry, "courses", getClass(), "src/org/rascalmpl/courses");
+		ClassResourceInputOutput courses = new ClassResourceInputOutput(resolverRegistry, "courses", getClass(), "/org/rascalmpl/courses");
 		resolverRegistry.registerInputOutput(courses);
 		ClassResourceInputOutput tutor = new ClassResourceInputOutput(resolverRegistry, "tutor", getClass(), "/org/rascalmpl/tutor");
 		resolverRegistry.registerInputOutput(tutor);
@@ -258,7 +268,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		heap.addModule(scope);
 		this.classLoaders = source.classLoaders;
 		// TODO: the Java bridge is probably sharable if its methods are synchronized
-		this.javaBridge = new JavaBridge(classLoaders, vf);
+		this.javaBridge = new JavaBridge(classLoaders, vf, config);
 		this.rascalPathResolver = source.rascalPathResolver;
 		this.resolverRegistry = source.resolverRegistry;
 		this.defStderr = source.defStderr;
@@ -475,9 +485,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 	
+	
+	
 	public IValue call(String returnType, String name, IValue... args) {
-	  return call(Names.toQualifiedName(returnType, name), args);
+	  return call(Names.toQualifiedName(returnType, name, getCurrentEnvt().getLocation()), null, args);
 	};
+	
+	@Override
+	public IValue call(String name, IValue... args) {
+	  return call(name, (Map<String,IValue>) null, args);
+	}
 	
 	/**
 	 * Call a Rascal function with a number of arguments
@@ -493,7 +510,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		try {
 			ModuleEnvironment modEnv = getHeap().getModule(module);
 			setCurrentEnvt(modEnv);
-			return call(name, args);
+			return call(name, (Map<String,IValue>) null, args);
 		}
 		finally {
 			setMonitor(old);
@@ -501,13 +518,169 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 	
-	@Override
-	public IValue call(String name, IValue... args) {
-	  QualifiedName qualifiedName = Names.toQualifiedName(name);
-		return call(qualifiedName, args);
+	/**
+	 * This function processes commandline parameters as they are typically passed
+	 * to a Rascal/Java program running on the commandline (a list of strings). 
+	 * 
+	 * The strings are interpreted as follows. If the first character is a '-' or the first two are '--'
+	 * then the string is the name of a keyword parameter of the main function. The type of the
+	 * declared parameter is used to determine how to parse the next string or strings. Note that
+	 * several strings in a row that do not start with '-' or '--' will be composed into a list or
+	 * a set depending on the type of the respective keyword parameter.
+	 */
+	public IValue main(IRascalMonitor monitor, String module, String function, String[] commandline) {
+	  IRascalMonitor old = setMonitor(monitor);
+    Environment oldEnv = getCurrentEnvt();
+    
+    try {
+      ModuleEnvironment modEnv = getHeap().getModule(module);
+      setCurrentEnvt(modEnv);
+      
+      Name name = Names.toName(function, modEnv.getLocation());
+      OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(name);
+      
+      if (func == null) {
+        throw new UndeclaredVariable(function, name);
+      }
+      
+      AbstractFunction main = func.getFunctions().get(0);
+      
+      if (func.getFunctions().size() > 1) {
+        throw new CommandlineError("should only have one main function", main);
+      }
+      
+      if (main.getArity() == 1) {
+        return func.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
+      }
+      else if (main.hasKeywordArgs() && main.getArity() == 0) {
+        Map<String, IValue> args = parseKeywordCommandLineArgs(monitor, commandline, main);
+        return func.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
+      }
+      else {
+        throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main);
+      }
+    }
+    finally {
+      setMonitor(old);
+      setCurrentEnvt(oldEnv);
+    }
+  }
+
+  private IList parsePlainCommandLineArgs(String[] commandline) {
+    IListWriter w = vf.listWriter();
+    for (String arg : commandline) {
+      w.append(vf.string(arg));
+    }
+    return w.done();
+  }
+
+  public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
+    List<KeywordParameter> kwps = func.getKeywordParameterDefaults();
+    Map<String, Type> expectedTypes = new HashMap<String,Type>();
+    
+    for (KeywordParameter kwp : kwps) {
+      expectedTypes.put(kwp.getName(), kwp.getType());
+    }
+
+    Map<String, IValue> params = new HashMap<String,IValue>();
+    
+    for (int i = 0; i < commandline.length; i++) {
+      if (commandline[i].equals("-help")) {
+        throw new CommandlineError("Help", func);
+      }
+      else if (commandline[i].startsWith("-")) {
+        String label = commandline[i].replaceFirst("^-+", "");
+        Type expected = expectedTypes.get(label);
+        
+        if (expected == null) {
+          throw new CommandlineError("unknown argument: " + label, func);
+        }
+        
+        if (expected.isSubtypeOf(tf.boolType())) {
+          if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
+            params.put(label, vf.bool(true));
+          }
+          else if (i < commandline.length - 1) {
+            String arg = commandline[++i].trim();
+            if (arg.equals("1") || arg.equals("true")) {
+              params.put(label, vf.bool(true));
+            }
+            else {
+              params.put(label, vf.bool(false));
+            }
+          }
+          
+          continue;
+        }
+        else if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
+          throw new CommandlineError("expected option for " + label, func);
+        }
+        else if (expected.isSubtypeOf(tf.listType(tf.valueType()))) {
+          IListWriter writer = vf.listWriter(expected.getElementType());
+          
+          while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
+            writer.append(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
+          }
+          
+          params.put(label, writer.done());
+        }
+        else if (expected.isSubtypeOf(tf.setType(tf.valueType()))) {
+          ISetWriter writer = vf.setWriter(expected.getElementType());
+          
+          while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
+            writer.insert(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
+          }
+          
+          params.put(label, writer.done());
+        }
+        else {
+          params.put(label, parseCommandlineOption(func, expected, commandline[++i]));
+        }
+      }
+    }
+    
+    return params;
+  }
+
+  private IValue parseCommandlineOption(AbstractFunction main, Type expected, String option) {
+    if (expected.isSubtypeOf(tf.stringType())) {
+      return vf.string(option);
+    }
+    else {
+      StringReader reader = new StringReader(option);
+      try {
+        return new StandardTextReader().read(vf, expected, reader);
+      } catch (FactTypeUseException e) {
+        throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
+      } catch (IOException e) {
+        throw new CommandlineError("unxped problem while parsing commandline:" + e.getMessage(), main);
+      }
+    }
+  }
+  
+  @Override
+  public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue[] args) {
+	  IRascalMonitor old = setMonitor(monitor);
+    Environment oldEnv = getCurrentEnvt();
+    
+    try {
+      ModuleEnvironment modEnv = getHeap().getModule(module);
+      setCurrentEnvt(modEnv);
+      return call(name, kwArgs, args);
+    }
+    finally {
+      setMonitor(old);
+      setCurrentEnvt(oldEnv);
+    }
+  }
+	
+	private IValue call(String name, Map<String,IValue> kwArgs, IValue[] args) {
+	  QualifiedName qualifiedName = Names.toQualifiedName(name, getCurrentEnvt().getLocation());
+	  setCurrentAST(qualifiedName);
+		return call(qualifiedName, kwArgs, args);
 	}
 	
-  private IValue call(QualifiedName qualifiedName, IValue... args) {
+  private IValue call(QualifiedName qualifiedName, Map<String,IValue> kwArgs, IValue... args) {
     OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
 		RascalTypeFactory rtf = RascalTypeFactory.getInstance();
     
@@ -523,14 +696,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw new UndeclaredFunction(Names.fullName(qualifiedName), types, this, getCurrentAST());
 		}
 
-		return func.call(getMonitor(), types, args, null).getValue();
+		return func.call(getMonitor(), types, args, kwArgs).getValue();
   }
 	
 	
 	
 	@Override	
 	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input){
-	  assert false;
 		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(location);
 		String name = "";
 		if (SymbolAdapter.isStartSort(startSort)) {
@@ -657,14 +829,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			ParserGenerator pgen = getParserGenerator();
 			String main = uri.getAuthority();
 			ModuleEnvironment env = getHeap().getModule(main);
+			monitor.startJob("Expanding Grammar");
 			return pgen.getExpandedGrammar(monitor, main, env.getSyntaxDefinition());
 		}
 		finally {
+			monitor.endJob(true);
 			setMonitor(old);
 		}
 	}
 	
-	public IRelation getNestingRestrictions(IRascalMonitor monitor, IConstructor g) {
+	public ISet getNestingRestrictions(IRascalMonitor monitor, IConstructor g) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			ParserGenerator pgen = getParserGenerator();
@@ -684,7 +858,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  if (isBootstrapper()) {
 		    throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
 		  }
-			parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory());
+			parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
 		}
 		endJob(true);
 		return parserGenerator;
@@ -1155,13 +1329,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 	@Override	
 	public void pushEnv() {
-		Environment env = new Environment(getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, getCurrentEnvt().getName());
+		Environment env = new Environment(getCurrentEnvt(), getCurrentLocation(), getCurrentEnvt().getName());
 		setCurrentEnvt(env);
+	}
+
+	private ISourceLocation getCurrentLocation() {
+		return currentAST != null ? currentAST.getLocation() : getCurrentEnvt().getLocation();
 	}
 	
 	@Override  
 	public void pushEnv(String name) {
-		Environment env = new Environment(getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, name);
+		Environment env = new Environment(getCurrentEnvt(), getCurrentLocation(), name);
 		setCurrentEnvt(env);
 	}
 
@@ -1258,11 +1436,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	@Override	
 	public void updateProperties() {
-		Evaluator.doProfiling = Configuration.getProfilingProperty();
+		Evaluator.doProfiling = config.getProfilingProperty();
 
-		AbstractFunction.setCallTracing(Configuration.getTracingProperty());
+		AbstractFunction.setCallTracing(config.getTracingProperty());
 	}
 
+	public Configuration getConfiguration() {
+	  return config;
+	}
+	
 	public Stack<Environment> getCallStack() {
 		Stack<Environment> stack = new Stack<Environment>();
 		Environment env = currentEnvt;
@@ -1447,4 +1629,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       monitor.warning(message, src);
     }
   }
+
+  
+
+  
+ 
 }

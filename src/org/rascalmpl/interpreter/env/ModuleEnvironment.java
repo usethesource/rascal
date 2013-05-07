@@ -48,6 +48,7 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -78,7 +79,7 @@ public class ModuleEnvironment extends Environment {
 	public final static String SHELL_MODULE = "$shell$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
-		super(null, name);
+		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", name, "")), name);
 		this.heap = heap;
 		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
@@ -221,7 +222,7 @@ public class ModuleEnvironment extends Environment {
 		todo.add(getName());
 		
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
-		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) Factory.Symbol_Sort.make(VF, "SyntaxDefinition"));
+		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) VF.constructor(Factory.Symbol_Sort, VF.string("SyntaxDefinition")));
 		IMapWriter result = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(TF.stringType()), TF.setType(DefSort)));
 		
 		while(!todo.isEmpty()){
@@ -405,10 +406,10 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void storeVariable(String name, Result<IValue> value) {
-		if (value instanceof AbstractFunction) {
-			storeFunction(name, (AbstractFunction) value);
-			return;
-		}
+//		if (value instanceof AbstractFunction) {
+//			storeFunction(name, (AbstractFunction) value);
+//			return;
+//		}
 		
 		Result<IValue> result = super.getVariable(name);
 		
@@ -441,7 +442,7 @@ public class ModuleEnvironment extends Environment {
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
 			
-			if (mod != null) { // TODO: how can this happen?
+			if (mod != null) { 
 			  var = mod.getLocalPublicVariable(name);
 			}
 			
@@ -469,7 +470,7 @@ public class ModuleEnvironment extends Environment {
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
 			Result<IValue> r = null;
-			if (mod.variableEnvironment != null) 
+			if (mod != null && mod.variableEnvironment != null) 
 				r = mod.variableEnvironment.get(name);
 			
 			if (r != null && r.isPublic()) {
@@ -486,7 +487,10 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			mod.getLocalPublicFunctions(name, collection);
+			
+			if (mod != null) {
+			  mod.getLocalPublicFunctions(name, collection);
+			}
 		}
 	}
 	
@@ -496,7 +500,10 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			mod.getLocalPublicFunctions(returnType, name, collection);
+			
+			if (mod != null) {
+			  mod.getLocalPublicFunctions(returnType, name, collection);
+			}
 		}
 	}
 	
@@ -709,6 +716,9 @@ public class ModuleEnvironment extends Environment {
 			for (String i : getImports()) {
 				ModuleEnvironment mod = getImport(i);
 				
+				if (mod == null) {
+				  continue;
+				}
 				// don't recurse here (cyclic imports!)
 				type = mod.concreteSyntaxTypes.get(name);
 				

@@ -136,7 +136,7 @@ public class HTMLGenerator {
 			content.append(parseErrorMessage(command.getValue(), "stdin", pe));
 			content.append('\n');
 			ISourceLocation sourceLocation = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
-			throw new Throw(ShellParseError.make(values, values.string(content.toString()), sourceLocation), ctx.getCurrentAST(), ctx.getStackTrace());
+			throw new Throw(values.constructor(ShellParseError, values.string(content.toString()), sourceLocation), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch (QuitException q){
 			//
@@ -148,22 +148,22 @@ public class HTMLGenerator {
 		catch (Ambiguous e) {
 			content.append(ambiguousMessage(e));
 			content.append('\n');
-			throw new Throw(ShellError.make(values, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
+			throw new Throw(values.constructor(ShellError, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch(StaticError e){
 			content.append(staticErrorMessage(e));
 			content.append('\n');
-			throw new Throw(ShellError.make(values, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
+			throw new Throw(values.constructor(ShellError, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch(Throw e){
 			content.append(throwMessage(e));
 			content.append('\n');
-			throw new Throw(ShellError.make(values, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
+			throw new Throw(values.constructor(ShellError, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch(Throwable e){
 			content.append(throwableMessage(e, eval != null ? ctx.getStackTrace() : null));
 			content.append('\n');
-			throw new Throw(ShellError.make(values, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
+			throw new Throw(values.constructor(ShellError, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		
 		return values.string(content.toString());

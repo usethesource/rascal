@@ -165,7 +165,7 @@ public enum Properties {
 	
 	private static <PropValue> PropertyValue<PropValue> producePropertyValue(IValue arg,
 			PropertyManager pm, IFigureConstructionEnv env, Convert<PropValue> convert) {
-		if(arg.getType().isAbstractDataType()){
+		if(arg.getType().isAbstractData()){
 			IConstructor cs = (IConstructor) arg;
 			if(cs.getName().equals("measure")){
 				return new MeasureValue<PropValue>(convert, pm , env,

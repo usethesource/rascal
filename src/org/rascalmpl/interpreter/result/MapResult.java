@@ -24,7 +24,6 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
@@ -257,7 +256,7 @@ public class MapResult extends ElementResult<IMap> {
 	
 	@Override
 	public Result<IValue> fieldSelect(int[] selectedFields) {
-		IRelationWriter w = getValueFactory().relationWriter();
+		ISetWriter w = getValueFactory().relationWriter();
 		
 		// TODO: poor mans implementation can be made much faster without intermediate relation building
 		Iterator<Entry<IValue,IValue>> it = value.entryIterator();

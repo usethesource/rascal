@@ -18,8 +18,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
+import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -49,7 +49,7 @@ public class IO{
 		Type intType = types.integerType();
 		Type tupleType = types.tupleType(intType, strType, intType);
 		java.lang.String fileName = nameAUTFile.getValue();
-		IRelationWriter rw = values.relationWriter(tupleType);
+		ISetWriter rw = values.relationWriter(tupleType);
 		BufferedReader bufRead = null;
 		try{
 			FileReader input = new FileReader(fileName);
@@ -77,7 +77,7 @@ public class IO{
 		return rw.done();
 	}
 	
-	private int numberOfStates(IRelation st){
+	private int numberOfStates(ISet st){
 		st.size();
 		int r = 0;
 		for(IValue v : st){
@@ -90,7 +90,7 @@ public class IO{
 		return r + 1;
 	}
 	
-	private void printTransitions(PrintStream fos, IRelation st){
+	private void printTransitions(PrintStream fos, ISet st){
 		fos.println("des(0," + st.size() + "," + numberOfStates(st) + ")");
 		for(IValue v : st){
 			ITuple t = (ITuple) v;
@@ -108,7 +108,7 @@ public class IO{
 		}
 	}
 	
-	public void writeAUT(IString nameAUTFile, IRelation value){
+	public void writeAUT(IString nameAUTFile, ISet value){
 		java.lang.String fileName = nameAUTFile.getValue();
 		
 		PrintStream fos = null;

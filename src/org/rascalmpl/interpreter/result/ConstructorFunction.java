@@ -55,9 +55,9 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		if (constructorType == Factory.Tree_Appl) {
-			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, null);
+			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, keyArgValues);
 		}
 		Type[] allArgumentTypes = addKeywordTypes(actualTypes, keyArgValues);
 		
@@ -68,7 +68,7 @@ public class ConstructorFunction extends NamedFunction {
 		Type formalTypeParameters = constructorType.getAbstractDataType().getTypeParameters();
 		Type instantiated = constructorType;
 
-		if (!formalTypeParameters.isVoidType()) {
+		if (!formalTypeParameters.isBottom()) {
 			for (Type field : formalTypeParameters) {
 				if (!bindings.containsKey(field)) {
 					bindings.put(field, TF.voidType());
@@ -77,10 +77,10 @@ public class ConstructorFunction extends NamedFunction {
 			instantiated = constructorType.instantiate(bindings);
 		}
 
-		return makeResult(instantiated, instantiated.make(getValueFactory(), ctx.getCurrentEnvt().getStore(), addKeywordArgs(actuals, keyArgValues)), ctx);
+		return makeResult(instantiated, ctx.getValueFactory().constructor(instantiated, addKeywordArgs(actuals, keyArgValues)), ctx);
 	}
 	
-	protected Type[] addKeywordTypes(Type[] actualTypes, Map<String, Result<IValue>> keyArgValues){
+	protected Type[] addKeywordTypes(Type[] actualTypes, Map<String, IValue> keyArgValues){
 		if(constructorType.getArity() == actualTypes.length && keywordParameterDefaults == null)
 			return actualTypes;
 		
@@ -115,7 +115,7 @@ public class ConstructorFunction extends NamedFunction {
 			String kwparam = kw.getName();
 			if(keyArgValues.containsKey(kwparam)){
 				nBoundKeywordArgs++;
-				Result<IValue> r = keyArgValues.get(kwparam);
+				IValue r = keyArgValues.get(kwparam);
 				extendedActualTypes[k++] = r.getType();
 			} else {
 				extendedActualTypes[k++] = kw.getType();
@@ -133,7 +133,7 @@ public class ConstructorFunction extends NamedFunction {
 		return extendedActualTypes;
 	}
 	
-	protected IValue[] addKeywordArgs(IValue[] actuals, Map<String, Result<IValue>> keyArgValues){
+	protected IValue[] addKeywordArgs(IValue[] actuals, Map<String, IValue> keyArgValues){
 		if(constructorType.getArity() == actuals.length)
 			return actuals;
 		IValue[] extendedActuals = new IValue[actuals.length + keywordParameterDefaults.size()];
@@ -160,8 +160,8 @@ public class ConstructorFunction extends NamedFunction {
 			String kwparam = kw.getName();
 			if(keyArgValues.containsKey(kwparam)){
 //				nBoundKeywordArgs++;
-				Result<IValue> r = keyArgValues.get(kwparam);
-				extendedActuals[k++] = r.getValue();
+				IValue r = keyArgValues.get(kwparam);
+				extendedActuals[k++] = r;
 			} else {
 				extendedActuals[k++] = kw.getValue();
 			}

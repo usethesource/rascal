@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,11 +23,12 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -46,12 +46,13 @@ public class ParserGenerator {
 	private static final String packageName = "org.rascalmpl.java.parser.object";
 	private static final boolean debug = true;
 
-	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IValueFactory factory) {
-		this.bridge = new JavaBridge(loaders, factory);
+	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment scope = new ModuleEnvironment("___parsergenerator___", heap);
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, scope,heap);
 		this.evaluator.setBootstrapperProperty(true);
+		this.evaluator.getConfiguration().setRascalJavaClassPathProperty(config.getRascalJavaClassPathProperty());
+		this.bridge = new JavaBridge(loaders, factory, this.evaluator.getConfiguration());
 		this.vf = factory;
 		
 		monitor.startJob("Loading parser generator", 100, 139);
@@ -174,9 +175,9 @@ public class ParserGenerator {
 		return g;
 	}
 
-	public IRelation getNestingRestrictions(IRascalMonitor monitor,
+	public ISet getNestingRestrictions(IRascalMonitor monitor,
 			IConstructor g) {
-		return (IRelation) evaluator.call(monitor, "doNotNest", g);
+		return (ISet) evaluator.call(monitor, "doNotNest", g);
 	}
 
 	/** 

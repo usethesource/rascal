@@ -84,10 +84,6 @@ public class Math {
 		}
 	}
 	
-	public IValue floor(INumber x){
-		return x.toReal().floor().toInteger();
-	}
-	
 	public IValue ln(INumber x) {
 		try {
 			return x.toReal().ln(values.getPrecision());
@@ -132,15 +128,19 @@ public class Math {
 	}
 	
 	public IValue precision(INumber x){
-		if(x.getType().isIntegerType()){
+		if(x.getType().isInteger()){
 			IInteger k = (IInteger) x;
 			return values.integer(k.toReal().precision());
 		}
-		if(x.getType().isRationalType()){
+		if(x.getType().isRational()){
 			IRational k = (IRational) x;
 			return values.integer(k.toReal().precision());
 		}
 		return values.integer(((IReal) x).precision());
+	}
+	
+	public IValue unscaled(IReal x) {
+	  return x.unscaled();
 	}
 	
 	public IValue precision(INumber x, IInteger precision){
@@ -153,11 +153,11 @@ public class Math {
 	
 	public IValue scale(INumber x){
 		try {
-			if(x.getType().isIntegerType()){
+			if(x.getType().isInteger()){
 				IInteger k = (IInteger) x;
 				return values.integer(k.toReal().scale());
 			}
-			if(x.getType().isRationalType()){
+			if(x.getType().isRational()){
 				IRational k = (IRational) x;
 				return values.integer(k.toReal().scale());
 			}

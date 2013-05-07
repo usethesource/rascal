@@ -21,16 +21,12 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
-import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -67,8 +63,8 @@ public class LocalSharingValueFactory implements IValueFactory{
 	private final ValueCache<IConstructor> cachedConstructors;
 	private final ValueCache<IList> cachedLists;
 	private final ValueCache<ISet> cachedSets;
-	private final ValueCache<IRelation> cachedRelations;
-	private final ValueCache<IListRelation> cachedListRelations;
+	private final ValueCache<ISet> cachedRelations;
+	private final ValueCache<IList> cachedListRelations;
 	private final ValueCache<IMap> cachedMaps;
 	private final ValueCache<IDateTime> cachedDateTimes;
 	
@@ -90,8 +86,8 @@ public class LocalSharingValueFactory implements IValueFactory{
 		cachedConstructors = new ValueCache<IConstructor>();
 		cachedLists = new ValueCache<IList>();
 		cachedSets = new ValueCache<ISet>();
-		cachedRelations = new ValueCache<IRelation>();
-		cachedListRelations = new ValueCache<IListRelation>();
+		cachedRelations = new ValueCache<ISet>();
+		cachedListRelations = new ValueCache<IList>();
 		cachedMaps = new ValueCache<IMap>();
 		cachedDateTimes = new ValueCache<IDateTime>();
 	}
@@ -307,38 +303,38 @@ public class LocalSharingValueFactory implements IValueFactory{
 	}
 
 	@Override
-	public IRelation relation(IValue... elems){
+	public ISet relation(IValue... elems){
 		return cachedRelations.cache(valueFactory.relation(elems));
 	}
 
 	@Override
-	public IRelation relation(Type tupleType){
+	public ISet relation(Type tupleType){
 		return cachedRelations.cache(valueFactory.relation(tupleType));
 	}
 	
-	public IListRelation listRelation(IValue... elems){
+	public IList listRelation(IValue... elems){
 		return cachedListRelations.cache(valueFactory.listRelation(elems));
 	}
 
-	public IListRelation listRelation(Type tupleType){
+	public IList listRelation(Type tupleType){
 		return cachedListRelations.cache(valueFactory.listRelation(tupleType));
 	}
 
 	@Override
-	public IRelationWriter relationWriter(Type type){
+	public ISetWriter relationWriter(Type type){
 		return new RelationCachingWriter(this, valueFactory.relationWriter(type));
 	}
 	
 	@Override
-	public IRelationWriter relationWriter(){
+	public ISetWriter relationWriter(){
 		return new RelationCachingWriter(this, valueFactory.relationWriter());
 	}
 	
-	public IListRelationWriter listRelationWriter(Type type){
+	public IListWriter listRelationWriter(Type type){
 		return new ListRelationCachingWriter(this, valueFactory.listRelationWriter(type));
 	}
 	
-	public IListRelationWriter listRelationWriter(){
+	public IListWriter listRelationWriter(){
 		return new ListRelationCachingWriter(this, valueFactory.listRelationWriter());
 	}
 	
@@ -370,16 +366,6 @@ public class LocalSharingValueFactory implements IValueFactory{
 		@Override
 		public void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			listWriter.appendAll(collection);
-		}
-
-		@Override
-		public void delete(int i){
-			listWriter.delete(i);
-		}
-
-		@Override
-		public void delete(IValue elem){
-			listWriter.delete(elem);
 		}
 
 		@Override
@@ -430,11 +416,6 @@ public class LocalSharingValueFactory implements IValueFactory{
 		}
 
 		@Override
-		public void delete(IValue v){
-			setWriter.delete(v);
-		}
-
-		@Override
 		public void insert(IValue... v) throws FactTypeUseException{
 			setWriter.insert(v);
 		}
@@ -450,11 +431,11 @@ public class LocalSharingValueFactory implements IValueFactory{
 		}
 	}
 	
-	private static class RelationCachingWriter implements IRelationWriter{
+	private static class RelationCachingWriter implements ISetWriter{
 		private final LocalSharingValueFactory localSharingValueFactory;
-		private final IRelationWriter relationWriter;
+		private final ISetWriter relationWriter;
 		
-		public RelationCachingWriter(LocalSharingValueFactory localSharingValueFactory, IRelationWriter relationWriter){
+		public RelationCachingWriter(LocalSharingValueFactory localSharingValueFactory, ISetWriter relationWriter){
 			super();
 			
 			this.localSharingValueFactory = localSharingValueFactory;
@@ -462,13 +443,8 @@ public class LocalSharingValueFactory implements IValueFactory{
 		}
 
 		@Override
-		public IRelation done(){
+		public ISet done(){
 			return localSharingValueFactory.cachedRelations.cache(relationWriter.done());
-		}
-
-		@Override
-		public void delete(IValue v){
-			relationWriter.delete(v);
 		}
 
 		@Override
@@ -487,27 +463,19 @@ public class LocalSharingValueFactory implements IValueFactory{
 		}
 	}
 	
-	private static class ListRelationCachingWriter implements IListRelationWriter{
+	private static class ListRelationCachingWriter implements IListWriter{
 		private final LocalSharingValueFactory localSharingValueFactory;
-		private final IListRelationWriter listRelationWriter;
+		private final IListWriter listRelationWriter;
 		
-		public ListRelationCachingWriter(LocalSharingValueFactory localSharingValueFactory, IListRelationWriter relationWriter){
+		public ListRelationCachingWriter(LocalSharingValueFactory localSharingValueFactory, IListWriter relationWriter){
 			super();
 			
 			this.localSharingValueFactory = localSharingValueFactory;
 			this.listRelationWriter = relationWriter;
 		}
 
-		public IListRelation done(){
+		public IList done(){
 			return localSharingValueFactory.cachedListRelations.cache(listRelationWriter.done());
-		}
-
-		public void delete(IValue v){
-			listRelationWriter.delete(v);
-		}
-		
-		public void delete(int i){
-			listRelationWriter.delete(i);
 		}
 
 		public void insert(IValue... v) throws FactTypeUseException{

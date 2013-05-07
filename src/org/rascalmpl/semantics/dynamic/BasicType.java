@@ -34,7 +34,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 
 			throw new NonWellformedType(
 					"bag should have one type argument, like bag[value].", this);
@@ -62,7 +62,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 
 			return TF.boolType();
 
@@ -89,7 +89,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 			return TF.dateTimeType();
 		}
 
@@ -114,7 +114,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 
 			return TF.integerType();
 
@@ -142,7 +142,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 
 			return TF.rationalType();
 
@@ -171,7 +171,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 			throw new NonWellformedType(
 					"list should have one type argument, like list[value].",
 					this);
@@ -198,7 +198,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 
 			return TF.sourceLocationType();
 
@@ -226,7 +226,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 
 			throw new NonWellformedType(
 					"map should have at two type arguments, like map[value,value].",
@@ -255,7 +255,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 
 			return TF.nodeType();
 
@@ -282,7 +282,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 
 			return TF.numberType();
 
@@ -309,7 +309,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 			return TF.realType();
 		}
 
@@ -337,7 +337,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			throw new NonWellformedType(
 					"type should have at one type argument, like type[value].",
 					this);
@@ -360,7 +360,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 
 			throw new NonWellformedType(
 					"rel should have at least one type argument, like rel[value,value].",
@@ -385,7 +385,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 
 			throw new NonWellformedType(
 					"lrel should have at least one type argument, like lrel[value,value].",
@@ -415,7 +415,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 
 			throw new NonWellformedType(
 					"set should have one type argument, like set[value].", this);
@@ -443,7 +443,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 			return TF.stringType();
 
 		}
@@ -464,7 +464,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 
 			throw new NonWellformedType(
 					"tuple should have type arguments, like tuple[value,value].",
@@ -493,7 +493,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 			return TF.valueType();
 
 		}
@@ -517,7 +517,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
 			return TF.voidType();
 		}
 

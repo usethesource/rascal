@@ -23,12 +23,10 @@ import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -182,7 +180,7 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
-		public IValue visitRelation(IRelation o) throws VisitorException {
+		public IValue visitRelation(ISet o) throws VisitorException {
 			if (typed || inNode > 0)
 				append("{\"" + name + "\":\"#set\",\"" + args + "\":");
 			visitSequence(o.iterator());
@@ -201,7 +199,7 @@ public class JSonWriter implements IValueTextWriter {
 		 */
 		public IValue visitMap(IMap o) throws VisitorException {
 			Iterator<IValue> mapIterator = o.iterator();
-			if (o.getKeyType().isStringType()) {
+			if (o.getKeyType().isString()) {
 				append('{');
 				if (mapIterator.hasNext()) {
 					IValue key = mapIterator.next();
@@ -354,7 +352,7 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		@Override
-		public IValue visitListRelation(IListRelation o)
+		public IValue visitListRelation(IList o)
 				throws VisitorException {
 			// TODO Auto-generated method stub
 			visitSequence(o.iterator());

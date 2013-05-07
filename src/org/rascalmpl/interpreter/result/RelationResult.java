@@ -19,8 +19,6 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -40,10 +38,12 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class RelationResult extends SetOrRelationResult<IRelation> {
+public class RelationResult extends SetOrRelationResult<ISet> {
 
-		public RelationResult(Type type, IRelation rel, IEvaluatorContext ctx) {
+		public RelationResult(Type type, ISet rel, IEvaluatorContext ctx) {
 			super(type, rel, ctx);
+//			if (!rel.isRelation()) 
+//				throw new RuntimeException();
 		}
 
 		@Override
@@ -124,7 +124,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		
 		@Override
 		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
-			if(getType().getElementType().isVoidType()) throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
+			if(getType().getElementType().isBottom()) throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 			
 			// TODO: must go to PDB
 			int nSubs = subscripts.length;
@@ -148,7 +148,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			for (int i = 0; i < relArity; i++) {
 				Type relFieldType = getType().getFieldType(i);
 				if (i < nSubs) {
-					if (subscriptType[i].isSetType() && 
+					if (subscriptType[i].isSet() && 
 							relFieldType.comparable(subscriptType[i].getElementType())){
 						subscriptIsSet[i] = true;
 					} 
@@ -164,7 +164,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			}
 			Type resultType;
 			ISetWriter wset = null;
-			IRelationWriter wrel = null;
+			ISetWriter wrel = null;
 			
 			if (yieldSet){
 				resultType = getTypeFactory().setType(resFieldType[0]);
@@ -219,19 +219,19 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		
 		@Override
 		public  <U extends IValue> Result<U> transitiveClosure() {
-			if (getValue().arity() == 0 || getValue().arity() == 2) {
-				return makeResult(type, getValue().closure(), ctx);
+			if (getValue().asRelation().arity() == 0 || getValue().asRelation().arity() == 2) {
+				return makeResult(type, getValue().asRelation().closure(), ctx);
 			}
-			throw new Arity(2, getValue().arity(), ctx.getCurrentAST());
+			throw new Arity(2, getValue().asRelation().arity(), ctx.getCurrentAST());
 		}
 		
 
 		@Override
 		public  <U extends IValue> Result<U> transitiveReflexiveClosure() {
-			if (getValue().arity() == 0 || getValue().arity() == 2) {
-				return makeResult(type, getValue().closureStar(), ctx);
+			if (getValue().asRelation().arity() == 0 || getValue().asRelation().arity() == 2) {
+				return makeResult(type, getValue().asRelation().closureStar(), ctx);
 			}
-			throw new Arity(2, getValue().arity(), ctx.getCurrentAST());
+			throw new Arity(2, getValue().asRelation().arity(), ctx.getCurrentAST());
 		}
 		
 		
@@ -280,20 +280,20 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 				throw new Arity(2, rightArity, ctx.getCurrentAST());
 			}
 			Type resultType = leftrelType.compose(rightrelType);
-			return makeResult(resultType, left.getValue().compose(right.getValue()), ctx);
+			return makeResult(resultType, left.getValue().asRelation().compose(right.getValue().asRelation()), ctx);
 		}
 
 		<U extends IValue, V extends IValue> Result<U> insertTuple(TupleResult tuple) {
 			// TODO: check arity 
 			Type newType = getTypeFactory().setType(tuple.getType().lub(getType().getElementType()));
-			return makeResult(newType, /*(IRelation)*/ getValue().insert(tuple.getValue()), ctx); // do not see a reason for the unsafe cast
+			return makeResult(newType, /*(ISet)*/ getValue().insert(tuple.getValue()), ctx); // do not see a reason for the unsafe cast
 		}
 
 		@Override
 		protected <U extends IValue> Result<U> joinRelation(RelationResult that) {
 			// Note the reverse of arguments, we need "that join this"
-			int arity1 = that.getValue().arity();
-			int arity2 = this.getValue().arity();
+			int arity1 = that.getValue().asRelation().arity();
+			int arity2 = this.getValue().asRelation().arity();
 			Type tupleType1 = that.getType().getElementType();
 			Type tupleType2 = this.getType().getElementType();
 			Type fieldTypes[] = new Type[arity1 + arity2];
@@ -324,7 +324,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		@Override
 		protected <U extends IValue> Result<U> joinSet(SetResult that) {
 			// Note the reverse of arguments, we need "that join this"
-			int arity2 = this.getValue().arity();
+			int arity2 = this.getValue().asRelation().arity();
 			Type eltType = that.getType().getElementType();
 			Type tupleType = this.getType().getElementType();
 			Type fieldTypes[] = new Type[1 + arity2];
@@ -350,14 +350,14 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		
 		@Override
 		public Result<IValue> fieldSelect(int[] selectedFields) {
-			if (!getType().getElementType().isVoidType()) {
+			if (!getType().getElementType().isBottom()) {
 				for (int i : selectedFields) {
 					if (i < 0 || i >= getType().getArity()) {
 						throw RuntimeExceptionFactory.indexOutOfBounds(ctx.getValueFactory().integer(i), ctx.getCurrentAST(), ctx.getStackTrace());
 					}
 				}
 			}
-		   return makeResult(type.select(selectedFields), value.select(selectedFields), ctx);
+		   return makeResult(type.select(selectedFields), value.asRelation().project(selectedFields), ctx);
 		}
 		
 		@Override
@@ -382,7 +382,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 					}
 				}
 
-				if (fieldIndices[i] < 0 || (fieldIndices[i] > baseType.getArity() && !getType().getElementType().isVoidType())) {
+				if (fieldIndices[i] < 0 || (fieldIndices[i] > baseType.getArity() && !getType().getElementType().isBottom())) {
 					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
 							.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(fieldIndices[i]),
 									ctx.getCurrentAST(), ctx.getStackTrace());

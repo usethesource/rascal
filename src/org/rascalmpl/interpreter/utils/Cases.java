@@ -13,7 +13,9 @@
 package org.rascalmpl.interpreter.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,6 +47,8 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Cases  {
+	public static final List<String> IUPTR_NAMES = Arrays.asList("appl", "cycle", "amb", "char");
+	
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	
 	public static List<CaseBlock> precompute(List<Case> cases) {
@@ -57,7 +61,7 @@ public class Cases  {
 				b.add(c);
 				for (int j = i + 1; j < cases.size(); j++) {
 					Case d = cases.get(j);
-					if (isConcreteSyntaxPattern(d)) {
+					if (isConcreteSyntaxPattern(d) && !isIUPTRPattern(d)) {
 						b.add(d);
 						i++;
 					} else {
@@ -65,12 +69,14 @@ public class Cases  {
 					}
 				}
 				blocks.add(b);
+			} else if (isIUPTRPattern(c)) {
+				blocks.add(new DefaultBlock(c));
 			} else if (isConstantTreePattern(c)) {
 				NodeCaseBlock b = new NodeCaseBlock();
 				b.add(c);
 				for (int j = i + 1; j < cases.size(); j++) {
 					Case d = cases.get(j);
-					if (isConstantTreePattern(d)) {
+					if (isConstantTreePattern(d) && !isIUPTRPattern(d)) {
 						b.add(d);
 						i++;
 					} else {
@@ -105,12 +111,36 @@ public class Cases  {
 
 		return false;
 	}
+	
+	private static boolean isIUPTRPattern(Case d) {
+		if (d.isDefault()) {
+			return false;
+		}
+
+		org.rascalmpl.ast.Expression pattern = d.getPatternWithAction().getPattern();
+		
+		if (pattern.isVariableBecomes() || pattern.isTypedVariableBecomes()) {
+			pattern = pattern.getPattern();
+		}
+		
+		if (pattern.isCallOrTree()) {
+			Expression func =  pattern.getExpression();
+			if (func.isQualifiedName() && IUPTR_NAMES.contains(Names.fullName(func.getQualifiedName()))) {
+				return true;
+			}
+		}
+
+		return false;
+
+	}
 
 
 	private static boolean isConstantTreePattern(Case c) {
 		if (c.isDefault()) {
 			return false;
 		}
+		
+		
 		org.rascalmpl.ast.Expression pattern = c.getPatternWithAction()
 				.getPattern();
 		if (pattern.isVariableBecomes() || pattern.isTypedVariableBecomes()) {
@@ -129,6 +159,10 @@ public class Cases  {
 		return false;
 	}
 	
+	private static boolean isNonTerminalType(Type t) {
+		return t instanceof NonTerminalType;
+	}
+	
 	public static abstract class CaseBlock {
 		public boolean hasRegExp = false;
 		public boolean allConcrete = false;
@@ -140,7 +174,7 @@ public class Cases  {
 				hasRegExp |= pattern.isLiteral() && pattern.getLiteral().isRegExp();
 
 				Type type = pattern._getType();
-				allConcrete &= type instanceof NonTerminalType;
+				allConcrete &= isNonTerminalType(type);
 			}
 		}
 	}
@@ -287,13 +321,13 @@ public class Cases  {
 	
 
 	private static class NodeCaseBlock extends CaseBlock {
-		private final Hashtable<String, List<DefaultBlock>> table = new Hashtable<String, List<DefaultBlock>>();
+		private final HashMap<String, List<DefaultBlock>> table = new HashMap<String, List<DefaultBlock>>();
 
 		public NodeCaseBlock() {
 			hasRegExp = false;
 			allConcrete = false;
 		}
-		
+
 		void add(Case c) {
 			Expression pattern = c.getPatternWithAction().getPattern();
 			org.rascalmpl.ast.Expression name;
@@ -308,7 +342,8 @@ public class Cases  {
 			if (name.isQualifiedName()) {
 				key = ((QualifiedName.Default) name.getQualifiedName()).lastName();
 			} else if (name.isLiteral()) {
-				key = ((StringConstant.Lexical) name.getLiteral().getStringLiteral().getConstant()).getString();
+				StringConstant constant = name.getLiteral().getStringLiteral().getConstant();
+        key = StringUtils.unescapeBase(StringUtils.unquote(((StringConstant.Lexical) constant).getString()));
 			}
 
 			List<DefaultBlock> same = table.get(key);
@@ -326,36 +361,36 @@ public class Cases  {
 					.getType();
 
 			if (subjectType.isSubtypeOf(TF.nodeType())) {
-	       boolean isTree = subjectType.isSubtypeOf(Factory.Tree);
-	       
-	       if (isTree) { // matching abstract with concrete
-	         TreeAsNode wrap = new TreeAsNode((IConstructor) subject.getValue());
-	         Result<IValue> asTree = ResultFactory.makeResult(TF.nodeType(), wrap, eval);
-	         
-	         if (tryCases(eval, asTree)) {
-	           return true;
-	         }
-	       }
-	       else if (tryCases(eval, subject)) {
-	         return true;
-	       }
+				boolean isTree = subjectType.isSubtypeOf(Factory.Tree);
+
+				if (isTree) { // matching abstract with concrete
+					TreeAsNode wrap = new TreeAsNode((IConstructor) subject.getValue());
+					Result<IValue> asTree = ResultFactory.makeResult(TF.nodeType(), wrap, eval);
+
+					if (tryCases(eval, asTree)) {
+						return true;
+					}
+				}
+				else if (tryCases(eval, subject)) {
+					return true;
+				}
 			}
 			return false;
 		}
 
-    protected boolean tryCases(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
-      List<DefaultBlock> alts = table.get(((INode) subject.getValue()).getName());
-        
-       if (alts != null) {
-         for (DefaultBlock c : alts) {
-           if (c.matchAndEval(eval, subject)) {
-             return true;
-           }
-         }
-       }
-       
-       return false;
-    }
+		protected boolean tryCases(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
+			List<DefaultBlock> alts = table.get(((INode) subject.getValue()).getName());
+
+			if (alts != null) {
+				for (DefaultBlock c : alts) {
+					if (c.matchAndEval(eval, subject)) {
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
 	}
 
 
