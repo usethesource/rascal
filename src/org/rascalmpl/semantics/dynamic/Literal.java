@@ -235,7 +235,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 			Statement stat = new StringTemplateConverter().convert(lit);
 			Result<IValue> value = stat.interpret(__eval);
-			if (!value.getType().isListType()) {
+			if (!value.getType().isList()) {
 				throw new ImplementationError(
 						"template eval returns non-list");
 			}

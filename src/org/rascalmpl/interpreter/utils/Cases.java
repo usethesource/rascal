@@ -340,7 +340,8 @@ public class Cases  {
 			if (name.isQualifiedName()) {
 				key = ((QualifiedName.Default) name.getQualifiedName()).lastName();
 			} else if (name.isLiteral()) {
-				key = ((StringConstant.Lexical) name.getLiteral().getStringLiteral().getConstant()).getString();
+				StringConstant constant = name.getLiteral().getStringLiteral().getConstant();
+        key = StringUtils.unescapeBase(StringUtils.unquote(((StringConstant.Lexical) constant).getString()));
 			}
 
 			List<DefaultBlock> same = table.get(key);

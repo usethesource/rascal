@@ -222,7 +222,7 @@ public class ModuleEnvironment extends Environment {
 		todo.add(getName());
 		
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
-		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) Factory.Symbol_Sort.make(VF, "SyntaxDefinition"));
+		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) VF.constructor(Factory.Symbol_Sort, VF.string("SyntaxDefinition")));
 		IMapWriter result = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(TF.stringType()), TF.setType(DefSort)));
 		
 		while(!todo.isEmpty()){

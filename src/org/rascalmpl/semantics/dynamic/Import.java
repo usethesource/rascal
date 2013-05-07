@@ -130,7 +130,7 @@ public abstract class Import {
 				// Invoke the importer, which should generate the text of the module that we need
 				// to actually import.
 				IValue module = importer.call(argTypes, argValues, null).getValue();
-				String moduleText = module.getType().isStringType() ? ((IString) module).getValue() : TreeAdapter.yield((IConstructor) module);
+				String moduleText = module.getType().isString() ? ((IString) module).getValue() : TreeAdapter.yield((IConstructor) module);
 				
 				moduleText = "@generated\n" + moduleText;
 				
@@ -560,7 +560,7 @@ public abstract class Import {
       IConstructor sym = ProductionAdapter.getDefined(prod);
       sym = SymbolAdapter.delabel(sym); 
       IValueFactory vf = eval.getValueFactory();
-      prod = ProductionAdapter.setDefined(prod, (IConstructor) Factory.Symbol_Label.make(vf, vf.string("$parsed"), sym));
+      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
       return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
     }
     catch (ParseError e) {
@@ -654,7 +654,7 @@ public abstract class Import {
             if (((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
               IValue arg = ((IConstructor) attr).get(0);
               
-              if (arg.getType().isNodeType() && ((INode) arg).getName().equals("holeType")) {
+              if (arg.getType().isNode() && ((INode) arg).getName().equals("holeType")) {
                 return (IConstructor) ((INode) arg).get(0);
               }
             }

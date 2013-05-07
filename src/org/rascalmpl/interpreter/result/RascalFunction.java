@@ -454,7 +454,7 @@ public class RascalFunction extends NamedFunction {
 			throw new UnexpectedType(instantiatedReturnType, result.getType(), e.getLocation());
 		}
 
-		if (!returnType.isVoidType() && result.getType().isVoidType()) {
+		if (!returnType.isBottom() && result.getType().isBottom()) {
 			throw new UnexpectedType(returnType, result.getType(), e.getLocation());
 		}
 

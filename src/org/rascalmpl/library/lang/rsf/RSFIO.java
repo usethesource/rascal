@@ -108,13 +108,13 @@ public class RSFIO {
 	 */
 	
 	private IValue getElementAsTypedValue(String elem, Type type){
-		if(type.isStringType())
+		if(type.isString())
 			return values.string(elem);
-		if(type.isIntegerType())
+		if(type.isInteger())
 			return values.integer(elem);
-		if(type.isRealType())
+		if(type.isReal())
 			return values.real(elem);
-		if(type.isBoolType())
+		if(type.isBool())
 			return values.bool(elem.toLowerCase().equals("true"));
 		return null;
 	}
@@ -130,11 +130,11 @@ public class RSFIO {
 		
 		Type resultType = tr.valueToType((IConstructor) result, new TypeStore());
 	
-		while (resultType.isAliasType()) {
+		while (resultType.isAliased()) {
 			resultType = resultType.getAliased();
 		}
 		
-		if(!resultType.isRelationType() || (resultType.getArity() != 2)){
+		if(!resultType.isRelation() || (resultType.getArity() != 2)){
 			throw RuntimeExceptionFactory.illegalArgument(
 					values.string("Type of an RSF relation should be a binary relation"),
 					ctx.getCurrentAST(), ctx.getStackTrace());

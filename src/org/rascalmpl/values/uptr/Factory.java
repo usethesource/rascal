@@ -152,11 +152,11 @@ public class Factory {
 	public static final String Length = "len";
 
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	public static final IValue Attribute_Assoc_Left = Attr_Assoc.make(vf, Associativity_Left.make(vf));
-	public static final IValue Attribute_Assoc_Right = Attr_Assoc.make(vf, Associativity_Right.make(vf));
-	public static final IValue Attribute_Assoc_Non_Assoc = Attr_Assoc.make(vf, Associativity_NonAssoc.make(vf));
-	public static final IValue Attribute_Assoc_Assoc =  Attr_Assoc.make(vf, Associativity_Assoc.make(vf));
-	public static final IValue Attribute_Bracket = Attr_Bracket.make(vf);
+	public static final IValue Attribute_Assoc_Left = vf.constructor(Attr_Assoc, vf.constructor(Associativity_Left));
+	public static final IValue Attribute_Assoc_Right = vf.constructor(Attr_Assoc, vf.constructor(Associativity_Right));
+	public static final IValue Attribute_Assoc_Non_Assoc = vf.constructor(Attr_Assoc, vf.constructor(Associativity_NonAssoc));
+	public static final IValue Attribute_Assoc_Assoc = vf.constructor(Attr_Assoc, vf.constructor(Associativity_Assoc));
+	public static final IValue Attribute_Bracket = vf.constructor(Attr_Bracket);
 	
 	
 	private static final class InstanceHolder {
