@@ -203,7 +203,7 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 		StringBuilder b = new StringBuilder();
 		for (List<AbstractFunction> l : alternatives.values()) {
 			for(AbstractFunction f : l)
-				b.append(f.toString() + " (abstact pattern); ");
+				b.append(f.toString() + " (abstract pattern); ");
 				b.append(' ');
 		}
 		return b.toString();
