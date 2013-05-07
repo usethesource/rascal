@@ -107,6 +107,11 @@ public class NonTerminalType extends RascalType {
 	}
 	
 	@Override
+	protected Type lubWithConstructor(Type type) {
+	  return type.getAbstractDataType().equivalent(Factory.Tree) ? Factory.Tree : TF.nodeType();
+	}
+	
+	@Override
 	protected boolean isSupertypeOf(Type type) {
 		if(type.isAbstractData() && getName() == type.getName()) {
 			return type.getTypeParameters().isSubtypeOf(this.getTypeParameters());
@@ -137,6 +142,27 @@ public class NonTerminalType extends RascalType {
 	  }
 
 	  return SymbolAdapter.isEqual(otherSym, symbol);
+	}
+	
+	@Override
+	protected Type lubWithNonTerminal(RascalType other) {
+	  IConstructor otherSym = ((NonTerminalType)other).symbol;
+	  
+	  // * eats +
+    if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
+      return other;
+    }
+    else if (SymbolAdapter.isIterPlus(otherSym) && SymbolAdapter.isIterStar(symbol)) {
+      return this;
+    }
+    else if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
+      return other;
+    }
+    else if (SymbolAdapter.isIterPlusSeps(otherSym) && SymbolAdapter.isIterStarSeps(symbol)) {
+      return this;
+    }
+
+    return SymbolAdapter.isEqual(otherSym, symbol) ? this : Factory.Tree;
 	}
 	
 	@Override
