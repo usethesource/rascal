@@ -832,8 +832,7 @@ public class Prelude {
 	}
 	
 	private IList extractPath(IValue start, IValue u){
-		Type listType = types.listType(start.getType());
-		IListWriter w = values.listWriter(listType.getElementType());
+		IListWriter w = values.listWriter();
 		
 		if(!start.isEqual(u)){
 			w.insert(u);
@@ -1006,7 +1005,7 @@ public class Prelude {
 	public IValue listEntries(ISourceLocation sloc, IEvaluatorContext ctx) {
 		try {
 			java.lang.String [] entries = ctx.getResolverRegistry().listEntries(sloc.getURI());
-			IListWriter w = values.listWriter(types.stringType());
+			IListWriter w = values.listWriter();
 			for(java.lang.String entry : entries){
 				w.append(values.string(entry));
 			}
@@ -1248,7 +1247,7 @@ public class Prelude {
 	}
 
 	private IList consumeInputStreamLines(ISourceLocation sloc,	Reader stream, IEvaluatorContext ctx ) {
-		IListWriter w = values.listWriter(types.stringType());
+		IListWriter w = values.listWriter();
 		
 		BufferedReader in = null;
 		try{
@@ -1305,7 +1304,7 @@ public class Prelude {
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc, IEvaluatorContext ctx){
-		IListWriter w = values.listWriter(types.integerType());
+		IListWriter w = values.listWriter();
 		sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		
 		BufferedInputStream in = null;
@@ -1458,7 +1457,7 @@ public class Prelude {
 		new Sorting(tmpArr, new Less((ICallableValue) cmpv)).shuffle().sort();
 
 
-		IListWriter writer = values.listWriter(l.getElementType());
+		IListWriter writer = values.listWriter();
 		writer.append(tmpArr);
 		return writer.done();
 	}
@@ -1475,7 +1474,7 @@ public class Prelude {
 		
 		new Sorting(tmpArr, new Less((ICallableValue) cmpv)).sort();
 		
-		IListWriter writer = values.listWriter(l.getElementType());
+		IListWriter writer = values.listWriter();
 		for(IValue v : tmpArr){
 			writer.append(v);
 		}
@@ -1484,7 +1483,7 @@ public class Prelude {
 	}
 	
 	private IList makeUpTill(int from,int len){
-		IListWriter writer = values.listWriter(types.integerType());
+		IListWriter writer = values.listWriter();
 		for(int i = from ; i < len; i++){
 			writer.append(values.integer(i));
 		}
@@ -1504,7 +1503,7 @@ public class Prelude {
 	public IValue domain(IList lst)
 	//@doc{domain -- a list of all legal index values for a list}
 	{
-		ISetWriter w = values.setWriter(types.integerType());
+		ISetWriter w = values.setWriter();
 		int len = lst.length();
 		for (int i = 0; i < len; i++){
 			w.insert(values.integer(i));
@@ -1549,7 +1548,7 @@ public class Prelude {
 	  throws IndexOutOfBoundsException
 	 //@doc{insertAt -- add an element at a specific position in a list}
 	 {
-	 	IListWriter w = values.listWriter(elm.getType().lub(lst.getElementType()));
+	 	IListWriter w = values.listWriter();
 	 	
 	 	int k = n.intValue();
 	    if(k >= 0 && k <= lst.length()){
@@ -1681,7 +1680,7 @@ public class Prelude {
 	   if(n > 0){
 	   	  int k = random.nextInt(n);
 	   	  IValue pick = lst.get(0);
-	   	  IListWriter w = values.listWriter(lst.getType().getElementType());
+	   	  IListWriter w = values.listWriter();
 	  
 	      for(int i = n - 1; i >= 0; i--) {
 	         if(i == k){
@@ -1699,11 +1698,6 @@ public class Prelude {
 	public IMap toMap(IList lst)
 	// @doc{toMap -- convert a list of tuples to a map; first value in old tuples is associated with a set of second values}
 	{
-		Type tuple = lst.getElementType();
-		Type keyType = tuple.getFieldType(0);
-		Type valueType = tuple.getFieldType(1);
-		Type valueSetType = types.setType(valueType);
-
 		HashMap<IValue,ISetWriter> hm = new HashMap<IValue,ISetWriter>();
 
 		for (IValue v : lst) {
@@ -1712,14 +1706,13 @@ public class Prelude {
 			IValue val = t.get(1);
 			ISetWriter wValSet = hm.get(key);
 			if(wValSet == null){
-				wValSet = values.setWriter(valueSetType.getElementType());
+				wValSet = values.setWriter();
 				hm.put(key, wValSet);
 			}
 			wValSet.insert(val);
 		}
 		
-		Type resultType = types.mapType(keyType, valueSetType);
-		IMapWriter w = values.mapWriter(resultType);
+		IMapWriter w = values.mapWriter();
 		for(IValue v : hm.keySet()){
 			w.put(v, hm.get(v).done());
 		}
@@ -1730,12 +1723,10 @@ public class Prelude {
 	//@doc{toMapUnique -- convert a list of tuples to a map; result should be a map}
 	{
 	   if(lst.length() == 0){
-	      return values.map(types.voidType(), types.voidType());
+	      return values.mapWriter().done();
 	   }
-	   Type tuple = lst.getElementType();
-	   Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
 	  
-	   IMapWriter w = values.mapWriter(resultType);
+	   IMapWriter w = values.mapWriter();
 	   HashSet<IValue> seenKeys = new HashSet<IValue>();
 	   for(IValue v : lst){
 		   ITuple t = (ITuple) v;
@@ -1751,8 +1742,7 @@ public class Prelude {
 	public IValue toSet(IList lst)
 	//@doc{toSet -- convert a list to a set}
 	{
-	  Type resultType = types.setType(lst.getElementType());
-	  ISetWriter w = values.setWriter(resultType.getElementType());
+	  ISetWriter w = values.setWriter();
 	  
 	  for(IValue v : lst){
 	    w.insert(v);
@@ -1775,10 +1765,7 @@ public class Prelude {
 	//@doc{domain -- return the domain (keys) of a map}
 
 	{
-	  Type keyType = M.getKeyType();
-	  
-	  Type resultType = types.setType(keyType);
-	  ISetWriter w = values.setWriter(resultType.getElementType());
+	  ISetWriter w = values.setWriter();
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
@@ -1811,10 +1798,7 @@ public class Prelude {
 	public IValue invertUnique(IMap M)
 	//@doc{invertUnique -- return map with key and value inverted; values are unique}
 	{
-		Type keyType = M.getKeyType();
-		Type valueType = M.getValueType();
-		Type resultType = types.mapType(valueType, keyType);
-		IMapWriter w = values.mapWriter(resultType);
+		IMapWriter w = values.mapWriter();
 		HashSet<IValue> seenValues = new HashSet<IValue>();
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
@@ -1832,10 +1816,6 @@ public class Prelude {
 	public IValue invert(IMap M)
 	//@doc{invert -- return map with key and value inverted; values are not unique and are collected in a set}
 	{
-		Type keyType = M.getKeyType();
-		Type valueType = M.getValueType();
-		Type keySetType = types.setType(keyType);
-	
 		HashMap<IValue,ISetWriter> hm = new HashMap<IValue,ISetWriter>();
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
@@ -1844,14 +1824,13 @@ public class Prelude {
 			IValue val = entry.getValue();
 			ISetWriter wKeySet = hm.get(val);
 			if(wKeySet == null){
-				wKeySet = values.setWriter(keySetType.getElementType());
+				wKeySet = values.setWriter();
 				hm.put(val, wKeySet);
 			}
 			wKeySet.insert(key);
 		}
 		
-		Type resultType = types.mapType(valueType, keySetType);
-		IMapWriter w = values.mapWriter(resultType);
+		IMapWriter w = values.mapWriter();
 		
 		iter = M.entryIterator();
 		for(IValue v : hm.keySet()){
@@ -1869,10 +1848,7 @@ public class Prelude {
 	public IValue range(IMap M)
 	//@doc{range -- return the range (values) of a map}
 	{
-	  Type valueType = M.getValueType();
-	  
-	  Type resultType = types.setType(valueType);
-	  ISetWriter w = values.setWriter(resultType.getElementType());
+	  ISetWriter w = values.setWriter();
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
@@ -1889,12 +1865,7 @@ public class Prelude {
 	public IValue toList(IMap M)
 	//@doc{toList -- convert a map to a list}
 	{
-	  Type keyType = M.getKeyType();
-	  Type valueType = M.getValueType();
-	  Type elementType = types.tupleType(keyType,valueType);
-	  
-	  Type resultType = types.listType(elementType);
-	  IListWriter w = values.listWriter(resultType.getElementType());
+	  IListWriter w = values.listWriter();
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
@@ -1906,11 +1877,7 @@ public class Prelude {
 	public IValue toRel(IMap M)
 	//@doc{toRel -- convert a map to a relation}
 	{
-	  Type keyType = M.getKeyType();
-	  Type valueType = M.getValueType();
-	  
-	  Type resultType = types.relType(keyType, valueType);
-	  ISetWriter w = values.setWriter(resultType.getElementType());
+	  ISetWriter w = values.setWriter();
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
@@ -1937,8 +1904,7 @@ public class Prelude {
 	public IValue getChildren(INode T)
 	//@doc{getChildren -- get the children of a node}
 	{
-		Type resultType = types.listType(types.valueType());
-		IListWriter w = values.listWriter(resultType.getElementType());
+		IListWriter w = values.listWriter();
 		
 		for(IValue v : T.getChildren()){
 			w.append(v);
@@ -1990,7 +1956,7 @@ public class Prelude {
 	
 	public IMap getAnnotations(INode node) {
 		java.util.Map<java.lang.String,IValue> map = node.getAnnotations();
-		IMapWriter w = values.mapWriter(types.stringType(), types.valueType());
+		IMapWriter w = values.mapWriter();
 		
 		for (Entry<java.lang.String,IValue> entry : map.entrySet()) {
 			w.put(values.string(entry.getKey()), entry.getValue());
@@ -2071,7 +2037,7 @@ public class Prelude {
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
-			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
 		}
 		catch (UndeclaredNonTerminalException e){
 			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
@@ -2098,7 +2064,7 @@ public class Prelude {
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
-			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
 		}
 		catch (UndeclaredNonTerminalException e){
 			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
@@ -2115,8 +2081,7 @@ public class Prelude {
 		if (type.isAbstractData()) {
 			return (IConstructor)value;
 		}
-		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor", 
-				ctx.getCurrentAST(), ctx.getStackTrace());
+		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor", null, null);
 	}
 	
 	private java.lang.String unescapedConsName(IConstructor tree) {
@@ -2266,7 +2231,7 @@ public class Prelude {
 		if (TreeAdapter.isList(tree)) {
 			if (type.isList() || splicing) {
 				Type elementType = splicing ? type : type.getElementType();
-				IListWriter w = values.listWriter(elementType);
+				IListWriter w = values.listWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
 					w.append(implode(store, elementType, (IConstructor) arg, false, ctx));
 				}
@@ -2274,7 +2239,7 @@ public class Prelude {
 			}
 			else if (type.isSet()) {
 				Type elementType = splicing ? type : type.getElementType();
-				ISetWriter w = values.setWriter(elementType);
+				ISetWriter w = values.setWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
 					w.insert(implode(store, elementType, (IConstructor) arg, false, ctx));
 				}
@@ -2299,7 +2264,7 @@ public class Prelude {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Optional should match with a list and not " + type));
 			}
 			Type elementType = type.getElementType();
-			IListWriter w = values.listWriter(elementType);
+			IListWriter w = values.listWriter();
 			for (IValue arg: TreeAdapter.getASTArgs(tree)) {
 				IValue implodedArg = implode(store, elementType, (IConstructor) arg, true, ctx);
 				if (implodedArg instanceof IList) {
@@ -2322,7 +2287,7 @@ public class Prelude {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Ambiguous node should match with set and not " + type));
 			}
 			Type elementType = type.getElementType();
-			ISetWriter w = values.setWriter(elementType);
+			ISetWriter w = values.setWriter();
 			for (IValue arg: TreeAdapter.getAlternatives(tree)) {
 				w.insert(implode(store, elementType, (IConstructor) arg, false, ctx));
 			}
@@ -2337,7 +2302,7 @@ public class Prelude {
 			IList args = TreeAdapter.getASTArgs(tree);
 			
 			int j = 0;
-			IMapWriter cw = values.mapWriter(types.integerType(), types.listType(types.stringType()));
+			IMapWriter cw = values.mapWriter();
 			IListWriter aw = values.listWriter();
 			for (IValue kid : TreeAdapter.getArgs(tree)) {
 				if (TreeAdapter.isLayout((IConstructor) kid)) {
@@ -2614,7 +2579,7 @@ public class Prelude {
 			int i = 0;
 			int k = random.nextInt(n);
 			IValue pick = null;
-			ISetWriter w = values.setWriter(st.getType().getElementType());
+			ISetWriter w = values.setWriter();
 
 			for (IValue v : st) {
 				if (i == k) {
@@ -2632,8 +2597,7 @@ public class Prelude {
 	public IValue toList(ISet st)
 	// @doc{toList -- convert a set to a list}
 	{
-		Type resultType = types.listType(st.getElementType());
-		IListWriter w = values.listWriter(resultType.getElementType());
+		IListWriter w = values.listWriter();
 
 		for (IValue v : st) {
 			w.insert(v);
@@ -2645,11 +2609,6 @@ public class Prelude {
 	public IValue toMap(ISet st)
 	// @doc{toMap -- convert a set of tuples to a map; value in old map is associated with a set of keys in old map}
 	{
-		Type tuple = st.getElementType();
-		Type keyType = tuple.getFieldType(0);
-		Type valueType = tuple.getFieldType(1);
-		Type valueSetType = types.setType(valueType);
-
 		HashMap<IValue,ISetWriter> hm = new HashMap<IValue,ISetWriter>();
 
 		for (IValue v : st) {
@@ -2658,14 +2617,13 @@ public class Prelude {
 			IValue val = t.get(1);
 			ISetWriter wValSet = hm.get(key);
 			if(wValSet == null){
-				wValSet = values.setWriter(valueSetType.getElementType());
+				wValSet = values.setWriter();
 				hm.put(key, wValSet);
 			}
 			wValSet.insert(val);
 		}
 		
-		Type resultType = types.mapType(keyType, valueSetType);
-		IMapWriter w = values.mapWriter(resultType);
+		IMapWriter w = values.mapWriter();
 		for(IValue v : hm.keySet()){
 			w.put(v, hm.get(v).done());
 		}
@@ -2675,19 +2633,16 @@ public class Prelude {
 	public IValue toMapUnique(ISet st)
 	// @doc{toMapUnique -- convert a set of tuples to a map; keys are unique}
 	{
-		Type tuple = st.getElementType();
-		Type resultType = types.mapType(tuple.getFieldType(0), tuple
-				.getFieldType(1));
-
-		IMapWriter w = values.mapWriter(resultType);
+		IMapWriter w = values.mapWriter();
 		HashSet<IValue> seenKeys = new HashSet<IValue>();
 
 		for (IValue v : st) {
 			ITuple t = (ITuple) v;
 			IValue key = t.get(0);
 			IValue val = t.get(1);
-			if(seenKeys.contains(key)) 
+			if(seenKeys.contains(key)) { 
 				throw RuntimeExceptionFactory.MultipleKey(key, null, null);
+			}
 			seenKeys.add(key);
 			w.put(key, val);
 		}
@@ -2768,7 +2723,7 @@ public class Prelude {
 	
 	public IList split(IString sep, IString src) {
 		String[] lst = src.getValue().split(Pattern.quote(sep.getValue()));
-		IListWriter lw = values.listWriter(types.stringType());
+		IListWriter lw = values.listWriter();
 		for (String s: lst) {
 			lw.append(values.string(s));
 		}
@@ -3049,7 +3004,7 @@ public class Prelude {
 	public IValue findAll(IString str, IString find){
 		char[] input = str.getValue().toCharArray();
 		char [] findChars = find.getValue().toCharArray();
-		IListWriter w = values.listWriter(types.integerType());
+		IListWriter w = values.listWriter();
 		
 		for(int i = 0; i <= input.length - findChars.length; i++){
 			if(match(input, i, findChars)){
@@ -3094,8 +3049,7 @@ public class Prelude {
 		ITuple tp = (ITuple) v;
 		Type tt = tp.getType();
 		int a = tt.getArity();
-		Type listType = types.listType(types.stringType());
-		IListWriter w = values.listWriter(listType.getElementType());
+		IListWriter w = values.listWriter();
 		for(int i = 0; i < a; i++){
 			String fname = tt.getFieldName(i);
 			if(fname == null)
@@ -3209,7 +3163,7 @@ public class Prelude {
 					out.close();
 				}
 				catch(IOException ioex) {
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 				}
 			}
 		}
