@@ -61,6 +61,11 @@ public class NonTerminalType extends RascalType {
 	}
 	
 	@Override
+	public Type getAbstractDataType() {
+	  return Factory.Tree;
+	}
+	
+	@Override
 	public boolean hasField(String fieldName) {
 		// safe over-approximation
 		return true;
