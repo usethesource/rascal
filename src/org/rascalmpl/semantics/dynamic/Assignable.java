@@ -137,8 +137,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			Type valueType = __eval.__getValue().getType();
 
-			if (!valueType.isNodeType() && !valueType.isAbstractDataType()
-					&& !valueType.isConstructorType()) {
+			if (!valueType.isNode() && !valueType.isAbstractData()
+					&& !valueType.isConstructor()) {
 				throw new UnexpectedType(
 						org.rascalmpl.interpreter.AssignableEvaluator.__getTf()
 								.nodeType(), __eval.__getValue().getType(),
@@ -148,7 +148,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			IConstructor node = (IConstructor) __eval.__getValue().getValue();
 			Type nodeType = node.getType();
 
-			if (nodeType.isAbstractDataType()) {
+			if (nodeType.isAbstractData()) {
 				nodeType = ((IConstructor) __eval.__getValue().getValue())
 						.getConstructorType();
 			}
@@ -174,7 +174,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			Type[] resultTypes = new Type[arguments.size()];
 
 			for (int i = 0; i < arguments.size(); i++) {
-				Type argType = !nodeType.isConstructorType() ? org.rascalmpl.interpreter.AssignableEvaluator
+				Type argType = !nodeType.isConstructor() ? org.rascalmpl.interpreter.AssignableEvaluator
 						.__getTf().valueType()
 						: nodeType.getFieldType(i);
 				IValue arg = node.get(i);
@@ -186,11 +186,12 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				results[i] = argResult.getValue();
 				resultTypes[i] = argType;
 			}
-
-			if (!nodeType.isAbstractDataType() && !nodeType.isConstructorType()) {
+			
+			if (!nodeType.isAbstractData() && !nodeType.isConstructor()) {
+				// TODO: can this be the case?
 				return org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(nodeType, nodeType.make(__eval.__getEval()
-								.getValueFactory(), node.getName(), results),
+						.makeResult(nodeType, __eval.__getEval()
+								.getValueFactory().node(node.getName(), results),
 								__eval.__getEval());
 			}
 
@@ -209,8 +210,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			}
 
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
-					constructor.getAbstractDataType(), constructor.make(__eval
-							.__getEval().getValueFactory(), results), __eval
+					constructor.getAbstractDataType(), __eval.__getEval().getValueFactory().constructor(constructor, results), __eval
 							.__getEval());
 
 		}
@@ -244,7 +244,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				throw new UninitializedVariable(label, this.getReceiver());
 			}
 
-			if (receiver.getType().isTupleType()) {
+			if (receiver.getType().isTuple()) {
 
 				int idx = receiver.getType().getFieldIndex(label);
 				if (idx < 0) {
@@ -271,8 +271,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				}
 				return __eval.recur(this, result);
 			}
-			else if (receiver.getType().isConstructorType()
-					|| receiver.getType().isAbstractDataType()) {
+			else if (receiver.getType().isConstructor()
+					|| receiver.getType().isAbstractData()) {
 				IConstructor cons = (IConstructor) receiver.getValue();
 				Type node = cons.getConstructorType();
 
@@ -302,7 +302,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 						org.rascalmpl.interpreter.result.ResultFactory
 								.makeResult(receiver.getType(), result, __eval
 										.__getEval()));
-			} else if (receiver.getType().isSourceLocationType()) {
+			} else if (receiver.getType().isSourceLocation()) {
 				// ISourceLocation loc = (ISourceLocation) receiver.getValue();
 
 				__eval.__setValue(__eval.newResult(receiver.fieldAccess(label,
@@ -311,7 +311,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 						.__getValue(), __eval.__getEnv().getStore()));
 				// return recur(this, eval.sourceLocationFieldUpdate(loc, label,
 				// value.getValue(), value.getType(), this));
-			} else if (receiver.getType().isDateTimeType()) {
+			} else if (receiver.getType().isDateTime()) {
 				__eval.__setValue(__eval.newResult(receiver.fieldAccess(label,
 						__eval.__getEnv().getStore()), __eval.__getValue()));
 				return __eval.recur(this, receiver.fieldUpdate(label, __eval
@@ -335,7 +335,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			}
 
 			Type receiverType = receiver.getType();
-			if (receiverType.isTupleType()) {
+			if (receiverType.isTuple()) {
 				// the run-time tuple may not have labels, the static type can
 				// have labels,
 				// so we use the static type here.
@@ -348,8 +348,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			else if (receiverType.isExternalType() && receiverType instanceof NonTerminalType) {
 				return receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore());
 			}
-			else if (receiverType.isConstructorType()
-					|| receiverType.isAbstractDataType()) {
+			else if (receiverType.isConstructor()
+					|| receiverType.isAbstractData()) {
 				IConstructor cons = (IConstructor) receiver.getValue();
 				Type node = cons.getConstructorType();
 
@@ -367,7 +367,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				return org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(node.getFieldType(index), cons.get(index),
 								__eval);
-			} else if (receiverType.isSourceLocationType()) {
+			} else if (receiverType.isSourceLocation()) {
 				return receiver.fieldAccess(label, new TypeStore());
 			} else {
 				throw new UndeclaredField(label, receiverType, this);
@@ -440,8 +440,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				throw new UninitializedVariable(this.getReceiver());
 			}
 
-			if (rec.getType().isListType()
-					&& subscript.getType().isIntegerType()) {
+			if (rec.getType().isList()
+					&& subscript.getType().isInteger()) {
 				try {
 					IList list = (IList) rec.getValue();
 					int index = ((IInteger) subscript.getValue()).intValue();
@@ -458,7 +458,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 									__eval.__getEval().getCurrentAST(), __eval
 											.__getEval().getStackTrace());
 				}
-			} else if (rec.getType().isMapType()) {
+			} else if (rec.getType().isMap()) {
 				Type keyType = rec.getType().getKeyType();
 
 				if (rec.hasInferredType()
@@ -479,8 +479,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 							this.getSubscript());
 				}
 
-			} else if (rec.getType().isNodeType()
-					&& subscript.getType().isIntegerType()) {
+			} else if (rec.getType().isNode()
+					&& subscript.getType().isInteger()) {
 				int index = ((IInteger) subscript.getValue()).intValue();
 				IConstructor node = (IConstructor) rec.getValue();
 
@@ -495,8 +495,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				node = node.set(index, __eval.__getValue().getValue());
 				result = org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(rec.getType(), node, __eval.__getEval());
-			} else if (rec.getType().isTupleType()
-					&& subscript.getType().isIntegerType()) {
+			} else if (rec.getType().isTuple()
+					&& subscript.getType().isInteger()) {
 				int index = ((IInteger) subscript.getValue()).intValue();
 				ITuple tuple = (ITuple) rec.getValue();
 
@@ -513,7 +513,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				tuple = tuple.set(index, __eval.__getValue().getValue());
 				result = org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(rec.getType(), tuple, __eval.__getEval());
-			} else if (rec.getType().isRelationType()
+			} else if (rec.getType().isRelation()
 					&& subscript.getType().isSubtypeOf(
 							rec.getType().getFieldType(0))) {
 				ISet rel = (ISet) rec.getValue();
@@ -583,8 +583,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			assert receiver != null && receiver.getValue() != null;
 			
-			if (receiver.getType().isListType()) {
-				if (subscript.getType().isIntegerType()) {
+			if (receiver.getType().isList()) {
+				if (subscript.getType().isInteger()) {
 					IList list = (IList) receiver.getValue();
 					IValue result = list.get(((IInteger) subscript.getValue())
 							.intValue());
@@ -595,7 +595,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				throw new UnexpectedType(
 						org.rascalmpl.interpreter.Evaluator.__getTf()
 								.integerType(), subscript.getType(), this);
-			} else if (receiver.getType().isMapType()) {
+			} else if (receiver.getType().isMap()) {
 				Type keyType = receiver.getType().getKeyType();
 
 				if (receiver.hasInferredType()
@@ -651,16 +651,16 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
       assert rec != null && rec.getValue() != null;
 			
-			if( !(first == null || first.getType().isIntegerType()) ){
+			if( !(first == null || first.getType().isInteger()) ){
 				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
 			}
 					
-			if( !(end == null || end.getType().isIntegerType()) ){
+			if( !(end == null || end.getType().isInteger()) ){
 				throw new UnsupportedSubscript(rec.getType(), end.getType(), this);
 			}
-			int len =  rec.getType().isListType() ? ((IList) rec.getValue()).length()
-					 : rec.getType().isStringType() ? ((IString) rec.getValue()).length()
-					 : rec.getType().isNodeType() ?((INode) rec.getValue()).arity() 
+			int len =  rec.getType().isList() ? ((IList) rec.getValue()).length()
+					 : rec.getType().isString() ? ((IString) rec.getValue()).length()
+					 : rec.getType().isNode() ?((INode) rec.getValue()).arity() 
 					 : 0 ;
 
 			int firstIndex = 0;
@@ -682,12 +682,12 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			secondIndex = firstIndex <= endIndex ? firstIndex + 1 : firstIndex - 1;
 
-			if (rec.getType().isListType()) {
+			if (rec.getType().isList()) {
 				try {
 					IList list = (IList) rec.getValue();
 					
 					IValue repl = __eval.__getValue().getValue();
-					if(!repl.getType().isListType()){
+					if(!repl.getType().isList()){
 						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 					
@@ -704,12 +704,12 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
 				}
-			} else if (rec.getType().isStringType()) {
+			} else if (rec.getType().isString()) {
 				try {
 					IString str = (IString) rec.getValue();
 					
 					IValue repl = __eval.__getValue().getValue();
-					if(!repl.getType().isStringType()){
+					if(!repl.getType().isString()){
 						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 					
@@ -726,13 +726,13 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
 				}
-			} else if (rec.getType().isNodeType()) {
+			} else if (rec.getType().isNode()) {
 
 				try {
 					INode node = (INode) rec.getValue();
 
 					IValue repl = __eval.__getValue().getValue();
-					if(!repl.getType().isListType()){
+					if(!repl.getType().isList()){
 						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 
@@ -786,21 +786,21 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			assert rec != null && rec.getValue() != null;
 			
-			if( !(first == null || first.getType().isIntegerType()) ){
+			if( !(first == null || first.getType().isInteger()) ){
 				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
 			}
 			
-			if(!second.getType().isIntegerType()){
+			if(!second.getType().isInteger()){
 				throw new UnsupportedSubscript(rec.getType(), second.getType(), this);
 			}
 					
-			if( !(end == null || end.getType().isIntegerType()) ){
+			if( !(end == null || end.getType().isInteger()) ){
 				throw new UnsupportedSubscript(rec.getType(), end.getType(), this);
 			}
 			
-			int len = rec.getType().isListType() ? ((IList) rec.getValue()).length()
-					 : rec.getType().isStringType() ? ((IString) rec.getValue()).length()
-					 :  rec.getType().isNodeType() ?((INode) rec.getValue()).arity() 
+			int len = rec.getType().isList() ? ((IList) rec.getValue()).length()
+					 : rec.getType().isString() ? ((IString) rec.getValue()).length()
+					 :  rec.getType().isNode() ?((INode) rec.getValue()).arity() 
 					 : 0 ;
 
 			int firstIndex = 0;
@@ -831,12 +831,12 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					endIndex = -1;
 			}
 
-			if (rec.getType().isListType()) {
+			if (rec.getType().isList()) {
 				try {
 					IList list = (IList) rec.getValue();					
 					
 					IValue repl = __eval.__getValue().getValue();
-					if(!repl.getType().isListType()){
+					if(!repl.getType().isList()){
 						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 					
@@ -853,12 +853,12 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
 				}
-			} else if (rec.getType().isStringType()) {
+			} else if (rec.getType().isString()) {
 				try {
 					IString str = (IString) rec.getValue();
 
 					IValue repl = __eval.__getValue().getValue();
-					if(!repl.getType().isStringType()){
+					if(!repl.getType().isString()){
 						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 					
@@ -876,13 +876,13 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 							.__getEval().getStackTrace());
 				}
 				
-			} else if (rec.getType().isNodeType()) {
+			} else if (rec.getType().isNode()) {
 
 				try {
 					INode node = (INode) rec.getValue();
 
 					IValue repl = __eval.__getValue().getValue();
-					if(!repl.getType().isListType()){
+					if(!repl.getType().isList()){
 						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 
@@ -920,7 +920,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			List<org.rascalmpl.ast.Assignable> arguments = this.getElements();
 
-			if (!__eval.__getValue().getType().isTupleType()) {
+			if (!__eval.__getValue().getType().isTuple()) {
 				// TODO construct a better expected type
 				throw new UnexpectedType(
 						org.rascalmpl.interpreter.AssignableEvaluator.__getTf()
@@ -947,8 +947,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
 					org.rascalmpl.interpreter.AssignableEvaluator.__getTf()
-							.tupleType(resultTypes), tupleType.make(__eval
-							.__getEval().getValueFactory(), results), __eval
+							.tupleType(resultTypes), __eval
+							.__getEval().getValueFactory().tuple(results), __eval
 							.__getEval());
 
 		}

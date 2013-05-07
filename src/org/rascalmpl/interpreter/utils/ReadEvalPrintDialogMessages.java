@@ -44,7 +44,7 @@ public class ReadEvalPrintDialogMessages {
 		if (value != null) {
 			Type type = result.getType();
 			
-			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
+			if (type.isAbstractData() && type.isSubtypeOf(Factory.Tree)) {
 				content = type.toString() + ": `" + TreeAdapter.yield((IConstructor) value, 1000) + "`\n";
 				
 				StandardTextWriter stw = new StandardTextWriter(false);

@@ -20,7 +20,7 @@ public class SetComprehensionWriter extends ComprehensionWriter {
 		for (Expression resExpr : this.resultExprs) {
 			if(resExpr.isSplice() || resExpr.isSplicePlus()){
 				Result<IValue> set = resExpr.getArgument().interpret(this.ev);
-				if (set.getType().isSetType() || set.getType().isListType()) {
+				if (set.getType().isSet() || set.getType().isList()) {
 					elementType1 = elementType1.lub(set.getType().getElementType());
 					writer.insertAll((Iterable<IValue>)set.getValue());
 				}

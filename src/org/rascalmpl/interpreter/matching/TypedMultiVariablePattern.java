@@ -30,7 +30,7 @@ public class TypedMultiVariablePattern extends TypedVariablePattern {
 		if (!this.alreadyStored) {
 			this.declaredType = TypeFactory.getInstance().listType(/*this.declaredType.isListType() ? this.declaredType.getElementType() : */this.declaredType);
 		} else {
-			if(!declaredType.isListType())
+			if(!declaredType.isList())
 				throw new ImplementationError("Cannot convert a typed multi variable to a list after it has already been stored at its current type");
 		}
 	}
@@ -39,7 +39,7 @@ public class TypedMultiVariablePattern extends TypedVariablePattern {
 		if (!this.alreadyStored) {
 			this.declaredType = TypeFactory.getInstance().setType(/*this.declaredType.isSetType() ? this.declaredType.getElementType() : */this.declaredType);
 		} else {
-			if(!declaredType.isSetType())
+			if(!declaredType.isSet())
 				throw new ImplementationError("Cannot convert a typed multi variable to a set after it has already been stored at its current type");
 		}
 	}

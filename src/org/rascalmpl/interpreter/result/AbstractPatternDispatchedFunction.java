@@ -147,7 +147,7 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
       throw new MatchFailed();
     }
     
-    if (argTypes[0].isAbstractDataType() || argTypes[0].isConstructorType()) {
+    if (argTypes[0].isAbstractData() || argTypes[0].isConstructor()) {
       label = ((IConstructor) argValues[0]).getConstructorType().getName();
       List<AbstractFunction> funcs = alternatives.get(label);
       

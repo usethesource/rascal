@@ -110,7 +110,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!key.getType().isIntegerType()) {
+		if (!key.getType().isInteger()) {
 			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
 		}
 		if (getValue().length() == 0) {

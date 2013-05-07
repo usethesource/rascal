@@ -76,7 +76,7 @@ public class TypeReifier {
 		for (Map.Entry<IConstructor, IConstructor> entry : definitions.entrySet()) {
 			defs.put(entry.getKey(), entry.getValue());
 		}
-		IValue result = Factory.Type_Reified.instantiate(bindings).make(vf, symbol, defs.done());
+		IValue result = vf.constructor(Factory.Type_Reified.instantiate(bindings), symbol, defs.done());
 		
 		return ResultFactory.makeResult(typeType, result, ctx);
 	}
@@ -324,7 +324,7 @@ public class TypeReifier {
 		
 		if (adt == null) {
 			Type params = symbolsToTupleType((IList) symbol.get("parameters"), store);
-			if (params.isVoidType() || params.getArity() == 0) {
+			if (params.isBottom() || params.getArity() == 0) {
 				adt = tf.abstractDataType(store, name);
 			}
 			else {
@@ -336,42 +336,62 @@ public class TypeReifier {
 	}
 
 	private IConstructor reify(Type t, final Map<IConstructor, IConstructor> definitions, final IEvaluatorContext ctx, final TypeStore store) {
-		return (IConstructor) t.accept(new ITypeVisitor<IValue>() {
+		return (IConstructor) t.accept(new ITypeVisitor<IValue, RuntimeException>() {
 			private Map<Type,IValue> cache = new HashMap<Type, IValue>();
 			
 			@Override
 			public IValue visitReal(Type type) {
-				return Factory.Symbol_Real.make(vf);
+				return vf.constructor(Factory.Symbol_Real);
 			}
 
 			@Override
 			public IValue visitInteger(Type type) {
-				return Factory.Symbol_Int.make(vf);
+				return vf.constructor(Factory.Symbol_Int);
 			}
 
 			@Override
 			public IValue visitRational(Type type) {
-				return Factory.Symbol_Rat.make(vf);
+				return vf.constructor(Factory.Symbol_Rat);
 			}
 
 			@Override
 			public IValue visitList(Type type) {
-				return Factory.Symbol_List.make(vf, type.getElementType().accept(this));
+				if(type.isListRelation()) {
+					IListWriter w = vf.listWriter();
+
+					if (type.hasFieldNames()) {
+						for (int i = 0; i < type.getArity(); i++) {
+							w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+						}
+					}
+					else {
+						if (type.getFieldTypes().isBottom()) {
+							return vf.constructor(Factory.Symbol_List, vf.constructor(Factory.Symbol_Void));
+						}
+				  
+						for (Type f : type.getFieldTypes()) {
+							w.append(f.accept(this));
+						}
+					}
+				
+					return vf.constructor(Factory.Symbol_ListRel, w.done());
+				}
+				return vf.constructor(Factory.Symbol_List, type.getElementType().accept(this));
 			}
 
 			@Override
 			public IValue visitMap(Type type) {
 				if (type.hasFieldNames()) {
-					return Factory.Symbol_Map.make(vf, Factory.Symbol_Label.make(vf, vf.string(type.getKeyLabel()), type.getKeyType().accept(this)), Factory.Symbol_Label.make(vf, vf.string(type.getValueLabel()), type.getValueType().accept(this)));
+					return vf.constructor(Factory.Symbol_Map, vf.constructor(Factory.Symbol_Label, vf.string(type.getKeyLabel()), type.getKeyType().accept(this)), vf.constructor(Factory.Symbol_Label, vf.string(type.getValueLabel()), type.getValueType().accept(this)));
 				}
 				else {
-					return Factory.Symbol_Map.make(vf, type.getKeyType().accept(this), type.getValueType().accept(this));
+					return vf.constructor(Factory.Symbol_Map, type.getKeyType().accept(this), type.getValueType().accept(this));
 				}
 			}
 
 			@Override
 			public IValue visitNumber(Type type) {
-				return Factory.Symbol_Num.make(vf);
+				return vf.constructor(Factory.Symbol_Num);
 			}
 
 			@Override
@@ -385,70 +405,46 @@ public class TypeReifier {
 					}
 				}
 				
-				return Factory.Symbol_Alias.make(vf, vf.string(type.getName()), w.done(), type.getAliased().accept(this));
-			}
-
-			@Override
-			public IValue visitRelationType(Type type) {
-				IListWriter w = vf.listWriter();
-
-				if (type.hasFieldNames()) {
-					for (int i = 0; i < type.getArity(); i++) {
-						w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
-					}
-				}
-				else {
-				  if (type.getFieldTypes().isVoidType()) {
-				    return Factory.Symbol_Set.make(vf, Factory.Symbol_Void.make(vf));
-				  }
-					for (Type f : type.getFieldTypes()) {
-						w.append(f.accept(this));
-					}
-				}
-				
-				return Factory.Symbol_Rel.make(vf, w.done());
-			}
-			
-			@Override
-			public IValue visitListRelationType(Type type) {
-				IListWriter w = vf.listWriter();
-
-				if (type.hasFieldNames()) {
-					for (int i = 0; i < type.getArity(); i++) {
-						w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
-					}
-				}
-				else {
-				  if (type.getFieldTypes().isVoidType()) {
-            return Factory.Symbol_List.make(vf, Factory.Symbol_Void.make(vf));
-          }
-				  
-					for (Type f : type.getFieldTypes()) {
-						w.append(f.accept(this));
-					}
-				}
-				
-				return Factory.Symbol_ListRel.make(vf, w.done());
+				return vf.constructor(Factory.Symbol_Alias, vf.string(type.getName()), w.done(), type.getAliased().accept(this));
 			}
 
 			@Override
 			public IValue visitSet(Type type) {
-				return Factory.Symbol_Set.make(vf, type.getElementType().accept(this));
+				if(type.isRelation()) {
+					IListWriter w = vf.listWriter();
+
+					if (type.hasFieldNames()) {
+						for (int i = 0; i < type.getArity(); i++) {
+							w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+						}
+					}
+					else {
+						if (type.getFieldTypes().isBottom()) {
+							return vf.constructor(Factory.Symbol_Set, vf.constructor(Factory.Symbol_Void));
+						}
+						for (Type f : type.getFieldTypes()) {
+							w.append(f.accept(this));
+						}
+					}
+				
+					return vf.constructor(Factory.Symbol_Rel, w.done());
+				}
+				return vf.constructor(Factory.Symbol_Set, type.getElementType().accept(this));
 			}
 
 			@Override
 			public IValue visitSourceLocation(Type type) {
-				return Factory.Symbol_Loc.make(vf);
+				return vf.constructor(Factory.Symbol_Loc);
 			}
 
 			@Override
 			public IValue visitString(Type type) {
-				return Factory.Symbol_Str.make(vf);
+				return vf.constructor(Factory.Symbol_Str);
 			}
 
 			@Override
 			public IValue visitNode(Type type) {
-				return Factory.Symbol_Node.make(vf);
+				return vf.constructor(Factory.Symbol_Node);
 			}
 
 			@Override
@@ -466,7 +462,7 @@ public class TypeReifier {
 
 					if (type.hasFieldNames()) {
 						for (int i = 0; i < type.getArity(); i++) {
-							w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+							w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
 						}
 					}
 					else {
@@ -474,7 +470,7 @@ public class TypeReifier {
 							w.append(field.accept(this));
 						}
 					}
-					result = Factory.Symbol_Cons.make(vf, Factory.Symbol_Label.make(vf, vf.string(type.getName()), adt), w.done());
+					result = vf.constructor(Factory.Symbol_Cons, vf.constructor(Factory.Symbol_Label, vf.string(type.getName()), adt), w.done());
 
 					cache.put(type, result);
 					addConstructorDefinition((IConstructor) result, type);
@@ -496,7 +492,7 @@ public class TypeReifier {
 				IListWriter w = vf.listWriter();
 				if (type.hasFieldNames()) {
 					for(int i = 0; i < type.getArity(); i++) {
-						w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+						w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
 					}
 				}
 				else {
@@ -505,8 +501,8 @@ public class TypeReifier {
 					}
 				}
 				
-				alts.insert(Factory.Production_Cons.make(vf, Factory.Symbol_Label.make(vf,  vf.string(type.getName()), adt), w.done(), vf.set()));
-				choice = (IConstructor) Factory.Production_Choice.make(vf, adt, alts.done());
+				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), vf.set()));
+				choice = vf.constructor(Factory.Production_Choice, adt, alts.done());
 				definitions.put(adt, choice);
 			}
 
@@ -523,7 +519,7 @@ public class TypeReifier {
 						}
 					}
 					
-					sym = Factory.Symbol_Adt.make(vf, vf.string(type.getName()), w.done());
+					sym = vf.constructor(Factory.Symbol_Adt, vf.string(type.getName()), w.done());
 					cache.put(type, sym);
 				
 
@@ -543,7 +539,7 @@ public class TypeReifier {
 				
 				if (type.hasFieldNames()) {
 					for (int i = 0; i < type.getArity(); i++) {
-						w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+						w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
 					}
 				}
 				else {
@@ -552,27 +548,27 @@ public class TypeReifier {
 					}
 				}
 
-				return Factory.Symbol_Tuple.make(vf, w.done());
+				return vf.constructor(Factory.Symbol_Tuple, w.done());
 			}
 
 			@Override
 			public IValue visitValue(Type type) {
-				return Factory.Symbol_Value.make(vf);
+				return vf.constructor(Factory.Symbol_Value);
 			}
 
 			@Override
 			public IValue visitVoid(Type type) {
-				return Factory.Symbol_Void.make(vf);
+				return vf.constructor(Factory.Symbol_Void);
 			}
 
 			@Override
 			public IValue visitBool(Type boolType) {
-				return Factory.Symbol_Bool.make(vf);
+				return vf.constructor(Factory.Symbol_Bool);
 			}
 
 			@Override
 			public IValue visitParameter(Type parameterType) {
-				return Factory.Symbol_BoundParameter.make(vf, vf.string(parameterType.getName()), parameterType.getBound().accept(this));
+				return vf.constructor(Factory.Symbol_BoundParameter, vf.string(parameterType.getName()), parameterType.getBound().accept(this));
 			}
 
 			@Override
@@ -596,11 +592,11 @@ public class TypeReifier {
 					w.append(arg.accept(this));
 				}
 				
-				return Factory.Symbol_Func.make(vf, externalType.getReturnType().accept(this), w.done());
+				return vf.constructor(Factory.Symbol_Func, externalType.getReturnType().accept(this), w.done());
 			}
 
 			private IValue visitReifiedType(ReifiedType externalType) {
-				return Factory.Symbol_ReifiedType.make(vf, externalType.getTypeParameters().getFieldType(0).accept(this));
+				return vf.constructor(Factory.Symbol_ReifiedType, externalType.getTypeParameters().getFieldType(0).accept(this));
 			}
 
 			private IValue visitNonTerminalType(NonTerminalType externalType) {
@@ -614,7 +610,7 @@ public class TypeReifier {
 
 			@Override
 			public IValue visitDateTime(Type type) {
-				return Factory.Symbol_Datetime.make(vf);
+				return vf.constructor(Factory.Symbol_Datetime);
 			}
 		}); 
 	}

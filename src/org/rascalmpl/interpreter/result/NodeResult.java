@@ -75,7 +75,7 @@ public class NodeResult extends ElementResult<INode> {
 		if (subscripts.length != 1) {
 			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
-		if (!((Result<IValue>)subscripts[0]).getType().isIntegerType()) {
+		if (!((Result<IValue>)subscripts[0]).getType().isInteger()) {
 			throw new UnexpectedType(getTypeFactory().integerType(), 
 					((Result<IValue>)subscripts[0]).getType(), ctx.getCurrentAST());
 		}

@@ -15,7 +15,6 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
-import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -26,7 +25,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
  * 
  * For example, the '#int' expression produces the 'type(int(),())' value which is of type 'type[int]'
  */
-public class ReifiedType extends Type {
+public class ReifiedType extends RascalType {
 	private final Type arg;
 
 	public ReifiedType(Type arg) {
@@ -49,13 +48,18 @@ public class ReifiedType extends Type {
 	}
 	
 	@Override
-	public boolean isNodeType() {
-		return true;
+	public <T, E extends Throwable> T accept(IRascalTypeVisitor<T, E> visitor) throws E {
+	  return visitor.visitReified(this);
 	}
 	
 	@Override
-	public boolean isAbstractDataType() {
-		return true;
+	protected boolean isSupertypeOf(RascalType type) {
+	  return type.isSubtypeOfReified(this);
+	}
+	
+	@Override
+	protected Type lub(RascalType type) {
+	  return type.lubWithReified(this);
 	}
 	
 	@Override
@@ -64,41 +68,23 @@ public class ReifiedType extends Type {
 	}
 	
 	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other instanceof ReifiedType) {
-			return arg.isSubtypeOf(((ReifiedType) other).arg);
-		}
-		
-		if (other == TypeFactory.getInstance().nodeType()) {
-			return true;
-		}
-		
-		if (other.isAliasType() && !other.isVoidType()) {
-			return isSubtypeOf(other.getAliased());
-		}
-
-		return super.isSubtypeOf(other);
+	protected boolean isSubtypeOfNode(Type type) {
+	  return true;
 	}
 	
 	@Override
-	public Type lub(Type other) {
-		if (other == this) {
-			return this;
-		}
-		
-		if (other == TypeFactory.getInstance().nodeType()) {
-			return other;
-		}
-		
-		if (other.isAliasType()) {
-			return lub(other.getAliased());
-		}
-		
-		if (other instanceof ReifiedType) {
-			return RascalTypeFactory.getInstance().reifiedType(arg.lub(((ReifiedType) other).arg));
-		}
-		
-		return super.lub(other);
+	protected boolean isSubtypeOfReified(RascalType type) {
+	  return arg.isSubtypeOf(((ReifiedType) type).arg);
+	}
+	
+	@Override
+	protected Type lubWithNode(Type type) {
+	  return type;
+	}
+	
+	@Override
+	protected Type lubWithReified(RascalType type) {
+	  return RascalTypeFactory.getInstance().reifiedType(arg.lub(((ReifiedType) type).arg));
 	}
 	
 	@Override
@@ -133,11 +119,6 @@ public class ReifiedType extends Type {
 		return arg.hashCode();
 	}
 
-	@Override
-	public <T> T accept(ITypeVisitor<T> visitor) {
-		return visitor.visitExternal(this);
-	}
-	
 	@Override
 	public boolean declaresAnnotation(TypeStore store, String label) {
 		return false;
