@@ -45,6 +45,12 @@ IExpirationListener<IValue> {
 		protected boolean isSubtypeOfExternal(Type type) {
 			// TODO Auto-generated method stub
 			return false;
+		}
+
+		@Override
+		protected Type glbWithExternal(Type type) {
+			// TODO Auto-generated method stub
+			return null;
 		}};
 	private final Transaction parent;
 	private final boolean commitEnabled;

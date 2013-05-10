@@ -63,6 +63,11 @@ public class ReifiedType extends RascalType {
 	}
 	
 	@Override
+	protected Type glb(RascalType type) {
+		return type.glbWithReified(this);
+	}
+	
+	@Override
 	public Type getTypeParameters() {
 		return TypeFactory.getInstance().tupleType(arg);
 	}
