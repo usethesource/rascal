@@ -14,6 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +29,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
@@ -44,6 +47,20 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 		this.arity = minArity(alternatives);
 		this.isStatic = checkStatic(alternatives);
 		this.name = name;
+	}
+	
+	
+	@Override
+	public AbstractPatternDispatchedFunction cloneInto(Environment env) {
+		Map<String, List<AbstractFunction>> newAlts = new HashMap<>();
+		for (String name: alternatives.keySet()) {
+			List<AbstractFunction> alts = new ArrayList<>();
+			for (AbstractFunction alt: newAlts.get(name)) {
+				alts.add((AbstractFunction) alt.cloneInto(env));
+			}
+			newAlts.put(name, alts);
+		}
+		return new AbstractPatternDispatchedFunction(getEval(), name, type, newAlts);
 	}
 	
 	@Override

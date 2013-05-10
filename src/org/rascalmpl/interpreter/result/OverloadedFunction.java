@@ -35,6 +35,7 @@ import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 
@@ -65,6 +66,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
 	public OverloadedFunction(AbstractFunction function) {
 		super(function.getType(), null, function.getEval());
+		
 		this.name = function.getName();
 
 		this.primaryCandidates = new ArrayList<AbstractFunction>(1);
@@ -82,6 +84,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
 	public OverloadedFunction(String name, List<AbstractFunction> funcs) {
 		super(lub(funcs), null, funcs.iterator().next().getEval());
+
 		this.name = name;
 
 		this.primaryCandidates = new ArrayList<AbstractFunction>(1);
@@ -91,6 +94,31 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		addAll(defaultCandidates, funcs, false);
 
 		this.isStatic = checkStatic(funcs);
+	}
+	
+	private OverloadedFunction(String name, Type type, List<AbstractFunction> candidates, List<AbstractFunction> defaults, boolean isStatic, IEvaluatorContext ctx) {
+		super(type, null, ctx);
+		this.name = name;
+		this.primaryCandidates = candidates;
+		this.defaultCandidates = defaults;
+		this.isStatic = isStatic;
+	}
+	
+	
+	@Override
+	public OverloadedFunction cloneInto(Environment env) {
+		List<AbstractFunction> newCandidates = new ArrayList<>();
+		for (AbstractFunction f: primaryCandidates) {
+			newCandidates.add((AbstractFunction) f.cloneInto(env));
+		}
+		
+		List<AbstractFunction> newDefaultCandidates = new ArrayList<>();
+		for (AbstractFunction f: defaultCandidates) {
+			newDefaultCandidates.add((AbstractFunction) f.cloneInto(env));
+		}
+		OverloadedFunction of = new OverloadedFunction(name, getType(), newCandidates, newDefaultCandidates, isStatic, ctx);
+		of.setPublic(isPublic());
+		return of;
 	}
 
 	/**

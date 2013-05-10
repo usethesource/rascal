@@ -36,6 +36,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.omg.CORBA.REBIND;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
@@ -126,8 +127,11 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void extend(ModuleEnvironment other) {
-	  super.extend(other);
-	  
+//	  super.extend(other);
+		extendNameFlags(other);
+		  
+	  // First extend the imports before functions and variables
+      // so that types become available
 	  if (other.importedModules != null) {
 	    if (this.importedModules == null) {
 	      this.importedModules = new HashSet<String>();
@@ -156,6 +160,7 @@ public class ModuleEnvironment extends Environment {
 	    this.productions.addAll(other.productions);
 	  }
 	  
+
 	  if (other.extended != null) {
 	    if (this.extended == null) {
 	      this.extended = new HashSet<String>();
@@ -163,12 +168,18 @@ public class ModuleEnvironment extends Environment {
 	    this.extended.addAll(other.extended);
 	  }
 	  
+	  extendTypeParams(other);
+	  extendVariableEnv(other);
+	  extendFunctionEnv(other);
+	  
 	  this.initialized &= other.initialized;
 	  this.syntaxDefined |= other.syntaxDefined;
 	  this.bootstrap |= other.bootstrap;
 	  
 	  addExtend(other.getName());
 	}
+	
+	
 	
 	@Override
 	public GlobalEnvironment getHeap() {
