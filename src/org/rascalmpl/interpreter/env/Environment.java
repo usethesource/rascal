@@ -20,6 +20,7 @@ package org.rascalmpl.interpreter.env;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -701,57 +702,89 @@ public class Environment {
 		this.nameFlags = null;
 	}
 	
-	public void extend(Environment other) {
-	  // note that the flags need to be extended before other things, since
-	  // they govern how overloading is handled in functions.
-	  if (other.nameFlags != null) {
-      if (this.nameFlags == null) {
-        this.nameFlags = new HashMap<String, NameFlags>();
-      }
-      
-      for (String name : other.nameFlags.keySet()) {
-        NameFlags flags = this.nameFlags.get(name);
-        
-        if (flags != null) {
-          flags.setFlags(flags.getFlags() | other.nameFlags.get(name).getFlags());
-        }
-        else {
-          this.nameFlags.put(name, other.nameFlags.get(name));
-        }
-      }
-    }
-	  
-	  if (other.variableEnvironment != null) {
-	    if (this.variableEnvironment == null) {
-	      this.variableEnvironment = new HashMap<String, Result<IValue>>();
-	    }
-	    this.variableEnvironment.putAll(other.variableEnvironment);
-	  }
-	  
-	  if (other.functionEnvironment != null) {
-	    if (this.functionEnvironment == null) {
-	      this.functionEnvironment = new HashMap<String, List<AbstractFunction>>();
-	    }
-	    
-	    for (String name : other.functionEnvironment.keySet()) {
-	      List<AbstractFunction> otherFunctions = other.functionEnvironment.get(name);
+	protected void extendNameFlags(Environment other) {
+		// note that the flags need to be extended before other things, since
+		  // they govern how overloading is handled in functions.
+		  if (other.nameFlags != null) {
+	      if (this.nameFlags == null) {
+	        this.nameFlags = new HashMap<String, NameFlags>();
+	      }
 	      
-	      if (otherFunctions != null) {
-	        for (AbstractFunction function : otherFunctions) {
-	          storeFunction(name, function);
+	      for (String name : other.nameFlags.keySet()) {
+	        NameFlags flags = this.nameFlags.get(name);
+	        
+	        if (flags != null) {
+	          flags.setFlags(flags.getFlags() | other.nameFlags.get(name).getFlags());
+	        }
+	        else {
+	          this.nameFlags.put(name, other.nameFlags.get(name));
 	        }
 	      }
 	    }
-	  }
-	  
-	  if (other.typeParameters != null) {
-	    if (this.typeParameters == null) {
-	      this.typeParameters = new HashMap<Type, Type>();
-	    }
-	    this.typeParameters.putAll(other.typeParameters);
-	  }
-	  
-	  
+	}
+	
+	public void extend(Environment other) {
+	  extendNameFlags(other);
+	  extendVariableEnv(other);
+	  extendFunctionEnv(other);
+	  extendTypeParams(other);
+	}
+
+	protected void extendTypeParams(Environment other) {
+		if (other.typeParameters != null) {
+		    if (this.typeParameters == null) {
+		      this.typeParameters = new HashMap<Type, Type>();
+		    }
+		    this.typeParameters.putAll(other.typeParameters);
+		  }
+	}
+	
+//	// Ugh, ugly, expensive, WRONG!
+//	protected Set<AbstractFunction> toBeRebound = new HashSet<>();
+//
+//	// To be called just before becoming initialized
+//	public void rebindExtendedFunctions() {
+//		if (functionEnvironment == null) {
+//			return;
+//		}
+//		for (String name: functionEnvironment.keySet()) {
+//			List<AbstractFunction> funcs = functionEnvironment.get(name);
+//			for (int i = 0; i < funcs.size(); i++) {
+//				if (toBeRebound.contains(funcs.get(i))) {
+//					System.err.println("Rebinding " + funcs.get(i) + " to " + this);
+//					funcs.set(i, (AbstractFunction) funcs.get(i).cloneInto(this));
+//				}
+//			}
+//		}
+//	}
+	
+	protected void extendFunctionEnv(Environment other) {
+		if (other.functionEnvironment != null) {
+		    if (this.functionEnvironment == null) {
+		      this.functionEnvironment = new HashMap<String, List<AbstractFunction>>();
+		    }
+		    
+		    for (String name : other.functionEnvironment.keySet()) {
+		      List<AbstractFunction> otherFunctions = other.functionEnvironment.get(name);
+		      
+		      if (otherFunctions != null) {
+		        for (AbstractFunction function : otherFunctions) {
+		          storeFunction(name, (AbstractFunction) function.cloneInto(this));
+		        }
+		      }
+		    }
+		  }
+	}
+
+	protected void extendVariableEnv(Environment other) {
+		if (other.variableEnvironment != null) {
+		    if (this.variableEnvironment == null) {
+		      this.variableEnvironment = new HashMap<String, Result<IValue>>();
+		    }
+		    // TODO: if variables are bound to closures
+		    // we have to cloneInto those values to.
+		    this.variableEnvironment.putAll(other.variableEnvironment);
+		  }
 	}
 
 	// TODO: We should have an extensible environment model that doesn't

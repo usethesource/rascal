@@ -262,7 +262,7 @@ public abstract class Import {
     } 
     
     // now simply extend the current module
-    eval.getCurrentModuleEnvironment().extend(heap.getModule(name));
+    eval.getCurrentModuleEnvironment().extend(other); //heap.getModule(name));
   }
 	
   public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
@@ -400,7 +400,6 @@ public abstract class Import {
         for (IValue mod : externals) {
           evalImport(eval, (IConstructor) mod);
         }
-
       }
       finally {
         eval.setCurrentEnvt(old);

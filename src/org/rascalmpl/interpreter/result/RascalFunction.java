@@ -128,6 +128,15 @@ public class RascalFunction extends NamedFunction {
 		}
 	}
 	
+	@Override
+	public RascalFunction cloneInto(Environment env) {
+		RascalFunction rf = new RascalFunction(getAst(), getEval(), getName(), getFunctionType(), hasVarArgs(), isDefault(), isTest(), body, env, accumulators);
+		rf.setPublic(isPublic()); // TODO: should be in constructors
+		return rf;
+	}
+	
+	
+	
 	private Map<String, String> parseTags(FunctionDeclaration declaration) {
 		Map<String, String> result = new HashMap<String, String>();
 		Tags tags = declaration.getTags();

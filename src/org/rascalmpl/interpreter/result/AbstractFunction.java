@@ -74,7 +74,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		this.vf = eval.getValueFactory();
 	}
 
-	
 	public boolean isTest() {
 		return false;
 	}
