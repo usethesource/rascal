@@ -31,6 +31,9 @@ public class FunctionType extends RascalType {
 	private final Type returnType;
 	private final Type argumentTypes;
 	
+	private static final TypeFactory TF = TypeFactory.getInstance();
+	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+	
 	/*package*/ FunctionType(Type returnType, Type argumentTypes) {
 		this.argumentTypes = argumentTypes.isTuple() ? argumentTypes : TypeFactory.getInstance().tupleType(argumentTypes);
 		this.returnType = returnType;
@@ -62,6 +65,11 @@ public class FunctionType extends RascalType {
 	@Override
 	protected Type lub(RascalType type) {
 	  return type.lubWithFunction(this);
+	}
+	
+	@Override
+	protected Type glb(RascalType type) {
+		return type.glbWithFunction(this);
 	}
 	
 	@Override
@@ -120,6 +128,20 @@ public class FunctionType extends RascalType {
 	  
 	  assert false;
 	  return TypeFactory.getInstance().valueType();
+	}
+	
+	@Override
+	protected Type glbWithFunction(RascalType type) {
+		if(this == type) 
+			return this;
+		FunctionType f = (FunctionType) type;
+		return RTF.functionType( getReturnType().glb(f.getReturnType()), 
+								 getArgumentTypes().lub(f.getArgumentTypes()));
+	}
+	
+	@Override 
+	protected Type glbWithOverloadedFunction(RascalType type) {
+		return null;
 	}
 	
 	@Override

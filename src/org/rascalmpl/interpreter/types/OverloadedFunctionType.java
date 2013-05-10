@@ -52,6 +52,11 @@ public class OverloadedFunctionType extends RascalType {
 	  return type.lubWithOverloadedFunction(this);
 	}
 	
+	@Override
+	protected Type glb(RascalType type) {
+		return type.lubWithOverloadedFunction(this);
+	}
+	
 	public Set<FunctionType> getAlternatives() {
 		return Collections.unmodifiableSet(alternatives);
 	}
