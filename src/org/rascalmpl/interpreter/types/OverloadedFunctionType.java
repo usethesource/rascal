@@ -77,8 +77,14 @@ public class OverloadedFunctionType extends RascalType {
 	      return true;
 	    }
 	  }
+	  
+	  for(FunctionType f : of.getAlternatives()) {
+		  if(!this.isSubtypeOf(f)) {
+			  return false;
+		  }
+	  }
 
-	  return false;
+	  return true;
 	}
 	
 	@Override
