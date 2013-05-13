@@ -319,6 +319,9 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 					failure = e;
 					// could happen if function body throws fail
 				}
+				catch (ArgumentsMismatch am) {
+					// could happen if pattern dispatched
+				}
 			}
 		}
 
