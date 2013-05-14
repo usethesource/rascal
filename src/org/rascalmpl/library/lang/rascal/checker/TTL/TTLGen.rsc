@@ -5,6 +5,7 @@ import IO;
 import String;
 import List;
 import lang::rascal::checker::TTL::Library;
+import lang::rascal::checker::TTL::PatternGenerator;
 
 // TTL : Typechecker Test Language
 // A DSL for writing type-related tests aiming at:
@@ -23,13 +24,19 @@ import lang::rascal::checker::TTL::Library;
 
 start syntax TTL = ttl: TestItem* items;
 
+//layout Comment
+//	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
+//	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
+//	;
+
 start syntax TestItem =
-	  defMod:     "define" Name name "{" Module moduleText "}"
-	| defDecl:    "define" Name name "{" Declaration declaration "}"
-	| defTest:    "test" Name* names "{" Use use Statement+ statements "}" "expect" "{" {Expect ","}* expectations "}" 
-	| defInfix:   "infix" Name name {StringLiteral ","}+ operators "{" {BinarySignature ","}+ signatures "}"
-	| defPrefix:  "prefix" Name name {StringLiteral ","}+ operators "{" {UnarySignature ","}+ signatures "}"
-	| defPostfix: "postfix" Name name {StringLiteral ","}+ operators "{" {UnarySignature ","}+ signatures "}"
+	  defMod:      "define" Name name "{" Module moduleText "}"
+	| defDecl:     "define" Name name "{" Declaration declaration "}"
+	| GeneralTest: "test" DecimalIntegerLiteral nargs "variables" "{" Use use Statement+ statements "}" "expect" "{" {Expect ","}* expectations "}" 
+	| InfixTest:   "infix" Name name {StringLiteral ","}+ operators "{" {BinarySignature ","}+ signatures "}"
+	| PrefixTest:  "prefix" Name name {StringLiteral ","}+ operators "{" {UnarySignature ","}+ signatures "}"
+	| PostfixTest: "postfix" Name name {StringLiteral ","}+ operators "{" {UnarySignature ","}+ signatures "}"
+	| PatternTest: "test" DecimalIntegerLiteral nargs "patterns" "{" Expression expression "}"
 	;
 
 syntax BinarySignature = ExtendedType left "x" ExtendedType right "-\>" ExtendedType result Condition condition;
@@ -61,12 +68,13 @@ syntax ExtendedType =
      | lubType:  "LUB" "(" ExtendedType left "," ExtendedType right ")"
      | typeVar: "&" Name name
      | typeVarBounded: "&" Name name "\<:" ExtendedType bound
+     | testVar: Name name
      ;
 
 start syntax Use = use: "use" Name+ names "::" |  none: ()  ;
 
 start syntax Expect =
-         inferred: Type expectedType Name name
+         inferred: ExtendedType expectedType Name name
        | message: RegExpLiteral regexp
        | exception: Name name
        ;  
@@ -88,6 +96,8 @@ void main() {
 }
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];
+
+str basename(TestItem item) = basename(item@\loc);
        
 data Symbol = LUB(Symbol l, Symbol r);
 
@@ -113,14 +123,16 @@ void generate(loc src){
        		if(modules[name]?) throw "Ambiguous name <name> at <item@\loc>";
        	     if(decls[name]?) throw "Redeclared declaration name <name> at <item@\loc>";
              decls[name] = declaration;
-       } else if(item is defTest){
-          tests += genTest(item, decls, modules);
-       } else if(item is defInfix){
-          tests += genInfix(item);
-       } else if(item is defPrefix){
-         tests += genUnary(item, true);
-       } else if(item is defPostfix){
-         tests += genUnary(item, false);
+       } else if(item is GeneralTest){
+          tests += genGeneralTest(item, decls, modules);
+       } else if(item is InfixTest){
+          tests += genInfixTest(item);
+       } else if(item is PrefixTest){
+         tests += genUnaryTest(item, true);
+       } else if(item is PostfixTest){
+         tests += genUnaryTest(item, false);
+       } else if(item is PatternTest){
+         tests += genPatternTest(item);
        } else {
          println("Skipped: <item>");
        }
@@ -131,15 +143,26 @@ void generate(loc src){
           'import lang::rascal::checker::TTL::Library;
           'import Type;
           'import IO;
+          'import List;
+          'import Set;
+          'import Message;
           'import util::Eval;
+          'import lang::rascal::types::AbstractName;
           'import lang::rascal::types::TestChecker;
+          'import lang::rascal::checker::TTL::PatternGenerator;
+          'public bool verbose = true;
           '<tests>
           '";
    writeFile(TTLRoot + "generated/<basename(src)>.rsc", code);
 }
 
 // Generate code for a single TTL test
-str genTest(TestItem item,  map[Name, Declaration] declarations,  map[Name, Module] modules){
+str genGeneralTest(TestItem item,  map[Name, Declaration] declarations,  map[Name, Module] modules){
+  tname = "<basename(item)><genSym()>";
+  nargs = toInt("<item.nargs>");
+  args = intercalate(", ", [ "&T<i> arg<i>" | i <- [0 .. nargs]]);
+  vtypes = "[" + intercalate(", ", [ "type(typeOf(arg<i>), ())" | i <- [0 .. nargs]]) + "]";
+  
   <imports, decls> = expandUsedNames(getUsedNames(item.use), declarations, modules);
   <inferred, messages, exception> = getExpectations([e | e <- item.expectations]);
  
@@ -152,24 +175,45 @@ str genTest(TestItem item,  map[Name, Declaration] declarations,  map[Name, Modu
   	
   inferredChecks = "";
   for(<var, tp> <- inferred){
-    inferredChecks += "if(getTypeForName(checkResult.conf, \"<var>\") != (#<tp>).symbol) return false;";
+    if(nargs > 0 && "<tp>"[0] == "T"){
+       i = toInt("<tp>"[1]);
+       inferredChecks += "if(!subtype(getTypeForName(checkResult.conf, \"<var>\"), typeOf(arg<i>))) return false;";    
+    } else {
+      btp = buildType("<tp>");
+      inferredChecks += "if(!subtype(getTypeForName(checkResult.conf, \"<var>\"), normalize(<btp>, vsenv))) return false;";
+    }
   }
   
-  messageChecks = intercalate(" || ", ["<msg> := msg" | msg <- messages]);
-  if(!isEmpty(messageChecks)){
-     messageChecks = "for(msg \<-  getFailureMessages(checkResult)){
-		 			 '      if(<messageChecks>)
-		 			 '	      return true;
-					 '}
-					 'return false;";
+  messageCheckConditions = intercalate(" || ", ["<msg> := m.msg" | msg <- messages]);
+  messageChecks = "validatedMessages = {};\n";
+  if(!isEmpty(messageCheckConditions)){
+     messageChecks += "for(m \<-  getFailureMessages(checkResult)){
+		 			  '      if(<messageCheckConditions>)
+		 			  '	        validatedMessages += m;
+					  '}
+				 	  'for(m \<-  getWarningMessages(checkResult)){
+		 			  '      if(<messageCheckConditions>)
+		 			  '	        validatedMessages += m;
+					  '}
+					  '";
   }
+  messageChecks +=  "unvalidatedMessages = getAllMessages(checkResult) - validatedMessages;
+                    'if(size(unvalidatedMessages) \> 0) { println(\"[<tname>] *** Unexpected messages: \<unvalidatedMessages\>\"); return false;}";
+ 
   checks = (isEmpty(inferredChecks) ? "" : inferredChecks) +
   		   (isEmpty(messageChecks) ? "" : "\n" + messageChecks);
-    
+ 
+  
   return "
   		 '/* <item> */ <exception>
-  		 'test bool tst<genSym()>(){
-         '  checkResult = checkStatementsString(\"<code>\", importedModules=<imports>, initialDecls = <decls>);
+  		 'test bool <tname>(<args>){
+  		 '  vtypes = <vtypes>; 
+  		 '  venv = ( );
+  		 '  <for(i <- [0 .. nargs]){>venv[\"<i>\"] = \< vtypes[<i>], arg<i> \>; <}>
+  		 '  vsenv = (\"T\<id\>\" : vtypes[id].symbol | id \<- index(vtypes) );
+  		 '  stats = buildStatements(\"<code>\", venv);
+  		 '  if(verbose) println(\"[<tname>] stats: \" + stats);
+         '  checkResult = checkStatementsString(stats, importedModules=<imports>, initialDecls = <decls>);
          '  <checks>
          '  return true;
          '}
@@ -220,8 +264,16 @@ str genCondition(sig){
     return typeCondition;
 }
 
+str buildType(str txt){   // TODO removoe this limitation to 5 variables
+
+   for(int id <- [0 .. 5]){
+      txt = replaceAll(txt, "T<id>", "#&T<id>.symbol");
+   }
+   return "#<txt>.symbol";              
+}
+
 // Generete code for TTL test for infix operator
-str genInfix(TestItem item){
+str genInfixTest(TestItem item){
   tests = "";
   for(operator <- item.operators){
 	  operatorName = "<operator>"[1..-1]; 
@@ -232,8 +284,10 @@ str genInfix(TestItem item){
 	        tname = toUpperCase(tname[0]) + tname[1..];
 	        typeCondition = "if(is<tname>Type(bindings[\"<sig.condition.name>\"])) return true;";
 	     }
+	    
+	     tname = "<basename(item)><genSym()>";
 	     tests += "// Testing infix <item.name> <operatorName> for <sig>
-	     		  'test bool tst<genSym()>(<sig.left> arg1, <sig.right> arg2){ 
+	     		  'test bool <tname>(<sig.left> arg1, <sig.right> arg2){ 
 	              '  ltype = typeOf(arg1);
 	              '  rtype = typeOf(arg2);
 	              '  if(isDateTimeType(ltype) || isDateTimeType(rtype))
@@ -243,10 +297,12 @@ str genInfix(TestItem item){
 				  '  if(lmatches && rmatches){
 	              '     bindings = merge(lbindings, rbindings); 
 	              '     <genCondition(sig)>
-	              '     checkResult = checkStatementsString(\"(\<escape(arg1)\>) <operatorName> (\<escape(arg2)\>);\", importedModules=[], initialDecls = []); // apply the operator to its arguments
+	              '     expression = \"(\<escape(arg1)\>) <operatorName> (\<escape(arg2)\>);\";
+	              '     if(verbose) println(\"[<tname>] exp: \<expression\>\");
+	              '     checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
 	              '     actualType = checkResult.res; 
 	              '     expectedType = normalize(<toSymbol(sig.result)>, bindings);
-	              '     return validate(actualType, expectedType, arg1, arg2, <escape("<item.name> <operatorName> for <sig>")>);
+	              '     return validate(<tname>, expression, actualType, expectedType, arg1, arg2, <escape("signature <sig>")>);
 	              '  }
 	              '  return false;
 	              '}\n";
@@ -256,24 +312,26 @@ str genInfix(TestItem item){
 }
 
 // Generete code for TTL test for unary (prefix or postfix) operator
-str genUnary(TestItem item, bool prefix){
+str genUnaryTest(TestItem item, bool prefix){
   tests = "";
   for(operator <- item.operators){
 	  operatorName = "<operator>"[1..-1]; 
 	  for(sig <- item.signatures){
 	     expression = prefix ? "\"<operatorName> (\<escape(arg1)\>);\"" : "\"(\<escape(arg1)\>) <operatorName>;\"";
+	     tname = "<basename(item)><genSym()>";
 	     tests += "// Testing <prefix ? "prefix" : "postfix"> <item.name> <operatorName> for <sig>
-	     		  'test bool tst<genSym()>(<sig.left> arg1){ 
+	     		  'test bool <tname>(<sig.left> arg1){ 
 	              '  ltype = typeOf(arg1);
 	              '  if(isDateTimeType(ltype))
 	              '		return true;
 	     		  '  <genArgument(sig.left, "l")>
 				  '  if(lmatches){
 				  '     <genCondition(sig)>
+				  '     if(verbose) println(\"[<tname>] exp: \" + expression);
 				  '	    checkResult = checkStatementsString(<expression>, importedModules=[], initialDecls = []); // apply the operator to its arguments
 	              '     actualType = checkResult.res; 
 	              '     expectedType = normalize(<toSymbol(sig.result)>, lbindings);
-	              '     return validate(actualType, expectedType, arg1, <escape("<item.name> <operatorName> for <sig>")>);
+	              '     return validate(<tname>, <expression>, actualType, expectedType, arg1, <escape("signature <sig>")>);
 	              '  }
 	              '  return false;
 	              '}\n";
@@ -283,6 +341,42 @@ str genUnary(TestItem item, bool prefix){
 }
 
 str genArgument(ExtendedType a, str side) = "\<<side>matches, <side>bindings\> = bind(<toSymbol(a)>, <side>type);\n";
+
+
+str genPatternTest(TestItem item){
+  nargs = toInt("<item.nargs>");
+  args = intercalate(", ", [ "&T<i> arg<i>" | i <- [0 .. nargs]]);
+  ptypes = "[" + intercalate(", ", [ "type(typeOf(arg<i>), ())" | i <- [0 .. nargs]]) + "]";
+  exp = escape("<item.expression>");
+  tname = "<basename(item)><genSym()>";
+  return   "// Testing <item.expression>
+   	 	   'test bool <tname>(<args>){
+           '     ptypes = <ptypes>; 
+           '     \<penv, expected_pvars\> = generatePatterns(ptypes); 
+           '     exp = buildExpr(<exp>, penv);
+           '     if(verbose) println(\"[<tname>] exp = \<exp\>\");
+           '     checkResult = checkStatementsString(exp);
+           '
+           '     pvars = getPatternVariables(checkResult.conf);
+           '
+    	   '     for(v \<- expected_pvars){
+           '         try {
+           '             expectedType = expected_pvars[v].symbol;
+           '             actualType = pvars[RSimpleName(v)];
+           '             if(inferred(_) := actualType){
+           '                 println(\"[<tname>] *** No type found for variable \<v\>; expected type \<expectedType\>; exp = \<exp\>\");
+           '             } else {
+           '             if(!validate(<tname>, exp, actualType, expectedType, \"variable \<v\>\"))
+           '                return false;
+           '             }
+           '         } catch: {
+           '           println(\"[<tname>] *** Variable \<v\> unbound; expected type \<expected_pvars[v].symbol\>; exp = \<exp\>\");
+           '           return false;
+           '         }
+           '     }
+           '     return true;
+           '}\n";
+}
                                     
 str toSymbol(ExtendedType t){
   if( t is intType) return  "\\int()";
