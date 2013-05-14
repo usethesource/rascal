@@ -11,18 +11,25 @@
  *******************************************************************************/
 package org.rascalmpl.library.cobra;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
 public class RandomType {
 
 	private final TypeFactory tf = TypeFactory.getInstance();
+	private final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
 	private final LinkedList<Type> atomicTypes;
 	private final Random random;
+	
+	private int cntRecursiveTypes = 4; // list, set, map, relation, list relation, tuple
 
 	public RandomType() {
 		atomicTypes = new LinkedList<Type>();
@@ -38,9 +45,15 @@ public class RandomType {
 		this.random = new Random();
 	}
 
-	// Vanuit value
+	public void plusRascalTypes(boolean yes) {
+		if(yes) {
+			cntRecursiveTypes = 7;
+		} else {
+			cntRecursiveTypes = 4;
+		}
+	}
+	
 	public Type getType(int maxDepth) {
-		int cntRecursiveTypes = 6; // list, set, map, relation, list relation, tuple
 		int cntAtomicTypes = atomicTypes.size();
 
 		if (maxDepth <= 0
@@ -54,7 +67,7 @@ public class RandomType {
 
 	private Type getRecursiveType(int maxDepth) {
 		// list, set, map, relation, list relation, tuple
-		switch (random.nextInt(6)) {
+		switch (random.nextInt(cntRecursiveTypes)) {
 		case 0:
 			return tf.listType(getType(maxDepth));
 		case 1:
@@ -62,11 +75,13 @@ public class RandomType {
 		case 2:
 			return tf.mapType(getType(maxDepth), getType(maxDepth));
 		case 3:
-			return getRelationType(maxDepth);
-		case 4:
-			return getListRelationType(maxDepth);
-		case 5:
 			return getTupleType(maxDepth);
+		case 4:
+			return getFunctionType(maxDepth);
+		case 5:
+			return getOverloadedFunctionType(maxDepth);
+		case 6:
+			return getReifiedType(maxDepth);
 		}
 		return null;
 	}
@@ -75,15 +90,27 @@ public class RandomType {
 		List<Type> l = getTypeList(maxDepth, 1);
 		return tf.tupleType(l.toArray(new Type[l.size()]));
 	}
-
-	private Type getRelationType(int maxDepth) {
-		List<Type> l = getTypeList(maxDepth, 1);
-		return tf.relType(l.toArray(new Type[l.size()]));
+	
+	public Type getFunctionType(int maxDepth) {
+		return rtf.functionType(getType(maxDepth), getTupleType(maxDepth));
 	}
 	
-	private Type getListRelationType(int maxDepth) {
-		List<Type> l = getTypeList(maxDepth, 1);
-		return tf.lrelType(l.toArray(new Type[l.size()]));
+	public Type getOverloadedFunctionType(int maxDepth) {
+		Type returnType = getType(maxDepth);
+		List<Type> l = getTypeList(maxDepth, 2);
+		Set<FunctionType> alternatives = new HashSet<FunctionType>();
+		for(Type t : l) {
+			if(t.isTuple()) {
+				alternatives.add((FunctionType)rtf.functionType(returnType, t));
+			} else {
+				alternatives.add((FunctionType)rtf.functionType(returnType, tf.tupleType(t)));
+			}
+		}
+		return rtf.overloadedFunctionType(alternatives);
+	}
+	
+	public Type getReifiedType(int maxDepth) {
+		return rtf.reifiedType(getType(maxDepth));
 	}
 
 	private List<Type> getTypeList(int maxLength, int minLength) {
