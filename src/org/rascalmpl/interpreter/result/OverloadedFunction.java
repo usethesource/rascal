@@ -269,7 +269,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		Set<FunctionType> alternatives = new HashSet<FunctionType>();
 		Iterator<AbstractFunction> iter = candidates.iterator();
 		if(!iter.hasNext()) {
-			return TypeFactory.getInstance().voidType();
+			return TF.voidType();
 		}
 		FunctionType first = iter.next().getFunctionType();
 		Type returnType = first.getReturnType();
@@ -281,7 +281,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 			if(l.getFunctionType().getReturnType() == returnType) {
 				alternatives.add(l.getFunctionType());
 			} else {
-				return TypeFactory.getInstance().valueType();
+				return TF.valueType();
 			}
 		}
 
