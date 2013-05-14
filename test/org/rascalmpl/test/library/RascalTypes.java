@@ -32,7 +32,7 @@ public class RascalTypes extends TestFramework {
 		RandomType rg = new RandomType();
 		rg.plusRascalTypes(true);
 		
-		for(int i = 0; i <= 100; i++) {
+		for(int i = 0; i <= 1000; i++) {
 			types.add(rg.getFunctionType(2));
 			types.add(rg.getReifiedType(5));
 			types.add(rg.getOverloadedFunctionType(2));
@@ -71,7 +71,7 @@ public class RascalTypes extends TestFramework {
 					 FunctionType f2 = (FunctionType) t2;
 					 Type lub = f1.lub(f2);
 					 Type glb = f1.glb(f2);
-					 System.out.println("Checking subtyping: " + f1 + " and " + f2 + "; lub and glb: " + lub + ", " + glb);
+					 // System.out.println("Checking subtyping: " + f1 + " and " + f2 + "; lub and glb: " + lub + ", " + glb);
 					 if(f1.isSubtypeOf(f2)) {
 						 assertTrue(f1.getReturnType().isSubtypeOf(f2.getReturnType()));
 						 assertTrue(f2.getArgumentTypes().isSubtypeOf(f1.getArgumentTypes()));
