@@ -45,13 +45,32 @@ public class JavaMethod extends NamedFunction {
 	private final Object instance;
 	private final Method method;
 	private final boolean hasReflectiveAccess;
+	private final JavaBridge javaBridge;
 	
 	public JavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		super(func, eval, (FunctionType) func.getSignature().typeOf(env, true), Names.name(func.getSignature().getName()), varargs, null, env);
-		
+		this(eval, (FunctionType) func.getSignature().typeOf(env, true), func, varargs, env, javaBridge);
+	}
+	
+	/*
+	 *  This one is to be called by cloneInto only, to avoid
+	 *  looking into the environment again for obtaining the type.
+	 *  (cloneInto is called when a moduleEnv is extended, so it
+	 *  might not be finished yet, and hence not have all the
+	 *  require types.
+	 */
+	private JavaMethod(IEvaluator<Result<IValue>> eval, FunctionType type, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
+		super(func, eval, type , Names.name(func.getSignature().getName()), varargs, null, env);
+		this.javaBridge = javaBridge;
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
 		this.instance = javaBridge.getJavaClassInstance(func);
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
+	}
+	
+	@Override
+	public JavaMethod cloneInto(Environment env) {
+		JavaMethod jm = new JavaMethod(getEval(), getFunctionType(), (FunctionDeclaration)getAst(), hasVarArgs, env, javaBridge);
+		jm.setPublic(isPublic());
+		return jm;
 	}
 	
 	@Override

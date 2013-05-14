@@ -178,13 +178,17 @@ public map[RName,Symbol] getPatternVariables(Configuration c) {
 	return ( n : t | variable(n,t,_,_,_) <- getPatternVariableValues(c) );
 }
 
-public set[str] getFailureMessages(CheckResult r){
-   res = {};
-   if(failure(set[Message] msgs) := r.res){
-      for(m <- msgs){
-        res += m.msg;
-      }
-   }	  
-   return res;
 
+public set[Message] getFailureMessages(CheckResult r) {
+   if(failure(set[Message] msgs) := r.res){
+      return msg;
+   }	  
+   return {};
 }
+
+public set[Message] getWarningMessages(CheckResult r){
+  return r.conf.messages;
+}
+
+public set[Message] getAllMessages(CheckResult r) = getFailureMessages(r) + getWarningMessages(r);
+

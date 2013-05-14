@@ -73,7 +73,7 @@ map[str, Symbol] merge(map[str, Symbol] lbindings, map[str,Symbol] rbindings){
 
 Symbol normalize(Symbol s1, map[str, Symbol] bindings){
   s2 = visit(s1){ case parameter(p1,t1) => bindings[p1] ? \void() };
-  s3 =  visit(s2){ case LUB(t1, t2) => lub(t1, t2) };
+  s3 = visit(s2){ case LUB(t1, t2) => lub(t1, t2) };
   s4 = visit(s3){
    	case \list(\tuple(t)) => \lrel(t)
    	case \list(\void())   => \lrel([\void()])
@@ -81,7 +81,7 @@ Symbol normalize(Symbol s1, map[str, Symbol] bindings){
    	case \set(\void())    => \rel([\void()])
    };
    
-//   println("normalize: <s1>, <bindings> ==\> <s4>");
+   //println("normalize: <s1>, <bindings> ==\> <s4>");
    return s4;
 }
 
@@ -100,16 +100,37 @@ value escape(value v){
    return v;
 }
 
-bool validate(Symbol actualType, Symbol expectedType, value arg1, value arg2, str descr){
+bool validate(str tname, str input, Symbol actualType, Symbol expectedType, str descr){
   if(subtype(actualType, expectedType))
      return true;
-  println("Failed test: <descr>\narg1=<arg1>, arg2=<arg2>\nexpectedType: <expectedType>, actualType: <actualType>\n");
+  if(descr != "") descr = " --- " + descr;
+  println("[<tname>] *** Failed test for: <input><descr>\nexpectedType: <expectedType>, actualType: <actualType>\n");
   return false;
 }
 
-bool validate(Symbol actualType, Symbol expectedType, value arg1, str descr){
+bool validate(str tname, str input, Symbol actualType, Symbol expectedType, value arg1, value arg2, str descr){
   if(subtype(actualType, expectedType))
      return true;
-  println("Failed test: <descr>\narg1=<arg1>\nexpectedType: <expectedType>, actualType: <actualType>\n");
+  if(descr != "") descr = " --- " + descr;
+  println("[<tname>] *** Failed test for: <input><descr>\narg1=<arg1>, arg2=<arg2>\nexpectedType: <expectedType>, actualType: <actualType>\n");
   return false;
+}
+
+bool validate(str tname, str input, Symbol actualType, Symbol expectedType, value arg1, str descr){
+  if(subtype(actualType, expectedType))
+     return true;
+  if(descr != "") descr = " --- " + descr;
+  println("[<tname>] *** Failed test for: <input><descr>\narg1=<arg1>\nexpectedType: <expectedType>, actualType: <actualType>\n");
+  return false;
+}
+
+str buildStatements(str txt, map[str, tuple[type[&T] tp, value val]] env){
+   //println("buildStatements: <txt>, <env>");
+   for(id <- env){
+      //println(" tp = <env[id].tp>");
+      txt = replaceAll(txt, "T<id>", "<env[id].tp>");
+      txt = replaceAll(txt, "V<id>", "<escape(env[id].val)>");
+   }
+   // println("buildStatements =\> <txt>");
+   return txt;              
 }

@@ -27,7 +27,9 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 
 public class ComposedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
@@ -65,7 +67,22 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 			this.isStatic = left.isStatic() && right.isStatic();
 		}
 
+	@SuppressWarnings("unchecked")
+	private ComposedFunctionResult(ICallableValue left, ICallableValue right, Type type, IEvaluatorContext ctx) {
+		super(type, null, ctx);
+		this.left = (Result<IValue>) left;
+		this.right = (Result<IValue>) right;
+		this.type = type;
+		this.isStatic = left.isStatic() && right.isStatic();
+	}
 	
+	
+	@Override
+	public ComposedFunctionResult cloneInto(Environment env) {
+		return new ComposedFunctionResult(((ICallableValue)left).cloneInto(env), 
+				((ICallableValue)right).cloneInto(env), type, ctx);
+	}
+
 	public boolean isNonDeterministic() {
 		return false;
 	}
@@ -231,6 +248,4 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		return false;
 	}
 
- 
-	
 }

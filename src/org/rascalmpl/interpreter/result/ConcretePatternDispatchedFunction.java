@@ -14,6 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +30,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.Factory;
@@ -47,6 +50,19 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 		this.arity = minArity(alternatives);
 		this.isStatic = checkStatic(alternatives);
 		this.name = name;
+	}
+	
+	@Override
+	public ConcretePatternDispatchedFunction cloneInto(Environment env) {
+		Map<IConstructor, List<AbstractFunction>> newAlts = new HashMap<>();
+		for (IConstructor name: alternatives.keySet()) {
+			List<AbstractFunction> alts = new ArrayList<>();
+			for (AbstractFunction alt: newAlts.get(name)) {
+				alts.add((AbstractFunction) alt.cloneInto(env));
+			}
+			newAlts.put(name, alts);
+		}
+		return new ConcretePatternDispatchedFunction(getEval(), name, type, newAlts);
 	}
 	
 	public Map<IConstructor,List<AbstractFunction>> getMap() {

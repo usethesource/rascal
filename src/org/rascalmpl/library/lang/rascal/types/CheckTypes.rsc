@@ -2110,7 +2110,18 @@ CheckResult computeIntersectionType(Configuration c, Symbol t1, Symbol t2, loc l
 	{
     	if (!comparable(t1,t2))
     		c = addScopeWarning(c, "Types <prettyPrintType(t1)> and <prettyPrintType(t2)> are not comparable", l);
-        return < c, t1 >;
+    		
+    	if (subtype(t2, t1))
+    		return < c, t2 >;
+    		
+    	if (subtype(t1, t2))
+    		return < c, t1 >;
+    		
+    	if (isListRelType(t1)) return < c, makeListRelType(makeVoidType(),makeVoidType()) >;
+    	if (isListType(t1)) return < c, makeListType(makeVoidType()) >;
+    	if (isRelType(t1)) return < c, makeRelType(makeVoidType(), makeVoidType()) >;
+    	if (isSetType(t1)) return < c, makeSetType(makeVoidType()) >;
+    	if (isMapType(t1)) return < c, makeMapType(makeVoidType(),makeVoidType()) >;
     }
     return < c, makeFailType("Intersection not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l) >;
 }
@@ -2190,46 +2201,54 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> - <Expre
     < c, t1 > = checkExp(e1, c);
     < c, t2 > = checkExp(e2, c);
     if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-    return markLocationType(c,exp@\loc,computeSubtractionType(t1,t2,exp@\loc));
+    < c, stype > = computeSubtractionType(c, t1, t2, exp@\loc);
+    return markLocationType(c,exp@\loc,stype);
 }
 
-public Symbol computeSubtractionType(Symbol t1, Symbol t2, loc l) {
+public CheckResult computeSubtractionType(Configuration c, Symbol t1, Symbol t2, loc l) {
     if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2))
         return numericArithTypes(t1, t2);
 
-    // Maybe we should check what we are trying to subtract, but currently we don't
-    // inside the interpreter, so TODO: should we check the type of t2?
-    if (isListType(t1) && isListType(t2))
-        return t1;
-    if (isListType(t1)) {
-        if (!comparable(getListElementType(t1),t2))
-            return makeFailType("List of type <prettyPrintType(t1)> could never contain subtracted element of type <prettyPrintType(t2)>", l); 
-        return t1;
+    if (isListType(t1) && isListType(t2)) {
+		if (!comparable(getListElementType(t1),getListElementType(t2)))
+			c = addScopeWarning(c, "<isListRelType(t1) ? "List Relation" : "List"> of type <prettyPrintType(t1)> could never contain elements of second <isListRelType(t2) ? "List Relation" : "List"> type <prettyPrintType(t2)>", l); 
+		return < c, t1 >;
     }
     
-    if (isSetType(t1) && isSetType(t2))
-        return t1;
-    if (isSetType(t1)) { // Covers relations too
-        if (!comparable(getSetElementType(t1),t2))
-            return makeFailType("Set of type <prettyPrintType(t1)> could never contain subtracted element of type <prettyPrintType(t2)>", l); 
-        return t1;
+    if (isListType(t1) && !comparable(getListElementType(t1),t2)) {
+		c = addScopeWarning(c, "<isListRelType(t1) ? "List Relation" : "List"> of type <prettyPrintType(t1)> could never contain elements of type <prettyPrintType(t2)>", l); 
+		return < c, t1 >;
     }
     
-    if (isBagType(t1) && isBagType(t2))
-        return t1;
-    if (isBagType(t1)) {
-        if (!comparable(getBagElementType(t1),t2))
-            return makeFailType("Bag of type <prettyPrintType(t1)> could never contain subtracted element of type <prettyPrintType(t2)>", l); 
-        return t1;
+    if (isSetType(t1) && isSetType(t2)) {
+		if (!comparable(getSetElementType(t1),getSetElementType(t2)))
+			c = addScopeWarning(c, "<isRelType(t1) ? "Relation" : "Set"> of type <prettyPrintType(t1)> could never contain elements of second <isRelType(t2) ? "Relation" : "Set"> type <prettyPrintType(t2)>", l); 
+        return < c, t1 >;
+    }
+    
+    if (isSetType(t1)&& !comparable(getSetElementType(t1),t2)) {
+		c = addScopeWarning(c, "<isRelType(t1) ? "Relation" : "Set"> of type <prettyPrintType(t1)> could never contain elements of type <prettyPrintType(t2)>", l); 
+        return < c, t1 >;
+    }
+    
+    if (isBagType(t1) && isBagType(t2)) {
+		if (!comparable(getBagElementType(t1),getBagElementType(t2)))
+			c = addScopeWarning(c, "Bag of type <prettyPrintType(t1)> could never contain elements of second bag type <prettyPrintType(t2)>", l); 
+        return < c, t1 >;
+    }
+    
+    if (isBagType(t1)&& !comparable(getBagElementType(t1),t2)) {
+		c = addScopeWarning(c, "Bag of type <prettyPrintType(t1)> could never contain elements of type <prettyPrintType(t2)>", l); 
+        return < c, t1 >;
     }
 
     if (isMapType(t1)) {
         if (!comparable(t1,t2))
-            return makeFailType("Map of type <prettyPrintType(t1)> could never contain a sub-map of type <prettyPrintType(t2)>", l); 
-        return t1;
+            c = addScopeWarning(c, "Map of type <prettyPrintType(t1)> could never contain a sub-map of type <prettyPrintType(t2)>", l); 
+        return < c, t1 >;
     }
 
-    return makeFailType("Subtraction not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
+    return < c, makeFailType("Subtraction not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l) >;
 }
 
 @doc{Check the types of Rascal expressions: AppendAfter (DONE)}
@@ -4690,7 +4709,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable 
     
     // Check to ensure the intersection is valid. If so, the resulting type is the overall
     // type of the assignable, else it is the failure type generated by the operation.
-    rt = computeIntersectionType(atree@atype, st, l);
+    < c, rt > = computeIntersectionType(c, atree@atype, st, l);
     if (isFailType(rt)) return markLocationType(c, l, rt);
 
     // Now, using the subject type, try to bind it to the assignable tree
@@ -4721,7 +4740,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable 
     
     // Check to ensure the subtraction is valid. If so, the resulting type is the overall
     // type of the assignable, else it is the failure type generated by the operation.
-    rt = computeSubtractionType(atree@atype, st, l);
+    < c, rt > = computeSubtractionType(c, atree@atype, st, l);
     if (isFailType(rt)) return markLocationType(c, l, rt);
 
     // Now, using the result type, try to bind it to the assignable tree
