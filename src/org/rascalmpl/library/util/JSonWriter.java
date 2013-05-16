@@ -35,7 +35,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.IValueTextWriter;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * This class implements the JSon readable syntax for {@link IValue}'s. See also
@@ -56,13 +55,8 @@ public class JSonWriter implements IValueTextWriter {
 	static final String name = "#name", args = "#args", annos = "#annos";
 
 	public void write(IValue value, java.io.Writer stream) throws IOException {
-		try {
-			if (debug) System.err.println("JSonWriter:write:" + value);
-			value.accept(new Writer(stream));
-			stream.close();
-		} catch (VisitorException e) {
-			throw (IOException) e.getCause();
-		}
+	  value.accept(new Writer(stream));
+	  stream.close();
 	}
 
 	public void write(IValue value, java.io.Writer stream, TypeStore typeStore)
@@ -70,7 +64,7 @@ public class JSonWriter implements IValueTextWriter {
 		write(value, stream);
 	}
 
-	private static class Writer implements IValueVisitor<IValue> {
+	private static class Writer implements IValueVisitor<IValue, IOException> {
 		private java.io.Writer stream;
 
 		private int inNode = 0;
@@ -79,44 +73,36 @@ public class JSonWriter implements IValueTextWriter {
 			this.stream = stream;
 		}
 
-		private void append(String string) throws VisitorException {
-			try {
-				stream.write(string);
-			} catch (IOException e) {
-				throw new VisitorException(e);
-			}
+		private void append(String string) throws IOException {
+		  stream.write(string);
 		}
 
-		private void append(char c) throws VisitorException {
-			try {
-				stream.write(c);
-			} catch (IOException e) {
-				throw new VisitorException(e);
-			}
+		private void append(char c) throws IOException {
+		  stream.write(c);
 		}
 
-		public IValue visitBoolean(IBool boolValue) throws VisitorException {
+		public IValue visitBoolean(IBool boolValue) throws IOException {
 			append(boolValue.getStringRepresentation());
 			return boolValue;
 		}
 
-		public IValue visitConstructor(IConstructor o) throws VisitorException {
+		public IValue visitConstructor(IConstructor o) throws IOException {
 			return visitNode(o);
 		}
 
-		public IValue visitReal(IReal o) throws VisitorException {
+		public IValue visitReal(IReal o) throws IOException {
 			append(o.getStringRepresentation());
 			return o;
 		}
 
-		public IValue visitInteger(IInteger o) throws VisitorException {
+		public IValue visitInteger(IInteger o) throws IOException {
 			append(o.getStringRepresentation());
 			return o;
 		}
 
 		// TODO: There probably isn't a good ATerm repr of rationals,
 		// what should we do here?
-		public IValue visitRational(IRational o) throws VisitorException {
+		public IValue visitRational(IRational o) throws IOException {
 			if (typed || inNode > 0)
 				append("{\"" + name + "\":\"#rat\",\"" + args + "\":[");
 			else
@@ -133,7 +119,7 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		private void visitSequence(Iterator<IValue> listIterator)
-				throws VisitorException {
+				throws IOException {
 			append('[');
 			if (listIterator.hasNext()) {
 				IValue v = listIterator.next();
@@ -150,13 +136,13 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
-		public IValue visitList(IList o) throws VisitorException {
+		public IValue visitList(IList o) throws IOException {
 			visitSequence(o.iterator());
 			return o;
 		}
 
 		/* [expr,...] */
-		public IValue visitSet(ISet o) throws VisitorException {
+		public IValue visitSet(ISet o) throws IOException {
 			if (debug)
 				System.err.println("VisitSet:" + o);
 			if (typed || inNode > 0)
@@ -168,7 +154,7 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
-		public IValue visitTuple(ITuple o) throws VisitorException {
+		public IValue visitTuple(ITuple o) throws IOException {
 			if (debug)
 				System.err.println("VisitTuple:" + o);
 			if (typed || inNode > 0)
@@ -180,7 +166,7 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		/* [expr,...] */
-		public IValue visitRelation(ISet o) throws VisitorException {
+		public IValue visitRelation(ISet o) throws IOException {
 			if (typed || inNode > 0)
 				append("{\"" + name + "\":\"#set\",\"" + args + "\":");
 			visitSequence(o.iterator());
@@ -197,7 +183,7 @@ public class JSonWriter implements IValueTextWriter {
 		 * .imp.pdb.facts.IMap) -> [[key, value]] or -> {str key:value, str
 		 * key:value}
 		 */
-		public IValue visitMap(IMap o) throws VisitorException {
+		public IValue visitMap(IMap o) throws IOException {
 			Iterator<IValue> mapIterator = o.iterator();
 			if (o.getKeyType().isString()) {
 				append('{');
@@ -266,7 +252,7 @@ public class JSonWriter implements IValueTextWriter {
 		 * org.eclipse.imp.pdb.facts.visitors.IValueVisitor#visitNode(org.eclipse
 		 * .imp.pdb.facts.INode) {f:{args:[arg0,...],anno:[{name0:val0,...}]}}
 		 */
-		public IValue visitNode(INode o) throws VisitorException {
+		public IValue visitNode(INode o) throws IOException {
 			Iterator<IValue> nodeIterator = o.iterator();
 			Map<String, IValue> annotations = o.getAnnotations();
 			Iterator<String> annoIterator = annotations.keySet().iterator();
@@ -312,7 +298,7 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		public IValue visitSourceLocation(ISourceLocation o)
-				throws VisitorException {
+				throws IOException {
 			if (typed || inNode > 0)
 				append("{\"" + name + "\":\"#loc\",\"" + args + "\":[");
 			append("\"" + o.getURI().toString() + "\"");
@@ -321,7 +307,7 @@ public class JSonWriter implements IValueTextWriter {
 			return o;
 		}
 
-		public IValue visitString(IString o) throws VisitorException {
+		public IValue visitString(IString o) throws IOException {
 			// TODO optimize this implementation and finish all escapes
 			append('\"');
 			append(o.getValue().replaceAll("\"", "\\\\\"")
@@ -336,7 +322,7 @@ public class JSonWriter implements IValueTextWriter {
 			return externalValue;
 		}
 
-		public IValue visitDateTime(IDateTime o) throws VisitorException {
+		public IValue visitDateTime(IDateTime o) throws IOException {
 			if (typed || inNode > 0)
 				append("{\"" + name + "\":\"#datetime\",\"" + args + "\":[");
 			append('\"');
@@ -353,7 +339,7 @@ public class JSonWriter implements IValueTextWriter {
 
 		@Override
 		public IValue visitListRelation(IList o)
-				throws VisitorException {
+				throws IOException {
 			// TODO Auto-generated method stub
 			visitSequence(o.iterator());
 			return o;

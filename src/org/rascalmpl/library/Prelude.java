@@ -86,10 +86,8 @@ import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
@@ -2395,11 +2393,11 @@ public class Prelude {
 	
 	private IList extractComments(IConstructor layout) {
 		final IListWriter comments = values.listWriter();
-		TreeVisitor visitor = new TreeVisitor() {
+		TreeVisitor<RuntimeException> visitor = new TreeVisitor<RuntimeException>() {
 
 			@Override
 			public IConstructor visitTreeAppl(IConstructor arg)
-					throws VisitorException {
+					 {
 				if (TreeAdapter.isComment(arg)) {
 					comments.append(values.string(TreeAdapter.yield(arg)));
 				}
@@ -2413,29 +2411,25 @@ public class Prelude {
 
 			@Override
 			public IConstructor visitTreeAmb(IConstructor arg)
-					throws VisitorException {
+					 {
 				return arg;
 			}
 
 			@Override
 			public IConstructor visitTreeChar(IConstructor arg)
-					throws VisitorException {
+					 {
 				return arg;
 			}
 
 			@Override
 			public IConstructor visitTreeCycle(IConstructor arg)
-					throws VisitorException {
+					 {
 				return arg;
 			}
 			
 		};
-		try {
-			layout.accept(visitor);
-		}
-		catch (VisitorException e) {
-			throw new ImplementationError(e.getMessage());
-		}
+		
+		layout.accept(visitor);
 		return comments.done();
 	}
 

@@ -98,7 +98,7 @@ IExpirationListener<IValue> {
 		return TransactionType;
 	}
 
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return null;
 	}
 

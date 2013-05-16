@@ -177,3 +177,57 @@ public DoNotNest priority(list[Production] levels) {
   // and we recurse to find the nested associativity declarations
   return result + {*doNotNest(l) | l <- levels};  
 }
+
+@doc{
+  Simply replace the structures for priority and associativity by normal alternatives, ceteris paribus.
+}
+public Grammar prioAssocToChoice(Grammar g) = visit(g) {
+  case \priority(def, list[Production] levels) => choice(def, {*levels})
+  case \associativity(def, _, alts)            => choice(def, alts)
+};
+
+data Symbol = ind(Symbol symbol, int index);
+Symbol ind(ind(Symbol s, int i), int j) = ind(s, j);
+
+Production exclude(choice(Symbol head, set[Production] alts, Production excluded))
+  = choice(head, exclude(alts, excluded));
+  
+set[Production] exclude(set[Production] base, Production excluded) 
+  = { e | e <- base, !match(e, excluded) };
+
+Production head(Symbol head, Production prod) = visit (prod) {
+  case prod(_, b, a) => prod(head, b, a)
+  case choice(_, as) => choice(head, as)
+};
+
+Production nolabels(Production p) = visit(p) { 
+  case ind(s, _) => s 
+};
+
+bool match(<Production parent, int pos, Production child>, Production alt, Grammar g) 
+  = nolabels(parent) == alt && child in g.rules[alt.symbols[pos]].alternatives;
+
+Grammar factor(Grammar g, DoNotNest patterns) = (g | factor(g, g.rules[p.def], patterns, ()) | <p, _, _> <- patterns);
+  
+Grammar factor(Grammar g, Production P, DoNotNest patterns, map[set[Production] alts, Symbol nt] done) {
+  n = 1;
+  Symbol new(Symbol x) { res = ind(x, n); n += 1; return res; }
+  
+  for (pattern:<parent, int pos, child> <- patterns, alt <- g.rules[parent.def].alternatives, match(pattern, alt, g)) {
+     nt = new(alt.symbols[pos]);
+     
+     // change the old definition to use the new non-terminal
+     g.rules[parent.def].alternatives -= {alt};
+     alt.symbols[pos] = nt;
+     g.rules[parent.def].alternatives += {alt};
+     
+     ex = exclude(g.rules[parent.def].alternatives, child);
+     done[ex] = nt;
+     
+     g.rules[nt] = head(nt, ex);
+     
+     g = factor(g, g.rules[nt], patterns, done);
+  } 
+  
+  return g; 
+}

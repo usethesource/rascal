@@ -23,7 +23,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -40,18 +39,10 @@ public class DebugUpdater {
 	 * @return tree with pushed-down attributes, unmodified tree in case of error
 	 */
 	public static IConstructor pushDownAttributes(IConstructor tree) {
-		IConstructor result = tree;
-		
-		try {
-			result = ((IConstructor) tree.accept(new PushDownTreeVisitor(false)));
-		} catch (VisitorException e) {
-			// ignore
-		}
-		
-		return result;
+		return ((IConstructor) tree.accept(new PushDownTreeVisitor<RuntimeException>(false)));
 	}
 		
-	private static class PushDownTreeVisitor extends TreeVisitor {
+	private static class PushDownTreeVisitor<E extends Throwable> extends TreeVisitor<E> {
 		
 		final static private IValueFactory VF = ValueFactoryFactory.getValueFactory();
 		
@@ -63,22 +54,22 @@ public class DebugUpdater {
 		
 		@Override
 		public IConstructor visitTreeCycle(IConstructor arg)
-				throws VisitorException {
+				throws E {
 			return arg;
 		}
 		
 		@Override
-		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeChar(IConstructor arg) throws E {
 			return arg;
 		}
 
 		@Override
-		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeAmb(IConstructor arg) throws E {
 			return arg;
 		}
 		
 		@Override
-		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeAppl(IConstructor arg) throws E {
 			IConstructor prod = TreeAdapter.getProduction(arg);
 			
 			if (TreeAdapter.isAppl(arg) 
@@ -106,7 +97,7 @@ public class DebugUpdater {
 					boolean isDeferred = pushdownPositions.contains(pos) || addBreakable && isList;
 					
 					IValue oldKid = iter.next();
-					IValue newKid = oldKid.accept(new PushDownTreeVisitor(isDeferred));
+					IValue newKid = oldKid.accept(new PushDownTreeVisitor<E>(isDeferred));
 					
 					writer.append(newKid);
 				}
