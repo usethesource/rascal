@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Filtered;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
@@ -197,7 +198,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 			}
 			
 			return function.call(types, actuals, null);
-		}catch(ArgumentsMismatch e){
+		}catch(MatchFailed e){
 			return null;
 		}catch(Failure f){
 			return null;
