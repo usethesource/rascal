@@ -14,6 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
@@ -22,13 +24,12 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 
@@ -214,25 +215,23 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		@Override
 		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 			Failure f1 = null;
-			ArgumentsMismatch e1 = null;
 			try {
 				try {
 					return getRight().call(argTypes, argValues, keyArgValues);
-				} catch(ArgumentsMismatch e) {
+				} catch(MatchFailed e) {
 					// try another one
-					e1 = e;
 				} catch(Failure e) {
 					// try another one
-					f1 = e;
 				}
-				return getLeft().call(argTypes, argValues, keyArgValues);
-			} catch(ArgumentsMismatch e2) {
-				throw new ArgumentsMismatch(
-						"The called signature does not match signatures in the '+' composition:\n" 
-							+ ((e1 != null) ? (e1.getMessage() + e2.getMessage()) : e2.getMessage()), ctx.getCurrentAST());
-			} catch(Failure f2) {
+		 		return getLeft().call(argTypes, argValues, keyArgValues);
+			} 
+			catch (MatchFailed e) {
+				List<AbstractFunction> candidates = Arrays.<AbstractFunction>asList((AbstractFunction) getLeft(), (AbstractFunction) getRight());
+        throw new ArgumentsMismatch("+ composition", candidates, argTypes, ctx.getCurrentAST());
+			} 
+			catch(Failure f2) {
 				throw new Failure("Both functions in the '+' composition have failed:\n " 
-									+ ((f1 != null) ? f1.getMessage() + f2.getMessage() : f2.getMessage()));
+									+ getLeft().toString() + ",\n" + getRight().toString());
 			}
 		}
 		

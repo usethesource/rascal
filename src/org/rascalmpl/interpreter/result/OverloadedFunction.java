@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
@@ -39,7 +38,6 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -309,10 +307,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		}
 
 		if (result == null) {
-			List<AbstractFunction> all = new ArrayList<AbstractFunction>(primaryCandidates.size() + defaultCandidates.size());
-			all.addAll(primaryCandidates);
-			all.addAll(defaultCandidates);
-			throw new ArgumentsMismatch(name, all, argTypes, ctx.getCurrentAST());
+			throw new MatchFailed();
 		}
 
 		return result;
@@ -336,9 +331,6 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 					failed = candidate;
 					failure = e;
 					// could happen if function body throws fail
-				}
-				catch (ArgumentsMismatch am) {
-					// could happen if pattern dispatched
 				}
 			}
 		}

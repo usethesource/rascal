@@ -485,16 +485,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				try {
 					res = function.call(types, actuals, kwActuals);
 				}
-				catch(MatchFailed e) {
-					if(function instanceof AbstractFunction) {
-						AbstractFunction f = (AbstractFunction) function;
-						java.util.List<AbstractFunction> fs = new ArrayList<AbstractFunction>();
-						fs.add(f);
-						String name = (f.getName() != null) ? f.getName() : "(evaluated from the expression) ";
-						throw new ArgumentsMismatch(name, fs, types, this);
-					} else {
-						throw e;
-					}
+				catch (MatchFailed e) {
+				  throw new ArgumentsMismatch(function, types, this);
 				}
 				return res;
 			}

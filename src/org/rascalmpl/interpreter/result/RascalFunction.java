@@ -58,7 +58,9 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.staticErrors.MissingReturn;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
@@ -396,9 +398,6 @@ public class RascalFunction extends NamedFunction {
               else {
                 throw new UnguardedFail(getAst(), e);
               }
-//              ctx.unwind(olds[i]);
-//              i--;
-//              ctx.pushEnv();
             }
           }
           else {
