@@ -445,12 +445,11 @@ public abstract class Import {
   public static IConstructor parseFragments(final IEvaluator<Result<IValue>> eval, IConstructor module, final ModuleEnvironment env) {
     // TODO: update source code locations!!
     
-    try {
-     return (IConstructor) module.accept(new IdentityTreeVisitor() {
+     return (IConstructor) module.accept(new IdentityTreeVisitor<ImplementationError>() {
        final IValueFactory vf = eval.getValueFactory();
        
        @Override
-       public IConstructor visitTreeAppl(IConstructor tree) throws VisitorException {
+       public IConstructor visitTreeAppl(IConstructor tree)  {
          IConstructor pattern = getConcretePattern(tree);
          
          if (pattern != null) {
@@ -481,13 +480,10 @@ public abstract class Import {
       }
 
       @Override
-       public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+       public IConstructor visitTreeAmb(IConstructor arg) {
          throw new ImplementationError("unexpected ambiguity: " + arg);
        }
      });
-    } catch (VisitorException e) {
-      throw new ImplementationError("unexpected error while parsing concrete syntax fragments", e.getCause());
-    }
   }
   
   @SuppressWarnings("unchecked")
@@ -623,12 +619,11 @@ public abstract class Import {
   }
 
   private static IConstructor replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, IConstructor fragment, final Map<String, IConstructor> antiquotes) {
-    try {
-      return (IConstructor) fragment.accept(new IdentityTreeVisitor() {
+      return (IConstructor) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {
         private final IValueFactory vf = eval.getValueFactory();
         
         @Override
-        public IConstructor visitTreeAppl(IConstructor tree) throws VisitorException {
+        public IConstructor visitTreeAppl(IConstructor tree)  {
           String cons = TreeAdapter.getConstructorName(tree);
           if (cons == null || !cons.equals("$MetaHole") ) {
             IListWriter w = eval.getValueFactory().listWriter();
@@ -663,7 +658,7 @@ public abstract class Import {
         }
 
         @Override
-        public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+        public IConstructor visitTreeAmb(IConstructor arg)  {
           ISetWriter w = vf.setWriter();
           for (IValue elem : TreeAdapter.getAlternatives(arg)) {
             w.insert(elem.accept(this));
@@ -671,10 +666,6 @@ public abstract class Import {
           return arg.set("alternatives", w.done());
         }
       });
-    }
-    catch (VisitorException e) {
-      throw new ImplementationError("failure while parsing fragments", e);
-    }
   }
  
   private static boolean containsBackTick(char[] data, int offset) {

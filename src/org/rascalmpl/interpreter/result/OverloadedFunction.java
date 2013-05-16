@@ -419,7 +419,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitExternal(this);
 	}
 
