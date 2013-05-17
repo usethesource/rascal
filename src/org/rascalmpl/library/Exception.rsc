@@ -66,6 +66,7 @@ data RuntimeException =
      | NoSuchKey(value key)
      | ParseError(loc location)
      | PathNotFound(loc l)
+     | PathNotFound(set[loc] locs)
      | StackOverflow()
      
 // Status to be determined:     
