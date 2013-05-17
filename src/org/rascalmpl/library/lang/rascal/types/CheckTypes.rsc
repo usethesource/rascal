@@ -2207,7 +2207,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> - <Expre
 
 public CheckResult computeSubtractionType(Configuration c, Symbol t1, Symbol t2, loc l) {
     if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2))
-        return numericArithTypes(t1, t2);
+        return <c, numericArithTypes(t1, t2)>;
 
     if (isListType(t1) && isListType(t2)) {
 		if (!comparable(getListElementType(t1),getListElementType(t2)))
