@@ -35,7 +35,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.LocationLiteral;
 import org.rascalmpl.ast.Module;
