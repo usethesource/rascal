@@ -19,6 +19,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
@@ -54,7 +55,10 @@ public class GuardedPattern extends AbstractMatchingResult {
 	
 	@Override
 	public boolean mayMatch(Type subjectType, Environment env) {
-		return super.mayMatch(subjectType, env) && pat.mayMatch(subjectType, env);
+	  return super.mayMatch(subjectType, env) 
+	      && (pat.mayMatch(subjectType, env) // the pattern can match immediately
+	          || (subjectType.isSubtypeOf(Factory.Tree) // or the type is a non-terminal type, 
+	              && pat.mayMatch(TypeFactory.getInstance().stringType(), env))); // in which case strings are also allowed
 	}
 	
 	@Override
