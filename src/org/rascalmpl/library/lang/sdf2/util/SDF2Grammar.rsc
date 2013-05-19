@@ -47,7 +47,7 @@ public GrammarDefinition sdf2module2grammar(str name, list[loc] path) {
 public GrammarDefinition sdf2grammar(SDF def) {
   return sdf2grammar("Main", def);
 }
-
+ 
 public GrammarDefinition sdf2grammar(str main, SDF def) {
   if ((SDF) `definition <Module* mods>` := def) {
     ms = ();
@@ -200,8 +200,6 @@ public set[Production] getProductions(Module \mod) {
   return res;
 }
 
-
-    
 test bool test4() = getProductions((SDF) `definition module A exports syntax A -\> B`) ==
      {prod(sort("B"),[sort("A")],{})};
      
@@ -578,7 +576,7 @@ public Symbol getSymbol(Sym sym, bool isLex) {
          return alt({getSymbol(first, isLex), getSymbol(second, isLex)});
     default: throw "missed a case <sym>";  
   }
-}
+}  
 
 public Symbol alt({alt(set[Symbol] ss), *Symbol rest}) = alt(ss + rest);
 
@@ -630,16 +628,16 @@ private str unescape(Sym s) {
 }
 
 public str unescape(StrCon s) { 
-   if ([StrCon] /^\"<chars:.*>\"$/ := s)
-  	return unescapeStr(chars);
-   throw "unexpected string format: <s>";
+  if ([StrCon] /^\"<chars:.*>\"$/ := s)
+    	return unescapeStr(chars);
+  throw "unexpected string format: <s>";
 }
 
 private str unescape(SingleQuotedStrCon s) {
    if ([SingleQuotedStrCon] /^\'<chars:.*>\'$/ := s)
      return unescapeStr(chars);
    throw "unexpected string format: <s>";
-}
+} 
 
 test bool testUn1() = unescape((StrCon) `"abc"`)  	== "abc";
 test bool testUn2() = unescape((StrCon) `"a\\nc"`) 	== "a\nc";

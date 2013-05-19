@@ -161,7 +161,7 @@ public class NonTerminalType extends RascalType {
 	    return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(symbol), SymbolAdapter.getSymbol(otherSym))
 	        && SymbolAdapter.isEqual(SymbolAdapter.getSeparators(symbol), SymbolAdapter.getSeparators(otherSym));
 	  }
-
+	  
 	  return SymbolAdapter.isEqual(otherSym, symbol);
 	}
 	
@@ -225,6 +225,7 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public String toString() {
-		return SymbolAdapter.toString(symbol);
+	  return symbol.toString();
+//		return SymbolAdapter.toString(symbol);
 	}
 }
