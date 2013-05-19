@@ -302,4 +302,3 @@ syntax IntCon = Natural: NatCon |
                 Negative: "-" NatCon
                 ;
 
-SDF x = (SDF) `definition`;
