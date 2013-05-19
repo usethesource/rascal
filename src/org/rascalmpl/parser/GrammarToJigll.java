@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -23,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.jgll.grammar.CharacterClass;
 import org.jgll.grammar.Grammar;
+import org.jgll.grammar.GrammarBuilder;
 import org.jgll.grammar.Nonterminal;
 import org.jgll.grammar.Range;
 import org.jgll.grammar.Rule;
@@ -81,8 +80,10 @@ public class GrammarToJigll {
 	}
 
 	public Grammar convert(String name, IConstructor grammar) {
+		
+		GrammarBuilder builder = new GrammarBuilder(name);
+		
 		IMap definitions = (IMap) grammar.get("rules");
-		List<Rule> rules = new ArrayList<>();
 		rulesMap = new HashMap<>();
 
 		for (IValue nonterminal : definitions) {
@@ -107,12 +108,12 @@ public class GrammarToJigll {
 					List<Symbol> body = getSymbolList(rhs);
 					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
-					rules.add(rule);
+					builder.addRule(rule);
 				}
 			}
 		}
 
-		return Grammar.fromRules(name, rules);
+		return builder.build();
 	}
 	
 	private void applyRestrictions(Grammar grammar, IMap notAllowed) {
@@ -127,12 +128,11 @@ public class GrammarToJigll {
 			Rule rule = (Rule) rulesMap.get(key.get(0));
 			int position = ((IInteger) key.get(1)).intValue();
 				
-			Set<Rule> filterList = new HashSet<>();
 			Iterator<IValue> iterator = set.iterator();
 			while(iterator.hasNext()) {
-				filterList.add(rulesMap.get(iterator.next()));
+				// Create a new filter for each filtered nonterminal
+				grammar.addFilter(rule.getHead().getName(), rule.getBody(), position, rulesMap.get(iterator.next()).getBody());
 			}
-			grammar.filter(rule, position, filterList);
 		}		
 	}
 
@@ -157,7 +157,9 @@ public class GrammarToJigll {
 					List<Range> targetRanges = buildRanges(symbol);
 					result.add(new CharacterClass(targetRanges));
 					break;
-					
+				// conditions
+				case "conditional":
+					break;
 				default:
 					result.add(new Nonterminal(symbol.toString()));
 			}
@@ -166,6 +168,7 @@ public class GrammarToJigll {
 	}
 	
 	private boolean isEBNF(IConstructor value) {
+		// TODO: sequence, alternative, optional, etc.
 		return SymbolAdapter.isIterStarSeps(value) ||
 			   SymbolAdapter.isIterStar(value) ||
 			   SymbolAdapter.isIterPlus(value) ||
