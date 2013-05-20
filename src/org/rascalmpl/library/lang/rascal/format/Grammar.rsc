@@ -82,7 +82,7 @@ bool same(Production p, Production q) {
 }
 
 public str topProd2rascal(Production p) {
-  if (regular(_) := p) return "";
+  if (regular(_) := p || p.def == empty() || p.def == \layouts("$default$")) return "";
   
   kind = "syntax";
   if (/layouts(n) := p.def)
@@ -92,8 +92,8 @@ public str topProd2rascal(Production p) {
   else if (/keywords(_) := p.def)
     kind = "keyword";  
    
-  return "<kind> <symbol2rascal(p.def)>
-         '  = <prod2rascal(p)>
+  return "<kind> <symbol2rascal(p.def)> =
+         '  <prod2rascal(p)>
          '  ;";
 }
 
@@ -270,7 +270,7 @@ public str symbol2rascal(Symbol sym) {
     case empty(): 
         return "()"; 
   }
-  
+
   throw "symbol2rascal: missing case <sym>";
 }
 

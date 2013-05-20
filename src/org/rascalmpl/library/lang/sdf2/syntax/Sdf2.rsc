@@ -302,5 +302,3 @@ syntax IntCon = Natural: NatCon |
                 Negative: "-" NatCon
                 ;
 
-
-                
