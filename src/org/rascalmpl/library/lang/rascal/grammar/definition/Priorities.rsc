@@ -186,48 +186,192 @@ public Grammar prioAssocToChoice(Grammar g) = visit(g) {
   case \associativity(def, _, alts)            => choice(def, alts)
 };
 
-data Symbol = ind(Symbol symbol, int index);
-Symbol ind(ind(Symbol s, int i), int j) = ind(s, j);
+data Symbol = ind(Symbol symbol, str index);
 
-Production exclude(choice(Symbol head, set[Production] alts, Production excluded))
+Symbol ind(ind(Symbol s, str i), str j) = ind(s, "<i>_<j>");
+
+Production exclude(choice(Symbol head, set[Production] alts), Production excluded)
   = choice(head, exclude(alts, excluded));
   
-set[Production] exclude(set[Production] base, Production excluded) 
-  = { e | e <- base, !match(e, excluded) };
+set[Production] exclude(set[Production] base, <Production parent, int pos, Production child>, Grammar g) 
+  = { e | e <- base, nolabels(e) != nolabels(child) };
 
-Production head(Symbol head, Production prod) = visit (prod) {
-  case prod(_, b, a) => prod(head, b, a)
-  case choice(_, as) => choice(head, as)
+Production setHead(Symbol nt, Production p) = visit (p) {
+  case prod(_, b, a) => prod(nt, b, a)
+  case choice(Symbol _, as) => choice(nt, as)
 };
 
-Production nolabels(Production p) = visit(p) { 
+&T nolabels(&T p) = visit(p) { 
   case ind(s, _) => s 
 };
 
-bool match(<Production parent, int pos, Production child>, Production alt, Grammar g) 
-  = nolabels(parent) == alt && child in g.rules[alt.symbols[pos]].alternatives;
-
-Grammar factor(Grammar g, DoNotNest patterns) = (g | factor(g, g.rules[p.def], patterns, ()) | <p, _, _> <- patterns);
-  
-Grammar factor(Grammar g, Production P, DoNotNest patterns, map[set[Production] alts, Symbol nt] done) {
+//private Grammar copyAndRemove(Grammar g, Symbol nt, Production rule, Symbol newName, ) {
+//  ex = exclude(g.rules[nt], 
+//}
+ 
+Grammar factor(Grammar g, DoNotNest patterns) {
   n = 1;
-  Symbol new(Symbol x) { res = ind(x, n); n += 1; return res; }
+  Symbol new(Symbol x) { res = ind(x, "<n>");  n += 1; return res; }
+ 
+  done = ();
   
-  for (pattern:<parent, int pos, child> <- patterns, alt <- g.rules[parent.def].alternatives, match(pattern, alt, g)) {
-     nt = new(alt.symbols[pos]);
+  solve(g) 
+    for (def <- g.rules, alternative <- g.rules[def].alternatives
+       , pattern:<parent, int pos, child> <- patterns 
+       , parent == nolabels(alternative)
+       , nolabels(child) in nolabels(g.rules[alternative.symbols[pos]]).alternatives
+       ) {
+       Symbol nt;
+       
+       // filter the direct child
+       ex = exclude(g.rules[alternative.symbols[pos]].alternatives, pattern, g);
+       nex = nolabels(ex);
+       
+       // see if we have a non-terminal that defines this exact set already, otherwise generate a new one
+       if (nex in done) { 
+         nt = done[nex];     
+       } else {
+         nt = new(alternative.symbols[pos]);
+         done[nex] = nt;
+       }
+     
+       // change the old definition to use the new non-terminal
+       old = alternative;
+       g.rules[def].alternatives -= {alternative};
+       alternative.symbols[pos] = nt;
+       g.rules[def].alternatives += {alternative};
+     
+       
+       // now take care of the deeper nested problems on the left side
+       if (pos == 0) {
+         ex = visit(ex) {
+           case prod(x,[*syms, def],as) : {
+             nnt = new(nt);
+             insert prod(x, [*syms, nnt], as);
+           }
+         }
+       }
+       // and the right side
+       if (pos == size(parent.symbols) - 1) { 
+         ex = visit(ex) {
+           case prod(x,[def, *syms],as) : {
+             nnt = new(nt);
+             insert prod(x,[nt, *syms],as);
+           }
+         } 
+       }
+       
+       // add the new definition to the grammar 
+       g.rules[nt] = setHead(nt, choice(nt, ex));
+       if (old in g.rules[nt].alternatives) {
+          g.rules[nt].alternatives -= {old};
+          g.rules[nt].alternatives += {nt};
+       }
+    }
+  
+  return g;
+}
+  
+Grammar factorWorks(Grammar g, DoNotNest patterns) {
+  n = 1;
+  Symbol new(Symbol x) { res = ind(x, "<n>");  n += 1; return res; }
+ 
+  todo = {r.def | r <- patterns<father>}; 
+  done = ();
+  
+  while ({Symbol def, *rest} := todo) {
+    todo = rest;
+    
+    for (alternative <- g.rules[def].alternatives, bprintln("alt: <alternative>"))
+     for(pattern:<parent, int pos, child> <- patterns, bprintln("pattern: <pattern>"), bprintln("alt is still <alternative>")
+       , parent == nolabels(alternative), bprintln("matches!")
+       , nolabels(child) in nolabels(g.rules[alternative.symbols[pos]]).alternatives
+       ) {
+       println("case for <alternative> to filter <pattern>");
+       Symbol nt;
+       
+       // filter the direct child
+       ex = exclude(g.rules[alternative.symbols[pos]].alternatives, pattern, g);
+       
+       // see if we have a non-terminal that defines this exact set already, otherwise generate a new one
+       if (ex in done) { 
+         nt = done[ex];     
+       } else {
+         nt = new(alternative.symbols[pos]);
+         todo = {nt, *todo};
+       }
+     
+       // now take care of the deeper nested problems on the left side
+       for (pos == 0, p:prod(_,[*syms, def],_) <- ex) { // right-most recursion
+         ex -= p;
+         ex += p[symbols=[*syms,nt]];
+       }
+       
+       // and the right side
+       for (pos == size(parent.symbols) - 1, p:prod(_,[def, *syms],_) <- ex) { // left-most recursion
+         ex -= p;
+         ex += p[symbols=[nt, *syms]];
+       }
+       
+       // change the old definition to use the new non-terminal
+       g.rules[def].alternatives -= {alternative};
+       alternative.symbols[pos] = nt;
+       g.rules[def].alternatives += {alternative};
+     
+       // add the new definition to the grammar 
+       done[ex] = nt;
+       g.rules[nt] = setHead(nt, choice(nt, ex));
+    }
+  }
+  
+  return g;
+}
+  
+Grammar factorOld(Grammar g, Production P, DoNotNest patterns, Symbol(Symbol) new, map[set[Production] alts, Symbol nt] done) {
+  for (pattern:<parent, int pos, child> <- patterns
+      // loop for each alternative 
+      , def <- g.rules, alternative <- g.rules[def].alternatives
+      // that matches the pattern
+      , nolabels(parent) == alternative
+      // necessary for termination: we check if the child was not removed earlier:
+      , nolabels(child) in nolabels(g.rules[parent.symbols[pos]]).alternatives) {
+     filtered = alternative.def;
+     // compute the filtered alternatives 
+     ex = exclude(g.rules[filtered].alternatives, pattern, g);
+
+     
+     // see if we have a non-terminal that defines this exact set already, otherwise generate a new one
+     if (ex in done) 
+       nt = done[ex];     
+     else 
+       nt = new(alternative.symbols[pos]);
      
      // change the old definition to use the new non-terminal
-     g.rules[parent.def].alternatives -= {alt};
-     alt.symbols[pos] = nt;
-     g.rules[parent.def].alternatives += {alt};
+     g.rules[filtered].alternatives -= {alternative};
+     alternative.symbols[pos] = nt;
+     g.rules[filtered].alternatives += {alternative};
      
-     ex = exclude(g.rules[parent.def].alternatives, child);
-     done[ex] = nt;
+     // now take care of the deeper nested problems on the left side
+     for (pos == 0, p:prod(_,[*syms,filtered],_) <- ex) { // right-most recursion
+       ex -= p;
+       ex += p[symbols=[*syms,nt]];
+     }
+     // and the right side
+     for (pos == size(parent.symbols) - 1, p:prod(_,[filtered, *syms],_) <- ex) { // left-most recursion
+       ex -= p;
+       ex += p[symbols=[nt, *syms]];
+     }  
      
-     g.rules[nt] = head(nt, ex);
+     // add the new definition to the grammar if necessary
+     if (ex notin done) { 
+       done[ex] = nt;
+       g.rules[nt] = setHead(nt, choice(nt, ex));
      
-     g = factor(g, g.rules[nt], patterns, done);
+       // recursively apply the patterns to the newly generated rules
+       g = factor(g, g.rules[nt], patterns, new, done);
+     }
   } 
   
   return g; 
 }
+
