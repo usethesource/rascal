@@ -95,8 +95,17 @@ private set[str] getImports(Module m) {
 }
 
 public GrammarDefinition applyConditions(GrammarDefinition d,  map[Symbol from,Symbol to] conds) {
+  Symbol app(Symbol s) { 
+    if (s is label) 
+      return label(s.name, app(s.symbol));
+    else if (s in conds) 
+      return conds[s];
+    else
+      return s;
+  }
+    
   return visit(d) {
-    case prod(Symbol d, list[Symbol] ss, set[Attr] as) => prod(d, [(s in conds || (s is label && s.symbol in conds))? conds[s] : s | s <- ss], as)
+    case prod(Symbol d, list[Symbol] ss, set[Attr] as) => prod(d, [app(s) | s <- ss], as)
   }
 }
 
