@@ -31,10 +31,10 @@ list[str] getVars(str txt){
 }
 
 str buildExpr(str txt, map[str, tuple[str pat, value val]] env){
-   println("buildExpr: <txt>, <env>");
+   //println("buildExpr: <txt>, <env>");
    for(id <- env){
-      txt = replaceAll(txt, "P<id>", env[id].pat);
-      txt = replaceAll(txt, "V<id>", "<escape(env[id].val)>");
+      txt = replaceAll(txt, "_P<id>", env[id].pat);
+      txt = replaceAll(txt, "_V<id>", "<escape(env[id].val)>");
    }
    return txt;              
 }

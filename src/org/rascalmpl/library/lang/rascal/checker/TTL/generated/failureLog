@@ -1,3 +1,44 @@
+[Statements52] stats: map[int,lrel[datetime]] X0 = (1958266861:[],-1734206211:[<$2014-06-03T14:50:11.754+01:00>],1869639482:[],-122105068:[]); map[int,lrel[datetime]] y = X0;
+[Statements52] *** Unexpected messages: {error("Initializer type map[int, list[tuple[datetime]]] not assignable to variable of type map[int, void]",|file://-|(26,95,<1,26>,<1,121>))}
+
+[Statements54] stats: x = 429251953; x = false;
+[Statements54] *** Unexpected messages: {warning("Name defined outside of current module",|file://-|(17,1,<1,17>,<1,18>))}
+
+[Statements52] stats: lrel[rat] X0 = [<1837063r755088384>,<1274387161r562643050>]; lrel[rat] y = X0;
+[Statements52] *** Unexpected messages: {error("Type lrel does not accept type parameters",|file://-|(63,9,<1,63>,<1,72>)),error("Initializer type lrel[rat] not assignable to variable of type void",|file://-|(12,49,<1,12>,<1,61>)),error("Type lrel does not accept type parameters",|file://-|(2,9,<1,2>,<1,11>))}
+
+
+[Operators7] *** Failed test for: (0.15687028828273752) == (177357291); --- signature &T x &T -> bool 
+arg1=0.15687028828273752, arg2=177357291
+expectedType: bool(), actualType: failure({error("real and int incomparable",|file://-|(2,36,<1,2>,<1,38>))})
+
+[Operators23] *** Failed test for: ([<()>,<(<"l"()>:$3451-07-22T19:16:42.221+01:00,<""()>:$2014-01-04T15:54:05.135+01:00)>]) - ([]); --- signature list[&L] x list[&R]                  -> list[LUB(&L,&R)]
+arg1=[<()>,<(<"l"()>:$3451-07-22T19:16:42.221+01:00,<""()>:$2014-01-04T15:54:05.135+01:00)>], arg2=[]
+expectedType: list(map(tuple([node()]),datetime())), actualType: lrel([map(tuple([node()]),datetime())])
+
+[Operators5] *** Failed test for: (({}:0.31874336802870507)) < (({}:-1099447029)); --- signature &T x &T -> bool 
+arg1=({}:0.31874336802870507), arg2=({}:-1099447029)
+expectedType: bool(), actualType: failure({error("map[set[void], real] and map[set[void], int] incomparable",|file://-|(2,47,<1,2>,<1,49>))})
+
+[Operators41] *** Failed test for: (($2014-12-10T11:33:59.712+01:00:{false})) o (()); --- signature map[&A,&B] x map[&B,&C] -> map[&A,&C]
+
+arg1=($2014-12-10T11:33:59.712+01:00:{false}), arg2=()
+expectedType: map(datetime(),void()), actualType: failure({error("set[bool] must be a subtype of void",|file://-|(2,49,<1,2>,<1,51>))})
+
+[Operators40] *** Failed test for: ({<$2014-10-27T13:25:58.603+01:00,0.9942142725025958>}) o ({<920025088r515335701,$2014-12-17T15:25:06.148+01:00>}); --- signature rel[&A,&B] x rel[&B,&C] -> rel[&A,&C]
+arg1={<$2014-10-27T13:25:58.603+01:00,0.9942142725025958>}, arg2={<920025088r515335701,$2014-12-17T15:25:06.148+01:00>}
+expectedType: rel([datetime(),datetime()]), actualType: failure({error("Range of relation rel[datetime, real] must be comparable to domain of relation rel[datetime, real]",|file://-|(2,114,<1,2>,<1,116>))})
+
+
+[Operators13] *** Failed test for: ([<{}>,<{($2014-11-20T22:22:07.542+01:00:()),()}>,<{()}>,<{}>]) + ({$3048-03-31T09:54:52.618+01:00}); --- signature list[&L] x &R              		  -> list[LUB(&L,&R)] when &R is not a list
+arg1=[<{}>,<{($2014-11-20T22:22:07.542+01:00:()),()}>,<{()}>,<{}>], arg2={$3048-03-31T09:54:52.618+01:00}
+expectedType: list(set(value())), actualType: list(value())
+
+[Operators39] *** Failed test for: ([<($3833-07-10T21:12:50.833+01:00:"函橥洙"()),-340332694>]) o ([<1083634677r1374722096,false>]); --- signature lrel[&A,&B] x lrel[&B,&C] -> lrel[&A,&C]
+arg1=[<($3833-07-10T21:12:50.833+01:00:"函橥洙"()),-340332694>], arg2=[<1083634677r1374722096,false>]
+expectedType: lrel([map(datetime(),node()),bool()]), actualType: failure({error("Range of list relation lrel[map[datetime, node], int] must be comparable to domain of list relation lrel[map[datetime, node], int]",|file://-|(2,94,<1,2>,<1,96>))})
+
+
 =================
 
 [Operators15] exp: ({<$5762-02-01T21:03:36.892+01:00>,<$6071-02-06T10:43:16.960+01:00>}) + ({});
@@ -15,8 +56,6 @@ expectedType: list(num()), actualType: list(value())
 *** Failed test: Composition o for lrel[&A,&B] x lrel[&B,&C] -> lrel[&A,&C]
 arg1=[<"",854523776r1139532829>], arg2=[<-414361332,[<0.7946712189556245>]>]
 expectedType: lrel([str(),lrel([real()])]), actualType: failure({error("Range of list relation lrel[str,rat] must be comparable to domain of list relation lrel[str,rat]",|file://-|(2,71,<1,2>,<1,73>))})
-
-
 
 [Operators12] exp: ([<[<"\"\"盒",false>,<"",true>]>]) + ([]);
 *** Failed test: Addition + for list[&L] x list[&R]                 -> list[LUB(&L,&R)]

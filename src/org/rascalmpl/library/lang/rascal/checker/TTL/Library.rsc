@@ -16,16 +16,16 @@ BIND bind(\parameter(name, t1), Symbol s) = <true, (name : s)>;
 BIND bind(\list(Symbol s), \list(Symbol t)) = bind(s, t); 
 BIND bind(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = bindList(l, r);
 
-BIND bind(\list(Symbol s), \lrel(list[Symbol] r)) = (s == \void()) ? <true, ()> : bind(s, (size(r) == 1) ? r[0] : \tuple(r));
-BIND bind(\lrel(list[Symbol] l), \list(Symbol r)) = (r == \void()) ? <true, ()> : bind((size(l) == 1) ? l[0] : \tuple(l), r);
+BIND bind(\list(Symbol s), \lrel(list[Symbol] r)) = (s == \void()) ? <true, ()> : bind(s, /*(size(r) == 1) ? r[0] : */\tuple(r));
+BIND bind(\lrel(list[Symbol] l), \list(Symbol r)) = (r == \void()) ? <true, ()> : bind(/*(size(l) == 1) ? l[0] : */\tuple(l), r);
 
 // set and rel
 
 BIND bind(\set(Symbol s), \set(Symbol t)) = bind(s, t);
 BIND bind(\rel(list[Symbol] l), \rel(list[Symbol] r)) = bindList(l, r);
 
-BIND bind(\set(Symbol s), \rel(list[Symbol] r)) = (s == \void()) ? <true, ()> : bind(s, (size(r) == 1) ? r[0] : \tuple(r));
-BIND bind(\rel(list[Symbol] l), \set(Symbol r)) = (r == \void()) ? <true, ()> : bind((size(l) == 1) ? l[0] : \tuple(l), r);
+BIND bind(\set(Symbol s), \rel(list[Symbol] r)) = (s == \void()) ? <true, ()> : bind(s, /*(size(r) == 1) ? r[0] : */\tuple(r));
+BIND bind(\rel(list[Symbol] l), \set(Symbol r)) = (r == \void()) ? <true, ()> : bind(/*(size(l) == 1) ? l[0] :*/ \tuple(l), r);
 
 BIND bind(\tuple(t1), \tuple(t2)) = bindList(t1, t2);
 
@@ -108,6 +108,15 @@ bool validate(str tname, str input, Symbol actualType, Symbol expectedType, str 
   return false;
 }
 
+bool invalid(str tname, str input, Symbol actualType, Symbol expectedType, str descr){
+  if(descr != "") descr = " --- " + descr;
+  if(subtype(actualType, expectedType)){
+     println("[<tname>] *** Failed test for: <input><descr>\nexpectedType: <expectedType>, actualType: <actualType>\n");
+     return false;
+  }   
+  return true;
+}
+
 bool validate(str tname, str input, Symbol actualType, Symbol expectedType, value arg1, value arg2, str descr){
   if(subtype(actualType, expectedType))
      return true;
@@ -128,8 +137,9 @@ str buildStatements(str txt, map[str, tuple[type[&T] tp, value val]] env){
    //println("buildStatements: <txt>, <env>");
    for(id <- env){
       //println(" tp = <env[id].tp>");
-      txt = replaceAll(txt, "T<id>", "<env[id].tp>");
-      txt = replaceAll(txt, "V<id>", "<escape(env[id].val)>");
+      txt = replaceAll(txt, "_X<id>", "X<id>");
+      txt = replaceAll(txt, "_T<id>", "<env[id].tp>");
+      txt = replaceAll(txt, "_V<id>", "<escape(env[id].val)>");
    }
    // println("buildStatements =\> <txt>");
    return txt;              
