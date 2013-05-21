@@ -131,19 +131,19 @@ public Grammar illegalPriorities(Grammar g) {
   return compose(g, grammar({}, extracted));
 }
 
-public Grammar dup(Grammar g) {
+public &T dup(&T g) {
   prods = { p | /Production p:prod(_,_,_) := g };
   
   // first we fuse the attributes (SDF2 semantics) and the cons names
   solve (prods) {
     if ({prod(l,r,a1), prod(l,r,a2), rest*} := prods) {
-      prods = {prod(l,r,a1 + a2), rest};
+      prods = {prod(l,r,a1 + a2), *rest};
     }
     if ({prod(label(n,l),r,a), prod(l,r,a), rest*} := prods) {
-      prods = {prod(label(n,l),r,a), rest};
+      prods = {prod(label(n,l),r,a), *rest};
     }
     if ({prod(label(n,l),r,a), prod(label(m,l),r,a), rest*} := prods) {
-      prods = {prod(label(n,l),r,a), rest};
+      prods = {prod(label(n,l),r,a), *rest};
     }
   } 
   
