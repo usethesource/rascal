@@ -313,7 +313,7 @@ public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
   	
     case (Restriction) `<Sym s1> <Sym+ rest> -/- <Lookaheads ls>` : 
       return  getRestriction((Restriction) `<Sym s1> -/- <Lookaheads ls>`, isLex)
-           + {getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
+           + {*getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
     
     case (Restriction) `LAYOUT? -/- <Lookaheads ls>` :
       return {conditional(\iter-star(sort("LAYOUT")), {\not-follow(l) | l <- getLookaheads(ls) })};
@@ -380,10 +380,10 @@ public Production getPriority(Group group, bool isLex) {
      	return getPriority(g, isLex); // we ignore argument indicators here!
      	
     case (Group) `{<Prod* ps>}` : 
-       return choice(definedSymbol(ps,isLex), {getProduction(p,isLex) | Prod p <- ps});
+       return choice(definedSymbol(ps,isLex), {*getProduction(p,isLex) | Prod p <- ps});
        
     case (Group) `{<Assoc a> : <Prod* ps>}` : 
-       return \associativity(definedSymbol(ps, isLex), getAssociativity(a), {getProduction(p,isLex) | Prod p <- ps});
+       return \associativity(definedSymbol(ps, isLex), getAssociativity(a), {*getProduction(p,isLex) | Prod p <- ps});
     
     default:
     	throw "missing case <group>";}
