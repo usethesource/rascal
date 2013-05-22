@@ -139,11 +139,11 @@ public &T dup(&T g) {
     if ({prod(l,r,a1), prod(l,r,a2), rest*} := prods) {
       prods = {prod(l,r,a1 + a2), *rest};
     }
-    if ({prod(label(n,l),r,a), prod(l,r,a), rest*} := prods) {
-      prods = {prod(label(n,l),r,a), *rest};
+    if ({prod(label(n,l),r,a1), prod(l,r,a2), rest*} := prods) {
+      prods = {prod(label(n,l),r,a1 + a2), *rest};
     }
-    if ({prod(label(n,l),r,a), prod(label(m,l),r,a), rest*} := prods) {
-      prods = {prod(label(n,l),r,a), *rest};
+    if ({prod(label(n,l),r,a1), prod(label(m,l),r,a2), rest*} := prods) {
+      prods = {prod(label(n,l),r,a1 + a2), *rest};
     }
   } 
   
