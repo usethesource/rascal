@@ -190,9 +190,10 @@ data Symbol = ind(Symbol symbol, str index);
 
 Symbol ind(ind(Symbol s, str i), str j) = ind(s, "<i>_<j>");
 
-Production exclude(choice(Symbol head, set[Production] alts), Production excluded)
-  = choice(head, exclude(alts, excluded));
-  
+&T nolabels(&T p) = visit(p) { 
+  case ind(s, _) => s 
+};
+
 set[Production] exclude(set[Production] base, Production child) 
   = { e | e <- base, nolabels(e) != nolabels(child) };
 
@@ -201,13 +202,13 @@ Production setHead(Symbol nt, Production p) = visit (p) {
   case choice(Symbol _, as) => choice(nt, as)
 };
 
-&T nolabels(&T p) = visit(p) { 
-  case ind(s, _) => s 
-};
-
 alias InvGrammar = map[set[Production] alts, Symbol nt];
 
-
+@doc{
+  This function rewrites a grammar to introduce one new non-terminal. It takes an existing non-terminal, and removes
+  one rule. Then it changes the use site of the old non-terminal in a specific rule at at a specific position to use this
+  new non-terminal. The function reuses existing definitions if they already define the same set of rules. 
+}
 tuple[Grammar, InvGrammar, Symbol] factorOne(Symbol (Symbol) new, Grammar g, InvGrammar done, Production alternative, <Production father, int pos, Production child>) {
    Symbol nt;
    Symbol def = alternative.def;
@@ -225,6 +226,7 @@ tuple[Grammar, InvGrammar, Symbol] factorOne(Symbol (Symbol) new, Grammar g, Inv
    }
      
    // change the old definition to use the new non-terminal
+   // I want to be able to write this instead: `g.rules[def] = visit(g.rules[def]) { case alternative => alternative[symbol[pos] = nt] };`
    old = alternative;
    g.rules[def].alternatives -= {old};
    alternative.symbols[pos] = nt;
@@ -233,7 +235,7 @@ tuple[Grammar, InvGrammar, Symbol] factorOne(Symbol (Symbol) new, Grammar g, Inv
    // add the new definition to the grammar 
    g.rules[nt] = setHead(nt, choice(nt, ex));
    
-   return <g,done, nt>;
+   return <g, done, nt>;
 }
 
 @doc{
@@ -250,27 +252,30 @@ Grammar factor(Grammar g, DoNotNest patterns) {
   done = (g.rules[nt].alternatives : nt | nt <- g.rules); 
   
   solve(g) 
-    for (def <- g.rules, alternative <- g.rules[def].alternatives
-       , pattern:<parent, int pos, child> <- patterns 
-       , parent == nolabels(alternative)
-       , nolabels(child) in nolabels(g.rules[alternative.symbols[pos]]).alternatives
-       ) {
+    // in every iteration we apply all patterns to the current definitions,
+    // this generates new definitions that may need patterns applied to
+    // we stop when no more filters can be applied 
+    for (def <- g.rules, alternative <- g.rules[def].alternatives                    // loop over the grammar
+       , pattern:<parent, int pos, child> <- patterns                                // loop over all patterns
+       , parent == nolabels(alternative)                                             // found a match 
+       , nolabels(child) in nolabels(g.rules[alternative.symbols[pos]]).alternatives // stop condition: do not apply if not necessary
+       ) { 
        <g, done, nt> = factorOne(new, g, done, alternative, pattern);
        
        // now take care of the deeper nested problems on the left side
        if (pos == 0) {
-         visit(g.rules[nt].alternatives) {
-           case p:prod(x,[*syms, r],as) : 
-             if (nolabels(r) == nolabels(nt))
-               <g, done, x> = factorOne(new, g, done, p, <p, size(syms), child>);
+         visit(g.rules[nt].alternatives) {      // for all alternatives of the new non-terminal
+           case p:prod(x,[*syms, r],as) :       // which are right-recursive
+             if (nolabels(r) == nolabels(nt))  
+               <g, done, x> = factorOne(new, g, done, p, <p, size(syms), child>); // create a new non-terminal without the left-recursive child 
          }
        }
        // and the right side
        if (pos == size(parent.symbols) - 1) { 
-         visit(g.rules[nt].alternatives) {
-           case p:prod(x,[r, *syms],as) :
+         visit(g.rules[nt].alternatives) {     // for all alternatives of the new non-terminal
+           case p:prod(x,[r, *syms],as) :      // which are left-recursive
              if (nolabels(r) == nolabels(nt))  
-               <g, done, x> = factorOne(new, g, done, p, <p, 0, child>);
+               <g, done, x> = factorOne(new, g, done, p, <p, 0, child>); // create a new non-terminal without the left-recursive child
          } 
        }
     }
