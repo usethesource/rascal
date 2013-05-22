@@ -75,23 +75,23 @@ public class DescendantReader implements Iterator<IValue> {
 	
 	private void push(IValue v){
 		Type type = v.getType();
-		if(type.isNodeType() || type.isConstructorType() || type.isAbstractDataType()){
-			if(interpretTree && (type.isConstructorType() || type.isAbstractDataType()) && type == Factory.Tree){
+		if(type.isNode() || type.isConstructor() || type.isAbstractData()){
+			if(interpretTree && (type.isConstructor() || type.isAbstractData()) && type == Factory.Tree){
 				pushConcreteSyntaxNode((IConstructor) v);
 				return;
 			}
 			push(v,  ((INode) v).getChildren().iterator());
 		} else
-		if(type.isListType()){
+		if(type.isList()){
 			push(v, ((IList) v).iterator());
 		} else
-		if(type.isSetType()){
+		if(type.isSet()){
 			push(v, ((ISet) v).iterator());
 		} else
-		if(type.isMapType()){
+		if(type.isMap()){
 			push(v, new MapKeyValueIterator((IMap) v));
 		} else
-		if(type.isTupleType()){
+		if(type.isTuple()){
 			push(v, new TupleElementIterator((ITuple) v));
 		} else {
 			spine.push(v);

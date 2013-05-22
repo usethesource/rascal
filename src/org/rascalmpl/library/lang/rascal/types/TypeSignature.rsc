@@ -23,6 +23,7 @@ import lang::rascal::types::AbstractType;
 import lang::rascal::types::ConvertType;
 
 import lang::rascal::\syntax::Rascal;
+import lang::rascal::grammar::definition::Productions;
 
 //
 // TODOs for this module
@@ -65,26 +66,36 @@ data RSignatureItem
 	| VariableSigItem(RName variableName, Type variableType, loc at)
 	| ADTSigItem(RName adtName, UserType adtType, loc at)
 	| ConstructorSigItem(RName conName, UserType adtType, list[TypeArg] argTypes, loc adtAt, loc at)
+	| ProductionSigItem(Production prod, loc sortAt, loc at)
 	| AnnotationSigItem(RName annName, Type annType, Type onType, loc at)
 	| TagSigItem(RName tagName, TagKind tagKind, list[Symbol] taggedTypes, loc at)
+	| LexicalSigItem(RName sortName, Symbol sort, loc at)
+	| ContextfreeSigItem(RName sortName, Symbol sort, loc at)
+	| KeywordSigItem(RName sortName, Symbol sort, loc at)
+	| LayoutSigItem(RName sortName, Symbol sort, loc at)
 	;
 
 @doc{A module signature, made up of the module name, individual signature items, and imports.}
 data RSignature = rsignature(
 	list[RSignatureItem] datatypes, 
+	list[RSignatureItem] lexicalNonterminals,
+	list[RSignatureItem] contextfreeNonterminals,
+	list[RSignatureItem] keywordNonterminals,
+	list[RSignatureItem] layoutNonterminals,
 	list[RSignatureItem] aliases,
 	list[RSignatureItem] tags,
 	list[RSignatureItem] annotations, 
 	list[RSignatureItem] publicVariables, 
 	list[RSignatureItem] publicFunctions, 
 	list[RSignatureItem] publicConstructors, 
+	list[RSignatureItem] publicProductions,
 	list[RSignatureItem] privateVariables, 
 	list[RSignatureItem] privateFunctions, 
 	RName moduleName, 
 	set[RName] imports);
 
 @doc{Create an empty signature for the given module}
-private RSignature emptySignature(RName forName) = rsignature([],[],[],[],[],[],[],[],[],forName,{}); 
+private RSignature emptySignature(RName forName) = rsignature([],[],[],[],[],[],[],[],[],[],[],[],[],[],forName,{}); 
 
 @doc{Add the items from one signature into another}
 private RSignature mergeSignatures(RSignature target, RSignature source) {
@@ -96,7 +107,13 @@ private RSignature mergeSignatures(RSignature target, RSignature source) {
 	             [publicFunctions = target.publicFunctions + source.publicFunctions]
 	             [publicConstructors = target.publicConstructors + source.publicConstructors]
 	             [privateVariables = target.privateVariables + source.privateVariables]
-	             [privateFunctions = target.privateFunctions + source.privateFunctions];
+	             [privateFunctions = target.privateFunctions + source.privateFunctions]
+	             [lexicalNonterminals = target.lexicalNonterminals + source.lexicalNonterminals]
+	             [contextfreeNonterminals = target.contextfreeNonterminals + source.contextfreeNonterminals]
+	             [keywordNonterminals = target.keywordNonterminals + source.keywordNonterminals]
+	             [layoutNonterminals = target.layoutNonterminals + source.layoutNonterminals]
+	             [publicProductions = target.publicProductions + source.publicProductions]
+	             ;
 }
 
 @doc{Given a tree, representing a module, create the signature for the module.}
@@ -112,16 +129,54 @@ private RSignature createRSignature(Tree t, set[RName] visitedAlready) {
 	if ((Module) `<Header h> <Body b>` := t) {
 		switch(h) {
 			case (Header)`<Tags t> module <QualifiedName n> <Import* i>` :
-				return processModule(convertName(n),i,b);
+				return mergeSignatures(processSyntax(convertName(n),[imp | Import imp <- i]), processModule(convertName(n),i,b));
 
 			case (Header)`<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` :
-				return processModule(convertName(n),i,b);
+				return mergeSignatures(processSyntax(convertName(n),[imp | Import imp <- i]), processModule(convertName(n),i,b));
 
 			default : throw "createRSignature: unexpected module syntax <t>";
 		}
 	} else {
 		throw "createRSignature: unexpected module syntax <t>";
 	}
+}
+
+public RSignature processSyntax(RName name, list[Import] defs) {
+  sig = emptySignature(name);
+  prods = [];
+  
+  for ((Import) `<SyntaxDefinition sd>` <- defs) {
+    rule = rule2prod(sd);
+    
+    for (/pr:prod(_,_,_) <- rule.prods) {
+      prods += ProductionSigItem(pr, sd.defined@\loc, sd@\loc);
+      
+      sym = pr.def is label ? pr.def.symbol : pr.def;
+      
+      switch (sym) {
+        case sort(str name) : 
+          sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(name), sym, sd.defined@\loc)];
+        case lex(str name) : 
+          sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(name), sym, sd.defined@\loc)];
+        case layouts(str name) : 
+          sig.layoutNonterminals += [LayoutSigItem(RSimpleName(name), sym, sd.defined@\loc)];
+        case keywords(str name) : 
+          sig.keywordNonterminals += [KeywordSigItem(RSimpleName(name), sym, sd.defined@\loc)];  
+        case \parameterized-sort(str name, list[Symbol] parameters) : 
+          sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(name), sym, sd.defined@\loc)];
+        case \parameterized-lex(str name, list[Symbol] parameters) : 
+          sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(name), sym, sd.defined@\loc)];
+        case \start(_) : ; // TODO: add support for start non-terminals
+        default: 
+          throw "unexpected non-terminal definition <pr.def>"; 
+      }
+    } 
+  }
+  
+    
+  sig.publicProductions = prods;
+  
+  return sig;   
 }
 
 @doc{Add any imports that are needed, specifically imports for extended modules.}

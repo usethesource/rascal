@@ -61,13 +61,13 @@ public str prettyPrintType(Symbol::\cons(Symbol a, list[Symbol] fs)) = "<prettyP
 public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s> = <prettyPrintType(t)>" when size(ps) == 0;
 public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>] = <prettyPrintType(t)>" when size(ps) > 0;
 public str prettyPrintType(Symbol::\func(Symbol rt, list[Symbol] ps)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])>)";
-//public str prettyPrintType(\var-func(Symbol rt, list[Symbol] ps, Symbol va)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps+va])>...)";
+public str prettyPrintType(\var-func(Symbol rt, list[Symbol] ps, Symbol va)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps+va])>...)";
 public str prettyPrintType(\reified(Symbol t)) = "type[<prettyPrintType(t)>]";
 public str prettyPrintType(\user(RName rn, list[Symbol] ps)) = "<prettyPrintName(rn)>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
 public str prettyPrintType(failure(set[Message] ms)) = "fail"; // TODO: Add more detail?
 public str prettyPrintType(\inferred(int n)) = "inferred(<n>)";
 public str prettyPrintType(\overloaded(set[Symbol] os)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(\o) | \o <- os])>";
-public default str prettyPrintType(Symbol s) { throw "Invalid type to pretty-print: <s>"; }
+//public default str prettyPrintType(Symbol s) = "<type(s,())>";
 
 @doc{Create a new int type.}
 public Symbol makeIntType() = \int();
@@ -196,11 +196,11 @@ public Symbol makeParameterizedAliasType(str n, Symbol t, list[Symbol] params) =
 public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes...) {
 	set[str] labels = { l | \label(l,_) <- paramTypes };
 	if (size(labels) == 0 || size(labels) == size(paramTypes))
-		if (isVarArgs) { 
-			return \var-func(retType, head(paramTypes,size(paramTypes)-1), last(paramTypes));
-		} else {
+		//if (isVarArgs) { 
+		//	return \var-func(retType, head(paramTypes,size(paramTypes)-1), last(paramTypes));
+		//} else {
 			return Symbol::\func(retType, paramTypes);
-		}
+		//}
 	else
 		throw "For function types, either all parameters much be given a distinct label or no parameters should be labeled."; 
 }

@@ -530,11 +530,11 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("[N | /int N <- f(i(1),g(i(2),i(3)))] == [1,2,3];"));
 	}
 	
-	@Test(expected=StaticError.class)
-	public void nodeGeneratorTypeError(){
-		prepare("data TREE = i(int N) | f(TREE a,TREE b) | g(TREE a, TREE b);");
-		assertTrue(runTestInSameEvaluator("[N | int N <- f(i(1),g(i(2),i(3)))] == [];"));
-	}
+//	@Test(expected=StaticError.class)
+//	public void nodeGeneratorTypeError(){
+//		prepare("data TREE = i(int N) | f(TREE a,TREE b) | g(TREE a, TREE b);");
+//		assertTrue(runTestInSameEvaluator("[N | int N <- f(i(1),g(i(2),i(3)))] == [];"));
+//	}
 	
 	@Test public void regularGenerators() {
 		

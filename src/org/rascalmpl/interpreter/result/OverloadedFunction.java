@@ -17,9 +17,12 @@ package org.rascalmpl.interpreter.result;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -28,15 +31,16 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
+import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
 public class OverloadedFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -65,6 +69,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
 	public OverloadedFunction(AbstractFunction function) {
 		super(function.getType(), null, function.getEval());
+		
 		this.name = function.getName();
 
 		this.primaryCandidates = new ArrayList<AbstractFunction>(1);
@@ -82,6 +87,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
 	public OverloadedFunction(String name, List<AbstractFunction> funcs) {
 		super(lub(funcs), null, funcs.iterator().next().getEval());
+
 		this.name = name;
 
 		this.primaryCandidates = new ArrayList<AbstractFunction>(1);
@@ -91,6 +97,31 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		addAll(defaultCandidates, funcs, false);
 
 		this.isStatic = checkStatic(funcs);
+	}
+	
+	private OverloadedFunction(String name, Type type, List<AbstractFunction> candidates, List<AbstractFunction> defaults, boolean isStatic, IEvaluatorContext ctx) {
+		super(type, null, ctx);
+		this.name = name;
+		this.primaryCandidates = candidates;
+		this.defaultCandidates = defaults;
+		this.isStatic = isStatic;
+	}
+	
+	
+	@Override
+	public OverloadedFunction cloneInto(Environment env) {
+		List<AbstractFunction> newCandidates = new ArrayList<>();
+		for (AbstractFunction f: primaryCandidates) {
+			newCandidates.add((AbstractFunction) f.cloneInto(env));
+		}
+		
+		List<AbstractFunction> newDefaultCandidates = new ArrayList<>();
+		for (AbstractFunction f: defaultCandidates) {
+			newDefaultCandidates.add((AbstractFunction) f.cloneInto(env));
+		}
+		OverloadedFunction of = new OverloadedFunction(name, getType(), newCandidates, newDefaultCandidates, isStatic, ctx);
+		of.setPublic(isPublic());
+		return of;
 	}
 
 	/**
@@ -233,29 +264,42 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	private static Type lub(List<AbstractFunction> candidates) {
-		Type lub = TF.voidType();
-
-		for (AbstractFunction l : candidates) {
-			lub = lub.lub(l.getType());
+		Set<FunctionType> alternatives = new HashSet<FunctionType>();
+		Iterator<AbstractFunction> iter = candidates.iterator();
+		if(!iter.hasNext()) {
+			return TF.voidType();
+		}
+		FunctionType first = iter.next().getFunctionType();
+		Type returnType = first.getReturnType();
+		alternatives.add(first);
+		
+		AbstractFunction l = null;
+		while(iter.hasNext()) {
+			l = iter.next();
+			if(l.getFunctionType().getReturnType() == returnType) {
+				alternatives.add(l.getFunctionType());
+			} else {
+				return TF.valueType();
+			}
 		}
 
-		return lub;
+		return RascalTypeFactory.getInstance().overloadedFunctionType(alternatives);
 	}
 
-	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
-			IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
-		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
-		try {
-			return call(argTypes, argValues, keyArgValues);
-		}
-		finally {
-			ctx.getEvaluator().setMonitor(old);
-		}
-	}
+	 @Override
+   public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues,
+       Map<String, IValue> keyArgValues) {
+    IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
+     try {
+       return call(argTypes, argValues, keyArgValues);
+     }
+     finally {
+       ctx.getEvaluator().setMonitor(old);
+     }
+   }
 
 	@Override 
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues, keyArgValues, defaultCandidates.size() <= 0);
 
 		if (result == null && defaultCandidates.size() > 0) {
@@ -263,16 +307,13 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		}
 
 		if (result == null) {
-			List<AbstractFunction> all = new ArrayList<AbstractFunction>(primaryCandidates.size() + defaultCandidates.size());
-			all.addAll(primaryCandidates);
-			all.addAll(defaultCandidates);
-			throw new ArgumentsMismatch(name, all, argTypes, ctx.getCurrentAST());
+			throw new MatchFailed();
 		}
 
 		return result;
 	}
 
-	private static Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues, boolean mustSucceed) {
+	private static Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues, boolean mustSucceed) {
 		AbstractFunction failed = null;
 		Failure failure = null;
 
@@ -370,7 +411,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitExternal(this);
 	}
 

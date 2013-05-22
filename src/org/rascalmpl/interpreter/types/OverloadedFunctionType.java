@@ -17,13 +17,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
-public class OverloadedFunctionType extends ExternalType {
+public class OverloadedFunctionType extends RascalType {
 	private final Set<FunctionType> alternatives;
 	private final Type returnType;
+	
+	private static final TypeFactory TF = TypeFactory.getInstance();
+	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 
 	/*package*/ OverloadedFunctionType(Set<FunctionType> alternatives) {
 		this.alternatives = alternatives;
@@ -38,76 +40,136 @@ public class OverloadedFunctionType extends ExternalType {
 		return returnType;
 	}
 	
+	@Override
+	public <T, E extends Throwable> T accept(IRascalTypeVisitor<T, E> visitor) throws E {
+	  return visitor.visitOverloadedFunction(this);
+	}
+	
+	@Override
+	protected boolean isSupertypeOf(RascalType type) {
+	  return type.isSubtypeOfOverloadedFunction(this);
+	}
+	
+	@Override
+	protected Type lub(RascalType type) {
+	  return type.lubWithOverloadedFunction(this);
+	}
+	
+	@Override
+	protected Type glb(RascalType type) {
+	  return type.glbWithOverloadedFunction(this);
+	}
+	
 	public Set<FunctionType> getAlternatives() {
 		return Collections.unmodifiableSet(alternatives);
 	}
 	
 	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other == this) {
-			return true;
-		}
-		
-		if (other instanceof OverloadedFunctionType) {
-			OverloadedFunctionType of = (OverloadedFunctionType) other;
+	protected boolean isSubtypeOfOverloadedFunction(RascalType type) {
+	  OverloadedFunctionType of = (OverloadedFunctionType) type;
 
-			// if this has at least one alternative that is a sub-type of the other, 
-			// then yes, this function can act as the other and should be a sub-type
-			for (FunctionType a : of.alternatives) {
-				if (this.isSubtypeOf(a)) {
-					return true;
-				}
-			}
-			
-			return false;
-		}
-		
-		if (other instanceof FunctionType) {
-			for (FunctionType a : alternatives) {
-				if (a.isSubtypeOf(other)) {
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		return super.isSubtypeOf(other);
+	  // if this has at least one alternative that is a sub-type of the other, 
+	  // then yes, this function can act as the other and should be a sub-type
+	  
+	  // TODO: this is broken because of defaults. We should distinguish!
+	  for(FunctionType f : getAlternatives()) {
+	    if(f.isSubtypeOf(of)) {
+	      return true;
+	    }
+	  }
+	  
+	  for(FunctionType f : of.getAlternatives()) {
+		  if(!this.isSubtypeOf(f)) {
+			  return false;
+		  }
+	  }
+
+	  return true;
 	}
 	
 	@Override
-	public Type lub(Type other) {
-		if (other == this) {
-			return this;
-		}
-		
-		if (other instanceof OverloadedFunctionType) {
-			OverloadedFunctionType of = (OverloadedFunctionType) other;
-			
-			if (of.getReturnType() != getReturnType()) {
-				return TypeFactory.getInstance().valueType();
-			}
-			
-			Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
-			newAlternatives.addAll(alternatives);
-			newAlternatives.addAll(of.alternatives);
-			return RascalTypeFactory.getInstance().overloadedFunctionType(newAlternatives);
-		}
-		
-		if (other instanceof FunctionType) {
-			FunctionType f = (FunctionType) other;
-			
-			if (getReturnType() != f.getReturnType()) {
-				return TypeFactory.getInstance().valueType();
-			}
-			
-			Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
-			newAlternatives.addAll(alternatives);
-			newAlternatives.add(f);
-			return RascalTypeFactory.getInstance().overloadedFunctionType(newAlternatives);
+	protected boolean isSubtypeOfFunction(RascalType type) {
+	// TODO: this is broken because of defaults. We should distinguish!
+	  
+	  for (FunctionType a : alternatives) {
+	    if (a.isSubtypeOf(type)) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
+	
+	@Override
+	protected Type lubWithOverloadedFunction(RascalType type) {		
+	  if(this == type) {
+	    return this;
+	  }
+	  
+	  OverloadedFunctionType of = (OverloadedFunctionType) type;
 
-		}
+	  Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+	  
+	  for(FunctionType f : getAlternatives()) {
+		  for(FunctionType g : of.getAlternatives()) {
+			  Type lub = f.lubWithFunction(g);
+			  if(lub instanceof FunctionType)
+				  newAlternatives.add((FunctionType)lub);
+		  }
+	  }
+	  
+	  if(!newAlternatives.isEmpty())
+		  return RTF.overloadedFunctionType(newAlternatives);
+	  
+	  return TF.valueType();
+	}
 		
-		return super.lub(other);
+	@Override
+	protected Type lubWithFunction(RascalType type) {
+	  FunctionType f = (FunctionType) type;
+
+	  Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+	  newAlternatives.add(f);
+	  
+	  return this.lubWithOverloadedFunction((RascalType)RTF.overloadedFunctionType(newAlternatives));
+	}
+	
+	@Override
+	protected Type glbWithOverloadedFunction(RascalType type) {
+	  if(this == type) {
+		return this;
+	  }
+		  
+	  OverloadedFunctionType of = (OverloadedFunctionType) type;
+		  
+	  Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+	  
+	  if(getReturnType() == of.getReturnType()) {
+	    newAlternatives.addAll(getAlternatives());
+	    newAlternatives.addAll(of.getAlternatives());
+	    return RTF.overloadedFunctionType(newAlternatives);
+	  }
+	  
+	  Type returnType = getReturnType().glb(of.getReturnType());
+		  
+	  for(FunctionType f : getAlternatives()) {
+	      newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes()));
+	  }
+		  
+	  for(FunctionType f : of.getAlternatives()) {
+		  newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes()));
+	  }
+		  
+	  return RTF.overloadedFunctionType(newAlternatives);
+	}
+
+	@Override
+	protected Type glbWithFunction(RascalType type) {
+	  FunctionType f = (FunctionType) type;
+
+	  Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+	  newAlternatives.add(f);
+		  
+	  return this.glbWithOverloadedFunction((RascalType)RTF.overloadedFunctionType(newAlternatives));
 	}
 	
 	@Override
@@ -134,20 +196,21 @@ public class OverloadedFunctionType extends ExternalType {
 	
 	@Override
 	public Type compose(Type right) {
-		if(right.isVoidType())
+		if (right.isBottom()) {
 			return right;
+		}
 		Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
 		if(right instanceof FunctionType) {
 			for(FunctionType ftype : this.alternatives) {
-				if(TypeFactory.getInstance().tupleType(((FunctionType) right).getReturnType()).isSubtypeOf(ftype.getArgumentTypes())) {
-					newAlternatives.add((FunctionType) RascalTypeFactory.getInstance().functionType(ftype.getReturnType(), ((FunctionType) right).getArgumentTypes()));
+				if(TF.tupleType(((FunctionType) right).getReturnType()).isSubtypeOf(ftype.getArgumentTypes())) {
+					newAlternatives.add((FunctionType) RTF.functionType(ftype.getReturnType(), ((FunctionType) right).getArgumentTypes()));
 				}
 			}
 		} else if(right instanceof OverloadedFunctionType) {
 			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
 				for(FunctionType gtype : this.alternatives) {
-					if(TypeFactory.getInstance().tupleType(ftype.getReturnType()).isSubtypeOf(gtype.getArgumentTypes())) {
-						newAlternatives.add((FunctionType) RascalTypeFactory.getInstance().functionType(gtype.getReturnType(), ftype.getArgumentTypes()));
+					if(TF.tupleType(ftype.getReturnType()).isSubtypeOf(gtype.getArgumentTypes())) {
+						newAlternatives.add((FunctionType) RTF.functionType(gtype.getReturnType(), ftype.getArgumentTypes()));
 					}
 				}
 			}
@@ -155,8 +218,8 @@ public class OverloadedFunctionType extends ExternalType {
 			throw new IllegalOperationException("compose", this, right);
 		}
 		if(!newAlternatives.isEmpty()) 
-			return RascalTypeFactory.getInstance().overloadedFunctionType(newAlternatives);
-		return TypeFactory.getInstance().voidType();
+			return RTF.overloadedFunctionType(newAlternatives);
+		return TF.voidType();
 	}
 
 }

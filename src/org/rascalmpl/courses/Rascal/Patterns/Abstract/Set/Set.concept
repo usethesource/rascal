@@ -12,29 +12,46 @@ Details:
 
 Description:
 
-A set pattern matches a set value, provided that $Pat_1$, $Pat_2$, ..., $Pat_n$ match the elements of that set in __any__ order
+A set pattern matches a set value (the subject), provided that $Pat_1$, $Pat_2$, ..., $Pat_n$ match the elements of that set in __any__ order
 (recall that the elements of a set are unordered and do not contain duplicates).
-Completely analogous to list patterns, there are two special cases when one of the patterns $Pat_i$ is
+Completely analogous to list patterns, there are special cases when one of the patterns $Pat_i$ is
 
-* a variable declaration pattern with a set type that is identical to the type of the set that is being matched.
+# a [VariableDeclaration] pattern with a type that is identical to the element type of the subject set: the variable is matched with one value  in the subject set.
 
-* a variable pattern, where the variable has been declared, but not initialized, outside the pattern with a set type that is identical to the type of the set that is being matched.
+# a [MultiVariable] pattern, with an optional element type that is identical to the element type of the subject set: set matching is applied and the variable can match an arbitrary number (in arbitrary order) of elements of the subject set.
+
+# a [$Abstract/Variable] pattern, where the variable has been declared with a set type, but not initialized, outside the pattern: set matching is applied and the variable can match an arbitrary number (in arbitrary order) of elements of the subject set.
+
+# a [$Abstract/Variable] pattern, where the variable has been declared with a type equal to the element type of the subject, but not initialized, outside the pattern: the variable is matched with one value in the subject set.
 
 
-In both cases set matching is applied and the variable can match an arbitrary number (in arbitrary order!) of elements of the subject set.
+
 
 Examples:
 
 <screen>
 import IO;
-if({10, set[int] S, 50} := {50, 40, 30, 20, 10})
+
+// 1. A single variable
+if({10, 30, 40, 50, int N} := {10, 20, 30, 40, 50})
+   println("Match succeeded, N = <N>");
+// 2. An untyped multi-variable:
+if({10, *S, 50} := {50, 40, 30, 20, 10})
    println("Match succeeded, S = <S>");
-// Using a [MultiVariable] this can be abbreviated to:
-if({10, S*, 50} := {50, 40, 30, 20, 10})
+// 2. A typed multi-variable:
+if({10, *int S, 50} := {50, 40, 30, 20, 10})
    println("Match succeeded, S = <S>");
 // Here we see an example, where all possible splits of a set in two subsets are printed:
-for({S1*, S2*} :={30, 20, 10})
+for({*S1, *S2} :={30, 20, 10})
     println("<S1> and <S2>");
+// 3. Already declared set variable:
+set[int] S;
+if({10, S, 50} := {10, 20, 30, 40, 50})
+   println("Match succeeded, S = <S>");
+// 4. Already declared element variable:
+int N;
+if({10, N, 30, 40, 50} := {50, 40, 30, 20, 10})
+   println("Match succeeded, N = <N>");
 </screen>
 
 Benefits:

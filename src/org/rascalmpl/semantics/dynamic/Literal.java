@@ -65,7 +65,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			return TF.boolType();
 		}
 
@@ -85,7 +85,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			return TF.dateTimeType();
 		}
 
@@ -108,7 +108,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			return TF.integerType();
 		}
 
@@ -128,7 +128,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			return TF.sourceLocationType();
 		}
 
@@ -159,7 +159,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			return TF.realType();
 		}
 	}
@@ -184,7 +184,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			return TF.rationalType();
 		}
 	}
@@ -212,7 +212,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			return TF.stringType();
 		}
 
@@ -235,7 +235,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 			Statement stat = new StringTemplateConverter().convert(lit);
 			Result<IValue> value = stat.interpret(__eval);
-			if (!value.getType().isListType()) {
+			if (!value.getType().isList()) {
 				throw new ImplementationError(
 						"template eval returns non-list");
 			}
@@ -255,7 +255,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			return TF.stringType();
 		}
 

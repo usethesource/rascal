@@ -44,7 +44,7 @@ public abstract class SyntaxDefinition extends
 			
 			if (type.isNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-				eval.getCurrentEnvt().concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Sort.make(vf, vf.string(nt)));
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Sort, vf.string(nt)));
 			}
 			
 			eval.getCurrentModuleEnvironment().declareProduction(getTree());
@@ -72,7 +72,7 @@ public abstract class SyntaxDefinition extends
       
       if (type.isNonterminal()) {
         String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-        eval.getCurrentEnvt().concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Sort.make(vf, vf.string(nt)));
+        eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Sort, vf.string(nt)));
       }
       
       eval.getCurrentModuleEnvironment().declareProduction(getTree());
@@ -101,7 +101,7 @@ public abstract class SyntaxDefinition extends
       
       if (type.isNonterminal()) {
         String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-        eval.getCurrentEnvt().concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Sort.make(vf, vf.string(nt)));
+        eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Sort, vf.string(nt)));
       }
       
       eval.getCurrentModuleEnvironment().declareProduction(getTree());
@@ -129,7 +129,7 @@ public abstract class SyntaxDefinition extends
 			
 			if (type.isNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-				eval.getCurrentEnvt().concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Keyword.make(vf, vf.string(nt)));
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Keyword, vf.string(nt)));
 			}
 			
 			eval.getCurrentModuleEnvironment().declareProduction(getTree());

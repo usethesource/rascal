@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
@@ -74,7 +73,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		this.vf = eval.getValueFactory();
 	}
 
-	
 	public boolean isTest() {
 		return false;
 	}
@@ -156,15 +154,15 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
-		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
-		try {
-			return call(argTypes, argValues, keyArgValues);
-		}
-		finally {
-			ctx.getEvaluator().setMonitor(old);
-		}
-	}
+  public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,  IValue[] argValues, Map<String, IValue> keyArgValues) {
+    IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
+    try {
+      return call(argTypes,argValues,  keyArgValues);
+    }
+    finally {
+      ctx.getEvaluator().setMonitor(old);
+    }
+  }
 	
 	private boolean matchVarArgsFunction(Type actuals) {
 		int arity = getFormals().getArity();
@@ -340,7 +338,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 
 	@Override
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitExternal(this);
 	}
 
@@ -448,7 +446,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public int hashCode() {
-		return 7 + declarationEnvironment.hashCode() * 17 + ast.hashCode() * 23;
+		return 7 + (declarationEnvironment != null ? declarationEnvironment.hashCode() * 17: 17) + (ast != null ? ast.hashCode() * 23 : 23);
 	}
 	
 	@Override
@@ -467,6 +465,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	public boolean hasResourceScheme() {
+		return false;
+	}
+	
+	public String getResolverScheme() {
+		return null;
+	}
+	
+	public boolean hasResolverScheme() {
 		return false;
 	}
 

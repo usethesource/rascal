@@ -95,7 +95,7 @@ public class Cobra {
 				int _maxDepth, _tries;
 
 				_maxDepth = getAnnotation(eval, f, Cobra.MAXDEPTH, maxDepth, 5);
-				_tries = getAnnotation(eval, f, Cobra.TRIES, tries, 100);
+				_tries = getAnnotation(eval, f, Cobra.TRIES, tries, 5);
 
 				result = result
  && quickcheck.quickcheck(f, _maxDepth, _tries, maxVerbose.getValue(), out);
@@ -162,7 +162,7 @@ public class Cobra {
 
 	private boolean isReturnTypeBool(List<AbstractFunction> functions) {
 		for(AbstractFunction f: functions){
-			if (!f.getReturnType().isBoolType()) {
+			if (!f.getReturnType().isBool()) {
 				return false;
 			}
 		}

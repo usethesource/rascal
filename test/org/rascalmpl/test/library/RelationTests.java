@@ -162,5 +162,18 @@ public class RelationTests extends TestFramework {
 		// assertTrue(runTestInSameEvaluator("rangeX({<1,10,100,1000,10000>,<2,20,200,2000,20000>}) == {<10,100,1000,10000>,<20,200,2000,20000>};"));
 
 	}
+	
+	// Tests related to the correctness of the dynamic types of relations produced by the library functions;
+	// incorrect dynamic types make pattern matching fail;
+
+	@Test
+	public void testDynamicTypes() {
+		assertTrue(runTestInSameEvaluator("{ rel[value, value] sr = {<\"1\",\"1\">,<2,2>,<3,3>}; rel[int, int] _ := sr - <\"1\",\"1\">; }"));
+		assertTrue(runTestInSameEvaluator("{ rel[value a, value b] sr = {<\"1\",\"1\">,<2,2>,<3,3>}; rel[int, int] _ := sr - {<\"1\",\"1\">} && (sr - {<\"1\",\"1\">}).a == {2,3} && (sr - {<\"1\",\"1\">}).b == {2,3}; }"));
+		assertTrue(runTestInSameEvaluator("{ {<\"1\",\"1\">, *tuple[int,int] _} := {<\"1\",\"1\">,<2,2>,<3,3>}; }"));
+		
+		assertTrue(runTestInSameEvaluator("{ rel[value a, value b] sr1 = {<\"1\",\"1\">,<2,2>,<3,3>}; rel[value a, value b] sr2 = {<2,2>,<3,3>}; rel[int, int] _ := sr1 & sr2 && (sr1 & sr2).a == {2,3} && (sr2 & sr1).b == {2,3}; }"));
+	}
+
 
 }

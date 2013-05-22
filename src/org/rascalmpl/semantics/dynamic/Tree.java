@@ -11,11 +11,13 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -57,7 +59,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Type typeOf(Environment env) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 		return type;
 	}
 	
@@ -103,6 +105,11 @@ public abstract class Tree {
 		this.args = args;
 		this.constant = false; // TODO! isConstant(args);
 		this.node = this.constant ? node : null;
+		ISourceLocation src = TreeAdapter.getLocation(node);
+		
+		if (src != null) {
+		  this.setSourceLocation(src);
+		}
 	}
 
 	public IConstructor getProduction() {
@@ -115,7 +122,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Type typeOf(Environment env) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 		return type;
 	}
 	
@@ -131,7 +138,16 @@ public abstract class Tree {
 			w.append(arg.interpret(eval).getValue());
 		}
 		
-		return makeResult(type, Factory.Tree_Appl.make(eval.getValueFactory(), production, w.done()), eval);
+		ISourceLocation location = getLocation();
+		
+		if (location != null) {
+		  java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
+		  annos.put("loc", location);
+		  return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, annos, production, w.done()), eval);
+		}
+		else {
+		  return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, production, w.done()), eval);
+		}
 	}
 	
 	@Override
@@ -220,7 +236,16 @@ public abstract class Tree {
 			w.append(arg.interpret(eval).getValue());
 		}
 		
-		return makeResult(type, Factory.Tree_Appl.make(eval.getValueFactory(), production, flatten(w.done())), eval);
+		ISourceLocation location = getLocation();
+    
+    if (location != null) {
+      java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
+      annos.put("loc", location);
+      return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, annos, production, flatten(w.done())), eval);
+    }
+    else {
+      return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, production, flatten(w.done())), eval);
+    }
 	}
 
 	private void appendPreviousSeparators(IList args, IListWriter result, int delta, int i, boolean previousWasEmpty) {
@@ -232,7 +257,7 @@ public abstract class Tree {
 	}
 
 	private IList flatten(IList args) {
-		IListWriter result = Factory.Args.writer(VF);
+		IListWriter result = VF.listWriter(Factory.Args.getElementType());
 		boolean previousWasEmpty = false;
 		
 		for (int i = 0; i < args.length(); i+=(delta+1)) {
@@ -294,11 +319,11 @@ public abstract class Tree {
 		for (org.rascalmpl.ast.Expression a : alts) {
 			w.insert(a.interpret(eval).getValue());
 		}
-		return makeResult(type, Factory.Tree_Amb.make(eval.getValueFactory(), (IValue) w.done()), eval);
+		return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Amb, (IValue) w.done()), eval);
 	}
 	
 	@Override
-	public Type typeOf(Environment env) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 		return type;
 	}
 	
@@ -347,7 +372,7 @@ public abstract class Tree {
 	  }
 
 	  @Override
-	  public Type typeOf(Environment env) {
+	  public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 		  return Factory.Tree;
 	  }
   }
@@ -364,16 +389,16 @@ public abstract class Tree {
 
 	  @Override
 	  public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-		  return makeResult(Factory.Tree, Factory.Tree_Cycle.make(VF, node, VF.integer(length)), eval);
+		  return makeResult(Factory.Tree, VF.constructor(Factory.Tree_Cycle, node, VF.integer(length)), eval);
 	  }
 
 	  @Override
 	  public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-		  return new LiteralPattern(eval, this,  Factory.Tree_Cycle.make(VF, node, VF.integer(length)));
+		  return new LiteralPattern(eval, this, VF.constructor(Factory.Tree_Cycle, node, VF.integer(length)));
 	  }
 
 	  @Override
-	  public Type typeOf(Environment env) {
+	  public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 		  return Factory.Tree;
 	  }
   }

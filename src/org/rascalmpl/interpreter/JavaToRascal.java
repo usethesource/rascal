@@ -156,15 +156,15 @@ public class JavaToRascal {
 
 	public Object eval(String command, String scheme) {
 		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme(scheme));
-		if (result.getType().isBoolType())
+		if (result.getType().isBool())
 			return new Boolean(((IBool) (result.getValue())).getValue());
-		if (result.getType().isIntegerType())
+		if (result.getType().isInteger())
 			return new Integer(((IInteger) (result.getValue())).intValue());
-		if (result.getType().isStringType())
+		if (result.getType().isString())
 			return ((IString) (result.getValue())).getValue();
-		if (result.getType().isVoidType())
+		if (result.getType().isBottom())
 			return null;
-		if (result.getType().isListType()) {
+		if (result.getType().isList()) {
 			return _listValue((IList) (result.getValue()));
 		}
 		return result;
@@ -252,15 +252,15 @@ public class JavaToRascal {
 	}
 
 	private Object javaObject(IValue v) {
-		if (v.getType().isBoolType())
+		if (v.getType().isBool())
 			return new Boolean(((IBool) v).getValue());
-		if (v.getType().isIntegerType())
+		if (v.getType().isInteger())
 			return new Integer(((IInteger) v).intValue());
-		if (v.getType().isStringType())
+		if (v.getType().isString())
 			return ((IString) v).getValue();
-		if (v.getType().isRealType())
+		if (v.getType().isReal())
 			return new Double(((IReal) v).doubleValue());
-		if (v.getType().isListType())
+		if (v.getType().isList())
 			return _listValue((IList) v);
 		return null;
 	}

@@ -40,9 +40,18 @@ public class DynamicGenerator extends AbstractFunction {
 						TypeFactory.getInstance().integerType()), false, null, env);
 		this.generators = generators;
 	}
+	
+	@Override
+	public DynamicGenerator cloneInto(Environment env) {
+		HashMap<Type, ICallableValue> newGens = new HashMap<>();
+		for (Type t: generators.keySet()) {
+			newGens.put(t, generators.get(t).cloneInto(env));
+		}
+		return new DynamicGenerator(eval, getReturnType(), env, newGens);
+	}
 
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		Type returnType = getReturnType();
 		Type instantiatedReturnType = returnType.instantiate(ctx
 				.getCurrentEnvt().getTypeBindings());

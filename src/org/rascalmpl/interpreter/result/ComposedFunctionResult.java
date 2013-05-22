@@ -14,6 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
@@ -22,12 +24,13 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 
 public class ComposedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
@@ -65,7 +68,22 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 			this.isStatic = left.isStatic() && right.isStatic();
 		}
 
+	@SuppressWarnings("unchecked")
+	private ComposedFunctionResult(ICallableValue left, ICallableValue right, Type type, IEvaluatorContext ctx) {
+		super(type, null, ctx);
+		this.left = (Result<IValue>) left;
+		this.right = (Result<IValue>) right;
+		this.type = type;
+		this.isStatic = left.isStatic() && right.isStatic();
+	}
 	
+	
+	@Override
+	public ComposedFunctionResult cloneInto(Environment env) {
+		return new ComposedFunctionResult(((ICallableValue)left).cloneInto(env), 
+				((ICallableValue)right).cloneInto(env), type, ctx);
+	}
+
 	public boolean isNonDeterministic() {
 		return false;
 	}
@@ -99,23 +117,23 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 	
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
-			IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
-		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
-		try {
-			return call(argTypes, argValues, null);
-		}
-		finally {
-			ctx.getEvaluator().setMonitor(old);
-		}
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues,
+	    Map<String, IValue> keyArgValues) {
+	  IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
+	  try {
+	    return call(argTypes, argValues, keyArgValues);
+	  }
+	  finally {
+	    ctx.getEvaluator().setMonitor(old);
+	  }
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
-		Result<IValue> rightResult = right.call(argTypes, argValues, null);
-		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, null);
-	}
-
+  public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
+    Result<IValue> rightResult = right.call(argTypes, argValues, null);
+    return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, keyArgValues);
+  }
+	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> right) {
 		return right.addFunctionNonDeterministic(this);
@@ -157,7 +175,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 
 	
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitExternal(this);
 	}
 
@@ -195,27 +213,25 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		}
 				
 		@Override
-		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
+		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 			Failure f1 = null;
-			ArgumentsMismatch e1 = null;
 			try {
 				try {
-					return getRight().call(argTypes, argValues, null);
-				} catch(ArgumentsMismatch e) {
+					return getRight().call(argTypes, argValues, keyArgValues);
+				} catch(MatchFailed e) {
 					// try another one
-					e1 = e;
 				} catch(Failure e) {
 					// try another one
-					f1 = e;
 				}
-				return getLeft().call(argTypes, argValues, null);
-			} catch(ArgumentsMismatch e2) {
-				throw new ArgumentsMismatch(
-						"The called signature does not match signatures in the '+' composition:\n" 
-							+ ((e1 != null) ? (e1.getMessage() + e2.getMessage()) : e2.getMessage()), ctx.getCurrentAST());
-			} catch(Failure f2) {
+		 		return getLeft().call(argTypes, argValues, keyArgValues);
+			} 
+			catch (MatchFailed e) {
+				List<AbstractFunction> candidates = Arrays.<AbstractFunction>asList((AbstractFunction) getLeft(), (AbstractFunction) getRight());
+        throw new ArgumentsMismatch("+ composition", candidates, argTypes, ctx.getCurrentAST());
+			} 
+			catch(Failure f2) {
 				throw new Failure("Both functions in the '+' composition have failed:\n " 
-									+ ((f1 != null) ? f1.getMessage() + f2.getMessage() : f2.getMessage()));
+									+ getLeft().toString() + ",\n" + getRight().toString());
 			}
 		}
 		
@@ -230,5 +246,5 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	public boolean hasKeywordArgs() {
 		return false;
 	}
-	
+
 }

@@ -156,6 +156,14 @@ public class MapTests extends TestFramework {
 	public void mapExpressions() {
 		assertTrue(runTest("{ value n = 1; value s = \"string\"; map[int, int] _ := ( n : n ) && map[str, str] _ := ( s : s ) && map[int, str] _ := ( n : s ); }"));
 	}
+	
+	// Tests related to the correctness of the dynamic types of maps produced by the library functions;
+	// incorrect dynamic types make pattern matching fail;
 
+	@Test
+	public void testDynamicTypes() {
+		assertTrue(runTestInSameEvaluator("{ map[value a, value b] m = (\"1\":\"1\",2:2,3:3); map[int, int] _ := m - (\"1\":\"1\") && (m - (\"1\":\"1\")).a == {2,3} && (m - (\"1\":\"1\")).b == {2,3}; }"));
+		assertTrue(runTestInSameEvaluator("{ map[value a, value b] m1 = (\"1\":\"1\",2:2,3:3); map[value a, value b] m2 = (2:2,3:3); map[int, int] _ := m1 & m2 && (m1 & m2).a == {2,3} && (m2 & m1).b == {2,3}; }"));
+	}
 
 }

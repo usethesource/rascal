@@ -16,16 +16,16 @@ BIND bind(\parameter(name, t1), Symbol s) = <true, (name : s)>;
 BIND bind(\list(Symbol s), \list(Symbol t)) = bind(s, t); 
 BIND bind(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = bindList(l, r);
 
-BIND bind(\list(Symbol s), \lrel(list[Symbol] r)) = (s == \void()) ? <true, ()> : bind(s, (size(r) == 1) ? r[0] : \tuple(r));
-BIND bind(\lrel(list[Symbol] l), \list(Symbol r)) = (r == \void()) ? <true, ()> : bind((size(l) == 1) ? l[0] : \tuple(l), r);
+BIND bind(\list(Symbol s), \lrel(list[Symbol] r)) = (s == \void()) ? <true, ()> : bind(s, /*(size(r) == 1) ? r[0] : */\tuple(r));
+BIND bind(\lrel(list[Symbol] l), \list(Symbol r)) = (r == \void()) ? <true, ()> : bind(/*(size(l) == 1) ? l[0] : */\tuple(l), r);
 
 // set and rel
 
 BIND bind(\set(Symbol s), \set(Symbol t)) = bind(s, t);
 BIND bind(\rel(list[Symbol] l), \rel(list[Symbol] r)) = bindList(l, r);
 
-BIND bind(\set(Symbol s), \rel(list[Symbol] r)) = (s == \void()) ? <true, ()> : bind(s, (size(r) == 1) ? r[0] : \tuple(r));
-BIND bind(\rel(list[Symbol] l), \set(Symbol r)) = (r == \void()) ? <true, ()> : bind((size(l) == 1) ? l[0] : \tuple(l), r);
+BIND bind(\set(Symbol s), \rel(list[Symbol] r)) = (s == \void()) ? <true, ()> : bind(s, /*(size(r) == 1) ? r[0] : */\tuple(r));
+BIND bind(\rel(list[Symbol] l), \set(Symbol r)) = (r == \void()) ? <true, ()> : bind(/*(size(l) == 1) ? l[0] :*/ \tuple(l), r);
 
 BIND bind(\tuple(t1), \tuple(t2)) = bindList(t1, t2);
 
@@ -73,7 +73,7 @@ map[str, Symbol] merge(map[str, Symbol] lbindings, map[str,Symbol] rbindings){
 
 Symbol normalize(Symbol s1, map[str, Symbol] bindings){
   s2 = visit(s1){ case parameter(p1,t1) => bindings[p1] ? \void() };
-  s3 =  visit(s2){ case LUB(t1, t2) => lub(t1, t2) };
+  s3 = visit(s2){ case LUB(t1, t2) => lub(t1, t2) };
   s4 = visit(s3){
    	case \list(\tuple(t)) => \lrel(t)
    	case \list(\void())   => \lrel([\void()])
@@ -81,7 +81,7 @@ Symbol normalize(Symbol s1, map[str, Symbol] bindings){
    	case \set(\void())    => \rel([\void()])
    };
    
-//   println("normalize: <s1>, <bindings> ==\> <s4>");
+   //println("normalize: <s1>, <bindings> ==\> <s4>");
    return s4;
 }
 
@@ -100,16 +100,47 @@ value escape(value v){
    return v;
 }
 
-/*
-value escape(value v){
-   if(str s := v){
-    return "\"" + escape(s, 
-	     ("\<" : "\\\\\<",
-	     "\>" :"\\\>",
-	     "\"/" : "\\\\\"",
-	     "\'" : "\\\\\'",
-	     "\\" : "\\\\\\")) + "\"";
-   }
-   return v;
+bool validate(str tname, str input, Symbol actualType, Symbol expectedType, str descr){
+  if(subtype(actualType, expectedType))
+     return true;
+  if(descr != "") descr = " --- " + descr;
+  println("[<tname>] *** Failed test for: <input><descr>\nexpectedType: <expectedType>, actualType: <actualType>\n");
+  return false;
 }
-*/
+
+bool invalid(str tname, str input, Symbol actualType, Symbol expectedType, str descr){
+  if(descr != "") descr = " --- " + descr;
+  if(subtype(actualType, expectedType)){
+     println("[<tname>] *** Failed test for: <input><descr>\nexpectedType: <expectedType>, actualType: <actualType>\n");
+     return false;
+  }   
+  return true;
+}
+
+bool validate(str tname, str input, Symbol actualType, Symbol expectedType, value arg1, value arg2, str descr){
+  if(subtype(actualType, expectedType))
+     return true;
+  if(descr != "") descr = " --- " + descr;
+  println("[<tname>] *** Failed test for: <input><descr>\narg1=<arg1>, arg2=<arg2>\nexpectedType: <expectedType>, actualType: <actualType>\n");
+  return false;
+}
+
+bool validate(str tname, str input, Symbol actualType, Symbol expectedType, value arg1, str descr){
+  if(subtype(actualType, expectedType))
+     return true;
+  if(descr != "") descr = " --- " + descr;
+  println("[<tname>] *** Failed test for: <input><descr>\narg1=<arg1>\nexpectedType: <expectedType>, actualType: <actualType>\n");
+  return false;
+}
+
+str buildStatements(str txt, map[str, tuple[type[&T] tp, value val]] env){
+   //println("buildStatements: <txt>, <env>");
+   for(id <- env){
+      //println(" tp = <env[id].tp>");
+      txt = replaceAll(txt, "_X<id>", "X<id>");
+      txt = replaceAll(txt, "_T<id>", "<env[id].tp>");
+      txt = replaceAll(txt, "_V<id>", "<escape(env[id].val)>");
+   }
+   // println("buildStatements =\> <txt>");
+   return txt;              
+}

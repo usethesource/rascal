@@ -35,7 +35,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.LocationLiteral;
 import org.rascalmpl.ast.Module;
@@ -69,6 +68,7 @@ import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
@@ -129,7 +129,7 @@ public abstract class Import {
 				// Invoke the importer, which should generate the text of the module that we need
 				// to actually import.
 				IValue module = importer.call(argTypes, argValues, null).getValue();
-				String moduleText = module.getType().isStringType() ? ((IString) module).getValue() : TreeAdapter.yield((IConstructor) module);
+				String moduleText = module.getType().isString() ? ((IString) module).getValue() : TreeAdapter.yield((IConstructor) module);
 				
 				moduleText = "@generated\n" + moduleText;
 				
@@ -246,7 +246,6 @@ public abstract class Import {
 	}
 	
 	public static void extendCurrentModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
-    eval.getStdErr().println("extending " + name);
     GlobalEnvironment heap = eval.__getHeap();
     ModuleEnvironment other = heap.getModule(name);;
     
@@ -262,7 +261,7 @@ public abstract class Import {
     } 
     
     // now simply extend the current module
-    eval.getCurrentModuleEnvironment().extend(heap.getModule(name));
+    eval.getCurrentModuleEnvironment().extend(other); //heap.getModule(name));
   }
 	
   public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
@@ -400,7 +399,6 @@ public abstract class Import {
         for (IValue mod : externals) {
           evalImport(eval, (IConstructor) mod);
         }
-
       }
       finally {
         eval.setCurrentEnvt(old);
@@ -431,7 +429,7 @@ public abstract class Import {
     }
     catch (Throwable e) {
       // parsing the current module should be robust wrt errors in modules it depends on.
-      eval.getMonitor().warning("could not load module " + Names.fullName(imp.getModule().getName()), imp.getLocation());
+      eval.getMonitor().warning("could not load module " + TreeAdapter.yield(mod) + "[" + e.getMessage() + "]", imp != null ? imp.getLocation() : eval.getCurrentAST().getLocation());
     }
   }
 
@@ -446,12 +444,11 @@ public abstract class Import {
   public static IConstructor parseFragments(final IEvaluator<Result<IValue>> eval, IConstructor module, final ModuleEnvironment env) {
     // TODO: update source code locations!!
     
-    try {
-     return (IConstructor) module.accept(new IdentityTreeVisitor() {
+     return (IConstructor) module.accept(new IdentityTreeVisitor<ImplementationError>() {
        final IValueFactory vf = eval.getValueFactory();
        
        @Override
-       public IConstructor visitTreeAppl(IConstructor tree) throws VisitorException {
+       public IConstructor visitTreeAppl(IConstructor tree)  {
          IConstructor pattern = getConcretePattern(tree);
          
          if (pattern != null) {
@@ -482,13 +479,10 @@ public abstract class Import {
       }
 
       @Override
-       public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+       public IConstructor visitTreeAmb(IConstructor arg) {
          throw new ImplementationError("unexpected ambiguity: " + arg);
        }
      });
-    } catch (VisitorException e) {
-      throw new ImplementationError("unexpected error while parsing concrete syntax fragments", e.getCause());
-    }
   }
   
   @SuppressWarnings("unchecked")
@@ -560,7 +554,7 @@ public abstract class Import {
       IConstructor sym = ProductionAdapter.getDefined(prod);
       sym = SymbolAdapter.delabel(sym); 
       IValueFactory vf = eval.getValueFactory();
-      prod = ProductionAdapter.setDefined(prod, (IConstructor) Factory.Symbol_Label.make(vf, vf.string("$parsed"), sym));
+      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
       return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
     }
     catch (ParseError e) {
@@ -568,6 +562,18 @@ public abstract class Import {
       ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
       eval.getMonitor().warning("parse error in concrete syntax", src);
       return tree.setAnnotation("parseError", src);
+    }
+    catch (StaticError e) {
+      ISourceLocation loc = TreeAdapter.getLocation(tree);
+      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+      eval.getMonitor().warning(e.getMessage(), e.getLocation());
+      return tree.setAnnotation("can not parse fragment due to " + e.getMessage(), src);
+    }
+    catch (UndeclaredNonTerminalException e) {
+      ISourceLocation loc = TreeAdapter.getLocation(tree);
+      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+      eval.getMonitor().warning(e.getMessage(), src);
+      return tree.setAnnotation("can not parse fragment due to " + e.getMessage(), src);
     }
   }
   
@@ -612,12 +618,11 @@ public abstract class Import {
   }
 
   private static IConstructor replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, IConstructor fragment, final Map<String, IConstructor> antiquotes) {
-    try {
-      return (IConstructor) fragment.accept(new IdentityTreeVisitor() {
+      return (IConstructor) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {
         private final IValueFactory vf = eval.getValueFactory();
         
         @Override
-        public IConstructor visitTreeAppl(IConstructor tree) throws VisitorException {
+        public IConstructor visitTreeAppl(IConstructor tree)  {
           String cons = TreeAdapter.getConstructorName(tree);
           if (cons == null || !cons.equals("$MetaHole") ) {
             IListWriter w = eval.getValueFactory().listWriter();
@@ -642,7 +647,7 @@ public abstract class Import {
             if (((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
               IValue arg = ((IConstructor) attr).get(0);
               
-              if (arg.getType().isNodeType() && ((INode) arg).getName().equals("holeType")) {
+              if (arg.getType().isNode() && ((INode) arg).getName().equals("holeType")) {
                 return (IConstructor) ((INode) arg).get(0);
               }
             }
@@ -652,7 +657,7 @@ public abstract class Import {
         }
 
         @Override
-        public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+        public IConstructor visitTreeAmb(IConstructor arg)  {
           ISetWriter w = vf.setWriter();
           for (IValue elem : TreeAdapter.getAlternatives(arg)) {
             w.insert(elem.accept(this));
@@ -660,10 +665,6 @@ public abstract class Import {
           return arg.set("alternatives", w.done());
         }
       });
-    }
-    catch (VisitorException e) {
-      throw new ImplementationError("failure while parsing fragments", e);
-    }
   }
  
   private static boolean containsBackTick(char[] data, int offset) {

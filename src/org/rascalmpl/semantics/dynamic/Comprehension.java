@@ -92,8 +92,6 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 				if (gens[i].hasNext() && gens[i].next()) {
 					if (i == size - 1) {
 						w.append();
-						eval.unwind(olds[i]);
-						eval.pushEnv();
 					} else {
 						i++;
 						olds[i] = eval.getCurrentEnvt();
