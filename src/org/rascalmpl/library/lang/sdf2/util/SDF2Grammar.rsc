@@ -296,9 +296,9 @@ public set[Symbol] getConditions(SDF m) {
       
     
 public set[Symbol] getRestrictions(Restriction* restrictions, bool isLex) {
-println("looping over < restrictions>");
+//println("looping over < restrictions>");
   res = { *getRestriction(r, isLex) | Restriction r <- restrictions };
-  println("collected: <res>");
+  //println("collected: <res>");
   return res;
 }
 
