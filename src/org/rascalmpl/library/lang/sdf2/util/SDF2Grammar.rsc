@@ -131,19 +131,19 @@ public Grammar illegalPriorities(Grammar g) {
   return compose(g, grammar({}, extracted));
 }
 
-public Grammar dup(Grammar g) {
+public &T dup(&T g) {
   prods = { p | /Production p:prod(_,_,_) := g };
   
   // first we fuse the attributes (SDF2 semantics) and the cons names
   solve (prods) {
     if ({prod(l,r,a1), prod(l,r,a2), rest*} := prods) {
-      prods = {prod(l,r,a1 + a2), rest};
+      prods = {prod(l,r,a1 + a2), *rest};
     }
-    if ({prod(label(n,l),r,a), prod(l,r,a), rest*} := prods) {
-      prods = {prod(label(n,l),r,a), rest};
+    if ({prod(label(n,l),r,a1), prod(l,r,a2), rest*} := prods) {
+      prods = {prod(label(n,l),r,a1 + a2), *rest};
     }
-    if ({prod(label(n,l),r,a), prod(label(m,l),r,a), rest*} := prods) {
-      prods = {prod(label(n,l),r,a), rest};
+    if ({prod(label(n,l),r,a1), prod(label(m,l),r,a2), rest*} := prods) {
+      prods = {prod(label(n,l),r,a1 + a2), *rest};
     }
   } 
   
@@ -235,7 +235,7 @@ public set[Production] getProductions(Prod* prods, bool isLex){
 set[Production] fixParameters(set[Production] input) {
   return innermost visit(input) {
     case prod(\parameterized-sort(str name, [pre*, sort(str x), post*]),lhs,  as) =>
-         prod(\parameterized-sort(name,[pre,\parameter(x),post]),visit (lhs) { case sort(x) => \parameter(x) }, as)
+         prod(\parameterized-sort(name,[*pre,\parameter(x),*post]),visit (lhs) { case sort(x) => \parameter(x) }, as)
   }
 }
 
@@ -296,9 +296,9 @@ public set[Symbol] getConditions(SDF m) {
       
     
 public set[Symbol] getRestrictions(Restriction* restrictions, bool isLex) {
-println("looping over < restrictions>");
+//println("looping over < restrictions>");
   res = { *getRestriction(r, isLex) | Restriction r <- restrictions };
-  println("collected: <res>");
+  //println("collected: <res>");
   return res;
 }
 
@@ -313,7 +313,7 @@ public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
   	
     case (Restriction) `<Sym s1> <Sym+ rest> -/- <Lookaheads ls>` : 
       return  getRestriction((Restriction) `<Sym s1> -/- <Lookaheads ls>`, isLex)
-           + {getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
+           + {*getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
     
     case (Restriction) `LAYOUT? -/- <Lookaheads ls>` :
       return {conditional(\iter-star(sort("LAYOUT")), {\not-follow(l) | l <- getLookaheads(ls) })};
@@ -380,10 +380,10 @@ public Production getPriority(Group group, bool isLex) {
      	return getPriority(g, isLex); // we ignore argument indicators here!
      	
     case (Group) `{<Prod* ps>}` : 
-       return choice(definedSymbol(ps,isLex), {getProduction(p,isLex) | Prod p <- ps});
+       return choice(definedSymbol(ps,isLex), {*getProduction(p,isLex) | Prod p <- ps});
        
     case (Group) `{<Assoc a> : <Prod* ps>}` : 
-       return \associativity(definedSymbol(ps, isLex), getAssociativity(a), {getProduction(p,isLex) | Prod p <- ps});
+       return \associativity(definedSymbol(ps, isLex), getAssociativity(a), {*getProduction(p,isLex) | Prod p <- ps});
     
     default:
     	throw "missing case <group>";}
