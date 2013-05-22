@@ -89,7 +89,7 @@ public class PDBValueTaskRegistry extends TaskRegistry<Type, IValue, IValue> imp
 		lock.lock();
 		try {
 			for(Type key : producer.getKeys()) {
-				if(key.isTupleType()) {
+				if(key.isTuple()) {
 					Type key1 = key.getFieldType(0);
 					Type key2 = key.getFieldType(1);
 					Map<Type, ITask<Type, IValue, IValue>> map = keyedProducers.get(key1);
@@ -116,7 +116,7 @@ public class PDBValueTaskRegistry extends TaskRegistry<Type, IValue, IValue> imp
 		lock.lock();
 		try {
 			for(Type key : producer.getKeys()) {
-				if(key.isTupleType()) {
+				if(key.isTuple()) {
 					Type key1 = key.getFieldType(0);
 					Map<Type, ITask<Type, IValue, IValue>> map = keyedProducers.get(key1);
 					if(map != null) {

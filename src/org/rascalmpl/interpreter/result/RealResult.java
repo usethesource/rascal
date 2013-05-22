@@ -193,6 +193,11 @@ public class RealResult extends ElementResult<IReal> {
 	protected Result<IBool> equalToReal(RealResult that) {
     return bool(that.getValue().equal(getValue()).getValue(), ctx);
 	}
+	
+	@Override
+	protected Result<IBool> equalToValue(ValueResult that) {
+	  return equalityBoolean(that);
+	}
 
 	@Override
 	protected Result<IBool> equalToRational(RationalResult that) {

@@ -42,7 +42,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.uri.URIUtil;
 
-public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
+public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeException> {
 
 	private static final Random stRandom = new Random();
 
@@ -311,16 +311,6 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	@Override
 	public IValue visitReal(Type type) {
 		return vf.real(stRandom.nextDouble());
-	}
-
-	@Override
-	public IValue visitRelationType(Type type) {
-		return genSet(type);
-	}
-	
-	@Override
-	public IValue visitListRelationType(Type type) {
-		return genList(type);
 	}
 
 	@Override

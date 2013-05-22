@@ -26,20 +26,27 @@ public class TypedMultiVariablePattern extends TypedVariablePattern {
 		super(ctx, x, type, name);
 	}
 	
-	public void covertToListType() {
+	public void convertToListType() {
 		if (!this.alreadyStored) {
-			this.declaredType = TypeFactory.getInstance().listType(this.declaredType);
+			this.declaredType = TypeFactory.getInstance().listType(/*this.declaredType.isListType() ? this.declaredType.getElementType() : */this.declaredType);
 		} else {
-			throw new ImplementationError("Cannot convert a typed multi variable to a list after it has already been stored at its current type");
+			if(!declaredType.isList())
+				throw new ImplementationError("Cannot convert a typed multi variable to a list after it has already been stored at its current type");
 		}
 	}
 
 	public void covertToSetType() {
 		if (!this.alreadyStored) {
-			this.declaredType = TypeFactory.getInstance().setType(this.declaredType);
+			this.declaredType = TypeFactory.getInstance().setType(/*this.declaredType.isSetType() ? this.declaredType.getElementType() : */this.declaredType);
 		} else {
-			throw new ImplementationError("Cannot convert a typed multi variable to a set after it has already been stored at its current type");
+			if(!declaredType.isSet())
+				throw new ImplementationError("Cannot convert a typed multi variable to a set after it has already been stored at its current type");
 		}
+	}
+	
+	@Override
+	public String toString(){
+		return "*" + declaredType + " " + getName();
 	}
 
 }

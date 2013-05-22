@@ -36,6 +36,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.omg.CORBA.REBIND;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
@@ -48,6 +49,7 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -78,7 +80,7 @@ public class ModuleEnvironment extends Environment {
 	public final static String SHELL_MODULE = "$shell$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
-		super(null, name);
+		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", name, "")), name);
 		this.heap = heap;
 		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
@@ -125,8 +127,11 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void extend(ModuleEnvironment other) {
-	  super.extend(other);
-	  
+//	  super.extend(other);
+		extendNameFlags(other);
+		  
+	  // First extend the imports before functions and variables
+      // so that types become available
 	  if (other.importedModules != null) {
 	    if (this.importedModules == null) {
 	      this.importedModules = new HashSet<String>();
@@ -155,6 +160,7 @@ public class ModuleEnvironment extends Environment {
 	    this.productions.addAll(other.productions);
 	  }
 	  
+
 	  if (other.extended != null) {
 	    if (this.extended == null) {
 	      this.extended = new HashSet<String>();
@@ -162,12 +168,18 @@ public class ModuleEnvironment extends Environment {
 	    this.extended.addAll(other.extended);
 	  }
 	  
+	  extendTypeParams(other);
+	  extendVariableEnv(other);
+	  extendFunctionEnv(other);
+	  
 	  this.initialized &= other.initialized;
 	  this.syntaxDefined |= other.syntaxDefined;
 	  this.bootstrap |= other.bootstrap;
 	  
 	  addExtend(other.getName());
 	}
+	
+	
 	
 	@Override
 	public GlobalEnvironment getHeap() {
@@ -221,7 +233,7 @@ public class ModuleEnvironment extends Environment {
 		todo.add(getName());
 		
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
-		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) Factory.Symbol_Sort.make(VF, "SyntaxDefinition"));
+		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) VF.constructor(Factory.Symbol_Sort, VF.string("SyntaxDefinition")));
 		IMapWriter result = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(TF.stringType()), TF.setType(DefSort)));
 		
 		while(!todo.isEmpty()){
@@ -405,10 +417,10 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void storeVariable(String name, Result<IValue> value) {
-		if (value instanceof AbstractFunction) {
-			storeFunction(name, (AbstractFunction) value);
-			return;
-		}
+//		if (value instanceof AbstractFunction) {
+//			storeFunction(name, (AbstractFunction) value);
+//			return;
+//		}
 		
 		Result<IValue> result = super.getVariable(name);
 		
@@ -440,7 +452,10 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			var = mod.getLocalPublicVariable(name);
+			
+			if (mod != null) { 
+			  var = mod.getLocalPublicVariable(name);
+			}
 			
 			if (var != null) {
 				return var;
@@ -466,7 +481,7 @@ public class ModuleEnvironment extends Environment {
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
 			Result<IValue> r = null;
-			if (mod.variableEnvironment != null) 
+			if (mod != null && mod.variableEnvironment != null) 
 				r = mod.variableEnvironment.get(name);
 			
 			if (r != null && r.isPublic()) {
@@ -483,7 +498,10 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			mod.getLocalPublicFunctions(name, collection);
+			
+			if (mod != null) {
+			  mod.getLocalPublicFunctions(name, collection);
+			}
 		}
 	}
 	
@@ -493,7 +511,10 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			mod.getLocalPublicFunctions(returnType, name, collection);
+			
+			if (mod != null) {
+			  mod.getLocalPublicFunctions(returnType, name, collection);
+			}
 		}
 	}
 	
@@ -706,6 +727,9 @@ public class ModuleEnvironment extends Environment {
 			for (String i : getImports()) {
 				ModuleEnvironment mod = getImport(i);
 				
+				if (mod == null) {
+				  continue;
+				}
 				// don't recurse here (cyclic imports!)
 				type = mod.concreteSyntaxTypes.get(name);
 				

@@ -1,4 +1,4 @@
-@license{
+ @license{
   Copyright (c) 2009-2012 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
@@ -35,7 +36,7 @@ lexical Concrete
 
 lexical ConcretePart
   = @category="MetaSkipped" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
-  | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000]* "\'"
+  | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
   | @category="MetaVariable" hole : ConcreteHole hole
   | @category="MetaSkipped" lt: "\\\<"
   | @category="MetaSkipped" gt: "\\\>"
@@ -393,7 +394,7 @@ lexical StringCharacter
 	= "\\" [\" \' \< \> \\ b f n r t] 
 	| UnicodeEscape 
 	| ![\" \' \< \> \\]
-	| [\n][\ \t \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000]* [\'] // margin 
+	| [\n][\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* [\'] // margin 
 	;
 
 lexical JustTime
@@ -405,7 +406,7 @@ lexical MidStringChars
 	= @category="Constant" [\>] StringCharacter* [\<] ;
 
 lexical ProtocolChars
-	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000];
+	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000];
 
 lexical RegExpModifier
 	= [d i m s]* ;
@@ -545,7 +546,7 @@ syntax ProtocolTail
 	| post: PostProtocolChars post ;
 
 lexical Nonterminal
-	= [A-Z] !<< [A-Z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z] \ RascalReservedKeywords;
+	= [A-Z] !<< [A-Z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z] \ RascalKeywords;
 
 syntax PathTail
 	= mid: MidPathChars mid Expression expression PathTail tail 
@@ -563,7 +564,7 @@ syntax StringLiteral
 
 lexical Comment
 	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
-	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
+	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
 	;
 	
 

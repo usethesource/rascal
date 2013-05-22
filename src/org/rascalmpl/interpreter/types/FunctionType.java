@@ -21,20 +21,27 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 /**
  * Function types are an extension of the pdb's type system, especially tailored to Rascal's functions 
  */
-public class FunctionType extends ExternalType {
+public class FunctionType extends RascalType {
 	private final Type returnType;
 	private final Type argumentTypes;
 	
+	private static final TypeFactory TF = TypeFactory.getInstance();
+	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+	
 	/*package*/ FunctionType(Type returnType, Type argumentTypes) {
-		this.argumentTypes = argumentTypes.isTupleType() ? argumentTypes : TypeFactory.getInstance().tupleType(argumentTypes);
+		this.argumentTypes = argumentTypes.isTuple() ? argumentTypes : TF.tupleType(argumentTypes);
 		this.returnType = returnType;
+	}
+	
+	@Override
+	public <T, E extends Throwable> T accept(IRascalTypeVisitor<T, E> visitor) throws E {
+	  return visitor.visitFunction(this);
 	}
 	
 	public Type getReturnType() {
@@ -51,78 +58,105 @@ public class FunctionType extends ExternalType {
 	}
 	
 	@Override
-	public boolean isSubtypeOf(Type other) {
+	protected boolean isSupertypeOf(RascalType type) {
+	  return type.isSubtypeOfFunction(this);
+	}
+	
+	@Override
+	protected Type lub(RascalType type) {
+	  return type.lubWithFunction(this);
+	}
+	
+	@Override
+	protected Type glb(RascalType type) {
+		return type.glbWithFunction(this);
+	}
+	
+	@Override
+	public boolean isSubtypeOfFunction(RascalType other) {
 		// Rascal functions are co-variant in the return type position and
 		// contra-variant in the argument positions, such that a sub-function
 		// can safely simulate a super function.
-		
-		if (other == this) {
-			return true;
-		}
+	  FunctionType otherType = (FunctionType) other;
 
-		if (other instanceof FunctionType) {
-			FunctionType otherType = (FunctionType) other;
+	  if (getReturnType().isSubtypeOf(otherType.getReturnType())) {
+	    if (otherType.getArgumentTypes().isSubtypeOf(getArgumentTypes())) {
+	      return true;
+	    }
 
-			if (getReturnType().isSubtypeOf(otherType.getReturnType())) {
-				if (otherType.getArgumentTypes().isSubtypeOf(getArgumentTypes())) {
-					return true;
-				}
+	    // type parameterized functions are never sub-types before instantiation
+	    // because the argument types are co-variant. This would be weird since
+	    // instantiated functions are supposed to be substitutable for their generic
+	    // counter parts. So, we try to instantiate first, and then check again.
+	    Map<Type,Type> bindings = new HashMap<Type,Type>();
 
-				// type parameterized functions are never sub-types before instantiation
-				// because the argument types are co-variant. This would be weird since
-				// instantiated functions are supposed to be substitutable for their generic
-				// counter parts. So, we try to instantiate first, and then check again.
-				Map<Type,Type> bindings = new HashMap<Type,Type>();
-
-				if (!otherType.match(this, bindings)) {
-					return false;
-				}
-				if (bindings.size() != 0) {
-					return isSubtypeOf(otherType.instantiate(bindings));
-				}
-			}
-			
-		
-			return false;
-		}
-
-		// to support aliases, etc.
-		return super.isSubtypeOf(other);
+	    if (!otherType.match(this, bindings)) {
+	      return false;
+	    }
+	    if (bindings.size() != 0) {
+	      return isSubtypeOf(otherType.instantiate(bindings));
+	    }
+	  }
+	  
+	  return false;
 	}
 
 	@Override
-	public Type lub(Type other) {
-		if (other == this) {
-			return this;
-		}
+	protected Type lubWithFunction(RascalType type) {
+	  if(this == type) {
+	    return this;
+	  } 
+	  
+	  FunctionType f = (FunctionType) type;
+	  
+	  Type returnType = getReturnType().lub(f.getReturnType());
+	  Type argumentTypes = getArgumentTypes().glb(f.getArgumentTypes());
+	  
+	  if(argumentTypes.isTuple()) {
+	    return RTF.functionType(returnType, argumentTypes);
+	  }
+	  
+	  return TF.valueType();
+	}
+	
+	@Override
+	protected Type glbWithFunction(RascalType type) {
+	  if(this == type) {
+		return this;
+	  }
 		
-		if (other instanceof FunctionType) {
-			FunctionType o = (FunctionType) other;
-			
-			if (this.returnType == o.returnType) {
-				Set<FunctionType> alts = new HashSet<FunctionType>();
-				alts.add(this);
-				alts.add(o);
-				return RascalTypeFactory.getInstance().overloadedFunctionType(alts);
-			}
-			
-			Type newReturnType = this.returnType.lub(o.returnType);
+	  FunctionType f = (FunctionType) type;
+		
+	  Type returnType = getReturnType().glb(f.getReturnType());
+	  Type argumentTypes = getArgumentTypes().lub(f.getArgumentTypes());
+		
+	  if(argumentTypes.isTuple()) {
+		return RTF.functionType(returnType, argumentTypes);
+	  }
+		
+	  return TF.voidType();
+	}
+		
+	@Override
+	protected boolean isSubtypeOfOverloadedFunction(RascalType type) {
+	  OverloadedFunctionType function = (OverloadedFunctionType) type;
+	  for (FunctionType f : function.getAlternatives()) {
+	    if (!this.isSubtypeOf(f)) {
+		  return false;
+	    }
+	  }
+	  
+	  return true;
+	}
 
-			switch(argumentTypes.compareTo(o.argumentTypes)) {
-			case -1:
-				return RascalTypeFactory.getInstance().functionType(newReturnType, argumentTypes);
-			case 1:
-				return RascalTypeFactory.getInstance().functionType(newReturnType, o.argumentTypes);
-			case 0:
-				return TypeFactory.getInstance().valueType();
-			}
-		}
-		
-		if (other instanceof OverloadedFunctionType) {
-			return other.lub(this);
-		}
-		
-		return super.lub(other);
+	@Override
+	protected Type lubWithOverloadedFunction(RascalType type) {
+	  return type.lubWithFunction(this);
+	}
+	
+	@Override 
+	protected Type glbWithOverloadedFunction(RascalType type) {
+		return type.glbWithFunction(this);
 	}
 	
 	@Override
@@ -159,18 +193,18 @@ public class FunctionType extends ExternalType {
 	
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
-		return RascalTypeFactory.getInstance().functionType(returnType.instantiate(bindings), argumentTypes.instantiate(bindings));
+		return RTF.functionType(returnType.instantiate(bindings), argumentTypes.instantiate(bindings));
 	}
 	
 	@Override
 	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
 //		super.match(matched, bindings); match calls isSubTypeOf which calls match, watch out for infinite recursion
-		if (matched.isVoidType()) {
+		if (matched.isBottom()) {
 			return returnType.match(matched, bindings);
 		} else {
 			// Fix for cases where we have aliases to function types, aliases to aliases to function types, etc
-			while (matched.isAliasType()) {
+			while (matched.isAliased()) {
 				matched = matched.getAliased();
 			}
 	
@@ -198,24 +232,25 @@ public class FunctionType extends ExternalType {
 	
 	@Override
 	public Type compose(Type right) {
-		if(right.isVoidType())
+		if (right.isBottom()) {
 			return right;
+		}
 		Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
 		if(right instanceof FunctionType) {
-			if(TypeFactory.getInstance().tupleType(((FunctionType) right).returnType).isSubtypeOf(this.argumentTypes)) {
-				return RascalTypeFactory.getInstance().functionType(this.returnType, ((FunctionType) right).getArgumentTypes());
+			if(TF.tupleType(((FunctionType) right).returnType).isSubtypeOf(this.argumentTypes)) {
+				return RTF.functionType(this.returnType, ((FunctionType) right).getArgumentTypes());
 			}
 		} else if(right instanceof OverloadedFunctionType) {
 			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
-				if(TypeFactory.getInstance().tupleType(ftype.getReturnType()).isSubtypeOf(this.argumentTypes)) {
-					newAlternatives.add((FunctionType) RascalTypeFactory.getInstance().functionType(this.returnType, ftype.getArgumentTypes()));
+				if(TF.tupleType(ftype.getReturnType()).isSubtypeOf(this.argumentTypes)) {
+					newAlternatives.add((FunctionType) RTF.functionType(this.returnType, ftype.getArgumentTypes()));
 				}
 			}
 		} else {
 			throw new IllegalOperationException("compose", this, right);
 		}
 		if(!newAlternatives.isEmpty()) 
-			return RascalTypeFactory.getInstance().overloadedFunctionType(newAlternatives);
-		return TypeFactory.getInstance().voidType();
+			return RTF.overloadedFunctionType(newAlternatives);
+		return TF.voidType();
 	}
 }

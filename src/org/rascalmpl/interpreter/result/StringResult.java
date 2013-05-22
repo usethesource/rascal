@@ -17,7 +17,6 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -125,16 +124,9 @@ public class StringResult extends ElementResult<IString> {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, Result<IValue>> keyArgValues) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 		String name = getValue().getValue();
-		Map<String,IValue> kvMap = null;
-		if(keyArgValues != null){
-			kvMap = new HashMap<String,IValue>();
-			for(String key : keyArgValues.keySet()){
-				kvMap.put(key,  keyArgValues.get(key).getValue());
-			}
-		}
-		IValue node = getTypeFactory().nodeType().make(getValueFactory(), name, argValues, kvMap);
+		IValue node = this.getValueFactory().node(name, argValues, keyArgValues);
 		return makeResult(getTypeFactory().nodeType(), node, ctx);
 	}
 	
@@ -172,7 +164,7 @@ public class StringResult extends ElementResult<IString> {
 			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!key.getType().isIntegerType()) {
+		if (!key.getType().isInteger()) {
 			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
 		}
 		if (getValue().getValue().length() == 0) {

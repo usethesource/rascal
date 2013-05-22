@@ -40,7 +40,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		IConstructor prod = (IConstructor) actuals[0];
 		IList args = (IList) actuals[1];
 
@@ -48,7 +48,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 			actuals[1] = flatten(prod, args);
 		}
 
-		IConstructor newAppl = (IConstructor) Factory.Tree_Appl.make(getValueFactory(), actuals);
+		IConstructor newAppl = getValueFactory().constructor(Factory.Tree_Appl, actuals);
 
 		NonTerminalType concreteType = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(newAppl);
 
@@ -56,7 +56,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	}
 
 	private IValue flatten(IConstructor prod, IList args) {
-		IListWriter result = Factory.Args.writer(vf);
+		IListWriter result = vf.listWriter(Factory.Args.getElementType());
 		int delta = getDelta(prod);
 		
 		for (int i = 0; i < args.length(); i+=(delta + 1)) {

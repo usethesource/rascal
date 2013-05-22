@@ -26,7 +26,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -146,7 +145,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			throw new UnsupportedOperationException();
 		}
 
-		public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -169,7 +168,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		Type subjectType = subject.getValue().getType();
 		super.initMatch(subject);
 
-		if(subjectType.isAbstractDataType()){
+		if(subjectType.isAbstractData()){
 			IConstructor treeSubject = (IConstructor)subject.getValue();
 		
 			if (!TreeAdapter.isAppl(treeSubject)) {

@@ -16,9 +16,9 @@
 package org.rascalmpl.interpreter.utils;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -46,13 +46,11 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -94,11 +92,14 @@ public class JavaBridge {
 	
 	private final Map<Class<?>, JavaFileManager> fileManagerCache;
 
-	public JavaBridge(List<ClassLoader> classLoaders, IValueFactory valueFactory) {
+  private final Configuration config;
+
+	public JavaBridge(List<ClassLoader> classLoaders, IValueFactory valueFactory, Configuration config) {
 		this.loaders = classLoaders;
 		this.vf = valueFactory;
 		this.instanceCache = new HashMap<Class<?>, Object>();
 		this.fileManagerCache = new ConcurrentHashMap<Class<?>, JavaFileManager>();
+		this.config = config;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
 			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
@@ -112,7 +113,7 @@ public class JavaBridge {
 	public <T> Class<T> compileJava(URI loc, String className, Class<?> parent, String source) {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
-			List<String> commandline = Arrays.asList(new String[] {"-cp", Configuration.getRascalJavaClassPathProperty()});
+			List<String> commandline = Arrays.asList(new String[] {"-cp", config.getRascalJavaClassPathProperty()});
 			
 			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), fileManagerCache.get(parent), commandline);
 			Class<T> result = javaCompiler.compile(className, source, null, Object.class);
@@ -121,7 +122,7 @@ public class JavaBridge {
 		} catch (ClassCastException e) {
 			throw new JavaCompilation(e.getMessage(), vf.sourceLocation(loc));
 		} catch (JavaCompilerException e) {
-			throw new JavaCompilation(e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), vf.sourceLocation(loc));
+			throw new JavaCompilation("with classpath [" + config.getRascalJavaClassPathProperty() + "]: " + e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), vf.sourceLocation(loc));
 		}
 	}
 
@@ -197,10 +198,10 @@ public class JavaBridge {
 	}
 	
 	private org.eclipse.imp.pdb.facts.type.Type toValueType(Expression formal, Environment env) {
-		return formal.typeOf(env);
+		return formal.typeOf(env, true);
 	}
 	
-	private static class JavaClasses implements ITypeVisitor<Class<?>> {
+	private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {
 
 		@Override
 		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
@@ -245,11 +246,6 @@ public class JavaBridge {
 		@Override
 		public Class<?> visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IConstructor.class;
-		}
-
-		@Override
-		public Class<?> visitRelationType(org.eclipse.imp.pdb.facts.type.Type type) {
-			return IRelation.class;
 		}
 
 		@Override
@@ -308,10 +304,6 @@ public class JavaBridge {
 			return IDateTime.class;
 		}
 
-		@Override
-		public Class<?> visitListRelationType(Type type) {
-			return IListRelation.class;
-		}
 	}
 	
 	public synchronized Object getJavaClassInstance(Class<?> clazz){
@@ -428,8 +420,8 @@ public class JavaBridge {
 	/**
 	 * Same as saveToJar("", clazz, outPath, false);
 	 */
-	public void saveToJar(Class<?> clazz, String outPath) throws IOException {
-		saveToJar("", clazz, outPath, false);
+	public void saveToJar(Class<?> clazz, OutputStream outStream) throws IOException {
+		saveToJar("", clazz, outStream, false);
 	}
 	
 	/**
@@ -440,13 +432,13 @@ public class JavaBridge {
 	 * 
 	 * @param packageName package name prefix to search for classes, or "" for all 
 	 * @param clazz a class that has been previously compiled by this bridge
-	 * @param outPath name of output jar file
+	 * @param outStream output stream
 	 * @param recursive whether to retrieve classes from rest of the the JavaFileManager hierarchy
 	 * 	
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public void saveToJar(String packageName, Class<?> clazz, String outPath,
+	public void saveToJar(String packageName, Class<?> clazz, OutputStream outStream,
 			boolean recursive) throws IOException {
 		JavaFileManager manager = fileManagerCache.get(clazz);
 		Iterable<JavaFileObject> list = null;
@@ -457,7 +449,7 @@ public class JavaBridge {
 			Manifest manifest = new Manifest();
 			manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION,
 					"1.0");
-			JarOutputStream target = new JarOutputStream(new FileOutputStream(outPath), manifest);
+			JarOutputStream target = new JarOutputStream(outStream, manifest);
 			JarEntry entry = new JarEntry("META-INF/");
 			target.putNextEntry(entry);
 			Collection<String> dirs = new ArrayList<String>();

@@ -21,6 +21,7 @@ import String;
 import ParseTree;
 import IO;  
 import util::Math;
+import util::Maybe;
 
 
 // conversion functions
@@ -30,35 +31,35 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   set[Symbol] starts = {};
   
   for (sd <- defs) {
+    <ps,st> = rule2prod(sd);
+    prods += ps;
+    if (st is just)
+      starts += st.val;
+  }
+  
+  return grammar(starts, prods);
+}
+
+public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefinition sd) {  
     switch (sd) {
-      case \layout(_, nonterminal(Nonterminal n), Prod p) : {
-        prods += prod2prod(\layouts("<n>"), p);
-      }
-      case \language(present() /*start*/, nonterminal(Nonterminal n), Prod p) : {
-        prods += prod(\start(sort("<n>")),[label("top", sort("<n>"))],{}); 
-        prods += prod2prod(sort("<n>"), p);
-        starts += \start(sort("<n>"));
-      }
-      case \language(absent(), parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : {
-        prods += prod2prod(\parameterized-sort("<l>",separgs2symbols(syms)), p);
-      }
-      case \language(absent(), nonterminal(Nonterminal n), Prod p) : {
-        prods += prod2prod(\sort("<n>"), p);
-      }
-      case \lexical(parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : {
-        prods += prod2prod(\parameterized-lex("<l>",separgs2symbols(syms)), p);
-      }
-      case \lexical(nonterminal(Nonterminal n), Prod p) : {
-        prods += prod2prod(\lex("<n>"), p);
-      }
-      case \keyword(nonterminal(Nonterminal n), Prod p) : {
-        prods += prod2prod(keywords("<n>"), p);
-      }
+      case \layout(_, nonterminal(Nonterminal n), Prod p) : 
+        return <{prod2prod(\layouts("<n>"), p)},nothing()>;
+      case \language(present() /*start*/, nonterminal(Nonterminal n), Prod p) : 
+        return < {prod(\start(sort("<n>")),[label("top", sort("<n>"))],{})
+                ,prod2prod(sort("<n>"), p)}
+               ,just(\start(sort("<n>")))>;
+      case \language(absent(), parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : 
+        return <{prod2prod(\parameterized-sort("<l>",separgs2symbols(syms)), p)}, nothing()>;
+      case \language(absent(), nonterminal(Nonterminal n), Prod p) : 
+        return <{prod2prod(\sort("<n>"), p)},nothing()>;
+      case \lexical(parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : 
+        return <{prod2prod(\parameterized-lex("<l>",separgs2symbols(syms)), p)}, nothing()>;
+      case \lexical(nonterminal(Nonterminal n), Prod p) : 
+        return <{prod2prod(\lex("<n>"), p)}, nothing()>;
+      case \keyword(nonterminal(Nonterminal n), Prod p) : 
+        return <{prod2prod(keywords("<n>"), p)}, nothing()>;
       default: { iprintln(sd); throw "unsupported kind of syntax definition? <sd> at <sd@\loc>"; }
     }
-  }
-
-  return grammar(starts, prods);
 } 
    
 private Production prod2prod(Symbol nt, Prod p) {

@@ -56,7 +56,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
+	public Result<IValue> call(Type[] argTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		if (actuals.length >= 2) {
 			if (!argTypes[0].isSubtypeOf(getTypeFactory().integerType())) {
 				throw new UnexpectedType(getTypeFactory().integerType(), argTypes[0], ctx.getCurrentAST());
@@ -295,25 +295,25 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
 		try {
 			if (name.equals("uri")) {
-				if (!replType.isStringType()) {
+				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				uri = URIUtil.createFromEncoded(((IString)repl.getValue()).getValue());
 			} 
 			else if (name.equals("scheme")) {
-				if (!replType.isStringType()) {
+				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				uri = URIUtil.changeScheme(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("authority")) {
-				if (!replType.isStringType()) {
+				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				uri = URIUtil.changeAuthority(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("host")) {
-				if (!replType.isStringType()) {
+				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				if (!ctx.getResolverRegistry().supportsHost(uri)) {
@@ -322,7 +322,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				uri = URIUtil.changeHost(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("path")) {
-				if (!replType.isStringType()) {
+				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				String path = ((IString) repl.getValue()).getValue();
@@ -331,7 +331,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				uri = URIUtil.changePath(uri, path);
 			}
 			else if (name.equals("file")) {
-				if (!replType.isStringType()) {
+				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				
@@ -346,7 +346,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 			}
 			else if (name.equals("parent")) {
-				if (!replType.isStringType()) {
+				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				
@@ -368,7 +368,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				throw new UnsupportedOperation("can not update the children of a location", ctx.getCurrentAST());
 			}
 			else if (name.equals("extension")) {
-				if (!replType.isStringType()) {
+				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				String path = uri.getPath();
@@ -391,10 +391,10 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 			}
 			else if (name.equals("top")) {
-				if (replType.isStringType()) {
+				if (replType.isString()) {
 					uri = URIUtil.assumeCorrect(((IString) repl.getValue()).getValue());
 				}
-				else if (replType.isSourceLocationType()) {
+				else if (replType.isSourceLocation()) {
 					uri = ((ISourceLocation) repl.getValue()).getURI();
 				}
 				else {
@@ -402,19 +402,19 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 			}
 			else if (name.equals("fragment")) {
-				if (!replType.isStringType()) {
+				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				uri = URIUtil.changeFragment(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("query")) {
-				if (!replType.isStringType()) {
+				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				uri = URIUtil.changeFragment(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("user")) {
-				if (!replType.isStringType()) {
+				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				if (!ctx.getResolverRegistry().supportsHost(uri)) {
@@ -425,7 +425,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 			}
 			else if (name.equals("port")) {
-				if (!replType.isIntegerType()) {
+				if (!replType.isInteger()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				
@@ -438,7 +438,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 			}
 			else if (name.equals("length")){
-				if (!replType.isIntegerType()) {
+				if (!replType.isInteger()) {
 					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				iLength = ((IInteger) replValue).intValue();
@@ -448,7 +448,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 			} 
 			else if (name.equals("offset")){
-				if (!replType.isIntegerType()) {
+				if (!replType.isInteger()) {
 					throw new UnexpectedType(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				iOffset = ((IInteger) replValue).intValue();

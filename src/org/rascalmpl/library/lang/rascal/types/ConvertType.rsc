@@ -27,6 +27,7 @@ import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
 import lang::rascal::\syntax::Rascal;
+import lang::rascal::grammar::definition::Symbols;
 
 @doc{Annotations for adding error and warning information to types}
 anno set[Message] Symbol@errinfo;
@@ -215,6 +216,8 @@ public Symbol convertUserType(UserType ut) {
     }
 }
 
+public Symbol convertSymbol(Sym sym) = sym2symbol(sym)[@at=sym@\loc];  
+
 @doc{Get the raw Name component from a user type.}
 public Name getUserTypeRawName(UserType ut) {
     switch(ut) {
@@ -248,6 +251,7 @@ public Symbol convertType(Type t) {
         case (Type) `<TypeVar tv>` : return convertTypeVar(tv);
         case (Type) `<UserType ut>` : return convertUserType(ut);
         case (Type) `<DataTypeSelector dts>` : return convertDataTypeSelector(dts);
+        case (Type) `<Sym sym>` : return convertSymbol(sym);
         case (Type) `( <Type tp> )` : return convertType(tp);
         default : { throw "Error in convertType, unexpected type syntax: <t>"; }
     }

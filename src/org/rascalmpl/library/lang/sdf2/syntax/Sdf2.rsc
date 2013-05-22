@@ -47,7 +47,7 @@ lexical IdCon = Default: [A-Za-z] [A-Za-z\-0-9]* !>> [A-Za-z\-0-9];
 
 syntax Class 
   = SimpleCharClass: "[" Range* "]" 
-  | Bracket: "(" Class ")" 
+  | \bracket: "(" Class ")" 
   | Comp: "~" Class 
   > Diff: Class "/" Class 
   > left ISect: Class "/\\" Class 
@@ -235,14 +235,14 @@ syntax Definition = Module* modules
                     ;
 
 syntax Lookahead 
- = Class: Class class
- | Seq: Class class "." Lookaheads las 
+ = Class: Class!bracket class
+ | Seq: Class class "." Lookaheads!alt las 
  ;
  
  
 syntax Lookaheads 
   = Single: Lookahead 
-  | right Alt: Lookaheads "|" Lookaheads 
+  | right alt: Lookaheads "|" Lookaheads 
   | Bracket: "(" Lookaheads ")" 
   | List: "[[" {Lookahead ","}* "]]"
   ;
@@ -302,12 +302,3 @@ syntax IntCon = Natural: NatCon |
                 Negative: "-" NatCon
                 ;
 
-public Lookahead Seq(Class _, Lookaheads las) {
-  if (las is Alt) fail;
-}
-
-public Lookahead Single(Class c) {
-  if (c is Bracket) fail;
-}
-
-                

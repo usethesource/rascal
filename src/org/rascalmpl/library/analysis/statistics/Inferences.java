@@ -16,7 +16,6 @@ import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
 import org.apache.commons.math.stat.inference.TTestImpl;
 import org.apache.commons.math.stat.ranking.NaturalRanking;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -35,7 +34,7 @@ public class Inferences {
 	double [] expected;
 	long [] observed;
 
-	void makeChi(IListRelation dataValues){
+	void makeChi(IList dataValues){
 		int n = dataValues.length();
 		expected = new double[n];
 		observed = new long[n];
@@ -65,12 +64,12 @@ public class Inferences {
 		return data;
 	}
 	
-	public IValue chiSquare(IListRelation dataValues){
+	public IValue chiSquare(IList dataValues){
 		makeChi(dataValues);
 		return values.real(new ChiSquareTestImpl().chiSquare(expected, observed));
 	}
 	
-	public IValue chiSquareTest(IListRelation dataValues){
+	public IValue chiSquareTest(IList dataValues){
 		makeChi(dataValues);
 		try {
 			return values.real(new ChiSquareTestImpl().chiSquareTest(expected, observed));
@@ -81,7 +80,7 @@ public class Inferences {
 		}
 	}
 	
-	public IValue chiSquareTest(IListRelation dataValues, IReal alpha){
+	public IValue chiSquareTest(IList dataValues, IReal alpha){
 		makeChi(dataValues);
 		try {
 			return values.bool(new ChiSquareTestImpl().chiSquareTest(expected, observed, alpha.doubleValue()));
@@ -132,7 +131,7 @@ public class Inferences {
 	}
 	
 	
-	public IValue gini(IListRelation dataValues){
+	public IValue gini(IList dataValues){
 		
 		if(dataValues.length() < 2)
 			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "At least 2 observations required");

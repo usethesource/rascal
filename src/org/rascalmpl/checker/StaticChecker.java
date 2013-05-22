@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -68,6 +69,10 @@ public class StaticChecker {
 
 	public void init() {
 		initialized = true;
+	}
+	
+	public Configuration getConfiguration() {
+	  return eval.getConfiguration();
 	}
 	
 	public boolean isInitialized() {

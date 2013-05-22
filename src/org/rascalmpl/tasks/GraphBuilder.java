@@ -2,7 +2,7 @@ package org.rascalmpl.tasks;
 
 import java.util.IdentityHashMap;
 
-import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -16,7 +16,7 @@ public class GraphBuilder {
 			.getValueFactory();
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	private final IdentityHashMap<Object, IValue> ids = new IdentityHashMap<Object, IValue>();
-	private IRelation edges = vf.relation(tf.tupleType(tf.stringType(),
+	private ISet edges = vf.relation(tf.tupleType(tf.stringType(),
 			tf.stringType(), tf.stringType()));
 	private int idNum = 0;
 

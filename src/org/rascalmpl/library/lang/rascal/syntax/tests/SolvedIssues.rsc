@@ -14,6 +14,7 @@ module lang::rascal::\syntax::tests::SolvedIssues
 
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
+import Exception;
 
 public bool notAmb(Tree t) = /amb(_) !:= t;
 
@@ -23,3 +24,9 @@ public test bool amb2() = notAmb(parse(#Command,"\"1\" + 2"));
 
 public test bool amb3() = notAmb(parse(#Command,"true ? [1]"));
 
+public test bool capitalA() {
+	try { 
+		parse(#LocationLiteral, "|project://A|");
+		return true;
+	} catch ParseError(loc _): return false;
+}

@@ -103,7 +103,7 @@ public class TraversalEvaluator {
 		Type subjectType = subject.getType();
 		IValue result = subject;
 
-		if (/* casesOrRules.hasRegexp()  && */ subjectType.isStringType()) {
+		if (/* casesOrRules.hasRegexp()  && */ subjectType.isString()) {
 			return traverseStringOnce(subject, casesOrRules, tr);
 		}
 
@@ -132,17 +132,17 @@ public class TraversalEvaluator {
 			hasChanged = tr.changed;
 		}
 
-		if (subjectType.isAbstractDataType()){
+		if (subjectType.isAbstractData()){
 			result = traverseADTOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
-		} else if (subjectType.isNodeType()){
+		} else if (subjectType.isNode()){
 			result = traverseNodeOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
-		} else if(subjectType.isListType()){
+		} else if(subjectType.isList()){
 			result = traverseListOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
-		} else if(subjectType.isSetType()){
+		} else if(subjectType.isSet()){
 			result = traverseSetOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
-		} else if (subjectType.isMapType()) {
+		} else if (subjectType.isMap()) {
 			result = traverseMapOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
-		} else if(subjectType.isTupleType()){
+		} else if(subjectType.isTuple()){
 			result = traverseTupleOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
 		} else {
 			result = subject;
@@ -247,7 +247,7 @@ public class TraversalEvaluator {
 			int len = list.length();
 
 			if (len > 0) {
-				IListWriter w = list.getType().writer(eval.getValueFactory());
+				IListWriter w = eval.getValueFactory().listWriter(list.getType().getElementType());
 				boolean hasChanged = false;
 				boolean hasMatched = false;
 
@@ -317,7 +317,7 @@ public class TraversalEvaluator {
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
 		IMap map = (IMap) subject;
 		if(!map.isEmpty()){
-			IMapWriter w = map.getType().writer(eval.getValueFactory());
+			IMapWriter w = eval.getValueFactory().mapWriter(map.getType());
 			Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
 			boolean hasChanged = false;
 			boolean hasMatched = false;
@@ -348,7 +348,7 @@ public class TraversalEvaluator {
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
 		ISet set = (ISet) subject;
 		if(!set.isEmpty()){
-			ISetWriter w = set.getType().writer(eval.getValueFactory());
+			ISetWriter w = eval.getValueFactory().setWriter(set.getType().getElementType());
 			boolean hasChanged = false;
 			boolean hasMatched = false;
 			
@@ -373,7 +373,7 @@ public class TraversalEvaluator {
 		IList list = (IList) subject;
 		int len = list.length();
 		if (len > 0){
-			IListWriter w = list.getType().writer(eval.getValueFactory());
+			IListWriter w = eval.getValueFactory().listWriter(list.getType().getElementType());
 			boolean hasChanged = false;
 			boolean hasMatched = false;
 			
@@ -513,7 +513,7 @@ public class TraversalEvaluator {
 				hasChanged = true;
 				hasMatched = true;
 				
-				if (repl.getType().isStringType()){
+				if (repl.getType().isString()){
 					int start;
 					int end;
 					IBooleanResult lastPattern = e.getMatchPattern();

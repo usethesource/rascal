@@ -23,7 +23,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -40,18 +39,10 @@ public class DebugUpdater {
 	 * @return tree with pushed-down attributes, unmodified tree in case of error
 	 */
 	public static IConstructor pushDownAttributes(IConstructor tree) {
-		IConstructor result = tree;
-		
-		try {
-			result = ((IConstructor) tree.accept(new PushDownTreeVisitor(false)));
-		} catch (VisitorException e) {
-			// ignore
-		}
-		
-		return result;
+		return ((IConstructor) tree.accept(new PushDownTreeVisitor<RuntimeException>(false)));
 	}
 		
-	private static class PushDownTreeVisitor extends TreeVisitor {
+	private static class PushDownTreeVisitor<E extends Throwable> extends TreeVisitor<E> {
 		
 		final static private IValueFactory VF = ValueFactoryFactory.getValueFactory();
 		
@@ -63,22 +54,22 @@ public class DebugUpdater {
 		
 		@Override
 		public IConstructor visitTreeCycle(IConstructor arg)
-				throws VisitorException {
+				throws E {
 			return arg;
 		}
 		
 		@Override
-		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeChar(IConstructor arg) throws E {
 			return arg;
 		}
 
 		@Override
-		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeAmb(IConstructor arg) throws E {
 			return arg;
 		}
 		
 		@Override
-		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeAppl(IConstructor arg) throws E {
 			IConstructor prod = TreeAdapter.getProduction(arg);
 			
 			if (TreeAdapter.isAppl(arg) 
@@ -98,7 +89,7 @@ public class DebugUpdater {
 				Set<Integer> pushdownPositions = getChildProductionPositionsForPushdown(prod);				
 											
 				// update children by recursively applying this visitor.
-				IListWriter writer = Factory.Args.writer(VF);
+				IListWriter writer = VF.listWriter(Factory.Args.getElementType());
 
 				Iterator<IValue> iter = TreeAdapter.getArgs(arg).iterator();
 				for (Integer pos = 0; iter.hasNext(); pos++) {
@@ -106,7 +97,7 @@ public class DebugUpdater {
 					boolean isDeferred = pushdownPositions.contains(pos) || addBreakable && isList;
 					
 					IValue oldKid = iter.next();
-					IValue newKid = oldKid.accept(new PushDownTreeVisitor(isDeferred));
+					IValue newKid = oldKid.accept(new PushDownTreeVisitor<E>(isDeferred));
 					
 					writer.append(newKid);
 				}
@@ -135,7 +126,7 @@ public class DebugUpdater {
 			String[] result = {};
 			for (IValue attributeValue : attributes) {
 				
-				if (attributeValue.getType().isAbstractDataType() && !attributeValue.getType().isVoidType()) {
+				if (attributeValue.getType().isAbstractData() && !attributeValue.getType().isBottom()) {
 					IConstructor attributeConstructor = (IConstructor)attributeValue;
 
 					if (attributeConstructor.getName().equals("tag")) {
@@ -171,7 +162,7 @@ public class DebugUpdater {
 	
 					IValue kidValue = iter.next();
 	
-					if (kidValue.getType().isAbstractDataType() && !kidValue.getType().isVoidType()) {
+					if (kidValue.getType().isAbstractData() && !kidValue.getType().isBottom()) {
 						IConstructor kidConstructor = (IConstructor)kidValue;
 						
 						if (kidConstructor.getName().equals("label")) {

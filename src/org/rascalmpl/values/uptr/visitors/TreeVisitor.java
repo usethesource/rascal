@@ -17,14 +17,13 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IdentityVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.uptr.Factory;
 
-public abstract class TreeVisitor extends IdentityVisitor {
+public abstract class TreeVisitor<E extends Throwable> extends IdentityVisitor<E> {
 	
 	@Override
-	public INode visitConstructor(IConstructor o) throws VisitorException {
+	public INode visitConstructor(IConstructor o) throws E {
 		if (o.getType() == Factory.Tree) {
 			Type alt = o.getConstructorType();
 			
@@ -44,8 +43,8 @@ public abstract class TreeVisitor extends IdentityVisitor {
 		return o;
 	}
 	
-	public abstract IConstructor visitTreeAppl(IConstructor arg) throws VisitorException;
-	public abstract IConstructor visitTreeAmb(IConstructor arg) throws VisitorException;
-	public abstract IConstructor visitTreeChar(IConstructor arg) throws VisitorException;
-	public abstract IConstructor visitTreeCycle(IConstructor arg) throws VisitorException;
+	public abstract IConstructor visitTreeAppl(IConstructor arg) throws E;
+	public abstract IConstructor visitTreeAmb(IConstructor arg) throws E;
+	public abstract IConstructor visitTreeChar(IConstructor arg) throws E;
+	public abstract IConstructor visitTreeCycle(IConstructor arg) throws E;
 }

@@ -27,7 +27,7 @@ public class Sequence2 extends SGTDBF<IConstructor, IConstructor, ISourceLocatio
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_B = VF.constructor(Factory.Symbol_Sort, VF.string("B"));
-	private final static IConstructor SYMBOL_SEQ_AB = VF.constructor(Factory.Symbol_Seq, Factory.Symbols.make(VF, SYMBOL_A, SYMBOL_B));
+	private final static IConstructor SYMBOL_SEQ_AB = VF.constructor(Factory.Symbol_Seq, VF.list(SYMBOL_A, SYMBOL_B));
 	private final static IConstructor SYMBOL_a = VF.constructor(Factory.Symbol_Lit, VF.string("a"));
 	private final static IConstructor SYMBOL_char_a = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(97))));
 	private final static IConstructor SYMBOL_b = VF.constructor(Factory.Symbol_Lit, VF.string("b"));

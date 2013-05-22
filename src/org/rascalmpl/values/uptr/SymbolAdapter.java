@@ -240,15 +240,15 @@ public class SymbolAdapter {
 		}
 		
 		if (isInt(symbol) || isStr(symbol) || isReal(symbol) || isBool(symbol) || isRat(symbol)
-				|| isNode(symbol) || isValue(symbol) || isVoid(symbol) || isNum(symbol) || isDatetime(symbol)) {
+				|| isNode(symbol) || isValue(symbol) || isVoid(symbol) || isNum(symbol) || isDatetime(symbol) || isLoc(symbol)) {
 			return symbol.getName();
 		}
 		
 		if (isSet(symbol) || isList(symbol) || isBag(symbol) || isReifiedType(symbol)) {
-			return getName(symbol) + "[" + toString((IConstructor) symbol.get("symbol")) + "]";
+			return symbol.getName() + "[" + toString((IConstructor) symbol.get("symbol")) + "]";
 		}
 		
-		if (isRel(symbol) || isTuple(symbol)) {
+		if (isRel(symbol) || isListRel(symbol) || isTuple(symbol)) {
 			StringBuilder b = new StringBuilder();
 			b.append(symbol.getName());
 			IList symbols = (IList) symbol.get("symbols");
@@ -305,10 +305,12 @@ public class SymbolAdapter {
 	private static String toString(IList symbols) {
 		StringBuilder b = new StringBuilder();
 		
-		b.append(toString((IConstructor) symbols.get(0)));
-		for (int i = 1; i < symbols.length(); i++) {
-			b.append(',');
-			b.append(toString((IConstructor) symbols.get(i)));
+		if (symbols.length() > 0) {
+			b.append(toString((IConstructor) symbols.get(0)));
+			for (int i = 1; i < symbols.length(); i++) {
+				b.append(',');
+				b.append(toString((IConstructor) symbols.get(i)));
+			}
 		}
 		
 		return b.toString();
@@ -353,6 +355,10 @@ public class SymbolAdapter {
 	public static boolean isRel(IConstructor symbol) {
 		return symbol.getConstructorType() == Factory.Symbol_Rel;
 	}
+	
+	public static boolean isListRel(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_ListRel;
+	}
 
 	public static boolean isMap(IConstructor symbol) {
 		return symbol.getConstructorType() == Factory.Symbol_Map;
@@ -360,6 +366,10 @@ public class SymbolAdapter {
 
 	public static boolean isDatetime(IConstructor symbol) {
 		return symbol.getConstructorType() == Factory.Symbol_Datetime;
+	}
+	
+	public static boolean isLoc(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Loc;
 	}
 
 	public static boolean isNum(IConstructor symbol) {

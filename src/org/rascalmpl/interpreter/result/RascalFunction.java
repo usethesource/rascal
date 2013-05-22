@@ -58,7 +58,9 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.staticErrors.MissingReturn;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
@@ -76,18 +78,19 @@ public class RascalFunction extends NamedFunction {
 	private final boolean isTest;
 	private final boolean isStatic;
 	private final String resourceScheme;
+	private final String resolverScheme;
 	private final List<Expression> formals;
 	private final String firstOutermostLabel;
 	private final IConstructor firstOutermostProduction;
 	private final Map<String, String> tags;
 	private static final String RESOURCE_TAG = "resource";
-
+	private static final String RESOLVER_TAG = "resolver";
 
 	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
-				(FunctionType) func.getSignature().typeOf(env),
+				(FunctionType) func.getSignature().typeOf(env, true),
 				varargs, isDefault(func),hasTestMod(func.getSignature()),
 				func.getBody().getStatements(), env, accumulators);
 	}
@@ -96,7 +99,7 @@ public class RascalFunction extends NamedFunction {
 			Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
-				(FunctionType) func.getSignature().typeOf(env), 
+				(FunctionType) func.getSignature().typeOf(env, true), 
 				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getLocation(), ASTBuilder.makeStat("Expression", func.getLocation(), func.getExpression()))}),
 				env, accumulators);
@@ -118,17 +121,23 @@ public class RascalFunction extends NamedFunction {
 		
 		if (ast instanceof FunctionDeclaration) {
 			tags = parseTags((FunctionDeclaration) ast);
-			String resourceScheme = RascalFunction.getResourceScheme((FunctionDeclaration)ast);
-			if (resourceScheme.equals("")) {
-					this.resourceScheme = null;
-			} else { 
-				this.resourceScheme = resourceScheme;
-			}
+			this.resourceScheme = getResourceScheme((FunctionDeclaration) ast);
+			this.resolverScheme = getResolverScheme((FunctionDeclaration) ast);
 		} else {
 			tags = new HashMap<String, String>();
 			this.resourceScheme = null;
+			this.resolverScheme = null;
 		}
 	}
+	
+	@Override
+	public RascalFunction cloneInto(Environment env) {
+		RascalFunction rf = new RascalFunction(getAst(), getEval(), getName(), getFunctionType(), hasVarArgs(), isDefault(), isTest(), body, env, accumulators);
+		rf.setPublic(isPublic()); // TODO: should be in constructors
+		return rf;
+	}
+	
+	
 	
 	private Map<String, String> parseTags(FunctionDeclaration declaration) {
 		Map<String, String> result = new HashMap<String, String>();
@@ -159,11 +168,19 @@ public class RascalFunction extends NamedFunction {
 	}
 
 	private static String getResourceScheme(FunctionDeclaration declaration) {
+		return getScheme(RESOURCE_TAG, declaration);
+	}
+	
+	private static String getResolverScheme(FunctionDeclaration declaration) {
+		return getScheme(RESOLVER_TAG, declaration);
+	}
+	
+	private static String getScheme(String schemeTag, FunctionDeclaration declaration) {
 		Tags tags = declaration.getTags();
 		
 		if (tags.hasTags()) {
 			for (Tag tag : tags.getTags()) {
-				if (Names.name(tag.getName()).equals(RESOURCE_TAG)) {
+				if (Names.name(tag.getName()).equals(schemeTag)) {
 					String contents = ((TagString.Lexical) tag.getContents()).getString();
 					
 					if (contents.length() > 2 && contents.startsWith("{")) {
@@ -174,7 +191,7 @@ public class RascalFunction extends NamedFunction {
 			}
 		}
 		
-		return "";
+		return null;
 	}
 	
 	private String computeFirstOutermostLabel(AbstractAST ast) {
@@ -315,104 +332,103 @@ public class RascalFunction extends NamedFunction {
 		return isDefault;
 	}
 	
+	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, Result<IValue>> keyArgValues) {
-		Environment old = ctx.getCurrentEnvt();
-		AbstractAST oldAST = ctx.getCurrentAST();
-		Stack<Accumulator> oldAccus = ctx.getAccumulators();
+  public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
+    Environment old = ctx.getCurrentEnvt();
+    AbstractAST oldAST = ctx.getCurrentAST();
+    Stack<Accumulator> oldAccus = ctx.getAccumulators();
 
-		try {
-			String label = isAnonymous() ? "Anonymous Function" : name;
-			Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), label);
-			ctx.setCurrentEnvt(environment);
-			
-			IMatchingResult[] matchers = prepareFormals(ctx);
-			ctx.setAccumulators(accumulators);
-			ctx.pushEnv();
+    try {
+      String label = isAnonymous() ? "Anonymous Function" : name;
+      Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), label);
+      ctx.setCurrentEnvt(environment);
+      
+      IMatchingResult[] matchers = prepareFormals(ctx);
+      ctx.setAccumulators(accumulators);
+      ctx.pushEnv();
 
-			Type actualTypesTuple = TF.tupleType(actualTypes);
-			if (hasVarArgs) {
-				actuals = computeVarArgsActuals(actuals, getFormals());
-				actualTypesTuple = computeVarArgsActualTypes(actualTypes, getFormals());
-			}
+      Type actualTypesTuple = TF.tupleType(actualTypes);
+      if (hasVarArgs) {
+        actuals = computeVarArgsActuals(actuals, getFormals());
+        actualTypesTuple = computeVarArgsActualTypes(actualTypes, getFormals());
+      }
 
-			int size = actuals.length;
-			Environment[] olds = new Environment[size];
-			int i = 0;
-			
-			
-			if (!hasVarArgs && size != this.formals.size())
-				throw new MatchFailed();
+      int size = actuals.length;
+      Environment[] olds = new Environment[size];
+      int i = 0;
+      
+      
+      if (!hasVarArgs && size != this.formals.size())
+        throw new MatchFailed();
 
-			if (size == 0) {
-				try {
-					bindKeywordArgs(keyArgValues);
-					return runBody();
-				}
-				catch (Return e) {
-					return computeReturn(e);
-				}
-			}
-			
-			matchers[0].initMatch(makeResult(actualTypesTuple.getFieldType(0), actuals[0], ctx));
-			olds[0] = ctx.getCurrentEnvt();
-			ctx.pushEnv();
+      if (size == 0) {
+        try {
+          bindKeywordArgs(keyArgValues);
+          return runBody();
+        }
+        catch (Return e) {
+          return computeReturn(e);
+        }
+      }
+      
+      matchers[0].initMatch(makeResult(actualTypesTuple.getFieldType(0), actuals[0], ctx));
+      olds[0] = ctx.getCurrentEnvt();
+      ctx.pushEnv();
 
-			// pattern matching requires backtracking due to list, set and map matching and
-			// non-linear use of variables between formal parameters of a function...
-			
-			while (i >= 0 && i < size) {
-				if (ctx.isInterrupted()) { 
-					throw new InterruptException(ctx.getStackTrace(), ctx.getCurrentAST().getLocation());
-				}
-				if (matchers[i].hasNext() && matchers[i].next()) {
-					if (i == size - 1) {
-						// formals are now bound by side effect of the pattern matcher
-						try {
-							bindKeywordArgs(keyArgValues);
-							return runBody();
-						}
-						catch (Failure e) {
-							// backtrack current pattern assignment
-							if (!e.hasLabel() || e.hasLabel() && e.getLabel().equals(getName())) {
-								continue;
-							}
-							else {
-								throw new UnguardedFail(getAst(), e);
-							}
-//							ctx.unwind(olds[i]);
-//							i--;
-//							ctx.pushEnv();
-						}
-					}
-					else {
-						i++;
-						matchers[i].initMatch(makeResult(actualTypesTuple.getFieldType(i), actuals[i], ctx));
-						olds[i] = ctx.getCurrentEnvt();
-						ctx.pushEnv();
-					}
-				} else {
-					ctx.unwind(olds[i]);
-					i--;
-					ctx.pushEnv();
-				}
-			}
-			
-			// backtrack to other function body
-			throw new MatchFailed();
-		}
-		catch (Return e) {
-			return computeReturn(e);
-		} 
-		finally {
-			if (callTracing) {
-				printFinally();
-			}
-			ctx.setCurrentEnvt(old);
-			ctx.setAccumulators(oldAccus);
-			ctx.setCurrentAST(oldAST);
-		}
-	}
+      // pattern matching requires backtracking due to list, set and map matching and
+      // non-linear use of variables between formal parameters of a function...
+      
+      while (i >= 0 && i < size) {
+        if (ctx.isInterrupted()) { 
+          throw new InterruptException(ctx.getStackTrace(), ctx.getCurrentAST().getLocation());
+        }
+        if (matchers[i].hasNext() && matchers[i].next()) {
+          if (i == size - 1) {
+            // formals are now bound by side effect of the pattern matcher
+            try {
+              bindKeywordArgs(keyArgValues);
+              return runBody();
+            }
+            catch (Failure e) {
+              // backtrack current pattern assignment
+              if (!e.hasLabel() || e.hasLabel() && e.getLabel().equals(getName())) {
+                continue;
+              }
+              else {
+                throw new UnguardedFail(getAst(), e);
+              }
+            }
+          }
+          else {
+            i++;
+            matchers[i].initMatch(makeResult(actualTypesTuple.getFieldType(i), actuals[i], ctx));
+            olds[i] = ctx.getCurrentEnvt();
+            ctx.pushEnv();
+          }
+        } else {
+          ctx.unwind(olds[i]);
+          i--;
+          ctx.pushEnv();
+        }
+      }
+      
+      // backtrack to other function body
+      throw new MatchFailed();
+    }
+    catch (Return e) {
+      return computeReturn(e);
+    } 
+    finally {
+      if (callTracing) {
+        printFinally();
+      }
+      ctx.setCurrentEnvt(old);
+      ctx.setAccumulators(oldAccus);
+      ctx.setCurrentAST(oldAST);
+    }
+  }
+
 	
 
 	private Result<IValue> runBody() {
@@ -446,7 +462,7 @@ public class RascalFunction extends NamedFunction {
 			throw new UnexpectedType(instantiatedReturnType, result.getType(), e.getLocation());
 		}
 
-		if (!returnType.isVoidType() && result.getType().isVoidType()) {
+		if (!returnType.isBottom() && result.getType().isBottom()) {
 			throw new UnexpectedType(returnType, result.getType(), e.getLocation());
 		}
 
@@ -565,4 +581,16 @@ public class RascalFunction extends NamedFunction {
 	public boolean hasResourceScheme() {
 		return this.resourceScheme != null;
 	}
+	
+	@Override
+	public boolean hasResolverScheme() {
+		return this.resolverScheme != null;
+	}
+	
+	@Override
+	public String getResolverScheme() {
+		return this.resolverScheme;
+	}
+
+ 
 }

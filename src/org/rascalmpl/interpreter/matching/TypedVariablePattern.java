@@ -166,5 +166,9 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 	public Type getType() {
 		return declaredType;
 	}
+	
+	public boolean bindingInstance() {
+		return this.alreadyStored;
+	}
 	 
 }

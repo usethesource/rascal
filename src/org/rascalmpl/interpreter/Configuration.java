@@ -15,6 +15,7 @@
 package org.rascalmpl.interpreter;
 
 
+
 public class Configuration {
 	public static final String RASCAL_FILE_EXT = ".rsc";
 	public static final String RASCAL_BIN_FILE_EXT = ".bin";
@@ -27,42 +28,60 @@ public class Configuration {
 	private final static String TRACING_PROPERTY = "rascal.tracing";
 	private final static String ERRORS_PROPERTY = "rascal.errors";
 	
-	public static String getRascalJavaClassPathProperty() {
-		String prop = System.getProperty(RASCAL_JAVA_COMPILER_CLASSPATH);
-		if (prop == null) {
-			prop = System.getProperty("java.class.path");
-			System.setProperty(RASCAL_JAVA_COMPILER_CLASSPATH, prop);
-		}
-		return prop;
+	private String javaClassPath = getDefaultString(RASCAL_JAVA_COMPILER_CLASSPATH, System.getProperty("java.class.path"));
+  private boolean profiling = getDefaultBoolean(PROFILING_PROPERTY, false);
+  private boolean tracing = getDefaultBoolean(TRACING_PROPERTY, false);
+  private boolean errors = getDefaultBoolean(ERRORS_PROPERTY, false);
+  
+	private static String getDefaultString(String property, String def) {
+	  String prop = System.getProperty(property);
+	  if (prop == null) {
+	    return def;
+	  }
+	  else {
+	    return prop;
+	  }
 	}
 	
-	public static void setRascalJavaClassPathProperty(String path) {
-		System.setProperty(RASCAL_JAVA_COMPILER_CLASSPATH, path);
+	private static boolean getDefaultBoolean(String property, boolean def) {
+    String prop = System.getProperty(property);
+    if (prop == null) {
+      return def;
+    }
+    else {
+      return prop.equals("true");
+    }
+  }
+	
+	public String getRascalJavaClassPathProperty() {
+		return javaClassPath;
 	}
 	
-	public static boolean getProfilingProperty(){
-		String profiling = System.getProperty(PROFILING_PROPERTY);
-		if(profiling != null){
-			return profiling.equals("true") ? true : false;
-		}
-		System.setProperty(PROFILING_PROPERTY, "false");
-		return false;
+	public void setRascalJavaClassPathProperty(String path) {
+		javaClassPath = path;
 	}
 	
-	public static boolean getTracingProperty(){
-		String tracing = System.getProperty(TRACING_PROPERTY);
-		if(tracing != null){
-			return tracing.equals("true") ? true : false;
-		}
-		System.setProperty(TRACING_PROPERTY, "false");
-		return false;
+	public boolean getProfilingProperty(){
+		return profiling;
 	}
 	
-	public static boolean printErrors(){
-		String printErrors = System.getProperty(ERRORS_PROPERTY);
-		if(printErrors != null){
-			return printErrors.equals("true") ? true : false;
-		}
-		return false;
+	public boolean getTracingProperty(){
+		return tracing;
+	}
+	
+	public boolean printErrors(){
+		return errors;
+	}
+	
+	public void setErrors(boolean errors) {
+    this.errors = errors;
+  }
+	
+	public void setProfiling(boolean profiling) {
+	  this.profiling = profiling;
+	}
+	
+	public void setTracing(boolean tracing) {
+	  this.tracing = tracing;
 	}
 }

@@ -14,6 +14,7 @@
 package org.rascalmpl.test.functionality;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -138,6 +139,18 @@ public class CallTests extends TestFramework{
 		
 	    assertTrue(runTest("{ " + doSomething + " f(int (int i) { return i + 1; }, 0) == 1; }"));
 	    assertTrue(runTest("{ int x = 1; " + doSomething + " (f(int (int i) { x = x * 2; return i + x; }, 1) == 3) && (x == 2); }"));
+	}
+	
+	@Test public void closuresVariables() {
+		prepareModule("M", "module M\n" +
+		         "bool() x = bool() { return false; } ;\n" +
+		         "public void changeX(bool() newX) { x = newX; }\n" +
+		         "public bool getX() = x();");
+
+		prepareMore("import M;");
+		assertFalse(runTestInSameEvaluator("getX();"));
+		prepareMore("changeX(bool() { return true; });");
+		assertTrue(runTestInSameEvaluator("getX();"));
 	}
 	
 	@Test public void varArgs() {

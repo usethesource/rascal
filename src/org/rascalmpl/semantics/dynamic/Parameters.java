@@ -30,8 +30,8 @@ public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
-			return this.getFormals().typeOf(env);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+			return this.getFormals().typeOf(env, instantiateTypeParameters);
 		}
 		
 		@Override
@@ -48,8 +48,8 @@ public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 		}
 
 		@Override
-		public Type typeOf(Environment env) {
-			Type formals = getFormals().typeOf(env);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+			Type formals = getFormals().typeOf(env, instantiateTypeParameters);
 			int arity = formals.getArity();
 
 			if (arity == 0) {

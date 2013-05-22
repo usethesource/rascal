@@ -14,12 +14,12 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Filtered;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
@@ -27,7 +27,6 @@ import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -53,7 +52,6 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  */
 public class RascalFunctionActionExecutor implements IActionExecutor<IConstructor> {
 	private final static TypeFactory TF = TypeFactory.getInstance();
-	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final IEvaluatorContext ctx;
 
 	public RascalFunctionActionExecutor(IEvaluatorContext ctx) {
@@ -110,7 +108,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 						new Type[] {TF.setType(type)}, new IValue[] {alts}, null
 				);
 				
-				if (result.getType().isVoidType()) {
+				if (result.getType().isBottom()) {
 					return ambCluster;
 				}
 				
@@ -163,16 +161,11 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 						result = call(function, TreeAdapter.getArgs(tree));
 					}
 					
-					// TODO: Little experiment by Sebastian and Jurgen, don't ask.
-					if (result == null){
-						result = call(function, VF.list(tree));
-					}
-					
 					if (result == null) {
 						return tree;
 					}
 					
-					if (result.getType().isVoidType()) {
+					if (result.getType().isBottom()) {
 						return tree;
 					}
 					
@@ -205,8 +198,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 			}
 			
 			return function.call(types, actuals, null);
-		}catch(ArgumentsMismatch e){
-//			e.printStackTrace();
+		}catch(MatchFailed e){
 			return null;
 		}catch(Failure f){
 			return null;
