@@ -235,7 +235,7 @@ public set[Production] getProductions(Prod* prods, bool isLex){
 set[Production] fixParameters(set[Production] input) {
   return innermost visit(input) {
     case prod(\parameterized-sort(str name, [pre*, sort(str x), post*]),lhs,  as) =>
-         prod(\parameterized-sort(name,[pre,\parameter(x),post]),visit (lhs) { case sort(x) => \parameter(x) }, as)
+         prod(\parameterized-sort(name,[*pre,\parameter(x),*post]),visit (lhs) { case sort(x) => \parameter(x) }, as)
   }
 }
 
