@@ -12,7 +12,7 @@ import lang::rascal::grammar::definition::Modules;
 }
 public str generate(str name, loc at) {
    def = loadSDF2Module(at.path, [|rascal:///|,|rascal:///src|]);
-   gr = fuse(sdf2grammar(name, def));
+   gr = fuse(dup(sdf2grammar(at.path[1..], def)));
    return "module <name>
           '
           '<grammar2rascal(gr)>

@@ -1,105 +1,35 @@
 module lang::rascal::checker::TTL::TTLGen
 
-extend lang::rascal::\syntax::Rascal;
+//extend lang::rascal::\syntax::Rascal;
+extend lang::rascal::checker::TTL::TTLsyntax;
 import IO;
 import String;
 import List;
 import lang::rascal::checker::TTL::Library;
 import lang::rascal::checker::TTL::PatternGenerator;
-
-// TTL : Typechecker Test Language
-// A DSL for writing type-related tests aiming at:
-// - testing the Rascal type checker
-// - testing compatibility between Rascal type checker and evaluator
-// A TTL definition may contain the following elements:
-// - definition of a module to be imported in tests in the same file
-// - definition of a named declaration that can be used in tests in the same file
-// - test definitions:
-//   (a) A general test: a sequence of Rascal declarations and statements
-//   (b) An operator test (infix, prefix or postfix)
-// - Each test defines an expectation about its outcome:
-//   (a) specific type of a variable
-//   (b) specific error message
-//   (c) specific exception 
-
-start syntax TTL = ttl: TestItem* items;
-
-//layout Comment
-//	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
-//	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
-//	;
-
-start syntax TestItem =
-	  defMod:      "define" Name name "{" Module moduleText "}"
-	| defDecl:     "define" Name name "{" Declaration declaration "}"
-	| GeneralTest: "test" DecimalIntegerLiteral nargs "variables" "{" Use use Statement+ statements "}" "expect" "{" {Expect ","}* expectations "}" 
-	| InfixTest:   "infix" Name name {StringLiteral ","}+ operators "{" {BinarySignature ","}+ signatures "}"
-	| PrefixTest:  "prefix" Name name {StringLiteral ","}+ operators "{" {UnarySignature ","}+ signatures "}"
-	| PostfixTest: "postfix" Name name {StringLiteral ","}+ operators "{" {UnarySignature ","}+ signatures "}"
-	| PatternTest: "test" DecimalIntegerLiteral nargs "patterns" "{" Expression expression "}"
-	;
-
-syntax BinarySignature = ExtendedType left "x" ExtendedType right "-\>" ExtendedType result Condition condition;
-syntax UnarySignature = ExtendedType left "-\>" ExtendedType result Condition condition;
-
-syntax Condition = 
-       nonempty: "when" "&" Name name "is" "not" "a" RascalKeywords typeName
-     | empty: ()
-     ;
-
-syntax ExtendedType =
-       intType: "int"          
-     | boolType: "bool"
-     | realType: "real"
-     | ratType: "rat"
-     | strType: "str"
-     | numType: "num"
-     | nodeType: "node"
-     | voidType: "void"
-     | valueType: "value"
-     | locType: "loc"
-     | datetimeType: "datetime"
-     | listType: "list" "[" ExtendedType elemType "]"
-     | lrelType:  "lrel" "["  {ExtendedType ","}+ elemTypes"]"
-     | setType:  "set" "[" ExtendedType elemType "]"
-     | relType:  "rel" "["  {ExtendedType ","}+ elemTypes "]"
-     | mapType:  "map" "[" ExtendedType keyType "," ExtendedType valType "]"
-     | tupleType: "tuple" "[" {ExtendedType ","}+ elemTypes "]"
-     | lubType:  "LUB" "(" ExtendedType left "," ExtendedType right ")"
-     | typeVar: "&" Name name
-     | typeVarBounded: "&" Name name "\<:" ExtendedType bound
-     | testVar: Name name
-     ;
-
-start syntax Use = use: "use" Name+ names "::" |  none: ()  ;
-
-start syntax Expect =
-         inferred: ExtendedType expectedType Name name
-       | message: RegExpLiteral regexp
-       | exception: Name name
-       ;  
-              
-loc TTLRoot = |rascal:///lang/rascal/checker/TTL/|;         // where TTL resides
-str modulePrefix = "lang::rascal::checker::TTL::generated"; // where modules defined in TTL files reside
-str TTL = "ttl"; 											// TTL language extension
+import lang::rascal::checker::TTL::ExpressionGenerator;
 
 private int tcnt = 0;
 
 private int genSym() { tcnt += 1; return tcnt; }
 
+list[TestItem] infix = [];
+list[TestItem] prefix = [];
+list[TestItem] postfix = [];
+
 // Main: compile all TTL specifications to Rascal tests
 
 void main() { 
   tcnt = 0;
+  infix = prefix = postfix = [];
   for(ttl <- (TTLRoot + "specs").ls, ttl.extension == TTL)
       generate(ttl); 
+  generateExpressions(infix, prefix, postfix);
 }
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];
 
 str basename(TestItem item) = basename(item@\loc);
-       
-data Symbol = LUB(Symbol l, Symbol r);
 
 str addModulePrefix(Module m){
   if(/\s*module\s+<mname:[a-zA-Z0-9]+><rest:.*$>/ := "<m>"){
@@ -127,10 +57,13 @@ void generate(loc src){
           tests += genGeneralTest(item, decls, modules);
        } else if(item is InfixTest){
           tests += genInfixTest(item);
+          infix += item;
        } else if(item is PrefixTest){
          tests += genUnaryTest(item, true);
+         prefix += item;
        } else if(item is PostfixTest){
          tests += genUnaryTest(item, false);
+         postfix += item;
        } else if(item is PatternTest){
          tests += genPatternTest(item);
        } else {
@@ -175,12 +108,14 @@ str genGeneralTest(TestItem item,  map[Name, Declaration] declarations,  map[Nam
   	
   inferredChecks = "";
   for(<var, tp> <- inferred){
-    if(nargs > 0 && "<tp>"[0] == "T"){
-       i = toInt("<tp>"[1]);
-       inferredChecks += "if(!subtype(getTypeForName(checkResult.conf, \"<var>\"), typeOf(arg<i>))) return false;";    
+    v = "<var>";
+    if(v[0] == "_") v = v[1..];
+    if(nargs > 0 && "<tp>"[1] == "T"){  // _T<i>
+       i = toInt("<tp>"[2]);
+       inferredChecks += "if(!subtype(getTypeForName(checkResult.conf, \"<v>\"), typeOf(arg<i>))) return false;";    
     } else {
       btp = buildType("<tp>");
-      inferredChecks += "if(!subtype(getTypeForName(checkResult.conf, \"<var>\"), normalize(<btp>, vsenv))) return false;";
+      inferredChecks += "if(!subtype(getTypeForName(checkResult.conf, \"<v>\"), normalize(<btp>, vsenv))) return false;";
     }
   }
   
@@ -264,12 +199,13 @@ str genCondition(sig){
     return typeCondition;
 }
 
-str buildType(str txt){   // TODO removoe this limitation to 5 variables
+str buildType(str txt){   // TODO remove this limitation to 5 variables
 
    for(int id <- [0 .. 5]){
-      txt = replaceAll(txt, "T<id>", "#&T<id>.symbol");
+      txt = replaceAll(txt, "_T<id>", "#&T<id>.symbol");
    }
-   return "#<txt>.symbol";              
+   txt = replaceAll(txt, "LUB", "lub");
+   return startsWith(txt, "lub") || (txt[0] == "#") ? txt : "#<txt>.symbol";          
 }
 
 // Generete code for TTL test for infix operator
@@ -301,8 +237,8 @@ str genInfixTest(TestItem item){
 	              '     if(verbose) println(\"[<tname>] exp: \<expression\>\");
 	              '     checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
 	              '     actualType = checkResult.res; 
-	              '     expectedType = normalize(<toSymbol(sig.result)>, bindings);
-	              '     return validate(<tname>, expression, actualType, expectedType, arg1, arg2, <escape("signature <sig>")>);
+	              '     expectedType = normalize(<toSymbolAsStr(sig.result)>, bindings);
+	              '     return validate(\"<tname>\", expression, actualType, expectedType, arg1, arg2, <escape("signature <sig>")>);
 	              '  }
 	              '  return false;
 	              '}\n";
@@ -327,11 +263,11 @@ str genUnaryTest(TestItem item, bool prefix){
 	     		  '  <genArgument(sig.left, "l")>
 				  '  if(lmatches){
 				  '     <genCondition(sig)>
-				  '     if(verbose) println(\"[<tname>] exp: \" + expression);
+				  '     if(verbose) println(\"[<tname>] exp: \" + <expression>);
 				  '	    checkResult = checkStatementsString(<expression>, importedModules=[], initialDecls = []); // apply the operator to its arguments
 	              '     actualType = checkResult.res; 
-	              '     expectedType = normalize(<toSymbol(sig.result)>, lbindings);
-	              '     return validate(<tname>, <expression>, actualType, expectedType, arg1, <escape("signature <sig>")>);
+	              '     expectedType = normalize(<toSymbolAsStr(sig.result)>, lbindings);
+	              '     return validate(\"<tname>\", <expression>, actualType, expectedType, arg1, <escape("signature <sig>")>);
 	              '  }
 	              '  return false;
 	              '}\n";
@@ -340,14 +276,14 @@ str genUnaryTest(TestItem item, bool prefix){
   return tests;
 }
 
-str genArgument(ExtendedType a, str side) = "\<<side>matches, <side>bindings\> = bind(<toSymbol(a)>, <side>type);\n";
+str genArgument(ExtendedType a, str side) = "\<<side>matches, <side>bindings\> = bind(<toSymbolAsStr(a)>, <side>type);\n";
 
 
 str genPatternTest(TestItem item){
   nargs = toInt("<item.nargs>");
   args = intercalate(", ", [ "&T<i> arg<i>" | i <- [0 .. nargs]]);
   ptypes = "[" + intercalate(", ", [ "type(typeOf(arg<i>), ())" | i <- [0 .. nargs]]) + "]";
-  exp = escape("<item.expression>");
+  exp = escape("<item.expression>;");
   tname = "<basename(item)><genSym()>";
   return   "// Testing <item.expression>
    	 	   'test bool <tname>(<args>){
@@ -366,7 +302,7 @@ str genPatternTest(TestItem item){
            '             if(inferred(_) := actualType){
            '                 println(\"[<tname>] *** No type found for variable \<v\>; expected type \<expectedType\>; exp = \<exp\>\");
            '             } else {
-           '             if(!validate(<tname>, exp, actualType, expectedType, \"variable \<v\>\"))
+           '             if(!validate(\"<tname>\", exp, actualType, expectedType, \"variable \<v\>\"))
            '                return false;
            '             }
            '         } catch: {
@@ -377,27 +313,4 @@ str genPatternTest(TestItem item){
            '     return true;
            '}\n";
 }
-                                    
-str toSymbol(ExtendedType t){
-  if( t is intType) return  "\\int()";
-  if( t is boolType) return  "\\bool()";
-  if( t is realType) return  "\\real()";
-  if( t is ratType) return  "\\rat()";
-  if( t is strType) return  "\\str()";
-  if( t is numType) return  "\\num()";
-  if( t is nodeType) return  "\\node()";
-  if( t is voidType) return  "\\void()";
-  if( t is valueType) return  "\\value()";
-  if( t is locType) return  "\\loc()";
-  if( t is datetimeType) return  "\\datetime()";
-  if(t is listType) return "\\list(<toSymbol(t.elemType)>)";
-  if(t is setType) return "\\set(<toSymbol(t.elemType)>)";
-  if(t is mapType) return "\\map(<toSymbol(t.keyType)>,<toSymbol(t.valType)>)";
-  if(t is tupleType) return "\\tuple([<intercalate(",", [toSymbol(e) | e <- t.elemTypes])>])";
-  if(t is relType) return "\\rel([<intercalate(",", [toSymbol(e) | e <- t.elemTypes])>])";
-  if(t is lrelType) return "\\lrel([<intercalate(",", [toSymbol(e) | e <- t.elemTypes])>])";
-  if(t is lubType) return "\\LUB(<toSymbol(t.left)>,<toSymbol(t.right)>)";
-  if(t is typeVar) return "\\parameter(\"<t.name>\", \\value())";
-  if(t is typeVarBounded) return "\\parameter(\"<t.name>\", <toSymbol(t.bound)>)";
-  throw "unexpected case in toSymbol";
-}
+  
