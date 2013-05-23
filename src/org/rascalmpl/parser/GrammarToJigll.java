@@ -46,17 +46,17 @@ public class GrammarToJigll {
 
 	@SuppressWarnings("unchecked")
 	public IConstructor jparse(IValue type, IConstructor symbol, IConstructor grammar, IString str) {
-	  Grammar g = convert("inmemory", grammar);
+	  GrammarBuilder builder = convert("inmemory", grammar);
 	  
 	  IMap notAllowed = (IMap) ((IMap) grammar.get("about")).get(vf.string("notAllowed"));
-	  applyRestrictions(g, notAllowed);
+	  applyRestrictions(builder, notAllowed);
 	  
 	  GLLParser parser = new LevelSynchronizedGrammarInterpretter();
 	
 	  System.out.println("Jigll started.");
 	  Input input = Input.fromString(str.getValue());
 	  
-	  NonterminalSymbolNode sppf = parser.parse(input, g, symbol.toString());
+	  NonterminalSymbolNode sppf = parser.parse(input, builder.build(), symbol.toString());
 	  
 	  long start = System.nanoTime();
 	  
@@ -70,8 +70,9 @@ public class GrammarToJigll {
 	
 	public void generate(IString name, IConstructor grammar) {
 
-		Grammar g = convert(name.getValue(), grammar);
-
+		GrammarBuilder builder = convert(name.getValue(), grammar);
+		Grammar g = builder.build();
+		
 		try (StringWriter out = new StringWriter()) {
 			g.code(out, "test");
 		} catch (IOException e) {
@@ -79,7 +80,7 @@ public class GrammarToJigll {
 		}
 	}
 
-	public Grammar convert(String name, IConstructor grammar) {
+	public GrammarBuilder convert(String name, IConstructor grammar) {
 		
 		GrammarBuilder builder = new GrammarBuilder(name);
 		
@@ -113,10 +114,10 @@ public class GrammarToJigll {
 			}
 		}
 
-		return builder.build();
+		return builder;
 	}
 	
-	private void applyRestrictions(Grammar grammar, IMap notAllowed) {
+	private void applyRestrictions(GrammarBuilder builder, IMap notAllowed) {
 		Iterator<Entry<IValue, IValue>> it = notAllowed.entryIterator();
 		while(it.hasNext()) {
 			Entry<IValue, IValue> next = it.next();
@@ -131,7 +132,7 @@ public class GrammarToJigll {
 			Iterator<IValue> iterator = set.iterator();
 			while(iterator.hasNext()) {
 				// Create a new filter for each filtered nonterminal
-				grammar.addFilter(rule.getHead().getName(), rule.getBody(), position, rulesMap.get(iterator.next()).getBody());
+				builder.addFilter(rule.getHead().getName(), rule.getBody(), position, rulesMap.get(iterator.next()).getBody());
 			}
 		}		
 	}
