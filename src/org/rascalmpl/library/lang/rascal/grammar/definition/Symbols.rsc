@@ -15,6 +15,10 @@ import String;
 import IO;
 
 
+Symbol striprec(Symbol s) = visit(s) { case Symbol t => strip(t) };
+Symbol strip(label(str _, Symbol s)) = strip(s);
+Symbol strip(conditional(Symbol s, set[Condition] _)) = strip(s);
+default Symbol strip(Symbol s) = s;
 
 public bool match(Symbol checked, Symbol referenced) {
   while (checked is conditional || checked is label)
@@ -25,6 +29,7 @@ public bool match(Symbol checked, Symbol referenced) {
   return referenced == checked;
 } 
 
+@deprecated{use striprec}
 public Symbol delabel(Symbol s) = visit(s) { case label(_,t) => t };
 
 public Symbol sym2symbol(Sym sym) {
