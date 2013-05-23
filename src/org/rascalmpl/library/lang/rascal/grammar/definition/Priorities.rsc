@@ -87,7 +87,7 @@ public DoNotNest doNotNest(Production p, set[Symbol] lefties, set[Symbol] righti
     case prod(s,[t,_*],{_*,\assoc(\right())}) :
       if (match(t, lefties)) return {<p, 0, p>}; 
     case prod(s,[t, *Symbol \o, u],{_*,\assoc(\non-assoc())}) :
-      if (match(t, lefties) && match(u, s, lefties, righties)) return {<p, 0, p>,<p,size(\o) + 1,p>};       
+      if (match(t, lefties) && match(u, righties)) return {<p, 0, p>,<p,size(\o) + 1,p>};       
     case prod(s,[t,_*],{_*,\assoc(\non-assoc())}) :
       if (match(t, lefties)) return {<p, 0, p>}; 
     case prod(s,[*Symbol \o, t],{_*,\assoc(\non-assoc())}) :

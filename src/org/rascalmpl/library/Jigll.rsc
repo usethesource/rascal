@@ -15,19 +15,25 @@ public void generate(str name, type[&T <: Tree] nont) {
 }
 
 public &T jparse(type[&T <: Tree] nont, str input) {
-  return jparse(nont, nont.symbol, removeLables(expandRegularSymbols(makeRegularStubs(flattenPriorities(addNotAllowedSets(literals(grammar({nont.symbol}, nont.definitions, ()))))))), input);
+  gr = grammar({nont.symbol}, nont.definitions, ());
+  gr = expandRegularSymbols(makeRegularStubs(gr));
+  gr = literals(gr);
+  gr = removeLables(gr);
+  gr = addNotAllowedSets(gr);
+  gr = prioAssocToChoice(gr);
+
+  println("filters: <gr.about>");
+  return jparse(nont, nont.symbol, gr, input);
 }
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
 public java &T jparse(type[&T <: Tree] nont, Symbol nonterminal, Grammar grammar, str input);
 
-private Grammar flattenPriorities(Grammar g) 
-		   = visit(g) {
-		   	  case priority(s, l) => choice(s, {*l})
-		   };
-		   
+// in the future this has to go because the labels are worth some money
 private Grammar removeLables(Grammar g) 
 	   = visit (g) {
 	      case label(name, s) => s
 	   };
+		
+		
 		
