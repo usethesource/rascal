@@ -17,6 +17,8 @@ module lang::sdf2::util::SDF2Grammar
                     
 import IO;
 import String;
+import Set;
+import List;
 import util::Math;
 import ParseTree;
 import Grammar;
@@ -62,6 +64,7 @@ public GrammarDefinition sdf2grammar(str main, SDF def) {
       throw "Main module <main> not found";
     
     res = definition(main, ms);
+    res = split(res);
     res = resolve(res);
     res = applyConditions(res, (s:c | c:conditional(s,_) <- getConditions(def)));
     
@@ -70,6 +73,51 @@ public GrammarDefinition sdf2grammar(str main, SDF def) {
   
   throw "Unknown format for SDF2";
 }
+
+private GrammarDefinition split(GrammarDefinition def) = visit(def) { case Grammar g => split(g) };
+
+
+Symbol striprec(Symbol s) = visit(s) { case Symbol t => strip ( t ) };
+Symbol strip(label(str _, Symbol s)) = strip(s);
+Symbol strip(conditional(Symbol s, set[Condition] _)) = strip(s);
+default Symbol strip(Symbol s) = s;
+
+
+
+private Grammar split(Grammar g) {
+  for (nt <- g.rules, cur :=  g.rules[nt], sorts := {strip(s) | /prod(s,_,_) := cur}, size(sorts) > 1) {
+    for (s <- sorts) {
+      newp = keep(cur, s);
+      if (g.rules[s]?)
+        g.rules[s].alternatives += newp.alternatives;
+      else
+        g.rules[s] = newp;
+    }
+  }
+  return removeEmptyProductions(g);
+}
+
+private Grammar removeEmptyProductions(Grammar g) = innermost visit(g) {
+	case {*r, Production p} => r
+		when p has alternatives && size(p.alternatives) == 0
+	case [*b, Production p, *a] => b + a
+		when p has alternatives && size(p.alternatives) == 0
+};
+
+private Production keep(Production source, Symbol s) = visit(source) {
+	case \priority(_, l) => \priority(s, l)
+	case \associativity(_, a, l) => \associativity(s, a, l)
+	case \cons(_, ss, a) => \cons(s, ss, a)
+	case \func(_, ss, a) => \func(s, ss, a)
+	case \choice(_, ps) => \choice(s, ps)
+	case list[Production] ps => fixProds(ps, s)
+		when size(ps) > 0
+	case set[Production] ps => fixProds(ps, s)
+		when size(ps) > 0
+};
+
+private set[Production] fixProds(set[Production] ps, Symbol s) = {p | p <- ps, strip(p.def) == s};
+private list[Production] fixProds(list[Production] ps, Symbol s) = [p | p <- ps, strip(p.def) == s];
 
 private GrammarModule getModule(Module m) {
   if (/(Module) `module <ModuleName mn> <ImpSection* _> <Sections _>` := m) {
