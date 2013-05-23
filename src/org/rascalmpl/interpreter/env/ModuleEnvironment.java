@@ -554,7 +554,7 @@ public class ModuleEnvironment extends Environment {
 			
 			if (lst != null) {
 				for (AbstractFunction func : lst) {
-					if (func.isPublic() && func.getReturnType().isSubtypeOf(returnType)) {
+					if (func.isPublic() && func.getReturnType().equivalent(returnType)) {
 						collection.add(func);
 					}
 				}
