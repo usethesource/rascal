@@ -2424,17 +2424,17 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \<= <Exp
         return markLocationType(c,exp@\loc,\bool());
     if (isBoolType(t1) && isBoolType(t2))
         return markLocationType(c,exp@\loc,\bool());
-    if (isListRelType(t1) && isListRelType(t2) && comparable(getListRelElementType(t1),getListRelElementType(t2)))
+    if (isListRelType(t1) && isListRelType(t2) && comparableOrNum(getListRelElementType(t1),getListRelElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
-    if (isListType(t1) && isListType(t2) && comparable(getListElementType(t1),getListElementType(t2)))
+    if (isListType(t1) && isListType(t2) && comparableOrNum(getListElementType(t1),getListElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
-    if (isMapType(t1) && isMapType(t2) && comparable(getMapDomainType(t1),getMapDomainType(t2)) && comparable(getMapRangeType(t1),getMapRangeType(t2)))
+    if (isMapType(t1) && isMapType(t2) && comparableOrNum(getMapDomainType(t1),getMapDomainType(t2)) && comparableOrNum(getMapRangeType(t1),getMapRangeType(t2)))
         return markLocationType(c,exp@\loc,\bool());
     if (isNodeType(t1) && isNodeType(t2))
         return markLocationType(c,exp@\loc,\bool());
-    if (isRelType(t1) && isRelType(t2) && comparable(getRelElementType(t1),getRelElementType(t2)))
+    if (isRelType(t1) && isRelType(t2) && comparableOrNum(getRelElementType(t1),getRelElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
-    if (isSetType(t1) && isSetType(t2) && comparable(getSetElementType(t1),getSetElementType(t2)))
+    if (isSetType(t1) && isSetType(t2) && comparableOrNum(getSetElementType(t1),getSetElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
     if (isStrType(t1) && isStrType(t2))
         return markLocationType(c,exp@\loc,\bool());
@@ -2466,17 +2466,17 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \< <Expr
         return markLocationType(c,exp@\loc,\bool());
     if (isBoolType(t1) && isBoolType(t2))
         return markLocationType(c,exp@\loc,\bool());
-    if (isListRelType(t1) && isListRelType(t2) && comparable(getListRelElementType(t1),getListRelElementType(t2)))
+    if (isListRelType(t1) && isListRelType(t2) && comparableOrNum(getListRelElementType(t1),getListRelElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
-    if (isListType(t1) && isListType(t2) && comparable(getListElementType(t1),getListElementType(t2)))
+    if (isListType(t1) && isListType(t2) && comparableOrNum(getListElementType(t1),getListElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
-    if (isMapType(t1) && isMapType(t2) && comparable(getMapDomainType(t1),getMapDomainType(t2)) && comparable(getMapRangeType(t1),getMapRangeType(t2)))
+    if (isMapType(t1) && isMapType(t2) && comparableOrNum(getMapDomainType(t1),getMapDomainType(t2)) && comparableOrNum(getMapRangeType(t1),getMapRangeType(t2)))
         return markLocationType(c,exp@\loc,\bool());
     if (isNodeType(t1) && isNodeType(t2))
         return markLocationType(c,exp@\loc,\bool());
-    if (isRelType(t1) && isRelType(t2) && comparable(getRelElementType(t1),getRelElementType(t2)))
+    if (isRelType(t1) && isRelType(t2) && comparableOrNum(getRelElementType(t1),getRelElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
-    if (isSetType(t1) && isSetType(t2) && comparable(getSetElementType(t1),getSetElementType(t2)))
+    if (isSetType(t1) && isSetType(t2) && comparableOrNum(getSetElementType(t1),getSetElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
     if (isStrType(t1) && isStrType(t2))
         return markLocationType(c,exp@\loc,\bool());
@@ -2508,17 +2508,17 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \> <Expr
         return markLocationType(c,exp@\loc,\bool());
     if (isBoolType(t1) && isBoolType(t2))
         return markLocationType(c,exp@\loc,\bool());
-    if (isListRelType(t1) && isListRelType(t2) && comparable(getListRelElementType(t1),getListRelElementType(t2)))
+    if (isListRelType(t1) && isListRelType(t2) && comparableOrNum(getListRelElementType(t1),getListRelElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
-    if (isListType(t1) && isListType(t2) && comparable(getListElementType(t1),getListElementType(t2)))
+    if (isListType(t1) && isListType(t2) && comparableOrNum(getListElementType(t1),getListElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
-    if (isMapType(t1) && isMapType(t2) && comparable(getMapDomainType(t1),getMapDomainType(t2)) && comparable(getMapRangeType(t1),getMapRangeType(t2)))
+    if (isMapType(t1) && isMapType(t2) && comparableOrNum(getMapDomainType(t1),getMapDomainType(t2)) && comparableOrNum(getMapRangeType(t1),getMapRangeType(t2)))
         return markLocationType(c,exp@\loc,\bool());
     if (isNodeType(t1) && isNodeType(t2))
         return markLocationType(c,exp@\loc,\bool());
-    if (isRelType(t1) && isRelType(t2) && comparable(getRelElementType(t1),getRelElementType(t2)))
+    if (isRelType(t1) && isRelType(t2) && comparableOrNum(getRelElementType(t1),getRelElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
-    if (isSetType(t1) && isSetType(t2) && comparable(getSetElementType(t1),getSetElementType(t2)))
+    if (isSetType(t1) && isSetType(t2) && comparableOrNum(getSetElementType(t1),getSetElementType(t2)))
         return markLocationType(c,exp@\loc,\bool());
     if (isStrType(t1) && isStrType(t2))
         return markLocationType(c,exp@\loc,\bool());
@@ -2532,6 +2532,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \> <Expr
     return markLocationFailed(c,exp@\loc,makeFailType("<prettyPrintType(t1)> and <prettyPrintType(t2)> incomparable", exp@\loc));
 }
 
+private bool isNumericType(Symbol t) = isIntType(t) || isRealType(t) || isRatType(t) || isNumType(t);
+
 @doc{Check the types of Rascal expressions: Equals (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> == <Expression e2>`, Configuration c) {
     needNewScope = !inBooleanScope(c);
@@ -2542,6 +2544,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> == <Expr
 
     if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
     if (comparable(t1,t2)) return markLocationType(c,exp@\loc,\bool());
+    if (isNumericType(t1) && isNumericType(t2)) return markLocationType(c,exp@\loc,\bool());
     return markLocationFailed(c,exp@\loc,makeFailType("<prettyPrintType(t1)> and <prettyPrintType(t2)> incomparable", exp@\loc));
 }
 
@@ -2555,6 +2558,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> != <Expr
 
     if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
     if (comparable(t1,t2)) return markLocationType(c,exp@\loc,\bool());
+    if (isNumericType(t1) && isNumericType(t2)) return markLocationType(c,exp@\loc,\bool());
     return markLocationFailed(c,exp@\loc,makeFailType("<prettyPrintType(t1)> and <prettyPrintType(t2)> incomparable", exp@\loc));
 }
 
@@ -6464,4 +6468,20 @@ CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
   }
   
   return <c, sym>;
+}
+
+public bool comparableOrNum(Symbol l, Symbol r) {
+	leftAsNum = visit(l) {
+		case \int() => \num()
+		case \real() => \num()
+		case \rat() => \num()
+	};
+	
+	rightAsNum = visit(r) {
+		case \int() => \num()
+		case \real() => \num()
+		case \rat() => \num()
+	};
+	
+	return comparable(l, r) || comparable(leftAsNum,rightAsNum);
 }
