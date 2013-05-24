@@ -84,7 +84,7 @@ bool same(Production p, Production q) {
 public str topProd2rascal(Production p) {
   if (regular(_) := p || p.def == empty() || p.def == \layouts("$default$")) return "";
  
-  if (choice(nt, {q:priority(_,_), *r}) := p) {
+  if (choice(nt, {q:priority(_,_), *r}) := p, r != {}) {
     return "<topProd2rascal(choice(nt, r))>
            '
            '<topProd2rascal(q)>";
