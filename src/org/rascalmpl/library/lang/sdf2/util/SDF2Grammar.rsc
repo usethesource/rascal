@@ -97,12 +97,26 @@ private Grammar split(Grammar g) {
   return removeEmptyProductions(g);
 }
 
-private Grammar removeEmptyProductions(Grammar g) = innermost visit(g) {
-	case {*r, Production p} => r
-		when (p has alternatives && size(p.alternatives) == 0) || (p has choices && size(p.choices) == 0)
-	case [*b, Production p, *a] => b + a
-		when (p has alternatives && size(p.alternatives) == 0) || (p has choices && size(p.choices) == 0)
-};
+data Production = temp();
+private Grammar removeEmptyProductions(Grammar g) {
+	// for performance we have to split this
+	// replace all the empty priorities with a special Production
+	g = visit(g) {
+		case \priority(_, []) => temp()
+		case \associativity(_, _, {}) => temp()
+		case \cons(_, [], _) => temp()
+		case \func(_, [], _) => temp()
+		case \choice(_, {}) => temp()
+	};
+	// remove them from any collection
+	g = innermost visit(g) {
+		case {*r, temp()} => r
+		case [*b, temp(), *a] => b + a
+	};
+	if (/temp() := g)
+		println("temp not removed: <g>");
+	return g;
+}
 
 private Production keep(Production source, Symbol s) = visit(source) {
 	case \priority(_, l) => \priority(s, l)
