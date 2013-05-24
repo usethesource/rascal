@@ -88,7 +88,7 @@ private Grammar split(Grammar g) {
   for (nt <- g.rules, cur :=  g.rules[nt], sorts := {strip(s) | /prod(s,_,_) := cur}, size(sorts) > 1) {
     for (s <- sorts) {
       newp = keep(cur, s);
-      if (g.rules[s]?)
+      if (g.rules[s]? && s != strip(cur.def))
         g.rules[s].alternatives += newp.alternatives;
       else
         g.rules[s] = newp;
@@ -97,12 +97,18 @@ private Grammar split(Grammar g) {
   return removeEmptyProductions(g);
 }
 
-private Grammar removeEmptyProductions(Grammar g) = innermost visit(g) {
-	case {*r, Production p} => r
-		when p has alternatives && size(p.alternatives) == 0
-	case [*b, Production p, *a] => b + a
-		when p has alternatives && size(p.alternatives) == 0
-};
+data Production = temp();
+
+private bool isNotEmpty(Production p) 
+	=  p has alternatives ==> p.alternatives != {}
+	&& p has choices ==> p.choices != []
+	;
+private Grammar removeEmptyProductions(Grammar g) {
+	return visit(g) {
+		case list[Production] l => [p | p <- l, isNotEmpty(p)]
+		case set[Production] l => {p | p <- l, isNotEmpty(p)}
+	}
+}
 
 private Production keep(Production source, Symbol s) = visit(source) {
 	case \priority(_, l) => \priority(s, l)
@@ -110,14 +116,11 @@ private Production keep(Production source, Symbol s) = visit(source) {
 	case \cons(_, ss, a) => \cons(s, ss, a)
 	case \func(_, ss, a) => \func(s, ss, a)
 	case \choice(_, ps) => \choice(s, ps)
-	case list[Production] ps => fixProds(ps, s)
-		when size(ps) > 0
-	case set[Production] ps => fixProds(ps, s)
+	case list[Production] ps => [p | p <- ps, strip(p.def) == s]
+		when size(ps) > 0 // bug #208
+	case set[Production] ps => {p | p <- ps, strip(p.def) == s}
 		when size(ps) > 0
 };
-
-private set[Production] fixProds(set[Production] ps, Symbol s) = {p | p <- ps, strip(p.def) == s};
-private list[Production] fixProds(list[Production] ps, Symbol s) = [p | p <- ps, strip(p.def) == s];
 
 private GrammarModule getModule(Module m) {
   if (/(Module) `module <ModuleName mn> <ImpSection* _> <Sections _>` := m) {
