@@ -99,9 +99,9 @@ private Grammar split(Grammar g) {
 
 private Grammar removeEmptyProductions(Grammar g) = innermost visit(g) {
 	case {*r, Production p} => r
-		when p has alternatives && size(p.alternatives) == 0
+		when (p has alternatives && size(p.alternatives) == 0) || (p has choices && size(p.choices) == 0)
 	case [*b, Production p, *a] => b + a
-		when p has alternatives && size(p.alternatives) == 0
+		when (p has alternatives && size(p.alternatives) == 0) || (p has choices && size(p.choices) == 0)
 };
 
 private Production keep(Production source, Symbol s) = visit(source) {
@@ -110,14 +110,11 @@ private Production keep(Production source, Symbol s) = visit(source) {
 	case \cons(_, ss, a) => \cons(s, ss, a)
 	case \func(_, ss, a) => \func(s, ss, a)
 	case \choice(_, ps) => \choice(s, ps)
-	case list[Production] ps => fixProds(ps, s)
-		when size(ps) > 0
-	case set[Production] ps => fixProds(ps, s)
+	case list[Production] ps => [p | p <- ps, strip(p.def) == s]
+		when size(ps) > 0 // bug #208
+	case set[Production] ps => {p | p <- ps, strip(p.def) == s}
 		when size(ps) > 0
 };
-
-private set[Production] fixProds(set[Production] ps, Symbol s) = {p | p <- ps, strip(p.def) == s};
-private list[Production] fixProds(list[Production] ps, Symbol s) = [p | p <- ps, strip(p.def) == s];
 
 private GrammarModule getModule(Module m) {
   if (/(Module) `module <ModuleName mn> <ImpSection* _> <Sections _>` := m) {
