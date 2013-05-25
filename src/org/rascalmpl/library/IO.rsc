@@ -153,7 +153,8 @@ Synopsis: Print an indented representation of a value.
 
 Description:
 See [$IO/iprintExp] for a version that returns its argument as result
-and [$IO/iprintln] for a version that adds a newline.
+and [$IO/iprintln] for a version that adds a newline
+and [$IO/iprintToFile] for a version that prints to a file.
 
 Examples:
 
@@ -166,6 +167,24 @@ iprint(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 @javaClass{org.rascalmpl.library.Prelude}
 public java void iprint(value arg); 
 
+@doc{
+Synopsis: Print an indented representation of a value to the specified location.
+
+Description:
+See [$IO/iprint] for a version that displays the result on the console
+and [$IO/iprintExp] for a version that returns its argument as result
+and [$IO/iprintln] for a version that adds a newline.
+
+Examples:
+
+<screen>
+import IO;
+iprintToFile(|file:///tmp/fruits.txt|, ["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
+</screen>
+}
+@reflect{for getting IO streams}
+@javaClass{org.rascalmpl.library.Prelude}
+public java void iprintToFile(loc file, value arg); 
 
 @doc{
 Synopsis: Print an indented representation of a value and returns the value as result.
