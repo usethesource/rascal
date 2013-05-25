@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
@@ -130,7 +129,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitExternal((IExternalValue) this);
 	}
 

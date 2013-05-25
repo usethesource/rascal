@@ -29,7 +29,7 @@ test bool Operators1(bool arg1, bool arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\bool(), bindings);
-     return validate(Operators1, expression, actualType, expectedType, arg1, arg2, "signature bool x bool -\> bool ");
+     return validate("Operators1", expression, actualType, expectedType, arg1, arg2, "signature bool x bool -\> bool ");
   }
   return false;
 }
@@ -52,7 +52,7 @@ test bool Operators2(bool arg1, bool arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\bool(), bindings);
-     return validate(Operators2, expression, actualType, expectedType, arg1, arg2, "signature bool x bool -\> bool ");
+     return validate("Operators2", expression, actualType, expectedType, arg1, arg2, "signature bool x bool -\> bool ");
   }
   return false;
 }
@@ -75,7 +75,7 @@ test bool Operators3(bool arg1, bool arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\bool(), bindings);
-     return validate(Operators3, expression, actualType, expectedType, arg1, arg2, "signature bool x bool -\> bool ");
+     return validate("Operators3", expression, actualType, expectedType, arg1, arg2, "signature bool x bool -\> bool ");
   }
   return false;
 }
@@ -98,7 +98,7 @@ test bool Operators4(bool arg1, bool arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\bool(), bindings);
-     return validate(Operators4, expression, actualType, expectedType, arg1, arg2, "signature bool x bool -\> bool ");
+     return validate("Operators4", expression, actualType, expectedType, arg1, arg2, "signature bool x bool -\> bool ");
   }
   return false;
 }
@@ -121,7 +121,7 @@ test bool Operators5(&T arg1, &T arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\bool(), bindings);
-     return validate(Operators5, expression, actualType, expectedType, arg1, arg2, "signature &T x &T -\> bool ");
+     return validate("Operators5", expression, actualType, expectedType, arg1, arg2, "signature &T x &T -\> bool ");
   }
   return false;
 }
@@ -144,7 +144,7 @@ test bool Operators6(&T arg1, &T arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\bool(), bindings);
-     return validate(Operators6, expression, actualType, expectedType, arg1, arg2, "signature &T x &T -\> bool ");
+     return validate("Operators6", expression, actualType, expectedType, arg1, arg2, "signature &T x &T -\> bool ");
   }
   return false;
 }
@@ -167,7 +167,7 @@ test bool Operators7(&T arg1, &T arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\bool(), bindings);
-     return validate(Operators7, expression, actualType, expectedType, arg1, arg2, "signature &T x &T -\> bool ");
+     return validate("Operators7", expression, actualType, expectedType, arg1, arg2, "signature &T x &T -\> bool ");
   }
   return false;
 }
@@ -190,7 +190,7 @@ test bool Operators8(&T arg1, &T arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\bool(), bindings);
-     return validate(Operators8, expression, actualType, expectedType, arg1, arg2, "signature &T x &T -\> bool ");
+     return validate("Operators8", expression, actualType, expectedType, arg1, arg2, "signature &T x &T -\> bool ");
   }
   return false;
 }
@@ -213,7 +213,7 @@ test bool Operators9(&T arg1, &T arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\bool(), bindings);
-     return validate(Operators9, expression, actualType, expectedType, arg1, arg2, "signature &T x &T -\> bool ");
+     return validate("Operators9", expression, actualType, expectedType, arg1, arg2, "signature &T x &T -\> bool ");
   }
   return false;
 }
@@ -227,11 +227,11 @@ test bool Operators10(bool arg1){
   if(lmatches){
      
      
-     if(verbose) println("[Operators10] exp: " + expression);
+     if(verbose) println("[Operators10] exp: " + "! (<escape(arg1)>);");
 	    checkResult = checkStatementsString("! (<escape(arg1)>);", importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\bool(), lbindings);
-     return validate(Operators10, "! (<escape(arg1)>);", actualType, expectedType, arg1, "signature bool -\> bool ");
+     return validate("Operators10", "! (<escape(arg1)>);", actualType, expectedType, arg1, "signature bool -\> bool ");
   }
   return false;
 }
@@ -254,7 +254,7 @@ test bool Operators11(&L <: num arg1, &R <: num arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\LUB(\parameter("L", \value()),\parameter("R", \value())), bindings);
-     return validate(Operators11, expression, actualType, expectedType, arg1, arg2, "signature &L \<: num x &R \<: num               -\> LUB(&L, &R)");
+     return validate("Operators11", expression, actualType, expectedType, arg1, arg2, "signature &L \<: num x &R \<: num               -\> LUB(&L, &R)");
   }
   return false;
 }
@@ -277,7 +277,7 @@ test bool Operators12(list[&L] arg1, list[&R] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\list(\LUB(\parameter("L", \value()),\parameter("R", \value()))), bindings);
-     return validate(Operators12, expression, actualType, expectedType, arg1, arg2, "signature list[&L] x list[&R]                 -\> list[LUB(&L,&R)]");
+     return validate("Operators12", expression, actualType, expectedType, arg1, arg2, "signature list[&L] x list[&R]                 -\> list[LUB(&L,&R)]");
   }
   return false;
 }
@@ -300,7 +300,7 @@ test bool Operators13(list[&L] arg1, &R arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\list(\LUB(\parameter("L", \value()),\parameter("R", \value()))), bindings);
-     return validate(Operators13, expression, actualType, expectedType, arg1, arg2, "signature list[&L] x &R              		  -\> list[LUB(&L,&R)] when &R is not a list");
+     return validate("Operators13", expression, actualType, expectedType, arg1, arg2, "signature list[&L] x &R              		  -\> list[LUB(&L,&R)] when &R is not a list");
   }
   return false;
 }
@@ -323,7 +323,7 @@ test bool Operators14(&L arg1, list[&R <: &L] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\list(\LUB(\parameter("L", \value()),\parameter("R", \value()))), bindings);
-     return validate(Operators14, expression, actualType, expectedType, arg1, arg2, "signature &L x list[&R \<: &L]                 -\> list[LUB(&L,&R)] when &L is not a list");
+     return validate("Operators14", expression, actualType, expectedType, arg1, arg2, "signature &L x list[&R \<: &L]                 -\> list[LUB(&L,&R)] when &L is not a list");
   }
   return false;
 }
@@ -346,7 +346,7 @@ test bool Operators15(set[&L] arg1, set[&R] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\set(\LUB(\parameter("L", \value()),\parameter("R", \value()))), bindings);
-     return validate(Operators15, expression, actualType, expectedType, arg1, arg2, "signature set[&L] x set[&R]                   -\> set[LUB(&L,&R)]");
+     return validate("Operators15", expression, actualType, expectedType, arg1, arg2, "signature set[&L] x set[&R]                   -\> set[LUB(&L,&R)]");
   }
   return false;
 }
@@ -369,7 +369,7 @@ test bool Operators16(set[&L] arg1, &R arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\set(\LUB(\parameter("L", \value()),\parameter("R", \value()))), bindings);
-     return validate(Operators16, expression, actualType, expectedType, arg1, arg2, "signature set[&L] x &R                        -\> set[LUB(&L,&R)] when &R is not a list");
+     return validate("Operators16", expression, actualType, expectedType, arg1, arg2, "signature set[&L] x &R                        -\> set[LUB(&L,&R)] when &R is not a list");
   }
   return false;
 }
@@ -392,7 +392,7 @@ test bool Operators17(&L arg1, set[&R] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\set(\LUB(\parameter("L", \value()),\parameter("R", \value()))), bindings);
-     return validate(Operators17, expression, actualType, expectedType, arg1, arg2, "signature &L x set[&R]                        -\> set[LUB(&L,&R)] when &L is not a list");
+     return validate("Operators17", expression, actualType, expectedType, arg1, arg2, "signature &L x set[&R]                        -\> set[LUB(&L,&R)] when &L is not a list");
   }
   return false;
 }
@@ -415,7 +415,7 @@ test bool Operators18(map[&K1,&V1] arg1, map[&K2,&V2] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\map(\LUB(\parameter("K1", \value()),\parameter("K2", \value())),\LUB(\parameter("V1", \value()),\parameter("V2", \value()))), bindings);
-     return validate(Operators18, expression, actualType, expectedType, arg1, arg2, "signature map[&K1,&V1] x map[&K2,&V2]         -\> map[LUB(&K1,&K2), LUB(&V1,&V2)]");
+     return validate("Operators18", expression, actualType, expectedType, arg1, arg2, "signature map[&K1,&V1] x map[&K2,&V2]         -\> map[LUB(&K1,&K2), LUB(&V1,&V2)]");
   }
   return false;
 }
@@ -438,7 +438,7 @@ test bool Operators19(str arg1, str arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\str(), bindings);
-     return validate(Operators19, expression, actualType, expectedType, arg1, arg2, "signature str x str                           -\> str");
+     return validate("Operators19", expression, actualType, expectedType, arg1, arg2, "signature str x str                           -\> str");
   }
   return false;
 }
@@ -461,7 +461,7 @@ test bool Operators20(loc arg1, str arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\loc(), bindings);
-     return validate(Operators20, expression, actualType, expectedType, arg1, arg2, "signature loc x str                           -\> loc");
+     return validate("Operators20", expression, actualType, expectedType, arg1, arg2, "signature loc x str                           -\> loc");
   }
   return false;
 }
@@ -485,7 +485,7 @@ test bool Operators21(tuple[&L1,&L2] arg1, tuple[&R1,&R2,&R3] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\tuple([\parameter("L1", \value()),\parameter("L2", \value()),\parameter("R1", \value()),\parameter("R2", \value()),\parameter("R3", \value())]), bindings);
-     return validate(Operators21, expression, actualType, expectedType, arg1, arg2, "signature tuple[&L1,&L2] x tuple[&R1,&R2,&R3] -\> tuple[&L1,&L2,&R1,&R2,&R3]
+     return validate("Operators21", expression, actualType, expectedType, arg1, arg2, "signature tuple[&L1,&L2] x tuple[&R1,&R2,&R3] -\> tuple[&L1,&L2,&R1,&R2,&R3]
 	");
   }
   return false;
@@ -509,7 +509,7 @@ test bool Operators22(&L <: num arg1, &R <: num arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\LUB(\parameter("L", \value()),\parameter("R", \value())), bindings);
-     return validate(Operators22, expression, actualType, expectedType, arg1, arg2, "signature &L \<: num x &R \<: num                -\> LUB(&L, &R)");
+     return validate("Operators22", expression, actualType, expectedType, arg1, arg2, "signature &L \<: num x &R \<: num                -\> LUB(&L, &R)");
   }
   return false;
 }
@@ -532,7 +532,7 @@ test bool Operators23(list[&L] arg1, list[&R] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\list(\LUB(\parameter("L", \value()),\parameter("R", \value()))), bindings);
-     return validate(Operators23, expression, actualType, expectedType, arg1, arg2, "signature list[&L] x list[&R]                  -\> list[LUB(&L,&R)]");
+     return validate("Operators23", expression, actualType, expectedType, arg1, arg2, "signature list[&L] x list[&R]                  -\> list[LUB(&L,&R)]");
   }
   return false;
 }
@@ -555,7 +555,7 @@ test bool Operators24(set[&L] arg1, set[&R] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\set(\LUB(\parameter("L", \value()),\parameter("R", \value()))), bindings);
-     return validate(Operators24, expression, actualType, expectedType, arg1, arg2, "signature set[&L] x set[&R]                    -\> set[LUB(&L,&R)]");
+     return validate("Operators24", expression, actualType, expectedType, arg1, arg2, "signature set[&L] x set[&R]                    -\> set[LUB(&L,&R)]");
   }
   return false;
 }
@@ -579,7 +579,7 @@ test bool Operators25(map[&K1,&V1] arg1, map[&K2,&V2] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\map(\LUB(\parameter("K1", \value()),\parameter("K2", \value())),\LUB(\parameter("V1", \value()),\parameter("V2", \value()))), bindings);
-     return validate(Operators25, expression, actualType, expectedType, arg1, arg2, "signature map[&K1,&V1] x map[&K2,&V2]          -\> map[LUB(&K1,&K2), LUB(&V1,&V2)]
+     return validate("Operators25", expression, actualType, expectedType, arg1, arg2, "signature map[&K1,&V1] x map[&K2,&V2]          -\> map[LUB(&K1,&K2), LUB(&V1,&V2)]
 ");
   }
   return false;
@@ -603,7 +603,7 @@ test bool Operators26(&L <: num arg1, &R <: num arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\LUB(\parameter("L", \value()),\parameter("R", \value())), bindings);
-     return validate(Operators26, expression, actualType, expectedType, arg1, arg2, "signature &L \<: num x &R \<: num                -\> LUB(&L, &R)");
+     return validate("Operators26", expression, actualType, expectedType, arg1, arg2, "signature &L \<: num x &R \<: num                -\> LUB(&L, &R)");
   }
   return false;
 }
@@ -626,7 +626,7 @@ test bool Operators27(list[&L] arg1, list[&R] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\lrel([\parameter("L", \value()),\parameter("R", \value())]), bindings);
-     return validate(Operators27, expression, actualType, expectedType, arg1, arg2, "signature list[&L] x list[&R]                  -\> lrel[&L,&R]");
+     return validate("Operators27", expression, actualType, expectedType, arg1, arg2, "signature list[&L] x list[&R]                  -\> lrel[&L,&R]");
   }
   return false;
 }
@@ -650,7 +650,7 @@ test bool Operators28(set[&L] arg1, set[&R] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\rel([\parameter("L", \value()),\parameter("R", \value())]), bindings);
-     return validate(Operators28, expression, actualType, expectedType, arg1, arg2, "signature set[&L] x set[&R]                    -\> rel[&L,&R]
+     return validate("Operators28", expression, actualType, expectedType, arg1, arg2, "signature set[&L] x set[&R]                    -\> rel[&L,&R]
 ");
   }
   return false;
@@ -674,7 +674,7 @@ test bool Operators29(list[&L] arg1, list[&R] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\list(\LUB(\parameter("L", \value()),\parameter("R", \value()))), bindings);
-     return validate(Operators29, expression, actualType, expectedType, arg1, arg2, "signature list[&L] x list[&R]                  -\> list[LUB(&L,&R)]");
+     return validate("Operators29", expression, actualType, expectedType, arg1, arg2, "signature list[&L] x list[&R]                  -\> list[LUB(&L,&R)]");
   }
   return false;
 }
@@ -697,7 +697,7 @@ test bool Operators30(set[&L] arg1, set[&R] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\set(\LUB(\parameter("L", \value()),\parameter("R", \value()))), bindings);
-     return validate(Operators30, expression, actualType, expectedType, arg1, arg2, "signature set[&L] x set[&R]                    -\> set[LUB(&L,&R)]");
+     return validate("Operators30", expression, actualType, expectedType, arg1, arg2, "signature set[&L] x set[&R]                    -\> set[LUB(&L,&R)]");
   }
   return false;
 }
@@ -721,7 +721,7 @@ test bool Operators31(map[&K1,&V1] arg1, map[&K2,&V2] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\map(\LUB(\parameter("K1", \value()),\parameter("K2", \value())),\LUB(\parameter("V1", \value()),\parameter("V2", \value()))), bindings);
-     return validate(Operators31, expression, actualType, expectedType, arg1, arg2, "signature map[&K1,&V1] x map[&K2,&V2]          -\> map[LUB(&K1,&K2), LUB(&V1,&V2)]
+     return validate("Operators31", expression, actualType, expectedType, arg1, arg2, "signature map[&K1,&V1] x map[&K2,&V2]          -\> map[LUB(&K1,&K2), LUB(&V1,&V2)]
 ");
   }
   return false;
@@ -736,11 +736,11 @@ test bool Operators32(&L <: num arg1){
   if(lmatches){
      
      
-     if(verbose) println("[Operators32] exp: " + expression);
+     if(verbose) println("[Operators32] exp: " + "- (<escape(arg1)>);");
 	    checkResult = checkStatementsString("- (<escape(arg1)>);", importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\parameter("L", \value()), lbindings);
-     return validate(Operators32, "- (<escape(arg1)>);", actualType, expectedType, arg1, "signature &L \<: num -\> &L ");
+     return validate("Operators32", "- (<escape(arg1)>);", actualType, expectedType, arg1, "signature &L \<: num -\> &L ");
   }
   return false;
 }
@@ -763,7 +763,7 @@ test bool Operators33(int arg1, int arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\int(), bindings);
-     return validate(Operators33, expression, actualType, expectedType, arg1, arg2, "signature int x int -\> int ");
+     return validate("Operators33", expression, actualType, expectedType, arg1, arg2, "signature int x int -\> int ");
   }
   return false;
 }
@@ -786,7 +786,7 @@ test bool Operators34(&L <: num arg1, &R <: num arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\LUB(\parameter("L", \value()),\parameter("R", \value())), bindings);
-     return validate(Operators34, expression, actualType, expectedType, arg1, arg2, "signature &L \<: num x &R \<: num        -\> LUB(&L, &R) ");
+     return validate("Operators34", expression, actualType, expectedType, arg1, arg2, "signature &L \<: num x &R \<: num        -\> LUB(&L, &R) ");
   }
   return false;
 }
@@ -800,11 +800,11 @@ test bool Operators35(lrel[&L,&L] arg1){
   if(lmatches){
      
      
-     if(verbose) println("[Operators35] exp: " + expression);
+     if(verbose) println("[Operators35] exp: " + "(<escape(arg1)>) +;");
 	    checkResult = checkStatementsString("(<escape(arg1)>) +;", importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\lrel([\parameter("L", \value()),\parameter("L", \value())]), lbindings);
-     return validate(Operators35, "(<escape(arg1)>) +;", actualType, expectedType, arg1, "signature lrel[&L,&L]			-\> lrel[&L,&L]");
+     return validate("Operators35", "(<escape(arg1)>) +;", actualType, expectedType, arg1, "signature lrel[&L,&L]			-\> lrel[&L,&L]");
   }
   return false;
 }
@@ -819,11 +819,11 @@ test bool Operators36(rel[&L,&L] arg1){
   if(lmatches){
      
      
-     if(verbose) println("[Operators36] exp: " + expression);
+     if(verbose) println("[Operators36] exp: " + "(<escape(arg1)>) +;");
 	    checkResult = checkStatementsString("(<escape(arg1)>) +;", importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\rel([\parameter("L", \value()),\parameter("L", \value())]), lbindings);
-     return validate(Operators36, "(<escape(arg1)>) +;", actualType, expectedType, arg1, "signature rel[&L,&L]  			-\> rel[&L,&L]
+     return validate("Operators36", "(<escape(arg1)>) +;", actualType, expectedType, arg1, "signature rel[&L,&L]  			-\> rel[&L,&L]
 ");
   }
   return false;
@@ -838,11 +838,11 @@ test bool Operators37(lrel[&L,&L] arg1){
   if(lmatches){
      
      
-     if(verbose) println("[Operators37] exp: " + expression);
+     if(verbose) println("[Operators37] exp: " + "(<escape(arg1)>) *;");
 	    checkResult = checkStatementsString("(<escape(arg1)>) *;", importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\lrel([\parameter("L", \value()),\parameter("L", \value())]), lbindings);
-     return validate(Operators37, "(<escape(arg1)>) *;", actualType, expectedType, arg1, "signature lrel[&L,&L]			-\> lrel[&L,&L]");
+     return validate("Operators37", "(<escape(arg1)>) *;", actualType, expectedType, arg1, "signature lrel[&L,&L]			-\> lrel[&L,&L]");
   }
   return false;
 }
@@ -857,11 +857,11 @@ test bool Operators38(rel[&L,&L] arg1){
   if(lmatches){
      
      
-     if(verbose) println("[Operators38] exp: " + expression);
+     if(verbose) println("[Operators38] exp: " + "(<escape(arg1)>) *;");
 	    checkResult = checkStatementsString("(<escape(arg1)>) *;", importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\rel([\parameter("L", \value()),\parameter("L", \value())]), lbindings);
-     return validate(Operators38, "(<escape(arg1)>) *;", actualType, expectedType, arg1, "signature rel[&L,&L]  			-\> rel[&L,&L]
+     return validate("Operators38", "(<escape(arg1)>) *;", actualType, expectedType, arg1, "signature rel[&L,&L]  			-\> rel[&L,&L]
 ");
   }
   return false;
@@ -885,7 +885,7 @@ test bool Operators39(lrel[&A,&B] arg1, lrel[&B,&C] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\lrel([\parameter("A", \value()),\parameter("C", \value())]), bindings);
-     return validate(Operators39, expression, actualType, expectedType, arg1, arg2, "signature lrel[&A,&B] x lrel[&B,&C] -\> lrel[&A,&C]");
+     return validate("Operators39", expression, actualType, expectedType, arg1, arg2, "signature lrel[&A,&B] x lrel[&B,&C] -\> lrel[&A,&C]");
   }
   return false;
 }
@@ -908,7 +908,7 @@ test bool Operators40(rel[&A,&B] arg1, rel[&B,&C] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\rel([\parameter("A", \value()),\parameter("C", \value())]), bindings);
-     return validate(Operators40, expression, actualType, expectedType, arg1, arg2, "signature rel[&A,&B] x rel[&B,&C] -\> rel[&A,&C]");
+     return validate("Operators40", expression, actualType, expectedType, arg1, arg2, "signature rel[&A,&B] x rel[&B,&C] -\> rel[&A,&C]");
   }
   return false;
 }
@@ -932,7 +932,7 @@ test bool Operators41(map[&A,&B] arg1, map[&B,&C] arg2){
      checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
      actualType = checkResult.res; 
      expectedType = normalize(\map(\parameter("A", \value()),\parameter("C", \value())), bindings);
-     return validate(Operators41, expression, actualType, expectedType, arg1, arg2, "signature map[&A,&B] x map[&B,&C] -\> map[&A,&C]
+     return validate("Operators41", expression, actualType, expectedType, arg1, arg2, "signature map[&A,&B] x map[&B,&C] -\> map[&A,&C]
 ");
   }
   return false;

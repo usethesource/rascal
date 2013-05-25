@@ -12,12 +12,16 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.OverloadedFunction;
+import org.rascalmpl.interpreter.result.Result;
 
 public class ArgumentsMismatch extends StaticError {
 	private static final long serialVersionUID = -641438732779898646L;
@@ -32,7 +36,22 @@ public class ArgumentsMismatch extends StaticError {
 		super(message, ast);
 	}
 
-	private static String computeMessage(String name,
+	public ArgumentsMismatch(Result<IValue> function, Type[] argTypes, AbstractAST caller) {
+    super(computeMessage(function, argTypes), caller);
+  }
+
+  private static String computeMessage(Result<IValue> function, Type[] argTypes) {
+    if (function instanceof OverloadedFunction) {
+      OverloadedFunction of = (OverloadedFunction) function;
+      return computeMessage(of.getName(), of.getFunctions(), argTypes);
+    }
+    else {
+      AbstractFunction func = (AbstractFunction) function;
+      return computeMessage(func.getName(), Arrays.<AbstractFunction>asList(func), argTypes);
+    }
+  }
+
+  private static String computeMessage(String name,
 			List<AbstractFunction> candidates, Type[] argTypes) {
 		StringBuilder b = new StringBuilder();
 		

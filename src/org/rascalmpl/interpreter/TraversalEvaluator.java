@@ -39,6 +39,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
@@ -467,8 +468,9 @@ public class TraversalEvaluator {
 			tr.changed = true;
 			tr.matched = true;
 			Result<IValue> toBeInserted = e.getValue();
-			if (!toBeInserted.getType().equivalent(subject.getType())) {
-				throw new UnexpectedType(subject.getType(), toBeInserted.getType(), eval.getCurrentAST());
+			
+			if (!toBeInserted.getType().isSubtypeOf(e.getStaticType())) {
+				throw new UnexpectedType(e.getStaticType(), toBeInserted.getType(), eval.getCurrentAST());
 			}
 			return e.getValue().getValue();
 		}

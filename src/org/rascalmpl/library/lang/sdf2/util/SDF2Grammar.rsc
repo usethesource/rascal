@@ -17,6 +17,8 @@ module lang::sdf2::util::SDF2Grammar
                     
 import IO;
 import String;
+import Set;
+import List;
 import util::Math;
 import ParseTree;
 import Grammar;
@@ -47,7 +49,7 @@ public GrammarDefinition sdf2module2grammar(str name, list[loc] path) {
 public GrammarDefinition sdf2grammar(SDF def) {
   return sdf2grammar("Main", def);
 }
-
+ 
 public GrammarDefinition sdf2grammar(str main, SDF def) {
   if ((SDF) `definition <Module* mods>` := def) {
     ms = ();
@@ -62,6 +64,7 @@ public GrammarDefinition sdf2grammar(str main, SDF def) {
       throw "Main module <main> not found";
     
     res = definition(main, ms);
+    res = split(res);
     res = resolve(res);
     res = applyConditions(res, (s:c | c:conditional(s,_) <- getConditions(def)));
     
@@ -70,6 +73,54 @@ public GrammarDefinition sdf2grammar(str main, SDF def) {
   
   throw "Unknown format for SDF2";
 }
+
+private GrammarDefinition split(GrammarDefinition def) = visit(def) { case Grammar g => split(g) };
+
+
+Symbol striprec(Symbol s) = visit(s) { case Symbol t => strip ( t ) };
+Symbol strip(label(str _, Symbol s)) = strip(s);
+Symbol strip(conditional(Symbol s, set[Condition] _)) = strip(s);
+default Symbol strip(Symbol s) = s;
+
+
+
+private Grammar split(Grammar g) {
+  for (nt <- g.rules, cur :=  g.rules[nt], sorts := {strip(s) | /prod(s,_,_) := cur}, size(sorts) > 1) {
+    for (s <- sorts) {
+      newp = keep(cur, s);
+      if (g.rules[s]? && s != strip(cur.def))
+        g.rules[s].alternatives += newp.alternatives;
+      else
+        g.rules[s] = newp;
+    }
+  }
+  return removeEmptyProductions(g);
+}
+
+data Production = temp();
+
+private bool isNotEmpty(Production p) 
+	=  p has alternatives ==> p.alternatives != {}
+	&& p has choices ==> p.choices != []
+	;
+private Grammar removeEmptyProductions(Grammar g) {
+	return visit(g) {
+		case list[Production] l => [p | p <- l, isNotEmpty(p)]
+		case set[Production] l => {p | p <- l, isNotEmpty(p)}
+	}
+}
+
+private Production keep(Production source, Symbol s) = visit(source) {
+	case \priority(_, l) => \priority(s, l)
+	case \associativity(_, a, l) => \associativity(s, a, l)
+	case \cons(_, ss, a) => \cons(s, ss, a)
+	case \func(_, ss, a) => \func(s, ss, a)
+	case \choice(_, ps) => \choice(s, ps)
+	case list[Production] ps => [p | p <- ps, strip(p.def) == s]
+		when size(ps) > 0 // bug #208
+	case set[Production] ps => {p | p <- ps, strip(p.def) == s}
+		when size(ps) > 0
+};
 
 private GrammarModule getModule(Module m) {
   if (/(Module) `module <ModuleName mn> <ImpSection* _> <Sections _>` := m) {
@@ -95,8 +146,17 @@ private set[str] getImports(Module m) {
 }
 
 public GrammarDefinition applyConditions(GrammarDefinition d,  map[Symbol from,Symbol to] conds) {
+  Symbol app(Symbol s) { 
+    if (s is label) 
+      return label(s.name, app(s.symbol));
+    else if (s in conds) 
+      return conds[s];
+    else
+      return s;
+  }
+    
   return visit(d) {
-    case prod(Symbol d, list[Symbol] ss, set[Attr] as) => prod(d, [(s in conds || (s is label && s.symbol in conds))? conds[s] : s | s <- ss], as)
+    case prod(Symbol d, list[Symbol] ss, set[Attr] as) => prod(d, [app(s) | s <- ss], as)
   }
 }
 
@@ -122,19 +182,19 @@ public Grammar illegalPriorities(Grammar g) {
   return compose(g, grammar({}, extracted));
 }
 
-public Grammar dup(Grammar g) {
+public &T dup(&T g) {
   prods = { p | /Production p:prod(_,_,_) := g };
   
   // first we fuse the attributes (SDF2 semantics) and the cons names
   solve (prods) {
     if ({prod(l,r,a1), prod(l,r,a2), rest*} := prods) {
-      prods = {prod(l,r,a1 + a2), rest};
+      prods = {prod(l,r,a1 + a2), *rest};
     }
-    if ({prod(label(n,l),r,a), prod(l,r,a), rest*} := prods) {
-      prods = {prod(label(n,l),r,a), rest};
+    if ({prod(label(n,l),r,a1), prod(l,r,a2), rest*} := prods) {
+      prods = {prod(label(n,l),r,a1 + a2), *rest};
     }
-    if ({prod(label(n,l),r,a), prod(label(m,l),r,a), rest*} := prods) {
-      prods = {prod(label(n,l),r,a), rest};
+    if ({prod(label(n,l),r,a1), prod(label(m,l),r,a2), rest*} := prods) {
+      prods = {prod(label(n,l),r,a1 + a2), *rest};
     }
   } 
   
@@ -200,8 +260,6 @@ public set[Production] getProductions(Module \mod) {
   return res;
 }
 
-
-    
 test bool test4() = getProductions((SDF) `definition module A exports syntax A -\> B`) ==
      {prod(sort("B"),[sort("A")],{})};
      
@@ -228,7 +286,7 @@ public set[Production] getProductions(Prod* prods, bool isLex){
 set[Production] fixParameters(set[Production] input) {
   return innermost visit(input) {
     case prod(\parameterized-sort(str name, [pre*, sort(str x), post*]),lhs,  as) =>
-         prod(\parameterized-sort(name,[pre,\parameter(x),post]),visit (lhs) { case sort(x) => \parameter(x) }, as)
+         prod(\parameterized-sort(name,[*pre,\parameter(x),*post]),visit (lhs) { case sort(x) => \parameter(x) }, as)
   }
 }
 
@@ -289,9 +347,9 @@ public set[Symbol] getConditions(SDF m) {
       
     
 public set[Symbol] getRestrictions(Restriction* restrictions, bool isLex) {
-println("looping over < restrictions>");
+//println("looping over < restrictions>");
   res = { *getRestriction(r, isLex) | Restriction r <- restrictions };
-  println("collected: <res>");
+  //println("collected: <res>");
   return res;
 }
 
@@ -306,7 +364,7 @@ public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
   	
     case (Restriction) `<Sym s1> <Sym+ rest> -/- <Lookaheads ls>` : 
       return  getRestriction((Restriction) `<Sym s1> -/- <Lookaheads ls>`, isLex)
-           + {getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
+           + {*getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
     
     case (Restriction) `LAYOUT? -/- <Lookaheads ls>` :
       return {conditional(\iter-star(sort("LAYOUT")), {\not-follow(l) | l <- getLookaheads(ls) })};
@@ -373,10 +431,10 @@ public Production getPriority(Group group, bool isLex) {
      	return getPriority(g, isLex); // we ignore argument indicators here!
      	
     case (Group) `{<Prod* ps>}` : 
-       return choice(definedSymbol(ps,isLex), {getProduction(p,isLex) | Prod p <- ps});
+       return choice(definedSymbol(ps,isLex), {*getProduction(p,isLex) | Prod p <- ps});
        
     case (Group) `{<Assoc a> : <Prod* ps>}` : 
-       return \associativity(definedSymbol(ps, isLex), getAssociativity(a), {getProduction(p,isLex) | Prod p <- ps});
+       return \associativity(definedSymbol(ps, isLex), getAssociativity(a), {*getProduction(p,isLex) | Prod p <- ps});
     
     default:
     	throw "missing case <group>";}
@@ -578,7 +636,7 @@ public Symbol getSymbol(Sym sym, bool isLex) {
          return alt({getSymbol(first, isLex), getSymbol(second, isLex)});
     default: throw "missed a case <sym>";  
   }
-}
+}  
 
 public Symbol alt({alt(set[Symbol] ss), *Symbol rest}) = alt(ss + rest);
 
@@ -630,16 +688,16 @@ private str unescape(Sym s) {
 }
 
 public str unescape(StrCon s) { 
-   if ([StrCon] /^\"<chars:.*>\"$/ := s)
-  	return unescapeStr(chars);
-   throw "unexpected string format: <s>";
+  if ([StrCon] /^\"<chars:.*>\"$/ := s)
+    	return unescapeStr(chars);
+  throw "unexpected string format: <s>";
 }
 
 private str unescape(SingleQuotedStrCon s) {
    if ([SingleQuotedStrCon] /^\'<chars:.*>\'$/ := s)
      return unescapeStr(chars);
    throw "unexpected string format: <s>";
-}
+} 
 
 test bool testUn1() = unescape((StrCon) `"abc"`)  	== "abc";
 test bool testUn2() = unescape((StrCon) `"a\\nc"`) 	== "a\nc";

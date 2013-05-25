@@ -135,7 +135,7 @@ public loc find(str name, list[loc] path) throws PathNotFound {
   if (dir <- path, f := dir + "/<name>", exists(f)) { 
     return f;
   }
-  throw PathNotFound(name);
+  throw PathNotFound({dir + "/<name>" | dir <- path});
 }
 
 @doc{

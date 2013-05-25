@@ -17,7 +17,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class LazySet implements ISet {
 	private final int bufferSize;
@@ -98,7 +97,7 @@ public class LazySet implements ISet {
 	}
 
 	@Override
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		// TODO Auto-generated method stub
 		return null;
 	}

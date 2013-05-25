@@ -32,7 +32,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.KeywordArgument;
 import org.rascalmpl.ast.KeywordArguments;
@@ -343,7 +342,7 @@ public class NodePattern extends AbstractMatchingResult {
     }
 
     @Override
-    public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+    public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
       throw new UnsupportedOperationException();
     }
 

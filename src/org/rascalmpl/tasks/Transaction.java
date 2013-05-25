@@ -26,7 +26,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.tasks.IDependencyListener.Change;
 import org.rascalmpl.tasks.facts.AbstractFact;
@@ -45,6 +44,12 @@ IExpirationListener<IValue> {
 		protected boolean isSubtypeOfExternal(Type type) {
 			// TODO Auto-generated method stub
 			return false;
+		}
+
+		@Override
+		protected Type glbWithExternal(Type type) {
+			// TODO Auto-generated method stub
+			return null;
 		}};
 	private final Transaction parent;
 	private final boolean commitEnabled;
@@ -92,7 +97,7 @@ IExpirationListener<IValue> {
 		return TransactionType;
 	}
 
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return null;
 	}
 

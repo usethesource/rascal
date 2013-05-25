@@ -270,7 +270,7 @@ public class Cases  {
 	          int size = conditions.size();
 	          
 	          if (size == 0) {
-	            throw new Insert(replacementExpr.interpret(eval), mp);
+	             throw new Insert(replacementExpr.interpret(eval), mp, mp.getType(eval.getCurrentEnvt(), null));
 	          }
 	          
 	          IBooleanResult[] gens = new IBooleanResult[size];
@@ -293,7 +293,7 @@ public class Cases  {
 	                if (i == size - 1) {
 	                  // in IfThen the body is executed, here we insert the expression
 	                  // NB: replaceMentExpr sees the latest bindings of the when clause 
-	                  throw new Insert(replacementExpr.interpret(eval), mp);
+	                  throw new Insert(replacementExpr.interpret(eval), mp, mp.getType(eval.getCurrentEnvt(), null));
 	                }
 
 	                i++;
@@ -419,6 +419,7 @@ public class Cases  {
               if (e.getMatchPattern() == null) {
                 e.setMatchPattern(mp);
               }
+              e.setStaticType(mp.getType(eval.getCurrentEnvt(), null));
               throw e;
             }
             return true;

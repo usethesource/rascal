@@ -112,6 +112,22 @@ public class NonTerminalType extends RascalType {
 	}
 	
 	@Override
+	protected Type glbWithNode(Type type) {
+	  return this;
+	}
+	
+	@Override
+	protected Type glbWithAbstractData(Type type) {
+	  return type.equivalent(Factory.Tree) ? this : TF.voidType(); 
+	}
+	
+	@Override
+	protected Type glbWithConstructor(Type type) {
+	  return TF.voidType();
+	}
+
+	
+	@Override
 	protected boolean isSupertypeOf(Type type) {
 		if(type.isAbstractData() && getName() == type.getName()) {
 			return type.getTypeParameters().isSubtypeOf(this.getTypeParameters());
@@ -130,6 +146,11 @@ public class NonTerminalType extends RascalType {
 	}
 	
 	@Override
+	protected Type glb(RascalType type) {
+		return type.glbWithNonTerminal(this);
+	}
+	
+	@Override
 	public boolean isSubtypeOfNonTerminal(RascalType other) {
 	  IConstructor otherSym = ((NonTerminalType)other).symbol;
 	  if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
@@ -140,7 +161,7 @@ public class NonTerminalType extends RascalType {
 	    return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(symbol), SymbolAdapter.getSymbol(otherSym))
 	        && SymbolAdapter.isEqual(SymbolAdapter.getSeparators(symbol), SymbolAdapter.getSeparators(otherSym));
 	  }
-
+	  
 	  return SymbolAdapter.isEqual(otherSym, symbol);
 	}
 	
@@ -164,6 +185,26 @@ public class NonTerminalType extends RascalType {
 
     return SymbolAdapter.isEqual(otherSym, symbol) ? this : Factory.Tree;
 	}
+
+	@Override
+	protected Type glbWithNonTerminal(RascalType other) {
+	  IConstructor otherSym = ((NonTerminalType)other).symbol;
+	  
+	if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
+      return this;
+    }
+    else if (SymbolAdapter.isIterPlus(otherSym) && SymbolAdapter.isIterStar(symbol)) {
+      return other;
+    }
+    else if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
+      return this;
+    }
+    else if (SymbolAdapter.isIterPlusSeps(otherSym) && SymbolAdapter.isIterStarSeps(symbol)) {
+      return other;
+    }
+
+    return SymbolAdapter.isEqual(otherSym, symbol) ? other : TF.voidType();
+	}
 	
 	@Override
 	public boolean equals(Object obj) {
@@ -184,6 +225,7 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public String toString() {
-		return SymbolAdapter.toString(symbol);
+	  return symbol.toString();
+//		return SymbolAdapter.toString(symbol);
 	}
 }

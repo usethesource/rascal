@@ -44,6 +44,28 @@ class Count {
 	public int getTicks(){
 		return ticks;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ticks;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Count other = (Count) obj;
+		if (ticks != other.ticks)
+			return false;
+		return true;
+	}
 	
 }
 
@@ -92,7 +114,7 @@ public class Profiler extends Thread {
 
 	  java.util.Collections.sort(sortedData, new Comparator<Map.Entry<ISourceLocation, Count>>(){
 	    public int compare(Entry<ISourceLocation, Count> entry1, Entry<ISourceLocation, Count> entry2) {
-	      return (entry1.getValue().equals(entry2.getValue()) ? 0 : 
+	      return ((entry1.getValue().getTicks() == entry2.getValue().getTicks()) ? 0 : 
 	        (entry1.getValue().getTicks() < entry2.getValue().getTicks() ? 1 : -1));
 	    }
 	  });
