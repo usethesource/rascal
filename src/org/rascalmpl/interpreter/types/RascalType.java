@@ -12,8 +12,15 @@ public abstract class RascalType extends ExternalType {
     assert type instanceof RascalType;
     return lub((RascalType) type);
   }
+  
+  @Override
+  protected Type glbWithExternal(Type type) {
+	  assert type instanceof RascalType;
+	  return glb((RascalType) type);
+  }
 
   protected abstract Type lub(RascalType type);
+  protected abstract Type glb(RascalType type);
 
   @Override
   protected boolean isSubtypeOfExternal(Type type) {
@@ -53,5 +60,21 @@ public abstract class RascalType extends ExternalType {
   
   protected Type lubWithReified(RascalType type) {
     return TF.valueType();
+  }
+  
+  protected Type glbWithNonTerminal(RascalType type) {
+	return TF.voidType();
+  }
+  
+  protected Type glbWithFunction(RascalType type) {
+	return TF.voidType();
+  }
+  
+  protected Type glbWithOverloadedFunction(RascalType type) {
+	return TF.voidType();
+  }
+  
+  protected Type glbWithReified(RascalType type) {
+	return TF.voidType();
   }
 }

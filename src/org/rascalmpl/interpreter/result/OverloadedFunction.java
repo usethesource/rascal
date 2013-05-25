@@ -17,9 +17,12 @@ package org.rascalmpl.interpreter.result;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -28,7 +31,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
@@ -36,8 +38,9 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
+import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
 public class OverloadedFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -261,13 +264,26 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	private static Type lub(List<AbstractFunction> candidates) {
-		Type lub = TF.voidType();
-
-		for (AbstractFunction l : candidates) {
-			lub = lub.lub(l.getType());
+		Set<FunctionType> alternatives = new HashSet<FunctionType>();
+		Iterator<AbstractFunction> iter = candidates.iterator();
+		if(!iter.hasNext()) {
+			return TF.voidType();
+		}
+		FunctionType first = iter.next().getFunctionType();
+		Type returnType = first.getReturnType();
+		alternatives.add(first);
+		
+		AbstractFunction l = null;
+		while(iter.hasNext()) {
+			l = iter.next();
+			if(l.getFunctionType().getReturnType() == returnType) {
+				alternatives.add(l.getFunctionType());
+			} else {
+				return TF.valueType();
+			}
 		}
 
-		return lub;
+		return RascalTypeFactory.getInstance().overloadedFunctionType(alternatives);
 	}
 
 	 @Override
@@ -291,10 +307,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		}
 
 		if (result == null) {
-			List<AbstractFunction> all = new ArrayList<AbstractFunction>(primaryCandidates.size() + defaultCandidates.size());
-			all.addAll(primaryCandidates);
-			all.addAll(defaultCandidates);
-			throw new ArgumentsMismatch(name, all, argTypes, ctx.getCurrentAST());
+			throw new MatchFailed();
 		}
 
 		return result;
@@ -398,7 +411,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitExternal(this);
 	}
 

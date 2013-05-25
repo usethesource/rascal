@@ -28,7 +28,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
@@ -274,32 +273,28 @@ public class TreeAdapter {
 		return ((IInteger) tree.get("character")).intValue();
 	}
 
-	private static class Unparser extends TreeVisitor {
+	private static class Unparser extends TreeVisitor<IOException> {
 		private final Writer fStream;
 
 		public Unparser(Writer stream) {
 			fStream = stream;
 		}
 		
-		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeAmb(IConstructor arg) throws IOException {
 			((ISet) arg.get("alternatives")).iterator().next().accept(this);
 			return arg;
 		}
 		
-		public IConstructor visitTreeCycle(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeCycle(IConstructor arg) throws IOException {
 			return arg;
 		}
 		
-		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
-			try {
-				fStream.write(Character.toChars(((IInteger) arg.get("character")).intValue()));
-			} catch (IOException e) {
-				throw new VisitorException(e);
-			}
+		public IConstructor visitTreeChar(IConstructor arg) throws IOException {
+		  fStream.write(Character.toChars(((IInteger) arg.get("character")).intValue()));
 			return arg;
 		}
 		
-		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeAppl(IConstructor arg) throws IOException {
 			IList children = (IList) arg.get("args");
 			for (IValue child : children) {
 				child.accept(this);
@@ -414,23 +409,12 @@ public class TreeAdapter {
 
 	public static void unparse(IConstructor tree, Writer stream)
 			throws IOException, FactTypeUseException {
-		try {
-			if (tree.getType().isSubtypeOf(Factory.Tree)) { // == Factory.Tree) {
-				tree.accept(new Unparser(stream));
-			} else {
-				throw new ImplementationError("Can not unparse this " + tree + " (type = "
-						+ tree.getType() + ")") ;
-			}
-		} catch (VisitorException e) {
-			Throwable cause = e.getCause();
-
-			if (cause instanceof IOException) {
-				throw (IOException) cause;
-			}
-
-			throw new ImplementationError("Unexpected error in unparse: "
-					+ e.getMessage());
-		}
+	  if (tree.getType().isSubtypeOf(Factory.Tree)) { // == Factory.Tree) {
+	    tree.accept(new Unparser(stream));
+	  } else {
+	    throw new ImplementationError("Can not unparse this " + tree + " (type = "
+	        + tree.getType() + ")") ;
+	  }
 	}
 
 	public static String yield(IConstructor tree, int limit) throws FactTypeUseException {
