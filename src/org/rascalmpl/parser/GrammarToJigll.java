@@ -50,13 +50,16 @@ public class GrammarToJigll {
 	  
 	  IMap notAllowed = (IMap) ((IMap) grammar.get("about")).get(vf.string("notAllowed"));
 	  applyRestrictions(builder, notAllowed);
+	  builder.filter();
 	  
 	  GLLParser parser = new LevelSynchronizedGrammarInterpretter();
 	
 	  System.out.println("Jigll started.");
 	  Input input = Input.fromString(str.getValue());
 	  
-	  NonterminalSymbolNode sppf = parser.parse(input, builder.build(), symbol.toString());
+	  Grammar g = builder.build();
+	  System.out.println(g);
+	  NonterminalSymbolNode sppf = parser.parse(input, g, getSymbolName(symbol));
 	  
 	  long start = System.nanoTime();
 	  
@@ -89,7 +92,12 @@ public class GrammarToJigll {
 
 		for (IValue nonterminal : definitions) {
 			boolean ebnf = isEBNF((IConstructor) nonterminal);
-			Nonterminal head = new Nonterminal(nonterminal.toString(), ebnf);
+			
+			Nonterminal head = (Nonterminal) getSymbol((IConstructor) nonterminal);
+			if(head == null) {
+				continue;
+			}
+			 
 			IConstructor choice = (IConstructor) definitions.get(nonterminal);
 			assert choice.getName().equals("choice");
 			ISet alts = (ISet) choice.get("alternatives");
@@ -134,7 +142,7 @@ public class GrammarToJigll {
 				// Create a new filter for each filtered nonterminal
 				builder.addFilter(rule.getHead().getName(), rule.getBody(), position, rulesMap.get(iterator.next()).getBody());
 			}
-		}		
+		}
 	}
 
    private static List<Range> buildRanges(IConstructor symbol) {
@@ -149,23 +157,39 @@ public class GrammarToJigll {
 		return targetRanges;
 	}	
 	
-	private static List<Symbol> getSymbolList(IList rhs) {
+	private List<Symbol> getSymbolList(IList rhs) {
 		List<Symbol> result = new ArrayList<>();
 		for (IValue elem : rhs) {
 			IConstructor symbol = (IConstructor) elem;
-			switch (symbol.getName()) {			
-				case "char-class":
-					List<Range> targetRanges = buildRanges(symbol);
-					result.add(new CharacterClass(targetRanges));
-					break;
-				// conditions
-				case "conditional":
-					break;
-				default:
-					result.add(new Nonterminal(symbol.toString()));
-			}
+			result.add(getSymbol(symbol));
 		}
 		return result;
+	}
+	
+	private Symbol getSymbol(IConstructor symbol) {
+		switch (symbol.getName()) {
+		
+		case "char-class":
+			List<Range> targetRanges = buildRanges(symbol);
+			return new CharacterClass(targetRanges);
+			
+		case "sort":
+			boolean ebnf = isEBNF((IConstructor) symbol);
+			return new Nonterminal(getSymbolName(symbol), ebnf);
+			
+		case "lex":
+			return new Nonterminal(getSymbolName(symbol));
+			
+		// conditions
+		case "conditional":
+			break;
+		}
+		
+		return null;
+	}
+	
+	private String getSymbolName(IConstructor symbol) {
+		return ((IString)symbol.get("name")).getValue();
 	}
 	
 	private boolean isEBNF(IConstructor value) {
