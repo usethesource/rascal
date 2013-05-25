@@ -22,7 +22,6 @@ public &T jparse(type[&T <: Tree] nont, str input) {
   gr = addNotAllowedSets(gr);
   gr = prioAssocToChoice(gr);
 
-  println("filters: <gr.about>");
   return jparse(nont, nont.symbol, gr, input);
 }
 
