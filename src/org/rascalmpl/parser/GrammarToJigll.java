@@ -58,7 +58,6 @@ public class GrammarToJigll {
 	  Input input = Input.fromString(str.getValue());
 	  
 	  Grammar g = builder.build();
-	  System.out.println(g);
 	  NonterminalSymbolNode sppf = parser.parse(input, g, getSymbolName(symbol));
 	  
 	  long start = System.nanoTime();
@@ -160,8 +159,11 @@ public class GrammarToJigll {
 	private List<Symbol> getSymbolList(IList rhs) {
 		List<Symbol> result = new ArrayList<>();
 		for (IValue elem : rhs) {
-			IConstructor symbol = (IConstructor) elem;
-			result.add(getSymbol(symbol));
+			IConstructor cons = (IConstructor) elem;
+			Symbol symbol = getSymbol(cons);
+			if(symbol != null) {
+				result.add(symbol);
+			}
 		}
 		return result;
 	}
@@ -179,6 +181,25 @@ public class GrammarToJigll {
 			
 		case "lex":
 			return new Nonterminal(getSymbolName(symbol));
+		
+		case "keywords":
+			return new Nonterminal(getSymbolName(symbol));
+		
+		case "layouts":
+			return new Nonterminal("layout(" + getSymbolName(symbol) + ")");
+			
+		case "lit":
+			return new Nonterminal("\"" + ((IString)symbol.get("string")).getValue() + "\"");
+			
+		case "iter-seps":
+			return new Nonterminal(getIteratorName(symbol) + "+");
+			
+		case "seq":
+			return new Nonterminal(getSymbolList((IList)symbol.get("sequence")).toString());
+			
+			
+		case "opt":
+			return new Nonterminal(getSymbol((IConstructor) symbol.get("symbol")) + "?");
 			
 		// conditions
 		case "conditional":
@@ -209,6 +230,24 @@ public class GrammarToJigll {
 			}
 		}
 		return value;
+	}
+	
+	public String getIteratorName(IConstructor iter) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("(");
+		
+		IConstructor symbol = (IConstructor)iter.get("symbol");
+		sb.append(getSymbol(symbol).toString());
+		
+		IList separators = (IList) iter.get("separators");
+		for(IValue separator : separators) {
+			// See if adding separators matters for the uniqueness of the names
+		}
+		
+		sb.append(")");
+		
+		return sb.toString();
 	}
 
 }
