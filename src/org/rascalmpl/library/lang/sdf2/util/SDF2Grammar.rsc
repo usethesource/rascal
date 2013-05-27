@@ -395,6 +395,14 @@ public set[Symbol] getLookaheads(Lookaheads ls) {
    switch (ls) {
      case (Lookaheads) `<Class c>` :
      	return {getCharClass(c)};
+     	
+     case (Lookaheads) `<Class l> . <Lookaheads r>` : {
+     	rs = getLookaheads(r);
+     	if (size(rs) == 1)
+	      return {\seq([getCharClass(l), *rs])};
+	    else
+	      return {\seq([getCharClass(l), \alt(rs)])};
+     }
      	  	
      case (Lookaheads) `<Lookaheads l> | <Lookaheads r>` :
      	return getLookaheads(l) + getLookaheads(r);
