@@ -130,7 +130,7 @@ private GrammarModule getModule(Module m) {
     imps = getImports(m); 
    
     // note that imports in SDF2 have the semantics of extends in Rascal
-    return \module(name, {}, imps, illegalPriorities(dup(grammar({}, prods))));
+    return \module(name, {}, imps, illegalPriorities(dup(grammar(getStartSymbols(m), prods))));
     //return \module(name, {}, imps, grammar({}, prods));
   }
   
