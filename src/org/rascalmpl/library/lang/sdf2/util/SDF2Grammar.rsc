@@ -364,6 +364,9 @@ public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
     case (Restriction) `-/- <Lookaheads ls>` :
     	return {};
     
+    case (Restriction) `LAYOUT? -/- <Lookaheads ls>` :
+      return {conditional(\iter-star(sort("LAYOUT")), {\not-follow(l) | l <- getLookaheads(ls) })};
+      
     case (Restriction) `<Sym s1> -/- <Lookaheads ls>` : 
       return {conditional(getSymbol(s1, isLex), {\not-follow(l) | l <- getLookaheads(ls) })};
   	
@@ -371,8 +374,6 @@ public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
       return  getRestriction((Restriction) `<Sym s1> -/- <Lookaheads ls>`, isLex)
            + {*getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
     
-    case (Restriction) `LAYOUT? -/- <Lookaheads ls>` :
-      return {conditional(\iter-star(sort("LAYOUT")), {\not-follow(l) | l <- getLookaheads(ls) })};
              
        
     default: {
