@@ -98,6 +98,9 @@ public str topProd2rascal(Production p) {
   else if (/keywords(_) := p.def)
     kind = "keyword";  
    
+  if (\start(_) := p.def)
+    kind = "start " + kind;
+    
   return "<kind> <symbol2rascal(p.def)> =
          '  <prod2rascal(p)>
          '  ;";
