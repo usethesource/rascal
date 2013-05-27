@@ -149,7 +149,7 @@ public str prod2rascal(Production p) {
       	return "<for(s <- lhs){><symbol2rascal(s)> <}>";
  
     case prod(Symbol rhs,list[Symbol] lhs,set[Attr] as) :
-      	return "<for (a <- as) {><attr2mod(a)><}>: <for(s <- lhs){><symbol2rascal(s)> <}>";
+      	return "<for (a <- as) {><attr2mod(a)><}> <for(s <- lhs){><symbol2rascal(s)> <}>";
  
     case regular(_) :
     	    return "";
