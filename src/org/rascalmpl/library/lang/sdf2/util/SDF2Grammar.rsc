@@ -50,6 +50,11 @@ public GrammarDefinition sdf2grammar(SDF def) {
   return sdf2grammar("Main", def);
 }
  
+public Grammar injectStarts(Grammar g) = visit (g) {
+	case Production p => p[def = \start(p.def)]
+		when p.def in g.starts
+};
+
 public GrammarDefinition sdf2grammar(str main, SDF def) {
   if ((SDF) `definition <Module* mods>` := def) {
     ms = ();
