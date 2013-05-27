@@ -346,7 +346,7 @@ public set[Symbol] getConditions(SDF m) {
    while ({conditional(s, cs1), conditional(s, cs2), rest*} := res)
        res = rest + {conditional(s, cs1 + cs2)};
    
-   iprintln(res);
+   //iprintln(res);
    return res;
 }
       
