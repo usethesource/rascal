@@ -353,8 +353,8 @@ set[Production] fixParameters(set[Production] input) {
 public set[Production] getProduction(Prod P, bool isLex) {
   switch (P) {
     case (Prod) `<Syms syms> -\> LAYOUT <Attrs ats>` :
-        return {prod(layouts("LAYOUTLIST"),[\iter-star(sort("LAYOUT"))],{}),
-                prod(sort("LAYOUT"), getSymbols(syms, isLex),getAttributes(ats))};
+        return {prod(layouts("LAYOUTLIST"),[\iter-star(\lex("LAYOUT"))],{}),
+                prod(\lex("LAYOUT"), getSymbols(syms, isLex),getAttributes(ats))};
     case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
         return {prod(keywords(getSymbol(sym, isLex).name + "Keywords"), getSymbols(syms, isLex), {})};
     case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
@@ -378,7 +378,7 @@ test bool test12() = getProduction((Prod) `PICO-ID ":" TYPE -\> ID-TYPE {cons("d
      prod(sort("ID-TYPE"),[sort("PICO-ID"), lit(":"), sort("TYPE")],{\assoc(left())});
                
 test bool test13() = getProduction((Prod) `[\\ \\t\\n\\r]	-\> LAYOUT {cons("whitespace")}`, true) == 
-	 prod(sort("LAYOUT"),[\char-class([range(32,32),range(9,9),range(10,10),range(13,13)])],{});
+	 prod(\lex("LAYOUT"),[\char-class([range(32,32),range(9,9),range(10,10),range(13,13)])],{});
  
 test bool test14() = getProduction((Prod) `{~[\\n]* [\\n]}* -\> Rest`, true) ==
      prod(sort("Rest"),[\iter-star-seps(\iter-star(\char-class([range(0,9),range(11,65535)])),[\char-class([range(10,10)])])],{});
@@ -420,7 +420,7 @@ public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
     	return {};
     
     case (Restriction) `LAYOUT? -/- <Lookaheads ls>` :
-      return {conditional(\iter-star(sort("LAYOUT")), {\not-follow(l) | l <- getLookaheads(ls) })};
+      return {conditional(\iter-star(\lex("LAYOUT")), {\not-follow(l) | l <- getLookaheads(ls) })};
       
     case (Restriction) `<Sym s1> -/- <Lookaheads ls>` : 
       return {conditional(getSymbol(s1, isLex), {\not-follow(l) | l <- getLookaheads(ls) })};
@@ -568,7 +568,7 @@ public Symbol definedSymbol((&T <: Tree) v, bool isLex) {
   if (/(Prod) `<Sym* _> -\> <Sym s> <Attrs _>` := v) {
     return getSymbol(s, isLex);
   } else if (/(Prod) `<Sym* _> -\> LAYOUT <Attrs _>` := v) {
-    return sort("LAYOUT");
+    return \lex("LAYOUT");
   }
   throw "could not find a defined symbol in <v>";
 }
@@ -612,7 +612,7 @@ public Symbol getSymbol(Sym sym, bool isLex) {
     	return label("<i>", getSymbol(s, isLex));
     	
    	case (Sym) `LAYOUT`:
-    	return sort("LAYOUT"); 
+    	return \lex("LAYOUT"); 
     	
     case (Sym) `<StrCon l>`:
           	return lit(unescape(l));
