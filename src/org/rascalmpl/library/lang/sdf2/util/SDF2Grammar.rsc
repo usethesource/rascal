@@ -19,6 +19,7 @@ import IO;
 import String;
 import Set;
 import List;
+import Map;
 import util::Math;
 import ParseTree;
 import Grammar;
@@ -70,6 +71,7 @@ public GrammarDefinition sdf2grammar(str main, SDF def) {
     
     res = definition(main, ms);
     res = split(res);
+    res = addLexicalChaining(res);
     res = resolve(res);
     res = applyConditions(res, (s:c | c:conditional(s,_) <- getConditions(def)));
     res = removeDirectProductionCycle(res);
@@ -101,8 +103,38 @@ private bool isProductionCycle(\prod(_, [sing], _), Production b) {
 		return false;
 }
 private default bool isProductionCycle(Production a, Production b) = false;
-	
 
+private GrammarDefinition addLexicalChaining(GrammarDefinition def) {
+	set[Symbol] sSorts = { s | /Grammar g := def, s <- g.rules, s is \sort  };
+	set[Symbol] lSorts = { s | /Grammar g := def, s <- g.rules, !(s is \sort)};
+	overlap = {s.name | s <- sSorts} & {s.name | s <- lSorts};
+	if (overlap != {}) {
+		// first replace the lexicals l with LEX[l]
+		def = visit(def) {
+			case Grammar g : {
+				for (s <- g.rules, !(s is \sort), s.name in overlap, p := g.rules[s]) {
+					newSymbol = \parameterized-lex("LEX",[\lex(s.name)]);
+					g.rules[newSymbol] = visit(p) {
+						case \priority(_, l) => \priority(newSymbol, l)
+						case \associativity(_, a, l) => \associativity(newSymbol, a, l)
+						case \cons(_, ss, a) => \cons(newSymbol, ss, a)
+						case \func(_, ss, a) => \func(newSymbol, ss, a)
+						case \choice(_, ps) => \choice(newSymbol, ps)
+					};
+					g.rules = delete(g.rules, s);
+				}	
+				insert g;
+			}
+		};
+		// now add the chain rules to one of the grammars
+		chains = grammar({}, (\sort(n) : \prod(\sort(n), [\parameterized-lex("LEX",[\lex(n)])], {}) | n <- overlap));
+		def = top-down-break visit(def) {
+			case Grammar g => compose(g, chains)
+		};
+		
+	}
+	return def;
+}
 
 Symbol striprec(Symbol s) = visit(s) { case Symbol t => strip ( t ) };
 Symbol strip(label(str _, Symbol s)) = strip(s);
