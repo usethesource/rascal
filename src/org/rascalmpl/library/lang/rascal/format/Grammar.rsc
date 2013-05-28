@@ -93,7 +93,7 @@ public str topProd2rascal(Production p) {
   kind = "syntax";
   if (/layouts(n) := p.def)
     kind = "layout <n>";
-  else if (/lex(_) := p.def)
+  else if (/lex(_) := p.def || /\parameterized-lex(_,_) := p.def)
     kind = "lexical";
   else if (/keywords(_) := p.def)
     kind = "keyword";  
@@ -212,6 +212,8 @@ public str symbol2rascal(Symbol sym) {
     case \keywords(x):
         return x;
     case \parameterized-sort(str name, list[Symbol] parameters):
+        return "<name>[<params2rascal(parameters)>]";
+    case \parameterized-lex(str name, list[Symbol] parameters):
         return "<name>[<params2rascal(parameters)>]";
     case \char-class(x) : 
        if (\char-class(y) := complement(sym)) {
