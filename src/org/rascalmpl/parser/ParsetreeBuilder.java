@@ -24,6 +24,9 @@ public class ParsetreeBuilder implements NodeListener<IConstructor,IConstructor>
 
   @Override
   public Result<IConstructor> endNode(IConstructor type, Iterable<IConstructor> children, PositionInfo node) {
+	if(children == null) {
+		throw new IllegalArgumentException("children cannot be null.");
+	}
     IListWriter args = vf.listWriter();
     args.appendAll(children);
     return Result.accept(vf.constructor(Factory.Tree_Appl, type, args.done()));

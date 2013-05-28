@@ -52,6 +52,8 @@ public class GrammarToJigll {
 	  if(previousGrammar == null || !grammar.isEqual(previousGrammar)) {
 		  this.previousGrammar = grammar;
 		  this.grammar = generate("inmemory", grammar);
+		  System.out.println(grammar);
+		  System.out.println(this.grammar);
 	  }
 	  
 	  parser = new LevelSynchronizedGrammarInterpretter();
@@ -168,6 +170,9 @@ public class GrammarToJigll {
 	}
 	
 	private Symbol getSymbol(IConstructor symbol) {
+		
+		boolean ebnf = isEBNF((IConstructor) symbol);
+		
 		switch (symbol.getName()) {
 		
 		case "char-class":
@@ -175,7 +180,6 @@ public class GrammarToJigll {
 			return new CharacterClass(targetRanges);
 			
 		case "sort":
-			boolean ebnf = isEBNF((IConstructor) symbol);
 			return new Nonterminal(getSymbolName(symbol), ebnf);
 			
 		case "lex":
@@ -190,15 +194,23 @@ public class GrammarToJigll {
 		case "lit":
 			return new Nonterminal("\"" + ((IString)symbol.get("string")).getValue() + "\"");
 			
+		case "iter":
+			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "+", ebnf);
+			
 		case "iter-seps":
-			return new Nonterminal(getIteratorName(symbol) + "+");
+			return new Nonterminal(getIteratorName(symbol) + "+", ebnf);
+			
+		case "iter-star":
+			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "*", ebnf);
+			
+		case "iter-star-seps":
+			return new Nonterminal(getIteratorName(symbol) + "*", ebnf);
 			
 		case "seq":
-			return new Nonterminal(getSymbolList((IList)symbol.get("sequence")).toString());
-			
+			return new Nonterminal(getSymbolList((IList)symbol.get("sequence")).toString(), ebnf);
 			
 		case "opt":
-			return new Nonterminal(getSymbol((IConstructor) symbol.get("symbol")) + "?");
+			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "?", ebnf);
 			
 		// conditions
 		case "conditional":
@@ -206,6 +218,10 @@ public class GrammarToJigll {
 		}
 		
 		return null;
+	}
+	
+	private IConstructor getSymbolCons(IConstructor symbol) {
+		return (IConstructor) symbol.get("symbol");
 	}
 	
 	private String getSymbolName(IConstructor symbol) {
@@ -217,7 +233,9 @@ public class GrammarToJigll {
 		return SymbolAdapter.isIterStarSeps(value) ||
 			   SymbolAdapter.isIterStar(value) ||
 			   SymbolAdapter.isIterPlus(value) ||
-			   SymbolAdapter.isIterPlusSeps(value);
+			   SymbolAdapter.isIterPlusSeps(value) || 
+			   SymbolAdapter.isOpt(value) ||
+			   SymbolAdapter.isSequence(value);
 	}
 	
 	private IConstructor getRegularDefinition(ISet alts) {
