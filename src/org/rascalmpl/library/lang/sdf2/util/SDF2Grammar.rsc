@@ -72,6 +72,7 @@ public GrammarDefinition sdf2grammar(str main, SDF def) {
     res = split(res);
     res = resolve(res);
     res = applyConditions(res, (s:c | c:conditional(s,_) <- getConditions(def)));
+    res = removeDirectProductionCycle(res);
     
     return res;
   }
@@ -80,6 +81,27 @@ public GrammarDefinition sdf2grammar(str main, SDF def) {
 }
 
 private GrammarDefinition split(GrammarDefinition def) = visit(def) { case Grammar g => split(g) };
+
+private GrammarDefinition removeDirectProductionCycle(GrammarDefinition def) {
+	def = visit (def) {
+		case Production p => p[alternatives = { a | a <- p.alternatives, !isProductionCycle(a, p)}]
+			when p has def && p has alternatives 
+		case Production p => p[choices = [ c | c <- p.choices, !isProductionCycle(c, p)]]
+			when p has def && p has choices 
+	};
+	return visit(def) {
+		case Grammar g => removeEmptyProductions(g)
+	};
+}
+
+private bool isProductionCycle(\prod(_, [sing], _), Production b) {
+	if (s := strip(sing) && s has name && bs := strip(b.def) && bs has name)
+		return s.name == bs.name;
+	else
+		return false;
+}
+private default bool isProductionCycle(Production a, Production b) = false;
+	
 
 
 Symbol striprec(Symbol s) = visit(s) { case Symbol t => strip ( t ) };
@@ -109,10 +131,11 @@ private bool isNotEmpty(Production p)
 	&& p has choices ==> p.choices != []
 	;
 private Grammar removeEmptyProductions(Grammar g) {
-	return visit(g) {
+	g = visit(g) {
 		case list[Production] l => [p | p <- l, isNotEmpty(p)]
 		case set[Production] l => {p | p <- l, isNotEmpty(p)}
-	}
+	};
+	return g[rules = ( s : p | s <- g.rules, p := g.rules[s], isNotEmpty(p))];
 }
 
 private Production keep(Production source, Symbol s) = visit(source) {
