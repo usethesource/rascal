@@ -105,14 +105,14 @@ private bool isProductionCycle(\prod(_, [sing], _), Production b) {
 private default bool isProductionCycle(Production a, Production b) = false;
 
 private GrammarDefinition addLexicalChaining(GrammarDefinition def) {
-	set[Symbol] sSorts = { s | /Grammar g := def, s <- g.rules, s is \sort  };
-	set[Symbol] lSorts = { s | /Grammar g := def, s <- g.rules, !(s is \sort)};
+	set[Symbol] sSorts = { s | /Grammar g := def, s <- g.rules, (s is \sort || s is \parameterized-sort) };
+	set[Symbol] lSorts = { s | /Grammar g := def, s <- g.rules, !(s is \sort || s is \parameterized-sort)};
 	overlap = {s.name | s <- sSorts} & {s.name | s <- lSorts};
 	if (overlap != {}) {
 		// first replace the lexicals l with LEX[l]
 		def = visit(def) {
 			case Grammar g : {
-				for (s <- g.rules, !(s is \sort), s.name in overlap, p := g.rules[s]) {
+				for (s <- g.rules, !(s is \sort || s is \parameterized-sort), s.name in overlap, p := g.rules[s]) {
 					newSymbol = \parameterized-lex("LEX",[\lex(s.name)]);
 					g.rules[newSymbol] = visit(p) {
 						case \priority(_, l) => \priority(newSymbol, l)
