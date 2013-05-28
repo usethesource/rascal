@@ -1,7 +1,5 @@
 package org.rascalmpl.parser;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,46 +38,47 @@ public class GrammarToJigll {
 	
 	private Map<IValue, Rule> rulesMap;
 	
+	private IConstructor previousGrammar;
+	private Grammar grammar;
+	private GLLParser parser;
+	
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
 	}
 
 	@SuppressWarnings("unchecked")
 	public IConstructor jparse(IValue type, IConstructor symbol, IConstructor grammar, IString str) {
-	  GrammarBuilder builder = convert("inmemory", grammar);
+		
+	  if(previousGrammar == null || !grammar.isEqual(previousGrammar)) {
+		  this.previousGrammar = grammar;
+		  this.grammar = generate("inmemory", grammar);
+	  }
 	  
-	  IMap notAllowed = (IMap) ((IMap) grammar.get("about")).get(vf.string("notAllowed"));
-	  applyRestrictions(builder, notAllowed);
-	  builder.filter();
-	  
-	  GLLParser parser = new LevelSynchronizedGrammarInterpretter();
-	
-	  System.out.println("Jigll started.");
+	  parser = new LevelSynchronizedGrammarInterpretter();
 	  Input input = Input.fromString(str.getValue());
+
+	  System.out.println("Jigll started.");
 	  
-	  Grammar g = builder.build();
-	  NonterminalSymbolNode sppf = parser.parse(input, g, getSymbolName(symbol));
-	  
+	  NonterminalSymbolNode sppf = parser.parse(input, this.grammar, getSymbolName(symbol));
+
 	  long start = System.nanoTime();
-	  
 	  sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder()));
-	  
 	  long end = System.nanoTime();
 	  System.out.println("Flattening: " + (end - start) / 1000_000);
 	  
 	  return ((Result<IConstructor>)sppf.getObject()).getObject();
 	}
 	
+	private Grammar generate(String name, IConstructor grammar) {
+		  GrammarBuilder builder = convert(name, grammar);
+		  IMap notAllowed = (IMap) ((IMap) grammar.get("about")).get(vf.string("notAllowed"));
+		  applyRestrictions(builder, notAllowed);
+		  builder.filter();
+		  return builder.build();
+	}
+	
 	public void generate(IString name, IConstructor grammar) {
 
-		GrammarBuilder builder = convert(name.getValue(), grammar);
-		Grammar g = builder.build();
-		
-		try (StringWriter out = new StringWriter()) {
-			g.code(out, "test");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public GrammarBuilder convert(String name, IConstructor grammar) {
