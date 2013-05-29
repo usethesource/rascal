@@ -30,10 +30,7 @@ import org.jgll.parser.ParseError;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
-import org.jgll.util.GraphVizUtil;
 import org.jgll.util.Input;
-import org.jgll.util.ToDot;
-import org.jgll.util.ToDotWithoutIntermeidateAndLists;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
@@ -58,8 +55,8 @@ public class GrammarToJigll {
 	  if(previousGrammar == null || !grammar.isEqual(previousGrammar)) {
 		  this.previousGrammar = grammar;
 		  this.grammar = generate("inmemory", grammar);
-		  System.out.println(grammar);
-		  System.out.println(this.grammar);
+//		  System.out.println(grammar);
+//		  System.out.println(this.grammar);
 	  }
 	  
 	  parser = new LevelSynchronizedGrammarInterpretter();

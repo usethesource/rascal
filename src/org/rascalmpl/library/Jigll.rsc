@@ -14,14 +14,23 @@ public void generate(str name, type[&T <: Tree] nont) {
   generate(name, grammar({nont.symbol}, nont.definitions), ());
 }
 
-public &T<:Tree jparse(type[&T <: Tree] nont, str input) {
-  gr = grammar({nont.symbol}, nont.definitions, ());
-  gr = expandRegularSymbols(makeRegularStubs(gr));
-  gr = literals(gr);
-  gr = removeLables(gr);
-  gr = addNotAllowedSets(gr);
-  gr = prioAssocToChoice(gr);
+data Grammar = nogrammar();
+data Tree = notree();
 
+private value cache = notree();
+private Grammar gr = nogrammar();
+
+public &T<:Tree jparse(type[&T <: Tree] nont, str input) {
+  if(nont != cache) {
+      gr = grammar({nont.symbol}, nont.definitions, ());
+	  gr = expandRegularSymbols(makeRegularStubs(gr));
+	  gr = literals(gr);
+	  gr = removeLables(gr);
+	  gr = addNotAllowedSets(gr);
+	  gr = prioAssocToChoice(gr);
+      cache = nont;     
+  }
+ 
   return jparse(nont, nont.symbol, gr, input);
 }
 
