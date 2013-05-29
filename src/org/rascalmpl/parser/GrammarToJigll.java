@@ -58,8 +58,8 @@ public class GrammarToJigll {
 	  if(previousGrammar == null || !grammar.isEqual(previousGrammar)) {
 		  this.previousGrammar = grammar;
 		  this.grammar = generate("inmemory", grammar);
-//		  System.out.println(grammar);
-//		  System.out.println(this.grammar);
+		  System.out.println(grammar);
+		  System.out.println(this.grammar);
 	  }
 	  
 	  parser = new LevelSynchronizedGrammarInterpretter();
