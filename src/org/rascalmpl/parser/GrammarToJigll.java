@@ -73,11 +73,10 @@ public class GrammarToJigll {
 	  try {
 		  sppf = parser.parse(input, this.grammar, getSymbolName(symbol));
 		  
-		ToDot toDot = new ToDotWithoutIntermeidateAndLists();
-		sppf.accept(toDot);
-		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
+//		ToDot toDot = new ToDotWithoutIntermeidateAndLists();
+//		sppf.accept(toDot);
+//		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
 
-		  
 	  } catch(ParseError e) {
 		  System.out.println(e);
 		  return null;
@@ -196,8 +195,6 @@ public class GrammarToJigll {
 	
 	private Symbol getSymbol(IConstructor symbol) {
 		
-		boolean ebnf = isEBNF((IConstructor) symbol);
-		
 		switch (symbol.getName()) {
 		
 		case "char-class":
@@ -205,7 +202,7 @@ public class GrammarToJigll {
 			return new CharacterClass(targetRanges);
 			
 		case "sort":
-			return new Nonterminal(getSymbolName(symbol), ebnf);
+			return new Nonterminal(getSymbolName(symbol));
 			
 		case "lex":
 			return new Nonterminal(getSymbolName(symbol));
@@ -220,25 +217,25 @@ public class GrammarToJigll {
 			return new Nonterminal("\"" + ((IString)symbol.get("string")).getValue() + "\"");
 			
 		case "iter":
-			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "+", ebnf);
+			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "+", true);
 			
 		case "iter-seps":
-			return new Nonterminal(getIteratorName(symbol) + "+", ebnf);
+			return new Nonterminal(getIteratorName(symbol) + "+", true);
 			
 		case "iter-star":
-			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "*", ebnf);
+			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "*", true);
 			
 		case "iter-star-seps":
-			return new Nonterminal(getIteratorName(symbol) + "*", ebnf);
+			return new Nonterminal(getIteratorName(symbol) + "*", true);
 			
 		case "seq":
-			return new Nonterminal(getSymbolList((IList)symbol.get("sequence")).toString(), ebnf);
+			return new Nonterminal(getSymbolList((IList)symbol.get("sequence")).toString());
 			
 		case "opt":
-			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "?", ebnf);
+			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "?");
 			
 		case "alt":
-			return new Nonterminal(getAlt(symbol), ebnf);
+			return new Nonterminal(getAlt(symbol));
 			
 		case "conditional":			
 			ISet conditions = (ISet) symbol.get("conditions");
@@ -268,7 +265,10 @@ public class GrammarToJigll {
 		return SymbolAdapter.isIterStarSeps(value) ||
 			   SymbolAdapter.isIterStar(value) ||
 			   SymbolAdapter.isIterPlus(value) ||
-			   SymbolAdapter.isIterPlusSeps(value); 
+			   SymbolAdapter.isIterPlusSeps(value) ||
+			   SymbolAdapter.isAlt(value) ||
+			   SymbolAdapter.isSeq(value) ||
+			   SymbolAdapter.isOpt(value);
 	}
 	
 	private IConstructor getRegularDefinition(ISet alts) {
