@@ -1,7 +1,5 @@
 package org.rascalmpl.parser;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,10 +26,14 @@ import org.jgll.grammar.Rule;
 import org.jgll.grammar.Symbol;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.LevelSynchronizedGrammarInterpretter;
+import org.jgll.parser.ParseError;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
+import org.jgll.util.GraphVizUtil;
 import org.jgll.util.Input;
+import org.jgll.util.ToDot;
+import org.jgll.util.ToDotWithoutIntermeidateAndLists;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
@@ -40,44 +42,65 @@ public class GrammarToJigll {
 	
 	private Map<IValue, Rule> rulesMap;
 	
+	private IConstructor previousGrammar;
+	private Grammar grammar;
+	private GLLParser parser;
+
+	private CharacterClass notFollow;
+	
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
 	}
 
 	@SuppressWarnings("unchecked")
 	public IConstructor jparse(IValue type, IConstructor symbol, IConstructor grammar, IString str) {
-	  GrammarBuilder builder = convert("inmemory", grammar);
+		
+	  if(previousGrammar == null || !grammar.isEqual(previousGrammar)) {
+		  this.previousGrammar = grammar;
+		  this.grammar = generate("inmemory", grammar);
+		  System.out.println(grammar);
+		  System.out.println(this.grammar);
+	  }
 	  
-	  IMap notAllowed = (IMap) ((IMap) grammar.get("about")).get(vf.string("notAllowed"));
-	  applyRestrictions(builder, notAllowed);
-	  
-	  GLLParser parser = new LevelSynchronizedGrammarInterpretter();
-	
-	  System.out.println("Jigll started.");
+	  parser = new LevelSynchronizedGrammarInterpretter();
 	  Input input = Input.fromString(str.getValue());
+
+	  System.out.println("Jigll started.");
 	  
-	  NonterminalSymbolNode sppf = parser.parse(input, builder.build(), symbol.toString());
 	  
+	  NonterminalSymbolNode sppf = null;
+	  
+	  try {
+		  sppf = parser.parse(input, this.grammar, getSymbolName(symbol));
+		  
+		ToDot toDot = new ToDotWithoutIntermeidateAndLists();
+		sppf.accept(toDot);
+		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
+
+		  
+	  } catch(ParseError e) {
+		  System.out.println(e);
+		  return null;
+	  }
+
 	  long start = System.nanoTime();
-	  
 	  sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder()));
-	  
 	  long end = System.nanoTime();
 	  System.out.println("Flattening: " + (end - start) / 1000_000);
 	  
 	  return ((Result<IConstructor>)sppf.getObject()).getObject();
 	}
 	
+	private Grammar generate(String name, IConstructor grammar) {
+		  GrammarBuilder builder = convert(name, grammar);
+		  IMap notAllowed = (IMap) ((IMap) grammar.get("about")).get(vf.string("notAllowed"));
+		  applyRestrictions(builder, notAllowed);
+		  builder.filter();
+		  return builder.build();
+	}
+	
 	public void generate(IString name, IConstructor grammar) {
 
-		GrammarBuilder builder = convert(name.getValue(), grammar);
-		Grammar g = builder.build();
-		
-		try (StringWriter out = new StringWriter()) {
-			g.code(out, "test");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public GrammarBuilder convert(String name, IConstructor grammar) {
@@ -89,7 +112,12 @@ public class GrammarToJigll {
 
 		for (IValue nonterminal : definitions) {
 			boolean ebnf = isEBNF((IConstructor) nonterminal);
-			Nonterminal head = new Nonterminal(nonterminal.toString(), ebnf);
+			
+			Nonterminal head = (Nonterminal) getSymbol((IConstructor) nonterminal);
+			if(head == null) {
+				continue;
+			}
+			 
 			IConstructor choice = (IConstructor) definitions.get(nonterminal);
 			assert choice.getName().equals("choice");
 			ISet alts = (ISet) choice.get("alternatives");
@@ -103,13 +131,18 @@ public class GrammarToJigll {
 				} else {
 					object = alt;
 				}
+				notFollow = null;
 				
 				if(!prod.getName().equals("regular")) {
 					IList rhs = (IList) prod.get("symbols");
 					List<Symbol> body = getSymbolList(rhs);
 					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
-					builder.addRule(rule);
+					if(notFollow != null) {
+						builder.addRule(rule, notFollow);						
+					} else {
+						builder.addRule(rule);
+					}
 				}
 			}
 		}
@@ -134,7 +167,7 @@ public class GrammarToJigll {
 				// Create a new filter for each filtered nonterminal
 				builder.addFilter(rule.getHead().getName(), rule.getBody(), position, rulesMap.get(iterator.next()).getBody());
 			}
-		}		
+		}
 	}
 
    private static List<Range> buildRanges(IConstructor symbol) {
@@ -149,23 +182,85 @@ public class GrammarToJigll {
 		return targetRanges;
 	}	
 	
-	private static List<Symbol> getSymbolList(IList rhs) {
+	private List<Symbol> getSymbolList(IList rhs) {
 		List<Symbol> result = new ArrayList<>();
 		for (IValue elem : rhs) {
-			IConstructor symbol = (IConstructor) elem;
-			switch (symbol.getName()) {			
-				case "char-class":
-					List<Range> targetRanges = buildRanges(symbol);
-					result.add(new CharacterClass(targetRanges));
-					break;
-				// conditions
-				case "conditional":
-					break;
-				default:
-					result.add(new Nonterminal(symbol.toString()));
+			IConstructor cons = (IConstructor) elem;
+			Symbol symbol = getSymbol(cons);
+			if(symbol != null) {
+				result.add(symbol);
 			}
 		}
 		return result;
+	}
+	
+	private Symbol getSymbol(IConstructor symbol) {
+		
+		boolean ebnf = isEBNF((IConstructor) symbol);
+		
+		switch (symbol.getName()) {
+		
+		case "char-class":
+			List<Range> targetRanges = buildRanges(symbol);
+			return new CharacterClass(targetRanges);
+			
+		case "sort":
+			return new Nonterminal(getSymbolName(symbol), ebnf);
+			
+		case "lex":
+			return new Nonterminal(getSymbolName(symbol));
+		
+		case "keywords":
+			return new Nonterminal(getSymbolName(symbol));
+		
+		case "layouts":
+			return new Nonterminal("layout(" + getSymbolName(symbol) + ")");
+			
+		case "lit":
+			return new Nonterminal("\"" + ((IString)symbol.get("string")).getValue() + "\"");
+			
+		case "iter":
+			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "+", ebnf);
+			
+		case "iter-seps":
+			return new Nonterminal(getIteratorName(symbol) + "+", ebnf);
+			
+		case "iter-star":
+			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "*", ebnf);
+			
+		case "iter-star-seps":
+			return new Nonterminal(getIteratorName(symbol) + "*", ebnf);
+			
+		case "seq":
+			return new Nonterminal(getSymbolList((IList)symbol.get("sequence")).toString(), ebnf);
+			
+		case "opt":
+			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "?", ebnf);
+			
+		case "alt":
+			return new Nonterminal(getAlt(symbol), ebnf);
+			
+		case "conditional":			
+			ISet conditions = (ISet) symbol.get("conditions");
+			for(IValue condition : conditions) {
+				if(((IConstructor)condition).getName().equals("not-follow")) {
+					notFollow = (CharacterClass) getSymbol(getSymbolCons((IConstructor) condition));
+				}
+			}
+			return getSymbol(getSymbolCons(symbol));
+			
+		}
+		
+		System.out.println(symbol);
+		return null;
+	}
+	
+	private IConstructor getSymbolCons(IConstructor symbol) {
+		return (IConstructor) symbol.get("symbol");
+	}
+	
+	private String getSymbolName(IConstructor symbol) {
+		return ((IString)symbol.get("name")).getValue();
 	}
 	
 	private boolean isEBNF(IConstructor value) {
@@ -173,7 +268,7 @@ public class GrammarToJigll {
 		return SymbolAdapter.isIterStarSeps(value) ||
 			   SymbolAdapter.isIterStar(value) ||
 			   SymbolAdapter.isIterPlus(value) ||
-			   SymbolAdapter.isIterPlusSeps(value);
+			   SymbolAdapter.isIterPlusSeps(value); 
 	}
 	
 	private IConstructor getRegularDefinition(ISet alts) {
@@ -185,6 +280,37 @@ public class GrammarToJigll {
 			}
 		}
 		return value;
+	}
+	
+	public String getAlt(IConstructor cons) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("(");
+		
+		ISet alternatives = (ISet) cons.get("alternatives");
+		for(IValue alt : alternatives) {
+			sb.append(getSymbol((IConstructor) alt)).append(" | ");
+		}
+		sb.delete(sb.length() - 3, sb.length());
+		sb.append(")");
+		return sb.toString();
+	}
+	
+	public String getIteratorName(IConstructor iter) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("(");
+		
+		IConstructor symbol = (IConstructor)iter.get("symbol");
+		sb.append(getSymbol(symbol).toString());
+		
+		IList separators = (IList) iter.get("separators");
+		for(IValue separator : separators) {
+			// See if adding separators matters for the uniqueness of the names
+		}
+		
+		sb.append(")");
+		
+		return sb.toString();
 	}
 
 }
