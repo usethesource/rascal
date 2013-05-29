@@ -26,10 +26,14 @@ import org.jgll.grammar.Rule;
 import org.jgll.grammar.Symbol;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.LevelSynchronizedGrammarInterpretter;
+import org.jgll.parser.ParseError;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
+import org.jgll.util.GraphVizUtil;
 import org.jgll.util.Input;
+import org.jgll.util.ToDot;
+import org.jgll.util.ToDotWithoutIntermeidateAndLists;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
@@ -41,6 +45,8 @@ public class GrammarToJigll {
 	private IConstructor previousGrammar;
 	private Grammar grammar;
 	private GLLParser parser;
+
+	private CharacterClass notFollow;
 	
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
@@ -61,7 +67,21 @@ public class GrammarToJigll {
 
 	  System.out.println("Jigll started.");
 	  
-	  NonterminalSymbolNode sppf = parser.parse(input, this.grammar, getSymbolName(symbol));
+	  
+	  NonterminalSymbolNode sppf = null;
+	  
+	  try {
+		  sppf = parser.parse(input, this.grammar, getSymbolName(symbol));
+		  
+		ToDot toDot = new ToDotWithoutIntermeidateAndLists();
+		sppf.accept(toDot);
+		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
+
+		  
+	  } catch(ParseError e) {
+		  System.out.println(e);
+		  return null;
+	  }
 
 	  long start = System.nanoTime();
 	  sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder()));
@@ -111,13 +131,18 @@ public class GrammarToJigll {
 				} else {
 					object = alt;
 				}
+				notFollow = null;
 				
 				if(!prod.getName().equals("regular")) {
 					IList rhs = (IList) prod.get("symbols");
 					List<Symbol> body = getSymbolList(rhs);
 					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
-					builder.addRule(rule);
+					if(notFollow != null) {
+						builder.addRule(rule, notFollow);						
+					} else {
+						builder.addRule(rule);
+					}
 				}
 			}
 		}
@@ -212,11 +237,21 @@ public class GrammarToJigll {
 		case "opt":
 			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "?", ebnf);
 			
-		// conditions
-		case "conditional":
-			break;
+		case "alt":
+			return new Nonterminal(getAlt(symbol), ebnf);
+			
+		case "conditional":			
+			ISet conditions = (ISet) symbol.get("conditions");
+			for(IValue condition : conditions) {
+				if(((IConstructor)condition).getName().equals("not-follow")) {
+					notFollow = (CharacterClass) getSymbol(getSymbolCons((IConstructor) condition));
+				}
+			}
+			return getSymbol(getSymbolCons(symbol));
+			
 		}
 		
+		System.out.println(symbol);
 		return null;
 	}
 	
@@ -233,9 +268,7 @@ public class GrammarToJigll {
 		return SymbolAdapter.isIterStarSeps(value) ||
 			   SymbolAdapter.isIterStar(value) ||
 			   SymbolAdapter.isIterPlus(value) ||
-			   SymbolAdapter.isIterPlusSeps(value) || 
-			   SymbolAdapter.isOpt(value) ||
-			   SymbolAdapter.isSequence(value);
+			   SymbolAdapter.isIterPlusSeps(value); 
 	}
 	
 	private IConstructor getRegularDefinition(ISet alts) {
@@ -247,6 +280,19 @@ public class GrammarToJigll {
 			}
 		}
 		return value;
+	}
+	
+	public String getAlt(IConstructor cons) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("(");
+		
+		ISet alternatives = (ISet) cons.get("alternatives");
+		for(IValue alt : alternatives) {
+			sb.append(getSymbol((IConstructor) alt)).append(" | ");
+		}
+		sb.delete(sb.length() - 3, sb.length());
+		sb.append(")");
+		return sb.toString();
 	}
 	
 	public String getIteratorName(IConstructor iter) {
