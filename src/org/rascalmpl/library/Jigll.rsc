@@ -10,6 +10,9 @@ import IO;
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
 public java void generate(str name, Grammar grammar);
 
+@javaClass{org.rascalmpl.parser.GrammarToJigll}
+public java void generateGraph(str nonterminal, str input);
+
 public void generate(str name, type[&T <: Tree] nont) {
   generate(name, grammar({nont.symbol}, nont.definitions), ());
 }

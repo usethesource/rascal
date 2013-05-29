@@ -30,7 +30,10 @@ import org.jgll.parser.ParseError;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
+import org.jgll.util.GraphVizUtil;
 import org.jgll.util.Input;
+import org.jgll.util.ToDot;
+import org.jgll.util.ToDotWithoutIntermeidateAndLists;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
@@ -44,7 +47,7 @@ public class GrammarToJigll {
 	private GLLParser parser;
 
 	private CharacterClass notFollow;
-	
+
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
 	}
@@ -70,10 +73,6 @@ public class GrammarToJigll {
 	  try {
 		  sppf = parser.parse(input, this.grammar, getSymbolName(symbol));
 		  
-//		ToDot toDot = new ToDotWithoutIntermeidateAndLists();
-//		sppf.accept(toDot);
-//		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
-
 	  } catch(ParseError e) {
 		  System.out.println(e);
 		  return null;
@@ -93,6 +92,17 @@ public class GrammarToJigll {
 		  applyRestrictions(builder, notAllowed);
 		  builder.filter();
 		  return builder.build();
+	}
+	
+	public void generateGraph(IString symbolName, IString str) {
+		parser = new LevelSynchronizedGrammarInterpretter();
+		NonterminalSymbolNode sppf = parser.parse(Input.fromString(str.getValue()), this.grammar, symbolName.getValue());
+		if(sppf == null) {
+			return;
+		}
+		ToDot toDot = new ToDotWithoutIntermeidateAndLists();
+		sppf.accept(toDot);
+		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
 	}
 	
 	public void generate(IString name, IConstructor grammar) {
