@@ -36,7 +36,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.omg.CORBA.REBIND;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
@@ -240,11 +239,15 @@ public class ModuleEnvironment extends Environment {
 			String m = todo.get(0);
 			todo.remove(0);
 			
-			if(done.contains(m)) continue;
+			if(done.contains(m)) 
+			  continue;
 			
 			done.add(m);
 			
-			ModuleEnvironment env = heap.getModule(m);
+			/* This allows the current module not to be loaded on the heap, for
+			 * parsing in the IDE
+			 */
+			ModuleEnvironment env = m.equals(getName()) ? this : heap.getModule(m);
 			
 			if(env != null){
 				ISetWriter importWriter = VF.setWriter(TF.stringType());
@@ -268,7 +271,7 @@ public class ModuleEnvironment extends Environment {
 				
 				ITuple t = VF.tuple(importWriter.done(), extendWriter.done(), defWriter.done());
 				result.put(VF.string(m), t);
-			}else if(m == getName()){ // This is the root scope.
+			}else if(m.equals(getName())) { // This is the root scope.
 				ISetWriter importWriter = VF.setWriter(TF.stringType());
 				for(String impname : importedModules){
 					if(!done.contains(impname)) todo.add(impname);
@@ -345,7 +348,7 @@ public class ModuleEnvironment extends Environment {
 		while (!todo.isEmpty()) {
 		   String mod = todo.remove(0);	
 		   done.add(mod);
-		   ModuleEnvironment env = heap.getModule(mod);
+		   ModuleEnvironment env = mod.equals(getName())? this : heap.getModule(mod);
 		   if (env != null) {
 			  for (String e : env.getImports()) {
 				  result.add(e);
