@@ -14,7 +14,7 @@ public void generate(str name, type[&T <: Tree] nont) {
   generate(name, grammar({nont.symbol}, nont.definitions), ());
 }
 
-public &T jparse(type[&T <: Tree] nont, str input) {
+public &T<:Tree jparse(type[&T <: Tree] nont, str input) {
   gr = grammar({nont.symbol}, nont.definitions, ());
   gr = expandRegularSymbols(makeRegularStubs(gr));
   gr = literals(gr);
@@ -27,7 +27,7 @@ public &T jparse(type[&T <: Tree] nont, str input) {
 }
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
-public java &T jparse(type[&T <: Tree] nont, Symbol nonterminal, Grammar grammar, str input);
+public java &T<:Tree jparse(type[&T <: Tree] nont, Symbol nonterminal, Grammar grammar, str input);
 
 // in the future this has to go because the labels are worth some money
 private Grammar removeLables(Grammar g) 
