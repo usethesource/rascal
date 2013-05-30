@@ -310,7 +310,7 @@ public set[Production] getProductions(Module \mod) {
     case (Grammar) `context-free syntax <Prod* prods>`: 
     	res += getProductions(prods, false);
     case (Grammar) `priorities <{Priority ","}* prios>`:
-    	res += getPriorities(prios,false);
+    	res += getPriorities(prios,true);
     case (Grammar) `lexical priorities <{Priority ","}* prios>`: 
     	res += getPriorities(prios,true);
     case (Grammar) `context-free priorities <{Priority ","}* prios>`: 
@@ -388,7 +388,7 @@ public set[Symbol] getConditions(SDF m) {
   res = {};
   visit (m) {
     case (Grammar) `restrictions <Restriction* rests>`:
-      res += getRestrictions(rests, false);
+      res += getRestrictions(rests, true);
     case (Grammar) `lexical restrictions <Restriction* rests>`:
       res += getRestrictions(rests, true);
     case (Grammar) `context-free restrictions <Restriction* rests>` :
