@@ -32,7 +32,7 @@ import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
 import org.jgll.util.GraphVizUtil;
 import org.jgll.util.Input;
-import org.jgll.util.ToDot;
+import org.jgll.util.SPPFToDot;
 import org.jgll.util.ToDotWithoutIntermeidateAndLists;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -100,7 +100,7 @@ public class GrammarToJigll {
 		if(sppf == null) {
 			return;
 		}
-		ToDot toDot = new ToDotWithoutIntermeidateAndLists();
+		SPPFToDot toDot = new ToDotWithoutIntermeidateAndLists();
 		sppf.accept(toDot);
 		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
 	}
@@ -171,7 +171,7 @@ public class GrammarToJigll {
 			Iterator<IValue> iterator = set.iterator();
 			while(iterator.hasNext()) {
 				// Create a new filter for each filtered nonterminal
-				builder.addFilter(rule.getHead().getName(), rule.getBody(), position, rulesMap.get(iterator.next()).getBody());
+				builder.addFilter(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
 			}
 		}
 	}
@@ -212,6 +212,9 @@ public class GrammarToJigll {
 			return new Nonterminal(getSymbolName(symbol));
 			
 		case "lex":
+			return new Nonterminal(getSymbolName(symbol));
+			
+		case "label":
 			return new Nonterminal(getSymbolName(symbol));
 		
 		case "keywords":
@@ -268,14 +271,17 @@ public class GrammarToJigll {
 	}
 	
 	private boolean isEBNF(IConstructor value) {
-		// TODO: sequence, alternative, optional, etc.
-		return SymbolAdapter.isIterStarSeps(value) ||
-			   SymbolAdapter.isIterStar(value) ||
-			   SymbolAdapter.isIterPlus(value) ||
-			   SymbolAdapter.isIterPlusSeps(value) ||
+		return isEBNFList(value) ||
 			   SymbolAdapter.isAlt(value) ||
 			   SymbolAdapter.isSeq(value) ||
 			   SymbolAdapter.isOpt(value);
+	}
+	
+	private boolean isEBNFList(IConstructor value) {
+		return SymbolAdapter.isIterStarSeps(value) ||
+				   SymbolAdapter.isIterStar(value) ||
+				   SymbolAdapter.isIterPlus(value) ||
+				   SymbolAdapter.isIterPlusSeps(value);
 	}
 	
 	private IConstructor getRegularDefinition(ISet alts) {
