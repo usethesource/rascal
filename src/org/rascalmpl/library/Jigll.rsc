@@ -29,8 +29,9 @@ public &T<:Tree jparse(type[&T <: Tree] nont, str input) {
       gr = grammar({nont.symbol}, nont.definitions, ());
 	  gr = expandRegularSymbols(makeRegularStubs(gr));
 	  gr = literals(gr);
-	  gr = removeLabels(gr);
 	  gr = addNotAllowedSets(gr);
+	  gr = removeLabels(gr);
+	  println(gr.about["notAllowed"]);
 	  gr = prioAssocToChoice(gr);
       cache = nont;     
   }
