@@ -9,36 +9,28 @@ import IO;
 import Node;
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
-public java void generate(str name, Grammar grammar);
+public java void generateGrammar(Grammar grammar);
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
-public java void generateGraph(str nonterminal, str input);
+public java void generateGraph();
 
-public void generate(str name, type[&T <: Tree] nont) {
-  generate(name, grammar({nont.symbol}, nont.definitions), ());
+public void generate(type[&T <: Tree] nont) {
+  gr = grammar({nont.symbol}, nont.definitions, ());
+  gr = expandRegularSymbols(makeRegularStubs(gr));
+  gr = literals(gr);
+  gr = addNotAllowedSets(gr);
+  gr = prioAssocToChoice(gr);
+ 
+  generateGrammar(gr);
 }
 
-data Grammar = nogrammar();
-data Tree = notree();
-
-private value cache = notree();
-private Grammar gr = nogrammar();
 
 public &T<:Tree jparse(type[&T <: Tree] nont, str input) {
-  if(nont != cache) {
-      gr = grammar({nont.symbol}, nont.definitions, ());
-	  gr = expandRegularSymbols(makeRegularStubs(gr));
-	  gr = literals(gr);
-	  gr = addNotAllowedSets(gr);
-	  gr = prioAssocToChoice(gr);
-      cache = nont;     
-  }
- 
-  return jparse(nont, nont.symbol, gr, input);
+  return jparse(nont.symbol, input);
 }
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
-public java &T<:Tree jparse(type[&T <: Tree] nont, Symbol nonterminal, Grammar grammar, str input);
+public java &T<:Tree jparse(Symbol nonterminal, str input);
 
 // in the future this has to go because the labels are worth some money
 private Grammar removeLabels(Grammar g) 
