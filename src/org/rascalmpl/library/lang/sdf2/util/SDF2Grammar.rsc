@@ -310,7 +310,7 @@ public set[Production] getProductions(Module \mod) {
     case (Grammar) `context-free syntax <Prod* prods>`: 
     	res += getProductions(prods, false);
     case (Grammar) `priorities <{Priority ","}* prios>`:
-    	res += getPriorities(prios,false);
+    	res += getPriorities(prios,true);
     case (Grammar) `lexical priorities <{Priority ","}* prios>`: 
     	res += getPriorities(prios,true);
     case (Grammar) `context-free priorities <{Priority ","}* prios>`: 
@@ -350,6 +350,9 @@ set[Production] fixParameters(set[Production] input) {
   }
 }
 
+private str labelName("") = "";
+private default str labelName(str s) = toLowerCase(s[0]) + (size(s) > 1 ? s[1..] : "");
+
 public set[Production] getProduction(Prod P, bool isLex) {
   switch (P) {
     case (Prod) `<Syms syms> -\> LAYOUT <Attrs ats>` :
@@ -358,7 +361,7 @@ public set[Production] getProduction(Prod P, bool isLex) {
     case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
         return {prod(keywords(getSymbol(sym, isLex).name + "Keywords"), getSymbols(syms, isLex), {})};
     case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
-        return {prod(label(unescape(n),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> }`))};
+        return {prod(label(labelName(unescape(n)),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> }`))};
     case (Prod) `<Syms syms> -\> <Sym sym> <Attrs ats>` : 
         return {prod(getSymbol(sym, isLex), getSymbols(syms, isLex),getAttributes(ats))};
     default: {
@@ -388,7 +391,7 @@ public set[Symbol] getConditions(SDF m) {
   res = {};
   visit (m) {
     case (Grammar) `restrictions <Restriction* rests>`:
-      res += getRestrictions(rests, false);
+      res += getRestrictions(rests, true);
     case (Grammar) `lexical restrictions <Restriction* rests>`:
       res += getRestrictions(rests, true);
     case (Grammar) `context-free restrictions <Restriction* rests>` :
@@ -606,10 +609,10 @@ public Symbol getSymbol(Sym sym, bool isLex) {
     case (Sym) `LAYOUT ?`:
         return \layouts("LAYOUTLIST");
     case (Sym) `<StrCon l> : <Sym s>`:
-		return label(unescape(l), getSymbol(s,isLex));
+		return label(labelName(unescape(l)), getSymbol(s,isLex));
 		
     case (Sym) `<IdCon i> : <Sym s>`:
-    	return label("<i>", getSymbol(s, isLex));
+    	return label(labelName("<i>"), getSymbol(s, isLex));
     	
    	case (Sym) `LAYOUT`:
     	return \lex("LAYOUT"); 
