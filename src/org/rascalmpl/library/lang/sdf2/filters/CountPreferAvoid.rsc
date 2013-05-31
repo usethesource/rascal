@@ -19,7 +19,7 @@ label alternatives.
   result = {alts[i] | i <- index(alts), counts[i] == min(counts)};
   
   if (result == alternatives) {
-    fail;
+    fail amb;
   }
   else {
     return amb(result);
