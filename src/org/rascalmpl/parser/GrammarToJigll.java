@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -42,36 +43,42 @@ public class GrammarToJigll {
 	
 	private Map<IValue, Rule> rulesMap;
 	
-	private IConstructor previousGrammar;
 	private Grammar grammar;
+	
 	private GLLParser parser;
 
 	private CharacterClass notFollow;
+	
+	private String startSymbol;
+	
+	private Input input;
+	
+	private List<String> deleteSet;
+	
+	private IConstructor rascalGrammar;
 
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
 	}
 
 	@SuppressWarnings("unchecked")
-	public IConstructor jparse(IValue type, IConstructor symbol, IConstructor grammar, IString str) {
+	public IConstructor jparse(IConstructor symbol, IString str) {
 		
-	  if(previousGrammar == null || !grammar.isEqual(previousGrammar)) {
-		  this.previousGrammar = grammar;
-		  this.grammar = generate("inmemory", grammar);
-		  System.out.println(grammar);
-		  System.out.println(this.grammar);
+	  if(grammar == null) {
+		  return null;
 	  }
 	  
 	  parser = new LevelSynchronizedGrammarInterpretter();
-	  Input input = Input.fromString(str.getValue());
 
 	  System.out.println("Jigll started.");
 	  
-	  
 	  NonterminalSymbolNode sppf = null;
+
+	  input = Input.fromString(str.getValue());
+	  startSymbol = getSymbolName(symbol);
 	  
 	  try {
-		  sppf = parser.parse(input, this.grammar, getSymbolName(symbol));
+		sppf = parser.parse(input, this.grammar, startSymbol);
 		  
 	  } catch(ParseError e) {
 		  System.out.println(e);
@@ -86,17 +93,20 @@ public class GrammarToJigll {
 	  return ((Result<IConstructor>)sppf.getObject()).getObject();
 	}
 	
-	private Grammar generate(String name, IConstructor grammar) {
-		  GrammarBuilder builder = convert(name, grammar);
-		  IMap notAllowed = (IMap) ((IMap) grammar.get("about")).get(vf.string("notAllowed"));
+	public void generateGrammar(IConstructor rascalGrammar) {
+		  this.rascalGrammar = rascalGrammar;
+		  GrammarBuilder builder = convert("inmemory", rascalGrammar);
+		  IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
 		  applyRestrictions(builder, notAllowed);
 		  builder.filter();
-		  return builder.build();
+		  grammar = builder.build();
+		  
+		  System.out.println(grammar);
 	}
 	
-	public void generateGraph(IString symbolName, IString str) {
+	public void generateGraph() {
 		parser = new LevelSynchronizedGrammarInterpretter();
-		NonterminalSymbolNode sppf = parser.parse(Input.fromString(str.getValue()), this.grammar, symbolName.getValue());
+		NonterminalSymbolNode sppf = parser.parse(input, this.grammar, startSymbol);
 		if(sppf == null) {
 			return;
 		}
@@ -105,15 +115,28 @@ public class GrammarToJigll {
 		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
 	}
 	
-	public void generate(IString name, IConstructor grammar) {
-
+	private List<String> getDeleteSet(IConstructor nonterminal) {
+		
+		List<String> deleteSet = new ArrayList<>();
+		
+		IMap definitions = (IMap) rascalGrammar.get("rules");
+		IConstructor choice = (IConstructor) definitions.get(nonterminal);
+		ISet alts = (ISet) choice.get("alternatives");
+		for (IValue alt : alts) {
+			IConstructor prod = (IConstructor) alt;
+			IList rhs = (IList) prod.get("symbols");
+			IConstructor symbol = (IConstructor) rhs.get(0);
+			deleteSet.add(((IString)symbol.get("string")).getValue());
+		}
+		
+		return deleteSet;
 	}
-
-	public GrammarBuilder convert(String name, IConstructor grammar) {
+	
+	public GrammarBuilder convert(String name, IConstructor rascalGrammar) {
 		
 		GrammarBuilder builder = new GrammarBuilder(name);
 		
-		IMap definitions = (IMap) grammar.get("rules");
+		IMap definitions = (IMap) rascalGrammar.get("rules");
 		rulesMap = new HashMap<>();
 
 		for (IValue nonterminal : definitions) {
@@ -145,7 +168,7 @@ public class GrammarToJigll {
 					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
 					if(notFollow != null) {
-						builder.addRule(rule, notFollow);						
+						builder.addRule(rule, notFollow, deleteSet);						
 					} else {
 						builder.addRule(rule);
 					}
@@ -252,6 +275,10 @@ public class GrammarToJigll {
 			for(IValue condition : conditions) {
 				if(((IConstructor)condition).getName().equals("not-follow")) {
 					notFollow = (CharacterClass) getSymbol(getSymbolCons((IConstructor) condition));
+				} 
+				else if(((IConstructor)condition).getName().equals("delete")) { 
+					IConstructor delete = getSymbolCons((IConstructor) condition);
+					deleteSet = getDeleteSet(delete);
 				}
 			}
 			return getSymbol(getSymbolCons(symbol));
