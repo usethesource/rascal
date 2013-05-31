@@ -873,9 +873,9 @@ test bool testCR4() = getCharRange((Range) `\\1-\\31`)	==  range(1,25);
 
 public int getCharacter(Character c) {
   switch (c) {
-    case [Character] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
-    case [Character] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
-    case [Character] /\\<oct:[0-7]>/           : return toInt("0<oct>");
+    case [Character] /\\<dec:[0-9][0-9][0-9]>/ : return toInt("<dec>");
+    case [Character] /\\<dec:[0-9][0-9]>/      : return toInt("<dec>");
+    case [Character] /\\<dec:[0-9]>/           : return toInt("<dec>");
     case [Character] /\\t/                     : return 9;
     case [Character] /\\n/                     : return 10;
     case [Character] /\\r/                     : return 13;
@@ -890,9 +890,9 @@ public int getCharacter(Character c) {
 test bool testCCX1() = ((Character) `a`)    == charAt("a", 0);
 test bool testCCX2() = ((Character) `\\\\`)   == charAt("\\", 0);
 test bool testCCX3() = ((Character) `\\'`)   == charAt("\'", 0);
-test bool testCCX4() = ((Character) `\\1`)   == toInt("01");
-test bool testCCX5() = ((Character) `\\12`)  == toInt("012");
-test bool testCCX6() = ((Character) `\\123`) == toInt("0123");
+test bool testCCX4() = ((Character) `\\1`)   == 1;
+test bool testCCX5() = ((Character) `\\12`)  == 12;
+test bool testCCX6() = ((Character) `\\123`) == 123;
 test bool testCCX7() = ((Character) `\\n`)   == 10; 
 
 // ----- getAttributes, getAttribute, getAssociativity -----
