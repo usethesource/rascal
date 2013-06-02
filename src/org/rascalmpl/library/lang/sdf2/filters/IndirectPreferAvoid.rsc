@@ -3,13 +3,13 @@ module lang::sdf2::filters::IndirectPreferAvoid
 import ParseTree;
 import Set;
 
-private default bool isPreferred(Tree _) = false;
 private bool isPreferred(appl(prod(_,_,{\tag("prefer"()),*_}),_)) = true;
-private bool isPreferred(appl(prod(Symbol _,[Symbol _],set[Attr] _), [Tree arg])) = isPreferred(arg);
+private bool isPreferred(appl(prod(Symbol _,list[Symbol] _,set[Attr] _), list[Tree] ars)) = (false | it || isPreferred(arg) | arg <- ars);
+private default bool isPreferred(Tree _) = false;
 
-private default bool isAvoided(Tree _) = false;
 private bool isAvoided(appl(prod(_,_,{\tag("avoid"()),*_}),_)) = true;
-private bool isAvoided(appl(prod(Symbol _,[Symbol _],set[Attr] _), [Tree arg])) = isAvoided(arg);
+private bool isAvoided(appl(prod(Symbol _,list[Symbol] _,set[Attr] _), list[Tree] ars)) = (false | it || isAvoided(arg) | arg <- ars);
+private default bool isAvoided(Tree _) = false;
 
 @doc{
 Import his module if you want prefer/avoid filtering enabled for your grammar. Use @prefer and @avoid to
