@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -94,11 +93,13 @@ public class GrammarToJigll {
 	}
 	
 	public void generateGrammar(IConstructor rascalGrammar) {
+		
 		  this.rascalGrammar = rascalGrammar;
 		  GrammarBuilder builder = convert("inmemory", rascalGrammar);
 		  IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
 		  applyRestrictions(builder, notAllowed);
 		  builder.filter();
+		  
 		  grammar = builder.build();
 		  
 		  System.out.println(grammar);
@@ -161,17 +162,14 @@ public class GrammarToJigll {
 					object = alt;
 				}
 				notFollow = null;
+				deleteSet = null;
 				
 				if(!prod.getName().equals("regular")) {
 					IList rhs = (IList) prod.get("symbols");
 					List<Symbol> body = getSymbolList(rhs);
 					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
-					if(notFollow != null) {
-						builder.addRule(rule, notFollow, deleteSet);						
-					} else {
-						builder.addRule(rule);
-					}
+					builder.addRule(rule, notFollow, deleteSet);						
 				}
 			}
 		}
