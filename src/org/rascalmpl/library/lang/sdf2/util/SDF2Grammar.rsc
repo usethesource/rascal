@@ -921,13 +921,13 @@ public set[Attr] getAttribute(Attribute m) {
     	return {\tag("NotSupported"("memo"))};
     	
     case (Attribute) `prefer`:
-        return {\tag("NotSupported"("prefer"))};
+        return {\tag("prefer"())};
         
     case (Attribute) `avoid` :
-        return {\tag("NotSupported"("avoid"))};
+        return {\tag("avoid"())};
     	
     case (Attribute) `reject` :
-        return {};
+        return {\tag("reject"())};
         
     case (Attribute) `category(<StrCon a>)` :
         return {\tag("category"(unescape(a)))};

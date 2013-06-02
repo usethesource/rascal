@@ -16,5 +16,9 @@ public str generate(str name, loc at) {
    return "module <name>
           '
           '<grammar2rascal(gr)>
+          '
+          'extend lang::sdf2::filters::PreferAvoid;
+          'extend lang::sdf2::filters::IndirectPreferAvoid;
+          'extend lang::sdf2::filters::Reject;
           ";  
 }
