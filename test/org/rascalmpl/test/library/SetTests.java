@@ -24,6 +24,16 @@ import org.rascalmpl.test.infrastructure.TestFramework;
 public class SetTests extends TestFramework {
 
 	@Test
+	public void flatten() {
+
+		prepare("import Set;");
+
+		assertTrue(runTestInSameEvaluator("{flatten({{1, 2}, {3}}) == {1, 2, 3};}"));
+		assertTrue(runTestInSameEvaluator("{flatten({{}}) == {};}"));
+		assertTrue(runTestInSameEvaluator("{flatten({{}, {1}}) == {1};}"));
+	}
+
+	@Test
 	public void getOneFrom() {
 
 		prepare("import Set;");

@@ -49,6 +49,22 @@ test: classify({"apple", "berry", "cucumber", "banana"}, getColor) == <?>
 public map[&K,set[&V]] classify(set[&V] input, &K (&V) getClass) = toMap({<getClass(e),e> | e <- input});
 
 @doc{
+Synopsis: Flatten a set of sets to a single set
+
+Description:
+Given a set of sets, flatten it so that it becomes a single set of those elements.
+
+Examples:
+<screen>
+import Set;
+flatten([[1, 2], [3, 4], [5, 6]]);
+flatten([[1, 2], ["a", "b"]]);
+</screen>
+}
+public set[&T] flatten(set[set[&T]] lst) =
+  { r | e <- lst, r <- e};
+
+@doc{
 Synopsis: Pick a random element from a set.
 
 Description: Also see [$Set/takeOneFrom].
