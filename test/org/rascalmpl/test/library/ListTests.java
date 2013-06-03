@@ -43,6 +43,16 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
+	public void flatten() {
+
+		prepare("import List;");
+
+		assertTrue(runTestInSameEvaluator("{flatten([[1, 2], [3]]) == [1, 2, 3];}"));
+		assertTrue(runTestInSameEvaluator("{flatten([[]]) == [];}"));
+		assertTrue(runTestInSameEvaluator("{flatten([[], [1]]) == [1];}"));
+	}
+
+	@Test
 	public void getOneFrom() {
 
 		prepare("import List;");

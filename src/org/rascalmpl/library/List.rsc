@@ -210,6 +210,22 @@ test: getOneFrom(<L>)
 public java &T getOneFrom(list[&T] lst);
 
 @doc{
+Synopsis: Flatten a list of lists to a single list
+
+Description:
+Given a list of lists, flatten it so that it becomes a single list of those elements.
+
+Examples:
+<screen>
+import List;
+flatten([[1, 2], [3, 4], [5, 6]]);
+flatten([[1, 2], ["a", "b"]]);
+</screen>
+}
+public list[&T] flatten(list[list[&T]] lst) =
+	[ r | e <- lst, r <- e];
+
+@doc{
 Synopsis: Get the first element(s) from a list.
 
 Description:
