@@ -16,7 +16,7 @@ import util::Maybe;
  
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
-import lang::rascal::grammar::analyze::Recursion;
+// import lang::rascal::grammar::analyze::Recursion;
 
 public alias Priorities = rel[Production father, Production child];
 public alias DoNotNest = rel[Production father, int position, Production child];
@@ -25,8 +25,8 @@ public DoNotNest doNotNest(Grammar g) {
   DoNotNest result = {};
   
   for (s <- g.rules) {
-    lefties = leftRecursive(g, s);
-    righties = rightRecursive(g, s);
+    lefties = {s}; // leftRecursive(g, s);
+    righties = {s}; //rightRecursive(g, s);
     <ordering,ass> = doNotNest(g.rules[s], lefties, righties);
     result += ass;
     
@@ -132,9 +132,9 @@ public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] 
     case \lookahead(_,_,q) :
       return doNotNest(q); 
     case priority(_, list[Production] levels) : 
-      return priority(levels);
+      return priority(levels, lefties, righties);
     case \associativity(_, Associativity a, set[Production] alts) : 
-      return associativity(a, alts);
+      return associativity(a, alts, lefties, righties);
   }
   
   return <{},{}>;
@@ -202,3 +202,4 @@ public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol]
   return <ordering, as>;
 }
 
+private bool match(Symbol x, set[Symbol] reference) = striprec(x) in reference;
