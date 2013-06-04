@@ -63,7 +63,6 @@ public class GrammarToJigll {
 
 	@SuppressWarnings("unchecked")
 	public IConstructor jparse(IConstructor symbol, IString str) {
-		
 	  if(grammar == null) {
 		  return null;
 	  }
@@ -260,8 +259,8 @@ public class GrammarToJigll {
 			case "alt":
 				return new Nonterminal(SymbolAdapter.toString(symbol), true);
 				
-			case "start":
-				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol)) + "]");
+//			case "start":
+//				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol)) + "]");
 				
 			case "conditional":			
 				ISet conditions = (ISet) symbol.get("conditions");
