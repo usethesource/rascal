@@ -15,7 +15,9 @@
 package org.rascalmpl.interpreter.control_exceptions;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
 
 public class Insert extends ControlException {
@@ -23,6 +25,8 @@ public class Insert extends ControlException {
     
 	private final Result<IValue> value;
 	private IBooleanResult mp;
+
+	private Type staticType;
 	
 	public Insert(){
     	super();
@@ -45,6 +49,11 @@ public class Insert extends ControlException {
     	this.mp = mp;
     }
 	
+	public Insert(Result<IValue> interpret, IMatchingResult mp2, Type type) {
+		this(interpret, mp2);
+		this.staticType = type;
+	}
+
 	public Result<IValue> getValue() {
 		return value;
 	}
@@ -55,5 +64,13 @@ public class Insert extends ControlException {
 	
 	public void setMatchPattern(IBooleanResult mp){
 		this.mp = mp;
+	}
+
+	public void setStaticType(Type type) {
+		this.staticType = type;
+	}
+	
+	public Type getStaticType() {
+		return staticType;
 	}
 }

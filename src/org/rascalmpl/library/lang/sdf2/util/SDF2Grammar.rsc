@@ -17,6 +17,9 @@ module lang::sdf2::util::SDF2Grammar
                     
 import IO;
 import String;
+import Set;
+import List;
+import Map;
 import util::Math;
 import ParseTree;
 import Grammar;
@@ -48,6 +51,11 @@ public GrammarDefinition sdf2grammar(SDF def) {
   return sdf2grammar("Main", def);
 }
  
+public Grammar injectStarts(Grammar g) = visit (g) {
+	case Production p => p[def = \start(p.def)]
+		when p.def in g.starts
+};
+
 public GrammarDefinition sdf2grammar(str main, SDF def) {
   if ((SDF) `definition <Module* mods>` := def) {
     ms = ();
@@ -62,14 +70,117 @@ public GrammarDefinition sdf2grammar(str main, SDF def) {
       throw "Main module <main> not found";
     
     res = definition(main, ms);
+    res = split(res);
+    res = addLexicalChaining(res);
     res = resolve(res);
     res = applyConditions(res, (s:c | c:conditional(s,_) <- getConditions(def)));
+    res = removeDirectProductionCycle(res);
     
     return res;
   }
   
   throw "Unknown format for SDF2";
 }
+
+private GrammarDefinition split(GrammarDefinition def) = visit(def) { case Grammar g => split(g) };
+
+private GrammarDefinition removeDirectProductionCycle(GrammarDefinition def) {
+	def = visit (def) {
+		case Production p => p[alternatives = { a | a <- p.alternatives, !isProductionCycle(a, p)}]
+			when p has def && p has alternatives 
+		case Production p => p[choices = [ c | c <- p.choices, !isProductionCycle(c, p)]]
+			when p has def && p has choices 
+	};
+	return visit(def) {
+		case Grammar g => removeEmptyProductions(g)
+	};
+}
+
+private bool isProductionCycle(\prod(_, [sing], _), Production b) {
+	if (s := strip(sing) && s has name && bs := strip(b.def) && bs has name)
+		return s.name == bs.name;
+	else
+		return false;
+}
+private default bool isProductionCycle(Production a, Production b) = false;
+
+private GrammarDefinition addLexicalChaining(GrammarDefinition def) {
+	set[Symbol] sSorts = { s | /Grammar g := def, s <- g.rules, (s is \sort || s is \parameterized-sort) };
+	set[Symbol] lSorts = { s | /Grammar g := def, s <- g.rules, !(s is \sort || s is \parameterized-sort)};
+	overlap = {s.name | s <- sSorts} & {s.name | s <- lSorts};
+	if (overlap != {}) {
+		// first replace the lexicals l with LEX[l]
+		def = visit(def) {
+			case Grammar g : {
+				for (s <- g.rules, !(s is \sort || s is \parameterized-sort), s.name in overlap, p := g.rules[s]) {
+					newSymbol = \parameterized-lex("LEX",[\lex(s.name)]);
+					g.rules[newSymbol] = visit(p) {
+						case \priority(_, l) => \priority(newSymbol, l)
+						case \associativity(_, a, l) => \associativity(newSymbol, a, l)
+						case \cons(_, ss, a) => \cons(newSymbol, ss, a)
+						case \func(_, ss, a) => \func(newSymbol, ss, a)
+						case \choice(_, ps) => \choice(newSymbol, ps)
+					};
+					g.rules = delete(g.rules, s);
+				}	
+				insert g;
+			}
+		};
+		// now add the chain rules to one of the grammars
+		chains = grammar({}, (\sort(n) : \prod(\sort(n), [\parameterized-lex("LEX",[\lex(n)])], {}) | n <- overlap));
+		def = top-down-break visit(def) {
+			case Grammar g => compose(g, chains)
+		};
+		
+	}
+	return def;
+}
+
+Symbol striprec(Symbol s) = visit(s) { case Symbol t => strip ( t ) };
+Symbol strip(label(str _, Symbol s)) = strip(s);
+Symbol strip(conditional(Symbol s, set[Condition] _)) = strip(s);
+default Symbol strip(Symbol s) = s;
+
+
+
+private Grammar split(Grammar g) {
+  for (nt <- g.rules, cur :=  g.rules[nt], sorts := {strip(s) | /prod(s,_,_) := cur}, size(sorts) > 1) {
+    for (s <- sorts) {
+      newp = keep(cur, s);
+      if (g.rules[s]? && s != strip(cur.def))
+        g.rules[s].alternatives += newp.alternatives;
+      else
+        g.rules[s] = newp;
+    }
+  }
+  return removeEmptyProductions(g);
+}
+
+data Production = temp();
+
+private bool isNotEmpty(Production p) 
+	=  p has alternatives ==> p.alternatives != {}
+	&& p has choices ==> p.choices != []
+	;
+private Grammar removeEmptyProductions(Grammar g) {
+	g = visit(g) {
+		case list[Production] l => [p | p <- l, isNotEmpty(p)]
+		case set[Production] l => {p | p <- l, isNotEmpty(p)}
+	};
+	return g[rules = ( s : p | s <- g.rules, p := g.rules[s], isNotEmpty(p))];
+}
+
+private Production keep(Production source, Symbol s) = visit(source) {
+	case \priority(_, l) => \priority(s, l)
+	case \associativity(_, a, l) => \associativity(s, a, l)
+	case \cons(_, ss, a) => \cons(s, ss, a)
+	case \func(_, ss, a) => \func(s, ss, a)
+	case \choice(_, ps) => \choice(s, ps)
+	case list[Production] ps => [p | p <- ps, strip(p.def) == s]
+		when size(ps) > 0 // bug #208
+	case set[Production] ps => {p | p <- ps, strip(p.def) == s}
+		when size(ps) > 0
+};
 
 private GrammarModule getModule(Module m) {
   if (/(Module) `module <ModuleName mn> <ImpSection* _> <Sections _>` := m) {
@@ -79,7 +190,7 @@ private GrammarModule getModule(Module m) {
     imps = getImports(m); 
    
     // note that imports in SDF2 have the semantics of extends in Rascal
-    return \module(name, {}, imps, illegalPriorities(dup(grammar({}, prods))));
+    return \module(name, {}, imps, illegalPriorities(dup(grammar(getStartSymbols(m), prods))));
     //return \module(name, {}, imps, grammar({}, prods));
   }
   
@@ -199,7 +310,7 @@ public set[Production] getProductions(Module \mod) {
     case (Grammar) `context-free syntax <Prod* prods>`: 
     	res += getProductions(prods, false);
     case (Grammar) `priorities <{Priority ","}* prios>`:
-    	res += getPriorities(prios,false);
+    	res += getPriorities(prios,true);
     case (Grammar) `lexical priorities <{Priority ","}* prios>`: 
     	res += getPriorities(prios,true);
     case (Grammar) `context-free priorities <{Priority ","}* prios>`: 
@@ -239,15 +350,18 @@ set[Production] fixParameters(set[Production] input) {
   }
 }
 
+private str labelName("") = "";
+private default str labelName(str s) = toLowerCase(s[0]) + (size(s) > 1 ? s[1..] : "");
+
 public set[Production] getProduction(Prod P, bool isLex) {
   switch (P) {
     case (Prod) `<Syms syms> -\> LAYOUT <Attrs ats>` :
-        return {prod(layouts("LAYOUTLIST"),[\iter-star(sort("LAYOUT"))],{}),
-                prod(sort("LAYOUT"), getSymbols(syms, isLex),getAttributes(ats))};
+        return {prod(layouts("LAYOUTLIST"),[\iter-star(\lex("LAYOUT"))],{}),
+                prod(\lex("LAYOUT"), getSymbols(syms, isLex),getAttributes(ats))};
     case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
         return {prod(keywords(getSymbol(sym, isLex).name + "Keywords"), getSymbols(syms, isLex), {})};
     case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
-        return {prod(label(unescape(n),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> }`))};
+        return {prod(label(labelName(unescape(n)),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> }`))};
     case (Prod) `<Syms syms> -\> <Sym sym> <Attrs ats>` : 
         return {prod(getSymbol(sym, isLex), getSymbols(syms, isLex),getAttributes(ats))};
     default: {
@@ -267,7 +381,7 @@ test bool test12() = getProduction((Prod) `PICO-ID ":" TYPE -\> ID-TYPE {cons("d
      prod(sort("ID-TYPE"),[sort("PICO-ID"), lit(":"), sort("TYPE")],{\assoc(left())});
                
 test bool test13() = getProduction((Prod) `[\\ \\t\\n\\r]	-\> LAYOUT {cons("whitespace")}`, true) == 
-	 prod(sort("LAYOUT"),[\char-class([range(32,32),range(9,9),range(10,10),range(13,13)])],{});
+	 prod(\lex("LAYOUT"),[\char-class([range(32,32),range(9,9),range(10,10),range(13,13)])],{});
  
 test bool test14() = getProduction((Prod) `{~[\\n]* [\\n]}* -\> Rest`, true) ==
      prod(sort("Rest"),[\iter-star-seps(\iter-star(\char-class([range(0,9),range(11,65535)])),[\char-class([range(10,10)])])],{});
@@ -277,7 +391,7 @@ public set[Symbol] getConditions(SDF m) {
   res = {};
   visit (m) {
     case (Grammar) `restrictions <Restriction* rests>`:
-      res += getRestrictions(rests, false);
+      res += getRestrictions(rests, true);
     case (Grammar) `lexical restrictions <Restriction* rests>`:
       res += getRestrictions(rests, true);
     case (Grammar) `context-free restrictions <Restriction* rests>` :
@@ -290,7 +404,7 @@ public set[Symbol] getConditions(SDF m) {
    while ({conditional(s, cs1), conditional(s, cs2), rest*} := res)
        res = rest + {conditional(s, cs1 + cs2)};
    
-   iprintln(res);
+   //iprintln(res);
    return res;
 }
       
@@ -308,6 +422,9 @@ public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
     case (Restriction) `-/- <Lookaheads ls>` :
     	return {};
     
+    case (Restriction) `LAYOUT? -/- <Lookaheads ls>` :
+      return {conditional(\iter-star(\lex("LAYOUT")), {\not-follow(l) | l <- getLookaheads(ls) })};
+      
     case (Restriction) `<Sym s1> -/- <Lookaheads ls>` : 
       return {conditional(getSymbol(s1, isLex), {\not-follow(l) | l <- getLookaheads(ls) })};
   	
@@ -315,8 +432,6 @@ public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
       return  getRestriction((Restriction) `<Sym s1> -/- <Lookaheads ls>`, isLex)
            + {*getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
     
-    case (Restriction) `LAYOUT? -/- <Lookaheads ls>` :
-      return {conditional(\iter-star(sort("LAYOUT")), {\not-follow(l) | l <- getLookaheads(ls) })};
              
        
     default: {
@@ -338,6 +453,14 @@ public set[Symbol] getLookaheads(Lookaheads ls) {
    switch (ls) {
      case (Lookaheads) `<Class c>` :
      	return {getCharClass(c)};
+     	
+     case (Lookaheads) `<Class l> . <Lookaheads r>` : {
+     	rs = getLookaheads(r);
+     	if (size(rs) == 1)
+	      return {\seq([getCharClass(l), *rs])};
+	    else
+	      return {\seq([getCharClass(l), \alt(rs)])};
+     }
      	  	
      case (Lookaheads) `<Lookaheads l> | <Lookaheads r>` :
      	return getLookaheads(l) + getLookaheads(r);
@@ -448,7 +571,7 @@ public Symbol definedSymbol((&T <: Tree) v, bool isLex) {
   if (/(Prod) `<Sym* _> -\> <Sym s> <Attrs _>` := v) {
     return getSymbol(s, isLex);
   } else if (/(Prod) `<Sym* _> -\> LAYOUT <Attrs _>` := v) {
-    return sort("LAYOUT");
+    return \lex("LAYOUT");
   }
   throw "could not find a defined symbol in <v>";
 }
@@ -486,13 +609,13 @@ public Symbol getSymbol(Sym sym, bool isLex) {
     case (Sym) `LAYOUT ?`:
         return \layouts("LAYOUTLIST");
     case (Sym) `<StrCon l> : <Sym s>`:
-		return label(unescape(l), getSymbol(s,isLex));
+		return label(labelName(unescape(l)), getSymbol(s,isLex));
 		
     case (Sym) `<IdCon i> : <Sym s>`:
-    	return label("<i>", getSymbol(s, isLex));
+    	return label(labelName("<i>"), getSymbol(s, isLex));
     	
    	case (Sym) `LAYOUT`:
-    	return sort("LAYOUT"); 
+    	return \lex("LAYOUT"); 
     	
     case (Sym) `<StrCon l>`:
           	return lit(unescape(l));
@@ -750,9 +873,9 @@ test bool testCR4() = getCharRange((Range) `\\1-\\31`)	==  range(1,25);
 
 public int getCharacter(Character c) {
   switch (c) {
-    case [Character] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
-    case [Character] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
-    case [Character] /\\<oct:[0-7]>/           : return toInt("0<oct>");
+    case [Character] /\\<dec:[0-9][0-9][0-9]>/ : return toInt("<dec>");
+    case [Character] /\\<dec:[0-9][0-9]>/      : return toInt("<dec>");
+    case [Character] /\\<dec:[0-9]>/           : return toInt("<dec>");
     case [Character] /\\t/                     : return 9;
     case [Character] /\\n/                     : return 10;
     case [Character] /\\r/                     : return 13;
@@ -767,9 +890,9 @@ public int getCharacter(Character c) {
 test bool testCCX1() = ((Character) `a`)    == charAt("a", 0);
 test bool testCCX2() = ((Character) `\\\\`)   == charAt("\\", 0);
 test bool testCCX3() = ((Character) `\\'`)   == charAt("\'", 0);
-test bool testCCX4() = ((Character) `\\1`)   == toInt("01");
-test bool testCCX5() = ((Character) `\\12`)  == toInt("012");
-test bool testCCX6() = ((Character) `\\123`) == toInt("0123");
+test bool testCCX4() = ((Character) `\\1`)   == 1;
+test bool testCCX5() = ((Character) `\\12`)  == 12;
+test bool testCCX6() = ((Character) `\\123`) == 123;
 test bool testCCX7() = ((Character) `\\n`)   == 10; 
 
 // ----- getAttributes, getAttribute, getAssociativity -----
@@ -798,13 +921,13 @@ public set[Attr] getAttribute(Attribute m) {
     	return {\tag("NotSupported"("memo"))};
     	
     case (Attribute) `prefer`:
-        return {\tag("NotSupported"("prefer"))};
+        return {\tag("prefer"())};
         
     case (Attribute) `avoid` :
-        return {\tag("NotSupported"("avoid"))};
+        return {\tag("avoid"())};
     	
     case (Attribute) `reject` :
-        return {};
+        return {\tag("reject"())};
         
     case (Attribute) `category(<StrCon a>)` :
         return {\tag("category"(unescape(a)))};

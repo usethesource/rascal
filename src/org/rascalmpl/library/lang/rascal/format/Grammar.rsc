@@ -83,21 +83,23 @@ bool same(Production p, Production q) {
 
 public str topProd2rascal(Production p) {
   if (regular(_) := p || p.def == empty() || p.def == \layouts("$default$")) return "";
-  
-  if (choice(nt, {q:priority(_,_), *r}) := p) {
+ 
+  if (choice(nt, {q:priority(_,_), *r}) := p, r != {}) {
     return "<topProd2rascal(choice(nt, r))>
            '
            '<topProd2rascal(q)>";
   }
-   
   kind = "syntax";
   if (/layouts(n) := p.def)
     kind = "layout <n>";
-  else if (/lex(_) := p.def)
+  else if (/lex(_) := p.def || /\parameterized-lex(_,_) := p.def)
     kind = "lexical";
   else if (/keywords(_) := p.def)
     kind = "keyword";  
    
+  if (\start(_) := p.def)
+    kind = "start " + kind;
+    
   return "<kind> <symbol2rascal(p.def)> =
          '  <prod2rascal(p)>
          '  ;";
@@ -109,8 +111,13 @@ str layoutname(Symbol s) {
   throw "unexpected <s>";
 }
 
-public str alt2rascal(Production p:prod(_,_,_)) = "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> = <prod2rascal(p)>";
+private str alt2r(Symbol def, Production p, str sep = "=") = "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> <sep> <prod2rascal(p)>";
+public str alt2rascal(Production p:prod(def,_,_)) = alt2r(def, p);
+public str alt2rascal(Production p:priority(def,_)) = alt2r(def, p, sep = "\>");
+public str alt2rascal(Production p:\associativity(def,a,_)) = alt2r(def, p, sep = "= <attr2mod(\assoc(a))>");
+
 public str alt2rascal(Production p:regular(_)) = symbol2rascal(p.def);
+public default str alt2rascal(Production p) { throw "forgot <p>"; }
 
 
 public str prod2rascal(Production p) {
@@ -146,7 +153,7 @@ public str prod2rascal(Production p) {
       	return "<for(s <- lhs){><symbol2rascal(s)> <}>";
  
     case prod(Symbol rhs,list[Symbol] lhs,set[Attr] as) :
-      	return "<for (a <- as) {><attr2mod(a)><}>: <for(s <- lhs){><symbol2rascal(s)> <}>";
+      	return "<for (a <- as) {><attr2mod(a)><}> <for(s <- lhs){><symbol2rascal(s)> <}>";
  
     case regular(_) :
     	    return "";
@@ -209,6 +216,8 @@ public str symbol2rascal(Symbol sym) {
     case \keywords(x):
         return x;
     case \parameterized-sort(str name, list[Symbol] parameters):
+        return "<name>[<params2rascal(parameters)>]";
+    case \parameterized-lex(str name, list[Symbol] parameters):
         return "<name>[<params2rascal(parameters)>]";
     case \char-class(x) : 
        if (\char-class(y) := complement(sym)) {
