@@ -37,6 +37,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -876,6 +877,18 @@ public class Prelude {
 		}
 		finally{
 			eval.getStdOut().flush();
+		}
+	}
+	
+	public void iprintToFile(ISourceLocation sloc, IValue arg, IEvaluatorContext eval) {
+		StandardTextWriter w = new StandardTextWriter(true, 2);
+		StringWriter sw = new StringWriter();
+
+		try {
+			w.write(arg, sw);
+			writeFile(sloc, values.list(values.string(sw.toString())), eval);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), eval.getCurrentAST(), null);		
 		}
 	}
 	
