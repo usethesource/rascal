@@ -34,7 +34,6 @@ import org.jgll.util.GraphVizUtil;
 import org.jgll.util.Input;
 import org.jgll.util.SPPFToDot;
 import org.jgll.util.ToDotWithoutIntermeidateAndLists;
-import org.jgll.util.Tuple;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
@@ -47,13 +46,15 @@ public class GrammarToJigll {
 	
 	private GLLParser parser;
 
-	private CharacterClass notFollow;
-	
 	private String startSymbol;
 	
 	private Input input;
 	
 	private List<String> deleteSet;
+	
+	private List<List<List<CharacterClass>>> followRestrictions;
+	
+	List<List<CharacterClass>> followRestriction;
 	
 	private IConstructor rascalGrammar;
 
@@ -115,9 +116,9 @@ public class GrammarToJigll {
 		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
 	}
 	
-	private List<String> getDeleteSet(IConstructor nonterminal) {
+	private void getDeleteSet(IConstructor nonterminal) {
 		
-		List<String> deleteSet = new ArrayList<>();
+		deleteSet = new ArrayList<>();
 		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 		IConstructor choice = (IConstructor) definitions.get(nonterminal);
@@ -128,8 +129,37 @@ public class GrammarToJigll {
 			IConstructor symbol = (IConstructor) rhs.get(0);
 			deleteSet.add(((IString)symbol.get("string")).getValue());
 		}
+	}
+	
+	private List<CharacterClass> getFollowRestriction(IConstructor nonterminal) {
+		List<CharacterClass> list = new ArrayList<>();
 		
-		return deleteSet;
+		switch (nonterminal.getName()) {
+		
+			case "char-class":
+				List<Range> targetRanges = buildRanges(nonterminal);
+				list.add(new CharacterClass(targetRanges));
+				break;
+				
+			case "sort":
+				IMap definitions = (IMap) rascalGrammar.get("rules");
+				IConstructor choice = (IConstructor) definitions.get(nonterminal);
+				ISet alts = (ISet) choice.get("alternatives");
+				for (IValue alt : alts) {
+					IConstructor prod = (IConstructor) alt;
+					IList rhs = (IList) prod.get("symbols");
+					List<Symbol> symbolList = getSymbolList(rhs);
+					for(Symbol s : symbolList) {
+						list.add((CharacterClass) s);
+					}
+				}
+			 	break;
+	
+			default:
+				throw new IllegalStateException("Should not be here!");
+		}
+		
+		return list;
 	}
 	
 	public GrammarBuilder convert(String name, IConstructor rascalGrammar) {
@@ -160,21 +190,17 @@ public class GrammarToJigll {
 				} else {
 					object = alt;
 				}
-				notFollow = null;
-				deleteSet = null;
+				
+				followRestrictions = new ArrayList<>();
+				deleteSet = new ArrayList<>();
 				
 				if(!prod.getName().equals("regular")) {
 					IList rhs = (IList) prod.get("symbols");
 					
-					List<Tuple<Symbol, CharacterClass>> result = getSymbolList(rhs);
-					List<Symbol> body = new ArrayList<>();
-					List<CharacterClass> followRestrictions = new ArrayList<>();
-					
-					for(Tuple<Symbol, CharacterClass> tuple : result) {
-						body.add(tuple.getFirst());
-						followRestrictions.add(tuple.getSecond());
-					}
-					
+					followRestrictions.clear();
+					deleteSet.clear();
+					List<Symbol> body = getSymbolList(rhs);
+										
 					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
 					builder.addRule(rule, followRestrictions, deleteSet);						
@@ -217,18 +243,20 @@ public class GrammarToJigll {
 		return targetRanges;
 	}	
 	
-	private List<Tuple<Symbol, CharacterClass>> getSymbolList(IList rhs) {
-		List<Tuple<Symbol, CharacterClass>> result = new ArrayList<>();
+	private List<Symbol> getSymbolList(IList rhs) {
+		List<Symbol> result = new ArrayList<>();
 		for (IValue elem : rhs) {
 			IConstructor cons = (IConstructor) elem;
-			notFollow = null;
+			followRestriction = new ArrayList<>();
 			Symbol symbol = getSymbol(cons);
 			if(symbol != null) {
-				result.add(new Tuple<Symbol, CharacterClass>(symbol, notFollow));
+				result.add(symbol);
+				followRestrictions.add(followRestriction);
 			}
 		}
 		return result;
-	}	
+	}
+	
 	
 	private Symbol getSymbol(IConstructor symbol) {
 		
@@ -266,16 +294,18 @@ public class GrammarToJigll {
 				ISet conditions = (ISet) symbol.get("conditions");
 				for(IValue condition : conditions) {
 					if(((IConstructor)condition).getName().equals("not-follow")) {
-						notFollow = (CharacterClass) getSymbol(getSymbolCons((IConstructor) condition));
+						IConstructor follow = getSymbolCons((IConstructor) condition);
+						followRestriction.add(getFollowRestriction(follow));
 					} 
 					else if(((IConstructor)condition).getName().equals("delete")) { 
 						IConstructor delete = getSymbolCons((IConstructor) condition);
-						deleteSet = getDeleteSet(delete);
+						getDeleteSet(delete);
 					}
 				}
 				return getSymbol(getSymbolCons(symbol));
 				
 			default:
+				followRestrictions.add(null);
 				return new Nonterminal(SymbolAdapter.toString(symbol));
 			}
 	}
