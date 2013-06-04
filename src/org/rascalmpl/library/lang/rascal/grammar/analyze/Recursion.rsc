@@ -20,7 +20,7 @@ set[Symbol] nullables(Grammar g) {
   }
   
   solve (result) 
-    result += {p | p:prod(_,symbols,_) <- rules, all(nt <- symbols, (cache[nt]?addToCache(nt)) in result)};
+    result += {p | p:prod(_,symbols,_) <- rules, all(nt <- symbols, (nt in cache ? cache[nt] :  addToCache(nt)) in result)};
   
   return result;
 }
@@ -39,7 +39,7 @@ set[Symbol] rightRecursive(Grammar g, Symbol exp) {
   	return n;
   }
   solve (result) 
-    result += {(cache[nt]?addToCache(nt)) | p:prod(nt,[*_, r],_) <- rules, (cache[nt]?addToCache(nt)) in result};
+    result += {(nt in cache ? cache[nt] :  addToCache(nt)) | p:prod(nt,[*_, r],_) <- rules, (nt in cache ? cache[nt] :  addToCache(nt)) in result};
   
   
   return result;
@@ -59,7 +59,7 @@ set[Symbol] leftRecursive(Grammar g, Symbol exp) {
   	return n;
   }
   solve (result) 
-    result += {(cache[nt]?addToCache(nt)) | p:prod(nt,[r, *_],_) <- rules, (cache[nt]?addToCache(nt)) in result};
+    result += {(nt in cache ? cache[nt] :  addToCache(nt)) | p:prod(nt,[r, *_],_) <- rules, (nt in cache ? cache[nt] :  addToCache(nt)) in result};
   
   return result;
 }
