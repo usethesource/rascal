@@ -141,7 +141,7 @@ public class GrammarToJigll {
 				list.add(new CharacterClass(targetRanges));
 				break;
 				
-			case "sort":
+			case "lit":
 				IMap definitions = (IMap) rascalGrammar.get("rules");
 				IConstructor choice = (IConstructor) definitions.get(nonterminal);
 				ISet alts = (ISet) choice.get("alternatives");
