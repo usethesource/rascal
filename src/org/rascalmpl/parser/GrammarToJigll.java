@@ -148,9 +148,12 @@ public class GrammarToJigll {
 				for (IValue alt : alts) {
 					IConstructor prod = (IConstructor) alt;
 					IList rhs = (IList) prod.get("symbols");
-					List<Symbol> symbolList = getSymbolList(rhs);
-					for(Symbol s : symbolList) {
-						list.add((CharacterClass) s);
+					for (IValue elem : rhs) {
+						IConstructor cons = (IConstructor) elem;
+						Symbol symbol = getSymbol(cons);
+						if(symbol != null) {
+							list.add((CharacterClass)symbol);
+						}
 					}
 				}
 			 	break;
@@ -305,7 +308,6 @@ public class GrammarToJigll {
 				return getSymbol(getSymbolCons(symbol));
 				
 			default:
-				followRestrictions.add(null);
 				return new Nonterminal(SymbolAdapter.toString(symbol));
 			}
 	}
