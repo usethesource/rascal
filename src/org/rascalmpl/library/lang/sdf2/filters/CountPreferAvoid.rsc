@@ -16,7 +16,7 @@ label alternatives.
   
   counts = [( 0 | it + 1 | /appl(prod(_,_,{\tag("avoid"()),*_}),_) := alt) | alt <- new];
   
-  result = {alts[i] | i <- index(alts), counts[i] == min(counts)};
+  result = {new[i] | i <- index(new), counts[i] == min(counts)};
   
   if (result == alternatives) {
     fail amb;
