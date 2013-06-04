@@ -215,7 +215,6 @@ floor(3.2);
 floor(-3.2);
 </screen>
 }
-@javaClass{org.rascalmpl.library.util.Math}
 public int floor(num x) {
 	i = toInt(x);
 	if (i == x || x >= 0) {
@@ -533,6 +532,7 @@ public java int toInt(num N);
 
 @doc{
 Synopsis: Convert two numbers to a rational value (not supported on reals).
+
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java rat toRat(int numerator, int denominator);
