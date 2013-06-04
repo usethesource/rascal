@@ -39,7 +39,7 @@ public Grammar grammar(set[Symbol] starts, set[Production] prods) {
 
   for (p <- prods) {
     t = (p.def is label) ? p.def.symbol : p.def;
-    rules[t] = t in rules ? choice(t, {p, rules[t]}) : choice(t, {p});
+    rules[t] = t in rules ? choice(t, {p, *rules[t]}) : choice(t, {p});
   } 
   return grammar(starts, rules, ());
 } 
@@ -62,13 +62,11 @@ public Grammar compose(Grammar g1, Grammar g2) {
       g1.rules[s] = choice(s, {g1.rules[s], g2.rules[s]});
     else
       g1.rules[s] = g2.rules[s];
-  solve(g1) {
-	  g1 = visit(g1) {
-	    case c:choice(_, {p, *r, x:priority(_,/p)}) => c[alternatives = {x, *r}]
-	    case c:choice(_, {p, *r, x:associativity(_,/p)}) => c[alternatives = {x, *r}]
-	  };
-  }
-  return g1;
+  g1.starts += g2.starts;
+  return innermost visit(g1) {
+    case c:choice(_, {p, *r, x:priority(_,/p)}) => c[alternatives = {x, *r}]
+    case c:choice(_, {p, *r, x:associativity(_,/p)}) => c[alternatives = {x, *r}]
+  };
 }    
 
 public rel[str, str] extends(GrammarDefinition def) {
