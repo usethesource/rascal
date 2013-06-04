@@ -12,8 +12,15 @@ set[Symbol] nullables(Grammar g) {
   rules = {p | /p:prod(_,_,_) := g};
   result = {striprec(nt) | prod(nt, [], _) <- rules};
   
+  map[Symbol, Symbol] cache = ();
+  Symbol addToCache(Symbol s) {
+  	n = striprec(s);
+  	cache[s] = n;
+  	return n;
+  }
+  
   solve (result) 
-    result += {p | p:prod(_,symbols,_) <- rules, all(nt <- symbols, striprec(nt) in result)};
+    result += {p | p:prod(_,symbols,_) <- rules, all(nt <- symbols, (nt in cache ? cache[nt] :  addToCache(nt)) in result)};
   
   return result;
 }
@@ -25,8 +32,14 @@ set[Symbol] rightRecursive(Grammar g, Symbol exp) {
   rules = {p | /p:prod(_,_,_) := g};
   result = {exp};
   
+  map[Symbol, Symbol] cache = ();
+  Symbol addToCache(Symbol s) {
+  	n = striprec(s);
+  	cache[s] = n;
+  	return n;
+  }
   solve (result) 
-    result += {striprec(nt) | p:prod(nt,[*_, r],_) <- rules, striprec(r) in result};
+    result += {(nt in cache ? cache[nt] :  addToCache(nt)) | p:prod(nt,[*_, r],_) <- rules, (nt in cache ? cache[nt] :  addToCache(nt)) in result};
   
   
   return result;
@@ -39,8 +52,14 @@ set[Symbol] leftRecursive(Grammar g, Symbol exp) {
   rules = {p | /p:prod(_,_,_) := g};
   result = {exp};
   
+  map[Symbol, Symbol] cache = ();
+  Symbol addToCache(Symbol s) {
+  	n = striprec(s);
+  	cache[s] = n;
+  	return n;
+  }
   solve (result) 
-    result += {striprec(nt) | p:prod(nt,[r, *_],_) <- rules, striprec(r) in result};
+    result += {(nt in cache ? cache[nt] :  addToCache(nt)) | p:prod(nt,[r, *_],_) <- rules, (nt in cache ? cache[nt] :  addToCache(nt)) in result};
   
   return result;
 }
