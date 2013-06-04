@@ -16,13 +16,54 @@ import util::Maybe;
  
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
-
 import lang::rascal::grammar::analyze::Recursion;
 
+public alias Priorities = rel[Production father, Production child];
 public alias DoNotNest = rel[Production father, int position, Production child];
 
 public DoNotNest doNotNest(Grammar g) {
-  return {*doNotNest(g.rules[s], leftRecursive(g, s), rightRecursive(g, s)) | s <- g.rules}
+  DoNotNest result = {};
+  
+  for (s <- g.rules) {
+    lefties = leftRecursive(g, s);
+    righties = rightRecursive(g, s);
+    <ordering,ass> = doNotNest(g.rules[s], lefties, righties);
+    result += ass;
+    
+    ordering = ordering+; // priority is transitive
+   
+    for (<Production father, Production child> <- ordering) {
+      switch (father) {
+        case prod(Symbol rhs,lhs:[Symbol l,_*,Symbol r],_) : {
+          if (match(l,lefties) && match(r,righties)) {
+            if (prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,righties)) {
+            result += {<father, 0, child>};
+          }
+          if (prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,lefties)) {
+            result += {<father, size(lhs) - 1, child>};
+          }
+        }   
+        else fail;
+      }
+      case prod(Symbol rhs,lhs:[Symbol l,_*],_) :
+        if (match(l,lefties), prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,righties)) {
+          result += {<father, 0, child>};
+        }   
+        else { 
+          fail;
+        }
+      case prod(Symbol rhs,lhs:[_*,Symbol r],_) :
+        if (match(r,righties), prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,lefties)) {
+          result += {<father, size(lhs) - 1, child>};
+        }   
+        else { 
+          fail;
+        }
+      }
+    } 
+  }
+  
+  return result // TODO: in the future the except relation needs to be reported separately because it should not be indirect.
        + {*except(p, g) | /Production p <- g, p is prod || p is regular}
        ;
 }
@@ -45,7 +86,7 @@ For every position in the production that is restricted, and for every restricti
 at this position, it adds a 'do-not-nest' tuple to the result.
 }
 public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] _), Grammar g) 
-  = { <p, i, q>  | i <- index(lhs), conditional(s, {_*,except(c)}) := delabel(lhs[i]), /q:prod(label(c,s),_,_) := g.rules[s]?choice(s,{})};
+  = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), g.rules[s]?, except(c) <- excepts, /q:prod(label(c,s),_,_) := g.rules[s]};
   
 public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
   Maybe[Production] find(str c, Symbol t) = (/q:prod(label(c,t),_,_) := (g.rules[t]?choice(s,{}))) ? just(q) : nothing();
@@ -78,22 +119,28 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
 }
 
 
-public DoNotNest doNotNest(Production p, set[Symbol] lefties, set[Symbol] righties) {
+public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] lefties, set[Symbol] righties) {
   switch (p) {
     case prod(s, [*Symbol \o, t],{_*,\assoc(left())}) :
-      if (match(t, righties)) return {<p, size(\o), p>};
+      if (match(t, righties)) return <{},{<p, size(\o), p>}>;
     case prod(s,[*Symbol \o, t],{_*,\assoc(\assoc())}) :
-      if (match(t, righties)) return {<p, size(\o), p>};
+      if (match(t, righties)) return <{},{<p, size(\o), p>}>;
     case prod(s,[t,_*],{_*,\assoc(\right())}) :
-      if (match(t, lefties)) return {<p, 0, p>}; 
+      if (match(t, lefties)) return <{},{<p, 0, p>}>; 
     case prod(s,[t, *Symbol \o, u],{_*,\assoc(\non-assoc())}) :
-      if (match(t, lefties) && match(u, righties)) return {<p, 0, p>,<p,size(\o) + 1,p>};       
+      if (match(t, lefties) && match(u, righties)) return <{},{<p, 0, p>,<p,size(\o) + 1,p>}>;       
     case prod(s,[t,_*],{_*,\assoc(\non-assoc())}) :
-      if (match(t, lefties)) return {<p, 0, p>}; 
+      if (match(t, lefties)) return <{},{<p, 0, p>}>; 
     case prod(s,[*Symbol \o, t],{_*,\assoc(\non-assoc())}) :
-      if (match(t, righties)) return {<p, size(\o), p>};
-    case choice(_, set[Production] alts) :
-      return {*doNotNest(a, lefties, righties) | a <- alts}; 
+      if (match(t, righties)) return <{},{<p, size(\o), p>}>;
+    case choice(_, set[Production] alts) : {
+        Priorities pr = {}; DoNotNest as = {};
+        for (a <- alts, <prA,asA> := doNotNest(a, lefties, righties)) {
+          pr += prA;
+          as += asA;
+        }
+        return <pr, as>; 
+      }
     case \lookahead(_,_,q) :
       return doNotNest(q, lefties, righties); 
     case priority(_, list[Production] levels) : 
@@ -102,10 +149,10 @@ public DoNotNest doNotNest(Production p, set[Symbol] lefties, set[Symbol] righti
       return associativity(a, alts, lefties, righties);
   }
   
-  return {};
+  return <{},{}>;
 }
 
-DoNotNest associativity(Associativity a, set[Production] alts, set[Symbol] lefties, set[Symbol] righties) {
+tuple[Priorities,DoNotNest] associativity(Associativity a, set[Production] alts, set[Symbol] lefties, set[Symbol] righties) {
   result = {};
   
   // note that there are nested groups and that each member of a nested group needs to be paired
@@ -115,19 +162,26 @@ DoNotNest associativity(Associativity a, set[Production] alts, set[Symbol] lefti
       case \left(): 
         result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs, lhs:[_*,Symbol r],_) <- rest, match(r,righties)};
       case \assoc():
-        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- alts, match(r,righties)};
+        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- rest, match(r,righties)};
       case \right():
-        result += {<father, 0, child>             | /Production father:prod(Symbol rhs,lhs:[Symbol l,_*],_) <- alts, match(l,lefties)};
+        result += {<father, 0, child>             | /Production father:prod(Symbol rhs,lhs:[Symbol l,_*],_) <- rest, match(l,lefties)};
       case \non-assoc(): {
-        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- alts, match(r,righties)}
-                + {<father, 0, child>             | /Production father:prod(Symbol rhs,lhs:[Symbol l,_*],_) <- alts, match(l,lefties)};
+        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- rest, match(r,righties)}
+                + {<father, 0, child>             | /Production father:prod(Symbol rhs,lhs:[Symbol l,_*],_) <- rest, match(l,lefties)};
       }
     } 
   }
-  return result + {*doNotNest(x, lefties, righties) | x <- alts};  
+  
+  pr = {};
+  for (x <- alts, <prX,asX> := doNotNest(x, lefties, righties)) {
+    pr += prX;
+    result += asX;
+  }
+  
+  return <pr, result>;
 }
 
-public DoNotNest priority(list[Production] levels, set[Symbol] lefties, set[Symbol] righties) {
+public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol] lefties, set[Symbol] righties) {
   // collect basic filter
   ordering = { <father,child> | [pre*,Production father, Production child, post*] := levels };
 
@@ -150,41 +204,13 @@ public DoNotNest priority(list[Production] levels, set[Symbol] lefties, set[Symb
     }
   }
   
-  ordering = ordering+; // priority is transitive
-
-  result = {};
-  for (<Production father, Production child> <- ordering) {
-    switch (father) {
-      case prod(Symbol rhs,lhs:[Symbol l,_*,Symbol r],_) : {
-        if (match(l,lefties) && match(r,righties)) {
-          if (prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,righties)) {
-            result += {<father, 0, child>};
-          }
-          if (prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,lefties)) {
-            result += {<father, size(lhs) - 1, child>};
-          }
-        }   
-        else fail;
-      }
-      case prod(Symbol rhs,lhs:[Symbol l,_*],_) :
-        if (match(l,lefties), prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,righties)) {
-          result += {<father, 0, child>};
-        }   
-        else { 
-          fail;
-        }
-      case prod(Symbol rhs,lhs:[_*,Symbol r],_) :
-        if (match(r,righties), prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,lefties)) {
-          result += {<father, size(lhs) - 1, child>};
-        }   
-        else { 
-          fail;
-        }
-    }
+  DoNotNest as = {};
+  for (x <- levels, <prX,asX> := doNotNest(x, lefties, righties)) {
+    ordering += prX;
+    as += asX;
   }
   
-  // and we recurse to find the nested associativity declarations
-  return result + {*doNotNest(l, lefties, righties) | l <- levels};  
+  return <ordering, as>;
 }
 
 @doc{
@@ -291,4 +317,3 @@ Grammar factor(Grammar g, DoNotNest patterns) {
   
   return g;
 }
-

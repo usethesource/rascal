@@ -339,7 +339,9 @@ public abstract class Import {
     if (module == null) {
       throw new UndeclaredModule(name, src);
     }
-    eval.getCurrentModuleEnvironment().addImport(name, module);
+    ModuleEnvironment current = eval.getCurrentModuleEnvironment();
+    current.addImport(name, module);
+    current.setSyntaxDefined(current.definesSyntax() || module.definesSyntax());
   }
   
   public static IConstructor parseModule(char[] data, URI location, IEvaluator<Result<IValue>> eval){
@@ -365,7 +367,7 @@ public abstract class Import {
       ModuleEnvironment env = heap.getModule(name);
       if(env == null){
         env = new ModuleEnvironment(name, heap);
-//        heap.addModule(env);
+        // do not add the module to the heap here. 
       }
       env.setBootstrap(needBootstrapParser(data));
 

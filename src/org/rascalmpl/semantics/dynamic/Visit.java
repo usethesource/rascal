@@ -29,6 +29,7 @@ import org.rascalmpl.interpreter.TraversalEvaluator.FIXEDPOINT;
 import org.rascalmpl.interpreter.TraversalEvaluator.PROGRESS;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Cases;
 
 public abstract class Visit extends org.rascalmpl.ast.Visit {
@@ -51,10 +52,15 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 			IValue val = te.traverse(subject.getValue(),
 					blocks, DIRECTION.BottomUp,
 					PROGRESS.Continuing, FIXEDPOINT.No);
-			Type t = val.getType();
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(t,
+			
+			if (!val.getType().isSubtypeOf(subject.getType())) {
+			  // this is not a static error but an extra run-time sanity check
+			  throw new ImplementationError("this should really never happen",
+			      new UnexpectedType(subject.getType(), val.getType(), this));
+			}
+			
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(subject.getType(),
 					val, __eval);
-
 		}
 
 	}
