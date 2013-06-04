@@ -112,8 +112,13 @@ str layoutname(Symbol s) {
   throw "unexpected <s>";
 }
 
-public str alt2rascal(Production p:prod(_,_,_)) = "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> = <prod2rascal(p)>";
+private str alt2r(Symbol def, Production p, str sep = "=") = "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> <sep> <prod2rascal(p)>";
+public str alt2rascal(Production p:prod(def,_,_)) = alt2r(def, p);
+public str alt2rascal(Production p:priority(def,_)) = alt2r(def, p, sep = "\>");
+public str alt2rascal(Production p:\associativity(def,a,_)) = alt2r(def, p, sep = "= <attr2mod(\assoc(a))>");
+
 public str alt2rascal(Production p:regular(_)) = symbol2rascal(p.def);
+public default str alt2rascal(Production p) { throw "forgot <p>"; }
 
 
 public str prod2rascal(Production p) {
