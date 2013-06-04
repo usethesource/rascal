@@ -47,36 +47,7 @@ at this position, it adds a 'do-not-nest' tuple to the result.
 public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] _), Grammar g) 
   = { <p, i, q>  | i <- index(lhs), conditional(s, {_*,except(c)}) := delabel(lhs[i]), /q:prod(label(c,s),_,_) := g.rules[s]?choice(s,{})};
   
-public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
-  Maybe[Production] find(str c, Symbol t) = (/q:prod(label(c,t),_,_) := (g.rules[t]?choice(s,{}))) ? just(q) : nothing();
-  
-  switch (s) {
-    case \opt(conditional(t,cs)) : 
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
-    case \iter-star(conditional(t,cs)) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
-    case \iter(conditional(t,cs)) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
-    case \iter-seps(conditional(t,cs),ss) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)}
-           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};
-    case \iter-seps(_,ss) :
-      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};
-    case \iter-star-seps(conditional(t,cs),ss) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)}
-           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};
-    case \iter-star-seps(_,ss) :
-      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};       
-    case \alt(as) :
-      return {<p,0,q> | conditional(t,cs) <- as, except(c) <- cs, just(q) := find(c,t)};
-    case \seq(ss) :
-      return {<p,i,q> | i <- index(ss), conditional(t,cs) <- ss, except(c) <- cs, just(q) := find(c,t)};
-     default: return {};
-  }
-  
-  return {};
-}
-
+default DoNotNest except(Production _, Grammar _) = {};
 
 public DoNotNest doNotNest(Production p, set[Symbol] lefties, set[Symbol] righties) {
   switch (p) {

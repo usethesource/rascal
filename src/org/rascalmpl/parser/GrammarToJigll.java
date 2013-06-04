@@ -34,6 +34,7 @@ import org.jgll.util.GraphVizUtil;
 import org.jgll.util.Input;
 import org.jgll.util.SPPFToDot;
 import org.jgll.util.ToDotWithoutIntermeidateAndLists;
+import org.jgll.util.Tuple;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
@@ -74,7 +75,7 @@ public class GrammarToJigll {
 	  NonterminalSymbolNode sppf = null;
 
 	  input = Input.fromString(str.getValue());
-	  startSymbol = getSymbolName(symbol);
+	  startSymbol = SymbolAdapter.toString(symbol);
 	  
 	  try {
 		sppf = parser.parse(input, this.grammar, startSymbol);
@@ -93,7 +94,6 @@ public class GrammarToJigll {
 	}
 	
 	public void generateGrammar(IConstructor rascalGrammar) {
-		
 		  this.rascalGrammar = rascalGrammar;
 		  GrammarBuilder builder = convert("inmemory", rascalGrammar);
 		  IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
@@ -102,7 +102,7 @@ public class GrammarToJigll {
 		  
 		  grammar = builder.build();
 		  
-		  System.out.println(grammar);
+//		  System.out.println(grammar);
 	}
 	
 	public void generateGraph() {
@@ -166,10 +166,19 @@ public class GrammarToJigll {
 				
 				if(!prod.getName().equals("regular")) {
 					IList rhs = (IList) prod.get("symbols");
-					List<Symbol> body = getSymbolList(rhs);
+					
+					List<Tuple<Symbol, CharacterClass>> result = getSymbolList(rhs);
+					List<Symbol> body = new ArrayList<>();
+					List<CharacterClass> followRestrictions = new ArrayList<>();
+					
+					for(Tuple<Symbol, CharacterClass> tuple : result) {
+						body.add(tuple.getFirst());
+						followRestrictions.add(tuple.getSecond());
+					}
+					
 					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
-					builder.addRule(rule, notFollow, deleteSet);						
+					builder.addRule(rule, followRestrictions, deleteSet);						
 				}
 			}
 		}
@@ -209,90 +218,71 @@ public class GrammarToJigll {
 		return targetRanges;
 	}	
 	
-	private List<Symbol> getSymbolList(IList rhs) {
-		List<Symbol> result = new ArrayList<>();
+	private List<Tuple<Symbol, CharacterClass>> getSymbolList(IList rhs) {
+		List<Tuple<Symbol, CharacterClass>> result = new ArrayList<>();
 		for (IValue elem : rhs) {
 			IConstructor cons = (IConstructor) elem;
+			notFollow = null;
 			Symbol symbol = getSymbol(cons);
 			if(symbol != null) {
-				result.add(symbol);
+				result.add(new Tuple<Symbol, CharacterClass>(symbol, notFollow));
 			}
 		}
 		return result;
-	}
+	}	
 	
 	private Symbol getSymbol(IConstructor symbol) {
 		
 		switch (symbol.getName()) {
 		
-		case "char-class":
-			List<Range> targetRanges = buildRanges(symbol);
-			return new CharacterClass(targetRanges);
-			
-		case "sort":
-			return new Nonterminal(getSymbolName(symbol));
-			
-		case "lex":
-			return new Nonterminal(getSymbolName(symbol));
-			
-		case "label":
-			return new Nonterminal(getSymbolName(symbol));
-		
-		case "keywords":
-			return new Nonterminal(getSymbolName(symbol));
-		
-		case "layouts":
-			return new Nonterminal("layout(" + getSymbolName(symbol) + ")");
-			
-		case "lit":
-			return new Nonterminal("\"" + ((IString)symbol.get("string")).getValue() + "\"");
-			
-		case "iter":
-			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "+", true);
-			
-		case "iter-seps":
-			return new Nonterminal(getIteratorName(symbol) + "+", true);
-			
-		case "iter-star":
-			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "*", true);
-			
-		case "iter-star-seps":
-			return new Nonterminal(getIteratorName(symbol) + "*", true);
-			
-		case "seq":
-			return new Nonterminal(getSymbolList((IList)symbol.get("sequence")).toString());
-			
-		case "opt":
-			return new Nonterminal(getSymbol(getSymbolCons(symbol)) + "?");
-			
-		case "alt":
-			return new Nonterminal(getAlt(symbol));
-			
-		case "conditional":			
-			ISet conditions = (ISet) symbol.get("conditions");
-			for(IValue condition : conditions) {
-				if(((IConstructor)condition).getName().equals("not-follow")) {
-					notFollow = (CharacterClass) getSymbol(getSymbolCons((IConstructor) condition));
-				} 
-				else if(((IConstructor)condition).getName().equals("delete")) { 
-					IConstructor delete = getSymbolCons((IConstructor) condition);
-					deleteSet = getDeleteSet(delete);
+			case "char-class":
+				List<Range> targetRanges = buildRanges(symbol);
+				return new CharacterClass(targetRanges);
+				
+			case "label":
+				return getSymbol(getSymbolCons(symbol));
+								
+			case "iter":
+				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				
+			case "iter-seps":
+				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				
+			case "iter-star":
+				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				
+			case "iter-star-seps":
+				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+								
+			case "opt":
+				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				
+			case "alt":
+				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				
+			case "start":
+				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol)) + "]");
+				
+			case "conditional":			
+				ISet conditions = (ISet) symbol.get("conditions");
+				for(IValue condition : conditions) {
+					if(((IConstructor)condition).getName().equals("not-follow")) {
+						notFollow = (CharacterClass) getSymbol(getSymbolCons((IConstructor) condition));
+					} 
+					else if(((IConstructor)condition).getName().equals("delete")) { 
+						IConstructor delete = getSymbolCons((IConstructor) condition);
+						deleteSet = getDeleteSet(delete);
+					}
 				}
+				return getSymbol(getSymbolCons(symbol));
+				
+			default:
+				return new Nonterminal(SymbolAdapter.toString(symbol));
 			}
-			return getSymbol(getSymbolCons(symbol));
-			
-		}
-		
-		System.out.println(symbol);
-		return null;
 	}
 	
 	private IConstructor getSymbolCons(IConstructor symbol) {
 		return (IConstructor) symbol.get("symbol");
-	}
-	
-	private String getSymbolName(IConstructor symbol) {
-		return ((IString)symbol.get("name")).getValue();
 	}
 	
 	private boolean isEBNF(IConstructor value) {
