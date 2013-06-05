@@ -39,7 +39,7 @@ set[Symbol] rightRecursive(Grammar g, Symbol exp) {
   	return n;
   }
   solve (result) 
-    result += {(nt in cache ? cache[nt] :  addToCache(nt)) | p:prod(nt,[*_, r],_) <- rules, (nt in cache ? cache[nt] :  addToCache(nt)) in result};
+    result += {(nt in cache ? cache[nt] :  addToCache(nt)) | p:prod(nt,[*_, r],_) <- rules, (r in cache ? cache[r] :  addToCache(r)) in result};
   
   
   return result;
@@ -59,7 +59,7 @@ set[Symbol] leftRecursive(Grammar g, Symbol exp) {
   	return n;
   }
   solve (result) 
-    result += {(nt in cache ? cache[nt] :  addToCache(nt)) | p:prod(nt,[r, *_],_) <- rules, (nt in cache ? cache[nt] :  addToCache(nt)) in result};
+    result += {(nt in cache ? cache[nt] :  addToCache(nt)) | p:prod(nt,[r, *_],_) <- rules, (r in cache ? cache[r] :  addToCache(r)) in result};
   
   return result;
 }
