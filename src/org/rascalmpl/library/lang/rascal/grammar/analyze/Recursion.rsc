@@ -33,6 +33,7 @@ set[Symbol] rightRecursive(Grammar g, Symbol exp) {
   result = {exp};
   
   map[Symbol, Symbol] cache = ();
+  
   Symbol addToCache(Symbol s) {
   	n = striprec(s);
   	cache[s] = n;
