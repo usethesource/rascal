@@ -48,6 +48,11 @@ public class ReifiedType extends RascalType {
 	}
 	
 	@Override
+	public boolean isOpen() {
+	  return arg.isOpen();
+	}
+	
+	@Override
 	public <T, E extends Throwable> T accept(IRascalTypeVisitor<T, E> visitor) throws E {
 	  return visitor.visitReified(this);
 	}
