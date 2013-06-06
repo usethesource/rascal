@@ -124,7 +124,7 @@ public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] 
 }
 
 tuple[Priorities,DoNotNest] associativity(Associativity a, set[Production] alts, set[Symbol] lefties, set[Symbol] righties) {
-  result = {};
+  DoNotNest result = {};
   
   // note that there are nested groups and that each member of a nested group needs to be paired
   // with all the members of the other nested group. This explains the use of the / deep match operator.
