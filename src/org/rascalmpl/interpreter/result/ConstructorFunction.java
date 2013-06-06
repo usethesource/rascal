@@ -86,7 +86,7 @@ public class ConstructorFunction extends NamedFunction {
 			instantiated = constructorType.instantiate(bindings);
 		}
 
-		return makeResult(instantiated, ctx.getValueFactory().constructor(instantiated, addKeywordArgs(actuals, keyArgValues)), ctx);
+		return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, addKeywordArgs(actuals, keyArgValues)), ctx);
 	}
 	
 	protected Type[] addKeywordTypes(Type[] actualTypes, Map<String, IValue> keyArgValues){
