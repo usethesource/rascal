@@ -1029,8 +1029,7 @@ syntax ClassOrInterfaceType =
   ;
 
 
-extend lang::sdf2::filters::PreferAvoid;
-extend lang::sdf2::filters::CountPreferAvoid;
+extend lang::sdf2::filters::DirectThenCountPreferAvoid;
 
 bool expectedAmb({(Expr)`(<RefType t>) <Expr e>`, appl(_,[(Expr)`(<ExprName n>)`,_*])}) = true; // (A) + 1
 bool expectedAmb({appl(_,[_*,(Expr)`(<RefType t>) <Expr e>`]), appl(_,[appl(_,[_*,(Expr)`(<ExprName n>)`]),_*])}) = true; // 1 + (A) + 1
