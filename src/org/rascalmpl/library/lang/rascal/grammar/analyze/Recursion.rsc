@@ -2,6 +2,8 @@ module lang::rascal::grammar::analyze::Recursion
 
 import Grammar;
 import ParseTree;
+import Map;
+import Set;
 
 import lang::rascal::grammar::definition::Symbols;
 
@@ -40,8 +42,10 @@ set[Symbol] rightRecursive(Grammar g, Symbol exp) {
   rules = {p | /p:prod(_,_,_) := g};
   result = {exp};
   
+  righties = toMap({<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | prod(nt,[*_, r],_) <- rules});
   solve (result) 
-    result += {(nt in cache ? cache[nt] :  addToCache(nt)) | p:prod(nt,[*_, r],_) <- rules, (r in cache ? cache[r] :  addToCache(r)) in result};
+  	result += { *righties[r] | r <- result, r in righties};
+    //result += {(nt in cache ? cache[nt] :  addToCache(nt)) | r <- righ  p:prod(nt,[*_, r],_) <- rules, (r in cache ? cache[r] :  addToCache(r)) in result};
   
   clearCache();
   return result;
@@ -54,8 +58,10 @@ set[Symbol] leftRecursive(Grammar g, Symbol exp) {
   rules = {p | /p:prod(_,_,_) := g};
   result = {exp};
   
+  lefties = toMap({<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | prod(nt,[r, *_],_) <- rules});
   solve (result) 
-    result += {(nt in cache ? cache[nt] :  addToCache(nt)) | p:prod(nt,[r, *_],_) <- rules, (r in cache ? cache[r] :  addToCache(r)) in result};
+  	result += { *lefties[r] | r <- result, r in lefties};
+    //result += {(nt in cache ? cache[nt] :  addToCache(nt)) | p:prod(nt,[r, *_],_) <- rules, (r in cache ? cache[r] :  addToCache(r)) in result};
   
   clearCache();
   return result;
