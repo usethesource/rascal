@@ -1,12 +1,17 @@
 package org.rascalmpl.parser;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.jgll.traversal.NodeListener;
-import org.jgll.traversal.Result;
 import org.jgll.traversal.PositionInfo;
+import org.jgll.traversal.Result;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -29,7 +34,7 @@ public class ParsetreeBuilder implements NodeListener<IConstructor,IConstructor>
 	}
     IListWriter args = vf.listWriter();
     args.appendAll(children);
-    return Result.accept(vf.constructor(Factory.Tree_Appl, type, args.done()));
+    return Result.accept(vf.constructor(Factory.Tree_Appl, type, args.done()).setAnnotation("loc", vf.sourceLocation(URI.create("dunno:///"), 0, 1, 1, 1, 1, 1)));
   }
 
   @Override
