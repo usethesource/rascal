@@ -24,7 +24,6 @@ public alias DoNotNest = rel[Production father, int position, Production child];
 public DoNotNest doNotNest(Grammar g) {
   DoNotNest result = {};
   
-  turnOnSymbolCache();
   for (s <- g.rules) {
     lefties = leftRecursive(g, s);
     righties = rightRecursive(g, s);
@@ -64,7 +63,6 @@ public DoNotNest doNotNest(Grammar g) {
     } 
   }
   
-  turnOffSymbolCache();
   return result // TODO: in the future the except relation needs to be reported separately because it should not be indirect.
        + {*except(p, g) | /Production p <- g, p is prod || p is regular}
        ;
