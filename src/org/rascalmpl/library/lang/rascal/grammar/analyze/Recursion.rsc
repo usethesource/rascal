@@ -39,13 +39,11 @@ set[Symbol] nullables(Grammar g) {
   returns all non-terminals that eventually can produce an `exp` at the right-most position
 }
 set[Symbol] rightRecursive(Grammar g, Symbol exp) {
-  rules = {p | /p:prod(_,_,_) := g};
   result = {exp};
   
-  righties = toMap({<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | prod(nt,[*_, r],_) <- rules});
+  righties = toMap({<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | /prod(nt,[*_, r],_) := g});
   solve (result) 
   	result += { *righties[r] | r <- result, r in righties};
-    //result += {(nt in cache ? cache[nt] :  addToCache(nt)) | r <- righ  p:prod(nt,[*_, r],_) <- rules, (r in cache ? cache[r] :  addToCache(r)) in result};
   
   clearCache();
   return result;
@@ -55,13 +53,11 @@ set[Symbol] rightRecursive(Grammar g, Symbol exp) {
   returns all non-terminals that eventually can produce an `exp` at the left-most position
 }
 set[Symbol] leftRecursive(Grammar g, Symbol exp) {
-  rules = {p | /p:prod(_,_,_) := g};
   result = {exp};
   
-  lefties = toMap({<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | prod(nt,[r, *_],_) <- rules});
+  lefties = toMap({<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | /prod(nt,[r, *_],_) := g});
   solve (result) 
   	result += { *lefties[r] | r <- result, r in lefties};
-    //result += {(nt in cache ? cache[nt] :  addToCache(nt)) | p:prod(nt,[r, *_],_) <- rules, (r in cache ? cache[r] :  addToCache(r)) in result};
   
   clearCache();
   return result;
