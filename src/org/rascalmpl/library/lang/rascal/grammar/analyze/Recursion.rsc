@@ -4,6 +4,8 @@ import Grammar;
 import ParseTree;
 import Map;
 import Set;
+import analysis::graphs::Graph;
+
 
 import lang::rascal::grammar::definition::Symbols;
 
@@ -47,30 +49,16 @@ set[Symbol] nullables(Grammar g) {
   returns all non-terminals that eventually can produce an `exp` at the right-most position
 }
 set[Symbol] rightRecursive(Grammar g, Symbol exp) {
-  result = {exp};
-  
-  prods = getProds(g);
-  
-  righties = toMap({<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | prod(nt,[*_, r],_) <- prods});
-  solve (result) 
-  	result += { *righties[r] | r <- result, r in righties};
-  
+  prods = {<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | prod(nt,[*_, r],_) <- getProds(g)};
   clearCache();
-  return result;
+  return reach(prods, {exp});
 }
 
 @doc{
   returns all non-terminals that eventually can produce an `exp` at the left-most position
 }
 set[Symbol] leftRecursive(Grammar g, Symbol exp) {
-  result = {exp};
-  
-  prods = getProds(g);
-  
-  lefties = toMap({<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | prod(nt,[r, *_],_) <- prods});
-  solve (result) 
-  	result += { *lefties[r] | r <- result, r in lefties};
-  
+  prods = {<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | prod(nt,[r, *_],_) <- getProds(g)};
   clearCache();
-  return result;
+  return reach(prods, {exp});
 }
