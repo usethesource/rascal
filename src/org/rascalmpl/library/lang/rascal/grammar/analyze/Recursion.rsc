@@ -13,11 +13,19 @@ void turnOffSymbolCache() { globalCache = false; clearCache(); }
 
 
 private  map[Symbol, Symbol] cache = ();
-private void clearCache() { if (!globalCache) cache = (); }
+private map[Grammar, set[Production]] prodCache = ();
+private void clearCache() { if (!globalCache) { cache = (); prodCache = (); } }
 private Symbol addToCache(Symbol s) {
   n = striprec(s);
   cache[s] = n;
   return n;
+}
+
+private set[Production] getProds(Grammar g) {
+	if (g notin prodCache) {
+		prodCache[g] = { p | /p:prod(_,_,_) := g};
+	}
+	return prodCache[g];
 }
 
 @doc{
@@ -41,7 +49,9 @@ set[Symbol] nullables(Grammar g) {
 set[Symbol] rightRecursive(Grammar g, Symbol exp) {
   result = {exp};
   
-  righties = toMap({<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | /prod(nt,[*_, r],_) := g});
+  prods = getProds(g);
+  
+  righties = toMap({<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | prod(nt,[*_, r],_) <- prods});
   solve (result) 
   	result += { *righties[r] | r <- result, r in righties};
   
@@ -55,7 +65,9 @@ set[Symbol] rightRecursive(Grammar g, Symbol exp) {
 set[Symbol] leftRecursive(Grammar g, Symbol exp) {
   result = {exp};
   
-  lefties = toMap({<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | /prod(nt,[r, *_],_) := g});
+  prods = getProds(g);
+  
+  lefties = toMap({<(r in cache ? cache[r] :  addToCache(r)), (nt in cache ? cache[nt] :  addToCache(nt))> | prod(nt,[r, *_],_) <- prods});
   solve (result) 
   	result += { *lefties[r] | r <- result, r in lefties};
   
