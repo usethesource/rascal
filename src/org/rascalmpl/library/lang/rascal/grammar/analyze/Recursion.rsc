@@ -5,7 +5,6 @@ import ParseTree;
 import Map;
 import Set;
 import List;
-import analysis::graphs::Graph;
 
 
 import lang::rascal::grammar::definition::Symbols;
@@ -19,8 +18,8 @@ private Symbol addToCache(Symbol s) {
 
 private Grammar current = grammar({}, (), ());
 
-private Graph[Symbol] leftDependencies = {};
-private Graph[Symbol] rightDependencies = {};
+private map[Symbol, set[Symbol]] leftDependencies = ();
+private map[Symbol, set[Symbol]] rightDependencies = ();
 
 private void calculateDependencies(Grammar g) {
   cache = ();
@@ -30,20 +29,26 @@ private void calculateDependencies(Grammar g) {
     , <1, (l in cache ? cache[l] :  addToCache(l)), (nt in cache ? cache[nt] :  addToCache(nt))>
     } | /p:prod(nt,syms,_) := g, size(syms) > 0, Symbol r := syms[-1], Symbol l := syms[0]};
     
-  rightDependencies = rr[0];
-  leftDependencies = rr[1];
+  rightDependencies = toMap(rr[0]*);
+  leftDependencies = toMap(rr[1]*);
   current = g;
 }
 
-private Graph[Symbol] getLeftDependencies(Grammar g) {
+private map[Symbol, set[Symbol]] getLeftDependencies(Grammar g) {
 	if (g != current) {
 		calculateDependencies(g);
 	}
+	else {
+		current = g; // structural equality is slower than same reference	
+	}
 	return leftDependencies;
 }
-private Graph[Symbol] getRightDependencies(Grammar g) {
+private map[Symbol, set[Symbol]] getRightDependencies(Grammar g) {
 	if (g != current) {
 		calculateDependencies(g);
+	}
+	else {
+		current = g; // structural equality is slower than same reference	
 	}
 	return rightDependencies;
 }
@@ -67,12 +72,20 @@ set[Symbol] nullables(Grammar g) {
   returns all non-terminals that eventually can produce an `exp` at the right-most position
 }
 set[Symbol] rightRecursive(Grammar g, Symbol exp) {
-  return reach(getRightDependencies(g), {exp});
+  deps = getRightDependencies(g);
+  if (exp in deps)
+  	return deps[exp];
+  else
+  	return {exp};
 }
 
 @doc{
   returns all non-terminals that eventually can produce an `exp` at the left-most position
 }
 set[Symbol] leftRecursive(Grammar g, Symbol exp) {
-  return reach(getLeftDependencies(g), {exp});
+  deps =  getLeftDependencies(g);
+  if (exp in deps)
+  	return deps[exp];
+  else
+  	return {exp};
 }
