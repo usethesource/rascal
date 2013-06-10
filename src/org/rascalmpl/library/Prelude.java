@@ -2238,10 +2238,9 @@ public class Prelude {
 			throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Missing lexical constructor");
 		}
 		
-		//Set implementation added here by Jurgen at 19/07/12 16:45
 		if (TreeAdapter.isList(tree)) {
-			if (type.isList() || splicing) {
-				Type elementType = splicing ? type : type.getElementType();
+			if (type.isList() || type.isTop() || splicing) {
+				Type elementType = splicing || type.isTop() ? type : type.getElementType();
 				IListWriter w = values.listWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
 					w.append(implode(store, elementType, (IConstructor) arg, false, ctx));
@@ -2271,10 +2270,10 @@ public class Prelude {
 		}
 		
 		if (TreeAdapter.isOpt(tree)) {
-			if (!type.isList()) {
+			if (!type.isList() && !type.isTop()) {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Optional should match with a list and not " + type));
 			}
-			Type elementType = type.getElementType();
+			Type elementType = type.isTop() ? type : type.getElementType();
 			IListWriter w = values.listWriter();
 			for (IValue arg: TreeAdapter.getASTArgs(tree)) {
 				IValue implodedArg = implode(store, elementType, (IConstructor) arg, true, ctx);
@@ -2447,7 +2446,8 @@ public class Prelude {
 	}
 
 	private boolean isUntypedNodeType(Type type) {
-		return type.isNode() && !type.isConstructor() && !type.isAbstractData();
+		return (type.isNode() || type.isTop())
+				&& !type.isConstructor() && !type.isAbstractData();
 	}
 	
 	

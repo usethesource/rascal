@@ -56,6 +56,10 @@ public class GrammarToJigll {
 	
 	List<List<CharacterClass>> followRestriction;
 	
+	List<CharacterClass> precedeRestrictions;
+
+	private CharacterClass precedeRestriction;
+	
 	private IConstructor rascalGrammar;
 
 	public GrammarToJigll(IValueFactory vf) {
@@ -196,6 +200,7 @@ public class GrammarToJigll {
 				
 				followRestrictions = new ArrayList<>();
 				deleteSet = new ArrayList<>();
+				precedeRestrictions = new ArrayList<>();
 				
 				if(!prod.getName().equals("regular")) {
 					IList rhs = (IList) prod.get("symbols");
@@ -206,7 +211,7 @@ public class GrammarToJigll {
 										
 					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
-					builder.addRule(rule, followRestrictions, deleteSet);						
+					builder.addRule(rule, followRestrictions, deleteSet, precedeRestrictions);						
 				}
 			}
 		}
@@ -251,10 +256,12 @@ public class GrammarToJigll {
 		for (IValue elem : rhs) {
 			IConstructor cons = (IConstructor) elem;
 			followRestriction = new ArrayList<>();
+			precedeRestriction = null;
 			Symbol symbol = getSymbol(cons);
 			if(symbol != null) {
 				result.add(symbol);
 				followRestrictions.add(followRestriction);
+				precedeRestrictions.add(precedeRestriction);
 			}
 		}
 		return result;
@@ -296,13 +303,29 @@ public class GrammarToJigll {
 			case "conditional":			
 				ISet conditions = (ISet) symbol.get("conditions");
 				for(IValue condition : conditions) {
-					if(((IConstructor)condition).getName().equals("not-follow")) {
-						IConstructor follow = getSymbolCons((IConstructor) condition);
-						followRestriction.add(getFollowRestriction(follow));
-					} 
-					else if(((IConstructor)condition).getName().equals("delete")) { 
-						IConstructor delete = getSymbolCons((IConstructor) condition);
-						getDeleteSet(delete);
+					
+					switch(((IConstructor)condition).getName()) {
+						case "not-follow":
+							IConstructor follow = getSymbolCons((IConstructor) condition);
+							followRestriction.add(getFollowRestriction(follow));
+							break;
+							
+						case "delete":
+							IConstructor delete = getSymbolCons((IConstructor) condition);
+							getDeleteSet(delete);
+							break;
+							
+						case "not-precede":
+							IConstructor precede = getSymbolCons((IConstructor) condition);
+							precedeRestriction = new CharacterClass(buildRanges(precede));
+							break;
+							
+						case "except":
+							break;
+							
+						default:
+							throw new RuntimeException("Unsupported conditional " + symbol);
+							
 					}
 				}
 				return getSymbol(getSymbolCons(symbol));

@@ -42,7 +42,7 @@ private Grammar removeLabels(Grammar g)
 // OCaml prints		
 map[str,str] renamings = ("plus":"+");
 
-str printAST(Tree x) = printAST(implode(#node, x));
+str printAST(Tree x) = printAST(implode(#value, x));
 
 str printAST(node n) {
   children = getChildren(n);
