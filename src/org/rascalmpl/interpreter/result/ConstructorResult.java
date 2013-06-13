@@ -92,6 +92,7 @@ public class ConstructorResult extends NodeResult {
 		if (!repl.getType().isSubtypeOf(fieldType)) {
 			throw new UnexpectedType(fieldType, repl.getType(), ctx.getCurrentAST());
 		}
+		
 		return makeResult(getType(), getValue().set(index, repl.getValue()), ctx);
 	}
 
