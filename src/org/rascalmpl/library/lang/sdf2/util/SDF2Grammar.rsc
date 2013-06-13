@@ -310,7 +310,7 @@ public set[Production] getProductions(Module \mod) {
     case (Grammar) `context-free syntax <Prod* prods>`: 
     	res += getProductions(prods, false);
     case (Grammar) `priorities <{Priority ","}* prios>`:
-    	res += getPriorities(prios,false);
+    	res += getPriorities(prios,true);
     case (Grammar) `lexical priorities <{Priority ","}* prios>`: 
     	res += getPriorities(prios,true);
     case (Grammar) `context-free priorities <{Priority ","}* prios>`: 
@@ -350,6 +350,9 @@ set[Production] fixParameters(set[Production] input) {
   }
 }
 
+private str labelName("") = "";
+private default str labelName(str s) = toLowerCase(s[0]) + (size(s) > 1 ? s[1..] : "");
+
 public set[Production] getProduction(Prod P, bool isLex) {
   switch (P) {
     case (Prod) `<Syms syms> -\> LAYOUT <Attrs ats>` :
@@ -358,7 +361,7 @@ public set[Production] getProduction(Prod P, bool isLex) {
     case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
         return {prod(keywords(getSymbol(sym, isLex).name + "Keywords"), getSymbols(syms, isLex), {})};
     case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
-        return {prod(label(unescape(n),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> }`))};
+        return {prod(label(labelName(unescape(n)),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> }`))};
     case (Prod) `<Syms syms> -\> <Sym sym> <Attrs ats>` : 
         return {prod(getSymbol(sym, isLex), getSymbols(syms, isLex),getAttributes(ats))};
     default: {
@@ -388,7 +391,7 @@ public set[Symbol] getConditions(SDF m) {
   res = {};
   visit (m) {
     case (Grammar) `restrictions <Restriction* rests>`:
-      res += getRestrictions(rests, false);
+      res += getRestrictions(rests, true);
     case (Grammar) `lexical restrictions <Restriction* rests>`:
       res += getRestrictions(rests, true);
     case (Grammar) `context-free restrictions <Restriction* rests>` :
@@ -606,10 +609,10 @@ public Symbol getSymbol(Sym sym, bool isLex) {
     case (Sym) `LAYOUT ?`:
         return \layouts("LAYOUTLIST");
     case (Sym) `<StrCon l> : <Sym s>`:
-		return label(unescape(l), getSymbol(s,isLex));
+		return label(labelName(unescape(l)), getSymbol(s,isLex));
 		
     case (Sym) `<IdCon i> : <Sym s>`:
-    	return label("<i>", getSymbol(s, isLex));
+    	return label(labelName("<i>"), getSymbol(s, isLex));
     	
    	case (Sym) `LAYOUT`:
     	return \lex("LAYOUT"); 
@@ -870,9 +873,9 @@ test bool testCR4() = getCharRange((Range) `\\1-\\31`)	==  range(1,25);
 
 public int getCharacter(Character c) {
   switch (c) {
-    case [Character] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
-    case [Character] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
-    case [Character] /\\<oct:[0-7]>/           : return toInt("0<oct>");
+    case [Character] /\\<dec:[0-9][0-9][0-9]>/ : return toInt("<dec>");
+    case [Character] /\\<dec:[0-9][0-9]>/      : return toInt("<dec>");
+    case [Character] /\\<dec:[0-9]>/           : return toInt("<dec>");
     case [Character] /\\t/                     : return 9;
     case [Character] /\\n/                     : return 10;
     case [Character] /\\r/                     : return 13;
@@ -887,9 +890,9 @@ public int getCharacter(Character c) {
 test bool testCCX1() = ((Character) `a`)    == charAt("a", 0);
 test bool testCCX2() = ((Character) `\\\\`)   == charAt("\\", 0);
 test bool testCCX3() = ((Character) `\\'`)   == charAt("\'", 0);
-test bool testCCX4() = ((Character) `\\1`)   == toInt("01");
-test bool testCCX5() = ((Character) `\\12`)  == toInt("012");
-test bool testCCX6() = ((Character) `\\123`) == toInt("0123");
+test bool testCCX4() = ((Character) `\\1`)   == 1;
+test bool testCCX5() = ((Character) `\\12`)  == 12;
+test bool testCCX6() = ((Character) `\\123`) == 123;
 test bool testCCX7() = ((Character) `\\n`)   == 10; 
 
 // ----- getAttributes, getAttribute, getAssociativity -----
@@ -918,13 +921,13 @@ public set[Attr] getAttribute(Attribute m) {
     	return {\tag("NotSupported"("memo"))};
     	
     case (Attribute) `prefer`:
-        return {\tag("NotSupported"("prefer"))};
+        return {\tag("prefer"())};
         
     case (Attribute) `avoid` :
-        return {\tag("NotSupported"("avoid"))};
+        return {\tag("avoid"())};
     	
     case (Attribute) `reject` :
-        return {};
+        return {\tag("reject"())};
         
     case (Attribute) `category(<StrCon a>)` :
         return {\tag("category"(unescape(a)))};

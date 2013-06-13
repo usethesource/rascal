@@ -111,7 +111,20 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 				if (result.getType().isBottom()) {
 					return ambCluster;
 				}
-				
+				IConstructor r = (IConstructor) result.getValue();
+				if (TreeAdapter.isAmb(r)) {
+					ISet returnedAlts = TreeAdapter.getAlternatives(r);
+					if (returnedAlts.size() == 1) {
+						return (IConstructor) returnedAlts.iterator().next();
+					}
+					else if (returnedAlts.size() == 0) {
+						return null;
+					}
+					else {
+						return r;
+					}
+				}
+					
 				return (IConstructor) result.getValue();
 			}
 			catch (ArgumentsMismatch e) {

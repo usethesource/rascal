@@ -16,13 +16,17 @@
 package org.rascalmpl.values.uptr;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SymbolAdapter {
+  private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	private SymbolAdapter() {
 		super();
@@ -174,9 +178,26 @@ public class SymbolAdapter {
 		if (isLabel(symbol)) {
 			return toString((IConstructor) symbol.get("symbol")) + " " + ((IString) symbol.get("name")).getValue();
 		}
-		
 		if (isSort(symbol) || isLex(symbol) || isKeyword(symbol)) {
 			return getName(symbol);
+		}
+		if (isCharClass(symbol)) {
+		  IList ranges = getRanges(symbol);
+		  StringBuilder b = new StringBuilder();
+		  b.append("[");
+		  for (IValue range : ranges) {
+		    IInteger from = getRangeBegin(range);
+		    IInteger to = getRangeEnd(range);
+		    if  (from.equals(to)) {
+		      b.append(escapeChar(from.intValue()));
+		    }
+		    else {
+		      b.append(escapeChar(from.intValue()));
+		      b.append("-");
+		      b.append(escapeChar(to.intValue()));
+		    }
+		  }
+		  b.append("]");
 		}
 		if (isIterPlusSeps(symbol)) {
 			StringBuilder b = new StringBuilder();
@@ -213,6 +234,24 @@ public class SymbolAdapter {
 		}
 		if (isOpt(symbol)) {
 			return toString(getSymbol(symbol)) + '?';
+		}
+		if (isSeq(symbol)) {
+		  return "(" + toString(getSymbols(symbol)) + ")";
+		}
+		if (isAlt(symbol)) {
+		  ISet alts = getAlternatives(symbol);
+		  StringBuilder b = new StringBuilder();
+		  b.append("(");
+		  boolean first = true;
+		  for (IValue elem : alts) {
+		    if (!first) {
+		      first = false;
+		      b.append(" | ");
+		    }
+		    b.append(toString((IConstructor) elem));
+		  }
+		  b.append(")");
+		  return b.toString(); 
 		}
 		if (isLayouts(symbol)) {
 			return "layout[" + symbol.get("name") + "]";
@@ -300,9 +339,37 @@ public class SymbolAdapter {
 		return symbol.toString();
 	}
 
-	
+	/**
+	 * char-classes have almost the same escape convention as char classes except for spaces
+	 * @param from
+	 * @return
+	 */
+  private static String escapeChar(int from) {
+    if (from == ' ') {
+      return "\\ ";
+    }
+    
+    String strRep = VF.string(from).toString();
+    return strRep.substring(1, strRep.length() - 1);
+  }
 
-	private static String toString(IList symbols) {
+  private static IInteger getRangeEnd(IValue range) {
+    return (IInteger) ((IConstructor) range).get("end");
+  }
+
+  private static IInteger getRangeBegin(IValue range) {
+    return (IInteger) ((IConstructor) range).get("begin");
+  }
+
+	public static IList getRanges(IConstructor symbol) {
+    return (IList) symbol.get("ranges");
+  }
+
+  public static IList getSymbols(IConstructor symbol) {
+    return (IList) symbol.get("symbols");
+  }
+
+  private static String toString(IList symbols) {
 		StringBuilder b = new StringBuilder();
 		
 		if (symbols.length() > 0) {
