@@ -9,12 +9,12 @@
 module lang::java::\syntax::Disambiguate
 /*
 	Import this module to Disambiguate the ambiguity cause by the prefix operators +/- and infix operators +/-.
-	This causes a ambiguity in case of (A) + (B) . This could be (A)(+ (B)) or ((A)) + ((B)).
-	We need to have a symbol table to decide if A is a type and thus a TypeCast, or it is a field/variable.
+	An example of this ambiguity is (A) + (B) . This could be (A)(+ (B)) or ((A)) + ((B)).
+	We need to have a symbol table to decide if A is a type and thus a TypeCast, or it is a field/variable access.
 	
 	Java lacks operator overloading, therefore, prefix operators only work on numeric types.
-	Moreover, there is not support for custom covariance and contravariance.
-	Therefore, only if (A) is a primary/primary numeric type can it be a prefix expression.
+	Moreover, there is no support for custom covariance and contravariance.
+	Therefore, only if (A) is a primary/boxed numeric type can it be a prefix expression.
 	
 	We therefore have added this complete but not sound disambiguation as a separate module.
 	
