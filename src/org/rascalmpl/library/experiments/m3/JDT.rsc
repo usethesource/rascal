@@ -19,15 +19,15 @@ import Map;
 import Node;
 import experiments::m3::AST;
 
-private list[loc] getProject(loc dir, str suffix) {
-							  res = [];
+private set[loc] crawl(loc dir, str suffix) {
+  res = {};
   for(str entry <- listEntries(dir)){
       loc sub = dir + entry;   
       if(isDirectory(sub)) {
-          res += getProject(sub, suffix);
+          res += crawl(sub, suffix);
       } else {
 	          if(endsWith(entry, suffix)) { 
-	             res += [sub]; 
+	             res += {sub}; 
 	          }
       }
   };
@@ -64,12 +64,7 @@ public set[loc] getPaths(loc dir, str suffix) {
 public java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
 
 public void setEnvironmentOptions(loc project) {
-	    setEnvironmentOptions(getPaths(project, ".class") + getPaths(project, ".jar") +
-	    {
-	    	|file:///Users/shahi/eclipse/plugins|,
-			|file:///Users/shahi/eclipse/plugins/org.eclipse.core.runtime.compartibility.registery_3.5.101.v20130108-163257|,
-			|file:///Users/shahi/eclipse/plugins/org.apache.ant_1.8.3.v201301120609/lib|
-	    }, getPaths(project, ".java"));
+	    setEnvironmentOptions(getPaths(project, ".class") + crawl(project, ".jar"), getPaths(project, ".java"));
 }
 
 @doc{Creates AST from a file}
@@ -83,5 +78,5 @@ public AstNode createAstFromFile(loc file, bool collectBindings, str projectName
 @doc{Creates ASTs from a project}
 public set[AstNode] createAstsFromProject(loc project, bool collectBindings) {
    setEnvironmentOptions(project);
-	 	  return { createAstFromFile(f, collectBindings, project.authority) | loc f <- getProject(project, ".java") };
+	 	  return { createAstFromFile(f, collectBindings, project.authority) | loc f <- crawl(project, ".java") };
 	}
