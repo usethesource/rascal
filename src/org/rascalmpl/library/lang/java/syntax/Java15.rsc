@@ -395,11 +395,11 @@ syntax ArrayAccess =
    arrayAccess: Expr!postDecr!postIncr!preDecr!preIncr!not!complement!plus!plusDec!minus!remain!div!mul!rightShift!uRightShift!leftShift!instanceOf!gt!ltEq!lt!gtEq!eq!notEq!and!excOr!or!lazyAnd!lazyOr!cond!assign!assignLeftShift!assignOr!assignAnd!assignRightShift!assignMul!assignRemain!assignPlus!assignExcOr!assignDiv!assignURightShift!assignMinus!castRef!castPrim ArraySubscript 
   ;
 
-syntax ImportDec =
-   typeImportDec: "import" !>> [$ 0-9 A-Z _ a-z] TypeName ";" 
-  |  staticImportOnDemandDec: "import" !>> [$ 0-9 A-Z _ a-z] "static" !>> [$ 0-9 A-Z _ a-z] TypeName "." "*" ";" 
-  |  staticImportDec: "import" !>> [$ 0-9 A-Z _ a-z] "static" !>> [$ 0-9 A-Z _ a-z] TypeName "." Id ";" 
-  |  typeImportOnDemandDec: "import" !>> [$ 0-9 A-Z _ a-z] PackageName "." "*" ";" 
+syntax ImportDec 
+  = typeImportDec: "import" !>> [$ 0-9 A-Z _ a-z] TypeName ";" 
+  | typeImportOnDemandDec: "import" !>> [$ 0-9 A-Z _ a-z] PackageName "." "*" ";" 
+  | staticImportOnDemandDec: "import" !>> [$ 0-9 A-Z _ a-z] "static" !>> [$ 0-9 A-Z _ a-z] TypeName "." "*" ";" 
+  | staticImportDec: "import" !>> [$ 0-9 A-Z _ a-z] "static" !>> [$ 0-9 A-Z _ a-z] TypeName "." Id ";" 
   ;
 
 syntax ArrayBaseType =
