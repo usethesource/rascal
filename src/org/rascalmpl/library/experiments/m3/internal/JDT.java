@@ -15,9 +15,8 @@
 *******************************************************************************/
 package org.rascalmpl.library.experiments.m3.internal;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +31,8 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.parser.gtd.io.InputConverter;
 
 public class JDT {
     private final IValueFactory VF;
@@ -57,35 +57,45 @@ public class JDT {
     }
     
     public IValue createM3FromFile(ISourceLocation loc, IString projectName, IEvaluatorContext eval) {
-    	CompilationUnit cu = this.getCompilationUnit(loc, true);
-    	
-    	M3Converter converter = new M3Converter(eval.getHeap().getModule("experiments::m3::JavaM3").getStore());
-    	converter.set(cu);
-    	converter.set(loc);
-    	cu.accept(converter);
-    	return converter.getModel();
+    	try {
+    		CompilationUnit cu = this.getCompilationUnit(loc, true, eval);
+
+    		M3Converter converter = new M3Converter(eval.getHeap().getModule("experiments::m3::JavaM3").getStore());
+    		converter.set(cu);
+    		converter.set(loc);
+    		cu.accept(converter);
+    		return converter.getModel();
+    	}
+    	catch (IOException e) {
+    		throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
+    	}
     }
     
 	/*
 	 * Creates Rascal ASTs for Java source files
 	 */
 	public IValue createAstFromFile(ISourceLocation loc, IBool collectBindings, IString projectName, IEvaluatorContext eval) {
-		CompilationUnit cu = this.getCompilationUnit(loc, collectBindings.getValue());
-		
-		ASTConverter converter = new ASTConverter(eval.getHeap().getModule("experiments::m3::AST").getStore(),
-												collectBindings.getValue());
-		converter.set(cu);
-		converter.set(loc);
-		cu.accept(converter);
-		return converter.getValue();
+		try {
+			CompilationUnit cu = this.getCompilationUnit(loc, collectBindings.getValue(), eval);
+
+			ASTConverter converter = new ASTConverter(eval.getHeap().getModule("experiments::m3::AST").getStore(),
+					collectBindings.getValue());
+			converter.set(cu);
+			converter.set(loc);
+			cu.accept(converter);
+			return converter.getValue();
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
+		}
 	}
 	
-	private CompilationUnit getCompilationUnit(ISourceLocation loc, boolean resolveBindings) {
+	private CompilationUnit getCompilationUnit(ISourceLocation loc, boolean resolveBindings, IEvaluatorContext ctx) throws IOException {
 		
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setUnitName(loc.getURI().getPath());
 		parser.setResolveBindings(resolveBindings);
-		parser.setSource(getFileContents(loc));
+		parser.setSource(getFileContents(loc, ctx));
 		parser.setBindingsRecovery(resolveBindings);
 		parser.setStatementsRecovery(resolveBindings);
 		
@@ -117,19 +127,21 @@ public class JDT {
 		return cu;
 	}
 	
-	private char[] getFileContents(ISourceLocation loc) {
-		StringBuffer sb = new StringBuffer();
+	private char[] getFileContents(ISourceLocation loc, IEvaluatorContext ctx) throws IOException {
+	    loc = ctx.getHeap().resolveSourceLocation(loc);
+	    
+		char[] data;
+		Reader textStream = null;
+		
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(loc.getURI().getPath()));
-			
-			String line = "";
-			while((line = br.readLine()) != null) {
-				sb.append(line + "\n");
-			}
-		} catch (IOException e) {
-			System.err.println(e.toString());
-			throw new Throw(VF.string("Cannot read file: " + loc), (ISourceLocation) null, null);
+			textStream = ctx.getResolverRegistry().getCharacterReader(loc.getURI());
+			data = InputConverter.toChar(textStream);
 		}
-		return sb.toString().toCharArray();
+		finally{
+			if(textStream != null){
+				textStream.close();
+			}
+		}
+		return data;
 	}
 }
