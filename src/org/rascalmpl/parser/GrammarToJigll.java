@@ -297,6 +297,9 @@ public class GrammarToJigll {
 			case "alt":
 				return new Nonterminal(SymbolAdapter.toString(symbol), true);
 				
+			case "seq":
+				return new Nonterminal(SymbolAdapter.toString(symbol), true);	
+				
 			case "start":
 				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol)) + "]");
 				
