@@ -1,7 +1,6 @@
 package org.rascalmpl.library.experiments.m3.internal;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
