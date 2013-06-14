@@ -23,7 +23,6 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -43,20 +42,30 @@ public class JDT {
     	this.VF = vf;
 	}
     
-    public void setEnvironmentOptions(ISet classPaths, ISet sourcePaths) {
+    public void setEnvironmentOptions(ISet classPaths, ISet sourcePaths, IEvaluatorContext eval) {
     	this.classPathEntries = new ArrayList<String>();
     	this.sourcePathEntries = new ArrayList<String>();
     	
     	for (IValue path: classPaths) {
-    		classPathEntries.add(((ISourceLocation)path).getURI().getPath());
+    		try {
+				classPathEntries.add(eval.getResolverRegistry().getResourceURI(((ISourceLocation) path).getURI()).getPath());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
     	}
     	
     	for (IValue path: sourcePaths) {
-    		sourcePathEntries.add(((ISourceLocation)path).getURI().getPath());
+    		try {
+				sourcePathEntries.add(eval.getResolverRegistry().getResourceURI(((ISourceLocation) path).getURI()).getPath());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
     	}
     }
     
-    public IValue createM3FromFile(ISourceLocation loc, IString projectName, IEvaluatorContext eval) {
+    public IValue createM3FromFile(ISourceLocation loc, IEvaluatorContext eval) {
     	try {
     		CompilationUnit cu = this.getCompilationUnit(loc, true, eval);
 
@@ -74,7 +83,7 @@ public class JDT {
 	/*
 	 * Creates Rascal ASTs for Java source files
 	 */
-	public IValue createAstFromFile(ISourceLocation loc, IBool collectBindings, IString projectName, IEvaluatorContext eval) {
+	public IValue createAstFromFile(ISourceLocation loc, IBool collectBindings, IEvaluatorContext eval) {
 		try {
 			CompilationUnit cu = this.getCompilationUnit(loc, collectBindings.getValue(), eval);
 
@@ -91,7 +100,6 @@ public class JDT {
 	}
 	
 	private CompilationUnit getCompilationUnit(ISourceLocation loc, boolean resolveBindings, IEvaluatorContext ctx) throws IOException {
-		
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setUnitName(loc.getURI().getPath());
 		parser.setResolveBindings(resolveBindings);
