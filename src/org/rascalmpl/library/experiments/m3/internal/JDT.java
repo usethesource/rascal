@@ -18,32 +18,21 @@ package org.rascalmpl.library.experiments.m3.internal;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.experiments.m3.internal.JavaToRascalConverter;
 
 public class JDT {
     private final IValueFactory VF;
@@ -67,12 +56,23 @@ public class JDT {
     	}
     }
     
+    public IValue createM3FromFile(ISourceLocation loc, IString projectName, IEvaluatorContext eval) {
+    	CompilationUnit cu = this.getCompilationUnit(loc, true);
+    	
+    	M3Converter converter = new M3Converter(eval.getHeap().getModule("experiments::m3::JavaM3").getStore());
+    	converter.set(cu);
+    	converter.set(loc);
+    	cu.accept(converter);
+    	return converter.getModel();
+    }
+    
 	/*
 	 * Creates Rascal ASTs for Java source files
 	 */
 	public IValue createAstFromFile(ISourceLocation loc, IBool collectBindings, IString projectName, IEvaluatorContext eval) {
 		CompilationUnit cu = this.getCompilationUnit(loc, collectBindings.getValue());
-		JavaToRascalConverter converter = new JavaToRascalConverter(eval.getHeap().getModule("experiments::m3::AST").getStore(),
+		
+		ASTConverter converter = new ASTConverter(eval.getHeap().getModule("experiments::m3::AST").getStore(),
 												collectBindings.getValue());
 		converter.set(cu);
 		converter.set(loc);

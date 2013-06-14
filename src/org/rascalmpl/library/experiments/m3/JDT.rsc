@@ -18,6 +18,7 @@ import String;
 import Map;
 import Node;
 import experiments::m3::AST;
+import experiments::m3::JavaM3;
 
 private set[loc] crawl(loc dir, str suffix) {
   res = {};
@@ -78,5 +79,30 @@ public AstNode createAstFromFile(loc file, bool collectBindings, str projectName
 @doc{Creates ASTs from a project}
 public set[AstNode] createAstsFromProject(loc project, bool collectBindings) {
    setEnvironmentOptions(project);
-	 	  return { createAstFromFile(f, collectBindings, project.authority) | loc f <- crawl(project, ".java") };
+   return { createAstFromFile(f, collectBindings, project.authority) | loc f <- crawl(project, ".java") };
+}
+
+@javaClass{org.rascalmpl.library.experiments.m3.internal.JDT}
+@reflect
+public java M3 createM3FromFile(loc file, str projectName);
+
+public M3 createM3FromProject(loc project) {
+	setEnvironmentOptions(project);
+	rel[loc, loc] emptyLocRel = {};
+	M3 result = java(project, emptyLocRel, emptyLocRel);
+	for (loc f <- crawl(project, ".java")) {
+		M3 model = createM3FromFile(f, project.authority);
+		
+		result.source += model.source;
+		result.containment += model.containment;
+        result.inheritance += model.inheritance;
+        result.invocation += model.invocation;
+        result.access += model.access;
+        result.reference += model.reference;
+        result.imports += model.imports;
+        result.types += model.types;
+        result.documentation += model.documentation;
+        result.modifiers += model.modifiers;
 	}
+	return result;
+}
