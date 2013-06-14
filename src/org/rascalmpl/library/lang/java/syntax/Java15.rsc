@@ -13,6 +13,52 @@
 
 module lang::java::\syntax::Java15
 
+start syntax CompilationUnit =
+   compilationUnit: PackageDec? ImportDec* TypeDec*
+  ;
+  
+syntax PackageDec =
+   packageDec: Anno* "package" !>> [$ 0-9 A-Z _ a-z] PackageName ";" 
+  ;
+  
+syntax PackageName =
+   packageName: {Id "."}+ 
+  ;
+  
+syntax ImportDec 
+  = typeImportDec: "import" !>> [$ 0-9 A-Z _ a-z] TypeName ";" 
+  | typeImportOnDemandDec: "import" !>> [$ 0-9 A-Z _ a-z] PackageName "." "*" ";" 
+  | staticImportOnDemandDec: "import" !>> [$ 0-9 A-Z _ a-z] "static" !>> [$ 0-9 A-Z _ a-z] TypeName "." "*" ";" 
+  | staticImportDec: "import" !>> [$ 0-9 A-Z _ a-z] "static" !>> [$ 0-9 A-Z _ a-z] TypeName "." Id ";" 
+  ;
+  
+syntax TypeDec =
+  InterfaceDec 
+  | ClassDec 
+  |  semicolon: ";" 
+  ;
+  
+syntax InterfaceDec 
+  = AnnoDecHead "{" AnnoElemDec* "}"
+  | InterfaceDecHead "{" InterfaceMemberDec* "}" 
+  ;
+
+syntax AnnoDecHead 
+  = annoDecHead: (InterfaceMod | Anno)* "@" "interface" !>> [$ 0-9 A-Z _ a-z] Id 
+  ;
+  
+syntax AnnoElemDec
+  = EnumDec 
+  | semicolon: ";" 
+  | ClassDec 
+  | ConstantDec 
+  | InterfaceDec 
+  | annoMethodDec: AbstractMethodMod* Type Id "(" ")" DefaultVal? ";" 
+  ;
+  
+syntax InterfaceDecHead =
+   interfaceDecHead: (InterfaceMod | Anno)* "interface" !>> [$ 0-9 A-Z _ a-z] Id TypeParams? ExtendsInterfaces? 
+  ;
 
 syntax LocalVarDec =
   @prefer localVarDec: (Anno | VarMod)* Type {VarDec ","}+ 
@@ -143,9 +189,6 @@ lexical OctaEscape
   | "\\" [4-7] [0-7] 
   ;
 
-syntax InterfaceDecHead =
-   interfaceDecHead: (InterfaceMod | Anno)* "interface" !>> [$ 0-9 A-Z _ a-z] Id TypeParams? ExtendsInterfaces? 
-  ;
 
 syntax IntType =
    long: "long" !>> [$ 0-9 A-Z _ a-z] 
@@ -202,9 +245,6 @@ keyword HexaSignificandKeywords =
   [0] [X x] "." 
   ;
 
-start syntax CompilationUnit =
-   compilationUnit: PackageDec? ImportDec* TypeDec*
-  ;
 
 lexical StringChars =
   FooStringChars 
@@ -271,9 +311,6 @@ syntax FloatLiteral =
   |  float: DeciFloatLiteral \ DeciFloatLiteralKeywords !>> [D F d f] 
   ;
 
-syntax PackageName =
-   packageName: {Id "."}+ 
-  ;
 
 syntax ConstrBody =
    constrBody: "{" ConstrInv? BlockStm* "}" 
@@ -387,20 +424,11 @@ lexical DeciFloatDigits =
   ;
 
 
-syntax PackageDec =
-   packageDec: Anno* "package" !>> [$ 0-9 A-Z _ a-z] PackageName ";" 
-  ;
 
 syntax ArrayAccess =
    arrayAccess: Expr!postDecr!postIncr!preDecr!preIncr!not!complement!plus!plusDec!minus!remain!div!mul!rightShift!uRightShift!leftShift!instanceOf!gt!ltEq!lt!gtEq!eq!notEq!and!excOr!or!lazyAnd!lazyOr!cond!assign!assignLeftShift!assignOr!assignAnd!assignRightShift!assignMul!assignRemain!assignPlus!assignExcOr!assignDiv!assignURightShift!assignMinus!castRef!castPrim ArraySubscript 
   ;
 
-syntax ImportDec 
-  = typeImportDec: "import" !>> [$ 0-9 A-Z _ a-z] TypeName ";" 
-  | typeImportOnDemandDec: "import" !>> [$ 0-9 A-Z _ a-z] PackageName "." "*" ";" 
-  | staticImportOnDemandDec: "import" !>> [$ 0-9 A-Z _ a-z] "static" !>> [$ 0-9 A-Z _ a-z] TypeName "." "*" ";" 
-  | staticImportDec: "import" !>> [$ 0-9 A-Z _ a-z] "static" !>> [$ 0-9 A-Z _ a-z] TypeName "." Id ";" 
-  ;
 
 syntax ArrayBaseType =
   PrimType 
@@ -705,10 +733,6 @@ syntax InterfaceMod =
   | "strictfp" 
   ;
 
-syntax InterfaceDec =
-  AnnoDec 
-  |  interfaceDec: InterfaceDecHead "{" InterfaceMemberDec* "}" 
-  ;
 
 lexical SingleChar =
   ![\n \a0D \' \\] 
@@ -762,15 +786,6 @@ syntax BoolLiteral
   | \true: "true" 
   ;
 
-syntax AnnoElemDec =
-  EnumDec 
-  |  semicolon: ";" 
-  | ClassDec 
-  | ConstantDec 
-  | InterfaceDec 
-  | AnnoDec 
-  |  annoMethodDec: AbstractMethodMod* Type Id "(" ")" DefaultVal? ";" 
-  ;
 
 syntax MethodBody =
    noMethodBody: ";" 
@@ -817,11 +832,6 @@ syntax ArrayCreationExpr =
   |  newArray: "new" !>> [$ 0-9 A-Z _ a-z] ArrayBaseType Dim+ !>> "[" ArrayInit 
   ;
 
-syntax TypeDec =
-  InterfaceDec 
-  | ClassDec 
-  |  semicolon: ";" 
-  ;
 
 
 syntax LHS =
@@ -834,13 +844,6 @@ syntax TypeArgs =
    typeArgs: "\<" {ActualTypeArg ","}+ "\>" 
   ;
 
-syntax AnnoDec =
-   annoDec: AnnoDecHead "{" AnnoElemDec* "}" 
-  ;
-
-syntax AnnoDecHead =
-   annoDecHead: (InterfaceMod | Anno)* "@" "interface" !>> [$ 0-9 A-Z _ a-z] Id 
-  ;
 
 syntax TypeParam =
    typeParam: TypeVarId TypeBound? 
