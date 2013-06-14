@@ -22,14 +22,6 @@ syntax TypeParams =
    typeParams: "\<" {TypeParam ","}+ "\>" 
   ;
 
-syntax Protected =
-   protected: "protected" !>> [$ 0-9 A-Z _ a-z] 
-  ;
-
-syntax Static =
-   static: "static" !>> [$ 0-9 A-Z _ a-z] 
-  ;
-
 syntax Literal =
   FloatLiteral 
   | CharLiteral 
@@ -54,13 +46,13 @@ lexical SignedInteger =
   ;
 
 syntax ClassMod =
-  Static 
-  | Public 
-  | Abstract 
-  | Protected 
-  | Final 
-  | StrictFP 
-  | Private 
+  "static" 
+  | "public" 
+  | "abstract" 
+  | "protected" 
+  | "final"
+  | "strictfp" 
+  | "private" 
   ;
 
 lexical LEX[StringLiteral] =
@@ -78,9 +70,6 @@ syntax ClassBodyDec =
   | ConstrDec 
   ;
 
-syntax Public =
-   \public: "public" !>> [$ 0-9 A-Z _ a-z] 
-  ;
 
 syntax FloatType =
    float: "float" !>> [$ 0-9 A-Z _ a-z] 
@@ -117,9 +106,9 @@ syntax ConstantDec =
   ;
 
 syntax ConstantMod =
-  Static 
-  | Public 
-  | Final 
+  "static" 
+  | "public" 
+  | "final"
   ;
 
 syntax SwitchBlock =
@@ -148,11 +137,10 @@ syntax PackageOrTypeName =
   |  packageOrTypeName: Id 
   ;
 
-lexical OctaEscape =
-   octaEscape3: "\\" [0-3] [0-7] [0-7] 
-  |  octaEscape2: "\\" [0-3] LastOcta !>> [0-7] 
-  |  octaEscape1: "\\" LastOcta !>> [0-7] 
-  |  octaEscape2: "\\" [4-7] [0-7] 
+lexical OctaEscape 
+  = "\\" [0-3] [0-7]+ !>> [0-7] 
+  | "\\" [0-7] !>> [0-7] 
+  | "\\" [4-7] [0-7] 
   ;
 
 syntax InterfaceDecHead =
@@ -204,10 +192,6 @@ lexical DeciNumeral =
 
 syntax EnumConstArgs =
   bracket "(" {Expr ","}* ")" 
-  ;
-
-syntax Volatile =
-   volatile: "volatile" !>> [$ 0-9 A-Z _ a-z] 
   ;
 
 syntax LocalVarDecStm =
@@ -262,13 +246,13 @@ syntax FieldDec =
   ;
 
 syntax FieldMod =
-  Public 
-  | Static 
-  | Transient 
-  | Protected 
-  | Volatile 
-  | Final 
-  | Private 
+  "public" 
+  | "static" 
+  | "transient" 
+  | "protected" 
+  | "volatile" 
+  | "final"
+  | "private" 
   ;
 
 lexical Comment =
@@ -355,17 +339,17 @@ syntax VarDecId =
   ;
 
 syntax Modifier =
-  Final 
-  | StrictFP 
-  | Private 
-  | Synchronized 
-  | Volatile 
-  | Protected 
-  | Transient 
-  | Abstract 
-  | Native 
-  | Static 
-  | Public 
+  "final"
+  | "strictfp" 
+  | "private" 
+  | "synchronized" 
+  | "volatile" 
+  | "protected" 
+  | "transient" 
+  | "abstract" 
+  | "native" 
+  | "static" 
+  | "public" 
   ;
 
 lexical DeciFloatLiteral =
@@ -384,9 +368,9 @@ syntax InterfaceType =
   ;
 
 syntax ConstrMod =
-  Public 
-  | Protected 
-  | Private 
+  "public" 
+  | "protected" 
+  | "private" 
   ;
 
 lexical ID =
@@ -402,9 +386,6 @@ lexical DeciFloatDigits =
   | [0-9]* "." [0-9]* 
   ;
 
-lexical LastOcta =
-  [0-7] 
-  ;
 
 syntax PackageDec =
    packageDec: Anno* "package" !>> [$ 0-9 A-Z _ a-z] PackageName ";" 
@@ -469,10 +450,6 @@ syntax Stm =
   |  exprStm: Expr ";" 
   ;
 
-syntax Bool =
-   \false: "false" 
-  |  \true: "true" 
-  ;
 
 syntax NullLiteral =
    null: "null" 
@@ -720,12 +697,12 @@ lexical EOLCommentChars =
   ;
 
 syntax InterfaceMod =
-  Protected 
-  | Public 
-  | Static 
-  | Abstract 
-  | Private 
-  | StrictFP 
+  "protected" 
+  | "public" 
+  | "static" 
+  | "abstract" 
+  | "private" 
+  | "strictfp" 
   ;
 
 syntax InterfaceDec =
@@ -737,17 +714,9 @@ lexical SingleChar =
   ![\n \a0D \' \\] 
   ;
 
-syntax Native =
-   native: "native" !>> [$ 0-9 A-Z _ a-z] 
-  ;
-
 syntax ClassLiteral =
    voidClass: "void" !>> [$ 0-9 A-Z _ a-z] "." "class" !>> [$ 0-9 A-Z _ a-z] 
   |  class: Type "." "class" !>> [$ 0-9 A-Z _ a-z] 
-  ;
-
-syntax Synchronized =
-   synchronized: "synchronized" !>> [$ 0-9 A-Z _ a-z] 
   ;
 
 syntax StringLiteral =
@@ -760,8 +729,8 @@ syntax AbstractMethodDec =
   ;
 
 syntax AbstractMethodMod =
-  Abstract 
-  | Public 
+  "abstract" 
+  | "public" 
   ;
 
 keyword ElemValKeywords =
@@ -788,8 +757,9 @@ syntax TypeBound =
    typeBound: "extends" !>> [$ 0-9 A-Z _ a-z] {ClassOrInterfaceType "&"}+ 
   ;
 
-syntax BoolLiteral =
-   \bool: Bool 
+syntax BoolLiteral
+  = \false: "false" 
+  | \true: "true" 
   ;
 
 syntax AnnoElemDec =
@@ -800,10 +770,6 @@ syntax AnnoElemDec =
   | InterfaceDec 
   | AnnoDec 
   |  annoMethodDec: AbstractMethodMod* Type Id "(" ")" DefaultVal? ";" 
-  ;
-
-syntax Abstract =
-   abstract: "abstract" !>> [$ 0-9 A-Z _ a-z] 
   ;
 
 syntax MethodBody =
@@ -830,15 +796,15 @@ syntax AmbName =
   ;
 
 syntax MethodMod =
-  Static 
-  | Protected 
-  | Synchronized 
-  | StrictFP 
-  | Private 
-  | Final 
-  | Public 
-  | Native 
-  | Abstract 
+  "static" 
+  | "protected" 
+  | "synchronized" 
+  | "strictfp" 
+  | "private" 
+  | "final"
+  | "public" 
+  | "native" 
+  | "abstract" 
   ;
 
 syntax RefType =
@@ -857,9 +823,6 @@ syntax TypeDec =
   |  semicolon: ";" 
   ;
 
-syntax Final =
-   final: "final" !>> [$ 0-9 A-Z _ a-z] 
-  ;
 
 syntax LHS =
   ExprName 
@@ -939,9 +902,6 @@ syntax EnumBody =
   |  enumBody: "{" {EnumConst ","}* "," EnumBodyDecs? "}" 
   ;
 
-syntax Private =
-   \private: "private" !>> [$ 0-9 A-Z _ a-z] 
-  ;
 
 lexical DeciFloatNumeral
 	= [0-9] !<< [0-9]+ DeciFloatExponentPart
@@ -966,10 +926,6 @@ syntax TypeVar =
    typeVar: TypeVarId 
   ;
 
-syntax Transient =
-   transient: "transient" !>> [$ 0-9 A-Z _ a-z] 
-  ;
-
 syntax Dim =
    dim: "[" "]" 
   ;
@@ -980,10 +936,6 @@ syntax TypeVarId =
 
 lexical UnicodeEscape =
    unicodeEscape: "\\" [u]+ [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] 
-  ;
-
-syntax StrictFP =
-   strictFP: "strictfp" !>> [$ 0-9 A-Z _ a-z] 
   ;
 
 lexical LineTerminator =
@@ -1021,7 +973,7 @@ syntax VarDec =
   ;
 
 syntax VarMod =
-  Final 
+  "final"
   ;
 
 syntax ClassOrInterfaceType =
