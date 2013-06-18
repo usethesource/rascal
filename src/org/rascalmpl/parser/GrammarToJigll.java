@@ -1,5 +1,6 @@
 package org.rascalmpl.parser;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +35,7 @@ import org.jgll.util.GraphVizUtil;
 import org.jgll.util.Input;
 import org.jgll.util.SPPFToDot;
 import org.jgll.util.ToDotWithoutIntermeidateAndLists;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
@@ -86,7 +88,7 @@ public class GrammarToJigll {
 		  
 	  } catch(ParseError e) {
 		  System.out.println(e);
-		  return null;
+		  throw RuntimeExceptionFactory.parseError(vf.sourceLocation(URI.create("nothing:///"), 0, 1), null, null);
 	  }
 
 	  long start = System.nanoTime();
@@ -291,14 +293,14 @@ public class GrammarToJigll {
 			case "iter-star-seps":
 				return new Nonterminal(SymbolAdapter.toString(symbol), true);
 								
-			case "opt":
-				return new Nonterminal(SymbolAdapter.toString(symbol), true);
-				
-			case "alt":
-				return new Nonterminal(SymbolAdapter.toString(symbol), true);
-				
-			case "seq":
-				return new Nonterminal(SymbolAdapter.toString(symbol), true);	
+//			case "opt":
+//				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+//				
+//			case "alt":
+//				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+//				
+//			case "seq":
+//				return new Nonterminal(SymbolAdapter.toString(symbol), true);	
 				
 			case "start":
 				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol)) + "]");
