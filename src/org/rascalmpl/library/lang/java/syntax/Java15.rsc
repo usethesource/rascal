@@ -18,7 +18,7 @@ start syntax CompilationUnit =
   ;
   
 syntax PackageDec =
-   packageDec: Anno* "package" !>> [$ 0-9 A-Z _ a-z] PackageName ";" 
+   packageDec: Anno* "package"  PackageName ";" 
   ;
   
 syntax PackageName =
@@ -26,10 +26,10 @@ syntax PackageName =
   ;
   
 syntax ImportDec 
-  = typeImportDec: "import" !>> [$ 0-9 A-Z _ a-z] TypeName ";" 
-  | typeImportOnDemandDec: "import" !>> [$ 0-9 A-Z _ a-z] PackageName "." "*" ";" 
-  | staticImportOnDemandDec: "import" !>> [$ 0-9 A-Z _ a-z] "static" !>> [$ 0-9 A-Z _ a-z] TypeName "." "*" ";" 
-  | staticImportDec: "import" !>> [$ 0-9 A-Z _ a-z] "static" !>> [$ 0-9 A-Z _ a-z] TypeName "." Id ";" 
+  = typeImportDec: "import"  TypeName ";" 
+  | typeImportOnDemandDec: "import"  PackageName "." "*" ";" 
+  | staticImportOnDemandDec: "import"  "static"  TypeName "." "*" ";" 
+  | staticImportDec: "import"  "static"  TypeName "." Id ";" 
   ;
   
 syntax TypeDec =
@@ -44,7 +44,7 @@ syntax InterfaceDec
   ;
 
 syntax AnnoDecHead 
-  = annoDecHead: (InterfaceMod | Anno)* "@" "interface" !>> [$ 0-9 A-Z _ a-z] Id 
+  = annoDecHead: (InterfaceMod | Anno)* "@" "interface"  Id 
   ;
   
 syntax AnnoElemDec
@@ -57,7 +57,7 @@ syntax AnnoElemDec
   ;
   
 syntax InterfaceDecHead =
-   interfaceDecHead: (InterfaceMod | Anno)* "interface" !>> [$ 0-9 A-Z _ a-z] Id TypeParams? ExtendsInterfaces? 
+   interfaceDecHead: (InterfaceMod | Anno)* "interface"  Id TypeParams? ExtendsInterfaces? 
   ;
 
 syntax LocalVarDec =
@@ -84,7 +84,7 @@ syntax ClassDec =
   ;
 
 syntax ClassDecHead =
-   classDecHead: (ClassMod | Anno)* "class" !>> [$ 0-9 A-Z _ a-z] Id TypeParams? Super? Interfaces? 
+   classDecHead: (ClassMod | Anno)* "class"  Id TypeParams? Super? Interfaces? 
   ;
 
 lexical SignedInteger =
@@ -118,8 +118,8 @@ syntax ClassBodyDec =
 
 
 syntax FloatType =
-   float: "float" !>> [$ 0-9 A-Z _ a-z] 
-  |  double: "double" !>> [$ 0-9 A-Z _ a-z] 
+   float: "float"  
+  |  double: "double"  
   ;
 
 lexical HexaSignificand =
@@ -166,8 +166,8 @@ syntax CondMid =
   ;
 
 syntax WildcardBound =
-   wildcardLowerBound: "super" !>> [$ 0-9 A-Z _ a-z] RefType 
-  |  wildcardUpperBound: "extends" !>> [$ 0-9 A-Z _ a-z] RefType 
+   wildcardLowerBound: "super"  RefType 
+  |  wildcardUpperBound: "extends"  RefType 
   ;
 
 lexical EscChar =
@@ -175,7 +175,7 @@ lexical EscChar =
   ;
 
 syntax EnumDecHead =
-   enumDecHead: (Anno | ClassMod)* "enum" !>> [$ 0-9 A-Z _ a-z] Id Interfaces? 
+   enumDecHead: (Anno | ClassMod)* "enum"  Id Interfaces? 
   ;
 
 syntax PackageOrTypeName =
@@ -191,11 +191,11 @@ lexical OctaEscape
 
 
 syntax IntType =
-   long: "long" !>> [$ 0-9 A-Z _ a-z] 
-  |  short: "short" !>> [$ 0-9 A-Z _ a-z] 
-  |  char: "char" !>> [$ 0-9 A-Z _ a-z] 
-  |  \int: "int" !>> [$ 0-9 A-Z _ a-z] 
-  |  byte: "byte" !>> [$ 0-9 A-Z _ a-z] 
+   long: "long"  
+  |  short: "short"  
+  |  char: "char"  
+  |  \int: "int"  
+  |  byte: "byte"  
   ;
 
 syntax VarInit =
@@ -212,7 +212,7 @@ syntax ClassType =
   ;
 
 syntax ExtendsInterfaces =
-   extendsInterfaces: "extends" !>> [$ 0-9 A-Z _ a-z] {InterfaceType ","}+ 
+   extendsInterfaces: "extends"  {InterfaceType ","}+ 
   ;
 
 lexical EscEscChar =
@@ -225,7 +225,7 @@ syntax FormalParam =
   ;
 
 syntax StaticInit =
-   staticInit: "static" !>> [$ 0-9 A-Z _ a-z] Block 
+   staticInit: "static"  Block 
   ;
 
 lexical DeciNumeral =
@@ -317,8 +317,8 @@ syntax ConstrBody =
   ;
 
 syntax FieldAccess =
-   superField: "super" !>> [$ 0-9 A-Z _ a-z] "." Id 
-  |  qSuperField: TypeName "." "super" !>> [$ 0-9 A-Z _ a-z] "." Id 
+   superField: "super"  "." Id 
+  |  qSuperField: TypeName "." "super"  "." Id 
   ;
 
 syntax FieldAccess =
@@ -330,9 +330,9 @@ lexical OctaLiteral =
   ;
 
 syntax ConstrInv =
-   altConstrInv: TypeArgs? "this" !>> [$ 0-9 A-Z _ a-z] "(" {Expr ","}* ")" ";" 
-  |  superConstrInv: TypeArgs? "super" !>> [$ 0-9 A-Z _ a-z] "(" {Expr ","}* ")" ";" 
-  |  qSuperConstrInv: Expr "." TypeArgs? "super" !>> [$ 0-9 A-Z _ a-z] "(" {Expr ","}* ")" ";" 
+   altConstrInv: TypeArgs? "this"  "(" {Expr ","}* ")" ";" 
+  |  superConstrInv: TypeArgs? "super"  "(" {Expr ","}* ")" ";" 
+  |  qSuperConstrInv: Expr "." TypeArgs? "super"  "(" {Expr ","}* ")" ";" 
   ;
 
 lexical HexaFloatNumeral =
@@ -362,7 +362,7 @@ syntax ElemValPair =
   ;
 
 syntax CatchClause =
-   \catch: "catch" !>> [$ 0-9 A-Z _ a-z] "(" FormalParam ")" Block 
+   \catch: "catch"  "(" FormalParam ")" Block 
   ;
 
 syntax ArrayInit =
@@ -446,8 +446,8 @@ lexical DeciLiteral =
   ;
 
 syntax SwitchLabel =
-   \default: "default" !>> [$ 0-9 A-Z _ a-z] ":" 
-  |  \case: "case" !>> [$ 0-9 A-Z _ a-z] Expr ":" 
+   \default: "default"  ":" 
+  |  \case: "case"  Expr ":" 
   ;
 
 syntax ConstrHead =
@@ -455,26 +455,26 @@ syntax ConstrHead =
   ;
 
 syntax Stm =
-   \continue: "continue" !>> [$ 0-9 A-Z _ a-z] Id? ";" 
-  |  forEach: "for" !>> [$ 0-9 A-Z _ a-z] "(" FormalParam ":" Expr ")" Stm 
-  |  \try: "try" !>> [$ 0-9 A-Z _ a-z] Block CatchClause* "finally" !>> [$ 0-9 A-Z _ a-z] Block 
-  |  \throw: "throw" !>> [$ 0-9 A-Z _ a-z] Expr ";" 
+   \continue: "continue"  Id? ";" 
+  |  forEach: "for"  "(" FormalParam ":" Expr ")" Stm 
+  |  \try: "try" Block CatchClause* "finally"  Block 
+  |  \throw: "throw"  Expr ";" 
   | Block 
-  |  assertStm: "assert" !>> [$ 0-9 A-Z _ a-z] Expr ":" Expr ";" 
-  |  \for: "for" !>> [$ 0-9 A-Z _ a-z] "(" {Expr ","}* ";" Expr? ";" {Expr ","}* ")" Stm 
-  |  \try: "try" !>> [$ 0-9 A-Z _ a-z] Block CatchClause+ 
+  |  assertStm: "assert"  Expr ":" Expr ";" 
+  |  \for: "for" "(" {Expr ","}* ";" Expr? ";" {Expr ","}* ")" Stm 
+  |  \try: "try"  Block CatchClause+ 
   |  labeled: Id ":" Stm 
-  |  \for: "for" !>> [$ 0-9 A-Z _ a-z] "(" LocalVarDec ";" Expr? ";" {Expr ","}* ")" Stm 
-  |  \switch: "switch" !>> [$ 0-9 A-Z _ a-z] "(" Expr ")" SwitchBlock 
-  |  \if: "if" !>> [$ 0-9 A-Z _ a-z] "(" Expr ")" Stm "else" !>> [$ 0-9 A-Z _ a-z] Stm 
-  |  doWhile: "do" !>> [$ 0-9 A-Z _ a-z] Stm "while" !>> [$ 0-9 A-Z _ a-z] "(" Expr ")" ";" 
-  |  synchronized: "synchronized" !>> [$ 0-9 A-Z _ a-z] "(" Expr ")" Block 
-  | @prefer \if: "if" !>> [$ 0-9 A-Z _ a-z] "(" Expr ")" Stm 
+  |  \for: "for"  "(" LocalVarDec ";" Expr? ";" {Expr ","}* ")" Stm 
+  |  \switch: "switch"  "(" Expr ")" SwitchBlock 
+  |  \if: "if" "(" Expr ")" Stm "else"  Stm 
+  |  doWhile: "do"  Stm "while"  "(" Expr ")" ";" 
+  |  synchronized: "synchronized"  "(" Expr ")" Block 
+  | @prefer \if: "if"  "(" Expr ")" Stm 
   |  empty: ";" 
-  |  \while: "while" !>> [$ 0-9 A-Z _ a-z] "(" Expr ")" Stm 
-  |  assertStm: "assert" !>> [$ 0-9 A-Z _ a-z] Expr ";" 
-  |  \return: "return" !>> [$ 0-9 A-Z _ a-z] Expr? ";" 
-  |  \break: "break" !>> [$ 0-9 A-Z _ a-z] Id? ";" 
+  |  \while: "while"  "(" Expr ")" Stm 
+  |  assertStm: "assert"  Expr ";" 
+  |  \return: "return"  Expr? ";" 
+  |  \break: "break" Id? ";" 
   |  exprStm: Expr ";" 
   ;
 
@@ -497,19 +497,19 @@ layout LAYOUTLIST  =
   ;
 
 syntax ResultType =
-   \void: "void" !>> [$ 0-9 A-Z _ a-z] 
+   \void: "void"  
   | Type 
   ;
 
 syntax Expr =
   FieldAccess \ FieldAccessKeywords 
-  |  newInstance: "new" !>> [$ 0-9 A-Z _ a-z] TypeArgs? ClassOrInterfaceType "(" {Expr ","}* ")" ClassBody? 
+  |  newInstance: "new"  TypeArgs? ClassOrInterfaceType "(" {Expr ","}* ")" ClassBody? 
   |  invoke: MethodSpec "(" {Expr ","}* ")" 
   | bracket "(" Expr ")" 
   |  lit: Literal 
-  |  qThis: TypeName "." "this" !>> [$ 0-9 A-Z _ a-z] 
+  |  qThis: TypeName "." "this"  
   | ArrayCreationExpr 
-  |  this: "this" !>> [$ 0-9 A-Z _ a-z] 
+  |  this: "this"  
   | ArrayAccess \ ArrayAccessKeywords 
   ;
 
@@ -540,7 +540,7 @@ syntax Expr =
       )
   > left 
       ( left gtEq: Expr "\>=" Expr 
-      | left instanceOf: Expr "instanceof" !>> [$ 0-9 A-Z _ a-z] RefType 
+      | left instanceOf: Expr "instanceof" RefType 
       | left gt: Expr "\>" Expr 
       | left ltEq: Expr "\<=" Expr 
       | left lt: Expr "\<" Expr 
@@ -589,7 +589,7 @@ syntax Expr =
   ;
 
 syntax Expr =
-   qNewInstance: Expr "." "new" !>> [$ 0-9 A-Z _ a-z] TypeArgs? Id TypeArgs? "(" {Expr ","}* ")" ClassBody? 
+   qNewInstance: Expr "." "new" TypeArgs? Id TypeArgs? "(" {Expr ","}* ")" ClassBody? 
   > right 
       ( right postDecr: Expr "--" 
       | right postIncr: Expr "++" 
@@ -635,7 +635,7 @@ syntax TypeDecSpec =
   ;
 
 syntax PrimType =
-   boolean: "boolean" !>> [$ 0-9 A-Z _ a-z] 
+   boolean: "boolean"  
   | NumType 
   ;
 
@@ -739,8 +739,8 @@ lexical SingleChar =
   ;
 
 syntax ClassLiteral =
-   voidClass: "void" !>> [$ 0-9 A-Z _ a-z] "." "class" !>> [$ 0-9 A-Z _ a-z] 
-  |  class: Type "." "class" !>> [$ 0-9 A-Z _ a-z] 
+   voidClass: "void"  "." "class"  
+  |  class: Type "." "class"  
   ;
 
 syntax StringLiteral =
@@ -778,7 +778,7 @@ keyword ArrayAccessKeywords =
   ;
 
 syntax TypeBound =
-   typeBound: "extends" !>> [$ 0-9 A-Z _ a-z] {ClassOrInterfaceType "&"}+ 
+   typeBound: "extends"  {ClassOrInterfaceType "&"}+ 
   ;
 
 syntax BoolLiteral
@@ -798,7 +798,7 @@ syntax ExprName =
   ;
 
 syntax DefaultVal =
-   defaultVal: "default" !>> [$ 0-9 A-Z _ a-z] ElemVal \ ElemValKeywords 
+   defaultVal: "default"  ElemVal \ ElemValKeywords 
   ;
 
 syntax MethodDec =
@@ -828,8 +828,8 @@ syntax RefType =
   ;
 
 syntax ArrayCreationExpr =
-   newArray: "new" !>> [$ 0-9 A-Z _ a-z] ArrayBaseType DimExpr+ Dim* !>> "["
-  |  newArray: "new" !>> [$ 0-9 A-Z _ a-z] ArrayBaseType Dim+ !>> "[" ArrayInit 
+   newArray: "new"  ArrayBaseType DimExpr+ Dim* !>> "["
+  |  newArray: "new" ArrayBaseType Dim+ !>> "[" ArrayInit 
   ;
 
 
@@ -855,9 +855,9 @@ lexical DeciFloatExponentPart =
 
 syntax MethodSpec =
    method: MethodName 
-  |  superMethod: "super" !>> [$ 0-9 A-Z _ a-z] "." TypeArgs? Id 
+  |  superMethod: "super"  "." TypeArgs? Id 
   |  genericMethod: AmbName "." TypeArgs Id 
-  |  qSuperMethod: TypeName "." "super" !>> [$ 0-9 A-Z _ a-z] "." TypeArgs? Id 
+  |  qSuperMethod: TypeName "." "super"  "." TypeArgs? Id 
   ;
 
 syntax MethodSpec =
@@ -870,7 +870,7 @@ syntax Type =
   ;
 
 syntax Super =
-   superDec: "extends" !>> [$ 0-9 A-Z _ a-z] ClassType 
+   superDec: "extends"  ClassType 
   ;
 
 syntax CharLiteral =
@@ -918,7 +918,7 @@ lexical CarriageReturn =
   ;
 
 syntax Throws =
-   throwsDec: "throws" !>> [$ 0-9 A-Z _ a-z] {ExceptionType ","}+ 
+   throwsDec: "throws"  {ExceptionType ","}+ 
   ;
 
 syntax Block =
@@ -963,7 +963,7 @@ syntax DimExpr =
   ;
 
 syntax Interfaces =
-   implementsDec: "implements" !>> [$ 0-9 A-Z _ a-z] {InterfaceType ","}+ 
+   implementsDec: "implements"  {InterfaceType ","}+ 
   ;
 
 lexical Asterisk =
