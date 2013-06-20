@@ -2,15 +2,11 @@ module experiments::m3::JavaM3
 
 extend experiments::m3::Core;
 
-data M3 = java(loc project,
-             rel[loc name, loc src] source,
-             rel[loc from, loc to] containment
-             rel[loc from, loc to] inheritance = {},
-             rel[loc from, loc to] invocation = {},
-             rel[loc from, loc to] access = {},
-             rel[loc from, loc to] reference = {},
-             rel[loc from, loc to] imports = {},
-             map[loc definition, Type typ] types = (),
-             map[loc definition, loc comments] documentation = (),
-             rel[loc definition, Modifier modifiers] modifiers = {}
-          );
+anno rel[loc from, loc to] M3@inheritance;
+anno rel[loc from, loc to] M3@invocation;
+anno rel[loc from, loc to] M3@access;
+anno rel[loc from, loc to] M3@reference;
+anno rel[loc from, loc to] M3@imports;
+anno map[loc definition, Type typ] M3@types;
+anno map[loc definition, loc comments] M3@documentation;
+anno rel[loc definition, ExtendedModifiers modifiers] M3@modifiers;
