@@ -72,17 +72,17 @@ public void setEnvironmentOptions(loc project) {
 @doc{Creates AST from a file}
 @javaClass{org.rascalmpl.library.experiments.m3.internal.JDT}
 @reflect
-private java AstNode createAstFromFile(loc file, bool collectBindings);
+public java Declaration createAstFromFile(loc file, bool collectBindings);
 
 @doc{Creates ASTs from a project}
-public set[AstNode] createAstsFromProject(loc project, bool collectBindings) {
+public set[Declaration] createAstsFromProject(loc project, bool collectBindings) {
    setEnvironmentOptions(project);
    return { createAstFromFile(f, collectBindings) | loc f <- crawl(project, ".java") };
 }
 
 @javaClass{org.rascalmpl.library.experiments.m3.internal.JDT}
 @reflect
-private java M3 createM3FromFile(loc file);
+public java M3 createM3FromFile(loc file);
 
 public M3 createM3FromProject(loc project) {
 	setEnvironmentOptions(project);

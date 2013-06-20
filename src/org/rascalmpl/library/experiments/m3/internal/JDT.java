@@ -40,12 +40,11 @@ public class JDT {
 	
     public JDT(IValueFactory vf) {
     	this.VF = vf;
+    	this.classPathEntries = new ArrayList<String>();
+    	this.sourcePathEntries = new ArrayList<String>();
 	}
     
     public void setEnvironmentOptions(ISet classPaths, ISet sourcePaths, IEvaluatorContext eval) {
-    	this.classPathEntries = new ArrayList<String>();
-    	this.sourcePathEntries = new ArrayList<String>();
-    	
     	for (IValue path: classPaths) {
     		try {
 				classPathEntries.add(eval.getResolverRegistry().getResourceURI(((ISourceLocation) path).getURI()).getPath());
@@ -85,16 +84,16 @@ public class JDT {
 	 */
 	public IValue createAstFromFile(ISourceLocation loc, IBool collectBindings, IEvaluatorContext eval) {
 		try {
-			CompilationUnit cu = this.getCompilationUnit(loc, collectBindings.getValue(), eval);
-
+			CompilationUnit cu;
+			cu = this.getCompilationUnit(loc, collectBindings.getValue(), eval);
 			ASTConverter converter = new ASTConverter(eval.getHeap().getModule("experiments::m3::AST").getStore(),
 					collectBindings.getValue());
 			converter.set(cu);
 			converter.set(loc);
 			cu.accept(converter);
 			return converter.getValue();
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
 		}
 	}
