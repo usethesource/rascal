@@ -46,22 +46,16 @@ bool isNumeric((RefType)`java.lang.Double`) = true;
 
 default bool isNumeric(RefType r) = false;
 
-Expr amb({cast:(Expr)`(<RefType t>) <Expr e>`, infix:appl(_,[(Expr)`(<ExprName n>)`,_*])}) {
-	// (A) + 1
-	if (isNumeric(t)) {
-		return cast;
+Tree amb(set[Tree] alts) {
+	if (/label("castRef",sort("Expr")) !:= alts) {
+		fail amb;
+	}
+	counts = (a : (0 | it + 1 | /(Expr)`(<RefType t>) <Expr _>` := a) | a <- alts);
+	validCasts = (a : (0 | it + 1 | /(Expr)`(<RefType t>) <Expr _>` := a, isNumeric(t)) | a <- alts);
+	if (a <- alts, counts[a] == validCasts[a]) {
+		return a;
 	}
 	else {
-		return infix;	
-	}
-} 
-
-Expr amb({cast:appl(_,[_*,(Expr)`(<RefType t>) <Expr e>`]), infix:appl(_,[appl(_,[_*,(Expr)`(<ExprName n>)`]),_*])}) {
-	// 1 + (A) + 1
-	if (isNumeric(t)) {
-		return cast;
-	}
-	else {
-		return infix;	
+		fail amb;
 	}
 }
