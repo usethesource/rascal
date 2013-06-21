@@ -5,6 +5,8 @@ anno loc Declaration@binding;
 anno list[ExtendedModifiers] Declaration@extendedModifiers;
 anno list[Declaration] Declaration@typeParameters;
 
+anno loc ExtendedModifiers@binding;
+
 data ExtendedModifiers
   	= \private()
   	| \public()
