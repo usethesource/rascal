@@ -250,7 +250,7 @@ lexical StringChars =
   ;
 
 syntax EnumConst =
-   enumConst: Id EnumConstArgs? ClassBody? 
+   enumConst: Anno* Id EnumConstArgs? ClassBody? 
   ;
 
 lexical LAYOUT =
