@@ -53,7 +53,7 @@ syntax AnnoElemDec
   | ClassDec 
   | ConstantDec 
   | InterfaceDec 
-  | annoMethodDec: AbstractMethodMod* Type Id "(" ")" DefaultVal? ";" 
+  | annoMethodDec: (Anno | AbstractMethodMod)* Type Id "(" ")" DefaultVal? ";" 
   ;
   
 syntax InterfaceDecHead =
