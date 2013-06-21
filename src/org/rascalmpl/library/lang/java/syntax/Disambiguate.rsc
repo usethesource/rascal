@@ -27,6 +27,8 @@ module lang::java::\syntax::Disambiguate
 import ParseTree;
 import String;
 import IO;
+import Relation;
+import List;
 import lang::java::\syntax::Java15;
 
 bool isNumeric((RefType)`Byte`) = true;
@@ -50,12 +52,11 @@ Tree amb(set[Tree] alts) {
 	if (/label("castRef",sort("Expr")) !:= alts) {
 		fail amb;
 	}
-	counts = (a : (0 | it + 1 | /(Expr)`(<RefType t>) <Expr _>` := a) | a <- alts);
-	validCasts = (a : (0 | it + 1 | /(Expr)`(<RefType t>) <Expr _>` := a, isNumeric(t)) | a <- alts);
-	if (a <- alts, counts[a] == validCasts[a]) {
-		return a;
+	counts = {<(0 | it + 1 | /(Expr)`(<RefType t>) <Expr _>` := a), a> | a <- alts};
+	if (c <- reverse(sort([*domain(counts)])), a <- counts[c], 
+		c == (0 | it + 1 | /(Expr)`(<RefType t>) <Expr _>` := a, isNumeric(t))) {
+		// strangely we have to count since the other ways of doing this (reducer with true &&) break
+		return a;	
 	}
-	else {
-		fail amb;
-	}
+	fail amb;
 }
