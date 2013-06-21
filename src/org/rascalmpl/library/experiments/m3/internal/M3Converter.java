@@ -42,7 +42,7 @@ public class M3Converter extends JavaToRascalConverter {
 		reference = values.relationWriter(m3TupleType);
 		invocation = values.relationWriter(m3TupleType);
 		imports = values.relationWriter(m3TupleType);
-		m3LOCModifierType = TF.tupleType(locType, DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE);
+		m3LOCModifierType = TF.tupleType(locType, DATATYPE_RASCAL_AST_EXTENDED_MODIFIER_NODE_TYPE);
 		modifiers = values.relationWriter(m3LOCModifierType);
 		m3LOCTypeType = TF.tupleType(locType, DATATYPE_RASCAL_AST_TYPE_NODE_TYPE);
 		types = values.mapWriter(m3LOCTypeType);
@@ -50,11 +50,18 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public IValue getModel() {
-		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(loc, source.done(), containment.done(), inheritance.done(), 
-				access.done(), reference.done(), invocation.done(), imports.done(), types.done(), documentation.done(), modifiers.done());
-		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_M3_NODE_TYPE, "java", args);
-		return values.constructor(constr, loc, source.done(), containment.done(), inheritance.done(), 
-				access.done(), reference.done(), invocation.done(), imports.done(), types.done(), documentation.done(), modifiers.done());
+		ownValue = values.constructor(DATATYPE_M3_NODE_TYPE);
+		setAnnotation("source", source.done());
+		setAnnotation("containment", containment.done());
+		setAnnotation("inheritance", inheritance.done());
+		setAnnotation("reference", reference.done());
+		setAnnotation("invocation", invocation.done());
+		setAnnotation("imports", imports.done());
+		setAnnotation("modifiers", modifiers.done());
+		setAnnotation("types", types.done());
+		setAnnotation("documentation", documentation.done());
+		setAnnotation("access", access.done());
+		return ownValue;
 	}
 		
 	public boolean visit(AnnotationTypeDeclaration node) {
@@ -63,9 +70,9 @@ public class M3Converter extends JavaToRascalConverter {
 		
 		source.insert(values.tuple(thisEntity, src));
 		
-		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node.modifiers());
+		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 		
-		for(IValue modifier: (IList)(extendedModifiers.getKey().asList()))
+		for (IValue modifier: (IList)(extendedModifiers.asList()))
 			modifiers.insert(values.tuple(thisEntity, modifier));
 		
 		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
@@ -78,7 +85,7 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(AnnotationTypeMemberDeclaration node) {
-		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node.modifiers());
+		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 		IValue typeArgument = visitChild(node.getType());
 		
 		String name = node.getName().getFullyQualifiedName();
@@ -341,7 +348,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(EnumConstantDeclaration node) {
 		
-		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node.modifiers());
+		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 	
 		IValueList arguments = new IValueList(values);
@@ -359,7 +366,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(EnumDeclaration node) {
 		
-		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node.modifiers());
+		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 	
 		IValueList implementedInterfaces = new IValueList(values);
@@ -407,7 +414,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(FieldDeclaration node) {
 		
-		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node);
+		IValueList extendedModifiers = parseExtendedModifiers(node);
 		IValue type = visitChild(node.getType());
 	
 		IValueList fragments = new IValueList(values);
@@ -488,7 +495,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(Initializer node) {
 		
-		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node);
+		IValueList extendedModifiers = parseExtendedModifiers(node);
 		IValue body = visitChild(node.getBody());
 	
 		
@@ -550,9 +557,9 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(MethodDeclaration node) {
 		ISourceLocation thisEntity = super.resolveBinding(node);
-		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node);
+		IValueList extendedModifiers = parseExtendedModifiers(node);
 		
-		for(IValue modifier: (IList)(extendedModifiers.getKey().asList()))
+		for(IValue modifier: (IList)(extendedModifiers.asList()))
 			modifiers.insert(values.tuple(thisEntity, modifier));
 		
 		IValueList genericTypes = new IValueList(values);
@@ -638,7 +645,7 @@ public class M3Converter extends JavaToRascalConverter {
 	public boolean visit(Modifier node) {
 		String modifier = node.getKeyword().toString();
 		
-		Set<org.eclipse.imp.pdb.facts.type.Type> constrs = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, modifier);
+		Set<org.eclipse.imp.pdb.facts.type.Type> constrs = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_EXTENDED_MODIFIER_NODE_TYPE, modifier);
 		for (org.eclipse.imp.pdb.facts.type.Type constr: constrs) {
 			ownValue = values.constructor(constr);
 		}
@@ -655,8 +662,6 @@ public class M3Converter extends JavaToRascalConverter {
 			MemberValuePair p = (MemberValuePair) it.next();
 			memberValuePairs.add(visitChild(p));
 		}
-	
-		
 		
 		return false;
 	}
@@ -807,13 +812,8 @@ public class M3Converter extends JavaToRascalConverter {
 		
 		IValue name = values.string(node.getName().getFullyQualifiedName());
 	
-		java.util.Map.Entry<IValueList, IValueList> extendedModifiers;
-		if (node.getAST().apiLevel() == AST.JLS2) {
-			extendedModifiers = new java.util.AbstractMap.SimpleEntry<IValueList, IValueList>(parseModifiers(node.getModifiers()), new IValueList(values));
-		} else {
-			extendedModifiers = parseExtendedModifiers(node.modifiers());
-			
-		}
+		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
+
 	
 		IValue type = visitChild(node.getType());
 		IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
@@ -986,7 +986,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(TypeDeclaration node) {
 		
-		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node);
+		IValueList extendedModifiers = parseExtendedModifiers(node);
 		String objectType = node.isInterface() ? "interface" : "class";
 		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 		
@@ -1092,12 +1092,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(VariableDeclarationExpression node) {
 		
-		java.util.Map.Entry<IValueList, IValueList> extendedModifiers;
-		if (node.getAST().apiLevel() == AST.JLS2) {
-			extendedModifiers = new java.util.AbstractMap.SimpleEntry<IValueList, IValueList>(parseModifiers(node.getModifiers()), new IValueList(values));
-		} else {
-			extendedModifiers = parseExtendedModifiers(node.modifiers());
-		}
+		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 		
 		IValue type = visitChild(node.getType());
 		
@@ -1127,12 +1122,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(VariableDeclarationStatement node) {
 		
-		java.util.Map.Entry<IValueList, IValueList> extendedModifiers;
-		if (node.getAST().apiLevel() == AST.JLS2) {
-			extendedModifiers = new java.util.AbstractMap.SimpleEntry<IValueList, IValueList>(parseModifiers(node.getModifiers()), new IValueList(values));
-		} else {		
-			extendedModifiers = parseExtendedModifiers(node.modifiers());
-		}
+		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 		
 		IValue type = visitChild(node.getType());
 	
@@ -1174,4 +1164,3 @@ public class M3Converter extends JavaToRascalConverter {
 		return false;
 	}
 }
-

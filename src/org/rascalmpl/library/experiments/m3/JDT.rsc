@@ -86,20 +86,19 @@ public java M3 createM3FromFile(loc file);
 
 public M3 createM3FromProject(loc project) {
 	setEnvironmentOptions(project);
-	rel[loc, loc] emptyLocRel = {};
-	M3 result = java(project, emptyLocRel, emptyLocRel);
+	M3 result = m3();
 	for (loc f <- crawl(project, ".java")) {
 		M3 model = createM3FromFile(f);
-		result.source += model.source;
-		result.containment += model.containment;
-	    result.inheritance += model.inheritance;
-	    result.invocation += model.invocation;
-	    result.access += model.access;
-	    result.reference += model.reference;
-	    result.imports += model.imports;
-	    result.types += model.types;
-	    result.documentation += model.documentation;
-	    result.modifiers += model.modifiers;
+		result@source += model@source;
+		result@containment += model@containment;
+	    result@inheritance += model@inheritance;
+	    result@invocation += model@invocation;
+	    result@access += model@access;
+	    result@reference += model@reference;
+	    result@imports += model@imports;
+	    result@types += model@types;
+	    result@documentation += model@documentation;
+	    result@modifiers += model@modifiers;
 	}
 	return result;
 }
