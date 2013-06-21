@@ -48,8 +48,7 @@ syntax AnnoDecHead
   ;
   
 syntax AnnoElemDec
-  = EnumDec 
-  | semicolon: ";" 
+  = semicolon: ";" 
   | ClassDec 
   | ConstantDec 
   | InterfaceDec 
