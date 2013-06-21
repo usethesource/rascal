@@ -2,7 +2,6 @@ package org.rascalmpl.library.experiments.m3.internal;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.*;
@@ -10,50 +9,9 @@ import org.eclipse.jdt.core.dom.*;
 @SuppressWarnings({"rawtypes", "deprecation"})
 public class ASTConverter extends JavaToRascalConverter {
 	// TODO: JLS4?
-	private static final String DATATYPE_RASCAL_AST_DECLARATION_NODE 	= "Declaration";
-	private static final String DATATYPE_RASCAL_AST_EXPRESSION_NODE 	= "Expression";
-	private static final String DATATYPE_RASCAL_AST_STATEMENT_NODE 		= "Statement";
-	
-	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE;
-	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE;
-	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE;
 	
 	public ASTConverter(final TypeStore typeStore, boolean collectBindings) {
 		super(typeStore, collectBindings);
-		this.DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_DECLARATION_NODE);
-		this.DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_EXPRESSION_NODE);
-		this.DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_STATEMENT_NODE);
-	}
-	
-	private IValue constructDeclarationNode(String constructor, IValue... children) {
-		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
-		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE, constructor, args);
-		assert constr != null;
-		return values.constructor(constr, removeNulls(children));
-	}
-	
-	private IValue constructExpressionNode(String constructor, IValue... children) {
-		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
-		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE, constructor, args);
-		return values.constructor(constr, removeNulls(children));
-	}
-	
-	private IValue constructStatementNode(String constructor, IValue... children) {
-		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
-		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE, constructor, args);
-		return values.constructor(constr, removeNulls(children));
-	}
-	
-	private IValue constructTypeNode(String constructor, IValue... children) {
-		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
-		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_TYPE_NODE_TYPE, constructor, args);
-		return values.constructor(constr, removeNulls(children));
-	}
-	
-	private void setAnnotation(String annoName, IValue annoValue) {
-		if(this.ownValue == null) return ;
-		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName))
-			this.ownValue = ((IConstructor) this.ownValue).setAnnotation(annoName, annoValue);
 	}
 	
 	public void postVisit(ASTNode node) {
