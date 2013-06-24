@@ -696,7 +696,7 @@ keyword Keyword =
   ;
 
 lexical FooStringChars =
-  ![\n \a0D \" \\]+ 
+  ([\a00] | ![\n \a0D \" \\])+ 
   ;
 
 syntax ActualTypeArg =
@@ -707,7 +707,7 @@ syntax ActualTypeArg =
 lexical StringPart =
   UnicodeEscape 
   | EscapeSeq 
-  |  chars: StringChars !>> ![\n \a0D \" \\] 
+  |  chars: StringChars !>> ![\n \a0D \" \\]  !>> [\a00]
   ;
 
 syntax MethodName =
