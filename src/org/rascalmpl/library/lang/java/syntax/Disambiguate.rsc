@@ -29,6 +29,7 @@ import String;
 import IO;
 import Relation;
 import List;
+import Set;
 import lang::java::\syntax::Java15;
 
 bool isNumeric((RefType)`Byte`) = true;
@@ -48,15 +49,19 @@ bool isNumeric((RefType)`java.lang.Double`) = true;
 
 default bool isNumeric(RefType r) = false;
 
+bool isPrefix((Expr)`+ <Expr _>`) = true;
+bool isPrefix((Expr)`++ <Expr _>`) = true;
+bool isPrefix((Expr)`- <Expr _>`) = true;
+bool isPrefix((Expr)`-- <Expr _>`) = true;
+default bool isPrefix(Expr x) = false;
+
 Tree amb(set[Tree] alts) {
-	if (/label("castRef",sort("Expr")) !:= alts) {
-		fail amb;
-	}
-	counts = {<(0 | it + 1 | /(Expr)`(<RefType t>) <Expr _>` := a), a> | a <- alts};
-	if (c <- reverse(sort([*domain(counts)])), a <- counts[c], 
-		c == (0 | it + 1 | /(Expr)`(<RefType t>) <Expr _>` := a, isNumeric(t))) {
-		// strangely we have to count since the other ways of doing this (reducer with true &&) break
-		return a;	
+	if (/(Expr)`(<RefType _>) <Expr e>` := alts && isPrefix(e)) {
+		counts = {<size(casts), a> | a <- alts, casts := [ isNumeric(t) | /(Expr)`(<RefType t>) <Expr e>` := a, isPrefix(e)], size(casts) > 0 ==> all(c <- casts, c)};
+		if (counts != {}) {
+			// get the valid tree with the most valid casts
+			return getOneFrom(counts[sort([*domain(counts)])[-1]]);
+		}
 	}
 	fail amb;
 }
