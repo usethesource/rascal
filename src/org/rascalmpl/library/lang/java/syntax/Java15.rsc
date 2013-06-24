@@ -335,11 +335,11 @@ syntax ConstrInv =
   ;
 
 lexical HexaFloatNumeral =
-  @prefer HexaSignificand \ HexaSignificandKeywords !>> [0-9 A-F a-f] BinaryExponent 
+  HexaSignificand \ HexaSignificandKeywords !>> [0-9 A-F a-f] BinaryExponent 
   ;
 
 syntax IntLiteral =
-   hexa: HexaLiteral !>> [L l] 
+   hexa: HexaLiteral !>> [L l.] 
   |  octa: OctaLiteral !>> [L l] 
   |  deci: DeciLiteral !>> [L l] 
   ;
