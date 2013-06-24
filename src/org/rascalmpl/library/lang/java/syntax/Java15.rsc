@@ -835,6 +835,7 @@ syntax ArrayCreationExpr =
 
 syntax LHS =
   ExprName 
+  | bracket "(" LHS ")"
   | ArrayAccess \ ArrayAccessKeywords 
   | FieldAccess \ FieldAccessKeywords 
   ;
