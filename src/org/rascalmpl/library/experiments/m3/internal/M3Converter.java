@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.m3.internal;
 
 import java.util.Iterator;
-import java.util.Set;
+import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.*;
 
+@SuppressWarnings({"rawtypes", "deprecation"})
 public class M3Converter extends JavaToRascalConverter {
 	private static final String DATATYPE_M3_NODE							= "M3";
 	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_M3_NODE_TYPE;
@@ -20,6 +21,8 @@ public class M3Converter extends JavaToRascalConverter {
 	private static final org.eclipse.imp.pdb.facts.type.Type m3MapType   	= TF.mapType(locType, locType);
 	private final org.eclipse.imp.pdb.facts.type.Type m3LOCModifierType;
 	private final org.eclipse.imp.pdb.facts.type.Type m3LOCTypeType;
+	
+	private final Stack<ISourceLocation> scopeManager = new Stack<ISourceLocation>();
 	
 	private ISetWriter source;
 	private ISetWriter containment;
@@ -42,7 +45,7 @@ public class M3Converter extends JavaToRascalConverter {
 		reference = values.relationWriter(m3TupleType);
 		invocation = values.relationWriter(m3TupleType);
 		imports = values.relationWriter(m3TupleType);
-		m3LOCModifierType = TF.tupleType(locType, DATATYPE_RASCAL_AST_EXTENDED_MODIFIER_NODE_TYPE);
+		m3LOCModifierType = TF.tupleType(locType, DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE);
 		modifiers = values.relationWriter(m3LOCModifierType);
 		m3LOCTypeType = TF.tupleType(locType, DATATYPE_RASCAL_AST_TYPE_NODE_TYPE);
 		types = values.mapWriter(m3LOCTypeType);
@@ -63,175 +66,219 @@ public class M3Converter extends JavaToRascalConverter {
 		setAnnotation("access", access.done());
 		return ownValue;
 	}
+	
+	@Override
+	protected ISourceLocation resolveBinding(ASTNode node) {
+		ISourceLocation result = super.resolveBinding(node);
+		String scheme = result.getURI().getScheme();
 		
+		if (scheme.equals("unknown") || scheme.equals("unresolved"))
+			result = null;
+		
+		return result;
+	}
+	
+	@Override
+	protected IValue visitChild(ASTNode node) {
+		if (node == null)
+			return null;
+		return super.visitChild(node);
+	}
+	
+	public ISourceLocation getParent() {
+		return scopeManager.peek();
+	}
+	
+	public void insert(ISetWriter relW, IValue lhs, IValue rhs) {
+		relW.insert(values.tuple(lhs, rhs));
+	}
+	
+	public void insert(IMapWriter mapW, IValue lhs, IValue rhs) {
+		mapW.insert(values.tuple(lhs, rhs));
+	}
+
+	public void insert(ISetWriter relW, IValue lhs, IValueList rhs) {
+		for (IValue oneRHS: (IList)rhs.asList())
+			insert(relW, ownValue, oneRHS);
+	}
+	
+	public void preVisit(ASTNode node) {
+		ownValue = resolveBinding(node);
+	}
+	
+	public void postVisit(ASTNode node) {
+		if (ownValue != null) {
+			insert(source, ownValue, getSourceLocation(node));
+		}
+	}
+	
 	public boolean visit(AnnotationTypeDeclaration node) {
-		ISourceLocation thisEntity = super.resolveBinding(node);
-		ISourceLocation src = super.getSourceLocation(node);
-		
-		source.insert(values.tuple(thisEntity, src));
+		scopeManager.push((ISourceLocation) ownValue);
 		
 		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 		
-		for (IValue modifier: (IList)(extendedModifiers.asList()))
-			modifiers.insert(values.tuple(thisEntity, modifier));
-		
 		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
 			BodyDeclaration d = (BodyDeclaration) it.next();
-			containment.insert(values.tuple(thisEntity, super.resolveBinding(d)));
 			visitChild(d);
 		}
 		
+		ownValue = scopeManager.pop();
+		insert(modifiers, ownValue, extendedModifiers);
+		insert(containment, getParent(), ownValue);
 		return false;
 	}
 	
 	public boolean visit(AnnotationTypeMemberDeclaration node) {
+		scopeManager.push((ISourceLocation) ownValue);
+		
 		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 		IValue typeArgument = visitChild(node.getType());
 		
-		String name = node.getName().getFullyQualifiedName();
+		visitChild(node.getDefault());
 		
-		IValue defaultBlock = node.getDefault() == null ? null : visitChild(node.getDefault());
-
+		ownValue = scopeManager.pop();
+		
+		insert(types, ownValue, typeArgument);
+		insert(modifiers, ownValue, extendedModifiers);
+		insert(containment, getParent(), ownValue);
+		
 		return false;
 	}
 	
 	public boolean visit(AnonymousClassDeclaration node) {
-		IValueList bodyDeclarations = new IValueList(values);
-	
+		scopeManager.push((ISourceLocation) ownValue);
+		
 		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
 			BodyDeclaration b = (BodyDeclaration) it.next();
-			bodyDeclarations.add(visitChild(b));
+			visitChild(b);
 		}
-
+		
+		ownValue = scopeManager.pop();
+		insert(containment, getParent(), ownValue);
+		
 		return false;
 	}
 	
 	public boolean visit(ArrayAccess node) {
 		IValue array = visitChild(node.getArray());
-		IValue index = visitChild(node.getIndex());
-
-		ownValue = null;
+//		IValue index = visitChild(node.getIndex());
+		
+		insert(access, getParent(), array);
+	
 		return false;
 	}
 	
 	public boolean visit(ArrayCreation node) {
 		IValue type = visitChild(node.getType().getElementType());
 	
-		IValueList dimensions = new IValueList(values);
 		for (Iterator it = node.dimensions().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			dimensions.add(visitChild(e));
+			visitChild(e);
 		}
 	
-		IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
-
+		visitChild(node.getInitializer());
+		
+		ownValue = resolveBinding(node);
+		
 		return false;
 	}
 	
 	public boolean visit(ArrayInitializer node) {
-		IValueList expressions = new IValueList(values);
 		for (Iterator it = node.expressions().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			expressions.add(visitChild(e));
+			visitChild(e);
 		}
+		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(ArrayType node) {
 		IValue type = visitChild(node.getComponentType());
-
+		
+		ownValue = constructTypeNode("arrayType", type);
+		
 		return false;
 	}
 	
 	public boolean visit(AssertStatement node) {
-		IValue expression = visitChild(node.getExpression());
-		IValue message = node.getMessage() == null ? null : visitChild(node.getMessage());
+		visitChild(node.getExpression());
+		visitChild(node.getMessage());
 		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(Assignment node) {
-		IValue leftSide = visitChild(node.getLeftHandSide());
-		IValue rightSide = visitChild(node.getRightHandSide());
+		visitChild(node.getLeftHandSide());
+		visitChild(node.getRightHandSide());
 		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(Block node) {
-		IValueList statements = new IValueList(values);
 		for (Iterator it = node.statements().iterator(); it.hasNext();) {
 			Statement s = (Statement) it.next();
-			statements.add(visitChild(s));
+			visitChild(s);
 		}
 		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(BlockComment node) {
-	
+		insert(documentation, resolveBinding(node.getAlternateRoot()), getSourceLocation(node));
 		return false;
 	}
 	
 	public boolean visit(BooleanLiteral node) {
-		IValue booleanValue = values.bool(node.booleanValue());
-		
-		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(BreakStatement node) {
-		IValue label = node.getLabel() == null ? values.string("") : values.string(node.getLabel().getFullyQualifiedName());
-		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(CastExpression node) {
-		IValue type = visitChild(node.getType());
-		IValue expression = visitChild(node.getExpression());
-		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(CatchClause node) {
-		IValue exception = visitChild(node.getException());
-		IValue body = visitChild(node.getBody());
+		visitChild(node.getException());
+		visitChild(node.getBody());
 		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(CharacterLiteral node) {
-		IValue value = values.string(node.getEscapedValue()); 
 		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(ClassInstanceCreation node) {
-		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
+		visitChild(node.getExpression());
 	
-		IValue type = null;
 		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			type = visitChild(node.getName());
+			visitChild(node.getName());
 		} 
 		else {
-			type = visitChild(node.getType()); 
+			visitChild(node.getType()); 
 	
 			if (!node.typeArguments().isEmpty()) {
 				for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
@@ -240,134 +287,129 @@ public class M3Converter extends JavaToRascalConverter {
 				}
 			}
 		}
-	
-		IValueList arguments = new IValueList(values);
+
 		for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			arguments.add(visitChild(e));
+			visitChild(e);
 		}
 	
-		IValue anonymousClassDeclaration = node.getAnonymousClassDeclaration() == null ? null : visitChild(node.getAnonymousClassDeclaration());
+		visitChild(node.getAnonymousClassDeclaration());
 		
-		
+		ownValue = resolveBinding(node);
+		insert(invocation, getParent(), ownValue);
 		
 		return false;
 	}
 	
 	public boolean visit(CompilationUnit node) {
-		IValue packageOfUnit = node.getPackage() == null ? null : visitChild(node.getPackage());
-		for (Iterator it = node.getCommentList().iterator(); it.hasNext();) {
-			Comment c = (Comment)it.next();
-		}
-		IValueList imports = new IValueList(values);
+		scopeManager.push((ISourceLocation) ownValue);
+		
+		visitChild(node.getPackage());
+		
 		for (Iterator it = node.imports().iterator(); it.hasNext();) {
 			ImportDeclaration d = (ImportDeclaration) it.next();
-			imports.add(visitChild(d));
+			visitChild(d);
 		}
 	
-		IValueList typeDeclarations = new IValueList(values);
 		for (Iterator it = node.types().iterator(); it.hasNext();) {
 			AbstractTypeDeclaration d = (AbstractTypeDeclaration) it.next();
-			typeDeclarations.add(visitChild(d));
+			visitChild(d);
 		}
 		
-		
-		
-		
+		ownValue = scopeManager.pop();
+			
 		return false;
 	}
 	
 	public boolean visit(ConditionalExpression node) {
-		IValue expression = visitChild(node.getExpression());
-		IValue thenBranch = visitChild(node.getThenExpression());
-		IValue elseBranch = visitChild(node.getElseExpression());
+		visitChild(node.getExpression());
+		visitChild(node.getThenExpression());
+		visitChild(node.getElseExpression());
 		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(ConstructorInvocation node) {
-		IValueList types = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeArguments().isEmpty()) {
 	
 				for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
 					Type t = (Type) it.next();
-					types.add(visitChild(t));
+					visitChild(t);
 				}
 			}
 		}
-	
-		IValueList arguments = new IValueList(values);
+
 		for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			arguments.add(visitChild(e));
+			visitChild(e);
 		}
 		
-		
+		ownValue = resolveBinding(node);
+		insert(invocation, getParent(), ownValue);
 		
 		return false;
 	}
 	
 	public boolean visit(ContinueStatement node) {
-		
-		IValue label = node.getLabel() == null ? null : values.string(node.getLabel().getFullyQualifiedName());
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(DoStatement node) {
 		
-		IValue body = visitChild(node.getBody());
-		IValue whileExpression = visitChild(node.getExpression());
+		visitChild(node.getBody());
+		visitChild(node.getExpression());
 	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(EmptyStatement node) {
 		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(EnhancedForStatement node) {
 		
-		IValue parameter = visitChild(node.getParameter());
-		IValue collectionExpression = visitChild(node.getExpression());
-		IValue body = visitChild(node.getBody());
+		visitChild(node.getParameter());
+		visitChild(node.getExpression());
+		visitChild(node.getBody());
 	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(EnumConstantDeclaration node) {
-		
+		scopeManager.push((ISourceLocation) ownValue);
 		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
-		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 	
-		IValueList arguments = new IValueList(values);
 		if (!node.arguments().isEmpty()) {
 			for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 				Expression e = (Expression) it.next();
-				arguments.add(visitChild(e));
+				visitChild(e);
 			}
 		}
 	
-		IValue anonymousClassDeclaration = node.getAnonymousClassDeclaration() == null ? null : visitChild(node.getAnonymousClassDeclaration());
+		visitChild(node.getAnonymousClassDeclaration());
+		ownValue = scopeManager.pop();
+		
+		insert(modifiers, ownValue, extendedModifiers);
+		insert(containment, getParent(), ownValue);
 		
 		return false;
 	}
 	
 	public boolean visit(EnumDeclaration node) {
-		
+		scopeManager.push((ISourceLocation) ownValue);
 		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
-		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 	
 		IValueList implementedInterfaces = new IValueList(values);
 		if (!node.superInterfaceTypes().isEmpty()) {
@@ -377,37 +419,39 @@ public class M3Converter extends JavaToRascalConverter {
 			}
 		}
 	
-		IValueList enumConstants = new IValueList(values);
 		for (Iterator it = node.enumConstants().iterator(); it.hasNext();) {
 			EnumConstantDeclaration d = (EnumConstantDeclaration) it.next();
-			enumConstants.add(visitChild(d));
+			visitChild(d);
 		}
 	
-		IValueList bodyDeclarations = new IValueList(values);
 		if (!node.bodyDeclarations().isEmpty()) {
 			for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
 				BodyDeclaration d = (BodyDeclaration) it.next();
-				bodyDeclarations.add(visitChild(d));
+				visitChild(d);
 			}
 		}
 		
+		ownValue = scopeManager.pop();
+		insert(modifiers, ownValue, extendedModifiers);
+		insert(containment, getParent(), ownValue);
+		insert(inheritance, ownValue, implementedInterfaces);
 		return false;
 	}
 	
 	public boolean visit(ExpressionStatement node) {
 		
-		IValue expression = visitChild(node.getExpression());
-		
+		visitChild(node.getExpression());
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(FieldAccess node) {
 		
-		IValue expression = visitChild(node.getExpression());
-		IValue name = values.string(node.getName().getFullyQualifiedName());
+		visitChild(node.getExpression());
 	
-		
+		ownValue = resolveBinding(node);
+		insert(access, getParent(), ownValue);
 		
 		return false;
 	}
@@ -423,92 +467,85 @@ public class M3Converter extends JavaToRascalConverter {
 			fragments.add(visitChild(f));
 		}
 		
-		
+		for (IValue fragment: (IList)fragments.asList()) {
+			insert(modifiers, fragment, extendedModifiers);
+			insert(containment, getParent(), ownValue);
+			insert(types, fragment, type);
+		}
 		
 		return false;
 	}
 	
 	public boolean visit(ForStatement node) {
-		
-		IValueList initializers = new IValueList(values);
 		for (Iterator it = node.initializers().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			initializers.add(visitChild(e));
+			visitChild(e);
 		}
 	
-		IValue booleanExpression = node.getExpression() == null ? null : visitChild(node.getExpression());
+		visitChild(node.getExpression());
 	
-		IValueList updaters = new IValueList(values);
 		for (Iterator it = node.updaters().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			updaters.add(visitChild(e));
+			visitChild(e);
 		}
 	
-		IValue body = visitChild(node.getBody());
+		visitChild(node.getBody());
 	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(IfStatement node) {
 		
-		IValue booleanExpression = visitChild(node.getExpression());
-		IValue thenStatement = visitChild(node.getThenStatement());
-		IValue elseStatement = node.getElseStatement() == null ? null : visitChild(node.getElseStatement());
+		visitChild(node.getExpression());
+		visitChild(node.getThenStatement());
+		visitChild(node.getElseStatement());
 	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(ImportDeclaration node) {
-		
-		String name = node.getName().getFullyQualifiedName();
-		String importType = new String("import");
-		if (node.getAST().apiLevel() >= AST.JLS3) {
-			if (node.isStatic())
-				importType = "static".concat(importType);
-		}
-	
+		ownValue = resolveBinding(node);
+		insert(imports, getParent(), ownValue);
 		return false;
 	}
 	
 	public boolean visit(InfixExpression node) {
 		
-		IValue operator = values.string(node.getOperator().toString());
-		IValue leftSide = visitChild(node.getLeftOperand());
-		IValue rightSide = visitChild(node.getRightOperand());
+		visitChild(node.getLeftOperand());
+		visitChild(node.getRightOperand());
 	
-		IValueList extendedOperands = new IValueList(values);
 		if (node.hasExtendedOperands()) {
 			for (Iterator it = node.extendedOperands().iterator(); it.hasNext();) {
 				Expression e = (Expression) it.next();
-				extendedOperands.add(visitChild(e));
+				visitChild(e);
 			}
 		}
 	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(Initializer node) {
 		
-		IValueList extendedModifiers = parseExtendedModifiers(node);
-		IValue body = visitChild(node.getBody());
+//		IValueList extendedModifiers = parseExtendedModifiers(node);
+		visitChild(node.getBody());
 	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(InstanceofExpression node) {
 		
-		IValue leftSide = visitChild(node.getLeftOperand());
-		IValue rightSide = visitChild(node.getRightOperand());
+		visitChild(node.getLeftOperand());
+		visitChild(node.getRightOperand());
 	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
@@ -519,24 +556,18 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(LabeledStatement node) {
-		
-		IValue label = values.string(node.getLabel().getFullyQualifiedName());
-		IValue body = visitChild(node.getBody());
-	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(LineComment node) {
-	
+		insert(documentation, resolveBinding(node.getAlternateRoot()), getSourceLocation(node));
 		return false;
 	}
 	
 	public boolean visit(MarkerAnnotation node) {
-		
-		IValue typeName = values.string(node.getTypeName().getFullyQualifiedName());
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
@@ -546,21 +577,14 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(MemberValuePair node) {
-		
-		IValue name = values.string(node.getName().getFullyQualifiedName());
-		IValue value = visitChild(node.getValue());
-	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(MethodDeclaration node) {
-		ISourceLocation thisEntity = super.resolveBinding(node);
+		scopeManager.push((ISourceLocation) ownValue);
 		IValueList extendedModifiers = parseExtendedModifiers(node);
-		
-		for(IValue modifier: (IList)(extendedModifiers.asList()))
-			modifiers.insert(values.tuple(thisEntity, modifier));
 		
 		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
@@ -580,36 +604,39 @@ public class M3Converter extends JavaToRascalConverter {
 				returnType = visitChild(node.getReturnType2());
 			} else {
 				
+				
+				returnType = constructTypeNode("void");
 			}
 		}
-		
-		IValue name = values.string(node.getName().getFullyQualifiedName());
 	
-		IValueList parameters = new IValueList(values);
 		for (Iterator it = node.parameters().iterator(); it.hasNext();) {
 			SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
-			parameters.add(visitChild(v));
+			visitChild(v);
 		}
 	
-		IValueList possibleExceptions = new IValueList(values);
+		/*IValueList possibleExceptions = new IValueList(values);
 		if (!node.thrownExceptions().isEmpty()) {
 	
 			for (Iterator it = node.thrownExceptions().iterator(); it.hasNext();) {
 				Name n = (Name) it.next();
 				possibleExceptions.add(visitChild(n));
 			}
-		}
+		}*/
 	
-		IValue body = node.getBody() == null ? null : visitChild(node.getBody()); 
+		visitChild(node.getBody()); 
 	
+		ownValue = scopeManager.pop();
 		
-		
+		insert(modifiers, ownValue, extendedModifiers);
+		if (returnType != null)
+			insert(types, ownValue, returnType);
+		insert(containment, getParent(), ownValue);
 		return false;
 	}
 	
 	public boolean visit(MethodInvocation node) {
 		
-		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
+		visitChild(node.getExpression());
 		
 		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
@@ -621,15 +648,13 @@ public class M3Converter extends JavaToRascalConverter {
 			}
 		}
 	
-		IValue name = values.string(node.getName().getFullyQualifiedName());
-	
-		IValueList arguments = new IValueList(values);
 		for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			arguments.add(visitChild(e));
+			visitChild(e);
 		}		
 		
-		
+		ownValue = resolveBinding(node);
+		insert(invocation, getParent(), ownValue);
 		
 		return false;
 	}
@@ -644,58 +669,41 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(Modifier node) {
 		String modifier = node.getKeyword().toString();
-		
-		Set<org.eclipse.imp.pdb.facts.type.Type> constrs = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_EXTENDED_MODIFIER_NODE_TYPE, modifier);
-		for (org.eclipse.imp.pdb.facts.type.Type constr: constrs) {
-			ownValue = values.constructor(constr);
-		}
-	
+		ownValue = constructModifierNode(modifier);
+			
 		return false;
 	}
 	
 	public boolean visit(NormalAnnotation node) {
-		
-		IValue typeName = values.string(node.getTypeName().getFullyQualifiedName());
-	
-		IValueList memberValuePairs = new IValueList(values);
-		for (Iterator it = node.values().iterator(); it.hasNext();) {
-			MemberValuePair p = (MemberValuePair) it.next();
-			memberValuePairs.add(visitChild(p));
-		}
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(NullLiteral node) {
-		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(NumberLiteral node) {
-		
-		IValue number = values.string(node.getToken());
-	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(PackageDeclaration node) {
-		
-		IValue name = values.string(node.getName().getFullyQualifiedName());
-		IPackageBinding b = (IPackageBinding)node.resolveBinding();
-		IValueList annotations = new IValueList(values);
+		scopeManager.push((ISourceLocation) ownValue);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			
 			for (Iterator it = node.annotations().iterator(); it.hasNext();) {
 				Annotation p = (Annotation) it.next();
-				annotations.add(visitChild(p));
+				visitChild(p);
 			}
 		}
 		
-		
+		ownValue = scopeManager.pop();
+		insert(containment, getParent(), ownValue);
 		
 		return false;
 	}
@@ -710,41 +718,32 @@ public class M3Converter extends JavaToRascalConverter {
 			genericTypes.add(visitChild(t));
 		}
 	
-		
-		
+		ownValue = constructTypeNode("parameterizedType", type);
+		setAnnotation("typeParameters", genericTypes.asList());
 		return false;
 	}
 	
 	public boolean visit(ParenthesizedExpression node) {
-		
-		IValue expression = visitChild(node.getExpression());
-		
+		visitChild(node.getExpression());
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(PostfixExpression node) {
-		
-		IValue operand = visitChild(node.getOperand());
-		IValue operator = values.string(node.getOperator().toString());
-	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(PrefixExpression node) {
-		
-		IValue operand = visitChild(node.getOperand());
-		IValue operator = values.string(node.getOperator().toString());
-	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(PrimitiveType node) {
-		
+		ownValue = constructTypeNode(node.toString());
 		
 		return false;
 	}
@@ -756,7 +755,7 @@ public class M3Converter extends JavaToRascalConverter {
 		
 		IValue name = visitChild(node.getName());
 		
-		
+		ownValue = constructTypeNode("qualifier", qualifier, name);
 		
 		return false;
 	}
@@ -765,82 +764,68 @@ public class M3Converter extends JavaToRascalConverter {
 		
 		IValue qualifier = visitChild(node.getQualifier());
 		
-		
 		IValue name = visitChild(node.getName());
 		
-		
+		ownValue = constructTypeNode("qualifier", qualifier, name);
 		
 		return false;
 	}
 	
 	public boolean visit(ReturnStatement node) {
 		
-		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
-		
+		visitChild(node.getExpression());
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(SimpleName node) {
 		
-		IValue value = values.string(node.getFullyQualifiedName());
-		
-		
+		String name = node.getFullyQualifiedName();
+		ownValue = constructTypeNode("simpleType", values.string(name));
 		
 		return false;
 	}
 	
 	public boolean visit(SimpleType node) {
 		
-		String name = node.getName().toString();
-		
+		String name = node.getName().getFullyQualifiedName();
+		ownValue = constructTypeNode("simpleType", values.string(name));
 		
 		return false;
 	}
 	
 	public boolean visit(SingleMemberAnnotation node) {
-		
-		IValue name = values.string(node.getTypeName().getFullyQualifiedName());
-		IValue value = visitChild(node.getValue());
-	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(SingleVariableDeclaration node) {
-		
-		IValue name = values.string(node.getName().getFullyQualifiedName());
-	
+		scopeManager.push((ISourceLocation) ownValue);
 		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
-
 	
 		IValue type = visitChild(node.getType());
-		IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
+		visitChild(node.getInitializer());
 	
-		IValue isVarags = values.bool(false);
-		if (node.getAST().apiLevel() >= AST.JLS3) {
-			isVarags = values.bool(node.isVarargs());
-		}
-	
-		/*extendedModifiers.getKey().asList(), extendedModifiers.getValue().asList(), 
-										type, initializer, isVarags);*/
+		ownValue = scopeManager.pop();
 		
-		
+		insert(types, ownValue, type);
+		insert(modifiers, ownValue, extendedModifiers);
+		insert(containment, getParent(), ownValue);
 		return false;
 	}
 	
 	public boolean visit(StringLiteral node) {
 		
-		IValue value = values.string(node.getEscapedValue());		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(SuperConstructorInvocation node) {
 		
-		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
+		visitChild(node.getExpression());
 	
 		IValueList genericTypes = new IValueList(values);	
 		if (node.getAST().apiLevel() >= AST.JLS3) {
@@ -852,30 +837,29 @@ public class M3Converter extends JavaToRascalConverter {
 			}
 		}
 	
-		IValueList arguments = new IValueList(values);
 		for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			arguments.add(visitChild(e));
+			visitChild(e);
 		}
 	
-		
-		
+		ownValue = resolveBinding(node);
+		insert(invocation, getParent(), ownValue);
 		return false;
 	}
 	
 	public boolean visit(SuperFieldAccess node) {
 		
-		IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
-		IValue name = values.string((node.getName().getFullyQualifiedName()));
+		visitChild(node.getQualifier());
 	
-		
+		ownValue = resolveBinding(node);
+		insert(access, getParent(), ownValue);
 		
 		return false;
 	}
 	
 	public boolean visit(SuperMethodInvocation node) {
 		
-		IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
+		visitChild(node.getQualifier());
 		
 		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
@@ -886,55 +870,46 @@ public class M3Converter extends JavaToRascalConverter {
 				}
 			}
 		}
-	
-		IValue name = values.string(node.getName().getFullyQualifiedName());
-	
-		IValueList arguments = new IValueList(values);
+
 		for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			arguments.add(visitChild(e));
+			visitChild(e);
 		}
-	
 		
+		ownValue = resolveBinding(node);
+		insert(invocation, getParent(), ownValue);
 		
 		return false;
 	}
 	
 	public boolean visit(SwitchCase node) {
 		
-
-		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
-		String constructorName = "case";
+		visitChild(node.getExpression());
 		
-		if (node.isDefault())
-			constructorName = "defaultCase";
-		
-					
+		ownValue = resolveBinding(node);			
 		
 		return false;
 	}
 	
 	public boolean visit(SwitchStatement node) {
 		
-		IValue expression = visitChild(node.getExpression());
+		visitChild(node.getExpression());
 	
-		IValueList statements = new IValueList(values);
 		for (Iterator it = node.statements().iterator(); it.hasNext();) {
 			Statement s = (Statement) it.next();
-			statements.add(visitChild(s));
+			visitChild(s);
 		}
 	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(SynchronizedStatement node) {
+		visitChild(node.getExpression());
+		visitChild(node.getBody());
 		
-		IValue expression = visitChild(node.getExpression());
-		IValue body = visitChild(node.getBody());
-		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
@@ -950,52 +925,46 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(ThisExpression node) {
-		
-		IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
-	
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(ThrowStatement node) {
 		
-		IValue expression = visitChild(node.getExpression());
+		visitChild(node.getExpression());
 		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(TryStatement node) {
 		
-		IValue body = visitChild(node.getBody());
+		visitChild(node.getBody());
 	
-		IValueList catchClauses = new IValueList(values);
 		for (Iterator it = node.catchClauses().iterator(); it.hasNext();) {
 			CatchClause cc = (CatchClause) it.next();
-			catchClauses.add(visitChild(cc));
+			visitChild(cc);
 		}
 		
-		IValue finallyBlock = node.getFinally() == null ? null : visitChild(node.getFinally()); 
+		visitChild(node.getFinally()); 
 		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(TypeDeclaration node) {
-		
+		scopeManager.push((ISourceLocation) ownValue);
 		IValueList extendedModifiers = parseExtendedModifiers(node);
-		String objectType = node.isInterface() ? "interface" : "class";
-		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 		
 		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeParameters().isEmpty()) {			
 				for (Iterator it = node.typeParameters().iterator(); it.hasNext();) {
 					TypeParameter t = (TypeParameter) it.next();
-					genericTypes.add(visitChild(t));			
+					visitChild(t);			
 				}
 			}
 		}
@@ -1005,57 +974,56 @@ public class M3Converter extends JavaToRascalConverter {
 		
 		if (node.getAST().apiLevel() == AST.JLS2) {
 			if (node.getSuperclass() != null) {
-				extendsClass.add(visitChild(node.getSuperclass()));
+				extendsClass.add(resolveBinding(node.getSuperclass()));
 			}
 			if (!node.superInterfaces().isEmpty()) {
 				for (Iterator it = node.superInterfaces().iterator(); it.hasNext();) {
 					Name n = (Name) it.next();
-					implementsInterfaces.add(visitChild(n));
+					implementsInterfaces.add(resolveBinding(n));
 				}
 			}
 		} else if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (node.getSuperclassType() != null) {
-				extendsClass.add(visitChild(node.getSuperclassType()));
+				extendsClass.add(resolveBinding(node.getSuperclassType()));
 			}
 			if (!node.superInterfaceTypes().isEmpty()) {
 				for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext();) {
 					Type t = (Type) it.next();
-					implementsInterfaces.add(visitChild(t));
+					implementsInterfaces.add(resolveBinding(t));
 				}
 			}
 		}
 		
-		IValueList bodyDeclarations = new IValueList(values);
 		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
 			BodyDeclaration d = (BodyDeclaration) it.next();
-			bodyDeclarations.add(visitChild(d));
+			visitChild(d);
 		}
 		
-		
+		ownValue = scopeManager.pop();
+		insert(modifiers, ownValue, extendedModifiers);
+		insert(inheritance, ownValue, extendsClass);
+		insert(inheritance, ownValue, implementsInterfaces);
+		insert(containment, getParent(), ownValue);
 		
 		return false;
 	}
 	
 	public boolean visit(TypeDeclarationStatement node) {
-		
-		IValue typeDeclaration;
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			typeDeclaration = visitChild(node.getTypeDeclaration());
+			visitChild(node.getTypeDeclaration());
 		}
 		else {
-			typeDeclaration = visitChild(node.getDeclaration());
+			visitChild(node.getDeclaration());
 		}
 		
-		
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
 	
 	public boolean visit(TypeLiteral node) {
-		
-		IValue type = visitChild(node.getType());
-	
-		
+		visitChild(node.getType());
+		ownValue = resolveBinding(node);
 		
 		return false;
 	}
@@ -1072,7 +1040,7 @@ public class M3Converter extends JavaToRascalConverter {
 			}
 		}
 		
-		
+		ownValue = constructDeclarationNode("typeParameter", name, extendsList.asList());
 		
 		return false;
 	}
@@ -1085,7 +1053,7 @@ public class M3Converter extends JavaToRascalConverter {
 			typesValues.add(visitChild(type));
 		}
 		
-		
+		ownValue = constructTypeNode("unionType", typesValues.asList());
 		
 		return false;
 	}
@@ -1102,19 +1070,22 @@ public class M3Converter extends JavaToRascalConverter {
 			fragments.add(visitChild(f));
 		}
 		
-		
-		
+		for (IValue fragment: (IList)fragments.asList()) {
+			insert(modifiers, fragment, extendedModifiers);
+			insert(containment, getParent(), ownValue);
+			insert(types, fragment, type);
+		}
 		
 		return false;
 	}
 	
 	public boolean visit(VariableDeclarationFragment node) {
 		
-		IValue name = values.string(node.getName().getFullyQualifiedName());
+		ASTNode initializer = node.getInitializer();
 		
-		IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
+		visitChild(initializer);
 		
-		
+		ownValue = resolveBinding(node);
 		
 		
 		return false;
@@ -1132,16 +1103,20 @@ public class M3Converter extends JavaToRascalConverter {
 			fragments.add(visitChild(f));
 		}
 		
+		for (IValue fragment: (IList)fragments.asList()) {
+			insert(modifiers, fragment, extendedModifiers);
+			insert(containment, getParent(), ownValue);
+			insert(types, fragment, type);
+		}
+		
 		return false;
 	}
 	
 	public boolean visit(WhileStatement node) {
+		visitChild(node.getExpression());
+		visitChild(node.getBody());
 		
-		IValue expression = visitChild(node.getExpression());
-		IValue body = visitChild(node.getBody());
-		
-		
-		
+		ownValue = resolveBinding(node);
 		return false;
 	}
 	
@@ -1159,7 +1134,7 @@ public class M3Converter extends JavaToRascalConverter {
 				name = "lowerbound";
 			}
 		}
-		
+		ownValue = constructTypeNode(name, type);
 		
 		return false;
 	}
