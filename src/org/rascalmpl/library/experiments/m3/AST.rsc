@@ -2,12 +2,12 @@ module experiments::m3::AST
 
 anno loc Declaration@src;
 anno loc Declaration@binding;
-anno list[ExtendedModifiers] Declaration@extendedModifiers;
+anno list[Modifiers] Declaration@modifiers;
 anno list[Declaration] Declaration@typeParameters;
 
-anno loc ExtendedModifiers@binding;
+anno loc Modifiers@binding;
 
-data ExtendedModifiers
+data Modifiers
   	= \private()
   	| \public()
 	  | \protected()
@@ -22,7 +22,7 @@ data ExtendedModifiers
 	  | \strictfp()
 	  | \deprecated()
 	  | \markerAnnotation(str typeName)
-  	| \normalAnnotation(str typeName, list[ExtendedModifiers] memberValuePairs)
+  	| \normalAnnotation(str typeName, list[Modifiers] memberValuePairs)
   	| \memberValuePair(str name, Expression \value)				
   	| \singleMemberAnnotation(str typeName, Expression \value)
   	;
@@ -72,6 +72,7 @@ data Expression
   | \qualifier(Expression qualifier, Expression expression)
   | \conditional(Expression expression, Expression thenBranch, Expression elseBranch)
   | \fieldAccess(Expression expression, str name)
+  | \fieldAccess(str name)
   | \instanceof(Expression leftSide, Type rightSide)
   | \call(str name, list[Expression] arguments)
   | \call(Expression receiver, str name, list[Expression] arguments)
@@ -98,6 +99,7 @@ data Expression
   ;						
   
 anno loc Statement@src;
+anno loc Statement@binding;
 anno list[Declaration] Statement@typeParameters;
 
 data Statement				

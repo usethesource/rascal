@@ -9,4 +9,4 @@ anno rel[loc from, loc to] M3@reference;
 anno rel[loc from, loc to] M3@imports;
 anno map[loc definition, Type typ] M3@types;
 anno map[loc definition, loc comments] M3@documentation;
-anno rel[loc definition, ExtendedModifiers modifiers] M3@modifiers;
+anno rel[loc definition, Modifiers modifier] M3@modifiers;
