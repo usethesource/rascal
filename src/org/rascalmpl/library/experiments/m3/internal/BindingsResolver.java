@@ -13,27 +13,7 @@ package org.rascalmpl.library.experiments.m3.internal;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
-import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
-import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
-import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
-import org.eclipse.jdt.core.dom.EnumDeclaration;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.IPackageBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.ImportDeclaration;
-import org.eclipse.jdt.core.dom.MemberRef;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodRef;
-import org.eclipse.jdt.core.dom.PackageDeclaration;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.TypeParameter;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.*;
 
 public class BindingsResolver {
 	
@@ -50,36 +30,54 @@ public class BindingsResolver {
 	
 	public URI resolveBinding(ASTNode node) {
 		if (collectBindings) {
-			if(node instanceof TypeDeclaration) 
+			if (node instanceof TypeDeclaration) 
 				return resolveBinding(((TypeDeclaration) node).resolveBinding());
-			else if(node instanceof EnumDeclaration) 
+			else if (node instanceof EnumDeclaration) 
 				return resolveBinding(((EnumDeclaration) node).resolveBinding());
-			else if(node instanceof AnnotationTypeDeclaration) 
+			else if (node instanceof AnnotationTypeDeclaration) 
 				return resolveBinding(((AnnotationTypeDeclaration) node).resolveBinding());
-			else if(node instanceof AnnotationTypeMemberDeclaration) 
+			else if (node instanceof AnnotationTypeMemberDeclaration) 
 				return resolveBinding(((AnnotationTypeMemberDeclaration) node).resolveBinding());
-			else if(node instanceof AnonymousClassDeclaration) 
+			else if (node instanceof AnonymousClassDeclaration) 
 				return resolveBinding(((AnonymousClassDeclaration) node).resolveBinding());
-			else if(node instanceof EnumConstantDeclaration) 
+			else if (node instanceof EnumConstantDeclaration) 
 				return resolveBinding(((EnumConstantDeclaration) node).resolveConstructorBinding());
-			else if(node instanceof Expression) 
+			else if (node instanceof ClassInstanceCreation)
+				return resolveBinding(((ClassInstanceCreation) node).resolveConstructorBinding());
+			else if (node instanceof FieldAccess)
+				return resolveBinding(((FieldAccess) node).resolveFieldBinding());
+			else if (node instanceof MethodInvocation)
+				return resolveBinding(((MethodInvocation) node).resolveMethodBinding());
+			else if (node instanceof Name)
+				return resolveBinding(((Name) node).resolveBinding());
+			else if (node instanceof SuperFieldAccess)
+				return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
+			else if (node instanceof SuperMethodInvocation)
+				return resolveBinding(((SuperMethodInvocation) node).resolveMethodBinding());
+			else if (node instanceof Expression)
 				return resolveBinding(((Expression) node).resolveTypeBinding());
-			else if(node instanceof ImportDeclaration) 
+			else if (node instanceof ImportDeclaration) 
 				return resolveBinding(((ImportDeclaration) node).resolveBinding());
-			else if(node instanceof MemberRef) 
+			else if (node instanceof MemberRef) 
 				return resolveBinding(((MemberRef) node).resolveBinding());
-			else if(node instanceof MethodDeclaration) 
+			else if (node instanceof MethodDeclaration)
 				return resolveBinding(((MethodDeclaration) node).resolveBinding());
-			else if(node instanceof MethodRef) 
+			else if (node instanceof MethodRef) 
 				return resolveBinding(((MethodRef) node).resolveBinding());
-			else if(node instanceof PackageDeclaration) 
+			else if (node instanceof PackageDeclaration) 
 				return resolveBinding(((PackageDeclaration) node).resolveBinding());
-			else if(node instanceof Type) 
+			else if (node instanceof Type) 
 				return resolveBinding(((Type) node).resolveBinding());
-			else if(node instanceof TypeParameter) 
+			else if (node instanceof TypeParameter) 
 				return resolveBinding(((TypeParameter) node).resolveBinding());
-			else if(node instanceof VariableDeclaration) 
+			else if (node instanceof VariableDeclaration) 
 				return resolveBinding(((VariableDeclaration) node).resolveBinding());
+			else if (node instanceof ConstructorInvocation)
+				return resolveBinding(((ConstructorInvocation) node).resolveConstructorBinding());
+			else if (node instanceof SuperConstructorInvocation)
+				return resolveBinding(((SuperConstructorInvocation) node).resolveConstructorBinding());
+			else if (node instanceof TypeDeclarationStatement)
+				return resolveBinding(((TypeDeclarationStatement) node).resolveBinding());
 		}
 		return convertBinding("unknown", null, null, null);
 	}
@@ -95,7 +93,6 @@ public class BindingsResolver {
 			return resolveBinding((IPackageBinding) binding);
 		else if (binding instanceof IVariableBinding)
 			return resolveBinding((IVariableBinding) binding);
-		//TODO: there are other bindings in JDT
 		return convertBinding("unknown", null, null, null);
 	}
 	
@@ -106,8 +103,11 @@ public class BindingsResolver {
 		if (!signature.isEmpty())
 			signature = signature.concat(".");
 		String params = "";
-		for (ITypeBinding parameterType: binding.getParameterTypes())
+		for (ITypeBinding parameterType: binding.getParameterTypes()) {
+			if (!params.isEmpty())
+				params = params.concat(",");
 			params = params.concat(getPath(resolveBinding(parameterType)));
+		}
 		signature = signature.concat(binding.getName() + "(" + params + ")");
 		String scheme = "unknown";
 		if (binding.isConstructor())
@@ -162,12 +162,13 @@ public class BindingsResolver {
 		return convertBinding(scheme, qualifiedName.concat(binding.getName()), null, null);
 	}
 	
-	private URI convertBinding(String scheme, String path, String query, String fragment) {
+	public URI convertBinding(String scheme, String path, String query, String fragment) {
 		URI binding = null;
 		if (path == null)
 			path = "";
+		
 		try {
-			binding = new URI(scheme, this.project, "/" + path, query, fragment);
+			binding = new URI(scheme, this.project, !(path.startsWith("/")) ? "/" + path : path, query, fragment);
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
