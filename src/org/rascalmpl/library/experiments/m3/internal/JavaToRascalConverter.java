@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.m3.internal;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -26,16 +27,8 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected final TypeStore typeStore;
 	
 	protected IValue ownValue;
-	
-	protected CompilationUnit compilUnit;
-	protected ISourceLocation loc;
-	protected String project;
-	
-	private BindingsResolver bindingsResolver;
-	protected boolean collectBindings;
-
 	private static final String DATATYPE_RASCAL_AST_TYPE_NODE 			= "Type";
-	private static final String DATATYPE_RASCAL_AST_EXTENDED_MODIFIER_NODE = "ExtendedModifiers";
+	private static final String DATATYPE_RASCAL_AST_MODIFIER_NODE 		= "Modifiers";
 	private static final String DATATYPE_RASCAL_AST_DECLARATION_NODE 	= "Declaration";
 	private static final String DATATYPE_RASCAL_AST_EXPRESSION_NODE 	= "Expression";
 	private static final String DATATYPE_RASCAL_AST_STATEMENT_NODE 		= "Statement";
@@ -44,13 +37,20 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE;
 	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE;
 	protected static org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_TYPE_NODE_TYPE;
-	protected static org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_EXTENDED_MODIFIER_NODE_TYPE;
+	protected static org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE;
+	protected CompilationUnit compilUnit;
+	protected ISourceLocation loc;
+	protected String project;
+	
+	private BindingsResolver bindingsResolver;
+	protected boolean collectBindings;
 	
 	JavaToRascalConverter(final TypeStore typeStore, boolean collectBindings) {
+		//super(true);
 		this.typeStore = typeStore;
 		this.bindingsResolver = new BindingsResolver(collectBindings);
 		DATATYPE_RASCAL_AST_TYPE_NODE_TYPE 		= this.typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_TYPE_NODE);
-		DATATYPE_RASCAL_AST_EXTENDED_MODIFIER_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_EXTENDED_MODIFIER_NODE);
+		DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_MODIFIER_NODE);
 		this.DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_DECLARATION_NODE);
 		this.DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_EXPRESSION_NODE);
 		this.DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_STATEMENT_NODE);
@@ -70,7 +70,20 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		this.project = project;
 	}
 	
+	protected ISourceLocation resolveBinding(CompilationUnit node) {
+		URI compilationUnit = new BindingsResolver(true) {
+			public URI resolveBinding(CompilationUnit node) {
+				setProject(project);
+				return convertBinding("java+compilationUnit", loc.getURI().getPath(), null, null);
+			}
+		}.resolveBinding(node);
+		
+		return values.sourceLocation(compilationUnit);
+	}
+	
 	protected ISourceLocation resolveBinding(ASTNode node) {
+		if (node instanceof CompilationUnit)
+			return resolveBinding((CompilationUnit) node);
 		return values.sourceLocation(bindingsResolver.resolveBinding(node));
 	}
 	
@@ -98,7 +111,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		
 		
 		for (String constructor: java.lang.reflect.Modifier.toString(modifiers).split(" ")) {
-			Set<org.eclipse.imp.pdb.facts.type.Type> exConstr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_EXTENDED_MODIFIER_NODE_TYPE, constructor);
+			Set<org.eclipse.imp.pdb.facts.type.Type> exConstr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, constructor);
 			for (org.eclipse.imp.pdb.facts.type.Type con: exConstr) {
 				extendedModifierList.add(values.constructor(con));
 			}
@@ -135,9 +148,9 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		return this.ownValue;
 	}
 	
-	protected IValue constructExtendedModifierNode(String constructor, IValue... children) {
+	protected IValue constructModifierNode(String constructor, IValue... children) {
 		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
-		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_EXTENDED_MODIFIER_NODE_TYPE, constructor, args);
+		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, constructor, args);
 		return values.constructor(constr, removeNulls(children));
 	}
 	

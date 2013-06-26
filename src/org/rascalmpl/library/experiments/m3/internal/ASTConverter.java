@@ -8,8 +8,11 @@ import org.eclipse.jdt.core.dom.*;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
 public class ASTConverter extends JavaToRascalConverter {
-	// TODO: JLS4?
-	
+	/* 
+	 * TODO:
+	 * Type parameters need to come out of annotations
+	 * calls may need to be broken up into superconstructor, constructor, supermethod, method calls or separate them in bindings
+	 */
 	public ASTConverter(final TypeStore typeStore, boolean collectBindings) {
 		super(typeStore, collectBindings);
 	}
@@ -212,9 +215,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	
 	public boolean visit(CompilationUnit node) {
 		IValue packageOfUnit = node.getPackage() == null ? null : visitChild(node.getPackage());
-		for (Iterator it = node.getCommentList().iterator(); it.hasNext();) {
-			Comment c = (Comment)it.next();
-		}
+		
 		IValueList imports = new IValueList(values);
 		for (Iterator it = node.imports().iterator(); it.hasNext();) {
 			ImportDeclaration d = (ImportDeclaration) it.next();
@@ -497,7 +498,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	public boolean visit(MarkerAnnotation node) {
 		
 		IValue typeName = values.string(node.getTypeName().getFullyQualifiedName());
-		ownValue = constructExtendedModifierNode("markerAnnotation", typeName);
+		ownValue = constructModifierNode("markerAnnotation", typeName);
 		
 		return false;
 	}
@@ -511,7 +512,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue name = values.string(node.getName().getFullyQualifiedName());
 		IValue value = visitChild(node.getValue());
 	
-		ownValue = constructExtendedModifierNode("memberValuePair", name, value);
+		ownValue = constructModifierNode("memberValuePair", name, value);
 		
 		return false;
 	}
@@ -605,7 +606,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	
 	public boolean visit(Modifier node) {
 		String modifier = node.getKeyword().toString();
-		ownValue = constructExtendedModifierNode(modifier);
+		ownValue = constructModifierNode(modifier);
 			
 		return false;
 	}
@@ -620,7 +621,7 @@ public class ASTConverter extends JavaToRascalConverter {
 			memberValuePairs.add(visitChild(p));
 		}
 	
-		ownValue = constructExtendedModifierNode("normalAnnotation", typeName, memberValuePairs.asList());
+		ownValue = constructModifierNode("normalAnnotation", typeName, memberValuePairs.asList());
 		
 		return false;
 	}
@@ -726,7 +727,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		
 		IValue name = visitChild(node.getName());
 		
-		ownValue = constructExpressionNode("qualifier", qualifier, name);
+		ownValue = constructTypeNode("qualifier", qualifier, name);
 		
 		return false;
 	}
@@ -761,7 +762,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue name = values.string(node.getTypeName().getFullyQualifiedName());
 		IValue value = visitChild(node.getValue());
 	
-		ownValue = constructExtendedModifierNode("singleMemberAnnotation", name, value);
+		ownValue = constructModifierNode("singleMemberAnnotation", name, value);
 		
 		return false;
 	}
@@ -770,9 +771,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		
 		IValue name = values.string(node.getName().getFullyQualifiedName());
 	
-		IValueList extendedModifiers;
-		
-		extendedModifiers = parseExtendedModifiers(node.modifiers());
+		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 	
 		IValue type = visitChild(node.getType());
 		IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
@@ -1042,7 +1041,7 @@ public class ASTConverter extends JavaToRascalConverter {
 			typesValues.add(visitChild(type));
 		}
 		
-		ownValue = constructDeclarationNode("union", typesValues.asList());
+		ownValue = constructTypeNode("unionType", typesValues.asList());
 		
 		return false;
 	}
@@ -1083,9 +1082,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	
 	public boolean visit(VariableDeclarationStatement node) {
 		
-		IValueList extendedModifiers;
-				
-			extendedModifiers = parseExtendedModifiers(node.modifiers());
+		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 		
 		
 		IValue type = visitChild(node.getType());
