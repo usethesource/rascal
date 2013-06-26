@@ -18,6 +18,7 @@ package org.rascalmpl.library.experiments.m3.internal;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -28,6 +29,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -49,8 +51,7 @@ public class JDT {
     		try {
 				classPathEntries.add(eval.getResolverRegistry().getResourceURI(((ISourceLocation) path).getURI()).getPath());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
 			}
     	}
     	
@@ -58,13 +59,13 @@ public class JDT {
     		try {
 				sourcePathEntries.add(eval.getResolverRegistry().getResourceURI(((ISourceLocation) path).getURI()).getPath());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
 			}
     	}
     }
     
-    public IValue createM3FromFile(ISourceLocation loc, IEvaluatorContext eval) {
+    @SuppressWarnings("rawtypes")
+	public IValue createM3FromFile(ISourceLocation loc, IEvaluatorContext eval) {
     	try {
     		CompilationUnit cu = this.getCompilationUnit(loc, true, eval);
 
@@ -72,6 +73,10 @@ public class JDT {
     		converter.set(cu);
     		converter.set(loc);
     		cu.accept(converter);
+			for (Iterator it = cu.getCommentList().iterator(); it.hasNext(); ) {
+				Comment comment = (Comment) it.next();
+				comment.accept(converter);
+			}
     		return converter.getModel();
     	}
     	catch (IOException e) {
@@ -93,11 +98,11 @@ public class JDT {
 			cu.accept(converter);
 			return converter.getValue();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private CompilationUnit getCompilationUnit(ISourceLocation loc, boolean resolveBindings, IEvaluatorContext ctx) throws IOException {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setUnitName(loc.getURI().getPath());
@@ -117,7 +122,7 @@ public class JDT {
 				  null, true);
 
 		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
-		
+
 		int i;
 		IProblem[] problems = cu.getProblems();
 		for (i = 0; i < problems.length; i++) {
