@@ -1630,8 +1630,24 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
   }
 
-  
+  	private Stack<TraversalEvaluator> teStack = new Stack<TraversalEvaluator>();
+  	
+	@Override
+	public TraversalEvaluator __getCurrentTraversalEvaluator() {
+		if (teStack.size() > 0)
+			return teStack.peek();
+		return null;
+	}
+	
+	@Override
+	public void __pushTraversalEvaluator(TraversalEvaluator te) {
+		teStack.push(te);
+	}
+	
+	@Override
+	public TraversalEvaluator __popTraversalEvaluator() {
+		return teStack.pop();
+	}
 
-  
  
 }
