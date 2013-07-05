@@ -77,7 +77,8 @@ public class JDT {
 				Comment comment = (Comment) it.next();
 				comment.accept(converter);
 			}
-    		return converter.getModel();
+			
+    		return converter.getModel(getProblems(cu, loc));
     	}
     	catch (IOException e) {
     		throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
@@ -122,7 +123,13 @@ public class JDT {
 				  null, true);
 
 		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
-
+		
+		return cu;
+	}
+	
+	private IValueList getProblems(CompilationUnit cu, ISourceLocation loc) {
+		IValueList result = new IValueList(VF);
+		
 		int i;
 		IProblem[] problems = cu.getProblems();
 		for (i = 0; i < problems.length; i++) {
@@ -132,11 +139,11 @@ public class JDT {
 				int sl = problems[i].getSourceLineNumber();
 				ISourceLocation pos = VF.sourceLocation(loc.getURI(), offset, length, sl, sl, 0, 0);
 				// Continue with partial ast on error
-				System.err.println(VF.string("Error(s) in compilation unit: " + problems[i].getMessage()) + "\n" + pos);
+				result.add(VF.string("Error(s) in compilation unit: " + problems[i].getMessage() + " \n " + pos));
 			}
 		}
 		
-		return cu;
+		return result;
 	}
 	
 	private char[] getFileContents(ISourceLocation loc, IEvaluatorContext ctx) throws IOException {

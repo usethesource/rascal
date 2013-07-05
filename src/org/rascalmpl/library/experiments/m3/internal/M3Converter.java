@@ -18,7 +18,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	private static final org.eclipse.imp.pdb.facts.type.Type locType 		= TF.sourceLocationType();
 	private static final org.eclipse.imp.pdb.facts.type.Type m3TupleType 	= TF.tupleType(locType, locType);
-	private static final org.eclipse.imp.pdb.facts.type.Type m3MapType   	= TF.mapType(locType, locType);
+//	private static final org.eclipse.imp.pdb.facts.type.Type m3MapType   	= TF.mapType(locType, locType);
 	private final org.eclipse.imp.pdb.facts.type.Type m3LOCModifierType;
 	private final org.eclipse.imp.pdb.facts.type.Type m3LOCTypeType;
 	
@@ -32,7 +32,7 @@ public class M3Converter extends JavaToRascalConverter {
 	private ISetWriter invocation;
 	private ISetWriter imports;
 	private IMapWriter types;
-	private IMapWriter documentation;
+	private ISetWriter documentation;
 	private ISetWriter modifiers;
 	
 	M3Converter(final TypeStore typeStore) {
@@ -49,10 +49,10 @@ public class M3Converter extends JavaToRascalConverter {
 		modifiers = values.relationWriter(m3LOCModifierType);
 		m3LOCTypeType = TF.tupleType(locType, DATATYPE_RASCAL_AST_TYPE_NODE_TYPE);
 		types = values.mapWriter(m3LOCTypeType);
-		documentation = values.mapWriter(m3MapType);
+		documentation = values.relationWriter(m3TupleType);
 	}
 	
-	public IValue getModel() {
+	public IValue getModel(IValueList errors) {
 		ownValue = values.constructor(DATATYPE_M3_NODE_TYPE);
 		setAnnotation("source", source.done());
 		setAnnotation("containment", containment.done());
@@ -64,18 +64,8 @@ public class M3Converter extends JavaToRascalConverter {
 		setAnnotation("types", types.done());
 		setAnnotation("documentation", documentation.done());
 		setAnnotation("access", access.done());
+		setAnnotation("projectErrors", errors.asList());
 		return ownValue;
-	}
-	
-	@Override
-	protected ISourceLocation resolveBinding(ASTNode node) {
-		ISourceLocation result = super.resolveBinding(node);
-		String scheme = result.getURI().getScheme();
-		
-		if (scheme.equals("unknown") || scheme.equals("unresolved"))
-			result = null;
-		
-		return result;
 	}
 	
 	@Override
@@ -198,7 +188,7 @@ public class M3Converter extends JavaToRascalConverter {
 		IValue type = visitChild(node.getComponentType());
 		
 		ownValue = constructTypeNode("arrayType", type);
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -747,7 +737,7 @@ public class M3Converter extends JavaToRascalConverter {
 	public boolean visit(PrimitiveType node) {
 		ownValue = constructTypeNode(node.toString());
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -760,7 +750,7 @@ public class M3Converter extends JavaToRascalConverter {
 		
 		ownValue = constructTypeNode("qualifier", qualifier, name);
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -772,7 +762,7 @@ public class M3Converter extends JavaToRascalConverter {
 		
 		ownValue = constructTypeNode("qualifier", qualifier, name);
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -789,7 +779,7 @@ public class M3Converter extends JavaToRascalConverter {
 		String name = node.getFullyQualifiedName();
 		ownValue = constructTypeNode("simpleType", values.string(name));
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -798,7 +788,7 @@ public class M3Converter extends JavaToRascalConverter {
 		String name = node.getName().getFullyQualifiedName();
 		ownValue = constructTypeNode("simpleType", values.string(name));
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -1061,7 +1051,7 @@ public class M3Converter extends JavaToRascalConverter {
 		
 		ownValue = constructTypeNode("unionType", typesValues.asList());
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -1143,7 +1133,7 @@ public class M3Converter extends JavaToRascalConverter {
 		}
 		ownValue = constructTypeNode(name, type);
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 }
