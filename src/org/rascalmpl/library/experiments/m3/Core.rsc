@@ -6,3 +6,4 @@ data M3 = m3();
              
 anno rel[loc name, loc src] M3@source;
 anno rel[loc from, loc to] M3@containment;
+anno list[str errorMessage] M3@projectErrors;
