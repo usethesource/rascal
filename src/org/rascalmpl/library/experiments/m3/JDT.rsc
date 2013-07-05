@@ -99,6 +99,7 @@ public M3 createM3FromProject(loc project) {
 	    result@types += model@types;
 	    result@documentation += model@documentation;
 	    result@modifiers += model@modifiers;
+	    result@projectErrors += model@projectErrors;
 	}
 	return result;
 }
