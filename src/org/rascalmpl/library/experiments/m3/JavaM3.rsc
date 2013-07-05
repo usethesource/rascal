@@ -8,5 +8,5 @@ anno rel[loc from, loc to] M3@access;
 anno rel[loc from, loc to] M3@reference;
 anno rel[loc from, loc to] M3@imports;
 anno map[loc definition, Type typ] M3@types;
-anno map[loc definition, loc comments] M3@documentation;
+anno rel[loc definition, loc comments] M3@documentation;
 anno rel[loc definition, Modifiers modifier] M3@modifiers;

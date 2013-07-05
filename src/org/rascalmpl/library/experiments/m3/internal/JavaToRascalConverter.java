@@ -184,4 +184,8 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_TYPE_NODE_TYPE, constructor, args);
 		return values.constructor(constr, removeNulls(children));
 	}
+	
+	protected void addProblems(IValueList problems) {
+		setAnnotation("projectErrors", problems.asList());
+	}
 }
