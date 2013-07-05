@@ -52,7 +52,7 @@ public class M3Converter extends JavaToRascalConverter {
 		documentation = values.relationWriter(m3TupleType);
 	}
 	
-	public IValue getModel() {
+	public IValue getModel(IValueList errors) {
 		ownValue = values.constructor(DATATYPE_M3_NODE_TYPE);
 		setAnnotation("source", source.done());
 		setAnnotation("containment", containment.done());
@@ -64,6 +64,7 @@ public class M3Converter extends JavaToRascalConverter {
 		setAnnotation("types", types.done());
 		setAnnotation("documentation", documentation.done());
 		setAnnotation("access", access.done());
+		setAnnotation("projectErrors", errors.asList());
 		return ownValue;
 	}
 	
