@@ -425,10 +425,6 @@ public class LocalSharingValueFactory implements IValueFactory{
 			setWriter.insertAll(collection);
 		}
 
-		@Override
-		public int size(){
-			return setWriter.size();
-		}
 	}
 	
 	private static class RelationCachingWriter implements ISetWriter{
@@ -457,10 +453,6 @@ public class LocalSharingValueFactory implements IValueFactory{
 			relationWriter.insertAll(collection);
 		}
 
-		@Override
-		public int size(){
-			return relationWriter.size();
-		}
 	}
 	
 	private static class ListRelationCachingWriter implements IListWriter{
