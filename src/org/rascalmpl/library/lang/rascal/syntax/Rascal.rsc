@@ -481,7 +481,8 @@ syntax ShellCommand
 	| quit: "quit" 
 	| history: "history" 
 	| \test: "test" 
-	| listModules: "modules" ;
+	| listModules: "modules" 
+	| clear: "clear";
 
 syntax StringMiddle
 	= mid: MidStringChars mid 

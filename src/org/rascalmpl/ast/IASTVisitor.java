@@ -509,6 +509,8 @@ public interface IASTVisitor<T> {
 
   public T visitReplacementUnconditional(Replacement.Unconditional x);
 
+  public T visitShellCommandClear(ShellCommand.Clear x);
+
   public T visitShellCommandEdit(ShellCommand.Edit x);
 
   public T visitShellCommandHelp(ShellCommand.Help x);
