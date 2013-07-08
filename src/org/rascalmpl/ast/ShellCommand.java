@@ -42,6 +42,32 @@ public abstract class ShellCommand extends AbstractAST {
   
 
   
+  public boolean isClear() {
+    return false;
+  }
+
+  static public class Clear extends ShellCommand {
+    // Production: sig("Clear",[])
+  
+    
+  
+    public Clear(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isClear() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitShellCommandClear(this);
+    }
+  
+    	
+  }
   public boolean isEdit() {
     return false;
   }

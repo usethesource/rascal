@@ -35,6 +35,19 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
 	}
+	
+	static public class Clear extends org.rascalmpl.ast.ShellCommand.Clear {
+
+		public Clear(IConstructor __param1) {
+			super(__param1);
+		}
+		
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			return null;
+		}
+		
+	}
 
 	static public class Help extends org.rascalmpl.ast.ShellCommand.Help {
 
