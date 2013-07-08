@@ -97,6 +97,9 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public void postVisit(ASTNode node) {
+		/* 
+		 * TODO: Keep source location for unknown/unresolved entities? 
+		 */
 		if (ownValue != null) {
 			insert(source, ownValue, getSourceLocation(node));
 		}
@@ -541,7 +544,7 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(Javadoc node) {
-	
+		insert(documentation, resolveBinding(node.getAlternateRoot()), getSourceLocation(node));
 		return false;
 	}
 	
