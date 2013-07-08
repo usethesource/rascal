@@ -348,10 +348,6 @@ public class LocalSharingValueFactory implements IValueFactory{
 			this.localSharingValueFactory = localSharingValueFactory;
 			this.listWriter = listWriter;
 		}
-		
-		public int size(){
-			return listWriter.size();
-		}
 
 		@Override
 		public IList done(){
@@ -476,10 +472,6 @@ public class LocalSharingValueFactory implements IValueFactory{
 
 		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			listRelationWriter.insertAll(collection);
-		}
-
-		public int size(){
-			return listRelationWriter.size();
 		}
 
 		public void insert(IValue[] elems, int start, int length) throws FactTypeUseException, IndexOutOfBoundsException{
