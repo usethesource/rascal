@@ -1,6 +1,10 @@
 package org.rascalmpl.library.experiments.m3.internal;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IList;
@@ -23,6 +27,7 @@ public class M3Converter extends JavaToRascalConverter {
 	private final org.eclipse.imp.pdb.facts.type.Type m3LOCTypeType;
 	
 	private final Stack<ISourceLocation> scopeManager = new Stack<ISourceLocation>();
+	private final Map<ISourceLocation, Integer> anonymousClassCounter = new HashMap<ISourceLocation, Integer>();
 	
 	private ISetWriter source;
 	private ISetWriter containment;
@@ -139,6 +144,24 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(AnonymousClassDeclaration node) {
+		int anonCounter = anonymousClassCounter.size() + 1;
+		anonymousClassCounter.put(getParent(), anonCounter);
+
+		ISourceLocation anonClassDecl = (ISourceLocation)ownValue;
+		try {
+			anonClassDecl = values.sourceLocation(new URI(
+								anonClassDecl.getURI().getScheme(),
+								anonClassDecl.getURI().getAuthority(),
+								getParent().getURI().getPath() + "." + "anonymous$" + anonCounter,
+								anonClassDecl.getURI().getQuery(),
+								anonClassDecl.getURI().getFragment()
+							));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
+		ownValue = anonClassDecl;
+		
 		scopeManager.push((ISourceLocation) ownValue);
 		
 		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
@@ -265,13 +288,14 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(ClassInstanceCreation node) {
 		visitChild(node.getExpression());
+		IValue type;
 	
 		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			visitChild(node.getName());
+			type = visitChild(node.getName());
 		} 
 		else {
-			visitChild(node.getType()); 
+			type = visitChild(node.getType()); 
 	
 			if (!node.typeArguments().isEmpty()) {
 				for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
@@ -285,8 +309,11 @@ public class M3Converter extends JavaToRascalConverter {
 			Expression e = (Expression) it.next();
 			visitChild(e);
 		}
-	
-		visitChild(node.getAnonymousClassDeclaration());
+		
+		if (node.getAnonymousClassDeclaration() != null) {
+			IValue anon = visitChild(node.getAnonymousClassDeclaration());
+			insert(types, anon, type);
+		}
 		
 		ownValue = resolveBinding(node);
 		insert(invocation, getParent(), ownValue);
@@ -382,6 +409,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(EnumConstantDeclaration node) {
 		scopeManager.push((ISourceLocation) ownValue);
+		
 		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 	
 		if (!node.arguments().isEmpty()) {
@@ -390,8 +418,9 @@ public class M3Converter extends JavaToRascalConverter {
 				visitChild(e);
 			}
 		}
-	
-		visitChild(node.getAnonymousClassDeclaration());
+		
+		IValue anon = visitChild(node.getAnonymousClassDeclaration());
+		insert(types, anon, resolveBinding(node.resolveVariable()));
 		ownValue = scopeManager.pop();
 		
 		insert(modifiers, ownValue, extendedModifiers);

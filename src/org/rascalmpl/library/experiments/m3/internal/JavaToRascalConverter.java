@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
@@ -79,6 +80,11 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		}.resolveBinding(node);
 		
 		return values.sourceLocation(compilationUnit);
+	}
+	
+	protected ISourceLocation resolveBinding(IBinding binding) {
+		URI resolvedBinding = bindingsResolver.resolveBinding(binding);
+		return values.sourceLocation(resolvedBinding);
 	}
 	
 	protected ISourceLocation resolveBinding(ASTNode node) {
