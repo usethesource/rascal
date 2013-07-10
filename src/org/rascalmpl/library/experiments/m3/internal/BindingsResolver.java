@@ -38,7 +38,7 @@ public class BindingsResolver {
 				return resolveBinding(((AnnotationTypeDeclaration) node).resolveBinding());
 			else if (node instanceof AnnotationTypeMemberDeclaration) 
 				return resolveBinding(((AnnotationTypeMemberDeclaration) node).resolveBinding());
-			else if (node instanceof AnonymousClassDeclaration) 
+			else if (node instanceof AnonymousClassDeclaration)
 				return resolveBinding(((AnonymousClassDeclaration) node).resolveBinding());
 			else if (node instanceof EnumConstantDeclaration) 
 				return resolveBinding(((EnumConstantDeclaration) node).resolveConstructorBinding());
@@ -82,7 +82,7 @@ public class BindingsResolver {
 		return convertBinding("unknown", null, null, null);
 	}
 	
-	private URI resolveBinding(IBinding binding) {
+	public URI resolveBinding(IBinding binding) {
 		if (binding == null)
 			return convertBinding("unresolved", null, null, null);
 		if (binding instanceof ITypeBinding)
@@ -130,6 +130,8 @@ public class BindingsResolver {
 		String scheme = binding.isInterface() ? "java+interface" : "java+class";
 		if (binding.isWildcardType())
 			return convertBinding("unknown", null, null, null);
+		if (binding.isAnonymous())
+			scheme = "java+anonymousClass";
 		return convertBinding(scheme, binding.getQualifiedName(), null, null);
 	}
 	
