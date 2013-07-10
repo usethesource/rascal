@@ -84,3 +84,12 @@ public Exp plug( C(Exp exp, Ctx::create(Ctx ctx)) ) = Exp::create(plug(C(exp,ctx
 public Exp plug( C(Exp exp, Ctx::resume(Ctx ctx, Exp exp2)) ) = Exp::resume(plug(C(exp,ctx)), exp2);
 public Exp plug( C(Exp exp, Ctx::resume(Value::label(str l), Ctx ctx)) ) = Exp::resume(Exp::label(l), plug(C(exp,ctx)));
 public Exp plug( C(Exp exp, Ctx::yield(Ctx ctx)) ) = Exp::yield(plug(C(exp,ctx)));
+
+@doc{Extension with continuations}
+public data Ctx = 
+		callcc(Ctx ctx)
+		;
+
+public Exp split( Exp::callcc(Exp exp) ) = C(exp_, Ctx::callcc(ctx)) when !isValue(exp) && C(exp_,ctx) := split(exp);
+
+public Exp plug( C(Exp exp, Ctx::callcc(ctx)) ) = Exp::callcc(plug(exp,ctx));
