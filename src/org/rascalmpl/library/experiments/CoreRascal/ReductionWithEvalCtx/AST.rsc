@@ -38,3 +38,9 @@ public data Exp =
           ;
 
 public bool isValue(label(str name)) = true;
+
+@doc{Extension with continuations}
+public data Exp =
+			  abort(Exp exp)
+			| callcc(Exp exp)
+			;
