@@ -38,10 +38,11 @@ public data Ctx =
 		   
 @doc{The splitting operation}
 public Exp split( Exp::apply(Exp exp1, Exp exp2) ) = C(exp2_, Ctx::apply(Value::lambda(id, exp), ctx)) when isValue(exp1) && Exp::lambda(str id, Exp exp) := exp1 && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
-public Exp split( Exp::apply(Exp exp1, Exp exp2) ) = C(exp1_, Ctx::apply(ctx, exp2)) when !isValue(exp1) && !isValue(exp2) && C(exp1_,ctx) := split(exp1);
-public Exp split( Exp::add(Exp exp1, Exp exp2) ) = C(exp1_, Ctx::add(ctx, exp2)) when !isValue(exp1) && !isValue(exp2) && C(exp1_,ctx) := split(exp1);
+public Exp split( Exp::apply(Exp exp1, Exp exp2) ) = C(exp1_, Ctx::apply(ctx, exp2)) when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
+public Exp split( Exp::add(Exp exp1, Exp exp2) ) = C(exp2_, Ctx::add(exp1, ctx)) when isValue(exp1) && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
+public Exp split( Exp::add(Exp exp1, Exp exp2) ) = C(exp1_, Ctx::add(ctx, exp2)) when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
 public Exp split( Exp::eq(Exp exp1, Exp exp2) ) = C(exp2_, Ctx::eq(Value::\num(n), ctx)) when isValue(exp1) && Exp::number(int n) := exp1 && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
-public Exp split( Exp::eq(Exp exp1, Exp exp2) ) = C(exp1_, Ctx::eq(ctx, exp2)) when !isValue(exp1) && !isValue(exp2) && C(exp1_,ctx) := split(exp1);
+public Exp split( Exp::eq(Exp exp1, Exp exp2) ) = C(exp1_, Ctx::eq(ctx, exp2)) when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
 public Exp split( Exp::assign(str id, Exp exp) ) = C(exp_, Ctx::assign(id, ctx)) when !isValue(exp) && C(exp_,ctx) := split(exp);
 public Exp split( Exp::ifelse(Exp exp1, Exp exp2, Exp exp3) ) = C(exp1_, Ctx::ifelse(ctx, exp2, exp3)) when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
 public Exp split( Exp::config(Exp exp, Store store) ) = C(exp_, Ctx::config(ctx,store)) when !isValue(exp) && C(exp_,ctx) := split(exp);
@@ -92,4 +93,7 @@ public data Ctx =
 
 public Exp split( Exp::callcc(Exp exp) ) = C(exp_, Ctx::callcc(ctx)) when !isValue(exp) && C(exp_,ctx) := split(exp);
 
-public Exp plug( C(Exp exp, Ctx::callcc(ctx)) ) = Exp::callcc(plug(exp,ctx));
+public Exp plug( C(Exp exp, Ctx::callcc(ctx)) ) = Exp::callcc(plug(C(exp,ctx)));
+
+public default Exp plug(Exp exp) { throw "unknown <exp>; "; }
+
