@@ -32,3 +32,19 @@ public test bool test3() {
 	println("Result: <e3_>");
 	return e3_ == Exp::config(Exp::number(42),("xvar":Exp::number(42), "k":Exp::lambda("xvar",Exp::abort(Exp::id("xvar")))));
 }
+
+public Exp e4 = Exp::callcc(Exp::lambda("k", Exp::add(Exp::apply(Exp::id("k"), Exp::number(42)), Exp::number(10))));
+public test bool test4() {
+	println("Exp: callcc(lambda k . ((k 42) + 10))");
+	e4_ = reduce(Exp::config(e4,()));
+	println("Result: <e4_>");
+	return e4_ == Exp::config(Exp::number(42),("xvar":Exp::number(42), "k":Exp::lambda("xvar",Exp::abort(Exp::id("xvar")))));
+}
+
+public Exp e5 = Exp::add(Exp::callcc(Exp::lambda("k", Exp::apply(Exp::id("k"), Exp::number(42)))), Exp::number(10));
+public test bool test5() {
+	println("Exp: callcc(lambda k . (k 42) ) + 10");
+	e5_ = reduce(Exp::config(e5,()));
+	println("Result: <e5_>");
+	return e5_ == Exp::config(Exp::number(52),("xvar":Exp::number(42), "k":Exp::lambda("xvar",Exp::abort(Exp::add(Exp::id("xvar"), Exp::number(10))))));
+}
