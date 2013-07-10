@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
@@ -46,7 +47,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected boolean collectBindings;
 	
 	JavaToRascalConverter(final TypeStore typeStore, boolean collectBindings) {
-		//super(true);
+		super(true);
 		this.typeStore = typeStore;
 		this.bindingsResolver = new BindingsResolver(collectBindings);
 		DATATYPE_RASCAL_AST_TYPE_NODE_TYPE 		= this.typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_TYPE_NODE);
@@ -81,6 +82,11 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		return values.sourceLocation(compilationUnit);
 	}
 	
+	protected ISourceLocation resolveBinding(IBinding binding) {
+		URI resolvedBinding = bindingsResolver.resolveBinding(binding);
+		return values.sourceLocation(resolvedBinding);
+	}
+	
 	protected ISourceLocation resolveBinding(ASTNode node) {
 		if (node instanceof CompilationUnit)
 			return resolveBinding((CompilationUnit) node);
@@ -89,12 +95,12 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	protected ISourceLocation getSourceLocation(ASTNode node) {
 		int start = compilUnit.getExtendedStartPosition(node);
-		int end = start + compilUnit.getExtendedLength(node) - 1;
+		int end = start + compilUnit.getExtendedLength(node)-1;
 		
 		return values.sourceLocation(loc.getURI(), 
-				 start, node.getLength(), 
+				 start, compilUnit.getExtendedLength(node), 
 				 compilUnit.getLineNumber(start), compilUnit.getLineNumber(end), 
-				 compilUnit.getColumnNumber(start), compilUnit.getColumnNumber(end));
+				 compilUnit.getColumnNumber(start)+1, compilUnit.getColumnNumber(end)+1);
 	}
 	
 	protected IValue[] removeNulls(IValue... withNulls) {

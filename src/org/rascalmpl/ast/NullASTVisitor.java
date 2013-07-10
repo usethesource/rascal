@@ -1001,6 +1001,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitShellCommandClear(ShellCommand.Clear x) { 
+    return null; 
+  }
+
   public T visitShellCommandEdit(ShellCommand.Edit x) { 
     return null; 
   }

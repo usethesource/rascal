@@ -73,11 +73,12 @@ import static org.rascalmpl.library.vis.KeySym.KeySym_keyUnknown;
 
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class KeySymTranslate {
 	static final Type[] empty = {};
@@ -85,7 +86,7 @@ public class KeySymTranslate {
 	static final int[] modifiersSWT = {SWT.CTRL, SWT.COMMAND, SWT.ALT, SWT.SHIFT };
 	
 	public static IMap toRascalModifiers(int stateMask,IMap prevMap,IEvaluatorContext ctx){
-		ValueFactory vf = ValueFactory.getInstance();
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		for(int i = 0 ; i < modifiers.length ;i++){
 			Type controlType = modifiers[i];
 			IValue cons = vf.constructor(controlType);
@@ -95,7 +96,7 @@ public class KeySymTranslate {
 	}
 	
 	public static IValue toRascalKey(KeyEvent e,IEvaluatorContext ctx){
-		ValueFactory vf = ValueFactory.getInstance();
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		if(e.keyCode >= ' ' && e.keyCode < '~'){
 			String keySym = "" + (char)e.keyCode;
 			return vf.constructor(KeySym_keyPrintable, vf.string(keySym));

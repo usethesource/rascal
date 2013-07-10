@@ -1,6 +1,10 @@
 package org.rascalmpl.library.experiments.m3.internal;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IList;
@@ -18,11 +22,12 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	private static final org.eclipse.imp.pdb.facts.type.Type locType 		= TF.sourceLocationType();
 	private static final org.eclipse.imp.pdb.facts.type.Type m3TupleType 	= TF.tupleType(locType, locType);
-	private static final org.eclipse.imp.pdb.facts.type.Type m3MapType   	= TF.mapType(locType, locType);
+//	private static final org.eclipse.imp.pdb.facts.type.Type m3MapType   	= TF.mapType(locType, locType);
 	private final org.eclipse.imp.pdb.facts.type.Type m3LOCModifierType;
 	private final org.eclipse.imp.pdb.facts.type.Type m3LOCTypeType;
 	
 	private final Stack<ISourceLocation> scopeManager = new Stack<ISourceLocation>();
+	private final Map<ISourceLocation, Integer> anonymousClassCounter = new HashMap<ISourceLocation, Integer>();
 	
 	private ISetWriter source;
 	private ISetWriter containment;
@@ -32,7 +37,7 @@ public class M3Converter extends JavaToRascalConverter {
 	private ISetWriter invocation;
 	private ISetWriter imports;
 	private IMapWriter types;
-	private IMapWriter documentation;
+	private ISetWriter documentation;
 	private ISetWriter modifiers;
 	
 	M3Converter(final TypeStore typeStore) {
@@ -49,10 +54,10 @@ public class M3Converter extends JavaToRascalConverter {
 		modifiers = values.relationWriter(m3LOCModifierType);
 		m3LOCTypeType = TF.tupleType(locType, DATATYPE_RASCAL_AST_TYPE_NODE_TYPE);
 		types = values.mapWriter(m3LOCTypeType);
-		documentation = values.mapWriter(m3MapType);
+		documentation = values.relationWriter(m3TupleType);
 	}
 	
-	public IValue getModel() {
+	public IValue getModel(IValueList errors) {
 		ownValue = values.constructor(DATATYPE_M3_NODE_TYPE);
 		setAnnotation("source", source.done());
 		setAnnotation("containment", containment.done());
@@ -64,18 +69,8 @@ public class M3Converter extends JavaToRascalConverter {
 		setAnnotation("types", types.done());
 		setAnnotation("documentation", documentation.done());
 		setAnnotation("access", access.done());
+		setAnnotation("projectErrors", errors.asList());
 		return ownValue;
-	}
-	
-	@Override
-	protected ISourceLocation resolveBinding(ASTNode node) {
-		ISourceLocation result = super.resolveBinding(node);
-		String scheme = result.getURI().getScheme();
-		
-		if (scheme.equals("unknown") || scheme.equals("unresolved"))
-			result = null;
-		
-		return result;
 	}
 	
 	@Override
@@ -107,6 +102,9 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public void postVisit(ASTNode node) {
+		/* 
+		 * TODO: Keep source location for unknown/unresolved entities? 
+		 */
 		if (ownValue != null) {
 			insert(source, ownValue, getSourceLocation(node));
 		}
@@ -146,6 +144,24 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(AnonymousClassDeclaration node) {
+		int anonCounter = anonymousClassCounter.size() + 1;
+		anonymousClassCounter.put(getParent(), anonCounter);
+
+		ISourceLocation anonClassDecl = (ISourceLocation)ownValue;
+		try {
+			anonClassDecl = values.sourceLocation(new URI(
+								anonClassDecl.getURI().getScheme(),
+								anonClassDecl.getURI().getAuthority(),
+								getParent().getURI().getPath() + "." + "anonymous$" + anonCounter,
+								anonClassDecl.getURI().getQuery(),
+								anonClassDecl.getURI().getFragment()
+							));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
+		ownValue = anonClassDecl;
+		
 		scopeManager.push((ISourceLocation) ownValue);
 		
 		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
@@ -198,7 +214,7 @@ public class M3Converter extends JavaToRascalConverter {
 		IValue type = visitChild(node.getComponentType());
 		
 		ownValue = constructTypeNode("arrayType", type);
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -272,13 +288,14 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(ClassInstanceCreation node) {
 		visitChild(node.getExpression());
+		IValue type;
 	
 		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			visitChild(node.getName());
+			type = visitChild(node.getName());
 		} 
 		else {
-			visitChild(node.getType()); 
+			type = visitChild(node.getType()); 
 	
 			if (!node.typeArguments().isEmpty()) {
 				for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
@@ -292,8 +309,11 @@ public class M3Converter extends JavaToRascalConverter {
 			Expression e = (Expression) it.next();
 			visitChild(e);
 		}
-	
-		visitChild(node.getAnonymousClassDeclaration());
+		
+		if (node.getAnonymousClassDeclaration() != null) {
+			IValue anon = visitChild(node.getAnonymousClassDeclaration());
+			insert(types, anon, type);
+		}
 		
 		ownValue = resolveBinding(node);
 		insert(invocation, getParent(), ownValue);
@@ -389,6 +409,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(EnumConstantDeclaration node) {
 		scopeManager.push((ISourceLocation) ownValue);
+		
 		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 	
 		if (!node.arguments().isEmpty()) {
@@ -397,8 +418,9 @@ public class M3Converter extends JavaToRascalConverter {
 				visitChild(e);
 			}
 		}
-	
-		visitChild(node.getAnonymousClassDeclaration());
+		
+		IValue anon = visitChild(node.getAnonymousClassDeclaration());
+		insert(types, anon, resolveBinding(node.resolveVariable()));
 		ownValue = scopeManager.pop();
 		
 		insert(modifiers, ownValue, extendedModifiers);
@@ -551,7 +573,7 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(Javadoc node) {
-	
+		insert(documentation, resolveBinding(node.getAlternateRoot()), getSourceLocation(node));
 		return false;
 	}
 	
@@ -747,7 +769,7 @@ public class M3Converter extends JavaToRascalConverter {
 	public boolean visit(PrimitiveType node) {
 		ownValue = constructTypeNode(node.toString());
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -760,7 +782,7 @@ public class M3Converter extends JavaToRascalConverter {
 		
 		ownValue = constructTypeNode("qualifier", qualifier, name);
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -772,7 +794,7 @@ public class M3Converter extends JavaToRascalConverter {
 		
 		ownValue = constructTypeNode("qualifier", qualifier, name);
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -789,7 +811,7 @@ public class M3Converter extends JavaToRascalConverter {
 		String name = node.getFullyQualifiedName();
 		ownValue = constructTypeNode("simpleType", values.string(name));
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -798,7 +820,7 @@ public class M3Converter extends JavaToRascalConverter {
 		String name = node.getName().getFullyQualifiedName();
 		ownValue = constructTypeNode("simpleType", values.string(name));
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -1061,7 +1083,7 @@ public class M3Converter extends JavaToRascalConverter {
 		
 		ownValue = constructTypeNode("unionType", typesValues.asList());
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 	
@@ -1143,7 +1165,7 @@ public class M3Converter extends JavaToRascalConverter {
 		}
 		ownValue = constructTypeNode(name, type);
 
-		setAnnotation("binding", super.resolveBinding(node));
+		setAnnotation("binding", resolveBinding(node));
 		return false;
 	}
 }
