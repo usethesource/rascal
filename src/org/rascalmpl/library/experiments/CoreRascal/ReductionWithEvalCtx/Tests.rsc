@@ -8,9 +8,7 @@ import experiments::CoreRascal::ReductionWithEvalCtx::ReductionWithEvalCtx;
 
 import IO;
 
-public Exp e1 = ifelse(Exp::eq(Exp::number(1), Exp::number(1)), Exp::add(Exp::number(2), Exp::number(3)), Exp::assign("x", Exp::number(4)));
-public Exp e2 = ifelse(Exp::eq(Exp::number(1), Exp::number(0)), Exp::add(Exp::number(2), Exp::number(3)), Exp::assign("x", Exp::number(4)));
-
+// Expect that input reduces to cfg
 public bool expect(str input, Exp cfg) {
     println("Exp: <input>");
 	e = reduce(Exp::config(parse(input),()));
@@ -18,15 +16,32 @@ public bool expect(str input, Exp cfg) {
 	return e == cfg;
 }
 
-public test bool test1() = 
-	expect("if 1 == 1 then 2 + 3 else x := 4 fi", 
-		   Exp::config(Exp::number(5), ())
-		  );
+test bool test1a() = expect("true", Exp::config(Exp::\true(), ()) );
+test bool test1b() = expect("false", Exp::config(Exp::\false(), ()) );
+test bool test1c() = expect("5", Exp::config(Exp::number(5), ()) );
+test bool test1d() = expect("$L", Exp::config(Exp::label("$L"), ()) );
+test bool test1e() = expect("x", Exp::config(Exp::id("x"), ()) );
 
-public test bool test2() = 
-	expect("if 1 == 0 then 2 + 3 else x := 4 fi", 
-		   Exp::config(Exp::number(4), ("x":Exp::number(4)))
-		  );
+test bool test2a() = expect("lambda(n) { n }", Exp::config(Exp::lambda("n", id("n")), ()) );
+test bool test2b() = expect("lambda(n) { n }(5)", Exp::config(number(5), ("n_1": number(5))) );
+test bool test2c() = expect("lambda(n) { n + 1 }(5)", Exp::config(number(6), ("n_1": number(5))) );
+test bool test2d() = expect("lambda(n) { if n == 5 then n + 1 else n + 2 fi }(5)", Exp::config(number(6), ("n_1": number(5))) );
+test bool test2e() = expect("lambda(n) { if n == 5 then n + 1 else n + 2 fi }(6)", Exp::config(number(8), ("n_1": number(6))) );
+
+test bool test3() = expect("2 + 3", Exp::config(Exp::number(5), ()) );
+
+test bool test4a() = expect("2 == 2", Exp::config(Exp::\true(), ()) );
+test bool test4b() = expect("2 == 3", Exp::config(Exp::\false(), ()) );
+
+test bool test5a() = expect("x := 3", Exp::config(Exp::\number(3), ("x" : number(3))) );
+
+test bool test6a() = expect("if true then 3 else 4 fi", Exp::config(Exp::\number(3), ()) );
+test bool test6b() = expect("if false then 3 else 4 fi", Exp::config(Exp::\number(4), ()) );
+test bool test6c() = expect("if 1 == 1 then 3 else 4 fi", Exp::config(Exp::\number(3), ()) );
+test bool test6d() = expect("if 1 == 2 then 3 else 4 fi", Exp::config(Exp::\number(4), ()) );
+test bool test6e() = expect("if 1 == 1 then 2 + 3 else x := 4 fi",  Exp::config(Exp::number(5), ()) );
+test bool test6f() = expect("if 1 == 0 then 2 + 3 else x := 4 fi",  Exp::config(Exp::number(4), ("x":Exp::number(4))) );
+
 
 public test bool test3() = 
 	expect("callcc(lambda (k) { k(42) })", 
