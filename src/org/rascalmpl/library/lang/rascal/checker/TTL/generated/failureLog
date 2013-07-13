@@ -1,3 +1,10 @@
+
+[ExpressionKO] *** wrong type or no warning/error messages for (-169170905) < (0.6331780750577181);
+[ExpressionKO] *** wrong type or no warning/error messages for ((({}) + ({false,true})) + ({false,true})) + ({false});
+[ExpressionKO] *** wrong type or no warning/error messages for (0.7829919706964662) <= (1295795355);
+[ExpressionsOK] *** Failed test for: ((-251777213) + (([-1239005009]) - ([1692229328]))) - (([-1496838281r1905089489]) + (685681730r719601251)); --- expression is supposed to be type correct
+expectedType: list(rat()), actualType: list(int())
+
 [Statements52] stats: map[int,lrel[datetime]] X0 = (1958266861:[],-1734206211:[<$2014-06-03T14:50:11.754+01:00>],1869639482:[],-122105068:[]); map[int,lrel[datetime]] y = X0;
 [Statements52] *** Unexpected messages: {error("Initializer type map[int, list[tuple[datetime]]] not assignable to variable of type map[int, void]",|file://-|(26,95,<1,26>,<1,121>))}
 
