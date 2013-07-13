@@ -36,20 +36,41 @@ public data Ctx =
 		   ;
 		   
 @doc{The splitting operation}
-public Exp split( Exp::apply(Exp exp1, Exp exp2) ) = C(exp2_, Ctx::apply(Value::lambda(id, exp), ctx)) when isValue(exp1) && Exp::lambda(str id, Exp exp) := exp1 && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
-public Exp split( Exp::apply(Exp exp1, Exp exp2) ) = C(exp1_, Ctx::apply(ctx, exp2)) when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
+public Exp split( Exp::apply(Exp exp1, Exp exp2) ) = 
+	C(exp2_, Ctx::apply(Value::lambda(id, exp), ctx)) 
+	when isValue(exp1) && Exp::lambda(str id, Exp exp) := exp1 && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
+	
+public Exp split( Exp::apply(Exp exp1, Exp exp2) ) = 
+	C(exp1_, Ctx::apply(ctx, exp2)) 
+	when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
 
-public Exp split( Exp::add(Exp exp1, Exp exp2) ) = C(exp2_, Ctx::add(exp1, ctx)) when isValue(exp1) && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
-public Exp split( Exp::add(Exp exp1, Exp exp2) ) = C(exp1_, Ctx::add(ctx, exp2)) when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
+public Exp split( Exp::add(Exp exp1, Exp exp2) ) = 
+	C(exp2_, Ctx::add(exp1, ctx)) 
+	when isValue(exp1) && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
+	
+public Exp split( Exp::add(Exp exp1, Exp exp2) ) = 
+	C(exp1_, Ctx::add(ctx, exp2)) 
+	when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
 
-public Exp split( Exp::eq(Exp exp1, Exp exp2) ) = C(exp2_, Ctx::eq(Value::\num(n), ctx)) when isValue(exp1) && Exp::number(int n) := exp1 && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
-public Exp split( Exp::eq(Exp exp1, Exp exp2) ) = C(exp1_, Ctx::eq(ctx, exp2)) when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
+public Exp split( Exp::eq(Exp exp1, Exp exp2) ) = 
+	C(exp2_, Ctx::eq(Value::\num(n), ctx)) 
+	when isValue(exp1) && Exp::number(int n) := exp1 && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
+		
+public Exp split( Exp::eq(Exp exp1, Exp exp2) ) = 
+	C(exp1_, Ctx::eq(ctx, exp2)) 
+	when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
 
-public Exp split( Exp::assign(str id, Exp exp) ) = C(exp_, Ctx::assign(id, ctx)) when !isValue(exp) && C(exp_,ctx) := split(exp);
+public Exp split( Exp::assign(str id, Exp exp) ) = 
+	C(exp_, Ctx::assign(id, ctx)) 
+	when !isValue(exp) && C(exp_,ctx) := split(exp);
 
-public Exp split( Exp::ifelse(Exp exp1, Exp exp2, Exp exp3) ) = C(exp1_, Ctx::ifelse(ctx, exp2, exp3)) when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
+public Exp split( Exp::ifelse(Exp exp1, Exp exp2, Exp exp3) ) = 
+	C(exp1_, Ctx::ifelse(ctx, exp2, exp3)) 
+	when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
 
-public Exp split( Exp::config(Exp exp, Store store) ) = C(exp_, Ctx::config(ctx,store)) when !isValue(exp) && C(exp_,ctx) := split(exp);
+public Exp split( Exp::config(Exp exp, Store store) ) = 
+	C(exp_, Ctx::config(ctx,store)) 
+	when !isValue(exp) && C(exp_,ctx) := split(exp);
 
 public default Exp split(Exp exp) = { /*println("Default split: <exp> -\> <C(exp, Ctx::hole())>");*/ C(exp, Ctx::hole()); };
 
@@ -84,26 +105,52 @@ public data Ctx =
 		  | yield(Ctx ctx)
 		  ;
 		  
-public Exp split( Exp::labeled(str name, Exp exp) ) = C(exp_, Ctx::labeled(name, ctx)) when !isValue(exp) && C(exp_,ctx) := split(exp);
-public Exp split( Exp::create(Exp exp) ) = C(exp_, Ctx::create(ctx)) when !isValue(exp) && C(exp_,ctx) := split(exp);
-public Exp split( Exp::resume(Exp exp1, Exp exp2) ) = C(exp2_, Ctx::resume(Value::label(l), ctx)) when isValue(exp1) && Exp::label(str l) := exp1 && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
-public Exp split( Exp::resume(Exp exp1, Exp exp2) ) = C(exp1_, Ctx::resume(ctx, exp2)) when !isValue(exp1) && !isValue(exp2) && C(exp1_,ctx) := split(exp1);
-public Exp split( Exp::yield(Exp exp) ) = C(exp_, Ctx::yield(ctx)) when !isValue(exp) && C(exp_,ctx) := split(exp);
+public Exp split( Exp::labeled(str name, Exp exp) ) = 
+	C(exp_, Ctx::labeled(name, ctx)) 
+	when !isValue(exp) && C(exp_,ctx) := split(exp);
+	
+public Exp split( Exp::create(Exp exp) ) = 
+	C(exp_, Ctx::create(ctx))
+	when !isValue(exp) && C(exp_,ctx) := split(exp);
+	
+public Exp split( Exp::resume(Exp exp1, Exp exp2) ) = 
+	C(exp2_, Ctx::resume(Value::label(l), ctx)) 
+	when isValue(exp1) && Exp::label(str l) := exp1 && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
+	
+public Exp split( Exp::resume(Exp exp1, Exp exp2) ) = 
+	C(exp1_, Ctx::resume(ctx, exp2)) 
+	when !isValue(exp1) && !isValue(exp2) && C(exp1_,ctx) := split(exp1);
+	
+public Exp split( Exp::yield(Exp exp) ) = 
+	C(exp_, Ctx::yield(ctx)) 
+	when !isValue(exp) && C(exp_,ctx) := split(exp);
 
-public Exp plug( C(Exp exp, Ctx::labeled(str name, Ctx ctx)) ) = Exp::labeled(name, plug(C(exp,ctx)));
-public Exp plug( C(Exp exp, Ctx::create(Ctx ctx)) ) = Exp::create(plug(C(exp,ctx)));
-public Exp plug( C(Exp exp, Ctx::resume(Ctx ctx, Exp exp2)) ) = Exp::resume(plug(C(exp,ctx)), exp2);
-public Exp plug( C(Exp exp, Ctx::resume(Value::label(str l), Ctx ctx)) ) = Exp::resume(Exp::label(l), plug(C(exp,ctx)));
-public Exp plug( C(Exp exp, Ctx::yield(Ctx ctx)) ) = Exp::yield(plug(C(exp,ctx)));
+public Exp plug( C(Exp exp, Ctx::labeled(str name, Ctx ctx)) ) = 
+	Exp::labeled(name, plug(C(exp,ctx)));
+	
+public Exp plug( C(Exp exp, Ctx::create(Ctx ctx)) ) = 
+	Exp::create(plug(C(exp,ctx)));
+	
+public Exp plug( C(Exp exp, Ctx::resume(Ctx ctx, Exp exp2)) ) = 
+	Exp::resume(plug(C(exp,ctx)), exp2);
+	
+public Exp plug( C(Exp exp, Ctx::resume(Value::label(str l), Ctx ctx)) ) = 
+	Exp::resume(Exp::label(l), plug(C(exp,ctx)));
+	
+public Exp plug( C(Exp exp, Ctx::yield(Ctx ctx)) ) = 
+	Exp::yield(plug(C(exp,ctx)));
 
 @doc{Extension with continuations}
 public data Ctx = 
 		callcc(Ctx ctx)
 		;
 
-public Exp split( Exp::callcc(Exp exp) ) = C(exp_, Ctx::callcc(ctx)) when !isValue(exp) && C(exp_,ctx) := split(exp);
+public Exp split( Exp::callcc(Exp exp) ) = 
+	C(exp_, Ctx::callcc(ctx)) 
+	when !isValue(exp) && C(exp_,ctx) := split(exp);
 
-public Exp plug( C(Exp exp, Ctx::callcc(ctx)) ) = Exp::callcc(plug(C(exp,ctx)));
+public Exp plug( C(Exp exp, Ctx::callcc(ctx)) ) = 
+	Exp::callcc(plug(C(exp,ctx)));
 
 @doc{Extension with constants and lists}
 public data Value =
@@ -115,20 +162,31 @@ public data Ctx =
 			 lst(list[Exp] head, Ctx ctx, list[Exp] tail)
 		   ;
 
-public Exp split( Exp::apply(Exp exp1, Exp exp2) ) = C(exp2_, Ctx::apply(Value::const(id), ctx)) when isValue(exp1) && Exp::const(str id) := exp1 && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
-public Exp split( Exp::lst([*Exp head, Exp exp, *Exp tail]) ) = C(exp_, Ctx::lst(head, ctx, tail)) when !isValue(exp) && C(exp_,ctx) := split(exp);
+public Exp split( Exp::apply(Exp exp1, Exp exp2) ) = 
+	C(exp2_, Ctx::apply(Value::const(id), ctx)) 
+	when isValue(exp1) && Exp::const(str id) := exp1 && !isValue(exp2) && C(exp2_,ctx) := split(exp2);
+	
+public Exp split( Exp::lst([*Exp head, Exp exp, *Exp tail]) ) = 
+	C(exp_, Ctx::lst(head, ctx, tail)) 
+	when !isValue(exp) && C(exp_,ctx) := split(exp);
 
-public Exp plug( C(Exp exp, Ctx::apply(Value::const(str id), Ctx ctx)) ) = Exp::apply(Exp::const(id), plug(C(exp,ctx)));
-public Exp plug( C(Exp exp, Ctx::lst(list[Exp] head, Ctx ctx, list[Exp] tail)) ) = Exp::lst(head + [ plug(C(exp,ctx)) ] + tail);
+public Exp plug( C(Exp exp, Ctx::apply(Value::const(str id), Ctx ctx)) ) = 
+	Exp::apply(Exp::const(id), plug(C(exp,ctx)));
+	
+public Exp plug( C(Exp exp, Ctx::lst(list[Exp] head, Ctx ctx, list[Exp] tail)) ) = 
+	Exp::lst(head + [ plug(C(exp,ctx)) ] + tail);
 
 @doc{Extension with recursion}
 public data Ctx =
 			Y(Ctx ctx)
 			;
 			
-public Exp split( Exp::Y(Exp exp) ) = C(exp_, Ctx::Y(ctx)) when !isValue(exp) && C(exp_,ctx) := split(exp);
+public Exp split( Exp::Y(Exp exp) ) = 
+	C(exp_, Ctx::Y(ctx)) 
+	when !isValue(exp) && C(exp_,ctx) := split(exp);
 
-public Exp plug( C(Exp exp, Ctx::Y(ctx)) ) = Exp::Y(plug(exp,ctx));
+public Exp plug( C(Exp exp, Ctx::Y(ctx)) ) = 
+	Exp::Y(plug(exp,ctx));
 
 // Test that split and plug are inverse
 test bool textSplit(Exp e) = plug(split(e)) == e;
