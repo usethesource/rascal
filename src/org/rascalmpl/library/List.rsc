@@ -817,7 +817,7 @@ map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el) 
 	removeFromBag(b,el,1);
 
 map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el, int nr) =
-	!(b[el] ?) ? b : (b[el] <= nr ? b - (el : 0) : b + (el : b[el] - nr)); 
+	!(b[el] ?) ? b : (b[el] <= nr ? b - (el : b[el]) : b + (el : b[el] - nr)); 
 
 set[list[&T]] permutationsBag(map[&T element, int occurs] b) =
 	isEmpty(b) ? {[]} : 

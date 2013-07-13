@@ -1,12 +1,11 @@
 module experiments::CoreRascal::ReductionWithEvalCtx::AST
 
 @doc{The lambda expression part}
-@doc{e = true | false | Num | Id | lambda x.e | e e | e + e | e == e | x := e | if e then e else e}
+@doc{e = true | false | Num | Id | Consts | [e1,...] | lambda x.e | e e | e + e | e == e | x := e | if e then e else e | Y e}
 public data Exp = 
             \true()
           | \false()
-          | number(int n)
-          
+          | number(int n)         
           | id(str name)
           | lambda(str id, Exp exp)
           | apply(Exp exp1, Exp exp2)
@@ -15,15 +14,18 @@ public data Exp =
           | eq(Exp exp1, Exp exp2)
           
           | assign(str id, Exp exp)
-          | ifelse(Exp exp1, Exp exp2, Exp exp3)    
-          
-          | config(Exp exp, Store store) // tuple of an expression and semantic components - <e,Store>
+          | ifelse(Exp exp1, Exp exp2, Exp exp3)
+		  ;
+
+@doc{Extension with configurations that encapsulate semantics components, e.g, stores}		    
+public data Exp =
+		 	config(Exp exp, Store store)
           ;
 
 public alias Store = map[str,Exp];
 
-public bool isValue(Exp::\true()) = true;
-public bool isValue(Exp::\false()) = true;
+public bool isValue(\true()) = true;
+public bool isValue(\false()) = true;
 public bool isValue(number(int n)) = true;
 public bool isValue(lambda(str id, Exp exp)) = true;
 public default bool isValue(Exp e) = false;
@@ -43,4 +45,17 @@ public bool isValue(label(str name)) = true;
 public data Exp =
 			  abort(Exp exp)
 			| callcc(Exp exp)
+			;
+
+@doc{Extension with constants and lists}
+public data Exp = 
+			  const(str id)
+			| lst(list[Exp] exps)
+            ;
+public bool isValue(const(str id)) = true;
+public bool isValue(lst(list[Exp] exps)) = ( true | it && isValue(exp) | exp <- exps );
+
+@doc{Extension with recursion}
+public data Exp =
+			Y(Exp exp)
 			;

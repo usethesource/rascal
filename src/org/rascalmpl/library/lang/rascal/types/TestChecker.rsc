@@ -181,7 +181,7 @@ public map[RName,Symbol] getPatternVariables(Configuration c) {
 
 public set[Message] getFailureMessages(CheckResult r) {
    if(failure(set[Message] msgs) := r.res){
-      return msg;
+      return msgs;
    }	  
    return {};
 }
