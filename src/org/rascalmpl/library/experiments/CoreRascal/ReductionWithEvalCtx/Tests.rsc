@@ -10,6 +10,8 @@ import IO;
 
 // Expect that input reduces to cfg
 public bool expect(str input, Exp cfg) {
+	resetCounter();
+	resetFVar();
     println("Exp: <input>");
     e_in = parse(input);
     println("parsed!");
@@ -19,6 +21,8 @@ public bool expect(str input, Exp cfg) {
 }
 
 public bool expectModulo(str input, Exp cfg) {
+	resetCounter();
+	resetFVar();
     println("Exp: <input>");
     e_in = parse(input);
     println("parsed!");
@@ -34,10 +38,10 @@ test bool test1d() = expect("$L", Exp::config(Exp::label("$L"), ()) );
 test bool test1e() = expect("x", Exp::config(Exp::id("x"), ()) );
 
 test bool test2a() = expect("lambda(n) { n }", Exp::config(Exp::lambda("n", id("n")), ()) );
-test bool test2b() = expect("lambda(n) { n }(5)", Exp::config(number(5), ("n_1": number(5))) );
-test bool test2c() = expect("lambda(n) { n + 1 }(5)", Exp::config(number(6), ("n_1": number(5))) );
-test bool test2d() = expect("lambda(n) { if n == 5 then n + 1 else n + 2 fi }(5)", Exp::config(number(6), ("n_1": number(5))) );
-test bool test2e() = expect("lambda(n) { if n == 5 then n + 1 else n + 2 fi }(6)", Exp::config(number(8), ("n_1": number(6))) );
+test bool test2b() = expect("lambda(n) { n }(5)", Exp::config(number(5), ("fvar1": number(5))) );
+test bool test2c() = expect("lambda(n) { n + 1 }(5)", Exp::config(number(6), ("fvar1": number(5))) );
+test bool test2d() = expect("lambda(n) { if n == 5 then n + 1 else n + 2 fi }(5)", Exp::config(number(6), ("fvar1": number(5))) );
+test bool test2e() = expect("lambda(n) { if n == 5 then n + 1 else n + 2 fi }(6)", Exp::config(number(8), ("fvar1": number(6))) );
 
 test bool test3() = expect("2 + 3", Exp::config(Exp::number(5), ()) );
 
