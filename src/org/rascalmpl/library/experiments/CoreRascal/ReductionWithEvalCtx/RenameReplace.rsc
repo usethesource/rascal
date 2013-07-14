@@ -70,7 +70,7 @@ Exp replace(eq(Exp e1, Exp e2), str y, Exp v) 			= eq(replace(e1, y, v), replace
 
 Exp replace(assign(str x, Exp e), str y, Exp v) 		= assign(x, replace(e, y, v)); 
 Exp replace(ifelse(Exp e0, Exp e1, Exp e2), str y, Exp v)  
-														= ifelse(replace(e0, y, v), replace(e1, y, v), replace(e1, y, v));
+														= ifelse(replace(e0, y, v), replace(e1, y, v), replace(e2, y, v));
 
 @doc{Extension with configurations that encapsulate semantics components, e.g, stores}
 Exp replace(config(Exp exp, Store store), str y, Exp v) 	

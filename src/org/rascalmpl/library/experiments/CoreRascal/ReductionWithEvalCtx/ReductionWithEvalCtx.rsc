@@ -29,15 +29,12 @@ public Exp step( C(Exp::id(str name), Ctx::config(ctx, Store store)) ) =
 	when (name in store);
 
 public Exp step( C(Exp::apply(Exp::lambda(str id, Exp exp1), Exp exp2), Ctx::config(ctx, Store store)) ) = 
-	{  str id1 = "<id>_<incrementCounter()>"; store[id1] = exp2; C(replace(exp1, id, exp2), Ctx::config(ctx, store)); } 
+	{ str fresh = "fvar<incrementFVar()>"; store[fresh] = exp2; C( rename(exp1, id, fresh)/* alpha-substitution */, Ctx::config(ctx, store)); } 
 	when isValue(exp2);
-	
+
 public Exp step( C(Exp::assign(str id, Exp exp), Ctx::config(ctx, Store store)) ) = 
-	{  store[id] = exp; C(exp, Ctx::config(ctx, store)); } 
+	{ store[id] = exp; C(exp, Ctx::config(ctx, store)); } 
 	when isValue(exp);
-public Exp step( C(Exp::id(str name), Ctx::config(ctx, Store store)) ) = C(store[name], Ctx::config(ctx, store)) when (name in store);
-public Exp step( C(Exp::apply(Exp::lambda(str id, Exp exp1), Exp exp2), Ctx::config(ctx, Store store)) ) = { str fresh = "fvar<incrementFVar()>"; store[fresh] = exp2; C( rename(exp1, id, fresh)/* alpha-substitution */, Ctx::config(ctx, store)); } when isValue(exp2);
-public Exp step( C(Exp::assign(str id, Exp exp), Ctx::config(ctx, Store store)) ) = { store[id] = exp; C(exp, Ctx::config(ctx, store)); } when isValue(exp);
 
 @doc{Extension with co-routines}
 public Exp step( C(Exp::create(Exp exp), Ctx::config(ctx, Store store)) ) = 
@@ -89,7 +86,6 @@ public default Exp step( Exp exp ) {
 }
 
 public Exp reduce(Exp e) {
-	resetCounter();
 	Exp ee = e;
 	solve(ee) { ee = step(ee); }
     return ee;
