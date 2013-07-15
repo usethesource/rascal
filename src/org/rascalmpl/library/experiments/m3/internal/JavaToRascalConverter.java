@@ -163,7 +163,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected void setAnnotation(String annoName, IValue annoValue) {
 		if(this.ownValue == null) return ;
 		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName))
-			this.ownValue = ((IConstructor) this.ownValue).setAnnotation(annoName, annoValue);
+			this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annoValue);
 	}
 	
 	protected IValue constructDeclarationNode(String constructor, IValue... children) {

@@ -11,9 +11,11 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -43,5 +45,15 @@ public abstract class ResourceResult extends Result<IValue> implements IExternal
 		return false;
 	}
 	
+	@Override
+	public boolean isAnnotatable() {
+		return false;
+	}
+
+	@Override
+	public IAnnotatable<? extends IValue> asAnnotatable() {
+		throw new IllegalOperationException(
+				"Cannot be viewed as annotatable.", getType());
+	}
 	
 }
