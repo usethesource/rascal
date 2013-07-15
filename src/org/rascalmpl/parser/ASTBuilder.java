@@ -226,7 +226,7 @@ public class ASTBuilder {
 			i++;
 		}
 
-		AbstractAST ast = callMakerMethod(sort, cons, tree.getAnnotations(), actuals, null);
+		AbstractAST ast = callMakerMethod(sort, cons, tree.asAnnotatable().getAnnotations(), actuals, null);
 		
 		sortCache.putUnsafe(tree, ast);
 		return ast;
@@ -244,7 +244,7 @@ public class ASTBuilder {
 		}
 		Object actuals[] = new Object[] { tree, new String(TreeAdapter.yield(tree)) };
 
-		AbstractAST result = callMakerMethod(sort, "Lexical", tree.getAnnotations(), actuals, null);
+		AbstractAST result = callMakerMethod(sort, "Lexical", tree.asAnnotatable().getAnnotations(), actuals, null);
 		lexCache.putUnsafe(tree, result);
 		return result;
 	}
@@ -351,8 +351,8 @@ public class ASTBuilder {
 	}
 
 	private Expression liftHole(IConstructor tree) {
-	  assert tree.hasAnnotation("holeType");
-	  IConstructor type = (IConstructor) tree.getAnnotation("holeType");
+	  assert tree.asAnnotatable().hasAnnotation("holeType");
+	  IConstructor type = (IConstructor) tree.asAnnotatable().getAnnotation("holeType");
 	  tree = (IConstructor) TreeAdapter.getArgs(tree).get(0);
 		IList args = TreeAdapter.getArgs(tree);
 		IConstructor nameTree = (IConstructor) args.get(4);

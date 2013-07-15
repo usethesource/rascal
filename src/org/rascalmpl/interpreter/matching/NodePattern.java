@@ -23,12 +23,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -384,51 +386,6 @@ public class NodePattern extends AbstractMatchingResult {
     }
 
     @Override
-    public IValue getAnnotation(String label) throws FactTypeUseException {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public INode setAnnotation(String label, IValue newValue) throws FactTypeUseException {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean hasAnnotation(String label) throws FactTypeUseException {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean hasAnnotations() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Map<String, IValue> getAnnotations() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public INode setAnnotations(Map<String, IValue> annotations) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public INode joinAnnotations(Map<String, IValue> annotations) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public INode removeAnnotation(String key) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public INode removeAnnotations() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException,
         IndexOutOfBoundsException {
       throw new UnsupportedOperationException();
@@ -462,6 +419,17 @@ public class NodePattern extends AbstractMatchingResult {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
+	@Override
+	public boolean isAnnotatable() {
+		return false;
+	}
+
+	@Override
+	public IAnnotatable<? extends INode> asAnnotatable() {
+		throw new IllegalOperationException(
+				"Cannot be viewed as annotatable.", getType());
+	}		
 	}
 }
 

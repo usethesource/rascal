@@ -9,6 +9,7 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
@@ -186,4 +187,16 @@ public class LazyList implements IList {
 				"Relational operations are not supported on lazy representation.",
 				getType());
 	}
+	
+	@Override
+	public boolean isAnnotatable() {
+		return false;
+	}
+
+	@Override
+	public IAnnotatable<? extends IValue> asAnnotatable() {
+		throw new IllegalOperationException(
+				"Cannot be viewed as annotatable.", getType());
+	}
+	
 }
