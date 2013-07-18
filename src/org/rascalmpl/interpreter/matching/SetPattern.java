@@ -528,42 +528,6 @@ public class SetPattern extends AbstractMatchingResult {
 		return true;
 	}
 	
-	
-	/**
-	 * @param i			index of current variable
-	 * @param elements	the set elements it should match
-	 * @return true		on success
-	 */
-	private boolean matchPatternElement(int i, IValue elements){
-		
-		IValue elem ;
-		if(isSetVar(i)){
-			// Var #i is a set variable: should match all elements
-			varVal[i] = (ISet) elements;
-			elem = elements;
-		} else {
-			// Var #i is not a set variable.
-			if(elements.getType().isSet()){
-				// Var #i should match single element in elements
-				ISet set = (ISet) elements;
-				assert set.size() == 1;
-				varVal[i] = elem = set.iterator().next();
-			} else {
-				varVal[i] = elem = elements;
-				//varVal[i] = ctx.getValueFactory().set(elem.getType()).insert(elem); // TODO: Should this be  a set?
-			}
-		}
-		
-		// TODO: see if we can use a static type here?!
-		
-//		if(!isBinding[i] && varPat[i] instanceof QualifiedNamePattern){
-//			Result<IValue> r = ctx.getCurrentEnvt().getVariable(varName[i]);
-//			return r.getValue().isEqual(elements);
-//		}
-		varPat[i].initMatch(ResultFactory.makeResult(elem.getType(), elem, ctx));
-		return varPat[i].next();
-	}
-	
 	@Override
 	public boolean next(){
 		checkInitialized();
@@ -581,10 +545,29 @@ public class SetPattern extends AbstractMatchingResult {
 			}
 			
 			if(nVar == 1){
-				if(isSetVar(0) || availableSetElements.size() == 1){
-					return matchPatternElement(0, availableSetElements);
-				}
-				return false;
+			  if(isSetVar(0) || availableSetElements.size() == 1) {
+			    IValue elem ;
+          if(isSetVar(0)){
+            // Var #i is a set variable: should match all elements
+            varVal[0] = (ISet) availableSetElements;
+            elem = availableSetElements;
+          } 
+          else {
+            // Var #i is not a set variable.
+            if(availableSetElements.getType().isSet()){
+              // Var #i should match single element in elements
+              ISet set = (ISet) availableSetElements;
+              assert set.size() == 1;
+              varVal[0] = elem = set.iterator().next();
+            } else {
+              varVal[0] = elem = availableSetElements;
+              //varVal[i] = ctx.getValueFactory().set(elem.getType()).insert(elem); // TODO: Should this be  a set?
+            }
+          }
+
+          varPat[0].initMatch(ResultFactory.makeResult(elem.getType(), elem, ctx));
+          hasNext = varPat[0].hasNext();
+			  }
 			}
 			
 			currentVar = 0;
@@ -598,6 +581,14 @@ public class SetPattern extends AbstractMatchingResult {
 
 		if(debug)System.err.println("\nStart assigning Vars for " + this + ":= " + subject);
 
+		if (nVar == 1 && (isSetVar(0) || availableSetElements.size() == 1)) {
+		  if (varPat[0].hasNext() && varPat[0].next()) {
+        return true;
+      }
+		  
+		  return false;
+		}
+		
 		main: 
 		do {
 			if (ctx.isInterrupted()) {
