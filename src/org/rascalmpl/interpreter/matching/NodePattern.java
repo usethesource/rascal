@@ -279,7 +279,7 @@ public class NodePattern extends AbstractMatchingResult {
 					for (int i = nextChild; i >= 0; i--) {
 						IMatchingResult child = patternChildren.get(i);
             hasNext |= child.hasNext();
-						if (hasNext) {
+						if (patternConstructorType != null && !patternConstructorType.isNode() && hasNext) {
 						  // This code should disappear as soon as we have a type checker. 
 						  // Since constructors give us specific type contexts, an inferred type
 						  // for a child pattern variable should get this specific type. A type
