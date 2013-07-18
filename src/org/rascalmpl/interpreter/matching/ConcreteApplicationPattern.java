@@ -19,11 +19,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -148,6 +150,17 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 			throw new UnsupportedOperationException();
 		}
+		
+		@Override
+		public boolean isAnnotatable() {
+			return false;
+		}
+
+		@Override
+		public IAnnotatable<? extends IValue> asAnnotatable() {
+			throw new IllegalOperationException(
+					"Cannot be viewed as annotatable.", getType());
+		}
 	}
 	
 	private class LexicalTreeAsTuple extends TreeAsTuple {
@@ -231,4 +244,5 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	public String toString() {
 	  return production.toString();
 	}
+	
 }

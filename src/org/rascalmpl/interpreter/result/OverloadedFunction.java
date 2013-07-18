@@ -24,10 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -505,4 +507,16 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	public Evaluator getEval(){
 		return (Evaluator) ctx;
 	}
+	
+	@Override
+	public boolean isAnnotatable() {
+		return false;
+	}
+
+	@Override
+	public IAnnotatable<? extends IValue> asAnnotatable() {
+		throw new IllegalOperationException(
+				"Cannot be viewed as annotatable.", getType());
+	}
+	
 }

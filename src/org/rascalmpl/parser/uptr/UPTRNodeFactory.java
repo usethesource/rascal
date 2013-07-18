@@ -107,7 +107,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 	}
 	
 	public IConstructor addPositionInformation(IConstructor node, ISourceLocation location){
-		return node.setAnnotation(Factory.Location, location);
+		return node.asAnnotatable().setAnnotation(Factory.Location, location);
 	}
 	
 	public ArrayList<IConstructor> getChildren(IConstructor node){
