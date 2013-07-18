@@ -82,7 +82,7 @@ public class DebugUpdater {
 
 				// 1: does current production application need an annotation?
 				if (hasBreakableAttributeTag(prod) || addBreakable && !isList) {
-					arg = arg.setAnnotation("breakable", VF.bool(true));
+					arg = arg.asAnnotatable().setAnnotation("breakable", VF.bool(true));
 				}
 				
 				// 2: push-down deferred production names.

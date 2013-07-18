@@ -131,7 +131,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 						return null;
 
 					}
-					result = result.setAnnotation(entry.getKey(), value);
+					result = result.asAnnotatable().setAnnotation(entry.getKey(), value);
 				}
 
 				return result;
@@ -177,7 +177,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 			if (argument == null) {
 				return null;
 				/*
-				 * Het is onmogelijk om de constructor te bouwen als ŽŽn
+				 * Het is onmogelijk om de constructor te bouwen als ï¿½ï¿½n
 				 * argument null is.
 				 */
 			}

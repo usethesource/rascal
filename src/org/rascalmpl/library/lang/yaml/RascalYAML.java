@@ -103,35 +103,35 @@ public class RascalYAML {
 	private IConstructor loadRec(Object obj, IdentityHashMap<Object, Integer> anchors, IdentityHashMap<Object, Boolean> visited, IEvaluatorContext ctx) {
 		if (obj instanceof Integer) {
 			return values.constructor(Node_scalar, values.integer((Integer)obj))
-					.setAnnotation("tag", reifier.typeToValue(tf.integerType(), ctx).getValue());
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.integerType(), ctx).getValue());
 		}
 		if (obj instanceof Long) {
 			return	values.constructor(Node_scalar, values.integer((Long)obj))
-					.setAnnotation("tag", reifier.typeToValue(tf.integerType(), ctx).getValue());
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.integerType(), ctx).getValue());
 		}
 		if (obj instanceof Double) {
 			return values.constructor(Node_scalar, values.real((Double)obj))
-					.setAnnotation("tag", reifier.typeToValue(tf.realType(), ctx).getValue());
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.realType(), ctx).getValue());
 		}
 		if (obj instanceof Float) {
 			return values.constructor(Node_scalar, values.real((Float)obj))
-					.setAnnotation("tag", reifier.typeToValue(tf.realType(), ctx).getValue());
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.realType(), ctx).getValue());
 		}
 		if (obj instanceof String) {
 			return values.constructor(Node_scalar, values.string((String)obj))
-					.setAnnotation("tag", reifier.typeToValue(tf.stringType(), ctx).getValue());
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.stringType(), ctx).getValue());
 		}
 		if (obj instanceof Boolean) {
 			return values.constructor(Node_scalar, values.bool((Boolean)obj))
-					.setAnnotation("tag", reifier.typeToValue(tf.boolType(), ctx).getValue());
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.boolType(), ctx).getValue());
 		}
 		if (obj instanceof Date) {
 			return values.constructor(Node_scalar, values.datetime(((Date)obj).getTime()))
-					.setAnnotation("tag", reifier.typeToValue(tf.dateTimeType(), ctx).getValue());
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.dateTimeType(), ctx).getValue());
 		}
 		if (obj instanceof URI) {
 			return values.constructor(Node_scalar, values.sourceLocation((URI)obj))
-					.setAnnotation("tag", reifier.typeToValue(tf.sourceLocationType(), ctx).getValue());
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.sourceLocationType(), ctx).getValue());
 		}
 
 		// Structural types may be shared.
@@ -170,7 +170,7 @@ public class RascalYAML {
 					ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		if (anchors.get(obj) != -1) {
-			result = result.setAnnotation(ANCHOR_ANNO, values.integer(anchors.get(obj)));
+			result = result.asAnnotatable().setAnnotation(ANCHOR_ANNO, values.integer(anchors.get(obj)));
 		}
 		return result;
 	}
@@ -218,8 +218,8 @@ public class RascalYAML {
 		}
 		if (yaml.getConstructorType() == Node_sequence) {
 			List<Object> l = new ArrayList<Object>();
-			if (yaml.hasAnnotation(ANCHOR_ANNO)) {
-				visited.put(((IInteger)yaml.getAnnotation(ANCHOR_ANNO)).intValue(), l);
+			if (yaml.asAnnotatable().hasAnnotation(ANCHOR_ANNO)) {
+				visited.put(((IInteger)yaml.asAnnotatable().getAnnotation(ANCHOR_ANNO)).intValue(), l);
 			}
 			for (IValue v: (IList)yaml.get(0)) {
 				l.add(dumpYAMLrec((IConstructor)v, visited, ctx));
@@ -228,8 +228,8 @@ public class RascalYAML {
 		}
 		if (yaml.getConstructorType() == Node_mapping) {
 			Map<Object, Object> m = new IdentityHashMap<Object, Object>();
-			if (yaml.hasAnnotation(ANCHOR_ANNO)) {
-				visited.put(((IInteger)yaml.getAnnotation(ANCHOR_ANNO)).intValue(), m);
+			if (yaml.asAnnotatable().hasAnnotation(ANCHOR_ANNO)) {
+				visited.put(((IInteger)yaml.asAnnotatable().getAnnotation(ANCHOR_ANNO)).intValue(), m);
 			}
 			Iterator<Entry<IValue, IValue>> iter = ((IMap)yaml.get(0)).entryIterator();
 			while (iter.hasNext()) {

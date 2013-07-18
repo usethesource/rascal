@@ -254,7 +254,7 @@ public class JSonWriter implements IValueTextWriter {
 		 */
 		public IValue visitNode(INode o) throws IOException {
 			Iterator<IValue> nodeIterator = o.iterator();
-			Map<String, IValue> annotations = o.getAnnotations();
+			Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
 			Iterator<String> annoIterator = annotations.keySet().iterator();
 			if (nodeTyped) inNode++;
 			append("{\"" + name + "\":");

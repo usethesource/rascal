@@ -1990,7 +1990,7 @@ public class Prelude {
 	}
 	
 	public IMap getAnnotations(INode node) {
-		java.util.Map<java.lang.String,IValue> map = node.getAnnotations();
+		java.util.Map<java.lang.String,IValue> map = node.asAnnotatable().getAnnotations();
 		IMapWriter w = values.mapWriter();
 		
 		for (Entry<java.lang.String,IValue> entry : map.entrySet()) {
@@ -2008,15 +2008,15 @@ public class Prelude {
 			map.put(((IString) key).getValue(), value);
 		}
 		
-		return node.setAnnotations(map);
+		return node.asAnnotatable().setAnnotations(map);
 	}
 	
 	public INode delAnnotations(INode node) {
-		return node.removeAnnotations();
+		return node.asAnnotatable().removeAnnotations();
 	}
 	
 	public INode delAnnotation(INode node, IString label) {
-		return node.removeAnnotation(label.getValue());
+		return node.asAnnotatable().removeAnnotation(label.getValue());
 	}
 	
 	/*
@@ -2200,7 +2200,7 @@ public class Prelude {
 			IValue result = implode(store, type, ast, splicing, ctx);
 			if (result.getType().isNode()) {
 				IMapWriter comments = values.mapWriter();
-				comments.putAll((IMap)((INode)result).getAnnotation("comments"));
+				comments.putAll((IMap)((INode)result).asAnnotatable().getAnnotation("comments"));
 				IList beforeComments = extractComments(before);
 				if (!beforeComments.isEmpty()) {
 					comments.put(values.integer(-1), beforeComments);
@@ -2209,7 +2209,7 @@ public class Prelude {
 				if (!afterComments.isEmpty()) {
 					comments.put(values.integer(((INode)result).arity()), afterComments);
 				}
-				result = ((INode)result).setAnnotation("comments", comments.done());
+				result = ((INode)result).asAnnotatable().setAnnotation("comments", comments.done());
 			}
 			return result;
 		}
@@ -2231,7 +2231,7 @@ public class Prelude {
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
 						IConstructor ast = makeConstructor(type, constructorName, ctx, values.string(yield));
-						return ast.setAnnotation("location", loc);
+						return ast.asAnnotatable().setAnnotation("location", loc);
 					}
 					catch (Backtrack b) {
 						continue;
@@ -2399,7 +2399,7 @@ public class Prelude {
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
 				INode ast = values.node(constructorName, implodeArgs(store, type, args, ctx));
-				return ast.setAnnotation("location", TreeAdapter.getLocation(tree)).setAnnotation("comments", comments);
+				return ast.asAnnotatable().setAnnotation("location", TreeAdapter.getLocation(tree)).asAnnotatable().setAnnotation("comments", comments);
 			}
 			
 			// make a typed constructor
@@ -2415,7 +2415,7 @@ public class Prelude {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args, ctx);
 					IConstructor ast = makeConstructor(type, constructorName, ctx, implodedArgs);
-					return ast.setAnnotation("location", loc).setAnnotation("comments", comments);
+					return ast.asAnnotatable().setAnnotation("location", loc).asAnnotatable().setAnnotation("comments", comments);
 				}
 				catch (Backtrack b) {
 					continue;

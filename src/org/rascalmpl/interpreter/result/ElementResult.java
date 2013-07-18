@@ -160,7 +160,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 			}
 		}
 
-		IValue annotatedBase = ((INode)getValue()).setAnnotation(annoName, anno.getValue());
+		IValue annotatedBase = ((INode)getValue()).asAnnotatable().setAnnotation(annoName, anno.getValue());
 
 		return makeResult(getType(), annotatedBase, ctx);
 	}
