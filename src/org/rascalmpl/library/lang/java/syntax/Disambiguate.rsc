@@ -78,19 +78,10 @@ bool containsPrefixExpressions(set[Tree] trees) {
 bool containsPrefixExpression(Tree t) {
 	todo = {t};
 	while (todo != {}) {
-		todoCopy = todo;
-		todo = {};
-		for (Tree a:appl(prod, args) <- todoCopy) {
-			if ((Expr)`(<RefType _>) <Expr e>` := a && isPrefix(e)) {
-				if (isPrefix(e)) {
-					return true;	
-				}
-				todo += {*args};
-			}
-			else {//if (canContainMethods(prod.def)){
-				todo += {*args};
-			}
+		if ((Expr)`(<RefType _>) <Expr e>` <- todo && isPrefix(e)) {
+			return true;	
 		}
+		todo = { *args | Tree a:appl(_, args) <- todo};
 	}
 	return false;
 }
