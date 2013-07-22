@@ -17,7 +17,19 @@ import experiments::CoreRascal::ReductionWithEvalCtx::AST;
   - How is the argument of resume typed?
   - How is communicated that the coroutine is exhausted?
   
-  Here is a preorder traversal example:
+  Example: Countdown
+  
+  int countDown(int n){
+    while(n > 0 ){
+    	yield n;
+    	n -= 1;
+    }
+  }
+  
+  c = countDown(10);							// for(l <- countDown(10)) println(l);
+  while(c.hasMore()) println(c.resume());
+  
+  Example: preorder traversal
   
   data TNODE = tnode(str key, TNODE left, TNODE right) | tleaf(str name);
   
