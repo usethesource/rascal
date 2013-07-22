@@ -425,10 +425,10 @@ public class ASTConverter extends JavaToRascalConverter {
 	public boolean visit(ImportDeclaration node) {
 		
 		String name = node.getName().getFullyQualifiedName();
-		String importType = new String("import");
+		String importType = "import";
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (node.isStatic())
-				importType = "static".concat(importType);
+				importType = "staticImport";
 		}
 		
 		ownValue = constructDeclarationNode(importType.toString(), values.string(name));
