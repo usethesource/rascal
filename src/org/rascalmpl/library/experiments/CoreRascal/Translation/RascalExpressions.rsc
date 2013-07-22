@@ -60,11 +60,14 @@ Exp translate(intCon(int n)) = number(n);
 data RascalExp = var(str name);
 Exp translate(var(str name)) = id(name);
 
+// Boolean operators
+
 data RascalExp = 
 	  \and(RascalExp lhs, RascalExp rhs)
 	| \or(RascalExp lhs, RascalExp rhs)
 	| \not(RascalExp lhs)
 	;
+
 	
 /*
 Translation schemas for true, false, and, or, not:
@@ -106,11 +109,11 @@ boolCon(false) ==>
 		return false;
     }"
 
-\not(e, e)==>
+\not(e)==>
 	"bool notFun () {
 		c = <bool_translate(e)>;
-		while (c1.hasMore())
-		       yield !c1.resume();
+		while (c.hasMore())
+		       yield !c.resume();
 		return false;
     }"
     
@@ -133,3 +136,43 @@ Example:
     }"
 
 */
+
+	
+data RascalExp =
+       less(RascalExp lhs, RascalExp rhs)
+     | add(RascalExp lhs, RascalExp rhs)
+     ;
+
+/*
+less(e1,e2) ==>
+     "<translate(e1)> \< <translate(e2)>";
+     
+Example:
+less(intCon(3), intCon(4)) ==>
+     number(3) < number(4);
+          
+\and(less(intCon(3), intCon(4)), \true()) ==>
+
+bool andFun () {
+		c1 = bool lessFun () = number(3) < number(4);  // <== who wraps < in a coroutine?
+		c2 = bool trueFun () = yield true;
+		while (c1.hasMore()){
+		       if(c1.resume()){
+		            while(c2.hasMore()){
+		       			if(c2.resume())
+		       				yield true;
+		       		}
+		       } else 
+		       		return false;
+		}
+		return false;
+    }"
+
+*/
+	
+data Pattern = boolPat(bool b) | intPat(int n) | strPat(str s);
+
+data Pattern = var(str name);
+
+data RascalExp =
+       match(Pattern pat, RascalExpression exp);
