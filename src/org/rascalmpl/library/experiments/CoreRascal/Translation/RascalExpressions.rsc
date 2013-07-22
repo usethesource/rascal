@@ -5,9 +5,9 @@ import experiments::CoreRascal::ReductionWithEvalCtx::AST;
   This is an experiment to see how some Rascal Expressions can be translated to the Core language.
   Since we have no AST (yet) for RascalExpressions we make it up here.
   I assume the following coroutine model here:
-  - a coroutine is a functions that contians a yield in its body.
+  - a coroutine is a functions that contains a yield in its body.
   - calling a coroutine returns a coroutine value.
-  - Inside th coroutine "yield v" returns value v from the coroutine.
+  - Inside the coroutine "yield v" returns value v from the coroutine.
   - Outside coroutine c, "c.resume(y)": resumes coroutine c; the suspended yield in coroutine c returns y.
   - "c.hasMore()": the coroutine can return more results.
   - "c.close()": shut coroutine c down.
@@ -55,7 +55,7 @@ data RascalExp =
 	;
 	
 /*
-Tralation schemas for and, or, not:
+Translation schemas for true, false, and, or, not:
 
 boolCon(true) ==>
   	"bool trueFun () = yield true;"
