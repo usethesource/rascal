@@ -56,7 +56,7 @@ bool isPrefix((Expr)`-- <Expr _>`) = true;
 default bool isPrefix(Expr x) = false;
 
 Tree amb(set[Tree] alts) {
-	if (/(Expr)`(<RefType _>) <Expr e>` := alts && isPrefix(e)) {
+	if (containsPrefixExpressions(alts)) {
 		counts = {<size(casts), a> | a <- alts, casts := [ isNumeric(t) | /(Expr)`(<RefType t>) <Expr e>` := a, isPrefix(e)], size(casts) > 0 ==> all(c <- casts, c)};
 		if (counts != {}) {
 			// get the valid tree with the most valid casts
@@ -64,4 +64,24 @@ Tree amb(set[Tree] alts) {
 		}
 	}
 	fail amb;
+}
+
+bool containsPrefixExpressions(set[Tree] trees) {
+	for (t <- trees) {
+		if (containsPrefixExpression(t)) {
+			return true;	
+		}	
+	}
+	return false;
+} 
+
+bool containsPrefixExpression(Tree t) {
+	todo = {t};
+	while (todo != {}) {
+		if ((Expr)`(<RefType _>) <Expr e>` <- todo && isPrefix(e)) {
+			return true;	
+		}
+		todo = { *args | Tree a:appl(_, args) <- todo};
+	}
+	return false;
 }

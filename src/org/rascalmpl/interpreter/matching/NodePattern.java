@@ -277,8 +277,18 @@ public class NodePattern extends AbstractMatchingResult {
 					// then the next call to hasNext() will definitely returns false.
 					hasNext = false;
 					for (int i = nextChild; i >= 0; i--) {
-						hasNext |= patternChildren.get(i).hasNext();
+						IMatchingResult child = patternChildren.get(i);
+            hasNext |= child.hasNext();
+						if (patternConstructorType != null && !patternConstructorType.isNode() && hasNext) {
+						  // This code should disappear as soon as we have a type checker. 
+						  // Since constructors give us specific type contexts, an inferred type
+						  // for a child pattern variable should get this specific type. A type
+						  // checker would have inferred that already, but now we just push
+						  // the information down to all children of the constructor.
+						  child.updateType(patternConstructorType.getFieldType(i++));
+						}
 					}
+					
 					return true;
 				}
 				
