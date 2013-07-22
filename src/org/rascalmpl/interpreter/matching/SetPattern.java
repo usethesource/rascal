@@ -544,7 +544,7 @@ public class SetPattern extends AbstractMatchingResult {
 				return false;
 			}
 			
-			if(nVar == 1){
+			if(patternSize == 1){
 			  if(isSetVar(0) || availableSetElements.size() == 1) {
 			    IValue elem ;
           if(isSetVar(0)){
@@ -581,7 +581,7 @@ public class SetPattern extends AbstractMatchingResult {
 
 		if(debug)System.err.println("\nStart assigning Vars for " + this + ":= " + subject);
 
-		if (nVar == 1 && (isSetVar(0) || availableSetElements.size() == 1)) {
+		if (patternSize == 1 && (isSetVar(0) || availableSetElements.size() == 1)) {
 		  if (varPat[0].hasNext() && varPat[0].next()) {
         return true;
       }
