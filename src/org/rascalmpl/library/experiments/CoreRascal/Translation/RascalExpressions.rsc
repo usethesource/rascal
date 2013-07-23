@@ -50,12 +50,16 @@ import experiments::CoreRascal::ReductionWithEvalCtx::AST;
 */
 
 // Literals
-data RascalExp = boolCon(bool b) | intCon(int n) | strCon(str s);
+data RascalExp = boolCon(bool b) | intCon(int n) | strCon(str s) | listCon(list[RascalExpr] exps) | nodeCon(str name, list[RascalExpr] args);
 
 Exp translate(boolCon(true)) = \true();
 Exp translate(boolCons(false)) = \false();
 Exp translate(intCon(int n)) = number(n);
 // strCon, enz.
+
+Exp translate(listCon(list[RascalExpr] exps)) = lst([translate(re) | re <- exps]);
+Exp translate(nodeCon(str name, list[RascalExpr] args)) = nd(name, ([translate(re) | re <- args]));
+
 
 data RascalExp = var(str name);
 Exp translate(var(str name)) = id(name);
@@ -170,9 +174,42 @@ bool andFun () {
 
 */
 	
-data Pattern = boolPat(bool b) | intPat(int n) | strPat(str s);
+data Pattern = boolPat(bool b) | intPat(int n) | strPat(str s) | listPat(list[Pattern] pats) | nodePat(str name, list[Patterns] pats);
 
 data Pattern = var(str name);
 
 data RascalExp =
        match(Pattern pat, RascalExpression exp);
+       
+/*
+match(boolPat(bool b), RascalExpression exp)) ==>
+    "<b> == <translate(exp)>;"
+    
+match(intPat(int n), RascalExpression exp)) ==>
+    "intCon(<n>) == <translate(exp)>;"
+    
+match(var(str name), RascalExpression exp)) ==>
+    "var(<name>) = <translate(exp)>; true"
+    
+    
+match(nodePat(str name, list[Patterns] pats), RascalExpression exp)) ==>
+    "subject = <translate(exp)>; args = getArgs(subject);
+     <size(pats)> == size(args) && <name> == fun(subject)) &&
+     
+     	<for(i <- index(pats)){>
+         <translate(match(pats[i], args[i])> &&
+     	<}>
+        true
+    "
+Example:
+
+match(nodePat("f", [intPat(3), var("X"), boolPat(true)]), nodeCon("f", [intCon(3), intCon(4), boolCon(true)])   ==>
+
+	subject = nodeCon("f", [intCon(3), intCon(4), boolCon(true)]); 
+	args = getArgs(subject);
+	3 == size(args) && "f" == fun(subject) &&
+	intCon(3) == args[0] &&
+	X = args[1] &&
+	boolPat(true) == args[2]
+    
+*/
