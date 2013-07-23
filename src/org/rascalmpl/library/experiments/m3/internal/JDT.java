@@ -18,14 +18,17 @@ package org.rascalmpl.library.experiments.m3.internal;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -37,16 +40,20 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 
 public class JDT {
     private final IValueFactory VF;
-    List<String> classPathEntries;
-    List<String> sourcePathEntries;
+    private List<String> classPathEntries;
+    private List<String> sourcePathEntries;
+    private Hashtable<String, String> options = new Hashtable<String, String>();
 	
     public JDT(IValueFactory vf) {
     	this.VF = vf;
     	this.classPathEntries = new ArrayList<String>();
     	this.sourcePathEntries = new ArrayList<String>();
+    	options = new Hashtable<String, String>();
 	}
     
     public void setEnvironmentOptions(ISet classPaths, ISet sourcePaths, IEvaluatorContext eval) {
+    	classPathEntries.clear();
+    	sourcePathEntries.clear();
     	for (IValue path: classPaths) {
     		try {
 				classPathEntries.add(eval.getResolverRegistry().getResourceURI(((ISourceLocation) path).getURI()).getPath());
@@ -62,6 +69,11 @@ public class JDT {
 				throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
 			}
     	}
+    }
+    
+    public void setJavaVersion(IString javaVersion) {
+    	options.put(JavaCore.COMPILER_SOURCE, javaVersion.getValue());
+		options.put(JavaCore.COMPILER_COMPLIANCE, javaVersion.getValue());
     }
     
     @SuppressWarnings("rawtypes")
@@ -103,20 +115,19 @@ public class JDT {
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	private CompilationUnit getCompilationUnit(ISourceLocation loc, boolean resolveBindings, IEvaluatorContext ctx) throws IOException {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS4);
 		parser.setUnitName(loc.getURI().getPath());
 		parser.setResolveBindings(resolveBindings);
 		parser.setSource(getFileContents(loc, ctx));
 		parser.setBindingsRecovery(resolveBindings);
 		parser.setStatementsRecovery(resolveBindings);
 		
-//		Hashtable options = new Hashtable();
-//		options.put(JavaCore.COMPILER_SOURCE, "1.7");
-//		options.put(JavaCore.COMPILER_COMPLIANCE, "1.7");
-//		
-//		parser.setCompilerOptions(options);
+		if (options.isEmpty()) {
+			setJavaVersion(VF.string("1.7"));
+		}
+		
+		parser.setCompilerOptions(options);
 		
 		parser.setEnvironment(classPathEntries.toArray(new String[classPathEntries.size()]), 
 				  sourcePathEntries.toArray(new String[sourcePathEntries.size()]),
