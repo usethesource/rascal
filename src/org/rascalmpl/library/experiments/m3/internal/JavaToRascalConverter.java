@@ -96,7 +96,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected ISourceLocation getSourceLocation(ASTNode node) {
 		int start = compilUnit.getExtendedStartPosition(node);
 		int end = start + compilUnit.getExtendedLength(node)-1;
-		
+
 		return values.sourceLocation(loc.getURI(), 
 				 start, compilUnit.getExtendedLength(node), 
 				 compilUnit.getLineNumber(start), compilUnit.getLineNumber(end), 

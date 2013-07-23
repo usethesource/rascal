@@ -31,8 +31,8 @@ data Declaration
   	= \compilationUnit(list[Declaration] imports, list[Declaration] types)
 	| \compilationUnit(Declaration package, list[Declaration] imports, list[Declaration] types)
 	| \enum(str name, list[Type] implements, list[Declaration] constants, list[Declaration] body)
-	| \enumConstant(str name, list[Declaration] arguments, Declaration class)
-	| \enumConstant(str name, list[Declaration] arguments)
+	| \enumConstant(str name, list[Expression] arguments, Declaration class)
+	| \enumConstant(str name, list[Expression] arguments)
 	| \class(str name, list[Type] extends, list[Type] implements, list[Declaration] body)
 	| \class(list[Declaration] body)
 	| \interface(str name, list[Type] extends, list[Type] implements, list[Declaration] body)
@@ -104,7 +104,7 @@ anno list[Declaration] Statement@typeParameters;
 
 data Statement				
 	= \assert(Expression expression)
-	| \assert(Expression expression, str message)
+	| \assert(Expression expression, Expression message)
 	| \block(list[Statement] statements)
 	| \break()
 	| \break(str label)
