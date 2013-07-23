@@ -15,6 +15,8 @@ module experiments::m3::JDT
 
 import IO;
 import String;
+import Relation;
+import Set;
 import Map;
 import Node;
 import experiments::m3::AST;
@@ -69,6 +71,10 @@ public void setEnvironmentOptions(loc project) {
 	setEnvironmentOptions(getPaths(project, ".class") + crawl(project, ".jar"), getPaths(project, ".java"));
 }
 
+@javaClass{org.rascalmpl.library.experiments.m3.internal.JDT}
+// version numbers should be set as 1.5/1.6/1.7 etc
+public java void setJavaVersion(str javaVersion);
+
 @doc{Creates AST from a file}
 @javaClass{org.rascalmpl.library.experiments.m3.internal.JDT}
 @reflect
@@ -100,6 +106,9 @@ public M3 createM3FromProject(loc project) {
 	    result@documentation += model@documentation;
 	    result@modifiers += model@modifiers;
 	    result@projectErrors += model@projectErrors;
+	    //result@libraryContainment += model@libraryContainment;
+	    //result@resolveNames += model@resolveNames;
 	}
+	//result@libraryContainment -= result@containment;
 	return result;
 }
