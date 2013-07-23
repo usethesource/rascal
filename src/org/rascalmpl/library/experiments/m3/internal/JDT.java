@@ -120,8 +120,8 @@ public class JDT {
 		parser.setUnitName(loc.getURI().getPath());
 		parser.setResolveBindings(resolveBindings);
 		parser.setSource(getFileContents(loc, ctx));
-		parser.setBindingsRecovery(resolveBindings);
-		parser.setStatementsRecovery(resolveBindings);
+		parser.setBindingsRecovery(true);
+		parser.setStatementsRecovery(true);
 		
 		if (options.isEmpty()) {
 			setJavaVersion(VF.string("1.7"));
