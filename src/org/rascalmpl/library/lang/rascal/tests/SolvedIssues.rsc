@@ -13,5 +13,13 @@ public test bool emptySetEquals(map[value,value] x, map[value,value] y) = x - x 
 
 data X = n(set[node] nn);
 
-public test bool infiniteMatcher() =
-  size ([0 | n({"a"(),_*}) <- { n({"a"()}) }]) == 1; 
+public test bool infiniteMatcher() {
+  bool firstTime = true;
+  for (n({"a"(),_*}) <- { n({"a"()}) }) {
+    if (!firstTime) {
+      return false;
+    }
+    firstTime = false;
+  }
+  return true;
+}
