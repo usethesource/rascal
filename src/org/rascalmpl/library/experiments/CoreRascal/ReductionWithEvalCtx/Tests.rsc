@@ -122,3 +122,10 @@ public test bool test10() {
 	str input = "{ y := 2; x := 1 + y; x }";
 	return expectModulo(input, Exp::config(parse("3"), ()));
 }
+
+// exceptions
+public test bool test11() {
+	str input = "try { { x := 1; throw(x); x + 10 } } catch 1 : 101";
+	println(parse(input));
+	return false;
+}

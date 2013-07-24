@@ -65,3 +65,12 @@ public bool isValue(lst(list[Exp] exps)) = ( true | it && isValue(exp) | exp <- 
 public data Exp =
 			Y(Exp exp)
 			;
+
+@doc{Extension with exceptions}
+public data Exp =
+			  \throw(Exp exp)
+			| \try(Exp exp, list[Catch] catches);
+			
+public data Catch = 
+			  \catch(Exp arg, Exp exp)
+			;
