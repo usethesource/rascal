@@ -50,8 +50,11 @@ public Exp step( C(Exp::labeled(str l, Exp exp), Ctx::config(ctx1, Store store))
 	when !isValue(exp) && C(Exp::yield(Exp e), Ctx ctx2) := exp && !Ctx::config(_,_) := ctx2 && isValue(e);
 	
 public Exp step( C(Exp::labeled(str l, Exp exp), Ctx::config(ctx, Store store)) ) = 
-	C(exp, Ctx::config(ctx, store)) 
+	C(exp, Ctx::config(ctx, { store[l] = __dead(); store; })) 
 	when isValue(exp);
+	
+public Exp step( C(Exp::hasNext(Exp::label(str l)), Ctx::config(ctx, Store store)) ) =
+	C( (__dead() := store[l]) ? Exp::\false() : Exp::\true(), Ctx::config(ctx, store));
 
 @doc{Extension with continuations}
 public Exp step( C(Exp::abort(Exp exp), Ctx::config(ctx,store)) ) = 

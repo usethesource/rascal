@@ -30,6 +30,7 @@ Exp rename(Exp::labeled(str x, Exp e), str y, str z) 	= Exp::labeled(x == y ? z 
 Exp rename(Exp::create(Exp e), str y, str z) 			= Exp::create(rename(e, y, z));
 Exp rename(Exp::resume(Exp e1, Exp e2), str y, str z) 	= Exp::resume(rename(e1, y, z), rename(e2, y, z));
 Exp rename(Exp::yield(Exp e), str y, str z) 			= Exp::yield(rename(e, y, z));
+Exp rename(Exp::hasNext(Exp e), str y, str z) 			= Exp::hasNext(rename(e, y, z));
 
 @doc{Extension with continuations}
 Exp rename(Exp::abort(Exp e), str y, str z) 			= Exp::abort(rename(e, y, z));
@@ -83,6 +84,7 @@ Exp replace(Exp::labeled(str xx, Exp e), str y, Exp v) 	= Exp::labeled(x, replac
 Exp replace(Exp::create(Exp e), str y, Exp v) 			= Exp::create(replace(e, y, v));
 Exp replace(Exp::resume(Exp e1, Exp e2), str y, Exp v) 	= Exp::resume(replace(e1, y, v), replace(e2, y, v));
 Exp replace(Exp::yield(Exp e), str y, Exp v) 			= Exp::yield(replace(e, y, v));
+Exp replace(Exp::hasNext(Exp e), str y, Exp v) 			= Exp::yield(hasNext(e, y, v));
 
 @doc{Extension with continuations}
 Exp replace(Exp::abort(Exp e), str y, Exp v) 			= Exp::abort(replace(e, y, v));

@@ -26,6 +26,7 @@ syntax Exp  =
 			| create: "create" "(" Exp exp ")"
 			| resume: "resume" "(" Exp exp1 "," Exp exp2 ")"
 			| yield: "yield" "(" Exp exp ")"
+			| hasNext: "hasNext" "(" Exp exp ")"
 				
 //@doc{Extension with continuations}
 			| abort: "abort" "(" Exp exp ")"
@@ -38,5 +39,6 @@ syntax Exp  =
 			;
 			
 keyword Keywords = "true" | "false" | "lambda" | "if" | "then" | "else" |
-                   "create" | "resume" | "yield" | "abort" | "callcc" | 
+                   "create" | "resume" | "yield" | "hasNext" |
+                   "abort" | "callcc" | 
                    "Y";
