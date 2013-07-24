@@ -18,8 +18,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.ref.SoftReference;
 import java.net.URI;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -154,7 +159,89 @@ public class ParserGenerator {
 		}
 	}
 	
+	private class SoftIValueWrapper {
+		private final SoftReference<IValue> v;
+		private int hash;
+		private Collection<SoftIValueWrapper> cleanup;
+		private boolean reported = false;
+		public SoftIValueWrapper(IValue v, Collection<SoftIValueWrapper> cleanup) {
+			this.hash = v.hashCode();
+			this.v = new SoftReference<IValue>(v);
+			this.cleanup = cleanup;
+		}
+		
+		@Override
+		public int hashCode() {
+			if (!reported && v.get() == null) {
+				cleanup.add(this);
+				reported = true;
+			}
+			return hash;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (reported) {
+				return false;
+			}
+			IValue actual = v.get();
+			if (actual == null) {
+				cleanup.add(this);
+				reported = true;
+			}
+			if (obj instanceof IValue) {
+				return actual.isEqual((IValue)obj);
+			}
+			if (obj instanceof SoftIValueWrapper) {
+				return actual.isEqual(((SoftIValueWrapper)obj).getValue());
+			}
+			return false;
+		}
+		
+		private IValue getValue() {
+			IValue actual = v.get();
+			if (actual == null) {
+				cleanup.add(this);
+				reported = true;
+			}
+			return actual;
+		}
+	}
+	
+	
+	private Collection<SoftIValueWrapper> cleanupList = new LinkedList<>();
+	private void processCleanup() {
+		while (!cleanupList.isEmpty()) {
+			SoftIValueWrapper[] oldCleanupList = cleanupList.toArray(new SoftIValueWrapper[0]);
+			cleanupList.clear();
+			for (SoftIValueWrapper toCleanup: oldCleanupList) {
+				grammarCache.remove(toCleanup);
+			}
+		}
+	}
+	
+	private Map<SoftIValueWrapper, Map<String, IConstructor>> grammarCache = new HashMap<>();
+	
 	public IConstructor getGrammar(IRascalMonitor monitor, String main, IMap definition) {
+		IConstructor result;
+		synchronized(grammarCache) {
+			SoftIValueWrapper moduleMap = new SoftIValueWrapper(definition, cleanupList);
+			Map<String, IConstructor> moduleGrammars = grammarCache.get(moduleMap);
+			processCleanup();
+			if (moduleGrammars == null) {
+				moduleGrammars = new HashMap<>();
+				grammarCache.put(moduleMap, moduleGrammars);
+			}
+			result = moduleGrammars.get(main);
+			if (result == null) {
+				result = getGrammarActual(monitor, main, definition);
+				moduleGrammars.put(main, result);
+			}
+		}
+		return result;
+	}
+
+	private IConstructor getGrammarActual(IRascalMonitor monitor, String main, IMap definition) {
 		return (IConstructor) evaluator.call(monitor, "modules2grammar", vf.string(main), definition);
 	}
 	
