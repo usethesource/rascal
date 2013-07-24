@@ -257,6 +257,21 @@ public Exp split( Catch::\catch(Exp arg, Exp exp) ) =
 public Exp split( Catch::\catch(Exp arg, Exp exp) ) = 
 	C(exp_, Ctx::\catch(toValue(arg), ctx))
 	when isValue(arg) && !isValue(exp) && C(exp_,ctx) := split(exp);
+	
+public Exp plug( C(Exp exp, Ctx::\throw(Ctx ctx)) ) = 
+	Exp::\throw(plug(C(exp,ctx)));
+	
+public Exp plug( C(Exp exp, Ctx::\try(Ctx ctx, list[Catch] catches)) ) = 
+	Exp::\try(plug(C(exp,ctx), catches));
+	
+public Exp plug( C(Exp exp, Ctx::\try(Value \value, Ctx ctx, list[Catch] rest)) ) =
+	Exp::\try(toExp(\value), [ plugCatch(C(exp,ctx)) ] + rest);
+	
+public Catch plugCatch( C(Exp exp, Ctx::\catch(Ctx ctx, Exp exp)) ) = 
+	Exp::\catch(plug(C(exp,ctx)), exp);
+
+public Catch plugCatch( C(Exp exp, Ctx::\catch(Value \value, Ctx ctx)) ) =
+	Exp::\catch(toExp(\value), plug(C(exp,ctx)));
 
 // Test that split and plug are inverse
 test bool testSplit(Exp e) = plug(split(e)) == e;
