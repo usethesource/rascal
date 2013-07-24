@@ -1,6 +1,16 @@
+@bootstrapParser
 module experiments::CoreRascal::Translation::RascalExpressions
 
 import experiments::CoreRascal::ReductionWithEvalCtx::AST;
+import lang::rascal::\syntax::Rascal;
+import Prelude;
+import util::Reflective;
+import util::ValueUI;
+import ParseTree;
+
+import lang::rascal::types::TestChecker;
+import lang::rascal::types::CheckTypes;
+
 /*
   This is an experiment to see how some Rascal Expressions can be translated to the Core language.
   Since we have no AST (yet) for RascalExpressions we make it up here.
@@ -50,10 +60,10 @@ import experiments::CoreRascal::ReductionWithEvalCtx::AST;
 */
 
 // Literals
-data RascalExp = boolCon(bool b) | intCon(int n) | strCon(str s) | listCon(list[RascalExpr] exps) | nodeCon(str name, list[RascalExpr] args);
+data RascalExp = boolCon(bool b) | intCon(int n) | strCon(str s) | listCon(list[RascalExp] exps) | nodeCon(str name, list[RascalExp] args);
 
 Exp translate(boolCon(true)) = \true();
-Exp translate(boolCons(false)) = \false();
+Exp translate(boolCon(false)) = \false();
 Exp translate(intCon(int n)) = number(n);
 // strCon, enz.
 
@@ -62,7 +72,7 @@ Exp translate(nodeCon(str name, list[RascalExpr] args)) = nd(name, ([translate(r
 
 
 data RascalExp = var(str name);
-Exp translate(var(str name)) = id(name);
+//Exp translate(var(str name)) = id(name);
 
 // Boolean operators
 
@@ -174,25 +184,25 @@ bool andFun () {
 
 */
 	
-data Pattern = boolPat(bool b) | intPat(int n) | strPat(str s) | listPat(list[Pattern] pats) | nodePat(str name, list[Patterns] pats);
+data Pattern = boolPat(bool b) | intPat(int n) | strPat(str s) | listPat(list[Pattern] pats) | nodePat(str name, list[Pattern] pats);
 
 data Pattern = var(str name);
 
 data RascalExp =
-       match(Pattern pat, RascalExpression exp);
+       match(Pattern pat, RascalExp exp);
        
 /*
-match(boolPat(bool b), RascalExpression exp)) ==>
+match(boolPat(bool b), RascalExp exp)) ==>
     "<b> == <translate(exp)>;"
     
-match(intPat(int n), RascalExpression exp)) ==>
+match(intPat(int n), RascalExp exp)) ==>
     "intCon(<n>) == <translate(exp)>;"
     
-match(var(str name), RascalExpression exp)) ==>
-    "var(<name>) = <translate(exp)>; true"
+match(var(str name), RascalExp exp)) ==>
+    "<name> := <translate(exp)>; true"
     
     
-match(nodePat(str name, list[Patterns] pats), RascalExpression exp)) ==>
+match(nodePat(str name, list[Patterns] pats), RascalExp exp)) ==>
     "subject = <translate(exp)>; args = getArgs(subject);
      <size(pats)> == size(args) && <name> == fun(subject)) &&
      
@@ -213,3 +223,29 @@ match(nodePat("f", [intPat(3), var("X"), boolPat(true)]), nodeCon("f", [intCon(3
 	boolPat(true) == args[2]
     
 */
+
+list[loc] libSearchPath = [|std:///|, |eclipse-std:///|];
+loc Example1 = |std:///experiments/CoreRascal/Translation/Examples/Example1.rsc|;
+
+Configuration config = newConfiguration();
+
+Symbol getType(loc l) = config.locationTypes[l];
+
+void parse(){
+   Module M = parseModule(Example1, libSearchPath);
+   config = checkModule(M.top, newConfiguration());  // .top is needed to remove start! Ugly!
+   top-down visit(M.top){
+    case FunctionDeclaration decl: {
+   		 println("\t<decl.expression>\ntranslates to");
+   		 println("\t<translate(decl.expression)>");
+   		 }
+  }
+ }
+ 
+ str translate((Expression) `<BooleanLiteral b>`) = "<b>" == true ? "\\true())" : "\\false())";
+ str translate((Expression) `<IntegerLiteral n>`) = "number(<n>)";
+ str translate((Expression) `<StringLiteral s>`) = "strCon(<s>)";
+ str translate((Expression) `<QualifiedName v>`) = "var(<v>, <getType(v@\loc)>)";
+ str translate((Expression) `<Expression lhs> + <Expression rhs>`) = "binop(add, <getType(lhs@\loc)>, <getType(rhs@\loc)>, <translate(lhs)>, <translate(rhs)>)";
+ 
+ default str translate(Expression e) = "default: <e>";
