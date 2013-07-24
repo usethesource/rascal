@@ -37,9 +37,13 @@ public data Exp =
           | create(Exp exp)
           | resume(Exp exp1, Exp exp2)
           | yield(Exp exp)
+          
+          | __dead()
+          | hasNext(Exp exp)
           ;
 
 public bool isValue(label(str name)) = true;
+public bool isValue(__dead()) = true;
 
 @doc{Extension with continuations}
 public data Exp =

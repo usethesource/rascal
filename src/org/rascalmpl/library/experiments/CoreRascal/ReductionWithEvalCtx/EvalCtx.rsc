@@ -94,7 +94,8 @@ public default Exp plug(Exp exp) { throw "unknown <exp>; "; }
 
 @doc{Extension with co-routines}
 public data Value =
-		  label(str l)
+		    label(str l)
+		  | __dead()
 		  ;
 		   
 public data Ctx =
@@ -103,6 +104,7 @@ public data Ctx =
 		  | resume(Ctx ctx, Exp exp2)
 		  | resume(Value \value, Ctx ctx)
 		  | yield(Ctx ctx)
+		  | hasNext(Ctx ctx)
 		  ;
 		  
 public Exp split( Exp::labeled(str name, Exp exp) ) = 
@@ -125,6 +127,10 @@ public Exp split( Exp::yield(Exp exp) ) =
 	C(exp_, Ctx::yield(ctx)) 
 	when !isValue(exp) && C(exp_,ctx) := split(exp);
 
+public Exp split( Exp::hasNext(Exp exp) ) = 
+	C(exp_, Ctx::hasNext(ctx)) 
+	when !isValue(exp) && C(exp_,ctx) := split(exp);
+
 public Exp plug( C(Exp exp, Ctx::labeled(str name, Ctx ctx)) ) = 
 	Exp::labeled(name, plug(C(exp,ctx)));
 	
@@ -139,6 +145,9 @@ public Exp plug( C(Exp exp, Ctx::resume(Value::label(str l), Ctx ctx)) ) =
 	
 public Exp plug( C(Exp exp, Ctx::yield(Ctx ctx)) ) = 
 	Exp::yield(plug(C(exp,ctx)));
+
+public Exp plug( C(Exp exp, Ctx::hasNext(Ctx ctx)) ) = 
+	Exp::hasNext(plug(C(exp,ctx)));
 
 @doc{Extension with continuations}
 public data Ctx = 
@@ -189,4 +198,4 @@ public Exp plug( C(Exp exp, Ctx::Y(ctx)) ) =
 	Exp::Y(plug(exp,ctx));
 
 // Test that split and plug are inverse
-test bool textSplit(Exp e) = plug(split(e)) == e;
+test bool testSplit(Exp e) = plug(split(e)) == e;
