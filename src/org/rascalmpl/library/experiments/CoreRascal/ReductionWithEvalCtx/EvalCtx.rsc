@@ -17,6 +17,18 @@ public data Value =
 			| lambda(str id, Exp exp)
 			;
 
+public Value toValue(Exp::\true()) = Value::\true();
+public Value toValue(Exp::\false()) = Value::\false();
+public Value toValue(Exp::number(int n)) = Value::\num(n);
+public Value toValue(Exp::lambda(str id, Exp exp)) = Value::lambda(id, exp);
+public default Value toValue(Exp exp) { throw "unknown value: <exp>"; }
+
+public Exp toExp(Value::\true()) = Exp::\true();
+public Exp toExp(Value::\false()) = Exp::\false();
+public Exp toExp(Value::\num(int n)) = Exp::number(n);
+public Exp toExp(Value::lambda(str id, Exp exp)) = Exp::lambda(id, exp);
+public default Exp toExp(Value val) { throw "unknown value: <val>"; }
+
 @doc{The evaluation context data type}
 @doc{C = [] | C e | v C | C + e | e + C | C == e | v == C | x := C | if C then e else e | <C, Store>}
 public data Ctx = 
@@ -31,6 +43,8 @@ public data Ctx =
 		   
 		   | assign(str id, Ctx ctx)
 		   | ifelse(Ctx ctx, Exp exp2, Exp exp3)
+		   
+		   | block(Ctx ctx, list[Exp] rest)
 		   
 		   | config(Ctx ctx, Store store)		   
 		   ;
@@ -67,6 +81,10 @@ public Exp split( Exp::assign(str id, Exp exp) ) =
 public Exp split( Exp::ifelse(Exp exp1, Exp exp2, Exp exp3) ) = 
 	C(exp1_, Ctx::ifelse(ctx, exp2, exp3)) 
 	when !isValue(exp1) && C(exp1_,ctx) := split(exp1);
+	
+public Exp split( Exp::block([ Exp exp, *Exp rest ]) ) =
+	C(exp_, Ctx::block(ctx, rest)) 
+	when !isValue(exp) && C(exp_,ctx) := split(exp);
 
 public Exp split( Exp::config(Exp exp, Store store) ) = 
 	C(exp_, Ctx::config(ctx,store)) 
@@ -89,6 +107,8 @@ public Exp plug( C(Exp exp, Ctx::assign(str id, Ctx ctx)) ) = Exp::assign(id, pl
 
 public Exp plug( C(Exp exp, Ctx::ifelse(Ctx ctx, Exp exp2, Exp exp3)) ) = Exp::ifelse(plug(C(exp,ctx)), exp2, exp3);
 
+public Exp plug( C(Exp exp, Ctx::block(Ctx ctx, list[Exp] exps)) ) = Exp::block([ plug(C(exp,ctx)) ] + exps);
+
 public Exp plug( C(Exp exp, Ctx::config(Ctx ctx, Store store)) ) = Exp::config(plug(C(exp,ctx)), store);
 public default Exp plug(Exp exp) { throw "unknown <exp>; "; }
 
@@ -97,6 +117,12 @@ public data Value =
 		    label(str l)
 		  | __dead()
 		  ;
+		  
+public Value toValue(Exp::label(str name)) = Value::label(name);
+public Value toValue(Exp::__dead()) = Value::__dead();
+
+public Exp toExp(Value::label(str name)) = Exp::label(name);
+public Exp toExp(Value::__dead()) = Exp::__dead();
 		   
 public data Ctx =
 		    labeled(str name, Ctx ctx)
@@ -166,6 +192,12 @@ public data Value =
 			  const(str id)
 			| lst(list[Value] exps)
 			;
+
+public Value toValue(Exp::const(str id)) = Value::const(id);
+public Value toValue(Exp::lst(list[Exp] exps)) = Value::lst([ toValue(e) | Exp e <- exps ]);
+
+public Exp toExp(Value::const(str id)) = Exp::const(id);
+public Exp toExp(Value::lst(list[Exp] vals)) = Exp::lst([ toExp(val) | Value val <- vals ]);
 
 public data Ctx = 
 			 lst(list[Exp] head, Ctx ctx, list[Exp] tail)

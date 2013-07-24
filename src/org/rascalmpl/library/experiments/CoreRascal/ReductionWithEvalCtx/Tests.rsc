@@ -116,3 +116,9 @@ public test bool test9() {
 	return expectModulo(rsum1, Exp::config(parse("0"), ()))
 			&& expectModulo(rsum2, Exp::config(parse("16"), ()));
 }
+
+// block expression
+public test bool test10() {
+	str input = "{ y := 2; x := 1 + y; x }";
+	return expectModulo(input, Exp::config(parse("3"), ()));
+}
