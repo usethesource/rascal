@@ -38,9 +38,15 @@ syntax Exp  =
 			| Y: "Y" "(" Exp exp ")" // Y-combinator
 			
 			| \block: "{" {Exp ";"}+ exps "}" // block expression
+//@doc{Extension with exceptions}			
+			| \throw: "throw" "(" Exp exp ")"
+			| \try: "try" "{" Exp exp "}" Catch+ catches 
 			;
-			
+
+syntax Catch = \catch: "catch" Exp arg ":" Exp exp ;	
+		
 keyword Keywords = "true" | "false" | "lambda" | "if" | "then" | "else" |
                    "create" | "resume" | "yield" | "hasNext" |
                    "abort" | "callcc" | 
-                   "Y";
+                   "Y" |
+                   "throw" | "try" | "catch";
