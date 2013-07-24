@@ -16,7 +16,7 @@ syntax Exp  =
 			| left apply: Exp exp1 "(" Exp exp2 ")"
 			> left add: Exp exp1 "+" Exp exp2
 			| non-assoc eq: Exp exp1 "==" Exp exp1
-			| assign: Identifier id ":=" Exp exp
+			> assign: Identifier id ":=" Exp exp
 			| ifelse: "if" Exp exp1 "then" Exp exp2 "else" Exp exp3 "fi"
 			| bracket "(" Exp exp ")"
 			
@@ -36,6 +36,8 @@ syntax Exp  =
 			| lst: "[" { Exp "," }* exps "]" // lists
 //@doc{Extension with recursion}
 			| Y: "Y" "(" Exp exp ")" // Y-combinator
+			
+			| \block: "{" {Exp ";"}+ exps "}" // block expression
 			;
 			
 keyword Keywords = "true" | "false" | "lambda" | "if" | "then" | "else" |

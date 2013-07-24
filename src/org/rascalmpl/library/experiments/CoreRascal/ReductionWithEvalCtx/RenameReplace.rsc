@@ -20,6 +20,8 @@ Exp rename(eq(Exp e1, Exp e2), str y, str z) 			= eq(rename(e1, y, z), rename(e2
 Exp rename(assign(str x, Exp e), str y, str z) 			= assign(x == y ? z : x, rename(e, y, z)); 
 Exp rename(ifelse(Exp e0, Exp e1, Exp e2), str y, str z)  
 														= ifelse(rename(e0, y, z), rename(e1, y, z), rename(e2, y, z));
+														
+Exp rename(block(list[Exp] exps), str y, str z)         = block([ rename(exp, y, z) | Exp exp <- exps ]);
 
 @doc{Extension with configurations that encapsulate semantics components, e.g, stores}
 Exp rename(config(Exp exp, Store store), str y, str z) 	= config(rename(exp, y, z), store);
@@ -73,6 +75,8 @@ Exp replace(assign(str x, Exp e), str y, Exp v) 		= assign(x, replace(e, y, v));
 Exp replace(ifelse(Exp e0, Exp e1, Exp e2), str y, Exp v)  
 														= ifelse(replace(e0, y, v), replace(e1, y, v), replace(e2, y, v));
 
+Exp replace(block(list[Exp] exps), str y, str z)        = block([ replace(exp, y, z) | Exp exp <- exps ]);
+
 @doc{Extension with configurations that encapsulate semantics components, e.g, stores}
 Exp replace(config(Exp exp, Store store), str y, Exp v) 	
 														= config(replace(exp, y, v), store); 
@@ -84,7 +88,7 @@ Exp replace(Exp::labeled(str xx, Exp e), str y, Exp v) 	= Exp::labeled(x, replac
 Exp replace(Exp::create(Exp e), str y, Exp v) 			= Exp::create(replace(e, y, v));
 Exp replace(Exp::resume(Exp e1, Exp e2), str y, Exp v) 	= Exp::resume(replace(e1, y, v), replace(e2, y, v));
 Exp replace(Exp::yield(Exp e), str y, Exp v) 			= Exp::yield(replace(e, y, v));
-Exp replace(Exp::hasNext(Exp e), str y, Exp v) 			= Exp::yield(hasNext(e, y, v));
+Exp replace(Exp::hasNext(Exp e), str y, Exp v) 			= Exp::hasNext(hasNext(e, y, v));
 
 @doc{Extension with continuations}
 Exp replace(Exp::abort(Exp e), str y, Exp v) 			= Exp::abort(replace(e, y, v));

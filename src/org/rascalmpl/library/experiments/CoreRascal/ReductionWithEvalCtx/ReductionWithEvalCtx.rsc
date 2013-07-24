@@ -6,6 +6,7 @@ import experiments::CoreRascal::ReductionWithEvalCtx::EvalCtx;
 //extend experiments::CoreRascal::ReductionWithEvalCtx::Reduction;
 
 import IO;
+import List;
 import Type;
 
 // Counter for generating unique names
@@ -19,10 +20,16 @@ public int incrementFVar() = { fvar += 1; fvar; };
 
 
 public Exp step( Exp::add(Exp::number(n1), Exp::number(n2)) ) = Exp::number(n1 + n2);
-public Exp step( Exp::eq(Exp exp1, Exp exp2) ) = (exp1 == exp2) ? Exp::\true() : Exp::\false() when isValue(exp1) && isValue(exp2);
+public Exp step( Exp::eq(Exp exp1, Exp exp2) ) = 
+	(exp1 == exp2) ? Exp::\true() : Exp::\false() 
+	when isValue(exp1) && isValue(exp2);
 
 public Exp step( Exp::ifelse(Exp::\true(), Exp exp2, Exp exp3) ) = exp2;
 public Exp step( Exp::ifelse(Exp::\false(), Exp exp2, Exp exp3) ) = exp3; 
+
+public Exp step( Exp::block([ Exp exp, *Exp rest ]) ) =
+	((!isEmpty(rest)) ? Exp::block(rest) : exp)
+	when isValue(exp);
 
 public Exp step( C(Exp::id(str name), Ctx::config(ctx, Store store)) ) = 
 	C(store[name], Ctx::config(ctx, store)) 

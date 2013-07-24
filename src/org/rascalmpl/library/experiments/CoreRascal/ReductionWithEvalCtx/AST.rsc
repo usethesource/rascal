@@ -40,6 +40,8 @@ public data Exp =
           
           | __dead()
           | hasNext(Exp exp)
+          
+          | block(list[Exp] exps)
           ;
 
 public bool isValue(label(str name)) = true;
