@@ -125,7 +125,8 @@ public test bool test10() {
 
 // exceptions
 public test bool test11() {
-	str input = "try { { x := 1; throw(x); x + 10 } } catch 1 : 101";
-	println(parse(input));
-	return false;
+	str input1 = "try { { x := 1; throw(x); x + 10 } } catch y : if(x == 1) then 101 else throw(y) fi";
+	str input2 = "try { try { { x := 1; throw(x); x + 10 } } catch y : if(x == 0) then 101 else throw(y) fi } catch y : if(y == 1) then 102 else throw(y) fi";
+	return expectModulo(input1, Exp::config(parse("101"), ()))
+			&& expectModulo(input2, Exp::config(parse("102"), ()));
 }

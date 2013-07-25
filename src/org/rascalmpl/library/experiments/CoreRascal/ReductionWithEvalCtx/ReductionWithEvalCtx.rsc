@@ -36,7 +36,7 @@ public Exp step( C(Exp::id(str name), Ctx::config(ctx, Store store)) ) =
 	when (name in store);
 
 public Exp step( C(Exp::apply(Exp::lambda(str id, Exp exp1), Exp exp2), Ctx::config(ctx, Store store)) ) = 
-	{ str fresh = "fvar<incrementFVar()>"; store[fresh] = exp2; C( rename(exp1, id, fresh)/* alpha-substitution */, Ctx::config(ctx, store)); } 
+	{ str fresh = "fvar<incrementFVar()>"; store[fresh] = exp2; C(rename(exp1, id, fresh)/* alpha-substitution */, Ctx::config(ctx, store)); } 
 	when isValue(exp2);
 
 public Exp step( C(Exp::assign(str id, Exp exp), Ctx::config(ctx, Store store)) ) = 
@@ -53,8 +53,12 @@ public Exp step( C(Exp::resume(Exp::label(str l), Exp exp2), Ctx::config(ctx, st
 	when isValue(exp2);
 	
 public Exp step( C(Exp::labeled(str l, Exp exp), Ctx::config(ctx1, Store store)) ) = 
-	{ store[l] = Exp::lambda("xvar", plug(C(Exp::id("xvar"), ctx2))); C(e, Ctx::config(ctx1,store)); } 
-	when !isValue(exp) && C(Exp::yield(Exp e), Ctx ctx2) := exp && !Ctx::config(_,_) := ctx2 && isValue(e);
+	{ store[l] = Exp::lambda("xvar", plug(C(Exp::id("xvar"), ctx2))); C(e, Ctx::config(ctx1,store)); }
+	// splitting 'exp' into a sub-context and redex
+	when !isValue(exp) 
+			&& C(Exp::yield(Exp e), Ctx ctx2) := split(exp) 
+			&& !Ctx::config(_,_) := ctx2 
+			&& isValue(e);
 	
 public Exp step( C(Exp::labeled(str l, Exp exp), Ctx::config(ctx, Store store)) ) = 
 	C(exp, Ctx::config(ctx, { store[l] = __dead(); store; })) 
@@ -72,11 +76,45 @@ public Exp step( C(Exp::callcc(Exp exp), Ctx::config(ctx,store)) ) =
 	when isValue(exp);
 
 @doc{Extension with constants and lists}
-public Exp step( Exp::lst(list[Exp] exps) ) = Exp::lst(exps) when isValue(Exp::lst(exps));
-public Exp step( C(Exp::apply(Exp::const(str id), Exp exp2), Ctx::config(ctx, Store store)) ) = C(delta(id, exp2), Ctx::config(ctx, store)) when isValue(exp2);
+public Exp step( Exp::lst(list[Exp] exps) ) = 
+	Exp::lst(exps) 
+	when isValue(Exp::lst(exps));
+public Exp step( C(Exp::apply(Exp::const(str id), Exp exp2), Ctx::config(ctx, Store store)) ) = 
+	C(delta(id, exp2), Ctx::config(ctx, store)) 
+	when isValue(exp2);
 
 @doc{Extension with recursion}
-public Exp step( C(Exp::Y(Exp exp), Ctx::config(ctx, Store store)) ) = C(Exp::apply(exp, Exp::lambda("xvar", Exp::apply(Exp::Y(exp), Exp::id("xvar")))), Ctx::config(ctx,store)) when isValue(exp);
+public Exp step( C(Exp::Y(Exp exp), Ctx::config(ctx, Store store)) ) = 
+	C(Exp::apply(exp, Exp::lambda("xvar", Exp::apply(Exp::Y(exp), Exp::id("xvar")))), Ctx::config(ctx,store)) 
+	when isValue(exp);
+
+@doc{Extension with exceptions}
+/*
+
+C(yield v, Ctx ctx);
+ctx2;
+ctx1 = top-down visit(ctx) {
+	case Ctx::hole();
+	case Ctx::labeled(str l, Ctx ctx): { ctx2 = ctx; insert Ctx::labeled(str l, Ctx::hole()); }
+}
+
+*/
+
+public Exp step( C(Exp::\throw(Exp exp), Ctx::config(ctx1, Store store)) ) =
+	{ 
+	  println("\'Throw exception\' expression: getting a sub-context...");
+	  Ctx ctx2 = bottom-up-break visit(ctx1) {
+	  				// drops the sub-context up to the closest catch
+	  				case Ctx::\try(Ctx ctx, Catch \catch) => { println("Sub-context: <ctx>"); Ctx::\try(Ctx::hole(), \catch); } 
+	  			 };	
+	  println("Dropped the subcontext: <ctx2>");  
+	  C(Exp::\throw(exp), Ctx::config(ctx2, store)); 
+	}
+	when isValue(exp);
+
+public Exp step( C(Exp::\try(Exp::\throw(Exp exp), Catch::\catch(str id, Exp body)), Ctx::config(ctx, Store store)) ) =
+	{ str fresh = "fvar<incrementFVar()>"; store[fresh] = exp; C(rename(body, id, fresh)/* alpha-substitution */, Ctx::config(ctx, store)); }
+	when isValue(exp);
 
 @doc{Characteristic rule}
 public Exp step( C(Exp exp, Ctx ctx) ) {
