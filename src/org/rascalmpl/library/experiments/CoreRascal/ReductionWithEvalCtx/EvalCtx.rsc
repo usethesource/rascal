@@ -11,18 +11,21 @@ public data Exp =
 
 @doc{The Value data type}
 public data Value =
-			  \true()
+			 nil()
+			| \true()
 			| \false()
 			| \num(int n)
 			| lambda(str id, Exp exp)
 			;
 
+public Value toValue(Exp::nil()) = Value::nil();
 public Value toValue(Exp::\true()) = Value::\true();
 public Value toValue(Exp::\false()) = Value::\false();
 public Value toValue(Exp::number(int n)) = Value::\num(n);
 public Value toValue(Exp::lambda(str id, Exp exp)) = Value::lambda(id, exp);
 public default Value toValue(Exp exp) { throw "unknown value: <exp>"; }
 
+public Exp toExp(Value::nil()) = Exp::nil();
 public Exp toExp(Value::\true()) = Exp::\true();
 public Exp toExp(Value::\false()) = Exp::\false();
 public Exp toExp(Value::\num(int n)) = Exp::number(n);

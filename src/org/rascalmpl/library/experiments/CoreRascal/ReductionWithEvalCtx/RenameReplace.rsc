@@ -5,6 +5,7 @@ import experiments::CoreRascal::ReductionWithEvalCtx::AST;
 @doc{Alpha-substitution: [ z / y ]}
 
 @doc{The lambda expression part}
+Exp rename(nil(), str y, str z)                         = nil();
 Exp rename(\true(), str y, str z) 						= \true();
 Exp rename(\false(), str y, str z) 						= \false();
 Exp rename(number(int n), str y, str z) 				= number(n);
@@ -20,6 +21,8 @@ Exp rename(eq(Exp e1, Exp e2), str y, str z) 			= eq(rename(e1, y, z), rename(e2
 Exp rename(assign(str x, Exp e), str y, str z) 			= assign(x == y ? z : x, rename(e, y, z)); 
 Exp rename(ifelse(Exp e0, Exp e1, Exp e2), str y, str z)  
 														= ifelse(rename(e0, y, z), rename(e1, y, z), rename(e2, y, z));
+
+Exp rename(\while(Exp cond, Exp body), str y, str z)    = \while(rename(cond, y, z), rename(body, y, z));
 														
 Exp rename(block(list[Exp] exps), str y, str z)         = block([ rename(exp, y, z) | Exp exp <- exps ]);
 
@@ -63,6 +66,7 @@ test bool tst() = rename(Exp::eq(id("x"), id("y")), "x", "z") == Exp::eq(id("z")
 @doc{Beta-substitution: [ v / y ]}
 
 @doc{The lambda expression part}
+Exp replace(nil(), str y, Exp v)                        = nil();
 Exp replace(\true(), str y, Exp v) 						= \true();
 Exp replace(\false(), str y, Exp v) 					= \false();
 Exp replace(number(int n), str y, Exp v) 				= number(n);
@@ -79,6 +83,8 @@ Exp replace(eq(Exp e1, Exp e2), str y, Exp v) 			= eq(replace(e1, y, v), replace
 Exp replace(assign(str x, Exp e), str y, Exp v) 		= assign(x, replace(e, y, v)); 
 Exp replace(ifelse(Exp e0, Exp e1, Exp e2), str y, Exp v)  
 														= ifelse(replace(e0, y, v), replace(e1, y, v), replace(e2, y, v));
+														
+Exp replace(\while(Exp cond, Exp body), str y, Exp v)   = \while(replace(cond, y, v), replace(body, y, v));
 
 Exp replace(block(list[Exp] exps), str y, str z)        = block([ replace(exp, y, z) | Exp exp <- exps ]);
 

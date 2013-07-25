@@ -8,7 +8,8 @@ lexical Constant = [_][A-Za-z0-9]+;
 
 //@doc{The lambda expression part}
 syntax Exp  = 
-			  \true: "true"
+			  nil: "nil"
+			| \true: "true"
 			| \false: "false"
 			| number: Integer n
 			| id: Identifier id
@@ -18,6 +19,7 @@ syntax Exp  =
 			| non-assoc eq: Exp exp1 "==" Exp exp1
 			> assign: Identifier id ":=" Exp exp
 			| ifelse: "if" Exp exp1 "then" Exp exp2 "else" Exp exp3 "fi"
+			| \while: "while" "(" Exp cond ")" "{" Exp body "}" 
 			| bracket "(" Exp exp ")"
 			
 // @doc{Extension with co-routines}
@@ -45,7 +47,7 @@ syntax Exp  =
 
 syntax Catch = \catch: "catch" Identifier id ":" Exp body ;	
 		
-keyword Keywords = "true" | "false" | "lambda" | "if" | "then" | "else" |
+keyword Keywords = "true" | "false" | "nil" | "lambda" | "if" | "then" | "else" | "while" |
                    "create" | "resume" | "yield" | "hasNext" |
                    "abort" | "callcc" | 
                    "Y" |
