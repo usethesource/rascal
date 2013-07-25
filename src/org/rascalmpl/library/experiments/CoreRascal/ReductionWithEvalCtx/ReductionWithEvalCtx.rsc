@@ -52,13 +52,18 @@ public Exp step( C(Exp::resume(Exp::label(str l), Exp exp2), Ctx::config(ctx, st
 	C(Exp::labeled(l, Exp::apply(store[l], exp2)), Ctx::config(ctx, store)) 
 	when isValue(exp2);
 	
-public Exp step( C(Exp::labeled(str l, Exp exp), Ctx::config(ctx1, Store store)) ) = 
-	{ store[l] = Exp::lambda("xvar", plug(C(Exp::id("xvar"), ctx2))); C(e, Ctx::config(ctx1,store)); }
-	// splitting 'exp' into a sub-context and redex
-	when !isValue(exp) 
-			&& C(Exp::yield(Exp e), Ctx ctx2) := split(exp) 
-			&& !Ctx::config(_,_) := ctx2 
-			&& isValue(e);
+public Exp step( C(Exp::yield(Exp exp), Ctx::config(ctx, Store store)) ) =
+	{ 
+	  Ctx ctx1 = bottom-up-break visit(ctx) {
+					case Ctx::labeled(str l, Ctx ctx2) => 
+						{ 
+						  store[l] = Exp::lambda("xvar", plug(C(Exp::id("xvar"), ctx2))); 
+						  Ctx::hole(); 
+						}
+				 }; 
+	  C(exp, Ctx::config(ctx1,store));
+	}
+	when isValue(exp);
 	
 public Exp step( C(Exp::labeled(str l, Exp exp), Ctx::config(ctx, Store store)) ) = 
 	C(exp, Ctx::config(ctx, { store[l] = __dead(); store; })) 
@@ -89,17 +94,6 @@ public Exp step( C(Exp::Y(Exp exp), Ctx::config(ctx, Store store)) ) =
 	when isValue(exp);
 
 @doc{Extension with exceptions}
-/*
-
-C(yield v, Ctx ctx);
-ctx2;
-ctx1 = top-down visit(ctx) {
-	case Ctx::hole();
-	case Ctx::labeled(str l, Ctx ctx): { ctx2 = ctx; insert Ctx::labeled(str l, Ctx::hole()); }
-}
-
-*/
-
 public Exp step( C(Exp::\throw(Exp exp), Ctx::config(ctx1, Store store)) ) =
 	{ 
 	  println("\'Throw exception\' expression: getting a sub-context...");
