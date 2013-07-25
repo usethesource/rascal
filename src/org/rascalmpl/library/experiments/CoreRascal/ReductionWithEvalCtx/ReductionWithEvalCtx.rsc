@@ -20,8 +20,15 @@ public int incrementFVar() = { fvar += 1; fvar; };
 
 
 public Exp step( Exp::add(Exp::number(n1), Exp::number(n2)) ) = Exp::number(n1 + n2);
+
+public Exp step( Exp::minus(Exp::number(n1), Exp::number(n2)) ) = Exp::number(n1 - n2);
+
 public Exp step( Exp::eq(Exp exp1, Exp exp2) ) = 
 	(exp1 == exp2) ? Exp::\true() : Exp::\false() 
+	when isValue(exp1) && isValue(exp2);
+	
+public Exp step( Exp::less(Exp exp1, Exp exp2) ) = 
+	(exp1 < exp2) ? Exp::\true() : Exp::\false() 
 	when isValue(exp1) && isValue(exp2);
 
 public Exp step( Exp::ifelse(Exp::\true(), Exp exp2, Exp exp3) ) = exp2;
@@ -47,7 +54,11 @@ public Exp step( C(Exp::assign(str id, Exp exp), Ctx::config(ctx, Store store)) 
 
 @doc{Extension with co-routines}
 public Exp step( C(Exp::create(Exp exp), Ctx::config(ctx, Store store)) ) = 
-	{ str l = "l<incrementCounter()>"; store[l] = exp; C(Exp::label(l), Ctx::config(ctx, store)); } 
+	{ 
+	  str l = "l<incrementCounter()>"; 
+	  store[l] = exp; 
+	  C(Exp::label(l), Ctx::config(ctx, store)); 
+	} 
 	when isValue(exp);
 	
 public Exp step( C(Exp::resume(Exp::label(str l), Exp exp2), Ctx::config(ctx, store)) ) = 
@@ -72,7 +83,7 @@ public Exp step( C(Exp::labeled(str l, Exp exp), Ctx::config(ctx, Store store)) 
 	when isValue(exp);
 	
 public Exp step( C(Exp::hasNext(Exp::label(str l)), Ctx::config(ctx, Store store)) ) =
-	C( (__dead() := store[l]) ? Exp::\false() : Exp::\true(), Ctx::config(ctx, store));
+	C( (Exp::__dead() := store[l]) ? Exp::\false() : Exp::\true(), Ctx::config(ctx, store));
 
 @doc{Extension with continuations}
 public Exp step( C(Exp::abort(Exp exp), Ctx::config(ctx,store)) ) = 

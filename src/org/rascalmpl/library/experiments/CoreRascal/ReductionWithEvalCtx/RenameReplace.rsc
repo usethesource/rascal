@@ -15,8 +15,9 @@ Exp rename(lambda(str x, Exp e), str y, str z) 			= (x == y) ? lambda(x, e) : la
 Exp rename(apply(Exp e1, Exp e2), str y, str z) 		= apply(rename(e1, y, z), rename(e2, y, z));
 
 Exp rename(add(Exp e1, Exp e2), str y, str z) 			= add(rename(e1, y, z), rename(e2, y, z));
+Exp rename(minus(Exp e1, Exp e2), str y, str z) 		= minus(rename(e1, y, z), rename(e2, y, z));
 Exp rename(eq(Exp e1, Exp e2), str y, str z) 			= eq(rename(e1, y, z), rename(e2, y, z));
-
+Exp rename(less(Exp e1, Exp e2), str y, str z) 			= less(rename(e1, y, z), rename(e2, y, z));
 
 Exp rename(assign(str x, Exp e), str y, str z) 			= assign(x == y ? z : x, rename(e, y, z)); 
 Exp rename(ifelse(Exp e0, Exp e1, Exp e2), str y, str z)  
@@ -77,8 +78,9 @@ Exp replace(lambda(str y, Exp e), str y, Exp v) 		= (x == y) ? lambda(x, e) :  l
 Exp replace(apply(Exp e1, Exp e2), str y, Exp v) 		= apply(replace(e1, y, v), replace(e2, y, v));
 
 Exp replace(add(Exp e1, Exp e2), str y, Exp v) 			= add(replace(e1, y, v), replace(e2, y, v));
+Exp replace(minus(Exp e1, Exp e2), str y, Exp v) 		= minus(replace(e1, y, v), replace(e2, y, v));
 Exp replace(eq(Exp e1, Exp e2), str y, Exp v) 			= eq(replace(e1, y, v), replace(e2, y, v));
-
+Exp replace(less(Exp e1, Exp e2), str y, Exp v) 		= less(replace(e1, y, v), replace(e2, y, v));
 
 Exp replace(assign(str x, Exp e), str y, Exp v) 		= assign(x, replace(e, y, v)); 
 Exp replace(ifelse(Exp e0, Exp e1, Exp e2), str y, Exp v)  
