@@ -1,3 +1,3 @@
 module experiments::CoreRascal::Translation::Examples::Example1
 
-public int f(int n) = 42 + n;
+public bool f(int n) = [1,2] := [1,2];
