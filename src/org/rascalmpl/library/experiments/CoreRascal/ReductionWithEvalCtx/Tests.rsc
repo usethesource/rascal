@@ -152,20 +152,20 @@ public test bool test11() {
 }
 
 // re-implement test9 using exceptions
-//public test bool test11a() {
-//	str fsum0 = "Y( lambda (self) { lambda (k) { lambda (l) { if l == [] 
-//																then 1 
-//																else if _head(l) == 0 
-//																		then k(0) 
-//																		else _head(l) + self(k)(_tail(l)) 
-//															 		 fi 
-//												    		  fi } } } )";
-//	str fsum1 = "lambda (ls) { callcc( lambda (k) { <fsum0>(k)(ls) } ) }";
-//	str rsum1 = "(<fsum1>)([ 1, 2, 3, 0, 5])";
-//	str rsum2 = "(<fsum1>)([ 1, 2, 3, 4, 5])";											    
-//	return expectModulo(rsum1, Exp::config(parse("0"), ()))
-//			&& expectModulo(rsum2, Exp::config(parse("16"), ()));
-//}
+public test bool test11a() {
+	str fsum0 = "Y( lambda (self) { lambda (l) { if l == [] 
+													'then 1 
+													'else if _head(l) == 0 
+															'then throw(0) 
+															'else _head(l) + self(_tail(l)) 
+														 'fi 
+												'fi } } )";
+	str fsum1 = "lambda (ls) { try { <fsum0>(ls) } catch x : x }";
+	str rsum1 = "(<fsum1>)([ 1, 2, 3, 0, 5])";
+	str rsum2 = "(<fsum1>)([ 1, 2, 3, 4, 5])";											    
+	return expectModulo(rsum1, Exp::config(parse("0"), ()))
+			&& expectModulo(rsum2, Exp::config(parse("16"), ()));
+}
 
 // while
 public test bool test12() {
