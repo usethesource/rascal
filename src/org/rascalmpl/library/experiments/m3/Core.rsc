@@ -8,4 +8,4 @@ anno rel[loc name, loc src] M3@source;
 anno rel[loc from, loc to] M3@containment;
 anno list[str errorMessage] M3@projectErrors;
 anno rel[loc from, loc to] M3@libraryContainment;
-anno map[loc simpleName, set[loc] qualifiedName] M3@resolveNames;
+anno map[str simpleName, set[loc] qualifiedName] M3@resolveNames;
