@@ -108,6 +108,10 @@ public Exp step( C(Exp::\throw(Exp exp), Ctx::config(ctx1, Store store)) ) =
 	}
 	when isValue(exp);
 
+public Exp step( C(Exp::\try(Exp exp, Catch::\catch(str id, Exp body)), Ctx::config(ctx, Store store)) ) =
+	C(exp, Ctx::config(ctx, store))
+	when isValue(exp);
+
 public Exp step( C(Exp::\try(Exp::\throw(Exp exp), Catch::\catch(str id, Exp body)), Ctx::config(ctx, Store store)) ) =
 	{ str fresh = "fvar<incrementFVar()>"; store[fresh] = exp; C(rename(body, id, fresh)/* alpha-substitution */, Ctx::config(ctx, store)); }
 	when isValue(exp);
