@@ -117,6 +117,19 @@ public test bool test9() {
 			&& expectModulo(rsum2, Exp::config(parse("16"), ()));
 }
 
+// recursion + continuations
+// continuation-passing form
+public test bool test9a() {
+	// f(6) = 6 + 7 + 8 + 9 + 1 (== 31)
+	str f = "Y( lambda (self) { lambda (k) { 
+					'lambda (n) { if n == 10 
+									'then k(1) 
+									'else k(n + callcc( lambda (k1) { self(k1)(n + 1) } ))
+								 'fi } } } )";
+	str input = "callcc( lambda (k) { <f>(k)(6) } ) + 10";
+	return expectModulo(input, Exp::config(parse("41"), ()));
+}
+
 // block expression
 public test bool test10() {
 	str input = "{ y := 2; x := 1 + y; x }";
@@ -129,12 +142,30 @@ public test bool test11() {
 	str input2 = "try { try { { x := 1; throw(x); x + 10 } } catch y : if(x == 0) then 101 else throw(y) fi } catch y : if(y == 1) then 102 else throw(y) fi";
 	str input3 = "try { { x := 1; throw(throw(x)); x + 10 } } catch y : if(x == 1) then 101 else throw(y) fi";
 	str input4 = "try { { x := 1; throw(x)(x); x + 10 } } catch y : if(x == 1) then 101 else throw(y) fi";
+	str input5 = "try { { x := 1; x + 10 } } catch y : if(x == 1) then 101 else throw(y) fi";
 	
 	return expectModulo(input1, Exp::config(parse("101"), ()))
 			&& expectModulo(input2, Exp::config(parse("102"), ()))
 			&& expectModulo(input3, Exp::config(parse("101"), ()))
-			&& expectModulo(input4, Exp::config(parse("101"), ()));
+			&& expectModulo(input4, Exp::config(parse("101"), ()))
+			&& expectModulo(input5, Exp::config(parse("11"), ()));
 }
+
+// re-implement test9 using exceptions
+//public test bool test11a() {
+//	str fsum0 = "Y( lambda (self) { lambda (k) { lambda (l) { if l == [] 
+//																then 1 
+//																else if _head(l) == 0 
+//																		then k(0) 
+//																		else _head(l) + self(k)(_tail(l)) 
+//															 		 fi 
+//												    		  fi } } } )";
+//	str fsum1 = "lambda (ls) { callcc( lambda (k) { <fsum0>(k)(ls) } ) }";
+//	str rsum1 = "(<fsum1>)([ 1, 2, 3, 0, 5])";
+//	str rsum2 = "(<fsum1>)([ 1, 2, 3, 4, 5])";											    
+//	return expectModulo(rsum1, Exp::config(parse("0"), ()))
+//			&& expectModulo(rsum2, Exp::config(parse("16"), ()));
+//}
 
 // while
 public test bool test12() {
