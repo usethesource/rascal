@@ -1,10 +1,5 @@
 module experiments::m3::AST 
 
-anno loc Declaration@src;
-anno loc Declaration@binding;
-anno list[Modifiers] Declaration@modifiers;
-anno list[Declaration] Declaration@typeParameters;
-
 anno loc Modifiers@binding;
 
 data Modifiers
@@ -26,6 +21,12 @@ data Modifiers
   	| \memberValuePair(str name, Expression \value)				
   	| \singleMemberAnnotation(str typeName, Expression \value)
   	;
+
+anno loc Declaration@src;
+anno loc Declaration@binding;
+anno list[Modifiers] Declaration@modifiers;
+anno list[Declaration] Declaration@typeParameters;
+anno list[str] Declaration@errors;
 
 data Declaration
   	= \compilationUnit(list[Declaration] imports, list[Declaration] types)
