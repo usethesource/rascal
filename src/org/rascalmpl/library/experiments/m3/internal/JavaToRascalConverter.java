@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -164,6 +165,13 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		if(this.ownValue == null) return ;
 		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName))
 			this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annoValue);
+	}
+	
+	protected void setAnnotation(String annoName, IValueList annoList) {
+		IList annos = (IList) annoList.asList();
+		if(this.ownValue == null) return ;
+		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName) && !annos.isEmpty())
+			this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annos);
 	}
 	
 	protected IValue constructDeclarationNode(String constructor, IValue... children) {
