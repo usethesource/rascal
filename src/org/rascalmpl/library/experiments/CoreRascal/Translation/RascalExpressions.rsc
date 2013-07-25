@@ -23,34 +23,34 @@ import lang::rascal::types::CheckTypes;
   - "c.close()": shut coroutine c down.
   
   NOTE: there are several issues here:
-  - Initialization of the coroutine
-  - How is the argument of resume typed?
-  - How is communicated that the coroutine is exhausted?
+  - Initialization of the coroutine (choice: a start function)
+  - How is the argument of resume typed? (choice: in the header of the declaration)
+  - How is communicated that the coroutine is exhausted? (choice: hasMore)
   
   Example: Countdown
   
-  int countDown(int n){
+  coroutine countDown(int n) resume int (){
     while(n > 0 ){
     	yield n;
     	n -= 1;
     }
   }
   
-  c = countDown(10);							// for(l <- countDown(10)) println(l);
+  c = countDown(10).start();							// for(l <- countDown(10)) println(l);
   while(c.hasMore()) println(c.resume());
   
   Example: preorder traversal
   
   data TNODE = tnode(str key, TNODE left, TNODE right) | tleaf(str name);
   
-  str inorder(TNODE n){
+  coroutine inorder(TNODE n) resume str (){
      if(tleaf(str name) := n) yield name;
      else {
-        c = inorder(n.left);                             // for(l <- inorder(n.left)) yield l;
+        c = inorder(n.left).start();                             // for(l <- inorder(n.left)) yield l;
         while(c.hasMore()) yield c.resume("");
         
      	yield n.key;
-     	c = inorder(n.right);
+     	c = inorder(n.right).start();
      	while(c.hasMore()) yield c.resume("");
      }
   }
@@ -59,193 +59,197 @@ import lang::rascal::types::CheckTypes;
   ==> ["a", "b", "l1", "l2", "l3"];
 */
 
-// Literals
-data RascalExp = boolCon(bool b) | intCon(int n) | strCon(str s) | listCon(list[RascalExp] exps) | nodeCon(str name, list[RascalExp] args);
-
-Exp translate(boolCon(true)) = \true();
-Exp translate(boolCon(false)) = \false();
-Exp translate(intCon(int n)) = number(n);
-// strCon, enz.
-
-Exp translate(listCon(list[RascalExpr] exps)) = lst([translate(re) | re <- exps]);
-Exp translate(nodeCon(str name, list[RascalExpr] args)) = nd(name, ([translate(re) | re <- args]));
-
-
-data RascalExp = var(str name);
-//Exp translate(var(str name)) = id(name);
-
-// Boolean operators
-
-data RascalExp = 
-	  \and(RascalExp lhs, RascalExp rhs)
-	| \or(RascalExp lhs, RascalExp rhs)
-	| \not(RascalExp lhs)
-	;
-
-	
-/*
-Translation schemas for true, false, and, or, not:
-
-boolCon(true) ==>
-  	"bool trueFun () = yield true;"
-  	
-boolCon(false) ==>
-  	"bool falseFun () = yield false;"
-
-\and(e1, e2)==>
-	"bool andFun () {
-		c1 = <bool_translate(e1)>;
-		c2 = <bool_translate(e2)>;
-		while (c1.hasMore()){
-		       if(c1.resume()){
-		            while(c2.hasMore()){
-		       			if(c2.resume())
-		       				yield true;
-		       		}
-		       } else 
-		       		return false;
-		}
-		return false;
-    }"
-    
-\or(e1, e2)==>
-	"bool orFun () {
-		c1 = <bool_translate(e1)>;
-		c2 = <bool_translate(e2)>;
-		while (c1.hasMore()){
-			if(c1.resume())
-		       yield true;
-		}
-		while (c2.hasMore()){
-			if(c2.resume())
-		       yield true;
-		}
-		return false;
-    }"
-
-\not(e)==>
-	"bool notFun () {
-		c = <bool_translate(e)>;
-		while (c.hasMore())
-		       yield !c.resume();
-		return false;
-    }"
-    
-Example:
-
-\and(\true(), \false()) ==>
-	"bool andFun () {
-		c1 = bool trueFun () = yield true;
-		c2 = bool falseFun () = yield false;
-		while (c1.hasMore()){
-		       if(c1.resume()){
-		            while(c2.hasMore()){
-		       			if(c2.resume())
-		       				yield true;
-		       		}
-		       } else 
-		       		return false;
-		}
-		return false;
-    }"
-
-*/
-
-	
-data RascalExp =
-       less(RascalExp lhs, RascalExp rhs)
-     | add(RascalExp lhs, RascalExp rhs)
-     ;
-
-/*
-less(e1,e2) ==>
-     "<translate(e1)> \< <translate(e2)>";
-     
-Example:
-less(intCon(3), intCon(4)) ==>
-     number(3) < number(4);
-          
-\and(less(intCon(3), intCon(4)), \true()) ==>
-
-bool andFun () {
-		c1 = bool lessFun () = number(3) < number(4);  // <== who wraps < in a coroutine?
-		c2 = bool trueFun () = yield true;
-		while (c1.hasMore()){
-		       if(c1.resume()){
-		            while(c2.hasMore()){
-		       			if(c2.resume())
-		       				yield true;
-		       		}
-		       } else 
-		       		return false;
-		}
-		return false;
-    }"
-
-*/
-	
-data Pattern = boolPat(bool b) | intPat(int n) | strPat(str s) | listPat(list[Pattern] pats) | nodePat(str name, list[Pattern] pats);
-
-data Pattern = var(str name);
-
-data RascalExp =
-       match(Pattern pat, RascalExp exp);
-       
-/*
-match(boolPat(bool b), RascalExp exp)) ==>
-    "<b> == <translate(exp)>;"
-    
-match(intPat(int n), RascalExp exp)) ==>
-    "intCon(<n>) == <translate(exp)>;"
-    
-match(var(str name), RascalExp exp)) ==>
-    "<name> := <translate(exp)>; true"
-    
-    
-match(nodePat(str name, list[Patterns] pats), RascalExp exp)) ==>
-    "subject = <translate(exp)>; args = getArgs(subject);
-     <size(pats)> == size(args) && <name> == fun(subject)) &&
-     
-     	<for(i <- index(pats)){>
-         <translate(match(pats[i], args[i])> &&
-     	<}>
-        true
-    "
-Example:
-
-match(nodePat("f", [intPat(3), var("X"), boolPat(true)]), nodeCon("f", [intCon(3), intCon(4), boolCon(true)])   ==>
-
-	subject = nodeCon("f", [intCon(3), intCon(4), boolCon(true)]); 
-	args = getArgs(subject);
-	3 == size(args) && "f" == fun(subject) &&
-	intCon(3) == args[0] &&
-	X = args[1] &&
-	boolPat(true) == args[2]
-    
-*/
-
 list[loc] libSearchPath = [|std:///|, |eclipse-std:///|];
+
 loc Example1 = |std:///experiments/CoreRascal/Translation/Examples/Example1.rsc|;
 
 Configuration config = newConfiguration();
 
 Symbol getType(loc l) = config.locationTypes[l];
 
+str getType(Expression e) = getName(getType(e@\loc));
+
 void parse(){
    Module M = parseModule(Example1, libSearchPath);
    config = checkModule(M.top, newConfiguration());  // .top is needed to remove start! Ugly!
    top-down visit(M.top){
     case FunctionDeclaration decl: {
-   		 println("\t<decl.expression>\ntranslates to");
-   		 println("\t<translate(decl.expression)>");
+   		 println("<decl.expression> translates to");
+   		 println("<translate(decl.expression)>");
    		 }
-  }
+   }
  }
  
- str translate((Expression) `<BooleanLiteral b>`) = "<b>" == true ? "\\true())" : "\\false())";
- str translate((Expression) `<IntegerLiteral n>`) = "number(<n>)";
- str translate((Expression) `<StringLiteral s>`) = "strCon(<s>)";
- str translate((Expression) `<QualifiedName v>`) = "var(<v>, <getType(v@\loc)>)";
- str translate((Expression) `<Expression lhs> + <Expression rhs>`) = "binop(add, <getType(lhs@\loc)>, <getType(rhs@\loc)>, <translate(lhs)>, <translate(rhs)>)";
+// Generate code for completely type-resolved operators
+str infix(str op, Expression e) = "infix(\"<op>-<getType(e.lhs)>-<getType(e.rhs)>\", <translate(e.lhs)>, <translate(e.rhs)>)";
+str prefix(str op, Expression arg) = "prefix(\"<op>-<getType(arg)>\", <translate(arg)>)";
+str postfix(str op, Expression arg) = "postfix(\"<op>-<getType(arg)>\", <translate(arg)>)";
+
+// Translate expressions
+str translate((BooleanLiteral) `<BooleanLiteral b>`) = "<b>" == true ? "\\true())" : "\\false())";
+str translate((Expression) `<BooleanLiteral b>`) = translate(b);
  
- default str translate(Expression e) = "default: <e>";
+str translate((IntegerLiteral) `<IntegerLiteral n>`) = "number(<n>)";
+str translate((Expression) `<IntegerLiteral n>`) = translate(n);
+ 
+str translate((StringLiteral) `<StringLiteral s>`) = "strCon(<s>)";
+str translate((Expression) `<StringLiteral s>`) = translate(s);
+ 
+str translate((QualifiedName) `<QualifiedName v>`) = "var(<v>, <getType(v@\loc)>)";
+str translate((Expression) `<QualifiedName v>`) = translate(v);
+
+str translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) {
+    elems = [ translate(elem) | elem <- es ];
+    return "mkList([<intercalate(",", elems)>])";
+}
+ 
+str translate(e:(Expression) `<Expression lhs> + <Expression rhs>`)   = infix("add", e);
+str translate(e:(Expression) `<Expression lhs> \< <Expression rhs>`)  = infix("less", e);
+str translate(e:(Expression) `<Expression lhs> \<= <Expression rhs>`) = infix("lesseq", e);
+str translate(e:(Expression) `<Expression lhs> \> <Expression rhs>`)  = infix("greater", e);
+str translate(e:(Expression) `<Expression lhs> \>= <Expression rhs>`) = infix("greatereq", e);
+str translate(e:(Expression) `<Expression lhs> == <Expression rhs>`)  = infix("equal", lhs, e);
+str translate(e:(Expression) `<Expression lhs> != <Expression rhs>`)  = infix("notequal", e);
+ 
+str translate(e:(Expression) `<Expression lhs> && <Expression rhs>`)  = translateBool(e) + ".start().resume()";
+
+str translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = translateBool(e)  + ".start().resume()";
+
+default str translate(Expression e) = "default for Expression: <e>";
+
+// End of expression cases
+
+// Utilities for boolean operators
+ 
+// Is an expression free of backtracking? 
+bool backtrackFree(e:(Expression) `<Pattern pat> := <Expression exp>`) = false;
+default bool backtrackFree(Expression e) = true;
+
+// Get all variables that are introduced by a pattern.
+tuple[set[tuple[str,str]],set[str]] getVars(Pattern p) {
+  defs = {};
+  uses = {};
+  visit(p){
+    case (Pattern) `<Type tp> <Name name>`: defs += <"<tp>", "<name>">;
+    case (Pattern) `<QualifiedName name>`: uses += "<name>";
+  };
+  return <defs, uses>;
+}
+
+// Translate Boolean operators
+str translateBool(e:(Expression) `<Expression lhs> && <Expression rhs>`) =
+ backtrackFree(lhs) ?
+   (backtrackFree(rhs) ? "coroutine () resume bool () { yield infix(\"and\", e); }"
+                       : "coroutine () resume bool () {
+		                 '  lhsAnd = <translate(lhs)>;
+		 			     '  if(lhsAnd == \\true()){
+		 			     '     rhsAnd = <translateBool(rhs)>.start();
+		 			     '     while(rhsAnd.hasMore()){
+		       			 '        if(rhsAnd.resume())
+		       			 '           yield true;
+		       		     '  }
+		       		     '  return false;
+		       		     '}")
+		       		   :
+   (backtrackFree(rhs) ? "coroutine () resume bool (){
+                         '  lhsAnd = <translateBool(lhs)>.start();
+		 			     '  rhsAnd = <translate(rhs)>;
+		 			     '  while (lhsAnd.hasMore()){
+		                 '     if(lhsAnd.resume())
+		                 '        if(rhsAnd) 
+		                 '           yield true;
+		                 '        else
+		                 '           return false;
+		                 '  }
+		                 '  return false;
+		                 '}"
+		               : "coroutine () resume bool () {
+		                 '  lhsAnd = <translateBool(lhs)>.start();
+		                 '  rhsAnd = <translateBool(rhs)>.start();
+		                 '  while (lhsAnd.hasMore()){
+		                 '     if(lhsAnd.resume()){
+		                 '        while(rhsAnd.hasMore()){
+		       			 '          if(rhsAnd.resume())
+		       			 '             yield true;
+		       		     '        }
+		                 '     } else 
+		       		     '       return false;
+		                 '  }
+		                 '  return false;
+                         '}");
+ // similar for or and not.
+ 
+ // Translate match operator
+ str translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  =
+    "coroutine () resume bool(){
+    '  matcher = <translatePat(pat)>;
+    '  subject = <translate(exp)>
+    '  matcher.start(subject);
+    '  while(matcher.hasMore()){
+    '    \<success, _\> = matcher.resume(0);
+    '    if(success)
+    '       yield true;
+    '  }
+    '}
+    ";  
+ 
+ // Translate patterns
+
+str translatePat(p:(Pattern) `<BooleanLiteral b>`) = "coroutine (subject) resume tuple[bool,int](int) { yield \<subject == <translate(b)>, 1\>; }";
+
+str translatePat(p:(Pattern) `<IntegerLiteral n>`) = "coroutine (subject) resume tuple[bool,int](int) { yield \<subject == <translate(n)>, 1\>; }";
+     
+str translatePat(p:(Pattern) `<StringLiteral s>`) =  "coroutine (subject) resume tuple[bool,int](int) { yield \<subject == <translate(s)>, 1\>; }";
+     
+str translatePat(p:(Pattern) `<QualifiedName name>`) =  "coroutine (subject) resume tuple[bool,int](int) { yield \<subject == <translate(name)>, 1\>; }";
+     
+str translatePat(p:(Pattern) `<Type tp> <Name name>`) = "coroutine (subject) resume tuple[bool,int](int) { <tp> <name> = subject; yield \<true, 1\>; }";
+ 
+str translatePat(p:(Pattern) `* <Pattern pat>`) = 
+   "coroutine (subject) resume tuple[bool,int](int pos, int len) { 
+   '  int myLen = 0;
+   '  while(true){
+   '     n = yield \<true, n\>;
+   '     if(
+   '  } 
+   '}
+   ";
+
+str translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
+  defs = {}; uses = {};
+  for(pat <- pats){
+  	<ds, us> = getVars(pat);
+  	defs += ds;
+  	uses += us;
+  }
+  
+  return
+     "coroutine (subject) resume tuple[bool,int](int) {
+     '  <for(<tp, nm> <- defs){><tp> <name>;<}>
+     '  sublen = size(subject);
+     '  matchers = [<intercalate(",", [translatePat(pat) + ".start(subject)" | pat <- pats])>];
+     '  patlen  = <size([p | p <- pats])>;
+     '  upto = [0 | n \<- [0 .. sublen];
+     '  p = 0; s = 0;
+     '  while(true){
+     '    while(patgens[p].hasMore()){
+     '       \<success, nextS\> = matchers[p].resume(s);
+     '       if(success){
+     '          upto[p] = s = nextS;
+     '          p += 1;
+     '          if(p == patlen && s == sublen)
+     '         	   yield true, 
+     '       }
+     '    }
+     '    if(p \> 0){
+     '          p -= 1;
+     '          s = p \> 0 ? upto[p - 1] : 0;
+     '    } else
+     '          return \<false, 0\>;
+     '  }
+     '}
+     ";
+}
+
+
+
