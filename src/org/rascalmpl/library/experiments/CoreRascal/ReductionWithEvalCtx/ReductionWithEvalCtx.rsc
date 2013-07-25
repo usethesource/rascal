@@ -27,6 +27,8 @@ public Exp step( Exp::eq(Exp exp1, Exp exp2) ) =
 public Exp step( Exp::ifelse(Exp::\true(), Exp exp2, Exp exp3) ) = exp2;
 public Exp step( Exp::ifelse(Exp::\false(), Exp exp2, Exp exp3) ) = exp3; 
 
+public Exp step( Exp::\while(Exp cond, Exp body) ) = Exp::ifelse(cond, Exp::\block([ body, Exp::\while(cond, body) ]), nil());
+
 public Exp step( Exp::block([ Exp exp, *Exp rest ]) ) =
 	((!isEmpty(rest)) ? Exp::block(rest) : exp)
 	when isValue(exp);

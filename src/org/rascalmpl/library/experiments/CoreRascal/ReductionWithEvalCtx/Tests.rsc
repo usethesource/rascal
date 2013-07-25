@@ -135,3 +135,9 @@ public test bool test11() {
 			&& expectModulo(input3, Exp::config(parse("101"), ()))
 			&& expectModulo(input4, Exp::config(parse("101"), ()));
 }
+
+// while
+public test bool test12() {
+	str input1 = "{ n := 1; b := true; while(b){ { n := n + 1; b := false } }; n }";
+	return expectModulo(input1, Exp::config(parse("2"), ()));
+}
