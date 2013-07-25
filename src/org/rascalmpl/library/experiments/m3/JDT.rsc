@@ -102,9 +102,9 @@ public M3 createM3FromProject(loc project, str javaVersion = "1.7") {
 	    result@documentation += model@documentation;
 	    result@modifiers += model@modifiers;
 	    result@projectErrors += model@projectErrors;
-	    //result@libraryContainment += model@libraryContainment;
-	    //result@resolveNames += model@resolveNames;
+	    result@libraryContainment += model@libraryContainment;
+	    result@resolveNames += model@resolveNames;
 	}
-	//result@libraryContainment -= result@containment;
+	result@libraryContainment -= result@containment;
 	return result;
 }
