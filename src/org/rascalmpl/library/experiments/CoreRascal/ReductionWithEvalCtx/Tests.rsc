@@ -172,3 +172,31 @@ public test bool test12() {
 	str input1 = "{ n := 1; b := true; while(b){ { n := n + 1; b := false } }; n }";
 	return expectModulo(input1, Exp::config(parse("2"), ()));
 }
+
+// co-routines and 'count-down' example
+public test bool test13() {
+	str input1 = "2 - 1";
+	str input2 = "2 \< 1";
+	// 6 + 5 + 4 + 3 + 2 + 1 + 0 (== 21)
+	str input3 = "{ 
+				   'countdown := lambda (n) { 
+										'{ 
+										   'while(0 \< n) { 
+												'{ 
+												  'yield(n); 
+												  'n := n - 1 
+												'} 
+											'}; 
+										   '0 
+										 '} 
+								 '}; 
+				   'c := create(countdown); 
+				   'count := resume(c,6);
+				   'while(hasNext(c)) { count := count + resume(c, nil) };
+				   'count
+				   '}";
+				   
+	return expectModulo(input1, Exp::config(parse("1"), ()))
+			&& expectModulo(input2, Exp::config(parse("false"), ()))
+			&& expectModulo(input3, Exp::config(parse("21"), ()));
+}

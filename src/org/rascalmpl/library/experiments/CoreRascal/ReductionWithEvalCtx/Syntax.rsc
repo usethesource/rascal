@@ -15,8 +15,14 @@ syntax Exp  =
 			| id: Identifier id
 			| right lambda: "lambda" "(" Identifier id ")" "{" Exp exp "}"
 			| left apply: Exp exp1 "(" Exp exp2 ")"
-			> left add: Exp exp1 "+" Exp exp2
-			| non-assoc eq: Exp exp1 "==" Exp exp1
+			> left ( 
+					 add: Exp exp1 "+" Exp exp2
+				   | minus: Exp exp1 "-" Exp exp2 
+				   )
+			| non-assoc ( 
+						  eq: Exp exp1 "==" Exp exp2
+						| less: Exp exp1 "\<" Exp exp2
+						)
 			> assign: Identifier id ":=" Exp exp
 			| ifelse: "if" Exp exp1 "then" Exp exp2 "else" Exp exp3 "fi"
 			| \while: "while" "(" Exp cond ")" "{" Exp body "}" 

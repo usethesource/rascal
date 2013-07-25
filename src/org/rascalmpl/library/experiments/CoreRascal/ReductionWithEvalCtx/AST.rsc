@@ -1,7 +1,6 @@
 module experiments::CoreRascal::ReductionWithEvalCtx::AST
 
 @doc{The lambda expression part}
-@doc{e = true | false | Num | Id | Consts | [e1,...] | lambda x.e | e e | e + e | e == e | x := e | if e then e else e | Y e}
 public data Exp = 
 			nil()
           | \true()
@@ -12,7 +11,9 @@ public data Exp =
           | apply(Exp exp1, Exp exp2)
           
           | add(Exp exp1, Exp exp2)
+          | minus(Exp exp1, Exp exp2)
           | eq(Exp exp1, Exp exp2)
+          | less(Exp exp1, Exp exp2)
           
           | assign(str id, Exp exp)
           | ifelse(Exp exp1, Exp exp2, Exp exp3)
