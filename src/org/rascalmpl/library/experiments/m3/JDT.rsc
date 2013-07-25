@@ -84,7 +84,7 @@ public set[Declaration] createAstsFromProject(loc project, bool collectBindings,
 
 @javaClass{org.rascalmpl.library.experiments.m3.internal.JDT}
 @reflect
-public java M3 createM3FromFile(loc file, str javaVersion);
+public java M3 createM3FromFile(loc file, str javaVersion = "1.7");
 
 public M3 createM3FromProject(loc project, str javaVersion = "1.7") {
 	setEnvironmentOptions(project);
