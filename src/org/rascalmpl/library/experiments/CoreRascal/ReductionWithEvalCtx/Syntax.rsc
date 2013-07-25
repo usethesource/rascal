@@ -40,10 +40,10 @@ syntax Exp  =
 			| \block: "{" {Exp ";"}+ exps "}" // block expression
 //@doc{Extension with exceptions}			
 			| \throw: "throw" "(" Exp exp ")"
-			| \try: "try" "{" Exp exp "}" Catch+ catches 
+			| \try: "try" "{" Exp body "}" Catch catch 
 			;
 
-syntax Catch = \catch: "catch" Exp arg ":" Exp exp ;	
+syntax Catch = \catch: "catch" Identifier id ":" Exp body ;	
 		
 keyword Keywords = "true" | "false" | "lambda" | "if" | "then" | "else" |
                    "create" | "resume" | "yield" | "hasNext" |

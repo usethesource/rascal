@@ -69,8 +69,8 @@ public data Exp =
 @doc{Extension with exceptions}
 public data Exp =
 			  \throw(Exp exp)
-			| \try(Exp exp, list[Catch] catches);
+			| \try(Exp body, Catch \catch);
 			
 public data Catch = 
-			  \catch(Exp arg, Exp exp)
+			  \catch(str id, Exp body)
 			;

@@ -44,7 +44,7 @@ public data Ctx =
 		   | assign(str id, Ctx ctx)
 		   | ifelse(Ctx ctx, Exp exp2, Exp exp3)
 		   
-		   | block(Ctx ctx, list[Exp] rest)
+		   | block(Ctx ctx, list[Exp] restOfExps)
 		   
 		   | config(Ctx ctx, Store store)		   
 		   ;
@@ -230,48 +230,28 @@ public Exp plug( C(Exp exp, Ctx::Y(ctx)) ) =
 	Exp::Y(plug(exp,ctx));
 	
 @doc{Extension with exceptions}
+
 public data Ctx =
 			  \throw(Ctx ctx)
-			| \try(Ctx ctx, list[Catch] catches)
-			| \try(Value \value, Ctx ctx, list[Catch] rest)
-			| \catch(Ctx ctx, Exp exp)
-			| \catch(Value \value, Ctx ctx)
+			| \try(Ctx ctx, Catch \catch)
 			;
 
 public Exp split( Exp::\throw(Exp exp) ) =
 	C(exp_, Ctx::\throw(ctx))
 	when !isValue(exp) && C(exp_,ctx) := split(exp);
-	
-public Exp split( Exp::\try(Exp exp, list[Catch] catches) ) =
-	C(exp_, Ctx::\try(ctx, catches))
-	when !isValue(exp) && C(exp_,ctx) := split(exp);
 
-public Exp split( Exp::\try(Exp exp, [ Catch ctch, *Catch rest ]) ) =
-	C(exp_, Ctx::\try(toValue(exp), ctx, rest))
-	when isValue(exp) && C(exp_,ctx) := split(ctch);
-	
-public Exp split( Catch::\catch(Exp arg, Exp exp) ) =
-	C(arg_, Ctx::\catch(ctx,exp))
-	when !isValue(arg) && C(arg_,ctx) := split(arg);
-
-public Exp split( Catch::\catch(Exp arg, Exp exp) ) = 
-	C(exp_, Ctx::\catch(toValue(arg), ctx))
-	when isValue(arg) && !isValue(exp) && C(exp_,ctx) := split(exp);
+// try{ throw(v) } catch x : e - redex
+public Exp split( Exp::\try(Exp exp, Catch \catch) ) =
+	C(exp_, Ctx::\try(ctx, \catch))
+	when !isValue(exp) 
+			&& !(Exp::\throw(Exp e) := exp && isValue(e)) 
+			&& C(exp_,ctx) := split(exp);
 	
 public Exp plug( C(Exp exp, Ctx::\throw(Ctx ctx)) ) = 
 	Exp::\throw(plug(C(exp,ctx)));
 	
-public Exp plug( C(Exp exp, Ctx::\try(Ctx ctx, list[Catch] catches)) ) = 
-	Exp::\try(plug(C(exp,ctx), catches));
-	
-public Exp plug( C(Exp exp, Ctx::\try(Value \value, Ctx ctx, list[Catch] rest)) ) =
-	Exp::\try(toExp(\value), [ plugCatch(C(exp,ctx)) ] + rest);
-	
-public Catch plugCatch( C(Exp exp, Ctx::\catch(Ctx ctx, Exp exp)) ) = 
-	Exp::\catch(plug(C(exp,ctx)), exp);
-
-public Catch plugCatch( C(Exp exp, Ctx::\catch(Value \value, Ctx ctx)) ) =
-	Exp::\catch(toExp(\value), plug(C(exp,ctx)));
+public Exp plug( C(Exp exp, Ctx::\try(Ctx ctx, Catch \catch)) ) = 
+	Exp::\try(plug(C(exp,ctx)), \catch);
 
 // Test that split and plug are inverse
 test bool testSplit(Exp e) = plug(split(e)) == e;
