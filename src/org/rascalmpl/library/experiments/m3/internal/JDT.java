@@ -42,13 +42,11 @@ public class JDT {
     private final IValueFactory VF;
     private List<String> classPathEntries;
     private List<String> sourcePathEntries;
-    private Hashtable<String, String> options = new Hashtable<String, String>();
 	
     public JDT(IValueFactory vf) {
     	this.VF = vf;
     	this.classPathEntries = new ArrayList<String>();
     	this.sourcePathEntries = new ArrayList<String>();
-    	options = new Hashtable<String, String>();
 	}
     
     public void setEnvironmentOptions(ISet classPaths, ISet sourcePaths, IEvaluatorContext eval) {
@@ -69,11 +67,6 @@ public class JDT {
 				throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
 			}
     	}
-    }
-    
-    public void setJavaVersion(IString javaVersion) {
-    	options.put(JavaCore.COMPILER_SOURCE, javaVersion.getValue());
-		options.put(JavaCore.COMPILER_COMPLIANCE, javaVersion.getValue());
     }
     
     @SuppressWarnings("rawtypes")
