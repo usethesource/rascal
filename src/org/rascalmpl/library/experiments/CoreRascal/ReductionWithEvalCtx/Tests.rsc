@@ -117,6 +117,19 @@ public test bool test9() {
 			&& expectModulo(rsum2, Exp::config(parse("16"), ()));
 }
 
+// recursion + continuations
+// continuation-passing form
+public test bool test9a() {
+	// f(6) = 6 + 7 + 8 + 9 + 1 (== 31)
+	str f = "Y( lambda (self) { lambda (k) { 
+					'lambda (n) { if n == 10 
+									'then k(1) 
+									'else k(n + callcc( lambda (k1) { self(k1)(n + 1) } ))
+								 'fi } } } )";
+	str input = "callcc( lambda (k) { <f>(k)(6) } ) + 10";
+	return expectModulo(input, Exp::config(parse("41"), ()));
+}
+
 // block expression
 public test bool test10() {
 	str input = "{ y := 2; x := 1 + y; x }";
@@ -129,9 +142,61 @@ public test bool test11() {
 	str input2 = "try { try { { x := 1; throw(x); x + 10 } } catch y : if(x == 0) then 101 else throw(y) fi } catch y : if(y == 1) then 102 else throw(y) fi";
 	str input3 = "try { { x := 1; throw(throw(x)); x + 10 } } catch y : if(x == 1) then 101 else throw(y) fi";
 	str input4 = "try { { x := 1; throw(x)(x); x + 10 } } catch y : if(x == 1) then 101 else throw(y) fi";
+	str input5 = "try { { x := 1; x + 10 } } catch y : if(x == 1) then 101 else throw(y) fi";
 	
 	return expectModulo(input1, Exp::config(parse("101"), ()))
 			&& expectModulo(input2, Exp::config(parse("102"), ()))
 			&& expectModulo(input3, Exp::config(parse("101"), ()))
-			&& expectModulo(input4, Exp::config(parse("101"), ()));
+			&& expectModulo(input4, Exp::config(parse("101"), ()))
+			&& expectModulo(input5, Exp::config(parse("11"), ()));
+}
+
+// re-implement test9 using exceptions
+public test bool test11a() {
+	str fsum0 = "Y( lambda (self) { lambda (l) { if l == [] 
+													'then 1 
+													'else if _head(l) == 0 
+															'then throw(0) 
+															'else _head(l) + self(_tail(l)) 
+														 'fi 
+												'fi } } )";
+	str fsum1 = "lambda (ls) { try { <fsum0>(ls) } catch x : x }";
+	str rsum1 = "(<fsum1>)([ 1, 2, 3, 0, 5])";
+	str rsum2 = "(<fsum1>)([ 1, 2, 3, 4, 5])";											    
+	return expectModulo(rsum1, Exp::config(parse("0"), ()))
+			&& expectModulo(rsum2, Exp::config(parse("16"), ()));
+}
+
+// while
+public test bool test12() {
+	str input1 = "{ n := 1; b := true; while(b){ { n := n + 1; b := false } }; n }";
+	return expectModulo(input1, Exp::config(parse("2"), ()));
+}
+
+// co-routines and 'count-down' example
+public test bool test13() {
+	str input1 = "2 - 1";
+	str input2 = "2 \< 1";
+	// 6 + 5 + 4 + 3 + 2 + 1 + 0 (== 21)
+	str input3 = "{ 
+				   'countdown := lambda (n) { 
+										'{ 
+										   'while(0 \< n) { 
+												'{ 
+												  'yield(n); 
+												  'n := n - 1 
+												'} 
+											'}; 
+										   '0 
+										 '} 
+								 '}; 
+				   'c := create(countdown); 
+				   'count := resume(c,6);
+				   'while(hasNext(c)) { count := count + resume(c, nil) };
+				   'count
+				   '}";
+				   
+	return expectModulo(input1, Exp::config(parse("1"), ()))
+			&& expectModulo(input2, Exp::config(parse("false"), ()))
+			&& expectModulo(input3, Exp::config(parse("21"), ()));
 }

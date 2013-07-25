@@ -20,12 +20,21 @@ public int incrementFVar() = { fvar += 1; fvar; };
 
 
 public Exp step( Exp::add(Exp::number(n1), Exp::number(n2)) ) = Exp::number(n1 + n2);
+
+public Exp step( Exp::minus(Exp::number(n1), Exp::number(n2)) ) = Exp::number(n1 - n2);
+
 public Exp step( Exp::eq(Exp exp1, Exp exp2) ) = 
 	(exp1 == exp2) ? Exp::\true() : Exp::\false() 
+	when isValue(exp1) && isValue(exp2);
+	
+public Exp step( Exp::less(Exp exp1, Exp exp2) ) = 
+	(exp1 < exp2) ? Exp::\true() : Exp::\false() 
 	when isValue(exp1) && isValue(exp2);
 
 public Exp step( Exp::ifelse(Exp::\true(), Exp exp2, Exp exp3) ) = exp2;
 public Exp step( Exp::ifelse(Exp::\false(), Exp exp2, Exp exp3) ) = exp3; 
+
+public Exp step( Exp::\while(Exp cond, Exp body) ) = Exp::ifelse(cond, Exp::\block([ body, Exp::\while(cond, body) ]), nil());
 
 public Exp step( Exp::block([ Exp exp, *Exp rest ]) ) =
 	((!isEmpty(rest)) ? Exp::block(rest) : exp)
@@ -45,27 +54,36 @@ public Exp step( C(Exp::assign(str id, Exp exp), Ctx::config(ctx, Store store)) 
 
 @doc{Extension with co-routines}
 public Exp step( C(Exp::create(Exp exp), Ctx::config(ctx, Store store)) ) = 
-	{ str l = "l<incrementCounter()>"; store[l] = exp; C(Exp::label(l), Ctx::config(ctx, store)); } 
+	{ 
+	  str l = "l<incrementCounter()>"; 
+	  store[l] = exp; 
+	  C(Exp::label(l), Ctx::config(ctx, store)); 
+	} 
 	when isValue(exp);
 	
 public Exp step( C(Exp::resume(Exp::label(str l), Exp exp2), Ctx::config(ctx, store)) ) = 
 	C(Exp::labeled(l, Exp::apply(store[l], exp2)), Ctx::config(ctx, store)) 
 	when isValue(exp2);
 	
-public Exp step( C(Exp::labeled(str l, Exp exp), Ctx::config(ctx1, Store store)) ) = 
-	{ store[l] = Exp::lambda("xvar", plug(C(Exp::id("xvar"), ctx2))); C(e, Ctx::config(ctx1,store)); }
-	// splitting 'exp' into a sub-context and redex
-	when !isValue(exp) 
-			&& C(Exp::yield(Exp e), Ctx ctx2) := split(exp) 
-			&& !Ctx::config(_,_) := ctx2 
-			&& isValue(e);
+public Exp step( C(Exp::yield(Exp exp), Ctx::config(ctx, Store store)) ) =
+	{ 
+	  Ctx ctx1 = bottom-up-break visit(ctx) {
+					case Ctx::labeled(str l, Ctx ctx2) => 
+						{ 
+						  store[l] = Exp::lambda("xvar", plug(C(Exp::id("xvar"), ctx2))); 
+						  Ctx::hole(); 
+						}
+				 }; 
+	  C(exp, Ctx::config(ctx1,store));
+	}
+	when isValue(exp);
 	
 public Exp step( C(Exp::labeled(str l, Exp exp), Ctx::config(ctx, Store store)) ) = 
 	C(exp, Ctx::config(ctx, { store[l] = __dead(); store; })) 
 	when isValue(exp);
 	
 public Exp step( C(Exp::hasNext(Exp::label(str l)), Ctx::config(ctx, Store store)) ) =
-	C( (__dead() := store[l]) ? Exp::\false() : Exp::\true(), Ctx::config(ctx, store));
+	C( (Exp::__dead() := store[l]) ? Exp::\false() : Exp::\true(), Ctx::config(ctx, store));
 
 @doc{Extension with continuations}
 public Exp step( C(Exp::abort(Exp exp), Ctx::config(ctx,store)) ) = 
@@ -89,17 +107,6 @@ public Exp step( C(Exp::Y(Exp exp), Ctx::config(ctx, Store store)) ) =
 	when isValue(exp);
 
 @doc{Extension with exceptions}
-/*
-
-C(yield v, Ctx ctx);
-ctx2;
-ctx1 = top-down visit(ctx) {
-	case Ctx::hole();
-	case Ctx::labeled(str l, Ctx ctx): { ctx2 = ctx; insert Ctx::labeled(str l, Ctx::hole()); }
-}
-
-*/
-
 public Exp step( C(Exp::\throw(Exp exp), Ctx::config(ctx1, Store store)) ) =
 	{ 
 	  println("\'Throw exception\' expression: getting a sub-context...");
@@ -110,6 +117,10 @@ public Exp step( C(Exp::\throw(Exp exp), Ctx::config(ctx1, Store store)) ) =
 	  println("Dropped the subcontext: <ctx2>");  
 	  C(Exp::\throw(exp), Ctx::config(ctx2, store)); 
 	}
+	when isValue(exp);
+
+public Exp step( C(Exp::\try(Exp exp, Catch::\catch(str id, Exp body)), Ctx::config(ctx, Store store)) ) =
+	C(exp, Ctx::config(ctx, store))
 	when isValue(exp);
 
 public Exp step( C(Exp::\try(Exp::\throw(Exp exp), Catch::\catch(str id, Exp body)), Ctx::config(ctx, Store store)) ) =
