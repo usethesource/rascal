@@ -18,6 +18,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -92,12 +93,12 @@ public class NumberResult extends ElementResult<INumber> {
 	}
 	
 	@Override
-	protected Result<IBool> greaterThanReal(RealResult that) {
+	protected Result<IBool> greaterThanReal(ElementResult<IReal> that) {
 	  return makeResult(getTypeFactory().boolType(), that.getValue().greater(getValue()), ctx); 
 	}
 	
 	@Override
-	protected Result<IBool> greaterThanOrEqualReal(RealResult that) {
+	protected Result<IBool> greaterThanOrEqualReal(ElementResult<IReal> that) {
 	  return makeResult(getTypeFactory().boolType(), that.getValue().greaterEqual(getValue()), ctx);
 	}
 	
@@ -142,7 +143,7 @@ public class NumberResult extends ElementResult<INumber> {
 	}
 	
 	@Override  
-	protected <U extends IValue> Result<U> addReal(RealResult n) {
+	protected <U extends IValue> Result<U> addReal(ElementResult<IReal> n) {
 		return makeResult(type, getValue().add(n.getValue()), ctx);
 	}
 	
@@ -152,18 +153,18 @@ public class NumberResult extends ElementResult<INumber> {
 	}
 	
 	@Override 
-	protected <U extends IValue> Result<U> subtractReal(RealResult n) {
+	protected <U extends IValue> Result<U> subtractReal(ElementResult<IReal> n) {
 		// note the reverse subtraction.
 		return makeResult(type, n.getValue().subtract(getValue()), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> multiplyReal(RealResult n) {
+	protected <U extends IValue> Result<U> multiplyReal(ElementResult<IReal> n) {
 		return makeResult(type, getValue().multiply(n.getValue()), ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> divideReal(RealResult n) {
+	protected <U extends IValue> Result<U> divideReal(ElementResult<IReal> n) {
 		try {
 			// note the reverse division
 			int prec = ValueFactoryFactory.getValueFactory().getPrecision();
@@ -195,7 +196,7 @@ public class NumberResult extends ElementResult<INumber> {
 	}
 
 	@Override
-	protected LessThanOrEqualResult lessThanOrEqualReal(RealResult that) {
+	protected LessThanOrEqualResult lessThanOrEqualReal(ElementResult<IReal> that) {
 	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
@@ -258,7 +259,7 @@ public class NumberResult extends ElementResult<INumber> {
 	
 	@Override
 	protected Result<IBool> equalToInteger(IntegerResult that) {
-		return that.equalityBoolean(this);
+		return makeResult(getTypeFactory().boolType(), that.getValue().equal(getValue()), ctx);
 	}
 	
 	@Override
@@ -308,12 +309,12 @@ public class NumberResult extends ElementResult<INumber> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> makeRangeFromReal(RealResult from) {
+	protected <U extends IValue> Result<U> makeRangeFromReal(ElementResult<IReal> from) {
 		return makeRangeWithDefaultStep(from, getValueFactory().real(1.0));
 	}
 	
 	@Override
-	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(RealResult from, Result<V> second) {
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(ElementResult<IReal> from, Result<V> second) {
 		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
 	}
 

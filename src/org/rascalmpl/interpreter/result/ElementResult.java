@@ -24,6 +24,7 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -252,6 +253,11 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		}
 		return (Result<U>) makeSlice(firstIndex, secondIndex, endIndex);
 	}
+
+  @SuppressWarnings("unchecked")
+  protected Result<? extends INumber> toReal(IntegerResult from) {
+    return (Result<? extends INumber>) makeResult(getTypeFactory().realType(), from.getValue().toReal(), ctx);
+  }
 
 	
 }

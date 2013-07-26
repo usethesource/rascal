@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
@@ -346,19 +347,19 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(MULTIPLICATION_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> addReal(RealResult that) {
+	protected <U extends IValue> Result<U> addReal(ElementResult<IReal> that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> subtractReal(RealResult that) {
+	protected <U extends IValue> Result<U> subtractReal(ElementResult<IReal> that) {
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> multiplyReal(RealResult that) {
+	protected <U extends IValue> Result<U> multiplyReal(ElementResult<IReal> that) {
 		return that.undefinedError(MULTIPLICATION_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> divideReal(RealResult that) {
+	protected <U extends IValue> Result<U> divideReal(ElementResult<IReal> that) {
 		return that.undefinedError(DIVISION_STRING, this);
 	}
 
@@ -473,11 +474,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> moduloReal(RealResult that) {
+	protected <U extends IValue> Result<U> moduloReal(ElementResult<IReal> that) {
 		return that.undefinedError(MODULO_STRING, this);
 	}
 	
-	protected <U extends IValue> Result<U> remainderReal(RealResult that) {
+	protected <U extends IValue> Result<U> remainderReal(ElementResult<IReal> that) {
 		return that.undefinedError(REMAINDER_STRING, this);
 	}
 
@@ -522,7 +523,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(RANGE_STRING, this);
 	}
 
-	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(RealResult that, Result<V> step) {
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(ElementResult<IReal> that, Result<V> step) {
 		return that.undefinedError(RANGE_STRING, this);
 	}
 
@@ -539,7 +540,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(RANGE_STRING, this);
 	}
 
-	protected <U extends IValue> Result<U> makeRangeFromReal(RealResult that) {
+	protected <U extends IValue> Result<U> makeRangeFromReal(ElementResult<IReal> that) {
 		return that.undefinedError(RANGE_STRING, this);
 	}
 
@@ -795,15 +796,15 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(LESS_THAN_STRING, this);
 	}
 	
-	protected LessThanOrEqualResult lessThanOrEqualReal(RealResult that) {
+	protected LessThanOrEqualResult lessThanOrEqualReal(ElementResult<IReal> that) {
 		return new LessThanOrEqualResult(false, false, ctx);
 	}
 
-	protected Result<IBool> greaterThanReal(RealResult that) {
+	protected Result<IBool> greaterThanReal(ElementResult<IReal> that) {
 		return that.undefinedError(GREATER_THAN_STRING, this);
 	}
 	
-	protected Result<IBool> greaterThanOrEqualReal(RealResult that) {
+	protected Result<IBool> greaterThanOrEqualReal(ElementResult<IReal> that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 
