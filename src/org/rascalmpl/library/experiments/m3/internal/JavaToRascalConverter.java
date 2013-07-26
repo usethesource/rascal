@@ -16,6 +16,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -96,9 +97,16 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	protected ISourceLocation getSourceLocation(ASTNode node) {
 		int nodeLength = compilUnit.getExtendedLength(node);
+		
 		if (nodeLength > 0) {
 			int start = compilUnit.getExtendedStartPosition(node);
 			int end = start + nodeLength -1;
+			
+			if (end < start && ((node.getFlags() & 9) > 0)) {
+				System.err.println("Recovered/Malformed node, guessing the length");
+				nodeLength = node.toString().length();
+				end = start + nodeLength - 1;
+			}
 	
 			return values.sourceLocation(loc.getURI(), 
 					 start, nodeLength, 
@@ -137,6 +145,8 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		for (Iterator it = ext.iterator(); it.hasNext();) {
 			ASTNode p = (ASTNode) it.next();
 			IValue val = visitChild(p);
+			if (p instanceof Annotation)
+				val = constructModifierNode("annotation", val);
 			extendedModifierList.add(val);
 		}
 		return extendedModifierList;
