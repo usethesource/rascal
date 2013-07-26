@@ -429,6 +429,9 @@ public class ASTConverter extends JavaToRascalConverter {
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (node.isStatic())
 				importType = "staticImport";
+
+			if (node.isOnDemand())
+				importType = "packageImport";
 		}
 		
 		ownValue = constructDeclarationNode(importType.toString(), values.string(name));
@@ -450,7 +453,7 @@ public class ASTConverter extends JavaToRascalConverter {
 			}
 		}
 	
-		ownValue = constructExpressionNode("infix", leftSide, operator, rightSide);
+		ownValue = constructExpressionNode("infix", leftSide, operator, rightSide, extendedOperands.asList());
 		
 		return false;
 	}
