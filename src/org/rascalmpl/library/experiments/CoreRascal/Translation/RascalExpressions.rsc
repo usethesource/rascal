@@ -132,6 +132,7 @@ tuple[set[tuple[str,str]],set[str]] getVars(Pattern p) {
   visit(p){
     case (Pattern) `<Type tp> <Name name>`: defs += <"<tp>", "<name>">;
     case (Pattern) `<QualifiedName name>`: uses += "<name>";
+    case (Pattern) `*<QualifiedName name>`: uses += "<name>";
   };
   return <defs, uses>;
 }
@@ -183,37 +184,27 @@ str translateBool(e:(Expression) `<Expression lhs> && <Expression rhs>`) =
  str translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  =
     "coroutine () resume bool(){
     '  matcher = <translatePat(pat)>;
-    '  subject = <translate(exp)>
+    '  subject = <translate(exp)>;
     '  matcher.start(subject);
     '  while(matcher.hasMore()){
-    '    \<success, _\> = matcher.resume(0);
-    '    if(success)
+    '    if(matcher.resume())
     '       yield true;
+    '    else
+    '       return false;
     '  }
-    '}
-    ";  
+    '}";  
  
  // Translate patterns
-
-str translatePat(p:(Pattern) `<BooleanLiteral b>`) = "coroutine (subject) resume tuple[bool,int](int) { yield \<subject == <translate(b)>, 1\>; }";
-
-str translatePat(p:(Pattern) `<IntegerLiteral n>`) = "coroutine (subject) resume tuple[bool,int](int) { yield \<subject == <translate(n)>, 1\>; }";
-     
-str translatePat(p:(Pattern) `<StringLiteral s>`) =  "coroutine (subject) resume tuple[bool,int](int) { yield \<subject == <translate(s)>, 1\>; }";
-     
-str translatePat(p:(Pattern) `<QualifiedName name>`) =  "coroutine (subject) resume tuple[bool,int](int) { yield \<subject == <translate(name)>, 1\>; }";
-     
-str translatePat(p:(Pattern) `<Type tp> <Name name>`) = "coroutine (subject) resume tuple[bool,int](int) { <tp> <name> = subject; yield \<true, 1\>; }";
  
-str translatePat(p:(Pattern) `* <Pattern pat>`) = 
-   "coroutine (subject) resume tuple[bool,int](int pos, int len) { 
-   '  int myLen = 0;
-   '  while(true){
-   '     n = yield \<true, n\>;
-   '     if(
-   '  } 
-   '}
-   ";
+str translatePat(p:(Pattern) `<BooleanLiteral b>`) = "coroutine (bool subject) resume bool () { yield subject == <translate(b)>; }";
+
+str translatePat(p:(Pattern) `<IntegerLiteral n>`) = "coroutine (int subject) resume bool () { yield subject == <translate(n)>; }";
+     
+str translatePat(p:(Pattern) `<StringLiteral s>`) =  "coroutine (str subject) resume bool () { yield subject == <translate(s)>; }";
+     
+str translatePat(p:(Pattern) `<QualifiedName name>`) =  "coroutine (<getType(name@\loc)> subject) resume bool () { yield subject == <translate(name)>; }";
+     
+str translatePat(p:(Pattern) `<Type tp> <Name name>`) = "coroutine (<tp> subject) resume bool () { <tp> <name> = subject; yield true; }";
 
 str translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
   defs = {}; uses = {};
@@ -224,32 +215,62 @@ str translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
   }
   
   return
-     "coroutine (subject) resume tuple[bool,int](int) {
+     "coroutine (value subject) resume tuple[bool,int](int) {
      '  <for(<tp, nm> <- defs){><tp> <name>;<}>
-     '  sublen = size(subject);
-     '  matchers = [<intercalate(",", [translatePat(pat) + ".start(subject)" | pat <- pats])>];
-     '  patlen  = <size([p | p <- pats])>;
-     '  upto = [0 | n \<- [0 .. sublen];
-     '  p = 0; s = 0;
+     '  int sublen = size(subject);
+     '  list[coroutine] matchers = [<intercalate(",\n", [translatePatAsListElem(pat) + ".start(subject)" | pat <- pats])>];
+     '  int patlen = size(matchers);
+     '  lits[int] upto = [0 | n \<- [0 .. patlen]];
+     '  int p = 0; 
+     '  int s = 0;
+     '  bool forward = true;
      '  while(true){
-     '    while(patgens[p].hasMore()){
-     '       \<success, nextS\> = matchers[p].resume(s);
+     '    while(matchers[p].hasMore()){
+     '       \<success, nextS\> = matchers[p].resume(forward, s);
      '       if(success){
+     '          forward = true;
      '          upto[p] = s = nextS;
      '          p += 1;
      '          if(p == patlen && s == sublen)
-     '         	   yield true, 
+     '         	   yield true; 
      '       }
      '    }
      '    if(p \> 0){
      '          p -= 1;
      '          s = p \> 0 ? upto[p - 1] : 0;
+     '          forward = false;
      '    } else
      '          return \<false, 0\>;
      '  }
      '}
      ";
 }
+
+// Translate patterns as element of a list pattern
+
+str translatePatAsListElem(p:(Pattern) `* <QualifiedName name>`) = 
+   "coroutine (list[&T] subject) resume tuple[bool,int](bool forward, int startPos) { 
+   '  while(true){
+   '     int endPos = startPos;
+   '     \<forward, startPos\> = yield \<true, endPos\>;
+   '     if(forward && endPos \< size(subject)){
+   '        endPos += 1;
+   '        <name> = subject[startPos .. endPos];
+   '        yield \<true, endPos\>;
+   '     }
+   '  } 
+   '}";
+  
+default str translatePatAsListElem(Pattern p) = asListElem(translatePat(p));
+
+// Wrap the translation of a pattern element as element of a list pattern
+
+str asListElem(str code) = 
+    "coroutine (list[&T] subject) resume tuple[bool,int](int startPos) { 
+    '  while(true) { c = <code>.start(subject[startPos]); yield \<c.resume(), startPos + 1\>; 
+    '}";
+
+
 
 
 
