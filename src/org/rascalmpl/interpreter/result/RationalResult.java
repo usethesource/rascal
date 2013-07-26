@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -146,23 +147,23 @@ public class RationalResult extends ElementResult<IRational> {
 
 	
 	@Override  
-	protected <U extends IValue> Result<U> addReal(RealResult n) {
+	protected <U extends IValue> Result<U> addReal(ElementResult<IReal> n) {
 		return n.addRational(this);
 	}
 	
 	
 	@Override
-	protected <U extends IValue> Result<U> multiplyReal(RealResult n) {
+	protected <U extends IValue> Result<U> multiplyReal(ElementResult<IReal> n) {
 		return n.multiplyRational(this);
 	}
 	
 	@Override 
-	protected <U extends IValue> Result<U> subtractReal(RealResult n) {
+	protected <U extends IValue> Result<U> subtractReal(ElementResult<IReal> n) {
 		return widenToReal().subtractReal(n);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> divideReal(RealResult n) {
+	protected <U extends IValue> Result<U> divideReal(ElementResult<IReal> n) {
 		return widenToReal().divideReal(n);
 	}
 	
@@ -188,7 +189,7 @@ public class RationalResult extends ElementResult<IRational> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> makeRangeFromReal(RealResult from) {
+	protected <U extends IValue> Result<U> makeRangeFromReal(ElementResult<IReal> from) {
 		return makeRangeWithDefaultStep(from);
 	}
 	
@@ -198,7 +199,7 @@ public class RationalResult extends ElementResult<IRational> {
 	}
 	
 	@Override
-	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(RealResult from, Result<V> second) {
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(ElementResult<IReal> from, Result<V> second) {
 		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
 	}
 	
@@ -343,7 +344,7 @@ public class RationalResult extends ElementResult<IRational> {
 	}
 	
 	@Override
-	protected Result<IBool> greaterThanOrEqualReal(RealResult that) {
+	protected Result<IBool> greaterThanOrEqualReal(ElementResult<IReal> that) {
 	  return makeResult(getTypeFactory().boolType(), that.getValue().greaterEqual(getValue()), ctx);
 	}
 	
@@ -353,7 +354,7 @@ public class RationalResult extends ElementResult<IRational> {
 	}
 	
 	@Override
-	protected Result<IBool> greaterThanReal(RealResult that) {
+	protected Result<IBool> greaterThanReal(ElementResult<IReal> that) {
 	  return makeResult(getTypeFactory().boolType(), that.getValue().greater(getValue()), ctx);
 	}
 	
@@ -363,7 +364,7 @@ public class RationalResult extends ElementResult<IRational> {
 	}
 	
 	@Override
-	protected LessThanOrEqualResult lessThanOrEqualReal(RealResult that) {
+	protected LessThanOrEqualResult lessThanOrEqualReal(ElementResult<IReal> that) {
 	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
