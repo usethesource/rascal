@@ -172,10 +172,6 @@ public class ParserGenerator {
 		
 		@Override
 		public int hashCode() {
-			if (!reported && v.get() == null) {
-				cleanup.add(this);
-				reported = true;
-			}
 			return hash;
 		}
 		
