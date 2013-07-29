@@ -12,6 +12,8 @@ package org.rascalmpl.library.experiments.m3.internal;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.jdt.core.dom.*;
 
@@ -19,6 +21,9 @@ public class BindingsResolver {
 	
 	private String project;
 	private final boolean collectBindings;
+	
+	private final Map<URI, Integer> anonymousClassCounter = new HashMap<URI, Integer>();
+	private final Map<URI, Integer> initializerCounter = new HashMap<URI, Integer>();
 	
 	BindingsResolver(boolean collectBindings) {
 		this.collectBindings = collectBindings;
@@ -38,8 +43,15 @@ public class BindingsResolver {
 				return resolveBinding(((AnnotationTypeDeclaration) node).resolveBinding());
 			else if (node instanceof AnnotationTypeMemberDeclaration) 
 				return resolveBinding(((AnnotationTypeMemberDeclaration) node).resolveBinding());
-			else if (node instanceof AnonymousClassDeclaration)
-				return resolveBinding(((AnonymousClassDeclaration) node).resolveBinding());
+			else if (node instanceof AnonymousClassDeclaration) {
+				int anonCounter = 1;
+				ITypeBinding nodeBinding = ((AnonymousClassDeclaration) node).resolveBinding();
+				URI parent = getParent(nodeBinding);
+				if (anonymousClassCounter.containsKey(parent))
+					anonCounter = anonymousClassCounter.get(parent) + 1;
+				anonymousClassCounter.put(parent, anonCounter);
+				return resolveBinding(nodeBinding);
+			}
 			else if (node instanceof EnumConstantDeclaration) 
 				return resolveBinding(((EnumConstantDeclaration) node).resolveConstructorBinding());
 			else if (node instanceof ClassInstanceCreation)
@@ -78,8 +90,20 @@ public class BindingsResolver {
 				return resolveBinding(((SuperConstructorInvocation) node).resolveConstructorBinding());
 			else if (node instanceof TypeDeclarationStatement)
 				return resolveBinding(((TypeDeclarationStatement) node).resolveBinding());
+			else if (node instanceof Initializer)
+				return resolveInitializer((Initializer) node);
 		}
 		return convertBinding("unknown", null, null, null);
+	}
+	
+	private URI resolveInitializer(Initializer node) {
+		int initCounter = 1;
+		URI parent = resolveBinding(node.getParent());
+		if (initializerCounter.containsKey(parent))
+			initCounter = initializerCounter.get(parent) + 1;
+		initializerCounter.put(parent, initCounter);
+		
+		return convertBinding("java+initializer", parent.getPath() + "$initializer" + initCounter, null, null);
 	}
 	
 	public URI resolveBinding(IBinding binding) {
@@ -124,15 +148,39 @@ public class BindingsResolver {
 		return convertBinding("java+package", binding.getName(), null, null);
 	}
 	
+	private URI getParent(ITypeBinding binding) {
+		URI parent = resolveBinding(binding.getDeclaringMethod());
+		if (parent.getPath().isEmpty() || parent.getPath().equals("/"))
+			parent = resolveBinding(binding.getDeclaringClass());
+		return parent;
+	}
+	
 	private URI resolveBinding(ITypeBinding binding) {
 		if (binding == null)
 			return convertBinding("unresolved", null, null, null);
 		String scheme = binding.isInterface() ? "java+interface" : "java+class";
+		String qualifiedName = binding.getQualifiedName();
+		
+		URI parent = getParent(binding);
+		
+		if (qualifiedName.isEmpty()) {
+			qualifiedName = parent.getPath();
+			if (!(binding.getName().isEmpty()))
+			qualifiedName += "." + binding.getName();
+		}
+		
 		if (binding.isWildcardType())
 			return convertBinding("unknown", null, null, null);
-		if (binding.isAnonymous())
+		
+		if (binding.isAnonymous()) {
+			String anonCounter = "";
+			if (anonymousClassCounter.containsKey(parent))
+				anonCounter = anonymousClassCounter.get(parent).toString();
+			qualifiedName += "$anonymous" + anonCounter;
 			scheme = "java+anonymousClass";
-		return convertBinding(scheme, binding.getQualifiedName(), null, null);
+		}
+		
+		return convertBinding(scheme, qualifiedName, null, null);
 	}
 	
 	private URI resolveBinding(IVariableBinding binding) {

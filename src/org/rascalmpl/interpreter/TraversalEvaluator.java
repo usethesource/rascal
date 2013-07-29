@@ -318,8 +318,8 @@ public class TraversalEvaluator {
 		    rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(), args);
 		  }
 		  
-		  if (cons.hasAnnotations()) {
-		    rcons = rcons.setAnnotations(cons.getAnnotations());
+		  if (cons.asAnnotatable().hasAnnotations()) {
+		    rcons = rcons.asAnnotatable().setAnnotations(cons.asAnnotatable().getAnnotations());
 		  }
 		    
 
@@ -437,8 +437,8 @@ public class TraversalEvaluator {
 			
 			INode n = eval.getValueFactory().node(node.getName(), args);
 			
-			if (node.hasAnnotations()) {
-				n = n.setAnnotations(node.getAnnotations());
+			if (node.asAnnotatable().hasAnnotations()) {
+				n = n.asAnnotatable().setAnnotations(node.asAnnotatable().getAnnotations());
 			}
 			
 			result = n;

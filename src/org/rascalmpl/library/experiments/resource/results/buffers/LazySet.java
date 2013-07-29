@@ -9,7 +9,7 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
+import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetRelation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -108,56 +108,6 @@ public class LazySet implements ISet {
 		return false;
 	}
 
-//	@Override
-//	public int arity() {
-//		return this.elementType.getArity();
-//	}
-//
-//	@Override
-//	public ISet compose(ISet rel) throws FactTypeUseException {
-//		throw new IllegalOperationException("compose over buffered relation", getType());
-//	}
-//
-//	@Override
-//	public ISet closure() throws FactTypeUseException {
-//		throw new IllegalOperationException("transitive closure over buffered relation", getType());
-//	}
-//
-//	@Override
-//	public ISet closureStar() throws FactTypeUseException {
-//		throw new IllegalOperationException("reflexive transitive closure over buffered relation", getType());
-//	}
-//
-//	@Override
-//	public ISet carrier() {
-//		throw new IllegalOperationException("carrier over buffered relation", getType());
-//	}
-//
-//	@Override
-//	public Type getFieldTypes() {
-//		return this.elementType;
-//	}
-//
-//	@Override
-//	public ISet domain() {
-//		throw new IllegalOperationException("domain over buffered relation", getType());
-//	}
-//
-//	@Override
-//	public ISet range() {
-//		throw new IllegalOperationException("range over buffered relation", getType());
-//	}
-//
-//	@Override
-//	public ISet select(int... fields) {
-//		throw new IllegalOperationException("select over buffered relation", getType());
-//	}
-//
-//	@Override
-//	public ISet selectByFieldNames(String... fields) throws FactTypeUseException {
-//		throw new IllegalOperationException("select over buffered relation", getType());
-//	}
-
 	@Override
 	public String toString() {
 		return "Buffered Relation";
@@ -174,4 +124,16 @@ public class LazySet implements ISet {
 				"Relational operations are not supported on lazy representation.",
 				getType());
 	}
+	
+	@Override
+	public boolean isAnnotatable() {
+		return false;
+	}
+
+	@Override
+	public IAnnotatable<? extends IValue> asAnnotatable() {
+		throw new IllegalOperationException(
+				"Cannot be viewed as annotatable.", getType());
+	}
+	
 }

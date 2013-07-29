@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -15,6 +16,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -94,13 +96,24 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	}
 	
 	protected ISourceLocation getSourceLocation(ASTNode node) {
-		int start = compilUnit.getExtendedStartPosition(node);
-		int end = start + compilUnit.getExtendedLength(node)-1;
+		int nodeLength = compilUnit.getExtendedLength(node);
 		
-		return values.sourceLocation(loc.getURI(), 
-				 start, compilUnit.getExtendedLength(node), 
-				 compilUnit.getLineNumber(start), compilUnit.getLineNumber(end), 
-				 compilUnit.getColumnNumber(start)+1, compilUnit.getColumnNumber(end)+1);
+		if (nodeLength > 0) {
+			int start = compilUnit.getExtendedStartPosition(node);
+			int end = start + nodeLength -1;
+			
+			if (end < start && ((node.getFlags() & 9) > 0)) {
+				System.err.println("Recovered/Malformed node, guessing the length");
+				nodeLength = node.toString().length();
+				end = start + nodeLength - 1;
+			}
+	
+			return values.sourceLocation(loc.getURI(), 
+					 start, nodeLength, 
+					 compilUnit.getLineNumber(start), compilUnit.getLineNumber(end), 
+					 compilUnit.getColumnNumber(start)+1, compilUnit.getColumnNumber(end)+1);
+		}
+		return values.sourceLocation(loc.getURI(), 0, 0, 0, 0, 0, 0);
 	}
 	
 	protected IValue[] removeNulls(IValue... withNulls) {
@@ -132,6 +145,8 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		for (Iterator it = ext.iterator(); it.hasNext();) {
 			ASTNode p = (ASTNode) it.next();
 			IValue val = visitChild(p);
+			if (p instanceof Annotation)
+				val = constructModifierNode("annotation", val);
 			extendedModifierList.add(val);
 		}
 		return extendedModifierList;
@@ -163,7 +178,14 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected void setAnnotation(String annoName, IValue annoValue) {
 		if(this.ownValue == null) return ;
 		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName))
-			this.ownValue = ((IConstructor) this.ownValue).setAnnotation(annoName, annoValue);
+			this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annoValue);
+	}
+	
+	protected void setAnnotation(String annoName, IValueList annoList) {
+		IList annos = (IList) annoList.asList();
+		if(this.ownValue == null) return ;
+		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName) && !annos.isEmpty())
+			this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annos);
 	}
 	
 	protected IValue constructDeclarationNode(String constructor, IValue... children) {

@@ -165,4 +165,8 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 		return false;
 	}
 
+	@Override
+	public void updateType(Type type) {
+	  // do nothing by default
+	}
 }

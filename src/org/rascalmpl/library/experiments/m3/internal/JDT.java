@@ -18,14 +18,17 @@ package org.rascalmpl.library.experiments.m3.internal;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -37,8 +40,8 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 
 public class JDT {
     private final IValueFactory VF;
-    List<String> classPathEntries;
-    List<String> sourcePathEntries;
+    private List<String> classPathEntries;
+    private List<String> sourcePathEntries;
 	
     public JDT(IValueFactory vf) {
     	this.VF = vf;
@@ -47,6 +50,8 @@ public class JDT {
 	}
     
     public void setEnvironmentOptions(ISet classPaths, ISet sourcePaths, IEvaluatorContext eval) {
+    	classPathEntries.clear();
+    	sourcePathEntries.clear();
     	for (IValue path: classPaths) {
     		try {
 				classPathEntries.add(eval.getResolverRegistry().getResourceURI(((ISourceLocation) path).getURI()).getPath());
@@ -65,10 +70,10 @@ public class JDT {
     }
     
     @SuppressWarnings("rawtypes")
-	public IValue createM3FromFile(ISourceLocation loc, IEvaluatorContext eval) {
+	public IValue createM3FromFile(ISourceLocation loc, IString javaVersion, IEvaluatorContext eval) {
     	try {
-    		CompilationUnit cu = this.getCompilationUnit(loc, true, eval);
-
+    		CompilationUnit cu = this.getCompilationUnit(loc, true, javaVersion, eval);
+    		
     		M3Converter converter = new M3Converter(eval.getHeap().getModule("experiments::m3::JavaM3").getStore());
     		converter.set(cu);
     		converter.set(loc);
@@ -88,35 +93,37 @@ public class JDT {
 	/*
 	 * Creates Rascal ASTs for Java source files
 	 */
-	public IValue createAstFromFile(ISourceLocation loc, IBool collectBindings, IEvaluatorContext eval) {
+	public IValue createAstFromFile(ISourceLocation loc, IBool collectBindings, IString javaVersion, IEvaluatorContext eval) {
 		try {
 			CompilationUnit cu;
-			cu = this.getCompilationUnit(loc, collectBindings.getValue(), eval);
+			
+			cu = this.getCompilationUnit(loc, collectBindings.getValue(), javaVersion, eval);
 			ASTConverter converter = new ASTConverter(eval.getHeap().getModule("experiments::m3::AST").getStore(),
 					collectBindings.getValue());
 			converter.set(cu);
 			converter.set(loc);
 			cu.accept(converter);
+			converter.setAnnotation("errors", getProblems(cu, loc));
 			return converter.getValue();
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
-	private CompilationUnit getCompilationUnit(ISourceLocation loc, boolean resolveBindings, IEvaluatorContext ctx) throws IOException {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+	private CompilationUnit getCompilationUnit(ISourceLocation loc, boolean resolveBindings, IString javaVersion, IEvaluatorContext ctx) throws IOException {
+		ASTParser parser = ASTParser.newParser(AST.JLS4);
 		parser.setUnitName(loc.getURI().getPath());
 		parser.setResolveBindings(resolveBindings);
 		parser.setSource(getFileContents(loc, ctx));
-		parser.setBindingsRecovery(resolveBindings);
-		parser.setStatementsRecovery(resolveBindings);
+		parser.setBindingsRecovery(true);
+		parser.setStatementsRecovery(true);
 		
-//		Hashtable options = new Hashtable();
-//		options.put(JavaCore.COMPILER_SOURCE, "1.7");
-//		options.put(JavaCore.COMPILER_COMPLIANCE, "1.7");
-//		
-//		parser.setCompilerOptions(options);
+		Hashtable<String, String> options = new Hashtable<String, String>();
+		
+		options.put(JavaCore.COMPILER_SOURCE, javaVersion.getValue());
+		options.put(JavaCore.COMPILER_COMPLIANCE, javaVersion.getValue());
+		
+		parser.setCompilerOptions(options);
 		
 		parser.setEnvironment(classPathEntries.toArray(new String[classPathEntries.size()]), 
 				  sourcePathEntries.toArray(new String[sourcePathEntries.size()]),

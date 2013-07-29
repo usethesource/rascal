@@ -9,7 +9,7 @@ module vis::examples::MouseOverSpiral
 
 import vis::Figure;
 import vis::Render;
-import Real;
+import util::Math;
 
 public Figure mouseOverSpiral(int n,real radius, real increase,real radiusIncrease,real curAngle){
 	props = (n == 0) ? 
