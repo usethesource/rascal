@@ -1,5 +1,11 @@
 package org.rascalmpl.parser;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,20 +27,23 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.jgll.grammar.CharacterClass;
 import org.jgll.grammar.Grammar;
 import org.jgll.grammar.GrammarBuilder;
+import org.jgll.grammar.Keyword;
 import org.jgll.grammar.Nonterminal;
 import org.jgll.grammar.Range;
 import org.jgll.grammar.Rule;
 import org.jgll.grammar.Symbol;
+import org.jgll.grammar.condition.Condition;
+import org.jgll.grammar.condition.ConditionFactory;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.LevelSynchronizedGrammarInterpretter;
 import org.jgll.parser.ParseError;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
-import org.jgll.util.GraphVizUtil;
 import org.jgll.util.Input;
-import org.jgll.util.SPPFToDot;
-import org.jgll.util.ToDotWithoutIntermeidateAndLists;
+import org.jgll.util.dot.GraphVizUtil;
+import org.jgll.util.dot.SPPFToDot;
+import org.jgll.util.dot.ToDotWithoutIntermeidateAndLists;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -51,16 +60,6 @@ public class GrammarToJigll {
 	private String startSymbol;
 	
 	private Input input;
-	
-	private List<String> deleteSet;
-	
-	private List<List<List<CharacterClass>>> followRestrictions;
-	
-	List<List<CharacterClass>> followRestriction;
-	
-	List<CharacterClass> precedeRestrictions;
-
-	private CharacterClass precedeRestriction;
 	
 	private IConstructor rascalGrammar;
 
@@ -85,7 +84,6 @@ public class GrammarToJigll {
 	  
 	  try {
 		sppf = parser.parse(input, this.grammar, startSymbol);
-		  
 	  } catch(ParseError e) {
 		  System.out.println(e);
 		  throw RuntimeExceptionFactory.parseError(vf.sourceLocation(URI.create("nothing:///"), 0, 1), null, null);
@@ -107,24 +105,34 @@ public class GrammarToJigll {
 		  builder.filter();
 		  
 		  grammar = builder.build();
-		  
-//		  System.out.println(grammar);
+	}
+	
+	public void save(IString path) throws FileNotFoundException, IOException {
+		File file = new File(path.getValue());
+		if(!file.exists()) {
+			file.createNewFile();
+		}
+		ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+		out.writeObject(grammar);
+		out.close();
 	}
 	
 	public void generateGraph() {
 		parser = new LevelSynchronizedGrammarInterpretter();
-		NonterminalSymbolNode sppf = parser.parse(input, this.grammar, startSymbol);
-		if(sppf == null) {
-			return;
+		
+		NonterminalSymbolNode sppf;
+		try {
+			sppf = parser.parse(input, this.grammar, startSymbol);			
+		} catch(ParseError e) {
+			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(URI.create("nothing:///"), 0, 1), null, null);
 		}
+		
 		SPPFToDot toDot = new ToDotWithoutIntermeidateAndLists();
 		sppf.accept(toDot);
 		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
 	}
 	
-	private void getDeleteSet(IConstructor nonterminal) {
-		
-		deleteSet = new ArrayList<>();
+	private void getDeleteSet(IConstructor nonterminal, Symbol s) {
 		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 		IConstructor choice = (IConstructor) definitions.get(nonterminal);
@@ -133,42 +141,39 @@ public class GrammarToJigll {
 			IConstructor prod = (IConstructor) alt;
 			IList rhs = (IList) prod.get("symbols");
 			IConstructor symbol = (IConstructor) rhs.get(0);
-			deleteSet.add(((IString)symbol.get("string")).getValue());
+			s.addPostCondition(ConditionFactory.notMatch(getKeyword(symbol)));
 		}
 	}
 	
-	private List<CharacterClass> getFollowRestriction(IConstructor nonterminal) {
-		List<CharacterClass> list = new ArrayList<>();
+	private Condition getFollowRestriction(IConstructor symbol) {
 		
-		switch (nonterminal.getName()) {
-		
+		switch (symbol.getName()) {
+
 			case "char-class":
-				List<Range> targetRanges = buildRanges(nonterminal);
-				list.add(new CharacterClass(targetRanges));
-				break;
+				List<Range> targetRanges = buildRanges(symbol);
+				return ConditionFactory.notFollow(new CharacterClass(targetRanges));
 				
 			case "lit":
-				IMap definitions = (IMap) rascalGrammar.get("rules");
-				IConstructor choice = (IConstructor) definitions.get(nonterminal);
-				ISet alts = (ISet) choice.get("alternatives");
-				for (IValue alt : alts) {
-					IConstructor prod = (IConstructor) alt;
-					IList rhs = (IList) prod.get("symbols");
-					for (IValue elem : rhs) {
-						IConstructor cons = (IConstructor) elem;
-						Symbol symbol = getSymbol(cons);
-						if(symbol != null) {
-							list.add((CharacterClass)symbol);
-						}
-					}
-				}
-			 	break;
+				return ConditionFactory.notFollow(getKeyword(symbol));
 	
 			default:
 				throw new IllegalStateException("Should not be here!");
 		}
+	}
+	
+	private Condition getNotPrecede(IConstructor symbol) {
+		switch(symbol.getName()) {
 		
-		return list;
+		case "char-class":
+			List<Range> targetRanges = buildRanges(symbol);
+			return ConditionFactory.notPrecede(new CharacterClass(targetRanges));
+			
+		case "lit":
+			return ConditionFactory.notPrecede(getKeyword(symbol));
+			
+		default:
+			throw new IllegalStateException("Should not be here!");
+		}
 	}
 	
 	public GrammarBuilder convert(String name, IConstructor rascalGrammar) {
@@ -200,20 +205,14 @@ public class GrammarToJigll {
 					object = alt;
 				}
 				
-				followRestrictions = new ArrayList<>();
-				deleteSet = new ArrayList<>();
-				precedeRestrictions = new ArrayList<>();
-				
 				if(!prod.getName().equals("regular")) {
 					IList rhs = (IList) prod.get("symbols");
 					
-					followRestrictions.clear();
-					deleteSet.clear();
 					List<Symbol> body = getSymbolList(rhs);
 										
 					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
-					builder.addRule(rule, followRestrictions, deleteSet, precedeRestrictions);						
+					builder.addRule(rule);						
 				}
 			}
 		}
@@ -257,18 +256,22 @@ public class GrammarToJigll {
 		List<Symbol> result = new ArrayList<>();
 		for (IValue elem : rhs) {
 			IConstructor cons = (IConstructor) elem;
-			followRestriction = new ArrayList<>();
-			precedeRestriction = null;
 			Symbol symbol = getSymbol(cons);
 			if(symbol != null) {
 				result.add(symbol);
-				followRestrictions.add(followRestriction);
-				precedeRestrictions.add(precedeRestriction);
 			}
 		}
 		return result;
 	}
 	
+	private Keyword getKeyword(IConstructor symbol) {
+		IString s = (IString) symbol.get("string");
+		int[] chars = new int[s.length()];
+		for(int i = 0; i < chars.length; i++) {
+			chars[i] = s.charAt(i);
+		}
+		return new Keyword(chars);
+	}
 	
 	private Symbol getSymbol(IConstructor symbol) {
 		
@@ -277,6 +280,9 @@ public class GrammarToJigll {
 			case "char-class":
 				List<Range> targetRanges = buildRanges(symbol);
 				return new CharacterClass(targetRanges);
+				
+			case "lit":
+				return getKeyword(symbol);
 				
 			case "label":
 				return getSymbol(getSymbolCons(symbol));
@@ -305,24 +311,32 @@ public class GrammarToJigll {
 			case "start":
 				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol)) + "]");
 				
-			case "conditional":			
+			case "conditional":
+				Symbol s = getSymbol(getSymbolCons(symbol));
 				ISet conditions = (ISet) symbol.get("conditions");
 				for(IValue condition : conditions) {
 					
 					switch(((IConstructor)condition).getName()) {
 						case "not-follow":
 							IConstructor follow = getSymbolCons((IConstructor) condition);
-							followRestriction.add(getFollowRestriction(follow));
+							s.addPostCondition(getFollowRestriction(follow));
+							break;
+							
+						case "follow":
 							break;
 							
 						case "delete":
 							IConstructor delete = getSymbolCons((IConstructor) condition);
-							getDeleteSet(delete);
+							getDeleteSet(delete, s);
 							break;
 							
 						case "not-precede":
 							IConstructor precede = getSymbolCons((IConstructor) condition);
-							precedeRestriction = new CharacterClass(buildRanges(precede));
+							s.addPostCondition(getNotPrecede(precede));
+							break;
+							
+							
+						case "precede":
 							break;
 							
 						case "except":
@@ -330,10 +344,9 @@ public class GrammarToJigll {
 							
 						default:
 							throw new RuntimeException("Unsupported conditional " + symbol);
-							
 					}
 				}
-				return getSymbol(getSymbolCons(symbol));
+				return s;
 				
 			default:
 				return new Nonterminal(SymbolAdapter.toString(symbol));
@@ -368,36 +381,4 @@ public class GrammarToJigll {
 		}
 		return value;
 	}
-	
-	public String getAlt(IConstructor cons) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("(");
-		
-		ISet alternatives = (ISet) cons.get("alternatives");
-		for(IValue alt : alternatives) {
-			sb.append(getSymbol((IConstructor) alt)).append(" | ");
-		}
-		sb.delete(sb.length() - 3, sb.length());
-		sb.append(")");
-		return sb.toString();
-	}
-	
-	public String getIteratorName(IConstructor iter) {
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("(");
-		
-		IConstructor symbol = (IConstructor)iter.get("symbol");
-		sb.append(getSymbol(symbol).toString());
-		
-		IList separators = (IList) iter.get("separators");
-		for(IValue separator : separators) {
-			// See if adding separators matters for the uniqueness of the names
-		}
-		
-		sb.append(")");
-		
-		return sb.toString();
-	}
-
 }

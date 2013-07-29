@@ -24,7 +24,6 @@ public void generate(type[&T <: Tree] nont) {
   generateGrammar(gr);
 }
 
-
 public &T<:Tree jparse(type[&T <: Tree] nont, str input) {
   return jparse(nont.symbol, input);
 }
@@ -32,9 +31,5 @@ public &T<:Tree jparse(type[&T <: Tree] nont, str input) {
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
 public java &T<:Tree jparse(Symbol nonterminal, str input);
 
-// in the future this has to go because the labels are worth some money
-private Grammar removeLabels(Grammar g) 
-	   = visit (g) {
-	      case label(name, s) => s
-	   };
-		
+@javaClass{org.rascalmpl.parser.GrammarToJigll}
+public java void save(str inpu);
