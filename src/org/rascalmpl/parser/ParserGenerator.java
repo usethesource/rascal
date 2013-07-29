@@ -184,6 +184,7 @@ public class ParserGenerator {
 			if (actual == null) {
 				cleanup.add(this);
 				reported = true;
+				return false;
 			}
 			if (obj instanceof IValue) {
 				return actual.isEqual((IValue)obj);
