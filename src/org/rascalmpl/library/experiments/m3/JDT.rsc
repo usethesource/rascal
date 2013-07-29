@@ -15,6 +15,8 @@ module experiments::m3::JDT
 
 import IO;
 import String;
+import Relation;
+import Set;
 import Map;
 import Node;
 import experiments::m3::AST;
@@ -72,23 +74,23 @@ public void setEnvironmentOptions(loc project) {
 @doc{Creates AST from a file}
 @javaClass{org.rascalmpl.library.experiments.m3.internal.JDT}
 @reflect
-public java Declaration createAstFromFile(loc file, bool collectBindings);
+public java Declaration createAstFromFile(loc file, bool collectBindings, str javaVersion = "1.7");
 
 @doc{Creates ASTs from a project}
-public set[Declaration] createAstsFromProject(loc project, bool collectBindings) {
+public set[Declaration] createAstsFromProject(loc project, bool collectBindings, str javaVersion = "1.7" ) {
    setEnvironmentOptions(project);
-   return { createAstFromFile(f, collectBindings) | loc f <- crawl(project, ".java") };
+   return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | loc f <- crawl(project, ".java") };
 }
 
 @javaClass{org.rascalmpl.library.experiments.m3.internal.JDT}
 @reflect
-public java M3 createM3FromFile(loc file);
+public java M3 createM3FromFile(loc file, str javaVersion = "1.7");
 
-public M3 createM3FromProject(loc project) {
+public M3 createM3FromProject(loc project, str javaVersion = "1.7") {
 	setEnvironmentOptions(project);
 	M3 result = m3();
 	for (loc f <- crawl(project, ".java")) {
-		M3 model = createM3FromFile(f);
+		M3 model = createM3FromFile(f, javaVersion = javaVersion);
 		result@source += model@source;
 		result@containment += model@containment;
 	    result@inheritance += model@inheritance;
@@ -100,6 +102,9 @@ public M3 createM3FromProject(loc project) {
 	    result@documentation += model@documentation;
 	    result@modifiers += model@modifiers;
 	    result@projectErrors += model@projectErrors;
+	    result@libraryContainment += model@libraryContainment;
+	    result@resolveNames += model@resolveNames;
 	}
+	result@libraryContainment -= result@containment;
 	return result;
 }

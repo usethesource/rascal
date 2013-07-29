@@ -108,7 +108,7 @@ public class ResultFactory {
 		}
 		
 		@Override
-		public RealResult visitReal(Type type) {
+		public ElementResult<IReal> visitReal(Type type) {
 			return new RealResult(declaredType, (IReal)value, ctx);
 		}
 		

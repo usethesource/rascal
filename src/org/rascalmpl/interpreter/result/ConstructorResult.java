@@ -104,7 +104,7 @@ public class ConstructorResult extends NodeResult {
 			throw new UndeclaredAnnotation(annoName, getType(), ctx.getCurrentAST());
 		}
 	
-		IValue annoValue = getValue().getAnnotation(annoName);
+		IValue annoValue = getValue().asAnnotatable().getAnnotation(annoName);
 		if (annoValue == null) {
 			throw RuntimeExceptionFactory.noSuchAnnotation(annoName, ctx.getCurrentAST(), null);
 		}

@@ -15,6 +15,7 @@
 package org.rascalmpl.interpreter.result;
 
 
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -37,7 +38,7 @@ public class CollectionResult<T extends IValue> extends ElementResult<T> {
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> addReal(RealResult n) {
+	protected <U extends IValue> Result<U> addReal(ElementResult<IReal> n) {
 		return insertElement(n);
 	}
 	

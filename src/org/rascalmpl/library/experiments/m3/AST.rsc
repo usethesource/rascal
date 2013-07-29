@@ -1,10 +1,5 @@
 module experiments::m3::AST 
 
-anno loc Declaration@src;
-anno loc Declaration@binding;
-anno list[Modifiers] Declaration@modifiers;
-anno list[Declaration] Declaration@typeParameters;
-
 anno loc Modifiers@binding;
 
 data Modifiers
@@ -21,18 +16,21 @@ data Modifiers
 	| \volatile()
 	| \strictfp()
 	| \deprecated()
-	| \markerAnnotation(str typeName)
-  	| \normalAnnotation(str typeName, list[Modifiers] memberValuePairs)
-  	| \memberValuePair(str name, Expression \value)				
-  	| \singleMemberAnnotation(str typeName, Expression \value)
+	| \annotation(Expression \anno)
   	;
+
+anno loc Declaration@src;
+anno loc Declaration@binding;
+anno list[Modifiers] Declaration@modifiers;
+anno list[Declaration] Declaration@typeParameters;
+anno list[str] Declaration@errors;
 
 data Declaration
   	= \compilationUnit(list[Declaration] imports, list[Declaration] types)
 	| \compilationUnit(Declaration package, list[Declaration] imports, list[Declaration] types)
 	| \enum(str name, list[Type] implements, list[Declaration] constants, list[Declaration] body)
-	| \enumConstant(str name, list[Declaration] arguments, Declaration class)
-	| \enumConstant(str name, list[Declaration] arguments)
+	| \enumConstant(str name, list[Expression] arguments, Declaration class)
+	| \enumConstant(str name, list[Expression] arguments)
 	| \class(str name, list[Type] extends, list[Type] implements, list[Declaration] body)
 	| \class(list[Declaration] body)
 	| \interface(str name, list[Type] extends, list[Type] implements, list[Declaration] body)
@@ -43,6 +41,7 @@ data Declaration
 	| \method(str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
 	| \import(str name)
 	| \staticImport(str name)
+	| \packageImport(str name)
 	| \package(str name)
 	| \variables(Type \type, list[Expression] \variables)
 	| \typeParameter(str name, list[Type] extendsList)
@@ -89,13 +88,17 @@ data Expression
 	| \this(Expression thisExpression)
 	| \super()
 	| \declaration(Declaration decl)
-	| \infix(Expression lhs, str operator, Expression rhs)
+	| \infix(Expression lhs, str operator, Expression rhs, list[Expression] extendedOperands)
 	| \postfix(Expression operand, str operator)
 	| \prefix(str operator, Expression operand)
 	| \simpleName(str name)
-	| \qualifiedName(Expression qualified, str name)
+	| \qualifiedName(Expression qualified, Expression simpleName)
 	| \parenthesis(Expression expr)
 	| \declaration(Declaration decl)
+	| \markerAnnotation(str typeName)
+  	| \normalAnnotation(str typeName, list[Expression] memberValuePairs)
+  	| \memberValuePair(str name, Expression \value)				
+  	| \singleMemberAnnotation(str typeName, Expression \value)
 	;						
   
 anno loc Statement@src;
@@ -104,7 +107,7 @@ anno list[Declaration] Statement@typeParameters;
 
 data Statement				
 	= \assert(Expression expression)
-	| \assert(Expression expression, str message)
+	| \assert(Expression expression, Expression message)
 	| \block(list[Statement] statements)
 	| \break()
 	| \break(str label)
@@ -142,7 +145,7 @@ anno list[Declaration] Type@typeParameters;
 data Type 
 	= arrayType(Type \type)
 	| parameterizedType(Type \type)
-	| qualifier(Type qualifier, Type \type)
+	| qualifier(Type qualifier, Expression simpleName)
 	| simpleType(str name)
 	| unionType(list[Type] types)
 	| wildcard()

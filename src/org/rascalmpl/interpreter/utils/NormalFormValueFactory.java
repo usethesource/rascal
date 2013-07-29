@@ -52,7 +52,7 @@ public final class NormalFormValueFactory extends AbstractValueFactoryAdapter {
       throws FactTypeUseException {
     try {
       IConstructor result = (IConstructor) ctx.getEvaluator().call(cons.getAbstractDataType().getName(), cons.getName(), children);
-      return result.setAnnotations(annotations);
+      return result.asAnnotatable().setAnnotations(annotations);
     }
     catch (UndeclaredFunction | ArgumentsMismatch e) {
       // TODO this makes this very robust, but also may hide issues. Not sure what is best here yet.

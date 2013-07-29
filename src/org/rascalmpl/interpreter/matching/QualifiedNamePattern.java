@@ -180,5 +180,8 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 		return declaredType;
 	}
 
-	
+	@Override
+	public void updateType(Type type) {
+	  declaredType = type;
+	}
 }
