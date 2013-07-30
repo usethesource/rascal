@@ -8,14 +8,13 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 module lang::box::util::HighlightToHTML
 
-import lang::box::util::Box;
+import lang::box::util::Category;
 import String;
 
 public map[str, str] htmlEscapes = (
 	"\<": "&lt;",
 	"\>": "&gt;",
-	"&" : "&amp;",
-	" " : "&nbsp;"
+	"&" : "&amp;"
 );
 
 
@@ -23,6 +22,8 @@ public map[str, str] htmlEscapes = (
 public map[str, str] stringEscapes = htmlEscapes + (" ": "&middot;");
 
 public str highlight2html(list[Box] bs) {
+
+    str highlightRec(list[Box] bs) {
 	res = "";
 	for (b <- bs) {
 		switch (b) {
@@ -31,11 +32,16 @@ public str highlight2html(list[Box] bs) {
 			case COMM(L(s)): 	res += span("comment", escape(s));
 			case VAR(L(s)): 	res += span("variable", escape(s));
 			case MATH(L(s)): 	res += span("math", s);
-			case L(s): 			res += escape(s);
+			case CAT(str cat, list[Box] bs2):
+				res += span(cat, highlightRec(bs2));
+			case L(s): 		res += escape(s);
 			default: throw "Unhandled box: <b>"; // todo NUM, REF etc. 
 		}
 	}
-	return res;
+        return res;
+    }
+
+    return "\<pre\>\<code\><highlightRec(bs)>\</code\>\</pre\>";
 }
 
 

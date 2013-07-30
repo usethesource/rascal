@@ -9,7 +9,7 @@
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 module lang::box::util::Highlight
 
-import lang::box::util::Box;
+import lang::box::util::Category;
 
 import Ambiguity;
 import ParseTree;
@@ -44,7 +44,10 @@ public list[Box] highlight(Tree t) {
 
 		case a:appl(prod(_, _, {_*, \tag("category"("Identifier"))}), _):
 			return [VAR(L(unparse(a)))];
-			
+
+		case a:appl(prod(_, _, {_*, \tag("category"(str cat))}), as):
+			return [CAT(cat, [ *highlight(a) | a <- as ])];
+
 		case a:appl(prod(\lex(_), _, _), _):
 			return [L(unparse(a))];
 			

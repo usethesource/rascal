@@ -8,7 +8,7 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 module lang::box::util::HighlightToLatex
 
-import lang::box::util::Box;
+import lang::box::util::Category;
 import String;
 
 // TODO this depends on specific LaTex commands like \VAR etc.
@@ -41,6 +41,7 @@ public str highlight2latex(list[Box] bs, str(str) myEscapeString) {
 			case VAR(L(s)): res += "\\VAR{<escape(s)>}";
 			case MATH(L(s)): res += "\\MATH{<s>}";
 			case L(s): res += escape(s);
+			case CAT(str cat, bs2):	res += "\\CAT{<cat>}{<highlight2latex(bs2, myEscapeString)>}";
 			default: throw "Unhandled box: <b>"; // todo NUM, REF etc. 
 		}
 	}
