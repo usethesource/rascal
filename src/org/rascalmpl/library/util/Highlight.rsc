@@ -11,7 +11,7 @@ public map[str, str] htmlEscapes = (
 	"&" : "&amp;"
 );
 
-str highlight2html(appl(prod(lit(str l), _, _), _)) = span("keyword", l)
+str highlight2html(appl(prod(lit(str l), _, _), _)) = span("Keyword", l)
   when /^[a-zA-Z0-9_\-]*$/ := l;
 
 str highlight2html(appl(prod(_, _, {_*, \tag("category"(str cat))}), list[Tree] as))
@@ -45,7 +45,7 @@ public map[str, str] texEscapes = (
 	"$" : "\\${}"
 );
 
-str highlight2latex(appl(prod(lit(str l), _, _), _)) = catCmd("keyword", l)
+str highlight2latex(appl(prod(lit(str l), _, _), _)) = catCmd("Keyword", l)
   when /^[a-zA-Z0-9_\-]*$/ := l;
 
 str highlight2latex(appl(prod(_, _, {_*, \tag("category"(str cat))}), list[Tree] as))
