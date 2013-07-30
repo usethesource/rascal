@@ -79,10 +79,15 @@ public class Reflective {
 		if (cachedEvaluator == null || robin++ > maxCacheRounds) {
 			robin = 0;
 			IEvaluator<?> callingEval = ctx.getEvaluator();
+			
+			
 			GlobalEnvironment heap = new GlobalEnvironment();
 			ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___full_module_parser___", heap));
 			cachedEvaluator = new Evaluator(callingEval.getValueFactory(), callingEval.getStdErr(), callingEval.getStdOut(), root, heap);
 			cachedEvaluator.getResolverRegistry().copyResolverRegistries(ctx.getResolverRegistry());
+			
+			// Update the classpath so it is the same as in the context interpreter.
+			cachedEvaluator.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 		  // clone the classloaders
 	    for (ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
 	      cachedEvaluator.addClassLoader(loader);
