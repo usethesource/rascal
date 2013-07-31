@@ -132,7 +132,9 @@ public class GrammarToJigll {
 		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
 	}
 	
-	private void getDeleteSet(IConstructor nonterminal, Symbol s) {
+	private Condition getDeleteSet(IConstructor nonterminal) {
+		
+		List<Keyword> keywords = new ArrayList<>();
 		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 		IConstructor choice = (IConstructor) definitions.get(nonterminal);
@@ -141,8 +143,10 @@ public class GrammarToJigll {
 			IConstructor prod = (IConstructor) alt;
 			IList rhs = (IList) prod.get("symbols");
 			IConstructor symbol = (IConstructor) rhs.get(0);
-			s.addPostCondition(ConditionFactory.notMatch(getKeyword(symbol)));
+			keywords.add(getKeyword(symbol));
 		}
+		
+		return ConditionFactory.notMatch(keywords.toArray(new Keyword[] {}));
 	}
 	
 	private Condition getFollowRestriction(IConstructor symbol) {
@@ -319,7 +323,7 @@ public class GrammarToJigll {
 					switch(((IConstructor)condition).getName()) {
 						case "not-follow":
 							IConstructor follow = getSymbolCons((IConstructor) condition);
-							s.addPostCondition(getFollowRestriction(follow));
+							s.addCondition(getFollowRestriction(follow));
 							break;
 							
 						case "follow":
@@ -327,12 +331,12 @@ public class GrammarToJigll {
 							
 						case "delete":
 							IConstructor delete = getSymbolCons((IConstructor) condition);
-							getDeleteSet(delete, s);
+							s.addCondition(getDeleteSet(delete));
 							break;
 							
 						case "not-precede":
 							IConstructor precede = getSymbolCons((IConstructor) condition);
-							s.addPostCondition(getNotPrecede(precede));
+							s.addCondition(getNotPrecede(precede));
 							break;
 							
 							
