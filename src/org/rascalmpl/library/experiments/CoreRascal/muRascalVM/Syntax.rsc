@@ -21,8 +21,12 @@ lexical Opcode =
 	  "iconst"      // pushes the integer constant onto the stack
 	| "rconst"      // pushes the real constant onto the stack
 	
-	| "load"        // loads the value from the variables onto the stack
+	| "load"        // loads the value of the variable onto the stack; 
+					// assumes that the current value at the top is an offset to the current stack frame;
+ 
 	| "store"       // store the value from the top into a variable
+					// assumes that the current value at the top is an offset to the current stack frame;
+					// assumes that the second value from the top is the value to be stored 
 	
 	| "label"       // labels instructions
 	

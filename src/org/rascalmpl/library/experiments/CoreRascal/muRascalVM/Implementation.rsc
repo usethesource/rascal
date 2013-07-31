@@ -3,6 +3,9 @@ module experiments::CoreRascal::muRascalVM::Implementation
 import experiments::CoreRascal::muRascalVM::Syntax;
 import experiments::CoreRascal::muRascalVM::AST;
 
+import List;
+import IO;
+
 @doc{Stack structure}
 public alias Element = value;
 public data Stack = 
@@ -15,25 +18,50 @@ public Stack s = Stack::\empty();
 @doc{Base stack operations}
 public Element pop() = 
 	{ 
-	  top = s.top; 
-	  s = s.rest; // pops the top element from the stack
+	  println("POP from: <s>");
+	  Element top = s.top; 
+	  s = s.next; // pops the top element from the stack
 	  sp -= 1;    // maintains the stack pointer
 	  top;
 	};
-public Element peek() =
+public void load(int offset_sp)
 	{
-	  s.top;
+	  println("loading...");
+	  stck = s;
+	  if(offset_sp != 0) 
+	  	for(int i <- [0..offset_sp + 1])
+	  		stck = stck.next;
+	  push(stck.top);
+	  println("loaded...<s>");
+	}
+public void store(int offset_sp, Element val)
+	{
+	  stck = s;
+	  list[Element] tops = [];
+	  for(int i <- [0..offset_sp + 1]) {
+	  	tops  = tops + [ stck.top ];
+	  	stck = stck.next;
+	  }
+	  tops = tops + [ val ];
+	  next = stck;
+	  for(int i <- [0..size(tops)])
+	  	next = stack(tops[size(tops) - 1 - i], next);
+	  s = next;
+	}
+public Element peek(Stack s) =
+	{
+		s.top;
 	};
-public void popFrame() =
+public void popFrame()
 	{
 		;
-	};
-public void push(Element elem) = 
+	}
+public void push(Element elem)
 	{ 
 	  println("PUSH: <elem>");
 	  sp += 1;            // maintains the stack pointer 
 	  s = stack(elem, s); // pushes an element onto the stack
-	};
+	}
 
 @doc{Instrucions}
 public alias Code = list[Instruction];
@@ -43,36 +71,44 @@ public Code code = [];
 public map[int,int] labels = ();
 
 // Conventional counters and pointers
-// public int maxSize;
+// public int maxSize = 0;
 public int pc = 0; // program counter
 
 public int sp = 0; // stack pointer
-public int fp = 0; // frame pointer; local variables are accessed by an offset relative to 'fp'
+public int fp = 0; // frame pointer; local variables are accessed by an offset relative to 'fp'; 'fp' <= 'sp' 
 
-public int pc_start = 7;
+public int pc_start = 0;
 
-public void testit() {
-	while(true) {
-		interpret();
-		if(pc == pc_start)
-			break;
-	}
-	println();
-}
+void setStartInstruction(int pc) { pc_start = pc; }
+void setInstructions(list[Instruction] instructions) { code = instructions; }
 
 public void interpret() {
-	pc_c = pc; // current program counter
+	pc_current = pc;                                   // current program counter
 	pc = (pc == size(code) - 1) ? pc_start : pc + 1;   // next-instruction move
-	switch(code[pc_c].opcode) {
+	switch(code[pc_current].opcode) {
 		case ICONST: { 
-						push(code.operands[0]);
+						push(code[pc_current].operands[0]); // instruction with one parameter
 						return;
 					 }
 		case LOAD: {
-						;
+						println("LOAD...");
+						offset = pop();
+						println("Input to LOAD: <offset>");
+						if(int of := offset) {
+							offset_fp = fp + /*3 +*/ of;
+							offset_sp = sp - offset_fp; 
+							load(offset_sp); // offset == 0 => the first local variable, if any
+						}
 				   }
 		case STORE: {
-						;
+						println("STORE...");
+						offset = pop();
+						val = pop();
+						if(int of := offset) {
+							offset_fp = fp + /*3 +*/ of;
+							offset_sp = sp - offset_fp; 
+							store(offset_sp, val); // offset == 0 => the first local variable, if any
+						}
 					}
 		case LABEL: {
 						l = pop();
