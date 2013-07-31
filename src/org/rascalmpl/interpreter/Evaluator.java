@@ -1369,6 +1369,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		out.println(":unimport <modulename>     Undo an import");
 		out.println(":undeclare <name>          Undeclares a variable or function introduced in the shell");
 		out.println(":history                   Print the command history");
+		out.println(":clear                     Clears the console");			
 		out.println();
 		out.println("Example rascal statements and declarations:");
 		out.println("1 + 1;                     Expressions simply print their output and (static) type");

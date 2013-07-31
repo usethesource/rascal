@@ -1706,14 +1706,38 @@ public class Prelude {
 	   throw RuntimeExceptionFactory.emptyList(null, null);
 	}
 	
+	private class IValueWrap {
+		private final IValue ori;
+		public IValueWrap(IValue ori) {
+			this.ori = ori;
+		}
+		@Override
+		public int hashCode() {
+			return ori.hashCode();
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null) {
+				return false;
+			}
+			if (obj instanceof IValueWrap) {
+				return ori.isEqual(((IValueWrap)obj).ori);
+			}
+			return false;
+		}
+		public IValue getValue() {
+			return ori;
+		}
+	}
+	
 	public IMap toMap(IList lst)
 	// @doc{toMap -- convert a list of tuples to a map; first value in old tuples is associated with a set of second values}
 	{
-		HashMap<IValue,ISetWriter> hm = new HashMap<IValue,ISetWriter>();
+		Map<IValueWrap,ISetWriter> hm = new HashMap<IValueWrap,ISetWriter>();
 
 		for (IValue v : lst) {
 			ITuple t = (ITuple) v;
-			IValue key = t.get(0);
+			IValueWrap key = new IValueWrap(t.get(0));
 			IValue val = t.get(1);
 			ISetWriter wValSet = hm.get(key);
 			if(wValSet == null){
@@ -1724,8 +1748,8 @@ public class Prelude {
 		}
 		
 		IMapWriter w = values.mapWriter();
-		for(IValue v : hm.keySet()){
-			w.put(v, hm.get(v).done());
+		for(IValueWrap v : hm.keySet()){
+			w.put(v.getValue(), hm.get(v).done());
 		}
 		return w.done();
 	}
@@ -1738,14 +1762,14 @@ public class Prelude {
 	   }
 	  
 	   IMapWriter w = values.mapWriter();
-	   HashSet<IValue> seenKeys = new HashSet<IValue>();
+	   Set<IValueWrap> seenKeys = new HashSet<IValueWrap>();
 	   for(IValue v : lst){
 		   ITuple t = (ITuple) v;
-		   IValue key = t.get(0);
+		   IValueWrap key = new IValueWrap(t.get(0));
 		   if(seenKeys.contains(key)) 
-				throw RuntimeExceptionFactory.MultipleKey(key, null, null);
+				throw RuntimeExceptionFactory.MultipleKey(key.getValue(), null, null);
 		   seenKeys.add(key);
-	     w.put(key, t.get(1));
+	     w.put(key.getValue(), t.get(1));
 	   }
 	   return w.done();
 	}
@@ -1966,7 +1990,7 @@ public class Prelude {
 	}
 	
 	public IMap getAnnotations(INode node) {
-		java.util.Map<java.lang.String,IValue> map = node.getAnnotations();
+		java.util.Map<java.lang.String,IValue> map = node.asAnnotatable().getAnnotations();
 		IMapWriter w = values.mapWriter();
 		
 		for (Entry<java.lang.String,IValue> entry : map.entrySet()) {
@@ -1984,15 +2008,15 @@ public class Prelude {
 			map.put(((IString) key).getValue(), value);
 		}
 		
-		return node.setAnnotations(map);
+		return node.asAnnotatable().setAnnotations(map);
 	}
 	
 	public INode delAnnotations(INode node) {
-		return node.removeAnnotations();
+		return node.asAnnotatable().removeAnnotations();
 	}
 	
 	public INode delAnnotation(INode node, IString label) {
-		return node.removeAnnotation(label.getValue());
+		return node.asAnnotatable().removeAnnotation(label.getValue());
 	}
 	
 	/*
@@ -2131,6 +2155,11 @@ public class Prelude {
 		Type type = tr.valueToType((IConstructor) reifiedType, store);
 		try {
 			IValue result = implode(store, type, tree, false, ctx); 
+			if (isUntypedNodeType(type) && !type.isTop() && (TreeAdapter.isList(tree) || TreeAdapter.isOpt(tree))) {
+				// Ensure the result is actually a node, even though
+				// the tree given to implode is a list.
+				result = values.node("", result);
+			}
 			return result;
 		}
 		catch (Backtrack b) {
@@ -2176,7 +2205,7 @@ public class Prelude {
 			IValue result = implode(store, type, ast, splicing, ctx);
 			if (result.getType().isNode()) {
 				IMapWriter comments = values.mapWriter();
-				comments.putAll((IMap)((INode)result).getAnnotation("comments"));
+				comments.putAll((IMap)((INode)result).asAnnotatable().getAnnotation("comments"));
 				IList beforeComments = extractComments(before);
 				if (!beforeComments.isEmpty()) {
 					comments.put(values.integer(-1), beforeComments);
@@ -2185,7 +2214,7 @@ public class Prelude {
 				if (!afterComments.isEmpty()) {
 					comments.put(values.integer(((INode)result).arity()), afterComments);
 				}
-				result = ((INode)result).setAnnotation("comments", comments.done());
+				result = ((INode)result).asAnnotatable().setAnnotation("comments", comments.done());
 			}
 			return result;
 		}
@@ -2196,9 +2225,14 @@ public class Prelude {
 			if (constructorName != null) {
 				// make a single argument constructor  with yield as argument
 				// if there is a singleton constructor with a str argument
-				if (!type.isAbstractData()) {
+				if (!type.isAbstractData() && !isUntypedNodeType(type)) {
 					throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type);
 				}
+				
+				if (isUntypedNodeType(type)) {
+					return values.node(constructorName, values.string(yield));
+				}
+				
 				Set<Type> conses = findConstructors(type, constructorName, 1, store);
 				Iterator<Type> iter = conses.iterator();
 				while (iter.hasNext()) {
@@ -2207,7 +2241,7 @@ public class Prelude {
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
 						IConstructor ast = makeConstructor(type, constructorName, ctx, values.string(yield));
-						return ast.setAnnotation("location", loc);
+						return ast.asAnnotatable().setAnnotation("location", loc);
 					}
 					catch (Backtrack b) {
 						continue;
@@ -2239,8 +2273,15 @@ public class Prelude {
 		}
 		
 		if (TreeAdapter.isList(tree)) {
-			if (type.isList() || type.isTop() || splicing) {
-				Type elementType = splicing || type.isTop() ? type : type.getElementType();
+			if (type.isList() || splicing || isUntypedNodeType(type)) {
+				// if in node space, we also make a list; 
+				// NB: this breaks type safety if the top-level tree
+				// is itself a list.
+				
+				Type elementType = type;
+				if (!splicing && !isUntypedNodeType(type)) {
+					elementType = type.getElementType();
+				}
 				IListWriter w = values.listWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
 					w.append(implode(store, elementType, (IConstructor) arg, false, ctx));
@@ -2270,10 +2311,10 @@ public class Prelude {
 		}
 		
 		if (TreeAdapter.isOpt(tree)) {
-			if (!type.isList() && !type.isTop()) {
+			if (!type.isList() && !isUntypedNodeType(type)) {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Optional should match with a list and not " + type));
 			}
-			Type elementType = type.isTop() ? type : type.getElementType();
+			Type elementType = isUntypedNodeType(type) ? type : type.getElementType();
 			IListWriter w = values.listWriter();
 			for (IValue arg: TreeAdapter.getASTArgs(tree)) {
 				IValue implodedArg = implode(store, elementType, (IConstructor) arg, true, ctx);
@@ -2374,7 +2415,7 @@ public class Prelude {
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
 				INode ast = values.node(constructorName, implodeArgs(store, type, args, ctx));
-				return ast.setAnnotation("location", TreeAdapter.getLocation(tree)).setAnnotation("comments", comments);
+				return ast.asAnnotatable().setAnnotation("location", TreeAdapter.getLocation(tree)).asAnnotatable().setAnnotation("comments", comments);
 			}
 			
 			// make a typed constructor
@@ -2390,7 +2431,7 @@ public class Prelude {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args, ctx);
 					IConstructor ast = makeConstructor(type, constructorName, ctx, implodedArgs);
-					return ast.setAnnotation("location", loc).setAnnotation("comments", comments);
+					return ast.asAnnotatable().setAnnotation("location", loc).asAnnotatable().setAnnotation("comments", comments);
 				}
 				catch (Backtrack b) {
 					continue;
@@ -2446,8 +2487,8 @@ public class Prelude {
 	}
 
 	private boolean isUntypedNodeType(Type type) {
-		return (type.isNode() || type.isTop())
-				&& !type.isConstructor() && !type.isAbstractData();
+		return (type.isNode() && !type.isConstructor() && !type.isAbstractData()) 
+				|| type.isTop();
 	}
 	
 	
@@ -2616,11 +2657,11 @@ public class Prelude {
 	public IValue toMap(ISet st)
 	// @doc{toMap -- convert a set of tuples to a map; value in old map is associated with a set of keys in old map}
 	{
-		HashMap<IValue,ISetWriter> hm = new HashMap<IValue,ISetWriter>();
+		Map<IValueWrap,ISetWriter> hm = new HashMap<IValueWrap,ISetWriter>();
 
 		for (IValue v : st) {
 			ITuple t = (ITuple) v;
-			IValue key = t.get(0);
+			IValueWrap key = new IValueWrap(t.get(0));
 			IValue val = t.get(1);
 			ISetWriter wValSet = hm.get(key);
 			if(wValSet == null){
@@ -2631,8 +2672,8 @@ public class Prelude {
 		}
 		
 		IMapWriter w = values.mapWriter();
-		for(IValue v : hm.keySet()){
-			w.put(v, hm.get(v).done());
+		for(IValueWrap v : hm.keySet()){
+			w.put(v.getValue(), hm.get(v).done());
 		}
 		return w.done();
 	}
@@ -2641,17 +2682,17 @@ public class Prelude {
 	// @doc{toMapUnique -- convert a set of tuples to a map; keys are unique}
 	{
 		IMapWriter w = values.mapWriter();
-		HashSet<IValue> seenKeys = new HashSet<IValue>();
+		HashSet<IValueWrap> seenKeys = new HashSet<IValueWrap>();
 
 		for (IValue v : st) {
 			ITuple t = (ITuple) v;
-			IValue key = t.get(0);
+			IValueWrap key = new IValueWrap(t.get(0));
 			IValue val = t.get(1);
 			if(seenKeys.contains(key)) { 
-				throw RuntimeExceptionFactory.MultipleKey(key, null, null);
+				throw RuntimeExceptionFactory.MultipleKey(key.getValue(), null, null);
 			}
 			seenKeys.add(key);
-			w.put(key, val);
+			w.put(key.getValue(), val);
 		}
 		return w.done();
 	}

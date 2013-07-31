@@ -742,7 +742,7 @@ public class JSonReader extends AbstractBinaryReader {
 				System.err.println("JSonReader result:" + result);
 		}
 		if (annoMap != null)
-			result = result.setAnnotations(map);
+			result = result.asAnnotatable().setAnnotations(map);
 		return result;
 	}
 

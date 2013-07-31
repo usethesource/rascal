@@ -1,15 +1,26 @@
 module experiments::m3::Core
 
-import experiments::m3::AST;
+data Modifiers
+	= \private()
+	| \public()
+	| \protected()
+	| \friendly()
+	| \static()
+	| \final()
+	| \synchronized()
+	| \transient()
+	| \abstract()
+	| \native()
+	| \volatile()
+	| \strictfp()
+	| \deprecated()
+	| \annotation(loc \anno)
+  	;
 
-data M3 = m3(loc project,
-             map[loc name, loc src] source,
-             rel[loc from, loc to] containment
-             rel[loc from, loc to] inheritance = {},
-             rel[loc from, loc to] access = {},
-             rel[loc from, loc to] reference = {},
-             rel[loc from, loc to] imports = {},
-             map[loc definition, Type typ] types = (),
-             map[loc definition, loc comments] documentation = (),
-             rel[loc definition, Modifier modifiers] modifiers = {}
-          );
+data M3 = m3();
+             
+anno rel[loc name, loc src] M3@source;
+anno rel[loc from, loc to] M3@containment;
+anno list[str errorMessage] M3@projectErrors;
+anno rel[loc from, loc to] M3@libraryContainment;
+anno map[str simpleName, set[loc] qualifiedName] M3@resolveNames;

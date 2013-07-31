@@ -57,4 +57,17 @@ public interface IMatchingResult extends IBooleanResult {
 	public AbstractAST getAST();
 	
 	public IValue toIValue();
+	
+	/**
+	 * For pushing type information of outer patterns down to the children once
+	 * a match has succeeded.
+	 * 
+	 * This method should be removed once we have a type checker.
+	 *  
+	 * Since some patterns can give us specific type contexts, an inferred type
+   * for a child pattern variable should get this specific type. A type
+   * checker would have inferred that already, but now we just push
+   * the information down to all children of the constructor.
+	 */
+	public void updateType(Type type);
 }

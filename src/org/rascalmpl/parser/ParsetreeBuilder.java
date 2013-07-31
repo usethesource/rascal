@@ -32,7 +32,7 @@ public class ParsetreeBuilder implements NodeListener<IConstructor,IConstructor>
 	
     IListWriter args = vf.listWriter();
     args.appendAll(children);
-    return Result.accept(vf.constructor(Factory.Tree_Appl, type, args.done()).setAnnotation("loc", vf.sourceLocation(URI.create("dunno:///"), 0, 1, 1, 1, 1, 1)));
+    return (Result<IConstructor>) Result.accept(vf.constructor(Factory.Tree_Appl, type, args.done()).asAnnotatable().setAnnotation("loc", vf.sourceLocation(URI.create("dunno:///"), 0, 1, 1, 1, 1, 1)));
   }
 
   @Override

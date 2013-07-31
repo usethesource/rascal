@@ -163,23 +163,23 @@ public class RealResult extends ElementResult<IReal> {
 	}
 
 	@Override  
-	protected <U extends IValue> Result<U> addReal(RealResult n) {
+	protected <U extends IValue> Result<U> addReal(ElementResult<IReal> n) {
 		return makeResult(type, getValue().add(n.getValue()), ctx);
 	}
 	
 	@Override 
-	protected <U extends IValue> Result<U> subtractReal(RealResult n) {
+	protected <U extends IValue> Result<U> subtractReal(ElementResult<IReal> n) {
 		// note the reverse subtraction.
 		return makeResult(type, n.getValue().subtract(getValue()), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> multiplyReal(RealResult n) {
+	protected <U extends IValue> Result<U> multiplyReal(ElementResult<IReal> n) {
 		return makeResult(type, getValue().multiply(n.getValue()), ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> divideReal(RealResult n) {
+	protected <U extends IValue> Result<U> divideReal(ElementResult<IReal> n) {
 		try {
 			// note the reverse division
 			int prec = ValueFactoryFactory.getValueFactory().getPrecision();
@@ -210,7 +210,7 @@ public class RealResult extends ElementResult<IReal> {
 	}
 	
 	@Override
-	protected LessThanOrEqualResult lessThanOrEqualReal(RealResult that) {
+	protected LessThanOrEqualResult lessThanOrEqualReal(ElementResult<IReal> that) {
 		// note reversed args: we need that <= this
 	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
 	}
@@ -261,7 +261,7 @@ public class RealResult extends ElementResult<IReal> {
 	}
 	
 	@Override
-	protected Result<IBool> greaterThanOrEqualReal(RealResult that) {
+	protected Result<IBool> greaterThanOrEqualReal(ElementResult<IReal> that) {
 	  return makeResult(getTypeFactory().boolType(), that.getValue().greaterEqual(getValue()), ctx);
 	}
 
@@ -271,7 +271,7 @@ public class RealResult extends ElementResult<IReal> {
 	}
 	
 	@Override
-	protected Result<IBool> greaterThanReal(RealResult that) {
+	protected Result<IBool> greaterThanReal(ElementResult<IReal> that) {
 	  return makeResult(getTypeFactory().boolType(), that.getValue().greater(getValue()), ctx);
 	}
 	
@@ -335,23 +335,23 @@ public class RealResult extends ElementResult<IReal> {
 	  return new LessThanOrEqualResult(that.getValue().less(getValue()).getValue(), that.getValue().equal(getValue()).getValue(), ctx);
 	}
 
-	@Override
+  @Override
 	protected <U extends IValue> Result<U> makeRangeFromInteger(IntegerResult from) {
-		return makeRangeWithDefaultStep(from);
+		return makeRangeWithDefaultStep(toReal(from));
 	}
-	
-	@Override
+
+  @Override
 	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromInteger(IntegerResult from, Result<V> second) {
-		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
+		return makeStepRangeFromToWithSecond(toReal(from), this, second, getValueFactory(), getTypeFactory(), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> makeRangeFromReal(RealResult from) {
+	protected <U extends IValue> Result<U> makeRangeFromReal(ElementResult<IReal> from) {
 		return makeRangeWithDefaultStep(from);
 	}
 	
 	@Override
-	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(RealResult from, Result<V> second) {
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(ElementResult<IReal> from, Result<V> second) {
 		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
 	}
 	

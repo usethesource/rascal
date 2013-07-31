@@ -16,7 +16,7 @@ import util::Maybe;
  
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
-import lang::rascal::grammar::analyze::Recursion;
+// import lang::rascal::grammar::analyze::Recursion;
 
 public alias Priorities = rel[Production father, Production child];
 public alias DoNotNest = rel[Production father, int position, Production child];
@@ -25,8 +25,8 @@ public DoNotNest doNotNest(Grammar g) {
   DoNotNest result = {};
   
   for (s <- g.rules) {
-    lefties = leftRecursive(g, s);
-    righties = rightRecursive(g, s);
+    lefties = {s}; // leftRecursive(g, s);
+    righties = {s}; //rightRecursive(g, s);
     <ordering,ass> = doNotNest(g.rules[s], lefties, righties);
     result += ass;
     
@@ -184,6 +184,7 @@ public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol]
   return <ordering, as>;
 }
 
+<<<<<<< HEAD
 @doc{
   Simply replace the structures for priority and associativity by normal alternatives, ceteris paribus.
 }
@@ -288,3 +289,6 @@ Grammar factor(Grammar g, DoNotNest patterns) {
   
   return g;
 }
+=======
+private bool match(Symbol x, set[Symbol] reference) = striprec(x) in reference;
+>>>>>>> master

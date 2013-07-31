@@ -394,7 +394,7 @@ private int character(Char c) {
     case [Char] /^\\\</ : return charAt("\<", 0);
     case [Char] /^\\<esc:["'\-\[\]\\ ]>/        : return charAt(esc, 0);
     case [Char] /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
-    case [Char] /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return stringChar(toInt("0x<hex>"));
+    case [Char] /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
     case [Char] /^\\a<hex:[0-7][0-9a-fA-F]>/ : return toInt("0x<hex>");
     default: throw "missed a case <c>";
   }

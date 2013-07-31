@@ -83,7 +83,7 @@ public class IO {
 			IValue[] a = new IValue[kids.size()];
 			kids.toArray(a);
 			INode node = factory.node(t.toString(), factory.list(a));
-			node = node.setAnnotations(attributes.pop());
+			node = node.asAnnotatable().setAnnotations(attributes.pop());
 			stack.peek().add(node);
 		}
 		

@@ -24,7 +24,7 @@ void main() {
   infix = prefix = postfix = [];
   for(ttl <- (TTLRoot + "specs").ls, ttl.extension == TTL)
       generate(ttl); 
-  generateExpressions(infix, prefix, postfix);
+  generateSignatures(infix, prefix, postfix);
 }
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];
@@ -39,6 +39,7 @@ str addModulePrefix(Module m){
 }
 // Generate tests for one TTL file
 void generate(loc src){
+   println("generate: <src>");
    spec = parse(#TTL, src);
    map[Name, Declaration] decls = ();
    map[Name, Module] modules = ();

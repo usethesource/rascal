@@ -183,7 +183,7 @@ public class JavaBridge {
 		}
 		
 		if (hasReflectiveAccess) {
-			classes[arity] = IEvaluatorContext.class;
+			classes[arity + kwArity] = IEvaluatorContext.class;
 		}
 		
 		return classes;
