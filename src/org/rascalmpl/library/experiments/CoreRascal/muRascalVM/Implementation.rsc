@@ -4,22 +4,33 @@ import experiments::CoreRascal::muRascalVM::Syntax;
 import experiments::CoreRascal::muRascalVM::AST;
 
 @doc{Stack structure}
+public alias Element = value;
 public data Stack = 
-		  stack(value top, Stack rest)
+		  stack(Element top, Stack next)
 		| \empty()
 		;
 
 public Stack s = Stack::\empty();
 
 @doc{Base stack operations}
-public value pop() = 
-	{ top = s.top; 
+public Element pop() = 
+	{ 
+	  top = s.top; 
 	  s = s.rest; // pops the top element from the stack
 	  sp -= 1;    // maintains the stack pointer
 	  top;
 	};
-public void push(value elem) = 
-	{ println("PUSH: <elem>");
+public Element peek() =
+	{
+	  s.top;
+	};
+public void popFrame() =
+	{
+		;
+	};
+public void push(Element elem) = 
+	{ 
+	  println("PUSH: <elem>");
 	  sp += 1;            // maintains the stack pointer 
 	  s = stack(elem, s); // pushes an element onto the stack
 	};
@@ -32,7 +43,9 @@ public Code code = [];
 public map[int,int] labels = ();
 
 // Conventional counters and pointers
+// public int maxSize;
 public int pc = 0; // program counter
+
 public int sp = 0; // stack pointer
 public int fp = 0; // frame pointer; local variables are accessed by an offset relative to 'fp'
 
@@ -55,6 +68,12 @@ public void interpret() {
 						push(code.operands[0]);
 						return;
 					 }
+		case LOAD: {
+						;
+				   }
+		case STORE: {
+						;
+					}
 		case LABEL: {
 						l = pop();
 						// not finished...
@@ -63,10 +82,11 @@ public void interpret() {
 						println("CALL...");
 						addr = pop();
 						
+						fp = sp;   // new frame pointer
+						
 						push(fp); // pushes the current frame pointer (dynamic link)
 						push(pc); // pushes the current program counter to return
-						
-						fp = sp;   // new frame pointer			
+									
 						pc = addr; // new program counter
 						
 						return;

@@ -18,5 +18,8 @@ public str YIELD = "yield";
 public str ALLOC = "alloc";
 public str DEALLOC = "de-alloc";
 
+public str TOLOCAL = "to-local";
+public str TOGLOBAL = "to-global";
+
 public str JUMP = "jump";
 public str JUMPCOND = "jump-cond";
