@@ -2,6 +2,8 @@ module experiments::CoreRascal::muRascalVM::AST
 
 public data Instruction = instruction(str opcode, list[int] operands);
 
+public data RascalVM = vm(list[Instruction] instructions);
+
 public str ICONST = "iconst";
 public str RCONST = "rconst";
 
