@@ -14,6 +14,10 @@ import ParseTree;
 import String;
 import IO;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 default Symbol striprec(Symbol s_ori) = visit(s_ori) { 
 	case label(str _, Symbol s) => strip(s)
 	case conditional(Symbol s, set[Condition] _) => strip(s)

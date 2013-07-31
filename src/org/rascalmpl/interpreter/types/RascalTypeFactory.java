@@ -47,5 +47,4 @@ public class RascalTypeFactory {
 	public Type reifiedType(Type arg) {
 		return tf.externalType(new ReifiedType(arg));
 	}
-	
 }

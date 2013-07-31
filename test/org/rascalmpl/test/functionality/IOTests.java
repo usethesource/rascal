@@ -46,8 +46,8 @@ public class IOTests extends TestCase {
 	private static Type Couples = tf.constructor(ts, Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
 	
 	private IValue[] testValues = {
-			vf.constructor(True).setAnnotation("anno", vf.constructor(False)),
-			vf.constructor(True).setAnnotation("anno", vf.constructor(False)).setAnnotation("banno", vf.constructor(False)),
+			vf.constructor(True).asAnnotatable().setAnnotation("anno", vf.constructor(False)),
+			vf.constructor(True).asAnnotatable().setAnnotation("anno", vf.constructor(False)).asAnnotatable().setAnnotation("banno", vf.constructor(False)),
 			vf.constructor(True),
 			vf.constructor(True),
 			vf.constructor(And, vf.constructor(True), vf.constructor(False)),

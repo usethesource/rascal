@@ -1,4 +1,4 @@
-<map version="0.9.0">
+<map version="1.0.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node BACKGROUND_COLOR="#ffccff" COLOR="#000000" CREATED="1224188390423" ID="Freemind_Link_497092936" MODIFIED="1225547725661" TEXT="Rascal Concepts">
 <edge STYLE="bezier"/>
@@ -343,7 +343,7 @@
   </head>
   <body>
     <p>
-      Primitive data types: Boolean, Integer,  Real, String, Souce Code Location, SDF Symbol
+      Primitive data types: Boolean, Integer,&#xa0;&#xa0;Real, String, Souce Code Location, SDF Symbol
     </p>
   </body>
 </html></richcontent>
@@ -357,7 +357,7 @@
   </head>
   <body>
     <p>
-      Structured datatypes: List, Set, Tuple, Map, Relation, Graph
+      Structured datatypes: List, Set,&#xa0;Tuple, Map, Relation, Graph
     </p>
   </body>
 </html></richcontent>
@@ -502,7 +502,7 @@
   </head>
   <body>
     <p>
-      ==,  !=,  &lt;, &lt;=,  &gt;, &gt;=,  +,  in,  notin, [_]
+      ==,&#xa0;&#xa0;!=,&#xa0;&#xa0;&lt;, &lt;=,&#xa0;&#xa0;&gt;, &gt;=,&#xa0;&#xa0;+,&#xa0;&#xa0;in,&#xa0;&#xa0;notin, [_]
     </p>
   </body>
 </html></richcontent>
@@ -525,14 +525,14 @@
       charAt, endsWith, get, readFile, reverse, size, split, startsWith,
     </p>
     <p>
-      toDouble, toInt,  toList, toLowerCase, toSet, toUpperCase
+      toDouble, toInt,&#xa0; toList, toLowerCase, toSet, toUpperCase
     </p>
   </body>
 </html></richcontent>
 </node>
 </node>
 </node>
-<node COLOR="#990000" CREATED="1224188744925" FOLDED="true" ID="Freemind_Link_1059918283" MODIFIED="1225547706835" TEXT="Source Code Location">
+<node COLOR="#990000" CREATED="1224188744925" ID="Freemind_Link_1059918283" MODIFIED="1372950329012" TEXT="Source Code Location">
 <edge STYLE="bezier"/>
 <font NAME="SansSerif" SIZE="14"/>
 <node COLOR="#111111" CREATED="1224190189689" ID="Freemind_Link_1656049106" MODIFIED="1224512462073" TEXT="type">
@@ -553,7 +553,7 @@
   </head>
   <body>
     <p>
-      ==,  !=,  &lt;, &lt;=, &gt;, &gt;=
+      ==,&#xa0;&#xa0;!=,&#xa0;&#xa0;&lt;, &lt;=, &gt;, &gt;=
     </p>
   </body>
 </html></richcontent>
@@ -596,7 +596,7 @@
   </head>
   <body>
     <p>
-      ==,  !=,  &lt;, &lt;=, &gt;, &gt;=,  +,  -,  in, notin, [ _ ]
+      ==,&#xa0;&#xa0;!=,&#xa0;&#xa0;&lt;, &lt;=, &gt;, &gt;=,&#xa0;&#xa0;+,&#xa0;&#xa0;-,&#xa0;&#xa0;in, notin, [ _ ]
     </p>
   </body>
 </html></richcontent>
@@ -652,7 +652,7 @@
   </head>
   <body>
     <p>
-      ==, !=, &lt;,  &lt;=, &gt;,  &gt;=, +, -, *, &amp;, in, notin
+      ==, !=, &lt;,&#xa0;&#xa0;&lt;=, &gt;,&#xa0;&#xa0;&gt;=, +, -, *, &amp;, in, notin
     </p>
   </body>
 </html></richcontent>
@@ -671,7 +671,7 @@
   </head>
   <body>
     <p>
-      arb, average, mapper, max, min, multiply, reducer, size, sum, toList, toMap, toRel, toString,
+      arb, average, mapper, max, min, multiply, reducer, size,&#xa0;sum, toList, toMap, toRel, toString,
     </p>
   </body>
 </html></richcontent>
@@ -787,7 +787,7 @@
   </head>
   <body>
     <p>
-      arb, mapper, size, toList, toSet, toRel, toString,
+      arb, mapper, size,&#xa0;toList, toSet, toRel, toString,
     </p>
   </body>
 </html></richcontent>
@@ -1277,7 +1277,7 @@
   </head>
   <body>
     <p>
-      Strategy <b>visit (</b> Exp <b>) { </b>case1<b>;</b> ... <b>;</b> casen<b>;</b> default<b>}</b> 
+      Strategy <b>visit (</b> Exp <b>) { </b>case1<b>;</b> ... <b>;</b> casen<b>;</b> default<b>}</b>&#xa0;
     </p>
   </body>
 </html></richcontent>

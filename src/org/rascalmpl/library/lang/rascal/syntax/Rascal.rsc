@@ -55,8 +55,8 @@ syntax ModuleParameters
 	= \default: "[" {TypeVar ","}+ parameters "]" ;
 
 lexical DateAndTime
-	= "$" DatePart "T" TimePartNoTZ !>> [+\-]
-    | "$" DatePart "T" TimePartNoTZ TimeZonePart ;
+	= "$" DatePart "T" TimePartNoTZ !>> [+\-] "$"
+	| "$" DatePart "T" TimePartNoTZ TimeZonePart "$";
 
 syntax Strategy
 	= topDownBreak: "top-down-break" 
@@ -68,7 +68,7 @@ syntax Strategy
 
 lexical UnicodeEscape
 	  = utf16: "\\" [u] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] 
-    | utf32: "\\" [U] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] 
+    | utf32: "\\" [U] (("0" [0-9 A-F a-f]) | "10") [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] // 24 bits 
     | ascii: "\\" [a] [0-7] [0-9A-Fa-f]
     ;
     
@@ -330,7 +330,7 @@ syntax Field
 	| name: Name fieldName ;
 
 lexical JustDate
-	= "$" DatePart ;
+	= "$" DatePart "$";
 
 lexical PostPathChars
 	=  "\>" URLChars "|" ;
@@ -398,8 +398,8 @@ lexical StringCharacter
 	;
 
 lexical JustTime
-	= "$T" TimePartNoTZ !>> [+\-] 
-	| "$T" TimePartNoTZ TimeZonePart
+	= "$T" TimePartNoTZ !>> [+\-] "$"
+	| "$T" TimePartNoTZ TimeZonePart "$"
 	;
 
 lexical MidStringChars
@@ -481,7 +481,8 @@ syntax ShellCommand
 	| quit: "quit" 
 	| history: "history" 
 	| \test: "test" 
-	| listModules: "modules" ;
+	| listModules: "modules" 
+	| clear: "clear";
 
 syntax StringMiddle
 	= mid: MidStringChars mid 

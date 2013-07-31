@@ -266,7 +266,7 @@ public class TreeAdapter {
 	}
 
 	public static ISourceLocation getLocation(IConstructor tree) {
-		return (ISourceLocation) tree.getAnnotation(Factory.Location);
+		return (ISourceLocation) tree.asAnnotatable().getAnnotation(Factory.Location);
 	}
 
 	public static int getCharacter(IConstructor tree) {
@@ -368,7 +368,7 @@ public class TreeAdapter {
 		}
 
 		if (TreeAdapter.isAmb(tree)) {
-			if (tree.hasAnnotation(label)) {
+			if (tree.asAnnotatable().hasAnnotation(label)) {
 				return tree;
 			}
 			
@@ -399,7 +399,7 @@ public class TreeAdapter {
 		
 		if (l.getOffset() <= offset
 				&& l.getOffset() + l.getLength() >= offset) {
-			if (tree.hasAnnotation(label)) {
+			if (tree.asAnnotatable().hasAnnotation(label)) {
 				return tree;
 			}
 		}
