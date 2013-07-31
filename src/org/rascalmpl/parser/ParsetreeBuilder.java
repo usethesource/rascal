@@ -24,6 +24,7 @@ public class ParsetreeBuilder implements NodeListener<IConstructor,IConstructor>
     // do nothing
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Result<IConstructor> endNode(IConstructor type, Iterable<IConstructor> children, PositionInfo node) {
 	if(children == null) {

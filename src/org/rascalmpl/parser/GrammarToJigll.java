@@ -190,7 +190,8 @@ public class GrammarToJigll {
 		for (IValue nonterminal : definitions) {
 			boolean ebnf = isEBNF((IConstructor) nonterminal);
 			
-			Nonterminal head = (Nonterminal) getSymbol((IConstructor) nonterminal);
+			Nonterminal head = getHead((IConstructor) nonterminal);
+			
 			if(head == null) {
 				continue;
 			}
@@ -277,6 +278,30 @@ public class GrammarToJigll {
 		return new Keyword(chars);
 	}
 	
+	private Nonterminal getHead(IConstructor symbol) {
+		switch (symbol.getName()) {
+
+			case "lit":
+				return new Nonterminal(SymbolAdapter.toString(symbol));
+				
+			case "iter":
+				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				
+			case "iter-seps":
+				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				
+			case "iter-star":
+				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				
+			case "iter-star-seps":
+				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				
+			default:
+				return new Nonterminal(SymbolAdapter.toString(symbol));
+		}
+
+	}
+		
 	private Symbol getSymbol(IConstructor symbol) {
 		
 		switch (symbol.getName()) {
