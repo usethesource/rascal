@@ -38,6 +38,9 @@ lexical Opcode =
 	| "jump"
 	| "jump-cond"
 	
+	| "to-local"
+	| "to-global"
+	
 	;
 	
 lexical Operand = [0-9]+;
