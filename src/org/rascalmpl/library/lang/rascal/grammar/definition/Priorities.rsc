@@ -184,7 +184,6 @@ public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol]
   return <ordering, as>;
 }
 
-<<<<<<< HEAD
 @doc{
   Simply replace the structures for priority and associativity by normal alternatives, ceteris paribus.
 }
@@ -289,6 +288,3 @@ Grammar factor(Grammar g, DoNotNest patterns) {
   
   return g;
 }
-=======
-private bool match(Symbol x, set[Symbol] reference) = striprec(x) in reference;
->>>>>>> master

@@ -2492,8 +2492,6 @@ public class Prelude {
 	}
 	
 	
-	
-	
 	private static IConstructor checkPreconditions(IValue start, Type reified) {
 		if (!(reified instanceof ReifiedType)) {
 		   throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A reified type is required instead of " + reified);
