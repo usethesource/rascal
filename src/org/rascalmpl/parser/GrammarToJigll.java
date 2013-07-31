@@ -53,6 +53,8 @@ public class GrammarToJigll {
 	
 	private Map<IValue, Rule> rulesMap;
 	
+	private Map<String, Keyword> keywordsMap;
+	
 	private Grammar grammar;
 	
 	private GLLParser parser;
@@ -186,6 +188,7 @@ public class GrammarToJigll {
 		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 		rulesMap = new HashMap<>();
+		keywordsMap = new HashMap<>();
 
 		for (IValue nonterminal : definitions) {
 			boolean ebnf = isEBNF((IConstructor) nonterminal);
@@ -270,12 +273,45 @@ public class GrammarToJigll {
 	}
 	
 	private Keyword getKeyword(IConstructor symbol) {
-		IString s = (IString) symbol.get("string");
-		int[] chars = new int[s.length()];
-		for(int i = 0; i < chars.length; i++) {
-			chars[i] = s.charAt(i);
+		
+		String name = SymbolAdapter.toString(symbol);
+		Keyword keyword = keywordsMap.get(name);
+		
+		if(keyword == null) {
+		
+			IMap definitions = (IMap) rascalGrammar.get("rules");
+			IConstructor choice = (IConstructor) definitions.get(symbol);
+			ISet alts = (ISet) choice.get("alternatives");
+			
+			assert alts.size() == 1;
+			
+			int[] chars = null;
+			for (IValue alt : alts) {
+				IConstructor prod = (IConstructor) alt;
+				IList rhs = (IList) prod.get("symbols");
+				chars = new int[rhs.length()];
+				
+				int i = 0;
+				for(IValue s : rhs) {
+					
+					IList ranges = (IList) ((IConstructor) s).get("ranges");
+					assert ranges.length() == 1;
+					for (IValue r : ranges) {
+						IConstructor range = (IConstructor) r;
+						int begin = ((IInteger) range.get("begin")).intValue();
+						int end = ((IInteger) range.get("end")).intValue();
+						assert begin == end;
+						chars[i++] = begin;
+					}
+				}
+			}
+			
+			assert chars != null;
+	
+			keyword =  new Keyword(name, chars);
 		}
-		return new Keyword(chars);
+		
+		return keyword;
 	}
 	
 	private Nonterminal getHead(IConstructor symbol) {
