@@ -31,7 +31,7 @@ public class RVM {
 	void def_main_test() {
 		Instruction[] testInstructions = new Instruction[] {
 				new Instruction(OPCODE.LOADCON, "FOUR"),
-				new Instruction(OPCODE.STOREVAR, 0, 0),
+				new Instruction(OPCODE.STORELOC, 0),
 				new Instruction(OPCODE.HALT) };
 		Function testFunction = new Function("main_test", 0, 0, 1, 6,
 				testInstructions);
@@ -40,15 +40,15 @@ public class RVM {
 
 	void def_fac() {
 		Instruction[] facInstructions = new Instruction[] {
-				new Instruction(OPCODE.LOADVAR, 1, 0),
+				new Instruction(OPCODE.LOADLOC, 0),
 				new Instruction(OPCODE.LOADCON, "ONE"),
 				new Instruction(OPCODE.CALLPRIM, Primitive.equal_int_int),
 				new Instruction(OPCODE.JMPFALSE, "L"),
 				new Instruction(OPCODE.LOADCON, "ONE"),
 				new Instruction(OPCODE.RETURN),
 				new Instruction(OPCODE.LABEL, "L"),
-				new Instruction(OPCODE.LOADVAR, 1, 0),
-				new Instruction(OPCODE.LOADVAR, 1, 0),
+				new Instruction(OPCODE.LOADLOC, 0),
+				new Instruction(OPCODE.LOADLOC, 0),
 				new Instruction(OPCODE.LOADCON, "ONE"),
 				new Instruction(OPCODE.CALLPRIM, Primitive.substraction_int_int),
 				new Instruction(OPCODE.CALL, "fac"),
@@ -78,15 +78,15 @@ public class RVM {
 		// }
 		Instruction[] repeatInstructions = new Instruction[] {
 				new Instruction(OPCODE.LOADCON, "THOUSAND"),
-				new Instruction(OPCODE.STOREVAR, 1, 0), // n
+				new Instruction(OPCODE.STORELOC, 0), // n
 				new Instruction(OPCODE.LOADCON, "THOUSAND"),
-				new Instruction(OPCODE.STOREVAR, 1, 1), // cnt
+				new Instruction(OPCODE.STORELOC, 1), // cnt
 				new Instruction(OPCODE.LABEL, "L"),
-				new Instruction(OPCODE.LOADVAR, 1, 1), // cnt
+				new Instruction(OPCODE.LOADLOC, 1), // cnt
 				new Instruction(OPCODE.LOADCON, "ZERO"),
 				new Instruction(OPCODE.CALLPRIM, Primitive.greater_int_int),
 				new Instruction(OPCODE.HALT),
-				new Instruction(OPCODE.LOADVAR, 1, 0),
+				new Instruction(OPCODE.LOADLOC, 0),
 				new Instruction(OPCODE.CALL, "fac"),
 				new Instruction(OPCODE.JMP, "L") };
 		Function repeatCallFunction = new Function("main_repeat", 1, 1, 1, 20,
@@ -154,41 +154,42 @@ public class RVM {
 				stack[sp++] = constStore.get(instruction.getStringArg(0));
 				continue;
 
-			case LOADVAR:
-				int s = instruction.getIntArg(0);
-				int pos = instruction.getIntArg(1);
-				if (s == cf.scope) {
+			case LOADLOC: {
+					int pos = instruction.getIntArg(0);
 					stack[sp++] = stack[pos];
-					if (debug)
-						System.out
-								.println("local var pushed: " + stack[sp - 1]);
 					continue;
-				} else {
+				}
+			
+			case LOADVAR: {
+					int s = instruction.getIntArg(0);
+					int pos = instruction.getIntArg(1);
 					for (Frame fr = cf.previous; fr != null; fr = fr.previous) {
 						if (fr.scope == s) {
 							stack[sp++] = fr.stack[pos];
 							continue NEXT_INSTRUCTION;
 						}
 					}
+					throw new RuntimeException("Cannot happen: load var cannot find matching scope");
 				}
-				throw new RuntimeException(
-						"Cannot happen: load var cannot find matching scope");
-			case STOREVAR:
-				int s1 = instruction.getIntArg(0);
-				int pos1 = instruction.getIntArg(1);
-				if (s1 == cf.scope) {
-					stack[pos1] = stack[--sp];
+			
+			case STORELOC: {
+					int pos = instruction.getIntArg(0);
+					stack[pos] = stack[--sp];
 					continue;
-				} else {
-					for (Frame fr = cf.previous; fr != null; fr = fr.previous) {
-						if (fr.scope == s1) {
-							fr.stack[pos1] = stack[--sp];
-							continue NEXT_INSTRUCTION;
-						}
+				}
+			
+			case STOREVAR:
+				int s = instruction.getIntArg(0);
+				int pos = instruction.getIntArg(1);
+				
+				for (Frame fr = cf.previous; fr != null; fr = fr.previous) {
+					if (fr.scope == s) {
+						fr.stack[pos] = stack[--sp];
+						continue NEXT_INSTRUCTION;
 					}
 				}
-				throw new RuntimeException(
-						"Cannot happen: load var cannot find matching scope");
+				
+				throw new RuntimeException("Cannot happen: load var cannot find matching scope");
 
 			case JMP:
 				pc = findLabel(instructions, instruction.getStringArg(0));
@@ -200,6 +201,7 @@ public class RVM {
 				}
 				sp--;
 				continue;
+				
 			case JMPFALSE:
 				if (stack[sp - 1].equals(FALSE)) {
 					pc = findLabel(instructions, instruction.getStringArg(0));
@@ -241,33 +243,29 @@ public class RVM {
 			case CALLPRIM:
 				switch (instruction.getPrimitiveArg(0)) {
 				case addition_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2])
-							.add((IInteger) stack[sp - 1]);
+					stack[sp - 2] = ((IInteger) stack[sp - 2]).add((IInteger) stack[sp - 1]);
 					sp--;
 					continue;
 				case multiplication_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2])
-							.multiply((IInteger) stack[sp - 1]);
+					stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
 					sp--;
 					continue;
 				case equal_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2]).equal(
-							(IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
+					stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
 					sp--;
 					continue;
 				case greater_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2]).greater(
-							(IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
+					stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
 					sp--;
 					continue;
 				case substraction_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2])
-							.subtract((IInteger) stack[sp - 1]);
+					stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
 					sp--;
 					continue;
 				default:
 					break;
 				}
+				
 			case HALT:
 				if (debug) {
 					System.out.println("Program halted:");
@@ -276,6 +274,7 @@ public class RVM {
 					}
 				}
 				return;
+				
 			default:
 				throw new RuntimeException(
 						"Cannot happen: cannot decode instruction");
