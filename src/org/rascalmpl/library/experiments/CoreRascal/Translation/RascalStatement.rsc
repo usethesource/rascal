@@ -69,7 +69,8 @@ str translate(s: (Statement) `try  <Statement body> <Catch+ handlers>`) { throw(
 
 str translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`) { throw("tryFinally"); }
 
-str translate(s: (Statement) `<Label label> { <Statement+ statements> }`) { throw("nonEmptyBlock"); }
+str translate(s: (Statement) `<Label label> { <Statement+ statements> }`) =
+    "<for(stat <- statements){><translate(stat)>;<}>";
 
 str translate(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) { throw("assignment"); }
 
@@ -87,7 +88,12 @@ str translate(s: (Statement) `append <DataTarget dataTarget> <Statement statemen
 
 str translate(s: (Statement) `<FunctionDeclaration functionDeclaration>`) { throw("functionDeclaration"); }
 
-str translate(s: (Statement) `<LocalVariableDeclaration declaration> ;`) { throw("variableDeclaration"); }
+str translate(s: (Statement) `<LocalVariableDeclaration declaration> ;`) { 
+    tp = declaration.declarator.\type;
+    variables = declaration.declarator.variables;
+    
+    return "<for(var <- variables){><mkVar("<var.name>", var.name@\loc)> <(var is initialized) ? " = <translate(var.initial)>;" : ";"><}>";
+}
 
 /*********************************************************************/
 /*                  End of Statements                                */
