@@ -46,7 +46,7 @@ public class Instruction {
     }
     
     public String toString(){
-    	String args = "";
+    	String sargs = "";
     	switch(op){
 		case CALL:
 		case JMP:
@@ -54,17 +54,17 @@ public class Instruction {
 		case JMPTRUE:
 		case LABEL:
 		case LOADCON:
-		case LOADVAR:
-			args = getStringArg(0); 
+			sargs = getStringArg(0); 
 			break;
 		case CALLPRIM:
-			args = "" + getPrimitiveArg(0); 
+			sargs = "" + getPrimitiveArg(0); 
 			break;
+		case LOADVAR:
 		case STOREVAR:
-			args = getIntArg(0) + ", " + getIntArg(1);
+			sargs = getIntArg(0) + ", " + getIntArg(1);
 			break;
 		default:	
     	}
-    	return op + " " + args;
+    	return op + " " + sargs;
     }
 }
