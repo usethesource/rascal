@@ -22,6 +22,7 @@ void parse(){
    	Module M = parseModule(Example1, libSearchPath);
    	config = checkModule(M.top, newConfiguration());  // .top is needed to remove start! Ugly!
    	//text(config);
+   	extractScopes();
    	errors = [ e | e:error(_,_) <- config.messages];
    	if(size(errors) > 0)
    	  println("Module contains errors:\n<for(e <- errors){><e>\n<}>");
@@ -42,9 +43,8 @@ str translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
 
 // Toplevel Declaration: variable
 
-str translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type \type> <{Variable ","}+ variables> ;`){
-   throw("variables");
-}
+str translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) =
+   "<for(var <- variables){><(var is initialized) ? "<mkVar("<var.name>",var@\loc)> = <translate(var.initial)>" : "<mkVar("<var.name>".var@\loc)>"><}>";
 
 str translate(d: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`) { throw("annotation"); }
 str translate(d: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType user> = <Type base> ;`)   { throw("alias"); }
@@ -53,6 +53,7 @@ str translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserTy
 /*
 	| @Foldable \data : Tags tags Visibility visibility "data" UserType user CommonKeywordParameters commonKeywordParameters"=" {Variant "|"}+ variants ";"
 */
+
 str translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = translate(functionDeclaration);
 
 // FunctionDeclaration
@@ -64,8 +65,8 @@ str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Si
   if({ ftype } := ftypes){
 	  formals = signature.parameters.formals.formals;
 	  lformals = [f | f <- formals];
-	  tformals = [(Pattern) `<Type tp> <Name nm>` := lformals[i] ? "var(\"<nm>\", <ftype.parameters[i]>)" : "pattern"  | i <- index(lformals)];
-	  return "\n// <fd>\n<signature.name> = lambda(<ftype>, [<intercalate(", ", tformals)>]){<translate(expression)>}";
+	  tformals = [(Pattern) `<Type tp> <Name nm>` := lformals[i] ? mkVar("<nm>",nm@\loc) : "pattern"  | i <- index(lformals)];
+	  return "\n// <fd>\n<signature.name> = lambda([<intercalate(", ", tformals)>]){<translate(expression)>}";
   } else
       throw "overloaded function <signature.name>: <ftypes>";
 }
@@ -77,9 +78,9 @@ str translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <S
   if({ ftype } := ftypes){
 	  formals = signature.parameters.formals.formals;
 	  lformals = [f | f <- formals];
-	  tformals = [(Pattern) `<Type tp> <Name nm>` := lformals[i] ? "var(\"<nm>\", <ftype.parameters[i]>)" : "pattern"  | i <- index(lformals)];
+	  tformals = [(Pattern) `<Type tp> <Name nm>` := lformals[i] ? mkVar("<nm>",nm@\loc) : "pattern"  | i <- index(lformals)];
 	  tbody = "<for(stat <- body.statements){><translate(stat)>;<}>";
-	  return "\n// <fd>\n<signature.name> = lambda(<ftype>, [<intercalate(", ", tformals)>]){<tbody>}";
+	  return "\n// <fd>\n<mkVar("<signature.name>",fd@\loc)> = lambda([<intercalate(", ", tformals)>]){<tbody>}";
   } else
       throw "overloaded function <signature.name>: <ftypes>"; 
 }
