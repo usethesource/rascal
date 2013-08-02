@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,37 +15,43 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class RVM {
 	List<Frame> frames;
 	Map<String, Function> codeStore;
-	Map<String, IValue> constStore;
+	ArrayList<IValue> constStore;
 	IValueFactory vf;
 	private IBool TRUE;
 	private IBool FALSE;
-	private boolean debug = true;
+	private boolean debug = false;
+	private Map<String, Integer> constMap;
 
 	RVM() {
 		vf = ValueFactoryFactory.getValueFactory();
 		TRUE = vf.bool(true);
 		FALSE = vf.bool(false);
-		constStore = new HashMap<String, IValue>();
+		constStore = new ArrayList<IValue>();
 		codeStore = new HashMap<String, Function>();
+		constMap = new HashMap<String, Integer>();
 	}
 	
 	public static void main(String[] args) {
 		RVM rvm = new RVM();
 		rvm.loadProgram();
-		// long start = System.currentTimeMillis();
-		// for(int i = 0; i < 1000; i++)
+		long start = System.currentTimeMillis();
 		rvm.executeProgram("main_repeat", new IValue[] {});
-		// long now = System.currentTimeMillis();
-		// System.out.println("RVM: elapsed time in msecs:" + (now - start));
+		long now = System.currentTimeMillis();
+		System.out.println("RVM: elapsed time in msecs:" + (now - start));
 	}
 	
 	void declare(Function f){
 		codeStore.put(f.name, f);
 	}
+	
+	void declareConst(String name, IValue val){
+		constMap.put(name, constStore.size());
+		constStore.add(val);
+	}
 
 	void def_main_test() {
 		declare(new Function("main_test", 0, 0, 1, 6,
-				new Instructions().
+				new Instructions(constMap).
 					add(OPCODE.LOADCON, "FOUR").
 					add(OPCODE.STORELOC, 0).
 					add(OPCODE.HALT).
@@ -53,7 +60,7 @@ public class RVM {
 
 	void def_fac() {
 		declare(new Function("fac", 1, 1, 1, 6, 
-				new Instructions().
+				new Instructions(constMap).
 					add(OPCODE.LOADLOC, 0).
 					add(OPCODE.LOADCON, "ONE").
 					add(OPCODE.CALLPRIM, Primitive.equal_int_int).
@@ -69,11 +76,9 @@ public class RVM {
 					add(OPCODE.CALLPRIM, Primitive.multiplication_int_int).
 					add(OPCODE.RETURN).
 					done()));
-	}
-
-	void def_main_fac() {
+		
 		declare(new Function("main_fac", 0, 0, 0, 7,
-				new Instructions().
+				new Instructions(constMap).
 					add(OPCODE.LOADCON, "THOUSAND").
 					add(OPCODE.CALL, "fac").
 					add(OPCODE.HALT).
@@ -88,10 +93,10 @@ public class RVM {
 		// }
 		// }
 		declare(new Function("main_repeat", 0, 0, 2, 20,
-				new Instructions().
-					add(OPCODE.LOADCON, "ONE").
+				new Instructions(constMap).
+					add(OPCODE.LOADCON, "THOUSAND").
 					add(OPCODE.STORELOC, 0). // n
-					add(OPCODE.LOADCON, "ONE").
+					add(OPCODE.LOADCON, "THOUSAND").
 					add(OPCODE.STORELOC, 1). // cnt
 					add(OPCODE.LABEL, "L").
 					add(OPCODE.LOADLOC, 1). // cnt
@@ -103,6 +108,10 @@ public class RVM {
 					add(OPCODE.LOADLOC, 0).
 					add(OPCODE.CALL, "fac").
 					add(OPCODE.POP).
+					add(OPCODE.LOADLOC, 1).
+					add(OPCODE.LOADCON, "ONE").
+					add(OPCODE.CALLPRIM, Primitive.substraction_int_int).
+					add(OPCODE.STORELOC, 1).
 					add(OPCODE.JMP, "L").
 					done()));
 	}
@@ -110,14 +119,13 @@ public class RVM {
 	void loadProgram() {
 		// Given an ADT of the RVN program, store in internal format here
 
-		constStore.put("ZERO", vf.integer(0));
-		constStore.put("ONE", vf.integer(1));
-		constStore.put("TWO", vf.integer(2));
-		constStore.put("FOUR", vf.integer(4));
-		constStore.put("THOUSAND", vf.integer(1000));
+		declareConst("ZERO", vf.integer(0));
+		declareConst("ONE", vf.integer(1));
+		declareConst("TWO", vf.integer(2));
+		declareConst("FOUR", vf.integer(4));
+		declareConst("THOUSAND", vf.integer(1000));
 		def_main_test();
 		def_fac();
-		def_main_fac();
 		def_main_repeat();
 	}
 
@@ -156,7 +164,7 @@ public class RVM {
 			switch (instruction.getOp()) {
 
 			case LOADCON:
-				stack[sp++] = constStore.get(instruction.getStringArg(0));
+				stack[sp++] = constStore.get(instruction.getIntArg(0));
 				continue;
 
 			case LOADLOC: {
