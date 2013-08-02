@@ -49,7 +49,7 @@ public class ParserGenerator {
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
 		GlobalEnvironment heap = new GlobalEnvironment();
@@ -172,22 +172,14 @@ public class ParserGenerator {
 		
 		@Override
 		public int hashCode() {
-			if (!reported && v.get() == null) {
-				cleanup.add(this);
-				reported = true;
-			}
 			return hash;
 		}
 		
 		@Override
 		public boolean equals(Object obj) {
-			if (reported) {
+			IValue actual = getValue();
+			if (actual == null || reported) {
 				return false;
-			}
-			IValue actual = v.get();
-			if (actual == null) {
-				cleanup.add(this);
-				reported = true;
 			}
 			if (obj instanceof IValue) {
 				return actual.isEqual((IValue)obj);
