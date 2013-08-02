@@ -24,7 +24,7 @@ public class Instruction {
     	this.args = new Object[] {arg1, arg2};
     }
     
-    public Instruction(OPCODE op, Primitive arg) {
+    Instruction(OPCODE op, Primitive arg) {
 		this.op = op;
 		this.args = new Object[] { arg };
 	}
@@ -45,17 +45,28 @@ public class Instruction {
     	return (Primitive) args[n];
     }
     
+    void patchLabel(int pc){
+    	args[0] = pc;
+    }
+    
     public String toString(){
     	String sargs = "";
     	switch(op){
 		case CALL:
-		case JMP:
-		case JMPFALSE:
-		case JMPTRUE:
+		
 		case LABEL:
 		case LOADCON:
 			sargs = getStringArg(0); 
 			break;
+			
+		case JMP:
+		case JMPFALSE:
+		case JMPTRUE:
+		case LOADLOC:
+		case STORELOC:
+			sargs = "" + getIntArg(0);
+			break;
+			
 		case CALLPRIM:
 			sargs = "" + getPrimitiveArg(0); 
 			break;
