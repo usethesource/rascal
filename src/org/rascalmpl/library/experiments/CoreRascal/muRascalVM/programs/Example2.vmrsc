@@ -1,0 +1,10 @@
+iconst 5    /* number of slots to be allocated for local variables */
+alloc
+iconst 5    /* number of slots to be de-allocated */
+de-alloc
+iconst 1000 /* pushes the value */
+return
+
+iconst 0   /* static link */
+iconst 0   /* address */
+call

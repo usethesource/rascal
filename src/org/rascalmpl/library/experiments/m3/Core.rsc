@@ -1,6 +1,21 @@
 module experiments::m3::Core
 
-import experiments::m3::AST;
+data Modifiers
+	= \private()
+	| \public()
+	| \protected()
+	| \friendly()
+	| \static()
+	| \final()
+	| \synchronized()
+	| \transient()
+	| \abstract()
+	| \native()
+	| \volatile()
+	| \strictfp()
+	| \deprecated()
+	| \annotation(loc \anno)
+  	;
 
 data M3 = m3();
              

@@ -1,9 +1,9 @@
 module experiments::CoreRascal::ReductionWithEvalCtx::AST
 
 @doc{The lambda expression part}
-@doc{e = true | false | Num | Id | Consts | [e1,...] | lambda x.e | e e | e + e | e == e | x := e | if e then e else e | Y e}
 public data Exp = 
-            \true()
+			nil()
+          | \true()
           | \false()
           | number(int n)         
           | id(str name)
@@ -11,10 +11,13 @@ public data Exp =
           | apply(Exp exp1, Exp exp2)
           
           | add(Exp exp1, Exp exp2)
+          | minus(Exp exp1, Exp exp2)
           | eq(Exp exp1, Exp exp2)
+          | less(Exp exp1, Exp exp2)
           
           | assign(str id, Exp exp)
           | ifelse(Exp exp1, Exp exp2, Exp exp3)
+          | \while(Exp cond, Exp body)
 		  ;
 
 @doc{Extension with configurations that encapsulate semantics components, e.g, stores}		    
@@ -24,6 +27,7 @@ public data Exp =
 
 public alias Store = map[str,Exp];
 
+public bool isValue(nil()) = true;
 public bool isValue(\true()) = true;
 public bool isValue(\false()) = true;
 public bool isValue(number(int n)) = true;
@@ -69,8 +73,8 @@ public data Exp =
 @doc{Extension with exceptions}
 public data Exp =
 			  \throw(Exp exp)
-			| \try(Exp exp, list[Catch] catches);
+			| \try(Exp body, Catch \catch);
 			
 public data Catch = 
-			  \catch(Exp arg, Exp exp)
+			  \catch(str id, Exp body)
 			;

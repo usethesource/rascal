@@ -55,8 +55,8 @@ syntax ModuleParameters
 	= \default: "[" {TypeVar ","}+ parameters "]" ;
 
 lexical DateAndTime
-	= "$" DatePart "T" TimePartNoTZ !>> [+\-]
-    | "$" DatePart "T" TimePartNoTZ TimeZonePart ;
+	= "$" DatePart "T" TimePartNoTZ !>> [+\-] "$"
+	| "$" DatePart "T" TimePartNoTZ TimeZonePart "$";
 
 syntax Strategy
 	= topDownBreak: "top-down-break" 
@@ -330,7 +330,7 @@ syntax Field
 	| name: Name fieldName ;
 
 lexical JustDate
-	= "$" DatePart ;
+	= "$" DatePart "$";
 
 lexical PostPathChars
 	=  "\>" URLChars "|" ;
@@ -398,8 +398,8 @@ lexical StringCharacter
 	;
 
 lexical JustTime
-	= "$T" TimePartNoTZ !>> [+\-] 
-	| "$T" TimePartNoTZ TimeZonePart
+	= "$T" TimePartNoTZ !>> [+\-] "$"
+	| "$T" TimePartNoTZ TimeZonePart "$"
 	;
 
 lexical MidStringChars
