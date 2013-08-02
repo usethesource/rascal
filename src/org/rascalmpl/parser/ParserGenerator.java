@@ -177,13 +177,8 @@ public class ParserGenerator {
 		
 		@Override
 		public boolean equals(Object obj) {
-			if (reported) {
-				return false;
-			}
-			IValue actual = v.get();
-			if (actual == null) {
-				cleanup.add(this);
-				reported = true;
+			IValue actual = getValue();
+			if (actual == null || reported) {
 				return false;
 			}
 			if (obj instanceof IValue) {
