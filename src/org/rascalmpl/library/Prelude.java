@@ -2155,6 +2155,11 @@ public class Prelude {
 		Type type = tr.valueToType((IConstructor) reifiedType, store);
 		try {
 			IValue result = implode(store, type, tree, false, ctx); 
+			if (isUntypedNodeType(type) && !type.isTop() && (TreeAdapter.isList(tree) || TreeAdapter.isOpt(tree))) {
+				// Ensure the result is actually a node, even though
+				// the tree given to implode is a list.
+				result = values.node("", result);
+			}
 			return result;
 		}
 		catch (Backtrack b) {
@@ -2220,9 +2225,14 @@ public class Prelude {
 			if (constructorName != null) {
 				// make a single argument constructor  with yield as argument
 				// if there is a singleton constructor with a str argument
-				if (!type.isAbstractData()) {
+				if (!type.isAbstractData() && !isUntypedNodeType(type)) {
 					throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type);
 				}
+				
+				if (isUntypedNodeType(type)) {
+					return values.node(constructorName, values.string(yield));
+				}
+				
 				Set<Type> conses = findConstructors(type, constructorName, 1, store);
 				Iterator<Type> iter = conses.iterator();
 				while (iter.hasNext()) {
@@ -2264,8 +2274,15 @@ public class Prelude {
 		
 		//Set implementation added here by Jurgen at 19/07/12 16:45
 		if (TreeAdapter.isList(tree)) {
-			if (type.isList() || splicing) {
-				Type elementType = splicing ? type : type.getElementType();
+			if (type.isList() || splicing || isUntypedNodeType(type)) {
+				// if in node space, we also make a list; 
+				// NB: this breaks type safety if the top-level tree
+				// is itself a list.
+				
+				Type elementType = type;
+				if (!splicing && !isUntypedNodeType(type)) {
+					elementType = type.getElementType();
+				}
 				IListWriter w = values.listWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
 					w.append(implode(store, elementType, (IConstructor) arg, false, ctx));
@@ -2295,10 +2312,10 @@ public class Prelude {
 		}
 		
 		if (TreeAdapter.isOpt(tree)) {
-			if (!type.isList()) {
+			if (!type.isList() && !isUntypedNodeType(type)) {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Optional should match with a list and not " + type));
 			}
-			Type elementType = type.getElementType();
+			Type elementType = isUntypedNodeType(type) ? type : type.getElementType();
 			IListWriter w = values.listWriter();
 			for (IValue arg: TreeAdapter.getASTArgs(tree)) {
 				IValue implodedArg = implode(store, elementType, (IConstructor) arg, true, ctx);
@@ -2471,7 +2488,8 @@ public class Prelude {
 	}
 
 	private boolean isUntypedNodeType(Type type) {
-		return type.isNode() && !type.isConstructor() && !type.isAbstractData();
+		return (type.isNode() && !type.isConstructor() && !type.isAbstractData()) 
+				|| type.isTop();
 	}
 	
 	

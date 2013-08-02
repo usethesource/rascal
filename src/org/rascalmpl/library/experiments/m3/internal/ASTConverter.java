@@ -429,6 +429,9 @@ public class ASTConverter extends JavaToRascalConverter {
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (node.isStatic())
 				importType = "staticImport";
+
+			if (node.isOnDemand())
+				importType = "packageImport";
 		}
 		
 		ownValue = constructDeclarationNode(importType.toString(), values.string(name));
@@ -450,7 +453,7 @@ public class ASTConverter extends JavaToRascalConverter {
 			}
 		}
 	
-		ownValue = constructExpressionNode("infix", leftSide, operator, rightSide);
+		ownValue = constructExpressionNode("infix", leftSide, operator, rightSide, extendedOperands.asList());
 		
 		return false;
 	}
@@ -498,7 +501,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	public boolean visit(MarkerAnnotation node) {
 		
 		IValue typeName = values.string(node.getTypeName().getFullyQualifiedName());
-		ownValue = constructModifierNode("markerAnnotation", typeName);
+		ownValue = constructExpressionNode("markerAnnotation", typeName);
 		
 		return false;
 	}
@@ -512,7 +515,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue name = values.string(node.getName().getFullyQualifiedName());
 		IValue value = visitChild(node.getValue());
 	
-		ownValue = constructModifierNode("memberValuePair", name, value);
+		ownValue = constructExpressionNode("memberValuePair", name, value);
 		
 		return false;
 	}
@@ -621,7 +624,7 @@ public class ASTConverter extends JavaToRascalConverter {
 			memberValuePairs.add(visitChild(p));
 		}
 	
-		ownValue = constructModifierNode("normalAnnotation", typeName, memberValuePairs.asList());
+		ownValue = constructExpressionNode("normalAnnotation", typeName, memberValuePairs.asList());
 		
 		return false;
 	}
@@ -762,7 +765,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue name = values.string(node.getTypeName().getFullyQualifiedName());
 		IValue value = visitChild(node.getValue());
 	
-		ownValue = constructModifierNode("singleMemberAnnotation", name, value);
+		ownValue = constructExpressionNode("singleMemberAnnotation", name, value);
 		
 		return false;
 	}

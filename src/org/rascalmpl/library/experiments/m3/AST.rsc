@@ -16,10 +16,7 @@ data Modifiers
 	| \volatile()
 	| \strictfp()
 	| \deprecated()
-	| \markerAnnotation(str typeName)
-  	| \normalAnnotation(str typeName, list[Modifiers] memberValuePairs)
-  	| \memberValuePair(str name, Expression \value)				
-  	| \singleMemberAnnotation(str typeName, Expression \value)
+	| \annotation(Expression \anno)
   	;
 
 anno loc Declaration@src;
@@ -44,6 +41,7 @@ data Declaration
 	| \method(str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
 	| \import(str name)
 	| \staticImport(str name)
+	| \packageImport(str name)
 	| \package(str name)
 	| \variables(Type \type, list[Expression] \variables)
 	| \typeParameter(str name, list[Type] extendsList)
@@ -90,13 +88,17 @@ data Expression
 	| \this(Expression thisExpression)
 	| \super()
 	| \declaration(Declaration decl)
-	| \infix(Expression lhs, str operator, Expression rhs)
+	| \infix(Expression lhs, str operator, Expression rhs, list[Expression] extendedOperands)
 	| \postfix(Expression operand, str operator)
 	| \prefix(str operator, Expression operand)
 	| \simpleName(str name)
-	| \qualifiedName(Expression qualified, str name)
+	| \qualifiedName(Expression qualified, Expression simpleName)
 	| \parenthesis(Expression expr)
 	| \declaration(Declaration decl)
+	| \markerAnnotation(str typeName)
+  	| \normalAnnotation(str typeName, list[Expression] memberValuePairs)
+  	| \memberValuePair(str name, Expression \value)				
+  	| \singleMemberAnnotation(str typeName, Expression \value)
 	;						
   
 anno loc Statement@src;
@@ -143,7 +145,7 @@ anno list[Declaration] Type@typeParameters;
 data Type 
 	= arrayType(Type \type)
 	| parameterizedType(Type \type)
-	| qualifier(Type qualifier, Type \type)
+	| qualifier(Type qualifier, Expression simpleName)
 	| simpleType(str name)
 	| unionType(list[Type] types)
 	| wildcard()
