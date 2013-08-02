@@ -27,46 +27,57 @@ public class RVM {
 		constStore = new HashMap<String, IValue>();
 		codeStore = new HashMap<String, Function>();
 	}
+	
+	public static void main(String[] args) {
+		RVM rvm = new RVM();
+		rvm.loadProgram();
+		// long start = System.currentTimeMillis();
+		// for(int i = 0; i < 1000; i++)
+		rvm.executeProgram("main_repeat", new IValue[] {});
+		// long now = System.currentTimeMillis();
+		// System.out.println("RVM: elapsed time in msecs:" + (now - start));
+	}
+	
+	void declare(Function f){
+		codeStore.put(f.name, f);
+	}
 
 	void def_main_test() {
-		Instruction[] testInstructions = new Instruction[] {
-				new Instruction(OPCODE.LOADCON, "FOUR"),
-				new Instruction(OPCODE.STORELOC, 0),
-				new Instruction(OPCODE.HALT) };
-		Function testFunction = new Function("main_test", 0, 0, 1, 6,
-				testInstructions);
-		codeStore.put("main_test", testFunction);
+		declare(new Function("main_test", 0, 0, 1, 6,
+				new Instructions().
+					add(OPCODE.LOADCON, "FOUR").
+					add(OPCODE.STORELOC, 0).
+					add(OPCODE.HALT).
+					done()));
 	}
 
 	void def_fac() {
-		Instruction[] facInstructions = new Instruction[] {
-				new Instruction(OPCODE.LOADLOC, 0),
-				new Instruction(OPCODE.LOADCON, "ONE"),
-				new Instruction(OPCODE.CALLPRIM, Primitive.equal_int_int),
-				new Instruction(OPCODE.JMPFALSE, "L"),
-				new Instruction(OPCODE.LOADCON, "ONE"),
-				new Instruction(OPCODE.RETURN),
-				new Instruction(OPCODE.LABEL, "L"),
-				new Instruction(OPCODE.LOADLOC, 0),
-				new Instruction(OPCODE.LOADLOC, 0),
-				new Instruction(OPCODE.LOADCON, "ONE"),
-				new Instruction(OPCODE.CALLPRIM, Primitive.substraction_int_int),
-				new Instruction(OPCODE.CALL, "fac"),
-				new Instruction(OPCODE.CALLPRIM,
-						Primitive.multiplication_int_int),
-				new Instruction(OPCODE.RETURN) };
-		Function facFunction = new Function("fac", 1, 1, 1, 6, facInstructions);
-		codeStore.put("fac", facFunction);
+		declare(new Function("fac", 1, 1, 1, 6, 
+				new Instructions().
+					add(OPCODE.LOADLOC, 0).
+					add(OPCODE.LOADCON, "ONE").
+					add(OPCODE.CALLPRIM, Primitive.equal_int_int).
+					add(OPCODE.JMPFALSE, "L").
+					add(OPCODE.LOADCON, "ONE").
+					add(OPCODE.RETURN).
+					add(OPCODE.LABEL, "L").
+					add(OPCODE.LOADLOC, 0).
+					add(OPCODE.LOADLOC, 0).
+					add(OPCODE.LOADCON, "ONE").
+					add(OPCODE.CALLPRIM, Primitive.substraction_int_int).
+					add(OPCODE.CALL, "fac").
+					add(OPCODE.CALLPRIM, Primitive.multiplication_int_int).
+					add(OPCODE.RETURN).
+					done()));
 	}
 
 	void def_main_fac() {
-		Instruction[] facCallInstructions = new Instruction[] {
-				new Instruction(OPCODE.LOADCON, "FOUR"),
-				new Instruction(OPCODE.CALL, "fac"),
-				new Instruction(OPCODE.HALT) };
-		Function facCallFunction = new Function("main_fac", 0, 0, 0, 7,
-				facCallInstructions);
-		codeStore.put("main_fac", facCallFunction);
+		declare(new Function("main_fac", 0, 0, 0, 7,
+				new Instructions().
+					add(OPCODE.LOADCON, "THOUSAND").
+					add(OPCODE.CALL, "fac").
+					add(OPCODE.HALT).
+					done()));
 	}
 
 	void def_main_repeat() {
@@ -76,27 +87,30 @@ public class RVM {
 		// cnt -= 1;
 		// }
 		// }
-		Instruction[] repeatInstructions = new Instruction[] {
-				new Instruction(OPCODE.LOADCON, "THOUSAND"),
-				new Instruction(OPCODE.STORELOC, 0), // n
-				new Instruction(OPCODE.LOADCON, "THOUSAND"),
-				new Instruction(OPCODE.STORELOC, 1), // cnt
-				new Instruction(OPCODE.LABEL, "L"),
-				new Instruction(OPCODE.LOADLOC, 1), // cnt
-				new Instruction(OPCODE.LOADCON, "ZERO"),
-				new Instruction(OPCODE.CALLPRIM, Primitive.greater_int_int),
-				new Instruction(OPCODE.HALT),
-				new Instruction(OPCODE.LOADLOC, 0),
-				new Instruction(OPCODE.CALL, "fac"),
-				new Instruction(OPCODE.JMP, "L") };
-		Function repeatCallFunction = new Function("main_repeat", 1, 1, 1, 20,
-				repeatInstructions);
-		codeStore.put("main_repeat", repeatCallFunction);
+		declare(new Function("main_repeat", 0, 0, 2, 20,
+				new Instructions().
+					add(OPCODE.LOADCON, "ONE").
+					add(OPCODE.STORELOC, 0). // n
+					add(OPCODE.LOADCON, "ONE").
+					add(OPCODE.STORELOC, 1). // cnt
+					add(OPCODE.LABEL, "L").
+					add(OPCODE.LOADLOC, 1). // cnt
+					add(OPCODE.LOADCON, "ZERO").
+					add(OPCODE.CALLPRIM, Primitive.greater_int_int).
+					add(OPCODE.JMPTRUE, "M").
+					add(OPCODE.HALT).
+					add(OPCODE.LABEL, "M").
+					add(OPCODE.LOADLOC, 0).
+					add(OPCODE.CALL, "fac").
+					add(OPCODE.POP).
+					add(OPCODE.JMP, "L").
+					done()));
 	}
 
 	void loadProgram() {
 		// Given an ADT of the RVN program, store in internal format here
 
+		constStore.put("ZERO", vf.integer(0));
 		constStore.put("ONE", vf.integer(1));
 		constStore.put("TWO", vf.integer(2));
 		constStore.put("FOUR", vf.integer(4));
@@ -105,15 +119,6 @@ public class RVM {
 		def_fac();
 		def_main_fac();
 		def_main_repeat();
-	}
-
-	int findLabel(Instruction[] instructions, String label) {
-		for (int i = 0; i < instructions.length; i++) {
-			Instruction ins = instructions[i];
-			if (ins.op == OPCODE.LABEL && ins.getStringArg(0).equals(label))
-				return i;
-		}
-		throw new RuntimeException("Cannot happen: undefined label: " + label);
 	}
 
 	void executeProgram(String main, IValue[] args) {
@@ -134,7 +139,7 @@ public class RVM {
 			stack[i] = args[i];
 		}
 		frames.add(cf);
-		Instruction[] instructions = function.instructions;
+		Instruction[] instructions = function.instructions.getInstructions();
 		int pc = 0;
 		int sp = function.nlocals;
 
@@ -192,30 +197,34 @@ public class RVM {
 				throw new RuntimeException("Cannot happen: load var cannot find matching scope");
 
 			case JMP:
-				pc = findLabel(instructions, instruction.getStringArg(0));
+				pc = instruction.getIntArg(0);
 				continue;
 
 			case JMPTRUE:
 				if (stack[sp - 1].equals(TRUE)) {
-					pc = findLabel(instructions, instruction.getStringArg(0));
+					pc = instruction.getIntArg(0);
 				}
 				sp--;
 				continue;
 				
 			case JMPFALSE:
 				if (stack[sp - 1].equals(FALSE)) {
-					pc = findLabel(instructions, instruction.getStringArg(0));
+					pc = instruction.getIntArg(0);
 				}
+				sp--;
+				continue;
+				
+			case POP:
 				sp--;
 				continue;
 
 			case LABEL:
-				continue;
+				break;
 
 			case CALL:
 				String fname = instruction.getStringArg(0);
 				Function fun = codeStore.get(fname);
-				instructions = fun.instructions;
+				instructions = fun.instructions.getInstructions();
 				Frame nextFrame = new Frame(fun.scope, cf, fun.maxstack, fun);
 				for (int i = 0; i < fun.nformals; i++) {
 					nextFrame.stack[i] = stack[sp - i - 1];
@@ -233,7 +242,7 @@ public class RVM {
 				cf = cf.previous;
 				if (cf == null)
 					return;
-				instructions = cf.function.instructions;
+				instructions = cf.function.instructions.getInstructions();
 				stack = cf.stack;
 				sp = cf.sp;
 				pc = cf.pc;
@@ -282,14 +291,6 @@ public class RVM {
 		}
 	}
 
-	public static void main(String[] args) {
-		RVM rvm = new RVM();
-		rvm.loadProgram();
-		// long start = System.currentTimeMillis();
-		// for(int i = 0; i < 1000; i++)
-		rvm.executeProgram("main_fac", new IValue[] {});
-		// long now = System.currentTimeMillis();
-		// System.out.println("RVM: elapsed time in msecs:" + (now - start));
-	}
+	
 
 }

@@ -6,9 +6,9 @@ public class Function {
 	 final int nformals;
 	 final int nlocals;
 	 final int maxstack;
-	 final Instruction[] instructions;
+	 final Instructions instructions;
 	
-	Function(String name, int scope, int nformals, int nlocals, int maxstack, Instruction[] instructions){
+	Function(String name, int scope, int nformals, int nlocals, int maxstack, Instructions instructions){
 		this.name = name;
 		this.scope = scope;
 		this.nformals = nformals;

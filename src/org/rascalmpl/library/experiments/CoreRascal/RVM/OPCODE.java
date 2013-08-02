@@ -13,5 +13,6 @@ public enum OPCODE {
 	JMPTRUE,
 	JMPFALSE,
 	LABEL,
-	HALT
+	HALT,
+	POP
 }
