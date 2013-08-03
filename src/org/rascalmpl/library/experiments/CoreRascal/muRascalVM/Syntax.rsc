@@ -36,6 +36,8 @@ lexical Opcode =
 		| "JMP"         // jumps to the specified location
 		| "JMPTRUE"     // jumps to the specified location if the top value on the stack is true
 		| "JMPFALSE"    // jumps to the specified location if the top value on the stack is false
+		
+		| "HALT"
 	
 		// co-routine specific instructions
 		| "CREATE"
@@ -59,6 +61,7 @@ keyword Keywords =
 		| "JMP"
 		| "JMPTRUE"
 		| "JMPFALSE"
+		| "HALT"
 		| "CREATE"
 		| "RESUME"
 		| "YIELD"

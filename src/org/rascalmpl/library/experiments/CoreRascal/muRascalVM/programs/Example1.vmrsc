@@ -1,9 +1,0 @@
-iconst 1
-iconst 2
-iconst 3
-iconst 4
-iconst 5
-iconst 2 /* offset to the load */
-load
-iconst 1
-store    /* stores 3 at the position 1 */
