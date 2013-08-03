@@ -1,0 +1,24 @@
+FUNCTION fac 1 2 2 6              /* two-parameter fac(n,accum) = if(n == 1) then accum else fac(n-1, n*accum) */
+LOADLOC 0
+LOADCON ONE
+CALLPRIM equal_int_int
+JMPFALSE L
+LOADLOC 1                         /* loads accum local variable */
+RETURN
+LABEL L
+LOADLOC 0                         /* loads n */
+LOADLOC 1                         /* loads accum */
+CALLPRIM multiplication_int_int   /* multiply */
+LOADLOC 0
+LOADCON ONE
+CALLPRIM substraction_int_int
+CALL fac                          /* make a jump in place of a tail call */
+RETURN
+;
+FUNCTION main 0 0 0 7
+LOADCON FOUR
+LOADCON ONE
+CALL fac
+HALT
+RETURN
+;
