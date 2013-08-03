@@ -70,7 +70,7 @@ str translate(s: (Statement) `try  <Statement body> <Catch+ handlers>`) { throw(
 str translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`) { throw("tryFinally"); }
 
 str translate(s: (Statement) `<Label label> { <Statement+ statements> }`) =
-    "<for(stat <- statements){><translate(stat)>;<}>";
+    "{" + intercalate("; ", [translate(stat) | stat <- statements]) + "}";
 
 str translate(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) { throw("assignment"); }
 
@@ -92,7 +92,7 @@ str translate(s: (Statement) `<LocalVariableDeclaration declaration> ;`) {
     tp = declaration.declarator.\type;
     variables = declaration.declarator.variables;
     
-    return "<for(var <- variables){><mkVar("<var.name>", var.name@\loc)> <(var is initialized) ? " = <translate(var.initial)>;" : ";"><}>";
+    return "<for(var <- variables){><mkVar("<var.name>", var.name@\loc)> <(var is initialized) ? "= <translate(var.initial)>" : ""><}>";
 }
 
 /*********************************************************************/
