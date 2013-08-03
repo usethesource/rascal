@@ -1,22 +1,23 @@
 module experiments::CoreRascal::muRascalVM::Tests
 
 import experiments::CoreRascal::muRascalVM::AST;
-import experiments::CoreRascal::muRascalVM::Implementation;
 import experiments::CoreRascal::muRascalVM::Implode;
+import experiments::CoreRascal::muRascalVM::Run;
+
 import IO;
 
-public loc exmpl1 = |project://RascalStandardLibrary/src/experiments/CoreRascal/muRascalVM/programs/Example1.vmrsc|;
+public loc exmpl1 = |project://RascalStandardLibrary/src/experiments/CoreRascal/muRascalVM/programs/Example1.rvm|;
+
+// factorial
+public loc exmpl2 = |project://RascalStandardLibrary/src/experiments/CoreRascal/muRascalVM/programs/Example2.rvm|;
+
+// factorial with a tail call optimization
+public loc exmpl3 = |project://RascalStandardLibrary/src/experiments/CoreRascal/muRascalVM/programs/Example3.rvm|;
+
+// tail recursive, two-parameter version of factorial
+public loc exmpl4 = |project://RascalStandardLibrary/src/experiments/CoreRascal/muRascalVM/programs/Example4.rvm|;
 
 public void testit() {
-	RascalVM code = parse(readFile(exmpl1));
-	
-	setStartInstruction(0);
-	setInstructions(code.instructions);
-	
-	while(true) {
-		interpret();
-		if(pc == pc_start)
-			break;
-	}
-	println("Current stack: <s>");
+	RascalVM code = parse(readFile(exmpl4));
+	println("parsed: <code>");
 }
