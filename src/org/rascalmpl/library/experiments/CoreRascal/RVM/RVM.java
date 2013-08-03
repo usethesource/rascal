@@ -58,7 +58,7 @@ public class RVM {
 	public void executeProgram(String main, IValue[] args) {
 
 		for(Function f : codeStore){
-			f.instructions.done(constMap, codeMap);
+			f.instructions.done(f.name, constMap, codeMap);
 		}
 		// Simulate a call to "main" here.
 		Function function = codeStore.get(codeMap.get(main));

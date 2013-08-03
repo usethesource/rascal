@@ -9,7 +9,6 @@ public class Instructions {
 	int[] finalCode;
 	int pc;
 	ArrayList<Instruction> insList;
-	private ArrayList<Integer> codeList;
 	HashMap<String,Integer> labels;
 	private ArrayList<String> labelList;
 	Map<String, Integer> constMap;
@@ -19,7 +18,7 @@ public class Instructions {
 		labels = new HashMap<String,Integer>();
 		labelList = new ArrayList<String>();
 		insList = new ArrayList<Instruction>();
-		codeList = new ArrayList<Integer>();
+		new ArrayList<Integer>();
 		pc = 0;
 	}
 	
@@ -124,7 +123,7 @@ public class Instructions {
 		return add(new CallPrim(this, arg));
 	}
     
-	public Instructions done(Map<String,Integer> constMap, Map<String, Integer> codeMap){
+	public Instructions done(String fname, Map<String,Integer> constMap, Map<String, Integer> codeMap){
 		this.constMap = constMap;
 		this.codeMap = codeMap;
 		int codeSize = pc;
@@ -133,8 +132,7 @@ public class Instructions {
 		for(Instruction ins : insList){
 			ins.generate();
 		}
-    	codeList = null;
-    	listing();
+    	listing(fname);
     	return this;
     }
     
@@ -142,11 +140,11 @@ public class Instructions {
     	return finalCode;
     }
     
-    void listing(){
+    void listing(String fname){
     	int pc = 0;
     	while(pc < finalCode.length){
     		Opcode opc = Opcode.fromInteger(finalCode[pc]);
-    		System.out.println(pc +": " + Opcode.toString(this, opc, pc));
+    		System.out.println(fname + "[" + pc +"]: " + Opcode.toString(this, opc, pc));
     		pc += opc.getIncrement();
     	}
     	System.out.println();
