@@ -66,12 +66,10 @@ str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Si
 	  formals = signature.parameters.formals.formals;
 	  lformals = [f | f <- formals];
 	  tformals = [(Pattern) `<Type tp> <Name nm>` := lformals[i] ? mkVar("<nm>",nm@\loc) : "pattern"  | i <- index(lformals)];
-	  return "\n// <fd>\n<signature.name> = lambda([<intercalate(", ", tformals)>]){<translate(expression)>}";
+	  return "\n// <fd>\n<mkVar("<signature.name>",fd@\loc)> = lambda([<intercalate(", ", tformals)>]){<translate(expression)>}";
   } else
       throw "overloaded function <signature.name>: <ftypes>";
 }
-
-str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions> ;`)   { throw("conditional"); }
 
 str translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
   ftypes = getFunctionType("<signature.name>");
@@ -84,6 +82,21 @@ str translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <S
   } else
       throw "overloaded function <signature.name>: <ftypes>"; 
 }
+
+str translateFun( Signature signature, str body){
+  ftypes = getFunctionType("<signature.name>");
+  if({ ftype } := ftypes){
+	  formals = signature.parameters.formals.formals;
+	  lformals = [f | f <- formals];
+	  tformals = [(Pattern) `<Type tp> <Name nm>` := lformals[i] ? mkVar("<nm>",nm@\loc) : "pattern"  | i <- index(lformals)];
+	  tbody = "<for(stat <- body.statements){><translate(stat)>;<}>";
+	  return "\n// <fd>\n<mkVar("<signature.name>",fd@\loc)> = lambda([<intercalate(", ", tformals)>]){<tbody>}";
+  } else
+      throw "overloaded function <signature.name>: <ftypes>"; 
+
+}
+
+str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions> ;`)   { throw("conditional"); }
 
 
 /* withThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters "throws" {Type ","}+ exceptions */
