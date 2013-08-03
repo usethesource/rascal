@@ -1,27 +1,26 @@
 module experiments::CoreRascal::muRascalVM::AST
 
-public data Instruction = instruction(str opcode, list[int] operands);
+public data Instruction = instruction(str opcode, list[str] operands);
 
-public data RascalVM = vm(list[Instruction] instructions);
+public data Directive = 
+		  const(str \value)
+		| function(str name, int scope, int nlocals, int nformals, int maxStack, list[Instruction] instructions)
+		;
 
-public str ICONST = "iconst";
-public str RCONST = "rconst";
+public data RascalVM = vm(list[Directive] directives, list[Instruction] instructions);
 
-public str LOAD = "load";
-public str STORE = "store";
-
-public str LABEL = "label";
-
-public str CALLPRIM = "call-prim";
-public str CALL = "call";
-public str RETURN = "return";
-public str YIELD = "yield";
-
-public str ALLOC = "alloc";
-public str DEALLOC = "de-alloc";
-
-public str TOLOCAL = "to-local";
-public str TOGLOBAL = "to-global";
-
-public str JUMP = "jump";
-public str JUMPCOND = "jump-cond";
+public str LOADCON = "LOADCON";
+public str LOADLOC = "LOADLOC";
+public str LOADVAR = "LOADVAR";
+public str STORELOC = "STORELOC";
+public str STOREVAR = "STOREVAR";
+public str LABEL = "LABEL";
+public str CALLPRIM = "CALLPRIM";
+public str CALL = "CALL";
+public str RETURN = "RETURN";
+public str JMP = "JMP";
+public str JMPTRUE = "JMPTRUE";
+public str JMPFALSE = "JMPFALSE";
+public str CREATE = "CREATE";
+public str RESUME = "RESUME";
+public str YIELD = "YIELD";
