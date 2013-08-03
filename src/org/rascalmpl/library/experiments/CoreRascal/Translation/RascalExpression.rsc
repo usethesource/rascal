@@ -36,10 +36,11 @@ int getFunctionScope(str name) = config.fcvEnv[RSimpleName(name)];
 tuple[int,int] getVariableScope(str name) = uid2addr[config.fcvEnv[RSimpleName(name)]];
 
 str mkVar(str name, loc l) {
-  print("mkVar: <name>");
+  //println("mkVar: <name>");
+  //println("l = <l>,\nloc2uid = <loc2uid>");
   n2a = uid2addr[loc2uid[l]];
   res = "<name>::<n2a[0]>::<n2a[1]>";
-  println(" =\> <res>");
+  //println("mkVar: <name> =\> <res>");
   return res;
 }
 
@@ -52,7 +53,13 @@ void extractScopes(){
    for(uid <- config.store){
       item = config.store[uid];
       switch(item){
-        case function(_,_,_,inScope,_,src): { functionScopes += {uid}; declares += {<inScope, uid>}; containment += {<inScope, uid>}; loc2uid[src] = uid; }
+        case function(_,_,_,inScope,_,src): { functionScopes += {uid}; 
+                                              declares += {<inScope, uid>}; 
+                                              containment += {<inScope, uid>}; 
+                                              loc2uid[src] = uid;
+                                              for(l <- config.uses[uid])
+                                                  loc2uid[l] = uid;
+                                             }
         case variable(_,_,_,inScope,src):   { declares += {<inScope, uid>}; loc2uid[src] = uid;
                                               for(l <- config.uses[uid])
                                                   loc2uid[l] = uid;
@@ -120,7 +127,7 @@ str translate (e:(Expression) `type ( <Expression symbol> , <Expression definiti
 
 str translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
   // ignore kw arguments for the moment
-   return "call(<translate(expression)>, [<intercalate(", ", [translate(a) | a <- arguments])>])";
+   return "<translate(expression)>(<intercalate(", ", [translate(a) | a <- arguments])>)";
 }
 
 // literals
@@ -252,11 +259,10 @@ str translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`)  = tran
 str translate(e:(Expression) `<Expression lhs> && <Expression rhs>`)  = translateBool(e) + ".start().resume()";
  
 str translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = 
-    backtrackFree(condition) ?  "c = <translate(condition)>;
-		 			            'if(c == \\true())
-		 			            '   <translate(thenExp)>;
+    backtrackFree(condition) ?  "if(<translate(condition)>)
+		 			            '   <translate(thenExp)>
 		 			            'else
-		 			            '   <translate(elseExp)>;
+		 			            '   <translate(elseExp)>
 		 			            '"
 		 			         :  "c = <translateBool(condition)>.start();
 		       			        'if(c.resume())
@@ -265,7 +271,7 @@ str translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <E
 		 			            '   <translate(elseExp)>;
 		 			            '";    
 
-default str translate(Expression e) = "default for Expression: <e>";
+default str translate(Expression e) = "\<\<MISSING CASE FOR EXPRESSION: <e>";
 
 
 /*********************************************************************/
