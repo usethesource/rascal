@@ -5,7 +5,7 @@ public enum Opcode {
 	LOADVAR (1, 3),
 	LOADLOC (2, 2),
 	STOREVAR (3, 3),
-	STORELOC (4, 3),
+	STORELOC (4, 2),
 	CALL (5, 2),
 	CALLPRIM (6, 2),
 	RETURN (7, 1),

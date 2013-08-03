@@ -13,8 +13,9 @@ public class Fac {
 		
 		rvm.declareConst("ZERO", rvm.vf.integer(0));
 		rvm.declareConst("ONE", rvm.vf.integer(1));
+		rvm.declareConst("TEN", rvm.vf.integer(10));
 		rvm.declareConst("THOUSAND", rvm.vf.integer(1000));
-		rvm.declareConst("MILLION", rvm.vf.integer(1000000));
+		rvm.declareConst("MANY", rvm.vf.integer(100000));
 		
 		rvm.declareRecursive("fac");
 		
@@ -43,9 +44,9 @@ public class Fac {
 		
 		rvm.declare(new Function("main_repeat", 0, 0, 2, 20,
 				new Instructions().
-					loadcon("THOUSAND").
+					loadcon("TEN").
 					storeloc(0). // n
-					loadcon("THOUSAND").
+					loadcon("MANY").
 					storeloc(1). // cnt
 					label("L").
 					loadloc(1). // cnt
@@ -63,12 +64,13 @@ public class Fac {
 					storeloc(1).
 					jmp("L")));
 		
-		//for(int i = 0; i < 10000; i++){
+		for(int i = 0; i < 10000; i++){
 			long start = System.currentTimeMillis();
+			rvm.setDebug(false);
 			rvm.executeProgram("main_repeat", new IValue[] {});
 			long now = System.currentTimeMillis();
 			System.out.println("RVM: elapsed time in msecs:" + (now - start));
-		//}
+		}
 	}
 
 }
