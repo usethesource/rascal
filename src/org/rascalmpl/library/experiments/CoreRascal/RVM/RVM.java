@@ -64,7 +64,7 @@ public class RVM {
 		listing = b;
 	}
 	
-	public IValue executeProgram(String main, IValue[] args) {
+	public Object executeProgram(String main, IValue[] args) {
 
 		for(Function f : codeStore){
 			f.instructions.done(f.name, constMap, codeMap, false);
@@ -75,7 +75,7 @@ public class RVM {
 			throw new RuntimeException("Code for main not found: " + main);
 		}
 		Frame cf = new Frame(0, null, function.maxstack, function);
-		IValue[] stack = cf.stack;
+		Object[] stack = cf.stack;
 		if (args.length != function.nformals) {
 			throw new RuntimeException(main	+ " called with wrong number of arguaments: " + args.length);
 		}
@@ -182,7 +182,7 @@ public class RVM {
 
 			case Opcode.OP_RETURN:
 				//if(debug)System.out.println("Leave " + cf.function.name + ", back in " + cf.previous.function.name);
-				IValue rval = stack[sp - 1];
+				Object rval = stack[sp - 1];
 				cf = cf.previous;
 				if (cf == null)
 					return rval;
@@ -335,11 +335,11 @@ public class RVM {
 		}
 		
 		long start = System.currentTimeMillis();
-		IValue result = null;
+		Object result = null;
 		for(int i = 0; i < repeats.intValue(); i++)
 			result = rvm.executeProgram(func, new IValue[] {});
 		long now = System.currentTimeMillis();
-		return vf.tuple(result, vf.integer(now - start));
+		return vf.tuple((IValue)result, vf.integer(now - start));
 
 	}
 
