@@ -38,6 +38,7 @@ import org.jgll.parser.GLLParser;
 import org.jgll.parser.LevelSynchronizedGrammarInterpretter;
 import org.jgll.parser.ParseError;
 import org.jgll.sppf.NonterminalSymbolNode;
+import org.jgll.sppf.SPPFNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
 import org.jgll.util.Input;
@@ -384,7 +385,7 @@ public class GrammarToJigll {
 					switch(((IConstructor)condition).getName()) {
 						case "not-follow":
 							IConstructor follow = getSymbolCons((IConstructor) condition);
-							s.addCondition(getFollowRestriction(follow));
+							s = s.addCondition(getFollowRestriction(follow));
 							break;
 							
 						case "follow":
@@ -392,12 +393,12 @@ public class GrammarToJigll {
 							
 						case "delete":
 							IConstructor delete = getSymbolCons((IConstructor) condition);
-							s.addCondition(getDeleteSet(delete));
+							s = s.addCondition(getDeleteSet(delete));
 							break;
 							
 						case "not-precede":
 							IConstructor precede = getSymbolCons((IConstructor) condition);
-							s.addCondition(getNotPrecede(precede));
+							s = s.addCondition(getNotPrecede(precede));
 							break;
 							
 							
