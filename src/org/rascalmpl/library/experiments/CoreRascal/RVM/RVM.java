@@ -13,9 +13,8 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadCon;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RVM {
@@ -26,34 +25,36 @@ public class RVM {
 	private boolean debug = true;
 	private boolean listing = false;
 	
-	private Map<String, Integer> constMap;
-	ArrayList<IValue> constStore;
+	private Map<String, Integer> constantMap;
+	ArrayList<IValue> constantStore;
 	
-	private ArrayList<Function> codeStore;
-	private Map<String, Integer> codeMap;
+	private ArrayList<Function> functionStore;
+	private Map<String, Integer> functionMap;
 
 	public RVM(IValueFactory vf) {
 		this.vf = vf;
 		TRUE = vf.bool(true);
 		FALSE = vf.bool(false);
-		constStore = new ArrayList<IValue>();
-		codeStore = new ArrayList<Function>();
-		constMap = new HashMap<String, Integer>();
-		codeMap = new HashMap<String, Integer>();
+		constantStore = new ArrayList<IValue>();
+		functionStore = new ArrayList<Function>();
+		constantMap = new HashMap<String, Integer>();
+		functionMap = new HashMap<String, Integer>();
 	}
 	
 	public void declare(Function f){
-		codeMap.put(f.name, codeStore.size());
-		codeStore.add(f);
-	}
-	
-	public void declareRecursive(String name){
-		codeMap.put(name, codeStore.size());  // hack to ensure that recursive fac is defined
+		if(functionMap.get(f.name) != null){
+			throw new RuntimeException("Double declaration of function: " + f.name);
+		}
+		functionMap.put(f.name, functionStore.size());
+		functionStore.add(f);
 	}
 	
 	public void declareConst(String name, IValue val){
-		constMap.put(name, constStore.size());
-		constStore.add(val);
+		if(constantMap.get(name) != null){
+			throw new RuntimeException("Double declaration of constant: " + name);
+		}
+		constantMap.put(name, constantStore.size());
+		constantStore.add(val);
 	}
 	
 	public void setDebug(boolean b){
@@ -66,11 +67,12 @@ public class RVM {
 	
 	public Object executeProgram(String main, IValue[] args) {
 
-		for(Function f : codeStore){
-			f.instructions.done(f.name, constMap, codeMap, false);
+		for(Function f : functionStore){
+			f.instructions.done(f.name, constantMap, functionMap, listing);
 		}
-		// Simulate a call to "main" here.
-		Function function = codeStore.get(codeMap.get(main));
+		// Perform a call to "main"
+		
+		Function function = functionStore.get(functionMap.get(main));
 		if (function == null) {
 			throw new RuntimeException("Code for main not found: " + main);
 		}
@@ -87,8 +89,9 @@ public class RVM {
 		int pc = 0;
 		int sp = function.nlocals;
 
-		NEXT_INSTRUCTION: while (true) {
+	NEXT_INSTRUCTION: while (true) {
 			int op = instructions[pc++];
+		
 			if (debug) {
 				int startpc = pc -1;
 				for (int i = 0; i < sp; i++) {
@@ -100,7 +103,7 @@ public class RVM {
 			switch (op) {
 
 			case Opcode.OP_LOADCON:
-				stack[sp++] = constStore.get(instructions[pc++]);
+				stack[sp++] = constantStore.get(instructions[pc++]);
 				continue;
 
 			case Opcode.OP_LOADLOC:
@@ -116,7 +119,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new RuntimeException("Cannot happen: load var cannot find matching scope");
+					throw new RuntimeException("Cannot happen: load var cannot find matching scope: " + s);
 				}
 			
 			case Opcode.OP_STORELOC: {
@@ -135,7 +138,7 @@ public class RVM {
 					}
 				}
 				
-				throw new RuntimeException("Cannot happen: load var cannot find matching scope");
+				throw new RuntimeException("Cannot happen: load var cannot find matching scope: " + s);
 
 			case Opcode.OP_JMP:
 				pc = instructions[pc];
@@ -165,7 +168,7 @@ public class RVM {
 				throw new RuntimeException("Cannot happen: label instruction at runtime");
 
 			case Opcode.OP_CALL:
-				Function fun = codeStore.get(instructions[pc++]);
+				Function fun = functionStore.get(instructions[pc++]);
 				instructions = fun.instructions.getInstructions();
 				Frame nextFrame = new Frame(fun.scope, cf, fun.maxstack, fun);
 				for (int i = 0; i < fun.nformals; i++) {
@@ -177,11 +180,9 @@ public class RVM {
 				stack = cf.stack;
 				sp = fun.nlocals;
 				pc = 0;
-				//if(debug) System.out.println("Enter " + fun.name);
 				continue;
 
 			case Opcode.OP_RETURN:
-				//if(debug)System.out.println("Leave " + cf.function.name + ", back in " + cf.previous.function.name);
 				Object rval = stack[sp - 1];
 				cf = cf.previous;
 				if (cf == null)
@@ -194,24 +195,25 @@ public class RVM {
 				continue;
 
 			case Opcode.OP_CALLPRIM:
-				switch (instructions[pc++]) {
-				case Primitive.addition_int_int:
+				Primitive prim = Primitive.fromInteger(instructions[pc++]);
+				switch (prim) {
+				case addition_int_int:
 					stack[sp - 2] = ((IInteger) stack[sp - 2]).add((IInteger) stack[sp - 1]);
 					sp--;
 					continue;
-				case Primitive.multiplication_int_int:
+				case multiplication_int_int:
 					stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
 					sp--;
 					continue;
-				case Primitive.equal_int_int:
+				case equal_int_int:
 					stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
 					sp--;
 					continue;
-				case Primitive.greater_int_int:
+				case greater_int_int:
 					stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
 					sp--;
 					continue;
-				case Primitive.substraction_int_int:
+				case substraction_int_int:
 					stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
 					sp--;
 					continue;
