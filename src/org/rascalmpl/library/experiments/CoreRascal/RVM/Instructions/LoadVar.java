@@ -1,11 +1,13 @@
-package org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions;
+package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
+
+import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
 public class LoadVar extends Instruction {
 
 	int pos;
 	int scope;
 	
-	LoadVar(Instructions ins, int scope, int pos){
+	public LoadVar(CodeBlock ins, int scope, int pos){
 		super(ins, Opcode.LOADVAR);
 		this.scope = scope;
 		this.pos = pos;

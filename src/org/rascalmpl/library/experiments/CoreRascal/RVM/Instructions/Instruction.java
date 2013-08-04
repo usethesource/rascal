@@ -1,11 +1,13 @@
-package org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions;
+package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
+
+import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
 public abstract class Instruction {
 	
 	protected Opcode opcode;
-	protected Instructions ins;
+	protected CodeBlock ins;
 
-	Instruction(Instructions ins, Opcode opc){
+	Instruction(CodeBlock ins, Opcode opc){
 		this.opcode = opc;
 		this.ins = ins;
 	}

@@ -1,10 +1,12 @@
-package org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions;
+package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
+
+import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
 public class JmpTrue extends Instruction {
 
 	String label;
 	
-	JmpTrue(Instructions ins, String label){
+	public JmpTrue(CodeBlock ins, String label){
 		super(ins, Opcode.JMPTRUE);
 		this.label = label;
 	}

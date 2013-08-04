@@ -8,9 +8,8 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions.Instructions;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions.LoadCon;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions.Opcode;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadCon;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 //import org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions.OPCODE;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -20,6 +19,7 @@ public class RVM {
 	private IBool TRUE;
 	private IBool FALSE;
 	private boolean debug = true;
+	private boolean listing = false;
 	
 	private Map<String, Integer> constMap;
 	ArrayList<IValue> constStore;
@@ -55,10 +55,14 @@ public class RVM {
 		debug = b;
 	}
 	
+	public void setListing(boolean b){
+		listing = b;
+	}
+	
 	public void executeProgram(String main, IValue[] args) {
 
 		for(Function f : codeStore){
-			f.instructions.done(f.name, constMap, codeMap);
+			f.instructions.done(f.name, constMap, codeMap, false);
 		}
 		// Simulate a call to "main" here.
 		Function function = codeStore.get(codeMap.get(main));

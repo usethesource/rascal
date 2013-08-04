@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM;
 
-import org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions.Instructions;
 
 public class Function {
 	 final String name;
@@ -8,9 +7,9 @@ public class Function {
 	 final int nformals;
 	 final int nlocals;
 	 final int maxstack;
-	 final Instructions instructions;
+	 final CodeBlock instructions;
 	
-	public Function(String name, int scope, int nformals, int nlocals, int maxstack, Instructions instructions){
+	public Function(String name, int scope, int nformals, int nlocals, int maxstack, CodeBlock instructions){
 		this.name = name;
 		this.scope = scope;
 		this.nformals = nformals;

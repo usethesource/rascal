@@ -1,10 +1,12 @@
-package org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions;
+package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
+
+import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
 public class CallPrim extends Instruction {
 
 	int fun;
 	
-	CallPrim(Instructions ins, int fun){
+	public CallPrim(CodeBlock ins, int fun){
 		super(ins, Opcode.CALLPRIM);
 		this.fun = fun;
 	}

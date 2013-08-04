@@ -1,10 +1,12 @@
-package org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions;
+package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
+
+import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
 public class LoadCon extends Instruction {
 
 	String constant;
 	
-	LoadCon(Instructions ins, String constant){
+	public LoadCon(CodeBlock ins, String constant){
 		super(ins, Opcode.LOADCON);
 		this.constant = constant;
 	}

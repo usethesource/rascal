@@ -1,11 +1,13 @@
-package org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions;
+package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
+
+import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
 public class StoreVar extends Instruction {
 
 	int pos;
 	int scope;
 	
-	StoreVar(Instructions ins, int scope, int pos){
+	public StoreVar(CodeBlock ins, int scope, int pos){
 		super(ins, Opcode.STOREVAR);
 		this.scope = scope;
 		this.pos = pos;

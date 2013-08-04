@@ -1,10 +1,12 @@
-package org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions;
+package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
+
+import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
 public class StoreLoc extends  Instruction {
 
 	int pos;
 	
-	StoreLoc(Instructions ins, int pos){
+	public StoreLoc(CodeBlock ins, int pos){
 		super(ins, Opcode.STORELOC);
 		this.ins = ins;
 		this.pos = pos;
