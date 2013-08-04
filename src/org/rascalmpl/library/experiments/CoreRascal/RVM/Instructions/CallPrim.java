@@ -1,20 +1,21 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
 
 import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Primitive;
 
 public class CallPrim extends Instruction {
 
-	int fun;
+	Primitive prim;
 	
-	public CallPrim(CodeBlock ins, int fun){
+	public CallPrim(CodeBlock ins, Primitive prim){
 		super(ins, Opcode.CALLPRIM);
-		this.fun = fun;
+		this.prim = prim;
 	}
 	
-	public String toString() { return "CALLPRIM " + fun; }
+	public String toString() { return "CALLPRIM " + prim; }
 	
 	public void generate(){
 		ins.addCode(opcode.getOpcode());
-		ins.addCode(fun);
+		ins.addCode(prim.ordinal());
 	}
 }

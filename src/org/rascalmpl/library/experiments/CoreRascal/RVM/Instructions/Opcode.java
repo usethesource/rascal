@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
 
 import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Primitive;
 
 public enum Opcode {
 	LOADCON (0, 2),
@@ -20,10 +21,15 @@ public enum Opcode {
 	
 	private final int op;
 	private final int incr;
-	private final static Opcode[] myValues = Opcode.values();
 	
-	// TODO: compiler does not like NewOpcode.LOADCON.getOpcode() in case expressions
-	// There this hopefully temporary hack that introduces explicit constants:
+	private final static Opcode[] values = Opcode.values();
+	
+	public static Opcode fromInteger(int n){
+		return values[n];
+	}
+	
+	// TODO: compiler does not like Opcode.LOADCON.getOpcode() in case expressions
+	// Here is a -- hopefully temporary -- hack that introduces explicit constants:
 	// Beware! Should be in sync with the above operator codes!
 	public static final int OP_LOADCON = 0;
 	static public final int OP_LOADVAR = 1;
@@ -53,50 +59,51 @@ public enum Opcode {
 		return op;
 	}
 	
-	public static Opcode fromInteger(int op){
-		for (int i = 0; i < myValues.length; i++) {
-	        if (myValues[i].op == op) {
-	            return myValues[i];
-	        }
-	    }
-		throw new RuntimeException("Cannot happen: unrecognized opcode " + op);
-	}
-	
 	public static String toString(CodeBlock ins, Opcode opc, int pc){
 		switch(opc){
-		case POP: 
-			return "POP";
-		case CALL:
-			return "CALL " + ins.finalCode[pc + 1]  + " [" + ins.findCodeName(ins.finalCode[pc + 1]) + "]";
-		case CALLPRIM:
-			return "CALLPRIM " + ins.finalCode[pc + 1];
-		case HALT:
-			return "HALT";
-		case JMP:
-			return "JMP " + ins.finalCode[pc + 1];
-		case JMPFALSE:
-			return "JMPFALSE " + ins.finalCode[pc + 1];
-		case JMPTRUE:
-			return "JMPTRUE " + ins.finalCode[pc + 1];
-		case LABEL:
-			break;
 		case LOADCON:
 			return "LOADCON " + ins.finalCode[pc + 1]  + " [" + ins.findConstantName(ins.finalCode[pc + 1]) + "]";
-		case LOADLOC:
-			return "LOADLOC " + ins.finalCode[pc + 1];
+			
 		case LOADVAR:
 			return "LOADVAR " + ins.finalCode[pc + 1] + ", " + ins.finalCode[pc + 2];
-		case RETURN:
-			return "RETURN";
+			
+		case LOADLOC:
+			return "LOADLOC " + ins.finalCode[pc + 1];
+			
+		case STOREVAR:
+			return "STOREVAR " + ins.finalCode[pc + 1] + ", " + ins.finalCode[pc + 2];	
+			
 		case STORELOC:
 			return "STORELOC " + ins.finalCode[pc + 1];
-		case STOREVAR:
-			return "STOREVAR " + ins.finalCode[pc + 1] + ", " + ins.finalCode[pc + 2];			
+			
+		case CALL:
+			return "CALL " + ins.finalCode[pc + 1]  + " [" + ins.findCodeName(ins.finalCode[pc + 1]) + "]";
+			
+		case CALLPRIM:
+			return "CALLPRIM " + ins.finalCode[pc + 1] + " [" + Primitive.fromInteger(ins.finalCode[pc + 1]).name() + "]";
+			
+		case RETURN:
+			return "RETURN";
+			
+		case JMP:
+			return "JMP " + ins.finalCode[pc + 1];
+			
+		case JMPTRUE:
+			return "JMPTRUE " + ins.finalCode[pc + 1];
+			
+		case JMPFALSE:
+			return "JMPFALSE " + ins.finalCode[pc + 1];
+			
+		case LABEL:
+			break;
+			
+		case HALT:
+			return "HALT";
+			
+		case POP: 
+			return "POP";	
 		}
+		
 		throw new RuntimeException("Cannot happen: unrecognized opcode " + opc);
-	}
-
-	public static int getOpLoadcon() {
-		return LOADCON.ordinal();
 	}
 }

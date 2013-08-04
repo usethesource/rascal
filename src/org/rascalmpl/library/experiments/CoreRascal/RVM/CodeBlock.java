@@ -136,8 +136,8 @@ public class CodeBlock {
 		return add(new StoreVar(this, scope, pos));
 	}
 	
-	public CodeBlock callprim (int arg){
-		return add(new CallPrim(this, arg));
+	public CodeBlock callprim (Primitive prim){
+		return add(new CallPrim(this, prim));
 	}
     
 	public CodeBlock done(String fname, Map<String,Integer> constMap, Map<String, Integer> codeMap, boolean listing){
