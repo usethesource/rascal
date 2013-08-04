@@ -5,11 +5,12 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Function;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Primitive;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.RVM;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions.Instructions;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Fac {
 		
 	public static void main(String[] args) {
-		RVM rvm = new RVM();
+		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		
 		rvm.declareConst("ZERO", rvm.vf.integer(0));
 		rvm.declareConst("ONE", rvm.vf.integer(1));
