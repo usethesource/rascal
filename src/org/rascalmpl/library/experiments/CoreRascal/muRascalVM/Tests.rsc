@@ -20,4 +20,6 @@ public loc exmpl4 = |project://RascalStandardLibrary/src/experiments/CoreRascal/
 public void testit() {
 	RascalVM code = parse(readFile(exmpl4));
 	println("parsed: <code>");
+	tuple[value,int] r = executeProgram(code.directives, 1000);
+	println("it results in: <r[0]> and took: <r[1]>");
 }

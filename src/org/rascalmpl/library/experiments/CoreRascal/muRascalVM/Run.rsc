@@ -4,5 +4,5 @@ import experiments::CoreRascal::muRascalVM::AST;
 
 @javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.RVM}
 @reflect{Executes muRascalVM programs}
-public java int executeProgram(list[Directive] program);
+public java tuple[value,int] executeProgram(list[Directive] program, int repeats);
 
