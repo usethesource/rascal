@@ -106,12 +106,14 @@ public enum Opcode {
 			
 		case POP: 
 			return "POP";	
+			
 		case CALLDYN:
 			return "CALLDYN";
+			
 		case LOADFUN:
 			return "LOADFUN " + ins.finalCode[pc + 1]  + " [" + ins.findFunctionName(ins.finalCode[pc + 1]) + "]";
 		}
 		
-		throw new RuntimeException("Cannot happen: unrecognized opcode " + opc);
+		throw new RuntimeException("PANIC: unrecognized opcode " + opc);
 	}
 }
