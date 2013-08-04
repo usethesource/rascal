@@ -1,10 +1,10 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM.Examples;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Function;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Primitive;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.RVM;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions.Instructions;
 
 public class Fac {
 		
@@ -20,7 +20,7 @@ public class Fac {
 		rvm.declareRecursive("fac");
 		
 		rvm.declare(new Function("fac", 1, 1, 1, 6, 
-				new Instructions().
+				new CodeBlock().
 					loadloc(0).
 					loadcon("ONE").
 					callprim(Primitive.equal_int_int).
@@ -37,13 +37,13 @@ public class Fac {
 					ret()));
 		
 		rvm.declare(new Function("main_fac", 0, 0, 0, 7,
-				new Instructions().
+				new CodeBlock().
 					loadcon("THOUSAND").
 					call("fac").
 					halt()));
 		
 		rvm.declare(new Function("main_repeat", 0, 0, 2, 20,
-				new Instructions().
+				new CodeBlock().
 					loadcon("TEN").
 					storeloc(0). // n
 					loadcon("MANY").

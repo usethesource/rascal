@@ -1,4 +1,6 @@
-package org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions;
+package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
+
+import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
 public enum Opcode {
 	LOADCON (0, 2),
@@ -51,7 +53,7 @@ public enum Opcode {
 		return op;
 	}
 	
-	static Opcode fromInteger(int op){
+	public static Opcode fromInteger(int op){
 		for (int i = 0; i < myValues.length; i++) {
 	        if (myValues[i].op == op) {
 	            return myValues[i];
@@ -60,7 +62,7 @@ public enum Opcode {
 		throw new RuntimeException("Cannot happen: unrecognized opcode " + op);
 	}
 	
-	static String toString(Instructions ins, Opcode opc, int pc){
+	public static String toString(CodeBlock ins, Opcode opc, int pc){
 		switch(opc){
 		case POP: 
 			return "POP";

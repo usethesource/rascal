@@ -1,10 +1,12 @@
-package org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions;
+package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
+
+import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
 public class Label extends Instruction {
 
 	String label;
 	
-	Label(Instructions ins, String label){
+	public Label(CodeBlock ins, String label){
 		super(ins, Opcode.LABEL);
 		this.label = label;
 		ins.defLabel(label);

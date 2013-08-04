@@ -1,20 +1,37 @@
-package org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions;
+package org.rascalmpl.library.experiments.CoreRascal.RVM;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Instructions {
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Call;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallPrim;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Halt;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Instruction;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Jmp;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.JmpFalse;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.JmpTrue;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Label;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadCon;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLoc;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVar;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Pop;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreLoc;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreVar;
 
-	int[] finalCode;
+public class CodeBlock {
+
 	int pc;
 	ArrayList<Instruction> insList;
-	HashMap<String,Integer> labels;
+	public HashMap<String,Integer> labels;
 	private ArrayList<String> labelList;
-	Map<String, Integer> constMap;
-	Map<String, Integer> codeMap;
+	public Map<String, Integer> constMap;
+	public Map<String, Integer> codeMap;
+	public int[] finalCode;
 
-	public Instructions(){
+	public CodeBlock(){
 		labels = new HashMap<String,Integer>();
 		labelList = new ArrayList<String>();
 		insList = new ArrayList<Instruction>();
@@ -22,7 +39,7 @@ public class Instructions {
 		pc = 0;
 	}
 	
-	protected void defLabel(String label){
+	public void defLabel(String label){
 		int idx = labelList.indexOf(label);
 		if(idx < 0){
 			labelList.add(label);
@@ -39,7 +56,7 @@ public class Instructions {
 		return idx;
 	}
 	
-	protected String findConstantName(int n){
+	public String findConstantName(int n){
 		for(String cname : constMap.keySet()){
 			if(constMap.get(cname) == n){
 				return cname;
@@ -48,7 +65,7 @@ public class Instructions {
 		throw new RuntimeException("Cannot happen: undefined constant index " + n);
 	}
 	
-	protected String findCodeName(int n){
+	public String findCodeName(int n){
 		for(String cname : codeMap.keySet()){
 			if(codeMap.get(cname) == n){
 				return cname;
@@ -57,73 +74,73 @@ public class Instructions {
 		throw new RuntimeException("Cannot happen: undefined code index " + n);
 	}
 	
-	Instructions add(Instruction ins){
+	CodeBlock add(Instruction ins){
 		insList.add(ins);
 		pc += ins.pcIncrement();
 		return this;
 	}
 	
-	void addCode(int c){
+	public void addCode(int c){
 		finalCode[pc++] = c;
 	}
 	
-	public Instructions pop(){
+	public CodeBlock pop(){
 		return add(new Pop(this));
 	}
 	
-	public  Instructions halt(){
+	public  CodeBlock halt(){
 		return add(new Halt(this));
 	}
 	
-	public Instructions ret(){
+	public CodeBlock ret(){
 		return add(new Return(this));
 	}
 	
-	public Instructions label(String arg){
+	public CodeBlock label(String arg){
 		return add(new Label(this, arg));
 	}
 	
-	public Instructions loadcon(String arg){
+	public CodeBlock loadcon(String arg){
 		return add(new LoadCon(this, arg));
 	}
 	
-	public Instructions call(String arg){
+	public CodeBlock call(String arg){
 		return add(new Call(this, arg));
 	}
 	
-	public Instructions jmp(String arg){
+	public CodeBlock jmp(String arg){
 		return add(new Jmp(this, arg));
 	}
 	
-	public Instructions jmptrue(String arg){
+	public CodeBlock jmptrue(String arg){
 		return add(new JmpTrue(this, arg));
 	}
 	
-	public Instructions jmpfalse(String arg){
+	public CodeBlock jmpfalse(String arg){
 		return add(new JmpFalse(this, arg));
 	}
 	
-	public Instructions loadloc (int pos){
+	public CodeBlock loadloc (int pos){
 		return add(new LoadLoc(this, pos));
 	}
 	
-	public Instructions storeloc (int pos){
+	public CodeBlock storeloc (int pos){
 		return add(new StoreLoc(this, pos));
 	}
 	
-	public Instructions loadvar (int scope, int pos){
+	public CodeBlock loadvar (int scope, int pos){
 		return add(new LoadVar(this, scope, pos));
 	}
 	
-	public Instructions storevar (int scope, int pos){
+	public CodeBlock storevar (int scope, int pos){
 		return add(new StoreVar(this, scope, pos));
 	}
 	
-	public Instructions callprim (int arg){
+	public CodeBlock callprim (int arg){
 		return add(new CallPrim(this, arg));
 	}
     
-	public Instructions done(String fname, Map<String,Integer> constMap, Map<String, Integer> codeMap){
+	public CodeBlock done(String fname, Map<String,Integer> constMap, Map<String, Integer> codeMap, boolean listing){
 		this.constMap = constMap;
 		this.codeMap = codeMap;
 		int codeSize = pc;
@@ -132,7 +149,9 @@ public class Instructions {
 		for(Instruction ins : insList){
 			ins.generate();
 		}
-    	listing(fname);
+		if(listing){
+			listing(fname);
+		}
     	return this;
     }
     
