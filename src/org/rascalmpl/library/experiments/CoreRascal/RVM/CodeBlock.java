@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Call;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallDyn;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Halt;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Instruction;
@@ -13,6 +14,7 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.JmpFalse;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Label;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadCon;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLoc;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVar;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
@@ -63,6 +65,15 @@ public class CodeBlock {
 			}
 		}
 		throw new RuntimeException("Cannot happen: undefined constant index " + n);
+	}
+	
+	public String findFunctionName(int n){
+		for(String fname : codeMap.keySet()){
+			if(codeMap.get(fname) == n){
+				return fname;
+			}
+		}
+		throw new RuntimeException("Cannot happen: undefined function index " + n);
 	}
 	
 	public String findCodeName(int n){
@@ -138,6 +149,14 @@ public class CodeBlock {
 	
 	public CodeBlock callprim (Primitive prim){
 		return add(new CallPrim(this, prim));
+	}
+	
+	public CodeBlock loadfun (String name){
+		return add(new LoadFun(this, name));
+	}
+	
+	public CodeBlock calldyn(){
+		return add(new CallDyn(this));
 	}
     
 	public CodeBlock done(String fname, Map<String,Integer> constMap, Map<String, Integer> codeMap, boolean listing){

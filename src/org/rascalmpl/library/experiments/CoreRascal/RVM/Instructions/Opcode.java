@@ -17,7 +17,9 @@ public enum Opcode {
 	JMPFALSE (10, 2),
 	LABEL (11, 0),
 	HALT (12, 1),
-	POP (13, 1);
+	POP (13, 1),
+	CALLDYN(14,1),
+	LOADFUN(15,2);
 	
 	private final int op;
 	private final int incr;
@@ -45,6 +47,8 @@ public enum Opcode {
 	static public final int OP_LABEL = 11;
 	static public final int OP_HALT = 12;
 	static public final int OP_POP = 13;
+	static public final int OP_CALLDYN = 14;
+	static public final int OP_LOADFUN = 15;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -102,6 +106,10 @@ public enum Opcode {
 			
 		case POP: 
 			return "POP";	
+		case CALLDYN:
+			return "CALLDYN";
+		case LOADFUN:
+			return "LOADFUN " + ins.finalCode[pc + 1]  + " [" + ins.findFunctionName(ins.finalCode[pc + 1]) + "]";
 		}
 		
 		throw new RuntimeException("Cannot happen: unrecognized opcode " + opc);

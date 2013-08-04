@@ -95,7 +95,7 @@ public class RVM {
 			if (debug) {
 				int startpc = pc -1;
 				for (int i = 0; i < sp; i++) {
-					System.out.println("\t\t" + i + ": " + stack[i]);
+					System.out.println("\t" + i + ": " + stack[i]);
 				}
 				System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.instructions.toString(startpc));
 			}
@@ -104,6 +104,10 @@ public class RVM {
 
 			case Opcode.OP_LOADCON:
 				stack[sp++] = constantStore.get(instructions[pc++]);
+				continue;
+				
+			case Opcode.OP_LOADFUN:
+				stack[sp++] = functionStore.get(instructions[pc++]);
 				continue;
 
 			case Opcode.OP_LOADLOC:
@@ -167,8 +171,9 @@ public class RVM {
 			case Opcode.OP_LABEL:
 				throw new RuntimeException("Cannot happen: label instruction at runtime");
 
+			case Opcode.OP_CALLDYN:
 			case Opcode.OP_CALL:
-				Function fun = functionStore.get(instructions[pc++]);
+				Function fun = (op == Opcode.OP_CALL) ? functionStore.get(instructions[pc++]) : (Function)stack[--sp];
 				instructions = fun.instructions.getInstructions();
 				Frame nextFrame = new Frame(fun.scope, cf, fun.maxstack, fun);
 				for (int i = 0; i < fun.nformals; i++) {
