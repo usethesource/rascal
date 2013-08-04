@@ -5,7 +5,8 @@ public enum Primitive {
 	multiplication_int_int,
 	substraction_int_int,
 	equal_int_int,
-	greater_int_int;
+	greater_int_int,
+	subscript_list_int, addition_list_list;
 	
 	private static Primitive[] values = Primitive.values();
 

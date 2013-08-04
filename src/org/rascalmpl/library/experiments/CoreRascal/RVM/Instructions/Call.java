@@ -17,7 +17,7 @@ public class Call extends Instruction {
 		ins.addCode(opcode.getOpcode());
 		Object o = ins.codeMap.get(fun);
 		if(o == null){
-			throw new RuntimeException("Cannot happen: undefined constant " + fun);
+			throw new RuntimeException("PANIC: undefined constant " + fun);
 		}
 		ins.addCode((int)o);
 	}

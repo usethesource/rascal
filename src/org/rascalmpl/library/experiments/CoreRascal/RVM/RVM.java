@@ -43,7 +43,7 @@ public class RVM {
 	
 	public void declare(Function f){
 		if(functionMap.get(f.name) != null){
-			throw new RuntimeException("Double declaration of function: " + f.name);
+			throw new RuntimeException("PANIC: Double declaration of function: " + f.name);
 		}
 		functionMap.put(f.name, functionStore.size());
 		functionStore.add(f);
@@ -51,7 +51,7 @@ public class RVM {
 	
 	public void declareConst(String name, IValue val){
 		if(constantMap.get(name) != null){
-			throw new RuntimeException("Double declaration of constant: " + name);
+			throw new RuntimeException("PANIC: Double declaration of constant: " + name);
 		}
 		constantMap.put(name, constantStore.size());
 		constantStore.add(val);
@@ -74,12 +74,12 @@ public class RVM {
 		
 		Function function = functionStore.get(functionMap.get(main));
 		if (function == null) {
-			throw new RuntimeException("Code for main not found: " + main);
+			throw new RuntimeException("PANIC: Code for main not found: " + main);
 		}
 		Frame cf = new Frame(0, null, function.maxstack, function);
 		Object[] stack = cf.stack;
 		if (args.length != function.nformals) {
-			throw new RuntimeException(main	+ " called with wrong number of arguaments: " + args.length);
+			throw new RuntimeException("PANIC: " + main	+ " called with wrong number of arguaments: " + args.length);
 		}
 		for (int i = 0; i < args.length; i++) {
 			stack[i] = args[i];
@@ -123,7 +123,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new RuntimeException("Cannot happen: load var cannot find matching scope: " + s);
+					throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
 				}
 			
 			case Opcode.OP_STORELOC: {
@@ -142,7 +142,7 @@ public class RVM {
 					}
 				}
 				
-				throw new RuntimeException("Cannot happen: load var cannot find matching scope: " + s);
+				throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
 
 			case Opcode.OP_JMP:
 				pc = instructions[pc];
@@ -169,14 +169,14 @@ public class RVM {
 				continue;
 
 			case Opcode.OP_LABEL:
-				throw new RuntimeException("Cannot happen: label instruction at runtime");
+				throw new RuntimeException("PANIC: label instruction at runtime");
 
 			case Opcode.OP_CALLDYN:
 			case Opcode.OP_CALL:
 				Function fun = (op == Opcode.OP_CALL) ? functionStore.get(instructions[pc++]) : (Function)stack[--sp];
 				instructions = fun.instructions.getInstructions();
 				Frame nextFrame = new Frame(fun.scope, cf, fun.maxstack, fun);
-				for (int i = 0; i < fun.nformals; i++) {
+				for (int i = fun.nformals - 1; i >= 0; i--) {
 					nextFrame.stack[i] = stack[sp - fun.nformals + i];
 				}
 				cf.pc = pc;
@@ -198,33 +198,6 @@ public class RVM {
 				pc = cf.pc;
 				stack[sp++] = rval;
 				continue;
-
-			case Opcode.OP_CALLPRIM:
-				Primitive prim = Primitive.fromInteger(instructions[pc++]);
-				switch (prim) {
-				case addition_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2]).add((IInteger) stack[sp - 1]);
-					sp--;
-					continue;
-				case multiplication_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
-					sp--;
-					continue;
-				case equal_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
-					sp--;
-					continue;
-				case greater_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
-					sp--;
-					continue;
-				case substraction_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
-					sp--;
-					continue;
-				default:
-					throw new RuntimeException("Cannot happen: unknown primitive  " + instructions[pc-1]);
-				}
 				
 			case Opcode.OP_HALT:
 				if (debug) {
@@ -235,8 +208,83 @@ public class RVM {
 				}
 				return stack[sp - 1];
 				
+			case Opcode.OP_CALLPRIM:
+				Primitive prim = Primitive.fromInteger(instructions[pc++]);
+				switch (prim) {
+				
+			/* addition */
+				case addition_int_int:
+					stack[sp - 2] = ((IInteger) stack[sp - 2]).add((IInteger) stack[sp - 1]);
+					sp--;
+					continue;
+				case addition_list_list:
+					stack[sp - 2] = Primitives.addition_list_list((IList) stack[sp - 2], (IList) stack[sp - 1]);
+					sp--;
+					continue;
+			/* appendAfter */
+			/* asType */
+			/* composition */
+			/* division */
+			/* equals */
+				case equal_int_int:
+					stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
+					sp--;
+					continue;
+			/* fieldAccess */
+			/* fieldUpdate */
+			/* fieldProject */
+			/* getAnnotation */
+			/* greater */
+				case greater_int_int:
+					stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
+					sp--;
+					continue;
+			/* greaterThan */
+			/* greaterThanOrEq */
+			/* has */
+			/* insertBefore */
+			/* intersection */
+			/* in */
+			/* is */
+			/* isDefined */
+			/* join */
+			/* lessThan */
+			/* lessThanOrEq */
+			/* mod */
+			/* multiplication */
+				case multiplication_int_int:
+					stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
+					sp--;
+					continue;
+			/* negation */
+			/* negative */
+			/* nonEquals */
+			/* product */
+			/* remainder */
+			/* slice */
+			/* splice */
+			/* setAnnotation */
+			
+			/* subscript */
+				case subscript_list_int:
+					stack[sp - 2] = Primitives.subscript_list_int((IList) stack[sp - 2], (IInteger) stack[sp - 1]);
+					sp--;
+					continue;
+					
+			/* substraction */	
+				case substraction_int_int:
+					stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
+					sp--;
+					continue;
+			/* transitiveClosure */
+			/* transitiveRefleixiveClosure */
+					
+				default:
+					throw new RuntimeException("PANIC: unknown primitive  " + instructions[pc-1]);
+				}
+				
 			default:
-				throw new RuntimeException("Cannot happen: RVM main loop -- cannot decode instruction");
+				throw new RuntimeException("PANIC: RVM main loop -- cannot decode instruction");
 			}
 		}
 	}
@@ -269,7 +317,7 @@ public class RVM {
 			} else if(constr.equals("function")) {
 				functions.add(directive);
 			} else {
-				throw new RuntimeException("Unknown directive: " + constr);
+				throw new RuntimeException("PANIC: Unknown directive: " + constr);
 			}
 		}
 		
@@ -318,7 +366,7 @@ public class RVM {
 					} else if(operand.equals("substraction_int_int")) {
 						instructions = instructions.callprim(Primitive.substraction_int_int);
 					} else {
-						throw new RuntimeException("Unknown primitive operation: " + operand);
+						throw new RuntimeException("PANIC: Unknown primitive operation: " + operand);
 					}
 					
 				} else if(opcode.equals("CALL")) {
@@ -334,7 +382,7 @@ public class RVM {
 				} else if(opcode.equals("HALT")) {
 					instructions = instructions.halt();
 				} else { 
-					throw new RuntimeException("Unknown instruction: " + opcode + " has been used");
+					throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 				}
 				
 			}

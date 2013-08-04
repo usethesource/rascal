@@ -17,7 +17,7 @@ public class LoadFun extends Instruction {
 		ins.addCode(opcode.getOpcode());
 		Object o = ins.codeMap.get(function);
 		if(o == null){
-			throw new RuntimeException("Cannot happen: undefined function " + function);
+			throw new RuntimeException("PANIC: undefined function " + function);
 		}
 		ins.addCode((int)o);
 	}

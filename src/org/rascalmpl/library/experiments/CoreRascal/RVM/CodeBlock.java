@@ -64,7 +64,7 @@ public class CodeBlock {
 				return cname;
 			}
 		}
-		throw new RuntimeException("Cannot happen: undefined constant index " + n);
+		throw new RuntimeException("PANIC: undefined constant index " + n);
 	}
 	
 	public String findFunctionName(int n){
@@ -73,7 +73,7 @@ public class CodeBlock {
 				return fname;
 			}
 		}
-		throw new RuntimeException("Cannot happen: undefined function index " + n);
+		throw new RuntimeException("PANIC: undefined function index " + n);
 	}
 	
 	public String findCodeName(int n){
@@ -82,7 +82,7 @@ public class CodeBlock {
 				return cname;
 			}
 		}
-		throw new RuntimeException("Cannot happen: undefined code index " + n);
+		throw new RuntimeException("PANIC: undefined code index " + n);
 	}
 	
 	CodeBlock add(Instruction ins){

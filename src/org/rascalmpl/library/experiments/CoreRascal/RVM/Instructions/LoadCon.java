@@ -17,7 +17,7 @@ public class LoadCon extends Instruction {
 		ins.addCode(opcode.getOpcode());
 		Object o = ins.constMap.get(constant);
 		if(o == null){
-			throw new RuntimeException("Cannot happen: undefined constant " + constant);
+			throw new RuntimeException("PANIC: undefined constant " + constant);
 		}
 		ins.addCode((int)o);
 	}
