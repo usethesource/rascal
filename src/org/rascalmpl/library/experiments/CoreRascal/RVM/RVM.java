@@ -2,17 +2,22 @@ package org.rascalmpl.library.experiments.CoreRascal.RVM;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions.Instructions;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions.LoadCon;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions.Opcode;
-//import org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions.OPCODE;
 import org.rascalmpl.values.ValueFactoryFactory;
+//import org.rascalmpl.library.experiments.CoreRascal.RVM.AllInstructions.OPCODE;
 
 public class RVM {
 
@@ -27,8 +32,8 @@ public class RVM {
 	private ArrayList<Function> codeStore;
 	private Map<String, Integer> codeMap;
 
-	public RVM() {
-		vf = ValueFactoryFactory.getValueFactory();
+	public RVM(IValueFactory vf) {
+		this.vf = vf;
 		TRUE = vf.bool(true);
 		FALSE = vf.bool(false);
 		constStore = new ArrayList<IValue>();
@@ -55,7 +60,7 @@ public class RVM {
 		debug = b;
 	}
 	
-	public void executeProgram(String main, IValue[] args) {
+	public IValue executeProgram(String main, IValue[] args) {
 
 		for(Function f : codeStore){
 			f.instructions.done(f.name, constMap, codeMap);
@@ -160,7 +165,7 @@ public class RVM {
 				instructions = fun.instructions.getInstructions();
 				Frame nextFrame = new Frame(fun.scope, cf, fun.maxstack, fun);
 				for (int i = 0; i < fun.nformals; i++) {
-					nextFrame.stack[i] = stack[sp - i - 1];
+					nextFrame.stack[i] = stack[sp - fun.nformals + i];
 				}
 				cf.pc = pc;
 				cf.sp = sp - fun.nlocals;
@@ -176,7 +181,7 @@ public class RVM {
 				IValue rval = stack[sp - 1];
 				cf = cf.previous;
 				if (cf == null)
-					return;
+					return rval;
 				instructions = cf.function.instructions.getInstructions();
 				stack = cf.stack;
 				sp = cf.sp;
@@ -217,7 +222,7 @@ public class RVM {
 						System.out.println(i + ": " + stack[i]);
 					}
 				}
-				return;
+				return stack[sp - 1];
 				
 			default:
 				throw new RuntimeException("Cannot happen: RVM main loop -- cannot decode instruction");
@@ -225,6 +230,113 @@ public class RVM {
 		}
 	}
 
-	
+	public ITuple executeProgram(IList directives, IInteger repeats, IEvaluatorContext ctx) {
+		String func = "main";
+		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
+		List<IValue> functions = new ArrayList<>();
+		for(IValue directive : directives) {
+			String constr = ((IConstructor) directive).getName();
+			String name = null;
+			
+			// Loading constants
+			if(constr.equals("intconst")) {
+				name = ((IString) ((IConstructor) directive).get("value")).getValue();
+				rvm.declareConst(name, rvm.vf.integer(name));
+			} else if(constr.equals("relconst")) {
+				name = ((IString) ((IConstructor) directive).get("value")).getValue();
+				rvm.declareConst(name, rvm.vf.real(name));
+			} else if(constr.equals("ratconst")) {
+				name = ((IString) ((IConstructor) directive).get("value")).getValue();
+				rvm.declareConst(name, rvm.vf.rational(name));
+			} else if(constr.equals("boolconst")) {
+				name = ((IString) ((IConstructor) directive).get("value")).getValue();
+				if(name.equals("TRUE")) {
+					rvm.declareConst(name, rvm.TRUE);
+				} else if(name.equals("FALSE")) {
+					rvm.declareConst(name, rvm.FALSE);
+				}
+			} else if(constr.equals("function")) {
+				functions.add(directive);
+			} else {
+				throw new RuntimeException("Unknown directive: " + constr);
+			}
+		}
+		
+		// Loading directives
+		for(IValue f : functions) {
+			IConstructor directive = (IConstructor) f;
+			String name = ((IString) directive.get("name")).getValue();
+			Integer scope = ((IInteger) directive.get("scope")).intValue();
+			Integer nlocals = ((IInteger) directive.get("nlocals")).intValue();
+			Integer nformals = ((IInteger) directive.get("nformals")).intValue();
+			Integer maxstack = ((IInteger) directive.get("maxStack")).intValue();
+			IList code = (IList) directive.get("instructions");
+			Instructions instructions = new Instructions();
+			
+			// Loading instructions
+			for(int i = 0; i < code.length(); i++) {
+				IConstructor instruction = (IConstructor) code.get(i);
+				String opcode = ((IString) instruction.get("opcode")).getValue();
+				IList operands = (IList) instruction.get("operands");
+				
+				if(opcode.equals("LOADCON")) {
+					instructions = instructions.loadcon(((IString) operands.get(0)).getValue());
+				} else if(opcode.equals("LOADVAR")) {
+					instructions = instructions.loadvar(Integer.parseInt(((IString) operands.get(0)).getValue()), 
+														Integer.parseInt(((IString) operands.get(1)).getValue()));
+				} else if(opcode.equals("LOADLOC")) {
+					instructions = instructions.loadloc(Integer.parseInt(((IString) operands.get(0)).getValue()));
+				} else if(opcode.equals("STOREVAR")) {
+					instructions = instructions.storevar(Integer.parseInt(((IString) operands.get(0)).getValue()), 
+														 Integer.parseInt(((IString) operands.get(1)).getValue()));
+				} else if(opcode.equals("STORELOC")) {
+					instructions = instructions.storeloc(Integer.parseInt(((IString) operands.get(0)).getValue()));
+				} else if(opcode.equals("LABEL")) {
+					instructions = instructions.label(((IString) operands.get(0)).getValue());
+				} else if(opcode.equals("CALLPRIM")) {
+					String operand = ((IString) operands.get(0)).getValue();
+					
+					if(operand.equals("addition_int_int")) {
+						instructions = instructions.callprim(Primitive.addition_int_int);
+					} else if(operand.equals("equal_int_int")) {
+						instructions = instructions.callprim(Primitive.equal_int_int);
+					} else if(operand.equals("greater_int_int")) {
+						instructions = instructions.callprim(Primitive.greater_int_int);
+					} else if(operand.equals("multiplication_int_int")) {
+						instructions = instructions.callprim(Primitive.multiplication_int_int);
+					} else if(operand.equals("substraction_int_int")) {
+						instructions = instructions.callprim(Primitive.substraction_int_int);
+					} else {
+						throw new RuntimeException("Unknown primitive operation: " + operand);
+					}
+					
+				} else if(opcode.equals("CALL")) {
+					instructions = instructions.call(((IString) operands.get(0)).getValue());
+				} else if(opcode.equals("RETURN")) {
+					instructions = instructions.ret();
+				} else if(opcode.equals("JMP")) {
+					instructions = instructions.jmp(((IString) operands.get(0)).getValue());
+				} else if(opcode.equals("JMPTRUE")) {
+					instructions = instructions.jmptrue(((IString) operands.get(0)).getValue());
+				} else if(opcode.equals("JMPFALSE")) {
+					instructions = instructions.jmpfalse(((IString) operands.get(0)).getValue());
+				} else if(opcode.equals("HALT")) {
+					instructions = instructions.halt();
+				} else { 
+					throw new RuntimeException("Unknown instruction: " + opcode + " has been used");
+				}
+				
+			}
+			rvm.declare(new Function(name, scope, nformals, nlocals, maxstack, instructions));
+		}
+		
+		long start = System.currentTimeMillis();
+		IValue result = null;
+		for(int i = 0; i < repeats.intValue(); i++)
+			result = rvm.executeProgram(func, new IValue[] {});
+		long now = System.currentTimeMillis();
+		return vf.tuple(result, vf.integer(now - start));
+
+	}
 
 }
