@@ -46,7 +46,10 @@ lexical Opcode =
 		;
 	
 keyword Keywords = 
-		  "CONST"
+		  "I-CONST"
+		| "REL-CONST"
+		| "RAT-CONST"
+		| "B-CONST"
 		| "FUNCTION"
 		
 		| "LOADCON"
