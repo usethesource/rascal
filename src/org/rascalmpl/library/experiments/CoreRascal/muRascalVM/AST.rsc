@@ -3,7 +3,10 @@ module experiments::CoreRascal::muRascalVM::AST
 public data Instruction = instruction(str opcode, list[str] operands);
 
 public data Directive = 
-		  const(str \value)
+		  intconst(str \value)
+		| relconst(str \value)
+		| ratconst(str \value)
+		| boolconst(str \value)
 		| function(str name, int scope, int nlocals, int nformals, int maxStack, list[Instruction] instructions)
 		;
 

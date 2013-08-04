@@ -46,7 +46,10 @@ lexical Opcode =
 		;
 	
 keyword Keywords = 
-		  "CONST"
+		  "I-CONST"
+		| "REL-CONST"
+		| "RAT-CONST"
+		| "B-CONST"
 		| "FUNCTION"
 		
 		| "LOADCON"
@@ -72,8 +75,11 @@ syntax Operand = [\ ] << Identifier;
 syntax Instruction = instruction: Opcode opcode Operand* operands;
 
 syntax Directive =
-		  const:     "CONST"    Identifier value 
-		| function : "FUNCTION" Identifier name Integer scope Integer nlocals Integer nformals Integer maxStack Instruction+ instructions
+		  intconst:  "I-CONST"   Identifier value
+		| relconst:  "REL-CONST" Identifier value
+		| ratconst:  "RAT-CONST" Identifier value
+		| boolconst: "B-CONST"   Identifier value
+		| function : "FUNCTION"  Identifier name Integer scope Integer nlocals Integer nformals Integer maxStack Instruction+ instructions
 		;
 	
 syntax RascalVM = vm: { Directive ";"}+ directives ";" Instruction* instructions;
