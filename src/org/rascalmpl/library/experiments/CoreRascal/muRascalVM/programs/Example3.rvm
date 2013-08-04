@@ -1,7 +1,9 @@
+I-CONST 1;
+I-CONST 4;
 FUNCTION fac 1 2 2 6              /* two-parameter fac(n,accum) = if(n == 1) then accum else fac(n-1, n*accum) */
 LABEL L0
 LOADLOC 0
-LOADCON ONE
+LOADCON 1
 CALLPRIM equal_int_int
 JMPFALSE L
 LOADLOC 1                         /* loads accum local variable */
@@ -12,15 +14,15 @@ LOADLOC 1                         /* loads accum */
 CALLPRIM multiplication_int_int   /* multiply: note!!! the reverse order due to STORELOC before JMP */
 STORELOC 1
 LOADLOC 0
-LOADCON ONE
+LOADCON 1
 CALLPRIM substraction_int_int
 STORELOC 0
 JMP L0                            /* make a jump in place of tail call */
 RETURN
 ;
 FUNCTION main 0 0 0 7
-LOADCON FOUR
-LOADCON ONE
+LOADCON 4
+LOADCON 1
 CALL fac
 HALT
 RETURN
