@@ -9,10 +9,12 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.ast.Visibility.Public;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -208,6 +210,8 @@ public class RVM {
 				}
 				return stack[sp - 1];
 				
+			/* Handle all primitives */
+				
 			case Opcode.OP_CALLPRIM:
 				Primitive prim = Primitive.fromInteger(instructions[pc++]);
 				switch (prim) {
@@ -268,6 +272,16 @@ public class RVM {
 			/* subscript */
 				case subscript_list_int:
 					stack[sp - 2] = Primitives.subscript_list_int((IList) stack[sp - 2], (IInteger) stack[sp - 1]);
+					sp--;
+					continue;
+					
+				case subscript_map:
+					stack[sp - 2] = Primitives.subscript_map((IMap) stack[sp - 2], (IValue) stack[sp - 1]);
+					sp--;
+					continue;
+					
+				case subscript2:
+					stack[sp - 3] = Primitives.subscript2((IValue) stack[sp - 3],  (IValue) stack[sp - 2], (IValue) stack[sp - 1]);
 					sp--;
 					continue;
 					
