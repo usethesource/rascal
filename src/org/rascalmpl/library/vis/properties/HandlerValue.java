@@ -22,7 +22,7 @@ public class HandlerValue extends PropertyValue<IValue>  {
 	}
 	
 	public IValue execute(ICallbackEnv env,Type[] types,IValue[] args){
-		value =env.executeRascalCallBack(fun, types, args).getValue();
+		value = env.executeRascalCallBack(fun, types, args).getValue();
 		return value;
 	}
 
