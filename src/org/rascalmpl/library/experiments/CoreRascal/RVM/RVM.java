@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,12 +10,10 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.ast.Visibility.Public;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -41,6 +40,7 @@ public class RVM {
 		functionStore = new ArrayList<Function>();
 		constantMap = new HashMap<String, Integer>();
 		functionMap = new HashMap<String, Integer>();
+		Primitives.init(vf);
 	}
 	
 	public void declare(Function f){
@@ -91,6 +91,7 @@ public class RVM {
 		int pc = 0;
 		int sp = function.nlocals;
 
+		try {
 	NEXT_INSTRUCTION: while (true) {
 			int op = instructions[pc++];
 		
@@ -210,97 +211,26 @@ public class RVM {
 				}
 				return stack[sp - 1];
 				
-			/* Handle all primitives */
-				
 			case Opcode.OP_CALLPRIM:
 				Primitive prim = Primitive.fromInteger(instructions[pc++]);
-				switch (prim) {
-				
-			/* addition */
-				case addition_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2]).add((IInteger) stack[sp - 1]);
-					sp--;
-					continue;
-				case addition_list_list:
-					stack[sp - 2] = Primitives.addition_list_list((IList) stack[sp - 2], (IList) stack[sp - 1]);
-					sp--;
-					continue;
-			/* appendAfter */
-			/* asType */
-			/* composition */
-			/* division */
-			/* equals */
-				case equal_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
-					sp--;
-					continue;
-			/* fieldAccess */
-			/* fieldUpdate */
-			/* fieldProject */
-			/* getAnnotation */
-			/* greater */
-				case greater_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
-					sp--;
-					continue;
-			/* greaterThan */
-			/* greaterThanOrEq */
-			/* has */
-			/* insertBefore */
-			/* intersection */
-			/* in */
-			/* is */
-			/* isDefined */
-			/* join */
-			/* lessThan */
-			/* lessThanOrEq */
-			/* mod */
-			/* multiplication */
-				case multiplication_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
-					sp--;
-					continue;
-			/* negation */
-			/* negative */
-			/* nonEquals */
-			/* product */
-			/* remainder */
-			/* slice */
-			/* splice */
-			/* setAnnotation */
-			
-			/* subscript */
-				case subscript_list_int:
-					stack[sp - 2] = Primitives.subscript_list_int((IList) stack[sp - 2], (IInteger) stack[sp - 1]);
-					sp--;
-					continue;
-					
-				case subscript_map:
-					stack[sp - 2] = Primitives.subscript_map((IMap) stack[sp - 2], (IValue) stack[sp - 1]);
-					sp--;
-					continue;
-					
-				case subscript2:
-					stack[sp - 3] = Primitives.subscript2((IValue) stack[sp - 3],  (IValue) stack[sp - 2], (IValue) stack[sp - 1]);
-					sp--;
-					continue;
-					
-			/* substraction */	
-				case substraction_int_int:
-					stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
-					sp--;
-					continue;
-			/* transitiveClosure */
-			/* transitiveRefleixiveClosure */
-					
-				default:
-					throw new RuntimeException("PANIC: unknown primitive  " + instructions[pc-1]);
-				}
+				sp = prim.invoke(stack,  sp);
+				continue;
 				
 			default:
 				throw new RuntimeException("PANIC: RVM main loop -- cannot decode instruction");
 			}
 		}
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return FALSE;
 	}
 
 	public ITuple executeProgram(IList directives, IInteger repeats, IEvaluatorContext ctx) {
@@ -381,8 +311,10 @@ public class RVM {
 					instructions = instructions.label(((IString) operands.get(0)).getValue());
 					break;
 				case "CALLPRIM":
-					String operand = ((IString) operands.get(0)).getValue();
-					
+					instructions = instructions.callprim(Primitive.valueOf(((IString) operands.get(0)).getValue()));
+							
+					/* String operand = ((IString) operands.get(0)).getValue();
+				
 					switch(operand) {
 					case "addition_int_int":
 						instructions = instructions.callprim(Primitive.addition_int_int);
@@ -402,6 +334,7 @@ public class RVM {
 					default:
 						throw new RuntimeException("PANIC: Unknown primitive operation: " + operand);
 					}
+					*/
 					break;
 				case "CALL":
 					instructions = instructions.call(((IString) operands.get(0)).getValue());
