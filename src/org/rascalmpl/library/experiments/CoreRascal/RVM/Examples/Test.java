@@ -35,6 +35,7 @@ public class Test {
 						loadcon("3").
 						loadcon("3").
 						callprim(Primitive.make_list).
+						loadcon("1").callprim(Primitive.appendAfter).
 						halt()));
 	
 		rvm.executeProgram("main", new IValue[] {});

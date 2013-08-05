@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +39,7 @@ public class RVM {
 		functionStore = new ArrayList<Function>();
 		constantMap = new HashMap<String, Integer>();
 		functionMap = new HashMap<String, Integer>();
-		Primitives.init(vf);
+		Primitive.init(vf);
 	}
 	
 	public void declare(Function f){
@@ -69,55 +68,55 @@ public class RVM {
 	
 	public Object executeProgram(String main, IValue[] args) {
 
-		for(Function f : functionStore){
+		for (Function f : functionStore) {
 			f.instructions.done(f.name, constantMap, functionMap, listing);
 		}
 		// Perform a call to "main"
-		
+
 		Function function = functionStore.get(functionMap.get(main));
 		if (function == null) {
-			throw new RuntimeException("PANIC: Code for main not found: " + main);
+			throw new RuntimeException("PANIC: Code for main not found: "+ main);
 		}
 		Frame cf = new Frame(0, null, function.maxstack, function);
 		Object[] stack = cf.stack;
 		if (args.length != function.nformals) {
-			throw new RuntimeException("PANIC: " + main	+ " called with wrong number of arguaments: " + args.length);
+			throw new RuntimeException("PANIC: " + main + " called with wrong number of arguaments: " + args.length);
 		}
 		for (int i = 0; i < args.length; i++) {
 			stack[i] = args[i];
 		}
-		
+
 		int[] instructions = function.instructions.getInstructions();
 		int pc = 0;
 		int sp = function.nlocals;
 
 		try {
-	NEXT_INSTRUCTION: while (true) {
-			int op = instructions[pc++];
-		
-			if (debug) {
-				int startpc = pc -1;
-				for (int i = 0; i < sp; i++) {
-					System.out.println("\t" + i + ": " + stack[i]);
+			NEXT_INSTRUCTION: while (true) {
+				int op = instructions[pc++];
+
+				if (debug) {
+					int startpc = pc - 1;
+					for (int i = 0; i < sp; i++) {
+						System.out.println("\t" + i + ": " + stack[i]);
+					}
+					System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.instructions.toString(startpc));
 				}
-				System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.instructions.toString(startpc));
-			}
-			
-			switch (op) {
 
-			case Opcode.OP_LOADCON:
-				stack[sp++] = constantStore.get(instructions[pc++]);
-				continue;
-				
-			case Opcode.OP_LOADFUN:
-				stack[sp++] = functionStore.get(instructions[pc++]);
-				continue;
+				switch (op) {
 
-			case Opcode.OP_LOADLOC:
+				case Opcode.OP_LOADCON:
+					stack[sp++] = constantStore.get(instructions[pc++]);
+					continue;
+
+				case Opcode.OP_LOADFUN:
+					stack[sp++] = functionStore.get(instructions[pc++]);
+					continue;
+
+				case Opcode.OP_LOADLOC:
 					stack[sp++] = stack[instructions[pc++]];
 					continue;
-			
-			case Opcode.OP_LOADVAR: {
+
+				case Opcode.OP_LOADVAR: {
 					int s = instructions[pc++];
 					int pos = instructions[pc++];
 					for (Frame fr = cf.previous; fr != null; fr = fr.previous) {
@@ -128,106 +127,102 @@ public class RVM {
 					}
 					throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
 				}
-			
-			case Opcode.OP_STORELOC: {
+
+				case Opcode.OP_STORELOC: {
 					stack[instructions[pc++]] = stack[--sp];
 					continue;
 				}
-			
-			case Opcode.OP_STOREVAR:
-				int s = instructions[pc++];
-				int pos = instructions[pc++];
-				
-				for (Frame fr = cf.previous; fr != null; fr = fr.previous) {
-					if (fr.scope == s) {
-						fr.stack[pos] = stack[--sp];
-						continue NEXT_INSTRUCTION;
+
+				case Opcode.OP_STOREVAR:
+					int s = instructions[pc++];
+					int pos = instructions[pc++];
+
+					for (Frame fr = cf.previous; fr != null; fr = fr.previous) {
+						if (fr.scope == s) {
+							fr.stack[pos] = stack[--sp];
+							continue NEXT_INSTRUCTION;
+						}
 					}
-				}
-				
-				throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
 
-			case Opcode.OP_JMP:
-				pc = instructions[pc];
-				continue;
+					throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
 
-			case Opcode.OP_JMPTRUE:
-				if (stack[sp - 1].equals(TRUE)) {
+				case Opcode.OP_JMP:
 					pc = instructions[pc];
-				} else
-					pc++;
-				sp--;
-				continue;
-				
-			case Opcode.OP_JMPFALSE:
-				if (stack[sp - 1].equals(FALSE)) {
-					pc = instructions[pc];
-				} else
-					pc++;
-				sp--;
-				continue;
-				
-			case Opcode.OP_POP:
-				sp--;
-				continue;
+					continue;
 
-			case Opcode.OP_LABEL:
-				throw new RuntimeException("PANIC: label instruction at runtime");
+				case Opcode.OP_JMPTRUE:
+					if (stack[sp - 1].equals(TRUE)) {
+						pc = instructions[pc];
+					} else
+						pc++;
+					sp--;
+					continue;
 
-			case Opcode.OP_CALLDYN:
-			case Opcode.OP_CALL:
-				Function fun = (op == Opcode.OP_CALL) ? functionStore.get(instructions[pc++]) : (Function)stack[--sp];
-				instructions = fun.instructions.getInstructions();
-				Frame nextFrame = new Frame(fun.scope, cf, fun.maxstack, fun);
-				for (int i = fun.nformals - 1; i >= 0; i--) {
-					nextFrame.stack[i] = stack[sp - fun.nformals + i];
-				}
-				cf.pc = pc;
-				cf.sp = sp - fun.nlocals;
-				cf = nextFrame;
-				stack = cf.stack;
-				sp = fun.nlocals;
-				pc = 0;
-				continue;
+				case Opcode.OP_JMPFALSE:
+					if (stack[sp - 1].equals(FALSE)) {
+						pc = instructions[pc];
+					} else
+						pc++;
+					sp--;
+					continue;
 
-			case Opcode.OP_RETURN:
-				Object rval = stack[sp - 1];
-				cf = cf.previous;
-				if (cf == null)
-					return rval;
-				instructions = cf.function.instructions.getInstructions();
-				stack = cf.stack;
-				sp = cf.sp;
-				pc = cf.pc;
-				stack[sp++] = rval;
-				continue;
-				
-			case Opcode.OP_HALT:
-				if (debug) {
-					System.out.println("Program halted:");
-					for (int i = 0; i < sp; i++) {
-						System.out.println(i + ": " + stack[i]);
+				case Opcode.OP_POP:
+					sp--;
+					continue;
+
+				case Opcode.OP_LABEL:
+					throw new RuntimeException(
+							"PANIC: label instruction at runtime");
+
+				case Opcode.OP_CALLDYN:
+				case Opcode.OP_CALL:
+					Function fun = (op == Opcode.OP_CALL) ? functionStore.get(instructions[pc++]) : (Function) stack[--sp];
+					instructions = fun.instructions.getInstructions();
+					Frame nextFrame = new Frame(fun.scope, cf, fun.maxstack,
+							fun);
+					for (int i = fun.nformals - 1; i >= 0; i--) {
+						nextFrame.stack[i] = stack[sp - fun.nformals + i];
 					}
+					cf.pc = pc;
+					cf.sp = sp - fun.nlocals;
+					cf = nextFrame;
+					stack = cf.stack;
+					sp = fun.nlocals;
+					pc = 0;
+					continue;
+
+				case Opcode.OP_RETURN:
+					Object rval = stack[sp - 1];
+					cf = cf.previous;
+					if (cf == null)
+						return rval;
+					instructions = cf.function.instructions.getInstructions();
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					stack[sp++] = rval;
+					continue;
+
+				case Opcode.OP_HALT:
+					if (debug) {
+						System.out.println("Program halted:");
+						for (int i = 0; i < sp; i++) {
+							System.out.println(i + ": " + stack[i]);
+						}
+					}
+					return stack[sp - 1];
+
+				case Opcode.OP_CALLPRIM:
+					Primitive prim = Primitive.fromInteger(instructions[pc++]);
+					sp = prim.invoke(stack, sp);
+					continue;
+
+				default:
+					throw new RuntimeException("PANIC: RVM main loop -- cannot decode instruction");
 				}
-				return stack[sp - 1];
-				
-			case Opcode.OP_CALLPRIM:
-				Primitive prim = Primitive.fromInteger(instructions[pc++]);
-				sp = prim.invoke(stack,  sp);
-				continue;
-				
-			default:
-				throw new RuntimeException("PANIC: RVM main loop -- cannot decode instruction");
 			}
-		}
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
+			System.err.println("PANIC: exception caused by invoking a primitive");
 			e.printStackTrace();
 		}
 		return FALSE;
