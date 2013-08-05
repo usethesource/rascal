@@ -1,7 +1,5 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM.Examples;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
