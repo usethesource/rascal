@@ -9,6 +9,10 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.RVM;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Fib {
+	
+	static int fib(int n){
+		return (n == 0) ? 0 : (n == 1) ? 1 : (fib(n-1) + fib(n-2));
+	}
 
 public static void main(String[] args) {
 		
@@ -60,6 +64,12 @@ public static void main(String[] args) {
 		long now = System.currentTimeMillis();
 		System.out.println("Result: " + val);
 		System.out.println("RVM: average elapsed time in msecs:" + (now - start));
+		
+		start = System.currentTimeMillis();
+		int r = fib(35);
+		System.out.println("Result: " + r);
+		now = System.currentTimeMillis();
+		System.out.println("JAVA: average elapsed time in msecs:" + (now - start));
 	}
 
 }
