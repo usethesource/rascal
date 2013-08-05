@@ -198,6 +198,7 @@ public class SymbolAdapter {
 		    }
 		  }
 		  b.append("]");
+		  return b.toString();
 		}
 		if (isIterPlusSeps(symbol)) {
 			StringBuilder b = new StringBuilder();
