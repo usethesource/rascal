@@ -82,6 +82,7 @@ private Symbol getTargetSymbol(Symbol sym) {
     case \iter-star(s) : return s;  
     case \iter-seps(s, seps) : return s; 
     case \iter-star-seps(s, seps) : return s; 
+    case \opt(s) : return s; 
     default: return sym;
   } 
 }

@@ -312,27 +312,34 @@ public class RVM {
 			String name = null;
 			
 			// Loading constants
-			if(constr.equals("intconst")) {
+			switch(constr) {
+			case "intconst":
 				name = ((IString) ((IConstructor) directive).get("value")).getValue();
 				rvm.declareConst(name, rvm.vf.integer(name));
-			} else if(constr.equals("relconst")) {
+				break;
+			case "relconst":
 				name = ((IString) ((IConstructor) directive).get("value")).getValue();
 				rvm.declareConst(name, rvm.vf.real(name));
-			} else if(constr.equals("ratconst")) {
+				break;
+			case "ratconst":
 				name = ((IString) ((IConstructor) directive).get("value")).getValue();
 				rvm.declareConst(name, rvm.vf.rational(name));
-			} else if(constr.equals("boolconst")) {
+				break;
+			case "boolconst":
 				name = ((IString) ((IConstructor) directive).get("value")).getValue();
 				if(name.equals("TRUE")) {
 					rvm.declareConst(name, rvm.TRUE);
 				} else if(name.equals("FALSE")) {
 					rvm.declareConst(name, rvm.FALSE);
 				}
-			} else if(constr.equals("function")) {
+				break;
+			case "function":
 				functions.add(directive);
-			} else {
+				break;
+			default:
 				throw new RuntimeException("PANIC: Unknown directive: " + constr);
 			}
+			
 		}
 		
 		// Loading directives
@@ -352,53 +359,72 @@ public class RVM {
 				String opcode = ((IString) instruction.get("opcode")).getValue();
 				IList operands = (IList) instruction.get("operands");
 				
-				if(opcode.equals("LOADCON")) {
+				switch(opcode) {
+				case "LOADCON":
 					instructions = instructions.loadcon(((IString) operands.get(0)).getValue());
-				} else if(opcode.equals("LOADVAR")) {
+					break;
+				case "LOADVAR":
 					instructions = instructions.loadvar(Integer.parseInt(((IString) operands.get(0)).getValue()), 
 														Integer.parseInt(((IString) operands.get(1)).getValue()));
-				} else if(opcode.equals("LOADLOC")) {
+					break;
+				case "LOADLOC":
 					instructions = instructions.loadloc(Integer.parseInt(((IString) operands.get(0)).getValue()));
-				} else if(opcode.equals("STOREVAR")) {
+					break;
+				case "STOREVAR":
 					instructions = instructions.storevar(Integer.parseInt(((IString) operands.get(0)).getValue()), 
-														 Integer.parseInt(((IString) operands.get(1)).getValue()));
-				} else if(opcode.equals("STORELOC")) {
+							 							 Integer.parseInt(((IString) operands.get(1)).getValue()));
+					break;
+				case "STORELOC":
 					instructions = instructions.storeloc(Integer.parseInt(((IString) operands.get(0)).getValue()));
-				} else if(opcode.equals("LABEL")) {
+					break;
+				case "LABEL":
 					instructions = instructions.label(((IString) operands.get(0)).getValue());
-				} else if(opcode.equals("CALLPRIM")) {
+					break;
+				case "CALLPRIM":
 					String operand = ((IString) operands.get(0)).getValue();
 					
-					if(operand.equals("addition_int_int")) {
+					switch(operand) {
+					case "addition_int_int":
 						instructions = instructions.callprim(Primitive.addition_int_int);
-					} else if(operand.equals("equal_int_int")) {
+						break;
+					case "equal_int_int":
 						instructions = instructions.callprim(Primitive.equal_int_int);
-					} else if(operand.equals("greater_int_int")) {
+						break;
+					case "greater_int_int":
 						instructions = instructions.callprim(Primitive.greater_int_int);
-					} else if(operand.equals("multiplication_int_int")) {
+						break;
+					case "multiplication_int_int":
 						instructions = instructions.callprim(Primitive.multiplication_int_int);
-					} else if(operand.equals("substraction_int_int")) {
+						break;
+					case "substraction_int_int":
 						instructions = instructions.callprim(Primitive.substraction_int_int);
-					} else {
+						break;
+					default:
 						throw new RuntimeException("PANIC: Unknown primitive operation: " + operand);
 					}
-					
-				} else if(opcode.equals("CALL")) {
+					break;
+				case "CALL":
 					instructions = instructions.call(((IString) operands.get(0)).getValue());
-				} else if(opcode.equals("RETURN")) {
+					break;
+				case "RETURN":
 					instructions = instructions.ret();
-				} else if(opcode.equals("JMP")) {
+					break;
+				case "JMP":
 					instructions = instructions.jmp(((IString) operands.get(0)).getValue());
-				} else if(opcode.equals("JMPTRUE")) {
+					break;
+				case "JMPTRUE":
 					instructions = instructions.jmptrue(((IString) operands.get(0)).getValue());
-				} else if(opcode.equals("JMPFALSE")) {
+					break;
+				case "JMPFALSE":
 					instructions = instructions.jmpfalse(((IString) operands.get(0)).getValue());
-				} else if(opcode.equals("HALT")) {
+					break;
+				case "HALT":
 					instructions = instructions.halt();
-				} else { 
+					break;
+				default:
 					throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 				}
-				
+								
 			}
 			rvm.declare(new Function(name, scope, nformals, nlocals, maxstack, instructions));
 		}
@@ -411,5 +437,5 @@ public class RVM {
 		return vf.tuple((IValue)result, vf.integer(now - start));
 
 	}
-
+	
 }
