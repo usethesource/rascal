@@ -8,7 +8,7 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Primitive;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.RVM;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class CountDown {
+public class CountDown_a {
 	public static void main(String[] args) {
 		
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
@@ -56,25 +56,36 @@ public class CountDown {
 		
 		/*
 		 * c = create(g);
-		 * c.start(5) * c.next() + c.next();
+		 * 
+		 * count = c.start(5);
+		 * 
+		 * while(hasNext(c)) {
+		 * 		count = count + c.next();
+		 * }
 		 */
 		/*
-		 * result: 23
+		 * result: 5 + 4 + 3 + 2 + 1 = 15
 		 */
-		rvm.declare(new Function("main", 0, 0, 1, 6,
+		rvm.declare(new Function("main", 0, 0, 2, 6,
 					new CodeBlock()
 						.create("g")
 						.storeloc(0)
 						.loadcon("5")
 						.loadloc(0)
 						.start()
+						.storeloc(1)
+						.label("LOOP")
 						.loadloc(0)
-						.next0()
-						.callprim(Primitive.multiplication_num_num)
+						.hasNext()
+						.jmptrue("BODY")
+						.halt()
+						.label("BODY")
+						.loadloc(1)
 						.loadloc(0)
 						.next0()
 						.callprim(Primitive.addition_num_num)
-						.halt()));
+						.storeloc(1)
+						.jmp("LOOP")));
 	
 		rvm.executeProgram("main", new IValue[] {});
 	}
