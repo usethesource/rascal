@@ -119,7 +119,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue leftSide = visitChild(node.getLeftHandSide());
 		IValue rightSide = visitChild(node.getRightHandSide());
 		
-		ownValue = constructExpressionNode("assignment", leftSide, rightSide);
+		ownValue = constructExpressionNode("assignment", leftSide, values.string(node.getOperator().toString()), rightSide);
 		
 		return false;
 	}
