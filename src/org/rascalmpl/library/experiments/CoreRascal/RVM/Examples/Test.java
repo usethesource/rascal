@@ -43,11 +43,13 @@ public class Test {
 		rvm.declareConst("T2", v.tuple(v.integer(3), v.integer(4)));
 		
 		
-		rvm.declare(new Function("main", 0, 0, 1, 6,
+		rvm.declareConst("MSG", v.string("A Message: @0!"));
+		
+		rvm.declare(new Function("main", 0, 0, 0, 6,
 					new CodeBlock().
+						loadcon("T1").
 						loadcon("3").
-						loadcon("1r5").
-						callprim(Primitive.addition_num_num).
+						print("MSG").
 						halt()));
 	
 		rvm.executeProgram("main", new IValue[] {});

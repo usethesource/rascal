@@ -4,6 +4,10 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Primitive;
 
 public enum Opcode {
+	
+	/*
+	 * OPCODENAME(opcode, pc_increment)
+	 */
 	LOADCON (0, 2),
 	LOADVAR (1, 3),
 	LOADLOC (2, 2),
@@ -28,7 +32,8 @@ public enum Opcode {
 	YIELD_1(20,1),
 	START(21,1),
 	CREATEDYN(22,1),
-	HASNEXT(23,1)
+	HASNEXT(23,1),
+	PRINT(24,2)
 	;
 	
 	private final int op;
@@ -67,6 +72,7 @@ public enum Opcode {
 	static public final int OP_START = 21;
 	static public final int OP_CREATEDYN = 22;
 	static public final int OP_HASNEXT = 23;
+	static public final int OP_PRINT = 24;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -154,6 +160,10 @@ public enum Opcode {
 			
 		case HASNEXT:
 			return "HASNEXT " + ins.finalCode[pc + 1];
+		case PRINT:
+			return "PRINT " + ins.finalCode[pc + 1]  + " [" + ins.findConstantName(ins.finalCode[pc + 1]) + "]";
+		default:
+			break;
 		}	
 		
 		throw new RuntimeException("PANIC: unrecognized opcode " + opc);
