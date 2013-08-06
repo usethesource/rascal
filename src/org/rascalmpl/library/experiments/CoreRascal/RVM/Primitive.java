@@ -7,11 +7,16 @@ import java.util.HashSet;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
@@ -26,28 +31,48 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  */
 
 public enum Primitive {
-	addition_int_int,
 	appendAfter,
+	addition_elm_list,
+	addition_list_elm,
 	addition_list_list,
-	equal_int_int,
-	greater_int_int,
+	addition_map_map,
+	addition_num_num,
+	addition_elm_set,
+	addition_set_elm,
+	addition_set_set,
+	addition_str_str,
+	addition_tuple_tuple,
+	composition_lrel_lrel,
+	composition_rel_rel,
+	composition_map_map,
+	division_num_num,
+	equal_num_num,
+	greater_num_num,
+	greater_equal_num_num,
+	less_num_num,
+	less_equal_num_num,
 	make_list,
 	make_map,
 	make_set,
 	make_tuple,
-	multiplication_int_int,
+	multiplication_num_num,
 	negative,
-	substraction_int_int,
+	substraction_list_list,
+	substraction_map_map,
+	substraction_num_num,
+	substraction_set_set,
 	subscript_list_int, 
-	subscript_map;
+	subscript_map,
+	transitive_closure_lrel,
+	transitive_closure_rel,
+	transitive_reflexive_closure_lrel,
+	transitive_reflexive_closure_rel;
 	
 	private static Primitive[] values = Primitive.values();
 
 	public static Primitive fromInteger(int prim){
 		return values[prim];
 	}
-	
-	
 	
 	private static IValueFactory vf;
 	private static IBool TRUE;
@@ -124,15 +149,65 @@ public enum Primitive {
 	 *		tuple[&L1,&L2] x tuple[&R1,&R2,&R3] -> tuple[&L1,&L2,&R1,&R2,&R3]
 	 * }
 	 */
-
-	public static int addition_int_int(Object[] stack, int sp) {
-		stack[sp - 2] = ((IInteger) stack[sp - 2])
-				.add((IInteger) stack[sp - 1]);
+	
+	public static int addition_num_num(Object[] stack, int sp) {
+		stack[sp - 2] = ((INumber) stack[sp - 2]).add((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
 
 	public static int addition_list_list(Object[] stack, int sp) {
 		stack[sp - 2] = ((IList) stack[sp - 2]).concat((IList) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int addition_map_map(Object[] stack, int sp) {
+		stack[sp - 2] = ((IMap) stack[sp - 2]).join((IMap) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int addition_list_elm(Object[] stack, int sp) {
+		stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int addition_elm_list(Object[] stack, int sp) {
+		stack[sp - 2] = ((IList) stack[sp - 1]).insert((IValue) stack[sp - 2]);
+		return sp - 1;
+	}
+	
+	public static int addition_set_elm(Object[] stack, int sp) {
+		stack[sp - 2] = ((ISet) stack[sp - 2]).insert((IValue) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int addition_elm_set(Object[] stack, int sp) {
+		stack[sp - 2] = ((ISet) stack[sp - 1]).insert((IValue) stack[sp - 2]);
+		return sp - 1;
+	}
+	
+	public static int addition_set_set(Object[] stack, int sp) {
+		stack[sp - 2] = ((ISet) stack[sp - 2]).union((ISet) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int addition_str_str(Object[] stack, int sp) {
+		stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+//	public static int addition_loc_str(Object[] stack, int sp) { 	}
+	
+	public static int addition_tuple_tuple(Object[] stack, int sp) {
+		ITuple t1 = (ITuple) stack[sp - 2];
+		ITuple t2 = (ITuple) stack[sp - 1];
+		int len1 = t1.arity();
+		int len2 = t2.arity();
+		IValue elems[] = new IValue[len1 + len2];
+		for(int i = 0; i < len1; i++)
+			elems[i] = t1.get(i);
+		for(int i = 0; i < len2; i++)
+			elems[len1 + i] = t2.get(i);
+		stack[sp - 2] = vf.tuple(elems);
 		return sp - 1;
 	}
 
@@ -156,19 +231,39 @@ public enum Primitive {
      	map[&A,&B] x map[&B,&C] -> map[&A,&C]
 		}
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static int composition_lrel_lrel(Object[] stack, int sp) {
+		stack[sp - 2] = ((IListRelation) stack[sp - 2]).compose((IListRelation) stack[sp - 1]);
+		return sp - 1;
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static int composition_rel_rel(Object[] stack, int sp) {
+		stack[sp - 2] = ((IRelationalAlgebra) stack[sp - 2]).compose((IRelationalAlgebra) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int composition_map_map(Object[] stack, int sp) {
+		stack[sp - 2] = ((IMap) stack[sp - 2]).compose((IMap) stack[sp - 1]);
+		return sp - 1;
+	}
+	
 	/*
 	 * division
 	 * 
 	 * infix Division "/" { &L <: num x &R <: num        -> LUB(&L, &R) }
 	 */
 	
+	public static int division_num_num(Object[] stack, int sp) {
+		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]);
+		return sp - 1;
+	}
+	
 	/*
 	 * equals
 	 */
 
-	public static int equal_int_int(Object[] stack, int sp) {
-		stack[sp - 2] = ((IInteger) stack[sp - 2])
-				.equal((IInteger) stack[sp - 1]);
+	public static int equal_num_num(Object[] stack, int sp) {
+		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
 
@@ -185,20 +280,20 @@ public enum Primitive {
 	 * getAnnotation
 	 */
 	/*
-	 * greater
-	 */
-	public static int greater_int_int(Object[] stack, int sp) {
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater(
-				(IInteger) stack[sp - 1]).getValue() ? TRUE : FALSE;
-		return sp - 1;
-	}
-
-	/*
 	 * greaterThan
 	 */
+	public static int greater_num_num(Object[] stack, int sp) {
+		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
+		return sp - 1;
+	}
 	/*
 	 * greaterThanOrEq
 	 */
+	public static int greater_equal_num_num(Object[] stack, int sp) {
+		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
+		return sp - 1;
+	}
+	
 	/*
 	 * has
 	 */
@@ -229,9 +324,17 @@ public enum Primitive {
 	/*
 	 * lessThan
 	 */
+	public static int less_num_num(Object[] stack, int sp) {
+		stack[sp - 2] = ((INumber) stack[sp - 2]).less((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
+		return sp - 1;
+	}
 	/*
 	 * lessThanOrEq
 	 */
+	public static int less_equal_num_num(Object[] stack, int sp) {
+		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
+		return sp - 1;
+	}
 	
 	/*
 	 * make_list
@@ -303,8 +406,8 @@ public enum Primitive {
 	/*
 	 * multiplication
 	 */
-	public static int multiplication_int_int(Object[] stack, int sp) {
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
+	public static int multiplication_num_num(Object[] stack, int sp) {
+		stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
 
@@ -377,9 +480,23 @@ public enum Primitive {
  	 * 		map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
 	 * }
 	 */
-	public static int substraction_int_int(Object[] stack, int sp) {
-		stack[sp - 2] = ((IInteger) stack[sp - 2])
-				.subtract((IInteger) stack[sp - 1]);
+	public static int substraction_num_num(Object[] stack, int sp) {
+		stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int substraction_list_list(Object[] stack, int sp) {
+		stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int substraction_set_set(Object[] stack, int sp) {
+		stack[sp - 2] = ((ISet) stack[sp - 2]).subtract((ISet) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int substraction_map_map(Object[] stack, int sp) {
+		stack[sp - 2] = ((IMap) stack[sp - 2]).remove((IMap) stack[sp - 1]);
 		return sp - 1;
 	}
 
@@ -391,11 +508,33 @@ public enum Primitive {
      * 		rel[&L,&L]  		-> rel[&L,&L]
 	 * }
 	 */
+	
+	@SuppressWarnings("rawtypes")
+	public static int transitive_closure_lrel(Object[] stack, int sp) {
+		stack[sp - 1] = ((IListRelation) stack[sp - 1]).closure();
+		return sp;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static int transitive_closure_rel(Object[] stack, int sp) {
+		stack[sp - 1] = ((IRelationalAlgebra) stack[sp - 1]).closure();
+		return sp;
+	}
 
 	/*
 	 * transitiveReflexiveClosure
 	 */
-
+	@SuppressWarnings("rawtypes")
+	public static int transitive_reflexive_closure_lrel(Object[] stack, int sp) {
+		stack[sp - 1] = ((IListRelation) stack[sp - 1]).closureStar();
+		return sp;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static int transitive_reflexive_closure_rel(Object[] stack, int sp) {
+		stack[sp - 1] = ((IRelationalAlgebra) stack[sp - 1]).closureStar();
+		return sp;
+	}
 
 }
 
