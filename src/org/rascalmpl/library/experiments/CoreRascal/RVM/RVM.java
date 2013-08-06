@@ -230,6 +230,24 @@ public class RVM {
 					Primitive prim = Primitive.fromInteger(instructions[pc++]);
 					sp = prim.invoke(stack, sp);
 					continue;
+				
+				case Opcode.OP_START:
+					continue;
+					
+				case Opcode.OP_CREATE:
+					continue;
+					
+				case Opcode.OP_RESUME0:
+					continue;
+					
+				case Opcode.OP_RESUME1:
+					continue;
+					
+				case Opcode.OP_YIELD0:
+					continue;
+					
+				case Opcode.OP_YIELD1:
+					continue;
 
 				default:
 					throw new RuntimeException("PANIC: RVM main loop -- cannot decode instruction");

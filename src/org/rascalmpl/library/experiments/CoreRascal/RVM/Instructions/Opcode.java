@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
 
+import org.rascalmpl.ast.Case;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Primitive;
 
@@ -19,7 +20,14 @@ public enum Opcode {
 	HALT (12, 1),
 	POP (13, 1),
 	CALLDYN(14,1),
-	LOADFUN(15,2);
+	LOADFUN(15,2),
+	CREATE(16,1),
+	RESUME0(17,1),
+	RESUME1(18,1),
+	YIELD0(19,1),
+	YIELD1(20,1),
+	START(21,1)
+	;
 	
 	private final int op;
 	private final int incr;
@@ -48,7 +56,13 @@ public enum Opcode {
 	static public final int OP_HALT = 12;
 	static public final int OP_POP = 13;
 	static public final int OP_CALLDYN = 14;
-	static public final int OP_LOADFUN = 15;
+	static public final int OP_LOADFUN = 15;	
+	static public final int OP_CREATE = 16;
+	static public final int OP_RESUME0 = 17;
+	static public final int OP_RESUME1 = 18;
+	static public final int OP_YIELD0 = 19;
+	static public final int OP_YIELD1 = 20;
+	static public final int OP_START = 21;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -112,7 +126,25 @@ public enum Opcode {
 			
 		case LOADFUN:
 			return "LOADFUN " + ins.finalCode[pc + 1]  + " [" + ins.findFunctionName(ins.finalCode[pc + 1]) + "]";
-		}
+			
+		case CREATE:
+			return "CREATE";
+			
+		case RESUME0:
+			return "RESUME0";
+			
+		case RESUME1:
+			return "RESUME1";
+			
+		case YIELD0:
+			return "YIELD0";
+		
+		case YIELD1:
+			return "YIELD1";
+		
+		case START:
+			return "START";
+		}	
 		
 		throw new RuntimeException("PANIC: unrecognized opcode " + opc);
 	}
