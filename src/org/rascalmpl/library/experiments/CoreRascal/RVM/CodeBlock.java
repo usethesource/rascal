@@ -7,6 +7,7 @@ import java.util.Map;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Call;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallDyn;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallPrim;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Create;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Halt;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Instruction;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Jmp;
@@ -19,9 +20,14 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLoc;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVar;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Pop;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Resume0;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Resume1;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Start;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreLoc;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreVar;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Yield0;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Yield1;
 
 public class CodeBlock {
 
@@ -157,6 +163,30 @@ public class CodeBlock {
 	
 	public CodeBlock calldyn(){
 		return add(new CallDyn(this));
+	}
+	
+	public CodeBlock start() {
+		return add(new Start(this));
+	}
+	
+	public CodeBlock create() {
+		return add(new Create(this));
+	}
+	
+	public CodeBlock resume0() {
+		return add(new Resume0(this));
+	}
+	
+	public CodeBlock resume1() {
+		return add(new Resume1(this));
+	}
+	
+	public CodeBlock yield0() {
+		return add(new Yield0(this));
+	}
+	
+	public CodeBlock yield1() {
+		return add(new Yield1(this));
 	}
     
 	public CodeBlock done(String fname, Map<String,Integer> constMap, Map<String, Integer> codeMap, boolean listing){
