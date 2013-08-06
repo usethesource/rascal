@@ -41,7 +41,7 @@ public class CountDown {
 							.label("LOOP")
 							.loadloc(0)
 							.loadcon("0")
-							.callprim(Primitive.greater_int_int)
+							.callprim(Primitive.greater_num_num)
 							.jmptrue("BODY")
 							.loadcon("0")
 							.ret()
@@ -50,7 +50,7 @@ public class CountDown {
 							.yield1()
 							.loadloc(0)
 							.loadcon("1")
-							.callprim(Primitive.substraction_int_int)
+							.callprim(Primitive.substraction_num_num)
 							.storeloc(0)
 							.jmp("LOOP")));
 		
@@ -70,10 +70,10 @@ public class CountDown {
 						.start()
 						.loadloc(0)
 						.next0()
-						.callprim(Primitive.multiplication_int_int)
+						.callprim(Primitive.multiplication_num_num)
 						.loadloc(0)
 						.next0()
-						.callprim(Primitive.addition_int_int)
+						.callprim(Primitive.addition_num_num)
 						.halt()));
 	
 		rvm.executeProgram("main", new IValue[] {});
