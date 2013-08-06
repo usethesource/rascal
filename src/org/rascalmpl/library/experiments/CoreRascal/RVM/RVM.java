@@ -229,6 +229,27 @@ public class RVM {
 					}
 					return stack[sp - 1];
 
+				case Opcode.OP_PRINT:
+					String msg = ((IString) constantStore.get(instructions[pc++])).getValue();
+					StringBuilder fmsg = new StringBuilder();
+					for(int i = 0; i < msg.length();){
+						char c = msg.charAt(i);
+						if(c == '$' || c == '@'){
+							int n = Character.getNumericValue(msg.charAt(i + 1));
+							if(n > sp){
+								fmsg.append("***");
+							} else {
+								fmsg.append((c == '$') ? stack[sp -  n] : stack[0]);
+							}
+							i += 2;
+						} else {
+							fmsg.append(c); 
+							i++;
+						}
+					}
+					System.out.println(fmsg.toString());
+					continue;
+					
 				case Opcode.OP_CALLPRIM:
 					Primitive prim = Primitive.fromInteger(instructions[pc++]);
 					sp = prim.invoke(stack, sp);

@@ -24,6 +24,7 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Pop;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next1;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Print;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Start;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreLoc;
@@ -197,6 +198,10 @@ public class CodeBlock {
 	
 	public CodeBlock hasNext() {
 		return add(new HasNext(this));
+	}
+	
+	public CodeBlock print(String arg){
+		return add(new Print(this, arg));
 	}
     
 	public CodeBlock done(String fname, Map<String,Integer> constMap, Map<String, Integer> codeMap, boolean listing){
