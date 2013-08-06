@@ -1,14 +1,14 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM;
 
 public class Frame {
-	final int scopeId;
-    final Frame previousCallFrame;
+	int scopeId;
+    Frame previousCallFrame;
     final Frame previousScope;
 	final Object[] stack;
 	int sp;
 	int pc;
 	final Function function;
-	
+		
 	Frame(int scopeId, Frame previousCallFrame, int stackSize, Function function){
 		this(scopeId, previousCallFrame, previousCallFrame, stackSize, function);
 	}
@@ -22,4 +22,5 @@ public class Frame {
 		this.sp = 0;
 		this.function = function;
 	}
+	
 }

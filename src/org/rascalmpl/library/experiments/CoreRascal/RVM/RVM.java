@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -89,7 +90,9 @@ public class RVM {
 		int[] instructions = function.instructions.getInstructions();
 		int pc = 0;
 		int sp = function.nlocals;
-
+		
+		Stack<Coroutine> activeCoroutines = new Stack<>();
+		
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				int op = instructions[pc++];
@@ -232,21 +235,75 @@ public class RVM {
 					continue;
 				
 				case Opcode.OP_START:
+					Coroutine coroutine = (Coroutine) stack[--sp];
+					// put the coroutine onto the stack of active coroutines
+					activeCoroutines.push(coroutine);
+					coroutine.resume(cf);
+					
+					fun = coroutine.frame.function;
+					instructions = coroutine.frame.function.instructions.getInstructions();
+					
+					// coroutine's main function may have formal parameters
+					for (int i = fun.nformals - 1; i >= 0; i--) {
+						coroutine.frame.stack[i] = stack[sp - fun.nformals + i];
+					}
+					cf.pc = pc;
+					cf.sp = sp - fun.nformals;
+					cf = coroutine.frame;
+					stack = cf.stack;
+					sp = fun.nlocals;
+					pc = 0;
 					continue;
 					
 				case Opcode.OP_CREATE:
+					fun = functionStore.get(instructions[pc++]);
+					Frame frame = new Frame(fun.scope + 1, null, fun.maxstack, fun);
+					coroutine = new Coroutine(frame);
+					stack[sp++] = coroutine;
 					continue;
 					
 				case Opcode.OP_RESUME0:
-					continue;
-					
 				case Opcode.OP_RESUME1:
+					coroutine = (Coroutine) stack[--sp];
+					activeCoroutines.push(coroutine);
+					coroutine.resume(cf);
+					
+					fun = coroutine.frame.function;
+					instructions = coroutine.frame.function.instructions.getInstructions();
+					
+					if(op == Opcode.OP_RESUME1)
+						coroutine.frame.stack[coroutine.frame.sp++] = stack[--sp];
+					
+					cf.pc = pc;
+					cf.sp = sp;
+					
+					cf = coroutine.frame;
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
 					continue;
 					
-				case Opcode.OP_YIELD0:
-					continue;
-					
+				case Opcode.OP_YIELD0:	
 				case Opcode.OP_YIELD1:
+					coroutine = activeCoroutines.pop();
+					Frame prev = coroutine.init.previousCallFrame;
+					cf.pc = pc;
+					cf.sp = sp;
+					coroutine.suspend(cf);
+					cf = prev;
+					rval = null;
+					if(op == Opcode.OP_YIELD1) {
+						rval = stack[sp - 1];
+						if(cf == null)
+							return rval;
+					}
+					instructions = cf.function.instructions.getInstructions();
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					if(op == Opcode.OP_YIELD1 && rval != null) {
+						stack[sp++] = rval;
+					}
 					continue;
 
 				default:
