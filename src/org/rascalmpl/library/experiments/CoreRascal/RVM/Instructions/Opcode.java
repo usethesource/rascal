@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
 
-import org.rascalmpl.ast.Case;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Primitive;
 
@@ -21,12 +20,13 @@ public enum Opcode {
 	POP (13, 1),
 	CALLDYN(14,1),
 	LOADFUN(15,2),
+	
 	CREATE(16,2),
-	RESUME0(17,2),
-	RESUME1(18,2),
+	RESUME0(17,1),
+	RESUME1(18,1),
 	YIELD0(19,1),
 	YIELD1(20,1),
-	START(21,2)
+	START(21,1)
 	;
 	
 	private final int op;
@@ -131,10 +131,10 @@ public enum Opcode {
 			return "CREATE " + ins.finalCode[pc + 1] + " [" + ins.findCodeName(ins.finalCode[pc + 1]) + "]";
 			
 		case RESUME0:
-			return "RESUME0 " + ins.finalCode[pc + 1] + " [" + ins.findCodeName(ins.finalCode[pc + 1]) + "]";
+			return "RESUME0";
 			
 		case RESUME1:
-			return "RESUME1 " + ins.finalCode[pc + 1] + " [" + ins.findCodeName(ins.finalCode[pc + 1]) + "]";
+			return "RESUME1";
 			
 		case YIELD0:
 			return "YIELD0";
@@ -143,7 +143,7 @@ public enum Opcode {
 			return "YIELD1";
 		
 		case START:
-			return "START "  + ins.finalCode[pc + 1] + " [" + ins.findCodeName(ins.finalCode[pc + 1]) + "]";
+			return "START";
 		}	
 		
 		throw new RuntimeException("PANIC: unrecognized opcode " + opc);
