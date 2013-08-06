@@ -61,7 +61,7 @@ data Expression
 	| \newArray(Type \type, list[Expression] dimensions, Expression init)
 	| \newArray(Type \type, list[Expression] dimensions)
 	| \arrayInitializer(list[Expression] elements)
-	| \assignment(Expression lhs, Expression rhs)
+	| \assignment(Expression lhs, str operator, Expression rhs)
 	| \cast(Type \type, Expression expression)
 	| \char(str charValue)
 	| \newObject(Expression expr, Type \type, list[Expression] args, Declaration class)
