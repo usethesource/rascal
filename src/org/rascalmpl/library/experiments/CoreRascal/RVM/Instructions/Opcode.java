@@ -22,11 +22,13 @@ public enum Opcode {
 	LOADFUN(15,2),
 	
 	CREATE(16,2),
-	RESUME0(17,1),
-	RESUME1(18,1),
-	YIELD0(19,1),
-	YIELD1(20,1),
-	START(21,1)
+	NEXT_0(17,1),
+	NEXT_1(18,1),
+	YIELD_0(19,1),
+	YIELD_1(20,1),
+	START(21,1),
+	CREATEDYN(22,1),
+	HASNEXT(23,1)
 	;
 	
 	private final int op;
@@ -58,11 +60,13 @@ public enum Opcode {
 	static public final int OP_CALLDYN = 14;
 	static public final int OP_LOADFUN = 15;	
 	static public final int OP_CREATE = 16;
-	static public final int OP_RESUME0 = 17;
-	static public final int OP_RESUME1 = 18;
-	static public final int OP_YIELD0 = 19;
-	static public final int OP_YIELD1 = 20;
+	static public final int OP_NEXT_0 = 17;
+	static public final int OP_NEXT_1 = 18;
+	static public final int OP_YIELD_0 = 19;
+	static public final int OP_YIELD_1 = 20;
 	static public final int OP_START = 21;
+	static public final int OP_CREATEDYN = 22;
+	static public final int OP_HASNEXT = 23;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -130,20 +134,26 @@ public enum Opcode {
 		case CREATE:
 			return "CREATE " + ins.finalCode[pc + 1] + " [" + ins.findCodeName(ins.finalCode[pc + 1]) + "]";
 			
-		case RESUME0:
-			return "RESUME0";
+		case NEXT_0:
+			return "NEXT_0 " + ins.finalCode[pc + 1];
 			
-		case RESUME1:
-			return "RESUME1";
+		case NEXT_1:
+			return "NEXT_1 " + ins.finalCode[pc + 1];
 			
-		case YIELD0:
-			return "YIELD0";
+		case YIELD_0:
+			return "YIELD_0 " + ins.finalCode[pc + 1];
 		
-		case YIELD1:
-			return "YIELD1";
+		case YIELD_1:
+			return "YIELD_1 " + ins.finalCode[pc + 1];
 		
 		case START:
-			return "START";
+			return "START " + ins.finalCode[pc + 1];
+		
+		case CREATEDYN:
+			return "CREATEDYN " + ins.finalCode[pc + 1];
+			
+		case HASNEXT:
+			return "HASNEXT " + ins.finalCode[pc + 1];
 		}	
 		
 		throw new RuntimeException("PANIC: unrecognized opcode " + opc);

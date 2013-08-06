@@ -2,10 +2,10 @@ package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
 
 import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
-public class Yield0 extends Instruction {
+public class CreateDyn extends Instruction {
 	
-	public Yield0(CodeBlock ins) {
-		super(ins, Opcode.YIELD_0);
+	public CreateDyn(CodeBlock ins) {
+		super(ins, Opcode.CREATEDYN);
 	}
 
 }

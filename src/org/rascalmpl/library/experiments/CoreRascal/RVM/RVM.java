@@ -262,8 +262,8 @@ public class RVM {
 					stack[sp++] = coroutine;
 					continue;
 					
-				case Opcode.OP_RESUME0:
-				case Opcode.OP_RESUME1:
+				case Opcode.OP_NEXT_0:
+				case Opcode.OP_NEXT_1:
 					coroutine = (Coroutine) stack[--sp];
 					activeCoroutines.push(coroutine);
 					coroutine.resume(cf);
@@ -271,7 +271,7 @@ public class RVM {
 					fun = coroutine.frame.function;
 					instructions = coroutine.frame.function.instructions.getInstructions();
 					
-					if(op == Opcode.OP_RESUME1)
+					if(op == Opcode.OP_NEXT_1)
 						coroutine.frame.stack[coroutine.frame.sp++] = stack[--sp];
 					
 					cf.pc = pc;
@@ -283,8 +283,8 @@ public class RVM {
 					pc = cf.pc;
 					continue;
 					
-				case Opcode.OP_YIELD0:	
-				case Opcode.OP_YIELD1:
+				case Opcode.OP_YIELD_0:	
+				case Opcode.OP_YIELD_1:
 					coroutine = activeCoroutines.pop();
 					Frame prev = coroutine.init.previousCallFrame;
 					cf.pc = pc;
@@ -292,7 +292,7 @@ public class RVM {
 					coroutine.suspend(cf);
 					cf = prev;
 					rval = null;
-					if(op == Opcode.OP_YIELD1) {
+					if(op == Opcode.OP_YIELD_1) {
 						rval = stack[sp - 1];
 						if(cf == null)
 							return rval;
@@ -301,9 +301,15 @@ public class RVM {
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					if(op == Opcode.OP_YIELD1 && rval != null) {
+					if(op == Opcode.OP_YIELD_1 && rval != null) {
 						stack[sp++] = rval;
 					}
+					continue;
+				
+				case Opcode.OP_CREATEDYN:
+					continue;
+					
+				case Opcode.OP_HASNEXT:
 					continue;
 
 				default:
@@ -438,6 +444,31 @@ public class RVM {
 				case "HALT":
 					instructions = instructions.halt();
 					break;
+				
+				case "CREATE":
+					break;
+					
+				case "CREATEDYN":
+					break;
+				
+				case "START":
+					break;
+					
+				case "NEXT_0":
+					break;
+					
+				case "NEXT_1":
+					break;
+					
+				case "YIELD_0":
+					break;
+					
+				case "YIELD_1":
+					break;
+					
+				case "HASNEXT":
+					break;
+				
 				default:
 					throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 				}
