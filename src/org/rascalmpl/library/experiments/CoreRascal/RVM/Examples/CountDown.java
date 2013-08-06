@@ -69,10 +69,10 @@ public class CountDown {
 						.loadloc(0)
 						.start()
 						.loadloc(0)
-						.resume0()
+						.next0()
 						.callprim(Primitive.multiplication_int_int)
 						.loadloc(0)
-						.resume0()
+						.next0()
 						.callprim(Primitive.addition_int_int)
 						.halt()));
 	
