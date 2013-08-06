@@ -165,20 +165,20 @@ public class CodeBlock {
 		return add(new CallDyn(this));
 	}
 	
-	public CodeBlock start() {
-		return add(new Start(this));
+	public CodeBlock start(String name) {
+		return add(new Start(this, name));
 	}
 	
-	public CodeBlock create() {
-		return add(new Create(this));
+	public CodeBlock create(String name) {
+		return add(new Create(this, name));
 	}
 	
-	public CodeBlock resume0() {
-		return add(new Resume0(this));
+	public CodeBlock resume0(String name) {
+		return add(new Resume0(this, name));
 	}
 	
-	public CodeBlock resume1() {
-		return add(new Resume1(this));
+	public CodeBlock resume1(String name) {
+		return add(new Resume1(this, name));
 	}
 	
 	public CodeBlock yield0() {
