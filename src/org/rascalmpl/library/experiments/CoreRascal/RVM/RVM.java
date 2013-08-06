@@ -259,7 +259,7 @@ public class RVM {
 					Coroutine coroutine = (Coroutine) stack[--sp];
 					// put the coroutine onto the stack of active coroutines
 					activeCoroutines.push(coroutine);
-					coroutine.resume(cf);
+					coroutine.next(cf);
 					
 					fun = coroutine.frame.function;
 					instructions = coroutine.frame.function.instructions.getInstructions();
@@ -277,17 +277,18 @@ public class RVM {
 					continue;
 					
 				case Opcode.OP_CREATE:
-					fun = functionStore.get(instructions[pc++]);
+				case Opcode.OP_CREATEDYN:
+					fun = (op == Opcode.OP_CREATEDYN) ? (Function) stack[--sp] : functionStore.get(instructions[pc++]);
 					Frame frame = new Frame(fun.scope + 1, null, fun.maxstack, fun);
 					coroutine = new Coroutine(frame);
 					stack[sp++] = coroutine;
 					continue;
-					
+				
 				case Opcode.OP_NEXT_0:
 				case Opcode.OP_NEXT_1:
 					coroutine = (Coroutine) stack[--sp];
 					activeCoroutines.push(coroutine);
-					coroutine.resume(cf);
+					coroutine.next(cf);
 					
 					fun = coroutine.frame.function;
 					instructions = coroutine.frame.function.instructions.getInstructions();
@@ -307,17 +308,17 @@ public class RVM {
 				case Opcode.OP_YIELD_0:	
 				case Opcode.OP_YIELD_1:
 					coroutine = activeCoroutines.pop();
-					Frame prev = coroutine.init.previousCallFrame;
+					Frame prev = coroutine.start.previousCallFrame;
+					rval = null;
+					if(op == Opcode.OP_YIELD_1) {
+						rval = stack[--sp];
+					}
 					cf.pc = pc;
 					cf.sp = sp;
 					coroutine.suspend(cf);
 					cf = prev;
-					rval = null;
-					if(op == Opcode.OP_YIELD_1) {
-						rval = stack[sp - 1];
-						if(cf == null)
-							return rval;
-					}
+					if(op == Opcode.OP_YIELD_1 && cf == null)
+						return rval;
 					instructions = cf.function.instructions.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -326,11 +327,10 @@ public class RVM {
 						stack[sp++] = rval;
 					}
 					continue;
-				
-				case Opcode.OP_CREATEDYN:
-					continue;
 					
 				case Opcode.OP_HASNEXT:
+					coroutine = (Coroutine) stack[--sp];
+					stack[sp++] = coroutine.hasNext() ? TRUE : FALSE;
 					continue;
 
 				default:
