@@ -41,8 +41,13 @@ lexical Opcode =
 	
 		// co-routine specific instructions
 		| "CREATE"
-		| "RESUME"
-		| "YIELD"
+		| "CREATEDYN"
+		| "START"
+		| "NEXT_0"
+		| "NEXT_1"
+		| "YIELD_0"
+		| "YIELD_1"
+		| "HASNEXT"
 		;
 	
 keyword Keywords = 
@@ -66,8 +71,13 @@ keyword Keywords =
 		| "JMPFALSE"
 		| "HALT"
 		| "CREATE"
-		| "RESUME"
-		| "YIELD"
+		| "CREATEDYN"
+		| "START"
+		| "NEXT_0"
+		| "NEXT_1"
+		| "YIELD_0"
+		| "YIELD_1"
+		| "HASNEXT"
 		;
 
 syntax Operand = [\ ] << Identifier;
@@ -79,7 +89,7 @@ syntax Directive =
 		| relconst:  "REL-CONST" Identifier value
 		| ratconst:  "RAT-CONST" Identifier value
 		| boolconst: "B-CONST"   Identifier value
-		| function : "FUNCTION"  Identifier name Integer scope Integer nlocals Integer nformals Integer maxStack Instruction+ instructions
+		| function : "FUNCTION"  Identifier name Integer scope Integer nformals Integer nlocals Integer maxStack Instruction+ instructions
 		;
 	
 syntax RascalVM = vm: { Directive ";"}+ directives ";" Instruction* instructions;

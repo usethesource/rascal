@@ -17,9 +17,11 @@ public loc exmpl3 = |project://RascalStandardLibrary/src/experiments/CoreRascal/
 // tail recursive, two-parameter version of factorial
 public loc exmpl4 = |project://RascalStandardLibrary/src/experiments/CoreRascal/muRascalVM/programs/Example4.rvm|;
 
+public loc exmpl5 = |project://RascalStandardLibrary/src/experiments/CoreRascal/muRascalVM/programs/Example5.rvm|;
+
 public void testit() {
-	RascalVM code = parse(readFile(exmpl4));
+	RascalVM code = parse(readFile(exmpl5));
 	println("parsed: <code>");
-	tuple[value,int] r = executeProgram(code.directives, 1000);
+	tuple[value,int] r = executeProgram(code.directives, 1);
 	println("it results in: <r[0]> and took: <r[1]>");
 }

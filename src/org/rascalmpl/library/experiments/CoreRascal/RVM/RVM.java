@@ -467,27 +467,35 @@ public class RVM {
 					break;
 				
 				case "CREATE":
+					instructions = instructions.create(((IString) operands.get(0)).getValue());
 					break;
 					
 				case "CREATEDYN":
+					instructions = instructions.createdyn();
 					break;
 				
 				case "START":
+					instructions = instructions.start();
 					break;
 					
 				case "NEXT_0":
+					instructions = instructions.next0();
 					break;
 					
 				case "NEXT_1":
+					instructions = instructions.next1();
 					break;
 					
 				case "YIELD_0":
+					instructions = instructions.yield0();
 					break;
 					
 				case "YIELD_1":
+					instructions = instructions.yield1();
 					break;
 					
 				case "HASNEXT":
+					instructions = instructions.hasNext();
 					break;
 				
 				default:
