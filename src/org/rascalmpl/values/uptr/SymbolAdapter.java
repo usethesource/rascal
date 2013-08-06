@@ -198,6 +198,7 @@ public class SymbolAdapter {
 		    }
 		  }
 		  b.append("]");
+		  return b.toString();
 		}
 		if (isIterPlusSeps(symbol)) {
 			StringBuilder b = new StringBuilder();
@@ -244,7 +245,7 @@ public class SymbolAdapter {
 		  b.append("(");
 		  boolean first = true;
 		  for (IValue elem : alts) {
-		    if (!first) {
+		    if (first) {
 		      first = false;
 		      b.append(" | ");
 		    }
@@ -301,7 +302,10 @@ public class SymbolAdapter {
 			return symbol.getName() + "[" + toString((IConstructor) symbol.get("from")) + "," + toString((IConstructor) symbol.get("to")) + "]";
 		}
 		
-		
+		if (isConditional(symbol)) {
+			// TODO: add
+			
+		}
 		
 		if (isADT(symbol) || isAlias(symbol)) {
 			StringBuilder b = new StringBuilder();

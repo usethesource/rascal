@@ -16,7 +16,7 @@ import util::Maybe;
  
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
-// import lang::rascal::grammar::analyze::Recursion;
+import lang::rascal::grammar::analyze::Recursion;
 
 public alias Priorities = rel[Production father, Production child];
 public alias DoNotNest = rel[Production father, int position, Production child];
@@ -25,8 +25,8 @@ public DoNotNest doNotNest(Grammar g) {
   DoNotNest result = {};
   
   for (s <- g.rules) {
-    lefties = {s}; // leftRecursive(g, s);
-    righties = {s}; //rightRecursive(g, s);
+    lefties = leftRecursive(g, s);
+    righties = rightRecursive(g, s);
     <ordering,ass> = doNotNest(g.rules[s], lefties, righties);
     result += ass;
     
