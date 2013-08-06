@@ -109,7 +109,7 @@ public class RVM {
 					continue;
 
 				case Opcode.OP_LOADFUN:
-					stack[sp++] = functionStore.get(instructions[pc++]);
+					stack[sp++] = new Closure(functionStore.get(instructions[pc++]), cf);
 					continue;
 
 				case Opcode.OP_LOADLOC:
@@ -119,8 +119,8 @@ public class RVM {
 				case Opcode.OP_LOADVAR: {
 					int s = instructions[pc++];
 					int pos = instructions[pc++];
-					for (Frame fr = cf.previous; fr != null; fr = fr.previous) {
-						if (fr.scope == s) {
+					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+						if (fr.scopeId == s) {
 							stack[sp++] = fr.stack[pos];
 							continue NEXT_INSTRUCTION;
 						}
@@ -137,8 +137,8 @@ public class RVM {
 					int s = instructions[pc++];
 					int pos = instructions[pc++];
 
-					for (Frame fr = cf.previous; fr != null; fr = fr.previous) {
-						if (fr.scope == s) {
+					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+						if (fr.scopeId == s) {
 							fr.stack[pos] = stack[--sp];
 							continue NEXT_INSTRUCTION;
 						}
@@ -175,16 +175,30 @@ public class RVM {
 							"PANIC: label instruction at runtime");
 
 				case Opcode.OP_CALLDYN:
+					
 				case Opcode.OP_CALL:
-					Function fun = (op == Opcode.OP_CALL) ? functionStore.get(instructions[pc++]) : (Function) stack[--sp];
+					Function fun;
+					Frame previousScope;
+					int spdelta = 0;
+					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Closure){
+						Closure clos = (Closure) stack[sp - 1];
+						fun = clos.function;
+						previousScope = clos.frame;
+						spdelta = 1;
+					} else {
+						fun = (op == Opcode.OP_CALL) ? functionStore.get(instructions[pc++]) : (Function) stack[--sp];
+						previousScope = cf;
+					}
+						
 					instructions = fun.instructions.getInstructions();
-					Frame nextFrame = new Frame(fun.scope, cf, fun.maxstack,
-							fun);
+					
+					Frame nextFrame = new Frame(fun.scope + 1, cf, previousScope, fun.maxstack, fun);
+					
 					for (int i = fun.nformals - 1; i >= 0; i--) {
 						nextFrame.stack[i] = stack[sp - fun.nformals + i];
 					}
 					cf.pc = pc;
-					cf.sp = sp - fun.nlocals;
+					cf.sp = sp - fun.nformals - spdelta;
 					cf = nextFrame;
 					stack = cf.stack;
 					sp = fun.nlocals;
@@ -193,7 +207,7 @@ public class RVM {
 
 				case Opcode.OP_RETURN:
 					Object rval = stack[sp - 1];
-					cf = cf.previous;
+					cf = cf.previousCallFrame;
 					if (cf == null)
 						return rval;
 					instructions = cf.function.instructions.getInstructions();
