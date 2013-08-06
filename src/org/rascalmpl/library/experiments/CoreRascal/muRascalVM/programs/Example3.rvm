@@ -4,18 +4,18 @@ FUNCTION fac 1 2 2 6              /* two-parameter fac(n,accum) = if(n == 1) the
 LABEL L0
 LOADLOC 0
 LOADCON 1
-CALLPRIM equal_int_int
+CALLPRIM equal_num_num
 JMPFALSE L
 LOADLOC 1                         /* loads accum local variable */
 RETURN
 LABEL L
 LOADLOC 0                         /* loads n */
 LOADLOC 1                         /* loads accum */
-CALLPRIM multiplication_int_int   /* multiply: note!!! the reverse order due to STORELOC before JMP */
+CALLPRIM multiplication_num_num   /* multiply: note!!! the reverse order due to STORELOC before JMP */
 STORELOC 1
 LOADLOC 0
 LOADCON 1
-CALLPRIM substraction_int_int
+CALLPRIM substraction_num_num
 STORELOC 0
 JMP L0                            /* make a jump in place of tail call */
 RETURN

@@ -3,7 +3,7 @@ I-CONST 4;
 FUNCTION fac 1 1 1 6 
 LOADLOC 0
 LOADCON 1
-CALLPRIM equal_int_int
+CALLPRIM equal_num_num
 JMPFALSE L
 LOADCON 1
 RETURN
@@ -11,9 +11,9 @@ LABEL L
 LOADLOC 0
 LOADLOC 0
 LOADCON 1
-CALLPRIM substraction_int_int
+CALLPRIM substraction_num_num
 CALL fac
-CALLPRIM multiplication_int_int
+CALLPRIM multiplication_num_num
 RETURN
 ;
 FUNCTION main 0 0 0 7

@@ -7,7 +7,7 @@ public data Directive =
 		| relconst(str \value)
 		| ratconst(str \value)
 		| boolconst(str \value)
-		| function(str name, int scope, int nlocals, int nformals, int maxStack, list[Instruction] instructions)
+		| function(str name, int scope, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
 		;
 
 public data RascalVM = vm(list[Directive] directives, list[Instruction] instructions);

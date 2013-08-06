@@ -3,17 +3,17 @@ I-CONST 4;
 FUNCTION fac 1 2 2 6              /* two-parameter fac(n,accum) = if(n == 1) then accum else fac(n-1, n*accum) */
 LOADLOC 0
 LOADCON 1
-CALLPRIM equal_int_int
+CALLPRIM equal_num_num
 JMPFALSE L
 LOADLOC 1                         /* loads accum local variable */
 RETURN
 LABEL L
 LOADLOC 0
 LOADCON 1
-CALLPRIM substraction_int_int
+CALLPRIM substraction_num_num
 LOADLOC 0                         /* loads n */
 LOADLOC 1                         /* loads accum */
-CALLPRIM multiplication_int_int   /* multiply */
+CALLPRIM multiplication_num_num   /* multiply */
 CALL fac                          /* make a jump in place of a tail call */
 RETURN
 ;
