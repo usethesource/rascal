@@ -38,7 +38,6 @@ import org.jgll.parser.GLLParser;
 import org.jgll.parser.LevelSynchronizedGrammarInterpretter;
 import org.jgll.parser.ParseError;
 import org.jgll.sppf.NonterminalSymbolNode;
-import org.jgll.sppf.SPPFNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
 import org.jgll.util.Input;
@@ -162,7 +161,16 @@ public class GrammarToJigll {
 				
 			case "lit":
 				return ConditionFactory.notFollow(getKeyword(symbol));
-	
+				
+			case "seq":
+				IList list = (IList) symbol.get("sequence");
+				List<Symbol> symbols = new ArrayList<>();
+				for(IValue v : list) {
+					symbols.add(getSymbol((IConstructor) v));
+				}
+				symbols.remove(1);
+				return ConditionFactory.notFollow(symbols);
+				
 			default:
 				throw new IllegalStateException("Should not be here!");
 		}
