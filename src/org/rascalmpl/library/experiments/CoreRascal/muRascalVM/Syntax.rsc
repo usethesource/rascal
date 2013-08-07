@@ -31,7 +31,8 @@ lexical Opcode =
 		| "CALLPRIM"    // calls a primitive operation on a number of arguments, pops them and pushes the result onto the top
 		| "CALL"        // calls a user-defined function on a number of arguments, pops them and pushes the result onto the top
 	
-		| "RETURN"	    // returns from a function popping the current stack frame 
+	| "RETURN_0"
+		| "RETURN_1"	    // returns from a function popping the current stack frame 
 	
 		| "JMP"         // jumps to the specified location
 		| "JMPTRUE"     // jumps to the specified location if the top value on the stack is true
@@ -65,7 +66,8 @@ keyword Keywords =
 		| "LABEL"
 		| "CALLPRIM"
 		| "CALL"
-		| "RETURN"
+		| "RETURN_0"
+		| "RETURN_1"
 		| "JMP"
 		| "JMPTRUE"
 		| "JMPFALSE"

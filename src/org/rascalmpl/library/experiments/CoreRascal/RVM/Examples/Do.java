@@ -25,7 +25,7 @@ public class Do {
 					loadloc(0).
 					loadloc(0).
 					callprim(Primitive.multiplication_num_num).
-					ret()));
+					ret1()));
 		
 		rvm.declare(new Function("cube", 1, 1, 1, 6, 
 				new CodeBlock().
@@ -34,14 +34,14 @@ public class Do {
 					callprim(Primitive.multiplication_num_num).
 					loadloc(0).
 					callprim(Primitive.multiplication_num_num).
-					ret()));
+					ret1()));
 		
 		rvm.declare(new Function("do", 1, 2, 2, 6, 
 				new CodeBlock().
 					loadloc(1).
 					loadloc(0).
 					calldyn().
-					ret()));
+					ret1()));
 		
 		rvm.declare(new Function("main", 0, 0, 0, 7,
 				new CodeBlock().
