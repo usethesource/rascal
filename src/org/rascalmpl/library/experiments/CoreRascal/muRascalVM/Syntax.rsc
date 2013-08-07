@@ -93,8 +93,3 @@ syntax Directive =
 		;
 	
 syntax RascalVM = vm: { Directive ";"}+ directives ";" Instruction* instructions;
-
-@doc{Registers the muRascalVM language, .rvm}
-public void registerLanguage() {
-	registerLanguage("muRascalVM", "rvm", RascalVM (str src, loc l) { return parse(#RascalVM, src, l); });
-}
