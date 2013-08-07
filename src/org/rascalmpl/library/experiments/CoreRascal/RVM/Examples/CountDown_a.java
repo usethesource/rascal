@@ -56,9 +56,9 @@ public class CountDown_a {
 		
 		/*
 		 * c = create(g);
+		 * c.init(5);
 		 * 
-		 * count = c.start(5);
-		 * 
+		 * count = 0;
 		 * while(hasNext(c)) {
 		 * 		count = count + c.next();
 		 * }
@@ -72,7 +72,8 @@ public class CountDown_a {
 						.storeloc(0)
 						.loadcon("5")
 						.loadloc(0)
-						.start()
+						.init()
+						.loadcon("0")
 						.storeloc(1)
 						.label("LOOP")
 						.loadloc(0)

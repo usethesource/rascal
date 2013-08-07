@@ -43,7 +43,7 @@ lexical Opcode =
 		// co-routine specific instructions
 		| "CREATE"
 		| "CREATEDYN"
-		| "START"
+		| "INIT"
 		| "NEXT_0"
 		| "NEXT_1"
 		| "YIELD_0"
@@ -74,7 +74,7 @@ keyword Keywords =
 		| "HALT"
 		| "CREATE"
 		| "CREATEDYN"
-		| "START"
+		| "INIT"
 		| "NEXT_0"
 		| "NEXT_1"
 		| "YIELD_0"
