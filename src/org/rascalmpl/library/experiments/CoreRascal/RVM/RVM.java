@@ -230,14 +230,15 @@ public class RVM {
 				case Opcode.OP_PRINT:
 					String msg = ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
 					StringBuilder fmsg = new StringBuilder();
-					for(int i = 0; i < msg.length();){
+					int len =  msg.length();
+					for(int i = 0; i < len;){
 						char c = msg.charAt(i);
-						if(c == '$' || c == '@'){
+						if(i < len - 1 && (c == '$' || c == '@')){
 							int n = Character.getNumericValue(msg.charAt(i + 1));
-							if(n > sp){
+							if(n > sp - 1){
 								fmsg.append("***");
 							} else {
-								fmsg.append((c == '$') ? stack[sp -  n] : stack[0]);
+								fmsg.append((c == '$') ? stack[sp - 1 - n] : stack[0]);
 							}
 							i += 2;
 						} else {
