@@ -142,31 +142,31 @@ public enum Opcode {
 			return "CREATE " + cb.finalCode[pc + 1] + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
 		case NEXT_0:
-			return "NEXT_0 " + cb.finalCode[pc + 1];
+			return "NEXT_0";
 			
 		case NEXT_1:
-			return "NEXT_1 " + cb.finalCode[pc + 1];
+			return "NEXT_1";
 			
 		case YIELD_0:
-			return "YIELD_0 " + cb.finalCode[pc + 1];
+			return "YIELD_0";
 		
 		case YIELD_1:
-			return "YIELD_1 ";// + ins.finalCode[pc + 1];
+			return "YIELD_1";
 		
 		case INIT:
-			return "START " + cb.finalCode[pc + 1];
+			return "INIT";
 		
 		case CREATEDYN:
-			return "CREATEDYN " + cb.finalCode[pc + 1];
+			return "CREATEDYN";
 			
 		case HASNEXT:
-			return "HASNEXT " + cb.finalCode[pc + 1];
+			return "HASNEXT";
 			
 		case PRINT:
 			return "PRINT " + cb.finalCode[pc + 1]  + " [" + cb.getConstantValue(cb.finalCode[pc + 1]) + "]";
 		
 		case RETURN_0:
-			return "RETURN_0 " + cb.finalCode[pc + 1];
+			return "RETURN_0";
 		
 		default:
 			break;
