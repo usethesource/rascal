@@ -458,7 +458,7 @@ public class RVM {
 					instructions = instructions.createdyn();
 					break;
 				
-				case "START":
+				case "INIT":
 					instructions = instructions.init();
 					break;
 					
