@@ -5,11 +5,11 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 public abstract class Instruction {
 	
 	protected Opcode opcode;
-	protected CodeBlock ins;
+	protected CodeBlock codeblock;
 
-	Instruction(CodeBlock ins, Opcode opc){
+	Instruction(CodeBlock cb, Opcode opc){
 		this.opcode = opc;
-		this.ins = ins;
+		this.codeblock = cb;
 	}
 	
 	public int pcIncrement() {
@@ -21,7 +21,7 @@ public abstract class Instruction {
 	}
 	
 	public void generate(){
-		 ins.addCode(opcode.getOpcode());
+		 codeblock.addCode(opcode.getOpcode());
 	}
    
 }

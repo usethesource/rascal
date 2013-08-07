@@ -15,13 +15,6 @@ public class Do {
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory vf = rvm.vf;
 		
-		rvm.declareConst("ZERO", rvm.vf.integer(0));
-		rvm.declareConst("ONE", rvm.vf.integer(1));
-		rvm.declareConst("FOUR", rvm.vf.integer(4));
-		rvm.declareConst("TEN", rvm.vf.integer(10));
-		rvm.declareConst("THOUSAND", rvm.vf.integer(1000));
-		rvm.declareConst("MANY", rvm.vf.integer(100000));
-		
 		rvm.declare(new Function("square", 1, 1, 1, 6, 
 				new CodeBlock(vf).
 					loadloc(0).
@@ -48,7 +41,7 @@ public class Do {
 		rvm.declare(new Function("main", 0, 0, 0, 7,
 				new CodeBlock(vf).
 					loadfun("cube").
-					loadcon("FOUR").
+					loadcon(4).
 					call("do").
 					halt()));
 		

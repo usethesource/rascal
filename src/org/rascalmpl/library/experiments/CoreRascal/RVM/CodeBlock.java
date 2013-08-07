@@ -37,20 +37,31 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Yield1;
 
 public class CodeBlock {
 
+	private IValueFactory vf;
 	int pc;
-	ArrayList<Instruction> insList;
-	public HashMap<String,Integer> labels;
+	
+	private ArrayList<Instruction> insList;
+	
+	private HashMap<String,Integer> labels;
 	private ArrayList<String> labelList;
-	public Map<String, Integer> constMap;
-	public Map<String, Integer> codeMap;
+	
+	private Map<IValue, Integer> constantMap;
+	private ArrayList<IValue> constantStore;
+	private IValue[] finalConstantStore;
+	
+	private Map<String, Integer> functionMap;
+	
 	public int[] finalCode;
-
+	
 	public CodeBlock(IValueFactory factory){
 		labels = new HashMap<String,Integer>();
 		labelList = new ArrayList<String>();
 		insList = new ArrayList<Instruction>();
 		new ArrayList<Integer>();
 		pc = 0;
+		this.vf = factory;
+		constantMap = new HashMap<IValue, Integer>();
+		this.constantStore = new ArrayList<IValue>();
 	}
 	
 	public void defLabel(String label){
@@ -70,31 +81,48 @@ public class CodeBlock {
 		return idx;
 	}
 	
-	public String findConstantName(int n){
-		for(String cname : constMap.keySet()){
-			if(constMap.get(cname) == n){
-				return cname;
+	public int getLabelIndex(String label){
+		Integer n = labels.get(label);
+		if(n == null){
+			throw new RuntimeException("PANIC: undefined label " + label);
+		}
+		return n;
+	}
+	
+	public IValue getConstantValue(int n){
+		for(IValue constant : constantMap.keySet()){
+			if(constantMap.get(constant) == n){
+				return constant;
 			}
 		}
 		throw new RuntimeException("PANIC: undefined constant index " + n);
 	}
 	
-	public String findFunctionName(int n){
-		for(String fname : codeMap.keySet()){
-			if(codeMap.get(fname) == n){
+	private int getConstantIndex(IValue v){
+		Integer n = constantMap.get(v);
+		if(n == null){
+			n = constantStore.size();
+			constantStore.add(v);
+			constantMap.put(v,  n);
+		}
+		return n;
+	}
+	
+	public String getFunctionName(int n){
+		for(String fname : functionMap.keySet()){
+			if(functionMap.get(fname) == n){
 				return fname;
 			}
 		}
 		throw new RuntimeException("PANIC: undefined function index " + n);
 	}
 	
-	public String findCodeName(int n){
-		for(String cname : codeMap.keySet()){
-			if(codeMap.get(cname) == n){
-				return cname;
-			}
+	public int getFunctionIndex(String name){
+		Integer n = functionMap.get(name);
+		if(n == null){
+			throw new RuntimeException("PANIC: undefined function name " + name);
 		}
-		throw new RuntimeException("PANIC: undefined code index " + n);
+		return n;
 	}
 	
 	CodeBlock add(Instruction ins){
@@ -127,8 +155,20 @@ public class CodeBlock {
 		return add(new Label(this, arg));
 	}
 	
+	public CodeBlock loadcon(boolean arg){
+		return add(new LoadCon(this, getConstantIndex(vf.bool(arg))));
+	}
+	
+	public CodeBlock loadcon(int arg){
+		return add(new LoadCon(this, getConstantIndex(vf.integer(arg))));
+	}
+	
 	public CodeBlock loadcon(String arg){
-		return add(new LoadCon(this, arg));
+		return add(new LoadCon(this, getConstantIndex(vf.string(arg))));
+	}
+	
+	public CodeBlock loadcon(IValue val){
+		return add(new LoadCon(this, getConstantIndex(val)));
 	}
 	
 	public CodeBlock call(String arg){
@@ -208,17 +248,20 @@ public class CodeBlock {
 	}
 	
 	public CodeBlock print(String arg){
-		return add(new Print(this, arg));
+		return add(new Print(this, getConstantIndex(vf.string(arg))));
 	}
     
-	public CodeBlock done(String fname, Map<String,Integer> constMap, Map<String, Integer> codeMap, boolean listing){
-		this.constMap = constMap;
-		this.codeMap = codeMap;
+	public CodeBlock done(String fname, Map<String, Integer> codeMap, boolean listing){
+		this.functionMap = codeMap;
 		int codeSize = pc;
 		pc = 0;
 		finalCode = new int[codeSize];
 		for(Instruction ins : insList){
 			ins.generate();
+		}
+		finalConstantStore = new IValue[constantStore.size()];
+		for(int i = 0; i < constantStore.size(); i++ ){
+			finalConstantStore[i] = constantStore.get(i);
 		}
 		if(listing){
 			listing(fname);
@@ -228,6 +271,10 @@ public class CodeBlock {
     
     public int[] getInstructions(){
     	return finalCode;
+    }
+    
+    public IValue[] getConstants(){
+    	return finalConstantStore;
     }
     
     void listing(String fname){
