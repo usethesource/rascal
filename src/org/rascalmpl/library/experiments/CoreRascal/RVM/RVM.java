@@ -182,12 +182,10 @@ public class RVM {
 				case Opcode.OP_CALL:
 					Function fun;
 					Frame previousScope;
-					int spdelta = 0;
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Closure){
-						Closure clos = (Closure) stack[sp - 1];
+						Closure clos = (Closure) stack[--sp];
 						fun = clos.function;
 						previousScope = clos.frame;
-						spdelta = 1;
 					} else {
 						fun = (op == Opcode.OP_CALL) ? functionStore.get(instructions[pc++]) : (Function) stack[--sp];
 						previousScope = cf;
@@ -201,23 +199,32 @@ public class RVM {
 						nextFrame.stack[i] = stack[sp - fun.nformals + i];
 					}
 					cf.pc = pc;
-					cf.sp = sp - fun.nformals - spdelta;
+					cf.sp = sp - fun.nformals;
 					cf = nextFrame;
 					stack = cf.stack;
 					sp = fun.nlocals;
 					pc = 0;
 					continue;
-
-				case Opcode.OP_RETURN:
-					Object rval = stack[sp - 1];
+				
+				case Opcode.OP_RETURN_0:
+				case Opcode.OP_RETURN_1:
+					Object rval = null;
+					boolean returns = op == Opcode.OP_RETURN_1; 
+					if(returns) 
+						rval = stack[sp - 1];
 					cf = cf.previousCallFrame;
-					if (cf == null)
-						return rval;
+					if(cf == null) {
+						if(returns)
+							return rval;
+						else 
+							return vf.string("None");
+					}
 					instructions = cf.function.instructions.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					stack[sp++] = rval;
+					if(returns)
+						stack[sp++] = rval;
 					continue;
 
 				case Opcode.OP_HALT:
@@ -429,8 +436,10 @@ public class RVM {
 				case "CALL":
 					instructions = instructions.call(((IString) operands.get(0)).getValue());
 					break;
-				case "RETURN":
-					instructions = instructions.ret();
+				case "RETURN_0":
+					instructions = instructions.ret0();
+				case "RETURN_1":
+					instructions = instructions.ret1();
 					break;
 				case "JMP":
 					instructions = instructions.jmp(((IString) operands.get(0)).getValue());

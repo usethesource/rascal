@@ -15,7 +15,7 @@ public enum Opcode {
 	STORELOC (4, 2),
 	CALL (5, 2),
 	CALLPRIM (6, 2),
-	RETURN (7, 1),
+	RETURN_1 (7, 1),
 	JMP (8, 2),
 	JMPTRUE (9, 2),
 	JMPFALSE (10, 2),
@@ -24,7 +24,6 @@ public enum Opcode {
 	POP (13, 1),
 	CALLDYN(14,1),
 	LOADFUN(15,2),
-	
 	CREATE(16,2),
 	NEXT_0(17,1),
 	NEXT_1(18,1),
@@ -33,7 +32,8 @@ public enum Opcode {
 	START(21,1),
 	CREATEDYN(22,1),
 	HASNEXT(23,1),
-	PRINT(24,2)
+	PRINT(24,2),
+	RETURN_0(25,1)
 	;
 	
 	private final int op;
@@ -55,7 +55,7 @@ public enum Opcode {
 	static public final int OP_STORELOC = 4;
 	static public final int OP_CALL = 5;
 	static public final int OP_CALLPRIM = 6;
-	static public final int OP_RETURN = 7;
+	static public final int OP_RETURN_1 = 7;
 	static public final int OP_JMP = 8;
 	static public final int OP_JMPTRUE = 9;
 	static public final int OP_JMPFALSE = 10;
@@ -73,6 +73,7 @@ public enum Opcode {
 	static public final int OP_CREATEDYN = 22;
 	static public final int OP_HASNEXT = 23;
 	static public final int OP_PRINT = 24;
+	static public final int OP_RETURN_0 = 25;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -110,8 +111,8 @@ public enum Opcode {
 		case CALLPRIM:
 			return "CALLPRIM " + ins.finalCode[pc + 1] + " [" + Primitive.fromInteger(ins.finalCode[pc + 1]).name() + "]";
 			
-		case RETURN:
-			return "RETURN";
+		case RETURN_1:
+			return "RETURN_1";
 			
 		case JMP:
 			return "JMP " + ins.finalCode[pc + 1];
@@ -160,8 +161,13 @@ public enum Opcode {
 			
 		case HASNEXT:
 			return "HASNEXT " + ins.finalCode[pc + 1];
+			
 		case PRINT:
 			return "PRINT " + ins.finalCode[pc + 1]  + " [" + ins.findConstantName(ins.finalCode[pc + 1]) + "]";
+		
+		case RETURN_0:
+			return "RETURN_0 " + ins.finalCode[pc + 1];
+		
 		default:
 			break;
 		}	

@@ -25,7 +25,8 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Pop;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next1;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Print;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return0;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return1;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Start;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreLoc;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreVar;
@@ -112,8 +113,12 @@ public class CodeBlock {
 		return add(new Halt(this));
 	}
 	
-	public CodeBlock ret(){
-		return add(new Return(this));
+	public CodeBlock ret0() {
+		return add(new Return0(this));
+	}
+	
+	public CodeBlock ret1(){
+		return add(new Return1(this));
 	}
 	
 	public CodeBlock label(String arg){

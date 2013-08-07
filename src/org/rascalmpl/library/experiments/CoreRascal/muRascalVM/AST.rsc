@@ -11,19 +11,3 @@ public data Directive =
 		;
 
 public data RascalVM = vm(list[Directive] directives, list[Instruction] instructions);
-
-public str LOADCON = "LOADCON";
-public str LOADLOC = "LOADLOC";
-public str LOADVAR = "LOADVAR";
-public str STORELOC = "STORELOC";
-public str STOREVAR = "STOREVAR";
-public str LABEL = "LABEL";
-public str CALLPRIM = "CALLPRIM";
-public str CALL = "CALL";
-public str RETURN = "RETURN";
-public str JMP = "JMP";
-public str JMPTRUE = "JMPTRUE";
-public str JMPFALSE = "JMPFALSE";
-public str CREATE = "CREATE";
-public str RESUME = "RESUME";
-public str YIELD = "YIELD";

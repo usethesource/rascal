@@ -44,7 +44,7 @@ public class CountDown_a {
 							.callprim(Primitive.greater_num_num)
 							.jmptrue("BODY")
 							.loadcon("0")
-							.ret()
+							.ret1()
 							.label("BODY")
 							.loadloc(0)
 							.yield1()
