@@ -151,7 +151,7 @@ public enum Opcode {
 			return "YIELD_0 " + ins.finalCode[pc + 1];
 		
 		case YIELD_1:
-			return "YIELD_1 " + ins.finalCode[pc + 1];
+			return "YIELD_1 ";// + ins.finalCode[pc + 1];
 		
 		case START:
 			return "START " + ins.finalCode[pc + 1];
