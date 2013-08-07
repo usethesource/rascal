@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.ast.Visibility.Public;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -76,7 +77,7 @@ public class RVM {
 
 		Function function = functionStore.get(functionMap.get(main));
 		if (function == null) {
-			throw new RuntimeException("PANIC: Code for main not found: "+ main);
+			throw new RuntimeException("PANIC: Code for main not found: " + main);
 		}
 		Frame cf = new Frame(0, null, function.maxstack, function);
 		Object[] stack = cf.stack;
@@ -174,8 +175,7 @@ public class RVM {
 					continue;
 
 				case Opcode.OP_LABEL:
-					throw new RuntimeException(
-							"PANIC: label instruction at runtime");
+					throw new RuntimeException("PANIC: label instruction at runtime");
 
 				case Opcode.OP_CALLDYN:
 					
@@ -338,7 +338,7 @@ public class RVM {
 				}
 			}
 		} catch (Exception e) {
-			System.err.println("PANIC: exception caused by invoking a primitive");
+			System.err.println("PANIC: exception caused by invoking a primitive or illegal instruction sequence");
 			e.printStackTrace();
 		}
 		return FALSE;
@@ -424,29 +424,8 @@ public class RVM {
 				case "CALLPRIM":
 					instructions = instructions.callprim(Primitive.valueOf(((IString) operands.get(0)).getValue()));
 							
-					/* String operand = ((IString) operands.get(0)).getValue();
-				
-					switch(operand) {
-					case "addition_int_int":
-						instructions = instructions.callprim(Primitive.addition_int_int);
-						break;
-					case "equal_int_int":
-						instructions = instructions.callprim(Primitive.equal_int_int);
-						break;
-					case "greater_int_int":
-						instructions = instructions.callprim(Primitive.greater_int_int);
-						break;
-					case "multiplication_int_int":
-						instructions = instructions.callprim(Primitive.multiplication_int_int);
-						break;
-					case "substraction_int_int":
-						instructions = instructions.callprim(Primitive.substraction_int_int);
-						break;
-					default:
-						throw new RuntimeException("PANIC: Unknown primitive operation: " + operand);
-					}
-					*/
 					break;
+
 				case "CALL":
 					instructions = instructions.call(((IString) operands.get(0)).getValue());
 					break;
@@ -497,7 +476,7 @@ public class RVM {
 				case "HASNEXT":
 					instructions = instructions.hasNext();
 					break;
-				
+		
 				default:
 					throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 				}

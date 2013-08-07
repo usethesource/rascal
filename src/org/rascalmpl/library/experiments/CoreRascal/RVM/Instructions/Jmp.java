@@ -15,6 +15,9 @@ public class Jmp extends Instruction {
 	
 	public void generate(){
 		ins.addCode(opcode.getOpcode());
+		if(ins.labels.get(label) == null){
+			throw new RuntimeException("PANIC: undefined label " + label);
+		}
 		ins.addCode(ins.labels.get(label));
 	}
 }
