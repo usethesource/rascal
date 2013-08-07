@@ -82,7 +82,7 @@ public class RVM {
 		Frame cf = new Frame(0, null, function.maxstack, function);
 		Object[] stack = cf.stack;
 		if (args.length != function.nformals) {
-			throw new RuntimeException("PANIC: " + main + " called with wrong number of arguaments: " + args.length);
+			throw new RuntimeException("PANIC: " + main + " called with wrong number of arguments: " + args.length);
 		}
 		for (int i = 0; i < args.length; i++) {
 			stack[i] = args[i];
@@ -96,6 +96,9 @@ public class RVM {
 		
 		try {
 			NEXT_INSTRUCTION: while (true) {
+				if(pc < 0 || pc >= instructions.length){
+					throw new RuntimeException("PANIC: " + main + " illegal pc: " + pc);
+				}
 				int op = instructions[pc++];
 
 				if (debug) {
