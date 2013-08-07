@@ -8,23 +8,16 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Primitive;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.RVM;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class CountDown {
+public class CountDown_b {
+	
 	public static void main(String[] args) {
 		
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory v = rvm.vf;
 		
-		rvm.declareConst("TRUE", v.bool(true));
-		rvm.declareConst("FALSE", v.bool(false));
-		
-		rvm.declareConst("LST", v.list(v.integer(0), v.integer(1), v.integer(2)));
-		
 		rvm.declareConst("0", v.integer(0));
 		rvm.declareConst("1", v.integer(1));
-		rvm.declareConst("2", v.integer(2));
-		rvm.declareConst("3", v.integer(3));
-		rvm.declareConst("4", v.integer(4));
-		rvm.declareConst("5", v.integer(5));
+		rvm.declareConst("10", v.integer(10));
 		
 		/*
 		 * g (n) 
@@ -36,6 +29,7 @@ public class CountDown {
 		 * 		return 0; 
 		 * }
 		 */
+		
 		rvm.declare(new Function("g", 0, 1, 1, 6,
 					new CodeBlock()
 							.label("LOOP")
@@ -53,30 +47,72 @@ public class CountDown {
 							.callprim(Primitive.substraction_num_num)
 							.storeloc(0)
 							.jmp("LOOP")));
+		/*
+		 * h() {
+		 * n = 10 + 1;
+		 * c = create(g);
+		 * c.start(n);
+		 * return c;
+		 * }
+		 */
+		
+		rvm.declare(new Function("h", 0, 0, 2, 6, 
+					new CodeBlock()
+						.loadcon("10")
+						.loadcon("1")
+						.callprim(Primitive.addition_num_num)
+						.storeloc(0)
+						.create("g")
+						.storeloc(1)
+						.loadloc(0)
+						.loadloc(1)
+						.start()
+						.pop()
+						.loadloc(1)
+						.ret1()));
 		
 		/*
-		 * c = create(g);
-		 * c.start(5) * c.next() + c.next();
+		 * c1 = h();
+		 * c2 = h();
+		 * 
+		 * count = 0;
+		 * while(hasNext(c1)) {
+		 * 		count = (c1.resume() + c2.resume()) + count;
+		 * }
 		 */
 		/*
-		 * result: 23
+		 * result: 0
 		 */
-		rvm.declare(new Function("main", 0, 0, 1, 6,
+		rvm.declare(new Function("main", 0, 0, 3, 6,
 					new CodeBlock()
-						.create("g")
+						.call("h")
 						.storeloc(0)
-						.loadcon("5")
+						.call("h")
+						.storeloc(1)
+						.loadcon("0")
+						.storeloc(2)
+						
+						.label("LOOP")
 						.loadloc(0)
-						.start()
+						.hasNext()
+						//.loadloc(1)
+						//.hasNext()
+											
+						.jmptrue("BODY")
+						.halt()
+						.label("BODY")
 						.loadloc(0)
 						.next0()
-						.callprim(Primitive.multiplication_num_num)
-						.loadloc(0)
+						.loadloc(1)
 						.next0()
 						.callprim(Primitive.addition_num_num)
-						.halt()));
+						.loadloc(2)
+						.callprim(Primitive.addition_num_num)
+						.storeloc(2)
+						
+						.jmp("LOOP")));
 	
 		rvm.executeProgram("main", new IValue[] {});
 	}
-
+	
 }

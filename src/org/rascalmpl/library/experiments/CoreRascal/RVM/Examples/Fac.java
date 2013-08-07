@@ -27,7 +27,7 @@ public class Fac {
 					callprim(Primitive.equal_num_num).
 					jmpfalse("L").
 					loadcon("ONE").
-					ret().
+					ret1().
 					label("L").
 					loadloc(0).
 					loadloc(0).
@@ -35,7 +35,7 @@ public class Fac {
 					callprim(Primitive.substraction_num_num).
 					call("fac").
 					callprim(Primitive.multiplication_num_num).
-					ret()));
+					ret1()));
 		
 		rvm.declare(new Function("main_fac", 0, 0, 0, 7,
 				new CodeBlock().
