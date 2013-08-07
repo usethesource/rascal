@@ -88,40 +88,40 @@ public enum Opcode {
 		return op;
 	}
 	
-	public static String toString(CodeBlock ins, Opcode opc, int pc){
+	public static String toString(CodeBlock cb, Opcode opc, int pc){
 		switch(opc){
 		case LOADCON:
-			return "LOADCON " + ins.finalCode[pc + 1]  + " [" + ins.findConstantName(ins.finalCode[pc + 1]) + "]";
+			return "LOADCON " + cb.finalCode[pc + 1]  + " [" + cb.getConstantValue(cb.finalCode[pc + 1]) + "]";
 			
 		case LOADVAR:
-			return "LOADVAR " + ins.finalCode[pc + 1] + ", " + ins.finalCode[pc + 2];
+			return "LOADVAR " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
 			
 		case LOADLOC:
-			return "LOADLOC " + ins.finalCode[pc + 1];
+			return "LOADLOC " + cb.finalCode[pc + 1];
 			
 		case STOREVAR:
-			return "STOREVAR " + ins.finalCode[pc + 1] + ", " + ins.finalCode[pc + 2];	
+			return "STOREVAR " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];	
 			
 		case STORELOC:
-			return "STORELOC " + ins.finalCode[pc + 1];
+			return "STORELOC " + cb.finalCode[pc + 1];
 			
 		case CALL:
-			return "CALL " + ins.finalCode[pc + 1]  + " [" + ins.findCodeName(ins.finalCode[pc + 1]) + "]";
+			return "CALL " + cb.finalCode[pc + 1]  + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
 		case CALLPRIM:
-			return "CALLPRIM " + ins.finalCode[pc + 1] + " [" + Primitive.fromInteger(ins.finalCode[pc + 1]).name() + "]";
+			return "CALLPRIM " + cb.finalCode[pc + 1] + " [" + Primitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
 			
 		case RETURN_1:
 			return "RETURN_1";
 			
 		case JMP:
-			return "JMP " + ins.finalCode[pc + 1];
+			return "JMP " + cb.finalCode[pc + 1];
 			
 		case JMPTRUE:
-			return "JMPTRUE " + ins.finalCode[pc + 1];
+			return "JMPTRUE " + cb.finalCode[pc + 1];
 			
 		case JMPFALSE:
-			return "JMPFALSE " + ins.finalCode[pc + 1];
+			return "JMPFALSE " + cb.finalCode[pc + 1];
 			
 		case LABEL:
 			break;
@@ -136,37 +136,37 @@ public enum Opcode {
 			return "CALLDYN";
 			
 		case LOADFUN:
-			return "LOADFUN " + ins.finalCode[pc + 1]  + " [" + ins.findFunctionName(ins.finalCode[pc + 1]) + "]";
+			return "LOADFUN " + cb.finalCode[pc + 1]  + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
 		case CREATE:
-			return "CREATE " + ins.finalCode[pc + 1] + " [" + ins.findCodeName(ins.finalCode[pc + 1]) + "]";
+			return "CREATE " + cb.finalCode[pc + 1] + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
 		case NEXT_0:
-			return "NEXT_0 " + ins.finalCode[pc + 1];
+			return "NEXT_0 " + cb.finalCode[pc + 1];
 			
 		case NEXT_1:
-			return "NEXT_1 " + ins.finalCode[pc + 1];
+			return "NEXT_1 " + cb.finalCode[pc + 1];
 			
 		case YIELD_0:
-			return "YIELD_0 " + ins.finalCode[pc + 1];
+			return "YIELD_0 " + cb.finalCode[pc + 1];
 		
 		case YIELD_1:
 			return "YIELD_1 ";// + ins.finalCode[pc + 1];
 		
 		case INIT:
-			return "START " + ins.finalCode[pc + 1];
+			return "START " + cb.finalCode[pc + 1];
 		
 		case CREATEDYN:
-			return "CREATEDYN " + ins.finalCode[pc + 1];
+			return "CREATEDYN " + cb.finalCode[pc + 1];
 			
 		case HASNEXT:
-			return "HASNEXT " + ins.finalCode[pc + 1];
+			return "HASNEXT " + cb.finalCode[pc + 1];
 			
 		case PRINT:
-			return "PRINT " + ins.finalCode[pc + 1]  + " [" + ins.findConstantName(ins.finalCode[pc + 1]) + "]";
+			return "PRINT " + cb.finalCode[pc + 1]  + " [" + cb.getConstantValue(cb.finalCode[pc + 1]) + "]";
 		
 		case RETURN_0:
-			return "RETURN_0 " + ins.finalCode[pc + 1];
+			return "RETURN_0 " + cb.finalCode[pc + 1];
 		
 		default:
 			break;

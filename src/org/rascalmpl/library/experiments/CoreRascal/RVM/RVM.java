@@ -27,9 +27,6 @@ public class RVM {
 	private boolean debug = true;
 	private boolean listing = false;
 	
-	private Map<String, Integer> constantMap;
-	ArrayList<IValue> constantStore;
-	
 	private ArrayList<Function> functionStore;
 	private Map<String, Integer> functionMap;
 
@@ -37,9 +34,8 @@ public class RVM {
 		this.vf = vf;
 		TRUE = vf.bool(true);
 		FALSE = vf.bool(false);
-		constantStore = new ArrayList<IValue>();
 		functionStore = new ArrayList<Function>();
-		constantMap = new HashMap<String, Integer>();
+
 		functionMap = new HashMap<String, Integer>();
 		Primitive.init(vf);
 	}
@@ -50,14 +46,6 @@ public class RVM {
 		}
 		functionMap.put(f.name, functionStore.size());
 		functionStore.add(f);
-	}
-	
-	public void declareConst(String name, IValue val){
-		if(constantMap.get(name) != null){
-			throw new RuntimeException("PANIC: Double declaration of constant: " + name);
-		}
-		constantMap.put(name, constantStore.size());
-		constantStore.add(val);
 	}
 	
 	public void setDebug(boolean b){
@@ -71,7 +59,7 @@ public class RVM {
 	public Object executeProgram(String main, IValue[] args) {
 
 		for (Function f : functionStore) {
-			f.instructions.done(f.name, constantMap, functionMap, listing);
+			f.codegen(functionMap, listing);
 		}
 		// Perform a call to "main"
 
@@ -88,7 +76,7 @@ public class RVM {
 			stack[i] = args[i];
 		}
 
-		int[] instructions = function.instructions.getInstructions();
+		int[] instructions = function.codeblock.getInstructions();
 		int pc = 0;
 		int sp = function.nlocals;
 		
@@ -106,13 +94,13 @@ public class RVM {
 					for (int i = 0; i < sp; i++) {
 						System.out.println("\t" + i + ": " + stack[i]);
 					}
-					System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.instructions.toString(startpc));
+					System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
 
 				switch (op) {
 
 				case Opcode.OP_LOADCON:
-					stack[sp++] = constantStore.get(instructions[pc++]);
+					stack[sp++] = cf.function.constantStore[instructions[pc++]];
 					continue;
 
 				case Opcode.OP_LOADFUN:
@@ -194,7 +182,7 @@ public class RVM {
 						previousScope = cf;
 					}
 						
-					instructions = fun.instructions.getInstructions();
+					instructions = fun.codeblock.getInstructions();
 					
 					Frame nextFrame = new Frame(fun.scope + 1, cf, previousScope, fun.maxstack, fun);
 					
@@ -222,7 +210,7 @@ public class RVM {
 						else 
 							return vf.string("None");
 					}
-					instructions = cf.function.instructions.getInstructions();
+					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
@@ -240,7 +228,7 @@ public class RVM {
 					return stack[sp - 1];
 
 				case Opcode.OP_PRINT:
-					String msg = ((IString) constantStore.get(instructions[pc++])).getValue();
+					String msg = ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
 					StringBuilder fmsg = new StringBuilder();
 					for(int i = 0; i < msg.length();){
 						char c = msg.charAt(i);
@@ -294,7 +282,7 @@ public class RVM {
 					coroutine.next(cf);
 					
 					fun = coroutine.frame.function;
-					instructions = coroutine.frame.function.instructions.getInstructions();
+					instructions = coroutine.frame.function.codeblock.getInstructions();
 					
 					if(op == Opcode.OP_NEXT_1)
 						coroutine.frame.stack[coroutine.frame.sp++] = stack[--sp];
@@ -322,7 +310,7 @@ public class RVM {
 					cf = prev;
 					if(op == Opcode.OP_YIELD_1 && cf == null)
 						return rval;
-					instructions = cf.function.instructions.getInstructions();
+					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
@@ -351,6 +339,8 @@ public class RVM {
 		String func = "main";
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		List<IValue> functions = new ArrayList<>();
+		HashMap<String, IValue> constantMap = new HashMap<String, IValue>();
+		
 		for(IValue directive : directives) {
 			String constr = ((IConstructor) directive).getName();
 			String name = null;
@@ -359,22 +349,22 @@ public class RVM {
 			switch(constr) {
 			case "intconst":
 				name = ((IString) ((IConstructor) directive).get("value")).getValue();
-				rvm.declareConst(name, rvm.vf.integer(name));
+				constantMap.put(name, rvm.vf.integer(name));
 				break;
 			case "relconst":
 				name = ((IString) ((IConstructor) directive).get("value")).getValue();
-				rvm.declareConst(name, rvm.vf.real(name));
+				constantMap.put(name, rvm.vf.real(name));
 				break;
 			case "ratconst":
 				name = ((IString) ((IConstructor) directive).get("value")).getValue();
-				rvm.declareConst(name, rvm.vf.rational(name));
+				constantMap.put(name, rvm.vf.rational(name));
 				break;
 			case "boolconst":
 				name = ((IString) ((IConstructor) directive).get("value")).getValue();
 				if(name.equals("TRUE")) {
-					rvm.declareConst(name, rvm.TRUE);
+					constantMap.put(name, rvm.TRUE);
 				} else if(name.equals("FALSE")) {
-					rvm.declareConst(name, rvm.FALSE);
+					constantMap.put(name, rvm.FALSE);
 				}
 				break;
 			case "function":
@@ -405,7 +395,7 @@ public class RVM {
 				
 				switch(opcode) {
 				case "LOADCON":
-					instructions = instructions.loadcon(((IString) operands.get(0)).getValue());
+					instructions = instructions.loadcon(constantMap.get(((IString) operands.get(0)).getValue()));
 					break;
 				case "LOADVAR":
 					instructions = instructions.loadvar(Integer.parseInt(((IString) operands.get(0)).getValue()), 

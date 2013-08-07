@@ -11,15 +11,11 @@ public class Call extends Instruction {
 		this.fun = fun;
 	}
 	
-	public String toString() { return "CALL " + fun + "[" + ins.codeMap.get(fun) + "]"; }
+	public String toString() { return "CALL " + fun + "[" + codeblock.getFunctionIndex(fun) + "]"; }
 	
 	public void generate(){
-		ins.addCode(opcode.getOpcode());
-		Object o = ins.codeMap.get(fun);
-		if(o == null){
-			throw new RuntimeException("PANIC: undefined constant " + fun);
-		}
-		ins.addCode((int)o);
+		codeblock.addCode(opcode.getOpcode());
+		codeblock.addCode(codeblock.getFunctionIndex(fun));
 	}
 
 }
