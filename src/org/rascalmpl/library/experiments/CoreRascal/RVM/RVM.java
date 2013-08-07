@@ -265,25 +265,17 @@ public class RVM {
 					sp = prim.invoke(stack, sp);
 					continue;
 				
-				case Opcode.OP_START:
+				case Opcode.OP_INIT:
 					Coroutine coroutine = (Coroutine) stack[--sp];
-					// put the coroutine onto the stack of active coroutines
-					activeCoroutines.push(coroutine);
-					coroutine.next(cf);
-					
-					fun = coroutine.frame.function;
-					instructions = coroutine.frame.function.instructions.getInstructions();
 					
 					// coroutine's main function may have formal parameters
+					fun = coroutine.frame.function;
 					for (int i = fun.nformals - 1; i >= 0; i--) {
 						coroutine.frame.stack[i] = stack[sp - fun.nformals + i];
 					}
-					cf.pc = pc;
-					cf.sp = sp - fun.nformals;
-					cf = coroutine.frame;
-					stack = cf.stack;
-					sp = fun.nlocals;
-					pc = 0;
+					coroutine.frame.sp = fun.nlocals;
+					coroutine.suspend(coroutine.frame);
+					sp = sp - fun.nformals;
 					continue;
 					
 				case Opcode.OP_CREATE:
@@ -297,6 +289,7 @@ public class RVM {
 				case Opcode.OP_NEXT_0:
 				case Opcode.OP_NEXT_1:
 					coroutine = (Coroutine) stack[--sp];
+					// put the coroutine onto the stack of active coroutines
 					activeCoroutines.push(coroutine);
 					coroutine.next(cf);
 					
@@ -466,7 +459,7 @@ public class RVM {
 					break;
 				
 				case "START":
-					instructions = instructions.start();
+					instructions = instructions.init();
 					break;
 					
 				case "NEXT_0":
