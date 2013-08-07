@@ -24,16 +24,16 @@ public class Do {
 				new CodeBlock().
 					loadloc(0).
 					loadloc(0).
-					callprim(Primitive.multiplication_int_int).
+					callprim(Primitive.multiplication_num_num).
 					ret()));
 		
 		rvm.declare(new Function("cube", 1, 1, 1, 6, 
 				new CodeBlock().
 					loadloc(0).
 					loadloc(0).
-					callprim(Primitive.multiplication_int_int).
+					callprim(Primitive.multiplication_num_num).
 					loadloc(0).
-					callprim(Primitive.multiplication_int_int).
+					callprim(Primitive.multiplication_num_num).
 					ret()));
 		
 		rvm.declare(new Function("do", 1, 2, 2, 6, 

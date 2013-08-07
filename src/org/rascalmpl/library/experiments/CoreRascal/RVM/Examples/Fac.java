@@ -24,7 +24,7 @@ public class Fac {
 				new CodeBlock().
 					loadloc(0).
 					loadcon("ONE").
-					callprim(Primitive.equal_int_int).
+					callprim(Primitive.equal_num_num).
 					jmpfalse("L").
 					loadcon("ONE").
 					ret().
@@ -32,9 +32,9 @@ public class Fac {
 					loadloc(0).
 					loadloc(0).
 					loadcon("ONE").
-					callprim(Primitive.substraction_int_int).
+					callprim(Primitive.substraction_num_num).
 					call("fac").
-					callprim(Primitive.multiplication_int_int).
+					callprim(Primitive.multiplication_num_num).
 					ret()));
 		
 		rvm.declare(new Function("main_fac", 0, 0, 0, 7,
@@ -52,7 +52,7 @@ public class Fac {
 					label("L").
 					loadloc(1). // cnt
 					loadcon("ZERO").
-					callprim(Primitive.greater_int_int).
+					callprim(Primitive.greater_num_num).
 					jmptrue("M").
 					halt().
 					label("M").
@@ -61,7 +61,7 @@ public class Fac {
 					pop().
 					loadloc(1).
 					loadcon("ONE").
-					callprim(Primitive.substraction_int_int).
+					callprim(Primitive.substraction_num_num).
 					storeloc(1).
 					jmp("L")));
 		
