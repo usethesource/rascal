@@ -13,31 +13,31 @@ public class Closure {
 	public static void main(String[] args) {
 		
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
-		IValueFactory v = rvm.vf;
+		IValueFactory vf = rvm.vf;
 		
-		rvm.declareConst("TRUE", v.bool(true));
-		rvm.declareConst("FALSE", v.bool(false));
+		rvm.declareConst("TRUE", vf.bool(true));
+		rvm.declareConst("FALSE", vf.bool(false));
 		
-		rvm.declareConst("LST", v.list(v.integer(0), v.integer(1), v.integer(2)));
+		rvm.declareConst("LST", vf.list(vf.integer(0), vf.integer(1), vf.integer(2)));
 		
-		rvm.declareConst("0", v.integer(0));
-		rvm.declareConst("1", v.integer(1));
-		rvm.declareConst("2", v.integer(2));
-		rvm.declareConst("3", v.integer(3));
-		rvm.declareConst("4", v.integer(4));
-		rvm.declareConst("ZERO", v.string("ZERO"));
-		rvm.declareConst("ONE", v.string("ONE"));
-		rvm.declareConst("TWO", v.string("TWO"));
+		rvm.declareConst("0", vf.integer(0));
+		rvm.declareConst("1", vf.integer(1));
+		rvm.declareConst("2", vf.integer(2));
+		rvm.declareConst("3", vf.integer(3));
+		rvm.declareConst("4", vf.integer(4));
+		rvm.declareConst("ZERO", vf.string("ZERO"));
+		rvm.declareConst("ONE", vf.string("ONE"));
+		rvm.declareConst("TWO", vf.string("TWO"));
 		
 		
 		rvm.declare(new Function("g", 1, 0, 0, 6,
-				new CodeBlock().
+				new CodeBlock(vf).
 					loadvar(1,0).
 					ret1()
 		));
 		
 		rvm.declare(new Function("f", 0, 0, 1, 6,
-				new CodeBlock().
+				new CodeBlock(vf).
 					loadcon("1").
 					storeloc(0).
 					loadfun("g").
@@ -45,7 +45,7 @@ public class Closure {
 		));
 		
 		rvm.declare(new Function("main", 0, 0, 0, 6,
-					new CodeBlock().
+					new CodeBlock(vf).
 						call("f").
 						calldyn().
 						halt()));

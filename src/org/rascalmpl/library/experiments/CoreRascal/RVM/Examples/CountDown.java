@@ -12,19 +12,19 @@ public class CountDown {
 	public static void main(String[] args) {
 		
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
-		IValueFactory v = rvm.vf;
+		IValueFactory vf = rvm.vf;
 		
-		rvm.declareConst("TRUE", v.bool(true));
-		rvm.declareConst("FALSE", v.bool(false));
+		rvm.declareConst("TRUE", vf.bool(true));
+		rvm.declareConst("FALSE", vf.bool(false));
 		
-		rvm.declareConst("LST", v.list(v.integer(0), v.integer(1), v.integer(2)));
+		rvm.declareConst("LST", vf.list(vf.integer(0), vf.integer(1), vf.integer(2)));
 		
-		rvm.declareConst("0", v.integer(0));
-		rvm.declareConst("1", v.integer(1));
-		rvm.declareConst("2", v.integer(2));
-		rvm.declareConst("3", v.integer(3));
-		rvm.declareConst("4", v.integer(4));
-		rvm.declareConst("5", v.integer(5));
+		rvm.declareConst("0", vf.integer(0));
+		rvm.declareConst("1", vf.integer(1));
+		rvm.declareConst("2", vf.integer(2));
+		rvm.declareConst("3", vf.integer(3));
+		rvm.declareConst("4", vf.integer(4));
+		rvm.declareConst("5", vf.integer(5));
 		
 		/*
 		 * g (n) 
@@ -37,7 +37,7 @@ public class CountDown {
 		 * }
 		 */
 		rvm.declare(new Function("g", 0, 1, 1, 6,
-					new CodeBlock()
+					new CodeBlock(vf)
 							.label("LOOP")
 							.loadloc(0)
 							.loadcon("0")
@@ -63,7 +63,7 @@ public class CountDown {
 		 * result: 23
 		 */
 		rvm.declare(new Function("main", 0, 0, 1, 6,
-					new CodeBlock()
+					new CodeBlock(vf)
 						.create("g")
 						.storeloc(0)
 						.loadcon("5")
