@@ -171,6 +171,9 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
     }
     
     if (argTypes[0].isSubtypeOf(Factory.Tree)) {
+      if (!TreeAdapter.isAppl((IConstructor) argValues[0])) {
+        throw new MatchFailed();
+      }
       label = TreeAdapter.getProduction((IConstructor) argValues[0]);
       List<AbstractFunction> funcs = alternatives.get(label);
       
