@@ -29,7 +29,7 @@ public enum Opcode {
 	NEXT_1(18,1),
 	YIELD_0(19,1),
 	YIELD_1(20,1),
-	START(21,1),
+	INIT(21,1),
 	CREATEDYN(22,1),
 	HASNEXT(23,1),
 	PRINT(24,2),
@@ -69,7 +69,7 @@ public enum Opcode {
 	static public final int OP_NEXT_1 = 18;
 	static public final int OP_YIELD_0 = 19;
 	static public final int OP_YIELD_1 = 20;
-	static public final int OP_START = 21;
+	static public final int OP_INIT = 21;
 	static public final int OP_CREATEDYN = 22;
 	static public final int OP_HASNEXT = 23;
 	static public final int OP_PRINT = 24;
@@ -153,7 +153,7 @@ public enum Opcode {
 		case YIELD_1:
 			return "YIELD_1 ";// + ins.finalCode[pc + 1];
 		
-		case START:
+		case INIT:
 			return "START " + ins.finalCode[pc + 1];
 		
 		case CREATEDYN:

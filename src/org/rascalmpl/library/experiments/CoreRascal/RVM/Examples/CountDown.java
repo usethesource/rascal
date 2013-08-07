@@ -56,7 +56,8 @@ public class CountDown {
 		
 		/*
 		 * c = create(g);
-		 * c.start(5) * c.next() + c.next();
+		 * c.init(5);
+		 * c.next() * c.next() + c.next();
 		 */
 		/*
 		 * result: 23
@@ -67,7 +68,9 @@ public class CountDown {
 						.storeloc(0)
 						.loadcon("5")
 						.loadloc(0)
-						.start()
+						.init()
+						.loadloc(0)
+						.next0()
 						.loadloc(0)
 						.next0()
 						.callprim(Primitive.multiplication_num_num)

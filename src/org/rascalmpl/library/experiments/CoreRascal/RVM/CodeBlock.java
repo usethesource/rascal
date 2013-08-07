@@ -27,7 +27,7 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next1;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Print;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return1;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Start;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Init;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreLoc;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreVar;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Yield0;
@@ -173,8 +173,8 @@ public class CodeBlock {
 		return add(new CallDyn(this));
 	}
 	
-	public CodeBlock start() {
-		return add(new Start(this));
+	public CodeBlock init() {
+		return add(new Init(this));
 	}
 	
 	public CodeBlock create(String name) {

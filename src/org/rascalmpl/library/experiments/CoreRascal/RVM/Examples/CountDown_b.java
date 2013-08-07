@@ -17,7 +17,7 @@ public class CountDown_b {
 		
 		rvm.declareConst("0", v.integer(0));
 		rvm.declareConst("1", v.integer(1));
-		rvm.declareConst("10", v.integer(10));
+		rvm.declareConst("9", v.integer(9));
 		
 		/*
 		 * g (n) 
@@ -49,16 +49,16 @@ public class CountDown_b {
 							.jmp("LOOP")));
 		/*
 		 * h() {
-		 * n = 10 + 1;
+		 * n = 9 + 1;
 		 * c = create(g);
-		 * c.start(n);
+		 * c.init(n);
 		 * return c;
 		 * }
 		 */
 		
 		rvm.declare(new Function("h", 0, 0, 2, 6, 
 					new CodeBlock()
-						.loadcon("10")
+						.loadcon("9")
 						.loadcon("1")
 						.callprim(Primitive.addition_num_num)
 						.storeloc(0)
@@ -66,7 +66,7 @@ public class CountDown_b {
 						.storeloc(1)
 						.loadloc(0)
 						.loadloc(1)
-						.start()
+						.init()
 						.pop()
 						.loadloc(1)
 						.ret1()));
