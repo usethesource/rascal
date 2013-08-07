@@ -6,7 +6,7 @@ LOADCON 1
 CALLPRIM equal_num_num
 JMPFALSE L
 LOADLOC 1                         /* loads accum local variable */
-RETURN
+RETURN_1
 LABEL L
 LOADLOC 0
 LOADCON 1
@@ -15,12 +15,12 @@ LOADLOC 0                         /* loads n */
 LOADLOC 1                         /* loads accum */
 CALLPRIM multiplication_num_num   /* multiply */
 CALL fac                          /* make a jump in place of a tail call */
-RETURN
+RETURN_1
 ;
 FUNCTION main 0 0 0 7
 LOADCON 4
 LOADCON 1
 CALL fac
 HALT
-RETURN
+RETURN_1
 ;

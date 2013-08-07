@@ -33,14 +33,14 @@ public static void main(String[] args) {
 					callprim(Primitive.equal_num_num).
 					jmpfalse("L").
 					loadcon("0").
-					ret().
+					ret1().
 					label("L").
 					loadloc(0).
 					loadcon("1").
 					callprim(Primitive.equal_num_num).
 					jmpfalse("M").
 					loadcon("1").
-					ret().
+					ret1().
 					label("M").
 					loadloc(0).
 					loadcon("1").
@@ -51,7 +51,7 @@ public static void main(String[] args) {
 					callprim(Primitive.substraction_num_num).
 					call("fib").
 					callprim(Primitive.addition_num_num).
-					ret()));
+					ret1()));
 					
 		rvm.declare(new Function("main", 0, 0, 0, 6,
 					new CodeBlock().

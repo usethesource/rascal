@@ -7,7 +7,7 @@ LOADCON 1
 CALLPRIM equal_num_num
 JMPFALSE L
 LOADLOC 1                         /* loads accum local variable */
-RETURN
+RETURN_1
 LABEL L
 LOADLOC 0                         /* loads n */
 LOADLOC 1                         /* loads accum */
@@ -18,12 +18,12 @@ LOADCON 1
 CALLPRIM substraction_num_num
 STORELOC 0
 JMP L0                            /* make a jump in place of tail call */
-RETURN
+RETURN_1
 ;
 FUNCTION main 0 0 0 7
 LOADCON 4
 LOADCON 1
 CALL fac
 HALT
-RETURN
+RETURN_1
 ;

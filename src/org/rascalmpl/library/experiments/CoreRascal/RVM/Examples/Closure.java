@@ -33,7 +33,7 @@ public class Closure {
 		rvm.declare(new Function("g", 1, 0, 0, 6,
 				new CodeBlock().
 					loadvar(1,0).
-					ret()
+					ret1()
 		));
 		
 		rvm.declare(new Function("f", 0, 0, 1, 6,
@@ -41,7 +41,7 @@ public class Closure {
 					loadcon("1").
 					storeloc(0).
 					loadfun("g").
-					ret()
+					ret1()
 		));
 		
 		rvm.declare(new Function("main", 0, 0, 0, 6,
