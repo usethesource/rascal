@@ -174,6 +174,10 @@ public class Symbols {
 			return factory.constructor(Factory.Symbol_ParameterizedSort, factory.string(((Nonterminal.Lexical) symbol.getNonterminal()).getString()), syms);
 		}
 		
+		if (symbol.isPrecede() || symbol.isNotPrecede() || symbol.isFollow() || symbol.isNotFollow() || symbol.isColumn() || symbol.isStartOfLine() || symbol.isEndOfLine() || symbol.isExcept()) {
+		  return symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
+		}
+		
 		throw new RuntimeException("Symbol has unknown type: "+ symbol);
 	}
 
