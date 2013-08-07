@@ -13,11 +13,11 @@ public class CountDown_b {
 	public static void main(String[] args) {
 		
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
-		IValueFactory v = rvm.vf;
+		IValueFactory vf = rvm.vf;
 		
-		rvm.declareConst("0", v.integer(0));
-		rvm.declareConst("1", v.integer(1));
-		rvm.declareConst("10", v.integer(10));
+		rvm.declareConst("0", vf.integer(0));
+		rvm.declareConst("1", vf.integer(1));
+		rvm.declareConst("10", vf.integer(10));
 		
 		/*
 		 * g (n) 
@@ -31,7 +31,7 @@ public class CountDown_b {
 		 */
 		
 		rvm.declare(new Function("g", 0, 1, 1, 6,
-					new CodeBlock()
+					new CodeBlock(vf)
 							.label("LOOP")
 							.loadloc(0)
 							.loadcon("0")
@@ -57,7 +57,7 @@ public class CountDown_b {
 		 */
 		
 		rvm.declare(new Function("h", 0, 0, 2, 6, 
-					new CodeBlock()
+					new CodeBlock(vf)
 						.loadcon("10")
 						.loadcon("1")
 						.callprim(Primitive.addition_num_num)
@@ -84,7 +84,7 @@ public class CountDown_b {
 		 * result: 0
 		 */
 		rvm.declare(new Function("main", 0, 0, 3, 6,
-					new CodeBlock()
+					new CodeBlock(vf)
 						.call("h")
 						.storeloc(0)
 						.call("h")

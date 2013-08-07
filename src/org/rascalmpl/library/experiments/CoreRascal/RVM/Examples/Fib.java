@@ -17,17 +17,17 @@ public class Fib {
 public static void main(String[] args) {
 		
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
-		IValueFactory v = rvm.vf;
+		IValueFactory vf = rvm.vf;
 		
-		rvm.declareConst("0", v.integer(0));
-		rvm.declareConst("1", v.integer(1));
-		rvm.declareConst("2", v.integer(2));
-		rvm.declareConst("3", v.integer(3));
-		rvm.declareConst("35", v.integer(35));
+		rvm.declareConst("0", vf.integer(0));
+		rvm.declareConst("1", vf.integer(1));
+		rvm.declareConst("2", vf.integer(2));
+		rvm.declareConst("3", vf.integer(3));
+		rvm.declareConst("35", vf.integer(35));
 		//int fib(int n) = (n == 0) ? 0 : (n == 1) ? 1 : (fib(n-1) + fib(n-2));
 		
 		rvm.declare(new Function("fib", 1, 1, 1, 6,
-				new CodeBlock().
+				new CodeBlock(vf).
 					loadloc(0).
 					loadcon("0").
 					callprim(Primitive.equal_num_num).
@@ -54,7 +54,7 @@ public static void main(String[] args) {
 					ret1()));
 					
 		rvm.declare(new Function("main", 0, 0, 0, 6,
-					new CodeBlock().
+					new CodeBlock(vf).
 						loadcon("35").
 						call("fib").
 						halt()));

@@ -37,7 +37,7 @@ str translatePat(p:(Pattern) `<Type tp> <Name name>`) = "coroutine (<tp> subject
   
   Example: Countdown
   
-  coroutine countDown(int n) resume int (){
+  coroutine int countDown(int n) next(){
     while(n > 0 ){
     	yield n;
     	n -= 1;

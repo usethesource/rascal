@@ -402,7 +402,7 @@ public class RVM {
 			Integer nformals = ((IInteger) directive.get("nformals")).intValue();
 			Integer maxstack = ((IInteger) directive.get("maxStack")).intValue();
 			IList code = (IList) directive.get("instructions");
-			CodeBlock instructions = new CodeBlock();
+			CodeBlock instructions = new CodeBlock(null);
 			
 			// Loading instructions
 			for(int i = 0; i < code.length(); i++) {
