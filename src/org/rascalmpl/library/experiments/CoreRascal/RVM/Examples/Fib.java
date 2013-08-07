@@ -19,35 +19,30 @@ public static void main(String[] args) {
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory vf = rvm.vf;
 		
-		rvm.declareConst("0", vf.integer(0));
-		rvm.declareConst("1", vf.integer(1));
-		rvm.declareConst("2", vf.integer(2));
-		rvm.declareConst("3", vf.integer(3));
-		rvm.declareConst("35", vf.integer(35));
 		//int fib(int n) = (n == 0) ? 0 : (n == 1) ? 1 : (fib(n-1) + fib(n-2));
 		
 		rvm.declare(new Function("fib", 1, 1, 1, 6,
 				new CodeBlock(vf).
 					loadloc(0).
-					loadcon("0").
+					loadcon(0).
 					callprim(Primitive.equal_num_num).
 					jmpfalse("L").
-					loadcon("0").
+					loadcon(0).
 					ret1().
 					label("L").
 					loadloc(0).
-					loadcon("1").
+					loadcon(1).
 					callprim(Primitive.equal_num_num).
 					jmpfalse("M").
-					loadcon("1").
+					loadcon(1).
 					ret1().
 					label("M").
 					loadloc(0).
-					loadcon("1").
+					loadcon(1).
 					callprim(Primitive.substraction_num_num).
 					call("fib").
 					loadloc(0).
-					loadcon("2").
+					loadcon(2).
 					callprim(Primitive.substraction_num_num).
 					call("fib").
 					callprim(Primitive.addition_num_num).

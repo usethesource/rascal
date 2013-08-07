@@ -15,10 +15,6 @@ public class CountDown_b {
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory v = rvm.vf;
 		
-		rvm.declareConst("0", v.integer(0));
-		rvm.declareConst("1", v.integer(1));
-		rvm.declareConst("9", v.integer(9));
-		
 		/*
 		 * g (n) 
 		 * { 
@@ -31,19 +27,19 @@ public class CountDown_b {
 		 */
 		
 		rvm.declare(new Function("g", 0, 1, 1, 6,
-					new CodeBlock()
+					new CodeBlock(v)
 							.label("LOOP")
 							.loadloc(0)
-							.loadcon("0")
+							.loadcon(0)
 							.callprim(Primitive.greater_num_num)
 							.jmptrue("BODY")
-							.loadcon("0")
+							.loadcon(0)
 							.ret1()
 							.label("BODY")
 							.loadloc(0)
 							.yield1()
 							.loadloc(0)
-							.loadcon("1")
+							.loadcon(1)
 							.callprim(Primitive.substraction_num_num)
 							.storeloc(0)
 							.jmp("LOOP")));
@@ -57,9 +53,9 @@ public class CountDown_b {
 		 */
 		
 		rvm.declare(new Function("h", 0, 0, 2, 6, 
-					new CodeBlock()
-						.loadcon("9")
-						.loadcon("1")
+					new CodeBlock(v)
+						.loadcon(9)
+						.loadcon(1)
 						.callprim(Primitive.addition_num_num)
 						.storeloc(0)
 						.create("g")
@@ -84,12 +80,12 @@ public class CountDown_b {
 		 * result: 0
 		 */
 		rvm.declare(new Function("main", 0, 0, 3, 6,
-					new CodeBlock()
+					new CodeBlock(v)
 						.call("h")
 						.storeloc(0)
 						.call("h")
 						.storeloc(1)
-						.loadcon("0")
+						.loadcon(0)
 						.storeloc(2)
 						
 						.label("LOOP")

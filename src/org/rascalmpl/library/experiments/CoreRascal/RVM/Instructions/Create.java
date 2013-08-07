@@ -11,15 +11,11 @@ public class Create extends Instruction {
 		this.function = function;
 	}
 	
-	public String toString() { return "CREATE " + function + "[" + ins.codeMap.get(function) + "]"; }
+	public String toString() { return "CREATE " + function + "[" + codeblock.getFunctionIndex(function) + "]"; }
 	
 	public void generate(){
-		ins.addCode(opcode.getOpcode());
-		Object o = ins.codeMap.get(function);
-		if(o == null){
-			throw new RuntimeException("PANIC: undefined function " + function);
-		}
-		ins.addCode((int)o);
+		codeblock.addCode(opcode.getOpcode());
+		codeblock.addCode(codeblock.getFunctionIndex(function));
 	}
 
 

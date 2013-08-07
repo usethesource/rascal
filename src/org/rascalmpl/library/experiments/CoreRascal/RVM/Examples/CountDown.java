@@ -14,18 +14,6 @@ public class CountDown {
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory vf = rvm.vf;
 		
-		rvm.declareConst("TRUE", vf.bool(true));
-		rvm.declareConst("FALSE", vf.bool(false));
-		
-		rvm.declareConst("LST", vf.list(vf.integer(0), vf.integer(1), vf.integer(2)));
-		
-		rvm.declareConst("0", vf.integer(0));
-		rvm.declareConst("1", vf.integer(1));
-		rvm.declareConst("2", vf.integer(2));
-		rvm.declareConst("3", vf.integer(3));
-		rvm.declareConst("4", vf.integer(4));
-		rvm.declareConst("5", vf.integer(5));
-		
 		/*
 		 * g (n) 
 		 * { 
@@ -40,16 +28,16 @@ public class CountDown {
 					new CodeBlock(vf)
 							.label("LOOP")
 							.loadloc(0)
-							.loadcon("0")
+							.loadcon(0)
 							.callprim(Primitive.greater_num_num)
 							.jmptrue("BODY")
-							.loadcon("0")
+							.loadcon(0)
 							.ret1()
 							.label("BODY")
 							.loadloc(0)
 							.yield1()
 							.loadloc(0)
-							.loadcon("1")
+							.loadcon(1)
 							.callprim(Primitive.substraction_num_num)
 							.storeloc(0)
 							.jmp("LOOP")));
@@ -66,7 +54,7 @@ public class CountDown {
 					new CodeBlock(vf)
 						.create("g")
 						.storeloc(0)
-						.loadcon("5")
+						.loadcon(5)
 						.loadloc(0)
 						.init()
 						.loadloc(0)
