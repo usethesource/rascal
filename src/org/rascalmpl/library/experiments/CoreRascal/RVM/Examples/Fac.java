@@ -15,25 +15,18 @@ public class Fac {
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory vf = rvm.vf;
 		
-		rvm.declareConst("ZERO", rvm.vf.integer(0));
-		rvm.declareConst("ONE", rvm.vf.integer(1));
-		rvm.declareConst("FOUR", rvm.vf.integer(4));
-		rvm.declareConst("TEN", rvm.vf.integer(10));
-		rvm.declareConst("THOUSAND", rvm.vf.integer(1000));
-		rvm.declareConst("MANY", rvm.vf.integer(100000));
-		
 		rvm.declare(new Function("fac", 1, 1, 1, 6, 
 				new CodeBlock(vf).
 					loadloc(0).
-					loadcon("ONE").
+					loadcon(1).
 					callprim(Primitive.equal_num_num).
 					jmpfalse("L").
-					loadcon("ONE").
+					loadcon(1).
 					ret1().
 					label("L").
 					loadloc(0).
 					loadloc(0).
-					loadcon("ONE").
+					loadcon(1).
 					callprim(Primitive.substraction_num_num).
 					call("fac").
 					callprim(Primitive.multiplication_num_num).
@@ -41,19 +34,19 @@ public class Fac {
 		
 		rvm.declare(new Function("main_fac", 0, 0, 0, 7,
 				new CodeBlock(vf).
-					loadcon("FOUR").
+					loadcon(4).
 					call("fac").
 					halt()));
 		
 		rvm.declare(new Function("main_repeat", 0, 0, 2, 20,
 				new CodeBlock(vf).
-					loadcon("TEN").
+					loadcon(10).
 					storeloc(0). // n
-					loadcon("MANY").
+					loadcon(10).
 					storeloc(1). // cnt
 					label("L").
 					loadloc(1). // cnt
-					loadcon("ZERO").
+					loadcon(0).
 					callprim(Primitive.greater_num_num).
 					jmptrue("M").
 					halt().
@@ -62,7 +55,7 @@ public class Fac {
 					call( "fac").
 					pop().
 					loadloc(1).
-					loadcon("ONE").
+					loadcon(1).
 					callprim(Primitive.substraction_num_num).
 					storeloc(1).
 					jmp("L")));

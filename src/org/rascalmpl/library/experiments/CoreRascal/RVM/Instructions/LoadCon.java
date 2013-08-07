@@ -4,22 +4,18 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
 public class LoadCon extends Instruction {
 
-	String constant;
+	int constant;
 	
-	public LoadCon(CodeBlock ins, String constant){
-		super(ins, Opcode.LOADCON);
+	public LoadCon(CodeBlock cb, int constant){
+		super(cb, Opcode.LOADCON);
 		this.constant = constant;
 	}
 	
-	public String toString() { return "LOADCON " + constant + "[" + ins.constMap.get(constant) + "]"; }
+	public String toString() { return "LOADCON " + constant + "[" + codeblock.getConstantValue(constant) + "]"; }
 	
 	public void generate(){
-		ins.addCode(opcode.getOpcode());
-		Object o = ins.constMap.get(constant);
-		if(o == null){
-			throw new RuntimeException("PANIC: undefined constant " + constant);
-		}
-		ins.addCode((int)o);
+		codeblock.addCode(opcode.getOpcode());
+		codeblock.addCode(constant);
 	}
 
 }

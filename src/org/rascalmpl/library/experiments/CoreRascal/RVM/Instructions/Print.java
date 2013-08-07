@@ -4,22 +4,18 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
 public class Print extends Instruction {
 
-	String constant;
+	int constant;
 	
-	public Print(CodeBlock ins, String constant){
-		super(ins, Opcode.PRINT);
+	public Print(CodeBlock cb, int constant){
+		super(cb, Opcode.PRINT);
 		this.constant = constant;
 	}
 	
-	public String toString() { return "PRINT " + constant + "[" + ins.constMap.get(constant) + "]"; }
+	public String toString() { return "PRINT " + constant + "[" + codeblock.getConstantValue(constant) + "]"; }
 	
 	public void generate(){
-		ins.addCode(opcode.getOpcode());
-		Object o = ins.constMap.get(constant);
-		if(o == null){
-			throw new RuntimeException("PANIC: undefined constant " + constant);
-		}
-		ins.addCode((int)o);
+		codeblock.addCode(opcode.getOpcode());
+		codeblock.addCode(constant);
 	}
 
 }

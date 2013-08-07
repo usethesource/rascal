@@ -16,8 +16,8 @@ public class StoreVar extends Instruction {
 	public String toString() { return "STOREVAR " + scope + ", " + pos; }
 	
 	public void generate(){
-		ins.addCode(opcode.getOpcode());
-		ins.addCode(scope);
-		ins.addCode(pos);
+		codeblock.addCode(opcode.getOpcode());
+		codeblock.addCode(scope);
+		codeblock.addCode(pos);
 	}
 }
