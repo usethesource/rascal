@@ -173,7 +173,8 @@ public class SymbolAdapter {
 	}
 
 	public static String toString(IConstructor symbol) {
-		// TODO: this does not do the proper escaping and such!!
+		// TODO: this code clones the symbol formatter impemented in Rascal. 
+	  // When we have a faster Rascal (compiler?) we should remove this clone.
 		
 		if (isLabel(symbol)) {
 			return toString((IConstructor) symbol.get("symbol")) + " " + ((IString) symbol.get("name")).getValue();
@@ -303,8 +304,54 @@ public class SymbolAdapter {
 		}
 		
 		if (isConditional(symbol)) {
-			// TODO: add
-			
+		  ISet conditions = getConditions(symbol);
+		  StringBuilder b = new StringBuilder();
+		  // first prefix conditions
+		  for (IValue elem : conditions) {
+		    IConstructor cond = (IConstructor) elem;
+		    switch (cond.getConstructorType().getName()) {
+		    case "precede": 
+		      b.append(toString((IConstructor) cond.get("symbol")));
+		      b.append(" << ");
+		      break;
+		    case "not-precede":
+		      b.append(toString((IConstructor) cond.get("symbol")));
+          b.append(" !<< ");
+          break;
+		    case "begin-of-line":
+          b.append("^ ");
+          break;
+		    }
+		  }
+		  // then the symbol
+		  b.append(toString(getSymbol(symbol)));
+		  
+		  // then the postfix conditions
+		  for (IValue elem : conditions) {
+		    IConstructor cond = (IConstructor) elem;
+		    switch (cond.getConstructorType().getName()) {
+        case "follow": 
+          b.append(" >> ");
+          b.append(toString((IConstructor) cond.get("symbol")));
+          break;
+		    case "not-follow":
+		      b.append(" !>> ");
+		      b.append(toString((IConstructor) cond.get("symbol")));
+          break;
+		    case "delete":
+          b.append(" \\ ");
+          b.append(toString((IConstructor) cond.get("symbol")));
+          break;
+		    case "except":
+		      b.append("!");
+		      b.append(((IString) cond.get("label")).getValue());
+		    case "end-of-line":
+		      b.append(" $");
+		      break;
+		    }
+      }
+		    
+		  return b.toString();
 		}
 		
 		if (isADT(symbol) || isAlias(symbol)) {
@@ -343,7 +390,11 @@ public class SymbolAdapter {
 		return symbol.toString();
 	}
 
-	/**
+	private static ISet getConditions(IConstructor symbol) {
+    return (ISet) symbol.get("conditions");
+  }
+
+  /**
 	 * char-classes have almost the same escape convention as char classes except for spaces
 	 * @param from
 	 * @return
