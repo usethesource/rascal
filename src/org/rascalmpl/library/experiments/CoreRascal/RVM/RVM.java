@@ -182,12 +182,10 @@ public class RVM {
 				case Opcode.OP_CALL:
 					Function fun;
 					Frame previousScope;
-					int spdelta = 0;
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Closure){
-						Closure clos = (Closure) stack[sp - 1];
+						Closure clos = (Closure) stack[--sp];
 						fun = clos.function;
 						previousScope = clos.frame;
-						spdelta = 1;
 					} else {
 						fun = (op == Opcode.OP_CALL) ? functionStore.get(instructions[pc++]) : (Function) stack[--sp];
 						previousScope = cf;
@@ -201,7 +199,7 @@ public class RVM {
 						nextFrame.stack[i] = stack[sp - fun.nformals + i];
 					}
 					cf.pc = pc;
-					cf.sp = sp - fun.nformals - spdelta;
+					cf.sp = sp - fun.nformals;
 					cf = nextFrame;
 					stack = cf.stack;
 					sp = fun.nlocals;
