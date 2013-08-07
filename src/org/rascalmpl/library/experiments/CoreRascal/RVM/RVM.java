@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -89,7 +90,9 @@ public class RVM {
 		int[] instructions = function.instructions.getInstructions();
 		int pc = 0;
 		int sp = function.nlocals;
-
+		
+		Stack<Coroutine> activeCoroutines = new Stack<>();
+		
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				int op = instructions[pc++];
@@ -226,27 +229,108 @@ public class RVM {
 					}
 					return stack[sp - 1];
 
+				case Opcode.OP_PRINT:
+					String msg = ((IString) constantStore.get(instructions[pc++])).getValue();
+					StringBuilder fmsg = new StringBuilder();
+					for(int i = 0; i < msg.length();){
+						char c = msg.charAt(i);
+						if(c == '$' || c == '@'){
+							int n = Character.getNumericValue(msg.charAt(i + 1));
+							if(n > sp){
+								fmsg.append("***");
+							} else {
+								fmsg.append((c == '$') ? stack[sp -  n] : stack[0]);
+							}
+							i += 2;
+						} else {
+							fmsg.append(c); 
+							i++;
+						}
+					}
+					System.out.println(fmsg.toString());
+					continue;
+					
 				case Opcode.OP_CALLPRIM:
 					Primitive prim = Primitive.fromInteger(instructions[pc++]);
 					sp = prim.invoke(stack, sp);
 					continue;
 				
 				case Opcode.OP_START:
+					Coroutine coroutine = (Coroutine) stack[--sp];
+					// put the coroutine onto the stack of active coroutines
+					activeCoroutines.push(coroutine);
+					coroutine.next(cf);
+					
+					fun = coroutine.frame.function;
+					instructions = coroutine.frame.function.instructions.getInstructions();
+					
+					// coroutine's main function may have formal parameters
+					for (int i = fun.nformals - 1; i >= 0; i--) {
+						coroutine.frame.stack[i] = stack[sp - fun.nformals + i];
+					}
+					cf.pc = pc;
+					cf.sp = sp - fun.nformals;
+					cf = coroutine.frame;
+					stack = cf.stack;
+					sp = fun.nlocals;
+					pc = 0;
 					continue;
 					
 				case Opcode.OP_CREATE:
+				case Opcode.OP_CREATEDYN:
+					fun = (op == Opcode.OP_CREATEDYN) ? (Function) stack[--sp] : functionStore.get(instructions[pc++]);
+					Frame frame = new Frame(fun.scope + 1, null, fun.maxstack, fun);
+					coroutine = new Coroutine(frame);
+					stack[sp++] = coroutine;
+					continue;
+				
+				case Opcode.OP_NEXT_0:
+				case Opcode.OP_NEXT_1:
+					coroutine = (Coroutine) stack[--sp];
+					activeCoroutines.push(coroutine);
+					coroutine.next(cf);
+					
+					fun = coroutine.frame.function;
+					instructions = coroutine.frame.function.instructions.getInstructions();
+					
+					if(op == Opcode.OP_NEXT_1)
+						coroutine.frame.stack[coroutine.frame.sp++] = stack[--sp];
+					
+					cf.pc = pc;
+					cf.sp = sp;
+					
+					cf = coroutine.frame;
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
 					continue;
 					
-				case Opcode.OP_RESUME0:
+				case Opcode.OP_YIELD_0:	
+				case Opcode.OP_YIELD_1:
+					coroutine = activeCoroutines.pop();
+					Frame prev = coroutine.start.previousCallFrame;
+					rval = null;
+					if(op == Opcode.OP_YIELD_1) {
+						rval = stack[--sp];
+					}
+					cf.pc = pc;
+					cf.sp = sp;
+					coroutine.suspend(cf);
+					cf = prev;
+					if(op == Opcode.OP_YIELD_1 && cf == null)
+						return rval;
+					instructions = cf.function.instructions.getInstructions();
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					if(op == Opcode.OP_YIELD_1 && rval != null) {
+						stack[sp++] = rval;
+					}
 					continue;
 					
-				case Opcode.OP_RESUME1:
-					continue;
-					
-				case Opcode.OP_YIELD0:
-					continue;
-					
-				case Opcode.OP_YIELD1:
+				case Opcode.OP_HASNEXT:
+					coroutine = (Coroutine) stack[--sp];
+					stack[sp++] = coroutine.hasNext() ? TRUE : FALSE;
 					continue;
 
 				default:
@@ -381,6 +465,39 @@ public class RVM {
 				case "HALT":
 					instructions = instructions.halt();
 					break;
+				
+				case "CREATE":
+					instructions = instructions.create(((IString) operands.get(0)).getValue());
+					break;
+					
+				case "CREATEDYN":
+					instructions = instructions.createdyn();
+					break;
+				
+				case "START":
+					instructions = instructions.start();
+					break;
+					
+				case "NEXT_0":
+					instructions = instructions.next0();
+					break;
+					
+				case "NEXT_1":
+					instructions = instructions.next1();
+					break;
+					
+				case "YIELD_0":
+					instructions = instructions.yield0();
+					break;
+					
+				case "YIELD_1":
+					instructions = instructions.yield1();
+					break;
+					
+				case "HASNEXT":
+					instructions = instructions.hasNext();
+					break;
+				
 				default:
 					throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 				}

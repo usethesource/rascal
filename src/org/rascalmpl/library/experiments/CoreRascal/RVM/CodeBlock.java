@@ -8,7 +8,9 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Call;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallDyn;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Create;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Halt;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.HasNext;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Instruction;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Jmp;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.JmpFalse;
@@ -20,8 +22,9 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLoc;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVar;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Pop;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Resume0;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Resume1;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next0;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next1;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Print;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Start;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreLoc;
@@ -173,12 +176,12 @@ public class CodeBlock {
 		return add(new Create(this, name));
 	}
 	
-	public CodeBlock resume0() {
-		return add(new Resume0(this));
+	public CodeBlock next0() {
+		return add(new Next0(this));
 	}
 	
-	public CodeBlock resume1(String name) {
-		return add(new Resume1(this, name));
+	public CodeBlock next1() {
+		return add(new Next1(this));
 	}
 	
 	public CodeBlock yield0() {
@@ -187,6 +190,18 @@ public class CodeBlock {
 	
 	public CodeBlock yield1() {
 		return add(new Yield1(this));
+	}
+	
+	public CodeBlock createdyn() {
+		return add(new CreateDyn(this));
+	}
+	
+	public CodeBlock hasNext() {
+		return add(new HasNext(this));
+	}
+	
+	public CodeBlock print(String arg){
+		return add(new Print(this, arg));
 	}
     
 	public CodeBlock done(String fname, Map<String,Integer> constMap, Map<String, Integer> codeMap, boolean listing){

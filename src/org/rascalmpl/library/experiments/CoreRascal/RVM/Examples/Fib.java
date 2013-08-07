@@ -30,27 +30,27 @@ public static void main(String[] args) {
 				new CodeBlock().
 					loadloc(0).
 					loadcon("0").
-					callprim(Primitive.equal_int_int).
+					callprim(Primitive.equal_num_num).
 					jmpfalse("L").
 					loadcon("0").
 					ret().
 					label("L").
 					loadloc(0).
 					loadcon("1").
-					callprim(Primitive.equal_int_int).
+					callprim(Primitive.equal_num_num).
 					jmpfalse("M").
 					loadcon("1").
 					ret().
 					label("M").
 					loadloc(0).
 					loadcon("1").
-					callprim(Primitive.substraction_int_int).
+					callprim(Primitive.substraction_num_num).
 					call("fib").
 					loadloc(0).
 					loadcon("2").
-					callprim(Primitive.substraction_int_int).
+					callprim(Primitive.substraction_num_num).
 					call("fib").
-					callprim(Primitive.addition_int_int).
+					callprim(Primitive.addition_num_num).
 					ret()));
 					
 		rvm.declare(new Function("main", 0, 0, 0, 6,

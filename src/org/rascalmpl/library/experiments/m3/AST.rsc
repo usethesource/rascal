@@ -17,6 +17,7 @@ data Modifiers
 	| \strictfp()
 	| \deprecated()
 	| \annotation(Expression \anno)
+	| \onDemand()
   	;
 
 anno loc Declaration@src;
@@ -40,28 +41,27 @@ data Declaration
 	| \method(Type \return, str name, list[Declaration] parameters, list[Expression] exceptions)
 	| \method(str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
 	| \import(str name)
-	| \staticImport(str name)
-	| \packageImport(str name)
 	| \package(str name)
-	| \variables(Type \type, list[Expression] \variables)
+	| \variables(Type \type, list[Expression] \fragments)
 	| \typeParameter(str name, list[Type] extendsList)
 	| \annotationType(str name, list[Declaration] body)
 	| \annotationTypeMember(Type \type, str name)
 	| \annotationTypeMember(Type \type, str name, Expression defaultBlock)
+	// initializers missing in parameter, is it needed in vararg?
 	| \parameter(Type \type, str name, int extraDimensions)
 	| \vararg(Type \type, str name)
 	;
 
 anno loc Expression@src;
 anno loc Expression@binding;
-anno list[Declaration] Expression@typeParameters;
+anno list[Type] Expression@typeParameters;
 	
 data Expression 
 	= \arrayAccess(Expression array, Expression index)
 	| \newArray(Type \type, list[Expression] dimensions, Expression init)
 	| \newArray(Type \type, list[Expression] dimensions)
 	| \arrayInitializer(list[Expression] elements)
-	| \assignment(Expression lhs, Expression rhs)
+	| \assignment(Expression lhs, str operator, Expression rhs)
 	| \cast(Type \type, Expression expression)
 	| \char(str charValue)
 	| \newObject(Expression expr, Type \type, list[Expression] args, Declaration class)
@@ -70,19 +70,18 @@ data Expression
 	| \newObject(Type \type, list[Expression] args)
 	| \qualifier(Expression qualifier, Expression expression)
 	| \conditional(Expression expression, Expression thenBranch, Expression elseBranch)
-	| \fieldAccess(Expression expression, str name)
-	| \fieldAccess(str name)
+	| \fieldAccess(bool isSuper, Expression expression, str name)
+	| \fieldAccess(bool isSuper, str name)
 	| \instanceof(Expression leftSide, Type rightSide)
-	| \call(str name, list[Expression] arguments)
-	| \call(Expression receiver, str name, list[Expression] arguments)
+	| \methodCall(bool isSuper, str name, list[Expression] arguments)
+	| \methodCall(bool isSuper, Expression receiver, str name, list[Expression] arguments)
 	| \null()
-	| \char(str charValue)
 	| \number(str numberValue)
 	| \boolean(bool boolValue)
 	| \string(str stringValue)
 	| \type(Type \type)
 	| \variable(str name, int extraDimensions)
-	| \variable(str name, int extraDimensions, Expression initializer)
+	| \variable(str name, int extraDimensions, Expression \initializer)
 	| \bracket(Expression expression)
 	| \this()
 	| \this(Expression thisExpression)
@@ -92,9 +91,6 @@ data Expression
 	| \postfix(Expression operand, str operator)
 	| \prefix(str operator, Expression operand)
 	| \simpleName(str name)
-	| \qualifiedName(Expression qualified, Expression simpleName)
-	| \parenthesis(Expression expr)
-	| \declaration(Declaration decl)
 	| \markerAnnotation(str typeName)
   	| \normalAnnotation(str typeName, list[Expression] memberValuePairs)
   	| \memberValuePair(str name, Expression \value)				
@@ -103,7 +99,7 @@ data Expression
   
 anno loc Statement@src;
 anno loc Statement@binding;
-anno list[Declaration] Statement@typeParameters;
+anno list[Type] Statement@typeParameters;
 
 data Statement				
 	= \assert(Expression expression)
@@ -134,17 +130,17 @@ data Statement
 	| \declaration(Declaration declaration)
 	| \while(Expression condition, Statement body)
 	| \expression(Expression stmt)
-	| \superCall(Expression expr, list[Expression] arguments)
-	| \superCall(list[Expression] arguments)
-	| \thisCall(list[Expression] arguments)
+	| \constructorCall(bool isSuper, Expression expr, list[Expression] arguments)
+	| \constructorCall(bool isSuper, list[Expression] arguments)
 	;			
   
 anno loc Type@binding;				
-anno list[Declaration] Type@typeParameters;
+anno list[Type] Type@typeParameters;
 
 data Type 
 	= arrayType(Type \type)
 	| parameterizedType(Type \type)
+	// just str or expression?
 	| qualifier(Type qualifier, Expression simpleName)
 	| simpleType(str name)
 	| unionType(list[Type] types)
