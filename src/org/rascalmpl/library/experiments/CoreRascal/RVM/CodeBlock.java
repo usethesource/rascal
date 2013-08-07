@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Call;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallDyn;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallPrim;
@@ -43,7 +45,7 @@ public class CodeBlock {
 	public Map<String, Integer> codeMap;
 	public int[] finalCode;
 
-	public CodeBlock(){
+	public CodeBlock(IValueFactory factory){
 		labels = new HashMap<String,Integer>();
 		labelList = new ArrayList<String>();
 		insList = new ArrayList<Instruction>();
