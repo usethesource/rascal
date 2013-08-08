@@ -35,8 +35,8 @@ import org.jgll.grammar.Symbol;
 import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionFactory;
 import org.jgll.parser.GLLParser;
-import org.jgll.parser.LevelSynchronizedGrammarInterpretter;
 import org.jgll.parser.ParseError;
+import org.jgll.parser.ParserFactory;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
@@ -75,7 +75,7 @@ public class GrammarToJigll {
 		  return null;
 	  }
 	  
-	  parser = new LevelSynchronizedGrammarInterpretter();
+	  parser = ParserFactory.levelParser(grammar);
 
 	  System.out.println("Jigll started.");
 	  
@@ -120,7 +120,7 @@ public class GrammarToJigll {
 	}
 	
 	public void generateGraph() {
-		parser = new LevelSynchronizedGrammarInterpretter();
+		parser = ParserFactory.levelParser(grammar);
 		
 		NonterminalSymbolNode sppf;
 		try {
@@ -134,21 +134,36 @@ public class GrammarToJigll {
 		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
 	}
 	
-	private Condition getDeleteSet(IConstructor nonterminal) {
+	private Condition getDeleteSet(IConstructor symbol) {
 		
-		List<Keyword> keywords = new ArrayList<>();
-		
-		IMap definitions = (IMap) rascalGrammar.get("rules");
-		IConstructor choice = (IConstructor) definitions.get(nonterminal);
-		ISet alts = (ISet) choice.get("alternatives");
-		for (IValue alt : alts) {
-			IConstructor prod = (IConstructor) alt;
-			IList rhs = (IList) prod.get("symbols");
-			IConstructor symbol = (IConstructor) rhs.get(0);
-			keywords.add(getKeyword(symbol));
+		switch(symbol.getName()) {
+
+			case "seq":
+				IList list = (IList) symbol.get("sequence");
+				List<Symbol> symbols = new ArrayList<>();
+				for(IValue v : list) {
+					symbols.add(getSymbol((IConstructor) v));
+				}
+				symbols.remove(1);
+				return ConditionFactory.notMatch(symbols.toArray(new Symbol[] {}));
+				
+			case "keywords":
+				List<Keyword> keywords = new ArrayList<>();
+				IMap definitions = (IMap) rascalGrammar.get("rules");
+				IConstructor choice = (IConstructor) definitions.get(symbol);
+				ISet alts = (ISet) choice.get("alternatives");
+				for (IValue alt : alts) {
+					IConstructor prod = (IConstructor) alt;
+					IList rhs = (IList) prod.get("symbols");
+					IConstructor s = (IConstructor) rhs.get(0);
+					keywords.add(getKeyword(s));
+				}
+				return ConditionFactory.notMatch(keywords.toArray(new Keyword[] {}));
+				
+			default:
+				throw new RuntimeException(symbol.getName() + " is not a supported in delete set.");
+			
 		}
-		
-		return ConditionFactory.notMatch(keywords.toArray(new Keyword[] {}));
 	}
 	
 	private Condition getFollowRestriction(IConstructor symbol) {
