@@ -1,38 +1,37 @@
 module experiments::CoreRascal::muRascal::AST
 
-public data Exp = 
-			nil()
-          | \true()
-          | \false()
-          | number(int n)
-          | fconst(str id)
-          | label(str name)
-          
-          | var(str id, int scope, int pos)
-          | lambda(str id, Exp exp)
-          | apply(Exp exp1, Exp exp2)
-                    
-          | assign(str id, int scope, int pos, Exp exp)
-          | ifelse(Exp exp1, Exp exp2, Exp exp3)
-          | \while(Exp cond, Exp body)
+import Prelude;
 
-          | labeled(str name, Exp exp)
-          | create(Exp exp)
-          | resume(Exp exp1, Exp exp2)
-          | yield(Exp exp)
+public data MuModule =
+            muModule(str name, list[MuDefinition] definitions, MuExp initialization);
           
-          | __dead()
-          | hasNext(Exp exp)
+public data MuDefinition =
+            fun(str name, int nformal, int nlocals, MuExp body);
           
-          | block(list[Exp] exps)
-		
-		  | lst(list[Exp] exps)
-		  
-          | Y(Exp exp)
+public data MuExp = 
+            empty()
+          | constant(value c)
+          | label(str name)
+          | typecon(Symbol tp)
+          | var(str id, int scope, int pos)
           
-		  | \throw(Exp exp)
-		  | \try(Exp body, Catch \catch);
-			
-public data Catch = 
-			  \catch(str id, Exp body)
-			;
+          | call(MuExp fun, list[MuExp] args)
+          | callprim(str name, MuExp exp1)
+          | ret()
+          | ret(MuExp exp)
+          | callprim(str name, MuExp exp1, MuExp exp2)
+                    
+          | assign(str id, int scope, int pos, MuExp exp)
+          | ifelse(MuExp exp1, MuExp exp2, MuExp exp3)
+          | \while(MuExp cond, MuExp body)
+          | labeled(str name, MuExp MuExp)
+          
+          | create(MuExp exp)
+          | next(MuExp exp)
+          | next(MuExp exp1, MuExp exp2)
+          | yield()
+          | yield(MuExp exp)
+          | hasNext(MuExp exp)
+          
+          | block(list[MuExp] exps)
+		  ;
