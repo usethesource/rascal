@@ -28,6 +28,10 @@ public &T<:Tree jparse(type[&T <: Tree] nont, str input) {
   return jparse(nont.symbol, input);
 }
 
+public &T<:Tree jparse2(type[&T <: Tree] nont, str f) {
+  return jparse(nont.symbol, readFile(|file:///| + f));
+}
+
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
 public java &T<:Tree jparse(Symbol nonterminal, str input);
 
