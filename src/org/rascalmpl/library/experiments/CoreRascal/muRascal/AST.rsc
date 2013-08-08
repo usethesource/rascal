@@ -6,32 +6,34 @@ public data MuModule =
             muModule(str name, list[MuDefinition] definitions, MuExp initialization);
           
 public data MuDefinition =
-            fun(str name, int nformal, int nlocals, MuExp body);
+            muFunction(str name, int nformal, int nlocals, MuExp body)
+          | muTypes(list[Symbol] symbols)  
+          ;
           
 public data MuExp = 
-            empty()
-          | constant(value c)
-          | label(str name)
-          | typecon(Symbol tp)
-          | var(str id, int scope, int pos)
+            muEmpty()
+          | muConstant(value c)
+          | muLabel(str name)
+          | muTypeCon(Symbol tp)
+          | muVar(str id, int scope, int pos)
           
-          | call(MuExp fun, list[MuExp] args)
-          | callprim(str name, MuExp exp1)
-          | ret()
-          | ret(MuExp exp)
-          | callprim(str name, MuExp exp1, MuExp exp2)
+          | muCall(MuExp fun, list[MuExp] args)
+          | muCallPrim(str name, MuExp exp1)
+          | muReturn()
+          | muReturn(MuExp exp)
+          | muCallPrim(str name, MuExp exp1, MuExp exp2)
                     
-          | assign(str id, int scope, int pos, MuExp exp)
-          | ifelse(MuExp exp1, MuExp exp2, MuExp exp3)
-          | \while(MuExp cond, MuExp body)
-          | labeled(str name, MuExp MuExp)
+          | muAssign(str id, int scope, int pos, MuExp exp)
+          | muIfelse(MuExp exp1, MuExp exp2, MuExp exp3)
+          | muWhile(MuExp cond, MuExp body)
+          | muLabeled(str name, MuExp MuExp)
           
-          | create(MuExp exp)
-          | next(MuExp exp)
-          | next(MuExp exp1, MuExp exp2)
-          | yield()
-          | yield(MuExp exp)
-          | hasNext(MuExp exp)
+          | muCreate(MuExp exp)
+          | muNext(MuExp exp)
+          | muNextnext(MuExp exp1, MuExp exp2)
+          | muYield()
+          | muYield(MuExp exp)
+          | muHasNext(MuExp exp)
           
-          | block(list[MuExp] exps)
+          | muBlock(list[MuExp] exps)
 		  ;

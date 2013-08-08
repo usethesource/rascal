@@ -6,6 +6,8 @@ import experiments::CoreRascal::ReductionWithEvalCtx::AST;
 import lang::rascal::\syntax::Rascal;
 import experiments::CoreRascal::Translation::RascalExpression;
 
+import experiments::CoreRascal::muRascal::AST;
+
 /*
 syntax Assignment
 	= ifDefined: "?=" 
