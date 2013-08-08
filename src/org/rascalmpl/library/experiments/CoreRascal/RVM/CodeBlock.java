@@ -19,9 +19,11 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.JmpFalse;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Label;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadCon;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadConRef;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLoc;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVar;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Pop;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next0;
@@ -31,6 +33,7 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return1;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Init;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreLoc;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreLocRef;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreVar;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Yield0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Yield1;
@@ -251,6 +254,18 @@ public class CodeBlock {
 		return add(new Print(this, getConstantIndex(vf.string(arg))));
 	}
     
+	public CodeBlock loadConRef(int pos) {
+		return add(new LoadConRef(this, pos));
+	}
+	
+	public CodeBlock loadLocRef(int pos) {
+		return add(new LoadLocRef(this, pos));
+	}
+	
+	public CodeBlock storeLocRef(int pos) {
+		return add(new StoreLocRef(this, pos));
+	}
+	
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, boolean listing){
 		this.functionMap = codeMap;
 		int codeSize = pc;
