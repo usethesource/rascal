@@ -33,7 +33,10 @@ public enum Opcode {
 	CREATEDYN(22,1),
 	HASNEXT(23,1),
 	PRINT(24,2),
-	RETURN_0(25,1)
+	RETURN_0(25,1),
+	LOADCONREF(26,2),
+	LOADLOCREF(27,2),
+	STORELOCREF(28,2)
 	;
 	
 	private final int op;
@@ -74,6 +77,9 @@ public enum Opcode {
 	static public final int OP_HASNEXT = 23;
 	static public final int OP_PRINT = 24;
 	static public final int OP_RETURN_0 = 25;
+	static public final int OP_LOADCONREF = 26;
+	static public final int OP_LOADLOCREF = 27;
+	static public final int OP_STORELOCREF = 28;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -167,6 +173,15 @@ public enum Opcode {
 		
 		case RETURN_0:
 			return "RETURN_0";
+		
+		case LOADCONREF:
+			return "LOADCONREF " + cb.finalCode[pc + 1];
+		
+		case LOADLOCREF:
+			return "LOADLOCREF " + cb.finalCode[pc + 1];
+			
+		case STORELOCREF:
+			return "STORELOCREF " + cb.finalCode[pc + 1];
 		
 		default:
 			break;
