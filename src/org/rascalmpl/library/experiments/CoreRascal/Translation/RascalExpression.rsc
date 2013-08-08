@@ -23,7 +23,12 @@ Symbol getType(loc l) = config.locationTypes[l];
 str getType(Expression e) = "<getType(e@\loc)>";
 
 // Get the outermost type constructor of an expression
-str getOuterType(Expression e) = "<getName(getType(e@\loc))>";
+str getOuterType(Expression e) {
+ tp = "<getName(getType(e@\loc))>";
+ if(tp in {"int", "real", "rat"})
+ 	tp = "num";
+ return tp;
+}
 
 // Get the type of a declared function
 set[Symbol] getFunctionType(str name) { 
@@ -42,7 +47,7 @@ MuExp mkVar(str name, loc l) {
   n2a = uid2addr[loc2uid[l]];
   res = "<name>::<n2a[0]>::<n2a[1]>";
   //println("mkVar: <name> =\> <res>");
-  return var(name, n2a[0], n2a[1]);
+  return muVar(name, n2a[0], n2a[1]);
 }
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
@@ -51,7 +56,7 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
   n2a = uid2addr[loc2uid[l]];
   res = "<name>::<n2a[0]>::<n2a[1]>";
   //println("mkVar: <name> =\> <res>");
-  return assign(name, n2a[0], n2a[1], exp);
+  return muAssign(name, n2a[0], n2a[1], exp);
 }
 
 void extractScopes(){
@@ -78,42 +83,44 @@ void extractScopes(){
         case booleanScope(containedIn,src): { containment += {<containedIn, uid>}; loc2uid[src] = uid;}
       }
     }
-    println("containment = <containment>");
-    println("functionScopes = <functionScopes>");
-    println("declares = <declares>");
+    //println("containment = <containment>");
+    //println("functionScopes = <functionScopes>");
+    //println("declares = <declares>");
    
     containmentPlus = containment+;
-    println("containmentPlus = <containmentPlus>");
+    //println("containmentPlus = <containmentPlus>");
     
     topdecls = toList(declares[0]);
-    println("topdecls = <topdecls>");
+    //println("topdecls = <topdecls>");
     for(i <- index(topdecls)){
             uid2addr[topdecls[i]] = <0, i>;
     }
     for(fuid <- functionScopes){
         innerScopes = {fuid} + containmentPlus[fuid];
         decls = toList(declares[innerScopes]);
-        println("Scope <fuid> has inner scopes = <innerScopes>");
-        println("Scope <fuid> declares <decls>");
+        //println("Scope <fuid> has inner scopes = <innerScopes>");
+        //println("Scope <fuid> declares <decls>");
         for(i <- index(decls)){
             uid2addr[decls[i]] = <fuid, i>;
         }
     }
-   for(uid <- uid2addr){
-      println("<config.store[uid]> :  <uid2addr[uid]>");
-   }
+   //for(uid <- uid2addr){
+   //   println("<config.store[uid]> :  <uid2addr[uid]>");
+  // }
    
-   for(l <- loc2uid)
-       println("<l> : <loc2uid[l]>");
+   //for(l <- loc2uid)
+   //    println("<l> : <loc2uid[l]>");
 }
 
 
 
 // Generate code for completely type-resolved operators
 
-MuExp infix(str op, Expression e) = callprim("<op>_<getOuterType(e.lhs)>_<getOuterType(e.rhs)>", translate(e.lhs), translate(e.rhs));
-MuExp prefix(str op, Expression arg) = callprim("<op>_<getOuterType(arg)>", translate(arg));
-MuExp postfix(str op, Expression arg) = callprim("<op>_<getOuterType(arg)>", translate(arg));
+
+
+MuExp infix(str op, Expression e) = muCallPrim("<op>_<getOuterType(e.lhs)>_<getOuterType(e.rhs)>", translate(e.lhs), translate(e.rhs));
+MuExp prefix(str op, Expression arg) = muCallPrim("<op>_<getOuterType(arg)>", translate(arg));
+MuExp postfix(str op, Expression arg) = muCallPrim("<op>_<getOuterType(arg)>", translate(arg));
 
 /*********************************************************************/
 /*                  Expessions                                       */
@@ -137,14 +144,14 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
   // ignore kw arguments for the moment
-   return call(translate(expression), [translate(a) | a <- arguments]);
+   return muCall(translate(expression), [translate(a) | a <- arguments]);
 }
 
 // literals
 MuExp translate((BooleanLiteral) `<BooleanLiteral b>`) = "<b>" == true ? constant(true) : constant(false);
 MuExp translate((Expression) `<BooleanLiteral b>`) = translate(b);
  
-MuExp translate((IntegerLiteral) `<IntegerLiteral n>`) = constant(toInt("<n>"));
+MuExp translate((IntegerLiteral) `<IntegerLiteral n>`) = muConstant(toInt("<n>"));
 MuExp translate((Expression) `<IntegerLiteral n>`) = translate(n);
  
 MuExp translate((StringLiteral) `<StringLiteral s>`) = constant(s);
@@ -267,10 +274,10 @@ MuExp translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`)  = tr
 MuExp translate(e:(Expression) `<Expression lhs> && <Expression rhs>`)  = translateBool(e) + ".start().resume()";
  
 MuExp translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = 
-    backtrackFree(condition) ?  ifelse(translate(condition),
+    backtrackFree(condition) ?  muIfelse(translate(condition),
     								   translate(thenExp),
     								   translate(elseExp))
-    					     :  ifelse(next(init(translateBool(condition))),
+    					     :  muIfelse(next(init(translateBool(condition))),
     					     		   translate(thenExp),
     								   translate(elseExp));  
 

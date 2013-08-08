@@ -1,7 +1,6 @@
 @bootstrapParser
 module experiments::CoreRascal::Translation::RascalModule
 
-import experiments::CoreRascal::ReductionWithEvalCtx::AST;
 import lang::rascal::\syntax::Rascal;
 import Prelude;
 import util::Reflective;
@@ -19,11 +18,10 @@ list[loc] libSearchPath = [|std:///|, |eclipse-std:///|];
 
 loc Example1 = |std:///experiments/CoreRascal/Translation/Examples/Example1.rsc|;
 
-//map[str name, MuDeclaration] functions;
 
-MuModule compile(){
+MuModule r2mu(loc moduleLoc){
    try {
-   	Module M = parseModule(Example1, libSearchPath);
+   	Module M = parseModule(moduleLoc, libSearchPath);
    	config = checkModule(M.top, newConfiguration());  // .top is needed to remove start! Ugly!
    	//text(config);
    	extractScopes();
@@ -31,9 +29,8 @@ MuModule compile(){
    	if(size(errors) > 0)
    	  println("Module contains errors:\n<for(e <- errors){><e>\n<}>");
    	else {
-   	  println("GENERATED:");
    	  defs = translate(M.top);
-   	  return muModule("XXX", defs, empty());
+   	  return muModule("<M.top.header.name>", defs, muEmpty());
    	  }
    	} catch Java("ParseError","Parse error"): {
    	    println("Syntax errors in module <Example1>");
@@ -74,7 +71,7 @@ list[MuDefinition] translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility 
   if({ ftype } := ftypes){
 	  formals = signature.parameters.formals.formals;
 	  lformals = [f | f <- formals];
-	  return [fun("<signature.name>", size(lformals), 0, translate(expression))];
+	  return [muFunction("<signature.name>", size(lformals), 0, muBlock([muReturn(translate(expression))]))];
   } else
       throw "overloaded function <signature.name>: <ftypes>";
 }

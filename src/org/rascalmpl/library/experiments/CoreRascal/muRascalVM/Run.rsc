@@ -13,6 +13,15 @@ import IO;
 @reflect{Executes muRascalVM programs}
 public java tuple[value,int] executeProgram(list[Directive] program, int repeats);
 
+
+@javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.RVM}
+@reflect{Executes muRascalVM programs}
+public java tuple[value,int] executeProgram(RVMProgram program);
+
+@javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.RVM}
+@reflect{Executes muRascalVM programs}
+public java tuple[value,int] executeProgram(RVMProgram program, int repeats);
+
 public void execute(experiments::CoreRascal::muRascalVM::Syntax::RascalVM tree, loc selection) {
 	ast = implode(#experiments::CoreRascal::muRascalVM::AST::RascalVM, tree);
 	out = executeProgram(ast.directives, 1);

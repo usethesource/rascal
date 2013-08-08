@@ -1,5 +1,7 @@
 module experiments::CoreRascal::muRascal::mu2rvm
 
+import Prelude;
+
 import experiments::CoreRascal::muRascalVM::AST;
 
 import experiments::CoreRascal::muRascal::AST;
@@ -9,86 +11,73 @@ alias INS = list[Instruction];
 
 // Unique label generator
 
-int nLabel = -1;
+int nlabel = -1;
 str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
 
-// Translation functions
+// Translate a muRascal module
+
+RVMProgram mu2rvm(muModule(str name, list[MuDefinition] definitions, MuExp initialization)){
+   return rvm((def.name : FUNCTION(def.name, 0, 0, 0, 10, tr(def.body)) | def <- definitions), []);
+}
+
+
+// Translate a muRascal function
+
+// Translate muRascal expressions
 
 INS trargs(list[MuExp] args) = [*tr(arg) | arg <- args];
 
-INS tr(constant(value c)) = [loadCon(c)];
+INS tr(muConstant(value c)) = [LOADCON(c)];
 
-INS tr(var(str id, int scope, int pos)) = [loadvar(scope, pos)];
+INS tr(muVar(str id, int scope, int pos)) = [LOADVAR(scope, pos)];
 
-INS tr(call(Exp fun, list[MuExp] args)) =  [*trargs(args), *tr(fun), calldyn()];
+INS tr(muCall(MuExp fun, list[MuExp] args)) =  [*trargs(args), *tr(fun), CALLDYN()];
 
-INS tr(call(str name, list[MuExp] args)) = [*trargs(args), call(name)];
+INS tr(muCall(str name, list[MuExp] args)) = [*trargs(args), CALL(name)];
 
-INS tr(callprim(str name, list[MuExp] args)) = [*trargs(args), callprim(name)];
+INS tr(muCallPrim(str name, MuExp arg)) = [*tr(arg), CALLPRIM(name)];
 
-INS tr(assign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), storevar(scope, pos)];
+INS tr(muCallPrim(str name, MuExp arg1, MuExp arg2)) = [*tr(arg1), *tr(arg2), CALLPRIM(name)];
 
-INS tr(ifelse(MuExp exp1, MuExp exp2, MuExp exp3)) {
+INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), STOREVAR(scope, pos)];
+
+INS tr(muIfelse(MuExp exp1, MuExp exp2, MuExp exp3)) {
     lab_else = nextLabel();
     lab_after = nextLabel();
-    return [*tr(exp1), jmpfalse(lab_else), *tr(exp2), jmp(lab_after), label(lab_else), *tr(exp3), label(lab_after)];
+    res = [*tr(exp1), JMPFALSE(lab_else), *tr(exp2), JMP(lab_after), LABEL(lab_else), *tr(exp3), LABEL(lab_after)];
+    return res;
 }
 
-INS tr(\while(MuExp exp1, MuExp exp2)) {
+INS tr(muWhile(MuExp exp1, MuExp exp2)) {
     lab_while = nextLabel();
     lab_after = nextLabel();
-    return [label(lab_while), *tr(exp1), jmpfalse(lab_after), *tr(exp2), jmp(lab_while), label(lab_after)];
+    return [LABEL(lab_while), *tr(exp1), JMPFALSE(lab_after), *tr(exp2), JMP(lab_while), LABEL(lab_after)];
 }
 
-INS tr(create(str name)) = [create(name)];
-INS tr(create(MuExp exp)) = [*tr(exp1),createdyn()];
+INS tr(muCreate(str name)) = [CREATE(name)];
+INS tr(muCreate(MuExp exp)) = [*tr(exp1),CREATEDYN()];
 
-INS tr(next(MuExp exp)) = [*tr(exp1),next0()];
-INS tr(next(MuExp exp1, MuExp exp2)) = [*tr(exp1), * tr(exp2), next1()];
+INS tr(muNext(MuExp exp)) = [*tr(exp1),NEXT0()];
+INS tr(muNext(MuExp exp1, MuExp exp2)) = [*tr(exp1), * tr(exp2), NEXT1()];
 
-INS tr(yield()) = [yield0()];
-INS tr(next(MuExp exp)) = [*tr(exp), yield1()];
+INS tr(muYield()) = [YIELD0()];
+INS tr(muNext(MuExp exp)) = [*tr(exp), YIELD1()];
 
-INS tr(ret()) = [return0()];
-INS tr(ret(MuExp exp)) = [*tr(exp), return1()];
+INS tr(muReturn()) = [RETURN0()];
+INS tr(muReturn(MuExp exp)) = [*tr(exp), RETURN1()];
 
-INS tr(hasNext(MuExp exp)) = [*tr(exp), hasNext()];
+INS tr(muHasNext(MuExp exp)) = [*tr(exp), HASNEXT()];
 
-INS tr(block(list[MuExp] exps)) {
-  ins = [*tr(exp), pop() | exp <- exps];
-  if(size(ins > 0)){
+INS tr(muBlock(list[MuExp] exps)) {
+  if(size(exps) == 1)
+     return tr(exps[0]);
+  ins = [*tr(exp), POP() | exp <- exps];
+  if(size(ins) > 0){
      ins = ins[0 .. -1];
   }
   return ins;
 }
-
-// Typed interface with muRascalVM
-
-Instruction loadcon(value val) = instruction("loadcon", [val]);
-Instruction loadloc(int pos) = instruction("loadloc", [pos]);
-Instruction loadvar(int scope, int pos) = instruction("loadvar", [scope, pos]);
-Instruction storevar(int scope, int pos) = instruction("storevar", [scope, pos]);
-Instruction calldyn() = instruction("calldyn", []);
-Instruction call(str name) = instruction("call", [name]);
-Instruction callprim(str name) = instruction("callprim", [name]);
-
-Instruction jmp(str label) =  instruction("jmp", [label]);
-Instruction jmptrue(str label) =  instruction("jmptrue", [label]);
-Instruction jmpfalse(str label) =  instruction("jmpfalse", [label]);
-
-Instruction create(str fun) =  instruction("create", [fun]);
-Instruction createdyn() =  instruction("createdyn", []);
-
-Instruction next0() =  instruction("next0", []);
-Instruction next1() =  instruction("next1", []);
-
-Instruction yield0() =  instruction("yield0", []);
-Instruction yield1() =  instruction("yield1", []);
-
-Instruction return0() =  instruction("ret0", []);
-Instruction return1() =  instruction("ret1", []);
-
 
 
 
