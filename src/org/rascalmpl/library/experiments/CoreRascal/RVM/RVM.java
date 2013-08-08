@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.Visibility.Public;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
+import org.rascalmpl.library.vis.graphics.NewInterpolation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RVM {
@@ -323,6 +324,21 @@ public class RVM {
 				case Opcode.OP_HASNEXT:
 					coroutine = (Coroutine) stack[--sp];
 					stack[sp++] = coroutine.hasNext() ? TRUE : FALSE;
+					continue;
+				
+				case Opcode.OP_LOADCONREF:
+					pos = instructions[pc++];
+					stack[sp++] = new Reference(stack, pos);
+					continue;
+				
+				case Opcode.OP_LOADLOCREF:
+					Reference ref = (Reference) stack[instructions[pc++]];
+					stack[sp++] = ref.stack[ref.pos];
+					continue;
+					
+				case Opcode.OP_STORELOCREF:
+					ref = (Reference) stack[instructions[pc++]];
+					ref.stack[ref.pos] = stack[--sp];
 					continue;
 
 				default:
