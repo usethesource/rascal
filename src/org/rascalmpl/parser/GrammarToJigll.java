@@ -388,58 +388,65 @@ public class GrammarToJigll {
 			case "iter-star-seps":
 				return new Nonterminal(SymbolAdapter.toString(symbol), true);
 								
-//			case "opt":
-//				return new Nonterminal(SymbolAdapter.toString(symbol), true);
-//				
-//			case "alt":
-//				return new Nonterminal(SymbolAdapter.toString(symbol), true);
-//				
-//			case "seq":
-//				return new Nonterminal(SymbolAdapter.toString(symbol), true);	
+			case "opt":
+				return new Nonterminal(SymbolAdapter.toString(symbol));
+				
+			case "alt":
+				return new Nonterminal(SymbolAdapter.toString(symbol));
+				
+			case "seq":
+				return new Nonterminal(SymbolAdapter.toString(symbol));	
 				
 			case "start":
 				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol)) + "]");
 				
 			case "conditional":
-				Symbol s = getSymbol(getSymbolCons(symbol));
-				ISet conditions = (ISet) symbol.get("conditions");
-				for(IValue condition : conditions) {
-					
-					switch(((IConstructor)condition).getName()) {
-						case "not-follow":
-							IConstructor follow = getSymbolCons((IConstructor) condition);
-							s = s.addCondition(getFollowRestriction(follow));
-							break;
-							
-						case "follow":
-							break;
-							
-						case "delete":
-							IConstructor delete = getSymbolCons((IConstructor) condition);
-							s = s.addCondition(getDeleteSet(delete));
-							break;
-							
-						case "not-precede":
-							IConstructor precede = getSymbolCons((IConstructor) condition);
-							s = s.addCondition(getNotPrecede(precede));
-							break;
-							
-							
-						case "precede":
-							break;
-							
-						case "except":
-							break;
-							
-						default:
-							throw new RuntimeException("Unsupported conditional " + symbol);
-					}
-				}
-				return s;
+				return getSymbol(getSymbolCons(symbol)).addConditions(getConditions(symbol));
 				
 			default:
 				return new Nonterminal(SymbolAdapter.toString(symbol));
 			}
+	}
+	
+	private List<Condition> getConditions(IConstructor symbol) {
+		ISet conditions = (ISet) symbol.get("conditions");
+		
+		List<Condition> list = new ArrayList<>();
+		
+		for(IValue condition : conditions) {
+			
+			switch(((IConstructor)condition).getName()) {
+				case "not-follow":
+					IConstructor follow = getSymbolCons((IConstructor) condition);
+					list.add(getFollowRestriction(follow));
+					break;
+					
+				case "follow":
+					break;
+					
+				case "delete":
+					IConstructor delete = getSymbolCons((IConstructor) condition);
+					list.add(getDeleteSet(delete));
+					break;
+					
+				case "not-precede":
+					IConstructor precede = getSymbolCons((IConstructor) condition);
+					list.add(getNotPrecede(precede));
+					break;
+					
+					
+				case "precede":
+					break;
+					
+				case "except":
+					break;
+					
+				default:
+					throw new RuntimeException("Unsupported conditional " + symbol);
+			}
+		}
+
+		return list;
 	}
 	
 	private IConstructor getSymbolCons(IConstructor symbol) {
