@@ -20,8 +20,6 @@ public class Backtracking {
 		rvm.declare(new Function("TRUE", 0, 0, 0, 6,
 				new CodeBlock(vf)
 				.loadcon(true)
-				.yield1()	
-				.loadcon(true)
 				.ret1()
 				.halt()
 				));
@@ -80,25 +78,6 @@ public class Backtracking {
 				.yield1()
 				.jmp("WHILE1")
 		));
-		
-		
-		rvm.declare(new Function("strange", 0, 0, 3, 10,
-				new CodeBlock(vf)
-					.create("TRUE")
-					.storeloc(0)
-					.loadloc(0)
-					.init()
-					.loadloc(0)
-					.next0()    // expect true
-					.print("First next: $0")
-					.loadloc(0)
-					.hasNext() // expect false
-					.print("hasNext: $0")
-					.loadloc(0)
-					.next0()	// expect runtime error (but we get true)
-					.halt()
-	));
-
 				
 		/*
 		 * 
@@ -134,7 +113,7 @@ public class Backtracking {
 						.halt()
 		));
 	
-		rvm.executeProgram("strange", new IValue[] {});
+		rvm.executeProgram("main", new IValue[] {});
 	}
 
 }

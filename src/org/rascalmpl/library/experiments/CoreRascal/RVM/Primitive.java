@@ -31,6 +31,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  */
 
 public enum Primitive {
+	and_bool_bool,
 	appendAfter,
 	addition_elm_list,
 	addition_list_elm,
@@ -47,8 +48,10 @@ public enum Primitive {
 	composition_map_map,
 	division_num_num,
 	equal_num_num,
+	equivalent_bool_bool,
 	greater_num_num,
 	greater_equal_num_num,
+	implies_bool_bool,
 	less_num_num,
 	less_equal_num_num,
 	make_list,
@@ -57,6 +60,8 @@ public enum Primitive {
 	make_tuple,
 	multiplication_num_num,
 	negative,
+	not_bool,
+	or_bool_bool,
 	substraction_list_list,
 	substraction_map_map,
 	substraction_num_num,
@@ -210,6 +215,15 @@ public enum Primitive {
 		stack[sp - 2] = vf.tuple(elems);
 		return sp - 1;
 	}
+	
+	/*
+	 * and
+	 */
+	
+	public static int and_bool_bool(Object[] stack, int sp) {
+		stack[sp - 2] = ((IBool) stack[sp - 2]).and((IBool) stack[sp - 1]);
+		return sp - 1;
+	}
 
 	/*
 	 * appendAfter
@@ -266,6 +280,15 @@ public enum Primitive {
 		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
+	
+	/*
+	 * equivalent
+	 */
+	
+	public static int equivalent_bool_bool(Object[] stack, int sp) {
+		stack[sp - 2] = ((IBool) stack[sp - 2]).equivalent((IBool) stack[sp - 1]);
+		return sp - 1;
+	}
 
 	/*
 	 * fieldAccess
@@ -297,6 +320,17 @@ public enum Primitive {
 	/*
 	 * has
 	 */
+	
+	/*
+	 * implies
+	 */
+	
+	public static int implies_bool_bool(Object[] stack, int sp) {
+		stack[sp - 2] = ((IBool) stack[sp - 2]).implies((IBool) stack[sp - 1]);
+		return sp - 1;
+	}
+
+	
 	/*
 	 * insertBefore
 	 */
@@ -415,6 +449,11 @@ public enum Primitive {
 	 * negation
 	 */
 	
+	public static int not_bool(Object[] stack, int sp) {
+		stack[sp - 2] = ((IBool) stack[sp - 2]).not();
+		return sp - 1;
+	}
+	
 	/*
 	 * negative
 	 * 
@@ -429,6 +468,15 @@ public enum Primitive {
 	/*
 	 * nonEquals
 	 */
+	
+	/*
+	 * or
+	 */
+	
+	public static int or_bool_bool(Object[] stack, int sp) {
+		stack[sp - 2] = ((IBool) stack[sp - 2]).or((IBool) stack[sp - 1]);
+		return sp - 1;
+	}
 	
 	/*
 	 * product
