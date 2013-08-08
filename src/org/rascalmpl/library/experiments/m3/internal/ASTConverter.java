@@ -119,7 +119,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue leftSide = visitChild(node.getLeftHandSide());
 		IValue rightSide = visitChild(node.getRightHandSide());
 		
-		ownValue = constructExpressionNode("assignment", leftSide, rightSide);
+		ownValue = constructExpressionNode("assignment", leftSide, values.string(node.getOperator().toString()), rightSide);
 		
 		return false;
 	}
@@ -176,7 +176,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	public boolean visit(CharacterLiteral node) {
 		IValue value = values.string(node.getEscapedValue()); 
 		
-		ownValue = constructExpressionNode("string", value);
+		ownValue = constructExpressionNode("char", value);
 		
 		return false;
 	}
@@ -260,7 +260,7 @@ public class ASTConverter extends JavaToRascalConverter {
 			arguments.add(visitChild(e));
 		}
 		
-		ownValue = constructStatementNode("thisCall", arguments.asList());
+		ownValue = constructStatementNode("constructorCall", values.bool(false),  arguments.asList());
 		setAnnotation("typeParameters", types);
 		
 		return false;
@@ -367,7 +367,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue expression = visitChild(node.getExpression());
 		IValue name = values.string(node.getName().getFullyQualifiedName());
 	
-		ownValue = constructExpressionNode("fieldAccess", expression, name);
+		ownValue = constructExpressionNode("fieldAccess", values.bool(false), expression, name);
 		
 		return false;
 	}
@@ -425,16 +425,18 @@ public class ASTConverter extends JavaToRascalConverter {
 	public boolean visit(ImportDeclaration node) {
 		
 		String name = node.getName().getFullyQualifiedName();
-		String importType = "import";
+
+		IValueList importModifiers = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (node.isStatic())
-				importType = "staticImport";
+				importModifiers.add(constructModifierNode("static"));
 
 			if (node.isOnDemand())
-				importType = "packageImport";
+				importModifiers.add(constructModifierNode("onDemand"));
 		}
 		
-		ownValue = constructDeclarationNode(importType.toString(), values.string(name));
+		ownValue = constructDeclarationNode("import", values.string(name));
+		setAnnotation("modifiers", importModifiers);
 		
 		return false;
 	}
@@ -594,7 +596,7 @@ public class ASTConverter extends JavaToRascalConverter {
 			arguments.add(visitChild(e));
 		}		
 		
-		ownValue = constructExpressionNode("call", expression, name, arguments.asList());
+		ownValue = constructExpressionNode("methodCall", values.bool(false), expression, name, arguments.asList());
 		setAnnotation("typeParameters", genericTypes);
 		return false;
 	}
@@ -649,13 +651,14 @@ public class ASTConverter extends JavaToRascalConverter {
 		
 		IValue name = values.string(node.getName().getFullyQualifiedName());
 		IValueList annotations = new IValueList(values);
-		if (node.getAST().apiLevel() >= AST.JLS3) {
-			
-			for (Iterator it = node.annotations().iterator(); it.hasNext();) {
-				Annotation p = (Annotation) it.next();
-				annotations.add(visitChild(p));
-			}
-		}
+		
+//		if (node.getAST().apiLevel() >= AST.JLS3) {
+//			
+//			for (Iterator it = node.annotations().iterator(); it.hasNext();) {
+//				Annotation p = (Annotation) it.next();
+				annotations = parseExtendedModifiers(node.annotations());
+//			}
+//		}
 		
 		ownValue = constructDeclarationNode("package", name);
 		setAnnotation("modifiers", annotations);
@@ -816,7 +819,7 @@ public class ASTConverter extends JavaToRascalConverter {
 			arguments.add(visitChild(e));
 		}
 	
-		ownValue = constructStatementNode("superCall", expression, arguments.asList());
+		ownValue = constructStatementNode("constructorCall", values.bool(true), expression, arguments.asList());
 		setAnnotation("typeParameters", genericTypes);
 		return false;
 	}
@@ -826,7 +829,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
 		IValue name = values.string((node.getName().getFullyQualifiedName()));
 	
-		ownValue = constructExpressionNode("fieldAccess", qualifier, name);
+		ownValue = constructExpressionNode("fieldAccess", values.bool(true), qualifier, name);
 		
 		return false;
 	}
@@ -853,7 +856,7 @@ public class ASTConverter extends JavaToRascalConverter {
 			arguments.add(visitChild(e));
 		}
 	
-		ownValue = constructExpressionNode("call", qualifier, name, arguments.asList());
+		ownValue = constructExpressionNode("methodCall", values.bool(true), qualifier, name, arguments.asList());
 		setAnnotation("typeParameters", genericTypes);
 		return false;
 	}

@@ -15,7 +15,7 @@ public int testfun1() {
     bool b = true;
     real r = 1.513;
     loc l = |file:///dev/null|;
-    datetime dt = $2010-12-01;
+    datetime dt = $2010-12-01$;
     
     return x;
 }

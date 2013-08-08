@@ -19,7 +19,7 @@ str translatePat(p:(Pattern) `<StringLiteral s>`) =  "coroutine (str subject) re
      
 str translatePat(p:(Pattern) `<QualifiedName name>`) =  "coroutine (<getType(name@\loc)> subject) resume bool () { yield subject == <translate(name)>; }";
      
-str translatePat(p:(Pattern) `<Type tp> <Name name>`) = "coroutine (<tp> subject) resume bool () { <tp> <name> = subject; yield true; }";
+str translatePat(p:(Pattern) `<Type tp> <Name name>`) = "coroutine (<tp> subject) resume bool () { <name> = subject; yield true; }";
 
 /*
   I assume the following coroutine model here:
@@ -37,7 +37,7 @@ str translatePat(p:(Pattern) `<Type tp> <Name name>`) = "coroutine (<tp> subject
   
   Example: Countdown
   
-  coroutine countDown(int n) resume int (){
+  coroutine int countDown(int n) next(){
     while(n > 0 ){
     	yield n;
     	n -= 1;
@@ -84,7 +84,7 @@ str translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
   
   return
      "coroutine (value subject) resume tuple[bool,int](int) {
-     '  <for(<tp, nm> <- defs){><tp> <name>;<}>
+     '  <for(<tp, name> <- defs){><tp> <name>;<}>
      '  int sublen = size(subject);
      '  list[coroutine] matchers = [<intercalate(",\n", [translatePatAsListElem(pat) + ".start(subject)" | pat <- pats])>];
      '  int patlen = size(matchers);
