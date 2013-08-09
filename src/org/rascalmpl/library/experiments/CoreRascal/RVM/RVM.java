@@ -419,80 +419,80 @@ public class RVM {
 				
 				switch(opcode) {
 				case "LOADCON":
-					instructions = instructions.loadcon(constantMap.get(((IString) operands.get(0)).getValue()));
+					instructions = instructions.LOADCON(constantMap.get(((IString) operands.get(0)).getValue()));
 					break;
 				case "LOADVAR":
-					instructions = instructions.loadvar(Integer.parseInt(((IString) operands.get(0)).getValue()), 
+					instructions = instructions.LOADVAR(Integer.parseInt(((IString) operands.get(0)).getValue()), 
 														Integer.parseInt(((IString) operands.get(1)).getValue()));
 					break;
 				case "LOADLOC":
-					instructions = instructions.loadloc(Integer.parseInt(((IString) operands.get(0)).getValue()));
+					instructions = instructions.LOADLOC(Integer.parseInt(((IString) operands.get(0)).getValue()));
 					break;
 				case "STOREVAR":
-					instructions = instructions.storevar(Integer.parseInt(((IString) operands.get(0)).getValue()), 
+					instructions = instructions.STOREVAR(Integer.parseInt(((IString) operands.get(0)).getValue()), 
 							 							 Integer.parseInt(((IString) operands.get(1)).getValue()));
 					break;
 				case "STORELOC":
-					instructions = instructions.storeloc(Integer.parseInt(((IString) operands.get(0)).getValue()));
+					instructions = instructions.STORELOC(Integer.parseInt(((IString) operands.get(0)).getValue()));
 					break;
 				case "LABEL":
-					instructions = instructions.label(((IString) operands.get(0)).getValue());
+					instructions = instructions.LABEL(((IString) operands.get(0)).getValue());
 					break;
 				case "CALLPRIM":
-					instructions = instructions.callprim(Primitive.valueOf(((IString) operands.get(0)).getValue()));	
+					instructions = instructions.CALLPRIM(Primitive.valueOf(((IString) operands.get(0)).getValue()));	
 					break;
 
 				case "CALL":
-					instructions = instructions.call(((IString) operands.get(0)).getValue());
+					instructions = instructions.CALL(((IString) operands.get(0)).getValue());
 					break;
 				case "RETURN0":
-					instructions = instructions.ret0();
+					instructions = instructions.RETURN0();
 				case "RETURN1":
-					instructions = instructions.ret1();
+					instructions = instructions.RETURN1();
 					break;
 				case "JMP":
-					instructions = instructions.jmp(((IString) operands.get(0)).getValue());
+					instructions = instructions.JMP(((IString) operands.get(0)).getValue());
 					break;
 				case "JMPTRUE":
-					instructions = instructions.jmptrue(((IString) operands.get(0)).getValue());
+					instructions = instructions.JMPTRUE(((IString) operands.get(0)).getValue());
 					break;
 				case "JMPFALSE":
-					instructions = instructions.jmpfalse(((IString) operands.get(0)).getValue());
+					instructions = instructions.JMPFALSE(((IString) operands.get(0)).getValue());
 					break;
 				case "HALT":
-					instructions = instructions.halt();
+					instructions = instructions.HALT();
 					break;
 				
 				case "CREATE":
-					instructions = instructions.create(((IString) operands.get(0)).getValue());
+					instructions = instructions.CREATE(((IString) operands.get(0)).getValue());
 					break;
 					
 				case "CREATEDYN":
-					instructions = instructions.createdyn();
+					instructions = instructions.CREATEDYN();
 					break;
 				
 				case "INIT":
-					instructions = instructions.init();
+					instructions = instructions.INIT();
 					break;
 					
 				case "NEXT0":
-					instructions = instructions.next0();
+					instructions = instructions.NEXT0();
 					break;
 					
 				case "NEXT1":
-					instructions = instructions.next1();
+					instructions = instructions.NEXT1();
 					break;
 					
 				case "YIELD0":
-					instructions = instructions.yield0();
+					instructions = instructions.YIELD0();
 					break;
 					
 				case "YIELD1":
-					instructions = instructions.yield1();
+					instructions = instructions.YIELD1();
 					break;
 					
 				case "HASNEXT":
-					instructions = instructions.hasNext();
+					instructions = instructions.HASNEXT();
 					break;
 		
 				default:
@@ -554,74 +554,74 @@ public class RVM {
 
 					switch(opcode) {
 					case "LOADCON":
-						codeblock.loadcon(instruction.get("val"));
+						codeblock.LOADCON(instruction.get("val"));
 						break;
 					case "LOADVAR":
-						codeblock.loadvar(getIntField(instruction,"scope"), getIntField(instruction, "pos"));
+						codeblock.LOADVAR(getIntField(instruction,"scope"), getIntField(instruction, "pos"));
 						break;
 					case "LOADLOC":
-						codeblock.loadloc(getIntField(instruction,"pos"));
+						codeblock.LOADLOC(getIntField(instruction,"pos"));
 						break;
 					case "STOREVAR":
-						codeblock.storevar(getIntField(instruction,"scope"), getIntField(instruction, "pos"));
+						codeblock.STOREVAR(getIntField(instruction,"scope"), getIntField(instruction, "pos"));
 						break;
 					case "STORELOC":
-						codeblock.storeloc(getIntField(instruction,"pos"));
+						codeblock.STORELOC(getIntField(instruction,"pos"));
 						break;
 					case "LABEL":
-						codeblock = codeblock.label(getStrField(instruction,"label"));
+						codeblock = codeblock.LABEL(getStrField(instruction,"label"));
 						break;
 					case "CALLPRIM":
-						codeblock.callprim(Primitive.valueOf(getStrField(instruction,"name")));	
+						codeblock.CALLPRIM(Primitive.valueOf(getStrField(instruction,"name")));	
 						break;
 					case "CALL":
-						codeblock.call(getStrField(instruction,"name"));
+						codeblock.CALL(getStrField(instruction,"name"));
 					case "CALLDYN":
-						codeblock.calldyn();
+						codeblock.CALLDYN();
 						break;
 					case "RETURN0":
-						codeblock.ret0();
+						codeblock.RETURN0();
 					case "RETURN1":
-						codeblock.ret1();
+						codeblock.RETURN1();
 						break;
 					case "JMP":
-						codeblock.jmp(getStrField(instruction,"label"));
+						codeblock.JMP(getStrField(instruction,"label"));
 						break;
 					case "JMPTRUE":
-						codeblock.jmptrue(getStrField(instruction,"label"));
+						codeblock.JMPTRUE(getStrField(instruction,"label"));
 						break;
 					case "JMPFALSE":
-						codeblock.jmpfalse(getStrField(instruction,"label"));
+						codeblock.JMPFALSE(getStrField(instruction,"label"));
 						break;
 					case "HALT":
-						codeblock.halt();
+						codeblock.HALT();
 						break;
 					case "CREATE":
-						codeblock.create(getStrField(instruction,"fun"));
+						codeblock.CREATE(getStrField(instruction,"fun"));
 						break;
 					case "CREATEDYN":
-						codeblock.createdyn();
+						codeblock.CREATEDYN();
 						break;
 					case "INIT":
-						codeblock.init();
+						codeblock.INIT();
 						break;
 					case "NEXT0":
-						codeblock.next0();
+						codeblock.NEXT0();
 						break;
 					case "NEXT1":
-						codeblock.next1();
+						codeblock.NEXT1();
 						break;
 					case "YIELD0":
-						codeblock.yield0();
+						codeblock.YIELD0();
 						break;
 					case "YIELD1":
-						codeblock.yield1();
+						codeblock.YIELD1();
 						break;
 					case "HASNEXT":
-						codeblock.hasNext();
+						codeblock.HASNEXT();
 						break;	
 					case "POP":
-						codeblock.pop();
+						codeblock.POP();
 						break;
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");

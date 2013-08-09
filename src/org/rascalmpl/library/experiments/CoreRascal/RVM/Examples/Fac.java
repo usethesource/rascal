@@ -17,48 +17,48 @@ public class Fac {
 		
 		rvm.declare(new Function("fac", 1, 1, 1, 6, 
 				new CodeBlock(vf).
-					loadloc(0).
-					loadcon(1).
-					callprim(Primitive.equal_num_num).
-					jmpfalse("L").
-					loadcon(1).
-					ret1().
-					label("L").
-					loadloc(0).
-					loadloc(0).
-					loadcon(1).
-					callprim(Primitive.substraction_num_num).
-					call("fac").
-					callprim(Primitive.multiplication_num_num).
-					ret1()));
+					LOADLOC(0).
+					LOADCON(1).
+					CALLPRIM(Primitive.equal_num_num).
+					JMPFALSE("L").
+					LOADCON(1).
+					RETURN1().
+					LABEL("L").
+					LOADLOC(0).
+					LOADLOC(0).
+					LOADCON(1).
+					CALLPRIM(Primitive.substraction_num_num).
+					CALL("fac").
+					CALLPRIM(Primitive.multiplication_num_num).
+					RETURN1()));
 		
 		rvm.declare(new Function("main_fac", 0, 0, 0, 7,
 				new CodeBlock(vf).
-					loadcon(4).
-					call("fac").
-					halt()));
+					LOADCON(4).
+					CALL("fac").
+					HALT()));
 		
 		rvm.declare(new Function("main_repeat", 0, 0, 2, 20,
 				new CodeBlock(vf).
-					loadcon(10).
-					storeloc(0). // n
-					loadcon(10).
-					storeloc(1). // cnt
-					label("L").
-					loadloc(1). // cnt
-					loadcon(0).
-					callprim(Primitive.greater_num_num).
-					jmptrue("M").
-					halt().
-					label("M").
-					loadloc(0).
-					call( "fac").
-					pop().
-					loadloc(1).
-					loadcon(1).
-					callprim(Primitive.substraction_num_num).
-					storeloc(1).
-					jmp("L")));
+					LOADCON(10).
+					STORELOC(0). // n
+					LOADCON(10).
+					STORELOC(1). // cnt
+					LABEL("L").
+					LOADLOC(1). // cnt
+					LOADCON(0).
+					CALLPRIM(Primitive.greater_num_num).
+					JMPTRUE("M").
+					HALT().
+					LABEL("M").
+					LOADLOC(0).
+					CALL( "fac").
+					POP().
+					LOADLOC(1).
+					LOADCON(1).
+					CALLPRIM(Primitive.substraction_num_num).
+					STORELOC(1).
+					JMP("L")));
 		
 		long total = 0;
 		int times = 20;

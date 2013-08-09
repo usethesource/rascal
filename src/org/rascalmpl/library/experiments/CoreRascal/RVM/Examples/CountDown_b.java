@@ -28,21 +28,21 @@ public class CountDown_b {
 		
 		rvm.declare(new Function("g", 0, 1, 1, 6,
 					new CodeBlock(v)
-							.label("LOOP")
-							.loadloc(0)
-							.loadcon(0)
-							.callprim(Primitive.greater_num_num)
-							.jmptrue("BODY")
-							.loadcon(0)
-							.ret1()
-							.label("BODY")
-							.loadloc(0)
-							.yield1()
-							.loadloc(0)
-							.loadcon(1)
-							.callprim(Primitive.substraction_num_num)
-							.storeloc(0)
-							.jmp("LOOP")));
+							.LABEL("LOOP")
+							.LOADLOC(0)
+							.LOADCON(0)
+							.CALLPRIM(Primitive.greater_num_num)
+							.JMPTRUE("BODY")
+							.LOADCON(0)
+							.RETURN1()
+							.LABEL("BODY")
+							.LOADLOC(0)
+							.YIELD1()
+							.LOADLOC(0)
+							.LOADCON(1)
+							.CALLPRIM(Primitive.substraction_num_num)
+							.STORELOC(0)
+							.JMP("LOOP")));
 		/*
 		 * h() {
 		 * n = 9 + 1;
@@ -54,18 +54,18 @@ public class CountDown_b {
 		
 		rvm.declare(new Function("h", 0, 0, 2, 6, 
 					new CodeBlock(v)
-						.loadcon(9)
-						.loadcon(1)
-						.callprim(Primitive.addition_num_num)
-						.storeloc(0)
-						.create("g")
-						.storeloc(1)
-						.loadloc(0)
-						.loadloc(1)
-						.init()
-						.pop()
-						.loadloc(1)
-						.ret1()));
+						.LOADCON(9)
+						.LOADCON(1)
+						.CALLPRIM(Primitive.addition_num_num)
+						.STORELOC(0)
+						.CREATE("g")
+						.STORELOC(1)
+						.LOADLOC(0)
+						.LOADLOC(1)
+						.INIT()
+						.POP()
+						.LOADLOC(1)
+						.RETURN1()));
 		
 		/*
 		 * c1 = h();
@@ -81,32 +81,32 @@ public class CountDown_b {
 		 */
 		rvm.declare(new Function("main", 0, 0, 3, 6,
 					new CodeBlock(v)
-						.call("h")
-						.storeloc(0)
-						.call("h")
-						.storeloc(1)
-						.loadcon(0)
-						.storeloc(2)
+						.CALL("h")
+						.STORELOC(0)
+						.CALL("h")
+						.STORELOC(1)
+						.LOADCON(0)
+						.STORELOC(2)
 						
-						.label("LOOP")
-						.loadloc(0)
-						.hasNext()
+						.LABEL("LOOP")
+						.LOADLOC(0)
+						.HASNEXT()
 						//.loadloc(1)
 						//.hasNext()
 											
-						.jmptrue("BODY")
-						.halt()
-						.label("BODY")
-						.loadloc(0)
-						.next0()
-						.loadloc(1)
-						.next0()
-						.callprim(Primitive.addition_num_num)
-						.loadloc(2)
-						.callprim(Primitive.addition_num_num)
-						.storeloc(2)
+						.JMPTRUE("BODY")
+						.HALT()
+						.LABEL("BODY")
+						.LOADLOC(0)
+						.NEXT0()
+						.LOADLOC(1)
+						.NEXT0()
+						.CALLPRIM(Primitive.addition_num_num)
+						.LOADLOC(2)
+						.CALLPRIM(Primitive.addition_num_num)
+						.STORELOC(2)
 						
-						.jmp("LOOP")));
+						.JMP("LOOP")));
 	
 		rvm.executeProgram("main", new IValue[] {});
 	}

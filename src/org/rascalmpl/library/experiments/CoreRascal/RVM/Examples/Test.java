@@ -16,10 +16,10 @@ public class Test {
 		
 		rvm.declare(new Function("main", 0, 0, 0, 6,
 					new CodeBlock(vf).
-						loadcon(3).
-						loadcon("abc").
-						print("A Message: $0!").
-						halt()));
+						LOADCON(3).
+						LOADCON("abc").
+						PRINTLN("A Message: $0!").
+						HALT()));
 	
 		rvm.executeProgram("main", new IValue[] {});
 	}
