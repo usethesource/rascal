@@ -9,7 +9,7 @@ import util::IDE;
 
 import IO;
 
-@javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.RVM}
+@javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.Execute}
 @reflect{Executes muRascalVM programs}
 public java tuple[value,int] executeProgram(RVMProgram program, bool debug, int repeat);
 
