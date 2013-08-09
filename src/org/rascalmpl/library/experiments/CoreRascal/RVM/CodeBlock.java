@@ -250,8 +250,8 @@ public class CodeBlock {
 		return add(new HasNext(this));
 	}
 	
-	public CodeBlock PRINTLN(String arg){
-		return add(new Println(this, getConstantIndex(vf.string(arg))));
+	public CodeBlock PRINTLN(){
+		return add(new Println(this));
 	}
     
 	public CodeBlock LOADCONREF(int pos) {

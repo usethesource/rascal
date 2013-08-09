@@ -18,7 +18,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
-import org.rascalmpl.library.vis.graphics.NewInterpolation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RVM {
@@ -26,16 +25,16 @@ public class RVM {
 	public final IValueFactory vf;
 	private final IBool TRUE;
 	private final IBool FALSE;
-	private boolean debug;
+	private boolean debug = false;;
 	private boolean listing = false;
 	
 	private final ArrayList<Function> functionStore;
 	private final Map<String, Integer> functionMap;
 	private PrintWriter stdout;
 
-	
 	public RVM(IValueFactory vf) {
 		this.vf = vf;
+		stdout = new PrintWriter(System.out, true);
 		TRUE = vf.bool(true);
 		FALSE = vf.bool(false);
 		functionStore = new ArrayList<Function>();
@@ -236,25 +235,7 @@ public class RVM {
 					return stack[sp - 1];
 
 				case Opcode.OP_PRINTLN:
-					String msg = ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
-					StringBuilder fmsg = new StringBuilder();
-					int len =  msg.length();
-					for(int i = 0; i < len;){
-						char c = msg.charAt(i);
-						if(i < len - 1 && (c == '$' || c == '@')){
-							int n = Character.getNumericValue(msg.charAt(i + 1));
-							if(n > sp - 1){
-								fmsg.append("***");
-							} else {
-								fmsg.append((c == '$') ? stack[sp - 1 - n] : stack[0]);
-							}
-							i += 2;
-						} else {
-							fmsg.append(c); 
-							i++;
-						}
-					}
-					stdout.println(fmsg.toString());
+					stdout.println(((IString) stack[--sp]).getValue());
 					continue;
 					
 				case Opcode.OP_CALLPRIM:
@@ -362,6 +343,7 @@ public class RVM {
 	public ITuple executeProgram(IList directives, IInteger repeats, IEvaluatorContext ctx) {
 		String func = "main";
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
+		rvm.setStdOut(ctx.getStdOut());
 		List<IValue> functions = new ArrayList<>();
 		HashMap<String, IValue> constantMap = new HashMap<String, IValue>();
 		
