@@ -25,15 +25,15 @@ public enum Opcode {
 	CALLDYN(14,1),
 	LOADFUN(15,2),
 	CREATE(16,2),
-	NEXT_0(17,1),
-	NEXT_1(18,1),
-	YIELD_0(19,1),
-	YIELD_1(20,1),
+	NEXT0(17,1),
+	NEXT1(18,1),
+	YIELD0(19,1),
+	YIELD1(20,1),
 	INIT(21,1),
 	CREATEDYN(22,1),
 	HASNEXT(23,1),
 	PRINT(24,2),
-	RETURN_0(25,1),
+	RETURN0(25,1),
 	LOADCONREF(26,2),
 	LOADLOCREF(27,2),
 	STORELOCREF(28,2)
@@ -58,7 +58,7 @@ public enum Opcode {
 	static public final int OP_STORELOC = 4;
 	static public final int OP_CALL = 5;
 	static public final int OP_CALLPRIM = 6;
-	static public final int OP_RETURN_1 = 7;
+	static public final int OP_RETURN1 = 7;
 	static public final int OP_JMP = 8;
 	static public final int OP_JMPTRUE = 9;
 	static public final int OP_JMPFALSE = 10;
@@ -68,15 +68,15 @@ public enum Opcode {
 	static public final int OP_CALLDYN = 14;
 	static public final int OP_LOADFUN = 15;	
 	static public final int OP_CREATE = 16;
-	static public final int OP_NEXT_0 = 17;
-	static public final int OP_NEXT_1 = 18;
-	static public final int OP_YIELD_0 = 19;
-	static public final int OP_YIELD_1 = 20;
+	static public final int OP_NEXT0 = 17;
+	static public final int OP_NEXT1 = 18;
+	static public final int OP_YIELD0 = 19;
+	static public final int OP_YIELD1 = 20;
 	static public final int OP_INIT = 21;
 	static public final int OP_CREATEDYN = 22;
 	static public final int OP_HASNEXT = 23;
 	static public final int OP_PRINT = 24;
-	static public final int OP_RETURN_0 = 25;
+	static public final int OP_RETURN0 = 25;
 	static public final int OP_LOADCONREF = 26;
 	static public final int OP_LOADLOCREF = 27;
 	static public final int OP_STORELOCREF = 28;
@@ -118,7 +118,7 @@ public enum Opcode {
 			return "CALLPRIM " + cb.finalCode[pc + 1] + " [" + Primitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
 			
 		case RETURN_1:
-			return "RETURN_1";
+			return "RETURN1";
 			
 		case JMP:
 			return "JMP " + cb.finalCode[pc + 1];
@@ -147,17 +147,17 @@ public enum Opcode {
 		case CREATE:
 			return "CREATE " + cb.finalCode[pc + 1] + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
-		case NEXT_0:
-			return "NEXT_0";
+		case NEXT0:
+			return "NEXT0";
 			
-		case NEXT_1:
-			return "NEXT_1";
+		case NEXT1:
+			return "NEXT1";
 			
-		case YIELD_0:
-			return "YIELD_0";
+		case YIELD0:
+			return "YIELD0";
 		
-		case YIELD_1:
-			return "YIELD_1";
+		case YIELD1:
+			return "YIELD1";
 		
 		case INIT:
 			return "INIT";
@@ -171,8 +171,8 @@ public enum Opcode {
 		case PRINT:
 			return "PRINT " + cb.finalCode[pc + 1]  + " [" + cb.getConstantValue(cb.finalCode[pc + 1]) + "]";
 		
-		case RETURN_0:
-			return "RETURN_0";
+		case RETURN0:
+			return "RETURN0";
 		
 		case LOADCONREF:
 			return "LOADCONREF " + cb.finalCode[pc + 1];

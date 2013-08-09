@@ -45,7 +45,6 @@ public class Do {
 					call("do").
 					halt()));
 		
-		rvm.setDebug(true);
 		rvm.executeProgram("main", new IValue[] {});
 	}
 

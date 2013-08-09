@@ -53,7 +53,7 @@ public static void main(String[] args) {
 						loadcon("35").
 						call("fib").
 						halt()));
-		rvm.setDebug(false);
+		
 		long start = System.currentTimeMillis();
 		IValue val = (IValue) rvm.executeProgram("main", new IValue[] {});
 		long now = System.currentTimeMillis();
