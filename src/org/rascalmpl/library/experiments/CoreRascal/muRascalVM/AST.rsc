@@ -38,7 +38,7 @@ data Instruction =
 		| INIT()
 		| CREATEDYN()
 		| HASNEXT()
-		| PRINT(str txt)
+		| PRINTLN(str txt)
 		| RETURN0()
 		;
 	
