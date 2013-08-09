@@ -109,6 +109,10 @@ public class GrammarToJigll {
 		  grammar = builder.build();
 	}
 	
+	public void printGrammar() {
+		System.out.println(grammar);
+	}
+	
 	public void save(IString path) throws FileNotFoundException, IOException {
 		File file = new File(path.getValue());
 		if(!file.exists()) {
@@ -119,7 +123,7 @@ public class GrammarToJigll {
 		out.close();
 	}
 	
-	public void generateGraph() {
+	public void generateGraph(IString path) {
 		parser = ParserFactory.levelParser(grammar);
 		
 		NonterminalSymbolNode sppf;
@@ -129,9 +133,9 @@ public class GrammarToJigll {
 			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(URI.create("nothing:///"), 0, 1), null, null);
 		}
 		
-		SPPFToDot toDot = new ToDotWithoutIntermeidateAndLists();
+		SPPFToDot toDot = new SPPFToDot();
 		sppf.accept(toDot);
-		GraphVizUtil.generateGraph(toDot.getString(), "/Users/ali/output", "graph");
+		GraphVizUtil.generateGraph(toDot.getString(), path.getValue(), "graph");
 	}
 	
 	private Condition getDeleteSet(IConstructor symbol) {
