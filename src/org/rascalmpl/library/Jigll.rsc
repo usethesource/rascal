@@ -12,7 +12,7 @@ import Node;
 public java void generateGrammar(Grammar grammar);
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
-public java void generateGraph();
+public java void generateGraph(str f);
 
 public void generate(type[&T <: Tree] nont) {
   gr = grammar({nont.symbol}, nont.definitions, ());
@@ -37,3 +37,6 @@ public java &T<:Tree jparse(Symbol nonterminal, str input);
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
 public java void save(str inpu);
+
+@javaClass{org.rascalmpl.parser.GrammarToJigll}
+public java void printGrammar();
