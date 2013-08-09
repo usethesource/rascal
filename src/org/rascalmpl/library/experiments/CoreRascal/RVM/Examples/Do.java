@@ -19,16 +19,16 @@ public class Do {
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADLOC(0).
-					CALLPRIM(Primitive.multiplication_num_num).
+					CALLPRIM(Primitive.product_num_num).
 					RETURN1()));
 		
 		rvm.declare(new Function("cube", 1, 1, 1, 6, 
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADLOC(0).
-					CALLPRIM(Primitive.multiplication_num_num).
+					CALLPRIM(Primitive.product_num_num).
 					LOADLOC(0).
-					CALLPRIM(Primitive.multiplication_num_num).
+					CALLPRIM(Primitive.product_num_num).
 					RETURN1()));
 		
 		rvm.declare(new Function("do", 1, 2, 2, 6, 
