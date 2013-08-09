@@ -32,7 +32,7 @@ lexical Opcode =
 		| "CALL"        // calls a user-defined function on a number of arguments, pops them and pushes the result onto the top
 	
 	| "RETURN_0"
-		| "RETURN_1"	    // returns from a function popping the current stack frame 
+		| "RETURN1"	    // returns from a function popping the current stack frame 
 	
 		| "JMP"         // jumps to the specified location
 		| "JMPTRUE"     // jumps to the specified location if the top value on the stack is true
@@ -44,10 +44,10 @@ lexical Opcode =
 		| "CREATE"
 		| "CREATEDYN"
 		| "INIT"
-		| "NEXT_0"
-		| "NEXT_1"
-		| "YIELD_0"
-		| "YIELD_1"
+		| "NEXT0"
+		| "NEXT1"
+		| "YIELD0"
+		| "YIELD1"
 		| "HASNEXT"
 		;
 	
@@ -66,8 +66,8 @@ keyword Keywords =
 		| "LABEL"
 		| "CALLPRIM"
 		| "CALL"
-		| "RETURN_0"
-		| "RETURN_1"
+		| "RETURN0"
+		| "RETURN1"
 		| "JMP"
 		| "JMPTRUE"
 		| "JMPFALSE"
@@ -75,10 +75,10 @@ keyword Keywords =
 		| "CREATE"
 		| "CREATEDYN"
 		| "INIT"
-		| "NEXT_0"
-		| "NEXT_1"
-		| "YIELD_0"
-		| "YIELD_1"
+		| "NEXT0"
+		| "NEXT1"
+		| "YIELD0"
+		| "YIELD1"
 		| "HASNEXT"
 		;
 

@@ -18,7 +18,7 @@ public class Test {
 					new CodeBlock(vf).
 						LOADCON(3).
 						LOADCON("abc").
-						PRINTLN("A Message: $0!").
+						PRINTLN().
 						HALT()));
 	
 		rvm.executeProgram("main", new IValue[] {});

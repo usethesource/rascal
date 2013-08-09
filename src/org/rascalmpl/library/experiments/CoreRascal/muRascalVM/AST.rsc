@@ -40,5 +40,8 @@ data Instruction =
 		| HASNEXT()
 		| PRINTLN(str txt)
 		| RETURN0()
+		| LOADCONREF(int pos)
+		| LOADLOCREF(int pos)
+		| STORELOCREFD(int pos)
 		;
 	

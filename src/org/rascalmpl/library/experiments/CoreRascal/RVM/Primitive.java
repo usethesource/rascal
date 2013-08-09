@@ -62,6 +62,7 @@ public enum Primitive {
 	negative,
 	not_bool,
 	or_bool_bool,
+	println,
 	substraction_list_list,
 	substraction_map_map,
 	substraction_num_num,
@@ -475,6 +476,15 @@ public enum Primitive {
 	
 	public static int or_bool_bool(Object[] stack, int sp) {
 		stack[sp - 2] = ((IBool) stack[sp - 2]).or((IBool) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	/*
+	 * println
+	 */
+	
+	public static int println(Object[] stack, int sp) {
+		System.out.println(stack[sp - 1]);
 		return sp - 1;
 	}
 	

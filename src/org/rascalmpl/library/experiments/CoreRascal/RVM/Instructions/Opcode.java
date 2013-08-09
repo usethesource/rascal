@@ -15,7 +15,7 @@ public enum Opcode {
 	STORELOC (4, 2),
 	CALL (5, 2),
 	CALLPRIM (6, 2),
-	RETURN_1 (7, 1),
+	RETURN1 (7, 1),
 	JMP (8, 2),
 	JMPTRUE (9, 2),
 	JMPFALSE (10, 2),
@@ -32,7 +32,7 @@ public enum Opcode {
 	INIT(21,1),
 	CREATEDYN(22,1),
 	HASNEXT(23,1),
-	PRINTLN(24,2),
+	PRINTLN(24,1),
 	RETURN0(25,1),
 	LOADCONREF(26,2),
 	LOADLOCREF(27,2),
@@ -117,7 +117,7 @@ public enum Opcode {
 		case CALLPRIM:
 			return "CALLPRIM " + cb.finalCode[pc + 1] + " [" + Primitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
 			
-		case RETURN_1:
+		case RETURN1:
 			return "RETURN1";
 			
 		case JMP:
@@ -169,7 +169,7 @@ public enum Opcode {
 			return "HASNEXT";
 			
 		case PRINTLN:
-			return "PRINTLN " + cb.finalCode[pc + 1]  + " [" + cb.getConstantValue(cb.finalCode[pc + 1]) + "]";
+			return "PRINTLN";
 		
 		case RETURN0:
 			return "RETURN0";

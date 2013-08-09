@@ -11,7 +11,7 @@ loc Example1 = |std:///experiments/CoreRascal/Translation/Examples/Example1.rsc|
 void run(){
   p = mu2rvm(r2mu(Example1));
   iprintln(p);
-  <v, t> = executeProgram(p, false, 1);
+  <v, t> = executeProgram(p, true, 1);
   println("Result = <v>, [<t> msec]");
 }
 
