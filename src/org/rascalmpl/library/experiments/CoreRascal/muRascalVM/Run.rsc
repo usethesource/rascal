@@ -9,15 +9,6 @@ import util::IDE;
 
 import IO;
 
-//@javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.RVM}
-//@reflect{Executes muRascalVM programs}
-//public java tuple[value,int] executeProgram(list[Directive] program, int repeats);
-
-
-//@javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.RVM}
-//@reflect{Executes muRascalVM programs}
-//public java tuple[value,int] executeProgram(RVMProgram program);
-
 @javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.RVM}
 @reflect{Executes muRascalVM programs}
 public java tuple[value,int] executeProgram(RVMProgram program, bool debug, int repeat);
