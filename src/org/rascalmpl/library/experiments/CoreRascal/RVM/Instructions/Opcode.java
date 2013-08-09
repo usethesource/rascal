@@ -14,7 +14,7 @@ public enum Opcode {
 	STOREVAR (3, 3),
 	STORELOC (4, 2),
 	CALL (5, 2),
-	CALLPRIM (6, 2),
+	CALLPRIM (6, 2), // TODO: plus number of formal parameters
 	RETURN1 (7, 1),
 	JMP (8, 2),
 	JMPTRUE (9, 2),
@@ -36,7 +36,8 @@ public enum Opcode {
 	RETURN0(25,1),
 	LOADCONREF(26,2),
 	LOADLOCREF(27,2),
-	STORELOCREF(28,2)
+	STORELOCREF(28,2),
+	CALLCONSTR(29,2) // TODO: plus number of formal parameters
 	;
 	
 	private final int op;
@@ -80,6 +81,7 @@ public enum Opcode {
 	static public final int OP_LOADCONREF = 26;
 	static public final int OP_LOADLOCREF = 27;
 	static public final int OP_STORELOCREF = 28;
+	static public final int OP_CALLCONSTR = 29;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -182,6 +184,9 @@ public enum Opcode {
 			
 		case STORELOCREF:
 			return "STORELOCREF " + cb.finalCode[pc + 1];
+			
+		case CALLCONSTR:
+			return "CALLCONSTR " + cb.finalCode[pc + 1];
 		
 		default:
 			break;

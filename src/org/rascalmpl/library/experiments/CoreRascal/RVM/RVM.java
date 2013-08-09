@@ -16,6 +16,8 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -31,6 +33,10 @@ public class RVM {
 	private final ArrayList<Function> functionStore;
 	private final Map<String, Integer> functionMap;
 	private PrintWriter stdout;
+	
+	private final TypeStore typeStore = new TypeStore();
+	private final ArrayList<Type> constructorStore;
+	private final Map<String, Integer> constructorMap;
 
 	public RVM(IValueFactory vf) {
 		this.vf = vf;
@@ -38,8 +44,11 @@ public class RVM {
 		TRUE = vf.bool(true);
 		FALSE = vf.bool(false);
 		functionStore = new ArrayList<Function>();
+		constructorStore = new ArrayList<Type>();
 
 		functionMap = new HashMap<String, Integer>();
+		constructorMap = new HashMap<String, Integer>();
+		
 		Primitive.init(vf);
 	}
 	
@@ -63,10 +72,18 @@ public class RVM {
 		functionStore.add(f);
 	}
 	
+	public void declareConstructor(IValue constructor) {
+		Type constr = null; // TODO: IValue -> Type
+		if(constr == null)
+			throw new RuntimeException("Not implemented yet");
+		constructorMap.put(constr.getName(), constructorStore.size());
+		constructorStore.add(constr);
+	}
+	
 	public Object executeProgram(String main, IValue[] args) {
 
 		for (Function f : functionStore) {
-			f.codegen(functionMap, listing);
+			f.codegen(functionMap, constructorMap, listing);
 		}
 		// Perform a call to "main"
 
