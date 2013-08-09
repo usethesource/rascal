@@ -38,7 +38,7 @@ public class CountDown {
 							.YIELD1()
 							.LOADLOC(0)
 							.LOADCON(1)
-							.CALLPRIM(Primitive.substraction_num_num)
+							.CALLPRIM(Primitive.subtraction_num_num)
 							.STORELOC(0)
 							.JMP("LOOP")));
 		
@@ -61,7 +61,7 @@ public class CountDown {
 						.NEXT0()
 						.LOADLOC(0)
 						.NEXT0()
-						.CALLPRIM(Primitive.multiplication_num_num)
+						.CALLPRIM(Primitive.product_num_num)
 						.LOADLOC(0)
 						.NEXT0()
 						.CALLPRIM(Primitive.addition_num_num)

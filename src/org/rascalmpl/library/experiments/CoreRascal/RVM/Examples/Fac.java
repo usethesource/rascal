@@ -19,7 +19,7 @@ public class Fac {
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADCON(1).
-					CALLPRIM(Primitive.equal_num_num).
+					CALLPRIM(Primitive.equals_num_num).
 					JMPFALSE("L").
 					LOADCON(1).
 					RETURN1().
@@ -27,9 +27,9 @@ public class Fac {
 					LOADLOC(0).
 					LOADLOC(0).
 					LOADCON(1).
-					CALLPRIM(Primitive.substraction_num_num).
+					CALLPRIM(Primitive.subtraction_num_num).
 					CALL("fac").
-					CALLPRIM(Primitive.multiplication_num_num).
+					CALLPRIM(Primitive.product_num_num).
 					RETURN1()));
 		
 		rvm.declare(new Function("main_fac", 0, 0, 0, 7,
@@ -56,7 +56,7 @@ public class Fac {
 					POP().
 					LOADLOC(1).
 					LOADCON(1).
-					CALLPRIM(Primitive.substraction_num_num).
+					CALLPRIM(Primitive.subtraction_num_num).
 					STORELOC(1).
 					JMP("L")));
 		

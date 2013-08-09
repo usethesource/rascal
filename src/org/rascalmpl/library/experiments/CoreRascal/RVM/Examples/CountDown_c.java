@@ -45,7 +45,7 @@ public class CountDown_c {
 							.YIELD1()
 							.LOADLOC(0)
 							.LOADCON(1)
-							.CALLPRIM(Primitive.substraction_num_num)
+							.CALLPRIM(Primitive.subtraction_num_num)
 							.STORELOC(0)
 							.JMP("LOOP")));
 		
