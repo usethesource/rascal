@@ -9,18 +9,18 @@ import util::IDE;
 
 import IO;
 
-@javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.RVM}
-@reflect{Executes muRascalVM programs}
-public java tuple[value,int] executeProgram(list[Directive] program, int repeats);
+//@javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.RVM}
+//@reflect{Executes muRascalVM programs}
+//public java tuple[value,int] executeProgram(list[Directive] program, int repeats);
 
 
-@javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.RVM}
-@reflect{Executes muRascalVM programs}
-public java tuple[value,int] executeProgram(RVMProgram program);
+//@javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.RVM}
+//@reflect{Executes muRascalVM programs}
+//public java tuple[value,int] executeProgram(RVMProgram program);
 
 @javaClass{org.rascalmpl.library.experiments.CoreRascal.RVM.RVM}
 @reflect{Executes muRascalVM programs}
-public java tuple[value,int] executeProgram(RVMProgram program, int repeats);
+public java tuple[value,int] executeProgram(RVMProgram program, bool debug, int repeat);
 
 public void execute(experiments::CoreRascal::muRascalVM::Syntax::RascalVM tree, loc selection) {
 	ast = implode(#experiments::CoreRascal::muRascalVM::AST::RascalVM, tree);

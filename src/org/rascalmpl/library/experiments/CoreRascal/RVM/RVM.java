@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,15 +23,17 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RVM {
 
-	public IValueFactory vf;
-	private IBool TRUE;
-	private IBool FALSE;
-	private boolean debug = true;
+	public final IValueFactory vf;
+	private final IBool TRUE;
+	private final IBool FALSE;
+	private boolean debug;
 	private boolean listing = false;
 	
-	private ArrayList<Function> functionStore;
-	private Map<String, Integer> functionMap;
+	private final ArrayList<Function> functionStore;
+	private final Map<String, Integer> functionMap;
+	private PrintWriter stdout;
 
+	
 	public RVM(IValueFactory vf) {
 		this.vf = vf;
 		TRUE = vf.bool(true);
@@ -41,20 +44,24 @@ public class RVM {
 		Primitive.init(vf);
 	}
 	
+	public void setStdOut(PrintWriter stdout){
+		this.stdout = stdout;
+	}
+	
+	public void setDebug(boolean b){
+		listing = b;
+	}
+	
+	public void setListing(boolean b){
+		listing = b;
+	}
+	
 	public void declare(Function f){
 		if(functionMap.get(f.name) != null){
 			throw new RuntimeException("PANIC: Double declaration of function: " + f.name);
 		}
 		functionMap.put(f.name, functionStore.size());
 		functionStore.add(f);
-	}
-	
-	public void setDebug(boolean b){
-		debug = b;
-	}
-	
-	public void setListing(boolean b){
-		listing = b;
 	}
 	
 	public Object executeProgram(String main, IValue[] args) {
@@ -93,9 +100,9 @@ public class RVM {
 				if (debug) {
 					int startpc = pc - 1;
 					for (int i = 0; i < sp; i++) {
-						System.out.println("\t" + i + ": " + stack[i]);
+						stdout.println("\t" + i + ": " + stack[i]);
 					}
-					System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
 
 				switch (op) {
@@ -198,10 +205,10 @@ public class RVM {
 					pc = 0;
 					continue;
 				
-				case Opcode.OP_RETURN_0:
-				case Opcode.OP_RETURN_1:
+				case Opcode.OP_RETURN0:
+				case Opcode.OP_RETURN1:
 					Object rval = null;
-					boolean returns = op == Opcode.OP_RETURN_1; 
+					boolean returns = op == Opcode.OP_RETURN1; 
 					if(returns) 
 						rval = stack[sp - 1];
 					cf = cf.previousCallFrame;
@@ -221,9 +228,9 @@ public class RVM {
 
 				case Opcode.OP_HALT:
 					if (debug) {
-						System.out.println("Program halted:");
+						stdout.println("Program halted:");
 						for (int i = 0; i < sp; i++) {
-							System.out.println(i + ": " + stack[i]);
+							stdout.println(i + ": " + stack[i]);
 						}
 					}
 					return stack[sp - 1];
@@ -247,7 +254,7 @@ public class RVM {
 							i++;
 						}
 					}
-					System.out.println(fmsg.toString());
+					stdout.println(fmsg.toString());
 					continue;
 					
 				case Opcode.OP_CALLPRIM:
@@ -276,8 +283,8 @@ public class RVM {
 					stack[sp++] = coroutine;
 					continue;
 				
-				case Opcode.OP_NEXT_0:
-				case Opcode.OP_NEXT_1:
+				case Opcode.OP_NEXT0:
+				case Opcode.OP_NEXT1:
 					coroutine = (Coroutine) stack[--sp];
 					// put the coroutine onto the stack of active coroutines
 					activeCoroutines.push(coroutine);
@@ -286,7 +293,7 @@ public class RVM {
 					fun = coroutine.frame.function;
 					instructions = coroutine.frame.function.codeblock.getInstructions();
 					
-					if(op == Opcode.OP_NEXT_1)
+					if(op == Opcode.OP_NEXT1)
 						coroutine.frame.stack[coroutine.frame.sp++] = stack[--sp];
 					
 					cf.pc = pc;
@@ -298,25 +305,25 @@ public class RVM {
 					pc = cf.pc;
 					continue;
 					
-				case Opcode.OP_YIELD_0:	
-				case Opcode.OP_YIELD_1:
+				case Opcode.OP_YIELD0:	
+				case Opcode.OP_YIELD1:
 					coroutine = activeCoroutines.pop();
 					Frame prev = coroutine.start.previousCallFrame;
 					rval = null;
-					if(op == Opcode.OP_YIELD_1) {
+					if(op == Opcode.OP_YIELD1) {
 						rval = stack[--sp];
 					}
 					cf.pc = pc;
 					cf.sp = sp;
 					coroutine.suspend(cf);
 					cf = prev;
-					if(op == Opcode.OP_YIELD_1 && cf == null)
+					if(op == Opcode.OP_YIELD1 && cf == null)
 						return rval;
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					if(op == Opcode.OP_YIELD_1 && rval != null) {
+					if(op == Opcode.OP_YIELD1 && rval != null) {
 						stack[sp++] = rval;
 					}
 					continue;
@@ -346,7 +353,7 @@ public class RVM {
 				}
 			}
 		} catch (Exception e) {
-			System.err.println("PANIC: exception caused by invoking a primitive or illegal instruction sequence");
+			stdout.println("PANIC: exception caused by invoking a primitive or illegal instruction sequence");
 			e.printStackTrace();
 		}
 		return FALSE;
@@ -438,9 +445,9 @@ public class RVM {
 				case "CALL":
 					instructions = instructions.call(((IString) operands.get(0)).getValue());
 					break;
-				case "RETURN_0":
+				case "RETURN0":
 					instructions = instructions.ret0();
-				case "RETURN_1":
+				case "RETURN1":
 					instructions = instructions.ret1();
 					break;
 				case "JMP":
@@ -468,19 +475,19 @@ public class RVM {
 					instructions = instructions.init();
 					break;
 					
-				case "NEXT_0":
+				case "NEXT0":
 					instructions = instructions.next0();
 					break;
 					
-				case "NEXT_1":
+				case "NEXT1":
 					instructions = instructions.next1();
 					break;
 					
-				case "YIELD_0":
+				case "YIELD0":
 					instructions = instructions.yield0();
 					break;
 					
-				case "YIELD_1":
+				case "YIELD1":
 					instructions = instructions.yield1();
 					break;
 					
@@ -517,17 +524,13 @@ public class RVM {
 		return ((IString) instruction.get(field)).getValue();
 	}
 	
-	public ITuple executeProgram(IConstructor program, IEvaluatorContext ctx) {
-		return executeProgram(program, 1, ctx);
-	}
+	// Execute an RV program from Rascal
 	
-	public ITuple executeProgram(IConstructor program, IInteger repeats, IEvaluatorContext ctx) {
-		return executeProgram(program, repeats.intValue(), ctx);
-	}
-	
-	public ITuple executeProgram(IConstructor program, int repeats, IEvaluatorContext ctx) {
+	public ITuple executeProgram(IConstructor program, IBool debug, IInteger repeat, IEvaluatorContext ctx) {
 		String func = "main";
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
+		rvm.setStdOut(ctx.getStdOut());
+		rvm.setDebug(debug.getValue());
 		
 		IMap declarations = (IMap) program.get("declarations");
 		
@@ -631,7 +634,7 @@ public class RVM {
 		
 		long start = System.currentTimeMillis();
 		Object result = null;
-		for(int i = 0; i < repeats; i++)
+		for(int i = 0; i < repeat.intValue(); i++)
 			result = rvm.executeProgram(func, new IValue[] {});
 		long now = System.currentTimeMillis();
 		return vf.tuple((IValue)result, vf.integer(now - start));

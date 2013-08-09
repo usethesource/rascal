@@ -62,7 +62,6 @@ public class Fac {
 		
 		long total = 0;
 		int times = 20;
-		rvm.setDebug(true);
 		
 		for(int i = 0; i < times; i++){
 			long start = System.currentTimeMillis();
