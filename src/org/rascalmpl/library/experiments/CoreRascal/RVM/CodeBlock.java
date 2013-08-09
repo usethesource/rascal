@@ -53,6 +53,7 @@ public class CodeBlock {
 	private IValue[] finalConstantStore;
 	
 	private Map<String, Integer> functionMap;
+	private Map<String, Integer> constructorMap;
 	
 	public int[] finalCode;
 	
@@ -125,6 +126,21 @@ public class CodeBlock {
 		if(n == null){
 			throw new RuntimeException("PANIC: undefined function name " + name);
 		}
+		return n;
+	}
+	
+	public String getConstructorName(int n) {
+		for(String cname : constructorMap.keySet()) {
+			if(constructorMap.get(cname) == n)
+				return cname;
+		}
+		throw new RuntimeException("PANIC: undefined constructor index " + n);
+	}
+	
+	public int getConstructorIndex(String name) {
+		Integer n = constructorMap.get(name);
+		if(n == null)
+			throw new RuntimeException("PANIC: undefined constructor name " + name);
 		return n;
 	}
 	
@@ -266,8 +282,9 @@ public class CodeBlock {
 		return add(new StoreLocRef(this, pos));
 	}
 	
-	public CodeBlock done(String fname, Map<String, Integer> codeMap, boolean listing){
+	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
 		this.functionMap = codeMap;
+		this.constructorMap = constructorMap;
 		int codeSize = pc;
 		pc = 0;
 		finalCode = new int[codeSize];
