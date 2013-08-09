@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
@@ -34,14 +35,18 @@ public class RVM {
 	private final Map<String, Integer> functionMap;
 	private PrintWriter stdout;
 	
+	private final TypeFactory tf = TypeFactory.getInstance(); 
 	private final TypeStore typeStore = new TypeStore();
+	private final Types types;
+	
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
 
 	public RVM(IValueFactory vf) {
 		super();
-		
+
 		this.vf = vf;
+		this.types = new Types(this.vf);
 		stdout = new PrintWriter(System.out, true);
 		TRUE = vf.bool(true);
 		FALSE = vf.bool(false);
@@ -74,10 +79,8 @@ public class RVM {
 		functionStore.add(f);
 	}
 	
-	public void declareConstructor(IValue constructor) {
-		Type constr = null; // TODO: IValue -> Type
-		if(constr == null)
-			throw new RuntimeException("Not implemented yet");
+	public void declareConstructor(IConstructor symbol) {
+		Type constr = types.symbolToType(symbol, typeStore);
 		constructorMap.put(constr.getName(), constructorStore.size());
 		constructorStore.add(constr);
 	}
@@ -347,7 +350,20 @@ public class RVM {
 					ref = (Reference) stack[instructions[pc++]];
 					ref.stack[ref.pos] = stack[--sp];
 					continue;
-
+							
+				case Opcode.OP_LOADCONSTR:
+					Type constructor = constructorStore.get(instructions[pc++]);
+					
+				case Opcode.OP_CALLCONSTR:
+					constructor = constructorStore.get(instructions[pc++]);
+					int arity = constructor.getArity();
+					args = new IValue[arity]; 
+					for(int i = 0; i < arity; i++) {
+						args[arity - 1 - i] = (IValue) stack[--sp];
+					}
+					stack[sp++] = vf.constructor(constructor, args);
+					continue;
+				
 				default:
 					throw new RuntimeException("PANIC: RVM main loop -- cannot decode instruction");
 				}

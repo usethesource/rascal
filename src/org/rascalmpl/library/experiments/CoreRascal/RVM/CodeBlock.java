@@ -7,6 +7,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Call;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallDyn;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Create;
@@ -20,6 +21,7 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Label;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadCon;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadConRef;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadConstr;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLoc;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVar;
@@ -280,6 +282,14 @@ public class CodeBlock {
 	
 	public CodeBlock STORELOCREF(int pos) {
 		return add(new StoreLocRef(this, pos));
+	}
+	
+	public CodeBlock LOADCONSTR(String name) {
+		return add(new LoadConstr(this, name));
+	}
+	
+	public CodeBlock CALLCONSTR(String name) {
+		return add(new CallConstr(this, name));
 	}
 	
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
