@@ -235,7 +235,7 @@ public class RVM {
 					}
 					return stack[sp - 1];
 
-				case Opcode.OP_PRINT:
+				case Opcode.OP_PRINTLN:
 					String msg = ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
 					StringBuilder fmsg = new StringBuilder();
 					int len =  msg.length();
