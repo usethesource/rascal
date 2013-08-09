@@ -3,7 +3,6 @@ package org.rascalmpl.library.experiments.CoreRascal.RVM;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -28,12 +27,12 @@ public class RVM {
 	public final IValueFactory vf;
 	private final IBool TRUE;
 	private final IBool FALSE;
-	private boolean debug = false;;
-	private boolean listing = false;
+	private final boolean debug = false;;
+	private final boolean listing = false;
 	
 	private final ArrayList<Function> functionStore;
 	private final Map<String, Integer> functionMap;
-	private PrintWriter stdout;
+	private final PrintWriter stdout;
 	
 	private final TypeFactory tf = TypeFactory.getInstance(); 
 	private final TypeStore typeStore = new TypeStore();
@@ -60,15 +59,15 @@ public class RVM {
 	}
 	
 	public void setStdOut(PrintWriter stdout){
-		this.stdout = stdout;
+		//this.stdout = stdout;
 	}
 	
 	public void setDebug(boolean b){
-		listing = b;
+		//listing = b;
 	}
 	
 	public void setListing(boolean b){
-		listing = b;
+		//listing = b;
 	}
 	
 	public void declare(Function f){
@@ -374,133 +373,4 @@ public class RVM {
 		}
 		return FALSE;
 	}
-	
-	// Get integer field from an instruction
-	
-	private int getIntField(IConstructor instruction, String field){
-		return ((IInteger) instruction.get(field)).intValue();
-	}
-	
-	// Get String field from an instruction
-	
-	private String getStrField(IConstructor instruction, String field){
-		return ((IString) instruction.get(field)).getValue();
-	}
-	
-	// Execute an RV program from Rascal
-	
-	public ITuple executeProgram(IConstructor program, IBool debug, IInteger repeat, IEvaluatorContext ctx) {
-		String func = "main";
-		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
-		rvm.setStdOut(ctx.getStdOut());
-		rvm.setDebug(debug.getValue());
-		
-		IMap declarations = (IMap) program.get("declarations");
-		
-		for(IValue dname : declarations) {
-			IConstructor declaration = (IConstructor) declarations.get(dname);
-		
-			if(declaration.getName().contentEquals("FUNCTION")){
-				
-				String name = ((IString) declaration.get("name")).getValue();
-				Integer scope = ((IInteger) declaration.get("scope")).intValue();
-				Integer nlocals = ((IInteger) declaration.get("nlocals")).intValue();
-				Integer nformals = ((IInteger) declaration.get("nformals")).intValue();
-				Integer maxstack = ((IInteger) declaration.get("maxStack")).intValue();
-				IList code = (IList) declaration.get("instructions");
-				CodeBlock codeblock = new CodeBlock(null);
-
-				// Loading instructions
-				for(int i = 0; i < code.length(); i++) {
-					IConstructor instruction = (IConstructor) code.get(i);
-					String opcode = instruction.getName();
-
-					switch(opcode) {
-					case "LOADCON":
-						codeblock.LOADCON(instruction.get("val"));
-						break;
-					case "LOADVAR":
-						codeblock.LOADVAR(getIntField(instruction,"scope"), getIntField(instruction, "pos"));
-						break;
-					case "LOADLOC":
-						codeblock.LOADLOC(getIntField(instruction,"pos"));
-						break;
-					case "STOREVAR":
-						codeblock.STOREVAR(getIntField(instruction,"scope"), getIntField(instruction, "pos"));
-						break;
-					case "STORELOC":
-						codeblock.STORELOC(getIntField(instruction,"pos"));
-						break;
-					case "LABEL":
-						codeblock = codeblock.LABEL(getStrField(instruction,"label"));
-						break;
-					case "CALLPRIM":
-						codeblock.CALLPRIM(Primitive.valueOf(getStrField(instruction,"name")));	
-						break;
-					case "CALL":
-						codeblock.CALL(getStrField(instruction,"name"));
-					case "CALLDYN":
-						codeblock.CALLDYN();
-						break;
-					case "RETURN0":
-						codeblock.RETURN0();
-					case "RETURN1":
-						codeblock.RETURN1();
-						break;
-					case "JMP":
-						codeblock.JMP(getStrField(instruction,"label"));
-						break;
-					case "JMPTRUE":
-						codeblock.JMPTRUE(getStrField(instruction,"label"));
-						break;
-					case "JMPFALSE":
-						codeblock.JMPFALSE(getStrField(instruction,"label"));
-						break;
-					case "HALT":
-						codeblock.HALT();
-						break;
-					case "CREATE":
-						codeblock.CREATE(getStrField(instruction,"fun"));
-						break;
-					case "CREATEDYN":
-						codeblock.CREATEDYN();
-						break;
-					case "INIT":
-						codeblock.INIT();
-						break;
-					case "NEXT0":
-						codeblock.NEXT0();
-						break;
-					case "NEXT1":
-						codeblock.NEXT1();
-						break;
-					case "YIELD0":
-						codeblock.YIELD0();
-						break;
-					case "YIELD1":
-						codeblock.YIELD1();
-						break;
-					case "HASNEXT":
-						codeblock.HASNEXT();
-						break;	
-					case "POP":
-						codeblock.POP();
-						break;
-					default:
-						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
-					}
-
-				}
-				rvm.declare(new Function(name, scope, nformals, nlocals, maxstack, codeblock));
-			}
-		}
-		
-		long start = System.currentTimeMillis();
-		Object result = null;
-		for(int i = 0; i < repeat.intValue(); i++)
-			result = rvm.executeProgram(func, new IValue[] {});
-		long now = System.currentTimeMillis();
-		return vf.tuple((IValue)result, vf.integer(now - start));
-	}
-	
 }
