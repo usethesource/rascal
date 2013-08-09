@@ -42,6 +42,6 @@ data Instruction =
 		| RETURN0()
 		| LOADCONREF(int pos)
 		| LOADLOCREF(int pos)
-		| STORELOCREFD(int pos)
+		| STORELOCREF(int pos)
 		;
 	

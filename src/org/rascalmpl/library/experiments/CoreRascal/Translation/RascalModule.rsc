@@ -71,18 +71,20 @@ list[MuDefinition] translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility 
   if({ ftype } := ftypes){
 	  formals = signature.parameters.formals.formals;
 	  lformals = [f | f <- formals];
-	  return [muFunction("<signature.name>", size(lformals), 0, muBlock([muReturn(translate(expression))]))];
+	  scope = getFunctionScope("<signature.name>");
+	  return [muFunction("<signature.name>", scope, size(lformals), getScopeSize(scope), [muReturn(translate(expression)[0])])];
   } else
       throw "overloaded function <signature.name>: <ftypes>";
 }
 
-str translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
+list[MuDefinition] translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
   ftypes = getFunctionType("<signature.name>");
   if({ ftype } := ftypes){
 	  formals = signature.parameters.formals.formals;
 	  lformals = [f | f <- formals];
-	  tbody = [translate(stat) | stat <- body.statements ];
-	  return MuDeclaration(signature.name, size(lformals), 0, tbody);
+	  tbody = [*translate(stat) | stat <- body.statements ];
+	  scope = getFunctionScope("<signature.name>");
+	  return [ muFunction("<signature.name>", scope, size(lformals), getScopeSize(scope), tbody) ];
   } else
       throw "overloaded function <signature.name>: <ftypes>"; 
 }

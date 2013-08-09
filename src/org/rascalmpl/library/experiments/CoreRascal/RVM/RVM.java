@@ -39,6 +39,8 @@ public class RVM {
 	private final Map<String, Integer> constructorMap;
 
 	public RVM(IValueFactory vf) {
+		super();
+		
 		this.vf = vf;
 		stdout = new PrintWriter(System.out, true);
 		TRUE = vf.bool(true);
@@ -91,7 +93,7 @@ public class RVM {
 		if (function == null) {
 			throw new RuntimeException("PANIC: Code for main not found: " + main);
 		}
-		Frame cf = new Frame(0, null, function.maxstack, function);
+		Frame cf = new Frame(1, null, function.maxstack, function);
 		Object[] stack = cf.stack;
 		if (args.length != function.nformals) {
 			throw new RuntimeException("PANIC: " + main + " called with wrong number of arguments: " + args.length);

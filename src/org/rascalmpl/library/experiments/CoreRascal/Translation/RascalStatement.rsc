@@ -80,7 +80,7 @@ list[MuExp] translate(s: (Statement) `;`) = [];
 
 list[MuExp] translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names> ;`) { throw("globalDirective"); }
 
-list[MuExp] translate(s: (Statement) `return <Statement statement>`) { throw("return"); }
+list[MuExp] translate(s: (Statement) `return <Statement statement>`) = [muReturn(translate(statement)[0])];
 
 list[MuExp] translate(s: (Statement) `throw <Statement statement>`) { throw("throw"); }
 
@@ -96,7 +96,7 @@ list[MuExp] translate(s: (Statement) `<LocalVariableDeclaration declaration> ;`)
     
     return for(var <- variables){
     			if(var is initialized)
-    			append mkAssign("<var.name>", var.name@\loc, translate(var.initial));
+    			append mkAssign("<var.name>", var.name@\loc, translate(var.initial)[0]);
            }
 }
 
