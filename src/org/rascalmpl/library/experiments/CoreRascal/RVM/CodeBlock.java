@@ -138,131 +138,131 @@ public class CodeBlock {
 		finalCode[pc++] = c;
 	}
 	
-	public CodeBlock pop(){
+	public CodeBlock POP(){
 		return add(new Pop(this));
 	}
 	
-	public  CodeBlock halt(){
+	public  CodeBlock HALT(){
 		return add(new Halt(this));
 	}
 	
-	public CodeBlock ret0() {
+	public CodeBlock RETURN0() {
 		return add(new Return0(this));
 	}
 	
-	public CodeBlock ret1(){
+	public CodeBlock RETURN1(){
 		return add(new Return1(this));
 	}
 	
-	public CodeBlock label(String arg){
+	public CodeBlock LABEL(String arg){
 		return add(new Label(this, arg));
 	}
 	
-	public CodeBlock loadcon(boolean arg){
+	public CodeBlock LOADCON(boolean arg){
 		return add(new LoadCon(this, getConstantIndex(vf.bool(arg))));
 	}
 	
-	public CodeBlock loadcon(int arg){
+	public CodeBlock LOADCON(int arg){
 		return add(new LoadCon(this, getConstantIndex(vf.integer(arg))));
 	}
 	
-	public CodeBlock loadcon(String arg){
+	public CodeBlock LOADCON(String arg){
 		return add(new LoadCon(this, getConstantIndex(vf.string(arg))));
 	}
 	
-	public CodeBlock loadcon(IValue val){
+	public CodeBlock LOADCON(IValue val){
 		return add(new LoadCon(this, getConstantIndex(val)));
 	}
 	
-	public CodeBlock call(String arg){
+	public CodeBlock CALL(String arg){
 		return add(new Call(this, arg));
 	}
 	
-	public CodeBlock jmp(String arg){
+	public CodeBlock JMP(String arg){
 		return add(new Jmp(this, arg));
 	}
 	
-	public CodeBlock jmptrue(String arg){
+	public CodeBlock JMPTRUE(String arg){
 		return add(new JmpTrue(this, arg));
 	}
 	
-	public CodeBlock jmpfalse(String arg){
+	public CodeBlock JMPFALSE(String arg){
 		return add(new JmpFalse(this, arg));
 	}
 	
-	public CodeBlock loadloc (int pos){
+	public CodeBlock LOADLOC (int pos){
 		return add(new LoadLoc(this, pos));
 	}
 	
-	public CodeBlock storeloc (int pos){
+	public CodeBlock STORELOC (int pos){
 		return add(new StoreLoc(this, pos));
 	}
 	
-	public CodeBlock loadvar (int scope, int pos){
+	public CodeBlock LOADVAR (int scope, int pos){
 		return add(new LoadVar(this, scope, pos));
 	}
 	
-	public CodeBlock storevar (int scope, int pos){
+	public CodeBlock STOREVAR (int scope, int pos){
 		return add(new StoreVar(this, scope, pos));
 	}
 	
-	public CodeBlock callprim (Primitive prim){
+	public CodeBlock CALLPRIM (Primitive prim){
 		return add(new CallPrim(this, prim));
 	}
 	
-	public CodeBlock loadfun (String name){
+	public CodeBlock LOADFUN (String name){
 		return add(new LoadFun(this, name));
 	}
 	
-	public CodeBlock calldyn(){
+	public CodeBlock CALLDYN(){
 		return add(new CallDyn(this));
 	}
 	
-	public CodeBlock init() {
+	public CodeBlock INIT() {
 		return add(new Init(this));
 	}
 	
-	public CodeBlock create(String name) {
+	public CodeBlock CREATE(String name) {
 		return add(new Create(this, name));
 	}
 	
-	public CodeBlock next0() {
+	public CodeBlock NEXT0() {
 		return add(new Next0(this));
 	}
 	
-	public CodeBlock next1() {
+	public CodeBlock NEXT1() {
 		return add(new Next1(this));
 	}
 	
-	public CodeBlock yield0() {
+	public CodeBlock YIELD0() {
 		return add(new Yield0(this));
 	}
 	
-	public CodeBlock yield1() {
+	public CodeBlock YIELD1() {
 		return add(new Yield1(this));
 	}
 	
-	public CodeBlock createdyn() {
+	public CodeBlock CREATEDYN() {
 		return add(new CreateDyn(this));
 	}
 	
-	public CodeBlock hasNext() {
+	public CodeBlock HASNEXT() {
 		return add(new HasNext(this));
 	}
 	
-	public CodeBlock print(String arg){
+	public CodeBlock PRINTLN(String arg){
 		return add(new Print(this, getConstantIndex(vf.string(arg))));
 	}
     
-	public CodeBlock loadConRef(int pos) {
+	public CodeBlock LOADCONREF(int pos) {
 		return add(new LoadConRef(this, pos));
 	}
 	
-	public CodeBlock loadLocRef(int pos) {
+	public CodeBlock LOADLOCREF(int pos) {
 		return add(new LoadLocRef(this, pos));
 	}
 	
-	public CodeBlock storeLocRef(int pos) {
+	public CodeBlock STORELOCREF(int pos) {
 		return add(new StoreLocRef(this, pos));
 	}
 	

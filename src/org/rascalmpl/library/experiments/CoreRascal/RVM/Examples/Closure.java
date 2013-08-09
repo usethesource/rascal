@@ -16,23 +16,23 @@ public class Closure {
 		
 		rvm.declare(new Function("g", 1, 0, 0, 6,
 				new CodeBlock(vf).
-					loadvar(1,0).
-					ret1()
+					LOADVAR(1,0).
+					RETURN1()
 		));
 		
 		rvm.declare(new Function("f", 0, 0, 1, 6,
 				new CodeBlock(vf).
-					loadcon(1).
-					storeloc(0).
-					loadfun("g").
-					ret1()
+					LOADCON(1).
+					STORELOC(0).
+					LOADFUN("g").
+					RETURN1()
 		));
 		
 		rvm.declare(new Function("main", 0, 0, 0, 6,
 					new CodeBlock(vf).
-						call("f").
-						calldyn().
-						halt()));
+						CALL("f").
+						CALLDYN().
+						HALT()));
 	
 		rvm.executeProgram("main", new IValue[] {});
 	}

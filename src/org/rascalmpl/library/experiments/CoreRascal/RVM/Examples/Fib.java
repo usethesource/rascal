@@ -23,36 +23,36 @@ public static void main(String[] args) {
 		
 		rvm.declare(new Function("fib", 1, 1, 1, 6,
 				new CodeBlock(vf).
-					loadloc(0).
-					loadcon(0).
-					callprim(Primitive.equal_num_num).
-					jmpfalse("L").
-					loadcon(0).
-					ret1().
-					label("L").
-					loadloc(0).
-					loadcon(1).
-					callprim(Primitive.equal_num_num).
-					jmpfalse("M").
-					loadcon(1).
-					ret1().
-					label("M").
-					loadloc(0).
-					loadcon(1).
-					callprim(Primitive.substraction_num_num).
-					call("fib").
-					loadloc(0).
-					loadcon(2).
-					callprim(Primitive.substraction_num_num).
-					call("fib").
-					callprim(Primitive.addition_num_num).
-					ret1()));
+					LOADLOC(0).
+					LOADCON(0).
+					CALLPRIM(Primitive.equal_num_num).
+					JMPFALSE("L").
+					LOADCON(0).
+					RETURN1().
+					LABEL("L").
+					LOADLOC(0).
+					LOADCON(1).
+					CALLPRIM(Primitive.equal_num_num).
+					JMPFALSE("M").
+					LOADCON(1).
+					RETURN1().
+					LABEL("M").
+					LOADLOC(0).
+					LOADCON(1).
+					CALLPRIM(Primitive.substraction_num_num).
+					CALL("fib").
+					LOADLOC(0).
+					LOADCON(2).
+					CALLPRIM(Primitive.substraction_num_num).
+					CALL("fib").
+					CALLPRIM(Primitive.addition_num_num).
+					RETURN1()));
 					
 		rvm.declare(new Function("main", 0, 0, 0, 6,
 					new CodeBlock(vf).
-						loadcon("35").
-						call("fib").
-						halt()));
+						LOADCON("35").
+						CALL("fib").
+						HALT()));
 		
 		long start = System.currentTimeMillis();
 		IValue val = (IValue) rvm.executeProgram("main", new IValue[] {});
