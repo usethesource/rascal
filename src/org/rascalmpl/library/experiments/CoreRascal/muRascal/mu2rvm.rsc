@@ -18,7 +18,7 @@ str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 // Translate a muRascal module
 
 RVMProgram mu2rvm(muModule(str name, list[MuDefinition] definitions, MuExp initialization)){
-   return rvm((def.name : FUNCTION(def.name, 0, 0, 0, 10, tr(def.body)) | def <- definitions), []);
+   return rvm((def.name : FUNCTION(def.name, def.scope, def.nformal, def.nlocal, 10, tr(def.body)) | def <- definitions), []);
 }
 
 
@@ -26,15 +26,15 @@ RVMProgram mu2rvm(muModule(str name, list[MuDefinition] definitions, MuExp initi
 
 // Translate muRascal expressions
 
-INS trargs(list[MuExp] args) = [*tr(arg) | arg <- args];
+INS tr(list[MuExp] args) { println(args); return [*tr(arg) | arg <- args];}
 
 INS tr(muConstant(value c)) = [LOADCON(c)];
 
 INS tr(muVar(str id, int scope, int pos)) = [LOADVAR(scope, pos)];
 
-INS tr(muCall(MuExp fun, list[MuExp] args)) =  [*trargs(args), *tr(fun), CALLDYN()];
+INS tr(muCall(MuExp fun, list[MuExp] args)) =  [*tr(args), *tr(fun), CALLDYN()];
 
-INS tr(muCall(str name, list[MuExp] args)) = [*trargs(args), CALL(name)];
+INS tr(muCall(str name, list[MuExp] args)) = [*tr(args), CALL(name)];
 
 INS tr(muCallPrim(str name, MuExp arg)) = [*tr(arg), CALLPRIM(name)];
 

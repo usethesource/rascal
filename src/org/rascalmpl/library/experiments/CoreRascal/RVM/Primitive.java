@@ -47,7 +47,7 @@ public enum Primitive {
 	composition_rel_rel,
 	composition_map_map,
 	division_num_num,
-	equal_num_num,
+	equals_num_num,
 	equivalent_bool_bool,
 	greater_num_num,
 	greater_equal_num_num,
@@ -58,15 +58,15 @@ public enum Primitive {
 	make_map,
 	make_set,
 	make_tuple,
-	multiplication_num_num,
 	negative,
 	not_bool,
 	or_bool_bool,
 	println,
-	substraction_list_list,
-	substraction_map_map,
-	substraction_num_num,
-	substraction_set_set,
+	product_num_num,
+	subtraction_list_list,
+	subtraction_map_map,
+	subtraction_num_num,
+	subtraction_set_set,
 	subscript_list_int, 
 	subscript_map,
 	transitive_closure_lrel,
@@ -277,7 +277,7 @@ public enum Primitive {
 	 * equals
 	 */
 
-	public static int equal_num_num(Object[] stack, int sp) {
+	public static int equals_num_num(Object[] stack, int sp) {
 		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
@@ -529,7 +529,7 @@ public enum Primitive {
 	}
 
 	/*
-	 * substraction
+	 * subtraction
 	 * 
 	 * infix Difference "-" {
  	 *		&L <: num x &R <: num                -> LUB(&L, &R),
@@ -538,22 +538,22 @@ public enum Primitive {
  	 * 		map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
 	 * }
 	 */
-	public static int substraction_num_num(Object[] stack, int sp) {
+	public static int subtraction_num_num(Object[] stack, int sp) {
 		stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int substraction_list_list(Object[] stack, int sp) {
+	public static int subtraction_list_list(Object[] stack, int sp) {
 		stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int substraction_set_set(Object[] stack, int sp) {
+	public static int subtraction_set_set(Object[] stack, int sp) {
 		stack[sp - 2] = ((ISet) stack[sp - 2]).subtract((ISet) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int substraction_map_map(Object[] stack, int sp) {
+	public static int subtraction_map_map(Object[] stack, int sp) {
 		stack[sp - 2] = ((IMap) stack[sp - 2]).remove((IMap) stack[sp - 1]);
 		return sp - 1;
 	}

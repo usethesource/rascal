@@ -6,7 +6,7 @@ public data MuModule =
             muModule(str name, list[MuDefinition] definitions, MuExp initialization);
           
 public data MuDefinition =
-            muFunction(str name, int nformal, int nlocals, MuExp body)
+            muFunction(str name, int scope, int nformal, int nlocal, list[MuExp] body)
           | muTypes(list[Symbol] symbols)  
           ;
           
