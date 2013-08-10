@@ -133,7 +133,7 @@ public class GrammarToJigll {
 			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(URI.create("nothing:///"), 0, 1), null, null);
 		}
 		
-		SPPFToDot toDot = new SPPFToDot();
+		SPPFToDot toDot = new ToDotWithoutIntermeidateAndLists();
 		sppf.accept(toDot);
 		GraphVizUtil.generateGraph(toDot.getString(), path.getValue(), "graph");
 	}
