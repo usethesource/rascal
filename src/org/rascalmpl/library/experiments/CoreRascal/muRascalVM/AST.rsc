@@ -1,13 +1,6 @@
 module experiments::CoreRascal::muRascalVM::AST
 
-
-//public data Instruction = instruction(str opcode, list[str] operands);
-
 public data Declaration = 
-//		  intconst(str \value)
-//		| relconst(str \value)
-//		| ratconst(str \value)
-//		| boolconst(str \value)
 		  FUNCTION(str name, int scope, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
 		;
 
