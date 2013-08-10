@@ -49,21 +49,24 @@ int getScopeSize(int scope){
 tuple[int,int] getVariableScope(str name) = uid2addr[config.fcvEnv[RSimpleName(name)]];
 
 MuExp mkVar(str name, loc l) {
-  //println("mkVar: <name>");
-  //println("l = <l>,\nloc2uid = <loc2uid>");
-  n2a = uid2addr[loc2uid[l]];
-  res = "<name>::<n2a[0]>::<n2a[1]>";
-  //println("mkVar: <name> =\> <res>");
-  return muVar(name, n2a[0], n2a[1]);
+  println("mkVar: <name>");
+  println("l = <l>,\nloc2uid = <loc2uid>");
+  addr = uid2addr[loc2uid[l]];
+  res = "<name>::<addr[0]>::<addr[1]>";
+  println("mkVar: <name> =\> <res>");
+  return muVar(name, addr[0], addr[1]);
 }
+
+
+/* */
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
   //println("mkVar: <name>");
   //println("l = <l>,\nloc2uid = <loc2uid>");
-  n2a = uid2addr[loc2uid[l]];
-  res = "<name>::<n2a[0]>::<n2a[1]>";
+  addr = uid2addr[loc2uid[l]];
+  res = "<name>::<addr[0]>::<addr[1]>";
   //println("mkVar: <name> =\> <res>");
-  return muAssign(name, n2a[0], n2a[1], exp);
+  return muAssign(name, addr[0], addr[1], exp);
 }
 
 void extractScopes(){
@@ -254,13 +257,13 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> notin <Expression rhs>`) 
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> in <Expression rhs>`)   = infix("in", e);
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> \>= <Expression rhs>`) = infix("greaterThanOrEq", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> \>= <Expression rhs>`) = infix("greater_equal", e);
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> \<= <Expression rhs>`) = infix("lessThanOrEq", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> \<= <Expression rhs>`) = infix("less_equal", e);
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> \< <Expression rhs>`)  = infix("lessThan", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> \< <Expression rhs>`)  = infix("less", e);
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> \> <Expression rhs>`)  = infix("greaterThan", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> \> <Expression rhs>`)  = infix("greater", e);
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> == <Expression rhs>`)  = infix("equals", e);
 
