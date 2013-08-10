@@ -441,7 +441,7 @@ public enum Primitive {
 	/*
 	 * multiplication
 	 */
-	public static int multiplication_num_num(Object[] stack, int sp) {
+	public static int product_num_num(Object[] stack, int sp) {
 		stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
 		return sp - 1;
 	}

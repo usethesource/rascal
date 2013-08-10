@@ -3,11 +3,17 @@ module experiments::CoreRascal::muRascal::AST
 import Prelude;
 
 public data MuModule =
-            muModule(str name, list[MuDefinition] definitions, MuExp initialization);
+            muModule(str name, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initialization);
           
-public data MuDefinition =
+public data MuFunction =
             muFunction(str name, int scope, int nformal, int nlocal, list[MuExp] body)
-          | muTypes(list[Symbol] symbols)  
+          ;
+public data MuVariable =
+            muVariable(str name)
+          ;
+          
+public data MuType =
+            muType(list[Symbol] symbols)  
           ;
           
 public data MuExp = 

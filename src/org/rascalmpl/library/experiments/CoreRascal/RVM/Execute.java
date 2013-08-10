@@ -84,16 +84,17 @@ public class Execute {
 								"label"));
 						break;
 					case "CALLPRIM":
-						codeblock.CALLPRIM(Primitive.valueOf(getStrField(
-								instruction, "name")));
+						codeblock.CALLPRIM(Primitive.valueOf(getStrField(instruction, "name")));
 						break;
 					case "CALL":
 						codeblock.CALL(getStrField(instruction, "name"));
+						break;
 					case "CALLDYN":
 						codeblock.CALLDYN();
 						break;
 					case "RETURN0":
 						codeblock.RETURN0();
+						break;
 					case "RETURN1":
 						codeblock.RETURN1();
 						break;
