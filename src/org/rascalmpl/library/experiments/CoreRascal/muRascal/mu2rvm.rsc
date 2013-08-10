@@ -14,11 +14,19 @@ alias INS = list[Instruction];
 int nlabel = -1;
 str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
+int functionScope = 0;
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str name, list[MuDefinition] definitions, MuExp initialization)){
-   return rvm((def.name : FUNCTION(def.name, def.scope, def.nformal, def.nlocal, 10, tr(def.body)) | def <- definitions), []);
+RVMProgram mu2rvm(muModule(str name, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
+  funMap = ();
+  for(fun <- functions){
+    functionScope = fun.scope;
+    funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, tr(fun.body)));
+  }
+  
+  funMap += ("#module_init" : FUNCTION("#module_init", 0, 0, size(variables), 10, [*tr(initializations), CALL("main"), HALT()]));
+  return rvm(funMap, []);
 }
 
 
@@ -30,17 +38,19 @@ INS tr(list[MuExp] args) { println(args); return [*tr(arg) | arg <- args];}
 
 INS tr(muConstant(value c)) = [LOADCON(c)];
 
-INS tr(muVar(str id, int scope, int pos)) = [LOADVAR(scope, pos)];
+INS tr(muVar(str id, int scope, int pos)) = [scope == functionScope ? LOADLOC(pos) : LOADVAR(scope, pos)];
 
-INS tr(muCall(MuExp fun, list[MuExp] args)) =  [*tr(args), *tr(fun), CALLDYN()];
+//INS tr(muCall(muVar(str name, 0, pos), list[MuExp] args)) = [*tr(args), CALL(name)];
 
-INS tr(muCall(str name, list[MuExp] args)) = [*tr(args), CALL(name)];
+INS tr(muCall(MuExp fun, list[MuExp] args)) =
+	muVar(str name, 0, pos) := fun ? [*tr(args), CALL(name)]
+							       : [*tr(args), *tr(fun), CALLDYN()];
 
 INS tr(muCallPrim(str name, MuExp arg)) = [*tr(arg), CALLPRIM(name)];
 
 INS tr(muCallPrim(str name, MuExp arg1, MuExp arg2)) = [*tr(arg1), *tr(arg2), CALLPRIM(name)];
 
-INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), STOREVAR(scope, pos)];
+INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), scope == functionScope ? STORELOC(pos) :STOREVAR(scope, pos)];
 
 INS tr(muIfelse(MuExp exp1, MuExp exp2, MuExp exp3)) {
     lab_else = nextLabel();

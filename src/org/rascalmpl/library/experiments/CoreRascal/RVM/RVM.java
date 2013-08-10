@@ -8,31 +8,24 @@ import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RVM {
 
 	public final IValueFactory vf;
 	private final IBool TRUE;
 	private final IBool FALSE;
-	private final boolean debug = false;;
-	private final boolean listing = false;
+	private  boolean debug = true;
+	private  boolean listing = false;
 	
 	private final ArrayList<Function> functionStore;
 	private final Map<String, Integer> functionMap;
-	private final PrintWriter stdout;
 	
 	private final TypeFactory tf = TypeFactory.getInstance(); 
 	private final TypeStore typeStore = new TypeStore();
@@ -46,7 +39,7 @@ public class RVM {
 
 		this.vf = vf;
 		this.types = new Types(this.vf);
-		stdout = new PrintWriter(System.out, true);
+		//stdout = new PrintWriter(System.out, true);
 		TRUE = vf.bool(true);
 		FALSE = vf.bool(false);
 		functionStore = new ArrayList<Function>();
@@ -63,11 +56,11 @@ public class RVM {
 	}
 	
 	public void setDebug(boolean b){
-		//listing = b;
+		listing = b;
 	}
 	
 	public void setListing(boolean b){
-		//listing = b;
+		listing = b;
 	}
 	
 	public void declare(Function f){
@@ -86,20 +79,27 @@ public class RVM {
 	
 	public Object executeProgram(String main, IValue[] args) {
 
+		// Finalize the instruction generation of all functions
 		for (Function f : functionStore) {
-			f.codegen(functionMap, constructorMap, listing);
+			f.finalize(functionMap, constructorMap, listing);
 		}
-		// Perform a call to "main"
+		
+		// Search for the "#module_init" function and check arguments
 
-		Function function = functionStore.get(functionMap.get(main));
+		Function function = functionStore.get(functionMap.get("#module_init"));
 		if (function == null) {
 			throw new RuntimeException("PANIC: Code for main not found: " + main);
 		}
-		Frame cf = new Frame(1, null, function.maxstack, function);
-		Object[] stack = cf.stack;
+		
 		if (args.length != function.nformals) {
 			throw new RuntimeException("PANIC: " + main + " called with wrong number of arguments: " + args.length);
 		}
+		
+		// Perform a call to "main" at scope level = 1
+		
+		Frame cf = new Frame(0, null, function.maxstack, function);
+		Object[] stack = cf.stack;
+		
 		for (int i = 0; i < args.length; i++) {
 			stack[i] = args[i];
 		}
@@ -120,9 +120,9 @@ public class RVM {
 				if (debug) {
 					int startpc = pc - 1;
 					for (int i = 0; i < sp; i++) {
-						stdout.println("\t" + i + ": " + stack[i]);
+						System.out.println("\t" + i + ": " + stack[i]);
 					}
-					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+					System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
 
 				switch (op) {
@@ -248,15 +248,15 @@ public class RVM {
 
 				case Opcode.OP_HALT:
 					if (debug) {
-						stdout.println("Program halted:");
+						System.out.println("Program halted:");
 						for (int i = 0; i < sp; i++) {
-							stdout.println(i + ": " + stack[i]);
+							System.out.println(i + ": " + stack[i]);
 						}
 					}
 					return stack[sp - 1];
 
 				case Opcode.OP_PRINTLN:
-					stdout.println(((IString) stack[--sp]).getValue());
+					System.out.println(((IString) stack[--sp]).getValue());
 					continue;
 					
 				case Opcode.OP_CALLPRIM:
@@ -368,7 +368,7 @@ public class RVM {
 				}
 			}
 		} catch (Exception e) {
-			stdout.println("PANIC: exception caused by invoking a primitive or illegal instruction sequence");
+			System.out.println("PANIC: exception caused by invoking a primitive or illegal instruction sequence");
 			e.printStackTrace();
 		}
 		return FALSE;
