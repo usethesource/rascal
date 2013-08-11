@@ -18,7 +18,7 @@ int functionScope = 0;
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str name, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
+RVMProgram mu2rvm(muModule(str name, _, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
   funMap = ();
   for(fun <- functions){
     functionScope = fun.scope;
@@ -46,21 +46,18 @@ INS trvoidblock(list[MuExp] exps) {
   println("Before: <exps>");
   if(size(exps) == 0)
      return [];
-  ins = [*(producesValue(exp) ? [*tr(exp), POP()] : tr(exp)) | exp <- exps];
+  ins = [*tr(exp), POP() | exp <- exps];
   println("AFTER: <ins>");
   return ins;
 }
 
 INS trblock(list[MuExp] exps) {
-  if(size(exps) == 0)
-     throw "Non void block cannot be empty";
-  if(size(exps) == 1)
-     return tr(exps[0]);
-  ins = [*(producesValue(exp) ? [*tr(exp), POP()] : tr(exp)) | exp <- exps];
-  if(ins[-1] == POP()){
-     ins = ins[0 .. -1];
+  if(size(exps) == 0){
+     return [LOADCON(666)]; // TODO: throw "Non void block cannot be empty";
   }
-  return ins;
+  ins = [*tr(exp), POP() | exp <- exps[0..-1]];
+  println("exps[-1] == <exps[-1]>");
+  return ins + tr(exps[-1]);
 }
 
 
@@ -71,6 +68,8 @@ INS tr(muCon(value c)) = [LOADCON(c)];
 INS tr(muFun(str name)) = [LOADFUN(name)];
 
 INS tr(muVar(str id, int scope, int pos)) = [scope == functionScope ? LOADLOC(pos) : LOADVAR(scope, pos)];
+
+INS tr(muNote(str txt)) = [ NOTE(txt) ];
 
 Instruction mkCall(str name) = (name in {"println"}) ? CALLPRIM(name) : CALL(name); 
 
@@ -84,29 +83,43 @@ INS tr(muCallPrim(str name, MuExp arg)) = [*tr(arg), CALLPRIM(name)];
 
 INS tr(muCallPrim(str name, MuExp arg1, MuExp arg2)) = [*tr(arg1), *tr(arg2), CALLPRIM(name)];
 
-INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), scope == functionScope ? STORELOC(pos) :STOREVAR(scope, pos)];
+INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), scope == functionScope ? STORELOC(pos) : STOREVAR(scope, pos)];
 
 INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
     lab_else = nextLabel();
-    lab_after = nextLabel();
-    res = [*tr(cond), JMPFALSE(lab_else), *trblock(thenPart), JMP(lab_after), LABEL(lab_else), *trblock(elsePart), LABEL(lab_after)];
-    return res;
+    lab_after = nextLabel();		// Stack effect after instruction
+    return [ *tr(cond),				// +1 
+             JMPFALSE(lab_else),	// +0 
+             *trblock(thenPart),	// +1 
+             JMP(lab_after), 		// +1
+             LABEL(lab_else),		// +0
+             *trblock(elsePart),	// +1
+             LABEL(lab_after)
+            ];
 }
 
 INS tr(muWhile(MuExp cond, list[MuExp] body)) {
-    lab_while = nextLabel();
-    lab_after = nextLabel();
-    return [LABEL(lab_while), *tr(cond), JMPFALSE(lab_after), *trvoidblock(body), JMP(lab_while), LABEL(lab_after)];
+    lab_test = nextLabel();
+    lab_body = nextLabel();			// Stack effect after instruction
+    return [LOADCON(666), 			// +1
+    		JMP(lab_test),			// +1
+    		LABEL(lab_body),		// +1 
+    		POP(), 					// +0
+    		*trblock(body),			// +1 
+    		LABEL(lab_test),		// +1
+    		*tr(cond), 				// +2
+    		JMPTRUE(lab_body) 		// +1
+    		];
 }
 
 INS tr(muCreate(str name)) = [CREATE(name)];
 INS tr(muCreate(MuExp exp)) = [*tr(exp),CREATEDYN()];
 
-INS tr(muInit(MuExp exp)) = [*tr(exp),INIT()];
-INS tr(muInit(MuExp exp1, MuExp exp2)) = [*tr(exp2), *tr(exp1),  INIT()];  // order!
+INS tr(muInit(MuExp exp)) = [*tr(exp), INIT()];
+INS tr(muInit(MuExp co, list[MuExp] args)) = [*tr(args), *tr(co),  INIT()];  // order!
 
-INS tr(muNext(MuExp exp)) = [*tr(exp),NEXT0()];
-INS tr(muNext(MuExp exp1, MuExp exp2)) = [*tr(exp2), *tr(exp1),  NEXT1()]; // order!
+INS tr(muNext(MuExp coro)) = [*tr(coro), NEXT0()];
+INS tr(muNext(MuExp coro, MuExp args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
 
 INS tr(muYield()) = [YIELD0()];
 INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];

@@ -30,7 +30,7 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Pop;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next1;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Println;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Note;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return1;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Init;
@@ -42,16 +42,16 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Yield1;
 
 public class CodeBlock {
 
-	private IValueFactory vf;
+	private final IValueFactory vf;
 	int pc;
 	
-	private ArrayList<Instruction> insList;
+	private final ArrayList<Instruction> insList;
 	
-	private HashMap<String,Integer> labels;
-	private ArrayList<String> labelList;
+	private final HashMap<String,Integer> labels;
+	private final ArrayList<String> labelList;
 	
-	private Map<IValue, Integer> constantMap;
-	private ArrayList<IValue> constantStore;
+	private final Map<IValue, Integer> constantMap;
+	private final ArrayList<IValue> constantStore;
 	private IValue[] finalConstantStore;
 	
 	private Map<String, Integer> functionMap;
@@ -268,20 +268,32 @@ public class CodeBlock {
 		return add(new HasNext(this));
 	}
 	
-	public CodeBlock PRINTLN(){
-		return add(new Println(this));
+	public CodeBlock NOTE(String txt){
+		return add(new Note(this, getConstantIndex(vf.string(txt))));
 	}
     
-	public CodeBlock LOADCONREF(int pos) {
-		return add(new LoadConRef(this, pos));
+	public CodeBlock LOADLOCASREF(int pos) {
+		return add(new LoadLocAsRef(this, pos));
+	}
+	
+	public CodeBlock LOADVARASREF(int scope, int pos) {
+		return add(new LoadVarAsRef(this, scope, pos));
 	}
 	
 	public CodeBlock LOADLOCREF(int pos) {
 		return add(new LoadLocRef(this, pos));
 	}
 	
+	public CodeBlock LOADVARREF(int scope, int pos) {
+		return add(new LoadVarRef(this, scope, pos));
+	}
+	
 	public CodeBlock STORELOCREF(int pos) {
 		return add(new StoreLocRef(this, pos));
+	}
+	
+	public CodeBlock STOREVARREF(int scope, int pos) {
+		return add(new StoreVarRef(this, scope, pos));
 	}
 	
 	public CodeBlock LOADCONSTR(String name) {
