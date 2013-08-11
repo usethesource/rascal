@@ -324,15 +324,16 @@ public class RVM {
 					if(src instanceof Coroutine){
 						coroutine = (Coroutine) src; 
 						fun = coroutine.frame.function;
-					} else {
+					} else if(src instanceof Closure) {
 						Closure closure = (Closure) src;
 						fun = closure.function;
-						Frame frame = new Frame(fun.scope + 1, null, fun.maxstack, fun);
+						Frame frame = new Frame(fun.scope + 1, null, closure.frame, fun.maxstack, fun);
 						coroutine = new Coroutine(frame);
+					} else {
+						throw new RuntimeException("PANIC: unexpected argument type when INIT is executed.");
 					}
 					
 					// main function of coroutine or closure may have formal parameters
-					
 					for (int i = fun.nformals - 1; i >= 0; i--) {
 						coroutine.frame.stack[i] = stack[sp - fun.nformals + i];
 					}
@@ -346,15 +347,19 @@ public class RVM {
 				case Opcode.OP_CREATEDYN:
 					if(op == Opcode.OP_CREATE){
 						fun = functionStore.get(instructions[pc++]);
-						Frame frame = new Frame(fun.scope + 1, null, fun.maxstack, fun);
-						coroutine = new Coroutine(frame);
+						previousScope = null;
 					} else {
 						src = stack[--sp];
-						Closure closure = (Closure) src;
-						fun = closure.function;
-						Frame frame = new Frame(fun.scope + 1, null, fun.maxstack, fun);
-						coroutine = new Coroutine(frame);
+						if(src instanceof Closure) {
+							Closure closure = (Closure) src;
+							fun = closure.function;
+							previousScope = closure.frame;
+						} else {
+							throw new RuntimeException("PANIC: unexpected argument type when CREATEDYN is executed.");
+						}
 					}
+					Frame frame = new Frame(fun.scope + 1, null, previousScope, fun.maxstack, fun);
+					coroutine = new Coroutine(frame);
 					stack[sp++] = coroutine;
 					continue;
 				
