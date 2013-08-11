@@ -350,14 +350,10 @@ public class RVM {
 						coroutine = new Coroutine(frame);
 					} else {
 						src = stack[--sp];
-						if(src instanceof Coroutine){
-							coroutine = (Coroutine) src; 
-						} else {
-							Closure closure = (Closure) src;
-							fun = closure.function;
-							Frame frame = new Frame(fun.scope + 1, null, fun.maxstack, fun);
-							coroutine = new Coroutine(frame);
-						}
+						Closure closure = (Closure) src;
+						fun = closure.function;
+						Frame frame = new Frame(fun.scope + 1, null, fun.maxstack, fun);
+						coroutine = new Coroutine(frame);
 					}
 					stack[sp++] = coroutine;
 					continue;
