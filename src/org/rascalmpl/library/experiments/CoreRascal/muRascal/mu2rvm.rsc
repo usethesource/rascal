@@ -18,7 +18,7 @@ int functionScope = 0;
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str name, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
+RVMProgram mu2rvm(muModule(str name, _, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
   funMap = ();
   for(fun <- functions){
     functionScope = fun.scope;
