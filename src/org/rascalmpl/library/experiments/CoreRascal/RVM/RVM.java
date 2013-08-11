@@ -120,6 +120,7 @@ public class RVM {
 		int sp = init_function.nlocals;
 		
 		Stack<Coroutine> activeCoroutines = new Stack<>();
+		Frame ccf = null;
 		
 		try {
 			NEXT_INSTRUCTION: while (true) {
@@ -285,6 +286,14 @@ public class RVM {
 					boolean returns = op == Opcode.OP_RETURN1; 
 					if(returns) 
 						rval = stack[sp - 1];
+					
+					// if the current frame is the frame of a top active coroutine, 
+					// then pop this coroutine from the stack of active coroutines
+					if(cf == ccf) {
+						activeCoroutines.pop();
+						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+					}
+					
 					cf = cf.previousCallFrame;
 					if(cf == null) {
 						if(returns)
@@ -368,6 +377,7 @@ public class RVM {
 					coroutine = (Coroutine) stack[--sp];
 					// put the coroutine onto the stack of active coroutines
 					activeCoroutines.push(coroutine);
+					ccf = coroutine.start;
 					coroutine.next(cf);
 					
 					fun = coroutine.frame.function;
@@ -388,6 +398,7 @@ public class RVM {
 				case Opcode.OP_YIELD0:	
 				case Opcode.OP_YIELD1:
 					coroutine = activeCoroutines.pop();
+					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					Frame prev = coroutine.start.previousCallFrame;
 					rval = (op == Opcode.OP_YIELD1) ? stack[--sp] : null;
 					cf.pc = pc;

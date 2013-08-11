@@ -10,7 +10,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Execute {
 
