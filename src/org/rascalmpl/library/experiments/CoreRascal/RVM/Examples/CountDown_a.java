@@ -36,10 +36,12 @@ public class CountDown_a {
 							.LABEL("BODY")
 							.LOADLOC(0)
 							.YIELD1()
+							.POP()        // added pop with respect to the new NEXT0's default bahviour on the stack
 							.LOADLOC(0)
 							.LOADCON(1)
 							.CALLPRIM(Primitive.subtraction_num_num)
 							.STORELOC(0)
+							.POP()       // added pop with respect to the new STORELOC's default bahviour on the stack
 							.JMP("LOOP")));
 		
 		/*
@@ -50,32 +52,44 @@ public class CountDown_a {
 		 * while(hasNext(c)) {
 		 * 		count = count + c.next();
 		 * }
+		 * 
+		 * return count;
 		 */
 		/*
 		 * result: 5 + 4 + 3 + 2 + 1 = 15
 		 */
-		rvm.declare(new Function("main", 0, 0, 2, 6,
+		rvm.declare(new Function("main", 0, 1, 3, 6,
 					new CodeBlock(vf)
 						.CREATE("g")
-						.STORELOC(0)
-						.LOADCON(5)
-						.LOADLOC(0)
-						.INIT()
-						.LOADCON(0)
 						.STORELOC(1)
+						.LOADCON(5)
+						.LOADLOC(1)
+						.INIT()
+						.POP()      // added pop with respect to the new INIT's default bahviour on the stack
+						.LOADCON(0)
+						.STORELOC(2)
+						.POP()      // added pop with respect to the new STORELOC's default bahviour on the stack
 						.LABEL("LOOP")
-						.LOADLOC(0)
+						.LOADLOC(1)
 						.HASNEXT()
 						.JMPTRUE("BODY")
-						.HALT()
+						.LOADLOC(2)
+						.RETURN1()
 						.LABEL("BODY")
+						.LOADLOC(2)
 						.LOADLOC(1)
-						.LOADLOC(0)
 						.NEXT0()
 						.CALLPRIM(Primitive.addition_num_num)
-						.STORELOC(1)
+						.STORELOC(2)
+						.POP()     // added pop with respect to the new STORELOC's default bahviour on the stack
 						.JMP("LOOP")));
 	
+		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+					new CodeBlock(vf)
+						.LOADLOC(0)
+						.CALL("main")
+						.RETURN1()
+						.HALT()));
 		rvm.executeProgram("main", new IValue[] {});
 	}
 

@@ -38,12 +38,19 @@ public class Do {
 					CALLDYN().
 					RETURN1()));
 		
-		rvm.declare(new Function("main", 0, 0, 0, 7,
+		rvm.declare(new Function("main", 0, 1, 1, 7,
 				new CodeBlock(vf).
 					LOADFUN("cube").
 					LOADCON(4).
 					CALL("do").
 					HALT()));
+		
+		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+				new CodeBlock(vf)
+					.LOADLOC(0)
+					.CALL("main")
+					.RETURN1()
+					.HALT()));
 		
 		rvm.executeProgram("main", new IValue[] {});
 	}
