@@ -21,17 +21,21 @@ public data MuExp =
           | muCon(value c)
           | muLab(str name)
           | muFun(str name)
+          | muConstr(str name) // constructors
           | muVar(str id, int scope, int pos)
+          | muVarRef(str id, int scope, int pos) // call-by-reference related
           | muTypeCon(Symbol tp)
           
           | muCall(MuExp fun, list[MuExp] args)
           | muCall(str fname, list[MuExp] args)
+          | muCallConstr(str cname, list[MuExp] args) // constructors
           | muCallPrim(str name, MuExp exp1)
           | muReturn()
           | muReturn(MuExp exp)
           | muCallPrim(str name, MuExp exp1, MuExp exp2)
                     
           | muAssign(str id, int scope, int pos, MuExp exp)
+          | muAssignRef(str id, int scope, int pos, MuExp exp) // call-by-reference related
           | muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)
           | muWhile(MuExp cond, list[MuExp] body)
           | muLabeled(str name, list[MuExp] MuExp)
