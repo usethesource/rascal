@@ -17,10 +17,11 @@ muFunction("countDown", 0, 1, 1,
 	    muReturn(muCon(0))		
 	]
 ),
+
 muFunction("main", 0, 1, 2, 
 	[		
 		muAssign("c", 0, 1, muCreate("countDown")),
-		muInit(muVar("c", 0, 1), muCon(1)),
+		muInit(muVar("c", 0, 1), muCon(10)),
 		muWhile(muHasNext(muVar("c", 0, 1)),
 			  [ muCallPrim("println", muNext(muVar("c", 0, 1))) ]),
 		muReturn(muCon(0))
@@ -33,7 +34,7 @@ int runCountDown(){
   muP = muModule("CountDown", functions, [], []);
   rvmP = mu2rvm(muP);
   iprintln(rvmP);
-  <v, t> = executeProgram(rvmP, true, 1);
+  <v, t> = executeProgram(rvmP, false, 1);
   println("Result = <v>, [<t> msec]");
   return int n := v ? n : 0;
 }

@@ -484,7 +484,7 @@ public enum Primitive {
 	 */
 	
 	public static int println(Object[] stack, int sp) {
-		System.out.println(stack[sp - 1]);
+		System.out.println(">>>>> " + stack[sp - 1]);
 		return sp;
 	}
 	
