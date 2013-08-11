@@ -42,11 +42,15 @@ RVMProgram mu2rvm(muModule(str name, _, list[MuFunction] functions, list[MuVaria
 
 INS  tr(list[MuExp] exps) = [ *tr(exp) | exp <- exps ];
 
+
+INS tr_and_pop(MuExp exp) = producesValue(exp) ? [*tr(exp), POP()] : tr(exp);
+
+
 INS trvoidblock(list[MuExp] exps) {
   println("Before: <exps>");
   if(size(exps) == 0)
      return [];
-  ins = [*tr(exp), POP() | exp <- exps];
+  ins = [*tr_and_pop(exp) | exp <- exps];
   println("AFTER: <ins>");
   return ins;
 }
@@ -55,7 +59,7 @@ INS trblock(list[MuExp] exps) {
   if(size(exps) == 0){
      return [LOADCON(666)]; // TODO: throw "Non void block cannot be empty";
   }
-  ins = [*tr(exp), POP() | exp <- exps[0..-1]];
+  ins = [*tr_and_pop(exp) | exp <- exps[0..-1]];
   println("exps[-1] == <exps[-1]>");
   return ins + tr(exps[-1]);
 }
@@ -99,16 +103,14 @@ INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
 }
 
 INS tr(muWhile(MuExp cond, list[MuExp] body)) {
-    lab_test = nextLabel();
-    lab_body = nextLabel();			// Stack effect after instruction
-    return [LOADCON(666), 			// +1
-    		JMP(lab_test),			// +1
-    		LABEL(lab_body),		// +1 
-    		POP(), 					// +0
-    		*trblock(body),			// +1 
-    		LABEL(lab_test),		// +1
-    		*tr(cond), 				// +2
-    		JMPTRUE(lab_body) 		// +1
+    lab_while = nextLabel();
+    lab_after = nextLabel();
+    return [LABEL(lab_while),
+    		*tr(cond), 	 	
+    		JMPFALSE(lab_after),				
+    		*trvoidblock(body),			
+    		JMP(lab_while),
+    		LABEL(lab_after)		
     		];
 }
 
@@ -131,5 +133,6 @@ INS tr(muHasNext(MuExp exp)) = [*tr(exp), HASNEXT()];
 
 
 bool producesValue(muNote(str txt)) = false;
+bool producesValue(muWhile(MuExp cond, list[MuExp] body)) = false;
 default bool producesValue(MuExp exp) = true;
 

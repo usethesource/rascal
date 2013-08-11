@@ -197,7 +197,15 @@ public enum Primitive {
 	}
 	
 	public static int addition_str_str(Object[] stack, int sp) {
-		stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
+		// An overly permissive definition that is handy during debugging for compiler develeopment
+ 		//stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
+		Object olhs = stack[sp - 2];
+		String lhs = (olhs instanceof IString) ? ((IString) olhs).getValue() : ((IValue) olhs).toString();
+		
+		Object orhs = stack[sp - 1];
+		String rhs = (orhs instanceof IString) ? ((IString) orhs).getValue() : ((IValue) orhs).toString();
+		
+		stack[sp - 2] = vf.string(lhs.concat(rhs));
 		return sp - 1;
 	}
 	
