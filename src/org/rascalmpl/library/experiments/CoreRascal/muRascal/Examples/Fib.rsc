@@ -54,7 +54,7 @@ int fib_in_rascal(){
 test bool tstFib() = runFib() == fib(fibarg);
 
 int runFib(){
-  muP = muModule("Fib", functions, [], []);
+  muP = muModule("Fib", [], functions, [], []);
   rvmP = mu2rvm(muP);
   //iprintln(rvmP);
   <v, t_rvm> = executeProgram(rvmP, false, 1);
