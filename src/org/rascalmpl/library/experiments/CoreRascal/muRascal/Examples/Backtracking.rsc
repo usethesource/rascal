@@ -52,10 +52,26 @@ muFunction("ALL", 0, 1, 1,
 	]
 ),
 */
-muFunction("main", 1, 1, 2, 
+
+// Main 1:
+//muFunction("main", 1, 1, 2, 
+//	[		
+//		muAssign("c", 1, 1, muInit(muCreate("AND"),[muFun("TRUE"), muFun("TRUE")] )),
+//		muReturn(muNext(muVar("c", 1, 1)))
+//	]
+//)
+// Main 2:
+muFunction("main", 1, 1, 3, 
 	[		
 		muAssign("c", 1, 1, muInit(muCreate("AND"),[muFun("TRUE"), muFun("TRUE")] )),
-		muReturn(muNext(muVar("c", 1, 1)))
+		muAssign("count", 1, 2, muCon(0)),
+		muWhile(muHasNext(muVar("c", 1, 1)),
+			[ muNext(muVar("c", 1, 1)),
+			  muAssign("count", 1, 2, muCallPrim("addition_num_num", 
+													muVar("count", 1, 2), 
+													muCon(1)))]
+					),
+		muReturn(muVar("count", 1, 2))
 	]
 )
 
