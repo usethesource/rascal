@@ -130,6 +130,6 @@ INS tr(muReturn(MuExp exp)) = [*tr(exp), RETURN1()];
 INS tr(muHasNext(MuExp exp)) = [*tr(exp), HASNEXT()];
 
 
-bool producesValue(muWhile(MuExp cond, list[MuExp] body)) = false;
+bool producesValue(muNote(str txt)) = false;
 default bool producesValue(MuExp exp) = true;
 
