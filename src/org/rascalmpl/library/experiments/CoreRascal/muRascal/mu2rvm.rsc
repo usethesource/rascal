@@ -20,6 +20,7 @@ int functionScope = 0;
 
 RVMProgram mu2rvm(muModule(str name, _, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
   funMap = ();
+  nLabel = -1;
   for(fun <- functions){
     functionScope = fun.scope;
     funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
