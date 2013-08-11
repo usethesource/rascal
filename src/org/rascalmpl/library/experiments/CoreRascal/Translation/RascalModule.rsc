@@ -37,7 +37,7 @@ MuModule r2mu(loc moduleLoc){
    	  variables_in_module = [];
    	  variable_initializations = [];
    	  translate(M.top);
-   	  return muModule("<M.top.header.name>", functions_in_module, variables_in_module, variable_initializations);
+   	  return muModule("<M.top.header.name>", [], functions_in_module, variables_in_module, variable_initializations);
    	  }
    	} catch Java("ParseError","Parse error"): {
    	    throw "Syntax errors in module <Example1>";
