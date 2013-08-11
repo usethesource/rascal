@@ -31,7 +31,7 @@ muFunction("main", 0, 1, 2,
 ];
 
 int runCountDown(){
-  muP = muModule("CountDown", functions, [], []);
+  muP = muModule("CountDown", [], functions, [], []);
   rvmP = mu2rvm(muP);
   iprintln(rvmP);
   <v, t> = executeProgram(rvmP, false, 1);
