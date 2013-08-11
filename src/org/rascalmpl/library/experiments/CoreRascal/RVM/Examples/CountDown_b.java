@@ -13,7 +13,7 @@ public class CountDown_b {
 	public static void main(String[] args) {
 		
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
-		IValueFactory v = rvm.vf;
+		IValueFactory vf = rvm.vf;
 		
 		/*
 		 * g (n) 
@@ -27,7 +27,7 @@ public class CountDown_b {
 		 */
 		
 		rvm.declare(new Function("g", 0, 1, 1, 6,
-					new CodeBlock(v)
+					new CodeBlock(vf)
 							.LABEL("LOOP")
 							.LOADLOC(0)
 							.LOADCON(0)
@@ -38,10 +38,12 @@ public class CountDown_b {
 							.LABEL("BODY")
 							.LOADLOC(0)
 							.YIELD1()
+							.POP()
 							.LOADLOC(0)
 							.LOADCON(1)
 							.CALLPRIM(Primitive.subtraction_num_num)
 							.STORELOC(0)
+							.POP()
 							.JMP("LOOP")));
 		/*
 		 * h() {
@@ -53,13 +55,15 @@ public class CountDown_b {
 		 */
 		
 		rvm.declare(new Function("h", 0, 0, 2, 6, 
-					new CodeBlock(v)
+					new CodeBlock(vf)
 						.LOADCON(9)
 						.LOADCON(1)
 						.CALLPRIM(Primitive.addition_num_num)
 						.STORELOC(0)
+						.POP()
 						.CREATE("g")
 						.STORELOC(1)
+						.POP()
 						.LOADLOC(0)
 						.LOADLOC(1)
 						.INIT()
@@ -79,35 +83,44 @@ public class CountDown_b {
 		/*
 		 * result: 0
 		 */
-		rvm.declare(new Function("main", 0, 0, 3, 6,
-					new CodeBlock(v)
-						.CALL("h")
-						.STORELOC(0)
+		rvm.declare(new Function("main", 0, 1, 4, 6,
+					new CodeBlock(vf)
 						.CALL("h")
 						.STORELOC(1)
-						.LOADCON(0)
+						.POP()
+						.CALL("h")
 						.STORELOC(2)
+						.POP()
+						.LOADCON(0)
+						.STORELOC(3)
+						.POP()
 						
 						.LABEL("LOOP")
-						.LOADLOC(0)
+						.LOADLOC(1)
 						.HASNEXT()
-						//.loadloc(1)
-						//.hasNext()
 											
 						.JMPTRUE("BODY")
 						.HALT()
 						.LABEL("BODY")
-						.LOADLOC(0)
-						.NEXT0()
 						.LOADLOC(1)
 						.NEXT0()
-						.CALLPRIM(Primitive.addition_num_num)
 						.LOADLOC(2)
+						.NEXT0()
 						.CALLPRIM(Primitive.addition_num_num)
-						.STORELOC(2)
+						.LOADLOC(3)
+						.CALLPRIM(Primitive.addition_num_num)
+						.STORELOC(3)
+						.POP()
 						
 						.JMP("LOOP")));
 	
+		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+				new CodeBlock(vf)
+					.LOADLOC(0)
+					.CALL("main")
+					.RETURN1()
+					.HALT()));
+
 		rvm.executeProgram("main", new IValue[] {});
 	}
 	

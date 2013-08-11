@@ -48,11 +48,18 @@ public static void main(String[] args) {
 					CALLPRIM(Primitive.addition_num_num).
 					RETURN1()));
 					
-		rvm.declare(new Function("main", 0, 0, 0, 6,
+		rvm.declare(new Function("main", 0, 1, 1, 6,
 					new CodeBlock(vf).
-						LOADCON("35").
+						LOADCON(35).
 						CALL("fib").
 						HALT()));
+		
+		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+				new CodeBlock(vf)
+					.LOADLOC(0)
+					.CALL("main")
+					.RETURN1()
+					.HALT()));
 		
 		long start = System.currentTimeMillis();
 		IValue val = (IValue) rvm.executeProgram("main", new IValue[] {});

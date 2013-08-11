@@ -40,13 +40,16 @@ public class CountDown_c {
 							.LOADLOCREF(1)
 							.CALLPRIM(Primitive.addition_num_num)
 							.STORELOCREF(1)
+							.POP()
 							
 							.LOADLOC(0)
 							.YIELD1()
+							.POP()
 							.LOADLOC(0)
 							.LOADCON(1)
 							.CALLPRIM(Primitive.subtraction_num_num)
 							.STORELOC(0)
+							.POP()
 							.JMP("LOOP")));
 		
 		/*
@@ -67,36 +70,49 @@ public class CountDown_c {
 		 * 			5 + 12 = 17
 		 *          15
 		 */
-		rvm.declare(new Function("main", 0, 0, 3, 6,
+		rvm.declare(new Function("main", 0, 1, 4, 10,
 					new CodeBlock(vf)
 						.CREATE("g")
-						.STORELOC(0)
-						.LOADCON(0)
 						.STORELOC(1)
-						.LOADCON(5)
-						// call-by-reference check
-						.LOADLOCASREF(1)
-						.LOADLOC(0)
-						.INIT()
+						.POP()
 						.LOADCON(0)
 						.STORELOC(2)
+						.POP()
+						.LOADCON(5)
+						// call-by-reference check
+						.LOADLOCASREF(2)
+						.LOADLOC(1)
+						.INIT()
+						.POP()
+						.LOADCON(0)
+						.STORELOC(3)
+						.POP()
 						.LABEL("LOOP")
-						.LOADLOC(0)
+						.LOADLOC(1)
 						.HASNEXT()
 						.JMPTRUE("BODY")
 						.HALT()
 						.LABEL("BODY")
 						.LOADCON(2)
-						.LOADLOC(1)
-						.CALLPRIM(Primitive.addition_num_num)
-						.STORELOC(1)
 						.LOADLOC(2)
-						.LOADLOC(0)
-						.NEXT0()
 						.CALLPRIM(Primitive.addition_num_num)
 						.STORELOC(2)
+						.POP()
+						.LOADLOC(3)
+						.LOADLOC(1)
+						.NEXT0()
+						.CALLPRIM(Primitive.addition_num_num)
+						.STORELOC(3)
+						.POP()
 						.JMP("LOOP")));
 	
+		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+				new CodeBlock(vf)
+					.LOADLOC(0)
+					.CALL("main")
+					.RETURN1()
+					.HALT()));
+
 		rvm.executeProgram("main", new IValue[] {});
 	}
 

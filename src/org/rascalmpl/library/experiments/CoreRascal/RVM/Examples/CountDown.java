@@ -36,10 +36,12 @@ public class CountDown {
 							.LABEL("BODY")
 							.LOADLOC(0)
 							.YIELD1()
+							.POP()
 							.LOADLOC(0)
 							.LOADCON(1)
 							.CALLPRIM(Primitive.subtraction_num_num)
 							.STORELOC(0)
+							.POP()
 							.JMP("LOOP")));
 		
 		/*
@@ -50,23 +52,32 @@ public class CountDown {
 		/*
 		 * result: 23
 		 */
-		rvm.declare(new Function("main", 0, 0, 1, 6,
+		rvm.declare(new Function("main", 0, 1, 2, 6,
 					new CodeBlock(vf)
 						.CREATE("g")
-						.STORELOC(0)
+						.STORELOC(1)
+						.POP()
 						.LOADCON(5)
-						.LOADLOC(0)
+						.LOADLOC(1)
 						.INIT()
-						.LOADLOC(0)
+						.POP()
+						.LOADLOC(1)
 						.NEXT0()
-						.LOADLOC(0)
+						.LOADLOC(1)
 						.NEXT0()
 						.CALLPRIM(Primitive.product_num_num)
-						.LOADLOC(0)
+						.LOADLOC(1)
 						.NEXT0()
 						.CALLPRIM(Primitive.addition_num_num)
 						.HALT()));
 	
+		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+				new CodeBlock(vf)
+					.LOADLOC(0)
+					.CALL("main")
+					.RETURN1()
+					.HALT()));
+
 		rvm.executeProgram("main", new IValue[] {});
 	}
 

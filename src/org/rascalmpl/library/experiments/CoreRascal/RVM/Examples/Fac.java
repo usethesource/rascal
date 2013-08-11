@@ -32,7 +32,7 @@ public class Fac {
 					CALLPRIM(Primitive.product_num_num).
 					RETURN1()));
 		
-		rvm.declare(new Function("main_fac", 0, 0, 0, 7,
+		rvm.declare(new Function("main", 0, 1, 1, 7,
 				new CodeBlock(vf).
 					LOADCON(4).
 					CALL("fac").
@@ -42,8 +42,10 @@ public class Fac {
 				new CodeBlock(vf).
 					LOADCON(10).
 					STORELOC(0). // n
+					POP().
 					LOADCON(10).
 					STORELOC(1). // cnt
+					POP().
 					LABEL("L").
 					LOADLOC(1). // cnt
 					LOADCON(0).
@@ -58,7 +60,15 @@ public class Fac {
 					LOADCON(1).
 					CALLPRIM(Primitive.subtraction_num_num).
 					STORELOC(1).
+					POP().
 					JMP("L")));
+		
+		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+				new CodeBlock(vf)
+					.LOADLOC(0)
+					.CALL("main")
+					.RETURN1()
+					.HALT()));
 		
 		long total = 0;
 		int times = 20;
@@ -66,7 +76,7 @@ public class Fac {
 		for(int i = 0; i < times; i++){
 			long start = System.currentTimeMillis();
 			
-			rvm.executeProgram("main_fac", new IValue[] {});
+			rvm.executeProgram("main", new IValue[] {});
 			long now = System.currentTimeMillis();
 			total += now - start;
 			
