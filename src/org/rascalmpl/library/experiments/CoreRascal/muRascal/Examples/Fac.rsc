@@ -50,7 +50,7 @@ int fac_in_rascal(){
 test bool tstFac() = runFac() == 2432902008176640000;
 
 int runFac(){
-  muP = muModule("Fac", functions, [], []);
+  muP = muModule("Fac", [], functions, [], []);
   rvmP = mu2rvm(muP);
   //iprintln(rvmP);
   <v, t_rvm> = executeProgram(rvmP, false, repeat);

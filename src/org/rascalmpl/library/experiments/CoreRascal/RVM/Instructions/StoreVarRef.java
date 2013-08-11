@@ -2,20 +2,23 @@ package org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions;
 
 import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 
-public class LoadConRef extends Instruction {
+public class StoreVarRef extends Instruction {
 	
+	final int scope;
 	final int pos;
 	
-	public LoadConRef(CodeBlock ins, int pos) {
-		super(ins, Opcode.LOADCONREF);
+	public StoreVarRef(CodeBlock ins, int scope, int pos) {
+		super(ins, Opcode.STOREVARREF);
+		this.scope = scope;
 		this.pos = pos;
 	}
 
-	public String toString() { return "LOADCONREF " + pos; }
+	public String toString() { return "STOREVARREF " + scope + ", " + pos; }
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
+		codeblock.addCode(scope);
 		codeblock.addCode(pos);
 	}
-	
+
 }
