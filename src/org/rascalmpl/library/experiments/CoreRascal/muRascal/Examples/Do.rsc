@@ -41,7 +41,7 @@ muFunction("main", 1, 1, 1,
 test bool tstDo() = runDo() == 8000;
 
 int runDo(){
-  muP = muModule("Do", functions, [], []);
+  muP = muModule("Do", [], functions, [], []);
   rvmP = mu2rvm(muP);
   iprintln(rvmP);
   <v, t> = executeProgram(rvmP, true, 1);
