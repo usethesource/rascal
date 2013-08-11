@@ -22,7 +22,7 @@ RVMProgram mu2rvm(muModule(str name, list[MuFunction] functions, list[MuVariable
   funMap = ();
   for(fun <- functions){
     functionScope = fun.scope;
-    funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, tr(fun.body)));
+    funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
   }
   
   funMap += ("#module_init" : FUNCTION("#module_init", 0, 0, size(variables) + 1, 10, 
@@ -43,9 +43,11 @@ RVMProgram mu2rvm(muModule(str name, list[MuFunction] functions, list[MuVariable
 INS  tr(list[MuExp] exps) = [ *tr(exp) | exp <- exps ];
 
 INS trvoidblock(list[MuExp] exps) {
+  println("Before: <exps>");
   if(size(exps) == 0)
      return [];
-  ins = [*tr(exp), POP() | exp <- exps];
+  ins = [*(producesValue(exp) ? [*tr(exp), POP()] : tr(exp)) | exp <- exps];
+  println("AFTER: <ins>");
   return ins;
 }
 
@@ -54,8 +56,8 @@ INS trblock(list[MuExp] exps) {
      throw "Non void block cannot be empty";
   if(size(exps) == 1)
      return tr(exps[0]);
-  ins = [*tr(exp), POP() | exp <- exps];
-  if(size(ins) > 0){
+  ins = [*(producesValue(exp) ? [*tr(exp), POP()] : tr(exp)) | exp <- exps];
+  if(ins[-1] == POP()){
      ins = ins[0 .. -1];
   }
   return ins;
@@ -115,5 +117,6 @@ INS tr(muReturn(MuExp exp)) = [*tr(exp), RETURN1()];
 INS tr(muHasNext(MuExp exp)) = [*tr(exp), HASNEXT()];
 
 
-
+bool producesValue(muWhile(MuExp cond, list[MuExp] body)) = false;
+default bool producesValue(MuExp exp) = true;
 

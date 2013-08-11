@@ -162,7 +162,7 @@ public class RVM {
 				}
 
 				case Opcode.OP_STORELOC: {
-					stack[instructions[pc++]] = stack[--sp];
+					stack[instructions[pc++]] = stack[sp - 1];  /* CHANGED: --sp to sp -1; value remains on stack */
 					continue;
 				}
 
@@ -172,7 +172,7 @@ public class RVM {
 
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
-							fr.stack[pos] = stack[--sp];
+							fr.stack[pos] = stack[sp - 1];		/* CHANGED: --sp to sp -1; value remains on stack */
 							continue NEXT_INSTRUCTION;
 						}
 					}
@@ -275,7 +275,7 @@ public class RVM {
 					continue;
 				
 				case Opcode.OP_INIT:
-					Coroutine coroutine = (Coroutine) stack[--sp];
+					Coroutine coroutine = (Coroutine) stack[--sp]; 
 					
 					// coroutine's main function may have formal parameters
 					fun = coroutine.frame.function;
@@ -284,7 +284,8 @@ public class RVM {
 					}
 					coroutine.frame.sp = fun.nlocals;
 					coroutine.suspend(coroutine.frame);
-					sp = sp - fun.nformals;
+					sp = sp - fun.nformals;							/* CHANGED: place coroutine back on stack */
+					stack[sp++] = coroutine;						
 					continue;
 					
 				case Opcode.OP_CREATE:
@@ -304,9 +305,9 @@ public class RVM {
 					
 					fun = coroutine.frame.function;
 					instructions = coroutine.frame.function.codeblock.getInstructions();
-					
-					if(op == Opcode.OP_NEXT1)
-						coroutine.frame.stack[coroutine.frame.sp++] = stack[--sp];
+				
+					coroutine.frame.stack[coroutine.frame.sp++] = 		// CHANGED: yield now always leaves an entry on the stack
+							(op == Opcode.OP_NEXT1) ?stack[--sp] : null;
 					
 					cf.pc = pc;
 					cf.sp = sp;
@@ -321,10 +322,7 @@ public class RVM {
 				case Opcode.OP_YIELD1:
 					coroutine = activeCoroutines.pop();
 					Frame prev = coroutine.start.previousCallFrame;
-					rval = null;
-					if(op == Opcode.OP_YIELD1) {
-						rval = stack[--sp];
-					}
+					rval = (op == Opcode.OP_YIELD1) ? stack[--sp] : null;
 					cf.pc = pc;
 					cf.sp = sp;
 					coroutine.suspend(cf);
@@ -335,9 +333,9 @@ public class RVM {
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					if(op == Opcode.OP_YIELD1 && rval != null) {
-						stack[sp++] = rval;
-					}
+					//if(op == Opcode.OP_YIELD1 /* && rval != null */) {	/* CHANGED */
+					stack[sp++] = rval;	 // corresponding next will always find an entry on the stack
+					//}
 					continue;
 					
 				case Opcode.OP_HASNEXT:
