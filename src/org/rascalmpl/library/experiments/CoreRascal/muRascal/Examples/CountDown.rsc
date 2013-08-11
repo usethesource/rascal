@@ -21,7 +21,7 @@ muFunction("countDown", 0, 1, 1,
 muFunction("main", 0, 1, 2, 
 	[		
 		muAssign("c", 0, 1, muCreate("countDown")),
-		muInit(muVar("c", 0, 1), muCon(10)),
+		muInit(muVar("c", 0, 1), [ muCon(10) ]),
 		muWhile(muHasNext(muVar("c", 0, 1)),
 			  [ muCallPrim("println", muNext(muVar("c", 0, 1))) ]),
 		muReturn(muCon(0))
