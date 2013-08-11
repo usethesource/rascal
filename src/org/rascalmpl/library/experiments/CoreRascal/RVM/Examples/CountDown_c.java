@@ -75,7 +75,7 @@ public class CountDown_c {
 						.STORELOC(1)
 						.LOADCON(5)
 						// call-by-reference check
-						.LOADCONREF(1)
+						.LOADLOCASREF(1)
 						.LOADLOC(0)
 						.INIT()
 						.LOADCON(0)

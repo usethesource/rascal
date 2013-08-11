@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.ast.BasicType.Int;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Call;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallDyn;
@@ -20,12 +21,14 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.JmpFalse;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Label;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadCon;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadConRef;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLocAsRef;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadConstr;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLoc;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVar;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLocRef;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVarAsRef;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVarRef;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Pop;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next0;
@@ -37,6 +40,7 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Init;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreLoc;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreLocRef;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreVar;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreVarRef;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Yield0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Yield1;
 
@@ -272,16 +276,28 @@ public class CodeBlock {
 		return add(new Println(this));
 	}
     
-	public CodeBlock LOADCONREF(int pos) {
-		return add(new LoadConRef(this, pos));
+	public CodeBlock LOADLOCASREF(int pos) {
+		return add(new LoadLocAsRef(this, pos));
+	}
+	
+	public CodeBlock LOADVARASREF(int scope, int pos) {
+		return add(new LoadVarAsRef(this, scope, pos));
 	}
 	
 	public CodeBlock LOADLOCREF(int pos) {
 		return add(new LoadLocRef(this, pos));
 	}
 	
+	public CodeBlock LOADVARREF(int scope, int pos) {
+		return add(new LoadVarRef(this, scope, pos));
+	}
+	
 	public CodeBlock STORELOCREF(int pos) {
 		return add(new StoreLocRef(this, pos));
+	}
+	
+	public CodeBlock STOREVARREF(int scope, int pos) {
+		return add(new StoreVarRef(this, scope, pos));
 	}
 	
 	public CodeBlock LOADCONSTR(String name) {
