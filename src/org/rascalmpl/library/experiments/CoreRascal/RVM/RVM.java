@@ -16,6 +16,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 
+
 public class RVM {
 
 	public final IValueFactory vf;
@@ -146,26 +147,53 @@ public class RVM {
 					continue;
 
 				case Opcode.OP_LOADLOC:
-					stack[sp++] = stack[instructions[pc++]];
+				case Opcode.OP_LOADLOC_AS_REF:
+					stack[sp++] = (op == Opcode.OP_LOADLOC) ? stack[instructions[pc++]] 
+															: new Reference(stack, instructions[pc++]);
 					continue;
-
-				case Opcode.OP_LOADVAR: {
+				
+				case Opcode.OP_LOADLOCREF: {
+					Reference ref = (Reference) stack[instructions[pc++]];
+					stack[sp++] = ref.stack[ref.pos];
+					continue;
+				}
+				case Opcode.OP_LOADVAR:
+				case Opcode.OP_LOADVAR_AS_REF: {
 					int s = instructions[pc++];
 					int pos = instructions[pc++];
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
-							stack[sp++] = fr.stack[pos];
+							stack[sp++] = (op == Opcode.OP_LOADVAR) ? fr.stack[pos] 
+																	: new Reference(fr.stack, pos);
 							continue NEXT_INSTRUCTION;
 						}
 					}
 					throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
 				}
-
+				
+				case Opcode.OP_LOADVARREF: {
+					int s = instructions[pc++];
+					int pos = instructions[pc++];
+					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+						if (fr.scopeId == s) {
+							Reference ref = (Reference) fr.stack[pos];
+							stack[sp++] = ref.stack[ref.pos];
+							continue NEXT_INSTRUCTION;
+						}
+					}
+					throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
+				}
+				
 				case Opcode.OP_STORELOC: {
 					stack[instructions[pc++]] = stack[sp - 1];  /* CHANGED: --sp to sp -1; value remains on stack */
 					continue;
 				}
-
+				
+				case Opcode.OP_STORELOCREF:
+					Reference ref = (Reference) stack[instructions[pc++]];
+					ref.stack[ref.pos] = stack[sp - 1];         /* CHANGED: --sp to sp - 1; value remains on stack */
+					continue;
+				
 				case Opcode.OP_STOREVAR:
 					int s = instructions[pc++];
 					int pos = instructions[pc++];
@@ -178,6 +206,21 @@ public class RVM {
 					}
 
 					throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
+	
+				case Opcode.OP_STOREVARREF:
+					s = instructions[pc++];
+					pos = instructions[pc++];
+
+					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+						if (fr.scopeId == s) {
+							ref = (Reference) fr.stack[pos];
+							ref.stack[ref.pos] = stack[sp - 1];	/* CHANGED: --sp to sp -1; value remains on stack */
+							continue NEXT_INSTRUCTION;
+						}
+					}
+
+					throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
+
 
 				case Opcode.OP_JMP:
 					pc = instructions[pc];
@@ -341,30 +384,6 @@ public class RVM {
 				case Opcode.OP_HASNEXT:
 					coroutine = (Coroutine) stack[--sp];
 					stack[sp++] = coroutine.hasNext() ? TRUE : FALSE;
-					continue;
-				
-				case Opcode.OP_LOADLOC_AS_REF:
-					pos = instructions[pc++];
-					stack[sp++] = new Reference(stack, pos);
-					continue;
-					
-				case Opcode.OP_LOADVAR_AS_REF:
-					continue;
-				
-				case Opcode.OP_LOADLOCREF:
-					Reference ref = (Reference) stack[instructions[pc++]];
-					stack[sp++] = ref.stack[ref.pos];
-					continue;
-					
-				case Opcode.OP_LOADVARREF:
-					continue;
-					
-				case Opcode.OP_STORELOCREF:
-					ref = (Reference) stack[instructions[pc++]];
-					ref.stack[ref.pos] = stack[sp - 1]; /* CHANGED: --sp to sp - 1; value remains on stack */
-					continue;
-					
-				case Opcode.OP_STOREVARREF:
 					continue;
 							
 				case Opcode.OP_LOADCONSTR:
