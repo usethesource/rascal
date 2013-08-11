@@ -34,11 +34,14 @@ public enum Opcode {
 	HASNEXT(23,1),
 	PRINTLN(24,1),
 	RETURN0(25,1),
-	LOADCONREF(26,2),
-	LOADLOCREF(27,2),
-	STORELOCREF(28,2),
-	LOADCONSTR(29,2),
-	CALLCONSTR(30,2) // TODO: plus number of formal parameters
+	LOADLOC_AS_REF(26,2),
+	LOADVAR_AS_REF(27,3),
+	LOADLOCREF(28,2),
+	LOADVARREF(29,3),
+	STORELOCREF(30,2),
+	STOREVARREF(31,3),
+	LOADCONSTR(32,2),
+	CALLCONSTR(33,2) // TODO: plus number of formal parameters
 	;
 	
 	private final int op;
@@ -79,11 +82,14 @@ public enum Opcode {
 	static public final int OP_HASNEXT = 23;
 	static public final int OP_PRINTLN = 24;
 	static public final int OP_RETURN0 = 25;
-	static public final int OP_LOADCONREF = 26;
-	static public final int OP_LOADLOCREF = 27;
-	static public final int OP_STORELOCREF = 28;
-	static public final int OP_LOADCONSTR = 29;
-	static public final int OP_CALLCONSTR = 30;
+	static public final int OP_LOADLOC_AS_REF = 26;
+	static public final int OP_LOADVAR_AS_REF = 27;
+	static public final int OP_LOADLOCREF = 28;
+	static public final int OP_LOADVARREF = 29;
+	static public final int OP_STORELOCREF = 30;
+	static public final int OP_STOREVARREF = 31;
+	static public final int OP_LOADCONSTR = 32;
+	static public final int OP_CALLCONSTR = 33;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -178,15 +184,24 @@ public enum Opcode {
 		case RETURN0:
 			return "RETURN0";
 		
-		case LOADCONREF:
-			return "LOADCONREF " + cb.finalCode[pc + 1];
+		case LOADLOC_AS_REF:
+			return "LOADLOC_AS_REF " + cb.finalCode[pc + 1];
+			
+		case LOADVAR_AS_REF:
+			return "LOADVAR_AS_REF " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
 		
 		case LOADLOCREF:
 			return "LOADLOCREF " + cb.finalCode[pc + 1];
 			
+		case LOADVARREF:
+			return "LOADVARREF " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
+			
 		case STORELOCREF:
 			return "STORELOCREF " + cb.finalCode[pc + 1];
 		
+		case STOREVARREF:
+			return "STOREVARREF " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
+			
 		case LOADCONSTR:
 			return "LOADCONSTR " + cb.finalCode[pc + 1];
 		

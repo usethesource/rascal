@@ -343,9 +343,12 @@ public class RVM {
 					stack[sp++] = coroutine.hasNext() ? TRUE : FALSE;
 					continue;
 				
-				case Opcode.OP_LOADCONREF:
+				case Opcode.OP_LOADLOC_AS_REF:
 					pos = instructions[pc++];
 					stack[sp++] = new Reference(stack, pos);
+					continue;
+					
+				case Opcode.OP_LOADVAR_AS_REF:
 					continue;
 				
 				case Opcode.OP_LOADLOCREF:
@@ -353,9 +356,15 @@ public class RVM {
 					stack[sp++] = ref.stack[ref.pos];
 					continue;
 					
+				case Opcode.OP_LOADVARREF:
+					continue;
+					
 				case Opcode.OP_STORELOCREF:
 					ref = (Reference) stack[instructions[pc++]];
-					ref.stack[ref.pos] = stack[--sp];
+					ref.stack[ref.pos] = stack[sp - 1]; /* CHANGED: --sp to sp - 1; value remains on stack */
+					continue;
+					
+				case Opcode.OP_STOREVARREF:
 					continue;
 							
 				case Opcode.OP_LOADCONSTR:
