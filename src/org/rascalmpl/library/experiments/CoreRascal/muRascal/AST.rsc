@@ -18,28 +18,31 @@ public data MuType =
           
 public data MuExp = 
             muEmpty()
-          | muConstant(value c)
-          | muLabel(str name)
-          | muTypeCon(Symbol tp)
+          | muCon(value c)
+          | muLab(str name)
+          | muFun(str name)
           | muVar(str id, int scope, int pos)
+          | muTypeCon(Symbol tp)
           
           | muCall(MuExp fun, list[MuExp] args)
+          | muCall(str fname, list[MuExp] args)
           | muCallPrim(str name, MuExp exp1)
           | muReturn()
           | muReturn(MuExp exp)
           | muCallPrim(str name, MuExp exp1, MuExp exp2)
                     
           | muAssign(str id, int scope, int pos, MuExp exp)
-          | muIfelse(MuExp exp1, MuExp exp2, MuExp exp3)
-          | muWhile(MuExp cond, MuExp body)
-          | muLabeled(str name, MuExp MuExp)
+          | muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)
+          | muWhile(MuExp cond, list[MuExp] body)
+          | muLabeled(str name, list[MuExp] MuExp)
           
+          | muCreate(str fname)
           | muCreate(MuExp exp)
+          | muInit(MuExp exp)
+          | muInit(MuExp exp1, MuExp exp2)
+          | muHasNext(MuExp exp)
           | muNext(MuExp exp)
-          | muNextnext(MuExp exp1, MuExp exp2)
+          | muNext(MuExp exp1, MuExp exp2)
           | muYield()
           | muYield(MuExp exp)
-          | muHasNext(MuExp exp)
-          
-          | muBlock(list[MuExp] exps)
-		  ;
+       	  ;

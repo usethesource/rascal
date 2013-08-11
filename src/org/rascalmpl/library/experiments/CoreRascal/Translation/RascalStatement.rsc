@@ -74,13 +74,22 @@ list[MuExp] translate(s: (Statement) `try <Statement body> <Catch+ handlers> fin
 list[MuExp] translate(s: (Statement) `<Label label> { <Statement+ statements> }`) =
     "{" + intercalate("; ", [translate(stat) | stat <- statements]) + "}";
 
-list[MuExp] translate(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) { throw("assignment"); }
+list[MuExp] translate(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) { 
+  if(assignable is variable){
+    var = assignable.qualifiedName;
+    return [ mkAssign("<var>", var@\loc, translate(statement)[0]) ];
+  } else 
+	throw("assignment"); 
+}
 
 list[MuExp] translate(s: (Statement) `;`) = [];
 
 list[MuExp] translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names> ;`) { throw("globalDirective"); }
 
-list[MuExp] translate(s: (Statement) `return <Statement statement>`) = [muReturn(translate(statement)[0])];
+list[MuExp] translate(s: (Statement) `return <Statement statement>`) {
+  t = translate(statement);
+  return [size(t) > 0 ? muReturn(t[0]) : muReturn()];
+}
 
 list[MuExp] translate(s: (Statement) `throw <Statement statement>`) { throw("throw"); }
 
@@ -96,7 +105,7 @@ list[MuExp] translate(s: (Statement) `<LocalVariableDeclaration declaration> ;`)
     
     return for(var <- variables){
     			if(var is initialized)
-    			append mkAssign("<var.name>", var.name@\loc, translate(var.initial)[0]);
+    				append mkAssign("<var.name>", var@\loc, translate(var.initial)[0]);
            }
 }
 

@@ -56,7 +56,7 @@ public class RVM {
 	}
 	
 	public void setDebug(boolean b){
-		listing = b;
+		debug = b;
 	}
 	
 	public void setListing(boolean b){
@@ -86,27 +86,37 @@ public class RVM {
 		
 		// Search for the "#module_init" function and check arguments
 
-		Function function = functionStore.get(functionMap.get("#module_init"));
-		if (function == null) {
-			throw new RuntimeException("PANIC: Code for main not found: " + main);
+		Function init_function = functionStore.get(functionMap.get("#module_init"));
+		if (init_function == null) {
+			throw new RuntimeException("PANIC: Code for #module_init not found");
 		}
 		
-		if (args.length != function.nformals) {
-			throw new RuntimeException("PANIC: " + main + " called with wrong number of arguments: " + args.length);
+		if (init_function.nformals != 0) {
+			throw new RuntimeException("PANIC: " + "function \"#module_init\" should have one argument");
 		}
 		
-		// Perform a call to "main" at scope level = 1
+		// Search for the "main" function and check arguments
+
+		Function main_function = functionStore.get(functionMap.get("main"));
+		if (main_function == null) {
+			throw new RuntimeException("PANIC: No function \"main\" found");
+		}
+				
+		if (main_function.nformals != 1) {
+					throw new RuntimeException("PANIC: function \"main\" should have one argument");
+		}
 		
-		Frame cf = new Frame(0, null, function.maxstack, function);
+		// Perform a call to #module_init" at scope level = 0
+		
+		Frame cf = new Frame(0, null, init_function.maxstack, init_function);
 		Object[] stack = cf.stack;
 		
-		for (int i = 0; i < args.length; i++) {
-			stack[i] = args[i];
-		}
+		stack[0] = args; // pass the program argument to #module_init
+		
 
-		int[] instructions = function.codeblock.getInstructions();
+		int[] instructions = init_function.codeblock.getInstructions();
 		int pc = 0;
-		int sp = function.nlocals;
+		int sp = init_function.nlocals;
 		
 		Stack<Coroutine> activeCoroutines = new Stack<>();
 		
