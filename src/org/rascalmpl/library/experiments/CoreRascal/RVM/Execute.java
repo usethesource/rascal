@@ -37,7 +37,7 @@ public class Execute {
 	public ITuple executeProgram(IConstructor program, IBool debug,
 			IInteger repeat, IEvaluatorContext ctx) {
 		String func = "main";
-		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
+		RVM rvm = new RVM(vf);
 		rvm.setStdOut(ctx.getStdOut());
 		rvm.setDebug(debug.getValue());
 
@@ -54,7 +54,7 @@ public class Execute {
 				Integer nformals = ((IInteger) declaration.get("nformals")).intValue();
 				Integer maxstack = ((IInteger) declaration.get("maxStack")).intValue();
 				IList code = (IList) declaration.get("instructions");
-				CodeBlock codeblock = new CodeBlock(null);
+				CodeBlock codeblock = new CodeBlock(vf);
 
 				// Loading instructions
 				for (int i = 0; i < code.length(); i++) {
@@ -156,6 +156,10 @@ public class Execute {
 						
 					case "HASNEXT":
 						codeblock.HASNEXT();
+						break;
+						
+					case "NOTE":
+						codeblock.NOTE(getStrField(instruction, "txt"));
 						break;
 						
 					case "POP":

@@ -18,7 +18,7 @@ public class Test {
 					new CodeBlock(vf).
 						LOADCON(3).
 						LOADCON("abc").
-						PRINTLN().
+						NOTE("here is a note").
 						HALT()));
 	
 		rvm.executeProgram("main", new IValue[] {});
