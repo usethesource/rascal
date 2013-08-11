@@ -49,11 +49,11 @@ int getScopeSize(int scope){
 tuple[int,int] getVariableScope(str name) = uid2addr[config.fcvEnv[RSimpleName(name)]];
 
 MuExp mkVar(str name, loc l) {
-  println("mkVar: <name>");
-  println("l = <l>,\nloc2uid = <loc2uid>");
+  //println("mkVar: <name>");
+  //println("l = <l>,\nloc2uid = <loc2uid>");
   addr = uid2addr[loc2uid[l]];
   res = "<name>::<addr[0]>::<addr[1]>";
-  println("mkVar: <name> =\> <res>");
+  //println("mkVar: <name> =\> <res>");
   return muVar(name, addr[0], addr[1]);
 }
 
@@ -61,8 +61,8 @@ MuExp mkVar(str name, loc l) {
 /* */
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
-  //println("mkVar: <name>");
-  //println("l = <l>,\nloc2uid = <loc2uid>");
+  println("mkVar: <name>");
+  println("l = <l>,\nloc2uid = <loc2uid>");
   addr = uid2addr[loc2uid[l]];
   res = "<name>::<addr[0]>::<addr[1]>";
   //println("mkVar: <name> =\> <res>");
@@ -84,8 +84,9 @@ void extractScopes(){
                                               loc2uid[src] = uid;
                                               for(l <- config.uses[uid])
                                                   loc2uid[l] = uid;
-                                             }
-        case variable(_,_,_,inScope,src):   { declares += {<inScope, uid>}; loc2uid[src] = uid;
+                                            }
+        case variable(_,_,_,inScope,src):   { declares += {<inScope, uid>}; 
+        									  loc2uid[src] = uid;
                                               for(l <- config.uses[uid])
                                                   loc2uid[l] = uid;
                                             }
@@ -114,12 +115,14 @@ void extractScopes(){
             uid2addr[decls[i]] = <fuid, i>;
         }
     }
-   //for(uid <- uid2addr){
-   //   println("<config.store[uid]> :  <uid2addr[uid]>");
-  // }
+    println("uid2addr");
+   for(uid <- uid2addr){
+      println("<config.store[uid]> :  <uid2addr[uid]>");
+   }
    
-   //for(l <- loc2uid)
-   //    println("<l> : <loc2uid[l]>");
+   println("loc2uid");
+   for(l <- loc2uid)
+       println("<l> : <loc2uid[l]>");
 }
 
 
@@ -158,13 +161,13 @@ list[MuExp] translate(e:(Expression) `<Expression expression> ( <{Expression ","
 }
 
 // literals
-list[MuExp] translate((BooleanLiteral) `<BooleanLiteral b>`) = [ "<b>" == true ? constant(true) : constant(false) ];
+list[MuExp] translate((BooleanLiteral) `<BooleanLiteral b>`) = [ "<b>" == "true" ? muConstant(true) : muConstant(false) ];
 list[MuExp] translate((Expression) `<BooleanLiteral b>`) = translate(b);
  
 list[MuExp] translate((IntegerLiteral) `<IntegerLiteral n>`) = [muConstant(toInt("<n>"))];
 list[MuExp] translate((Expression) `<IntegerLiteral n>`) = translate(n);
  
-list[MuExp] translate((StringLiteral) `<StringLiteral s>`) = [ constant(s) ];
+list[MuExp] translate((StringLiteral) `<StringLiteral s>`) = [ muConstant(s) ];
 list[MuExp] translate((Expression) `<StringLiteral s>`) = translate(s);
 
 list[MuExp] translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) { throw("any"); }
@@ -192,6 +195,7 @@ list[MuExp] translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )
 list[MuExp] translate (e:(Expression) `it`) { throw("it"); }
  
 list[MuExp] translate((QualifiedName) `<QualifiedName v>`) = [ mkVar("<v>", v@\loc) ];
+
 list[MuExp] translate((Expression) `<QualifiedName v>`) = translate(v);
 
 list[MuExp] translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`){
@@ -281,7 +285,7 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`)  
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`)  = translateBool(e) + ".start().resume()";
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> && <Expression rhs>`)  = translateBool(e) + ".start().resume()";
+list[MuExp] translate(e:(Expression) `<Expression lhs> && <Expression rhs>`)  = translateBool(e);  //+ ".start().resume()";
  
 list[MuExp] translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = 
     backtrackFree(condition) ?  [ muIfelse(translate(condition)[0],
@@ -319,7 +323,7 @@ tuple[set[tuple[str,str]],set[str]] getVars(Pattern p) {
 list[MuExp] translateBool(str fun, Expression lhs, Expression rhs){
   blhs = backtrackFree(lhs) ? "n" : "b";
   brhs = backtrackFree(rhs) ? "n" : "b";
-  return [ muCall("<fun>_<blhs>_<brhs>", translate(lhs), translate(rhs)) ];
+  return [ muCall("<fun>_<blhs>_<brhs>", [*translate(lhs), *translate(rhs)]) ];
 }
 
 list[MuExp] translateBool(e:(Expression) `<Expression lhs> && <Expression rhs>`) = translateBool("and", lhs, rhs);

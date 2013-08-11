@@ -25,6 +25,7 @@ list[MuExp] variable_initializations = [];
 MuModule r2mu(loc moduleLoc){
    try {
    	Module M = parseModule(moduleLoc, libSearchPath);
+   	//iprint(M);
    	config = checkModule(M.top, newConfiguration());  // .top is needed to remove start! Ugly!
    	//text(config);
    	extractScopes();

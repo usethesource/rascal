@@ -65,78 +65,103 @@ public class Execute {
 					case "LOADCON":
 						codeblock.LOADCON(instruction.get("val"));
 						break;
+						
 					case "LOADVAR":
-						codeblock.LOADVAR(getIntField(instruction, "scope"),
-								getIntField(instruction, "pos"));
+						codeblock.LOADVAR(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
 						break;
+						
 					case "LOADLOC":
 						codeblock.LOADLOC(getIntField(instruction, "pos"));
 						break;
+						
 					case "STOREVAR":
-						codeblock.STOREVAR(getIntField(instruction, "scope"),
-								getIntField(instruction, "pos"));
+						codeblock.STOREVAR(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
 						break;
+						
 					case "STORELOC":
 						codeblock.STORELOC(getIntField(instruction, "pos"));
 						break;
+						
 					case "LABEL":
-						codeblock = codeblock.LABEL(getStrField(instruction,
-								"label"));
+						codeblock = codeblock.LABEL(getStrField(instruction, "label"));
 						break;
+						
 					case "CALLPRIM":
 						codeblock.CALLPRIM(Primitive.valueOf(getStrField(instruction, "name")));
 						break;
+						
 					case "CALL":
 						codeblock.CALL(getStrField(instruction, "name"));
 						break;
+						
 					case "CALLDYN":
 						codeblock.CALLDYN();
 						break;
+						
+					case "LOADFUN":
+						codeblock.LOADFUN(getStrField(instruction, "name"));
+						break;
+						
 					case "RETURN0":
 						codeblock.RETURN0();
 						break;
+						
 					case "RETURN1":
 						codeblock.RETURN1();
 						break;
+						
 					case "JMP":
 						codeblock.JMP(getStrField(instruction, "label"));
 						break;
+						
 					case "JMPTRUE":
 						codeblock.JMPTRUE(getStrField(instruction, "label"));
 						break;
+						
 					case "JMPFALSE":
 						codeblock.JMPFALSE(getStrField(instruction, "label"));
 						break;
+						
 					case "HALT":
 						codeblock.HALT();
 						break;
+						
 					case "CREATE":
 						codeblock.CREATE(getStrField(instruction, "fun"));
 						break;
+						
 					case "CREATEDYN":
 						codeblock.CREATEDYN();
 						break;
+						
 					case "INIT":
 						codeblock.INIT();
 						break;
+						
 					case "NEXT0":
 						codeblock.NEXT0();
 						break;
+						
 					case "NEXT1":
 						codeblock.NEXT1();
 						break;
+						
 					case "YIELD0":
 						codeblock.YIELD0();
 						break;
+						
 					case "YIELD1":
 						codeblock.YIELD1();
 						break;
+						
 					case "HASNEXT":
 						codeblock.HASNEXT();
 						break;
+						
 					case "POP":
 						codeblock.POP();
 						break;
+						
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 					}
