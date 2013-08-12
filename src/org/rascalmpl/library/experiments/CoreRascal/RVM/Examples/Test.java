@@ -14,7 +14,7 @@ public class Test {
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory vf = rvm.vf;
 		
-		rvm.declare(new Function("main", 0, 1, 1, 6,
+		rvm.declare(new Function("main", 1, 1, 1, 6,
 					new CodeBlock(vf).
 						LOADCON(3).
 						LOADCON("abc").

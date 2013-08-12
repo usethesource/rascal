@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.ast.BasicType.Int;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Call;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallDyn;
@@ -25,6 +24,7 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLocAsRe
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadConstr;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLoc;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadNestedFun;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVar;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVarAsRef;
@@ -306,6 +306,10 @@ public class CodeBlock {
 	
 	public CodeBlock CALLCONSTR(String name) {
 		return add(new CallConstr(this, name));
+	}
+	
+	public CodeBlock LOADNESTEDFUN(String name, int scope) {
+		return add(new LoadNestedFun(this, name, scope));
 	}
 	
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){

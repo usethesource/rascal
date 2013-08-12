@@ -26,7 +26,7 @@ public class CountDown_b {
 		 * }
 		 */
 		
-		rvm.declare(new Function("g", 0, 1, 1, 6,
+		rvm.declare(new Function("g", 1, 1, 1, 6,
 					new CodeBlock(vf)
 							.LABEL("LOOP")
 							.LOADLOC(0)
@@ -54,7 +54,7 @@ public class CountDown_b {
 		 * }
 		 */
 		
-		rvm.declare(new Function("h", 0, 0, 2, 6, 
+		rvm.declare(new Function("h", 2, 0, 2, 6, 
 					new CodeBlock(vf)
 						.LOADCON(9)
 						.LOADCON(1)
@@ -83,7 +83,7 @@ public class CountDown_b {
 		/*
 		 * result: 0
 		 */
-		rvm.declare(new Function("main", 0, 1, 4, 6,
+		rvm.declare(new Function("main", 3, 1, 4, 6,
 					new CodeBlock(vf)
 						.CALL("h")
 						.STORELOC(1)

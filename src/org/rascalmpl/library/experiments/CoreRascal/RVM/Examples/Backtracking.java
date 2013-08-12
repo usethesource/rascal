@@ -18,7 +18,7 @@ public class Backtracking {
 		/*
 		 * TRUE(){ return true; }
 		 */
-		rvm.declare(new Function("TRUE", 0, 0, 0, 6,
+		rvm.declare(new Function("TRUE", 1, 0, 0, 6,
 				new CodeBlock(vf)
 				.LOADCON(true)
 				.RETURN1()
@@ -29,7 +29,7 @@ public class Backtracking {
 		 * FALSE { return false; }
 		 */
 		
-		rvm.declare(new Function("FALSE", 0, 0, 0, 6,
+		rvm.declare(new Function("FALSE", 2, 0, 0, 6,
 				new CodeBlock(vf)
 				.LOADCON(false)
 				.RETURN1()	
@@ -53,12 +53,15 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("and_b_b", 0, 2, 2, 10,
+		rvm.declare(new Function("and_b_b", 3, 2, 2, 10,
 				new CodeBlock(vf)
 				.LOADLOC(0)
 				.CREATEDYN()
+				.STORELOC(0)
+				.POP()
 				.LOADLOC(0)
 				.INIT()
+				.POP()
 				
 			.LABEL("WHILE1")
 				.LOADLOC(0)
@@ -72,8 +75,11 @@ public class Backtracking {
 				.JMPFALSE("WHILE1")
 				.LOADLOC(1)
 				.CREATEDYN()
+				.STORELOC(1)
+				.POP()
 				.LOADLOC(1)
 				.INIT()
+				.POP()
 				
 			.LABEL("WHILE2")
 				.LOADLOC(1)
@@ -84,6 +90,7 @@ public class Backtracking {
 				.JMPFALSE("WHILE2")
 				.LOADCON(true)
 				.YIELD1()
+				.POP()
 				.JMP("WHILE2")
 		));
 		
@@ -93,7 +100,7 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("and_b_b", 0, 2, 2, 10,
+		rvm.declare(new Function("and_b_b", 4, 2, 2, 10,
 				new CodeBlock(vf)
 				.LOADLOC(0)
 				.LOADLOC(1)
@@ -116,7 +123,7 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("and_b_b", 0, 2, 2, 10,
+		rvm.declare(new Function("and_b_b", 5, 2, 2, 10,
 				new CodeBlock(vf)
 				.LOADLOC(0)
 				.JMPTRUE("L")
@@ -128,8 +135,11 @@ public class Backtracking {
 			.LABEL("L")
 				.LOADLOC(1)
 				.CREATEDYN()
+				.STORELOC(1)
+				.POP()
 				.LOADLOC(1)
 				.INIT()
+				.POP()
 				
 			.LABEL("WHILE")
 				.LOADLOC(1)
@@ -140,6 +150,7 @@ public class Backtracking {
 				.JMPFALSE("RETURN")
 				.LOADCON(true)
 				.YIELD1()
+				.POP()
 				.JMP("WHILE")
 		));
 		
@@ -158,7 +169,7 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("and_b_n", 0, 2, 2, 10,
+		rvm.declare(new Function("and_b_n", 6, 2, 2, 10,
 				new CodeBlock(vf)
 				.LOADLOC(0)
 				.JMPTRUE("L")
@@ -170,8 +181,11 @@ public class Backtracking {
 			.LABEL("L")
 				.LOADLOC(1)
 				.CREATEDYN()
+				.STORELOC(1)
+				.POP()
 				.LOADLOC(1)
 				.INIT()
+				.POP()
 				
 			.LABEL("WHILE")
 				.LOADLOC(0)
@@ -182,6 +196,7 @@ public class Backtracking {
 				.JMPFALSE("RETURN")
 				.LOADCON(true)
 				.YIELD1()
+				.POP()
 				.JMP("WHILE")
 		));
 		
@@ -196,29 +211,42 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("main", 0, 0, 3, 10,
+		rvm.declare(new Function("main", 7, 1, 4, 10,
 					new CodeBlock(vf)
 						.CREATE("TRUE")
-						.STORELOC(0)
-						.LOADLOC(0)
+						.STORELOC(1)
+						.POP()
+						.LOADLOC(1)
 						.INIT()
+						.POP()
 						
 						.CREATE("FALSE")
-						.STORELOC(1)
-						.LOADLOC(1)
+						.STORELOC(2)
+						.POP()
+						.LOADLOC(2)
 						.INIT()
+						.POP()
 						
 						.CREATE("and_b_b")
-						.STORELOC(2)
-						.LOADLOC(0)
+						.STORELOC(3)
+						.POP()
 						.LOADLOC(1)
 						.LOADLOC(2)
+						.LOADLOC(3)
 						.INIT()
-						.LOADLOC(2)
+						.POP()
+						.LOADLOC(3)
 						.NEXT0()
 						.HALT()
 		));
 	
+		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+				new CodeBlock(vf)
+					.LOADLOC(0)
+					.CALL("main")
+					.RETURN1()
+					.HALT()));
+
 		rvm.executeProgram("main", new IValue[] {});
 	}
 
