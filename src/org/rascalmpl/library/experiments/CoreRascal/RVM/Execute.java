@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -38,6 +39,10 @@ public class Execute {
 		String func = "main";
 		RVM rvm = new RVM(vf, ctx.getStdOut(), debug.getValue());
 
+		IList types = (IList) program.get("types");
+		for(IValue type : types) {
+			rvm.declareConstructor((IConstructor) type);
+		}
 		IMap declarations = (IMap) program.get("declarations");
 
 		for (IValue dname : declarations) {
