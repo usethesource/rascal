@@ -32,13 +32,13 @@ public class Fac {
 					CALLPRIM(Primitive.product_num_num).
 					RETURN1()));
 		
-		rvm.declare(new Function("main", 0, 1, 1, 7,
+		rvm.declare(new Function("main", 2, 1, 1, 7,
 				new CodeBlock(vf).
 					LOADCON(4).
 					CALL("fac").
 					HALT()));
 		
-		rvm.declare(new Function("main_repeat", 0, 0, 2, 20,
+		rvm.declare(new Function("main_repeat", 3, 0, 2, 20,
 				new CodeBlock(vf).
 					LOADCON(10).
 					STORELOC(0). // n

@@ -18,7 +18,7 @@ int functionScope = 0;
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str name, _, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
+RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
   funMap = ();
   nLabel = -1;
   for(fun <- functions){
@@ -33,7 +33,7 @@ RVMProgram mu2rvm(muModule(str name, _, list[MuFunction] functions, list[MuVaria
   									 RETURN1(),
   									 HALT()
   									]));
-  return rvm(funMap, []);
+  return rvm(types, funMap, []);
 }
 
 
@@ -42,7 +42,6 @@ RVMProgram mu2rvm(muModule(str name, _, list[MuFunction] functions, list[MuVaria
 // Translate lists of muRascal expressions
 
 INS  tr(list[MuExp] exps) = [ *tr(exp) | exp <- exps ];
-
 
 INS tr_and_pop(MuExp exp) = producesValue(exp) ? [*tr(exp), POP()] : tr(exp);
 
@@ -86,6 +85,8 @@ INS tr(muCallPrim(str name, MuExp arg)) = (name == "println") ? [*tr(arg), PRINT
 
 INS tr(muCallPrim(str name, MuExp arg1, MuExp arg2)) = [*tr(arg1), *tr(arg2), CALLPRIM(name)];
 
+INS tr(muCallPrim(str name, list[MuExp] args)) = [*tr(args), CALLPRIM(name)];
+
 INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), scope == functionScope ? STORELOC(pos) : STOREVAR(scope, pos)];
 
 INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
@@ -114,10 +115,12 @@ default INS tr(muWhile(MuExp cond, list[MuExp] body)) {
 }
 
 INS tr(muCreate(str name)) = [CREATE(name)];
+
+INS tr(muCreate(str name, list[MuExp] args)) = [ *tr(args), CREATE(name)];
 INS tr(muCreate(MuExp exp)) = [*tr(exp),CREATEDYN()];
 
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT()];
-INS tr(muInit(MuExp co, list[MuExp] args)) = [*tr(args), *tr(co),  INIT()];  // order!
+INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT()];  // order!
 
 INS tr(muNext(MuExp coro)) = [*tr(coro), NEXT0()];
 INS tr(muNext(MuExp coro, MuExp args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
@@ -128,7 +131,13 @@ INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];
 INS tr(muReturn()) = [RETURN0()];
 INS tr(muReturn(MuExp exp)) = [*tr(exp), RETURN1()];
 
-INS tr(muHasNext(MuExp exp)) = [*tr(exp), HASNEXT()];
+INS tr(muHasNext(MuExp coro)) = [*tr(coro), HASNEXT()];
+
+INS tr(muMulti(MuExp exp)) = 
+	 [ *tr(exp),
+       INIT(),
+       NEXT0()
+    ];
 
 
 bool producesValue(muNote(str txt)) = false;
@@ -138,8 +147,7 @@ default bool producesValue(MuExp exp) = true;
 // Translate a condition. 
 
 INS tr_cond(muMulti(MuExp exp), INS body) {
-    [ *tr(exp), 
-       CREATEDYN(),
+    [ *tr(exp),
        INIT(),
        NEXT()
     ];
