@@ -2,53 +2,98 @@ module experiments::CoreRascal::muRascal::AST
 
 import Prelude;
 
-public data MuModule =
+/*
+ * Abstract syntax for muRascal.
+ * 
+ * Position in the compiler pipeline: Rascal -> muRascal -> RVM
+ */
+
+// All information related to one Rascal module
+
+public data MuModule =											
             muModule(str name, list[MuType] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initialization);
           
-public data MuFunction =
+// All information related to a function declaration. This can be a top-level
+// function, or a nested or anomyous function inside a top level function. 
+         
+public data MuFunction =					
             muFunction(str name, int scope, int nformal, int nlocal, list[MuExp] body)
           ;
+          
+// A global (module level) variable.
+          
 public data MuVariable =
             muVariable(str name)
           ;
           
+// A declared Rascal type
+          
 public data MuType =
             muType(list[Symbol] symbols)  
           ;
+
+// All executable Rascal code is tranlated to the following muExps.
           
 public data MuExp = 
-            muCon(value c)
-          | muLab(str name)
-          | muFun(str name)
-          | muConstr(str name) // constructors
-          | muVar(str id, int scope, int pos)
-          | muVarRef(str id, int scope, int pos) // call-by-reference: the kind of a variable that refers to a value location
-          | muTypeCon(Symbol tp)
-          | muNote(str txt)
+			// Elementary expressions
+			
+            muCon(value c)										// Constant: an arbitrary IValue
+          | muLab(str name)										// Label
+          | muFun(str name)										// Function constant, truned into closure
+          | muConstr(str name) 									// Constructors
           
-          | muCall(MuExp fun, list[MuExp] args)
-          | muCall(str fname, list[MuExp] args)
-          | muCallConstr(str cname, list[MuExp] args) // constructors
-          | muCallPrim(str name, MuExp exp1)
-          | muCallPrim(str name, MuExp exp1, MuExp exp2)
-          | muReturn()
-          | muReturn(MuExp exp)
+          	// Variables
+          	
+          | muVar(str id, int scope, int pos)					// Variable: retrieve its value
+          | muVarRef(str id, int scope, int pos) 				// Call-by-reference: a variable that refers to a value location
+          | muRefVar(str id, int scope, int pos) 				// Call-by-reference: expression that returns a value location
+             
+          | muTypeCon(Symbol tp)								// Type constant
+     
+     		// Call/return
+     		
+          | muCall(MuExp fun, list[MuExp] args)					// Call a function
+          | muCall(str fname, list[MuExp] args)					// Call a named function: usually from the muRascal runtime library
+          | muCallConstr(str cname, list[MuExp] args) 			// Call a constructor
+          | muCallPrim(str name, MuExp exp1)					// Call aprimitive function with one argument
+          | muCallPrim(str name, MuExp exp1, MuExp exp2)		// Call a primitive function with two arguments
+          | muReturn()											// Return from function without value
+          | muReturn(MuExp exp)									// Return from function with value
               
-          | muAssign(str id, int scope, int pos, MuExp exp)
-          | muAssignRef(str id, int scope, int pos, MuExp exp) // call-by-reference: the left-hand side is a variable that refers to a value location
-          | muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)
-          | muWhile(MuExp cond, list[MuExp] body)
-          | muLabeled(str name, list[MuExp] MuExp)
+           // Assignment, If and While
+              
+          | muAssign(str id, int scope, int pos, MuExp exp)		// Assign a value to a variable
+          | muAssignRef(str id, int scope, int pos, MuExp exp) 	// Call-by-reference assignment: 
+          														// the left-hand side is a variable that refers to a value location
+          														
+          | muIfelse(MuExp cond, list[MuExp] thenPart,			// If-then-else expression
+          						 list[MuExp] elsePart)
+          						 
+          | muWhile(MuExp cond, list[MuExp] body)				// While expression
           
-          | muCreate(str fname)
-          | muCreate(MuExp exp)
-          | muInit(MuExp coro)
-          | muInit(MuExp coro, list[MuExp] args)
-          | muHasNext(MuExp exp)
-          | muNext(MuExp exp)
-          | muNext(MuExp exp1, list[MuExp] args)
-          | muYield()
-          | muYield(MuExp exp)
+          | muLabeled(str name, list[MuExp] MuExp)				// Labeled list of expressions
           
-          | muRefVar(str id, int scope, int pos) // call-by-reference: expression that returns a value location
+            // Coroutines
+            
+          | muCreate(str fname)									// Create a coroutine using a named function
+          | muCreate(MuExp exp)									// Create a coroutine using a computed function
+          
+          | muInit(MuExp coro)									// Initialize a coroutine, no arguments
+          | muInit(MuExp coro, list[MuExp] args)				// Initialize a coroutine, with arguments
+          
+          | muHasNext(MuExp exp)								// HasNext on a coroutine
+          
+          | muNext(MuExp exp)									// Next on coroutine, no arguments
+          | muNext(MuExp exp1, list[MuExp] args)				// Next on coroutine, with arguments
+          
+          | muYield()											// Yield from coroutine, without value
+          | muYield(MuExp exp)									// Yield from coroutine, with value
+          
+            // Multi-expressions
+            
+          | muMulti(MuExp exp)									// Expression that can produce multiple values
+          
+          	// Miscellaneous
+       
+          | muNote(str txt)										// Note that is propagated to generated code and printed during execution
        	  ;

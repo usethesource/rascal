@@ -137,3 +137,21 @@ bool producesValue(muNote(str txt)) = false;
 bool producesValue(muWhile(MuExp cond, list[MuExp] body)) = false;
 default bool producesValue(MuExp exp) = true;
 
+// Experiment:
+/*
+INS tr(uni(MuExp exp)) = tr(exp);
+INS tr(multi(MuExp exp), INS body) {
+    lab_retry = nextLabel();
+    [ *tr(exp), 
+       CREATEDYN(),
+       INIT(),
+       LABEL(lab_retry),
+       *body,
+       JMP(lab_retry)
+       
+       
+    ];
+    
+}
+
+*/
