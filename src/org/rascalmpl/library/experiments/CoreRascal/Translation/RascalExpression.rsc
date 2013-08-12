@@ -161,13 +161,15 @@ list[MuExp] translate(e:(Expression) `<Expression expression> ( <{Expression ","
 }
 
 // literals
-list[MuExp] translate((BooleanLiteral) `<BooleanLiteral b>`) = [ "<b>" == "true" ? muConstant(true) : muConstant(false) ];
+list[MuExp] translate((BooleanLiteral) `<BooleanLiteral b>`) = [ "<b>" == "true" ? muCon(true) : muCon(false) ];
 list[MuExp] translate((Expression) `<BooleanLiteral b>`) = translate(b);
  
-list[MuExp] translate((IntegerLiteral) `<IntegerLiteral n>`) = [muConstant(toInt("<n>"))];
+list[MuExp] translate((IntegerLiteral) `<IntegerLiteral n>`) = [muCon(toInt("<n>"))];
 list[MuExp] translate((Expression) `<IntegerLiteral n>`) = translate(n);
  
-list[MuExp] translate((StringLiteral) `<StringLiteral s>`) = [ muConstant(s) ];
+
+list[MuExp] translate((StringLiteral) `<StringLiteral s>`) = [ muCon("<s>") ];
+
 list[MuExp] translate((Expression) `<StringLiteral s>`) = translate(s);
 
 list[MuExp] translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) { throw("any"); }
@@ -177,11 +179,11 @@ list[MuExp] translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) 
 list[MuExp] translate (e:(Expression) `<Comprehension comprehension>`) { throw("comprehension"); }
 
 list[MuExp] translate(Expression e:(Expression)`{ <{Expression ","}* es> }`) {
-    return [ callprim("make_set", [ translate(elem) | elem <- es ]) ];
+    return [ muCallPrim("make_set", [ *translate(elem) | elem <- es ]) ];
 }
 
 list[MuExp] translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) {
-    return [ callprim("make_list", [ translate(elem) | elem <- es ]) ];
+    return [ muCallPrim("make_list", [ *translate(elem) | elem <- es ]) ];
 }
 
 list[MuExp] translate (e:(Expression) `# <Type \type>`) { throw("reifyType"); }
@@ -200,7 +202,7 @@ list[MuExp] translate((Expression) `<QualifiedName v>`) = translate(v);
 
 list[MuExp] translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`){
     op = "subscript_<getOuterType(exp)>_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
-    return [ callprim(op, [translate(s) | s <- subscripts]) ];
+    return [ muCallPrim(op, [translate(s) | s <- subscripts]) ];
 }
 
 list[MuExp] translate (e:(Expression) `<Expression expression> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) { throw("slice"); }
@@ -301,7 +303,8 @@ default list[MuExp] translate(Expression e) = "\<\<MISSING CASE FOR EXPRESSION: 
  
 // Is an expression free of backtracking? 
 
-bool backtrackFree(e:(Expression) `<Pattern pat> := <Expression exp>`) = false;
+bool backtrackFree(e:(Expression) `<Pattern pat> := <Expression exp>`) = backtrackFree(pat);
+bool backtrackFree(e:(Expression) `<Pattern pat> \<- <Expression exp>`) = false;
 
 default bool backtrackFree(Expression e) = true;
 
@@ -318,36 +321,26 @@ tuple[set[tuple[str,str]],set[str]] getVars(Pattern p) {
 }
 
 list[MuExp] translateBool(str fun, Expression lhs, Expression rhs){
-  blhs = backtrackFree(lhs) ? "n" : "b";
-  brhs = backtrackFree(rhs) ? "n" : "b";
+  blhs = backtrackFree(lhs) ? "U" : "M";
+  brhs = backtrackFree(rhs) ? "U" : "M";
   return [ muCall("<fun>_<blhs>_<brhs>", [*translate(lhs), *translate(rhs)]) ];
 }
 
-list[MuExp] translateBool(e:(Expression) `<Expression lhs> && <Expression rhs>`) = translateBool("and", lhs, rhs);
+list[MuExp] translateBool(e:(Expression) `<Expression lhs> && <Expression rhs>`) = translateBool("AND", lhs, rhs);
 
-list[MuExp] translateBool(e:(Expression) `<Expression lhs> || <Expression rhs>`) = translateBool("or", lhs, rhs);
+list[MuExp] translateBool(e:(Expression) `<Expression lhs> || <Expression rhs>`) = translateBool("OR", lhs, rhs);
 
-list[MuExp] translateBool(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`) = translateBool("implies", lhs, rhs);
+list[MuExp] translateBool(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`) = translateBool("IMPLIES", lhs, rhs);
 
-list[MuExp] translateBool(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`) = translateBool("equivalent", lhs, rhs);
+list[MuExp] translateBool(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`) = translateBool("EQUIVALENT", lhs, rhs);
 
 
  // similar for or, and, not and other Boolean operators
  
  // Translate match operator
- list[MuExp] translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  = [call("match", translatePat(pat), translate(exp))];
- /*
-    "coroutine () resume bool(){
-    '  matcher = <translatePat(pat)>;
-    '  subject = <translate(exp)>;
-    '  matcher.start(subject);
-    '  while(matcher.hasMore()){
-    '    if(matcher.resume())
-    '       yield true;
-    '    else
-    '       return false;
-    '  }
-    '}";  
- */
+ 
+ list[MuExp] translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  = 
+   [ muMulti(muInit(muCreate("MATCH", translatePat(pat)),  translate(exp))) ];
+ 
  
  

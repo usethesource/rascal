@@ -1,10 +1,12 @@
 module experiments::CoreRascal::muRascalVM::AST
 
+import Type;
+
 public data Declaration = 
 		  FUNCTION(str name, int scope, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
 		;
 
-public data RVMProgram = rvm(map[str, Declaration] declarations, list[Instruction] instructions);
+public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions);
 
 data Instruction =
 	   	  LOADCON(value val)
@@ -23,6 +25,7 @@ data Instruction =
 		| POP()
 		| CALLDYN()
 		| LOADFUN(str name)
+		| LOAD_NESTED_FUN(str name, int scope)
 		| CREATE(str fun)
 		| NEXT0()
 		| NEXT1()
@@ -33,8 +36,11 @@ data Instruction =
 		| HASNEXT()
 		| PRINTLN()
 		| RETURN0()
-		| LOADCONREF(int pos)
+		| LOADLOC_AS_REF(int pos)
+		| LOADVAR_AS_REF(int scope, int pos)
 		| LOADLOCREF(int pos)
+		| LOADVARREF(int scope, int pos)
 		| STORELOCREF(int pos)
+		| STOREVARREF(int scope, int pos)
 		;
 	

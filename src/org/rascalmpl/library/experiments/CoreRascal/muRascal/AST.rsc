@@ -11,7 +11,7 @@ import Prelude;
 // All information related to one Rascal module
 
 public data MuModule =											
-            muModule(str name, list[MuType] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initialization);
+            muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initialization);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -28,9 +28,9 @@ public data MuVariable =
           
 // A declared Rascal type
           
-public data MuType =
-            muType(list[Symbol] symbols)  
-          ;
+//public data MuType =
+//            muType(list[Symbol] symbols)  
+//          ;
 
 // All executable Rascal code is tranlated to the following muExps.
           
@@ -39,7 +39,8 @@ public data MuExp =
 			
             muCon(value c)										// Constant: an arbitrary IValue
           | muLab(str name)										// Label
-          | muFun(str name)										// Function constant, truned into closure
+          | muFun(str name)										// Function constant: functions at the root
+          | muFun(str name, int scope)                          // Function constant: nested functions and closures
           | muConstr(str name) 									// Constructors
           
           	// Variables
@@ -55,8 +56,9 @@ public data MuExp =
           | muCall(MuExp fun, list[MuExp] args)					// Call a function
           | muCall(str fname, list[MuExp] args)					// Call a named function: usually from the muRascal runtime library
           | muCallConstr(str cname, list[MuExp] args) 			// Call a constructor
-          | muCallPrim(str name, MuExp exp1)					// Call aprimitive function with one argument
+          | muCallPrim(str name, MuExp exp1)					// Call a primitive function with one argument TODO: REDUCE THESE
           | muCallPrim(str name, MuExp exp1, MuExp exp2)		// Call a primitive function with two arguments
+          | muCallPrim(str name, list[MuExp] exps)				// Call a primitive function with two arguments
           | muReturn()											// Return from function without value
           | muReturn(MuExp exp)									// Return from function with value
               
@@ -76,6 +78,7 @@ public data MuExp =
             // Coroutines
             
           | muCreate(str fname)									// Create a coroutine using a named function
+          | muCreate(str fname, list[MuExp] args)				// EXPERIMENTAL
           | muCreate(MuExp exp)									// Create a coroutine using a computed function
           
           | muInit(MuExp coro)									// Initialize a coroutine, no arguments
@@ -89,9 +92,9 @@ public data MuExp =
           | muYield()											// Yield from coroutine, without value
           | muYield(MuExp exp)									// Yield from coroutine, with value
           
-            // Multi-expressions
+           // Multi-expressions
             
-          | muMulti(MuExp exp)									// Expression that can produce multiple values
+          | muMulti(MuExp exp)		 					// Expression that can produce multiple values
           
           	// Miscellaneous
        

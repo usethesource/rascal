@@ -22,7 +22,7 @@ public class Do {
 					CALLPRIM(Primitive.product_num_num).
 					RETURN1()));
 		
-		rvm.declare(new Function("cube", 1, 1, 1, 6, 
+		rvm.declare(new Function("cube", 2, 1, 1, 6, 
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADLOC(0).
@@ -31,14 +31,14 @@ public class Do {
 					CALLPRIM(Primitive.product_num_num).
 					RETURN1()));
 		
-		rvm.declare(new Function("do", 1, 2, 2, 6, 
+		rvm.declare(new Function("do", 3, 2, 2, 6, 
 				new CodeBlock(vf).
 					LOADLOC(1).
 					LOADLOC(0).
 					CALLDYN().
 					RETURN1()));
 		
-		rvm.declare(new Function("main", 0, 1, 1, 7,
+		rvm.declare(new Function("main", 4, 1, 1, 7,
 				new CodeBlock(vf).
 					LOADFUN("cube").
 					LOADCON(4).

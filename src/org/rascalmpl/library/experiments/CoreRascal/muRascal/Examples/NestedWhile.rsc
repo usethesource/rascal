@@ -15,7 +15,7 @@ muFunction("main", 1, 1, 3,
 			[ muCallPrim("println", muCon("Enter outer while body")),
 			  muAssign("j", 1, 2, muCon(0)),
 			  muWhile(muCallPrim("less_num_num", muVar("j", 1, 2), muCon(4)),
-			  [ //muNote("Enter inner while body"),
+			  [
 			  	muCallPrim("println", muCallPrim("addition_str_str",
 			  							muCallPrim("addition_str_str", muCon("i = "), muVar("i", 1, 1)), 
 			  						 	muCallPrim("addition_str_str", muCon(", j = "), muVar("j", 1, 2)))),
