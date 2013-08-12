@@ -90,6 +90,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   if({ ftype } := ftypes){
 	  formals = signature.parameters.formals.formals;
 	  lformals = [f | f <- formals];
+	  
 	  tbody = [*translate(stat) | stat <- body.statements ];
 	  scope = getFunctionScope("<signature.name>");
 	  functions_in_module += [muFunction("<signature.name>", scope, size(lformals), getScopeSize(scope), tbody)];
