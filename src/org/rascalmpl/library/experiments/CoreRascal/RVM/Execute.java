@@ -167,6 +167,34 @@ public class Execute {
 						codeblock.POP();
 						break;
 						
+					case "LOADLOC_AS_REF":
+						codeblock.LOADLOCASREF(getIntField(instruction, "pos"));
+						break;
+						
+					case "LOADVAR_AS_REF":
+						codeblock.LOADVARASREF(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
+						break;
+						
+					case "LOADLOCREF":
+						codeblock.LOADLOCREF(getIntField(instruction, "pos"));
+						break;
+						
+					case "LOADVARREF":
+						codeblock.LOADVARREF(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
+						break;
+					
+					case "STORELOCREF":
+						codeblock.STORELOCREF(getIntField(instruction, "pos"));
+						break;
+						
+					case "STOREVARREF":
+						codeblock.STOREVARREF(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
+						break;
+						
+					case "LOAD_NESTED_FUN":
+						codeblock.LOADNESTEDFUN(getStrField(instruction, "name"), getIntField(instruction, "scope"));
+						break;
+						
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 					}
