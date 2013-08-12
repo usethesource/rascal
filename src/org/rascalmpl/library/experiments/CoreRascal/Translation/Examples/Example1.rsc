@@ -1,11 +1,16 @@
 module experiments::CoreRascal::Translation::Examples::Example1
 
-//bool n = true;
+//int x = 1;
+//int z =  x + 1;
+//int q = 3;
+//int inc(int n) = n + 1;
 
-//int f() {str a = "abc"; int b = 5; {bool c = true;}}
+//int fac(int n) = (n <= 1) ? q : n * fac(n - 1);
 
-int fac(int n) = (n <= 0) ? 1 : n * fac(n - 1);
 
-int g(int n) = n + 1;
-
-// int fac(int n) = (n == 1) ? 1 : n * fac(n - 1);
+bool main(list[value] args) { 
+//	return inc(3);
+//    int n = 57;
+//	return n + 2;
+	return true && false;
+}

@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.ast.BasicType.Int;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Call;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallDyn;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Create;
@@ -19,37 +21,45 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.JmpFalse;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Label;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadCon;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLocAsRef;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadConstr;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLoc;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVar;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadLocRef;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVarAsRef;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.LoadVarRef;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Pop;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next1;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Print;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Println;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return1;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Init;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreLoc;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreLocRef;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreVar;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.StoreVarRef;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Yield0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Yield1;
 
 public class CodeBlock {
 
-	private IValueFactory vf;
+	private final IValueFactory vf;
 	int pc;
 	
-	private ArrayList<Instruction> insList;
+	private final ArrayList<Instruction> insList;
 	
-	private HashMap<String,Integer> labels;
-	private ArrayList<String> labelList;
+	private final HashMap<String,Integer> labels;
+	private final ArrayList<String> labelList;
 	
-	private Map<IValue, Integer> constantMap;
-	private ArrayList<IValue> constantStore;
+	private final Map<IValue, Integer> constantMap;
+	private final ArrayList<IValue> constantStore;
 	private IValue[] finalConstantStore;
 	
 	private Map<String, Integer> functionMap;
+	private Map<String, Integer> constructorMap;
 	
 	public int[] finalCode;
 	
@@ -125,6 +135,21 @@ public class CodeBlock {
 		return n;
 	}
 	
+	public String getConstructorName(int n) {
+		for(String cname : constructorMap.keySet()) {
+			if(constructorMap.get(cname) == n)
+				return cname;
+		}
+		throw new RuntimeException("PANIC: undefined constructor index " + n);
+	}
+	
+	public int getConstructorIndex(String name) {
+		Integer n = constructorMap.get(name);
+		if(n == null)
+			throw new RuntimeException("PANIC: undefined constructor name " + name);
+		return n;
+	}
+	
 	CodeBlock add(Instruction ins){
 		insList.add(ins);
 		pc += ins.pcIncrement();
@@ -135,124 +160,157 @@ public class CodeBlock {
 		finalCode[pc++] = c;
 	}
 	
-	public CodeBlock pop(){
+	public CodeBlock POP(){
 		return add(new Pop(this));
 	}
 	
-	public  CodeBlock halt(){
+	public  CodeBlock HALT(){
 		return add(new Halt(this));
 	}
 	
-	public CodeBlock ret0() {
+	public CodeBlock RETURN0() {
 		return add(new Return0(this));
 	}
 	
-	public CodeBlock ret1(){
+	public CodeBlock RETURN1(){
 		return add(new Return1(this));
 	}
 	
-	public CodeBlock label(String arg){
+	public CodeBlock LABEL(String arg){
 		return add(new Label(this, arg));
 	}
 	
-	public CodeBlock loadcon(boolean arg){
+	public CodeBlock LOADCON(boolean arg){
 		return add(new LoadCon(this, getConstantIndex(vf.bool(arg))));
 	}
 	
-	public CodeBlock loadcon(int arg){
+	public CodeBlock LOADCON(int arg){
 		return add(new LoadCon(this, getConstantIndex(vf.integer(arg))));
 	}
 	
-	public CodeBlock loadcon(String arg){
+	public CodeBlock LOADCON(String arg){
 		return add(new LoadCon(this, getConstantIndex(vf.string(arg))));
 	}
 	
-	public CodeBlock loadcon(IValue val){
+	public CodeBlock LOADCON(IValue val){
 		return add(new LoadCon(this, getConstantIndex(val)));
 	}
 	
-	public CodeBlock call(String arg){
+	public CodeBlock CALL(String arg){
 		return add(new Call(this, arg));
 	}
 	
-	public CodeBlock jmp(String arg){
+	public CodeBlock JMP(String arg){
 		return add(new Jmp(this, arg));
 	}
 	
-	public CodeBlock jmptrue(String arg){
+	public CodeBlock JMPTRUE(String arg){
 		return add(new JmpTrue(this, arg));
 	}
 	
-	public CodeBlock jmpfalse(String arg){
+	public CodeBlock JMPFALSE(String arg){
 		return add(new JmpFalse(this, arg));
 	}
 	
-	public CodeBlock loadloc (int pos){
+	public CodeBlock LOADLOC (int pos){
 		return add(new LoadLoc(this, pos));
 	}
 	
-	public CodeBlock storeloc (int pos){
+	public CodeBlock STORELOC (int pos){
 		return add(new StoreLoc(this, pos));
 	}
 	
-	public CodeBlock loadvar (int scope, int pos){
+	public CodeBlock LOADVAR (int scope, int pos){
 		return add(new LoadVar(this, scope, pos));
 	}
 	
-	public CodeBlock storevar (int scope, int pos){
+	public CodeBlock STOREVAR (int scope, int pos){
 		return add(new StoreVar(this, scope, pos));
 	}
 	
-	public CodeBlock callprim (Primitive prim){
+	public CodeBlock CALLPRIM (Primitive prim){
 		return add(new CallPrim(this, prim));
 	}
 	
-	public CodeBlock loadfun (String name){
+	public CodeBlock LOADFUN (String name){
 		return add(new LoadFun(this, name));
 	}
 	
-	public CodeBlock calldyn(){
+	public CodeBlock CALLDYN(){
 		return add(new CallDyn(this));
 	}
 	
-	public CodeBlock init() {
+	public CodeBlock INIT() {
 		return add(new Init(this));
 	}
 	
-	public CodeBlock create(String name) {
+	public CodeBlock CREATE(String name) {
 		return add(new Create(this, name));
 	}
 	
-	public CodeBlock next0() {
+	public CodeBlock NEXT0() {
 		return add(new Next0(this));
 	}
 	
-	public CodeBlock next1() {
+	public CodeBlock NEXT1() {
 		return add(new Next1(this));
 	}
 	
-	public CodeBlock yield0() {
+	public CodeBlock YIELD0() {
 		return add(new Yield0(this));
 	}
 	
-	public CodeBlock yield1() {
+	public CodeBlock YIELD1() {
 		return add(new Yield1(this));
 	}
 	
-	public CodeBlock createdyn() {
+	public CodeBlock CREATEDYN() {
 		return add(new CreateDyn(this));
 	}
 	
-	public CodeBlock hasNext() {
+	public CodeBlock HASNEXT() {
 		return add(new HasNext(this));
 	}
 	
-	public CodeBlock print(String arg){
-		return add(new Print(this, getConstantIndex(vf.string(arg))));
+	public CodeBlock PRINTLN(){
+		return add(new Println(this));
 	}
     
-	public CodeBlock done(String fname, Map<String, Integer> codeMap, boolean listing){
+	public CodeBlock LOADLOCASREF(int pos) {
+		return add(new LoadLocAsRef(this, pos));
+	}
+	
+	public CodeBlock LOADVARASREF(int scope, int pos) {
+		return add(new LoadVarAsRef(this, scope, pos));
+	}
+	
+	public CodeBlock LOADLOCREF(int pos) {
+		return add(new LoadLocRef(this, pos));
+	}
+	
+	public CodeBlock LOADVARREF(int scope, int pos) {
+		return add(new LoadVarRef(this, scope, pos));
+	}
+	
+	public CodeBlock STORELOCREF(int pos) {
+		return add(new StoreLocRef(this, pos));
+	}
+	
+	public CodeBlock STOREVARREF(int scope, int pos) {
+		return add(new StoreVarRef(this, scope, pos));
+	}
+	
+	public CodeBlock LOADCONSTR(String name) {
+		return add(new LoadConstr(this, name));
+	}
+	
+	public CodeBlock CALLCONSTR(String name) {
+		return add(new CallConstr(this, name));
+	}
+	
+	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
 		this.functionMap = codeMap;
+		this.constructorMap = constructorMap;
 		int codeSize = pc;
 		pc = 0;
 		finalCode = new int[codeSize];

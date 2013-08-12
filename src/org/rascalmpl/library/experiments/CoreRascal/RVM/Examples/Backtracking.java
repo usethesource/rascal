@@ -20,9 +20,9 @@ public class Backtracking {
 		 */
 		rvm.declare(new Function("TRUE", 0, 0, 0, 6,
 				new CodeBlock(vf)
-				.loadcon(true)
-				.ret1()
-				.halt()
+				.LOADCON(true)
+				.RETURN1()
+				.HALT()
 				));
 		
 		/* 
@@ -31,9 +31,9 @@ public class Backtracking {
 		
 		rvm.declare(new Function("FALSE", 0, 0, 0, 6,
 				new CodeBlock(vf)
-				.loadcon(false)
-				.ret1()	
-				.halt()
+				.LOADCON(false)
+				.RETURN1()	
+				.HALT()
 				));
 		/* 
 		 * and_b_b(lhs, rhs) {
@@ -55,36 +55,36 @@ public class Backtracking {
 		
 		rvm.declare(new Function("and_b_b", 0, 2, 2, 10,
 				new CodeBlock(vf)
-				.loadloc(0)
-				.createdyn()
-				.loadloc(0)
-				.init()
+				.LOADLOC(0)
+				.CREATEDYN()
+				.LOADLOC(0)
+				.INIT()
 				
-			.label("WHILE1")
-				.loadloc(0)
-				.hasNext()
-				.jmptrue("BODY1")
-				.loadcon(false)
-				.ret1()
-			.label("BODY1")
-				.loadloc(0)
-				.next0()
-				.jmpfalse("WHILE1")
-				.loadloc(1)
-				.createdyn()
-				.loadloc(1)
-				.init()
+			.LABEL("WHILE1")
+				.LOADLOC(0)
+				.HASNEXT()
+				.JMPTRUE("BODY1")
+				.LOADCON(false)
+				.RETURN1()
+			.LABEL("BODY1")
+				.LOADLOC(0)
+				.NEXT0()
+				.JMPFALSE("WHILE1")
+				.LOADLOC(1)
+				.CREATEDYN()
+				.LOADLOC(1)
+				.INIT()
 				
-			.label("WHILE2")
-				.loadloc(1)
-				.hasNext()
-				.jmpfalse("WHILE1")
-				.loadloc(1)
-				.next0()
-				.jmpfalse("WHILE2")
-				.loadcon(true)
-				.yield1()
-				.jmp("WHILE2")
+			.LABEL("WHILE2")
+				.LOADLOC(1)
+				.HASNEXT()
+				.JMPFALSE("WHILE1")
+				.LOADLOC(1)
+				.NEXT0()
+				.JMPFALSE("WHILE2")
+				.LOADCON(true)
+				.YIELD1()
+				.JMP("WHILE2")
 		));
 		
 		/* 
@@ -95,10 +95,10 @@ public class Backtracking {
 		
 		rvm.declare(new Function("and_b_b", 0, 2, 2, 10,
 				new CodeBlock(vf)
-				.loadloc(0)
-				.loadloc(1)
-				.callprim(Primitive.and_bool_bool)
-				.ret1()
+				.LOADLOC(0)
+				.LOADLOC(1)
+				.CALLPRIM(Primitive.and_bool_bool)
+				.RETURN1()
 				));
 		
 		/* 
@@ -118,29 +118,29 @@ public class Backtracking {
 		
 		rvm.declare(new Function("and_b_b", 0, 2, 2, 10,
 				new CodeBlock(vf)
-				.loadloc(0)
-				.jmptrue("L")
+				.LOADLOC(0)
+				.JMPTRUE("L")
 				
-			.label("RETURN")
-				.loadcon(false)
-				.ret1()
+			.LABEL("RETURN")
+				.LOADCON(false)
+				.RETURN1()
 				
-			.label("L")
-				.loadloc(1)
-				.createdyn()
-				.loadloc(1)
-				.init()
+			.LABEL("L")
+				.LOADLOC(1)
+				.CREATEDYN()
+				.LOADLOC(1)
+				.INIT()
 				
-			.label("WHILE")
-				.loadloc(1)
-				.hasNext()
-				.jmpfalse("RETURN")
-				.loadloc(1)
-				.next0()
-				.jmpfalse("RETURN")
-				.loadcon(true)
-				.yield1()
-				.jmp("WHILE")
+			.LABEL("WHILE")
+				.LOADLOC(1)
+				.HASNEXT()
+				.JMPFALSE("RETURN")
+				.LOADLOC(1)
+				.NEXT0()
+				.JMPFALSE("RETURN")
+				.LOADCON(true)
+				.YIELD1()
+				.JMP("WHILE")
 		));
 		
 		/* 
@@ -160,29 +160,29 @@ public class Backtracking {
 		
 		rvm.declare(new Function("and_b_n", 0, 2, 2, 10,
 				new CodeBlock(vf)
-				.loadloc(0)
-				.jmptrue("L")
+				.LOADLOC(0)
+				.JMPTRUE("L")
 				
-			.label("RETURN")
-				.loadcon(false)
-				.ret1()
+			.LABEL("RETURN")
+				.LOADCON(false)
+				.RETURN1()
 				
-			.label("L")
-				.loadloc(1)
-				.createdyn()
-				.loadloc(1)
-				.init()
+			.LABEL("L")
+				.LOADLOC(1)
+				.CREATEDYN()
+				.LOADLOC(1)
+				.INIT()
 				
-			.label("WHILE")
-				.loadloc(0)
-				.hasNext()
-				.jmpfalse("RETURN")
-				.loadloc(0)
-				.next0()
-				.jmpfalse("RETURN")
-				.loadcon(true)
-				.yield1()
-				.jmp("WHILE")
+			.LABEL("WHILE")
+				.LOADLOC(0)
+				.HASNEXT()
+				.JMPFALSE("RETURN")
+				.LOADLOC(0)
+				.NEXT0()
+				.JMPFALSE("RETURN")
+				.LOADCON(true)
+				.YIELD1()
+				.JMP("WHILE")
 		));
 		
 		
@@ -198,25 +198,25 @@ public class Backtracking {
 		
 		rvm.declare(new Function("main", 0, 0, 3, 10,
 					new CodeBlock(vf)
-						.create("TRUE")
-						.storeloc(0)
-						.loadloc(0)
-						.init()
+						.CREATE("TRUE")
+						.STORELOC(0)
+						.LOADLOC(0)
+						.INIT()
 						
-						.create("FALSE")
-						.storeloc(1)
-						.loadloc(1)
-						.init()
+						.CREATE("FALSE")
+						.STORELOC(1)
+						.LOADLOC(1)
+						.INIT()
 						
-						.create("and_b_b")
-						.storeloc(2)
-						.loadloc(0)
-						.loadloc(1)
-						.loadloc(2)
-						.init()
-						.loadloc(2)
-						.next0()
-						.halt()
+						.CREATE("and_b_b")
+						.STORELOC(2)
+						.LOADLOC(0)
+						.LOADLOC(1)
+						.LOADLOC(2)
+						.INIT()
+						.LOADLOC(2)
+						.NEXT0()
+						.HALT()
 		));
 	
 		rvm.executeProgram("main", new IValue[] {});
