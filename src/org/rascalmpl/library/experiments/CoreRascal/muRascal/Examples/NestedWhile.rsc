@@ -9,10 +9,10 @@ import experiments::CoreRascal::muRascal::mu2rvm;
 list[MuFunction] functions = [
 
 muFunction("main", 1, 1, 3, 
-	[	muNote("At start of main"),				
+	[	muCallPrim("println", muCon("At start of main")),				
 		muAssign("i", 1, 1, muCon(0)),
 		muWhile(muCallPrim("less_num_num", muVar("i", 1, 1), muCon(3)),
-			[ muNote("Enter outer while body"),
+			[ muCallPrim("println", muCon("Enter outer while body")),
 			  muAssign("j", 1, 2, muCon(0)),
 			  muWhile(muCallPrim("less_num_num", muVar("j", 1, 2), muCon(4)),
 			  [ //muNote("Enter inner while body"),

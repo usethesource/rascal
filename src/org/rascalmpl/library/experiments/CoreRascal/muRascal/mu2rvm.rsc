@@ -74,9 +74,7 @@ INS tr(muFun(str name)) = [LOADFUN(name)];
 
 INS tr(muVar(str id, int scope, int pos)) = [scope == functionScope ? LOADLOC(pos) : LOADVAR(scope, pos)];
 
-INS tr(muNote(str txt)) = [ NOTE(txt) ];
-
-Instruction mkCall(str name) = (name in {"println"}) ? CALLPRIM(name) : CALL(name); 
+Instruction mkCall(str name) = CALL(name); 
 
 INS tr(muCall(str fname, list[MuExp] args)) = [*tr(args), CALL(fname)];
 
@@ -84,7 +82,7 @@ INS tr(muCall(MuExp fun, list[MuExp] args)) =
 	muVar(str name, 0, pos) := fun ? [*tr(args), mkCall(name)]
 							       : [*tr(args), *tr(fun), CALLDYN()];
 
-INS tr(muCallPrim(str name, MuExp arg)) = [*tr(arg), CALLPRIM(name)];
+INS tr(muCallPrim(str name, MuExp arg)) = (name == "println") ? [*tr(arg), PRINTLN()] : [*tr(arg), CALLPRIM(name)];
 
 INS tr(muCallPrim(str name, MuExp arg1, MuExp arg2)) = [*tr(arg1), *tr(arg2), CALLPRIM(name)];
 
@@ -92,22 +90,22 @@ INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), scope == fu
 
 INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
     lab_else = nextLabel();
-    lab_after = nextLabel();		// Stack effect after instruction
-    return [ *tr(cond),				// +1 
-             JMPFALSE(lab_else),	// +0 
-             *trblock(thenPart),	// +1 
-             JMP(lab_after), 		// +1
-             LABEL(lab_else),		// +0
-             *trblock(elsePart),	// +1
+    lab_after = nextLabel();		
+    return [ *tr_cond(cond), 
+             JMPFALSE(lab_else),
+             *trblock(thenPart), 
+             JMP(lab_after), 
+             LABEL(lab_else),
+             *trblock(elsePart),
              LABEL(lab_after)
             ];
 }
 
-INS tr(muWhile(MuExp cond, list[MuExp] body)) {
+default INS tr(muWhile(MuExp cond, list[MuExp] body)) {
     lab_while = nextLabel();
     lab_after = nextLabel();
     return [LABEL(lab_while),
-    		*tr(cond), 	 	
+    		*tr_cond(cond), 	 	
     		JMPFALSE(lab_after),				
     		*trvoidblock(body),			
     		JMP(lab_while),
@@ -137,21 +135,14 @@ bool producesValue(muNote(str txt)) = false;
 bool producesValue(muWhile(MuExp cond, list[MuExp] body)) = false;
 default bool producesValue(MuExp exp) = true;
 
-// Experiment:
-/*
-INS tr(uni(MuExp exp)) = tr(exp);
-INS tr(multi(MuExp exp), INS body) {
-    lab_retry = nextLabel();
+// Translate a condition. 
+
+INS tr_cond(muMulti(MuExp exp), INS body) {
     [ *tr(exp), 
        CREATEDYN(),
        INIT(),
-       LABEL(lab_retry),
-       *body,
-       JMP(lab_retry)
-       
-       
+       NEXT()
     ];
-    
 }
 
-*/
+default INS tr_cond(MuExp exp) = tr(exp);

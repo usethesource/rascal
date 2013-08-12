@@ -31,7 +31,7 @@ data Instruction =
 		| INIT()
 		| CREATEDYN()
 		| HASNEXT()
-		| NOTE(str txt)
+		| PRINTLN()
 		| RETURN0()
 		| LOADCONREF(int pos)
 		| LOADLOCREF(int pos)
