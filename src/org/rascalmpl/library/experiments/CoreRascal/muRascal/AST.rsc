@@ -39,7 +39,8 @@ public data MuExp =
 			
             muCon(value c)										// Constant: an arbitrary IValue
           | muLab(str name)										// Label
-          | muFun(str name)										// Function constant, truned into closure
+          | muFun(str name)										// Function constant: functions at the root
+          | muFun(str name, int scope)                          // Function constant: nested functions and closures
           | muConstr(str name) 									// Constructors
           
           	// Variables
