@@ -25,7 +25,7 @@ public class CountDown_c {
 		 * 		return 0; 
 		 * }
 		 */
-		rvm.declare(new Function("g", 0, 2, 2, 6,
+		rvm.declare(new Function("g", 1, 2, 2, 6,
 					new CodeBlock(vf)
 							.LABEL("LOOP")
 							.LOADLOC(0)
@@ -70,7 +70,7 @@ public class CountDown_c {
 		 * 			5 + 12 = 17
 		 *          15
 		 */
-		rvm.declare(new Function("main", 0, 1, 4, 10,
+		rvm.declare(new Function("main", 2, 1, 4, 10,
 					new CodeBlock(vf)
 						.CREATE("g")
 						.STORELOC(1)

@@ -167,7 +167,9 @@ list[MuExp] translate((Expression) `<BooleanLiteral b>`) = translate(b);
 list[MuExp] translate((IntegerLiteral) `<IntegerLiteral n>`) = [muCon(toInt("<n>"))];
 list[MuExp] translate((Expression) `<IntegerLiteral n>`) = translate(n);
  
+
 list[MuExp] translate((StringLiteral) `<StringLiteral s>`) = [ muCon("<s>") ];
+
 list[MuExp] translate((Expression) `<StringLiteral s>`) = translate(s);
 
 list[MuExp] translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) { throw("any"); }

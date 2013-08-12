@@ -23,7 +23,7 @@ public enum Opcode {
 	HALT (12, 1),
 	POP (13, 1),
 	CALLDYN(14,1),
-	LOADFUN(15,2),
+	LOADFUN(15,2), // TODO: to be renamed to LOAD_ROOT_FUN
 	CREATE(16,2),
 	NEXT0(17,1),
 	NEXT1(18,1),
@@ -41,7 +41,8 @@ public enum Opcode {
 	STORELOCREF(30,2),
 	STOREVARREF(31,3),
 	LOADCONSTR(32,2),
-	CALLCONSTR(33,2) // TODO: plus number of formal parameters
+	CALLCONSTR(33,2), // TODO: plus number of formal parameters
+	LOAD_NESTED_FUN(34, 3)
 	;
 	
 	private final int op;
@@ -90,6 +91,7 @@ public enum Opcode {
 	static public final int OP_STOREVARREF = 31;
 	static public final int OP_LOADCONSTR = 32;
 	static public final int OP_CALLCONSTR = 33;
+	static public final int OP_LOAD_NESTED_FUN = 34;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -208,6 +210,9 @@ public enum Opcode {
 		case CALLCONSTR:
 			return "CALLCONSTR " + cb.finalCode[pc + 1];
 		
+		case LOAD_NESTED_FUN:
+			return "LOAD_NESTED_FUN " + cb.finalCode[pc + 1] + cb.finalCode[pc + 2];
+			
 		default:
 			break;
 		}	
