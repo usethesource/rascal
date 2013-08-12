@@ -23,8 +23,8 @@ public class Function {
 		this.codeblock = codeblock;
 	}
 	
-	public void  codegen(Map<String, Integer> codeMap, boolean listing){
-		codeblock.done(name, codeMap, listing);
+	public void  finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
+		codeblock.done(name, codeMap, constructorMap, listing);
 		this.constantStore = codeblock.getConstants();
 	}
 }

@@ -1,7 +1,6 @@
 @bootstrapParser
 module experiments::CoreRascal::Translation::RascalModule
 
-import experiments::CoreRascal::ReductionWithEvalCtx::AST;
 import lang::rascal::\syntax::Rascal;
 import Prelude;
 import util::Reflective;
@@ -19,73 +18,81 @@ list[loc] libSearchPath = [|std:///|, |eclipse-std:///|];
 
 loc Example1 = |std:///experiments/CoreRascal/Translation/Examples/Example1.rsc|;
 
-//map[str name, MuDeclaration] functions;
+list[MuFunction] functions_in_module = [];
+list[MuVariable] variables_in_module = [];
+list[MuExp] variable_initializations = [];
 
-MuModule compile(){
+MuModule r2mu(loc moduleLoc){
    try {
-   	Module M = parseModule(Example1, libSearchPath);
+   	Module M = parseModule(moduleLoc, libSearchPath);
+   	//iprint(M);
    	config = checkModule(M.top, newConfiguration());  // .top is needed to remove start! Ugly!
    	//text(config);
    	extractScopes();
    	errors = [ e | e:error(_,_) <- config.messages];
    	if(size(errors) > 0)
-   	  println("Module contains errors:\n<for(e <- errors){><e>\n<}>");
+   	  throw "Module contains errors:\n<for(e <- errors){><e>\n<}>";
    	else {
-   	  println("GENERATED:");
-   	  defs = translate(M.top);
-   	  return muModule("XXX", defs, empty());
+   	  functions_in_module = [];
+   	  variables_in_module = [];
+   	  variable_initializations = [];
+   	  translate(M.top);
+   	  return muModule("<M.top.header.name>", [], functions_in_module, variables_in_module, variable_initializations);
    	  }
    	} catch Java("ParseError","Parse error"): {
-   	    println("Syntax errors in module <Example1>");
+   	    throw "Syntax errors in module <Example1>";
    	} 
 }
 
-list[MuDefinition] translate(m: (Module) `<Header header> <Body body>`) =
-    [ *translate(tl) | tl <- body.toplevels];
-  
-list[MuDefinition] translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
+void translate(m: (Module) `<Header header> <Body body>`) {
+	for( tl <- body.toplevels) translate(tl);
+}
+	
+void translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
 
 // Toplevel Declaration: variable
 
-list[MuExp] translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
-	return
-   		for(var <- variables){
-   			if(var is initialized) 
-   				append mkAssign("<var.name>",var@\loc, translate(var.initial));
-   		}
+void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
+   	for(var <- variables){
+   		variables_in_module += [muVariable("<var.name>")];
+   		if(var is initialized) 
+   		   variable_initializations +=  mkAssign("<var.name>", var@\loc, translate(var.initial)[0]);
+   	}
 }   	
 
-str translate(d: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`) { throw("annotation"); }
-str translate(d: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType user> = <Type base> ;`)   { throw("alias"); }
-str translate(d: (Declaration) `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+ types> ;`)  { throw("tag"); }
-str translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> ;`)  { throw("dataAbstract"); }
+void translate(d: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`) { throw("annotation"); }
+void translate(d: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType user> = <Type base> ;`)   { throw("alias"); }
+void translate(d: (Declaration) `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+ types> ;`)  { throw("tag"); }
+void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> ;`)  { throw("dataAbstract"); }
 /*
 	| @Foldable \data : Tags tags Visibility visibility "data" UserType user CommonKeywordParameters commonKeywordParameters"=" {Variant "|"}+ variants ";"
 */
 
-list[MuDefinition] translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = translate(functionDeclaration);
+void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = translate(functionDeclaration);
 
 // FunctionDeclaration
 
-str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   { throw("abstract"); }
+void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   { throw("abstract"); }
 
-list[MuDefinition] translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
+void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
   ftypes = getFunctionType("<signature.name>");
   if({ ftype } := ftypes){
 	  formals = signature.parameters.formals.formals;
 	  lformals = [f | f <- formals];
-	  return [fun("<signature.name>", size(lformals), 0, translate(expression))];
+	  scope = getFunctionScope("<signature.name>");
+	  functions_in_module += [muFunction("<signature.name>", scope, size(lformals), getScopeSize(scope), [muReturn(translate(expression)[0])])];
   } else
       throw "overloaded function <signature.name>: <ftypes>";
 }
 
-str translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
+void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
   ftypes = getFunctionType("<signature.name>");
   if({ ftype } := ftypes){
 	  formals = signature.parameters.formals.formals;
 	  lformals = [f | f <- formals];
-	  tbody = [translate(stat) | stat <- body.statements ];
-	  return MuDeclaration(signature.name, size(lformals), 0, tbody);
+	  tbody = [*translate(stat) | stat <- body.statements ];
+	  scope = getFunctionScope("<signature.name>");
+	  functions_in_module += [muFunction("<signature.name>", scope, size(lformals), getScopeSize(scope), tbody)];
   } else
       throw "overloaded function <signature.name>: <ftypes>"; 
 }

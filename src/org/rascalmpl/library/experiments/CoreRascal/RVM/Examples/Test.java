@@ -14,13 +14,20 @@ public class Test {
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory vf = rvm.vf;
 		
-		rvm.declare(new Function("main", 0, 0, 0, 6,
+		rvm.declare(new Function("main", 0, 1, 1, 6,
 					new CodeBlock(vf).
-						loadcon(3).
-						loadcon("abc").
-						print("A Message: $0!").
-						halt()));
+						LOADCON(3).
+						LOADCON("abc").
+						PRINTLN().
+						HALT()));
 	
+		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+				new CodeBlock(vf)
+					.LOADLOC(0)
+					.CALL("main")
+					.RETURN1()
+					.HALT()));
+		
 		rvm.executeProgram("main", new IValue[] {});
 	}
 
