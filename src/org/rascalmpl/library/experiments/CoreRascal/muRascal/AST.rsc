@@ -11,7 +11,7 @@ import Prelude;
 // All information related to one Rascal module
 
 public data MuModule =											
-            muModule(str name, list[MuType] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initialization);
+            muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initialization);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -28,9 +28,9 @@ public data MuVariable =
           
 // A declared Rascal type
           
-public data MuType =
-            muType(list[Symbol] symbols)  
-          ;
+//public data MuType =
+//            muType(list[Symbol] symbols)  
+//          ;
 
 // All executable Rascal code is tranlated to the following muExps.
           

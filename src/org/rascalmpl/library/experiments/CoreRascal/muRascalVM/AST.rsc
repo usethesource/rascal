@@ -1,10 +1,12 @@
 module experiments::CoreRascal::muRascalVM::AST
 
+import Type;
+
 public data Declaration = 
 		  FUNCTION(str name, int scope, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
 		;
 
-public data RVMProgram = rvm(map[str, Declaration] declarations, list[Instruction] instructions);
+public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions);
 
 data Instruction =
 	   	  LOADCON(value val)

@@ -36,8 +36,9 @@ MuModule r2mu(loc moduleLoc){
    	  functions_in_module = [];
    	  variables_in_module = [];
    	  variable_initializations = [];
+   	  list[Symbol] types = [ \type | int uid <- config.store, constructor(name, Symbol \type, containedIn, at) := config.store[uid] ];
    	  translate(M.top);
-   	  return muModule("<M.top.header.name>", [], functions_in_module, variables_in_module, variable_initializations);
+   	  return muModule("<M.top.header.name>", types, functions_in_module, variables_in_module, variable_initializations);
    	  }
    	} catch Java("ParseError","Parse error"): {
    	    throw "Syntax errors in module <Example1>";

@@ -18,7 +18,7 @@ int functionScope = 0;
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str name, _, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
+RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
   funMap = ();
   nLabel = -1;
   for(fun <- functions){
@@ -33,7 +33,7 @@ RVMProgram mu2rvm(muModule(str name, _, list[MuFunction] functions, list[MuVaria
   									 RETURN1(),
   									 HALT()
   									]));
-  return rvm(funMap, []);
+  return rvm(types, funMap, []);
 }
 
 
