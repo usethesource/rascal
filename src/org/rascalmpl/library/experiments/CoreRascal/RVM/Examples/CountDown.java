@@ -24,7 +24,7 @@ public class CountDown {
 		 * 		return 0; 
 		 * }
 		 */
-		rvm.declare(new Function("g", 0, 1, 1, 6,
+		rvm.declare(new Function("g", 1, 1, 1, 6,
 					new CodeBlock(vf)
 							.LABEL("LOOP")
 							.LOADLOC(0)
@@ -52,7 +52,7 @@ public class CountDown {
 		/*
 		 * result: 23
 		 */
-		rvm.declare(new Function("main", 0, 1, 2, 6,
+		rvm.declare(new Function("main", 2, 1, 2, 6,
 					new CodeBlock(vf)
 						.CREATE("g")
 						.STORELOC(1)
