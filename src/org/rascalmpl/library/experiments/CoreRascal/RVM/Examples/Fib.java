@@ -48,9 +48,9 @@ public static void main(String[] args) {
 					CALLPRIM(Primitive.addition_num_num).
 					RETURN1()));
 					
-		rvm.declare(new Function("main", 0, 1, 1, 6,
+		rvm.declare(new Function("main", 2, 1, 1, 6,
 					new CodeBlock(vf).
-						LOADCON(35).
+						LOADCON(10).
 						CALL("fib").
 						HALT()));
 		
@@ -68,7 +68,7 @@ public static void main(String[] args) {
 		System.out.println("RVM: average elapsed time in msecs:" + (now - start));
 		
 		start = System.currentTimeMillis();
-		int r = fib(35);
+		int r = fib(10);
 		System.out.println("Result: " + r);
 		now = System.currentTimeMillis();
 		System.out.println("JAVA: average elapsed time in msecs:" + (now - start));
