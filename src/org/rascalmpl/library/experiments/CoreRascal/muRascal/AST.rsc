@@ -55,8 +55,9 @@ public data MuExp =
           | muCall(MuExp fun, list[MuExp] args)					// Call a function
           | muCall(str fname, list[MuExp] args)					// Call a named function: usually from the muRascal runtime library
           | muCallConstr(str cname, list[MuExp] args) 			// Call a constructor
-          | muCallPrim(str name, MuExp exp1)					// Call aprimitive function with one argument
+          | muCallPrim(str name, MuExp exp1)					// Call a primitive function with one argument TODO: REDUCE THESE
           | muCallPrim(str name, MuExp exp1, MuExp exp2)		// Call a primitive function with two arguments
+          | muCallPrim(str name, list[MuExp] exps)				// Call a primitive function with two arguments
           | muReturn()											// Return from function without value
           | muReturn(MuExp exp)									// Return from function with value
               
@@ -76,6 +77,7 @@ public data MuExp =
             // Coroutines
             
           | muCreate(str fname)									// Create a coroutine using a named function
+          | muCreate(str fname, list[MuExp] args)				// EXPERIMENTAL
           | muCreate(MuExp exp)									// Create a coroutine using a computed function
           
           | muInit(MuExp coro)									// Initialize a coroutine, no arguments
@@ -89,9 +91,9 @@ public data MuExp =
           | muYield()											// Yield from coroutine, without value
           | muYield(MuExp exp)									// Yield from coroutine, with value
           
-            // Multi-expressions
+           // Multi-expressions
             
-          | muMulti(MuExp exp)									// Expression that can produce multiple values
+          | muMulti(MuExp exp)		 					// Expression that can produce multiple values
           
           	// Miscellaneous
        
