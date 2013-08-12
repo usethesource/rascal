@@ -36,9 +36,7 @@ public class Execute {
 	public ITuple executeProgram(IConstructor program, IBool debug,
 			IInteger repeat, IEvaluatorContext ctx) {
 		String func = "main";
-		RVM rvm = new RVM(vf);
-		rvm.setStdOut(ctx.getStdOut());
-		rvm.setDebug(debug.getValue());
+		RVM rvm = new RVM(vf, ctx.getStdOut(), debug.getValue());
 
 		IMap declarations = (IMap) program.get("declarations");
 
@@ -157,8 +155,8 @@ public class Execute {
 						codeblock.HASNEXT();
 						break;
 						
-					case "NOTE":
-						codeblock.NOTE(getStrField(instruction, "txt"));
+					case "PRINTLN":
+						codeblock.PRINTLN();
 						break;
 						
 					case "POP":

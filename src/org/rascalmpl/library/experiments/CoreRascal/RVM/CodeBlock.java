@@ -33,7 +33,7 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Opcode;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Pop;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Next1;
-import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Note;
+import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Println;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return0;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Return1;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Instructions.Init;
@@ -272,8 +272,8 @@ public class CodeBlock {
 		return add(new HasNext(this));
 	}
 	
-	public CodeBlock NOTE(String txt){
-		return add(new Note(this, getConstantIndex(vf.string(txt))));
+	public CodeBlock PRINTLN(){
+		return add(new Println(this));
 	}
     
 	public CodeBlock LOADLOCASREF(int pos) {

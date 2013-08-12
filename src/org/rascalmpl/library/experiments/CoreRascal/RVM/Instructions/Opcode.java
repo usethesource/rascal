@@ -32,7 +32,7 @@ public enum Opcode {
 	INIT(21,1),
 	CREATEDYN(22,1),
 	HASNEXT(23,1),
-	NOTE(24,2),
+	PRINTLN(24,1),
 	RETURN0(25,1),
 	LOADLOC_AS_REF(26,2),
 	LOADVAR_AS_REF(27,3),
@@ -80,7 +80,7 @@ public enum Opcode {
 	static public final int OP_INIT = 21;
 	static public final int OP_CREATEDYN = 22;
 	static public final int OP_HASNEXT = 23;
-	static public final int OP_NOTE = 24;
+	static public final int OP_PRINTLN = 24;
 	static public final int OP_RETURN0 = 25;
 	static public final int OP_LOADLOC_AS_REF = 26;
 	static public final int OP_LOADVAR_AS_REF = 27;
@@ -178,8 +178,8 @@ public enum Opcode {
 		case HASNEXT:
 			return "HASNEXT";
 			
-		case NOTE:
-			return "NOTE " + cb.finalCode[pc + 1]  + " [" + cb.getConstantValue(cb.finalCode[pc + 1]) + "]";
+		case PRINTLN:
+			return "PRINTLN";
 		
 		case RETURN0:
 			return "RETURN0";

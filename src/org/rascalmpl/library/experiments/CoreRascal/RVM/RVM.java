@@ -22,8 +22,8 @@ public class RVM {
 	public final IValueFactory vf;
 	private final IBool TRUE;
 	private final IBool FALSE;
-	private  boolean debug = true;
-	private  boolean listing = false;
+	private boolean debug = true;
+	private boolean listing = false;
 	
 	private final ArrayList<Function> functionStore;
 	private final Map<String, Integer> functionMap;
@@ -34,13 +34,17 @@ public class RVM {
 	
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
+	private PrintWriter stdout;
 
-	public RVM(IValueFactory vf) {
+	public RVM(IValueFactory vf, PrintWriter stdout, boolean debug) {
 		super();
 
 		this.vf = vf;
+		this.stdout = stdout;		
+		this.debug = debug;
+		
 		this.types = new Types(this.vf);
-		//stdout = new PrintWriter(System.out, true);
+		
 		TRUE = vf.bool(true);
 		FALSE = vf.bool(false);
 		functionStore = new ArrayList<Function>();
@@ -52,16 +56,8 @@ public class RVM {
 		Primitive.init(vf);
 	}
 	
-	public void setStdOut(PrintWriter stdout){
-		//this.stdout = stdout;
-	}
-	
-	public void setDebug(boolean b){
-		debug = b;
-	}
-	
-	public void setListing(boolean b){
-		listing = b;
+	public RVM(IValueFactory vf){
+		this(vf, new PrintWriter(System.out, true), false);
 	}
 	
 	public void declare(Function f){
@@ -132,9 +128,9 @@ public class RVM {
 				if (debug) {
 					int startpc = pc - 1;
 					for (int i = 0; i < sp; i++) {
-						System.out.println("\t" + i + ": " + stack[i]);
+						stdout.println("\t" + i + ": " + stack[i]);
 					}
-					System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
 
 
@@ -311,15 +307,15 @@ public class RVM {
 
 				case Opcode.OP_HALT:
 					if (debug) {
-						System.out.println("Program halted:");
+						stdout.println("Program halted:");
 						for (int i = 0; i < sp; i++) {
-							System.out.println(i + ": " + stack[i]);
+							stdout.println(i + ": " + stack[i]);
 						}
 					}
 					return stack[sp - 1];
 
-				case Opcode.OP_NOTE:
-					System.out.println(((IString) cf.function.constantStore[instructions[pc++]]).getValue());
+				case Opcode.OP_PRINTLN:
+					stdout.println(((IString) stack[sp - 1]).getValue());
 					continue;
 					
 				case Opcode.OP_CALLPRIM:
@@ -439,7 +435,7 @@ public class RVM {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("PANIC: exception caused by invoking a primitive or illegal instruction sequence");
+			stdout.println("PANIC: exception caused by invoking a primitive or illegal instruction sequence");
 			e.printStackTrace();
 		}
 		return FALSE;

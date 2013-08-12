@@ -277,23 +277,18 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`)  { t
 
 list[MuExp] translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`)  { throw("noMatch"); }
 
-list[MuExp] translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = translateBool(e)  + ".start().resume()";
+list[MuExp] translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = translateBool(e);
 
 list[MuExp] translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`)     { throw("enumerator"); }
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`)  = translateBool(e) + ".start().resume()";
+list[MuExp] translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`)  = translateBool(e);
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`)  = translateBool(e) + ".start().resume()";
+list[MuExp] translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`)  = translateBool(e);
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> && <Expression rhs>`)  = translateBool(e);  //+ ".start().resume()";
+list[MuExp] translate(e:(Expression) `<Expression lhs> && <Expression rhs>`)  = translateBool(e);
  
 list[MuExp] translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = 
-    backtrackFree(condition) ?  [ muIfelse(translate(condition)[0],
-    								   translate(thenExp)[0],
-    								   translate(elseExp)[0]) ]
-    					     :  [ muIfelse(next(init(translateBool(condition))),
-    					     		   translate(thenExp)[0],
-    								   translate(elseExp)[0]) ];  
+    [ muIfelse(translateBool(condition)[0], translate(thenExp)[0],  translate(elseExp)[0]) ]; 
 
 default list[MuExp] translate(Expression e) = "\<\<MISSING CASE FOR EXPRESSION: <e>";
 
@@ -305,7 +300,9 @@ default list[MuExp] translate(Expression e) = "\<\<MISSING CASE FOR EXPRESSION: 
 // Utilities for boolean operators
  
 // Is an expression free of backtracking? 
+
 bool backtrackFree(e:(Expression) `<Pattern pat> := <Expression exp>`) = false;
+
 default bool backtrackFree(Expression e) = true;
 
 // Get all variables that are introduced by a pattern.

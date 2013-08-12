@@ -18,7 +18,7 @@ public class Test {
 					new CodeBlock(vf).
 						LOADCON(3).
 						LOADCON("abc").
-						NOTE("here is a note").
+						PRINTLN().
 						HALT()));
 	
 		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
