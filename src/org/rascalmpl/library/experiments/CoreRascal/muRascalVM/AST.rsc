@@ -36,8 +36,11 @@ data Instruction =
 		| HASNEXT()
 		| PRINTLN()
 		| RETURN0()
-		| LOADCONREF(int pos)
+		| LOADLOC_AS_REF(int pos)
+		| LOADVAR_AS_REF(int scope, int pos)
 		| LOADLOCREF(int pos)
+		| LOADVARREF(int scope, int pos)
 		| STORELOCREF(int pos)
+		| STOREVARREF(int scope, int pos)
 		;
 	
