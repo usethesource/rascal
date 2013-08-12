@@ -161,13 +161,13 @@ list[MuExp] translate(e:(Expression) `<Expression expression> ( <{Expression ","
 }
 
 // literals
-list[MuExp] translate((BooleanLiteral) `<BooleanLiteral b>`) = [ "<b>" == "true" ? muConstant(true) : muConstant(false) ];
+list[MuExp] translate((BooleanLiteral) `<BooleanLiteral b>`) = [ "<b>" == "true" ? muCon(true) : muCon(false) ];
 list[MuExp] translate((Expression) `<BooleanLiteral b>`) = translate(b);
  
-list[MuExp] translate((IntegerLiteral) `<IntegerLiteral n>`) = [muConstant(toInt("<n>"))];
+list[MuExp] translate((IntegerLiteral) `<IntegerLiteral n>`) = [muCon(toInt("<n>"))];
 list[MuExp] translate((Expression) `<IntegerLiteral n>`) = translate(n);
  
-list[MuExp] translate((StringLiteral) `<StringLiteral s>`) = [ muConstant(s) ];
+list[MuExp] translate((StringLiteral) `<StringLiteral s>`) = [ muCon(s) ];
 list[MuExp] translate((Expression) `<StringLiteral s>`) = translate(s);
 
 list[MuExp] translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) { throw("any"); }
