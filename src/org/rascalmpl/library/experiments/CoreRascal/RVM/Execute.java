@@ -197,6 +197,11 @@ public class Execute {
 						
 					case "LOADCONSTR":
 						codeblock.LOADCONSTR(getStrField(instruction, "name"));
+						break;
+						
+					case "CALLCONSTR":
+						codeblock.CALLCONSTR(getStrField(instruction, "name"));
+						break;
 						
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
