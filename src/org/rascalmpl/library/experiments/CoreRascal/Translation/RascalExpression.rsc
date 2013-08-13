@@ -56,7 +56,12 @@ tuple[int,int] getVariableScope(str name) = uid2addr[config.fcvEnv[RSimpleName(n
 MuExp mkVar(str name, loc l) {
   //println("mkVar: <name>");
   //println("l = <l>,\nloc2uid = <loc2uid>");
+  
   tuple[int scope, int pos] addr = uid2addr[loc2uid[l]];
+  
+  res = "<name>::<addr.scope>::<addr.pos>";
+  println("mkVar: <name> =\> <res>; isFun: <loc2uid[l] in functionScopes>; isConstr: <loc2uid[l] in constructorScopes>");
+  
   if(loc2uid[l] in functionScopes) {
   	// distinguishes between root and nested scopes
   	return (addr.scope == 0) ? muFun(name) : muFun(name, addr.scope);
@@ -64,8 +69,6 @@ MuExp mkVar(str name, loc l) {
   if(loc2uid[l] in constructorScopes) {
   	return muConstr(name);
   }
-  res = "<name>::<addr.scope>::<addr.pos>";
-  //println("mkVar: <name> =\> <res>");
   return muVar(name, addr.scope, addr.pos);
 }
 
@@ -73,7 +76,7 @@ MuExp mkVar(str name, loc l) {
 /* */
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
-  println("mkVar: <name>");
+  println("mkAssign: <name>");
   println("l = <l>,\nloc2uid = <loc2uid>");
   addr = uid2addr[loc2uid[l]];
   res = "<name>::<addr[0]>::<addr[1]>";
@@ -318,7 +321,7 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`)
 list[MuExp] translate(e:(Expression) `<Expression lhs> && <Expression rhs>`)  = translateBool(e);
  
 list[MuExp] translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = 
-    [ muIfelse(translateBool(condition)[0], translate(thenExp)[0],  translate(elseExp)[0]) ]; 
+    [ muIfelse(translate(condition)[0], translate(thenExp),  translate(elseExp)) ]; 
 
 default list[MuExp] translate(Expression e) = "\<\<MISSING CASE FOR EXPRESSION: <e>";
 
