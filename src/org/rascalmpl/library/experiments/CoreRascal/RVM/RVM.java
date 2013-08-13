@@ -163,6 +163,9 @@ public class RVM {
 					throw new RuntimeException("PANIC: LOAD_NESTED_FUNCTION cannot find matching scope: " + scope);	
 				}
 				
+				case Opcode.OP_LOADCONSTR:
+					Type constructor = constructorStore.get(instructions[pc++]);
+				
 				case Opcode.OP_LOADLOC:
 				case Opcode.OP_LOADLOC_AS_REF:
 					stack[sp++] = (op == Opcode.OP_LOADLOC) ? stack[instructions[pc++]] 
@@ -265,13 +268,23 @@ public class RVM {
 
 				case Opcode.OP_LABEL:
 					throw new RuntimeException("PANIC: label instruction at runtime");
-
+				
+				case Opcode.OP_CALLCONSTR:
+					constructor = constructorStore.get(instructions[pc++]);
+					int arity = constructor.getArity();
+					args = new IValue[arity]; 
+					for(int i = 0; i < arity; i++) {
+						args[arity - 1 - i] = (IValue) stack[--sp];
+					}
+					stack[sp++] = vf.constructor(constructor, args);
+					continue;
+					
 				case Opcode.OP_CALLDYN:				
 				case Opcode.OP_CALL:			
 					// In case of CALLDYN, the stack top value of type 'Type' leads to a constructor call
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Type) {
 						Type constr = (Type) stack[--sp];
-						int arity = constr.getArity();
+						arity = constr.getArity();
 						args = new IValue[arity]; 
 						for(int i = arity - 1; i >=0; i--) {
 							args[i] = (IValue) stack[sp - arity + i];
@@ -450,20 +463,7 @@ public class RVM {
 					coroutine = (Coroutine) stack[--sp];
 					stack[sp++] = coroutine.hasNext() ? TRUE : FALSE;
 					continue;
-							
-				case Opcode.OP_LOADCONSTR:
-					Type constructor = constructorStore.get(instructions[pc++]);
-					
-				case Opcode.OP_CALLCONSTR:
-					constructor = constructorStore.get(instructions[pc++]);
-					int arity = constructor.getArity();
-					args = new IValue[arity]; 
-					for(int i = 0; i < arity; i++) {
-						args[arity - 1 - i] = (IValue) stack[--sp];
-					}
-					stack[sp++] = vf.constructor(constructor, args);
-					continue;
-				
+								
 				default:
 					throw new RuntimeException("PANIC: RVM main loop -- cannot decode instruction");
 				}
