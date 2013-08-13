@@ -126,7 +126,7 @@ public class RVM {
 				}
 				int op = instructions[pc++];
 
-				if (true) {
+				if (debug) {
 					int startpc = pc - 1;
 					for (int i = 0; i < sp; i++) {
 						stdout.println("\t" + i + ": " + stack[i]);
