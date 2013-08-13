@@ -13,7 +13,7 @@ public map[str, str] htmlEscapes = (
 
 
 str highlight2html(Tree t) 
-  = "\<pre\>\<code\><trim(highlight2htmlRec(t))>\</code\>\</pre\>";
+  = "\<pre class=\"rascal\"\>\<code\><trim(highlight2htmlRec(t))>\</code\>\</pre\>";
 
 str highlight2htmlRec(appl(prod(lit(str l), _, _), _)) = span("Keyword", l)
   when /^[a-zA-Z0-9_\-]*$/ := l;
