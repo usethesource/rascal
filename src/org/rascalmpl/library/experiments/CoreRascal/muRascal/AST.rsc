@@ -44,7 +44,7 @@ public data MuExp =
           | muConstr(str name) 									// Constructors
           
           	// Variables
-          	
+          | muLoc(str name, int pos)							// Local variable, with position in current scope
           | muVar(str id, int scope, int pos)					// Variable: retrieve its value
           | muVarRef(str id, int scope, int pos) 				// Call-by-reference: a variable that refers to a value location
           | muRefVar(str id, int scope, int pos) 				// Call-by-reference: expression that returns a value location
@@ -64,6 +64,7 @@ public data MuExp =
               
            // Assignment, If and While
               
+          | muAssignLoc(str id, int pos, MuExp exp)				// Assign a value to a local variable
           | muAssign(str id, int scope, int pos, MuExp exp)		// Assign a value to a variable
           | muAssignRef(str id, int scope, int pos, MuExp exp) 	// Call-by-reference assignment: 
           														// the left-hand side is a variable that refers to a value location

@@ -10,18 +10,18 @@ list[MuFunction] functions = [
 
 muFunction("main", 1, 1, 3, 
 	[	muCallPrim("println", muCon("At start of main")),				
-		muAssign("i", 1, 1, muCon(0)),
-		muWhile(muCallPrim("less_num_num", muVar("i", 1, 1), muCon(3)),
+		muAssignLoc("i", 1, muCon(0)),
+		muWhile(muCallPrim("less_num_num", muLoc("i", 1), muCon(3)),
 			[ muCallPrim("println", muCon("Enter outer while body")),
-			  muAssign("j", 1, 2, muCon(0)),
-			  muWhile(muCallPrim("less_num_num", muVar("j", 1, 2), muCon(4)),
+			  muAssignLoc("j", 2, muCon(0)),
+			  muWhile(muCallPrim("less_num_num", muLoc("j", 2), muCon(4)),
 			  [
 			  	muCallPrim("println", muCallPrim("addition_str_str",
-			  							muCallPrim("addition_str_str", muCon("i = "), muVar("i", 1, 1)), 
-			  						 	muCallPrim("addition_str_str", muCon(", j = "), muVar("j", 1, 2)))),
-			    muAssign("j", 1, 2, muCallPrim("addition_num_num", muVar("j", 1, 2), muCon(1)))
+			  							muCallPrim("addition_str_str", muCon("i = "), muLoc("i", 1)), 
+			  						 	muCallPrim("addition_str_str", muCon(", j = "), muLoc("j", 2)))),
+			    muAssign("j", 1, 2, muCallPrim("addition_num_num", muLoc("j", 2), muCon(1)))
 			  ]),
-			  muAssign("i", 1, 1, muCallPrim("addition_num_num", muVar("i", 1, 1), muCon(1)))
+			  muAssign("i", 1, 1, muCallPrim("addition_num_num", muLoc("i", 1), muCon(1)))
 			]),
 		muReturn(muCon(true))
 	])

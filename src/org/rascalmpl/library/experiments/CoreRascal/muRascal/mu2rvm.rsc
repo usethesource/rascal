@@ -84,6 +84,7 @@ INS tr(muFun(str name, int scope)) = [LOAD_NESTED_FUN(name, scope)];
 INS tr(muConstr(str name)) = [LOADCONSTR(name)];
 
 INS tr(muVar(str id, int scope, int pos)) = [scope == functionScope ? LOADLOC(pos) : LOADVAR(scope, pos)];
+INS tr(muLoc(str id, int pos)) = [LOADLOC(pos)];
 
 Instruction mkCall(str name) = CALL(name); 
 
@@ -98,6 +99,7 @@ INS tr(muCallPrim(str name, MuExp arg1, MuExp arg2)) = [*tr(arg1), *tr(arg2), CA
 INS tr(muCallPrim(str name, list[MuExp] args)) = [*tr(args), CALLPRIM(name)];
 
 INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), scope == functionScope ? STORELOC(pos) : STOREVAR(scope, pos)];
+INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];
 
 INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
     lab_else = nextLabel();
