@@ -16,11 +16,11 @@ list[MuFunction] functions = [
 // fac(n) = n == 1 ? 1 : n * fac(n - 1)
 
 muFunction("fac", 1, 1, 1, 
-	[ muReturn(muIfelse(muCallPrim("equals_num_num", muVar("n", 1, 0), muCon(1)),
+	[ muReturn(muIfelse(muCallPrim("equals_num_num", muLoc("n", 0), muCon(1)),
 						[ muCon(1) ],
 						[ muCallPrim("product_num_num", 
-						             muVar("n", 1, 0),
-						             muCall("fac", [ muCallPrim("subtraction_num_num", muVar("n", 1, 0), muCon(1)) ]))
+						             muLoc("n", 0),
+						             muCall("fac", [ muCallPrim("subtraction_num_num", muLoc("n", 0), muCon(1)) ]))
 						]))
 	]),
 

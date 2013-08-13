@@ -22,12 +22,12 @@ muFunction("FALSE", 1, 0, 0,
         
 muFunction("AND", 1, 2, 2, 
 	[					
-		muAssign("lhs", 1, 0, muInit(muCreate(muVar("lhs", 1, 0)))),
-		muWhile(muHasNext(muVar("lhs", 1, 0)),
-			[ muIfelse(muNext(muVar("lhs", 1, 0)),
-			     [ muAssign("rhs", 1, 1, muInit(muCreate(muVar("rhs", 1, 1)))),
-			       muWhile(muHasNext(muVar("rhs", 1, 1)),
-						   [ muYield(muNext(muVar("rhs", 1, 1))) ])
+		muAssignLoc("lhs", 0, muInit(muCreate(muLoc("lhs", 0)))),
+		muWhile(muHasNext(muLoc("lhs", 0)),
+			[ muIfelse(muNext(muLoc("lhs", 0)),
+			     [ muAssignLoc("rhs", 1, muInit(muCreate(muLoc("rhs", 1)))),
+			       muWhile(muHasNext(muLoc("rhs", 1)),
+						   [ muYield(muNext(muLoc("rhs", 1))) ])
 				],
 				[])
 			]),
@@ -57,21 +57,21 @@ muFunction("ALL", 0, 1, 1,
 //muFunction("main", 1, 1, 2, 
 //	[		
 //		muAssign("c", 1, 1, muInit(muCreate("AND"),[muFun("TRUE"), muFun("TRUE")] )),
-//		muReturn(muNext(muVar("c", 1, 1)))
+//		muReturn(muNext(muLoc("c", 1)))
 //	]
 //)
 // Main 2:
 muFunction("main", 1, 1, 3, 
 	[		
-		muAssign("c", 1, 1, muInit(muCreate("AND"),[muFun("TRUE"), muFun("TRUE")] )),
-		muAssign("count", 1, 2, muCon(0)),
-		muWhile(muHasNext(muVar("c", 1, 1)),
-			[ muNext(muVar("c", 1, 1)),
-			  muAssign("count", 1, 2, muCallPrim("addition_num_num", 
-													muVar("count", 1, 2), 
+		muAssignLoc("c", 1, muInit(muCreate("AND"),[muFun("TRUE"), muFun("TRUE")] )),
+		muAssignLoc("count", 2, muCon(0)),
+		muWhile(muHasNext(muLoc("c", 1)),
+			[ muNext(muLoc("c", 1)),
+			  muAssignLoc("count", 2, muCallPrim("addition_num_num", 
+													muLoc("count", 2), 
 													muCon(1)))]
 					),
-		muReturn(muVar("count", 1, 2))
+		muReturn(muLoc("count", 2))
 	]
 )
 

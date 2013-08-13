@@ -10,9 +10,9 @@ list[MuFunction] functions = [
 
 muFunction("countDown", 0, 1, 1, 
 	[					
-		muWhile(muCallPrim("greater_num_num", muVar("n", 0, 0), muCon(0)),
-			[ muYield(muVar("n", 0, 0)),
-			  muAssign("n", 0, 0, muCallPrim("subtraction_num_num", muVar("n", 0, 0), muCon(1)))
+		muWhile(muCallPrim("greater_num_num", muLoc("n", 0), muCon(0)),
+			[ muYield(muLoc("n", 0)),
+			  muAssignLoc("n", 0, muCallPrim("subtraction_num_num", muLoc("n", 0), muCon(1)))
 			]),
 	    muReturn(muCon(0))		
 	]
