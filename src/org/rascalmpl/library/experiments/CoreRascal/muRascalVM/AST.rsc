@@ -14,6 +14,7 @@ data Instruction =
 		| LOADLOC(int pos)
 		| STOREVAR(int scope, int pos)
 		| STORELOC(int pos)
+		| CALLCONSTR(str name)
 		| CALL(str name)
 		| CALLPRIM(str name)
 		| RETURN1()
