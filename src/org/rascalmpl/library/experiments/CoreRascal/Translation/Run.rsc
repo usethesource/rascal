@@ -6,10 +6,10 @@ import experiments::CoreRascal::muRascalVM::Run;
 import experiments::CoreRascal::muRascal::mu2rvm;
 
 loc Example1 = |std:///experiments/CoreRascal/Translation/Examples/Example1.rsc|;
-
+loc Example2 = |std:///experiments/CoreRascal/Translation/Examples/Example2.rsc|;
 
 void run(){
-  muP = r2mu(Example1);
+  muP = r2mu(Example2);
   iprintln(muP);
   rvmP = mu2rvm(muP);
   iprintln(rvmP);
