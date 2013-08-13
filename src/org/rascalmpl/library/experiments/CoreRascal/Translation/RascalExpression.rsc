@@ -107,12 +107,13 @@ void extractScopes(){
                                               for(l <- config.uses[uid])
                                                   loc2uid[l] = uid;
                                             }
-        case constructor(_,_,containedIn,src): { 
-        										 constructorScopes += {uid};
-        										 loc2uid[src] = uid;
-        										 for(l <- config.uses[uid])
-        										 	loc2uid[l] = uid;
-        									   }
+        case constructor(_,_,inScope,src):  { 
+        									  constructorScopes += {uid};
+        									  declares += {<inScope, uid>};
+        									  loc2uid[src] = uid;
+        									  for(l <- config.uses[uid])
+        									      loc2uid[l] = uid;
+        									}
         case blockScope(containedIn,src):   { containment += {<containedIn, uid>}; loc2uid[src] = uid;}
         case booleanScope(containedIn,src): { containment += {<containedIn, uid>}; loc2uid[src] = uid;}
       }
