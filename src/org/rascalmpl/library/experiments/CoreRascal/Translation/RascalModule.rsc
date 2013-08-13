@@ -16,7 +16,8 @@ import experiments::CoreRascal::muRascal::AST;
 
 list[loc] libSearchPath = [|std:///|, |eclipse-std:///|];
 
-loc Example1 = |std:///experiments/CoreRascal/Translation/Examples/Example1.rsc|;
+public loc Example1 = |std:///experiments/CoreRascal/Translation/Examples/Example1.rsc|;
+public loc Example2 = |std:///experiments/CoreRascal/Translation/Examples/Example2.rsc|;
 
 list[MuFunction] functions_in_module = [];
 list[MuVariable] variables_in_module = [];

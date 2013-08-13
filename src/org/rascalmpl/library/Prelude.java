@@ -3224,6 +3224,10 @@ public class Prelude {
 		else
 			return values.bool(false);
 	}
+
+	public IList getTraversalContext(IEvaluatorContext ctx) {
+		return ctx.getEvaluator().__getCurrentTraversalEvaluator().getContext();
+	}
 }
 
 // Utilities used by Graph

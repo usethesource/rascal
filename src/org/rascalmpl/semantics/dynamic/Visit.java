@@ -48,19 +48,24 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			Result<IValue> subject = this.getSubject().interpret(__eval);
 			TraversalEvaluator te = new TraversalEvaluator(__eval);
-
-			IValue val = te.traverse(subject.getValue(),
-					blocks, DIRECTION.BottomUp,
-					PROGRESS.Continuing, FIXEDPOINT.No);
-			
-			if (!val.getType().isSubtypeOf(subject.getType())) {
-			  // this is not a static error but an extra run-time sanity check
-			  throw new ImplementationError("this should really never happen",
-			      new UnexpectedType(subject.getType(), val.getType(), this));
+			try {
+				__eval.__pushTraversalEvaluator(te);
+				
+				IValue val = te.traverse(subject.getValue(),
+						blocks, DIRECTION.BottomUp,
+						PROGRESS.Continuing, FIXEDPOINT.No);
+				
+				if (!val.getType().isSubtypeOf(subject.getType())) {
+				  // this is not a static error but an extra run-time sanity check
+				  throw new ImplementationError("this should really never happen",
+				      new UnexpectedType(subject.getType(), val.getType(), this));
+				}
+				
+				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(subject.getType(),
+						val, __eval);
+			} finally {
+				__eval.__popTraversalEvaluator();
 			}
-			
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(subject.getType(),
-					val, __eval);
 		}
 
 	}
@@ -77,7 +82,6 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			Result<IValue> subject = this.getSubject().interpret(__eval);
 
 			// TODO: warning switched to static type here, but not sure if
@@ -113,16 +117,20 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 			} else {
 				throw new ImplementationError("Unknown strategy " + s);
 			}
-
+	
 			TraversalEvaluator te = new TraversalEvaluator(__eval);
-			IValue val = te
-					.traverse(subject.getValue(), blocks,direction, progress, fixedpoint);
-			Type t = val.getType();
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(t,
-					val, __eval);
-
+			try {
+				__eval.__pushTraversalEvaluator(te);
+				IValue val = te
+						.traverse(subject.getValue(), blocks,direction, progress, fixedpoint);
+				Type t = val.getType();
+				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(t,
+						val, __eval);
+	
+			} finally {
+				__eval.__popTraversalEvaluator();
+			}
 		}
-
 	}
 
 	public Visit(IConstructor __param1) {
