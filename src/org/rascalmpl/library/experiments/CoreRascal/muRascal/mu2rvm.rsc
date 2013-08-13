@@ -6,6 +6,8 @@ import experiments::CoreRascal::muRascalVM::AST;
 
 import experiments::CoreRascal::muRascal::AST;
 
+import experiments::CoreRascal::muRascal::Library;
+
 alias INS = list[Instruction];
 
 
@@ -21,10 +23,18 @@ int functionScope = 0;
 RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
   funMap = ();
   nLabel = -1;
+  
+  
+  for(fun <- experiments::CoreRascal::muRascal::Library::library){
+     funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
+   }
+ 
   for(fun <- functions){
     functionScope = fun.scope;
     funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
   }
+  
+  
   
   funMap += ("#module_init" : FUNCTION("#module_init", 0, 0, size(variables) + 1, 10, 
   									[*tr(initializations), 
@@ -47,11 +57,9 @@ INS tr_and_pop(MuExp exp) = producesValue(exp) ? [*tr(exp), POP()] : tr(exp);
 
 
 INS trvoidblock(list[MuExp] exps) {
-  println("Before: <exps>");
   if(size(exps) == 0)
      return [];
   ins = [*tr_and_pop(exp) | exp <- exps];
-  println("AFTER: <ins>");
   return ins;
 }
 
@@ -60,7 +68,7 @@ INS trblock(list[MuExp] exps) {
      return [LOADCON(666)]; // TODO: throw "Non void block cannot be empty";
   }
   ins = [*tr_and_pop(exp) | exp <- exps[0..-1]];
-  println("exps[-1] == <exps[-1]>");
+  //("exps[-1] == <exps[-1]>");
   return ins + tr(exps[-1]);
 }
 
