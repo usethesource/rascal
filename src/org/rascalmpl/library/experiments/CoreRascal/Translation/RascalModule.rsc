@@ -37,7 +37,7 @@ MuModule r2mu(loc moduleLoc){
    	  functions_in_module = [];
    	  variables_in_module = [];
    	  variable_initializations = [];
-   	  list[Symbol] types = [ \type | int uid <- config.store, constructor(name, Symbol \type, containedIn, at) := config.store[uid] ];
+   	  list[Symbol] types = [ \type | int uid <- config.store, AbstractValue::constructor(name, Symbol \type, containedIn, at) := config.store[uid] ];
    	  translate(M.top);
    	  return muModule("<M.top.header.name>", types, functions_in_module, variables_in_module, variable_initializations);
    	  }
@@ -63,12 +63,10 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <
 }   	
 
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`) { throw("annotation"); }
-void translate(d: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType user> = <Type base> ;`)   { throw("alias"); }
+void translate(d: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType user> = <Type base> ;`)   { /* skip: translation has nothing to do here */ }
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+ types> ;`)  { throw("tag"); }
-void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> ;`)  { throw("dataAbstract"); }
-/*
-	| @Foldable \data : Tags tags Visibility visibility "data" UserType user CommonKeywordParameters commonKeywordParameters"=" {Variant "|"}+ variants ";"
-*/
+void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> ;`)  { /* skip: translation has nothing to do here */ }
+void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`) { /* skip: translation has nothing to do here */ }
 
 void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = translate(functionDeclaration);
 
