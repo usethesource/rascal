@@ -126,6 +126,9 @@ void extractScopes(){
 }
 
 
+int size_exps({Expression ","}* es) = size([e | e <- es]);	// TODO: should become library function
+
+
 
 // Generate code for completely type-resolved operators
 
@@ -179,11 +182,11 @@ list[MuExp] translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) 
 list[MuExp] translate (e:(Expression) `<Comprehension comprehension>`) { throw("comprehension"); }
 
 list[MuExp] translate(Expression e:(Expression)`{ <{Expression ","}* es> }`) {
-    return [ muCallPrim("make_set", [ *translate(elem) | elem <- es ]) ];
+    return [ muCallPrim("make_set", [ muCon(size_exps(es)), *translate(elem) | elem <- es ]) ];
 }
 
 list[MuExp] translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) {
-    return [ muCallPrim("make_list", [ *translate(elem) | elem <- es ]) ];
+    return [ muCallPrim("make_list", [ muCon(size_exps(es)), *translate(elem) | elem <- es ]) ];
 }
 
 list[MuExp] translate (e:(Expression) `# <Type \type>`) { throw("reifyType"); }
