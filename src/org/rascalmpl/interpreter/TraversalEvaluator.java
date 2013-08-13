@@ -19,7 +19,9 @@ package org.rascalmpl.interpreter;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -39,7 +41,6 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
-import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
@@ -60,11 +61,20 @@ public class TraversalEvaluator {
 	
 	private final IEvaluator<Result<IValue>> eval;
 	private static final TypeFactory tf = TypeFactory.getInstance();
-
+	private final List<IValue> traversalContext;
+	
 	public TraversalEvaluator(IEvaluator<Result<IValue>> eval) {
 		this.eval = eval;
+		this.traversalContext = new Vector<IValue>();
 	}
 	
+	public IList getContext() {
+		IListWriter lw = eval.getValueFactory().listWriter();
+		for (IValue v : this.traversalContext)
+			lw.append(v);
+		return lw.done().reverse();
+	}
+
 	public static class CaseBlockList {
 		private java.util.List<CaseBlock> cases;
 		private boolean allConcretePatternCases = true;
@@ -103,9 +113,12 @@ public class TraversalEvaluator {
 	private IValue traverseOnce(IValue subject, CaseBlockList casesOrRules, DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr){
 		Type subjectType = subject.getType();
 		IValue result = subject;
-
+		this.traversalContext.add(subject);
+		
 		if (/* casesOrRules.hasRegexp()  && */ subjectType.isString()) {
-			return traverseStringOnce(subject, casesOrRules, tr);
+			result = traverseStringOnce(subject, casesOrRules, tr);
+			this.traversalContext.remove(this.traversalContext.size()-1);
+			return result;
 		}
 
 		boolean hasMatched = false;
@@ -115,6 +128,7 @@ public class TraversalEvaluator {
 			IValue newTop = traverseTop(subject, casesOrRules, tr);
 
 			if ((progress == PROGRESS.Breaking) && tr.matched) {
+				this.traversalContext.remove(this.traversalContext.size()-1);
 				return newTop;
 			}
 			else if (fixedpoint == FIXEDPOINT.Yes && tr.changed) {
@@ -156,6 +170,7 @@ public class TraversalEvaluator {
 
 		if (direction == DIRECTION.BottomUp) {
 			if ((progress == PROGRESS.Breaking) && tr.changed) {
+				this.traversalContext.remove(this.traversalContext.size()-1);
 				return result;
 			}
 
@@ -179,6 +194,7 @@ public class TraversalEvaluator {
 			tr.matched |= hasMatched;
 		}
 		
+		this.traversalContext.remove(this.traversalContext.size()-1);
 		return result;
 	}
 

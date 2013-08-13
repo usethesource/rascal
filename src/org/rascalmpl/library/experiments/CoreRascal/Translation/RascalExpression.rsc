@@ -14,8 +14,13 @@ import experiments::CoreRascal::Translation::RascalPattern;
 import experiments::CoreRascal::muRascal::AST;
 
 public Configuration config = newConfiguration();
+
 public map[int,tuple[int,int]] uid2addr = ();
 public map[loc,int] loc2uid = ();
+
+public set[int] functionScopes = {};
+public set[int] constructorScopes = {};
+public set[int] variableScopes = {};
 
 // Get the type of an expression
 Symbol getType(loc l) = config.locationTypes[l];
@@ -51,17 +56,27 @@ tuple[int,int] getVariableScope(str name) = uid2addr[config.fcvEnv[RSimpleName(n
 MuExp mkVar(str name, loc l) {
   //println("mkVar: <name>");
   //println("l = <l>,\nloc2uid = <loc2uid>");
-  addr = uid2addr[loc2uid[l]];
-  res = "<name>::<addr[0]>::<addr[1]>";
-  //println("mkVar: <name> =\> <res>");
-  return muVar(name, addr[0], addr[1]);
+  
+  tuple[int scope, int pos] addr = uid2addr[loc2uid[l]];
+  
+  res = "<name>::<addr.scope>::<addr.pos>";
+  println("mkVar: <name> =\> <res>; isFun: <loc2uid[l] in functionScopes>; isConstr: <loc2uid[l] in constructorScopes>");
+  
+  if(loc2uid[l] in functionScopes) {
+  	// distinguishes between root and nested scopes
+  	return (addr.scope == 0) ? muFun(name) : muFun(name, addr.scope);
+  }
+  if(loc2uid[l] in constructorScopes) {
+  	return muConstr(name);
+  }
+  return muVar(name, addr.scope, addr.pos);
 }
 
 
 /* */
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
-  println("mkVar: <name>");
+  println("mkAssign: <name>");
   println("l = <l>,\nloc2uid = <loc2uid>");
   addr = uid2addr[loc2uid[l]];
   res = "<name>::<addr[0]>::<addr[1]>";
@@ -70,7 +85,6 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
 }
 
 void extractScopes(){
-   set[int] functionScopes = {};
    rel[int,int] containment = {};
    rel[int,int] declares = {};
    uid2addr = ();
@@ -78,18 +92,27 @@ void extractScopes(){
    for(uid <- config.store){
       item = config.store[uid];
       switch(item){
-        case function(_,_,_,inScope,_,src): { functionScopes += {uid}; 
+        case function(_,_,_,inScope,_,src): { 
+        									  functionScopes += {uid}; 
                                               declares += {<inScope, uid>}; 
                                               containment += {<inScope, uid>}; 
                                               loc2uid[src] = uid;
                                               for(l <- config.uses[uid])
                                                   loc2uid[l] = uid;
                                             }
-        case variable(_,_,_,inScope,src):   { declares += {<inScope, uid>}; 
+        case variable(_,_,_,inScope,src):   { 
+        									  variableScopes += {uid};
+        									  declares += {<inScope, uid>}; 
         									  loc2uid[src] = uid;
                                               for(l <- config.uses[uid])
                                                   loc2uid[l] = uid;
                                             }
+        case constructor(_,_,containedIn,src): { 
+        										 constructorScopes += {uid};
+        										 loc2uid[src] = uid;
+        										 for(l <- config.uses[uid])
+        										 	loc2uid[l] = uid;
+        									   }
         case blockScope(containedIn,src):   { containment += {<containedIn, uid>}; loc2uid[src] = uid;}
         case booleanScope(containedIn,src): { containment += {<containedIn, uid>}; loc2uid[src] = uid;}
       }
@@ -159,8 +182,16 @@ list[MuExp] translate (e:(Expression) `( <Expression init> | <Expression result>
 list[MuExp] translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) { throw("reifiedType"); }
 
 list[MuExp] translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
-  // ignore kw arguments for the moment
-   return [muCall(translate(expression)[0], [*translate(a) | a <- arguments])];
+   // ignore kw arguments for the moment
+   MuExp receiver = translate(expression)[0];
+   list[MuExp] args = [ *translate(a) | a <- arguments ];
+   if(muConstr(str name) := receiver) {
+       return [ muCallConstr(name, args) ]; // special case of a constructor call
+   }
+   if(muFun(str name) := receiver) {
+       return [ muCall(name, args) ]; // special case of a root function call
+   }
+   return [ muCall(receiver, args) ];
 }
 
 // literals
@@ -293,7 +324,7 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`)
 list[MuExp] translate(e:(Expression) `<Expression lhs> && <Expression rhs>`)  = translateBool(e);
  
 list[MuExp] translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = 
-    [ muIfelse(translateBool(condition)[0], translate(thenExp)[0],  translate(elseExp)[0]) ]; 
+    [ muIfelse(translate(condition)[0], translate(thenExp),  translate(elseExp)) ]; 
 
 default list[MuExp] translate(Expression e) = "\<\<MISSING CASE FOR EXPRESSION: <e>";
 

@@ -195,6 +195,9 @@ public class Execute {
 						codeblock.LOADNESTEDFUN(getStrField(instruction, "name"), getIntField(instruction, "scope"));
 						break;
 						
+					case "LOADCONSTR":
+						codeblock.LOADCONSTR(getStrField(instruction, "name"));
+						
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 					}
