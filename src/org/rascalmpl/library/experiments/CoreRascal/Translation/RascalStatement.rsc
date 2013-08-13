@@ -105,7 +105,7 @@ list[MuExp] translate(s: (Statement) `<LocalVariableDeclaration declaration> ;`)
     
     return for(var <- variables){
     			if(var is initialized)
-    				append mkAssign("<var.name>", var@\loc, translate(var.initial)[0]);
+    				append mkAssign("<var.name>", var.name@\loc, translate(var.initial)[0]);
            }
 }
 
