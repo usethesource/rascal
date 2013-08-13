@@ -71,15 +71,17 @@ INS tr(muCon(value c)) = [LOADCON(c)];
 
 INS tr(muFun(str name)) = [LOADFUN(name)];
 
+INS tr(muFun(str name, int scope)) = [LOAD_NESTED_FUN(name, scope)];
+
+INS tr(muConstr(str name)) = [LOADCONSTR(name)];
+
 INS tr(muVar(str id, int scope, int pos)) = [scope == functionScope ? LOADLOC(pos) : LOADVAR(scope, pos)];
 
 Instruction mkCall(str name) = CALL(name); 
 
 INS tr(muCall(str fname, list[MuExp] args)) = [*tr(args), CALL(fname)];
 
-INS tr(muCall(MuExp fun, list[MuExp] args)) =
-	muVar(str name, 0, pos) := fun ? [*tr(args), mkCall(name)]
-							       : [*tr(args), *tr(fun), CALLDYN()];
+INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN()];
 
 INS tr(muCallPrim(str name, MuExp arg)) = (name == "println") ? [*tr(arg), PRINTLN()] : [*tr(arg), CALLPRIM(name)];
 

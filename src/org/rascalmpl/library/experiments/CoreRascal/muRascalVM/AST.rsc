@@ -26,6 +26,7 @@ data Instruction =
 		| CALLDYN()
 		| LOADFUN(str name)
 		| LOAD_NESTED_FUN(str name, int scope)
+		| LOADCONSTR(str name)
 		| CREATE(str fun)
 		| NEXT0()
 		| NEXT1()
