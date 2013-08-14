@@ -1,81 +1,57 @@
-module experiments::CoreRascal::muRascal::Library
+module library
 
-import Prelude;
-import  experiments::CoreRascal::muRascal::AST;
-import experiments::CoreRascal::muRascalVM::AST;
-import experiments::CoreRascal::muRascalVM::Run;
-import experiments::CoreRascal::muRascal::mu2rvm;
+function TRUE[0,0,] { return f(1) }   // should be true
 
-list[MuFunction] library = [
+function FALSE[0,0,] { return f(0) }
 
-// Boolean expressions
+function AND_U_U[2,2,lhs:0,rhs:1]{
+  return prim("and_bool_bool", lhs, rhs)
+}
 
-muFunction("TRUE", 1, 0, 0, 
-	[
-		muReturn(muCon(true))
-	]
-),
-       
-muFunction("FALSE", 1, 0, 0, 
-	[
-		muReturn(muCon(false))
-	]
-),
+function AND_M_U[2,2,lhs:0,rhs:1,clhs:2]{
+   clhs = init(create(lhs));
+   while(hasNext(clhs)){
+     if(next(clhs)){
+        if(rhs){
+           yield 1
+        }
+     }          
+   };
+   return 0
+}
 
-muFunction("AND_U_U", 1, 2, 2, 
-	[				
-		muReturn(muCallPrim("and_bool_bool", muLoc("lhs", 0), muLoc("rhs", 1)))
-	]
-),
-            
-muFunction("AND_M_U", 1, 2, 2, 
-	[					
-		muAssignLoc("lhs", 0, muInit(muCreate(muLoc("lhs", 0)))),
-		muWhile(muHasNext(muLoc("lhs", 0)),
-			[ muIfelse(muNext(muLoc("lhs", 0)),
-			     [ muIfelse(muLoc("rhs", 1),
-			                [ muYield(muNext(muLoc("rhs", 1))) ],
-			                [ ])
-			     ],
-			     [])              
-			]),
-		muReturn(muCon(false))
-	]
-),
+function AND_U_M[2,2,lhs:0,rhs:1,crhs:2]{
+   if(lhs){
+      crhs = init(create(rhs));
+      while(hasNext(crhs)){
+        if(next(crhs)){
+           yield 1
+        } else {
+          return 0
+        }
+      }          
+   };
+   return 0
+}
 
-muFunction("AND_U_M", 1, 2, 2, 
-	[					 
-		muIfelse(muLoc("lhs", 0),
-			[ 
-			  muAssignLoc("rhs",  1, muInit(muCreate(muLoc("rhs", 1)))),
-			  muWhile(muHasNext(muLoc("rhs", 1)),
-					  [ muYield(muNext(muLoc("rhs", 1))) ])
-		    ],
-			[]),
-		muReturn(muCon(false))
-	]
-),
+function AND_M_M[2,2,lhs:0,rhs:1,clhs:2,crhs:3]{
+   clhs = init(create(lhs));
+   while(hasNext(clhs)){
+     if(next(clhs)){
+        crhs = init(create(rhs));
+        while(hasNext(crhs)){
+          if(next(crhs)){
+             yield 1
+          } else {
+            return 0
+          }
+        }       
+     }          
+   };
+   return 0
+}
 
-muFunction("AND_M_M", 1, 2, 2, 
-	[					
-		muAssignLoc("lhs", 0, muInit(muCreate(muLoc("lhs", 0)))),
-		muWhile(muHasNext(muLoc("lhs", 0)),
-			[ muIfelse(muNext(muLoc("lhs", 0)),
-			     [ muAssign("rhs", 1, 1, muInit(muCreate(muLoc("lrs", 1)))),
-			       muWhile(muHasNext(muLoc("lrs", 1)),
-						   [ muYield(muNext(muLoc("lrs", 1))) ])
-				],
-				[])
-			]),
-		muReturn(muCon(false))
-	]
-),
-
-muFunction("AND_U_U", 1, 2, 2, 
-	[				
-		muReturn(muCallPrim("and_bool_bool", muLoc("lhs", 0), muLoc("lrs", 1)))
-	]
-),
+/*
             
 muFunction("ONE", 1, 1, 1, 
 	[
@@ -186,12 +162,3 @@ coroutine MATCH_PAT_IN_LIST (pat) (subject, start){
      return <false, start>;
  }
 */
-];
-
-void run(){
-  muP = muModule("Library", [], library, [], []);
-  rvmP = mu2rvm(muP);
-  iprintln(rvmP);
-  <v, t> = executeProgram(rvmP, true, 1);
-  println("Result = <v>, [<t> msec]");
-}

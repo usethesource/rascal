@@ -11,15 +11,15 @@ list[MuFunction] functions = [
 // int square(int n) = n * n;
 
 muFunction("square", 1, 1, 1, 
-	[ muReturn(muCallPrim("product_num_num", muVar("n", 1, 0), muVar("n", 1, 0)))
+	[ muReturn(muCallPrim("product_num_num", muLoc("n", 0), muLoc("n", 0)))
 	]),
 	
 // int cube(int n) = n * n * n;
 
 muFunction("cube", 1, 1, 1, 
 	[ muReturn(muCallPrim("product_num_num", 
-						  muVar("n", 1, 0), 
-			              muCallPrim("product_num_num", muVar("n", 1, 0), muVar("n", 1, 0))))
+						  muLoc("n", 0), 
+			              muCallPrim("product_num_num", muLoc("n", 0), muLoc("n", 0))))
 	]),
 	
 // int do(f, n) = f(n);

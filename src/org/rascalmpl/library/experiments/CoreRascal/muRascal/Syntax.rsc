@@ -1,50 +1,95 @@
 module experiments::CoreRascal::muRascal::Syntax
 
-layout Whitespace = [\ \t\n]*;
-lexical Identifier = ( [a-z][a-z0-9]* ) \ Keywords;
-lexical Integer = [0-9]+;
-lexical Label = [$][A-Za-z0-9]+;
-lexical FConst = [_][A-Za-z0-9]+;
+layout LAYOUTLIST
+  = LAYOUT* !>> [\t-\n \r \ ] !>> "//" !>> "/*";
+
+lexical LAYOUT
+  = Comment 
+  | [\t-\n \r \ ];
+    
+lexical Comment
+  = "/*" (![*] | [*] !>> [/])* "*/" 
+  | "//" ![\n]* [\n]; 
+
+//layout Whitespace = [\ \t\n]*;
+
+lexical Identifier = id: ( [A-Za-z][A-Za-z0-9_]* ) \ Keywords;
+lexical Integer =  [0-9]+;
+lexical Label = label: [$][A-Za-z0-9]+;
+lexical FConst = fconst: [_][A-Za-z0-9]+;
+
+lexical StrChar = 
+			  NewLine: [\\] [n] 
+            | Tab: [\\] [t] 
+            | Quote: [\\] [\"] 
+            | Backslash: [\\] [\\] 
+            | Decimal: [\\] [0-9] [0-9] [0-9] 
+            | Normal: ![\n\t\"\\] 
+            ;
+
+lexical String = [\"] StrChar* [\"];
+
+start syntax Module =
+			  preMod: 		"module" Identifier name Function* functions
+			;
+
+syntax NameDecl = 
+			  preDecl: 		Identifier name ":" Integer pos
+			;
+
+syntax Function =     
+              preFunction:	"function" Identifier name "[" Integer scope "," Integer nformal "," {NameDecl ","}* names "]" "{" {Exp ";"}+ body "}"
+			;
 
 syntax Exp  = 
-			  nil: "nil"
-			| \true: "true"
-			| \false: "false"
-			| number: Integer n
-			| var: Identifier id >> ":" ":" Integer scope >> ":"  ":" Integer pos
-			| fconst: FConst id
-			| label: Label id
+			  muCon: 		Integer n
+			| muCon: 		String s
+			| muLab: 		Label id
+			| muFun: 		FConst id
+			| muConstr: 	FConst
 			
-			| right lambda: "lambda" "(" Identifier id ")" "{" Exp exp "}"
-			| left apply: Exp exp1 "(" Exp exp2 ")"
-			> assign: Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos ":=" Exp exp
-			| ifelse: "if" Exp exp1 "then" Exp exp2 "else" Exp exp3 "fi"
-			| \while: "while" "(" Exp cond ")" "{" Exp body "}" 
+		    | muLoc: 		Identifier id ":" Integer pos
+			| muVar: 		Identifier id ":" Integer scope ":" Integer pos
+			| muCall: 		Exp exp1 "(" {Exp ","}* args ")"
 			
-			| labeled: Label label ":" Exp exp
-			| create: "create" "(" Exp exp ")"
-			| resume: "resume" "(" Exp exp1 "," Exp exp2 ")"
-			| yield: "yield" "(" Exp exp ")"
-			| hasNext: "hasNext" "(" Exp exp ")"
+			> muCallPrim: 	"prim" "(" String name "," {Exp ","}+ args ")"
+			| muReturn: 	"return"
+			| muReturn: 	"return" Exp exp
 			
-			| lst: "[" { Exp "," }* exps "]" // lists
-
-			| Y: "Y" "(" Exp exp ")" // Y-combinator
+		 	| preAssignLoc:	Identifier id "=" Exp exp
+			> muAssign: 	Identifier id >> ":" Integer scope >> ":" Integer pos "=" Exp exp
+			> muAssignRef: 	"@" Identifier id >> ":" Integer scope >> ":" Integer pos "=" Exp exp
 			
-			| \block: "{" {Exp ";"}+ exps "}" // block expression
-
-			| \throw: "throw" "(" Exp exp ")"
-			| \try: "try" "{" Exp body "}" Catch catch 
+			| preIfthen:    "if" "(" Exp exp1 ")" "{" {Exp ";"}* thenPart "}"
+			| muIfelse: 	"if" "(" Exp exp1 ")" "{" {Exp ";"}* thenPart "}" "else" "{" {Exp ";"}* elsePart "}"
+			| muWhile: 		"while" "(" Exp cond ")" "{" {Exp ";"}* body "}" 
+			
+			| muCreate: 	"create" "(" Identifier fname "," {Exp ","}+ exargsps ")"
+			> muCreate: 	"create" "(" Exp coro ")"
+			
+			| muInit: 		"init" "(" Exp coro ")"
+			| muInit: 		"init" "(" Exp coro "," {Exp ","}* args ")"
+			
+			| muNext:   	"next" "(" Exp coro ")"
+			| muNext:   	"next" "(" Exp coro "," {Exp ","}+ args ")"
+			
+			| muHasNext: 	"hasNext" "(" Exp coro ")"	
+			
+			| muYield: 		"yield"
+			| muYield: 		"yield"  Exp exp
 			
 			| bracket "(" Exp exp ")"
 			;
 
-syntax Catch = \catch: "catch" Identifier id ":" Exp body ;	
-		
-keyword Keywords = "true" | "false" | "nil" | 
-				   "var" |
-				   "lambda" | "if" | "then" | "else" | 
-				   "while" |
-                   "create" | "resume" | "yield" | "hasNext" |
-                   "Y" |
-                   "throw" | "try" | "catch";
+keyword Keywords = 
+              "module" | "function" | "return" |
+			  "prim" | "if" | "then" | "else" | "fi" |  "while" |
+              "create" | "init" | "next" | "yield" | "hasNext" |
+             ;
+             
+// Syntactic features that will be removed by the preprocessor. 
+            
+syntax Exp =
+			   preVar: Identifier id
+			
+			 ;
