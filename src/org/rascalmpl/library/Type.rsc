@@ -85,7 +85,6 @@ data Symbol                            // Composite types.
      | \func(Symbol ret, list[Symbol] parameters)
      | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
      | \reified(Symbol symbol)
-     | \lrel(list[Symbol] symbols)
      ;
 
 data Symbol
