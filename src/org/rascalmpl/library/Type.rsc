@@ -80,7 +80,7 @@ data Symbol                            // Composite types.
      | \map(Symbol from, Symbol to)
      | \bag(Symbol symbol)
      | \adt(str name, list[Symbol] parameters)
-     | \cons(Symbol \adt, list[Symbol] parameters)
+     | \cons(Symbol \adt, str name, list[Symbol] parameters)
      | \alias(str name, list[Symbol] parameters, Symbol aliased)
      | \func(Symbol ret, list[Symbol] parameters)
      | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
@@ -144,8 +144,8 @@ public default bool subtype(Symbol s, Symbol t) = false;
 
 public bool subtype(Symbol _, \value()) = true;
 public bool subtype(\void(), Symbol _) = true;
-public bool subtype(Symbol::\cons(Symbol a, list[Symbol] _), a) = true;
-public bool subtype(Symbol::\cons(Symbol a, list[Symbol] ap), Symbol::\cons(a,list[Symbol] bp)) = subtype(ap,bp);
+public bool subtype(Symbol::\cons(Symbol a, _, list[Symbol] _), a) = true;
+public bool subtype(Symbol::\cons(Symbol a, str name, list[Symbol] ap), Symbol::\cons(a,name,list[Symbol] bp)) = subtype(ap,bp);
 public bool subtype(\adt(str _, list[Symbol] _), \node()) = true;
 public bool subtype(\adt(str n, list[Symbol] l), \adt(n, list[Symbol] r)) = subtype(l, r);
 public bool subtype(\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = subtype(aliased, r);
@@ -324,10 +324,10 @@ public Symbol lub(\adt(str n, list[Symbol] _), \node()) = \node();
 public Symbol lub(\node(), \adt(str n, list[Symbol] _)) = \node();
 public Symbol lub(\adt(str n, list[Symbol] lp), \adt(n, list[Symbol] rp)) = \adt(n, addParamLabels(lub(lp,rp),getParamLabels(lp))) when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp);
 public Symbol lub(\adt(str n, list[Symbol] lp), \adt(str m, list[Symbol] rp)) = \node() when n != m;
-public Symbol lub(\adt(str ln, list[Symbol] lp), Symbol::\cons(Symbol b, list[Symbol] _)) = lub(\adt(ln,lp),b);
-public Symbol lub(Symbol::\cons(Symbol la, list[Symbol] _), Symbol::\cons(Symbol ra, list[Symbol] _)) = lub(la,ra);
-public Symbol lub(Symbol::\cons(Symbol a, list[Symbol] lp), \adt(str n, list[Symbol] rp)) = lub(a,\adt(n,rp));
-public Symbol lub(Symbol::\cons(Symbol _, list[Symbol] _), \node()) = \node();
+public Symbol lub(\adt(str ln, list[Symbol] lp), Symbol::\cons(Symbol b, _, list[Symbol] _)) = lub(\adt(ln,lp),b);
+public Symbol lub(Symbol::\cons(Symbol la, _, list[Symbol] _), Symbol::\cons(Symbol ra, _, list[Symbol] _)) = lub(la,ra);
+public Symbol lub(Symbol::\cons(Symbol a, _, list[Symbol] lp), \adt(str n, list[Symbol] rp)) = lub(a,\adt(n,rp));
+public Symbol lub(Symbol::\cons(Symbol _, _, list[Symbol] _), \node()) = \node();
 public Symbol lub(\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = lub(aliased, r);
 public Symbol lub(Symbol l, \alias(str _, list[Symbol] _, Symbol aliased)) = lub(l, aliased);
 public Symbol lub(\parameter(str _, Symbol bound), Symbol r) = lub(bound, r);
@@ -578,7 +578,7 @@ Synopsis: Determine if the given type is a constructor.
 public bool isConstructorType(\alias(_,_,Symbol at)) = isConstructorType(at);
 public bool isConstructorType(\parameter(_,Symbol tvb)) = isConstructorType(tvb);
 public bool isConstructorType(\label(_,Symbol lt)) = isConstructorType(lt);
-public bool isConstructorType(Symbol::\cons(_,_)) = true;
+public bool isConstructorType(Symbol::\cons(_,_,_)) = true;
 public default bool isConstructorType(Symbol _) = false;
 
 @doc{

@@ -5115,7 +5115,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
             list[Symbol] targs = [ ];
             for (varg <- vargs) { < c, vargT > = convertAndExpandTypeArg(varg, c); targs = targs + vargT; } 
             cn = convertName(vn);
-            c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,targs));       
+            c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,getSimpleName(cn),targs));       
         }
     }
     
@@ -5466,7 +5466,7 @@ public Configuration importConstructor(RName conName, UserType adtType, list[Typ
     rt = c.store[getOneFrom(invert(c.definitions)[adtAt])].rtype;
     list[Symbol] targs = [ ];
     for (varg <- argTypes) { < c, vargT > = convertAndExpandTypeArg(varg, c); targs = targs + vargT; } 
-    return addConstructor(c, conName, at, Symbol::\cons(rt,targs));         
+    return addConstructor(c, conName, at, Symbol::\cons(rt,getSimpleName(conName),targs));         
 }
 
 @doc{Import a signature item: Constructor}
