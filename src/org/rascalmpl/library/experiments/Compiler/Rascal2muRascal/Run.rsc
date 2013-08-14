@@ -1,12 +1,12 @@
-module experiments::CoreRascal::Translation::Run
+module experiments::Compiler::Rascal2muRascal::Run
 
 import Prelude;
-import experiments::CoreRascal::Translation::RascalModule;
+import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::RVM::Run;
-import experiments::Compiler::muRascal::mu2rvm;
+import experiments::Compiler::muRascal2RVM::mu2rvm;
 
-loc Example1 = |std:///experiments/CoreRascal/Translation/Examples/Example1.rsc|;
-loc Example2 = |std:///experiments/CoreRascal/Translation/Examples/Example2.rsc|;
+loc Example1 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example1.rsc|;
+loc Example2 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example2.rsc|;
 
 void run(){
   muP = r2mu(Example2);

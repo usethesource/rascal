@@ -1,5 +1,5 @@
 @bootstrapParser
-module experiments::CoreRascal::Translation::RascalExpression
+module experiments::Compiler::Rascal2muRascal::RascalExpression
 
 import Prelude;
 
@@ -9,7 +9,7 @@ import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 
-import experiments::CoreRascal::Translation::RascalPattern;
+import experiments::Compiler::Rascal2muRascal::RascalPattern;
 
 import experiments::Compiler::muRascal::AST;
 

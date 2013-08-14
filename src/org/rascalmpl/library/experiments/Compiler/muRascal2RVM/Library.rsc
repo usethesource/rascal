@@ -1,10 +1,10 @@
-module experiments::Compiler::muRascal::Library
+module experiments::Compiler::muRascal2RVM::Library
 
 import Prelude;
-import  experiments::Compiler::muRascal::AST;
+import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::RVM::Run;
-import experiments::Compiler::muRascal::mu2rvm;
+import experiments::Compiler::muRascal2RVM::mu2rvm;
 
 list[MuFunction] library = [
 
@@ -122,13 +122,13 @@ muFunction("MATCH_LIST", 1, 2, 1,
 
 muFunction("MATCH_LIST", 1, 2, 7,
 	[
-		muAssignLoc("patlen", 2, muCall("size", muLoc("pats", 0))),
-		muAssignLoc("sublen", 3, muCall("size", muLoc("subject", 1))),
+		//muAssignLoc("patlen", 2, muCall("size", muLoc("pats", 0))),
+		//muAssignLoc("sublen", 3, muCall("size", muLoc("subject", 1))),
 		muAssignLoc("p", 4, muCon(0)),
 		muAssignLoc("cursor", 5, muCon(0)),
 		muAssignLoc("forward", 6, muCon(true)),
-		assignLoc("matcher", 7, muInit(muCallPrim("subscript_list", [muLoc("pats", 0), muCon(0)]), [muLoc("subject", 1), muLoc("cursor", 5)])),
-		assignLoc("matchers", 7, callPrim("make_list", [muCon(0)]))
+		muAssignLoc("matcher", 7, muInit(muCallPrim("subscript_list_int", [muLoc("pats", 0), muCon(0)]), [muLoc("subject", 1), muLoc("cursor", 5)])),
+		muAssignLoc("matchers", 7, muCallPrim("make_list", [muCon(0)]))
 		
 		
 		

@@ -1,5 +1,5 @@
 @bootstrapParser
-module experiments::CoreRascal::Translation::RascalModule
+module experiments::Compiler::Rascal2muRascal::RascalModule
 
 import lang::rascal::\syntax::Rascal;
 import Prelude;
@@ -9,15 +9,15 @@ import ParseTree;
 
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
-import experiments::CoreRascal::Translation::RascalExpression;
-import experiments::CoreRascal::Translation::RascalStatement;
+import experiments::Compiler::Rascal2muRascal::RascalExpression;
+import experiments::Compiler::Rascal2muRascal::RascalStatement;
 
 import experiments::Compiler::muRascal::AST;
 
 list[loc] libSearchPath = [|std:///|, |eclipse-std:///|];
 
-public loc Example1 = |std:///experiments/CoreRascal/Translation/Examples/Example1.rsc|;
-public loc Example2 = |std:///experiments/CoreRascal/Translation/Examples/Example2.rsc|;
+public loc Example1 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example1.rsc|;
+public loc Example2 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example2.rsc|;
 
 list[MuFunction] functions_in_module = [];
 list[MuVariable] variables_in_module = [];

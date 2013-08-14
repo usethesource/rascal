@@ -1,10 +1,10 @@
 @bootstrapParser
-module experiments::CoreRascal::Translation::RascalStatement
+module experiments::Compiler::Rascal2muRascal::RascalStatement
 
 import Prelude;
 import experiments::CoreRascal::ReductionWithEvalCtx::AST;
 import lang::rascal::\syntax::Rascal;
-import experiments::CoreRascal::Translation::RascalExpression;
+import experiments::Compiler::Rascal2muRascal::RascalExpression;
 
 import experiments::Compiler::muRascal::AST;
 

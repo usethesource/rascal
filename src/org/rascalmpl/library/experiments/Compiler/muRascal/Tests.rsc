@@ -10,7 +10,7 @@ import Prelude;
 import ParseTree;
 import IO;
 
-public loc Library = |std:///experiments/CoreRascal/muRascal/Library.mu|;
+public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
 
 void main(){

@@ -1,4 +1,4 @@
-module experiments::CoreRascal::Translation::Examples::Example2
+module experiments::Compiler::Rascal2muRascal::Examples::Example2
 
 public int d3 = 1;
 

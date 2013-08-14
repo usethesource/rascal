@@ -1,4 +1,4 @@
-module experiments::Compiler::muRascal::mu2rvm
+module experiments::Compiler::muRascal2RVM::mu2rvm
 
 import Prelude;
 
@@ -6,7 +6,7 @@ import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::AST;
 
-import experiments::Compiler::muRascal::Library;
+import experiments::Compiler::muRascal2RVM::Library;
 
 alias INS = list[Instruction];
 
@@ -25,7 +25,7 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   nLabel = -1;
   
   
-  for(fun <- experiments::Compiler::muRascal::Library::library){
+  for(fun <- experiments::Compiler::muRascal2RVM::Library::library){
      funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
    }
  
@@ -155,7 +155,6 @@ INS tr(muMulti(MuExp exp)) =
 
 default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 
-bool producesValue(muNote(str txt)) = false;
 bool producesValue(muWhile(MuExp cond, list[MuExp] body)) = false;
 default bool producesValue(MuExp exp) = true;
 
