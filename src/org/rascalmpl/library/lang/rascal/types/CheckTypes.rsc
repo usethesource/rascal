@@ -3031,8 +3031,8 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`,
     append typedNameNode(convertName(n), n@\loc, rt)[@at = n@\loc];
   }
   
-  <c, sym> = resolveSorts(sym2symbol(concrete.symbol),pat.symbol@\loc, c);
-  return <c, concreteSyntaxNode(sym)>;
+  <c, sym> = resolveSorts(sym2symbol(concrete.symbol),concrete.symbol@\loc, c);
+  return <c, concreteSyntaxNode(sym,psList)>;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> )`, Configuration c) { 
     < c, pti > = extractPatternTree(p,c);
