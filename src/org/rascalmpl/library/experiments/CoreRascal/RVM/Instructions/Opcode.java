@@ -14,8 +14,8 @@ public enum Opcode {
 	STOREVAR (3, 3),
 	STORELOC (4, 2),
 	CALL (5, 2),
-	CALLPRIM (6, 2),
-	RETURN (7, 1),
+	CALLPRIM (6, 2), // TODO: plus number of formal parameters
+	RETURN1 (7, 1),
 	JMP (8, 2),
 	JMPTRUE (9, 2),
 	JMPFALSE (10, 2),
@@ -23,17 +23,26 @@ public enum Opcode {
 	HALT (12, 1),
 	POP (13, 1),
 	CALLDYN(14,1),
-	LOADFUN(15,2),
-	
+	LOADFUN(15,2), // TODO: to be renamed to LOAD_ROOT_FUN
 	CREATE(16,2),
-	NEXT_0(17,1),
-	NEXT_1(18,1),
-	YIELD_0(19,1),
-	YIELD_1(20,1),
-	START(21,1),
+	NEXT0(17,1),
+	NEXT1(18,1),
+	YIELD0(19,1),
+	YIELD1(20,1),
+	INIT(21,1),
 	CREATEDYN(22,1),
 	HASNEXT(23,1),
-	PRINT(24,2)
+	PRINTLN(24,1),
+	RETURN0(25,1),
+	LOADLOC_AS_REF(26,2),
+	LOADVAR_AS_REF(27,3),
+	LOADLOCREF(28,2),
+	LOADVARREF(29,3),
+	STORELOCREF(30,2),
+	STOREVARREF(31,3),
+	LOADCONSTR(32,2),
+	CALLCONSTR(33,2), // TODO: plus number of formal parameters
+	LOAD_NESTED_FUN(34, 3)
 	;
 	
 	private final int op;
@@ -55,7 +64,7 @@ public enum Opcode {
 	static public final int OP_STORELOC = 4;
 	static public final int OP_CALL = 5;
 	static public final int OP_CALLPRIM = 6;
-	static public final int OP_RETURN = 7;
+	static public final int OP_RETURN1 = 7;
 	static public final int OP_JMP = 8;
 	static public final int OP_JMPTRUE = 9;
 	static public final int OP_JMPFALSE = 10;
@@ -65,14 +74,24 @@ public enum Opcode {
 	static public final int OP_CALLDYN = 14;
 	static public final int OP_LOADFUN = 15;	
 	static public final int OP_CREATE = 16;
-	static public final int OP_NEXT_0 = 17;
-	static public final int OP_NEXT_1 = 18;
-	static public final int OP_YIELD_0 = 19;
-	static public final int OP_YIELD_1 = 20;
-	static public final int OP_START = 21;
+	static public final int OP_NEXT0 = 17;
+	static public final int OP_NEXT1 = 18;
+	static public final int OP_YIELD0 = 19;
+	static public final int OP_YIELD1 = 20;
+	static public final int OP_INIT = 21;
 	static public final int OP_CREATEDYN = 22;
 	static public final int OP_HASNEXT = 23;
-	static public final int OP_PRINT = 24;
+	static public final int OP_PRINTLN = 24;
+	static public final int OP_RETURN0 = 25;
+	static public final int OP_LOADLOC_AS_REF = 26;
+	static public final int OP_LOADVAR_AS_REF = 27;
+	static public final int OP_LOADLOCREF = 28;
+	static public final int OP_LOADVARREF = 29;
+	static public final int OP_STORELOCREF = 30;
+	static public final int OP_STOREVARREF = 31;
+	static public final int OP_LOADCONSTR = 32;
+	static public final int OP_CALLCONSTR = 33;
+	static public final int OP_LOAD_NESTED_FUN = 34;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -87,40 +106,40 @@ public enum Opcode {
 		return op;
 	}
 	
-	public static String toString(CodeBlock ins, Opcode opc, int pc){
+	public static String toString(CodeBlock cb, Opcode opc, int pc){
 		switch(opc){
 		case LOADCON:
-			return "LOADCON " + ins.finalCode[pc + 1]  + " [" + ins.findConstantName(ins.finalCode[pc + 1]) + "]";
+			return "LOADCON " + cb.finalCode[pc + 1]  + " [" + cb.getConstantValue(cb.finalCode[pc + 1]) + "]";
 			
 		case LOADVAR:
-			return "LOADVAR " + ins.finalCode[pc + 1] + ", " + ins.finalCode[pc + 2];
+			return "LOADVAR " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
 			
 		case LOADLOC:
-			return "LOADLOC " + ins.finalCode[pc + 1];
+			return "LOADLOC " + cb.finalCode[pc + 1];
 			
 		case STOREVAR:
-			return "STOREVAR " + ins.finalCode[pc + 1] + ", " + ins.finalCode[pc + 2];	
+			return "STOREVAR " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];	
 			
 		case STORELOC:
-			return "STORELOC " + ins.finalCode[pc + 1];
+			return "STORELOC " + cb.finalCode[pc + 1];
 			
 		case CALL:
-			return "CALL " + ins.finalCode[pc + 1]  + " [" + ins.findCodeName(ins.finalCode[pc + 1]) + "]";
+			return "CALL " + cb.finalCode[pc + 1]  + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
 		case CALLPRIM:
-			return "CALLPRIM " + ins.finalCode[pc + 1] + " [" + Primitive.fromInteger(ins.finalCode[pc + 1]).name() + "]";
+			return "CALLPRIM " + cb.finalCode[pc + 1] + " [" + Primitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
 			
-		case RETURN:
-			return "RETURN";
+		case RETURN1:
+			return "RETURN1";
 			
 		case JMP:
-			return "JMP " + ins.finalCode[pc + 1];
+			return "JMP " + cb.finalCode[pc + 1];
 			
 		case JMPTRUE:
-			return "JMPTRUE " + ins.finalCode[pc + 1];
+			return "JMPTRUE " + cb.finalCode[pc + 1];
 			
 		case JMPFALSE:
-			return "JMPFALSE " + ins.finalCode[pc + 1];
+			return "JMPFALSE " + cb.finalCode[pc + 1];
 			
 		case LABEL:
 			break;
@@ -135,33 +154,65 @@ public enum Opcode {
 			return "CALLDYN";
 			
 		case LOADFUN:
-			return "LOADFUN " + ins.finalCode[pc + 1]  + " [" + ins.findFunctionName(ins.finalCode[pc + 1]) + "]";
+			return "LOADFUN " + cb.finalCode[pc + 1]  + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
 		case CREATE:
-			return "CREATE " + ins.finalCode[pc + 1] + " [" + ins.findCodeName(ins.finalCode[pc + 1]) + "]";
+			return "CREATE " + cb.finalCode[pc + 1] + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
-		case NEXT_0:
-			return "NEXT_0 " + ins.finalCode[pc + 1];
+		case NEXT0:
+			return "NEXT0";
 			
-		case NEXT_1:
-			return "NEXT_1 " + ins.finalCode[pc + 1];
+		case NEXT1:
+			return "NEXT1";
 			
-		case YIELD_0:
-			return "YIELD_0 " + ins.finalCode[pc + 1];
+		case YIELD0:
+			return "YIELD0";
 		
-		case YIELD_1:
-			return "YIELD_1 " + ins.finalCode[pc + 1];
+		case YIELD1:
+			return "YIELD1";
 		
-		case START:
-			return "START " + ins.finalCode[pc + 1];
+		case INIT:
+			return "INIT";
 		
 		case CREATEDYN:
-			return "CREATEDYN " + ins.finalCode[pc + 1];
+			return "CREATEDYN";
 			
 		case HASNEXT:
-			return "HASNEXT " + ins.finalCode[pc + 1];
-		case PRINT:
-			return "PRINT " + ins.finalCode[pc + 1]  + " [" + ins.findConstantName(ins.finalCode[pc + 1]) + "]";
+			return "HASNEXT";
+			
+		case PRINTLN:
+			return "PRINTLN";
+		
+		case RETURN0:
+			return "RETURN0";
+		
+		case LOADLOC_AS_REF:
+			return "LOADLOC_AS_REF " + cb.finalCode[pc + 1];
+			
+		case LOADVAR_AS_REF:
+			return "LOADVAR_AS_REF " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
+		
+		case LOADLOCREF:
+			return "LOADLOCREF " + cb.finalCode[pc + 1];
+			
+		case LOADVARREF:
+			return "LOADVARREF " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
+			
+		case STORELOCREF:
+			return "STORELOCREF " + cb.finalCode[pc + 1];
+		
+		case STOREVARREF:
+			return "STOREVARREF " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
+			
+		case LOADCONSTR:
+			return "LOADCONSTR " + cb.finalCode[pc + 1];
+		
+		case CALLCONSTR:
+			return "CALLCONSTR " + cb.finalCode[pc + 1];
+		
+		case LOAD_NESTED_FUN:
+			return "LOAD_NESTED_FUN " + cb.finalCode[pc + 1] + cb.finalCode[pc + 2];
+			
 		default:
 			break;
 		}	

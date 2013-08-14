@@ -31,7 +31,8 @@ lexical Opcode =
 		| "CALLPRIM"    // calls a primitive operation on a number of arguments, pops them and pushes the result onto the top
 		| "CALL"        // calls a user-defined function on a number of arguments, pops them and pushes the result onto the top
 	
-		| "RETURN"	    // returns from a function popping the current stack frame 
+	| "RETURN_0"
+		| "RETURN1"	    // returns from a function popping the current stack frame 
 	
 		| "JMP"         // jumps to the specified location
 		| "JMPTRUE"     // jumps to the specified location if the top value on the stack is true
@@ -42,11 +43,11 @@ lexical Opcode =
 		// co-routine specific instructions
 		| "CREATE"
 		| "CREATEDYN"
-		| "START"
-		| "NEXT_0"
-		| "NEXT_1"
-		| "YIELD_0"
-		| "YIELD_1"
+		| "INIT"
+		| "NEXT0"
+		| "NEXT1"
+		| "YIELD0"
+		| "YIELD1"
 		| "HASNEXT"
 		;
 	
@@ -65,18 +66,19 @@ keyword Keywords =
 		| "LABEL"
 		| "CALLPRIM"
 		| "CALL"
-		| "RETURN"
+		| "RETURN0"
+		| "RETURN1"
 		| "JMP"
 		| "JMPTRUE"
 		| "JMPFALSE"
 		| "HALT"
 		| "CREATE"
 		| "CREATEDYN"
-		| "START"
-		| "NEXT_0"
-		| "NEXT_1"
-		| "YIELD_0"
-		| "YIELD_1"
+		| "INIT"
+		| "NEXT0"
+		| "NEXT1"
+		| "YIELD0"
+		| "YIELD1"
 		| "HASNEXT"
 		;
 
@@ -93,8 +95,3 @@ syntax Directive =
 		;
 	
 syntax RascalVM = vm: { Directive ";"}+ directives ";" Instruction* instructions;
-
-@doc{Registers the muRascalVM language, .rvm}
-public void registerLanguage() {
-	registerLanguage("muRascalVM", "rvm", RascalVM (str src, loc l) { return parse(#RascalVM, src, l); });
-}

@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.CoreRascal.RVM.Examples;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Function;
 import org.rascalmpl.library.experiments.CoreRascal.RVM.Primitive;
@@ -12,45 +13,45 @@ public class Do {
 		
 	public static void main(String[] args) {
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
-		
-		rvm.declareConst("ZERO", rvm.vf.integer(0));
-		rvm.declareConst("ONE", rvm.vf.integer(1));
-		rvm.declareConst("FOUR", rvm.vf.integer(4));
-		rvm.declareConst("TEN", rvm.vf.integer(10));
-		rvm.declareConst("THOUSAND", rvm.vf.integer(1000));
-		rvm.declareConst("MANY", rvm.vf.integer(100000));
+		IValueFactory vf = rvm.vf;
 		
 		rvm.declare(new Function("square", 1, 1, 1, 6, 
-				new CodeBlock().
-					loadloc(0).
-					loadloc(0).
-					callprim(Primitive.multiplication_num_num).
-					ret()));
+				new CodeBlock(vf).
+					LOADLOC(0).
+					LOADLOC(0).
+					CALLPRIM(Primitive.product_num_num).
+					RETURN1()));
 		
-		rvm.declare(new Function("cube", 1, 1, 1, 6, 
-				new CodeBlock().
-					loadloc(0).
-					loadloc(0).
-					callprim(Primitive.multiplication_num_num).
-					loadloc(0).
-					callprim(Primitive.multiplication_num_num).
-					ret()));
+		rvm.declare(new Function("cube", 2, 1, 1, 6, 
+				new CodeBlock(vf).
+					LOADLOC(0).
+					LOADLOC(0).
+					CALLPRIM(Primitive.product_num_num).
+					LOADLOC(0).
+					CALLPRIM(Primitive.product_num_num).
+					RETURN1()));
 		
-		rvm.declare(new Function("do", 1, 2, 2, 6, 
-				new CodeBlock().
-					loadloc(1).
-					loadloc(0).
-					calldyn().
-					ret()));
+		rvm.declare(new Function("do", 3, 2, 2, 6, 
+				new CodeBlock(vf).
+					LOADLOC(1).
+					LOADLOC(0).
+					CALLDYN().
+					RETURN1()));
 		
-		rvm.declare(new Function("main", 0, 0, 0, 7,
-				new CodeBlock().
-					loadfun("cube").
-					loadcon("FOUR").
-					call("do").
-					halt()));
+		rvm.declare(new Function("main", 4, 1, 1, 7,
+				new CodeBlock(vf).
+					LOADFUN("cube").
+					LOADCON(4).
+					CALL("do").
+					HALT()));
 		
-		rvm.setDebug(true);
+		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+				new CodeBlock(vf)
+					.LOADLOC(0)
+					.CALL("main")
+					.RETURN1()
+					.HALT()));
+		
 		rvm.executeProgram("main", new IValue[] {});
 	}
 

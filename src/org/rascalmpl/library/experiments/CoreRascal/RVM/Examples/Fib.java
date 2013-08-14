@@ -17,48 +17,50 @@ public class Fib {
 public static void main(String[] args) {
 		
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
-		IValueFactory v = rvm.vf;
+		IValueFactory vf = rvm.vf;
 		
-		rvm.declareConst("0", v.integer(0));
-		rvm.declareConst("1", v.integer(1));
-		rvm.declareConst("2", v.integer(2));
-		rvm.declareConst("3", v.integer(3));
-		rvm.declareConst("35", v.integer(35));
 		//int fib(int n) = (n == 0) ? 0 : (n == 1) ? 1 : (fib(n-1) + fib(n-2));
 		
 		rvm.declare(new Function("fib", 1, 1, 1, 6,
-				new CodeBlock().
-					loadloc(0).
-					loadcon("0").
-					callprim(Primitive.equal_num_num).
-					jmpfalse("L").
-					loadcon("0").
-					ret().
-					label("L").
-					loadloc(0).
-					loadcon("1").
-					callprim(Primitive.equal_num_num).
-					jmpfalse("M").
-					loadcon("1").
-					ret().
-					label("M").
-					loadloc(0).
-					loadcon("1").
-					callprim(Primitive.substraction_num_num).
-					call("fib").
-					loadloc(0).
-					loadcon("2").
-					callprim(Primitive.substraction_num_num).
-					call("fib").
-					callprim(Primitive.addition_num_num).
-					ret()));
+				new CodeBlock(vf).
+					LOADLOC(0).
+					LOADCON(0).
+					CALLPRIM(Primitive.equals_num_num).
+					JMPFALSE("L").
+					LOADCON(0).
+					RETURN1().
+					LABEL("L").
+					LOADLOC(0).
+					LOADCON(1).
+					CALLPRIM(Primitive.equals_num_num).
+					JMPFALSE("M").
+					LOADCON(1).
+					RETURN1().
+					LABEL("M").
+					LOADLOC(0).
+					LOADCON(1).
+					CALLPRIM(Primitive.subtraction_num_num).
+					CALL("fib").
+					LOADLOC(0).
+					LOADCON(2).
+					CALLPRIM(Primitive.subtraction_num_num).
+					CALL("fib").
+					CALLPRIM(Primitive.addition_num_num).
+					RETURN1()));
 					
-		rvm.declare(new Function("main", 0, 0, 0, 6,
-					new CodeBlock().
-						loadcon("35").
-						call("fib").
-						halt()));
-		rvm.setDebug(false);
+		rvm.declare(new Function("main", 2, 1, 1, 6,
+					new CodeBlock(vf).
+						LOADCON(10).
+						CALL("fib").
+						HALT()));
+		
+		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+				new CodeBlock(vf)
+					.LOADLOC(0)
+					.CALL("main")
+					.RETURN1()
+					.HALT()));
+		
 		long start = System.currentTimeMillis();
 		IValue val = (IValue) rvm.executeProgram("main", new IValue[] {});
 		long now = System.currentTimeMillis();
@@ -66,7 +68,7 @@ public static void main(String[] args) {
 		System.out.println("RVM: average elapsed time in msecs:" + (now - start));
 		
 		start = System.currentTimeMillis();
-		int r = fib(35);
+		int r = fib(10);
 		System.out.println("Result: " + r);
 		now = System.currentTimeMillis();
 		System.out.println("JAVA: average elapsed time in msecs:" + (now - start));

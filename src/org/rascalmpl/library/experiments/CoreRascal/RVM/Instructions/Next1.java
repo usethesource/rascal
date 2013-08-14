@@ -5,7 +5,7 @@ import org.rascalmpl.library.experiments.CoreRascal.RVM.CodeBlock;
 public class Next1 extends Instruction {
 	
 	public Next1(CodeBlock ins) {
-		super(ins, Opcode.NEXT_1);
+		super(ins, Opcode.NEXT1);
 	}
 	
 }

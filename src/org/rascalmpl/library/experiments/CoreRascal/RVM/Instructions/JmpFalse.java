@@ -11,10 +11,10 @@ public class JmpFalse extends Instruction {
 		this.label = label;
 	}
 	
-	public String toString() { return "JMPFALSE " + label + " [" + ins.labels.get(label) + "]"; }
+	public String toString() { return "JMPFALSE " + label + " [" + codeblock.getLabelIndex(label) + "]"; }
 	
 	public void generate(){
-		ins.addCode(opcode.getOpcode());
-		ins.addCode(ins.labels.get(label));
+		codeblock.addCode(opcode.getOpcode());
+		codeblock.addCode(codeblock.getLabelIndex(label));
 	}
 }
