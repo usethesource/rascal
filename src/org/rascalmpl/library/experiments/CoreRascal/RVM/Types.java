@@ -170,10 +170,8 @@ public class Types {
 		Type adt = symbolToType((IConstructor) symbol.get("adt"), store);
 		IList parameters = (IList) symbol.get("parameters");
 		String name = ((IString) symbol.get("name")).getValue();
-		System.err.println("Cons in: " + symbol);
-		// here we assume the store has the declaration already
-		Type t = store.lookupConstructor(adt, name, symbolsToTupleType(parameters, store));
-		System.err.println("Cons out: " + t);
+		Type tupleType = symbolsToTupleType(parameters, store);
+		Type t = tf.constructorFromTuple(store, adt, name, tupleType);
 		return t;
 		
 	}
@@ -187,7 +185,7 @@ public class Types {
 			return tf.aliasType(store, name, aliased);
 		}
 		else {
-			return tf.aliasTypeFromTuple(store, name, aliased,  symbolsToTupleType(parameters, store));
+			return tf.aliasTypeFromTuple(store, name, aliased, symbolsToTupleType(parameters, store));
 		}
 	}
 
