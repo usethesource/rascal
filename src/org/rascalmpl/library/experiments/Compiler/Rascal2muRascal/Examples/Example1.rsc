@@ -1,4 +1,4 @@
-module experiments::CoreRascal::Translation::Examples::Example1
+module experiments::Compiler::Rascal2muRascal::Examples::Example1
 
 //int x = 1;
 //int z =  x + 1;

@@ -1,10 +1,10 @@
 @bootstrapParser
-module experiments::CoreRascal::Translation::RascalPattern
+module experiments::Compiler::Rascal2muRascal::RascalPattern
 
 import Prelude;
 
 import lang::rascal::\syntax::Rascal;
-import experiments::CoreRascal::Translation::RascalExpression;
+import experiments::Compiler::Rascal2muRascal::RascalExpression;
 
 import experiments::Compiler::muRascal::AST;
 

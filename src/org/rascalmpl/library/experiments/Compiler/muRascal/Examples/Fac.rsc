@@ -6,7 +6,7 @@ import util::Benchmark;
 import  experiments::Compiler::muRascal::AST;
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::RVM::Run;
-import experiments::Compiler::muRascal::mu2rvm;
+import experiments::Compiler::muRascal2RVM::mu2rvm;
 
 int facarg = 20;
 int repeat = 1000;
