@@ -11,13 +11,17 @@ import Prelude;
 // All information related to one Rascal module
 
 public data MuModule =											
-            muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initialization);
+              muModule(str name, list[Symbol] types, 
+                                 list[MuFunction] functions, 
+                                 list[MuVariable] variables, 
+                                 list[MuExp] initialization)
+            ;
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-            muFunction(str name, int scope, int nformal, int nlocal, list[MuExp] body)
+              muFunction(str name, int scope, int nformal, int nlocal, list[MuExp] body)
           ;
           
 // A global (module level) variable.
@@ -95,9 +99,25 @@ public data MuExp =
           
            // Multi-expressions
             
-          | muMulti(MuExp exp)		 					// Expression that can produce multiple values
-          
-          	// Miscellaneous
-       
-          | muNote(str txt)										// Note that is propagated to generated code and printed during execution
+          | muMulti(MuExp exp)		 							// Expression that can produce multiple values
        	  ;
+       	  
+// Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
+// They will never be seen by later stages of the compiler.
+
+public data Module =
+            preMod(str name, list[Function] functions)
+          ;
+
+public data Function =				
+             preFunction(str name, int scope, int nformal, 
+                         list[NameDecl] names, list[MuExp] body)
+          ;
+
+public data NameDecl = preDecl(str name, int pos) ;
+
+public data MuExp =
+              preVar(str name)
+            | preAssignLoc(str name, MuExp exp)
+            | preIfthen(MuExp cond, list[MuExp] thenPart)
+           ;
