@@ -3,23 +3,24 @@ module experiments::CoreRascal::Translation::RascalPattern
 
 import Prelude;
 
-import experiments::CoreRascal::ReductionWithEvalCtx::AST;
 import lang::rascal::\syntax::Rascal;
 import experiments::CoreRascal::Translation::RascalExpression;
+
+import experiments::CoreRascal::muRascal::AST;
 
 /*********************************************************************/
 /*                  Patterns                                         */
 /*********************************************************************/
  
-str translatePat(p:(Pattern) `<BooleanLiteral b>`) = "coroutine (bool subject) resume bool () { yield subject == <translate(b)>; }";
+list[MuExp] translatePat(p:(Pattern) `<BooleanLiteral b>`) = [ muCreate("MATCH_BOOL", translate(b)) ];
 
-str translatePat(p:(Pattern) `<IntegerLiteral n>`) = "coroutine (int subject) resume bool () { yield subject == <translate(n)>; }";
+list[MuExp] translatePat(p:(Pattern) `<IntegerLiteral n>`) = [ muCreate("MATCH_INT", translate(n)) ];
      
-str translatePat(p:(Pattern) `<StringLiteral s>`) =  "coroutine (str subject) resume bool () { yield subject == <translate(s)>; }";
+list[MuExp] translatePat(p:(Pattern) `<StringLiteral s>`, Expression subject) =   [ muCreate("MATCH_STR", translate(b)) ];
      
-str translatePat(p:(Pattern) `<QualifiedName name>`) =  "coroutine (<getType(name@\loc)> subject) resume bool () { yield subject == <translate(name)>; }";
+list[MuExp] translatePat(p:(Pattern) `<QualifiedName name>`, Expression subject) =  "coroutine (<getType(name@\loc)> subject) resume bool () { yield subject == <translate(name)>; }";
      
-str translatePat(p:(Pattern) `<Type tp> <Name name>`) = "coroutine (<tp> subject) resume bool () { <name> = subject; yield true; }";
+list[MuExp] translatePat(p:(Pattern) `<Type tp> <Name name>`) = "coroutine (<tp> subject) resume bool () { <name> = subject; yield true; }";
 
 /*
   I assume the following coroutine model here:
@@ -37,15 +38,27 @@ str translatePat(p:(Pattern) `<Type tp> <Name name>`) = "coroutine (<tp> subject
   
   Example: Countdown
   
-  coroutine countDown(int n) resume int (){
+  coroutine void countDown(int n) int next(){
     while(n > 0 ){
-    	yield n;
+    	f(n);
     	n -= 1;
     }
+    return;
   }
   
-  c = countDown(10).start();							// for(l <- countDown(10)) println(l);
-  while(c.hasMore()) println(c.resume());
+  coroutine int bla(){
+    b =  ALL(countDown(10));
+    while(l.hasNext()) yield l.next();
+    r = countDown(5);
+    while(r.hasNext()) yield r.next();
+  }
+  
+  int f(int nn) {
+    yield nn
+  }
+  
+  c = create(countDown).init(10);							// for(l <- countDown(10)) println(l);
+  while(c.hasNext()) println(c.next());
   
   Example: preorder traversal
   
@@ -74,13 +87,10 @@ str translatePat(p:(Pattern) `<Type tp> <Name name>`) = "coroutine (<tp> subject
 // 2. Wrap all other patterns to comply with the above signature
 // 3. The cases of list variables are handled specially.
 
-str translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
-  defs = {}; uses = {};
-  for(pat <- pats){
-  	<ds, us> = getVars(pat);
-  	defs += ds;
-  	uses += us;
-  }
+list[MuExp] translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
+  
+  return [ muCreate("MATCH_LIST", [ *translatePat(pat) | pat <- pats ]) ];
+ 
   
   return
      "coroutine (value subject) resume tuple[bool,int](int) {
@@ -141,3 +151,8 @@ str asListElem(str code) =
 /*********************************************************************/
 /*                  End of Patterns                                  */
 /*********************************************************************/
+
+bool backtrackFree(p:(Pattern) `[<{Pattern ","}* pats>]`) = false;
+bool backtrackFree(p:(Pattern) `{<{Pattern ","}* pats>}`) = false;
+
+default bool backtrackFree(Pattern p) = true;

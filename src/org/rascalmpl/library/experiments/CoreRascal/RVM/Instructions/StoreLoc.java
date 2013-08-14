@@ -8,14 +8,14 @@ public class StoreLoc extends  Instruction {
 	
 	public StoreLoc(CodeBlock ins, int pos){
 		super(ins, Opcode.STORELOC);
-		this.ins = ins;
+		this.codeblock = ins;
 		this.pos = pos;
 	}
 	
 	public String toString() { return "STORELOC " + pos; }
 	
 	public void generate(){
-		ins.addCode(opcode.getOpcode());
-		ins.addCode(pos);
+		codeblock.addCode(opcode.getOpcode());
+		codeblock.addCode(pos);
 	}
 }

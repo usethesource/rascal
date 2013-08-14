@@ -12,19 +12,7 @@ public class CountDown_a {
 	public static void main(String[] args) {
 		
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
-		IValueFactory v = rvm.vf;
-		
-		rvm.declareConst("TRUE", v.bool(true));
-		rvm.declareConst("FALSE", v.bool(false));
-		
-		rvm.declareConst("LST", v.list(v.integer(0), v.integer(1), v.integer(2)));
-		
-		rvm.declareConst("0", v.integer(0));
-		rvm.declareConst("1", v.integer(1));
-		rvm.declareConst("2", v.integer(2));
-		rvm.declareConst("3", v.integer(3));
-		rvm.declareConst("4", v.integer(4));
-		rvm.declareConst("5", v.integer(5));
+		IValueFactory vf = rvm.vf;
 		
 		/*
 		 * g (n) 
@@ -36,57 +24,72 @@ public class CountDown_a {
 		 * 		return 0; 
 		 * }
 		 */
-		rvm.declare(new Function("g", 0, 1, 1, 6,
-					new CodeBlock()
-							.label("LOOP")
-							.loadloc(0)
-							.loadcon("0")
-							.callprim(Primitive.greater_num_num)
-							.jmptrue("BODY")
-							.loadcon("0")
-							.ret()
-							.label("BODY")
-							.loadloc(0)
-							.yield1()
-							.loadloc(0)
-							.loadcon("1")
-							.callprim(Primitive.substraction_num_num)
-							.storeloc(0)
-							.jmp("LOOP")));
+		rvm.declare(new Function("g", 1, 1, 1, 6,
+					new CodeBlock(vf)
+							.LABEL("LOOP")
+							.LOADLOC(0)
+							.LOADCON(0)
+							.CALLPRIM(Primitive.greater_num_num)
+							.JMPTRUE("BODY")
+							.LOADCON(0)
+							.RETURN1()
+							.LABEL("BODY")
+							.LOADLOC(0)
+							.YIELD1()
+							.POP()        // added pop with respect to the new NEXT0's default bahviour on the stack
+							.LOADLOC(0)
+							.LOADCON(1)
+							.CALLPRIM(Primitive.subtraction_num_num)
+							.STORELOC(0)
+							.POP()       // added pop with respect to the new STORELOC's default bahviour on the stack
+							.JMP("LOOP")));
 		
 		/*
 		 * c = create(g);
+		 * c.init(5);
 		 * 
-		 * count = c.start(5);
-		 * 
+		 * count = 0;
 		 * while(hasNext(c)) {
 		 * 		count = count + c.next();
 		 * }
+		 * 
+		 * return count;
 		 */
 		/*
 		 * result: 5 + 4 + 3 + 2 + 1 = 15
 		 */
-		rvm.declare(new Function("main", 0, 0, 2, 6,
-					new CodeBlock()
-						.create("g")
-						.storeloc(0)
-						.loadcon("5")
-						.loadloc(0)
-						.start()
-						.storeloc(1)
-						.label("LOOP")
-						.loadloc(0)
-						.hasNext()
-						.jmptrue("BODY")
-						.halt()
-						.label("BODY")
-						.loadloc(1)
-						.loadloc(0)
-						.next0()
-						.callprim(Primitive.addition_num_num)
-						.storeloc(1)
-						.jmp("LOOP")));
+		rvm.declare(new Function("main", 2, 1, 3, 6,
+					new CodeBlock(vf)
+						.CREATE("g")
+						.STORELOC(1)
+						.LOADCON(5)
+						.LOADLOC(1)
+						.INIT()
+						.POP()      // added pop with respect to the new INIT's default bahviour on the stack
+						.LOADCON(0)
+						.STORELOC(2)
+						.POP()      // added pop with respect to the new STORELOC's default bahviour on the stack
+						.LABEL("LOOP")
+						.LOADLOC(1)
+						.HASNEXT()
+						.JMPTRUE("BODY")
+						.LOADLOC(2)
+						.RETURN1()
+						.LABEL("BODY")
+						.LOADLOC(2)
+						.LOADLOC(1)
+						.NEXT0()
+						.CALLPRIM(Primitive.addition_num_num)
+						.STORELOC(2)
+						.POP()     // added pop with respect to the new STORELOC's default bahviour on the stack
+						.JMP("LOOP")));
 	
+		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+					new CodeBlock(vf)
+						.LOADLOC(0)
+						.CALL("main")
+						.RETURN1()
+						.HALT()));
 		rvm.executeProgram("main", new IValue[] {});
 	}
 

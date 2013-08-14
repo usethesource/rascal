@@ -1,29 +1,48 @@
 module experiments::CoreRascal::muRascalVM::AST
 
-public data Instruction = instruction(str opcode, list[str] operands);
+import Type;
 
-public data Directive = 
-		  intconst(str \value)
-		| relconst(str \value)
-		| ratconst(str \value)
-		| boolconst(str \value)
-		| function(str name, int scope, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
+public data Declaration = 
+		  FUNCTION(str name, int scope, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
 		;
 
-public data RascalVM = vm(list[Directive] directives, list[Instruction] instructions);
+public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions);
 
-public str LOADCON = "LOADCON";
-public str LOADLOC = "LOADLOC";
-public str LOADVAR = "LOADVAR";
-public str STORELOC = "STORELOC";
-public str STOREVAR = "STOREVAR";
-public str LABEL = "LABEL";
-public str CALLPRIM = "CALLPRIM";
-public str CALL = "CALL";
-public str RETURN = "RETURN";
-public str JMP = "JMP";
-public str JMPTRUE = "JMPTRUE";
-public str JMPFALSE = "JMPFALSE";
-public str CREATE = "CREATE";
-public str RESUME = "RESUME";
-public str YIELD = "YIELD";
+data Instruction =
+	   	  LOADCON(value val)
+		| LOADVAR(int scope, int pos)
+		| LOADLOC(int pos)
+		| STOREVAR(int scope, int pos)
+		| STORELOC(int pos)
+		| CALLCONSTR(str name)
+		| CALL(str name)
+		| CALLPRIM(str name)
+		| RETURN1()
+		| JMP(str label)
+		| JMPTRUE(str label)
+		| JMPFALSE(str label)
+		| LABEL(str label)
+		| HALT()
+		| POP()
+		| CALLDYN()
+		| LOADFUN(str name)
+		| LOAD_NESTED_FUN(str name, int scope)
+		| LOADCONSTR(str name)
+		| CREATE(str fun)
+		| NEXT0()
+		| NEXT1()
+		| YIELD0()
+		| YIELD1()
+		| INIT()
+		| CREATEDYN()
+		| HASNEXT()
+		| PRINTLN()
+		| RETURN0()
+		| LOADLOC_AS_REF(int pos)
+		| LOADVAR_AS_REF(int scope, int pos)
+		| LOADLOCREF(int pos)
+		| LOADVARREF(int scope, int pos)
+		| STORELOCREF(int pos)
+		| STOREVARREF(int scope, int pos)
+		;
+	
