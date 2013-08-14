@@ -6,18 +6,18 @@ import experiments::Compiler::RVM::Run;
 
 import IO;
 
-public loc exmpl1 = |project://RascalStandardLibrary/src/experiments/CoreRascal/muRascalVM/programs/Example1.rvm|;
+public loc exmpl1 = |project://RascalStandardLibrary/src/experiments/Compiler/RVM/programs/Example1.rvm|;
 
 // factorial
-public loc exmpl2 = |project://RascalStandardLibrary/src/experiments/CoreRascal/muRascalVM/programs/Example2.rvm|;
+public loc exmpl2 = |project://RascalStandardLibrary/src/experiments/Compiler/RVM/programs/Example2.rvm|;
 
 // factorial with a tail call optimization
-public loc exmpl3 = |project://RascalStandardLibrary/src/experiments/CoreRascal/muRascalVM/programs/Example3.rvm|;
+public loc exmpl3 = |project://RascalStandardLibrary/src/experiments/Compiler/RVM/programs/Example3.rvm|;
 
 // tail recursive, two-parameter version of factorial
-public loc exmpl4 = |project://RascalStandardLibrary/src/experiments/CoreRascal/muRascalVM/programs/Example4.rvm|;
+public loc exmpl4 = |project://RascalStandardLibrary/src/experiments/Compiler/RVM/programs/Example4.rvm|;
 
-public loc exmpl5 = |project://RascalStandardLibrary/src/experiments/CoreRascal/muRascalVM/programs/Example5.rvm|;
+public loc exmpl5 = |project://RascalStandardLibrary/src/experiments/Compiler/RVM/programs/Example5.rvm|;
 
 public void testit() {
 	RascalVM code = parse(readFile(exmpl5));

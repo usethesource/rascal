@@ -13,7 +13,7 @@ lexical Comment
 
 //layout Whitespace = [\ \t\n]*;
 
-lexical Identifier = id: ( [A-Za-z][A-Za-z0-9_]* ) \ Keywords;
+lexical Identifier = id: ( [A-Za-z][A-Za-z0-9_]* ) \ Keywords \ Bool;
 lexical Integer =  [0-9]+;
 lexical Label = label: [$][A-Za-z0-9]+;
 lexical FConst = fconst: [_][A-Za-z0-9]+;
@@ -38,7 +38,8 @@ syntax NameDecl =
 			;
 
 syntax Function =     
-              preFunction:	"function" Identifier name "[" Integer scope "," Integer nformal "," {NameDecl ","}* names "]" "{" {Exp ";"}+ body "}"
+              preFunction:	"function" Identifier name "[" Integer scope "," Integer nformal "," {NameDecl ","}* names "]"
+                            "{" (Exp ";")+ body "}"
 			;
 
 syntax Exp  = 
@@ -46,7 +47,7 @@ syntax Exp  =
 			| muCon: 		String s
 			| muLab: 		Label id
 			| muFun: 		FConst id
-			| muConstr: 	FConst
+			| muConstr: 	FConst id
 			
 		    | muLoc: 		Identifier id ":" Integer pos
 			| muVar: 		Identifier id ":" Integer scope ":" Integer pos
@@ -60,7 +61,7 @@ syntax Exp  =
 			> muAssign: 	Identifier id >> ":" Integer scope >> ":" Integer pos "=" Exp exp
 			> muAssignRef: 	"@" Identifier id >> ":" Integer scope >> ":" Integer pos "=" Exp exp
 			
-			| preIfthen:    "if" "(" Exp exp1 ")" "{" {Exp ";"}* thenPart "}"
+		
 			| muIfelse: 	"if" "(" Exp exp1 ")" "{" {Exp ";"}* thenPart "}" "else" "{" {Exp ";"}* elsePart "}"
 			| muWhile: 		"while" "(" Exp cond ")" "{" {Exp ";"}* body "}" 
 			
@@ -68,7 +69,7 @@ syntax Exp  =
 			> muCreate: 	"create" "(" Exp coro ")"
 			
 			| muInit: 		"init" "(" Exp coro ")"
-			| muInit: 		"init" "(" Exp coro "," {Exp ","}* args ")"
+			| muInit: 		"init" "(" Exp coro "," {Exp ","}+ args ")"
 			
 			| muNext:   	"next" "(" Exp coro ")"
 			| muNext:   	"next" "(" Exp coro "," {Exp ","}+ args ")"
@@ -78,18 +79,21 @@ syntax Exp  =
 			| muYield: 		"yield"
 			| muYield: 		"yield"  Exp exp
 			
-			| bracket "(" Exp exp ")"
+			| bracket		"(" Exp exp ")"
 			;
 
 keyword Keywords = 
               "module" | "function" | "return" |
-			  "prim" | "if" | "then" | "else" | "fi" |  "while" |
+			  "prim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "hasNext" |
              ;
              
 // Syntactic features that will be removed by the preprocessor. 
             
 syntax Exp =
-			   preVar: Identifier id
-			
-			 ;
+			  preVar: 		Identifier id
+			| preIfthen:    "if" "(" Exp exp1 ")" "{" {Exp ";"}* thenPart "}"
+			| prePair:  	"\<" Exp exp1 "," Exp exp2 "\>"
+			| preAssignLocPair:
+							"\<" Identifier id1 "," Identifier id2 "\>" "=" Exp exp
+			;

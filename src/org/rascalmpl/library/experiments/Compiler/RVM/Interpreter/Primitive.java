@@ -43,6 +43,7 @@ public enum Primitive {
 	addition_set_set,
 	addition_str_str,
 	addition_tuple_tuple,
+	assign_pair,			// Used by muRascal implode
 	composition_lrel_lrel,
 	composition_rel_rel,
 	composition_map_map,
@@ -51,6 +52,7 @@ public enum Primitive {
 	equivalent_bool_bool,
 	greater_num_num,
 	greater_equal_num_num,
+	head_list,
 	implies_bool_bool,
 	less_num_num,
 	less_equal_num_num,
@@ -63,12 +65,14 @@ public enum Primitive {
 	or_bool_bool,
 	println,
 	product_num_num,
+	size_list,
 	subtraction_list_list,
 	subtraction_map_map,
 	subtraction_num_num,
 	subtraction_set_set,
 	subscript_list_int, 
 	subscript_map,
+	tail_list,
 	transitive_closure_lrel,
 	transitive_closure_rel,
 	transitive_reflexive_closure_lrel,
@@ -242,6 +246,21 @@ public enum Primitive {
 		return sp - 1;
 	}
 	
+	
+	/*
+	 * assignPair: used by muRascal Implode for resolving <v1, v2> = exp
+	 */
+	
+	public static int assign_pair(Object[] stack, int sp) {
+		int v1 = ((IInteger) stack[sp - 3]).intValue();
+		int v2 = ((IInteger) stack[sp - 2]).intValue();
+		ITuple pair = (ITuple) stack[sp - 1];
+		stack[v1] = pair.get(v1);
+		stack[v2] = pair.get(v2);
+		stack[sp - 2] = pair;
+		return sp - 2;
+	}
+	
 	/*
 	 * asType
 	 */
@@ -329,6 +348,15 @@ public enum Primitive {
 	/*
 	 * has
 	 */
+	
+	/*
+	 * head_list
+	 */
+	
+	public static int head_listl(Object[] stack, int sp) {
+		stack[sp - 1] = ((IList) stack[sp - 2]).get(0);
+		return sp;
+	}
 	
 	/*
 	 * implies
@@ -445,6 +473,14 @@ public enum Primitive {
 	 * 
 	 * infix Modulo "%" { int x int -> int }
 	 */
+	
+	/*
+	 * size_list
+	 */
+	public static int size_list(Object[] stack, int sp) {
+		stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
+		return sp - 1;
+	}
 	
 	/*
 	 * multiplication
@@ -564,6 +600,16 @@ public enum Primitive {
 	public static int subtraction_map_map(Object[] stack, int sp) {
 		stack[sp - 2] = ((IMap) stack[sp - 2]).remove((IMap) stack[sp - 1]);
 		return sp - 1;
+	}
+	
+	/*
+	 * tail_list
+	 */
+	
+	public static int tail_list(Object[] stack, int sp) {
+		IList lst =  ((IList) stack[sp - 1]);
+		stack[sp - 1] = lst.sublist(1, lst.length() - 1);
+		return sp;
 	}
 
 	/*
