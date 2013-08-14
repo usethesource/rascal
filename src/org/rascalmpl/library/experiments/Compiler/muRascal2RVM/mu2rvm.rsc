@@ -25,9 +25,9 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   nLabel = -1;
   
   
-  for(fun <- experiments::Compiler::muRascal2RVM::Library::library){
-     funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
-   }
+ // for(fun <- experiments::Compiler::muRascal2RVM::Library::library){
+ //    funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
+ //  }
  
   for(fun <- functions){
     functionScope = fun.scope;
@@ -75,7 +75,9 @@ INS trblock(list[MuExp] exps) {
 
 // Translate a single muRascal expression
 
-INS tr(muCon(value c)) = [LOADCON(c)];
+INS tr(muCon("true")) = [LOADCON(true)];
+INS tr(muCon("false")) = [LOADCON(false)];
+default INS tr(muCon(value c)) = [LOADCON(c)];
 
 INS tr(muFun(str name)) = [LOADFUN(name)];
 
@@ -137,7 +139,7 @@ INS tr(muInit(MuExp exp)) = [*tr(exp), INIT()];
 INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT()];  // order!
 
 INS tr(muNext(MuExp coro)) = [*tr(coro), NEXT0()];
-INS tr(muNext(MuExp coro, MuExp args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
+INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
 
 INS tr(muYield()) = [YIELD0()];
 INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];

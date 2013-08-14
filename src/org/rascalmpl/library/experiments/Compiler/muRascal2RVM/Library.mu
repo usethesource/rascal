@@ -1,11 +1,13 @@
-module library
+module Library
 
-function TRUE[0,0,] { return f(1) }   // should be true
 
-function FALSE[0,0,] { return f(0) }
+function TRUE[0,0,] { return f(true); }   // should be true
+ 
+function FALSE[0,0,] { return f(false); }
+
 
 function AND_U_U[2,2,lhs:0,rhs:1]{
-  return prim("and_bool_bool", lhs, rhs)
+  return prim("and_bool_bool", lhs, rhs);
 }
 
 function AND_M_U[2,2,lhs:0,rhs:1,clhs:2]{
@@ -17,7 +19,7 @@ function AND_M_U[2,2,lhs:0,rhs:1,clhs:2]{
         }
      }          
    };
-   return 0
+   return 0;
 }
 
 function AND_U_M[2,2,lhs:0,rhs:1,crhs:2]{
@@ -29,9 +31,9 @@ function AND_U_M[2,2,lhs:0,rhs:1,crhs:2]{
         } else {
           return 0
         }
-      }          
+      }         
    };
-   return 0
+   return 0;
 }
 
 function AND_M_M[2,2,lhs:0,rhs:1,clhs:2,crhs:3]{
@@ -48,111 +50,96 @@ function AND_M_M[2,2,lhs:0,rhs:1,clhs:2,crhs:3]{
         }       
      }          
    };
-   return 0
+   return 0;
 }
 
-/*
-            
-muFunction("ONE", 1, 1, 1, 
-	[
-		muAssignLoc("lhs", 0, muInit(muCreate(muLoc("arg", 0)))),
-		muReturn(muNext(muLoc("arg", 0)))
-	]
-),
-					
-muFunction("ALL", 1, 1, 1, 
-	[					
-		muAssignLoc("arg", 0, muInit(muCreate(muLoc("arg", 0)))),
-		muWhile(muHasNext(muLoc("lhs", 0)),
-			[ muYield(muNext(muLoc("lhs", 0)))
-			]),
-	    muReturn(muCon(false))		
-	]
-),
+function ONE[1,1,arg:0, carg:1]{
+   carg = init(creat(arg));
+   return next(arg);
+}
+
+function ALL[1,1,arg:0,carg:1]{
+   carg = init(creat(arg));
+   while(hasNext(carg)){
+        yield next(carg)
+   };
+   return false;
+}        
 
 // Pattern matching
 
-muFunction("MATCH", 1, 2, 1, 
-	[					
-		muInit(muVar("pat", 1, 0), [muVar("subject", 1, 1)]),
-		muWhile(muHasNext(muVar("pat", 1, 0)),
-			[ muYield(muNext(muVar("pat", 1, 0)))
-			]),
-	    muReturn(muCon(false))		
-	]
-),
+function MATCH[1,3,pat:0,subject:1,cpat:2]{
+   cpat = init(create(pat), subject);
+   while(hasNext(cpat)){
+      if(next(cpat)){
+         yield true
+      } else {
+        return false
+      }
+   };
+   return false;
+}
 
-muFunction("MATCH_INT", 1, 2, 1, 
-	[					
-	    muReturn(muCallPrim("equals_num_num", muVar("pat", 1, 0), muVar("subject", 1, 1)))	
-	]
-),
+function MATCH_INT[1,2,pat:0,subject:1]{
+   return prim("equals_num_num", pat, subject);
+}
 
-muFunction("MATCH_LIST", 1, 2, 1, 
-	[					
-		muInit(muVar("pat", 1, 0), [muVar("subject", 1, 1)]),
-		// list matching
-	    muReturn(muCon(true))		
-	]
-),
+function make_matcher[1,4,pats:0,n:1,subject:2,cursor:4]{
+   return init(create(prim("subscript_list_int", pats, n)), subject, cursor);
+}
 
-muFunction("MATCH_LIST", 1, 2, 7,
-	[
-		muAssignLoc("patlen", 2, muCall("size", muLoc("pats", 0))),
-		muAssignLoc("sublen", 3, muCall("size", muLoc("subject", 1))),
-		muAssignLoc("p", 4, muCon(0)),
-		muAssignLoc("cursor", 5, muCon(0)),
-		muAssignLoc("forward", 6, muCon(true)),
-		assignLoc("matcher", 7, muInit(muCallPrim("subscript_list", [muLoc("pats", 0), muCon(0)]), [muLoc("subject", 1), muLoc("cursor", 5)])),
-		assignLoc("matchers", 7, callPrim("make_list", [muCon(0)]))
-		
-		
-		
-	]
-)
-/*
-coroutine MATCH_LIST (pats:0) (subject:1) {
-     int patlen:2 = size(pats);
-     int sublen:3 = size(subject);
-     int p:4 = 0; 
-     int cursor:5 = 0;
-     bool forward:6 = true;
-     matcher:7 = pats[0].init(subject, cursor);
-     matchers:8 = [];
+function MATCH_LIST[1, 2, pat:0,subject:1,patlen:2,sublen:3,
+						  p:4,cursor:5,forward:6,matcher:7,
+						  matchers:8,pats:9,success:10,nextCursor:11]{
+
+     patlen = prim("size_list", pats);
+     sublen = prim("size_list", subject);
+     p = 0; 
+     cursor = 0;
+     forward = true;
+     matcher = make_matcher(pats, subject, cursor);
+     matchers = prim("make_list", 0);
      while(true){
-        while(matcher.hasMore()){
-        	<success, nextCursor> = matcher.next(forward);
+         while(hasMore(matcher)){
+        	<success, nextCursor> = next(matcher,forward);
             if(success){
                forward = true;
                cursor = nextCursor;
-               matchers = [matcher] + matchers;
-               p += 1;
-               if(p == patlen && cursor == sublen)
-              	   yield true; 
-               else
-                   matcher = pats[p].init(subject, cursor)
+               matchers = prim("addition_elm_list", matcher, matchers);
+               p = prim("addition_num_num", p, 1);
+               if(prim("and_bool_bool",
+                       prim("equals_num", p, patlen),
+                       prim("equals_num", cursor, sublen))) {
+              	   yield true 
+               } else {
+                   matcher = make_matcher(pats, p, subject, cursor)
+               }    
             }
-         }
-         if(p > 0){
-               p -= 1;
-               matcher = head(matchers);
-               matchers = tail(matchers);
-               forward = false;
+         };
+         if(prim("greater_num_num", p, 0)){
+               p = prim("subtraction_num_num", p, 1);
+               matcher = prim("head_list", matchers);
+               matchers = prim("tail_list", matchers);
+               forward = false
          } else {
-               return false;
+               return false
          }
-     }
+     };
 }
-     
-coroutine MATCH_PAT_IN_LIST (pat) (subject, start){
-    pat.init(subject[start]);
-    while(pat.hasNext())
-       if(pat.next()){
-          return <true, start + 1>;
-    }
-    return <false, start>;
- } 
+
+function MATCH_PAT_IN_LIST[1, 3, pat:0, subject:1, start:2,cpat:3]{
+    cpat = init(create(pat), subject, start);
+    /*
+    while(hasNext(cpat)){
+       if(next(cpat)){
+          return <true, prim("addition_num_num", start, 1)>
+       }   
+    };
+    return <false, start>
+  */  
+} 
  
+ /*
  coroutine MATCH_LIST_VAR (VAR) (subject, start){
     int pos = start;
     while(pos < size(subject)){

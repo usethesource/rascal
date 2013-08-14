@@ -1,9 +1,10 @@
-module experiments::Compiler::muRascal::Tests
+module experiments::Compiler::muRascal2RVM::Tests
 
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Implode;
 
 import experiments::Compiler::muRascal::Syntax;
+import experiments::Compiler::muRascal2RVM::mu2rvm;
 import Ambiguity;
 
 import Prelude;
@@ -14,7 +15,9 @@ public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
 
 void main(){
-    code = parse(Library);
+    MuModule m = parse(Library);
     
-	println("parsed: <code>");
+	println("parsed: <m>");
+	
+	iprintln(mu2rvm(m));
 }

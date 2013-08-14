@@ -21,16 +21,21 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
       for(exp <- exps){
           append
             visit(exp){
-     	       case preVar(str name) => muLoc(name , vardefs[name])
-     	       case preAssignLoc(str name, MuExp exp) => muAssignLoc(name, vardefs[name], exp)
-     	       case preIfthen(exp,thenPart) => muIfElse(cond,thenPart, [])
+               case preVar("true") 						=> muCon(true)
+               case preVar("false") 					=> muCon(false)
+     	       case preVar(str name) 					=> muLoc(name , vardefs[name])
+     	       case preAssignLoc(str name, MuExp exp) 	=> muAssignLoc(name, vardefs[name], exp)
+     	       case prePair(exp1, exp2)					=> muCallPrim("make_tuple", 2, [exp1, exp2])
+     	       case preAssignLocPair(str name1, str name2, MuExp exp) 	
+     	       											=> muCallPrim("assign_pair", [muCon(vardefs[name1]), muCon(vardefs[name2]), exp])
+     	       case preIfthen(cond,thenPart) 			=> muIfelse(cond,thenPart, [])
             };
       };      
 }
 
 MuModule parse(loc s) {
   pt = parse( #start[Module], s);
-  println(diagnose(pt));
+  iprintln(diagnose(pt));
   return preprocess(implode(#experiments::Compiler::muRascal::AST::Module, pt));
 								   
 }
