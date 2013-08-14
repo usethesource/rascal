@@ -58,7 +58,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
       case \loc() : return "tf.sourceLocationType()";
       case \datetime() : return "tf.dateTimeType()";
       case \node() : return "tf.nodeType()";
-      case \cons(name,_) : return resolveType (name);
+      case \cons(name,_,_) : return resolveType (name);
       case \set(ti) :  return "tf.setType(<type2FactoryCall(ti)>)";  
       case \list(ti) :  return "tf.listType(<type2FactoryCall(ti)>)";
       case \map(label(l1,ti),label(l2, ti2)) : return "tf.mapType(<type2FactoryCall(ti)>,\"<l1>\", <type2FactoryCall(ti2)>, \"<l2>\")";
@@ -163,7 +163,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
     
     switch(t){
       case \adt(_,_) : result =  "IConstructor";
-      case \cons(_,_) : result =  "IConstructor";
+      case \cons(_,_,_) : result =  "IConstructor";
       case \int() : result =  "IInteger";
       case \real() : result =  "IReal";
       case \num() : result =  "INumber";

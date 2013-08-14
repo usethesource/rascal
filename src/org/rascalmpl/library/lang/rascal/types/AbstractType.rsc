@@ -57,7 +57,7 @@ public str prettyPrintType(\map(Symbol d, Symbol r)) = "map[<prettyPrintType(d)>
 public str prettyPrintType(\bag(Symbol t)) = "bag[<prettyPrintType(t)>]";
 public str prettyPrintType(\adt(str s, list[Symbol] ps)) = s when size(ps) == 0;
 public str prettyPrintType(\adt(str s, list[Symbol] ps)) = "<s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]" when size(ps) > 0;
-public str prettyPrintType(Symbol::\cons(Symbol a, list[Symbol] fs)) = "<prettyPrintType(a)> : (<intercalate(", ", [ prettyPrintType(f) | f <- fs ])>)";
+public str prettyPrintType(Symbol::\cons(Symbol a, str name, list[Symbol] fs)) = "<prettyPrintType(a)> <name> : (<intercalate(", ", [ prettyPrintType(f) | f <- fs ])>)";
 public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s> = <prettyPrintType(t)>" when size(ps) == 0;
 public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>] = <prettyPrintType(t)>" when size(ps) > 0;
 public str prettyPrintType(Symbol::\func(Symbol rt, list[Symbol] ps)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])>)";
@@ -173,17 +173,17 @@ public Symbol makeADTType(str n) = \adt(n,[]);
 public Symbol makeParameterizedADTType(str n, Symbol p...) = \adt(n,p);
 
 @doc{Create a new constructor type.}
-public Symbol makeConstructorType(Symbol adtType, Symbol consArgs...) {    
+public Symbol makeConstructorType(Symbol adtType, str name, Symbol consArgs...) {    
 	set[str] labels = { l | \label(l,_) <- consArgs };
 	if (size(labels) == 0 || size(labels) == size(consArgs)) 
-		return Symbol::\cons(adtType, consArgs);
+		return Symbol::\cons(adtType, name, consArgs);
 	else
 		throw "For constructor types, either all arguments much be given a distinct label or no parameters should be labeled."; 
 }
 
 @doc{Create a new constructor type based on the contents of a tuple.}
-public Symbol makeConstructorTypeFromTuple(Symbol adtType, Symbol consArgs) {    
-    return makeConstructorType(adtType, getTupleFields(consArgs)); 
+public Symbol makeConstructorTypeFromTuple(Symbol adtType, str name, Symbol consArgs) {    
+    return makeConstructorType(adtType, name, getTupleFields(consArgs)); 
 }
 
 @doc{Create a new alias type with the given name and aliased type.}
@@ -471,7 +471,7 @@ public Symbol getMapRangeType(Symbol t) = unwrapType(getMapFields(t)[1]);
 
 @doc{Get a list of the argument types in a constructor.}
 public list[Symbol] getConstructorArgumentTypes(Symbol ct) {
-	if (Symbol::\cons(_,cts) := unwrapType(ct)) return cts;
+	if (Symbol::\cons(_,_,cts) := unwrapType(ct)) return cts;
     throw "Cannot get constructor arguments from non-constructor type <prettyPrintType(ct)>";
 }
 
@@ -482,7 +482,7 @@ public Symbol getConstructorArgumentTypesAsTuple(Symbol ct) {
 
 @doc{Get the ADT type of the constructor.}
 public Symbol getConstructorResultType(Symbol ct) {
-	if (Symbol::\cons(a,_) := unwrapType(ct)) return a;
+	if (Symbol::\cons(a,_,_) := unwrapType(ct)) return a;
     throw "Cannot get constructor ADT type from non-constructor type <prettyPrintType(ct)>";
 }
 
@@ -496,7 +496,7 @@ public Symbol getListElementType(Symbol t) {
 @doc{Get the name of the ADT.}
 public str getADTName(Symbol t) {
 	if (\adt(n,_) := unwrapType(t)) return n;
-	if (Symbol::\cons(a,_) := unwrapType(t)) return getADTName(a);
+	if (Symbol::\cons(a,_,_) := unwrapType(t)) return getADTName(a);
 	if (\reified(_) := unwrapType(t)) return "type";
     throw "getADTName, invalid type given: <prettyPrintType(t)>";
 }
@@ -504,7 +504,7 @@ public str getADTName(Symbol t) {
 @doc{Get the type parameters of an ADT.}
 public list[Symbol] getADTTypeParameters(Symbol t) {
 	if (\adt(n,ps) := unwrapType(t)) return ps;
-	if (Symbol::\cons(a,_) := unwrapType(t)) return getADTTypeParameters(a);
+	if (Symbol::\cons(a,_,_) := unwrapType(t)) return getADTTypeParameters(a);
 	if (\reified(_) := unwrapType(t)) return [];
     throw "getADTTypeParameters given non-ADT type <prettyPrintType(t)>";
 }
