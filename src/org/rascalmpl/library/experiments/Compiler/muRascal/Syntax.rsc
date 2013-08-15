@@ -42,10 +42,9 @@ syntax Function =
                             "{" (Exp ";")+ body "}"
 			;
 
-syntax Exp  = 
-			  muCon: 		Integer n
-			| muCon: 		String s
-			| muLab: 		Label id
+syntax Exp  =
+			
+			  muLab: 		Label id
 			| muFun: 		FConst id
 			| muConstr: 	FConst id
 			
@@ -91,9 +90,12 @@ keyword Keywords =
 // Syntactic features that will be removed by the preprocessor. 
             
 syntax Exp =
-			  preVar: 		Identifier id
+              preIntCon:	Integer
+            | preStrCon:	String  
+			| preVar: 		Identifier id
 			| preIfthen:    "if" "(" Exp exp1 ")" "{" {Exp ";"}* thenPart "}"
 			| prePair:  	"\<" Exp exp1 "," Exp exp2 "\>"
+			| preList:		"[" {Exp ","}* exps "]"
 			| preAssignLocPair:
 							"\<" Identifier id1 "," Identifier id2 "\>" "=" Exp exp
 			;

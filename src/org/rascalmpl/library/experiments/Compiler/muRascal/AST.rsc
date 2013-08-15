@@ -117,8 +117,11 @@ public data Function =
 public data NameDecl = preDecl(str name, int pos) ;
 
 public data MuExp =
-              preVar(str name)
+              preIntCon(str txt)
+            | preStrCon(str txt)  
+            | preVar(str name)
             | prePair(MuExp exp1, MuExp exp2)
+            | preList(list[MuExp] exps)
             | preAssignLoc(str name, MuExp exp)
             | preAssignLocPair(str name1, str name2, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart)

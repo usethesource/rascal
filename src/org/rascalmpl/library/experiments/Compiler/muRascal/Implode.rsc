@@ -20,15 +20,22 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
    return
       for(exp <- exps){
           append
-            visit(exp){
-               case preVar("true") 						=> muCon(true)
-               case preVar("false") 					=> muCon(false)
-     	       case preVar(str name) 					=> muLoc(name , vardefs[name])
-     	       case preAssignLoc(str name, MuExp exp) 	=> muAssignLoc(name, vardefs[name], exp)
-     	       case prePair(exp1, exp2)					=> muCallPrim("make_tuple", 2, [exp1, exp2])
-     	       case preAssignLocPair(str name1, str name2, MuExp exp) 	
-     	       											=> muCallPrim("assign_pair", [muCon(vardefs[name1]), muCon(vardefs[name2]), exp])
-     	       case preIfthen(cond,thenPart) 			=> muIfelse(cond,thenPart, [])
+            top-down visit(exp){
+               case muCallPrim(str name, list[MuExp] exps)	=> muCallPrim(name[1..-1], exps)
+               case muCallPrim(str name, exp1)				=> muCallPrim(name[1..-1], exp1)
+               case muCallPrim(str name, exp1, exp2)		=> muCallPrim(name[1..-1], exp1, exp2)
+               case preIntCon(str txt)						=> muCon(toInt(txt))
+               case preStrCon(str txt)						=> muCon(txt[1..-1])	// strip surrounding quotes
+               case preVar("true") 							=> muCon(true)
+               case preVar("false") 						=> muCon(false)
+     	       case preVar(str name) 						=> muLoc(name , vardefs[name])
+     	       case preAssignLocPair(prePair(preVar(name1), preVar(name2)), MuExp exp1) 	
+     	       												=> muCallPrim("assign_pair", [muCon(vardefs[name1]), muCon(vardefs[name2]), exp1])
+     	       
+     	       case preAssignLoc(str name, MuExp exp1) 		=> muAssignLoc(name, vardefs[name], exp1)
+     	       case prePair(exp1, exp2)						=> muCallPrim("make_tuple", [exp1, exp2, muCon(2)])
+     	       case preList(list[MuExp] exps)				=> muCallPrim("make_list", [*exps, muCon(size(exps))])
+      	       case preIfthen(cond,thenPart) 				=> muIfelse(cond,thenPart, [])
             };
       };      
 }
@@ -36,6 +43,21 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
 MuModule parse(loc s) {
   pt = parse( #start[Module], s);
   iprintln(diagnose(pt));
-  return preprocess(implode(#experiments::Compiler::muRascal::AST::Module, pt));
+  iprintln(pt);
+  ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
+  iprintln(ast);
+  return preprocess(ast);
+								   
+}
+
+MuModule parse(str s) {
+  pt = parse( #start[Module], s);
+  //iprintln(diagnose(pt));
+ // iprintln(pt);
+  ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
+  iprintln(ast);
+  ast2 = preprocess(ast);
+  iprintln(ast2);
+  return ast2;
 								   
 }
