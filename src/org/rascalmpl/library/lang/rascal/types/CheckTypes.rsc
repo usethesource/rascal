@@ -920,7 +920,7 @@ public CheckResult checkExp(Expression exp:(Expression)`type ( <Expression es> ,
 public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, Configuration c) {
   set[Symbol] failures = { };
   
-  for ((ConcreteHole) `\<<Sym s> <Name n>\>` <- concrete.parts) {
+  for (hole((ConcreteHole) `\<<Sym s> <Name n>\>`) <- concrete.parts) {
     <c, rt> = convertAndExpandSymbol(s, c);
     if (isFailType(rt)) failures += t1;  
     
@@ -3026,7 +3026,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 }
 
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
-  psList = for ((ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts) {
+  psList = for (hole((ConcreteHole) `\<<Sym sym> <Name n>\>`) <- concrete.parts) {
     <c, rt> = resolveSorts(sym2symbol(sym),sym@\loc,c);
     append typedNameNode(convertName(n), n@\loc, rt)[@at = n@\loc];
   }
