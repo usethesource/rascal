@@ -353,7 +353,7 @@ public enum Primitive {
 	 * head_list
 	 */
 	
-	public static int head_listl(Object[] stack, int sp) {
+	public static int head_list(Object[] stack, int sp) {
 		stack[sp - 1] = ((IList) stack[sp - 2]).get(0);
 		return sp;
 	}
