@@ -148,7 +148,7 @@ public bool subtype(Symbol::\cons(Symbol a, str name, list[Symbol] ap), Symbol::
 public bool subtype(\adt(str _, list[Symbol] _), \node()) = true;
 public bool subtype(\adt(str n, list[Symbol] l), \adt(n, list[Symbol] r)) = subtype(l, r);
 public bool subtype(\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = subtype(aliased, r);
-public bool subtype(Symbol l, \alias(str _, Symbol aliased)) = subtype(l, aliased);
+public bool subtype(Symbol l, \alias(str _, list[Symbol] _, Symbol aliased)) = subtype(l, aliased);
 public bool subtype(\int(), \num()) = true;
 public bool subtype(\rat(), \num()) = true;
 public bool subtype(\real(), \num()) = true;
@@ -356,7 +356,7 @@ private list[Symbol] addParamLabels(list[Symbol] l, list[str] s) = [ \parameter(
 private default list[Symbol] addParamLabels(list[Symbol] l, list[str] s) { throw "Length of symbol list and label list much match"; } 
 
 data Exception 
-     = typeCastException(type[value] from, type[value] to);
+     = typeCastException(Symbol from, type[value] to);
 
 public &T typeCast(type[&T] typ, value v) {
   if (&T x := v)
