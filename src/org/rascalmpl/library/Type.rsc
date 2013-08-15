@@ -577,7 +577,7 @@ Synopsis: Determine if the given type is a constructor.
 public bool isConstructorType(\alias(_,_,Symbol at)) = isConstructorType(at);
 public bool isConstructorType(\parameter(_,Symbol tvb)) = isConstructorType(tvb);
 public bool isConstructorType(\label(_,Symbol lt)) = isConstructorType(lt);
-public bool isConstructorType(Symbol::\cons(_,_,_)) = true;
+public bool isConstructorType(Symbol::\cons(Symbol _,str _,list[Symbol] _)) = true;
 public default bool isConstructorType(Symbol _) = false;
 
 @doc{
