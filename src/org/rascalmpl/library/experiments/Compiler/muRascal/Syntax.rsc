@@ -85,13 +85,15 @@ keyword Keywords =
               "module" | "function" | "return" |
 			  "prim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "hasNext" |
+              "type"
              ;
              
 // Syntactic features that will be removed by the preprocessor. 
             
 syntax Exp =
-              preIntCon:	Integer
-            | preStrCon:	String  
+              preIntCon:	Integer txt
+            | preStrCon:	String txt
+            | preTypeCon:   "type" String txt
 			| preVar: 		Identifier id
 			| preIfthen:    "if" "(" Exp exp1 ")" "{" {Exp ";"}* thenPart "}"
 			| prePair:  	"\<" Exp exp1 "," Exp exp2 "\>"
