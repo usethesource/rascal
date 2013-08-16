@@ -203,6 +203,10 @@ public class Execute {
 						codeblock.CALLCONSTR(getStrField(instruction, "name"));
 						break;
 						
+					case "LOADTYPE":
+						codeblock.LOADTYPE(rvm.symbolToType((IConstructor) instruction.get("type")));
+						break;
+					
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 					}

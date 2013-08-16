@@ -10,6 +10,7 @@ public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarati
 
 data Instruction =
 	   	  LOADCON(value val)
+	   	| LOADTYPE(Symbol \type)
 		| LOADVAR(int scope, int pos)
 		| LOADLOC(int pos)
 		| STOREVAR(int scope, int pos)
