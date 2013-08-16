@@ -71,12 +71,12 @@ public class MemoizationCache {
 	
 	private class CacheKey {
 		private final int storedHash;
+		@SuppressWarnings("rawtypes")
 		private final KeySoftReference[] params;
 		private final int keyArgsSize;
 		private final Map<String, KeySoftReference<IValue>> keyArgs;
 		
-		@SuppressWarnings("unchecked")
-		public CacheKey(IValue[] params, Map<String, IValue> keyArgs, ReferenceQueue queue) {
+		public CacheKey(IValue[] params, Map<String, IValue> keyArgs, @SuppressWarnings("rawtypes") ReferenceQueue queue) {
 			this.storedHash = calculateHash(params, keyArgs);
 			
 			this.params = new KeySoftReference[params.length];
