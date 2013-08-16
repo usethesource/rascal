@@ -352,7 +352,7 @@ public class RascalFunction extends NamedFunction {
 	
 	@Override
   public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
-	Result<IValue> result = getMemoizedResult(actualTypes, actuals, keyArgValues);
+	Result<IValue> result = getMemoizedResult(actuals, keyArgValues);
 	if (result !=  null) 
 		return result;
     Environment old = ctx.getCurrentEnvt();
@@ -386,12 +386,12 @@ public class RascalFunction extends NamedFunction {
         try {
           bindKeywordArgs(keyArgValues);
           result = runBody();
-          storeMemoizedResult(actualTypes, actuals,keyArgValues, result);
+          storeMemoizedResult(actuals,keyArgValues, result);
           return result;
         }
         catch (Return e) {
           result = computeReturn(e);
-          storeMemoizedResult(actualTypes, actuals,keyArgValues, result);
+          storeMemoizedResult(actuals,keyArgValues, result);
           return result;
         }
       }
@@ -413,7 +413,7 @@ public class RascalFunction extends NamedFunction {
             try {
               bindKeywordArgs(keyArgValues);
               result = runBody();
-	          storeMemoizedResult(actualTypes, actuals,keyArgValues, result);
+	          storeMemoizedResult(actuals,keyArgValues, result);
 	          return result;
             }
             catch (Failure e) {
@@ -444,7 +444,7 @@ public class RascalFunction extends NamedFunction {
     }
     catch (Return e) {
       result = computeReturn(e);
-	  storeMemoizedResult(actualTypes, actuals,keyArgValues, result);
+	  storeMemoizedResult(actuals,keyArgValues, result);
 	  return result;
     } 
     finally {

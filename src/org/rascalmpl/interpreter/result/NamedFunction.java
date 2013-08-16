@@ -58,25 +58,23 @@ abstract public class NamedFunction extends AbstractFunction {
 	
 	protected abstract boolean hasMemoization();
 	
-	protected Result<IValue> getMemoizedResult(Type[] argTypes, IValue[] argValues,
-			Map<String, IValue> keyArgValues) {
+	protected Result<IValue> getMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues) {
 		if (hasMemoization()) {
 			if (memoization == null) {
 				memoization = new MemoizationCache();
 				return null;
 			}
-			return memoization.getStoredResult(argTypes, argValues, keyArgValues);
+			return memoization.getStoredResult(argValues, keyArgValues);
 		}
 		return null;
 	}
 	
-	protected Result<IValue> storeMemoizedResult(Type[] argTypes, IValue[] argValues,
-			Map<String, IValue> keyArgValues, Result<IValue> result) {
+	protected Result<IValue> storeMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues, Result<IValue> result) {
 		if (hasMemoization()) {
 			if (memoization == null) {
 				memoization = new MemoizationCache();
 			}
-			memoization.storeResult(argTypes, argValues, keyArgValues, result);
+			memoization.storeResult(argValues, keyArgValues, result);
 		}
 		return result;
 	}
@@ -85,10 +83,10 @@ abstract public class NamedFunction extends AbstractFunction {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			Map<String, IValue> keyArgValues) throws MatchFailed {
-		Result<IValue> result = getMemoizedResult(argTypes, argValues, keyArgValues);
+		Result<IValue> result = getMemoizedResult(argValues, keyArgValues);
 		if (result == null) {
 			result = super.call(argTypes, argValues, keyArgValues);
-			storeMemoizedResult(argTypes, argValues, keyArgValues, result);
+			storeMemoizedResult(argValues, keyArgValues, result);
 		}
 		return result;
 	}
