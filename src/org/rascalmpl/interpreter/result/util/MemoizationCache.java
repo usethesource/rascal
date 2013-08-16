@@ -49,6 +49,10 @@ public class MemoizationCache {
 						if (!other.params[i].isEqual(params[i]))
 							return false;
 					}
+					if (other.keyArgs == null && keyArgs == null) 
+						return true;
+					if (other.keyArgs == null ^ keyArgs == null)
+						return false;
 					if (other.keyArgs.size() != keyArgs.size()) 
 						return false;
 					for (String k: keyArgs.keySet()) {

@@ -110,6 +110,9 @@ public class JavaMethod extends NamedFunction {
 
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
+		Result<IValue> resultValue = getMemoizedResult(actualTypes, actuals, keyArgValues);
+		if (resultValue !=  null) 
+			return resultValue;
 		Type actualTypesTuple;
 		Type formals = getFormals();
 		Object[] oActuals;
@@ -149,7 +152,9 @@ public class JavaMethod extends NamedFunction {
 			
 			Type resultType = getReturnType().instantiate(env.getTypeBindings());
 			
-			return ResultFactory.makeResult(resultType, result, eval);
+			resultValue = ResultFactory.makeResult(resultType, result, eval);
+			storeMemoizedResult(actualTypes, actuals, keyArgValues, resultValue);
+			return resultValue;
 		}
 		catch (Throw t) {
 			throw t;

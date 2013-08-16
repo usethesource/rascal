@@ -28,8 +28,10 @@ import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.KeywordParameter;
+import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.staticErrors.NoKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
@@ -39,6 +41,7 @@ import org.rascalmpl.interpreter.utils.Names;
 abstract public class NamedFunction extends AbstractFunction {
 	protected final String name;
 	protected final Type[] keywordParameterTypes;
+	private MemoizationCache memoization;
 	
 	public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, String name,
 			boolean varargs, List<KeywordParameter> keyargs, Environment env) {
@@ -54,6 +57,41 @@ abstract public class NamedFunction extends AbstractFunction {
 	}
 	
 	protected abstract boolean hasMemoization();
+	
+	protected Result<IValue> getMemoizedResult(Type[] argTypes, IValue[] argValues,
+			Map<String, IValue> keyArgValues) {
+		if (hasMemoization()) {
+			if (memoization == null) {
+				memoization = new MemoizationCache();
+				return null;
+			}
+			return memoization.getStoredResult(argTypes, argValues, keyArgValues);
+		}
+		return null;
+	}
+	
+	protected Result<IValue> storeMemoizedResult(Type[] argTypes, IValue[] argValues,
+			Map<String, IValue> keyArgValues, Result<IValue> result) {
+		if (hasMemoization()) {
+			if (memoization == null) {
+				memoization = new MemoizationCache();
+			}
+			memoization.storeResult(argTypes, argValues, keyArgValues, result);
+		}
+		return result;
+	}
+	
+	
+	@Override
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
+			Map<String, IValue> keyArgValues) throws MatchFailed {
+		Result<IValue> result = getMemoizedResult(argTypes, argValues, keyArgValues);
+		if (result == null) {
+			result = super.call(argTypes, argValues, keyArgValues);
+			storeMemoizedResult(argTypes, argValues, keyArgValues, result);
+		}
+		return result;
+	}
 	
 	
 	private static List<KeywordFormal> getKeywordDefaults(AbstractAST ast){
