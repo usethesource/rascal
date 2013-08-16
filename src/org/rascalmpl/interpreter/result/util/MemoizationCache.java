@@ -4,10 +4,10 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.result.Result;
@@ -209,28 +209,53 @@ public class MemoizationCache {
 		
 	}
 	
+	// Extra class to store CacheKeys in the HashSet
+	// should only use instance equality.
+	private class CacheKeyWrapper {
+		private final CacheKey key;
+
+		public CacheKeyWrapper(CacheKey key) {
+			this.key = key;
+		}
+		
+		@Override
+		public int hashCode() {
+			return key.storedHash;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof CacheKeyWrapper) {
+				return ((CacheKeyWrapper)obj).key == this.key;
+			}
+			return false;
+		}
+	}
+	
 	@SuppressWarnings("rawtypes")
 	private void cleanupCache() {
-		List<CacheKey> toCleanup = new LinkedList<>();
+		Set<CacheKeyWrapper> toCleanup = new HashSet<>();
 		synchronized (queue) {
 			Reference cleared = null;
 			do {
 				cleared = queue.poll();
 				if (cleared != null) {
 					if (cleared instanceof KeySoftReference<?>) {
-						toCleanup.add(((KeySoftReference<?>)cleared).key);
+						toCleanup.add(new CacheKeyWrapper(((KeySoftReference<?>)cleared).key));
 					}
 				}
 			}
 			while (cleared != null);
 		}
-		for (CacheKey cl : toCleanup) {
+		for (CacheKeyWrapper ckw : toCleanup) {
+			CacheKey cl = ckw.key;
 			cache.remove(cl);
 			cl.keyArgs.clear();
 			for (int i =0; i < cl.params.length; i++) 
 				cl.params[i] = null;
 		}
 	}
+	
 	@SuppressWarnings("rawtypes")
 	private final ReferenceQueue queue = new ReferenceQueue();
 	private final Map<Object, KeySoftReference<Result<IValue>>> cache = new HashMap<>();
