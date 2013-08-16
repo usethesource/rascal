@@ -374,6 +374,10 @@ public class CodeBlock {
     	return finalConstantStore;
     }
     
+    public Type[] getTypeConstants() {
+    	return finalTypeConstantStore;
+    }
+    
     void listing(String fname){
     	int pc = 0;
     	while(pc < finalCode.length){

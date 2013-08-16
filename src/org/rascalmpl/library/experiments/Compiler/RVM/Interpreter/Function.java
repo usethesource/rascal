@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 
 
 public class Function {
@@ -13,6 +14,7 @@ public class Function {
 	 final int maxstack;
 	 final CodeBlock codeblock;
 	 IValue[] constantStore;
+	 Type[] typeConstantStore;
 	
 	public Function(String name, int scope, int nformals, int nlocals, int maxstack, CodeBlock codeblock){
 		this.name = name;
@@ -26,5 +28,6 @@ public class Function {
 	public void  finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
 		codeblock.done(name, codeMap, constructorMap, listing);
 		this.constantStore = codeblock.getConstants();
+		this.typeConstantStore = codeblock.getTypeConstants();
 	}
 }
