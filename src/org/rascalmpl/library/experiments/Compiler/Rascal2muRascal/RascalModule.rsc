@@ -25,15 +25,18 @@ list[MuExp] variable_initializations = [];
 
 MuModule r2mu(loc moduleLoc){
    try {
-   	Module M = parseModule(moduleLoc, libSearchPath);
-   	//iprint(M);
-   	config = checkModule(M.top, newConfiguration());  // .top is needed to remove start! Ugly!
-   	//text(config);
+   	//Module M = parseModule(moduleLoc, libSearchPath);
+   	Module M = parse(#start[Module], moduleLoc);
+   	Configuration config = newConfiguration();
+   	config = checkModule(M.top, config);  // .top is needed to remove start! Ugly!
    	extractScopes();
    	errors = [ e | e:error(_,_) <- config.messages];
-   	if(size(errors) > 0)
-   	  throw "Module contains errors:\n<for(e <- errors){><e>\n<}>";
-   	else {
+   	if(size(errors) > 0) {
+   	  for(e <- errors) {
+   	  	println(e);
+   	  }
+   	  throw "Module contains errors!";
+   	} else {
    	  functions_in_module = [];
    	  variables_in_module = [];
    	  variable_initializations = [];
