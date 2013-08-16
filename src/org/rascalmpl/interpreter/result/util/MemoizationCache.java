@@ -144,6 +144,10 @@ public class MemoizationCache {
 		}
 	}
 	
+	// Special Version of the Key data
+	// need to make sure the lookup key references
+	// aren't released during lookup
+	// and avoid creating extra SoftReferences
 	private class LookupKey {
 		
 		private final int storedHash;
@@ -198,6 +202,7 @@ public class MemoizationCache {
 		}
 	}
 	
+	// Special SoftReference to have a reference to the Key in the HashMap
 	private class KeySoftReference<T> extends SoftReference<T> {
 		private CacheKey key;
 
