@@ -119,6 +119,7 @@ public data NameDecl = preDecl(str name, int pos) ;
 public data MuExp =
               preIntCon(str txt)
             | preStrCon(str txt)  
+            | preTypeCon(str txt)
             | preVar(str name)
             | prePair(MuExp exp1, MuExp exp2)
             | preList(list[MuExp] exps)
