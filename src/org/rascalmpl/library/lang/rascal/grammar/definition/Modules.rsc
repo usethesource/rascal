@@ -16,6 +16,7 @@ import lang::rascal::grammar::definition::Names;
 import Grammar;
 import Set;
 
+@memo
 @doc{Converts internal module representation of Rascal interpreter to single grammar definition}
 public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, set[str] extends, set[SyntaxDefinition] defs] \mod] mods) {
   // note that we ignore extends here because they're resolved by the interpreter at the moment by 
@@ -29,6 +30,7 @@ public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, s
   return fuse(layouts(resolve(def)));
 }
 
+@memo
 @doc{Converts concrete syntax definitions and fuses them into one single grammar definition}     
 public Grammar modules2grammar(str main, set[Module] modules) {
   return fuse(layouts(resolve(modules2definition(main, modules))));
