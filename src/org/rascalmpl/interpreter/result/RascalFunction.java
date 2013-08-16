@@ -85,6 +85,7 @@ public class RascalFunction extends NamedFunction {
 	private final Map<String, String> tags;
 	private static final String RESOURCE_TAG = "resource";
 	private static final String RESOLVER_TAG = "resolver";
+	private final boolean hasMemoization;
 
 	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
@@ -128,8 +129,18 @@ public class RascalFunction extends NamedFunction {
 			this.resourceScheme = null;
 			this.resolverScheme = null;
 		}
+		this.hasMemoization = checkMemoization();
 	}
 	
+	private boolean checkMemoization() {
+		return tags.containsKey("memo");
+	}
+	
+	@Override
+	protected boolean hasMemoization() {
+		return hasMemoization;
+	}
+
 	@Override
 	public RascalFunction cloneInto(Environment env) {
 		RascalFunction rf = new RascalFunction(getAst(), getEval(), getName(), getFunctionType(), hasVarArgs(), isDefault(), isTest(), body, env, accumulators);

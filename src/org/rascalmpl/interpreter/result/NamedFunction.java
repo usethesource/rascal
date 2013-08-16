@@ -53,6 +53,9 @@ abstract public class NamedFunction extends AbstractFunction {
 		return name;
 	}
 	
+	protected abstract boolean hasMemoization();
+	
+	
 	private static List<KeywordFormal> getKeywordDefaults(AbstractAST ast){
 	 
 		//System.err.println(getName() + ast.getClass());
