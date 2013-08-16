@@ -226,6 +226,9 @@ public class MemoizationCache {
 		}
 		for (CacheKey cl : toCleanup) {
 			cache.remove(cl);
+			cl.keyArgs.clear();
+			for (int i =0; i < cl.params.length; i++) 
+				cl.params[i] = null;
 		}
 	}
 	@SuppressWarnings("rawtypes")
