@@ -146,6 +146,9 @@ public class RVM {
 				case Opcode.OP_LOADCON:
 					stack[sp++] = cf.function.constantStore[instructions[pc++]];
 					continue;
+					
+				case Opcode.OP_LOADTTYPE:
+					stack[sp++] = cf.function.typeConstantStore[instructions[pc++]];
 
 				case Opcode.OP_LOADFUN:
 					// Loads functions that are defined at the root
