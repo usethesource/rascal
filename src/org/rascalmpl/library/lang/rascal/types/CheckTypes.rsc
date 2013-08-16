@@ -3138,10 +3138,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             for (idx <- index(ptns), multiNameNode(n) := ptns[idx] || spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx]) {
             	if (spliceNodePlus(_,_,rt) := ptns[idx] || spliceNodeStar(_,_,rt) := ptns[idx]) {
 	                if (RSimpleName("_") == n) {
-                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+                        c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
 	                } else {
-	                    c = addVariable(c, n, true, ptns[idx]@at, \set(rt));
+	                    c = addVariable(c, n, true, ptns[idx]@at, \list(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } 
             	} else {
