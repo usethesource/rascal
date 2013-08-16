@@ -139,12 +139,12 @@ void extractScopes(){
             uid2addr[decls[i]] = <fuid, i>;
         }
     }
-    println("uid2addr");
+    println("uid2addr:");
    for(uid <- uid2addr){
       println("<config.store[uid]> :  <uid2addr[uid]>");
    }
    
-   println("loc2uid");
+   println("loc2uid:");
    for(l <- loc2uid)
        println("<l> : <loc2uid[l]>");
 }
