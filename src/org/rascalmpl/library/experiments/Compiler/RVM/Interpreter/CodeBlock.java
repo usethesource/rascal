@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Call;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallDyn;
@@ -27,6 +28,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocAsRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadNestedFun;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarAsRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
@@ -58,6 +60,10 @@ public class CodeBlock {
 	private final ArrayList<IValue> constantStore;
 	private IValue[] finalConstantStore;
 	
+	private final Map<Type, Integer> typeConstantMap;
+	private final ArrayList<Type> typeConstantStore;
+	private Type[] finalTypeConstantStore;
+	
 	private Map<String, Integer> functionMap;
 	private Map<String, Integer> constructorMap;
 	
@@ -72,6 +78,8 @@ public class CodeBlock {
 		this.vf = factory;
 		constantMap = new HashMap<IValue, Integer>();
 		this.constantStore = new ArrayList<IValue>();
+		this.typeConstantMap = new HashMap<Type, Integer>();
+		this.typeConstantStore = new ArrayList<Type>();
 	}
 	
 	public void defLabel(String label){
@@ -114,6 +122,25 @@ public class CodeBlock {
 			n = constantStore.size();
 			constantStore.add(v);
 			constantMap.put(v,  n);
+		}
+		return n;
+	}
+	
+	public Type getConstantType(int n){
+		for(Type type : typeConstantMap.keySet()){
+			if(typeConstantMap.get(type) == n){
+				return type;
+			}
+		}
+		throw new RuntimeException("PANIC: undefined type constant index " + n);
+	}
+	
+	private int getTypeConstantIndex(Type type){
+		Integer n = typeConstantMap.get(type);
+		if(n == null){
+			n = typeConstantStore.size();
+			typeConstantStore.add(type);
+			typeConstantMap.put(type, n);
 		}
 		return n;
 	}
@@ -312,6 +339,10 @@ public class CodeBlock {
 		return add(new LoadNestedFun(this, name, scope));
 	}
 	
+	public CodeBlock LOADTYPE(Type type) {
+		return add(new LoadType(this, getTypeConstantIndex(type)));
+	}
+	
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;
@@ -324,6 +355,10 @@ public class CodeBlock {
 		finalConstantStore = new IValue[constantStore.size()];
 		for(int i = 0; i < constantStore.size(); i++ ){
 			finalConstantStore[i] = constantStore.get(i);
+		}
+		finalTypeConstantStore = new Type[typeConstantStore.size()];
+		for(int i = 0; i < typeConstantStore.size(); i++) {
+			finalTypeConstantStore[i] = typeConstantStore.get(i);
 		}
 		if(listing){
 			listing(fname);

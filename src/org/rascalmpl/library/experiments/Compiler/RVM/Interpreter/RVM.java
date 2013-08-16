@@ -74,6 +74,10 @@ public class RVM {
 		constructorStore.add(constr);
 	}
 	
+	public Type symbolToType(IConstructor symbol) {
+		return types.symbolToType(symbol, typeStore);
+	}
+	
 	public Object executeProgram(String main, IValue[] args) {
 
 		// Finalize the instruction generation of all functions
