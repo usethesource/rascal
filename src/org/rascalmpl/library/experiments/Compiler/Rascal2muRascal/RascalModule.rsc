@@ -26,9 +26,9 @@ list[MuExp] variable_initializations = [];
 MuModule r2mu(loc moduleLoc){
    try {
    	//Module M = parseModule(moduleLoc, libSearchPath);
-   	Module M = parse(#start[Module], moduleLoc);
-   	Configuration config = newConfiguration();
-   	config = checkModule(M.top, config);  // .top is needed to remove start! Ugly!
+   	lang::rascal::\syntax::Rascal::Module M = parse(#start[Module], moduleLoc);
+   	Configuration c = newConfiguration();
+   	config = checkModule(M.top, c);  // .top is needed to remove start! Ugly!
    	extractScopes();
    	errors = [ e | e:error(_,_) <- config.messages];
    	if(size(errors) > 0) {
