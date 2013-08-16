@@ -5600,7 +5600,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         sig = sigMap[modName];
         c.stack = currentModuleId + c.stack;
         for (item <- sig.privateVariables) c = importVariable(item.variableName, item.variableType, item.at, privateVis(), c);
-        for (item <- sig.publicFunctions) c = importFunction(item.functionName, item.sig, item.at, privateVis(), c);
+        for (item <- sig.privateFunctions) c = importFunction(item.functionName, item.sig, item.at, privateVis(), c);
         c.stack = tail(c.stack);
     }
     c = pushTiming(c, "Imported module signatures", dt1, now());
