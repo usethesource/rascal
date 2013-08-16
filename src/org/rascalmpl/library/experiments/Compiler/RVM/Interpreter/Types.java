@@ -1,14 +1,24 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
+import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -206,5 +216,248 @@ public class Types {
 		return adt;
 	}
 
+	public IConstructor typeToSymbol(Type type, final TypeStore typeStore) {
+		
+		return (IConstructor) type.accept(new ITypeVisitor<IValue, RuntimeException>() {
+			
+			private Map<Type,IValue> cache = new HashMap<Type, IValue>();
+			
+			@Override
+			public IValue visitReal(Type type) {
+				return vf.constructor(Factory.Symbol_Real);
+			}
+
+			@Override
+			public IValue visitInteger(Type type) {
+				return vf.constructor(Factory.Symbol_Int);
+			}
+
+			@Override
+			public IValue visitRational(Type type) {
+				return vf.constructor(Factory.Symbol_Rat);
+			}
+
+			@Override
+			public IValue visitList(Type type) {
+				if(type.isListRelation()) {
+					IListWriter w = vf.listWriter();
+
+					if (type.hasFieldNames()) {
+						for (int i = 0; i < type.getArity(); i++) {
+							w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+						}
+					} else {
+						if (type.getFieldTypes().isBottom()) {
+							return vf.constructor(Factory.Symbol_List, vf.constructor(Factory.Symbol_Void));
+						}
+				  
+						for (Type f : type.getFieldTypes()) {
+							w.append(f.accept(this));
+						}
+					}
+				
+					return vf.constructor(Factory.Symbol_ListRel, w.done());
+				}
+				return vf.constructor(Factory.Symbol_List, type.getElementType().accept(this));
+			}
+
+			@Override
+			public IValue visitMap(Type type) {
+				if (type.hasFieldNames()) {
+					return vf.constructor(Factory.Symbol_Map, vf.constructor(Factory.Symbol_Label, vf.string(type.getKeyLabel()), type.getKeyType().accept(this)), vf.constructor(Factory.Symbol_Label, vf.string(type.getValueLabel()), type.getValueType().accept(this)));
+				} else {
+					return vf.constructor(Factory.Symbol_Map, type.getKeyType().accept(this), type.getValueType().accept(this));
+				}
+			}
+
+			@Override
+			public IValue visitNumber(Type type) {
+				return vf.constructor(Factory.Symbol_Num);
+			}
+
+			@Override
+			public IValue visitAlias(Type type) {
+				IListWriter w = vf.listWriter();
+				Type params = type.getTypeParameters();
+				
+				if (params.getArity() > 0) {
+					for (Type t : params) {
+						w.append(t.accept(this));
+					}
+				}
+				
+				return vf.constructor(Factory.Symbol_Alias, vf.string(type.getName()), w.done(), type.getAliased().accept(this));
+			}
+
+			@Override
+			public IValue visitSet(Type type) {
+				if(type.isRelation()) {
+					IListWriter w = vf.listWriter();
+
+					if (type.hasFieldNames()) {
+						for (int i = 0; i < type.getArity(); i++) {
+							w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+						}
+					} else {
+						if (type.getFieldTypes().isBottom()) {
+							return vf.constructor(Factory.Symbol_Set, vf.constructor(Factory.Symbol_Void));
+						}
+						for (Type f : type.getFieldTypes()) {
+							w.append(f.accept(this));
+						}
+					}
+				
+					return vf.constructor(Factory.Symbol_Rel, w.done());
+				}
+				return vf.constructor(Factory.Symbol_Set, type.getElementType().accept(this));
+			}
+
+			@Override
+			public IValue visitSourceLocation(Type type) {
+				return vf.constructor(Factory.Symbol_Loc);
+			}
+
+			@Override
+			public IValue visitString(Type type) {
+				return vf.constructor(Factory.Symbol_Str);
+			}
+
+			@Override
+			public IValue visitNode(Type type) {
+				return vf.constructor(Factory.Symbol_Node);
+			}
+			
+			@Override
+			public IValue visitConstructor(Type type) {
+				IValue adt = cache.get(type.getAbstractDataType());
+				
+				if (adt == null) {
+					visitAbstractData(type.getAbstractDataType());
+				}
+				
+				IValue result = cache.get(type);
+				if (result == null) {
+					IListWriter w = vf.listWriter();
+
+					if (type.hasFieldNames()) {
+						for (int i = 0; i < type.getArity(); i++) {
+							w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+						}
+					}
+					else {
+						for (Type field : type.getFieldTypes()) {
+							w.append(field.accept(this));
+						}
+					}
+					result = vf.constructor(Factory.Symbol_Cons, vf.constructor(Factory.Symbol_Label, vf.string(type.getName()), adt), w.done());
+					cache.put(type, result);
+				}
+				
+				return result;
+			}
+			
+			@Override
+			public IValue visitAbstractData(Type type) {
+				IValue sym = cache.get(type);
+				
+				if (sym == null) {
+					IListWriter w = vf.listWriter();
+					Type params = type.getTypeParameters();
+					if (params.getArity() > 0) {
+						for (Type param : params) {
+							w.append(param.accept(this));
+						}
+					}
+					
+					sym = vf.constructor(Factory.Symbol_Adt, vf.string(type.getName()), w.done());
+					cache.put(type, sym);			
+
+					// make sure to find the type by the uninstantiated adt
+					Type adt = typeStore.lookupAbstractDataType(type.getName());
+					for (Type cons : typeStore.lookupAlternatives(adt)) {
+						cons.accept(this);
+					}
+				}
+				
+				return sym;
+			}
+
+			@Override
+			public IValue visitTuple(Type type) {
+				IListWriter w = vf.listWriter();
+				
+				if (type.hasFieldNames()) {
+					for (int i = 0; i < type.getArity(); i++) {
+						w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+					}
+				}
+				else {
+					for (Type f : type) {
+						w.append(f.accept(this));
+					}
+				}
+
+				return vf.constructor(Factory.Symbol_Tuple, w.done());
+			}
+
+			@Override
+			public IValue visitValue(Type type) {
+				return vf.constructor(Factory.Symbol_Value);
+			}
+
+			@Override
+			public IValue visitVoid(Type type) {
+				return vf.constructor(Factory.Symbol_Void);
+			}
+
+			@Override
+			public IValue visitBool(Type boolType) {
+				return vf.constructor(Factory.Symbol_Bool);
+			}
+
+			@Override
+			public IValue visitParameter(Type parameterType) {
+				return vf.constructor(Factory.Symbol_BoundParameter, vf.string(parameterType.getName()), parameterType.getBound().accept(this));
+			}
+
+			@Override
+			public IValue visitExternal(Type externalType) {
+				if (externalType instanceof NonTerminalType) {
+					return visitNonTerminalType((NonTerminalType) externalType);
+				}
+				else if (externalType instanceof ReifiedType) {
+					return visitReifiedType((ReifiedType) externalType);
+				}
+				else if (externalType instanceof FunctionType) {
+					return visitFunctionType((FunctionType) externalType);
+				}
+				
+				throw new ImplementationError("unable to reify " + externalType);
+			}
+
+			private IValue visitFunctionType(FunctionType externalType) {
+				IListWriter w = vf.listWriter();
+				for (Type arg : externalType.getArgumentTypes()) {
+					w.append(arg.accept(this));
+				}
+				
+				return vf.constructor(Factory.Symbol_Func, externalType.getReturnType().accept(this), w.done());
+			}
+
+			private IValue visitReifiedType(ReifiedType externalType) {
+				return vf.constructor(Factory.Symbol_ReifiedType, externalType.getTypeParameters().getFieldType(0).accept(this));
+			}
+
+			private IValue visitNonTerminalType(NonTerminalType externalType) {
+				return externalType.getSymbol();
+			}
+
+			@Override
+			public IValue visitDateTime(Type type) {
+				return vf.constructor(Factory.Symbol_Datetime);
+			}
+
+		});	
+	}
 
 }
