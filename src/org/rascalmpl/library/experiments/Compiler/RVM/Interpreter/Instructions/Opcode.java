@@ -42,7 +42,8 @@ public enum Opcode {
 	STOREVARREF(31,3),
 	LOADCONSTR(32,2),
 	CALLCONSTR(33,2), // TODO: plus number of formal parameters
-	LOAD_NESTED_FUN(34, 3)
+	LOAD_NESTED_FUN(34, 3),
+	LOADTYPE(35,2)
 	;
 	
 	private final int op;
@@ -92,6 +93,7 @@ public enum Opcode {
 	static public final int OP_LOADCONSTR = 32;
 	static public final int OP_CALLCONSTR = 33;
 	static public final int OP_LOAD_NESTED_FUN = 34;
+	static public final int OP_LOADTTYPE = 35;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -212,6 +214,9 @@ public enum Opcode {
 		
 		case LOAD_NESTED_FUN:
 			return "LOAD_NESTED_FUN " + cb.finalCode[pc + 1] + cb.finalCode[pc + 2];
+			
+		case LOADTYPE:
+			return "LOADTYPE " + cb.finalCode[pc + 1];
 			
 		default:
 			break;

@@ -79,6 +79,8 @@ INS tr(muCon("true")) = [LOADCON(true)];
 INS tr(muCon("false")) = [LOADCON(false)];
 default INS tr(muCon(value c)) = [LOADCON(c)];
 
+INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
+
 INS tr(muFun(str name)) = [LOADFUN(name)];
 
 INS tr(muFun(str name, int scope)) = [LOAD_NESTED_FUN(name, scope)];
@@ -154,6 +156,15 @@ INS tr(muMulti(MuExp exp)) =
        INIT(),
        NEXT0()
     ];
+    
+// Pre-processor phase
+INS tr(preTypeCon(str txt)) {
+	try {
+		Symbol sym = readTextValueString(#Symbol, txt);
+		return(tr(muTypeCon(sym)));
+	} catch IO(str msg) :
+		throw "Could not parse the string of a type constant into Symbol: <msg>";
+} 
 
 default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 
