@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
 
 /*
  * The primitives that can be called from the RVM interpreter loop.
@@ -76,7 +77,12 @@ public enum Primitive {
 	transitive_closure_lrel,
 	transitive_closure_rel,
 	transitive_reflexive_closure_lrel,
-	transitive_reflexive_closure_rel;
+	transitive_reflexive_closure_rel,
+	
+	equals_type_type,
+	subtype,
+	typeOf
+	;
 	
 	private static Primitive[] values = Primitive.values();
 
@@ -645,6 +651,21 @@ public enum Primitive {
 	@SuppressWarnings("rawtypes")
 	public static int transitive_reflexive_closure_rel(Object[] stack, int sp) {
 		stack[sp - 1] = ((IRelationalAlgebra) stack[sp - 1]).closureStar();
+		return sp;
+	}
+	
+	public static int equals_type_type(Object[] stack, int sp) {
+		stack[sp - 2] = vf.bool(((Type) stack[sp - 2]) == ((Type) stack[sp - 1]));
+		return sp - 1;
+	}
+	
+	public static int subtype(Object[] stack, int sp) {
+		stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
+		return sp - 1;
+	}
+	
+	public static int typeOf(Object[] stack, int sp) {
+		stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
 		return sp;
 	}
 
