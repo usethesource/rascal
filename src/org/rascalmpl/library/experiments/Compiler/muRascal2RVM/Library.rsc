@@ -24,7 +24,7 @@ muFunction("FALSE", 1, 0, 0,
 
 muFunction("AND_U_U", 1, 2, 2, 
 	[				
-		muReturn(muCallPrim("and_bool_bool", muLoc("lhs", 0), muLoc("rhs", 1)))
+		muReturn(muCallPrim("and_bool_bool", [muLoc("lhs", 0), muLoc("rhs", 1)]))
 	]
 ),
             
@@ -73,7 +73,7 @@ muFunction("AND_M_M", 1, 2, 2,
 
 muFunction("AND_U_U", 1, 2, 2, 
 	[				
-		muReturn(muCallPrim("and_bool_bool", muLoc("lhs", 0), muLoc("lrs", 1)))
+		muReturn(muCallPrim("and_bool_bool", [muLoc("lhs", 0), muLoc("lrs", 1)]))
 	]
 ),
             
@@ -108,7 +108,7 @@ muFunction("MATCH", 1, 2, 1,
 
 muFunction("MATCH_INT", 1, 2, 1, 
 	[					
-	    muReturn(muCallPrim("equals_num_num", muVar("pat", 1, 0), muVar("subject", 1, 1)))	
+	    muReturn(muCallPrim("equals_num_num", [muVar("pat", 1, 0), muVar("subject", 1, 1)]))	
 	]
 ),
 

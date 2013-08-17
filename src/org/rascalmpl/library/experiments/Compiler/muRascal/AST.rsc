@@ -111,21 +111,20 @@ public data Module =
           ;
 
 public data Function =				
-             preFunction(str name, int scope, int nformal, 
-                         list[NameDecl] names, list[MuExp] body)
+             preFunction(str name, int scopeId, int nformal, 
+                         list[str] locals, list[MuExp] body)
           ;
 
-public data NameDecl = preDecl(str name, int pos) ;
+//public data NameDecl = preDecl(str name, int pos) ;
 
 public data MuExp =
               preIntCon(str txt)
             | preStrCon(str txt)  
             | preTypeCon(str txt)
             | preVar(str name)
-            | prePair(MuExp exp1, MuExp exp2)
             | preList(list[MuExp] exps)
             | preSubscript(MuExp lst, MuExp idx)
             | preAssignLoc(str name, MuExp exp)
-            | preAssignLocPair(str name1, str name2, MuExp exp)
+            | preAssignLocList(str name1, str name2, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart)
            ;

@@ -11,8 +11,9 @@ MuModule preprocess(Module pmod){
 }
 
 MuFunction preprocess(Function f){
-   vardefs =  ("<def.name>" : toInt("<def.pos>") |  def <- f.names);
-   return muFunction(f.name, f.scope, f.nformal, size(vardefs), preprocess(f.body, vardefs));
+   vardefs =  ("<f.locals[i]>" : i  | int i <- index(f.locals));
+   
+   return muFunction(f.name, f.scopeId, f.nformal, size(vardefs), preprocess(f.body, vardefs));
 }
 
 list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
@@ -36,13 +37,12 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
                case preVar("true") 							=> muCon(true)
                case preVar("false") 						=> muCon(false)
      	       case preVar(str name) 						=> muLoc(name , vardefs[name])
-     	       case preAssignLocPair(prePair(preVar(name1), preVar(name2)), MuExp exp1) 	
+     	       case preAssignLocList(str name1, str name2, MuExp exp1) 	
      	       												=> muCallPrim("assign_pair", [muCon(vardefs[name1]), muCon(vardefs[name2]), exp1])
      	       
      	       case preAssignLoc(str name, MuExp exp1) 		=> muAssignLoc(name, vardefs[name], exp1)
-     	       case prePair(exp1, exp2)						=> muCallPrim("make_tuple", [exp1, exp2])
      	       case preList(list[MuExp] exps)				=> muCallPrim("make_list", exps)
-     	       case preSubscript(Exp lst, Exp index)			=> muCallPrim("subscript_list_int", [lst, index])
+     	       case preSubscript(MuExp lst, MuExp index)	=> muCallPrim("subscript_list_int", [lst, index])
       	       case preIfthen(cond,thenPart) 				=> muIfelse(cond,thenPart, [])
             };
       };      
@@ -62,7 +62,7 @@ MuModule parse(loc s) {
 
 MuModule parse(str s) {
   pt = parse( #start[Module], s);
-  //iprintln(diagnose(pt));
+  iprintln(diagnose(pt));
  // iprintln(pt);
   ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
   iprintln(ast);

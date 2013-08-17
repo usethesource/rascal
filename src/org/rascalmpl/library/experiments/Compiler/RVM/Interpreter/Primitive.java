@@ -274,10 +274,10 @@ public enum Primitive {
 		assert arity == 2;
 		int v1 = ((IInteger) stack[sp - 3]).intValue();
 		int v2 = ((IInteger) stack[sp - 2]).intValue();
-		ITuple pair = (ITuple) stack[sp - 1];
-		stack[v1] = pair.get(v1);
-		stack[v2] = pair.get(v2);
-		stack[sp - 2] = pair;
+		IList pair = (IList) stack[sp - 1];
+		stack[v1] = pair.get(0);
+		stack[v2] = pair.get(1);
+		stack[sp - 3] = pair;
 		return sp - 2;
 	}
 	

@@ -43,7 +43,9 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   									 RETURN1(),
   									 HALT()
   									]));
-  return rvm(types, funMap, []);
+  res = rvm(types, funMap, []);
+  iprintln( res);
+  return res;
 }
 
 
