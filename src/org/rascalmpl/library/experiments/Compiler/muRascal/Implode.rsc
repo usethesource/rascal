@@ -28,7 +28,7 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
                case preStrCon(str txt)						=> muCon(txt[1..-1])	// strip surrounding quotes
                case preTypeCon(str txt):                    {
                													try {
-																	Symbol sym = readTextValueString(#Symbol, txt);
+																	Symbol sym = readTextValueString(#Symbol, txt[1..-1]);
 																	insert muTypeCon(sym);
 																} catch IO(str msg) :
 																	throw "Could not parse the string of a type constant into Symbol: <msg>";
@@ -53,7 +53,9 @@ MuModule parse(loc s) {
   iprintln(pt);
   ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
   iprintln(ast);
-  return preprocess(ast);
+  ast2 = preprocess(ast);
+  iprintln(ast2);
+  return ast2;
 								   
 }
 
