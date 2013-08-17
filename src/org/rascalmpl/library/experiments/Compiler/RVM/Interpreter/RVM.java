@@ -149,6 +149,7 @@ public class RVM {
 					
 				case Opcode.OP_LOADTTYPE:
 					stack[sp++] = cf.function.typeConstantStore[instructions[pc++]];
+					continue;
 
 				case Opcode.OP_LOADFUN:
 					// Loads functions that are defined at the root
@@ -195,7 +196,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
+					throw new RuntimeException("PANIC: LOADVAR cannot find matching scope: " + s);
 				}
 				
 				case Opcode.OP_LOADVARREF: {
@@ -208,7 +209,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
+					throw new RuntimeException("PANIC: LOADVARREF cannot find matching scope: " + s);
 				}
 				
 				case Opcode.OP_STORELOC: {
@@ -232,7 +233,7 @@ public class RVM {
 						}
 					}
 
-					throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
+					throw new RuntimeException("PANIC: STOREVAR cannot find matching scope: " + s);
 	
 				case Opcode.OP_STOREVARREF:
 					s = instructions[pc++];
@@ -246,7 +247,7 @@ public class RVM {
 						}
 					}
 
-					throw new RuntimeException("PANIC: load var cannot find matching scope: " + s);
+					throw new RuntimeException("PANIC: STOREVARREF cannot find matching scope: " + s);
 
 
 				case Opcode.OP_JMP:
@@ -476,7 +477,7 @@ public class RVM {
 				}
 			}
 		} catch (Exception e) {
-			stdout.println("PANIC: exception caused by invoking a primitive or illegal instruction sequence");
+			stdout.println("PANIC: exception caused by invoking a primitive or illegal instruction sequence: " + e);
 			e.printStackTrace();
 		}
 		return FALSE;
