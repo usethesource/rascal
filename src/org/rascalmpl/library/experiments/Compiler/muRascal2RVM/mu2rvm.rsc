@@ -156,15 +156,6 @@ INS tr(muMulti(MuExp exp)) =
        INIT(),
        NEXT0()
     ];
-    
-// Pre-processor phase
-INS tr(preTypeCon(str txt)) {
-	try {
-		Symbol sym = readTextValueString(#Symbol, txt);
-		return(tr(muTypeCon(sym)));
-	} catch IO(str msg) :
-		throw "Could not parse the string of a type constant into Symbol: <msg>";
-} 
 
 default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 
