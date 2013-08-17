@@ -21,11 +21,11 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
       for(exp <- exps){
           append
             top-down visit(exp){
-               case muCallPrim(str name, list[MuExp] exps)	=> muCallPrim(name[1..-1], exps)
-               case muCallPrim(str name, exp1)				=> muCallPrim(name[1..-1], exp1)
-               case muCallPrim(str name, exp1, exp2)		=> muCallPrim(name[1..-1], exp1, exp2)
+               case muCallPrim(str name, list[MuExp] exps)	=> muCallPrim(name[1..-1], exps)			// strip surrounding quotes
+               case muCallPrim(str name, exp1)				=> muCallPrim(name[1..-1], [exp1])			// strip surrounding quotes
+               case muCallPrim(str name, exp1, exp2)		=> muCallPrim(name[1..-1], [exp1, exp2])	// strip surrounding quotes
                case preIntCon(str txt)						=> muCon(toInt(txt))
-               case preStrCon(str txt)						=> muCon(txt[1..-1])	// strip surrounding quotes
+               case preStrCon(str txt)						=> muCon(txt[1..-1])						// strip surrounding quotes
                case preTypeCon(str txt):                    {
                													try {
 																	Symbol sym = readTextValueString(#Symbol, txt[1..-1]);
@@ -40,8 +40,9 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
      	       												=> muCallPrim("assign_pair", [muCon(vardefs[name1]), muCon(vardefs[name2]), exp1])
      	       
      	       case preAssignLoc(str name, MuExp exp1) 		=> muAssignLoc(name, vardefs[name], exp1)
-     	       case prePair(exp1, exp2)						=> muCallPrim("make_tuple", [exp1, exp2, muCon(2)])
-     	       case preList(list[MuExp] exps)				=> muCallPrim("make_list", [*exps, muCon(size(exps))])
+     	       case prePair(exp1, exp2)						=> muCallPrim("make_tuple", [exp1, exp2])
+     	       case preList(list[MuExp] exps)				=> muCallPrim("make_list", exps)
+     	       case preSubscript(Exp lst, Exp index)			=> muCallPrim("subscript_list_int", [lst, index])
       	       case preIfthen(cond,thenPart) 				=> muIfelse(cond,thenPart, [])
             };
       };      

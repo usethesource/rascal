@@ -42,6 +42,7 @@ public data MuExp =
 			// Elementary expressions
 			
             muCon(value c)										// Constant: an arbitrary IValue
+            													// Some special cases are handled by preprocessor, see below.
           | muLab(str name)										// Label
           | muFun(str name)										// Function constant: functions at the root
           | muFun(str name, int scope)                          // Function constant: nested functions and closures
@@ -60,9 +61,9 @@ public data MuExp =
           | muCall(MuExp fun, list[MuExp] args)					// Call a function
           | muCall(str fname, list[MuExp] args)					// Call a named function: usually from the muRascal runtime library
           | muCallConstr(str cname, list[MuExp] args) 			// Call a constructor
-          | muCallPrim(str name, MuExp exp1)					// Call a primitive function with one argument TODO: REDUCE THESE
-          | muCallPrim(str name, MuExp exp1, MuExp exp2)		// Call a primitive function with two arguments
-          | muCallPrim(str name, list[MuExp] exps)				// Call a primitive function with two arguments
+//          | muCallPrim(str name, MuExp exp1)					// Call a primitive function with one argument TODO: REDUCE THESE
+//          | muCallPrim(str name, MuExp exp1, MuExp exp2)		// Call a primitive function with two arguments
+          | muCallPrim(str name, list[MuExp] exps)				// Call a primitive function with variable number of arguments
           | muReturn()											// Return from function without value
           | muReturn(MuExp exp)									// Return from function with value
               
@@ -123,6 +124,7 @@ public data MuExp =
             | preVar(str name)
             | prePair(MuExp exp1, MuExp exp2)
             | preList(list[MuExp] exps)
+            | preSubscript(MuExp lst, MuExp idx)
             | preAssignLoc(str name, MuExp exp)
             | preAssignLocPair(str name1, str name2, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart)

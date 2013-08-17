@@ -104,7 +104,7 @@ public class Backtracking {
 				new CodeBlock(vf)
 				.LOADLOC(0)
 				.LOADLOC(1)
-				.CALLPRIM(Primitive.and_bool_bool)
+				.CALLPRIM(Primitive.and_bool_bool, 2)
 				.RETURN1()
 				));
 		

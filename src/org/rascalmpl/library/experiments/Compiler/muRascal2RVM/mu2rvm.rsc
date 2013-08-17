@@ -98,11 +98,11 @@ INS tr(muCall(str fname, list[MuExp] args)) = [*tr(args), CALL(fname)];
 
 INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN()];
 
-INS tr(muCallPrim(str name, MuExp arg)) = (name == "println") ? [*tr(arg), PRINTLN()] : [*tr(arg), CALLPRIM(name)];
+INS tr(muCallPrim(str name, MuExp arg)) = (name == "println") ? [*tr(arg), PRINTLN()] : [*tr(arg), CALLPRIM(name, 1)];
 
-INS tr(muCallPrim(str name, MuExp arg1, MuExp arg2)) = [*tr(arg1), *tr(arg2), CALLPRIM(name)];
+INS tr(muCallPrim(str name, MuExp arg1, MuExp arg2)) = [*tr(arg1), *tr(arg2), CALLPRIM(name, 2)];
 
-INS tr(muCallPrim(str name, list[MuExp] args)) = [*tr(args), CALLPRIM(name)];
+INS tr(muCallPrim(str name, list[MuExp] args)) = [*tr(args), CALLPRIM(name, size(args))];
 
 INS tr(muAssign(str id, int scope, int pos, MuExp exp)) { println("Translating muAssign: <id>::<scope>::<pos> = <exp>; fun_scope: <functionScope>"); return [*tr(exp), scope == functionScope ? STORELOC(pos) : STOREVAR(scope, pos)]; }
 INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];
