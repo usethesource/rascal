@@ -46,13 +46,15 @@ test bool tst() = [7] :=  ret("[7]") ;
 test bool tst() = [7, 8] :=  ret("[7, 8]") ;
 test bool tst() = [7, 8, 9] :=  ret("[7, 8, 9]") ;
 
-test bool tst() = <7, 8> :=  ret("\<7, 8\>") ;
-
+test bool tst() = [7, 8] :=  ret("[7, 8]") ;
+test bool tst() = 7 :=  ret("[7, 8][0]") ;
 
 
 test bool tst() = 7 := body("x = 7; return x;");
+test bool tstx() = 7 := body("x = 7; y = 8; return x;");
+test bool tstx() = 8 := body("x = 7; y = 8; return y;");
 
-test bool tstx() = <7, 8> := body("x = 7; y = 8; return \<x, y\>;");
+test bool tstx() = [7, 8] := body("x = 7; y = 8; return [x, y];");
 test bool tst() = 7 := body("\<x, y\> = \<7, 8\> return x;");
 test bool tst() = 8 := body("\<x, y\> = \<7, 8\> return y;");
 
@@ -61,9 +63,13 @@ test bool tst() = true := prim2("and_bool_bool", true, true);
 test bool tst() = false := prim2("and_bool_bool", false, true);
 
 //appendAfter,
-//addition_elm_list,
-//addition_list_elm,
-//addition_list_list,
+
+test bool tst() = [1,2,3] := prim2("addition_elm_list", 1, [2, 3]);
+
+test bool tst() = [1,2,3] := prim2("addition_list_elm", [1, 2], 3);
+
+test bool tst() = [1,2,3] := prim2("addition_list_list", [1, 2], [3]); 
+
 //addition_map_map,
 //addition_elm_set,
 //addition_set_elm,
@@ -77,7 +83,10 @@ test bool tst() = "abcdef" := prim2("addition_str_str", "\"abc\"", "\"def\"");
 //composition_lrel_lrel,
 //composition_rel_rel,
 //composition_map_map,
+
 //division_num_num,
+
+test bool tst() = 3. := prim2("division_num_num", 6, 2);
 //equals_num_num,
 test bool tst() = true := prim2("equals_num_num", 7, 7);
 test bool tst() = false := prim2("equals_num_num", 7, 8);
@@ -104,16 +113,29 @@ test bool tst() = false := prim2("less_equal_num_num", 8, 7);
 //make_set,
 //make_tuple,
 //negative,
-//not_bool,
-//or_bool_bool,
+//test bool tst() = -6 := prim1("negative", 6);
+test bool tst() = true := prim1("not_bool", false);
+
+test bool tst() = true := prim2("or_bool_bool", true, false);
+test bool tst() = false := prim2("or_bool_bool", false, false);
+
+
 //println,
-//product_num_num,
+test bool tst() = 12 := prim2("product_num_num", 3, 4);
+
 //size_list,
-//subtraction_list_list,
+test bool tst() = 0 := prim1("size_list", []);
+test bool tst() = 3 := prim1("size_list", [1,2,3]);
+test bool tst() = [1,3,5] := prim2("subtraction_list_list", [1,2,3,4,5], [2,4]);
+
 //subtraction_map_map,
-//subtraction_num_num,
+test bool tst() = 7 := prim2("subtraction_num_num", 12, 5);
 //subtraction_set_set,
 //subscript_list_int, 
+test bool tst() = 1 := prim2("subscript_list_int", [1,2,3], 0);
+test bool tst() = 2 := prim2("subscript_list_int", [1,2,3], 1);
+test bool tst() = 3 := prim2("subscript_list_int", [1,2,3], 2);
+
 //subscript_map,
 //tail_list,
 

@@ -255,8 +255,8 @@ public class CodeBlock {
 		return add(new StoreVar(this, scope, pos));
 	}
 	
-	public CodeBlock CALLPRIM (Primitive prim){
-		return add(new CallPrim(this, prim));
+	public CodeBlock CALLPRIM (Primitive prim, int arity){
+		return add(new CallPrim(this, prim, arity));
 	}
 	
 	public CodeBlock LOADFUN (String name){

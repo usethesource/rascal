@@ -133,10 +133,11 @@ public enum Primitive {
 	 * Invoke the implementation of a primitive from the RVM main interpreter loop.
 	 * @param stack	stack in the current execution frame
 	 * @param sp	stack pointer
+	 * @param arity TODO
 	 * @return		new stack pointer and modified stack contents
 	 */
-	int invoke(Object[] stack, int sp) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
-		return (int) methods[ordinal()].invoke(null, stack,  sp);
+	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+		return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
 	}
 	
 	/***************************************************************
@@ -166,47 +167,56 @@ public enum Primitive {
 	 * }
 	 */
 	
-	public static int addition_num_num(Object[] stack, int sp) {
+	public static int addition_num_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).add((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
 
-	public static int addition_list_list(Object[] stack, int sp) {
+	public static int addition_list_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).concat((IList) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int addition_map_map(Object[] stack, int sp) {
+	public static int addition_map_map(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).join((IMap) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int addition_list_elm(Object[] stack, int sp) {
+	public static int addition_list_elm(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int addition_elm_list(Object[] stack, int sp) {
+	public static int addition_elm_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 1]).insert((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 	
-	public static int addition_set_elm(Object[] stack, int sp) {
+	public static int addition_set_elm(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 2]).insert((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int addition_elm_set(Object[] stack, int sp) {
+	public static int addition_elm_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 1]).insert((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 	
-	public static int addition_set_set(Object[] stack, int sp) {
+	public static int addition_set_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 2]).union((ISet) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int addition_str_str(Object[] stack, int sp) {
+	public static int addition_str_str(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		// An overly permissive definition that is handy during debugging for compiler develeopment
  		//stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
 		Object olhs = stack[sp - 2];
@@ -221,7 +231,8 @@ public enum Primitive {
 	
 //	public static int addition_loc_str(Object[] stack, int sp) { 	}
 	
-	public static int addition_tuple_tuple(Object[] stack, int sp) {
+	public static int addition_tuple_tuple(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		ITuple t1 = (ITuple) stack[sp - 2];
 		ITuple t2 = (ITuple) stack[sp - 1];
 		int len1 = t1.arity();
@@ -239,7 +250,8 @@ public enum Primitive {
 	 * and
 	 */
 	
-	public static int and_bool_bool(Object[] stack, int sp) {
+	public static int and_bool_bool(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IBool) stack[sp - 2]).and((IBool) stack[sp - 1]);
 		return sp - 1;
 	}
@@ -247,7 +259,8 @@ public enum Primitive {
 	/*
 	 * appendAfter
 	 */
-	public static int appendAfter(Object[] stack, int sp) {
+	public static int appendAfter(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
@@ -257,7 +270,8 @@ public enum Primitive {
 	 * assignPair: used by muRascal Implode for resolving <v1, v2> = exp
 	 */
 	
-	public static int assign_pair(Object[] stack, int sp) {
+	public static int assign_pair(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		int v1 = ((IInteger) stack[sp - 3]).intValue();
 		int v2 = ((IInteger) stack[sp - 2]).intValue();
 		ITuple pair = (ITuple) stack[sp - 1];
@@ -280,17 +294,20 @@ public enum Primitive {
 		}
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static int composition_lrel_lrel(Object[] stack, int sp) {
+	public static int composition_lrel_lrel(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IListRelation) stack[sp - 2]).compose((IListRelation) stack[sp - 1]);
 		return sp - 1;
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static int composition_rel_rel(Object[] stack, int sp) {
+	public static int composition_rel_rel(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IRelationalAlgebra) stack[sp - 2]).compose((IRelationalAlgebra) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int composition_map_map(Object[] stack, int sp) {
+	public static int composition_map_map(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).compose((IMap) stack[sp - 1]);
 		return sp - 1;
 	}
@@ -301,8 +318,9 @@ public enum Primitive {
 	 * infix Division "/" { &L <: num x &R <: num        -> LUB(&L, &R) }
 	 */
 	
-	public static int division_num_num(Object[] stack, int sp) {
-		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]);
+	public static int division_num_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((INumber) stack[sp - 2]).divide(((INumber) stack[sp - 1]), 10);
 		return sp - 1;
 	}
 	
@@ -310,7 +328,8 @@ public enum Primitive {
 	 * equals
 	 */
 
-	public static int equals_num_num(Object[] stack, int sp) {
+	public static int equals_num_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
@@ -319,7 +338,8 @@ public enum Primitive {
 	 * equivalent
 	 */
 	
-	public static int equivalent_bool_bool(Object[] stack, int sp) {
+	public static int equivalent_bool_bool(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IBool) stack[sp - 2]).equivalent((IBool) stack[sp - 1]);
 		return sp - 1;
 	}
@@ -339,14 +359,16 @@ public enum Primitive {
 	/*
 	 * greaterThan
 	 */
-	public static int greater_num_num(Object[] stack, int sp) {
+	public static int greater_num_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
 		return sp - 1;
 	}
 	/*
 	 * greaterThanOrEq
 	 */
-	public static int greater_equal_num_num(Object[] stack, int sp) {
+	public static int greater_equal_num_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
 		return sp - 1;
 	}
@@ -359,8 +381,9 @@ public enum Primitive {
 	 * head_list
 	 */
 	
-	public static int head_list(Object[] stack, int sp) {
-		stack[sp - 1] = ((IList) stack[sp - 2]).get(0);
+	public static int head_list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((IList) stack[sp - 1]).get(0);
 		return sp;
 	}
 	
@@ -368,7 +391,8 @@ public enum Primitive {
 	 * implies
 	 */
 	
-	public static int implies_bool_bool(Object[] stack, int sp) {
+	public static int implies_bool_bool(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IBool) stack[sp - 2]).implies((IBool) stack[sp - 1]);
 		return sp - 1;
 	}
@@ -401,14 +425,16 @@ public enum Primitive {
 	/*
 	 * lessThan
 	 */
-	public static int less_num_num(Object[] stack, int sp) {
+	public static int less_num_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).less((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
 		return sp - 1;
 	}
 	/*
 	 * lessThanOrEq
 	 */
-	public static int less_equal_num_num(Object[] stack, int sp) {
+	public static int less_equal_num_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
 		return sp - 1;
 	}
@@ -416,14 +442,14 @@ public enum Primitive {
 	/*
 	 * make_list
 	 */
-	public static int make_list(Object[] stack, int sp) {
-		int len = ((IInteger) stack[sp - 1]).intValue();
+	public static int make_list(Object[] stack, int sp, int arity) {
+		assert arity >= 0;
 		IListWriter writer = vf.listWriter();
 
-		for (int i = len - 1; i >= 0; i--) {
-			writer.append((IValue) stack[sp - 2 - i]);
+		for (int i = arity - 1; i >= 0; i--) {
+			writer.append((IValue) stack[sp - 1 - i]);
 		}
-		sp = sp - len;
+		sp = sp - arity + 1;
 		stack[sp - 1] = writer.done();
 
 		return sp;
@@ -432,14 +458,14 @@ public enum Primitive {
 	/*
 	 * make_map
 	 */
-	public static int make_map(Object[] stack, int sp) {
-		int len = ((IInteger) stack[sp - 1]).intValue();
+	public static int make_map(Object[] stack, int sp, int arity) {
+		assert arity >= 0;
 		IMapWriter writer = vf.mapWriter();
 
-		for (int i = 2 * len; i > 0; i -= 2) {
-			writer.put((IValue) stack[sp - 1 - i], (IValue) stack[sp - 1 - i + 1]);
+		for (int i = 2 * arity; i > 0; i -= 2) {
+			writer.put((IValue) stack[sp - 1 - i], (IValue) stack[sp - i + 1]);
 		}
-		sp = sp - 2 * len;
+		sp = sp - 2 * arity;
 		stack[sp - 1] = writer.done();
 
 		return sp;
@@ -448,27 +474,27 @@ public enum Primitive {
 	/*
 	 * make_set
 	 */
-	public static int make_set(Object[] stack, int sp) {
-		int len = ((IInteger) stack[sp - 1]).intValue();
+	public static int make_set(Object[] stack, int sp, int arity) {
+		assert arity >= 0;
 		ISetWriter writer = vf.setWriter();
 
-		for (int i = len - 1; i >= 0; i--) {
+		for (int i = arity - 1; i >= 0; i--) {
 			writer.insert((IValue) stack[sp - 2 - i]);
 		}
-		sp = sp - len;
+		sp = sp - arity;
 		stack[sp - 1] = writer.done();
 
 		return sp;
 	}
 	
-	public static int make_tuple(Object[] stack, int sp) {
-		int len = ((IInteger) stack[sp - 1]).intValue();
-		IValue[] elems = new IValue[len];
+	public static int make_tuple(Object[] stack, int sp, int arity) {
+		assert arity >= 0;
+		IValue[] elems = new IValue[arity];
 		
-		for (int i = 0; i < len; i++) {
-			elems[i] = (IValue) stack[sp - 1 - len + i];
+		for (int i = arity - 1; i >= 0; i--) {
+			elems[i] = (IValue) stack[sp - arity + i];
 		}
-		sp = sp - len;
+		sp = sp - arity;
 		stack[sp - 1] = vf.tuple(elems);
 		return sp;
 	}
@@ -483,15 +509,17 @@ public enum Primitive {
 	/*
 	 * size_list
 	 */
-	public static int size_list(Object[] stack, int sp) {
+	public static int size_list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
 		stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
-		return sp - 1;
+		return sp;
 	}
 	
 	/*
 	 * multiplication
 	 */
-	public static int product_num_num(Object[] stack, int sp) {
+	public static int product_num_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
@@ -500,9 +528,10 @@ public enum Primitive {
 	 * negation
 	 */
 	
-	public static int not_bool(Object[] stack, int sp) {
-		stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-		return sp - 1;
+	public static int not_bool(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((IBool) stack[sp - 1]).not();
+		return sp;
 	}
 	
 	/*
@@ -511,9 +540,10 @@ public enum Primitive {
 	 * prefix UnaryMinus "-" { &L <: num -> &L }
 	 */
 	
-	public static int negative(Object[] stack, int sp) {
+	public static int negative(Object[] stack, int sp, int arity) {
+		assert arity == 1;
 		stack[sp - 1] = ((INumber) stack[sp - 1]).negate();
-		return sp - 1;
+		return sp;
 	}
 	
 	/*
@@ -524,7 +554,8 @@ public enum Primitive {
 	 * or
 	 */
 	
-	public static int or_bool_bool(Object[] stack, int sp) {
+	public static int or_bool_bool(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IBool) stack[sp - 2]).or((IBool) stack[sp - 1]);
 		return sp - 1;
 	}
@@ -533,7 +564,7 @@ public enum Primitive {
 	 * println
 	 */
 	
-	public static int println(Object[] stack, int sp) {
+	public static int println(Object[] stack, int sp, int arity) {
 		System.out.println(">>>>> " + stack[sp - 1]);
 		return sp;
 	}
@@ -567,13 +598,15 @@ public enum Primitive {
 	/*
 	 * subscript
 	 */
-	public static int subscript_list_int(Object[] stack, int sp) {
+	public static int subscript_list_int(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).get(((IInteger) stack[sp - 1])
 				.intValue());
 		return sp - 1;
 	}
 
-	public static Object subscript_map(Object[] stack, int sp) {
+	public static Object subscript_map(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
@@ -588,22 +621,26 @@ public enum Primitive {
  	 * 		map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
 	 * }
 	 */
-	public static int subtraction_num_num(Object[] stack, int sp) {
+	public static int subtraction_num_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int subtraction_list_list(Object[] stack, int sp) {
+	public static int subtraction_list_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int subtraction_set_set(Object[] stack, int sp) {
+	public static int subtraction_set_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 2]).subtract((ISet) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int subtraction_map_map(Object[] stack, int sp) {
+	public static int subtraction_map_map(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).remove((IMap) stack[sp - 1]);
 		return sp - 1;
 	}
@@ -612,7 +649,8 @@ public enum Primitive {
 	 * tail_list
 	 */
 	
-	public static int tail_list(Object[] stack, int sp) {
+	public static int tail_list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
 		IList lst =  ((IList) stack[sp - 1]);
 		stack[sp - 1] = lst.sublist(1, lst.length() - 1);
 		return sp;
@@ -628,13 +666,15 @@ public enum Primitive {
 	 */
 	
 	@SuppressWarnings("rawtypes")
-	public static int transitive_closure_lrel(Object[] stack, int sp) {
+	public static int transitive_closure_lrel(Object[] stack, int sp, int arity) {
+		assert arity == 1;
 		stack[sp - 1] = ((IListRelation) stack[sp - 1]).closure();
 		return sp;
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static int transitive_closure_rel(Object[] stack, int sp) {
+	public static int transitive_closure_rel(Object[] stack, int sp, int arity) {
+		assert arity == 1;
 		stack[sp - 1] = ((IRelationalAlgebra) stack[sp - 1]).closure();
 		return sp;
 	}
@@ -643,28 +683,33 @@ public enum Primitive {
 	 * transitiveReflexiveClosure
 	 */
 	@SuppressWarnings("rawtypes")
-	public static int transitive_reflexive_closure_lrel(Object[] stack, int sp) {
+	public static int transitive_reflexive_closure_lrel(Object[] stack, int sp, int arity) {
+		assert arity == 1;
 		stack[sp - 1] = ((IListRelation) stack[sp - 1]).closureStar();
 		return sp;
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static int transitive_reflexive_closure_rel(Object[] stack, int sp) {
-		stack[sp - 1] = ((IRelationalAlgebra) stack[sp - 1]).closureStar();
+	public static int transitive_reflexive_closure_rel(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] =((IRelationalAlgebra) stack[sp - 1]).closureStar();
 		return sp;
 	}
 	
-	public static int equals_type_type(Object[] stack, int sp) {
+	public static int equals_type_type(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = vf.bool(((Type) stack[sp - 2]) == ((Type) stack[sp - 1]));
 		return sp - 1;
 	}
 	
-	public static int subtype(Object[] stack, int sp) {
+	public static int subtype(Object[] stack, int sp, int arity) {
+		assert arity == 2;
 		stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
 		return sp - 1;
 	}
 	
-	public static int typeOf(Object[] stack, int sp) {
+	public static int typeOf(Object[] stack, int sp, int arity) {
+		assert arity == 1;
 		stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
 		return sp;
 	}
