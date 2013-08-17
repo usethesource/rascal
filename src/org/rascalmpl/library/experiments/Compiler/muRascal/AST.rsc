@@ -115,8 +115,6 @@ public data Function =
                          list[str] locals, list[MuExp] body)
           ;
 
-//public data NameDecl = preDecl(str name, int pos) ;
-
 public data MuExp =
               preIntCon(str txt)
             | preStrCon(str txt)  

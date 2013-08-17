@@ -33,10 +33,6 @@ start syntax Module =
 			  preMod: 		"module" Identifier name Function* functions
 			;
 
-//syntax NameDecl = 
-//			  preDecl: 		Identifier name ":" Integer pos
-//			;
-
 syntax Function =     
               preFunction:	"function" Identifier name "[" Integer scopeId "," Integer nformal "," {Identifier ","}* locals "]"
                             "{" (Exp ";")+ body "}"
@@ -57,13 +53,13 @@ syntax Exp  =
 			> muReturn: 	"return"
 			> muCall: 		Exp exp1 "(" {Exp ","}* args ")"
 			
-		 	| preAssignLoc:	Identifier id "=" Exp exp
+		 	> preAssignLoc:	Identifier id "=" Exp exp
 			> muAssign: 	Identifier id >> ":" Integer scope >> ":" Integer pos "=" Exp exp
 			> muAssignRef: 	"@" Identifier id >> ":" Integer scope >> ":" Integer pos "=" Exp exp
 			
 		
-			| muIfelse: 	"if" "(" Exp exp1 ")" "{" {Exp ";"}* thenPart "}" "else" "{" {Exp ";"}* elsePart "}"
-			| muWhile: 		"while" "(" Exp cond ")" "{" {Exp ";"}* body "}" 
+			| muIfelse: 	"if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
+			| muWhile: 		"while" "(" Exp cond ")" "{" (Exp ";")* body "}" 
 			
 			| muCreate: 	"create" "(" Identifier fname "," {Exp ","}+ exargsps ")"
 			> muCreate: 	"create" "(" Exp coro ")"
@@ -95,7 +91,7 @@ syntax Exp =
             | preStrCon:	String txt
             | preTypeCon:   "type" String txt
 			| preVar: 		Identifier id
-			| preIfthen:    "if" "(" Exp exp1 ")" "{" {Exp ";"}* thenPart "}"
+			| preIfthen:    "if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}"
 			| preList:		"[" {Exp ","}* exps "]"
 		
 			| preAssignLocList:
