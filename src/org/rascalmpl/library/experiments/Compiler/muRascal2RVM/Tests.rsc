@@ -17,22 +17,22 @@ import IO;
 public loc Library = |std:///experiments/Compiler/muRascal2RVM/Test.mu|;
 
 value ret(str s) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,x:1,y:2] { return <s>; }")), true, 1); 
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return <s>; }")), true, 1); 
 	return res;
 }
 
 value body(str s) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,x:1,y:2] { <s> }")), true, 1);
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { <s> }")), true, 1);
 	return res; 
 }
 
 value prim1(str fun, value lhs) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,x:1,y:2] { return prim(\"<fun>\",<lhs>); }")), true, 1);
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return prim(\"<fun>\",<lhs>); }")), true, 1);
 	return res; 
 }
 
 value prim2(str fun, value lhs, value rhs) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,x:1,y:2] { return prim(\"<fun>\",<lhs>,<rhs>); }")), true, 1);
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return prim(\"<fun>\",<lhs>,<rhs>); }")), true, 1);
 	return res; 
 }
 
@@ -47,7 +47,7 @@ test bool tst() = [7, 8] :=  ret("[7, 8]") ;
 test bool tst() = [7, 8, 9] :=  ret("[7, 8, 9]") ;
 
 test bool tst() = [7, 8] :=  ret("[7, 8]") ;
-test bool tst() = 7 :=  ret("[7, 8][0]") ;
+test bool tst() = 7 :=  ret("get [7, 8][0]") ;
 
 
 test bool tst() = 7 := body("x = 7; return x;");
@@ -55,14 +55,14 @@ test bool tstx() = 7 := body("x = 7; y = 8; return x;");
 test bool tstx() = 8 := body("x = 7; y = 8; return y;");
 
 test bool tstx() = [7, 8] := body("x = 7; y = 8; return [x, y];");
-test bool tst() = 7 := body("\<x, y\> = \<7, 8\> return x;");
-test bool tst() = 8 := body("\<x, y\> = \<7, 8\> return y;");
+test bool tst() = 7 := body("[x, y] = [7, 8]; return x;");
+test bool tst() = 8 := body("[x, y] = [7, 8]; return y;");
 
 
 test bool tst() = true := prim2("and_bool_bool", true, true);
 test bool tst() = false := prim2("and_bool_bool", false, true);
 
-//appendAfter,
+test bool tst() = [1,2,3] := prim2("appendAfter", [1, 2], 3);
 
 test bool tst() = [1,2,3] := prim2("addition_elm_list", 1, [2, 3]);
 
@@ -84,10 +84,7 @@ test bool tst() = "abcdef" := prim2("addition_str_str", "\"abc\"", "\"def\"");
 //composition_rel_rel,
 //composition_map_map,
 
-//division_num_num,
-
 test bool tst() = 3. := prim2("division_num_num", 6, 2);
-//equals_num_num,
 test bool tst() = true := prim2("equals_num_num", 7, 7);
 test bool tst() = false := prim2("equals_num_num", 7, 8);
 //equivalent_bool_bool,
@@ -109,6 +106,8 @@ test bool tst() = true := prim2("less_equal_num_num", 7, 8);
 test bool tst() = false := prim2("less_equal_num_num", 8, 7);
 
 //make_list,
+test bool tst() = [1, 2] := prim2("make_list", 1, 2);
+
 //make_map,
 //make_set,
 //make_tuple,
@@ -123,7 +122,6 @@ test bool tst() = false := prim2("or_bool_bool", false, false);
 //println,
 test bool tst() = 12 := prim2("product_num_num", 3, 4);
 
-//size_list,
 test bool tst() = 0 := prim1("size_list", []);
 test bool tst() = 3 := prim1("size_list", [1,2,3]);
 test bool tst() = [1,3,5] := prim2("subtraction_list_list", [1,2,3,4,5], [2,4]);
@@ -137,7 +135,6 @@ test bool tst() = 2 := prim2("subscript_list_int", [1,2,3], 1);
 test bool tst() = 3 := prim2("subscript_list_int", [1,2,3], 2);
 
 //subscript_map,
-//tail_list,
 
 test bool tst() = [] := prim1("tail_list", [7]);
 

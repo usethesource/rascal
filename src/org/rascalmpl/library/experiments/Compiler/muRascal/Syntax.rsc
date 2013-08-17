@@ -33,28 +33,29 @@ start syntax Module =
 			  preMod: 		"module" Identifier name Function* functions
 			;
 
-syntax NameDecl = 
-			  preDecl: 		Identifier name ":" Integer pos
-			;
+//syntax NameDecl = 
+//			  preDecl: 		Identifier name ":" Integer pos
+//			;
 
 syntax Function =     
-              preFunction:	"function" Identifier name "[" Integer scope "," Integer nformal "," {NameDecl ","}* names "]"
+              preFunction:	"function" Identifier name "[" Integer scopeId "," Integer nformal "," {Identifier ","}* locals "]"
                             "{" (Exp ";")+ body "}"
 			;
 
 syntax Exp  =
-			
 			  muLab: 		Label id
 			| muFun: 		FConst id
 			| muConstr: 	FConst id
 			
 		    | muLoc: 		Identifier id ":" Integer pos
 			| muVar: 		Identifier id ":" Integer scope ":" Integer pos
-			| muCall: 		Exp exp1 "(" {Exp ","}* args ")"
 			
 			> muCallPrim: 	"prim" "(" String name "," {Exp ","}+ args ")"
-			| muReturn: 	"return"
-			| muReturn: 	"return" Exp exp
+			
+			| preSubscript: "get" Exp lst "[" Exp index "]"
+			> muReturn: 	"return"  Exp
+			> muReturn: 	"return"
+			> muCall: 		Exp exp1 "(" {Exp ","}* args ")"
 			
 		 	| preAssignLoc:	Identifier id "=" Exp exp
 			> muAssign: 	Identifier id >> ":" Integer scope >> ":" Integer pos "=" Exp exp
@@ -75,14 +76,13 @@ syntax Exp  =
 			
 			| muHasNext: 	"hasNext" "(" Exp coro ")"	
 			
-			| muYield: 		"yield"
-			| muYield: 		"yield"  Exp exp
-			
+			| muYield: 		"yield"  Exp exp 
+			> muYield: 		"yield"
 			| bracket		"(" Exp exp ")"
 			;
 
 keyword Keywords = 
-              "module" | "function" | "return" |
+              "module" | "function" | "return" | "get" |
 			  "prim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "hasNext" |
               "type"
@@ -96,9 +96,8 @@ syntax Exp =
             | preTypeCon:   "type" String txt
 			| preVar: 		Identifier id
 			| preIfthen:    "if" "(" Exp exp1 ")" "{" {Exp ";"}* thenPart "}"
-			| prePair:  	"\<" Exp exp1 "," Exp exp2 "\>"
 			| preList:		"[" {Exp ","}* exps "]"
-			| preSubscript:	Exp lst "[" Exp index "]"
-			| preAssignLocPair:
-							"\<" Identifier id1 "," Identifier id2 "\>" "=" Exp exp
+		
+			| preAssignLocList:
+							"[" Identifier id1 "," Identifier id2 "]" "=" Exp exp
 			;
