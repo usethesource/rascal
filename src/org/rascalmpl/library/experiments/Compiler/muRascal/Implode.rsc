@@ -26,6 +26,13 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
                case muCallPrim(str name, exp1, exp2)		=> muCallPrim(name[1..-1], exp1, exp2)
                case preIntCon(str txt)						=> muCon(toInt(txt))
                case preStrCon(str txt)						=> muCon(txt[1..-1])	// strip surrounding quotes
+               case preTypeCon(str txt):                    {
+               													try {
+																	Symbol sym = readTextValueString(#Symbol, txt);
+																	insert muTypeCon(sym);
+																} catch IO(str msg) :
+																	throw "Could not parse the string of a type constant into Symbol: <msg>";
+               												}
                case preVar("true") 							=> muCon(true)
                case preVar("false") 						=> muCon(false)
      	       case preVar(str name) 						=> muLoc(name , vardefs[name])
