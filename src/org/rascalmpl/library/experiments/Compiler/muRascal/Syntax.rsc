@@ -13,7 +13,7 @@ lexical Comment
 
 //layout Whitespace = [\ \t\n]*;
 
-lexical Identifier = id: ( [A-Za-z][A-Za-z0-9_]* ) \ Keywords \ Bool;
+lexical Identifier = id: ( [A-Za-z][A-Za-z0-9_]* ) \ Keywords;
 lexical Integer =  [0-9]+;
 lexical Label = label: [$][A-Za-z0-9]+;
 lexical FConst = fconst: [_][A-Za-z0-9]+;
