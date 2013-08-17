@@ -17,18 +17,19 @@ function main[5,1,args:0,t1:1,t2:2,t3:3,e1:4,e2:5] {
 	if(compareTypes(t1,t2)) { 
 		if(subtype(t2,t3)) { 
 			if(compareTypesOfExpressions(e1,e2)) {
-			} else {
 				if(compareIntAndValueTypes()) {
-					true
+					return 5
 				} else {
-					false
+					return 4
 				}
+			} else {
+				return 3
 			} 
 		} else { 
-			false 
+			return 2 
 		} 
 	} else { 
-		false 
+		return 1 
 	};
 	return;  
 }
