@@ -88,7 +88,7 @@ public class Execute {
 						break;
 						
 					case "CALLPRIM":
-						codeblock.CALLPRIM(Primitive.valueOf(getStrField(instruction, "name")));
+						codeblock.CALLPRIM(Primitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"));
 						break;
 						
 					case "CALL":

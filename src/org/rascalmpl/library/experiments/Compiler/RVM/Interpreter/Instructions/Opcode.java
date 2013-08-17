@@ -14,7 +14,7 @@ public enum Opcode {
 	STOREVAR (3, 3),
 	STORELOC (4, 2),
 	CALL (5, 2),
-	CALLPRIM (6, 2), // TODO: plus number of formal parameters
+	CALLPRIM (6, 3),
 	RETURN1 (7, 1),
 	JMP (8, 2),
 	JMPTRUE (9, 2),
@@ -129,7 +129,7 @@ public enum Opcode {
 			return "CALL " + cb.finalCode[pc + 1]  + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
 		case CALLPRIM:
-			return "CALLPRIM " + cb.finalCode[pc + 1] + " [" + Primitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
+			return "CALLPRIM " + cb.finalCode[pc + 1] +  ", " + cb.finalCode[pc + 2] + " [" + Primitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
 			
 		case RETURN1:
 			return "RETURN1";

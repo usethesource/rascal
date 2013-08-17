@@ -25,27 +25,27 @@ public static void main(String[] args) {
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADCON(0).
-					CALLPRIM(Primitive.equals_num_num).
+					CALLPRIM(Primitive.equals_num_num, 2).
 					JMPFALSE("L").
 					LOADCON(0).
 					RETURN1().
 					LABEL("L").
 					LOADLOC(0).
 					LOADCON(1).
-					CALLPRIM(Primitive.equals_num_num).
+					CALLPRIM(Primitive.equals_num_num, 2).
 					JMPFALSE("M").
 					LOADCON(1).
 					RETURN1().
 					LABEL("M").
 					LOADLOC(0).
 					LOADCON(1).
-					CALLPRIM(Primitive.subtraction_num_num).
+					CALLPRIM(Primitive.subtraction_num_num, 2).
 					CALL("fib").
 					LOADLOC(0).
 					LOADCON(2).
-					CALLPRIM(Primitive.subtraction_num_num).
+					CALLPRIM(Primitive.subtraction_num_num, 2).
 					CALL("fib").
-					CALLPRIM(Primitive.addition_num_num).
+					CALLPRIM(Primitive.addition_num_num, 2).
 					RETURN1()));
 					
 		rvm.declare(new Function("main", 2, 1, 1, 6,

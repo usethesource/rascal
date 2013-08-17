@@ -375,7 +375,8 @@ public class RVM {
 					
 				case Opcode.OP_CALLPRIM:
 					Primitive prim = Primitive.fromInteger(instructions[pc++]);
-					sp = prim.invoke(stack, sp);
+					arity = instructions[pc++];
+					sp = prim.invoke(stack, sp, arity);
 					continue;
 				
 				case Opcode.OP_INIT:
