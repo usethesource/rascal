@@ -54,12 +54,12 @@ function AND_M_M[2,2,lhs:0,rhs:1,clhs:2,crhs:3]{
 }
 
 function ONE[1,1,arg:0, carg:1]{
-   carg = init(creat(arg));
+   carg = init(create(arg));
    return next(arg);
 }
 
 function ALL[1,1,arg:0,carg:1]{
-   carg = init(creat(arg));
+   carg = init(create(arg));
    while(hasNext(carg)){
         yield next(carg)
    };
