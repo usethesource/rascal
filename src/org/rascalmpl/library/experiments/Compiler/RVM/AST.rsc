@@ -17,7 +17,7 @@ data Instruction =
 		| STORELOC(int pos)
 		| CALLCONSTR(str name)
 		| CALL(str name)
-		| CALLPRIM(str name)
+		| CALLPRIM(str name, int arity)
 		| RETURN1()
 		| JMP(str label)
 		| JMPTRUE(str label)

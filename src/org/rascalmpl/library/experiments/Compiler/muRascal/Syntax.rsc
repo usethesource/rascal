@@ -98,6 +98,7 @@ syntax Exp =
 			| preIfthen:    "if" "(" Exp exp1 ")" "{" {Exp ";"}* thenPart "}"
 			| prePair:  	"\<" Exp exp1 "," Exp exp2 "\>"
 			| preList:		"[" {Exp ","}* exps "]"
+			| preSubscript:	Exp lst "[" Exp index "]"
 			| preAssignLocPair:
 							"\<" Identifier id1 "," Identifier id2 "\>" "=" Exp exp
 			;

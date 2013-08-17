@@ -30,7 +30,7 @@ public class CountDown_c {
 							.LABEL("LOOP")
 							.LOADLOC(0)
 							.LOADCON(0)
-							.CALLPRIM(Primitive.greater_num_num)
+							.CALLPRIM(Primitive.greater_num_num, 2)
 							.JMPTRUE("BODY")
 							.LOADCON(0)
 							.RETURN1()
@@ -38,7 +38,7 @@ public class CountDown_c {
 							// call-by-reference check
 							.LOADCON(1)
 							.LOADLOCREF(1)
-							.CALLPRIM(Primitive.addition_num_num)
+							.CALLPRIM(Primitive.addition_num_num, 2)
 							.STORELOCREF(1)
 							.POP()
 							
@@ -47,7 +47,7 @@ public class CountDown_c {
 							.POP()
 							.LOADLOC(0)
 							.LOADCON(1)
-							.CALLPRIM(Primitive.subtraction_num_num)
+							.CALLPRIM(Primitive.subtraction_num_num, 2)
 							.STORELOC(0)
 							.POP()
 							.JMP("LOOP")));
@@ -95,13 +95,13 @@ public class CountDown_c {
 						.LABEL("BODY")
 						.LOADCON(2)
 						.LOADLOC(2)
-						.CALLPRIM(Primitive.addition_num_num)
+						.CALLPRIM(Primitive.addition_num_num, 2)
 						.STORELOC(2)
 						.POP()
 						.LOADLOC(3)
 						.LOADLOC(1)
 						.NEXT0()
-						.CALLPRIM(Primitive.addition_num_num)
+						.CALLPRIM(Primitive.addition_num_num, 2)
 						.STORELOC(3)
 						.POP()
 						.JMP("LOOP")));
