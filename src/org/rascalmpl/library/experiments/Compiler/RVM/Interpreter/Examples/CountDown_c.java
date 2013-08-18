@@ -72,7 +72,7 @@ public class CountDown_c {
 		 */
 		rvm.declare(new Function("main", 2, 1, 4, 10,
 					new CodeBlock(vf)
-						.CREATE("g")
+						.CREATE("g",0)
 						.STORELOC(1)
 						.POP()
 						.LOADCON(0)
@@ -82,7 +82,7 @@ public class CountDown_c {
 						// call-by-reference check
 						.LOADLOCASREF(2)
 						.LOADLOC(1)
-						.INIT()
+						.INIT(1)
 						.POP()
 						.LOADCON(0)
 						.STORELOC(3)
