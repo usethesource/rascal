@@ -86,7 +86,11 @@ function MATCH_INT[1,2,pat,subject]{
    return prim("equals_num_num", pat, subject);
 }
 
-function MATCH_VAR[1, 3, name, scopeId, pos,subject]{
+function MATCH_STR[1,2,pat,subject]{
+   return prim("equals_str_str", pat, subject);
+}
+
+function MATCH_VAR[1, 4, name, scopeId, pos,subject]{
    var(name,scopeId,pos) = subject;
    return true;
 }
