@@ -15,5 +15,5 @@ void main(list[value] args) {
 //	return inc(3);
 //    int n = 57;
 //	return n + 2;
-	int x := 3;
+	[5, int x] := [3, 7];
 }

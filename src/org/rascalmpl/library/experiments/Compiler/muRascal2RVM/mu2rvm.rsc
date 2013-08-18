@@ -140,10 +140,10 @@ default INS tr(muWhile(MuExp cond, list[MuExp] body)) {
 INS tr(muCreate(str name)) = [CREATE(name)];
 
 INS tr(muCreate(str name, list[MuExp] args)) = [ *tr(args), CREATE(name, size(args))];
-INS tr(muCreate(MuExp exp)) = [*tr(exp),CREATEDYN()];
+INS tr(muCreate(MuExp exp)) = [*tr(exp),CREATEDYN(0)];
 
-INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(1)];
-INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args) + 1)];  // order!
+INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
+INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order!
 
 INS tr(muNext(MuExp coro)) = [*tr(coro), NEXT0()];
 INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
