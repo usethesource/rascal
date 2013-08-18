@@ -143,7 +143,7 @@ INS tr(muCreate(str name, list[MuExp] args)) = [ *tr(args), CREATE(name)];
 INS tr(muCreate(MuExp exp)) = [*tr(exp),CREATEDYN()];
 
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT()];
-INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT()];  // order!
+INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args) + 1)];  // order!
 
 INS tr(muNext(MuExp coro)) = [*tr(coro), NEXT0()];
 INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
