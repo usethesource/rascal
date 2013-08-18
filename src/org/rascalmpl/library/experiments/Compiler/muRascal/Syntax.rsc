@@ -16,7 +16,7 @@ lexical Comment
 lexical Identifier = id: ( [A-Za-z][A-Za-z0-9_]* ) \ Keywords;
 lexical Integer =  [0-9]+;
 lexical Label = label: [$][A-Za-z0-9]+;
-lexical FConst = fconst: [_][A-Za-z0-9]+;
+lexical FConst = fconst: ( [A-Za-z][A-Za-z0-9_]* ) \ Keywords; // [_][A-Za-z0-9]+;
 
 lexical StrChar = 
 			  NewLine: [\\] [n] 
@@ -40,8 +40,8 @@ syntax Function =
 
 syntax Exp  =
 			  muLab: 		Label id
-			| muFun: 		FConst id
-			| muConstr: 	FConst id
+//			| muFun: 		FConst id
+//			| muConstr: 	FConst id
 			
 		    | muLoc: 		Identifier id ":" Integer pos
 			| muVar: 		Identifier id ":" Integer scope ":" Integer pos
@@ -55,7 +55,7 @@ syntax Exp  =
 			
 		 	> preAssignLoc:	Identifier id "=" Exp exp
 			> muAssign: 	Identifier id >> ":" Integer scope >> ":" Integer pos "=" Exp exp
-			> muAssignRef: 	"@" Identifier id >> ":" Integer scope >> ":" Integer pos "=" Exp exp
+			> muAssignRef: 	Identifier id >> ":" Identifier scope >> ":" Identifier pos "=" Exp exp
 			
 		
 			| muIfelse: 	"if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"

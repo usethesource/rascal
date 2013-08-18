@@ -61,8 +61,6 @@ public data MuExp =
           | muCall(MuExp fun, list[MuExp] args)					// Call a function
           | muCall(str fname, list[MuExp] args)					// Call a named function: usually from the muRascal runtime library
           | muCallConstr(str cname, list[MuExp] args) 			// Call a constructor
-//          | muCallPrim(str name, MuExp exp1)					// Call a primitive function with one argument TODO: REDUCE THESE
-//          | muCallPrim(str name, MuExp exp1, MuExp exp2)		// Call a primitive function with two arguments
           | muCallPrim(str name, list[MuExp] exps)				// Call a primitive function with variable number of arguments
           | muReturn()											// Return from function without value
           | muReturn(MuExp exp)									// Return from function with value
@@ -101,6 +99,9 @@ public data MuExp =
            // Multi-expressions
             
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
+          | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
+          | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
+          
        	  ;
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.

@@ -51,7 +51,7 @@ int getScopeSize(int scope){
 }
 
 // Get the type of a declared function
-tuple[int,int] getVariableScope(str name) = uid2addr[config.fcvEnv[RSimpleName(name)]];
+//tuple[int,int] getVariableScope(str name) = uid2addr[config.fcvEnv[RSimpleName(name)]];
 
 MuExp mkVar(str name, loc l) {
   //println("mkVar: <name>");
@@ -70,6 +70,10 @@ MuExp mkVar(str name, loc l) {
   	return muConstr(name);
   }
   return muVar(name, addr.scope, addr.pos);
+}
+
+tuple[int,int] getVariableScope(str name, loc l) {
+  return uid2addr[loc2uid[l]];
 }
 
 
@@ -158,9 +162,9 @@ int size_exps({Expression ","}* es) = size([e | e <- es]);	// TODO: should becom
 
 
 
-list[MuExp] infix(str op, Expression e) = [muCallPrim("<op>_<getOuterType(e.lhs)>_<getOuterType(e.rhs)>", translate(e.lhs)[0], translate(e.rhs)[0])];
-list[MuExp] prefix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(arg)>", translate(arg)[0])];
-list[MuExp] postfix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(arg)>", translate(arg)[0])];
+list[MuExp] infix(str op, Expression e) = [muCallPrim("<op>_<getOuterType(e.lhs)>_<getOuterType(e.rhs)>", [*translate(e.lhs), *translate(e.rhs)])];
+list[MuExp] prefix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(arg)>", translate(arg))];
+list[MuExp] postfix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(arg)>", translate(arg))];
 
 /*********************************************************************/
 /*                  Expessions                                       */
@@ -343,17 +347,6 @@ bool backtrackFree(e:(Expression) `<Pattern pat> \<- <Expression exp>`) = false;
 
 default bool backtrackFree(Expression e) = true;
 
-// Get all variables that are introduced by a pattern.
-tuple[set[tuple[str,str]],set[str]] getVars(Pattern p) {
-  defs = {};
-  uses = {};
-  visit(p){
-    case (Pattern) `<Type tp> <Name name>`: defs += <"<tp>", "<name>">;
-    case (Pattern) `<QualifiedName name>`: uses += "<name>";
-    case (Pattern) `*<QualifiedName name>`: uses += "<name>";
-  };
-  return <defs, uses>;
-}
 
 list[MuExp] translateBool(str fun, Expression lhs, Expression rhs){
   blhs = backtrackFree(lhs) ? "U" : "M";
@@ -375,7 +368,7 @@ list[MuExp] translateBool(e:(Expression) `<Expression lhs> \<==\> <Expression rh
  // Translate match operator
  
  list[MuExp] translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  = 
-   [ muMulti(muInit(muCreate("MATCH", translatePat(pat)),  translate(exp))) ];
+   [ muMulti(muCreate("MATCH", [*translatePat(pat), *translate(exp)])) ];
  
  
  

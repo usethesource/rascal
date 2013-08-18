@@ -4,9 +4,12 @@ import Prelude;
 
 import experiments::Compiler::RVM::AST;
 
+import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
+import experiments::Compiler::muRascal::Implode;
 
-import experiments::Compiler::muRascal2RVM::Library;
+
+//import experiments::Compiler::muRascal2RVM::Library;
 
 alias INS = list[Instruction];
 
@@ -18,23 +21,24 @@ str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
 int functionScope = 0;
 
+public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
+
 // Translate a muRascal module
 
 RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
   funMap = ();
   nLabel = -1;
   
+  libModule = parse(Library);
   
- // for(fun <- experiments::Compiler::muRascal2RVM::Library::library){
- //    funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
- //  }
+  for(fun <-libModule.functions){
+     funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
+  }
  
   for(fun <- functions){
     functionScope = fun.scope;
     funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
   }
-  
-  
   
   funMap += ("#module_init" : FUNCTION("#module_init", 0, 0, size(variables) + 1, 10, 
   									[*tr(initializations), 
@@ -70,10 +74,8 @@ INS trblock(list[MuExp] exps) {
      return [LOADCON(666)]; // TODO: throw "Non void block cannot be empty";
   }
   ins = [*tr_and_pop(exp) | exp <- exps[0..-1]];
-  //("exps[-1] == <exps[-1]>");
   return ins + tr(exps[-1]);
 }
-
 
 // Translate a single muRascal expression
 
@@ -165,6 +167,15 @@ bool producesValue(muWhile(MuExp cond, list[MuExp] body)) = false;
 default bool producesValue(MuExp exp) = true;
 
 // Translate a condition. 
+
+INS tr_cond(muOne(list[MuExp] args)){
+    return [*tr_cond(a) | a <- args];
+}
+
+
+INS tr_cond(muAll(list[MuExp] args)){
+    return [*tr_cond(a) | a <- args];
+}
 
 INS tr_cond(muMulti(MuExp exp), INS body) {
     [ *tr(exp),

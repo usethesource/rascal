@@ -6,7 +6,11 @@ import Prelude;
 import ParseTree;
 import Ambiguity;
 
+set[str] global_functions;
+
 MuModule preprocess(Module pmod){
+   global_functions = { "<f.name>" | f <- pmod.functions };
+   println(global_functions);
    return muModule(pmod.name, [], [ preprocess(f) | f <- pmod.functions], [], []);
 }
 
@@ -36,7 +40,7 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
                												}
                case preVar("true") 							=> muCon(true)
                case preVar("false") 						=> muCon(false)
-     	       case preVar(str name) 						=> muLoc(name , vardefs[name])
+     	       case preVar(str name) 						=> (name in global_functions)  ? muFun(name) : muLoc(name , vardefs[name])
      	       case preAssignLocList(str name1, str name2, MuExp exp1) 	
      	       												=> muCallPrim("assign_pair", [muCon(vardefs[name1]), muCon(vardefs[name2]), exp1])
      	       
@@ -51,7 +55,7 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
 MuModule parse(loc s) {
   pt = parse( #start[Module], s);
   iprintln(diagnose(pt));
-  iprintln(pt);
+  //iprintln(pt);
   ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
   iprintln(ast);
   ast2 = preprocess(ast);

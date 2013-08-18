@@ -11,13 +11,13 @@ loc Example2 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example2.rs
 loc muExample3 = |std:///experiments/Compiler/muRascal2RVM/TypeConExample.mu|;
 
 void run(){
-  muP = r2mu(Example2);
+  muP = r2mu(Example1);
   iprintln(muP);
   rvmP = mu2rvm(muP);
-  iprintln(rvmP);
+ // iprintln(rvmP);
   
-  <v, t> = executeProgram(rvmP, true, 1);
-  println("Result = <v>, [<t> msec]");
+ // <v, t> = executeProgram(rvmP, true, 1);
+ // println("Result = <v>, [<t> msec]");
 }
 
 void runMu2rvm(){
