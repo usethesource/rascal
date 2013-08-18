@@ -400,6 +400,7 @@ public class RVM {
 					continue;
 				
 				case Opcode.OP_INIT:
+					arity = instructions[pc++];
 					Object src = stack[--sp];
 					Coroutine coroutine;
 					if(src instanceof Coroutine){
@@ -414,18 +415,23 @@ public class RVM {
 						throw new RuntimeException("PANIC: unexpected argument type when INIT is executed.");
 					}
 					
-					// the main function of coroutine may have formal parameters
-					for (int i = fun.nformals - 1; i >= 0; i--) {
-						coroutine.frame.stack[i] = stack[sp - fun.nformals + i];
+					// the main function of coroutine may have formal parameters,
+					// therefore, INIT may take a number of arguments == formal parameters - arguments already passed to CREATE
+					if(arity != fun.nformals - coroutine.frame.sp)
+						throw new RuntimeException("INIT gets too many arguments, the expected number: " + (fun.nformals - coroutine.frame.sp));
+					Coroutine newCoroutine = coroutine.copy();
+					for (int i = arity - 1; i >= 0; i--) {
+						newCoroutine.frame.stack[coroutine.frame.sp + i] = stack[sp - arity + i];
 					}
-					coroutine.frame.sp = fun.nlocals;
-					coroutine.suspend(coroutine.frame);
-					sp = sp - fun.nformals;							/* CHANGED: place coroutine back on stack */
-					stack[sp++] = coroutine;						
+					newCoroutine.frame.sp = fun.nlocals;
+					newCoroutine.suspend(newCoroutine.frame);
+					sp = sp - arity;							/* CHANGED: place coroutine back on stack */
+					stack[sp++] = newCoroutine;
 					continue;
 					
 				case Opcode.OP_CREATE:
 				case Opcode.OP_CREATEDYN:
+					arity = instructions[pc++];
 					if(op == Opcode.OP_CREATE){
 						fun = functionStore.get(instructions[pc++]);
 						previousScope = null;
@@ -440,7 +446,16 @@ public class RVM {
 						}
 					}
 					Frame frame = new Frame(fun.scope, null, previousScope, fun.maxstack, fun);
+					// the main function of coroutine may have formal parameters,
+					// therefore, CREATE may take a number of arguments <= formal parameters
+					if(arity > fun.nformals)
+						throw new RuntimeException("CREATE or CREATEDYN gets too many arguments, expected <= " + fun.nformals);
+					for (int i = arity - 1; i >= 0; i--) {
+						frame.stack[i] = stack[sp - arity + i];
+					}
+					frame.sp = arity;
 					coroutine = new Coroutine(frame);
+					sp = sp - arity;
 					stack[sp++] = coroutine;
 					continue;
 				

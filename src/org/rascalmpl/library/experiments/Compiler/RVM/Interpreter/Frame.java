@@ -9,18 +9,31 @@ public class Frame {
 	int pc;
 	final Function function;
 		
-	Frame(int scopeId, Frame previousCallFrame, int stackSize, Function function){
+	public Frame(int scopeId, Frame previousCallFrame, int stackSize, Function function){
 		this(scopeId, previousCallFrame, previousCallFrame, stackSize, function);
 	}
 	
-	Frame(int scopeId, Frame previousCallFrame, Frame previousScope, int stackSize, Function function){
+	public Frame(int scopeId, Frame previousCallFrame, Frame previousScope, int stackSize, Function function){
+		this(scopeId, previousCallFrame, previousScope, function, new Object[stackSize]);
+	}
+	
+	private Frame(int scopeId, Frame previousCallFrame, Frame previousScope, Function function, final Object[] stack) {
 		this.scopeId = scopeId;
 		this.previousCallFrame = previousCallFrame;
 		this.previousScope = previousScope;
-		this.stack = new Object[stackSize];
+		this.stack = stack;
 		this.pc = 0;
 		this.sp = 0;
 		this.function = function;
 	}
+	
+	public Frame copy() {
+		if(pc != 0)
+			throw new RuntimeException("Copying the frame with certain instructions having been already executed.");
+		Frame newFrame = new Frame(scopeId, previousCallFrame, previousScope, function, stack.clone());
+		newFrame.sp = sp; 
+		return newFrame;
+	}
+	
 	
 }
