@@ -91,6 +91,8 @@ test bool tst() = "abcdef" := prim2("addition_str_str", "\"abc\"", "\"def\"");
 test bool tst() = 3. := prim2("division_num_num", 6, 2);
 test bool tst() = true := prim2("equals_num_num", 7, 7);
 test bool tst() = false := prim2("equals_num_num", 7, 8);
+test bool tst() = true := prim2("equals_str_str", "\"abc\"", "\"abc\"");
+
 //equivalent_bool_bool,
 
 test bool tst() = true := prim2("greater_num_num", 8, 7);
