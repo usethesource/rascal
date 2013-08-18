@@ -15,5 +15,5 @@ void main(list[value] args) {
 //	return inc(3);
 //    int n = 57;
 //	return n + 2;
-	[5, int x] := [3, 7];
+	if([5, int x] := [3, 7], 3 == 4){20;} else {30;}
 }
