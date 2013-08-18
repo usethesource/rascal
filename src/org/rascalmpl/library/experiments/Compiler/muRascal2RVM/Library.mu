@@ -90,7 +90,7 @@ function MATCH_VAR[1, 3, name, scopeId, pos,subject]{
    var(name,scopeId,pos) = subject;
    return true;
 }
-/*
+
 function MATCH_LIST[1, 2, pat,subject,patlen,sublen,
 						  p,cursor,forward,matcher,
 						  matchers,pats,success,nextCursor]{
@@ -100,7 +100,7 @@ function MATCH_LIST[1, 2, pat,subject,patlen,sublen,
      p = 0; 
      cursor = 0;
      forward = true;
-     matcher = make_matcher(pats, subject, cursor);
+     matcher = init(get pats[p], subject, cursor);
      matchers = prim("make_list", 0);
      while(true){
          while(hasNext(matcher)){
@@ -115,7 +115,7 @@ function MATCH_LIST[1, 2, pat,subject,patlen,sublen,
                        prim("equals_num_num", cursor, sublen))) {
               	   yield true; 
                } else {
-                   matcher = make_matcher(pats, p, subject, cursor);
+                   matcher = init(get pats[p], subject, cursor);
                };    
             };
          };
@@ -129,27 +129,25 @@ function MATCH_LIST[1, 2, pat,subject,patlen,sublen,
          };
      };
 }
-*/
-/*
-function MATCH_PAT_IN_LIST[1, 3, pat, subject, start,cpat]{
-    cpat = init(create(pat), subject, start);
+
+function MATCH_PAT_IN_LIST[1, 3, pat, subject, start, cpat]{
+    cpat = init(pat, get subject[start]);
     
     while(hasNext(cpat)){
        if(next(cpat)){
-          return [true, prim("addition_num_num", start, 1]>;
+          return [true, prim("addition_num_num", start, 1)];
        };   
     };
-    return <false, start>
+    return [false, start];
   
 } 
- */
- /*
- coroutine MATCH_LIST_VAR (VAR) (subject, start){
-    int pos = start;
-    while(pos < size(subject)){
-        VAR = subject[start .. pos];
-        yield <true, pos>;
-     }
-     return <false, start>;
+ 
+function MATCH_VAR_IN_LIST[1, 5, name, scopeId, pos, subject, start, n]{
+    n = start;
+    while(prim("less_num_num", n, prim("size_list", subject))){
+        var(name, scopeId, pos) = prim("sublist", subject, start, prim("subtraction_num_num", n, start));
+        yield [true, n];
+        n = prim("addition_num_num", n, 1);
+     };
+     return [false, start];
  }
-*/
