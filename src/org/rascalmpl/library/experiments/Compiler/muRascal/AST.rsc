@@ -51,6 +51,7 @@ public data MuExp =
           	// Variables
           | muLoc(str name, int pos)							// Local variable, with position in current scope
           | muVar(str id, int scope, int pos)					// Variable: retrieve its value
+          | muVarDyn(MuExp idExp, MuExp scopeExp, MuExp posExp)			// Variable: retrieve its value; scope and position are dynamically computed
           | muVarRef(str id, int scope, int pos) 				// Call-by-reference: a variable that refers to a value location
           | muRefVar(str id, int scope, int pos) 				// Call-by-reference: expression that returns a value location
              
@@ -69,6 +70,7 @@ public data MuExp =
               
           | muAssignLoc(str id, int pos, MuExp exp)				// Assign a value to a local variable
           | muAssign(str id, int scope, int pos, MuExp exp)		// Assign a value to a variable
+          | muAssignDyn(MuExp idExp, MuExp scopeExp, MuExp posExp, MuExp exp)		// Assign a value to a variable; scope and position are computed
           | muAssignRef(str id, int scope, int pos, MuExp exp) 	// Call-by-reference assignment: 
           														// the left-hand side is a variable that refers to a value location
           														

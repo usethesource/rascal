@@ -238,8 +238,8 @@ public class RVM {
 					int s;
 					int pos;
 					if(op == Opcode.OP_STOREVARDYN){
-						s = ((IInteger)stack[-2]).intValue();
-						pos = ((IInteger)stack[-1]).intValue();
+						s = ((IInteger)stack[sp - 2]).intValue();
+						pos = ((IInteger)stack[sp - 1]).intValue();
 						sp -= 2;
 					} else {
 						s = instructions[pc++];
