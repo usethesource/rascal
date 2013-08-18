@@ -45,5 +45,7 @@ data Instruction =
 		| LOADVARREF(int scope, int pos)
 		| STORELOCREF(int pos)
 		| STOREVARREF(int scope, int pos)
+		| LOADVARDYN()
+		| STOREVARDYN()
 		;
 	
