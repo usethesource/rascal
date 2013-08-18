@@ -67,6 +67,7 @@ public enum Primitive {
 	println,
 	product_num_num,
 	size_list,
+	sublist,
 	subtraction_list_list,
 	subtraction_map_map,
 	subtraction_num_num,
@@ -513,6 +514,18 @@ public enum Primitive {
 		assert arity == 1;
 		stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
 		return sp;
+	}
+	
+	/*
+	 * sublist
+	 */
+	public static int sublist(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		IList lst = (IList) stack[sp - 3];
+		int offset = ((IInteger) stack[sp - 2]).intValue();
+		int length = ((IInteger) stack[sp - 1]).intValue();
+		stack[sp - 3] = lst.sublist(offset, length);
+		return sp - 2;
 	}
 	
 	/*

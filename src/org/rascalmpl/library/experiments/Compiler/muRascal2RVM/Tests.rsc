@@ -35,6 +35,10 @@ value prim2(str fun, value lhs, value rhs) {
 	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return prim(\"<fun>\",<lhs>,<rhs>); }")), true, 1);
 	return res; 
 }
+value prim3(str fun, value arg1, value arg2, value arg3) {
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return prim(\"<fun>\",<arg1>,<arg2>,<arg3>); }")), true, 1);
+	return res; 
+}
 
 
 test bool tst() = true :=  ret("true") ;
@@ -124,6 +128,7 @@ test bool tst() = 12 := prim2("product_num_num", 3, 4);
 
 test bool tst() = 0 := prim1("size_list", []);
 test bool tst() = 3 := prim1("size_list", [1,2,3]);
+test bool tst() = [2, 3] := prim3("sublist", [1,2,3,4], 1, 2);
 test bool tst() = [1,3,5] := prim2("subtraction_list_list", [1,2,3,4,5], [2,4]);
 
 //subtraction_map_map,
