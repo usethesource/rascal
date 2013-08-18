@@ -269,12 +269,12 @@ public class CodeBlock {
 		return add(new CallDyn(this));
 	}
 	
-	public CodeBlock INIT() {
-		return add(new Init(this));
+	public CodeBlock INIT(int arity) {
+		return add(new Init(this, arity));
 	}
 	
-	public CodeBlock CREATE(String name) {
-		return add(new Create(this, name));
+	public CodeBlock CREATE(String name, int arity) {
+		return add(new Create(this, name, arity));
 	}
 	
 	public CodeBlock NEXT0() {
@@ -293,8 +293,8 @@ public class CodeBlock {
 		return add(new Yield1(this));
 	}
 	
-	public CodeBlock CREATEDYN() {
-		return add(new CreateDyn(this));
+	public CodeBlock CREATEDYN(int arity) {
+		return add(new CreateDyn(this, arity));
 	}
 	
 	public CodeBlock HASNEXT() {

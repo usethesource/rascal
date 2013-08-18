@@ -60,11 +60,11 @@ public class CountDown_a {
 		 */
 		rvm.declare(new Function("main", 2, 1, 3, 6,
 					new CodeBlock(vf)
-						.CREATE("g")
+						.CREATE("g",0)
 						.STORELOC(1)
 						.LOADCON(5)
 						.LOADLOC(1)
-						.INIT()
+						.INIT(1)
 						.POP()      // added pop with respect to the new INIT's default bahviour on the stack
 						.LOADCON(0)
 						.STORELOC(2)

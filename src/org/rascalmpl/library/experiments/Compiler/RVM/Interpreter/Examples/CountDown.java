@@ -54,12 +54,12 @@ public class CountDown {
 		 */
 		rvm.declare(new Function("main", 2, 1, 2, 6,
 					new CodeBlock(vf)
-						.CREATE("g")
+						.CREATE("g",0)
 						.STORELOC(1)
 						.POP()
 						.LOADCON(5)
 						.LOADLOC(1)
-						.INIT()
+						.INIT(1)
 						.POP()
 						.LOADLOC(1)
 						.NEXT0()

@@ -128,15 +128,15 @@ public class Execute {
 						break;
 						
 					case "CREATE":
-						codeblock.CREATE(getStrField(instruction, "fun"));
+						codeblock.CREATE(getStrField(instruction, "fun"), getIntField(instruction, "arity"));
 						break;
 						
 					case "CREATEDYN":
-						codeblock.CREATEDYN();
+						codeblock.CREATEDYN(getIntField(instruction, "arity"));
 						break;
 						
 					case "INIT":
-						codeblock.INIT();
+						codeblock.INIT(getIntField(instruction, "arity"));
 						break;
 						
 					case "NEXT0":
