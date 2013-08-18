@@ -61,7 +61,7 @@ syntax Exp  =
 			| muIfelse: 	"if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
 			| muWhile: 		"while" "(" Exp cond ")" "{" (Exp ";")* body "}" 
 			
-			| muCreate: 	"create" "(" Identifier fname "," {Exp ","}+ exargsps ")"
+			| muCreate: 	"create" "(" Identifier fname "," {Exp ","}+ args ")"
 			> muCreate: 	"create" "(" Exp coro ")"
 			
 			| muInit: 		"init" "(" Exp coro ")"

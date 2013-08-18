@@ -24,13 +24,13 @@ public enum Opcode {
 	POP (13, 1),
 	CALLDYN(14,1),
 	LOADFUN(15,2), // TODO: to be renamed to LOAD_ROOT_FUN
-	CREATE(16,2),
+	CREATE(16,3),
 	NEXT0(17,1),
 	NEXT1(18,1),
 	YIELD0(19,1),
 	YIELD1(20,1),
-	INIT(21,1),
-	CREATEDYN(22,1),
+	INIT(21,2),
+	CREATEDYN(22,2),
 	HASNEXT(23,1),
 	PRINTLN(24,1),
 	RETURN0(25,1),
@@ -163,7 +163,7 @@ public enum Opcode {
 			return "LOADFUN " + cb.finalCode[pc + 1]  + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
 		case CREATE:
-			return "CREATE " + cb.finalCode[pc + 1] + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
+			return "CREATE " + cb.finalCode[pc + 1] + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + ", " + cb.finalCode[pc + 2] + "]";
 			
 		case NEXT0:
 			return "NEXT0";
@@ -178,10 +178,10 @@ public enum Opcode {
 			return "YIELD1";
 		
 		case INIT:
-			return "INIT";
+			return "INIT " + cb.finalCode[pc + 1];
 		
 		case CREATEDYN:
-			return "CREATEDYN";
+			return "CREATEDYN " + cb.finalCode[pc + 1];
 			
 		case HASNEXT:
 			return "HASNEXT";
@@ -224,6 +224,7 @@ public enum Opcode {
 			
 		case LOADVARDYN:
 			return "LOADVARDYN";
+		
 		case STOREVARDYN:
 			return "STOREVARDYN";
 			

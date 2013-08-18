@@ -27,4 +27,10 @@ public class Coroutine {
 		return suspended;
 	}
 	
+	public Coroutine copy() {
+		if(suspended || start.pc != 0)
+			throw new RuntimeException("Copying suspended or active coroutine is not allowed.");
+		return new Coroutine(start.copy());
+	}
+	
 }
