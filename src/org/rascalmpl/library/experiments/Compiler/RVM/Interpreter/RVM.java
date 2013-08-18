@@ -431,7 +431,6 @@ public class RVM {
 					
 				case Opcode.OP_CREATE:
 				case Opcode.OP_CREATEDYN:
-					arity = instructions[pc++];
 					if(op == Opcode.OP_CREATE){
 						fun = functionStore.get(instructions[pc++]);
 						previousScope = null;
@@ -445,6 +444,7 @@ public class RVM {
 							throw new RuntimeException("PANIC: unexpected argument type when CREATEDYN is executed.");
 						}
 					}
+					arity = instructions[pc++];
 					Frame frame = new Frame(fun.scope, null, previousScope, fun.maxstack, fun);
 					// the main function of coroutine may have formal parameters,
 					// therefore, CREATE may take a number of arguments <= formal parameters
