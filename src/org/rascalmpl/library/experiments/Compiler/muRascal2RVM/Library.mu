@@ -87,7 +87,7 @@ function MATCH_INT[1,2,pat,subject]{
 }
 
 function MATCH_VAR[1, 3, name, scopeId, pos,subject]{
-   name:scopeId:pos = subject;
+   var(name,scopeId,pos) = subject;
    return true;
 }
 /*
