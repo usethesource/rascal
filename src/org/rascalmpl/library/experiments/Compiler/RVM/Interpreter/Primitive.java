@@ -50,6 +50,7 @@ public enum Primitive {
 	composition_map_map,
 	division_num_num,
 	equals_num_num,
+	equals_str_str,
 	equivalent_bool_bool,
 	greater_num_num,
 	greater_equal_num_num,
@@ -332,6 +333,12 @@ public enum Primitive {
 	public static int equals_num_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int equals_str_str(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = vf.bool(((IString) stack[sp - 2]).isEqual(((IString) stack[sp - 1])));
 		return sp - 1;
 	}
 	
