@@ -13,13 +13,19 @@ import experiments::Compiler::muRascal::Implode;
 
 alias INS = list[Instruction];
 
-
 // Unique label generator
 
 int nlabel = -1;
 str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
 int functionScope = 0;
+int nlocal = 0;
+
+int newLocal() {
+    n = nlocal;
+    nlocal += 1;
+    return n;
+}
 
 public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
@@ -31,16 +37,20 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   
   libModule = parse(Library);
   
+  libraryScope = 1000000;
   for(fun <-libModule.functions){
-     funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
+     funMap += (fun.name : FUNCTION(fun.name, libraryScope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
+     libraryScope += 1;
   }
  
   for(fun <- functions){
     functionScope = fun.scope;
-    funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
+    nlocal = fun.nlocal;
+    code = trblock(fun.body);
+    funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, nlocal, 10, code));
   }
   
-  funMap += ("#module_init" : FUNCTION("#module_init", 0, 0, size(variables) + 1, 10, 
+  funMap += ("#module_init" : FUNCTION("#module_init", libraryScope, 0, size(variables) + 1, 10, 
   									[*tr(initializations), 
   									 LOADLOC(size(variables)), 
   									 CALL("main"), 
@@ -48,10 +58,9 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   									 HALT()
   									]));
   res = rvm(types, funMap, []);
-  iprintln( res);
+  iprintln(res);
   return res;
 }
-
 
 // Translate a muRascal function
 
@@ -115,8 +124,7 @@ INS tr(muAssignDyn(MuExp idExp, MuExp scopeExp, MuExp posExp, MuExp exp)) = [ *t
 INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
     lab_else = nextLabel();
     lab_after = nextLabel();		
-    return [ *tr_cond(cond), 
-             JMPFALSE(lab_else),
+    return [ *tr_cond(cond, lab_else), 
              *trblock(thenPart), 
              JMP(lab_after), 
              LABEL(lab_else),
@@ -129,8 +137,7 @@ default INS tr(muWhile(MuExp cond, list[MuExp] body)) {
     lab_while = nextLabel();
     lab_after = nextLabel();
     return [LABEL(lab_while),
-    		*tr_cond(cond), 	 	
-    		JMPFALSE(lab_after),				
+    		*tr_cond(cond, lab_after), 	 					
     		*trvoidblock(body),			
     		JMP(lab_while),
     		LABEL(lab_after)		
@@ -164,25 +171,71 @@ INS tr(muMulti(MuExp exp)) =
 
 default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 
+// Does an expression produce a value? (needed for cleaning up the stack)
+
 bool producesValue(muWhile(MuExp cond, list[MuExp] body)) = false;
 default bool producesValue(MuExp exp) = true;
 
-// Translate a condition. 
+// Translate a condition, given a failure continuation.
 
-INS tr_cond(muOne(list[MuExp] args)){
-    return [*tr_cond(a) | a <- args];
+// muOne: explore one successfull evaluation
+
+INS tr_cond(muOne(list[MuExp] exps), str failLab){
+    code = [];
+    for(exp <- exps){
+        if(muMulti(exp1) := exp){
+          code += [*tr(exp1), 
+          		   INIT(1), 
+          		   NEXT0(), 
+          		   JMPFALSE(failLab)
+          		  ];
+        } else {
+          code += [*tr(exp), 
+          		   JMPFALSE(failLab)
+          		  ];
+        } 
+    } 
+    return code;   
 }
 
+// muAll: explore all sucessfull evaluations
 
-INS tr_cond(muAll(list[MuExp] args)){
-    return [*tr_cond(a) | a <- args];
+INS tr_cond(muAll(list[MuExp] exps), str failLab){
+
+    currentFail = failLab;
+    code = [];
+    for(exp <- exps){
+        if(muMulti(exp1) := exp){
+          newFail = nextLabel();
+          co = newLocal();
+          code += [*tr(exp1), 
+          		   INIT(1), 
+          		   STORELOC(co), 
+          		   POP(),
+          		   LABEL(newFail), 
+          		   LOADLOC(co), 
+          		   HASNEXT(), 
+          		   GOFALSE(currentFail), 
+          		   LOADLOC(co),
+          		   NEXT0(), 
+          		   JMPFALSE(currentFail)
+          		  ];
+          currentFail = newFail;
+        } else {
+          code += [*tr(exp), 
+          		   JMPFALSE(currentFail)
+          		  ];
+        } 
+    }
+    return code;
 }
 
-INS tr_cond(muMulti(MuExp exp), INS body) {
+INS tr_cond(muMulti(MuExp exp), str failLab) {
     [ *tr(exp),
        INIT(1),
-       NEXT()
+       NEXT(),
+       JMPFALSE(failLab)
     ];
 }
 
-default INS tr_cond(MuExp exp) = tr(exp);
+default INS tr_cond(MuExp exp, str failLab) = tr(exp);
