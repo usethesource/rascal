@@ -46,8 +46,8 @@ public class CountDown {
 		
 		/*
 		 * c = create(g);
-		 * c.init(5);
-		 * c.next() * c.next() + c.next();
+		 * c = init(c,5);
+		 * next(c) * next(c) + next(c);
 		 */
 		/*
 		 * result: 23
@@ -60,6 +60,7 @@ public class CountDown {
 						.LOADCON(5)
 						.LOADLOC(1)
 						.INIT(1)
+						.STORELOC(1)
 						.POP()
 						.LOADLOC(1)
 						.NEXT0()

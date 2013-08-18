@@ -49,7 +49,7 @@ public class CountDown_b {
 		 * h() {
 		 * n = 9 + 1;
 		 * c = create(g);
-		 * c.init(n);
+		 * c = init(c,n);
 		 * return c;
 		 * }
 		 */
@@ -67,6 +67,7 @@ public class CountDown_b {
 						.LOADLOC(0)
 						.LOADLOC(1)
 						.INIT(1)
+						.STORELOC(1)
 						.POP()
 						.LOADLOC(1)
 						.RETURN1()));
@@ -77,11 +78,11 @@ public class CountDown_b {
 		 * 
 		 * count = 0;
 		 * while(hasNext(c1)) {
-		 * 		count = (c1.resume() + c2.resume()) + count;
+		 * 		count = (next(c1) + next(c2)) + count;
 		 * }
 		 */
 		/*
-		 * result: 0
+		 * result: 110
 		 */
 		rvm.declare(new Function("main", 3, 1, 4, 6,
 					new CodeBlock(vf)

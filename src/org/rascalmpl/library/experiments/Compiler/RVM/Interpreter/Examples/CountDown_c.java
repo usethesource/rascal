@@ -56,12 +56,12 @@ public class CountDown_c {
 		 * c = create(g);   // N0
 		 * 
 		 * ref = 0;         // N1
-		 * c.init(5, ref);  // call-by-reference check
+		 * c = init(c,5,ref);  // call-by-reference check
 		 * 
 		 * count = 0;       // N2
 		 * while(hasNext(c)) {
 		 * 		ref = ref + 2;
-		 * 		count = count + c.next();
+		 * 		count = count + next(c);
 		 * }
 		 */
 		/*
@@ -82,7 +82,8 @@ public class CountDown_c {
 						// call-by-reference check
 						.LOADLOCASREF(2)
 						.LOADLOC(1)
-						.INIT(1)
+						.INIT(2)
+						.STORELOC(1)
 						.POP()
 						.LOADCON(0)
 						.STORELOC(3)

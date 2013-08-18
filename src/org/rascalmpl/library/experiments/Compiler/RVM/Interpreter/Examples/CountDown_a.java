@@ -46,11 +46,11 @@ public class CountDown_a {
 		
 		/*
 		 * c = create(g);
-		 * c.init(5);
+		 * c = init(c,5);
 		 * 
 		 * count = 0;
 		 * while(hasNext(c)) {
-		 * 		count = count + c.next();
+		 * 		count = count + next(c);
 		 * }
 		 * 
 		 * return count;
@@ -65,6 +65,8 @@ public class CountDown_a {
 						.LOADCON(5)
 						.LOADLOC(1)
 						.INIT(1)
+						.STORELOC(1)
+						.POP()
 						.POP()      // added pop with respect to the new INIT's default bahviour on the stack
 						.LOADCON(0)
 						.STORELOC(2)
