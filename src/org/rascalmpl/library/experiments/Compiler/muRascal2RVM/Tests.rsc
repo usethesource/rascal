@@ -14,7 +14,7 @@ import Prelude;
 import ParseTree;
 import IO;
 
-public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
+public loc Library = |std:///experiments/Compiler/muRascal2RVM/Test.mu|;
 
 value ret(str s) {
 	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return <s>; }")), true, 1); 
