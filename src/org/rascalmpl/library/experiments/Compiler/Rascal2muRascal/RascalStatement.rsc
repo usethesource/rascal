@@ -51,9 +51,11 @@ list[MuExp] translate(s: (Statement) `<Label label> do <Statement body> while ( 
 
 list[MuExp] translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`) { throw("for"); }
 
-list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) { throw("ifThen"); }
+list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) =
+    [ muIfelse(muOne([*translate(c) | c <-conditions]), translate(thenStatement), []) ];
 
-list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) { throw("ifThenElse"); }
+list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) =
+    [ muIfelse(muOne([*translate(c) | c <-conditions]), translate(thenStatement), translate(elseStatement)) ];
 
 list[MuExp] translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) { throw("switch"); }
 
@@ -72,7 +74,7 @@ list[MuExp] translate(s: (Statement) `try  <Statement body> <Catch+ handlers>`) 
 list[MuExp] translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`) { throw("tryFinally"); }
 
 list[MuExp] translate(s: (Statement) `<Label label> { <Statement+ statements> }`) =
-    "{" + intercalate("; ", [translate(stat) | stat <- statements]) + "}";
+    [*translate(stat) | stat <- statements];
 
 list[MuExp] translate(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) { 
   if(assignable is variable){

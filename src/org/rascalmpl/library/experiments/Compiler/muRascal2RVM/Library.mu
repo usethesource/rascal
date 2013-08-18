@@ -1,7 +1,7 @@
 module Library
 
-
-function main[1,1,args] { return next(init(create("TRUE"))); }
+/*
+function main[1,1,args] { return next(init(create(TRUE))); }
 
 function TRUE[0,0,] { return true; }   // should be true
  
@@ -17,7 +17,7 @@ function AND_M_U[2,2,lhs,rhs,clhs]{
    while(hasNext(clhs)){
      if(next(clhs)){
         if(rhs){
-           yield 1;
+           yield true;
         };
      };          
    };
@@ -29,13 +29,13 @@ function AND_U_M[2,2,lhs,rhs,crhs]{
       crhs = init(create(rhs));
       while(hasNext(crhs)){
         if(next(crhs)){
-           yield 1;
+           yield true;
         } else {
-          return 0;
+          return false;
         };
       };         
    };
-   return 0;
+   return false;
 }
 
 function AND_M_M[2,2,lhs,rhs,clhs,crhs]{
@@ -45,14 +45,14 @@ function AND_M_M[2,2,lhs,rhs,clhs,crhs]{
         crhs = init(create(rhs));
         while(hasNext(crhs)){
           if(next(crhs)){
-             yield 1;
+             yield true;
           } else {
-            return 0;
+            return false;
           };
         };       
      };          
    };
-   return 0;
+   return false;
 }
 
 function ONE[1,1,arg, carg]{
@@ -67,11 +67,11 @@ function ALL[1,1,arg,carg]{
    };
    return false;
 }        
-
+*/
 // Pattern matching
 
-function MATCH[1,3,pat,subject,cpat]{
-   cpat = init(create(pat), subject);
+function MATCH[1,2,pat,subject,cpat]{
+   cpat = init(pat, subject);
    while(hasNext(cpat)){
       if(next(cpat)){
          yield true;
@@ -86,10 +86,11 @@ function MATCH_INT[1,2,pat,subject]{
    return prim("equals_num_num", pat, subject);
 }
 
-function make_matcher[1,4,pats,n,subject,cursor]{
-   return init(create(prim("subscript_list_int", pats, n)), subject, cursor);
+function MATCH_VAR[1, 3, name, scopeId, pos,subject]{
+   name:scopeId:pos = subject;
+   return true;
 }
-
+/*
 function MATCH_LIST[1, 2, pat,subject,patlen,sublen,
 						  p,cursor,forward,matcher,
 						  matchers,pats,success,nextCursor]{
@@ -128,19 +129,20 @@ function MATCH_LIST[1, 2, pat,subject,patlen,sublen,
          };
      };
 }
-
+*/
+/*
 function MATCH_PAT_IN_LIST[1, 3, pat, subject, start,cpat]{
     cpat = init(create(pat), subject, start);
-    /*
+    
     while(hasNext(cpat)){
        if(next(cpat)){
           return [true, prim("addition_num_num", start, 1]>;
        };   
     };
     return <false, start>
-  */  
+  
 } 
- 
+ */
  /*
  coroutine MATCH_LIST_VAR (VAR) (subject, start){
     int pos = start;
