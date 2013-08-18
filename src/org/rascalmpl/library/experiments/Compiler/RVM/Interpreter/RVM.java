@@ -131,14 +131,14 @@ public class RVM {
 				}
 				int op = instructions[pc++];
 
-				if (debug) {
+				if (true) {
 					int startpc = pc - 1;
 					for (int i = 0; i < sp; i++) {
-						stdout.println("\t" + i + ": " + stack[i]);
-						//System.out.println("\t" + i + ": " + stack[i]);
+						//stdout.println("\t" + i + ": " + stack[i]);
+						System.out.println("\t" + i + ": " + stack[i]);
 					}
-					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
-					//System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+					//stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+					System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
 
 
@@ -418,7 +418,7 @@ public class RVM {
 					// the main function of coroutine may have formal parameters,
 					// therefore, INIT may take a number of arguments == formal parameters - arguments already passed to CREATE
 					if(arity != fun.nformals - coroutine.frame.sp)
-						throw new RuntimeException("INIT gets too many arguments, the expected number: " + (fun.nformals - coroutine.frame.sp));
+						throw new RuntimeException("Too many or too few arguments to INIT, the expected number: " + (fun.nformals - coroutine.frame.sp));
 					Coroutine newCoroutine = coroutine.copy();
 					for (int i = arity - 1; i >= 0; i--) {
 						newCoroutine.frame.stack[coroutine.frame.sp + i] = stack[sp - arity + i];
@@ -449,7 +449,7 @@ public class RVM {
 					// the main function of coroutine may have formal parameters,
 					// therefore, CREATE may take a number of arguments <= formal parameters
 					if(arity > fun.nformals)
-						throw new RuntimeException("CREATE or CREATEDYN gets too many arguments, expected <= " + fun.nformals);
+						throw new RuntimeException("Too many arguments to CREATE or CREATEDYN, expected <= " + fun.nformals);
 					for (int i = arity - 1; i >= 0; i--) {
 						frame.stack[i] = stack[sp - arity + i];
 					}
