@@ -50,9 +50,9 @@ syntax Exp  =
 			> muCallPrim: 	"prim" "(" String name "," {Exp ","}+ args ")"
 			
 			| preSubscript: "get" Exp lst "[" Exp index "]"
+			> muCall: 		Exp exp1 "(" {Exp ","}* args ")"
 			> muReturn: 	"return"  Exp
 			> muReturn: 	"return"
-			> muCall: 		Exp exp1 "(" {Exp ","}* args ")"
 			
 		 	> preAssignLoc:	Identifier id "=" Exp exp
 //			> muAssign: 	Identifier id ":" Integer scope ":" Integer pos "=" Exp exp
