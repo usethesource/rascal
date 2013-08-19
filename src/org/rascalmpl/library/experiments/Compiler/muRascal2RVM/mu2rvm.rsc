@@ -125,7 +125,7 @@ INS tr(muAssignDyn(MuExp idExp, MuExp scopeExp, MuExp posExp, MuExp exp)) = [ *t
 INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
     lab_else = nextLabel();
     lab_after = nextLabel();		
-    return [ *tr_cond(cond, lab_else), 
+    return [ *tr_cond(cond, lab_after, lab_else), 
              *trblock(thenPart), 
              JMP(lab_after), 
              LABEL(lab_else),
@@ -137,8 +137,8 @@ INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
 default INS tr(muWhile(MuExp cond, list[MuExp] body)) {
     lab_while = nextLabel();
     lab_after = nextLabel();
-    return [LABEL(lab_while),
-    		*tr_cond(cond, lab_after), 	 					
+    return [//LABEL(lab_while),
+    		*tr_cond(cond, lab_while, lab_after), 	 					
     		*trvoidblock(body),			
     		JMP(lab_while),
     		LABEL(lab_after)		
@@ -190,8 +190,8 @@ default bool producesValue(MuExp exp) = true;
 
 // muOne: explore one successfull evaluation
 
-INS tr_cond(muOne(list[MuExp] exps), str failLab){
-    code = [];
+INS tr_cond(muOne(list[MuExp] exps), str moreLab, str failLab){
+    code = [LABEL(moreLab)];
     for(exp <- exps){
         if(muMulti(exp1) := exp){
           code += [*tr(exp1), 
@@ -210,11 +210,17 @@ INS tr_cond(muOne(list[MuExp] exps), str failLab){
 
 // muAll: explore all sucessfull evaluations
 
-INS tr_cond(muAll(list[MuExp] exps), str failLab){
+INS tr_cond(muAll(list[MuExp] exps), str moreLab, str failLab){
 
+    lastMulti = -1;
+    for(i <- index(exps)){
+        if(muMulti(_) := exps[i])
+           lastMulti = i;
+    }
     currentFail = failLab;
-    code = [];
-    for(exp <- exps){
+    code = lastMulti == -1 ? [LABEL(moreLab)]  : [];
+    for(i <- index(exps)){
+        exp = exps[i];
         if(muMulti(exp1) := exp){
           newFail = nextLabel();
           co = newLocal();
@@ -222,7 +228,8 @@ INS tr_cond(muAll(list[MuExp] exps), str failLab){
           		   INIT(1), 
           		   STORELOC(co), 
           		   POP(),
-          		   LABEL(newFail), 
+          		   *((i == lastMulti) ? [LABEL(moreLab)] : []),
+          		    LABEL(newFail),
           		   LOADLOC(co), 
           		   HASNEXT(), 
           		   GOFALSE(currentFail), 
@@ -240,12 +247,13 @@ INS tr_cond(muAll(list[MuExp] exps), str failLab){
     return code;
 }
 
-INS tr_cond(muMulti(MuExp exp), str failLab) {
-    [ *tr(exp),
+INS tr_cond(muMulti(MuExp exp), str moreLab, str failLab) {
+    [ LABEL(moreLab),
+       *tr(exp),
        INIT(1),
        NEXT(),
        JMPFALSE(failLab)
     ];
 }
 
-default INS tr_cond(MuExp exp, str failLab) = [ *tr(exp), JMPFALSE(failLab) ];
+default INS tr_cond(MuExp exp, str moreLab, str failLab) = [ LABEL(moreLab), *tr(exp), JMPFALSE(failLab) ];
