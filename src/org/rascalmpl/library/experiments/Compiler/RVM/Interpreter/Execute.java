@@ -167,14 +167,6 @@ public class Execute {
 						codeblock.POP();
 						break;
 						
-					case "LOADLOC_AS_REF":
-						codeblock.LOADLOCASREF(getIntField(instruction, "pos"));
-						break;
-						
-					case "LOADVAR_AS_REF":
-						codeblock.LOADVARASREF(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
-						break;
-						
 					case "LOADLOCREF":
 						codeblock.LOADLOCREF(getIntField(instruction, "pos"));
 						break;
@@ -182,13 +174,21 @@ public class Execute {
 					case "LOADVARREF":
 						codeblock.LOADVARREF(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
 						break;
-					
-					case "STORELOCREF":
-						codeblock.STORELOCREF(getIntField(instruction, "pos"));
+						
+					case "LOADLOCDEREF":
+						codeblock.LOADLOCDEREF(getIntField(instruction, "pos"));
 						break;
 						
-					case "STOREVARREF":
-						codeblock.STOREVARREF(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
+					case "LOADVARDEREF":
+						codeblock.LOADVARDEREF(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
+						break;
+					
+					case "STORELOCDEREF":
+						codeblock.STORELOCDEREF(getIntField(instruction, "pos"));
+						break;
+						
+					case "STOREVARDEREF":
+						codeblock.STOREVARDEREF(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
 						break;
 						
 					case "LOAD_NESTED_FUN":

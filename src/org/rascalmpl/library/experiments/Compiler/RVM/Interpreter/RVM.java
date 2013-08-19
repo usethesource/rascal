@@ -176,12 +176,12 @@ public class RVM {
 					Type constructor = constructorStore.get(instructions[pc++]);
 				
 				case Opcode.OP_LOADLOC:
-				case Opcode.OP_LOADLOC_AS_REF:
+				case Opcode.OP_LOADLOCREF:
 					stack[sp++] = (op == Opcode.OP_LOADLOC) ? stack[instructions[pc++]] 
 															: new Reference(stack, instructions[pc++]);
 					continue;
 				
-				case Opcode.OP_LOADLOCREF: {
+				case Opcode.OP_LOADLOCDEREF: {
 					Reference ref = (Reference) stack[instructions[pc++]];
 					stack[sp++] = ref.stack[ref.pos];
 					continue;
@@ -189,7 +189,7 @@ public class RVM {
 				
 				case Opcode.OP_LOADVARDYN:
 				case Opcode.OP_LOADVAR:
-				case Opcode.OP_LOADVAR_AS_REF: {
+				case Opcode.OP_LOADVARREF: {
 					int s;
 					int pos;
 					if(op == Opcode.OP_LOADVARDYN){
@@ -207,10 +207,10 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new RuntimeException("PANIC: LOADVAR cannot find matching scope: " + s);
+					throw new RuntimeException("PANIC: LOADVAR or LOADVARREF cannot find matching scope: " + s);
 				}
 				
-				case Opcode.OP_LOADVARREF: {
+				case Opcode.OP_LOADVARDEREF: {
 					int s = instructions[pc++];
 					int pos = instructions[pc++];
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
@@ -220,7 +220,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new RuntimeException("PANIC: LOADVARREF cannot find matching scope: " + s);
+					throw new RuntimeException("PANIC: LOADVARDEREF cannot find matching scope: " + s);
 				}
 				
 				case Opcode.OP_STORELOC: {
@@ -228,7 +228,7 @@ public class RVM {
 					continue;
 				}
 				
-				case Opcode.OP_STORELOCREF:
+				case Opcode.OP_STORELOCDEREF:
 					Reference ref = (Reference) stack[instructions[pc++]];
 					ref.stack[ref.pos] = stack[sp - 1];         /* CHANGED: --sp to sp - 1; value remains on stack */
 					continue;
@@ -255,7 +255,7 @@ public class RVM {
 
 					throw new RuntimeException("PANIC: STOREVAR cannot find matching scope: " + s);
 	
-				case Opcode.OP_STOREVARREF:
+				case Opcode.OP_STOREVARDEREF:
 					s = instructions[pc++];
 					pos = instructions[pc++];
 
@@ -267,7 +267,7 @@ public class RVM {
 						}
 					}
 
-					throw new RuntimeException("PANIC: STOREVARREF cannot find matching scope: " + s);
+					throw new RuntimeException("PANIC: STOREVARDEREF cannot find matching scope: " + s);
 
 
 				case Opcode.OP_JMP:

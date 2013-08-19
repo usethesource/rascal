@@ -15,10 +15,10 @@ public class CountDown_c {
 		IValueFactory vf = rvm.vf;
 		
 		/*
-		 * g (n,ref) 
+		 * g (n,r) 
 		 * { 
 		 * 		while(n > 1) {
-		 * 			ref = ref + 1; 
+		 * 			deref r = deref r + 1; 
 		 * 			yield n; 
 		 * 			n = n - 1; 
 		 * 		}; 
@@ -37,9 +37,9 @@ public class CountDown_c {
 							.LABEL("BODY")
 							// call-by-reference check
 							.LOADCON(1)
-							.LOADLOCREF(1)
+							.LOADLOCDEREF(1)
 							.CALLPRIM(Primitive.addition_num_num, 2)
-							.STORELOCREF(1)
+							.STORELOCDEREF(1)
 							.POP()
 							
 							.LOADLOC(0)
@@ -55,12 +55,12 @@ public class CountDown_c {
 		/*
 		 * c = create(g);   // N0
 		 * 
-		 * ref = 0;         // N1
-		 * c = init(c,5,ref);  // call-by-reference check
+		 * r = 0;         // N1
+		 * c = init(c,5,ref r);  // call-by-reference check
 		 * 
 		 * count = 0;       // N2
 		 * while(hasNext(c)) {
-		 * 		ref = ref + 2;
+		 * 		r = r + 2;
 		 * 		count = count + next(c);
 		 * }
 		 */
@@ -80,7 +80,7 @@ public class CountDown_c {
 						.POP()
 						.LOADCON(5)
 						// call-by-reference check
-						.LOADLOCASREF(2)
+						.LOADLOCREF(2)
 						.LOADLOC(1)
 						.INIT(2)
 						.STORELOC(1)

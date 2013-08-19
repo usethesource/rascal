@@ -25,14 +25,14 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadConstr;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocAsRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadNestedFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarAsRef;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDyn;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next1;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
@@ -41,10 +41,10 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.P
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return1;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocRef;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarDyn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarRef;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
 
@@ -305,14 +305,6 @@ public class CodeBlock {
 		return add(new Println(this));
 	}
     
-	public CodeBlock LOADLOCASREF(int pos) {
-		return add(new LoadLocAsRef(this, pos));
-	}
-	
-	public CodeBlock LOADVARASREF(int scope, int pos) {
-		return add(new LoadVarAsRef(this, scope, pos));
-	}
-	
 	public CodeBlock LOADLOCREF(int pos) {
 		return add(new LoadLocRef(this, pos));
 	}
@@ -321,12 +313,20 @@ public class CodeBlock {
 		return add(new LoadVarRef(this, scope, pos));
 	}
 	
-	public CodeBlock STORELOCREF(int pos) {
-		return add(new StoreLocRef(this, pos));
+	public CodeBlock LOADLOCDEREF(int pos) {
+		return add(new LoadLocDeref(this, pos));
 	}
 	
-	public CodeBlock STOREVARREF(int scope, int pos) {
-		return add(new StoreVarRef(this, scope, pos));
+	public CodeBlock LOADVARDEREF(int scope, int pos) {
+		return add(new LoadVarDeref(this, scope, pos));
+	}
+	
+	public CodeBlock STORELOCDEREF(int pos) {
+		return add(new StoreLocDeref(this, pos));
+	}
+	
+	public CodeBlock STOREVARDEREF(int scope, int pos) {
+		return add(new StoreVarDeref(this, scope, pos));
 	}
 	
 	public CodeBlock LOADCONSTR(String name) {
