@@ -91,7 +91,7 @@ syntax Exp  =
 			;
 
 keyword Keywords = 
-              "module" | "function" | "return" | "get" | "var" |
+              "module" | "function" | "return" | "get" |
 			  "prim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "hasNext" |
               "type" |
