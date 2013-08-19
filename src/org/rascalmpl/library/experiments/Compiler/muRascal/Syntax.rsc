@@ -40,13 +40,12 @@ syntax Function =
 
 syntax Exp  =
 			  muLab: 		Label id
-//			| muFun: 		FConst id
-//			| muConstr: 	FConst id
+			| muFun: 		"fun" FConst id
+			| muFun: 		"fun" FConst id >> ":" ":" Integer scope // nested functions and closures
+			| muConstr: 	"cons" FConst id
 			
 		    | muLoc: 		Identifier id >> ":" ":" Integer pos
 			| muVar: 		Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos
-			
-			| muVarDyn: 	"var" "(" Exp idExp "," Exp scopeExp "," Exp posExp ")"
 			
 			// call-by-reference: uses of variables that refer to a value location in contrast to a value
 			| preLocDeref:  "deref" Identifier id
@@ -62,18 +61,16 @@ syntax Exp  =
 		 	> preAssignLoc:	Identifier id "=" Exp exp
 			> muAssign: 	Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos "=" Exp exp
 			
-			> muAssignDyn: 	"var" "(" Exp idExp "," Exp scopeExp "," Exp posExp ")" "=" Exp exp
-			
 			// call-by-reference: assignment 
 			| preAssignLocDeref: "deref" Identifier id "=" Exp exp
-			> muAssignVarDeref:  "deref" Identifier id >> ":" ":" Identifier scope >> ":" ":" Identifier pos "=" Exp exp
+			> muAssignVarDeref:  "deref" Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos "=" Exp exp
 			
 		
 			| muIfelse: 	"if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
 			| muWhile: 		"while" "(" Exp cond ")" "{" (Exp ";")* body "}" 
 			
-			| muCreate: 	"create" "(" Identifier fname "," {Exp ","}+ args ")"
-			> muCreate: 	"create" "(" Exp coro ")"
+			| muCreate:     "create" "(" Exp fun  ")"
+			| muCreate: 	"create" "(" Exp fun "," {Exp ","}+ args ")"
 			
 			| muInit: 		"init" "(" Exp coro ")"
 			| muInit: 		"init" "(" Exp coro "," {Exp ","}+ args ")"
@@ -94,11 +91,12 @@ syntax Exp  =
 			;
 
 keyword Keywords = 
-              "module" | "function" | "return" | "get" | "var" |
+              "module" | "function" | "return" | "get" |
 			  "prim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "hasNext" |
               "type" |
-              "ref" | "deref"
+              "ref" | "deref" |
+              "fun" | "cons"
              ;
              
 // Syntactic features that will be removed by the preprocessor. 

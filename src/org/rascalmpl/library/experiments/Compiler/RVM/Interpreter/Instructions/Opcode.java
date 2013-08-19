@@ -34,18 +34,16 @@ public enum Opcode {
 	HASNEXT(23,1),
 	PRINTLN(24,1),
 	RETURN0(25,1),
-	LOADLOC_AS_REF(26,2),
-	LOADVAR_AS_REF(27,3),
-	LOADLOCREF(28,2),
-	LOADVARREF(29,3),
-	STORELOCREF(30,2),
-	STOREVARREF(31,3),
+	LOADLOCREF(26,2),
+	LOADVARREF(27,3),
+	LOADLOCDEREF(28,2),
+	LOADVARDEREF(29,3),
+	STORELOCDEREF(30,2),
+	STOREVARDEREF(31,3),
 	LOADCONSTR(32,2),
 	CALLCONSTR(33,2), // TODO: plus number of formal parameters
 	LOAD_NESTED_FUN(34, 3),
 	LOADTYPE(35,2),
-	LOADVARDYN(36,1),
-	STOREVARDYN(37,1)
 	;
 	
 	private final int op;
@@ -86,18 +84,16 @@ public enum Opcode {
 	static public final int OP_HASNEXT = 23;
 	static public final int OP_PRINTLN = 24;
 	static public final int OP_RETURN0 = 25;
-	static public final int OP_LOADLOC_AS_REF = 26;
-	static public final int OP_LOADVAR_AS_REF = 27;
-	static public final int OP_LOADLOCREF = 28;
-	static public final int OP_LOADVARREF = 29;
-	static public final int OP_STORELOCREF = 30;
-	static public final int OP_STOREVARREF = 31;
+	static public final int OP_LOADLOCREF = 26;
+	static public final int OP_LOADVARREF = 27;
+	static public final int OP_LOADLOCDEREF = 28;
+	static public final int OP_LOADVARDEREF = 29;
+	static public final int OP_STORELOCDEREF = 30;
+	static public final int OP_STOREVARDEREF = 31;
 	static public final int OP_LOADCONSTR = 32;
 	static public final int OP_CALLCONSTR = 33;
 	static public final int OP_LOAD_NESTED_FUN = 34;
 	static public final int OP_LOADTTYPE = 35;
-	static public final int OP_LOADVARDYN = 36;
-	static public final int OP_STOREVARDYN = 37;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -192,23 +188,23 @@ public enum Opcode {
 		case RETURN0:
 			return "RETURN0";
 		
-		case LOADLOC_AS_REF:
-			return "LOADLOC_AS_REF " + cb.finalCode[pc + 1];
-			
-		case LOADVAR_AS_REF:
-			return "LOADVAR_AS_REF " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
-		
 		case LOADLOCREF:
 			return "LOADLOCREF " + cb.finalCode[pc + 1];
 			
 		case LOADVARREF:
 			return "LOADVARREF " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
-			
-		case STORELOCREF:
-			return "STORELOCREF " + cb.finalCode[pc + 1];
 		
-		case STOREVARREF:
-			return "STOREVARREF " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
+		case LOADLOCDEREF:
+			return "LOADLOCDEREF " + cb.finalCode[pc + 1];
+			
+		case LOADVARDEREF:
+			return "LOADVARDEREF " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
+			
+		case STORELOCDEREF:
+			return "STORELOCDEREF " + cb.finalCode[pc + 1];
+		
+		case STOREVARDEREF:
+			return "STOREVARDEREF " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
 			
 		case LOADCONSTR:
 			return "LOADCONSTR " + cb.finalCode[pc + 1];
@@ -221,13 +217,7 @@ public enum Opcode {
 			
 		case LOADTYPE:
 			return "LOADTYPE " + cb.finalCode[pc + 1];
-			
-		case LOADVARDYN:
-			return "LOADVARDYN";
-		
-		case STOREVARDYN:
-			return "STOREVARDYN";
-			
+					
 		default:
 			break;
 		}	

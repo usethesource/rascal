@@ -109,7 +109,6 @@ INS tr(muCallConstr(str cname, list[MuExp] args)) = [ *tr(args), CALLCONSTR(cnam
 
 INS tr(muCall(muFun(str fname), list[MuExp] args)) = [*tr(args), CALL(fname)];
 INS tr(muCall(muConstr(str cname), list[MuExp] args)) = [*tr(args), CALLCONSTR(cname)];
-
 INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN()];
 
 INS tr(muCallPrim(str name, MuExp arg)) = (name == "println") ? [*tr(arg), PRINTLN()] : [*tr(arg), CALLPRIM(name, 1)];
@@ -120,7 +119,6 @@ INS tr(muCallPrim(str name, list[MuExp] args)) = [*tr(args), CALLPRIM(name, size
 
 INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), scope == functionScope ? STORELOC(pos) : STOREVAR(scope, pos)];
 INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];
-INS tr(muAssignDyn(MuExp idExp, MuExp scopeExp, MuExp posExp, MuExp exp)) = [ *tr(exp), *tr(scopeExp), *tr(posExp), STOREVARDYN() ];
 
 INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
     lab_else = nextLabel();
@@ -145,10 +143,10 @@ default INS tr(muWhile(MuExp cond, list[MuExp] body)) {
     		];
 }
 
-INS tr(muCreate(str name)) = [CREATE(name)];
-
-INS tr(muCreate(str name, list[MuExp] args)) = [ *tr(args), CREATE(name, size(args))];
-INS tr(muCreate(MuExp exp)) = [*tr(exp),CREATEDYN(0)];
+INS tr(muCreate(muFun(str name))) = [CREATE(name)];
+INS tr(muCreate(MuExp fun)) = [ *tr(fun), CREATEDYN(0) ];
+INS tr(muCreate(muFun(str name), list[MuExp] args)) = [ *tr(args), CREATE(name, size(args)) ];
+INS tr(muCreate(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), CREATEDYN(size(args)) ];
 
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
 INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order!
@@ -170,14 +168,14 @@ INS tr(muMulti(MuExp exp)) =
        NEXT0()
     ];
     
-INS tr(muLocDeref(str name, int pos)) = [ LOADLOCREF(pos) ];
-INS tr(muVarDeref(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOCREF(pos) : LOADVARREF(scope, pos) ];
+INS tr(muLocDeref(str name, int pos)) = [ LOADLOCDEREF(pos) ];
+INS tr(muVarDeref(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOCDEREF(pos) : LOADVARDEREF(scope, pos) ];
 
-INS tr(muLocRef(str name, int pos)) = [ LOADLOC_AS_REF(pos) ];
-INS tr(muVarRef(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOC_AS_REF(pos) : LOADVAR_AS_REF(scope, pos) ];
+INS tr(muLocRef(str name, int pos)) = [ LOADLOCREF(pos) ];
+INS tr(muVarRef(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOCREF(pos) : LOADVARREF(scope, pos) ];
 
-INS tr(muAssignLocDeref(str id, int pos, MuExp exp)) = [ *tr(exp), STORELOCREF(pos) ];
-INS tr(muAssignVarDeref(str id, int scope, int pos, MuExp exp)) = [ *tr(exp), scope == functionScope ? STORELOCREF(pos) : STOREVARREF(scope, pos) ];
+INS tr(muAssignLocDeref(str id, int pos, MuExp exp)) = [ *tr(exp), STORELOCDEREF(pos) ];
+INS tr(muAssignVarDeref(str id, int scope, int pos, MuExp exp)) = [ *tr(exp), scope == functionScope ? STORELOCDEREF(pos) : STOREVARDEREF(scope, pos) ];
 
 default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 
@@ -232,7 +230,7 @@ INS tr_cond(muAll(list[MuExp] exps), str moreLab, str failLab){
           		    LABEL(newFail),
           		   LOADLOC(co), 
           		   HASNEXT(), 
-          		   GOFALSE(currentFail), 
+          		   JMPFALSE(currentFail), 
           		   LOADLOC(co),
           		   NEXT0(), 
           		   JMPFALSE(currentFail)
