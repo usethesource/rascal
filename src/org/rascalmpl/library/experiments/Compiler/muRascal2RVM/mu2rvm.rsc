@@ -120,7 +120,6 @@ INS tr(muCallPrim(str name, list[MuExp] args)) = [*tr(args), CALLPRIM(name, size
 
 INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), scope == functionScope ? STORELOC(pos) : STOREVAR(scope, pos)];
 INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];
-INS tr(muAssignDyn(MuExp idExp, MuExp scopeExp, MuExp posExp, MuExp exp)) = [ *tr(exp), *tr(scopeExp), *tr(posExp), STOREVARDYN() ];
 
 INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
     lab_else = nextLabel();
@@ -232,7 +231,7 @@ INS tr_cond(muAll(list[MuExp] exps), str moreLab, str failLab){
           		    LABEL(newFail),
           		   LOADLOC(co), 
           		   HASNEXT(), 
-          		   GOFALSE(currentFail), 
+          		   JMPFALSE(currentFail), 
           		   LOADLOC(co),
           		   NEXT0(), 
           		   JMPFALSE(currentFail)
