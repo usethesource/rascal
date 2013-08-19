@@ -39,7 +39,7 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   
   libraryScope = 1000000;
   for(fun <-libModule.functions){
-     funMap += (fun.name : FUNCTION(fun.name, libraryScope, fun.nformal, fun.nlocal, 10, trblock(fun.body)));
+     funMap += (fun.name : FUNCTION(fun.name, libraryScope, fun.nformal, fun.nlocal, 20, trblock(fun.body)));
      libraryScope += 1;
   }
  
@@ -47,7 +47,7 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
     functionScope = fun.scope;
     nlocal = fun.nlocal;
     code = trblock(fun.body);
-    funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, nlocal, 10, code));
+    funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, nlocal, 20, code));
   }
   
   funMap += ("#module_init" : FUNCTION("#module_init", libraryScope, 0, size(variables) + 1, 10, 

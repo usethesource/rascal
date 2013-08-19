@@ -45,7 +45,7 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
      	       												=> muCallPrim("assign_pair", [muCon(vardefs[name1]), muCon(vardefs[name2]), exp1])
      	       
      	       case preAssignLoc(str name, MuExp exp1) 		=> muAssignLoc(name, vardefs[name], exp1)
-     	       case preList(list[MuExp] exps)				=> muCallPrim("make_list", exps)
+     	       case preList(list[MuExp] exps)				=> muCallPrim("make_object_list", exps)
      	       case preSubscript(MuExp lst, MuExp index)	=> muCallPrim("subscript_list_int", [lst, index])
       	       case preIfthen(cond,thenPart) 				=> muIfelse(cond,thenPart, [])
       	       

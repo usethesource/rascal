@@ -2,7 +2,9 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -59,6 +61,7 @@ public enum Primitive {
 	less_num_num,
 	less_equal_num_num,
 	make_list,
+	make_object_list,
 	make_map,
 	make_set,
 	make_tuple,
@@ -193,9 +196,17 @@ public enum Primitive {
 		return sp - 1;
 	}
 	
+	
 	public static int addition_elm_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IList) stack[sp - 1]).insert((IValue) stack[sp - 2]);
+		if(stack[sp - 1] instanceof IList){
+			stack[sp - 2] = ((IList) stack[sp - 1]).insert((IValue) stack[sp - 2]);
+		} else {
+			@SuppressWarnings("unchecked")
+			List<Object> lst = ((List<Object>) stack[sp - 1]);
+			lst.add(0, stack[sp - 2]);
+			stack[sp - 2] = lst;
+		}
 		return sp - 1;
 	}
 	
@@ -269,14 +280,14 @@ public enum Primitive {
 	
 	
 	/*
-	 * assignPair: used by muRascal Implode for resolving <v1, v2> = exp
+	 * assignPair: used by muRascal Implode for resolving [v1, v2] = exp
 	 */
 	
 	public static int assign_pair(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		int v1 = ((IInteger) stack[sp - 3]).intValue();
 		int v2 = ((IInteger) stack[sp - 2]).intValue();
-		IList pair = (IList) stack[sp - 1];
+		List<?> pair = (List<?>) stack[sp - 1];
 		stack[v1] = pair.get(0);
 		stack[v2] = pair.get(1);
 		stack[sp - 3] = pair;
@@ -464,6 +475,23 @@ public enum Primitive {
 	}
 	
 	/*
+	 * make_object_list
+	 */
+	public static int make_object_list(Object[] stack, int sp, int arity) {
+		assert arity >= 0;
+		
+		List<Object> lst = new ArrayList<Object>();
+
+		for (int i = arity - 1; i >= 0; i--) {
+			lst.add(stack[sp - 1 - i]);
+		}
+		sp = sp - arity + 1;
+		stack[sp - 1] = lst;
+
+		return sp;
+	}
+	
+	/*
 	 * make_map
 	 */
 	public static int make_map(Object[] stack, int sp, int arity) {
@@ -519,7 +547,11 @@ public enum Primitive {
 	 */
 	public static int size_list(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
+		if(stack[sp -1] instanceof IList){
+			stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
+		} else {
+			stack[sp - 1] = vf.integer(((List<?>) stack[sp - 1]).size());
+		}
 		return sp;
 	}
 	
@@ -620,8 +652,11 @@ public enum Primitive {
 	 */
 	public static int subscript_list_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IList) stack[sp - 2]).get(((IInteger) stack[sp - 1])
-				.intValue());
+		if(stack[sp - 2] instanceof IList){
+			stack[sp - 2] = ((IList) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
+		} else {
+			stack[sp - 2] = ((List<?>) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
+		}
 		return sp - 1;
 	}
 

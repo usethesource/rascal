@@ -96,18 +96,21 @@ function MATCH_VAR[1, 2, varref, subject]{
    deref varref = subject;
    return true;
 }
+// List matching
 
-function MATCH_LIST[1, 2, pat,subject,patlen,sublen,
+function MATCH_LIST[1, 2, pats,   						// A list of coroutines
+						  subject,						// The subject list
+						  patlen,sublen,
 						  p,cursor,forward,matcher,
-						  matchers,pats,success,nextCursor]{
+						  matchers,success,nextCursor]{
 
      patlen = prim("size_list", pats);
      sublen = prim("size_list", subject);
      p = 0; 
      cursor = 0;
      forward = true;
-     matcher = init(get pats[p], subject, cursor);
-     matchers = prim("make_list", 0);
+     matcher = init(get pats[p], subject, cursor, prim("subtraction_num_num", sublen, cursor));
+     matchers = prim("make_object_list", 0);
      while(true){
          while(hasNext(matcher)){
         	[success, nextCursor] = next(matcher,forward);
@@ -121,7 +124,7 @@ function MATCH_LIST[1, 2, pat,subject,patlen,sublen,
                        prim("equals_num_num", cursor, sublen))) {
               	   yield true; 
                } else {
-                   matcher = init(get pats[p], subject, cursor);
+                   matcher = init(get pats[p], subject, cursor,  prim("subtraction_num_num", sublen, cursor));
                };    
             };
          };
@@ -136,7 +139,12 @@ function MATCH_LIST[1, 2, pat,subject,patlen,sublen,
      };
 }
 
-function MATCH_PAT_IN_LIST[1, 3, pat, subject, start, cpat]{
+// All coroutines that may occur in a list pattern have the following parameters:
+// - pat: the actual pattern to match one or more elements
+// - start: the start index in the subject list
+// - available: the number of remianing, unmatched, elements in the subject list
+
+function MATCH_PAT_IN_LIST[1, 4, pat, subject, start, available, cpat]{
     cpat = init(pat, get subject[start]);
     
     while(hasNext(cpat)){
@@ -147,13 +155,18 @@ function MATCH_PAT_IN_LIST[1, 3, pat, subject, start, cpat]{
     return [false, start];
   
 } 
+
+function MATCH_VAR_IN_LIST[1, 4, varref, subject, start, available]{
+   deref varref =  get subject[start];
+   return [true, prim("addition_num_num", start, 1)];
+}
  
-function MATCH_VAR_IN_LIST[1, 5, name, scopeId, pos, subject, start, n]{
-    n = start;
-    while(prim("less_num_num", n, prim("size_list", subject))){
-        var(name, scopeId, pos) = prim("sublist", subject, start, prim("subtraction_num_num", n, start));
-        yield [true, n];
-        n = prim("addition_num_num", n, 1);
+function MATCH_MULTIVAR_IN_LIST[1, 4, varref, subject, start, available, len]{
+    len = 0;
+    while(prim("less_equal_num_num", len, available)){
+        deref varref = prim("sublist", subject, start, len);
+        yield [true, prim("addition_num_num", start, len)];
+        len = prim("addition_num_num", len, 1);
      };
      return [false, start];
  }

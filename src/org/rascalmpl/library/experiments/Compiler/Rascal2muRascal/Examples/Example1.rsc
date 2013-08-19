@@ -15,9 +15,10 @@ value main(list[value] args) {
 //	return inc(3);
 //    int n = 57;
 //	return n + 2;
-//    n = 0;
-//    res = 0;
+    n = 0;
+    res = 0;
  //   while(n < 10){ res = res + n; n = n + 1; }
-//	if(1 == 2, 3 == 3){res = 20;} else {res = 30;}
-    if(int m := 3, false) return m; else return 7;
+	return if(1 == 2, 3 == 3){res = 20;} else {res = 30;}
+
+ //   if([*int x, 3] := [2, 3]) return x; else return [7];
 }
