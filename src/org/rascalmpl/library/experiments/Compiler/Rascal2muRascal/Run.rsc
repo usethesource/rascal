@@ -31,7 +31,7 @@ void run(){
 }
 
 void runMu2rvm(){
-  muP = parse(muExample5);
+  muP = parse(muExample4);
   iprintln(muP);
   rvmP = mu2rvm(muP);
   iprintln(rvmP);

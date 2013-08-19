@@ -2,7 +2,7 @@ module call_by_reference
 
 function COUNTDOWN[1,2,n,r] {
 	while(prim("greater_num_num", n, 0)) {
-		&r = prim("addition_num_num", &r, prim("product_num_num", &r, 2));
+		deref r = prim("addition_num_num", deref r, prim("product_num_num", deref r, 2));
 		yield n;
 		n = prim("subtraction_num_num",n,1);
 	};

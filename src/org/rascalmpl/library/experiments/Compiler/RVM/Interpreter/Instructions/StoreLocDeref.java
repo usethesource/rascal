@@ -2,20 +2,20 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 
-public class LoadLocRef extends Instruction {
+public class StoreLocDeref extends Instruction {
 	
-	final int pos;
+	int pos;
 	
-	public LoadLocRef(CodeBlock ins, int pos) {
-		super(ins, Opcode.LOADLOCREF);
+	public StoreLocDeref(CodeBlock ins, int pos) {
+		super(ins, Opcode.STORELOCDEREF);
 		this.pos = pos;
 	}
-
-	public String toString() { return "LOADLOCREF " + pos; }
+	
+	public String toString() { return "STORELOCDEREF " + pos; }
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
 		codeblock.addCode(pos);
 	}
-	
+
 }

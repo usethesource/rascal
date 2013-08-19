@@ -170,14 +170,14 @@ INS tr(muMulti(MuExp exp)) =
        NEXT0()
     ];
     
-INS tr(muLocDeref(str name, int pos)) = [ LOADLOCREF(pos) ];
-INS tr(muVarDeref(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOCREF(pos) : LOADVARREF(scope, pos) ];
+INS tr(muLocDeref(str name, int pos)) = [ LOADLOCDEREF(pos) ];
+INS tr(muVarDeref(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOCDEREF(pos) : LOADVARDEREF(scope, pos) ];
 
-INS tr(muLocRef(str name, int pos)) = [ LOADLOC_AS_REF(pos) ];
-INS tr(muVarRef(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOC_AS_REF(pos) : LOADVAR_AS_REF(scope, pos) ];
+INS tr(muLocRef(str name, int pos)) = [ LOADLOCREF(pos) ];
+INS tr(muVarRef(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOCREF(pos) : LOADVARREF(scope, pos) ];
 
-INS tr(muAssignLocDeref(str id, int pos, MuExp exp)) = [ *tr(exp), STORELOCREF(pos) ];
-INS tr(muAssignVarDeref(str id, int scope, int pos, MuExp exp)) = [ *tr(exp), scope == functionScope ? STORELOCREF(pos) : STOREVARREF(scope, pos) ];
+INS tr(muAssignLocDeref(str id, int pos, MuExp exp)) = [ *tr(exp), STORELOCDEREF(pos) ];
+INS tr(muAssignVarDeref(str id, int scope, int pos, MuExp exp)) = [ *tr(exp), scope == functionScope ? STORELOCDEREF(pos) : STOREVARDEREF(scope, pos) ];
 
 default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 
