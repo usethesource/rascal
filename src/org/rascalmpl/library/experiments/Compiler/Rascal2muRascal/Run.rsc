@@ -13,6 +13,7 @@ loc Example2 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example2.rs
 loc muExample3 = |std:///experiments/Compiler/muRascal2RVM/TypeConExample.mu|;
 loc muExample4 = |std:///experiments/Compiler/muRascal2RVM/Coroutines.mu|;
 loc muExample5 = |std:///experiments/Compiler/muRascal2RVM/CallByReference.mu|;
+loc Example6 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example3.rsc|;
 
 void run(){
   muP = r2mu(Example1);
