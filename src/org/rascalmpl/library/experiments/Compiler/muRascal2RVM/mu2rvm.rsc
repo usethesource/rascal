@@ -107,7 +107,8 @@ Instruction mkCall(str name) = CALL(name);
 
 INS tr(muCallConstr(str cname, list[MuExp] args)) = [ *tr(args), CALLCONSTR(cname) ];
 
-INS tr(muCall(str fname, list[MuExp] args)) = [*tr(args), CALL(fname)];
+INS tr(muCall(muFun(str fname), list[MuExp] args)) = [*tr(args), CALL(fname)];
+INS tr(muCall(muConstr(str cname), list[MuExp] args)) = [*tr(args), CALLCONSTR(cname)];
 
 INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN()];
 
@@ -117,7 +118,7 @@ INS tr(muCallPrim(str name, MuExp arg1, MuExp arg2)) = [*tr(arg1), *tr(arg2), CA
 
 INS tr(muCallPrim(str name, list[MuExp] args)) = [*tr(args), CALLPRIM(name, size(args))];
 
-INS tr(muAssign(str id, int scope, int pos, MuExp exp)) { println("Translating muAssign: <id>::<scope>::<pos> = <exp>; fun_scope: <functionScope>"); return [*tr(exp), scope == functionScope ? STORELOC(pos) : STOREVAR(scope, pos)]; }
+INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), scope == functionScope ? STORELOC(pos) : STOREVAR(scope, pos)];
 INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];
 INS tr(muAssignDyn(MuExp idExp, MuExp scopeExp, MuExp posExp, MuExp exp)) = [ *tr(exp), *tr(scopeExp), *tr(posExp), STOREVARDYN() ];
 
@@ -168,6 +169,15 @@ INS tr(muMulti(MuExp exp)) =
        INIT(1),
        NEXT0()
     ];
+    
+INS tr(muLocRef(str name, int pos)) = [ LOADLOCREF(pos) ];
+INS tr(muVarRef(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOCREF(pos) : LOADVARREF(scope, pos) ];
+
+INS tr(muRefLoc(str name, int pos)) = [ LOADLOC_AS_REF(pos) ];
+INS tr(muRefVar(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOC_AS_REF(pos) : LOADVAR_AS_REF(scope, pos) ];
+
+INS tr(muAssignLocRef(str id, int pos, MuExp exp)) = [ *tr(exp), STORELOCREF(pos) ];
+INS tr(muAssignRef(str id, int scope, int pos, MuExp exp)) = [ *tr(exp), scope == functionScope ? STORELOCREF(pos) : STOREVARREF(scope, pos) ];
 
 default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 
@@ -238,4 +248,4 @@ INS tr_cond(muMulti(MuExp exp), str failLab) {
     ];
 }
 
-default INS tr_cond(MuExp exp, str failLab) = tr(exp);
+default INS tr_cond(MuExp exp, str failLab) = [ *tr(exp), JMPFALSE(failLab) ];
