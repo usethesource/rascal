@@ -45,11 +45,13 @@ list[MuExp] translate(s: (Statement) `<Expression expression> ;`) = translate(ex
 
 list[MuExp] translate(s: (Statement) `<Label label> <Visit \visit>`) { throw("visit"); }
 
-list[MuExp] translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`) { throw("while"); }
+list[MuExp] translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`) =
+    [ muWhile(muOne([*translate(c) | c <-conditions]), translate(body)) ];
 
 list[MuExp] translate(s: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`) { throw("doWhile"); }
 
-list[MuExp] translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`) { throw("for"); }
+list[MuExp] translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`) =
+    [ muWhile(muAll([*translate(c) | c <-generators]), translate(body)) ];
 
 list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) =
     [ muIfelse(muOne([*translate(c) | c <-conditions]), translate(thenStatement), []) ];
