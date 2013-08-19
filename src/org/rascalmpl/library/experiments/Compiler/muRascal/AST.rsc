@@ -85,9 +85,8 @@ public data MuExp =
           
             // Coroutines
             
-          | muCreate(str fname)									// Create a coroutine using a named function
-          | muCreate(str fname, list[MuExp] args)				// EXPERIMENTAL
-          | muCreate(MuExp exp)									// Create a coroutine using a computed function
+          | muCreate(MuExp fun)									// Create a coroutine
+          | muCreate(MuExp fun, list[MuExp] args)
           
           | muInit(MuExp coro)									// Initialize a coroutine, no arguments
           | muInit(MuExp coro, list[MuExp] args)				// Initialize a coroutine, with arguments

@@ -109,7 +109,6 @@ INS tr(muCallConstr(str cname, list[MuExp] args)) = [ *tr(args), CALLCONSTR(cnam
 
 INS tr(muCall(muFun(str fname), list[MuExp] args)) = [*tr(args), CALL(fname)];
 INS tr(muCall(muConstr(str cname), list[MuExp] args)) = [*tr(args), CALLCONSTR(cname)];
-
 INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN()];
 
 INS tr(muCallPrim(str name, MuExp arg)) = (name == "println") ? [*tr(arg), PRINTLN()] : [*tr(arg), CALLPRIM(name, 1)];
@@ -144,10 +143,10 @@ default INS tr(muWhile(MuExp cond, list[MuExp] body)) {
     		];
 }
 
-INS tr(muCreate(str name)) = [CREATE(name)];
-
-INS tr(muCreate(str name, list[MuExp] args)) = [ *tr(args), CREATE(name, size(args))];
-INS tr(muCreate(MuExp exp)) = [*tr(exp),CREATEDYN(0)];
+INS tr(muCreate(muFun(str name))) = [CREATE(name)];
+INS tr(muCreate(MuExp fun)) = [ *tr(fun), CREATEDYN(0) ];
+INS tr(muCreate(muFun(str name), list[MuExp] args)) = [ *tr(args), CREATE(name, size(args)) ];
+INS tr(muCreate(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), CREATEDYN(size(args)) ];
 
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
 INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order!
