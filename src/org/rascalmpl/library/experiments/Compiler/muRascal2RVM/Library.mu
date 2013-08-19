@@ -161,21 +161,12 @@ function MATCH_VAR_IN_LIST[1, 4, varref, subject, start, available]{
    return [true, prim("addition_num_num", start, 1)];
 }
  
-<<<<<<< HEAD
 function MATCH_MULTIVAR_IN_LIST[1, 4, varref, subject, start, available, len]{
     len = 0;
     while(prim("less_equal_num_num", len, available)){
         deref varref = prim("sublist", subject, start, len);
         yield [true, prim("addition_num_num", start, len)];
         len = prim("addition_num_num", len, 1);
-=======
-function MATCH_VAR_IN_LIST[1, 5, name, subject, start, n]{
-    n = start;
-    while(prim("less_num_num", n, prim("size_list", subject))){
-        deref name = prim("sublist", subject, start, prim("subtraction_num_num", n, start));
-        yield [true, n];
-        n = prim("addition_num_num", n, 1);
->>>>>>> branch 'master' of https://github.com/cwi-swat/rascal.git
      };
      return [false, start];
  }
