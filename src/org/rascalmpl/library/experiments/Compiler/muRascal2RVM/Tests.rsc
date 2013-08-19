@@ -154,6 +154,7 @@ test bool coroutines() {
     MuModule m = parse(|std:///experiments/Compiler/muRascal2RVM/Coroutines.mu|);  
 	rvmP = mu2rvm(m);
 	<res, tm> = executeProgram(rvmP, true, 1);
+	println("Result: <res>");
 	return res == 100;
 }
 
