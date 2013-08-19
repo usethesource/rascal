@@ -368,7 +368,7 @@ list[MuExp] translateBool(e:(Expression) `<Expression lhs> \<==\> <Expression rh
  // Translate match operator
  
  list[MuExp] translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  = 
-   [ muMulti(muCreate("MATCH", [*translatePat(pat), *translate(exp)])) ];
+   [ muMulti(muCreate(muFun("MATCH"), [*translatePat(pat), *translate(exp)])) ];
  
  
  

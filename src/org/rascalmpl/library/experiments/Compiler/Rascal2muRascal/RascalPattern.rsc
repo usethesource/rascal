@@ -12,21 +12,21 @@ import experiments::Compiler::muRascal::AST;
 /*                  Patterns                                         */
 /*********************************************************************/
  
-list[MuExp] translatePat(p:(Pattern) `<BooleanLiteral b>`) = [ muCreate("MATCH_BOOL", translate(b)) ];
+list[MuExp] translatePat(p:(Pattern) `<BooleanLiteral b>`) = [ muCreate(muFun("MATCH_BOOL"), translate(b)) ];
 
-list[MuExp] translatePat(p:(Pattern) `<IntegerLiteral n>`) = [ muCreate("MATCH_INT", translate(n)) ];
+list[MuExp] translatePat(p:(Pattern) `<IntegerLiteral n>`) = [ muCreate(muFun("MATCH_INT"), translate(n)) ];
      
-list[MuExp] translatePat(p:(Pattern) `<StringLiteral s>`, Expression subject) =   [ muCreate("MATCH_STR", translate(b)) ];
+list[MuExp] translatePat(p:(Pattern) `<StringLiteral s>`, Expression subject) =   [ muCreate(muFun("MATCH_STR"), translate(b)) ];
      
 list[MuExp] translatePat(p:(Pattern) `<QualifiedName name>`, Expression subject) {
    <scopeId, pos> = getVariableScope("<name>", name@\loc);
-   return [ muCreate("MATCH_VAR", [muVarRef( "<name>", scopeId, pos)]) ];
+   return [ muCreate(muFun("MATCH_VAR"), [muVarRef( "<name>", scopeId, pos)]) ];
 }   
 
      
 list[MuExp] translatePat(p:(Pattern) `<Type tp> <Name name>`){
    <scopeId, pos> = getVariableScope("<name>", name@\loc);
-   return [ muCreate("MATCH_VAR", [muVarRef("<name>", scopeId, pos)]) ];
+   return [ muCreate(muFun("MATCH_VAR"), [muVarRef("<name>", scopeId, pos)]) ];
 }  
 
 default list[MuExp] translatePat(Pattern p) { throw "Pattern <p> cannot be translated"; }
@@ -40,7 +40,7 @@ default list[MuExp] translatePat(Pattern p) { throw "Pattern <p> cannot be trans
 
 list[MuExp] translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
   
-  return [ muCreate("MATCH_LIST", [ *translatePat(pat) | pat <- pats ]) ];
+  return [ muCreate(muFun("MATCH_LIST"), [ *translatePat(pat) | pat <- pats ]) ];
 }
 
 // Translate patterns as element of a list pattern
