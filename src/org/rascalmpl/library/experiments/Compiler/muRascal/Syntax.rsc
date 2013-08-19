@@ -49,8 +49,8 @@ syntax Exp  =
 			| muVarDyn: 	"var" "(" Exp idExp "," Exp scopeExp "," Exp posExp ")"
 			
 			// call-by-reference: uses of variables that refer to a value location in contrast to a value
-			| preLocRef:    "&" Identifier id
-			| muVarRef:     "&" Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos
+			| preLocDeref:  "deref" Identifier id
+			| muVarDeref:   "deref" Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos
 			
 			> muCallPrim: 	"prim" "(" String name "," {Exp ","}+ args ")"
 			
@@ -65,8 +65,8 @@ syntax Exp  =
 			> muAssignDyn: 	"var" "(" Exp idExp "," Exp scopeExp "," Exp posExp ")" "=" Exp exp
 			
 			// call-by-reference: assignment 
-			| preAssignLocRef: "&" Identifier id "=" Exp exp
-			> muAssignRef: 	   "&" Identifier id >> ":" ":" Identifier scope >> ":" ":" Identifier pos "=" Exp exp
+			| preAssignLocDeref: "deref" Identifier id "=" Exp exp
+			> muAssignVarDeref:  "deref" Identifier id >> ":" ":" Identifier scope >> ":" ":" Identifier pos "=" Exp exp
 			
 		
 			| muIfelse: 	"if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
@@ -87,8 +87,8 @@ syntax Exp  =
 			> muYield: 		"yield"
 			
 			// call-by-reference: expressions that return a value location
-			| preRefLoc:     "ref" Identifier id
-			| muRefVar:      "ref" Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos
+			| preLocRef:     "ref" Identifier id
+			| muVarRef:      "ref" Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos
 			
 			| bracket		"(" Exp exp ")"
 			;
@@ -98,7 +98,7 @@ keyword Keywords =
 			  "prim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "hasNext" |
               "type" |
-              "ref"
+              "ref" | "deref"
              ;
              
 // Syntactic features that will be removed by the preprocessor. 

@@ -166,18 +166,18 @@ INS tr(muHasNext(MuExp coro)) = [*tr(coro), HASNEXT()];
 
 INS tr(muMulti(MuExp exp)) = 
 	 [ *tr(exp),
-       INIT(1),
+       INIT(0),
        NEXT0()
     ];
     
-INS tr(muLocRef(str name, int pos)) = [ LOADLOCREF(pos) ];
-INS tr(muVarRef(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOCREF(pos) : LOADVARREF(scope, pos) ];
+INS tr(muLocDeref(str name, int pos)) = [ LOADLOCREF(pos) ];
+INS tr(muVarDeref(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOCREF(pos) : LOADVARREF(scope, pos) ];
 
-INS tr(muRefLoc(str name, int pos)) = [ LOADLOC_AS_REF(pos) ];
-INS tr(muRefVar(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOC_AS_REF(pos) : LOADVAR_AS_REF(scope, pos) ];
+INS tr(muLocRef(str name, int pos)) = [ LOADLOC_AS_REF(pos) ];
+INS tr(muVarRef(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOC_AS_REF(pos) : LOADVAR_AS_REF(scope, pos) ];
 
-INS tr(muAssignLocRef(str id, int pos, MuExp exp)) = [ *tr(exp), STORELOCREF(pos) ];
-INS tr(muAssignRef(str id, int scope, int pos, MuExp exp)) = [ *tr(exp), scope == functionScope ? STORELOCREF(pos) : STOREVARREF(scope, pos) ];
+INS tr(muAssignLocDeref(str id, int pos, MuExp exp)) = [ *tr(exp), STORELOCREF(pos) ];
+INS tr(muAssignVarDeref(str id, int scope, int pos, MuExp exp)) = [ *tr(exp), scope == functionScope ? STORELOCREF(pos) : STOREVARREF(scope, pos) ];
 
 default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 
@@ -195,7 +195,7 @@ INS tr_cond(muOne(list[MuExp] exps), str moreLab, str failLab){
     for(exp <- exps){
         if(muMulti(exp1) := exp){
           code += [*tr(exp1), 
-          		   INIT(1), 
+          		   INIT(0), 
           		   NEXT0(), 
           		   JMPFALSE(failLab)
           		  ];
@@ -225,7 +225,7 @@ INS tr_cond(muAll(list[MuExp] exps), str moreLab, str failLab){
           newFail = nextLabel();
           co = newLocal();
           code += [*tr(exp1), 
-          		   INIT(1), 
+          		   INIT(0), 
           		   STORELOC(co), 
           		   POP(),
           		   *((i == lastMulti) ? [LABEL(moreLab)] : []),
@@ -250,7 +250,7 @@ INS tr_cond(muAll(list[MuExp] exps), str moreLab, str failLab){
 INS tr_cond(muMulti(MuExp exp), str moreLab, str failLab) {
     [ LABEL(moreLab),
        *tr(exp),
-       INIT(1),
+       INIT(0),
        NEXT(),
        JMPFALSE(failLab)
     ];
