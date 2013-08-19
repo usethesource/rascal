@@ -144,6 +144,7 @@ test bool tst() = 3 := prim2("subscript_list_int", [1,2,3], 2);
 //subscript_map,
 
 test bool tst() = [] := prim1("tail_list", [7]);
+test bool tst() = [8] := prim1("tail_list", [7, 8]);
 
 //transitive_closure_lrel,
 //transitive_closure_rel,

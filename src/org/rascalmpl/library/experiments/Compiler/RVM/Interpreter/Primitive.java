@@ -402,7 +402,11 @@ public enum Primitive {
 	
 	public static int head_list(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		stack[sp - 1] = ((IList) stack[sp - 1]).get(0);
+		if(stack[sp - 1] instanceof IList){
+			stack[sp - 1] = ((IList) stack[sp - 1]).get(0);
+		} else {
+			stack[sp - 1] = ((List<?>) stack[sp - 1]).get(0);
+		}
 		return sp;
 	}
 	
@@ -706,8 +710,13 @@ public enum Primitive {
 	
 	public static int tail_list(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		IList lst =  ((IList) stack[sp - 1]);
-		stack[sp - 1] = lst.sublist(1, lst.length() - 1);
+		if(stack[sp - 1] instanceof IList){
+			IList lst =  ((IList) stack[sp - 1]);
+			stack[sp - 1] = lst.sublist(1, lst.length() - 1);
+		} else {
+			List<?> lst =  ((List<?>) stack[sp - 1]);
+			stack[sp - 1] = lst.subList(1, Math.max(1, lst.size() - 1));
+		}
 		return sp;
 	}
 

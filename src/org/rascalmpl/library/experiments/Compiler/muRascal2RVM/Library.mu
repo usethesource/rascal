@@ -84,8 +84,10 @@ function MATCH[1,2,pat,subject,cpat]{
    return false;
 }
 
-function MATCH_INT[1,2,pat,subject]{
-   return prim("equals_num_num", pat, subject);
+function MATCH_INT[1,2,pat,subject, res]{
+   res = prim("equals_num_num", pat, subject);
+   prim("println", ["MATCH_INT", pat, subject, res]);
+   return res;
 }
 
 function MATCH_STR[1,2,pat,subject]{
@@ -98,43 +100,78 @@ function MATCH_VAR[1, 2, varref, subject]{
 }
 // List matching
 
-function MATCH_LIST[1, 2, pats,   						// A list of coroutines
+function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list elements
 						  subject,						// The subject list
-						  patlen,sublen,
-						  p,cursor,forward,matcher,
-						  matchers,success,nextCursor]{
+						  patlen,						// Length of pattern list
+						  patlen1,						// patlen - 1
+						  sublen,						// Length of subject list
+						  p,							// Cursor in patterns
+						  cursor,						// Cursor in subject
+						  forward,
+						  matcher,						// Currently active pattern matcher
+						  matchers,						// List of currently active pattern matchers
+						  success,						// Success flag of last macth
+						  nextCursor					// Cursor movement of last successfull match
+					]{
 
-     patlen = prim("size_list", pats);
-     sublen = prim("size_list", subject);
-     p = 0; 
-     cursor = 0;
-     forward = true;
-     matcher = init(get pats[p], subject, cursor, prim("subtraction_num_num", sublen, cursor));
+     patlen   = prim("size_list", pats);
+     patlen1 =  prim("subtraction_num_num", patlen, 1);
+     sublen   = prim("size_list", subject);
+     p        = 0; 
+     cursor   = 0;
+     forward  = true;
+     matcher  = init(get pats[p], subject, cursor, sublen);
      matchers = prim("make_object_list", 0);
+     matchers = prim("addition_elm_list", matcher, matchers);
+     
      while(true){
-         while(hasNext(matcher)){
-        	[success, nextCursor] = next(matcher,forward);
-            if(success){
+     	// Move forward
+     	 forward = hasNext(matcher);
+     	 prim("println", ["AT HEAD", p, cursor, forward]);
+         while(prim("and_bool_bool", forward, hasNext(matcher))){
+            prim("println", ["hasNext=true", p, cursor]);
+        	[success, nextCursor] = next(matcher);
+            if(success){ 
                forward = true;
                cursor = nextCursor;
-               matchers = prim("addition_elm_list", matcher, matchers);
-               p = prim("addition_num_num", p, 1);
+               prim("println", ["SUCCESS", p, cursor]);
                if(prim("and_bool_bool",
-                       prim("equals_num_num", p, patlen),
+                       prim("equals_num_num", p, patlen1),
                        prim("equals_num_num", cursor, sublen))) {
-              	   yield true; 
+                   prim("println", ["YIELD", p, cursor]);
+              	   yield true;
+              	   prim("println", ["BACK FROM YIELD", p, cursor]); 
                } else {
-                   matcher = init(get pats[p], subject, cursor,  prim("subtraction_num_num", sublen, cursor));
-               };    
+                 if(prim("less_num_num", p, patlen)){
+                   p = prim("addition_num_num", p, 1);
+                   prim("println", ["FORWARD", p, cursor]);
+                   matcher  = init(get pats[p], subject, cursor,  prim("subtraction_num_num", sublen, cursor));
+                   matchers = prim("addition_elm_list", matcher, matchers);
+                 } else {
+                   prim("println", ["BACKWARD", p, cursor]);
+                   forward = false;
+                 };  
+               };
+            } else {
+              prim("println", ["no success, BACKWARD", p, cursor]);
+              forward = false;
             };
-         };
-         if(prim("greater_num_num", p, 0)){
-               p = prim("subtraction_num_num", p, 1);
-               matcher = prim("head_list", matchers);
+         }; 
+         // If possible, move backward
+         if(forward){
+           // nothing
+         } else {  
+           if(prim("greater_num_num", p, 0)){
+               p        = prim("subtraction_num_num", p, 1);
+               prim("println", ["PREVIOUS", p, cursor,  "size matchers=", prim("size_list", matchers)]);
                matchers = prim("tail_list", matchers);
-               forward = false;
-         } else {
+               prim("println", ["size matchers=", prim("size_list", matchers)]);
+               matcher  = prim("head_list", matchers);
+               forward  = true;
+           } else {
+         	   prim("println", ["RETURN FALSE", p, cursor]);
                return false;
+           };
          };
      };
 }
@@ -153,29 +190,20 @@ function MATCH_PAT_IN_LIST[1, 4, pat, subject, start, available, cpat]{
        };   
     };
     return [false, start];
-  
 } 
 
 function MATCH_VAR_IN_LIST[1, 4, varref, subject, start, available]{
    deref varref =  get subject[start];
    return [true, prim("addition_num_num", start, 1)];
 }
- 
-<<<<<<< HEAD
+
 function MATCH_MULTIVAR_IN_LIST[1, 4, varref, subject, start, available, len]{
     len = 0;
     while(prim("less_equal_num_num", len, available)){
         deref varref = prim("sublist", subject, start, len);
+        prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_num_num", start, len)]);
         yield [true, prim("addition_num_num", start, len)];
         len = prim("addition_num_num", len, 1);
-=======
-function MATCH_VAR_IN_LIST[1, 5, name, subject, start, n]{
-    n = start;
-    while(prim("less_num_num", n, prim("size_list", subject))){
-        deref name = prim("sublist", subject, start, prim("subtraction_num_num", n, start));
-        yield [true, n];
-        n = prim("addition_num_num", n, 1);
->>>>>>> branch 'master' of https://github.com/cwi-swat/rascal.git
      };
      return [false, start];
- }
+}
