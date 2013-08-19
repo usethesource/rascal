@@ -20,53 +20,98 @@ list[MuExp] translatePat(p:(Pattern) `<StringLiteral s>`, Expression subject) = 
      
 list[MuExp] translatePat(p:(Pattern) `<QualifiedName name>`, Expression subject) {
    <scopeId, pos> = getVariableScope("<name>", name@\loc);
-   return [ muCreate(muFun("MATCH_VAR"), [muVarRef( "<name>", scopeId, pos)]) ];
-}   
-
+   return [ muCreate(muFun("MATCH_VAR"), [muVarRef("<name>", scopeId, pos)]) ];
+} 
      
 list[MuExp] translatePat(p:(Pattern) `<Type tp> <Name name>`){
    <scopeId, pos> = getVariableScope("<name>", name@\loc);
    return [ muCreate(muFun("MATCH_VAR"), [muVarRef("<name>", scopeId, pos)]) ];
 }  
 
-default list[MuExp] translatePat(Pattern p) { throw "Pattern <p> cannot be translated"; }
+// reifiedType pattern
 
-// List matching.
-// All coroutines involved in list matching have the signature:
-//		coroutine (list[&T] subject) resume tuple[bool,int](bool forward, int startPos)
-// 1. Handle the list pattern
-// 2. Wrap all other patterns to comply with the above signature
-// 3. The cases of list variables are handled specially.
+list[MuExp] translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> )`) {
+    throw "reifiedType pattern";
+}
+
+// callOrTree pattern
+
+list[MuExp] translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
+    throw "callOrTree pattern";
+}
+
+// Set pattern
+
+list[MuExp] translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
+     throw "set pattern";
+}
+
+// Tuple pattern
+
+list[MuExp] translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
+    throw "tuple pattern";
+}
+
+
+// List pattern 
 
 list[MuExp] translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
-  
-  return [ muCreate(muFun("MATCH_LIST"), [ *translatePat(pat) | pat <- pats ]) ];
+  return [ muCreate(muFun("MATCH_LIST"), [muCallPrim("make_object_list", [ *translatePatAsListElem(pat) | pat <- pats ])]) ];
 }
+
+// Variable becomes pattern
+
+list[MuExp] translatePat(p:(Pattern) `<Name name> : <Pattern pattern>`) {
+    throw "variable becomes pattern";
+}
+
+// asType pattern
+
+list[MuExp] translatePat(p:(Pattern) `[ <Type \type> ] <Pattern argument>`) {
+    throw "asType pattern";
+}
+
+// Descendant pattern
+
+list[MuExp] translatePat(p:(Pattern) `/ <Pattern pattern>`) {
+    throw "Descendant pattern";
+}
+
+// typedVariableBecomes pattern
+list[MuExp] translatePat(p:(Pattern) `<Type \type> <Name name> : <Pattern pattern>`) {
+    throw "typedVariableBecomes pattern";
+}
+
+
+// Default rule for pattern translation
+
+default list[MuExp] translatePat(Pattern p) { throw "Pattern <p> cannot be translated"; }
 
 // Translate patterns as element of a list pattern
 
-str translatePatAsListElem(p:(Pattern) `* <QualifiedName name>`) = 
-   "coroutine (list[&T] subject) resume tuple[bool,int](bool forward, int startPos) { 
-   '  while(true){
-   '     int endPos = startPos;
-   '     \<forward, startPos\> = yield \<true, endPos\>;
-   '     if(forward && endPos \< size(subject)){
-   '        endPos += 1;
-   '        <name> = subject[startPos .. endPos];
-   '        yield \<true, endPos\>;
-   '     }
-   '  } 
-   '}";
-  
-default str translatePatAsListElem(Pattern p) = asListElem(translatePat(p));
+list[MuExp] translatePatAsListElem(p:(Pattern) `<QualifiedName name>`) {
+   <scopeId, pos> = getVariableScope("<name>", name@\loc);
+   return [ muCreate(muFun("MATCH_VAR_IN_LIST"), [muVarRef("<name>", scopeId, pos)]) ];
+} 
 
-// Wrap the translation of a pattern element as element of a list pattern
+list[MuExp] translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`) {
+   <scopeId, pos> = getVariableScope("<name>", name@\loc);
+   return [ muCreate(muFun("MATCH_MULTIVAR_IN_LIST"), [muCVarRef("<name>", scopeId, pos)]) ];
+}
 
-str asListElem(str code) = 
-    "coroutine (list[&T] subject) resume tuple[bool,int](int startPos) { 
-    '  while(true) { c = <code>.start(subject[startPos]); yield \<c.resume(), startPos + 1\>; 
-    '}";
-    
+list[MuExp] translatePatAsListElem(p:(Pattern) `*<Pattern argument>`) {
+  throw "splice pattern";
+} 
+
+list[MuExp] translatePatAsListElem(p:(Pattern) `+<Pattern argument>`) {
+  throw "splicePlus pattern";
+}   
+
+default list[MuExp] translatePatAsListElem(Pattern p) {
+  iprintln(p);
+return [ muCreate(muFun("MATCH_PAT_IN_LIST"), translatePat(p)) ];
+}
+
 /*********************************************************************/
 /*                  End of Patterns                                  */
 /*********************************************************************/
