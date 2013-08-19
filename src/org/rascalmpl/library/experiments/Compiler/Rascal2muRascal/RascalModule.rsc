@@ -19,9 +19,9 @@ list[loc] libSearchPath = [|std:///|, |eclipse-std:///|];
 public loc Example1 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example1.rsc|;
 public loc Example2 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example2.rsc|;
 
-list[MuFunction] functions_in_module = [];
-list[MuVariable] variables_in_module = [];
-list[MuExp] variable_initializations = [];
+public list[MuFunction] functions_in_module = [];
+public list[MuVariable] variables_in_module = [];
+public list[MuExp] variable_initializations = [];
 
 MuModule r2mu(loc moduleLoc){
    try {

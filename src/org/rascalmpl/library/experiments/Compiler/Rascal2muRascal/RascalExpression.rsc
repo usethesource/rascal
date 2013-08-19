@@ -9,7 +9,9 @@ import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 
+import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
+import experiments::Compiler::Rascal2muRascal::RascalStatement;
 
 import experiments::Compiler::muRascal::AST;
 
@@ -39,6 +41,16 @@ str getOuterType(Expression e) {
 set[Symbol] getFunctionType(str name) { 
    r = config.store[config.fcvEnv[RSimpleName(name)]].rtype; 
    return overloaded(alts) := r ? alts : {r};
+}
+
+Symbol getClosureType(loc l) {
+   int uid = loc2uid[l];
+   cls = config.store[uid];
+   if(closure(Symbol rtype,_,_) := cls) {
+       return rtype;
+   } else {
+       throw "Looked up for a closure, but got: <cls> instead";
+   }
 }
 
 int getFunctionScope(str name) = config.fcvEnv[RSimpleName(name)];
@@ -120,6 +132,12 @@ void extractScopes(){
         									}
         case blockScope(containedIn,src):   { containment += {<containedIn, uid>}; loc2uid[src] = uid;}
         case booleanScope(containedIn,src): { containment += {<containedIn, uid>}; loc2uid[src] = uid;}
+        
+        case closure(_,inScope,src):        {
+                                              functionScopes += {uid};
+                                              declares += {<inScope, uid>};
+        									  loc2uid[src] = uid;
+        									}
       }
     }
     //println("containment = <containment>");
@@ -174,11 +192,11 @@ list[MuExp] translate(e:(Expression) `{ <Statement+ statements> }`)  { throw("no
 
 list[MuExp] translate(e:(Expression) `(<Expression expression>)`)   = translate(expression);
 
-list[MuExp] translate (e:(Expression) `<Type \type> <Parameters parameters> { <Statement+ statements> }`)  { throw("closure"); }
+list[MuExp] translate (e:(Expression) `<Type \type> <Parameters parameters> { <Statement+ statements> }`) = translateClosure(e, parameters, statements);
+
+list[MuExp] translate (e:(Expression) `<Parameters parameters> { <Statement* statements> }`) = translateClosure(e, parameters, statements);
 
 list[MuExp] translate (e:(Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`) { throw("stepRange"); }
-
-list[MuExp] translate (e:(Expression) `<Parameters parameters> { <Statement* statements> }`) { throw("voidClosure"); }
 
 list[MuExp] translate (e:(Expression) `<Label label> <Visit \visit>`) { throw("visit"); }
 
@@ -190,12 +208,6 @@ list[MuExp] translate(e:(Expression) `<Expression expression> ( <{Expression ","
    // ignore kw arguments for the moment
    MuExp receiver = translate(expression)[0];
    list[MuExp] args = [ *translate(a) | a <- arguments ];
-   if(muConstr(str name) := receiver) {
-       return [ muCallConstr(name, args) ]; // special case of a constructor call
-   }
-   if(muFun(str name) := receiver) {
-       return [ muCall(name, args) ]; // special case of a root function call
-   }
    return [ muCall(receiver, args) ];
 }
 
@@ -370,5 +382,16 @@ list[MuExp] translateBool(e:(Expression) `<Expression lhs> \<==\> <Expression rh
  list[MuExp] translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  = 
    [ muMulti(muCreate(muFun("MATCH"), [*translatePat(pat), *translate(exp)])) ];
  
- 
+ list[MuExp] translateClosure(Expression e, Parameters parameters, Statement* statements) {
+	scope = loc2uid[e@\loc];
+    name = "closure_<scope>";
+	ftype = getClosureType(e@\loc);
+	nformals = size(ftype.parameters);
+	nlocals = getScopeSize(scope);
+	body = [ *translate(stat) | stat <- statements ];
+	functions_in_module += [ muFunction(name, scope, nformals, nlocals, body) ];
+	tuple[int scope, int pos] addr = uid2addr[scope];
+	return [ (addr.scope == 0) ? muFun(name) : muFun(name, addr.scope) ];
+}
+
  
