@@ -92,8 +92,8 @@ function MATCH_STR[1,2,pat,subject]{
    return prim("equals_str_str", pat, subject);
 }
 
-function MATCH_VAR[1, 4, name, scopeId, pos,subject]{
-   var(name,scopeId,pos) = subject;
+function MATCH_VAR[1, 2, varref, subject]{
+   deref varref = subject;
    return true;
 }
 

@@ -49,9 +49,9 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
      	       case preSubscript(MuExp lst, MuExp index)	=> muCallPrim("subscript_list_int", [lst, index])
       	       case preIfthen(cond,thenPart) 				=> muIfelse(cond,thenPart, [])
       	       
+      	       case preLocDeref(str name)                   => muLocDeref(name, vardefs[name])
       	       case preLocRef(str name)                     => muLocRef(name, vardefs[name])
-      	       case preRefLoc(str name)                     => muRefLoc(name, vardefs[name])
-      	       case preAssignLocRef(str name, MuExp exp)    => muAssignLocRef(name, vardefs[name], exp)
+      	       case preAssignLocDeref(str name, MuExp exp)  => muAssignLocDeref(name, vardefs[name], exp)
             };
       };      
 }

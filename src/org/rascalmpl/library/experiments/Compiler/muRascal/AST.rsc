@@ -54,11 +54,11 @@ public data MuExp =
           
           | muVarDyn(MuExp idExp, MuExp scopeExp, MuExp posExp)	// Variable: retrieve its value; scope and position are dynamically computed
           
-          | muLocRef(str name, int pos) 				        // Call-by-reference: a variable that refers to a value location
-          | muVarRef(str name, int scope, int pos)
+          | muLocDeref(str name, int pos) 				        // Call-by-reference: a variable that refers to a value location
+          | muVarDeref(str name, int scope, int pos)
           
-          | muRefLoc(str name, int pos) 				        // Call-by-reference: expression that returns a value location
-          | muRefVar(str name, int scope, int pos)
+          | muLocRef(str name, int pos) 				        // Call-by-reference: expression that returns a value location
+          | muVarRef(str name, int scope, int pos)
              
           | muTypeCon(Symbol tp)								// Type constant
      
@@ -78,8 +78,8 @@ public data MuExp =
           
           | muAssignDyn(MuExp idExp, MuExp scopeExp, MuExp posExp, MuExp exp)		// Assign a value to a variable; scope and position are computed
           
-          | muAssignLocRef(str id, int pos, MuExp exp)          // Call-by-reference assignment:
-          | muAssignRef(str id, int scope, int pos, MuExp exp) 	// the left-hand side is a variable that refers to a value location
+          | muAssignLocDeref(str id, int pos, MuExp exp)          // Call-by-reference assignment:
+          | muAssignVarDeref(str id, int scope, int pos, MuExp exp) 	// the left-hand side is a variable that refers to a value location
           														
           | muIfelse(MuExp cond, list[MuExp] thenPart,			// If-then-else expression
           						 list[MuExp] elsePart)
@@ -136,8 +136,8 @@ public data MuExp =
             | preAssignLocList(str name1, str name2, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart)
             
+            | preLocDeref(str name)
             | preLocRef(str name)
-            | preRefLoc(str name)
             
-            | preAssignLocRef(str name, MuExp exp)
+            | preAssignLocDeref(str name, MuExp exp)
            ;
