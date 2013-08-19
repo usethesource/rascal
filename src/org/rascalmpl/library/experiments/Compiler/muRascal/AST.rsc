@@ -52,8 +52,6 @@ public data MuExp =
           | muLoc(str name, int pos)							// Local variable, with position in current scope
           | muVar(str id, int scope, int pos)					// Variable: retrieve its value
           
-          | muVarDyn(MuExp idExp, MuExp scopeExp, MuExp posExp)	// Variable: retrieve its value; scope and position are dynamically computed
-          
           | muLocDeref(str name, int pos) 				        // Call-by-reference: a variable that refers to a value location
           | muVarDeref(str name, int scope, int pos)
           
@@ -65,7 +63,6 @@ public data MuExp =
      		// Call/return
      		
           | muCall(MuExp fun, list[MuExp] args)					// Call a function
-//          | muCall(str fname, list[MuExp] args)					// Call a named function: usually from the muRascal runtime library
           | muCallConstr(str cname, list[MuExp] args) 			// Call a constructor
           | muCallPrim(str name, list[MuExp] exps)				// Call a primitive function with variable number of arguments
           | muReturn()											// Return from function without value
@@ -75,8 +72,6 @@ public data MuExp =
               
           | muAssignLoc(str id, int pos, MuExp exp)				// Assign a value to a local variable
           | muAssign(str id, int scope, int pos, MuExp exp)		// Assign a value to a variable
-          
-          | muAssignDyn(MuExp idExp, MuExp scopeExp, MuExp posExp, MuExp exp)		// Assign a value to a variable; scope and position are computed
           
           | muAssignLocDeref(str id, int pos, MuExp exp)          // Call-by-reference assignment:
           | muAssignVarDeref(str id, int scope, int pos, MuExp exp) 	// the left-hand side is a variable that refers to a value location
@@ -90,9 +85,8 @@ public data MuExp =
           
             // Coroutines
             
-          | muCreate(str fname)									// Create a coroutine using a named function
-          | muCreate(str fname, list[MuExp] args)				// EXPERIMENTAL
-          | muCreate(MuExp exp)									// Create a coroutine using a computed function
+          | muCreate(MuExp fun)									// Create a coroutine
+          | muCreate(MuExp fun, list[MuExp] args)
           
           | muInit(MuExp coro)									// Initialize a coroutine, no arguments
           | muInit(MuExp coro, list[MuExp] args)				// Initialize a coroutine, with arguments

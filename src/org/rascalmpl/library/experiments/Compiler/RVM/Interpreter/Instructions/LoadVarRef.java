@@ -12,7 +12,7 @@ public class LoadVarRef extends Instruction {
 		this.scope = scope;
 		this.pos = pos;
 	}
-
+	
 	public String toString() { return "LOADVARREF " + scope + ", " + pos; }
 	
 	public void generate(){
