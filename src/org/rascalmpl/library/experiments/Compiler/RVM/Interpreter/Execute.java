@@ -206,14 +206,7 @@ public class Execute {
 					case "LOADTYPE":
 						codeblock.LOADTYPE(rvm.symbolToType((IConstructor) instruction.get("type")));
 						break;
-						
-					case "LOADVARDYN":
-						codeblock.LOADVARDYN();
-						break;
-					case "STOREVARDYN":
-						codeblock.STOREVARDYN();
-						break;
-					
+										
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 					}

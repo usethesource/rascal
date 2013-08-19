@@ -187,19 +187,11 @@ public class RVM {
 					continue;
 				}
 				
-				case Opcode.OP_LOADVARDYN:
 				case Opcode.OP_LOADVAR:
 				case Opcode.OP_LOADVARREF: {
-					int s;
-					int pos;
-					if(op == Opcode.OP_LOADVARDYN){
-						s = ((IInteger)stack[-2]).intValue();
-						pos = ((IInteger)stack[-1]).intValue();
-						sp -= 2;
-					} else {
-						s = instructions[pc++];
-						pos = instructions[pc++];
-					}
+					int s = instructions[pc++];
+					int pos = instructions[pc++];
+					
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
 							stack[sp++] = (op == Opcode.OP_LOADVAR) ? fr.stack[pos] 
@@ -233,18 +225,9 @@ public class RVM {
 					ref.stack[ref.pos] = stack[sp - 1];         /* CHANGED: --sp to sp - 1; value remains on stack */
 					continue;
 				
-				case Opcode.OP_STOREVARDYN:
 				case Opcode.OP_STOREVAR:
-					int s;
-					int pos;
-					if(op == Opcode.OP_STOREVARDYN){
-						s = ((IInteger)stack[sp - 2]).intValue();
-						pos = ((IInteger)stack[sp - 1]).intValue();
-						sp -= 2;
-					} else {
-						s = instructions[pc++];
-						pos = instructions[pc++];
-					}
+					int s = instructions[pc++];
+					int pos = instructions[pc++];
 
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {

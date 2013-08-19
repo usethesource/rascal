@@ -20,7 +20,7 @@ list[MuExp] translatePat(p:(Pattern) `<StringLiteral s>`, Expression subject) = 
      
 list[MuExp] translatePat(p:(Pattern) `<QualifiedName name>`, Expression subject) {
    <scopeId, pos> = getVariableScope("<name>", name@\loc);
-   return [ muCreate("MATCH_VAR", [muCon(scopeId), muCon(pos)]) ];
+   return [ muCreate("MATCH_VAR", [muVarRef( "<name>", scopeId, pos)]) ];
 }   
 
      

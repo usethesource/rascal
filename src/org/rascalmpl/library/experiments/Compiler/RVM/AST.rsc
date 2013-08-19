@@ -45,7 +45,5 @@ data Instruction =
 		| LOADVARDEREF(int scope, int pos)
 		| STORELOCDEREF(int pos)
 		| STOREVARRDEEF(int scope, int pos)
-		| LOADVARDYN()
-		| STOREVARDYN()
 		;
 	

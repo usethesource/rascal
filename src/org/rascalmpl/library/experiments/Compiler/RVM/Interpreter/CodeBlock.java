@@ -31,7 +31,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next1;
@@ -43,7 +42,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.R
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
@@ -344,15 +342,7 @@ public class CodeBlock {
 	public CodeBlock LOADTYPE(Type type) {
 		return add(new LoadType(this, getTypeConstantIndex(type)));
 	}
-	
-	public CodeBlock LOADVARDYN() {
-		return add(new LoadVarDyn(this));
-	}
-	
-	public CodeBlock STOREVARDYN() {
-		return add(new StoreVarDyn(this));
-	}
-	
+		
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;

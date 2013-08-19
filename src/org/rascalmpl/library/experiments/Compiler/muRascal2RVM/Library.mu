@@ -148,10 +148,10 @@ function MATCH_PAT_IN_LIST[1, 3, pat, subject, start, cpat]{
   
 } 
  
-function MATCH_VAR_IN_LIST[1, 5, name, scopeId, pos, subject, start, n]{
+function MATCH_VAR_IN_LIST[1, 5, name, subject, start, n]{
     n = start;
     while(prim("less_num_num", n, prim("size_list", subject))){
-        var(name, scopeId, pos) = prim("sublist", subject, start, prim("subtraction_num_num", n, start));
+        deref name = prim("sublist", subject, start, prim("subtraction_num_num", n, start));
         yield [true, n];
         n = prim("addition_num_num", n, 1);
      };
