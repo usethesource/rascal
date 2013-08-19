@@ -40,7 +40,7 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
                												}
                case preVar("true") 							=> muCon(true)
                case preVar("false") 						=> muCon(false)
-     	       case preVar(str name) 						=> (name in global_functions)  ? muFun(name) : muLoc(name , vardefs[name])
+     	       case preVar(str name) 						=> (name in global_functions)  ? muFun(name) : muLoc(name, vardefs[name])
      	       case preAssignLocList(str name1, str name2, MuExp exp1) 	
      	       												=> muCallPrim("assign_pair", [muCon(vardefs[name1]), muCon(vardefs[name2]), exp1])
      	       
@@ -48,6 +48,10 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
      	       case preList(list[MuExp] exps)				=> muCallPrim("make_list", exps)
      	       case preSubscript(MuExp lst, MuExp index)	=> muCallPrim("subscript_list_int", [lst, index])
       	       case preIfthen(cond,thenPart) 				=> muIfelse(cond,thenPart, [])
+      	       
+      	       case preLocRef(str name)                     => muLocRef(name, vardefs[name])
+      	       case preRefLoc(str name)                     => muRefLoc(name, vardefs[name])
+      	       case preAssignLocRef(str name, MuExp exp)    => muAssignLocRef(name, vardefs[name], exp)
             };
       };      
 }

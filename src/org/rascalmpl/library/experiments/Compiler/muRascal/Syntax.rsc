@@ -43,9 +43,14 @@ syntax Exp  =
 //			| muFun: 		FConst id
 //			| muConstr: 	FConst id
 			
-		    | muLoc: 		Identifier id ":" Integer pos
-//			| muVar: 		Identifier id ":" Integer scope ":" Integer pos
+		    | muLoc: 		Identifier id >> ":" ":" Integer pos
+			| muVar: 		Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos
+			
 			| muVarDyn: 	"var" "(" Exp idExp "," Exp scopeExp "," Exp posExp ")"
+			
+			// call-by-reference: uses of variables that refer to a value location in contrast to a value
+			| preLocRef:    "&" Identifier id
+			| muVarRef:     "&" Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos
 			
 			> muCallPrim: 	"prim" "(" String name "," {Exp ","}+ args ")"
 			
@@ -55,9 +60,13 @@ syntax Exp  =
 			> muReturn: 	"return"
 			
 		 	> preAssignLoc:	Identifier id "=" Exp exp
-//			> muAssign: 	Identifier id ":" Integer scope ":" Integer pos "=" Exp exp
+			> muAssign: 	Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos "=" Exp exp
+			
 			> muAssignDyn: 	"var" "(" Exp idExp "," Exp scopeExp "," Exp posExp ")" "=" Exp exp
-//			> muAssignRef: 	Identifier id ":" Identifier scope ":" Identifier pos "=" Exp exp
+			
+			// call-by-reference: assignment 
+			| preAssignLocRef: "&" Identifier id "=" Exp exp
+			> muAssignRef: 	   "&" Identifier id >> ":" ":" Identifier scope >> ":" ":" Identifier pos "=" Exp exp
 			
 		
 			| muIfelse: 	"if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
@@ -76,6 +85,11 @@ syntax Exp  =
 			
 			| muYield: 		"yield"  Exp exp 
 			> muYield: 		"yield"
+			
+			// call-by-reference: expressions that return a value location
+			| preRefLoc:     "ref" Identifier id
+			| muRefVar:      "ref" Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos
+			
 			| bracket		"(" Exp exp ")"
 			;
 
@@ -83,7 +97,8 @@ keyword Keywords =
               "module" | "function" | "return" | "get" | "var" |
 			  "prim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "hasNext" |
-              "type"
+              "type" |
+              "ref"
              ;
              
 // Syntactic features that will be removed by the preprocessor. 

@@ -11,6 +11,8 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 loc Example1 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example1.rsc|;
 loc Example2 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example2.rsc|;
 loc muExample3 = |std:///experiments/Compiler/muRascal2RVM/TypeConExample.mu|;
+loc muExample4 = |std:///experiments/Compiler/muRascal2RVM/Coroutines.mu|;
+loc muExample5 = |std:///experiments/Compiler/muRascal2RVM/CallByReference.mu|;
 
 void run(){
   muP = r2mu(Example1);
@@ -29,7 +31,7 @@ void run(){
 }
 
 void runMu2rvm(){
-  muP = parse(muExample3);
+  muP = parse(muExample5);
   iprintln(muP);
   rvmP = mu2rvm(muP);
   iprintln(rvmP);

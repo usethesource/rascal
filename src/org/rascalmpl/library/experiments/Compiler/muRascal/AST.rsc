@@ -51,16 +51,21 @@ public data MuExp =
           	// Variables
           | muLoc(str name, int pos)							// Local variable, with position in current scope
           | muVar(str id, int scope, int pos)					// Variable: retrieve its value
-          | muVarDyn(MuExp idExp, MuExp scopeExp, MuExp posExp)			// Variable: retrieve its value; scope and position are dynamically computed
-          | muVarRef(str id, int scope, int pos) 				// Call-by-reference: a variable that refers to a value location
-          | muRefVar(str id, int scope, int pos) 				// Call-by-reference: expression that returns a value location
+          
+          | muVarDyn(MuExp idExp, MuExp scopeExp, MuExp posExp)	// Variable: retrieve its value; scope and position are dynamically computed
+          
+          | muLocRef(str name, int pos) 				        // Call-by-reference: a variable that refers to a value location
+          | muVarRef(str name, int scope, int pos)
+          
+          | muRefLoc(str name, int pos) 				        // Call-by-reference: expression that returns a value location
+          | muRefVar(str name, int scope, int pos)
              
           | muTypeCon(Symbol tp)								// Type constant
      
      		// Call/return
      		
           | muCall(MuExp fun, list[MuExp] args)					// Call a function
-          | muCall(str fname, list[MuExp] args)					// Call a named function: usually from the muRascal runtime library
+//          | muCall(str fname, list[MuExp] args)					// Call a named function: usually from the muRascal runtime library
           | muCallConstr(str cname, list[MuExp] args) 			// Call a constructor
           | muCallPrim(str name, list[MuExp] exps)				// Call a primitive function with variable number of arguments
           | muReturn()											// Return from function without value
@@ -70,9 +75,11 @@ public data MuExp =
               
           | muAssignLoc(str id, int pos, MuExp exp)				// Assign a value to a local variable
           | muAssign(str id, int scope, int pos, MuExp exp)		// Assign a value to a variable
+          
           | muAssignDyn(MuExp idExp, MuExp scopeExp, MuExp posExp, MuExp exp)		// Assign a value to a variable; scope and position are computed
-          | muAssignRef(str id, int scope, int pos, MuExp exp) 	// Call-by-reference assignment: 
-          														// the left-hand side is a variable that refers to a value location
+          
+          | muAssignLocRef(str id, int pos, MuExp exp)          // Call-by-reference assignment:
+          | muAssignRef(str id, int scope, int pos, MuExp exp) 	// the left-hand side is a variable that refers to a value location
           														
           | muIfelse(MuExp cond, list[MuExp] thenPart,			// If-then-else expression
           						 list[MuExp] elsePart)
@@ -128,4 +135,9 @@ public data MuExp =
             | preAssignLoc(str name, MuExp exp)
             | preAssignLocList(str name1, str name2, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart)
+            
+            | preLocRef(str name)
+            | preRefLoc(str name)
+            
+            | preAssignLocRef(str name, MuExp exp)
            ;

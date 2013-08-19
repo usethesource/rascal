@@ -131,14 +131,14 @@ public class RVM {
 				}
 				int op = instructions[pc++];
 
-				if (true) {
+				if (debug) {
 					int startpc = pc - 1;
 					for (int i = 0; i < sp; i++) {
-						//stdout.println("\t" + i + ": " + stack[i]);
-						System.out.println("\t" + i + ": " + stack[i]);
+						stdout.println("\t" + i + ": " + stack[i]);
+						//System.out.println("\t" + i + ": " + stack[i]);
 					}
-					//stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
-					System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+					//System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
 
 
@@ -333,7 +333,7 @@ public class RVM {
 						fun = functionStore.get(instructions[pc++]);
 						previousScope = cf;
 					} else {
-						throw new RuntimeException("PANIC: unexpected argument type when CALLDYN is executed");
+						throw new RuntimeException("PANIC: unexpected argument type when CALLDYN is executed: " + stack[sp - 1].getClass());
 					}
 						
 					instructions = fun.codeblock.getInstructions();
@@ -441,7 +441,7 @@ public class RVM {
 							fun = fun_instance.function;
 							previousScope = fun_instance.env;
 						} else {
-							throw new RuntimeException("PANIC: unexpected argument type when CREATEDYN is executed.");
+							throw new RuntimeException("PANIC: unexpected argument type when CREATEDYN is executed: " + src.getClass());
 						}
 					}
 					arity = instructions[pc++];
