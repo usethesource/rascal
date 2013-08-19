@@ -150,6 +150,20 @@ test bool tst() = [] := prim1("tail_list", [7]);
 //transitive_reflexive_closure_lrel,
 //transitive_reflexive_closure_rel;
 
+test bool coroutines() {
+    MuModule m = parse(|std:///experiments/Compiler/muRascal2RVM/Coroutines.mu|);  
+	rvmP = mu2rvm(m);
+	<res, tm> = executeProgram(rvmP, true, 1);
+	return res == 100;
+}
+
+test bool callbyreference() {
+    MuModule m = parse(|std:///experiments/Compiler/muRascal2RVM/CallByReference.mu|);  
+	rvmP = mu2rvm(m);
+	<res, tm> = executeProgram(rvmP, true, 1);
+	return res == 547;
+}
+
 void main(){
     MuModule m = parse(Library);
     
