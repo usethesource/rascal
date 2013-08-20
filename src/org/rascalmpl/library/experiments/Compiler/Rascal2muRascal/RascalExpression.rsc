@@ -24,6 +24,14 @@ public set[int] functionScopes = {};
 public set[int] constructorScopes = {};
 public set[int] variableScopes = {};
 
+public void resetScopeExtraction() {
+	uid2addr = ();
+	loc2uid = ();
+	functionScopes = {};
+	constructorScopes = {};
+	variableScopes = {};
+}
+
 // Get the type of an expression
 Symbol getType(loc l) = config.locationTypes[l];
 
