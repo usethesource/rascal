@@ -78,27 +78,29 @@ void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = t
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   { throw("abstract"); }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
-  ftypes = getFunctionType("<signature.name>");
-  if({ ftype } := ftypes){
-	  formals = signature.parameters.formals.formals;
-	  lformals = [f | f <- formals];
-	  scope = getFunctionScope("<signature.name>");
-	  functions_in_module += [muFunction("<signature.name>", scope, size(lformals), getScopeSize(scope), [muReturn(translate(expression)[0])])];
-  } else
-      throw "overloaded function <signature.name>: <ftypes>";
+  //ftypes = getFunctionType("<signature.name>");
+  //if({ ftype } := ftypes){
+  ftype = getFunctionType(fd@\loc);
+  formals = signature.parameters.formals.formals;
+  lformals = [f | f <- formals];
+  scope = loc2uid[fd@\loc]; //getFunctionScope("<signature.name>");
+	    
+  functions_in_module += [muFunction("<signature.name>", scope, size(lformals), getScopeSize(scope), [muReturn(translate(expression)[0])])];
+  //} else
+  //    throw "overloaded function <signature.name>: <ftypes>";
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
-  ftypes = getFunctionType("<signature.name>");
-  if({ ftype } := ftypes){
-	  formals = signature.parameters.formals.formals;
-	  lformals = [f | f <- formals];
-	  
-	  tbody = [*translate(stat) | stat <- body.statements ];
-	  scope = getFunctionScope("<signature.name>");
-	  functions_in_module += [muFunction("<signature.name>", scope, size(lformals), getScopeSize(scope), tbody)];
-  } else
-      throw "overloaded function <signature.name>: <ftypes>"; 
+  //ftypes = getFunctionType("<signature.name>");
+  //if({ ftype } := ftypes){
+  ftype = getFunctionType(fd@\loc);    
+  formals = signature.parameters.formals.formals;
+  lformals = [f | f <- formals];
+  tbody = [*translate(stat) | stat <- body.statements ];
+  scope = loc2uid[fd@\loc]; //getFunctionScope("<signature.name>");
+  functions_in_module += [muFunction("<signature.name>", scope, size(lformals), getScopeSize(scope), tbody)];
+  //} else
+  //    throw "overloaded function <signature.name>: <ftypes>"; 
 }
 
 str translateFun( Signature signature, str body){

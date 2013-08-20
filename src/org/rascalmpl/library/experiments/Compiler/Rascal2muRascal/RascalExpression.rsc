@@ -37,10 +37,27 @@ str getOuterType(Expression e) {
  return tp;
 }
 
+/* 
+* CHANGED: 
+* Getting a function type by name is problematic in case of nested functions,
+* as fcvEnv does not contain nested functions;
+* Additionally, it does not allow getting types of functions that build an overloaded function;   
+*/
 // Get the type of a declared function
 set[Symbol] getFunctionType(str name) { 
    r = config.store[config.fcvEnv[RSimpleName(name)]].rtype; 
    return overloaded(alts) := r ? alts : {r};
+}
+
+// Alternatively, the type of a function can be looked up by @loc
+Symbol getFunctionType(loc l) { 
+   int uid = loc2uid[l];
+   fun = config.store[uid];
+   if(function(_,Symbol rtype,_,_,_,_) := fun) {
+       return rtype;
+   } else {
+       throw "Looked up a function, but got: <fun> instead";
+   }
 }
 
 Symbol getClosureType(loc l) {
@@ -49,7 +66,7 @@ Symbol getClosureType(loc l) {
    if(closure(Symbol rtype,_,_) := cls) {
        return rtype;
    } else {
-       throw "Looked up for a closure, but got: <cls> instead";
+       throw "Looked up a closure, but got: <cls> instead";
    }
 }
 
@@ -153,7 +170,8 @@ void extractScopes(){
             uid2addr[topdecls[i]] = <0, i>;
     }
     for(fuid <- functionScopes){
-        innerScopes = {fuid} + containmentPlus[fuid];
+        innerScopes = {fuid} + { inner | inner <- containmentPlus[fuid], 
+        									inner notin functionScopes };
         decls = toList(declares[innerScopes]);
         //println("Scope <fuid> has inner scopes = <innerScopes>");
         //println("Scope <fuid> declares <decls>");
