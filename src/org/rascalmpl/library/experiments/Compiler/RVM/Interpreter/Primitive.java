@@ -180,7 +180,26 @@ public enum Primitive {
 
 	public static int addition_list_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IList) stack[sp - 2]).concat((IList) stack[sp - 1]);
+		if(stack[sp - 2] instanceof IList){
+			stack[sp - 2] = ((IList) stack[sp - 2]).concat((IList) stack[sp - 1]);
+		} else {
+			if(stack[sp - 1] instanceof IList){
+				@SuppressWarnings("unchecked")
+				List<Object> lst1 = (List<Object>) stack[sp - 2];
+				IList lst2 = (IList) stack[sp - 1];
+				for(int i = 0; i < lst2.length(); i++){
+					lst1.add(lst2.get(i));
+				}
+				stack[sp - 2] = lst1;
+			} else {
+				@SuppressWarnings("unchecked")
+				List<Object> lst1 = (List<Object>) stack[sp - 2];
+				@SuppressWarnings("unchecked")
+				List<Object> lst2 = (List<Object>) stack[sp - 1];
+				lst1.addAll(lst2);
+				stack[sp - 2] = lst1;
+			}
+		}
 		return sp - 1;
 	}
 	
@@ -192,7 +211,14 @@ public enum Primitive {
 	
 	public static int addition_list_elm(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
+		if(stack[sp - 2] instanceof IList){
+			stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
+		} else {
+			@SuppressWarnings("unchecked")
+			List<Object> lst = (List<Object>) stack[sp - 2];
+			lst.add(stack[sp - 1]);
+			stack[sp - 2] = lst;
+		}
 		return sp - 1;
 	}
 	
@@ -274,7 +300,14 @@ public enum Primitive {
 	 */
 	public static int appendAfter(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
+		if(stack[sp - 2] instanceof IList){
+			stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
+		} else {
+			@SuppressWarnings("unchecked")
+			List<Object> lst = (List<Object>) stack[sp - 2];
+			lst.add(stack[sp - 1]);
+			stack[sp - 2] = lst;
+		}
 		return sp - 1;
 	}
 	
@@ -564,10 +597,18 @@ public enum Primitive {
 	 */
 	public static int sublist(Object[] stack, int sp, int arity) {
 		assert arity == 3;
-		IList lst = (IList) stack[sp - 3];
-		int offset = ((IInteger) stack[sp - 2]).intValue();
-		int length = ((IInteger) stack[sp - 1]).intValue();
-		stack[sp - 3] = lst.sublist(offset, length);
+		if(stack[sp - 3] instanceof IList){
+			IList lst = (IList) stack[sp - 3];
+			int offset = ((IInteger) stack[sp - 2]).intValue();
+			int length = ((IInteger) stack[sp - 1]).intValue();
+			stack[sp - 3] = lst.sublist(offset, length);
+		} else {
+			@SuppressWarnings("unchecked")
+			List<Object> lst = (List<Object>) stack[sp - 3];
+			int offset = ((IInteger) stack[sp - 2]).intValue();
+			int length = ((IInteger) stack[sp - 1]).intValue();
+			stack[sp - 3] = lst.subList(offset, offset + length);
+		}
 		return sp - 2;
 	}
 	
@@ -688,7 +729,11 @@ public enum Primitive {
 	
 	public static int subtraction_list_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
+		if(stack[sp - 2] instanceof IList){
+			stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
+		} else {
+			// TODO
+		}
 		return sp - 1;
 	}
 	
@@ -715,7 +760,7 @@ public enum Primitive {
 			stack[sp - 1] = lst.sublist(1, lst.length() - 1);
 		} else {
 			List<?> lst =  ((List<?>) stack[sp - 1]);
-			stack[sp - 1] = lst.subList(1, Math.max(1, lst.size() - 1));
+			stack[sp - 1] = lst.subList(1, lst.size());
 		}
 		return sp;
 	}
