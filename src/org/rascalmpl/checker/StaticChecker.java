@@ -138,4 +138,8 @@ public class StaticChecker {
 	public void addClassLoader(ClassLoader classLoader) {
 		eval.addClassLoader(classLoader);
 	}
+
+  public Evaluator getEvaluator() {
+    return eval;
+  }
 }
