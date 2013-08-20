@@ -86,7 +86,7 @@ Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.jetty.webapp,
  org.eclipse.jetty.continuation,
  com.ibm.icu,
- jigll,
+ iguana,
  org.junit,
  org.eclipse.jdt.core
 Import-Package: javax.servlet,
