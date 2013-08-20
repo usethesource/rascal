@@ -127,33 +127,36 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
      while(true){
      	// Move forward
      	 forward = hasNext(matcher);
-     	 prim("println", ["AT HEAD", p, cursor, forward]);
+     	 // prim("println", ["At head", p, cursor, forward]);
          while(prim("and_bool_bool", forward, hasNext(matcher))){
-            prim("println", ["hasNext=true", p, cursor]);
         	[success, nextCursor] = next(matcher);
             if(success){ 
                forward = true;
                cursor = nextCursor;
-               prim("println", ["SUCCESS", p, cursor]);
+               // prim("println", ["SUCCESS", p, cursor]);
                if(prim("and_bool_bool",
                        prim("equals_num_num", p, patlen1),
                        prim("equals_num_num", cursor, sublen))) {
-                   prim("println", ["YIELD", p, cursor]);
+                   // prim("println", ["*** YIELD", p, cursor]);
               	   yield true;
-              	   prim("println", ["BACK FROM YIELD", p, cursor]); 
+              	   // prim("println", ["Back from yield", p, cursor]); 
                } else {
-                 if(prim("less_num_num", p, patlen)){
+                 if(prim("less_num_num", p, patlen1)){
                    p = prim("addition_num_num", p, 1);
-                   prim("println", ["FORWARD", p, cursor]);
+                   // prim("println", ["Forward", p, cursor]);
                    matcher  = init(get pats[p], subject, cursor,  prim("subtraction_num_num", sublen, cursor));
                    matchers = prim("addition_elm_list", matcher, matchers);
                  } else {
-                   prim("println", ["BACKWARD", p, cursor]);
-                   forward = false;
+                   if(hasNext(matcher)){
+                     // explore more alternatives
+                   } else {
+                      // prim("println", ["Backward", p, cursor]);
+                      forward = false;
+                   };
                  };  
                };
             } else {
-              prim("println", ["no success, BACKWARD", p, cursor]);
+              // prim("println", ["No success, Backward", p, cursor]);
               forward = false;
             };
          }; 
@@ -163,13 +166,12 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
          } else {  
            if(prim("greater_num_num", p, 0)){
                p        = prim("subtraction_num_num", p, 1);
-               prim("println", ["PREVIOUS", p, cursor,  "size matchers=", prim("size_list", matchers)]);
+               // prim("println", ["Previous", p, cursor]);
                matchers = prim("tail_list", matchers);
-               prim("println", ["size matchers=", prim("size_list", matchers)]);
                matcher  = prim("head_list", matchers);
                forward  = true;
            } else {
-         	   prim("println", ["RETURN FALSE", p, cursor]);
+         	   // prim("println", ["RETURN FALSE", p, cursor]);
                return false;
            };
          };
@@ -207,7 +209,7 @@ function MATCH_MULTIVAR_IN_LIST[1, 4, varref, subject, start, available, len]{
     len = 0;
     while(prim("less_equal_num_num", len, available)){
         deref varref = prim("sublist", subject, start, len);
-        prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_num_num", start, len)]);
+        // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_num_num", start, len)]);
         yield [true, prim("addition_num_num", start, len)];
         len = prim("addition_num_num", len, 1);
      };
