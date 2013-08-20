@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -46,6 +47,7 @@ public enum Primitive {
 	addition_set_set,
 	addition_str_str,
 	addition_tuple_tuple,
+	assign_subscript_list_int,
 	assign_pair,			// Used by muRascal implode
 	composition_lrel_lrel,
 	composition_rel_rel,
@@ -54,6 +56,7 @@ public enum Primitive {
 	equals_num_num,
 	equals_str_str,
 	equivalent_bool_bool,
+	get_name_and_children,
 	greater_num_num,
 	greater_equal_num_num,
 	head_list,
@@ -67,6 +70,8 @@ public enum Primitive {
 	make_tuple,
 	negative,
 	not_bool,
+	not_equal,
+	not_equals_num_num,
 	or_bool_bool,
 	println,
 	product_num_num,
@@ -311,6 +316,15 @@ public enum Primitive {
 		return sp - 1;
 	}
 	
+	public static int assign_subscript_list_int(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		@SuppressWarnings("unchecked")
+		List<Object> lst = (List<Object>) stack[sp - 3];
+		int index = ((IInteger) stack[sp - 2]).intValue();
+		lst.set(index, stack[sp - 1]);
+		stack[sp - 3] = stack[sp -1];
+		return sp - 2;
+	}
 	
 	/*
 	 * assignPair: used by muRascal Implode for resolving [v1, v2] = exp
@@ -408,6 +422,24 @@ public enum Primitive {
 	/*
 	 * getAnnotation
 	 */
+	
+	/*
+	 * get_name_and_children
+	 */
+	public static int get_name_and_children(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		INode nd = (INode) stack[sp - 1];
+		String name = nd.getName();
+		Iterable<IValue> childs = nd.getChildren();
+		List<Object> elems = new ArrayList<Object>();
+		elems.add(vf.string(name));
+		for(IValue c : childs){
+			elems.add(c);
+		}
+		stack[sp -1] =  elems;
+		return sp;
+	}
+	
 	/*
 	 * greaterThan
 	 */
@@ -584,10 +616,11 @@ public enum Primitive {
 	 */
 	public static int size_list(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		if(stack[sp -1] instanceof IList){
+		if(stack[sp - 1] instanceof IList){
 			stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
 		} else {
-			stack[sp - 1] = vf.integer(((List<?>) stack[sp - 1]).size());
+			IInteger n = vf.integer(((List<?>) stack[sp - 1]).size());
+			stack[sp - 1] = n;
 		}
 		return sp;
 	}
@@ -629,6 +662,22 @@ public enum Primitive {
 		assert arity == 1;
 		stack[sp - 1] = ((IBool) stack[sp - 1]).not();
 		return sp;
+	}
+	
+	/*
+	 * not_equal
+	 */
+	
+	public static int not_equal(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 1] = vf.bool(!((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]));
+		return sp -1;
+	}
+	
+	public static int not_equals_num_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
+		return sp - 1;
 	}
 	
 	/*
