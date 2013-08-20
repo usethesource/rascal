@@ -26,7 +26,7 @@ void run(){
   iprintln(rvmP.declarations["main"]);
  // iprintln(rvmP);
   
- <v, t> = executeProgram(rvmP, true, 1);
+ <v, t> = executeProgram(rvmP, false, 1);
   println("Result = <v>, [<t> msec]");
    return;
 }

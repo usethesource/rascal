@@ -19,12 +19,12 @@ list[MuExp] translatePat(p:(Pattern) `<IntegerLiteral n>`) = [ muCreate(muFun("M
 list[MuExp] translatePat(p:(Pattern) `<StringLiteral s>`, Expression subject) =   [ muCreate(muFun("MATCH_STR"), translate(b)) ];
      
 list[MuExp] translatePat(p:(Pattern) `<QualifiedName name>`) {
-   <scopeId, pos> = getVariableScope("<name>", p@\loc);
+   <scopeId, pos> = getVariableScope("<name>", name@\loc);
    return [ muCreate(muFun("MATCH_VAR"), [muVarRef("<name>", scopeId, pos)]) ];
 } 
      
 list[MuExp] translatePat(p:(Pattern) `<Type tp> <Name name>`){
-   <scopeId, pos> = getVariableScope("<name>", p@\loc);
+   <scopeId, pos> = getVariableScope("<name>", name@\loc);
    return [ muCreate(muFun("MATCH_VAR"), [muVarRef("<name>", scopeId, pos)]) ];
 }  
 
@@ -90,7 +90,7 @@ default list[MuExp] translatePat(Pattern p) { throw "Pattern <p> cannot be trans
 // Translate patterns as element of a list pattern
 
 list[MuExp] translatePatAsListElem(p:(Pattern) `<QualifiedName name>`) {
-   <scopeId, pos> = getVariableScope("<name>", p@\loc);
+   <scopeId, pos> = getVariableScope("<name>", name@\loc);
    return [ muCreate(muFun("MATCH_VAR_IN_LIST"), [muVarRef("<name>", scopeId, pos)]) ];
 } 
 
