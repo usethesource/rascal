@@ -183,7 +183,7 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
 
 function MATCH_PAT_IN_LIST[1, 4, pat, subject, start, available, cpat]{
     if(prim("less_equal_num_num", available, 0)){
-       return false;
+       return [false, start];
     };   
     cpat = init(pat, get subject[start]);
     
@@ -196,6 +196,9 @@ function MATCH_PAT_IN_LIST[1, 4, pat, subject, start, available, cpat]{
 } 
 
 function MATCH_VAR_IN_LIST[1, 4, varref, subject, start, available]{
+   if(prim("less_equal_num_num", available, 0)){
+       return [false, start];
+   }; 
    deref varref =  get subject[start];
    return [true, prim("addition_num_num", start, 1)];
 }
