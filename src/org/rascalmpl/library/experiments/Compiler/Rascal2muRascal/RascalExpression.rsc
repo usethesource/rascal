@@ -128,7 +128,7 @@ void extractScopes(){
         case function(_,_,_,inScope,_,src): { 
         									  functionScopes += {uid}; 
                                               declares += {<inScope, uid>}; 
-                                              containment += {<inScope, uid>}; 
+                                              // containment += {<inScope, uid>}; 
                                               loc2uid[src] = uid;
                                               for(l <- config.uses[uid])
                                                   loc2uid[l] = uid;
@@ -170,8 +170,7 @@ void extractScopes(){
             uid2addr[topdecls[i]] = <0, i>;
     }
     for(fuid <- functionScopes){
-        innerScopes = {fuid} + { inner | inner <- containmentPlus[fuid], 
-        									inner notin functionScopes };
+        innerScopes = {fuid} + containmentPlus[fuid];
         decls = toList(declares[innerScopes]);
         //println("Scope <fuid> has inner scopes = <innerScopes>");
         //println("Scope <fuid> declares <decls>");
