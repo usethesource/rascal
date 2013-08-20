@@ -150,7 +150,13 @@ public class GrammarToJigll {
 				}
 				symbols.remove(1);
 				return ConditionFactory.notMatch(symbols.toArray(new Symbol[] {}));
-				
+			
+		  default:
+				  return ConditionFactory.notMatch(new Symbol[] { getSymbol(symbol) });
+
+		  // TODO: optimize for the case where symbol defines a finite set of strings
+			// TODO: keywords will dissappear from Rascal
+/*
 			case "keywords":
 				List<Keyword> keywords = new ArrayList<>();
 				IMap definitions = (IMap) rascalGrammar.get("rules");
@@ -166,7 +172,7 @@ public class GrammarToJigll {
 				
 			default:
 				throw new RuntimeException(symbol.getName() + " is not a supported in delete set.");
-			
+	*/		
 		}
 	}
 	
@@ -437,13 +443,18 @@ public class GrammarToJigll {
 					IConstructor precede = getSymbolCons((IConstructor) condition);
 					list.add(getNotPrecede(precede));
 					break;
-					
+
+				case "end-of-line":
+				  list.add(ConditionFactory.endOfLine());
+				  
+				case "start-of-line":
 					
 				case "precede":
 					break;
 					
 				case "except":
 					break;
+					
 					
 				default:
 					throw new RuntimeException("Unsupported conditional " + symbol);
