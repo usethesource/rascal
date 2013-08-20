@@ -54,6 +54,11 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	@Override
+	protected boolean hasMemoization() {
+		return false;
+	}
+	
+	@Override
 	public boolean isDefault() {
 		return true;
 	}

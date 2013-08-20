@@ -920,7 +920,7 @@ public CheckResult checkExp(Expression exp:(Expression)`type ( <Expression es> ,
 public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, Configuration c) {
   set[Symbol] failures = { };
   
-  for ((ConcreteHole) `\<<Sym s> <Name n>\>` <- concrete.parts) {
+  for (hole((ConcreteHole) `\<<Sym s> <Name n>\>`) <- concrete.parts) {
     <c, rt> = convertAndExpandSymbol(s, c);
     if (isFailType(rt)) failures += t1;  
     
@@ -3026,13 +3026,13 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 }
 
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
-  psList = for ((ConcreteHole) `\<<Sym sym> <Name n>\>` <- concrete.parts) {
+  psList = for (hole((ConcreteHole) `\<<Sym sym> <Name n>\>`) <- concrete.parts) {
     <c, rt> = resolveSorts(sym2symbol(sym),sym@\loc,c);
     append typedNameNode(convertName(n), n@\loc, rt)[@at = n@\loc];
   }
   
-  <c, sym> = resolveSorts(sym2symbol(concrete.symbol),pat.symbol@\loc, c);
-  return <c, concreteSyntaxNode(sym)>;
+  <c, sym> = resolveSorts(sym2symbol(concrete.symbol),concrete.symbol@\loc, c);
+  return <c, concreteSyntaxNode(sym,psList)[@at = pat@\loc]>;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> )`, Configuration c) { 
     < c, pti > = extractPatternTree(p,c);
@@ -3138,10 +3138,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             for (idx <- index(ptns), multiNameNode(n) := ptns[idx] || spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx]) {
             	if (spliceNodePlus(_,_,rt) := ptns[idx] || spliceNodeStar(_,_,rt) := ptns[idx]) {
 	                if (RSimpleName("_") == n) {
-                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+                        c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
 	                } else {
-	                    c = addVariable(c, n, true, ptns[idx]@at, \set(rt));
+	                    c = addVariable(c, n, true, ptns[idx]@at, \list(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } 
             	} else {
@@ -5115,7 +5115,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
             list[Symbol] targs = [ ];
             for (varg <- vargs) { < c, vargT > = convertAndExpandTypeArg(varg, c); targs = targs + vargT; } 
             cn = convertName(vn);
-            c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,targs));       
+            c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,getSimpleName(cn),targs));       
         }
     }
     
@@ -5466,7 +5466,7 @@ public Configuration importConstructor(RName conName, UserType adtType, list[Typ
     rt = c.store[getOneFrom(invert(c.definitions)[adtAt])].rtype;
     list[Symbol] targs = [ ];
     for (varg <- argTypes) { < c, vargT > = convertAndExpandTypeArg(varg, c); targs = targs + vargT; } 
-    return addConstructor(c, conName, at, Symbol::\cons(rt,targs));         
+    return addConstructor(c, conName, at, Symbol::\cons(rt,getSimpleName(conName),targs));         
 }
 
 @doc{Import a signature item: Constructor}
@@ -5600,7 +5600,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         sig = sigMap[modName];
         c.stack = currentModuleId + c.stack;
         for (item <- sig.privateVariables) c = importVariable(item.variableName, item.variableType, item.at, privateVis(), c);
-        for (item <- sig.publicFunctions) c = importFunction(item.functionName, item.sig, item.at, privateVis(), c);
+        for (item <- sig.privateFunctions) c = importFunction(item.functionName, item.sig, item.at, privateVis(), c);
         c.stack = tail(c.stack);
     }
     c = pushTiming(c, "Imported module signatures", dt1, now());
