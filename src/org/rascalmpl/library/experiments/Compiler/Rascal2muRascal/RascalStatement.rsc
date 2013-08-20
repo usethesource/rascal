@@ -5,6 +5,7 @@ import Prelude;
 import experiments::CoreRascal::ReductionWithEvalCtx::AST;
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
+import experiments::Compiler::Rascal2muRascal::RascalModule;
 
 import experiments::Compiler::muRascal::AST;
 
