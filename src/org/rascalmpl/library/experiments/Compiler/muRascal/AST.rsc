@@ -128,6 +128,7 @@ public data MuExp =
             | preSubscript(MuExp lst, MuExp idx)
             | preAssignLoc(str name, MuExp exp)
             | preAssignLocList(str name1, str name2, MuExp exp)
+            | preAssignSubscript(MuExp lst, MuExp idx, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart)
             
             | preLocDeref(str name)
