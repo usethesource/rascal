@@ -20,6 +20,6 @@ value main(list[value] args) {
 //  return   while(n < 10){ res = res + n; n = n + 1; }
 //	return if(1 == 2, 3 == 3){res = 20;} else {res = 30;}
     res = [];
-    for([*int x, 2] := [1, 2]){ res = res + [x]; }
+    for([*int x, 2] := [1, 3, 2]){ res = res + [x]; }
     return res;
 }
