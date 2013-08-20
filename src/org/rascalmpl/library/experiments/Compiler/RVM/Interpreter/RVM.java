@@ -3,17 +3,17 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
@@ -29,7 +29,7 @@ public class RVM {
 	private final ArrayList<Function> functionStore;
 	private final Map<String, Integer> functionMap;
 	
-	private final TypeFactory tf = TypeFactory.getInstance(); 
+	//private final TypeFactory tf = TypeFactory.getInstance(); 
 	private final TypeStore typeStore = new TypeStore();
 	private final Types types;
 	
@@ -79,7 +79,32 @@ public class RVM {
 		return types.symbolToType(symbol, typeStore);
 	}
 	
-	public Object executeProgram(String main, IValue[] args) {
+	
+	/**
+	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.
+	 * Note that various non-IValues can occur:
+	 * - Coroutine
+	 * - Reference
+	 * - FunctionInstance
+	 * - ArrayList (is converted to an IList)
+	 * @param result to be returned
+	 * @return converted result or an exception
+	 */
+	private IValue narrow(Object result){
+		if(result instanceof IValue)
+			return (IValue) result;
+		if(result instanceof List){
+			IListWriter w = vf.listWriter();
+			List<?> lst = (List<?>) result;
+			for(int i = 0; i < lst.size(); i++){
+				w.append(narrow(lst.get(i)));
+			}
+			return w.done();
+		}
+		throw new RuntimeException("PANIC: Cannot convert object back to IValue: " + result);
+	}
+	
+	public IValue executeProgram(String main, IValue[] args) {
 
 		// Finalize the instruction generation of all functions
 		for (Function f : functionStore) {
@@ -351,7 +376,7 @@ public class RVM {
 					cf = cf.previousCallFrame;
 					if(cf == null) {
 						if(returns)
-							return rval;
+							return narrow(rval);
 						else 
 							return vf.string("None");
 					}
@@ -370,7 +395,7 @@ public class RVM {
 							stdout.println(i + ": " + stack[i]);
 						}
 					}
-					return stack[sp - 1];
+					return narrow(stack[sp - 1]);
 
 				case Opcode.OP_PRINTLN:
 					stdout.println(((IString) stack[sp - 1]).getValue());
@@ -476,7 +501,7 @@ public class RVM {
 					coroutine.suspend(cf);
 					cf = prev;
 					if(op == Opcode.OP_YIELD1 && cf == null)
-						return rval;
+						return narrow(rval);
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
