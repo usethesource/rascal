@@ -85,6 +85,7 @@ public class RascalFunction extends NamedFunction {
 	private final Map<String, String> tags;
 	private static final String RESOURCE_TAG = "resource";
 	private static final String RESOLVER_TAG = "resolver";
+	private final boolean hasMemoization;
 
 	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
@@ -123,13 +124,29 @@ public class RascalFunction extends NamedFunction {
 			tags = parseTags((FunctionDeclaration) ast);
 			this.resourceScheme = getResourceScheme((FunctionDeclaration) ast);
 			this.resolverScheme = getResolverScheme((FunctionDeclaration) ast);
+			this.hasMemoization = checkMemoization((FunctionDeclaration) ast);
 		} else {
 			tags = new HashMap<String, String>();
 			this.resourceScheme = null;
 			this.resolverScheme = null;
+			this.hasMemoization = false;
 		}
 	}
 	
+	private boolean checkMemoization(FunctionDeclaration func) {
+		for (Tag tag : func.getTags().getTags()) {
+			if (Names.name(tag.getName()).equals("memo")) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	protected boolean hasMemoization() {
+		return hasMemoization;
+	}
+
 	@Override
 	public RascalFunction cloneInto(Environment env) {
 		RascalFunction rf = new RascalFunction(getAst(), getEval(), getName(), getFunctionType(), hasVarArgs(), isDefault(), isTest(), body, env, accumulators);
@@ -335,6 +352,9 @@ public class RascalFunction extends NamedFunction {
 	
 	@Override
   public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
+	Result<IValue> result = getMemoizedResult(actuals, keyArgValues);
+	if (result !=  null) 
+		return result;
     Environment old = ctx.getCurrentEnvt();
     AbstractAST oldAST = ctx.getCurrentAST();
     Stack<Accumulator> oldAccus = ctx.getAccumulators();
@@ -365,10 +385,14 @@ public class RascalFunction extends NamedFunction {
       if (size == 0) {
         try {
           bindKeywordArgs(keyArgValues);
-          return runBody();
+          result = runBody();
+          storeMemoizedResult(actuals,keyArgValues, result);
+          return result;
         }
         catch (Return e) {
-          return computeReturn(e);
+          result = computeReturn(e);
+          storeMemoizedResult(actuals,keyArgValues, result);
+          return result;
         }
       }
       
@@ -388,7 +412,9 @@ public class RascalFunction extends NamedFunction {
             // formals are now bound by side effect of the pattern matcher
             try {
               bindKeywordArgs(keyArgValues);
-              return runBody();
+              result = runBody();
+	          storeMemoizedResult(actuals,keyArgValues, result);
+	          return result;
             }
             catch (Failure e) {
               // backtrack current pattern assignment
@@ -417,7 +443,9 @@ public class RascalFunction extends NamedFunction {
       throw new MatchFailed();
     }
     catch (Return e) {
-      return computeReturn(e);
+      result = computeReturn(e);
+	  storeMemoizedResult(actuals,keyArgValues, result);
+	  return result;
     } 
     finally {
       if (callTracing) {

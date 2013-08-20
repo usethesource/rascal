@@ -1,0 +1,21 @@
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
+
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+
+public class StoreLocDeref extends Instruction {
+	
+	int pos;
+	
+	public StoreLocDeref(CodeBlock ins, int pos) {
+		super(ins, Opcode.STORELOCDEREF);
+		this.pos = pos;
+	}
+	
+	public String toString() { return "STORELOCDEREF " + pos; }
+	
+	public void generate(){
+		codeblock.addCode(opcode.getOpcode());
+		codeblock.addCode(pos);
+	}
+
+}

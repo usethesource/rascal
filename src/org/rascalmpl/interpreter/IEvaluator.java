@@ -86,6 +86,9 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public JavaBridge __getJavaBridge();
 	public TypeDeclarationEvaluator __getTypeDeclarator();
 	public IValueFactory __getVf();
+	public TraversalEvaluator __getCurrentTraversalEvaluator();
+	public void __pushTraversalEvaluator(TraversalEvaluator te);
+	public TraversalEvaluator __popTraversalEvaluator();
 
 	public void updateProperties();
 

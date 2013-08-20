@@ -24,6 +24,10 @@ data RName =
 @doc{Annotate abstract names with locations.}
 anno loc RName@at;
 
+@doc{Convert RName to a simple name}
+public str getSimpleName(RSimpleName(str name)) = name;
+public str getSimpleName(RCompoundName([ *str _, str name])) = name;
+
 @doc{Convert qualified names into an abstract representation.}
 public RName convertName(QualifiedName qn) {
 	if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 

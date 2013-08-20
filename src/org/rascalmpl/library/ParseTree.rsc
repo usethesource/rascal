@@ -131,7 +131,6 @@ data Production
 data Attr 
      = \assoc(Associativity \assoc) /*4*/
      | \bracket()
-     | \tag(value \tag) 
      ;
      
 data Associativity 

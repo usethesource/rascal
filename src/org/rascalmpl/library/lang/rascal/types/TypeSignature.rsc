@@ -196,15 +196,15 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 	RSignature signatureForSignature(Visibility vis, Signature s, loc sl) {
 		switch(s) {
 			case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps>` :
-				if ((Visibility)`public` := vis) 
-					sig.publicFunctions = sig.publicFunctions + FunctionSigItem(convertName(n), s, sl);
-				else
+				if ((Visibility)`private` := vis) 
 					sig.privateFunctions = sig.privateFunctions + FunctionSigItem(convertName(n), s, sl);
+				else
+					sig.publicFunctions = sig.publicFunctions + FunctionSigItem(convertName(n), s, sl);
 			case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps> throws <{Type ","}+ thrs>` :
-				if ((Visibility)`public` := vis) 
-					sig.publicFunctions = sig.publicFunctions + FunctionSigItem(convertName(n), s, sl);
-				else
+				if ((Visibility)`private` := vis) 
 					sig.privateFunctions = sig.privateFunctions + FunctionSigItem(convertName(n), s, sl);
+				else
+					sig.publicFunctions = sig.publicFunctions + FunctionSigItem(convertName(n), s, sl);
 			default: throw "signatureForSignature case not implemented for item <s>";
 		}
 		return sig;    
