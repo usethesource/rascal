@@ -5,6 +5,7 @@ import ParseTree;
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Priorities;
 import lang::rascal::grammar::definition::Regular;
+import lang::rascal::grammar::definition::Parameters;
 import IO;
 import Node;
 
@@ -18,6 +19,7 @@ public void generate(type[&T <: Tree] nont) {
   gr = grammar({nont.symbol}, nont.definitions, ());
   gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
   gr = literals(gr);
+  gr = expandParameterizedSymbols(gr);
   gr = addNotAllowedSets(gr);
   gr = prioAssocToChoice(gr);
  
@@ -28,8 +30,8 @@ public &T<:Tree jparse(type[&T <: Tree] nont, str input) {
   return jparse(nont.symbol, input);
 }
 
-public &T<:Tree jparse2(type[&T <: Tree] nont, str f) {
-  return jparse(nont.symbol, readFile(|file:///| + f));
+public &T<:Tree jparse2(type[&T <: Tree] nont, loc f) {
+  return jparse(nont.symbol, readFile(f));
 }
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
