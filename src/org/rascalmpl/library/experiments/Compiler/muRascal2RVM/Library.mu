@@ -182,6 +182,9 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
 // - available: the number of remianing, unmatched, elements in the subject list
 
 function MATCH_PAT_IN_LIST[1, 4, pat, subject, start, available, cpat]{
+    if(prim("less_equal_num_num", available, 0)){
+       return false;
+    };   
     cpat = init(pat, get subject[start]);
     
     while(hasNext(cpat)){
