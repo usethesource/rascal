@@ -65,7 +65,8 @@ list[MuExp] translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
 // Variable becomes pattern
 
 list[MuExp] translatePat(p:(Pattern) `<Name name> : <Pattern pattern>`) {
-    throw "variable becomes pattern";
+    <scopeId, pos> = getVariableScope("<name>", name@\loc);
+    return [muCreate(muFun("MATCH_VAR_BECOMES"), [muVarRef("<name>", scopeId, pos), *translatePat(pattern)])];
 }
 
 // asType pattern

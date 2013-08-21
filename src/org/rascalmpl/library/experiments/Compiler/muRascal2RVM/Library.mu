@@ -165,6 +165,16 @@ function MATCH_VAR[1, 2, varref, _subject]{
    deref varref = _subject;
    return true;
 }
+
+function MATCH_VAR_BECOMES[1, 3, varref, pat, _subject, cpat]{
+   cpat = init(pat, _subject);
+   while(hasNext(cpat)){
+     deref varref = _subject;
+     yield true;
+   };
+   return false;
+}
+
 // List matching
 
 function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list elements
