@@ -16,7 +16,7 @@ list[MuExp] translatePat(p:(Pattern) `<BooleanLiteral b>`) = [ muCreate(muFun("M
 
 list[MuExp] translatePat(p:(Pattern) `<IntegerLiteral n>`) = [ muCreate(muFun("MATCH_INT"), translate(n)) ];
      
-list[MuExp] translatePat(p:(Pattern) `<StringLiteral s>`, Expression subject) =   [ muCreate(muFun("MATCH_STR"), translate(b)) ];
+list[MuExp] translatePat(p:(Pattern) `<StringLiteral s>`) =   [ muCreate(muFun("MATCH_STR"), translate(s)) ];
      
 list[MuExp] translatePat(p:(Pattern) `<QualifiedName name>`) {
    <scopeId, pos> = getVariableScope("<name>", name@\loc);
@@ -37,8 +37,10 @@ list[MuExp] translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definit
 // callOrTree pattern
 
 list[MuExp] translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
-    throw "callOrTree pattern";
+   return [ muCreate(muFun("MATCH_CALL_OR_TREE"), [muCallPrim("make_object_list", translatePat(expression) + [ *translatePat(pat) | pat <- arguments ])]) ];
 }
+
+// muCreate(muFun("MATCH_STR"), [muCon("<name>")])
 
 // Set pattern
 
@@ -105,7 +107,7 @@ list[MuExp] translatePatAsListElem(p:(Pattern) `*<Type \type> <Name name>`) {
 }
 
 list[MuExp] translatePatAsListElem(p:(Pattern) `*<Name name>`) {
-   <scopeId, pos> = getVariableScope("<name>", p@\loc);
+   <scopeId, pos> = getVariableScope("<name>", name@\loc);
    return [ muCreate(muFun("MATCH_MULTIVAR_IN_LIST"), [muVarRef("<name>", scopeId, pos)]) ];
 } 
 
