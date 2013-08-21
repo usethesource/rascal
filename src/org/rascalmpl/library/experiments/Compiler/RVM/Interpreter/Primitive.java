@@ -461,9 +461,9 @@ public enum Primitive {
 		assert arity == 1;
 		ITuple tup = (ITuple) stack[sp - 1];
 		int nelem = tup.arity();
-		List<Object> elems = new ArrayList<Object>();
+		Object[] elems = new Object[nelem];
 		for(int i = 0; i < nelem; i++){
-			elems.add(tup.get(i));
+			elems[i] = tup.get(i);
 		}
 		stack[sp - 1] =  elems;
 		return sp;
@@ -621,7 +621,7 @@ public enum Primitive {
 		for (int i = arity - 1; i >= 0; i--) {
 			writer.insert((IValue) stack[sp - 2 - i]);
 		}
-		sp = sp - arity;
+		sp = sp - arity + 1;
 		stack[sp - 1] = writer.done();
 
 		return sp;
@@ -634,7 +634,7 @@ public enum Primitive {
 		for (int i = arity - 1; i >= 0; i--) {
 			elems[i] = (IValue) stack[sp - arity + i];
 		}
-		sp = sp - arity;
+		sp = sp - arity + 1;
 		stack[sp - 1] = vf.tuple(elems);
 		return sp;
 	}

@@ -159,11 +159,10 @@ public class RVM {
 				if (debug) {
 					int startpc = pc - 1;
 					for (int i = 0; i < sp; i++) {
-						stdout.println("\t" + i + ": " + stack[i]);
-						//System.out.println("\t" + i + ": " + stack[i]);
+						String val = (stack[i] == null) ? "null" : (stack[i] instanceof IValue) ? ((IValue) stack[i]).toString() : stack[i].toString();
+						stdout.println("\t" + i + ": " + val);
 					}
 					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
-					//System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
 
 
