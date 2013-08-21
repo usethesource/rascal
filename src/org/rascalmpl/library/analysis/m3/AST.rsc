@@ -1,4 +1,4 @@
-module experiments::m3::AST 
+module analysis::m3::AST 
 
 import Message;
 

@@ -1,6 +1,6 @@
-module experiments::m3::Registry
+module analysis::m3::Registry
 
-import experiments::m3::Core;
+import analysis::m3::Core;
 
 private map[str project, M3 model] projects = ();
 

@@ -1,4 +1,4 @@
-module experiments::m3::Facts
+module analysis::m3::Facts
 
 import experiments::m3::JavaM3;
 import Prelude;
