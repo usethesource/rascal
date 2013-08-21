@@ -260,3 +260,9 @@ public test bool test12() {
 		&& l2 == [<[],[1,2]>,<[1],[2]>,<[1,2],[]>]
 		&& l3 == l2;
 }
+
+data DATA0 = d1(int id) | d2(int id);
+public test bool test13() {
+	l = for(el <- [ d1(1), d2(2), d1(3), d2(4) ], d1(id) := el || d2(id) := el) append el;
+	return l == [ d1(1), d2(2), d1(3), d2(4) ];
+}
