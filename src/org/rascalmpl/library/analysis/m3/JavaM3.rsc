@@ -1,6 +1,6 @@
-module experiments::m3::JavaM3
+module analysis::m3::JavaM3
 
-extend experiments::m3::Core;
+extend analysis::m3::Core;
 
 data Modifiers
 	= \private()

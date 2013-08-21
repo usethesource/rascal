@@ -13,7 +13,7 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.library.experiments.m3.internal;
+package org.rascalmpl.library.analysis.m3.internal;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -74,7 +74,7 @@ public class JDT {
     	try {
     		CompilationUnit cu = this.getCompilationUnit(loc, true, javaVersion, eval);
     		
-    		M3Converter converter = new M3Converter(eval.getHeap().getModule("experiments::m3::JavaM3").getStore());
+    		M3Converter converter = new M3Converter(eval.getHeap().getModule("analysis::m3::JavaM3").getStore());
     		converter.set(this.project);
     		converter.set(cu);
     		converter.set(loc);
@@ -99,7 +99,7 @@ public class JDT {
 			CompilationUnit cu;
 			
 			cu = this.getCompilationUnit(loc, collectBindings.getValue(), javaVersion, eval);
-			ASTConverter converter = new ASTConverter(eval.getHeap().getModule("experiments::m3::AST").getStore(),
+			ASTConverter converter = new ASTConverter(eval.getHeap().getModule("analysis::m3::AST").getStore(),
 					collectBindings.getValue());
 			converter.set(this.project);
 			converter.set(cu);

@@ -1,4 +1,4 @@
-module experiments::m3::Core
+module analysis::m3::Core
 
 import Message;
 
