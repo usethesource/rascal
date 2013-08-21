@@ -19,10 +19,11 @@ import org.eclipse.jdt.core.dom.*;
 
 public class BindingsResolver {
 	
-	private String project;
+	private final String project = "";
 	private final boolean collectBindings;
 	
-	private final Map<URI, Integer> anonymousClassCounter = new HashMap<URI, Integer>();
+	private final Map<String, Integer> anonymousClassCounter = new HashMap<String, Integer>();
+	private final Map<String, String> resolvedAnonymousClasses = new HashMap<String, String>();
 	private final Map<URI, Integer> initializerCounter = new HashMap<URI, Integer>();
 	
 	BindingsResolver(boolean collectBindings) {
@@ -30,7 +31,7 @@ public class BindingsResolver {
 	}
 	
 	public void setProject(String project) {
-		this.project = project;
+		//this.project = project;
 	}
 	
 	public URI resolveBinding(ASTNode node) {
@@ -43,33 +44,26 @@ public class BindingsResolver {
 				return resolveBinding(((AnnotationTypeDeclaration) node).resolveBinding());
 			else if (node instanceof AnnotationTypeMemberDeclaration) 
 				return resolveBinding(((AnnotationTypeMemberDeclaration) node).resolveBinding());
-			else if (node instanceof AnonymousClassDeclaration) {
-				int anonCounter = 1;
-				ITypeBinding nodeBinding = ((AnonymousClassDeclaration) node).resolveBinding();
-				URI parent = getParent(nodeBinding);
-				if (anonymousClassCounter.containsKey(parent))
-					anonCounter = anonymousClassCounter.get(parent) + 1;
-				anonymousClassCounter.put(parent, anonCounter);
-				return resolveBinding(nodeBinding);
-			}
+			else if (node instanceof AnonymousClassDeclaration)
+				return resolveBinding(((AnonymousClassDeclaration) node).resolveBinding());
 			else if (node instanceof EnumConstantDeclaration) 
-				return resolveBinding(((EnumConstantDeclaration) node).resolveConstructorBinding());
+				return resolveBinding(((EnumConstantDeclaration) node).resolveVariable());
 			else if (node instanceof ClassInstanceCreation)
 				return resolveBinding(((ClassInstanceCreation) node).resolveConstructorBinding());
 			else if (node instanceof FieldAccess)
 				return resolveBinding(((FieldAccess) node).resolveFieldBinding());
 			else if (node instanceof MethodInvocation)
 				return resolveBinding(((MethodInvocation) node).resolveMethodBinding());
-			else if (node instanceof Name)
-				return resolveBinding(((Name) node).resolveBinding());
+			else if (node instanceof QualifiedName)
+				return resolveQualifiedName((QualifiedName) node);
+			else if (node instanceof SimpleName)
+				return resolveBinding(((SimpleName) node).resolveBinding());
 			else if (node instanceof SuperFieldAccess)
 				return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
 			else if (node instanceof SuperMethodInvocation)
 				return resolveBinding(((SuperMethodInvocation) node).resolveMethodBinding());
 			else if (node instanceof Expression)
 				return resolveBinding(((Expression) node).resolveTypeBinding());
-			else if (node instanceof ImportDeclaration) 
-				return resolveBinding(((ImportDeclaration) node).resolveBinding());
 			else if (node instanceof MemberRef) 
 				return resolveBinding(((MemberRef) node).resolveBinding());
 			else if (node instanceof MethodDeclaration)
@@ -94,6 +88,16 @@ public class BindingsResolver {
 				return resolveInitializer((Initializer) node);
 		}
 		return convertBinding("unknown", null, null, null);
+	}
+	
+	private URI resolveQualifiedName(QualifiedName node) {
+		URI parent = resolveBinding(node.getQualifier().resolveTypeBinding());
+		URI name = resolveBinding(node.getName());
+		
+		if (parent.getScheme().equals("java+array") && name.getScheme().equals("unresolved"))
+			return convertBinding("java+field", resolveBinding(node.getQualifier()).getPath() + "/" + node.getName().getIdentifier(), null, null);
+		
+		return name;
 	}
 	
 	private URI resolveInitializer(Initializer node) {
@@ -123,14 +127,14 @@ public class BindingsResolver {
 	private URI resolveBinding(IMethodBinding binding) {
 		if (binding == null)
 			return convertBinding("unresolved", null, null, null);
-		String signature = getPath(resolveBinding(binding.getDeclaringClass()));
+		String signature = resolveBinding(binding.getDeclaringClass()).getPath();
 		if (!signature.isEmpty())
-			signature = signature.concat(".");
+			signature = signature.concat("/");
 		String params = "";
 		for (ITypeBinding parameterType: binding.getParameterTypes()) {
 			if (!params.isEmpty())
 				params = params.concat(",");
-			params = params.concat(getPath(resolveBinding(parameterType)));
+			params = params.concat(getPath(resolveBinding(parameterType)).replaceAll("/", "."));
 		}
 		signature = signature.concat(binding.getName() + "(" + params + ")");
 		String scheme = "unknown";
@@ -145,42 +149,55 @@ public class BindingsResolver {
 	private URI resolveBinding(IPackageBinding binding) {
 		if (binding == null)
 			return convertBinding("unresolved", null, null, null);
-		return convertBinding("java+package", binding.getName(), null, null);
-	}
-	
-	private URI getParent(ITypeBinding binding) {
-		URI parent = resolveBinding(binding.getDeclaringMethod());
-		if (parent.getPath().isEmpty() || parent.getPath().equals("/"))
-			parent = resolveBinding(binding.getDeclaringClass());
-		return parent;
+		return convertBinding("java+package", binding.getName().replaceAll("\\.", "/"), null, null);
 	}
 	
 	private URI resolveBinding(ITypeBinding binding) {
 		if (binding == null)
 			return convertBinding("unresolved", null, null, null);
+		
 		String scheme = binding.isInterface() ? "java+interface" : "java+class";
 		String qualifiedName = binding.getQualifiedName();
 		
-		URI parent = getParent(binding);
-		
 		if (qualifiedName.isEmpty()) {
-			qualifiedName = parent.getPath();
-			if (!(binding.getName().isEmpty()))
-			qualifiedName += "." + binding.getName();
+			if (binding.getDeclaringMethod() != null)
+				qualifiedName = resolveBinding(binding.getDeclaringMethod()).getPath();
+			else if (binding.getDeclaringClass() != null)
+				qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath();
+			else
+				System.err.println("Should not happen");
 		}
+		
+		if (binding.isArray())
+			scheme = "java+array";
+		
+		if (binding.isPrimitive())
+			scheme = "java+primitiveType";
 		
 		if (binding.isWildcardType())
 			return convertBinding("unknown", null, null, null);
 		
+		if (binding.isLocal())
+			qualifiedName = qualifiedName.concat("/").concat(binding.getName());
+		
 		if (binding.isAnonymous()) {
-			String anonCounter = "";
-			if (anonymousClassCounter.containsKey(parent))
-				anonCounter = anonymousClassCounter.get(parent).toString();
-			qualifiedName += "$anonymous" + anonCounter;
+			String key = binding.getKey();
+			if (resolvedAnonymousClasses.containsKey(key))
+				qualifiedName = resolvedAnonymousClasses.get(key);
+			else {
+				int anonCounter = 1;
+				if (anonymousClassCounter.containsKey(qualifiedName))
+					anonCounter = anonymousClassCounter.get(qualifiedName) + 1;
+				else 
+					anonCounter = 1;
+				anonymousClassCounter.put(qualifiedName, anonCounter);
+				qualifiedName += "$anonymous" + anonCounter;
+				resolvedAnonymousClasses.put(key, qualifiedName);
+			}
 			scheme = "java+anonymousClass";
 		}
 		
-		return convertBinding(scheme, qualifiedName, null, null);
+		return convertBinding(scheme, qualifiedName.replaceAll("\\.", "/"), null, null);
 	}
 	
 	private URI resolveBinding(IVariableBinding binding) {
@@ -199,7 +216,9 @@ public class BindingsResolver {
 		}
 		
 		if (!qualifiedName.isEmpty())
-			qualifiedName = qualifiedName.concat(".");
+			qualifiedName = qualifiedName.concat("/");
+		else
+			return convertBinding("unresolved", null, null, null);
 		
 		String scheme = "java+variable";
 		if (binding.isField())
@@ -218,6 +237,7 @@ public class BindingsResolver {
 			path = "";
 		
 		try {
+			
 			binding = new URI(scheme, this.project, !(path.startsWith("/")) ? "/" + path : path, query, fragment);
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
