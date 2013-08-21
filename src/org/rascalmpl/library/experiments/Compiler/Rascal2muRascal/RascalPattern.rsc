@@ -17,6 +17,8 @@ list[MuExp] translatePat(p:(Pattern) `<BooleanLiteral b>`) = [ muCreate(muFun("M
 list[MuExp] translatePat(p:(Pattern) `<IntegerLiteral n>`) = [ muCreate(muFun("MATCH_INT"), translate(n)) ];
      
 list[MuExp] translatePat(p:(Pattern) `<StringLiteral s>`) =   [ muCreate(muFun("MATCH_STR"), translate(s)) ];
+
+// TODO: add other literal, or a single literal handler
      
 list[MuExp] translatePat(p:(Pattern) `<QualifiedName name>`) {
    <scopeId, pos> = getVariableScope("<name>", name@\loc);
@@ -37,10 +39,9 @@ list[MuExp] translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definit
 // callOrTree pattern
 
 list[MuExp] translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
-   return [ muCreate(muFun("MATCH_CALL_OR_TREE"), [muCallPrim("make_object_list", translatePat(expression) + [ *translatePat(pat) | pat <- arguments ])]) ];
+   return [ muCreate(muFun("MATCH_CALL_OR_TREE"), [muCallPrim("$make_array", translatePat(expression) + [ *translatePat(pat) | pat <- arguments ])]) ];
 }
 
-// muCreate(muFun("MATCH_STR"), [muCon("<name>")])
 
 // Set pattern
 
@@ -51,14 +52,14 @@ list[MuExp] translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
 // Tuple pattern
 
 list[MuExp] translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
-    throw "tuple pattern";
+    return [ muCreate(muFun("MATCH_TUPLE"), [muCallPrim("$make_array", [ *translatePat(pat) | pat <- pats ])]) ];
 }
 
 
 // List pattern 
 
 list[MuExp] translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
-  return [ muCreate(muFun("MATCH_LIST"), [muCallPrim("make_object_list", [ *translatePatAsListElem(pat) | pat <- pats ])]) ];
+  return [ muCreate(muFun("MATCH_LIST"), [muCallPrim("$make_array", [ *translatePatAsListElem(pat) | pat <- pats ])]) ];
 }
 
 // Variable becomes pattern
