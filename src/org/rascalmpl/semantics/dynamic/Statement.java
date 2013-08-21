@@ -491,11 +491,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 							}
 						} else {
 							i++;
-							gens[i] = generators
-							.get(i).getBacktracker(__eval);
 							olds[i] = __eval.getCurrentEnvt();
-							gens[i].init();
 							__eval.pushEnv();
+							gens[i] = generators.get(i).getBacktracker(__eval);
+							gens[i].init();
 						}
 					} else {
 						__eval.unwind(olds[i]);
