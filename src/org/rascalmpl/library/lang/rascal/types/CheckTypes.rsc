@@ -3793,7 +3793,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
                     < c, pt2 > = bind(r1, getMapRangeType(rt), c); 
                     res += mapNodeInfo(pt1, pt2); 
                 }
-                return < c, pt[children = res] >; 
+                return < c, pt[mapChildren = res] >; 
             } else if (isValueType(rt)) {
                 return < c, pt >;
             }
