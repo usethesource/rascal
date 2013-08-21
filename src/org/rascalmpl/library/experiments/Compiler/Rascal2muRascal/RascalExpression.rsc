@@ -258,15 +258,15 @@ list[MuExp] translate(Expression e:(Expression)`{ <{Expression ","}* es> }`) {
     return [ muCallPrim("make_set", [ *translate(elem) | elem <- es ]) ];
 }
 
-list[MuExp] translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) {
-    return [ muCallPrim("make_list", [ *translate(elem) | elem <- es ]) ];
-}
+list[MuExp] translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) =
+    [ muCallPrim("make_list", [ *translate(elem) | elem <- es ]) ];
 
 list[MuExp] translate (e:(Expression) `# <Type \type>`) { throw("reifyType"); }
 
 list[MuExp] translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) { throw("range"); }
 
-list[MuExp] translate (e:(Expression) `\< <{Expression ","}+ elements> \>`) { throw("tuple"); }
+list[MuExp] translate (e:(Expression) `\< <{Expression ","}+ elements> \>`) =
+    [ muCallPrim("make_tuple", [ *translate(elem) | elem <- elements ]) ];
 
 list[MuExp] translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) { throw("map"); }
 
