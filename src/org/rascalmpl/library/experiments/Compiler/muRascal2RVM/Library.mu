@@ -1,4 +1,5 @@
-module Library
+ 
+ module Library
 
 /*
 function main[1,1,args] { return next(init(create(TRUE))); }
@@ -84,14 +85,66 @@ function MATCH[1,2,pat,subject,cpat]{
    return false;
 }
 
+function MATCH_N[1, 2, pats, subjects, plen, slen, p, pat]{
+   prim("println", ["MATCH_N", pats, subjects]);
+   plen = prim("size_list", pats);
+   slen = prim("size_list", subjects);
+   if(prim("not_equals_num_num", plen, slen)){
+      prim("println", ["MATCH_N: unequal length", plen, slen]);
+      return false;
+   };
+   p = 0;
+   while(prim("less_num_num", p, plen)){
+     prim("println",  ["MATCH_N: init ", p]);
+     set pats[p] = init(get pats[p], get subjects[p]);
+     p = prim("addition_num_num", p, 1);
+   };
+   
+   while(true){
+     p = 0;
+     while(prim("less_num_num", p, plen)){
+       prim("println", ["p = ", p]);
+       pat = get pats[p];
+       if(hasNext(pat)){
+          if(next(pat)){
+              p = prim("addition_num_num", p, 1);
+           } else {
+              return false;
+           };   
+       } else {
+         return false;
+       };
+     };
+     prim("println", ["MATCH_N yields true"]);
+     yield true; 
+   };
+}
+
+function MATCH_CALL_OR_TREE[1, 2, pats, subject, cpats]{
+    prim("println", ["MATCH_CALL_OR_TREE", pats, subject]);
+    cpats = init(create(fun MATCH_N, pats, prim("get_name_and_children", subject)));
+    while(hasNext(cpats)){
+      prim("println", ["MATCH_CALL_OR_TREE", "hasNext=true"]);
+      if(next(cpats)){
+         yield true;
+      } else {
+         return false;
+      };
+    };
+    return false;
+}
+
+
 function MATCH_INT[1,2,pat,subject, res]{
    res = prim("equals_num_num", pat, subject);
    prim("println", ["MATCH_INT", pat, subject, res]);
    return res;
 }
 
-function MATCH_STR[1,2,pat,subject]{
-   return prim("equals_str_str", pat, subject);
+function MATCH_STR[1,2,pat,subject, res]{
+   res = prim("equals_str_str", pat, subject);
+   prim("println", ["MATCH_STR", pat, subject, res]);
+   return res;
 }
 
 function MATCH_VAR[1, 2, varref, subject]{
@@ -215,3 +268,4 @@ function MATCH_MULTIVAR_IN_LIST[1, 4, varref, subject, start, available, len]{
      };
      return [false, start];
 }
+
