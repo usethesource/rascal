@@ -2,11 +2,24 @@ module experiments::m3::JavaM3
 
 extend experiments::m3::Core;
 
-anno rel[loc from, loc to] M3@inheritance;
-anno rel[loc from, loc to] M3@invocation;
-anno rel[loc from, loc to] M3@access;
-anno rel[loc from, loc to] M3@reference;
-anno rel[loc from, loc to] M3@imports;
-anno map[loc definition, loc typ] M3@types;
-anno rel[loc definition, loc comments] M3@documentation;
-anno rel[loc definition, Modifiers modifier] M3@modifiers;
+data Modifiers
+	= \private()
+	| \public()
+	| \protected()
+	| \friendly()
+	| \static()
+	| \final()
+	| \synchronized()
+	| \transient()
+	| \abstract()
+	| \native()
+	| \volatile()
+	| \strictfp()
+	| \deprecated()
+	| \annotation(loc \anno)
+  	;
+
+anno rel[loc from, loc to] M3@typeInheritance;    // sub-typing relation between classes and interfaces
+anno rel[loc from, loc to] M3@methodInvocation;   // methods calling each other (including constructors)
+anno rel[loc from, loc to] M3@fieldAccess;        // code using data (like fields)
+anno rel[loc from, loc to] M3@typeDependency;     // using a type literal in some code (types of variables, annotations)
