@@ -648,19 +648,21 @@ public class ASTConverter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(PackageDeclaration node) {
-		
-		IValue name = values.string(node.getName().getFullyQualifiedName());
 		IValueList annotations = new IValueList(values);
 		
-//		if (node.getAST().apiLevel() >= AST.JLS3) {
-//			
-//			for (Iterator it = node.annotations().iterator(); it.hasNext();) {
-//				Annotation p = (Annotation) it.next();
-				annotations = parseExtendedModifiers(node.annotations());
-//			}
-//		}
+		annotations = parseExtendedModifiers(node.annotations());
 		
-		ownValue = constructDeclarationNode("package", name);
+		ownValue = null;
+		for (String component: node.getName().getFullyQualifiedName().split("\\.")) {
+			if (ownValue == null) {
+				ownValue = constructDeclarationNode("package", values.string(component));
+				setAnnotation("binding", resolveBinding(component));
+				continue;
+			}
+			ownValue = constructDeclarationNode("package", ownValue, values.string(component));
+			setAnnotation("binding", resolveBinding(component));
+		}
+		
 		setAnnotation("modifiers", annotations);
 		return false;
 	}
