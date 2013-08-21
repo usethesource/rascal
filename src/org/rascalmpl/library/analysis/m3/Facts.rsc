@@ -1,6 +1,6 @@
 module analysis::m3::Facts
 
-import experiments::m3::JavaM3;
+import analysis::m3::JavaM3;
 import Prelude;
 
 public bool isCompilationUnit(loc entity) {
