@@ -29,7 +29,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Comment;
@@ -42,6 +41,7 @@ public class JDT {
     private final IValueFactory VF;
     private List<String> classPathEntries;
     private List<String> sourcePathEntries;
+    private String project;
 	
     public JDT(IValueFactory vf) {
     	this.VF = vf;
@@ -75,6 +75,7 @@ public class JDT {
     		CompilationUnit cu = this.getCompilationUnit(loc, true, javaVersion, eval);
     		
     		M3Converter converter = new M3Converter(eval.getHeap().getModule("experiments::m3::JavaM3").getStore());
+    		converter.set(this.project);
     		converter.set(cu);
     		converter.set(loc);
     		cu.accept(converter);
@@ -83,7 +84,7 @@ public class JDT {
 				comment.accept(converter);
 			}
 			
-    		return converter.getModel(getProblems(cu, loc));
+    		return converter.getModel();
     	}
     	catch (IOException e) {
     		throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
@@ -100,10 +101,11 @@ public class JDT {
 			cu = this.getCompilationUnit(loc, collectBindings.getValue(), javaVersion, eval);
 			ASTConverter converter = new ASTConverter(eval.getHeap().getModule("experiments::m3::AST").getStore(),
 					collectBindings.getValue());
+			converter.set(this.project);
 			converter.set(cu);
 			converter.set(loc);
 			cu.accept(converter);
-			converter.setAnnotation("errors", getProblems(cu, loc));
+			converter.insertCompilationUnitMessages();
 			return converter.getValue();
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
@@ -132,25 +134,6 @@ public class JDT {
 		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 		
 		return cu;
-	}
-	
-	private IValueList getProblems(CompilationUnit cu, ISourceLocation loc) {
-		IValueList result = new IValueList(VF);
-		
-		int i;
-		IProblem[] problems = cu.getProblems();
-		for (i = 0; i < problems.length; i++) {
-			if (problems[i].isError()) {
-				int offset = problems[i].getSourceStart();
-				int length = problems[i].getSourceEnd() - offset;
-				int sl = problems[i].getSourceLineNumber();
-				ISourceLocation pos = VF.sourceLocation(loc.getURI(), offset, length, sl, sl, 0, 0);
-				// Continue with partial ast on error
-				result.add(VF.string("Error(s) in compilation unit: " + problems[i].getMessage() + " \n " + pos));
-			}
-		}
-		
-		return result;
 	}
 	
 	private char[] getFileContents(ISourceLocation loc, IEvaluatorContext ctx) throws IOException {

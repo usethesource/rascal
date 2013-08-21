@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -20,6 +21,9 @@ import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
@@ -65,18 +69,39 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	public void set(ISourceLocation loc) {
 		this.loc = loc;
-		this.project = loc.getURI().getAuthority();
-		bindingsResolver.setProject(this.project);
 	}
 	
 	public void set(String project) {
 		this.project = project;
 	}
 	
+	protected ISourceLocation getDefaultPackage() {
+		URI defaultPackage = new BindingsResolver(collectBindings) {
+			public URI getDefaultPackage() {
+				if (collectBindings)
+					return convertBinding("java+defaultPackage", null, null, null);
+				return convertBinding("unknown", null, null, null);
+			}
+		}.getDefaultPackage();
+		
+		return values.sourceLocation(defaultPackage);
+	}
+	
+	protected ISourceLocation resolveBinding(String packageComponent) {
+		URI packageBinding = new BindingsResolver(collectBindings) {
+			public URI resolveBinding(String packageC) {
+				if (collectBindings)
+					return convertBinding("java+package", packageC, null, null);
+				return convertBinding("unknown", null, null, null);
+			}
+		}.resolveBinding(packageComponent);
+		
+		return values.sourceLocation(packageBinding);
+	}
+	
 	protected ISourceLocation resolveBinding(CompilationUnit node) {
 		URI compilationUnit = new BindingsResolver(true) {
 			public URI resolveBinding(CompilationUnit node) {
-				setProject(project);
 				return convertBinding("java+compilationUnit", loc.getURI().getPath(), null, null);
 			}
 		}.resolveBinding(node);
@@ -86,6 +111,21 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	protected ISourceLocation resolveBinding(IBinding binding) {
 		URI resolvedBinding = bindingsResolver.resolveBinding(binding);
+		return values.sourceLocation(resolvedBinding);
+	}
+	
+	protected ISourceLocation resolveDeclaringClass(IBinding binding) {
+		URI resolvedBinding;
+		if (binding instanceof ITypeBinding)
+			resolvedBinding = bindingsResolver.resolveBinding(((ITypeBinding) binding).getDeclaringClass());
+		else if (binding instanceof IMethodBinding)
+			resolvedBinding = bindingsResolver.resolveBinding(((IMethodBinding) binding).getDeclaringClass());
+		else if (binding instanceof IVariableBinding)
+			resolvedBinding = bindingsResolver.resolveBinding(((IVariableBinding) binding).getDeclaringClass());
+		else {
+			binding = null;
+			resolvedBinding = bindingsResolver.resolveBinding(binding);
+		}
 		return values.sourceLocation(resolvedBinding);
 	}
 	
@@ -169,7 +209,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		return this.ownValue;
 	}
 	
-	protected IValue constructModifierNode(String constructor, IValue... children) {
+	protected IConstructor constructModifierNode(String constructor, IValue... children) {
 		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
 		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, constructor, args);
 		return values.constructor(constr, removeNulls(children));
@@ -191,7 +231,6 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected IValue constructDeclarationNode(String constructor, IValue... children) {
 		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
 		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE, constructor, args);
-		assert constr != null;
 		return values.constructor(constr, removeNulls(children));
 	}
 	
@@ -211,5 +250,28 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
 		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_TYPE_NODE_TYPE, constructor, args);
 		return values.constructor(constr, removeNulls(children));
+	}
+	
+	protected void insertCompilationUnitMessages() {
+		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(TF.stringType(), TF.sourceLocationType());
+		
+		IValueList result = new IValueList(values);
+		
+		int i;
+		IProblem[] problems = compilUnit.getProblems();
+		for (i = 0; i < problems.length; i++) {
+			int offset = problems[i].getSourceStart();
+			int length = problems[i].getSourceEnd() - offset + 1;
+			int sl = problems[i].getSourceLineNumber();
+			ISourceLocation pos = values.sourceLocation(loc.getURI(), offset, length, sl, sl, 0, 0);
+			org.eclipse.imp.pdb.facts.type.Type constr;
+			if (problems[i].isError())
+				constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "error", args);
+			else
+				constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "warning", args);
+			result.add(values.constructor(constr, values.string(problems[i].getMessage()), pos));
+		}
+		
+		setAnnotation("messages", result.asList());
 	}
 }
