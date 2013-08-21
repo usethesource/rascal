@@ -3469,9 +3469,15 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 }
             } catch v : {
                 //println("Bind attempt failed, now have <pt>");
-                ; // May want to do something here in the future, but for now just consume the exception, this still fails to assign a type...
+                if(pt@rtype? && !hasInferredType(pt@rtype)) {
+                	failures += makeFailType("Cannot match an expression of type: <getOneFrom(subjects)> against a pattern of type <pt@rtype>", pt@at);
+               	}
             }
         }
+    }
+    
+    if (size(failures) > 0) {
+        return < cbak, collapseFailTypes(failures) >;
     }
 
     set[PatternTree] unknownConstructorFailures(PatternTree pt) {

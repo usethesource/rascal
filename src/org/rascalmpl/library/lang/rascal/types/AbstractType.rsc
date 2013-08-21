@@ -579,6 +579,9 @@ public Symbol collapseFailTypes(set[Symbol] rt) = failure({ s | failure(ss) <- r
 public bool isInferredType(\inferred(_)) = true;
 public default bool isInferredType(Symbol _) = false;
 
+@doc{Does this type have an inferred type?}
+public bool hasInferredType(Symbol \type) = (/\inferred(_) := \type);
+
 @doc{Construct a new inferred type.}
 public Symbol makeInferredType(int n) = \inferred(n);
 
