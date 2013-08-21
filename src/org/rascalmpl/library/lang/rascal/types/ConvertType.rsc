@@ -155,6 +155,19 @@ public Symbol convertStructuredType(StructuredType st) {
             	return \rel([ (\label(fl,ft) := li) ? ft : li | li <- l ])[@errinfo = { warning("Field name ignored, field names must be provided for all fields or for none", st@\loc) }];
             }
         }
+        
+        case (StructuredType) `lrel [ < {TypeArg ","}+ tas > ]` : {
+            l = convertTypeArgList(tas);
+            labelsList = [fl | \label(fl,_) <- l];
+            labels = {*labelsList};
+            if (size(l) == size(labels) || size(labels) == 0) {
+            	return \lrel(l);
+            } else if (size(labels) > 0 && size(labels) != size(labelsList)) {
+            	return \lrel([ (\label(fl,ft) := li) ? ft : li | li <- l ])[@errinfo = { error("Non-well-formed type, labels must be distinct", st@\loc) }];
+            } else if (size(labels) > 0) {
+            	return \lrel([ (\label(fl,ft) := li) ? ft : li | li <- l ])[@errinfo = { warning("Field name ignored, field names must be provided for all fields or for none", st@\loc) }];
+            }
+        }
 
         case (StructuredType) `tuple [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
