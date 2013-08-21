@@ -182,6 +182,8 @@ default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 // Does an expression produce a value? (needed for cleaning up the stack)
 
 bool producesValue(muWhile(MuExp cond, list[MuExp] body)) = false;
+bool producesValue(muReturn()) = false;
+bool producesValue(muNext(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
 
 // Translate a condition, given a failure continuation.
