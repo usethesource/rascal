@@ -3107,7 +3107,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
 	                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
 	                	// a set pattern or, below, a list pattern)
-	                    c = addVariable(c, n, true, ptns[idx]@at, \set(rt));
+	                    c = addVariable(c, n, false, ptns[idx]@at, \set(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } 
             	} else {
@@ -3147,7 +3147,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
 	                } else {
-	                    c = addVariable(c, n, true, ptns[idx]@at, \list(rt));
+	                    c = addVariable(c, n, false, ptns[idx]@at, \list(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } 
             	} else {
