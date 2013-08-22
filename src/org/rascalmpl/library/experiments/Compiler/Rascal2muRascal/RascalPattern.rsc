@@ -83,8 +83,9 @@ list[MuExp] translatePat(p:(Pattern) `/ <Pattern pattern>`) {
 }
 
 // typedVariableBecomes pattern
-list[MuExp] translatePat(p:(Pattern) `<Type \type> <Name name> : <Pattern pattern>`) {
-    throw "typedVariableBecomes pattern";
+list[MuExp] translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) {
+    <scopeId, pos> = getVariableScope("<name>", name@\loc);
+    return [muCreate(muFun("MATCH_TYPED_VAR_BECOMES"), [muTypeCon(translateType(tp)), muVarRef("<name>", scopeId, pos), *translatePat(pattern)])];
 }
 
 
