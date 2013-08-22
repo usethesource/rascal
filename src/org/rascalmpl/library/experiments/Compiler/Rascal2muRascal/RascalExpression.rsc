@@ -214,7 +214,7 @@ list[MuExp] postfix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(ar
 /*                  Expessions                                       */
 /*********************************************************************/
 
-list[MuExp] translate(e:(Expression) `{ <Statement+ statements> }`)  { throw("nonEmptyBlock"); }
+list[MuExp] translate(e:(Expression) `{ <Statement+ statements> }`) = [*translate(stat) | stat <- statements];
 
 list[MuExp] translate(e:(Expression) `(<Expression expression>)`)   = translate(expression);
 
@@ -401,12 +401,14 @@ list[MuExp] translateBool(e:(Expression) `<Expression lhs> ==\> <Expression rhs>
 list[MuExp] translateBool(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`) = translateBool("EQUIVALENT", lhs, rhs);
 
 
- // similar for or, and, not and other Boolean operators
+ // TODO similar for or, and, not and other Boolean operators
  
  // Translate match operator
  
  list[MuExp] translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  = 
    [ muMulti(muCreate(muFun("MATCH"), [*translatePat(pat), *translate(exp)])) ];
+   
+// Translate a closure   
  
  list[MuExp] translateClosure(Expression e, Parameters parameters, Statement* statements) {
 	scope = loc2uid[e@\loc];

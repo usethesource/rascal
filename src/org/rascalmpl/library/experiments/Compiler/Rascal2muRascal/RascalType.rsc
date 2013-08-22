@@ -46,8 +46,8 @@ Symbol translateType(t : (Type) `<DataTypeSelector selector>`)  { throw "DataTyp
 Symbol translateType(t : (Type) `<TypeVar typeVar>`) = translateType(typeVar);
 Symbol translateType(t : (Type) `<Sym symbol>`)  = symbol;
 
-Symbol translateType(t : (TypeArg) `<Type \type>`)  { throw "Sym"; }
-Symbol translateType(t : (TypeArg) `<Type \type> <Name name>`) { throw "Sym"; }
+Symbol translateType(t : (TypeArg) `<Type tp>`)  = translateType(tp);
+Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label("<name>", translateType(tp));
 
 Symbol translateType(t: (FunctionType) `<Type \type> (<{TypeArg ","}* args>)`) = 
 									\func(translateType(ret), [ translateType(arg) | arg <- args]);
