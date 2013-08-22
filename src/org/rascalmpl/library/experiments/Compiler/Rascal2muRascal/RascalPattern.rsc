@@ -28,7 +28,7 @@ list[MuExp] translatePat(p:(Pattern) `<QualifiedName name>`) {
      
 list[MuExp] translatePat(p:(Pattern) `<Type tp> <Name name>`){
    <scopeId, pos> = getVariableScope("<name>", name@\loc);
-   return [ muCreate(muFun("MATCH_VAR"), [muVarRef("<name>", scopeId, pos)]) ];
+   return [ muCreate(muFun("MATCH_TYPED_VAR"), [muTypeCon(translateType(tp)), muVarRef("<name>", scopeId, pos)]) ];
 }  
 
 // reifiedType pattern
@@ -59,9 +59,8 @@ list[MuExp] translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
 
 // List pattern 
 
-list[MuExp] translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
-  return [ muCreate(muFun("MATCH_LIST"), [muCallPrim("$make_array", [ *translatePatAsListElem(pat) | pat <- pats ])]) ];
-}
+list[MuExp] translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) =
+    [ muCreate(muFun("MATCH_LIST"), [muCallPrim("$make_array", [ *translatePatAsListElem(pat) | pat <- pats ])]) ];
 
 // Variable becomes pattern
 
@@ -72,22 +71,19 @@ list[MuExp] translatePat(p:(Pattern) `<Name name> : <Pattern pattern>`) {
 
 // asType pattern
 
-list[MuExp] translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) {
-    return [muCreate(muFun("MATCH_AS_TYPE"), [muTypeCon(translateType(tp)), *translatePat(argument)])];
-}
+list[MuExp] translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) =
+    [muCreate(muFun("MATCH_AS_TYPE"), [muTypeCon(translateType(tp)), *translatePat(argument)])];
 
 // Descendant pattern
 
-list[MuExp] translatePat(p:(Pattern) `/ <Pattern pattern>`) {
-    throw "Descendant pattern";
-}
+list[MuExp] translatePat(p:(Pattern) `/ <Pattern pattern>`) =
+    [muCreate(muFun("MATCH_DESCENDANT"), translatePat(pattern))];
 
 // typedVariableBecomes pattern
 list[MuExp] translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) {
     <scopeId, pos> = getVariableScope("<name>", name@\loc);
     return [muCreate(muFun("MATCH_TYPED_VAR_BECOMES"), [muTypeCon(translateType(tp)), muVarRef("<name>", scopeId, pos), *translatePat(pattern)])];
 }
-
 
 // Default rule for pattern translation
 
