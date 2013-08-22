@@ -247,13 +247,12 @@ INS tr_cond(muAll(list[MuExp] exps), str moreLab, str failLab){
     return code;
 }
 
-INS tr_cond(muMulti(MuExp exp), str moreLab, str failLab) {
+INS tr_cond(muMulti(MuExp exp), str moreLab, str failLab) =
     [ LABEL(moreLab),
        *tr(exp),
        INIT(0),
-       NEXT(),
+       NEXT0(),
        JMPFALSE(failLab)
     ];
-}
 
 default INS tr_cond(MuExp exp, str moreLab, str failLab) = [ LABEL(moreLab), *tr(exp), JMPFALSE(failLab) ];

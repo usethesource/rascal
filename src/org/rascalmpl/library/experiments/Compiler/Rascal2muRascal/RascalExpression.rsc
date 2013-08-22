@@ -12,6 +12,7 @@ import lang::rascal::types::AbstractName;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
+import experiments::Compiler::Rascal2muRascal::RascalType;
 
 import experiments::Compiler::muRascal::AST;
 
@@ -213,7 +214,7 @@ list[MuExp] postfix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(ar
 /*                  Expessions                                       */
 /*********************************************************************/
 
-list[MuExp] translate(e:(Expression) `{ <Statement+ statements> }`)  { throw("nonEmptyBlock"); }
+list[MuExp] translate(e:(Expression) `{ <Statement+ statements> }`) = [*translate(stat) | stat <- statements];
 
 list[MuExp] translate(e:(Expression) `(<Expression expression>)`)   = translate(expression);
 
@@ -261,7 +262,7 @@ list[MuExp] translate(Expression e:(Expression)`{ <{Expression ","}* es> }`) {
 list[MuExp] translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) =
     [ muCallPrim("make_list", [ *translate(elem) | elem <- es ]) ];
 
-list[MuExp] translate (e:(Expression) `# <Type \type>`) { throw("reifyType"); }
+list[MuExp] translate (e:(Expression) `# <Type tp>`) = [muTypeCon(translateType(tp))];
 
 list[MuExp] translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) { throw("range"); }
 
@@ -400,12 +401,14 @@ list[MuExp] translateBool(e:(Expression) `<Expression lhs> ==\> <Expression rhs>
 list[MuExp] translateBool(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`) = translateBool("EQUIVALENT", lhs, rhs);
 
 
- // similar for or, and, not and other Boolean operators
+ // TODO similar for or, and, not and other Boolean operators
  
  // Translate match operator
  
  list[MuExp] translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  = 
    [ muMulti(muCreate(muFun("MATCH"), [*translatePat(pat), *translate(exp)])) ];
+   
+// Translate a closure   
  
  list[MuExp] translateClosure(Expression e, Parameters parameters, Statement* statements) {
 	scope = loc2uid[e@\loc];

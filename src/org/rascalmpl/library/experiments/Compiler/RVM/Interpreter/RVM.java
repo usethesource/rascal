@@ -86,18 +86,19 @@ public class RVM {
 	 * - Coroutine
 	 * - Reference
 	 * - FunctionInstance
-	 * - ArrayList (is converted to an IList)
+	 * - Object[] (is converted to an IList)
 	 * @param result to be returned
 	 * @return converted result or an exception
 	 */
 	private IValue narrow(Object result){
+		stdout.println("narrow: " + result.getClass() + ", " + result);
 		if(result instanceof IValue)
 			return (IValue) result;
-		if(result instanceof List){
+		if(result instanceof Object[]){
 			IListWriter w = vf.listWriter();
-			List<?> lst = (List<?>) result;
-			for(int i = 0; i < lst.size(); i++){
-				w.append(narrow(lst.get(i)));
+			Object[] lst = (Object[]) result;
+			for(int i = 0; i < lst.length; i++){
+				w.append(narrow(lst[i]));
 			}
 			return w.done();
 		}

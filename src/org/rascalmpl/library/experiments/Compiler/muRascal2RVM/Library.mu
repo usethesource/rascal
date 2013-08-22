@@ -165,6 +165,37 @@ function MATCH_VAR[1, 2, varref, _subject]{
    deref varref = _subject;
    return true;
 }
+
+function MATCH_VAR_BECOMES[1, 3, varref, pat, _subject, cpat]{
+   cpat = init(pat, _subject);
+   while(hasNext(cpat)){
+     deref varref = _subject;
+     yield true;
+   };
+   return false;
+}
+
+function MATCH_TYPED_VAR_BECOMES[1, 4, typ, varref, pat, _subject, cpat]{
+   if(prim("equals_type_type", typ, prim("typeOf", _subject))){
+     cpat = init(pat, _subject);
+     while(hasNext(cpat)){
+       deref varref = _subject;
+       yield true;
+     };
+   };  
+   return false;
+}
+
+function MATCH_AS_TYPE[1, 3, typ, pat, _subject, cpat]{
+   if(prim("equals_type_type", typ, prim("typeOf", _subject))){
+     cpat = init(pat, _subject);
+     while(hasNext(cpat)){
+       yield true;
+     };
+   };  
+   return false;
+}
+
 // List matching
 
 function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list elements
@@ -278,6 +309,19 @@ function MATCH_MULTIVAR_IN_LIST[1, 4, varref, _subject, start, available, len]{
         // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_num_num", start, len)]);
         yield [true, prim("addition_num_num", start, len)];
         len = prim("addition_num_num", len, 1);
+     };
+     return [false, start];
+}
+
+function MATCH_TYPED_MULTIVAR_IN_LIST[1, 5, typ, varref, _subject, start, available, len]{
+    if(prim("equals_type_type", typ, prim("typeOf", _subject))){
+       len = 0;
+       while(prim("less_equal_num_num", len, available)){
+          deref varref = prim("sublist", _subject, start, len);
+          // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_num_num", start, len)]);
+          yield [true, prim("addition_num_num", start, len)];
+          len = prim("addition_num_num", len, 1);
+       };
      };
      return [false, start];
 }
