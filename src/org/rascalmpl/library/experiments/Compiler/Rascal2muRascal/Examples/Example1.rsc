@@ -22,5 +22,5 @@ value main(list[value] args) {
 // 	return 0;
  	
  
- 	return 	z: <1,2, int x> := <1, 2,3> ? z : "xxx";
+ 	return [int] false := 3;
 }
