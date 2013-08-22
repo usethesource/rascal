@@ -313,3 +313,16 @@ function MATCH_MULTIVAR_IN_LIST[1, 4, varref, _subject, start, available, len]{
      return [false, start];
 }
 
+function MATCH_TYPED_MULTIVAR_IN_LIST[1, 5, typ, varref, _subject, start, available, len]{
+    if(prim("equals_type_type", typ, prim("typeOf", _subject))){
+       len = 0;
+       while(prim("less_equal_num_num", len, available)){
+          deref varref = prim("sublist", _subject, start, len);
+          // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_num_num", start, len)]);
+          yield [true, prim("addition_num_num", start, len)];
+          len = prim("addition_num_num", len, 1);
+       };
+     };
+     return [false, start];
+}
+

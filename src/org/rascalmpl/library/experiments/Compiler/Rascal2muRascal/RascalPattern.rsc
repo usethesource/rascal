@@ -105,9 +105,9 @@ list[MuExp] translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`) {
    return [ muCreate(muFun("MATCH_MULTIVAR_IN_LIST"), [muVarRef("<name>", scopeId, pos)]) ];
 }
 
-list[MuExp] translatePatAsListElem(p:(Pattern) `*<Type \type> <Name name>`) {
+list[MuExp] translatePatAsListElem(p:(Pattern) `*<Type tp> <Name name>`) {
    <scopeId, pos> = getVariableScope("<name>", p@\loc);
-   return [ muCreate(muFun("MATCH_MULTIVAR_IN_LIST"), [muVarRef("<name>", scopeId, pos)]) ];
+   return [ muCreate(muFun("MATCH_TYPED_MULTIVAR_IN_LIST"), [muTypeCon(\list(translateType(tp))), muVarRef("<name>", scopeId, pos)]) ];
 }
 
 list[MuExp] translatePatAsListElem(p:(Pattern) `*<Name name>`) {

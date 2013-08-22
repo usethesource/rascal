@@ -1,7 +1,7 @@
 module experiments::Compiler::Rascal2muRascal::Examples::Example1
 
 //import util::Benchmark;
-//import IO;
+import List;
 
 //void work(int n){
 //
@@ -21,5 +21,5 @@ value main(list[value] args) {
 //	println("rascal interpreter [<t2 - t1> msec]");
 // 	return 0;
  	
- 	return #int;
+ 	return [*int x] := [1,2,3];
 }
