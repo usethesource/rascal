@@ -155,7 +155,6 @@ data Symbol
      | \keywords(str name)
      | \parameterized-sort(str name, list[Symbol] parameters)  
      | \parameterized-lex(str name, list[Symbol] parameters)  
-     | \parameter(str name)
      ; 
 
 // These are the terminal symbols.

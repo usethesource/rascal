@@ -47,7 +47,7 @@ set[Production] expand(set[Production] prods) {
        instantiated += {u};
        substs = (formals[i]:actuals[i] | int i <- domain(actuals) & domain(formals));
        instances = {*instances, visit (def) {
-         case Symbol par:\parameter(_) => substs[par]?par
+         case Symbol par:\parameter(_,_) => substs[par]?par
        }}; 
     }
   

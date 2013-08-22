@@ -54,7 +54,7 @@ public Symbol sym2symbol(Sym sym) {
     case characterClass(Class cc): 
       return cc2ranges(cc);
     case parameter(Nonterminal n) : 
-      return \parameter("<n>");
+      return \parameter("<n>", adt("Tree"));
     case empty() : 
       return \empty();
     case alternative(Sym first, {Sym "|"}+ alts) : 
