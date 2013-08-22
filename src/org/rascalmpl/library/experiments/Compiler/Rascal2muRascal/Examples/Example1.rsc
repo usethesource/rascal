@@ -21,6 +21,5 @@ value main(list[value] args) {
 //	println("rascal interpreter [<t2 - t1> msec]");
 // 	return 0;
  	
- 
- 	return int x : 3 := 3;
+ 	return #int;
 }

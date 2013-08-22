@@ -262,7 +262,7 @@ list[MuExp] translate(Expression e:(Expression)`{ <{Expression ","}* es> }`) {
 list[MuExp] translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) =
     [ muCallPrim("make_list", [ *translate(elem) | elem <- es ]) ];
 
-list[MuExp] translate (e:(Expression) `# <Type \type>`) { throw("reifyType"); }
+list[MuExp] translate (e:(Expression) `# <Type tp>`) = [muTypeCon(translateType(tp))];
 
 list[MuExp] translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) { throw("range"); }
 
