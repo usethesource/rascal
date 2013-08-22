@@ -5,6 +5,7 @@ import Prelude;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
+import experiments::Compiler::Rascal2muRascal::RascalType;
 
 import experiments::Compiler::muRascal::AST;
 
@@ -71,8 +72,8 @@ list[MuExp] translatePat(p:(Pattern) `<Name name> : <Pattern pattern>`) {
 
 // asType pattern
 
-list[MuExp] translatePat(p:(Pattern) `[ <Type \type> ] <Pattern argument>`) {
-    throw "asType pattern";
+list[MuExp] translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) {
+    return [muCreate(muFun("MATCH_AS_TYPE"), [muTypeCon(translateType(tp)), *translatePat(argument)])];
 }
 
 // Descendant pattern

@@ -175,6 +175,16 @@ function MATCH_VAR_BECOMES[1, 3, varref, pat, _subject, cpat]{
    return false;
 }
 
+function MATCH_AS_TYPE[1, 3, typ, pat, _subject, cpat]{
+   if(prim("equals_type_type", typ, prim("typeOf", _subject))){
+     cpat = init(pat, _subject);
+     while(hasNext(cpat)){
+       yield true;
+     };
+   };  
+   return false;
+}
+
 // List matching
 
 function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list elements
