@@ -20,6 +20,8 @@ import Set;
 import Map;
 import Node;
 import analysis::m3::AST;
+import analysis::m3::Registry;
+
 import lang::java::m3::JavaM3;
 import List;
 
@@ -89,6 +91,7 @@ public java M3 createM3FromFile(loc file, str javaVersion = "1.7");
 
 public M3 createM3FromProject(loc project, str javaVersion = "1.7") {
 	setEnvironmentOptions(project);
+
 	M3 result = m3(project.authority);
 	for (loc f <- crawl(project, ".java")) {
 		M3 model = createM3FromFile(f, javaVersion = javaVersion);
@@ -104,5 +107,9 @@ public M3 createM3FromProject(loc project, str javaVersion = "1.7") {
 	    result@messages += model@messages;
 	    result@names += model@names;
 	}
+        registerProject(project.authority, result);
 	return result;
 }
+
+@resolver{java}
+loc resolveJava(loc name) = resolveM3(name);
