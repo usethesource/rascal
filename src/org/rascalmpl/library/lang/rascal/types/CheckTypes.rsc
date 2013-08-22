@@ -3095,7 +3095,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     // literals and guarded patterns).
     pt = top-down visit(pt) {
         case ptn:setNode(ptns) : {
-            for (idx <- index(ptns), multiNameNode(n) := ptns[idx] || spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx]) {
+            for (idx <- index(ptns), spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || 
+                                     spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx] ||
+                                     multiNameNode(n) := ptns[idx]) {
+                
             	if (spliceNodePlus(_,_,rt) := ptns[idx] || spliceNodeStar(_,_,rt) := ptns[idx]) {
 	                if (RSimpleName("_") == n) {
                         c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
@@ -3104,7 +3107,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
 	                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
 	                	// a set pattern or, below, a list pattern)
-	                    c = addVariable(c, n, true, ptns[idx]@at, \set(rt));
+	                    c = addVariable(c, n, false, ptns[idx]@at, \set(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } 
             	} else {
@@ -3135,13 +3138,16 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         }
 
         case ptn:listNode(ptns) : {
-            for (idx <- index(ptns), multiNameNode(n) := ptns[idx] || spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx]) {
+            for (idx <- index(ptns), spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || 
+                                     spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx] ||
+                                     multiNameNode(n) := ptns[idx]) {
+                
             	if (spliceNodePlus(_,_,rt) := ptns[idx] || spliceNodeStar(_,_,rt) := ptns[idx]) {
 	                if (RSimpleName("_") == n) {
                         c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
 	                } else {
-	                    c = addVariable(c, n, true, ptns[idx]@at, \list(rt));
+	                    c = addVariable(c, n, false, ptns[idx]@at, \list(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } 
             	} else {
@@ -3298,8 +3304,6 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             case ptn:listNode(ptns) => updateRT(ptn,\list(lubList([pti@rtype | pti <- ptns]))) 
                                        when all(idx <- index(ptns), (ptns[idx]@rtype)?, concreteType(ptns[idx]@rtype))
                                       
-            case ptn:spliceNode(cp) : throw "Not yet implemented";
-    
             case ptn:negativeNode(cp) => updateRT(ptn, cp@rtype) 
             							 when (cp@rtype)? && concreteType(cp@rtype) && !isVoidType(cp@rtype) && subtype(cp@rtype, \num())
     
@@ -3465,9 +3469,15 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 }
             } catch v : {
                 //println("Bind attempt failed, now have <pt>");
-                ; // May want to do something here in the future, but for now just consume the exception, this still fails to assign a type...
+                if(pt@rtype? && !hasInferredType(pt@rtype)) {
+                	failures += makeFailType("Cannot match an expression of type: <getOneFrom(subjects)> against a pattern of type <pt@rtype>", pt@at);
+               	}
             }
         }
+    }
+    
+    if (size(failures) > 0) {
+        return < cbak, collapseFailTypes(failures) >;
     }
 
     set[PatternTree] unknownConstructorFailures(PatternTree pt) {
@@ -3621,8 +3631,116 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNode(cp) : {
-            throw "Not yet implemented";
+       case spliceNodeStar(RSimpleName("_")) : {
+            Symbol currentType = pt@rtype;
+            if (isInferredType(currentType)) {
+                return < c, pt[@rtype = rt] >;
+            } else {
+                return < c, pt[@rtype = lub(currentType, rt)] >;
+            }
+        }
+        
+        case spliceNodeStar(rn) : { 
+        	Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
+            if (c.store[c.fcvEnv[rn]].inferred) {
+                if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
+                    c.store[c.fcvEnv[rn]].rtype = \set(rt);
+                    return < c, pt[@rtype = rt] >;
+                } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
+                    c.store[c.fcvEnv[rn]].rtype = \list(rt);
+                    return < c, pt[@rtype = rt] >;
+                } else if (isSetType(currentType)) {
+                    c.store[c.fcvEnv[rn]].rtype = \set(lub(getSetElementType(currentType), rt));
+                    return < c, pt[@rtype = getSetElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                } else if (isListType(currentType)) {
+                    c.store[c.fcvEnv[rn]].rtype = \list(lub(getListElementType(currentType), rt));
+                    return < c, pt[@rtype = getListElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                }
+            } else {
+                if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
+                    return < c, pt >;
+                } else if (isListType(currentType) && comparable(getListElementType(currentType), rt)) {
+                    return < c, pt >;
+                } else {
+                    throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+                }
+            }
+        }
+        
+        case spliceNodeStar(RSimpleName("_"),_,nt) : {
+            Symbol currentType = pt@rtype;
+            if (comparable(currentType, rt)) {
+                return < c, pt >;
+            } else {
+                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+            }
+        }
+        
+        case spliceNodeStar(rn,_,nt) : { 
+        	Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
+            if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
+                return < c, pt >;
+            } else if (isListType(currentType) && comparable(getListElementType(currentType), rt)) {
+                return < c, pt >;
+            } else {
+            	throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+            }
+        }
+        
+        case spliceNodePlus(RSimpleName("_")) : {
+        	Symbol currentType = pt@rtype;
+            if (isInferredType(currentType)) {
+                return < c, pt[@rtype = rt] >;
+            } else {
+                return < c, pt[@rtype = lub(currentType, rt)] >;
+            } 
+        }
+        
+        case spliceNodePlus(rn) : { 
+        	Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
+            if (c.store[c.fcvEnv[rn]].inferred) {
+                if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
+                    c.store[c.fcvEnv[rn]].rtype = \set(rt);
+                    return < c, pt[@rtype = rt] >;
+                } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
+                    c.store[c.fcvEnv[rn]].rtype = \list(rt);
+                    return < c, pt[@rtype = rt] >;
+                } else if (isSetType(currentType)) {
+                    c.store[c.fcvEnv[rn]].rtype = \set(lub(getSetElementType(currentType), rt));
+                    return < c, pt[@rtype = getSetElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                } else if (isListType(currentType)) {
+                    c.store[c.fcvEnv[rn]].rtype = \list(lub(getListElementType(currentType), rt));
+                    return < c, pt[@rtype = getListElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                }
+            } else {
+                if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
+                    return < c, pt >;
+                } else if (isListType(currentType) && comparable(getListElementType(currentType), rt)) {
+                    return < c, pt >;
+                } else {
+                    throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+                }
+            }
+        }
+        
+        case spliceNodePlus(RSimpleName("_"),_,nt) : {
+            Symbol currentType = pt@rtype;
+            if (comparable(currentType, rt)) {
+                return < c, pt >;
+            } else {
+                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+            }
+        }
+        
+        case spliceNodePlus(rn,_,nt) : { 
+        	Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
+            if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
+                return < c, pt >;
+            } else if (isListType(currentType) && comparable(getListElementType(currentType), rt)) {
+                return < c, pt >;
+            } else {
+            	throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+            }
         }
         
         case negativeNode(cp) : {
@@ -3675,7 +3793,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
                     < c, pt2 > = bind(r1, getMapRangeType(rt), c); 
                     res += mapNodeInfo(pt1, pt2); 
                 }
-                return < c, pt[children = res] >; 
+                return < c, pt[mapChildren = res] >; 
             } else if (isValueType(rt)) {
                 return < c, pt >;
             }

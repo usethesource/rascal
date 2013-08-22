@@ -1,4 +1,6 @@
-module experiments::m3::AST 
+module analysis::m3::AST 
+
+import Message;
 
 anno loc Modifiers@binding;
 
@@ -24,7 +26,7 @@ anno loc Declaration@src;
 anno loc Declaration@binding;
 anno list[Modifiers] Declaration@modifiers;
 anno list[Declaration] Declaration@typeParameters;
-anno list[str] Declaration@errors;
+anno list[Message] Declaration@errors;
 
 data Declaration
   	= \compilationUnit(list[Declaration] imports, list[Declaration] types)
@@ -42,6 +44,7 @@ data Declaration
 	| \method(str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
 	| \import(str name)
 	| \package(str name)
+	| \package(Declaration parentPackage, str name)
 	| \variables(Type \type, list[Expression] \fragments)
 	| \typeParameter(str name, list[Type] extendsList)
 	| \annotationType(str name, list[Declaration] body)

@@ -42,11 +42,13 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
                case preVar("false") 						=> muCon(false)
      	       case preVar(str name) 						=> (name in global_functions)  ? muFun(name) : muLoc(name, vardefs[name])
      	       case preAssignLocList(str name1, str name2, MuExp exp1) 	
-     	       												=> muCallPrim("assign_pair", [muCon(vardefs[name1]), muCon(vardefs[name2]), exp1])
+     	       												=> muCallPrim("$assign_pair", [muCon(vardefs[name1]), muCon(vardefs[name2]), exp1])
      	       
      	       case preAssignLoc(str name, MuExp exp1) 		=> muAssignLoc(name, vardefs[name], exp1)
-     	       case preList(list[MuExp] exps)				=> muCallPrim("make_object_list", exps)
-     	       case preSubscript(MuExp lst, MuExp index)	=> muCallPrim("subscript_list_int", [lst, index])
+     	       case preList(list[MuExp] exps)				=> muCallPrim("$make_array", exps)
+     	       case preSubscript(MuExp lst, MuExp index)	=> muCallPrim("$subscript_array_int", [lst, index])
+     	       case preAssignSubscript(MuExp lst, MuExp index, MuExp exp1) 
+     	       												=> muCallPrim("$assign_subscript_array_int", [lst, index, exp1])
       	       case preIfthen(cond,thenPart) 				=> muIfelse(cond,thenPart, [])
       	       
       	       case preLocDeref(str name)                   => muLocDeref(name, vardefs[name])

@@ -100,7 +100,7 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("and_b_b", 4, 2, 2, 10,
+		rvm.declare(new Function("and_n_n", 4, 2, 2, 10,
 				new CodeBlock(vf)
 				.LOADLOC(0)
 				.LOADLOC(1)

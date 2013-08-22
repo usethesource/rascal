@@ -11,7 +11,7 @@
 @contributor{Jouke Stoel - Jouke.Stoel@cwi.nl (CWI)}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-module experiments::m3::JDT
+module analysis::m3::JDT
 
 import IO;
 import String;
@@ -19,8 +19,9 @@ import Relation;
 import Set;
 import Map;
 import Node;
-import experiments::m3::AST;
-import experiments::m3::JavaM3;
+import analysis::m3::AST;
+import analysis::m3::JavaM3;
+import List;
 
 private set[loc] crawl(loc dir, str suffix) {
 	res = {};
@@ -63,7 +64,7 @@ public set[loc] getPaths(loc dir, str suffix) {
 	return res;
 }
 
-@javaClass{org.rascalmpl.library.experiments.m3.internal.JDT}
+@javaClass{org.rascalmpl.library.analysis.m3.internal.JDT}
 @reflect
 public java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
 
@@ -72,7 +73,7 @@ public void setEnvironmentOptions(loc project) {
 }
 
 @doc{Creates AST from a file}
-@javaClass{org.rascalmpl.library.experiments.m3.internal.JDT}
+@javaClass{org.rascalmpl.library.analysis.m3.internal.JDT}
 @reflect
 public java Declaration createAstFromFile(loc file, bool collectBindings, str javaVersion = "1.7");
 
@@ -82,29 +83,26 @@ public set[Declaration] createAstsFromProject(loc project, bool collectBindings,
    return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | loc f <- crawl(project, ".java") };
 }
 
-@javaClass{org.rascalmpl.library.experiments.m3.internal.JDT}
+@javaClass{org.rascalmpl.library.analysis.m3.internal.JDT}
 @reflect
 public java M3 createM3FromFile(loc file, str javaVersion = "1.7");
 
 public M3 createM3FromProject(loc project, str javaVersion = "1.7") {
 	setEnvironmentOptions(project);
-	M3 result = m3();
+	M3 result = m3(project.authority);
 	for (loc f <- crawl(project, ".java")) {
 		M3 model = createM3FromFile(f, javaVersion = javaVersion);
-		result@source += model@source;
+		result@declarations += model@declarations;
+		result@uses += model@uses;
 		result@containment += model@containment;
-	    result@inheritance += model@inheritance;
-	    result@invocation += model@invocation;
-	    result@access += model@access;
-	    result@reference += model@reference;
-	    result@imports += model@imports;
-	    result@types += model@types;
+	    result@typeInheritance += model@typeInheritance;
+	    result@methodInvocation += model@methodInvocation;
+	    result@fieldAccess += model@fieldAccess;
+	    result@typeDependency += model@typeDependency;
 	    result@documentation += model@documentation;
 	    result@modifiers += model@modifiers;
-	    result@projectErrors += model@projectErrors;
-	    result@libraryContainment += model@libraryContainment;
-	    result@resolveNames += model@resolveNames;
+	    result@messages += model@messages;
+	    result@names += model@names;
 	}
-	result@libraryContainment -= result@containment;
 	return result;
 }

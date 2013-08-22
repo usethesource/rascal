@@ -23,9 +23,15 @@ public list[MuFunction] functions_in_module = [];
 public list[MuVariable] variables_in_module = [];
 public list[MuExp] variable_initializations = [];
 
+public void resetR2mu() {
+	functions_in_module = [];
+	variables_in_module = [];
+	variable_initializations = [];
+}
+
 MuModule r2mu(loc moduleLoc){
    try {
-   	//Module M = parseModule(moduleLoc, libSearchPath);
+   	// Module M = parseModule(moduleLoc, libSearchPath);
    	lang::rascal::\syntax::Rascal::Module M = parse(#start[Module], moduleLoc);
    	Configuration c = newConfiguration();
    	config = checkModule(M.top, c);  // .top is needed to remove start! Ugly!
@@ -46,7 +52,11 @@ MuModule r2mu(loc moduleLoc){
    	  }
    	} catch Java("ParseError","Parse error"): {
    	    throw "Syntax errors in module <Example1>";
-   	} 
+   	} finally {
+   		println("Cleaning up ...");
+   		resetR2mu();
+   		resetScopeExtraction();
+   	}
 }
 
 void translate(m: (Module) `<Header header> <Body body>`) {
@@ -78,42 +88,27 @@ void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = t
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   { throw("abstract"); }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
-  //ftypes = getFunctionType("<signature.name>");
-  //if({ ftype } := ftypes){
   ftype = getFunctionType(fd@\loc);
-  formals = signature.parameters.formals.formals;
-  lformals = [f | f <- formals];
-  scope = loc2uid[fd@\loc]; //getFunctionScope("<signature.name>");
-	    
-  functions_in_module += [muFunction("<signature.name>", scope, size(lformals), getScopeSize(scope), [muReturn(translate(expression)[0])])];
-  //} else
-  //    throw "overloaded function <signature.name>: <ftypes>";
+  nformals = size(ftype.parameters);
+  scope = loc2uid[fd@\loc];
+  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), [muReturn(translate(expression)[0])])];
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
-  //ftypes = getFunctionType("<signature.name>");
-  //if({ ftype } := ftypes){
   ftype = getFunctionType(fd@\loc);    
-  formals = signature.parameters.formals.formals;
-  lformals = [f | f <- formals];
-  tbody = [*translate(stat) | stat <- body.statements ];
-  scope = loc2uid[fd@\loc]; //getFunctionScope("<signature.name>");
-  functions_in_module += [muFunction("<signature.name>", scope, size(lformals), getScopeSize(scope), tbody)];
-  //} else
-  //    throw "overloaded function <signature.name>: <ftypes>"; 
+  nformals = size(ftype.parameters);
+  tbody = [ *translate(stat) | stat <- body.statements ];
+  scope = loc2uid[fd@\loc];
+  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), tbody)]; 
 }
 
-str translateFun( Signature signature, str body){
-  ftypes = getFunctionType("<signature.name>");
-  if({ ftype } := ftypes){
-	  formals = signature.parameters.formals.formals;
-	  lformals = [f | f <- formals];
-	  tformals = [(Pattern) `<Type tp> <Name nm>` := lformals[i] ? mkVar("<nm>",nm@\loc) : "pattern"  | i <- index(lformals)];
-	  tbody = "<for(stat <- body.statements){><translate(stat)>;<}>";
-	  return "\n// <fd>\n<mkVar("<signature.name>",fd@\loc)> = lambda([<intercalate(", ", tformals)>]){<tbody>}";
-  } else
-      throw "overloaded function <signature.name>: <ftypes>"; 
-
+str translateFun(FunctionDeclaration fd, Signature signature, FunctionBody body){
+  ftype = getFunctionType(fd@\loc);
+  formals = signature.parameters.formals.formals;
+  lformals = [f | f <- formals];
+  tformals = [(Pattern) `<Type tp> <Name nm>` := lformals[i] ? mkVar("<nm>",nm@\loc) : "pattern"  | i <- index(lformals)];
+  tbody = "<for(stat <- body.statements){><translate(stat)>;<}>";
+  return "\n// <fd>\n<mkVar("<signature.name>",fd@\loc)> = lambda([<intercalate(", ", tformals)>]){<tbody>}";
 }
 
 str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions> ;`)   { throw("conditional"); }

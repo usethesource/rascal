@@ -19,7 +19,7 @@ Export-Package:
  org.rascalmpl.interpreter.types,
  org.rascalmpl.interpreter.utils,
  org.rascalmpl.library,
- org.rascalmpl.library.experiments.m3.internal,
+ org.rascalmpl.library.analysis.m3.internal,
  org.rascalmpl.library.experiments.resource,
  org.rascalmpl.library.experiments.resource.resources,
  org.rascalmpl.library.experiments.resource.resources.file,

@@ -1,7 +1,7 @@
-module experiments::m3::LOC
+module analysis::m3::LOC
 
-import experiments::m3::Facts;
-import experiments::m3::JavaM3;
+import analysis::m3::Facts;
+import analysis::m3::JavaM3;
 import Prelude;
 
 public int countFileTotalLoc(M3 projectModel, loc cu) {
