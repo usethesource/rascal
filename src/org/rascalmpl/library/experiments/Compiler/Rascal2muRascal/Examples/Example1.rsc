@@ -14,6 +14,8 @@ import List;
 //
 //}
 
+data D = d1(int n) | d2(list[int] ns);
+
 value main(list[value] args) { 
 //    t1 = getMilliTime();
 //	work(10000);
@@ -21,5 +23,6 @@ value main(list[value] args) {
 //	println("rascal interpreter [<t2 - t1> msec]");
 // 	return 0;
  	
- 	return [*int x] := [1,2,3];
+ 	z = (/str x := d2([1,2,3])) ? x : 0;
+ 	return z;
 }
