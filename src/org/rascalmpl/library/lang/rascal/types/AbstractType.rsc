@@ -28,6 +28,9 @@ public data Symbol =
 	| \overloaded(set[Symbol] overloads)
 	;
 
+@doc{Extension to add a production type.}
+public data Symbol = \prod(Symbol \sort, str name, list[Symbol] parameters, set[Attr] attributes);
+
 @doc{Annotations to hold the type assigned to a tree.}
 public anno Symbol Tree@rtype;
 
