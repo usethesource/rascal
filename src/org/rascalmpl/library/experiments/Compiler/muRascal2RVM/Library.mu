@@ -70,8 +70,60 @@ function ALL[1,1,arg,carg]{
 }        
 */
 
+// ***** Generators for all types *****
 
-// Pattern matching
+function GEN_LIST[1, 1, _lst, last, i]{
+   last = prim("subtraction_num_num", prim("size_list", _lst), 1);
+   i = 0;
+   while(prim("less_num_num", i, last)){
+      yield prim("subscript_list_int", _lst, i);
+      i = prim("addition_num_num", i, 1);
+   };
+   return prim("subscript_list_int", _lst, last);
+}
+
+function GEN_NODE[1, 1, _nd, last, i, lst]{
+   lst = prim("$get_name_and_children", _nd);
+   last = prim("subtraction_num_num", prim("$size_array", lst), 2);
+   i = 1;  // skip name
+   while(prim("less_num_num", i, last)){
+      yield prim("$subscript_array_int", lst, i);
+      i = prim("addition_num_num", i, 1);
+   };
+   return prim("$subscript_array_int", lst, last);
+}
+
+function GEN_VALUE[1, 1, _val, co, res]{
+
+  if(prim("is_list", _val)){
+     yield _val;
+     co = init(create(fun GEN_LIST, _val));
+     while(hasNext(co)){
+        res = next(co);
+        if(hasNext(co)){
+           yield res;
+        } else {
+          return res;
+        };
+     };
+  };
+  if(prim("is_node", _val)){
+     yield _val;
+     co = init(create(fun GEN_NODE, _val));
+     while(hasNext(co)){
+        res = next(co);
+        if(hasNext(co)){
+           yield res;
+        } else {
+          return res;
+        };
+     };
+  };
+  // Add cases for set/rel/tuple/map/...
+  return _val;
+}
+
+// ***** Pattern matching *****
 
 function MATCH[1,2,pat,_subject,cpat]{
    cpat = init(pat, _subject);
@@ -122,13 +174,15 @@ function MATCH_N[1, 2, pats, subjects, plen, slen, p, pat]{
 
 function MATCH_CALL_OR_TREE[1, 2, pats, _subject, cpats]{
     prim("println", ["MATCH_CALL_OR_TREE", pats, _subject]);
-    cpats = init(create(fun MATCH_N, pats, prim("$get_name_and_children", _subject)));
-    while(hasNext(cpats)){
-      prim("println", ["MATCH_CALL_OR_TREE", "hasNext=true"]);
-      if(next(cpats)){
-         yield true;
-      } else {
-         return false;
+    if(prim("is_node", _subject)){
+      cpats = init(create(fun MATCH_N, pats, prim("$get_name_and_children", _subject)));
+      while(hasNext(cpats)){
+        prim("println", ["MATCH_CALL_OR_TREE", "hasNext=true"]);
+        if(next(cpats)){
+           yield true;
+        } else {
+           return false;
+        };
       };
     };
     return false;
@@ -136,34 +190,49 @@ function MATCH_CALL_OR_TREE[1, 2, pats, _subject, cpats]{
 
 function MATCH_TUPLE[1, 2, pats, _subject, cpats]{
     prim("println", ["MATCH_TUPLE", pats, _subject]);
-    cpats = init(create(fun MATCH_N, pats, prim("$get_tuple_elements", _subject)));
-    while(hasNext(cpats)){
-      prim("println", ["MATCH_TUPLE", "hasNext=true"]);
-      if(next(cpats)){
-         yield true;
-      } else {
-         return false;
+    if(prim("is_tuple", _subject)){
+      cpats = init(create(fun MATCH_N, pats, prim("$get_tuple_elements", _subject)));
+      while(hasNext(cpats)){
+        prim("println", ["MATCH_TUPLE", "hasNext=true"]);
+        if(next(cpats)){
+           yield true;
+        } else {
+           return false;
+        };
       };
     };
     return false;
 }
 
-
-function MATCH_INT[1,2,pat,_subject, res]{
-   res = prim("equals_num_num", pat, _subject);
-   prim("println", ["MATCH_INT", pat, _subject, res]);
-   return res;
+function MATCH_INT[1,2,pat, _subject, res]{
+  if(prim("is_int", _subject)){
+     res = prim("equals_num_num", pat, _subject);
+     prim("println", ["MATCH_INT", pat, _subject, res]);
+     return res;
+  };
+  return false;
 }
 
 function MATCH_STR[1,2,pat, _subject, res]{
-   res = prim("equals_str_str", pat, _subject);
-   prim("println", ["MATCH_STR", pat, _subject, res]);
-   return res;
+   if(prim("is_str", _subject)){
+     res = prim("equals_str_str", pat, _subject);
+     prim("println", ["MATCH_STR", pat, _subject, res]);
+     return res;
+   };
+   return false;  
 }
 
 function MATCH_VAR[1, 2, varref, _subject]{
    deref varref = _subject;
    return true;
+}
+
+function MATCH_TYPED_VAR[1, 3, typ, varref, _subject]{
+   if(prim("equals_type_type", typ, prim("typeOf", _subject))){
+     deref varref = _subject;
+     return true;
+   };
+   return false;  
 }
 
 function MATCH_VAR_BECOMES[1, 3, varref, pat, _subject, cpat]{
@@ -196,7 +265,18 @@ function MATCH_AS_TYPE[1, 3, typ, pat, _subject, cpat]{
    return false;
 }
 
-// List matching
+function MATCH_DESCENDANT[1, 2, pat, _subject, gen, cpat]{
+   gen = init(create(fun GEN_VALUE, _subject));
+   while(hasNext(gen)){
+       cpat = init(pat, _subject);
+       while(hasNext(cpat)){
+          yield true;
+       };
+   };
+   return false;
+}
+
+// ***** List matching *****
 
 function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list elements
 						  _subject,						// The subject list
