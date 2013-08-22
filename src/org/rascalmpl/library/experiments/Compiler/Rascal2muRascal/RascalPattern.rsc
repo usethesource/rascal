@@ -5,6 +5,7 @@ import Prelude;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
+import experiments::Compiler::Rascal2muRascal::RascalType;
 
 import experiments::Compiler::muRascal::AST;
 
@@ -65,13 +66,14 @@ list[MuExp] translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
 // Variable becomes pattern
 
 list[MuExp] translatePat(p:(Pattern) `<Name name> : <Pattern pattern>`) {
-    throw "variable becomes pattern";
+    <scopeId, pos> = getVariableScope("<name>", name@\loc);
+    return [muCreate(muFun("MATCH_VAR_BECOMES"), [muVarRef("<name>", scopeId, pos), *translatePat(pattern)])];
 }
 
 // asType pattern
 
-list[MuExp] translatePat(p:(Pattern) `[ <Type \type> ] <Pattern argument>`) {
-    throw "asType pattern";
+list[MuExp] translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) {
+    return [muCreate(muFun("MATCH_AS_TYPE"), [muTypeCon(translateType(tp)), *translatePat(argument)])];
 }
 
 // Descendant pattern
@@ -81,8 +83,9 @@ list[MuExp] translatePat(p:(Pattern) `/ <Pattern pattern>`) {
 }
 
 // typedVariableBecomes pattern
-list[MuExp] translatePat(p:(Pattern) `<Type \type> <Name name> : <Pattern pattern>`) {
-    throw "typedVariableBecomes pattern";
+list[MuExp] translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) {
+    <scopeId, pos> = getVariableScope("<name>", name@\loc);
+    return [muCreate(muFun("MATCH_TYPED_VAR_BECOMES"), [muTypeCon(translateType(tp)), muVarRef("<name>", scopeId, pos), *translatePat(pattern)])];
 }
 
 
@@ -102,9 +105,9 @@ list[MuExp] translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`) {
    return [ muCreate(muFun("MATCH_MULTIVAR_IN_LIST"), [muVarRef("<name>", scopeId, pos)]) ];
 }
 
-list[MuExp] translatePatAsListElem(p:(Pattern) `*<Type \type> <Name name>`) {
+list[MuExp] translatePatAsListElem(p:(Pattern) `*<Type tp> <Name name>`) {
    <scopeId, pos> = getVariableScope("<name>", p@\loc);
-   return [ muCreate(muFun("MATCH_MULTIVAR_IN_LIST"), [muVarRef("<name>", scopeId, pos)]) ];
+   return [ muCreate(muFun("MATCH_TYPED_MULTIVAR_IN_LIST"), [muTypeCon(\list(translateType(tp))), muVarRef("<name>", scopeId, pos)]) ];
 }
 
 list[MuExp] translatePatAsListElem(p:(Pattern) `*<Name name>`) {
