@@ -521,9 +521,10 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
 }
 
 public Configuration addProduction(Configuration c, RName n, loc l, Production prod) {
-    assert prod.def is label && prod.def.symbol has name;
+	assert ( (prod.def is label && prod.def.symbol has name) 
+				|| ( !(prod.def is label) && prod.def has name ) );
      
-    sortName = RSimpleName(prod.def.symbol.name);
+    sortName = RSimpleName( (prod.def is label) ? prod.def.symbol.name : prod.def.name );
     if (sortName notin c.typeEnv) { 
       throw "Unexpected error, syntax nonterminal <prettyPrintName(sortName)> not found!";
     }
@@ -536,7 +537,8 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
     
     moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
     // TODO: think about production overload when we start to create ability to construct concrete trees from abstract names
-    c.store[c.nextLoc] = production(RSimpleName(prod.def.name), prod.def.symbol, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
+    Symbol rtype = Symbol::\prod( (prod.def is label) ? prod.def.symbol : prod.def, getSimpleName(n), prod.symbols, prod.attributes );
+    c.store[c.nextLoc] = production(n, rtype, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
     c.definitions = c.definitions + < c.nextLoc, l >;
     c.nonterminalConstructors = c.nonterminalConstructors + < sortId, c.nextLoc >;
     c.nextLoc = c.nextLoc + 1;
@@ -5589,8 +5591,10 @@ public Configuration importConstructor(RName conName, UserType adtType, list[Typ
 
 @doc{Import a signature item: Constructor}
 public Configuration importProduction(RSignatureItem item, Configuration c) {
-    if (label(str l, Symbol s) := item.prod.def) {
-      c = addProduction(c, RSimpleName(l), item.at, item.prod);
+	if(label(str l, Symbol _) := item.prod.def) {
+    	c = addProduction(c, RSimpleName(l), item.at, item.prod);
+    } else if(item.prod.def has name) {
+    	c = addProduction(c, RSimpleName(""), item.at, item.prod);
     }
     return c;
 }
