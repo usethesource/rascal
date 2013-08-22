@@ -1,4 +1,4 @@
-module analysis::m3::JavaM3
+module lang::java::m3::JavaM3
 
 extend analysis::m3::Core;
 
