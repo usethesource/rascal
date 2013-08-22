@@ -175,6 +175,17 @@ function MATCH_VAR_BECOMES[1, 3, varref, pat, _subject, cpat]{
    return false;
 }
 
+function MATCH_TYPED_VAR_BECOMES[1, 4, typ, varref, pat, _subject, cpat]{
+   if(prim("equals_type_type", typ, prim("typeOf", _subject))){
+     cpat = init(pat, _subject);
+     while(hasNext(cpat)){
+       deref varref = _subject;
+       yield true;
+     };
+   };  
+   return false;
+}
+
 function MATCH_AS_TYPE[1, 3, typ, pat, _subject, cpat]{
    if(prim("equals_type_type", typ, prim("typeOf", _subject))){
      cpat = init(pat, _subject);

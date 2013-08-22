@@ -22,5 +22,5 @@ value main(list[value] args) {
 // 	return 0;
  	
  
- 	return [int] false := 3;
+ 	return int x : 3 := 3;
 }
