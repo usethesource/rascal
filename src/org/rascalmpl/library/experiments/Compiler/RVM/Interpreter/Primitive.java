@@ -63,6 +63,21 @@ public enum Primitive {
 	greater_equal_num_num,
 	head_list,
 	implies_bool_bool,
+	is_bool,
+	is_datetime,
+	is_int,
+	is_list,
+	is_lrel,
+	is_loc,
+	is_map,
+	is_node,
+	is_num,
+	is_real,
+	is_rat,
+	is_rel,
+	is_set,
+	is_str,
+	is_tuple,
 	less_num_num,
 	less_equal_num_num,
 	make_list,
@@ -513,7 +528,98 @@ public enum Primitive {
 		stack[sp - 2] = ((IBool) stack[sp - 2]).implies((IBool) stack[sp - 1]);
 		return sp - 1;
 	}
-
+	/*
+	 * is_*: check the type of an IValue
+	 */
+	
+	public static int  is_bool(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isBool());
+		return sp;
+	}
+	
+	public static int  is_datetime(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isDateTime());
+		return sp;
+	}
+	public static int  is_int(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isInteger());
+		return sp;
+	}
+	
+	public static int  is_list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isList());
+		return sp;
+	}
+	
+	public static int  is_loc(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isSourceLocation());
+		return sp;
+	}
+	
+	public static int  is_lrel(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isListRelation());
+		return sp;
+	}
+	
+	public static int  is_map(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isMap());
+		return sp;
+	}
+	
+	public static int  is_node(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isNode());
+		return sp;
+	}
+	
+	public static int  is_num(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isNumber());
+		return sp;
+	}
+	
+	public static int  is_rat(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isRational());
+		return sp;
+	}
+	
+	public static int  is_real(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isReal());
+		return sp;
+	}
+	
+	public static int  is_rel(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isRelation());
+		return sp;
+	}
+	
+	public static int  is_set(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isSet());
+		return sp;
+	}
+	
+	public static int  is_str(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isString());
+		return sp;
+	}
+	
+	public static int  is_tuple(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isTuple());
+		return sp;
+	}
 	
 	/*
 	 * insertBefore
