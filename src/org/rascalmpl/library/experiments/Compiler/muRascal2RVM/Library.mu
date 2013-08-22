@@ -73,29 +73,29 @@ function ALL[1,1,arg,carg]{
 // ***** Generators for all types *****
 
 function GEN_LIST[1, 1, _lst, last, i]{
-   last = prim("subtraction_num_num", prim("size_list", _lst), 1);
+   last = muprim("subtraction_num_num", prim("size_list", _lst), 1);
    i = 0;
-   while(prim("less_num_num", i, last)){
+   while(muprim("less_num_num", i, last)){
       yield prim("subscript_list_int", _lst, i);
-      i = prim("addition_num_num", i, 1);
+      i = muprim("addition_num_num", i, 1);
    };
    return prim("subscript_list_int", _lst, last);
 }
 
 function GEN_NODE[1, 1, _nd, last, i, lst]{
-   lst = prim("$get_name_and_children", _nd);
-   last = prim("subtraction_num_num", prim("$size_array", lst), 2);
+   lst = muprim("get_name_and_children", _nd);
+   last = muprim("subtraction_num_num", muprim("size_array", lst), 2);
    i = 1;  // skip name
-   while(prim("less_num_num", i, last)){
-      yield prim("$subscript_array_int", lst, i);
-      i = prim("addition_num_num", i, 1);
+   while(muprim("less_num_num", i, last)){
+      yield muprim("subscript_array_int", lst, i);
+      i = muprim("addition_num_num", i, 1);
    };
-   return prim("$subscript_array_int", lst, last);
+   return muprim("subscript_array_int", lst, last);
 }
 
 function GEN_VALUE[1, 1, _val, co, res]{
 
-  if(prim("is_list", _val)){
+  if(muprim("is_list", _val)){
      yield _val;
      co = init(create(fun GEN_LIST, _val));
      while(hasNext(co)){
@@ -107,7 +107,7 @@ function GEN_VALUE[1, 1, _val, co, res]{
         };
      };
   };
-  if(prim("is_node", _val)){
+  if(muprim("is_node", _val)){
      yield _val;
      co = init(create(fun GEN_NODE, _val));
      while(hasNext(co)){
@@ -139,27 +139,27 @@ function MATCH[1,2,pat,_subject,cpat]{
 
 function MATCH_N[1, 2, pats, subjects, plen, slen, p, pat]{
    prim("println", ["MATCH_N", pats, subjects]);
-   plen = prim("$size_array", pats);
-   slen = prim("$size_array", subjects);
-   if(prim("not_equals_num_num", plen, slen)){
+   plen = muprim("size_array", pats);
+   slen = muprim("size_array", subjects);
+   if(muprim("not_equals_num_num", plen, slen)){
       prim("println", ["MATCH_N: unequal length", plen, slen]);
       return false;
    };
    p = 0;
-   while(prim("less_num_num", p, plen)){
+   while(muprim("less_num_num", p, plen)){
      prim("println",  ["MATCH_N: init ", p]);
      set pats[p] = init(get pats[p], get subjects[p]);
-     p = prim("addition_num_num", p, 1);
+     p = muprim("addition_num_num", p, 1);
    };
    
    while(true){
      p = 0;
-     while(prim("less_num_num", p, plen)){
+     while(muprim("less_num_num", p, plen)){
        prim("println", ["p = ", p]);
        pat = get pats[p];
        if(hasNext(pat)){
           if(next(pat)){
-              p = prim("addition_num_num", p, 1);
+              p = muprim("addition_num_num", p, 1);
            } else {
               return false;
            };   
@@ -174,8 +174,8 @@ function MATCH_N[1, 2, pats, subjects, plen, slen, p, pat]{
 
 function MATCH_CALL_OR_TREE[1, 2, pats, _subject, cpats]{
     prim("println", ["MATCH_CALL_OR_TREE", pats, _subject]);
-    if(prim("is_node", _subject)){
-      cpats = init(create(fun MATCH_N, pats, prim("$get_name_and_children", _subject)));
+    if(muprim("is_node", _subject)){
+      cpats = init(create(fun MATCH_N, pats, muprim("get_name_and_children", _subject)));
       while(hasNext(cpats)){
         prim("println", ["MATCH_CALL_OR_TREE", "hasNext=true"]);
         if(next(cpats)){
@@ -190,8 +190,8 @@ function MATCH_CALL_OR_TREE[1, 2, pats, _subject, cpats]{
 
 function MATCH_TUPLE[1, 2, pats, _subject, cpats]{
     prim("println", ["MATCH_TUPLE", pats, _subject]);
-    if(prim("is_tuple", _subject)){
-      cpats = init(create(fun MATCH_N, pats, prim("$get_tuple_elements", _subject)));
+    if(muprim("is_tuple", _subject)){
+      cpats = init(create(fun MATCH_N, pats, muprim("get_tuple_elements", _subject)));
       while(hasNext(cpats)){
         prim("println", ["MATCH_TUPLE", "hasNext=true"]);
         if(next(cpats)){
@@ -206,7 +206,7 @@ function MATCH_TUPLE[1, 2, pats, _subject, cpats]{
 
 function MATCH_INT[1,2,pat, _subject, res]{
   if(prim("is_int", _subject)){
-     res = prim("equals_num_num", pat, _subject);
+     res = muprim("equals_num_num", pat, _subject);
      prim("println", ["MATCH_INT", pat, _subject, res]);
      return res;
   };
@@ -214,8 +214,8 @@ function MATCH_INT[1,2,pat, _subject, res]{
 }
 
 function MATCH_STR[1,2,pat, _subject, res]{
-   if(prim("is_str", _subject)){
-     res = prim("equals_str_str", pat, _subject);
+   if(muprim("is_str", _subject)){
+     res = muprim("equals_str_str", pat, _subject);
      prim("println", ["MATCH_STR", pat, _subject, res]);
      return res;
    };
@@ -228,7 +228,7 @@ function MATCH_VAR[1, 2, varref, _subject]{
 }
 
 function MATCH_TYPED_VAR[1, 3, typ, varref, _subject]{
-   if(prim("equals_type_type", typ, prim("typeOf", _subject))){
+   if(muprim("equals_type_type", typ, prim("typeOf", _subject))){
      deref varref = _subject;
      return true;
    };
@@ -245,7 +245,7 @@ function MATCH_VAR_BECOMES[1, 3, varref, pat, _subject, cpat]{
 }
 
 function MATCH_TYPED_VAR_BECOMES[1, 4, typ, varref, pat, _subject, cpat]{
-   if(prim("equals_type_type", typ, prim("typeOf", _subject))){
+   if(muprim("equals_type_type", typ, muprim("typeOf", _subject))){
      cpat = init(pat, _subject);
      while(hasNext(cpat)){
        deref varref = _subject;
@@ -256,7 +256,7 @@ function MATCH_TYPED_VAR_BECOMES[1, 4, typ, varref, pat, _subject, cpat]{
 }
 
 function MATCH_AS_TYPE[1, 3, typ, pat, _subject, cpat]{
-   if(prim("equals_type_type", typ, prim("typeOf", _subject))){
+   if(muprim("equals_type_type", typ, muprim("typeOf", _subject))){
      cpat = init(pat, _subject);
      while(hasNext(cpat)){
        yield true;
@@ -292,37 +292,37 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
 						  nextCursor					// Cursor movement of last successfull match
 					]{
 
-     patlen   = prim("$size_array", pats);
-     patlen1 =  prim("subtraction_num_num", patlen, 1);
+     patlen   = muprim("size_array", pats);
+     patlen1 =  muprim("subtraction_num_num", patlen, 1);
      sublen   = prim("size_list", _subject);
      p        = 0; 
      cursor   = 0;
      forward  = true;
      matcher  = init(get pats[p], _subject, cursor, sublen);
-     matchers = prim("$make_array_of_size", patlen);
+     matchers = muprim("make_array_of_size", patlen);
      set matchers[0] = matcher;
      
      while(true){
      	// Move forward
      	 forward = hasNext(matcher);
      	 // prim("println", ["At head", p, cursor, forward]);
-         while(prim("and_bool_bool", forward, hasNext(matcher))){
+         while(muprim("and_bool_bool", forward, hasNext(matcher))){
         	[success, nextCursor] = next(matcher);
             if(success){ 
                forward = true;
                cursor = nextCursor;
                // prim("println", ["SUCCESS", p, cursor]);
-               if(prim("and_bool_bool",
-                       prim("equals_num_num", p, patlen1),
-                       prim("equals_num_num", cursor, sublen))) {
+               if(muprim("and_bool_bool",
+                       muprim("equals_num_num", p, patlen1),
+                       muprim("equals_num_num", cursor, sublen))) {
                    // prim("println", ["*** YIELD", p, cursor]);
               	   yield true;
               	   // prim("println", ["Back from yield", p, cursor]); 
                } else {
-                 if(prim("less_num_num", p, patlen1)){
-                   p = prim("addition_num_num", p, 1);
+                 if(muprim("less_num_num", p, patlen1)){
+                   p = muprim("addition_num_num", p, 1);
                    // prim("println", ["Forward", p, cursor]);
-                   matcher  = init(get pats[p], _subject, cursor,  prim("subtraction_num_num", sublen, cursor));
+                   matcher  = init(get pats[p], _subject, cursor,  muprim("subtraction_num_num", sublen, cursor));
                    set matchers[p] = matcher;
                  } else {
                    if(hasNext(matcher)){
@@ -342,8 +342,8 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
          if(forward){
            // nothing
          } else {  
-           if(prim("greater_num_num", p, 0)){
-               p        = prim("subtraction_num_num", p, 1);
+           if(muprim("greater_num_num", p, 0)){
+               p        = muprim("subtraction_num_num", p, 1);
                // prim("println", ["Previous", p, cursor]);
                matcher  = get matchers[p];
                forward  = true;
@@ -361,46 +361,46 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
 // - available: the number of remianing, unmatched, elements in the subject list
 
 function MATCH_PAT_IN_LIST[1, 4, pat, _subject, start, available, cpat]{
-    if(prim("less_equal_num_num", available, 0)){
+    if(muprim("less_equal_num_num", available, 0)){
        return [false, start];
     };   
     cpat = init(pat, prim("subscript_list_int", _subject, start));
     
     while(hasNext(cpat)){
        if(next(cpat)){
-          return [true, prim("addition_num_num", start, 1)];
+          return [true, muprim("addition_num_num", start, 1)];
        };   
     };
     return [false, start];
 } 
 
 function MATCH_VAR_IN_LIST[1, 4, varref, _subject, start, available]{
-   if(prim("less_equal_num_num", available, 0)){
+   if(muprim("less_equal_num_num", available, 0)){
        return [false, start];
    }; 
    deref varref = prim("subscript_list_int", _subject, start);
-   return [true, prim("addition_num_num", start, 1)];
+   return [true, muprim("addition_num_num", start, 1)];
 }
 
 function MATCH_MULTIVAR_IN_LIST[1, 4, varref, _subject, start, available, len]{
     len = 0;
-    while(prim("less_equal_num_num", len, available)){
+    while(muprim("less_equal_num_num", len, available)){
         deref varref = prim("sublist", _subject, start, len);
         // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_num_num", start, len)]);
-        yield [true, prim("addition_num_num", start, len)];
-        len = prim("addition_num_num", len, 1);
+        yield [true, muprim("addition_num_num", start, len)];
+        len = muprim("addition_num_num", len, 1);
      };
      return [false, start];
 }
 
 function MATCH_TYPED_MULTIVAR_IN_LIST[1, 5, typ, varref, _subject, start, available, len]{
-    if(prim("equals_type_type", typ, prim("typeOf", _subject))){
+    if(muprim("equals_type_type", typ, muprim("typeOf", _subject))){
        len = 0;
-       while(prim("less_equal_num_num", len, available)){
-          deref varref = prim("sublist", _subject, start, len);
+       while(muprim("less_equal_num_num", len, available)){
+          deref varref = muprim("sublist", _subject, start, len);
           // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_num_num", start, len)]);
-          yield [true, prim("addition_num_num", start, len)];
-          len = prim("addition_num_num", len, 1);
+          yield [true, muprim("addition_num_num", start, len)];
+          len = muprim("addition_num_num", len, 1);
        };
      };
      return [false, start];

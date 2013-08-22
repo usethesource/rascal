@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Primitive;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -31,7 +31,7 @@ public class CountDown_b {
 							.LABEL("LOOP")
 							.LOADLOC(0)
 							.LOADCON(0)
-							.CALLPRIM(Primitive.greater_num_num, 2)
+							.CALLPRIM(RascalPrimitive.greater_num_num, 2)
 							.JMPTRUE("BODY")
 							.LOADCON(0)
 							.RETURN1()
@@ -41,7 +41,7 @@ public class CountDown_b {
 							.POP()
 							.LOADLOC(0)
 							.LOADCON(1)
-							.CALLPRIM(Primitive.subtraction_num_num, 2)
+							.CALLPRIM(RascalPrimitive.subtraction_num_num, 2)
 							.STORELOC(0)
 							.POP()
 							.JMP("LOOP")));
@@ -58,7 +58,7 @@ public class CountDown_b {
 					new CodeBlock(vf)
 						.LOADCON(9)
 						.LOADCON(1)
-						.CALLPRIM(Primitive.addition_num_num, 2)
+						.CALLPRIM(RascalPrimitive.addition_num_num, 2)
 						.STORELOC(0)
 						.POP()
 						.CREATE("g",0)
@@ -107,9 +107,9 @@ public class CountDown_b {
 						.NEXT0()
 						.LOADLOC(2)
 						.NEXT0()
-						.CALLPRIM(Primitive.addition_num_num, 2)
+						.CALLPRIM(RascalPrimitive.addition_num_num, 2)
 						.LOADLOC(3)
-						.CALLPRIM(Primitive.addition_num_num, 2)
+						.CALLPRIM(RascalPrimitive.addition_num_num, 2)
 						.STORELOC(3)
 						.POP()
 						

@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Primitive;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -19,16 +19,16 @@ public class Do {
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADLOC(0).
-					CALLPRIM(Primitive.product_num_num, 2).
+					CALLPRIM(RascalPrimitive.product_num_num, 2).
 					RETURN1()));
 		
 		rvm.declare(new Function("cube", 2, 1, 1, 6, 
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADLOC(0).
-					CALLPRIM(Primitive.product_num_num, 2).
+					CALLPRIM(RascalPrimitive.product_num_num, 2).
 					LOADLOC(0).
-					CALLPRIM(Primitive.product_num_num, 2).
+					CALLPRIM(RascalPrimitive.product_num_num, 2).
 					RETURN1()));
 		
 		rvm.declare(new Function("do", 3, 2, 2, 6, 
