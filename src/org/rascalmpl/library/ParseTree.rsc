@@ -504,3 +504,12 @@ public bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
 public bool sameType(Symbol s, s) = true;
 public default bool sameType(Symbol s, Symbol t) = false;
 
+@doc{Determine if the given type is a non-terminal type}
+public bool isNonTerminalType(Symbol::\sort(str _)) = true;
+public bool isNonTerminalType(Symbol::\lex(str _)) = true;
+public bool isNonTerminalType(Symbol::\layouts(str _)) = true;
+public bool isNonTerminalType(Symbol::\keywords(str _)) = true;
+public bool isNonTerminalType(Symbol::\parameterized-sort(str _, list[Symbol] _)) = true;
+public bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true;
+public default bool isNonTerminalType(Symbol s) = false;
+
