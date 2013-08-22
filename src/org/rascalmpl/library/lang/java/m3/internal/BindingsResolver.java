@@ -8,7 +8,7 @@
  * Contributors:
  *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.library.analysis.m3.internal;
+package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.net.URI;
 import java.net.URISyntaxException;
