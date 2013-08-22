@@ -24,9 +24,9 @@ public class Configuration {
 	public static final String RASCAL_PATH_SEP = "/";
 	
 	private static final String RASCAL_JAVA_COMPILER_CLASSPATH = "rascal.java.classpath";
-	private final static String PROFILING_PROPERTY = "rascal.profiling";
-	private final static String TRACING_PROPERTY = "rascal.tracing";
-	private final static String ERRORS_PROPERTY = "rascal.errors";
+	public final static String PROFILING_PROPERTY = "rascal.profiling";
+	public final static String TRACING_PROPERTY = "rascal.tracing";
+	public final static String ERRORS_PROPERTY = "rascal.errors";
 	
 	private String javaClassPath = getDefaultString(RASCAL_JAVA_COMPILER_CLASSPATH, System.getProperty("java.class.path"));
   private boolean profiling = getDefaultBoolean(PROFILING_PROPERTY, false);
