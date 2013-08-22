@@ -1134,6 +1134,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		} finally {
 			if (Evaluator.doProfiling) {
 				if (profiler != null) {
+				  getCurrentEnvt().storeLocalVariable("PROFILE", ResultFactory.makeResult(tf.lrelType(tf.sourceLocationType(), tf.integerType()), profiler.getProfileData(), this));
 					profiler.pleaseStop();
 					profiler.report();
 					profiler = null;
