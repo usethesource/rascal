@@ -52,9 +52,9 @@ Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label("<name>", t
 Symbol translateType(t: (FunctionType) `<Type \type> (<{TypeArg ","}* args>)`) = 
 									\func(translateType(ret), [ translateType(arg) | arg <- args]);
 									
-Symbol translateType(t: (UserType) `<QualifiedName name>`) = \adt("<name>", []);  	
+Symbol translateType(t: (UserType) `<QualifiedName name>`) = adt("<name>", []);  	
 Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) = 
-									\adt("<name>", [ translateType(arg) | arg <- args]);  
+									adt("<name>", [ translateType(arg) | arg <- args]);  
 									
 Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter("<name>");  
 Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter("<name>", translateType(bound));  

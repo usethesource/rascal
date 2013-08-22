@@ -53,7 +53,7 @@ MuModule r2mu(loc moduleLoc){
    	} catch Java("ParseError","Parse error"): {
    	    throw "Syntax errors in module <Example1>";
    	} finally {
-   		println("Cleaning up ...");
+   		println("r2mu: Cleaning up ...");
    		resetR2mu();
    		resetScopeExtraction();
    	}
