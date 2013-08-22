@@ -64,7 +64,9 @@ public data MuExp =
      		
           | muCall(MuExp fun, list[MuExp] args)					// Call a function
           | muCallConstr(str cname, list[MuExp] args) 			// Call a constructor
-          | muCallPrim(str name, list[MuExp] exps)				// Call a primitive function with variable number of arguments
+          | muCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
+          | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
+ 
           | muReturn()											// Return from function without value
           | muReturn(MuExp exp)									// Return from function with value
               

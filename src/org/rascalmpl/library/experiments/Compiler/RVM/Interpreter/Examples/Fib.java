@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Primitive;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -25,27 +25,27 @@ public static void main(String[] args) {
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADCON(0).
-					CALLPRIM(Primitive.equals_num_num, 2).
+					CALLPRIM(RascalPrimitive.equals_num_num, 2).
 					JMPFALSE("L").
 					LOADCON(0).
 					RETURN1().
 					LABEL("L").
 					LOADLOC(0).
 					LOADCON(1).
-					CALLPRIM(Primitive.equals_num_num, 2).
+					CALLPRIM(RascalPrimitive.equals_num_num, 2).
 					JMPFALSE("M").
 					LOADCON(1).
 					RETURN1().
 					LABEL("M").
 					LOADLOC(0).
 					LOADCON(1).
-					CALLPRIM(Primitive.subtraction_num_num, 2).
+					CALLPRIM(RascalPrimitive.subtraction_num_num, 2).
 					CALL("fib").
 					LOADLOC(0).
 					LOADCON(2).
-					CALLPRIM(Primitive.subtraction_num_num, 2).
+					CALLPRIM(RascalPrimitive.subtraction_num_num, 2).
 					CALL("fib").
-					CALLPRIM(Primitive.addition_num_num, 2).
+					CALLPRIM(RascalPrimitive.addition_num_num, 2).
 					RETURN1()));
 					
 		rvm.declare(new Function("main", 2, 1, 1, 6,

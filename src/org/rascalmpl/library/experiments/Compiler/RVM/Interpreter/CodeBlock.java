@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Call;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallDyn;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
@@ -255,8 +256,12 @@ public class CodeBlock {
 		return add(new StoreVar(this, scope, pos));
 	}
 	
-	public CodeBlock CALLPRIM (Primitive prim, int arity){
+	public CodeBlock CALLPRIM (RascalPrimitive prim, int arity){
 		return add(new CallPrim(this, prim, arity));
+	}
+	
+	public CodeBlock CALLMUPRIM (MuPrimitive muprim, int arity){
+		return add(new CallMuPrim(this, muprim, arity));
 	}
 	
 	public CodeBlock LOADFUN (String name){

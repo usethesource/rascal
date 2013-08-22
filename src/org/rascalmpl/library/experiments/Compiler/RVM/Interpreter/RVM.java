@@ -3,14 +3,18 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -54,7 +58,7 @@ public class RVM {
 		functionMap = new HashMap<String, Integer>();
 		constructorMap = new HashMap<String, Integer>();
 		
-		Primitive.init(vf);
+		RascalPrimitive.init(vf);
 	}
 	
 	public RVM(IValueFactory vf){
@@ -399,13 +403,7 @@ public class RVM {
 
 				case Opcode.OP_PRINTLN:
 					stdout.println(((IString) stack[sp - 1]).getValue());
-					continue;
-					
-				case Opcode.OP_CALLPRIM:
-					Primitive prim = Primitive.fromInteger(instructions[pc++]);
-					arity = instructions[pc++];
-					sp = prim.invoke(stack, sp, arity);
-					continue;
+					continue;		
 				
 				case Opcode.OP_INIT:
 					arity = instructions[pc++];
@@ -514,6 +512,256 @@ public class RVM {
 				case Opcode.OP_HASNEXT:
 					coroutine = (Coroutine) stack[--sp];
 					stack[sp++] = coroutine.hasNext() ? TRUE : FALSE;
+					continue;
+					
+				case Opcode.OP_CALLPRIM:
+					RascalPrimitive prim = RascalPrimitive.fromInteger(instructions[pc++]);
+					arity = instructions[pc++];
+					sp = prim.invoke(stack, sp, arity);
+					continue;
+					
+				case Opcode.OP_CALLMUPRIM:
+					MuPrimitive muprim = MuPrimitive.fromInteger(instructions[pc++]);
+					arity = instructions[pc++];
+					
+					switch(muprim){
+					
+					case addition_num_num:
+						assert arity == 2;
+						stack[sp - 2] = ((INumber) stack[sp - 2]).add((INumber) stack[sp - 1]);
+						sp = sp - 1;
+						break;
+						
+					case and_bool_bool:
+						assert arity == 2;
+						stack[sp - 2] = ((IBool) stack[sp - 2]).and((IBool) stack[sp - 1]);
+						sp = sp - 1;
+						break;
+						
+					case assign_pair:
+						assert arity == 2;
+						int v1 = ((IInteger) stack[sp - 3]).intValue();
+						int v2 = ((IInteger) stack[sp - 2]).intValue();
+						Object[] pair = (Object[]) stack[sp - 1];
+						stack[v1] = pair[0];
+						stack[v2] = pair[1];
+						stack[sp - 3] = pair;
+						sp = sp - 2;
+						break;
+						
+					case assign_subscript_array_int:
+						assert arity == 3;
+						Object[] ar = (Object[]) stack[sp - 3];
+						int index = ((IInteger) stack[sp - 2]).intValue();
+						ar[index] = stack[sp - 1];
+						stack[sp - 3] = stack[sp - 1];
+						sp = sp - 2;
+						break;
+						
+					case equals_num_num:
+						assert arity == 2;
+						stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]);
+						sp = sp - 1;
+						break;
+						
+					case equals_str_str:
+						assert arity == 2;
+						stack[sp - 2] = vf.bool(((IString) stack[sp - 2]).isEqual(((IString) stack[sp - 1])));
+						sp = sp - 1;
+						break;
+					
+					case equals_type_type:
+						assert arity == 2;
+						stack[sp - 2] = vf.bool(((Type) stack[sp - 2]) == ((Type) stack[sp - 1]));
+						sp = sp - 1;
+						break;
+						
+					case get_name_and_children:
+						assert arity == 1;
+						INode nd = (INode) stack[sp - 1];
+						String name = nd.getName();
+						Object[] elems = new Object[arity + 1];
+						elems[0] = vf.string(name);
+						for(int i = 0; i < arity; i++){
+							elems[i + 1] = nd.get(i);
+						}
+						stack[sp - 1] =  elems;
+						break;
+						
+					case get_tuple_elements:
+						assert arity == 1;
+						ITuple tup = (ITuple) stack[sp - 1];
+						int nelem = tup.arity();
+						elems = new Object[nelem];
+						for(int i = 0; i < nelem; i++){
+							elems[i] = tup.get(i);
+						}
+						stack[sp - 1] =  elems;
+						break;
+						
+					case greater_equal_num_num:
+						assert arity == 2;
+						stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
+						sp = sp - 1;
+						break;
+						
+					case greater_num_num:
+						assert arity == 2;
+						stack[sp - 2] = ((INumber) stack[sp - 2]).greater((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
+						sp = sp - 1;
+						break;
+						
+					case is_bool:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isBool());
+						break;
+						
+					case is_datetime:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isDateTime());
+						break;
+						
+					case is_int:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isInteger());
+						break;
+						
+					case is_list:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isList());
+						break;
+						
+					case is_loc:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isSourceLocation());
+						break;
+						
+					case is_lrel:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isListRelation());
+						break;
+						
+					case is_map:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isMap());
+						break;
+						
+					case is_node:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isNode());
+						break;
+						
+					case is_num:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isNumber());
+						break;
+						
+					case is_rat:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isRational());
+						break;
+						
+					case is_real:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isReal());
+						break;
+						
+					case is_rel:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isRelation());
+						break;
+						
+					case is_set:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isSet());
+						break;
+						
+					case is_str:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isString());
+						break;
+						
+					case is_tuple:
+						assert arity == 1;
+						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isTuple());
+						break;
+						
+					case less_equal_num_num:
+						assert arity == 2;
+						stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
+						sp = sp - 1;
+						break;
+						
+					case less_num_num:
+						assert arity == 2;
+						stack[sp - 2] = ((INumber) stack[sp - 2]).less((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
+						sp = sp - 1;
+						break;
+						
+					case make_array:
+						assert arity >= 0;
+						
+						ar = new Object[arity];
+
+						for (int i = arity - 1; i >= 0; i--) {
+							ar[i] = stack[sp - arity + i];
+						}
+						sp = sp - arity + 1;
+						stack[sp - 1] = ar;
+						break;
+						
+					case make_array_of_size:
+						assert arity == 1;
+						int len = ((IInteger)stack[sp - 1]).intValue();
+						stack[sp - 1] = new Object[len];
+						break;
+						
+					case not_equals_num_num:
+						assert arity == 2;
+						stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
+						sp = sp - 1;
+						break;
+						
+					case size_array:
+						assert arity == 1;
+						stack[sp - 1] = vf.integer(((Object[]) stack[sp - 1]).length);
+						break;
+						
+					case sublist:
+						assert arity == 3;
+						IList lst = (IList) stack[sp - 3];
+						int offset = ((IInteger) stack[sp - 2]).intValue();
+						int length = ((IInteger) stack[sp - 1]).intValue();
+						stack[sp - 3] = lst.sublist(offset, length);
+						sp = sp - 2;
+						break;
+						
+					case subscript_array_int:
+						assert arity == 2;
+						stack[sp - 2] = ((Object[]) stack[sp - 2])[((IInteger) stack[sp - 1]).intValue()];
+						sp = sp - 1;
+						break;
+						
+					case subtype:
+						assert arity == 2;
+						stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
+						sp = sp - 1;
+						break;
+						
+					case typeOf:
+						assert arity == 1;
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+						break;
+					
+					case subtraction_num_num:
+						assert arity == 2;
+						stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
+						sp =  sp - 1;
+						break;
+					
+					default:
+						throw new RuntimeException("CALLMUPRIM -- unknown primitive");
+					}
 					continue;
 								
 				default:
