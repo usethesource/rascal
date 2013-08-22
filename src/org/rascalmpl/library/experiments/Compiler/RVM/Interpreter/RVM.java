@@ -86,18 +86,19 @@ public class RVM {
 	 * - Coroutine
 	 * - Reference
 	 * - FunctionInstance
-	 * - ArrayList (is converted to an IList)
+	 * - Object[] (is converted to an IList)
 	 * @param result to be returned
 	 * @return converted result or an exception
 	 */
 	private IValue narrow(Object result){
+		stdout.println("narrow: " + result.getClass() + ", " + result);
 		if(result instanceof IValue)
 			return (IValue) result;
-		if(result instanceof List){
+		if(result instanceof Object[]){
 			IListWriter w = vf.listWriter();
-			List<?> lst = (List<?>) result;
-			for(int i = 0; i < lst.size(); i++){
-				w.append(narrow(lst.get(i)));
+			Object[] lst = (Object[]) result;
+			for(int i = 0; i < lst.length; i++){
+				w.append(narrow(lst[i]));
 			}
 			return w.done();
 		}
@@ -152,18 +153,17 @@ public class RVM {
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				if(pc < 0 || pc >= instructions.length){
-					throw new RuntimeException("PANIC: " + main + " illegal pc: " + pc);
+					throw new RuntimeException(main + " illegal pc: " + pc);
 				}
 				int op = instructions[pc++];
 
 				if (debug) {
 					int startpc = pc - 1;
 					for (int i = 0; i < sp; i++) {
-						stdout.println("\t" + i + ": " + stack[i]);
-						//System.out.println("\t" + i + ": " + stack[i]);
+						String val = (stack[i] == null) ? "null" : (stack[i] instanceof IValue) ? ((IValue) stack[i]).toString() : stack[i].toString();
+						stdout.println("\t" + i + ": " + val);
 					}
 					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
-					//System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
 
 
@@ -194,7 +194,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new RuntimeException("PANIC: LOAD_NESTED_FUNCTION cannot find matching scope: " + scope);	
+					throw new RuntimeException("LOAD_NESTED_FUNCTION cannot find matching scope: " + scope);	
 				}
 				
 				case Opcode.OP_LOADCONSTR:
@@ -224,7 +224,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new RuntimeException("PANIC: LOADVAR or LOADVARREF cannot find matching scope: " + s);
+					throw new RuntimeException("LOADVAR or LOADVARREF cannot find matching scope: " + s);
 				}
 				
 				case Opcode.OP_LOADVARDEREF: {
@@ -237,7 +237,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new RuntimeException("PANIC: LOADVARDEREF cannot find matching scope: " + s);
+					throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + s);
 				}
 				
 				case Opcode.OP_STORELOC: {
@@ -261,7 +261,7 @@ public class RVM {
 						}
 					}
 
-					throw new RuntimeException("PANIC: STOREVAR cannot find matching scope: " + s);
+					throw new RuntimeException("STOREVAR cannot find matching scope: " + s);
 	
 				case Opcode.OP_STOREVARDEREF:
 					s = instructions[pc++];
@@ -275,7 +275,7 @@ public class RVM {
 						}
 					}
 
-					throw new RuntimeException("PANIC: STOREVARDEREF cannot find matching scope: " + s);
+					throw new RuntimeException("STOREVARDEREF cannot find matching scope: " + s);
 
 
 				case Opcode.OP_JMP:
@@ -303,7 +303,7 @@ public class RVM {
 					continue;
 
 				case Opcode.OP_LABEL:
-					throw new RuntimeException("PANIC: label instruction at runtime");
+					throw new RuntimeException("label instruction at runtime");
 				
 				case Opcode.OP_CALLCONSTR:
 					constructor = constructorStore.get(instructions[pc++]);
@@ -341,7 +341,7 @@ public class RVM {
 						fun = functionStore.get(instructions[pc++]);
 						previousScope = cf;
 					} else {
-						throw new RuntimeException("PANIC: unexpected argument type when CALLDYN is executed: " + stack[sp - 1].getClass());
+						throw new RuntimeException("unexpected argument type for CALLDYN: " + stack[sp - 1].getClass());
 					}
 						
 					instructions = fun.codeblock.getInstructions();
@@ -420,7 +420,7 @@ public class RVM {
 						Frame frame = new Frame(fun.scope, null, fun_instance.env, fun.maxstack, fun);
 						coroutine = new Coroutine(frame);
 					} else {
-						throw new RuntimeException("PANIC: unexpected argument type when INIT is executed.");
+						throw new RuntimeException("unexpected argument type for INIT: " + src.getClass() + ", " + src);
 					}
 					
 					// the main function of coroutine may have formal parameters,
@@ -449,7 +449,7 @@ public class RVM {
 							fun = fun_instance.function;
 							previousScope = fun_instance.env;
 						} else {
-							throw new RuntimeException("PANIC: unexpected argument type when CREATEDYN is executed: " + src.getClass());
+							throw new RuntimeException("unexpected argument type for CREATEDYN: " + src.getClass() + ", " + src);
 						}
 					}
 					arity = instructions[pc++];
@@ -517,11 +517,11 @@ public class RVM {
 					continue;
 								
 				default:
-					throw new RuntimeException("PANIC: RVM main loop -- cannot decode instruction");
+					throw new RuntimeException("RVM main loop -- cannot decode instruction");
 				}
 			}
 		} catch (Exception e) {
-			stdout.println("PANIC: exception caused by invoking a primitive or illegal instruction sequence: " + e);
+			stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			e.printStackTrace();
 		}
 		return FALSE;

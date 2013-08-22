@@ -1,6 +1,7 @@
-module experiments::m3::Facts
+module analysis::m3::Facts
 
-import experiments::m3::AST;
+import analysis::m3::JavaM3;
+import Prelude;
 
 public bool isCompilationUnit(loc entity) {
 	if (entity.scheme == "java+compilationUnit")
@@ -54,27 +55,33 @@ public set[loc] files(rel[loc, loc] containment) {
 	return {e.lhs | tuple[loc lhs, loc rhs] e <- containment, isCompilationUnit(e.lhs)};
 }
 
-public rel[loc, loc] declaredMethods(rel[loc, loc] containment) {
-	return {e | tuple[loc lhs, loc rhs] e <- containment, isClass(e.lhs), isMethod(e.rhs)};
+public rel[loc, loc] declaredMethods(M3 m, set[Modifiers] checkModifiers = {}) {
+	declaredClasses = classes(m@containment);
+	methodModifiersMap = toMap(m@modifiers);
+	
+	return {e | tuple[loc lhs, loc rhs] e <- domainR(m@containment, declaredClasses), isMethod(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
 }
 
-public rel[loc, loc] declaredMethodsWithModifier(rel [loc, loc] containment, rel[loc, Modifiers] modifiers, set[Modifiers] checkModifiers) {
-	rel[loc, loc] methods = declaredMethods(containment);
-	map[loc, set[Modifiers]] methodModifiers = toMap(domainR(modifiers, range(methods)));
-	set[loc] resultSet = {};
-	for (loc method <- methodModifiers) {
-		if (checkModifiers <= methodModifiers[method])
-			resultSet += method;
-	}
-	return rangeR(methods, resultSet);
+public rel[loc, loc] declaredFields(M3 m, set[Modifiers] checkModifiers = {}) {
+	declaredClasses = classes(m@containment);
+	methodModifiersMap = toMap(m@modifiers);
+	
+	return {e | tuple[loc lhs, loc rhs] e <- domainR(m@containment, declaredClasses), isField(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
 }
+
+public rel[loc, loc] declaredFieldsX(M3 m,set[Modifiers] checkModifiers = {}) {
+	declaredClasses = classes(m@containment);
+	methodModifiersMap = toMap(m@modifiers);
+	
+	return {e | tuple[loc lhs, loc rhs] e <- domainR(m@containment, declaredClasses), isField(e.rhs), isEmpty(checkModifiers & (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {})) };
+} 
 
 public rel[loc, loc] declaredTopTypes(rel[loc, loc] containment) {
-	return {e | tuple[loc lhs, loc rhs] e <- rels, isCompilationUnit(e.lhs), isClass(e.rhs) || isInterface(e.rhs)}; 
+	return {e | tuple[loc lhs, loc rhs] e <- containment, isCompilationUnit(e.lhs), isClass(e.rhs) || isInterface(e.rhs)}; 
 }
 
 public rel[loc, loc] declaredSubTypes(rel[loc, loc] containment) {
-	return {e | tuple[loc lhs, loc rhs] e <- rels, isClass(e.rhs)} - declaredTopTypes(rels);
+	return {e | tuple[loc lhs, loc rhs] e <- containment, isClass(e.rhs)} - declaredTopTypes(rels);
 }
 
 public rel[loc, loc] extends(rel[loc, loc] inheritance) {
@@ -86,21 +93,21 @@ public rel[loc, loc] implements(rel[loc, loc] inheritance) {
 }
 
 public set[loc] classes(rel[loc, loc] containment) {
-	return {e.rhs | tuple[loc lhs, loc rhs] e <- containment, isClass(e.rhs)};
+	return {e | e <- range(containment), isClass(e)};
 }
 
 public set[loc] packages(rel[loc, loc] containment) {
-	return {e.rhs | tuple[loc lhs, loc rhs] e <- containment, isPackage(e.rhs)};
+	return {e | e <- domain(containment), isPackage(e)};
 }
 
 public set[loc] variables(rel[loc, loc] containment) {
-	return {e.rhs | tuple[loc lhs, loc rhs] e <- containment, isVariable(e.rhs)};
+	return {e | e <- range(containment), isVariable(e)};
 }
 
 public set[loc] parameters(rel[loc, loc] containment) {
-	return {e.rhs | tuple[loc lhs, loc rhs] e <- containment, isParameter(e.rhs)};
+	return {e | e <- range(containment), isParameter(e)};
 }
 
 public set[loc] fieldDecls(rel[loc, loc] containment) {
-	return {e.rhs | tuple[loc lhs, loc rhs] e <- containment, isField(e.rhs)};
+	return {e | e <- range(containment), isField(e.rhs)};
 }

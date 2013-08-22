@@ -20,13 +20,14 @@ list[MuFunction] functions = [
 
 
 muFunction("fib", 1, 1, 1, 
-	[ muReturn(muIfelse(muCallPrim("equals_num_num",muLoc("n", 0), muCon(0)),
+	[ muReturn(muIfelse(muCallPrim("equals_num_num", [muLoc("n", 0), muCon(0)]),
 						[ muCon(0) ],
-						[ muIfelse(muCallPrim("equals_num_num",muLoc("n", 0), muCon(1)),
+						[ muIfelse(muCallPrim("equals_num_num", [muLoc("n", 0), muCon(1)]),
 								[ muCon(1) ],
 								[ muCallPrim("addition_num_num", 
-						             muCall("fib", [ muCallPrim("subtraction_num_num",muLoc("n", 0), muCon(1)) ]),
-						             muCall("fib", [ muCallPrim("subtraction_num_num",muLoc("n", 0), muCon(2)) ]))
+						             [ muCall(muFun("fib"), [ muCallPrim("subtraction_num_num",[muLoc("n", 0), muCon(1)]) ]),
+						               muCall(muFun("fib"), [ muCallPrim("subtraction_num_num",[muLoc("n", 0), muCon(2)]) ])
+						             ])
 						        ])
 						]))
 	]),
@@ -35,7 +36,7 @@ muFunction("fib", 1, 1, 1,
 						            
 muFunction("main", 1, 1, 2, 
 	[		
-		muReturn(muCall("fib", [muCon(fibarg)]))
+		muReturn(muCall(muFun("fib"), [muCon(fibarg)]))
 	]
 )
 

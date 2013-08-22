@@ -182,6 +182,8 @@ default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 // Does an expression produce a value? (needed for cleaning up the stack)
 
 bool producesValue(muWhile(MuExp cond, list[MuExp] body)) = false;
+bool producesValue(muReturn()) = false;
+bool producesValue(muNext(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
 
 // Translate a condition, given a failure continuation.
@@ -245,13 +247,12 @@ INS tr_cond(muAll(list[MuExp] exps), str moreLab, str failLab){
     return code;
 }
 
-INS tr_cond(muMulti(MuExp exp), str moreLab, str failLab) {
+INS tr_cond(muMulti(MuExp exp), str moreLab, str failLab) =
     [ LABEL(moreLab),
        *tr(exp),
        INIT(0),
-       NEXT(),
+       NEXT0(),
        JMPFALSE(failLab)
     ];
-}
 
 default INS tr_cond(MuExp exp, str moreLab, str failLab) = [ LABEL(moreLab), *tr(exp), JMPFALSE(failLab) ];

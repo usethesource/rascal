@@ -8,7 +8,7 @@
  * Contributors:
  *   * Jouke Stoel - Jouke.Stoel@cwi.nl (CWI)
 *******************************************************************************/
-package org.rascalmpl.library.experiments.m3.internal;
+package org.rascalmpl.library.analysis.m3.internal;
 
 import java.util.ArrayList;
 import java.util.List;

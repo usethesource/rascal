@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -46,7 +47,9 @@ public enum Primitive {
 	addition_set_set,
 	addition_str_str,
 	addition_tuple_tuple,
-	assign_pair,			// Used by muRascal implode
+	assign_subscript_list_int,
+	$assign_subscript_array_int,
+	$assign_pair,			// Used by muRascal implode
 	composition_lrel_lrel,
 	composition_rel_rel,
 	composition_map_map,
@@ -54,6 +57,8 @@ public enum Primitive {
 	equals_num_num,
 	equals_str_str,
 	equivalent_bool_bool,
+	$get_name_and_children,
+	$get_tuple_elements,
 	greater_num_num,
 	greater_equal_num_num,
 	head_list,
@@ -61,22 +66,27 @@ public enum Primitive {
 	less_num_num,
 	less_equal_num_num,
 	make_list,
-	make_object_list,
+	$make_array,
+	$make_array_of_size,
 	make_map,
 	make_set,
 	make_tuple,
 	negative,
 	not_bool,
+	not_equal,
+	not_equals_num_num,
 	or_bool_bool,
 	println,
 	product_num_num,
 	size_list,
+	$size_array,
 	sublist,
 	subtraction_list_list,
 	subtraction_map_map,
 	subtraction_num_num,
 	subtraction_set_set,
 	subscript_list_int, 
+	$subscript_array_int, 
 	subscript_map,
 	tail_list,
 	transitive_closure_lrel,
@@ -311,18 +321,36 @@ public enum Primitive {
 		return sp - 1;
 	}
 	
+	public static int assign_subscript_list_int(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		@SuppressWarnings("unchecked")
+		List<Object> lst = (List<Object>) stack[sp - 3];
+		int index = ((IInteger) stack[sp - 2]).intValue();
+		lst.set(index, stack[sp - 1]);
+		stack[sp - 3] = stack[sp -1];
+		return sp - 2;
+	}
+	
+	public static int $assign_subscript_array_int(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		Object[] ar = (Object[]) stack[sp - 3];
+		int index = ((IInteger) stack[sp - 2]).intValue();
+		ar[index] = stack[sp - 1];
+		stack[sp - 3] = stack[sp - 1];
+		return sp - 2;
+	}
 	
 	/*
 	 * assignPair: used by muRascal Implode for resolving [v1, v2] = exp
 	 */
 	
-	public static int assign_pair(Object[] stack, int sp, int arity) {
+	public static int $assign_pair(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		int v1 = ((IInteger) stack[sp - 3]).intValue();
 		int v2 = ((IInteger) stack[sp - 2]).intValue();
-		List<?> pair = (List<?>) stack[sp - 1];
-		stack[v1] = pair.get(0);
-		stack[v2] = pair.get(1);
+		Object[] pair = (Object[]) stack[sp - 1];
+		stack[v1] = pair[0];
+		stack[v2] = pair[1];
 		stack[sp - 3] = pair;
 		return sp - 2;
 	}
@@ -408,6 +436,39 @@ public enum Primitive {
 	/*
 	 * getAnnotation
 	 */
+	
+	/*
+	 * get_name_and_children
+	 */
+	public static int $get_name_and_children(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		INode nd = (INode) stack[sp - 1];
+		String name = nd.getName();
+		Object[] elems = new Object[arity + 1];
+		elems[0] = vf.string(name);
+		for(int i = 0; i < arity; i++){
+			elems[i + 1] = nd.get(i);
+		}
+		stack[sp - 1] =  elems;
+		return sp;
+	}
+	
+	/*
+	 * get_tuple_elements
+	 */
+	
+	public static int $get_tuple_elements(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		ITuple tup = (ITuple) stack[sp - 1];
+		int nelem = tup.arity();
+		Object[] elems = new Object[nelem];
+		for(int i = 0; i < nelem; i++){
+			elems[i] = tup.get(i);
+		}
+		stack[sp - 1] =  elems;
+		return sp;
+	}
+	
 	/*
 	 * greaterThan
 	 */
@@ -512,19 +573,25 @@ public enum Primitive {
 	}
 	
 	/*
-	 * make_object_list
+	 * make_array: used by muRascal runtime
 	 */
-	public static int make_object_list(Object[] stack, int sp, int arity) {
+	public static int $make_array(Object[] stack, int sp, int arity) {
 		assert arity >= 0;
 		
-		List<Object> lst = new ArrayList<Object>();
+		Object[] ar = new Object[arity];
 
 		for (int i = arity - 1; i >= 0; i--) {
-			lst.add(stack[sp - 1 - i]);
+			ar[i] = stack[sp - arity + i];
 		}
 		sp = sp - arity + 1;
-		stack[sp - 1] = lst;
-
+		stack[sp - 1] = ar;
+		return sp;
+	}
+	
+	public static int $make_array_of_size(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		int len = ((IInteger)stack[sp - 1]).intValue();
+		stack[sp - 1] = new Object[len];
 		return sp;
 	}
 	
@@ -554,7 +621,7 @@ public enum Primitive {
 		for (int i = arity - 1; i >= 0; i--) {
 			writer.insert((IValue) stack[sp - 2 - i]);
 		}
-		sp = sp - arity;
+		sp = sp - arity + 1;
 		stack[sp - 1] = writer.done();
 
 		return sp;
@@ -567,7 +634,7 @@ public enum Primitive {
 		for (int i = arity - 1; i >= 0; i--) {
 			elems[i] = (IValue) stack[sp - arity + i];
 		}
-		sp = sp - arity;
+		sp = sp - arity + 1;
 		stack[sp - 1] = vf.tuple(elems);
 		return sp;
 	}
@@ -584,11 +651,18 @@ public enum Primitive {
 	 */
 	public static int size_list(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		if(stack[sp -1] instanceof IList){
+		//if(stack[sp - 1] instanceof IList){
 			stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
-		} else {
-			stack[sp - 1] = vf.integer(((List<?>) stack[sp - 1]).size());
-		}
+		//} else {
+		//	IInteger n = vf.integer(((List<?>) stack[sp - 1]).size());
+		//	stack[sp - 1] = n;
+		//}
+		return sp;
+	}
+	
+	public static int $size_array(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = vf.integer(((Object[]) stack[sp - 1]).length);
 		return sp;
 	}
 	
@@ -629,6 +703,22 @@ public enum Primitive {
 		assert arity == 1;
 		stack[sp - 1] = ((IBool) stack[sp - 1]).not();
 		return sp;
+	}
+	
+	/*
+	 * not_equal
+	 */
+	
+	public static int not_equal(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 1] = vf.bool(!((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]));
+		return sp -1;
+	}
+	
+	public static int not_equals_num_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
+		return sp - 1;
 	}
 	
 	/*
@@ -697,11 +787,17 @@ public enum Primitive {
 	 */
 	public static int subscript_list_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		if(stack[sp - 2] instanceof IList){
+		//if(stack[sp - 2] instanceof IList){
 			stack[sp - 2] = ((IList) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
-		} else {
-			stack[sp - 2] = ((List<?>) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
-		}
+		//} else {
+		//	stack[sp - 2] = ((List<?>) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
+		//}
+		return sp - 1;
+	}
+	
+	public static int $subscript_array_int(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((Object[]) stack[sp - 2])[((IInteger) stack[sp - 1]).intValue()];
 		return sp - 1;
 	}
 
