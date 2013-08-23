@@ -525,6 +525,10 @@ public class Prelude {
 		}
 	}
 
+	public IString printSymbol(IConstructor symbol, IBool withLayout) {
+	  return values.string(SymbolAdapter.toString(symbol, withLayout.getValue()));
+	}
+	
 	public IValue parseDateTime(IString inputDateTime, IString formatString) 
 	//@doc{Parse an input datetime given as a string using the given format string}
 	{
@@ -856,7 +860,7 @@ public class Prelude {
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
 			}
 			else if (arg.getType().isSubtypeOf(Factory.Type)) {
-				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol")));
+				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
 			}
 			else{
 				currentOutStream.print(arg.toString());
@@ -923,7 +927,7 @@ public class Prelude {
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
 			}
 			else if (arg.getType().isSubtypeOf(Factory.Type)) {
-				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol")));
+				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
 			}
 			else{
 				currentOutStream.print(arg.toString());
