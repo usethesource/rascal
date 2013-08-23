@@ -9,7 +9,7 @@ void registerProject(str project, M3 model) {
 }
 
 void unregisterProject(str project) {
-  projects -= (project:m3(|dummy:///|,(),{}));
+  projects -= (project:m3(project));
 }
 
 @resolver{m3}
