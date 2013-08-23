@@ -131,10 +131,17 @@ public class BindingsResolver {
 		if (!signature.isEmpty())
 			signature = signature.concat("/");
 		String params = "";
-		for (ITypeBinding parameterType: binding.getParameterTypes()) {
+		
+		for (ITypeBinding parameterType: binding.getMethodDeclaration().getParameterTypes()) {
 			if (!params.isEmpty())
 				params = params.concat(",");
-			params = params.concat(getPath(resolveBinding(parameterType)).replaceAll("/", "."));
+			
+			if (parameterType.isTypeVariable()) {
+			  params = params.concat(parameterType.getName()); 
+			}
+			else {
+			  params = params.concat(getPath(resolveBinding(parameterType)).replaceAll("/", "."));
+			}
 		}
 		signature = signature.concat(binding.getName() + "(" + params + ")");
 		String scheme = "unknown";
@@ -153,43 +160,54 @@ public class BindingsResolver {
 	}
 	
 	private URI resolveBinding(ITypeBinding binding) {
-		if (binding == null)
+		if (binding == null) {
 			return convertBinding("unresolved", null, null, null);
-		
-		String scheme = binding.isInterface() ? "java+interface" : "java+class";
-		String qualifiedName = binding.getQualifiedName();
-		
-		if (qualifiedName.isEmpty()) {
-			if (binding.getDeclaringMethod() != null)
-				qualifiedName = resolveBinding(binding.getDeclaringMethod()).getPath();
-			else if (binding.getDeclaringClass() != null)
-				qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath();
-			else
-				System.err.println("Should not happen");
 		}
 		
-		if (binding.isArray())
+		String scheme = binding.isInterface() ? "java+interface" : "java+class";
+		String qualifiedName = binding.getTypeDeclaration().getQualifiedName();
+		
+		if (qualifiedName.isEmpty()) {
+			if (binding.getDeclaringMethod() != null) {
+				qualifiedName = resolveBinding(binding.getDeclaringMethod()).getPath();
+			}
+			else if (binding.getDeclaringClass() != null) {
+				qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath();
+			}
+			else {
+				System.err.println("Should not happen");
+			}
+		}
+		
+		if (binding.isArray()) {
 			scheme = "java+array";
+		}
 		
-		if (binding.isPrimitive())
+		if (binding.isPrimitive()) {
 			scheme = "java+primitiveType";
+		}
 		
-		if (binding.isWildcardType())
+		if (binding.isWildcardType()) {
 			return convertBinding("unknown", null, null, null);
+		}
 		
-		if (binding.isLocal())
+		if (binding.isLocal()) {
 			qualifiedName = qualifiedName.concat("/").concat(binding.getName());
+		}
 		
 		if (binding.isAnonymous()) {
 			String key = binding.getKey();
-			if (resolvedAnonymousClasses.containsKey(key))
+			if (resolvedAnonymousClasses.containsKey(key)) {
 				qualifiedName = resolvedAnonymousClasses.get(key);
+			}
 			else {
 				int anonCounter = 1;
-				if (anonymousClassCounter.containsKey(qualifiedName))
+				if (anonymousClassCounter.containsKey(qualifiedName)) {
 					anonCounter = anonymousClassCounter.get(qualifiedName) + 1;
-				else 
+				}
+				else { 
 					anonCounter = 1;
+				}
 				anonymousClassCounter.put(qualifiedName, anonCounter);
 				qualifiedName += "$anonymous" + anonCounter;
 				resolvedAnonymousClasses.put(key, qualifiedName);
