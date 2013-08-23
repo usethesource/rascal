@@ -9,11 +9,13 @@ import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -105,7 +107,6 @@ public class GrammarToJigll {
 		  IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
 		  applyRestrictions(builder, notAllowed);
 		  builder.filter();
-		  
 		  grammar = builder.build();
 	}
 	
@@ -150,13 +151,7 @@ public class GrammarToJigll {
 				}
 				symbols.remove(1);
 				return ConditionFactory.notMatch(symbols.toArray(new Symbol[] {}));
-			
-		  default:
-				  return ConditionFactory.notMatch(new Symbol[] { getSymbol(symbol) });
-
-		  // TODO: optimize for the case where symbol defines a finite set of strings
-			// TODO: keywords will dissappear from Rascal
-/*
+				
 			case "keywords":
 				List<Keyword> keywords = new ArrayList<>();
 				IMap definitions = (IMap) rascalGrammar.get("rules");
@@ -172,7 +167,13 @@ public class GrammarToJigll {
 				
 			default:
 				throw new RuntimeException(symbol.getName() + " is not a supported in delete set.");
-	*/		
+
+			
+//		  default:
+//				  return ConditionFactory.notMatch(new Symbol[] { getSymbol(symbol) });
+
+		  // TODO: optimize for the case where symbol defines a finite set of strings
+			// TODO: keywords will disappear from Rascal
 		}
 	}
 	
@@ -262,7 +263,10 @@ public class GrammarToJigll {
 		return builder;
 	}
 	
-	private void applyRestrictions(GrammarBuilder builder, IMap notAllowed) {
+	private Set<Nonterminal> applyRestrictions(GrammarBuilder builder, IMap notAllowed) {
+		
+		Set<Nonterminal> filteredHeads = new HashSet<>();
+		
 		Iterator<Entry<IValue, IValue>> it = notAllowed.entryIterator();
 		while(it.hasNext()) {
 			Entry<IValue, IValue> next = it.next();
@@ -278,8 +282,11 @@ public class GrammarToJigll {
 			while(iterator.hasNext()) {
 				// Create a new filter for each filtered nonterminal
 				builder.addFilter(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
+				filteredHeads.add(rule.getHead());
 			}
 		}
+		
+		return filteredHeads;
 	}
 
    private static List<Range> buildRanges(IConstructor symbol) {
