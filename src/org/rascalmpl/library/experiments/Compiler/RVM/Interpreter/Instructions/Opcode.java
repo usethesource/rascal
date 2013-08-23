@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Primitive;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 
 public enum Opcode {
 	
@@ -44,6 +44,7 @@ public enum Opcode {
 	CALLCONSTR(33,2), // TODO: plus number of formal parameters
 	LOAD_NESTED_FUN(34, 3),
 	LOADTYPE(35,2),
+	CALLMUPRIM(36,3)
 	;
 	
 	private final int op;
@@ -94,6 +95,7 @@ public enum Opcode {
 	static public final int OP_CALLCONSTR = 33;
 	static public final int OP_LOAD_NESTED_FUN = 34;
 	static public final int OP_LOADTTYPE = 35;
+	static public final int OP_CALLMUPRIM = 36;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -129,7 +131,7 @@ public enum Opcode {
 			return "CALL " + cb.finalCode[pc + 1]  + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
 		case CALLPRIM:
-			return "CALLPRIM " + cb.finalCode[pc + 1] +  ", " + cb.finalCode[pc + 2] + " [" + Primitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
+			return "CALLPRIM " + cb.finalCode[pc + 1] +  ", " + cb.finalCode[pc + 2] + " [" + RascalPrimitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
 			
 		case RETURN1:
 			return "RETURN1";
@@ -217,6 +219,9 @@ public enum Opcode {
 			
 		case LOADTYPE:
 			return "LOADTYPE " + cb.finalCode[pc + 1];
+			
+		case CALLMUPRIM:
+			return "CALLMUPRIM " + cb.finalCode[pc + 1] +  ", " + cb.finalCode[pc + 2] + " [" + RascalPrimitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
 					
 		default:
 			break;

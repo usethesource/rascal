@@ -1,14 +1,14 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Primitive;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 
 public class CallPrim extends Instruction {
 
-	Primitive prim;
+	RascalPrimitive prim;
 	int arity;
 	
-	public CallPrim(CodeBlock ins, Primitive prim, int arity){
+	public CallPrim(CodeBlock ins, RascalPrimitive prim, int arity){
 		super(ins, Opcode.CALLPRIM);
 		this.prim = prim;
 		this.arity = arity;
