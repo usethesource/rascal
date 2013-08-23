@@ -173,7 +173,7 @@ data Symbol
      | \iter-seps(Symbol symbol, list[Symbol] separators)   
      | \iter-star-seps(Symbol symbol, list[Symbol] separators) 
      | \alt(set[Symbol] alternatives)
-     | \seq(list[Symbol] sequence)
+     | \seq(list[Symbol] symbols)
      ;
   
 
@@ -307,6 +307,9 @@ unparse(parse(#Exp, "2+3"));
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str unparse(Tree tree);
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java str printSymbol(Symbol sym, bool withLayout);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses Evaluator to create constructors in the caller scope (to fire rewrite rules).}
