@@ -172,12 +172,12 @@ public class SymbolAdapter {
 		return delabel(tree).getConstructorType() == Factory.Symbol_Alt;
 	}
 
-	public static String toString(IConstructor symbol) {
+	public static String toString(IConstructor symbol, boolean withLayout) {
 		// TODO: this code clones the symbol formatter impemented in Rascal. 
 	  // When we have a faster Rascal (compiler?) we should remove this clone.
 		
 		if (isLabel(symbol)) {
-			return toString((IConstructor) symbol.get("symbol")) + " " + ((IString) symbol.get("name")).getValue();
+			return toString((IConstructor) symbol.get("symbol"), withLayout) + " " + ((IString) symbol.get("name")).getValue();
 		}
 		if (isSort(symbol) || isLex(symbol) || isKeyword(symbol)) {
 			return getName(symbol);
@@ -201,44 +201,64 @@ public class SymbolAdapter {
 		  b.append("]");
 		  return b.toString();
 		}
-		if (isIterPlusSeps(symbol)) {
-			StringBuilder b = new StringBuilder();
-			b.append('{');
-			b.append(toString(getSymbol(symbol)));
-			for (IValue sep : getSeparators(symbol)) {
-				b.append(" ");
-				b.append(toString((IConstructor) sep));
-			}
-			b.append('}');
-			b.append('+');
-			return b.toString();
+		
+		
+    if (isIterPlusSeps(symbol)) {
+      IList seps = getSeparators(symbol);
+      StringBuilder b = new StringBuilder();
+      
+      if (!withLayout && seps.length() == 1 && isLayouts((IConstructor) seps.get(0))) {
+        b.append(toString(getSymbol(symbol), withLayout));
+        b.append('+');
+      }
+      else {
+        b.append('{');
+        b.append(toString(getSymbol(symbol), withLayout));
+        for (IValue sep : seps) {
+          b.append(" ");
+          b.append(toString((IConstructor) sep, withLayout));
+        }
+        b.append('}');
+        b.append('+');
+      }
+      
+      return b.toString();
 			
 		}
+    
 		if (isIterStarSeps(symbol)) {
 			StringBuilder b = new StringBuilder();
-			b.append('{');
-			b.append(toString(getSymbol(symbol)));
-			for (IValue sep : getSeparators(symbol)) {
-				if (!isLayouts((IConstructor) sep)) {
-					b.append(" ");
-					b.append(toString((IConstructor) sep));
-				}
-			}
-			b.append('}');
-			b.append('*');
+			 IList seps = getSeparators(symbol);
+			 
+			if (!withLayout && seps.length() == 1 && isLayouts((IConstructor) seps.get(0))) {
+        b.append(toString(getSymbol(symbol), withLayout));
+        b.append('*');
+      }
+      else {
+        b.append('{');
+        b.append(toString(getSymbol(symbol), withLayout));
+        for (IValue sep : seps) {
+          if (!isLayouts((IConstructor) sep)) {
+            b.append(" ");
+            b.append(toString((IConstructor) sep, withLayout));
+          }
+        }
+        b.append('}');
+        b.append('*');
+      }
 			return b.toString();
 		}
 		if (isIterPlus(symbol)) {
-			return toString(getSymbol(symbol)) + '+';
+			return toString(getSymbol(symbol), withLayout) + '+';
 		}
 		if (isIterStar(symbol)) {
-			return toString(getSymbol(symbol)) + '*';
+			return toString(getSymbol(symbol), withLayout) + '*';
 		}
 		if (isOpt(symbol)) {
-			return toString(getSymbol(symbol)) + '?';
+			return toString(getSymbol(symbol), withLayout) + '?';
 		}
 		if (isSeq(symbol)) {
-		  return "(" + toString(getSymbols(symbol)) + ")";
+		  return "(" + toString(getSymbols(symbol), ' ', withLayout) + ")";
 		}
 		if (isAlt(symbol)) {
 		  ISet alts = getAlternatives(symbol);
@@ -250,13 +270,13 @@ public class SymbolAdapter {
 		      first = false;
 		      b.append(" | ");
 		    }
-		    b.append(toString((IConstructor) elem));
+		    b.append(toString((IConstructor) elem, withLayout));
 		  }
 		  b.append(")");
 		  return b.toString(); 
 		}
 		if (isLayouts(symbol)) {
-			return "layout[" + symbol.get("name") + "]";
+			return withLayout ? "layout[" + symbol.get("name") + "]" : "";
 		}
 		if (isLiteral(symbol)) {
 			return '"' + ((IString) symbol.get("string")).getValue() + '"';
@@ -269,12 +289,12 @@ public class SymbolAdapter {
 			b.append(getName(symbol));
 			IList params = (IList) symbol.get("parameters");
 			b.append('[');
-			b.append(toString(params));
+			b.append(toString(params, ',', withLayout));
 			b.append(']');
 			return b.toString();
 		}
 		if (isStartSort(symbol)) {
-			return "start[" + toString(getStart(symbol)) + "]";
+			return "start[" + toString(getStart(symbol), withLayout) + "]";
 		}
 		if (isParameter(symbol)) {
 			return "&" + getName(symbol);
@@ -286,7 +306,7 @@ public class SymbolAdapter {
 		}
 		
 		if (isSet(symbol) || isList(symbol) || isBag(symbol) || isReifiedType(symbol)) {
-			return symbol.getName() + "[" + toString((IConstructor) symbol.get("symbol")) + "]";
+			return symbol.getName() + "[" + toString((IConstructor) symbol.get("symbol"), withLayout) + "]";
 		}
 		
 		if (isRel(symbol) || isListRel(symbol) || isTuple(symbol)) {
@@ -294,13 +314,13 @@ public class SymbolAdapter {
 			b.append(symbol.getName());
 			IList symbols = (IList) symbol.get("symbols");
 			b.append('[');
-			b.append(toString(symbols));
+			b.append(toString(symbols, ',', withLayout));
 			b.append(']');
 			return b.toString();
 		}
 		
 		if (isMap(symbol)) {
-			return symbol.getName() + "[" + toString((IConstructor) symbol.get("from")) + "," + toString((IConstructor) symbol.get("to")) + "]";
+			return symbol.getName() + "[" + toString((IConstructor) symbol.get("from"), withLayout) + "," + toString((IConstructor) symbol.get("to"), withLayout) + "]";
 		}
 		
 		if (isConditional(symbol)) {
@@ -311,11 +331,11 @@ public class SymbolAdapter {
 		    IConstructor cond = (IConstructor) elem;
 		    switch (cond.getConstructorType().getName()) {
 		    case "precede": 
-		      b.append(toString((IConstructor) cond.get("symbol")));
+		      b.append(toString((IConstructor) cond.get("symbol"), withLayout));
 		      b.append(" << ");
 		      break;
 		    case "not-precede":
-		      b.append(toString((IConstructor) cond.get("symbol")));
+		      b.append(toString((IConstructor) cond.get("symbol"), withLayout));
           b.append(" !<< ");
           break;
 		    case "begin-of-line":
@@ -324,7 +344,7 @@ public class SymbolAdapter {
 		    }
 		  }
 		  // then the symbol
-		  b.append(toString(getSymbol(symbol)));
+		  b.append(toString(getSymbol(symbol), withLayout));
 		  
 		  // then the postfix conditions
 		  for (IValue elem : conditions) {
@@ -332,15 +352,15 @@ public class SymbolAdapter {
 		    switch (cond.getConstructorType().getName()) {
         case "follow": 
           b.append(" >> ");
-          b.append(toString((IConstructor) cond.get("symbol")));
+          b.append(toString((IConstructor) cond.get("symbol"), withLayout));
           break;
 		    case "not-follow":
 		      b.append(" !>> ");
-		      b.append(toString((IConstructor) cond.get("symbol")));
+		      b.append(toString((IConstructor) cond.get("symbol"), withLayout));
           break;
 		    case "delete":
           b.append(" \\ ");
-          b.append(toString((IConstructor) cond.get("symbol")));
+          b.append(toString((IConstructor) cond.get("symbol"), withLayout));
           break;
 		    case "except":
 		      b.append("!");
@@ -361,7 +381,7 @@ public class SymbolAdapter {
 			
 			if (!params.isEmpty()) {
 				b.append('[');
-				b.append(toString(params));
+				b.append(toString(params, ',', withLayout));
 				b.append(']');
 			}
 			return b.toString();
@@ -369,20 +389,20 @@ public class SymbolAdapter {
 		
 		if (isFunc(symbol)) {
 			StringBuilder b = new StringBuilder();
-			b.append(toString((IConstructor) symbol.get("ret")));
+			b.append(toString((IConstructor) symbol.get("ret"), withLayout));
 			b.append("(");
-			b.append(toString((IList) symbol.get("parameters")));
+			b.append(toString((IList) symbol.get("parameters"), ',', withLayout));
 			b.append(")");
 			return b.toString();
 		}
 		
 		if (isCons(symbol)) {
 			StringBuilder b = new StringBuilder();
-			b.append(toString((IConstructor) symbol.get("adt")));
+			b.append(toString((IConstructor) symbol.get("adt"), withLayout));
 			b.append(" ");
 			b.append(((IString) symbol.get("name")).getValue());
 			b.append("(");
-			b.append(toString((IList) symbol.get("parameters")));
+			b.append(toString((IList) symbol.get("parameters"), ',', withLayout));
 			b.append(")");
 		}
 		
@@ -424,14 +444,18 @@ public class SymbolAdapter {
     return (IList) symbol.get("symbols");
   }
 
-  private static String toString(IList symbols) {
+  private static String toString(IList symbols, char sep, boolean withLayout) {
 		StringBuilder b = new StringBuilder();
 		
 		if (symbols.length() > 0) {
-			b.append(toString((IConstructor) symbols.get(0)));
+			b.append(toString((IConstructor) symbols.get(0), false));
 			for (int i = 1; i < symbols.length(); i++) {
-				b.append(',');
-				b.append(toString((IConstructor) symbols.get(i)));
+			  IConstructor sym = (IConstructor) symbols.get(i);
+			  if (!withLayout && isLayouts(sym)) {
+			    continue;
+			  }
+				b.append(sep);
+        b.append(toString(sym, withLayout));
 			}
 		}
 		

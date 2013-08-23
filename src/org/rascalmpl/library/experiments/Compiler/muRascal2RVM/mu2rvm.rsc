@@ -58,7 +58,7 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   									 HALT()
   									]));
   res = rvm(types, funMap, []);
-  iprintln(res);
+  //iprintln(res);
   return res;
 }
 
@@ -90,7 +90,12 @@ INS trblock(list[MuExp] exps) {
 
 INS tr(muCon("true")) = [LOADCON(true)];
 INS tr(muCon("false")) = [LOADCON(false)];
+
 default INS tr(muCon(value c)) = [LOADCON(c)];
+
+INS tr(muBool(bool b)) = [LOADBOOL(b)];
+INS tr(muInt(int n)) = [LOADINT(n)];
+
 
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
 

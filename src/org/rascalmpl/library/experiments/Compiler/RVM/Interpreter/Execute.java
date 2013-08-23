@@ -18,6 +18,12 @@ public class Execute {
 	public Execute(IValueFactory vf) {
 		this.vf = vf;
 	}
+	
+	// Get Boolean field from an instruction
+	
+	private boolean getBooleanField(IConstructor instruction, String field) {
+		return ((IBool) instruction.get(field)).getValue();
+	}
 
 	// Get integer field from an instruction
 
@@ -209,6 +215,13 @@ public class Execute {
 						
 					case "LOADTYPE":
 						codeblock.LOADTYPE(rvm.symbolToType((IConstructor) instruction.get("type")));
+						break;
+					case "LOADBOOL":
+						codeblock.LOADBOOL(getBooleanField(instruction, "bval"));
+						break;
+						
+					case "LOADINT":
+						codeblock.LOADINT(getIntField(instruction, "nval"));
 						break;
 										
 					default:

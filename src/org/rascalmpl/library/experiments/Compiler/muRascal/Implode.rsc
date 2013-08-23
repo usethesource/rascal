@@ -27,10 +27,8 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
           append
             top-down visit(exp){
                case muCallPrim(str name, list[MuExp] exps)	=> muCallPrim(name[1..-1], exps)			// strip surrounding quotes
-              // case muCallPrim(str name, exp1)				=> muCallPrim(name[1..-1], [exp1])			// strip surrounding quotes
-              // case muCallPrim(str name, exp1, exp2)		=> muCallPrim(name[1..-1], [exp1, exp2])	// strip surrounding quotes
                case muCallMuPrim(str name, list[MuExp] exps)=> muCallMuPrim(name[1..-1], exps)			// strip surrounding quotes
-               case preIntCon(str txt)						=> muCon(toInt(txt))
+               case preIntCon(str txt)						=> muInt(toInt(txt))
                case preStrCon(str txt)						=> muCon(txt[1..-1])						// strip surrounding quotes
                case preTypeCon(str txt):                    {
                													try {
@@ -39,17 +37,17 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
 																} catch IO(str msg) :
 																	throw "Could not parse the string of a type constant into Symbol: <msg>";
                												}
-               case preVar("true") 							=> muCon(true)
-               case preVar("false") 						=> muCon(false)
+               case preVar("true") 							=> muBool(true)
+               case preVar("false") 						=> muBool(false)
      	       case preVar(str name) 						=> (name in global_functions)  ? muFun(name) : muLoc(name, vardefs[name])
      	       case preAssignLocList(str name1, str name2, MuExp exp1) 	
-     	       												=> muCallMuPrim("assign_pair", [muCon(vardefs[name1]), muCon(vardefs[name2]), exp1])
+     	       												=> muCallMuPrim("assign_pair", [muInt(vardefs[name1]), muInt(vardefs[name2]), exp1])
      	       
      	       case preAssignLoc(str name, MuExp exp1) 		=> muAssignLoc(name, vardefs[name], exp1)
      	       case preList(list[MuExp] exps)				=> muCallMuPrim("make_array", exps)
-     	       case preSubscript(MuExp lst, MuExp index)	=> muCallMuPrim("subscript_array_int", [lst, index])
+     	       case preSubscript(MuExp lst, MuExp index)	=> muCallMuPrim("subscript_array_mint", [lst, index])
      	       case preAssignSubscript(MuExp lst, MuExp index, MuExp exp1) 
-     	       												=> muCallMuPrim("assign_subscript_array_int", [lst, index, exp1])
+     	       												=> muCallMuPrim("assign_subscript_array_mint", [lst, index, exp1])
       	       case preIfthen(cond,thenPart) 				=> muIfelse(cond,thenPart, [])
       	       
       	       case preLocDeref(str name)                   => muLocDeref(name, vardefs[name])
@@ -61,12 +59,12 @@ list[MuExp] preprocess(list[MuExp] exps, map[str, int] vardefs){
 
 MuModule parse(loc s) {
   pt = parse( #start[Module], s);
-  iprintln(diagnose(pt));
+  //iprintln(diagnose(pt));
   //iprintln(pt);
   ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
-  iprintln(ast);
+  //iprintln(ast);
   ast2 = preprocess(ast);
-  iprintln(ast2);
+  //iprintln(ast2);
   return ast2;
 								   
 }
