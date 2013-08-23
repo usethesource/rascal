@@ -73,24 +73,24 @@ function ALL[1,1,arg,carg]{
 // ***** Generators for all types *****
 
 function GEN_LIST[1, 1, _lst, last, i]{
-   last = muprim("subtraction_num_num", prim("size_list", _lst), 1);
+   last = muprim("subtraction_mint_mint", prim("size_list", _lst), 1);
    i = 0;
-   while(muprim("less_num_num", i, last)){
-      yield prim("subscript_list_int", _lst, i);
-      i = muprim("addition_num_num", i, 1);
+   while(muprim("less_mint_mint", i, last)){
+      yield muprim("subscript_list_mint", _lst, i);
+      i = muprim("addition_mint_mint", i, 1);
    };
-   return prim("subscript_list_int", _lst, last);
+   return muprim("subscript_list_mint", _lst, last);
 }
 
 function GEN_NODE[1, 1, _nd, last, i, lst]{
    lst = muprim("get_name_and_children", _nd);
-   last = muprim("subtraction_num_num", muprim("size_array", lst), 2);
+   last = muprim("subtraction_mint_mint", muprim("size_array", lst), 2);
    i = 1;  // skip name
-   while(muprim("less_num_num", i, last)){
-      yield muprim("subscript_array_int", lst, i);
-      i = muprim("addition_num_num", i, 1);
+   while(muprim("less_mint_mint", i, last)){
+      yield muprim("subscript_array_mint", lst, i);
+      i = muprim("addition_mint_mint", i, 1);
    };
-   return muprim("subscript_array_int", lst, last);
+   return muprim("subscript_array_mint", lst, last);
 }
 
 function GEN_VALUE[1, 1, _val, co, res]{
@@ -141,25 +141,25 @@ function MATCH_N[1, 2, pats, subjects, plen, slen, p, pat]{
    prim("println", ["MATCH_N", pats, subjects]);
    plen = muprim("size_array", pats);
    slen = muprim("size_array", subjects);
-   if(muprim("not_equals_num_num", plen, slen)){
+   if(muprim("not_equals_mint_mint", plen, slen)){
       prim("println", ["MATCH_N: unequal length", plen, slen]);
       return false;
    };
    p = 0;
-   while(muprim("less_num_num", p, plen)){
+   while(muprim("less_mint_mint", p, plen)){
      prim("println",  ["MATCH_N: init ", p]);
      set pats[p] = init(get pats[p], get subjects[p]);
-     p = muprim("addition_num_num", p, 1);
+     p = muprim("addition_mint_mint", p, 1);
    };
    
    while(true){
      p = 0;
-     while(muprim("less_num_num", p, plen)){
+     while(muprim("less_mint_mint", p, plen)){
        prim("println", ["p = ", p]);
        pat = get pats[p];
        if(hasNext(pat)){
           if(next(pat)){
-              p = muprim("addition_num_num", p, 1);
+              p = muprim("addition_mint_mint", p, 1);
            } else {
               return false;
            };   
@@ -206,7 +206,7 @@ function MATCH_TUPLE[1, 2, pats, _subject, cpats]{
 
 function MATCH_INT[1,2,pat, _subject, res]{
   if(prim("is_int", _subject)){
-     res = muprim("equals_num_num", pat, _subject);
+     res = muprim("equals_rint_rint", pat, _subject);
      prim("println", ["MATCH_INT", pat, _subject, res]);
      return res;
   };
@@ -293,8 +293,8 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
 					]{
 
      patlen   = muprim("size_array", pats);
-     patlen1 =  muprim("subtraction_num_num", patlen, 1);
-     sublen   = prim("size_list", _subject);
+     patlen1 =  muprim("subtraction_mint_mint", patlen, 1);
+     sublen   = muprim("size_list", _subject);
      p        = 0; 
      cursor   = 0;
      forward  = true;
@@ -306,23 +306,23 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
      	// Move forward
      	 forward = hasNext(matcher);
      	 // prim("println", ["At head", p, cursor, forward]);
-         while(muprim("and_bool_bool", forward, hasNext(matcher))){
+         while(muprim("and_mbool_mbool", forward, hasNext(matcher))){
         	[success, nextCursor] = next(matcher);
             if(success){ 
                forward = true;
                cursor = nextCursor;
                // prim("println", ["SUCCESS", p, cursor]);
-               if(muprim("and_bool_bool",
-                       muprim("equals_num_num", p, patlen1),
-                       muprim("equals_num_num", cursor, sublen))) {
+               if(muprim("and_mbool_mbool",
+                       muprim("equals_mint_mint", p, patlen1),
+                       muprim("equals_mint_mint", cursor, sublen))) {
                    // prim("println", ["*** YIELD", p, cursor]);
               	   yield true;
               	   // prim("println", ["Back from yield", p, cursor]); 
                } else {
-                 if(muprim("less_num_num", p, patlen1)){
-                   p = muprim("addition_num_num", p, 1);
+                 if(muprim("less_mint_mint", p, patlen1)){
+                   p = muprim("addition_mint_mint", p, 1);
                    // prim("println", ["Forward", p, cursor]);
-                   matcher  = init(get pats[p], _subject, cursor,  muprim("subtraction_num_num", sublen, cursor));
+                   matcher  = init(get pats[p], _subject, cursor,  muprim("subtraction_mint_mint", sublen, cursor));
                    set matchers[p] = matcher;
                  } else {
                    if(hasNext(matcher)){
@@ -342,8 +342,8 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
          if(forward){
            // nothing
          } else {  
-           if(muprim("greater_num_num", p, 0)){
-               p        = muprim("subtraction_num_num", p, 1);
+           if(muprim("greater_mint_mint", p, 0)){
+               p        = muprim("subtraction_mint_mint", p, 1);
                // prim("println", ["Previous", p, cursor]);
                matcher  = get matchers[p];
                forward  = true;
@@ -361,34 +361,34 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
 // - available: the number of remianing, unmatched, elements in the subject list
 
 function MATCH_PAT_IN_LIST[1, 4, pat, _subject, start, available, cpat]{
-    if(muprim("less_equal_num_num", available, 0)){
+    if(muprim("less_equal_mint_mint", available, 0)){
        return [false, start];
     };   
-    cpat = init(pat, prim("subscript_list_int", _subject, start));
+    cpat = init(pat, muprim("subscript_list_mint", _subject, start));
     
     while(hasNext(cpat)){
        if(next(cpat)){
-          return [true, muprim("addition_num_num", start, 1)];
+          return [true, muprim("addition_mint_mint", start, 1)];
        };   
     };
     return [false, start];
 } 
 
 function MATCH_VAR_IN_LIST[1, 4, varref, _subject, start, available]{
-   if(muprim("less_equal_num_num", available, 0)){
+   if(muprim("less_equal_mint_mint", available, 0)){
        return [false, start];
    }; 
-   deref varref = prim("subscript_list_int", _subject, start);
-   return [true, muprim("addition_num_num", start, 1)];
+   deref varref = muprim("subscript_list_mint", _subject, start);
+   return [true, muprim("addition_mint_mint", start, 1)];
 }
 
 function MATCH_MULTIVAR_IN_LIST[1, 4, varref, _subject, start, available, len]{
     len = 0;
-    while(muprim("less_equal_num_num", len, available)){
-        deref varref = prim("sublist", _subject, start, len);
-        // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_num_num", start, len)]);
-        yield [true, muprim("addition_num_num", start, len)];
-        len = muprim("addition_num_num", len, 1);
+    while(muprim("less_equal_mint_mint", len, available)){
+        deref varref = muprim("sublist_list_mint_mint", _subject, start, len);
+        // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_mint_mint", start, len)]);
+        yield [true, muprim("addition_mint_mint", start, len)];
+        len = muprim("addition_mint_mint", len, 1);
      };
      return [false, start];
 }
@@ -396,11 +396,11 @@ function MATCH_MULTIVAR_IN_LIST[1, 4, varref, _subject, start, available, len]{
 function MATCH_TYPED_MULTIVAR_IN_LIST[1, 5, typ, varref, _subject, start, available, len]{
     if(muprim("equals_type_type", typ, muprim("typeOf", _subject))){
        len = 0;
-       while(muprim("less_equal_num_num", len, available)){
-          deref varref = muprim("sublist", _subject, start, len);
-          // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_num_num", start, len)]);
-          yield [true, muprim("addition_num_num", start, len)];
-          len = muprim("addition_num_num", len, 1);
+       while(muprim("less_equal_mint_mint", len, available)){
+          deref varref = muprim("sublist_list_mint_mint", _subject, start, len);
+          // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_mint_mint", start, len)]);
+          yield [true, muprim("addition_mint_mint", start, len)];
+          len = muprim("addition_mint_mint", len, 1);
        };
      };
      return [false, start];

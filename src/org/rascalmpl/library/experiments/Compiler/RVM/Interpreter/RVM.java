@@ -12,7 +12,6 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -25,8 +24,11 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 public class RVM {
 
 	public final IValueFactory vf;
-	private final IBool TRUE;
-	private final IBool FALSE;
+	private final Boolean TRUE;
+	private final Boolean FALSE;
+	private final IBool Rascal_TRUE;
+	private final IBool Rascal_FALSE;
+	
 	private boolean debug = true;
 	private boolean listing = false;
 	
@@ -50,8 +52,10 @@ public class RVM {
 		
 		this.types = new Types(this.vf);
 		
-		TRUE = vf.bool(true);
-		FALSE = vf.bool(false);
+		TRUE = true;
+		FALSE = false;
+		Rascal_TRUE = vf.bool(true);
+		Rascal_FALSE = vf.bool(false);
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();
 
@@ -96,6 +100,10 @@ public class RVM {
 	 */
 	private IValue narrow(Object result){
 		stdout.println("narrow: " + result.getClass() + ", " + result);
+		if(result instanceof Boolean)
+			return vf.bool((Boolean) result);
+		if(result instanceof Integer)
+			return vf.integer((Integer)result);
 		if(result instanceof IValue)
 			return (IValue) result;
 		if(result instanceof Object[]){
@@ -173,6 +181,14 @@ public class RVM {
 
 				switch (op) {
 
+				case Opcode.OP_LOADBOOL:
+					stack[sp++] = instructions[pc++] == 1 ? true : false;
+					continue;
+					
+				case Opcode.OP_LOADINT:
+					stack[sp++] = instructions[pc++];
+					continue;
+					
 				case Opcode.OP_LOADCON:
 					stack[sp++] = cf.function.constantStore[instructions[pc++]];
 					continue;
@@ -287,7 +303,7 @@ public class RVM {
 					continue;
 
 				case Opcode.OP_JMPTRUE:
-					if (stack[sp - 1].equals(TRUE)) {
+					if (stack[sp - 1].equals(TRUE) || stack[sp - 1].equals(Rascal_TRUE)) {
 						pc = instructions[pc];
 					} else
 						pc++;
@@ -295,7 +311,7 @@ public class RVM {
 					continue;
 
 				case Opcode.OP_JMPFALSE:
-					if (stack[sp - 1].equals(FALSE)) {
+					if (stack[sp - 1].equals(FALSE) || stack[sp - 1].equals(Rascal_FALSE)) {
 						pc = instructions[pc];
 					} else
 						pc++;
@@ -526,22 +542,22 @@ public class RVM {
 					
 					switch(muprim){
 					
-					case addition_num_num:
+					case addition_mint_mint:
 						assert arity == 2;
-						stack[sp - 2] = ((INumber) stack[sp - 2]).add((INumber) stack[sp - 1]);
+						stack[sp - 2] = ((Integer) stack[sp - 2]) + ((Integer) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
-					case and_bool_bool:
+					case and_mbool_mbool:
 						assert arity == 2;
-						stack[sp - 2] = ((IBool) stack[sp - 2]).and((IBool) stack[sp - 1]);
+						stack[sp - 2] = ((Boolean) stack[sp - 2]) && ((Boolean) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
 					case assign_pair:
 						assert arity == 2;
-						int v1 = ((IInteger) stack[sp - 3]).intValue();
-						int v2 = ((IInteger) stack[sp - 2]).intValue();
+						int v1 = ((Integer) stack[sp - 3]);
+						int v2 = ((Integer) stack[sp - 2]);
 						Object[] pair = (Object[]) stack[sp - 1];
 						stack[v1] = pair[0];
 						stack[v2] = pair[1];
@@ -549,30 +565,36 @@ public class RVM {
 						sp = sp - 2;
 						break;
 						
-					case assign_subscript_array_int:
+					case assign_subscript_array_mint:
 						assert arity == 3;
 						Object[] ar = (Object[]) stack[sp - 3];
-						int index = ((IInteger) stack[sp - 2]).intValue();
+						int index = ((Integer) stack[sp - 2]);
 						ar[index] = stack[sp - 1];
 						stack[sp - 3] = stack[sp - 1];
 						sp = sp - 2;
 						break;
 						
-					case equals_num_num:
+					case equals_mint_mint:
 						assert arity == 2;
-						stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]);
+						stack[sp - 2] = ((Integer) stack[sp - 2]) == ((Integer) stack[sp - 1]);
+						sp = sp - 1;
+						break;
+						
+					case equals_rint_rint:
+						assert arity == 2;
+						stack[sp - 2] = ((IInteger) stack[sp - 2]).intValue() == ((IInteger) stack[sp - 1]).intValue();
 						sp = sp - 1;
 						break;
 						
 					case equals_str_str:
 						assert arity == 2;
-						stack[sp - 2] = vf.bool(((IString) stack[sp - 2]).isEqual(((IString) stack[sp - 1])));
+						stack[sp - 2] = ((IString) stack[sp - 2]).isEqual(((IString) stack[sp - 1]));
 						sp = sp - 1;
 						break;
 					
 					case equals_type_type:
 						assert arity == 2;
-						stack[sp - 2] = vf.bool(((Type) stack[sp - 2]) == ((Type) stack[sp - 1]));
+						stack[sp - 2] = ((Type) stack[sp - 2]) == ((Type) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
@@ -599,102 +621,102 @@ public class RVM {
 						stack[sp - 1] =  elems;
 						break;
 						
-					case greater_equal_num_num:
+					case greater_equal_mint_mint:
 						assert arity == 2;
-						stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
-					case greater_num_num:
+					case greater_mint_mint:
 						assert arity == 2;
-						stack[sp - 2] = ((INumber) stack[sp - 2]).greater((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) > ((Integer) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
 					case is_bool:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isBool());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isBool();
 						break;
 						
 					case is_datetime:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isDateTime());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isDateTime();
 						break;
 						
 					case is_int:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isInteger());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isInteger();
 						break;
 						
 					case is_list:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isList());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isList();
 						break;
 						
 					case is_loc:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isSourceLocation());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isSourceLocation();
 						break;
 						
 					case is_lrel:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isListRelation());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isListRelation();
 						break;
 						
 					case is_map:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isMap());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isMap();
 						break;
 						
 					case is_node:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isNode());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isNode();
 						break;
 						
 					case is_num:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isNumber());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isNumber();
 						break;
 						
 					case is_rat:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isRational());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isRational();
 						break;
 						
 					case is_real:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isReal());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isReal();
 						break;
 						
 					case is_rel:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isRelation());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isRelation();
 						break;
 						
 					case is_set:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isSet());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isSet();
 						break;
 						
 					case is_str:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isString());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isString();
 						break;
 						
 					case is_tuple:
 						assert arity == 1;
-						stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isTuple());
+						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isTuple();
 						break;
 						
-					case less_equal_num_num:
+					case less_equal_mint_mint:
 						assert arity == 2;
-						stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) <= ((Integer) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
-					case less_num_num:
+					case less_mint_mint:
 						assert arity == 2;
-						stack[sp - 2] = ((INumber) stack[sp - 2]).less((INumber) stack[sp - 1]).getValue() ? TRUE : FALSE;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
@@ -712,39 +734,57 @@ public class RVM {
 						
 					case make_array_of_size:
 						assert arity == 1;
-						int len = ((IInteger)stack[sp - 1]).intValue();
+						int len = ((Integer)stack[sp - 1]);
 						stack[sp - 1] = new Object[len];
 						break;
 						
-					case not_equals_num_num:
+					case not_equals_mint_mint:
 						assert arity == 2;
-						stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
+						stack[sp - 2] = ((Integer) stack[sp - 2]) != ((Integer) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
 					case size_array:
 						assert arity == 1;
-						stack[sp - 1] = vf.integer(((Object[]) stack[sp - 1]).length);
+						stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
 						break;
 						
-					case sublist:
+						
+					case size_list:
+						assert arity == 1;
+						stack[sp - 1] = ((IList) stack[sp - 1]).length();
+						break;
+						
+					case sublist_list_mint_mint:
 						assert arity == 3;
 						IList lst = (IList) stack[sp - 3];
-						int offset = ((IInteger) stack[sp - 2]).intValue();
-						int length = ((IInteger) stack[sp - 1]).intValue();
+						int offset = ((Integer) stack[sp - 2]);
+						int length = ((Integer) stack[sp - 1]);
 						stack[sp - 3] = lst.sublist(offset, length);
 						sp = sp - 2;
 						break;
 						
-					case subscript_array_int:
+					case subscript_array_mint:
 						assert arity == 2;
-						stack[sp - 2] = ((Object[]) stack[sp - 2])[((IInteger) stack[sp - 1]).intValue()];
+						stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
 						sp = sp - 1;
+						break;
+						
+					case subscript_list_mint:
+						assert arity == 2;
+						stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
+						sp = sp - 1;
+						break;
+						
+					case subtraction_mint_mint:
+						assert arity == 2;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) - ((Integer) stack[sp - 1]);
+						sp =  sp - 1;
 						break;
 						
 					case subtype:
 						assert arity == 2;
-						stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
+						stack[sp - 2] = ((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
@@ -753,11 +793,7 @@ public class RVM {
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
 						break;
 					
-					case subtraction_num_num:
-						assert arity == 2;
-						stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
-						sp =  sp - 1;
-						break;
+					
 					
 					default:
 						throw new RuntimeException("CALLMUPRIM -- unknown primitive");
@@ -772,6 +808,6 @@ public class RVM {
 			stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			e.printStackTrace();
 		}
-		return FALSE;
+		return Rascal_FALSE;
 	}
 }
