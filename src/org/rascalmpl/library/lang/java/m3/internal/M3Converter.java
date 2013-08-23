@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.rascalmpl.uri.URIUtil;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
@@ -244,6 +245,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(MethodInvocation node) {
 		insert(methodInvocation, getParent(), ownValue);
+		//TODO: add to uses as well
 		return true;
 	}
 	
@@ -255,7 +257,15 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(PackageDeclaration node) {
 		String parent = "";
-		for (String component: node.resolveBinding().getNameComponents()) {
+		IPackageBinding binding = node.resolveBinding();
+		
+		if (binding == null) {
+		  // TODO
+		  System.err.println("Unresolved binding for: "+ node);
+		  return true;
+		}
+		
+    for (String component: binding.getNameComponents()) {
 			if (!parent.isEmpty()) {
 				insert(containment, resolveBinding(parent), resolveBinding(parent+"/"+component));
 				insert(names, values.string(component), resolveBinding(parent+"/"+component));
@@ -293,23 +303,31 @@ public class M3Converter extends JavaToRascalConverter {
 				insert(fieldAccess, getParent(), ownValue);
 		}
 		
-		if (!node.isDeclaration()) {
-			insert(typeDependency, getParent(), resolveBinding(node.resolveTypeBinding()));//???
-			
+		insert(typeDependency, getParent(), resolveBinding(node.resolveTypeBinding()));//???
+		
+		if (!node.isDeclaration() && !simpleNameIsConstructorDecl(node)) {
 			ISourceLocation declaringClass = resolveDeclaringClass(node.resolveBinding());
-			if (!getParent().isEqual(declaringClass))
+			
+			if (!getParent().isEqual(declaringClass)) {
 				insert(typeDependency, getParent(), declaringClass);
+			}
 		}
 		
 		return true;
 	}
 	
 	public void endVisit(SimpleName node) {
-		if (node.isDeclaration())
+		if (node.isDeclaration() || simpleNameIsConstructorDecl(node)) {
 			insert(declarations, ownValue, getSourceLocation(compilUnit.findDeclaringNode(node.resolveBinding())));
-		else
+		}
+		else {
 			insert(uses, getSourceLocation(node), ownValue);
+		}
 	}
+
+  private boolean simpleNameIsConstructorDecl(SimpleName node) {
+    return node.getParent() instanceof MethodDeclaration && ((MethodDeclaration) node.getParent()).isConstructor();
+  }
 	
 	public boolean visit(SingleVariableDeclaration node) {
 		insert(containment, getParent(), ownValue);
