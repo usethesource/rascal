@@ -248,6 +248,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(Initializer node) {
 		insert(containment, getParent(), ownValue);
+		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
