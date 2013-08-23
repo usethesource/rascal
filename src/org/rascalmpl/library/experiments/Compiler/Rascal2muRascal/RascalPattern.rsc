@@ -40,7 +40,7 @@ list[MuExp] translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definit
 // callOrTree pattern
 
 list[MuExp] translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
-   return [ muCreate(muFun("MATCH_CALL_OR_TREE"), [muCallPrim("$make_array", translatePat(expression) + [ *translatePat(pat) | pat <- arguments ])]) ];
+   return [ muCreate(muFun("MATCH_CALL_OR_TREE"), [muCallMuPrim("make_array", translatePat(expression) + [ *translatePat(pat) | pat <- arguments ])]) ];
 }
 
 
@@ -53,14 +53,14 @@ list[MuExp] translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
 // Tuple pattern
 
 list[MuExp] translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
-    return [ muCreate(muFun("MATCH_TUPLE"), [muCallPrim("$make_array", [ *translatePat(pat) | pat <- pats ])]) ];
+    return [ muCreate(muFun("MATCH_TUPLE"), [muCallMuPrim("make_array", [ *translatePat(pat) | pat <- pats ])]) ];
 }
 
 
 // List pattern 
 
 list[MuExp] translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) =
-    [ muCreate(muFun("MATCH_LIST"), [muCallPrim("$make_array", [ *translatePatAsListElem(pat) | pat <- pats ])]) ];
+    [ muCreate(muFun("MATCH_LIST"), [muCallMuPrim("make_array", [ *translatePatAsListElem(pat) | pat <- pats ])]) ];
 
 // Variable becomes pattern
 

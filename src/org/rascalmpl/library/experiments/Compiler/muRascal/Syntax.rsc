@@ -52,6 +52,7 @@ syntax Exp  =
 			| muVarDeref:   		"deref" Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos
 			
 			> muCallPrim: 			"prim" "(" String name "," {Exp ","}+ args ")"
+			| muCallMuPrim: 		"muprim" "(" String name "," {Exp ","}+ args ")"
 			
 			| preSubscript: 		"get" Exp lst "[" Exp index "]"
 			> muCall: 				Exp exp1 "(" {Exp ","}* args ")"
@@ -93,7 +94,7 @@ syntax Exp  =
 
 keyword Keywords = 
               "module" | "function" | "return" | "get" | "set" |
-			  "prim" | "if" | "else" |  "while" |
+			  "prim" | "muprim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "hasNext" |
               "type" |
               "ref" | "deref" |
