@@ -69,29 +69,15 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	public void set(ISourceLocation loc) {
 		this.loc = loc;
-	}
-	
-	public void set(String project) {
-		this.project = project;
-	}
-	
-	protected ISourceLocation getDefaultPackage() {
-		URI defaultPackage = new BindingsResolver(collectBindings) {
-			public URI getDefaultPackage() {
-				if (collectBindings)
-					return convertBinding("java+defaultPackage", null, null, null);
-				return convertBinding("unknown", null, null, null);
-			}
-		}.getDefaultPackage();
-		
-		return values.sourceLocation(defaultPackage);
+		bindingsResolver.setProject(loc.getURI().getAuthority());
 	}
 	
 	protected ISourceLocation resolveBinding(String packageComponent) {
 		URI packageBinding = new BindingsResolver(collectBindings) {
 			public URI resolveBinding(String packageC) {
-				if (collectBindings)
+				if (collectBindings) {
 					return convertBinding("java+package", packageC, null, null);
+				}
 				return convertBinding("unknown", null, null, null);
 			}
 		}.resolveBinding(packageComponent);
@@ -116,13 +102,13 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	protected ISourceLocation resolveDeclaringClass(IBinding binding) {
 		URI resolvedBinding;
-		if (binding instanceof ITypeBinding)
-			resolvedBinding = bindingsResolver.resolveBinding(((ITypeBinding) binding).getDeclaringClass());
-		else if (binding instanceof IMethodBinding)
-			resolvedBinding = bindingsResolver.resolveBinding(((IMethodBinding) binding).getDeclaringClass());
-		else if (binding instanceof IVariableBinding)
-			resolvedBinding = bindingsResolver.resolveBinding(((IVariableBinding) binding).getDeclaringClass());
-		else {
+		if (binding instanceof ITypeBinding) {
+      resolvedBinding = bindingsResolver.resolveBinding(((ITypeBinding) binding).getDeclaringClass());
+    } else if (binding instanceof IMethodBinding) {
+      resolvedBinding = bindingsResolver.resolveBinding(((IMethodBinding) binding).getDeclaringClass());
+    } else if (binding instanceof IVariableBinding) {
+      resolvedBinding = bindingsResolver.resolveBinding(((IVariableBinding) binding).getDeclaringClass());
+    } else {
 			binding = null;
 			resolvedBinding = bindingsResolver.resolveBinding(binding);
 		}
@@ -130,8 +116,9 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	}
 	
 	protected ISourceLocation resolveBinding(ASTNode node) {
-		if (node instanceof CompilationUnit)
-			return resolveBinding((CompilationUnit) node);
+		if (node instanceof CompilationUnit) {
+      return resolveBinding((CompilationUnit) node);
+    }
 		return values.sourceLocation(bindingsResolver.resolveBinding(node));
 	}
 	
@@ -163,8 +150,9 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected IValue[] removeNulls(IValue... withNulls) {
 		List<IValue> withOutNulls = new ArrayList<IValue>();
 		for (IValue child : withNulls) {
-			if (!(child == null))
-				withOutNulls.add(child);
+			if (!(child == null)) {
+        withOutNulls.add(child);
+      }
 		}
 		return withOutNulls.toArray(new IValue[withOutNulls.size()]);
 	}
@@ -189,8 +177,9 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		for (Iterator it = ext.iterator(); it.hasNext();) {
 			ASTNode p = (ASTNode) it.next();
 			IValue val = visitChild(p);
-			if (p instanceof Annotation)
-				val = constructModifierNode("annotation", val);
+			if (p instanceof Annotation) {
+        val = constructModifierNode("annotation", val);
+      }
 			extendedModifierList.add(val);
 		}
 		return extendedModifierList;
@@ -220,16 +209,22 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	}
 	
 	protected void setAnnotation(String annoName, IValue annoValue) {
-		if(this.ownValue == null) return ;
-		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName))
-			this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annoValue);
+		if(this.ownValue == null) {
+      return ;
+    }
+		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName)) {
+      this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annoValue);
+    }
 	}
 	
 	protected void setAnnotation(String annoName, IValueList annoList) {
 		IList annos = (IList) annoList.asList();
-		if(this.ownValue == null) return ;
-		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName) && !annos.isEmpty())
-			this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annos);
+		if(this.ownValue == null) {
+      return ;
+    }
+		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName) && !annos.isEmpty()) {
+      this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annos);
+    }
 	}
 	
 	protected IValue constructDeclarationNode(String constructor, IValue... children) {
@@ -269,10 +264,11 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 			int sl = problems[i].getSourceLineNumber();
 			ISourceLocation pos = values.sourceLocation(loc.getURI(), offset, length, sl, sl, 0, 0);
 			org.eclipse.imp.pdb.facts.type.Type constr;
-			if (problems[i].isError())
-				constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "error", args);
-			else
-				constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "warning", args);
+			if (problems[i].isError()) {
+        constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "error", args);
+      } else {
+        constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "warning", args);
+      }
 			result.add(values.constructor(constr, values.string(problems[i].getMessage()), pos));
 		}
 		

@@ -13,8 +13,41 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.BlockComment;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IPackageBinding;
+import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.LineComment;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.rascalmpl.uri.URIUtil;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
@@ -265,12 +298,20 @@ public class M3Converter extends JavaToRascalConverter {
 		  return true;
 		}
 		
+	
     for (String component: binding.getNameComponents()) {
-			if (!parent.isEmpty()) {
-				insert(containment, resolveBinding(parent), resolveBinding(parent+"/"+component));
-				insert(names, values.string(component), resolveBinding(parent+"/"+component));
-				parent += ".";
-			}
+      String current = parent.isEmpty() ? component : parent + "/" + component;
+
+      ISourceLocation parentBinding = resolveBinding(parent);
+      insert(containment, parentBinding, resolveBinding(current));
+      insert(names, values.string(component), resolveBinding(current));
+      parent += "/";
+			
+      // Here we implicitly declare all the parent packages, 
+      // i.e. java+package://<project>/java is a parent of java+package://<project>/java/util
+			URI pathURI = URIUtil.assumeCorrect(loc.getURI().getScheme(), loc.getURI().getAuthority(), current);
+			insert(declarations, resolveBinding(current), values.sourceLocation(pathURI));
+			
 			parent += component;
 		}
 		

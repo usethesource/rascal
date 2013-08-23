@@ -16,10 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.core.dom.*;
+import org.rascalmpl.uri.URIUtil;
 
 public class BindingsResolver {
-	
-	private final String project = "";
+	private String project;
 	private final boolean collectBindings;
 	
 	private final Map<String, Integer> anonymousClassCounter = new HashMap<String, Integer>();
@@ -31,7 +31,7 @@ public class BindingsResolver {
 	}
 	
 	public void setProject(String project) {
-		//this.project = project;
+		this.project = project;
 	}
 	
 	public URI resolveBinding(ASTNode node) {
@@ -269,10 +269,9 @@ public class BindingsResolver {
     }
 		
 		try {
-			
-			binding = new URI(scheme, this.project, !(path.startsWith("/")) ? "/" + path : path, query, fragment);
+		  binding = URIUtil.create(scheme, this.project, !(path.startsWith("/")) ? "/" + path : path, query, fragment);
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
+		  throw new RuntimeException("can not convert binding, which should never happen", e);
 		}
 		
 		return binding;
