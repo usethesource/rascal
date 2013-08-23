@@ -289,7 +289,7 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(PackageDeclaration node) {
-		String parent = "";
+		
 		IPackageBinding binding = node.resolveBinding();
 		
 		if (binding == null) {
@@ -299,20 +299,21 @@ public class M3Converter extends JavaToRascalConverter {
 		}
 		
 	
+		String parent = "";
+		String current = "";
     for (String component: binding.getNameComponents()) {
-      String current = parent.isEmpty() ? component : parent + "/" + component;
+      current += ("/" + component);
 
       ISourceLocation parentBinding = resolveBinding(parent);
       insert(containment, parentBinding, resolveBinding(current));
       insert(names, values.string(component), resolveBinding(current));
-      parent += "/";
 			
       // Here we implicitly declare all the parent packages, 
       // i.e. java+package://<project>/java is a parent of java+package://<project>/java/util
 			URI pathURI = URIUtil.assumeCorrect(loc.getURI().getScheme(), loc.getURI().getAuthority(), current);
 			insert(declarations, resolveBinding(current), values.sourceLocation(pathURI));
 			
-			parent += component;
+			parent = current;
 		}
 		
 		insert(containment, ownValue, getParent());
