@@ -41,7 +41,6 @@ public class JDT {
     private final IValueFactory VF;
     private List<String> classPathEntries;
     private List<String> sourcePathEntries;
-    private String project;
 	
     public JDT(IValueFactory vf) {
     	this.VF = vf;
