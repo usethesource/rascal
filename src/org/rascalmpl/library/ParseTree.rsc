@@ -173,7 +173,7 @@ data Symbol
      | \iter-seps(Symbol symbol, list[Symbol] separators)   
      | \iter-star-seps(Symbol symbol, list[Symbol] separators) 
      | \alt(set[Symbol] alternatives)
-     | \seq(list[Symbol] sequence)
+     | \seq(list[Symbol] symbols)
      ;
   
 
@@ -307,6 +307,9 @@ unparse(parse(#Exp, "2+3"));
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str unparse(Tree tree);
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java str printSymbol(Symbol sym, bool withLayout);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses Evaluator to create constructors in the caller scope (to fire rewrite rules).}
@@ -503,4 +506,13 @@ public bool sameType(Symbol s,conditional(Symbol t,_)) = sameType(s,t);
 public bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
 public bool sameType(Symbol s, s) = true;
 public default bool sameType(Symbol s, Symbol t) = false;
+
+@doc{Determine if the given type is a non-terminal type}
+public bool isNonTerminalType(Symbol::\sort(str _)) = true;
+public bool isNonTerminalType(Symbol::\lex(str _)) = true;
+public bool isNonTerminalType(Symbol::\layouts(str _)) = true;
+public bool isNonTerminalType(Symbol::\keywords(str _)) = true;
+public bool isNonTerminalType(Symbol::\parameterized-sort(str _, list[Symbol] _)) = true;
+public bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true;
+public default bool isNonTerminalType(Symbol s) = false;
 

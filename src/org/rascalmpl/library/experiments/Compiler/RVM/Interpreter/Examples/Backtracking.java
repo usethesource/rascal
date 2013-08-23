@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Primitive;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -104,7 +104,7 @@ public class Backtracking {
 				new CodeBlock(vf)
 				.LOADLOC(0)
 				.LOADLOC(1)
-				.CALLPRIM(Primitive.and_bool_bool, 2)
+				.CALLPRIM(RascalPrimitive.and_bool_bool, 2)
 				.RETURN1()
 				));
 		

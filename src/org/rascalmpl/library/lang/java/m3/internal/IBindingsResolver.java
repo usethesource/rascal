@@ -8,7 +8,7 @@
  * Contributors:
  *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.library.analysis.m3.internal;
+package org.rascalmpl.library.lang.java.m3.internal;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jdt.core.dom.ASTNode;

@@ -28,6 +28,9 @@ public data Symbol =
 	| \overloaded(set[Symbol] overloads)
 	;
 
+@doc{Extension to add a production type.}
+public data Symbol = \prod(Symbol \sort, str name, list[Symbol] parameters, set[Attr] attributes);
+
 @doc{Annotations to hold the type assigned to a tree.}
 public anno Symbol Tree@rtype;
 
@@ -67,7 +70,40 @@ public str prettyPrintType(\user(RName rn, list[Symbol] ps)) = "<prettyPrintName
 public str prettyPrintType(failure(set[Message] ms)) = "fail"; // TODO: Add more detail?
 public str prettyPrintType(\inferred(int n)) = "inferred(<n>)";
 public str prettyPrintType(\overloaded(set[Symbol] os)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(\o) | \o <- os])>";
+// named non-terminal symbols
+public str prettyPrintType(Symbol::\sort(str name)) = name;
+public str prettyPrintType(Symbol::\lex(str name)) = name;
+public str prettyPrintType(Symbol::\layouts(str name)) = name;
+public str prettyPrintType(Symbol::\keywords(str name)) = name;
+public str prettyPrintType(Symbol::\parameterized-sort(str name, list[Symbol] parameters)) = name when size(parameters) == 0;
+public str prettyPrintType(Symbol::\parameterized-sort(str name, list[Symbol] parameters)) = "<name>[<intercalate(", ", [ prettyPrintType(p) | p <- parameters ])>]" when size(parameters) > 0;
+public str prettyPrintType(Symbol::\parameterized-lex(str name, list[Symbol] parameters)) = name when size(parameters) == 0;
+public str prettyPrintType(Symbol::\parameterized-lex(str name, list[Symbol] parameters)) = "<name>[<intercalate(", ", [ prettyPrintType(p) | p <- parameters ])>]" when size(parameters) > 0;
+// terminal symbols
+public str prettyPrintType(Symbol::\lit(str string)) = string;
+public str prettyPrintType(Symbol::\cilit(str string)) = string;
+public str prettyPrintType(Symbol::\char-class(list[CharRange] ranges)) = "[<intercalate(" ", [ "<r.begin>-<r.end>" | r <- ranges ])>]";
+// regular symbols
+public str prettyPrintType(Symbol::\empty()) = "()";
+public str prettyPrintType(Symbol::\opt(Symbol symbol)) = "<prettyPrintType(symbol)>?";
+public str prettyPrintType(Symbol::\iter(Symbol symbol)) = "<prettyPrintType(symbol)>+";
+public str prettyPrintType(Symbol::\iter-star(Symbol symbol)) = "<prettyPrintType(symbol)>*";
+public str prettyPrintType(Symbol::\iter-seps(Symbol symbol, list[Symbol] separators)) = "{<prettyPrintType(symbol)> <intercalate(" ", [ prettyPrintType(sep) | sep <- separators ])>}+";
+public str prettyPrintType(Symbol::\iter-star-seps(Symbol symbol, list[Symbol] separators)) = "{<prettyPrintType(symbol)> <intercalate(" ", [ prettyPrintType(sep) | sep <- separators ])>}*";
+public str prettyPrintType(Symbol::\alt(set[Symbol] alternatives)) = "( <intercalate(" | ", [ prettyPrintType(a) | a <- alternatives ])> )" when size(alternatives) > 1;
+public str prettyPrintType(Symbol::\seq(list[Symbol] sequence)) = "( <intercalate(" ", [ prettyPrintType(a) | a <- sequence ])> )" when size(sequence) > 1;
+public str prettyPrintType(Symbol::\conditional(Symbol symbol, set[Condition] conditions)) = "<prettyPrintType(symbol)> { <intercalate(" ", [ prettyPrintCond(cond) | cond <- conditions ])> }";
 //public default str prettyPrintType(Symbol s) = "<type(s,())>";
+
+private str prettyPrintCond(Condition::\follow(Symbol symbol)) = "\>\> <prettyPrintType(symbol)>";
+private str prettyPrintCond(Condition::\not-follow(Symbol symbol)) = "!\>\> <prettyPrintType(symbol)>";
+private str prettyPrintCond(Condition::\precede(Symbol symbol)) = "<prettyPrintType(symbol)> \<\<";
+private str prettyPrintCond(Condition::\not-precede(Symbol symbol)) = "<prettyPrintType(symbol)> !\<\<";
+private str prettyPrintCond(Condition::\delete(Symbol symbol)) = "???";
+private str prettyPrintCond(Condition::\at-column(int column)) = "@<column>";
+private str prettyPrintCond(Condition::\begin-of-line()) = "^";
+private str prettyPrintCond(Condition::\end-of-line()) = "$";
+private str prettyPrintCond(Condition::\except(str label)) = "!<label>";
 
 @doc{Create a new int type.}
 public Symbol makeIntType() = \int();

@@ -130,7 +130,7 @@ public class StringTemplateConverter {
 					b.append(org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
 				}
 				else if (value.getType().isSubtypeOf(Factory.Type)) {
-					b.append(SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol")));
+					b.append(SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol"), false));
 				}
 				else if (value.getType().isString()) {
 					b.append(((IString) value).getValue());
