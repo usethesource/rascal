@@ -23,5 +23,12 @@ value main(list[value] args) {
 	println("rascal interpreter [<t2 - t1> msec]");
  //	return [*int x,*int y] := [2,3,4,5];
 
- return 0;
+  //x = 1;
+  //if(false) x = 2; else x = 3;
+  //return x;
+  // res = [];
+  //for([*int a, *int b, *int c, *int d] := [1, 2, 3, 4,5,6,7,8,9]) res = res + [a,b,c];
+  //return res;
+  return 0;
+
 }

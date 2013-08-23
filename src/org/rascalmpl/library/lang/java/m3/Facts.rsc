@@ -1,6 +1,6 @@
-module analysis::m3::Facts
+module lang::java::m3::Facts
 
-import analysis::m3::JavaM3;
+import lang::java::m3::JavaM3;
 import Prelude;
 
 public bool isCompilationUnit(loc entity) {

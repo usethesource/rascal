@@ -22,9 +22,11 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.J
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Label;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCon;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadConstr;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadFun;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocDeref;
@@ -222,6 +224,14 @@ public class CodeBlock {
 	
 	public CodeBlock LOADCON(IValue val){
 		return add(new LoadCon(this, getConstantIndex(val)));
+	}
+	
+	public CodeBlock LOADBOOL(boolean bool){
+		return add(new LoadBool(this, bool));
+	}
+	
+	public CodeBlock LOADINT(int n){
+		return add(new LoadInt(this, n));
 	}
 	
 	public CodeBlock CALL(String arg){
