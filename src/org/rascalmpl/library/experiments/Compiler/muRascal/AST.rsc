@@ -40,8 +40,9 @@ public data MuVariable =
           
 public data MuExp = 
 			// Elementary expressions
-			
-            muCon(value c)										// Constant: an arbitrary IValue
+			muBool(bool b)										// muRascal Boolean constant
+		  | muInt(int n)										// muRascal integer constant
+          | muCon(value c)										// Rascal Constant: an arbitrary IValue
             													// Some special cases are handled by preprocessor, see below.
           | muLab(str name)										// Label
           | muFun(str name)										// Function constant: functions at the root
