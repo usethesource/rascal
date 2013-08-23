@@ -36,56 +36,57 @@ public class BindingsResolver {
 	
 	public URI resolveBinding(ASTNode node) {
 		if (collectBindings) {
-			if (node instanceof TypeDeclaration) 
-				return resolveBinding(((TypeDeclaration) node).resolveBinding());
-			else if (node instanceof EnumDeclaration) 
-				return resolveBinding(((EnumDeclaration) node).resolveBinding());
-			else if (node instanceof AnnotationTypeDeclaration) 
-				return resolveBinding(((AnnotationTypeDeclaration) node).resolveBinding());
-			else if (node instanceof AnnotationTypeMemberDeclaration) 
-				return resolveBinding(((AnnotationTypeMemberDeclaration) node).resolveBinding());
-			else if (node instanceof AnonymousClassDeclaration)
-				return resolveBinding(((AnonymousClassDeclaration) node).resolveBinding());
-			else if (node instanceof EnumConstantDeclaration) 
-				return resolveBinding(((EnumConstantDeclaration) node).resolveVariable());
-			else if (node instanceof ClassInstanceCreation)
-				return resolveBinding(((ClassInstanceCreation) node).resolveConstructorBinding());
-			else if (node instanceof FieldAccess)
-				return resolveBinding(((FieldAccess) node).resolveFieldBinding());
-			else if (node instanceof MethodInvocation)
-				return resolveBinding(((MethodInvocation) node).resolveMethodBinding());
-			else if (node instanceof QualifiedName)
-				return resolveQualifiedName((QualifiedName) node);
-			else if (node instanceof SimpleName)
-				return resolveBinding(((SimpleName) node).resolveBinding());
-			else if (node instanceof SuperFieldAccess)
-				return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
-			else if (node instanceof SuperMethodInvocation)
-				return resolveBinding(((SuperMethodInvocation) node).resolveMethodBinding());
-			else if (node instanceof Expression)
-				return resolveBinding(((Expression) node).resolveTypeBinding());
-			else if (node instanceof MemberRef) 
-				return resolveBinding(((MemberRef) node).resolveBinding());
-			else if (node instanceof MethodDeclaration)
-				return resolveBinding(((MethodDeclaration) node).resolveBinding());
-			else if (node instanceof MethodRef) 
-				return resolveBinding(((MethodRef) node).resolveBinding());
-			else if (node instanceof PackageDeclaration) 
-				return resolveBinding(((PackageDeclaration) node).resolveBinding());
-			else if (node instanceof Type) 
-				return resolveBinding(((Type) node).resolveBinding());
-			else if (node instanceof TypeParameter) 
-				return resolveBinding(((TypeParameter) node).resolveBinding());
-			else if (node instanceof VariableDeclaration) 
-				return resolveBinding(((VariableDeclaration) node).resolveBinding());
-			else if (node instanceof ConstructorInvocation)
-				return resolveBinding(((ConstructorInvocation) node).resolveConstructorBinding());
-			else if (node instanceof SuperConstructorInvocation)
-				return resolveBinding(((SuperConstructorInvocation) node).resolveConstructorBinding());
-			else if (node instanceof TypeDeclarationStatement)
-				return resolveBinding(((TypeDeclarationStatement) node).resolveBinding());
-			else if (node instanceof Initializer)
-				return resolveInitializer((Initializer) node);
+			if (node instanceof TypeDeclaration) {
+        return resolveBinding(((TypeDeclaration) node).resolveBinding());
+      } else if (node instanceof EnumDeclaration) {
+        return resolveBinding(((EnumDeclaration) node).resolveBinding());
+      } else if (node instanceof AnnotationTypeDeclaration) {
+        return resolveBinding(((AnnotationTypeDeclaration) node).resolveBinding());
+      } else if (node instanceof AnnotationTypeMemberDeclaration) {
+        return resolveBinding(((AnnotationTypeMemberDeclaration) node).resolveBinding());
+      } else if (node instanceof AnonymousClassDeclaration) {
+        return resolveBinding(((AnonymousClassDeclaration) node).resolveBinding());
+      } else if (node instanceof EnumConstantDeclaration) {
+        return resolveBinding(((EnumConstantDeclaration) node).resolveVariable());
+      } else if (node instanceof ClassInstanceCreation) {
+        return resolveBinding(((ClassInstanceCreation) node).resolveConstructorBinding());
+      } else if (node instanceof FieldAccess) {
+        return resolveBinding(((FieldAccess) node).resolveFieldBinding());
+      } else if (node instanceof MethodInvocation) {
+        return resolveBinding(((MethodInvocation) node).resolveMethodBinding());
+      } else if (node instanceof QualifiedName) {
+        return resolveQualifiedName((QualifiedName) node);
+      } else if (node instanceof SimpleName) {
+        return resolveBinding(((SimpleName) node).resolveBinding());
+      } else if (node instanceof SuperFieldAccess) {
+        return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
+      } else if (node instanceof SuperMethodInvocation) {
+        return resolveBinding(((SuperMethodInvocation) node).resolveMethodBinding());
+      } else if (node instanceof Expression) {
+        return resolveBinding(((Expression) node).resolveTypeBinding());
+      } else if (node instanceof MemberRef) {
+        return resolveBinding(((MemberRef) node).resolveBinding());
+      } else if (node instanceof MethodDeclaration) {
+        return resolveBinding(((MethodDeclaration) node).resolveBinding());
+      } else if (node instanceof MethodRef) {
+        return resolveBinding(((MethodRef) node).resolveBinding());
+      } else if (node instanceof PackageDeclaration) {
+        return resolveBinding(((PackageDeclaration) node).resolveBinding());
+      } else if (node instanceof Type) {
+        return resolveBinding(((Type) node).resolveBinding());
+      } else if (node instanceof TypeParameter) {
+        return resolveBinding(((TypeParameter) node).resolveBinding());
+      } else if (node instanceof VariableDeclaration) {
+        return resolveBinding(((VariableDeclaration) node).resolveBinding());
+      } else if (node instanceof ConstructorInvocation) {
+        return resolveBinding(((ConstructorInvocation) node).resolveConstructorBinding());
+      } else if (node instanceof SuperConstructorInvocation) {
+        return resolveBinding(((SuperConstructorInvocation) node).resolveConstructorBinding());
+      } else if (node instanceof TypeDeclarationStatement) {
+        return resolveBinding(((TypeDeclarationStatement) node).resolveBinding());
+      } else if (node instanceof Initializer) {
+        return resolveInitializer((Initializer) node);
+      }
 		}
 		return convertBinding("unknown", null, null, null);
 	}
@@ -94,8 +95,9 @@ public class BindingsResolver {
 		URI parent = resolveBinding(node.getQualifier().resolveTypeBinding());
 		URI name = resolveBinding(node.getName());
 		
-		if (parent.getScheme().equals("java+array") && name.getScheme().equals("unresolved"))
-			return convertBinding("java+field", resolveBinding(node.getQualifier()).getPath() + "/" + node.getName().getIdentifier(), null, null);
+		if (parent.getScheme().equals("java+array") && name.getScheme().equals("unresolved")) {
+      return convertBinding("java+field", resolveBinding(node.getQualifier()).getPath() + "/" + node.getName().getIdentifier(), null, null);
+    }
 		
 		return name;
 	}
@@ -103,38 +105,44 @@ public class BindingsResolver {
 	private URI resolveInitializer(Initializer node) {
 		int initCounter = 1;
 		URI parent = resolveBinding(node.getParent());
-		if (initializerCounter.containsKey(parent))
-			initCounter = initializerCounter.get(parent) + 1;
+		if (initializerCounter.containsKey(parent)) {
+      initCounter = initializerCounter.get(parent) + 1;
+    }
 		initializerCounter.put(parent, initCounter);
 		
 		return convertBinding("java+initializer", parent.getPath() + "$initializer" + initCounter, null, null);
 	}
 	
 	public URI resolveBinding(IBinding binding) {
-		if (binding == null)
-			return convertBinding("unresolved", null, null, null);
-		if (binding instanceof ITypeBinding)
-			return resolveBinding((ITypeBinding) binding);
-		else if (binding instanceof IMethodBinding)
-			return resolveBinding((IMethodBinding) binding);
-		else if (binding instanceof IPackageBinding)
-			return resolveBinding((IPackageBinding) binding);
-		else if (binding instanceof IVariableBinding)
-			return resolveBinding((IVariableBinding) binding);
+		if (binding == null) {
+      return convertBinding("unresolved", null, null, null);
+    }
+		if (binding instanceof ITypeBinding) {
+      return resolveBinding((ITypeBinding) binding);
+    } else if (binding instanceof IMethodBinding) {
+      return resolveBinding((IMethodBinding) binding);
+    } else if (binding instanceof IPackageBinding) {
+      return resolveBinding((IPackageBinding) binding);
+    } else if (binding instanceof IVariableBinding) {
+      return resolveBinding((IVariableBinding) binding);
+    }
 		return convertBinding("unknown", null, null, null);
 	}
 	
 	private URI resolveBinding(IMethodBinding binding) {
-		if (binding == null)
-			return convertBinding("unresolved", null, null, null);
+		if (binding == null) {
+      return convertBinding("unresolved", null, null, null);
+    }
 		String signature = resolveBinding(binding.getDeclaringClass()).getPath();
-		if (!signature.isEmpty())
-			signature = signature.concat("/");
+		if (!signature.isEmpty()) {
+      signature = signature.concat("/");
+    }
 		String params = "";
 		
 		for (ITypeBinding parameterType: binding.getMethodDeclaration().getParameterTypes()) {
-			if (!params.isEmpty())
-				params = params.concat(",");
+			if (!params.isEmpty()) {
+        params = params.concat(",");
+      }
 			
 			if (parameterType.isTypeVariable()) {
 			  params = params.concat(parameterType.getName()); 
@@ -145,17 +153,19 @@ public class BindingsResolver {
 		}
 		signature = signature.concat(binding.getName() + "(" + params + ")");
 		String scheme = "unknown";
-		if (binding.isConstructor())
-			scheme = "java+constructor";
-		else 
-			scheme = "java+method";
+		if (binding.isConstructor()) {
+      scheme = "java+constructor";
+    } else {
+      scheme = "java+method";
+    }
 		
 		return convertBinding(scheme, signature, null, null);
 	}
 	
 	private URI resolveBinding(IPackageBinding binding) {
-		if (binding == null)
-			return convertBinding("unresolved", null, null, null);
+		if (binding == null) {
+      return convertBinding("unresolved", null, null, null);
+    }
 		return convertBinding("java+package", binding.getName().replaceAll("\\.", "/"), null, null);
 	}
 	
@@ -219,8 +229,9 @@ public class BindingsResolver {
 	}
 	
 	private URI resolveBinding(IVariableBinding binding) {
-		if (binding == null)
-			return convertBinding("unresolved", null, null, null);
+		if (binding == null) {
+      return convertBinding("unresolved", null, null, null);
+    }
 		String qualifiedName = "";
 
 		ITypeBinding declaringClass = binding.getDeclaringClass();
@@ -233,26 +244,29 @@ public class BindingsResolver {
 			}
 		}
 		
-		if (!qualifiedName.isEmpty())
-			qualifiedName = qualifiedName.concat("/");
-		else
-			return convertBinding("unresolved", null, null, null);
+		if (!qualifiedName.isEmpty()) {
+      qualifiedName = qualifiedName.concat("/");
+    } else {
+      return convertBinding("unresolved", null, null, null);
+    }
 		
 		String scheme = "java+variable";
-		if (binding.isField())
-			scheme = "java+field";
-		else if (binding.isParameter())
-			scheme = "java+parameter";
-		else if (binding.isEnumConstant())
-			scheme = "java+enumconstant";
+		if (binding.isField()) {
+      scheme = "java+field";
+    } else if (binding.isParameter()) {
+      scheme = "java+parameter";
+    } else if (binding.isEnumConstant()) {
+      scheme = "java+enumconstant";
+    }
 		
 		return convertBinding(scheme, qualifiedName.concat(binding.getName()), null, null);
 	}
 	
 	public URI convertBinding(String scheme, String path, String query, String fragment) {
 		URI binding = null;
-		if (path == null)
-			path = "";
+		if (path == null) {
+      path = "";
+    }
 		
 		try {
 			
