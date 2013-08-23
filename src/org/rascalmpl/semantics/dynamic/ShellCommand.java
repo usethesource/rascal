@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -111,17 +112,25 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			String name = "rascal." + ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) this.getName()).fullName();
 			String value = this.getExpression().interpret(__eval).getValue()
 					.toString();
 
-			java.lang.System.setProperty(name, value);
+			switch (name) {
+			case Configuration.PROFILING_PROPERTY: 
+			  __eval.getConfiguration().setProfiling(Boolean.parseBoolean(value));
+			  break;
+			case Configuration.ERRORS_PROPERTY:
+			  __eval.getConfiguration().setErrors(Boolean.parseBoolean(value));
+			  break;
+			case Configuration.TRACING_PROPERTY:
+			  __eval.getConfiguration().setTracing(Boolean.parseBoolean(value));
+			  break;
+			}
 
 			__eval.updateProperties();
 
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
 		}
 
 	}
