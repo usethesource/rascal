@@ -46,7 +46,12 @@ MuModule r2mu(loc moduleLoc){
    	  functions_in_module = [];
    	  variables_in_module = [];
    	  variable_initializations = [];
-   	  list[Symbol] types = [ \type | int uid <- config.store, constructor(name, Symbol \type, containedIn, at) := config.store[uid] ];
+   	  list[Symbol] types = [ \type | int uid <- config.store, 
+   	  									constructor(name, Symbol \type, containedIn, at) := config.store[uid]
+   	  									|| production(name, Symbol \type, containedIn, at) := config.store[uid]
+   	  									|| datatype(name, Symbol \type, containedIn, ats) := config.store[uid]
+   	  									|| sorttype(name, Symbol \type, containedIn, ats) := config.store[uid]
+   	  									|| \alias(name, Symbol \type, containedIn, at) := config.store[uid] ];
    	  translate(M.top);
    	  return muModule("<M.top.header.name>", types, functions_in_module, variables_in_module, variable_initializations);
    	  }
