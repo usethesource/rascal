@@ -11,8 +11,9 @@ import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
-
 import experiments::Compiler::muRascal::AST;
+
+import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
 
 public list[MuFunction] functions_in_module = [];
