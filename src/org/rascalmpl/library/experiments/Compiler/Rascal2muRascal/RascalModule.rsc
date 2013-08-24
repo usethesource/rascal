@@ -26,13 +26,25 @@ public void resetR2mu() {
 	variable_initializations = [];
 }
 
+// Compile a Rascal source module (given as string) to muRascal
+
+MuModule r2mu(str moduleStr){
+	return r2mu(parse(#start[Module], moduleStr).top); // .top is needed to remove start! Ugly!
+}
+
+// Compile a Rascal source module (given at a location) to muRascal
+
 MuModule r2mu(loc moduleLoc){
+    println(readFile(moduleLoc));
+   	return r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
+}
+
+// Compile a parsed Rascal source module to muRascal
+
+MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    try {
-    println("<moduleLoc>");
-   	println(readFile(moduleLoc));
-   	lang::rascal::\syntax::Rascal::Module M = parse(#start[Module], moduleLoc);
    	Configuration c = newConfiguration();
-   	config = checkModule(M.top, c);  // .top is needed to remove start! Ugly!
+   	config = checkModule(M, c);  
    	extractScopes();
    	errors = [ e | e:error(_,_) <- config.messages];
    	if(size(errors) > 0) {
@@ -50,8 +62,8 @@ MuModule r2mu(loc moduleLoc){
    	  									|| datatype(name, Symbol \type, containedIn, ats) := config.store[uid]
    	  									|| sorttype(name, Symbol \type, containedIn, ats) := config.store[uid]
    	  									|| \alias(name, Symbol \type, containedIn, at) := config.store[uid] ];
-   	  translate(M.top);
-   	  return muModule("<M.top.header.name>", types, functions_in_module, variables_in_module, variable_initializations);
+   	  translate(M);
+   	  return muModule("<M.header.name>", types, functions_in_module, variables_in_module, variable_initializations);
    	  }
    	} catch Java("ParseError","Parse error"): {
    	    throw "Syntax errors in module <moduleLoc>";

@@ -9,12 +9,12 @@ import experiments::Compiler::Examples::Fac;
 import experiments::Compiler::Examples::Fib;
 import experiments::Compiler::Examples::ListMatch;
 
+import experiments::Compiler::Examples::Tmp;
+
 loc base = |std:///experiments/Compiler/Examples/|;
 
-value run(str example bool debug = false, bool listing=false){
-  v = execute(base + (example + ".rsc"), debug=debug, listing=listing);
-  return v;
-}
+value run(str example bool debug = false, bool listing=false) =
+  execute(base + (example + ".rsc"), debug=debug, listing=listing);
 
 test bool tst() = run("Capture") == experiments::Compiler::Examples::Capture::main([]);
 test bool tst() = run("D1D2") == experiments::Compiler::Examples::D1D2::main([]);
