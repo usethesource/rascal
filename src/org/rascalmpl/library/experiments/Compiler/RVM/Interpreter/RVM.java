@@ -116,8 +116,12 @@ public class RVM {
 		throw new RuntimeException("PANIC: Cannot convert object back to IValue: " + result);
 	}
 	
+	/**
+	 * Represent any object that can occur on the RVM stack stack as string
+	 * @param some stack object
+	 * @return its string representation
+	 */
 	private String asString(Object o){
-		
 		if(o == null)
 			return "null";
 		if(o instanceof Boolean)
