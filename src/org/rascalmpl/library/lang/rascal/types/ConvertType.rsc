@@ -60,6 +60,8 @@ public Symbol convertBasicType(BasicType t) {
             return \map(\void(),\void())[@errinfo = { error("Non-well-formed type, type should have two type arguments", t@\loc) }];
         case (BasicType)`rel` : 
             return \rel([])[@errinfo = { error("Non-well-formed type, type should have one or more type arguments", t@\loc) }];
+        case (BasicType)`lrel` : 
+            return \lrel([])[@errinfo = { error("Non-well-formed type, type should have one or more type arguments", t@\loc) }];
         case (BasicType)`tuple` : 
             return \tuple([])[@errinfo = { error("Non-well-formed type, type should have one or more type arguments", t@\loc) }];
         case (BasicType)`type` : 
