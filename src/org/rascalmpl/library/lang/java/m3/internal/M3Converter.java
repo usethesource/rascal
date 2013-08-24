@@ -145,11 +145,6 @@ public class M3Converter extends JavaToRascalConverter {
 		ownValue = resolveBinding(node);
 	}
 	
-	public boolean visit(Annotation node) {
-		insert(typeDependency, getParent(), ownValue);
-		return true; //??
-	}
-	
 	public boolean visit(AnnotationTypeDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
@@ -455,35 +450,50 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	private void visitListOfModifiers(List modif) {
 		for (Iterator it = modif.iterator(); it.hasNext(); ) {
-			ASTNode next = (ASTNode)it.next();
-			if (next instanceof Modifier)
-				visit((Modifier) next);
-			else if (next instanceof Annotation)
-				visit((Annotation) next);
+			((ASTNode)it.next()).accept(this);
 		}
+	}
+	
+	private void visitFragments(List fragments) {
+		for (Iterator it = fragments.iterator(); it.hasNext(); ) {
+			((VariableDeclarationFragment) it.next()).accept(this);
+		}
+	}
+	
+	public boolean visit(FieldDeclaration node) {
+		visitFragments(node.fragments());
+		return false;
+	}
+	
+	public boolean visit(VariableDeclarationExpression node) {
+		visitFragments(node.fragments());
+		return false;
+	}
+	
+	public boolean visit(VariableDeclarationStatement node) {
+		visitFragments(node.fragments());
+		return false;
 	}
 	
 	public boolean visit(VariableDeclarationFragment node) {
 		insert(containment, getParent(), ownValue);
-		IValue type;
 		
 		scopeManager.push((ISourceLocation) ownValue);
 		ASTNode parentASTNode = node.getParent();
 		if (parentASTNode instanceof FieldDeclaration) {
 			FieldDeclaration parent = (FieldDeclaration)parentASTNode;
-			type = resolveBinding(parent.getType());
+			parent.getType().accept(this);
 			visitListOfModifiers(parent.modifiers());
 		} else if (parentASTNode instanceof VariableDeclarationExpression) {
 			VariableDeclarationExpression parent = (VariableDeclarationExpression)parentASTNode;
-			type = resolveBinding(parent.getType());
+			parent.getType().accept(this);
 			visitListOfModifiers(parent.modifiers());
 		} else {
 			VariableDeclarationStatement parent = (VariableDeclarationStatement)parentASTNode;
-			type = resolveBinding(parent.getType());
+			parent.getType().accept(this);
 			visitListOfModifiers(parent.modifiers());
 		}
 		
-		insert(typeDependency, ownValue, type);
 		return true;
 	}
 	
