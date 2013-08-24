@@ -13,6 +13,7 @@ import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::Rascal2muRascal::RascalType;
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
 import experiments::Compiler::muRascal::AST;
 
@@ -262,7 +263,7 @@ list[MuExp] translate(Expression e:(Expression)`{ <{Expression ","}* es> }`) {
 list[MuExp] translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) =
     [ muCallPrim("make_list", [ *translate(elem) | elem <- es ]) ];
 
-list[MuExp] translate (e:(Expression) `# <Type tp>`) = [muTypeCon(translateType(tp))];
+list[MuExp] translate (e:(Expression) `# <Type tp>`) = [muCon(symbolToValue(translateType(tp),config))];
 
 list[MuExp] translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) { throw("range"); }
 
