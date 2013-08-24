@@ -213,24 +213,6 @@ function MATCH_LITERAL[1, 2, pat, ^subject, res]{
   return false;
 }
 
-function MATCH_INT[1, 2, pat, ^subject, res]{
-  if(^subject is int){
-     res = equal(pat, ^subject);
-      println("MATCH_INT", pat, ^subject, res);
-     return res;
-  };
-  return false;
-}
-
-function MATCH_STR[1, 2 ,pat, ^subject, res]{
-   if(^subject is str){
-     res = equal(pat, ^subject);
-     println("MATCH_STR", pat, ^subject, res);
-     return res;
-   };
-   return false;  
-}
-
 function MATCH_VAR[1, 2, varref, ^subject]{
    deref varref = ^subject;
    return true;
@@ -283,6 +265,15 @@ function MATCH_DESCENDANT[1, 2, pat, ^subject, gen, cpat]{
        };
    };
    return false;
+}
+
+function MATCH_ANTI[1, 2, pat, ^subject, cpat]{
+	cpat = init(pat, ^subject);
+	if(next(cpat)){
+	   return false;
+	} else {
+	   return true;
+	};
 }
 
 // ***** List matching *****

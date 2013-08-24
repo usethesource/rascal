@@ -14,14 +14,8 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 /*********************************************************************/
 /*                  Patterns                                         */
 /*********************************************************************/
- 
-list[MuExp] translatePat(p:(Pattern) `<BooleanLiteral b>`) = [ muCreate(muFun("MATCH_BOOL"), translate(b)) ];
 
-list[MuExp] translatePat(p:(Pattern) `<IntegerLiteral n>`) = [ muCreate(muFun("MATCH_LITERAL"), translate(n)) ];
-     
-list[MuExp] translatePat(p:(Pattern) `<StringLiteral s>`) =   [ muCreate(muFun("MATCH_STR"), translate(s)) ];
-
-// TODO: add other literal, or a single literal handler
+list[MuExp] translatePat(p:(Pattern) `<Literal lit>`) = [ muCreate(muFun("MATCH_LITERAL"), translate(lit)) ];
      
 list[MuExp] translatePat(p:(Pattern) `<QualifiedName name>`) {
    <scopeId, pos> = getVariableScope("<name>", name@\loc);
@@ -80,6 +74,10 @@ list[MuExp] translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) =
 
 list[MuExp] translatePat(p:(Pattern) `/ <Pattern pattern>`) =
     [muCreate(muFun("MATCH_DESCENDANT"), translatePat(pattern))];
+
+// Anti-pattern
+list[MuExp] translatePat(p:(Pattern) `! <Pattern pattern>`) =
+    [muCreate(muFun("MATCH_ANTI"), translatePat(pattern))];
 
 // typedVariableBecomes pattern
 list[MuExp] translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) {
