@@ -944,13 +944,13 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
     <c, rt> = convertAndExpandSymbol(s, c);
     if (isFailType(rt)) failures += t1;  
     
-    n = RSimpleName("<n>")[@at = n@\loc];
+    name = convertName(n)[@at = n@\loc];
     
-    if (fcvExists(c, n)) {
-        c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
-        return markLocationType(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
+    if (fcvExists(c, name)) {
+        c.uses = c.uses + < c.fcvEnv[name], exp@\loc >;
+        return markLocationType(c, exp@\loc, c.store[c.fcvEnv[name]].rtype);
     } else {
-        return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(n)> is not in scope", exp@\loc));
+        return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(name)> is not in scope", exp@\loc));
     }
   }
   
@@ -1675,7 +1675,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Name n
     // Now get the field type. If this fails, return right away as well.
     ft = computeFieldType(t1, convertName(n), exp@\loc, c);
     if (isFailType(t2) || isFailType(ft)) return markLocationFailed(c,exp@\loc,{t2,ft});
-    if ((isLocType(t1) || isDateTimeType(t1)) && "<n>" notin writableFields[t1])
+    if ((isLocType(t1) || isDateTimeType(t1)) && getSimpleName(convertName(n)) notin writableFields[t1])
         return markLocationFailed(c,exp@\loc,makeFailType("Cannot update field <n> on type <prettyPrintType(t1)>",exp@\loc)); 
 
     // To assign, the type of er (t2) must be a subtype of the type of the field (ft)   
