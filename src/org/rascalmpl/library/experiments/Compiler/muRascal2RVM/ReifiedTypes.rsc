@@ -9,12 +9,10 @@ import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import ParseTree;
 import IO;
 
-test bool reifiedtype(type[Symbol] st) {
+public bool reifiedtype(Symbol \type, type[value] st) {
 	moduleLoc = |std:///ParseTree.rsc|;
-	println("<moduleLoc>");
 	Module M = parse(#start[Module], moduleLoc);
    	Configuration c = newConfiguration();
    	Configuration config = checkModule(M.top, c);
-   	rt = symbolToValue(Symbol::\adt("Symbol",[]),config);
-   	return rt.definitions == st.definitions;
+   	return symbolToValue(\type,config) == st;
 }

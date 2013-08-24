@@ -11,6 +11,7 @@ public DATA main(list[value] args) {
 	int n1 = fac(10);
 	int n2 = inc(10);
 	
+	type[DATA] t = #DATA;
 	DATA v = d1(n1 + n2 + d3);
 	
 	return v;
