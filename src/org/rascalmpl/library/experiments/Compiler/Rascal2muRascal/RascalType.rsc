@@ -10,20 +10,13 @@ Symbol translateType((BasicType) `value`) 		= \value();
 Symbol translateType(t: (BasicType) `loc`) 		= \loc();
 Symbol translateType(t: (BasicType) `node`) 	= \node();
 Symbol translateType(t: (BasicType) `num`) 		= \num();
-Symbol translateType(t: (BasicType) `type`) 	= \type();
-Symbol translateType(t: (BasicType) `bag`) 		= \bag();
 Symbol translateType(t: (BasicType) `int`) 		= \int();
-Symbol translateType(t: (BasicType) `rel`) 		= \rel();
-Symbol translateType(t: (BasicType) `lrel`) 	= \lrel();
 Symbol translateType(t: (BasicType) `real`) 	= \real();
-Symbol translateType(t: (BasicType) `tuple`) 	= \tuple();
+Symbol translateType(t: (BasicType) `rat`)      = \rat();
 Symbol translateType(t: (BasicType) `str`) 		= \str();
 Symbol translateType(t: (BasicType) `bool`) 	= \bool();
 Symbol translateType(t: (BasicType) `void`) 	= \void();
 Symbol translateType(t: (BasicType) `datetime`)	= \datetime();
-Symbol translateType(t: (BasicType) `set`) 		= \set();
-Symbol translateType(t: (BasicType) `map`) 		= \map();
-Symbol translateType(t: (BasicType) `list`) 	= \list();
 
 Symbol translateType(t: (StructuredType) `bag [ <TypeArg arg> ]`) 
 												= \bag(translateType(arg)); 
