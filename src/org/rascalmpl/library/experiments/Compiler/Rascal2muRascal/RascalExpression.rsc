@@ -13,6 +13,7 @@ import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::Rascal2muRascal::RascalType;
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
 import experiments::Compiler::muRascal::AST;
 
@@ -119,7 +120,7 @@ tuple[int,int] getVariableScope(str name, loc l) {
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
   println("mkAssign: <name>");
-  println("l = <l>,\nloc2uid = <loc2uid>");
+  //println("l = <l>,\nloc2uid = <loc2uid>");
   addr = uid2addr[loc2uid[l]];
   res = "<name>::<addr[0]>::<addr[1]>";
   //println("mkVar: <name> =\> <res>");
@@ -192,7 +193,7 @@ void extractScopes(){
       println("<config.store[uid]> :  <uid2addr[uid]>");
    }
    
-   println("loc2uid:");
+   //println("loc2uid:");
    for(l <- loc2uid)
        println("<l> : <loc2uid[l]>");
 }
@@ -209,6 +210,8 @@ int size_exps({Expression ","}* es) = size([e | e <- es]);	// TODO: should becom
 list[MuExp] infix(str op, Expression e) = [muCallPrim("<op>_<getOuterType(e.lhs)>_<getOuterType(e.rhs)>", [*translate(e.lhs), *translate(e.rhs)])];
 list[MuExp] prefix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(arg)>", translate(arg))];
 list[MuExp] postfix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(arg)>", translate(arg))];
+
+list[MuExp] eq_neq(str op, Expression e) = [muCallPrim("<op>", [*translate(e.lhs), *translate(e.rhs)])];
 
 /*********************************************************************/
 /*                  Expessions                                       */
@@ -262,7 +265,7 @@ list[MuExp] translate(Expression e:(Expression)`{ <{Expression ","}* es> }`) {
 list[MuExp] translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) =
     [ muCallPrim("make_list", [ *translate(elem) | elem <- es ]) ];
 
-list[MuExp] translate (e:(Expression) `# <Type tp>`) = [muTypeCon(translateType(tp))];
+list[MuExp] translate (e:(Expression) `# <Type tp>`) = [muCon(symbolToValue(translateType(tp),config))];
 
 list[MuExp] translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) { throw("range"); }
 
@@ -348,9 +351,9 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> \< <Expression rhs>`)  = 
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> \> <Expression rhs>`)  = infix("greater", e);
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> == <Expression rhs>`)  = infix("equals", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> == <Expression rhs>`)  = eq_neq("equal", e);
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> != <Expression rhs>`)  = infix("nonEquals", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> != <Expression rhs>`)  = eq_neq("not_equal", e);
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`)  { throw("ifDefinedOtherwise"); }
 

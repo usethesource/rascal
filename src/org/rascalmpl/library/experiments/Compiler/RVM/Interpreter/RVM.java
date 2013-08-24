@@ -117,6 +117,45 @@ public class RVM {
 		throw new RuntimeException("PANIC: Cannot convert object back to IValue: " + result);
 	}
 	
+	private String asString(Object o){
+		
+		if(o == null)
+			return "null";
+		if(o instanceof Boolean)
+			return ((Boolean) o).toString();
+		if(o instanceof Integer)
+			return ((Integer)o).toString();
+		if(o instanceof IValue)
+			return ((IValue) o).toString();
+		if(o instanceof Type)
+			return ((Type) o).toString();
+		if(o instanceof Object[]){
+			StringBuilder w = new StringBuilder();
+			Object[] lst = (Object[]) o;
+			w.append("[");
+			for(int i = 0; i < lst.length; i++){
+				w.append(asString(lst[i]));
+				if(i < lst.length - 1)
+						w.append(", ");
+			}
+			return w.toString();
+		}
+		if(o instanceof Coroutine){
+			return "Coroutine[" + ((Coroutine)o).frame.function.name + "]";
+		}
+		if(o instanceof Function){
+			return "Function[" + ((Function)o).name + "]";
+		}
+		if(o instanceof FunctionInstance){
+			return "Function[" + ((FunctionInstance)o).function.name + "]";
+		}
+		if(o instanceof Reference){
+			Reference ref = (Reference) o;
+			return "Reference[" + ref.stack + ", " + ref.pos + "]";
+		}
+		throw new RuntimeException("PANIC: asString cannot convert: " + o);
+	}
+	
 	public IValue executeProgram(String main, IValue[] args) {
 
 		// Finalize the instruction generation of all functions
@@ -172,8 +211,7 @@ public class RVM {
 				if (debug) {
 					int startpc = pc - 1;
 					for (int i = 0; i < sp; i++) {
-						String val = (stack[i] == null) ? "null" : (stack[i] instanceof IValue) ? ((IValue) stack[i]).toString() : stack[i].toString();
-						stdout.println("\t" + i + ": " + val);
+						stdout.println("\t" + i + ": " + asString(stack[i]));
 					}
 					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
@@ -418,7 +456,13 @@ public class RVM {
 					return narrow(stack[sp - 1]);
 
 				case Opcode.OP_PRINTLN:
-					stdout.println(((IString) stack[sp - 1]).getValue());
+					arity = instructions[pc++];
+					StringBuilder w = new StringBuilder();
+					for(int i = arity - 1; i >= 0; i--){
+						w.append(stack[sp - 1 - i]).append(" ");
+					}
+					stdout.println(w.toString());
+					sp = sp - arity + 1;
 					continue;		
 				
 				case Opcode.OP_INIT:
@@ -574,29 +618,41 @@ public class RVM {
 						sp = sp - 2;
 						break;
 						
-					case equals_mint_mint:
+					case equal_mint_mint:
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) == ((Integer) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
-					case equals_rint_rint:
+					case equal:
 						assert arity == 2;
-						stack[sp - 2] = ((IInteger) stack[sp - 2]).intValue() == ((IInteger) stack[sp - 1]).intValue();
+						if(stack[sp - 2] instanceof IValue && (stack[sp - 2] instanceof IValue)){
+							stack[sp - 2] = ((IValue) stack[sp - 2]).isEqual(((IValue) stack[sp - 1]));
+						} else if(stack[sp - 2] instanceof Type && (stack[sp - 2] instanceof Type)){
+							stack[sp - 2] = ((Type) stack[sp - 2]) == ((Type) stack[sp - 1]);
+						} else 
+							throw new RuntimeException("equal -- not defined on " + stack[sp - 2].getClass() + " and " + stack[sp - 2].getClass());
 						sp = sp - 1;
 						break;
 						
-					case equals_str_str:
-						assert arity == 2;
-						stack[sp - 2] = ((IString) stack[sp - 2]).isEqual(((IString) stack[sp - 1]));
-						sp = sp - 1;
-						break;
-					
-					case equals_type_type:
-						assert arity == 2;
-						stack[sp - 2] = ((Type) stack[sp - 2]) == ((Type) stack[sp - 1]);
-						sp = sp - 1;
-						break;
+						
+//					case equal_rint_rint:
+//						assert arity == 2;
+//						stack[sp - 2] = ((IInteger) stack[sp - 2]).intValue() == ((IInteger) stack[sp - 1]).intValue();
+//						sp = sp - 1;
+//						break;
+//						
+//					case equal_str_str:
+//						assert arity == 2;
+//						stack[sp - 2] = ((IString) stack[sp - 2]).isEqual(((IString) stack[sp - 1]));
+//						sp = sp - 1;
+//						break;
+//					
+//					case equal_type_type:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Type) stack[sp - 2]) == ((Type) stack[sp - 1]);
+//						sp = sp - 1;
+//						break;
 						
 					case get_name_and_children:
 						assert arity == 1;
@@ -738,21 +794,31 @@ public class RVM {
 						stack[sp - 1] = new Object[len];
 						break;
 						
-					case not_equals_mint_mint:
+					case not_equal_mint_mint:
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) != ((Integer) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
-					case size_array:
-						assert arity == 1;
-						stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
-						break;
+//					case size_array:
+//						assert arity == 1;
+//						stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
+//						break;
+//						
+//						
+//					case size_list:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IList) stack[sp - 1]).length();
+//						break;
 						
-						
-					case size_list:
+					case size_array_or_list:
 						assert arity == 1;
-						stack[sp - 1] = ((IList) stack[sp - 1]).length();
+						if(stack[sp - 1] instanceof Object[]){
+							stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
+						} else if(stack[sp - 1] instanceof IList){
+							stack[sp - 1] = ((IList) stack[sp - 1]).length();
+						} else
+							throw new RuntimeException("size_array_or_list_mint -- not defined on " + stack[sp - 1].getClass());
 						break;
 						
 					case sublist_list_mint_mint:
@@ -764,15 +830,14 @@ public class RVM {
 						sp = sp - 2;
 						break;
 						
-					case subscript_array_mint:
+					case subscript_array_or_list_mint:
 						assert arity == 2;
-						stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
-						sp = sp - 1;
-						break;
-						
-					case subscript_list_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
+						if(stack[sp - 2] instanceof Object[]){
+							stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
+						} else if(stack[sp - 2] instanceof IList){
+							stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
+						} else 
+							throw new RuntimeException("subscript_array_or_list_mint -- Object[] or IList expected");
 						sp = sp - 1;
 						break;
 						

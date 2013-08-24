@@ -1,4 +1,4 @@
-module experiments::Compiler::Rascal2muRascal::Examples::Example2
+module experiments::Compiler::Examples::D1D2
 
 public int d3 = 1;
 
@@ -15,3 +15,5 @@ public DATA main(list[value] args) {
 	
 	return v;
 }
+
+bool testD1D2() = main([]) == d1(3628812);

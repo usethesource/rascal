@@ -314,8 +314,8 @@ public class CodeBlock {
 		return add(new HasNext(this));
 	}
 	
-	public CodeBlock PRINTLN(){
-		return add(new Println(this));
+	public CodeBlock PRINTLN(int arity){
+		return add(new Println(this, arity));
 	}
     
 	public CodeBlock LOADLOCREF(int pos) {

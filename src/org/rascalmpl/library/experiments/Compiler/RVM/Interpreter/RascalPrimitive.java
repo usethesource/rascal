@@ -50,8 +50,9 @@ public enum RascalPrimitive {
 	composition_rel_rel,
 	composition_map_map,
 	division_num_num,
-	equals_num_num,
-	equals_str_str,
+	equal,
+	equal_num_num,
+	equal_str_str,
 	equivalent_bool_bool,
 	greater_num_num,
 	greater_equal_num_num,
@@ -81,7 +82,7 @@ public enum RascalPrimitive {
 	negative,
 	not_bool,
 	not_equal,
-	not_equals_num_num,
+	not_equal_num_num,
 	or_bool_bool,
 	println,
 	product_num_num,
@@ -99,7 +100,7 @@ public enum RascalPrimitive {
 	transitive_reflexive_closure_lrel,
 	transitive_reflexive_closure_rel,
 	
-	equals_type_type,
+	equal_type_type,
 	subtype,
 	typeOf
 	;
@@ -380,16 +381,22 @@ public enum RascalPrimitive {
 	}
 	
 	/*
-	 * equals
+	 * equal
 	 */
+	
+	public static int equal(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]);
+		return sp - 1;
+	}
 
-	public static int equals_num_num(Object[] stack, int sp, int arity) {
+	public static int equal_num_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int equals_str_str(Object[] stack, int sp, int arity) {
+	public static int equal_str_str(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = vf.bool(((IString) stack[sp - 2]).isEqual(((IString) stack[sp - 1])));
 		return sp - 1;
@@ -726,7 +733,7 @@ public enum RascalPrimitive {
 		return sp -1;
 	}
 	
-	public static int not_equals_num_num(Object[] stack, int sp, int arity) {
+	public static int not_equal_num_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
 		return sp - 1;
@@ -745,7 +752,7 @@ public enum RascalPrimitive {
 	}
 	
 	/*
-	 * nonEquals
+	 * notEquals
 	 */
 	
 	/*
@@ -906,7 +913,7 @@ public enum RascalPrimitive {
 		return sp;
 	}
 	
-	public static int equals_type_type(Object[] stack, int sp, int arity) {
+	public static int equal_type_type(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = vf.bool(((Type) stack[sp - 2]) == ((Type) stack[sp - 1]));
 		return sp - 1;

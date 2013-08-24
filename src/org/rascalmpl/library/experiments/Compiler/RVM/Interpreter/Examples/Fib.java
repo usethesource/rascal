@@ -25,14 +25,14 @@ public static void main(String[] args) {
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADCON(0).
-					CALLPRIM(RascalPrimitive.equals_num_num, 2).
+					CALLPRIM(RascalPrimitive.equal_num_num, 2).
 					JMPFALSE("L").
 					LOADCON(0).
 					RETURN1().
 					LABEL("L").
 					LOADLOC(0).
 					LOADCON(1).
-					CALLPRIM(RascalPrimitive.equals_num_num, 2).
+					CALLPRIM(RascalPrimitive.equal_num_num, 2).
 					JMPFALSE("M").
 					LOADCON(1).
 					RETURN1().

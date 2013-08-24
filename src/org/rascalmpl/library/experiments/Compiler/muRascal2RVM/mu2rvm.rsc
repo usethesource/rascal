@@ -31,13 +31,13 @@ public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations)){
+RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations), bool listing=false){
   funMap = ();
   nLabel = -1;
+  libraryScope = 1000000; 
   
   libModule = parse(Library);
-  
-  libraryScope = 1000000;
+ 
   for(fun <-libModule.functions){
      funMap += (fun.name : FUNCTION(fun.name, libraryScope, fun.nformal, fun.nlocal, 20, trblock(fun.body)));
      libraryScope += 1;
@@ -58,7 +58,8 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   									 HALT()
   									]));
   res = rvm(types, funMap, []);
-  //iprintln(res);
+  if(listing)
+  	iprintln(res);
   return res;
 }
 
@@ -116,13 +117,9 @@ INS tr(muCall(muFun(str fname), list[MuExp] args)) = [*tr(args), CALL(fname)];
 INS tr(muCall(muConstr(str cname), list[MuExp] args)) = [*tr(args), CALLCONSTR(cname)];
 INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN()];
 
-INS tr(muCallPrim(str name, MuExp arg)) = (name == "println") ? [*tr(arg), PRINTLN()] : [*tr(arg), CALLPRIM(name, 1)];
+INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args))];
 
-INS tr(muCallPrim(str name, MuExp arg1, MuExp arg2)) = [*tr(arg1), *tr(arg2), CALLPRIM(name, 2)];
-
-INS tr(muCallPrim(str name, list[MuExp] args)) = [*tr(args), CALLPRIM(name, size(args))];
-
-INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
+INS tr(muCallMuPrim(str name, list[MuExp] args)) =  (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLMUPRIM(name, size(args))];
 
 INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), scope == functionScope ? STORELOC(pos) : STOREVAR(scope, pos)];
 INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];

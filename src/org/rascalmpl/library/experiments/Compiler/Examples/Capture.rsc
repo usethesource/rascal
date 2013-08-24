@@ -1,4 +1,4 @@
-module experiments::Compiler::Rascal2muRascal::Examples::Example3
+module experiments::Compiler::Examples::Capture
 
 public int (int) f() { int n = 100; return int (int i) { return i + n; }; }
 
@@ -13,3 +13,5 @@ public value main(list[value] args) {
 	
 	return res1 + res2; // 111 + 53 == 164
 }
+
+public bool testCapture() = main([]) == 164;

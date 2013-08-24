@@ -134,6 +134,19 @@ public data MuExp =
             | preAssignSubscript(MuExp lst, MuExp idx, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart)
             
+            | preAddition(MuExp lhs, MuExp rhs)
+            | preSubtraction(MuExp lhs, MuExp rhs)
+                 
+            | preLess(MuExp lhs, MuExp rhs)
+            | preLessEqual(MuExp lhs, MuExp rhs)
+            | preEqual(MuExp lhs, MuExp rhs)
+            | preNotEqual(MuExp lhs, MuExp rhs)
+            | preGreater(MuExp lhs, MuExp rhs)
+            | preGreaterEqual(MuExp lhs, MuExp rhs)
+            | preAnd(MuExp lhs, MuExp rhs)
+       
+            | preIs(MuExp, str typeName)
+            
             | preLocDeref(str name)
             | preLocRef(str name)
             

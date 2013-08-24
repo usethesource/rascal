@@ -72,32 +72,32 @@ function ALL[1,1,arg,carg]{
 
 // ***** Generators for all types *****
 
-function GEN_LIST[1, 1, _lst, last, i]{
-   last = muprim("subtraction_mint_mint", prim("size_list", _lst), 1);
+function GEN_LIST[1, 1, ^lst, last, i]{
+   last = size(^lst) - 1;
    i = 0;
-   while(muprim("less_mint_mint", i, last)){
-      yield muprim("subscript_list_mint", _lst, i);
-      i = muprim("addition_mint_mint", i, 1);
+   while(i < last){
+      yield get ^lst[i];
+      i = i + 1;
    };
-   return muprim("subscript_list_mint", _lst, last);
+   return get ^lst[last];
 }
 
-function GEN_NODE[1, 1, _nd, last, i, lst]{
-   lst = muprim("get_name_and_children", _nd);
-   last = muprim("subtraction_mint_mint", muprim("size_array", lst), 2);
+function GEN_NODE[1, 1, ^nd, last, i, lst]{
+   lst = get_name_and_children(^nd);
+   last = size(lst) - 2;
    i = 1;  // skip name
-   while(muprim("less_mint_mint", i, last)){
-      yield muprim("subscript_array_mint", lst, i);
-      i = muprim("addition_mint_mint", i, 1);
+   while(i < last){
+      yield get lst[i];
+      i = i + 1;
    };
-   return muprim("subscript_array_mint", lst, last);
+   return get lst[last];
 }
 
-function GEN_VALUE[1, 1, _val, co, res]{
+function GEN_VALUE[1, 1, ^val, co, res]{
 
-  if(muprim("is_list", _val)){
-     yield _val;
-     co = init(create(fun GEN_LIST, _val));
+  if(^val is list){
+     yield ^val;
+     co = init(create(fun GEN_LIST, ^val));
      while(hasNext(co)){
         res = next(co);
         if(hasNext(co)){
@@ -107,9 +107,9 @@ function GEN_VALUE[1, 1, _val, co, res]{
         };
      };
   };
-  if(muprim("is_node", _val)){
-     yield _val;
-     co = init(create(fun GEN_NODE, _val));
+  if(^val is node){
+     yield ^val;
+     co = init(create(fun GEN_NODE, ^val));
      while(hasNext(co)){
         res = next(co);
         if(hasNext(co)){
@@ -120,13 +120,13 @@ function GEN_VALUE[1, 1, _val, co, res]{
      };
   };
   // Add cases for set/rel/tuple/map/...
-  return _val;
+  return ^val;
 }
 
 // ***** Pattern matching *****
 
-function MATCH[1,2,pat,_subject,cpat]{
-   cpat = init(pat, _subject);
+function MATCH[1,2,pat,^subject,cpat]{
+   cpat = init(pat, ^subject);
    while(hasNext(cpat)){
       if(next(cpat)){
          yield true;
@@ -138,28 +138,28 @@ function MATCH[1,2,pat,_subject,cpat]{
 }
 
 function MATCH_N[1, 2, pats, subjects, plen, slen, p, pat]{
-   prim("println", ["MATCH_N", pats, subjects]);
-   plen = muprim("size_array", pats);
-   slen = muprim("size_array", subjects);
-   if(muprim("not_equals_mint_mint", plen, slen)){
-      prim("println", ["MATCH_N: unequal length", plen, slen]);
+   println("MATCH_N", pats, subjects);
+   plen = size(pats);
+   slen = size(subjects);
+   if(plen != slen){
+      println("MATCH_N: unequal length", plen, slen);
       return false;
    };
    p = 0;
-   while(muprim("less_mint_mint", p, plen)){
-     prim("println",  ["MATCH_N: init ", p]);
+   while(p < plen){
+     println("MATCH_N: init ", p);
      set pats[p] = init(get pats[p], get subjects[p]);
-     p = muprim("addition_mint_mint", p, 1);
+     p = p + 1;
    };
    
    while(true){
      p = 0;
-     while(muprim("less_mint_mint", p, plen)){
-       prim("println", ["p = ", p]);
+     while(p < plen){
+       println("p = ", p);
        pat = get pats[p];
        if(hasNext(pat)){
           if(next(pat)){
-              p = muprim("addition_mint_mint", p, 1);
+              p = p + 1;
            } else {
               return false;
            };   
@@ -167,17 +167,17 @@ function MATCH_N[1, 2, pats, subjects, plen, slen, p, pat]{
          return false;
        };
      };
-     prim("println", ["MATCH_N yields true"]);
+     println("MATCH_N yields true");
      yield true; 
    };
 }
 
-function MATCH_CALL_OR_TREE[1, 2, pats, _subject, cpats]{
-    prim("println", ["MATCH_CALL_OR_TREE", pats, _subject]);
-    if(muprim("is_node", _subject)){
-      cpats = init(create(fun MATCH_N, pats, muprim("get_name_and_children", _subject)));
+function MATCH_CALL_OR_TREE[1, 2, pats, ^subject, cpats]{
+    println("MATCH_CALL_OR_TREE", pats, ^subject);
+    if(^subject is node){
+      cpats = init(create(fun MATCH_N, pats, get_name_and_children(^subject)));
       while(hasNext(cpats)){
-        prim("println", ["MATCH_CALL_OR_TREE", "hasNext=true"]);
+        println("MATCH_CALL_OR_TREE", "hasNext=true");
         if(next(cpats)){
            yield true;
         } else {
@@ -188,12 +188,12 @@ function MATCH_CALL_OR_TREE[1, 2, pats, _subject, cpats]{
     return false;
 }
 
-function MATCH_TUPLE[1, 2, pats, _subject, cpats]{
-    prim("println", ["MATCH_TUPLE", pats, _subject]);
-    if(muprim("is_tuple", _subject)){
-      cpats = init(create(fun MATCH_N, pats, muprim("get_tuple_elements", _subject)));
+function MATCH_TUPLE[1, 2, pats, ^subject, cpats]{
+    println("MATCH_TUPLE", pats, ^subject);
+    if(^subject is tuple){
+      cpats = init(create(fun MATCH_N, pats, get_tuple_elements(^subject)));
       while(hasNext(cpats)){
-        prim("println", ["MATCH_TUPLE", "hasNext=true"]);
+        println("MATCH_TUPLE", "hasNext=true");
         if(next(cpats)){
            yield true;
         } else {
@@ -204,60 +204,60 @@ function MATCH_TUPLE[1, 2, pats, _subject, cpats]{
     return false;
 }
 
-function MATCH_INT[1,2,pat, _subject, res]{
-  if(prim("is_int", _subject)){
-     res = muprim("equals_rint_rint", pat, _subject);
-     prim("println", ["MATCH_INT", pat, _subject, res]);
+function MATCH_INT[1,2,pat, ^subject, res]{
+  if(^subject is int){
+     res = equal(pat, ^subject);
+      println("MATCH_INT", pat, ^subject, res);
      return res;
   };
   return false;
 }
 
-function MATCH_STR[1,2,pat, _subject, res]{
-   if(muprim("is_str", _subject)){
-     res = muprim("equals_str_str", pat, _subject);
-     prim("println", ["MATCH_STR", pat, _subject, res]);
+function MATCH_STR[1,2,pat, ^subject, res]{
+   if(^subject is str){
+     res = equal(pat, ^subject);
+     println("MATCH_STR", pat, ^subject, res);
      return res;
    };
    return false;  
 }
 
-function MATCH_VAR[1, 2, varref, _subject]{
-   deref varref = _subject;
+function MATCH_VAR[1, 2, varref, ^subject]{
+   deref varref = ^subject;
    return true;
 }
 
-function MATCH_TYPED_VAR[1, 3, typ, varref, _subject]{
-   if(muprim("equals_type_type", typ, prim("typeOf", _subject))){
-     deref varref = _subject;
+function MATCH_TYPED_VAR[1, 3, typ, varref, ^subject]{
+   if(equal(typ, typeOf(^subject))){
+     deref varref = ^subject;
      return true;
    };
    return false;  
 }
 
-function MATCH_VAR_BECOMES[1, 3, varref, pat, _subject, cpat]{
-   cpat = init(pat, _subject);
+function MATCH_VAR_BECOMES[1, 3, varref, pat, ^subject, cpat]{
+   cpat = init(pat, ^subject);
    while(hasNext(cpat)){
-     deref varref = _subject;
+     deref varref = ^subject;
      yield true;
    };
    return false;
 }
 
-function MATCH_TYPED_VAR_BECOMES[1, 4, typ, varref, pat, _subject, cpat]{
-   if(muprim("equals_type_type", typ, muprim("typeOf", _subject))){
-     cpat = init(pat, _subject);
+function MATCH_TYPED_VAR_BECOMES[1, 4, typ, varref, pat, ^subject, cpat]{
+   if(equal(typ, typeOf(^subject))){
+     cpat = init(pat, ^subject);
      while(hasNext(cpat)){
-       deref varref = _subject;
+       deref varref = ^subject;
        yield true;
      };
    };  
    return false;
 }
 
-function MATCH_AS_TYPE[1, 3, typ, pat, _subject, cpat]{
-   if(muprim("equals_type_type", typ, muprim("typeOf", _subject))){
-     cpat = init(pat, _subject);
+function MATCH_AS_TYPE[1, 3, typ, pat, ^subject, cpat]{
+   if(equal(typ, typeOf(^subject))){
+     cpat = init(pat, ^subject);
      while(hasNext(cpat)){
        yield true;
      };
@@ -265,10 +265,10 @@ function MATCH_AS_TYPE[1, 3, typ, pat, _subject, cpat]{
    return false;
 }
 
-function MATCH_DESCENDANT[1, 2, pat, _subject, gen, cpat]{
-   gen = init(create(fun GEN_VALUE, _subject));
+function MATCH_DESCENDANT[1, 2, pat, ^subject, gen, cpat]{
+   gen = init(create(fun GEN_VALUE, ^subject));
    while(hasNext(gen)){
-       cpat = init(pat, _subject);
+       cpat = init(pat, ^subject);
        while(hasNext(cpat)){
           yield true;
        };
@@ -279,7 +279,7 @@ function MATCH_DESCENDANT[1, 2, pat, _subject, gen, cpat]{
 // ***** List matching *****
 
 function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list elements
-						  _subject,						// The subject list
+						  ^subject,						// The subject list
 						  patlen,						// Length of pattern list
 						  patlen1,						// patlen - 1
 						  sublen,						// Length of subject list
@@ -292,37 +292,35 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
 						  nextCursor					// Cursor movement of last successfull match
 					]{
 
-     patlen   = muprim("size_array", pats);
-     patlen1 =  muprim("subtraction_mint_mint", patlen, 1);
-     sublen   = muprim("size_list", _subject);
+     patlen   = size(pats);
+     patlen1 =  patlen - 1;
+     sublen   = size(^subject);
      p        = 0; 
      cursor   = 0;
      forward  = true;
-     matcher  = init(get pats[p], _subject, cursor, sublen);
-     matchers = muprim("make_array_of_size", patlen);
+     matcher  = init(get pats[p], ^subject, cursor, sublen);
+     matchers = make_array(patlen);
      set matchers[0] = matcher;
      
      while(true){
      	// Move forward
      	 forward = hasNext(matcher);
      	 // prim("println", ["At head", p, cursor, forward]);
-         while(muprim("and_mbool_mbool", forward, hasNext(matcher))){
+         while(forward && hasNext(matcher)){
         	[success, nextCursor] = next(matcher);
             if(success){ 
                forward = true;
                cursor = nextCursor;
                // prim("println", ["SUCCESS", p, cursor]);
-               if(muprim("and_mbool_mbool",
-                       muprim("equals_mint_mint", p, patlen1),
-                       muprim("equals_mint_mint", cursor, sublen))) {
+               if((p == patlen1) && (cursor == sublen)) {
                    // prim("println", ["*** YIELD", p, cursor]);
               	   yield true;
               	   // prim("println", ["Back from yield", p, cursor]); 
                } else {
-                 if(muprim("less_mint_mint", p, patlen1)){
-                   p = muprim("addition_mint_mint", p, 1);
+                 if(p < patlen1){
+                   p = p + 1;
                    // prim("println", ["Forward", p, cursor]);
-                   matcher  = init(get pats[p], _subject, cursor,  muprim("subtraction_mint_mint", sublen, cursor));
+                   matcher  = init(get pats[p], ^subject, cursor,  sublen - cursor);
                    set matchers[p] = matcher;
                  } else {
                    if(hasNext(matcher)){
@@ -342,9 +340,8 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
          if(forward){
            // nothing
          } else {  
-           if(muprim("greater_mint_mint", p, 0)){
-               p        = muprim("subtraction_mint_mint", p, 1);
-               // prim("println", ["Previous", p, cursor]);
+           if(p > 0){
+               p        = p - 1;
                matcher  = get matchers[p];
                forward  = true;
            } else {
@@ -360,48 +357,50 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
 // - start: the start index in the subject list
 // - available: the number of remianing, unmatched, elements in the subject list
 
-function MATCH_PAT_IN_LIST[1, 4, pat, _subject, start, available, cpat]{
-    if(muprim("less_equal_mint_mint", available, 0)){
+function MATCH_PAT_IN_LIST[1, 4, pat, ^subject, start, available, cpat]{
+
+    if(available <= 0){
        return [false, start];
-    };   
-    cpat = init(pat, muprim("subscript_list_mint", _subject, start));
+    }; 
+ 
+    cpat = init(pat, get ^subject[start]);
     
     while(hasNext(cpat)){
        if(next(cpat)){
-          return [true, muprim("addition_mint_mint", start, 1)];
+          return [true, start + 1];
        };   
     };
     return [false, start];
 } 
 
-function MATCH_VAR_IN_LIST[1, 4, varref, _subject, start, available]{
-   if(muprim("less_equal_mint_mint", available, 0)){
+function MATCH_VAR_IN_LIST[1, 4, varref, ^subject, start, available]{
+   if(available <= 0){
        return [false, start];
    }; 
-   deref varref = muprim("subscript_list_mint", _subject, start);
-   return [true, muprim("addition_mint_mint", start, 1)];
+   deref varref = get ^subject[start];
+   return [true, start + 1];
 }
 
-function MATCH_MULTIVAR_IN_LIST[1, 4, varref, _subject, start, available, len]{
+function MATCH_MULTIVAR_IN_LIST[1, 4, varref, ^subject, start, available, len]{
     len = 0;
-    while(muprim("less_equal_mint_mint", len, available)){
-        deref varref = muprim("sublist_list_mint_mint", _subject, start, len);
+    while(len <= available){
+        deref varref = sublist(^subject, start, len);
         // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_mint_mint", start, len)]);
-        yield [true, muprim("addition_mint_mint", start, len)];
-        len = muprim("addition_mint_mint", len, 1);
+        yield [true, start + len];
+        len = len + 1;
      };
      return [false, start];
 }
 
-function MATCH_TYPED_MULTIVAR_IN_LIST[1, 5, typ, varref, _subject, start, available, len]{
-    if(muprim("equals_type_type", typ, muprim("typeOf", _subject))){
+function MATCH_TYPED_MULTIVAR_IN_LIST[1, 5, typ, varref, ^subject, start, available, len]{
+    if(equal(typ, typeOf(^subject))){
        len = 0;
-       while(muprim("less_equal_mint_mint", len, available)){
-          deref varref = muprim("sublist_list_mint_mint", _subject, start, len);
+       while(len <= available){
+          deref varref = sublist(^subject, start, len);
           // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_mint_mint", start, len)]);
-          yield [true, muprim("addition_mint_mint", start, len)];
-          len = muprim("addition_mint_mint", len, 1);
-       };
+          yield [true, start + len];
+          len = len + 1;
+       };       
      };
      return [false, start];
 }
