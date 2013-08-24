@@ -3,6 +3,7 @@ module experiments::Compiler::Rascal2muRascal::RascalType
 
 import Prelude;
 import lang::rascal::\syntax::Rascal;
+import lang::rascal::types::AbstractName;
 
 Symbol translateType((BasicType) `value`) 		= \value();
 Symbol translateType(t: (BasicType) `loc`) 		= \loc();
@@ -47,17 +48,17 @@ Symbol translateType(t : (Type) `<TypeVar typeVar>`) = translateType(typeVar);
 Symbol translateType(t : (Type) `<Sym symbol>`)  = symbol;
 
 Symbol translateType(t : (TypeArg) `<Type tp>`)  = translateType(tp);
-Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label("<name>", translateType(tp));
+Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label(getSimpleName(convertName(name)), translateType(tp));
 
 Symbol translateType(t: (FunctionType) `<Type \type> (<{TypeArg ","}* args>)`) = 
 									\func(translateType(ret), [ translateType(arg) | arg <- args]);
 									
-Symbol translateType(t: (UserType) `<QualifiedName name>`) = adt("<name>", []);  	
+Symbol translateType(t: (UserType) `<QualifiedName name>`) = adt(getSimpleName(convertName(name)), []);  	
 Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) = 
-									adt("<name>", [ translateType(arg) | arg <- args]);  
+									adt(getSimpleName(convertName(name)), [ translateType(arg) | arg <- args]);  
 									
-Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter("<name>");  
-Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter("<name>", translateType(bound));  
+Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)));  
+Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter(getSimpleName(convertName(name)), translateType(bound));  
 
 
 default Symbol translateType(Type t) {
