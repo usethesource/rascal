@@ -71,7 +71,7 @@ public Symbol convertBasicType(BasicType t) {
 public Symbol convertTypeArg(TypeArg ta) {
     switch(ta) {
         case (TypeArg) `<Type t>` : return convertType(t);
-        case (TypeArg) `<Type t> <Name n>` : return \label("<n>", convertType(t));
+        case (TypeArg) `<Type t> <Name n>` : return \label(getSimpleName(convertName(n)), convertType(t));
     }
 }
 
@@ -242,8 +242,8 @@ public Name getUserTypeRawName(UserType ut) {
 @doc{Convert Rascal type variables into their abstract representation.}
 public Symbol convertTypeVar(TypeVar tv) {
     switch(tv) {
-        case (TypeVar) `& <Name n>` : return \parameter("<n>",\value());
-        case (TypeVar) `& <Name n> \<: <Type tb>` : return \parameter("<n>",convertType(tb));
+        case (TypeVar) `& <Name n>` : return \parameter(getSimpleName(convertName(n)),\value());
+        case (TypeVar) `& <Name n> \<: <Type tb>` : return \parameter(getSimpleName(convertName(n)),convertType(tb));
     }
 }
 
