@@ -99,7 +99,6 @@ public class RVM {
 	 * @return converted result or an exception
 	 */
 	private IValue narrow(Object result){
-		stdout.println("narrow: " + result.getClass() + ", " + result);
 		if(result instanceof Boolean)
 			return vf.bool((Boolean) result);
 		if(result instanceof Integer)
