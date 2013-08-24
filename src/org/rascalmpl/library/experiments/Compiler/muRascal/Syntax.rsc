@@ -13,7 +13,7 @@ lexical Comment
 
 //layout Whitespace = [\ \t\n]*;
 
-lexical Identifier = id: ( [_]?[A-Za-z][A-Za-z0-9_]* ) \ Keywords;
+lexical Identifier = id: ( [_^@]?[A-Za-z][A-Za-z0-9_]* ) \ Keywords;
 lexical Integer =  [0-9]+;
 lexical Label = label: [$][A-Za-z0-9]+;
 lexical FConst = fconst: ( [A-Za-z][A-Za-z0-9_]* ) \ Keywords; // [_][A-Za-z0-9]+;
@@ -59,6 +59,19 @@ syntax Exp  =
 			> muReturn: 			"return"  Exp
 			> muReturn: 			"return"
 			
+			| left preAddition:			Exp lhs "+"   Exp rhs
+			
+			| left preSubtraction:		Exp lhs "-"   Exp rhs
+			> non-assoc preLess:		Exp lhs "\<"  Exp rhs
+			| non-assoc preLessEqual:	Exp lhs "\<=" Exp rhs
+			| non-assoc preEqual:		Exp lhs "=="  Exp rhs
+			| non-assoc preNotEqual:	Exp lhs "!="  Exp rhs
+			| non-assoc preGreater:		Exp lhs "\>"  Exp rhs
+			| non-assoc preGreaterEqual:Exp lhs "\>=" Exp rhs
+			
+			> left preAnd:				Exp lhs "&&" Exp rhs
+			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] Identifier typeName
+			
 		 	> preAssignLoc:			Identifier id "=" Exp exp
 		 	| preAssignSubscript:	"set" Exp lst "[" Exp index "]" "=" Exp exp
 			> muAssign: 			Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos "=" Exp exp
@@ -98,19 +111,21 @@ keyword Keywords =
               "create" | "init" | "next" | "yield" | "hasNext" |
               "type" |
               "ref" | "deref" |
-              "fun" | "cons"
+              "fun" | "cons" | "is"
              ;
              
 // Syntactic features that will be removed by the preprocessor. 
             
 syntax Exp =
-              preIntCon:	Integer txt
-            | preStrCon:	String txt
-            | preTypeCon:   "type" String txt
-			| preVar: 		Identifier id
+              preIntCon:				Integer txt
+            | preStrCon:				String txt
+            | preTypeCon:   			"type" String txt
+			| preVar: 					Identifier id	
+			
 			| preIfthen:    "if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}"
-			| preList:		"[" {Exp ","}* exps "]"
-		
 			| preAssignLocList:
 							"[" Identifier id1 "," Identifier id2 "]" "=" Exp exp
+			> preList:		"[" {Exp ","}* exps "]"
+		
+			
 			;

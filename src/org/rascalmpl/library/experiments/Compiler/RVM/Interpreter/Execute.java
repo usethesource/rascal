@@ -170,7 +170,7 @@ public class Execute {
 						break;
 						
 					case "PRINTLN":
-						codeblock.PRINTLN();
+						codeblock.PRINTLN(getIntField(instruction, "arity"));
 						break;
 						
 					case "POP":

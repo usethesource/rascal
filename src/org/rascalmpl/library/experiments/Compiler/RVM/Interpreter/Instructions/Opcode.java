@@ -33,7 +33,7 @@ public enum Opcode {
 	INIT(21,2),
 	CREATEDYN(22,2),
 	HASNEXT(23,1),
-	PRINTLN(24,1),
+	PRINTLN(24,2),
 	RETURN0(25,1),
 	LOADLOCREF(26,2),
 	LOADVARREF(27,3),
@@ -190,7 +190,7 @@ public enum Opcode {
 			return "HASNEXT";
 			
 		case PRINTLN:
-			return "PRINTLN";
+			return "PRINTLN " + cb.finalCode[pc + 1];
 		
 		case RETURN0:
 			return "RETURN0";

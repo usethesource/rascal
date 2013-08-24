@@ -19,7 +19,7 @@ public class Fac {
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADCON(1).
-					CALLPRIM(RascalPrimitive.equals_num_num, 2).
+					CALLPRIM(RascalPrimitive.equal_num_num, 2).
 					JMPFALSE("L").
 					LOADCON(1).
 					RETURN1().

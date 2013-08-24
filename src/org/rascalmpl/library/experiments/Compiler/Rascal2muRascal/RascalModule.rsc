@@ -14,10 +14,6 @@ import experiments::Compiler::Rascal2muRascal::RascalStatement;
 
 import experiments::Compiler::muRascal::AST;
 
-list[loc] libSearchPath = [|std:///|, |eclipse-std:///|];
-
-public loc Example1 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example1.rsc|;
-public loc Example2 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example2.rsc|;
 
 public list[MuFunction] functions_in_module = [];
 public list[MuVariable] variables_in_module = [];
@@ -31,7 +27,8 @@ public void resetR2mu() {
 
 MuModule r2mu(loc moduleLoc){
    try {
-   	// Module M = parseModule(moduleLoc, libSearchPath);
+    println("<moduleLoc>");
+   	println(readFile(moduleLoc));
    	lang::rascal::\syntax::Rascal::Module M = parse(#start[Module], moduleLoc);
    	Configuration c = newConfiguration();
    	config = checkModule(M.top, c);  // .top is needed to remove start! Ugly!
@@ -56,7 +53,7 @@ MuModule r2mu(loc moduleLoc){
    	  return muModule("<M.top.header.name>", types, functions_in_module, variables_in_module, variable_initializations);
    	  }
    	} catch Java("ParseError","Parse error"): {
-   	    throw "Syntax errors in module <Example1>";
+   	    throw "Syntax errors in module <moduleLoc>";
    	} finally {
    		println("r2mu: Cleaning up ...");
    		resetR2mu();

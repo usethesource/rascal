@@ -40,7 +40,7 @@ data Instruction =
 		| INIT(int arity)
 		| CREATEDYN(int arity)
 		| HASNEXT()
-		| PRINTLN()
+		| PRINTLN(int arity)
 		| RETURN0()
 		| LOADLOCREF(int pos)
 		| LOADVARREF(int scope, int pos)

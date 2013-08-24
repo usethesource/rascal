@@ -70,9 +70,9 @@ test bool tst() = 15 := prim2("addition_num_num", 7, 8);
 //assign_pair,			// Used by muRascal implode
 
 
-test bool tst() = true := prim2("equals_num_num", 7, 7);
-test bool tst() = false := prim2("equals_num_num", 7, 8);
-test bool tst() = true := prim2("equals_str_str", "\"abc\"", "\"abc\"");
+test bool tst() = true := prim2("equas_num_num", 7, 7);
+test bool tst() = false := prim2("equal_num_num", 7, 8);
+test bool tst() = true := prim2("equal_str_str", "\"abc\"", "\"abc\"");
 
 test bool tst() = true := prim2("greater_num_num", 8, 7);
 test bool tst() = false := prim2("greater_num_num", 7, 8);
