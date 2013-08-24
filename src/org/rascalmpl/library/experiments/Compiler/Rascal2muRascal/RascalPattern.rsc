@@ -17,7 +17,7 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
  
 list[MuExp] translatePat(p:(Pattern) `<BooleanLiteral b>`) = [ muCreate(muFun("MATCH_BOOL"), translate(b)) ];
 
-list[MuExp] translatePat(p:(Pattern) `<IntegerLiteral n>`) = [ muCreate(muFun("MATCH_INT"), translate(n)) ];
+list[MuExp] translatePat(p:(Pattern) `<IntegerLiteral n>`) = [ muCreate(muFun("MATCH_LITERAL"), translate(n)) ];
      
 list[MuExp] translatePat(p:(Pattern) `<StringLiteral s>`) =   [ muCreate(muFun("MATCH_STR"), translate(s)) ];
 
