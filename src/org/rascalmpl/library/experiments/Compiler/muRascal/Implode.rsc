@@ -83,7 +83,11 @@ list[MuExp] preprocess(str fname, list[MuExp] exps, map[str, int] vardefs){
 
 MuModule parse(loc s) {
   pt = parse( #start[Module], s);
-  iprintln(diagnose(pt));
+  dia = diagnose(pt);
+  if(dia != []){
+     iprintln(dia);
+     throw  "*** Ambiguities in muRascal code, see above report";
+  }   
   //iprintln(pt);
   ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
   //iprintln(ast);
@@ -94,7 +98,11 @@ MuModule parse(loc s) {
 
 MuModule parse(str s) {
   pt = parse( #start[Module], s);
-  iprintln(diagnose(pt));
+  dia = diagnose(pt);
+  if(dia != []){
+     iprintln(dia);
+     throw  "*** Ambiguities in muRascal code, see above report";
+  }   
  // iprintln(pt);
   ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
   //iprintln(ast);
