@@ -9,6 +9,8 @@ import experiments::Compiler::Rascal2muRascal::RascalType;
 
 import experiments::Compiler::muRascal::AST;
 
+import experiments::Compiler::Rascal2muRascal::TypeUtils;
+
 /*********************************************************************/
 /*                  Patterns                                         */
 /*********************************************************************/

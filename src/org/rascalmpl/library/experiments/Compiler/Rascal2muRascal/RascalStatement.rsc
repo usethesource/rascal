@@ -8,6 +8,7 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 
 import experiments::Compiler::muRascal::AST;
+import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
 /*
 syntax Assignment
