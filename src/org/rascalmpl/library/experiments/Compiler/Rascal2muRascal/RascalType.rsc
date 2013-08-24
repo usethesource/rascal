@@ -31,7 +31,9 @@ Symbol translateType(t: (StructuredType) `rel [ <{TypeArg ","}+ args> ]`)
 Symbol translateType(t: (StructuredType) `lrel [ <{TypeArg ","}+ args> ]`) 
 												= \lrel([ translateType(arg) | arg <- args]);
 Symbol translateType(t: (StructuredType) `tuple [ <{TypeArg ","}+ args> ]`)
-												= \tuple([ translateType(arg) | arg <- args]);   
+												= \tuple([ translateType(arg) | arg <- args]);
+Symbol translateType(t: (StructuredType) `type [ < TypeArg arg> ]`)
+												= \reified(translateType(arg));      
 
 Symbol translateType(t : (Type) `<UserType user>`) = translateType(user);
 Symbol translateType(t : (Type) `<FunctionType function>`) = translateType(function);
