@@ -7,7 +7,15 @@ import experiments::Compiler::RVM::Run;
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 
+
+
 RVMProgram compile(loc rascalSource, bool listing=false){
+   muCode  = r2mu(rascalSource);
+   rvmCode = mu2rvm(muCode, listing=listing);
+   return rvmCode;
+}
+
+RVMProgram compile(str rascalSource, bool listing=false){
    muCode  = r2mu(rascalSource);
    rvmCode = mu2rvm(muCode, listing=listing);
    return rvmCode;
@@ -20,6 +28,11 @@ value execute(RVMProgram rvmCode, bool debug=false, bool listing=false){
 }
 
 value execute(loc rascalSource, bool debug=false, bool listing=false){
+   rvmCode = compile(rascalSource, listing=listing);
+   return execute(rvmCode, debug=debug);
+}
+
+value execute(str rascalSource, bool debug=false, bool listing=false){
    rvmCode = compile(rascalSource, listing=listing);
    return execute(rvmCode, debug=debug);
 }
