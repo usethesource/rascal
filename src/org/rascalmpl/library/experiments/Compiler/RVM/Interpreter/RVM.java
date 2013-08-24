@@ -141,6 +141,7 @@ public class RVM {
 				if(i < lst.length - 1)
 						w.append(", ");
 			}
+			w.append("]");
 			return w.toString();
 		}
 		if(o instanceof Coroutine){
@@ -462,7 +463,8 @@ public class RVM {
 					arity = instructions[pc++];
 					StringBuilder w = new StringBuilder();
 					for(int i = arity - 1; i >= 0; i--){
-						w.append(stack[sp - 1 - i]).append(" ");
+						String str = (stack[sp - 1 - i] instanceof IString) ? ((IString) stack[sp - 1 - i]).toString() : asString(stack[sp - 1 - i]);
+						w.append(str).append(" ");
 					}
 					stdout.println(w.toString());
 					sp = sp - arity + 1;
