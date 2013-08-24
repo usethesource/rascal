@@ -33,6 +33,18 @@ list[MuExp] eq_neq(str op, Expression e) = [muCallPrim("<op>", [*translate(e.lhs
 /*                  Expessions                                       */
 /*********************************************************************/
 
+// literals
+
+list[MuExp] translate((Literal) `<BooleanLiteral b>`) = [ "<b>" == "true" ? muCon(true) : muCon(false) ];
+ 
+list[MuExp] translate((Literal) `<IntegerLiteral n>`) = [muCon(toInt("<n>"))];
+
+default list[MuExp] translate((Literal) `<Literal s>`) =  [ muCon(readTextValueString("<s>")) ];
+
+list[MuExp] translate(e:(Expression)  `<Literal s>`) = translate(s);
+
+// Other expressions
+
 list[MuExp] translate(e:(Expression) `{ <Statement+ statements> }`) = [*translate(stat) | stat <- statements];
 
 list[MuExp] translate(e:(Expression) `(<Expression expression>)`)   = translate(expression);
@@ -56,17 +68,7 @@ list[MuExp] translate(e:(Expression) `<Expression expression> ( <{Expression ","
    return [ muCall(receiver, args) ];
 }
 
-// literals
-list[MuExp] translate((BooleanLiteral) `<BooleanLiteral b>`) = [ "<b>" == "true" ? muCon(true) : muCon(false) ];
-list[MuExp] translate((Expression) `<BooleanLiteral b>`) = translate(b);
- 
-list[MuExp] translate((IntegerLiteral) `<IntegerLiteral n>`) = [muCon(toInt("<n>"))];
-list[MuExp] translate((Expression) `<IntegerLiteral n>`) = translate(n);
- 
 
-list[MuExp] translate((StringLiteral) `<StringLiteral s>`) = [ muCon("<s>") ];
-
-list[MuExp] translate((Expression) `<StringLiteral s>`) = translate(s);
 
 list[MuExp] translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) { throw("any"); }
 
