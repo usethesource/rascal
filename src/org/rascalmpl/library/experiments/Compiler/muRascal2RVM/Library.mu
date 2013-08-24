@@ -1,5 +1,5 @@
- 
- module Library
+module Library
+
 
 /*
 function main[1,1,args] { return next(init(create(TRUE))); }
@@ -204,7 +204,16 @@ function MATCH_TUPLE[1, 2, pats, ^subject, cpats]{
     return false;
 }
 
-function MATCH_INT[1,2,pat, ^subject, res]{
+function MATCH_LITERAL[1, 2, pat, ^subject, res]{
+  if(equal(typeOf(pat), typeOf(^subject))){
+      res = equal(pat, ^subject);
+      println("MATCH_LITERAL", pat, ^subject, res);
+     return res;
+  };
+  return false;
+}
+
+function MATCH_INT[1, 2, pat, ^subject, res]{
   if(^subject is int){
      res = equal(pat, ^subject);
       println("MATCH_INT", pat, ^subject, res);
@@ -213,7 +222,7 @@ function MATCH_INT[1,2,pat, ^subject, res]{
   return false;
 }
 
-function MATCH_STR[1,2,pat, ^subject, res]{
+function MATCH_STR[1, 2 ,pat, ^subject, res]{
    if(^subject is str){
      res = equal(pat, ^subject);
      println("MATCH_STR", pat, ^subject, res);
