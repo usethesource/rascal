@@ -107,7 +107,7 @@ list[MuExp] translatePatAsListElem(p:(Pattern) `*<Type tp> <Name name>`) {
 }
 
 list[MuExp] translatePatAsListElem(p:(Pattern) `*<Name name>`) {
-   <scopeId, pos> = getVariableScope("<name>", name@\loc);
+   <scopeId, pos> = getVariableScope("<name>", p@\loc);
    return [ muCreate(muFun("MATCH_MULTIVAR_IN_LIST"), [muVarRef("<name>", scopeId, pos)]) ];
 } 
 

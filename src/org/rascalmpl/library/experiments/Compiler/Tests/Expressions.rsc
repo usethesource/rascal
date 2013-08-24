@@ -41,9 +41,30 @@ test bool tst() = run("2 == 3") == (2 == 3);
 test bool tst() = run("2 != 2") == (2 != 2);
 test bool tst() = run("2 != 3") == (2 != 3);
 
+// Real
+test bool tst() = run("2.3 == 2.3") == (2.3 == 2.3);
+test bool tst() = run("2.5 == 2.3") == (2.5 == 2.3);
+
+
+// Rational
+test bool tst() = run("2r3 == 2r3") == (2r3 == 2r3);
+test bool tst() = run("2r5 == 2r3") == (2r5 == 2r3);
 
 // Strings
 test bool tst() = run("\"abc\"") == "abc";
+
+// Datetime
+
+test bool tst() = run("$2012-01-01T08:15:30.055+0100$ == $2012-01-01T08:15:30.055+0100$") == ($2012-01-01T08:15:30.055+0100$ == $2012-01-01T08:15:30.055+0100$);
+test bool tst() = run("$2013-01-01T08:15:30.055+0100$ == $2012-01-01T08:15:30.055+0100$") == ($2013-01-01T08:15:30.055+0100$ == $2012-01-01T08:15:30.055+0100$);
+
+
+// Location
+
+test bool tst() = run("|http://www.rascal-mpl.org| == |http://www.rascal-mpl.org|") == (|http://www.rascal-mpl.org| == |http://www.rascal-mpl.org|);
+test bool tst() = run("|http://www.rascal-mpl.org| == |std://demo/basic/Hello.rsc|") == (|http://www.rascal-mpl.org| == |std://demo/basic/Hello.rsc|);
+
+
 
 // Lists
 test bool tst() = run("[1,2,3]") == [1,2,3];
