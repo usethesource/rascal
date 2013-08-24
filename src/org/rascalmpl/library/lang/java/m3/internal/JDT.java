@@ -41,7 +41,6 @@ public class JDT {
     private final IValueFactory VF;
     private List<String> classPathEntries;
     private List<String> sourcePathEntries;
-    private String project;
 	
     public JDT(IValueFactory vf) {
     	this.VF = vf;
@@ -75,7 +74,6 @@ public class JDT {
     		CompilationUnit cu = this.getCompilationUnit(loc, true, javaVersion, eval);
     		
     		M3Converter converter = new M3Converter(eval.getHeap().getModule("lang::java::m3::JavaM3").getStore());
-    		converter.set(this.project);
     		converter.set(cu);
     		converter.set(loc);
     		cu.accept(converter);
@@ -101,7 +99,6 @@ public class JDT {
 			cu = this.getCompilationUnit(loc, collectBindings.getValue(), javaVersion, eval);
 			ASTConverter converter = new ASTConverter(eval.getHeap().getModule("analysis::m3::AST").getStore(),
 					collectBindings.getValue());
-			converter.set(this.project);
 			converter.set(cu);
 			converter.set(loc);
 			cu.accept(converter);

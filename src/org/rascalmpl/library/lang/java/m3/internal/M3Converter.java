@@ -13,7 +13,41 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.BlockComment;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IPackageBinding;
+import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.LineComment;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.rascalmpl.uri.URIUtil;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
@@ -214,6 +248,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(Initializer node) {
 		insert(containment, getParent(), ownValue);
+		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
@@ -244,6 +279,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public boolean visit(MethodInvocation node) {
 		insert(methodInvocation, getParent(), ownValue);
+		//TODO: add to uses as well
 		return true;
 	}
 	
@@ -254,14 +290,31 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(PackageDeclaration node) {
+		
+		IPackageBinding binding = node.resolveBinding();
+		
+		if (binding == null) {
+		  // TODO
+		  System.err.println("Unresolved binding for: "+ node);
+		  return true;
+		}
+		
+	
 		String parent = "";
-		for (String component: node.resolveBinding().getNameComponents()) {
-			if (!parent.isEmpty()) {
-				insert(containment, resolveBinding(parent), resolveBinding(parent+"/"+component));
-				insert(names, values.string(component), resolveBinding(parent+"/"+component));
-				parent += ".";
-			}
-			parent += component;
+		String current = "";
+    for (String component: binding.getNameComponents()) {
+      current += ("/" + component);
+
+      ISourceLocation parentBinding = resolveBinding(parent);
+      insert(containment, parentBinding, resolveBinding(current));
+      insert(names, values.string(component), resolveBinding(current));
+			
+      // Here we implicitly declare all the parent packages, 
+      // i.e. java+package://<project>/java is a parent of java+package://<project>/java/util
+			URI pathURI = URIUtil.assumeCorrect(loc.getURI().getScheme(), loc.getURI().getAuthority(), current);
+			insert(declarations, resolveBinding(current), values.sourceLocation(pathURI));
+			
+			parent = current;
 		}
 		
 		insert(containment, ownValue, getParent());
@@ -293,23 +346,31 @@ public class M3Converter extends JavaToRascalConverter {
 				insert(fieldAccess, getParent(), ownValue);
 		}
 		
-		if (!node.isDeclaration()) {
-			insert(typeDependency, getParent(), resolveBinding(node.resolveTypeBinding()));//???
-			
+		insert(typeDependency, getParent(), resolveBinding(node.resolveTypeBinding()));//???
+		
+		if (!node.isDeclaration() && !simpleNameIsConstructorDecl(node)) {
 			ISourceLocation declaringClass = resolveDeclaringClass(node.resolveBinding());
-			if (!getParent().isEqual(declaringClass))
+			
+			if (!getParent().isEqual(declaringClass)) {
 				insert(typeDependency, getParent(), declaringClass);
+			}
 		}
 		
 		return true;
 	}
 	
 	public void endVisit(SimpleName node) {
-		if (node.isDeclaration())
+		if (node.isDeclaration() || simpleNameIsConstructorDecl(node)) {
 			insert(declarations, ownValue, getSourceLocation(compilUnit.findDeclaringNode(node.resolveBinding())));
-		else
+		}
+		else {
 			insert(uses, getSourceLocation(node), ownValue);
+		}
 	}
+
+  private boolean simpleNameIsConstructorDecl(SimpleName node) {
+    return node.getParent() instanceof MethodDeclaration && ((MethodDeclaration) node.getParent()).isConstructor();
+  }
 	
 	public boolean visit(SingleVariableDeclaration node) {
 		insert(containment, getParent(), ownValue);
