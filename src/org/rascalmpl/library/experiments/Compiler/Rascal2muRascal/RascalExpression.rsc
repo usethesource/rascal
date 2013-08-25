@@ -69,7 +69,11 @@ list[MuExp] translate (e:(Expression) `<Type \type> <Parameters parameters> { <S
 
 list[MuExp] translate (e:(Expression) `<Parameters parameters> { <Statement* statements> }`) = translateClosure(e, parameters, statements);
 
-list[MuExp] translate (e:(Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`) { throw("stepRange"); }
+list[MuExp] translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`) =
+    [ muMulti(muCreate(muFun("RANGE"), [ *translatePat(pat), *translate(first), *translate(last)])) ];
+    
+list[MuExp] translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) =
+     [ muMulti(muCreate(muFun("RANGE_STEP"), [  *translatePat(pat), *translate(first), *translate(second), *translate(last)])) ];
 
 list[MuExp] translate (e:(Expression) `<Label label> <Visit \visit>`) { throw("visit"); }
 
@@ -99,7 +103,7 @@ list[MuExp] translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) =
 
 list[MuExp] translate (e:(Expression) `# <Type tp>`) = [muCon(symbolToValue(translateType(tp),config))];
 
-list[MuExp] translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) { throw("range"); }
+
 
 list[MuExp] translate (e:(Expression) `\< <{Expression ","}+ elements> \>`) =
     [ muCallPrim("make_tuple", [ *translate(elem) | elem <- elements ]) ];
