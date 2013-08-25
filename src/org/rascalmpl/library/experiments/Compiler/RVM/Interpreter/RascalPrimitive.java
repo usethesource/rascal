@@ -29,11 +29,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
  * - a static method int P(Object[] stack, int sp)
  * 
  * Each primitive implementation gets the current stack and stack pointer as argument
- * and returns a new stack pointer. It may make mdifications to the stack.
+ * and returns a new stack pointer. It may make modifications to the stack.
  */
 
 public enum RascalPrimitive {
-	and_bool_bool,
 	appendAfter,
 	addition_elm_list,
 	addition_list_elm,
@@ -298,16 +297,6 @@ public enum RascalPrimitive {
 		for(int i = 0; i < len2; i++)
 			elems[len1 + i] = t2.get(i);
 		stack[sp - 2] = vf.tuple(elems);
-		return sp - 1;
-	}
-	
-	/*
-	 * and
-	 */
-	
-	public static int and_bool_bool(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = ((IBool) stack[sp - 2]).and((IBool) stack[sp - 1]);
 		return sp - 1;
 	}
 
@@ -729,8 +718,8 @@ public enum RascalPrimitive {
 	
 	public static int not_equal(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 1] = vf.bool(!((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]));
-		return sp -1;
+		stack[sp - 2] = vf.bool(!((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]));
+		return sp - 1;
 	}
 	
 	public static int not_equal_num_num(Object[] stack, int sp, int arity) {

@@ -42,6 +42,8 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
      funMap += (fun.name : FUNCTION(fun.name, libraryScope, fun.nformal, fun.nlocal, 20, trblock(fun.body)));
      libraryScope += 1;
   }
+  
+  library_names = domain(funMap);
  
   for(fun <- functions){
     functionScope = fun.scope;
@@ -58,8 +60,10 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   									 HALT()
   									]));
   res = rvm(types, funMap, []);
-  if(listing)
-  	iprintln(res);
+  if(listing){
+    for(fname <- funMap, fname != "#module_init", fname notin library_names)
+  		iprintln(funMap[fname]);
+  }
   return res;
 }
 
