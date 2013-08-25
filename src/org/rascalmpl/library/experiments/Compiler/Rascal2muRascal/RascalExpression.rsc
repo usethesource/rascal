@@ -23,7 +23,23 @@ int size_exps({Expression ","}* es) = size([e | e <- es]);	// TODO: should becom
 
 // Generate code for completely type-resolved operators
 
-list[MuExp] infix(str op, Expression e) = [muCallPrim("<op>_<getOuterType(e.lhs)>_<getOuterType(e.rhs)>", [*translate(e.lhs), *translate(e.rhs)])];
+bool isContainerType(str t) = t in {"list", "map", "set"};
+
+list[MuExp] infix(str op, Expression e){
+  lot = getOuterType(e.lhs);
+  rot = getOuterType(e.rhs);
+  if(isContainerType(lot))
+     if(isContainerType(rot))
+       return [muCallPrim("<op>_<lot>_<rot>", [*translate(e.lhs), *translate(e.rhs)])];
+     else
+       return [muCallPrim("<op>_<lot>_elm", [*translate(e.lhs), *translate(e.rhs)])];
+  else
+    if(isContainerType(rot))
+       return [muCallPrim("<op>_elm_<rot>", [*translate(e.lhs), *translate(e.rhs)])];
+     else
+       return [muCallPrim("<op>_<lot>_<rot>", [*translate(e.lhs), *translate(e.rhs)])];
+}
+ 
 list[MuExp] prefix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(arg)>", translate(arg))];
 list[MuExp] postfix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(arg)>", translate(arg))];
 
@@ -67,8 +83,6 @@ list[MuExp] translate(e:(Expression) `<Expression expression> ( <{Expression ","
    list[MuExp] args = [ *translate(a) | a <- arguments ];
    return [ muCall(receiver, args) ];
 }
-
-
 
 list[MuExp] translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) { throw("any"); }
 
@@ -127,7 +141,7 @@ list[MuExp] translate(e:(Expression) `<Expression argument> *`)   = postfix("tra
 
 list[MuExp] translate(e:(Expression) `<Expression argument> ?`)   { throw("isDefined"); }
 
-list[MuExp] translate(e:(Expression) `!<Expression argument>`)    = prefix("negation", argument);
+list[MuExp] translate(e:(Expression) `!<Expression argument>`)    = translateBool(e);
 
 list[MuExp] translate(e:(Expression) `-<Expression argument>`)    = prefix("negative", argument);
 
@@ -151,9 +165,9 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> + <Expression rhs>`)   = 
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> - <Expression rhs>`)   = infix("subtraction", e);
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> \>\> <Expression rhs>`)   = infix("appendAfter", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> \>\> <Expression rhs>`)   = infix("addition", e);
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> \<\< <Expression rhs>`)   = infix("insertBefore", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> \<\< <Expression rhs>`)   = infix("addition", e);
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> mod <Expression rhs>`)   = infix("modulo", e);
 
@@ -179,18 +193,23 @@ list[MuExp] translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`)  { th
 
 list[MuExp] translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = translateBool(e);
 
-list[MuExp] translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`)     { throw("enumerator"); }
+list[MuExp] translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) =
+    [ muMulti(muCreate(muFun("ENUMERATE_AND_MATCH"), [*translatePat(pat), *translate(exp)])) ];
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`)  = translateBool(e);
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`)  = translateBool(e);
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> && <Expression rhs>`)  = translateBool(e);
+
+list[MuExp] translate(e:(Expression) `<Expression lhs> || <Expression rhs>`)  = translateBool(e);
  
 list[MuExp] translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = 
     [ muIfelse(translate(condition)[0], translate(thenExp),  translate(elseExp)) ]; 
 
-default list[MuExp] translate(Expression e) = "\<\<MISSING CASE FOR EXPRESSION: <e>";
+default list[MuExp] translate(Expression e) {
+	throw "MISSING CASE FOR EXPRESSION: <e>";
+}
 
 
 /*********************************************************************/
@@ -210,7 +229,12 @@ default bool backtrackFree(Expression e) = true;
 list[MuExp] translateBool(str fun, Expression lhs, Expression rhs){
   blhs = backtrackFree(lhs) ? "U" : "M";
   brhs = backtrackFree(rhs) ? "U" : "M";
-  return [ muCall("<fun>_<blhs>_<brhs>", [*translate(lhs), *translate(rhs)]) ];
+  return [ muCallMuPrim("<fun>_<blhs>_<brhs>", [*translate(lhs), *translate(rhs)]) ];
+}
+
+list[MuExp] translateBool(str fun, Expression lhs){
+  blhs = backtrackFree(lhs) ? "U" : "M";
+  return [ muCallMuPrim("<fun>_<blhs>", translate(lhs)) ];
 }
 
 list[MuExp] translateBool(e:(Expression) `<Expression lhs> && <Expression rhs>`) = translateBool("AND", lhs, rhs);
@@ -221,10 +245,9 @@ list[MuExp] translateBool(e:(Expression) `<Expression lhs> ==\> <Expression rhs>
 
 list[MuExp] translateBool(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`) = translateBool("EQUIVALENT", lhs, rhs);
 
-
- // TODO similar for or, and, not and other Boolean operators
+list[MuExp] translateBool(e:(Expression) `! <Expression lhs>`) = translateBool("NOT", lhs);
  
- // Translate match operator
+// Translate match operator
  
  list[MuExp] translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  = 
    [ muMulti(muCreate(muFun("MATCH"), [*translatePat(pat), *translate(exp)])) ];
