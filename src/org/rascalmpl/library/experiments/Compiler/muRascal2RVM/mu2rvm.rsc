@@ -177,6 +177,73 @@ INS tr(muMulti(MuExp exp)) =
        NEXT0()
     ];
     
+INS tr(e:muOne(list[MuExp] exps)) {
+  fail_lab = nextLabel();
+  more_lab = nextLabel();
+  after_lab = nextLabel();
+  return
+     [ *tr_cond(muAll(exps), more_lab, fail_lab),
+       LOADCON(true),
+       JMP(after_lab),
+       LABEL(fail_lab),
+       LOADCON(false),
+       LABEL(after_lab)
+     ];
+}
+
+INS tr(e:muAll(list[MuExp] exps)) {  // TODO: not complete yet
+    failLab = nextLabel();
+    moreLab = nextLabel();
+    afterLab = nextLabel();
+    generators = []; 
+    multis = ();
+    code = [];
+    for(i <- index(exps)){
+        if(muMulti(exp1) := exps[i]){
+           gen = newLocal();
+           generators += gen;
+           multis[i] = gen;
+           code += [*tr(exp1), 
+          		    INIT(0), 
+          		    STORELOC(gen), 
+          		    POP()
+          		   ];
+        }
+    }
+    code += [LABEL(moreLab)];
+    for(i <- index(exps)){
+        exp = exps[i];
+        if(muMulti(exp1) := exp){
+          gen = multis[i];
+          code += [LOADLOC(gen), 
+          		   HASNEXT(), 
+          		   JMPFALSE(failLab), 
+          		   LOADLOC(gen),
+          		   NEXT0(), 
+          		   JMPFALSE(failLab)
+          		  ];
+        } else {
+          code += [*tr(exp), 
+          		   JMPFALSE(failLab)
+          		  ];
+        } 
+    }
+    for(gen <- generators){
+      code += [ LOADLOC(gen), 
+     		    HASNEXT(),
+     		    JMPTRUE(moreLab)
+     		  ];
+    }
+    code += [ LOADCON(true),
+              JMP(afterLab),
+              LABEL(failLab),
+              LOADCON(false),
+              LABEL(afterLab)
+    		 ];
+    return code;   
+}
+    
+    
 INS tr(muLocDeref(str name, int pos)) = [ LOADLOCDEREF(pos) ];
 INS tr(muVarDeref(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOCDEREF(pos) : LOADVARDEREF(scope, pos) ];
 
@@ -220,14 +287,13 @@ INS tr_cond(muOne(list[MuExp] exps), str moreLab, str failLab){
 // muAll: explore all sucessfull evaluations
 
 INS tr_cond(muAll(list[MuExp] exps), str moreLab, str failLab){
-
     lastMulti = -1;
     for(i <- index(exps)){
         if(muMulti(_) := exps[i])
            lastMulti = i;
     }
     currentFail = failLab;
-    code = lastMulti == -1 ? [LABEL(moreLab)]  : [];
+    code = lastMulti == -1 ? [] : [LABEL(moreLab)];
     for(i <- index(exps)){
         exp = exps[i];
         if(muMulti(exp1) := exp){

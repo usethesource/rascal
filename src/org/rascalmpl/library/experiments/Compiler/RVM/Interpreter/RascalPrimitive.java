@@ -85,6 +85,7 @@ public enum RascalPrimitive {
 	or_bool_bool,
 	println,
 	product_num_num,
+	remainder_num_num,
 	size_list,
 	sublist,
 	subtraction_list_list,
@@ -195,26 +196,7 @@ public enum RascalPrimitive {
 
 	public static int addition_list_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		if(stack[sp - 2] instanceof IList){
-			stack[sp - 2] = ((IList) stack[sp - 2]).concat((IList) stack[sp - 1]);
-		} else {
-			if(stack[sp - 1] instanceof IList){
-				@SuppressWarnings("unchecked")
-				List<Object> lst1 = (List<Object>) stack[sp - 2];
-				IList lst2 = (IList) stack[sp - 1];
-				for(int i = 0; i < lst2.length(); i++){
-					lst1.add(lst2.get(i));
-				}
-				stack[sp - 2] = lst1;
-			} else {
-				@SuppressWarnings("unchecked")
-				List<Object> lst1 = (List<Object>) stack[sp - 2];
-				@SuppressWarnings("unchecked")
-				List<Object> lst2 = (List<Object>) stack[sp - 1];
-				lst1.addAll(lst2);
-				stack[sp - 2] = lst1;
-			}
-		}
+		stack[sp - 2] = ((IList) stack[sp - 2]).concat((IList) stack[sp - 1]);
 		return sp - 1;
 	}
 	
@@ -699,6 +681,16 @@ public enum RascalPrimitive {
 	public static int product_num_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	/*
+	 * Remainder
+	 */
+	
+	public static int remainder_num_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).remainder((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
 
