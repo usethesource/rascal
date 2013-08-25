@@ -4,6 +4,9 @@ import  experiments::Compiler::Compile;
 
 value run(str exp, bool listing=false, bool debug=false) = 
 	execute("module TMP value main(list[value] args) = <exp>;", listing=listing, debug=debug);
+	
+value run(str before, str exp, bool listing=false, bool debug=false) = 
+	execute("module TMP value main(list[value] args) {<before> ; return <exp>;}", listing=listing, debug=debug);
 
 // Booleans
 
@@ -68,8 +71,6 @@ test bool tst() = run("$2013-01-01T08:15:30.055+0100$ == $2012-01-01T08:15:30.05
 test bool tst() = run("|http://www.rascal-mpl.org| == |http://www.rascal-mpl.org|") == (|http://www.rascal-mpl.org| == |http://www.rascal-mpl.org|);
 test bool tst() = run("|http://www.rascal-mpl.org| == |std://demo/basic/Hello.rsc|") == (|http://www.rascal-mpl.org| == |std://demo/basic/Hello.rsc|);
 
-
-
 // Lists
 test bool tst() = run("[1,2,3]") == [1,2,3];
 
@@ -79,5 +80,14 @@ test bool tst() = run("[1,2,3] \>\> 4") == [1,2,3,4];
 
 test bool tst() = run("0 + [1,2,3]") == [0,1,2,3];
 test bool tst() = run("0 \>\> [1,2,3]") == [0,1,2,3];
+
+// Enumerators
+
+test bool tst() = run("x \<- []") == x <- [];
+test bool tst() = run("x \<- [1,2,3]") == x <- [1,2,3];
+
+test bool tst() = run("res = []; for(x \<- [1,2,3]) res = res +[x];", "res") == {res = []; for(x <- [1,2,3]) res = res +[x]; res;};
+test bool tst() = run("res = []; for(x \<- [1,2,3], x != 2) res = res +[x];", "res") == {res = []; for(x <- [1,2,3], x != 2) res = res +[x]; res;};
+
 
 

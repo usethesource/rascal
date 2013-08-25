@@ -193,7 +193,8 @@ list[MuExp] translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`)  { th
 
 list[MuExp] translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = translateBool(e);
 
-list[MuExp] translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`)     { throw("enumerator"); }
+list[MuExp] translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) =
+    [ muMulti(muCreate(muFun("ENUMERATE_AND_MATCH"), [*translatePat(pat), *translate(exp)])) ];
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`)  = translateBool(e);
 
@@ -245,11 +246,8 @@ list[MuExp] translateBool(e:(Expression) `<Expression lhs> ==\> <Expression rhs>
 list[MuExp] translateBool(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`) = translateBool("EQUIVALENT", lhs, rhs);
 
 list[MuExp] translateBool(e:(Expression) `! <Expression lhs>`) = translateBool("NOT", lhs);
-
-
- // TODO similar for or, and, not and other Boolean operators
  
- // Translate match operator
+// Translate match operator
  
  list[MuExp] translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  = 
    [ muMulti(muCreate(muFun("MATCH"), [*translatePat(pat), *translate(exp)])) ];
