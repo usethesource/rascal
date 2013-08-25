@@ -84,9 +84,9 @@ list[MuExp] translate(e:(Expression) `<Expression expression> ( <{Expression ","
    return [ muCall(receiver, args) ];
 }
 
-list[MuExp] translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) { throw("any"); }
+list[MuExp] translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = [ muOne([*translate(g) | g <- generators ]) ];
 
-list[MuExp] translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) { throw("all"); }
+list[MuExp] translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = [ muAll([*translate(g) | g <- generators ]) ];
 
 list[MuExp] translate (e:(Expression) `<Comprehension comprehension>`) { throw("comprehension"); }
 
