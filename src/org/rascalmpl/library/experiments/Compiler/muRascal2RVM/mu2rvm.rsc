@@ -44,6 +44,7 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   }
   
   library_names = domain(funMap);
+  println("<size(library_names)> functions in muRascal library:\n<library_names>");
  
   for(fun <- functions){
     functionScope = fun.scope;
