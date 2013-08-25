@@ -64,6 +64,7 @@ public map[Symbol,Production] reify(Symbol::\map(Symbol from, Symbol to), map[Sy
 // adt
 public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols), map[Symbol,Production] definitions) {
 	Symbol adtDef = typeMap[name];
+	assert Symbol::\adt(name,_) := adtDef;
 	if(!definitions[adtDef]?) {
 		alts = { sym2prod(sym) | sym <- constructors[adtDef] };
 		definitions[adtDef] = Production::\choice(adtDef, alts);
