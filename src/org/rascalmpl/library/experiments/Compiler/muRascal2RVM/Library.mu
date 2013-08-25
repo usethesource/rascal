@@ -125,6 +125,70 @@ function ENUMERATE_AND_MATCH[1, 2,  pat, ^val]{
   return ^val;
 }
 
+function RANGE[1, 3, pat, ^first, ^end, i, n, cpat]{
+   i = mint(^first);
+   n = mint(^end);
+   if(i < n){
+      while(i < n){
+        cpat = init(pat, rint(i));
+        while(hasNext(cpat)){
+            if(next(cpat)){
+               yield true;
+            };
+        }; 
+        i = i + 1;
+      };
+      return false;
+   } else {
+      while(i > n){
+        cpat = init(pat, rint(i));
+        while(hasNext(cpat)){
+            if(next(cpat)){
+               yield true;
+            };
+        }; 
+        i = i - 1;
+      };
+      return false;
+   };
+}
+
+function RANGE_STEP[1, 4, pat, ^first, ^second, ^end, i, n, step, cpat]{
+   i = mint(^first);
+   n = mint(^end);
+   if(i < n){
+      step = mint(^second) - i;
+      if(step <= 0){
+         return false;
+      };   
+      while(i < n){
+        cpat = init(pat, rint(i));
+        while(hasNext(cpat)){
+            if(next(cpat)){
+               yield true;
+            };
+        }; 
+        i = i + step;
+      };
+      return false;
+   } else {
+      step = mint(^second) - i;
+      if(step >= 0){
+         return false;
+      };   
+      while(i > n){
+        cpat = init(pat, rint(i));
+        while(hasNext(cpat)){
+            if(next(cpat)){
+               yield true;
+            };
+        }; 
+        i = i + step;
+      };
+      return false;
+   };
+}
+
 // ***** Pattern matching *****
 
 function MATCH[1,2,pat,^subject,cpat]{

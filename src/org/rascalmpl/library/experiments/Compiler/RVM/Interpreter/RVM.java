@@ -8,6 +8,7 @@ import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
@@ -800,6 +801,11 @@ public class RVM {
 						stack[sp - 1] = new Object[len];
 						break;
 						
+					case mint:
+						assert arity == 1;
+						stack[sp - 1] = ((IInteger) stack[sp - 1]).intValue();
+						break;
+						
 					case not_equal_mint_mint:
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) != ((Integer) stack[sp - 1]);
@@ -822,16 +828,10 @@ public class RVM {
 						sp = sp - 1;
 						break;
 						
-//					case size_array:
-//						assert arity == 1;
-//						stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
-//						break;
-//						
-//						
-//					case size_list:
-//						assert arity == 1;
-//						stack[sp - 1] = ((IList) stack[sp - 1]).length();
-//						break;
+					case rint:
+						assert arity == 1;
+						stack[sp -1] = vf.integer((Integer) stack[sp -1]);
+						break;
 						
 					case size_array_or_list:
 						assert arity == 1;
