@@ -1,9 +1,14 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalType
 
+import experiments::Compiler::Rascal2muRascal::TypeUtils;
+
 import Prelude;
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Symbols;
+
+import lang::rascal::types::TestChecker;
+import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 
 Symbol translateType((BasicType) `value`) 		= \value();
@@ -49,13 +54,29 @@ Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label(getSimpleNa
 Symbol translateType(t: (FunctionType) `<Type \type> (<{TypeArg ","}* args>)`) = 
 									\func(translateType(ret), [ translateType(arg) | arg <- args]);
 									
-Symbol translateType(t: (UserType) `<QualifiedName name>`) = adt(getSimpleName(convertName(name)), []);  	
-Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) = 
-									adt(getSimpleName(convertName(name)), [ translateType(arg) | arg <- args]);  
+Symbol translateType(t: (UserType) `<QualifiedName name>`) {
+	rn = convertName(name);
+	// look up the name in the type environment
+	val = config.store[config.typeEnv[rn]];
+	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
+		return val.rtype;
+	}
+	throw "The name <name> is not resolved to a type: <val>.";
+}
+Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) {
+	rn = convertName(name);
+	// look up the name in the type environment
+	val = config.store[config.typeEnv[rn]];
+	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
+		// instantiate type parameters
+		val.rtype.parameters = [ translateType(param) | param <- parameters];
+		return val.rtype;
+	}
+	throw "The name <name> is not resolved to a type: <val>.";
+}  
 									
 Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)));  
 Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter(getSimpleName(convertName(name)), translateType(bound));  
-
 
 default Symbol translateType(Type t) {
 	throw "Cannot translate type <t>";

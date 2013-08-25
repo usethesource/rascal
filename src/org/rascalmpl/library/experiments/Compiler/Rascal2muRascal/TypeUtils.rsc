@@ -191,3 +191,12 @@ void extractScopes(){
    for(l <- loc2uid)
        println("<l> : <loc2uid[l]>");
 }
+
+public bool isDataType(AbstractValue::datatype(_,_,_,_)) = true;
+public default bool isDataType(AbstractValue _) = false;
+
+public bool isNonTerminalType(AbstractValue::sorttype(_,_,_,_)) = true;
+public default bool isNonTerminalType(AbstractValue _) = false;
+
+public bool isAlias(AbstractValue::\alias(_,_,_,_)) = true;
+public default bool isAlias(AbstractValue _) = false;
