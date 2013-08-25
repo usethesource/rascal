@@ -27,6 +27,16 @@ int newLocal() {
     return n;
 }
 
+map[str,int] temporaries = ();
+
+int getTmp(str name){
+   if(temporaries[name]?)
+   		return temporaries[name];
+   n = newLocal();
+   temporaries[name] = n;
+   return n;		
+}
+
 public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
 // Translate a muRascal module
@@ -34,6 +44,7 @@ public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations), bool listing=false){
   funMap = ();
   nLabel = -1;
+  temporaries = ();
   libraryScope = 1000000; 
   
   libModule = parse(Library);
@@ -113,6 +124,7 @@ INS tr(muConstr(str name)) = [LOADCONSTR(name)];
 
 INS tr(muVar(str id, int scope, int pos)) = [scope == functionScope ? LOADLOC(pos) : LOADVAR(scope, pos)];
 INS tr(muLoc(str id, int pos)) = [LOADLOC(pos)];
+INS tr(muTmp(str id)) = [LOADLOC(getTmp(id))];
 
 Instruction mkCall(str name) = CALL(name); 
 
@@ -128,6 +140,7 @@ INS tr(muCallMuPrim(str name, list[MuExp] args)) =  (name == "println") ? [*tr(a
 
 INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), scope == functionScope ? STORELOC(pos) : STOREVAR(scope, pos)];
 INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];
+INS tr(muAssignTmp(str id, MuExp exp)) = [*tr(exp), STORELOC(getTmp(id)) ];
 
 INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
     lab_else = nextLabel();

@@ -11,7 +11,9 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -156,6 +158,15 @@ public class RVM {
 		if(o instanceof Reference){
 			Reference ref = (Reference) o;
 			return "Reference[" + ref.stack + ", " + ref.pos + "]";
+		}
+		if(o instanceof IListWriter){
+			return "ListWriter[" + ((IListWriter) o).toString() + "]";
+		}
+		if(o instanceof ISetWriter){
+			return "SetWriter[" + ((ISetWriter) o).toString() + "]";
+		}
+		if(o instanceof IMapWriter){
+			return "MapWriter[" + ((IMapWriter) o).toString() + "]";
 		}
 		throw new RuntimeException("PANIC: asString cannot convert: " + o);
 	}
@@ -362,6 +373,11 @@ public class RVM {
 
 				case Opcode.OP_POP:
 					sp--;
+					continue;
+					
+				case Opcode.OP_DUP:
+					stack[sp] = stack[sp -1];
+					sp++;
 					continue;
 
 				case Opcode.OP_LABEL:
