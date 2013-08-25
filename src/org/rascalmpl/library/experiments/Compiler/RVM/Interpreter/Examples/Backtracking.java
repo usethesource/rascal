@@ -95,20 +95,6 @@ public class Backtracking {
 		));
 		
 		/* 
-		 * and_n_n(lhs, rhs) {
-		 *    return callprim("and_bool_bool", lhs, rhs);
-		 * }
-		 */
-		
-		rvm.declare(new Function("and_n_n", 4, 2, 2, 10,
-				new CodeBlock(vf)
-				.LOADLOC(0)
-				.LOADLOC(1)
-				.CALLPRIM(RascalPrimitive.and_bool_bool, 2)
-				.RETURN1()
-				));
-		
-		/* 
 		 * and_n_b(lhs, rhs) {
 		 *    if(lhs){
 		 *    		rhs = create(rhs);

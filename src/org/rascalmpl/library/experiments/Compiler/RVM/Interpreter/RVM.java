@@ -8,7 +8,6 @@ import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
@@ -597,9 +596,12 @@ public class RVM {
 						sp = sp - 1;
 						break;
 						
+					case AND_U_U:	
 					case and_mbool_mbool:
 						assert arity == 2;
-						stack[sp - 2] = ((Boolean) stack[sp - 2]) && ((Boolean) stack[sp - 1]);
+						boolean b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+						boolean b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+						stack[sp - 2] = b1 && b2;
 						sp = sp - 1;
 						break;
 						
@@ -640,24 +642,14 @@ public class RVM {
 						sp = sp - 1;
 						break;
 						
-						
-//					case equal_rint_rint:
-//						assert arity == 2;
-//						stack[sp - 2] = ((IInteger) stack[sp - 2]).intValue() == ((IInteger) stack[sp - 1]).intValue();
-//						sp = sp - 1;
-//						break;
-//						
-//					case equal_str_str:
-//						assert arity == 2;
-//						stack[sp - 2] = ((IString) stack[sp - 2]).isEqual(((IString) stack[sp - 1]));
-//						sp = sp - 1;
-//						break;
-//					
-//					case equal_type_type:
-//						assert arity == 2;
-//						stack[sp - 2] = ((Type) stack[sp - 2]) == ((Type) stack[sp - 1]);
-//						sp = sp - 1;
-//						break;
+					case EQUIVALENT_U_U:	
+					case equivalent_mbool_mbool:
+						assert arity == 2;
+						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+						stack[sp - 2] = (b1 == b2);
+						sp = sp - 1;
+						break;
 						
 					case get_name_and_children:
 						assert arity == 1;
@@ -691,6 +683,15 @@ public class RVM {
 					case greater_mint_mint:
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) > ((Integer) stack[sp - 1]);
+						sp = sp - 1;
+						break;
+						
+					case IMPLIES_U_U:	
+					case implies_mbool_mbool:
+						assert arity == 2;
+						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+						stack[sp - 2] = b1 ? b2 : true;
 						sp = sp - 1;
 						break;
 						
@@ -802,6 +803,22 @@ public class RVM {
 					case not_equal_mint_mint:
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) != ((Integer) stack[sp - 1]);
+						sp = sp - 1;
+						break;
+						
+					case NOT_U:	
+					case not_mbool:
+						assert arity == 1;
+						b1 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+						stack[sp - 1] = !b1;
+						break;
+						
+					case OR_U_U:	
+					case or_mbool_mbool:
+						assert arity == 2;
+						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+						stack[sp - 2] = b1 || b2;
 						sp = sp - 1;
 						break;
 						

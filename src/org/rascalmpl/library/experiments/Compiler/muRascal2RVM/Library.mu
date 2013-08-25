@@ -72,7 +72,11 @@ function ALL[1,1,arg,carg]{
 
 // ***** Generators for all types *****
 
-function GEN_LIST[1, 1, ^lst, last, i]{
+function ENUM_LITERAL[1,2, ^lit]{
+   return ^lit;
+}
+
+function ENUM_LIST[1, 1, ^lst, last, i]{
    last = size(^lst) - 1;
    i = 0;
    while(i < last){
@@ -82,7 +86,7 @@ function GEN_LIST[1, 1, ^lst, last, i]{
    return get ^lst[last];
 }
 
-function GEN_NODE[1, 1, ^nd, last, i, lst]{
+function ENUM_NODE[1, 1, ^nd, last, i, lst]{
    lst = get_name_and_children(^nd);
    last = size(lst) - 2;
    i = 1;  // skip name
@@ -93,32 +97,30 @@ function GEN_NODE[1, 1, ^nd, last, i, lst]{
    return get lst[last];
 }
 
-function GEN_VALUE[1, 1, ^val, co, res]{
+function do_enum[1, 2, enum, pat, cpat, elm]{
+   while(hasNext(enum)){
+     elm = next(enum);
+     cpat = init(pat, elm);
+     while(hasNext(cpat)){
+       if(next(cpat)){
+          if(hasNext(enum)){
+             yield true;
+          } else {
+             return false;
+          };
+       };
+     };
+   };      
+}
 
+function ENUMERATE_AND_MATCH[1, 2,  pat, ^val]{
   if(^val is list){
-     yield ^val;
-     co = init(create(fun GEN_LIST, ^val));
-     while(hasNext(co)){
-        res = next(co);
-        if(hasNext(co)){
-           yield res;
-        } else {
-          return res;
-        };
-     };
-  };
-  if(^val is node){
-     yield ^val;
-     co = init(create(fun GEN_NODE, ^val));
-     while(hasNext(co)){
-        res = next(co);
-        if(hasNext(co)){
-           yield res;
-        } else {
-          return res;
-        };
-     };
-  };
+     do_enum(init(create(fun ENUM_LIST, ^val)), pat);
+  } else {
+    if(^val is node){
+      do_enum(init(create(fun ENUM_NODE, ^val)), pat);
+    };
+  };  
   // Add cases for set/rel/tuple/map/...
   return ^val;
 }
@@ -255,7 +257,7 @@ function MATCH_AS_TYPE[1, 3, typ, pat, ^subject, cpat]{
    };  
    return false;
 }
-
+/*
 function MATCH_DESCENDANT[1, 2, pat, ^subject, gen, cpat]{
    gen = init(create(fun GEN_VALUE, ^subject));
    while(hasNext(gen)){
@@ -266,7 +268,7 @@ function MATCH_DESCENDANT[1, 2, pat, ^subject, gen, cpat]{
    };
    return false;
 }
-
+*/
 function MATCH_ANTI[1, 2, pat, ^subject, cpat]{
 	cpat = init(pat, ^subject);
 	if(next(cpat)){
