@@ -223,6 +223,10 @@ public class Execute {
 					case "LOADINT":
 						codeblock.LOADINT(getIntField(instruction, "nval"));
 						break;
+						
+					case "DUP":
+						codeblock.DUP();
+						break;
 										
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
