@@ -29,7 +29,16 @@ public type[value] symbolToValue(Symbol symbol, Configuration config) {
    	  											\type.\sort in types };
 	// Recursively collects all the type definitions associated with a given symbol
  	map[Symbol,Production] definitions = reify(symbol, ());
- 	return type(symbol,definitions);
+ 	symbol = (Symbol::conditional(Symbol sym,_) := symbol) ? sym : symbol;
+ 	if(Symbol::\sort(_):= symbol || Symbol::\lex(_):= symbol ||
+ 		Symbol::\parameterized-sort(_,_):= symbol || Symbol::\parameterized-lex(_,_):= symbol) {
+ 			if(str n <- typeMap, Symbol::\layouts(_) := typeMap[n]) {
+ 				definitions = reify(typeMap[n],definitions);
+ 			}
+ 			definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
+ 			definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
+ 	}
+ 	return type(symbol, definitions);
 }
 
 // primitive
@@ -74,11 +83,9 @@ public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols)
 	return definitions;
 }
 // constructors
-public map[Symbol,Production] reify(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters), map[Symbol,Production] definitions) {
+public map[Symbol,Production] reify(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters), map[Symbol,Production] definitions)
 	// adt has been already added to the definitions
-	definitions = ( definitions | reify(sym, it) | sym <- parameters );
-	return definitions;
-}
+	= ( definitions | reify(sym, it) | sym <- parameters );
 // alias
 public map[Symbol,Production] reify(Symbol::\alias(str name, list[Symbol] parameters, Symbol aliased), map[Symbol,Production] definitions) {
 	definitions = reify(aliased, definitions);
@@ -104,6 +111,60 @@ public map[Symbol,Production] reify(Symbol::\reified(Symbol symbol), map[Symbol,
 // parameter
 public map[Symbol,Production] reify(Symbol::\parameter(str name, Symbol bound), map[Symbol,Production] definitions)
 	= reify(bound, definitions);
+	
+// sort, lex
+public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) 
+	= { 
+		Symbol nonterminal = typeMap[name]; 
+		assert !(Symbol::\adt(name,_) := nonterminal);
+		if(!definitions[nonterminal]?) {
+			alts = { sym2prod(sym) | sym <- productions[nonterminal] };
+			definitions[nonterminal] = Production::\choice(nonterminal, alts);
+			definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
+		}
+		definitions;
+	  } when Symbol::\sort(str name) := symbol || Symbol::\lex(str name) := symbol ||
+	  		 Symbol::\layouts(str name) := symbol || Symbol::\keywords(str name) := symbol;
+// parameterized-sort, parameterized-lex  
+public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) 
+	= { 
+		Symbol nonterminal = typeMap[name]; 
+		assert !(Symbol::\adt(name,_) := nonterminal);
+		if(!definitions[nonterminal]?) {
+			alts = { sym2prod(sym) | sym <- productions[nonterminal] };
+			definitions[nonterminal] = Production::\choice(nonterminal, alts);
+			definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
+		}
+		definitions = ( definitions | reify(sym, it) | sym <- parameters );
+		definitions;
+	  } when Symbol::\parameterized-sort(str name, list[Symbol] parameters) := symbol || Symbol::\parameterized-lex(str name, list[Symbol] parameters) := symbol;
+
+public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions)
+	= reify(sym, definitions)
+		when Symbol::\opt(Symbol sym) := symbol || Symbol::\iter(Symbol sym) := symbol ||
+			 Symbol::\iter-star(Symbol sym) := symbol || Symbol::\iter-seps(Symbol sym, _) := symbol ||
+			 Symbol::\iter-star-seps(Symbol sym, list[Symbol] _) := symbol;
+
+public map[Symbol,Production] reify(Symbol::\alt(set[Symbol] alternatives), map[Symbol,Production] definitions)
+	= ( definitions | reify(sym, it) | sym <- alternatives );
+
+public map[Symbol,Production] reify(Symbol::\seq(list[Symbol] symbols), map[Symbol,Production] definitions)
+	= ( definitions | reify(sym, it) | sym <- symbols );
+
+public map[Symbol,Production] reify(Symbol::\conditional(Symbol symbol, set[Condition] conditions), map[Symbol,Production] definitions)
+	= reify(symbol, definitions) + ( definitions | reify(cond, it) | cond <- conditions );
+	
+public map[Symbol,Production] reify(Symbol::\prod(Symbol \sort, str name, list[Symbol] parameters, set[Attr] _), map[Symbol,Production] definitions)
+	// sort has been already added to the definitions
+	= ( definitions | reify(sym, it) | sym <- parameters );
+	
+public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] definitions)
+	= reify(symbol, definitions)
+		when Condition::\follow(Symbol symbol) := cond || Condition::\not-follow(Symbol symbol) := cond ||
+			 Condition::\precede(Symbol symbol) := cond || Condition::\not-precede(Symbol symbol) := cond ||
+			 Condition::\delete(Symbol symbol) := cond;
+
+public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] definitions) = definitions;
 		   
 public default map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) = definitions;
 
@@ -114,4 +175,7 @@ private Production sym2prod(Symbol::\cons(Symbol \type, str name, list[Symbol] p
 private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] parameters, set[Attr] attributes))
 	= Production::\prod(Symbol::\label(name, \type), parameters, attributes) 
 		when name != "" && \type has name;
+private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] parameters, set[Attr] attributes))
+	= Production::\prod(\type, parameters, attributes) 
+		when name == "" && \type has name;
 default Production sym2prod(Symbol s) { throw "Could not transform the symbol <s> to a Production node"; }
