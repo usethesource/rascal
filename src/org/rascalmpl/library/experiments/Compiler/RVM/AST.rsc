@@ -48,5 +48,6 @@ data Instruction =
 		| LOADVARDEREF(int scope, int pos)
 		| STORELOCDEREF(int pos)
 		| STOREVARDEREF(int scope, int pos)
+		| DUP()
 		;
 	

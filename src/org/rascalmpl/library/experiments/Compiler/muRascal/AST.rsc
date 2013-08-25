@@ -52,6 +52,7 @@ public data MuExp =
           	// Variables
           | muLoc(str name, int pos)							// Local variable, with position in current scope
           | muVar(str id, int scope, int pos)					// Variable: retrieve its value
+          | muTmp(str name)										// Temporary variable introduced by front-end
           
           | muLocDeref(str name, int pos) 				        // Call-by-reference: a variable that refers to a value location
           | muVarDeref(str name, int scope, int pos)
@@ -75,6 +76,7 @@ public data MuExp =
               
           | muAssignLoc(str id, int pos, MuExp exp)				// Assign a value to a local variable
           | muAssign(str id, int scope, int pos, MuExp exp)		// Assign a value to a variable
+          | muAssignTmp(str id, MuExp exp)						// Assign to temporary variable introduced by front-end
           
           | muAssignLocDeref(str id, int pos, MuExp exp)          // Call-by-reference assignment:
           | muAssignVarDeref(str id, int scope, int pos, MuExp exp) 	// the left-hand side is a variable that refers to a value location

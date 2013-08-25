@@ -34,6 +34,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 
 public enum RascalPrimitive {
 	appendAfter,
+	add_listwriter,
 	addition_elm_list,
 	addition_list_elm,
 	addition_list_list,
@@ -49,6 +50,7 @@ public enum RascalPrimitive {
 	composition_rel_rel,
 	composition_map_map,
 	division_num_num,
+	done_listwriter,
 	equal,
 	equal_num_num,
 	equal_str_str,
@@ -75,6 +77,7 @@ public enum RascalPrimitive {
 	less_num_num,
 	less_equal_num_num,
 	make_list,
+	make_listwriter,
 	make_map,
 	make_set,
 	make_tuple,
@@ -164,6 +167,17 @@ public enum RascalPrimitive {
 	/***************************************************************
 	 * 				IMPLEMENTATION OF PRIMITIVES                   *
 	 ***************************************************************/
+	/*
+	 * add_listwriter
+	 */
+	public static int add_listwriter(Object[] stack, int sp, int arity) {
+		assert arity > 0;
+		IListWriter writer = (IListWriter) stack[sp - arity];
+		for(int i = arity - 1; i > 0; i--){
+			writer.append((IValue) stack[sp - i]);
+		}
+		return sp - arity + 1;
+	}
 	
 	/*
 	 * addition
@@ -349,6 +363,13 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).divide(((INumber) stack[sp - 1]), 10);
 		return sp - 1;
+	}
+	
+	public static int done_listwriter(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		IListWriter writer = (IListWriter) stack[sp - 1];
+		stack[sp - 1] = writer.done();
+		return sp;
 	}
 	
 	/*
@@ -588,6 +609,17 @@ public enum RascalPrimitive {
 		stack[sp - 1] = writer.done();
 
 		return sp;
+	}
+	
+	/*
+	 * make_listwriter
+	 */
+	
+	public static int make_listwriter(Object[] stack, int sp, int arity) {
+		assert arity == 0;	// For now, later type can be added
+		IListWriter writer = vf.listWriter();
+		stack[sp] = writer;
+		return sp + 1;
 	}
 	
 	/*

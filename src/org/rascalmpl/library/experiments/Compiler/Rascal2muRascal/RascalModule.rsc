@@ -19,11 +19,18 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 public list[MuFunction] functions_in_module = [];
 public list[MuVariable] variables_in_module = [];
 public list[MuExp] variable_initializations = [];
+public int tmpVar = -1;
 
 public void resetR2mu() {
 	functions_in_module = [];
 	variables_in_module = [];
 	variable_initializations = [];
+	tmpVar = -1;
+}
+
+public str nextTmp(){
+	tmpVar += 1;
+    return "TMP<tmpVar>";
 }
 
 // Compile a Rascal source module (given as string) to muRascal
@@ -106,7 +113,8 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
   scope = loc2uid[fd@\loc];
-  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), [muReturn(translate(expression)[0])])];
+  tbody = translate(expression);
+  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), [*tbody[0 .. -1], muReturn(tbody[-1])])];
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
