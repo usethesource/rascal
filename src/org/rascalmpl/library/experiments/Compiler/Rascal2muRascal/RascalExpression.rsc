@@ -92,7 +92,7 @@ list[MuExp] translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) 
 
 list[MuExp] translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = [ muAll([*translate(g) | g <- generators ]) ];
 
-list[MuExp] translate (e:(Expression) `<Comprehension comprehension>`) { throw("comprehension"); }
+list[MuExp] translate (e:(Expression) `<Comprehension comprehension>`) = translateComprehension(comprehension);
 
 list[MuExp] translate(Expression e:(Expression)`{ <{Expression ","}* es> }`) {
     return [ muCallPrim("make_set", [ *translate(elem) | elem <- es ]) ];
@@ -270,4 +270,13 @@ list[MuExp] translateBool(e:(Expression) `! <Expression lhs>`) = translateBool("
 	return [ (addr.scope == 0) ? muFun(name) : muFun(name, addr.scope) ];
 }
 
- 
+// Translate a comprehension
+
+list[MuExp] translateComprehension(c: (Comprehension) `[ <{Expression ","}+ results> | <{Expression ","}+ generators> ]`) {
+    name = nextTmp(); 
+    return
+    [ muAssignTmp(name, muCallPrim("make_listwriter", [])),
+      muWhile(muAll([*translate(g) | g <-generators]), [muCallPrim("add_listwriter", [muTmp(name)] + [ *translate(r) | r <- results])]), 
+      muCallPrim("done_listwriter", [muTmp(name)]) 
+    ];
+}
