@@ -6,13 +6,18 @@ import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
 import ParseTree;
+import List;
 import Map;
+import Set;
 
 import IO;
 
-private map[str, Symbol] typeMap = ();
-private rel[Symbol, Symbol] constructors = {};
-private rel[Symbol, Symbol] productions = {};
+private map[str,Symbol] typeMap = ();
+private rel[Symbol,Symbol] constructors = {};
+private rel[Symbol,Symbol] productions = {};
+private map[Symbol,Production] grammar = ();
+private set[Symbol] starts = {};
+private Symbol activeLayout = Symbol::\layouts("$default$");
 
 public type[value] symbolToValue(Symbol symbol, Configuration config) {
 	
@@ -23,13 +28,23 @@ public type[value] symbolToValue(Symbol symbol, Configuration config) {
 	constructors = { <\type.\adt, \type> | int uid <- config.store, 
 												constructor(_, Symbol \type, _, _) := config.store[uid],
 												\type.\adt in types };
-	// Collects all the productions of the non-terminal types in the type environment									
-   	productions = { <\type.\sort, \type> | int uid <- config.store, 
-   	  											production(_, Symbol \type, _, _) := config.store[uid],
-   	  											\type.\sort in types };
+	// Collects all the productions of the non-terminal types in the type environment
+	productions = { <\type.\sort, \type> | int uid <- config.store,
+												production(_, Symbol \type, _, _) := config.store[uid],
+												\type.\sort in types };									
+   	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
+   	  																config.store[uid].rtype in types );
+   	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
+   	
+   	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
+   	if(!isEmpty(activeLayouts))
+   		activeLayout = getOneFrom(activeLayouts);
+   	
 	// Recursively collects all the type definitions associated with a given symbol
  	map[Symbol,Production] definitions = reify(symbol, ());
+ 	
  	symbol = (Symbol::conditional(Symbol sym,_) := symbol) ? sym : symbol;
+ 	
  	if(Symbol::\sort(_):= symbol || Symbol::\lex(_):= symbol ||
  		Symbol::\parameterized-sort(_,_):= symbol || Symbol::\parameterized-lex(_,_):= symbol) {
  			if(str n <- typeMap, Symbol::\layouts(_) := typeMap[n]) {
@@ -118,8 +133,10 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
 		Symbol nonterminal = typeMap[name]; 
 		assert !(Symbol::\adt(name,_) := nonterminal);
 		if(!definitions[nonterminal]?) {
-			alts = { sym2prod(sym) | sym <- productions[nonterminal] };
-			definitions[nonterminal] = Production::\choice(nonterminal, alts);
+			definitions[nonterminal] = \layouts(grammar[nonterminal]);
+			if(nonterminal in starts) {
+				definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),[ Symbol::\label("top", nonterminal) ],{}));
+			}
 			definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
 		}
 		definitions;
@@ -131,8 +148,10 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
 		Symbol nonterminal = typeMap[name]; 
 		assert !(Symbol::\adt(name,_) := nonterminal);
 		if(!definitions[nonterminal]?) {
-			alts = { sym2prod(sym) | sym <- productions[nonterminal] };
-			definitions[nonterminal] = Production::\choice(nonterminal, alts);
+			definitions[nonterminal] = \layouts(grammar[nonterminal]);
+			if(nonterminal in starts) {
+				definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),[ Symbol::\label("top", nonterminal) ],{}));
+			}
 			definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
 		}
 		definitions = ( definitions | reify(sym, it) | sym <- parameters );
@@ -163,7 +182,6 @@ public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] defin
 		when Condition::\follow(Symbol symbol) := cond || Condition::\not-follow(Symbol symbol) := cond ||
 			 Condition::\precede(Symbol symbol) := cond || Condition::\not-precede(Symbol symbol) := cond ||
 			 Condition::\delete(Symbol symbol) := cond;
-
 public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] definitions) = definitions;
 		   
 public default map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) = definitions;
@@ -179,3 +197,31 @@ private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] p
 	= Production::\prod(\type, parameters, attributes) 
 		when name == "" && \type has name;
 default Production sym2prod(Symbol s) { throw "Could not transform the symbol <s> to a Production node"; }
+
+@doc{Intermix with an active layout}
+public Production \layouts(Production prod) {
+  return top-down-break visit (prod) {
+    case prod(\start(y),[Symbol x],as) => Production::prod(\start(y),[activeLayout, x, activeLayout],  as)
+    case prod(sort(s),list[Symbol] lhs,as) => Production::prod(sort(s),intermix(lhs,activeLayout),as)
+    case prod(\parameterized-sort(s,n),list[Symbol] lhs,as) => Production::prod(\parameterized-sort(s,n),intermix(lhs,activeLayout),as)
+    case prod(label(t,sort(s)),list[Symbol] lhs,as) => Production::prod(label(t,sort(s)),intermix(lhs,activeLayout),as)
+    case prod(label(t,\parameterized-sort(s,n)),list[Symbol] lhs,as) => Production::prod(label(t,\parameterized-sort(s,n)),intermix(lhs,activeLayout),as) 
+  }
+} 
+
+private list[Symbol] intermix(list[Symbol] syms, Symbol l) {
+  if (syms == []) 
+    return syms;
+  return tail([l, regulars(s,l) | s <- syms]);
+}
+
+private Symbol regulars(Symbol s, Symbol l) {
+  return visit(s) {
+    case \iter(Symbol n) => \iter-seps(n,[l])
+    case \iter-star(Symbol n) => \iter-star-seps(n,[l]) 
+    case \iter-seps(Symbol n, [Symbol sep]) => \iter-seps(n,[l,sep,l]) 
+    case \iter-star-seps(Symbol n,[Symbol sep]) => \iter-star-seps(n, [l,sep,l])
+    case \seq(list[Symbol] elems) => \seq(tail([l, e | e <- elems]))
+  }
+}
+
