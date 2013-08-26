@@ -59,6 +59,7 @@ test bool tst() = run("2r5 == 2r3") == (2r5 == 2r3);
 
 // Strings
 test bool tst() = run("\"abc\"") == "abc";
+test bool tst() = run("\"abc\" \"def\"") == "abc" + "def";
 
 // Datetime
 
@@ -73,13 +74,25 @@ test bool tst() = run("|http://www.rascal-mpl.org| == |std://demo/basic/Hello.rs
 
 // Lists
 test bool tst() = run("[1,2,3]") == [1,2,3];
-
-test bool tst() = run("[1,2,3] + [4,5]") == [1,2,3,4,5];
-test bool tst() = run("[1,2,3] + 4") == [1,2,3,4];
-test bool tst() = run("[1,2,3] \>\> 4") == [1,2,3,4];
-
+test bool tst() = run("[1,2,3] + [4,5]") == [1,2,3] + [4,5];
+test bool tst() = run("[1,2,3] + 4") == [1,2,3] + 4;
+test bool tst() = run("[1,2,3] \<\< 4") == [1,2,3] << 4;
 test bool tst() = run("0 + [1,2,3]") == [0,1,2,3];
-test bool tst() = run("0 \>\> [1,2,3]") == [0,1,2,3];
+test bool tst() = run("0 \>\> [1,2,3]") == 0 >> [1,2,3];
+test bool tst() = run("[1,2,3] & [1,3]") == [1,2,3] & [1,3];
+test bool tst() = run("[1,2,3] - [1,3]") == [1,2,3] - [1,3];
+test bool tst() = run("1 in [1,2,3]") == 1 in [1,2,3];
+test bool tst() = run("1 notin [1,2,3]") == 1 notin [1,2,3];
+
+// Sets
+test bool tst() = run("{1,2,3}") == {1,2,3};
+test bool tst() = run("{1,2,3} + {4,5}") == {1,2,3} + {4,5};
+test bool tst() = run("{1,2,3} + 4") == {1,2,3} + 4;
+test bool tst() = run("0 + {1,2,3}") == 0 + {1,2,3};
+test bool tst() = run("{1,2,3} & {1,3}") =={1,2,3} & {1,3};
+test bool tst() = run("{1,2,3} - {1,3}") =={1,2,3} - {1,3};
+test bool tst() = run("1 in {1,2,3}") == 1 in {1,2,3};
+test bool tst() = run("1 notin {1,2,3}") == 1 notin {1,2,3};
 
 // Enumerators
 
@@ -110,3 +123,18 @@ test bool tst() = run("res = []; for(x \<- [1, 0 .. 10]) res = res + [x];", "res
 
 test bool tst() = run("res = []; for(x \<- [10, 8 .. 0]) res = res + [x];", "res") == {res = []; for(x <- [10, 8 .. 0]) res = res + [x]; res;};
 test bool tst() = run("res = []; for(x \<- [10, 11 .. 0]) res = res + [x];", "res") == {res = []; for(x <- [10, 11 .. 0]) res = res + [x]; res;};
+
+// List Comprehensions
+
+test bool tst() = run("[ x |x \<- [1 .. 10]]") == [ x |x <- [1 .. 10]];
+test bool tst() = run("[ x |x \<- [1, 3 .. 10]]") == [ x |x <- [1, 3 .. 10]];
+test bool tst() = run("[ x |x \<- [10 .. 1]]") == [ x |x <- [10 .. 1]];
+test bool tst() = run("[ x |x \<- [10, 8 .. 1]]") == [ x |x <- [10, 8 .. 1]];
+test bool tst() = run("[ x |x \<- [1 .. 10], x % 2 == 1]") == [ x |x <- [1 .. 10], x % 2 == 1];
+
+// Set Comprehensions
+test bool tst() = run("{ x |x \<- [1 .. 10]}") == { x |x <- [1 .. 10]};
+test bool tst() = run("{ x |x \<- [1, 3 .. 10]}") == { x |x <- [1, 3 .. 10]};
+test bool tst() = run("{ x |x \<- [10 .. 1]}") == { x |x <- [10 .. 1]};
+test bool tst() = run("{ x |x \<- [10, 8 .. 1]}") == { x |x <- [10, 8 .. 1]};
+test bool tst() = run("{ x |x \<- [1 .. 10], x % 2 == 1}") == { x |x <- [1 .. 10], x % 2 == 1};

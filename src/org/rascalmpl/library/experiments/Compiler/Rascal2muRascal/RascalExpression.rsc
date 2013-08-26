@@ -175,7 +175,7 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> \<\< <Expression rhs>`)  
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> mod <Expression rhs>`)   = infix("modulo", e);
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> notin <Expression rhs>`)   = infix("notIn", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> notin <Expression rhs>`)   = infix("notin", e);
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> in <Expression rhs>`)   = infix("in", e);
 
@@ -189,7 +189,7 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> \> <Expression rhs>`)  = 
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> == <Expression rhs>`)  = eq_neq("equal", e);
 
-list[MuExp] translate(e:(Expression) `<Expression lhs> != <Expression rhs>`)  = eq_neq("not_equal", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> != <Expression rhs>`)  = eq_neq("notequal", e);
 
 list[MuExp] translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`)  { throw("ifDefinedOtherwise"); }
 
@@ -276,7 +276,16 @@ list[MuExp] translateComprehension(c: (Comprehension) `[ <{Expression ","}+ resu
     name = nextTmp(); 
     return
     [ muAssignTmp(name, muCallPrim("make_listwriter", [])),
-      muWhile(muAll([*translate(g) | g <-generators]), [muCallPrim("add_listwriter", [muTmp(name)] + [ *translate(r) | r <- results])]), 
+      muWhile(muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_listwriter", [muTmp(name)] + [ *translate(r) | r <- results])]), 
       muCallPrim("done_listwriter", [muTmp(name)]) 
+    ];
+}
+
+list[MuExp] translateComprehension(c: (Comprehension) `{ <{Expression ","}+ results> | <{Expression ","}+ generators> }`) {
+    name = nextTmp(); 
+    return
+    [ muAssignTmp(name, muCallPrim("make_setwriter", [])),
+      muWhile(muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_setwriter", [muTmp(name)] + [ *translate(r) | r <- results])]), 
+      muCallPrim("done_setwriter", [muTmp(name)]) 
     ];
 }
