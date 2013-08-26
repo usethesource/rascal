@@ -252,6 +252,8 @@ public enum RascalPrimitive {
 	remainder_int_int,
 
 	size_list,
+	splice_to_listwriter,
+	splice_to_setwriter,
 
 	sublist,
 
@@ -1424,6 +1426,48 @@ public enum RascalPrimitive {
 		assert arity == 1;
 		stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
 		return sp;
+	}
+	
+	/*
+	 * splice_to_...writer
+	 */
+	
+	public static int splice_to_listwriter(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IListWriter writer = (IListWriter)stack[sp - 2];
+		if(stack[sp - 1] instanceof IList){
+			IList lst = (IList) stack[sp - 1];
+			for(IValue v : lst){
+				writer.append(v);
+			}
+		} else if(stack[sp - 1] instanceof ISet){
+			ISet set = (ISet) stack[sp - 1];
+			for(IValue v : set){
+				writer.append(v);
+			}
+		} else
+			throw new RuntimeException("splice_to_listwriter illegal argument: " + stack[sp - 1].getClass());
+		stack[sp - 2] = writer;
+		return sp - 1;
+	}
+	
+	public static int splice_to_setwriter(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISetWriter writer = (ISetWriter)stack[sp - 2];
+		if(stack[sp - 1] instanceof IList){
+			IList lst = (IList) stack[sp - 1];
+			for(IValue v : lst){
+				writer.insert(v);
+			}
+		} else if(stack[sp - 1] instanceof ISet){
+			ISet set = (ISet) stack[sp - 1];
+			for(IValue v : set){
+				writer.insert(v);
+			}
+		} else
+			throw new RuntimeException("splice_to_listwriter illegal argument: " + stack[sp - 1].getClass());
+		stack[sp - 2] = writer;
+		return sp - 1;
 	}
 
 	/*

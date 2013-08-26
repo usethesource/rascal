@@ -32,6 +32,19 @@ private void popIt(){
 
 private str topIt() = top(itVariables);
 
+// Administration for possibly nested list/set writers due to splicing
+
+private list[str] writerVariables = [];
+
+private void enterWriter(str name){
+  writerVariables = name + writerVariables;
+}
+
+private void leaveWriter(){
+  writerVariables = tail(writerVariables);
+}
+
+
 int size_exps({Expression ","}* es) = size([e | e <- es]);	// TODO: should become library function
 
 // Generate code for completely type-resolved operators
@@ -94,7 +107,7 @@ list[MuExp] translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , 
      [ muMulti(muCreate(muFun("RANGE_STEP"), [  *translatePat(pat), *translate(first), *translate(second), *translate(last)])) ];
 
 // Visit
-list[MuExp] translate (e:(Expression) `<Label label> <Visit \visit>`) { throw("visit"); }
+list[MuExp] translate (e:(Expression) `<Label label> <Visit \visit>`) = translateVisit(label, \visit);
 
 // Reducer
 list[MuExp] translate (e:(Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`) = translateReducer(init, result, generators);
@@ -120,13 +133,10 @@ list[MuExp] translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) 
 list[MuExp] translate (e:(Expression) `<Comprehension comprehension>`) = translateComprehension(comprehension);
 
 // Set
-list[MuExp] translate(Expression e:(Expression)`{ <{Expression ","}* es> }`) {
-    return [ muCallPrim("make_set", [ *translate(elem) | elem <- es ]) ];
-}
+list[MuExp] translate(Expression e:(Expression)`{ <{Expression ","}* es> }`) = translateSetOrList(es, "set");
 
 // List
-list[MuExp] translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) =
-    [ muCallPrim("make_list", [ *translate(elem) | elem <- es ]) ];
+list[MuExp] translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`)  = translateSetOrList(es, "list");
 
 // Reified type
 list[MuExp] translate (e:(Expression) `# <Type tp>`) = [muCon(symbolToValue(translateType(tp),config))];
@@ -154,9 +164,11 @@ list[MuExp] translate(Expression e:(Expression) `<Expression exp> [ <{Expression
 }
 
 // Slice
-list[MuExp] translate (e:(Expression) `<Expression expression> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) { throw("slice"); }
+list[MuExp] translate (e:(Expression) `<Expression expression> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) =
+	translateSlice(expression, optFirst, optLast);
 
-list[MuExp] translate (e:(Expression) `<Expression expression> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`) { throw("sliceStep"); }
+list[MuExp] translate (e:(Expression) `<Expression expression> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`) =
+	translateSlice(expression, optFirst, second, optLast);
 
 // Field access
 list[MuExp] translate (e:(Expression) `<Expression expression> . <Name field>`) { throw("fieldAccess"); }
@@ -195,7 +207,9 @@ list[MuExp] translate(e:(Expression) `!<Expression argument>`)    = translateBoo
 list[MuExp] translate(e:(Expression) `-<Expression argument>`)    = prefix("negative", argument);
 
 // Splice
-list[MuExp] translate(e:(Expression) `*<Expression argument>`)    { throw("splice"); }
+list[MuExp] translate(e:(Expression) `*<Expression argument>`) {
+    throw "Splice cannot occur outside set or list";
+}
 
 // AsType
 list[MuExp] translate(e:(Expression) `[ <Type \type> ] <Expression argument>`)  { throw("asType"); }
@@ -385,3 +399,37 @@ list[MuExp] translateReducer(init, result, generators){
     popIt();
     return code;
 }
+
+// Translate SetOrList including spliced elements
+
+private bool containSplices(es) = any(e <- es, e is splice);
+
+list[MuExp] translateSetOrList(es, str kind){
+ if(containSplices(es)){
+       writer = nextTmp();
+       enterWriter(writer);
+       code = [ muAssignTmp(writer, muCallPrim("make_<kind>writer", [])) ];
+       println("es = <es>");
+       for(elem <- es){
+           println("elem = <elem>");
+           if(elem is splice){
+              code += muCallPrim("splice_to_<kind>writer", [muTmp(writer), *translate(elem.argument)]);
+            } else {
+              code += muCallPrim("add_to_<kind>writer", [muTmp(writer), *translate(elem)]);
+           }
+       }
+       code += [ muCallPrim("done_<kind>writer", [ muTmp(writer) ]) ];
+       leaveWriter();
+       return code;
+    } else {
+      return [ muCallPrim("make_<kind>", [ *translate(elem) | elem <- es ]) ];
+    }
+}
+
+list[MuExp] translateSlice(Expression expression, OptionalExpression optFirst, OptionalExpression optLast) { throw "translateSlice"; }
+
+list[MuExp] translateSlice(Expression expression, OptionalExpression optFirst, Expression second, OptionalExpression optLast)  { throw "translateSlice"; }
+
+// Translate Visit
+
+list[MuExp] translateVisit(label, \visit) { throw "visit"; }
