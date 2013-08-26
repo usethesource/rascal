@@ -1,0 +1,5 @@
+<plugin>
+   <extension
+          point="rascal_eclipse.rascalLibrary">
+    </extension>
+</plugin>
