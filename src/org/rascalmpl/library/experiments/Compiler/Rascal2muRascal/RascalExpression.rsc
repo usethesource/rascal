@@ -56,7 +56,7 @@ list[MuExp] infix(str op, Expression e){
 list[MuExp] prefix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(arg)>", translate(arg))];
 list[MuExp] postfix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(arg)>", translate(arg))];
 
-list[MuExp] eq_neq(str op, Expression e) = [muCallPrim("<op>", [*translate(e.lhs), *translate(e.rhs)])];
+list[MuExp] comparison(str op, Expression e) = [muCallPrim("<op>", [*translate(e.lhs), *translate(e.rhs)])];
 
 /*********************************************************************/
 /*                  Expessions                                       */
@@ -136,7 +136,8 @@ list[MuExp] translate (e:(Expression) `\< <{Expression ","}+ elements> \>`) =
     [ muCallPrim("make_tuple", [ *translate(elem) | elem <- elements ]) ];
 
 // Map
-list[MuExp] translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) { throw("map"); }
+list[MuExp] translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) =
+   [ muCallPrim("make_map", [ *translate(m.from), *translate(m.to) | m <- mappings ]) ];
 
 // It in reducer
 list[MuExp] translate (e:(Expression) `it`) = [ muTmp(topIt()) ];
@@ -239,10 +240,10 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> notin <Expression rhs>`) 
 list[MuExp] translate(e:(Expression) `<Expression lhs> in <Expression rhs>`)   = infix("in", e);
 
 // Greater Equal
-list[MuExp] translate(e:(Expression) `<Expression lhs> \>= <Expression rhs>`) = infix("greater_equal", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> \>= <Expression rhs>`) = infix("greaterequal", e);
 
 // Less Equal
-list[MuExp] translate(e:(Expression) `<Expression lhs> \<= <Expression rhs>`) = infix("less_equal", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> \<= <Expression rhs>`) = infix("lessequal", e);
 
 // Less
 list[MuExp] translate(e:(Expression) `<Expression lhs> \< <Expression rhs>`)  = infix("less", e);
@@ -251,10 +252,10 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> \< <Expression rhs>`)  = 
 list[MuExp] translate(e:(Expression) `<Expression lhs> \> <Expression rhs>`)  = infix("greater", e);
 
 // Equal
-list[MuExp] translate(e:(Expression) `<Expression lhs> == <Expression rhs>`)  = eq_neq("equal", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> == <Expression rhs>`)  = comparison("equal", e);
 
 // NotEqual
-list[MuExp] translate(e:(Expression) `<Expression lhs> != <Expression rhs>`)  = eq_neq("notequal", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> != <Expression rhs>`)  = comparison("notequal", e);
 
 // IfDefinedOtherwise
 list[MuExp] translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`)  { throw("ifDefinedOtherwise"); }
@@ -364,6 +365,15 @@ list[MuExp] translateComprehension(c: (Comprehension) `{ <{Expression ","}+ resu
     [ muAssignTmp(name, muCallPrim("make_setwriter", [])),
       muWhile(muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_setwriter", [muTmp(name)] + [ *translate(r) | r <- results])]), 
       muCallPrim("done_setwriter", [muTmp(name)]) 
+    ];
+}
+
+list[MuExp] translateComprehension(c: (Comprehension) `(<Expression from> : <Expression to> | <{Expression ","}+ generators> )`) {
+    name = nextTmp(); 
+    return
+    [ muAssignTmp(name, muCallPrim("make_mapwriter", [])),
+      muWhile(muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_mapwriter", [muTmp(name)] + [ *translate(from), *translate(to)])]), 
+      muCallPrim("done_mapwriter", [muTmp(name)]) 
     ];
 }
 
