@@ -36,8 +36,8 @@ str getType(Expression e) = "<getType(e@\loc)>";
 // Get the outermost type constructor of an expression
 str getOuterType(Expression e) {
  tp = "<getName(getType(e@\loc))>";
- if(tp in {"int", "real", "rat"})
- 	tp = "num";
+// if(tp in {"int", "real", "rat"})
+// 	tp = "num";
  return tp;
 }
 

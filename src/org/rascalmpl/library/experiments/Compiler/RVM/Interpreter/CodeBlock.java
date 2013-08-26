@@ -413,3 +413,35 @@ public class CodeBlock {
     	return Opcode.toString(this, opc, n);
     }
 }
+
+class LabelInfo {
+	int PC;
+	int startSP = 0;
+	int endSP = 0;
+	
+	LabelInfo(int pc, int start, int end){
+		this.PC = pc;
+		startSP = start;
+		endSP = end;
+	}
+
+	public boolean undefinedPC() {
+		return PC < 0;
+	}
+
+	public LabelInfo(int pc) {
+		this.PC = pc;
+	}
+
+	public LabelInfo() {
+		PC = -1;
+	}
+
+	void updateStart(int newStart){
+		startSP = Math.max(startSP, newStart);
+	}
+	
+	void updateEnd(int newEnd){
+		endSP = Math.max(endSP, newEnd);
+	}
+}
