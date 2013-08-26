@@ -59,7 +59,7 @@ test bool tst() = run("2r5 == 2r3") == (2r5 == 2r3);
 
 // String
 test bool tst() = run("\"abc\"") == "abc";
-test bool tst() = run("\"abc\" \"def\"") == "abc" + "def";
+test bool tst() = run("\"abc\" + \"def\"") == "abc" + "def";
 
 // Datetime
 
@@ -154,3 +154,10 @@ test bool tst() = run("(x : 10 * x | x \<- [1 .. 10])") == (x : 10 * x | x <- [1
 // Reducer
 test bool tst() = run("( 0 | it + x | x \<- [1,2,3])") ==  (0 | it + x | x <- [1,2,3]);
 // Not allowed: test bool tst() = run("( 0 | it + x * (0 | it + y | y \<- [10, 20, 30]) | x \<- [1,2,3])") == ( 0 | it + x * (0 | it + y | y <- [10, 20, 30]) | x <- [1,2,3]);
+
+// Splicing
+test bool tst() = run("[1, *[2, 3], 4]") == [1, *[2, 3], 4];
+test bool tst() = run("[1, *{2, 3}, 4]") == [1, *{2, 3}, 4];
+test bool tst() = run("{1, *[2, 3], 4}") == {1, *[2, 3], 4};
+test bool tst() = run("{1, *{2, 3}, 4}") == {1, *{2, 3}, 4};
+
