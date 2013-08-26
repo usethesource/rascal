@@ -199,6 +199,8 @@ data Configuration = config(set[Message] messages,
                             map[RName,int] tagEnv,
                             map[int,Vis] visibilities,
                             map[int,AbstractValue] store,
+                            map[int,Production] grammar,
+                            set[int] starts,
                             map[tuple[int,str],Symbol] adtFields,
                             map[tuple[int,str],Symbol] nonterminalFields,
                             rel[int,Modifier] functionModifiers,
@@ -213,7 +215,7 @@ data Configuration = config(set[Message] messages,
                             int uniqueify
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),(),{},{},{},{},{},[],[],[],0,0);
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},{},[],[],[],0,0);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -560,6 +562,23 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
     	alreadySeen += fn;
     }
     
+    return c;
+}
+
+public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Production prod, bool isStart) {
+	if (rn notin c.typeEnv) { 
+      throw "Unexpected error, syntax nonterminal <prettyPrintName(rn)> not found!";
+    }
+    sortId = c.typeEnv[rn];
+    if(isStart) {
+    	c.starts = c.starts + sortId;
+    	return c;
+    }
+    if(c.grammar[sortId]?) {
+    	c.grammar[sortId] = choice(c.store[sortId].rtype, { c.grammar[sortId], prod });
+    } else {
+    	c.grammar[sortId] = choice(c.store[sortId].rtype, { prod });
+    }
     return c;
 }
 
@@ -5607,12 +5626,23 @@ public Configuration importConstructor(RName conName, UserType adtType, list[Typ
     return addConstructor(c, conName, at, Symbol::\cons(rt,getSimpleName(conName),targs));         
 }
 
-@doc{Import a signature item: Constructor}
+@doc{Import a signature item: Production}
 public Configuration importProduction(RSignatureItem item, Configuration c) {
-	if(label(str l, Symbol _) := item.prod.def) {
-    	c = addProduction(c, RSimpleName(l), item.at, item.prod);
-    } else if(item.prod.def has name) {
-    	c = addProduction(c, RSimpleName(""), item.at, item.prod);
+	// Signature item contains a syntax definition production
+	Production prod = item.prod;
+	if( (prod.def is label && prod.def.symbol has name) 
+			|| (!(prod.def is label) && prod.def has name) 
+			|| (prod.def is \start && prod.def.symbol has name)) {
+		str sortName = (prod.def is \start || prod.def is label) ? prod.def.symbol.name : prod.def.name;
+		c = addSyntaxDefinition(c, RSimpleName(sortName), item.at, prod, prod.def is \start);
+	}
+	// Productions that end up in the store
+	for(/Production prod:prod(_,_,_) <- prod) {
+		if(label(str l, Symbol _) := prod.def) {
+    		c = addProduction(c, RSimpleName(l), item.at, prod);
+    	} else if(prod.def has name) {
+    		c = addProduction(c, RSimpleName(""), item.at, prod);
+    	}
     }
     return c;
 }
@@ -5720,8 +5750,12 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
         for (item <- sig.publicConstructors) 
           c = importConstructor(item.conName, item.adtType, item.argTypes, item.adtAt, item.at, publicVis(), c);
-        for (item <- sig.publicProductions)
+        for (item <- sig.publicProductions) {
+          // Firts, resolve names in the productions
+          <p,c> = resolveProduction(item.prod, item.at, c, true);
+          item.prod = p;
           c = importProduction(item, c);
+        }
         c.stack = tail(c.stack);
     }
     
@@ -5748,9 +5782,13 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     // Process the current module
     syntaxConfig = processSyntax(moduleName, importList);
     for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals)
-      c = importNonterminal(item.sortName, item.sort, item.at, c);    
-    for (prodItem <- syntaxConfig.publicProductions)
+      c = importNonterminal(item.sortName, item.sort, item.at, c);
+    for (prodItem <- syntaxConfig.publicProductions) {
+      // First, resolve names in the productions
+      <p,c> = resolveProduction(prodItem.prod, prodItem.at, c, false);
+      prodItem.prod = p;
       c = importProduction(prodItem, c);
+    }
     
     c = checkSyntax(importList, c);  
   
@@ -6598,7 +6636,7 @@ CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
    case sort(str name) : {
      sname = RSimpleName(name);
      if (sname notin c.typeEnv) {
-       c = addScopeMessage(c,error("Syntax type <name> is not not defined", l));
+       c = addScopeMessage(c,error("Syntax type <name> is not defined", l));
      }
      else {
        c.uses = c.uses + < c.typeEnv[sname], l >;
@@ -6608,6 +6646,78 @@ CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
   }
   
   return <c, sym>;
+}
+
+tuple[Production,Configuration] resolveProduction(Production prod, loc l, Configuration c, bool imported) {
+	// Resolve names in the production given a type environment
+	typeEnv = c.typeEnv;
+	prod = visit(prod) {
+		case \sort(n): {
+			name = RSimpleName(n);
+			if(typeEnv[name]?) {
+				sym = c.store[typeEnv[name]].rtype;
+				if(\lex(n) := sym || \layouts(n) := sym || \keywords(n) := sym) {
+					insert sym;
+				}
+			} else {
+				if(!imported) {
+					c = addScopeMessage(c, error("Syntax type <n> is not defined", l));
+				} else {
+					c = addScopeMessage(c, warning("Leaking syntax type <n>", l));
+				}
+			}
+			fail;
+		}
+		case \parameterized-sort(n,ps): {
+			name = RSimpleName(n);
+			if(typeEnv[name]?) {
+				sym = c.store[typeEnv[name]].rtype;
+				if(\parameterized-lex(n,_) := sym) {
+					insert \parameterized-lex(n,ps);
+				}
+			} else {
+				if(!imported) {
+					c = addScopeMessage(c, error("Syntax type <n> is not defined", l));
+				} else {
+					c = addScopeMessage(c, warning("Leaking syntax type <n>", l));
+				}
+			}
+			fail;
+		}
+		case \lex(n): {
+			name = RSimpleName(n);
+			if(typeEnv[name]?) {
+				sym = c.store[typeEnv[name]].rtype;
+				if(\sort(n) := sym || \layouts(n) := sym || \keywords(n) := sym) {
+					insert sym;
+				}
+			} else {
+				if(!imported) {
+					c = addScopeMessage(c, error("Syntax type <n> is not defined", l));
+				} else {
+					c = addScopeMessage(c, warning("Leaking syntax type <n>", l));
+				}
+			}
+			fail;
+		 }
+		case \parameterized-lex(n,ps): {
+			name = RSimpleName(n);
+			if(typeEnv[name]?) {
+				sym = c.store[typeEnv[name]].rtype;
+				if(\parameterized-sort(n,_) := sym) {
+					insert \parameterized-sort(n,ps);
+				}
+			} else {
+				if(!imported) {
+					c = addScopeMessage(c, error("Syntax type <n> is not defined", l));
+				} else {
+					c = addScopeMessage(c, warning("Leaking syntax type <n>", l));
+				}
+			}
+			fail;
+		}
+	}
+	return <prod,c>;
 }
 
 public bool comparableOrNum(Symbol l, Symbol r) {

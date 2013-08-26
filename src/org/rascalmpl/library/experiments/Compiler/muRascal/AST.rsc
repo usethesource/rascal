@@ -61,6 +61,10 @@ public data MuExp =
           | muVarRef(str name, int scope, int pos)
              
           | muTypeCon(Symbol tp)								// Type constant
+          
+          // Function overloading
+          | muFunAddition(Exp lhs, Exp rhs)
+          | muCall(list[MuExp], list[MuExp] args)
      
      		// Call/return
      		
