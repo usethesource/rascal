@@ -3,7 +3,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
-import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -34,7 +33,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 
 public enum RascalPrimitive {
 	appendAfter,
-	add_listwriter,
+	add_to_listwriter,
+	add_to_setwriter,
 	addition_elm_list,
 	addition_list_elm,
 	addition_list_list,
@@ -45,12 +45,12 @@ public enum RascalPrimitive {
 	addition_set_set,
 	addition_str_str,
 	addition_tuple_tuple,
-	assign_subscript_list_int,
 	composition_lrel_lrel,
 	composition_rel_rel,
 	composition_map_map,
 	division_num_num,
 	done_listwriter,
+	done_setwriter,
 	equal,
 	equal_num_num,
 	equal_str_str,
@@ -59,6 +59,10 @@ public enum RascalPrimitive {
 	greater_equal_num_num,
 	head_list,
 	implies_bool_bool,
+	intersection_set_set,
+	intersection_list_list,
+	in_elm_list,
+	in_elm_set,
 	is_bool,
 	is_datetime,
 	is_int,
@@ -78,13 +82,16 @@ public enum RascalPrimitive {
 	less_equal_num_num,
 	make_list,
 	make_listwriter,
-	make_map,
 	make_set,
+	make_setwriter,
+	make_map,
 	make_tuple,
 	negative,
 	not_bool,
-	not_equal,
-	not_equal_num_num,
+	notequal,
+	notequal_num_num,
+	notin_elm_list,
+	notin_elm_set,
 	or_bool_bool,
 	println,
 	product_num_num,
@@ -168,13 +175,22 @@ public enum RascalPrimitive {
 	 * 				IMPLEMENTATION OF PRIMITIVES                   *
 	 ***************************************************************/
 	/*
-	 * add_listwriter
+	 * add_to_...writer
 	 */
-	public static int add_listwriter(Object[] stack, int sp, int arity) {
+	public static int add_to_listwriter(Object[] stack, int sp, int arity) {
 		assert arity > 0;
 		IListWriter writer = (IListWriter) stack[sp - arity];
 		for(int i = arity - 1; i > 0; i--){
 			writer.append((IValue) stack[sp - i]);
+		}
+		return sp - arity + 1;
+	}
+	
+	public static int add_to_setwriter(Object[] stack, int sp, int arity) {
+		assert arity > 0;
+		ISetWriter writer = (ISetWriter) stack[sp - arity];
+		for(int i = arity - 1; i > 0; i--){
+			writer.insert((IValue) stack[sp - i]);
 		}
 		return sp - arity + 1;
 	}
@@ -222,28 +238,13 @@ public enum RascalPrimitive {
 	
 	public static int addition_list_elm(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		if(stack[sp - 2] instanceof IList){
-			stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
-		} else {
-			@SuppressWarnings("unchecked")
-			List<Object> lst = (List<Object>) stack[sp - 2];
-			lst.add(stack[sp - 1]);
-			stack[sp - 2] = lst;
-		}
+		stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	
 	public static int addition_elm_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		if(stack[sp - 1] instanceof IList){
-			stack[sp - 2] = ((IList) stack[sp - 1]).insert((IValue) stack[sp - 2]);
-		} else {
-			@SuppressWarnings("unchecked")
-			List<Object> lst = ((List<Object>) stack[sp - 1]);
-			lst.add(0, stack[sp - 2]);
-			stack[sp - 2] = lst;
-		}
+		stack[sp - 2] = ((IList) stack[sp - 1]).insert((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 	
@@ -267,15 +268,7 @@ public enum RascalPrimitive {
 	
 	public static int addition_str_str(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		// An overly permissive definition that is handy during debugging for compiler develeopment
- 		//stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
-		Object olhs = stack[sp - 2];
-		String lhs = (olhs instanceof IString) ? ((IString) olhs).getValue() : ((IValue) olhs).toString();
-		
-		Object orhs = stack[sp - 1];
-		String rhs = (orhs instanceof IString) ? ((IString) orhs).getValue() : ((IValue) orhs).toString();
-		
-		stack[sp - 2] = vf.string(lhs.concat(rhs));
+ 		stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
 		return sp - 1;
 	}
 	
@@ -301,25 +294,8 @@ public enum RascalPrimitive {
 	 */
 	public static int appendAfter(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		if(stack[sp - 2] instanceof IList){
-			stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
-		} else {
-			@SuppressWarnings("unchecked")
-			List<Object> lst = (List<Object>) stack[sp - 2];
-			lst.add(stack[sp - 1]);
-			stack[sp - 2] = lst;
-		}
+		stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
 		return sp - 1;
-	}
-	
-	public static int assign_subscript_list_int(Object[] stack, int sp, int arity) {
-		assert arity == 3;
-		@SuppressWarnings("unchecked")
-		List<Object> lst = (List<Object>) stack[sp - 3];
-		int index = ((IInteger) stack[sp - 2]).intValue();
-		lst.set(index, stack[sp - 1]);
-		stack[sp - 3] = stack[sp -1];
-		return sp - 2;
 	}
 	
 	/*
@@ -365,9 +341,20 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
+	/*
+	 * done_...writer
+	 */
+	
 	public static int done_listwriter(Object[] stack, int sp, int arity) {
 		assert arity == 0;
 		IListWriter writer = (IListWriter) stack[sp - 1];
+		stack[sp - 1] = writer.done();
+		return sp;
+	}
+	
+	public static int done_setwriter(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		ISetWriter writer = (ISetWriter) stack[sp - 1];
 		stack[sp - 1] = writer.done();
 		return sp;
 	}
@@ -444,11 +431,7 @@ public enum RascalPrimitive {
 	
 	public static int head_list(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		if(stack[sp - 1] instanceof IList){
-			stack[sp - 1] = ((IList) stack[sp - 1]).get(0);
-		} else {
-			stack[sp - 1] = ((List<?>) stack[sp - 1]).get(0);
-		}
+		stack[sp - 1] = ((IList) stack[sp - 1]).get(0);
 		return sp;
 	}
 	
@@ -459,6 +442,38 @@ public enum RascalPrimitive {
 	public static int implies_bool_bool(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IBool) stack[sp - 2]).implies((IBool) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	/*
+	 * intersection
+	 */
+	
+	public static int intersection_list_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IList) stack[sp - 2]).intersect((IList) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int intersection_set_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ISet) stack[sp - 2]).intersect((ISet) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	/*
+	 * in
+	 */
+	
+	public static int in_elm_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]);
+		return sp - 1;
+	}
+	
+	public static int in_elm_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 	/*
@@ -612,12 +627,19 @@ public enum RascalPrimitive {
 	}
 	
 	/*
-	 * make_listwriter
+	 * make_...writer
 	 */
 	
 	public static int make_listwriter(Object[] stack, int sp, int arity) {
 		assert arity == 0;	// For now, later type can be added
 		IListWriter writer = vf.listWriter();
+		stack[sp] = writer;
+		return sp + 1;
+	}
+	
+	public static int make_setwriter(Object[] stack, int sp, int arity) {
+		assert arity == 0;	// For now, later type can be added
+		ISetWriter writer = vf.setWriter();
 		stack[sp] = writer;
 		return sp + 1;
 	}
@@ -646,7 +668,7 @@ public enum RascalPrimitive {
 		ISetWriter writer = vf.setWriter();
 
 		for (int i = arity - 1; i >= 0; i--) {
-			writer.insert((IValue) stack[sp - 2 - i]);
+			writer.insert((IValue) stack[sp - 1 - i]);
 		}
 		sp = sp - arity + 1;
 		stack[sp - 1] = writer.done();
@@ -665,25 +687,30 @@ public enum RascalPrimitive {
 		stack[sp - 1] = vf.tuple(elems);
 		return sp;
 	}
-	
 
 	/*
-	 * mod
-	 * 
-	 * infix Modulo "%" { int x int -> int }
+	 * notin
+	 *
 	 */
+	public static int notin_elm_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = !((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]);
+		return sp - 1;
+	}
+	
+	public static int notin_elm_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = !((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]);
+		return sp - 1;
+	}
+	
 	
 	/*
 	 * size_list
 	 */
 	public static int size_list(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		//if(stack[sp - 1] instanceof IList){
-			stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
-		//} else {
-		//	IInteger n = vf.integer(((List<?>) stack[sp - 1]).size());
-		//	stack[sp - 1] = n;
-		//}
+		stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
 		return sp;
 	}
 	
@@ -692,18 +719,10 @@ public enum RascalPrimitive {
 	 */
 	public static int sublist(Object[] stack, int sp, int arity) {
 		assert arity == 3;
-		if(stack[sp - 3] instanceof IList){
-			IList lst = (IList) stack[sp - 3];
-			int offset = ((IInteger) stack[sp - 2]).intValue();
-			int length = ((IInteger) stack[sp - 1]).intValue();
-			stack[sp - 3] = lst.sublist(offset, length);
-		} else {
-			@SuppressWarnings("unchecked")
-			List<Object> lst = (List<Object>) stack[sp - 3];
-			int offset = ((IInteger) stack[sp - 2]).intValue();
-			int length = ((IInteger) stack[sp - 1]).intValue();
-			stack[sp - 3] = lst.subList(offset, offset + length);
-		}
+		IList lst = (IList) stack[sp - 3];
+		int offset = ((IInteger) stack[sp - 2]).intValue();
+		int length = ((IInteger) stack[sp - 1]).intValue();
+		stack[sp - 3] = lst.sublist(offset, length);
 		return sp - 2;
 	}
 	
@@ -737,16 +756,16 @@ public enum RascalPrimitive {
 	}
 	
 	/*
-	 * not_equal
+	 * notequal
 	 */
 	
-	public static int not_equal(Object[] stack, int sp, int arity) {
+	public static int notequal(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = vf.bool(!((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]));
 		return sp - 1;
 	}
 	
-	public static int not_equal_num_num(Object[] stack, int sp, int arity) {
+	public static int notequal_num_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
 		return sp - 1;
@@ -818,11 +837,7 @@ public enum RascalPrimitive {
 	 */
 	public static int subscript_list_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		//if(stack[sp - 2] instanceof IList){
-			stack[sp - 2] = ((IList) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
-		//} else {
-		//	stack[sp - 2] = ((List<?>) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
-		//}
+		stack[sp - 2] = ((IList) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
 		return sp - 1;
 	}
 
@@ -850,11 +865,7 @@ public enum RascalPrimitive {
 	
 	public static int subtraction_list_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		if(stack[sp - 2] instanceof IList){
-			stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
-		} else {
-			// TODO
-		}
+		stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
 		return sp - 1;
 	}
 	
@@ -876,13 +887,8 @@ public enum RascalPrimitive {
 	
 	public static int tail_list(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		if(stack[sp - 1] instanceof IList){
-			IList lst =  ((IList) stack[sp - 1]);
-			stack[sp - 1] = lst.sublist(1, lst.length() - 1);
-		} else {
-			List<?> lst =  ((List<?>) stack[sp - 1]);
-			stack[sp - 1] = lst.subList(1, lst.size());
-		}
+		IList lst =  ((IList) stack[sp - 1]);
+		stack[sp - 1] = lst.sublist(1, lst.length() - 1);
 		return sp;
 	}
 
