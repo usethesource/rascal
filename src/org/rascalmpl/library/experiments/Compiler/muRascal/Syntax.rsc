@@ -51,12 +51,14 @@ syntax Exp  =
 			| preLocDeref:  		"deref" Identifier id
 			| muVarDeref:   		"deref" Identifier id >> ":" ":" Integer scope >> ":" ":" Integer pos
 			
+			| left funAddition:        Exp lhs "++"  Exp rhs
+			
 			> muCallPrim: 			"prim" "(" String name "," {Exp ","}+ args ")"
 			| muCallMuPrim: 		"muprim" "(" String name "," {Exp ","}+ args ")"
 			
 			| preSubscript: 		"get" Exp lst "[" Exp index "]"
 			> muCall: 				Exp exp1 "(" {Exp ","}* args ")"
-			> muReturn: 			"return"  Exp
+			> muReturn: 			"return"  Exp exp
 			> muReturn: 			"return"
 			
 			| left preAddition:			Exp lhs "+"   Exp rhs

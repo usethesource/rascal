@@ -54,12 +54,18 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	config = checkModule(M, c);  
    	extractScopes();
    	errors = [ e | e:error(_,_) <- config.messages];
+   	warnings = [ w | w:warning(_,_) <- config.messages ];
    	if(size(errors) > 0) {
    	  for(e <- errors) {
    	  	println(e);
    	  }
    	  throw "Module contains errors!";
    	} else {
+   	  if(size(warnings) > 0) {
+   	  	for(w <- warnings) {
+   	  		println(w);
+   	  	}
+   	  }
    	  functions_in_module = [];
    	  variables_in_module = [];
    	  variable_initializations = [];
