@@ -32,7 +32,7 @@ private void popIt(){
 
 private str topIt() = top(itVariables);
 
-// Administration for possibly nested list/set writers due to splicing
+// Administration for possibly nested list/set writers related to splicing list/set elements
 
 private list[str] writerVariables = [];
 
@@ -171,10 +171,12 @@ list[MuExp] translate (e:(Expression) `<Expression expression> [ <OptionalExpres
 	translateSlice(expression, optFirst, second, optLast);
 
 // Field access
-list[MuExp] translate (e:(Expression) `<Expression expression> . <Name field>`) { throw("fieldAccess"); }
+list[MuExp] translate (e:(Expression) `<Expression expression> . <Name field>`) =
+    [ muCallPrim("field_access_<getOuterType(expression)>", [ *translate(expression), muCon("<field>") ]) ];
 
 // Field update
-list[MuExp] translate (e:(Expression) `<Expression expression> [ <Name key> = <Expression replacement> ]`) { throw("fieldUpdate"); }
+list[MuExp] translate (e:(Expression) `<Expression expression> [ <Name key> = <Expression replacement> ]`) =
+    [ muCallPrim("field_update_<getOuterType(expression)>", [ *translate(expression), muCon("<key>"), *translate(replacement) ]) ];
 
 // Field project
 list[MuExp] translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields> \>`) { throw("fieldProject"); }
