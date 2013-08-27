@@ -320,7 +320,7 @@ bool backtrackFree(e:(Expression) `<Pattern pat> \<- <Expression exp>`) = false;
 default bool backtrackFree(Expression e) = true;
 
 
-// Translate Boolean
+// Translate Boolean expression
 
 list[MuExp] translateBool(str fun, Expression lhs, Expression rhs){
   blhs = backtrackFree(lhs) ? "U" : "M";
@@ -347,6 +347,8 @@ list[MuExp] translateBool(e:(Expression) `! <Expression lhs>`) = translateBool("
  
  list[MuExp] translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  = 
    [ muMulti(muCreate(muFun("MATCH"), [*translatePat(pat), *translate(exp)])) ];
+   
+// Auxiliary functions for translating various constructs
    
 // Translate a closure   
  
@@ -392,6 +394,7 @@ list[MuExp] translateComprehension(c: (Comprehension) `(<Expression from> : <Exp
 }
 
 // Translate Reducer
+
 list[MuExp] translateReducer(init, result, generators){
     name = nextTmp();
     pushIt(name);
@@ -425,6 +428,8 @@ list[MuExp] translateSetOrList(es, str kind){
       return [ muCallPrim("make_<kind>", [ *translate(elem) | elem <- es ]) ];
     }
 }
+
+// Translate Slice
 
 list[MuExp] translateSlice(Expression expression, OptionalExpression optFirst, OptionalExpression optLast) { throw "translateSlice"; }
 
