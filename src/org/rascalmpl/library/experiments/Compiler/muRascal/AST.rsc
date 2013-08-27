@@ -63,8 +63,8 @@ public data MuExp =
           | muTypeCon(Symbol tp)								// Type constant
           
           // Function overloading
-          | muFunAddition(Exp lhs, Exp rhs)
-          | muCall(list[MuExp], list[MuExp] args)
+          | muFunAddition(MuExp lhs, MuExp rhs)
+          | muCall(list[MuExp] funs, list[MuExp] args)
      
      		// Call/return
      		
