@@ -1,10 +1,16 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
+
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.HashSet;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
@@ -17,11 +23,14 @@ import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /*
@@ -100,6 +109,15 @@ public enum RascalPrimitive {
 	done_setwriter,
 	done_mapwriter,
 	equal,
+	
+	field_access_adt,
+	field_access_datetime,
+	field_access_loc,
+	field_access_tuple,
+	
+	field_update_adt,
+	//field_project,
+	
 	equivalent_bool_bool,
 
 	greater_int_int,
@@ -149,7 +167,7 @@ public enum RascalPrimitive {
 	implies_bool_bool,
 	intersection_set_set,
 	intersection_list_list,
-	//	intersection_map_map,
+	intersection_map_map,
 	in_elm_list,
 	in_elm_set,
 	in_elm_map,
@@ -300,9 +318,11 @@ public enum RascalPrimitive {
 	}
 
 	private static IValueFactory vf;
+	private static TypeFactory tf;
 	private static IBool TRUE;
 	private static IBool FALSE;
 	static Method [] methods;
+	private static Type lineColumnType;
 
 	/**
 	 * Initialize the primitive methods.
@@ -310,6 +330,9 @@ public enum RascalPrimitive {
 	 */
 	public static void init(IValueFactory fact) {
 		vf = fact;
+		tf = TypeFactory.getInstance();
+		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
+									new String[] {"line", "column"});
 		TRUE = vf.bool(true);
 		FALSE = vf.bool(false);
 		Method [] methods1 = RascalPrimitive.class.getDeclaredMethods();
@@ -734,11 +757,191 @@ public enum RascalPrimitive {
 	}
 
 	/*
-	 * fieldAccess
+	 * field_access_...
 	 */
+	public static int field_access_adt(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IConstructor) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
+		return sp - 1;
+	}
+	
+	public static int field_access_datetime(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IDateTime dt = ((IDateTime) stack[sp - 2]);
+		String field = ((IString) stack[sp - 1]).getValue();
+		IValue v;
+		switch (field) {
+		case "isDate":
+			v = vf.bool(dt.isDate());
+			break;
+		case "isTime":
+			v = vf.bool(dt.isTime());
+			break;
+		case "isDateTime":
+			v = vf.bool(dt.isDateTime());
+			break;
+		case "century":
+			v = vf.integer(dt.getCentury());
+			break;
+		case "year":
+			v = vf.integer(dt.getYear());
+			break;
+		case "month":
+			v = vf.integer(dt.getMonthOfYear());
+			break;
+		case "day":
+			v = vf.integer(dt.getDayOfMonth());
+			break;
+		case "hour":
+			v = vf.integer(dt.getHourOfDay());
+			break;
+		case "minute":
+			v = vf.integer(dt.getMinuteOfHour());
+			break;
+		case "second":
+			v = vf.integer(dt.getSecondOfMinute());
+			break;
+		case "millisecond":
+			v = vf.integer(dt.getMillisecondsOfSecond());
+			break;
+		case "timezoneOffsetHours":
+			v = vf.integer(dt.getTimezoneOffsetHours());
+			break;
+		case "timezoneOffsetMinutes":
+			v = vf.integer(dt.getTimezoneOffsetMinutes());
+			break;
+		default:
+			throw new RuntimeException("Access to non-existing field " + field + " in datetime");
+		}
+		stack[sp - 2] = v;
+		return sp - 1;
+	}
+	
+	public static int field_access_loc(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISourceLocation sloc = ((ISourceLocation) stack[sp - 2]);
+		String field = ((IString) stack[sp - 1]).getValue();
+		IValue v;
+		switch (field) {
+		case "uri":
+			v = vf.string(sloc.getURI().toString());
+			break;
+		case "scheme":
+			v = vf.string(sloc.getURI().getScheme());
+			break;
+		case "authority":
+			v = vf.string(sloc.getURI().getAuthority());
+			break;
+		case "host":
+			v = vf.string(sloc.getURI().getHost());
+			break;
+		case "port":
+			v = vf.string(sloc.getURI().getPort());
+			break;
+		case "path":
+			v = vf.string(sloc.getURI().getPath());
+			break;
+		case "extension":
+			String path = sloc.getURI().getPath();
+			int i = path.lastIndexOf('.');
+			if (i != -1) {
+				v = vf.string(path.substring(i + 1));
+			} else {
+				v = vf.string("");
+			}
+			break;
+		case "query":
+			v = vf.string(sloc.getURI().getQuery());
+			break;
+		case "fragment":
+			v = vf.string(sloc.getURI().getFragment());
+			break;
+		case "user":
+			v = vf.string(sloc.getURI().getUserInfo());
+			break;
+		case "parent":
+			path = sloc.getURI().getPath();
+			if (path.equals("")) {
+				throw RuntimeExceptionFactory.noParent(sloc, null, null);
+			}
+			i = path.lastIndexOf("/");
+			
+			if (i != -1) {
+				path = path.substring(0, i);
+				v = vf.string(path);
+			} else {
+				throw RuntimeExceptionFactory.noParent(sloc, null, null);
+			}
+			break;	
+		case "file": 
+			path = sloc.getURI().getPath();
+			
+			if (path.equals("")) {
+				throw RuntimeExceptionFactory.noParent(sloc,null,null);
+			}
+			i = path.lastIndexOf("/");
+			
+			if (i != -1) {
+				path = path.substring(i+1);
+			}
+			v = vf.string(path);			
+			
+		case "ls":
+//			try {
+//				IListWriter w = vf.listWriter();
+//				Type stringType = tf.stringType();
+//				URI uri = sloc.getURI();
+//				for (String elem : ctx.getResolverRegistry().listEntries(uri)) {
+//					w.append(vf.string(elem));
+//				}
+//				
+//				v = w.done();
+//				
+//			} catch (IOException e) {
+//				throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null,null);
+//			}
+			v = null;
+			break;
+		case "offset":
+			v = vf.string(sloc.getOffset());
+			break;
+		case "length":
+			v = vf.string(sloc.getLength());
+			break;
+		case "begin":
+			v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), 
+															vf.integer(sloc.getBeginColumn()));
+			break;
+		case "end":
+			v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), 
+															vf.integer(sloc.getEndColumn()));
+			break;
+
+		default:
+			throw new RuntimeException("Access to non-existing field " + field
+					+ " in location");
+
+		}
+		stack[sp - 2] = v;
+		return sp - 1;
+	}
+	
+	public static int field_access_tuple(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IConstructor) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
+		return sp - 1;
+	}
+	
 	/*
 	 * fieldUpdate
 	 */
+	public static int field_update_adt(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		stack[sp - 3] = ((IConstructor) stack[sp - 3]).set(((IString) stack[sp - 2]).getValue(),
+							(IValue) stack[sp -1]);
+		return sp - 2;
+	}
+	
 	/*
 	 * fieldProject
 	 */
@@ -971,11 +1174,11 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 
-	//	public static int intersection_map(Object[] stack, int sp, int arity) {
-	//		assert arity == 2;
-	//		stack[sp - 2] = ((IMap) stack[sp - 2]).intersect((IMap) stack[sp - 1]);
-	//		return sp - 1;
-	//	}
+	public static int intersection_map_map(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IMap) stack[sp - 2]).common((IMap) stack[sp - 1]);
+		return sp - 1;
+	}
 
 	/*
 	 * in
