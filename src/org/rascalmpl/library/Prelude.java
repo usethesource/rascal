@@ -2124,7 +2124,7 @@ public class Prelude {
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(ctx.getValueFactory().string("Unable to save to output file '" + outFile.getURI() + "'"), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		return ctx.getValueFactory().string(parserClass.getSimpleName());
+		return ctx.getValueFactory().string(parserClass.getName());
 
 	}
 	public IString unparse(IConstructor tree) {
