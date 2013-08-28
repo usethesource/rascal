@@ -1,11 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
-
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.util.HashSet;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -274,6 +270,11 @@ public enum RascalPrimitive {
 	splice_to_setwriter,
 
 	sublist,
+	
+	subscript_adt,
+	subscript_list,  
+	subscript_map,
+	subscript_tuple,
 
 	subtraction_list_list,
 	subtraction_map_map,
@@ -299,12 +300,17 @@ public enum RascalPrimitive {
 	subtraction_real_real,
 	subtraction_real_rat,
 
-	subscript_list_int,  
-	subscript_map,
+	
+	
 	transitive_closure_lrel,
 	transitive_closure_rel,
 	transitive_reflexive_closure_lrel,
 	transitive_reflexive_closure_rel,
+	
+	update_adt,
+	update_list,
+	update_map,
+	update_tuple,
 
 	equal_type_type,
 	subtype,
@@ -743,6 +749,12 @@ public enum RascalPrimitive {
 	public static int equal(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int equal_type_type(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = vf.bool(((Type) stack[sp - 2]) == ((Type) stack[sp - 1]));
 		return sp - 1;
 	}
 
@@ -1854,17 +1866,20 @@ public enum RascalPrimitive {
 	 */
 
 	/*
-	 * splice
-	 */
-
-	/*
 	 * setAnnotation
 	 */
 
 	/*
 	 * subscript
 	 */
-	public static int subscript_list_int(Object[] stack, int sp, int arity) {
+	
+	public static int subscript_adt(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IConstructor) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
+		return sp - 1;
+	}
+	
+	public static int subscript_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
 		return sp - 1;
@@ -1875,6 +1890,14 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
+	
+	public static int subscript_tuple(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ITuple) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
+		return sp - 1;
+	}
+	
+	
 
 	/*
 	 * subtraction
@@ -1991,6 +2014,17 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IMap) stack[sp - 2]).remove((IMap) stack[sp - 1]);
 		return sp - 1;
 	}
+	
+	/*
+	 * subtype
+	 */
+	
+	public static int subtype(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
+		return sp - 1;
+	}
+	
 
 	/*
 	 * transitiveClosure
@@ -2031,27 +2065,55 @@ public enum RascalPrimitive {
 		stack[sp - 1] =((IRelationalAlgebra) stack[sp - 1]).closureStar();
 		return sp;
 	}
-
-	public static int equal_type_type(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = vf.bool(((Type) stack[sp - 2]) == ((Type) stack[sp - 1]));
-		return sp - 1;
-	}
-
-	public static int subtype(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
-		return sp - 1;
-	}
-
+	
+	/*
+	 * typeOf
+	 */
+	
 	public static int typeOf(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
 		return sp;
 	}
+	
+	/*
+	 * update_...
+	 */
+	
+	public static int update_adt(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		IConstructor cons = (IConstructor) stack[sp - 3];
+		String field = ((IString) stack[sp - 2]).getValue();
+		stack[sp - 3] = cons.set(field, (IValue) stack[sp - 1]);
+		return sp - 2;
+	}
+	
+	public static int update_list(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		IList lst = (IList) stack[sp - 3];
+		int n = ((IInteger) stack[sp - 2]).intValue();
+		stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
+		return sp - 2;
+	}
+	
+	public static int update_map(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		IMap map = (IMap) stack[sp - 3];
+		IValue key = (IValue) stack[sp - 2];
+		stack[sp - 3] = map.put(key, (IValue) stack[sp - 1]);
+		return sp - 2;
+	}
+	
+	public static int update_tuple(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		ITuple tup = (ITuple) stack[sp - 3];
+		int n = ((IInteger) stack[sp -2]).intValue();
+		stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
+		return sp - 2;
+	}
 
 	/*
-	 * Useful to compare the list of enumeration constants with the implemented methods in this class.
+	 * Run this class as a Java program to compare the list of enumeration constants with the implemented methods in this class.
 	 */
 
 	public static void main(String[] args) {
