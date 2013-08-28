@@ -146,7 +146,8 @@ public final class DebugHandler implements IDebugHandler {
 			
 		} else {
 
-			switch (getStepMode()) {
+			ISourceLocation location = currentAST.getLocation();
+      switch (getStepMode()) {
 			
 			case STEP_INTO:
 				updateSuspensionState(evaluator, currentAST);
@@ -176,8 +177,8 @@ public final class DebugHandler implements IDebugHandler {
 					 */
 					int referenceStart = getReferenceAST().getLocation().getOffset();
 					int referenceAfter = getReferenceAST().getLocation().getOffset() + getReferenceAST().getLocation().getLength();
-					int currentStart = currentAST.getLocation().getOffset();
-					int currentAfter = currentAST.getLocation().getOffset() + currentAST.getLocation().getLength();
+					int currentStart = location.getOffset();
+					int currentAfter = location.getOffset() + location.getLength();
 
 					if (currentStart < referenceStart
 							|| currentStart >= referenceAfter
@@ -205,9 +206,13 @@ public final class DebugHandler implements IDebugHandler {
 				break;
 
 			case NO_STEP:
-				if (hasBreakpoint(currentAST.getLocation())) {
+				if (hasBreakpoint(location)) {
 					updateSuspensionState(evaluator, currentAST);
-					getEventTrigger().fireSuspendByBreakpointEvent(currentAST.getLocation());
+					if (location.getURI().getScheme().equals("rascal")) {
+					  URI uri = evaluator.getRascalResolver().resolve(location.getURI());
+					  location = evaluator.getValueFactory().sourceLocation(uri, location.getOffset(), location.getLength(), location.getBeginLine(), location.getEndLine(), location.getBeginColumn(), location.getEndColumn());
+					}
+					getEventTrigger().fireSuspendByBreakpointEvent(location);
 				}
 				break;
 				
