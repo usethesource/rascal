@@ -28,10 +28,7 @@ public void resetR2mu() {
 	tmpVar = -1;
 }
 
-public str nextTmp(){
-	tmpVar += 1;
-    return "TMP<tmpVar>";
-}
+
 
 // Compile a Rascal source module (given as string) to muRascal
 
@@ -126,6 +123,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
   ftype = getFunctionType(fd@\loc);    
   nformals = size(ftype.parameters);
+  println("body = <body.statements>");
   tbody = [ *translate(stat) | stat <- body.statements ];
   scope = loc2uid[fd@\loc];
   functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), tbody)]; 
