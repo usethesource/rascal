@@ -21,13 +21,13 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
@@ -47,6 +47,7 @@ public class StaticChecker {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___static_checker___", heap));
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		checkerEnabled = false;
 		initialized = false;
 		loaded = false;
@@ -85,7 +86,7 @@ public class StaticChecker {
 		
 		eval.getStdErr().println("imports: " + imports);
 		
-		IMapWriter mw = VF.mapWriter(TypeFactory.getInstance().stringType(), TypeFactory.getInstance().sourceLocationType());
+		IMapWriter mw = VF.mapWriter();
 		
 		for (IValue i : imports) {
 			URI uri = URIUtil.createRascalModule(((IString) i).getValue());
