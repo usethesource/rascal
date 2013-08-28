@@ -260,7 +260,7 @@ public class ParserGenerator {
    * @throws IOException on IO error
    */
   public void saveToJar(Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass, OutputStream outStream) throws IOException {
-	  bridge.saveToJar(parserClass, outStream);
+	  bridge.saveToJar("", parserClass, StandAloneParser.class, outStream, false);
   }
 
   public String createHole(IConstructor part, int size) {

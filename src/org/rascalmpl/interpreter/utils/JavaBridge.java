@@ -421,7 +421,7 @@ public class JavaBridge {
 	 * Same as saveToJar("", clazz, outPath, false);
 	 */
 	public void saveToJar(Class<?> clazz, OutputStream outStream) throws IOException {
-		saveToJar("", clazz, outStream, false);
+		saveToJar("", clazz, null, outStream, false);
 	}
 	
 	/**
@@ -440,15 +440,43 @@ public class JavaBridge {
 	 */
 	public void saveToJar(String packageName, Class<?> clazz, OutputStream outStream,
 			boolean recursive) throws IOException {
+		saveToJar(packageName, clazz, null, outStream, recursive);
+	}
+	
+	/**
+	 * Save a compiled class and associated classes to a jar file.
+	 *  
+	 * With a packageName = "" and recursive = false, it will save clazz and any classes
+	 * compiled from the same source (I think); this is probably what you want.
+	 * 
+	 * @param packageName package name prefix to search for classes, or "" for all 
+	 * @param clazz a class that has been previously compiled by this bridge
+	 * @param mainClazz a class that will be installed as the "Main-Class" of a runnable jar
+	 * @param outStream output stream
+	 * @param recursive whether to retrieve classes from rest of the the JavaFileManager hierarchy
+	 * 	
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void saveToJar(String packageName, Class<?> clazz, Class<?> mainClazz, OutputStream outStream,
+			boolean recursive) throws IOException {
 		JavaFileManager manager = fileManagerCache.get(clazz);
-		Iterable<JavaFileObject> list = null;
-		list = manager.list(StandardLocation.CLASS_PATH, packageName,
-			Collections.singleton(JavaFileObject.Kind.CLASS), false);
+		List<JavaFileObject> list = new ArrayList<JavaFileObject>();
+		
+		for(JavaFileObject obj : manager.list(StandardLocation.CLASS_PATH, packageName,
+			Collections.singleton(JavaFileObject.Kind.CLASS), false))
+			list.add(obj);
 
+		
 		if (list.iterator().hasNext()) {
 			Manifest manifest = new Manifest();
 			manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION,
 					"1.0");
+
+			if(mainClazz != null) {
+				manifest.getMainAttributes().put(Attributes.Name.MAIN_CLASS, mainClazz.getName());
+			}
+			manifest.getMainAttributes().put(new Attributes.Name("X-Rascal-Saved-Class"), clazz.getName());
 			JarOutputStream target = new JarOutputStream(outStream, manifest);
 			JarEntry entry = new JarEntry("META-INF/");
 			target.putNextEntry(entry);
@@ -456,6 +484,27 @@ public class JavaBridge {
 
 			for (JavaFileObject o : list) {
 				String path = o.toUri().getPath().replace(".", "/");
+				makeJarDirs(target, dirs, path);
+				entry = new JarEntry(path + ".class");
+				entry.setTime(o.getLastModified());
+				target.putNextEntry(entry);
+				
+				try(InputStream stream = o.openInputStream()) {
+					byte[] buffer = new byte[8192];
+					int c = stream.read(buffer);
+					while (c > -1) {
+						target.write(buffer, 0, c);
+						c = stream.read(buffer);
+					}
+				}
+				target.closeEntry();
+
+			}
+			
+			if(mainClazz != null) {
+				String name = mainClazz.getName();
+				String path = name.replace(".", "/") + ".class";
+				
 				String dir = path.substring(0, path.lastIndexOf('/'));
 				StringBuilder dirTmp = new StringBuilder(dir.length());
 				for (String d : dir.split("/")) {
@@ -468,28 +517,41 @@ public class JavaBridge {
 						target.putNextEntry(entry);
 					}
 				}
-				entry = new JarEntry(path + ".class");
-				entry.setTime(o.getLastModified());
+				entry = new JarEntry(path);
 				target.putNextEntry(entry);
-				InputStream stream = null;
-				try {
-					stream = o.openInputStream();
-
+				
+				try(InputStream stream = mainClazz.getClassLoader().getResourceAsStream(path)) {
 					byte[] buffer = new byte[8192];
 					int c = stream.read(buffer);
 					while (c > -1) {
 						target.write(buffer, 0, c);
 						c = stream.read(buffer);
 					}
-				} finally {
-					if (stream != null)
-						stream.close();
 				}
 				target.closeEntry();
-
 			}
+
 			target.close();
 		}
 
+	}
+
+	private void makeJarDirs(JarOutputStream target, Collection<String> dirs,
+			String path) throws IOException {
+		JarEntry entry;
+		String dir = path.substring(0, path.lastIndexOf('/'));
+		while(dir.startsWith("/"))
+			dir = dir.substring(1);
+		StringBuilder dirTmp = new StringBuilder(dir.length());
+		for (String d : dir.split("/")) {
+			dirTmp.append(d);
+			dirTmp.append("/");
+			String tmp = dirTmp.toString();
+			if (!dirs.contains(tmp)) {
+				dirs.add(tmp);
+				entry = new JarEntry(tmp);
+				target.putNextEntry(entry);
+			}
+		}
 	}
 }
