@@ -2,7 +2,6 @@
 module experiments::Compiler::Rascal2muRascal::RascalStatement
 
 import Prelude;
-import experiments::CoreRascal::ReductionWithEvalCtx::AST;
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
@@ -10,30 +9,7 @@ import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
-/*
-syntax Assignment
-	= ifDefined: "?=" 
-	| division: "/=" 
-	| product: "*=" 
-	| intersection: "&=" 
-	| subtraction: "-=" 
-	| \default: "=" 
-	| addition: "+=" 
-	| \append: "\<\<="
-	;
 
-syntax Assignable
-	= bracket \bracket   : "(" Assignable arg ")"
-	| variable          : QualifiedName qualifiedName
-    | subscript         : Assignable receiver "[" Expression subscript "]" 
-    | slice             : Assignable receiver "[" OptionalExpression optFirst ".." OptionalExpression optLast "]" 
-    | sliceStep         : Assignable receiver "[" OptionalExpression optFirst "," Expression second ".." OptionalExpression optLast "]"     
-	| fieldAccess       : Assignable receiver "." Name field 
-	| ifDefinedOrDefault: Assignable receiver "?" Expression defaultExpression 
-	| constructor       : Name name "(" {Assignable ","}+ arguments ")"  
-	| \tuple             : "\<" {Assignable ","}+ elements "\>" 
-	| annotation        : Assignable receiver "@" Name annotation  ;
-*/
 
 /*********************************************************************/
 /*                  Statements                                       */
@@ -80,13 +56,7 @@ list[MuExp] translate(s: (Statement) `try <Statement body> <Catch+ handlers> fin
 list[MuExp] translate(s: (Statement) `<Label label> { <Statement+ statements> }`) =
     [*translate(stat) | stat <- statements];
 
-list[MuExp] translate(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) { 
-  if(assignable is variable){
-    var = assignable.qualifiedName;
-    return [ mkAssign("<var>", var@\loc, translate(statement)[0]) ];
-  } else 
-	throw("assignment"); 
-}
+list[MuExp] translate(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) = translateAssignment(s); 
 
 list[MuExp] translate(s: (Statement) `;`) = [];
 
@@ -94,7 +64,7 @@ list[MuExp] translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ 
 
 list[MuExp] translate(s: (Statement) `return <Statement statement>`) {
   t = translate(statement);
-  return [size(t) > 0 ? muReturn(t[0]) : muReturn()];
+  return (size(t) > 0) ? t[0 .. -1] + muReturn(t[-1]) : [ muReturn() ];
 }
 
 list[MuExp] translate(s: (Statement) `throw <Statement statement>`) { throw("throw"); }
@@ -115,6 +85,97 @@ list[MuExp] translate(s: (Statement) `<LocalVariableDeclaration declaration> ;`)
            }
 }
 
+default list[MuExp] translate(Statement s){
+   throw "MISSING CASE FOR STATEMENT: <s>";
+}
+
 /*********************************************************************/
 /*                  End of Statements                                */
 /*********************************************************************/
+	
+
+list[MuExp] translateAssignment(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) =
+    assignTo(assignable, applyAssignmentOperator("<operator>", assignable, statement));
+
+// apply assignment operator 
+    
+list[MuExp] applyAssignmentOperator(str operator, assignable, statement) {
+    if(operator == "=")
+    	return translate(statement);
+    op = ("+=" : "addition", "-=" : "subtraction", "*=" : "product", "/=" : "division", "&=" : "intersection")[operator];  // missing ?=
+    op += "_<getOuterType(assignable)>_<getOuterType(statement)>";
+    oldval = getValues(assignable);
+    assert size(oldval) == 1;
+    return [muCallPrim("<op>", [*oldval, *translate(statement)])]; 	
+}
+    
+// assignTo: assign the rhs of the assignment (possibly modified by an assign operator) to the assignable
+    
+list[MuExp] assignTo(a: (Assignable) `<QualifiedName qualifiedName>`, list[MuExp] rhs) {
+    assert size(rhs) == 1; 
+    return [ mkAssign("<qualifiedName>", qualifiedName@\loc, rhs[0]) ];
+}
+
+list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, list[MuExp] rhs) =
+     assignTo(receiver, [ muCallPrim("update_<getOuterType(receiver)>", [*getValues(receiver), *translate(subscript), *rhs]) ]);
+    
+list[MuExp] assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, list[MuExp] rhs) { 
+    nelems = size_assignables(elements);
+    name = nextTmp();
+    elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
+    return muAssignTmp(name, rhs[0]) + 
+              [ *assignTo(elems[i], [ muCallPrim("subscript_adt", [muTmp(name), muCon(i)]) ])
+              | i <- [0 .. nelems]
+              ];
+}
+
+list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, list[MuExp] rhs){
+    return assignTo(receiver, [ muCallPrim("update_<getOuterType(receiver)>", [*getValues(receiver), muCon("<field>"), *rhs]) ]);
+}
+
+list[MuExp] assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, list[MuExp] rhs) {
+	nelems = size_assignables(elements);
+    name = nextTmp();
+    elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
+    return muAssignTmp(name, rhs[0]) + 
+              [ *assignTo(elems[i], [ muCallPrim("subscript_tuple", [muTmp(name), muCon(i)]) ])
+              | i <- [0 .. nelems]
+              ];
+}
+
+// slice
+// annotation
+// ifdefined
+
+// getValues: get the current value(s) of an assignable
+
+list[MuExp] getValues(a: (Assignable) `<QualifiedName qualifiedName>`) = 
+    [ mkVar("<qualifiedName>", qualifiedName@\loc) ];
+    
+list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`) =
+    [ muCallPrim("subscript_<getOuterType(receiver)>", [*getValues(receiver), *translate(subscript)]) ];
+
+list[MuExp] getValues(a:(Assignable) `\<  <{Assignable ","}+ elements > \>` ) = [ *getValues(elm) | elm <- elements ];
+
+list[MuExp] getValues(a:(Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` ) = [ *getValues(arg) | arg <- arguments ];
+
+list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) = [ muCallPrim("field_access_<getOuterType(receiver)>", [ *getValues(receiver), muCon("<field>")]) ];
+
+// slice
+// annotation
+// ifdefined
+
+
+// getReceiver: get the final receiver of an assignable
+
+Assignable getReceiver(a: (Assignable) `<QualifiedName qualifiedName>`) = a;
+Assignable getReceiver(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`) = getReceiver(receiver);
+Assignable getReceiver(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) = getReceiver(receiver);
+Assignable getReceiver(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`) = getReceivers(receiver);  
+Assignable getReceiver(a: (Assignable) `<Assignable receiver> . <Name field>`) = getReceiver(receiver); 
+Assignable getReceives(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = getReceiver(receiver); 
+Assignable getReceiver(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`) = a;
+Assignable getReceiver(a: (Assignable) `\< <{Assignable ","}+ elements> \>`) =  a;
+Assignable getReceiver(a: (Assignable) `<Assignable receiver> @ <Name annotation>`) = getReceiver(receiver); 
+
+
