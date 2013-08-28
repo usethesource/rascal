@@ -19,6 +19,11 @@ import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
+public str nextTmp(){
+	tmpVar += 1;
+    return "TMP<tmpVar>";
+}
+
 // Administration for possibly nested "it" variables in reducers
 private list[str] itVariables = [];
 
@@ -45,7 +50,8 @@ private void leaveWriter(){
 }
 
 
-int size_exps({Expression ","}* es) = size([e | e <- es]);	// TODO: should become library function
+int size_exps({Expression ","}* es) = size([e | e <- es]);		// TODO: should become library function
+int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	// TODO: should become library function
 
 // Generate code for completely type-resolved operators
 
@@ -159,8 +165,12 @@ list[MuExp] translate((Expression) `<QualifiedName v>`) = translate(v);
 
 // Subscript
 list[MuExp] translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`){
-    op = "subscript_<getOuterType(exp)>_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
-    return [ muCallPrim(op, [translate(s) | s <- subscripts]) ];
+    ot = getOuterType(exp);
+    op = "subscript_<ot>";
+    if(ot notin {"list", "map"}) {
+    	op = "subscript_<getOuterType(exp)>_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
+    }
+    return [ muCallPrim(op, [*translate(s) | s <- subscripts]) ];
 }
 
 // Slice

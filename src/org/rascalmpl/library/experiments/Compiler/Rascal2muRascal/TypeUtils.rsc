@@ -31,10 +31,10 @@ public void resetScopeExtraction() {
 // Get the type of an expression
 Symbol getType(loc l) = config.locationTypes[l];
 
-str getType(Expression e) = "<getType(e@\loc)>";
+str getType(e) = "<getType(e@\loc)>";
 
 // Get the outermost type constructor of an expression
-str getOuterType(Expression e) {
+str getOuterType(e) {
  tp = "<getName(getType(e@\loc))>";
 // if(tp in {"int", "real", "rat"})
 // 	tp = "num";
