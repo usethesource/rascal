@@ -25,12 +25,15 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.IURIInputOutputResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.UnsupportedSchemeException;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * This class implements the rascal:// scheme. If the path component of a given URI represents a module name, then
@@ -49,6 +52,26 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		if(!contributors.contains(contrib)){
 			contributors.add(0, contrib);
 		}
+	}
+	
+	public ISourceLocation resolve(ISourceLocation loc) {
+	  URI uri = loc.getURI();
+	  IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	  
+	  if (!uri.getScheme().equals(scheme())) {
+	    return loc;
+	  }
+	  
+	  if (loc.hasOffsetLength()) {
+	    if (loc.hasLineColumn()) {
+	      return vf.sourceLocation(resolve(uri), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
+	    }
+	    else {
+	      return vf.sourceLocation(resolve(uri), loc.getOffset(), loc.getLength());
+	    }
+	  }
+	  
+	  return vf.sourceLocation(resolve(uri));
 	}
 	
 	/**

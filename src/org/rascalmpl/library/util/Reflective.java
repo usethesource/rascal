@@ -189,7 +189,9 @@ public class Reflective {
 	
 	public IValue getModuleLocation(IString modulePath, IEvaluatorContext ctx) {
 		URI uri = ctx.getEvaluator().getRascalResolver().resolve(URIUtil.createRascalModule(modulePath.getValue()));
-		if (uri == null) throw RuntimeExceptionFactory.moduleNotFound(modulePath, ctx.getCurrentAST(), null);
+		if (uri == null) {
+		  throw RuntimeExceptionFactory.moduleNotFound(modulePath, ctx.getCurrentAST(), null);
+		}
 		return ctx.getValueFactory().sourceLocation(uri);
 	}
 }
