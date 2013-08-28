@@ -18,9 +18,11 @@ package org.rascalmpl.interpreter.debug;
 
 import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullEventTrigger;
 
+import java.net.URI;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
@@ -28,6 +30,8 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.debug.IDebugMessage.Detail;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public final class DebugHandler implements IDebugHandler {
 
@@ -67,18 +71,44 @@ public final class DebugHandler implements IDebugHandler {
 	 * Action to execute on termination request, or <code>null</code> if none.
 	 */
 	private Runnable terminateAction = null;
+
+	/**
+	 * To resolve rascal:/// source locs
+	 */
+  private final RascalURIResolver resolver;
 	
 
-	
 	/**
 	 * Create a new debug handler with its own interpreter event trigger.
 	 */
-	public DebugHandler() {
+	public DebugHandler(RascalURIResolver resolver) {
+	  this.resolver = resolver;
 		setEventTrigger(newNullEventTrigger());
 	}
 	
-	private boolean hasBreakpoint(ISourceLocation breakpointLocation) {
-		return breakpoints.contains(breakpointLocation.toString());
+	private boolean hasBreakpoint(ISourceLocation b) {
+		if (breakpoints.contains(b.toString())) {
+		  return true;
+		}
+		else if (b.getURI().getScheme().equals("rascal")) {
+		  URI resolved = resolver.resolve(b.getURI());
+		  IValueFactory vf = ValueFactoryFactory.getValueFactory();
+		  if (b.hasOffsetLength()) {
+		    if (b.hasLineColumn()) {
+		      b = vf.sourceLocation(resolved, b.getOffset(), b.getLength(), b.getBeginLine(), b.getEndLine(), b.getBeginColumn(), b.getEndColumn());
+		    }
+		    else {
+		      b = vf.sourceLocation(resolved, b.getOffset(), b.getLength());
+		    }
+		  }
+		  else {
+		    b = vf.sourceLocation(resolved);
+		  }
+		  
+		  return breakpoints.contains(b.toString());
+		}
+		
+		return false;
 	}
 	
 	private void addBreakpoint(ISourceLocation breakpointLocation) {
