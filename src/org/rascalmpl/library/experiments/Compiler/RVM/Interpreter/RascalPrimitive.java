@@ -111,8 +111,10 @@ public enum RascalPrimitive {
 	field_access_loc,
 	field_access_tuple,
 	
+	field_project_tuple,
+	
 	field_update_adt,
-	//field_project,
+	
 	
 	equivalent_bool_bool,
 
@@ -940,8 +942,21 @@ public enum RascalPrimitive {
 	
 	public static int field_access_tuple(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IConstructor) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
+		stack[sp - 2] = ((ITuple) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
 		return sp - 1;
+	}
+	
+	public static int field_project_tuple(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		ITuple tup = (ITuple) stack[sp - arity];
+		IValue [] newFields = new IValue[arity - 1];
+		for(int i = 0; i < arity - 1; i++){
+			IValue field = (IValue) stack[sp - arity + 1 + i];
+			newFields[i] = field.getType().isInteger() ? tup.get(((IInteger) field).intValue())
+												       : tup.get(((IString) field).getValue());
+		}
+		stack[sp - arity] = vf.tuple(newFields);
+		return sp - arity + 1;
 	}
 	
 	/*
