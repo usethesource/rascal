@@ -189,7 +189,10 @@ list[MuExp] translate (e:(Expression) `<Expression expression> [ <Name key> = <E
     [ muCallPrim("field_update_<getOuterType(expression)>", [ *translate(expression), muCon("<key>"), *translate(replacement) ]) ];
 
 // Field project
-list[MuExp] translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields> \>`) { throw("fieldProject"); }
+list[MuExp] translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields> \>`) {
+    fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<field>") | f <- fields];
+    return [ muCallPrim("field_project_<getOuterType(expression)>", [ *translate(expression),*fcode]) ];
+}
 
 // setAnnotation
 list[MuExp] translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expression \value> ]`) { throw("setAnnotation"); }
