@@ -114,7 +114,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   nformals = size(ftype.parameters);
   scope = loc2uid[fd@\loc];
   tbody = translate(expression);
-  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), [*tbody[0 .. -1], muReturn(tbody[-1])])];
+  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), translateModifiers(signature.modifiers), translateTags(tags) [*tbody[0 .. -1], muReturn(tbody[-1])])];
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
@@ -123,7 +123,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   println("body = <body.statements>");
   tbody = [ *translate(stat) | stat <- body.statements ];
   scope = loc2uid[fd@\loc];
-  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), tbody)]; 
+  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), translateModifiers(signature.modifiers), translateTags(tags), tbody)]; 
 }
 
 str translateFun(FunctionDeclaration fd, Signature signature, FunctionBody body){
@@ -144,4 +144,32 @@ str translate(Signature s:(Signature) `<FunctionModifiers modifiers> <Type \type
   formals = parameters.formals.formals;
   //keywordFormals = parameters.keywordFormals;
   return intercalate(", ", [(Pattern) `<Type tp> <Name nm>` := f ? "var(\"<nm>\", <tp>)" : "pattern" | f <- formals]);
+}
+
+map[str,str] translateTags(Tags tags){
+   m = ();
+   for(tg <- tags.tags){
+     name = "<tg.name>";
+     if(tg is \default)
+        m[name] = "<tg.contents>";
+     else if (tg is empty)
+        m[name] = "";
+     else
+        m[name] = "<tg.expression>";
+   }
+   return m;
+}
+
+list[str] translateModifiers(FunctionModifiers modifiers){
+   lst = [];
+   for(m <- modifiers.modifiers){
+     if(m is \java) 
+       lst += "java";
+     else if(m is \test)
+       lst += "test";
+     else
+       lst += "default";
+   }
+   
+   return lst;
 }
