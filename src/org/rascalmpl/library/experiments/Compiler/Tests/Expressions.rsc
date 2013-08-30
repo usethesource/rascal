@@ -31,6 +31,8 @@ test bool tst() = run("true \<==\> false") == (true <==> false);
 test bool tst() = run("true ? 1 : 2") == (true ? 1 : 2);
 test bool tst() = run("false ? 1 : 2") == (false ? 1 : 2);
 
+test bool tst() = run("{b = 2 \> 1; b ? 10 : 20;}") == {b = 2 > 1; b ? 10 : 20;};
+
 // Integers
 test bool tst() = run("6") == 6;
 test bool tst() = run("2 + 3") == (2 + 3);
@@ -96,11 +98,11 @@ test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.fragment") == |
 test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.parent") == |std:///experiments/Compiler/Benchmarks/|.parent;
 test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.file") == |std:///experiments/Compiler/Benchmarks/|.file;
 test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.ls") == |std:///experiments/Compiler/Benchmarks/|.ls;
-test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.offset") == |std:///experiments/Compiler/Benchmarks/|.offset;
-test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.begin.line") == |std:///experiments/Compiler/Benchmarks/|.begin.line;
-test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.begin.column") == |std:///experiments/Compiler/Benchmarks/|.begin.column;
-test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.end.line") == |std:///experiments/Compiler/Benchmarks/|.end.line;
-test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.end.column") == |std:///experiments/Compiler/Benchmarks/|.end.column;
+test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.offset") == |file://-|(11,37,<1,11>,<1,48>).offset;
+test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.begin.line") == |file://-|(11,37,<1,11>,<1,48>).begin.line;
+test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.begin.column") == |file://-|(11,37,<1,11>,<1,48>).begin.column;
+test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.end.line") == |file://-|(11,37,<1,11>,<1,48>).end.line;
+test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.end.column") == |file://-|(11,37,<1,11>,<1,48>).end.column;
 
 // List
 
@@ -198,4 +200,14 @@ test bool tst() = run("[1, *[2, 3], 4]") == [1, *[2, 3], 4];
 test bool tst() = run("[1, *{2, 3}, 4]") == [1, *{2, 3}, 4];
 test bool tst() = run("{1, *[2, 3], 4}") == {1, *[2, 3], 4};
 test bool tst() = run("{1, *{2, 3}, 4}") == {1, *{2, 3}, 4};
+
+// Subscript
+
+// Projection
+
+test bool tst() = run("\<1,2,3,4\>\<1,3\>") == <1,2,3,4><1,3>;
+test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x\<b,1\>;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x<b,1>;};
+test bool tst() = run("{{\<1, \"x\", 2\>, \<10, \"xx\", 20\>}\<2,1\>;}") == {<1, "x", 2>, <10, "xx", 20>}<2,1>;
+
+
 
