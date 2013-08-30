@@ -9,26 +9,23 @@ import ParseTree;
 
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
+import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
-
 public list[MuFunction] functions_in_module = [];
 public list[MuVariable] variables_in_module = [];
 public list[MuExp] variable_initializations = [];
-public int tmpVar = -1;
 
 public void resetR2mu() {
 	functions_in_module = [];
 	variables_in_module = [];
 	variable_initializations = [];
-	tmpVar = -1;
+	resetTmpAndLabel();
 }
-
-
 
 // Compile a Rascal source module (given as string) to muRascal
 

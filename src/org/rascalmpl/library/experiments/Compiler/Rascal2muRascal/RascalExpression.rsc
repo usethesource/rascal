@@ -9,7 +9,7 @@ import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 
-import experiments::Compiler::Rascal2muRascal::RascalModule;
+import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::Rascal2muRascal::RascalType;
@@ -18,36 +18,6 @@ import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
-
-public str nextTmp(){
-	tmpVar += 1;
-    return "TMP<tmpVar>";
-}
-
-// Administration for possibly nested "it" variables in reducers
-private list[str] itVariables = [];
-
-private void pushIt(str name){
-  itVariables = name + itVariables;
-}
-
-private void popIt(){
-  itVariables = tail(itVariables);
-}
-
-private str topIt() = top(itVariables);
-
-// Administration for possibly nested list/set writers related to splicing list/set elements
-
-private list[str] writerVariables = [];
-
-private void enterWriter(str name){
-  writerVariables = name + writerVariables;
-}
-
-private void leaveWriter(){
-  writerVariables = tail(writerVariables);
-}
 
 
 int size_exps({Expression ","}* es) = size([e | e <- es]);		// TODO: should become library function
@@ -170,7 +140,7 @@ list[MuExp] translate(Expression e:(Expression) `<Expression exp> [ <{Expression
     if(ot notin {"list", "map"}) {
     	op = "subscript_<getOuterType(exp)>_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     }
-    return [ muCallPrim(op, [*translate(s) | s <- subscripts]) ];
+    return [ muCallPrim(op, translate(exp) + [*translate(s) | s <- subscripts]) ];
 }
 
 // Slice
@@ -382,38 +352,42 @@ list[MuExp] translateBool(e:(Expression) `! <Expression lhs>`) = translateBool("
 // Translate a comprehension
 
 list[MuExp] translateComprehension(c: (Comprehension) `[ <{Expression ","}+ results> | <{Expression ","}+ generators> ]`) {
-    name = nextTmp(); 
+    loopname = nextLabel(); 
+    tmp = asTmp(loopname);
     return
-    [ muAssignTmp(name, muCallPrim("make_listwriter", [])),
-      muWhile(muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_listwriter", [muTmp(name)] + [ *translate(r) | r <- results])]), 
-      muCallPrim("done_listwriter", [muTmp(name)]) 
+    [ muAssignTmp(tmp, muCallPrim("make_listwriter", [])),
+      muWhile(loopname, muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_listwriter", [muTmp(tmp)] + [ *translate(r) | r <- results])]), 
+      muCallPrim("done_listwriter", [muTmp(tmp)]) 
     ];
 }
 
 list[MuExp] translateComprehension(c: (Comprehension) `{ <{Expression ","}+ results> | <{Expression ","}+ generators> }`) {
-    name = nextTmp(); 
+    loopname = nextLabel(); 
+    tmp = asTmp(loopname); 
     return
-    [ muAssignTmp(name, muCallPrim("make_setwriter", [])),
-      muWhile(muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_setwriter", [muTmp(name)] + [ *translate(r) | r <- results])]), 
-      muCallPrim("done_setwriter", [muTmp(name)]) 
+    [ muAssignTmp(tmp, muCallPrim("make_setwriter", [])),
+      muWhile(loopname, muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_setwriter", [muTmp(tmp)] + [ *translate(r) | r <- results])]), 
+      muCallPrim("done_setwriter", [muTmp(tmp)]) 
     ];
 }
 
 list[MuExp] translateComprehension(c: (Comprehension) `(<Expression from> : <Expression to> | <{Expression ","}+ generators> )`) {
-    name = nextTmp(); 
+    loopname = nextLabel(); 
+    tmp = asTmp(loopname); 
     return
-    [ muAssignTmp(name, muCallPrim("make_mapwriter", [])),
-      muWhile(muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_mapwriter", [muTmp(name)] + [ *translate(from), *translate(to)])]), 
-      muCallPrim("done_mapwriter", [muTmp(name)]) 
+    [ muAssignTmp(tmp, muCallPrim("make_mapwriter", [])),
+      muWhile(loopname, muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_mapwriter", [muTmp(tmp)] + [ *translate(from), *translate(to)])]), 
+      muCallPrim("done_mapwriter", [muTmp(tmp)]) 
     ];
 }
 
 // Translate Reducer
 
 list[MuExp] translateReducer(init, result, generators){
-    name = nextTmp();
-    pushIt(name);
-    code = [ muAssignTmp(name, translate(init)[-1]), muWhile(muAll([*translate(g) | g <-generators]), [muAssignTmp(name, translate(result)[-1])]), muTmp(name)];
+    loopname = nextLabel(); 
+    tmp = asTmp(loopname); 
+    pushIt(tmp);
+    code = [ muAssignTmp(tmp, translate(init)[-1]), muWhile(loopname, muAll([*translate(g) | g <-generators]), [muAssignTmp(tmp, translate(result)[-1])]), muTmp(tmp)];
     popIt();
     return code;
 }

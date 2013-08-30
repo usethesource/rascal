@@ -3,12 +3,12 @@ module experiments::Compiler::Rascal2muRascal::RascalStatement
 
 import Prelude;
 import lang::rascal::\syntax::Rascal;
+
+import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
-import experiments::Compiler::Rascal2muRascal::RascalModule;
 
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
-
 
 
 /*********************************************************************/
@@ -23,13 +23,30 @@ list[MuExp] translate(s: (Statement) `<Expression expression> ;`) = translate(ex
 
 list[MuExp] translate(s: (Statement) `<Label label> <Visit \visit>`) { throw("visit"); }
 
-list[MuExp] translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`) =
-    [ muWhile(muOne([*translate(c) | c <-conditions]), translate(body)) ];
+list[MuExp] translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`) {
+    loopname = getLabel(label);
+    println("loopname = <loopname>");
+    tmp = asTmp(loopname);
+    enterLoop(loopname);
+    code = [ muAssignTmp(tmp, muCallPrim("make_listwriter", [])), 
+             muWhile(loopname, muOne([*translate(c) | c <-conditions]), translate(body)),
+             muCallPrim("done_listwriter", [muTmp(tmp)])
+           ];
+    leaveLoop();
+    println("while code: <code>");
+    return code;
+}
 
 list[MuExp] translate(s: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`) { throw("doWhile"); }
 
-list[MuExp] translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`) =
-    [ muWhile(muAll([*translate(c) | c <-generators]), translate(body)) ];
+list[MuExp] translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`) {
+    loopname = getLabel(label);
+    tmp = asTmp(loopname);
+    enterLoop(loopname);
+    code = [  muAssignTmp(tmp, muCallPrim("make_list", [])), muWhile(loopname, muAll([*translate(c) | c <-generators]), translate(body)) ];
+    leaveLoop();
+    return code;
+}
 
 list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) =
     [ muIfelse(muOne([*translate(c) | c <-conditions]), translate(thenStatement), []) ];
@@ -39,11 +56,11 @@ list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ cond
 
 list[MuExp] translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) { throw("switch"); }
 
-list[MuExp] translate(s: (Statement) `fail <Target target> ;`) { throw("fail"); }
+list[MuExp] translate(s: (Statement) `fail <Target target> ;`) = [ muFail(target is empty ? currentLoop() : "<target.label>") ];
 
-list[MuExp] translate(s: (Statement) `break <Target target> ;`) { throw("break"); }
+list[MuExp] translate(s: (Statement) `break <Target target> ;`) = [ muBreak(target is empty ? currentLoop() : "<target.label>") ];
 
-list[MuExp] translate(s: (Statement) `continue <Target target> ;`) { throw("continue"); }
+list[MuExp] translate(s: (Statement) `continue <Target target> ;`) = [ muContinue(target is empty ? currentLoop() : "<target.label>") ];
 
 list[MuExp] translate(s: (Statement) `filter ;`) { throw("filter"); }
 
@@ -71,7 +88,8 @@ list[MuExp] translate(s: (Statement) `throw <Statement statement>`) { throw("thr
 
 list[MuExp] translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) { throw("insert"); }
 
-list[MuExp] translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) { throw("append"); }
+list[MuExp] translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) =
+   [ muCallPrim("add_to_listwriter", [muTmp(asTmp(currentLoop())), *translate(statement)]) ];
 
 list[MuExp] translate(s: (Statement) `<FunctionDeclaration functionDeclaration>`) { translate(functionDeclaration); return []; } // we assume globally unique function names for now
 
@@ -164,7 +182,6 @@ list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) = [
 // slice
 // annotation
 // ifdefined
-
 
 // getReceiver: get the final receiver of an assignable
 
