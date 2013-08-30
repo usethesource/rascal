@@ -314,13 +314,13 @@ public class RVM {
 				}
 				
 				case Opcode.OP_STORELOC: {
-					stack[instructions[pc++]] = stack[sp - 1];  /* CHANGED: --sp to sp -1; value remains on stack */
+					stack[instructions[pc++]] = stack[sp - 1];
 					continue;
 				}
 				
 				case Opcode.OP_STORELOCDEREF:
 					Reference ref = (Reference) stack[instructions[pc++]];
-					ref.stack[ref.pos] = stack[sp - 1];         /* CHANGED: --sp to sp - 1; value remains on stack */
+					ref.stack[ref.pos] = narrow(stack[sp - 1]); // Guarantee that only IValues are assigned to non-local variables        
 					continue;
 				
 				case Opcode.OP_STOREVAR:
@@ -329,7 +329,7 @@ public class RVM {
 
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
-							fr.stack[pos] = stack[sp - 1];		/* CHANGED: --sp to sp -1; value remains on stack */
+							fr.stack[pos] = narrow(stack[sp - 1]);	// Guarantee that only IValues are assigned to non-local variables
 							continue NEXT_INSTRUCTION;
 						}
 					}
