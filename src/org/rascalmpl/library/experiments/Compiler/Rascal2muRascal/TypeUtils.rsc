@@ -1,3 +1,4 @@
+@bootstrapParser
 module experiments::Compiler::Rascal2muRascal::TypeUtils
 
 import Prelude;
