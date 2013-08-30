@@ -16,7 +16,7 @@ MuModule preprocess(Module pmod){
 MuFunction preprocess(Function f){
    vardefs =  ("<f.locals[i]>" : i  | int i <- index(f.locals));
    
-   return muFunction(f.name, f.scopeId, f.nformal, size(vardefs), preprocess(f.name, f.body, vardefs));
+   return muFunction(f.name, f.scopeId, f.nformal, size(vardefs), [], (), preprocess(f.name, f.body, vardefs));
 }
 
 list[MuExp] preprocess(str fname, list[MuExp] exps, map[str, int] vardefs){
@@ -82,9 +82,6 @@ list[MuExp] preprocess(str fname, list[MuExp] exps, map[str, int] vardefs){
       	       case preAnd(MuExp lhs, MuExp rhs)					=> muCallMuPrim("and_mbool_mbool", [lhs, rhs])
       	       case preIs(MuExp lhs, str typeName)					=> muCallMuPrim("is_<typeName>", [lhs])
       	       
-      	       case wh: muWhile(l, c, s): {
-      	         iprintln(wh);
-      	       }
             };
       } catch e: throw "In muRascal function <fname> : <e>";   
     }    
