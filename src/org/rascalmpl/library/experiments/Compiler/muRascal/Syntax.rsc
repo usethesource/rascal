@@ -15,7 +15,7 @@ lexical Comment
 
 lexical Identifier = id: ( [_^@]?[A-Za-z][A-Za-z0-9_]* ) \ Keywords;
 lexical Integer =  [0-9]+;
-lexical Label = label: [$][A-Za-z0-9]+;
+lexical Label = label: [$][A-Za-z][A-Za-z0-9]+ \ Keyword;
 lexical FConst = fconst: ( [A-Za-z][A-Za-z0-9_]* ) \ Keywords; // [_][A-Za-z0-9]+;
 
 lexical StrChar = 
@@ -84,7 +84,7 @@ syntax Exp  =
 			
 		
 			| muIfelse: 			"if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
-			| muWhile: 				"while" "(" Exp cond ")" "{" (Exp ";")* body "}" 
+			| muWhile: 				(Label label ":")? "while" "(" Exp cond ")" "{" (Exp ";")* body "}" 
 			
 			| muCreate:     		"create" "(" Exp fun  ")"
 			| muCreate: 			"create" "(" Exp fun "," {Exp ","}+ args ")"
@@ -106,6 +106,11 @@ syntax Exp  =
 			
 			| bracket				"(" Exp exp ")"
 			;
+			
+//syntax OptLabel =
+//			  empty: 
+//			| labeled: Label label ":"
+//			; 			
 
 keyword Keywords = 
               "module" | "function" | "return" | "get" | "set" |

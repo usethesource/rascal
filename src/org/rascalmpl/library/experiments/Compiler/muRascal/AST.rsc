@@ -88,9 +88,12 @@ public data MuExp =
           | muIfelse(MuExp cond, list[MuExp] thenPart,			// If-then-else expression
           						 list[MuExp] elsePart)
           						 
-          | muWhile(MuExp cond, list[MuExp] body)				// While expression
+          | muWhile(str label, MuExp cond, list[MuExp] body)	// While-Do expression
+          | muDo(str label, list[MuExp] body, MuExp cond)		// Do-While expression
           
-          | muLabeled(str name, list[MuExp] MuExp)				// Labeled list of expressions
+		  | muBreak(str label)								// Break statement
+		  | muContinue(str label)							// Continue statement
+		  | muFail(str label)								// Fail statement
           
             // Coroutines
             
@@ -113,8 +116,12 @@ public data MuExp =
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
-          
        	  ;
+       	  
+//public data MuLabel =
+//            empty()
+//          | muLabel(str id)
+//          ;
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.

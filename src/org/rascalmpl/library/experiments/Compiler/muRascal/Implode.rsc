@@ -81,6 +81,10 @@ list[MuExp] preprocess(str fname, list[MuExp] exps, map[str, int] vardefs){
       	       case preSubtraction(MuExp lhs, MuExp rhs)			=> muCallMuPrim("subtraction_mint_mint", [lhs, rhs])
       	       case preAnd(MuExp lhs, MuExp rhs)					=> muCallMuPrim("and_mbool_mbool", [lhs, rhs])
       	       case preIs(MuExp lhs, str typeName)					=> muCallMuPrim("is_<typeName>", [lhs])
+      	       
+      	       case wh: muWhile(l, c, s): {
+      	         iprintln(wh);
+      	       }
             };
       } catch e: throw "In muRascal function <fname> : <e>";   
     }    
