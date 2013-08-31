@@ -173,7 +173,6 @@ void generate_tests(){
    code = [ muCallPrim("testreport_open", []) ];
    for(f <- functions_in_module){
      if("test" in f.modifiers){
-        println("generate_tests: <f>");
         code += muCallPrim("testreport_add", [muCon(f.name), muCon(f.source), muCall(muFun(f.name), [])]);
      }
    }

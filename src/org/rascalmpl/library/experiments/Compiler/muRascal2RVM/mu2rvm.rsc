@@ -9,8 +9,6 @@ import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Implode;
 
 
-//import experiments::Compiler::muRascal2RVM::Library;
-
 alias INS = list[Instruction];
 
 // Unique label generator
@@ -26,6 +24,7 @@ str mkFail(str loopname) = "FAIL_<loopname>";
 str mkFail(str loopname) = "DUMMY_<loopname>";
 
 int functionScope = 0;
+int libraryScope = 1000000;
 int nlocal = 0;
 
 int newLocal() {
@@ -45,6 +44,23 @@ int getTmp(str name){
 }
 
 public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
+public loc LibraryPrecompiled = |std:///experiments/Compiler/muRascal2RVM/Library.muast|;
+
+map[str,Declaration] parseLibrary(){
+ 	libModule = parse(Library);
+ 	funMap = ();
+ 	
+ 
+  	for(fun <- libModule.functions){
+    	funMap += (fun.name : FUNCTION(fun.name, libraryScope, fun.nformal, fun.nlocal, 20, trblock(fun.body)));
+        libraryScope += 1;
+  	}
+  
+  	writeTextValueFile(LibraryPrecompiled, funMap);
+    println("mu2rvm: written new precompiled library");
+  	
+  	return funMap;
+}
 
 // Translate a muRascal module
 
@@ -52,18 +68,21 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   funMap = ();
   nLabel = -1;
   temporaries = ();
-  libraryScope = 1000000; 
-  
+   
   println("mu2rvm: compiling module <name>");
-  libModule = parse(Library);
- 
-  for(fun <-libModule.functions){
-     funMap += (fun.name : FUNCTION(fun.name, libraryScope, fun.nformal, fun.nlocal, 20, trblock(fun.body)));
-     libraryScope += 1;
+  
+  if(exists(LibraryPrecompiled) && lastModified(LibraryPrecompiled) > lastModified(Library)){
+     try {
+  	       funMap = readTextValueFile(#map[str,Declaration], LibraryPrecompiled);
+  	       println("mu2rvm: retrieved precompiled library");
+  	 } catch:
+  	       funMap = parseLibrary();
+  } else {
+    funMap = parseLibrary();
   }
   
   library_names = domain(funMap);
-  println("<size(library_names)> functions in muRascal library:\n<library_names>");
+  // println("<size(library_names)> functions in muRascal library:\n<library_names>");
  
   for(fun <- functions){
     functionScope = fun.scope;
