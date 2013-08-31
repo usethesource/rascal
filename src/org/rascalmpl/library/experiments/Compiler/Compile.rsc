@@ -39,5 +39,5 @@ value execute(str rascalSource, bool debug=false, bool listing=false, bool tests
 
 tuple[value, num] execute_and_time(loc rascalSource){
    rvmCode = compile(rascalSource);
-   return executeProgram(rvmCode, false, 1);
+   return executeProgram(rvmCode, false, 1, false);
 }
