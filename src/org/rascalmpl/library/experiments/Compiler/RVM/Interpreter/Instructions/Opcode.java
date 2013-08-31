@@ -48,7 +48,8 @@ public enum Opcode {
 	CALLMUPRIM(36,3),
 	LOADBOOL(37,2),
 	LOADINT(38,2),
-	DUP(39, 1)
+	DUP(39, 1),
+	FAILRETURN(40, 1)
 	;
 	
 	private final int op;
@@ -103,6 +104,7 @@ public enum Opcode {
 	static public final int OP_LOADBOOL = 37;
 	static public final int OP_LOADINT = 38;
 	static public final int OP_DUP = 39;
+	static public final int OP_FAILRETURN = 40;
 	
 	 Opcode(int op, int incr){
 		this.op = op;
@@ -237,6 +239,9 @@ public enum Opcode {
 			return "LOADINT " + cb.finalCode[pc + 1];
 		case DUP:
 			return "DUP";
+			
+		case FAILRETURN:
+			return "FAILRETURN";
 			
 		default:
 			break;

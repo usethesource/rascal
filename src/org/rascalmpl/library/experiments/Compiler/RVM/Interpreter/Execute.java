@@ -226,6 +226,10 @@ public class Execute {
 					case "DUP":
 						codeblock.DUP();
 						break;
+						
+					case "FAILRETURN":
+						codeblock.FAILRETURN();
+						break;
 										
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
