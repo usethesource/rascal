@@ -25,7 +25,6 @@ list[MuExp] translate(s: (Statement) `<Label label> <Visit \visit>`) { throw("vi
 
 list[MuExp] translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`) {
     loopname = getLabel(label);
-    println("loopname = <loopname>");
     tmp = asTmp(loopname);
     enterLoop(loopname);
     code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])), 
@@ -33,7 +32,6 @@ list[MuExp] translate(s: (Statement) `<Label label> while ( <{Expression ","}+ c
              muCallPrim("listwriter_close", [muTmp(tmp)])
            ];
     leaveLoop();
-    println("while code: <code>");
     return code;
 }
 

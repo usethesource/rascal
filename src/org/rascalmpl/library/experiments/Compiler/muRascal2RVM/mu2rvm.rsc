@@ -47,9 +47,9 @@ public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 public loc LibraryPrecompiled = |std:///experiments/Compiler/muRascal2RVM/Library.muast|;
 
 map[str,Declaration] parseLibrary(){
+    println("mu2rvm: Recompiling library.mu");
  	libModule = parse(Library);
  	funMap = ();
- 	
  
   	for(fun <- libModule.functions){
     	funMap += (fun.name : FUNCTION(fun.name, libraryScope, fun.nformal, fun.nlocal, 20, trblock(fun.body)));
@@ -57,7 +57,7 @@ map[str,Declaration] parseLibrary(){
   	}
   
   	writeTextValueFile(LibraryPrecompiled, funMap);
-    println("mu2rvm: written new precompiled library");
+    println("mu2rvm: Written compiled version of Library.mu");
   	
   	return funMap;
 }
@@ -69,12 +69,12 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   nLabel = -1;
   temporaries = ();
    
-  println("mu2rvm: compiling module <name>");
+  println("mu2rvm: Compiling module <name>");
   
   if(exists(LibraryPrecompiled) && lastModified(LibraryPrecompiled) > lastModified(Library)){
      try {
   	       funMap = readTextValueFile(#map[str,Declaration], LibraryPrecompiled);
-  	       println("mu2rvm: retrieved precompiled library");
+  	       println("mu2rvm: Using precompiled version of Library.mu");
   	 } catch:
   	       funMap = parseLibrary();
   } else {
