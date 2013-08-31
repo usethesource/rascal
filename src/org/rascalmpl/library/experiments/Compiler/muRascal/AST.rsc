@@ -112,16 +112,13 @@ public data MuExp =
           | muYield(MuExp exp)									// Yield from coroutine, with value
           
            // Multi-expressions
-            
+          
+          | muExpList(list[MuExp] exps)  						// A list of expressions
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
        	  ;
        	  
-//public data MuLabel =
-//            empty()
-//          | muLabel(str id)
-//          ;
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.

@@ -72,10 +72,19 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
     funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, nlocal, 20, code));
   }
   
-  funMap += ("#module_init" : FUNCTION("#module_init", libraryScope, 0, size(variables) + 1, 10, 
+  funMap += ("#module_init_main" : FUNCTION("#module_init_main", libraryScope, 0, size(variables) + 1, 10, 
   									[*tr(initializations), 
   									 LOADLOC(size(variables)), 
   									 CALL("main"), 
+  									 RETURN1(),
+  									 HALT()
+  									]));
+  									
+ 
+ funMap += ("#module_init_testsuite" : FUNCTION("#module_init_testsuite", libraryScope, 0, size(variables) + 1, 10, 
+  									[*tr(initializations), 
+  									 LOADLOC(size(variables)), 
+  									 CALL("testsuite"), 
   									 RETURN1(),
   									 HALT()
   									]));
