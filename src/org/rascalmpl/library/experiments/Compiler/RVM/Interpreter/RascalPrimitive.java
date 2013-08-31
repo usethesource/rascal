@@ -266,6 +266,8 @@ public enum RascalPrimitive {
 	product_real_rat,
 
 	remainder_int_int,
+	
+	report_test_result,
 
 	size_list,
 	splice_to_listwriter,
@@ -1815,6 +1817,19 @@ public enum RascalPrimitive {
 	public static int remainder_int_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).remainder((IInteger) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	/* 
+	 * report_test_result
+	 */
+	
+	public static int report_test_result(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		
+		String fun = ((IString) stack[sp - 2]).getValue();
+		boolean passed = (Boolean) stack[sp - 1];
+		System.err.println("Test " + fun + (passed ? ": success" : ": FAILED"));
 		return sp - 1;
 	}
 
