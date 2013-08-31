@@ -223,6 +223,8 @@ INS tr(muBreak(str label)) = [ JMP(mkBreak(label)) ];
 INS tr(muContinue(str label)) = [ JMP(mkContinue(label)) ];
 INS tr(muFail(str label)) = [ JMP(mkFail(label)) ];
 
+INS tr(muFailReturn()) = [ FAILRETURN() ];
+
 INS tr(muCreate(muFun(str name))) = [CREATE(name)];
 INS tr(muCreate(MuExp fun)) = [ *tr(fun), CREATEDYN(0) ];
 INS tr(muCreate(muFun(str name), list[MuExp] args)) = [ *tr(args), CREATE(name, size(args)) ];

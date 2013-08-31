@@ -437,6 +437,12 @@ public class RVM {
 					pc = 0;
 					continue;
 				
+				case Opcode.OP_FAILRETURN:
+					/*
+					 * TODO: Now fail return acts as return without value, change when we understand what we need here,i.e.
+					 * return to the function overloading resolution frame.
+					 */
+					
 				case Opcode.OP_RETURN0:
 				case Opcode.OP_RETURN1:
 					Object rval = null;
@@ -465,7 +471,7 @@ public class RVM {
 					if(returns)
 						stack[sp++] = rval;
 					continue;
-
+					
 				case Opcode.OP_HALT:
 					if (debug) {
 						stdout.println("Program halted:");
