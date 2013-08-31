@@ -7,7 +7,7 @@ import experiments::Compiler::Examples::Capture;
 import experiments::Compiler::Examples::D1D2;
 import experiments::Compiler::Examples::Fac;
 import experiments::Compiler::Examples::Fib;
-import experiments::Compiler::Examples::Fields;
+import experiments::Compiler::Examples::Fail;
 import experiments::Compiler::Examples::ListMatch;
 import experiments::Compiler::Examples::Odd;
 import experiments::Compiler::Examples::SendMoreMoney;
