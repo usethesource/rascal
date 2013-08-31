@@ -843,19 +843,24 @@ public enum RascalPrimitive {
 			v = vf.string(sloc.getURI().toString());
 			break;
 		case "scheme":
-			v = vf.string(sloc.getURI().getScheme());
+			String s = sloc.getURI().getScheme();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "authority":
-			v = vf.string(sloc.getURI().getAuthority());
+			s = sloc.getURI().getAuthority();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "host":
-			v = vf.string(sloc.getURI().getHost());
+			s = sloc.getURI().getHost();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "port":
-			v = vf.string(sloc.getURI().getPort());
+			int n = sloc.getURI().getPort();
+			v = vf.string(Integer.toString(n));
 			break;
 		case "path":
-			v = vf.string(sloc.getURI().getPath());
+			s = sloc.getURI().getPath();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "extension":
 			String path = sloc.getURI().getPath();
@@ -867,13 +872,16 @@ public enum RascalPrimitive {
 			}
 			break;
 		case "query":
-			v = vf.string(sloc.getURI().getQuery());
+			s = sloc.getURI().getQuery();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "fragment":
-			v = vf.string(sloc.getURI().getFragment());
+			s= sloc.getURI().getFragment();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "user":
-			v = vf.string(sloc.getURI().getUserInfo());
+			s = sloc.getURI().getUserInfo();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "parent":
 			path = sloc.getURI().getPath();
@@ -1825,12 +1833,13 @@ public enum RascalPrimitive {
 	 */
 	
 	public static int report_test_result(Object[] stack, int sp, int arity) {
-		assert arity == 2;
+		assert arity == 3;
 		
-		String fun = ((IString) stack[sp - 2]).getValue();
+		String fun = ((IString) stack[sp - 3]).getValue();
+		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
 		boolean passed = (Boolean) stack[sp - 1];
-		System.err.println("Test " + fun + (passed ? ": success" : ": FAILED"));
-		return sp - 1;
+		System.err.println("Test " + fun + (passed ? ": succeeeded" : ": FAILED") + " at " + src);
+		return sp - 2;
 	}
 
 	/*

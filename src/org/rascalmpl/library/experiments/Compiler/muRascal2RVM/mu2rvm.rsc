@@ -90,7 +90,7 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   									]));
   res = rvm(types, funMap, []);
   if(listing){
-    for(fname <- funMap, fname != "#module_init", fname notin library_names)
+    for(fname <- funMap /*, fname notin library_names*/)
   		iprintln(funMap[fname]);
   }
   return res;
@@ -309,7 +309,7 @@ default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 
 // Does an expression produce a value? (needed for cleaning up the stack)
 
-bool producesValue(muWhile(MuExp cond, list[MuExp] body)) = false;
+bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
 bool producesValue(muReturn()) = false;
 bool producesValue(muNext(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;

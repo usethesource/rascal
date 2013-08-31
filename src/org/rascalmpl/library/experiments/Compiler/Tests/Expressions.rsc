@@ -84,6 +84,7 @@ test bool tst() = run("$2013-01-01T08:15:30.055+0100$.timezoneOffsetMinutes") ==
 
 // Location
 
+// Various issues here where field access should generate an exception
 test bool tst() = run("|http://www.rascal-mpl.org| == |http://www.rascal-mpl.org|") == (|http://www.rascal-mpl.org| == |http://www.rascal-mpl.org|);
 test bool tst() = run("|http://www.rascal-mpl.org| == |std://demo/basic/Hello.rsc|") == (|http://www.rascal-mpl.org| == |std://demo/basic/Hello.rsc|);
 
