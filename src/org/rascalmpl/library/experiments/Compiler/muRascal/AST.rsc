@@ -91,9 +91,10 @@ public data MuExp =
           | muWhile(str label, MuExp cond, list[MuExp] body)	// While-Do expression
           | muDo(str label, list[MuExp] body, MuExp cond)		// Do-While expression
           
-		  | muBreak(str label)								// Break statement
-		  | muContinue(str label)							// Continue statement
-		  | muFail(str label)								// Fail statement
+		  | muBreak(str label)									// Break statement
+		  | muContinue(str label)								// Continue statement
+		  | muFail(str label)									// Fail statement
+		  | muFailReturn()										// Failure from function body
           
             // Coroutines
             

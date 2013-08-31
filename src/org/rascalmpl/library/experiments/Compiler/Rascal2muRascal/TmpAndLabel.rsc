@@ -35,6 +35,8 @@ public str nextLabel(){
 // - append
 // - break/continue/fail
 
+bool inBacktrackingScope() = !isEmpty(loops);
+
 private list[str] loops = [];					// *** state
 
 void enterLoop(str name){
