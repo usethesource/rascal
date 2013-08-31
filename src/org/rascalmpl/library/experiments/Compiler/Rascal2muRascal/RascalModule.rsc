@@ -118,7 +118,7 @@ println("*** <signature.name>");
   nformals = size(ftype.parameters);
   scope = loc2uid[fd@\loc];
   tbody = translate(expression);
-  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), translateModifiers(signature.modifiers), translateTags(tags), [*tbody[0 .. -1], muReturn(tbody[-1])])];
+  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), [*tbody[0 .. -1], muReturn(tbody[-1])])];
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
@@ -128,7 +128,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   println("body = <body.statements>");
   tbody = [ *translate(stat) | stat <- body.statements ];
   scope = loc2uid[fd@\loc];
-  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), translateModifiers(signature.modifiers), translateTags(tags), tbody)]; 
+  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody)]; 
 }
 
 //str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions> ;`)   { throw("conditional"); }
@@ -153,7 +153,6 @@ map[str,str] translateTags(Tags tags){
      else
         m[name] = "<tg.expression>";
    }
-   println("translateTags ==\> <m>");
    return m;
 }
 
@@ -167,7 +166,6 @@ list[str] translateModifiers(FunctionModifiers modifiers){
      else
        lst += "default";
    }
-   println("translateModifiers ==\> <lst>");
    return lst;
 }
 
@@ -176,8 +174,8 @@ void generate_tests(){
    for(f <- functions_in_module){
      if("test" in f.modifiers){
         println("generate_tests: <f>");
-        code += muCallPrim("report_test_result", [muCon(f.name), muCall(muFun(f.name), [])]);
+        code += muCallPrim("report_test_result", [muCon(f.name), muCon(f.source), muCall(muFun(f.name), [])]);
      }
    }
-   functions_in_module += muFunction("testsuite", 1, 1, 1, [], (), code + muReturn());
+   functions_in_module += muFunction("testsuite", 1, 1, 1, |rascal:///|, [], (), code + muReturn());
 }

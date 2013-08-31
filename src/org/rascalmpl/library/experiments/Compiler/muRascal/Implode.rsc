@@ -16,7 +16,7 @@ MuModule preprocess(Module pmod){
 MuFunction preprocess(Function f){
    vardefs =  ("<f.locals[i]>" : i  | int i <- index(f.locals));
    
-   return muFunction(f.name, f.scopeId, f.nformal, size(vardefs), [], (), preprocess(f.name, f.body, vardefs));
+   return muFunction(f.name, f.scopeId, f.nformal, size(vardefs), |rascal:///|, [], (), preprocess(f.name, f.body, vardefs));
 }
 
 list[MuExp] preprocess(str fname, list[MuExp] exps, map[str, int] vardefs){
