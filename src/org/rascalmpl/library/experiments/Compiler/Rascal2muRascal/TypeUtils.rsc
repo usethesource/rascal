@@ -27,6 +27,7 @@ public void resetScopeExtraction() {
 	functionScopes = {};
 	constructorScopes = {};
 	variableScopes = {};
+	println("resetScopeExtraction: done");
 }
 
 // Get the type of an expression

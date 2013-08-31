@@ -39,9 +39,8 @@ public class Execute {
 
 	// Library function to execute a RVM program from Rascal
 
-	public ITuple executeProgram(IConstructor program, IBool debug,
-			IInteger repeat, IEvaluatorContext ctx) {
-		String func = "main";
+	public ITuple executeProgram(IConstructor program, IBool debug, IInteger repeat, IBool testsuite, IEvaluatorContext ctx) {
+		String func = (testsuite.getValue()) ? "testsuite" : "main";
 		RVM rvm = new RVM(vf, ctx.getStdOut(), debug.getValue());
 
 		IList types = (IList) program.get("types");
