@@ -170,12 +170,13 @@ list[str] translateModifiers(FunctionModifiers modifiers){
 }
 
 void generate_tests(){
-   code = [];
+   code = [ muCallPrim("testreport_open", []) ];
    for(f <- functions_in_module){
      if("test" in f.modifiers){
         println("generate_tests: <f>");
-        code += muCallPrim("report_test_result", [muCon(f.name), muCon(f.source), muCall(muFun(f.name), [])]);
+        code += muCallPrim("testreport_add", [muCon(f.name), muCon(f.source), muCall(muFun(f.name), [])]);
      }
    }
-   functions_in_module += muFunction("testsuite", 1, 1, 1, |rascal:///|, [], (), code + muReturn());
+   code += [ muCallPrim("testreport_close", []), muReturn() ];
+   functions_in_module += muFunction("testsuite", 1, 1, 1, |rascal:///|, [], (), code);
 }

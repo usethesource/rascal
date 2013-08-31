@@ -64,7 +64,7 @@ public class RVM {
 		functionMap = new HashMap<String, Integer>();
 		constructorMap = new HashMap<String, Integer>();
 		
-		RascalPrimitive.init(vf);
+		RascalPrimitive.init(vf, stdout);
 	}
 	
 	public RVM(IValueFactory vf){
