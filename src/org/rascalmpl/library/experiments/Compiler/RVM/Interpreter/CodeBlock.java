@@ -55,11 +55,14 @@ public class CodeBlock {
 
 	private final IValueFactory vf;
 	int pc;
+	int labelIndex = 0;
 	
 	private final ArrayList<Instruction> insList;
 	
-	private final HashMap<String,Integer> labels;
-	private final ArrayList<String> labelList;
+//	private final HashMap<String,Integer> labels;
+//	private final ArrayList<String> labelList;
+	
+	private final HashMap<String, LabelInfo> labelInfo;
 	
 	private final Map<IValue, Integer> constantMap;
 	private final ArrayList<IValue> constantStore;
@@ -75,8 +78,9 @@ public class CodeBlock {
 	public int[] finalCode;
 	
 	public CodeBlock(IValueFactory factory){
-		labels = new HashMap<String,Integer>();
-		labelList = new ArrayList<String>();
+//		labels = new HashMap<String,Integer>();
+//		labelList = new ArrayList<String>();
+		labelInfo = new HashMap<String, LabelInfo>();
 		insList = new ArrayList<Instruction>();
 		new ArrayList<Integer>();
 		pc = 0;
@@ -88,28 +92,45 @@ public class CodeBlock {
 	}
 	
 	public void defLabel(String label){
-		int idx = labelList.indexOf(label);
-		if(idx < 0){
-			labelList.add(label);
+		LabelInfo info = labelInfo.get(label);
+		if(info == null){
+			labelInfo.put(label, new LabelInfo(labelIndex++, pc));
 		}
-		labels.put(label, pc);
+		
+//		int idx = labelList.indexOf(label);
+//		if(idx < 0){
+//			labelList.add(label);
+//		}
+//		labels.put(label, pc);
 	}
 	
 	protected int useLabel(String label){
-		int idx = labelList.indexOf(label);
-		if(idx < 0){
-			idx = labelList.size();
-			labelList.add(label);
+		LabelInfo info = labelInfo.get(label);
+		if(info == null){
+			info = new LabelInfo(labelIndex++);
+			labelInfo.put(label, info);
 		}
-		return idx;
+		return info.index;
+//		int idx = labelList.indexOf(label);
+//		if(idx < 0){
+//			idx = labelList.size();
+//			labelList.add(label);
+//		}
+//		return idx;
 	}
 	
 	public int getLabelIndex(String label){
-		Integer n = labels.get(label);
-		if(n == null){
+		LabelInfo info = labelInfo.get(label);
+		if(info == null){
 			throw new RuntimeException("PANIC: undefined label " + label);
 		}
-		return n;
+		return info.index;
+		
+//		Integer n = labels.get(label);
+//		if(n == null){
+//			throw new RuntimeException("PANIC: undefined label " + label);
+//		}
+//		return n;
 	}
 	
 	public IValue getConstantValue(int n){
@@ -408,7 +429,7 @@ public class CodeBlock {
     	while(pc < finalCode.length){
     		Opcode opc = Opcode.fromInteger(finalCode[pc]);
     		System.out.println(fname + "[" + pc +"]: " + Opcode.toString(this, opc, pc));
-    		pc += opc.getIncrement();
+    		pc += opc.getPcIncrement();
     	}
     	System.out.println();
     }
@@ -420,11 +441,13 @@ public class CodeBlock {
 }
 
 class LabelInfo {
+	final int index;
 	int PC;
 	int startSP = 0;
 	int endSP = 0;
 	
-	LabelInfo(int pc, int start, int end){
+	LabelInfo(int index, int pc, int start, int end){
+		this.index = index;
 		this.PC = pc;
 		startSP = start;
 		endSP = end;
@@ -434,11 +457,13 @@ class LabelInfo {
 		return PC < 0;
 	}
 
-	public LabelInfo(int pc) {
+	public LabelInfo(int index, int pc) {
+		this.index = index;
 		this.PC = pc;
 	}
 
-	public LabelInfo() {
+	public LabelInfo(int index) {
+		this.index = index;
 		PC = -1;
 	}
 
