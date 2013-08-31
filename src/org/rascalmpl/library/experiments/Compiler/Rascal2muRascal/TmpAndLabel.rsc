@@ -13,6 +13,7 @@ public void resetTmpAndLabel(){
 	loops = [];
 	itVariables = [];
 	writerVariables = [];
+	println("resetTmpAndLabel: done");
 }
 
 // Generation of temporary variables

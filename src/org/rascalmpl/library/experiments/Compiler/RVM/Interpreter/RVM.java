@@ -180,9 +180,9 @@ public class RVM {
 		
 		// Search for the "#module_init" function and check arguments
 
-		Function init_function = functionStore.get(functionMap.get("#module_init"));
+		Function init_function = functionStore.get(functionMap.get("#module_init_" + main));
 		if (init_function == null) {
-			throw new RuntimeException("PANIC: Code for #module_init not found");
+			throw new RuntimeException("PANIC: Code for #module_init_" + main + " not found");
 		}
 		
 		if (init_function.nformals != 0) {
@@ -191,9 +191,9 @@ public class RVM {
 		
 		// Search for the "main" function and check arguments
 
-		Function main_function = functionStore.get(functionMap.get("main"));
+		Function main_function = functionStore.get(functionMap.get(main));
 		if (main_function == null) {
-			throw new RuntimeException("PANIC: No function \"main\" found");
+			throw new RuntimeException("PANIC: No function " + main + " found");
 		}
 				
 		if (main_function.nformals != 1) {
