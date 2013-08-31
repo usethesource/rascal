@@ -1845,14 +1845,15 @@ public enum RascalPrimitive {
 		assert arity == 0;
 		number_of_tests = 0;
 		number_of_failures = 0;
+		stdout.println("\nTEST REPORT\n");
 		return sp;
 	}
 	
 	public static int testreport_close(Object[] stack, int sp, int arity) {
 		assert arity == 0;
-		stdout.println("*** Executed " + number_of_tests + " tests: "  
+		stdout.println("\nExecuted " + number_of_tests + " tests: "  
 				+ (number_of_tests  - number_of_failures) + " succeeded; "
-				+ number_of_failures + " failed.");
+				+ number_of_failures + " failed.\n");
 		return sp;
 	}
 	
@@ -1866,7 +1867,7 @@ public enum RascalPrimitive {
 		if(!passed){
 			number_of_failures++;
 		}
-		stdout.println("*** Test " + fun + (passed ? ": succeeeded" : ": FAILED") + " at " + src);
+		stdout.println("Test " + fun + (passed ? ": succeeded" : ": FAILED") + " at " + src);
 		return sp - 2;
 	}
 
