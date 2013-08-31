@@ -11,14 +11,12 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 
 RVMProgram compile(loc rascalSource, bool listing=false){
    muCode  = r2mu(rascalSource);
-   println("r2mu: completed");
    rvmCode = mu2rvm(muCode, listing=listing);
    return rvmCode;
 }
 
 RVMProgram compile(str rascalSource, bool listing=false){
    muCode  = r2mu(rascalSource);
-    println("r2mu: completed");
    rvmCode = mu2rvm(muCode, listing=listing);
    return rvmCode;
 }

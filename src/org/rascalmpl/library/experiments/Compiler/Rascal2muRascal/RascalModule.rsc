@@ -113,7 +113,7 @@ void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = t
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   { throw("abstract"); }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
-println("*** <signature.name>");
+println("r2mu: Compiling <signature.name>");
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
   scope = loc2uid[fd@\loc];
@@ -122,10 +122,9 @@ println("*** <signature.name>");
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
-  println("*** <signature.name>");
+  println("r2mu: Compiling <signature.name>");
   ftype = getFunctionType(fd@\loc);    
   nformals = size(ftype.parameters);
-  println("body = <body.statements>");
   tbody = [ *translate(stat) | stat <- body.statements ];
   scope = loc2uid[fd@\loc];
   functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody)]; 

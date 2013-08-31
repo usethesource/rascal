@@ -94,7 +94,7 @@ MuExp mkVar(str name, loc l) {
   tuple[int scope, int pos] addr = uid2addr[loc2uid[l]];
   
   res = "<name>::<addr.scope>::<addr.pos>";
-  println("mkVar: <name> =\> <res>; isFun: <loc2uid[l] in functionScopes>; isConstr: <loc2uid[l] in constructorScopes>");
+  //println("mkVar: <name> =\> <res>; isFun: <loc2uid[l] in functionScopes>; isConstr: <loc2uid[l] in constructorScopes>");
   
   if(loc2uid[l] in functionScopes) {
   	// distinguishes between root and nested scopes
@@ -114,7 +114,7 @@ tuple[int,int] getVariableScope(str name, loc l) {
 /* */
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
-  println("mkAssign: <name>");
+  //println("mkAssign: <name>");
   //println("l = <l>,\nloc2uid = <loc2uid>");
   addr = uid2addr[loc2uid[l]];
   res = "<name>::<addr[0]>::<addr[1]>";
@@ -183,14 +183,14 @@ void extractScopes(){
             uid2addr[decls[i]] = <fuid, i>;
         }
     }
-    println("uid2addr:");
-   for(uid <- uid2addr){
-      println("<config.store[uid]> :  <uid2addr[uid]>");
-   }
+    //println("uid2addr:");
+    //for(uid <- uid2addr){
+    //  println("<config.store[uid]> :  <uid2addr[uid]>");
+    //}
    
    //println("loc2uid:");
-   for(l <- loc2uid)
-       println("<l> : <loc2uid[l]>");
+   //for(l <- loc2uid)
+   //    println("<l> : <loc2uid[l]>");
 }
 
 public bool isDataType(AbstractValue::datatype(_,_,_,_)) = true;
