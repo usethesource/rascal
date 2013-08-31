@@ -56,7 +56,9 @@ list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ cond
 
 list[MuExp] translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) { throw("switch"); }
 
-list[MuExp] translate(s: (Statement) `fail <Target target> ;`) = [ muFail(target is empty ? currentLoop() : "<target.label>") ];
+list[MuExp] translate(s: (Statement) `fail <Target target> ;`) = 
+     inBacktrackingScope() ? [ muFail(target is empty ? currentLoop() : "<target.label>") ]
+                           : [ muFailReturn() ];
 
 list[MuExp] translate(s: (Statement) `break <Target target> ;`) = [ muBreak(target is empty ? currentLoop() : "<target.label>") ];
 
