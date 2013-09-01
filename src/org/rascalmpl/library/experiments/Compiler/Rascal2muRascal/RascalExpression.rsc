@@ -101,10 +101,10 @@ list[MuExp] translate (e:(Expression) `<Parameters parameters> { <Statement* sta
 // Enumerator with range
 
 list[MuExp] translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`) =
-    [ muMulti(muCreate(muFun("RANGE"), [ *translatePat(pat), *translate(first), *translate(last)])) ];
+    [ muMulti(muCreate(mkCallToLibFun("Library", "RANGE", 3), [ *translatePat(pat), *translate(first), *translate(last)])) ];
     
 list[MuExp] translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) =
-     [ muMulti(muCreate(muFun("RANGE_STEP"), [  *translatePat(pat), *translate(first), *translate(second), *translate(last)])) ];
+     [ muMulti(muCreate(mkCallToLibFun("Library", "RANGE_STEP", 4), [  *translatePat(pat), *translate(first), *translate(second), *translate(last)])) ];
 
 // Visit
 list[MuExp] translate (e:(Expression) `<Label label> <Visit \visit>`) = translateVisit(label, \visit);
@@ -282,7 +282,7 @@ list[MuExp] translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = 
 
 // Enumerate
 list[MuExp] translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) =
-    [ muMulti(muCreate(muFun("ENUMERATE_AND_MATCH"), [*translatePat(pat), *translate(exp)])) ];
+    [ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH", 2), [*translatePat(pat), *translate(exp)])) ];
 
 // Implies
 list[MuExp] translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`)  = translateBool(e);
@@ -346,22 +346,22 @@ list[MuExp] translateBool(e:(Expression) `! <Expression lhs>`) = translateBool("
 // Translate match operator
  
  list[MuExp] translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  = 
-   [ muMulti(muCreate(muFun("MATCH"), [*translatePat(pat), *translate(exp)])) ];
+   [ muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [*translatePat(pat), *translate(exp)])) ];
    
 // Auxiliary functions for translating various constructs
    
 // Translate a closure   
  
  list[MuExp] translateClosure(Expression e, Parameters parameters, Statement* statements) {
-	scope = loc2uid[e@\loc];
-    name = "closure_<scope>";
-	ftype = getClosureType(e@\loc);
+ 	uid = loc2uid[e@\loc];
+	fuid = uid2str(uid);
+    ftype = getClosureType(e@\loc);
 	nformals = size(ftype.parameters);
-	nlocals = getScopeSize(scope);
+	nlocals = getScopeSize(fuid);
 	body = [ *translate(stat) | stat <- statements ];
-	functions_in_module += [ muFunction(name, scope, nformals, nlocals, body) ];
-	tuple[int scope, int pos] addr = uid2addr[scope];
-	return [ (addr.scope == 0) ? muFun(name) : muFun(name, addr.scope) ];
+	functions_in_module += [ muFunction(fuid, nformals, nlocals, body) ];
+	tuple[str fuid,int pos] addr = uid2addr[uid];
+	return [ (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid) ];
 }
 
 // Translate a comprehension

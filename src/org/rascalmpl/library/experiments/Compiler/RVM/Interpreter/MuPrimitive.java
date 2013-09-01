@@ -48,7 +48,8 @@ public enum MuPrimitive {
 	subscript_array_or_list_mint, 
 	subtraction_mint_mint,
 	subtype,
-	typeOf
+	typeOf,
+	product_mint_mint
 	;
 	
 	private static MuPrimitive[] values = MuPrimitive.values();

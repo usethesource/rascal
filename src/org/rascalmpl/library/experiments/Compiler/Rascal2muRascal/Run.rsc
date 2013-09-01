@@ -8,31 +8,36 @@ import experiments::Compiler::RVM::Run;
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 
-loc Example1 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example1.rsc|;
-loc Example2 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example2.rsc|;
+loc Example1 = |std:///experiments/Compiler/Examples/Capture.rsc|;
+loc Example2 = |std:///experiments/Compiler/Examples/D1D2.rsc|;
 loc muExample3 = |std:///experiments/Compiler/muRascal2RVM/TypeConExample.mu|;
 loc muExample4 = |std:///experiments/Compiler/muRascal2RVM/Coroutines.mu|;
 loc muExample5 = |std:///experiments/Compiler/muRascal2RVM/CallByReference.mu|;
-loc Example6 = |std:///experiments/Compiler/Rascal2muRascal/Examples/Example3.rsc|;
+loc Example6 = |std:///experiments/Compiler/Examples/ListMatch.rsc|;
+loc muExample7 = |std:///experiments/Compiler/muRascal2RVM/Capture.mu|;
+loc Example8 = |std:///experiments/Compiler/Examples/Odd.rsc|;
+loc Example9 = |std:///experiments/Compiler/Examples/Fac.rsc|;
+loc Example10 = |std:///experiments/Compiler/Examples/Fib.rsc|;
 
 void run(){
-  muP = r2mu(Example1);
-  for(fun <- muP.functions){
-      if(fun.name == "main")
-      	 iprintln(fun);
-   }
- // iprintln(muP);
-  rvmP = mu2rvm(muP);
-  iprintln(rvmP.declarations["main"]);
- // iprintln(rvmP);
+  muP = r2mu(Example10);
+  //for(fun <- muP.functions) {
+  //    if(fun.qname == "main") {
+  //    	 iprintln(fun);
+  //    }
+  // }
+  // iprintln(muP);
+  rvmP = mu2rvm(muP, listing = true);
+  //iprintln(rvmP.declarations["main"]);
+  // iprintln(rvmP);
   
- <v, t> = executeProgram(rvmP, false, 1);
+  <v, t> = executeProgram(rvmP, true, 1);
   println("Result = <v>, [<t> msec]");
-   return;
+  return;
 }
 
 void runMu2rvm(){
-  muP = parse(muExample4);
+  muP = parse(muExample3);
   iprintln(muP);
   rvmP = mu2rvm(muP);
   iprintln(rvmP);

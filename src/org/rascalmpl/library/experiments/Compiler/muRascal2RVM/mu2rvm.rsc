@@ -8,8 +8,8 @@ import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Implode;
 
-
-//import experiments::Compiler::muRascal2RVM::Library;
+import experiments::Compiler::Rascal2muRascal::RascalModule;
+import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
 alias INS = list[Instruction];
 
@@ -18,7 +18,7 @@ alias INS = list[Instruction];
 int nlabel = -1;
 str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
-int functionScope = 0;
+str functionScope = "";
 int nlocal = 0;
 
 int newLocal() {
@@ -37,43 +37,35 @@ int getTmp(str name){
    return n;		
 }
 
-public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
-
 // Translate a muRascal module
-
 RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations), bool listing=false){
   funMap = ();
   nLabel = -1;
   temporaries = ();
-  libraryScope = 1000000; 
   
-  libModule = parse(Library);
- 
-  for(fun <-libModule.functions){
-     funMap += (fun.name : FUNCTION(fun.name, libraryScope, fun.nformal, fun.nlocal, 20, trblock(fun.body)));
-     libraryScope += 1;
-  }
-  
-  library_names = domain(funMap);
-  println("<size(library_names)> functions in muRascal library:\n<library_names>");
- 
-  for(fun <- functions){
-    functionScope = fun.scope;
-    nlocal = fun.nlocal;
+  for(fun <- functions) {
+    functionScope = fun.qname;
+    nlocal = fun.nlocals;
     code = trblock(fun.body);
-    funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, nlocal, 20, code));
+    funMap += (fun.qname : FUNCTION(fun.qname, fun.nformals, nlocal, 20, code));
   }
   
-  funMap += ("#module_init" : FUNCTION("#module_init", libraryScope, 0, size(variables) + 1, 10, 
+  main_fun = getUID(name,[],"main",1);
+  module_init_fun = getUID(name,[],"#module_init",0);
+  if(!funMap[main_fun]?) {
+  	main_fun = getFUID(name,"main",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
+  	module_init_fun = getFUID(name,"#module_init",Symbol::func(Symbol::\value(),[]),0);
+  }
+  funMap += (module_init_fun : FUNCTION(module_init_fun, 0, size(variables) + 1, 10, 
   									[*tr(initializations), 
-  									 LOADLOC(size(variables)), 
-  									 CALL("main"), 
+  									 LOADLOC(0), 
+  									 CALL(main_fun), 
   									 RETURN1(),
   									 HALT()
   									]));
   res = rvm(types, funMap, []);
   if(listing){
-    for(fname <- funMap, fname != "#module_init", fname notin library_names)
+    for(fname <- funMap, fname != module_init_fun, fname notin libFuns)
   		iprintln(funMap[fname]);
   }
   return res;
@@ -116,29 +108,28 @@ INS tr(muInt(int n)) = [LOADINT(n)];
 
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
 
-INS tr(muFun(str name)) = [LOADFUN(name)];
+INS tr(muFun(str fuid)) = [LOADFUN(fuid)];
+INS tr(muFun(str fuid, str scopeIn)) = [LOAD_NESTED_FUN(fuid, scopeIn)];
 
-INS tr(muFun(str name, int scope)) = [LOAD_NESTED_FUN(name, scope)];
+INS tr(muConstr(str fuid)) = [LOADCONSTR(fuid)];
 
-INS tr(muConstr(str name)) = [LOADCONSTR(name)];
-
-INS tr(muVar(str id, int scope, int pos)) = [scope == functionScope ? LOADLOC(pos) : LOADVAR(scope, pos)];
+INS tr(muVar(str id, str fuid, int pos)) = [fuid == functionScope ? LOADLOC(pos) : LOADVAR(fuid, pos)];
 INS tr(muLoc(str id, int pos)) = [LOADLOC(pos)];
 INS tr(muTmp(str id)) = [LOADLOC(getTmp(id))];
 
-Instruction mkCall(str name) = CALL(name); 
+//Instruction mkCall(str name) = CALL(name); 
 
-INS tr(muCallConstr(str cname, list[MuExp] args)) = [ *tr(args), CALLCONSTR(cname) ];
+INS tr(muCallConstr(str fuid, list[MuExp] args)) = [ *tr(args), CALLCONSTR(fuid) ];
 
-INS tr(muCall(muFun(str fname), list[MuExp] args)) = [*tr(args), CALL(fname)];
-INS tr(muCall(muConstr(str cname), list[MuExp] args)) = [*tr(args), CALLCONSTR(cname)];
+INS tr(muCall(muFun(str fuid), list[MuExp] args)) = [*tr(args), CALL(fuid)];
+INS tr(muCall(muConstr(str fuid), list[MuExp] args)) = [*tr(args), CALLCONSTR(fuid)];
 INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN()];
 
 INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args))];
 
 INS tr(muCallMuPrim(str name, list[MuExp] args)) =  (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLMUPRIM(name, size(args))];
 
-INS tr(muAssign(str id, int scope, int pos, MuExp exp)) = [*tr(exp), scope == functionScope ? STORELOC(pos) : STOREVAR(scope, pos)];
+INS tr(muAssign(str id, str fuid, int pos, MuExp exp)) = [*tr(exp), fuid == functionScope ? STORELOC(pos) : STOREVAR(fuid, pos)];
 INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];
 INS tr(muAssignTmp(str id, MuExp exp)) = [*tr(exp), STORELOC(getTmp(id)) ];
 
@@ -165,9 +156,9 @@ default INS tr(muWhile(MuExp cond, list[MuExp] body)) {
     		];
 }
 
-INS tr(muCreate(muFun(str name))) = [CREATE(name)];
+INS tr(muCreate(muFun(str fuid))) = [CREATE(fuid, 0)];
 INS tr(muCreate(MuExp fun)) = [ *tr(fun), CREATEDYN(0) ];
-INS tr(muCreate(muFun(str name), list[MuExp] args)) = [ *tr(args), CREATE(name, size(args)) ];
+INS tr(muCreate(muFun(str fuid), list[MuExp] args)) = [ *tr(args), CREATE(fuid, size(args)) ];
 INS tr(muCreate(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), CREATEDYN(size(args)) ];
 
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
@@ -258,13 +249,13 @@ INS tr(e:muAll(list[MuExp] exps)) {  // TODO: not complete yet
     
     
 INS tr(muLocDeref(str name, int pos)) = [ LOADLOCDEREF(pos) ];
-INS tr(muVarDeref(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOCDEREF(pos) : LOADVARDEREF(scope, pos) ];
+INS tr(muVarDeref(str name, str fuid, int pos)) = [ fuid == functionScope ? LOADLOCDEREF(pos) : LOADVARDEREF(fuid, pos) ];
 
 INS tr(muLocRef(str name, int pos)) = [ LOADLOCREF(pos) ];
-INS tr(muVarRef(str name, int scope, int pos)) = [ scope == functionScope ? LOADLOCREF(pos) : LOADVARREF(scope, pos) ];
+INS tr(muVarRef(str name, str fuid, int pos)) = [ fuid == functionScope ? LOADLOCREF(pos) : LOADVARREF(fuid, pos) ];
 
 INS tr(muAssignLocDeref(str id, int pos, MuExp exp)) = [ *tr(exp), STORELOCDEREF(pos) ];
-INS tr(muAssignVarDeref(str id, int scope, int pos, MuExp exp)) = [ *tr(exp), scope == functionScope ? STORELOCDEREF(pos) : STOREVARDEREF(scope, pos) ];
+INS tr(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = [ *tr(exp), fuid == functionScope ? STORELOCDEREF(pos) : STOREVARDEREF(fuid, pos) ];
 
 default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 
