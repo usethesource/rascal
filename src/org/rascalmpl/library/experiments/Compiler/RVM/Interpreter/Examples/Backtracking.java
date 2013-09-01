@@ -4,7 +4,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -18,7 +17,7 @@ public class Backtracking {
 		/*
 		 * TRUE(){ return true; }
 		 */
-		rvm.declare(new Function("TRUE", 1, 0, 0, 6,
+		rvm.declare(new Function("TRUE", 0, 0, 6,
 				new CodeBlock(vf)
 				.LOADCON(true)
 				.RETURN1()
@@ -29,7 +28,7 @@ public class Backtracking {
 		 * FALSE { return false; }
 		 */
 		
-		rvm.declare(new Function("FALSE", 2, 0, 0, 6,
+		rvm.declare(new Function("FALSE", 0, 0, 6,
 				new CodeBlock(vf)
 				.LOADCON(false)
 				.RETURN1()	
@@ -53,15 +52,8 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("and_b_b", 3, 2, 2, 10,
+		rvm.declare(new Function("and_b_b", 2, 2, 10,
 				new CodeBlock(vf)
-				.LOADLOC(0)
-				.CREATEDYN(0)
-				.STORELOC(0)
-				.POP()
-				.LOADLOC(0)
-				.INIT(0)
-				.POP()
 				
 			.LABEL("WHILE1")
 				.LOADLOC(0)
@@ -73,13 +65,6 @@ public class Backtracking {
 				.LOADLOC(0)
 				.NEXT0()
 				.JMPFALSE("WHILE1")
-				.LOADLOC(1)
-				.CREATEDYN(0)
-				.STORELOC(1)
-				.POP()
-				.LOADLOC(1)
-				.INIT(0)
-				.POP()
 				
 			.LABEL("WHILE2")
 				.LOADLOC(1)
@@ -109,36 +94,37 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("and_b_b", 5, 2, 2, 10,
-				new CodeBlock(vf)
-				.LOADLOC(0)
-				.JMPTRUE("L")
-				
-			.LABEL("RETURN")
-				.LOADCON(false)
-				.RETURN1()
-				
-			.LABEL("L")
-				.LOADLOC(1)
-				.CREATEDYN(0)
-				.STORELOC(1)
-				.POP()
-				.LOADLOC(1)
-				.INIT(0)
-				.POP()
-				
-			.LABEL("WHILE")
-				.LOADLOC(1)
-				.HASNEXT()
-				.JMPFALSE("RETURN")
-				.LOADLOC(1)
-				.NEXT0()
-				.JMPFALSE("RETURN")
-				.LOADCON(true)
-				.YIELD1()
-				.POP()
-				.JMP("WHILE")
-		));
+//		rvm.declare(new Function("and_b_b", 2, 2, 10,
+//				new CodeBlock(vf)
+//				.LOADLOC(0)
+//				.JMPTRUE("L")
+//				
+//			.LABEL("RETURN")
+//				.LOADCON(false)
+//				.RETURN1()
+//				
+//			.LABEL("L")
+//				.LOADLOC(1)
+//				.CREATEDYN(0)
+//				.STORELOC(1)
+//				.POP()
+//				.LOADLOC(1)
+//				.INIT(0)
+//				.STORELOC(1)
+//				.POP()
+//				
+//			.LABEL("WHILE")
+//				.LOADLOC(1)
+//				.HASNEXT()
+//				.JMPFALSE("RETURN")
+//				.LOADLOC(1)
+//				.NEXT0()
+//				.JMPFALSE("RETURN")
+//				.LOADCON(true)
+//				.YIELD1()
+//				.POP()
+//				.JMP("WHILE")
+//		));
 		
 		/* 
 		 * and_b_n(lhs, rhs) {        // Check rhs first?
@@ -155,7 +141,7 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("and_b_n", 6, 2, 2, 10,
+		rvm.declare(new Function("and_b_n", 2, 2, 10,
 				new CodeBlock(vf)
 				.LOADLOC(0)
 				.JMPTRUE("L")
@@ -171,6 +157,7 @@ public class Backtracking {
 				.POP()
 				.LOADLOC(1)
 				.INIT(0)
+				.STORELOC(1)
 				.POP()
 				
 			.LABEL("WHILE")
@@ -197,13 +184,14 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("main", 7, 1, 4, 10,
+		rvm.declare(new Function("main", 1, 4, 10,
 					new CodeBlock(vf)
 						.CREATE("TRUE",0)
 						.STORELOC(1)
 						.POP()
 						.LOADLOC(1)
 						.INIT(0)
+						.STORELOC(1)
 						.POP()
 						
 						.CREATE("FALSE",0)
@@ -211,6 +199,7 @@ public class Backtracking {
 						.POP()
 						.LOADLOC(2)
 						.INIT(0)
+						.STORELOC(2)
 						.POP()
 						
 						.CREATE("and_b_b",0)
@@ -220,20 +209,21 @@ public class Backtracking {
 						.LOADLOC(2)
 						.LOADLOC(3)
 						.INIT(2)
+						.STORELOC(3)
 						.POP()
 						.LOADLOC(3)
 						.NEXT0()
 						.HALT()
 		));
 	
-		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+		rvm.declare(new Function("#module_init", 0, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main")
 					.RETURN1()
 					.HALT()));
 
-		rvm.executeProgram("main", new IValue[] {});
+		rvm.executeProgram("main", "#module_init", new IValue[] {});
 	}
 
 }
