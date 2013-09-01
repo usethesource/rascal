@@ -27,6 +27,8 @@ int functionScope = 0;
 int libraryScope = 1000000;
 int nlocal = 0;
 
+int defaultStackSize = 25;
+
 int newLocal() {
     n = nlocal;
     nlocal += 1;
@@ -52,7 +54,7 @@ map[str,Declaration] parseLibrary(){
  	funMap = ();
  
   	for(fun <- libModule.functions){
-    	funMap += (fun.name : FUNCTION(fun.name, libraryScope, fun.nformal, fun.nlocal, 20, trblock(fun.body)));
+    	funMap += (fun.name : FUNCTION(fun.name, libraryScope, fun.nformal, fun.nlocal, defaultStackSize, trblock(fun.body)));
         libraryScope += 1;
   	}
   
@@ -88,22 +90,22 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
     functionScope = fun.scope;
     nlocal = fun.nlocal;
     code = trblock(fun.body);
-    funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, nlocal, 20, code));
+    funMap += (fun.name : FUNCTION(fun.name, fun.scope, fun.nformal, nlocal, defaultStackSize, code));
   }
   
-  funMap += ("#module_init_main" : FUNCTION("#module_init_main", libraryScope, 0, size(variables) + 1, 10, 
+  funMap += ("#module_init_main" : FUNCTION("#module_init_main", libraryScope, 1, size(variables) + 1, 10, 
   									[*tr(initializations), 
-  									 LOADLOC(size(variables)), 
-  									 CALL("main"), 
+  									 LOADLOC(0), 
+  									 CALL("main", 1), 
   									 RETURN1(),
   									 HALT()
   									]));
   									
  
- funMap += ("#module_init_testsuite" : FUNCTION("#module_init_testsuite", libraryScope, 0, size(variables) + 1, 10, 
+ funMap += ("#module_init_testsuite" : FUNCTION("#module_init_testsuite", libraryScope, 1, size(variables) + 1, 10, 
   									[*tr(initializations), 
-  									 LOADLOC(size(variables)), 
-  									 CALL("testsuite"), 
+  									 LOADLOC(0), 
+  									 CALL("testsuite", 1), 
   									 RETURN1(),
   									 HALT()
   									]));
@@ -162,13 +164,11 @@ INS tr(muVar(str id, int scope, int pos)) = [scope == functionScope ? LOADLOC(po
 INS tr(muLoc(str id, int pos)) = [LOADLOC(pos)];
 INS tr(muTmp(str id)) = [LOADLOC(getTmp(id))];
 
-Instruction mkCall(str name) = CALL(name); 
+INS tr(muCallConstr(str cname, list[MuExp] args)) = [ *tr(args), CALLCONSTR(cname, size(args)) ];
 
-INS tr(muCallConstr(str cname, list[MuExp] args)) = [ *tr(args), CALLCONSTR(cname) ];
-
-INS tr(muCall(muFun(str fname), list[MuExp] args)) = [*tr(args), CALL(fname)];
-INS tr(muCall(muConstr(str cname), list[MuExp] args)) = [*tr(args), CALLCONSTR(cname)];
-INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN()];
+INS tr(muCall(muFun(str fname), list[MuExp] args)) = [*tr(args), CALL(fname, size(args))];
+INS tr(muCall(muConstr(str cname), list[MuExp] args)) = [*tr(args), CALLCONSTR(cname, size(args))];
+INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size(args))];
 
 INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args))];
 

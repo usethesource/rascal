@@ -8,6 +8,12 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
 
 public enum Opcode {
 	/*
+	 * Instructions for the RVM. Each instruction has 
+	 * 	- a unique opcode
+	 * 	- a pc increment, i.e., the number code elements for this instruction
+	 * 	- a sp increment, indicating its effect on the stack. Instructions marked 
+	 * 	  with -1000 have an "arity" field that determines their stack effect.
+	 * 
 	 * OPCODENAME(	opcode,	pc,		sp)
 	 * 						incr	incr
 	 */
@@ -16,7 +22,7 @@ public enum Opcode {
 	LOADLOC 		(2,		2, 		1),
 	STOREVAR 		(3, 	3, 		0),
 	STORELOC 		(4, 	2, 		0),
-	CALL 			(5, 	2, 		-1000),	// -1000 marks  varyadic instruction
+	CALL 			(5, 	3, 		-1000),	// -1000 marks  varyadic instruction
 	CALLPRIM 		(6, 	3, 		-1000),
 	RETURN1 		(7, 	1, 		-1),
 	JMP 			(8, 	2, 		0),
@@ -25,9 +31,9 @@ public enum Opcode {
 	LABEL 			(11, 	0, 		0),
 	HALT 			(12, 	1, 		0),
 	POP 			(13, 	1, 		-1),
-	CALLDYN			(14,	1, 		-1000),
+	CALLDYN			(14,	2, 		-1000),
 	LOADFUN			(15,	2, 		1), // TODO: to be renamed to LOAD_ROOT_FUN
-	CREATE			(16,	3, 		0),
+	CREATE			(16,	3, 		-1000),
 	NEXT0			(17,	1, 		0),
 	NEXT1			(18,	1, 		1),
 	YIELD0			(19,	1, 		0),
@@ -43,8 +49,8 @@ public enum Opcode {
 	LOADVARDEREF	(29,	3, 		1),
 	STORELOCDEREF	(30,	2, 		-1),
 	STOREVARDEREF	(31,	3, 		-1),
-	LOADCONSTR		(32,	2, 		-1000),
-	CALLCONSTR		(33,	2, 		-1000), // TODO: plus number of formal parameters
+	LOADCONSTR		(32,	2, 		1),
+	CALLCONSTR		(33,	3, 		-1000), // TODO: plus number of formal parameters
 	LOAD_NESTED_FUN	(34, 	3, 		1),
 	LOADTYPE		(35,	2, 		1),
 	CALLMUPRIM		(36,	3, 		-1000),
@@ -147,7 +153,7 @@ public enum Opcode {
 			return "STORELOC " + cb.finalCode[pc + 1];
 			
 		case CALL:
-			return "CALL " + cb.finalCode[pc + 1]  + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
+			return "CALL " + cb.finalCode[pc + 1]  + ", " + cb.finalCode[pc + 2] + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
 		case CALLPRIM:
 			return "CALLPRIM " + cb.finalCode[pc + 1] +  ", " + cb.finalCode[pc + 2] + " [" + RascalPrimitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
@@ -174,7 +180,7 @@ public enum Opcode {
 			return "POP";	
 			
 		case CALLDYN:
-			return "CALLDYN";
+			return "CALLDYN " + cb.finalCode[pc + 1];
 			
 		case LOADFUN:
 			return "LOADFUN " + cb.finalCode[pc + 1]  + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
@@ -231,7 +237,7 @@ public enum Opcode {
 			return "LOADCONSTR " + cb.finalCode[pc + 1];
 		
 		case CALLCONSTR:
-			return "CALLCONSTR " + cb.finalCode[pc + 1];
+			return "CALLCONSTR " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
 		
 		case LOAD_NESTED_FUN:
 			return "LOAD_NESTED_FUN " + cb.finalCode[pc + 1] + cb.finalCode[pc + 2];
