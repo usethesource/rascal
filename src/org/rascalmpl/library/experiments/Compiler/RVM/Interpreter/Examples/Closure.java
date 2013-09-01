@@ -22,34 +22,34 @@ public class Closure {
 		 * 		return g;
 		 * }
 		 */
-		rvm.declare(new Function("g", 1, 0, 0, 6,
+		rvm.declare(new Function("g", 0, 0, 6,
 				new CodeBlock(vf).
-					LOADVAR(2,0).          // <<-
+					LOADVAR("f",0).          // <<-
 					RETURN1()
 		));
 		
-		rvm.declare(new Function("f", 2, 0, 1, 6,
+		rvm.declare(new Function("f", 0, 1, 6,
 				new CodeBlock(vf).
 					LOADCON(1).
 					STORELOC(0).
-					LOADNESTEDFUN("g", 2). // <<-
+					LOADNESTEDFUN("g", "f"). // <<-
 					RETURN1()
 		));
 		
-		rvm.declare(new Function("main", 3, 1, 1, 6,
+		rvm.declare(new Function("main", 1, 1, 6,
 					new CodeBlock(vf).
 						CALL("f").
 						CALLDYN().
 						RETURN1().
 						HALT()));
 	
-		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+		rvm.declare(new Function("#module_init", 0, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main")
 					.HALT()));
 
-		rvm.executeProgram("main", new IValue[] {});
+		rvm.executeProgram("main", "#module_init", new IValue[] {});
 	}
 
 }

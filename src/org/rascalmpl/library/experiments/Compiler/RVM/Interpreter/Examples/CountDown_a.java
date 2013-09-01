@@ -24,7 +24,7 @@ public class CountDown_a {
 		 * 		return 0; 
 		 * }
 		 */
-		rvm.declare(new Function("g", 1, 1, 1, 6,
+		rvm.declare(new Function("g", 1, 1, 6,
 					new CodeBlock(vf)
 							.LABEL("LOOP")
 							.LOADLOC(0)
@@ -58,7 +58,7 @@ public class CountDown_a {
 		/*
 		 * result: 5 + 4 + 3 + 2 + 1 = 15
 		 */
-		rvm.declare(new Function("main", 2, 1, 3, 6,
+		rvm.declare(new Function("main", 1, 3, 6,
 					new CodeBlock(vf)
 						.CREATE("g",0)
 						.STORELOC(1)
@@ -86,13 +86,13 @@ public class CountDown_a {
 						.POP()     // added pop with respect to the new STORELOC's default bahviour on the stack
 						.JMP("LOOP")));
 	
-		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+		rvm.declare(new Function("#module_init", 0, 1, 6, 
 					new CodeBlock(vf)
 						.LOADLOC(0)
 						.CALL("main")
 						.RETURN1()
 						.HALT()));
-		rvm.executeProgram("main", new IValue[] {});
+		rvm.executeProgram("main", "#module_init", new IValue[] {});
 	}
 
 }
