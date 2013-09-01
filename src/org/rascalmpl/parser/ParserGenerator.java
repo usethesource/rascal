@@ -40,6 +40,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -55,7 +56,7 @@ public class ParserGenerator {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment scope = new ModuleEnvironment("___parsergenerator___", heap);
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, scope,heap);
-		this.evaluator.setBootstrapperProperty(true);
+		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());		this.evaluator.setBootstrapperProperty(true);
 		this.bridge = new JavaBridge(loaders, factory, config);
 		this.vf = factory;
 		
@@ -260,7 +261,7 @@ public class ParserGenerator {
    * @throws IOException on IO error
    */
   public void saveToJar(Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass, OutputStream outStream) throws IOException {
-	  bridge.saveToJar(parserClass, outStream);
+	  bridge.saveToJar("", parserClass, StandAloneParser.class, outStream, false);
   }
 
   public String createHole(IConstructor part, int size) {

@@ -1,9 +1,10 @@
 module Library
 
-
+ 
 /*
-function main[1,args] { return next(init(create(TRUE))); }
 
+function main[1,args] { return next(init(create(TRUE))); }
+ 
 function TRUE[0,] { return true; }   // should be true
  
 function FALSE[0,] { return false; }

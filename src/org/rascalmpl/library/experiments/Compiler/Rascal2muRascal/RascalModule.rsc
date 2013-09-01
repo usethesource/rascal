@@ -9,6 +9,7 @@ import ParseTree;
 
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
+import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::muRascal::AST;
@@ -16,24 +17,18 @@ import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
-
 public list[MuFunction] functions_in_module = [];
 public list[MuVariable] variables_in_module = [];
 public list[MuExp] variable_initializations = [];
-public int tmpVar = -1;
 
+public int tmpVar = -1;
 public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
 public void resetR2mu() {
 	functions_in_module = [];
 	variables_in_module = [];
 	variable_initializations = [];
-	tmpVar = -1;
-}
-
-public str nextTmp(){
-	tmpVar += 1;
-    return "TMP<tmpVar>";
+	resetTmpAndLabel();
 }
 
 public void importLibFuns(list[loc] libs) { 
@@ -96,6 +91,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  									|| sorttype(name, Symbol \type, containedIn, ats) := config.store[uid]
    	  									|| \alias(name, Symbol \type, containedIn, at) := config.store[uid] ];
    	  translate(M);
+   	  generate_tests();
    	  return muModule("<M.header.name>", types, functions_in_module, variables_in_module, variable_initializations);
    	}
    } catch Java("ParseError","Parse error"): {
@@ -106,6 +102,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	   resetScopeExtraction();
    	   println("r2mu: Cleaned up!");
    }
+   throw "r2mu: cannot come here!";
 }
 
 void translate(m: (Module) `<Header header> <Body body>`) {
@@ -137,37 +134,68 @@ void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = t
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   { throw("abstract"); }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
+println("r2mu: Compiling <signature.name>");
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
   fuid = uid2str(loc2uid[fd@\loc]);
   tbody = translate(expression);
-  functions_in_module += [muFunction(fuid, nformals, getScopeSize(fuid), [*tbody[0 .. -1], muReturn(tbody[-1])])];
+  functions_in_module += [muFunction(fuid, nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), [*tbody[0 .. -1], muReturn(tbody[-1])])];
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
+  println("r2mu: Compiling <signature.name>");
   ftype = getFunctionType(fd@\loc);    
   nformals = size(ftype.parameters);
   tbody = [ *translate(stat) | stat <- body.statements ];
   fuid = uid2str(loc2uid[fd@\loc]);
-  functions_in_module += [muFunction(fuid, nformals, getScopeSize(fuid), tbody)]; 
+  functions_in_module += [muFunction(fuid, nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody)]; 
 }
 
-str translateFun(FunctionDeclaration fd, Signature signature, FunctionBody body){
-  ftype = getFunctionType(fd@\loc);
-  formals = signature.parameters.formals.formals;
-  lformals = [f | f <- formals];
-  tformals = [(Pattern) `<Type tp> <Name nm>` := lformals[i] ? mkVar("<nm>",nm@\loc) : "pattern"  | i <- index(lformals)];
-  tbody = "<for(stat <- body.statements){><translate(stat)>;<}>";
-  return "\n// <fd>\n<mkVar("<signature.name>",fd@\loc)> = lambda([<intercalate(", ", tformals)>]){<tbody>}";
-}
-
-str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions> ;`)   { throw("conditional"); }
+//str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions> ;`)   { throw("conditional"); }
 
 
 /* withThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters "throws" {Type ","}+ exceptions */
 
-str translate(Signature s:(Signature) `<FunctionModifiers modifiers> <Type \type> <Name name> <Parameters parameters>`){
-  formals = parameters.formals.formals;
-  //keywordFormals = parameters.keywordFormals;
-  return intercalate(", ", [(Pattern) `<Type tp> <Name nm>` := f ? "var(\"<nm>\", <tp>)" : "pattern" | f <- formals]);
+//str translate(Signature s:(Signature) `<FunctionModifiers modifiers> <Type \type> <Name name> <Parameters parameters>`){
+//  formals = parameters.formals.formals;
+//  //keywordFormals = parameters.keywordFormals;
+//  return intercalate(", ", [(Pattern) `<Type tp> <Name nm>` := f ? "var(\"<nm>\", <tp>)" : "pattern" | f <- formals]);
+//}
+
+map[str,str] translateTags(Tags tags){
+   m = ();
+   for(tg <- tags.tags){
+     name = "<tg.name>";
+     if(tg is \default)
+        m[name] = "<tg.contents>";
+     else if (tg is empty)
+        m[name] = "";
+     else
+        m[name] = "<tg.expression>";
+   }
+   return m;
+}
+
+list[str] translateModifiers(FunctionModifiers modifiers){
+   lst = [];
+   for(m <- modifiers.modifiers){
+     if(m is \java) 
+       lst += "java";
+     else if(m is \test)
+       lst += "test";
+     else
+       lst += "default";
+   }
+   return lst;
+}
+
+void generate_tests(){
+   code = [ muCallPrim("testreport_open", []) ];
+   for(f <- functions_in_module){
+     if("test" in f.modifiers){
+        code += muCallPrim("testreport_add", [muCon(f.name), muCon(f.source), muCall(muFun(f.name), [])]);
+     }
+   }
+   code += [ muCallPrim("testreport_close", []), muReturn() ];
+   functions_in_module += muFunction("testsuite", 1, 1, 1, |rascal:///|, [], (), code);
 }

@@ -7,14 +7,16 @@ import experiments::Compiler::Examples::Capture;
 import experiments::Compiler::Examples::D1D2;
 import experiments::Compiler::Examples::Fac;
 import experiments::Compiler::Examples::Fib;
+import experiments::Compiler::Examples::Fail;
 import experiments::Compiler::Examples::ListMatch;
 import experiments::Compiler::Examples::Odd;
-//import experiments::Compiler::Examples::SendMoreMoney;
+import experiments::Compiler::Examples::SendMoreMoney;
+import experiments::Compiler::Examples::Tmp;
 
 loc base = |std:///experiments/Compiler/Examples/|;
 
-value run(str example bool debug = false, bool listing=false) =
-  execute(base + (example + ".rsc"), debug=debug, listing=listing);
+value run(str example bool debug = false, bool listing=false, bool testsuite=false) =
+  execute(base + (example + ".rsc"), debug=debug, listing=listing, testsuite=testsuite);
 
 test bool tst() = run("Capture") == experiments::Compiler::Examples::Capture::main([]);
 test bool tst() = run("D1D2") == experiments::Compiler::Examples::D1D2::main([]);

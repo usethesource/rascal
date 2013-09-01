@@ -40,15 +40,20 @@ public class Execute {
 	// Library function to execute a RVM program from Rascal
 
 	public ITuple executeProgram(IConstructor program, IBool debug,
-			IInteger repeat, IEvaluatorContext ctx) {
+			IInteger repeat, IBool testsuite, IEvaluatorContext ctx) {
+		
+		String func = (testsuite.getValue()) ? "testsuite" : "main";
 		
 		String main = "/main(list(value());)#0";
 		String mu_main = "/main(1)";
 		String module_init = "/#module_init()#0";
 		String mu_module_init = "/#module_init(0)";
 		
+		String test_suite = "/testsuite()#0";
+		
 		String uid_main = null;
 		String uid_module_init = null;
+		String uid_testsuite = null;
 		
 		RVM rvm = new RVM(vf, ctx.getStdOut(), debug.getValue());
 
@@ -117,11 +122,11 @@ public class Execute {
 						break;
 						
 					case "CALL":
-						codeblock.CALL(getStrField(instruction, "fuid"));
+						codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
 						break;
 						
 					case "CALLDYN":
-						codeblock.CALLDYN();
+						codeblock.CALLDYN( getIntField(instruction, "arity"));
 						break;
 						
 					case "LOADFUN":
@@ -225,7 +230,7 @@ public class Execute {
 						break;
 						
 					case "CALLCONSTR":
-						codeblock.CALLCONSTR(getStrField(instruction, "fuid"));
+						codeblock.CALLCONSTR(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
 						break;
 						
 					case "LOADTYPE":
@@ -241,6 +246,10 @@ public class Execute {
 						
 					case "DUP":
 						codeblock.DUP();
+						break;
+						
+					case "FAILRETURN":
+						codeblock.FAILRETURN();
 						break;
 										
 					default:

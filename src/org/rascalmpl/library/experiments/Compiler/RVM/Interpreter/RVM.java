@@ -65,7 +65,7 @@ public class RVM {
 		functionMap = new HashMap<String, Integer>();
 		constructorMap = new HashMap<String, Integer>();
 		
-		RascalPrimitive.init(vf);
+		RascalPrimitive.init(vf, stdout);
 	}
 	
 	public RVM(IValueFactory vf){
@@ -182,19 +182,21 @@ public class RVM {
 		// Search for the "#module_init" function and check arguments
 
 		Function init_function = functionStore.get(functionMap.get(uid_module_init));
+
 		if (init_function == null) {
-			throw new RuntimeException("PANIC: Code for #module_init not found");
+			throw new RuntimeException("PANIC: Code for " + uid_module_init + " not found");
 		}
 		
-		if (init_function.nformals != 0) {
+		if (init_function.nformals != 1) {
 			throw new RuntimeException("PANIC: " + "function \"#module_init\" should have one argument");
 		}
 		
 		// Search for the "main" function and check arguments
 
 		Function main_function = functionStore.get(functionMap.get(uid_main));
+
 		if (main_function == null) {
-			throw new RuntimeException("PANIC: No function \"main\" found");
+			throw new RuntimeException("PANIC: No function " + uid_main + " found");
 		}
 				
 		if (main_function.nformals != 1) {
@@ -220,7 +222,7 @@ public class RVM {
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				if(pc < 0 || pc >= instructions.length){
-					throw new RuntimeException("main" + " illegal pc: " + pc);
+					throw new RuntimeException(uid_main + " illegal pc: " + pc);
 				}
 				int op = instructions[pc++];
 
@@ -315,13 +317,13 @@ public class RVM {
 				}
 				
 				case Opcode.OP_STORELOC: {
-					stack[instructions[pc++]] = stack[sp - 1];  /* CHANGED: --sp to sp -1; value remains on stack */
+					stack[instructions[pc++]] = stack[sp - 1];
 					continue;
 				}
 				
 				case Opcode.OP_STORELOCDEREF:
 					Reference ref = (Reference) stack[instructions[pc++]];
-					ref.stack[ref.pos] = stack[sp - 1];         /* CHANGED: --sp to sp - 1; value remains on stack */
+					ref.stack[ref.pos] = narrow(stack[sp - 1]); // Guarantee that only IValues are assigned to non-local variables        
 					continue;
 				
 				case Opcode.OP_STOREVAR:
@@ -330,7 +332,7 @@ public class RVM {
 
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
-							fr.stack[pos] = stack[sp - 1];		/* CHANGED: --sp to sp -1; value remains on stack */
+							fr.stack[pos] = narrow(stack[sp - 1]);	// Guarantee that only IValues are assigned to non-local variables
 							continue NEXT_INSTRUCTION;
 						}
 					}
@@ -386,7 +388,8 @@ public class RVM {
 				
 				case Opcode.OP_CALLCONSTR:
 					constructor = constructorStore.get(instructions[pc++]);
-					int arity = constructor.getArity();
+					int arity = instructions[pc++];
+					assert arity == constructor.getArity();
 					args = new IValue[arity]; 
 					for(int i = 0; i < arity; i++) {
 						args[arity - 1 - i] = (IValue) stack[--sp];
@@ -395,7 +398,8 @@ public class RVM {
 					continue;
 					
 				case Opcode.OP_CALLDYN:				
-				case Opcode.OP_CALL:			
+				case Opcode.OP_CALL:
+					
 					// In case of CALLDYN, the stack top value of type 'Type' leads to a constructor call
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Type) {
 						Type constr = (Type) stack[--sp];
@@ -414,10 +418,13 @@ public class RVM {
 					
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
 						FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
+						arity = instructions[pc++]; // TODO: add assert
 						fun = fun_instance.function;
 						previousScope = fun_instance.env;
 					} else if(op == Opcode.OP_CALL) {
 						fun = functionStore.get(instructions[pc++]);
+						arity = instructions[pc++];
+						assert arity == fun.nformals;
 						previousScope = cf;
 					} else {
 						throw new RuntimeException("unexpected argument type for CALLDYN: " + stack[sp - 1].getClass());
@@ -438,6 +445,12 @@ public class RVM {
 					pc = 0;
 					continue;
 				
+				case Opcode.OP_FAILRETURN:
+					/*
+					 * TODO: Now fail return acts as return without value, change when we understand what we need here,i.e.
+					 * return to the function overloading resolution frame.
+					 */
+					
 				case Opcode.OP_RETURN0:
 				case Opcode.OP_RETURN1:
 					Object rval = null;
@@ -466,7 +479,7 @@ public class RVM {
 					if(returns)
 						stack[sp++] = rval;
 					continue;
-
+					
 				case Opcode.OP_HALT:
 					if (debug) {
 						stdout.println("Program halted:");

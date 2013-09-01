@@ -1,3 +1,4 @@
+@bootstrapParser
 module experiments::Compiler::Rascal2muRascal::TypeUtils
 
 import Prelude;
@@ -58,10 +59,10 @@ public void resetScopeExtraction() {
 // Get the type of an expression
 Symbol getType(loc l) = config.locationTypes[l];
 
-str getType(Expression e) = "<getType(e@\loc)>";
+str getType(e) = "<getType(e@\loc)>";
 
 // Get the outermost type constructor of an expression
-str getOuterType(Expression e) {
+str getOuterType(e) {
  tp = "<getName(getType(e@\loc))>";
 // if(tp in {"int", "real", "rat"})
 // 	tp = "num";
@@ -115,7 +116,7 @@ MuExp mkVar(str name, loc l) {
   tuple[str fuid,int pos] addr = uid2addr[loc2uid[l]];
   
   res = "<addr.fuid> - <addr.pos>";
-  println("mkVar: <name> =\> <res>; isFun: <loc2uid[l] in functions>; isConstr: <loc2uid[l] in constructors>");
+  //println("mkVar: <name> =\> <res>; isFun: <loc2uid[l] in functions>; isConstr: <loc2uid[l] in constructors>");
   
   if(loc2uid[l] in functions) {
   	// distinguishes between root and nested scopes
@@ -133,9 +134,10 @@ tuple[str fuid,int pos] getVariableScope(str name, loc l) {
 
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
-  println("mkAssign: <name>");
+  //println("mkAssign: <name>");
   tuple[str fuid, int pos] addr = uid2addr[loc2uid[l]];
   res = "<name>::<addr.fuid>::<addr.pos>";
+  //println("mkVar: <name> =\> <res>");
   return muAssign(name, addr.fuid, addr.pos, exp);
 }
 
@@ -263,15 +265,16 @@ void extractScopes(){
         	uid2addr[decls[i]] = <uid2str(fuid), -1>;
         }
     }
-     
-    println("uid2addr:");
-    for(uid <- uid2addr) {
-       println("<config.store[uid]> : <uid>, <uid2addr[uid]>");
-    }
-   
-   for(l <- loc2uid) {
-       println("<l> : <loc2uid[l]>");
-   }
+
+    //println("uid2addr:");
+    //for(uid <- uid2addr) {
+    //   println("<config.store[uid]> : <uid>, <uid2addr[uid]>");
+    //}
+
+	//println("loc2uid:");
+    //for(l <- loc2uid) {
+    //    println("<l> : <loc2uid[l]>");
+    //}
 }
 
 str uid2str(int fuid) {

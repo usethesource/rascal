@@ -38,15 +38,15 @@ public class Closure {
 		
 		rvm.declare(new Function("main", 1, 1, 6,
 					new CodeBlock(vf).
-						CALL("f").
-						CALLDYN().
+						CALL("f", 0).
+						CALLDYN(1).
 						RETURN1().
 						HALT()));
 	
 		rvm.declare(new Function("#module_init", 0, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
-					.CALL("main")
+					.CALL("main", 1)
 					.HALT()));
 
 		rvm.executeProgram("main", "#module_init", new IValue[] {});
