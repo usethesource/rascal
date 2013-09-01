@@ -3,7 +3,7 @@ module experiments::Compiler::RVM::AST
 import Type;
 
 public data Declaration = 
-		  FUNCTION(str name, int scope, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
+		  FUNCTION(str qname, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
 		;
 
 public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions);
@@ -13,12 +13,12 @@ data Instruction =
         | LOADINT(int nval)  
 	   	| LOADCON(value val)
 	   	| LOADTYPE(Symbol \type)
-		| LOADVAR(int scope, int pos)
+		| LOADVAR(str fuid, int pos)
 		| LOADLOC(int pos)
-		| STOREVAR(int scope, int pos)
+		| STOREVAR(str fuid, int pos)
 		| STORELOC(int pos)
-		| CALLCONSTR(str name)
-		| CALL(str name)
+		| CALLCONSTR(str fuid)
+		| CALL(str fuid)
 		| CALLPRIM(str name, int arity)
 		| CALLMUPRIM(str name, int arity)
 		| RETURN1()
@@ -29,10 +29,10 @@ data Instruction =
 		| HALT()
 		| POP()
 		| CALLDYN()
-		| LOADFUN(str name)
-		| LOAD_NESTED_FUN(str name, int scope)
-		| LOADCONSTR(str name)
-		| CREATE(str fun, int arity)
+		| LOADFUN(str fuid)
+		| LOAD_NESTED_FUN(str fuid, str scopeIn)
+		| LOADCONSTR(str fuid)
+		| CREATE(str fuid, int arity)
 		| NEXT0()
 		| NEXT1()
 		| YIELD0()
@@ -43,11 +43,11 @@ data Instruction =
 		| PRINTLN(int arity)
 		| RETURN0()
 		| LOADLOCREF(int pos)
-		| LOADVARREF(int scope, int pos)
+		| LOADVARREF(str fuid, int pos)
 		| LOADLOCDEREF(int pos)
-		| LOADVARDEREF(int scope, int pos)
+		| LOADVARDEREF(str fuid, int pos)
 		| STORELOCDEREF(int pos)
-		| STOREVARDEREF(int scope, int pos)
+		| STOREVARDEREF(str fuid, int pos)
 		| DUP()
 		;
 	

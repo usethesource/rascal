@@ -4,20 +4,20 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 
 public class StoreVar extends Instruction {
 
-	int pos;
-	int scope;
+	final int pos;
+	final String fuid;
 	
-	public StoreVar(CodeBlock ins, int scope, int pos){
+	public StoreVar(CodeBlock ins, String fuid, int pos){
 		super(ins, Opcode.STOREVAR);
-		this.scope = scope;
+		this.fuid = fuid;
 		this.pos = pos;
 	}
 	
-	public String toString() { return "STOREVAR " + scope + ", " + pos; }
+	public String toString() { return "STOREVAR " + fuid + " [ " + codeblock.getFunctionIndex(fuid)  + " ] " + ", " + pos; }
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(scope);
+		codeblock.addCode(codeblock.getFunctionIndex(fuid));
 		codeblock.addCode(pos);
 	}
 }
