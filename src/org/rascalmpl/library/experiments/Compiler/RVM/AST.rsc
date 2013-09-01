@@ -32,9 +32,9 @@ data Instruction =
 		| LOADVARDEREF(int scope, int pos)			// Push value of a variable in outer scope identified by reference on stack 
 		| STOREVARDEREF(int scope, int pos)			// Store value at stack[sp - 2] in outer variable identified by reference at stack[sp -1] (value remains on stack)
 		
-		| CALL(str name)							// Call a named function
-		| CALLDYN()									// Call a function on stack
-		| CALLCONSTR(str name)						// Call a constructor
+		| CALL(str name, int arity)					// Call a named function
+		| CALLDYN(int arity)						// Call a function on stack
+		| CALLCONSTR(str name, int arity)			// Call a constructor
 		
 		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive)
 		| CALLPRIM(str name, int arity)				// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
