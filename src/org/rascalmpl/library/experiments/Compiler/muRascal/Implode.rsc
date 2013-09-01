@@ -49,7 +49,7 @@ str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> 
 
 MuFunction preprocess(Function f, str modName){
    uid = getUID(modName,f.funNames,f.name,f.nformals);
-   return muFunction(uid, f.nformals, size(vardefs[uid]), preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body));
+   return muFunction(uid, f.nformals, size(vardefs[uid]), |rascal:///|, [], (), preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body));
 }
 
 list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] exps){
@@ -127,6 +127,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       			   str name, int nformals)                  => muFun(getUID(modName,[],name,nformals))
       	       case preFunN(lrel[str,int] funNames, 
       	       			   str name, int nformals)                  => muFun(getUID(modName,funNames,name,nformals), getUID(modName,funNames))
+     	       
             };
       } catch e: throw "In muRascal function <modName>::<for(<f,n> <- funNames){><f>::<n>::<}><fname>::<nformals> (uid = <uid>) : <e>";   
     }    

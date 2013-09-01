@@ -11,6 +11,10 @@ public class Println extends Instruction {
 		this.arity = arity;
 	}
 	
+	public int spIncrement() {
+		return arity + 1;
+	}
+	
 	public String toString() { return "PRINTLN " + arity; }
 	
 	public void generate(){

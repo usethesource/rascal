@@ -308,6 +308,31 @@ unparse(parse(#Exp, "2+3"));
 @javaClass{org.rascalmpl.library.Prelude}
 public java str unparse(Tree tree);
 
+@doc{
+Synopsis: Save the current object parser to a file.
+
+Description:
+`saveParser` will save the current object parser (constructed from (imported)
+syntax declarations) to a file. The name of the parser class is returned,
+for reference.
+
+The saved parser can be used later on by loading the parser class from
+the JAR file, instantiating it and calling the parse() method.
+
+Examples:
+<listing>
+import ParseTree;
+// import a grammar
+import demo::lang::Exp::Concrete::NoLayout::Syntax;
+
+// save the parser to a JAR file
+saveParser(|file:///tmp/Exp.jar|);
+</listing>
+}
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{uses evaluator's parser interface}
+public java str saveParser(loc outFile);
+
 @javaClass{org.rascalmpl.library.Prelude}
 public java str printSymbol(Symbol sym, bool withLayout);
 

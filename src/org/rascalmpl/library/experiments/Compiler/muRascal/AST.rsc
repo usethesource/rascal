@@ -21,7 +21,7 @@ public data MuModule =
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-              muFunction(str qname, int nformals, int nlocals, list[MuExp] body)
+              muFunction(str qname, int nformals, int nlocals, loc source, list[str] modifiers, map[str,str] tags, list[MuExp] body)
           ;
           
 // A global (module level) variable.
@@ -89,9 +89,13 @@ public data MuExp =
           | muIfelse(MuExp cond, list[MuExp] thenPart,			// If-then-else expression
           						 list[MuExp] elsePart)
           						 
-          | muWhile(MuExp cond, list[MuExp] body)				// While expression
+          | muWhile(str label, MuExp cond, list[MuExp] body)	// While-Do expression
+          | muDo(str label, list[MuExp] body, MuExp cond)		// Do-While expression
           
-          | muLabeled(str name, list[MuExp] MuExp)				// Labeled list of expressions
+		  | muBreak(str label)									// Break statement
+		  | muContinue(str label)								// Continue statement
+		  | muFail(str label)									// Fail statement
+		  | muFailReturn()										// Failure from function body
           
             // Coroutines
             
@@ -110,12 +114,13 @@ public data MuExp =
           | muYield(MuExp exp)									// Yield from coroutine, with value
           
            // Multi-expressions
-            
+          
+          | muExpList(list[MuExp] exps)  						// A list of expressions
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
-          
        	  ;
+       	  
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.
