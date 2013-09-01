@@ -185,7 +185,7 @@ public class RVM {
 			throw new RuntimeException("PANIC: Code for #module_init_" + main + " not found");
 		}
 		
-		if (init_function.nformals != 0) {
+		if (init_function.nformals != 1) {
 			throw new RuntimeException("PANIC: " + "function \"#module_init\" should have one argument");
 		}
 		
@@ -385,7 +385,8 @@ public class RVM {
 				
 				case Opcode.OP_CALLCONSTR:
 					constructor = constructorStore.get(instructions[pc++]);
-					int arity = constructor.getArity();
+					int arity = instructions[pc++];
+					assert arity == constructor.getArity();
 					args = new IValue[arity]; 
 					for(int i = 0; i < arity; i++) {
 						args[arity - 1 - i] = (IValue) stack[--sp];
@@ -394,7 +395,8 @@ public class RVM {
 					continue;
 					
 				case Opcode.OP_CALLDYN:				
-				case Opcode.OP_CALL:			
+				case Opcode.OP_CALL:
+					
 					// In case of CALLDYN, the stack top value of type 'Type' leads to a constructor call
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Type) {
 						Type constr = (Type) stack[--sp];
@@ -413,10 +415,13 @@ public class RVM {
 					
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
 						FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
+						arity = instructions[pc++]; // TODO: add assert
 						fun = fun_instance.function;
 						previousScope = fun_instance.env;
 					} else if(op == Opcode.OP_CALL) {
 						fun = functionStore.get(instructions[pc++]);
+						arity = instructions[pc++];
+						assert arity == fun.nformals;
 						previousScope = cf;
 					} else {
 						throw new RuntimeException("unexpected argument type for CALLDYN: " + stack[sp - 1].getClass());
