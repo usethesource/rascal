@@ -101,11 +101,11 @@ public class Execute {
 						break;
 						
 					case "CALL":
-						codeblock.CALL(getStrField(instruction, "name"));
+						codeblock.CALL(getStrField(instruction, "name"),  getIntField(instruction, "arity"));
 						break;
 						
 					case "CALLDYN":
-						codeblock.CALLDYN();
+						codeblock.CALLDYN( getIntField(instruction, "arity"));
 						break;
 						
 					case "LOADFUN":
@@ -209,7 +209,7 @@ public class Execute {
 						break;
 						
 					case "CALLCONSTR":
-						codeblock.CALLCONSTR(getStrField(instruction, "name"));
+						codeblock.CALLCONSTR(getStrField(instruction, "name"),  getIntField(instruction, "arity"));
 						break;
 						
 					case "LOADTYPE":
