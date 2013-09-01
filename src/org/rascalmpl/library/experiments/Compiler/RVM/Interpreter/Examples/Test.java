@@ -24,7 +24,7 @@ public class Test {
 		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
-					.CALL("main")
+					.CALL("main", 1)
 					.RETURN1()
 					.HALT()));
 		

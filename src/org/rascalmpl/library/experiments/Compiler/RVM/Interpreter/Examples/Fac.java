@@ -28,14 +28,14 @@ public class Fac {
 					LOADLOC(0).
 					LOADCON(1).
 					CALLPRIM(RascalPrimitive.subtraction_num_num, 2).
-					CALL("fac").
+					CALL("fac", 1).
 					CALLPRIM(RascalPrimitive.product_num_num, 2).
 					RETURN1()));
 		
 		rvm.declare(new Function("main", 2, 1, 1, 7,
 				new CodeBlock(vf).
 					LOADCON(4).
-					CALL("fac").
+					CALL("fac", 1).
 					HALT()));
 		
 		rvm.declare(new Function("main_repeat", 3, 0, 2, 20,
@@ -54,7 +54,7 @@ public class Fac {
 					HALT().
 					LABEL("M").
 					LOADLOC(0).
-					CALL( "fac").
+					CALL( "fac", 1).
 					POP().
 					LOADLOC(1).
 					LOADCON(1).
@@ -66,7 +66,7 @@ public class Fac {
 		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
-					.CALL("main")
+					.CALL("main", 1)
 					.RETURN1()
 					.HALT()));
 		

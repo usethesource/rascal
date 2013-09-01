@@ -86,10 +86,10 @@ public class CountDown_b {
 		 */
 		rvm.declare(new Function("main", 3, 1, 4, 6,
 					new CodeBlock(vf)
-						.CALL("h")
+						.CALL("h", 0)
 						.STORELOC(1)
 						.POP()
-						.CALL("h")
+						.CALL("h", 0)
 						.STORELOC(2)
 						.POP()
 						.LOADCON(0)
@@ -118,7 +118,7 @@ public class CountDown_b {
 		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
-					.CALL("main")
+					.CALL("main", 1)
 					.RETURN1()
 					.HALT()));
 

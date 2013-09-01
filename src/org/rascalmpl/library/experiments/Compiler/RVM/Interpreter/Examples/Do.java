@@ -35,20 +35,20 @@ public class Do {
 				new CodeBlock(vf).
 					LOADLOC(1).
 					LOADLOC(0).
-					CALLDYN().
+					CALLDYN(1).
 					RETURN1()));
 		
 		rvm.declare(new Function("main", 4, 1, 1, 7,
 				new CodeBlock(vf).
 					LOADFUN("cube").
 					LOADCON(4).
-					CALL("do").
+					CALL("do", 2).
 					HALT()));
 		
 		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
-					.CALL("main")
+					.CALL("main",1)
 					.RETURN1()
 					.HALT()));
 		
