@@ -1,4 +1,4 @@
-module experiments::Compiler::Benchmarks::B2
+module experiments::Compiler::Benchmarks::BFor
 
 value main(list[value] args){
     for(i <- [1 .. 1000000], i % 2 == 1){
