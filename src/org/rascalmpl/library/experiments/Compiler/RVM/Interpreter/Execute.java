@@ -39,8 +39,22 @@ public class Execute {
 
 	// Library function to execute a RVM program from Rascal
 
-	public ITuple executeProgram(IConstructor program, IBool debug, IInteger repeat, IBool testsuite, IEvaluatorContext ctx) {
+	public ITuple executeProgram(IConstructor program, IBool debug,
+			IInteger repeat, IBool testsuite, IEvaluatorContext ctx) {
+		
 		String func = (testsuite.getValue()) ? "testsuite" : "main";
+		
+		String main = "/main(list(value());)#0";
+		String mu_main = "/main(1)";
+		String module_init = "/#module_init()#0";
+		String mu_module_init = "/#module_init(0)";
+		
+		String test_suite = "/testsuite()#0";
+		
+		String uid_main = null;
+		String uid_module_init = null;
+		String uid_testsuite = null;
+		
 		RVM rvm = new RVM(vf, ctx.getStdOut(), debug.getValue());
 
 		IList types = (IList) program.get("types");
@@ -54,8 +68,15 @@ public class Execute {
 
 			if (declaration.getName().contentEquals("FUNCTION")) {
 
-				String name = ((IString) declaration.get("name")).getValue();
-				Integer scope = ((IInteger) declaration.get("scope")).intValue();
+				String name = ((IString) declaration.get("qname")).getValue();
+				if(name.endsWith(main) || name.endsWith(mu_main)) {
+					// Get the main's uid
+					uid_main = name;
+				}
+				if(name.endsWith(module_init) || name.endsWith(mu_module_init)) {
+					// Get the module_init's uid
+					uid_module_init = name;
+				}
 				Integer nlocals = ((IInteger) declaration.get("nlocals")).intValue();
 				Integer nformals = ((IInteger) declaration.get("nformals")).intValue();
 				Integer maxstack = ((IInteger) declaration.get("maxStack")).intValue();
@@ -73,7 +94,7 @@ public class Execute {
 						break;
 						
 					case "LOADVAR":
-						codeblock.LOADVAR(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
+						codeblock.LOADVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
 						break;
 						
 					case "LOADLOC":
@@ -81,7 +102,7 @@ public class Execute {
 						break;
 						
 					case "STOREVAR":
-						codeblock.STOREVAR(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
+						codeblock.STOREVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
 						break;
 						
 					case "STORELOC":
@@ -101,7 +122,7 @@ public class Execute {
 						break;
 						
 					case "CALL":
-						codeblock.CALL(getStrField(instruction, "name"),  getIntField(instruction, "arity"));
+						codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
 						break;
 						
 					case "CALLDYN":
@@ -109,7 +130,7 @@ public class Execute {
 						break;
 						
 					case "LOADFUN":
-						codeblock.LOADFUN(getStrField(instruction, "name"));
+						codeblock.LOADFUN(getStrField(instruction, "fuid"));
 						break;
 						
 					case "RETURN0":
@@ -137,7 +158,7 @@ public class Execute {
 						break;
 						
 					case "CREATE":
-						codeblock.CREATE(getStrField(instruction, "fun"), getIntField(instruction, "arity"));
+						codeblock.CREATE(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
 						break;
 						
 					case "CREATEDYN":
@@ -181,7 +202,7 @@ public class Execute {
 						break;
 						
 					case "LOADVARREF":
-						codeblock.LOADVARREF(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
+						codeblock.LOADVARREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
 						break;
 						
 					case "LOADLOCDEREF":
@@ -189,7 +210,7 @@ public class Execute {
 						break;
 						
 					case "LOADVARDEREF":
-						codeblock.LOADVARDEREF(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
+						codeblock.LOADVARDEREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
 						break;
 					
 					case "STORELOCDEREF":
@@ -197,19 +218,19 @@ public class Execute {
 						break;
 						
 					case "STOREVARDEREF":
-						codeblock.STOREVARDEREF(getIntField(instruction, "scope"), getIntField(instruction, "pos"));
+						codeblock.STOREVARDEREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
 						break;
 						
 					case "LOAD_NESTED_FUN":
-						codeblock.LOADNESTEDFUN(getStrField(instruction, "name"), getIntField(instruction, "scope"));
+						codeblock.LOADNESTEDFUN(getStrField(instruction, "fuid"), getStrField(instruction, "scopeIn"));
 						break;
 						
 					case "LOADCONSTR":
-						codeblock.LOADCONSTR(getStrField(instruction, "name"));
+						codeblock.LOADCONSTR(getStrField(instruction, "fuid"));
 						break;
 						
 					case "CALLCONSTR":
-						codeblock.CALLCONSTR(getStrField(instruction, "name"),  getIntField(instruction, "arity"));
+						codeblock.CALLCONSTR(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
 						break;
 						
 					case "LOADTYPE":
@@ -236,7 +257,7 @@ public class Execute {
 					}
 
 				}
-				rvm.declare(new Function(name, scope, nformals, nlocals,
+				rvm.declare(new Function(name, nformals, nlocals,
 						maxstack, codeblock));
 			}
 		}
@@ -244,7 +265,7 @@ public class Execute {
 		long start = System.currentTimeMillis();
 		Object result = null;
 		for (int i = 0; i < repeat.intValue(); i++)
-			result = rvm.executeProgram(func, new IValue[] {});
+			result = rvm.executeProgram(uid_main, uid_module_init, new IValue[] {});
 		long now = System.currentTimeMillis();
 		return vf.tuple((IValue) result, vf.integer(now - start));
 	}

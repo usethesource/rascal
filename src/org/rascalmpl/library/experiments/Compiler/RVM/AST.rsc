@@ -3,7 +3,7 @@ module experiments::Compiler::RVM::AST
 import Type;
 
 public data Declaration = 
-		  FUNCTION(str name, int scope, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
+		  FUNCTION(str qname, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
 		;
 
 public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions);
@@ -14,27 +14,27 @@ data Instruction =
 	   	| LOADCON(value val)						// Push an IValue
 	   	| LOADTYPE(Symbol \type)					// Push a type constant
 	   	
-	   	| LOADFUN(str name)							// Push a named function closure
-		| LOAD_NESTED_FUN(str name, int scope)		// Push a a closure of a named inner function
-		| LOADCONSTR(str name)						// Push a constructor function
+	   	| LOADFUN(str fuid)                         // Push a named function closure
+		| LOAD_NESTED_FUN(str fuid, str scopeIn)    // Push a a closure of a named inner function
+		| LOADCONSTR(str fuid)						// Push a constructor function
 		
 		| LOADLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in local variable (value remains on stack)
 	   	
-		| LOADVAR(int scope, int pos)				// Push a variable from an outer scope
-		| STOREVAR(int scope, int pos)				// Store value on  top-of-stack in variable in outer scope (value remains on stack)
+		| LOADVAR(str fuid, int pos)                // Push a variable from an outer scope
+		| STOREVAR(str fuid, int pos)               // Store value on  top-of-stack in variable in outer scope (value remains on stack)
 		
 		| LOADLOCREF(int pos)						// Push a reference to a local variable
 		| LOADLOCDEREF(int pos)						// Push value of a local variable identified by reference on stack 
 		| STORELOCDEREF(int pos)					// Store value at stack[sp - 2] in local variable identified by reference at stack[sp -1] (value remains on stack)
 			
-		| LOADVARREF(int scope, int pos)			// Push a reference to a variable in anouter scope
-		| LOADVARDEREF(int scope, int pos)			// Push value of a variable in outer scope identified by reference on stack 
-		| STOREVARDEREF(int scope, int pos)			// Store value at stack[sp - 2] in outer variable identified by reference at stack[sp -1] (value remains on stack)
+		| LOADVARREF(str fuid, int pos)			    // Push a reference to a variable in anouter scope
+		| LOADVARDEREF(str fuid, int pos)           // Push value of a variable in outer scope identified by reference on stack 
+		| STOREVARDEREF(str fuid, int pos)          // Store value at stack[sp - 2] in outer variable identified by reference at stack[sp -1] (value remains on stack)
 		
-		| CALL(str name, int arity)					// Call a named function
+		| CALL(str fuid, int arity)					// Call a named function
 		| CALLDYN(int arity)						// Call a function on stack
-		| CALLCONSTR(str name, int arity)			// Call a constructor
+		| CALLCONSTR(str fuid, int arity)			// Call a constructor
 		
 		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive)
 		| CALLPRIM(str name, int arity)				// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
@@ -49,7 +49,7 @@ data Instruction =
 		| JMPFALSE(str label)						// Jump to labelled instruction when top-of-stack is false (stack is popped)
 													// TODO: JMPTRUE and JMPFALSE currently act on Java booleans and Rascal booleans; this has to be split
 		
-		| CREATE(str fun, int arity)				// Create a co-routine from a named function
+		| CREATE(str fuid, int arity)				// Create a co-routine from a named function
 		| CREATEDYN(int arity)						// Create a co-routine from a function on the stack
 		| INIT(int arity)							// Initialize co-routine on top-of-stack.
 		| HASNEXT()									// HasNext operation on co-routine on top-of-stack
@@ -64,5 +64,5 @@ data Instruction =
 		| DUP()										// Duplicate the top-of-stack
 		
 		| HALT()									// Halt execution of the RVM program
-		;
+;
 	

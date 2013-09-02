@@ -4,21 +4,21 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 
 public class LoadNestedFun extends Instruction {
 
-	final String function;
-	final int scope;
+	final String fuid;
+	final String scopeIn;
 	
-	public LoadNestedFun(CodeBlock ins, String function, int scope) {
+	public LoadNestedFun(CodeBlock ins, String fuid, String scopeIn) {
 		super(ins, Opcode.LOAD_NESTED_FUN);
-		this.function = function;
-		this.scope = scope;
+		this.fuid = fuid;
+		this.scopeIn = scopeIn;
 	}
 	
-	public String toString() { return "LOAD_NESTED_FUN " + function + ", " + scope; }
+	public String toString() { return "LOAD_NESTED_FUN " + fuid + ", " + scopeIn + " [ " +codeblock.getFunctionIndex(fuid) + ", " + codeblock.getFunctionIndex(scopeIn) + " ]"; }
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getFunctionIndex(function));
-		codeblock.addCode(scope);
+		codeblock.addCode(codeblock.getFunctionIndex(fuid));
+		codeblock.addCode(codeblock.getFunctionIndex(scopeIn));
 	}
 
 }

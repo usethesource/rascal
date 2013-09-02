@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
@@ -72,10 +73,10 @@ public class RVM {
 	}
 	
 	public void declare(Function f){
-		if(functionMap.get(f.name) != null){
-			throw new RuntimeException("PANIC: Double declaration of function: " + f.name);
+		if(functionMap.get(f.getName()) != null){
+			throw new RuntimeException("PANIC: Double declaration of function: " + f.getName());
 		}
-		functionMap.put(f.name, functionStore.size());
+		functionMap.put(f.getName(), functionStore.size());
 		functionStore.add(f);
 	}
 	
@@ -147,13 +148,13 @@ public class RVM {
 			return w.toString();
 		}
 		if(o instanceof Coroutine){
-			return "Coroutine[" + ((Coroutine)o).frame.function.name + "]";
+			return "Coroutine[" + ((Coroutine)o).frame.function.getName() + "]";
 		}
 		if(o instanceof Function){
-			return "Function[" + ((Function)o).name + "]";
+			return "Function[" + ((Function)o).getName() + "]";
 		}
 		if(o instanceof FunctionInstance){
-			return "Function[" + ((FunctionInstance)o).function.name + "]";
+			return "Function[" + ((FunctionInstance)o).function.getName() + "]";
 		}
 		if(o instanceof Reference){
 			Reference ref = (Reference) o;
@@ -171,7 +172,7 @@ public class RVM {
 		throw new RuntimeException("PANIC: asString cannot convert: " + o);
 	}
 	
-	public IValue executeProgram(String main, IValue[] args) {
+	public IValue executeProgram(String uid_main, String uid_module_init, IValue[] args) {
 
 		// Finalize the instruction generation of all functions
 		for (Function f : functionStore) {
@@ -180,9 +181,10 @@ public class RVM {
 		
 		// Search for the "#module_init" function and check arguments
 
-		Function init_function = functionStore.get(functionMap.get("#module_init_" + main));
+		Function init_function = functionStore.get(functionMap.get(uid_module_init));
+
 		if (init_function == null) {
-			throw new RuntimeException("PANIC: Code for #module_init_" + main + " not found");
+			throw new RuntimeException("PANIC: Code for " + uid_module_init + " not found");
 		}
 		
 		if (init_function.nformals != 1) {
@@ -191,9 +193,10 @@ public class RVM {
 		
 		// Search for the "main" function and check arguments
 
-		Function main_function = functionStore.get(functionMap.get(main));
+		Function main_function = functionStore.get(functionMap.get(uid_main));
+
 		if (main_function == null) {
-			throw new RuntimeException("PANIC: No function " + main + " found");
+			throw new RuntimeException("PANIC: No function " + uid_main + " found");
 		}
 				
 		if (main_function.nformals != 1) {
@@ -202,7 +205,7 @@ public class RVM {
 		
 		// Perform a call to #module_init" at scope level = 0
 		
-		Frame cf = new Frame(0, null, init_function.maxstack, init_function);
+		Frame cf = new Frame(init_function.getScopeId(), null, init_function.maxstack, init_function);
 		Frame root = cf; // we need the notion of the root frame, which represents the root environment
 		Object[] stack = cf.stack;
 		
@@ -219,7 +222,7 @@ public class RVM {
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				if(pc < 0 || pc >= instructions.length){
-					throw new RuntimeException(main + " illegal pc: " + pc);
+					throw new RuntimeException(uid_main + " illegal pc: " + pc);
 				}
 				int op = instructions[pc++];
 
@@ -429,7 +432,7 @@ public class RVM {
 						
 					instructions = fun.codeblock.getInstructions();
 					
-					Frame nextFrame = new Frame(fun.scope, cf, previousScope, fun.maxstack, fun);
+					Frame nextFrame = new Frame(fun.getScopeId(), cf, previousScope, fun.maxstack, fun);
 					
 					for (int i = fun.nformals - 1; i >= 0; i--) {
 						nextFrame.stack[i] = stack[sp - fun.nformals + i];
@@ -507,7 +510,7 @@ public class RVM {
 					} else if(src instanceof FunctionInstance) {
 						FunctionInstance fun_instance = (FunctionInstance) src;
 						fun = fun_instance.function;
-						Frame frame = new Frame(fun.scope, null, fun_instance.env, fun.maxstack, fun);
+						Frame frame = new Frame(fun.getScopeId(), null, fun_instance.env, fun.maxstack, fun);
 						coroutine = new Coroutine(frame);
 					} else {
 						throw new RuntimeException("unexpected argument type for INIT: " + src.getClass() + ", " + src);
@@ -543,7 +546,7 @@ public class RVM {
 						}
 					}
 					arity = instructions[pc++];
-					Frame frame = new Frame(fun.scope, null, previousScope, fun.maxstack, fun);
+					Frame frame = new Frame(fun.getScopeId(), null, previousScope, fun.maxstack, fun);
 					// the main function of coroutine may have formal parameters,
 					// therefore, CREATE may take a number of arguments <= formal parameters
 					if(arity > fun.nformals)
@@ -904,7 +907,17 @@ public class RVM {
 						
 					case typeOf:
 						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+						if(stack[sp - 1] instanceof Integer) {
+							stack[sp - 1] = TypeFactory.getInstance().integerType();
+						} else {
+							stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+						}
+						break;
+					
+					case product_mint_mint:
+						assert arity == 2;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) * ((Integer) stack[sp - 1]);
+						sp = sp - 1;
 						break;
 					
 					
@@ -924,4 +937,5 @@ public class RVM {
 		}
 		return Rascal_FALSE;
 	}
+	
 }

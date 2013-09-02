@@ -91,11 +91,11 @@ list[MuExp] translate(s: (Statement) `insert <DataTarget dataTarget> <Statement 
 list[MuExp] translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) =
    [ muCallPrim("listwriter_add", [muTmp(asTmp(currentLoop())), *translate(statement)]) ];
 
-list[MuExp] translate(s: (Statement) `<FunctionDeclaration functionDeclaration>`) { translate(functionDeclaration); return []; } // we assume globally unique function names for now
+list[MuExp] translate(s: (Statement) `<FunctionDeclaration functionDeclaration>`) { translate(functionDeclaration); return []; }
 
 list[MuExp] translate(s: (Statement) `<LocalVariableDeclaration declaration> ;`) { 
     tp = declaration.declarator.\type;
-    variables = declaration.declarator.variables;
+    {Variable ","}+ variables = declaration.declarator.variables;
     
     return for(var <- variables){
     			if(var is initialized)

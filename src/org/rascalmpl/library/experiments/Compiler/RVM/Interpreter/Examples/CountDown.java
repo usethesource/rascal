@@ -24,7 +24,7 @@ public class CountDown {
 		 * 		return 0; 
 		 * }
 		 */
-		rvm.declare(new Function("g", 1, 1, 1, 6,
+		rvm.declare(new Function("g", 1, 1, 6,
 					new CodeBlock(vf)
 							.LABEL("LOOP")
 							.LOADLOC(0)
@@ -52,7 +52,7 @@ public class CountDown {
 		/*
 		 * result: 23
 		 */
-		rvm.declare(new Function("main", 2, 1, 2, 6,
+		rvm.declare(new Function("main", 1, 2, 6,
 					new CodeBlock(vf)
 						.CREATE("g",0)
 						.STORELOC(1)
@@ -72,14 +72,14 @@ public class CountDown {
 						.CALLPRIM(RascalPrimitive.addition_num_num, 2)
 						.HALT()));
 	
-		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+		rvm.declare(new Function("#module_init", 0, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main", 1)
 					.RETURN1()
 					.HALT()));
 
-		rvm.executeProgram("main", new IValue[] {});
+		rvm.executeProgram("main", "#module_init", new IValue[] {});
 	}
 
 }

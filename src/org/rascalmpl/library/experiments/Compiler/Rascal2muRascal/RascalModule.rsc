@@ -14,11 +14,14 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::muRascal::AST;
 
+import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
 public list[MuFunction] functions_in_module = [];
 public list[MuVariable] variables_in_module = [];
 public list[MuExp] variable_initializations = [];
+
+public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
 public void resetR2mu() {
 	functions_in_module = [];
@@ -27,27 +30,38 @@ public void resetR2mu() {
 	resetTmpAndLabel();
 }
 
-// Compile a Rascal source module (given as string) to muRascal
+public void importLibFuns(list[loc] libs) { 
+	for(lib <- libs) {
+    	libModule = parse(lib);
+    	for(fun <-libModule.functions) {
+        	// First, assign the right scopeId to the library functions
+      		// Add library functions to the module
+      		functions_in_module += fun;
+      		// Register library functions for the use
+      		libFuns += fun.qname;
+      	}     
+	}
+	println("There are <size(libFuns)> functions imported from the muRascal libraries!");
+}
 
+@doc{Compile a Rascal source module (given as string) to muRascal}
 MuModule r2mu(str moduleStr){
 	return r2mu(parse(#start[Module], moduleStr).top); // .top is needed to remove start! Ugly!
 }
 
-// Compile a Rascal source module (given at a location) to muRascal
-
+@doc{Compile a Rascal source module (given at a location) to muRascal}
 MuModule r2mu(loc moduleLoc){
-    println(readFile(moduleLoc));
+    //println(readFile(moduleLoc));
    	return r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
 }
 
-// Compile a parsed Rascal source module to muRascal
-
+@doc{Compile a parsed Rascal source module to muRascal}
 MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    try {
    	Configuration c = newConfiguration();
-   	config = checkModule(M, c);  
-   	//text(config);
-   	extractScopes();
+   	config = checkModule(M, c);
+   	// Extract scoping information available from the configuration returned by the type checker  
+   	extractScopes();  	
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    	if(size(errors) > 0) {
@@ -56,16 +70,21 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  }
    	  throw "Module contains errors!";
    	} else {
+   	  // If no static errors...
    	  if(size(warnings) > 0) {
    	  	for(w <- warnings) {
    	  		println(w);
    	  	}
    	  }
    	  functions_in_module = [];
+   	  // Import muRascal libraries
+   	  libFuns = {};
+   	  importLibFuns([ Library ]);
    	  variables_in_module = [];
    	  variable_initializations = [];
+   	  // TODO: think of types that have to be actually imported
    	  list[Symbol] types = [ \type | int uid <- config.store, 
-   	  									constructor(name, Symbol \type, containedIn, at) := config.store[uid]
+   	  									   constructor(name, Symbol \type, containedIn, at) := config.store[uid]
    	  									|| production(name, Symbol \type, containedIn, at) := config.store[uid]
    	  									|| datatype(name, Symbol \type, containedIn, ats) := config.store[uid]
    	  									|| sorttype(name, Symbol \type, containedIn, ats) := config.store[uid]
@@ -73,15 +92,16 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  translate(M);
    	  generate_tests();
    	  return muModule("<M.header.name>", types, functions_in_module, variables_in_module, variable_initializations);
-   	  }
-   	} catch Java("ParseError","Parse error"): {
-   	    throw "Syntax errors in module <moduleLoc>";
-   	} finally {
-   		println("r2mu: Cleaning up ...");
-   		resetR2mu();
-   		resetScopeExtraction();
    	}
-   	throw "r2mu: cannot come here!";
+   } catch Java("ParseError","Parse error"): {
+   	   throw "Syntax errors in module <moduleLoc>";
+   } finally {
+   	   println("r2mu: Cleaning up ...");
+   	   resetR2mu();
+   	   resetScopeExtraction();
+   	   println("r2mu: Cleaned up!");
+   }
+   throw "r2mu: cannot come here!";
 }
 
 void translate(m: (Module) `<Header header> <Body body>`) {
@@ -116,9 +136,9 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
 println("r2mu: Compiling <signature.name>");
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
-  scope = loc2uid[fd@\loc];
+  fuid = uid2str(loc2uid[fd@\loc]);
   tbody = translate(expression);
-  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), [*tbody[0 .. -1], muReturn(tbody[-1])])];
+  functions_in_module += [muFunction(fuid, nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), [*tbody[0 .. -1], muReturn(tbody[-1])])];
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
@@ -126,8 +146,8 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   ftype = getFunctionType(fd@\loc);    
   nformals = size(ftype.parameters);
   tbody = [ *translate(stat) | stat <- body.statements ];
-  scope = loc2uid[fd@\loc];
-  functions_in_module += [muFunction("<signature.name>", scope, nformals, getScopeSize(scope), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody)]; 
+  fuid = uid2str(loc2uid[fd@\loc]);
+  functions_in_module += [muFunction(fuid, nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody)]; 
 }
 
 //str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions> ;`)   { throw("conditional"); }
