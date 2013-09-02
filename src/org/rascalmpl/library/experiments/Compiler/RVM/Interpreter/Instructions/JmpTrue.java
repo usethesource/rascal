@@ -11,10 +11,10 @@ public class JmpTrue extends Instruction {
 		this.label = label;
 	}
 	
-	public String toString() { return "JMPTRUE " + label + " [" + codeblock.getLabelIndex(label) + "]"; }
+	public String toString() { return "JMPTRUE " + label + " [" + codeblock.getLabelPC(label) + "]"; }
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getLabelIndex(label));
+		codeblock.addCode(codeblock.getLabelPC(label));
 	}
 }
