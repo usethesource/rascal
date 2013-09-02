@@ -323,7 +323,7 @@ public class RVM {
 				
 				case Opcode.OP_STORELOCDEREF:
 					Reference ref = (Reference) stack[instructions[pc++]];
-					ref.stack[ref.pos] = narrow(stack[sp - 1]); // Guarantee that only IValues are assigned to non-local variables        
+					ref.stack[ref.pos] = stack[sp - 1]; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
 					continue;
 				
 				case Opcode.OP_STOREVAR:
@@ -332,7 +332,7 @@ public class RVM {
 
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
-							fr.stack[pos] = narrow(stack[sp - 1]);	// Guarantee that only IValues are assigned to non-local variables
+							fr.stack[pos] = stack[sp - 1];	// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
 							continue NEXT_INSTRUCTION;
 						}
 					}
