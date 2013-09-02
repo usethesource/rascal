@@ -258,7 +258,9 @@ public class Execute {
 						maxstack, codeblock));
 			}
 		}
-
+		if(uid_main == null || uid_module_init == null) {
+			throw new RuntimeException("There is no main or module_init function found when loading RVM code!");
+		}
 		long start = System.currentTimeMillis();
 		Object result = null;
 		for (int i = 0; i < repeat.intValue(); i++)

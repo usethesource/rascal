@@ -109,17 +109,22 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   									 RETURN1(),
   									 HALT()
   									]));
-  									
- main_testsuite = getFUID(name,[],"testsuite",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
- module_init_testsuite = getFUID(name,[],"#module_init_testsuite",Symbol::func(Symbol::\value(),[]),0);
-  
- funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, 0, size(variables) + 1, defaultStackSize, 
-  									[*tr(initializations), 
-  									 LOADLOC(0), 
-  									 CALL(main_testsuite,1), 
-  									 RETURN1(),
-  									 HALT()
-  									]));
+ 
+  main_testsuite = getUID(name,[],"testsuite",1);
+  module_init_testsuite = getUID(name,[],"#module_init_testsuite",0);
+  if(funMap[main_testsuite]?) { 						
+  	main_testsuite = getFUID(name,"testsuite",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
+  	module_init_testsuite = getFUID(name,"#module_init_testsuite",Symbol::func(Symbol::\value(),[]),0);
+  }
+  if(funMap[main_testsuite]?) {
+ 	 funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, 0, size(variables) + 1, defaultStackSize, 
+  											 [*tr(initializations), 
+  									 		 LOADLOC(0), 
+  									 		 CALL(main_testsuite,1), 
+  									 		 RETURN1(),
+  									 		 HALT()
+  											 ]));
+  }
   res = rvm(types, funMap, []);
   if(listing){
     for(fname <- funMap /*, fname != module_init_fun, fname notin library_names */)
