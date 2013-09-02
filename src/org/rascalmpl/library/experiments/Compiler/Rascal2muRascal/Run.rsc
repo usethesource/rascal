@@ -20,7 +20,7 @@ loc Example9 = |std:///experiments/Compiler/Examples/Fac.rsc|;
 loc Example10 = |std:///experiments/Compiler/Examples/Fib.rsc|;
 
 void run(){
-  muP = r2mu(Example10);
+  muP = r2mu(Example1);
   //for(fun <- muP.functions) {
   //    if(fun.qname == "main") {
   //    	 iprintln(fun);
@@ -31,7 +31,7 @@ void run(){
   //iprintln(rvmP.declarations["main"]);
   // iprintln(rvmP);
   
-  <v, t> = executeProgram(rvmP, true, 1);
+  <v, t> = executeProgram(rvmP, false, 1, true);
   println("Result = <v>, [<t> msec]");
   return;
 }

@@ -10,6 +10,7 @@ import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
+import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::Rascal2muRascal::RascalType;
@@ -344,7 +345,7 @@ list[MuExp] translateBool(e:(Expression) `! <Expression lhs>`) = translateBool("
 	nformals = size(ftype.parameters);
 	nlocals = getScopeSize(fuid);
 	body = [ *translate(stat) | stat <- statements ];
-	functions_in_module += [ muFunction(fuid, nformals, nlocals, body) ];
+	functions_in_module += [ muFunction(fuid, nformals, nlocals, e@\loc, [], (), body) ];
 	tuple[str fuid,int pos] addr = uid2addr[uid];
 	return [ (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid) ];
 }
