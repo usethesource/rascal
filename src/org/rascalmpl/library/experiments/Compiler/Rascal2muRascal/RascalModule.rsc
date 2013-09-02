@@ -21,7 +21,6 @@ public list[MuFunction] functions_in_module = [];
 public list[MuVariable] variables_in_module = [];
 public list[MuExp] variable_initializations = [];
 
-public int tmpVar = -1;
 public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
 public void resetR2mu() {

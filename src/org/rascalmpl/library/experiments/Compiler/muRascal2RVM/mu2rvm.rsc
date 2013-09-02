@@ -8,11 +8,9 @@ import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Implode;
 
-<<<<<<< HEAD
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
-=======
->>>>>>> branch 'master' of https://github.com/cwi-swat/rascal.git
+
 
 alias INS = list[Instruction];
 
@@ -69,7 +67,6 @@ map[str,Declaration] parseLibrary(){
   	return funMap;
 }
 
->>>>>>> branch 'master' of https://github.com/cwi-swat/rascal.git
 // Translate a muRascal module
 RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations), bool listing=false){
   funMap = ();
@@ -384,14 +381,6 @@ INS tr_cond(muAll(list[MuExp] exps), str continueLab, str failLab){
     for(i <- index(exps)){
         if(muMulti(exp1) := exps[i]){
            lastMulti = i;
-           co = newLocal();
-           generators[i] = co;
-           code += [ *tr(exp1), 
-          		     INIT(0), 
-          		     STORELOC(co), 
-          		     POP()
-          		   ];
-        }
            co = newLocal();
            generators[i] = co;
            code += [ *tr(exp1), 
