@@ -10,7 +10,7 @@ import experiments::Compiler::muRascal::Implode;
 
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
-
+import experiments::Compiler::muRascal2RVM::StackSize;
 
 alias INS = list[Instruction];
 
@@ -93,6 +93,7 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
     nlocal = fun.nlocal;
     code = trblock(fun.body);
     funMap += (fun.qname : FUNCTION(fun.qname, fun.nformals, nlocal, defaultStackSize, code));
+    println("<fun.qname>: stacksize=<estimate(code)>\n<code>");
   }
   
   main_fun = getUID(name,[],"main",1);
@@ -152,13 +153,12 @@ INS trblock(list[MuExp] exps) {
 
 // Translate a single muRascal expression
 
+INS tr(muBool(bool b)) = [LOADBOOL(b)];
 INS tr(muCon("true")) = [LOADCON(true)];
 INS tr(muCon("false")) = [LOADCON(false)];
 
-default INS tr(muCon(value c)) = [LOADCON(c)];
-
-INS tr(muBool(bool b)) = [LOADBOOL(b)];
 INS tr(muInt(int n)) = [LOADINT(n)];
+default INS tr(muCon(value c)) = [LOADCON(c)];
 
 
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
