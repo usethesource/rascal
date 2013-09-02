@@ -46,8 +46,8 @@ public class Execute {
 		
 		String main = isTestSuite ? "/testsuite(list(value());)#0" : "/main(list(value());)#0";
 		String mu_main = isTestSuite ? "/testsuite(1)" : "/main(1)";
-		String module_init = isTestSuite ? "/#module_init_testsuite()#0" : "/#module_init_main()#0";
-		String mu_module_init = isTestSuite ? "/#module_init_testsuite(0)" : "/#module_init_main(0)";
+		String module_init = isTestSuite ? "/#module_init_testsuite(list(value());)#0" : "/#module_init_main(list(value());)#0";
+		String mu_module_init = isTestSuite ? "/#module_init_testsuite(1)" : "/#module_init_main(1)";
 		
 		String uid_main = null;
 		String uid_module_init = null;
