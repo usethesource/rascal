@@ -14,23 +14,23 @@ data Instruction =
 	   	| LOADCON(value val)						// Push an IValue
 	   	| LOADTYPE(Symbol \type)					// Push a type constant
 	   	
-	   	| LOADFUN(str fuid)// Push a named function closure
-		| LOAD_NESTED_FUN(str fuid, str scopeIn)// Push a a closure of a named inner function
+	   	| LOADFUN(str fuid)                         // Push a named function closure
+		| LOAD_NESTED_FUN(str fuid, str scopeIn)    // Push a a closure of a named inner function
 		| LOADCONSTR(str fuid)						// Push a constructor function
 		
 		| LOADLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in local variable (value remains on stack)
 	   	
-		| LOADVAR(str fuid, int pos)// Push a variable from an outer scope
-		| STOREVAR(str fuid, int pos)// Store value on  top-of-stack in variable in outer scope (value remains on stack)
+		| LOADVAR(str fuid, int pos)                // Push a variable from an outer scope
+		| STOREVAR(str fuid, int pos)               // Store value on  top-of-stack in variable in outer scope (value remains on stack)
 		
 		| LOADLOCREF(int pos)						// Push a reference to a local variable
 		| LOADLOCDEREF(int pos)						// Push value of a local variable identified by reference on stack 
 		| STORELOCDEREF(int pos)					// Store value at stack[sp - 2] in local variable identified by reference at stack[sp -1] (value remains on stack)
 			
-		| LOADVARREF(str fuid, int pos)			// Push a reference to a variable in anouter scope
-		| LOADVARDEREF(str fuid, int pos)// Push value of a variable in outer scope identified by reference on stack 
-		| STOREVARDEREF(str fuid, int pos)// Store value at stack[sp - 2] in outer variable identified by reference at stack[sp -1] (value remains on stack)
+		| LOADVARREF(str fuid, int pos)			    // Push a reference to a variable in anouter scope
+		| LOADVARDEREF(str fuid, int pos)           // Push value of a variable in outer scope identified by reference on stack 
+		| STOREVARDEREF(str fuid, int pos)          // Store value at stack[sp - 2] in outer variable identified by reference at stack[sp -1] (value remains on stack)
 		
 		| CALL(str fuid, int arity)					// Call a named function
 		| CALLDYN(int arity)						// Call a function on stack
