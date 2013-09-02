@@ -196,5 +196,5 @@ void generate_tests(){
      }
    }
    code += [ muCallPrim("testreport_close", []), muReturn() ];
-   functions_in_module += muFunction("testsuite", 1, 1, 1, |rascal:///|, [], (), code);
+   functions_in_module += muFunction("testsuite", 1, 1, |rascal:///|, [], (), code);
 }
