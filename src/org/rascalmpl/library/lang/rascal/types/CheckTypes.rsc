@@ -632,25 +632,25 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVar
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
+        c.stack = c.nextLoc + c.stack;
         c.nextLoc = c.nextLoc + 1;
     } else if (overload(items, overloaded(itemTypes)) := c.store[c.fcvEnv[n]]) {
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
         c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes + rt));
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
+        c.stack = c.nextLoc + c.stack;
         c.nextLoc = c.nextLoc + 1;
     } else if (function(_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
+        c.stack = c.nextLoc + c.stack;
         c.store[c.nextLoc + 1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded({ c.store[c.fcvEnv[n]].rtype, rt }));
         for (fname <- invert(c.fcvEnv)[c.fcvEnv[n]])
             c.fcvEnv[fname] = c.nextLoc+1;
         c.nextLoc = c.nextLoc + 2;
-    } else if ((\module(_,_) := c.store[c.fcvEnv[n]] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) { // ???
+    } else if ((\module(_,_) := c.store[c.fcvEnv[n]] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) {
         c = addScopeWarning(c, "Function declaration masks imported variable or constructor definition", l);
         c.fcvEnv[n] = c.nextLoc;
         if (\module(_,_) := c.store[head(c.stack)]) {
@@ -662,7 +662,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVar
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
+        c.stack = c.nextLoc + c.stack;
         c.nextLoc = c.nextLoc + 1;
     } else {
         c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, non-function items of that name have already been defined in the current scope",l);
@@ -5331,11 +5331,10 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         // We now have the function type. So, we can throw cFun away, and add this as a proper function
         // into the scope. NOTE: This can be a failure type.
         c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
-    }
-    //else {
-    funId = getOneFrom(invert(c.definitions)[fd@\loc]);
-    c.stack = funId + c.stack;
-    //}   
+    } else {
+        funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+        c.stack = funId + c.stack;
+    }   
     
     // Normally we would now descend into the body. However, here we don't have one. So, pop the stack
     // and exit. NOTE: The names in the parameters are not in scope -- we calculated the type (which added
@@ -5361,11 +5360,10 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         < cFun, tFun > = processSignature(sig, cFun);
         c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
-    }
-    //else {
-    funId = getOneFrom(invert(c.definitions)[fd@\loc]);
-    c.stack = funId + c.stack;
-    //}   
+    } else {
+        funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+        c.stack = funId + c.stack;
+    }   
     
     if (descend) {
         // Process the signature, but this time in a copy of the current environment
@@ -5409,11 +5407,10 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         < cFun, tFun > = processSignature(sig, cFun);
         c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
-    }
-    //else {
-    funId = getOneFrom(invert(c.definitions)[fd@\loc]);
-    c.stack = funId + c.stack;
-    //}   
+    } else {
+        funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+        c.stack = funId + c.stack;
+    }   
     
     if (descend) {
         // Process the signature, but this time in a copy of the current environment
@@ -5460,11 +5457,10 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         < cFun, tFun > = processSignature(sig, cFun);
         c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
-    }
-    //else {
-    funId = getOneFrom(invert(c.definitions)[fd@\loc]);
-    c.stack = funId + c.stack;
-    //}   
+    } else {
+        funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+        c.stack = funId + c.stack;
+    }   
     
     if (descend) {
         // Process the signature, but this time in a copy of the current environment
