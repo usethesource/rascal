@@ -128,13 +128,13 @@ public class RVM {
 		if(o == null)
 			return "null";
 		if(o instanceof Boolean)
-			return ((Boolean) o).toString();
+			return ((Boolean) o).toString() + " [Java]";
 		if(o instanceof Integer)
-			return ((Integer)o).toString();
+			return ((Integer)o).toString() + " [Java]";
 		if(o instanceof IValue)
-			return ((IValue) o).toString();
+			return ((IValue) o).toString() +" [IValue]";
 		if(o instanceof Type)
-			return ((Type) o).toString();
+			return ((Type) o).toString() + " [Type]";
 		if(o instanceof Object[]){
 			StringBuilder w = new StringBuilder();
 			Object[] lst = (Object[]) o;
@@ -145,7 +145,7 @@ public class RVM {
 						w.append(", ");
 			}
 			w.append("]");
-			return w.toString();
+			return w.toString() + " [Object[]]";
 		}
 		if(o instanceof Coroutine){
 			return "Coroutine[" + ((Coroutine)o).frame.function.getName() + "]";

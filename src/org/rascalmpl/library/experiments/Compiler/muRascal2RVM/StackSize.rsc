@@ -9,8 +9,7 @@ int estimate(muLab(bool b)) = 1;
 
 int estimate(list[MuExp] exps) = ( 0 | it + estimate(exp) | exp <- exps );
 
-int estimate_args(list[MuExp] args) = 
-  size(args) + (0 | max(it, estimate(arg)) | arg <- args);
+int estimate_args(list[MuExp] args) = ( 0 | max(it, i + estimate(args[i])) | i <- index(args) );
 
 // Translate a single muRascal expression
 
@@ -38,7 +37,7 @@ int estimate(muCall(muConstr(str fuid), list[MuExp] args)) = estimate_args(args)
 int estimate(muCall(MuExp fun, list[MuExp] args)) = max(estimate(fun), 1 + estimate_args(args));
 
 int estimate(muCallPrim(str name, list[MuExp] args)) = estimate_args(args);
-int estimate(muCallMuPrim(str name, list[MuExp] args)) =  estimate_args(args);
+int estimate(muCallMuPrim(str name, list[MuExp] args)) = estimate_args(args);
 
 int estimate(muAssign(str id, str fuid, int pos, MuExp exp)) = estimate(exp);
 int estimate(muAssignLoc(str id, int pos, MuExp exp)) = estimate(exp);
