@@ -27,6 +27,7 @@ import org.rascalmpl.interpreter.TestEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -49,6 +50,7 @@ public class RascalJUnitTestRunner extends Runner {
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
+		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
 		
 		resolverRegistry.registerInput(new JarURIResolver(TestFramework.class));
