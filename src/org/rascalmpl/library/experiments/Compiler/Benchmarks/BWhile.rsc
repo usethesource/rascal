@@ -1,4 +1,4 @@
-module experiments::Compiler::Benchmarks::B1
+module experiments::Compiler::Benchmarks::BWhile
 
 value main(list[value] args){
     i = 1000000;
