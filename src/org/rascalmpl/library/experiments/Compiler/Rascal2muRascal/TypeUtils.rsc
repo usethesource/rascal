@@ -237,7 +237,7 @@ void extractScopes(){
     	// Sort variable declarations to ensure that formal parameters get first positions preserving their order 
     	topdecls = sort([ uid | uid <- declares[muid], variable(_,_,_,_,_) := config.store[uid] ]);
     	for(i <- index(topdecls)) {
-            uid2addr[topdecls[i]] = <getFUID(uid2str(muid),"#module_init",Symbol::\func(Symbol::\value(),[]),0), i + 1>;
+            uid2addr[topdecls[i]] = <getFUID(uid2str(muid),"#module_init_main",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0), i + 1>;
     	}
     	// Then, functions
     	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_) := config.store[uid] ||
