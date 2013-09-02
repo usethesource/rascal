@@ -57,8 +57,7 @@ map[str,Declaration] parseLibrary(){
  	funMap = ();
  
   	for(fun <- libModule.functions){
-    	funMap += (fun.name : FUNCTION(fun.name, libraryScope, fun.nformal, fun.nlocal, defaultStackSize, trblock(fun.body)));
-        libraryScope += 1;
+    	funMap += (fun.qname : FUNCTION(fun.qname, fun.nformals, fun.nlocals, defaultStackSize, trblock(fun.body)));
   	}
   
   	writeTextValueFile(LibraryPrecompiled, funMap);
@@ -89,38 +88,41 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   // println("<size(library_names)> functions in muRascal library:\n<library_names>");
  
   for(fun <- functions){
-    functionScope = fun.scope;
-    nlocal = fun.nlocal;
+    functionScope = fun.qname;
+    nlocal = fun.nlocals;
     code = trblock(fun.body);
     funMap += (fun.qname : FUNCTION(fun.qname, fun.nformals, nlocal, defaultStackSize, code));
   }
   
   main_fun = getUID(name,[],"main",1);
   module_init_fun = getUID(name,[],"#module_init_main",0);
+  
   if(!funMap[main_fun]?) {
   	main_fun = getFUID(name,"main",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
   	module_init_fun = getFUID(name,"#module_init_main",Symbol::func(Symbol::\value(),[]),0);
   }
   
-  funMap += (module_init_fun : FUNCTION(module_init_fun, 0, size(variables) + 1, 10, 
+  funMap += (module_init_fun : FUNCTION(module_init_fun, 0, size(variables) + 1, defaultStackSize, 
   									[*tr(initializations), 
   									 LOADLOC(0), 
-  									 CALL(main_fun), 
+  									 CALL(main_fun,1), 
   									 RETURN1(),
   									 HALT()
   									]));
   									
- 
- funMap += ("#module_init_testsuite" : FUNCTION("#module_init_testsuite", libraryScope, 1, size(variables) + 1, 10, 
+ main_testsuite = getFUID(name,[],"testsuite",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
+ module_init_testsuite = getFUID(name,[],"#module_init_testsuite",Symbol::func(Symbol::\value(),[]),0);
+  
+ funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, 0, size(variables) + 1, defaultStackSize, 
   									[*tr(initializations), 
   									 LOADLOC(0), 
-  									 CALL("testsuite", 1), 
+  									 CALL(main_testsuite,1), 
   									 RETURN1(),
   									 HALT()
   									]));
   res = rvm(types, funMap, []);
   if(listing){
-    for(fname <- funMap /*, fname != module_init_fun, fname notin libFuns */)
+    for(fname <- funMap /*, fname != module_init_fun, fname notin library_names */)
   		iprintln(funMap[fname]);
   }
   return res;

@@ -42,18 +42,15 @@ public class Execute {
 	public ITuple executeProgram(IConstructor program, IBool debug,
 			IInteger repeat, IBool testsuite, IEvaluatorContext ctx) {
 		
-		String func = (testsuite.getValue()) ? "testsuite" : "main";
+		boolean isTestSuite = testsuite.getValue();
 		
-		String main = "/main(list(value());)#0";
-		String mu_main = "/main(1)";
-		String module_init = "/#module_init()#0";
-		String mu_module_init = "/#module_init(0)";
-		
-		String test_suite = "/testsuite()#0";
+		String main = isTestSuite ? "/testsuite(list(value());)#0" : "/main(list(value());)#0";
+		String mu_main = isTestSuite ? "/testsuite(1)" : "/main(1)";
+		String module_init = isTestSuite ? "/#module_init_testsuite()#0" : "/#module_init_main()#0";
+		String mu_module_init = isTestSuite ? "/#module_init_testsuite(0)" : "/#module_init_main(0)";
 		
 		String uid_main = null;
 		String uid_module_init = null;
-		String uid_testsuite = null;
 		
 		RVM rvm = new RVM(vf, ctx.getStdOut(), debug.getValue());
 
