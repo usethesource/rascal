@@ -1862,12 +1862,18 @@ public enum RascalPrimitive {
 	}
 	
 	public static int testreport_add(Object[] stack, int sp, int arity) {
-		assert arity >= 2;
+		assert arity >= 2; 
 		
-		String fun = ((IString) stack[sp - 2 - arity]).getValue();
-		ISourceLocation src = ((ISourceLocation) stack[sp - 2 - arity - 1]);
+		String fun = ((IString) stack[sp - arity]).getValue();
+		ISourceLocation src = ((ISourceLocation) stack[sp - arity + 1]);
 		
 		IValue[] args = new IValue[arity - 2];
+		for(int i = 0; i < args.length; i++){
+			Type tp = ((Type) stack[sp - arity + 2 + i]);
+			if(tp.isInteger()){
+				args[i] = vf.integer(5);
+			}
+		}
 		IValue res = rvm.executeFunction(fun, args);
 		boolean passed = ((IBool) res).getValue();
 		number_of_tests++;
