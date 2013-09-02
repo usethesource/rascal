@@ -1,1 +1,1 @@
-module f function main[0,1,coro] { (coro)(1); }
+module f function main[1,coro] { (coro)(1); }

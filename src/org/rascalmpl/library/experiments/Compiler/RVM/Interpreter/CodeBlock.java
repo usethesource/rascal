@@ -15,6 +15,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Dup;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.HasNext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Init;
@@ -54,11 +55,12 @@ public class CodeBlock {
 
 	private final IValueFactory vf;
 	int pc;
+	int sp;
+	int labelIndex = 0;
 	
 	private final ArrayList<Instruction> insList;
 	
-	private final HashMap<String,Integer> labels;
-	private final ArrayList<String> labelList;
+	private final HashMap<String, LabelInfo> labelInfo;
 	
 	private final Map<IValue, Integer> constantMap;
 	private final ArrayList<IValue> constantStore;
@@ -74,11 +76,11 @@ public class CodeBlock {
 	public int[] finalCode;
 	
 	public CodeBlock(IValueFactory factory){
-		labels = new HashMap<String,Integer>();
-		labelList = new ArrayList<String>();
+		labelInfo = new HashMap<String, LabelInfo>();
 		insList = new ArrayList<Instruction>();
 		new ArrayList<Integer>();
 		pc = 0;
+		sp = 0;
 		this.vf = factory;
 		constantMap = new HashMap<IValue, Integer>();
 		this.constantStore = new ArrayList<IValue>();
@@ -86,29 +88,41 @@ public class CodeBlock {
 		this.typeConstantStore = new ArrayList<Type>();
 	}
 	
-	public void defLabel(String label){
-		int idx = labelList.indexOf(label);
-		if(idx < 0){
-			labelList.add(label);
+	public void defLabel(String label, Instruction ins){
+		LabelInfo info = labelInfo.get(label);
+		if(info == null){
+			labelInfo.put(label, new LabelInfo(ins, labelIndex++, pc, sp));
+		} else {
+			info.instruction = ins;
+			info.PC = pc;
+			info.startSP = sp;
 		}
-		labels.put(label, pc);
 	}
 	
 	protected int useLabel(String label){
-		int idx = labelList.indexOf(label);
-		if(idx < 0){
-			idx = labelList.size();
-			labelList.add(label);
+		LabelInfo info = labelInfo.get(label);
+		if(info == null){
+			info = new LabelInfo(labelIndex++);
+			info.startSP = sp;
+			labelInfo.put(label, info);
 		}
-		return idx;
+		return info.index;
 	}
 	
-	public int getLabelIndex(String label){
-		Integer n = labels.get(label);
-		if(n == null){
+	public int getLabelPC(String label){
+		LabelInfo info = labelInfo.get(label);
+		if(info == null){
 			throw new RuntimeException("PANIC: undefined label " + label);
 		}
-		return n;
+		return info.PC;
+	}
+	
+	public Instruction getLabelInstruction(String label){
+		LabelInfo info = labelInfo.get(label);
+		if(info == null){
+			throw new RuntimeException("PANIC: undefined label " + label);
+		}
+		return info.instruction;
 	}
 	
 	public IValue getConstantValue(int n){
@@ -184,6 +198,7 @@ public class CodeBlock {
 	CodeBlock add(Instruction ins){
 		insList.add(ins);
 		pc += ins.pcIncrement();
+		sp += ins.spIncrement();
 		return this;
 	}
 	
@@ -235,8 +250,8 @@ public class CodeBlock {
 		return add(new LoadInt(this, n));
 	}
 	
-	public CodeBlock CALL(String arg){
-		return add(new Call(this, arg));
+	public CodeBlock CALL(String fuid, int arity){
+		return add(new Call(this, fuid, arity));
 	}
 	
 	public CodeBlock JMP(String arg){
@@ -259,12 +274,12 @@ public class CodeBlock {
 		return add(new StoreLoc(this, pos));
 	}
 	
-	public CodeBlock LOADVAR (int scope, int pos){
-		return add(new LoadVar(this, scope, pos));
+	public CodeBlock LOADVAR (String fuid, int pos){
+		return add(new LoadVar(this, fuid, pos));
 	}
 	
-	public CodeBlock STOREVAR (int scope, int pos){
-		return add(new StoreVar(this, scope, pos));
+	public CodeBlock STOREVAR (String fuid, int pos){
+		return add(new StoreVar(this, fuid, pos));
 	}
 	
 	public CodeBlock CALLPRIM (RascalPrimitive prim, int arity){
@@ -275,20 +290,20 @@ public class CodeBlock {
 		return add(new CallMuPrim(this, muprim, arity));
 	}
 	
-	public CodeBlock LOADFUN (String name){
-		return add(new LoadFun(this, name));
+	public CodeBlock LOADFUN (String fuid){
+		return add(new LoadFun(this, fuid));
 	}
 	
-	public CodeBlock CALLDYN(){
-		return add(new CallDyn(this));
+	public CodeBlock CALLDYN(int arity){
+		return add(new CallDyn(this, arity));
 	}
 	
 	public CodeBlock INIT(int arity) {
 		return add(new Init(this, arity));
 	}
 	
-	public CodeBlock CREATE(String name, int arity) {
-		return add(new Create(this, name, arity));
+	public CodeBlock CREATE(String fuid, int arity) {
+		return add(new Create(this, fuid, arity));
 	}
 	
 	public CodeBlock NEXT0() {
@@ -323,36 +338,36 @@ public class CodeBlock {
 		return add(new LoadLocRef(this, pos));
 	}
 	
-	public CodeBlock LOADVARREF(int scope, int pos) {
-		return add(new LoadVarRef(this, scope, pos));
+	public CodeBlock LOADVARREF(String fuid, int pos) {
+		return add(new LoadVarRef(this, fuid, pos));
 	}
 	
 	public CodeBlock LOADLOCDEREF(int pos) {
 		return add(new LoadLocDeref(this, pos));
 	}
 	
-	public CodeBlock LOADVARDEREF(int scope, int pos) {
-		return add(new LoadVarDeref(this, scope, pos));
+	public CodeBlock LOADVARDEREF(String fuid, int pos) {
+		return add(new LoadVarDeref(this, fuid, pos));
 	}
 	
 	public CodeBlock STORELOCDEREF(int pos) {
 		return add(new StoreLocDeref(this, pos));
 	}
 	
-	public CodeBlock STOREVARDEREF(int scope, int pos) {
-		return add(new StoreVarDeref(this, scope, pos));
+	public CodeBlock STOREVARDEREF(String fuid, int pos) {
+		return add(new StoreVarDeref(this, fuid, pos));
 	}
 	
 	public CodeBlock LOADCONSTR(String name) {
 		return add(new LoadConstr(this, name));
 	}
 	
-	public CodeBlock CALLCONSTR(String name) {
-		return add(new CallConstr(this, name));
+	public CodeBlock CALLCONSTR(String name, int arity) {
+		return add(new CallConstr(this, name, arity));
 	}
 	
-	public CodeBlock LOADNESTEDFUN(String name, int scope) {
-		return add(new LoadNestedFun(this, name, scope));
+	public CodeBlock LOADNESTEDFUN(String fuid, String scopeIn) {
+		return add(new LoadNestedFun(this, fuid, scopeIn));
 	}
 	
 	public CodeBlock LOADTYPE(Type type) {
@@ -361,6 +376,29 @@ public class CodeBlock {
 	
 	public CodeBlock DUP(){
 		return add(new Dup(this));
+	}
+	
+	public CodeBlock FAILRETURN(){
+		return add(new FailReturn(this));
+	}
+	
+	public int computeStackSize(){
+		boolean work = false;
+		do {
+			work = false;
+			int sp = 0;
+			for(Instruction ins : insList){
+				work = work || ins.computeStackSize(sp);
+				sp = ins.maxStackSize;
+			}
+		} while(work);
+		int max = 0;
+		for(Instruction ins : insList){
+			if(ins.maxStackSize > max){
+				max = ins.maxStackSize;
+			}
+		}
+		return max;
 	}
 		
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
@@ -403,7 +441,7 @@ public class CodeBlock {
     	while(pc < finalCode.length){
     		Opcode opc = Opcode.fromInteger(finalCode[pc]);
     		System.out.println(fname + "[" + pc +"]: " + Opcode.toString(this, opc, pc));
-    		pc += opc.getIncrement();
+    		pc += opc.getPcIncrement();
     	}
     	System.out.println();
     }
@@ -415,25 +453,21 @@ public class CodeBlock {
 }
 
 class LabelInfo {
+	final int index;
 	int PC;
 	int startSP = 0;
 	int endSP = 0;
+	Instruction instruction;
 	
-	LabelInfo(int pc, int start, int end){
+	LabelInfo(Instruction ins, int index, int pc, int startsp){
+		this.instruction = ins;
+		this.index = index;
 		this.PC = pc;
-		startSP = start;
-		endSP = end;
+		startSP = startsp;
 	}
 
-	public boolean undefinedPC() {
-		return PC < 0;
-	}
-
-	public LabelInfo(int pc) {
-		this.PC = pc;
-	}
-
-	public LabelInfo() {
+	public LabelInfo(int index) {
+		this.index = index;
 		PC = -1;
 	}
 

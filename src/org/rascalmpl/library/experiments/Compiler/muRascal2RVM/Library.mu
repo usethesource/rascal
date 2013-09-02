@@ -1,19 +1,21 @@
 module Library
 
 
-/*
-function main[1,1,args] { return next(init(create(TRUE))); }
-
-function TRUE[0,0,] { return true; }   // should be true
  
-function FALSE[0,0,] { return false; }
+/*
+
+function main[1,args] { return next(init(create(TRUE))); }
+ 
+function TRUE[0,] { return true; }   // should be true
+ 
+function FALSE[0,] { return false; }
 
 
-function AND_U_U[2,2,lhs,rhs]{
+function AND_U_U[2,lhs,rhs]{
   return prim("and_bool_bool", lhs, rhs);
 }
 
-function AND_M_U[2,2,lhs,rhs,clhs]{
+function AND_M_U[2,lhs,rhs,clhs]{
    clhs = init(create(lhs));
    while(hasNext(clhs)){
      if(next(clhs)){
@@ -25,7 +27,7 @@ function AND_M_U[2,2,lhs,rhs,clhs]{
    return 0;
 }
 
-function AND_U_M[2,2,lhs,rhs,crhs]{
+function AND_U_M[2,lhs,rhs,crhs]{
    if(lhs){
       crhs = init(create(rhs));
       while(hasNext(crhs)){
@@ -39,7 +41,7 @@ function AND_U_M[2,2,lhs,rhs,crhs]{
    return false;
 }
 
-function AND_M_M[2,2,lhs,rhs,clhs,crhs]{
+function AND_M_M[2,lhs,rhs,clhs,crhs]{
    clhs = init(create(lhs));
    while(hasNext(clhs)){
      if(next(clhs)){
@@ -56,12 +58,12 @@ function AND_M_M[2,2,lhs,rhs,clhs,crhs]{
    return false;
 }
 
-function ONE[1,1,arg, carg]{
+function ONE[1,arg, carg]{
    carg = init(create(arg));
    return next(arg);
 }
 
-function ALL[1,1,arg,carg]{
+function ALL[1,arg,carg]{
    carg = init(create(arg));
    while(hasNext(carg)){
         yield next(carg);
@@ -72,11 +74,11 @@ function ALL[1,1,arg,carg]{
 
 // ***** Generators for all types *****
 
-function ENUM_LITERAL[1,2, ^lit]{
+function ENUM_LITERAL[2, ^lit]{
    return ^lit;
 }
 
-function ENUM_LIST[1, 1, ^lst, last, i]{
+function ENUM_LIST[1, ^lst, last, i]{
    last = size(^lst) - 1;
    i = 0;
    while(i < last){
@@ -86,7 +88,7 @@ function ENUM_LIST[1, 1, ^lst, last, i]{
    return get ^lst[last];
 }
 
-function ENUM_NODE[1, 1, ^nd, last, i, lst]{
+function ENUM_NODE[1, ^nd, last, i, lst]{
    lst = get_name_and_children(^nd);
    last = size(lst) - 2;
    i = 1;  // skip name
@@ -97,7 +99,7 @@ function ENUM_NODE[1, 1, ^nd, last, i, lst]{
    return get lst[last];
 }
 
-function do_enum[1, 2, enum, pat, cpat, elm]{
+function do_enum[2, enum, pat, cpat, elm]{
    while(hasNext(enum)){
      elm = next(enum);
      cpat = init(pat, elm);
@@ -113,19 +115,19 @@ function do_enum[1, 2, enum, pat, cpat, elm]{
    };      
 }
 
-function ENUMERATE_AND_MATCH[1, 2,  pat, ^val]{
+function ENUMERATE_AND_MATCH[2,  pat, ^val]{
   if(^val is list){
-     do_enum(init(create(fun ENUM_LIST, ^val)), pat);
+     do_enum(init(create(ENUM_LIST, ^val)), pat);
   } else {
     if(^val is node){
-      do_enum(init(create(fun ENUM_NODE, ^val)), pat);
+      do_enum(init(create(ENUM_NODE, ^val)), pat);
     };
   };  
   // Add cases for set/rel/tuple/map/...
   return ^val;
 }
 
-function RANGE[1, 3, pat, ^first, ^end, i, n, cpat]{
+function RANGE[3, pat, ^first, ^end, i, n, cpat]{
    i = mint(^first);
    n = mint(^end);
    if(i < n){
@@ -153,7 +155,7 @@ function RANGE[1, 3, pat, ^first, ^end, i, n, cpat]{
    };
 }
 
-function RANGE_STEP[1, 4, pat, ^first, ^second, ^end, i, n, step, cpat]{
+function RANGE_STEP[4, pat, ^first, ^second, ^end, i, n, step, cpat]{
    i = mint(^first);
    n = mint(^end);
    if(i < n){
@@ -191,7 +193,7 @@ function RANGE_STEP[1, 4, pat, ^first, ^second, ^end, i, n, step, cpat]{
 
 // ***** Pattern matching *****
 
-function MATCH[1,2,pat,^subject,cpat]{
+function MATCH[2,pat,^subject,cpat]{
    cpat = init(pat, ^subject);
    while(hasNext(cpat)){
       if(next(cpat)){
@@ -203,7 +205,7 @@ function MATCH[1,2,pat,^subject,cpat]{
    return false;
 }
 
-function MATCH_N[1, 2, pats, subjects, plen, slen, p, pat]{
+function MATCH_N[2, pats, subjects, plen, slen, p, pat]{
    println("MATCH_N", pats, subjects);
    plen = size(pats);
    slen = size(subjects);
@@ -238,10 +240,10 @@ function MATCH_N[1, 2, pats, subjects, plen, slen, p, pat]{
    };
 }
 
-function MATCH_CALL_OR_TREE[1, 2, pats, ^subject, cpats]{
+function MATCH_CALL_OR_TREE[2, pats, ^subject, cpats]{
     println("MATCH_CALL_OR_TREE", pats, ^subject);
     if(^subject is node){
-      cpats = init(create(fun MATCH_N, pats, get_name_and_children(^subject)));
+      cpats = init(create(MATCH_N, pats, get_name_and_children(^subject)));
       while(hasNext(cpats)){
         println("MATCH_CALL_OR_TREE", "hasNext=true");
         if(next(cpats)){
@@ -254,10 +256,10 @@ function MATCH_CALL_OR_TREE[1, 2, pats, ^subject, cpats]{
     return false;
 }
 
-function MATCH_TUPLE[1, 2, pats, ^subject, cpats]{
+function MATCH_TUPLE[2, pats, ^subject, cpats]{
     println("MATCH_TUPLE", pats, ^subject);
     if(^subject is tuple){
-      cpats = init(create(fun MATCH_N, pats, get_tuple_elements(^subject)));
+      cpats = init(create(MATCH_N, pats, get_tuple_elements(^subject)));
       while(hasNext(cpats)){
         println("MATCH_TUPLE", "hasNext=true");
         if(next(cpats)){
@@ -270,7 +272,7 @@ function MATCH_TUPLE[1, 2, pats, ^subject, cpats]{
     return false;
 }
 
-function MATCH_LITERAL[1, 2, pat, ^subject, res]{
+function MATCH_LITERAL[2, pat, ^subject, res]{
   if(equal(typeOf(pat), typeOf(^subject))){
       res = equal(pat, ^subject);
       println("MATCH_LITERAL", pat, ^subject, res);
@@ -279,12 +281,12 @@ function MATCH_LITERAL[1, 2, pat, ^subject, res]{
   return false;
 }
 
-function MATCH_VAR[1, 2, varref, ^subject]{
+function MATCH_VAR[2, varref, ^subject]{
    deref varref = ^subject;
    return true;
 }
 
-function MATCH_TYPED_VAR[1, 3, typ, varref, ^subject]{
+function MATCH_TYPED_VAR[3, typ, varref, ^subject]{
    if(equal(typ, typeOf(^subject))){
      deref varref = ^subject;
      return true;
@@ -292,7 +294,7 @@ function MATCH_TYPED_VAR[1, 3, typ, varref, ^subject]{
    return false;  
 }
 
-function MATCH_VAR_BECOMES[1, 3, varref, pat, ^subject, cpat]{
+function MATCH_VAR_BECOMES[3, varref, pat, ^subject, cpat]{
    cpat = init(pat, ^subject);
    while(hasNext(cpat)){
      deref varref = ^subject;
@@ -301,7 +303,7 @@ function MATCH_VAR_BECOMES[1, 3, varref, pat, ^subject, cpat]{
    return false;
 }
 
-function MATCH_TYPED_VAR_BECOMES[1, 4, typ, varref, pat, ^subject, cpat]{
+function MATCH_TYPED_VAR_BECOMES[4, typ, varref, pat, ^subject, cpat]{
    if(equal(typ, typeOf(^subject))){
      cpat = init(pat, ^subject);
      while(hasNext(cpat)){
@@ -312,7 +314,7 @@ function MATCH_TYPED_VAR_BECOMES[1, 4, typ, varref, pat, ^subject, cpat]{
    return false;
 }
 
-function MATCH_AS_TYPE[1, 3, typ, pat, ^subject, cpat]{
+function MATCH_AS_TYPE[3, typ, pat, ^subject, cpat]{
    if(equal(typ, typeOf(^subject))){
      cpat = init(pat, ^subject);
      while(hasNext(cpat)){
@@ -322,7 +324,7 @@ function MATCH_AS_TYPE[1, 3, typ, pat, ^subject, cpat]{
    return false;
 }
 /*
-function MATCH_DESCENDANT[1, 2, pat, ^subject, gen, cpat]{
+function MATCH_DESCENDANT[2, pat, ^subject, gen, cpat]{
    gen = init(create(fun GEN_VALUE, ^subject));
    while(hasNext(gen)){
        cpat = init(pat, ^subject);
@@ -333,7 +335,7 @@ function MATCH_DESCENDANT[1, 2, pat, ^subject, gen, cpat]{
    return false;
 }
 */
-function MATCH_ANTI[1, 2, pat, ^subject, cpat]{
+function MATCH_ANTI[2, pat, ^subject, cpat]{
 	cpat = init(pat, ^subject);
 	if(next(cpat)){
 	   return false;
@@ -344,18 +346,18 @@ function MATCH_ANTI[1, 2, pat, ^subject, cpat]{
 
 // ***** List matching *****
 
-function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list elements
-						  ^subject,						// The subject list
-						  patlen,						// Length of pattern list
-						  patlen1,						// patlen - 1
-						  sublen,						// Length of subject list
-						  p,							// Cursor in patterns
-						  cursor,						// Cursor in subject
-						  forward,
-						  matcher,						// Currently active pattern matcher
-						  matchers,						// List of currently active pattern matchers
-						  success,						// Success flag of last macth
-						  nextCursor					// Cursor movement of last successfull match
+function MATCH_LIST[2, pats,   						// A list of coroutines to match list elements
+					   ^subject,					// The subject list
+					   patlen,						// Length of pattern list
+					   patlen1,						// patlen - 1
+					   sublen,						// Length of subject list
+					   p,							// Cursor in patterns
+					   cursor,						// Cursor in subject
+					   forward,
+					   matcher,						// Currently active pattern matcher
+					   matchers,					// List of currently active pattern matchers
+					   success,						// Success flag of last macth
+					   nextCursor					// Cursor movement of last successfull match
 					]{
 
      patlen   = size(pats);
@@ -423,7 +425,7 @@ function MATCH_LIST[1, 2, pats,   						// A list of coroutines to match list el
 // - start: the start index in the subject list
 // - available: the number of remianing, unmatched, elements in the subject list
 
-function MATCH_PAT_IN_LIST[1, 4, pat, ^subject, start, available, cpat]{
+function MATCH_PAT_IN_LIST[4, pat, ^subject, start, available, cpat]{
 
     if(available <= 0){
        return [false, start];
@@ -439,7 +441,7 @@ function MATCH_PAT_IN_LIST[1, 4, pat, ^subject, start, available, cpat]{
     return [false, start];
 } 
 
-function MATCH_VAR_IN_LIST[1, 4, varref, ^subject, start, available]{
+function MATCH_VAR_IN_LIST[4, varref, ^subject, start, available]{
    if(available <= 0){
        return [false, start];
    }; 
@@ -447,7 +449,7 @@ function MATCH_VAR_IN_LIST[1, 4, varref, ^subject, start, available]{
    return [true, start + 1];
 }
 
-function MATCH_MULTIVAR_IN_LIST[1, 4, varref, ^subject, start, available, len]{
+function MATCH_MULTIVAR_IN_LIST[4, varref, ^subject, start, available, len]{
     len = 0;
     while(len <= available){
         deref varref = sublist(^subject, start, len);
@@ -458,7 +460,7 @@ function MATCH_MULTIVAR_IN_LIST[1, 4, varref, ^subject, start, available, len]{
      return [false, start];
 }
 
-function MATCH_TYPED_MULTIVAR_IN_LIST[1, 5, typ, varref, ^subject, start, available, len]{
+function MATCH_TYPED_MULTIVAR_IN_LIST[5, typ, varref, ^subject, start, available, len]{
     if(equal(typ, typeOf(^subject))){
        len = 0;
        while(len <= available){
@@ -470,4 +472,3 @@ function MATCH_TYPED_MULTIVAR_IN_LIST[1, 5, typ, varref, ^subject, start, availa
      };
      return [false, start];
 }
-

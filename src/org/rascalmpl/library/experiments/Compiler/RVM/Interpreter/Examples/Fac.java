@@ -15,7 +15,7 @@ public class Fac {
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory vf = rvm.vf;
 		
-		rvm.declare(new Function("fac", 1, 1, 1, 6, 
+		rvm.declare(new Function("fac", 1, 1, 6, 
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADCON(1).
@@ -28,17 +28,17 @@ public class Fac {
 					LOADLOC(0).
 					LOADCON(1).
 					CALLPRIM(RascalPrimitive.subtraction_num_num, 2).
-					CALL("fac").
+					CALL("fac", 1).
 					CALLPRIM(RascalPrimitive.product_num_num, 2).
 					RETURN1()));
 		
-		rvm.declare(new Function("main", 2, 1, 1, 7,
+		rvm.declare(new Function("main", 1, 1, 7,
 				new CodeBlock(vf).
 					LOADCON(4).
-					CALL("fac").
+					CALL("fac", 1).
 					HALT()));
 		
-		rvm.declare(new Function("main_repeat", 3, 0, 2, 20,
+		rvm.declare(new Function("main_repeat", 0, 2, 20,
 				new CodeBlock(vf).
 					LOADCON(10).
 					STORELOC(0). // n
@@ -54,7 +54,7 @@ public class Fac {
 					HALT().
 					LABEL("M").
 					LOADLOC(0).
-					CALL( "fac").
+					CALL( "fac", 1).
 					POP().
 					LOADLOC(1).
 					LOADCON(1).
@@ -63,10 +63,10 @@ public class Fac {
 					POP().
 					JMP("L")));
 		
-		rvm.declare(new Function("#module_init", 0, 0, 1, 6, 
+		rvm.declare(new Function("#module_init", 0, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
-					.CALL("main")
+					.CALL("main", 1)
 					.RETURN1()
 					.HALT()));
 		
@@ -76,7 +76,7 @@ public class Fac {
 		for(int i = 0; i < times; i++){
 			long start = System.currentTimeMillis();
 			
-			rvm.executeProgram("main", new IValue[] {});
+			rvm.executeProgram("main", "#module_init", new IValue[] {});
 			long now = System.currentTimeMillis();
 			total += now - start;
 			
