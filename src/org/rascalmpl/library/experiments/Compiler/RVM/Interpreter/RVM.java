@@ -188,7 +188,7 @@ public class RVM {
 		}
 		
 		if (init_function.nformals != 1) {
-			throw new RuntimeException("PANIC: " + "function \"#module_init\" should have one argument");
+			throw new RuntimeException("PANIC: " + "function " + uid_module_init + " should have one argument");
 		}
 		
 		// Search for the "main" function and check arguments
@@ -200,7 +200,7 @@ public class RVM {
 		}
 				
 		if (main_function.nformals != 1) {
-					throw new RuntimeException("PANIC: function \"main\" should have one argument");
+			throw new RuntimeException("PANIC: function " + uid_main + " should have one argument");
 		}
 		
 		// Perform a call to #module_init" at scope level = 0

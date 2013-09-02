@@ -38,7 +38,7 @@ public rel[int,int] containment = {};
 
 public set[str] moduleNames = {};
 
-public set[str] libFuns = {};
+//public set[str] libFuns = {};
 
 public void resetScopeExtraction() {
 	uid2addr = ();
@@ -106,9 +106,9 @@ str getFUID(str modName, str fname, Symbol \type, int case_num) = "<modName>/<fn
 @doc{Make a call to a library function given its name, module's name and a number of its formal parameters}
 public MuExp mkCallToLibFun(str modName, str fname, int nformals) {
 	qname = "<modName>/<fname>(<nformals>)";
-	if(qname notin libFuns) {
-		throw "Library function is not found <qname> in <libFuns>";
-	}
+	//if(qname notin libFuns) {
+	//	throw "Library function is not found <qname> in <libFuns>";
+	//}
 	return muFun(qname);
 }
 
