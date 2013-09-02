@@ -88,10 +88,14 @@ public class CodeBlock {
 		this.typeConstantStore = new ArrayList<Type>();
 	}
 	
-	public void defLabel(String label){
+	public void defLabel(String label, Instruction ins){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			labelInfo.put(label, new LabelInfo(labelIndex++, pc, sp));
+			labelInfo.put(label, new LabelInfo(ins, labelIndex++, pc, sp));
+		} else {
+			info.instruction = ins;
+			info.PC = pc;
+			info.startSP = sp;
 		}
 	}
 	
@@ -99,17 +103,26 @@ public class CodeBlock {
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
 			info = new LabelInfo(labelIndex++);
+			info.startSP = sp;
 			labelInfo.put(label, info);
 		}
 		return info.index;
 	}
 	
-	public int getLabelIndex(String label){
+	public int getLabelPC(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
 			throw new RuntimeException("PANIC: undefined label " + label);
 		}
 		return info.PC;
+	}
+	
+	public Instruction getLabelInstruction(String label){
+		LabelInfo info = labelInfo.get(label);
+		if(info == null){
+			throw new RuntimeException("PANIC: undefined label " + label);
+		}
+		return info.instruction;
 	}
 	
 	public IValue getConstantValue(int n){
@@ -368,6 +381,25 @@ public class CodeBlock {
 	public CodeBlock FAILRETURN(){
 		return add(new FailReturn(this));
 	}
+	
+	public int computeStackSize(){
+		boolean work = false;
+		do {
+			work = false;
+			int sp = 0;
+			for(Instruction ins : insList){
+				work = work || ins.computeStackSize(sp);
+				sp = ins.maxStackSize;
+			}
+		} while(work);
+		int max = 0;
+		for(Instruction ins : insList){
+			if(ins.maxStackSize > max){
+				max = ins.maxStackSize;
+			}
+		}
+		return max;
+	}
 		
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
 		this.functionMap = codeMap;
@@ -425,22 +457,13 @@ class LabelInfo {
 	int PC;
 	int startSP = 0;
 	int endSP = 0;
+	Instruction instruction;
 	
-	LabelInfo(int index, int pc, int start, int end){
+	LabelInfo(Instruction ins, int index, int pc, int startsp){
+		this.instruction = ins;
 		this.index = index;
 		this.PC = pc;
-		startSP = start;
-		endSP = end;
-	}
-
-	public boolean undefinedPC() {
-		return PC < 0;
-	}
-
-	public LabelInfo(int index, int pc, int sp) {
-		this.index = index;
-		this.PC = pc;
-		this.startSP = sp;
+		startSP = startsp;
 	}
 
 	public LabelInfo(int index) {
