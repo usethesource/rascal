@@ -103,7 +103,7 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   	module_init_fun = getFUID(name,"#module_init_main",Symbol::func(Symbol::\value(),[]),0);
   }
   
-  funMap += (module_init_fun : FUNCTION(module_init_fun, 0, size(variables) + 1, defaultStackSize, 
+  funMap += (module_init_fun : FUNCTION(module_init_fun, 1, size(variables) + 1, defaultStackSize, 
   									[*tr(initializations), 
   									 LOADLOC(0), 
   									 CALL(main_fun,1), 
@@ -118,7 +118,7 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   	module_init_testsuite = getFUID(name,"#module_init_testsuite",Symbol::func(Symbol::\value(),[]),0);
   }
   if(funMap[main_testsuite]?) {
- 	 funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, 0, size(variables) + 1, defaultStackSize, 
+ 	 funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, 1, size(variables) + 1, defaultStackSize, 
   											 [*tr(initializations), 
   									 		 LOADLOC(0), 
   									 		 CALL(main_testsuite,1), 
