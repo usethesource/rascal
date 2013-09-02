@@ -29,7 +29,6 @@ str mkBreak(str loopname) = "BREAK_<loopname>";
 str mkFail(str loopname) = "FAIL_<loopname>";
 str mkFail(str loopname) = "DUMMY_<loopname>";
 
-
 int defaultStackSize = 25;
 
 int newLocal() {
@@ -57,7 +56,8 @@ map[str,Declaration] parseLibrary(){
  	funMap = ();
  
   	for(fun <- libModule.functions){
-    	funMap += (fun.qname : FUNCTION(fun.qname, fun.nformals, fun.nlocals, defaultStackSize, trblock(fun.body)));
+  	    required_frame_size = fun.nlocals + estimate(fun.body);
+    	funMap += (fun.qname : FUNCTION(fun.qname, fun.nformals, fun.nlocals, required_frame_size, trblock(fun.body)));
   	}
   
   	writeTextValueFile(LibraryPrecompiled, funMap);
@@ -67,12 +67,12 @@ map[str,Declaration] parseLibrary(){
 }
 
 // Translate a muRascal module
-RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations), bool listing=false){
+RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations), bool listing=false){
   funMap = ();
   nLabel = -1;
   temporaries = ();
 
-  println("mu2rvm: Compiling module <name>");
+  println("mu2rvm: Compiling module <module_name>");
   
   if(exists(LibraryPrecompiled) && lastModified(LibraryPrecompiled) > lastModified(Library)){
      try {
@@ -98,12 +98,12 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
     iprintln(code);
   }
   
-  main_fun = getUID(name,[],"main",1);
-  module_init_fun = getUID(name,[],"#module_init_main",1);
+  main_fun = getUID(module_name,[],"main",1);
+  module_init_fun = getUID(module_name,[],"#module_init_main",1);
   
   if(!funMap[main_fun]?) {
-  	main_fun = getFUID(name,"main",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
-  	module_init_fun = getFUID(name,"#module_init_main",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
+  	main_fun = getFUID(module_name,"main",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
+  	module_init_fun = getFUID(module_name,"#module_init_main",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
   }
   
   funMap += (module_init_fun : FUNCTION(module_init_fun, 1, size(variables) + 1, defaultStackSize, 
@@ -114,24 +114,22 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
   									 HALT()
   									]));
  
-  main_testsuite = getUID(name,[],"testsuite",1);
-  module_init_testsuite = getUID(name,[],"#module_init_testsuite",1);
-  if(funMap[main_testsuite]?) { 						
-  	main_testsuite = getFUID(name,"testsuite",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
-  	module_init_testsuite = getFUID(name,"#module_init_testsuite",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
+  main_testsuite = getUID(module_name,[],"testsuite",1);
+  module_init_testsuite = getUID(module_name,[],"#module_init_testsuite",1);
+  if(!funMap[main_testsuite]?) { 						
+  	main_testsuite = getFUID(module_name,"testsuite",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
+  	module_init_testsuite = getFUID(module_name,"#module_init_testsuite",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
   }
-  if(funMap[main_testsuite]?) {
- 	 funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, 1, size(variables) + 1, defaultStackSize, 
-  											 [*tr(initializations), 
-  									 		 LOADLOC(0), 
-  									 		 CALL(main_testsuite,1), 
-  									 		 RETURN1(),
-  									 		 HALT()
-  											 ]));
-  }
+  funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, 1, size(variables) + 1, defaultStackSize, 
+  										[*tr(initializations), 
+  									 	 LOADLOC(0), 
+  									 	 CALL(main_testsuite,1), 
+  									 	 RETURN1(),
+  									 	 HALT()
+  										 ]));
   res = rvm(types, funMap, []);
   if(listing){
-    for(fname <- funMap /*, fname != module_init_fun, fname notin library_names */)
+    for(fname <- funMap, fname notin library_names)
   		iprintln(funMap[fname]);
   }
   return res;
