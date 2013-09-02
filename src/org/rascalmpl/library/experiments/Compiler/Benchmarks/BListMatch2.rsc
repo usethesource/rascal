@@ -1,4 +1,4 @@
-module experiments::Compiler::Benchmarks::B6
+module experiments::Compiler::Benchmarks::BListMatch2
 
 value main(list[value] args){
     for(i <- [1 .. 100000]){
