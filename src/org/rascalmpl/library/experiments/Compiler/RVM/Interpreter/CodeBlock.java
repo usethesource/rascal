@@ -250,8 +250,8 @@ public class CodeBlock {
 		return add(new LoadInt(this, n));
 	}
 	
-	public CodeBlock CALL(String arg, int arity){
-		return add(new Call(this, arg, arity));
+	public CodeBlock CALL(String fuid, int arity){
+		return add(new Call(this, fuid, arity));
 	}
 	
 	public CodeBlock JMP(String arg){
@@ -274,12 +274,12 @@ public class CodeBlock {
 		return add(new StoreLoc(this, pos));
 	}
 	
-	public CodeBlock LOADVAR (int scope, int pos){
-		return add(new LoadVar(this, scope, pos));
+	public CodeBlock LOADVAR (String fuid, int pos){
+		return add(new LoadVar(this, fuid, pos));
 	}
 	
-	public CodeBlock STOREVAR (int scope, int pos){
-		return add(new StoreVar(this, scope, pos));
+	public CodeBlock STOREVAR (String fuid, int pos){
+		return add(new StoreVar(this, fuid, pos));
 	}
 	
 	public CodeBlock CALLPRIM (RascalPrimitive prim, int arity){
@@ -290,8 +290,8 @@ public class CodeBlock {
 		return add(new CallMuPrim(this, muprim, arity));
 	}
 	
-	public CodeBlock LOADFUN (String name){
-		return add(new LoadFun(this, name));
+	public CodeBlock LOADFUN (String fuid){
+		return add(new LoadFun(this, fuid));
 	}
 	
 	public CodeBlock CALLDYN(int arity){
@@ -302,8 +302,8 @@ public class CodeBlock {
 		return add(new Init(this, arity));
 	}
 	
-	public CodeBlock CREATE(String name, int arity) {
-		return add(new Create(this, name, arity));
+	public CodeBlock CREATE(String fuid, int arity) {
+		return add(new Create(this, fuid, arity));
 	}
 	
 	public CodeBlock NEXT0() {
@@ -338,24 +338,24 @@ public class CodeBlock {
 		return add(new LoadLocRef(this, pos));
 	}
 	
-	public CodeBlock LOADVARREF(int scope, int pos) {
-		return add(new LoadVarRef(this, scope, pos));
+	public CodeBlock LOADVARREF(String fuid, int pos) {
+		return add(new LoadVarRef(this, fuid, pos));
 	}
 	
 	public CodeBlock LOADLOCDEREF(int pos) {
 		return add(new LoadLocDeref(this, pos));
 	}
 	
-	public CodeBlock LOADVARDEREF(int scope, int pos) {
-		return add(new LoadVarDeref(this, scope, pos));
+	public CodeBlock LOADVARDEREF(String fuid, int pos) {
+		return add(new LoadVarDeref(this, fuid, pos));
 	}
 	
 	public CodeBlock STORELOCDEREF(int pos) {
 		return add(new StoreLocDeref(this, pos));
 	}
 	
-	public CodeBlock STOREVARDEREF(int scope, int pos) {
-		return add(new StoreVarDeref(this, scope, pos));
+	public CodeBlock STOREVARDEREF(String fuid, int pos) {
+		return add(new StoreVarDeref(this, fuid, pos));
 	}
 	
 	public CodeBlock LOADCONSTR(String name) {
@@ -366,8 +366,8 @@ public class CodeBlock {
 		return add(new CallConstr(this, name, arity));
 	}
 	
-	public CodeBlock LOADNESTEDFUN(String name, int scope) {
-		return add(new LoadNestedFun(this, name, scope));
+	public CodeBlock LOADNESTEDFUN(String fuid, String scopeIn) {
+		return add(new LoadNestedFun(this, fuid, scopeIn));
 	}
 	
 	public CodeBlock LOADTYPE(Type type) {
