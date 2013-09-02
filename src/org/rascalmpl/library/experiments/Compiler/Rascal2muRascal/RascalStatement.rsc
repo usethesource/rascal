@@ -5,6 +5,7 @@ import Prelude;
 import lang::rascal::\syntax::Rascal;
 
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
+import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 
 import experiments::Compiler::muRascal::AST;
