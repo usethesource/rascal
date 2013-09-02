@@ -92,7 +92,7 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
     nlocal = fun.nlocals;
     code = trblock(fun.body);
     funMap += (fun.qname : FUNCTION(fun.qname, fun.nformals, nlocal, defaultStackSize, code));
-    println("<fun.qname>: stacksize=<estimate(code)>\n<code>");
+    println("<fun.qname>: stacksize=<estimate(fun.body)>\n<code>");
   }
   
   main_fun = getUID(name,[],"main",1);
