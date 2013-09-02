@@ -30,19 +30,19 @@ public void resetR2mu() {
 	resetTmpAndLabel();
 }
 
-public void importLibFuns(list[loc] libs) { 
-	for(lib <- libs) {
-    	libModule = parse(lib);
-    	for(fun <-libModule.functions) {
-        	// First, assign the right scopeId to the library functions
-      		// Add library functions to the module
-      		functions_in_module += fun;
-      		// Register library functions for the use
-      		libFuns += fun.qname;
-      	}     
-	}
-	println("There are <size(libFuns)> functions imported from the muRascal libraries!");
-}
+//public void importLibFuns(list[loc] libs) { 
+//	for(lib <- libs) {
+//    	libModule = parse(lib);
+//    	for(fun <-libModule.functions) {
+//        	// First, assign the right scopeId to the library functions
+//      		// Add library functions to the module
+//      		functions_in_module += fun;
+//      		// Register library functions for the use
+//      		libFuns += fun.qname;
+//      	}     
+//	}
+//	println("There are <size(libFuns)> functions imported from the muRascal libraries!");
+//}
 
 @doc{Compile a Rascal source module (given as string) to muRascal}
 MuModule r2mu(str moduleStr){
@@ -78,8 +78,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  }
    	  functions_in_module = [];
    	  // Import muRascal libraries
-   	  libFuns = {};
-   	  importLibFuns([ Library ]);
+   	  //libFuns = {};
+   	  //importLibFuns([ Library ]);
    	  variables_in_module = [];
    	  variable_initializations = [];
    	  // TODO: think of types that have to be actually imported
