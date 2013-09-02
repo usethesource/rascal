@@ -91,8 +91,11 @@ RVMProgram mu2rvm(muModule(str name, list[Symbol] types, list[MuFunction] functi
     functionScope = fun.qname;
     nlocal = fun.nlocals;
     code = trblock(fun.body);
-    funMap += (fun.qname : FUNCTION(fun.qname, fun.nformals, nlocal, defaultStackSize, code));
-    println("<fun.qname>: stacksize=<estimate(fun.body)>\n<code>");
+    required_frame_size = nlocal + estimate(fun.body);
+    funMap += (fun.qname : FUNCTION(fun.qname, fun.nformals, nlocal, required_frame_size, code));
+    est = estimate(fun.body);
+    println("\n*** <fun.qname>: locals=<nlocal>, stack estimate=<est>, total stack requirement=<nlocal+est>");
+    iprintln(code);
   }
   
   main_fun = getUID(name,[],"main",1);

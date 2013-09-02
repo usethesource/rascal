@@ -1846,7 +1846,8 @@ public enum RascalPrimitive {
 		number_of_tests = 0;
 		number_of_failures = 0;
 		stdout.println("\nTEST REPORT\n");
-		return sp;
+		stack[sp] = null;
+		return sp + 1;
 	}
 	
 	public static int testreport_close(Object[] stack, int sp, int arity) {
@@ -1854,7 +1855,8 @@ public enum RascalPrimitive {
 		stdout.println("\nExecuted " + number_of_tests + " tests: "  
 				+ (number_of_tests  - number_of_failures) + " succeeded; "
 				+ number_of_failures + " failed.\n");
-		return sp;
+		stack[sp] = null;
+		return sp + 1;
 	}
 	
 	public static int testreport_add(Object[] stack, int sp, int arity) {
