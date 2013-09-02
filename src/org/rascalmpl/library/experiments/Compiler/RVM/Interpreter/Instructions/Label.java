@@ -9,7 +9,7 @@ public class Label extends Instruction {
 	public Label(CodeBlock ins, String label){
 		super(ins, Opcode.LABEL);
 		this.label = label;
-		ins.defLabel(label);
+		ins.defLabel(label, this);
 	}
 	
 	public String toString() { return "LABEL " + label + " [" +  "]"; }

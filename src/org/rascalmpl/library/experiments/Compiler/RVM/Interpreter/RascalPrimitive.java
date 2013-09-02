@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -42,10 +43,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public enum RascalPrimitive {
 	appendAfter,
 
-	add_to_listwriter,
-	add_to_setwriter,
-	add_to_mapwriter,
-
 	addition_elm_list,
 	addition_list_elm,
 	addition_list_list,
@@ -76,11 +73,18 @@ public enum RascalPrimitive {
 	addition_set_elm,
 	addition_set_set,
 	addition_str_str,
+	
+	adt_field_access,
+	adt_field_update,
+	adt_subscript,
+	adt_update,
 
 	composition_lrel_lrel,
 	composition_rel_rel,
 	composition_map_map,
-
+	
+	datetime_field_access,
+	
 	division_int_int,
 	division_int_num,
 	division_int_rat,
@@ -100,19 +104,8 @@ public enum RascalPrimitive {
 	division_real_int,
 	division_real_real,
 	division_real_rat,
-
-	done_listwriter,
-	done_setwriter,
-	done_mapwriter,
+	
 	equal,
-	
-	field_access_adt,
-	field_access_datetime,
-	field_access_loc,
-	field_access_tuple,
-	
-	field_update_adt,
-	//field_project,
 	
 	equivalent_bool_bool,
 
@@ -226,14 +219,27 @@ public enum RascalPrimitive {
 	lessequal_real_rat,
 
 	lessequal_str_str,
+	
+	list_size,
+	list_create,
+	list_subscript, 
+	list_update,
+	
+	listwriter_add,
+	listwriter_close,
+	listwriter_open,
+	listwriter_splice,
 
-	make_list,
-	make_listwriter,
-	make_set,
-	make_setwriter,
-	make_map,
-	make_mapwriter,
-	make_tuple,
+	loc_field_access,
+	
+	map_create,
+	map_subscript,
+	map_update,
+	
+	mapwriter_add,
+	mapwriter_close,
+	mapwriter_open,
+	
 	negative,
 	not_bool,
 	notequal,
@@ -264,17 +270,15 @@ public enum RascalPrimitive {
 	product_real_rat,
 
 	remainder_int_int,
-
-	size_list,
-	splice_to_listwriter,
-	splice_to_setwriter,
+	
+	set_create,
+	
+	setwriter_add,
+	setwriter_close,
+	setwriter_open,
+	setwriter_splice,
 
 	sublist,
-	
-	subscript_adt,
-	subscript_list,  
-	subscript_map,
-	subscript_tuple,
 
 	subtraction_list_list,
 	subtraction_map_map,
@@ -299,18 +303,21 @@ public enum RascalPrimitive {
 	subtraction_real_int,
 	subtraction_real_real,
 	subtraction_real_rat,
-
 	
+	testreport_add,
+	testreport_close,
+	testreport_open,
 	
 	transitive_closure_lrel,
 	transitive_closure_rel,
 	transitive_reflexive_closure_lrel,
 	transitive_reflexive_closure_rel,
 	
-	update_adt,
-	update_list,
-	update_map,
-	update_tuple,
+	tuple_field_access,
+	tuple_field_project,
+	tuple_create,
+	tuple_subscript,
+	tuple_update,
 
 	equal_type_type,
 	subtype,
@@ -329,13 +336,17 @@ public enum RascalPrimitive {
 	private static IBool FALSE;
 	static Method [] methods;
 	private static Type lineColumnType;
+	
+	private static PrintWriter stdout;
 
 	/**
 	 * Initialize the primitive methods.
 	 * @param fact value factory to be used
+	 * @param stdout 
 	 */
-	public static void init(IValueFactory fact) {
+	public static void init(IValueFactory fact, PrintWriter stdoutPrinter) {
 		vf = fact;
+		stdout = stdoutPrinter;
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 									new String[] {"line", "column"});
@@ -385,7 +396,7 @@ public enum RascalPrimitive {
 	/*
 	 * add_to_...writer
 	 */
-	public static int add_to_listwriter(Object[] stack, int sp, int arity) {
+	public static int listwriter_add(Object[] stack, int sp, int arity) {
 		assert arity > 0;
 		IListWriter writer = (IListWriter) stack[sp - arity];
 		for(int i = arity - 1; i > 0; i--){
@@ -394,7 +405,7 @@ public enum RascalPrimitive {
 		return sp - arity + 1;
 	}
 
-	public static int add_to_setwriter(Object[] stack, int sp, int arity) {
+	public static int setwriter_add(Object[] stack, int sp, int arity) {
 		assert arity > 0;
 		ISetWriter writer = (ISetWriter) stack[sp - arity];
 		for(int i = arity - 1; i > 0; i--){
@@ -403,7 +414,7 @@ public enum RascalPrimitive {
 		return sp - arity + 1;
 	}
 	
-	public static int add_to_mapwriter(Object[] stack, int sp, int arity) {
+	public static int mapwriter_add(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		IMapWriter writer = (IMapWriter) stack[sp - 3];
 		writer.insert(vf.tuple((IValue) stack[sp - 2], (IValue) stack[sp - 1]));
@@ -718,24 +729,24 @@ public enum RascalPrimitive {
 
 
 	/*
-	 * done_...writer
+	 * ...writer_close
 	 */
 
-	public static int done_listwriter(Object[] stack, int sp, int arity) {
+	public static int listwriter_close(Object[] stack, int sp, int arity) {
 		assert arity == 0;
 		IListWriter writer = (IListWriter) stack[sp - 1];
 		stack[sp - 1] = writer.done();
 		return sp;
 	}
 
-	public static int done_setwriter(Object[] stack, int sp, int arity) {
+	public static int setwriter_close(Object[] stack, int sp, int arity) {
 		assert arity == 0;
 		ISetWriter writer = (ISetWriter) stack[sp - 1];
 		stack[sp - 1] = writer.done();
 		return sp;
 	}
 	
-	public static int done_mapwriter(Object[] stack, int sp, int arity) {
+	public static int mapwriter_close(Object[] stack, int sp, int arity) {
 		assert arity == 0;
 		IMapWriter writer = (IMapWriter) stack[sp - 1];
 		stack[sp - 1] = writer.done();
@@ -771,13 +782,13 @@ public enum RascalPrimitive {
 	/*
 	 * field_access_...
 	 */
-	public static int field_access_adt(Object[] stack, int sp, int arity) {
+	public static int adt_field_access(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IConstructor) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
 		return sp - 1;
 	}
 	
-	public static int field_access_datetime(Object[] stack, int sp, int arity) {
+	public static int datetime_field_access(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		IDateTime dt = ((IDateTime) stack[sp - 2]);
 		String field = ((IString) stack[sp - 1]).getValue();
@@ -829,7 +840,7 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	public static int field_access_loc(Object[] stack, int sp, int arity) {
+	public static int loc_field_access(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ISourceLocation sloc = ((ISourceLocation) stack[sp - 2]);
 		String field = ((IString) stack[sp - 1]).getValue();
@@ -839,19 +850,24 @@ public enum RascalPrimitive {
 			v = vf.string(sloc.getURI().toString());
 			break;
 		case "scheme":
-			v = vf.string(sloc.getURI().getScheme());
+			String s = sloc.getURI().getScheme();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "authority":
-			v = vf.string(sloc.getURI().getAuthority());
+			s = sloc.getURI().getAuthority();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "host":
-			v = vf.string(sloc.getURI().getHost());
+			s = sloc.getURI().getHost();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "port":
-			v = vf.string(sloc.getURI().getPort());
+			int n = sloc.getURI().getPort();
+			v = vf.string(Integer.toString(n));
 			break;
 		case "path":
-			v = vf.string(sloc.getURI().getPath());
+			s = sloc.getURI().getPath();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "extension":
 			String path = sloc.getURI().getPath();
@@ -863,13 +879,16 @@ public enum RascalPrimitive {
 			}
 			break;
 		case "query":
-			v = vf.string(sloc.getURI().getQuery());
+			s = sloc.getURI().getQuery();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "fragment":
-			v = vf.string(sloc.getURI().getFragment());
+			s= sloc.getURI().getFragment();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "user":
-			v = vf.string(sloc.getURI().getUserInfo());
+			s = sloc.getURI().getUserInfo();
+			v = vf.string(s == null ? "" : s);
 			break;
 		case "parent":
 			path = sloc.getURI().getPath();
@@ -938,16 +957,29 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	public static int field_access_tuple(Object[] stack, int sp, int arity) {
+	public static int tuple_field_access(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IConstructor) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
+		stack[sp - 2] = ((ITuple) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
 		return sp - 1;
+	}
+	
+	public static int tuple_field_project(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		ITuple tup = (ITuple) stack[sp - arity];
+		IValue [] newFields = new IValue[arity - 1];
+		for(int i = 0; i < arity - 1; i++){
+			IValue field = (IValue) stack[sp - arity + 1 + i];
+			newFields[i] = field.getType().isInteger() ? tup.get(((IInteger) field).intValue())
+												       : tup.get(((IString) field).getValue());
+		}
+		stack[sp - arity] = vf.tuple(newFields);
+		return sp - arity + 1;
 	}
 	
 	/*
 	 * fieldUpdate
 	 */
-	public static int field_update_adt(Object[] stack, int sp, int arity) {
+	public static int adt_field_update(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		stack[sp - 3] = ((IConstructor) stack[sp - 3]).set(((IString) stack[sp - 2]).getValue(),
 							(IValue) stack[sp -1]);
@@ -1527,9 +1559,9 @@ public enum RascalPrimitive {
 
 
 	/*
-	 * make_list
+	 * list_create
 	 */
-	public static int make_list(Object[] stack, int sp, int arity) {
+	public static int list_create(Object[] stack, int sp, int arity) {
 		assert arity >= 0;
 		IListWriter writer = vf.listWriter();
 
@@ -1543,24 +1575,24 @@ public enum RascalPrimitive {
 	}
 
 	/*
-	 * make_...writer
+	 * ...writer_open
 	 */
 
-	public static int make_listwriter(Object[] stack, int sp, int arity) {
+	public static int listwriter_open(Object[] stack, int sp, int arity) {
 		assert arity == 0;	// For now, later type can be added
 		IListWriter writer = vf.listWriter();
 		stack[sp] = writer;
 		return sp + 1;
 	}
 
-	public static int make_setwriter(Object[] stack, int sp, int arity) {
+	public static int setwriter_open(Object[] stack, int sp, int arity) {
 		assert arity == 0;	// For now, later type can be added
 		ISetWriter writer = vf.setWriter();
 		stack[sp] = writer;
 		return sp + 1;
 	}
 	
-	public static int make_mapwriter(Object[] stack, int sp, int arity) {
+	public static int mapwriter_open(Object[] stack, int sp, int arity) {
 		assert arity == 0;	// For now, later type can be added
 		IMapWriter writer = vf.mapWriter();
 		stack[sp] = writer;
@@ -1568,9 +1600,9 @@ public enum RascalPrimitive {
 	}
 
 	/*
-	 * make_map
+	 * map_create
 	 */
-	public static int make_map(Object[] stack, int sp, int arity) {
+	public static int map_create(Object[] stack, int sp, int arity) {
 		assert arity >= 0;
 		IMapWriter writer = vf.mapWriter();
 
@@ -1584,9 +1616,9 @@ public enum RascalPrimitive {
 	}
 
 	/*
-	 * make_set
+	 * set_create
 	 */
-	public static int make_set(Object[] stack, int sp, int arity) {
+	public static int set_create(Object[] stack, int sp, int arity) {
 		assert arity >= 0;
 		ISetWriter writer = vf.setWriter();
 
@@ -1599,7 +1631,7 @@ public enum RascalPrimitive {
 		return sp;
 	}
 
-	public static int make_tuple(Object[] stack, int sp, int arity) {
+	public static int tuple_create(Object[] stack, int sp, int arity) {
 		assert arity >= 0;
 		IValue[] elems = new IValue[arity];
 
@@ -1637,7 +1669,7 @@ public enum RascalPrimitive {
 	/*
 	 * size_list
 	 */
-	public static int size_list(Object[] stack, int sp, int arity) {
+	public static int list_size(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
 		return sp;
@@ -1647,7 +1679,7 @@ public enum RascalPrimitive {
 	 * splice_to_...writer
 	 */
 	
-	public static int splice_to_listwriter(Object[] stack, int sp, int arity) {
+	public static int listwriter_splice(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		IListWriter writer = (IListWriter)stack[sp - 2];
 		if(stack[sp - 1] instanceof IList){
@@ -1666,7 +1698,7 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	public static int splice_to_setwriter(Object[] stack, int sp, int arity) {
+	public static int setwriter_splice(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ISetWriter writer = (ISetWriter)stack[sp - 2];
 		if(stack[sp - 1] instanceof IList){
@@ -1802,6 +1834,44 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).remainder((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
+	
+	/* 
+	 * testreport_...
+	 */
+	static int number_of_tests = 0;
+	static int number_of_failures = 0;
+	
+	public static int testreport_open(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		number_of_tests = 0;
+		number_of_failures = 0;
+		stdout.println("\nTEST REPORT\n");
+		stack[sp] = null;
+		return sp + 1;
+	}
+	
+	public static int testreport_close(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		stdout.println("\nExecuted " + number_of_tests + " tests: "  
+				+ (number_of_tests  - number_of_failures) + " succeeded; "
+				+ number_of_failures + " failed.\n");
+		stack[sp] = null;
+		return sp + 1;
+	}
+	
+	public static int testreport_add(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		
+		String fun = ((IString) stack[sp - 3]).getValue();
+		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
+		boolean passed = (Boolean) stack[sp - 1];
+		number_of_tests++;
+		if(!passed){
+			number_of_failures++;
+		}
+		stdout.println("Test " + fun + (passed ? ": succeeded" : ": FAILED") + " at " + src);
+		return sp - 2;
+	}
 
 	/*
 	 * negation
@@ -1854,7 +1924,7 @@ public enum RascalPrimitive {
 	 */
 
 	public static int println(Object[] stack, int sp, int arity) {
-		System.out.println(">>>>> " + stack[sp - 1]);
+		stdout.println(">>>>> " + stack[sp - 1]);
 		return sp;
 	}
 
@@ -1873,31 +1943,29 @@ public enum RascalPrimitive {
 	 * subscript
 	 */
 	
-	public static int subscript_adt(Object[] stack, int sp, int arity) {
+	public static int adt_subscript(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IConstructor) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
 		return sp - 1;
 	}
 	
-	public static int subscript_list(Object[] stack, int sp, int arity) {
+	public static int list_subscript(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
 		return sp - 1;
 	}
 
-	public static Object subscript_map(Object[] stack, int sp, int arity) {
+	public static Object map_subscript(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
 	
-	public static int subscript_tuple(Object[] stack, int sp, int arity) {
+	public static int tuple_subscript(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ITuple) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
 		return sp - 1;
 	}
-	
-	
 
 	/*
 	 * subtraction
@@ -2080,7 +2148,7 @@ public enum RascalPrimitive {
 	 * update_...
 	 */
 	
-	public static int update_adt(Object[] stack, int sp, int arity) {
+	public static int adt_update(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		IConstructor cons = (IConstructor) stack[sp - 3];
 		String field = ((IString) stack[sp - 2]).getValue();
@@ -2088,7 +2156,7 @@ public enum RascalPrimitive {
 		return sp - 2;
 	}
 	
-	public static int update_list(Object[] stack, int sp, int arity) {
+	public static int list_update(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		IList lst = (IList) stack[sp - 3];
 		int n = ((IInteger) stack[sp - 2]).intValue();
@@ -2096,7 +2164,7 @@ public enum RascalPrimitive {
 		return sp - 2;
 	}
 	
-	public static int update_map(Object[] stack, int sp, int arity) {
+	public static int map_update(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		IMap map = (IMap) stack[sp - 3];
 		IValue key = (IValue) stack[sp - 2];
@@ -2104,7 +2172,7 @@ public enum RascalPrimitive {
 		return sp - 2;
 	}
 	
-	public static int update_tuple(Object[] stack, int sp, int arity) {
+	public static int tuple_update(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		ITuple tup = (ITuple) stack[sp - 3];
 		int n = ((IInteger) stack[sp -2]).intValue();
@@ -2117,7 +2185,7 @@ public enum RascalPrimitive {
 	 */
 
 	public static void main(String[] args) {
-		init(ValueFactoryFactory.getValueFactory());
+		init(ValueFactoryFactory.getValueFactory(), null);
 	}
 
 }

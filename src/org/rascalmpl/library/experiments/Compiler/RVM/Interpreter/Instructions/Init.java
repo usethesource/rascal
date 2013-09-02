@@ -11,6 +11,10 @@ public class Init extends Instruction {
 		this.arity = arity;
 	}
 	
+	public int spIncrement() {
+		return arity + 1;
+	}
+	
 	public String toString() { return "INIT " + arity; }
 	
 	public void generate(){
