@@ -736,6 +736,7 @@ public Configuration exitBooleanScope(Configuration c, Configuration cOrig) {
 public CheckResult checkExp(Expression exp:(Expression)`{ <Statement+ ss> }`, Configuration c) {
     // TODO: Do we need to extract out function declarations first, or do they have to be in order here?
     cBlock = enterBlock(c,exp@\loc);
+    t1 = Symbol::\void();
     for (s <- ss) < cBlock, t1 > = checkStmt(s, cBlock);
     c = exitBlock(cBlock,c);
     

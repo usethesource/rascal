@@ -20,6 +20,7 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 public list[MuFunction] functions_in_module = [];
 public list[MuVariable] variables_in_module = [];
 public list[MuExp] variable_initializations = [];
+public list[MuExp] tests = [];
 
 public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
@@ -27,6 +28,7 @@ public void resetR2mu() {
 	functions_in_module = [];
 	variables_in_module = [];
 	variable_initializations = [];
+	tests = [];
 	resetTmpAndLabel();
 }
 
@@ -90,7 +92,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  									|| sorttype(name, Symbol \type, containedIn, ats) := config.store[uid]
    	  									|| \alias(name, Symbol \type, containedIn, at) := config.store[uid] ];
    	  translate(M);
-   	  generate_tests();
+   	  generate_tests("<M.header.name>");
    	  return muModule("<M.header.name>", types, functions_in_module, variables_in_module, variable_initializations);
    	}
    } catch Java("ParseError","Parse error"): {
@@ -138,7 +140,15 @@ println("r2mu: Compiling <signature.name>");
   nformals = size(ftype.parameters);
   fuid = uid2str(loc2uid[fd@\loc]);
   tbody = translate(expression);
-  functions_in_module += [muFunction(fuid, nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), [*tbody[0 .. -1], muReturn(tbody[-1])])];
+  tmods = translateModifiers(signature.modifiers);
+  ttags =  translateTags(tags);
+  functions_in_module += [muFunction(fuid, nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, [*tbody[0 .. -1], muReturn(tbody[-1])])];
+  
+  if("test" in tmods){
+  println("ftype = <ftype>");
+     params = ftype.parameters;
+     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muTypeCon(param) | param <- params ]);
+  }
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
@@ -188,13 +198,9 @@ list[str] translateModifiers(FunctionModifiers modifiers){
    return lst;
 }
 
-void generate_tests(){
-   code = [ muCallPrim("testreport_open", []) ];
-   for(f <- functions_in_module){
-     if("test" in f.modifiers){
-        code += muCallPrim("testreport_add", [muCon(f.name), muCon(f.source), muCall(muFun(f.name), [])]);
-     }
-   }
-   code += [ muCallPrim("testreport_close", []), muReturn() ];
-   functions_in_module += muFunction("testsuite", 1, 1, |rascal:///|, [], (), code);
+void generate_tests(str module_name){
+   code = [ muCallPrim("testreport_open", []), *tests, muCallPrim("testreport_close", []), muReturn() ];
+   main_testsuite = getUID(module_name,[],"testsuite",1);
+   println("main_testsuite = <main_testsuite>");
+   functions_in_module += muFunction(main_testsuite, 1, 1, |rascal:///|, [], (), code);
 }

@@ -24,4 +24,4 @@ test bool tst() = run("Fac") == experiments::Compiler::Examples::Fac::main([]);
 test bool tst() = run("Fib") == experiments::Compiler::Examples::Fib::main([]);
 test bool tst() = run("ListMatch") == experiments::Compiler::Examples::ListMatch::main([]);
 test bool tst() = run("Odd") == experiments::Compiler::Examples::Odd::main([]);
-//test bool tst() = run("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
+test bool tst() = run("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
