@@ -172,6 +172,10 @@ public class SymbolAdapter {
 		return delabel(tree).getConstructorType() == Factory.Symbol_Alt;
 	}
 
+	public static String toString(IConstructor symbol) {
+	  return toString(symbol, true);
+	}
+	
 	public static String toString(IConstructor symbol, boolean withLayout) {
 		// TODO: this code clones the symbol formatter impemented in Rascal. 
 	  // When we have a faster Rascal (compiler?) we should remove this clone.
