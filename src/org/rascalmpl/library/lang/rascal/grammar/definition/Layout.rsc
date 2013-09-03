@@ -51,9 +51,17 @@ public Grammar \layouts(Grammar g, Symbol l) {
     case prod(sort(s),list[Symbol] lhs,as) => prod(sort(s),intermix(lhs, l),as)
     case prod(\parameterized-sort(s,n),list[Symbol] lhs,as) => prod(\parameterized-sort(s,n),intermix(lhs, l),as)
     case prod(label(t,sort(s)),list[Symbol] lhs,as) => prod(label(t,sort(s)),intermix(lhs, l),as)
-    case prod(label(t,\parameterized-sort(s,n)),list[Symbol] lhs,as) => prod(label(t,\parameterized-sort(s,n)),intermix(lhs, l),as) 
+    case prod(label(t,\parameterized-sort(s,n)),list[Symbol] lhs,as) => prod(label(t,\parameterized-sort(s,n)),intermix(lhs, l),as)
+    case prod(h,s,as) => prod(h,removeFarRestrictions(s),as) 
   }
 } 
+
+private &T removeFarRestrictions(&T x) = visit(x) {
+  case \far-precede(s) => precede(s)
+  case \far-not-precede(s) => \not-precede(s)
+  case \far-follow(s) => follow(s)
+  case \far-not-follow(s) => \not-follow(s)
+}; 
 
 private list[Symbol] intermix(list[Symbol] syms, Symbol l) {
   if (syms == []) 
@@ -68,5 +76,9 @@ private Symbol regulars(Symbol s, Symbol l) {
     case \iter-seps(Symbol n, [Symbol sep]) => \iter-seps(n,[l,sep,l]) 
     case \iter-star-seps(Symbol n,[Symbol sep]) => \iter-star-seps(n, [l, sep, l])
     case \seq(list[Symbol] elems) => \seq(tail([l, e | e <- elems]))
+    case \conditional(s, {*other, \far-precede(c)}) => \conditional(s, {*other, \precede(seq[c,l])})
+    case \conditional(s, {*other, \far-not-precede(c)}) => \conditional(s, {*other, \not-precede(seq[c,l])})
+    case \conditional(s, {*other, \far-follow(c)}) => \conditional(s, {*other, \follow(seq[l,c])})
+    case \conditional(s, {*other, \far-not-follow(c)}) => \conditional(s, {*other, \not-follow(seq[l,c])})
   }
 }
