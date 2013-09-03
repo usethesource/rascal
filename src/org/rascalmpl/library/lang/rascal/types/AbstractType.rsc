@@ -99,6 +99,11 @@ private str prettyPrintCond(Condition::\follow(Symbol symbol)) = "\>\> <prettyPr
 private str prettyPrintCond(Condition::\not-follow(Symbol symbol)) = "!\>\> <prettyPrintType(symbol)>";
 private str prettyPrintCond(Condition::\precede(Symbol symbol)) = "<prettyPrintType(symbol)> \<\<";
 private str prettyPrintCond(Condition::\not-precede(Symbol symbol)) = "<prettyPrintType(symbol)> !\<\<";
+private str prettyPrintCond(Condition::\far-follow(Symbol symbol)) = "\>\>\> <prettyPrintType(symbol)>";
+private str prettyPrintCond(Condition::\far-not-follow(Symbol symbol)) = "!\>\>\> <prettyPrintType(symbol)>";
+private str prettyPrintCond(Condition::\far-precede(Symbol symbol)) = "<prettyPrintType(symbol)> \<\<\<";
+private str prettyPrintCond(Condition::\far-not-precede(Symbol symbol)) = "<prettyPrintType(symbol)> !\<\<\<";
+
 private str prettyPrintCond(Condition::\delete(Symbol symbol)) = "???";
 private str prettyPrintCond(Condition::\at-column(int column)) = "@<column>";
 private str prettyPrintCond(Condition::\begin-of-line()) = "^";
