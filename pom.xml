@@ -26,7 +26,16 @@
 					<exclude>**/*.java</exclude>
 					<exclude>**/*.class</exclude>
 				</excludes>
-			</resource>			
+			      </resource>			
+			      <resources>
+				<resource>
+				  <directory>.</directory>
+				  <filtering>false</filtering>
+				  <includes>
+				    <include>plugin.xml</include>
+				  </includes>
+				</resource>
+			      </resources>
 		</resources>
 		<testSourceDirectory>test</testSourceDirectory>
 		<testResources>
