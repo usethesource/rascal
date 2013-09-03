@@ -20,22 +20,20 @@
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
-			<resource>
-				<directory>src</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-					<exclude>**/*.class</exclude>
-				</excludes>
-			      </resource>			
-			      <resources>
-				<resource>
-				  <directory>.</directory>
-				  <filtering>false</filtering>
-				  <includes>
-				    <include>plugin.xml</include>
-				  </includes>
-				</resource>
-			      </resources>
+		  <resource>
+		    <directory>src</directory>
+		    <excludes>
+		      <exclude>**/*.java</exclude>
+		      <exclude>**/*.class</exclude>
+		    </excludes>
+		  </resource>			
+		  <resource>
+		    <directory>.</directory>
+		    <filtering>false</filtering>
+		    <includes>
+		      <include>plugin.xml</include>
+		    </includes>
+		  </resource>
 		</resources>
 		<testSourceDirectory>test</testSourceDirectory>
 		<testResources>
