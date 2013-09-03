@@ -148,8 +148,13 @@ public RSignature processSyntax(RName name, list[Import] defs) {
   for ((Import) `<SyntaxDefinition sd>` <- defs) {
     rule = rule2prod(sd);
     
+    // Add productions as in grammar definitions to the signature
+    for(prod <- rule.prods) {
+    	prods += ProductionSigItem(prod, sd.defined@\loc, sd@\loc);
+    }
+    
     for (/pr:prod(_,_,_) <- rule.prods) {
-      prods += ProductionSigItem(pr, sd.defined@\loc, sd@\loc);
+      // prods += ProductionSigItem(pr, sd.defined@\loc, sd@\loc);
       
       sym = pr.def is label ? pr.def.symbol : pr.def;
       

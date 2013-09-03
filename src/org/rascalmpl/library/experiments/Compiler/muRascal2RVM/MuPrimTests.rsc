@@ -17,26 +17,26 @@ import IO;
 public loc Library = |std:///experiments/Compiler/muRascal2RVM/Test.mu|;
 
 value ret(str s) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return <s>; }")), true, 1); 
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,arg,x,y] { return <s>; }")), true, 1); 
 	return res;
 }
 
 value body(str s) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { <s> }")), true, 1);
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,arg,x,y] { <s> }")), true, 1);
 	return res; 
 }
 
 value prim1(str fun, value lhs) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return muprim(\"<fun>\",<lhs>); }")), true, 1);
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,arg,x,y] { return muprim(\"<fun>\",<lhs>); }")), true, 1);
 	return res; 
 }
 
 value prim2(str fun, value lhs, value rhs) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return muprim(\"<fun>\",<lhs>,<rhs>); }")), true, 1);
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,arg,x,y] { return muprim(\"<fun>\",<lhs>,<rhs>); }")), true, 1);
 	return res; 
 }
 value prim3(str fun, value arg1, value arg2, value arg3) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return muprim(\"<fun>\",<arg1>,<arg2>,<arg3>); }")), true, 1);
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,arg,x,y] { return muprim(\"<fun>\",<arg1>,<arg2>,<arg3>); }")), true, 1);
 	return res; 
 }
 
@@ -70,9 +70,9 @@ test bool tst() = 15 := prim2("addition_num_num", 7, 8);
 //assign_pair,			// Used by muRascal implode
 
 
-test bool tst() = true := prim2("equals_num_num", 7, 7);
-test bool tst() = false := prim2("equals_num_num", 7, 8);
-test bool tst() = true := prim2("equals_str_str", "\"abc\"", "\"abc\"");
+test bool tst() = true := prim2("equas_num_num", 7, 7);
+test bool tst() = false := prim2("equal_num_num", 7, 8);
+test bool tst() = true := prim2("equal_str_str", "\"abc\"", "\"abc\"");
 
 test bool tst() = true := prim2("greater_num_num", 8, 7);
 test bool tst() = false := prim2("greater_num_num", 7, 8);

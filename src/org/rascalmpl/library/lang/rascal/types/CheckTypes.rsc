@@ -199,6 +199,8 @@ data Configuration = config(set[Message] messages,
                             map[RName,int] tagEnv,
                             map[int,Vis] visibilities,
                             map[int,AbstractValue] store,
+                            map[int,Production] grammar,
+                            set[int] starts,
                             map[tuple[int,str],Symbol] adtFields,
                             map[tuple[int,str],Symbol] nonterminalFields,
                             rel[int,Modifier] functionModifiers,
@@ -213,7 +215,7 @@ data Configuration = config(set[Message] messages,
                             int uniqueify
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),(),{},{},{},{},{},[],[],[],0,0);
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},{},[],[],[],0,0);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -563,6 +565,23 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
     return c;
 }
 
+public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Production prod, bool isStart) {
+	if (rn notin c.typeEnv) { 
+      throw "Unexpected error, syntax nonterminal <prettyPrintName(rn)> not found!";
+    }
+    sortId = c.typeEnv[rn];
+    if(isStart) {
+    	c.starts = c.starts + sortId;
+    	return c;
+    }
+    if(c.grammar[sortId]?) {
+    	c.grammar[sortId] = choice(c.store[sortId].rtype, { c.grammar[sortId], prod });
+    } else {
+    	c.grammar[sortId] = choice(c.store[sortId].rtype, { prod });
+    }
+    return c;
+}
+
 public Configuration addModule(Configuration c, RName n, loc l) {
     c.modEnv[n] = c.nextLoc;
     c.store[c.nextLoc] = \module(n,l);
@@ -613,25 +632,25 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVar
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
-        c.stack = c.nextLoc + c.stack;
+        //c.stack = c.nextLoc + c.stack;
         c.nextLoc = c.nextLoc + 1;
     } else if (overload(items, overloaded(itemTypes)) := c.store[c.fcvEnv[n]]) {
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
         c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes + rt));
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
-        c.stack = c.nextLoc + c.stack;
+        //c.stack = c.nextLoc + c.stack;
         c.nextLoc = c.nextLoc + 1;
     } else if (function(_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
-        c.stack = c.nextLoc + c.stack;
+        //c.stack = c.nextLoc + c.stack;
         c.store[c.nextLoc + 1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded({ c.store[c.fcvEnv[n]].rtype, rt }));
         for (fname <- invert(c.fcvEnv)[c.fcvEnv[n]])
             c.fcvEnv[fname] = c.nextLoc+1;
         c.nextLoc = c.nextLoc + 2;
-    } else if ((\module(_,_) := c.store[c.fcvEnv[n]] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) {
+    } else if ((\module(_,_) := c.store[c.fcvEnv[n]] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) { // ???
         c = addScopeWarning(c, "Function declaration masks imported variable or constructor definition", l);
         c.fcvEnv[n] = c.nextLoc;
         if (\module(_,_) := c.store[head(c.stack)]) {
@@ -643,7 +662,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVar
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
-        c.stack = c.nextLoc + c.stack;
+        //c.stack = c.nextLoc + c.stack;
         c.nextLoc = c.nextLoc + 1;
     } else {
         c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, non-function items of that name have already been defined in the current scope",l);
@@ -944,13 +963,13 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
     <c, rt> = convertAndExpandSymbol(s, c);
     if (isFailType(rt)) failures += t1;  
     
-    n = RSimpleName("<n>")[@at = n@\loc];
+    name = convertName(n)[@at = n@\loc];
     
-    if (fcvExists(c, n)) {
-        c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
-        return markLocationType(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
+    if (fcvExists(c, name)) {
+        c.uses = c.uses + < c.fcvEnv[name], exp@\loc >;
+        return markLocationType(c, exp@\loc, c.store[c.fcvEnv[name]].rtype);
     } else {
-        return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(n)> is not in scope", exp@\loc));
+        return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(name)> is not in scope", exp@\loc));
     }
   }
   
@@ -1675,7 +1694,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Name n
     // Now get the field type. If this fails, return right away as well.
     ft = computeFieldType(t1, convertName(n), exp@\loc, c);
     if (isFailType(t2) || isFailType(ft)) return markLocationFailed(c,exp@\loc,{t2,ft});
-    if ((isLocType(t1) || isDateTimeType(t1)) && "<n>" notin writableFields[t1])
+    if ((isLocType(t1) || isDateTimeType(t1)) && getSimpleName(convertName(n)) notin writableFields[t1])
         return markLocationFailed(c,exp@\loc,makeFailType("Cannot update field <n> on type <prettyPrintType(t1)>",exp@\loc)); 
 
     // To assign, the type of er (t2) must be a subtype of the type of the field (ft)   
@@ -5312,10 +5331,11 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         // We now have the function type. So, we can throw cFun away, and add this as a proper function
         // into the scope. NOTE: This can be a failure type.
         c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
-    } else {
-        funId = getOneFrom(invert(c.definitions)[fd@\loc]);
-        c.stack = funId + c.stack;
-    }   
+    }
+    //else {
+    funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+    c.stack = funId + c.stack;
+    //}   
     
     // Normally we would now descend into the body. However, here we don't have one. So, pop the stack
     // and exit. NOTE: The names in the parameters are not in scope -- we calculated the type (which added
@@ -5341,10 +5361,11 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         < cFun, tFun > = processSignature(sig, cFun);
         c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
-    } else {
-        funId = getOneFrom(invert(c.definitions)[fd@\loc]);
-        c.stack = funId + c.stack;
-    }   
+    }
+    //else {
+    funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+    c.stack = funId + c.stack;
+    //}   
     
     if (descend) {
         // Process the signature, but this time in a copy of the current environment
@@ -5388,10 +5409,11 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         < cFun, tFun > = processSignature(sig, cFun);
         c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
-    } else {
-        funId = getOneFrom(invert(c.definitions)[fd@\loc]);
-        c.stack = funId + c.stack;
-    }   
+    }
+    //else {
+    funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+    c.stack = funId + c.stack;
+    //}   
     
     if (descend) {
         // Process the signature, but this time in a copy of the current environment
@@ -5438,10 +5460,11 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         < cFun, tFun > = processSignature(sig, cFun);
         c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
-    } else {
-        funId = getOneFrom(invert(c.definitions)[fd@\loc]);
-        c.stack = funId + c.stack;
-    }   
+    }
+    //else {
+    funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+    c.stack = funId + c.stack;
+    //}   
     
     if (descend) {
         // Process the signature, but this time in a copy of the current environment
@@ -5607,12 +5630,23 @@ public Configuration importConstructor(RName conName, UserType adtType, list[Typ
     return addConstructor(c, conName, at, Symbol::\cons(rt,getSimpleName(conName),targs));         
 }
 
-@doc{Import a signature item: Constructor}
+@doc{Import a signature item: Production}
 public Configuration importProduction(RSignatureItem item, Configuration c) {
-	if(label(str l, Symbol _) := item.prod.def) {
-    	c = addProduction(c, RSimpleName(l), item.at, item.prod);
-    } else if(item.prod.def has name) {
-    	c = addProduction(c, RSimpleName(""), item.at, item.prod);
+	// Signature item contains a syntax definition production
+	Production prod = item.prod;
+	if( (prod.def is label && prod.def.symbol has name) 
+			|| (!(prod.def is label) && prod.def has name) 
+			|| (prod.def is \start && prod.def.symbol has name)) {
+		str sortName = (prod.def is \start || prod.def is label) ? prod.def.symbol.name : prod.def.name;
+		c = addSyntaxDefinition(c, RSimpleName(sortName), item.at, prod, prod.def is \start);
+	}
+	// Productions that end up in the store
+	for(/Production prod:prod(_,_,_) <- prod) {
+		if(label(str l, Symbol _) := prod.def) {
+    		c = addProduction(c, RSimpleName(l), item.at, prod);
+    	} else if(prod.def has name) {
+    		c = addProduction(c, RSimpleName(""), item.at, prod);
+    	}
     }
     return c;
 }
@@ -5720,8 +5754,12 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
         for (item <- sig.publicConstructors) 
           c = importConstructor(item.conName, item.adtType, item.argTypes, item.adtAt, item.at, publicVis(), c);
-        for (item <- sig.publicProductions)
+        for (item <- sig.publicProductions) {
+          // Firts, resolve names in the productions
+          <p,c> = resolveProduction(item.prod, item.at, c, true);
+          item.prod = p;
           c = importProduction(item, c);
+        }
         c.stack = tail(c.stack);
     }
     
@@ -5748,9 +5786,13 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     // Process the current module
     syntaxConfig = processSyntax(moduleName, importList);
     for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals)
-      c = importNonterminal(item.sortName, item.sort, item.at, c);    
-    for (prodItem <- syntaxConfig.publicProductions)
+      c = importNonterminal(item.sortName, item.sort, item.at, c);
+    for (prodItem <- syntaxConfig.publicProductions) {
+      // First, resolve names in the productions
+      <p,c> = resolveProduction(prodItem.prod, prodItem.at, c, false);
+      prodItem.prod = p;
       c = importProduction(prodItem, c);
+    }
     
     c = checkSyntax(importList, c);  
   
@@ -6598,7 +6640,7 @@ CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
    case sort(str name) : {
      sname = RSimpleName(name);
      if (sname notin c.typeEnv) {
-       c = addScopeMessage(c,error("Syntax type <name> is not not defined", l));
+       c = addScopeMessage(c,error("Syntax type <name> is not defined", l));
      }
      else {
        c.uses = c.uses + < c.typeEnv[sname], l >;
@@ -6608,6 +6650,78 @@ CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
   }
   
   return <c, sym>;
+}
+
+tuple[Production,Configuration] resolveProduction(Production prod, loc l, Configuration c, bool imported) {
+	// Resolve names in the production given a type environment
+	typeEnv = c.typeEnv;
+	prod = visit(prod) {
+		case \sort(n): {
+			name = RSimpleName(n);
+			if(typeEnv[name]?) {
+				sym = c.store[typeEnv[name]].rtype;
+				if(\lex(n) := sym || \layouts(n) := sym || \keywords(n) := sym) {
+					insert sym;
+				}
+			} else {
+				if(!imported) {
+					c = addScopeMessage(c, error("Syntax type <n> is not defined", l));
+				} else {
+					c = addScopeMessage(c, warning("Leaking syntax type <n>", l));
+				}
+			}
+			fail;
+		}
+		case \parameterized-sort(n,ps): {
+			name = RSimpleName(n);
+			if(typeEnv[name]?) {
+				sym = c.store[typeEnv[name]].rtype;
+				if(\parameterized-lex(n,_) := sym) {
+					insert \parameterized-lex(n,ps);
+				}
+			} else {
+				if(!imported) {
+					c = addScopeMessage(c, error("Syntax type <n> is not defined", l));
+				} else {
+					c = addScopeMessage(c, warning("Leaking syntax type <n>", l));
+				}
+			}
+			fail;
+		}
+		case \lex(n): {
+			name = RSimpleName(n);
+			if(typeEnv[name]?) {
+				sym = c.store[typeEnv[name]].rtype;
+				if(\sort(n) := sym || \layouts(n) := sym || \keywords(n) := sym) {
+					insert sym;
+				}
+			} else {
+				if(!imported) {
+					c = addScopeMessage(c, error("Syntax type <n> is not defined", l));
+				} else {
+					c = addScopeMessage(c, warning("Leaking syntax type <n>", l));
+				}
+			}
+			fail;
+		 }
+		case \parameterized-lex(n,ps): {
+			name = RSimpleName(n);
+			if(typeEnv[name]?) {
+				sym = c.store[typeEnv[name]].rtype;
+				if(\parameterized-sort(n,_) := sym) {
+					insert \parameterized-sort(n,ps);
+				}
+			} else {
+				if(!imported) {
+					c = addScopeMessage(c, error("Syntax type <n> is not defined", l));
+				} else {
+					c = addScopeMessage(c, warning("Leaking syntax type <n>", l));
+				}
+			}
+			fail;
+		}
+	}
+	return <prod,c>;
 }
 
 public bool comparableOrNum(Symbol l, Symbol r) {

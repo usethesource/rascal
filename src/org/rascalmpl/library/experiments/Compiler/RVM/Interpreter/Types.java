@@ -86,7 +86,7 @@ public class Types {
 			return tf.parameterType(((IString) symbol.get("name")).getValue(), symbolToType((IConstructor) symbol.get("bound"), store));
 		}
 		else if (cons == Factory.Symbol_ReifiedType) {
-			return RascalTypeFactory.getInstance().reifiedType(symbolToType((IConstructor) symbol.get("reified"), store));
+			return RascalTypeFactory.getInstance().reifiedType(symbolToType((IConstructor) symbol.get("symbol"), store));
 		}
 		else if (cons == Factory.Symbol_Rel) {
 			return tf.relTypeFromTuple(symbolsToTupleType((IList) symbol.get("symbols"), store));
