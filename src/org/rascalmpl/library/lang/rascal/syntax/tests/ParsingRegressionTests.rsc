@@ -45,7 +45,7 @@ public bool testModules(list[loc] files, list[loc] path) {
 }
 
 
-public test bool StandardLibrary() = testModules([f |  /file(f) <- crawl(|std:///|), f.extension == "rsc"], []);
+public test bool StandardLibrary() = testModules([f |  /file(f) <- crawl(|std:///|), f.extension == "rsc", /experiments/ !:= f.path], []);
 
 public test bool testTutor() = testModules([f |  /file(f) <- crawl(|tutor:///|), f.extension == "rsc"], [|tutor:///|]);
 
