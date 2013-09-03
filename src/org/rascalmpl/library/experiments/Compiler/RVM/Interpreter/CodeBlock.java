@@ -55,7 +55,6 @@ public class CodeBlock {
 
 	private final IValueFactory vf;
 	int pc;
-	int sp;
 	int labelIndex = 0;
 	
 	private final ArrayList<Instruction> insList;
@@ -80,7 +79,6 @@ public class CodeBlock {
 		insList = new ArrayList<Instruction>();
 		new ArrayList<Integer>();
 		pc = 0;
-		sp = 0;
 		this.vf = factory;
 		constantMap = new HashMap<IValue, Integer>();
 		this.constantStore = new ArrayList<IValue>();
@@ -91,11 +89,10 @@ public class CodeBlock {
 	public void defLabel(String label, Instruction ins){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			labelInfo.put(label, new LabelInfo(ins, labelIndex++, pc, sp));
+			labelInfo.put(label, new LabelInfo(ins, labelIndex++, pc));
 		} else {
 			info.instruction = ins;
 			info.PC = pc;
-			info.startSP = sp;
 		}
 	}
 	
@@ -103,7 +100,6 @@ public class CodeBlock {
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
 			info = new LabelInfo(labelIndex++);
-			info.startSP = sp;
 			labelInfo.put(label, info);
 		}
 		return info.index;
@@ -198,7 +194,6 @@ public class CodeBlock {
 	CodeBlock add(Instruction ins){
 		insList.add(ins);
 		pc += ins.pcIncrement();
-		sp += ins.spIncrement();
 		return this;
 	}
 	
@@ -381,25 +376,6 @@ public class CodeBlock {
 	public CodeBlock FAILRETURN(){
 		return add(new FailReturn(this));
 	}
-	
-	public int computeStackSize(){
-		boolean work = false;
-		do {
-			work = false;
-			int sp = 0;
-			for(Instruction ins : insList){
-				work = work || ins.computeStackSize(sp);
-				sp = ins.maxStackSize;
-			}
-		} while(work);
-		int max = 0;
-		for(Instruction ins : insList){
-			if(ins.maxStackSize > max){
-				max = ins.maxStackSize;
-			}
-		}
-		return max;
-	}
 		
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
 		this.functionMap = codeMap;
@@ -455,27 +431,16 @@ public class CodeBlock {
 class LabelInfo {
 	final int index;
 	int PC;
-	int startSP = 0;
-	int endSP = 0;
 	Instruction instruction;
 	
-	LabelInfo(Instruction ins, int index, int pc, int startsp){
+	LabelInfo(Instruction ins, int index, int pc){
 		this.instruction = ins;
 		this.index = index;
 		this.PC = pc;
-		startSP = startsp;
 	}
 
 	public LabelInfo(int index) {
 		this.index = index;
 		PC = -1;
-	}
-
-	void updateStart(int newStart){
-		startSP = Math.max(startSP, newStart);
-	}
-	
-	void updateEnd(int newEnd){
-		endSP = Math.max(endSP, newEnd);
 	}
 }

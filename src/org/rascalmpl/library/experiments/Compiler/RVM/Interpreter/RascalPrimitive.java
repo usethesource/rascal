@@ -338,15 +338,17 @@ public enum RascalPrimitive {
 	private static Type lineColumnType;
 	
 	private static PrintWriter stdout;
+	private static RVM rvm;
 
 	/**
 	 * Initialize the primitive methods.
 	 * @param fact value factory to be used
 	 * @param stdout 
 	 */
-	public static void init(IValueFactory fact, PrintWriter stdoutPrinter) {
+	public static void init(IValueFactory fact, PrintWriter stdoutPrinter, RVM usedRVM) {
 		vf = fact;
 		stdout = stdoutPrinter;
+		rvm = usedRVM;
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 									new String[] {"line", "column"});
@@ -1860,11 +1862,20 @@ public enum RascalPrimitive {
 	}
 	
 	public static int testreport_add(Object[] stack, int sp, int arity) {
-		assert arity == 3;
+		assert arity >= 2; 
 		
-		String fun = ((IString) stack[sp - 3]).getValue();
-		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
-		boolean passed = (Boolean) stack[sp - 1];
+		String fun = ((IString) stack[sp - arity]).getValue();
+		ISourceLocation src = ((ISourceLocation) stack[sp - arity + 1]);
+		
+		IValue[] args = new IValue[arity - 2];
+		for(int i = 0; i < args.length; i++){
+			Type tp = ((Type) stack[sp - arity + 2 + i]);
+			if(tp.isInteger()){
+				args[i] = vf.integer(5);
+			}
+		}
+		IValue res = rvm.executeFunction(fun, args);
+		boolean passed = ((IBool) res).getValue();
 		number_of_tests++;
 		if(!passed){
 			number_of_failures++;
@@ -2185,7 +2196,7 @@ public enum RascalPrimitive {
 	 */
 
 	public static void main(String[] args) {
-		init(ValueFactoryFactory.getValueFactory(), null);
+		init(ValueFactoryFactory.getValueFactory(), null, null);
 	}
 
 }
