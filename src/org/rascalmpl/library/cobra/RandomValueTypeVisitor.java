@@ -177,7 +177,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 			if (argument == null) {
 				return null;
 				/*
-				 * Het is onmogelijk om de constructor te bouwen als ��n
+				 * Het is onmogelijk om de constructor te bouwen als ������n
 				 * argument null is.
 				 */
 			}
