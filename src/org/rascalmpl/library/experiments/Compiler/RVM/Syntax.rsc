@@ -31,7 +31,7 @@ lexical Opcode =
 		| "CALLPRIM"    // calls a primitive operation on a number of arguments, pops them and pushes the result onto the top
 		| "CALL"        // calls a user-defined function on a number of arguments, pops them and pushes the result onto the top
 	
-	| "RETURN_0"
+	    | "RETURN_0"
 		| "RETURN1"	    // returns from a function popping the current stack frame 
 	
 		| "JMP"         // jumps to the specified location
@@ -91,7 +91,7 @@ syntax Directive =
 		| relconst:  "REL-CONST" Identifier value
 		| ratconst:  "RAT-CONST" Identifier value
 		| boolconst: "B-CONST"   Identifier value
-		| function : "FUNCTION"  Identifier name Integer scope Integer nformals Integer nlocals Integer maxStack Instruction+ instructions
+		| function : "FUNCTION"  Identifier name Integer nformals Integer nlocals Integer maxStack Instruction+ instructions
 		;
 	
 syntax RascalVM = vm: { Directive ";"}+ directives ";" Instruction* instructions;

@@ -4,18 +4,18 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 
 public class LoadFun extends Instruction {
 
-	String function;
+	final String fuid;
 	
-	public LoadFun(CodeBlock ins, String function){
+	public LoadFun(CodeBlock ins, String fuid){
 		super(ins, Opcode.LOADFUN);
-		this.function = function;
+		this.fuid = fuid;
 	}
 	
-	public String toString() { return "LOADFUN " + function + "[" + codeblock.getFunctionIndex(function) + "]"; }
+	public String toString() { return "LOADFUN " + fuid + "[" + codeblock.getFunctionIndex(fuid) + "]"; }
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getFunctionIndex(function));
+		codeblock.addCode(codeblock.getFunctionIndex(fuid));
 	}
 
 }

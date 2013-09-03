@@ -396,7 +396,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 	@Override	
 	public boolean __getInterrupt() {
-		return interrupt;
+		return interrupt || isCanceled();
 	}
 
 	@Override	
@@ -425,7 +425,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 	@Override	
 	public boolean isInterrupted() {
-		return interrupt;
+		return interrupt || isCanceled();
 	}
 
 	@Override	

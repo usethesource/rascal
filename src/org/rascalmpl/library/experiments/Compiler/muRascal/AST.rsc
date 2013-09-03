@@ -21,7 +21,7 @@ public data MuModule =
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-              muFunction(str name, int scope, int nformal, int nlocal, list[MuExp] body)
+              muFunction(str qname, int nformals, int nlocals, loc source, list[str] modifiers, map[str,str] tags, list[MuExp] body)
           ;
           
 // A global (module level) variable.
@@ -45,20 +45,20 @@ public data MuExp =
           | muCon(value c)										// Rascal Constant: an arbitrary IValue
             													// Some special cases are handled by preprocessor, see below.
           | muLab(str name)										// Label
-          | muFun(str name)										// Function constant: functions at the root
-          | muFun(str name, int scope)                          // Function constant: nested functions and closures
-          | muConstr(str name) 									// Constructors
+          | muFun(str fuid)							            // Function constant: functions at the root
+          | muFun(str fuid, str scopeIn)                        // Function constant: nested functions and closures
+          | muConstr(str fuid) 									// Constructors
           
           	// Variables
           | muLoc(str name, int pos)							// Local variable, with position in current scope
-          | muVar(str id, int scope, int pos)					// Variable: retrieve its value
+          | muVar(str id, str fuid, int pos)					// Variable: retrieve its value
           | muTmp(str name)										// Temporary variable introduced by front-end
           
           | muLocDeref(str name, int pos) 				        // Call-by-reference: a variable that refers to a value location
-          | muVarDeref(str name, int scope, int pos)
+          | muVarDeref(str name, str fuid, int pos)
           
           | muLocRef(str name, int pos) 				        // Call-by-reference: expression that returns a value location
-          | muVarRef(str name, int scope, int pos)
+          | muVarRef(str name, str fuid, int pos)
              
           | muTypeCon(Symbol tp)								// Type constant
           
@@ -69,7 +69,7 @@ public data MuExp =
      		// Call/return
      		
           | muCall(MuExp fun, list[MuExp] args)					// Call a function
-          | muCallConstr(str cname, list[MuExp] args) 			// Call a constructor
+          | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
           | muCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
  
@@ -79,18 +79,23 @@ public data MuExp =
            // Assignment, If and While
               
           | muAssignLoc(str id, int pos, MuExp exp)				// Assign a value to a local variable
-          | muAssign(str id, int scope, int pos, MuExp exp)		// Assign a value to a variable
+          | muAssign(str id, str fuid, int pos, MuExp exp)		// Assign a value to a variable
           | muAssignTmp(str id, MuExp exp)						// Assign to temporary variable introduced by front-end
           
-          | muAssignLocDeref(str id, int pos, MuExp exp)          // Call-by-reference assignment:
-          | muAssignVarDeref(str id, int scope, int pos, MuExp exp) 	// the left-hand side is a variable that refers to a value location
+          | muAssignLocDeref(str id, int pos, MuExp exp)        // Call-by-reference assignment:
+          | muAssignVarDeref(str id, str fuid, 
+          					 int pos, MuExp exp) 	            // the left-hand side is a variable that refers to a value location
           														
           | muIfelse(MuExp cond, list[MuExp] thenPart,			// If-then-else expression
           						 list[MuExp] elsePart)
           						 
-          | muWhile(MuExp cond, list[MuExp] body)				// While expression
+          | muWhile(str label, MuExp cond, list[MuExp] body)	// While-Do expression
+          | muDo(str label, list[MuExp] body, MuExp cond)		// Do-While expression
           
-          | muLabeled(str name, list[MuExp] MuExp)				// Labeled list of expressions
+		  | muBreak(str label)									// Break statement
+		  | muContinue(str label)								// Continue statement
+		  | muFail(str label)									// Fail statement
+		  | muFailReturn()										// Failure from function body
           
             // Coroutines
             
@@ -109,12 +114,13 @@ public data MuExp =
           | muYield(MuExp exp)									// Yield from coroutine, with value
           
            // Multi-expressions
-            
+          
+          | muExpList(list[MuExp] exps)  						// A list of expressions
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
-          
        	  ;
+       	  
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.
@@ -124,7 +130,7 @@ public data Module =
           ;
 
 public data Function =				
-             preFunction(str name, int scopeId, int nformal, 
+             preFunction(lrel[str,int] funNames, str name, int nformals, 
                          list[str] locals, list[MuExp] body)
           ;
 
@@ -133,9 +139,13 @@ public data MuExp =
             | preStrCon(str txt)  
             | preTypeCon(str txt)
             | preVar(str name)
+            | preVar(lrel[str name,int formals] funNames, str name)
+            | preFunNN(str modName, str name, int nformals)
+            | preFunN(lrel[str,int] funNames, str name, int nformals)
             | preList(list[MuExp] exps)
             | preSubscript(MuExp lst, MuExp idx)
             | preAssignLoc(str name, MuExp exp)
+            | preAssign(lrel[str,int] funNames, str name, MuExp exp)
             | preAssignLocList(str name1, str name2, MuExp exp)
             | preAssignSubscript(MuExp lst, MuExp idx, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart)
@@ -154,7 +164,10 @@ public data MuExp =
             | preIs(MuExp, str typeName)
             
             | preLocDeref(str name)
+            | preVarDeref(lrel[str,int] funNames, str name)
             | preLocRef(str name)
+            | preVarRef(lrel[str,int] funNames, str name)
             
             | preAssignLocDeref(str name, MuExp exp)
+            | preAssignVarDeref(lrel[str,int] funNames, str name, MuExp exp)
            ;

@@ -4,18 +4,26 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 
 public class Call extends Instruction {
 
-	String fun;
+	final String fuid;
+	final int arity;
 	
-	public Call(CodeBlock ins, String fun){
+	public Call(CodeBlock ins, String fuid, int arity){
 		super(ins, Opcode.CALL);
-		this.fun = fun;
+		this.fuid = fuid;
+		this.arity = arity;
 	}
 	
-	public String toString() { return "CALL " + fun + "[" + codeblock.getFunctionIndex(fun) + "]"; }
+	public String toString() { return "CALL " + fuid + ", " + arity + " [ " + codeblock.getFunctionIndex(fuid) + " ]"; }
+
+	public int spIncrement() {
+		return arity + 1;
+	}
+	
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getFunctionIndex(fun));
+		codeblock.addCode(codeblock.getFunctionIndex(fuid));
+		codeblock.addCode(arity);
 	}
 
 }
