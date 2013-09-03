@@ -40,7 +40,7 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
     for (cond <- todo, !(cond in done)) {
       todo -= {cond};
       
-      if (cond has symbol, isFinite(cond.symbol)) {
+      if (cond has symbol, cond.symbol is lex || cond.symbol is sort || cond.symbol is keywords, isFinite(cond.symbol)) {
         if (name in names) {
           continue;
         }
