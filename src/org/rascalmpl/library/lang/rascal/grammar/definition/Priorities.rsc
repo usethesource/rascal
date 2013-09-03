@@ -63,15 +63,16 @@ public DoNotNest doNotNest(Grammar g) {
     } 
   }
   
-  return result // TODO: in the future the except relation needs to be reported separately because it should not be indirect.
-       + {*except(p, g) | /Production p <- g, p is prod || p is regular}
-       ;
+  return result; 
 }
+
+public DoNotNest exceptPatterns(Grammar g)  = {*except(p, g) | /Production p <- g, p is prod || p is regular};
 
 public alias NotAllowedSet = map[tuple[Production, int] slot, set[Production] notallowed];
 
 public Grammar addNotAllowedSets(Grammar g) {
  g.about["notAllowed"]= getNotAllowed(g);
+ g.about["excepts"] = exceptPatterns(g);
  return g;
 }
 
