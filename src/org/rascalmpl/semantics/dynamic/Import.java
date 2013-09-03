@@ -351,6 +351,7 @@ public abstract class Import {
     try {
       eval.startJob("Parsing " + location, 10);
       eval.event("initial parse");
+
       IConstructor tree = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
       if (TreeAdapter.isAmb(tree)) {
@@ -425,14 +426,18 @@ public abstract class Import {
   }
   
   private static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod) {
-    org.rascalmpl.ast.Import imp = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
-    try {
-      imp.interpret(eval);
-    }
-    catch (Throwable e) {
-      // parsing the current module should be robust wrt errors in modules it depends on.
-      eval.getMonitor().warning("could not load module " + TreeAdapter.yield(mod) + "[" + e.getMessage() + "]", imp != null ? imp.getLocation() : eval.getCurrentAST().getLocation());
-    }
+	  org.rascalmpl.ast.Import imp = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
+	  try {
+		  imp.interpret(eval);
+	  }
+	  catch (Throwable e) {
+		  // parsing the current module should be robust wrt errors in modules it depends on.
+		  eval.getMonitor().warning("could not load module " + TreeAdapter.yield(mod) + "[" + e.getMessage() + "]", imp != null ? imp.getLocation() : eval.getCurrentAST().getLocation());
+		  if(eval.isInterrupted()) {
+			  e.printStackTrace();
+			  throw e;
+		  }
+	  }
   }
 
   /**
