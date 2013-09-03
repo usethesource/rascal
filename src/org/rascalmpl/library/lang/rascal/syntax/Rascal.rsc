@@ -130,10 +130,14 @@ syntax Sym
 	assoc ( 
 	  left  ( follow:     Sym symbol  "\>\>" Sym match
 	        | notFollow:  Sym symbol "!\>\>" Sym match
+	        | farFollow:  Sym symbol  "\>\>\>" Sym match
+	        | farNotFollow: Sym symbol "!\>\>\>" Sym match
 	        )
 	  | 
 	  right ( precede:    Sym match "\<\<" Sym symbol 
 	        | notPrecede: Sym match "!\<\<" Sym symbol
+	        | farPrecede: Sym match "\<\<\<" Sym symbol
+	        | farNotPrecede: Sym match "!\<\<\<" Sym symbol
 	        )
 	)
 	> 

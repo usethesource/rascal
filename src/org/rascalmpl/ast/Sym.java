@@ -400,6 +400,198 @@ public abstract class Sym extends AbstractAST {
       return true;
     }	
   }
+  public boolean isFarFollow() {
+    return false;
+  }
+
+  static public class FarFollow extends Sym {
+    // Production: sig("FarFollow",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")])
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+    private final org.rascalmpl.ast.Sym match;
+  
+    public FarFollow(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+      super(node);
+      
+      this.symbol = symbol;
+      this.match = match;
+    }
+  
+    @Override
+    public boolean isFarFollow() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymFarFollow(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Sym getMatch() {
+      return this.match;
+    }
+  
+    @Override
+    public boolean hasMatch() {
+      return true;
+    }	
+  }
+  public boolean isFarNotFollow() {
+    return false;
+  }
+
+  static public class FarNotFollow extends Sym {
+    // Production: sig("FarNotFollow",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")])
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+    private final org.rascalmpl.ast.Sym match;
+  
+    public FarNotFollow(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+      super(node);
+      
+      this.symbol = symbol;
+      this.match = match;
+    }
+  
+    @Override
+    public boolean isFarNotFollow() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymFarNotFollow(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Sym getMatch() {
+      return this.match;
+    }
+  
+    @Override
+    public boolean hasMatch() {
+      return true;
+    }	
+  }
+  public boolean isFarNotPrecede() {
+    return false;
+  }
+
+  static public class FarNotPrecede extends Sym {
+    // Production: sig("FarNotPrecede",[arg("org.rascalmpl.ast.Sym","match"),arg("org.rascalmpl.ast.Sym","symbol")])
+  
+    
+    private final org.rascalmpl.ast.Sym match;
+    private final org.rascalmpl.ast.Sym symbol;
+  
+    public FarNotPrecede(IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
+      super(node);
+      
+      this.match = match;
+      this.symbol = symbol;
+    }
+  
+    @Override
+    public boolean isFarNotPrecede() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymFarNotPrecede(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getMatch() {
+      return this.match;
+    }
+  
+    @Override
+    public boolean hasMatch() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }	
+  }
+  public boolean isFarPrecede() {
+    return false;
+  }
+
+  static public class FarPrecede extends Sym {
+    // Production: sig("FarPrecede",[arg("org.rascalmpl.ast.Sym","match"),arg("org.rascalmpl.ast.Sym","symbol")])
+  
+    
+    private final org.rascalmpl.ast.Sym match;
+    private final org.rascalmpl.ast.Sym symbol;
+  
+    public FarPrecede(IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
+      super(node);
+      
+      this.match = match;
+      this.symbol = symbol;
+    }
+  
+    @Override
+    public boolean isFarPrecede() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymFarPrecede(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getMatch() {
+      return this.match;
+    }
+  
+    @Override
+    public boolean hasMatch() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }	
+  }
   public boolean isFollow() {
     return false;
   }
