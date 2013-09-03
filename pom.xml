@@ -32,6 +32,7 @@
 		    <filtering>false</filtering>
 		    <includes>
 		      <include>plugin.xml</include>
+		      <include>META-INF/RASCAL.MF</include>
 		    </includes>
 		  </resource>
 		</resources>
