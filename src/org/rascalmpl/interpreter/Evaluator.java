@@ -988,7 +988,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IConstructor tree = new RascalParser().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		
 		if (!noBacktickOutsideStringConstant(command)) {
-		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, getCurrentModuleEnvironment());
+		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
 		}
 		
 		Command stat = new ASTBuilder().buildCommand(tree);
@@ -1009,7 +1009,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		tree = new RascalParser().parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	
 	  if (!noBacktickOutsideStringConstant(command)) {
-	    tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, getCurrentModuleEnvironment());
+	    tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
 		}
 
 		Commands stat = new ASTBuilder().buildCommands(tree);
@@ -1059,7 +1059,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IConstructor tree =  new RascalParser().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
 		if (!noBacktickOutsideStringConstant(command)) {
-		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, getCurrentModuleEnvironment());
+		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
 		}
 		
 		return tree;
@@ -1074,7 +1074,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       IConstructor tree = new RascalParser().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
   
 			if (!noBacktickOutsideStringConstant(commands)) {
-			  tree = parseFragments(this, tree, getCurrentModuleEnvironment());
+			  tree = parseFragments(this, tree, location, getCurrentModuleEnvironment());
 			}
 			
 			return tree;

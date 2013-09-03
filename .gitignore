@@ -14,4 +14,4 @@ local.properties
 
 # maven stuff
 target/
-/bin
+bin/
