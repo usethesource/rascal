@@ -27,6 +27,14 @@
 					<exclude>**/*.class</exclude>
 				</excludes>
 			</resource>			
+			<resource>
+			  <directory>.</directory>
+			  <filtering>false</filtering>
+			  <includes>
+			    <include>file.txt</include>
+			    <include>file.xml</include>
+			  </includes>
+          </resource>
 		</resources>
 		<testSourceDirectory>test</testSourceDirectory>
 		<testResources>
