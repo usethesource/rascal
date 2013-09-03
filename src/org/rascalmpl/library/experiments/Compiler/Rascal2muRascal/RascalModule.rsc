@@ -10,12 +10,15 @@ import ParseTree;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
+import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
+
 
 public list[MuFunction] functions_in_module = [];
 public list[MuVariable] variables_in_module = [];
@@ -63,7 +66,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	Configuration c = newConfiguration();
    	config = checkModule(M, c);
    	// Extract scoping information available from the configuration returned by the type checker  
-   	extractScopes();  	
+   	extractScopes();  
+   	//text(config);	
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    	if(size(errors) > 0) {
@@ -147,7 +151,7 @@ println("r2mu: Compiling <signature.name>");
   if("test" in tmods){
   println("ftype = <ftype>");
      params = ftype.parameters;
-     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muTypeCon(param) | param <- params ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
 }
 
