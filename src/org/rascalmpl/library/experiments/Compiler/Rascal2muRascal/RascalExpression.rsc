@@ -9,6 +9,7 @@ import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 
+import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
@@ -18,36 +19,6 @@ import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
-
-public str nextTmp(){
-	tmpVar += 1;
-    return "TMP<tmpVar>";
-}
-
-// Administration for possibly nested "it" variables in reducers
-private list[str] itVariables = [];
-
-private void pushIt(str name){
-  itVariables = name + itVariables;
-}
-
-private void popIt(){
-  itVariables = tail(itVariables);
-}
-
-private str topIt() = top(itVariables);
-
-// Administration for possibly nested list/set writers related to splicing list/set elements
-
-private list[str] writerVariables = [];
-
-private void enterWriter(str name){
-  writerVariables = name + writerVariables;
-}
-
-private void leaveWriter(){
-  writerVariables = tail(writerVariables);
-}
 
 
 int size_exps({Expression ","}* es) = size([e | e <- es]);		// TODO: should become library function
@@ -107,10 +78,10 @@ list[MuExp] translate (e:(Expression) `<Parameters parameters> { <Statement* sta
 // Enumerator with range
 
 list[MuExp] translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`) =
-    [ muMulti(muCreate(muFun("RANGE"), [ *translatePat(pat), *translate(first), *translate(last)])) ];
+    [ muMulti(muCreate(mkCallToLibFun("Library", "RANGE", 3), [ *translatePat(pat), *translate(first), *translate(last)])) ];
     
 list[MuExp] translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) =
-     [ muMulti(muCreate(muFun("RANGE_STEP"), [  *translatePat(pat), *translate(first), *translate(second), *translate(last)])) ];
+     [ muMulti(muCreate(mkCallToLibFun("Library", "RANGE_STEP", 4), [  *translatePat(pat), *translate(first), *translate(second), *translate(last)])) ];
 
 // Visit
 list[MuExp] translate (e:(Expression) `<Label label> <Visit \visit>`) = translateVisit(label, \visit);
@@ -149,11 +120,11 @@ list[MuExp] translate (e:(Expression) `# <Type tp>`) = [muCon(symbolToValue(tran
 
 // Tuple
 list[MuExp] translate (e:(Expression) `\< <{Expression ","}+ elements> \>`) =
-    [ muCallPrim("make_tuple", [ *translate(elem) | elem <- elements ]) ];
+    [ muCallPrim("tuple_create", [ *translate(elem) | elem <- elements ]) ];
 
 // Map
 list[MuExp] translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) =
-   [ muCallPrim("make_map", [ *translate(m.from), *translate(m.to) | m <- mappings ]) ];
+   [ muCallPrim("map_create", [ *translate(m.from), *translate(m.to) | m <- mappings ]) ];
 
 // It in reducer
 list[MuExp] translate (e:(Expression) `it`) = [ muTmp(topIt()) ];
@@ -166,11 +137,11 @@ list[MuExp] translate((Expression) `<QualifiedName v>`) = translate(v);
 // Subscript
 list[MuExp] translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`){
     ot = getOuterType(exp);
-    op = "subscript_<ot>";
+    op = "<ot>_subscript";
     if(ot notin {"list", "map"}) {
     	op = "subscript_<getOuterType(exp)>_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     }
-    return [ muCallPrim(op, [*translate(s) | s <- subscripts]) ];
+    return [ muCallPrim(op, translate(exp) + [*translate(s) | s <- subscripts]) ];
 }
 
 // Slice
@@ -182,16 +153,16 @@ list[MuExp] translate (e:(Expression) `<Expression expression> [ <OptionalExpres
 
 // Field access
 list[MuExp] translate (e:(Expression) `<Expression expression> . <Name field>`) =
-    [ muCallPrim("field_access_<getOuterType(expression)>", [ *translate(expression), muCon("<field>") ]) ];
+    [ muCallPrim("<getOuterType(expression)>_field_access", [ *translate(expression), muCon("<field>") ]) ];
 
 // Field update
 list[MuExp] translate (e:(Expression) `<Expression expression> [ <Name key> = <Expression replacement> ]`) =
-    [ muCallPrim("field_update_<getOuterType(expression)>", [ *translate(expression), muCon("<key>"), *translate(replacement) ]) ];
+    [ muCallPrim("<getOuterType(expression)>_field_update", [ *translate(expression), muCon("<key>"), *translate(replacement) ]) ];
 
 // Field project
 list[MuExp] translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields> \>`) {
     fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<field>") | f <- fields];
-    return [ muCallPrim("field_project_<getOuterType(expression)>", [ *translate(expression),*fcode]) ];
+    return [ muCallPrim("<getOuterType(expression)>_field_project", [ *translate(expression),*fcode]) ];
 }
 
 // setAnnotation
@@ -297,7 +268,7 @@ list[MuExp] translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = 
 
 // Enumerate
 list[MuExp] translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) =
-    [ muMulti(muCreate(muFun("ENUMERATE_AND_MATCH"), [*translatePat(pat), *translate(exp)])) ];
+    [ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH", 2), [*translatePat(pat), *translate(exp)])) ];
 
 // Implies
 list[MuExp] translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`)  = translateBool(e);
@@ -361,59 +332,63 @@ list[MuExp] translateBool(e:(Expression) `! <Expression lhs>`) = translateBool("
 // Translate match operator
  
  list[MuExp] translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  = 
-   [ muMulti(muCreate(muFun("MATCH"), [*translatePat(pat), *translate(exp)])) ];
+   [ muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [*translatePat(pat), *translate(exp)])) ];
    
 // Auxiliary functions for translating various constructs
    
 // Translate a closure   
  
  list[MuExp] translateClosure(Expression e, Parameters parameters, Statement* statements) {
-	scope = loc2uid[e@\loc];
-    name = "closure_<scope>";
-	ftype = getClosureType(e@\loc);
+ 	uid = loc2uid[e@\loc];
+	fuid = uid2str(uid);
+    ftype = getClosureType(e@\loc);
 	nformals = size(ftype.parameters);
-	nlocals = getScopeSize(scope);
+	nlocals = getScopeSize(fuid);
 	body = [ *translate(stat) | stat <- statements ];
-	functions_in_module += [ muFunction(name, scope, nformals, nlocals, body) ];
-	tuple[int scope, int pos] addr = uid2addr[scope];
-	return [ (addr.scope == 0) ? muFun(name) : muFun(name, addr.scope) ];
+	functions_in_module += [ muFunction(fuid, nformals, nlocals, e@\loc, [], (), body) ];
+	tuple[str fuid,int pos] addr = uid2addr[uid];
+	return [ (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid) ];
 }
 
 // Translate a comprehension
 
 list[MuExp] translateComprehension(c: (Comprehension) `[ <{Expression ","}+ results> | <{Expression ","}+ generators> ]`) {
-    name = nextTmp(); 
+    loopname = nextLabel(); 
+    tmp = asTmp(loopname);
     return
-    [ muAssignTmp(name, muCallPrim("make_listwriter", [])),
-      muWhile(muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_listwriter", [muTmp(name)] + [ *translate(r) | r <- results])]), 
-      muCallPrim("done_listwriter", [muTmp(name)]) 
+    [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])),
+      muWhile(loopname, muAll([*translate(g) | g <-generators]), [muCallPrim("listwriter_add", [muTmp(tmp)] + [ *translate(r) | r <- results])]), 
+      muCallPrim("listwriter_close", [muTmp(tmp)]) 
     ];
 }
 
 list[MuExp] translateComprehension(c: (Comprehension) `{ <{Expression ","}+ results> | <{Expression ","}+ generators> }`) {
-    name = nextTmp(); 
+    loopname = nextLabel(); 
+    tmp = asTmp(loopname); 
     return
-    [ muAssignTmp(name, muCallPrim("make_setwriter", [])),
-      muWhile(muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_setwriter", [muTmp(name)] + [ *translate(r) | r <- results])]), 
-      muCallPrim("done_setwriter", [muTmp(name)]) 
+    [ muAssignTmp(tmp, muCallPrim("setwriter_open", [])),
+      muWhile(loopname, muAll([*translate(g) | g <-generators]), [muCallPrim("setwriter_add", [muTmp(tmp)] + [ *translate(r) | r <- results])]), 
+      muCallPrim("setwriter_close", [muTmp(tmp)]) 
     ];
 }
 
 list[MuExp] translateComprehension(c: (Comprehension) `(<Expression from> : <Expression to> | <{Expression ","}+ generators> )`) {
-    name = nextTmp(); 
+    loopname = nextLabel(); 
+    tmp = asTmp(loopname); 
     return
-    [ muAssignTmp(name, muCallPrim("make_mapwriter", [])),
-      muWhile(muAll([*translate(g) | g <-generators]), [muCallPrim("add_to_mapwriter", [muTmp(name)] + [ *translate(from), *translate(to)])]), 
-      muCallPrim("done_mapwriter", [muTmp(name)]) 
+    [ muAssignTmp(tmp, muCallPrim("mapwriter_open", [])),
+      muWhile(loopname, muAll([*translate(g) | g <-generators]), [muCallPrim("mapwriter_add", [muTmp(tmp)] + [ *translate(from), *translate(to)])]), 
+      muCallPrim("mapwriter_close", [muTmp(tmp)]) 
     ];
 }
 
 // Translate Reducer
 
 list[MuExp] translateReducer(init, result, generators){
-    name = nextTmp();
-    pushIt(name);
-    code = [ muAssignTmp(name, translate(init)[-1]), muWhile(muAll([*translate(g) | g <-generators]), [muAssignTmp(name, translate(result)[-1])]), muTmp(name)];
+    loopname = nextLabel(); 
+    tmp = asTmp(loopname); 
+    pushIt(tmp);
+    code = [ muAssignTmp(tmp, translate(init)[-1]), muWhile(loopname, muAll([*translate(g) | g <-generators]), [muAssignTmp(tmp, translate(result)[-1])]), muTmp(tmp)];
     popIt();
     return code;
 }
@@ -426,21 +401,21 @@ list[MuExp] translateSetOrList(es, str kind){
  if(containSplices(es)){
        writer = nextTmp();
        enterWriter(writer);
-       code = [ muAssignTmp(writer, muCallPrim("make_<kind>writer", [])) ];
+       code = [ muAssignTmp(writer, muCallPrim("<kind>writer_open", [])) ];
        println("es = <es>");
        for(elem <- es){
            println("elem = <elem>");
            if(elem is splice){
-              code += muCallPrim("splice_to_<kind>writer", [muTmp(writer), *translate(elem.argument)]);
+              code += muCallPrim("<kind>writer_splice", [muTmp(writer), *translate(elem.argument)]);
             } else {
-              code += muCallPrim("add_to_<kind>writer", [muTmp(writer), *translate(elem)]);
+              code += muCallPrim("<kind>writer_add", [muTmp(writer), *translate(elem)]);
            }
        }
-       code += [ muCallPrim("done_<kind>writer", [ muTmp(writer) ]) ];
+       code += [ muCallPrim("<kind>writer_close", [ muTmp(writer) ]) ];
        leaveWriter();
        return code;
     } else {
-      return [ muCallPrim("make_<kind>", [ *translate(elem) | elem <- es ]) ];
+      return [ muCallPrim("<kind>_create", [ *translate(elem) | elem <- es ]) ];
     }
 }
 

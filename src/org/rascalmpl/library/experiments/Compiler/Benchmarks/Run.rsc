@@ -5,12 +5,13 @@ import util::Benchmark;
 import util::Math;
 import experiments::Compiler::Compile;
 
-import experiments::Compiler::Benchmarks::B1;
-import experiments::Compiler::Benchmarks::B2;
-import experiments::Compiler::Benchmarks::B3;
-import experiments::Compiler::Benchmarks::B4;
-import experiments::Compiler::Benchmarks::B5;
-import experiments::Compiler::Benchmarks::B6;
+import experiments::Compiler::Benchmarks::BFac;
+import experiments::Compiler::Benchmarks::BFib;
+import experiments::Compiler::Benchmarks::BFor;
+import experiments::Compiler::Benchmarks::BForCond;
+import experiments::Compiler::Benchmarks::BListMatch1;
+import experiments::Compiler::Benchmarks::BListMatch2;
+import experiments::Compiler::Benchmarks::BWhile;
 
 loc base = |std:///experiments/Compiler/Benchmarks/|;
 
@@ -65,12 +66,13 @@ void report(){
 
 void main(){
   measurements = ();
-  run("B1", experiments::Compiler::Benchmarks::B1::main);
-  run("B2", experiments::Compiler::Benchmarks::B2::main);
-  run("B3", experiments::Compiler::Benchmarks::B3::main);
-  run("B4", experiments::Compiler::Benchmarks::B4::main);
-  run("B5", experiments::Compiler::Benchmarks::B5::main);
-  run("B6", experiments::Compiler::Benchmarks::B6::main);
+  run("BFac", experiments::Compiler::Benchmarks::BFac::main);
+  run("BFib", experiments::Compiler::Benchmarks::BFib::main);
+  run("BFor", experiments::Compiler::Benchmarks::BFor::main);
+  run("BForCond", experiments::Compiler::Benchmarks::BForCond::main);
+  run("BListMatch1", experiments::Compiler::Benchmarks::BListMatch1::main);
+  run("BListMatch2", experiments::Compiler::Benchmarks::BListMatch2::main);
+  run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
   report();
 
 }

@@ -13,7 +13,14 @@ public abstract class Instruction {
 	}
 	
 	public int pcIncrement() {
-		return opcode.getIncrement();
+		return opcode.getPcIncrement();
+	}
+	
+	public int spIncrement() {
+		int n = opcode.getSpIncrement();
+		if(n == -1000)
+			throw new RuntimeException("Instruction with varyadic sp, should specialize spIncrement");
+		return n;
 	}
 	
 	public String toString(){
