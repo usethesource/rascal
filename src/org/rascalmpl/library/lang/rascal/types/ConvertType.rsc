@@ -60,6 +60,8 @@ public Symbol convertBasicType(BasicType t) {
             return \map(\void(),\void())[@errinfo = { error("Non-well-formed type, type should have two type arguments", t@\loc) }];
         case (BasicType)`rel` : 
             return \rel([])[@errinfo = { error("Non-well-formed type, type should have one or more type arguments", t@\loc) }];
+        case (BasicType)`lrel` : 
+            return \lrel([])[@errinfo = { error("Non-well-formed type, type should have one or more type arguments", t@\loc) }];
         case (BasicType)`tuple` : 
             return \tuple([])[@errinfo = { error("Non-well-formed type, type should have one or more type arguments", t@\loc) }];
         case (BasicType)`type` : 
@@ -71,7 +73,7 @@ public Symbol convertBasicType(BasicType t) {
 public Symbol convertTypeArg(TypeArg ta) {
     switch(ta) {
         case (TypeArg) `<Type t>` : return convertType(t);
-        case (TypeArg) `<Type t> <Name n>` : return \label("<n>", convertType(t));
+        case (TypeArg) `<Type t> <Name n>` : return \label(getSimpleName(convertName(n)), convertType(t));
     }
 }
 
@@ -242,8 +244,8 @@ public Name getUserTypeRawName(UserType ut) {
 @doc{Convert Rascal type variables into their abstract representation.}
 public Symbol convertTypeVar(TypeVar tv) {
     switch(tv) {
-        case (TypeVar) `& <Name n>` : return \parameter("<n>",\value());
-        case (TypeVar) `& <Name n> \<: <Type tb>` : return \parameter("<n>",convertType(tb));
+        case (TypeVar) `& <Name n>` : return \parameter(getSimpleName(convertName(n)),\value());
+        case (TypeVar) `& <Name n> \<: <Type tb>` : return \parameter(getSimpleName(convertName(n)),convertType(tb));
     }
 }
 

@@ -11,10 +11,25 @@ public class Jmp extends Instruction {
 		this.label = label;
 	}
 	
-	public String toString() { return "JMP " + label + " [" + codeblock.getLabelIndex(label) + "]"; }
+	public String toString() { return "JMP " + label + " [" + codeblock.getLabelPC(label) + "]"; }
+	
+	public boolean computeStackSize(int oldStackSize){
+		int newStackSize = oldStackSize + spIncrement();
+		if(newStackSize > maxStackSize){
+			maxStackSize = newStackSize;
+			Instruction targetInstr = codeblock.getLabelInstruction(label);
+			if(!targetInstr.busy){
+				busy = true;
+				computeStackSize(maxStackSize);
+				busy = false;
+			}
+			return true;
+		}
+		return false;
+	}
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getLabelIndex(label));
+		codeblock.addCode(codeblock.getLabelPC(label));
 	}
 }

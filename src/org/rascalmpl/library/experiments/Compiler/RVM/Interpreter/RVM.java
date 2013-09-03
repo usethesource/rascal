@@ -11,12 +11,15 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
@@ -62,7 +65,7 @@ public class RVM {
 		functionMap = new HashMap<String, Integer>();
 		constructorMap = new HashMap<String, Integer>();
 		
-		RascalPrimitive.init(vf);
+		RascalPrimitive.init(vf, stdout);
 	}
 	
 	public RVM(IValueFactory vf){
@@ -70,10 +73,10 @@ public class RVM {
 	}
 	
 	public void declare(Function f){
-		if(functionMap.get(f.name) != null){
-			throw new RuntimeException("PANIC: Double declaration of function: " + f.name);
+		if(functionMap.get(f.getName()) != null){
+			throw new RuntimeException("PANIC: Double declaration of function: " + f.getName());
 		}
-		functionMap.put(f.name, functionStore.size());
+		functionMap.put(f.getName(), functionStore.size());
 		functionStore.add(f);
 	}
 	
@@ -99,7 +102,6 @@ public class RVM {
 	 * @return converted result or an exception
 	 */
 	private IValue narrow(Object result){
-		stdout.println("narrow: " + result.getClass() + ", " + result);
 		if(result instanceof Boolean)
 			return vf.bool((Boolean) result);
 		if(result instanceof Integer)
@@ -117,7 +119,60 @@ public class RVM {
 		throw new RuntimeException("PANIC: Cannot convert object back to IValue: " + result);
 	}
 	
-	public IValue executeProgram(String main, IValue[] args) {
+	/**
+	 * Represent any object that can occur on the RVM stack stack as string
+	 * @param some stack object
+	 * @return its string representation
+	 */
+	private String asString(Object o){
+		if(o == null)
+			return "null";
+		if(o instanceof Boolean)
+			return ((Boolean) o).toString() + " [Java]";
+		if(o instanceof Integer)
+			return ((Integer)o).toString() + " [Java]";
+		if(o instanceof IValue)
+			return ((IValue) o).toString() +" [IValue]";
+		if(o instanceof Type)
+			return ((Type) o).toString() + " [Type]";
+		if(o instanceof Object[]){
+			StringBuilder w = new StringBuilder();
+			Object[] lst = (Object[]) o;
+			w.append("[");
+			for(int i = 0; i < lst.length; i++){
+				w.append(asString(lst[i]));
+				if(i < lst.length - 1)
+						w.append(", ");
+			}
+			w.append("]");
+			return w.toString() + " [Object[]]";
+		}
+		if(o instanceof Coroutine){
+			return "Coroutine[" + ((Coroutine)o).frame.function.getName() + "]";
+		}
+		if(o instanceof Function){
+			return "Function[" + ((Function)o).getName() + "]";
+		}
+		if(o instanceof FunctionInstance){
+			return "Function[" + ((FunctionInstance)o).function.getName() + "]";
+		}
+		if(o instanceof Reference){
+			Reference ref = (Reference) o;
+			return "Reference[" + ref.stack + ", " + ref.pos + "]";
+		}
+		if(o instanceof IListWriter){
+			return "ListWriter[" + ((IListWriter) o).toString() + "]";
+		}
+		if(o instanceof ISetWriter){
+			return "SetWriter[" + ((ISetWriter) o).toString() + "]";
+		}
+		if(o instanceof IMapWriter){
+			return "MapWriter[" + ((IMapWriter) o).toString() + "]";
+		}
+		throw new RuntimeException("PANIC: asString cannot convert: " + o);
+	}
+	
+	public IValue executeProgram(String uid_main, String uid_module_init, IValue[] args) {
 
 		// Finalize the instruction generation of all functions
 		for (Function f : functionStore) {
@@ -126,29 +181,31 @@ public class RVM {
 		
 		// Search for the "#module_init" function and check arguments
 
-		Function init_function = functionStore.get(functionMap.get("#module_init"));
+		Function init_function = functionStore.get(functionMap.get(uid_module_init));
+
 		if (init_function == null) {
-			throw new RuntimeException("PANIC: Code for #module_init not found");
+			throw new RuntimeException("PANIC: Code for " + uid_module_init + " not found");
 		}
 		
-		if (init_function.nformals != 0) {
-			throw new RuntimeException("PANIC: " + "function \"#module_init\" should have one argument");
+		if (init_function.nformals != 1) {
+			throw new RuntimeException("PANIC: " + "function " + uid_module_init + " should have one argument");
 		}
 		
 		// Search for the "main" function and check arguments
 
-		Function main_function = functionStore.get(functionMap.get("main"));
+		Function main_function = functionStore.get(functionMap.get(uid_main));
+
 		if (main_function == null) {
-			throw new RuntimeException("PANIC: No function \"main\" found");
+			throw new RuntimeException("PANIC: No function " + uid_main + " found");
 		}
 				
 		if (main_function.nformals != 1) {
-					throw new RuntimeException("PANIC: function \"main\" should have one argument");
+			throw new RuntimeException("PANIC: function " + uid_main + " should have one argument");
 		}
 		
 		// Perform a call to #module_init" at scope level = 0
 		
-		Frame cf = new Frame(0, null, init_function.maxstack, init_function);
+		Frame cf = new Frame(init_function.getScopeId(), null, init_function.maxstack, init_function);
 		Frame root = cf; // we need the notion of the root frame, which represents the root environment
 		Object[] stack = cf.stack;
 		
@@ -165,15 +222,14 @@ public class RVM {
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				if(pc < 0 || pc >= instructions.length){
-					throw new RuntimeException(main + " illegal pc: " + pc);
+					throw new RuntimeException(uid_main + " illegal pc: " + pc);
 				}
 				int op = instructions[pc++];
 
 				if (debug) {
 					int startpc = pc - 1;
 					for (int i = 0; i < sp; i++) {
-						String val = (stack[i] == null) ? "null" : (stack[i] instanceof IValue) ? ((IValue) stack[i]).toString() : stack[i].toString();
-						stdout.println("\t" + i + ": " + val);
+						stdout.println("\t" + i + ": " + asString(stack[i]));
 					}
 					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
@@ -261,13 +317,13 @@ public class RVM {
 				}
 				
 				case Opcode.OP_STORELOC: {
-					stack[instructions[pc++]] = stack[sp - 1];  /* CHANGED: --sp to sp -1; value remains on stack */
+					stack[instructions[pc++]] = stack[sp - 1];
 					continue;
 				}
 				
 				case Opcode.OP_STORELOCDEREF:
 					Reference ref = (Reference) stack[instructions[pc++]];
-					ref.stack[ref.pos] = stack[sp - 1];         /* CHANGED: --sp to sp - 1; value remains on stack */
+					ref.stack[ref.pos] = stack[sp - 1]; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
 					continue;
 				
 				case Opcode.OP_STOREVAR:
@@ -276,7 +332,7 @@ public class RVM {
 
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
-							fr.stack[pos] = stack[sp - 1];		/* CHANGED: --sp to sp -1; value remains on stack */
+							fr.stack[pos] = stack[sp - 1];	// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
 							continue NEXT_INSTRUCTION;
 						}
 					}
@@ -321,13 +377,19 @@ public class RVM {
 				case Opcode.OP_POP:
 					sp--;
 					continue;
+					
+				case Opcode.OP_DUP:
+					stack[sp] = stack[sp -1];
+					sp++;
+					continue;
 
 				case Opcode.OP_LABEL:
 					throw new RuntimeException("label instruction at runtime");
 				
 				case Opcode.OP_CALLCONSTR:
 					constructor = constructorStore.get(instructions[pc++]);
-					int arity = constructor.getArity();
+					int arity = instructions[pc++];
+					assert arity == constructor.getArity();
 					args = new IValue[arity]; 
 					for(int i = 0; i < arity; i++) {
 						args[arity - 1 - i] = (IValue) stack[--sp];
@@ -336,7 +398,8 @@ public class RVM {
 					continue;
 					
 				case Opcode.OP_CALLDYN:				
-				case Opcode.OP_CALL:			
+				case Opcode.OP_CALL:
+					
 					// In case of CALLDYN, the stack top value of type 'Type' leads to a constructor call
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Type) {
 						Type constr = (Type) stack[--sp];
@@ -355,10 +418,13 @@ public class RVM {
 					
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
 						FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
+						arity = instructions[pc++]; // TODO: add assert
 						fun = fun_instance.function;
 						previousScope = fun_instance.env;
 					} else if(op == Opcode.OP_CALL) {
 						fun = functionStore.get(instructions[pc++]);
+						arity = instructions[pc++];
+						assert arity == fun.nformals;
 						previousScope = cf;
 					} else {
 						throw new RuntimeException("unexpected argument type for CALLDYN: " + stack[sp - 1].getClass());
@@ -366,7 +432,7 @@ public class RVM {
 						
 					instructions = fun.codeblock.getInstructions();
 					
-					Frame nextFrame = new Frame(fun.scope, cf, previousScope, fun.maxstack, fun);
+					Frame nextFrame = new Frame(fun.getScopeId(), cf, previousScope, fun.maxstack, fun);
 					
 					for (int i = fun.nformals - 1; i >= 0; i--) {
 						nextFrame.stack[i] = stack[sp - fun.nformals + i];
@@ -379,6 +445,12 @@ public class RVM {
 					pc = 0;
 					continue;
 				
+				case Opcode.OP_FAILRETURN:
+					/*
+					 * TODO: Now fail return acts as return without value, change when we understand what we need here,i.e.
+					 * return to the function overloading resolution frame.
+					 */
+					
 				case Opcode.OP_RETURN0:
 				case Opcode.OP_RETURN1:
 					Object rval = null;
@@ -407,7 +479,7 @@ public class RVM {
 					if(returns)
 						stack[sp++] = rval;
 					continue;
-
+					
 				case Opcode.OP_HALT:
 					if (debug) {
 						stdout.println("Program halted:");
@@ -418,7 +490,14 @@ public class RVM {
 					return narrow(stack[sp - 1]);
 
 				case Opcode.OP_PRINTLN:
-					stdout.println(((IString) stack[sp - 1]).getValue());
+					arity = instructions[pc++];
+					StringBuilder w = new StringBuilder();
+					for(int i = arity - 1; i >= 0; i--){
+						String str = (stack[sp - 1 - i] instanceof IString) ? ((IString) stack[sp - 1 - i]).toString() : asString(stack[sp - 1 - i]);
+						w.append(str).append(" ");
+					}
+					stdout.println(w.toString());
+					sp = sp - arity + 1;
 					continue;		
 				
 				case Opcode.OP_INIT:
@@ -431,7 +510,7 @@ public class RVM {
 					} else if(src instanceof FunctionInstance) {
 						FunctionInstance fun_instance = (FunctionInstance) src;
 						fun = fun_instance.function;
-						Frame frame = new Frame(fun.scope, null, fun_instance.env, fun.maxstack, fun);
+						Frame frame = new Frame(fun.getScopeId(), null, fun_instance.env, fun.maxstack, fun);
 						coroutine = new Coroutine(frame);
 					} else {
 						throw new RuntimeException("unexpected argument type for INIT: " + src.getClass() + ", " + src);
@@ -467,7 +546,7 @@ public class RVM {
 						}
 					}
 					arity = instructions[pc++];
-					Frame frame = new Frame(fun.scope, null, previousScope, fun.maxstack, fun);
+					Frame frame = new Frame(fun.getScopeId(), null, previousScope, fun.maxstack, fun);
 					// the main function of coroutine may have formal parameters,
 					// therefore, CREATE may take a number of arguments <= formal parameters
 					if(arity > fun.nformals)
@@ -548,9 +627,12 @@ public class RVM {
 						sp = sp - 1;
 						break;
 						
+					case AND_U_U:	
 					case and_mbool_mbool:
 						assert arity == 2;
-						stack[sp - 2] = ((Boolean) stack[sp - 2]) && ((Boolean) stack[sp - 1]);
+						boolean b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+						boolean b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+						stack[sp - 2] = b1 && b2;
 						sp = sp - 1;
 						break;
 						
@@ -574,27 +656,29 @@ public class RVM {
 						sp = sp - 2;
 						break;
 						
-					case equals_mint_mint:
+					case equal_mint_mint:
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) == ((Integer) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
-					case equals_rint_rint:
+					case equal:
 						assert arity == 2;
-						stack[sp - 2] = ((IInteger) stack[sp - 2]).intValue() == ((IInteger) stack[sp - 1]).intValue();
+						if(stack[sp - 2] instanceof IValue && (stack[sp - 2] instanceof IValue)){
+							stack[sp - 2] = ((IValue) stack[sp - 2]).isEqual(((IValue) stack[sp - 1]));
+						} else if(stack[sp - 2] instanceof Type && (stack[sp - 2] instanceof Type)){
+							stack[sp - 2] = ((Type) stack[sp - 2]) == ((Type) stack[sp - 1]);
+						} else 
+							throw new RuntimeException("equal -- not defined on " + stack[sp - 2].getClass() + " and " + stack[sp - 2].getClass());
 						sp = sp - 1;
 						break;
 						
-					case equals_str_str:
+					case EQUIVALENT_U_U:	
+					case equivalent_mbool_mbool:
 						assert arity == 2;
-						stack[sp - 2] = ((IString) stack[sp - 2]).isEqual(((IString) stack[sp - 1]));
-						sp = sp - 1;
-						break;
-					
-					case equals_type_type:
-						assert arity == 2;
-						stack[sp - 2] = ((Type) stack[sp - 2]) == ((Type) stack[sp - 1]);
+						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+						stack[sp - 2] = (b1 == b2);
 						sp = sp - 1;
 						break;
 						
@@ -630,6 +714,15 @@ public class RVM {
 					case greater_mint_mint:
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) > ((Integer) stack[sp - 1]);
+						sp = sp - 1;
+						break;
+						
+					case IMPLIES_U_U:	
+					case implies_mbool_mbool:
+						assert arity == 2;
+						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+						stack[sp - 2] = b1 ? b2 : true;
 						sp = sp - 1;
 						break;
 						
@@ -738,21 +831,46 @@ public class RVM {
 						stack[sp - 1] = new Object[len];
 						break;
 						
-					case not_equals_mint_mint:
+					case mint:
+						assert arity == 1;
+						stack[sp - 1] = ((IInteger) stack[sp - 1]).intValue();
+						break;
+						
+					case not_equal_mint_mint:
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) != ((Integer) stack[sp - 1]);
 						sp = sp - 1;
 						break;
 						
-					case size_array:
+					case NOT_U:	
+					case not_mbool:
 						assert arity == 1;
-						stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
+						b1 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+						stack[sp - 1] = !b1;
 						break;
 						
+					case OR_U_U:	
+					case or_mbool_mbool:
+						assert arity == 2;
+						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+						stack[sp - 2] = b1 || b2;
+						sp = sp - 1;
+						break;
 						
-					case size_list:
+					case rint:
 						assert arity == 1;
-						stack[sp - 1] = ((IList) stack[sp - 1]).length();
+						stack[sp -1] = vf.integer((Integer) stack[sp -1]);
+						break;
+						
+					case size_array_or_list:
+						assert arity == 1;
+						if(stack[sp - 1] instanceof Object[]){
+							stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
+						} else if(stack[sp - 1] instanceof IList){
+							stack[sp - 1] = ((IList) stack[sp - 1]).length();
+						} else
+							throw new RuntimeException("size_array_or_list_mint -- not defined on " + stack[sp - 1].getClass());
 						break;
 						
 					case sublist_list_mint_mint:
@@ -764,15 +882,14 @@ public class RVM {
 						sp = sp - 2;
 						break;
 						
-					case subscript_array_mint:
+					case subscript_array_or_list_mint:
 						assert arity == 2;
-						stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
-						sp = sp - 1;
-						break;
-						
-					case subscript_list_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
+						if(stack[sp - 2] instanceof Object[]){
+							stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
+						} else if(stack[sp - 2] instanceof IList){
+							stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
+						} else 
+							throw new RuntimeException("subscript_array_or_list_mint -- Object[] or IList expected");
 						sp = sp - 1;
 						break;
 						
@@ -790,7 +907,17 @@ public class RVM {
 						
 					case typeOf:
 						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+						if(stack[sp - 1] instanceof Integer) {
+							stack[sp - 1] = TypeFactory.getInstance().integerType();
+						} else {
+							stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+						}
+						break;
+					
+					case product_mint_mint:
+						assert arity == 2;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) * ((Integer) stack[sp - 1]);
+						sp = sp - 1;
 						break;
 					
 					
@@ -810,4 +937,5 @@ public class RVM {
 		}
 		return Rascal_FALSE;
 	}
+	
 }

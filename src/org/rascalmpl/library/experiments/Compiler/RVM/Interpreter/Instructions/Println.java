@@ -4,7 +4,21 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 
 public class Println extends Instruction {
 	
-	public Println(CodeBlock cb){
+	int arity;
+	
+	public Println(CodeBlock cb, int arity){
 		super(cb, Opcode.PRINTLN);
+		this.arity = arity;
+	}
+	
+	public int spIncrement() {
+		return arity + 1;
+	}
+	
+	public String toString() { return "PRINTLN " + arity; }
+	
+	public void generate(){
+		codeblock.addCode(opcode.getOpcode());
+		codeblock.addCode(arity);
 	}
 }

@@ -17,26 +17,26 @@ import IO;
 public loc Library = |std:///experiments/Compiler/muRascal2RVM/Test.mu|;
 
 value ret(str s) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return <s>; }")), true, 1); 
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,arg,x,y] { return <s>; }")), true, 1); 
 	return res;
 }
 
 value body(str s) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { <s> }")), true, 1);
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,arg,x,y] { <s> }")), true, 1);
 	return res; 
 }
 
 value prim1(str fun, value lhs) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return prim(\"<fun>\",<lhs>); }")), true, 1);
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,arg,x,y] { return prim(\"<fun>\",<lhs>); }")), true, 1);
 	return res; 
 }
 
 value prim2(str fun, value lhs, value rhs) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return prim(\"<fun>\",<lhs>,<rhs>); }")), true, 1);
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,arg,x,y] { return prim(\"<fun>\",<lhs>,<rhs>); }")), true, 1);
 	return res; 
 }
 value prim3(str fun, value arg1, value arg2, value arg3) {
-	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,1,arg,x,y] { return prim(\"<fun>\",<arg1>,<arg2>,<arg3>); }")), true, 1);
+	<res, tm> = executeProgram(mu2rvm(parse("module TEST function main[1,arg,x,y] { return prim(\"<fun>\",<arg1>,<arg2>,<arg3>); }")), true, 1);
 	return res; 
 }
 
@@ -89,9 +89,9 @@ test bool tst() = "abcdef" := prim2("addition_str_str", "\"abc\"", "\"def\"");
 //composition_map_map,
 
 test bool tst() = 3. := prim2("division_num_num", 6, 2);
-test bool tst() = true := prim2("equals_num_num", 7, 7);
-test bool tst() = false := prim2("equals_num_num", 7, 8);
-test bool tst() = true := prim2("equals_str_str", "\"abc\"", "\"abc\"");
+test bool tst() = true := prim2("equal_num_num", 7, 7);
+test bool tst() = false := prim2("equal_num_num", 7, 8);
+test bool tst() = true := prim2("equal_str_str", "\"abc\"", "\"abc\"");
 
 //equivalent_bool_bool,
 
@@ -163,6 +163,7 @@ test bool callbyreference() {
     MuModule m = parse(|std:///experiments/Compiler/muRascal2RVM/CallByReference.mu|);  
 	rvmP = mu2rvm(m);
 	<res, tm> = executeProgram(rvmP, true, 1);
+	println("Result: <res>");
 	return res == 547;
 }
 

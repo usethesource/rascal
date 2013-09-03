@@ -1,14 +1,14 @@
 module TypeConExample
 
-function compareTypes[1,2,lhs:0,rhs:1] { return prim("equals_type_type", lhs, rhs); }
+function compareTypes[2,lhs,rhs] { return prim("equal_type_type", lhs, rhs); }
 
-function subtype[2,2,lhs:0,rhs:1] { return prim("subtype", lhs, rhs); }
+function subtype[2,lhs,rhs] { return prim("subtype", lhs, rhs); }
 
-function compareTypesOfExpressions[3,2,lhs:0,rhs:1] { return compareTypes(prim("typeOf",lhs),prim("typeOf",rhs)); }
+function compareTypesOfExpressions[2,lhs,rhs] { return compareTypes(muprim("typeOf",lhs),muprim("typeOf",rhs)); }
 
-function compareIntAndValueTypes[4,0,] { return compareTypes(type "int()", type "value()"); }
+function compareIntAndValueTypes[0,] { return compareTypes(type "int()", type "value()"); }
 
-function main[5,1,args:0,t1:1,t2:2,t3:3,e1:4,e2:5] {
+function main[1,args,t1,t2,t3,e1,e2] {
 	t1 = type "int()"; // type constant
 	t2 = type "int()"; // type constant
 	t3 = type "num()"; // type constant
@@ -18,18 +18,18 @@ function main[5,1,args:0,t1:1,t2:2,t3:3,e1:4,e2:5] {
 		if(subtype(t2,t3)) { 
 			if(compareTypesOfExpressions(e1,e2)) {
 				if(compareIntAndValueTypes()) {
-					return 5
+					return 5;
 				} else {
-					return 4
-				}
+					return 4;
+				};
 			} else {
-				return 3
-			} 
+				return 3;
+			};
 		} else { 
-			return 2 
-		} 
+			return 2; 
+		}; 
 	} else { 
-		return 1 
+		return 1; 
 	};
 	return;  
 }

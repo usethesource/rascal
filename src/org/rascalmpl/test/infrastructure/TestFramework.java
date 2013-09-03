@@ -38,6 +38,7 @@ import org.junit.Test;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.ClassResourceInputOutput;
@@ -136,6 +137,8 @@ public class TestFramework {
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
+		
+		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
 		
 		resolverRegistry.registerInput(new JarURIResolver(TestFramework.class));

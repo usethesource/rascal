@@ -1,27 +1,27 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalType
 
+import experiments::Compiler::Rascal2muRascal::TypeUtils;
+
 import Prelude;
 import lang::rascal::\syntax::Rascal;
+import lang::rascal::grammar::definition::Symbols;
+
+import lang::rascal::types::TestChecker;
+import lang::rascal::types::CheckTypes;
+import lang::rascal::types::AbstractName;
 
 Symbol translateType((BasicType) `value`) 		= \value();
 Symbol translateType(t: (BasicType) `loc`) 		= \loc();
 Symbol translateType(t: (BasicType) `node`) 	= \node();
 Symbol translateType(t: (BasicType) `num`) 		= \num();
-Symbol translateType(t: (BasicType) `type`) 	= \type();
-Symbol translateType(t: (BasicType) `bag`) 		= \bag();
 Symbol translateType(t: (BasicType) `int`) 		= \int();
-Symbol translateType(t: (BasicType) `rel`) 		= \rel();
-Symbol translateType(t: (BasicType) `lrel`) 	= \lrel();
 Symbol translateType(t: (BasicType) `real`) 	= \real();
-Symbol translateType(t: (BasicType) `tuple`) 	= \tuple();
+Symbol translateType(t: (BasicType) `rat`)      = \rat();
 Symbol translateType(t: (BasicType) `str`) 		= \str();
 Symbol translateType(t: (BasicType) `bool`) 	= \bool();
 Symbol translateType(t: (BasicType) `void`) 	= \void();
 Symbol translateType(t: (BasicType) `datetime`)	= \datetime();
-Symbol translateType(t: (BasicType) `set`) 		= \set();
-Symbol translateType(t: (BasicType) `map`) 		= \map();
-Symbol translateType(t: (BasicType) `list`) 	= \list();
 
 Symbol translateType(t: (StructuredType) `bag [ <TypeArg arg> ]`) 
 												= \bag(translateType(arg)); 
@@ -36,29 +36,47 @@ Symbol translateType(t: (StructuredType) `rel [ <{TypeArg ","}+ args> ]`)
 Symbol translateType(t: (StructuredType) `lrel [ <{TypeArg ","}+ args> ]`) 
 												= \lrel([ translateType(arg) | arg <- args]);
 Symbol translateType(t: (StructuredType) `tuple [ <{TypeArg ","}+ args> ]`)
-												= \tuple([ translateType(arg) | arg <- args]);   
+												= \tuple([ translateType(arg) | arg <- args]);
+Symbol translateType(t: (StructuredType) `type [ < TypeArg arg> ]`)
+												= \reified(translateType(arg));      
 
-Symbol translateType(t : (Type) `<UserType user>`) = translateType(userType);
+Symbol translateType(t : (Type) `<UserType user>`) = translateType(user);
 Symbol translateType(t : (Type) `<FunctionType function>`) = translateType(function);
 Symbol translateType(t : (Type) `<StructuredType structured>`)  = translateType(structured);
 Symbol translateType(t : (Type) `<BasicType basic>`)  = translateType(basic);
 Symbol translateType(t : (Type) `<DataTypeSelector selector>`)  { throw "DataTypeSelector"; }
 Symbol translateType(t : (Type) `<TypeVar typeVar>`) = translateType(typeVar);
-Symbol translateType(t : (Type) `<Sym symbol>`)  = symbol;
+Symbol translateType(t : (Type) `<Sym symbol>`)  = sym2symbol(symbol);
 
 Symbol translateType(t : (TypeArg) `<Type tp>`)  = translateType(tp);
-Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label("<name>", translateType(tp));
+Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label(getSimpleName(convertName(name)), translateType(tp));
 
 Symbol translateType(t: (FunctionType) `<Type \type> (<{TypeArg ","}* args>)`) = 
 									\func(translateType(ret), [ translateType(arg) | arg <- args]);
 									
-Symbol translateType(t: (UserType) `<QualifiedName name>`) = adt("<name>", []);  	
-Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) = 
-									adt("<name>", [ translateType(arg) | arg <- args]);  
+Symbol translateType(t: (UserType) `<QualifiedName name>`) {
+	rn = convertName(name);
+	// look up the name in the type environment
+	val = config.store[config.typeEnv[rn]];
+	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
+		return val.rtype;
+	}
+	throw "The name <name> is not resolved to a type: <val>.";
+}
+Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) {
+	rn = convertName(name);
+	// look up the name in the type environment
+	val = config.store[config.typeEnv[rn]];
+	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
+		// instantiate type parameters
+		val.rtype.parameters = [ translateType(param) | param <- parameters];
+		return val.rtype;
+	}
+	throw "The name <name> is not resolved to a type: <val>.";
+}  
 									
-Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter("<name>");  
-Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter("<name>", translateType(bound));  
-
+Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)));  
+Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter(getSimpleName(convertName(name)), translateType(bound));  
 
 default Symbol translateType(Type t) {
 	throw "Cannot translate type <t>";

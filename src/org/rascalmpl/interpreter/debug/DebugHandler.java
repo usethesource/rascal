@@ -18,6 +18,7 @@ package org.rascalmpl.interpreter.debug;
 
 import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullEventTrigger;
 
+import java.net.URI;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -27,6 +28,8 @@ import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.debug.IDebugMessage.Detail;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.load.RascalURIResolver;
 
 public final class DebugHandler implements IDebugHandler {
 
@@ -66,18 +69,23 @@ public final class DebugHandler implements IDebugHandler {
 	 * Action to execute on termination request, or <code>null</code> if none.
 	 */
 	private Runnable terminateAction = null;
+
+	/**
+	 * To resolve rascal:/// source locs
+	 */
+  private final RascalURIResolver resolver;
 	
 
-	
 	/**
 	 * Create a new debug handler with its own interpreter event trigger.
 	 */
-	public DebugHandler() {
+	public DebugHandler(RascalURIResolver resolver) {
+	  this.resolver = resolver;
 		setEventTrigger(newNullEventTrigger());
 	}
 	
-	private boolean hasBreakpoint(ISourceLocation breakpointLocation) {
-		return breakpoints.contains(breakpointLocation.toString());
+	private boolean hasBreakpoint(ISourceLocation b) {
+		return breakpoints.contains(resolver.resolve(b).toString());
 	}
 	
 	private void addBreakpoint(ISourceLocation breakpointLocation) {
@@ -115,7 +123,8 @@ public final class DebugHandler implements IDebugHandler {
 			
 		} else {
 
-			switch (getStepMode()) {
+			ISourceLocation location = currentAST.getLocation();
+      switch (getStepMode()) {
 			
 			case STEP_INTO:
 				updateSuspensionState(evaluator, currentAST);
@@ -145,8 +154,8 @@ public final class DebugHandler implements IDebugHandler {
 					 */
 					int referenceStart = getReferenceAST().getLocation().getOffset();
 					int referenceAfter = getReferenceAST().getLocation().getOffset() + getReferenceAST().getLocation().getLength();
-					int currentStart = currentAST.getLocation().getOffset();
-					int currentAfter = currentAST.getLocation().getOffset() + currentAST.getLocation().getLength();
+					int currentStart = location.getOffset();
+					int currentAfter = location.getOffset() + location.getLength();
 
 					if (currentStart < referenceStart
 							|| currentStart >= referenceAfter
@@ -174,9 +183,10 @@ public final class DebugHandler implements IDebugHandler {
 				break;
 
 			case NO_STEP:
-				if (hasBreakpoint(currentAST.getLocation())) {
+				if (hasBreakpoint(location)) {
 					updateSuspensionState(evaluator, currentAST);
-					getEventTrigger().fireSuspendByBreakpointEvent(currentAST.getLocation());
+					location = evaluator.getRascalResolver().resolve(location);
+					getEventTrigger().fireSuspendByBreakpointEvent(location);
 				}
 				break;
 				
