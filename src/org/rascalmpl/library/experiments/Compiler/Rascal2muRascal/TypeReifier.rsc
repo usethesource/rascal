@@ -181,6 +181,8 @@ public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] defin
 	= reify(symbol, definitions)
 		when Condition::\follow(Symbol symbol) := cond || Condition::\not-follow(Symbol symbol) := cond ||
 			 Condition::\precede(Symbol symbol) := cond || Condition::\not-precede(Symbol symbol) := cond ||
+			 Condition::\far-follow(Symbol symbol) := cond || Condition::\far-not-follow(Symbol symbol) := cond ||
+			 Condition::\far-precede(Symbol symbol) := cond || Condition::\far-not-precede(Symbol symbol) := cond ||
 			 Condition::\delete(Symbol symbol) := cond;
 public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] definitions) = definitions;
 		   

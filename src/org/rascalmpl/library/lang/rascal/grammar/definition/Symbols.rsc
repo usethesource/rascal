@@ -83,6 +83,14 @@ public Symbol sym2symbol(Sym sym) {
       return conditional(sym2symbol(r), {\precede(sym2symbol(s))});
     case notPrecede(Sym s, Sym r) : 
       return conditional(sym2symbol(r), {\not-precede(sym2symbol(s))});
+    case farFollow(Sym s, Sym r) : 
+      return conditional(sym2symbol(s), {\far-follow(sym2symbol(r))});
+    case farNotFollow(Sym s, Sym r) : 
+      return conditional(sym2symbol(s), {\far-not-follow(sym2symbol(r))});
+    case farPrecede(Sym s, Sym r) : 
+      return conditional(sym2symbol(r), {\far-precede(sym2symbol(s))});
+    case farNotPrecede(Sym s, Sym r) : 
+      return conditional(sym2symbol(r), {\far-not-precede(sym2symbol(s))});  
     case unequal(Sym s, Sym r) : 
       return conditional(sym2symbol(s), {\delete(sym2symbol(r))});
     case except(Sym s, NonterminalLabel n):

@@ -269,7 +269,15 @@ public str symbol2rascal(Symbol sym) {
     case conditional(s, {precede(t)}) :
         return "<symbol2rascal(s)> \<\< <symbol2rascal(s)> ";
     case conditional(s, {\not-precede(t)}) :
-        return "<symbol2rascal(s)> !\<\< <symbol2rascal(s)> ";    
+        return "<symbol2rascal(s)> !\<\< <symbol2rascal(s)> ";
+     case conditional(s, {\far-follow(t)}) :
+        return "<symbol2rascal(s)> \>\>\> <symbol2rascal(t)>";
+    case conditional(s, {\far-not-follow(t)}) :
+        return "<symbol2rascal(s)> !\>\>\> <symbol2rascal(t)>";
+    case conditional(s, {\far-precede(t)}) :
+        return "<symbol2rascal(s)> \<\<\< <symbol2rascal(s)> ";
+    case conditional(s, {\far-not-precede(t)}) :
+        return "<symbol2rascal(s)> !\<\<\< <symbol2rascal(s)> ";        
     case conditional(s, {\at-column(int i)}) :
         return "<symbol2rascal(s)>@<i>";
     case conditional(s, {\begin-of-line()}) :
