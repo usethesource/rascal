@@ -122,7 +122,7 @@ public class TypeReifier {
 	/**
 	 * This method assumes that all types that are used have been defined.
 	 */
-	private void declareAbstractDataTypes(IMap definitions, TypeStore store) {
+	public void declareAbstractDataTypes(IMap definitions, TypeStore store) {
 		for (IValue key : definitions) {
 			IConstructor def = (IConstructor) definitions.get(key);
 			
