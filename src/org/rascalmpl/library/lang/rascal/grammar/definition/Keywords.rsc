@@ -19,6 +19,18 @@ public Grammar expandKeywords(Grammar g) {
   };
 }
 
+@memo
+bool isFinite(Grammar g, \lit(str _)) = true;
+
+@memo
+bool isFinite(Grammar g, \cilit(str _)) = true;
+
+@memo
+bool isFinite(Grammar g, \char-class(list[CharRange] _)) = true;
+
+@memo default 
+bool isFinite(Grammar g, Symbol s) = all(/prod(_,[e],_) := g.rules[s], isFinite(e)); 
+
 public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
   names = {};
   done = {};
@@ -28,7 +40,7 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
     for (cond <- todo, !(cond in done)) {
       todo -= {cond};
       
-      if (cond has symbol, keywords(str name) := cond.symbol) {
+      if (cond has symbol, isFinite(cond.symbol)) {
         if (name in names) {
           continue;
         }
