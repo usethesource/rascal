@@ -20,7 +20,7 @@ loc Example9 = |std:///experiments/Compiler/Examples/Fac.rsc|;
 loc Example10 = |std:///experiments/Compiler/Examples/Fib.rsc|;
 
 void run(){
-  muP = r2mu(Example9);
+  muP = r2mu(Example2);
   rvmP = mu2rvm(muP, listing = true);
   <v, t> = executeProgram(rvmP, true, 1, false);
   println("Result = <v>, [<t> msec]");
@@ -28,12 +28,14 @@ void run(){
 }
 
 void runMu2rvm(){
-  muP = parse(muExample4);
+  muP = parse(muExample3);
   // Add 'testsuite'
   code = [ muCallPrim("testreport_open", []), muCallPrim("testreport_close", []), muReturn() ];
   main_testsuite = getUID(muP.name,[],"testsuite",1);
   println("main_testsuite = <main_testsuite>");
-  muP.functions = muP.functions + muFunction(main_testsuite, 1, 1, |rascal:///|, [], (), code);
+  // Generate a very generic function type
+  ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
+  muP.functions = muP.functions + muFunction(main_testsuite, ftype, 1, 1, |rascal:///|, [], (), code);
   rvmP = mu2rvm(muP);
   <v, t> = executeProgram(rvmP, true, 1, false);
   println("Result = <v>, [<t> msec]");
