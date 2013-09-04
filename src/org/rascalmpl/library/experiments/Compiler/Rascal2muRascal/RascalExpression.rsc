@@ -97,7 +97,7 @@ list[MuExp] translate(e:(Expression) `<Expression expression> ( <{Expression ","
    // ignore kw arguments for the moment
    MuExp receiver = translate(expression)[0];
    list[MuExp] args = [ *translate(a) | a <- arguments ];
-   return [ muCall(receiver, args) ];
+   return (getOuterType(expression) == "str") ? [muCallPrim("node_create", [receiver, *args])] : [ muCall(receiver, args) ];
 }
 
 // Any
@@ -421,9 +421,14 @@ list[MuExp] translateSetOrList(es, str kind){
 
 // Translate Slice
 
-list[MuExp] translateSlice(Expression expression, OptionalExpression optFirst, OptionalExpression optLast) { throw "translateSlice"; }
+list[MuExp] translateSlice(Expression expression, OptionalExpression optFirst, OptionalExpression optLast) =
+    [ muCallPrim("<getOuterType(expression)>_slice", [ *translate(expression), *translateOpt(optFirst), muCon("false"), *translateOpt(optLast) ]) ];
 
-list[MuExp] translateSlice(Expression expression, OptionalExpression optFirst, Expression second, OptionalExpression optLast)  { throw "translateSlice"; }
+list[MuExp] translateOpt(OptionalExpression optExp) =
+    optExp is noExpression ? [muCon("false")] : translate(optExp.expression);
+
+list[MuExp] translateSlice(Expression expression, OptionalExpression optFirst, Expression second, OptionalExpression optLast) =
+    [ muCallPrim("<getOuterType(expression)>_slice", [  *translate(expression), *translateOpt(optFirst), *translate(second), *translateOpt(optLast) ]) ];
 
 // Translate Visit
 
