@@ -173,7 +173,7 @@ list[MuExp] translate (e:(Expression) `<Expression expression> @ <Name name>`) {
 
 // Is
 list[MuExp] translate (e:(Expression) `<Expression expression> is <Name name>`) =
-    [ muCallPrim("<getOuterType(expression)>_is", [*translate(expression), muCon("<name>")]) ];
+    [ muCallPrim("is", [*translate(expression), muCon("<name>")]) ];
 
 // Has
 list[MuExp] translate (e:(Expression) `<Expression expression> has <Name name>`) =
