@@ -1,5 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
+
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
@@ -30,12 +33,11 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.cobra.Cobra;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
 
 /*
  * The primitives that can be called via the CALLPRIM instruction.
@@ -229,6 +231,7 @@ public enum RascalPrimitive {
 	
 	list_size,
 	list_create,
+	list_slice,
 	list_subscript, 
 	list_update,
 	
@@ -248,6 +251,10 @@ public enum RascalPrimitive {
 	mapwriter_open,
 	
 	negative,
+	
+	node_create,
+	node_slice,
+	
 	not_bool,
 	notequal,
 	notin_elm_list,
@@ -284,6 +291,8 @@ public enum RascalPrimitive {
 	setwriter_close,
 	setwriter_open,
 	setwriter_splice,
+	
+	str_slice,
 
 	sublist,
 
@@ -374,6 +383,9 @@ public enum RascalPrimitive {
 			case "values":
 			case "valueOf":
 			case "main":
+			case "makeSlice":
+			case "makeSliceDescriptor":
+			case "getInt":
 				/* ignore all utility functions that do not implement some primitive */
 				break;
 			default:
@@ -1684,6 +1696,152 @@ public enum RascalPrimitive {
 		return sp;
 	}
 	
+	private static Integer getInt(IValue v){
+		return v instanceof IInteger ? ((IInteger) v).intValue() : null;
+	}
+	
+	public static int list_slice(Object[] stack, int sp, int arity) {
+		assert arity == 4;
+		
+		IList lst = (IList) stack[sp - 4];
+		stack[sp - 4] = makeSlice(lst, makeSliceDescriptor(stack, sp, arity, lst.length()));
+		return sp - 3;
+	}
+	
+	public static int str_slice(Object[] stack, int sp, int arity) {
+		assert arity == 4;
+		
+		IString str = (IString) stack[sp - 4];
+		stack[sp - 4] = makeSlice(str, makeSliceDescriptor(stack, sp, arity, str.length()));
+		return sp - 3;
+	}
+	
+	public static int node_create(Object[] stack, int sp, int arity) {
+		assert arity >= 1;
+		
+		String name = ((IString) stack[sp - arity]).getValue();
+		IValue[] args = new IValue[arity - 1];
+		for(int i = 0; i < arity - 1; i ++){
+			args[i] = (IValue) stack[sp - arity + 1 + i];
+		}
+		stack[sp - arity] = vf.node(name, args);
+		return sp - arity + 1;
+	}
+	
+	public static int node_slice(Object[] stack, int sp, int arity) {
+		assert arity == 4;
+		
+		INode node = (INode) stack[sp - 4];
+		stack[sp - 4] = makeSlice(node, makeSliceDescriptor(stack, sp, arity, node.arity()));
+		return sp - 3;
+	}
+	
+	public static SliceDescriptor makeSliceDescriptor(Object[] stack, int sp, int arity, int len) {
+		assert arity == 4;
+		
+		Integer first = getInt((IValue) stack[sp - 3]);
+	
+		Integer second = getInt((IValue) stack[sp - 2]);
+		Integer end = getInt((IValue) stack[sp - 1]);
+		
+		int firstIndex = 0;
+		int secondIndex = 1;
+		int endIndex = len;
+		
+		if(first != null){
+			firstIndex = first;
+			if(firstIndex < 0)
+				firstIndex += len;
+		}
+		if(end != null){
+			endIndex = end;
+			if(endIndex < 0){
+				endIndex += len;
+			}
+		}
+		
+		if(second == null){
+			secondIndex = firstIndex + ((firstIndex <= endIndex) ? 1 : -1);
+		} else {
+			secondIndex = second;
+			if(secondIndex < 0)
+				secondIndex += len;
+			if(!(first == null && end == null)){
+				if(first == null && secondIndex > endIndex)
+					firstIndex = len - 1;
+				if(end == null && secondIndex < firstIndex)
+					endIndex = -1;
+			}
+		}
+		
+		if (len == 0) {
+			throw RuntimeExceptionFactory.emptyList(null, null);
+		}
+		if (firstIndex >= len) {
+			throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(firstIndex), null, null);
+		}
+		if (endIndex > len ) {
+			throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(endIndex), null, null);
+		}
+		
+		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
+	}
+	
+	public static IList makeSlice(IList lst, SliceDescriptor sd){
+		IListWriter w = vf.listWriter();
+		int increment = sd.second - sd.first;
+		if(sd.first == sd.end || increment == 0){
+			// nothing to be done
+		} else
+		if(sd.first <= sd.end){
+			for(int i = sd.first; i >= 0 && i < sd.end; i += increment){
+				w.append(lst.get(i));
+			}
+		} else {
+			for(int j = sd.first; j >= 0 && j > sd.end && j < lst.length(); j += increment){
+				w.append(lst.get(j));
+			}
+		}
+		return w.done();
+	}
+	
+	public static IString makeSlice(IString str, SliceDescriptor sd){
+		StringBuilder buffer = new StringBuilder();
+		int increment = sd.second - sd.first;
+		if(sd.first == sd.end || increment == 0){
+			// nothing to be done
+		} else
+		if(sd.first <= sd.end){
+			for(int i = sd.first; i >= 0 && i < sd.end; i += increment){
+				buffer.appendCodePoint(str.charAt(i));
+			}
+		} else {
+			for(int j = sd.first; j >= 0 && j > sd.end && j < str.length(); j += increment){
+				buffer.appendCodePoint(str.charAt(j));
+			}
+		}
+		return vf.string(buffer.toString());
+	}
+	
+	public static IList makeSlice(INode node, SliceDescriptor sd){
+		IListWriter w = vf.listWriter();
+		int increment = sd.second - sd.first;
+		if(sd.first == sd.end || increment == 0){
+			// nothing to be done
+		} else
+		if(sd.first <= sd.end){
+			for(int i = sd.first; i >= 0 && i < sd.end; i += increment){
+				w.append(node.get(i));
+			}
+		} else {
+			for(int j = sd.first; j >= 0 && j > sd.end && j < node.arity(); j += increment){
+				w.append(node.get(j));
+			}
+		}
+		
+		return w.done();
+	}
+	
 	/*
 	 * splice_to_...writer
 	 */
@@ -2230,5 +2388,18 @@ public enum RascalPrimitive {
 		init(ValueFactoryFactory.getValueFactory(), null, null);
 	}
 
+}
+
+class SliceDescriptor{
+	
+	final int first;
+	final int second;
+	final int end;
+	
+	SliceDescriptor(int first, int second, int end){
+		this.first = first;
+		this.second = second;
+		this.end = end;
+	}
 }
 
