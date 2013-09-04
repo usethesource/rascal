@@ -28,10 +28,13 @@ void run(){
 }
 
 void runMu2rvm(){
-  muP = parse(muExample5);
-  iprintln(muP);
+  muP = parse(muExample4);
+  // Add 'testsuite'
+  code = [ muCallPrim("testreport_open", []), muCallPrim("testreport_close", []), muReturn() ];
+  main_testsuite = getUID(muP.name,[],"testsuite",1);
+  println("main_testsuite = <main_testsuite>");
+  muP.functions = muP.functions + muFunction(main_testsuite, 1, 1, |rascal:///|, [], (), code);
   rvmP = mu2rvm(muP);
-  //iprintln(rvmP);
   <v, t> = executeProgram(rvmP, true, 1, false);
   println("Result = <v>, [<t> msec]");
 }
