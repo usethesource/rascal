@@ -82,6 +82,8 @@ public enum RascalPrimitive {
 	set_add_set,
 	str_add_str,
 	
+	str_addindented_str,
+	
 	adt_field_access,
 	adt_field_update,
 	adt_subscript,
@@ -608,6 +610,13 @@ public enum RascalPrimitive {
 	}
 
 	public static int str_add_str(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		
+		stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int str_addindented_str(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		if(arity == 2){
 			stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
