@@ -121,11 +121,11 @@ list[MuExp] translateAssignment(s: (Statement) `<Assignable assignable> <Assignm
 list[MuExp] applyAssignmentOperator(str operator, assignable, statement) {
     if(operator == "=")
     	return translate(statement);
-    op = ("+=" : "addition", "-=" : "subtraction", "*=" : "product", "/=" : "division", "&=" : "intersection")[operator];  // missing ?=
-    op += "_<getOuterType(assignable)>_<getOuterType(statement)>";
+    op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator];  // missing ?=
+    op2 = "<getOuterType(assignable)>_<op1>_<getOuterType(statement)>";
     oldval = getValues(assignable);
     assert size(oldval) == 1;
-    return [muCallPrim("<op>", [*oldval, *translate(statement)])]; 	
+    return [muCallPrim("<op2>", [*oldval, *translate(statement)])]; 	
 }
     
 // assignTo: assign the rhs of the assignment (possibly modified by an assign operator) to the assignable
@@ -138,19 +138,17 @@ list[MuExp] assignTo(a: (Assignable) `<QualifiedName qualifiedName>`, list[MuExp
 list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, list[MuExp] rhs) =
      assignTo(receiver, [ muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), *translate(subscript), *rhs]) ]);
     
-list[MuExp] assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, list[MuExp] rhs) { 
-    nelems = size_assignables(elements);
-    name = nextTmp();
-    elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
-    return muAssignTmp(name, rhs[0]) + 
-              [ *assignTo(elems[i], [ muCalla("adt_subscript", [muTmp(name), muCon(i)]) ])
-              | i <- [0 .. nelems]
-              ];
-}
+list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, list[MuExp] rhs) =
+    assignTo(receiver, [ muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), *translateOpt(optFirst), muCon(false), *translateOpt(optLast), *rhs]) ]);
+
+list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`) =
+     assignTo(receiver, [ muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), *translateOpt(optFirst), *translate(second), *translateOpt(optLast), *rhs]) ]);
 
 list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, list[MuExp] rhs){
     return assignTo(receiver, [ muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), muCon("<field>"), *rhs]) ]);
 }
+
+// ifdefined
 
 list[MuExp] assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, list[MuExp] rhs) {
 	nelems = size_assignables(elements);
@@ -162,18 +160,18 @@ list[MuExp] assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, list
               ];
 }
 
-// slice
+list[MuExp] assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, list[MuExp] rhs) { 
+    nelems = size_assignables(elements);
+    name = nextTmp();
+    elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
+    return muAssignTmp(name, rhs[0]) + 
+              [ *assignTo(elems[i], [ muCalla("adt_subscript", [muTmp(name), muCon(i)]) ])
+              | i <- [0 .. nelems]
+              ];
+}
 
-list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, list[MuExp] rhs) =
-    assignTo(receiver, [ muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), *translateOpt(optFirst), muCon(false), *translateOpt(optLast), *rhs]) ]);
-
-list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`) =
-     assignTo(receiver, [ muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), *translateOpt(optFirst), *translate(second), *translateOpt(optLast), *rhs]) ]);
-
-
-
-// annotation
-// ifdefined
+list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> @ <Name annotation>`,  list[MuExp] rhs) =
+     assignTo(receiver, [ muCallPrim("annotation_setupdate", [*getValues(receiver), muCon("<field>"), *rhs]) ]);
 
 // getValues: get the current value(s) of an assignable
 
@@ -182,21 +180,23 @@ list[MuExp] getValues(a: (Assignable) `<QualifiedName qualifiedName>`) =
     
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`) =
     [ muCallPrim("<getOuterType(receiver)>_subscript", [*getValues(receiver), *translate(subscript)]) ];
-
-list[MuExp] getValues(a:(Assignable) `\<  <{Assignable ","}+ elements > \>` ) = [ *getValues(elm) | elm <- elements ];
-
-list[MuExp] getValues(a:(Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` ) = [ *getValues(arg) | arg <- arguments ];
-
-list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) = [ muCallPrim("<getOuterType(receiver)>_field_access", [ *getValues(receiver), muCon("<field>")]) ];
-
-list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) = 
+    
+    list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) = 
     translateSlice(getValues(receiver), translateOpt(optFirst), muCon(false),  translateOpt(optLast));
     
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`) = 
     translateSlice(getValues(receiver), translateOpt(optFirst), translate(second),  translateOpt(optLast));
 
-// annotation
+list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) = [ muCallPrim("<getOuterType(receiver)>_field_access", [ *getValues(receiver), muCon("<field>")]) ];
+
 // ifdefined
+
+list[MuExp] getValues(a:(Assignable) `\<  <{Assignable ","}+ elements > \>` ) = [ *getValues(elm) | elm <- elements ];
+
+list[MuExp] getValues(a:(Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` ) = [ *getValues(arg) | arg <- arguments ];
+
+list[MuExp] getValues(a: (Assignable) `<Assignable receiver> @ <Name annotation>`) = 
+    [ muCallPrim("annotation_get", [ *getValues(receiver), muCon("<field>")]) ];
 
 // getReceiver: get the final receiver of an assignable
 
@@ -209,5 +209,3 @@ Assignable getReceives(a: (Assignable) `<Assignable receiver> ? <Expression defa
 Assignable getReceiver(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`) = a;
 Assignable getReceiver(a: (Assignable) `\< <{Assignable ","}+ elements> \>`) =  a;
 Assignable getReceiver(a: (Assignable) `<Assignable receiver> @ <Name annotation>`) = getReceiver(receiver); 
-
-

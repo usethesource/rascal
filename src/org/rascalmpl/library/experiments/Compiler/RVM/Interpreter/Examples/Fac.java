@@ -27,9 +27,9 @@ public class Fac {
 					LOADLOC(0).
 					LOADLOC(0).
 					LOADCON(1).
-					CALLPRIM(RascalPrimitive.subtraction_num_num, 2).
+					CALLPRIM(RascalPrimitive.num_subtract_num, 2).
 					CALL("fac", 1).
-					CALLPRIM(RascalPrimitive.product_num_num, 2).
+					CALLPRIM(RascalPrimitive.num_product_num, 2).
 					RETURN1()));
 		
 		rvm.declare(new Function("main", 1, 1, 7,
@@ -49,7 +49,7 @@ public class Fac {
 					LABEL("L").
 					LOADLOC(1). // cnt
 					LOADCON(0).
-					CALLPRIM(RascalPrimitive.greater_num_num, 2).
+					CALLPRIM(RascalPrimitive.num_greater_num, 2).
 					JMPTRUE("M").
 					HALT().
 					LABEL("M").
@@ -58,7 +58,7 @@ public class Fac {
 					POP().
 					LOADLOC(1).
 					LOADCON(1).
-					CALLPRIM(RascalPrimitive.subtraction_num_num, 2).
+					CALLPRIM(RascalPrimitive.num_subtract_num, 2).
 					STORELOC(1).
 					POP().
 					JMP("L")));

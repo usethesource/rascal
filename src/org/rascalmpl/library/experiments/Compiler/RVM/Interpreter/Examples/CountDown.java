@@ -29,7 +29,7 @@ public class CountDown {
 							.LABEL("LOOP")
 							.LOADLOC(0)
 							.LOADCON(0)
-							.CALLPRIM(RascalPrimitive.greater_num_num, 2)
+							.CALLPRIM(RascalPrimitive.num_greater_num, 2)
 							.JMPTRUE("BODY")
 							.LOADCON(0)
 							.RETURN1()
@@ -39,7 +39,7 @@ public class CountDown {
 							.POP()
 							.LOADLOC(0)
 							.LOADCON(1)
-							.CALLPRIM(RascalPrimitive.subtraction_num_num, 2)
+							.CALLPRIM(RascalPrimitive.num_subtract_num, 2)
 							.STORELOC(0)
 							.POP()
 							.JMP("LOOP")));
@@ -66,10 +66,10 @@ public class CountDown {
 						.NEXT0()
 						.LOADLOC(1)
 						.NEXT0()
-						.CALLPRIM(RascalPrimitive.product_num_num, 2)
+						.CALLPRIM(RascalPrimitive.num_product_num, 2)
 						.LOADLOC(1)
 						.NEXT0()
-						.CALLPRIM(RascalPrimitive.addition_num_num, 2)
+						.CALLPRIM(RascalPrimitive.num_add_num, 2)
 						.HALT()));
 	
 		rvm.declare(new Function("#module_init", 0, 1, 6, 
