@@ -394,10 +394,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		this.interrupt = interrupt;
 	}
 
-	@Override	
-	public boolean __getInterrupt() {
-		return interrupt || isCanceled();
-	}
 
 	@Override	
 	public Stack<Accumulator> __getAccumulators() {

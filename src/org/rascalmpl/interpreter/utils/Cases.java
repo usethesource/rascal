@@ -264,7 +264,7 @@ public class Cases  {
 	      mp.initMatch(subject);
 
 	      while (mp.hasNext()) {
-	        if (eval.__getInterrupt())
+	        if (eval.isInterrupted())
 	          throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
 	        if (mp.next()) {
 	          int size = conditions.size();
@@ -286,7 +286,7 @@ public class Cases  {
 
 	            while (i >= 0 && i < size) {
 
-	              if (eval.__getInterrupt()) {
+	              if (eval.isInterrupted()) {
 	                throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
 	              }
 	              if (gens[i].hasNext() && gens[i].next()) {
@@ -406,7 +406,7 @@ public class Cases  {
       while (mp.hasNext()) {
         eval.pushEnv();
         
-        if (eval.__getInterrupt()) {
+        if (eval.isInterrupted()) {
           throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
         }
   

@@ -171,7 +171,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				gens[0].init();
 
 				while (i >= 0 && i < size) {
-					if (__eval.__getInterrupt()) {
+					if (__eval.isInterrupted()) {
 						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					if (gens[i].hasNext()) {
@@ -275,7 +275,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			gens[0] = generators.get(0).getBacktracker(__eval);
 			gens[0].init();
 			while (i >= 0 && i < size) {
-				if (__eval.__getInterrupt()) {
+				if (__eval.isInterrupted()) {
 					throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 				}
 				if (gens[i].hasNext() && gens[i].next()) {
@@ -433,7 +433,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			eval.notifyAboutSuspension(this);			
 
 			try {
-				if (eval.__getInterrupt()) {
+				if (eval.isInterrupted()) {
 					throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
 				}
 
@@ -2115,7 +2115,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				gens[0].init();
 
 				while (i >= 0 && i < size) {
-					if (__eval.__getInterrupt())
+					if (__eval.isInterrupted())
 						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {

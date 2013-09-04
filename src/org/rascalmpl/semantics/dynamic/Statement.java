@@ -293,7 +293,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	
 						gen = generator.getBacktracker(__eval);
 						gen.init();
-						if (__eval.__getInterrupt()) {
+						if (__eval.isInterrupted()) {
 							throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 						}
 						if (!(gen.hasNext() && gen.next())) {
@@ -446,7 +446,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				gens[0].init();
 
 				while (i >= 0 && i < size) {
-					if (__eval.__getInterrupt()) {
+					if (__eval.isInterrupted()) {
 						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					if (gens[i].hasNext() && gens[i].next()) {
@@ -584,7 +584,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 				while (i >= 0 && i < size) {
 
-					if (__eval.__getInterrupt()) {
+					if (__eval.isInterrupted()) {
 						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					if (gens[i].hasNext() && gens[i].next()) {
@@ -659,7 +659,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 				while (i >= 0 && i < size) {
 
-					if (__eval.__getInterrupt()) {
+					if (__eval.isInterrupted()) {
 						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					if (gens[i].hasNext() && gens[i].next()) {
@@ -845,7 +845,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				while (change && (max == -1 || iterations < max)) {
 					change = false;
 					iterations++;
-					if (__eval.__getInterrupt()) {
+					if (__eval.isInterrupted()) {
 						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					bodyResult = body.interpret(__eval);
@@ -1058,7 +1058,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				loop: while (true) {
 					int i = 0;
 					try {
-						if (__eval.__getInterrupt()) {
+						if (__eval.isInterrupted()) {
 							throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 						}
 						
@@ -1070,7 +1070,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 							__eval.unwind(olds[i]);
 							__eval.pushEnv();
 	
-							if (__eval.__getInterrupt()) {
+							if (__eval.isInterrupted()) {
 								throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 							}
 							if (gens[i].hasNext() && gens[i].next()) {
