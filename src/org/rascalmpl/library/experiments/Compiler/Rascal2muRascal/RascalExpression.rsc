@@ -349,7 +349,7 @@ list[MuExp] translateBool(e:(Expression) `! <Expression lhs>`) = translateBool("
 	nformals = size(ftype.parameters);
 	nlocals = getScopeSize(fuid);
 	body = [ *translate(stat) | stat <- statements ];
-	functions_in_module += [ muFunction(fuid, nformals, nlocals, e@\loc, [], (), body) ];
+	functions_in_module += [ muFunction(fuid, ftype, nformals, nlocals, e@\loc, [], (), body) ];
 	tuple[str fuid,int pos] addr = uid2addr[uid];
 	return [ (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid) ];
 }

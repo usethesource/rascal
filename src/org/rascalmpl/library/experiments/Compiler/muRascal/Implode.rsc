@@ -49,7 +49,9 @@ str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> 
 
 MuFunction preprocess(Function f, str modName){
    uid = getUID(modName,f.funNames,f.name,f.nformals);
-   return muFunction(uid, f.nformals, size(vardefs[uid]), |rascal:///|, [], (), preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body));
+   // Generate a very generic function type
+   ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals + 1] ]);
+   return muFunction(uid, ftype, f.nformals, size(vardefs[uid]), |rascal:///|, [], (), preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body));
 }
 
 list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] exps){

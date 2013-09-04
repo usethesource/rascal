@@ -146,7 +146,7 @@ println("r2mu: Compiling <signature.name>");
   tbody = translate(expression);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
-  functions_in_module += [muFunction(fuid, nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, [*tbody[0 .. -1], muReturn(tbody[-1])])];
+  functions_in_module += [muFunction(fuid, ftype, nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, [*tbody[0 .. -1], muReturn(tbody[-1])])];
   
   if("test" in tmods){
   println("ftype = <ftype>");
@@ -161,7 +161,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   nformals = size(ftype.parameters);
   tbody = [ *translate(stat) | stat <- body.statements ];
   fuid = uid2str(loc2uid[fd@\loc]);
-  functions_in_module += [muFunction(fuid, nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody)]; 
+  functions_in_module += [muFunction(fuid, ftype, nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody)]; 
 }
 
 //str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions> ;`)   { throw("conditional"); }
@@ -204,7 +204,8 @@ list[str] translateModifiers(FunctionModifiers modifiers){
 
 void generate_tests(str module_name){
    code = [ muCallPrim("testreport_open", []), *tests, muCallPrim("testreport_close", []), muReturn() ];
-   main_testsuite = getUID(module_name,[],"testsuite",1);
+   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
+   main_testsuite = getFUID(module_name,"testsuite",ftype,0);
    println("main_testsuite = <main_testsuite>");
-   functions_in_module += muFunction(main_testsuite, 1, 1, |rascal:///|, [], (), code);
+   functions_in_module += muFunction(main_testsuite, ftype, 1, 1, |rascal:///|, [], (), code);
 }
