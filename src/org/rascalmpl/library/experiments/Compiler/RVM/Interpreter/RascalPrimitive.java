@@ -601,9 +601,18 @@ public enum RascalPrimitive {
 	}
 
 	public static int str_add_str(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
-		return sp - 1;
+		assert arity >= 2;
+		if(arity == 2){
+			stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
+			return sp - 1;
+		} else {  // for the benfit of string templates
+			IString res = (IString) stack[sp - arity];
+			for(int i = 1; i < arity; i++){
+				res = res.concat((IString) stack[sp - arity + i]);
+			}
+			stack[sp - arity] = arity;
+			return sp - arity + 1;
+		}
 	}
 
 	//	public static int addition_loc_str(Object[] stack, int sp) { 	}
