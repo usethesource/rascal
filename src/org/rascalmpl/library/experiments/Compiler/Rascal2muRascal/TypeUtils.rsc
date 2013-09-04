@@ -24,6 +24,9 @@ public set[int] modules = {};
 public set[int] functions = {};
 public set[int] constructors = {};
 public set[int] variables = {};
+public set[int] functions_overloaded = {};
+
+public set[str] moduleNames = {};
 
 @doc{Map from uid to simple names, used to recursively compute qualified names}
 public map[int uid,str name] uid2name = (); 
@@ -33,12 +36,14 @@ public map[int uid,int n] blocks = ();              // number of blocks within a
 public map[int uid,int n] closures = ();            // number of closures within a scope
 public map[int uid,int n] bscopes = ();             // number of boolean scopes within a scope
 
+@doc{Handling nesting}
 public rel[int,int] declares = {};
 public rel[int,int] containment = {};
 
-public set[str] moduleNames = {};
-
-//public set[str] libFuns = {};
+@doc{Enables mapping of qualified names back to uids}
+map[int,str] fuid2str = ();
+@doc{We need to perform more precise overloading resolution than provided by the type checker}
+map[int,Symbol] fuid2type = ();
 
 public void resetScopeExtraction() {
 	uid2addr = ();
@@ -47,6 +52,7 @@ public void resetScopeExtraction() {
 	functions = {};
 	constructors = {};
 	variables = {};
+	functions_overloaded = {};
 	uid2name = ();
 	cases = ();
 	blocks = ();
@@ -54,6 +60,8 @@ public void resetScopeExtraction() {
 	bscopes = ();
 	declares = {};
 	containment = {};
+	fuid2str = ();
+	fuid2type = ();
 }
 
 // Get the type of an expression
@@ -99,10 +107,6 @@ Symbol getClosureType(loc l) {
 // Compute the scope size, excluding declared nested functions and closures
 int getScopeSize(str fuid) = size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 });
 
-str getFUID(str fname, Symbol \type) = "<fname>(<for(p<-\type.parameters){><p>;<}>)";
-str getFUID(str fname, Symbol \type, int case_num) = "<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
-str getFUID(str modName, str fname, Symbol \type, int case_num) = "<modName>/<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
-
 @doc{Make a call to a library function given its name, module's name and a number of its formal parameters}
 public MuExp mkCallToLibFun(str modName, str fname, int nformals) {
 	qname = "<modName>/<fname>(<nformals>)";
@@ -118,11 +122,25 @@ MuExp mkVar(str name, loc l) {
   res = "<addr.fuid> - <addr.pos>";
   //println("mkVar: <name> =\> <res>; isFun: <loc2uid[l] in functions>; isConstr: <loc2uid[l] in constructors>");
   
-  if(loc2uid[l] in functions) {
-  	// distinguishes between root and nested scopes
-  	return (addr.fuid in moduleNames) ? muFun(uid2str(loc2uid[l])) : muFun(uid2str(loc2uid[l]), addr.fuid);
+  if(loc2uid[l] in functions_overloaded) {
+    // Get the functions of an overloaded function
+    //set[int] uids = config.store[loc2uid[l]].items;
+  	//int uid = getOneFrom(uids);
+  	//addr = uid2addr[uid];
+  	//MuExp overloaded_fun = (addr.fuid in moduleNames) ? muFun(fuid2str[uid]) : muFun(fuid2str[uid], addr.fuid);
+  	//uids -= uid;
+  	//for(int uid <- uids) {
+  	//	overloaded_fun = muFunAddition( (addr.fuid in moduleNames) ? muFun(fuid2str[uid]) : muFun(fuid2str[uid], addr.fuid), 
+  	//								    overloaded_fun );
+  	//}
+  	//return overloaded_fun;
+  	throw "Overloaded functions are not supported yet!"; 
   }
-  if(loc2uid[l] in constructors) {
+  else if(loc2uid[l] in functions) {
+  	// distinguishes between root and nested scopes
+  	return (addr.fuid in moduleNames) ? muFun(fuid2str[loc2uid[l]]) : muFun(fuid2str[loc2uid[l]], addr.fuid);
+  }
+  else if(loc2uid[l] in constructors) {
   	return muConstr(name);
   }
   return muVar(name, addr.fuid, addr.pos);
@@ -161,20 +179,28 @@ void extractScopes(){
                                                  } else {
                                                     cases[inScope] = cases[inScope] + (name:0);
                                                  }
-                                              } else {
-                                                 cases[inScope] = (name:0);
-                                              }
-                                              name = getFUID(getSimpleName(rname),rtype,cases[inScope][name]);
-                                              uid2name[uid] = name;
+                                             } else {
+                                                cases[inScope] = (name:0);
+                                             }
+                                             name = getFUID(getSimpleName(rname),rtype,cases[inScope][name]);
+                                             uid2name[uid] = name;
+                                             // Fill in fuid2type to enable more precise overloading resolution
+                                             fuid2type[uid] = Symbol::\tuple(rtype.parameters);
                                            }
+        case overload(_,_):                {
+        								     functions_overloaded += {uid};
+        								     for(l <- config.uses[uid]) {
+        								     	loc2uid[l] = uid;
+        								     } 
+        								   }
         case variable(_,_,_,inScope,src):  { 
-        									  variables += {uid};
-        									  declares += {<inScope, uid>}; 
-        									  loc2uid[src] = uid;
-                                              for(l <- config.uses[uid]) {
-                                                  loc2uid[l] = uid;
-                                              }
-                                            }
+        									 variables += {uid};
+        									 declares += {<inScope, uid>}; 
+        									 loc2uid[src] = uid;
+                                             for(l <- config.uses[uid]) {
+                                                 loc2uid[l] = uid;
+                                             }
+                                           }
         case constructor(rname,rtype,
                          inScope,src):     { 
         									 constructors += {uid};
@@ -249,20 +275,25 @@ void extractScopes(){
     		uid2addr[topdecls[i]] = <uid2str(muid), -1>;
     	}
     }
-    
-    for(fuid <- functions) {
+
+	// Fill in mapping of function uids to qualified names (enables invert mapping)
+	for(int uid <- functions) {
+		fuid2str[uid] = uid2str(uid);
+	}
+	
+    for(int fuid <- functions) {
         innerScopes = {fuid} + containmentPlus[fuid];
         // First, fill in variables to get their positions right
         // Sort variable declarations to ensure that formal parameters get first positions preserving their order
         decls = sort([ uid | uid <- declares[innerScopes], variable(_,_,_,_,_) := config.store[uid] ]);
         for(i <- index(decls)) {
-        	uid2addr[decls[i]] = <uid2str(fuid), i>;
+        	uid2addr[decls[i]] = <fuid2str[fuid], i>;
         }
         // Then, functions
         decls = [ uid | uid <- declares[innerScopes], function(_,_,_,_,_,_) := config.store[uid] ||
         											  closure(_,_,_) := config.store[uid] ];
         for(i <- index(decls)) {
-        	uid2addr[decls[i]] = <uid2str(fuid), -1>;
+        	uid2addr[decls[i]] = <fuid2str[fuid], -1>;
         }
     }
 
@@ -277,18 +308,25 @@ void extractScopes(){
     //}
 }
 
-str uid2str(int fuid) {
-	if(!uid2name[fuid]?) {
+str getFUID(str fname, Symbol \type) = "<fname>(<for(p<-\type.parameters){><p>;<}>)";
+str getFUID(str fname, Symbol \type, int case_num) = "<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
+str getFUID(str modName, str fname, Symbol \type, int case_num) = "<modName>/<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
+
+str uid2str(int uid, str name) = uid2str(uid) + "/" + name;
+str uid2str(int uid, str name, int \case) = uid2str(uid) + "/" + name + "#<\case>";
+
+str uid2str(int uid) {
+	if(!uid2name[uid]?) {
 		throw "uid2str is not applicable!";
 	}
-	name = uid2name[fuid];
+	name = uid2name[uid];
 	declaredIn = toMapUnique(invert(declares));
 	containedIn = toMapUnique(invert(containment));
-	if(containedIn[fuid]?) {
-		name = uid2str(containedIn[fuid]) + "/" + name;
+	if(containedIn[uid]?) {
+		name = uid2str(containedIn[uid]) + "/" + name;
 	} 
-	else if(declaredIn[fuid]?) {
-		name = uid2str(declaredIn[fuid]) + "/" + name;
+	else if(declaredIn[uid]?) {
+		name = uid2str(declaredIn[uid]) + "/" + name;
 	}
 	return name;
 }
