@@ -11,7 +11,8 @@ import experiments::Compiler::Examples::Fail;
 import experiments::Compiler::Examples::ListMatch;
 import experiments::Compiler::Examples::Odd;
 import experiments::Compiler::Examples::SendMoreMoney;
-import experiments::Compiler::Examples::Tmp;
+//import experiments::Compiler::Examples::Tmp;
+import experiments::Compiler::Examples::TestSuite;
 
 loc base = |std:///experiments/Compiler/Examples/|;
 
