@@ -172,10 +172,12 @@ list[MuExp] translate (e:(Expression) `<Expression expression> [ @ <Name name> =
 list[MuExp] translate (e:(Expression) `<Expression expression> @ <Name name>`) { throw("getAnnotation"); }
 
 // Is
-list[MuExp] translate (e:(Expression) `<Expression expression> is <Name name>`) { throw("is"); }
+list[MuExp] translate (e:(Expression) `<Expression expression> is <Name name>`) =
+    [ muCallPrim("<getOuterType(expression)>_is", [*translate(expression), muCon("<name>")]) ];
 
 // Has
-list[MuExp] translate (e:(Expression) `<Expression expression> has <Name name>`) { throw("has"); }
+list[MuExp] translate (e:(Expression) `<Expression expression> has <Name name>`) =
+    [ muCallPrim("has", [*translate(expression), muCon("<name>")]) ];
 
 // Transitive closure
 list[MuExp] translate(e:(Expression) `<Expression argument> +`)   = postfix("transitiveClosure", argument);
