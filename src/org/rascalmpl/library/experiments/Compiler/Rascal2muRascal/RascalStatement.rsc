@@ -163,6 +163,15 @@ list[MuExp] assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, list
 }
 
 // slice
+
+list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, list[MuExp] rhs) =
+    assignTo(receiver, [ muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), *translateOpt(optFirst), muCon(false), *translateOpt(optLast), *rhs]) ]);
+
+list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`) =
+     assignTo(receiver, [ muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), *translateOpt(optFirst), *translate(second), *translateOpt(optLast), *rhs]) ]);
+
+
+
 // annotation
 // ifdefined
 
@@ -180,7 +189,12 @@ list[MuExp] getValues(a:(Assignable) `<Name name> ( <{Assignable ","}+ arguments
 
 list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) = [ muCallPrim("<getOuterType(receiver)>_field_access", [ *getValues(receiver), muCon("<field>")]) ];
 
-// slice
+list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) = 
+    translateSlice(getValues(receiver), translateOpt(optFirst), muCon(false),  translateOpt(optLast));
+    
+list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`) = 
+    translateSlice(getValues(receiver), translateOpt(optFirst), translate(second),  translateOpt(optLast));
+
 // annotation
 // ifdefined
 
