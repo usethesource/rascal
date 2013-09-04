@@ -224,6 +224,6 @@ test bool tst() = run("[0,1,2,3,4,5,6,7,8,9][2 .. 7]") == [0,1,2,3,4,5,6,7,8,9][
 test bool tst() = run("[0,1,2,3,4,5,6,7,8,9][2, 4 .. 7]") == [0,1,2,3,4,5,6,7,8,9][2, 4 .. 7];
 test bool tst() = run("\"abcdefghijklmnopqrstuvwxyz\"[2 .. 7]") == "abcdefghijklmnopqrstuvwxyz"[2 .. 7];
 test bool tst() = run("\"abcdefghijklmnopqrstuvwxyz\"[2, 4 .. 7]") == "abcdefghijklmnopqrstuvwxyz"[2, 4 .. 7];
-test bool tst() = run("\"abc\"(1,2,3,4,5,6,7,8,9)"[2 .. 7]) == "abc"(1,2,3,4,5,6,7,8,9)[2 .. 7];
-test bool tst() = run("\"abc\"(1,2,3,4,5,6,7,8,9)"[2, 4 .. 7]) == "abc"(1,2,3,4,5,6,7,8,9)[2, 4 .. 7];
+test bool tst() = run("\"abc\"(1,2,3,4,5,6,7,8,9)[2 .. 7]") == "abc"(1,2,3,4,5,6,7,8,9)[2 .. 7];
+test bool tst() = run("\"abc\"(1,2,3,4,5,6,7,8,9)[2, 4 .. 7]") == "abc"(1,2,3,4,5,6,7,8,9)[2, 4 .. 7];
 

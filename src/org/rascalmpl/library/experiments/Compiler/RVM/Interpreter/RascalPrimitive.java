@@ -231,6 +231,7 @@ public enum RascalPrimitive {
 	
 	list_size,
 	list_create,
+	list_replace,
 	list_slice,
 	list_subscript, 
 	list_update,
@@ -253,6 +254,7 @@ public enum RascalPrimitive {
 	negative,
 	
 	node_create,
+	node_replace,
 	node_slice,
 	
 	not_bool,
@@ -292,6 +294,7 @@ public enum RascalPrimitive {
 	setwriter_open,
 	setwriter_splice,
 	
+	str_replace,
 	str_slice,
 
 	sublist,
@@ -1686,14 +1689,40 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 
-
 	/*
-	 * size_list
+	 * list_size
 	 */
 	public static int list_size(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
 		return sp;
+	}
+	
+	public static int list_replace(Object[] stack, int sp, int arity) {
+		assert arity == 5;
+		IList lst = (IList) stack[sp - 5];
+		IList repl = (IList) stack[sp - 1];
+		SliceDescriptor sd = makeSliceDescriptor(stack, sp, arity, lst.length());
+		stack[sp - 5] = lst.replace(sd.first, sd.second, sd.end, repl);
+		return sp - 4;
+	}
+	
+	public static int str_replace(Object[] stack, int sp, int arity) {
+		assert arity == 5;
+		IString str = (IString) stack[sp - 5];
+		IString repl = (IString) stack[sp - 1];
+		SliceDescriptor sd = makeSliceDescriptor(stack, sp, arity, str.length());
+		stack[sp - 5] = str.replace(sd.first, sd.second, sd.end, repl);
+		return sp - 4;
+	}
+	
+	public static int node_replace(Object[] stack, int sp, int arity) {
+		assert arity == 5;
+		INode node = (INode) stack[sp - 5];
+		IList repl = (IList) stack[sp - 1];
+		SliceDescriptor sd = makeSliceDescriptor(stack, sp, arity, node.arity());
+		stack[sp - 5] = node.replace(sd.first, sd.second, sd.end, repl);
+		return sp - 4;
 	}
 	
 	private static Integer getInt(IValue v){
@@ -1841,6 +1870,7 @@ public enum RascalPrimitive {
 		
 		return w.done();
 	}
+	
 	
 	/*
 	 * splice_to_...writer
