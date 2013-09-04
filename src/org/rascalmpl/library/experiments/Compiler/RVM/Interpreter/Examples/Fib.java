@@ -39,13 +39,13 @@ public static void main(String[] args) {
 					LABEL("M").
 					LOADLOC(0).
 					LOADCON(1).
-					CALLPRIM(RascalPrimitive.subtraction_num_num, 2).
+					CALLPRIM(RascalPrimitive.num_subtract_num, 2).
 					CALL("fib", 1).
 					LOADLOC(0).
 					LOADCON(2).
-					CALLPRIM(RascalPrimitive.subtraction_num_num, 2).
+					CALLPRIM(RascalPrimitive.num_subtract_num, 2).
 					CALL("fib", 1).
-					CALLPRIM(RascalPrimitive.addition_num_num, 2).
+					CALLPRIM(RascalPrimitive.num_add_num, 2).
 					RETURN1()));
 					
 		rvm.declare(new Function("main", 1, 1, 6,

@@ -33,18 +33,18 @@ list[MuExp] infix(str op, Expression e){
   rot = getOuterType(e.rhs);
   if(isContainerType(lot))
      if(isContainerType(rot))
-       return [muCallPrim("<op>_<lot>_<rot>", [*translate(e.lhs), *translate(e.rhs)])];
+       return [muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)])];
      else
-       return [muCallPrim("<op>_<lot>_elm", [*translate(e.lhs), *translate(e.rhs)])];
+       return [muCallPrim("<lot>_<op>_elm", [*translate(e.lhs), *translate(e.rhs)])];
   else
     if(isContainerType(rot))
-       return [muCallPrim("<op>_elm_<rot>", [*translate(e.lhs), *translate(e.rhs)])];
+       return [muCallPrim("elm_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)])];
      else
-       return [muCallPrim("<op>_<lot>_<rot>", [*translate(e.lhs), *translate(e.rhs)])];
+       return [muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)])];
 }
  
-list[MuExp] prefix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(arg)>", translate(arg))];
-list[MuExp] postfix(str op, Expression arg) = [muCallPrim("<op>_<getOuterType(arg)>", translate(arg))];
+list[MuExp] prefix(str op, Expression arg) = [muCallPrim("<getOuterType(arg)>_<op>", translate(arg))];
+list[MuExp] postfix(str op, Expression arg) = [muCallPrim("<getOuterType(arg)>_<op>", translate(arg))];
 
 list[MuExp] comparison(str op, Expression e) = [muCallPrim("<op>", [*translate(e.lhs), *translate(e.rhs)])];
 
@@ -205,7 +205,7 @@ list[MuExp] translate(e:(Expression) `*<Expression argument>`) {
 list[MuExp] translate(e:(Expression) `[ <Type \type> ] <Expression argument>`)  { throw("asType"); }
 
 // Composition
-list[MuExp] translate(e:(Expression) `<Expression lhs> o <Expression rhs>`)   = infix("composition", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> o <Expression rhs>`)   = infix("compose", e);
 
 // Product
 list[MuExp] translate(e:(Expression) `<Expression lhs> * <Expression rhs>`)   = infix("product", e);
@@ -217,22 +217,22 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> join <Expression rhs>`)  
 list[MuExp] translate(e:(Expression) `<Expression lhs> % <Expression rhs>`)   = infix("remainder", e);
 
 // Division
-list[MuExp] translate(e:(Expression) `<Expression lhs> / <Expression rhs>`)   = infix("division", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> / <Expression rhs>`)   = infix("divide", e);
 
 // Intersection
-list[MuExp] translate(e:(Expression) `<Expression lhs> & <Expression rhs>`)   = infix("intersection", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> & <Expression rhs>`)   = infix("intersect", e);
 
 //Addition
-list[MuExp] translate(e:(Expression) `<Expression lhs> + <Expression rhs>`)   = infix("addition", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> + <Expression rhs>`)   = infix("add", e);
 
 // Subtraction
-list[MuExp] translate(e:(Expression) `<Expression lhs> - <Expression rhs>`)   = infix("subtraction", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> - <Expression rhs>`)   = infix("subtract", e);
 
 // Insert Before
-list[MuExp] translate(e:(Expression) `<Expression lhs> \>\> <Expression rhs>`)   = infix("addition", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> \>\> <Expression rhs>`)   = infix("add", e);
 
 // Append After
-list[MuExp] translate(e:(Expression) `<Expression lhs> \<\< <Expression rhs>`)   = infix("addition", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> \<\< <Expression rhs>`)   = infix("add", e);
 
 // Modulo
 list[MuExp] translate(e:(Expression) `<Expression lhs> mod <Expression rhs>`)   = infix("modulo", e);

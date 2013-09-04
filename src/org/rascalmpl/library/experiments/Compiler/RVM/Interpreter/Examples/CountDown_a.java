@@ -29,7 +29,7 @@ public class CountDown_a {
 							.LABEL("LOOP")
 							.LOADLOC(0)
 							.LOADCON(0)
-							.CALLPRIM(RascalPrimitive.greater_num_num,2)
+							.CALLPRIM(RascalPrimitive.num_greater_num,2)
 							.JMPTRUE("BODY")
 							.LOADCON(0)
 							.RETURN1()
@@ -39,7 +39,7 @@ public class CountDown_a {
 							.POP()        // added pop with respect to the new NEXT0's default bahviour on the stack
 							.LOADLOC(0)
 							.LOADCON(1)
-							.CALLPRIM(RascalPrimitive.subtraction_num_num,2)
+							.CALLPRIM(RascalPrimitive.num_subtract_num,2)
 							.STORELOC(0)
 							.POP()       // added pop with respect to the new STORELOC's default bahviour on the stack
 							.JMP("LOOP")));
@@ -81,7 +81,7 @@ public class CountDown_a {
 						.LOADLOC(2)
 						.LOADLOC(1)
 						.NEXT0()
-						.CALLPRIM(RascalPrimitive.addition_num_num,2)
+						.CALLPRIM(RascalPrimitive.num_add_num,2)
 						.STORELOC(2)
 						.POP()     // added pop with respect to the new STORELOC's default bahviour on the stack
 						.JMP("LOOP")));

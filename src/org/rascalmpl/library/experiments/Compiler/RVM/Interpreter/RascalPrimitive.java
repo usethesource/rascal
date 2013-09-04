@@ -1,7 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
-
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -33,7 +31,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
@@ -52,127 +49,127 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public enum RascalPrimitive {
 	appendAfter,
 
-	addition_elm_list,
-	addition_list_elm,
-	addition_list_list,
-	addition_map_map,
-	addition_tuple_tuple,
+	elm_add_list,
+	list_add_elm,
+	list_add_list,
+	map_add_map,
+	tuple_add_tuple,
 
-	addition_int_int,
-	addition_int_num,
-	addition_int_rat,
-	addition_int_real,
+	int_add_int,
+	int_add_num,
+	int_add_rat,
+	int_add_real,
 
-	addition_num_int,
-	addition_num_num,
-	addition_num_real,
-	addition_num_rat,
+	num_add_int,
+	num_add_num,
+	num_add_real,
+	num_add_rat,
 
-	addition_rat_int,
-	addition_rat_num,
-	addition_rat_rat,
-	addition_rat_real,
+	rat_add_int,
+	rat_add_num,
+	rat_add_rat,
+	rat_add_real,
 
-	addition_real_num,
-	addition_real_int,
-	addition_real_real,
-	addition_real_rat,
+	real_add_num,
+	real_add_int,
+	real_add_real,
+	real_add_rat,
 
-	addition_elm_set,
-	addition_set_elm,
-	addition_set_set,
-	addition_str_str,
+	elm_add_set,
+	set_add_elm,
+	set_add_set,
+	str_add_str,
 	
 	adt_field_access,
 	adt_field_update,
 	adt_subscript,
 	adt_update,
 	
-	anootation_get,
+	annotation_get,
 	annotation_set,
 
-	composition_lrel_lrel,
-	composition_rel_rel,
-	composition_map_map,
+	lrel_compose_lrel,
+	rel_compose_rel,
+	map_compose_map,
 	
 	datetime_field_access,
 	
-	division_int_int,
-	division_int_num,
-	division_int_rat,
-	division_int_real,
+	int_divide_int,
+	int_divide_num,
+	int_divide_rat,
+	int_divide_real,
 
-	division_num_int,
-	division_num_num,
-	division_num_real,
-	division_num_rat,
+	num_divide_int,
+	num_divide_num,
+	num_divide_real,
+	num_divide_rat,
 
-	division_rat_int,
-	division_rat_num,
-	division_rat_rat,
-	division_rat_real,
+	rat_divide_int,
+	rat_divide_num,
+	rat_divide_rat,
+	rat_divide_real,
 
-	division_real_num,
-	division_real_int,
-	division_real_real,
-	division_real_rat,
+	real_divide_num,
+	real_divide_int,
+	real_divide_real,
+	real_divide_rat,
 	
 	equal,
 	
 	equivalent_bool_bool,
 
-	greater_int_int,
-	greater_int_num,
-	greater_int_rat,
-	greater_int_real,
+	int_greater_int,
+	int_greater_num,
+	int_greater_rat,
+	int_greater_real,
 
-	greater_num_int,
-	greater_num_num,
-	greater_num_real,
-	greater_num_rat,
+	num_greater_int,
+	num_greater_num,
+	num_greater_real,
+	num_greater_rat,
 
-	greater_rat_int,
-	greater_rat_num,
-	greater_rat_rat,
-	greater_rat_real,
+	rat_greater_int,
+	rat_greater_num,
+	rat_greater_rat,
+	rat_greater_real,
 
-	greater_real_num,
-	greater_real_int,
-	greater_real_real,
-	greater_real_rat,
+	real_greater_num,
+	real_greater_int,
+	real_greater_real,
+	real_greater_rat,
 
-	greater_str_str,
+	str_greater_str,
 
-	greaterequal_int_int,
-	greaterequal_int_num,
-	greaterequal_int_rat,
-	greaterequal_int_real,
+	int_greaterequal_int,
+	int_greaterequal_num,
+	int_greaterequal_rat,
+	int_greaterequal_real,
 
-	greaterequal_num_int,
-	greaterequal_num_num,
-	greaterequal_num_real,
-	greaterequal_num_rat,
+	num_greaterequal_int,
+	num_greaterequal_num,
+	num_greaterequal_real,
+	num_greaterequal_rat,
 
-	greaterequal_rat_int,
-	greaterequal_rat_num,
-	greaterequal_rat_rat,
-	greaterequal_rat_real,
+	rat_greaterequal_int,
+	rat_greaterequal_num,
+	rat_greaterequal_rat,
+	rat_greaterequal_real,
 
-	greaterequal_real_num,
-	greaterequal_real_int,
-	greaterequal_real_real,
-	greaterequal_real_rat,
+	real_greaterequal_num,
+	real_greaterequal_int,
+	real_greaterequal_real,
+	real_greaterequal_rat,
 
-	greaterequal_str_str,
+	str_greaterequal_str,
 
 	has,
 	implies_bool_bool,
-	intersection_set_set,
-	intersection_list_list,
-	intersection_map_map,
-	in_elm_list,
-	in_elm_set,
-	in_elm_map,
+	set_intersect_set,
+	list_intersect_list,
+	map_intersect_map,
+	elm_in_list,
+	elm_in_set,
+	elm_in_map,
 	
 	is,
 	
@@ -192,49 +189,49 @@ public enum RascalPrimitive {
 	is_str,
 	is_tuple,
 
-	less_int_int,
-	less_int_num,
-	less_int_rat,
-	less_int_real,
+	int_less_int,
+	int_less_num,
+	int_less_rat,
+	int_less_real,
 
-	less_num_int,
-	less_num_num,
-	less_num_real,
-	less_num_rat,
+	num_less_int,
+	num_less_num,
+	num_less_real,
+	num_less_rat,
 
-	less_rat_int,
-	less_rat_num,
-	less_rat_rat,
-	less_rat_real,
+	rat_less_int,
+	rat_less_num,
+	rat_less_rat,
+	rat_less_real,
 
-	less_real_num,
-	less_real_int,
-	less_real_real,
-	less_real_rat,
+	real_less_num,
+	real_less_int,
+	real_less_real,
+	real_less_rat,
 
-	less_str_str,
+	str_less_str,
 
-	lessequal_int_int,
-	lessequal_int_num,
-	lessequal_int_rat,
-	lessequal_int_real,
+	int_lessequal_int,
+	int_lessequal_num,
+	int_lessequal_rat,
+	int_lessequal_real,
 
-	lessequal_num_int,
-	lessequal_num_num,
-	lessequal_num_real,
-	lessequal_num_rat,
+	num_lessequal_int,
+	num_lessequal_num,
+	num_lessequal_real,
+	num_lessequal_rat,
 
-	lessequal_rat_int,
-	lessequal_rat_num,
-	lessequal_rat_rat,
-	lessequal_rat_real,
+	rat_lessequal_int,
+	rat_lessequal_num,
+	rat_lessequal_rat,
+	rat_lessequal_real,
 
-	lessequal_real_num,
-	lessequal_real_int,
-	lessequal_real_real,
-	lessequal_real_rat,
+	real_lessequal_num,
+	real_lessequal_int,
+	real_lessequal_real,
+	real_lessequal_rat,
 
-	lessequal_str_str,
+	str_lessequal_str,
 	
 	list_size,
 	list_create,
@@ -266,33 +263,33 @@ public enum RascalPrimitive {
 	
 	not_bool,
 	notequal,
-	notin_elm_list,
-	notin_elm_set,
-	notin_elm_map,
+	elm_notin_list,
+	elm_notin_set,
+	elm_notin_map,
 	or_bool_bool,
 	println,
 
-	product_int_int,
-	product_int_num,
-	product_int_rat,
-	product_int_real,
+	int_product_int,
+	int_product_num,
+	int_product_rat,
+	int_product_real,
 
-	product_num_int,
-	product_num_num,
-	product_num_real,
-	product_num_rat,
+	num_product_int,
+	num_product_num,
+	num_product_real,
+	num_product_rat,
 
-	product_rat_int,
-	product_rat_num,
-	product_rat_rat,
-	product_rat_real,
+	rat_product_int,
+	rat_product_num,
+	rat_product_rat,
+	rat_product_real,
 
-	product_real_num,
-	product_real_int,
-	product_real_real,
-	product_real_rat,
+	real_product_num,
+	real_product_int,
+	real_product_real,
+	real_product_rat,
 
-	remainder_int_int,
+	int_remainder_int,
 	
 	set_create,
 	
@@ -306,38 +303,38 @@ public enum RascalPrimitive {
 
 	sublist,
 
-	subtraction_list_list,
-	subtraction_map_map,
-	subtraction_set_set,
+	list_subtract_list,
+	map_subtract_map,
+	set_subtract_set,
 
-	subtraction_int_int,
-	subtraction_int_num,
-	subtraction_int_rat,
-	subtraction_int_real,
+	int_subtract_int,
+	int_subtract_num,
+	int_subtract_rat,
+	int_subtract_real,
 
-	subtraction_num_int,
-	subtraction_num_num,
-	subtraction_num_real,
-	subtraction_num_rat,
+	num_subtract_int,
+	num_subtract_num,
+	num_subtract_real,
+	num_subtract_rat,
 
-	subtraction_rat_int,
-	subtraction_rat_num,
-	subtraction_rat_rat,
-	subtraction_rat_real,
+	rat_subtract_int,
+	rat_subtract_num,
+	rat_subtract_rat,
+	rat_subtract_real,
 
-	subtraction_real_num,
-	subtraction_real_int,
-	subtraction_real_real,
-	subtraction_real_rat,
+	real_subtract_num,
+	real_subtract_int,
+	real_subtract_real,
+	real_subtract_rat,
 	
 	testreport_add,
 	testreport_close,
 	testreport_open,
 	
-	transitive_closure_lrel,
-	transitive_closure_rel,
-	transitive_reflexive_closure_lrel,
-	transitive_reflexive_closure_rel,
+	lrel_transitive_closure,
+	rel_transitive_closure,
+	lrel_transitive_reflexive_closure,
+	rel_transitive_reflexive_closure,
 	
 	tuple_field_access,
 	tuple_field_project,
@@ -345,7 +342,7 @@ public enum RascalPrimitive {
 	tuple_subscript,
 	tuple_update,
 
-	equal_type_type,
+	type_equal_type,
 	subtype,
 	typeOf
 	;
@@ -476,134 +473,134 @@ public enum RascalPrimitive {
 	 */
 
 	// int
-	public static int addition_int_int(Object[] stack, int sp, int arity) {
+	public static int int_add_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).add((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int addition_int_num(Object[] stack, int sp, int arity) {
+	public static int int_add_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).add((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int addition_int_rat(Object[] stack, int sp, int arity) {
+	public static int int_add_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).add((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int addition_int_real(Object[] stack, int sp, int arity) {
+	public static int int_add_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).add((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// num
-	public static int addition_num_int(Object[] stack, int sp, int arity) {
+	public static int num_add_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).add((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int addition_num_num(Object[] stack, int sp, int arity) {
+	public static int num_add_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).add((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int addition_num_rat(Object[] stack, int sp, int arity) {
+	public static int num_add_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).add((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int addition_num_real(Object[] stack, int sp, int arity) {
+	public static int num_add_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).add((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// rat
-	public static int addition_rat_int(Object[] stack, int sp, int arity) {
+	public static int rat_add_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).add((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int addition_rat_num(Object[] stack, int sp, int arity) {
+	public static int rat_add_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).add((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int addition_rat_rat(Object[] stack, int sp, int arity) {
+	public static int rat_add_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).add((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int addition_rat_real(Object[] stack, int sp, int arity) {
+	public static int rat_add_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).add((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// real
-	public static int addition_real_num(Object[] stack, int sp, int arity) {
+	public static int real_add_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).add((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int addition_real_int(Object[] stack, int sp, int arity) {
+	public static int real_add_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).add((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int addition_real_real(Object[] stack, int sp, int arity) {
+	public static int real_add_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).add((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int addition_real_rat(Object[] stack, int sp, int arity) {
+	public static int real_add_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).add((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
 
 
-	public static int addition_list_list(Object[] stack, int sp, int arity) {
+	public static int list_add_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).concat((IList) stack[sp - 1]);
 		return sp - 1;
 	}
 
-	public static int addition_map_map(Object[] stack, int sp, int arity) {
+	public static int map_add_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).join((IMap) stack[sp - 1]);
 		return sp - 1;
 	}
 
-	public static int addition_list_elm(Object[] stack, int sp, int arity) {
+	public static int list_add_elm(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
 
-	public static int addition_elm_list(Object[] stack, int sp, int arity) {
+	public static int elm_add_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 1]).insert((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 
-	public static int addition_set_elm(Object[] stack, int sp, int arity) {
+	public static int set_add_elm(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 2]).insert((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
 
-	public static int addition_elm_set(Object[] stack, int sp, int arity) {
+	public static int elm_add_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 1]).insert((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 
-	public static int addition_set_set(Object[] stack, int sp, int arity) {
+	public static int set_add_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 2]).union((ISet) stack[sp - 1]);
 		return sp - 1;
 	}
 
-	public static int addition_str_str(Object[] stack, int sp, int arity) {
+	public static int str_add_str(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
 		return sp - 1;
@@ -611,7 +608,7 @@ public enum RascalPrimitive {
 
 	//	public static int addition_loc_str(Object[] stack, int sp) { 	}
 
-	public static int addition_tuple_tuple(Object[] stack, int sp, int arity) {
+	public static int tuple_add_tuple(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ITuple t1 = (ITuple) stack[sp - 2];
 		ITuple t2 = (ITuple) stack[sp - 1];
@@ -648,19 +645,19 @@ public enum RascalPrimitive {
 		}
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static int composition_lrel_lrel(Object[] stack, int sp, int arity) {
+	public static int lrel_compose_lrel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IListRelation) stack[sp - 2]).compose((IListRelation) stack[sp - 1]);
 		return sp - 1;
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static int composition_rel_rel(Object[] stack, int sp, int arity) {
+	public static int rel_compose_rel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRelationalAlgebra) stack[sp - 2]).compose((IRelationalAlgebra) stack[sp - 1]);
 		return sp - 1;
 	}
 
-	public static int composition_map_map(Object[] stack, int sp, int arity) {
+	public static int map_compose_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).compose((IMap) stack[sp - 1]);
 		return sp - 1;
@@ -673,85 +670,85 @@ public enum RascalPrimitive {
 	 */
 
 	// int
-	public static int division_int_int(Object[] stack, int sp, int arity) {
+	public static int int_divide_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int division_int_num(Object[] stack, int sp, int arity) {
+	public static int int_divide_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
 	}
-	public static int division_int_rat(Object[] stack, int sp, int arity) {
+	public static int int_divide_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int division_int_real(Object[] stack, int sp, int arity) {
+	public static int int_divide_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
 	}
 	// num
-	public static int division_num_int(Object[] stack, int sp, int arity) {
+	public static int num_divide_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
 	}
-	public static int division_num_num(Object[] stack, int sp, int arity) {
+	public static int num_divide_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
 	}
-	public static int division_num_rat(Object[] stack, int sp, int arity) {
+	public static int num_divide_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
 	}
-	public static int division_num_real(Object[] stack, int sp, int arity) {
+	public static int num_divide_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
 	}
 	// rat
-	public static int division_rat_int(Object[] stack, int sp, int arity) {
+	public static int rat_divide_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int division_rat_num(Object[] stack, int sp, int arity) {
+	public static int rat_divide_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
 	}
-	public static int division_rat_rat(Object[] stack, int sp, int arity) {
+	public static int rat_divide_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int division_rat_real(Object[] stack, int sp, int arity) {
+	public static int rat_divide_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
 	}
 	// real
-	public static int division_real_num(Object[] stack, int sp, int arity) {
+	public static int real_divide_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
 	}
-	public static int division_real_int(Object[] stack, int sp, int arity) {
+	public static int real_divide_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
 	}
-	public static int division_real_real(Object[] stack, int sp, int arity) {
+	public static int real_divide_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
 	}
-	public static int division_real_rat(Object[] stack, int sp, int arity) {
+	public static int real_divide_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
@@ -794,7 +791,7 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	public static int equal_type_type(Object[] stack, int sp, int arity) {
+	public static int type_equal_type(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = vf.bool(((Type) stack[sp - 2]) == ((Type) stack[sp - 1]));
 		return sp - 1;
@@ -1044,92 +1041,92 @@ public enum RascalPrimitive {
 
 
 	// int
-	public static int greater_int_int(Object[] stack, int sp, int arity) {
+	public static int int_greater_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greater_int_num(Object[] stack, int sp, int arity) {
+	public static int int_greater_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greater_int_rat(Object[] stack, int sp, int arity) {
+	public static int int_greater_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greater_int_real(Object[] stack, int sp, int arity) {
+	public static int int_greater_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// num
-	public static int greater_num_int(Object[] stack, int sp, int arity) {
+	public static int num_greater_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greater_num_num(Object[] stack, int sp, int arity) {
+	public static int num_greater_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greater_num_rat(Object[] stack, int sp, int arity) {
+	public static int num_greater_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greater_num_real(Object[] stack, int sp, int arity) {
+	public static int num_greater_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// rat
-	public static int greater_rat_int(Object[] stack, int sp, int arity) {
+	public static int rat_greater_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greater_rat_num(Object[] stack, int sp, int arity) {
+	public static int rat_greater_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).greater((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greater_rat_rat(Object[] stack, int sp, int arity) {
+	public static int rat_greater_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greater_rat_real(Object[] stack, int sp, int arity) {
+	public static int rat_greater_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// real
-	public static int greater_real_num(Object[] stack, int sp, int arity) {
+	public static int real_greater_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).greater((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greater_real_int(Object[] stack, int sp, int arity) {
+	public static int real_greater_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greater_real_real(Object[] stack, int sp, int arity) {
+	public static int real_greater_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greater_real_rat(Object[] stack, int sp, int arity) {
+	public static int real_greater_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
 
 	// greater on other types
-	public static int greater_str_str(Object[] stack, int sp, int arity) {
+	public static int str_greater_str(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]) == 1;
 		return sp - 1;
@@ -1140,92 +1137,92 @@ public enum RascalPrimitive {
 	 */
 
 	// int
-	public static int greaterequal_int_int(Object[] stack, int sp, int arity) {
+	public static int int_greaterequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greaterequal_int_num(Object[] stack, int sp, int arity) {
+	public static int int_greaterequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greaterequal_int_rat(Object[] stack, int sp, int arity) {
+	public static int int_greaterequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greaterequal_int_real(Object[] stack, int sp, int arity) {
+	public static int int_greaterequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// num
-	public static int greaterequal_num_int(Object[] stack, int sp, int arity) {
+	public static int num_greaterequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greaterequal_num_num(Object[] stack, int sp, int arity) {
+	public static int num_greaterequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greaterequal_num_rat(Object[] stack, int sp, int arity) {
+	public static int num_greaterequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greaterequal_num_real(Object[] stack, int sp, int arity) {
+	public static int num_greaterequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// rat
-	public static int greaterequal_rat_int(Object[] stack, int sp, int arity) {
+	public static int rat_greaterequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greaterequal_rat_num(Object[] stack, int sp, int arity) {
+	public static int rat_greaterequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greaterequal_rat_rat(Object[] stack, int sp, int arity) {
+	public static int rat_greaterequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greaterequal_rat_real(Object[] stack, int sp, int arity) {
+	public static int rat_greaterequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// real
-	public static int greaterequal_real_num(Object[] stack, int sp, int arity) {
+	public static int real_greaterequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greaterequal_real_int(Object[] stack, int sp, int arity) {
+	public static int real_greaterequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greaterequal_real_real(Object[] stack, int sp, int arity) {
+	public static int real_greaterequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int greaterequal_real_rat(Object[] stack, int sp, int arity) {
+	public static int real_greaterequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
 
 	// greaterequal on other types
-	public static int greaterequal_str_str(Object[] stack, int sp, int arity) {
+	public static int str_greaterequal_str(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
 		stack[sp - 2] = c == 0 || c == 1;
@@ -1260,22 +1257,22 @@ public enum RascalPrimitive {
 	}
 
 	/*
-	 * intersection
+	 * intersect
 	 */
 
-	public static int intersection_list_list(Object[] stack, int sp, int arity) {
+	public static int list_intersect_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).intersect((IList) stack[sp - 1]);
 		return sp - 1;
 	}
 
-	public static int intersection_set_set(Object[] stack, int sp, int arity) {
+	public static int set_intersect_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 2]).intersect((ISet) stack[sp - 1]);
 		return sp - 1;
 	}
 
-	public static int intersection_map_map(Object[] stack, int sp, int arity) {
+	public static int map_intersect_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).common((IMap) stack[sp - 1]);
 		return sp - 1;
@@ -1285,19 +1282,19 @@ public enum RascalPrimitive {
 	 * in
 	 */
 
-	public static int in_elm_list(Object[] stack, int sp, int arity) {
+	public static int elm_in_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 
-	public static int in_elm_set(Object[] stack, int sp, int arity) {
+	public static int elm_in_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 
-	public static int in_elm_map(Object[] stack, int sp, int arity) {
+	public static int elm_in_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]);
 		return sp - 1;
@@ -1419,9 +1416,9 @@ public enum RascalPrimitive {
 	 * insertBefore
 	 */
 	/*
-	 * intersection
+	 * intersect
 	 * 
-	 * infix Intersection "&" {
+	 * infix intersect "&" {
 	 *		list[&L] x list[&R]                  -> list[LUB(&L,&R)],
 	 *		set[&L] x set[&R]                    -> set[LUB(&L,&R)],
 	 * 		map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
@@ -1444,91 +1441,91 @@ public enum RascalPrimitive {
 	 */
 
 	// int
-	public static int less_int_int(Object[] stack, int sp, int arity) {
+	public static int int_less_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int less_int_num(Object[] stack, int sp, int arity) {
+	public static int int_less_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).less((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int less_int_rat(Object[] stack, int sp, int arity) {
+	public static int int_less_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int less_int_real(Object[] stack, int sp, int arity) {
+	public static int int_less_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// num
-	public static int less_num_int(Object[] stack, int sp, int arity) {
+	public static int num_less_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).less((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int less_num_num(Object[] stack, int sp, int arity) {
+	public static int num_less_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).less((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int less_num_rat(Object[] stack, int sp, int arity) {
+	public static int num_less_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).less((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int less_num_real(Object[] stack, int sp, int arity) {
+	public static int num_less_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).less((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// rat
-	public static int less_rat_int(Object[] stack, int sp, int arity) {
+	public static int rat_less_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).less((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int less_rat_num(Object[] stack, int sp, int arity) {
+	public static int rat_less_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).less((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int less_rat_rat(Object[] stack, int sp, int arity) {
+	public static int rat_less_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).less((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int less_rat_real(Object[] stack, int sp, int arity) {
+	public static int rat_less_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).less((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// real
-	public static int less_real_num(Object[] stack, int sp, int arity) {
+	public static int real_less_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).less((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int less_real_int(Object[] stack, int sp, int arity) {
+	public static int real_less_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).less((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int less_real_real(Object[] stack, int sp, int arity) {
+	public static int real_less_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).less((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int less_real_rat(Object[] stack, int sp, int arity) {
+	public static int real_less_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).less((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
 	// less on other types
-	public static int less_str_str(Object[] stack, int sp, int arity) {
+	public static int str_less_str(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
 		stack[sp - 2] = c == -1;
@@ -1542,92 +1539,92 @@ public enum RascalPrimitive {
 	 */
 
 	// int
-	public static int lessequal_int_int(Object[] stack, int sp, int arity) {
+	public static int int_lessequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int lessequal_int_num(Object[] stack, int sp, int arity) {
+	public static int int_lessequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int lessequal_int_rat(Object[] stack, int sp, int arity) {
+	public static int int_lessequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int lessequal_int_real(Object[] stack, int sp, int arity) {
+	public static int int_lessequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// num
-	public static int lessequal_num_int(Object[] stack, int sp, int arity) {
+	public static int num_lessequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int lessequal_num_num(Object[] stack, int sp, int arity) {
+	public static int num_lessequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int lessequal_num_rat(Object[] stack, int sp, int arity) {
+	public static int num_lessequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int lessequal_num_real(Object[] stack, int sp, int arity) {
+	public static int num_lessequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// rat
-	public static int lessequal_rat_int(Object[] stack, int sp, int arity) {
+	public static int rat_lessequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int lessequal_rat_num(Object[] stack, int sp, int arity) {
+	public static int rat_lessequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int lessequal_rat_rat(Object[] stack, int sp, int arity) {
+	public static int rat_lessequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int lessequal_rat_real(Object[] stack, int sp, int arity) {
+	public static int rat_lessequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// real
-	public static int lessequal_real_num(Object[] stack, int sp, int arity) {
+	public static int real_lessequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int lessequal_real_int(Object[] stack, int sp, int arity) {
+	public static int real_lessequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int lessequal_real_real(Object[] stack, int sp, int arity) {
+	public static int real_lessequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int lessequal_real_rat(Object[] stack, int sp, int arity) {
+	public static int real_lessequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
 
 	// lessequal on other types
-	public static int lessequal_str_str(Object[] stack, int sp, int arity) {
+	public static int str_lessequal_str(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
 		stack[sp - 2] = c == -1 || c == 0;
@@ -1724,19 +1721,19 @@ public enum RascalPrimitive {
 	 * notin
 	 *
 	 */
-	public static int notin_elm_list(Object[] stack, int sp, int arity) {
+	public static int elm_notin_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = !((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 
-	public static int notin_elm_set(Object[] stack, int sp, int arity) {
+	public static int elm_notin_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = !((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 
-	public static int notin_elm_map(Object[] stack, int sp, int arity) {
+	public static int elm_notin_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = !((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]);
 		return sp - 1;
@@ -1993,85 +1990,85 @@ public enum RascalPrimitive {
 	 */
 
 	// int
-	public static int product_int_int(Object[] stack, int sp, int arity) {
+	public static int int_product_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int product_int_num(Object[] stack, int sp, int arity) {
+	public static int int_product_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int product_int_rat(Object[] stack, int sp, int arity) {
+	public static int int_product_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int product_int_real(Object[] stack, int sp, int arity) {
+	public static int int_product_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// num
-	public static int product_num_int(Object[] stack, int sp, int arity) {
+	public static int num_product_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int product_num_num(Object[] stack, int sp, int arity) {
+	public static int num_product_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int product_num_rat(Object[] stack, int sp, int arity) {
+	public static int num_product_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int product_num_real(Object[] stack, int sp, int arity) {
+	public static int num_product_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// rat
-	public static int product_rat_int(Object[] stack, int sp, int arity) {
+	public static int rat_product_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int product_rat_num(Object[] stack, int sp, int arity) {
+	public static int rat_product_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int product_rat_rat(Object[] stack, int sp, int arity) {
+	public static int rat_product_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int product_rat_real(Object[] stack, int sp, int arity) {
+	public static int rat_product_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// real
-	public static int product_real_num(Object[] stack, int sp, int arity) {
+	public static int real_product_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int product_real_int(Object[] stack, int sp, int arity) {
+	public static int real_product_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int product_real_real(Object[] stack, int sp, int arity) {
+	public static int real_product_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int product_real_rat(Object[] stack, int sp, int arity) {
+	public static int real_product_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
 		return sp - 1;
@@ -2082,7 +2079,7 @@ public enum RascalPrimitive {
 	 * remainder
 	 */
 
-	public static int remainder_int_int(Object[] stack, int sp, int arity) {
+	public static int int_remainder_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).remainder((IInteger) stack[sp - 1]);
 		return sp - 1;
@@ -2267,104 +2264,104 @@ public enum RascalPrimitive {
 
 	// Numbers
 	// int
-	public static int subtraction_int_int(Object[] stack, int sp, int arity) {
+	public static int int_subtract_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int subtraction_int_num(Object[] stack, int sp, int arity) {
+	public static int int_subtract_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int subtraction_int_rat(Object[] stack, int sp, int arity) {
+	public static int int_subtract_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int subtraction_int_real(Object[] stack, int sp, int arity) {
+	public static int int_subtract_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// num
-	public static int subtraction_num_int(Object[] stack, int sp, int arity) {
+	public static int num_subtract_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int subtraction_num_num(Object[] stack, int sp, int arity) {
+	public static int num_subtract_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int subtraction_num_rat(Object[] stack, int sp, int arity) {
+	public static int num_subtract_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int subtraction_num_real(Object[] stack, int sp, int arity) {
+	public static int num_subtract_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// rat
-	public static int subtraction_rat_int(Object[] stack, int sp, int arity) {
+	public static int rat_subtract_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int subtraction_rat_num(Object[] stack, int sp, int arity) {
+	public static int rat_subtract_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int subtraction_rat_rat(Object[] stack, int sp, int arity) {
+	public static int rat_subtract_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int subtraction_rat_real(Object[] stack, int sp, int arity) {
+	public static int rat_subtract_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
 	// real
-	public static int subtraction_real_num(Object[] stack, int sp, int arity) {
+	public static int real_subtract_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int subtraction_real_int(Object[] stack, int sp, int arity) {
+	public static int real_subtract_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int subtraction_real_real(Object[] stack, int sp, int arity) {
+	public static int real_subtract_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
 		return sp - 1;
 	}
-	public static int subtraction_real_rat(Object[] stack, int sp, int arity) {
+	public static int real_subtract_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
 
 
-	public static int subtraction_list_list(Object[] stack, int sp, int arity) {
+	public static int list_subtract_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
 		return sp - 1;
 	}
 
-	public static int subtraction_set_set(Object[] stack, int sp, int arity) {
+	public static int set_subtract_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 2]).subtract((ISet) stack[sp - 1]);
 		return sp - 1;
 	}
 
-	public static int subtraction_map_map(Object[] stack, int sp, int arity) {
+	public static int map_subtract_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).remove((IMap) stack[sp - 1]);
 		return sp - 1;
@@ -2391,14 +2388,14 @@ public enum RascalPrimitive {
 	 */
 
 	@SuppressWarnings("rawtypes")
-	public static int transitive_closure_lrel(Object[] stack, int sp, int arity) {
+	public static int lrel_transitive_closure(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((IListRelation) stack[sp - 1]).closure();
 		return sp;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static int transitive_closure_rel(Object[] stack, int sp, int arity) {
+	public static int rel_transitive_closure(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((IRelationalAlgebra) stack[sp - 1]).closure();
 		return sp;
@@ -2408,14 +2405,14 @@ public enum RascalPrimitive {
 	 * transitiveReflexiveClosure
 	 */
 	@SuppressWarnings("rawtypes")
-	public static int transitive_reflexive_closure_lrel(Object[] stack, int sp, int arity) {
+	public static int lrel_transitive_reflexive_closure(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((IListRelation) stack[sp - 1]).closureStar();
 		return sp;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static int transitive_reflexive_closure_rel(Object[] stack, int sp, int arity) {
+	public static int rel_transitive_reflexive_closure(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] =((IRelationalAlgebra) stack[sp - 1]).closureStar();
 		return sp;
