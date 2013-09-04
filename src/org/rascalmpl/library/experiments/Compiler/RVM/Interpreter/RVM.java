@@ -185,16 +185,30 @@ public class RVM {
 	}
 	
 	public IValue executeFunction(String uid_func, IValue[] args){
-		return executeProgram(uid_func, "", args);
+		Function func = functionStore.get(functionMap.get(uid_func));
+		Frame root = new Frame(func.getScopeId(), null, func.maxstack, func);
+		Object[] stack = root.stack;
+		
+		// Pass the program argument to main
+		for(int i = 0; i < args.length; i++){
+			stack[i] = args[i]; 
+		}
+		return executeProgram(root);
+	}
+	
+	// Execute a function instance, i.e., in its environment
+	public IValue executeFunction(FunctionInstance func, IValue[] args){
+		Frame root = new Frame(func.function.getScopeId(), null, func.env, func.function.maxstack, func.function);
+		Object[] stack = root.stack;
+		
+		// Pass the program argument to main
+		for(int i = 0; i < args.length; i++){
+			stack[i] = args[i]; 
+		}
+		return executeProgram(root);
 	}
 	
 	public IValue executeProgram(String uid_main, String uid_module_init, IValue[] args) {
-		Frame cf;			// current stack frame
-		Frame root;			// root stack frame
-		Object[] stack;		// current stack
-		int sp;				// current stacp pointer
-		int[] instructions;	// current instruction sequence
-		int pc;				// current program counter
 		
 		finalize();
 		
@@ -204,59 +218,37 @@ public class RVM {
 			throw new RuntimeException("PANIC: No function " + uid_main + " found");
 		}
 		
-		if(uid_module_init.length() > 0){
-			// There is a non-empty init function, start a main(listvalue] args) of a RVM module.
-			// Check "main" function has one argument
-
-			if (main_function.nformals != 1) {
-				throw new RuntimeException("PANIC: function " + uid_main + " should have one argument");
-			}
-			
-			// Search for module initialization
-
-			Function init_function = functionStore.get(functionMap.get(uid_module_init));
-
-			if (init_function == null) {
-				throw new RuntimeException("PANIC: Code for " + uid_module_init + " not found");
-			}
-
-			if (init_function.nformals != 1) {
-				throw new RuntimeException("PANIC: " + "function " + uid_module_init + " should have one argument");
-			}
-
-			// Perform a call to #module_init" at scope level = 0
-
-			cf = new Frame(init_function.getScopeId(), null, init_function.maxstack, init_function);
-			root = cf; // we need the notion of the root frame, which represents the root environment
-			stack = cf.stack;
-
-			stack[0] = args; // pass the program argument to #module_init
-
-			instructions = init_function.codeblock.getInstructions();
-			pc = 0;
-			sp = init_function.nlocals;
-		} else {
-			// We are calling a single function "main".
-			
-			// Check that the number of formals is equal to the number of actualks
-			
-			if (main_function.nformals != args.length) {
-				throw new RuntimeException("PANIC: function " + uid_main + " should have " + main_function.nformals + " arguments");
-			}
-			
-			cf = new Frame(main_function.getScopeId(), null, main_function.maxstack, main_function);
-			root = cf; // we need the notion of the root frame, which represents the root environment
-			stack = cf.stack;
-			
-			// Pass the program argument to main
-			for(int i = 0; i < args.length; i++){
-				stack[i] = args[i]; 
-			}
-
-			instructions = main_function.codeblock.getInstructions();
-			pc = 0;
-			sp = main_function.nlocals;
+		if (main_function.nformals != 1) {
+			throw new RuntimeException("PANIC: function " + uid_main + " should have one argument");
 		}
+			
+		// Search for module initialization
+
+		Function init_function = functionStore.get(functionMap.get(uid_module_init));
+
+		if (init_function == null) {
+			throw new RuntimeException("PANIC: Code for " + uid_module_init + " not found");
+		}
+
+		if (init_function.nformals != 1) {
+			throw new RuntimeException("PANIC: " + "function " + uid_module_init + " should have one argument");
+		}
+
+		// Perform a call to #module_init" at scope level = 0
+
+		// We need the notion of the root frame, which represents the root environment
+		Frame root = new Frame(init_function.getScopeId(), null, init_function.maxstack, init_function);
+		root.stack[0] = args; // pass the program argument to #module_init 
+
+		return executeProgram(root);
+	}
+	
+	public IValue executeProgram(Frame root /* root stack frame */) {
+		Frame cf = root;			                                  // current stack frame
+		Object[] stack = cf.stack;		                              // current stack
+		int sp = cf.function.nlocals;				                  // current stacp pointer
+		int[] instructions = cf.function.codeblock.getInstructions(); // current instruction sequence
+		int pc = 0;				                                      // current program counter
 		
 		Stack<Coroutine> activeCoroutines = new Stack<>();
 		Frame ccf = null; // the start frame (i.e., the frame of the coroutine's main function) of the current active coroutine
@@ -264,7 +256,7 @@ public class RVM {
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				if(pc < 0 || pc >= instructions.length){
-					throw new RuntimeException(uid_main + " illegal pc: " + pc);
+					throw new RuntimeException(cf.function.name + " illegal pc: " + pc);
 				}
 				int op = instructions[pc++];
 
@@ -432,7 +424,7 @@ public class RVM {
 					constructor = constructorStore.get(instructions[pc++]);
 					int arity = instructions[pc++];
 					assert arity == constructor.getArity();
-					args = new IValue[arity]; 
+					IValue[] args = new IValue[arity]; 
 					for(int i = 0; i < arity; i++) {
 						args[arity - 1 - i] = (IValue) stack[--sp];
 					}
@@ -979,5 +971,5 @@ public class RVM {
 		}
 		return Rascal_FALSE;
 	}
-	
+		
 }
