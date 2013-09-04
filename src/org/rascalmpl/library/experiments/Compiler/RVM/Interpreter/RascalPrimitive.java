@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -27,8 +28,14 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.cobra.Cobra;
+import org.rascalmpl.library.cobra.TypeParameterVisitor;
+import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
 
 /*
  * The primitives that can be called via the CALLPRIM instruction.
@@ -1842,11 +1849,15 @@ public enum RascalPrimitive {
 	 */
 	static int number_of_tests = 0;
 	static int number_of_failures = 0;
+	static TypeReifier typeReifier;
+	static final int MAXDEPTH = 5;
+	static final int TRIES = 3;
 	
 	public static int testreport_open(Object[] stack, int sp, int arity) {
 		assert arity == 0;
 		number_of_tests = 0;
 		number_of_failures = 0;
+		typeReifier = new TypeReifier(vf);
 		stdout.println("\nTEST REPORT\n");
 		stack[sp] = null;
 		return sp + 1;
@@ -1862,24 +1873,44 @@ public enum RascalPrimitive {
 	}
 	
 	public static int testreport_add(Object[] stack, int sp, int arity) {
-		assert arity >= 2; 
+		assert arity == 3; 
 		
-		String fun = ((IString) stack[sp - arity]).getValue();
-		ISourceLocation src = ((ISourceLocation) stack[sp - arity + 1]);
+		String fun = ((IString) stack[sp - 3]).getValue();
+		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
+		IConstructor type_cons = ((IConstructor) stack[sp - 1]);
+		Type argType = typeReifier.valueToType(type_cons);
+		IMap definitions = (IMap) type_cons.get("definitions");
 		
-		IValue[] args = new IValue[arity - 2];
-		for(int i = 0; i < args.length; i++){
-			Type tp = ((Type) stack[sp - arity + 2 + i]);
-			if(tp.isInteger()){
-				args[i] = vf.integer(5);
+		TypeStore store = new TypeStore();
+		typeReifier.declareAbstractDataTypes(definitions, store);
+		
+		int nargs = argType.getArity();
+		IValue[] args = new IValue[nargs];
+		
+		TypeParameterVisitor tpvisit = new TypeParameterVisitor();
+		Type requestedType = tf.tupleType(argType);
+		HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
+		RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, store);
+		
+		int tries = nargs == 0 ? 1 : TRIES;
+		boolean passed = true;
+		for(int i = 0; i < tries; i++){
+			if(nargs > 0){
+				ITuple tup = (ITuple) randomValue.generate(argType);
+				for(int j = 0; j < args.length; j++){
+					args[j] = tup.get(j);
+					//stdout.println("args[" + j + "] = " + args[j]);
+				}
+			}
+			IValue res = rvm.executeFunction(fun, args);  // TODO: catch exceptions
+			passed = ((IBool) res).getValue();
+			if(!passed){
+				number_of_failures++;
+				break;
 			}
 		}
-		IValue res = rvm.executeFunction(fun, args);
-		boolean passed = ((IBool) res).getValue();
+		
 		number_of_tests++;
-		if(!passed){
-			number_of_failures++;
-		}
 		stdout.println("Test " + fun + (passed ? ": succeeded" : ": FAILED") + " at " + src);
 		return sp - 2;
 	}

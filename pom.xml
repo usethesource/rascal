@@ -20,13 +20,21 @@
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
-			<resource>
-				<directory>src</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-					<exclude>**/*.class</exclude>
-				</excludes>
-			</resource>			
+		  <resource>
+		    <directory>src</directory>
+		    <excludes>
+		      <exclude>**/*.java</exclude>
+		      <exclude>**/*.class</exclude>
+		    </excludes>
+		  </resource>			
+		  <resource>
+		    <directory>.</directory>
+		    <filtering>false</filtering>
+		    <includes>
+		      <include>plugin.xml</include>
+		      <include>META-INF/RASCAL.MF</include>
+		    </includes>
+		  </resource>
 		</resources>
 		<testSourceDirectory>test</testSourceDirectory>
 		<testResources>

@@ -130,7 +130,7 @@ list[MuExp] translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )
 list[MuExp] translate (e:(Expression) `it`) = [ muTmp(topIt()) ];
  
  // Qualifid name
-list[MuExp] translate((QualifiedName) `<QualifiedName v>`) = [ mkVar("<v>", v@\loc) ];
+list[MuExp] translate(q:(QualifiedName) `<QualifiedName v>`) = [ mkVar("<v>", v@\loc) ];
 
 list[MuExp] translate((Expression) `<QualifiedName v>`) = translate(v);
 
