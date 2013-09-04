@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Examples;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
@@ -14,7 +15,7 @@ public class CountDown_b {
 		
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory vf = rvm.vf;
-		
+		TypeFactory tf = TypeFactory.getInstance();
 		/*
 		 * g (n) 
 		 * { 
@@ -26,7 +27,7 @@ public class CountDown_b {
 		 * }
 		 */
 		
-		rvm.declare(new Function("g", 1, 1, 6,
+		rvm.declare(new Function("g", tf.valueType(), 1, 1, 6,
 					new CodeBlock(vf)
 							.LABEL("LOOP")
 							.LOADLOC(0)
@@ -54,7 +55,7 @@ public class CountDown_b {
 		 * }
 		 */
 		
-		rvm.declare(new Function("h", 0, 2, 6, 
+		rvm.declare(new Function("h", tf.valueType(), 0, 2, 6, 
 					new CodeBlock(vf)
 						.LOADCON(9)
 						.LOADCON(1)
@@ -84,7 +85,7 @@ public class CountDown_b {
 		/*
 		 * result: 110
 		 */
-		rvm.declare(new Function("main", 1, 4, 6,
+		rvm.declare(new Function("main", tf.valueType(), 1, 4, 6,
 					new CodeBlock(vf)
 						.CALL("h", 0)
 						.STORELOC(1)
@@ -115,7 +116,7 @@ public class CountDown_b {
 						
 						.JMP("LOOP")));
 	
-		rvm.declare(new Function("#module_init", 0, 1, 6, 
+		rvm.declare(new Function("#module_init", tf.valueType(), 1, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main", 1)
