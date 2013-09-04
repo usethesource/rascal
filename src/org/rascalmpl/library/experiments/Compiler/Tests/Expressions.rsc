@@ -236,6 +236,6 @@ test bool tst() = run("{rel[int a, str b, int c] x= {\<1, \"x\", 2\>}; x has a;}
 test bool tst() = run("{x = d1(3, \"a\"); x has n;}")  == {x = d1(3, "a"); x has n;};
 
 // is
-
-
+test bool tst() = run("d1(3, \"a\") is d1")  == d1(3, "a") is d1;
+test bool tst() = run("\"abc\"(1,2,3,4,5,6,7,8,9) is abc") == "abc"(1,2,3,4,5,6,7,8,9) is abc;
 

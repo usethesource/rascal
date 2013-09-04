@@ -170,6 +170,9 @@ public enum RascalPrimitive {
 	in_elm_list,
 	in_elm_set,
 	in_elm_map,
+	
+	is,
+	
 	is_bool,
 	is_datetime,
 	is_int,
@@ -1283,6 +1286,26 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
+	/*
+	 * is
+	 * 
+	 */
+	
+	public static int is(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IValue val  = (IValue) stack[sp - 2];
+		Type tp = val.getType();
+		String name = ((IString) stack[sp - 1]).getValue();
+		if(tp.isAbstractData()){
+			stack[sp - 2] = ((IConstructor)val).getConstructorType().getName().equals(name);
+		} else if(tp.isNode()){
+			stack[sp - 2] = ((INode) val).getName().equals(name);
+		} else {
+			stack[sp - 2] = false;
+		}
+		return sp - 1;
+	}
+	
 	/*
 	 * is_*: check the type of an IValue
 	 */
