@@ -11,9 +11,10 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
+list[MuExp] translate((Statement) `<Statement* statements>`) = [ *translate(stat) | stat <- statements ];
 
 /*********************************************************************/
-/*                  Statements                                       */
+/*                  Statement                                       */
 /*********************************************************************/
 	
 list[MuExp] translate(s: (Statement) `assert <Expression expression> ;`) { throw("assert"); }
@@ -25,11 +26,11 @@ list[MuExp] translate(s: (Statement) `<Expression expression> ;`) = translate(ex
 list[MuExp] translate(s: (Statement) `<Label label> <Visit \visit>`) { throw("visit"); }
 
 list[MuExp] translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`) {
-    loopname = getLabel(label);
-    tmp = asTmp(loopname);
-    enterLoop(loopname);
+    whilename = getLabel(label);
+    tmp = asTmp(whilename);
+    enterLoop(whilename);
     code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])), 
-             muWhile(loopname, muOne([*translate(c) | c <-conditions]), translate(body)),
+             muWhile(whilename, muOne([*translate(c) | c <-conditions]), translate(body)),
              muCallPrim("listwriter_close", [muTmp(tmp)])
            ];
     leaveLoop();
@@ -39,19 +40,38 @@ list[MuExp] translate(s: (Statement) `<Label label> while ( <{Expression ","}+ c
 list[MuExp] translate(s: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`) { throw("doWhile"); }
 
 list[MuExp] translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`) {
-    loopname = getLabel(label);
-    tmp = asTmp(loopname);
-    enterLoop(loopname);
-    code = [  muAssignTmp(tmp, muCallPrim("list_create", [])), muWhile(loopname, muAll([*translate(c) | c <-generators]), translate(body)) ];
+    forname = getLabel(label);
+    tmp = asTmp(forname);
+    enterLoop(forname);
+    code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])), 
+             muWhile(forname, muAll([*translate(c) | c <-generators]), translate(body)),
+             muCallPrim("listwriter_close", [muTmp(tmp)])
+           ];
     leaveLoop();
     return code;
 }
 
 list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) =
     [ muIfelse(muOne([*translate(c) | c <-conditions]), translate(thenStatement), []) ];
+    
+list[MuExp] translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
+    ifname = nextLabel();
+    result = asTmp(ifname);
+    enterLoop(ifname);
+    code = [ muAssignTmp(result, muCon("")),
+             muIfelse(muOne([*translate(c) | c <-conditions]), 
+                      [*translate(preStats), muCallPrim("str_add_str", [muTmp(result), *translateMiddle(body)]), *translate(postStats)],
+                      []),
+             muTmp(result)
+           ];
+    leaveLoop();
+    return code;
+}    
 
 list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) =
     [ muIfelse(muOne([*translate(c) | c <-conditions]), translate(thenStatement), translate(elseStatement)) ];
+    
+//list[MuExp] translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) { Statement* preStatsThen StringMiddle thenString Statement* postStatsThen "}" "else" "{" Statement* preStatsElse StringMiddle elseString Statement* postStatsElse "}" 
 
 list[MuExp] translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) { throw("switch"); }
 

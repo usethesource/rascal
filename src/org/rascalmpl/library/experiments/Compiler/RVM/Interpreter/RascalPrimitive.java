@@ -1,8 +1,10 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -300,6 +302,10 @@ public enum RascalPrimitive {
 	
 	str_replace,
 	str_slice,
+	
+	stringwriter_open,
+	stringwriter_add,
+	stringwriter_close,
 
 	sublist,
 
@@ -344,7 +350,8 @@ public enum RascalPrimitive {
 
 	type_equal_type,
 	subtype,
-	typeOf
+	typeOf,
+	value_to_string
 	;
 
 	private static RascalPrimitive[] values = RascalPrimitive.values();
@@ -610,7 +617,7 @@ public enum RascalPrimitive {
 			for(int i = 1; i < arity; i++){
 				res = res.concat((IString) stack[sp - arity + i]);
 			}
-			stack[sp - arity] = arity;
+			stack[sp - arity] = res;
 			return sp - arity + 1;
 		}
 	}
@@ -1804,6 +1811,8 @@ public enum RascalPrimitive {
 		return sp - 3;
 	}
 	
+	
+	
 	public static int node_create(Object[] stack, int sp, int arity) {
 		assert arity >= 1;
 		
@@ -1932,6 +1941,26 @@ public enum RascalPrimitive {
 		return w.done();
 	}
 	
+	/*
+	 * stringwriter_*
+	 */
+	
+	public static int stringwriter_open(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		stack[sp] = vf.string("");
+		return sp + 1;
+	}
+	
+	public static int stringwriter_add(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IString) stack[sp - 2]).concat(((IString) stack[sp - 1]));
+		return sp - 1;
+	}
+	
+	public static int stringwriter_close(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		return sp;
+	}
 	
 	/*
 	 * splice_to_...writer
@@ -2471,6 +2500,12 @@ public enum RascalPrimitive {
 		int n = ((IInteger) stack[sp -2]).intValue();
 		stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
 		return sp - 2;
+	}
+	
+	public static int value_to_string(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = vf.string(((IValue) stack[sp -1]).toString());
+		return sp;
 	}
 
 	/*
