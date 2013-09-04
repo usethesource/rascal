@@ -162,6 +162,7 @@ public enum RascalPrimitive {
 
 	greaterequal_str_str,
 
+	has,
 	implies_bool_bool,
 	intersection_set_set,
 	intersection_list_list,
@@ -240,7 +241,7 @@ public enum RascalPrimitive {
 	listwriter_close,
 	listwriter_open,
 	listwriter_splice,
-
+	
 	loc_field_access,
 	
 	map_create,
@@ -981,6 +982,7 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
+	
 	public static int tuple_field_access(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ITuple) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
@@ -1210,11 +1212,23 @@ public enum RascalPrimitive {
 		stack[sp - 2] = c == 0 || c == 1;
 		return sp - 1;
 	}
-
+	
 	/*
 	 * has
 	 */
-
+	
+	public static int has(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IValue val = ((IValue) stack[sp - 2]);
+		String fieldName = ((IString) stack[sp - 1]).getValue();
+		stdout.println("type = " + val.getType());
+		if(val.getType().isAbstractData()){
+			stack[sp - 2] = ((IConstructor)val).getConstructorType().hasField(fieldName);
+		} else {
+			stack[sp - 2] = val.getType().hasField(fieldName);
+		}
+		return sp - 1;
+	}
 
 	/*
 	 * implies
@@ -1757,6 +1771,8 @@ public enum RascalPrimitive {
 		return sp - arity + 1;
 	}
 	
+
+	
 	public static int node_slice(Object[] stack, int sp, int arity) {
 		assert arity == 4;
 		
@@ -2021,7 +2037,8 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
-
+	
+	
 	/*
 	 * remainder
 	 */
@@ -2190,6 +2207,7 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
+	
 	
 	public static int tuple_subscript(Object[] stack, int sp, int arity) {
 		assert arity == 2;
