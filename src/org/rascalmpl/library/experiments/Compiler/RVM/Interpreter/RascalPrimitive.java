@@ -87,6 +87,9 @@ public enum RascalPrimitive {
 	adt_field_update,
 	adt_subscript,
 	adt_update,
+	
+	anootation_get,
+	annotation_set,
 
 	composition_lrel_lrel,
 	composition_rel_rel,
@@ -968,20 +971,33 @@ public enum RascalPrimitive {
 			v = vf.string(sloc.getLength());
 			break;
 		case "begin":
-			v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), 
-															vf.integer(sloc.getBeginColumn()));
+			v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
 			break;
 		case "end":
-			v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), 
-															vf.integer(sloc.getEndColumn()));
+			v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
 			break;
 
 		default:
-			throw new RuntimeException("Access to non-existing field " + field
-					+ " in location");
-
+			throw new RuntimeException("Access to non-existing field " + field + " in location");
 		}
 		stack[sp - 2] = v;
+		return sp - 1;
+	}
+	
+	public static int annotation_get(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IValue val = (IValue) stack[sp - 2];
+		String label = ((IString) stack[sp - 1]).getValue();
+		stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
+		return sp - 1;
+	}
+	
+	public static int annotation_set(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		IValue val = (IValue) stack[sp - 3];
+		String label = ((IString) stack[sp - 2]).getValue();
+		IValue repl = (IValue) stack[sp - 1];
+		stack[sp - 2] = val.asAnnotatable().setAnnotation(label, repl);
 		return sp - 1;
 	}
 	
