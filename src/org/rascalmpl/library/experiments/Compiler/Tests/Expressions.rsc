@@ -217,7 +217,9 @@ test bool tst() = run("{x = (\"a\" : [0,1,2]); x[\"b\"] = [1000,2000]; x[\"b\"][
 // Projection
 
 test bool tst() = run("\<1,2,3,4\>\<1,3\>") == <1,2,3,4><1,3>;
+// Issue in type checker:
 test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x\<b,1\>;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x<b,1>;};
+// rel_field_project not yet implemented:
 test bool tst() = run("{{\<1, \"x\", 2\>, \<10, \"xx\", 20\>}\<2,1\>;}") == {<1, "x", 2>, <10, "xx", 20>}<2,1>;
 
 // Slicing
@@ -230,6 +232,7 @@ test bool tst() = run("\"abc\"(1,2,3,4,5,6,7,8,9)[2 .. 7]") == "abc"(1,2,3,4,5,6
 test bool tst() = run("\"abc\"(1,2,3,4,5,6,7,8,9)[2, 4 .. 7]") == "abc"(1,2,3,4,5,6,7,8,9)[2, 4 .. 7];
 
 // has
+// Next 3 tests fail since label info not available in tuple value
 test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x has a;}")  == {tuple[int a, str b, int c] x= <1, "x", 2>; x has a;};
 test bool tst() = run("{lrel[int a, str b, int c] x= [\<1, \"x\", 2\>]; x has a;}")  == {lrel[int a, str b, int c] x= [<1, "x", 2>]; x has a;};
 test bool tst() = run("{rel[int a, str b, int c] x= {\<1, \"x\", 2\>}; x has a;}")  == {rel[int a, str b, int c] x= {<1, "x", 2>}; x has a;};

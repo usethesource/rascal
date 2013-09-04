@@ -166,10 +166,12 @@ list[MuExp] translate (e:(Expression) `<Expression expression> \< <{Field ","}+ 
 }
 
 // setAnnotation
-list[MuExp] translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expression \value> ]`) { throw("setAnnotation"); }
+list[MuExp] translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expression \value> ]`) =
+    [ muCallPrim("annotation_set", [*translate(expression), muCon("<name>"), *translate(\value)]) ];
 
 // getAnnotation
-list[MuExp] translate (e:(Expression) `<Expression expression> @ <Name name>`) { throw("getAnnotation"); }
+list[MuExp] translate (e:(Expression) `<Expression expression> @ <Name name>`) =
+    [ muCallPrim("annotation_get", [*translate(expression), muCon("<name>")]) ];
 
 // Is
 list[MuExp] translate (e:(Expression) `<Expression expression> is <Name name>`) =
