@@ -8,6 +8,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 
 public class Function {
 	 final String name;
+	 final Type ftype;
 	 private int scopeId;
 	 final int nformals;
 	 final int nlocals;
@@ -16,8 +17,9 @@ public class Function {
 	 IValue[] constantStore;
 	 Type[] typeConstantStore;
 	
-	public Function(String name, int nformals, int nlocals, int maxstack, CodeBlock codeblock){
+	public Function(String name, Type ftype, int nformals, int nlocals, int maxstack, CodeBlock codeblock){
 		this.name = name;
+		this.ftype = ftype;
 		this.nformals = nformals;
 		this.nlocals = nlocals;
 		this.maxstack = maxstack;

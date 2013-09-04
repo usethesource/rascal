@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Examples;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
@@ -14,15 +15,15 @@ public class Do {
 	public static void main(String[] args) {
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory vf = rvm.vf;
-		
-		rvm.declare(new Function("square", 1, 1, 6, 
+		TypeFactory tf = TypeFactory.getInstance();
+		rvm.declare(new Function("square", tf.valueType(), 1, 1, 6, 
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADLOC(0).
 					CALLPRIM(RascalPrimitive.num_product_num, 2).
 					RETURN1()));
 		
-		rvm.declare(new Function("cube", 1, 1, 6, 
+		rvm.declare(new Function("cube", tf.valueType(), 1, 1, 6, 
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADLOC(0).
@@ -31,21 +32,21 @@ public class Do {
 					CALLPRIM(RascalPrimitive.num_product_num, 2).
 					RETURN1()));
 		
-		rvm.declare(new Function("do", 2, 2, 6, 
+		rvm.declare(new Function("do", tf.valueType(), 2, 2, 6, 
 				new CodeBlock(vf).
 					LOADLOC(1).
 					LOADLOC(0).
 					CALLDYN(1).
 					RETURN1()));
 		
-		rvm.declare(new Function("main", 1, 1, 7,
+		rvm.declare(new Function("main", tf.valueType(), 1, 1, 7,
 				new CodeBlock(vf).
 					LOADFUN("cube").
 					LOADCON(4).
 					CALL("do", 2).
 					HALT()));
 		
-		rvm.declare(new Function("#module_init", 0, 1, 6, 
+		rvm.declare(new Function("#module_init", tf.valueType(), 1, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main",1)
