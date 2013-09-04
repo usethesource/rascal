@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Examples;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
@@ -14,8 +15,8 @@ public class Fac {
 	public static void main(String[] args) {
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory vf = rvm.vf;
-		
-		rvm.declare(new Function("fac", 1, 1, 6, 
+		TypeFactory tf = TypeFactory.getInstance();
+		rvm.declare(new Function("fac", tf.valueType(), 1, 1, 6, 
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADCON(1).
@@ -32,13 +33,13 @@ public class Fac {
 					CALLPRIM(RascalPrimitive.num_product_num, 2).
 					RETURN1()));
 		
-		rvm.declare(new Function("main", 1, 1, 7,
+		rvm.declare(new Function("main", tf.valueType(), 1, 1, 7,
 				new CodeBlock(vf).
 					LOADCON(4).
 					CALL("fac", 1).
 					HALT()));
 		
-		rvm.declare(new Function("main_repeat", 0, 2, 20,
+		rvm.declare(new Function("main_repeat", tf.valueType(), 0, 2, 20,
 				new CodeBlock(vf).
 					LOADCON(10).
 					STORELOC(0). // n
@@ -63,7 +64,7 @@ public class Fac {
 					POP().
 					JMP("L")));
 		
-		rvm.declare(new Function("#module_init", 0, 1, 6, 
+		rvm.declare(new Function("#module_init", tf.valueType(), 1, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main", 1)
