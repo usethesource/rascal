@@ -1,7 +1,8 @@
 module analysis::m3::Core
 
 import Message;
-
+import analysis::m3::TypeSymbol;
+ 
 data Modifiers;
 data M3 = m3(str projectName);
              
@@ -12,3 +13,4 @@ anno list[Message messages] M3@messages;     // error messages and warnings prod
 anno rel[str simpleName, loc qualifiedName] M3@names;      // convenience mapping from logical names to end-user readable (GUI) names, and vice versa
 anno rel[loc definition, loc comments] M3@documentation;   // comments and javadoc attached to declared things
 anno rel[loc definition, Modifiers modifier] M3@modifiers; // modifiers associated with declared things
+anno rel[loc name, TypeSymbol typ] M3@types;                     // assigns types to resolved source code artifacts
