@@ -235,7 +235,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		ClassResourceInputOutput benchmarkdata = new ClassResourceInputOutput(resolverRegistry, "benchmarks", getClass(), "/org/rascalmpl/benchmark");
 		resolverRegistry.registerInput(benchmarkdata);
 		
-		resolverRegistry.registerInput(new JarURIResolver(getClass()));
+		resolverRegistry.registerInput(new JarURIResolver());
 
 		resolverRegistry.registerInputOutput(rascalPathResolver);
 

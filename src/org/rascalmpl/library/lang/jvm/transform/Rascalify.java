@@ -14,6 +14,7 @@ package org.rascalmpl.library.lang.jvm.transform;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,9 +67,9 @@ public class Rascalify {
 
 	@SuppressWarnings("unchecked")
 	public static void deserializeToDisk(ISourceLocation source, ISourceLocation destination, IString moduleName) {
-		try {
+		try (InputStream inputStream = _resolver.getInputStream(source.getURI())) {
 			ClassNode cn = new ClassNode();
-			ClassReader cr = new ClassReader(_resolver.getInputStream(source.getURI()));
+      ClassReader cr = new ClassReader(inputStream);
 			cr.accept(cn, 0);
 			
 			OutputStreamWriter writer = new OutputStreamWriter(_resolver.getOutputStream(destination.getURI(), false));
@@ -91,7 +92,7 @@ public class Rascalify {
 			throw RuntimeExceptionFactory.pathNotFound(source, null, null);
 		} catch(IOException e) {
 			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null, null);
-		}
+		} 
 	}
 
 	@SuppressWarnings("unchecked")
