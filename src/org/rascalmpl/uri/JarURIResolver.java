@@ -39,9 +39,9 @@ public class JarURIResolver implements IURIInputStreamResolver{
 	private String getPath(URI uri) {
 		String path = uri.toASCIIString();
 		path = path.substring(path.indexOf('!') + 1);
-		while (path.startsWith("/")) {
-			path = path.substring(1);
-		}
+//		while (path.startsWith("/")) {
+//			path = path.substring(1);
+//		}
 		return path;
 	}
 	
