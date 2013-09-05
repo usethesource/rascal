@@ -52,9 +52,6 @@ public class RascalJUnitTestRunner extends Runner {
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		evaluator.getConfiguration().setErrors(true);
-		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
-		
-		resolverRegistry.registerInput(new JarURIResolver(TestFramework.class));
 	}  
 	
 	public RascalJUnitTestRunner(Class<?> clazz) {
