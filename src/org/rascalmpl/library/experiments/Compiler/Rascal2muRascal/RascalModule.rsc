@@ -142,11 +142,14 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
 println("r2mu: Compiling <signature.name>");
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
-  fuid = uid2str(loc2uid[fd@\loc]);
+  uid = loc2uid[fd@\loc];
+  fuid = uid2str(uid);
+  tuple[str fuid,int pos] addr = uid2addr[uid];
   tbody = translate(expression);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
-  functions_in_module += [muFunction(fuid, ftype, nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, [*tbody[0 .. -1], muReturn(tbody[-1])])];
+  functions_in_module += [ muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+  									  nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, [*tbody[0 .. -1], muReturn(tbody[-1])]) ];
   
   if("test" in tmods){
   println("ftype = <ftype>");
@@ -160,8 +163,11 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   ftype = getFunctionType(fd@\loc);    
   nformals = size(ftype.parameters);
   tbody = [ *translate(stat) | stat <- body.statements ];
-  fuid = uid2str(loc2uid[fd@\loc]);
-  functions_in_module += [muFunction(fuid, ftype, nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody)]; 
+  uid = loc2uid[fd@\loc];
+  fuid = uid2str(uid);
+  tuple[str fuid,int pos] addr = uid2addr[uid];
+  functions_in_module += [ muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+  									  nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody) ]; 
 }
 
 //str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions> ;`)   { throw("conditional"); }
@@ -207,5 +213,5 @@ void generate_tests(str module_name){
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    main_testsuite = getFUID(module_name,"testsuite",ftype,0);
    println("main_testsuite = <main_testsuite>");
-   functions_in_module += muFunction(main_testsuite, ftype, 1, 1, |rascal:///|, [], (), code);
+   functions_in_module += muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, |rascal:///|, [], (), code);
 }
