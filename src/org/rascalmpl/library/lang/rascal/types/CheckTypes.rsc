@@ -206,6 +206,7 @@ data Configuration = config(set[Message] messages,
                             rel[int,Modifier] functionModifiers,
                             rel[int,loc] definitions,
                             rel[int,loc] uses,
+                            map[loc,int] usedIn,
                             rel[int,int] adtConstructors,
                             rel[int,int] nonterminalConstructors,
                             list[int] stack,
@@ -215,7 +216,7 @@ data Configuration = config(set[Message] messages,
                             int uniqueify
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},{},[],[],[],0,0);
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -312,6 +313,7 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
             // from the same module, which is not allowed.
             c = addScopeError(c, "Cannot re-declare global name", l);
             c.uses = c.uses + < c.fcvEnv[n], l >;
+            c.usedIn[l] = head(c.stack);
         } else {
             containingScopes = upToContainer(c,head(c.stack));
             conflictIds = (overload(ids,_) := c.store[c.fcvEnv[n]]) ? ids : { c.fcvEnv[n] };
@@ -319,6 +321,7 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
             if (size(toSet(containingScopes) & containingIds) > 0) {
                 c = addScopeError(c, "Cannot re-declare name that is already declared in the current function or closure", l);
                 c.uses = c.uses + < c.fcvEnv[n], l >;
+                c.usedIn[l] = head(c.stack);
             } else {
                 c.fcvEnv[n] = c.nextLoc;
                 c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
@@ -968,6 +971,7 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
     
     if (fcvExists(c, name)) {
         c.uses = c.uses + < c.fcvEnv[name], exp@\loc >;
+        c.usedIn[exp@\loc] = head(c.stack);
         return markLocationType(c, exp@\loc, c.store[c.fcvEnv[name]].rtype);
     } else {
         return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(name)> is not in scope", exp@\loc));
@@ -1408,6 +1412,7 @@ public CheckResult checkExp(Expression exp:(Expression)`( <{Mapping[Expression] 
 public CheckResult checkExp(Expression exp:(Expression)`it`, Configuration c) {
     if (fcvExists(c, RSimpleName("it"))) {
         c.uses = c.uses + < c.fcvEnv[RSimpleName("it")], exp@\loc >;
+        c.usedIn[exp@\loc] = head(c.stack);
         return markLocationType(c, exp@\loc, c.store[c.fcvEnv[RSimpleName("it")]].rtype);
     } else {
         return markLocationFailed(c, exp@\loc, makeFailType("Name it not in scope", exp@\loc));
@@ -1419,6 +1424,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<QualifiedName qn>`, Con
     n = convertName(qn);
     if (fcvExists(c, n)) {
         c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
+        c.usedIn[exp@\loc] = head(c.stack); 
         return markLocationType(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
     } else {
         return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(n)> is not in scope", exp@\loc));
@@ -2869,6 +2875,7 @@ public CheckResult checkLiteral(Literal l:(Literal)`<RegExpLiteral rl>`, Configu
                     c = addScopeMessage(c, error("Name is undefined", n@\loc));
                 } else {
                     c.uses += < c.fcvEnv[rn], n@\loc >;
+                    c.usedIn[n@\loc] = head(c.stack);
                 }
             } else {
                 // If this is a definition, add it into scope.
@@ -2880,6 +2887,7 @@ public CheckResult checkLiteral(Literal l:(Literal)`<RegExpLiteral rl>`, Configu
                         c = addScopeMessage(c, error("Name is undefined", cn@\loc));
                     } else {
                         c.uses += < c.fcvEnv[convertName(cn)], cn@\loc >;
+                        c.usedIn[cn@\loc] = head(c.stack);
                     }
                 }
             }
@@ -3163,6 +3171,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } else {
 	                    c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+	                    c.usedIn[ptn@at] = head(c.stack);
 	                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
 	                    // TODO: Keep this now that we have splicing?
 	                    if (isSetType(rt))
@@ -3203,6 +3212,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } else {
 	                    c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+	                    c.usedIn[ptn@at] = head(c.stack);
 	                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
 	                    // TODO: Keep this now that we have splicing?
 	                    if (isListType(rt))
@@ -3229,6 +3239,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
             } else {
                 c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+                c.usedIn[ptn@at] = head(c.stack);
                 if ( !((ptn@headPosition)?) || ((ptn@headPosition)? && !ptn@headPosition)) {
                     if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
                         c = addScopeWarning(c, "<prettyPrintName(n)> is a function or constructor name", ptn@at);
@@ -3251,6 +3262,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         failures += makeFailType("Name <prettyPrintName(n)> not yet defined", ptn@at);
                     } else {
                         c.uses = c.uses + < c.fcvEnv[n], l >; 
+                        c.usedIn[l] = head(c.stack);
                     }
                 } 
             }
@@ -3280,6 +3292,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
             }  else {
                 c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+                c.usedIn[ptn@at] = head(c.stack);
                 if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
                     c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function or constructor name", ptn@at);
                 } else {
@@ -4335,6 +4348,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`solve ( <{QualifiedName 
         n = convertName(qn);
         if (fcvExists(c, n)) {
             c.uses = c.uses + < c.fcvEnv[n], qn@\loc >;
+            c.usedIn[qn@\loc] = head(c.stack);
         } else {
             failures = failures + makeFailType("Name <prettyPrintName(n)> is not in scope", qn@\loc);
         }
@@ -4627,11 +4641,13 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName 
     } else if (fcvExists(c, n)) {
         if (variable(_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
             c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
+            c.usedIn[assn@\loc] = head(c.stack);
             rt = c.store[c.fcvEnv[n]].rtype;
             c = addNameWarning(c,n,assn@\loc);
             return < c, variableNode(n)[@atype=rt][@at=assn@\loc] >;
         } else {
             c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
+            c.usedIn[assn@\loc] = head(c.stack);
             return < c, variableNode(n)[@atype=makeFailType("Cannot assign to an existing constructor or function name",assn@\loc)][@at=assn@\loc] >;
         }
     } else {
@@ -5919,6 +5935,7 @@ public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c)
                 ut = c.store[c.typeEnv[rn]].rtype;
                 if ((utc@at)?) {
                     c.uses = c.uses + < c.typeEnv[rn], utc@at >;
+                    c.usedIn[utc@at] = head(c.stack);
                 } 
                 if (isAliasType(ut)) {
                     atps = getAliasTypeParameters(ut);
@@ -6645,6 +6662,7 @@ CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
      }
      else {
        c.uses = c.uses + < c.typeEnv[sname], l >;
+       c.usedIn[l] = head(c.stack);
        insert c.store[c.typeEnv[sname]].rtype;
      } // TODO finish
    }
