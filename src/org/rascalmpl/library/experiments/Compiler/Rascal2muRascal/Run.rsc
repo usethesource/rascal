@@ -29,7 +29,7 @@ void run(){
 }
 
 void runMu2rvm(){
-  muP = parse(muExample4);
+  muP = parse(muExample1);
   // Add 'testsuite'
   code = [ muCallPrim("testreport_open", []), muCallPrim("testreport_close", []), muReturn() ];
   main_testsuite = getUID(muP.name,[],"testsuite",1);
