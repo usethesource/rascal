@@ -1,7 +1,7 @@
 module analysis::m3::Core
 
 import Message;
-import TypeSymbol;
+import analysis::m3::TypeSymbol;
  
 data Modifiers;
 data M3 = m3(str projectName);
