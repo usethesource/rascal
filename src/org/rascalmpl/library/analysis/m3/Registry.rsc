@@ -14,7 +14,8 @@ void unregisterProject(str project) {
 
 @resolver{m3}
 loc resolveM3(loc name) {
-  if (project <- projects, <name, src> <- projects[project]@declarations) 
+  str project = name.authority;
+  if (<name, src> <- projects[project]@declarations) 
      return src;
   throw "<name> not resolved";
 }
