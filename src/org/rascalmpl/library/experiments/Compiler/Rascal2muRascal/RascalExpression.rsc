@@ -237,7 +237,7 @@ list[MuExp] translate(e:(Expression) `<Expression lhs> \>\> <Expression rhs>`)  
 list[MuExp] translate(e:(Expression) `<Expression lhs> \<\< <Expression rhs>`)   = infix("add", e);
 
 // Modulo
-list[MuExp] translate(e:(Expression) `<Expression lhs> mod <Expression rhs>`)   = infix("modulo", e);
+list[MuExp] translate(e:(Expression) `<Expression lhs> mod <Expression rhs>`)   = infix("mod", e);
 
 // Notin
 list[MuExp] translate(e:(Expression) `<Expression lhs> notin <Expression rhs>`)   = infix("notin", e);
