@@ -18,7 +18,7 @@ public class Backtracking {
 		/*
 		 * TRUE(){ return true; }
 		 */
-		rvm.declare(new Function("TRUE", tf.valueType(), 0, 0, 6,
+		rvm.declare(new Function("TRUE", tf.valueType(), null, 0, 0, 6,
 				new CodeBlock(vf)
 				.LOADCON(true)
 				.RETURN1()
@@ -29,7 +29,7 @@ public class Backtracking {
 		 * FALSE { return false; }
 		 */
 		
-		rvm.declare(new Function("FALSE", tf.valueType(), 0, 0, 6,
+		rvm.declare(new Function("FALSE", tf.valueType(), null, 0, 0, 6,
 				new CodeBlock(vf)
 				.LOADCON(false)
 				.RETURN1()	
@@ -53,7 +53,7 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("and_b_b", tf.valueType(), 2, 2, 10,
+		rvm.declare(new Function("and_b_b", tf.valueType(), null, 2, 2, 10,
 				new CodeBlock(vf)
 				
 			.LABEL("WHILE1")
@@ -142,7 +142,7 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("and_b_n", tf.valueType(), 2, 2, 10,
+		rvm.declare(new Function("and_b_n", tf.valueType(), null, 2, 2, 10,
 				new CodeBlock(vf)
 				.LOADLOC(0)
 				.JMPTRUE("L")
@@ -185,7 +185,7 @@ public class Backtracking {
 		 * }
 		 */
 		
-		rvm.declare(new Function("main", tf.valueType(), 1, 4, 10,
+		rvm.declare(new Function("main", tf.valueType(), null, 1, 4, 10,
 					new CodeBlock(vf)
 						.CREATE("TRUE",0)
 						.STORELOC(1)
@@ -217,7 +217,7 @@ public class Backtracking {
 						.HALT()
 		));
 	
-		rvm.declare(new Function("#module_init", tf.valueType(), 1, 1, 6, 
+		rvm.declare(new Function("#module_init", tf.valueType(), null, 1, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main", 1)

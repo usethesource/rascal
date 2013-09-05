@@ -25,7 +25,7 @@ public class CountDown_a {
 		 * 		return 0; 
 		 * }
 		 */
-		rvm.declare(new Function("g", tf.valueType(), 1, 1, 6,
+		rvm.declare(new Function("g", tf.valueType(), null, 1, 1, 6,
 					new CodeBlock(vf)
 							.LABEL("LOOP")
 							.LOADLOC(0)
@@ -59,7 +59,7 @@ public class CountDown_a {
 		/*
 		 * result: 5 + 4 + 3 + 2 + 1 = 15
 		 */
-		rvm.declare(new Function("main", tf.valueType(), 1, 3, 6,
+		rvm.declare(new Function("main", tf.valueType(), null, 1, 3, 6,
 					new CodeBlock(vf)
 						.CREATE("g",0)
 						.STORELOC(1)
@@ -87,7 +87,7 @@ public class CountDown_a {
 						.POP()     // added pop with respect to the new STORELOC's default bahviour on the stack
 						.JMP("LOOP")));
 	
-		rvm.declare(new Function("#module_init", tf.valueType(), 1, 1, 6, 
+		rvm.declare(new Function("#module_init", tf.valueType(), null, 1, 1, 6, 
 					new CodeBlock(vf)
 						.LOADLOC(0)
 						.CALL("main", 1)

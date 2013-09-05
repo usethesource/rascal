@@ -27,7 +27,7 @@ public class CountDown_b {
 		 * }
 		 */
 		
-		rvm.declare(new Function("g", tf.valueType(), 1, 1, 6,
+		rvm.declare(new Function("g", tf.valueType(), null, 1, 1, 6,
 					new CodeBlock(vf)
 							.LABEL("LOOP")
 							.LOADLOC(0)
@@ -55,7 +55,7 @@ public class CountDown_b {
 		 * }
 		 */
 		
-		rvm.declare(new Function("h", tf.valueType(), 0, 2, 6, 
+		rvm.declare(new Function("h", tf.valueType(), null, 0, 2, 6, 
 					new CodeBlock(vf)
 						.LOADCON(9)
 						.LOADCON(1)
@@ -85,7 +85,7 @@ public class CountDown_b {
 		/*
 		 * result: 110
 		 */
-		rvm.declare(new Function("main", tf.valueType(), 1, 4, 6,
+		rvm.declare(new Function("main", tf.valueType(), null, 1, 4, 6,
 					new CodeBlock(vf)
 						.CALL("h", 0)
 						.STORELOC(1)
@@ -116,7 +116,7 @@ public class CountDown_b {
 						
 						.JMP("LOOP")));
 	
-		rvm.declare(new Function("#module_init", tf.valueType(), 1, 1, 6, 
+		rvm.declare(new Function("#module_init", tf.valueType(), null, 1, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main", 1)
