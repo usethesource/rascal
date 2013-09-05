@@ -38,6 +38,8 @@ public class RVM {
 	
 	private final ArrayList<Function> functionStore;
 	private final Map<String, Integer> functionMap;
+	// Resolver to manage overloading
+	private final Map<String, Integer[]> resolver;
 	
 	//private final TypeFactory tf = TypeFactory.getInstance(); 
 	private final TypeStore typeStore = new TypeStore();
@@ -65,6 +67,7 @@ public class RVM {
 		constructorStore = new ArrayList<Type>();
 
 		functionMap = new HashMap<String, Integer>();
+		resolver = new HashMap<String,Integer[]>();
 		constructorMap = new HashMap<String, Integer>();
 		
 		RascalPrimitive.init(vf, stdout, this);
@@ -187,25 +190,24 @@ public class RVM {
 	public IValue executeFunction(String uid_func, IValue[] args){
 		Function func = functionStore.get(functionMap.get(uid_func));
 		Frame root = new Frame(func.getScopeId(), null, func.maxstack, func);
-		Object[] stack = root.stack;
+		Frame cf = root;
 		
 		// Pass the program argument to main
 		for(int i = 0; i < args.length; i++){
-			stack[i] = args[i]; 
+			cf.stack[i] = args[i]; 
 		}
-		return executeProgram(root);
+		return executeProgram(root, cf);
 	}
 	
 	// Execute a function instance, i.e., in its environment
-	public IValue executeFunction(FunctionInstance func, IValue[] args){
-		Frame root = new Frame(func.function.getScopeId(), null, func.env, func.function.maxstack, func.function);
-		Object[] stack = root.stack;
+	public IValue executeFunction(Frame root, FunctionInstance func, IValue[] args){
+		Frame cf = new Frame(func.function.getScopeId(), null, func.env, func.function.maxstack, func.function);
 		
 		// Pass the program argument to main
 		for(int i = 0; i < args.length; i++){
-			stack[i] = args[i]; 
+			cf.stack[i] = args[i]; 
 		}
-		return executeProgram(root);
+		return executeProgram(root, cf);
 	}
 	
 	public IValue executeProgram(String uid_main, String uid_module_init, IValue[] args) {
@@ -238,13 +240,13 @@ public class RVM {
 
 		// We need the notion of the root frame, which represents the root environment
 		Frame root = new Frame(init_function.getScopeId(), null, init_function.maxstack, init_function);
-		root.stack[0] = args; // pass the program argument to #module_init 
+		Frame cf = root;
+		cf.stack[0] = args; // pass the program argument to #module_init 
 
-		return executeProgram(root);
+		return executeProgram(root, cf);
 	}
 	
-	public IValue executeProgram(Frame root /* root stack frame */) {
-		Frame cf = root;			                                  // current stack frame
+	public IValue executeProgram(Frame root, Frame cf) {
 		Object[] stack = cf.stack;		                              // current stack
 		int sp = cf.function.nlocals;				                  // current stacp pointer
 		int[] instructions = cf.function.codeblock.getInstructions(); // current instruction sequence
