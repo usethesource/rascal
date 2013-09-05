@@ -55,13 +55,14 @@ public class TutorDefaultHttpServlet extends DefaultServlet{
 		String mime = getServletContext().getMimeType(rname);
 		response.setContentType(mime);
 		
+		try (
 		InputStream in = evaluator.getResolverRegistry().getInputStream(URIUtil.assumeCorrect("courses", "", rname));
-		ServletOutputStream out = response.getOutputStream();
-		byte buf[] = new byte[10000];
-		while(in.available() > 0){
-			int n = in.read(buf);
-			out.write(buf, 0, n);
+		ServletOutputStream out = response.getOutputStream()) {
+		  byte buf[] = new byte[10000];
+		  while(in.available() > 0){
+		    int n = in.read(buf);
+		    out.write(buf, 0, n);
+		  }
 		}
-		out.close();
 	}
 }

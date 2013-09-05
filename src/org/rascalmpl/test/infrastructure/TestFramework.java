@@ -141,8 +141,6 @@ public class TestFramework {
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
 		
-		resolverRegistry.registerInput(new JarURIResolver(TestFramework.class));
-		
 		evaluator.addRascalSearchPath(URIUtil.rootScheme("test-modules"));
 		resolverRegistry.registerInput(modules);
 		

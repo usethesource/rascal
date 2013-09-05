@@ -310,7 +310,7 @@ lexical PreStringChars
 	= @category="Constant" [\"] StringCharacter* [\<] ;
 
 lexical CaseInsensitiveStringConstant
-	= @category="Constant" "\'" StringCharacter* "\'" ;
+	= @category="Constant" "\'" StringCharacter* chars "\'" ;
 
 lexical Backslash
 	= [\\] !>> [/ \< \> \\] ;

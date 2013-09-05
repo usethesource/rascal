@@ -106,6 +106,7 @@ public M3 createM3FromProject(loc project, str javaVersion = "1.7") {
 	    result@modifiers += model@modifiers;
 	    result@messages += model@messages;
 	    result@names += model@names;
+	    result@methodOverrides += model@methodOverrides;
 	}
         registerProject(project.authority, result);
 	return result;
