@@ -68,6 +68,10 @@ public class Execute {
 
 				String name = ((IString) declaration.get("qname")).getValue();
 				Type ftype = rvm.symbolToType((IConstructor) declaration.get("ftype"));
+				String scopeIn = ((IString) declaration.get("scopeIn")).getValue();
+				if(scopeIn.equals("")) {
+					scopeIn = null;
+				}
 				
 				if(name.endsWith(main) || name.endsWith(mu_main)) {
 					// Get the main's uid
@@ -257,7 +261,7 @@ public class Execute {
 					}
 
 				}
-				rvm.declare(new Function(name, ftype, nformals, nlocals,
+				rvm.declare(new Function(name, ftype, scopeIn, nformals, nlocals,
 						maxstack, codeblock));
 			}
 		}

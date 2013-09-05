@@ -16,14 +16,14 @@ public class Test {
 		IValueFactory vf = rvm.vf;
 		TypeFactory tf = TypeFactory.getInstance();
 		
-		rvm.declare(new Function("main", tf.valueType(), 1, 1, 6,
+		rvm.declare(new Function("main", tf.valueType(), null, 1, 1, 6,
 					new CodeBlock(vf).
 						LOADCON(3).
 						LOADCON("abc").
 						PRINTLN(1).
 						HALT()));
 	
-		rvm.declare(new Function("#module_init", tf.valueType(), 1, 1, 6, 
+		rvm.declare(new Function("#module_init", tf.valueType(), null, 1, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main", 1)
