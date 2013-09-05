@@ -22,7 +22,7 @@ public static void main(String[] args) {
 		TypeFactory tf = TypeFactory.getInstance();
 		//int fib(int n) = (n == 0) ? 0 : (n == 1) ? 1 : (fib(n-1) + fib(n-2));
 		
-		rvm.declare(new Function("fib", tf.valueType(), 1, 1, 6,
+		rvm.declare(new Function("fib", tf.valueType(), null, 1, 1, 6,
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADCON(0).
@@ -49,13 +49,13 @@ public static void main(String[] args) {
 					CALLPRIM(RascalPrimitive.num_add_num, 2).
 					RETURN1()));
 					
-		rvm.declare(new Function("main", tf.valueType(), 1, 1, 6,
+		rvm.declare(new Function("main", tf.valueType(), null, 1, 1, 6,
 					new CodeBlock(vf).
 						LOADCON(10).
 						CALL("fib", 1).
 						HALT()));
 		
-		rvm.declare(new Function("#module_init", tf.valueType(), 1, 1, 6, 
+		rvm.declare(new Function("#module_init", tf.valueType(), null, 1, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main", 1)
