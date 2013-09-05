@@ -37,6 +37,18 @@ list[MuExp] translate(s: (Statement) `<Label label> while ( <{Expression ","}+ c
     return code;
 }
 
+list[MuExp] translateTemplate((StringTemplate) `while ( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
+    whilename = getLabel(label);
+    result = asTmp(whilename);
+    enterLoop(whilename);
+    code = [ muAssignTmp(result, muCon("")), 
+             muWhile(whilename, muOne([*translate(c) | c <-conditions]), [ *translate(preStats),  muCallPrim("str_addindented_str", [muTmp(result), *translateMiddle(body)]), *translate(postStats)]),
+             muTmp(tmp)
+           ];
+    leaveLoop();
+    return code;
+}
+
 list[MuExp] translate(s: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`) { throw("doWhile"); }
 
 list[MuExp] translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`) {
@@ -51,6 +63,19 @@ list[MuExp] translate(s: (Statement) `<Label label> for ( <{Expression ","}+ gen
     return code;
 }
 
+list[MuExp] translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
+    forname = getLabel(label);
+    result = asTmp(forname);
+    enterLoop(forname);
+    code = [ muAssignTmp(result, muCon("")), 
+             muWhile(forname, muAll([*translate(c) | c <-generators]), 
+                     [ *translate(preStats),  muCallPrim("str_addindented_str", [muTmp(result), *translateMiddle(body)]), *translate(postStats)]),
+             muTmp(result)
+           ];
+    leaveLoop();
+    return code;
+} 
+
 list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) =
     [ muIfelse(muOne([*translate(c) | c <-conditions]), translate(thenStatement), []) ];
     
@@ -60,7 +85,7 @@ list[MuExp] translateTemplate((StringTemplate) `if (<{Expression ","}+ condition
     enterLoop(ifname);
     code = [ muAssignTmp(result, muCon("")),
              muIfelse(muOne([*translate(c) | c <-conditions]), 
-                      [*translate(preStats), muCallPrim("str_add_str", [muTmp(result), *translateMiddle(body)]), *translate(postStats)],
+                      [*translate(preStats), muCallPrim("str_addindented_str", [muTmp(result), *translateMiddle(body)]), *translate(postStats)],
                       []),
              muTmp(result)
            ];
@@ -71,7 +96,19 @@ list[MuExp] translateTemplate((StringTemplate) `if (<{Expression ","}+ condition
 list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) =
     [ muIfelse(muOne([*translate(c) | c <-conditions]), translate(thenStatement), translate(elseStatement)) ];
     
-//list[MuExp] translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) { Statement* preStatsThen StringMiddle thenString Statement* postStatsThen "}" "else" "{" Statement* preStatsElse StringMiddle elseString Statement* postStatsElse "}" 
+list[MuExp] translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) { <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> }  else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`){                    
+    ifname = nextLabel();
+    result = asTmp(ifname);
+    enterLoop(ifname);
+    code = [ muAssignTmp(result, muCon("")),
+             muIfelse(muOne([*translate(c) | c <-conditions]), 
+                      [*translate(preStatsThen), muCallPrim("str_addindented_str", [muTmp(result), *translateMiddle(thenString)]), *translate(postStatsThen)],
+                      [*translate(preStatsElse), muCallPrim("str_addindented_str", [muTmp(result), *translateMiddle(elseString)]), *translate(postStatsElse)]),
+             muTmp(result)
+           ];
+    leaveLoop();
+    return code;                                             
+} 
 
 list[MuExp] translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) { throw("switch"); }
 

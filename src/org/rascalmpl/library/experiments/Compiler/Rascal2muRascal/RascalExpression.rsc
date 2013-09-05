@@ -345,10 +345,10 @@ list[MuExp] translateBool(e:(Expression) `! <Expression lhs>`) = translateBool("
 // Translate a string literals and string templates
 
 list[MuExp] translateStringLiteral((StringLiteral) `<PreStringChars pre> <StringTemplate template> <StringTail tail>`) =  
-    [ muCallPrim("str_add_str", [muCon("<pre>"[1..-1]), *translateTemplate(template), *translateTail(tail)]) ];
+    [ muCallPrim("str_addindented_str", [muCon("<pre>"[1..-1]), *translateTemplate(template), *translateTail(tail)]) ];
     
 list[MuExp] translateStringLiteral((StringLiteral) `<PreStringChars pre> <Expression expression> <StringTail tail>`) =
-     [ muCallPrim("str_add_str", [muCon("<pre>"[1..-1]), muCallPrim("value_to_string", translate(expression)), *translateTail(tail)]) ];
+     [ muCallPrim("str_addindented_str", [muCon("<pre>"[1..-1]), muCallPrim("value_to_string", translate(expression)), *translateTail(tail)]) ];
 
 list[MuExp] translateStringLiteral((StringLiteral)`<StringConstant constant>`) = [ muCon(readTextValueString("<constant>")) ];
  
@@ -389,18 +389,18 @@ syntax StringTail
 list[MuExp] translateMiddle((StringMiddle) `<MidStringChars mid>`)  =  [ muCon("<mid>"[1..-1]) ];
 
 list[MuExp] translateMiddle((StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) =
-    [ muCallPrim("str_add_str", [ muCon("<mid>"[1..-1]), *translateTemplate(template), *translateMiddle(tail) ]) ];
+    [ muCallPrim("str_addindented_str", [ muCon("<mid>"[1..-1]), *translateTemplate(template), *translateMiddle(tail) ]) ];
 
 list[MuExp] translateMiddle((StringMiddle) `<MidStringChars mid> <Expression expression> <StringMiddle tail>`) =
-    [ muCallPrim("str_add_str", [muCon("<mid>"[1..-1]), muCallPrim("value_to_string", translate(expression)), *translateMiddle(tail)]) ];
+    [ muCallPrim("str_addindented_str", [muCon("<mid>"[1..-1]), muCallPrim("value_to_string", translate(expression)), *translateMiddle(tail)]) ];
 
 list[MuExp] translateTail((StringTail) `<MidStringChars mid> <Expression expression> <StringTail tail>`) =
-    [ muCallPrim("str_add_str", [muCon("<mid>"[1..-1]), muCallPrim("value_to_string", translate(expression)), *translateTail(tail)]) ];
+    [ muCallPrim("str_addindented_str", [muCon("<mid>"[1..-1]), muCallPrim("value_to_string", translate(expression)), *translateTail(tail)]) ];
 	
 list[MuExp] translateTail((StringTail) `<PostStringChars post>`) =  [ muCon("<post>"[1..-1]) ];	
 
 list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate template> <StringTail tail>`) =
-    [ muCallPrim("str_add_str", [ muCon("<mid>"[1..-1]), *translateTemplate(template), *translateTail(tail) ]) ];
+    [ muCallPrim("str_addindented_str", [ muCon("<mid>"[1..-1]), *translateTemplate(template), *translateTail(tail) ]) ];
    
 // Translate a closure   
  
