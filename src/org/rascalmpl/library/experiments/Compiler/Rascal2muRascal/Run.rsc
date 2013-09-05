@@ -10,28 +10,34 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 
 loc Example1 = |std:///experiments/Compiler/Examples/Capture.rsc|;
 loc Example2 = |std:///experiments/Compiler/Examples/D1D2.rsc|;
-loc muExample3 = |std:///experiments/Compiler/muRascal2RVM/TypeConExample.mu|;
-loc muExample4 = |std:///experiments/Compiler/muRascal2RVM/Coroutines.mu|;
-loc muExample5 = |std:///experiments/Compiler/muRascal2RVM/CallByReference.mu|;
-loc Example6 = |std:///experiments/Compiler/Examples/ListMatch.rsc|;
-loc muExample7 = |std:///experiments/Compiler/muRascal2RVM/Capture.mu|;
-loc Example8 = |std:///experiments/Compiler/Examples/Odd.rsc|;
-loc Example9 = |std:///experiments/Compiler/Examples/Fac.rsc|;
-loc Example10 = |std:///experiments/Compiler/Examples/Fib.rsc|;
+loc Example3 = |std:///experiments/Compiler/Examples/ListMatch.rsc|;
+loc Example4 = |std:///experiments/Compiler/Examples/Odd.rsc|;
+loc Example5 = |std:///experiments/Compiler/Examples/Fac.rsc|;
+loc Example6 = |std:///experiments/Compiler/Examples/Fib.rsc|;
+
+loc muExample1 = |std:///experiments/Compiler/muRascal2RVM/TypeConExample.mu|;
+loc muExample2 = |std:///experiments/Compiler/muRascal2RVM/Coroutines.mu|;
+loc muExample3 = |std:///experiments/Compiler/muRascal2RVM/CallByReference.mu|;
+loc muExample4 = |std:///experiments/Compiler/muRascal2RVM/Capture.mu|;
 
 void run(){
-  muP = r2mu(Example9);
-  rvmP = mu2rvm(muP, listing = true);
-  <v, t> = executeProgram(rvmP, true, 1, false);
+  muP = r2mu(Example5);
+  rvmP = mu2rvm(muP);
+  <v, t> = executeProgram(rvmP, false, 1, false);
   println("Result = <v>, [<t> msec]");
   return;
 }
 
 void runMu2rvm(){
-  muP = parse(muExample5);
-  iprintln(muP);
+  muP = parse(muExample4);
+  // Add 'testsuite'
+  code = [ muCallPrim("testreport_open", []), muCallPrim("testreport_close", []), muReturn() ];
+  main_testsuite = getUID(muP.name,[],"testsuite",1);
+  println("main_testsuite = <main_testsuite>");
+  // Generate a very generic function type
+  ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
+  muP.functions = muP.functions + muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, |rascal:///|, [], (), code);
   rvmP = mu2rvm(muP);
-  //iprintln(rvmP);
   <v, t> = executeProgram(rvmP, true, 1, false);
   println("Result = <v>, [<t> msec]");
 }

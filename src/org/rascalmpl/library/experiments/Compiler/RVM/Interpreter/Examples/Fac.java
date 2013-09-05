@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Examples;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
@@ -14,8 +15,8 @@ public class Fac {
 	public static void main(String[] args) {
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
 		IValueFactory vf = rvm.vf;
-		
-		rvm.declare(new Function("fac", 1, 1, 6, 
+		TypeFactory tf = TypeFactory.getInstance();
+		rvm.declare(new Function("fac", tf.valueType(), null, 1, 1, 6, 
 				new CodeBlock(vf).
 					LOADLOC(0).
 					LOADCON(1).
@@ -27,18 +28,18 @@ public class Fac {
 					LOADLOC(0).
 					LOADLOC(0).
 					LOADCON(1).
-					CALLPRIM(RascalPrimitive.subtraction_num_num, 2).
+					CALLPRIM(RascalPrimitive.num_subtract_num, 2).
 					CALL("fac", 1).
-					CALLPRIM(RascalPrimitive.product_num_num, 2).
+					CALLPRIM(RascalPrimitive.num_product_num, 2).
 					RETURN1()));
 		
-		rvm.declare(new Function("main", 1, 1, 7,
+		rvm.declare(new Function("main", tf.valueType(), null, 1, 1, 7,
 				new CodeBlock(vf).
 					LOADCON(4).
 					CALL("fac", 1).
 					HALT()));
 		
-		rvm.declare(new Function("main_repeat", 0, 2, 20,
+		rvm.declare(new Function("main_repeat", tf.valueType(), null, 0, 2, 20,
 				new CodeBlock(vf).
 					LOADCON(10).
 					STORELOC(0). // n
@@ -49,7 +50,7 @@ public class Fac {
 					LABEL("L").
 					LOADLOC(1). // cnt
 					LOADCON(0).
-					CALLPRIM(RascalPrimitive.greater_num_num, 2).
+					CALLPRIM(RascalPrimitive.num_greater_num, 2).
 					JMPTRUE("M").
 					HALT().
 					LABEL("M").
@@ -58,12 +59,12 @@ public class Fac {
 					POP().
 					LOADLOC(1).
 					LOADCON(1).
-					CALLPRIM(RascalPrimitive.subtraction_num_num, 2).
+					CALLPRIM(RascalPrimitive.num_subtract_num, 2).
 					STORELOC(1).
 					POP().
 					JMP("L")));
 		
-		rvm.declare(new Function("#module_init", 0, 1, 6, 
+		rvm.declare(new Function("#module_init", tf.valueType(), null, 1, 1, 6, 
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main", 1)

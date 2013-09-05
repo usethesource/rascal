@@ -3,7 +3,7 @@ module experiments::Compiler::RVM::AST
 import Type;
 
 public data Declaration = 
-		  FUNCTION(str qname, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
+		  FUNCTION(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
 		;
 
 public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions);

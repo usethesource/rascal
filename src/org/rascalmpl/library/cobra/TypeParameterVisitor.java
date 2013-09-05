@@ -11,7 +11,7 @@ public class TypeParameterVisitor implements ITypeVisitor<IValue,RuntimeExceptio
 	private HashMap<Type, Type> typeParameters;
 	private final RandomType randomType;
 	
-	TypeParameterVisitor(){
+	public TypeParameterVisitor(){
 		randomType = new RandomType();
 	}
 	

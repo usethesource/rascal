@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class Execute {
@@ -66,6 +67,12 @@ public class Execute {
 			if (declaration.getName().contentEquals("FUNCTION")) {
 
 				String name = ((IString) declaration.get("qname")).getValue();
+				Type ftype = rvm.symbolToType((IConstructor) declaration.get("ftype"));
+				String scopeIn = ((IString) declaration.get("scopeIn")).getValue();
+				if(scopeIn.equals("")) {
+					scopeIn = null;
+				}
+				
 				if(name.endsWith(main) || name.endsWith(mu_main)) {
 					// Get the main's uid
 					uid_main = name;
@@ -254,7 +261,7 @@ public class Execute {
 					}
 
 				}
-				rvm.declare(new Function(name, nformals, nlocals,
+				rvm.declare(new Function(name, ftype, scopeIn, nformals, nlocals,
 						maxstack, codeblock));
 			}
 		}

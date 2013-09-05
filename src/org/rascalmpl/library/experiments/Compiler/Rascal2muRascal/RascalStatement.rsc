@@ -11,9 +11,10 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
+list[MuExp] translate((Statement) `<Statement* statements>`) = [ *translate(stat) | stat <- statements ];
 
 /*********************************************************************/
-/*                  Statements                                       */
+/*                  Statement                                       */
 /*********************************************************************/
 	
 list[MuExp] translate(s: (Statement) `assert <Expression expression> ;`) { throw("assert"); }
@@ -25,12 +26,24 @@ list[MuExp] translate(s: (Statement) `<Expression expression> ;`) = translate(ex
 list[MuExp] translate(s: (Statement) `<Label label> <Visit \visit>`) { throw("visit"); }
 
 list[MuExp] translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`) {
-    loopname = getLabel(label);
-    tmp = asTmp(loopname);
-    enterLoop(loopname);
+    whilename = getLabel(label);
+    tmp = asTmp(whilename);
+    enterLoop(whilename);
     code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])), 
-             muWhile(loopname, muOne([*translate(c) | c <-conditions]), translate(body)),
+             muWhile(whilename, muOne([*translate(c) | c <-conditions]), translate(body)),
              muCallPrim("listwriter_close", [muTmp(tmp)])
+           ];
+    leaveLoop();
+    return code;
+}
+
+list[MuExp] translateTemplate((StringTemplate) `while ( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
+    whilename = getLabel(label);
+    result = asTmp(whilename);
+    enterLoop(whilename);
+    code = [ muAssignTmp(result, muCon("")), 
+             muWhile(whilename, muOne([*translate(c) | c <-conditions]), [ *translate(preStats),  muCallPrim("str_addindented_str", [muTmp(result), *translateMiddle(body)]), *translate(postStats)]),
+             muTmp(tmp)
            ];
     leaveLoop();
     return code;
@@ -39,19 +52,63 @@ list[MuExp] translate(s: (Statement) `<Label label> while ( <{Expression ","}+ c
 list[MuExp] translate(s: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`) { throw("doWhile"); }
 
 list[MuExp] translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`) {
-    loopname = getLabel(label);
-    tmp = asTmp(loopname);
-    enterLoop(loopname);
-    code = [  muAssignTmp(tmp, muCallPrim("list_create", [])), muWhile(loopname, muAll([*translate(c) | c <-generators]), translate(body)) ];
+    forname = getLabel(label);
+    tmp = asTmp(forname);
+    enterLoop(forname);
+    code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])), 
+             muWhile(forname, muAll([*translate(c) | c <-generators]), translate(body)),
+             muCallPrim("listwriter_close", [muTmp(tmp)])
+           ];
     leaveLoop();
     return code;
 }
 
+list[MuExp] translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
+    forname = getLabel(label);
+    result = asTmp(forname);
+    enterLoop(forname);
+    code = [ muAssignTmp(result, muCon("")), 
+             muWhile(forname, muAll([*translate(c) | c <-generators]), 
+                     [ *translate(preStats),  muCallPrim("str_addindented_str", [muTmp(result), *translateMiddle(body)]), *translate(postStats)]),
+             muTmp(result)
+           ];
+    leaveLoop();
+    return code;
+} 
+
 list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) =
     [ muIfelse(muOne([*translate(c) | c <-conditions]), translate(thenStatement), []) ];
+    
+list[MuExp] translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
+    ifname = nextLabel();
+    result = asTmp(ifname);
+    enterLoop(ifname);
+    code = [ muAssignTmp(result, muCon("")),
+             muIfelse(muOne([*translate(c) | c <-conditions]), 
+                      [*translate(preStats), muCallPrim("str_addindented_str", [muTmp(result), *translateMiddle(body)]), *translate(postStats)],
+                      []),
+             muTmp(result)
+           ];
+    leaveLoop();
+    return code;
+}    
 
 list[MuExp] translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) =
     [ muIfelse(muOne([*translate(c) | c <-conditions]), translate(thenStatement), translate(elseStatement)) ];
+    
+list[MuExp] translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) { <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> }  else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`){                    
+    ifname = nextLabel();
+    result = asTmp(ifname);
+    enterLoop(ifname);
+    code = [ muAssignTmp(result, muCon("")),
+             muIfelse(muOne([*translate(c) | c <-conditions]), 
+                      [*translate(preStatsThen), muCallPrim("str_addindented_str", [muTmp(result), *translateMiddle(thenString)]), *translate(postStatsThen)],
+                      [*translate(preStatsElse), muCallPrim("str_addindented_str", [muTmp(result), *translateMiddle(elseString)]), *translate(postStatsElse)]),
+             muTmp(result)
+           ];
+    leaveLoop();
+    return code;                                             
+} 
 
 list[MuExp] translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) { throw("switch"); }
 
@@ -121,11 +178,11 @@ list[MuExp] translateAssignment(s: (Statement) `<Assignable assignable> <Assignm
 list[MuExp] applyAssignmentOperator(str operator, assignable, statement) {
     if(operator == "=")
     	return translate(statement);
-    op = ("+=" : "addition", "-=" : "subtraction", "*=" : "product", "/=" : "division", "&=" : "intersection")[operator];  // missing ?=
-    op += "_<getOuterType(assignable)>_<getOuterType(statement)>";
+    op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator];  // missing ?=
+    op2 = "<getOuterType(assignable)>_<op1>_<getOuterType(statement)>";
     oldval = getValues(assignable);
     assert size(oldval) == 1;
-    return [muCallPrim("<op>", [*oldval, *translate(statement)])]; 	
+    return [muCallPrim("<op2>", [*oldval, *translate(statement)])]; 	
 }
     
 // assignTo: assign the rhs of the assignment (possibly modified by an assign operator) to the assignable
@@ -138,19 +195,17 @@ list[MuExp] assignTo(a: (Assignable) `<QualifiedName qualifiedName>`, list[MuExp
 list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, list[MuExp] rhs) =
      assignTo(receiver, [ muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), *translate(subscript), *rhs]) ]);
     
-list[MuExp] assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, list[MuExp] rhs) { 
-    nelems = size_assignables(elements);
-    name = nextTmp();
-    elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
-    return muAssignTmp(name, rhs[0]) + 
-              [ *assignTo(elems[i], [ muCalla("adt_subscript", [muTmp(name), muCon(i)]) ])
-              | i <- [0 .. nelems]
-              ];
-}
+list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, list[MuExp] rhs) =
+    assignTo(receiver, [ muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), *translateOpt(optFirst), muCon(false), *translateOpt(optLast), *rhs]) ]);
+
+list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`) =
+     assignTo(receiver, [ muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), *translateOpt(optFirst), *translate(second), *translateOpt(optLast), *rhs]) ]);
 
 list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, list[MuExp] rhs){
     return assignTo(receiver, [ muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), muCon("<field>"), *rhs]) ]);
 }
+
+// ifdefined
 
 list[MuExp] assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, list[MuExp] rhs) {
 	nelems = size_assignables(elements);
@@ -162,9 +217,18 @@ list[MuExp] assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, list
               ];
 }
 
-// slice
-// annotation
-// ifdefined
+list[MuExp] assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, list[MuExp] rhs) { 
+    nelems = size_assignables(elements);
+    name = nextTmp();
+    elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
+    return muAssignTmp(name, rhs[0]) + 
+              [ *assignTo(elems[i], [ muCalla("adt_subscript", [muTmp(name), muCon(i)]) ])
+              | i <- [0 .. nelems]
+              ];
+}
+
+list[MuExp] assignTo(a: (Assignable) `<Assignable receiver> @ <Name annotation>`,  list[MuExp] rhs) =
+     assignTo(receiver, [ muCallPrim("annotation_setupdate", [*getValues(receiver), muCon("<field>"), *rhs]) ]);
 
 // getValues: get the current value(s) of an assignable
 
@@ -173,16 +237,23 @@ list[MuExp] getValues(a: (Assignable) `<QualifiedName qualifiedName>`) =
     
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`) =
     [ muCallPrim("<getOuterType(receiver)>_subscript", [*getValues(receiver), *translate(subscript)]) ];
+    
+    list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) = 
+    translateSlice(getValues(receiver), translateOpt(optFirst), muCon(false),  translateOpt(optLast));
+    
+list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`) = 
+    translateSlice(getValues(receiver), translateOpt(optFirst), translate(second),  translateOpt(optLast));
+
+list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) = [ muCallPrim("<getOuterType(receiver)>_field_access", [ *getValues(receiver), muCon("<field>")]) ];
+
+// ifdefined
 
 list[MuExp] getValues(a:(Assignable) `\<  <{Assignable ","}+ elements > \>` ) = [ *getValues(elm) | elm <- elements ];
 
 list[MuExp] getValues(a:(Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` ) = [ *getValues(arg) | arg <- arguments ];
 
-list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) = [ muCallPrim("<getOuterType(receiver)>_field_access", [ *getValues(receiver), muCon("<field>")]) ];
-
-// slice
-// annotation
-// ifdefined
+list[MuExp] getValues(a: (Assignable) `<Assignable receiver> @ <Name annotation>`) = 
+    [ muCallPrim("annotation_get", [ *getValues(receiver), muCon("<field>")]) ];
 
 // getReceiver: get the final receiver of an assignable
 
@@ -195,5 +266,3 @@ Assignable getReceives(a: (Assignable) `<Assignable receiver> ? <Expression defa
 Assignable getReceiver(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`) = a;
 Assignable getReceiver(a: (Assignable) `\< <{Assignable ","}+ elements> \>`) =  a;
 Assignable getReceiver(a: (Assignable) `<Assignable receiver> @ <Name annotation>`) = getReceiver(receiver); 
-
-

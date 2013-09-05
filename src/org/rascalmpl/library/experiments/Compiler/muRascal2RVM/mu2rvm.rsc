@@ -57,7 +57,7 @@ map[str,Declaration] parseLibrary(){
  
   	for(fun <- libModule.functions){
   	    required_frame_size = fun.nlocals + estimate(fun.body);
-    	funMap += (fun.qname : FUNCTION(fun.qname, fun.nformals, fun.nlocals, required_frame_size, trblock(fun.body)));
+    	funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, fun.nlocals, required_frame_size, trblock(fun.body)));
   	}
   
   	writeTextValueFile(LibraryPrecompiled, funMap);
@@ -92,21 +92,20 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
     nlocal = fun.nlocals;
     code = trblock(fun.body);
     required_frame_size = nlocal + estimate(fun.body);
-    funMap += (fun.qname : FUNCTION(fun.qname, fun.nformals, nlocal, required_frame_size, code));
+    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code));
     est = estimate(fun.body);
-    println("\n*** <fun.qname>: locals=<nlocal>, stack estimate=<est>, total stack requirement=<nlocal+est>");
-    iprintln(code);
+    //println("\n*** <fun.qname>: locals=<nlocal>, stack estimate=<est>, total stack requirement=<nlocal+est>");
+    //iprintln(code);
   }
   
   main_fun = getUID(module_name,[],"main",1);
   module_init_fun = getUID(module_name,[],"#module_init_main",1);
-  
+  ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
   if(!funMap[main_fun]?) {
-  	main_fun = getFUID(module_name,"main",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
-  	module_init_fun = getFUID(module_name,"#module_init_main",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
+  	main_fun = getFUID(module_name,"main",ftype,0);
+  	module_init_fun = getFUID(module_name,"#module_init_main",ftype,0);
   }
-  
-  funMap += (module_init_fun : FUNCTION(module_init_fun, 1, size(variables) + 1, defaultStackSize, 
+  funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   									[*tr(initializations), 
   									 LOADLOC(0), 
   									 CALL(main_fun,1), 
@@ -117,10 +116,10 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
   main_testsuite = getUID(module_name,[],"testsuite",1);
   module_init_testsuite = getUID(module_name,[],"#module_init_testsuite",1);
   if(!funMap[main_testsuite]?) { 						
-  	main_testsuite = getFUID(module_name,"testsuite",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
-  	module_init_testsuite = getFUID(module_name,"#module_init_testsuite",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
+  	main_testsuite = getFUID(module_name,"testsuite",ftype,0);
+  	module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
-  funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, 1, size(variables) + 1, defaultStackSize, 
+  funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   										[*tr(initializations), 
   									 	 LOADLOC(0), 
   									 	 CALL(main_testsuite,1), 
