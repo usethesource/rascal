@@ -10,12 +10,15 @@ import ParseTree;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
+import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
+
 
 public list[MuFunction] functions_in_module = [];
 public list[MuVariable] variables_in_module = [];
@@ -63,7 +66,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	Configuration c = newConfiguration();
    	config = checkModule(M, c);
    	// Extract scoping information available from the configuration returned by the type checker  
-   	extractScopes();  	
+   	extractScopes();  
+   	//text(config);	
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    	if(size(errors) > 0) {
@@ -138,16 +142,19 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
 println("r2mu: Compiling <signature.name>");
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
-  fuid = uid2str(loc2uid[fd@\loc]);
+  uid = loc2uid[fd@\loc];
+  fuid = uid2str(uid);
+  tuple[str fuid,int pos] addr = uid2addr[uid];
   tbody = translate(expression);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
-  functions_in_module += [muFunction(fuid, nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, [*tbody[0 .. -1], muReturn(tbody[-1])])];
+  functions_in_module += [ muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+  									  nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, [*tbody[0 .. -1], muReturn(tbody[-1])]) ];
   
   if("test" in tmods){
   println("ftype = <ftype>");
      params = ftype.parameters;
-     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muTypeCon(param) | param <- params ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
 }
 
@@ -156,8 +163,11 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   ftype = getFunctionType(fd@\loc);    
   nformals = size(ftype.parameters);
   tbody = [ *translate(stat) | stat <- body.statements ];
-  fuid = uid2str(loc2uid[fd@\loc]);
-  functions_in_module += [muFunction(fuid, nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody)]; 
+  uid = loc2uid[fd@\loc];
+  fuid = uid2str(uid);
+  tuple[str fuid,int pos] addr = uid2addr[uid];
+  functions_in_module += [ muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+  									  nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody) ]; 
 }
 
 //str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions> ;`)   { throw("conditional"); }
@@ -200,7 +210,8 @@ list[str] translateModifiers(FunctionModifiers modifiers){
 
 void generate_tests(str module_name){
    code = [ muCallPrim("testreport_open", []), *tests, muCallPrim("testreport_close", []), muReturn() ];
-   main_testsuite = getUID(module_name,[],"testsuite",1);
+   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
+   main_testsuite = getFUID(module_name,"testsuite",ftype,0);
    println("main_testsuite = <main_testsuite>");
-   functions_in_module += muFunction(main_testsuite, 1, 1, |rascal:///|, [], (), code);
+   functions_in_module += muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, |rascal:///|, [], (), code);
 }

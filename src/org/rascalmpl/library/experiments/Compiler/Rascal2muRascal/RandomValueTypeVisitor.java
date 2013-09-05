@@ -10,7 +10,7 @@
  *   * Wietse Venema - wietsevenema@gmail.com - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *******************************************************************************/
-package org.rascalmpl.library.cobra;
+package org.rascalmpl.library.experiments.Compiler.Rascal2muRascal;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,11 +36,15 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.library.cobra.RandomType;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeException> {
 
@@ -48,44 +52,27 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	private final IValueFactory vf;
 	private final TypeFactory tf = TypeFactory.getInstance();
-	private final ModuleEnvironment rootEnv;
+	//private final ModuleEnvironment rootEnv;
+	TypeStore definitions;
 	private final int maxDepth;
-	private final HashMap<Type, ICallableValue> generators;
 	private final Map<Type, Type> typeParameters;
 
-	public RandomValueTypeVisitor(IValueFactory vf, ModuleEnvironment rootEnv,
-			int maxDepth, HashMap<Type, ICallableValue> generators, Map<Type, Type> typeParameters) {
+	public RandomValueTypeVisitor(IValueFactory vf, int maxDepth, Map<Type, Type> typeParameters, TypeStore definitions) {
 		this.vf = vf;
-		this.rootEnv = rootEnv;
+		//this.rootEnv = rootEnv;
 		this.maxDepth = maxDepth;
-		this.generators = generators;
+		//this.generators = generators;
 		this.typeParameters = typeParameters;
-	}
-
-	private IValue callGenerator(Type type, int depthLimit) {
-		if (depthLimit < 0) {
-			return null;
-		}
-		TypeFactory tf = TypeFactory.getInstance();
-
-		ICallableValue generator = generators.get(type);
-		Result<IValue> result = generator.call(new Type[] { tf.integerType() },
-				new IValue[] { vf.integer(depthLimit) }, null);
-		return result.getValue();
+		this.definitions = definitions;
 	}
 
 	private RandomValueTypeVisitor descend() {
-		RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(vf,
-				rootEnv, maxDepth - 1, generators, typeParameters);
+		RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(vf, maxDepth - 1, typeParameters, definitions);
 		return visitor;
 	}
 
 	public IValue generate(Type t) {
-		if (generators.containsKey(t)) {
-			return callGenerator(t, maxDepth);
-		} else {
-			return t.accept(this);
-		}
+		return t.accept(this);
 	}
 
 	private IValue genSet(Type type) {
@@ -117,19 +104,17 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 	@Override
 	public IValue visitAbstractData(Type type) {
 		LinkedList<Type> alternatives = new LinkedList<Type>();
-		alternatives.addAll(this.rootEnv.lookupAlternatives(type));
+		alternatives.addAll(definitions.lookupAlternatives(type));				
 		Collections.shuffle(alternatives);
 		for (Type pick : alternatives) {
 			IConstructor result = (IConstructor) this.generate(pick);
 			if (result != null) {
 				RandomValueTypeVisitor visitor = descend();
-				Map<String, Type> annotations = rootEnv.getStore()
-						.getAnnotations(type);
+				Map<String, Type> annotations = definitions.getAnnotations(type);
 				for (Map.Entry<String, Type> entry : annotations.entrySet()) {
 					IValue value = visitor.generate(entry.getValue());
 					if (value == null) {
 						return null;
-
 					}
 					result = result.asAnnotatable().setAnnotation(entry.getKey(), value);
 				}
@@ -384,6 +369,15 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 	public IValue visitVoid(Type type) {
 		throw new Throw(vf.string("void has no values."),
 				(ISourceLocation) null, null);
+	}
+	
+	public static void main(String[] args) {
+		RandomValueTypeVisitor r = new RandomValueTypeVisitor(ValueFactoryFactory.getValueFactory(), 3, null, null);
+		
+	    Type intType = r.tf.integerType();
+	    Type strType = r.tf.stringType();
+	    
+		System.out.println(r.generate(r.tf.setType(intType)));
 	}
 
 }

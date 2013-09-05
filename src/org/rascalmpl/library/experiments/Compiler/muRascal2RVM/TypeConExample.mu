@@ -1,6 +1,6 @@
 module TypeConExample
 
-function compareTypes[2,lhs,rhs] { return prim("equal_type_type", lhs, rhs); }
+function compareTypes[2,lhs,rhs] { return prim("type_equal_type", lhs, rhs); }
 
 function subtype[2,lhs,rhs] { return prim("subtype", lhs, rhs); }
 
