@@ -262,14 +262,12 @@ public class RVM {
 				}
 				int op = instructions[pc++];
 
-				if (true) {
+				if (debug) {
 					int startpc = pc - 1;
 					for (int i = 0; i < sp; i++) {
-						//stdout.println("\t" + i + ": " + asString(stack[i]));
-						System.out.println("\t" + i + ": " + asString(stack[i]));
+						stdout.println("\t" + i + ": " + asString(stack[i]));
 					}
-					//stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
-					System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
 
 
