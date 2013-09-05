@@ -57,7 +57,7 @@ map[str,Declaration] parseLibrary(){
  
   	for(fun <- libModule.functions){
   	    required_frame_size = fun.nlocals + estimate(fun.body);
-    	funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.nformals, fun.nlocals, required_frame_size, trblock(fun.body)));
+    	funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, fun.nlocals, required_frame_size, trblock(fun.body)));
   	}
   
   	writeTextValueFile(LibraryPrecompiled, funMap);
@@ -92,7 +92,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
     nlocal = fun.nlocals;
     code = trblock(fun.body);
     required_frame_size = nlocal + estimate(fun.body);
-    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.nformals, nlocal, required_frame_size, code));
+    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code));
     est = estimate(fun.body);
     //println("\n*** <fun.qname>: locals=<nlocal>, stack estimate=<est>, total stack requirement=<nlocal+est>");
     //iprintln(code);
@@ -105,7 +105,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
   	main_fun = getFUID(module_name,"main",ftype,0);
   	module_init_fun = getFUID(module_name,"#module_init_main",ftype,0);
   }
-  funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, 1, size(variables) + 1, defaultStackSize, 
+  funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   									[*tr(initializations), 
   									 LOADLOC(0), 
   									 CALL(main_fun,1), 
@@ -119,7 +119,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
   	main_testsuite = getFUID(module_name,"testsuite",ftype,0);
   	module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
-  funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, ftype, 1, size(variables) + 1, defaultStackSize, 
+  funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   										[*tr(initializations), 
   									 	 LOADLOC(0), 
   									 	 CALL(main_testsuite,1), 

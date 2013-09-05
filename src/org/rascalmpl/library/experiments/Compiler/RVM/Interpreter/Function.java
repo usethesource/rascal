@@ -9,7 +9,9 @@ import org.eclipse.imp.pdb.facts.type.Type;
 public class Function {
 	 final String name;
 	 final Type ftype;
-	 private int scopeId;
+	 int scopeId;
+	 private String funIn;
+	 int scopeIn = -1;
 	 final int nformals;
 	 final int nlocals;
 	 final int maxstack;
@@ -17,9 +19,10 @@ public class Function {
 	 IValue[] constantStore;
 	 Type[] typeConstantStore;
 	
-	public Function(String name, Type ftype, int nformals, int nlocals, int maxstack, CodeBlock codeblock){
+	public Function(String name, Type ftype, String funIn, int nformals, int nlocals, int maxstack, CodeBlock codeblock){
 		this.name = name;
 		this.ftype = ftype;
+		this.funIn = funIn;
 		this.nformals = nformals;
 		this.nlocals = nlocals;
 		this.maxstack = maxstack;
@@ -29,6 +32,9 @@ public class Function {
 	public void  finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
 		codeblock.done(name, codeMap, constructorMap, listing);
 		this.scopeId = codeblock.getFunctionIndex(name);
+		if(funIn != null) {
+			this.scopeIn = codeblock.getFunctionIndex(funIn);
+		}
 		this.constantStore = codeblock.getConstants();
 		this.typeConstantStore = codeblock.getTypeConstants();
 	}
@@ -37,7 +43,4 @@ public class Function {
 		return name;
 	}
 	
-	public int getScopeId() {
-		return this.scopeId;
-	}
 }

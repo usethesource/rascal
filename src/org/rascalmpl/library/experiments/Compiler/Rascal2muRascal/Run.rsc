@@ -36,7 +36,7 @@ void runMu2rvm(){
   println("main_testsuite = <main_testsuite>");
   // Generate a very generic function type
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-  muP.functions = muP.functions + muFunction(main_testsuite, ftype, 1, 1, |rascal:///|, [], (), code);
+  muP.functions = muP.functions + muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, |rascal:///|, [], (), code);
   rvmP = mu2rvm(muP);
   <v, t> = executeProgram(rvmP, true, 1, false);
   println("Result = <v>, [<t> msec]");
