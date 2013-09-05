@@ -1,10 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -61,6 +59,8 @@ public enum RascalPrimitive {
 	int_add_num,
 	int_add_rat,
 	int_add_real,
+	
+	int_mod_int,
 
 	num_add_int,
 	num_add_num,
@@ -685,6 +685,12 @@ public enum RascalPrimitive {
 	public static int map_compose_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).compose((IMap) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int int_mod_int(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).mod((IInteger) stack[sp - 1]);
 		return sp - 1;
 	}
 
