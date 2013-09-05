@@ -1045,6 +1045,7 @@ public class Prelude {
 	
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  Reader reader = null;
 	  
 		try {
 			Charset c = ctx.getResolverRegistry().getCharset(sloc.getURI());
@@ -1052,12 +1053,22 @@ public class Prelude {
 				return readFileEnc(sloc, values.string(c.name()), ctx);
 			}
 			sloc = ctx.getHeap().resolveSourceLocation(sloc);
-			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI()), ctx);
+		  reader = ctx.getResolverRegistry().getCharacterReader(sloc.getURI());
+      return consumeInputStream(sloc, reader, ctx);
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+		finally {
+		  if (reader != null) {
+		    try {
+          reader.close();
+        } catch (IOException e) {
+          // TODO Auto-generated catch block
+        }
+		  }
 		}
 	}
 	
@@ -1234,19 +1245,29 @@ public class Prelude {
 	
 	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  Reader reader = null;
 	  
 		try {
 			Charset detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
 			if (detected != null) {
 				return readFileLinesEnc(sloc, values.string(detected.name()), ctx);
 			}
-			return consumeInputStreamLines(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI()), ctx);
+			reader = ctx.getResolverRegistry().getCharacterReader(sloc.getURI());
+      return consumeInputStreamLines(sloc, reader, ctx);
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
+		} finally {
+		  if (reader != null) {
+		    try {
+          reader.close();
+        } catch (IOException e) {
+          // forgot about it
+        }
+		  }
 		}
 	}
 	

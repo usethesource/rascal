@@ -145,10 +145,7 @@ public class RSFIO {
 		ISetWriter rw = values.relationWriter(resultType.getElementType());
 		String rname = relName.getValue();
 
-		Reader reader = null;
-		try {
-			reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI());
-			
+		try (Reader reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI())) {
 			java.lang.String line = readLine(reader);
 
 			while (!line.isEmpty()) {
@@ -166,15 +163,6 @@ public class RSFIO {
 
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}
-		finally {
-			if (reader != null){
-				try {
-					reader.close();
-				} catch (IOException e){
-					throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
-				}
-			}
 		}
 		
 		return rw.done();
