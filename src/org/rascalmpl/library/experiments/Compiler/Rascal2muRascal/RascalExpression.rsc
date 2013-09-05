@@ -411,8 +411,9 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
 	nformals = size(ftype.parameters);
 	nlocals = getScopeSize(fuid);
 	body = [ *translate(stat) | stat <- statements ];
-	functions_in_module += [ muFunction(fuid, ftype, nformals, nlocals, e@\loc, [], (), body) ];
 	tuple[str fuid,int pos] addr = uid2addr[uid];
+	functions_in_module += [ muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+										nformals, nlocals, e@\loc, [], (), body) ];
 	return [ (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid) ];
 }
 

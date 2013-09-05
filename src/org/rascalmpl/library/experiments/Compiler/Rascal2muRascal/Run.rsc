@@ -29,14 +29,14 @@ void run(){
 }
 
 void runMu2rvm(){
-  muP = parse(muExample1);
+  muP = parse(muExample4);
   // Add 'testsuite'
   code = [ muCallPrim("testreport_open", []), muCallPrim("testreport_close", []), muReturn() ];
   main_testsuite = getUID(muP.name,[],"testsuite",1);
   println("main_testsuite = <main_testsuite>");
   // Generate a very generic function type
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-  muP.functions = muP.functions + muFunction(main_testsuite, ftype, 1, 1, |rascal:///|, [], (), code);
+  muP.functions = muP.functions + muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, |rascal:///|, [], (), code);
   rvmP = mu2rvm(muP);
   <v, t> = executeProgram(rvmP, true, 1, false);
   println("Result = <v>, [<t> msec]");

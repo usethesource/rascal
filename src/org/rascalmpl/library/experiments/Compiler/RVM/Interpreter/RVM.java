@@ -189,7 +189,7 @@ public class RVM {
 	
 	public IValue executeFunction(String uid_func, IValue[] args){
 		Function func = functionStore.get(functionMap.get(uid_func));
-		Frame root = new Frame(func.getScopeId(), null, func.maxstack, func);
+		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
 		Frame cf = root;
 		
 		// Pass the program argument to main
@@ -201,7 +201,7 @@ public class RVM {
 	
 	// Execute a function instance, i.e., in its environment
 	public IValue executeFunction(Frame root, FunctionInstance func, IValue[] args){
-		Frame cf = new Frame(func.function.getScopeId(), null, func.env, func.function.maxstack, func.function);
+		Frame cf = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
 		
 		// Pass the program argument to main
 		for(int i = 0; i < args.length; i++){
@@ -239,7 +239,7 @@ public class RVM {
 		// Perform a call to #module_init" at scope level = 0
 
 		// We need the notion of the root frame, which represents the root environment
-		Frame root = new Frame(init_function.getScopeId(), null, init_function.maxstack, init_function);
+		Frame root = new Frame(init_function.scopeId, null, init_function.maxstack, init_function);
 		Frame cf = root;
 		cf.stack[0] = args; // pass the program argument to #module_init 
 
@@ -262,12 +262,14 @@ public class RVM {
 				}
 				int op = instructions[pc++];
 
-				if (debug) {
+				if (true) {
 					int startpc = pc - 1;
 					for (int i = 0; i < sp; i++) {
-						stdout.println("\t" + i + ": " + asString(stack[i]));
+						//stdout.println("\t" + i + ": " + asString(stack[i]));
+						System.out.println("\t" + i + ": " + asString(stack[i]));
 					}
-					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+					//stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+					System.out.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
 
 
@@ -468,7 +470,7 @@ public class RVM {
 						
 					instructions = fun.codeblock.getInstructions();
 					
-					Frame nextFrame = new Frame(fun.getScopeId(), cf, previousScope, fun.maxstack, fun);
+					Frame nextFrame = new Frame(fun.scopeId, cf, previousScope, fun.maxstack, fun);
 					
 					for (int i = fun.nformals - 1; i >= 0; i--) {
 						nextFrame.stack[i] = stack[sp - fun.nformals + i];
@@ -546,7 +548,7 @@ public class RVM {
 					} else if(src instanceof FunctionInstance) {
 						FunctionInstance fun_instance = (FunctionInstance) src;
 						fun = fun_instance.function;
-						Frame frame = new Frame(fun.getScopeId(), null, fun_instance.env, fun.maxstack, fun);
+						Frame frame = new Frame(fun.scopeId, null, fun_instance.env, fun.maxstack, fun);
 						coroutine = new Coroutine(frame);
 					} else {
 						throw new RuntimeException("unexpected argument type for INIT: " + src.getClass() + ", " + src);
@@ -582,7 +584,7 @@ public class RVM {
 						}
 					}
 					arity = instructions[pc++];
-					Frame frame = new Frame(fun.getScopeId(), null, previousScope, fun.maxstack, fun);
+					Frame frame = new Frame(fun.scopeId, null, previousScope, fun.maxstack, fun);
 					// the main function of coroutine may have formal parameters,
 					// therefore, CREATE may take a number of arguments <= formal parameters
 					if(arity > fun.nformals)
