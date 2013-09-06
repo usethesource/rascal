@@ -50,7 +50,12 @@ test bool tst() = run("i = 10", "while(i \> 0){ i = i - 1; if(i % 2 == 1) contin
 
 test bool tst() = run("i = 10", "while(i \> 0){ i = i - 1; if(i == 3) break; append i;}") == {i = 10; while(i > 0){ i = i - 1; if(i == 3) break; append i;}};
 
+// Do
 
+
+test bool tst() = run("i = 10", "do { append i; i = i - 1;} while(i \> 0);") == {i = 10; do { append i; i = i - 1;} while (i > 0);};
+test bool tst() = run("i = 10", "do {i = i - 1; if(i % 2 == 1) continue; append i; } while(i \> 0);") == {i = 10; do {i = i - 1; if(i % 2 == 1) continue; append i; } while(i > 0);};
+test bool tst() = run("i = 10", "do {i = i - 1; if(i == 3) break; append i; } while(i \> 0);") == {i = 10; do {i = i - 1; if(i == 3) break; append i; } while(i > 0);};
 
 
 
