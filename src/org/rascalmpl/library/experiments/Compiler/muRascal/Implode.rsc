@@ -52,7 +52,7 @@ MuFunction preprocess(Function f, str modName){
    scopeIn = (!isEmpty(f.funNames)) ? getUID(modName,f.funNames) : ""; // if not a function scope, then the root one
    // Generate a very generic function type
    ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals + 1] ]);
-   return muFunction(uid, ftype, scopeIn, f.nformals, size(vardefs[uid]), |rascal:///|, [], (), preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body));
+   return muFunction(uid, ftype, scopeIn, f.nformals, size(vardefs[uid]), |rascal:///|, [], (), muBlock(preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body)));
 }
 
 list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] exps){

@@ -2,7 +2,8 @@ module experiments::Compiler::Tests::Patterns
 
 import  experiments::Compiler::Compile;
 
-value run(str exp) = execute("module TMP data D = d1(int n) | d2(str s); value main(list[value] args) = <exp>;");
+value run(str exp, bool listing=false, bool debug=false) = 
+   execute("module TMP data D = d1(int n) | d2(str s); value main(list[value] args) = <exp>;",listing=listing,debug=debug);
 
 data D = d1(int n) | d2(str s);
 
