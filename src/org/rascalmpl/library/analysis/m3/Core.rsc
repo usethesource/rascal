@@ -28,7 +28,7 @@ metrics or other analysis tools should still take semantic differences between p
 module analysis::m3::Core
 
 import Message;
-import TypeSymbol;
+import analysis::m3::TypeSymbol;
  
 data Modifiers;
 data M3 = m3(str projectName);
