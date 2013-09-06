@@ -33,6 +33,7 @@ metrics or other analysis tools should still take semantic differences between p
 module analysis::m3::AST 
 
 import Message;
+import analysis::m3::TypeSymbol;
 
 anno loc Modifiers@binding;
 
