@@ -1,7 +1,6 @@
 module Library
 
 
- 
 /*
 
 function main[1,args] { return next(init(create(TRUE))); }
@@ -78,6 +77,7 @@ function ENUM_LITERAL[2, ^lit]{
    return ^lit;
 }
 
+
 function ENUM_LIST[1, ^lst, last, i]{
    last = size(^lst) - 1;
    i = 0;
@@ -114,7 +114,7 @@ function do_enum[2, enum, pat, cpat, elm]{
      };
    };      
 }
-
+        
 function ENUMERATE_AND_MATCH[2,  pat, ^val]{
   if(^val is list){
      do_enum(init(create(ENUM_LIST, ^val)), pat);
