@@ -28,7 +28,7 @@ data TypeSymbol
   | \long()
   | \void()
   | \null()
-  | \array(list[TypeSymbol] dimensions)
+  | \array(TypeSymbol component, int dimension)
   ;
   
   
