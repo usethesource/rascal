@@ -3,8 +3,12 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -83,6 +87,7 @@ public enum RascalPrimitive {
 	str_add_str,
 	
 	str_addindented_str,
+	str_remove_margins,
 	
 	adt_field_access,
 	adt_field_update,
@@ -344,6 +349,10 @@ public enum RascalPrimitive {
 	lrel_transitive_reflexive_closure,
 	rel_transitive_reflexive_closure,
 	
+	template_open,
+	template_add,
+	template_close,
+	
 	tuple_field_access,
 	tuple_field_project,
 	tuple_create,
@@ -392,21 +401,20 @@ public enum RascalPrimitive {
 		for(int i = 0; i < methods1.length; i++){
 			Method m = methods1[i];
 			String name = m.getName();
-			switch(name){
-			case "init":
-			case "invoke":
-			case "fromInteger":
-			case "values":
-			case "valueOf":
-			case "main":
-			case "makeSlice":
-			case "makeSliceDescriptor":
-			case "getInt":
-				/* ignore all utility functions that do not implement some primitive */
-				break;
-			default:
-				implemented.add(name);
-				methods[valueOf(name).ordinal()] = m;
+			if(!name.startsWith("$")){ // ignore all auxiliary functions that start with $.
+				switch(name){
+				case "init":
+				case "invoke":
+				case "fromInteger":
+				case "values":
+				case "valueOf":
+				case "main":
+					/* ignore all utility functions that do not implement some primitive */
+					break;
+				default:
+					implemented.add(name);
+					methods[valueOf(name).ordinal()] = m;
+				}
 			}
 		}
 		for(int i = 0; i < values.length; i++){
@@ -616,19 +624,90 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
+	/*
+	 * String templates
+	 */
+	
+	private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
+	private static final Pattern INDENT = Pattern.compile("(?<![\\\\])'([ \t]*)([^']*)$");
+	private static final Pattern NONSPACE = Pattern.compile("[^ \t]");
+	
+	
+	private static Stack<String> indentStack = new Stack<String>();
+	
+	private static void $indent(String s){
+		indentStack.push(s);
+	}
+	
+	public static String $getCurrentIndent() {
+		return indentStack.peek();
+	}
+	
+	private static void $unindent(){
+		indentStack.pop();
+	}
+	
+	public static int template_open(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		
+		$indent(indentStack.size() == 0 ? "" : $computeIndent($getCurrentIndent()));
+		stack[sp] = vf.string("");
+		return sp + 1;
+	}
+	
+	public static int template_close(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		$unindent();
+		return sp;
+	}
+	
+	private static String $computeIndent(String arg) {
+		Matcher m = INDENT.matcher(arg);
+		if (m.find()) {
+			return m.group(1) + $replaceEverythingBySpace(m.group(2));
+		}
+		return "";
+	}
+	
+	private static String $replaceEverythingBySpace(String input) {
+		return NONSPACE.matcher(input).replaceAll(" ");
+	}
+	
+	public static int str_remove_margins(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		String arg = ((IString) stack[sp - 1]).getValue();
+		arg = MARGIN.matcher(arg).replaceAll("");
+		stack[sp - 1] = vf.string(org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(arg));
+		return sp;
+	}
+	
+	private static String $removeMargins(String arg) {
+		arg = MARGIN.matcher(arg).replaceAll("");
+		return org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(arg);
+	}
+	
+	private static IString $processString(IString s){
+		return vf.string($removeMargins(s.getValue()));
+	}
+	
+	public static int template_add(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		IString template = (IString) stack[sp - arity];
+		for(int i = 1; i < arity; i++){
+			template = template.concat($processString((IString) stack[sp - arity + i]));
+		}
+		stack[sp - arity] = template;
+		return sp - arity + 1;
+	}
+	
 	public static int str_addindented_str(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
-		if(arity == 2){
-			stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
-			return sp - 1;
-		} else {  // for the benfit of string templates
-			IString res = (IString) stack[sp - arity];
-			for(int i = 1; i < arity; i++){
-				res = res.concat((IString) stack[sp - arity + i]);
-			}
-			stack[sp - arity] = res;
-			return sp - arity + 1;
+		IString template = (IString) stack[sp - arity];
+		for(int i = 1; i < arity; i++){
+			template = template.concat($processString((IString) stack[sp - arity + i]));
 		}
+		stack[sp - arity] = template;
+		return sp - arity + 1;
 	}
 
 	//	public static int addition_loc_str(Object[] stack, int sp) { 	}
@@ -1783,7 +1862,7 @@ public enum RascalPrimitive {
 		assert arity == 5;
 		IList lst = (IList) stack[sp - 5];
 		IList repl = (IList) stack[sp - 1];
-		SliceDescriptor sd = makeSliceDescriptor(stack, sp, arity, lst.length());
+		SliceDescriptor sd = $makeSliceDescriptor(stack, sp, arity, lst.length());
 		stack[sp - 5] = lst.replace(sd.first, sd.second, sd.end, repl);
 		return sp - 4;
 	}
@@ -1792,7 +1871,7 @@ public enum RascalPrimitive {
 		assert arity == 5;
 		IString str = (IString) stack[sp - 5];
 		IString repl = (IString) stack[sp - 1];
-		SliceDescriptor sd = makeSliceDescriptor(stack, sp, arity, str.length());
+		SliceDescriptor sd = $makeSliceDescriptor(stack, sp, arity, str.length());
 		stack[sp - 5] = str.replace(sd.first, sd.second, sd.end, repl);
 		return sp - 4;
 	}
@@ -1801,12 +1880,12 @@ public enum RascalPrimitive {
 		assert arity == 5;
 		INode node = (INode) stack[sp - 5];
 		IList repl = (IList) stack[sp - 1];
-		SliceDescriptor sd = makeSliceDescriptor(stack, sp, arity, node.arity());
+		SliceDescriptor sd = $makeSliceDescriptor(stack, sp, arity, node.arity());
 		stack[sp - 5] = node.replace(sd.first, sd.second, sd.end, repl);
 		return sp - 4;
 	}
 	
-	private static Integer getInt(IValue v){
+	private static Integer $getInt(IValue v){
 		return v instanceof IInteger ? ((IInteger) v).intValue() : null;
 	}
 	
@@ -1814,7 +1893,7 @@ public enum RascalPrimitive {
 		assert arity == 4;
 		
 		IList lst = (IList) stack[sp - 4];
-		stack[sp - 4] = makeSlice(lst, makeSliceDescriptor(stack, sp, arity, lst.length()));
+		stack[sp - 4] = $makeSlice(lst, $makeSliceDescriptor(stack, sp, arity, lst.length()));
 		return sp - 3;
 	}
 	
@@ -1822,7 +1901,7 @@ public enum RascalPrimitive {
 		assert arity == 4;
 		
 		IString str = (IString) stack[sp - 4];
-		stack[sp - 4] = makeSlice(str, makeSliceDescriptor(stack, sp, arity, str.length()));
+		stack[sp - 4] = $makeSlice(str, $makeSliceDescriptor(stack, sp, arity, str.length()));
 		return sp - 3;
 	}
 	
@@ -1846,17 +1925,17 @@ public enum RascalPrimitive {
 		assert arity == 4;
 		
 		INode node = (INode) stack[sp - 4];
-		stack[sp - 4] = makeSlice(node, makeSliceDescriptor(stack, sp, arity, node.arity()));
+		stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor(stack, sp, arity, node.arity()));
 		return sp - 3;
 	}
 	
-	public static SliceDescriptor makeSliceDescriptor(Object[] stack, int sp, int arity, int len) {
+	public static SliceDescriptor $makeSliceDescriptor(Object[] stack, int sp, int arity, int len) {
 		assert arity == 4;
 		
-		Integer first = getInt((IValue) stack[sp - 3]);
+		Integer first = $getInt((IValue) stack[sp - 3]);
 	
-		Integer second = getInt((IValue) stack[sp - 2]);
-		Integer end = getInt((IValue) stack[sp - 1]);
+		Integer second = $getInt((IValue) stack[sp - 2]);
+		Integer end = $getInt((IValue) stack[sp - 1]);
 		
 		int firstIndex = 0;
 		int secondIndex = 1;
@@ -1901,7 +1980,7 @@ public enum RascalPrimitive {
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
 	}
 	
-	public static IList makeSlice(IList lst, SliceDescriptor sd){
+	public static IList $makeSlice(IList lst, SliceDescriptor sd){
 		IListWriter w = vf.listWriter();
 		int increment = sd.second - sd.first;
 		if(sd.first == sd.end || increment == 0){
@@ -1919,7 +1998,7 @@ public enum RascalPrimitive {
 		return w.done();
 	}
 	
-	public static IString makeSlice(IString str, SliceDescriptor sd){
+	public static IString $makeSlice(IString str, SliceDescriptor sd){
 		StringBuilder buffer = new StringBuilder();
 		int increment = sd.second - sd.first;
 		if(sd.first == sd.end || increment == 0){
@@ -1937,7 +2016,7 @@ public enum RascalPrimitive {
 		return vf.string(buffer.toString());
 	}
 	
-	public static IList makeSlice(INode node, SliceDescriptor sd){
+	public static IList $makeSlice(INode node, SliceDescriptor sd){
 		IListWriter w = vf.listWriter();
 		int increment = sd.second - sd.first;
 		if(sd.first == sd.end || increment == 0){
@@ -2517,6 +2596,8 @@ public enum RascalPrimitive {
 		return sp - 2;
 	}
 	
+	
+	
 	public static int value_to_string(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = vf.string(((IValue) stack[sp -1]).toString());
@@ -2529,6 +2610,7 @@ public enum RascalPrimitive {
 
 	public static void main(String[] args) {
 		init(ValueFactoryFactory.getValueFactory(), null, null);
+		System.err.println("RascalPrimitives have been validated!");
 	}
 
 }

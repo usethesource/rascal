@@ -41,16 +41,13 @@ MuExp translateTemplate((StringTemplate) `while ( <Expression condition> ) { <St
     whilename = nextLabel();
     result = asTmp(whilename);
     enterLoop(whilename);
-    println("preStats =  <preStats>");
-    println("body =  <body>");
-    println("postStats =  <postStats>");
-    code = [ muAssignTmp(result, muCon("")), 
+    code = [ muAssignTmp(result, muCallPrim("template_open", [])), 
              muWhile(whilename, muOne([translate(condition)]), 
                      [ translate(preStats),  
-                       muAssignTmp(result, muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(body)]) ), 
+                        muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])), 
                        translate(postStats)
                      ]),
-             muTmp(result)
+             muCallPrim("template_close", [muTmp(result)])
            ];
     leaveLoop();
     return muBlock(code);
@@ -74,13 +71,13 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
     forname = nextLabel();
     result = asTmp(forname);
     enterLoop(forname);
-    code = [ muAssignTmp(result, muCon("")), 
+    code = [ muAssignTmp(result, muCallPrim("template_open", [])),
              muWhile(forname, muAll([translate(c) | c <-generators]), 
                      [ translate(preStats),  
-                       muAssignTmp(result, muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(body)])),
+                       muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
                        translate(postStats)
                      ]),
-             muTmp(result)
+             muCallPrim("template_close", [muTmp(result)])
            ];
     leaveLoop();
     return muBlock(code);
@@ -93,13 +90,13 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
     ifname = nextLabel();
     result = asTmp(ifname);
     enterLoop(ifname);
-    code = [ muAssignTmp(result, muCon("")),
+    code = [ muAssignTmp(result, muCallPrim("template_open", [])),
              muIfelse(muOne([translate(c) | c <-conditions]), 
                       [ translate(preStats),
-                        muAssignTmp(result, muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(body)])), 
+                         muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
                         translate(postStats)],
                       []),
-             muTmp(result)
+               muCallPrim("template_close", [muTmp(result)])
            ];
     leaveLoop();
     return muBlock(code);
@@ -112,17 +109,17 @@ MuExp translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) 
     ifname = nextLabel();
     result = asTmp(ifname);
     enterLoop(ifname);
-    code = [ muAssignTmp(result, muCon("")),
+    code = [ muAssignTmp(result, muCallPrim("template_open", [])),
              muIfelse(muOne([translate(c) | c <-conditions]), 
                       [ translate(preStatsThen), 
-                        muAssignTmp(result, muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(thenString)])),
+                        muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(thenString)])),
                         translate(postStatsThen)
                       ],
                       [ translate(preStatsElse), 
-                        muAssignTmp(result, muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(elseString)])), 
+                        muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(elseString)])),
                         translate(postStatsElse)
                       ]),
-             muTmp(result)
+              muCallPrim("template_close", [muTmp(result)])
            ];
     leaveLoop();
     return muBlock(code);                                             

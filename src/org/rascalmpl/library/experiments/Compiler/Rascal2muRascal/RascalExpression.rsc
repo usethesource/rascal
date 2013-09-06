@@ -369,7 +369,7 @@ MuExp translateStringLiteral((StringLiteral) `<PreStringChars pre> <StringTempla
 MuExp translateStringLiteral((StringLiteral) `<PreStringChars pre> <Expression expression> <StringTail tail>`) =
      muCallPrim("str_addindented_str", [muCon("<pre>"[1..-1]), muCallPrim("value_to_string", [translate(expression)]), translateTail(tail)]);
 
-MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString("<constant>"));
+MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCallPrim("str_remove_margins", [muCon(readTextValueString("<constant>"))]);
 
 /*
 syntax StringTemplate
