@@ -18,7 +18,6 @@ package org.rascalmpl.interpreter.debug;
 
 import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullEventTrigger;
 
-import java.net.URI;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
