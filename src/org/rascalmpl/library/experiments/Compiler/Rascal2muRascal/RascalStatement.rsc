@@ -11,7 +11,7 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
-//MuExp translate((Statement) `<Statement* statements>`) = muBlock([ translate(stat) | stat <- statements ]);
+default MuExp translate((Statement) `<Statement* statements>`) = muBlock([ translate(stat) | stat <- statements ]);
 
 /********************************************************************/
 /*                  Statement                                       */
@@ -45,7 +45,11 @@ MuExp translateTemplate((StringTemplate) `while ( <Expression condition> ) { <St
     println("body =  <body>");
     println("postStats =  <postStats>");
     code = [ muAssignTmp(result, muCon("")), 
-             muWhile(whilename, muOne(translate(condition)), [ translate(preStats),  muAssignTmp(result, muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(body)]) ), translate(postStats)]),
+             muWhile(whilename, muOne([translate(condition)]), 
+                     [ translate(preStats),  
+                       muAssignTmp(result, muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(body)]) ), 
+                       translate(postStats)
+                     ]),
              muTmp(result)
            ];
     leaveLoop();
@@ -67,12 +71,15 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
 }
 
 MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
-    forname = getLabel(label);
+    forname = nextLabel();
     result = asTmp(forname);
     enterLoop(forname);
     code = [ muAssignTmp(result, muCon("")), 
              muWhile(forname, muAll([translate(c) | c <-generators]), 
-                     [ translate(preStats),  muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(body)]), translate(postStats)]),
+                     [ translate(preStats),  
+                       muAssignTmp(result, muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(body)])),
+                       translate(postStats)
+                     ]),
              muTmp(result)
            ];
     leaveLoop();
@@ -88,7 +95,9 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
     enterLoop(ifname);
     code = [ muAssignTmp(result, muCon("")),
              muIfelse(muOne([translate(c) | c <-conditions]), 
-                      [translate(preStats), muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(body)]), translate(postStats)],
+                      [ translate(preStats),
+                        muAssignTmp(result, muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(body)])), 
+                        translate(postStats)],
                       []),
              muTmp(result)
            ];
@@ -105,8 +114,14 @@ MuExp translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) 
     enterLoop(ifname);
     code = [ muAssignTmp(result, muCon("")),
              muIfelse(muOne([translate(c) | c <-conditions]), 
-                      [translate(preStatsThen), muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(thenString)]), translate(postStatsThen)],
-                      [translate(preStatsElse), muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(elseString)]), translate(postStatsElse)]),
+                      [ translate(preStatsThen), 
+                        muAssignTmp(result, muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(thenString)])),
+                        translate(postStatsThen)
+                      ],
+                      [ translate(preStatsElse), 
+                        muAssignTmp(result, muCallPrim("str_addindented_str", [muTmp(result), translateMiddle(elseString)])), 
+                        translate(postStatsElse)
+                      ]),
              muTmp(result)
            ];
     leaveLoop();
