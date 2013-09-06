@@ -10,7 +10,7 @@ class and interface definitions which coincide with types, another may have high
 
 We cater for languages to have a subtype relation to be defined, and a least upper bound computation. 
 
-You will find more interesting information in the M3 module for Java.
+You will find an interestin examples in [lang::java::m3::TypeSymbol].
 
 Benefits:
 
