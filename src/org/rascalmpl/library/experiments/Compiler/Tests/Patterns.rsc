@@ -1,11 +1,13 @@
 module experiments::Compiler::Tests::Patterns
 
-import  experiments::Compiler::Compile;
+import experiments::Compiler::Tests::TestUtils;
 
-value run(str exp, bool listing=false, bool debug=false) = 
-   execute("module TMP data D = d1(int n) | d2(str s); value main(list[value] args) = <exp>;",listing=listing,debug=debug);
-
-data D = d1(int n) | d2(str s);
+//import  experiments::Compiler::Compile;
+//
+//value run(str exp, bool listing=false, bool debug=false) = 
+//   execute("module TMP data D = d1(int n) | d2(str s); value main(list[value] args) = <exp>;",listing=listing,debug=debug);
+//
+//data D = d1(int n) | d2(str s);
 
 // Literals
 
@@ -34,7 +36,7 @@ test bool tst() = run("\"a\" := \"a\"") == "a" := "a";
 test bool tst() = run("\"a\" := \"b\"") == "a" := "b";
 
 // Datetime
-
+// The following two tests fail, since theinterpreter does not support datetime patterns. We are ahead :-)
 test bool tst() = run("$2012-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$") == ($2012-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$);
 test bool tst() = run("$2013-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$") == ($2013-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$);
 
@@ -76,19 +78,24 @@ test bool tst() = run("[1, *x, 5] := [1,2,3,4,5]") == [1, *x, 5] := [1,2,3,4,5] 
 test bool tst() = run("[1, *int x, 5] := [1,2,3,4,5]") == [1, *int x, 5] := [1,2,3,4,5];
 test bool tst() = run("[1, *int x, 5] := [1,2,3,4,5]") == [1, *int x, 5] := [1,2,3,4,5] && x == [2,3,4];
 
+// This seems to be an error in the typechecker:
 test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2]") == [*int x, 3, x] := [1,2,3,1,2] && x == [1, 2];
 
 // Node/Constructor matching
 
-test bool tst() = run("d1(1) := d1(1)") == d1(1) := d1(1);
-test bool tst() = run("d1(1) := d1(2)") == d1(1) := d1(2);
-test bool tst() = run("d2(\"a\") := d2(\"a\")") == d2("a") := d2("a");
-test bool tst() = run("d2(\"a\") := d2(\"b\")") == d2("a") := d2("b");
+// Begin of unresolved issues: "PANIC: undefined function name TMP"
+test bool tst() = run("d1(1,\"a\") := d1(1, \"a\")") == d1(1,"a") := d1(1, "a");
+test bool tst() = run("d1(1,\"a\") := d1(2,\"a\")") == d1(1,"a") := d1(2,"a");
+test bool tst() = run("d2(\"a\", 1) := d2(\"a\", 1)") == d2("a", 1) := d2("a", 1);
+test bool tst() = run("d2(\"a\", 1) := d2(\"b\", 1)") == d2("a", 1) := d2("b", 1);
 
-test bool tst() = run("d1(x) := d1(1)") == d1(x) := d1(1) && x == 1;
-test bool tst() = run("d1(int x) := d1(1)") == d1(int x) := d1(1) && x == 1;
+test bool tst() = run("d1(x, \"a\") := d1(1, \"a\")") == d1(x, "a") := d1(1, "a") && x == 1;
+test bool tst() = run("d1(int x, \"a\") := d1(1, \"a\")") == d1(int x, "a") := d1(1, "a") && x == 1;
 
-test bool tst() = run("str f(int x) := d1(1)") == str f(int x) := d1(1) && x == 1 && f == "d1";
+// End of unresolved issues.
+
+// This is a bug in MATCH_CALL_OR_TREE
+test bool tst() = run("str f(int x, str s) := d1(1, \"a\")") == str f(int x, str s) := d1(1, "a") && x == 1 && s == "a" && f == "d1";
 
 
 

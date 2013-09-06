@@ -1,13 +1,6 @@
 module experiments::Compiler::Tests::StringTemplates
 
-import  experiments::Compiler::Compile;
-
-value run(str exp, bool listing=false, bool debug=false) = 
-	execute("module TMP value main(list[value] args) = <exp>;", listing=listing, debug=debug);
-	
-value run(str before, str exp, bool listing=false, bool debug=false) = 
-	execute("module TMP value main(list[value] args) {<before> ; return <exp>;}", listing=listing, debug=debug);
-	
+import experiments::Compiler::Tests::TestUtils;
 
 
 test bool tst() = run("\"ab\"") == "ab";
