@@ -30,3 +30,52 @@ public test bool capitalA() {
 		return true;
 	} catch ParseError(loc _): return false;
 }
+
+public test bool keywordSuffix1() {
+	try {
+		parse(#Command, "syntax Aall = \"a\";");
+		return true;
+	} catch ParseError(loc _): return false;
+}
+
+public test bool keywordSuffix2() {
+	try {
+		parse(#Command, "syntax Bany = \"a\";");
+		return true;
+	} catch ParseError(loc _): return false;
+}
+
+public test bool keywordSuffix3() {
+	try {
+		parse(#Command, "syntax Canno = \"a\";");
+		return true;
+	} catch ParseError(loc _): return false;
+}
+
+public test bool keywordSuffix4() {
+	try {
+		parse(#Command, "syntax Ddata = \"a\";");
+		return true;
+	} catch ParseError(loc _): return false;
+}
+
+public test bool keywordSuffix5() {
+	try {
+		parse(#Command, "syntax Falias = \"a\";");
+		return true;
+	} catch ParseError(loc _): return false;
+}
+
+public test bool keywordSuffix6() {
+	try {
+		parse(#Command, "syntax Gmodule = \"a\";");
+		return true;
+	} catch ParseError(loc _): return false;
+}
+
+public test bool keywordSuffix7() {
+	try {
+		parse(#Command, "syntax Htag = \"a\";");
+		return true;
+	} catch ParseError(loc _): return false;
+}

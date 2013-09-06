@@ -3,7 +3,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
@@ -340,6 +339,7 @@ public enum RascalPrimitive {
 	real_subtract_real,
 	real_subtract_rat,
 	
+	assertreport,
 	testreport_add,
 	testreport_close,
 	testreport_open,
@@ -438,6 +438,22 @@ public enum RascalPrimitive {
 	/***************************************************************
 	 * 				IMPLEMENTATION OF PRIMITIVES                   *
 	 ***************************************************************/
+	
+	/*
+	 * assertreport
+	 */
+	public static int assertreport(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		boolean succeeded = (stack[sp - 3] instanceof Boolean) ? (Boolean) stack[sp - 3] : ((IBool) stack[sp - 3]).getValue();
+		String message = ((IString) stack[sp - 2]).getValue();
+		message = message.isEmpty() ? "" : ": " + message;
+		ISourceLocation src = ((ISourceLocation) stack[sp - 1]);
+		if(!succeeded){
+			stdout.println("Assertion failed" + message + " at " + src);
+		}
+		return sp - 2;
+	}
+	
 	/*
 	 * add_to_...writer
 	 */
