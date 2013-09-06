@@ -1,3 +1,30 @@
+@doc{
+Synopsis: M3 common source code model represent facts extracted from source code for use in downstream metrics or other analyses.
+
+Description:
+
+The M3 core defines basic concepts such as:
+
+* qualified names: we use [Location]s to model qualified names for each programming language
+* containment: which artifacts are contained in which other artifacts
+* declarations: where artifacts are defined
+* uses: where declared artifacts are used
+* types: which artifacts has which types
+
+From this [Core], M3 is supposed to be extended with features specific for a programming language. See for example [lang::java::m3::JavaM3].
+
+Benefits:
+
+* Qualified names in the shape of [Location]s are a uniform and generic way of identifying source code artifacts, that can be extended acros languages, projects, and versions.
+* M3 helps standardizing the shape of facts we extract from source code for all different languages, limiting the element of surprise.
+* When we use M3 for many languages, common IDE features are made reusable (such as clicking from an extracted fact to the code that generated it).
+* Some downstream analyses may be reusable between different languages if they all map to M3.
+
+Pitfalls:
+
+* Even though different languages may map to the same M3 model, this does not mean that the semantics is the same. Downstream
+metrics or other analysis tools should still take semantic differences between programming languages into account.
+}
 module analysis::m3::Core
 
 import Message;
