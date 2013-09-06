@@ -53,7 +53,33 @@ MuExp translateTemplate((StringTemplate) `while ( <Expression condition> ) { <St
     return muBlock(code);
 }
 
-MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`) { throw("doWhile"); }
+MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`) {  
+    doname = getLabel(label);
+    tmp = asTmp(doname);
+    enterLoop(doname);
+    code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])), 
+             muDo(doname,  [translate(body)], muOne([translate(condition)])),
+             muCallPrim("listwriter_close", [muTmp(tmp)])
+           ];
+    leaveLoop();
+    return muBlock(code);
+}
+
+MuExp translateTemplate(s: (StringTemplate) `do { < Statement* preStats> <StringMiddle body> <Statement* postStats> } while ( <Expression condition> )`) {  
+    doname = nextLabel();
+    result = asTmp(doname);
+    enterLoop(doname);
+    code = [ muAssignTmp(result, muCallPrim("template_open", [])),
+             muDo(doname,  [ translate(preStats),
+                             muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
+                             translate(postStats)], 
+                  muOne([translate(condition)])
+                 ),
+             muCallPrim("template_close", [muTmp(result)])
+           ];
+    leaveLoop();
+    return muBlock(code);
+}
 
 MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`) {
     forname = getLabel(label);
