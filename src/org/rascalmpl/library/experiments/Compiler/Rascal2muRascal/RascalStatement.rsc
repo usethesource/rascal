@@ -17,9 +17,9 @@ default MuExp translate((Statement) `<Statement* statements>`) = muBlock([ trans
 /*                  Statement                                       */
 /********************************************************************/
 	
-MuExp translate(s: (Statement) `assert <Expression expression> ;`) { throw("assert"); }
+MuExp translate(s: (Statement) `assert <Expression expression> ;`) = muCallPrim("assertreport", [translate(expression), muCon(""), muCon(s@\loc)]);
 
-MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) { throw("assertWithMessage"); }
+MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) = muCallPrim("assertreport", [translate(expression), translate(message), muCon(s@\loc)]);
 
 MuExp translate(s: (Statement) `<Expression expression> ;`) = translate(expression);
 
