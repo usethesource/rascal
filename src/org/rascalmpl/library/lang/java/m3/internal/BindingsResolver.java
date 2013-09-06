@@ -15,19 +15,61 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IPackageBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.MemberRef;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.MethodRef;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
+import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BindingsResolver {
 	private String project;
+	private TypeStore store;
+	private final IValueFactory values = ValueFactoryFactory.getValueFactory();
+	private final TypeFactory tf = TypeFactory.getInstance();
 	private final boolean collectBindings;
 	
 	private final Map<String, Integer> anonymousClassCounter = new HashMap<String, Integer>();
 	private final Map<String, String> resolvedAnonymousClasses = new HashMap<String, String>();
 	private final Map<URI, Integer> initializerCounter = new HashMap<URI, Integer>();
 	
-	BindingsResolver(boolean collectBindings) {
+	BindingsResolver(final TypeStore store, boolean collectBindings) {
 		this.collectBindings = collectBindings;
+		this.store = store;
 	}
 	
 	public void setProject(String project) {
@@ -129,7 +171,142 @@ public class BindingsResolver {
 		return convertBinding("unknown", null, null, null);
 	}
 	
-	private URI resolveBinding(IMethodBinding binding) {
+	private IConstructor resolveType(ISourceLocation uri, IBinding binding) {
+    if (binding instanceof ITypeBinding) {
+      return computeTypeSymbol(uri, (ITypeBinding) binding);
+    } else if (binding instanceof IMethodBinding) {
+      return computeMethodTypeSymbol(uri, (IMethodBinding) binding);
+    } else if (binding instanceof IVariableBinding) {
+      return resolveType(uri, ((IVariableBinding) binding).getType());
+    }
+    
+    return null;
+	}
+	
+	private IConstructor computeMethodTypeSymbol(ISourceLocation decl, IMethodBinding binding) {
+    IList parameters = computeTypes(binding.getParameterTypes());
+    
+    if (binding.isConstructor()) {
+      return constructorSymbol(decl, parameters);
+    } else {
+      IList typeParameters = computeTypes(binding.getTypeArguments());
+      IConstructor retSymbol = computeTypeSymbol(binding.getReturnType());
+      return methodSymbol(decl, typeParameters, retSymbol,  parameters);
+    }
+  }
+
+  private IList computeTypes(ITypeBinding[] bindings) {
+    IListWriter parameters = values.listWriter();
+    for (ITypeBinding parameterType: bindings) {
+        parameters.append(computeTypeSymbol(parameterType));
+    }
+    return parameters.done();
+  }
+
+
+  private IConstructor methodSymbol(ISourceLocation decl, IList typeParameters, IConstructor retSymbol, IList parameters) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private IConstructor constructorSymbol(ISourceLocation decl, IList done) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private IConstructor parameterNode(String name, ITypeBinding bound) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private IConstructor parameterNode(String name) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private IConstructor computeTypeSymbol(ITypeBinding binding) {
+    ISourceLocation decl = values.sourceLocation(resolveBinding(binding));
+    return computeTypeSymbol(decl, binding);
+  }
+
+  private IConstructor computeTypeSymbol(ISourceLocation decl, ITypeBinding binding) {
+    if (binding.isPrimitive()) {
+      return primitiveSymbol(binding.getName());
+    }
+    else if (binding.isArray()) {
+      return arraySymbol(computeTypeSymbol(binding.getComponentType()), binding.getDimensions());
+    }
+    else if (binding.isNullType()) {
+      return nullSymbol(); 
+    }
+    else if (binding.isEnum()) {
+      return enumSymbol(binding.getName());
+    }
+    else if (binding.isTypeVariable()) {
+      ITypeBinding bound = binding.getBound();
+      
+      if (bound == null) {
+        return parameterNode(binding.getName());
+      }
+      else {
+        return parameterNode(binding.getName(), bound);
+      } 
+    }
+    else if (binding.isWildcardType()) {
+//      | \wildcard(Bound bound)
+      return wildcardSymbol(boundSymbol(binding.getBound()));
+    }
+    else if (binding.isClass()) {
+      return classSymbol(decl, computeTypes(binding.getTypeParameters()));
+    }
+    else if (binding.isInterface()) {
+      return interfaceSymbol(decl, computeTypes(binding.getTypeParameters()));
+    }
+    
+    return null;
+  }
+
+  private IConstructor wildcardSymbol(IConstructor boundSymbol) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private IConstructor boundSymbol(ITypeBinding bound) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private IConstructor enumSymbol(String name) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private IConstructor interfaceSymbol(ISourceLocation decl, IList computeTypes) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private IConstructor classSymbol(ISourceLocation decl, IList computeTypes) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private IConstructor nullSymbol() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private IConstructor primitiveSymbol(String name) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private IConstructor arraySymbol(IConstructor computeTypeSymbol, int dimensions) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private URI resolveBinding(IMethodBinding binding) {
 		if (binding == null) {
       return convertBinding("unresolved", null, null, null);
     }
