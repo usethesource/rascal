@@ -42,6 +42,7 @@ test bool tst() = run("2 - 3") == (2 - 3);
 test bool tst() = run("2 * 3") == (2 * 3);
 test bool tst() = run("6 / 3") == (6 / 3);
 test bool tst() = run("5 % 3") == (5 % 3);
+test bool tst() = run("5 mod 3") == (5 mod 3);
 
 test bool tst() = run("2 \< 3") == (2 < 3);
 test bool tst() = run("2 \<= 3") == (2 <= 3);
