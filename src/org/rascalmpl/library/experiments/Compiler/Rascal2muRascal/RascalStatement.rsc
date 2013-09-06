@@ -7,11 +7,12 @@ import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
+import experiments::Compiler::Rascal2muRascal::RascalPattern;
 
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
-default MuExp translate((Statement) `<Statement* statements>`) = muBlock([ translate(stat) | stat <- statements ]);
+//default MuExp translate((Statement) `<Statement* statements>`) = muBlock([ translate(stat) | stat <- statements ]);
 
 /********************************************************************/
 /*                  Statement                                       */
@@ -151,7 +152,7 @@ MuExp translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) 
     return muBlock(code);                                             
 } 
 
-MuExp translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) { throw("switch"); }
+MuExp translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) = translateSwitch(s);
 
 MuExp translate(s: (Statement) `fail <Target target> ;`) = 
      inBacktrackingScope() ? muFail(target is empty ? currentLoop() : "<target.label>")
@@ -210,6 +211,33 @@ default MuExp translate(Statement s){
 /*                  End of Statements                                */
 /*********************************************************************/
 
+// Switch statement
+
+MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) {
+    switchname = getLabel(label);
+    switchval = asTmp(switchname);
+    return muBlock([ muAssignTmp(switchval, translate(expression)), translateSwitchCases(switchval, [c | c <- cases]) ]);
+}
+
+MuExp translateSwitchCases(str switchval, list[Case] cases) {
+  if(size(cases) == 0)
+      return muBlock([]);
+  c = head(cases);
+  
+  if(c is patternWithAction){
+     pwa = c.patternWithAction;
+     if(pwa is arbitrary){
+        cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pwa.pattern), muTmp(switchval)]));
+        return muIfelse(cond, [translate(pwa.statement)], [translateSwitchCases(switchval, tail(cases))]);
+     } else {
+        throw "Replacement not allowed in switch statement";
+     }
+  } else {
+        return translate(c.statement);
+  }
+}
+  
+// Assignment statement
 
 MuExp translateAssignment(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) =
     assignTo(assignable, applyAssignmentOperator("<operator>", assignable, statement));
