@@ -228,14 +228,14 @@ INS tr(muWhile(str label, MuExp cond, list[MuExp] body)) {
 }
 
 INS tr(muDo(str label, list[MuExp] body, MuExp cond)) {
-    if(label == "")
+    if(label == ""){
     	label = nextLabel();
+    }
     continueLab = mkContinue(label);
-    dummyLab = mkDummy(label);
     breakLab = mkBreak(label);
     return [ LABEL(continueLab),
      		 *trvoidblock(body),	
-             *tr_cond(cond, dummyLab, breakLab),	
+             *tr_cond_do(cond, continueLab, breakLab),	
     		 JMP(continueLab),
     		 LABEL(breakLab)		
            ];
@@ -353,6 +353,7 @@ default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 // Does an expression produce a value? (needed for cleaning up the stack)
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
+bool producesValue(muDo(str label, list[MuExp] body,  MuExp cond)) = false;
 bool producesValue(muReturn()) = false;
 bool producesValue(muNext(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
@@ -370,6 +371,27 @@ default bool producesValue(MuExp exp) = true;
 
 INS tr_cond(muOne(list[MuExp] exps), str continueLab, str failLab){
     code = [LABEL(continueLab)];
+    for(exp <- exps){
+        if(muMulti(exp1) := exp){
+          code += [*tr(exp1), 
+          		   INIT(0), 
+          		   NEXT0(), 
+          		   JMPFALSE(failLab)
+          		  ];
+        } else {
+          code += [*tr(exp), 
+          		   JMPFALSE(failLab)
+          		  ];
+        } 
+    } 
+    return code;   
+}
+
+// Special case for do_while:
+// - continueLab is inserted by caller.
+
+INS tr_cond_do(muOne(list[MuExp] exps), str continueLab, str failLab){
+    code = [];
     for(exp <- exps){
         if(muMulti(exp1) := exp){
           code += [*tr(exp1), 

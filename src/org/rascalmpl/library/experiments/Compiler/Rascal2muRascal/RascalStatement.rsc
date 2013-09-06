@@ -7,19 +7,20 @@ import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
+import experiments::Compiler::Rascal2muRascal::RascalPattern;
 
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
-default MuExp translate((Statement) `<Statement* statements>`) = muBlock([ translate(stat) | stat <- statements ]);
+//default MuExp translate((Statement) `<Statement* statements>`) = muBlock([ translate(stat) | stat <- statements ]);
 
 /********************************************************************/
 /*                  Statement                                       */
 /********************************************************************/
 	
-MuExp translate(s: (Statement) `assert <Expression expression> ;`) { throw("assert"); }
+MuExp translate(s: (Statement) `assert <Expression expression> ;`) = muCallPrim("assertreport", [translate(expression), muCon(""), muCon(s@\loc)]);
 
-MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) { throw("assertWithMessage"); }
+MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) = muCallPrim("assertreport", [translate(expression), translate(message), muCon(s@\loc)]);
 
 MuExp translate(s: (Statement) `<Expression expression> ;`) = translate(expression);
 
@@ -53,7 +54,33 @@ MuExp translateTemplate((StringTemplate) `while ( <Expression condition> ) { <St
     return muBlock(code);
 }
 
-MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`) { throw("doWhile"); }
+MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`) {  
+    doname = getLabel(label);
+    tmp = asTmp(doname);
+    enterLoop(doname);
+    code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])), 
+             muDo(doname,  [translate(body)], muOne([translate(condition)])),
+             muCallPrim("listwriter_close", [muTmp(tmp)])
+           ];
+    leaveLoop();
+    return muBlock(code);
+}
+
+MuExp translateTemplate(s: (StringTemplate) `do { < Statement* preStats> <StringMiddle body> <Statement* postStats> } while ( <Expression condition> )`) {  
+    doname = nextLabel();
+    result = asTmp(doname);
+    enterLoop(doname);
+    code = [ muAssignTmp(result, muCallPrim("template_open", [])),
+             muDo(doname,  [ translate(preStats),
+                             muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
+                             translate(postStats)], 
+                  muOne([translate(condition)])
+                 ),
+             muCallPrim("template_close", [muTmp(result)])
+           ];
+    leaveLoop();
+    return muBlock(code);
+}
 
 MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`) {
     forname = getLabel(label);
@@ -125,7 +152,7 @@ MuExp translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) 
     return muBlock(code);                                             
 } 
 
-MuExp translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) { throw("switch"); }
+MuExp translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) = translateSwitch(s);
 
 MuExp translate(s: (Statement) `fail <Target target> ;`) = 
      inBacktrackingScope() ? muFail(target is empty ? currentLoop() : "<target.label>")
@@ -184,6 +211,33 @@ default MuExp translate(Statement s){
 /*                  End of Statements                                */
 /*********************************************************************/
 
+// Switch statement
+
+MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) {
+    switchname = getLabel(label);
+    switchval = asTmp(switchname);
+    return muBlock([ muAssignTmp(switchval, translate(expression)), translateSwitchCases(switchval, [c | c <- cases]) ]);
+}
+
+MuExp translateSwitchCases(str switchval, list[Case] cases) {
+  if(size(cases) == 0)
+      return muBlock([]);
+  c = head(cases);
+  
+  if(c is patternWithAction){
+     pwa = c.patternWithAction;
+     if(pwa is arbitrary){
+        cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pwa.pattern), muTmp(switchval)]));
+        return muIfelse(cond, [translate(pwa.statement)], [translateSwitchCases(switchval, tail(cases))]);
+     } else {
+        throw "Replacement not allowed in switch statement";
+     }
+  } else {
+        return translate(c.statement);
+  }
+}
+  
+// Assignment statement
 
 MuExp translateAssignment(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) =
     assignTo(assignable, applyAssignmentOperator("<operator>", assignable, statement));
