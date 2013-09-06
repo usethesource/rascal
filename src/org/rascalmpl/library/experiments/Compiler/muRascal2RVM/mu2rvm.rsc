@@ -101,7 +101,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
   main_fun = getUID(module_name,[],"main",1);
   module_init_fun = getUID(module_name,[],"#module_init_main",1);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-  iprintln(funMap);
+  //iprintln(funMap);
   if(!funMap[main_fun]?) {
   	main_fun = getFUID(module_name,"main",ftype,0);
   	module_init_fun = getFUID(module_name,"#module_init_main",ftype,0);
@@ -130,7 +130,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
   										 ]));
   res = rvm(types, funMap, []);
   if(listing){
-    for(fname <- funMap/*, fname notin library_names*/)
+    for(fname <- funMap, fname notin library_names)
   		iprintln(funMap[fname]);
   }
   return res;

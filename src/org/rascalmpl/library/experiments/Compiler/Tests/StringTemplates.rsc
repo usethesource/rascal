@@ -21,4 +21,6 @@ test bool tst() = run("{x = 5; \"a\<if(false){\>\<x + 10\>\<}\>b\";}") == {x = 5
 test bool tst() = run("{x = 5; \"a\<if(true){\>\<x + 10\>\<} else {\> \<100\> \<}\>b\";}") == {x = 5; "a<if(true){><x + 10><} else {> <100> <}>b";};
 test bool tst() = run("{x = 5; \"a\<if(false){\>\<x + 10\>\<} else {\> \<100\> \<}\>b\";}") == {x = 5; "a<if(false){><x + 10><} else {> <100> <}>b";};
 
-test bool tst() = run("{x = 5; \"a\<while(x \> 0){\>\<x\>\<x -= 1;}\>b\";}") == {x = 5; "a<while(x > 0){><x + 10><x -= 1;}>b";};
+test bool tst() = run("{x = 5; \"a\<while(x \> 0){\>\<x + 10\>\<x -= 1;}\>b\";}") == {x = 5; "a<while(x > 0){><x + 10><x -= 1;}>b";};
+
+test bool tst() = run("{\"a\<for(x \<- [0 .. 5]){\>\<x\>\<}\>b\";}") == "a<for(x <- [0 .. 5]){><x><}>b";
