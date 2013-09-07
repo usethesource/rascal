@@ -161,14 +161,13 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
       i += 1;
   };
   list[MuExp] tbody = translate(expression);
-  tbody = [ *tbody[0 .. -1], muReturn(tbody[-1]) ]; // ???
   if(!isEmpty(conditions)) {
       tbody = [ muIfelse(muOne(conditions), tbody, [ muFailReturn() ]) ];
   }
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
-  functions_in_module += [ muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									  nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, tbody)];
+  functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+  									nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, tbody);
   
   if("test" in tmods){
   println("ftype = <ftype>");
@@ -197,8 +196,8 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
   tuple[str fuid,int pos] addr = uid2addr[uid];
-  functions_in_module += [ muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									  nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody) ]; 
+  functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+  									nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody); 
 }
 
 //str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions> ;`)   { throw("conditional"); }

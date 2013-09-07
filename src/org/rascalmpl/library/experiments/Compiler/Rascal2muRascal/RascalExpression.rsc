@@ -487,7 +487,7 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
         conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
         i += 1;
     };
-    list[MuExp] body = muBlock([ *translate(stat) | stat <- statements ]);
+    list[MuExp] body = muBlock([ translate(stat) | stat <- statements ]);
     if(!isEmpty(conditions)) {
         body = [ muIfelse(muOne(conditions), body, [ muFailReturn() ]) ];
     }
