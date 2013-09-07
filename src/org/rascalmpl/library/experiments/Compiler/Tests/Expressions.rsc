@@ -189,6 +189,8 @@ test bool tst() = run("{ x |x \<- [1, 3 .. 10]}") == { x |x <- [1, 3 .. 10]};
 test bool tst() = run("{ x |x \<- [10 .. 1]}") == { x |x <- [10 .. 1]};
 test bool tst() = run("{ x |x \<- [10, 8 .. 1]}") == { x |x <- [10, 8 .. 1]};
 test bool tst() = run("{ x |x \<- [1 .. 10], x % 2 == 1}") == { x |x <- [1 .. 10], x % 2 == 1};
+test bool tst() = run("{ds = {0, 1, 2, 3}; {[S, E] |  int S \<- ds, int E \<- (ds - {S})};}") ==
+					   {ds = {0, 1, 2, 3}; {[S, E] |  int S  <- ds, int E  <- (ds - {S})};};
 
 // Map Comprehension
 
