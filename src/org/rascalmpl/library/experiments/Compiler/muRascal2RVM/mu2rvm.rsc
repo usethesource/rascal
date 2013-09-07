@@ -428,26 +428,11 @@ INS tr_cond_do(muOne(list[MuExp] exps), str continueLab, str failLab){
 INS tr_cond(muAll(list[MuExp] exps), str continueLab, str failLab){
     code = [];
     lastMulti = -1;
-    generators = ();
+    
     for(i <- index(exps)){
         if(muMulti(exp1) := exps[i]){
            lastMulti = i;
-           co = newLocal();
-           generators[i] = co;
-           code += [ *tr(exp1), 
-          		     INIT(0), 
-          		     STORELOC(co), 
-          		     POP()
-          		   ];
         }
-    }
-    if(size(code) == 0){
-       startLab = nextLabel();
-       code += [ JMP(startLab),
-       	         LABEL(continueLab),
-                 JMP(failLab),
-                 LABEL(startLab) 
-               ];
     }
     currentFail = failLab;
  
@@ -455,8 +440,12 @@ INS tr_cond(muAll(list[MuExp] exps), str continueLab, str failLab){
         exp = exps[i];
         if(muMulti(exp1) := exp){
           newFail = nextLabel();
-          co = generators[i];
-          code += [ LABEL(newFail),
+          co = newLocal();
+          code += [ *tr(exp1), 
+          		    INIT(0), 
+          		    STORELOC(co), 
+          		    POP(),
+           	        LABEL(newFail),
           			*((i == lastMulti) ? [LABEL(continueLab)] :[]),
           		    LOADLOC(co), 
           		    HASNEXT(), 
@@ -474,6 +463,56 @@ INS tr_cond(muAll(list[MuExp] exps), str continueLab, str failLab){
     }
     return code;
 }
+
+//INS tr_cond(muAll(list[MuExp] exps), str continueLab, str failLab){
+//    code = [];
+//    lastMulti = -1;
+//    generators = ();
+//    for(i <- index(exps)){
+//        if(muMulti(exp1) := exps[i]){
+//           lastMulti = i;
+//           co = newLocal();
+//           generators[i] = co;
+//           code += [ *tr(exp1), 
+//          		     INIT(0), 
+//          		     STORELOC(co), 
+//          		     POP()
+//          		   ];
+//        }
+//    }
+//    if(size(code) == 0){
+//       startLab = nextLabel();
+//       code += [ JMP(startLab),
+//       	         LABEL(continueLab),
+//                 JMP(failLab),
+//                 LABEL(startLab) 
+//               ];
+//    }
+//    currentFail = failLab;
+// 
+//    for(i <- index(exps)){
+//        exp = exps[i];
+//        if(muMulti(exp1) := exp){
+//          newFail = nextLabel();
+//          co = generators[i];
+//          code += [ LABEL(newFail),
+//          			*((i == lastMulti) ? [LABEL(continueLab)] :[]),
+//          		    LOADLOC(co), 
+//          		    HASNEXT(), 
+//          		    JMPFALSE(currentFail), 
+//          		    LOADLOC(co),
+//          		    NEXT0(), 
+//          		    JMPFALSE(currentFail)
+//          		  ];
+//          currentFail = newFail;
+//        } else {
+//          code += [*tr(exp), 
+//          		   JMPFALSE(currentFail)
+//          		  ];
+//        } 
+//    }
+//    return code;
+//}
 
 INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab) =
     [ LABEL(continueLab),
