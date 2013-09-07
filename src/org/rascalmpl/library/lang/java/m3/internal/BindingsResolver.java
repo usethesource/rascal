@@ -66,6 +66,7 @@ public class BindingsResolver {
 	private final Map<String, Integer> anonymousClassCounter = new HashMap<String, Integer>();
 	private final Map<String, String> resolvedAnonymousClasses = new HashMap<String, String>();
 	private final Map<URI, Integer> initializerCounter = new HashMap<URI, Integer>();
+  private org.eclipse.imp.pdb.facts.type.Type typeSymbol;
 	
 	BindingsResolver(final TypeStore store, boolean collectBindings) {
 		this.collectBindings = collectBindings;
@@ -203,25 +204,44 @@ public class BindingsResolver {
     return parameters.done();
   }
 
+  private org.eclipse.imp.pdb.facts.type.Type getTypeSymbol() {
+    if (typeSymbol == null) {
+      typeSymbol = store.lookupAbstractDataType("TypeSymbol");
+    }
+    return typeSymbol;
+  }
 
   private IConstructor methodSymbol(ISourceLocation decl, IList typeParameters, IConstructor retSymbol, IList parameters) {
-    // TODO Auto-generated method stub
-    return null;
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "method", tf.tupleType(decl.getType(), typeParameters.getType(), retSymbol.getType(), parameters.getType()));
+    return values.constructor(cons, decl, typeParameters, retSymbol, parameters);
   }
 
-  private IConstructor constructorSymbol(ISourceLocation decl, IList done) {
-    // TODO Auto-generated method stub
-    return null;
+  private IConstructor constructorSymbol(ISourceLocation decl, IList parameters) {
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "constructor", tf.tupleType(decl.getType(), parameters.getType()));
+    return values.constructor(cons, decl, parameters);
   }
 
-  private IConstructor parameterNode(String name, ITypeBinding bound) {
-    // TODO Auto-generated method stub
-    return null;
+  private IConstructor parameterNode(ISourceLocation decl, ITypeBinding bound) {
+    if (bound != null) {
+      IConstructor boundSym = boundSymbol(bound);
+      org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeParameter", tf.tupleType(decl.getType(), boundSym.getType()));
+      return values.constructor(cons, decl, boundSym);
+    }
+    else {
+      return parameterNode(decl);
+    }
   }
 
-  private IConstructor parameterNode(String name) {
-    // TODO Auto-generated method stub
-    return null;
+  private IConstructor parameterNode(ISourceLocation decl) {
+    IConstructor boundSym = unboundedSym();
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "parameter", tf.tupleType(decl.getType(), boundSym.getType()));
+    return values.constructor(cons, decl, boundSym);
+  }
+
+  private IConstructor unboundedSym() {
+    org.eclipse.imp.pdb.facts.type.Type boundType = store.lookupAbstractDataType("Bound");
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(boundType, "unbounded", tf.voidType());
+    return values.constructor(cons);
   }
 
   private IConstructor computeTypeSymbol(ITypeBinding binding) {
@@ -240,20 +260,19 @@ public class BindingsResolver {
       return nullSymbol(); 
     }
     else if (binding.isEnum()) {
-      return enumSymbol(binding.getName());
+      return enumSymbol(decl);
     }
     else if (binding.isTypeVariable()) {
       ITypeBinding bound = binding.getBound();
       
       if (bound == null) {
-        return parameterNode(binding.getName());
+        return parameterNode(decl);
       }
       else {
-        return parameterNode(binding.getName(), bound);
+        return parameterNode(decl, bound);
       } 
     }
     else if (binding.isWildcardType()) {
-//      | \wildcard(Bound bound)
       return wildcardSymbol(boundSymbol(binding.getBound()));
     }
     else if (binding.isClass()) {
@@ -267,43 +286,54 @@ public class BindingsResolver {
   }
 
   private IConstructor wildcardSymbol(IConstructor boundSymbol) {
-    // TODO Auto-generated method stub
-    return null;
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "wildcard", tf.tupleType(boundSymbol.getType()));
+    return values.constructor(cons, boundSymbol);
   }
 
   private IConstructor boundSymbol(ITypeBinding bound) {
-    // TODO Auto-generated method stub
-    return null;
+    IConstructor boundSym = computeTypeSymbol(bound);
+    
+    org.eclipse.imp.pdb.facts.type.Type boundType = store.lookupAbstractDataType("Bound");
+    
+    if (bound.isUpperbound()) {
+      org.eclipse.imp.pdb.facts.type.Type sup = store.lookupConstructor(boundType, "super", tf.tupleType(boundSym.getType()));
+      return values.constructor(sup, boundSym);
+    }
+    else {
+      org.eclipse.imp.pdb.facts.type.Type ext = store.lookupConstructor(boundType, "extends", tf.tupleType(boundSym.getType()));
+      return values.constructor(ext, boundSym);
+    }
   }
 
-  private IConstructor enumSymbol(String name) {
-    // TODO Auto-generated method stub
-    return null;
+  private IConstructor enumSymbol(ISourceLocation decl) {
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "enum", tf.tupleType(decl.getType()));
+    return values.constructor(cons, decl);
   }
 
-  private IConstructor interfaceSymbol(ISourceLocation decl, IList computeTypes) {
-    // TODO Auto-generated method stub
-    return null;
+  private IConstructor interfaceSymbol(ISourceLocation decl, IList typeParameters) {
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "interface", tf.tupleType(decl.getType(), typeParameters.getType()));
+    return values.constructor(cons, decl, typeParameters);
+
   }
 
-  private IConstructor classSymbol(ISourceLocation decl, IList computeTypes) {
-    // TODO Auto-generated method stub
-    return null;
-  }
+  private IConstructor classSymbol(ISourceLocation decl, IList typeParameters) {
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "class", tf.tupleType(decl.getType(), typeParameters.getType()));
+    return values.constructor(cons, decl, typeParameters);
+}
 
   private IConstructor nullSymbol() {
-    // TODO Auto-generated method stub
-    return null;
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "null", tf.voidType());
+    return values.constructor(cons);
   }
 
   private IConstructor primitiveSymbol(String name) {
-    // TODO Auto-generated method stub
-    return null;
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), name, tf.voidType());
+    return values.constructor(cons);
   }
 
-  private IConstructor arraySymbol(IConstructor computeTypeSymbol, int dimensions) {
-    // TODO Auto-generated method stub
-    return null;
+  private IConstructor arraySymbol(IConstructor elem, int dimensions) {
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "array", tf.tupleType(elem.getType(), tf.integerType()));
+    return values.constructor(cons, elem, values.integer(dimensions));
   }
 
   private URI resolveBinding(IMethodBinding binding) {
