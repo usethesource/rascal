@@ -74,7 +74,6 @@ import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;

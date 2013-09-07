@@ -117,7 +117,7 @@ syntax Exp  =
 //			; 			
 
 keyword Keywords = 
-              "module" | "function" | "return" | "get" | "set" |
+              "module" | "function" | "return" | "get" | /* "set" excluded, can be used in ```... is set'' construct*/
 			  "prim" | "muprim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "hasNext" |
               "type" |

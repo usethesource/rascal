@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.CaseInsensitiveStringConstant;
 import org.rascalmpl.ast.Char;
 import org.rascalmpl.ast.Class;

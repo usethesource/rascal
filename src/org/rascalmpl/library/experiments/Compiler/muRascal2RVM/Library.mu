@@ -1,7 +1,6 @@
 module Library
 
 
- 
 /*
 
 function main[1,args] { return next(init(create(TRUE))); }
@@ -78,6 +77,7 @@ function ENUM_LITERAL[2, ^lit]{
    return ^lit;
 }
 
+
 function ENUM_LIST[1, ^lst, last, i]{
    last = size(^lst) - 1;
    i = 0;
@@ -86,6 +86,28 @@ function ENUM_LIST[1, ^lst, last, i]{
       i = i + 1;
    };
    return get ^lst[last];
+}
+
+function ENUM_SET[1, ^set, ^lst, last, i]{
+   ^lst = set2list(^set);
+   last = size(^lst) - 1;
+   i = 0;
+   while(i < last){
+      yield get ^lst[i];
+      i = i + 1;
+   };
+   return get ^lst[last];
+}
+
+function ENUM_MAP[1, ^map, ^klst, last, i]{
+   ^klst = keys(^map);
+   last = size(^klst) - 1;
+   i = 0;
+   while(i < last){
+      yield get ^klst[i];
+      i = i + 1;
+   };
+   return get ^klst[last];
 }
 
 function ENUM_NODE[1, ^nd, last, i, lst]{
@@ -114,16 +136,23 @@ function do_enum[2, enum, pat, cpat, elm]{
      };
    };      
 }
-
+        
 function ENUMERATE_AND_MATCH[2,  pat, ^val]{
   if(^val is list){
      do_enum(init(create(ENUM_LIST, ^val)), pat);
   } else {
     if(^val is node){
       do_enum(init(create(ENUM_NODE, ^val)), pat);
+    } else {
+      if(^val is map){
+        do_enum(init(create(ENUM_MAP, ^val)), pat);
+      } else {
+        if(^val is set){
+           do_enum(init(create(ENUM_SET, ^val)), pat);
+      };
     };
   };  
-  // Add cases for set/rel/tuple/map/...
+  // Add cases for set/rel/tuple/...
   return ^val;
 }
 

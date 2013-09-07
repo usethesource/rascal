@@ -255,7 +255,9 @@ public class MemoizationCache {
 		for (CacheKeyWrapper ckw : toCleanup) {
 			CacheKey cl = ckw.key;
 			cache.remove(cl);
-			cl.keyArgs.clear();
+			if (cl.keyArgs != null) {
+				cl.keyArgs.clear();
+			}
 			for (int i =0; i < cl.params.length; i++) 
 				cl.params[i] = null;
 		}

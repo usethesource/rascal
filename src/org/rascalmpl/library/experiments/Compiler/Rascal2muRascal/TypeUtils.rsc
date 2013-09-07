@@ -8,9 +8,12 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractType;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 
 import experiments::Compiler::muRascal::AST;
+
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
 public Configuration config = newConfiguration();
 
@@ -347,3 +350,17 @@ public default bool isNonTerminalType(AbstractValue _) = false;
 
 public bool isAlias(AbstractValue::\alias(_,_,_,_)) = true;
 public default bool isAlias(AbstractValue _) = false;
+
+public bool hasField(Symbol s, str fieldName){
+    println("hasField: <s>, <fieldName>");
+
+    if(isADTType(s)){
+       s2v = symbolToValue(s, config);
+       println("s2v = <s2v>");
+    }
+    // TODO: this is too liberal, restrict to outer type.
+    visit(s){
+       case label(fieldName, _):	return true;
+    }
+    return false;
+}

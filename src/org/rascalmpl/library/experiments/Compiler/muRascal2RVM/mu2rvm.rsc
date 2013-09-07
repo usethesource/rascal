@@ -56,8 +56,8 @@ map[str,Declaration] parseLibrary(){
  	funMap = ();
  
   	for(fun <- libModule.functions){
-  	    required_frame_size = fun.nlocals + estimate(fun.body);
-    	funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, fun.nlocals, required_frame_size, trblock(fun.body)));
+  	    required_frame_size = fun.nlocals + estimate_stack_size(fun.body);
+    	funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, fun.nlocals, required_frame_size, tr(fun.body)));
   	}
   
   	writeTextValueFile(LibraryPrecompiled, funMap);
@@ -90,21 +90,23 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
   for(fun <- functions){
     functionScope = fun.qname;
     nlocal = fun.nlocals;
-    code = trblock(fun.body);
-    required_frame_size = nlocal + estimate(fun.body);
+    if(listing){
+    	iprintln(fun);
+    }
+    code = tr(fun.body);
+    required_frame_size = nlocal + estimate_stack_size(fun.body);
     funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code));
-    est = estimate(fun.body);
-    //println("\n*** <fun.qname>: locals=<nlocal>, stack estimate=<est>, total stack requirement=<nlocal+est>");
-    //iprintln(code);
   }
   
   main_fun = getUID(module_name,[],"main",1);
   module_init_fun = getUID(module_name,[],"#module_init_main",1);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
+  //iprintln(funMap);
   if(!funMap[main_fun]?) {
   	main_fun = getFUID(module_name,"main",ftype,0);
   	module_init_fun = getFUID(module_name,"#module_init_main",ftype,0);
   }
+  println("main_fun = <main_fun>");
   funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   									[*tr(initializations), 
   									 LOADLOC(0), 
@@ -142,14 +144,6 @@ INS  tr(list[MuExp] exps) = [ *tr(exp) | exp <- exps ];
 
 INS tr_and_pop(MuExp exp) = producesValue(exp) ? [*tr(exp), POP()] : tr(exp);
 
-
-INS trvoidblock(list[MuExp] exps) {
-  if(size(exps) == 0)
-     return [];
-  ins = [*tr_and_pop(exp) | exp <- exps];
-  return ins;
-}
-
 INS trblock(list[MuExp] exps) {
   if(size(exps) == 0){
      return [LOADCON(666)]; // TODO: throw "Non void block cannot be empty";
@@ -157,6 +151,18 @@ INS trblock(list[MuExp] exps) {
   ins = [*tr_and_pop(exp) | exp <- exps[0..-1]];
   return ins + tr(exps[-1]);
 }
+
+//default INS trblock(MuExp exp) = tr(exp);
+
+INS trvoidblock(list[MuExp] exps){
+  if(size(exps) == 0)
+     return [];
+  ins = [*tr_and_pop(exp) | exp <- exps];
+  return ins;
+}
+
+INS tr(muBlock([MuExp exp])) = tr(exp);
+default INS tr(muBlock(list[MuExp] exps)) = trblock(exps);
 
 // Translate a single muRascal expression
 
@@ -223,8 +229,9 @@ INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
 }
 
 INS tr(muWhile(str label, MuExp cond, list[MuExp] body)) {
-    if(label == "")
+    if(label == ""){
     	label = nextLabel();
+    }	
     continueLab = mkContinue(label);
     breakLab = mkBreak(label);
 //    println("while: continueLab = <continueLab>, breakLab = <breakLab>");
@@ -236,14 +243,14 @@ INS tr(muWhile(str label, MuExp cond, list[MuExp] body)) {
 }
 
 INS tr(muDo(str label, list[MuExp] body, MuExp cond)) {
-    if(label == "")
+    if(label == ""){
     	label = nextLabel();
+    }
     continueLab = mkContinue(label);
-    dummyLab = mkDummy(label);
     breakLab = mkBreak(label);
     return [ LABEL(continueLab),
      		 *trvoidblock(body),	
-             *tr_cond(cond, dummyLab, breakLab),	
+             *tr_cond_do(cond, continueLab, breakLab),	
     		 JMP(continueLab),
     		 LABEL(breakLab)		
            ];
@@ -361,6 +368,7 @@ default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 // Does an expression produce a value? (needed for cleaning up the stack)
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
+bool producesValue(muDo(str label, list[MuExp] body,  MuExp cond)) = false;
 bool producesValue(muReturn()) = false;
 bool producesValue(muNext(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
@@ -378,6 +386,27 @@ default bool producesValue(MuExp exp) = true;
 
 INS tr_cond(muOne(list[MuExp] exps), str continueLab, str failLab){
     code = [LABEL(continueLab)];
+    for(exp <- exps){
+        if(muMulti(exp1) := exp){
+          code += [*tr(exp1), 
+          		   INIT(0), 
+          		   NEXT0(), 
+          		   JMPFALSE(failLab)
+          		  ];
+        } else {
+          code += [*tr(exp), 
+          		   JMPFALSE(failLab)
+          		  ];
+        } 
+    } 
+    return code;   
+}
+
+// Special case for do_while:
+// - continueLab is inserted by caller.
+
+INS tr_cond_do(muOne(list[MuExp] exps), str continueLab, str failLab){
+    code = [];
     for(exp <- exps){
         if(muMulti(exp1) := exp){
           code += [*tr(exp1), 

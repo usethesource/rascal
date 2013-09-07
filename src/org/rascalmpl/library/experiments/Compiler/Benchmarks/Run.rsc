@@ -11,6 +11,8 @@ import experiments::Compiler::Benchmarks::BFor;
 import experiments::Compiler::Benchmarks::BForCond;
 import experiments::Compiler::Benchmarks::BListMatch1;
 import experiments::Compiler::Benchmarks::BListMatch2;
+import experiments::Compiler::Benchmarks::BReverse1;
+import experiments::Compiler::Benchmarks::BSet1;
 import experiments::Compiler::Benchmarks::BWhile;
 
 loc base = |std:///experiments/Compiler/Benchmarks/|;
@@ -29,8 +31,8 @@ void run(str bm,  value(list[value]) bmain) {
   report_one(m);
 }
 
-str align(num n) = right(toString(n), 5);
-str align2(num n) = right(toString(n), 12);
+str align(num n) = right(toString(precision(n,5)), 6);
+str align2(num n) = right(toString(precision(n,5)), 12);
 
 void report_one(Measurement m){
   comp  = m.compilationTime;
@@ -38,7 +40,7 @@ void report_one(Measurement m){
   iexec = m.interpretedExec;
   speedup = iexec/cexec;
   saved = 100.0 * (iexec - (comp + cexec)) / iexec;
-  println("<m.name>: compiled: (compilation <align(comp)> msec, execution <align(cexec)> msec); interpreted: <align(iexec)> msec; speedup: <align2(speedup)> x; saved: <align2(saved)> %");
+  println("<right(m.name, 15)>: compiled: (compilation <align(comp)> msec, execution <align(cexec)> msec); interpreted: <align(iexec)> msec; speedup: <align(speedup)> x; saved: <align(saved)> %");
 }
 void report(){
   min_speedup = 100000;
@@ -58,20 +60,23 @@ void report(){
       tot_inter += m.interpretedExec;
       
   }
-  println("Average speedup: <tot_speedup/size(measurements)>");
-  println("Minimal speedup: <min_speedup>");
-  println("Maximal speedup: <max_speedup>");
-  println("Total time: compiled: <tot_comp>; interpreted: <tot_inter>; saved: <100 * (tot_inter - tot_comp) / tot_inter>%");
+  println("Average speedup: <precision(tot_speedup/size(measurements), 5)>");
+  println("Minimal speedup: <precision(min_speedup, 5)>");
+  println("Maximal speedup: <precision(max_speedup, 5)>");
+  println("Total time: compiled: <tot_comp>; interpreted: <tot_inter>; saved: <precision(100 * (tot_inter - tot_comp) / tot_inter, 5)>%");
 }
 
 void main(){
   measurements = ();
-  run("BFac", experiments::Compiler::Benchmarks::BFac::main);
+  /*run("BFac", experiments::Compiler::Benchmarks::BFac::main);
   run("BFib", experiments::Compiler::Benchmarks::BFib::main);
   run("BFor", experiments::Compiler::Benchmarks::BFor::main);
   run("BForCond", experiments::Compiler::Benchmarks::BForCond::main);
   run("BListMatch1", experiments::Compiler::Benchmarks::BListMatch1::main);
   run("BListMatch2", experiments::Compiler::Benchmarks::BListMatch2::main);
+  run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
+  run("BSet1", experiments::Compiler::Benchmarks::BSet1::main);
+  */run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
   run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
   report();
 

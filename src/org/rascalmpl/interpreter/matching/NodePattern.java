@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
