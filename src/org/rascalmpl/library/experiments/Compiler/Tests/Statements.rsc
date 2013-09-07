@@ -1,14 +1,6 @@
 module experiments::Compiler::Tests::Statements
 
-import  experiments::Compiler::Compile;
-
-value run(str stats, bool listing=false, bool debug=false) = 
-	execute("module TMP data D = d1(int n, str s) | d2(str s, bool b); value main(list[value] args) { return <stats> }", listing=listing, debug=debug);
-	
-value run(str stats, str ret, bool listing=false, bool debug=false) = 
-	execute("module TMP data D = d1(int n, str s) | d2(str s, bool b); value main(list[value] args) { <stats>; return <ret> }", listing=listing, debug=debug);
-	
-data D = d1(int n, str s) | d2(str s, bool b); 	
+import experiments::Compiler::Tests::TestUtils;
 
 // Assignables	
 	

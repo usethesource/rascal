@@ -43,8 +43,8 @@ MuExp infix(str op, Expression e){
        return muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
 }
  
-MuExp prefix(str op, Expression arg) = muCallPrim("<getOuterType(arg)>_<op>", translate(arg));
-MuExp postfix(str op, Expression arg) = muCallPrim("<getOuterType(arg)>_<op>", translate(arg));
+MuExp prefix(str op, Expression arg) = muCallPrim("<op>_<getOuterType(arg)>", [translate(arg)]);
+MuExp postfix(str op, Expression arg) = muCallPrim("<getOuterType(arg)>_<op>", [translate(arg)]);
 
 MuExp comparison(str op, Expression e) = muCallPrim("<op>", [*translate(e.lhs), *translate(e.rhs)]);
 
