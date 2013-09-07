@@ -143,8 +143,8 @@ MuExp translate((Expression) `<QualifiedName v>`) = translate(v);
 MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`){
     ot = getOuterType(exp);
     op = "<ot>_subscript";
-    if(ot notin {"list", "map"}) {
-    	op = "subscript_<getOuterType(exp)>_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
+    if(ot notin {"map"}) {
+    	op = "<getOuterType(exp)>_subscript_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     }
     return muCallPrim(op, translate(exp) + [translate(s) | s <- subscripts]);
 }
