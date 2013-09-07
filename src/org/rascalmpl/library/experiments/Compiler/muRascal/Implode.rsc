@@ -19,7 +19,9 @@ MuModule preprocess(Module pmod){
        vdfs = ("<f.locals[i]>" : i  | int i <- index(f.locals));
        vardefs =  vardefs + (uid : vdfs);
    }
-   return muModule(pmod.name, [], [ preprocess(f, pmod.name) | f <- pmod.functions], [], []);
+   resolver = ();
+   overloaded_functions = [];
+   return muModule(pmod.name, [], [ preprocess(f, pmod.name) | f <- pmod.functions ], [], [], resolver, overloaded_functions);
 }
 
 bool isGlobalNonOverloadedFunction(str name) {
@@ -105,6 +107,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar("equal"), [exp1, exp2])			=> muCallMuPrim("equal", [exp1, exp2])
                case muCall(preVar("get_name_and_children"), [exp1])	=> muCallMuPrim("get_name_and_children", [exp1])
                case muCall(preVar("typeOf"), [exp1])				=> muCallPrim("typeOf", [exp1])
+               case muCall(preVar("subtype"), [exp1, exp2])         => muCallPrim("subtype", [exp1, exp2])
                case muCall(preVar("make_array"), [exp1])			=> muCallMuPrim("make_array_of_size", [exp1])
                case muCall(preVar("sublist"), list[MuExp] exps)		=> muCallMuPrim("sublist_list_mint_mint", exps)
                case muCall(preVar("get_tuple_elements"), [exp1])	=> muCallMuPrim("get_tuple_elements", [exp1])
