@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -764,57 +765,57 @@ public class RVM {
 						
 					case is_bool:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isBool();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isBool();
 						break;
 						
 					case is_datetime:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isDateTime();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isDateTime();
 						break;
 						
 					case is_int:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isInteger();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isInteger();
 						break;
 						
 					case is_list:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isList();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isList();
 						break;
 						
 					case is_loc:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isSourceLocation();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isSourceLocation();
 						break;
 						
 					case is_lrel:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isListRelation();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isListRelation();
 						break;
 						
 					case is_map:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isMap();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isMap();
 						break;
 						
 					case is_node:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isNode();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isNode();
 						break;
 						
 					case is_num:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isNumber();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isNumber();
 						break;
 						
 					case is_rat:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isRational();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isRational();
 						break;
 						
 					case is_real:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isReal();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isReal();
 						break;
 						
 					case is_rel:
@@ -824,17 +825,27 @@ public class RVM {
 						
 					case is_set:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isSet();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isSet();
 						break;
 						
 					case is_str:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isString();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isString();
 						break;
 						
 					case is_tuple:
 						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isTuple();
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isTuple();
+						break;
+						
+					case keys_map:
+						assert arity == 1;
+						IMap map = ((IMap) stack[sp - 1]);
+						IListWriter writer = vf.listWriter();
+						for(IValue key : map){
+							writer.append(key);
+						}
+						stack[sp - 1] = writer.done();
 						break;
 						
 					case less_equal_mint_mint:
@@ -899,12 +910,14 @@ public class RVM {
 						stack[sp -1] = vf.integer((Integer) stack[sp -1]);
 						break;
 						
-					case size_array_or_list:
+					case size_array_list_map:
 						assert arity == 1;
 						if(stack[sp - 1] instanceof Object[]){
 							stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
 						} else if(stack[sp - 1] instanceof IList){
 							stack[sp - 1] = ((IList) stack[sp - 1]).length();
+						} else if(stack[sp - 1] instanceof IMap){
+							stack[sp - 1] = ((IMap) stack[sp - 1]).size();
 						} else
 							throw new RuntimeException("size_array_or_list_mint -- not defined on " + stack[sp - 1].getClass());
 						break;
