@@ -12,6 +12,7 @@ import lang::rascal::types::CheckTypes;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
+import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::muRascal::AST;
 
@@ -34,20 +35,6 @@ public void resetR2mu() {
 	tests = [];
 	resetTmpAndLabel();
 }
-
-//public void importLibFuns(list[loc] libs) { 
-//	for(lib <- libs) {
-//    	libModule = parse(lib);
-//    	for(fun <-libModule.functions) {
-//        	// First, assign the right scopeId to the library functions
-//      		// Add library functions to the module
-//      		functions_in_module += fun;
-//      		// Register library functions for the use
-//      		libFuns += fun.qname;
-//      	}     
-//	}
-//	println("There are <size(libFuns)> functions imported from the muRascal libraries!");
-//}
 
 @doc{Compile a Rascal source module (given as string) to muRascal}
 MuModule r2mu(str moduleStr){
@@ -83,9 +70,6 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  	}
    	  }
    	  functions_in_module = [];
-   	  // Import muRascal libraries
-   	  //libFuns = {};
-   	  //importLibFuns([ Library ]);
    	  variables_in_module = [];
    	  variable_initializations = [];
    	  // TODO: think of types that have to be actually imported
@@ -97,7 +81,29 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  									|| \alias(name, Symbol \type, containedIn, at) := config.store[uid] ];
    	  translate(M);
    	  generate_tests("<M.header.name>");
-   	  return muModule("<M.header.name>", types, functions_in_module, variables_in_module, variable_initializations);
+   	  
+   	  //println("Overloading resolution:");
+   	  //for(str fuid <- overloadingResolver) {
+   	  //	println("Resolver: <fuid> - <overloadingResolver[fuid]>");
+   	  //	println("	Overloaded functions");
+   	  //	for(int uid <- overloadedFunctions[overloadingResolver[fuid]]) {
+   	  //		println("		<uid> - <fuid2str[uid]>");
+   	  //	}
+   	  //}
+   	  //
+   	  //println("Uses");
+   	  //for(l <- config.uses) {
+   	  //	println("<l[0]> - <l[1]>");
+   	  //}
+   	  //
+   	  //iprintln(functions_in_module);
+   	  //
+   	  //throw "Testing overloading";
+   	  
+   	  // Overloading resolution...	  
+   	  list[set[str]] overloaded_functions = [ { fuid2str[fuid] | int fuid <- fuids } | set[int] fuids <- overloadedFunctions ];
+   	  
+   	  return muModule("<M.header.name>", types, functions_in_module, variables_in_module, variable_initializations, overloadingResolver, overloaded_functions);
    	}
    } catch Java("ParseError","Parse error"): {
    	   throw "Syntax errors in module <moduleLoc>";
@@ -139,17 +145,30 @@ void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = t
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   { throw("abstract"); }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
-println("r2mu: Compiling <signature.name>");
+  println("r2mu: Compiling <signature.name>");
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
   tuple[str fuid,int pos] addr = uid2addr[uid];
-  tbody = translate(expression);
+  bool isVarArgs = (varArgs(_,_) := signature.parameters);
+  // TODO: keyword parameters
+  {Pattern ","}* formals = signature.parameters.formals.formals;
+  list[MuExp] conditions = [];
+  int i = 0;
+  for(Pattern pat <- formals) {
+      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
+      i += 1;
+  };
+  list[MuExp] tbody = translate(expression);
+  tbody = [ *tbody[0 .. -1], muReturn(tbody[-1]) ];
+  if(!isEmpty(conditions)) {
+      tbody = [ muIfelse(muOne(conditions), tbody, [ muFailReturn() ]) ];
+  }
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   functions_in_module += [ muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									  nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, [*tbody[0 .. -1], muReturn(tbody[-1])]) ];
+  									  nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, tbody)];
   
   if("test" in tmods){
   println("ftype = <ftype>");
@@ -162,7 +181,19 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   println("r2mu: Compiling <signature.name>");
   ftype = getFunctionType(fd@\loc);    
   nformals = size(ftype.parameters);
-  tbody = [ *translate(stat) | stat <- body.statements ];
+  bool isVarArgs = (varArgs(_,_) := signature.parameters);
+  // TODO: keyword parameters
+  {Pattern ","}* formals = signature.parameters.formals.formals;
+  list[MuExp] conditions = [];
+  int i = 0;
+  for(Pattern pat <- formals) {
+      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
+      i += 1;
+  };
+  list[MuExp] tbody = [ *translate(stat) | stat <- body.statements ];
+  if(!isEmpty(conditions)) {
+      tbody = [ muIfelse(muOne(conditions), tbody, [ muFailReturn() ]) ];
+  }
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
   tuple[str fuid,int pos] addr = uid2addr[uid];
