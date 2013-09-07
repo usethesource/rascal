@@ -23,7 +23,7 @@ public data MuModule =
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-              muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, loc source, list[str] modifiers, map[str,str] tags, list[MuExp] body)
+              muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, loc source, list[str] modifiers, map[str,str] tags, MuExp body)
           ;
           
 // A global (module level) variable.
@@ -121,7 +121,7 @@ public data MuExp =
           
            // Multi-expressions
           
-          | muExpList(list[MuExp] exps)  						// A list of expressions
+          | muBlock(list[MuExp] exps)  							// A list of expressions, only last value remains
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions

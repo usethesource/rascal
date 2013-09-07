@@ -1,14 +1,6 @@
 module experiments::Compiler::Tests::Expressions
 
-import  experiments::Compiler::Compile;
-
-value run(str exp, bool listing=false, bool debug=false) = 
-	execute("module TMP data D = d1(int n, str s) | d2(str s, bool b); value main(list[value] args) = <exp>;", listing=listing, debug=debug);
-	
-value run(str before, str exp, bool listing=false, bool debug=false) = 
-	execute("module TMP data D = d1(int n, str s) | d2(str s, bool b); value main(list[value] args) {<before> ; return <exp>;}", listing=listing, debug=debug);
-	
-data D = d1(int n, str s) | d2(str s, bool b);
+extend  experiments::Compiler::Tests::TestUtils;
 
 // Booleans
 
@@ -37,11 +29,13 @@ test bool tst() = run("{b = 2 \> 1; b ? 10 : 20;}") == {b = 2 > 1; b ? 10 : 20;}
 
 // Integers
 test bool tst() = run("6") == 6;
+test bool tst() = run("-6") == -6;
 test bool tst() = run("2 + 3") == (2 + 3);
 test bool tst() = run("2 - 3") == (2 - 3);
 test bool tst() = run("2 * 3") == (2 * 3);
 test bool tst() = run("6 / 3") == (6 / 3);
 test bool tst() = run("5 % 3") == (5 % 3);
+test bool tst() = run("5 mod 3") == (5 mod 3);
 
 test bool tst() = run("2 \< 3") == (2 < 3);
 test bool tst() = run("2 \<= 3") == (2 <= 3);
@@ -53,12 +47,14 @@ test bool tst() = run("2 != 2") == (2 != 2);
 test bool tst() = run("2 != 3") == (2 != 3);
 
 // Real
-test bool tst() = run("2.3 == 2.3") == (2r3 == 2r3);
+test bool tst() = run("2.3 == 2.3") == (2.3 == 2.3);
+test bool tst() = run("-2.3 == -2.3") == (-2.3 == -2.3);
 test bool tst() = run("2.5 == 2.3") == (2.5 == 2.3);
 
 
 // Rational
 test bool tst() = run("2r3 == 2r3") == (2r3 == 2r3);
+test bool tst() = run("-2r3 == -2r3") == (-2r3 == -2r3);
 test bool tst() = run("2r5 == 2r3") == (2r5 == 2r3);
 
 // String
@@ -86,7 +82,7 @@ test bool tst() = run("$2013-01-01T08:15:30.055+0100$.timezoneOffsetMinutes") ==
 
 // Location
 
-// Various issues here where field access should generate an exception
+// Many issues here where field access should generate an exception
 test bool tst() = run("|http://www.rascal-mpl.org| == |http://www.rascal-mpl.org|") == (|http://www.rascal-mpl.org| == |http://www.rascal-mpl.org|);
 test bool tst() = run("|http://www.rascal-mpl.org| == |std://demo/basic/Hello.rsc|") == (|http://www.rascal-mpl.org| == |std://demo/basic/Hello.rsc|);
 
@@ -137,6 +133,8 @@ test bool tst() = run("(1 : 10, 2 : 20)") == (1 : 10, 2 : 20);
 test bool tst() = run("(1 : 10, 2 : 20) + (3 : 30)") == (1 : 10, 2 : 20) + (3 : 30);
 test bool tst() = run("(1 : 10, 2 : 20) & (2 : 20, 3 : 30)") == (1 : 10, 2 : 20) & (2 : 20, 3 : 30);
 test bool tst() = run("(1 : 10, 2 : 20) - (2 : 20, 3 : 30)") == (1 : 10, 2 : 20) - (2 : 20, 3 : 30);
+test bool tst() = run("(\"a\" : \"A\", \"b\" : \"B\", \"c\" : \"C\", \"d\" : \"D\", \"e\" : \"E\", \"f\" : \"F\", \"g\" : \"G\")")
+                   == ("a" : "A", "b" : "B", "c" : "C", "d" : "D", "e" : "E", "f" : "F", "g" : "G");
 test bool tst() = run("1 in (1 : 10, 2 : 20)") == 1 in (1 : 10, 2 : 20);
 test bool tst() = run("1 notin (1 : 10, 2 : 20)") == 1 notin (1 : 10, 2 : 20);
 
@@ -209,6 +207,12 @@ test bool tst() = run("{1, *[2, 3], 4}") == {1, *[2, 3], 4};
 test bool tst() = run("{1, *{2, 3}, 4}") == {1, *{2, 3}, 4};
 
 // Subscript
+test bool tst() = run("{x = [1, 2, 3]; x [1];}") ==  {x = [1, 2, 3]; x [1];};
+test bool tst() = run("{x = \<1, 2, 3\>; x [1];}") ==  {x = <1, 2, 3>; x [1];};
+test bool tst() = run("{x = \"abc\"; x [1];}") ==  {x = "abc"; x [1];};
+test bool tst() = run("{x = \"f\"(1, 2, 3); x [1];}") ==  {x = "f"(1, 2, 3); x [1];};
+test bool tst() = run("{x = d1(1, \"a\"); x [1];}") ==  {x = d1(1, "a"); x [1];};
+
 test bool tst() = run("{x = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]; x[1][0];}") == {x = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]; x[1][0];};
 test bool tst() = run("{x = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]; x[1][0] = 1000; x[1][0];}") == {x = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]; x[1][0] = 1000; x[1][0];};
 test bool tst() = run("{x = (\"a\" : [0,1,2], \"b\" : [10, 20, 30]); x[\"b\"][1] = 1000; x[\"b\"][1];}") == {x = ("a" : [0,1,2], "b" : [10,20,30]); x["b"][1] = 1000; x["b"][1];};
@@ -221,6 +225,8 @@ test bool tst() = run("\<1,2,3,4\>\<1,3\>") == <1,2,3,4><1,3>;
 test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x\<b,1\>;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x<b,1>;};
 // rel_field_project not yet implemented:
 test bool tst() = run("{{\<1, \"x\", 2\>, \<10, \"xx\", 20\>}\<2,1\>;}") == {<1, "x", 2>, <10, "xx", 20>}<2,1>;
+// lrel_field_project not yet implemented:
+test bool tst() = run("{[\<1, \"x\", 2\>, \<10, \"xx\", 20\>]\<2,1\>;}") == [<1, "x", 2>, <10, "xx", 20>]<2,1>;
 
 // Slicing
 
@@ -232,10 +238,11 @@ test bool tst() = run("\"abc\"(1,2,3,4,5,6,7,8,9)[2 .. 7]") == "abc"(1,2,3,4,5,6
 test bool tst() = run("\"abc\"(1,2,3,4,5,6,7,8,9)[2, 4 .. 7]") == "abc"(1,2,3,4,5,6,7,8,9)[2, 4 .. 7];
 
 // has
-// Next 3 tests fail since label info not available in tuple value
 test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x has a;}")  == {tuple[int a, str b, int c] x= <1, "x", 2>; x has a;};
 test bool tst() = run("{lrel[int a, str b, int c] x= [\<1, \"x\", 2\>]; x has a;}")  == {lrel[int a, str b, int c] x= [<1, "x", 2>]; x has a;};
 test bool tst() = run("{rel[int a, str b, int c] x= {\<1, \"x\", 2\>}; x has a;}")  == {rel[int a, str b, int c] x= {<1, "x", 2>}; x has a;};
+
+// Here is an issue finding the alternatives of an ADT, see TypeUtils, hasField
 test bool tst() = run("{x = d1(3, \"a\"); x has n;}")  == {x = d1(3, "a"); x has n;};
 
 // is

@@ -128,7 +128,7 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <
    	for(var <- variables){
    		variables_in_module += [muVariable("<var.name>")];
    		if(var is initialized) 
-   		   variable_initializations +=  mkAssign("<var.name>", var@\loc, translate(var.initial)[0]);
+   		   variable_initializations +=  mkAssign("<var.name>", var@\loc, translate(var.initial));
    	}
 }   	
 
@@ -161,7 +161,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
       i += 1;
   };
   list[MuExp] tbody = translate(expression);
-  tbody = [ *tbody[0 .. -1], muReturn(tbody[-1]) ];
+  tbody = [ *tbody[0 .. -1], muReturn(tbody[-1]) ]; // ???
   if(!isEmpty(conditions)) {
       tbody = [ muIfelse(muOne(conditions), tbody, [ muFailReturn() ]) ];
   }
@@ -190,7 +190,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
       conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
       i += 1;
   };
-  list[MuExp] tbody = [ *translate(stat) | stat <- body.statements ];
+  list[MuExp] tbody = muBlock([ translate(stat) | stat <- body.statements ]);
   if(!isEmpty(conditions)) {
       tbody = [ muIfelse(muOne(conditions), tbody, [ muFailReturn() ]) ];
   }
@@ -240,7 +240,7 @@ list[str] translateModifiers(FunctionModifiers modifiers){
 }
 
 void generate_tests(str module_name){
-   code = [ muCallPrim("testreport_open", []), *tests, muCallPrim("testreport_close", []), muReturn() ];
+   code = muBlock([ muCallPrim("testreport_open", []), *tests, muCallPrim("testreport_close", []), muReturn() ]);
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    main_testsuite = getFUID(module_name,"testsuite",ftype,0);
    println("main_testsuite = <main_testsuite>");

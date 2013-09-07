@@ -15,7 +15,7 @@ public void resetTmpAndLabel(){
 	writerVariables = [];
 }
 
-// Generation of temporary variables
+// Generation of temporary variables and labels
 
 public int tmpVar = -1;   						// *** state
 
@@ -29,6 +29,11 @@ public int tmpLabel = -1;						// *** state
 public str nextLabel(){
 	tmpLabel += 1;
 	return "LAB<tmpLabel>";
+}
+
+public str nextLabel(str prefix){
+	tmpLabel += 1;
+	return "<prefix><tmpLabel>";
 }
 
 // Keep track of loop nested. This is used for
@@ -55,6 +60,7 @@ str getLabel(Label label) =
   (label is \default) ? "<label.name>" : nextTmp();
   
 str asTmp(str name) = "TMP_<name>";
+
 
 // Keep track of possibly nested "it" variables in reducers
 

@@ -411,6 +411,7 @@ public class CodeBlock {
 	}
 		
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
+		System.out.println("CodeBlock.done for " + fname);
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;
 		this.resolver = resolver;

@@ -1,14 +1,6 @@
 module experiments::Compiler::Tests::Statements
 
-import  experiments::Compiler::Compile;
-
-value run(str stats, bool listing=false, bool debug=false) = 
-	execute("module TMP data D = d1(int n, str s) | d2(str s, bool b); value main(list[value] args) { return <stats> }", listing=listing, debug=debug);
-	
-value run(str stats, str ret, bool listing=false, bool debug=false) = 
-	execute("module TMP data D = d1(int n, str s) | d2(str s, bool b); value main(list[value] args) { <stats>; return <ret> }", listing=listing, debug=debug);
-	
-data D = d1(int n, str s) | d2(str s, bool b); 	
+extend experiments::Compiler::Tests::TestUtils;
 
 // Assignables	
 	
@@ -50,12 +42,27 @@ test bool tst() = run("i = 10", "while(i \> 0){ i = i - 1; if(i % 2 == 1) contin
 
 test bool tst() = run("i = 10", "while(i \> 0){ i = i - 1; if(i == 3) break; append i;}") == {i = 10; while(i > 0){ i = i - 1; if(i == 3) break; append i;}};
 
+// Do
 
 
+test bool tst() = run("i = 10", "do { append i; i = i - 1;} while(i \> 0);") == {i = 10; do { append i; i = i - 1;} while (i > 0);};
+test bool tst() = run("i = 10", "do {i = i - 1; if(i % 2 == 1) continue; append i; } while(i \> 0);") == {i = 10; do {i = i - 1; if(i % 2 == 1) continue; append i; } while(i > 0);};
+test bool tst() = run("i = 10", "do {i = i - 1; if(i == 3) break; append i; } while(i \> 0);") == {i = 10; do {i = i - 1; if(i == 3) break; append i; } while(i > 0);};
 
 
+// Assert
 
+// Not easy to test :-(
 
+// Switch
+int sw(int n) { switch(n){case 0: return 0; case 1: return 1; default: return 2;} }
+
+test bool tst() = run("x = 7" , "switch(0){case 0: x = 0; case 1: x = 1; default: x = 2;}") == sw(0);
+                      
+test bool tst() = run("x = 7" , "switch(1){case 0: x = 0; case 1: x = 1; default: x = 2;}") == sw(1);
+                      
+test bool tst() = run("x = 7" , "switch(2){case 0: x = 0; case 1: x = 1; default: x = 2;}") == sw(2);
+                                                                  
 
 
 

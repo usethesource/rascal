@@ -55,7 +55,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	JavaToRascalConverter(final TypeStore typeStore, boolean collectBindings) {
 		super(true);
 		this.typeStore = typeStore;
-		this.bindingsResolver = new BindingsResolver(collectBindings);
+		this.bindingsResolver = new BindingsResolver(typeStore, collectBindings);
 		this.collectBindings = collectBindings;
 		DATATYPE_RASCAL_AST_TYPE_NODE_TYPE 		= this.typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_TYPE_NODE);
 		DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_MODIFIER_NODE);
@@ -74,7 +74,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	}
 	
 	protected ISourceLocation resolveBinding(String packageComponent) {
-		URI packageBinding = new BindingsResolver(this.collectBindings) {
+		URI packageBinding = new BindingsResolver(typeStore, this.collectBindings) {
 			public URI resolveBinding(String packageC) {
 				this.setProject(loc.getURI().getAuthority());
 				if (collectBindings)
@@ -87,7 +87,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	}
 	
 	protected ISourceLocation resolveBinding(CompilationUnit node) {
-		URI compilationUnit = new BindingsResolver(true) {
+		URI compilationUnit = new BindingsResolver(typeStore, true) {
 			public URI resolveBinding(CompilationUnit node) {
 				return convertBinding("java+compilationUnit", loc.getURI().getPath(), null, null);
 			}
