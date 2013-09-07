@@ -88,6 +88,17 @@ function ENUM_LIST[1, ^lst, last, i]{
    return get ^lst[last];
 }
 
+function ENUM_MAP[1, ^map, ^klst, last, i]{
+   ^klst = keys(^map);
+   last = size(^klst) - 1;
+   i = 0;
+   while(i < last){
+      yield get ^klst[i];
+      i = i + 1;
+   };
+   return get ^klst[last];
+}
+
 function ENUM_NODE[1, ^nd, last, i, lst]{
    lst = get_name_and_children(^nd);
    last = size(lst) - 2;
@@ -121,9 +132,13 @@ function ENUMERATE_AND_MATCH[2,  pat, ^val]{
   } else {
     if(^val is node){
       do_enum(init(create(ENUM_NODE, ^val)), pat);
+    } else {
+      if(^val is map){
+        do_enum(init(create(ENUM_MAP, ^val)), pat);
+      };
     };
   };  
-  // Add cases for set/rel/tuple/map/...
+  // Add cases for set/rel/tuple/...
   return ^val;
 }
 
