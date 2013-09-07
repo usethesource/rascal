@@ -246,7 +246,7 @@ MuExp translate(e:(Expression) `<Expression argument> ?`)   { throw("isDefined")
 MuExp translate(e:(Expression) `!<Expression argument>`)    = translateBool(e);
 
 // Negate
-list[MuExp] translate(e:(Expression) `-<Expression argument>`)    = muCallPrim("negative", translate(argument));
+MuExp translate(e:(Expression) `-<Expression argument>`)    = muCallPrim("negative", [translate(argument)]);
 
 // Splice
 MuExp translate(e:(Expression) `*<Expression argument>`) {
@@ -487,9 +487,9 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
         conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
         i += 1;
     };
-    list[MuExp] body = muBlock([ translate(stat) | stat <- statements ]);
+    MuExp body = muBlock([ translate(stat) | stat <- statements ]);
     if(!isEmpty(conditions)) {
-        body = [ muIfelse(muOne(conditions), body, [ muFailReturn() ]) ];
+        body = muIfelse(muOne(conditions), [ body ], [ muFailReturn() ]);
     }
 	return (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid); // closures are not overloaded
 }
