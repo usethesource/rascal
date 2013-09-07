@@ -246,7 +246,7 @@ MuExp translate(e:(Expression) `<Expression argument> ?`)   { throw("isDefined")
 MuExp translate(e:(Expression) `!<Expression argument>`)    = translateBool(e);
 
 // Negate
-MuExp translate(e:(Expression) `-<Expression argument>`)    = muCallPrim("negative", [translate(argument)]);
+MuExp translate(e:(Expression) `-<Expression argument>`)    = prefix("negative", argument);
 
 // Splice
 MuExp translate(e:(Expression) `*<Expression argument>`) {
