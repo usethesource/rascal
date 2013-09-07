@@ -12,7 +12,7 @@ import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
-//default MuExp translate((Statement) `<Statement* statements>`) = muBlock([ translate(stat) | stat <- statements ]);
+default MuExp translate((Statement) `<Statement* statements>`) = muBlock([ translate(stat) | stat <- statements ]);
 
 /********************************************************************/
 /*                  Statement                                       */
@@ -164,7 +164,7 @@ MuExp translate(s: (Statement) `continue <Target target> ;`) = muContinue(target
 
 MuExp translate(s: (Statement) `filter ;`) { throw("filter"); }
 
-MuExp translate(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`) { throw("solve"); }
+MuExp translate(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`) = translateSolve(s);
 
 MuExp translate(s: (Statement) `try  <Statement body> <Catch+ handlers>`) { throw("try"); }
 
@@ -179,10 +179,7 @@ MuExp translate(s: (Statement) `;`) = muBlock([]);
 
 MuExp translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names> ;`) { throw("globalDirective"); }
 
-MuExp translate(s: (Statement) `return <Statement statement>`) {
-  t = translate(statement);
-  return muReturn(t);
-}
+MuExp translate(s: (Statement) `return <Statement statement>`)  = muReturn(translate(statement));
 
 MuExp translate(s: (Statement) `throw <Statement statement>`) { throw("throw"); }
 
@@ -236,6 +233,14 @@ MuExp translateSwitchCases(str switchval, list[Case] cases) {
         return translate(c.statement);
   }
 }
+
+// Solve statement
+
+MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`) {
+
+}
+
+
   
 // Assignment statement
 

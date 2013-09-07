@@ -263,7 +263,10 @@ public enum RascalPrimitive {
 	mapwriter_close,
 	mapwriter_open,
 	
-	negative,
+	negative_int,
+	negative_real,
+	negative_rat,
+	negative_num,
 	
 	node_create,
 	node_replace,
@@ -2330,11 +2333,29 @@ public enum RascalPrimitive {
 	 * prefix UnaryMinus "-" { &L <: num -> &L }
 	 */
 
-	public static int negative(Object[] stack, int sp, int arity) {
+	public static int negative_int(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((IInteger) stack[sp - 1]).negate();
+		return sp;
+	}
+	public static int negative_real(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((IReal) stack[sp - 1]).negate();
+		return sp;
+	}
+	
+	public static int negative_rat(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((IRational) stack[sp - 1]).negate();
+		return sp;
+	}
+	
+	public static int negative_num(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((INumber) stack[sp - 1]).negate();
 		return sp;
 	}
+	
 
 	/*
 	 * notEquals
@@ -2382,7 +2403,9 @@ public enum RascalPrimitive {
 	
 	public static int list_subscript(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IList) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
+		IList lst = ((IList) stack[sp - 2]);
+		int idx = ((IInteger) stack[sp - 1]).intValue();
+		stack[sp - 2] = lst.get(idx >= 0 ? idx : lst.length() - idx);
 		return sp - 1;
 	}
 
