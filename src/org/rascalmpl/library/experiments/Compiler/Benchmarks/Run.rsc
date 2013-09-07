@@ -74,8 +74,9 @@ void main(){
   run("BForCond", experiments::Compiler::Benchmarks::BForCond::main);
   run("BListMatch1", experiments::Compiler::Benchmarks::BListMatch1::main);
   run("BListMatch2", experiments::Compiler::Benchmarks::BListMatch2::main);
- */ run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
+  run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
   run("BSet1", experiments::Compiler::Benchmarks::BSet1::main);
+  */run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
   run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
   report();
 
