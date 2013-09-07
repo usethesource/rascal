@@ -90,7 +90,7 @@ public enum RascalPrimitive {
 	
 	adt_field_access,
 	adt_field_update,
-	adt_subscript,
+	adt_subscript_int,
 	adt_update,
 	
 	annotation_get,
@@ -169,6 +169,7 @@ public enum RascalPrimitive {
 	real_greaterequal_rat,
 
 	str_greaterequal_str,
+	str_subscript_int,
 
 	has,
 	implies_bool_bool,
@@ -245,7 +246,7 @@ public enum RascalPrimitive {
 	list_create,
 	list_replace,
 	list_slice,
-	list_subscript, 
+	list_subscript_int, 
 	list_update,
 	
 	listwriter_add,
@@ -270,6 +271,7 @@ public enum RascalPrimitive {
 	
 	node_create,
 	node_replace,
+	node_subscript_int,
 	node_slice,
 	
 	not_bool,
@@ -359,7 +361,7 @@ public enum RascalPrimitive {
 	tuple_field_access,
 	tuple_field_project,
 	tuple_create,
-	tuple_subscript,
+	tuple_subscript_int,
 	tuple_update,
 
 	type_equal_type,
@@ -2395,17 +2397,27 @@ public enum RascalPrimitive {
 	 * subscript
 	 */
 	
-	public static int adt_subscript(Object[] stack, int sp, int arity) {
+	public static int adt_subscript_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IConstructor) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
+		IConstructor cons =  (IConstructor) stack[sp - 2];
+		int idx = ((IInteger) stack[sp - 1]).intValue();
+		stack[sp - 2] = cons.get((idx >= 0) ? idx : cons.arity());
 		return sp - 1;
 	}
 	
-	public static int list_subscript(Object[] stack, int sp, int arity) {
+	public static int node_subscript_int(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		INode node =  (INode) stack[sp - 2];
+		int idx = ((IInteger) stack[sp - 1]).intValue();
+		stack[sp - 2] = node.get((idx >= 0) ? idx : node.arity());
+		return sp - 1;
+	}
+	
+	public static int list_subscript_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		IList lst = ((IList) stack[sp - 2]);
 		int idx = ((IInteger) stack[sp - 1]).intValue();
-		stack[sp - 2] = lst.get(idx >= 0 ? idx : lst.length() - idx);
+		stack[sp - 2] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
 		return sp - 1;
 	}
 
@@ -2415,10 +2427,21 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	
-	public static int tuple_subscript(Object[] stack, int sp, int arity) {
+	public static int str_subscript_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((ITuple) stack[sp - 2]).get(((IInteger) stack[sp - 1]).intValue());
+		IString str = ((IString) stack[sp - 2]);
+		int idx = ((IInteger) stack[sp - 1]).intValue();
+		stack[sp - 2] = (idx >= 0) ? str.substring(idx, idx+1)
+								   : str.substring(str.length() + idx, str.length() + idx + 1);
+		return sp - 1;
+	}
+	
+	
+	public static int tuple_subscript_int(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ITuple tup = (ITuple) stack[sp - 2];
+		int idx = ((IInteger) stack[sp - 1]).intValue();
+		stack[sp - 2] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
 		return sp - 1;
 	}
 

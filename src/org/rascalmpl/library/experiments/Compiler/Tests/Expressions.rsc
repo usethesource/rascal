@@ -1,6 +1,6 @@
 module experiments::Compiler::Tests::Expressions
 
-import  experiments::Compiler::Tests::TestUtils;
+extend  experiments::Compiler::Tests::TestUtils;
 
 // Booleans
 
@@ -29,6 +29,7 @@ test bool tst() = run("{b = 2 \> 1; b ? 10 : 20;}") == {b = 2 > 1; b ? 10 : 20;}
 
 // Integers
 test bool tst() = run("6") == 6;
+test bool tst() = run("-6") == -6;
 test bool tst() = run("2 + 3") == (2 + 3);
 test bool tst() = run("2 - 3") == (2 - 3);
 test bool tst() = run("2 * 3") == (2 * 3);
@@ -47,11 +48,13 @@ test bool tst() = run("2 != 3") == (2 != 3);
 
 // Real
 test bool tst() = run("2.3 == 2.3") == (2.3 == 2.3);
+test bool tst() = run("-2.3 == -2.3") == (-2.3 == -2.3);
 test bool tst() = run("2.5 == 2.3") == (2.5 == 2.3);
 
 
 // Rational
 test bool tst() = run("2r3 == 2r3") == (2r3 == 2r3);
+test bool tst() = run("-2r3 == -2r3") == (-2r3 == -2r3);
 test bool tst() = run("2r5 == 2r3") == (2r5 == 2r3);
 
 // String
@@ -130,6 +133,8 @@ test bool tst() = run("(1 : 10, 2 : 20)") == (1 : 10, 2 : 20);
 test bool tst() = run("(1 : 10, 2 : 20) + (3 : 30)") == (1 : 10, 2 : 20) + (3 : 30);
 test bool tst() = run("(1 : 10, 2 : 20) & (2 : 20, 3 : 30)") == (1 : 10, 2 : 20) & (2 : 20, 3 : 30);
 test bool tst() = run("(1 : 10, 2 : 20) - (2 : 20, 3 : 30)") == (1 : 10, 2 : 20) - (2 : 20, 3 : 30);
+test bool tst() = run("(\"a\" : \"A\", \"b\" : \"B\", \"c\" : \"C\", \"d\" : \"D\", \"e\" : \"E\", \"f\" : \"F\", \"g\" : \"G\")")
+                   == ("a" : "A", "b" : "B", "c" : "C", "d" : "D", "e" : "E", "f" : "F", "g" : "G");
 test bool tst() = run("1 in (1 : 10, 2 : 20)") == 1 in (1 : 10, 2 : 20);
 test bool tst() = run("1 notin (1 : 10, 2 : 20)") == 1 notin (1 : 10, 2 : 20);
 
@@ -202,6 +207,12 @@ test bool tst() = run("{1, *[2, 3], 4}") == {1, *[2, 3], 4};
 test bool tst() = run("{1, *{2, 3}, 4}") == {1, *{2, 3}, 4};
 
 // Subscript
+test bool tst() = run("{x = [1, 2, 3]; x [1];}") ==  {x = [1, 2, 3]; x [1];};
+test bool tst() = run("{x = \<1, 2, 3\>; x [1];}") ==  {x = <1, 2, 3>; x [1];};
+test bool tst() = run("{x = \"abc\"; x [1];}") ==  {x = "abc"; x [1];};
+test bool tst() = run("{x = \"f\"(1, 2, 3); x [1];}") ==  {x = "f"(1, 2, 3); x [1];};
+test bool tst() = run("{x = d1(1, \"a\"); x [1];}") ==  {x = d1(1, "a"); x [1];};
+
 test bool tst() = run("{x = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]; x[1][0];}") == {x = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]; x[1][0];};
 test bool tst() = run("{x = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]; x[1][0] = 1000; x[1][0];}") == {x = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]; x[1][0] = 1000; x[1][0];};
 test bool tst() = run("{x = (\"a\" : [0,1,2], \"b\" : [10, 20, 30]); x[\"b\"][1] = 1000; x[\"b\"][1];}") == {x = ("a" : [0,1,2], "b" : [10,20,30]); x["b"][1] = 1000; x["b"][1];};
