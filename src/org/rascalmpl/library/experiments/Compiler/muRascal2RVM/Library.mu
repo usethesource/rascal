@@ -149,6 +149,9 @@ function ENUMERATE_AND_MATCH[2,  pat, ^val]{
       } else {
         if(^val is set){
            do_enum(init(create(ENUM_SET, ^val)), pat);
+        } else {
+        
+        };
       };
     };
   };  
