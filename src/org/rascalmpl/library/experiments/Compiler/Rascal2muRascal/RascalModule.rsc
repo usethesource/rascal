@@ -160,7 +160,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
       conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
       i += 1;
   };
-  MuExp tbody = translate(expression);
+  MuExp tbody = muReturn(translate(expression));
   if(!isEmpty(conditions)) {
       tbody = muIfelse(muOne(conditions), [ tbody ], [ muFailReturn() ]);
   }
@@ -191,7 +191,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   };
   MuExp tbody = muBlock([ translate(stat) | stat <- body.statements ]);
   if(!isEmpty(conditions)) {
-      tbody = muIfelse(muOne(conditions), [ tbody ], [ muFailReturn() ]);
+      tbody = muIfelse(muOne(conditions), [ *tbody.exps ], [ muFailReturn() ]);
   }
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);

@@ -489,7 +489,7 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
     };
     MuExp body = muBlock([ translate(stat) | stat <- statements ]);
     if(!isEmpty(conditions)) {
-        body = muIfelse(muOne(conditions), [ body ], [ muFailReturn() ]);
+        body = muIfelse(muOne(conditions), [ *body.exps ], [ muFailReturn() ]);
     }
 	return (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid); // closures are not overloaded
 }
