@@ -20,7 +20,7 @@ MuExp translatePat(p:(Pattern) `<Literal lit>`) = muCreate(mkCallToLibFun("Libra
 MuExp translatePat(p:(Pattern) `<Concrete concrete>`) { throw("Concrete"); }
      
 MuExp translatePat(p:(Pattern) `<QualifiedName name>`) {
-   <fuid, pos> = getVariableScope("<name>", p@\loc);
+   <fuid, pos> = getVariableScope("<name>", name@\loc);
    println("transPattern: <fuid>, <pos>");
    return muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muVarRef("<name>", fuid, pos)]);
 } 
@@ -38,8 +38,11 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 
 // callOrTree pattern
 
-MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
-   return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", translatePat(expression) + [ translatePat(pat) | pat <- arguments ])]);
+MuExp translatePat(p:(Pattern) `<QualifiedName name> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
+   <fuid, pos> = getVariableScope("<name>", name@\loc);
+   println("transPattern, call_or_tree: <fuid>, <pos>");
+   name_pat = muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", name_pat + [ translatePat(pat) | pat <- arguments ])]);
 }
 
 
