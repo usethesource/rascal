@@ -79,7 +79,7 @@ test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2]") == [*int x, 3, x] := [1,
 
 // Node/Constructor matching
 
-test bool tst() = run("d1(1) := d1(1)") == d1(1) := d1(1);
+test bool tst0() = run("d1(1) := d1(1)") == d1(1) := d1(1);
 test bool tst() = run("d1(1) := d1(2)") == d1(1) := d1(2);
 test bool tst() = run("d2(\"a\") := d2(\"a\")") == d2("a") := d2("a");
 test bool tst() = run("d2(\"a\") := d2(\"b\")") == d2("a") := d2("b");

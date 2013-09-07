@@ -53,7 +53,7 @@ test bool tst() = run("2 != 2") == (2 != 2);
 test bool tst() = run("2 != 3") == (2 != 3);
 
 // Real
-test bool tst() = run("2.3 == 2.3") == (2.3 == 2.3);
+test bool tst() = run("2.3 == 2.3") == (2r3 == 2r3);
 test bool tst() = run("2.5 == 2.3") == (2.5 == 2.3);
 
 
