@@ -287,7 +287,7 @@ function MATCH_VAR[2, varref, ^subject]{
 }
 
 function MATCH_TYPED_VAR[3, typ, varref, ^subject]{
-   if(equal(typ, typeOf(^subject))){
+   if(subtype(typeOf(^subject), typ)){
      deref varref = ^subject;
      return true;
    };
