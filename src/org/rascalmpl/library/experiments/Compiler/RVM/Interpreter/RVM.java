@@ -11,8 +11,10 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -31,6 +33,8 @@ public class RVM {
 	private final Boolean FALSE;
 	private final IBool Rascal_TRUE;
 	private final IBool Rascal_FALSE;
+	private final IString NONE; 
+	private final Failure FAILURE = Failure.getInstance();
 	
 	private boolean debug = true;
 	private boolean listing = false;
@@ -38,10 +42,10 @@ public class RVM {
 	
 	private final ArrayList<Function> functionStore;
 	private final Map<String, Integer> functionMap;
-	// Resolver to manage overloading
-	private final Map<String, Integer[]> resolver;
+	// Function overloading
+	private final Map<String, Integer> resolver;
+	private final ArrayList<Integer[]> overloadedStore;
 	
-	//private final TypeFactory tf = TypeFactory.getInstance(); 
 	private final TypeStore typeStore = new TypeStore();
 	private final Types types;
 	
@@ -63,12 +67,15 @@ public class RVM {
 		FALSE = false;
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
+		NONE = vf.string("$nothing$");
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();
 
 		functionMap = new HashMap<String, Integer>();
-		resolver = new HashMap<String,Integer[]>();
 		constructorMap = new HashMap<String, Integer>();
+		
+		resolver = new HashMap<String,Integer>();
+		overloadedStore = new ArrayList<Integer[]>();
 		
 		RascalPrimitive.init(vf, stdout, this);
 	}
@@ -95,6 +102,26 @@ public class RVM {
 		return types.symbolToType(symbol, typeStore);
 	}
 	
+	public void addResolver(IMap resolver) {
+		for(IValue fuid : resolver) {
+			String of = ((IString) fuid).getValue();
+			int index = ((IInteger) resolver.get(fuid)).intValue();
+			this.resolver.put(of, index);
+		}
+	}
+	
+	public void fillOverloadedStore(IList overloadedStore) {
+		for(IValue of : overloadedStore) {
+			ISet fuids = (ISet) of;
+			Integer[] funs = new Integer[fuids.size()];
+			int i = 0;
+			for(IValue fuid : fuids) {
+				Integer index = functionMap.get(((IString) fuid).getValue());
+				funs[i++] = index;
+			}
+			this.overloadedStore.add(funs);
+		}
+	}
 	
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.
@@ -161,6 +188,14 @@ public class RVM {
 		if(o instanceof FunctionInstance){
 			return "Function[" + ((FunctionInstance)o).function.getName() + "]";
 		}
+		if(o instanceof OverloadedFunctionInstance) {
+			OverloadedFunctionInstance of = (OverloadedFunctionInstance) o;
+			String alts = "";
+			for(Integer fun : of.functions) {
+				alts = alts + functionStore.get(fun).getName() + "; ";
+			}
+			return "OverloadedFunction[ alts: " + "]";
+		}
 		if(o instanceof Reference){
 			Reference ref = (Reference) o;
 			return "Reference[" + ref.stack + ", " + ref.pos + "]";
@@ -182,25 +217,29 @@ public class RVM {
 		if(!finalized){
 			finalized = true;
 			for (Function f : functionStore) {
-				f.finalize(functionMap, constructorMap, listing);
+				f.finalize(functionMap, constructorMap, resolver, listing);
 			}
 		}
 	}
 	
 	public IValue executeFunction(String uid_func, IValue[] args){
+		// Assumption here is that the function called is not nested one
+		// and does not use global variables
 		Function func = functionStore.get(functionMap.get(uid_func));
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
 		Frame cf = root;
 		
-		// Pass the program argument to main
+		// Pass the program arguments to main
 		for(int i = 0; i < args.length; i++){
 			cf.stack[i] = args[i]; 
 		}
-		return executeProgram(root, cf);
+		return narrow(executeProgram(root, cf)); 
 	}
 	
-	// Execute a function instance, i.e., in its environment
-	public IValue executeFunction(Frame root, FunctionInstance func, IValue[] args){
+	// Execute a function instance, i.e., a function in its environment
+	// Note: the root frame is the environment of the non-nested functions and enables access to the global variables
+	// Note: the return type is 'Object' as this method is used to implement call to overloaded functions, its alternatives may fail
+	public Object executeFunction(Frame root, FunctionInstance func, IValue[] args){
 		Frame cf = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
 		
 		// Pass the program argument to main
@@ -208,6 +247,16 @@ public class RVM {
 			cf.stack[i] = args[i]; 
 		}
 		return executeProgram(root, cf);
+	}
+	
+	private String trace = "";
+	
+	public String getTrace() {
+		return trace;
+	}
+	
+	public void appendToTrace(String trace) {
+		this.trace = this.trace + trace + "\n";
 	}
 	
 	public IValue executeProgram(String uid_main, String uid_module_init, IValue[] args) {
@@ -241,12 +290,17 @@ public class RVM {
 		// We need the notion of the root frame, which represents the root environment
 		Frame root = new Frame(init_function.scopeId, null, init_function.maxstack, init_function);
 		Frame cf = root;
-		cf.stack[0] = args; // pass the program argument to #module_init 
-
-		return executeProgram(root, cf);
+		cf.stack[0] = vf.list(args); // pass the program argument to #module_init ***as a IList object
+		IValue res = narrow(executeProgram(root, cf));
+		if(debug) {
+			stdout.println("TRACE:");
+			stdout.println(getTrace());
+		}
+		return res;
 	}
 	
-	public IValue executeProgram(Frame root, Frame cf) {
+	// TODO: Need to re-consider management of active coroutines
+	public Object executeProgram(Frame root, Frame cf) {
 		Object[] stack = cf.stack;		                              // current stack
 		int sp = cf.function.nlocals;				                  // current stacp pointer
 		int[] instructions = cf.function.codeblock.getInstructions(); // current instruction sequence
@@ -308,6 +362,10 @@ public class RVM {
 					}
 					throw new RuntimeException("LOAD_NESTED_FUNCTION cannot find matching scope: " + scope);	
 				}
+				
+				case Opcode.OP_LOADOFUN:
+					stack[sp++] = new OverloadedFunctionInstance(overloadedStore.get(instructions[pc++]), cf);
+					continue;
 				
 				case Opcode.OP_LOADCONSTR:
 					Type constructor = constructorStore.get(instructions[pc++]);
@@ -480,19 +538,140 @@ public class RVM {
 					sp = fun.nlocals;
 					pc = 0;
 					continue;
+					
+				case Opcode.OP_OCALLDYN:
+					arity = instructions[pc++];
+					// Objects of two types may be found on the stack:
+					// 	1. FunctionInstance due to closures
+					// 	2. OverloadedFunctionInstance due to named Rascal functions (TODO: including constructors)
+					Object funcObject = stack[--sp];
+					// Get function arguments from the stack
+					args = new IValue[arity]; 
+					for(int i = arity - 1; i >= 0; i--) {
+						args[i] = (IValue) stack[sp - arity + i];
+					}			
+					sp = sp - arity;
+					// Get function types to do a type-based dynamic resolution
+					Object[] types = (Object[]) stack[--sp];
+					
+					if(funcObject instanceof FunctionInstance) {
+						FunctionInstance fun_instance = (FunctionInstance) funcObject;
+						Object rval = executeFunction(root, fun_instance, args);
+						if(rval != NONE) {
+							stack[sp++] = rval;
+						}
+						continue NEXT_INSTRUCTION;
+					}					
+					OverloadedFunctionInstance of = (OverloadedFunctionInstance) funcObject;
+					
+					if(debug) {
+						this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
+						this.appendToTrace("	with alternatives:");
+						for(Integer index : of.functions) {
+							this.appendToTrace("		" + cf.function.codeblock.getFunctionName(index));
+						}
+					}
+					
+					NEXT_FUNCTION: 
+					for(Integer index : of.functions) {
+						fun = functionStore.get(index);
+						for(Object type : types) {
+							if(type == fun.ftype) {
+								FunctionInstance fun_instance = null;
+								// TODO: this will change as the current consideration regarding the overloading and scoping semantics 
+								//       enables to resolve the 'scopeIn' of overloaded functions statically
+								for(Frame env = of.env; env != null; env = env.previousCallFrame) {
+									if(fun.scopeIn == -1 || env.scopeId == fun.scopeIn) {
+										fun_instance = new FunctionInstance(fun, env);
+										
+										if(debug) {
+											this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
+										}
+										
+										Object rval = executeFunction(root, fun_instance, args);
+										if(rval == FAILURE) {
+											continue NEXT_FUNCTION;
+										} else {
+											if(rval != NONE) {
+												stack[sp++] = rval;
+											}
+											continue NEXT_INSTRUCTION;
+										}
+									}
+									continue;
+								}
+								throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");						
+							}
+						}
+					}				
+					continue;
+					
+				case Opcode.OP_OCALL:					
+					Integer[] funs = overloadedStore.get(instructions[pc++]);
+					arity = instructions[pc++];
+					
+					if(debug) {
+						this.appendToTrace("OVERLOADED FUNCTION CALL: " + cf.function.codeblock.getOverloadedFunctionName(instructions[pc - 2]));
+						this.appendToTrace("	with alternatives:");
+						for(Integer index : funs) {
+							this.appendToTrace("		" + cf.function.codeblock.getFunctionName(index));
+						}
+					}
+					
+					// Get arguments from the stack
+					args = new IValue[arity]; 
+					for(int i = arity - 1; i >= 0; i--) {
+						args[i] = (IValue) stack[sp - arity + i];
+					}			
+					sp = sp - arity;
+					
+					NEXT_FUNCTION: 
+					for(Integer index : funs) {
+						fun = functionStore.get(index);
+						FunctionInstance fun_instance = null;
+						// TODO: this will change as the current consideration regarding the overloading and scoping semantics 
+						//       enables to resolve the 'scopeIn' of overloaded functions statically
+						for(Frame env = cf; env != null; env = env.previousCallFrame) {
+							if(fun.scopeIn == -1 || env.scopeId == fun.scopeIn) {
+								fun_instance = new FunctionInstance(fun, env);
+								
+								if(debug) {
+									this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
+								}
+								
+								Object rval = executeFunction(root, fun_instance, args);
+								if(rval == FAILURE) {
+									continue NEXT_FUNCTION;
+								} else {
+									if(rval != NONE) {
+										stack[sp++] = rval;
+									}
+									continue NEXT_INSTRUCTION;
+								}
+							}
+							continue;
+						}
+						throw new RuntimeException("Call to an overloded function: either all functions have failed, or a scoping problem has been encountered!");						
+					}
+					continue;
 				
 				case Opcode.OP_FAILRETURN:
-					/*
-					 * TODO: Now fail return acts as return without value, change when we understand what we need here,i.e.
-					 * return to the function overloading resolution frame.
-					 */
+					Object rval = Failure.getInstance();
+					// TODO: Need to re-consider management of active coroutines
+					cf = cf.previousCallFrame;
+					if(cf == null) {
+						return rval;
+					} else {
+						throw new RuntimeException("Internal error: FAILRETURN should return from the program execution given the current design!");
+					}
 					
 				case Opcode.OP_RETURN0:
 				case Opcode.OP_RETURN1:
-					Object rval = null;
+					rval = null;
 					boolean returns = op == Opcode.OP_RETURN1; 
-					if(returns) 
+					if(returns) {
 						rval = stack[sp - 1];
+					}
 					
 					// if the current frame is the frame of a top active coroutine, 
 					// then pop this coroutine from the stack of active coroutines
@@ -503,17 +682,19 @@ public class RVM {
 					
 					cf = cf.previousCallFrame;
 					if(cf == null) {
-						if(returns)
-							return narrow(rval);
-						else 
-							return vf.string("None");
+						if(returns) {
+							return rval; 
+						} else { 
+							return NONE;
+						}
 					}
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					if(returns)
+					if(returns) {
 						stack[sp++] = rval;
+					}
 					continue;
 					
 				case Opcode.OP_HALT:
@@ -523,7 +704,7 @@ public class RVM {
 							stdout.println(i + ": " + stack[i]);
 						}
 					}
-					return narrow(stack[sp - 1]);
+					return stack[sp - 1];
 
 				case Opcode.OP_PRINTLN:
 					arity = instructions[pc++];

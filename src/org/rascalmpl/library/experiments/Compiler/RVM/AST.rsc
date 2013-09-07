@@ -6,7 +6,7 @@ public data Declaration =
 		  FUNCTION(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
 		;
 
-public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions);
+public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions, map[str,int] resolver, list[set[str]] overloaded_functions);
 
 data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
@@ -14,9 +14,11 @@ data Instruction =
 	   	| LOADCON(value val)						// Push an IValue
 	   	| LOADTYPE(Symbol \type)					// Push a type constant
 	   	
-	   	| LOADFUN(str fuid)                         // Push a named function closure
-		| LOAD_NESTED_FUN(str fuid, str scopeIn)    // Push a a closure of a named inner function
+	   	| LOADFUN(str fuid)                         // Push a named *muRascal function
+		| LOAD_NESTED_FUN(str fuid, str scopeIn)    // Push a named nested *muRascal function of a named inner *muRascal function
 		| LOADCONSTR(str fuid)						// Push a constructor function
+		
+		| LOADOFUN(str fuid)                        // Push a named *Rascal function
 		
 		| LOADLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in local variable (value remains on stack)
@@ -32,9 +34,12 @@ data Instruction =
 		| LOADVARDEREF(str fuid, int pos)           // Push value of a variable in outer scope identified by reference on stack 
 		| STOREVARDEREF(str fuid, int pos)          // Store value at stack[sp - 2] in outer variable identified by reference at stack[sp -1] (value remains on stack)
 		
-		| CALL(str fuid, int arity)					// Call a named function
-		| CALLDYN(int arity)						// Call a function on stack
+		| CALL(str fuid, int arity)					// Call a named *muRascal function
+		| CALLDYN(int arity)						// Call a *muRascal function on stack
 		| CALLCONSTR(str fuid, int arity)			// Call a constructor
+		
+		| OCALL(str fuid, int arity)				// Call a named *Rascal function
+		| OCALLDYN(int arity)						// Call a *Rascal function on stack
 		
 		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive)
 		| CALLPRIM(str name, int arity)				// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)

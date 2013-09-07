@@ -255,6 +255,18 @@ public class Execute {
 					case "FAILRETURN":
 						codeblock.FAILRETURN();
 						break;
+						
+					case "LOADOFUN" :
+						codeblock.LOADOFUN(getStrField(instruction, "fuid"));
+						break;
+						
+					case "OCALL" :
+						codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+						break;
+						
+					case "OCALLDYN" :
+						codeblock.OCALLDYN(getIntField(instruction, "arity"));
+						break;
 										
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
@@ -265,13 +277,19 @@ public class Execute {
 						maxstack, codeblock));
 			}
 		}
+		
+		// Overloading resolution
+		rvm.addResolver((IMap) program.get("resolver"));
+		rvm.fillOverloadedStore((IList) program.get("overloaded_functions"));
+		
 		if(uid_main == null || uid_module_init == null) {
 			throw new RuntimeException("There is no main or module_init function found when loading RVM code!");
 		}
 		long start = System.currentTimeMillis();
 		Object result = null;
-		for (int i = 0; i < repeat.intValue(); i++)
+		for (int i = 0; i < repeat.intValue(); i++) {
 			result = rvm.executeProgram(uid_main, uid_module_init, new IValue[] {});
+		}
 		long now = System.currentTimeMillis();
 		return vf.tuple((IValue) result, vf.integer(now - start));
 	}
