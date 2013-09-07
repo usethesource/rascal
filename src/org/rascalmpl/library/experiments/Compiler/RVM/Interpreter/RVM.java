@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -908,6 +909,16 @@ public class RVM {
 					case rint:
 						assert arity == 1;
 						stack[sp -1] = vf.integer((Integer) stack[sp -1]);
+						break;
+					
+					case set2list:
+						assert arity == 1;
+						ISet set = (ISet) stack[sp - 1];
+						writer = vf.listWriter();
+						for(IValue elem : set){
+							writer.append(elem);
+						}
+						stack[sp - 1] = writer.done();
 						break;
 						
 					case size_array_list_map:
