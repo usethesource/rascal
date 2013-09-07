@@ -22,6 +22,6 @@ public set[list[int]] sendMoreMoney(){
 */
 value main(list[value] args){
      ds = {0, 1, 2, 3};
-     res = {[S] |  int S <- ds };   //int E <- ds - {S}};
+     res = {[S, E] |  int S <- ds, int E <- (ds - {S})};
      return res;
 }

@@ -38,11 +38,14 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 
 // callOrTree pattern
 
-MuExp translatePat(p:(Pattern) `<QualifiedName name> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
-   <fuid, pos> = getVariableScope("<name>", name@\loc);
-   println("transPattern, call_or_tree: <fuid>, <pos>");
-   name_pat = muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muVarRef("<name>", fuid, pos)]);
-   return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", name_pat + [ translatePat(pat) | pat <- arguments ])]);
+MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
+   MuExp fun_pat;
+   if(expression is qualifiedName){
+      fun_pat = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon("<expression>")]);
+   } else {
+     fun_pat = translatePat(expression);
+   }
+   return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", fun_pat + [ translatePat(pat) | pat <- arguments ])]);
 }
 
 
