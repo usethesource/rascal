@@ -99,7 +99,54 @@ list[MuExp] translate(e:(Expression) `<Expression expression> ( <{Expression ","
    // ignore kw arguments for the moment
    MuExp receiver = translate(expression)[0];
    list[MuExp] args = [ *translate(a) | a <- arguments ];
-   return (getOuterType(expression) == "str") ? [muCallPrim("node_create", [receiver, *args])] : [ muCall(receiver, args) ];
+   if(getOuterType(expression) == "str") {
+       return [muCallPrim("node_create", [receiver, *args])];
+   }
+   // TODO: overloading with constructors
+   if(muConstr(str fuid) := receiver) {
+       return [ muCall(receiver, args) ];
+   }
+   // Now overloading resolution...
+   // Get the type of a receiver
+   ftype = getType(expression@\loc);
+   if(muOFun(str fuid) := receiver && fuid in overloadingResolver) {
+       // Get the types of arguments
+       list[Symbol] targs = [ getType(arg@\loc) | arg <- arguments ];
+       // Generate a unique name for an overloaded function resolved for this specific use 
+       str ofqname = fuid + "(<for(targ<-targs){><targ>;<}>)";
+       // Resolve alternatives for this specific call
+       int i = overloadingResolver[fuid];
+       set[int] alts = overloadedFunctions[i];
+       set[int] resolved = {};
+       
+       bool matches(Symbol t) = isFunctionType(ftype) ? t == ftype : t in ftype.overloads;
+       
+       for(int alt <- alts) {
+           t = fuid2type[alt];
+           if(matches(t)) {
+               resolved += alt;
+           }
+       }
+       
+       bool exists = resolved in overloadedFunctions;
+       if(!exists) {
+           i = size(overloadedFunctions);
+           overloadedFunctions += resolved;
+       } else {
+           i = indexOf(overloadedFunctions, resolved);
+       }
+       
+       overloadingResolver[ofqname] = i;
+       // TODO: New insight to the overloading and scoping semantics enables static resolution with respect to the 'scopeIn'
+       // ***Note: r2mu translation does not care of whether the function is nested or not;
+       //          now runtime system is responsible for this
+       return [ muOCall(muOFun(ofqname), args) ];
+   }
+   if(muOFun(str fuid) := receiver && fuid notin overloadingResolver) {
+      throw "The use of a function has to be managed via overloading resolver!";
+   }
+   // Push down additional information if the overloading resolution needs to be done at runtime
+   return [ muOCall(receiver, isFunctionType(ftype) ? { ftype } : ftype.overloads , args) ];
 }
 
 // Any
@@ -196,7 +243,7 @@ list[MuExp] translate(e:(Expression) `<Expression argument> ?`)   { throw("isDef
 list[MuExp] translate(e:(Expression) `!<Expression argument>`)    = translateBool(e);
 
 // Negate
-list[MuExp] translate(e:(Expression) `-<Expression argument>`)    = prefix("negative", argument);
+list[MuExp] translate(e:(Expression) `-<Expression argument>`)    = [ muCallPrim("negative", translate(argument)) ];
 
 // Splice
 list[MuExp] translate(e:(Expression) `*<Expression argument>`) {
@@ -415,11 +462,23 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
     ftype = getClosureType(e@\loc);
 	nformals = size(ftype.parameters);
 	nlocals = getScopeSize(fuid);
-	body = [ *translate(stat) | stat <- statements ];
+	bool isVarArgs = (varArgs(_,_) := parameters);
+  	// TODO: keyword parameters
+  	{Pattern ","}* formals = parameters.formals.formals;
+  	list[MuExp] conditions = [];
+  	int i = 0;
+  	for(Pattern pat <- formals) {
+        conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
+        i += 1;
+    };
+    list[MuExp] body = [ *translate(stat) | stat <- statements ];
+    if(!isEmpty(conditions)) {
+        body = [ muIfelse(muOne(conditions), body, [ muFailReturn() ]) ];
+    }
 	tuple[str fuid,int pos] addr = uid2addr[uid];
 	functions_in_module += [ muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
 										nformals, nlocals, e@\loc, [], (), body) ];
-	return [ (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid) ];
+	return [ (addr.fuid == uid2str(0)) ? muOFun(fuid) : muFun(fuid, addr.fuid) ]; // closures are not overloaded
 }
 
 // Translate a comprehension
