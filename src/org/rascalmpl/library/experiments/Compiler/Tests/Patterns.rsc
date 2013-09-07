@@ -1,6 +1,6 @@
 module experiments::Compiler::Tests::Patterns
 
-import experiments::Compiler::Tests::TestUtils;
+extend experiments::Compiler::Tests::TestUtils;
 
 //import  experiments::Compiler::Compile;
 //
