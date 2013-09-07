@@ -1,6 +1,6 @@
 module experiments::Compiler::Tests::StringTemplates
 
-import experiments::Compiler::Tests::TestUtils;
+extend experiments::Compiler::Tests::TestUtils;
 
 
 test bool tst() = run("\"ab\"") == "ab";
