@@ -84,6 +84,7 @@ test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2]") == [*int x, 3, x] := [1,
 // Node/Constructor matching
 
 // Begin of unresolved issues: "PANIC: undefined function name TMP"
+// Possible cause: no loc info attached to d1 in pattern.
 test bool tst() = run("d1(1,\"a\") := d1(1, \"a\")") == d1(1,"a") := d1(1, "a");
 test bool tst() = run("d1(1,\"a\") := d1(2,\"a\")") == d1(1,"a") := d1(2,"a");
 test bool tst() = run("d2(\"a\", 1) := d2(\"a\", 1)") == d2("a", 1) := d2("a", 1);

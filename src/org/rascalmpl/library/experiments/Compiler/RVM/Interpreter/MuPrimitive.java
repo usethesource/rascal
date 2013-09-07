@@ -44,6 +44,7 @@ public enum MuPrimitive {
 	or_mbool_mbool,
 	println,
 	rint,
+	set2list,
 	size_array_list_map,
 	sublist_list_mint_mint,
 	subscript_array_or_list_mint, 

@@ -88,6 +88,17 @@ function ENUM_LIST[1, ^lst, last, i]{
    return get ^lst[last];
 }
 
+function ENUM_SET[1, ^set, ^lst, last, i]{
+   ^lst = set2list(^set);
+   last = size(^lst) - 1;
+   i = 0;
+   while(i < last){
+      yield get ^lst[i];
+      i = i + 1;
+   };
+   return get ^lst[last];
+}
+
 function ENUM_MAP[1, ^map, ^klst, last, i]{
    ^klst = keys(^map);
    last = size(^klst) - 1;
@@ -135,6 +146,9 @@ function ENUMERATE_AND_MATCH[2,  pat, ^val]{
     } else {
       if(^val is map){
         do_enum(init(create(ENUM_MAP, ^val)), pat);
+      } else {
+        if(^val is set){
+           do_enum(init(create(ENUM_SET, ^val)), pat);
       };
     };
   };  
