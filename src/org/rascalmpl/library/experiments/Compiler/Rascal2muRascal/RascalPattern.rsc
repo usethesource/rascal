@@ -20,7 +20,8 @@ MuExp translatePat(p:(Pattern) `<Literal lit>`) = muCreate(mkCallToLibFun("Libra
 MuExp translatePat(p:(Pattern) `<Concrete concrete>`) { throw("Concrete"); }
      
 MuExp translatePat(p:(Pattern) `<QualifiedName name>`) {
-   <fuid, pos> = getVariableScope("<name>", name@\loc);
+   <fuid, pos> = getVariableScope("<name>", p@\loc);
+   println("transPattern: <fuid>, <pos>");
    return muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muVarRef("<name>", fuid, pos)]);
 } 
      

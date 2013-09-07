@@ -723,9 +723,9 @@ public class RVM {
 						assert arity == 1;
 						INode nd = (INode) stack[sp - 1];
 						String name = nd.getName();
-						Object[] elems = new Object[arity + 1];
+						Object[] elems = new Object[nd.arity() + 1];
 						elems[0] = vf.string(name);
-						for(int i = 0; i < arity; i++){
+						for(int i = 0; i < nd.arity(); i++){
 							elems[i + 1] = nd.get(i);
 						}
 						stack[sp - 1] =  elems;

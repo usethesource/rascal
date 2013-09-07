@@ -94,7 +94,6 @@ test bool tst() = run("d1(int x, \"a\") := d1(1, \"a\")") == d1(int x, "a") := d
 
 // End of unresolved issues.
 
-// This is a bug in MATCH_CALL_OR_TREE
 test bool tst() = run("str f(int x, str s) := d1(1, \"a\")") == str f(int x, str s) := d1(1, "a") && x == 1 && s == "a" && f == "d1";
 
 
