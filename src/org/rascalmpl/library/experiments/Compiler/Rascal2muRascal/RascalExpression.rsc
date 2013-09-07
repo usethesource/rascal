@@ -183,8 +183,8 @@ MuExp translate (e:(Expression) `<Expression expression> is <Name name>`) =
     muCallPrim("is", [translate(expression), muCon("<name>")]);
 
 // Has
-MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) =
-    muCallPrim("has", [translate(expression), muCon("<name>")]);
+MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) = 
+    muCon(hasField(getType(expression@\loc), "<name>"));   
 
 // Transitive closure
 MuExp translate(e:(Expression) `<Expression argument> +`)   = postfix("transitiveClosure", argument);
