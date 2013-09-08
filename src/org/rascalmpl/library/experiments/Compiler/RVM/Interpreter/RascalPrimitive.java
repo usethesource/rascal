@@ -2662,7 +2662,12 @@ public enum RascalPrimitive {
 	
 	public static int value_to_string(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		stack[sp - 1] = vf.string(((IValue) stack[sp -1]).toString());
+		IValue val = (IValue) stack[sp -1];
+		if(val.getType().isString()){
+			stack[sp - 1] = vf.string(((IString) val).getValue());
+		} else {
+			stack[sp - 1] = vf.string(val.toString());
+		}
 		return sp;
 	}
 

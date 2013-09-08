@@ -152,18 +152,9 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   fuid = uid2str(uid);
   tuple[str fuid,int pos] addr = uid2addr[uid];
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
-  // TODO: keyword parameters
-  {Pattern ","}* formals = signature.parameters.formals.formals;
-  list[MuExp] conditions = [];
-  int i = 0;
-  for(Pattern pat <- formals) {
-      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
-      i += 1;
-  };
-  MuExp tbody = muReturn(translate(expression));
-  if(!isEmpty(conditions)) {
-      tbody = muIfelse(muOne(conditions), [ tbody ], [ muFailReturn() ]);
-  }
+  
+ //TODO: keyword parameters
+  tbody = translateFunction(signature.parameters.formals.formals, translate(expression));
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
@@ -181,18 +172,8 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   ftype = getFunctionType(fd@\loc);    
   nformals = size(ftype.parameters);
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
-  // TODO: keyword parameters
-  {Pattern ","}* formals = signature.parameters.formals.formals;
-  list[MuExp] conditions = [];
-  int i = 0;
-  for(Pattern pat <- formals) {
-      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
-      i += 1;
-  };
-  MuExp tbody = muBlock([ translate(stat) | stat <- body.statements ]);
-  if(!isEmpty(conditions)) {
-      tbody = muIfelse(muOne(conditions), [ *tbody.exps ], [ muFailReturn() ]);
-  }
+  //TODO: keyword parameters
+  MuExp tbody = translateFunction(signature.parameters.formals.formals, muBlock([ translate(stat) | stat <- body.statements ]));
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
   tuple[str fuid,int pos] addr = uid2addr[uid];

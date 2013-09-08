@@ -6,6 +6,7 @@ public enum MuPrimitive {
 	AND_U_U,
 	assign_pair,
 	assign_subscript_array_mint,
+	check_arg_type,
 	equal_mint_mint,
 	equal,
 	equivalent_mbool_mbool,
