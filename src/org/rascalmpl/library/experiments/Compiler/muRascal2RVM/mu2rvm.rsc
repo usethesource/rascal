@@ -67,7 +67,7 @@ map[str,Declaration] parseLibrary(){
 }
 
 // Translate a muRascal module
-RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, list[set[str]] overloaded_functions), bool listing=false){
+RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,set[str]] overloaded_functions), bool listing=false){
   funMap = ();
   nLabel = -1;
   temporaries = ();
@@ -101,7 +101,6 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
   main_fun = getUID(module_name,[],"main",1);
   module_init_fun = getUID(module_name,[],"#module_init_main",1);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-  //iprintln(funMap);
   if(!funMap[main_fun]?) {
   	main_fun = getFUID(module_name,"main",ftype,0);
   	module_init_fun = getFUID(module_name,"#module_init_main",ftype,0);
@@ -182,7 +181,7 @@ INS tr(muFun(str fuid, str scopeIn)) = [LOAD_NESTED_FUN(fuid, scopeIn)];
 
 // Rascal functions
 INS tr(muOFun(str fuid)) = [ LOADOFUN(fuid) ];
-INS tr(muOFun(str fuid, str scopeIn)) = [ LOAD_NESTED_OFUN(fuid,scopeIn) ];
+//INS tr(muOFun(str fuid, str scopeIn)) = [ LOAD_NESTED_OFUN(fuid,scopeIn) ];
 
 INS tr(muConstr(str fuid)) = [LOADCONSTR(fuid)];
 

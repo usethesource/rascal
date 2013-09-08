@@ -6,7 +6,7 @@ public data Declaration =
 		  FUNCTION(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
 		;
 
-public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions, map[str,int] resolver, list[set[str]] overloaded_functions);
+public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions, map[str,int] resolver, lrel[str,set[str]] overloaded_functions);
 
 data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
@@ -19,7 +19,7 @@ data Instruction =
 		| LOADCONSTR(str fuid)						// Push a constructor function
 		
 		| LOADOFUN(str fuid)                        // Push a named *Rascal function
-		| LOAD_NESTED_OFUN(str fuid, str scopeIn)   // Push a named, nested *Rascal function
+		//| LOAD_NESTED_OFUN(str fuid, str scopeIn)   // Push a named, nested *Rascal function
 		
 		| LOADLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in local variable (value remains on stack)
