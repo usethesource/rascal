@@ -352,19 +352,27 @@ public class RVM {
 					// Loads nested functions and closures (anonymous nested functions):
 					// First, gets the function code
 					Function fun = functionStore.get(instructions[pc++]);
-					int scope = instructions[pc++];
+					int scopeIn = instructions[pc++];
 					// Second, looks up the function environment frame into the stack of caller frames
-					for (Frame env = cf; env != null; env = env.previousCallFrame) {
-						if (env.scopeId == scope) {
+					for(Frame env = cf; env != null; env = env.previousCallFrame) {
+						if (env.scopeId == scopeIn) {
 							stack[sp++] = new FunctionInstance(fun, env);
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new RuntimeException("LOAD_NESTED_FUNCTION cannot find matching scope: " + scope);	
+					throw new RuntimeException("LOAD_NESTED_FUN cannot find matching scope: " + scopeIn);	
 				}
 				
 				case Opcode.OP_LOAD_NESTED_OFUN:
-					throw new RuntimeException("Not yet implemented, sorry...");
+					Integer[] funs = overloadedStore.get(instructions[pc++]);
+					int scopeIn = instructions[pc++];
+					for(Frame env = cf; env != null; env = env.previousCallFrame) {
+						if (env.scopeId == scopeIn) {
+							stack[sp++] = new OverloadedFunctionInstance(funs, env);
+							continue NEXT_INSTRUCTION;
+						}
+					}
+					throw new RuntimeException("LOAD_NESTED_OFUN cannot find matching scope: " + scopeIn);
 				
 				case Opcode.OP_LOADOFUN:
 					stack[sp++] = new OverloadedFunctionInstance(overloadedStore.get(instructions[pc++]), cf);
@@ -554,7 +562,7 @@ public class RVM {
 						args[i] = (IValue) stack[sp - arity + i];
 					}			
 					sp = sp - arity;
-					// Get function types to do a type-based dynamic resolution
+					// Get function types to perform a type-based dynamic resolution
 					Object[] types = (Object[]) stack[--sp];
 					
 					if(funcObject instanceof FunctionInstance) {
@@ -564,7 +572,8 @@ public class RVM {
 							stack[sp++] = rval;
 						}
 						continue NEXT_INSTRUCTION;
-					}					
+					}
+					
 					OverloadedFunctionInstance of = (OverloadedFunctionInstance) funcObject;
 					
 					if(debug) {
@@ -580,37 +589,28 @@ public class RVM {
 						fun = functionStore.get(index);
 						for(Object type : types) {
 							if(type == fun.ftype) {
-								FunctionInstance fun_instance = null;
-								// TODO: this will change as the current consideration regarding the overloading and scoping semantics 
-								//       enables to resolve the 'scopeIn' of overloaded functions statically
-								for(Frame env = of.env; env != null; env = env.previousCallFrame) {
-									if(fun.scopeIn == -1 || env.scopeId == fun.scopeIn) {
-										fun_instance = new FunctionInstance(fun, env);
+								FunctionInstance fun_instance = new FunctionInstance(fun, of.env);
 										
-										if(debug) {
-											this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
-										}
-										
-										Object rval = executeFunction(root, fun_instance, args);
-										if(rval == FAILURE) {
-											continue NEXT_FUNCTION;
-										} else {
-											if(rval != NONE) {
-												stack[sp++] = rval;
-											}
-											continue NEXT_INSTRUCTION;
-										}
-									}
-									continue;
+								if(debug) {
+									this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
 								}
-								throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");						
+										
+								Object rval = executeFunction(root, fun_instance, args);
+								if(rval == FAILURE) {
+									continue NEXT_FUNCTION;
+								} else {
+									if(rval != NONE) {
+										stack[sp++] = rval;
+									}
+									continue NEXT_INSTRUCTION;
+								}													
 							}
 						}
 					}				
-					continue;
+					throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");
 					
 				case Opcode.OP_OCALL:					
-					Integer[] funs = overloadedStore.get(instructions[pc++]);
+					funs = overloadedStore.get(instructions[pc++]);
 					arity = instructions[pc++];
 					
 					if(debug) {
@@ -631,32 +631,23 @@ public class RVM {
 					NEXT_FUNCTION: 
 					for(Integer index : funs) {
 						fun = functionStore.get(index);
-						FunctionInstance fun_instance = null;
-						// TODO: this will change as the current consideration regarding the overloading and scoping semantics 
-						//       enables to resolve the 'scopeIn' of overloaded functions statically
-						for(Frame env = cf; env != null; env = env.previousCallFrame) {
-							if(fun.scopeIn == -1 || env.scopeId == fun.scopeIn) {
-								fun_instance = new FunctionInstance(fun, env);
-								
-								if(debug) {
-									this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
-								}
-								
-								Object rval = executeFunction(root, fun_instance, args);
-								if(rval == FAILURE) {
-									continue NEXT_FUNCTION;
-								} else {
-									if(rval != NONE) {
-										stack[sp++] = rval;
-									}
-									continue NEXT_INSTRUCTION;
-								}
-							}
-							continue;
+						FunctionInstance fun_instance = new FunctionInstance(fun, root);
+						
+						if(debug) {
+							this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
 						}
-						throw new RuntimeException("Call to an overloded function: either all functions have failed, or a scoping problem has been encountered!");						
+								
+						Object rval = executeFunction(root, fun_instance, args);
+						if(rval == FAILURE) {
+							continue NEXT_FUNCTION;
+						} else {
+							if(rval != NONE) {
+								stack[sp++] = rval;
+							}
+							continue NEXT_INSTRUCTION;
+						}							
 					}
-					continue;
+					throw new RuntimeException("PANIC: all alternative functions have failed during an overloaded function call!");
 				
 				case Opcode.OP_FAILRETURN:
 					Object rval = Failure.getInstance();
@@ -665,7 +656,7 @@ public class RVM {
 					if(cf == null) {
 						return rval;
 					} else {
-						throw new RuntimeException("Internal error: FAILRETURN should return from the program execution given the current design!");
+						throw new RuntimeException("PANIC: FAILRETURN should return from the program execution given the current design!");
 					}
 					
 				case Opcode.OP_RETURN0:
