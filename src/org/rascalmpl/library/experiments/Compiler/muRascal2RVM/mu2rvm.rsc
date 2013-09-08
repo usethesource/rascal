@@ -217,13 +217,13 @@ INS tr(muAssignTmp(str id, MuExp exp)) = [*tr(exp), STORELOC(getTmp(id)) ];
 INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
     elseLab = mkFail(nextLabel());
     continueLab = mkContinue(nextLabel());	
-    dummyLab = nextLabel();	
+    dummyLab = nextLabel();	   
 //    println("ifelse: elseLab = <elseLab>, continueLab = <continueLab>, dummyLab = <dummyLab>");
     return [ *tr_cond(cond, dummyLab, elseLab), 
-             *trblock(thenPart), 
+             *(isEmpty(thenPart) ? LOADCON(111) : trblock(thenPart)),
              JMP(continueLab), 
              LABEL(elseLab),
-             *trblock(elsePart),
+             *(isEmpty(elsePart) ? LOADCON(222) : trblock(elsePart)),
              LABEL(continueLab)
            ];
 }
@@ -463,56 +463,6 @@ INS tr_cond(muAll(list[MuExp] exps), str continueLab, str failLab){
     }
     return code;
 }
-
-//INS tr_cond(muAll(list[MuExp] exps), str continueLab, str failLab){
-//    code = [];
-//    lastMulti = -1;
-//    generators = ();
-//    for(i <- index(exps)){
-//        if(muMulti(exp1) := exps[i]){
-//           lastMulti = i;
-//           co = newLocal();
-//           generators[i] = co;
-//           code += [ *tr(exp1), 
-//          		     INIT(0), 
-//          		     STORELOC(co), 
-//          		     POP()
-//          		   ];
-//        }
-//    }
-//    if(size(code) == 0){
-//       startLab = nextLabel();
-//       code += [ JMP(startLab),
-//       	         LABEL(continueLab),
-//                 JMP(failLab),
-//                 LABEL(startLab) 
-//               ];
-//    }
-//    currentFail = failLab;
-// 
-//    for(i <- index(exps)){
-//        exp = exps[i];
-//        if(muMulti(exp1) := exp){
-//          newFail = nextLabel();
-//          co = generators[i];
-//          code += [ LABEL(newFail),
-//          			*((i == lastMulti) ? [LABEL(continueLab)] :[]),
-//          		    LOADLOC(co), 
-//          		    HASNEXT(), 
-//          		    JMPFALSE(currentFail), 
-//          		    LOADLOC(co),
-//          		    NEXT0(), 
-//          		    JMPFALSE(currentFail)
-//          		  ];
-//          currentFail = newFail;
-//        } else {
-//          code += [*tr(exp), 
-//          		   JMPFALSE(currentFail)
-//          		  ];
-//        } 
-//    }
-//    return code;
-//}
 
 INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab) =
     [ LABEL(continueLab),

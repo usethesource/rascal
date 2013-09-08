@@ -1,10 +1,16 @@
 module experiments::Compiler::Benchmarks::Run
 
+/*
+ * A simple micro-benchmarking framework that compares the execution time
+ * of interpreted versus compiled Rascal programs.
+ */
+ 
 import Prelude;
 import util::Benchmark;
 import util::Math;
 import experiments::Compiler::Compile;
 
+import experiments::Compiler::Benchmarks::BBottles;
 import experiments::Compiler::Benchmarks::BFac;
 import experiments::Compiler::Benchmarks::BFib;
 import experiments::Compiler::Benchmarks::BFor;
@@ -14,7 +20,6 @@ import experiments::Compiler::Benchmarks::BListMatch2;
 import experiments::Compiler::Benchmarks::BReverse1;
 import experiments::Compiler::Benchmarks::BSet1;
 import experiments::Compiler::Benchmarks::BWhile;
-
 import experiments::Compiler::Benchmarks::BSendMoreMoney;
 
 loc base = |std:///experiments/Compiler/Benchmarks/|;
@@ -44,6 +49,7 @@ void report_one(Measurement m){
   saved = 100.0 * (iexec - (comp + cexec)) / iexec;
   println("<right(m.name, 15)>: compiled: (compilation <align(comp)> msec, execution <align(cexec)> msec); interpreted: <align(iexec)> msec; speedup: <align(speedup)> x; saved: <align(saved)> %");
 }
+
 void report(){
   min_speedup = 100000;
   max_speedup = 0;
@@ -60,7 +66,6 @@ void report(){
       max_speedup = max(max_speedup, speedup);
       tot_comp += m.compilationTime + m.compiledExec;
       tot_inter += m.interpretedExec;
-      
   }
   println("Average speedup: <precision(tot_speedup/size(measurements), 5)>");
   println("Minimal speedup: <precision(min_speedup, 5)>");
@@ -70,7 +75,8 @@ void report(){
 
 void main(){
   measurements = ();
-  /*run("BFac", experiments::Compiler::Benchmarks::BFac::main);
+  run("BBottles", experiments::Compiler::Benchmarks::BBottles::main);
+  run("BFac", experiments::Compiler::Benchmarks::BFac::main);
   run("BFib", experiments::Compiler::Benchmarks::BFib::main);
   run("BFor", experiments::Compiler::Benchmarks::BFor::main);
   run("BForCond", experiments::Compiler::Benchmarks::BForCond::main);
@@ -78,9 +84,9 @@ void main(){
   run("BListMatch2", experiments::Compiler::Benchmarks::BListMatch2::main);
   run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
   run("BSet1", experiments::Compiler::Benchmarks::BSet1::main);
-  run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
+  //run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
   run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
-  */run("BSendMoreMoney", experiments::Compiler::Benchmarks::BSendMoreMoney::main);
+  run("BSendMoreMoney", experiments::Compiler::Benchmarks::BSendMoreMoney::main);
   report();
 
 }
