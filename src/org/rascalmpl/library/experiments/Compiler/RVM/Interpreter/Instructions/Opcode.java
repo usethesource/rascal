@@ -61,7 +61,6 @@ public enum Opcode {
 	LOADOFUN        (41,    2,      1),
 	OCALL           (42,    3,      -1000),
 	OCALLDYN	    (43,	2, 		-1000),
-	LOAD_NESTED_OFUN(44,    3,      1)
 	;
 	
 	
@@ -114,7 +113,7 @@ public enum Opcode {
 	static public final int OP_LOADCONSTR = 32;
 	static public final int OP_CALLCONSTR = 33;
 	static public final int OP_LOAD_NESTED_FUN = 34;
-	static public final int OP_LOADTTYPE = 35;
+	static public final int OP_LOADTYPE = 35;
 	static public final int OP_CALLMUPRIM = 36;
 	static public final int OP_LOADBOOL = 37;
 	static public final int OP_LOADINT = 38;
@@ -123,7 +122,6 @@ public enum Opcode {
 	static public final int OP_LOADOFUN = 41;
 	static public final int OP_OCALL = 42;
 	static public final int OP_OCALLDYN = 43;
-	static public final int OP_LOAD_NESTED_OFUN = 44;
 	
 	 Opcode(int op, int pc_incr, int sp_incr){
 		this.op = op;
@@ -275,10 +273,7 @@ public enum Opcode {
 			
 		case OCALLDYN:
 			return "OCALLDYN " + cb.finalCode[pc + 1];
-			
-		case LOAD_NESTED_OFUN:
-			return "LOAD_NESTED_OFUN " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
-			
+				
 		default:
 			break;
 		}	

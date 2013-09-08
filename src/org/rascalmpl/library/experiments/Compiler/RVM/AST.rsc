@@ -19,7 +19,6 @@ data Instruction =
 		| LOADCONSTR(str fuid)						// Push a constructor function
 		
 		| LOADOFUN(str fuid)                        // Push a named *Rascal function
-		//| LOAD_NESTED_OFUN(str fuid, str scopeIn)   // Push a named, nested *Rascal function
 		
 		| LOADLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in local variable (value remains on stack)

@@ -33,7 +33,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadNestedFun;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadNestedOFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadOFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
@@ -410,11 +409,7 @@ public class CodeBlock {
 	public CodeBlock OCALLDYN(int arity) {
 		return add(new OCallDyn(this, arity));
 	}
-	
-	public CodeBlock LOADNESTEDOFUN(String fuid, String scopeIn) {
-		return add(new LoadNestedOFun(this, fuid, scopeIn));
-	}
-		
+			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;

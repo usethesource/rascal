@@ -52,7 +52,6 @@ public data MuExp =
           | muFun(str fuid, str scopeIn)                        // *muRascal function constant: nested functions and closures
           
           | muOFun(str fuid)                                    // *Rascal functions, i.e., overloaded function at the root
-          //| muOFun(str fuid, str scopeIn)                     // *Rascal functions, i.e., nested overloaded function
           
           | muConstr(str fuid) 									// Constructors
           

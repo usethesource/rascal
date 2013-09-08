@@ -42,6 +42,7 @@ public class RVM {
 	
 	private final ArrayList<Function> functionStore;
 	private final Map<String, Integer> functionMap;
+	
 	// Function overloading
 	private final Map<String, Integer> resolver;
 	private final ArrayList<OverloadedFunction> overloadedStore;
@@ -52,6 +53,11 @@ public class RVM {
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
 	private PrintWriter stdout;
+	
+	// Management of active coroutines
+	Stack<Coroutine> activeCoroutines = new Stack<>();
+	Frame ccf = null; // the start frame (of the coroutine's main function) of the current active coroutine
+
 
 	public RVM(IValueFactory vf, PrintWriter stdout, boolean debug) {
 		super();
@@ -313,10 +319,7 @@ public class RVM {
 		int sp = cf.function.nlocals;				                  // current stacp pointer
 		int[] instructions = cf.function.codeblock.getInstructions(); // current instruction sequence
 		int pc = 0;				                                      // current program counter
-		
-		Stack<Coroutine> activeCoroutines = new Stack<>();
-		Frame ccf = null; // the start frame (i.e., the frame of the coroutine's main function) of the current active coroutine
-		
+				
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				if(pc < 0 || pc >= instructions.length){
@@ -332,7 +335,6 @@ public class RVM {
 					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
 
-
 				switch (op) {
 
 				case Opcode.OP_LOADBOOL:
@@ -347,7 +349,7 @@ public class RVM {
 					stack[sp++] = cf.function.constantStore[instructions[pc++]];
 					continue;
 					
-				case Opcode.OP_LOADTTYPE:
+				case Opcode.OP_LOADTYPE:
 					stack[sp++] = cf.function.typeConstantStore[instructions[pc++]];
 					continue;
 
