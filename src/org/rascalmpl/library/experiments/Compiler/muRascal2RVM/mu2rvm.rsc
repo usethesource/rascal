@@ -182,6 +182,7 @@ INS tr(muFun(str fuid, str scopeIn)) = [LOAD_NESTED_FUN(fuid, scopeIn)];
 
 // Rascal functions
 INS tr(muOFun(str fuid)) = [ LOADOFUN(fuid) ];
+INS tr(muOFun(str fuid, str scopeIn)) = [ LOAD_NESTED_OFUN(fuid,scopeIn) ];
 
 INS tr(muConstr(str fuid)) = [LOADCONSTR(fuid)];
 
