@@ -112,13 +112,13 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    // Now overloading resolution...
    // Get the type of a receiver
    ftype = getType(expression@\loc);
-   if(muOFun(str fuid) := receiver && fuid in overloadingResolver) {
+   if(isOverloadedFunction(receiver) && receiver.fuid in overloadingResolver) {
        // Get the types of arguments
        list[Symbol] targs = [ getType(arg@\loc) | arg <- arguments ];
        // Generate a unique name for an overloaded function resolved for this specific use 
-       str ofqname = fuid + "(<for(targ<-targs){><targ>;<}>)";
+       str ofqname = receiver.fuid + "(<for(targ<-targs){><targ>;<}>)";
        // Resolve alternatives for this specific call
-       int i = overloadingResolver[fuid];
+       int i = overloadingResolver[receiver.fuid];
        set[int] alts = overloadedFunctions[i];
        set[int] resolved = {};
        
@@ -140,12 +140,9 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
        overloadingResolver[ofqname] = i;
-       // TODO: New insight to the overloading and scoping semantics enables static resolution with respect to the 'scopeIn'
-       // ***Note: r2mu translation does not care of whether the function is nested or not;
-       //          now runtime system is responsible for this
-       return muOCall(muOFun(ofqname), args);
+       return muOCall( (receiver has scopeIn) ? muOFun(ofqname, scopeIn) : muOFun(ofqname), args);
    }
-   if(muOFun(str fuid) := receiver && fuid notin overloadingResolver) {
+   if(isOverloadedFunction(receiver) && receiver.fuid notin overloadingResolver) {
       throw "The use of a function has to be managed via overloading resolver!";
    }
    // Push down additional information if the overloading resolution needs to be done at runtime
