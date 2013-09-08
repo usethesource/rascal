@@ -267,6 +267,10 @@ public class Execute {
 					case "OCALLDYN" :
 						codeblock.OCALLDYN(getIntField(instruction, "arity"));
 						break;
+						
+					case "LOAD_NESTED_OFUN" :
+						codeblock.LOADNESTEDOFUN(getStrField(instruction, "fuid"), getStrField(instruction, "scopeIn"));
+						break;
 										
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
