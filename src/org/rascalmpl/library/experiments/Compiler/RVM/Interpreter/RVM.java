@@ -363,6 +363,9 @@ public class RVM {
 					throw new RuntimeException("LOAD_NESTED_FUNCTION cannot find matching scope: " + scope);	
 				}
 				
+				case Opcode.OP_LOAD_NESTED_OFUN:
+					throw new RuntimeException("Not yet implemented, sorry...");
+				
 				case Opcode.OP_LOADOFUN:
 					stack[sp++] = new OverloadedFunctionInstance(overloadedStore.get(instructions[pc++]), cf);
 					continue;
