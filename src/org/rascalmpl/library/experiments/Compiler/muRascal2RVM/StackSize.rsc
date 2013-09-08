@@ -29,7 +29,6 @@ private int estimate(muFun(str fuid)) = 1;
 private int estimate(muFun(str fuid, str scopeIn)) = 1;
 
 private int estimate(muOFun(str fuid)) = 1;
-//private int estimate(muOFun(str fuid, str scopeIn)) = 1;
 
 private int estimate(muConstr(str fuid)) = 1;
 

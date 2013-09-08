@@ -15,6 +15,7 @@ import experiments::Compiler::Examples::SendMoreMoney;
 //import experiments::Compiler::Examples::Tmp;
 import experiments::Compiler::Examples::TestSuite;
 //import experiments::Compiler::Examples::Template;
+import experiments::Compiler::Examples::Overloading;
 
 loc base = |std:///experiments/Compiler/Examples/|;
 
@@ -30,3 +31,4 @@ test bool tst() = demo("ListMatch") == experiments::Compiler::Examples::ListMatc
 test bool tst() = demo("Odd") == experiments::Compiler::Examples::Odd::main([]);
 test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
 //test bool tst() = demo("Template") == experiments::Compiler::Examples::Template::main([]);
+test bool tst() = demo("Overloading") == experiments::Compiler::Examples::Overloading::main([]);
