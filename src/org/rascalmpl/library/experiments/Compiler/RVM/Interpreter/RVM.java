@@ -44,7 +44,7 @@ public class RVM {
 	private final Map<String, Integer> functionMap;
 	// Function overloading
 	private final Map<String, Integer> resolver;
-	private final ArrayList<Integer[]> overloadedStore;
+	private final ArrayList<OverloadedFunction> overloadedStore;
 	
 	private final TypeStore typeStore = new TypeStore();
 	private final Types types;
@@ -75,7 +75,7 @@ public class RVM {
 		constructorMap = new HashMap<String, Integer>();
 		
 		resolver = new HashMap<String,Integer>();
-		overloadedStore = new ArrayList<Integer[]>();
+		overloadedStore = new ArrayList<OverloadedFunction>();
 		
 		RascalPrimitive.init(vf, stdout, this);
 	}
@@ -112,14 +112,19 @@ public class RVM {
 	
 	public void fillOverloadedStore(IList overloadedStore) {
 		for(IValue of : overloadedStore) {
-			ISet fuids = (ISet) of;
-			Integer[] funs = new Integer[fuids.size()];
+			ITuple ofTuple = (ITuple) of;
+			String scopeIn = ((IString) ofTuple.get(0)).getValue();
+			if(scopeIn.equals("")) {
+				scopeIn = null;
+			}
+			ISet fuids = (ISet) ofTuple.get(1);
+			int[] funs = new int[fuids.size()];
 			int i = 0;
 			for(IValue fuid : fuids) {
-				Integer index = functionMap.get(((IString) fuid).getValue());
+				int index = functionMap.get(((IString) fuid).getValue());
 				funs[i++] = index;
 			}
-			this.overloadedStore.add(funs);
+			this.overloadedStore.add(new OverloadedFunction(funs, scopeIn));
 		}
 	}
 	
@@ -216,8 +221,11 @@ public class RVM {
 		// Finalize the instruction generation of all functions, if needed
 		if(!finalized){
 			finalized = true;
-			for (Function f : functionStore) {
+			for(Function f : functionStore) {
 				f.finalize(functionMap, constructorMap, resolver, listing);
+			}
+			for(OverloadedFunction of : overloadedStore) {
+				of.finalize(functionMap);
 			}
 		}
 	}
@@ -363,20 +371,19 @@ public class RVM {
 					throw new RuntimeException("LOAD_NESTED_FUN cannot find matching scope: " + scopeIn);	
 				}
 				
-				case Opcode.OP_LOAD_NESTED_OFUN:
-					Integer[] funs = overloadedStore.get(instructions[pc++]);
-					int scopeIn = instructions[pc++];
+				case Opcode.OP_LOADOFUN:
+					OverloadedFunction of = overloadedStore.get(instructions[pc++]);
+					if(of.scopeIn == -1) {
+						stack[sp++] = new OverloadedFunctionInstance(of.functions, root);
+						continue;
+					}
 					for(Frame env = cf; env != null; env = env.previousCallFrame) {
-						if (env.scopeId == scopeIn) {
-							stack[sp++] = new OverloadedFunctionInstance(funs, env);
+						if (env.scopeId == of.scopeIn) {
+							stack[sp++] = new OverloadedFunctionInstance(of.functions, env);
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new RuntimeException("LOAD_NESTED_OFUN cannot find matching scope: " + scopeIn);
-				
-				case Opcode.OP_LOADOFUN:
-					stack[sp++] = new OverloadedFunctionInstance(overloadedStore.get(instructions[pc++]), cf);
-					continue;
+					throw new RuntimeException("Could not find matching scope when loading a nested overloaded function: " + of.scopeIn);
 				
 				case Opcode.OP_LOADCONSTR:
 					Type constructor = constructorStore.get(instructions[pc++]);
@@ -574,22 +581,22 @@ public class RVM {
 						continue NEXT_INSTRUCTION;
 					}
 					
-					OverloadedFunctionInstance of = (OverloadedFunctionInstance) funcObject;
+					OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
 					
 					if(debug) {
 						this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
 						this.appendToTrace("	with alternatives:");
-						for(Integer index : of.functions) {
+						for(int index : of_instance.functions) {
 							this.appendToTrace("		" + cf.function.codeblock.getFunctionName(index));
 						}
 					}
 					
 					NEXT_FUNCTION: 
-					for(Integer index : of.functions) {
+					for(int index : of_instance.functions) {
 						fun = functionStore.get(index);
 						for(Object type : types) {
 							if(type == fun.ftype) {
-								FunctionInstance fun_instance = new FunctionInstance(fun, of.env);
+								FunctionInstance fun_instance = new FunctionInstance(fun, of_instance.env);
 										
 								if(debug) {
 									this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
@@ -610,13 +617,13 @@ public class RVM {
 					throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");
 					
 				case Opcode.OP_OCALL:					
-					funs = overloadedStore.get(instructions[pc++]);
+					of = overloadedStore.get(instructions[pc++]);
 					arity = instructions[pc++];
 					
 					if(debug) {
 						this.appendToTrace("OVERLOADED FUNCTION CALL: " + cf.function.codeblock.getOverloadedFunctionName(instructions[pc - 2]));
 						this.appendToTrace("	with alternatives:");
-						for(Integer index : funs) {
+						for(int index : of.functions) {
 							this.appendToTrace("		" + cf.function.codeblock.getFunctionName(index));
 						}
 					}
@@ -628,10 +635,25 @@ public class RVM {
 					}			
 					sp = sp - arity;
 					
+					Frame environment = root;				
+					if(of.scopeIn != -1) {
+						boolean found = false;
+						for(Frame env = cf; env != null; env = env.previousCallFrame) {
+							if (env.scopeId == of.scopeIn) {
+								environment = env;
+								found = true;
+								break;
+							}
+						}
+						if(!found) {
+							throw new RuntimeException("Could not find matching scope when loading a nested overloaded function: " + of.scopeIn);
+						}
+					}
+					
 					NEXT_FUNCTION: 
-					for(Integer index : funs) {
+					for(int index : of.functions) {
 						fun = functionStore.get(index);
-						FunctionInstance fun_instance = new FunctionInstance(fun, root);
+						FunctionInstance fun_instance = new FunctionInstance(fun, environment);
 						
 						if(debug) {
 							this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));

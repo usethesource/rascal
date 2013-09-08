@@ -110,8 +110,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        return muCall(receiver, args);
    }
    // Now overloading resolution...
-   // Get the type of a receiver
-   ftype = getType(expression@\loc);
+   ftype = getType(expression@\loc); // Get the type of a receiver
    if(isOverloadedFunction(receiver) && receiver.fuid in overloadingResolver) {
        // Get the types of arguments
        list[Symbol] targs = [ getType(arg@\loc) | arg <- arguments ];
@@ -119,28 +118,28 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        str ofqname = receiver.fuid + "(<for(targ<-targs){><targ>;<}>)";
        // Resolve alternatives for this specific call
        int i = overloadingResolver[receiver.fuid];
-       set[int] alts = overloadedFunctions[i];
+       tuple[str scopeIn,set[int] alts] of = overloadedFunctions[i];
        set[int] resolved = {};
        
        bool matches(Symbol t) = isFunctionType(ftype) ? t == ftype : t in ftype.overloads;
        
-       for(int alt <- alts) {
+       for(int alt <- of.alts) {
            t = fuid2type[alt];
            if(matches(t)) {
                resolved += alt;
            }
        }
        
-       bool exists = resolved in overloadedFunctions;
+       bool exists = <of.scopeIn,resolved> in overloadedFunctions;
        if(!exists) {
            i = size(overloadedFunctions);
-           overloadedFunctions += resolved;
+           overloadedFunctions += <of.scopeIn,resolved>;
        } else {
-           i = indexOf(overloadedFunctions, resolved);
+           i = indexOf(overloadedFunctions, <of.scopeIn,resolved>);
        }
        
        overloadingResolver[ofqname] = i;
-       return muOCall( (receiver has scopeIn) ? muOFun(ofqname, scopeIn) : muOFun(ofqname), args);
+       return muOCall(muOFun(ofqname), args);
    }
    if(isOverloadedFunction(receiver) && receiver.fuid notin overloadingResolver) {
       throw "The use of a function has to be managed via overloading resolver!";

@@ -49,7 +49,7 @@ public map[int,str] fuid2str = ();
 public map[int,Symbol] fuid2type = ();
 
 public map[str,int] overloadingResolver = ();
-public list[set[int]] overloadedFunctions = [];
+public lrel[str,set[int]] overloadedFunctions = [];
 
 public void resetScopeExtraction() {
 	uid2addr = ();
@@ -137,17 +137,17 @@ MuExp mkVar(str name, loc l) {
     // Get the function uids of an overloaded function
     set[int] ofuids = (uid in functions) ? { uid } : config.store[uid].items;
     // Generate a unique name for an overloaded function resolved for this specific use
-    str ofuid = uid2str(config.usedIn[l]) + "/useOf:" + name;
+    str ofuid = uid2str(config.usedIn[l]) + "/use:" + name;
     
-    bool exists = ofuids in overloadedFunctions;
+    bool exists = <addr.fuid,ofuids> in overloadedFunctions;
     int i = size(overloadedFunctions);
     if(!exists) {
-    	overloadedFunctions += ofuids;
+    	overloadedFunctions += <addr.fuid,ofuids>;
     } else {
-    	i = indexOf(overloadedFunctions, ofuids);
+    	i = indexOf(overloadedFunctions, <addr.fuid,ofuids>);
     }   
     overloadingResolver[ofuid] = i;
-  	return (addr.fuid in moduleNames) ? muOFun(ofuid) : muOFun(ofuid, addr.fuid);
+  	return muOFun(ofuid);
   }
   
   if(uid in constructors) {
@@ -159,7 +159,6 @@ MuExp mkVar(str name, loc l) {
 
 tuple[str fuid,int pos] getVariableScope(str name, loc l) {
   tuple[str fuid,int pos] addr = uid2addr[loc2uid[l]];
-  println("Get var scope: <name>: <addr.fuid>::<addr.pos>");
   return addr;
 }
 
