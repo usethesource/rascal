@@ -422,7 +422,7 @@ MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon
 
 list[MuExp] translatePre(PreStringChars pre) {
   content = "<pre>"[1..-1];
-  return size(content) == 0 ? [] : [muCallPrim("str_remove_margins", [muCon(content)])];
+  return size(content) == 0 ? [] : [ muCon(content) ];  //[muCallPrim("str_remove_margins", [muCon(content)])];
 }
 /*
 syntax StringTemplate
@@ -441,7 +441,7 @@ syntax StringTemplate
 	| interpolated: MidStringChars mid Expression expression StringMiddle tail ;
 */
 
-MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`)  =  muCallPrim("str_remove_margins", [muCon("<mid>"[1..-1])]);
+MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`)  =  muCon("<mid>"[1..-1]); // muCallPrim("str_remove_margins", [muCon("<mid>"[1..-1])]);
 
 MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) =
     muCallPrim("str_addindented_str", [ *translateMid(mid), translateTemplate(template), translateMiddle(tail) ]);
@@ -464,7 +464,7 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <Expression express
 	
 list[MuExp] translateTail((StringTail) `<PostStringChars post>`) {
   content = "<post>"[1..-1];
-  return size(content) == 0 ? [] : [muCallPrim("str_remove_margins", [muCon(content)])];
+  return size(content) == 0 ? [] : [muCon(content)]; //[muCallPrim("str_remove_margins", [muCon(content)])];
 }
 
 list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate template> <StringTail tail>`) =
@@ -480,17 +480,8 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
 	nlocals = getScopeSize(fuid);
 	bool isVarArgs = (varArgs(_,_) := parameters);
   	// TODO: keyword parameters
-  	{Pattern ","}* formals = parameters.formals.formals;
-  	list[MuExp] conditions = [];
-  	int i = 0;
-  	for(Pattern pat <- formals) {
-        conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
-        i += 1;
-    };
-    MuExp body = muBlock([ translate(stat) | stat <- statements ]);
-    if(!isEmpty(conditions)) {
-        body = muIfelse(muOne(conditions), [ *body.exps ], [ muFailReturn() ]);
-    }
+    
+    MuExp body = translateFunction(parameters.formals.formals, muBlock([ translate(stat) | stat <- statements ]));
     tuple[str fuid,int pos] addr = uid2addr[uid];
     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  nformals, nlocals, e@\loc, [], (), body);

@@ -873,6 +873,14 @@ public class RVM {
 						sp = sp - 2;
 						break;
 						
+					case check_arg_type:
+						assert arity == 2;
+						Type argType =  ((IValue) stack[sp - 2]).getType();
+						Type paramType = ((Type) stack[sp - 1]);
+						stack[sp - 2] = argType.isSubtypeOf(paramType);
+						sp = sp - 1;
+						break;
+						
 					case equal_mint_mint:
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) == ((Integer) stack[sp - 1]);

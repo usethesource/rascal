@@ -136,3 +136,49 @@ bool backtrackFree(p:(Pattern) `[<{Pattern ","}* pats>]`) = false;
 bool backtrackFree(p:(Pattern) `{<{Pattern ","}* pats>}`) = false;
 
 default bool backtrackFree(Pattern p) = true;
+
+
+/*********************************************************************/
+/*                  Signature Patterns                               */
+/*********************************************************************/
+
+MuExp translateFormals(list[Pattern] formals, int i, MuExp body){
+   if(isEmpty(formals))
+      return muReturn(body);
+   
+   pat = formals[0];
+   if(pat is literal){
+      return muIfelse(muOne([ muCallMuPrim("equal", [muLoc("<i>",i), translate(pat.literal)]) ]),
+                   [ translateFormals(tail(formals), i + 1, body) ],
+                   [ muFailReturn() ]
+                  );
+   } else {
+      name = pat.name;
+      tp = pat.\type;
+      <fuid, pos> = getVariableScope("<name>", name@\loc);
+      return muIfelse(muOne([ muCallMuPrim("check_arg_type", [ muLoc("<i>",i), muTypeCon(translateType(tp)) ]) ]),
+                   [ muAssign("<name>", fuid, pos, muLoc("<i>", i)),
+                     translateFormals(tail(formals), i + 1, body) 
+                   ],
+                   [ muFailReturn() ]
+                  );
+    }
+}
+
+MuExp translateFunction({Pattern ","}* formals, MuExp body){
+  println("translateFunction: <formals>");
+  if(all(pat <- formals, pat is typedVariable || pat is literal)){
+     return translateFormals([formal | formal <- formals], 0, body);
+  } else {
+	  list[MuExp] conditions = [];
+	  int i = 0;
+	  for(Pattern pat <- formals) {
+	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
+	      i += 1;
+	  };
+	  return muIfelse(muOne(conditions), [ muReturn(body) ], [ muFailReturn() ]);
+  }
+}
+
+
+
