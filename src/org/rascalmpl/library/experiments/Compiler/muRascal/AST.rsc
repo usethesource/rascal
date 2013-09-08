@@ -51,7 +51,8 @@ public data MuExp =
           | muFun(str fuid)							            // *muRascal function constant: functions at the root
           | muFun(str fuid, str scopeIn)                        // *muRascal function constant: nested functions and closures
           
-          | muOFun(str fuid)                                    // *Rascal functions, i.e., function with overloading semantics
+          | muOFun(str fuid)                                    // *Rascal functions, i.e., overloaded function at the root
+          | muOFun(str fuid, str scopeIn)                       // *Rascal functions, i.e., nested overloaded function
           
           | muConstr(str fuid) 									// Constructors
           
@@ -177,3 +178,7 @@ public data MuExp =
             | preAssignLocDeref(str name, MuExp exp)
             | preAssignVarDeref(lrel[str,int] funNames, str name, MuExp exp)
            ;
+           
+public bool isOverloadedFunction(muOFun(str _)) = true;
+public bool isOverloadedFunction(muOFun(str _, str _)) = true;
+public default bool isOverloadedFunction(MuExp _) = false;

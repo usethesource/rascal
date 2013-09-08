@@ -130,13 +130,14 @@ public MuExp mkCallToLibFun(str modName, str fname, int nformals)
 MuExp mkVar(str name, loc l) {
   
   int uid = loc2uid[l];
+  tuple[str fuid,int pos] addr = uid2addr[uid];
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in ofunctions) {
     // Get the function uids of an overloaded function
-    set[int] ofuids = (uid in functions) ? { uid } : config.store[loc2uid[l]].items;
+    set[int] ofuids = (uid in functions) ? { uid } : config.store[uid].items;
     // Generate a unique name for an overloaded function resolved for this specific use
-    str ofuid = uid2str(config.usedIn[l]) + "/use:" + name;
+    str ofuid = uid2str(config.usedIn[l]) + "/useOf:" + name;
     
     bool exists = ofuids in overloadedFunctions;
     int i = size(overloadedFunctions);
@@ -146,13 +147,8 @@ MuExp mkVar(str name, loc l) {
     	i = indexOf(overloadedFunctions, ofuids);
     }   
     overloadingResolver[ofuid] = i;
-    // TODO: New insight to the overloading and scoping semantics enables static resolution with respect to the 'scopeIn'
-    // ***Note: r2mu translation does not care of whether the function is nested or not (no 'scopeIn' argument);
-    //          now runtime system is responsible for this
-  	return muOFun(ofuid);
+  	return (addr.fuid in moduleNames) ? muOFun(ofuid) : muOFun(ofuid, addr.fuid);
   }
-  
-  tuple[str fuid,int pos] addr = uid2addr[uid];
   
   if(uid in constructors) {
   	return muConstr(name);
@@ -315,6 +311,19 @@ void extractScopes(){
         for(i <- index(decls)) {
         	uid2addr[decls[i]] = <fuid2str[fuid], -1>;
         }
+    }
+    
+    // Fill in uid2addr for overloaded functions; TODO: add the 'scopeIn' field to the 'overload' computed by the type checker
+    for(int fuid <- ofunctions) {
+    	set[int] funs = config.store[fuid].items;
+    	set[str] scopes = {};
+    	str scopeIn = "";
+    	for(int fuid <- funs) {
+    		scopeIn = uid2addr[fuid].fuid;
+    		scopes += scopeIn;
+    	}
+    	assert size(scopes) == 1;
+    	uid2addr[fuid] = <scopeIn,-1>;
     }
 
 }
