@@ -2,30 +2,8 @@ module experiments::Compiler::Tests::Expressions
 
 extend  experiments::Compiler::Tests::TestUtils;
 
-// Booleans
+// Booleans, see separate files Booleans.rsc
 
-test bool tst() = run("true") == true;
-test bool tst() = run("false") == false;
-
-test bool tst() = run("!true") == !true;
-test bool tst() = run("!false") == !false;
-
-test bool tst() = run("true && true") == (true && true);
-test bool tst() = run("true && false") == (true && false);
-
-test bool tst() = run("true || true") == (true || true);
-test bool tst() = run("true || false") == (true || false);
-
-test bool tst() = run("true ==\> true") == (true ==> true);
-test bool tst() = run("true ==\> false") == (true ==> false);
-
-test bool tst() = run("true \<==\> true") == (true <==> true);
-test bool tst() = run("true \<==\> false") == (true <==> false);
-
-test bool tst() = run("true ? 1 : 2") == (true ? 1 : 2);
-test bool tst() = run("false ? 1 : 2") == (false ? 1 : 2);
-
-test bool tst() = run("{b = 2 \> 1; b ? 10 : 20;}") == {b = 2 > 1; b ? 10 : 20;};
 
 // Integers
 test bool tst() = run("6") == 6;
