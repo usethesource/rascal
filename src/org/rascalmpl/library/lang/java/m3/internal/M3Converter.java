@@ -22,6 +22,7 @@ import org.rascalmpl.uri.URIUtil;
 public class M3Converter extends JavaToRascalConverter {
 	private static final String DATATYPE_M3_NODE							= "M3";
 	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_M3_NODE_TYPE;
+	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_TYPESYMBOL;
 	
 	private static final org.eclipse.imp.pdb.facts.type.Type locType 		= TF.sourceLocationType();
 	private static final org.eclipse.imp.pdb.facts.type.Type m3TupleType 	= TF.tupleType(locType, locType);
@@ -41,10 +42,12 @@ public class M3Converter extends JavaToRascalConverter {
 	private ISetWriter modifiers;
 	private ISetWriter names;
 	private ISetWriter methodOverrides;
+  private ISetWriter types;
 	
 	M3Converter(final TypeStore typeStore) {
 		super(typeStore, true);
 		this.DATATYPE_M3_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_M3_NODE);
+		this.DATATYPE_TYPESYMBOL = this.typeStore.lookupAbstractDataType("TypeSymbol");
 		uses = values.relationWriter(m3TupleType);
 		declarations = values.relationWriter(m3TupleType);
 		containment = values.relationWriter(m3TupleType);
@@ -58,6 +61,7 @@ public class M3Converter extends JavaToRascalConverter {
 		documentation = values.relationWriter(m3TupleType);
 		names = values.relationWriter(TF.tupleType(TF.stringType(), locType));
 		methodOverrides = values.relationWriter(TF.tupleType(locType, locType));
+		types = values.relationWriter(TF.tupleType(locType, DATATYPE_TYPESYMBOL));
 	}
 	
 	public IValue getModel() {
@@ -73,6 +77,7 @@ public class M3Converter extends JavaToRascalConverter {
 		setAnnotation("fieldAccess", fieldAccess.done());
 		setAnnotation("names", names.done());
 		setAnnotation("methodOverrides", methodOverrides.done());
+		setAnnotation("types", types.done());
 		insertCompilationUnitMessages();
 		return ownValue;
 	}
@@ -145,6 +150,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(AnnotationTypeDeclaration node) {
 		ownValue = scopeManager.pop();
+		computeTypeSymbol(node);
 	}
 	
 	public boolean visit(AnnotationTypeMemberDeclaration node) {
@@ -167,6 +173,8 @@ public class M3Converter extends JavaToRascalConverter {
 			insert(typeDependency, ownValue, resolveBinding(((EnumConstantDeclaration) parent).resolveVariable()));
 		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
+	  IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding());
+    insert(types, ownValue, type);
 		return true;
 	}
 	
@@ -226,7 +234,13 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(EnumDeclaration node) {
 		ownValue = scopeManager.pop();
+	  computeTypeSymbol(node);
 	}
+
+  private void computeTypeSymbol(AbstractTypeDeclaration node) {
+    IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding());
+    insert(types, ownValue, type);
+  }
 	
 	public boolean visit(FieldAccess node) {
 		insert(fieldAccess, getParent(), ownValue);
@@ -272,6 +286,9 @@ public class M3Converter extends JavaToRascalConverter {
 			fillOverrides(node.resolveBinding(), ((TypeDeclaration)parent).resolveBinding());
 		else if (parent instanceof AnonymousClassDeclaration)
 			fillOverrides(node.resolveBinding(), ((AnonymousClassDeclaration)parent).resolveBinding());
+		
+		IConstructor type = bindingsResolver.computeMethodTypeSymbol(node.resolveBinding());
+		insert(types, ownValue, type);
 	}
 	
 	private void fillOverrides(IMethodBinding node, ITypeBinding parent) {
@@ -387,6 +404,8 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(SingleVariableDeclaration node) {
 		ownValue = scopeManager.pop();
+	  IConstructor type = bindingsResolver.computeTypeSymbol(node.getType().resolveBinding());
+    insert(types, ownValue, type);
 	}
 	
 	public boolean visit(SuperConstructorInvocation node) {
@@ -444,6 +463,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(TypeDeclaration node) {
 		ownValue = scopeManager.pop();
+		computeTypeSymbol(node);
 	}
 	
 	public boolean visit(TypeParameter node) {
@@ -492,6 +512,8 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(VariableDeclarationFragment node) {
 		ownValue = scopeManager.pop();
+		IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding().getType());
+		insert(types, ownValue, type);
 	}
 
 	public boolean visit(VariableDeclarationStatement node) {

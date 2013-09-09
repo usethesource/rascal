@@ -49,7 +49,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected ISourceLocation loc;
 	protected String project;
 	
-	private final BindingsResolver bindingsResolver;
+	protected final BindingsResolver bindingsResolver;
 	protected final boolean collectBindings;
 	
 	JavaToRascalConverter(final TypeStore typeStore, boolean collectBindings) {

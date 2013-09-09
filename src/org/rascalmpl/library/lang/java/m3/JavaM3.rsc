@@ -1,6 +1,7 @@
 module lang::java::m3::JavaM3
 
 extend analysis::m3::Core;
+extend lang::java::m3::TypeSymbol;
 
 data Modifiers
 	= \private()
