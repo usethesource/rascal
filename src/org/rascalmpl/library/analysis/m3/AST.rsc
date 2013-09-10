@@ -56,7 +56,7 @@ data Modifiers
   	;
 
 anno loc Declaration@src;
-anno loc Declaration@binding;
+anno loc Declaration@decl;
 anno loc Declaration@typ;
 anno list[Modifiers] Declaration@modifiers;
 anno list[Declaration] Declaration@typeParameters;
@@ -90,9 +90,9 @@ data Declaration
 	;
 
 anno loc Expression@src;
-anno loc Expression@binding;
+anno loc Expression@decl;
 anno TypeSymbol Expression@typ;
-anno list[Type] Expression@typeParameters;
+//anno list[Type] Expression@typeParameters;
 	
 data Expression 
 	= \arrayAccess(Expression array, Expression index)
@@ -136,8 +136,6 @@ data Expression
 	;						
   
 anno loc Statement@src;
-anno loc Statement@binding;
-anno list[Type] Statement@typeParameters;
 
 data Statement				
 	= \assert(Expression expression)

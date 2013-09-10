@@ -16,7 +16,7 @@ public data MuModule =
                                  list[MuVariable] variables, 
                                  list[MuExp] initialization,
                                  map[str,int] resolver,
-                                 list[set[str]] overloaded_functions)
+                                 lrel[str,list[str]] overloaded_functions)
             ;
           
 // All information related to a function declaration. This can be a top-level
@@ -51,7 +51,7 @@ public data MuExp =
           | muFun(str fuid)							            // *muRascal function constant: functions at the root
           | muFun(str fuid, str scopeIn)                        // *muRascal function constant: nested functions and closures
           
-          | muOFun(str fuid)                                    // *Rascal functions, i.e., function with overloading semantics
+          | muOFun(str fuid)                                    // *Rascal functions, i.e., overloaded function at the root
           
           | muConstr(str fuid) 									// Constructors
           
@@ -177,3 +177,7 @@ public data MuExp =
             | preAssignLocDeref(str name, MuExp exp)
             | preAssignVarDeref(lrel[str,int] funNames, str name, MuExp exp)
            ;
+           
+public bool isOverloadedFunction(muOFun(str _)) = true;
+//public bool isOverloadedFunction(muOFun(str _, str _)) = true;
+public default bool isOverloadedFunction(MuExp _) = false;

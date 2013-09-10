@@ -267,7 +267,7 @@ public class Execute {
 					case "OCALLDYN" :
 						codeblock.OCALLDYN(getIntField(instruction, "arity"));
 						break;
-										
+																
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 					}

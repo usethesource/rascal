@@ -23,6 +23,7 @@ import analysis::m3::AST;
 import analysis::m3::Registry;
 
 import lang::java::m3::JavaM3;
+import analysis::m3::Core;
 import List;
 
 private set[loc] crawl(loc dir, str suffix) {
@@ -98,7 +99,8 @@ public M3 createM3FromProject(loc project, str javaVersion = "1.7") {
 		result@declarations += model@declarations;
 		result@uses += model@uses;
 		result@containment += model@containment;
-	    result@typeInheritance += model@typeInheritance;
+	    result@extends += model@extends;
+	    result@implements += model@implements;
 	    result@methodInvocation += model@methodInvocation;
 	    result@fieldAccess += model@fieldAccess;
 	    result@typeDependency += model@typeDependency;
@@ -107,8 +109,10 @@ public M3 createM3FromProject(loc project, str javaVersion = "1.7") {
 	    result@messages += model@messages;
 	    result@names += model@names;
 	    result@methodOverrides += model@methodOverrides;
+	    result@types += model@types;
 	}
-        registerProject(project.authority, result);
+        
+    registerProject(project.authority, result);
 	return result;
 }
 

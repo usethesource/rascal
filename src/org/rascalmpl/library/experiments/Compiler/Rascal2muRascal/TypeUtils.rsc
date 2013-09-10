@@ -25,6 +25,7 @@ public map[loc \loc,int uid] loc2uid = ();
 
 public set[int] modules = {};
 public set[int] functions = {};
+public set[int] defaultFunctions = {};
 public set[int] constructors = {};
 public set[int] variables = {};
 public set[int] ofunctions = {};
@@ -49,7 +50,7 @@ public map[int,str] fuid2str = ();
 public map[int,Symbol] fuid2type = ();
 
 public map[str,int] overloadingResolver = ();
-public list[set[int]] overloadedFunctions = [];
+public lrel[str,set[int]] overloadedFunctions = [];
 
 public void resetScopeExtraction() {
 	uid2addr = ();
@@ -57,6 +58,7 @@ public void resetScopeExtraction() {
 	
 	modules = {};
 	functions = {};
+	defaultFunctions = {};
 	constructors = {};
 	variables = {};
 	ofunctions = {};
@@ -130,29 +132,25 @@ public MuExp mkCallToLibFun(str modName, str fname, int nformals)
 MuExp mkVar(str name, loc l) {
   
   int uid = loc2uid[l];
+  tuple[str fuid,int pos] addr = uid2addr[uid];
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in ofunctions) {
     // Get the function uids of an overloaded function
-    set[int] ofuids = (uid in functions) ? { uid } : config.store[loc2uid[l]].items;
+    set[int] ofuids = (uid in functions) ? { uid } : config.store[uid].items;
     // Generate a unique name for an overloaded function resolved for this specific use
     str ofuid = uid2str(config.usedIn[l]) + "/use:" + name;
     
-    bool exists = ofuids in overloadedFunctions;
+    bool exists = <addr.fuid,ofuids> in overloadedFunctions;
     int i = size(overloadedFunctions);
     if(!exists) {
-    	overloadedFunctions += ofuids;
+    	overloadedFunctions += <addr.fuid,ofuids>;
     } else {
-    	i = indexOf(overloadedFunctions, ofuids);
+    	i = indexOf(overloadedFunctions, <addr.fuid,ofuids>);
     }   
     overloadingResolver[ofuid] = i;
-    // TODO: New insight to the overloading and scoping semantics enables static resolution with respect to the 'scopeIn'
-    // ***Note: r2mu translation does not care of whether the function is nested or not (no 'scopeIn' argument);
-    //          now runtime system is responsible for this
   	return muOFun(ofuid);
   }
-  
-  tuple[str fuid,int pos] addr = uid2addr[uid];
   
   if(uid in constructors) {
   	return muConstr(name);
@@ -163,7 +161,6 @@ MuExp mkVar(str name, loc l) {
 
 tuple[str fuid,int pos] getVariableScope(str name, loc l) {
   tuple[str fuid,int pos] addr = uid2addr[loc2uid[l]];
-  println("Get var scope: <name>: <addr.fuid>::<addr.pos>");
   return addr;
 }
 
@@ -203,6 +200,10 @@ void extractScopes(){
                                              uid2name[uid] = name;
                                              // Fill in fuid2type to enable more precise overloading resolution
                                              fuid2type[uid] = rtype;
+                                             // Check if the function is default
+                                             if(defaultModifier() in config.functionModifiers[uid]) {
+                                             	defaultFunctions += {uid};
+                                             }
                                            }
         case overload(_,_):                {
         								     ofunctions += {uid};
@@ -315,6 +316,19 @@ void extractScopes(){
         for(i <- index(decls)) {
         	uid2addr[decls[i]] = <fuid2str[fuid], -1>;
         }
+    }
+    
+    // Fill in uid2addr for overloaded functions; TODO: add the 'scopeIn' field to the 'overload' computed by the type checker
+    for(int fuid <- ofunctions) {
+    	set[int] funs = config.store[fuid].items;
+    	set[str] scopes = {};
+    	str scopeIn = "";
+    	for(int fuid <- funs) {
+    		scopeIn = uid2addr[fuid].fuid;
+    		scopes += scopeIn;
+    	}
+    	assert size(scopes) == 1;
+    	uid2addr[fuid] = <scopeIn,-1>;
     }
 
 }
