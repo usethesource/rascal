@@ -67,11 +67,11 @@ map[str,Declaration] parseLibrary(){
 }
 
 // Translate a muRascal module
-RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations), bool listing=false){
+RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,list[str]] overloaded_functions), bool listing=false){
   funMap = ();
   nLabel = -1;
   temporaries = ();
-
+  
   println("mu2rvm: Compiling module <module_name>");
   
   if(exists(LibraryPrecompiled) && lastModified(LibraryPrecompiled) > lastModified(Library)){
@@ -101,7 +101,6 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
   main_fun = getUID(module_name,[],"main",1);
   module_init_fun = getUID(module_name,[],"#module_init_main",1);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-  //iprintln(funMap);
   if(!funMap[main_fun]?) {
   	main_fun = getFUID(module_name,"main",ftype,0);
   	module_init_fun = getFUID(module_name,"#module_init_main",ftype,0);
@@ -110,7 +109,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
   funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   									[*tr(initializations), 
   									 LOADLOC(0), 
-  									 CALL(main_fun,1), 
+  									 CALL(main_fun,1), // No overloading of main
   									 RETURN1(),
   									 HALT()
   									]));
@@ -124,11 +123,11 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
   funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   										[*tr(initializations), 
   									 	 LOADLOC(0), 
-  									 	 CALL(main_testsuite,1), 
+  									 	 CALL(main_testsuite,1), // No overloading of main
   									 	 RETURN1(),
   									 	 HALT()
   										 ]));
-  res = rvm(types, funMap, []);
+  res = rvm(types, funMap, [], resolver, overloaded_functions);
   if(listing){
     for(fname <- funMap, fname notin library_names)
   		iprintln(funMap[fname]);
@@ -176,8 +175,12 @@ default INS tr(muCon(value c)) = [LOADCON(c)];
 
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
 
+// muRascal functions
 INS tr(muFun(str fuid)) = [LOADFUN(fuid)];
 INS tr(muFun(str fuid, str scopeIn)) = [LOAD_NESTED_FUN(fuid, scopeIn)];
+
+// Rascal functions
+INS tr(muOFun(str fuid)) = [ LOADOFUN(fuid) ];
 
 INS tr(muConstr(str fuid)) = [LOADCONSTR(fuid)];
 
@@ -187,9 +190,20 @@ INS tr(muTmp(str id)) = [LOADLOC(getTmp(id))];
 
 INS tr(muCallConstr(str fuid, list[MuExp] args)) = [ *tr(args), CALLCONSTR(fuid, size(args)) ];
 
+// muRascal functions
 INS tr(muCall(muFun(str fuid), list[MuExp] args)) = [*tr(args), CALL(fuid, size(args))];
 INS tr(muCall(muConstr(str fuid), list[MuExp] args)) = [*tr(args), CALLCONSTR(fuid, size(args))];
 INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size(args))];
+
+// Rascal functions
+INS tr(muOCall(muOFun(str fuid), list[MuExp] args)) = [*tr(args), OCALL(fuid, size(args))];
+INS tr(muOCall(MuExp fun, set[Symbol] types, list[MuExp] args)) 
+	= { list[MuExp] targs = [ muTypeCon(t) | t <- types ]; 
+		[ *tr(targs), CALLMUPRIM("make_array",size(targs)), // this order is to optimize the stack size
+		  *tr(args), 
+		  *tr(fun), 
+		  OCALLDYN(size(args))]; 
+	  };
 
 INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args))];
 
@@ -202,13 +216,13 @@ INS tr(muAssignTmp(str id, MuExp exp)) = [*tr(exp), STORELOC(getTmp(id)) ];
 INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
     elseLab = mkFail(nextLabel());
     continueLab = mkContinue(nextLabel());	
-    dummyLab = nextLabel();	
+    dummyLab = nextLabel();	   
 //    println("ifelse: elseLab = <elseLab>, continueLab = <continueLab>, dummyLab = <dummyLab>");
     return [ *tr_cond(cond, dummyLab, elseLab), 
-             *trblock(thenPart), 
+             *(isEmpty(thenPart) ? LOADCON(111) : trblock(thenPart)),
              JMP(continueLab), 
              LABEL(elseLab),
-             *trblock(elsePart),
+             *(isEmpty(elsePart) ? LOADCON(222) : trblock(elsePart)),
              LABEL(continueLab)
            ];
 }
@@ -413,26 +427,11 @@ INS tr_cond_do(muOne(list[MuExp] exps), str continueLab, str failLab){
 INS tr_cond(muAll(list[MuExp] exps), str continueLab, str failLab){
     code = [];
     lastMulti = -1;
-    generators = ();
+    
     for(i <- index(exps)){
         if(muMulti(exp1) := exps[i]){
            lastMulti = i;
-           co = newLocal();
-           generators[i] = co;
-           code += [ *tr(exp1), 
-          		     INIT(0), 
-          		     STORELOC(co), 
-          		     POP()
-          		   ];
         }
-    }
-    if(size(code) == 0){
-       startLab = nextLabel();
-       code += [ JMP(startLab),
-       	         LABEL(continueLab),
-                 JMP(failLab),
-                 LABEL(startLab) 
-               ];
     }
     currentFail = failLab;
  
@@ -440,8 +439,12 @@ INS tr_cond(muAll(list[MuExp] exps), str continueLab, str failLab){
         exp = exps[i];
         if(muMulti(exp1) := exp){
           newFail = nextLabel();
-          co = generators[i];
-          code += [ LABEL(newFail),
+          co = newLocal();
+          code += [ *tr(exp1), 
+          		    INIT(0), 
+          		    STORELOC(co), 
+          		    POP(),
+           	        LABEL(newFail),
           			*((i == lastMulti) ? [LABEL(continueLab)] :[]),
           		    LOADLOC(co), 
           		    HASNEXT(), 

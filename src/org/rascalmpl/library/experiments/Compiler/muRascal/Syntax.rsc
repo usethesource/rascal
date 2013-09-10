@@ -57,9 +57,6 @@ syntax Exp  =
 			| preLocDeref:  		"deref" Identifier id
 			| preVarDeref:   		"deref" FunNamePart+ funNames Identifier id
 			
-			// function overloading: temporary overloading is encoded explicitly with '++' operator
-			| left funAddition:     Exp lhs "++"  Exp rhs
-			
 			> muCallPrim: 			"prim" "(" String name "," {Exp ","}+ args ")"
 			| muCallMuPrim: 		"muprim" "(" String name "," {Exp ","}+ args ")"
 			
@@ -120,7 +117,7 @@ syntax Exp  =
 //			; 			
 
 keyword Keywords = 
-              "module" | "function" | "return" | "get" | "set" |
+              "module" | "function" | "return" | "get" | /* "set" excluded, can be used in ```... is set'' construct*/
 			  "prim" | "muprim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "hasNext" |
               "type" |

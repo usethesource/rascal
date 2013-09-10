@@ -3170,7 +3170,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                    c = addVariable(c, n, true, ptns[idx]@at, \set(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } else {
-	                    c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+	                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
 	                    c.usedIn[ptn@at] = head(c.stack);
 	                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
 	                    // TODO: Keep this now that we have splicing?
@@ -3211,7 +3211,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                    c = addVariable(c, n, true, ptns[idx]@at, \list(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } else {
-	                    c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+	                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
 	                    c.usedIn[ptn@at] = head(c.stack);
 	                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
 	                    // TODO: Keep this now that we have splicing?

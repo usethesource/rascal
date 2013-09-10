@@ -33,12 +33,15 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadNestedFun;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadOFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next1;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.OCall;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.OCallDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Pop;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Println;
@@ -70,6 +73,7 @@ public class CodeBlock {
 	private Type[] finalTypeConstantStore;
 	
 	private Map<String, Integer> functionMap;
+	private Map<String, Integer> resolver;
 	private Map<String, Integer> constructorMap;
 	
 	public int[] finalCode;
@@ -172,6 +176,23 @@ public class CodeBlock {
 		Integer n = functionMap.get(name);
 		if(n == null){
 			throw new RuntimeException("PANIC: undefined function name " + name);
+		}
+		return n;
+	}
+	
+	public String getOverloadedFunctionName(int n){
+		for(String fname : resolver.keySet()){
+			if(resolver.get(fname) == n) {
+				return fname;
+			}
+		}
+		throw new RuntimeException("PANIC: undefined overloaded function index " + n);
+	}
+	
+	public int getOverloadedFunctionIndex(String name){
+		Integer n = resolver.get(name);
+		if(n == null){
+			throw new RuntimeException("PANIC: undefined overloaded function name " + name);
 		}
 		return n;
 	}
@@ -376,10 +397,23 @@ public class CodeBlock {
 	public CodeBlock FAILRETURN(){
 		return add(new FailReturn(this));
 	}
-		
-	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
+	
+	public CodeBlock LOADOFUN(String fuid) {
+		return add(new LoadOFun(this, fuid));
+	}
+	
+	public CodeBlock OCALL(String fuid, int arity) {
+		return add(new OCall(this, fuid, arity));
+	}
+	
+	public CodeBlock OCALLDYN(int arity) {
+		return add(new OCallDyn(this, arity));
+	}
+			
+	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;
+		this.resolver = resolver;
 		int codeSize = pc;
 		pc = 0;
 		finalCode = new int[codeSize];

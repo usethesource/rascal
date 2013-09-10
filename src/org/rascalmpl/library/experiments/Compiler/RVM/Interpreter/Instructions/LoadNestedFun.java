@@ -13,7 +13,7 @@ public class LoadNestedFun extends Instruction {
 		this.scopeIn = scopeIn;
 	}
 	
-	public String toString() { return "LOAD_NESTED_FUN " + fuid + ", " + scopeIn + " [ " +codeblock.getFunctionIndex(fuid) + ", " + codeblock.getFunctionIndex(scopeIn) + " ]"; }
+	public String toString() { return "LOAD_NESTED_FUN " + fuid + ", " + scopeIn + " [ " + codeblock.getFunctionIndex(fuid) + ", " + codeblock.getFunctionIndex(scopeIn) + " ]"; }
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());

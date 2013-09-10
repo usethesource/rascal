@@ -4,6 +4,7 @@ module experiments::Compiler::Tests::AllTests
  * A suite of tests for the Racsl compiler:
  * - import this module in a RascalShell
  * - Type :test at the command line.
+ * - Go and drink some latte ;-)
  */
 
 // Note: Type commented out since it uses a definition of datatype D that is incompatible with TestUtils

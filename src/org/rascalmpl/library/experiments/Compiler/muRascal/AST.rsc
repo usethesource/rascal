@@ -14,7 +14,9 @@ public data MuModule =
               muModule(str name, list[Symbol] types, 
                                  list[MuFunction] functions, 
                                  list[MuVariable] variables, 
-                                 list[MuExp] initialization)
+                                 list[MuExp] initialization,
+                                 map[str,int] resolver,
+                                 lrel[str,list[str]] overloaded_functions)
             ;
           
 // All information related to a function declaration. This can be a top-level
@@ -45,8 +47,12 @@ public data MuExp =
           | muCon(value c)										// Rascal Constant: an arbitrary IValue
             													// Some special cases are handled by preprocessor, see below.
           | muLab(str name)										// Label
-          | muFun(str fuid)							            // Function constant: functions at the root
-          | muFun(str fuid, str scopeIn)                        // Function constant: nested functions and closures
+          
+          | muFun(str fuid)							            // *muRascal function constant: functions at the root
+          | muFun(str fuid, str scopeIn)                        // *muRascal function constant: nested functions and closures
+          
+          | muOFun(str fuid)                                    // *Rascal functions, i.e., overloaded function at the root
+          
           | muConstr(str fuid) 									// Constructors
           
           	// Variables
@@ -62,13 +68,13 @@ public data MuExp =
              
           | muTypeCon(Symbol tp)								// Type constant
           
-          // Function overloading
-          | muFunAddition(MuExp lhs, MuExp rhs)
-          | muCall(list[MuExp] funs, list[MuExp] args)
-     
-     		// Call/return
-     		
-          | muCall(MuExp fun, list[MuExp] args)					// Call a function
+          // Call/return    		
+          | muCall(MuExp fun, list[MuExp] args)					// Call a *muRascal function
+          
+          | muOCall(MuExp fun, list[MuExp] args)                // Call a declared *Rascal function
+          | muOCall(MuExp fun, set[Symbol] types,               // Call a dynamic *Rascal function
+          					   list[MuExp] args)
+          
           | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
           | muCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
@@ -171,3 +177,7 @@ public data MuExp =
             | preAssignLocDeref(str name, MuExp exp)
             | preAssignVarDeref(lrel[str,int] funNames, str name, MuExp exp)
            ;
+           
+public bool isOverloadedFunction(muOFun(str _)) = true;
+//public bool isOverloadedFunction(muOFun(str _, str _)) = true;
+public default bool isOverloadedFunction(MuExp _) = false;

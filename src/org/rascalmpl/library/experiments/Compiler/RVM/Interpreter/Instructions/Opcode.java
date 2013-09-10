@@ -57,7 +57,10 @@ public enum Opcode {
 	LOADBOOL		(37,	2, 		1),
 	LOADINT			(38,	2, 		1),
 	DUP				(39, 	1, 		1),
-	FAILRETURN		(40, 	1, 		0)
+	FAILRETURN		(40, 	1, 		0),
+	LOADOFUN        (41,    2,      1),
+	OCALL           (42,    3,      -1000),
+	OCALLDYN	    (43,	2, 		-1000),
 	;
 	
 	
@@ -110,12 +113,15 @@ public enum Opcode {
 	static public final int OP_LOADCONSTR = 32;
 	static public final int OP_CALLCONSTR = 33;
 	static public final int OP_LOAD_NESTED_FUN = 34;
-	static public final int OP_LOADTTYPE = 35;
+	static public final int OP_LOADTYPE = 35;
 	static public final int OP_CALLMUPRIM = 36;
 	static public final int OP_LOADBOOL = 37;
 	static public final int OP_LOADINT = 38;
 	static public final int OP_DUP = 39;
 	static public final int OP_FAILRETURN = 40;
+	static public final int OP_LOADOFUN = 41;
+	static public final int OP_OCALL = 42;
+	static public final int OP_OCALLDYN = 43;
 	
 	 Opcode(int op, int pc_incr, int sp_incr){
 		this.op = op;
@@ -240,7 +246,7 @@ public enum Opcode {
 			return "CALLCONSTR " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
 		
 		case LOAD_NESTED_FUN:
-			return "LOAD_NESTED_FUN " + cb.finalCode[pc + 1] + cb.finalCode[pc + 2];
+			return "LOAD_NESTED_FUN " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2];
 			
 		case LOADTYPE:
 			return "LOADTYPE " + cb.finalCode[pc + 1];
@@ -259,6 +265,15 @@ public enum Opcode {
 		case FAILRETURN:
 			return "FAILRETURN";
 			
+		case LOADOFUN:
+			return "LOADOFUN " + cb.finalCode[pc + 1]  + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
+			
+		case OCALL:
+			return "OCALL " + cb.finalCode[pc + 1]  + ", " + cb.finalCode[pc + 2] + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
+			
+		case OCALLDYN:
+			return "OCALLDYN " + cb.finalCode[pc + 1];
+				
 		default:
 			break;
 		}	
