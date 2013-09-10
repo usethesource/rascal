@@ -2,13 +2,15 @@ module experiments::Compiler::Examples::Overloading
 
 import IO;
 
-int f(0) = -1;
-int f(int n) = n;
-int f("0") = -2;
-int f(str s) = -3;
-int f(int n, str s) = -4;
+public default int f(int n) = n;
+public default int f(str s) = -3;
 
-value main(list[value] args) {
+public int f(0) = -1;
+public int f("0") = -2;
+
+public int f(int n, str s) = -4;
+
+public value main(list[value] args) {
 	x = f(0);
 	y = f(5);
 	k = f("0");

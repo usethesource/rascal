@@ -16,7 +16,7 @@ public data MuModule =
                                  list[MuVariable] variables, 
                                  list[MuExp] initialization,
                                  map[str,int] resolver,
-                                 lrel[str,set[str]] overloaded_functions)
+                                 lrel[str,list[str]] overloaded_functions)
             ;
           
 // All information related to a function declaration. This can be a top-level

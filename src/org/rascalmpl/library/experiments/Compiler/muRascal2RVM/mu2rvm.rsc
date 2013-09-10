@@ -67,7 +67,7 @@ map[str,Declaration] parseLibrary(){
 }
 
 // Translate a muRascal module
-RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,set[str]] overloaded_functions), bool listing=false){
+RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,list[str]] overloaded_functions), bool listing=false){
   funMap = ();
   nLabel = -1;
   temporaries = ();

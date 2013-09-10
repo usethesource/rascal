@@ -101,8 +101,9 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  //throw "Testing overloading";
    	  
    	  // Overloading resolution...	  
-   	  lrel[str,set[str]] overloaded_functions = [ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
-   	  												{ fuid2str[fuid] | int fuid <- of.fuids }> 
+   	  lrel[str,list[str]] overloaded_functions = [ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
+   	  												[ fuid2str[fuid] | int fuid <- of.fuids, fuid notin defaultFunctions ] + [ fuid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ]
+   	  											  > 
    	  													| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions ];
    	  
    	  return muModule("<M.header.name>", types, functions_in_module, variables_in_module, variable_initializations, overloadingResolver, overloaded_functions);

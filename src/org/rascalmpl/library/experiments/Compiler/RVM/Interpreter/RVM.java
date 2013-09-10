@@ -123,8 +123,8 @@ public class RVM {
 			if(scopeIn.equals("")) {
 				scopeIn = null;
 			}
-			ISet fuids = (ISet) ofTuple.get(1);
-			int[] funs = new int[fuids.size()];
+			IList fuids = (IList) ofTuple.get(1);
+			int[] funs = new int[fuids.length()];
 			int i = 0;
 			for(IValue fuid : fuids) {
 				int index = functionMap.get(((IString) fuid).getValue());
