@@ -25,6 +25,7 @@ public map[loc \loc,int uid] loc2uid = ();
 
 public set[int] modules = {};
 public set[int] functions = {};
+public set[int] defaultFunctions = {};
 public set[int] constructors = {};
 public set[int] variables = {};
 public set[int] ofunctions = {};
@@ -57,6 +58,7 @@ public void resetScopeExtraction() {
 	
 	modules = {};
 	functions = {};
+	defaultFunctions = {};
 	constructors = {};
 	variables = {};
 	ofunctions = {};
@@ -198,6 +200,10 @@ void extractScopes(){
                                              uid2name[uid] = name;
                                              // Fill in fuid2type to enable more precise overloading resolution
                                              fuid2type[uid] = rtype;
+                                             // Check if the function is default
+                                             if(defaultModifier() in config.functionModifiers[uid]) {
+                                             	defaultFunctions += {uid};
+                                             }
                                            }
         case overload(_,_):                {
         								     ofunctions += {uid};
