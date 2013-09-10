@@ -36,6 +36,12 @@ public class ASTConverter extends JavaToRascalConverter {
 	      return bindingsResolver.computeTypeSymbol(binding);
 	    }
 	  }
+	  else if (node instanceof VariableDeclaration) {
+	    ITypeBinding binding = ((VariableDeclaration) node).resolveBinding().getType();
+      if (binding != null) {
+        return bindingsResolver.computeTypeSymbol(binding);
+      }
+	  }
 	  
 	  return null;
   }
