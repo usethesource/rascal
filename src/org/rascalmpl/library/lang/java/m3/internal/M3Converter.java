@@ -34,7 +34,8 @@ public class M3Converter extends JavaToRascalConverter {
 	private ISetWriter uses;
 	private ISetWriter declarations;
 	private ISetWriter containment;
-	private ISetWriter typeInheritance;
+	private ISetWriter extendsRelations;
+	private ISetWriter implementsRelations;
 	private ISetWriter fieldAccess;
 	private ISetWriter methodInvocation;
 	private ISetWriter typeDependency;
@@ -51,7 +52,8 @@ public class M3Converter extends JavaToRascalConverter {
 		uses = values.relationWriter(m3TupleType);
 		declarations = values.relationWriter(m3TupleType);
 		containment = values.relationWriter(m3TupleType);
-		typeInheritance = values.relationWriter(m3TupleType);
+		extendsRelations = values.relationWriter(m3TupleType);
+		implementsRelations = values.relationWriter(m3TupleType);
 		fieldAccess = values.relationWriter(m3TupleType);
 		methodInvocation = values.relationWriter(m3TupleType);
 		m3LOCModifierType = TF.tupleType(locType, DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE);
@@ -69,7 +71,8 @@ public class M3Converter extends JavaToRascalConverter {
 		setAnnotation("declarations", declarations.done());
 		setAnnotation("uses", uses.done());
 		setAnnotation("containment", containment.done());
-		setAnnotation("typeInheritance", typeInheritance.done());
+		setAnnotation("extends", extendsRelations.done());
+		setAnnotation("implements", implementsRelations.done());
 		setAnnotation("methodInvocation", methodInvocation.done());
 		setAnnotation("modifiers", modifiers.done());
 		setAnnotation("typeDependency", typeDependency.done());
@@ -98,7 +101,9 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public void insert(ISetWriter relW, IString lhs, IValue rhs) {
-		relW.insert(values.tuple(lhs, rhs));
+		if (isValid((ISourceLocation) rhs)) {
+			relW.insert(values.tuple(lhs, rhs));
+		}
 	}
 	
 	public void insert(ISetWriter relW, IValue lhs, IConstructor rhs) {
@@ -226,7 +231,7 @@ public class M3Converter extends JavaToRascalConverter {
 				implementedInterfaces.add(resolveBinding(t));
 			}
 		}
-		insert(typeInheritance, ownValue, implementedInterfaces);
+		insert(implementsRelations, ownValue, implementedInterfaces);
 		
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
@@ -365,12 +370,14 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(SimpleName node) {
-		URI uri = ((ISourceLocation) ownValue).getURI();
-		try {
-			insert(names, values.string(node.getIdentifier()), values.sourceLocation(URIUtil.changePath(uri, uri.getPath().replaceAll("/", "."))));
-		} catch (URISyntaxException e) {
-			// should not happen
-		}
+//		URI uri = ((ISourceLocation) ownValue).getURI();
+//		try {
+//			
+//			insert(names, values.string(node.getIdentifier()), values.sourceLocation(URIUtil.changePath(uri, uri.getPath().replaceAll("/", "."))));
+//		} catch (URISyntaxException e) {
+//			// should not happen
+//		}
+		insert(names, values.string(node.getIdentifier()), values.sourceLocation(((ISourceLocation) ownValue).getURI()));
 		
 		if (((ISourceLocation)ownValue).getURI().getScheme().equals("java+field")) {
 			if (!getParent().isEqual((ISourceLocation) ownValue))
@@ -454,8 +461,8 @@ public class M3Converter extends JavaToRascalConverter {
 			}
 		}
 		
-		insert(typeInheritance, ownValue, extendsClass);
-		insert(typeInheritance, ownValue, implementsInterfaces);
+		insert(extendsRelations, ownValue, extendsClass);
+		insert(implementsRelations, ownValue, implementsInterfaces);
 		
 		return true;
 	}
@@ -476,7 +483,8 @@ public class M3Converter extends JavaToRascalConverter {
 			}
 		}
 		
-		insert(typeInheritance, ownValue, extendsList);
+		//TODO: ???
+		// insert(typeInheritance, ownValue, extendsList);
 		
 		return true;
 	}
