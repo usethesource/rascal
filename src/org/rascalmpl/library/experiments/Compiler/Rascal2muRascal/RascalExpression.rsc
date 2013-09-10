@@ -24,6 +24,17 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 int size_exps({Expression ","}* es) = size([e | e <- es]);		// TODO: should become library function
 int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	// TODO: should become library function
 
+
+// Create (and flatten) a muAll
+
+MuExp makeMuAll([*exps1, muAll(list[MuExp] exps2), exps3]) = makeMuAll(exps1 + exps2 + exps3);
+default MuExp makeMuAll(exp) = muAll(exp);
+
+// Create (and flatten) a muOne
+
+MuExp makeMuOne([*exps1, muOne(list[MuExp] exps2), exps3]) = makeMuOne(exps1 + exps2 + exps3);
+default MuExp makeMuOne(exp) = muOne(exp);
+
 // Generate code for completely type-resolved operators
 
 bool isContainerType(str t) = t in {"list", "map", "set"};
@@ -153,10 +164,10 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
 }
 
 // Any
-MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = muOne([translate(g) | g <- generators ]);
+MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = makeMuOne([translate(g) | g <- generators ]);
 
 // All
-MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = muAll([translate(g) | g <- generators ]);
+MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = makeMuAll([translate(g) | g <- generators ]);
 
 // Comprehension
 MuExp translate (e:(Expression) `<Comprehension comprehension>`) = translateComprehension(comprehension);
@@ -340,59 +351,77 @@ MuExp translate(e:(Expression) `<Expression lhs> || <Expression rhs>`)  = transl
  
 // Conditional Expression
 MuExp translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = 
-    muIfelse(translate(condition), [translate(thenExp)],  [translate(elseExp)]); 
+    muIfelse(makeMuAll([translate(condition)]), [translate(thenExp)],  [translate(elseExp)]); 
 
 // Default: should not happen
 default MuExp translate(Expression e) {
 	throw "MISSING CASE FOR EXPRESSION: <e>";
 }
 
+/*********************************************************************/
+/*                  End of Ordinary Expessions                       */
+/*********************************************************************/
 
 /*********************************************************************/
-/*                  End of Expessions                                */
+/*                  BooleanExpessions                                */
 /*********************************************************************/
-
-// Utilities for boolean operators
  
 // Is an expression free of backtracking? 
 
-bool backtrackFree(e:(Expression) `<Pattern pat> := <Expression exp>`) = backtrackFree(pat);
-bool backtrackFree(e:(Expression) `<Pattern pat> \<- <Expression exp>`) = false;
+bool backtrackFree((Expression) `<Pattern pat> := <Expression exp>`) = backtrackFree(pat) && backtrackFree(exp);
+bool backtrackFree((Expression) `<Pattern pat> \<- <Expression exp>`) = false;
+bool backtrackFree((Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`) = false;
+bool backtrackFree((Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) =  false;
 
 default bool backtrackFree(Expression e) = true;
 
+// Boolean expressions
 
-// Translate Boolean expression
+MuExp translateBool((Expression) `<Expression lhs> && <Expression rhs>`) = translateBoolBinaryOp("AND", lhs, rhs);
 
-MuExp translateBool(str fun, Expression lhs, Expression rhs){
-  blhs = backtrackFree(lhs) ? "U" : "M";
-  brhs = backtrackFree(rhs) ? "U" : "M";
-  return muCallMuPrim("<fun>_<blhs>_<brhs>", [*translate(lhs), *translate(rhs)]);
-}
+MuExp translateBool((Expression) `<Expression lhs> || <Expression rhs>`) = translateBoolBinaryOp("OR", lhs, rhs);
 
-MuExp translateBool(str fun, Expression lhs){
-  blhs = backtrackFree(lhs) ? "U" : "M";
-  return muCallMuPrim("<fun>_<blhs>", [translate(lhs)]);
-}
+MuExp translateBool((Expression) `<Expression lhs> ==\> <Expression rhs>`) = translateBoolBinaryOp("IMPLIES", lhs, rhs);
 
-MuExp translateBool(e:(Expression) `<Expression lhs> && <Expression rhs>`) = translateBool("AND", lhs, rhs);
+MuExp translateBool((Expression) `<Expression lhs> \<==\> <Expression rhs>`) = translateBoolBinaryOp("EQUIVALENT", lhs, rhs);
 
-MuExp translateBool(e:(Expression) `<Expression lhs> || <Expression rhs>`) = translateBool("OR", lhs, rhs);
-
-MuExp translateBool(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`) = translateBool("IMPLIES", lhs, rhs);
-
-MuExp translateBool(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`) = translateBool("EQUIVALENT", lhs, rhs);
-
-MuExp translateBool(e:(Expression) `! <Expression lhs>`) = translateBool("NOT", lhs);
+MuExp translateBool((Expression) `! <Expression lhs>`) = translateBoolUnaryOp("NOT", lhs);
  
-// Translate match operator
- 
- MuExp translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`)  {
+ MuExp translateBool((Expression) `<Pattern pat> := <Expression exp>`)  {
    println("translateBool: <pat> := <exp>");
    return muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]));
-}   
+} 
+
+// All other expressions are wrapped as boolean expression
+
+default MuExp translateBool(Expression e) {
+   println("translateBool, default: <e>");
+   return translate(e);
+}
    
-// Auxiliary functions for translating various constructs
+// Translate Boolean operators
+
+MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
+  if(backtrackFree(lhs) && backtrackFree(rhs)) {
+     return muCallMuPrim("<fun>_U_U", [translateBool(lhs), translateBool(rhs)]);
+  } else {
+    switch(fun){
+    	case "AND": return makeMuAll([translate(lhs), translate(rhs)]);
+    	case "OR":  return muCallMuPrim("NOT_U", [makeMuAll([muCallMuPrim("NOT_U", [translate(lhs)]),  muCallMuPrim("NOT_U", [translate(lhs)])])]);
+    	default:
+    		throw "translateBoolBinary: unknown operator <fun>";
+    }
+  }
+}
+
+MuExp translateBoolUnaryOp(str fun, Expression lhs){
+  blhs = backtrackFree(lhs) ? "U" : "M";
+  return muCallMuPrim("<fun>_<blhs>", [translateBool(lhs)]);
+}
+
+/*********************************************************************/
+/*      Auxiliary functions for translating various constructs       */
+/*********************************************************************/
 
 // Translate a string literals and string templates
 
@@ -488,7 +517,15 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
 	return (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid); // closures are not overloaded
 }
 
-// Translate a comprehension
+// Translate comprehensions
+
+MuExp translateGenerators({Expression ","}+ generators){
+   if(all(gen <- generators, backtrackFree(gen))){
+      return makeMuAll([translate(g) | g <-generators]);
+   } else {
+     return makeMuAll([muCallPrim("rbool", [translate(g)]) | g <-generators]);
+   }
+}
 
 MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ results> | <{Expression ","}+ generators> ]`) {
     loopname = nextLabel(); 
@@ -496,7 +533,7 @@ MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ results> |
     return
     muBlock(
     [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])),
-      muWhile(loopname, muAll([translate(g) | g <-generators]), [muCallPrim("listwriter_add", [muTmp(tmp)] + [ translate(r) | r <- results])]), 
+      muWhile(loopname, makeMuAll([translate(g) | g <-generators]), [muCallPrim("listwriter_add", [muTmp(tmp)] + [ translate(r) | r <- results])]), 
       muCallPrim("listwriter_close", [muTmp(tmp)]) 
     ]);
 }
@@ -507,7 +544,7 @@ MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ results> |
     return
     muBlock(
     [ muAssignTmp(tmp, muCallPrim("setwriter_open", [])),
-      muWhile(loopname, muAll([translate(g) | g <-generators]), [muCallPrim("setwriter_add", [muTmp(tmp)] + [ translate(r) | r <- results])]), 
+      muWhile(loopname, makeMuAll([translate(g) | g <-generators]), [muCallPrim("setwriter_add", [muTmp(tmp)] + [ translate(r) | r <- results])]), 
       muCallPrim("setwriter_close", [muTmp(tmp)]) 
     ]);
 }
@@ -518,7 +555,7 @@ MuExp translateComprehension(c: (Comprehension) `(<Expression from> : <Expressio
     return
     muBlock(
     [ muAssignTmp(tmp, muCallPrim("mapwriter_open", [])),
-      muWhile(loopname, muAll([*translate(g) | g <-generators]), [muCallPrim("mapwriter_add", [muTmp(tmp)] + [ translate(from), translate(to)])]), 
+      muWhile(loopname, makeMuAll([*translate(g) | g <-generators]), [muCallPrim("mapwriter_add", [muTmp(tmp)] + [ translate(from), translate(to)])]), 
       muCallPrim("mapwriter_close", [muTmp(tmp)]) 
     ]);
 }
@@ -529,7 +566,7 @@ MuExp translateReducer(init, result, generators){
     loopname = nextLabel(); 
     tmp = asTmp(loopname); 
     pushIt(tmp);
-    code = [ muAssignTmp(tmp, translate(init)), muWhile(loopname, muAll([translate(g) | g <-generators]), [muAssignTmp(tmp, translate(result))]), muTmp(tmp)];
+    code = [ muAssignTmp(tmp, translate(init)), muWhile(loopname, makeMuAll([translate(g) | g <-generators]), [muAssignTmp(tmp, translate(result))]), muTmp(tmp)];
     popIt();
     return muBlock(code);
 }
