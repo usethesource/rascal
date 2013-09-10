@@ -75,8 +75,8 @@ public class JDT {
       CompilationUnit cu = this.getCompilationUnit(loc, true, javaVersion, eval);
 
       TypeStore store = new TypeStore();
-      store.extendStore(eval.getHeap().getModule("lang::java::m3::JavaM3").getStore());
-      store.extendStore(eval.getHeap().getModule("analysis::m3::AST").getStore());
+      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+      store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
       M3Converter converter = new M3Converter(store);
 
       converter.set(cu);
@@ -102,8 +102,8 @@ public class JDT {
       CompilationUnit cu = getCompilationUnit(loc, collectBindings.getValue(), javaVersion, eval);
 
       TypeStore store = new TypeStore();
-      store.extendStore(eval.getHeap().getModule("lang::java::m3::JavaM3").getStore());
-      store.extendStore(eval.getHeap().getModule("analysis::m3::AST").getStore());
+      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+      store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
       ASTConverter converter = new ASTConverter(store, collectBindings.getValue());
 
       converter.set(cu);
