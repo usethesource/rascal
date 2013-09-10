@@ -87,7 +87,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
     tmp = asTmp(forname);
     enterLoop(forname);
     code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])), 
-             muWhile(forname, muAll([translate(c) | c <-generators]), [ translate(body) ]),
+             muWhile(forname, makeMuAll([translate(c) | c <-generators]), [ translate(body) ]),
              muCallPrim("listwriter_close", [muTmp(tmp)])
            ];
     leaveLoop();
@@ -99,7 +99,7 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
     result = asTmp(forname);
     enterLoop(forname);
     code = [ muAssignTmp(result, muCallPrim("template_open", [])),
-             muWhile(forname, muAll([translate(c) | c <-generators]), 
+             muWhile(forname, makeMuAll([translate(c) | c <-generators]), 
                      [ translate(preStats),  
                        muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
                        translate(postStats)
@@ -120,7 +120,7 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
     code = [ muAssignTmp(result, muCallPrim("template_open", [])),
              muIfelse(muOne([translate(c) | c <-conditions]), 
                       [ translate(preStats),
-                         muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
+                        muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
                         translate(postStats)],
                       []),
                muCallPrim("template_close", [muTmp(result)])

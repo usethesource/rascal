@@ -1,23 +1,32 @@
 module Library
 
-
-/*
-
-function main[1,args] { return next(init(create(TRUE))); }
  
 function TRUE[0,] { return true; }   // should be true
  
 function FALSE[0,] { return false; }
 
+function BOOL[1, b, cb] { 
+    if(b is bool){
+       println("BOOL: got a boolean");
+       return b;
+    };
+    println("BOOL: got a coroutine");
+    cb = init(create(b));
+    while(hasNext(cb)){
+      yield next(cb);
+    };
+    return false;          
+}
 
 function AND_U_U[2,lhs,rhs]{
-  return prim("and_bool_bool", lhs, rhs);
+  return muprim("AND_U_U", lhs, rhs);
 }
 
 function AND_M_U[2,lhs,rhs,clhs]{
-   clhs = init(create(lhs));
-   while(hasNext(clhs)){
-     if(next(clhs)){
+   println("AND_M_U:", lhs, rhs);
+   //clhs = init(create(lhs));
+   while(hasNext(lhs)){
+     if(next(lhs)){
         if(rhs){
            yield true;
         };
@@ -41,10 +50,14 @@ function AND_U_M[2,lhs,rhs,crhs]{
 }
 
 function AND_M_M[2,lhs,rhs,clhs,crhs]{
-   clhs = init(create(lhs));
+   clhs = init(lhs);
+   println("AND_M_M", "lhs init done");
    while(hasNext(clhs)){
+     println("AND_M_M", "hasNext clhs succeeded");
      if(next(clhs)){
-        crhs = init(create(rhs));
+        println("AND_M_M", "next clhs succeeded");
+        crhs = init(rhs);
+        println("AND_M_M", "rhs init done");
         while(hasNext(crhs)){
           if(next(crhs)){
              yield true;
@@ -69,7 +82,6 @@ function ALL[1,arg,carg]{
    };
    return false;
 }        
-*/
 
 // ***** Generators for all types *****
 
