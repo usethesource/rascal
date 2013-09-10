@@ -30,7 +30,6 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
-import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -282,10 +281,10 @@ public class BindingsResolver {
       return wildcardSymbol(boundSymbol(binding.getBound()));
     }
     else if (binding.isClass()) {
-      return classSymbol(decl, computeTypes(binding.getTypeParameters()));
+      return classSymbol(decl, computeTypes(binding.getTypeArguments()));
     }
     else if (binding.isInterface()) {
-      return interfaceSymbol(decl, computeTypes(binding.getTypeParameters()));
+      return interfaceSymbol(decl, computeTypes(binding.getTypeArguments()));
     }
     
     return null;
