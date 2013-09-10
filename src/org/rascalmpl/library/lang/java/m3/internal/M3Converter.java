@@ -172,10 +172,12 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	private void addTypeDependency(ISourceLocation dependency) {
-		ISourceLocation parent = getParent();
-		if (!parent.isEqual(dependency)) {
-			insert(typeDependency, parent, dependency);
-		}
+	  if (!scopeManager.isEmpty()) {
+	    ISourceLocation parent = getParent();
+	    if (!parent.isEqual(dependency)) {
+	      insert(typeDependency, parent, dependency);
+	    }
+	  }
 	}
 	
 	public void preVisit(ASTNode node) {
