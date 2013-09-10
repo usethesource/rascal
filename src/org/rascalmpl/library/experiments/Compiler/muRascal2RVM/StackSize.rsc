@@ -28,6 +28,8 @@ private int estimate(muTypeCon(Symbol sym)) = 1;
 private int estimate(muFun(str fuid)) = 1;
 private int estimate(muFun(str fuid, str scopeIn)) = 1;
 
+private int estimate(muOFun(str fuid)) = 1;
+
 private int estimate(muConstr(str fuid)) = 1;
 
 private int estimate(muVar(str id, str fuid, int pos)) = 1;
@@ -39,6 +41,9 @@ private int estimate(muCallConstr(str fuid, list[MuExp] args)) = estimate_arg_li
 private int estimate(muCall(muFun(str fuid), list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCall(muConstr(str fuid), list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCall(MuExp fun, list[MuExp] args)) = max(estimate(fun), 1 + estimate_arg_list(args));
+
+private int estimate(muOCall(muOFun(str fuid), list[MuExp] args)) = estimate_arg_list(args);
+private int estimate(muOCall(MuExp fun, set[Symbol] types, list[MuExp] args)) = max(estimate(fun), max(1 + 1 + estimate_arg_list(args), size(types)));
 
 private int estimate(muCallPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCallMuPrim(str name, list[MuExp] args)) = estimate_arg_list(args);

@@ -286,7 +286,7 @@ MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, MuExp rhs)
     elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
     return muBlock(
               muAssignTmp(name, rhs) + 
-              [ assignTo(elems[i], muCallPrim("tuple_subscript", [muTmp(name), muCon(i)]) )
+              [ assignTo(elems[i], muCallPrim("tuple_subscript_int", [muTmp(name), muCon(i)]) )
               | i <- [0 .. nelems]
               ]);
 }
@@ -297,7 +297,7 @@ MuExp assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, 
     elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
     return muBlock(
               muAssignTmp(name, rhs) + 
-              [ assignTo(elems[i], muCalla("adt_subscript", [muTmp(name), muCon(i)]) )
+              [ assignTo(elems[i], muCalla("adt_subscript_int", [muTmp(name), muCon(i)]) )
               | i <- [0 .. nelems]
               ]);
 }
@@ -310,8 +310,14 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> @ <Name annotation>`,  MuE
 list[MuExp] getValues(a: (Assignable) `<QualifiedName qualifiedName>`) = 
     [ mkVar("<qualifiedName>", qualifiedName@\loc) ];
     
-list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`) =
-    [ muCallPrim("<getOuterType(receiver)>_subscript", [*getValues(receiver), translate(subscript)]) ];
+list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`) {
+    otr = getOuterType(receiver);
+    subscript_op = "<otr>_subscript";
+    if(otr notin {"map"}){
+       subscript_op += "_<getOuterType(subscript)>";
+    }
+    return [ muCallPrim(subscript_op, [*getValues(receiver), translate(subscript)]) ];
+}
     
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) = 
     translateSlice(getValues(receiver), translateOpt(optFirst), muCon(false),  translateOpt(optLast));

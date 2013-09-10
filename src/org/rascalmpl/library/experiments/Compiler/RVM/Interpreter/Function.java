@@ -29,8 +29,8 @@ public class Function {
 		this.codeblock = codeblock;
 	}
 	
-	public void  finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
-		codeblock.done(name, codeMap, constructorMap, listing);
+	public void  finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing){
+		codeblock.done(name, codeMap, constructorMap, resolver, listing);
 		this.scopeId = codeblock.getFunctionIndex(name);
 		if(funIn != null) {
 			this.scopeIn = codeblock.getFunctionIndex(funIn);
