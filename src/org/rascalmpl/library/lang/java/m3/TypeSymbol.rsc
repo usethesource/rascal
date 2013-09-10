@@ -22,6 +22,7 @@ data TypeSymbol
   | \int()
   | \float()
   | \double()
+  | \short()
   | \boolean()
   | \char()
   | \byte()

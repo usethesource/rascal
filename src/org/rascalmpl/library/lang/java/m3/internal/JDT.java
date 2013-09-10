@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -72,8 +73,12 @@ public class JDT {
 	public IValue createM3FromFile(ISourceLocation loc, IString javaVersion, IEvaluatorContext eval) {
     	try {
     		CompilationUnit cu = this.getCompilationUnit(loc, true, javaVersion, eval);
+    		 
+    		TypeStore store = new TypeStore();
+    		store.extendStore(eval.getHeap().getModule("lang::java::m3::JavaM3").getStore());
+    		store.extendStore(eval.getHeap().getModule("analysis::m3::AST").getStore());
+    		M3Converter converter = new M3Converter(store);
     		
-    		M3Converter converter = new M3Converter(eval.getHeap().getModule("lang::java::m3::JavaM3").getStore());
     		converter.set(cu);
     		converter.set(loc);
     		cu.accept(converter);
@@ -94,11 +99,13 @@ public class JDT {
 	 */
 	public IValue createAstFromFile(ISourceLocation loc, IBool collectBindings, IString javaVersion, IEvaluatorContext eval) {
 		try {
-			CompilationUnit cu;
+			CompilationUnit cu = getCompilationUnit(loc, collectBindings.getValue(), javaVersion, eval);
 			
-			cu = this.getCompilationUnit(loc, collectBindings.getValue(), javaVersion, eval);
-			ASTConverter converter = new ASTConverter(eval.getHeap().getModule("analysis::m3::AST").getStore(),
-					collectBindings.getValue());
+			TypeStore store = new TypeStore();
+      store.extendStore(eval.getHeap().getModule("lang::java::m3::JavaM3").getStore());
+      store.extendStore(eval.getHeap().getModule("analysis::m3::AST").getStore());
+      ASTConverter converter = new ASTConverter(store, collectBindings.getValue());
+      
 			converter.set(cu);
 			converter.set(loc);
 			cu.accept(converter);
