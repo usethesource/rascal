@@ -30,7 +30,6 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
-import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -105,8 +104,8 @@ public class BindingsResolver {
         return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
       } else if (node instanceof SuperMethodInvocation) {
         return resolveBinding(((SuperMethodInvocation) node).resolveMethodBinding());
-      } else if (node instanceof Expression) {
-        return resolveBinding(((Expression) node).resolveTypeBinding());
+//      } else if (node instanceof Expression) {
+//        return resolveBinding(((Expression) node).resolveTypeBinding());
       } else if (node instanceof MemberRef) {
         return resolveBinding(((MemberRef) node).resolveBinding());
       } else if (node instanceof MethodDeclaration) {
@@ -131,7 +130,7 @@ public class BindingsResolver {
         return resolveInitializer((Initializer) node);
       }
 		}
-		return convertBinding("unknown", null, null, null);
+		return null;
 	}
 	
 	private URI resolveQualifiedName(QualifiedName node) {
@@ -172,7 +171,7 @@ public class BindingsResolver {
 		return convertBinding("unknown", null, null, null);
 	}
 	
-	private IConstructor resolveType(ISourceLocation uri, IBinding binding) {
+	public IConstructor resolveType(ISourceLocation uri, IBinding binding) {
     if (binding instanceof ITypeBinding) {
       return computeTypeSymbol(uri, (ITypeBinding) binding);
     } else if (binding instanceof IMethodBinding) {
@@ -184,6 +183,11 @@ public class BindingsResolver {
     return null;
 	}
 	
+	public IConstructor computeMethodTypeSymbol(IMethodBinding binding) {
+	  ISourceLocation decl = values.sourceLocation(resolveBinding(binding));
+	  return computeMethodTypeSymbol(decl, binding);
+	}
+	
 	private IConstructor computeMethodTypeSymbol(ISourceLocation decl, IMethodBinding binding) {
     IList parameters = computeTypes(binding.getParameterTypes());
     
@@ -192,6 +196,7 @@ public class BindingsResolver {
     } else {
       IList typeParameters = computeTypes(binding.getTypeArguments());
       IConstructor retSymbol = computeTypeSymbol(binding.getReturnType());
+      
       return methodSymbol(decl, typeParameters, retSymbol,  parameters);
     }
   }
@@ -234,7 +239,7 @@ public class BindingsResolver {
 
   private IConstructor parameterNode(ISourceLocation decl) {
     IConstructor boundSym = unboundedSym();
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "parameter", tf.tupleType(decl.getType(), boundSym.getType()));
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeParameter", tf.tupleType(decl.getType(), boundSym.getType()));
     return values.constructor(cons, decl, boundSym);
   }
 
@@ -244,7 +249,7 @@ public class BindingsResolver {
     return values.constructor(cons);
   }
 
-  private IConstructor computeTypeSymbol(ITypeBinding binding) {
+  public IConstructor computeTypeSymbol(ITypeBinding binding) {
     ISourceLocation decl = values.sourceLocation(resolveBinding(binding));
     return computeTypeSymbol(decl, binding);
   }
@@ -276,10 +281,10 @@ public class BindingsResolver {
       return wildcardSymbol(boundSymbol(binding.getBound()));
     }
     else if (binding.isClass()) {
-      return classSymbol(decl, computeTypes(binding.getTypeParameters()));
+      return classSymbol(decl, computeTypes(binding.getTypeArguments()));
     }
     else if (binding.isInterface()) {
-      return interfaceSymbol(decl, computeTypes(binding.getTypeParameters()));
+      return interfaceSymbol(decl, computeTypes(binding.getTypeArguments()));
     }
     
     return null;

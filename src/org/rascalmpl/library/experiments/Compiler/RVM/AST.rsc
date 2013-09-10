@@ -6,7 +6,7 @@ public data Declaration =
 		  FUNCTION(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
 		;
 
-public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions, map[str,int] resolver, list[set[str]] overloaded_functions);
+public data RVMProgram = rvm(list[Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions, map[str,int] resolver, lrel[str,list[str]] overloaded_functions);
 
 data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean

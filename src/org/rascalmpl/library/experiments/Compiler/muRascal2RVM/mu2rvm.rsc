@@ -66,6 +66,7 @@ map[str,Declaration] parseLibrary(){
   	return funMap;
 }
 
+<<<<<<< HEAD
 // Does an expression produce a value? (needed for cleaning up the stack)
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
@@ -79,6 +80,10 @@ default bool producesValue(MuExp exp) = true;
 /*********************************************************************/
 
 RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, list[set[str]] overloaded_functions), bool listing=false){
+=======
+// Translate a muRascal module
+RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,list[str]] overloaded_functions), bool listing=false){
+>>>>>>> branch 'master' of https://github.com/cwi-swat/rascal.git
   funMap = ();
   nLabel = -1;
   temporaries = ();
@@ -112,7 +117,6 @@ RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction]
   main_fun = getUID(module_name,[],"main",1);
   module_init_fun = getUID(module_name,[],"#module_init_main",1);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-  //iprintln(funMap);
   if(!funMap[main_fun]?) {
   	main_fun = getFUID(module_name,"main",ftype,0);
   	module_init_fun = getFUID(module_name,"#module_init_main",ftype,0);

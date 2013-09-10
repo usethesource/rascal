@@ -42,9 +42,10 @@ public class RVM {
 	
 	private final ArrayList<Function> functionStore;
 	private final Map<String, Integer> functionMap;
+	
 	// Function overloading
 	private final Map<String, Integer> resolver;
-	private final ArrayList<Integer[]> overloadedStore;
+	private final ArrayList<OverloadedFunction> overloadedStore;
 	
 	private final TypeStore typeStore = new TypeStore();
 	private final Types types;
@@ -52,6 +53,11 @@ public class RVM {
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
 	private PrintWriter stdout;
+	
+	// Management of active coroutines
+	Stack<Coroutine> activeCoroutines = new Stack<>();
+	Frame ccf = null; // the start frame (of the coroutine's main function) of the current active coroutine
+
 
 	public RVM(IValueFactory vf, PrintWriter stdout, boolean debug) {
 		super();
@@ -75,7 +81,7 @@ public class RVM {
 		constructorMap = new HashMap<String, Integer>();
 		
 		resolver = new HashMap<String,Integer>();
-		overloadedStore = new ArrayList<Integer[]>();
+		overloadedStore = new ArrayList<OverloadedFunction>();
 		
 		RascalPrimitive.init(vf, stdout, this);
 	}
@@ -112,14 +118,19 @@ public class RVM {
 	
 	public void fillOverloadedStore(IList overloadedStore) {
 		for(IValue of : overloadedStore) {
-			ISet fuids = (ISet) of;
-			Integer[] funs = new Integer[fuids.size()];
+			ITuple ofTuple = (ITuple) of;
+			String scopeIn = ((IString) ofTuple.get(0)).getValue();
+			if(scopeIn.equals("")) {
+				scopeIn = null;
+			}
+			IList fuids = (IList) ofTuple.get(1);
+			int[] funs = new int[fuids.length()];
 			int i = 0;
 			for(IValue fuid : fuids) {
-				Integer index = functionMap.get(((IString) fuid).getValue());
+				int index = functionMap.get(((IString) fuid).getValue());
 				funs[i++] = index;
 			}
-			this.overloadedStore.add(funs);
+			this.overloadedStore.add(new OverloadedFunction(funs, scopeIn));
 		}
 	}
 	
@@ -216,8 +227,11 @@ public class RVM {
 		// Finalize the instruction generation of all functions, if needed
 		if(!finalized){
 			finalized = true;
-			for (Function f : functionStore) {
+			for(Function f : functionStore) {
 				f.finalize(functionMap, constructorMap, resolver, listing);
+			}
+			for(OverloadedFunction of : overloadedStore) {
+				of.finalize(functionMap);
 			}
 		}
 	}
@@ -305,10 +319,7 @@ public class RVM {
 		int sp = cf.function.nlocals;				                  // current stacp pointer
 		int[] instructions = cf.function.codeblock.getInstructions(); // current instruction sequence
 		int pc = 0;				                                      // current program counter
-		
-		Stack<Coroutine> activeCoroutines = new Stack<>();
-		Frame ccf = null; // the start frame (i.e., the frame of the coroutine's main function) of the current active coroutine
-		
+				
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				if(pc < 0 || pc >= instructions.length){
@@ -324,7 +335,6 @@ public class RVM {
 					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
 
-
 				switch (op) {
 
 				case Opcode.OP_LOADBOOL:
@@ -339,7 +349,7 @@ public class RVM {
 					stack[sp++] = cf.function.constantStore[instructions[pc++]];
 					continue;
 					
-				case Opcode.OP_LOADTTYPE:
+				case Opcode.OP_LOADTYPE:
 					stack[sp++] = cf.function.typeConstantStore[instructions[pc++]];
 					continue;
 
@@ -352,20 +362,30 @@ public class RVM {
 					// Loads nested functions and closures (anonymous nested functions):
 					// First, gets the function code
 					Function fun = functionStore.get(instructions[pc++]);
-					int scope = instructions[pc++];
+					int scopeIn = instructions[pc++];
 					// Second, looks up the function environment frame into the stack of caller frames
-					for (Frame env = cf; env != null; env = env.previousCallFrame) {
-						if (env.scopeId == scope) {
+					for(Frame env = cf; env != null; env = env.previousCallFrame) {
+						if (env.scopeId == scopeIn) {
 							stack[sp++] = new FunctionInstance(fun, env);
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new RuntimeException("LOAD_NESTED_FUNCTION cannot find matching scope: " + scope);	
+					throw new RuntimeException("LOAD_NESTED_FUN cannot find matching scope: " + scopeIn);	
 				}
 				
 				case Opcode.OP_LOADOFUN:
-					stack[sp++] = new OverloadedFunctionInstance(overloadedStore.get(instructions[pc++]), cf);
-					continue;
+					OverloadedFunction of = overloadedStore.get(instructions[pc++]);
+					if(of.scopeIn == -1) {
+						stack[sp++] = new OverloadedFunctionInstance(of.functions, root);
+						continue;
+					}
+					for(Frame env = cf; env != null; env = env.previousCallFrame) {
+						if (env.scopeId == of.scopeIn) {
+							stack[sp++] = new OverloadedFunctionInstance(of.functions, env);
+							continue NEXT_INSTRUCTION;
+						}
+					}
+					throw new RuntimeException("Could not find matching scope when loading a nested overloaded function: " + of.scopeIn);
 				
 				case Opcode.OP_LOADCONSTR:
 					Type constructor = constructorStore.get(instructions[pc++]);
@@ -551,7 +571,7 @@ public class RVM {
 						args[i] = (IValue) stack[sp - arity + i];
 					}			
 					sp = sp - arity;
-					// Get function types to do a type-based dynamic resolution
+					// Get function types to perform a type-based dynamic resolution
 					Object[] types = (Object[]) stack[--sp];
 					
 					if(funcObject instanceof FunctionInstance) {
@@ -561,59 +581,51 @@ public class RVM {
 							stack[sp++] = rval;
 						}
 						continue NEXT_INSTRUCTION;
-					}					
-					OverloadedFunctionInstance of = (OverloadedFunctionInstance) funcObject;
+					}
+					
+					OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
 					
 					if(debug) {
 						this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
 						this.appendToTrace("	with alternatives:");
-						for(Integer index : of.functions) {
+						for(int index : of_instance.functions) {
 							this.appendToTrace("		" + cf.function.codeblock.getFunctionName(index));
 						}
 					}
 					
 					NEXT_FUNCTION: 
-					for(Integer index : of.functions) {
+					for(int index : of_instance.functions) {
 						fun = functionStore.get(index);
 						for(Object type : types) {
 							if(type == fun.ftype) {
-								FunctionInstance fun_instance = null;
-								// TODO: this will change as the current consideration regarding the overloading and scoping semantics 
-								//       enables to resolve the 'scopeIn' of overloaded functions statically
-								for(Frame env = of.env; env != null; env = env.previousCallFrame) {
-									if(fun.scopeIn == -1 || env.scopeId == fun.scopeIn) {
-										fun_instance = new FunctionInstance(fun, env);
+								FunctionInstance fun_instance = new FunctionInstance(fun, of_instance.env);
 										
-										if(debug) {
-											this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
-										}
-										
-										Object rval = executeFunction(root, fun_instance, args);
-										if(rval == FAILURE) {
-											continue NEXT_FUNCTION;
-										} else {
-											if(rval != NONE) {
-												stack[sp++] = rval;
-											}
-											continue NEXT_INSTRUCTION;
-										}
-									}
-									continue;
+								if(debug) {
+									this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
 								}
-								throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");						
+										
+								Object rval = executeFunction(root, fun_instance, args);
+								if(rval == FAILURE) {
+									continue NEXT_FUNCTION;
+								} else {
+									if(rval != NONE) {
+										stack[sp++] = rval;
+									}
+									continue NEXT_INSTRUCTION;
+								}													
 							}
 						}
 					}				
-					continue;
+					throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");
 					
 				case Opcode.OP_OCALL:					
-					Integer[] funs = overloadedStore.get(instructions[pc++]);
+					of = overloadedStore.get(instructions[pc++]);
 					arity = instructions[pc++];
 					
 					if(debug) {
 						this.appendToTrace("OVERLOADED FUNCTION CALL: " + cf.function.codeblock.getOverloadedFunctionName(instructions[pc - 2]));
 						this.appendToTrace("	with alternatives:");
-						for(Integer index : funs) {
+						for(int index : of.functions) {
 							this.appendToTrace("		" + cf.function.codeblock.getFunctionName(index));
 						}
 					}
@@ -625,35 +637,45 @@ public class RVM {
 					}			
 					sp = sp - arity;
 					
-					NEXT_FUNCTION: 
-					for(Integer index : funs) {
-						fun = functionStore.get(index);
-						FunctionInstance fun_instance = null;
-						// TODO: this will change as the current consideration regarding the overloading and scoping semantics 
-						//       enables to resolve the 'scopeIn' of overloaded functions statically
+					Frame environment = root;				
+					if(of.scopeIn != -1) {
+						boolean found = false;
 						for(Frame env = cf; env != null; env = env.previousCallFrame) {
-							if(fun.scopeIn == -1 || env.scopeId == fun.scopeIn) {
-								fun_instance = new FunctionInstance(fun, env);
-								
-								if(debug) {
-									this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
-								}
-								
-								Object rval = executeFunction(root, fun_instance, args);
-								if(rval == FAILURE) {
-									continue NEXT_FUNCTION;
-								} else {
-									if(rval != NONE) {
-										stack[sp++] = rval;
-									}
-									continue NEXT_INSTRUCTION;
-								}
+							if (env.scopeId == of.scopeIn) {
+								environment = env;
+								found = true;
+								break;
 							}
-							continue;
 						}
+<<<<<<< HEAD
 						throw new RuntimeException("Call to an overloaded function: either all functions have failed, or a scoping problem has been encountered!");						
+=======
+						if(!found) {
+							throw new RuntimeException("Could not find matching scope when loading a nested overloaded function: " + of.scopeIn);
+						}
+>>>>>>> branch 'master' of https://github.com/cwi-swat/rascal.git
 					}
-					continue;
+					
+					NEXT_FUNCTION: 
+					for(int index : of.functions) {
+						fun = functionStore.get(index);
+						FunctionInstance fun_instance = new FunctionInstance(fun, environment);
+						
+						if(debug) {
+							this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
+						}
+								
+						Object rval = executeFunction(root, fun_instance, args);
+						if(rval == FAILURE) {
+							continue NEXT_FUNCTION;
+						} else {
+							if(rval != NONE) {
+								stack[sp++] = rval;
+							}
+							continue NEXT_INSTRUCTION;
+						}							
+					}
+					throw new RuntimeException("PANIC: all alternative functions have failed during an overloaded function call!");
 				
 				case Opcode.OP_FAILRETURN:
 					Object rval = Failure.getInstance();
@@ -662,7 +684,7 @@ public class RVM {
 					if(cf == null) {
 						return rval;
 					} else {
-						throw new RuntimeException("Internal error: FAILRETURN should return from the program execution given the current design!");
+						throw new RuntimeException("PANIC: FAILRETURN should return from the program execution given the current design!");
 					}
 					
 				case Opcode.OP_RETURN0:

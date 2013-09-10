@@ -121,42 +121,38 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        return muCall(receiver, args);
    }
    // Now overloading resolution...
-   // Get the type of a receiver
-   ftype = getType(expression@\loc);
-   if(muOFun(str fuid) := receiver && fuid in overloadingResolver) {
+   ftype = getType(expression@\loc); // Get the type of a receiver
+   if(isOverloadedFunction(receiver) && receiver.fuid in overloadingResolver) {
        // Get the types of arguments
        list[Symbol] targs = [ getType(arg@\loc) | arg <- arguments ];
        // Generate a unique name for an overloaded function resolved for this specific use 
-       str ofqname = fuid + "(<for(targ<-targs){><targ>;<}>)";
+       str ofqname = receiver.fuid + "(<for(targ<-targs){><targ>;<}>)";
        // Resolve alternatives for this specific call
-       int i = overloadingResolver[fuid];
-       set[int] alts = overloadedFunctions[i];
+       int i = overloadingResolver[receiver.fuid];
+       tuple[str scopeIn,set[int] alts] of = overloadedFunctions[i];
        set[int] resolved = {};
        
        bool matches(Symbol t) = isFunctionType(ftype) ? t == ftype : t in ftype.overloads;
        
-       for(int alt <- alts) {
+       for(int alt <- of.alts) {
            t = fuid2type[alt];
            if(matches(t)) {
                resolved += alt;
            }
        }
        
-       bool exists = resolved in overloadedFunctions;
+       bool exists = <of.scopeIn,resolved> in overloadedFunctions;
        if(!exists) {
            i = size(overloadedFunctions);
-           overloadedFunctions += resolved;
+           overloadedFunctions += <of.scopeIn,resolved>;
        } else {
-           i = indexOf(overloadedFunctions, resolved);
+           i = indexOf(overloadedFunctions, <of.scopeIn,resolved>);
        }
        
        overloadingResolver[ofqname] = i;
-       // TODO: New insight to the overloading and scoping semantics enables static resolution with respect to the 'scopeIn'
-       // ***Note: r2mu translation does not care of whether the function is nested or not;
-       //          now runtime system is responsible for this
        return muOCall(muOFun(ofqname), args);
    }
-   if(muOFun(str fuid) := receiver && fuid notin overloadingResolver) {
+   if(isOverloadedFunction(receiver) && receiver.fuid notin overloadingResolver) {
       throw "The use of a function has to be managed via overloading resolver!";
    }
    // Push down additional information if the overloading resolution needs to be done at runtime
