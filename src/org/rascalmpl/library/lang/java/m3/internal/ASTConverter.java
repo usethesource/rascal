@@ -19,10 +19,28 @@ public class ASTConverter extends JavaToRascalConverter {
 	
 	public void postVisit(ASTNode node) {
 		setAnnotation("src", getSourceLocation(node));
-		setAnnotation("binding", resolveBinding(node));
+		setAnnotation("decl", resolveBinding(node)); 
+		setAnnotation("typ", resolveType(node));
 	}
 	
-	public boolean visit(AnnotationTypeDeclaration node) {
+	private IValue resolveType(ASTNode node) {
+	  if (node instanceof Expression) {
+	    ITypeBinding binding = ((Expression) node).resolveTypeBinding();
+	    if (binding != null) {
+	      return bindingsResolver.computeTypeSymbol(binding);
+	    }
+	  }
+	  else if (node instanceof TypeDeclaration) {
+	    ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();
+	    if (binding != null) {
+	      return bindingsResolver.computeTypeSymbol(binding);
+	    }
+	  }
+	  
+	  return null;
+  }
+
+  public boolean visit(AnnotationTypeDeclaration node) {
 		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 		IValue name = values.string(node.getName().getFullyQualifiedName());
 		

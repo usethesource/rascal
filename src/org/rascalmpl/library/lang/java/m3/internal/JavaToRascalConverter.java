@@ -120,7 +120,13 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		if (node instanceof CompilationUnit) {
       return resolveBinding((CompilationUnit) node);
     }
-		return values.sourceLocation(bindingsResolver.resolveBinding(node));
+		URI binding = bindingsResolver.resolveBinding(node);
+		
+		if (binding != null) {
+		  return values.sourceLocation(binding);
+		}
+		
+		return null;
 	}
 	
 	protected ISourceLocation getSourceLocation(ASTNode node) {
@@ -213,8 +219,8 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		if(this.ownValue == null) {
       return ;
     }
-		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName)) {
-      this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annoValue);
+		if (annoValue != null && ownValue.getType().declaresAnnotation(this.typeStore, annoName)) {
+      ownValue = ((IConstructor) ownValue).asAnnotatable().setAnnotation(annoName, annoValue);
     }
 	}
 	
@@ -223,7 +229,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		if(this.ownValue == null) {
       return ;
     }
-		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName) && !annos.isEmpty()) {
+		if (annoList != null && this.ownValue.getType().declaresAnnotation(this.typeStore, annoName) && !annos.isEmpty()) {
       this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annos);
     }
 	}

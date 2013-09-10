@@ -105,8 +105,8 @@ public class BindingsResolver {
         return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
       } else if (node instanceof SuperMethodInvocation) {
         return resolveBinding(((SuperMethodInvocation) node).resolveMethodBinding());
-      } else if (node instanceof Expression) {
-        return resolveBinding(((Expression) node).resolveTypeBinding());
+//      } else if (node instanceof Expression) {
+//        return resolveBinding(((Expression) node).resolveTypeBinding());
       } else if (node instanceof MemberRef) {
         return resolveBinding(((MemberRef) node).resolveBinding());
       } else if (node instanceof MethodDeclaration) {
@@ -131,7 +131,7 @@ public class BindingsResolver {
         return resolveInitializer((Initializer) node);
       }
 		}
-		return convertBinding("unknown", null, null, null);
+		return null;
 	}
 	
 	private URI resolveQualifiedName(QualifiedName node) {
