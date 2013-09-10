@@ -146,7 +146,8 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 				return values.sourceLocation(loc.getURI(), 
 						 start, nodeLength, 
 						 compilUnit.getLineNumber(start), compilUnit.getLineNumber(end), 
-						 compilUnit.getColumnNumber(start)+1, compilUnit.getColumnNumber(end)+1);
+						 // TODO: only adding 1 at the end seems to work, need to test.
+						 compilUnit.getColumnNumber(start), compilUnit.getColumnNumber(end)+1);
 			}
 		} catch (IllegalArgumentException e) {
 			System.out.println("Most probably missing dependency");
