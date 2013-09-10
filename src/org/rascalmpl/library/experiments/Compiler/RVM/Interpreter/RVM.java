@@ -541,7 +541,7 @@ public class RVM {
 						assert arity == fun.nformals;
 						previousScope = cf;
 					} else {
-						throw new RuntimeException("unexpected argument type for CALLDYN: " + stack[sp - 1].getClass());
+						throw new RuntimeException("unexpected argument type for CALLDYN: " + asString(stack[sp - 1]));
 					}
 						
 					instructions = fun.codeblock.getInstructions();
@@ -777,7 +777,7 @@ public class RVM {
 							fun = fun_instance.function;
 							previousScope = fun_instance.env;
 						} else {
-							throw new RuntimeException("unexpected argument type for CREATEDYN: " + src.getClass() + ", " + src);
+							throw new RuntimeException("unexpected argument type for CREATEDYN: " + asString(src));
 						}
 					}
 					arity = instructions[pc++];
@@ -1109,6 +1109,11 @@ public class RVM {
 						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
 						stack[sp - 2] = b1 || b2;
 						sp = sp - 1;
+						break;
+						
+					case rbool:
+						assert arity == 1;
+						stack[sp -1] = (stack[sp -1] instanceof Boolean) ? vf.bool((Boolean) stack[sp - 2]) : (IBool) stack[sp - 1];
 						break;
 						
 					case rint:
