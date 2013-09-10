@@ -647,13 +647,9 @@ public class RVM {
 								break;
 							}
 						}
-<<<<<<< HEAD
-						throw new RuntimeException("Call to an overloaded function: either all functions have failed, or a scoping problem has been encountered!");						
-=======
 						if(!found) {
 							throw new RuntimeException("Could not find matching scope when loading a nested overloaded function: " + of.scopeIn);
 						}
->>>>>>> branch 'master' of https://github.com/cwi-swat/rascal.git
 					}
 					
 					NEXT_FUNCTION: 
