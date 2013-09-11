@@ -18,7 +18,7 @@ function ALL[1,arg,carg]{
 function ENUM_LITERAL[2, ^lit]{
    return ^lit;
 }
-  
+   
 
 function ENUM_LIST[1, ^lst, last, i]{
    last = size(^lst) - 1;
