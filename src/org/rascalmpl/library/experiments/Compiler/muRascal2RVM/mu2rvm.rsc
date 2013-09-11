@@ -66,7 +66,6 @@ map[str,Declaration] parseLibrary(){
   	return funMap;
 }
 
-<<<<<<< HEAD
 // Does an expression produce a value? (needed for cleaning up the stack)
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
@@ -79,8 +78,6 @@ default bool producesValue(MuExp exp) = true;
 /*      Translate a muRascal module                                  */
 /*********************************************************************/
 
-RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, list[set[str]] overloaded_functions), bool listing=false){
-=======
 // Translate a muRascal module
 RVMProgram mu2rvm(muModule(str module_name, map[str,Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions), bool listing=false){
   funMap = ();
