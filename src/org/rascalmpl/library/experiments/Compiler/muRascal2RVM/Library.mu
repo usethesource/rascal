@@ -1,5 +1,6 @@
 module Library
 
+/*
 function ONE[1,arg, carg]{
    carg = init(create(arg));
    return next(arg);
@@ -11,14 +12,24 @@ function ALL[1,arg,carg]{
         yield next(carg);
    };
    return false;
-}        
+}  
+*/    
+
+function DO_ALL[2, pat, ^val, co]{
+   co = init(pat, ^val);
+   while(hasNext(co)){
+         if(next(co)){
+            yield true;
+         };
+   };
+   return false;
+} 
 
 // ***** Enumerators for all types *****
 
-function ENUM_LITERAL[2, ^lit]{
+function ENUM_LITERAL[1, ^lit]{
    return ^lit;
 }
-   
 
 function ENUM_LIST[1, ^lst, last, i]{
    last = size(^lst) - 1;
@@ -73,75 +84,66 @@ function ENUM_TUPLE[1, ^tup, last, i]{
    return get ^tup[last];
 }
 
-function do_enum[2, enum, pat, cpat, elm]{
-   while(hasNext(enum)){
-     elm = next(enum);
+function ENUMERATE[2, enumerator, pat, cpat, elm]{
+   while(hasNext(enumerator)){
+     elm = next(enumerator);
      cpat = init(pat, elm);
      while(hasNext(cpat)){
        if(next(cpat)){
-          if(hasNext(enum)){
+          if(hasNext(enumerator)){
              yield true;
           } else {
-             return false;
+             return true;
           };
        };
      };
-   };      
+   }; 
+   return false;     
 }
         
 function ENUMERATE_AND_MATCH[2,  pat, ^val]{
   if(^val is list){
-     do_enum(init(create(ENUM_LIST, ^val)), pat);
+     ENUMERATE(init(create(ENUM_LIST, ^val)), pat);
   } else {
     if(^val is node){
-      do_enum(init(create(ENUM_NODE, ^val)), pat);
+      ENUMERATE(init(create(ENUM_NODE, ^val)), pat);
     } else {
       if(^val is map){
-        do_enum(init(create(ENUM_MAP, ^val)), pat);
+        ENUMERATE(init(create(ENUM_MAP, ^val)), pat);
       } else {
         if(^val is set){
-           do_enum(init(create(ENUM_SET, ^val)), pat);
+           ENUMERATE(init(create(ENUM_SET, ^val)), pat);
         } else {
           if(^val is tuple){
-             do_enum(init(create(ENUM_TUPLE, ^val)), pat);
+             ENUMERATE(init(create(ENUM_TUPLE, ^val)), pat);
           } else {
-        
+             ENUMERATE(init(create(ENUM_LITERAL, ^val)), pat);
           };
-        
         };
       };
     };
   };  
-  // Add cases for set/rel/tuple/...
+  // Add cases for rel/lrel?
   return ^val;
 }
+
+// ***** Ranges *****
 
 function RANGE[3, pat, ^first, ^end, i, n, cpat]{
    i = mint(^first);
    n = mint(^end);
    if(i < n){
       while(i < n){
-        cpat = init(pat, rint(i));
-        while(hasNext(cpat)){
-            if(next(cpat)){
-               yield true;
-            };
-        }; 
+        DO_ALL(pat, rint(i));
         i = i + 1;
       };
-      return false;
    } else {
       while(i > n){
-        cpat = init(pat, rint(i));
-        while(hasNext(cpat)){
-            if(next(cpat)){
-               yield true;
-            };
-        }; 
+        DO_ALL(pat, rint(i)); 
         i = i - 1;
       };
-      return false;
    };
+   return false;
 }
 
 function RANGE_STEP[4, pat, ^first, ^second, ^end, i, n, step, cpat]{
@@ -153,12 +155,7 @@ function RANGE_STEP[4, pat, ^first, ^second, ^end, i, n, step, cpat]{
          return false;
       };   
       while(i < n){
-        cpat = init(pat, rint(i));
-        while(hasNext(cpat)){
-            if(next(cpat)){
-               yield true;
-            };
-        }; 
+        DO_ALL(pat, rint(i));
         i = i + step;
       };
       return false;
@@ -168,12 +165,7 @@ function RANGE_STEP[4, pat, ^first, ^second, ^end, i, n, step, cpat]{
          return false;
       };   
       while(i > n){
-        cpat = init(pat, rint(i));
-        while(hasNext(cpat)){
-            if(next(cpat)){
-               yield true;
-            };
-        }; 
+        DO_ALL(pat, rint(i));
         i = i + step;
       };
       return false;
@@ -182,7 +174,8 @@ function RANGE_STEP[4, pat, ^first, ^second, ^end, i, n, step, cpat]{
 
 // ***** Pattern matching *****
 
-function MATCH[2,pat,^subject,cpat]{
+function MATCH[2, pat, ^subject, cpat]{
+   println("MATCH", pat, ^subject);
    cpat = init(pat, ^subject);
    while(hasNext(cpat)){
       if(next(cpat)){
@@ -262,9 +255,9 @@ function MATCH_TUPLE[2, pats, ^subject, cpats]{
 }
 
 function MATCH_LITERAL[2, pat, ^subject, res]{
+  println("MATCH_LITERAL", pat, ^subject);
   if(equal(typeOf(pat), typeOf(^subject))){
-      res = equal(pat, ^subject);
-      println("MATCH_LITERAL", pat, ^subject, res);
+     res = equal(pat, ^subject);
      return res;
   };
   return false;
@@ -305,25 +298,11 @@ function MATCH_TYPED_VAR_BECOMES[4, typ, varref, pat, ^subject, cpat]{
 
 function MATCH_AS_TYPE[3, typ, pat, ^subject, cpat]{
    if(equal(typ, typeOf(^subject))){
-     cpat = init(pat, ^subject);
-     while(hasNext(cpat)){
-       yield true;
-     };
+      DO_ALL(pat, ^subject);
    };  
    return false;
 }
-/*
-function MATCH_DESCENDANT[2, pat, ^subject, gen, cpat]{
-   gen = init(create(fun GEN_VALUE, ^subject));
-   while(hasNext(gen)){
-       cpat = init(pat, ^subject);
-       while(hasNext(cpat)){
-          yield true;
-       };
-   };
-   return false;
-}
-*/
+
 function MATCH_ANTI[2, pat, ^subject, cpat]{
 	cpat = init(pat, ^subject);
 	if(next(cpat)){
@@ -460,4 +439,132 @@ function MATCH_TYPED_MULTIVAR_IN_LIST[5, typ, varref, ^subject, start, available
        };       
      };
      return [false, start];
+}
+
+// ***** Descendent pattern ***
+
+function MATCH_DESCENDANT[2, pat, ^subject, gen, cpat]{
+   println("MATCH_DESCENDANT", pat, ^subject);
+   gen = init(create(MATCH_AND_DESCENT, pat, ^subject));
+   println("MATCH_DESCENDANT", "gen created");
+   while(hasNext(gen)){
+       println("MATCH_DESCENDANT", "hasNext = true");
+       if(next(gen)){
+          yield true;
+       };
+   };
+   return false;
+}
+
+// ***** Match and descent for all types *****
+
+function MATCH_AND_DESCENT_LITERAL[2, pat, ^subject, res]{
+  println("MATCH_AND_DESCENT_LITERAL", pat, ^subject);
+  if(equal(typeOf(pat), typeOf(^subject))){
+     res = equal(pat, ^subject);
+     return res;
+  };
+  
+  return MATCH_AND_DESCENT(create(MATCH_LITERAL, pat), ^subject);
+}
+
+function MATCH_AND_DESCENT_LIST[2, pat, ^lst, last, i, co]{
+   println("MATCH_AND_DESCENT_LIST", pat, ^lst);
+   last = size(^lst);
+   i = 0;
+   while(i < last){
+      DO_ALL(pat, get ^lst[i]);
+      i = i + 1;
+   };
+   return false;
+}
+
+function MATCH_AND_DESCENT_SET[2, pat, ^set, ^lst, last, i, co]{
+   println("MATCH_AND_DESCENT_SET", pat, ^set);
+   ^lst = set2list(^set);
+   last = size(^lst);
+   i = 0;
+   while(i < last){
+      DO_ALL(pat, get ^lst[i]);
+      i = i + 1;
+   };
+   return false;
+}
+
+function MATCH_AND_DESCENT_MAP[2, pat, ^map, ^klst, ^vlst, last, i, co]{
+   ^klst = keys(^map);
+   ^vlst = values(^map);
+   last = size(^klst) - 1;
+   i = 0;
+   while(i < last){
+      DO_ALL(pat, get ^klst[i]);
+      DO_ALL(pat, get ^vlst[i]);
+      i = i + 1;
+   };
+   return get ^klst[last];
+}
+
+function MATCH_AND_DESCENT_NODE[2, pat, ^nd, last, i, lst, co]{
+   lst = get_name_and_children(^nd);
+   last = size(lst);
+   i = 0; 
+   while(i < last){
+      DO_ALL(pat, get lst[i]);
+      i = i + 1;
+   };
+   return false;
+}
+
+function MATCH_AND_DESCENT_TUPLE[2, pat, ^tup, last, i, co]{
+   last = size(^tup) - 1;
+   i = 0;
+   while(i < last){
+      DO_ALL(pat, get ^tup[i]);
+      i = i + 1;
+   };
+   return false;
+}
+ 
+function VISIT[1, visitor]{
+   println("VISIT", visitor);
+   while(hasNext(visitor)){
+        if(next(visitor)){
+           if(hasNext(visitor)){
+              yield true;
+           } else {
+             return true;
+           };
+        };
+   }; 
+   return false;     
+}
+
+function MATCH_AND_DESCENT[2, pat, ^val, co]{
+  println("MATCH_AND_DESCENT", pat, ^val);
+  DO_ALL(pat, ^val);
+  
+  println("MATCH_AND_DESCENT", "outer match failed");    
+  if(^val is list){
+     return VISIT(init(create(MATCH_AND_DESCENT_LIST, pat, ^val)));
+  } else {
+    if(^val is node){
+      VISIT(init(create(MATCH_AND_DESCENT_NODE, pat, ^val)));
+    } else {
+      if(^val is map){
+        VISIT(init(create(MATCH_AND_DESCENT_MAP, pat, ^val)));
+      } else {
+        if(^val is set){
+           VISIT(init(create(MATCH_AND_DESCENT_SET, pat, ^val)));
+        } else {
+          if(^val is tuple){
+             VISIT(init(create(MATCH_AND_DESCENT_TUPLE, pat, ^val)));
+          } else {
+             return false;
+          };
+        };
+      };
+    };
+  };  
+  // Add cases for rel/lrel?
+  return false;
 }
