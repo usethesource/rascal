@@ -124,7 +124,7 @@ public enum RascalPrimitive {
 	
 	equal,
 	
-	equivalent_bool_bool,
+	//equivalent_bool_bool,
 
 	int_greater_int,
 	int_greater_num,
@@ -172,7 +172,7 @@ public enum RascalPrimitive {
 	str_subscript_int,
 
 	has,
-	implies_bool_bool,
+	//implies_bool_bool,
 	set_intersect_set,
 	list_intersect_list,
 	map_intersect_map,
@@ -274,12 +274,12 @@ public enum RascalPrimitive {
 	node_subscript_int,
 	node_slice,
 	
-	not_bool,
+	//not_bool,
 	notequal,
 	elm_notin_list,
 	elm_notin_set,
 	elm_notin_map,
-	or_bool_bool,
+	//or_bool_bool,
 	println,
 
 	int_product_int,
@@ -932,11 +932,11 @@ public enum RascalPrimitive {
 	 * equivalent
 	 */
 
-	public static int equivalent_bool_bool(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = ((IBool) stack[sp - 2]).equivalent((IBool) stack[sp - 1]);
-		return sp - 1;
-	}
+//	public static int equivalent_bool_bool(Object[] stack, int sp, int arity) {
+//		assert arity == 2;
+//		stack[sp - 2] = ((IBool) stack[sp - 2]).equivalent((IBool) stack[sp - 1]);
+//		return sp - 1;
+//	}
 
 	/*
 	 * field_access_...
@@ -1381,11 +1381,11 @@ public enum RascalPrimitive {
 	 * implies
 	 */
 
-	public static int implies_bool_bool(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = ((IBool) stack[sp - 2]).implies((IBool) stack[sp - 1]);
-		return sp - 1;
-	}
+//	public static int implies_bool_bool(Object[] stack, int sp, int arity) {
+//		assert arity == 2;
+//		stack[sp - 2] = ((IBool) stack[sp - 2]).implies((IBool) stack[sp - 1]);
+//		return sp - 1;
+//	}
 
 	/*
 	 * intersect
@@ -2313,11 +2313,11 @@ public enum RascalPrimitive {
 	 * negation
 	 */
 
-	public static int not_bool(Object[] stack, int sp, int arity) {
-		assert arity == 1;
-		stack[sp - 1] = ((IBool) stack[sp - 1]).not();
-		return sp;
-	}
+//	public static int not_bool(Object[] stack, int sp, int arity) {
+//		assert arity == 1;
+//		stack[sp - 1] = ((IBool) stack[sp - 1]).not();
+//		return sp;
+//	}
 
 	/*
 	 * notequal
@@ -2325,7 +2325,7 @@ public enum RascalPrimitive {
 
 	public static int notequal(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = vf.bool(!((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]));
+		stack[sp - 2] = !((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
 
@@ -2360,18 +2360,14 @@ public enum RascalPrimitive {
 	
 
 	/*
-	 * notEquals
-	 */
-
-	/*
 	 * or
 	 */
 
-	public static int or_bool_bool(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = ((IBool) stack[sp - 2]).or((IBool) stack[sp - 1]);
-		return sp - 1;
-	}
+//	public static int or_bool_bool(Object[] stack, int sp, int arity) {
+//		assert arity == 2;
+//		stack[sp - 2] = ((IBool) stack[sp - 2]).or((IBool) stack[sp - 1]);
+//		return sp - 1;
+//	}
 
 	/*
 	 * println

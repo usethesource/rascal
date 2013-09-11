@@ -167,9 +167,16 @@ MuExp translateFormals(list[Pattern] formals, int i, MuExp body){
 
 MuExp translateFunction({Pattern ","}* formals, MuExp body){
   println("translateFunction: <formals>");
-  if(all(pat <- formals, pat is typedVariable || pat is literal)){
+  bool b = true;
+  for(pat <- formals){
+      if(!(pat is typedVariable || pat is literal))
+      b = false;
+  }
+  if(b){    //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))){
+     println("translateFunction: optimized case");
      return translateFormals([formal | formal <- formals], 0, body);
   } else {
+      println("translateFunction: general case");
 	  list[MuExp] conditions = [];
 	  int i = 0;
 	  for(Pattern pat <- formals) {
