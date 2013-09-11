@@ -322,8 +322,14 @@ public class BindingsResolver {
   }
 
   private IConstructor classSymbol(ISourceLocation decl, IList typeParameters) {
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "class", tf.tupleType(decl.getType(), typeParameters.getType()));
-    return values.constructor(cons, decl, typeParameters);
+    if (decl.getURI().getPath().equals("/java/lang/Object")) {
+      org.eclipse.imp.pdb.facts.type.Type obj = store.lookupConstructor(getTypeSymbol(), "object", tf.voidType());
+      return values.constructor(obj);
+    }
+    else {
+      org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "class", tf.tupleType(decl.getType(), typeParameters.getType()));
+      return values.constructor(cons, decl, typeParameters);
+    }
 }
 
   private IConstructor nullSymbol() {

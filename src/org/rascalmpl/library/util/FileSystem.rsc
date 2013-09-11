@@ -9,10 +9,18 @@ module util::FileSystem
 
 import IO;
 
-public data FileSystem 
+data FileSystem 
   = directory(loc l, set[FileSystem] children)
   | file(loc l)
   ;
   
-public FileSystem crawl(loc l) = isDirectory(l) ? directory(l, {crawl(e) | e <- l.ls}) : file(l);
- 
+FileSystem crawl(loc l) = isDirectory(l) ? directory(l, {crawl(e) | e <- l.ls}) : file(l);
+
+set[loc] find(loc f, bool (loc) filt) 
+  = isDirectory(f) 
+      ? {*find(c, filt) | c <- f.ls} + (filt(f) ? {f} : { }) 
+      : (filt(f) ? {f} : { })
+      ;
+
+set[loc] find(loc f, str ext) = find(f, bool (loc l) { return l.extension == ext; });
+
