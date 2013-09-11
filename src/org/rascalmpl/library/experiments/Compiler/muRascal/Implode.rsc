@@ -85,7 +85,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
      	       case preAssign(lrel[str,int] funNames, 
      	       				  str name, MuExp exp)                  => muAssign(name,getUID(modName,funNames),vardefs[getUID(modName,funNames)][name],exp)
      	       case preList(list[MuExp] exps)						=> muCallMuPrim("make_array", exps)
-     	       case preSubscript(MuExp lst, MuExp index)			=> muCallMuPrim("subscript_array_or_list_mint", [lst, index])
+     	       case preSubscript(MuExp lst, MuExp index)			=> muCallMuPrim("subscript_array_or_list_or_tuple_mint", [lst, index])
      	       case preAssignSubscript(MuExp lst, MuExp index, MuExp exp1) 
      	       														=> muCallMuPrim("assign_subscript_array_mint", [lst, index, exp1])
       	       case preIfthen(cond,thenPart) 						=> muIfelse(cond,thenPart, [])
@@ -103,7 +103,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                
                // Calls that are directly mapped to muPrimitives
                
-               case muCall(preVar("size"), [exp1])					=> muCallMuPrim("size_array_list_map", [exp1])
+               case muCall(preVar("size"), [exp1])					=> muCallMuPrim("size_array_list_map_tuple", [exp1])
                case muCall(preVar("keys"), [exp1])					=> muCallMuPrim("keys_map", [exp1])
                case muCall(preVar("set2list"), [exp1])				=> muCallMuPrim("set2list", [exp1])
                case muCall(preVar("equal"), [exp1, exp2])			=> muCallMuPrim("equal", [exp1, exp2])

@@ -1,75 +1,5 @@
 module Library
 
-/* 
-function TRUE[0,] { return true; }   // should be true
- 
-function FALSE[0,] { return false; }
-
-function BOOL[1, b, cb] { 
-    if(b is bool){
-       println("BOOL: got a boolean");
-       return b;
-    };
-    println("BOOL: got a coroutine");
-    cb = init(create(b));
-    while(hasNext(cb)){
-      yield next(cb);
-    };
-    return false;          
-}
-
-function AND_U_U[2,lhs,rhs]{
-  return muprim("AND_U_U", lhs, rhs);
-}
-
-function AND_M_U[2,lhs,rhs,clhs]{
-   println("AND_M_U:", lhs, rhs);
-   //clhs = init(create(lhs));
-   while(hasNext(lhs)){
-     if(next(lhs)){
-        if(rhs){
-           yield true;
-        };
-     };          
-   };
-   return 0;
-}
-
-function AND_U_M[2,lhs,rhs,crhs]{
-   if(lhs){
-      crhs = init(create(rhs));
-      while(hasNext(crhs)){
-        if(next(crhs)){
-           yield true;
-        } else {
-          return false;
-        };
-      };         
-   };
-   return false;
-}
-
-function AND_M_M[2,lhs,rhs,clhs,crhs]{
-   clhs = init(lhs);
-   println("AND_M_M", "lhs init done");
-   while(hasNext(clhs)){
-     println("AND_M_M", "hasNext clhs succeeded");
-     if(next(clhs)){
-        println("AND_M_M", "next clhs succeeded");
-        crhs = init(rhs);
-        println("AND_M_M", "rhs init done");
-        while(hasNext(crhs)){
-          if(next(crhs)){
-             yield true;
-          } else {
-            return false;
-          };
-        };       
-     };          
-   };
-   return false;
-}
-*/
 function ONE[1,arg, carg]{
    carg = init(create(arg));
    return next(arg);
@@ -83,12 +13,12 @@ function ALL[1,arg,carg]{
    return false;
 }        
 
-// ***** Generators for all types *****
+// ***** Enumerators for all types *****
 
 function ENUM_LITERAL[2, ^lit]{
    return ^lit;
 }
-
+  
 
 function ENUM_LIST[1, ^lst, last, i]{
    last = size(^lst) - 1;
@@ -133,6 +63,16 @@ function ENUM_NODE[1, ^nd, last, i, lst]{
    return get lst[last];
 }
 
+function ENUM_TUPLE[1, ^tup, last, i]{
+   last = size(^tup) - 1;
+   i = 0;
+   while(i < last){
+      yield get ^tup[i];
+      i = i + 1;
+   };
+   return get ^tup[last];
+}
+
 function do_enum[2, enum, pat, cpat, elm]{
    while(hasNext(enum)){
      elm = next(enum);
@@ -162,6 +102,11 @@ function ENUMERATE_AND_MATCH[2,  pat, ^val]{
         if(^val is set){
            do_enum(init(create(ENUM_SET, ^val)), pat);
         } else {
+          if(^val is tuple){
+             do_enum(init(create(ENUM_TUPLE, ^val)), pat);
+          } else {
+        
+          };
         
         };
       };
