@@ -248,10 +248,6 @@ public class Execute {
 						codeblock.LOADINT(getIntField(instruction, "nval"));
 						break;
 						
-					case "DUP":
-						codeblock.DUP();
-						break;
-						
 					case "FAILRETURN":
 						codeblock.FAILRETURN();
 						break;

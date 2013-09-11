@@ -491,11 +491,6 @@ public class RVM {
 				case Opcode.OP_POP:
 					sp--;
 					continue;
-					
-				case Opcode.OP_DUP:
-					stack[sp] = stack[sp -1];
-					sp++;
-					continue;
 
 				case Opcode.OP_LABEL:
 					throw new RuntimeException("label instruction at runtime");
@@ -862,7 +857,6 @@ public class RVM {
 						sp = sp - 1;
 						break;
 						
-					case AND_U_U:	
 					case and_mbool_mbool:
 						assert arity == 2;
 						boolean b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
@@ -915,8 +909,7 @@ public class RVM {
 							throw new RuntimeException("equal -- not defined on " + stack[sp - 2].getClass() + " and " + stack[sp - 2].getClass());
 						sp = sp - 1;
 						break;
-						
-					case EQUIVALENT_U_U:	
+							
 					case equivalent_mbool_mbool:
 						assert arity == 2;
 						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
@@ -960,7 +953,6 @@ public class RVM {
 						sp = sp - 1;
 						break;
 						
-					case IMPLIES_U_U:	
 					case implies_mbool_mbool:
 						assert arity == 2;
 						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
@@ -1095,14 +1087,12 @@ public class RVM {
 						sp = sp - 1;
 						break;
 						
-					case NOT_U:	
 					case not_mbool:
 						assert arity == 1;
 						b1 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
 						stack[sp - 1] = !b1;
 						break;
 						
-					case OR_U_U:	
 					case or_mbool_mbool:
 						assert arity == 2;
 						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();

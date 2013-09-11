@@ -66,7 +66,6 @@ data Instruction =
 		| PRINTLN(int arity)						// Print arity values on the stack (TODO: may disappear)
 		
 		| POP()										// Pop one value from the stack
-		| DUP()										// Duplicate the top-of-stack
 		
 		| HALT()									// Halt execution of the RVM program
 ;
