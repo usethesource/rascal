@@ -1179,7 +1179,7 @@ public class RVM {
 						stack[sp - 1] = writer.done();
 						break;
 						
-					case size_array_list_map:
+					case size_array_list_map_tuple:
 						assert arity == 1;
 						if(stack[sp - 1] instanceof Object[]){
 							stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
@@ -1187,6 +1187,8 @@ public class RVM {
 							stack[sp - 1] = ((IList) stack[sp - 1]).length();
 						} else if(stack[sp - 1] instanceof IMap){
 							stack[sp - 1] = ((IMap) stack[sp - 1]).size();
+						} else if(stack[sp - 1] instanceof ITuple){
+							stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
 						} else
 							throw new RuntimeException("size_array_or_list_mint -- not defined on " + stack[sp - 1].getClass());
 						break;
@@ -1200,13 +1202,15 @@ public class RVM {
 						sp = sp - 2;
 						break;
 						
-					case subscript_array_or_list_mint:
+					case subscript_array_or_list_or_tuple_mint:
 						assert arity == 2;
 						if(stack[sp - 2] instanceof Object[]){
 							stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
 						} else if(stack[sp - 2] instanceof IList){
 							stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
-						} else 
+						} else if(stack[sp - 2] instanceof ITuple){
+							stack[sp - 2] = ((ITuple) stack[sp - 2]).get((Integer) stack[sp - 1]);
+						} else
 							throw new RuntimeException("subscript_array_or_list_mint -- Object[] or IList expected");
 						sp = sp - 1;
 						break;
