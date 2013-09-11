@@ -42,10 +42,6 @@ default str highlight2htmlRec(Tree t)
 
 str span(str class, str src) = "\<span class=\"<class>\"\><src>\</span\>";
 
-str wrapLink(str text, Tree pt) =
-  "\<a href=\"<l.scheme>://<l.authority><l.path>\"\><text>\</a\>"
-  when pt@link?, loc l := pt@link;
-
 default str wrapLink(str text, Tree pt) = text;
 
 // Latex
