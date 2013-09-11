@@ -9,13 +9,11 @@ import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -84,7 +82,7 @@ public class GrammarToJigll {
 	  NonterminalSymbolNode sppf = null;
 
 	  input = Input.fromString(str.getValue());
-	  startSymbol = SymbolAdapter.toString(symbol);
+	  startSymbol = SymbolAdapter.toString(symbol, true);
 	  
 	  try {
 		sppf = parser.parse(input, this.grammar, startSymbol);
@@ -105,8 +103,17 @@ public class GrammarToJigll {
 		  this.rascalGrammar = rascalGrammar;
 		  GrammarBuilder builder = convert("inmemory", rascalGrammar);
 		  IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
-		  applyRestrictions(builder, notAllowed);
-		  builder.filter();
+		  IMap except = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("excepts"));
+		  
+		  assert notAllowed != null;
+		  assert except != null;
+		  
+		  addExceptPatterns(builder, except);
+		  addPrecedencePatterns(builder, notAllowed);
+		  
+		  builder.rewriteExceptPatterns();
+		  builder.rewritePrecedencePatterns();
+		  
 		  grammar = builder.build();
 	}
 	
@@ -189,7 +196,7 @@ public class GrammarToJigll {
 				return ConditionFactory.notFollow(getKeyword(symbol));
 				
 			case "seq":
-				IList list = (IList) symbol.get("sequence");
+				IList list = (IList) symbol.get("symbols");
 				List<Symbol> symbols = new ArrayList<>();
 				for(IValue v : list) {
 					symbols.add(getSymbol((IConstructor) v));
@@ -263,11 +270,10 @@ public class GrammarToJigll {
 		return builder;
 	}
 	
-	private Set<Nonterminal> applyRestrictions(GrammarBuilder builder, IMap notAllowed) {
-		
-		Set<Nonterminal> filteredHeads = new HashSet<>();
+	private void addPrecedencePatterns(GrammarBuilder builder, IMap notAllowed) {
 		
 		Iterator<Entry<IValue, IValue>> it = notAllowed.entryIterator();
+		
 		while(it.hasNext()) {
 			Entry<IValue, IValue> next = it.next();
 			
@@ -281,12 +287,31 @@ public class GrammarToJigll {
 			Iterator<IValue> iterator = set.iterator();
 			while(iterator.hasNext()) {
 				// Create a new filter for each filtered nonterminal
-				builder.addFilter(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
-				filteredHeads.add(rule.getHead());
+				builder.addPrecedencePattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
 			}
 		}
+	}
+	
+	private void addExceptPatterns(GrammarBuilder builder, IMap map) {
 		
-		return filteredHeads;
+		Iterator<Entry<IValue, IValue>> it = map.entryIterator();
+		
+		while(it.hasNext()) {
+			Entry<IValue, IValue> next = it.next();
+			
+			// Tuple(prod, position)
+			ITuple key = (ITuple) next.getKey();
+			ISet set = (ISet) next.getValue();
+			
+			Rule rule = (Rule) rulesMap.get(key.get(0));
+			int position = ((IInteger) key.get(1)).intValue();
+				
+			Iterator<IValue> iterator = set.iterator();
+			while(iterator.hasNext()) {
+				// Create a new filter for each filtered nonterminal
+				builder.addExceptPattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
+			}
+		}
 	}
 
    private static List<Range> buildRanges(IConstructor symbol) {
@@ -315,7 +340,7 @@ public class GrammarToJigll {
 	
 	private Keyword getKeyword(IConstructor symbol) {
 		
-		String name = SymbolAdapter.toString(symbol);
+		String name = SymbolAdapter.toString(symbol, true);
 		Keyword keyword = keywordsMap.get(name);
 		
 		if(keyword == null) {
@@ -359,24 +384,23 @@ public class GrammarToJigll {
 		switch (symbol.getName()) {
 
 			case "lit":
-				return new Nonterminal(SymbolAdapter.toString(symbol));
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));
 				
 			case "iter":
-				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
 				
 			case "iter-seps":
-				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
 				
 			case "iter-star":
-				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
 				
 			case "iter-star-seps":
-				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
 				
 			default:
-				return new Nonterminal(SymbolAdapter.toString(symbol));
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));
 		}
-
 	}
 		
 	private Symbol getSymbol(IConstructor symbol) {
@@ -394,34 +418,34 @@ public class GrammarToJigll {
 				return getSymbol(getSymbolCons(symbol));
 								
 			case "iter":
-				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
 				
 			case "iter-seps":
-				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
 				
 			case "iter-star":
-				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
 				
 			case "iter-star-seps":
-				return new Nonterminal(SymbolAdapter.toString(symbol), true);
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
 								
 			case "opt":
-				return new Nonterminal(SymbolAdapter.toString(symbol));
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));
 				
 			case "alt":
-				return new Nonterminal(SymbolAdapter.toString(symbol));
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));
 				
 			case "seq":
-				return new Nonterminal(SymbolAdapter.toString(symbol));	
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));	
 				
 			case "start":
-				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol)) + "]");
+				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
 				
 			case "conditional":
 				return getSymbol(getSymbolCons(symbol)).addConditions(getConditions(symbol));
 				
 			default:
-				return new Nonterminal(SymbolAdapter.toString(symbol));
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));
 			}
 	}
 	
