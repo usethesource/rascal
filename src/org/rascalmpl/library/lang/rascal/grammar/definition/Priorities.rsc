@@ -72,7 +72,7 @@ public alias NotAllowedSet = map[tuple[Production, int] slot, set[Production] no
 
 public Grammar addNotAllowedSets(Grammar g) {
  g.about["notAllowed"]= getNotAllowed(g);
- g.about["excepts"] = exceptPatterns(g);
+ g.about["excepts"] = getExceptPatterns(g);
  return g;
 }
 
@@ -80,6 +80,11 @@ private bool match(Symbol x, set[Symbol] reference) = striprec(x) in reference;
 
 private NotAllowedSet getNotAllowed(Grammar g) 
  = (<father, index> : dnn[father,index] | dnn := doNotNest(g), <father, index, _> <- dnn);
+
+private NotAllowedSet getExceptPatterns(Grammar g) 
+ = (<father, index> : dnn[father,index] | dnn := exceptPatterns(g), <father, index, _> <- dnn);
+
+
 
 @doc{
 This one-liner searches a given production for "except restrictions". 
