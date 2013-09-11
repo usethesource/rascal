@@ -27,7 +27,6 @@ int nlocal = 0;
 str mkContinue(str loopname) = "CONTINUE_<loopname>";
 str mkBreak(str loopname) = "BREAK_<loopname>";
 str mkFail(str loopname) = "FAIL_<loopname>";
-str mkFail(str loopname) = "DUMMY_<loopname>";
 
 int defaultStackSize = 25;
 
@@ -475,7 +474,15 @@ INS tr_cond(e: muAll(list[MuExp] exps), str continueLab, str failLab){
            lastMulti = i;
         }
     }
+    startLab = nextLabel();
     currentFail = failLab;
+    
+    if(lastMulti == -1)
+       code = [ JMP(startLab),
+                LABEL(continueLab),
+                JMP(failLab),
+                LABEL(startLab)
+              ];
  
     for(i <- index(exps)){
         exp = exps[i];

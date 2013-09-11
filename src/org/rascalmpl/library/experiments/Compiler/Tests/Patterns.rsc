@@ -76,6 +76,26 @@ test bool tst() = run("[1, *int x, 5] := [1,2,3,4,5]") == [1, *int x, 5] := [1,2
 test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2]") == [*int x, 3, x] := [1,2,3,1,2] && x == [1, 2];
 test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2] && x == [1, 2]") == [*int x, 3, x] := [1,2,3,1,2] && x == [1, 2];
 
+// Set matching
+/*
+test bool tst() = run("{1} := {1}") == {1} := {1};
+test bool tst() = run("{1} := {2}") == {1} := {2};
+test bool tst() = run("{1} := {1,2}") == {1} := {1,2};
+
+test bool tst() = run("{1, x*, 5} := {1,2,3,4,5}") == {1, x*, 5} := {1,2,3,4,5};
+test bool tst() = run("{1, x*, 5} := {1,2,3,4,5}") == {1, x*, 5} := {1,2,3,4,5} && x == {2,3,4};
+
+test bool tst() = run("{1, *x, 5} := {1,2,3,4,5}") == {1, *x, 5} := {1,2,3,4,5};
+test bool tst() = run("{1, *x, 5} := {1,2,3,4,5}") == {1, *x, 5} := {1,2,3,4,5} && x == {2,3,4};
+
+test bool tst() = run("{1, *int x, 5} := {1,2,3,4,5}") == {1, *int x, 5} := {1,2,3,4,5};
+test bool tst() = run("{1, *int x, 5} := {1,2,3,4,5}") == {1, *int x, 5} := {1,2,3,4,5} && x == {2,3,4};
+
+
+test bool tst() = run("{*int x, 3, *x} := {1,2,3,1,2}") == {*int x, 3, x} := {1,2,3,1,2} && x == {1, 2};
+test bool tst() = run("{*int x, 3, *x} := {1,2,3,1,2} && x == {1, 2}") == {*int x, 3, x} := {1,2,3,1,2} && x == {1, 2};
+*/
+
 // Node/Constructor matching
 
 test bool tst() = run("d1(1,\"a\") := d1(1, \"a\")") == d1(1,"a") := d1(1, "a");
@@ -87,6 +107,12 @@ test bool tst() = run("d1(x, \"a\") := d1(1, \"a\")") == d1(x, "a") := d1(1, "a"
 test bool tst() = run("d1(int x, \"a\") := d1(1, \"a\")") == d1(int x, "a") := d1(1, "a") && x == 1;
 
 test bool tst() = run("str f(int x, str s) := d1(1, \"a\")") == str f(int x, str s) := d1(1, "a") && x == 1 && s == "a" && f == "d1";
+
+// Descendant matching
+/*
+test bool tst() = run("/1 := d1(1, \"a\")") == /1 := d1(1, "a");
+test bool tst() = run("/int x := d1(1, \"a\")" && x == 1) == /1 := /int x := d1(1, "a")" && x == 1;
+*/
 
 
 
