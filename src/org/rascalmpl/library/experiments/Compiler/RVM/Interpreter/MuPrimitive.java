@@ -42,7 +42,7 @@ public enum MuPrimitive {
 	rbool,
 	rint,
 	set2list,
-	size_array_list_map_tuple,
+	size_array_or_list_or_map_or_tuple,
 	sublist_list_mint_mint,
 	subscript_array_or_list_or_tuple_mint, 
 	subtraction_mint_mint,

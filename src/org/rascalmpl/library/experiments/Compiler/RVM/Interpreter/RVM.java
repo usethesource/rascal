@@ -1179,7 +1179,7 @@ public class RVM {
 						stack[sp - 1] = writer.done();
 						break;
 						
-					case size_array_list_map_tuple:
+					case size_array_or_list_or_map_or_tuple:
 						assert arity == 1;
 						if(stack[sp - 1] instanceof Object[]){
 							stack[sp - 1] = ((Object[]) stack[sp - 1]).length;

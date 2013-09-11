@@ -103,7 +103,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                
                // Calls that are directly mapped to muPrimitives
                
-               case muCall(preVar("size"), [exp1])					=> muCallMuPrim("size_array_list_map_tuple", [exp1])
+               case muCall(preVar("size"), [exp1])					=> muCallMuPrim("size_array_or_list_or_map_or_tuple", [exp1])
                case muCall(preVar("keys"), [exp1])					=> muCallMuPrim("keys_map", [exp1])
                case muCall(preVar("set2list"), [exp1])				=> muCallMuPrim("set2list", [exp1])
                case muCall(preVar("equal"), [exp1, exp2])			=> muCallMuPrim("equal", [exp1, exp2])
