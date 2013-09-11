@@ -82,7 +82,7 @@ MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) =
 // Descendant pattern
 
 MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`) =
-    muCreate(mkCallToLibFun("Library","MATCH_DESCENDANT",2), [translatePat(pattern)]);
+    muCreate(mkCallToLibFun("Library","MATCH_DESCENDANT",2), [translatePatinDescendant(pattern)]);
 
 // Anti-pattern
 MuExp translatePat(p:(Pattern) `! <Pattern pattern>`) =
@@ -97,6 +97,12 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) {
 // Default rule for pattern translation
 
 default MuExp translatePat(Pattern p) { throw "Pattern <p> cannot be translated"; }
+
+// Patterns that are part of a descendant pattern
+
+MuExp translatePatinDescendant(p:(Pattern) `<Literal lit>`) = muCreate(mkCallToLibFun("Library","MATCH_AND_DESCENT",2), [muCreate(mkCallToLibFun("Library","MATCH_AND_DESCENT_LITERAL",2), [translate(lit)])]);
+
+default MuExp translatePatinDescendant(Pattern p) = translatePat(p);
 
 // Translate patterns as element of a list pattern
 
