@@ -30,7 +30,8 @@ data TypeSymbol
   | \void()
   | \null()
   | \array(TypeSymbol component, int dimension)
-  ;
+  ;  
   
-  
-  
+default bool subtype(TypeSymbol s, TypeSymbol t) = s == t;
+
+default TypeSymbol lub(TypeSymbol s, TypeSymbol t) = s == t ? s : object();  

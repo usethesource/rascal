@@ -98,9 +98,9 @@ public class RVM {
 		functionStore.add(f);
 	}
 	
-	public void declareConstructor(IConstructor symbol) {
+	public void declareConstructor(String name, IConstructor symbol) {
 		Type constr = types.symbolToType(symbol, typeStore);
-		constructorMap.put(constr.getName(), constructorStore.size());
+		constructorMap.put(name, constructorStore.size());
 		constructorStore.add(constr);
 	}
 	
@@ -130,7 +130,14 @@ public class RVM {
 				int index = functionMap.get(((IString) fuid).getValue());
 				funs[i++] = index;
 			}
-			this.overloadedStore.add(new OverloadedFunction(funs, scopeIn));
+			fuids = (IList) ofTuple.get(2);
+			int[] constrs = new int[fuids.length()];
+			i = 0;
+			for(IValue fuid : fuids) {
+				int index = constructorMap.get(((IString) fuid).getValue());
+				constrs[i++] = index;
+			}
+			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
 		}
 	}
 	
@@ -235,6 +242,33 @@ public class RVM {
 			}
 		}
 	}
+
+	public String getFunctionName(int n) {
+		for(String fname : functionMap.keySet()) {
+			if(functionMap.get(fname) == n) {
+				return fname;
+			}
+		}
+		throw new RuntimeException("PANIC: undefined function index " + n);
+	}
+
+	public String getConstructorName(int n) {
+		for(String cname : constructorMap.keySet()) {
+			if(constructorMap.get(cname) == n) {
+				return cname;
+			}
+		}
+		throw new RuntimeException("PANIC: undefined constructor index " + n);
+	}
+	
+	public String getOverloadedFunctionName(int n) {
+		for(String ofname : resolver.keySet()) {
+			if(resolver.get(ofname) == n) {
+				return ofname;
+			}
+		}
+		throw new RuntimeException("PANIC: undefined overloaded function index " + n);
+	}
 	
 	public IValue executeFunction(String uid_func, IValue[] args){
 		// Assumption here is that the function called is not nested one
@@ -296,7 +330,7 @@ public class RVM {
 		}
 
 		if (init_function.nformals != 1) {
-			throw new RuntimeException("PANIC: " + "function " + uid_module_init + " should have one argument");
+			throw new RuntimeException("PANIC: function " + uid_module_init + " should have one argument");
 		}
 
 		// Perform a call to #module_init" at scope level = 0
@@ -376,12 +410,12 @@ public class RVM {
 				case Opcode.OP_LOADOFUN:
 					OverloadedFunction of = overloadedStore.get(instructions[pc++]);
 					if(of.scopeIn == -1) {
-						stack[sp++] = new OverloadedFunctionInstance(of.functions, root);
+						stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, root);
 						continue;
 					}
 					for(Frame env = cf; env != null; env = env.previousCallFrame) {
 						if (env.scopeId == of.scopeIn) {
-							stack[sp++] = new OverloadedFunctionInstance(of.functions, env);
+							stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, env);
 							continue NEXT_INSTRUCTION;
 						}
 					}
@@ -556,9 +590,9 @@ public class RVM {
 					
 				case Opcode.OP_OCALLDYN:
 					arity = instructions[pc++];
-					// Objects of two types may be found on the stack:
+					// Objects of two types may appear on the stack:
 					// 	1. FunctionInstance due to closures
-					// 	2. OverloadedFunctionInstance due to named Rascal functions (TODO: including constructors)
+					// 	2. OverloadedFunctionInstance due to named Rascal functions
 					Object funcObject = stack[--sp];
 					// Get function arguments from the stack
 					args = new IValue[arity]; 
@@ -584,7 +618,7 @@ public class RVM {
 						this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
 						this.appendToTrace("	with alternatives:");
 						for(int index : of_instance.functions) {
-							this.appendToTrace("		" + cf.function.codeblock.getFunctionName(index));
+							this.appendToTrace("		" + getFunctionName(index));
 						}
 					}
 					
@@ -596,7 +630,7 @@ public class RVM {
 								FunctionInstance fun_instance = new FunctionInstance(fun, of_instance.env);
 										
 								if(debug) {
-									this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
+									this.appendToTrace("		" + "try alternative: " + getFunctionName(index));
 								}
 										
 								Object rval = executeFunction(root, fun_instance, args);
@@ -610,7 +644,22 @@ public class RVM {
 								}													
 							}
 						}
-					}				
+					}
+					
+					for(int index : of_instance.constructors) {
+						constructor = constructorStore.get(index);
+						for(Object type : types) {
+							if(type == constructor) {
+								
+								if(debug) {
+									this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
+								}
+								
+								stack[sp++] = vf.constructor(constructor, args);
+								continue NEXT_INSTRUCTION;													
+							}
+						}
+					}
 					throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");
 					
 				case Opcode.OP_OCALL:					
@@ -618,10 +667,10 @@ public class RVM {
 					arity = instructions[pc++];
 					
 					if(debug) {
-						this.appendToTrace("OVERLOADED FUNCTION CALL: " + cf.function.codeblock.getOverloadedFunctionName(instructions[pc - 2]));
+						this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(instructions[pc - 2]));
 						this.appendToTrace("	with alternatives:");
 						for(int index : of.functions) {
-							this.appendToTrace("		" + cf.function.codeblock.getFunctionName(index));
+							this.appendToTrace("		" + getFunctionName(index));
 						}
 					}
 					
@@ -653,7 +702,7 @@ public class RVM {
 						FunctionInstance fun_instance = new FunctionInstance(fun, environment);
 						
 						if(debug) {
-							this.appendToTrace("		" + "try alternative: " + fun.codeblock.getFunctionName(index));
+							this.appendToTrace("		" + "try alternative: " + getFunctionName(index));
 						}
 								
 						Object rval = executeFunction(root, fun_instance, args);
@@ -666,7 +715,16 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}							
 					}
-					throw new RuntimeException("PANIC: all alternative functions have failed during an overloaded function call!");
+					
+					int index = of.constructors[0];
+					constructor = constructorStore.get(index);
+					
+					if(debug) {
+						this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
+					}
+									
+					stack[sp++] = vf.constructor(constructor, args);
+					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_FAILRETURN:
 					Object rval = Failure.getInstance();
@@ -879,7 +937,7 @@ public class RVM {
 					case assign_subscript_array_mint:
 						assert arity == 3;
 						Object[] ar = (Object[]) stack[sp - 3];
-						int index = ((Integer) stack[sp - 2]);
+						index = ((Integer) stack[sp - 2]);
 						ar[index] = stack[sp - 1];
 						stack[sp - 3] = stack[sp - 1];
 						sp = sp - 2;
