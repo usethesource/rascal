@@ -8,6 +8,7 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractType;
 
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
@@ -105,10 +106,11 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    if(getOuterType(expression) == "str") {
        return muCallPrim("node_create", [receiver, *args]);
    }
-   // TODO: overloading with constructors
-   if(muConstr(str fuid) := receiver) {
+   
+   if(muFun(str _) := receiver || muFun(str _, str _) := receiver || muConstr(str _) := receiver) {
        return muCall(receiver, args);
    }
+   
    // Now overloading resolution...
    ftype = getType(expression@\loc); // Get the type of a receiver
    if(isOverloadedFunction(receiver) && receiver.fuid in overloadingResolver) {
@@ -121,7 +123,15 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        tuple[str scopeIn,set[int] alts] of = overloadedFunctions[i];
        set[int] resolved = {};
        
-       bool matches(Symbol t) = isFunctionType(ftype) ? t == ftype : t in ftype.overloads;
+       bool matches(Symbol t) {
+           if(isFunctionType(ftype) || isConstructorType(ftype)) { 
+               return t == ftype;
+           }           
+           if(isOverloadedType(ftype)) {
+               return t in ftype.overloads;
+           }
+           throw "Ups, unexpected type of the call receiver expression!";
+       }
        
        for(int alt <- of.alts) {
            t = fuid2type[alt];

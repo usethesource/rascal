@@ -72,39 +72,20 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  functions_in_module = [];
    	  variables_in_module = [];
    	  variable_initializations = [];
-   	  // TODO: think of types that have to be actually imported
-   	  list[Symbol] types = [ \type | int uid <- config.store, 
-   	  									   constructor(name, Symbol \type, containedIn, at) := config.store[uid]
-   	  									|| production(name, Symbol \type, containedIn, at) := config.store[uid]
-   	  									|| datatype(name, Symbol \type, containedIn, ats) := config.store[uid]
-   	  									|| sorttype(name, Symbol \type, containedIn, ats) := config.store[uid]
-   	  									|| \alias(name, Symbol \type, containedIn, at) := config.store[uid] ];
+   	  map[str,Symbol] types = ( fuid2str[uid] : \type | int uid <- config.store, 
+   	  									   					constructor(name, Symbol \type, containedIn, at) := config.store[uid]
+   	  													 || production(name, Symbol \type, containedIn, at) := config.store[uid]
+   	  						  );
    	  translate(M);
    	  generate_tests("<M.header.name>");
    	  
-   	  //println("Overloading resolution:");
-   	  //for(str fuid <- overloadingResolver) {
-   	  //	println("Resolver: <fuid> - <overloadingResolver[fuid]>");
-   	  //	println("	Overloaded functions");
-   	  //	for(int uid <- overloadedFunctions[overloadingResolver[fuid]]) {
-   	  //		println("		<uid> - <fuid2str[uid]>");
-   	  //	}
-   	  //}
-   	  //
-   	  //println("Uses");
-   	  //for(l <- config.uses) {
-   	  //	println("<l[0]> - <l[1]>");
-   	  //}
-   	  //
-   	  //iprintln(functions_in_module);
-   	  //
-   	  //throw "Testing overloading";
-   	  
    	  // Overloading resolution...	  
-   	  lrel[str,list[str]] overloaded_functions = [ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
-   	  												[ fuid2str[fuid] | int fuid <- of.fuids, fuid notin defaultFunctions ] + [ fuid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ]
-   	  											  > 
-   	  													| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions ];
+   	  lrel[str,list[str],list[str]] overloaded_functions = [ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
+   	  														   [ fuid2str[fuid] | int fuid <- of.fuids, (fuid in functions) && (fuid notin defaultFunctions) ] 
+   	  														   		+ [ fuid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ],
+   	  														   [ fuid2str[fuid] | int fuid <- of.fuids, fuid in constructors ]
+   	  											  			 > 
+   	  															| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions ];
    	  
    	  return muModule("<M.header.name>", types, functions_in_module, variables_in_module, variable_initializations, overloadingResolver, overloaded_functions);
    	}
