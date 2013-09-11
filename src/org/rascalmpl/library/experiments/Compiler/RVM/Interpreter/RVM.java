@@ -1241,7 +1241,16 @@ public class RVM {
 						stack[sp - 2] = ((Integer) stack[sp - 2]) * ((Integer) stack[sp - 1]);
 						sp = sp - 1;
 						break;
-					
+						
+					case values_map:
+						assert arity == 1;
+						map = ((IMap) stack[sp - 1]);
+						writer = vf.listWriter();
+						for(IValue key : map){
+							writer.append(map.get(key));
+						}
+						stack[sp - 1] = writer.done();
+						break;
 					
 					
 					default:
