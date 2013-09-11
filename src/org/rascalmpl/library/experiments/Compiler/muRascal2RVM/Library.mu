@@ -1,6 +1,6 @@
 module Library
 
- 
+/* 
 function TRUE[0,] { return true; }   // should be true
  
 function FALSE[0,] { return false; }
@@ -69,7 +69,7 @@ function AND_M_M[2,lhs,rhs,clhs,crhs]{
    };
    return false;
 }
-
+*/
 function ONE[1,arg, carg]{
    carg = init(create(arg));
    return next(arg);
