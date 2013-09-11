@@ -1,5 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -55,12 +58,14 @@ public class Execute {
 		
 		RVM rvm = new RVM(vf, ctx.getStdOut(), debug.getValue());
 
-		IList types = (IList) program.get("types");
-		for(IValue type : types) {
-			rvm.declareConstructor((IConstructor) type);
+		IMap types = (IMap) program.get("types");
+		Iterator<Entry<IValue, IValue>> entries = types.entryIterator();
+		while(entries.hasNext()) {
+			Entry<IValue, IValue> entry = entries.next();
+			rvm.declareConstructor(((IString) entry.getKey()).getValue(), (IConstructor) entry.getValue());
 		}
+		
 		IMap declarations = (IMap) program.get("declarations");
-
 		for (IValue dname : declarations) {
 			IConstructor declaration = (IConstructor) declarations.get(dname);
 

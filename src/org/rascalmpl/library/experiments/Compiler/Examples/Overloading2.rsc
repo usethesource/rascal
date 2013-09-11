@@ -1,6 +1,4 @@
-module experiments::Compiler::Examples::Overloading
-
-import IO;
+module experiments::Compiler::Examples::Overloading2
 
 public default int f(int n) = n;
 public default int f(str s) = -3;
@@ -16,5 +14,5 @@ public value main(list[value] args) {
 	k = f("0");
 	l = f("5");
 	z = f(0,"1");
-	return z;
+	return x + k;
 }
