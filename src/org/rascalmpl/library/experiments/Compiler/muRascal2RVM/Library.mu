@@ -15,6 +15,8 @@ function ALL[1,arg,carg]{
 }  
 */    
 
+// Initialize a pattern with a given value and exhaust all its possibilities
+
 function DO_ALL[2, pat, ^val, co]{
    co = init(pat, ^val);
    while(hasNext(co)){
@@ -129,7 +131,7 @@ function ENUMERATE_AND_MATCH[2,  pat, ^val]{
 
 // ***** Ranges *****
 
-function RANGE[3, pat, ^first, ^end, i, n, cpat]{
+function RANGE[3, pat, ^first, ^end, i, n]{
    i = mint(^first);
    n = mint(^end);
    if(i < n){
@@ -146,7 +148,7 @@ function RANGE[3, pat, ^first, ^end, i, n, cpat]{
    return false;
 }
 
-function RANGE_STEP[4, pat, ^first, ^second, ^end, i, n, step, cpat]{
+function RANGE_STEP[4, pat, ^first, ^second, ^end, i, n, step]{
    i = mint(^first);
    n = mint(^end);
    if(i < n){
@@ -296,7 +298,7 @@ function MATCH_TYPED_VAR_BECOMES[4, typ, varref, pat, ^subject, cpat]{
    return false;
 }
 
-function MATCH_AS_TYPE[3, typ, pat, ^subject, cpat]{
+function MATCH_AS_TYPE[3, typ, pat, ^subject]{
    if(equal(typ, typeOf(^subject))){
       DO_ALL(pat, ^subject);
    };  
@@ -445,14 +447,14 @@ function MATCH_TYPED_MULTIVAR_IN_LIST[5, typ, varref, ^subject, start, available
 
 function MATCH_DESCENDANT[2, pat, ^subject, gen, cpat]{
    println("MATCH_DESCENDANT", pat, ^subject);
-   gen = init(create(MATCH_AND_DESCENT, pat, ^subject));
-   println("MATCH_DESCENDANT", "gen created");
-   while(hasNext(gen)){
-       println("MATCH_DESCENDANT", "hasNext = true");
-       if(next(gen)){
-          yield true;
-       };
-   };
+   DO_ALL(create(MATCH_AND_DESCENT, pat),  ^subject);
+//   gen = init(create(MATCH_AND_DESCENT, pat, ^subject));
+//   while(hasNext(gen)){
+//       println("MATCH_DESCENDANT", "hasNext = true");
+//       if(next(gen)){
+//          yield true;
+//       };
+//   };
    return false;
 }
 
@@ -468,7 +470,7 @@ function MATCH_AND_DESCENT_LITERAL[2, pat, ^subject, res]{
   return MATCH_AND_DESCENT(create(MATCH_LITERAL, pat), ^subject);
 }
 
-function MATCH_AND_DESCENT_LIST[2, pat, ^lst, last, i, co]{
+function MATCH_AND_DESCENT_LIST[2, pat, ^lst, last, i]{
    println("MATCH_AND_DESCENT_LIST", pat, ^lst);
    last = size(^lst);
    i = 0;
@@ -479,7 +481,7 @@ function MATCH_AND_DESCENT_LIST[2, pat, ^lst, last, i, co]{
    return false;
 }
 
-function MATCH_AND_DESCENT_SET[2, pat, ^set, ^lst, last, i, co]{
+function MATCH_AND_DESCENT_SET[2, pat, ^set, ^lst, last, i]{
    println("MATCH_AND_DESCENT_SET", pat, ^set);
    ^lst = set2list(^set);
    last = size(^lst);
@@ -491,20 +493,20 @@ function MATCH_AND_DESCENT_SET[2, pat, ^set, ^lst, last, i, co]{
    return false;
 }
 
-function MATCH_AND_DESCENT_MAP[2, pat, ^map, ^klst, ^vlst, last, i, co]{
+function MATCH_AND_DESCENT_MAP[2, pat, ^map, ^klst, ^vlst, last, i]{
    ^klst = keys(^map);
    ^vlst = values(^map);
-   last = size(^klst) - 1;
+   last = size(^klst);
    i = 0;
    while(i < last){
       DO_ALL(pat, get ^klst[i]);
       DO_ALL(pat, get ^vlst[i]);
       i = i + 1;
    };
-   return get ^klst[last];
+   return false;
 }
 
-function MATCH_AND_DESCENT_NODE[2, pat, ^nd, last, i, lst, co]{
+function MATCH_AND_DESCENT_NODE[2, pat, ^nd, last, i, lst]{
    lst = get_name_and_children(^nd);
    last = size(lst);
    i = 0; 
@@ -515,7 +517,7 @@ function MATCH_AND_DESCENT_NODE[2, pat, ^nd, last, i, lst, co]{
    return false;
 }
 
-function MATCH_AND_DESCENT_TUPLE[2, pat, ^tup, last, i, co]{
+function MATCH_AND_DESCENT_TUPLE[2, pat, ^tup, last, i]{
    last = size(^tup) - 1;
    i = 0;
    while(i < last){
@@ -539,7 +541,7 @@ function VISIT[1, visitor]{
    return false;     
 }
 
-function MATCH_AND_DESCENT[2, pat, ^val, co]{
+function MATCH_AND_DESCENT[2, pat, ^val]{
   println("MATCH_AND_DESCENT", pat, ^val);
   DO_ALL(pat, ^val);
   
