@@ -18,10 +18,10 @@ module experiments::Compiler::Examples::Tmp
 //  return genClass("Person", ("first" : "String", "last" : "String", "age" : "int", "married" : "boolean"));
 //}
 
-value f(1) = 10;
-value f(3) = 30;
-default value f(int n) = n;
+//value f(1) = 10;
+//value f(3) = 30;
+//default value f(int n) = n;
 
 value main(list[value] args){
-  return f(5);
+  return (x <- [1,2] && x == 2 && y <- [4,5] && y == 5) ? 10 : 20;
 }
