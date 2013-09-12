@@ -135,9 +135,9 @@ MuExp mkVar(str name, loc l) {
   tuple[str fuid,int pos] addr = uid2addr[uid];
   
   // Pass all the functions through the overloading resolution
-  if(uid in functions || uid in ofunctions) {
+  if(uid in functions || uid in constructors || uid in ofunctions) {
     // Get the function uids of an overloaded function
-    set[int] ofuids = (uid in functions) ? { uid } : config.store[uid].items;
+    set[int] ofuids = (uid in functions || uid in constructors) ? { uid } : config.store[uid].items;
     // Generate a unique name for an overloaded function resolved for this specific use
     str ofuid = uid2str(config.usedIn[l]) + "/use:" + name;
     
@@ -150,10 +150,6 @@ MuExp mkVar(str name, loc l) {
     }   
     overloadingResolver[ofuid] = i;
   	return muOFun(ofuid);
-  }
-  
-  if(uid in constructors) {
-  	return muConstr(name);
   }
   
   return muVar(name, addr.fuid, addr.pos);
@@ -201,7 +197,10 @@ void extractScopes(){
                                              // Fill in fuid2type to enable more precise overloading resolution
                                              fuid2type[uid] = rtype;
                                              // Check if the function is default
+                                             println(config.store[uid]);
+                                             println(config.functionModifiers[uid]);
                                              if(defaultModifier() in config.functionModifiers[uid]) {
+                                             	println("FOUND DEFAULT");
                                              	defaultFunctions += {uid};
                                              }
                                            }
@@ -228,8 +227,9 @@ void extractScopes(){
         									     loc2uid[l] = uid;
         									 }
         									 // Fill in uid2name
-        									 // name = getFUID(getSimpleName(rname),rtype);
-        								     uid2name[uid] = getSimpleName(rname);
+        								     uid2name[uid] = getCUID(getSimpleName(rname),rtype);
+        								     // Fill in fuid2type to enable more precise overloading resolution
+        								     fuid2type[uid] = rtype;
         								   }
         case blockScope(inScope,src):      { 
         								     containment += {<inScope, uid>};
@@ -296,7 +296,7 @@ void extractScopes(){
     }
 
 	// Fill in mapping of function uids to qualified names (enables invert mapping)
-	for(int uid <- functions) {
+	for(int uid <- functions + constructors) {
 		fuid2str[uid] = uid2str(uid);
 	}
 	
@@ -336,6 +336,9 @@ void extractScopes(){
 str getFUID(str fname, Symbol \type) = "<fname>(<for(p<-\type.parameters){><p>;<}>)";
 str getFUID(str fname, Symbol \type, int case_num) = "<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
 str getFUID(str modName, str fname, Symbol \type, int case_num) = "<modName>/<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
+
+str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
+str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
 
 str uid2str(int uid, str name) = uid2str(uid) + "/" + name;
 str uid2str(int uid, str name, int \case) = uid2str(uid) + "/" + name + "#<\case>";

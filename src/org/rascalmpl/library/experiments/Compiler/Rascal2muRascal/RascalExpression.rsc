@@ -8,6 +8,7 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractType;
 
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
@@ -24,11 +25,10 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 int size_exps({Expression ","}* es) = size([e | e <- es]);		// TODO: should become library function
 int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	// TODO: should become library function
 
-
 // Create (and flatten) a muAll
 
 MuExp makeMuAll([*exps1, muAll(list[MuExp] exps2), exps3]) = makeMuAll(exps1 + exps2 + exps3);
-default MuExp makeMuAll(exp) = muAll(exp);
+default MuExp makeMuAll(list[MuExp] exps) = muAll(exps);
 
 // Create (and flatten) a muOne
 
@@ -116,10 +116,11 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    if(getOuterType(expression) == "str") {
        return muCallPrim("node_create", [receiver, *args]);
    }
-   // TODO: overloading with constructors
-   if(muConstr(str fuid) := receiver) {
+   
+   if(muFun(str _) := receiver || muFun(str _, str _) := receiver || muConstr(str _) := receiver) {
        return muCall(receiver, args);
    }
+   
    // Now overloading resolution...
    ftype = getType(expression@\loc); // Get the type of a receiver
    if(isOverloadedFunction(receiver) && receiver.fuid in overloadingResolver) {
@@ -132,7 +133,15 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        tuple[str scopeIn,set[int] alts] of = overloadedFunctions[i];
        set[int] resolved = {};
        
-       bool matches(Symbol t) = isFunctionType(ftype) ? t == ftype : t in ftype.overloads;
+       bool matches(Symbol t) {
+           if(isFunctionType(ftype) || isConstructorType(ftype)) { 
+               return t == ftype;
+           }           
+           if(isOverloadedType(ftype)) {
+               return t in ftype.overloads;
+           }
+           throw "Ups, unexpected type of the call receiver expression!";
+       }
        
        for(int alt <- of.alts) {
            t = fuid2type[alt];
@@ -364,31 +373,36 @@ default MuExp translate(Expression e) {
  
 // Is an expression free of backtracking? 
 
-bool backtrackFree((Expression) `<Pattern pat> := <Expression exp>`) = backtrackFree(pat) && backtrackFree(exp);
-bool backtrackFree((Expression) `<Pattern pat> \<- <Expression exp>`) = false;
-bool backtrackFree((Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`) = false;
-bool backtrackFree((Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) =  false;
-
-default bool backtrackFree(Expression e) = true;
+bool backtrackFree(Expression e){
+    visit(e){
+    case (Expression) `<Pattern pat> \<- <Expression exp>`: 
+    	return false;
+    case (Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`: 
+    	return false;
+    case (Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`: 
+    	return false;
+    }
+    return true;
+}
 
 // Boolean expressions
 
-MuExp translateBool((Expression) `<Expression lhs> && <Expression rhs>`) = translateBoolBinaryOp("AND", lhs, rhs);
+MuExp translateBool((Expression) `<Expression lhs> && <Expression rhs>`) = translateBoolBinaryOp("and", lhs, rhs);
 
-MuExp translateBool((Expression) `<Expression lhs> || <Expression rhs>`) = translateBoolBinaryOp("OR", lhs, rhs);
+MuExp translateBool((Expression) `<Expression lhs> || <Expression rhs>`) = translateBoolBinaryOp("or", lhs, rhs);
 
-MuExp translateBool((Expression) `<Expression lhs> ==\> <Expression rhs>`) = translateBoolBinaryOp("IMPLIES", lhs, rhs);
+MuExp translateBool((Expression) `<Expression lhs> ==\> <Expression rhs>`) = translateBoolBinaryOp("implies", lhs, rhs);
 
-MuExp translateBool((Expression) `<Expression lhs> \<==\> <Expression rhs>`) = translateBoolBinaryOp("EQUIVALENT", lhs, rhs);
+MuExp translateBool((Expression) `<Expression lhs> \<==\> <Expression rhs>`) = translateBoolBinaryOp("equivalent", lhs, rhs);
 
-MuExp translateBool((Expression) `! <Expression lhs>`) = translateBoolUnaryOp("NOT", lhs);
+MuExp translateBool((Expression) `! <Expression lhs>`) = translateBoolNot(lhs);
  
  MuExp translateBool((Expression) `<Pattern pat> := <Expression exp>`)  {
    println("translateBool: <pat> := <exp>");
    return muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]));
 } 
 
-// All other expressions are wrapped as boolean expression
+// All other expressions are translated as ordinary expression
 
 default MuExp translateBool(Expression e) {
    println("translateBool, default: <e>");
@@ -399,20 +413,30 @@ default MuExp translateBool(Expression e) {
 
 MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
   if(backtrackFree(lhs) && backtrackFree(rhs)) {
-     return muCallMuPrim("<fun>_U_U", [translateBool(lhs), translateBool(rhs)]);
+     return muCallMuPrim("<fun>_mbool_mbool", [translateBool(lhs), translateBool(rhs)]);
   } else {
     switch(fun){
-    	case "AND": return makeMuAll([translate(lhs), translate(rhs)]);
-    	case "OR":  return muCallMuPrim("NOT_U", [makeMuAll([muCallMuPrim("NOT_U", [translate(lhs)]),  muCallMuPrim("NOT_U", [translate(lhs)])])]);
+    	case "and": return makeMuAll([translate(lhs), translate(rhs)]);
+    	case "or":  // a or b == !(!a and !b)
+    				return muCallMuPrim("not_mbool", [makeMuAll([muCallMuPrim("not_mbool", [translate(lhs)]),  muCallMuPrim("not_mbool", [translate(lhs)])])]);
+    	case "implies":
+    				// a ==> b
+    	            return makeMuAll([muCallMuPrim("implies_mbool_mbool", [makeMuAll([translate(lhs)]), makeMuAll([translate(rhs)])])]);
+    	case "equivalent":
+    				// a <==> b
+    				return makeMuAll([muCallMuPrim("equivalent_mbool_mbool", [makeMuAll([translate(lhs)]), makeMuAll([translate(rhs)])])]);
     	default:
     		throw "translateBoolBinary: unknown operator <fun>";
     }
   }
 }
 
-MuExp translateBoolUnaryOp(str fun, Expression lhs){
-  blhs = backtrackFree(lhs) ? "U" : "M";
-  return muCallMuPrim("<fun>_<blhs>", [translateBool(lhs)]);
+MuExp translateBoolNot(Expression lhs){
+  if(backtrackFree(lhs)){
+  	  return muCallMuPrim("not_mbool", [translateBool(lhs)]);
+  	} else {
+  	  return muCallMuPrim("not_mbool", [ makeMuAll([translate(lhs)]) ]);
+  	}
 }
 
 /*********************************************************************/

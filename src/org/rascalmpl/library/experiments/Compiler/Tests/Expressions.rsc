@@ -131,6 +131,7 @@ test bool tst() = run("res = []; for(x \<- [1,2,3], x != 2) res = res +[x];", "r
 test bool tst() = run("res = []; for([int x, 5] \<- [[1,5], [2,5], [3, 5]], x != 2) res = res +[x];", "res") == {res = []; for([int x, 5] <- [[1,5], [2,5], [3, 5]], x != 2) res = res +[x]; res;};
 test bool tst() = run("res = []; for([int x, 5] \<- [[1,6], [2,5], [3, 5]], x != 2) res = res +[x];", "res") == {res = []; for([int x, 5] <- [[1,6], [2,5], [3, 5]], x != 2) res = res +[x]; res;};
 
+test bool tst() = run("res = []; for(int x \<- \<1,2,3,4\>) res = res +[x];", "res") == {res = []; for(int x <- <1,2,3,4>) res = res +[x]; res;};
 // Any
 
 test bool tst() = run("any(x \<- [1,2,13,3], x \> 3)") == any(x <- [1,2,13,3], x > 3);
