@@ -2,6 +2,7 @@ package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.*;
@@ -19,7 +20,10 @@ public class ASTConverter extends JavaToRascalConverter {
 	
 	public void postVisit(ASTNode node) {
 		setAnnotation("src", getSourceLocation(node));
-		setAnnotation("decl", resolveBinding(node)); 
+		ISourceLocation decl = resolveBinding(node);
+		if (!decl.getURI().getScheme().equals("unknown")) {
+		  setAnnotation("decl", decl); 
+		}
 		setAnnotation("typ", resolveType(node));
 	}
 	
