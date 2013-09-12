@@ -112,7 +112,7 @@ rel[loc, loc] declaredFieldsX(M3 m, set[Modifiers] checkModifiers = {}) {
     
     return {e | tuple[loc lhs, loc rhs] e <- domainR(m@containment, declaredClasses), isField(e.rhs), isEmpty(checkModifiers & (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {})) };
 } 
-
+ 
 rel[loc, loc] declaredTopTypes(M3 m)  
   = {e | tuple[loc lhs, loc rhs] e <- m@containment, isCompilationUnit(e.lhs), isClass(e.rhs) || isInterface(e.rhs)}; 
 

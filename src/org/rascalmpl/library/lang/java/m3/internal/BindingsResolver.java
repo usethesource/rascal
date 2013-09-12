@@ -55,6 +55,7 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+@SuppressWarnings("restriction")
 public class BindingsResolver {
 	private String project;
 	private TypeStore store;
@@ -254,6 +255,7 @@ public class BindingsResolver {
     return computeTypeSymbol(decl, binding);
   }
 
+  @SuppressWarnings("restriction")
   private IConstructor computeTypeSymbol(ISourceLocation decl, ITypeBinding binding) {
     if (binding.isPrimitive()) {
       return primitiveSymbol(binding.getName());
@@ -290,11 +292,27 @@ public class BindingsResolver {
     else if (binding.isClass()) {
       return classSymbol(decl, computeTypes(binding.getTypeArguments()));
     }
+    else if (binding.isCapture()) {
+      ITypeBinding[] typeBounds = binding.getTypeBounds();
+      ITypeBinding wildcard = binding.getWildcard();
+      
+      if (typeBounds.length == 0) {
+        return captureSymbol(unboundedSym(), computeTypeSymbol(wildcard));
+      }
+      else {
+        return captureSymbol(boundSymbol(typeBounds[0]), computeTypeSymbol(wildcard));
+      }
+    }
     else if (binding.isInterface()) {
       return interfaceSymbol(decl, computeTypes(binding.getTypeArguments()));
     }
     
     return null;
+  }
+
+  private IConstructor captureSymbol(IConstructor bound, IConstructor wildcard) {
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "capture", tf.tupleType(bound.getType(), wildcard.getType()));
+    return values.constructor(cons, bound, wildcard);
   }
 
   private IConstructor wildcardSymbol(IConstructor boundSymbol) {
