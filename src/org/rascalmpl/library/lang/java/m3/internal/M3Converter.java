@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.LineComment;
@@ -557,9 +558,16 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public void endVisit(VariableDeclarationFragment node) {
-		ownValue = scopeManager.pop();
-		IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding().getType());
-		insert(types, ownValue, type);
+	  ownValue = scopeManager.pop();
+		IVariableBinding binding = node.resolveBinding();
+		
+		if (binding != null) {
+		  IConstructor type = bindingsResolver.computeTypeSymbol(binding.getType());
+		  insert(types, ownValue, type);
+		}
+		else {
+		  System.err.println("no binding for " + node);
+		}
 	}
 
 	public boolean visit(VariableDeclarationStatement node) {
