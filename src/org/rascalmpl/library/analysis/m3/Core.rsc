@@ -41,3 +41,16 @@ anno list[Message messages]        M3@messages;                // error messages
 anno rel[str simpleName, loc qualifiedName]  M3@names;         // convenience mapping from logical names to end-user readable (GUI) names, and vice versa
 anno rel[loc definition, loc comments]       M3@documentation; // comments and javadoc attached to declared things
 anno rel[loc definition, Modifiers modifier] M3@modifiers;     // modifiers associated with declared things
+
+public M3 composeM3(M3 m1, M3 m2) {
+  m1@declarations += m2@declarations;
+  m1@uses += m2@uses;
+  m1@containment += m2@containment;
+  m1@documentation += m2@documentation;
+  m1@modifiers += m2@modifiers;
+  m1@messages += m2@messages;
+  m1@names += m2@names;
+  m1@types += m2@types;
+  
+  return m1;
+}

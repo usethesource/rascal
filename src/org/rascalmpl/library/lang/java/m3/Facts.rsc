@@ -1,14 +1,9 @@
 module lang::java::m3::Facts
 
-import lang::java::m3::JavaM3;
+import lang::java::m3::Core;
 import Prelude;
 
-public bool isCompilationUnit(loc entity) {
-	if (entity.scheme == "java+compilationUnit")
-		return true;
-	return false;
-}
-
+public bool isCompilationUnit(loc entity) = entity.scheme == "java+compilationUnit";
 public bool isPackage(loc entity) = entity.scheme == "java+package";
 public bool isClass(loc entity) = entity.scheme == "java+class";
 public bool isMethod(loc entity) = entity.scheme == "java+method" || entity.scheme == "java+constructor";
