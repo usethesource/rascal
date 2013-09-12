@@ -130,7 +130,7 @@ public class BindingsResolver {
         return resolveInitializer((Initializer) node);
       }
 		}
-		return null;
+		return convertBinding("unknown", null, null, null);
 	}
 	
 	private URI resolveQualifiedName(QualifiedName node) {

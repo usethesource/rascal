@@ -146,7 +146,7 @@ data Modifier
     ;
       
 @doc{Creates AST from a file}
-@javaClass{org.rascalmpl.library.lang.java.m3.internal.JDT}
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
 public java Declaration createAstFromFile(loc file, bool collectBindings, str javaVersion = "1.7");
 

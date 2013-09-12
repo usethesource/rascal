@@ -42,7 +42,7 @@ anno rel[loc from, loc to] M3@fieldAccess;        // code using data (like field
 anno rel[loc from, loc to] M3@typeDependency;     // using a type literal in some code (types of variables, annotations)
 anno rel[loc from, loc to] M3@methodOverrides;    // which method override which other methods
 
-@javaClass{org.rascalmpl.library.lang.java.m3.internal.JDT}
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
 public java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
 
@@ -50,37 +50,29 @@ public void setEnvironmentOptions(loc project) {
     setEnvironmentOptions(getPaths(project, "class") + find(project, "jar"), getPaths(project, "java"));
 }
 
-@javaClass{org.rascalmpl.library.lang.java.m3.internal.JDT}
+public M3 composeJavaM3(M3 m1, M3 m2) {
+  m1 = composeM3(m1, m2);
+  
+  m1@extends += m2@extends;
+  m1@implements += m2@implements;
+  m1@methodInvocation += m2@methodInvocation;
+  m1@fieldAccess += m2@fieldAccess;
+  m1@typeDependency += m2@typeDependency;
+  m1@methodOverrides += m2@methodOverrides;
+  
+  return m1;
+}
+
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
 public java M3 createM3FromFile(loc file, str javaVersion = "1.7");
 
 public M3 createM3FromProject(loc project, str javaVersion = "1.7") {
     setEnvironmentOptions(project);
-
-    M3 result = m3(project.authority);
-    for (loc f <- find(project, "java")) {
-        M3 model = createM3FromFile(f, javaVersion = javaVersion);
-        result@declarations += model@declarations;
-        result@uses += model@uses;
-        result@containment += model@containment;
-        result@extends += model@extends;
-        result@implements += model@implements;
-        result@methodInvocation += model@methodInvocation;
-        result@fieldAccess += model@fieldAccess;
-        result@typeDependency += model@typeDependency;
-        result@documentation += model@documentation;
-        result@modifiers += model@modifiers;
-        result@messages += model@messages;
-        result@names += model@names;
-        result@methodOverrides += model@methodOverrides;
-        result@types += model@types;
-    }
-        
+    result = (m3(project.authority) | composeJavaM3(it, createM3FromFile(f, javaVersion = javaVersion)) | loc f <- find(project, "java"));
     registerProject(project.authority, result);
     return result;
 }
-
-
 
 private set[loc] getPaths(loc dir, str suffix) { 
    bool containsFile(loc d) = isDirectory(d) ? (x <- d.ls && x.extension == suffix) : false;

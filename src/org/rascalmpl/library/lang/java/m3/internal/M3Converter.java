@@ -125,8 +125,9 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public void insert(ISetWriter relW, IValue lhs, IValue rhs) {
-		if ((isValid((ISourceLocation) lhs) && isValid((ISourceLocation) rhs)))
+		if ((isValid((ISourceLocation) lhs) && isValid((ISourceLocation) rhs))) {
 			relW.insert(values.tuple(lhs, rhs));
+		}
 	}
 
 	public void insert(ISetWriter relW, IValue lhs, IValueList rhs) {
@@ -146,7 +147,7 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	private boolean isValid(ISourceLocation binding) {
-		return !(binding.getURI().getScheme().equals("unknown") || binding.getURI().getScheme().equals("unresolved"));
+		return binding != null && !(binding.getURI().getScheme().equals("unknown") || binding.getURI().getScheme().equals("unresolved"));
 	}
 	
 	private void visitListOfModifiers(List modif) {
@@ -327,6 +328,7 @@ public class M3Converter extends JavaToRascalConverter {
 		ownValue = scopeManager.pop();
 		ASTNode parent = node.getParent();
 		if (parent instanceof TypeDeclaration) {
+		  // TODO: why can this node.resolveBinding sometimes be null?
 			fillOverrides(node.resolveBinding(), ((TypeDeclaration)parent).resolveBinding());
 		}
 		else if (parent instanceof AnonymousClassDeclaration) {
