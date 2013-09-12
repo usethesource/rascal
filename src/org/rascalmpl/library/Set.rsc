@@ -680,3 +680,8 @@ public list[&T] sort(set[&T] s) =
 	
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] sort(set[&T] l, bool (&T a, &T b) less) ;
+
+@doc{
+Synopsis: flatten a set of sets into a single set.  
+}
+public set[&T] union(set[set[&T]] sets) = {*s | s <- sets};

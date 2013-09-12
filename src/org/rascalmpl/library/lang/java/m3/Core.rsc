@@ -51,17 +51,17 @@ void setEnvironmentOptions(loc project) {
     setEnvironmentOptions(getPaths(project, "class") + find(project, "jar"), getPaths(project, "java"));
 }
 
-M3 composeJavaM3(M3 m1, M3 m2) {
-  m1 = composeM3(m1, m2);
+M3 composeJavaM3(loc id, set[M3] models) {
+  m = composeM3(id, models);
   
-  m1@extends += m2@extends;
-  m1@implements += m2@implements;
-  m1@methodInvocation += m2@methodInvocation;
-  m1@fieldAccess += m2@fieldAccess;
-  m1@typeDependency += m2@typeDependency;
-  m1@methodOverrides += m2@methodOverrides;
+  m@extends = {*model@extends | model <- models};
+  m@implements = {*model@implements | model <- models};
+  m@methodInvocation = {*model@methodInvocation | model <- models};
+  m@fieldAccess = {*model@fieldAccess | model <- models};
+  m@typeDependency = {*model@typeDependency | model <- models};
+  m@methodOverrides = {*model@methodOverrides | model <- models};
   
-  return m1;
+  return m;
 }
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
@@ -70,7 +70,7 @@ java M3 createM3FromFile(loc file, str javaVersion = "1.7");
 
 M3 createM3FromProject(loc project, str javaVersion = "1.7") {
     setEnvironmentOptions(project);
-    result = (m3(project.authority) | composeJavaM3(it, createM3FromFile(f, javaVersion = javaVersion)) | loc f <- find(project, "java"));
+    result = composeJavaM3(project, { createM3FromFile(f, javaVersion = javaVersion) | loc f <- find(project, "java") });
     registerProject(project.authority, result);
     return result;
 }

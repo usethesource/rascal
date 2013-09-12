@@ -70,7 +70,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	public void set(ISourceLocation loc) {
 		this.loc = loc;
-		bindingsResolver.setProject(loc.getURI().getAuthority());
+    bindingsResolver.setProject(loc.getURI().getAuthority());
 	}
 	
 	protected ISourceLocation resolveBinding(String packageComponent) {
