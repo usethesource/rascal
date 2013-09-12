@@ -19,22 +19,7 @@ import List;
 
 import util::FileSystem;
 
-data Modifiers
-	= \private()
-	| \public()
-	| \protected()
-	| \friendly()
-	| \static()
-	| \final()
-	| \synchronized()
-	| \transient()
-	| \abstract()
-	| \native()
-	| \volatile()
-	| \strictfp()
-	| \deprecated()
-	| \annotation(loc \ann)
-  	;
+data Modifier = \annotation(loc \ann);
 
 anno rel[loc from, loc to] M3@extends;            // classes extending classes and interfaces extending interfaces
 anno rel[loc from, loc to] M3@implements;         // classes implementing interfaces
@@ -92,21 +77,21 @@ bool isInterface(loc entity) = entity.scheme == "java+interface";
 set[loc] files(rel[loc, loc] containment) 
   = {e.lhs | tuple[loc lhs, loc rhs] e <- containment, isCompilationUnit(e.lhs)};
 
-rel[loc, loc] declaredMethods(M3 m, set[Modifiers] checkModifiers = {}) {
+rel[loc, loc] declaredMethods(M3 m, set[Modifier] checkModifiers = {}) {
     declaredClasses = classes(m@containment);
     methodModifiersMap = toMap(m@modifiers);
     
     return {e | tuple[loc lhs, loc rhs] e <- domainR(m@containment, declaredClasses), isMethod(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
 }
 
-rel[loc, loc] declaredFields(M3 m, set[Modifiers] checkModifiers = {}) {
+rel[loc, loc] declaredFields(M3 m, set[Modifier] checkModifiers = {}) {
     declaredClasses = classes(m@containment);
     methodModifiersMap = toMap(m@modifiers);
     
     return {e | tuple[loc lhs, loc rhs] e <- domainR(m@containment, declaredClasses), isField(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
 }
 
-rel[loc, loc] declaredFieldsX(M3 m, set[Modifiers] checkModifiers = {}) {
+rel[loc, loc] declaredFieldsX(M3 m, set[Modifier] checkModifiers = {}) {
     declaredClasses = classes(m@containment);
     methodModifiersMap = toMap(m@modifiers);
     
@@ -119,11 +104,13 @@ rel[loc, loc] declaredTopTypes(M3 m)
 rel[loc, loc] declaredSubTypes(M3 m) 
   = {e | tuple[loc lhs, loc rhs] e <- m@containment, isClass(e.rhs)} - declaredTopTypes(rels);
 
-set[loc] classes(M3 m) =  {e | e <- range(m@containment), isClass(e)};
-set[loc] packages(M3 m) = {e | e <- domain(m@containment), isPackage(e)};
-set[loc] variables(M3 m) = {e | e <- range(m@containment), isVariable(e)};
-set[loc] parameters(M3 m)  = {e | e <- range(m@containment), isParameter(e)};
-set[loc] fieldDecls(M3 m) = {e | e <- range(m@containment), isField(e)};
+set[loc] classes(M3 m) =  {e | e <- m@declarations<name>, isClass(e)};
+set[loc] interfaces(M3 m) =  {e | e <- m@declarations<name>, isInterface(e)};
+set[loc] packages(M3 m) = {e | e <- m@declarations<name>, isPackage(e)};
+set[loc] variables(M3 m) = {e | e <- m@declarations<name>, isVariable(e)};
+set[loc] parameters(M3 m)  = {e | e <- m@declarations<name>, isParameter(e)};
+set[loc] fields(M3 m) = {e | e <- m@declarations<name>, isField(e)};
+set[loc] methods(M3 m) = {e | e <- m@declarations<name>, isMethod(e)};
 
 set[loc] elements(M3 m, loc parent) = { e | <parent, e> <- m@containment };
 
