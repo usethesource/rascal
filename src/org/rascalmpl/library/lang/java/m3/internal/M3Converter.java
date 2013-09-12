@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -80,10 +81,13 @@ public class M3Converter extends JavaToRascalConverter {
 	private ISetWriter names;
 	private ISetWriter methodOverrides;
   private ISetWriter types;
+  private final org.eclipse.imp.pdb.facts.type.Type CONSTRUCTOR_M3;
 	
 	M3Converter(final TypeStore typeStore) {
 		super(typeStore, true);
 		this.DATATYPE_M3_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_M3_NODE);
+		TypeFactory tf = TypeFactory.getInstance();
+    this.CONSTRUCTOR_M3= this.typeStore.lookupConstructor(DATATYPE_M3_NODE_TYPE, "m3", tf.tupleType(tf.sourceLocationType()));
 		this.DATATYPE_TYPESYMBOL = this.typeStore.lookupAbstractDataType("TypeSymbol");
 		uses = values.relationWriter(m3TupleType);
 		declarations = values.relationWriter(m3TupleType);
@@ -103,7 +107,7 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public IValue getModel() {
-		ownValue = values.constructor(DATATYPE_M3_NODE_TYPE);
+		ownValue = values.constructor(CONSTRUCTOR_M3, loc);
 		setAnnotation("declarations", declarations.done());
 		setAnnotation("uses", uses.done());
 		setAnnotation("containment", containment.done());

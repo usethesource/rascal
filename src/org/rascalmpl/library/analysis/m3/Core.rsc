@@ -30,8 +30,8 @@ module analysis::m3::Core
 import Message;
 extend analysis::m3::TypeSymbol;
  
-data Modifiers;
-data M3 = m3(str projectName);
+data Modifier;
+data M3 = m3(loc id);
              
 anno rel[loc name, loc src]        M3@declarations;            // maps declarations to where they are declared. contains any kind of data or type or code declaration (classes, fields, methods, variables, etc. etc.)
 anno rel[loc name, TypeSymbol typ] M3@types;                   // assigns types to declared source code artifacts
@@ -40,17 +40,19 @@ anno rel[loc from, loc to]         M3@containment;             // what is logica
 anno list[Message messages]        M3@messages;                // error messages and warnings produced while constructing a single m3 model
 anno rel[str simpleName, loc qualifiedName]  M3@names;         // convenience mapping from logical names to end-user readable (GUI) names, and vice versa
 anno rel[loc definition, loc comments]       M3@documentation; // comments and javadoc attached to declared things
-anno rel[loc definition, Modifiers modifier] M3@modifiers;     // modifiers associated with declared things
+anno rel[loc definition, Modifier modifier] M3@modifiers;     // modifiers associated with declared things
 
-public M3 composeM3(M3 m1, M3 m2) {
-  m1@declarations += m2@declarations;
-  m1@uses += m2@uses;
-  m1@containment += m2@containment;
-  m1@documentation += m2@documentation;
-  m1@modifiers += m2@modifiers;
-  m1@messages += m2@messages;
-  m1@names += m2@names;
-  m1@types += m2@types;
+public M3 composeM3(loc id, set[M3] models) {
+  m = m3(id);
   
-  return m1;
+  m@declarations = {*model@declarations | model <- models};
+  m@uses = {*model@uses | model <- models};
+  m@containment = {*model@containment | model <- models};
+  m@documentation = {*model@documentation | model <- models};
+  m@modifiers = {*model@modifiers | model <- models};
+  m@messages = [*model@messages | model <- models];
+  m@names = {*model@names | model <- models};
+  m@types = {*model@types | model <- models};
+  
+  return m;
 }
