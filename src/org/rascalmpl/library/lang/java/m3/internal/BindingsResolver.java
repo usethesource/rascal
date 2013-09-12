@@ -278,7 +278,14 @@ public class BindingsResolver {
       } 
     }
     else if (binding.isWildcardType()) {
-      return wildcardSymbol(boundSymbol(binding.getBound()));
+      ITypeBinding bound = binding.getBound();
+      
+      if (bound == null) {
+        return wildcardSymbol(unboundedSym());
+      }
+      else {
+        return wildcardSymbol(boundSymbol(binding.getBound()));
+      }
     }
     else if (binding.isClass()) {
       return classSymbol(decl, computeTypes(binding.getTypeArguments()));
