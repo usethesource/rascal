@@ -151,7 +151,7 @@ data Modifier
 public java Declaration createAstFromFile(loc file, bool collectBindings, str javaVersion = "1.7");
 
 @doc{Creates ASTs from a project}
-public set[Declaration] createAstsFromProject(loc project, bool collectBindings, str javaVersion = "1.7" ) {
+public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, str javaVersion = "1.7" ) {
    setEnvironmentOptions(project);
    return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | loc f <- find(project, ".java") };
 }

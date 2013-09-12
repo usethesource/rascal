@@ -32,8 +32,8 @@ anno rel[loc from, loc to] M3@methodOverrides;    // which method override which
 @reflect
 java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
 
-void setEnvironmentOptions(loc project) {
-    setEnvironmentOptions(getPaths(project, "class") + find(project, "jar"), getPaths(project, "java"));
+private void setEnvironmentOptions(loc directory) {
+    setEnvironmentOptions(getPaths(directory, "class") + find(directory, "jar"), getPaths(directory, "java"));
 }
 
 M3 composeJavaM3(loc id, set[M3] models) {
@@ -53,7 +53,10 @@ M3 composeJavaM3(loc id, set[M3] models) {
 @reflect
 java M3 createM3FromFile(loc file, str javaVersion = "1.7");
 
-M3 createM3FromProject(loc project, str javaVersion = "1.7") {
+@doc{
+Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [M3] model
+}
+M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
     setEnvironmentOptions(project);
     result = composeJavaM3(project, { createM3FromFile(f, javaVersion = javaVersion) | loc f <- find(project, "java") });
     registerProject(project.authority, result);
@@ -104,16 +107,16 @@ rel[loc, loc] declaredTopTypes(M3 m)
 rel[loc, loc] declaredSubTypes(M3 m) 
   = {e | tuple[loc lhs, loc rhs] e <- m@containment, isClass(e.rhs)} - declaredTopTypes(rels);
 
-set[loc] classes(M3 m) =  {e | e <- m@declarations<name>, isClass(e)};
-set[loc] interfaces(M3 m) =  {e | e <- m@declarations<name>, isInterface(e)};
-set[loc] packages(M3 m) = {e | e <- m@declarations<name>, isPackage(e)};
-set[loc] variables(M3 m) = {e | e <- m@declarations<name>, isVariable(e)};
-set[loc] parameters(M3 m)  = {e | e <- m@declarations<name>, isParameter(e)};
-set[loc] fields(M3 m) = {e | e <- m@declarations<name>, isField(e)};
-set[loc] methods(M3 m) = {e | e <- m@declarations<name>, isMethod(e)};
+@memo set[loc] classes(M3 m) =  {e | e <- m@declarations<name>, isClass(e)};
+@memo set[loc] interfaces(M3 m) =  {e | e <- m@declarations<name>, isInterface(e)};
+@memo set[loc] packages(M3 m) = {e | e <- m@declarations<name>, isPackage(e)};
+@memo set[loc] variables(M3 m) = {e | e <- m@declarations<name>, isVariable(e)};
+@memo set[loc] parameters(M3 m)  = {e | e <- m@declarations<name>, isParameter(e)};
+@memo set[loc] fields(M3 m) = {e | e <- m@declarations<name>, isField(e)};
+@memo set[loc] methods(M3 m) = {e | e <- m@declarations<name>, isMethod(e)};
 
 set[loc] elements(M3 m, loc parent) = { e | <parent, e> <- m@containment };
 
-set[loc] fields(M3 m, loc class) = { e | e <- elements(m, class), isField(e) };
-set[loc] methods(M3 m, loc class) = { e | e <- elements(m, class), isMethod(e) };
-set[loc] nestedClasses(M3 m, loc class) = { e | e <- elements(m, class), isClass(e) };
+@memo set[loc] fields(M3 m, loc class) = { e | e <- elements(m, class), isField(e) };
+@memo set[loc] methods(M3 m, loc class) = { e | e <- elements(m, class), isMethod(e) };
+@memo set[loc] nestedClasses(M3 m, loc class) = { e | e <- elements(m, class), isClass(e) };
