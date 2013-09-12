@@ -35,7 +35,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	protected IValue ownValue;
 	private static final String DATATYPE_RASCAL_AST_TYPE_NODE 			= "Type";
-	private static final String DATATYPE_RASCAL_AST_MODIFIER_NODE 		= "Modifiers";
+	private static final String DATATYPE_RASCAL_AST_MODIFIER_NODE 		= "Modifier";
 	private static final String DATATYPE_RASCAL_AST_DECLARATION_NODE 	= "Declaration";
 	private static final String DATATYPE_RASCAL_AST_EXPRESSION_NODE 	= "Expression";
 	private static final String DATATYPE_RASCAL_AST_STATEMENT_NODE 		= "Statement";
