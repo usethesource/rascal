@@ -1,7 +1,7 @@
 module lang::java::m3::Core
 
 extend lang::java::m3::TypeSymbol;
-extend lang::java::m3::Registry;
+import lang::java::m3::Registry;
 import lang::java::m3::AST;
 
 extend analysis::m3::Core;
