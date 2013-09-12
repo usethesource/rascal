@@ -27,7 +27,6 @@ int nlocal = 0;
 str mkContinue(str loopname) = "CONTINUE_<loopname>";
 str mkBreak(str loopname) = "BREAK_<loopname>";
 str mkFail(str loopname) = "FAIL_<loopname>";
-str mkFail(str loopname) = "DUMMY_<loopname>";
 
 int defaultStackSize = 25;
 
@@ -66,7 +65,6 @@ map[str,Declaration] parseLibrary(){
   	return funMap;
 }
 
-<<<<<<< HEAD
 // Does an expression produce a value? (needed for cleaning up the stack)
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
@@ -79,11 +77,9 @@ default bool producesValue(MuExp exp) = true;
 /*      Translate a muRascal module                                  */
 /*********************************************************************/
 
-RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, list[set[str]] overloaded_functions), bool listing=false){
-=======
 // Translate a muRascal module
-RVMProgram mu2rvm(muModule(str module_name, list[Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,list[str]] overloaded_functions), bool listing=false){
->>>>>>> branch 'master' of https://github.com/cwi-swat/rascal.git
+
+RVMProgram mu2rvm(muModule(str module_name, map[str,Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions), bool listing=false){
   funMap = ();
   nLabel = -1;
   temporaries = ();
@@ -478,7 +474,15 @@ INS tr_cond(e: muAll(list[MuExp] exps), str continueLab, str failLab){
            lastMulti = i;
         }
     }
+    startLab = nextLabel();
     currentFail = failLab;
+    
+    if(lastMulti == -1)
+       code = [ JMP(startLab),
+                LABEL(continueLab),
+                JMP(failLab),
+                LABEL(startLab)
+              ];
  
     for(i <- index(exps)){
         exp = exps[i];

@@ -11,12 +11,12 @@ import Prelude;
 // All information related to one Rascal module
 
 public data MuModule =											
-              muModule(str name, list[Symbol] types, 
+              muModule(str name, map[str,Symbol] types, 
                                  list[MuFunction] functions, 
                                  list[MuVariable] variables, 
                                  list[MuExp] initialization,
                                  map[str,int] resolver,
-                                 lrel[str,list[str]] overloaded_functions)
+                                 lrel[str,list[str],list[str]] overloaded_functions)
             ;
           
 // All information related to a function declaration. This can be a top-level

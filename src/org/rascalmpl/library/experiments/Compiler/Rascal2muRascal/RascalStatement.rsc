@@ -111,14 +111,14 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
 } 
 
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) =
-    muIfelse(muOne([translate(c) | c <-conditions]), [translate(thenStatement)], []);
+    muIfelse(muAll([translate(c) | c <-conditions]), [translate(thenStatement)], []);
     
 MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
     ifname = nextLabel();
     result = asTmp(ifname);
     enterLoop(ifname);
     code = [ muAssignTmp(result, muCallPrim("template_open", [])),
-             muIfelse(muOne([translate(c) | c <-conditions]), 
+             muIfelse(muAll([translate(c) | c <-conditions]), 
                       [ translate(preStats),
                         muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
                         translate(postStats)],
@@ -130,14 +130,14 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
 }    
 
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) =
-    muIfelse(muOne([translate(c) | c <-conditions]), [translate(thenStatement)], [translate(elseStatement)]);
+    muIfelse(muAll([translate(c) | c <-conditions]), [translate(thenStatement)], [translate(elseStatement)]);
     
 MuExp translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) { <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> }  else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`){                    
     ifname = nextLabel();
     result = asTmp(ifname);
     enterLoop(ifname);
     code = [ muAssignTmp(result, muCallPrim("template_open", [])),
-             muIfelse(muOne([translate(c) | c <-conditions]), 
+             muIfelse(muAll([translate(c) | c <-conditions]), 
                       [ translate(preStatsThen), 
                         muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(thenString)])),
                         translate(postStatsThen)

@@ -95,6 +95,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -1393,22 +1394,16 @@ public class Prelude {
 	 * A mini class to wrap a lessThan function
 	 */
 	private class Less {
-	  private final ICallableValue less;
-	  private final IValue[] args = new IValue[2];
-	  private final Type[] types = new Type[2];
-	  
-    Less(ICallableValue less) {
-	    this.less = less;
-	    FunctionType func = (FunctionType) less.getType();
-	    types[0] = func.getArgumentTypes().getFieldType(0);
-	    types[1] = func.getArgumentTypes().getFieldType(1);
-	  }
-    
-    public boolean less(IValue x, IValue y) {
-      args[0] = x;
-      args[1] = y;
-      return ((IBool) less.call(types, args, null).getValue()).getValue();
-    }
+		private final ICallableValue less;
+
+		Less(ICallableValue less) {
+			this.less = less;
+		}
+
+		public boolean less(IValue x, IValue y) {
+			return ((IBool) less.call(new Type[] { x.getType(), y.getType() },
+					new IValue[] { x, y }, null).getValue()).getValue();
+		}
 	}
 	
 	private class Sorting {

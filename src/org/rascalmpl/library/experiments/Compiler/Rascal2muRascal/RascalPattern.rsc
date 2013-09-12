@@ -82,7 +82,7 @@ MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) =
 // Descendant pattern
 
 MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`) =
-    muCreate(mkCallToLibFun("Library","MATCH_DESCENDANT",2), [translatePat(pattern)]);
+    muCreate(mkCallToLibFun("Library","MATCH_DESCENDANT",2), [translatePatinDescendant(pattern)]);
 
 // Anti-pattern
 MuExp translatePat(p:(Pattern) `! <Pattern pattern>`) =
@@ -97,6 +97,12 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) {
 // Default rule for pattern translation
 
 default MuExp translatePat(Pattern p) { throw "Pattern <p> cannot be translated"; }
+
+// Patterns that are part of a descendant pattern
+
+MuExp translatePatinDescendant(p:(Pattern) `<Literal lit>`) = muCreate(mkCallToLibFun("Library","MATCH_AND_DESCENT",2), [muCreate(mkCallToLibFun("Library","MATCH_AND_DESCENT_LITERAL",2), [translate(lit)])]);
+
+default MuExp translatePatinDescendant(Pattern p) = translatePat(p);
 
 // Translate patterns as element of a list pattern
 
@@ -166,17 +172,14 @@ MuExp translateFormals(list[Pattern] formals, int i, MuExp body){
 }
 
 MuExp translateFunction({Pattern ","}* formals, MuExp body){
-  println("translateFunction: <formals>");
   bool b = true;
   for(pat <- formals){
       if(!(pat is typedVariable || pat is literal))
       b = false;
   }
   if(b){    //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))){
-     println("translateFunction: optimized case");
      return translateFormals([formal | formal <- formals], 0, body);
   } else {
-      println("translateFunction: general case");
 	  list[MuExp] conditions = [];
 	  int i = 0;
 	  for(Pattern pat <- formals) {
