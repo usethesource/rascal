@@ -19,6 +19,8 @@ import experiments::Compiler::Benchmarks::BListMatch1;
 import experiments::Compiler::Benchmarks::BListMatch2;
 import experiments::Compiler::Benchmarks::BReverse1;
 import experiments::Compiler::Benchmarks::BSet1;
+import experiments::Compiler::Benchmarks::BSetMatch1;
+import experiments::Compiler::Benchmarks::BSetMatch2;
 import experiments::Compiler::Benchmarks::BWhile;
 import experiments::Compiler::Benchmarks::BSendMoreMoney;
 
@@ -84,6 +86,8 @@ void main(){
   run("BListMatch2", experiments::Compiler::Benchmarks::BListMatch2::main);
   run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
   run("BSet1", experiments::Compiler::Benchmarks::BSet1::main);
+  run("BSetMatch1", experiments::Compiler::Benchmarks::BSetMatch1::main);
+  run("BSetMatch2", experiments::Compiler::Benchmarks::BSetMatch2::main);
   //run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
   run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
   run("BSendMoreMoney", experiments::Compiler::Benchmarks::BSendMoreMoney::main);

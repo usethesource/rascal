@@ -356,9 +356,9 @@ public class RVM {
 				
 		try {
 			NEXT_INSTRUCTION: while (true) {
-				if(pc < 0 || pc >= instructions.length){
-					throw new RuntimeException(cf.function.name + " illegal pc: " + pc);
-				}
+//				if(pc < 0 || pc >= instructions.length){
+//					throw new RuntimeException(cf.function.name + " illegal pc: " + pc);
+//				}
 				int op = instructions[pc++];
 
 				if (debug) {
@@ -370,6 +370,30 @@ public class RVM {
 				}
 
 				switch (op) {
+				
+				case Opcode.OP_JMP:
+					pc = instructions[pc];
+					continue;
+
+				case Opcode.OP_JMPTRUE:
+					if (stack[sp - 1].equals(TRUE) || stack[sp - 1].equals(Rascal_TRUE)) {
+						pc = instructions[pc];
+					} else
+						pc++;
+					sp--;
+					continue;
+
+				case Opcode.OP_JMPFALSE:
+					if (stack[sp - 1].equals(FALSE) || stack[sp - 1].equals(Rascal_FALSE)) {
+						pc = instructions[pc];
+					} else
+						pc++;
+					sp--;
+					continue;
+
+				case Opcode.OP_POP:
+					sp--;
+					continue;
 
 				case Opcode.OP_LOADBOOL:
 					stack[sp++] = instructions[pc++] == 1 ? true : false;
@@ -386,6 +410,30 @@ public class RVM {
 				case Opcode.OP_LOADTYPE:
 					stack[sp++] = cf.function.typeConstantStore[instructions[pc++]];
 					continue;
+					
+				case Opcode.OP_LOADLOC:
+				case Opcode.OP_LOADLOCREF:
+					stack[sp++] = (op == Opcode.OP_LOADLOC) ? stack[instructions[pc++]] 
+															: new Reference(stack, instructions[pc++]);
+					continue;
+				
+				case Opcode.OP_LOADLOCDEREF: {
+					Reference ref = (Reference) stack[instructions[pc++]];
+					stack[sp++] = ref.stack[ref.pos];
+					continue;
+				}
+				
+				case Opcode.OP_STORELOC: {
+					stack[instructions[pc++]] = stack[sp - 1];
+					continue;
+				}
+				
+				case Opcode.OP_STORELOCDEREF:
+					Reference ref = (Reference) stack[instructions[pc++]];
+					ref.stack[ref.pos] = stack[sp - 1]; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
+					continue;
+				
+				
 
 				case Opcode.OP_LOADFUN:
 					// Loads functions that are defined at the root
@@ -424,18 +472,6 @@ public class RVM {
 				case Opcode.OP_LOADCONSTR:
 					Type constructor = constructorStore.get(instructions[pc++]);
 				
-				case Opcode.OP_LOADLOC:
-				case Opcode.OP_LOADLOCREF:
-					stack[sp++] = (op == Opcode.OP_LOADLOC) ? stack[instructions[pc++]] 
-															: new Reference(stack, instructions[pc++]);
-					continue;
-				
-				case Opcode.OP_LOADLOCDEREF: {
-					Reference ref = (Reference) stack[instructions[pc++]];
-					stack[sp++] = ref.stack[ref.pos];
-					continue;
-				}
-				
 				case Opcode.OP_LOADVAR:
 				case Opcode.OP_LOADVARREF: {
 					int s = instructions[pc++];
@@ -456,23 +492,13 @@ public class RVM {
 					int pos = instructions[pc++];
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
-							Reference ref = (Reference) fr.stack[pos];
+							ref = (Reference) fr.stack[pos];
 							stack[sp++] = ref.stack[ref.pos];
 							continue NEXT_INSTRUCTION;
 						}
 					}
 					throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + s);
 				}
-				
-				case Opcode.OP_STORELOC: {
-					stack[instructions[pc++]] = stack[sp - 1];
-					continue;
-				}
-				
-				case Opcode.OP_STORELOCDEREF:
-					Reference ref = (Reference) stack[instructions[pc++]];
-					ref.stack[ref.pos] = stack[sp - 1]; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
-					continue;
 				
 				case Opcode.OP_STOREVAR:
 					int s = instructions[pc++];
@@ -502,32 +528,7 @@ public class RVM {
 					throw new RuntimeException("STOREVARDEREF cannot find matching scope: " + s);
 
 
-				case Opcode.OP_JMP:
-					pc = instructions[pc];
-					continue;
-
-				case Opcode.OP_JMPTRUE:
-					if (stack[sp - 1].equals(TRUE) || stack[sp - 1].equals(Rascal_TRUE)) {
-						pc = instructions[pc];
-					} else
-						pc++;
-					sp--;
-					continue;
-
-				case Opcode.OP_JMPFALSE:
-					if (stack[sp - 1].equals(FALSE) || stack[sp - 1].equals(Rascal_FALSE)) {
-						pc = instructions[pc];
-					} else
-						pc++;
-					sp--;
-					continue;
-
-				case Opcode.OP_POP:
-					sp--;
-					continue;
-
-				case Opcode.OP_LABEL:
-					throw new RuntimeException("label instruction at runtime");
+				
 				
 				case Opcode.OP_CALLCONSTR:
 					constructor = constructorStore.get(instructions[pc++]);
@@ -768,25 +769,7 @@ public class RVM {
 					}
 					continue;
 					
-				case Opcode.OP_HALT:
-					if (debug) {
-						stdout.println("Program halted:");
-						for (int i = 0; i < sp; i++) {
-							stdout.println(i + ": " + stack[i]);
-						}
-					}
-					return stack[sp - 1];
 
-				case Opcode.OP_PRINTLN:
-					arity = instructions[pc++];
-					StringBuilder w = new StringBuilder();
-					for(int i = arity - 1; i >= 0; i--){
-						String str = (stack[sp - 1 - i] instanceof IString) ? ((IString) stack[sp - 1 - i]).toString() : asString(stack[sp - 1 - i]);
-						w.append(str).append(" ");
-					}
-					stdout.println(w.toString());
-					sp = sp - arity + 1;
-					continue;		
 				
 				case Opcode.OP_INIT:
 					arity = instructions[pc++];
@@ -913,7 +896,13 @@ public class RVM {
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) + ((Integer) stack[sp - 1]);
 						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
+						
+					case subtraction_mint_mint:
+						assert arity == 2;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) - ((Integer) stack[sp - 1]);
+						sp =  sp - 1;
+						continue NEXT_INSTRUCTION;
 						
 					case and_mbool_mbool:
 						assert arity == 2;
@@ -921,7 +910,31 @@ public class RVM {
 						boolean b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
 						stack[sp - 2] = b1 && b2;
 						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
+						
+					case greater_equal_mint_mint:
+						assert arity == 2;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]);
+						sp = sp - 1;
+						continue NEXT_INSTRUCTION;
+						
+					case greater_mint_mint:
+						assert arity == 2;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) > ((Integer) stack[sp - 1]);
+						sp = sp - 1;
+						continue NEXT_INSTRUCTION;
+						
+					case less_equal_mint_mint:
+						assert arity == 2;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) <= ((Integer) stack[sp - 1]);
+						sp = sp - 1;
+						continue NEXT_INSTRUCTION;
+						
+					case less_mint_mint:
+						assert arity == 2;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]);
+						sp = sp - 1;
+						continue NEXT_INSTRUCTION;
 						
 					case assign_pair:
 						assert arity == 2;
@@ -932,7 +945,7 @@ public class RVM {
 						stack[v2] = pair[1];
 						stack[sp - 3] = pair;
 						sp = sp - 2;
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case assign_subscript_array_mint:
 						assert arity == 3;
@@ -941,7 +954,7 @@ public class RVM {
 						ar[index] = stack[sp - 1];
 						stack[sp - 3] = stack[sp - 1];
 						sp = sp - 2;
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case check_arg_type:
 						assert arity == 2;
@@ -949,13 +962,19 @@ public class RVM {
 						Type paramType = ((Type) stack[sp - 1]);
 						stack[sp - 2] = argType.isSubtypeOf(paramType);
 						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
+						
+					case division_mint_mint:
+						assert arity == 2;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) / ((Integer) stack[sp - 1]);
+						sp = sp - 1;
+						continue NEXT_INSTRUCTION;
 						
 					case equal_mint_mint:
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) == ((Integer) stack[sp - 1]);
 						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case equal:
 						assert arity == 2;
@@ -966,7 +985,7 @@ public class RVM {
 						} else 
 							throw new RuntimeException("equal -- not defined on " + stack[sp - 2].getClass() + " and " + stack[sp - 2].getClass());
 						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
 							
 					case equivalent_mbool_mbool:
 						assert arity == 2;
@@ -974,7 +993,7 @@ public class RVM {
 						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
 						stack[sp - 2] = (b1 == b2);
 						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case get_name_and_children:
 						assert arity == 1;
@@ -986,7 +1005,7 @@ public class RVM {
 							elems[i + 1] = nd.get(i);
 						}
 						stack[sp - 1] =  elems;
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case get_tuple_elements:
 						assert arity == 1;
@@ -997,19 +1016,7 @@ public class RVM {
 							elems[i] = tup.get(i);
 						}
 						stack[sp - 1] =  elems;
-						break;
-						
-					case greater_equal_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						break;
-						
-					case greater_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) > ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case implies_mbool_mbool:
 						assert arity == 2;
@@ -1017,82 +1024,93 @@ public class RVM {
 						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
 						stack[sp - 2] = b1 ? b2 : true;
 						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
+						
+					case is_defined:
+						assert arity == 1;
+						stack[sp - 1] = stack[sp - 1] != null;
+						continue NEXT_INSTRUCTION;
+						
+					case is_element:
+						assert arity == 2;
+						stack[sp - 2] = ((ISet) stack[sp - 1]).contains((ISet) stack[sp - 2]);
+						sp = sp - 1;
+						continue NEXT_INSTRUCTION;
 						
 					case is_bool:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isBool();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_datetime:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isDateTime();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_int:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isInteger();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_list:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isList();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_loc:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isSourceLocation();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_lrel:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isListRelation();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_map:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isMap();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_node:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isNode();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_num:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isNumber();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_rat:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isRational();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_real:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isReal();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_rel:
 						assert arity == 1;
 						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isRelation();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_set:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isSet();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_str:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isString();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case is_tuple:
 						assert arity == 1;
 						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isTuple();
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case keys_map:
 						assert arity == 1;
@@ -1102,19 +1120,9 @@ public class RVM {
 							writer.append(key);
 						}
 						stack[sp - 1] = writer.done();
-						break;
+						continue NEXT_INSTRUCTION;
 						
-					case less_equal_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) <= ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						break;
-						
-					case less_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						break;
+					
 						
 					case make_array:
 						assert arity >= 0;
@@ -1126,30 +1134,36 @@ public class RVM {
 						}
 						sp = sp - arity + 1;
 						stack[sp - 1] = ar;
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case make_array_of_size:
 						assert arity == 1;
 						int len = ((Integer)stack[sp - 1]);
 						stack[sp - 1] = new Object[len];
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case mint:
 						assert arity == 1;
 						stack[sp - 1] = ((IInteger) stack[sp - 1]).intValue();
-						break;
+						continue NEXT_INSTRUCTION;
+						
+					case modulo_mint_mint:
+						assert arity == 2;
+						stack[sp - 2] = ((Integer) stack[sp - 2]) % ((Integer) stack[sp - 1]);
+						sp = sp - 1;
+						continue NEXT_INSTRUCTION;
 						
 					case not_equal_mint_mint:
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) != ((Integer) stack[sp - 1]);
 						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case not_mbool:
 						assert arity == 1;
 						b1 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
 						stack[sp - 1] = !b1;
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case or_mbool_mbool:
 						assert arity == 2;
@@ -1157,17 +1171,29 @@ public class RVM {
 						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
 						stack[sp - 2] = b1 || b2;
 						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
+						
+					case power_mint_mint:
+						assert arity == 2;
+						int n1 = ((Integer) stack[sp - 2]);
+						int n2 = ((Integer) stack[sp - 1]);
+						int pow = 1;
+						for(int i = 0; i < n2; i++){
+							pow *= n1;
+						}
+						stack[sp - 2] = pow;
+						sp = sp - 1;
+						continue NEXT_INSTRUCTION;
 						
 					case rbool:
 						assert arity == 1;
 						stack[sp -1] = (stack[sp -1] instanceof Boolean) ? vf.bool((Boolean) stack[sp - 2]) : (IBool) stack[sp - 1];
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case rint:
 						assert arity == 1;
 						stack[sp -1] = vf.integer((Integer) stack[sp -1]);
-						break;
+						continue NEXT_INSTRUCTION;
 					
 					case set2list:
 						assert arity == 1;
@@ -1177,21 +1203,41 @@ public class RVM {
 							writer.append(elem);
 						}
 						stack[sp - 1] = writer.done();
-						break;
+						continue NEXT_INSTRUCTION;
 						
-					case size_array_or_list_or_map_or_tuple:
+					case size_array_or_list_or_set_or_map_or_tuple:
 						assert arity == 1;
 						if(stack[sp - 1] instanceof Object[]){
 							stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
 						} else if(stack[sp - 1] instanceof IList){
 							stack[sp - 1] = ((IList) stack[sp - 1]).length();
+						} else if(stack[sp - 1] instanceof ISet){
+							stack[sp - 1] = ((ISet) stack[sp - 1]).size();
 						} else if(stack[sp - 1] instanceof IMap){
 							stack[sp - 1] = ((IMap) stack[sp - 1]).size();
 						} else if(stack[sp - 1] instanceof ITuple){
 							stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
 						} else
 							throw new RuntimeException("size_array_or_list_mint -- not defined on " + stack[sp - 1].getClass());
-						break;
+						continue NEXT_INSTRUCTION;
+						
+					case starts_with:
+						assert arity == 3;
+						IList sublist = (IList) stack[sp - 3];
+						IList list = (IList) stack[sp - 2];
+						int start = (Integer) stack[sp - 1];
+						boolean eq = true;
+						
+						if(start + sublist.length() <= list.length()){
+							for(int i = 0; i < sublist.length() && eq; i++){
+								if(!sublist.get(i).equals(list.get(start + i))){
+									eq = false;
+								}
+							}
+						}
+						stack[sp - 3] = eq;
+						sp = sp - 2;
+						continue NEXT_INSTRUCTION;
 						
 					case sublist_list_mint_mint:
 						assert arity == 3;
@@ -1200,7 +1246,7 @@ public class RVM {
 						int length = ((Integer) stack[sp - 1]);
 						stack[sp - 3] = lst.sublist(offset, length);
 						sp = sp - 2;
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case subscript_array_or_list_or_tuple_mint:
 						assert arity == 2;
@@ -1213,19 +1259,15 @@ public class RVM {
 						} else
 							throw new RuntimeException("subscript_array_or_list_mint -- Object[] or IList expected");
 						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
 						
-					case subtraction_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) - ((Integer) stack[sp - 1]);
-						sp =  sp - 1;
-						break;
+					
 						
 					case subtype:
 						assert arity == 2;
 						stack[sp - 2] = ((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]);
 						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case typeOf:
 						assert arity == 1;
@@ -1234,13 +1276,13 @@ public class RVM {
 						} else {
 							stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
 						}
-						break;
+						continue NEXT_INSTRUCTION;
 					
 					case product_mint_mint:
 						assert arity == 2;
 						stack[sp - 2] = ((Integer) stack[sp - 2]) * ((Integer) stack[sp - 1]);
 						sp = sp - 1;
-						break;
+						continue NEXT_INSTRUCTION;
 						
 					case values_map:
 						assert arity == 1;
@@ -1250,13 +1292,35 @@ public class RVM {
 							writer.append(map.get(key));
 						}
 						stack[sp - 1] = writer.done();
-						break;
+						continue NEXT_INSTRUCTION;
 					
 					
 					default:
 						throw new RuntimeException("CALLMUPRIM -- unknown primitive");
 					}
-					continue;
+					
+				case Opcode.OP_LABEL:
+					throw new RuntimeException("label instruction at runtime");
+					
+				case Opcode.OP_HALT:
+					if (debug) {
+						stdout.println("Program halted:");
+						for (int i = 0; i < sp; i++) {
+							stdout.println(i + ": " + stack[i]);
+						}
+					}
+					return stack[sp - 1];
+
+				case Opcode.OP_PRINTLN:
+					arity = instructions[pc++];
+					StringBuilder w = new StringBuilder();
+					for(int i = arity - 1; i >= 0; i--){
+						String str = (stack[sp - 1 - i] instanceof IString) ? ((IString) stack[sp - 1 - i]).toString() : asString(stack[sp - 1 - i]);
+						w.append(str).append(" ");
+					}
+					stdout.println(w.toString());
+					sp = sp - arity + 1;
+					continue;		
 								
 				default:
 					throw new RuntimeException("RVM main loop -- cannot decode instruction");

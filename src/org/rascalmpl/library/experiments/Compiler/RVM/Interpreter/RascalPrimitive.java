@@ -172,7 +172,6 @@ public enum RascalPrimitive {
 	str_subscript_int,
 
 	has,
-	//implies_bool_bool,
 	set_intersect_set,
 	list_intersect_list,
 	map_intersect_map,
@@ -240,6 +239,7 @@ public enum RascalPrimitive {
 	real_lessequal_real,
 	real_lessequal_rat,
 
+	set_lessequal_set,
 	str_lessequal_str,
 	
 	list_size,
@@ -323,6 +323,7 @@ public enum RascalPrimitive {
 	list_subtract_list,
 	map_subtract_map,
 	set_subtract_set,
+	set_subtract_elm,
 
 	int_subtract_int,
 	int_subtract_num,
@@ -353,6 +354,8 @@ public enum RascalPrimitive {
 	rel_transitive_closure,
 	lrel_transitive_reflexive_closure,
 	rel_transitive_reflexive_closure,
+	
+	
 	
 	template_open,
 	template_add,
@@ -1755,6 +1758,14 @@ public enum RascalPrimitive {
 	}
 
 	// lessequal on other types
+	
+	public static int set_lessequal_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ISet) stack[sp - 2]).isSubsetOf((ISet) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	
 	public static int str_lessequal_str(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
@@ -2548,6 +2559,12 @@ public enum RascalPrimitive {
 	public static int set_subtract_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 2]).subtract((ISet) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int set_subtract_elm(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ISet) stack[sp - 2]).delete((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
 

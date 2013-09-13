@@ -609,7 +609,7 @@ public Configuration addClosure(Configuration c, Symbol rt, loc l) {
     return c;
 }
 
-public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l) {
+public Configuration addFunction(Configuration c, RName n, Symbol rt, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l) {
     // TODO: Handle the visibility properly. The main point is that we should not have variants
     // for the same function that are given different visibilities.
     // TODO: Verify the scoping is working properly for the second and third cases. It should be the
@@ -633,12 +633,18 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVar
             c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
         }
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
+        for(Modifier modifier <- modifiers) {
+        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
+        } 
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
         //c.stack = c.nextLoc + c.stack;
         c.nextLoc = c.nextLoc + 1;
     } else if (overload(items, overloaded(itemTypes)) := c.store[c.fcvEnv[n]]) {
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
+        for(Modifier modifier <- modifiers) {
+        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
+        }
         c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes + rt));
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
@@ -646,6 +652,9 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVar
         c.nextLoc = c.nextLoc + 1;
     } else if (function(_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
+        for(Modifier modifier <- modifiers) {
+        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
+        }
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
         //c.stack = c.nextLoc + c.stack;
@@ -663,6 +672,9 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVar
             c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
         }
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
+        for(Modifier modifier <- modifiers) {
+        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
+        }
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
         //c.stack = c.nextLoc + c.stack;
@@ -5336,18 +5348,19 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     // First, check to see if we have processed this declaration before. If we have, just get back the
     // id for the function, we don't want to create a new entry for it.
     if (fd@\loc notin c.definitions<1>) { 
+    	set[Modifier] modifiers = getModifiers(sig);
         cFun = prepareSignatureEnv(c);
             
         // Put the function in, so we can enter the correct scope. This also puts the function name into the
         // scope -- we don't want to inadvertently use the function name as the name of a pattern variable,
         // and this makes sure we find it when checking the patterns in the signature.
-        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         < cFun, tFun > = processSignature(sig, cFun);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
     
         // We now have the function type. So, we can throw cFun away, and add this as a proper function
         // into the scope. NOTE: This can be a failure type.
-        c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        c = addFunction(c, rn, tFun, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
     //else {
     funId = getOneFrom(invert(c.definitions)[fd@\loc]);
@@ -5373,10 +5386,11 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     println("Checking function <prettyPrintName(rn)>");
 
     if (fd@\loc notin c.definitions<1>) { 
+    	set[Modifier] modifiers = getModifiers(sig);
         cFun = prepareSignatureEnv(c);
-        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         < cFun, tFun > = processSignature(sig, cFun);
-        c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        c = addFunction(c, rn, tFun, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
     }
     //else {
@@ -5420,11 +5434,12 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
     println("Checking function <prettyPrintName(rn)>");
 
-    if (fd@\loc notin c.definitions<1>) { 
+    if (fd@\loc notin c.definitions<1>) {
+    	set[Modifier] modifiers = getModifiers(sig); 
         cFun = prepareSignatureEnv(c);
-        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         < cFun, tFun > = processSignature(sig, cFun);
-        c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        c = addFunction(c, rn, tFun, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
     }
     //else {
@@ -5472,10 +5487,11 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     println("Checking function <prettyPrintName(rn)>");
     
     if (fd@\loc notin c.definitions<1>) { 
+    	set[Modifier] modifiers = getModifiers(sig);
         cFun = prepareSignatureEnv(c);
-        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         < cFun, tFun > = processSignature(sig, cFun);
-        c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        c = addFunction(c, rn, tFun, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
     }
     //else {
@@ -5544,8 +5560,8 @@ public CheckResult processSignature(Signature sig:(Signature)`<FunctionModifiers
 }
 
 @doc{Extract the function modifiers from the signature.}
-public RName getModifiers(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`) = getModifiers(mds);
-public RName getModifiers(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps>`) = getModifiers(mds);
+public set[Modifier] getModifiers(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`) = getModifiers(mds);
+public set[Modifier] getModifiers(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps>`) = getModifiers(mds);
 
 @doc{Extract the function modifiers from the list of modifiers.}
 set[Modifier] getModifiers(FunctionModifiers fmods:(FunctionModifiers)`<FunctionModifier* fms>`) {
@@ -5601,10 +5617,11 @@ public Configuration importFunction(RName functionName, Signature sig, loc at, V
         < c, ttypeC > = convertAndExpandType(ttype, c); 
         throwsTypes += ttypeC; 
     }
+    set[Modifier] modifiers = getModifiers(sig);
     cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
-    cFun = addFunction(cFun, functionName, Symbol::\func(\void(),[]), isVarArgs(sig), vis, throwsTypes, at);
+    cFun = addFunction(cFun, functionName, Symbol::\func(\void(),[]), modifiers, isVarArgs(sig), vis, throwsTypes, at);
     < cFun, tFun > = processSignature(sig, cFun);
-    c = addFunction(c, functionName, tFun, isVarArgs(sig), vis, throwsTypes, at);
+    c = addFunction(c, functionName, tFun, modifiers, isVarArgs(sig), vis, throwsTypes, at);
     return c;
 }
 
