@@ -254,7 +254,6 @@ public class BindingsResolver {
     return computeTypeSymbol(decl, binding);
   }
 
-  @SuppressWarnings("restriction")
   private IConstructor computeTypeSymbol(ISourceLocation decl, ITypeBinding binding) {
     if (binding.isPrimitive()) {
       return primitiveSymbol(binding.getName());
