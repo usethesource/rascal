@@ -375,14 +375,14 @@ public class M3Converter extends JavaToRascalConverter {
 		return true;
 	}
 	
-	private void generatePackageDecls(URI child, URI pkg, URI folder) {
-	  insert(containment, values.sourceLocation(pkg), values.sourceLocation(child));
-    insert(names, values.string(pkg.getPath()), values.sourceLocation(pkg));
-    insert(declarations, values.sourceLocation(pkg), values.sourceLocation(folder));
-  
-    if (!child.getPath().equals("")) {
-      generatePackageDecls(pkg, URIUtil.getParentURI(pkg), URIUtil.getParentURI(folder));
-    }
+	private void generatePackageDecls(URI parent, URI pkg, URI folder) {
+	    insert(declarations, values.sourceLocation(pkg), values.sourceLocation(folder));
+	  
+	    if (!(parent == null)) {
+	    	insert(containment, values.sourceLocation(parent), values.sourceLocation(pkg));
+	        insert(names, values.string(pkg.getPath()), values.sourceLocation(pkg));
+	        generatePackageDecls(URIUtil.getParentURI(pkg), pkg, URIUtil.getParentURI(folder));
+    	}
 	}
 	
 	public boolean visit(PackageDeclaration node) {
@@ -394,7 +394,8 @@ public class M3Converter extends JavaToRascalConverter {
 		  return true;
 		}
 		
-		generatePackageDecls(((ISourceLocation) ownValue).getURI(), resolveBinding(binding).getURI(), URIUtil.getParentURI(loc.getURI()));
+		
+		generatePackageDecls(URIUtil.getParentURI(((ISourceLocation) ownValue).getURI()), ((ISourceLocation) ownValue).getURI(), URIUtil.getParentURI(loc.getURI()));
 	
 		insert(containment, ownValue, getParent());
 		
