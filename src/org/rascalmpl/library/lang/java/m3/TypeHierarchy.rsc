@@ -5,8 +5,8 @@ import lang::java::m3::TypeSymbol;
 
 rel[loc from, loc to] getDeclaredTypeHierarchy(M3 model) {
   typeHierarchy = model@extends + model@implements;
-  classesWithoutParent = classes(model) - typeHierarchy<from>;
+  typesWithoutParent = classes(model) + interfaces(model) - typeHierarchy<from>;
   
-  return classesWithoutParent * {|java+class:///java/lang/Object|} + typeHierarchy;
+  return typesWithoutParent * {|java+class:///java/lang/Object|} + typeHierarchy;
 }
 
