@@ -379,10 +379,11 @@ public class M3Converter extends JavaToRascalConverter {
 	    insert(declarations, values.sourceLocation(pkg), values.sourceLocation(folder));
 	  
 	    if (!(parent == null)) {
-	    	insert(containment, values.sourceLocation(parent), values.sourceLocation(pkg));
-	        insert(names, values.string(pkg.getPath()), values.sourceLocation(pkg));
-	        pkg = parent;
-	        generatePackageDecls(URIUtil.getParentURI(pkg), pkg, URIUtil.getParentURI(folder));
+	      insert(containment, values.sourceLocation(parent), values.sourceLocation(pkg));
+	      insert(names, values.string(pkg.getPath()), values.sourceLocation(pkg));
+	      pkg = parent;
+	      generatePackageDecls(URIUtil.getParentURI(pkg), pkg, URIUtil.getParentURI(folder));
+	    }
     	}
 	
 	public boolean visit(PackageDeclaration node) {
