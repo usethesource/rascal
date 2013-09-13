@@ -995,10 +995,13 @@ public class Prelude {
 	}
 	
 	public IValue exists(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		return values.bool(ctx.getResolverRegistry().exists(sloc.getURI()));
 	}
 	
 	public IValue lastModified(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  
 		try {
 			return values.datetime(ctx.getResolverRegistry().lastModified(sloc.getURI()));
 		} catch(FileNotFoundException e){
@@ -1010,18 +1013,23 @@ public class Prelude {
 	}
 	
 	public IValue isDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		return values.bool(ctx.getResolverRegistry().isDirectory(sloc.getURI()));
 	}
 	
 	public IValue isFile(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		return values.bool(ctx.getResolverRegistry().isFile(sloc.getURI()));
 	}
 	
 	public void mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) throws IOException {
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		ctx.getResolverRegistry().mkDirectory(sloc.getURI());
 	}
 	
 	public IValue listEntries(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  
 		try {
 			java.lang.String [] entries = ctx.getResolverRegistry().listEntries(sloc.getURI());
 			IListWriter w = values.listWriter();
