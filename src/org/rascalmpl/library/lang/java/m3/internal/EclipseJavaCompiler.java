@@ -38,12 +38,12 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 
-public class JDT {
-  private final IValueFactory VF;
+public class EclipseJavaCompiler {
+  protected final IValueFactory VF;
   private List<String> classPathEntries;
   private List<String> sourcePathEntries;
 
-  public JDT(IValueFactory vf) {
+  public EclipseJavaCompiler(IValueFactory vf) {
     this.VF = vf;
     this.classPathEntries = new ArrayList<String>();
     this.sourcePathEntries = new ArrayList<String>();
@@ -116,7 +116,7 @@ public class JDT {
     }
   }
 
-  private CompilationUnit getCompilationUnit(ISourceLocation loc, boolean resolveBindings, IString javaVersion,
+  protected CompilationUnit getCompilationUnit(ISourceLocation loc, boolean resolveBindings, IString javaVersion,
       IEvaluatorContext ctx) throws IOException {
     ASTParser parser = ASTParser.newParser(AST.JLS4);
     parser.setUnitName(loc.getURI().getPath());

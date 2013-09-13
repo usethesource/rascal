@@ -28,10 +28,12 @@ metrics or other analysis tools should still take semantic differences between p
 module analysis::m3::Core
 
 import Message;
+import util::FileSystem;
+import analysis::graphs::Graph;
 extend analysis::m3::TypeSymbol;
  
-data Modifiers;
-data M3 = m3(str projectName);
+data Modifier;
+data M3 = m3(loc id);
              
 anno rel[loc name, loc src]        M3@declarations;            // maps declarations to where they are declared. contains any kind of data or type or code declaration (classes, fields, methods, variables, etc. etc.)
 anno rel[loc name, TypeSymbol typ] M3@types;                   // assigns types to declared source code artifacts
@@ -40,4 +42,52 @@ anno rel[loc from, loc to]         M3@containment;             // what is logica
 anno list[Message messages]        M3@messages;                // error messages and warnings produced while constructing a single m3 model
 anno rel[str simpleName, loc qualifiedName]  M3@names;         // convenience mapping from logical names to end-user readable (GUI) names, and vice versa
 anno rel[loc definition, loc comments]       M3@documentation; // comments and javadoc attached to declared things
-anno rel[loc definition, Modifiers modifier] M3@modifiers;     // modifiers associated with declared things
+anno rel[loc definition, Modifier modifier] M3@modifiers;     // modifiers associated with declared things
+
+M3 composeM3(loc id, set[M3] models) {
+  m = m3(id);
+  
+  m@declarations = {*model@declarations | model <- models};
+  m@uses = {*model@uses | model <- models};
+  m@containment = {*model@containment | model <- models};
+  m@documentation = {*model@documentation | model <- models};
+  m@modifiers = {*model@modifiers | model <- models};
+  m@messages = [*model@messages | model <- models];
+  m@names = {*model@names | model <- models};
+  m@types = {*model@types | model <- models};
+  
+  return m;
+}
+
+@doc{
+Synopsis: constructs a recursive FileSystem from a binary [Location] relation.
+
+Description: this function will not terminate if the relation is cyclic.
+}
+@memo set[FileSystem] relToFileSystem(rel[loc parent, loc child] r) {
+  FileSystem rec(loc l, set[loc] args) = (args == {}) ? file(l) : directory(l, {rec(c, r[c]) | c <- args});
+  return {rec(t, r[t]) | t <- top(r)};
+}
+
+@doc{
+Synopsis: transform the containment relation to a recursive tree model
+
+Description:
+
+Benefits:
+
+* Transforming the containment relation to a tree model allows further analysis using operators
+such as [Visit] and [Descendant] which is sometimes more convenient.
+
+Pitfalls:
+
+* Do not forget that the relational operators such as [TransitiveClosure], [Comprehension] and [Composition] may be just
+as effective and perhaps more efficient, as applied directly on the containment relation. 
+}
+set[FileSystem] containmentToFileSystem(M3 model) = relToFileSystem(model@containment);
+
+list[Message] checkM3(M3 model) {
+  result  = [m | m <- model@messages, m is error];
+  result += [error("undeclared element in containment", decl) | decl <- m@containment<to> - m@declarations<name>];
+  result += [error("non-root element is not contained anywhere", decl) | decl <- m@containment<from> - m@declarations<name> - top(m@containment)];
+}
