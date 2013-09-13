@@ -55,7 +55,6 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-@SuppressWarnings("restriction")
 public class BindingsResolver {
 	private String project;
 	private TypeStore store;

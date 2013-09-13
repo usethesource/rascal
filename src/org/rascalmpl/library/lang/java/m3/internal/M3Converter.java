@@ -243,6 +243,7 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(CompilationUnit node) {
+	  insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
@@ -517,7 +518,6 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(TypeParameter node) {
-		// ???
 		IValueList extendsList = new IValueList(values);
 		if (!node.typeBounds().isEmpty()) {
 			for (Iterator it = node.typeBounds().iterator(); it.hasNext();) {
@@ -526,8 +526,7 @@ public class M3Converter extends JavaToRascalConverter {
 			}
 		}
 		
-		//TODO: ???
-		// insert(typeInheritance, ownValue, extendsList);
+		insert(containment, getParent(), ownValue);
 		
 		return true;
 	}
