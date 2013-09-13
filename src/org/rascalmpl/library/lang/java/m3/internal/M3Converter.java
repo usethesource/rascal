@@ -375,6 +375,16 @@ public class M3Converter extends JavaToRascalConverter {
 		return true;
 	}
 	
+	private void generatePackageDecls(URI child, URI pkg, URI folder) {
+	  insert(containment, values.sourceLocation(pkg), values.sourceLocation(child));
+    insert(names, values.string(pkg.getPath()), values.sourceLocation(pkg));
+    insert(declarations, values.sourceLocation(pkg), values.sourceLocation(folder));
+  
+    if (!child.getPath().equals("")) {
+      generatePackageDecls(pkg, URIUtil.getParentURI(pkg), URIUtil.getParentURI(folder));
+    }
+	}
+	
 	public boolean visit(PackageDeclaration node) {
 		IPackageBinding binding = node.resolveBinding();
 		
@@ -384,24 +394,8 @@ public class M3Converter extends JavaToRascalConverter {
 		  return true;
 		}
 		
+		generatePackageDecls(((ISourceLocation) ownValue).getURI(), resolveBinding(binding).getURI(), URIUtil.getParentURI(loc.getURI()));
 	
-		String parent = "";
-		String current = "";
-    for (String component: binding.getNameComponents()) {
-      current += ("/" + component);
-
-      ISourceLocation parentBinding = resolveBinding(parent);
-      insert(containment, parentBinding, resolveBinding(current));
-      insert(names, values.string(component), resolveBinding(current));
-			
-      // Here we implicitly declare all the parent packages, 
-      // i.e. java+package://<project>/java is a parent of java+package://<project>/java/util
-			URI pathURI = URIUtil.assumeCorrect(loc.getURI().getScheme(), loc.getURI().getAuthority(), current);
-			insert(declarations, resolveBinding(current), values.sourceLocation(pathURI));
-			
-			parent = current;
-		}
-		
 		insert(containment, ownValue, getParent());
 		
 		scopeManager.push((ISourceLocation) ownValue);
