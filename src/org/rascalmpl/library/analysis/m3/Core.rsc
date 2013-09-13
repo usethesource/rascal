@@ -28,6 +28,8 @@ metrics or other analysis tools should still take semantic differences between p
 module analysis::m3::Core
 
 import Message;
+import Set;
+import IO;
 import util::FileSystem;
 import analysis::graphs::Graph;
 extend analysis::m3::TypeSymbol;
@@ -67,6 +69,23 @@ Description: this function will not terminate if the relation is cyclic.
 @memo set[FileSystem] relToFileSystem(rel[loc parent, loc child] r) {
   FileSystem rec(loc l, set[loc] args) = (args == {}) ? file(l) : directory(l, {rec(c, r[c]) | c <- args});
   return {rec(t, r[t]) | t <- top(r)};
+}
+
+set[loc] files(M3 model) {
+ todo = top(model@containment);
+ done = {};
+ 
+ while (todo != {}) {
+   <elem,todo> = takeOneFrom(todo);
+   if (isDirectory(elem)) {
+     todo += model@containment[elem];
+   }
+   else {
+     done += elem;
+   }
+ }
+ 
+ return done;
 }
 
 @doc{

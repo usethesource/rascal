@@ -223,7 +223,7 @@ public class M3Converter extends JavaToRascalConverter {
 		}
 		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
-	  IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding());
+	  IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding(), false);
     insert(types, ownValue, type);
 		return true;
 	}
@@ -289,7 +289,7 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 
   private void computeTypeSymbol(AbstractTypeDeclaration node) {
-    IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding());
+    IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding(), true);
     insert(types, ownValue, type);
   }
 	
@@ -341,7 +341,7 @@ public class M3Converter extends JavaToRascalConverter {
 			fillOverrides(node.resolveBinding(), ((AnonymousClassDeclaration)parent).resolveBinding());
 		}
 		
-		IConstructor type = bindingsResolver.computeMethodTypeSymbol(node.resolveBinding());
+		IConstructor type = bindingsResolver.computeMethodTypeSymbol(node.resolveBinding(), true);
 		insert(types, ownValue, type);
 	}
 	
@@ -455,7 +455,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(SingleVariableDeclaration node) {
 		ownValue = scopeManager.pop();
-	  IConstructor type = bindingsResolver.computeTypeSymbol(node.getType().resolveBinding());
+	  IConstructor type = bindingsResolver.computeTypeSymbol(node.getType().resolveBinding(), false);
     insert(types, ownValue, type);
 	}
 	
@@ -565,7 +565,7 @@ public class M3Converter extends JavaToRascalConverter {
 		IVariableBinding binding = node.resolveBinding();
 		
 		if (binding != null) {
-		  IConstructor type = bindingsResolver.computeTypeSymbol(binding.getType());
+		  IConstructor type = bindingsResolver.computeTypeSymbol(binding.getType(), false);
 		  insert(types, ownValue, type);
 		}
 		else {
