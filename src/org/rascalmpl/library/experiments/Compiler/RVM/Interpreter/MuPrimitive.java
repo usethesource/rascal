@@ -30,6 +30,7 @@ public enum MuPrimitive {
 	is_str,
 	is_tuple,
 	keys_map,
+	values_map,
 	less_equal_mint_mint,
 	less_mint_mint,
 	make_array,
