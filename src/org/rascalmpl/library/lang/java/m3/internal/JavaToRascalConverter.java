@@ -77,8 +77,9 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		URI packageBinding = new BindingsResolver(typeStore, this.collectBindings) {
 			public URI resolveBinding(String packageC) {
 				this.setProject(loc.getURI().getAuthority());
-				if (collectBindings)
+				if (collectBindings) {
 					return convertBinding("java+package", packageC, null, null);
+				}
 				return convertBinding("unknown", null, null, null);
 			}
 		}.resolveBinding(packageComponent);
@@ -89,6 +90,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected ISourceLocation resolveBinding(CompilationUnit node) {
 		URI compilationUnit = new BindingsResolver(typeStore, true) {
 			public URI resolveBinding(CompilationUnit node) {
+			  this.setProject(loc.getURI().getAuthority());
 				return convertBinding("java+compilationUnit", loc.getURI().getPath(), null, null);
 			}
 		}.resolveBinding(node);
