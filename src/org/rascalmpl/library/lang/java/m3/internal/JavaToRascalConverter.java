@@ -35,7 +35,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	protected IValue ownValue;
 	private static final String DATATYPE_RASCAL_AST_TYPE_NODE 			= "Type";
-	private static final String DATATYPE_RASCAL_AST_MODIFIER_NODE 		= "Modifiers";
+	private static final String DATATYPE_RASCAL_AST_MODIFIER_NODE 		= "Modifier";
 	private static final String DATATYPE_RASCAL_AST_DECLARATION_NODE 	= "Declaration";
 	private static final String DATATYPE_RASCAL_AST_EXPRESSION_NODE 	= "Expression";
 	private static final String DATATYPE_RASCAL_AST_STATEMENT_NODE 		= "Statement";
@@ -70,15 +70,16 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	public void set(ISourceLocation loc) {
 		this.loc = loc;
-		bindingsResolver.setProject(loc.getURI().getAuthority());
+    bindingsResolver.setProject(loc.getURI().getAuthority());
 	}
 	
 	protected ISourceLocation resolveBinding(String packageComponent) {
 		URI packageBinding = new BindingsResolver(typeStore, this.collectBindings) {
 			public URI resolveBinding(String packageC) {
 				this.setProject(loc.getURI().getAuthority());
-				if (collectBindings)
+				if (collectBindings) {
 					return convertBinding("java+package", packageC, null, null);
+				}
 				return convertBinding("unknown", null, null, null);
 			}
 		}.resolveBinding(packageComponent);
@@ -89,6 +90,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected ISourceLocation resolveBinding(CompilationUnit node) {
 		URI compilationUnit = new BindingsResolver(typeStore, true) {
 			public URI resolveBinding(CompilationUnit node) {
+			  this.setProject(loc.getURI().getAuthority());
 				return convertBinding("java+compilationUnit", loc.getURI().getPath(), null, null);
 			}
 		}.resolveBinding(node);

@@ -15,6 +15,6 @@ extend experiments::Compiler::Tests::Statements;
 extend experiments::Compiler::Tests::Patterns;
 extend experiments::Compiler::Tests::StringTemplates;
 
-extend experiments::Compiler::Examples::Run;
+//extend experiments::Compiler::Examples::Run;
 
 

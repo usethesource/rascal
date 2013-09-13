@@ -1,20 +1,12 @@
 module lang::java::m3::TypeHierarchy
 
 import lang::java::m3::Core;
+import lang::java::m3::TypeSymbol;
 
-public rel[loc from, loc to] getDeclaredTypeHierarchy(M3 model) {
-  set[loc] allClasses = {e | e <- domain(model@declarations), e.scheme == "java+class" || e.scheme == "java+interface"};
-  set[loc] classesWithoutParent = allClasses - carrier(model@extends);
-  rel[loc, loc] typeHierarchy = model@extends;
+rel[loc from, loc to] getDeclaredTypeHierarchy(M3 model) {
+  typeHierarchy = model@extends + model@implements;
+  typesWithoutParent = classes(model) + interfaces(model) - typeHierarchy<from>;
   
-  classesWithoutParent += top(invert(typeHierarchy));
-  
-  loc javaObject = |java+class:///java/lang/Object|;
-  
-  for (loc topClass <- classesWithoutParent) {
-    javaObject.authority = topClass.authority;
-    typeHierarchy += <topClass, javaObject>;
-  }
-  
-  return typeHierarchy;
+  return typesWithoutParent * {|java+class:///java/lang/Object|} + typeHierarchy;
 }
+

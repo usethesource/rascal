@@ -16,6 +16,7 @@ data TypeSymbol
   | \constructor(loc decl, list[TypeSymbol] parameters)
   | \typeParameter(loc decl, Bound upperbound) 
   | \wildcard(Bound bound)
+  | \capture(Bound bound, TypeSymbol wildcard)
   | \intersection(list[TypeSymbol] types)
   | \union(list[TypeSymbol] types)
   | \object()
