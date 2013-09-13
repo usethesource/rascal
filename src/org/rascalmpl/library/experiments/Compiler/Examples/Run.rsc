@@ -12,6 +12,7 @@ import experiments::Compiler::Examples::Fail;
 import experiments::Compiler::Examples::ListMatch;
 import experiments::Compiler::Examples::Odd;
 import experiments::Compiler::Examples::SendMoreMoney;
+import experiments::Compiler::Examples::SetMatch;
 import experiments::Compiler::Examples::Tmp;
 import experiments::Compiler::Examples::TestSuite;
 //import experiments::Compiler::Examples::Template;
@@ -30,6 +31,7 @@ test bool tst() = demo("D1D2") == experiments::Compiler::Examples::D1D2::main([]
 test bool tst() = demo("Fac") == experiments::Compiler::Examples::Fac::main([]);
 test bool tst() = demo("Fib") == experiments::Compiler::Examples::Fib::main([]);
 test bool tst() = demo("ListMatch") == experiments::Compiler::Examples::ListMatch::main([]);
+test bool tst() = demo("SetMatch") == experiments::Compiler::Examples::SetMatch::main([]);
 test bool tst() = demo("Odd") == experiments::Compiler::Examples::Odd::main([]);
 test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
 //test bool tst() = demo("Template") == experiments::Compiler::Examples::Template::main([]);
