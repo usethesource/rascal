@@ -171,40 +171,40 @@ public class BindingsResolver {
 		return convertBinding("unknown", null, null, null);
 	}
 	
-	public IConstructor resolveType(ISourceLocation uri, IBinding binding) {
+	public IConstructor resolveType(ISourceLocation uri, IBinding binding, boolean isDeclaration) {
     if (binding instanceof ITypeBinding) {
-      return computeTypeSymbol(uri, (ITypeBinding) binding);
+      return computeTypeSymbol(uri, (ITypeBinding) binding, isDeclaration);
     } else if (binding instanceof IMethodBinding) {
-      return computeMethodTypeSymbol(uri, (IMethodBinding) binding);
+      return computeMethodTypeSymbol(uri, (IMethodBinding) binding, isDeclaration);
     } else if (binding instanceof IVariableBinding) {
-      return resolveType(uri, ((IVariableBinding) binding).getType());
+      return resolveType(uri, ((IVariableBinding) binding).getType(), isDeclaration);
     }
     
     return null;
 	}
 	
-	public IConstructor computeMethodTypeSymbol(IMethodBinding binding) {
+	public IConstructor computeMethodTypeSymbol(IMethodBinding binding, boolean isDeclaration) {
 	  ISourceLocation decl = values.sourceLocation(resolveBinding(binding));
-	  return computeMethodTypeSymbol(decl, binding);
+	  return computeMethodTypeSymbol(decl, binding, isDeclaration);
 	}
 	
-	private IConstructor computeMethodTypeSymbol(ISourceLocation decl, IMethodBinding binding) {
-    IList parameters = computeTypes(binding.getParameterTypes());
+	private IConstructor computeMethodTypeSymbol(ISourceLocation decl, IMethodBinding binding, boolean isDeclaration) {
+    IList parameters = computeTypes(binding.getParameterTypes(), false);
     
     if (binding.isConstructor()) {
       return constructorSymbol(decl, parameters);
     } else {
-      IList typeParameters = computeTypes(binding.getTypeArguments());
-      IConstructor retSymbol = computeTypeSymbol(binding.getReturnType());
+      IList typeParameters = computeTypes(isDeclaration ? binding.getTypeParameters() : binding.getTypeArguments(), isDeclaration);
+      IConstructor retSymbol = computeTypeSymbol(binding.getReturnType(), false);
       
       return methodSymbol(decl, typeParameters, retSymbol,  parameters);
     }
   }
 
-  private IList computeTypes(ITypeBinding[] bindings) {
+  private IList computeTypes(ITypeBinding[] bindings, boolean isDeclaration) {
     IListWriter parameters = values.listWriter();
     for (ITypeBinding parameterType: bindings) {
-        parameters.append(computeTypeSymbol(parameterType));
+        parameters.append(computeTypeSymbol(parameterType, isDeclaration));
     }
     return parameters.done();
   }
@@ -226,9 +226,9 @@ public class BindingsResolver {
     return values.constructor(cons, decl, parameters);
   }
 
-  private IConstructor parameterNode(ISourceLocation decl, ITypeBinding bound) {
+  private IConstructor parameterNode(ISourceLocation decl, ITypeBinding bound, boolean isDeclaration) {
     if (bound != null) {
-      IConstructor boundSym = boundSymbol(bound);
+      IConstructor boundSym = boundSymbol(bound, isDeclaration);
       org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeParameter", tf.tupleType(decl.getType(), boundSym.getType()));
       return values.constructor(cons, decl, boundSym);
     }
@@ -249,17 +249,17 @@ public class BindingsResolver {
     return values.constructor(cons);
   }
 
-  public IConstructor computeTypeSymbol(ITypeBinding binding) {
+  public IConstructor computeTypeSymbol(ITypeBinding binding, boolean isDeclaration) {
     ISourceLocation decl = values.sourceLocation(resolveBinding(binding));
-    return computeTypeSymbol(decl, binding);
+    return computeTypeSymbol(decl, binding, isDeclaration);
   }
 
-  private IConstructor computeTypeSymbol(ISourceLocation decl, ITypeBinding binding) {
+   private IConstructor computeTypeSymbol(ISourceLocation decl, ITypeBinding binding, boolean isDeclaration) {
     if (binding.isPrimitive()) {
       return primitiveSymbol(binding.getName());
     }
     else if (binding.isArray()) {
-      return arraySymbol(computeTypeSymbol(binding.getComponentType()), binding.getDimensions());
+      return arraySymbol(computeTypeSymbol(binding.getComponentType(), isDeclaration), binding.getDimensions());
     }
     else if (binding.isNullType()) {
       return nullSymbol(); 
@@ -274,7 +274,7 @@ public class BindingsResolver {
         return parameterNode(decl);
       }
       else {
-        return parameterNode(decl, bound);
+        return parameterNode(decl, bound, isDeclaration);
       } 
     }
     else if (binding.isWildcardType()) {
@@ -284,25 +284,25 @@ public class BindingsResolver {
         return wildcardSymbol(unboundedSym());
       }
       else {
-        return wildcardSymbol(boundSymbol(binding.getBound()));
+        return wildcardSymbol(boundSymbol(binding.getBound(), isDeclaration));
       }
-    }
+    }  
     else if (binding.isClass()) {
-      return classSymbol(decl, computeTypes(binding.getTypeArguments()));
+      return classSymbol(decl, computeTypes(isDeclaration ? binding.getTypeParameters() : binding.getTypeArguments(), isDeclaration));
     }
     else if (binding.isCapture()) {
       ITypeBinding[] typeBounds = binding.getTypeBounds();
       ITypeBinding wildcard = binding.getWildcard();
       
       if (typeBounds.length == 0) {
-        return captureSymbol(unboundedSym(), computeTypeSymbol(wildcard));
+        return captureSymbol(unboundedSym(), computeTypeSymbol(wildcard, isDeclaration));
       }
       else {
-        return captureSymbol(boundSymbol(typeBounds[0]), computeTypeSymbol(wildcard));
+        return captureSymbol(boundSymbol(typeBounds[0], isDeclaration), computeTypeSymbol(wildcard, isDeclaration));
       }
     }
     else if (binding.isInterface()) {
-      return interfaceSymbol(decl, computeTypes(binding.getTypeArguments()));
+      return interfaceSymbol(decl, computeTypes(binding.getTypeArguments(), isDeclaration));
     }
     
     return null;
@@ -318,8 +318,8 @@ public class BindingsResolver {
     return values.constructor(cons, boundSymbol);
   }
 
-  private IConstructor boundSymbol(ITypeBinding bound) {
-    IConstructor boundSym = computeTypeSymbol(bound);
+  private IConstructor boundSymbol(ITypeBinding bound, boolean isDeclaration) {
+    IConstructor boundSym = computeTypeSymbol(bound, isDeclaration);
     
     org.eclipse.imp.pdb.facts.type.Type boundType = store.lookupAbstractDataType("Bound");
     
@@ -432,6 +432,10 @@ public class BindingsResolver {
 		
 		if (binding.isArray()) {
 			scheme = "java+array";
+		}
+		
+		if (binding.isTypeVariable()) {
+		  scheme = "java+typeVariable";
 		}
 		
 		if (binding.isPrimitive()) {
