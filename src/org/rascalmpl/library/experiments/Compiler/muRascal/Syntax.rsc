@@ -68,6 +68,9 @@ syntax Exp  =
 			| left preAddition:			Exp lhs "+"   Exp rhs
 			
 			| left preSubtraction:		Exp lhs "-"   Exp rhs
+			| left preDivision:         Exp lhs "/"   Exp rhs
+			| left preModulo:           Exp lhs "mod" Exp rhs
+		    | left prePower :           Exp lhs "pow" Exp rhs
 			> non-assoc preLess:		Exp lhs "\<"  Exp rhs
 			| non-assoc preLessEqual:	Exp lhs "\<=" Exp rhs
 			| non-assoc preEqual:		Exp lhs "=="  Exp rhs
@@ -122,7 +125,7 @@ keyword Keywords =
               "create" | "init" | "next" | "yield" | "hasNext" |
               "type" |
               "ref" | "deref" |
-              "fun" | "cons" | "is"
+              "fun" | "cons" | "is" | "mod" | "pow"
              ;
              
 // Syntactic features that will be removed by the preprocessor. 
