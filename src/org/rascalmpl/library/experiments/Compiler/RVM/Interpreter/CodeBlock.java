@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Call;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallDyn;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallJava;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
@@ -403,6 +405,10 @@ public class CodeBlock {
 	
 	public CodeBlock OCALLDYN(int arity) {
 		return add(new OCallDyn(this, arity));
+	}
+	
+	public CodeBlock CALLJAVA(String methodName, String className, IList parameterTypes){
+		return add(new CallJava(this, getConstantIndex(vf.string(methodName)), getConstantIndex(vf.string(className)), getConstantIndex(parameterTypes)));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
