@@ -40,6 +40,12 @@ public class Execute {
 	private String getStrField(IConstructor instruction, String field) {
 		return ((IString) instruction.get(field)).getValue();
 	}
+	
+	// Get IList field from an instruction
+
+	private IList getIListField(IConstructor instruction, String field) {
+		return ((IList) instruction.get(field));
+	}
 
 	// Library function to execute a RVM program from Rascal
 
@@ -268,7 +274,11 @@ public class Execute {
 					case "OCALLDYN" :
 						codeblock.OCALLDYN(getIntField(instruction, "arity"));
 						break;
-																
+						
+					case "CALLJAVA":
+						codeblock.CALLJAVA(getStrField(instruction, "name"), getStrField(instruction, "class"), getIListField(instruction, "parameterTypes"));
+						break;
+						
 					default:
 						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 					}
