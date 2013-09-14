@@ -1,6 +1,9 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -526,9 +529,6 @@ public class RVM {
 					}
 
 					throw new RuntimeException("STOREVARDEREF cannot find matching scope: " + s);
-
-
-				
 				
 				case Opcode.OP_CALLCONSTR:
 					constructor = constructorStore.get(instructions[pc++]);
@@ -769,8 +769,15 @@ public class RVM {
 					}
 					continue;
 					
-
-				
+				case Opcode.OP_CALLJAVA:
+					String methodName =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
+					String className =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
+					IList parameterTypes = (IList) cf.function.constantStore[instructions[pc++]];
+					arity = parameterTypes.length();
+					stack[sp - arity] = callJavaMethod(methodName, className, parameterTypes);
+					sp = sp - arity + 1;
+					continue;
+					
 				case Opcode.OP_INIT:
 					arity = instructions[pc++];
 					Object src = stack[--sp];
@@ -1331,6 +1338,40 @@ public class RVM {
 			e.printStackTrace();
 		}
 		return Rascal_FALSE;
+	}
+	
+	Object callJavaMethod(String methodName, String className, IList parameterTypes){
+		Class<?> clazz;
+		try {
+			clazz = this.getClass().getClassLoader().loadClass(className);
+			Constructor<?> cons;
+			cons = clazz.getConstructor(IValueFactory.class);
+			Object instance = cons.newInstance(vf);
+			Class<?>[] parameterTypes1 = new Class<?>[0];
+			Method m = clazz.getMethod(methodName, parameterTypes1);
+			Object[] parameters = new Object[0];
+			return m.invoke(instance, parameters);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (NoSuchMethodException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 		
 }
