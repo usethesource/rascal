@@ -2,7 +2,6 @@ module experiments::Compiler::Tests::Patterns
 
 extend experiments::Compiler::Tests::TestUtils;
 
-
 // Literals
 
 // Boolean
@@ -76,25 +75,25 @@ test bool tst() = run("[1, *int x, 5] := [1,2,3,4,5]") == [1, *int x, 5] := [1,2
 test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2]") == [*int x, 3, x] := [1,2,3,1,2] && x == [1, 2];
 test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2] && x == [1, 2]") == [*int x, 3, x] := [1,2,3,1,2] && x == [1, 2];
 
+test bool tst() = run("[*int x, *x, 3] := [1,2,1,2,3] && x == [1, 2]") == [*int x, *x, 3] := [1,2,1,2, 3] && x == [1, 2];
+test bool tst() = run("[*int x, *x, 3] := [1,2,3,1,2]") == [*int x, *x, 3] := [1,2,3,1,2];
+
 // Set matching
-/*
+
 test bool tst() = run("{1} := {1}") == {1} := {1};
 test bool tst() = run("{1} := {2}") == {1} := {2};
+test bool tst() = run("{1, 2} := {2, 1}") == {1, 2} := {2, 1};
 test bool tst() = run("{1} := {1,2}") == {1} := {1,2};
 
-test bool tst() = run("{1, x*, 5} := {1,2,3,4,5}") == {1, x*, 5} := {1,2,3,4,5};
-test bool tst() = run("{1, x*, 5} := {1,2,3,4,5}") == {1, x*, 5} := {1,2,3,4,5} && x == {2,3,4};
+test bool tst() = run("{x, 2} := {2, 1}") == {x, 2} := {2, 1};
 
-test bool tst() = run("{1, *x, 5} := {1,2,3,4,5}") == {1, *x, 5} := {1,2,3,4,5};
-test bool tst() = run("{1, *x, 5} := {1,2,3,4,5}") == {1, *x, 5} := {1,2,3,4,5} && x == {2,3,4};
+test bool tst() = run("{1, x*, 5} := {1,2,3,4,5}") == {1, x*, 5} := {1,2,3,4,5};
+test bool tst() = run("{1, x*, 5} := {1,2,3,4,5} && x == {2, 3, 4}") == {1, x*, 5} := {1,2,3,4,5} && x == {2,3,4};
 
 test bool tst() = run("{1, *int x, 5} := {1,2,3,4,5}") == {1, *int x, 5} := {1,2,3,4,5};
-test bool tst() = run("{1, *int x, 5} := {1,2,3,4,5}") == {1, *int x, 5} := {1,2,3,4,5} && x == {2,3,4};
+test bool tst() = run("{1, *int x, 5} := {1,2,3,4,5} && x == {2, 3, 4}") == {1, *int x, 5} := {1,2,3,4,5} && x == {2,3,4};
 
-
-test bool tst() = run("{*int x, 3, *x} := {1,2,3,1,2}") == {*int x, 3, x} := {1,2,3,1,2} && x == {1, 2};
-test bool tst() = run("{*int x, 3, *x} := {1,2,3,1,2} && x == {1, 2}") == {*int x, 3, x} := {1,2,3,1,2} && x == {1, 2};
-*/
+test bool tst() = run("{ y = {5, 6}; {*int x, 3, *y} := {1,2,3,4,5,6};}") == { y = {5, 6}; {*int x, 3, *y} := {1,2,3,4,5,6};};
 
 // Node/Constructor matching
 
@@ -136,7 +135,5 @@ test bool tst() = run("/400 := (1 :[10, 100], 2:[20,200], 3 :[30,300])") == /400
 
 
 test bool tst() = run("/int x := d1(1, \"a\") && x == 1") == (/int x := d1(1, "a") && x == 1);
-
-
 
 

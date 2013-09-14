@@ -31,25 +31,25 @@ public class ASTConverter extends JavaToRascalConverter {
 	  if (node instanceof Expression) {
 	    ITypeBinding binding = ((Expression) node).resolveTypeBinding();
 	    if (binding != null) {
-	      return bindingsResolver.computeTypeSymbol(binding);
+	      return bindingsResolver.computeTypeSymbol(binding, false);
 	    }
 	  }
 	  else if (node instanceof TypeDeclaration) {
 	    ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();
 	    if (binding != null) {
-	      return bindingsResolver.computeTypeSymbol(binding);
+	      return bindingsResolver.computeTypeSymbol(binding, true);
 	    }
 	  }
 	  else if (node instanceof MethodDeclaration) {
 	    IMethodBinding binding = ((MethodDeclaration) node).resolveBinding();
       if (binding != null) {
-        return bindingsResolver.computeMethodTypeSymbol(binding);
+        return bindingsResolver.computeMethodTypeSymbol(binding, true);
       }
 	  }
 	  else if (node instanceof VariableDeclaration) {
 	    ITypeBinding binding = ((VariableDeclaration) node).resolveBinding().getType();
       if (binding != null) {
-        return bindingsResolver.computeTypeSymbol(binding);
+        return bindingsResolver.computeTypeSymbol(binding, false);
       }
 	  }
 	  

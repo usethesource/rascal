@@ -48,19 +48,15 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", fun_pat + [ translatePat(pat) | pat <- arguments ])]);
 }
 
-
 // Set pattern
 
-MuExp translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
-     throw "set pattern";
-}
+MuExp translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`) = translateSetPat(p);
 
 // Tuple pattern
 
 MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
     return muCreate(mkCallToLibFun("Library","MATCH_TUPLE",2), [muCallMuPrim("make_array", [ translatePat(pat) | pat <- pats ])]);
 }
-
 
 // List pattern 
 
@@ -132,6 +128,55 @@ MuExp translatePatAsListElem(p:(Pattern) `+<Pattern argument>`) {
 
 default MuExp translatePatAsListElem(Pattern p) {
   return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_LIST",4), [translatePat(p)]);
+}
+
+// Translate Set pattern
+
+// Translate patterns as element of a set pattern
+
+MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`) {
+   <fuid, pos> = getVariableScope("<name>", name@\loc);
+   return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_SET",2), [muVarRef("<name>", fuid, pos)]);
+} 
+
+MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`) {
+   <fuid, pos> = getVariableScope("<name>", p@\loc);
+   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_SET",2), [muVarRef("<name>", fuid, pos)]);
+}
+
+MuExp translatePatAsSetElem(p:(Pattern) `*<Type tp> <Name name>`) {
+   <fuid, pos> = getVariableScope("<name>", p@\loc);
+   return muCreate(mkCallToLibFun("Library","MATCH_TYPED_MULTIVAR_IN_SET",3), [muTypeCon(\set(translateType(tp))), muVarRef("<name>", fuid, pos)]);
+}
+
+MuExp translatePatAsSetElem(p:(Pattern) `*<Name name>`) {
+   <fuid, pos> = getVariableScope("<name>", p@\loc);
+   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_SET",2), [muVarRef("<name>", fuid, pos)]);
+} 
+
+MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`) {
+  throw "splicePlus pattern";
+}   
+
+default MuExp translatePatAsSetElem(Pattern p) {
+  return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",2), [translatePat(p)]);
+}
+
+MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
+   literals = [];
+   multiVars = [];
+   otherPats = [];
+   for(pat <- pats){
+      if(pat is literal){
+         literals += translate(pat.literal);
+      } else if(pat is splice || pat is multiVariable){
+         multiVars += translatePatAsSetElem(pat);
+      } else {
+        otherPats +=  muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",2), [translatePat(pat)]);
+      }
+   }
+   return muCreate(mkCallToLibFun("Library","MATCH_SET",2), [ muCallMuPrim("make_array", [ muCallPrim("set_create", literals), 
+                                                                                           muCallMuPrim("make_array", otherPats + multiVars) ]) ] );
 }
 
 /*********************************************************************/
