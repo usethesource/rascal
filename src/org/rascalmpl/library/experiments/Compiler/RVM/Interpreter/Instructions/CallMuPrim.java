@@ -14,10 +14,6 @@ public class CallMuPrim extends Instruction {
 		this.arity = arity;
 	}
 	
-	public int spIncrement() {
-		return arity + 1;
-	}
-	
 	public String toString() { return "CALLMUPRIM " + muprim + ", " + arity; }
 	
 	public void generate(){

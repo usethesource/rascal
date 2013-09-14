@@ -11,10 +11,6 @@ public class CreateDyn extends Instruction {
 		this.arity = arity;
 	}
 	
-	public int spIncrement() {
-		return arity + 1;
-	}
-	
 	public String toString() { return "CREATEDYN " + arity; }
 	
 	public void generate(){

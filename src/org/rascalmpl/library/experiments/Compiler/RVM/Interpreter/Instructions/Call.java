@@ -14,10 +14,6 @@ public class Call extends Instruction {
 	}
 	
 	public String toString() { return "CALL " + fuid + ", " + arity + " [ " + codeblock.getFunctionIndex(fuid) + " ]"; }
-
-	public int spIncrement() {
-		return arity + 1;
-	}
 		
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
