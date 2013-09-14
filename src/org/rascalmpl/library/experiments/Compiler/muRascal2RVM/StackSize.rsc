@@ -47,6 +47,7 @@ private int estimate(muOCall(MuExp fun, set[Symbol] types, list[MuExp] args)) = 
 
 private int estimate(muCallPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCallMuPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
+private int estimate(muCallJava(str name, str class, list[MuExp] args)) = estimate_arg_list(args);
 
 private int estimate(muAssign(str id, str fuid, int pos, MuExp exp)) = estimate(exp);
 private int estimate(muAssignLoc(str id, int pos, MuExp exp)) = estimate(exp);
