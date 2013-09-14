@@ -174,11 +174,14 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		}
 		else if (name.equals("ls")) {
 			try {
+			  ISourceLocation resolved = ctx.getHeap().resolveSourceLocation(value);
+			  Result<IValue> resRes = makeResult(getType(), resolved, ctx);
+			  
 				IListWriter w = ctx.getValueFactory().listWriter();
 				Type stringType = getTypeFactory().stringType();
 				
-				for (String elem : ctx.getResolverRegistry().listEntries(uri)) {
-					w.append(this.add(makeResult(stringType, vf.string(elem), ctx)).getValue());
+				for (String elem : ctx.getResolverRegistry().listEntries(resolved.getURI())) {
+					w.append(resRes.add(makeResult(stringType, vf.string(elem), ctx)).getValue());
 				}
 				
 				IList result = w.done();
