@@ -244,6 +244,7 @@ INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args
 
 INS tr(muCallMuPrim(str name, list[MuExp] args)) =  (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLMUPRIM(name, size(args))];
 
+INS tr(muCallJava(str name, str class, list[Symbol] args)) = [ CALLJAVA(name, class, args) ];
 // Return
 
 INS tr(muReturn()) = [RETURN0()];
