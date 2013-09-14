@@ -5367,9 +5367,16 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     c.stack = funId + c.stack;
     //}   
     
-    // Normally we would now descend into the body. However, here we don't have one. So, pop the stack
-    // and exit. NOTE: The names in the parameters are not in scope -- we calculated the type (which added
-    // the names) in cFun, but then threw everything but the type away.
+    // Normally we would now descend into the body. Here we don't have one.
+    // However, we still process the signature, e.g., to add the formal parameters to the store,
+    // So that this static information could be still used by a compiler.
+    if(descend) {
+        funId = head(c.stack);
+        funType = c.store[funId].rtype;
+        < cFun, tFun > = processSignature(sig, c);
+        c = recoverEnvironmentsAfterCall(cFun, c);
+    }
+    
     c.stack = tail(c.stack);
     return c;
 }
