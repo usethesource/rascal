@@ -265,18 +265,18 @@ function MATCH_LITERAL[2, pat, ^subject, res]{
 }
 
 function MATCH_VAR[2, varref, ^subject]{
-   if(false){ //is_defined(deref varref)){
-      return equal(deref varref, ^subject);
-   };
+//   if(is_defined(deref varref)){
+//      return equal(deref varref, ^subject);
+//   };
    deref varref = ^subject;
    return true;
 }
 
 function MATCH_TYPED_VAR[3, typ, varref, ^subject]{
    if(subtype(typeOf(^subject), typ)){
-      if(false){ //is_defined(deref varref)){
-         return equal(deref varref, ^subject);
-      };
+//     if(is_defined(deref varref)){
+//         return equal(deref varref, ^subject);
+//      };
       deref varref = ^subject;
       return true;
    };
@@ -420,25 +420,25 @@ function MATCH_VAR_IN_LIST[4, varref, ^subject, start, available]{
    if(available <= 0){
        return [false, start];
    }; 
-   if(false){ //is_defined(deref varref)){
-      if(equal(deref varref, get ^subject[start])){
-         return [true, start + 1];
-      } else {
-         return [ false, start];
-      };
-   };
+//   if(is_defined(deref varref)){
+//      if(equal(deref varref, get ^subject[start])){
+//         return [true, start + 1];
+//      } else {
+//         return [ false, start];
+//      };
+//   };
    deref varref = get ^subject[start];
    return [true, start + 1];
 }
 
 function MATCH_MULTIVAR_IN_LIST[4, varref, ^subject, start, available, len]{
-    if(false){ //is_defined(deref varref)){
-       if(starts_with(deref varref, ^subject, start)){
-          return [ true, start + size(deref varref) ];
-       } else {
-         return [false, start];
-       };
-    };
+//   if(is_defined(deref varref)){
+//       if(starts_with(deref varref, ^subject, start)){
+//          return [ true, start + size(deref varref) ];
+//       } else {
+//         return [false, start];
+//       };
+//    };
     len = 0;
     while(len <= available){
         deref varref = sublist(^subject, start, len);
@@ -451,13 +451,13 @@ function MATCH_MULTIVAR_IN_LIST[4, varref, ^subject, start, available, len]{
 
 function MATCH_TYPED_MULTIVAR_IN_LIST[5, typ, varref, ^subject, start, available, len]{
     if(equal(typ, typeOf(^subject))){
-       if(false){ //is_defined(deref varref)){
-          if(starts_with(deref varref, ^subject, start)){
-             return [ true, start + size(deref varref) ];
-          } else {
-            return [false, start];
-          };
-       };
+//       if(is_defined(deref varref)){
+//          if(starts_with(deref varref, ^subject, start)){
+//             return [ true, start + size(deref varref) ];
+//          } else {
+//            return [false, start];
+//          };
+//       };
        len = 0;
        while(len <= available){
           deref varref = sublist(^subject, start, len);
@@ -580,53 +580,53 @@ function MATCH_VAR_IN_SET[2, varref, ^available, gen, elm]{
    if(size(^available) == 0){
        return [ false, ^available ];
    };
-   if(false){ //is_defined(deref varref)){
-       if(is_element(deref varref, ^available)){
-	         return [ true, set_subtract_elm(^available, deref varref) ];
-	    };
-   } else {
+//   if(is_defined(deref varref)){
+//       if(is_element(deref varref, ^available)){
+//	         return [ true, set_subtract_elm(^available, deref varref) ];
+//	    };
+//   } else {
 	    gen = init(create(ENUM_SET, ^available));
 	    while(hasNext(gen)){
 	        elm = next(gen);
 	   		deref varref = elm;
 	        yield [ true, set_subtract_elm(^available, elm) ];
 	    };
-    };
+//   };
     return [ false, ^available ];
 }
 
 function MATCH_MULTIVAR_IN_SET[2, varref, ^available, gen, ^subset]{
-    if(false){ //is_defined(deref varref)){
-          if(subset(deref varref, ^available)){
-	         return [ true, set_subtract_set(^available, deref varref) ];
-	      };
-	} else {
+//    if(is_defined(deref varref)){
+//         if(subset(deref varref, ^available)){
+//	         return [ true, set_subtract_set(^available, deref varref) ];
+//	      };
+//	} else {
 	    gen = init(create(ENUM_SUBSETS, ^available));
 	    while(hasNext(gen)){
 	        ^subset = next(gen);
 	   		deref varref = ^subset;
 	        yield [ true, set_subtract_set(^available, ^subset) ];
 	    };
-    };
+//    };
     return [ false, ^available ];
 }
 
 function MATCH_TYPED_MULTIVAR_IN_SET[3, typ, varref, ^available, gen, ^subset]{
     // println("MATCH_TYPED_MULTIVAR_IN_SET", typ, varref, ^available);
     if(equal(typ, typeOf(^available))){
-       if(false){ //is_defined(deref varref)){
-          // println("MATCH_TYPED_MULTIVAR_IN_SET, is_defined:", deref varref);
-          if(subset(deref varref, ^available)){
-	         return [ true, set_subtract_set(^available, deref varref) ];
-	      };
-	   } else {
+//       if(is_defined(deref varref)){
+//          // println("MATCH_TYPED_MULTIVAR_IN_SET, is_defined:", deref varref);
+//          if(subset(deref varref, ^available)){
+//	         return [ true, set_subtract_set(^available, deref varref) ];
+//	      };
+//	   } else {
 	       gen = init(create(ENUM_SUBSETS, ^available));
 	       while(hasNext(gen)){
 	          ^subset = next(gen);
 	   		  deref varref = ^subset;
 	          yield [ true, set_subtract_set(^available, ^subset) ];
 	       };
-	   };
+//	   };
     };
     return [ false, ^available ];
 }

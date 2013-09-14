@@ -20,7 +20,7 @@ import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
-
+public list[loc] imported_modules = [];
 public list[MuFunction] functions_in_module = [];
 public list[MuVariable] variables_in_module = [];
 public list[MuExp] variable_initializations = [];
@@ -29,12 +29,15 @@ public list[MuExp] tests = [];
 public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
 public void resetR2mu() {
+    imported_modules = [];
 	functions_in_module = [];
 	variables_in_module = [];
 	variable_initializations = [];
 	tests = [];
 	resetTmpAndLabel();
 }
+
+str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
 @doc{Compile a Rascal source module (given as string) to muRascal}
 MuModule r2mu(str moduleStr){
@@ -44,7 +47,20 @@ MuModule r2mu(str moduleStr){
 @doc{Compile a Rascal source module (given at a location) to muRascal}
 MuModule r2mu(loc moduleLoc){
     //println(readFile(moduleLoc));
-   	return r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
+    translatedLoc = moduleLoc.parent + (basename(moduleLoc) + ".muast");
+    println("translatedLoc = <translatedLoc>");
+    if(exists(translatedLoc) && lastModified(translatedLoc) > lastModified(moduleLoc)){
+       try {
+  	       muMod = readBinaryValueFile(#MuModule, translatedLoc);
+  	       println("r2mu: Using compiled version <translatedLoc>");
+  	       return muMod;
+  	   } catch x: println("Reading did not succeed: <x>");
+  	}
+    
+   	muMod = r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
+   	writeBinaryValueFile(translatedLoc, muMod);
+   	println("r2mu: Writing compiled version <translatedLoc>");
+   	return muMod;
 }
 
 @doc{Compile a parsed Rascal source module to muRascal}
@@ -101,7 +117,13 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
 }
 
 void translate(m: (Module) `<Header header> <Body body>`) {
+    for(imp <- header.imports) importModule(imp);
 	for( tl <- body.toplevels) translate(tl);
+}
+
+void importModule((Import) `import <QualifiedName \module> ;`){
+    imported_modules += |std:///| + "<\module>";
+    println("imported_modules = <imported_modules>");
 }
 	
 void translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
@@ -126,7 +148,32 @@ void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = t
 
 // FunctionDeclaration
 
-void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   { throw("abstract"); }
+void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   {
+  println("r2mu: Compiling <signature.name>");
+  ftype = getFunctionType(fd@\loc);
+  nformals = size(ftype.parameters);
+  uid = loc2uid[fd@\loc];
+  fuid = uid2str(uid);
+  tuple[str fuid,int pos] addr = uid2addr[uid];
+  bool isVarArgs = (varArgs(_,_) := signature.parameters);
+  
+ //TODO: keyword parameters
+  tmods = translateModifiers(signature.modifiers);
+  ttags =  translateTags(tags);
+  println("ttags = <ttags>");
+  if(ttags["javaClass"]?){
+     params = [symbolToValue(param, config) | param <- ftype.parameters];
+     exp = muCallJava("<signature.name>", ttags["javaClass"], params);
+     println("exp = <exp>");
+     tbody = translateFunction(signature.parameters.formals.formals, exp);
+    
+     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+  									nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, tbody);
+  } else {
+    println("r2mu: <fuid> ignored");
+  }
+
+}
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
   println("r2mu: Compiling <signature.name>");
@@ -181,11 +228,11 @@ map[str,str] translateTags(Tags tags){
    for(tg <- tags.tags){
      name = "<tg.name>";
      if(tg is \default)
-        m[name] = "<tg.contents>";
+        m[name] = "<tg.contents>"[1 .. -1];
      else if (tg is empty)
         m[name] = "";
      else
-        m[name] = "<tg.expression>";
+        m[name] = "<tg.expression>"[1 .. -1];
    }
    return m;
 }
