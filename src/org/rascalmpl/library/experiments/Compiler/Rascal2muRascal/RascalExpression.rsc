@@ -138,7 +138,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                return t == ftype;
            }           
            if(isOverloadedType(ftype)) {
-               return t in ftype.overloads;
+               return t in (getNonDefaulOverloadOptions(ftype) + getDefaultOverloadOptions(ftype));
            }
            throw "Ups, unexpected type of the call receiver expression!";
        }
@@ -165,7 +165,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
       throw "The use of a function has to be managed via overloading resolver!";
    }
    // Push down additional information if the overloading resolution needs to be done at runtime
-   return muOCall(receiver, isFunctionType(ftype) ? { ftype } : ftype.overloads , args);
+   return muOCall(receiver, isFunctionType(ftype) ? { ftype } : (getNonDefaulOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), args);
 }
 
 // Any

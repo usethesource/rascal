@@ -1,7 +1,7 @@
 module experiments::Compiler::Examples::Run
 
 import Prelude;
-import experiments::Compiler::Rascal2RVM::Execute;
+import experiments::Compiler::Execute;
 
 import experiments::Compiler::Examples::Bottles;
 import experiments::Compiler::Examples::Capture;
