@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
+ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -23,33 +23,9 @@ public class Execute {
 		this.vf = vf;
 	}
 	
-	// Get Boolean field from an instruction
-	
-	private boolean getBooleanField(IConstructor instruction, String field) {
-		return ((IBool) instruction.get(field)).getValue();
-	}
-
-	// Get integer field from an instruction
-
-	private int getIntField(IConstructor instruction, String field) {
-		return ((IInteger) instruction.get(field)).intValue();
-	}
-
-	// Get String field from an instruction
-
-	private String getStrField(IConstructor instruction, String field) {
-		return ((IString) instruction.get(field)).getValue();
-	}
-	
-	// Get IList field from an instruction
-
-	private IList getIListField(IConstructor instruction, String field) {
-		return ((IList) instruction.get(field));
-	}
-
 	// Library function to execute a RVM program from Rascal
 
-	public ITuple executeProgram(IConstructor program, IBool debug,
+	public ITuple executeProgram(IConstructor program, IList imported_functions, IBool debug,
 			IInteger repeat, IBool testsuite, IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();
@@ -63,6 +39,22 @@ public class Execute {
 		String uid_module_init = null;
 		
 		RVM rvm = new RVM(vf, ctx.getStdOut(), debug.getValue());
+		
+		for(IValue imp : imported_functions){
+			IConstructor declaration = (IConstructor) imp;
+			if (declaration.getName().contentEquals("FUNCTION")) {
+				String name = ((IString) declaration.get("qname")).getValue();
+				if(name.endsWith(main) || name.endsWith(mu_main)) {
+					// Skip the main's uid
+					continue;
+				}
+				if(name.endsWith(module_init) || name.endsWith(mu_module_init)) {
+					// Skip the module_init's uid
+					continue;
+				}
+				loadInstructions(name, declaration, rvm);
+			}
+		}
 
 		IMap types = (IMap) program.get("types");
 		Iterator<Entry<IValue, IValue>> entries = types.entryIterator();
@@ -76,14 +68,7 @@ public class Execute {
 			IConstructor declaration = (IConstructor) declarations.get(dname);
 
 			if (declaration.getName().contentEquals("FUNCTION")) {
-
 				String name = ((IString) declaration.get("qname")).getValue();
-				Type ftype = rvm.symbolToType((IConstructor) declaration.get("ftype"));
-				String scopeIn = ((IString) declaration.get("scopeIn")).getValue();
-				if(scopeIn.equals("")) {
-					scopeIn = null;
-				}
-				
 				if(name.endsWith(main) || name.endsWith(mu_main)) {
 					// Get the main's uid
 					uid_main = name;
@@ -92,200 +77,7 @@ public class Execute {
 					// Get the module_init's uid
 					uid_module_init = name;
 				}
-				Integer nlocals = ((IInteger) declaration.get("nlocals")).intValue();
-				Integer nformals = ((IInteger) declaration.get("nformals")).intValue();
-				Integer maxstack = ((IInteger) declaration.get("maxStack")).intValue();
-				IList code = (IList) declaration.get("instructions");
-				CodeBlock codeblock = new CodeBlock(vf);
-
-				// Loading instructions
-				for (int i = 0; i < code.length(); i++) {
-					IConstructor instruction = (IConstructor) code.get(i);
-					String opcode = instruction.getName();
-
-					switch (opcode) {
-					case "LOADCON":
-						codeblock.LOADCON(instruction.get("val"));
-						break;
-						
-					case "LOADVAR":
-						codeblock.LOADVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
-						break;
-						
-					case "LOADLOC":
-						codeblock.LOADLOC(getIntField(instruction, "pos"));
-						break;
-						
-					case "STOREVAR":
-						codeblock.STOREVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
-						break;
-						
-					case "STORELOC":
-						codeblock.STORELOC(getIntField(instruction, "pos"));
-						break;
-						
-					case "LABEL":
-						codeblock = codeblock.LABEL(getStrField(instruction, "label"));
-						break;
-						
-					case "CALLPRIM":
-						codeblock.CALLPRIM(RascalPrimitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"));
-						break;
-						
-					case "CALLMUPRIM":
-						codeblock.CALLMUPRIM(MuPrimitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"));
-						break;
-						
-					case "CALL":
-						codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
-						break;
-						
-					case "CALLDYN":
-						codeblock.CALLDYN( getIntField(instruction, "arity"));
-						break;
-						
-					case "LOADFUN":
-						codeblock.LOADFUN(getStrField(instruction, "fuid"));
-						break;
-						
-					case "RETURN0":
-						codeblock.RETURN0();
-						break;
-						
-					case "RETURN1":
-						codeblock.RETURN1();
-						break;
-						
-					case "JMP":
-						codeblock.JMP(getStrField(instruction, "label"));
-						break;
-						
-					case "JMPTRUE":
-						codeblock.JMPTRUE(getStrField(instruction, "label"));
-						break;
-						
-					case "JMPFALSE":
-						codeblock.JMPFALSE(getStrField(instruction, "label"));
-						break;
-						
-					case "HALT":
-						codeblock.HALT();
-						break;
-						
-					case "CREATE":
-						codeblock.CREATE(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
-						break;
-						
-					case "CREATEDYN":
-						codeblock.CREATEDYN(getIntField(instruction, "arity"));
-						break;
-						
-					case "INIT":
-						codeblock.INIT(getIntField(instruction, "arity"));
-						break;
-						
-					case "NEXT0":
-						codeblock.NEXT0();
-						break;
-						
-					case "NEXT1":
-						codeblock.NEXT1();
-						break;
-						
-					case "YIELD0":
-						codeblock.YIELD0();
-						break;
-						
-					case "YIELD1":
-						codeblock.YIELD1();
-						break;
-						
-					case "HASNEXT":
-						codeblock.HASNEXT();
-						break;
-						
-					case "PRINTLN":
-						codeblock.PRINTLN(getIntField(instruction, "arity"));
-						break;
-						
-					case "POP":
-						codeblock.POP();
-						break;
-						
-					case "LOADLOCREF":
-						codeblock.LOADLOCREF(getIntField(instruction, "pos"));
-						break;
-						
-					case "LOADVARREF":
-						codeblock.LOADVARREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
-						break;
-						
-					case "LOADLOCDEREF":
-						codeblock.LOADLOCDEREF(getIntField(instruction, "pos"));
-						break;
-						
-					case "LOADVARDEREF":
-						codeblock.LOADVARDEREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
-						break;
-					
-					case "STORELOCDEREF":
-						codeblock.STORELOCDEREF(getIntField(instruction, "pos"));
-						break;
-						
-					case "STOREVARDEREF":
-						codeblock.STOREVARDEREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
-						break;
-						
-					case "LOAD_NESTED_FUN":
-						codeblock.LOADNESTEDFUN(getStrField(instruction, "fuid"), getStrField(instruction, "scopeIn"));
-						break;
-						
-					case "LOADCONSTR":
-						codeblock.LOADCONSTR(getStrField(instruction, "fuid"));
-						break;
-						
-					case "CALLCONSTR":
-						codeblock.CALLCONSTR(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
-						break;
-						
-					case "LOADTYPE":
-						codeblock.LOADTYPE(rvm.symbolToType((IConstructor) instruction.get("type")));
-						break;
-					case "LOADBOOL":
-						codeblock.LOADBOOL(getBooleanField(instruction, "bval"));
-						break;
-						
-					case "LOADINT":
-						codeblock.LOADINT(getIntField(instruction, "nval"));
-						break;
-						
-					case "FAILRETURN":
-						codeblock.FAILRETURN();
-						break;
-						
-					case "LOADOFUN" :
-						codeblock.LOADOFUN(getStrField(instruction, "fuid"));
-						break;
-						
-					case "OCALL" :
-						codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
-						break;
-						
-					case "OCALLDYN" :
-						codeblock.OCALLDYN(getIntField(instruction, "arity"));
-						break;
-						
-					case "CALLJAVA":
-						codeblock.CALLJAVA(getStrField(instruction, "name"), getStrField(instruction, "class"), getIListField(instruction, "parameterTypes"));
-						break;
-						
-					default:
-						throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
-					}
-
-				}
-				rvm.declare(new Function(name, ftype, scopeIn, nformals, nlocals,
-						maxstack, codeblock));
+				loadInstructions(name, declaration, rvm);
 			}
 		}
 		
@@ -303,6 +95,230 @@ public class Execute {
 		}
 		long now = System.currentTimeMillis();
 		return vf.tuple((IValue) result, vf.integer(now - start));
+	}
+	
+	// Get Boolean field from an instruction
+
+	private boolean getBooleanField(IConstructor instruction, String field) {
+		return ((IBool) instruction.get(field)).getValue();
+	}
+
+	// Get integer field from an instruction
+
+	private int getIntField(IConstructor instruction, String field) {
+		return ((IInteger) instruction.get(field)).intValue();
+	}
+
+	// Get String field from an instruction
+
+	private String getStrField(IConstructor instruction, String field) {
+		return ((IString) instruction.get(field)).getValue();
+	}
+
+	private void loadInstructions(String name, IConstructor declaration, RVM rvm){
+	
+		Type ftype = rvm.symbolToType((IConstructor) declaration.get("ftype"));
+		
+		//System.err.println("loadInstructions: " + name + ": ftype = " + ftype + ", declaration = " + declaration);
+		
+		String scopeIn = ((IString) declaration.get("scopeIn")).getValue();
+		if(scopeIn.equals("")) {
+			scopeIn = null;
+		}
+		
+		Integer nlocals = ((IInteger) declaration.get("nlocals")).intValue();
+		Integer nformals = ((IInteger) declaration.get("nformals")).intValue();
+		Integer maxstack = ((IInteger) declaration.get("maxStack")).intValue();
+		IList code = (IList) declaration.get("instructions");
+		CodeBlock codeblock = new CodeBlock(vf);
+		// Loading instructions
+		for (int i = 0; i < code.length(); i++) {
+			IConstructor instruction = (IConstructor) code.get(i);
+			String opcode = instruction.getName();
+
+			switch (opcode) {
+			case "LOADCON":
+				codeblock.LOADCON(instruction.get("val"));
+				break;
+
+			case "LOADVAR":
+				codeblock.LOADVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				break;
+
+			case "LOADLOC":
+				codeblock.LOADLOC(getIntField(instruction, "pos"));
+				break;
+
+			case "STOREVAR":
+				codeblock.STOREVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				break;
+
+			case "STORELOC":
+				codeblock.STORELOC(getIntField(instruction, "pos"));
+				break;
+
+			case "LABEL":
+				codeblock = codeblock.LABEL(getStrField(instruction, "label"));
+				break;
+
+			case "CALLPRIM":
+				codeblock.CALLPRIM(RascalPrimitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"));
+				break;
+
+			case "CALLMUPRIM":
+				codeblock.CALLMUPRIM(MuPrimitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"));
+				break;
+
+			case "CALL":
+				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				break;
+
+			case "CALLDYN":
+				codeblock.CALLDYN( getIntField(instruction, "arity"));
+				break;
+
+			case "LOADFUN":
+				codeblock.LOADFUN(getStrField(instruction, "fuid"));
+				break;
+
+			case "RETURN0":
+				codeblock.RETURN0();
+				break;
+
+			case "RETURN1":
+				codeblock.RETURN1();
+				break;
+
+			case "JMP":
+				codeblock.JMP(getStrField(instruction, "label"));
+				break;
+
+			case "JMPTRUE":
+				codeblock.JMPTRUE(getStrField(instruction, "label"));
+				break;
+
+			case "JMPFALSE":
+				codeblock.JMPFALSE(getStrField(instruction, "label"));
+				break;
+
+			case "HALT":
+				codeblock.HALT();
+				break;
+
+			case "CREATE":
+				codeblock.CREATE(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				break;
+
+			case "CREATEDYN":
+				codeblock.CREATEDYN(getIntField(instruction, "arity"));
+				break;
+
+			case "INIT":
+				codeblock.INIT(getIntField(instruction, "arity"));
+				break;
+
+			case "NEXT0":
+				codeblock.NEXT0();
+				break;
+
+			case "NEXT1":
+				codeblock.NEXT1();
+				break;
+
+			case "YIELD0":
+				codeblock.YIELD0();
+				break;
+
+			case "YIELD1":
+				codeblock.YIELD1();
+				break;
+
+			case "HASNEXT":
+				codeblock.HASNEXT();
+				break;
+
+			case "PRINTLN":
+				codeblock.PRINTLN(getIntField(instruction, "arity"));
+				break;
+
+			case "POP":
+				codeblock.POP();
+				break;
+
+			case "LOADLOCREF":
+				codeblock.LOADLOCREF(getIntField(instruction, "pos"));
+				break;
+
+			case "LOADVARREF":
+				codeblock.LOADVARREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				break;
+
+			case "LOADLOCDEREF":
+				codeblock.LOADLOCDEREF(getIntField(instruction, "pos"));
+				break;
+
+			case "LOADVARDEREF":
+				codeblock.LOADVARDEREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				break;
+
+			case "STORELOCDEREF":
+				codeblock.STORELOCDEREF(getIntField(instruction, "pos"));
+				break;
+
+			case "STOREVARDEREF":
+				codeblock.STOREVARDEREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				break;
+
+			case "LOAD_NESTED_FUN":
+				codeblock.LOADNESTEDFUN(getStrField(instruction, "fuid"), getStrField(instruction, "scopeIn"));
+				break;
+
+			case "LOADCONSTR":
+				codeblock.LOADCONSTR(getStrField(instruction, "fuid"));
+				break;
+
+			case "CALLCONSTR":
+				codeblock.CALLCONSTR(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				break;
+
+			case "LOADTYPE":
+				codeblock.LOADTYPE(rvm.symbolToType((IConstructor) instruction.get("type")));
+				break;
+			case "LOADBOOL":
+				codeblock.LOADBOOL(getBooleanField(instruction, "bval"));
+				break;
+
+			case "LOADINT":
+				codeblock.LOADINT(getIntField(instruction, "nval"));
+				break;
+
+			case "FAILRETURN":
+				codeblock.FAILRETURN();
+				break;
+
+			case "LOADOFUN" :
+				codeblock.LOADOFUN(getStrField(instruction, "fuid"));
+				break;
+
+			case "OCALL" :
+				codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				break;
+
+			case "OCALLDYN" :
+				codeblock.OCALLDYN(getIntField(instruction, "arity"));
+				break;
+
+			case "CALLJAVA":
+				codeblock.CALLJAVA(getStrField(instruction, "name"), getStrField(instruction, "class"), 
+						 			rvm.symbolToType((IConstructor) instruction.get("parameterTypes")));
+				break;
+
+			default:
+				throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
+			}
+
+		}
+		rvm.declare(new Function(name, ftype, scopeIn, nformals, nlocals, maxstack, codeblock));
 	}
 
 }

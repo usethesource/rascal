@@ -1,7 +1,7 @@
 module experiments::Compiler::Examples::Run
 
 import Prelude;
-import experiments::Compiler::Compile;
+import experiments::Compiler::Rascal2RVM::Execute;
 
 import experiments::Compiler::Examples::Bottles;
 import experiments::Compiler::Examples::Capture;
@@ -22,8 +22,8 @@ import experiments::Compiler::Examples::Overloading3;
 
 loc base = |std:///experiments/Compiler/Examples/|;
 
-value demo(str example bool debug = false, bool listing=false, bool testsuite=false) =
-  execute(base + (example + ".rsc"), debug=debug, listing=listing, testsuite=testsuite);
+value demo(str example bool debug = false, bool listing=false, bool testsuite=false, bool recompile=false) =
+  execute(base + (example + ".rsc"), debug=debug, listing=listing, testsuite=testsuite, recompile=recompile);
 
 test bool tst() = demo("Bottles") == experiments::Compiler::Examples::Bottles::main([]);
 test bool tst() = demo("Capture") == experiments::Compiler::Examples::Capture::main([]);

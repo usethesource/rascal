@@ -37,8 +37,6 @@ public void resetR2mu() {
 	resetTmpAndLabel();
 }
 
-str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
-
 @doc{Compile a Rascal source module (given as string) to muRascal}
 MuModule r2mu(str moduleStr){
 	return r2mu(parse(#start[Module], moduleStr).top); // .top is needed to remove start! Ugly!
@@ -46,20 +44,8 @@ MuModule r2mu(str moduleStr){
 
 @doc{Compile a Rascal source module (given at a location) to muRascal}
 MuModule r2mu(loc moduleLoc){
-    //println(readFile(moduleLoc));
-    translatedLoc = moduleLoc.parent + (basename(moduleLoc) + ".muast");
-    println("translatedLoc = <translatedLoc>");
-    if(exists(translatedLoc) && lastModified(translatedLoc) > lastModified(moduleLoc)){
-       try {
-  	       muMod = readBinaryValueFile(#MuModule, translatedLoc);
-  	       println("r2mu: Using compiled version <translatedLoc>");
-  	       return muMod;
-  	   } catch x: println("Reading did not succeed: <x>");
-  	}
-    
+    println(readFile(moduleLoc));   
    	muMod = r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
-   	writeBinaryValueFile(translatedLoc, muMod);
-   	println("r2mu: Writing compiled version <translatedLoc>");
    	return muMod;
 }
 
@@ -85,6 +71,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  		println(w);
    	  	}
    	  }
+   	  imported_modules = [];
    	  functions_in_module = [];
    	  variables_in_module = [];
    	  variable_initializations = [];
@@ -93,6 +80,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  													 || production(name, Symbol \type, containedIn, at) := config.store[uid]
    	  						  );
    	  translate(M);
+   	 
    	  generate_tests("<M.header.name>");
    	  
    	  // Overloading resolution...	  
@@ -103,15 +91,15 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  											  			 > 
    	  															| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions ];
    	  
-   	  return muModule("<M.header.name>", types, functions_in_module, variables_in_module, variable_initializations, overloadingResolver, overloaded_functions);
+   	  return muModule("<M.header.name>", imported_modules, types, functions_in_module, variables_in_module, variable_initializations, overloadingResolver, overloaded_functions);
    	}
    } catch Java("ParseError","Parse error"): {
    	   throw "Syntax errors in module <moduleLoc>";
    } finally {
-   	   println("r2mu: Cleaning up ...");
+   	   //println("r2mu: Cleaning up ...");
    	   resetR2mu();
    	   resetScopeExtraction();
-   	   println("r2mu: Cleaned up!");
+   	   //println("r2mu: Cleaned up!");
    }
    throw "r2mu: cannot come here!";
 }
@@ -121,8 +109,10 @@ void translate(m: (Module) `<Header header> <Body body>`) {
 	for( tl <- body.toplevels) translate(tl);
 }
 
-void importModule((Import) `import <QualifiedName \module> ;`){
-    imported_modules += |std:///| + "<\module>";
+void importModule((Import) `import <QualifiedName qname> ;`){
+    name = replaceAll("<qname>", "::", "/");
+    println("name = <name>");
+    imported_modules += |std:///| + ("<name>" + ".rsc");
     println("imported_modules = <imported_modules>");
 }
 	
@@ -160,11 +150,10 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
  //TODO: keyword parameters
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
-  println("ttags = <ttags>");
   if(ttags["javaClass"]?){
-     params = [symbolToValue(param, config) | param <- ftype.parameters];
-     exp = muCallJava("<signature.name>", ttags["javaClass"], params);
-     println("exp = <exp>");
+     paramTypes = \tuple([param | param <- ftype.parameters]);
+     params = [ muLoc("<ftype.parameters[i]>", i) | i <- [ 0 .. nformals] ];
+     exp = muCallJava("<signature.name>", ttags["javaClass"], paramTypes, params);
      tbody = translateFunction(signature.parameters.formals.formals, exp);
     
      functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
@@ -254,6 +243,5 @@ void generate_tests(str module_name){
    code = muBlock([ muCallPrim("testreport_open", []), *tests, muCallPrim("testreport_close", []), muReturn() ]);
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    main_testsuite = getFUID(module_name,"testsuite",ftype,0);
-   println("main_testsuite = <main_testsuite>");
    functions_in_module += muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, |rascal:///|, [], (), code);
 }
