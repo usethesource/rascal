@@ -6,6 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
+@contributor{Anastasia Izmaylova - Anastasia.Izmaylova@cwi.nl (CWI)}
 @bootstrapParser
 module lang::rascal::types::CheckTypes
 
@@ -483,7 +484,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
         c.nextLoc = c.nextLoc + 1;
-    } else if (overload(items,overloaded(itemTypes)) := c.store[c.fcvEnv[n]]) {
+    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
         // If the same constructor definitions comes in along multiple paths, this is fine.
         // The only thing we do then is make sure the names are correct, since, given module
         // B extending module A, we could call the constructor A::cons or B::cons.
@@ -492,7 +493,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
         c.fcvEnv[appendName(moduleName,n)] = c.fcvEnv[n];
         if (!existsAlready) {
             c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-            c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes + rt));
+            c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes,defaults + rt));
             c.definitions = c.definitions + < c.nextLoc, l >;
             overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
             if (size(overlaps) > 0)
@@ -514,7 +515,18 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
             if (size(overlaps) > 0)
                 c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <c.nextLoc>, <overlaps>",l);
             c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
-            c.store[c.nextLoc+1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded({ c.store[c.fcvEnv[n]].rtype, rt }));
+            nonDefaults = {};
+            defaults = { rt };
+            if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
+            	defaults += c.store[c.fcvEnv[n]].rtype; 
+            } else {
+            	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+            		defaults += c.store[c.fcvEnv[n]].rtype;
+            	} else {
+            		nonDefaults += c.store[c.fcvEnv[n]].rtype;
+            	}
+            }
+            c.store[c.nextLoc+1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(nonDefaults,defaults));
             for (cname <- invert(c.fcvEnv)[c.fcvEnv[n]])
                 c.fcvEnv[cname] = c.nextLoc+1;
             c.nextLoc = c.nextLoc + 2;
@@ -640,12 +652,17 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, set[Modifi
         c.visibilities[c.nextLoc] = visibility;
         //c.stack = c.nextLoc + c.stack;
         c.nextLoc = c.nextLoc + 1;
-    } else if (overload(items, overloaded(itemTypes)) := c.store[c.fcvEnv[n]]) {
+    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
         c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
         for(Modifier modifier <- modifiers) {
         	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
         }
-        c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes + rt));
+        if(hasDefaultModifier(modifiers)) {
+        	defaults += rt;
+        } else {
+        	itemTypes += rt;
+        }
+        c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes,defaults));
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
         //c.stack = c.nextLoc + c.stack;
@@ -658,7 +675,19 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, set[Modifi
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.visibilities[c.nextLoc] = visibility;
         //c.stack = c.nextLoc + c.stack;
-        c.store[c.nextLoc + 1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded({ c.store[c.fcvEnv[n]].rtype, rt }));
+        itemTypes = {};
+        defaults = {};
+        if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+        	defaults += c.store[c.fcvEnv[n]].rtype;
+        } else {
+        	itemTypes += c.store[c.fcvEnv[n]].rtype;
+        }
+        if(hasDefaultModifier(modifiers)) {
+        	defaults += rt;
+        } else {
+        	itemTypes += rt;
+        }
+        c.store[c.nextLoc + 1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(itemTypes,defaults));
         for (fname <- invert(c.fcvEnv)[c.fcvEnv[n]])
             c.fcvEnv[fname] = c.nextLoc+1;
         c.nextLoc = c.nextLoc + 2;
@@ -1088,83 +1117,102 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     // e was either a name or an expression that evaluated to a function, a constructor,
     // a source location, or a string
     if (isFunctionType(t1) || isConstructorType(t1) || isOverloadedType(t1)) {
-        set[Symbol] alts = (isFunctionType(t1) || isConstructorType(t1)) ? { t1 } : getOverloadOptions(t1);
-        < functionMatches, functionFailureReasons > = matchFunctionAlts(alts);
-        < constructorMatches, constructorFailureReasons > = matchConstructorAlts(alts);
+        set[Symbol] alts     = isFunctionType(t1) ? {t1} : ( isConstructorType(t1) ? {  } : getNonDefaultOverloadOptions(t1) );
+        set[Symbol] defaults = isFunctionType(t1) ? {  } : ( isConstructorType(t1) ? {t1} : getDefaultOverloadOptions(t1) );
         
-        if (size(functionMatches) == 0 && size(constructorMatches) == 0) {
-            return markLocationFailed(c,exp@\loc,{makeFailType(reason,exp@\loc) | reason <- (functionFailureReasons + constructorFailureReasons)});
-        } else if (size(functionMatches) > 1 && size(constructorMatches) > 1) {
+        < nonDefaultFunctionMatches, nonDefaultFunctionFailureReasons > = matchFunctionAlts(alts);
+        < defaultFunctionMatches, defaultFunctionFailureReasons > = matchFunctionAlts(defaults);
+        < constructorMatches, constructorFailureReasons > = matchConstructorAlts(defaults);
+        
+        if (size(nonDefaultFunctionMatches) == 0 && size(defaultFunctionMatches) == 0 && size(constructorMatches) == 0) {
+            return markLocationFailed(c,exp@\loc,{makeFailType(reason,exp@\loc) | reason <- (nonDefaultFunctionFailureReasons + defaultFunctionFailureReasons + constructorFailureReasons)});
+        } else if ( (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) && size(constructorMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions and constructors found which could be applied",exp@\loc));
-        } else if (size(functionMatches) > 1 ) {
+        } else if (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions found which could be applied",exp@\loc));
         } else if (size(constructorMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple constructors found which could be applied",exp@\loc));
         } 
         
-        set[Symbol] finalMatches = { };
+        set[Symbol] finalNonDefaultMatches = {};
+        set[Symbol] finalDefaultMatches = {};
         bool cannotInstantiateFunction = false;
         bool cannotInstantiateConstructor = false;
         
-        if (size(functionMatches) == 1) {
-            rt = getOneFrom(functionMatches);
-            if (typeContainsTypeVars(rt)) {
-                // If the function is parametric, we need to calculate the actual types of the
-                // parameters and make sure they fall within the proper bounds.
-                formalArgs = getFunctionArgumentTypes(rt);
-                bool varArgs = ( ((rt@isVarArgs)?) ? rt@isVarArgs : false );
-                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
-                map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
+        if (size(nonDefaultFunctionMatches + defaultFunctionMatches) > 0) {
+            rts = nonDefaultFunctionMatches + defaultFunctionMatches;
+            for(rt <- rts) {
+            	isInDefaults = rt in defaultFunctionMatches;
+            	isInNonDefaults = rt in nonDefaultFunctionMatches;
+            	
+            	if (typeContainsTypeVars(rt)) {
+                	// If the function is parametric, we need to calculate the actual types of the
+                	// parameters and make sure they fall within the proper bounds.
+                	formalArgs = getFunctionArgumentTypes(rt);
+                	bool varArgs = ( ((rt@isVarArgs)?) ? rt@isVarArgs : false );
+                	set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
+                	map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
                 
-                if (!varArgs) {
-                    // First try to get the bindings between the type vars and the actual types for each of the
-                    // function parameters. Here this is not a varargs function, so there are the same number of
-                    // formals as actuals.
-                    for (idx <- index(tl)) {
-                        try {
-                            bindings = match(formalArgs[idx],tl[idx],bindings);
-                        } catch : {
-                            c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
-                            cannotInstantiateFunction = true;  
-                        }
-                    }
-                } else {
-                    // Get the bindings between the type vars and the actual types for each function parameter. Since
-                    // this is a var-args function, we need to take that into account. The first for loop takes care
-                    // of the fixes parameters, while the second takes care of those that are mapped to the var-args
-                    // parameter.
-                    for (idx <- index(tl), idx < size(formalArgs)) {
-                        try {
-                            bindings = match(formalArgs[idx],tl[idx],bindings);
-                        } catch : {
-                            c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
-                            cannotInstantiateFunction = true;  
-                        }
-                    }
-                    for (idx <- index(tl), idx >= size(formalArgs)) {
-                        try {
-                            bindings = match(getListElementType(formalArgs[size(formalArgs)-1]),tl[idx],bindings);
-                        } catch : {
-                            c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(getListElementType(formalArgs[size(formalArgs)-1]))>", epsList[idx]@\loc);
-                            cannotInstantiateFunction = true;  
-                        }
-                    }
-                }
-                // Based on the above, either give an error message (if we could not match the function's parameter types) or
-                // try to instantiate the entire function type. The instantiation should only fail if we cannot instantiate
-                // the return type correctly, for instance if the instantiation would violate the bounds.
-                // NOTE: We may instantiate and still have type parameters, since we may be calling this from inside
-                // a function, using a value with a type parameter as its type.
-                if (!cannotInstantiateFunction) {
-                    try {
-                        rt = instantiate(rt, bindings);
-                        finalMatches += rt;
-                    } catch : {
-                        cannotIstantiateFunction = true;
-                    }
-                }
-            } else {
-            	finalMatches += rt;
+                	if (!varArgs) {
+                    	// First try to get the bindings between the type vars and the actual types for each of the
+                    	// function parameters. Here this is not a varargs function, so there are the same number of
+                    	// formals as actuals.
+                    	for (idx <- index(tl)) {
+                        	try {
+                            	bindings = match(formalArgs[idx],tl[idx],bindings);
+                        	} catch : {
+                            	c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
+                            	cannotInstantiateFunction = true;  
+                        	}
+                    	}
+                	} else {
+                    	// Get the bindings between the type vars and the actual types for each function parameter. Since
+                    	// this is a var-args function, we need to take that into account. The first for loop takes care
+                    	// of the fixes parameters, while the second takes care of those that are mapped to the var-args
+                    	// parameter.
+                    	for (idx <- index(tl), idx < size(formalArgs)) {
+                        	try {
+                            	bindings = match(formalArgs[idx],tl[idx],bindings);
+                        	} catch : {
+                            	c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
+                            	cannotInstantiateFunction = true;  
+                        	}
+                    	}
+                    	for (idx <- index(tl), idx >= size(formalArgs)) {
+                        	try {
+                            	bindings = match(getListElementType(formalArgs[size(formalArgs)-1]),tl[idx],bindings);
+                        	} catch : {
+                            	c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(getListElementType(formalArgs[size(formalArgs)-1]))>", epsList[idx]@\loc);
+                            	cannotInstantiateFunction = true;  
+                        	}
+                    	}
+                	}
+                	// Based on the above, either give an error message (if we could not match the function's parameter types) or
+                	// try to instantiate the entire function type. The instantiation should only fail if we cannot instantiate
+                	// the return type correctly, for instance if the instantiation would violate the bounds.
+                	// NOTE: We may instantiate and still have type parameters, since we may be calling this from inside
+                	// a function, using a value with a type parameter as its type.
+                	if (!cannotInstantiateFunction) {
+                    	try {
+                        	rt = instantiate(rt, bindings);
+                        	if(isInDefaults) {
+                        		finalDefaultMatches += rt;
+                        	}
+                        	if(isInNonDefaults) {
+                        		finalNonDefaultMatches += rt;
+                        	}
+                    	} catch : {
+                        	cannotIstantiateFunction = true;
+                    	}
+                	}
+            	} else {
+            		if(isInDefaults) {
+            			finalDefaultMatches += rt;
+            		}
+            		if(isInNonDefaults) {
+            			finalNonDefaultMatches += rt;
+            		}
+            	}
             }
 		} 
 		
@@ -1187,13 +1235,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                 if (!cannotInstantiateConstructor) {
                     try {
                         rt = instantiate(rt, bindings);
-                        finalMatches += rt;
+                        finalDefaultMatches += rt;
                     } catch : {
                         cannotInstantiateConstructor = true;
                     }
                 }
             } else {
-            	finalMatches += rt;
+            	finalDefaultMatches += rt;
             }
         }
         
@@ -1204,8 +1252,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         } else if (cannotInstantiateConstructor) {
         	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in constructor", exp@\loc));
         } else {
-        	if (size(finalMatches) == 1) {
-        		finalMatch = getOneFrom(finalMatches);
+        	if ( (size(finalNonDefaultMatches) + size(finalDefaultMatches)) == 1 ) {
+        		finalMatch = getOneFrom(finalNonDefaultMatches + finalDefaultMatches);
         		if (isFunctionType(finalMatch)) {
 				    < c, rtp > = markLocationType(c,e@\loc,finalMatch);
 				    return markLocationType(c,exp@\loc,getFunctionReturnType(finalMatch));
@@ -1213,13 +1261,29 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 			        < c, rtp > = markLocationType(c,e@\loc,finalMatch);
 			        return markLocationType(c,exp@\loc,getConstructorResultType(finalMatch));
 				}
-			} else {
-				// Make sure the function and constructor variants have the same return type, else we
+			} else if (size(finalNonDefaultMatches) == 0 && size(finalDefaultMatches) == 2) {
+				// Make sure the default function and constructor variants have the same return type, else we
 				// have a conflict.
-				functionVariant = getOneFrom(filterSet(finalMatches, isFunctionType));
-				constructorVariant = getOneFrom(filterSet(finalMatches, isConstructorType));
-				if (equivalent(getFunctionReturnType(functionVariant),getConstructorResultType(constructorVariant))) {
-					finalType = makeOverloadedType(finalMatches);
+				functionVariant = getOneFrom(filterSet(finalDefaultMatches, isFunctionType));
+				constructorVariant = getOneFrom(filterSet(finalDefaultMatches, isConstructorType));
+				
+				if (!equivalent(getFunctionReturnType(functionVariant),getConstructorResultType(constructorVariant))) {
+					// TODO: This should also result in an error on the function
+					// declaration, since we should not have a function with the same name
+					// and parameters but a different return type
+					println("WARNING: call at <e@\loc> uses a function with a bad return type");    
+				}
+				< c, rtp > = markLocationType(c,e@\loc,functionVariant);
+				return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
+			} else if (size(finalNonDefaultMatches) == 1 && size(finalDefaultMatches) == 1) {
+				// Make sure the function and the default function or constructor variants have the same return type, else we
+				// have a conflict.
+				functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
+				defaultVariant = getOneFrom(finalDefaultMatches);
+				defaultResultType = isConstructorType(defaultVariant) ? getConstructorResultType(defaultVariant) : getFunctionReturnType(defaultVariant);
+				
+				if (equivalent(getFunctionReturnType(functionVariant),defaultResultType)) {
+					finalType = makeOverloadedType(finalNonDefaultMatches,finalDefaultMatches);
 				    < c, rtp > = markLocationType(c,e@\loc,finalType);
 				    return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
 				} else {
@@ -1227,8 +1291,28 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 					// declaration, since we should not have a function with the same name
 					// and parameters but a different return type
 					println("WARNING: call at <e@\loc> uses a function with a bad return type");
-				    < c, rtp > = markLocationType(c,e@\loc,constructorVariant);
-				    return markLocationType(c,exp@\loc,getConstructorResultType(constructorVariant));
+				    < c, rtp > = markLocationType(c,e@\loc,defaultVariant);
+				    return markLocationType(c,exp@\loc,defaultResultType);
+				}
+			} else {
+				// Make sure the function, the default function and constructor variants have the same return type, else we
+				// have a conflict.
+				functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
+				defaultVariant = getOneFrom(filterSet(finalDefaultMatches, isFunctionType));
+				constructorVariant = getOneFrom(filterSet(finalDefaultMatches, isConstructorType));
+				
+				if ( equivalent(getFunctionReturnType(functionVariant),getFunctionReturnType(defaultVariant))
+						&& equivalent(getFunctionReturnType(functionVariant),getConstructorResultType(constructorVariant)) ) {
+					finalType = makeOverloadedType(finalNonDefaultMatches,{ defaultVariant });
+				    < c, rtp > = markLocationType(c,e@\loc,finalType);
+				    return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
+				} else {
+					// TODO: This should also result in an error on the function
+					// declaration, since we should not have a function with the same name
+					// and parameters but a different return type
+					println("WARNING: call at <e@\loc> uses a function with a bad return type");
+				    < c, rtp > = markLocationType(c,e@\loc,defaultVariant);
+				    return markLocationType(c,exp@\loc,getFunctionReturnType(defaultVariant));
 				}
 			}
         }
@@ -3432,8 +3516,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             case ptn:callOrTreeNode(ph,pargs) : {
                 if ( (ph@rtype)? && concreteType(ph@rtype) ) {
                     if (isConstructorType(ph@rtype) || isOverloadedType(ph@rtype)) {
-                        // alts contains all possible constructors of this name
-                        set[Symbol] alts = (isOverloadedType(ph@rtype)) ? filterSet(getOverloadOptions(ph@rtype), isConstructorType) : {ph@rtype};
+                        // default alternatives contain all possible constructors of this name
+                        set[Symbol] alts = (isOverloadedType(ph@rtype)) ? filterSet(getDefaultOverloadOptions(ph@rtype), isConstructorType) : {ph@rtype};
                         // matches holds all the constructors that match the arity and types in the pattern
                         set[Symbol] matches = { };
                         set[Symbol] nonMatches = { };
@@ -5574,6 +5658,9 @@ public set[Modifier] getModifiers(Signature sig:(Signature)`<FunctionModifiers m
 set[Modifier] getModifiers(FunctionModifiers fmods:(FunctionModifiers)`<FunctionModifier* fms>`) {
     return { getModifier(m) | m <- fms };
 }
+
+@doc{Check if a set of function modifiers has the default modifier}
+public bool hasDefaultModifier(set[Modifier] modifiers) = defaultModifier() in modifiers;
 
 @doc{Extract the function name from the signature.}
 public RName getFunctionName(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`) = convertName(n);
