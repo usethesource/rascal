@@ -11,7 +11,8 @@ import Prelude;
 // All information related to one Rascal module
 
 public data MuModule =											
-              muModule(str name, map[str,Symbol] types, 
+              muModule(str name, list[loc] imports,
+              					 map[str,Symbol] types, 
                                  list[MuFunction] functions, 
                                  list[MuVariable] variables, 
                                  list[MuExp] initialization,
@@ -78,6 +79,9 @@ public data MuExp =
           | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
           | muCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
+          | muCallJava(str name, str class, 
+          			   Symbol parameterTypes,
+          			   list[MuExp] args)						// Call a Java method in given class
  
           | muReturn()											// Return from function without value
           | muReturn(MuExp exp)									// Return from function with value

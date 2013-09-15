@@ -14,10 +14,6 @@ public class Create extends Instruction {
 	}
 	
 	public String toString() { return "CREATE " + fuid + "[" + codeblock.getFunctionIndex(fuid) + ", " + arity + "]"; }
-
-	public int spIncrement() {
-		return arity + 1;
-	}
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());

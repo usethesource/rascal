@@ -11,10 +11,6 @@ public class CallDyn extends Instruction {
 		this.arity = arity;
 	}
 	
-	public int spIncrement() {
-		return arity + 1;
-	}
-	
 	public String toString() { return "CALLDYN " + arity; }
 	
 	public void generate(){

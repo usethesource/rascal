@@ -327,7 +327,7 @@ void extractScopes(){
     		scopeIn = uid2addr[fuid].fuid;
     		scopes += scopeIn;
     	}
-    	assert size(scopes) == 1;
+    	//assert size(scopes) == 1;
     	uid2addr[fuid] = <scopeIn,-1>;
     }
 
@@ -369,11 +369,11 @@ public bool isAlias(AbstractValue::\alias(_,_,_,_)) = true;
 public default bool isAlias(AbstractValue _) = false;
 
 public bool hasField(Symbol s, str fieldName){
-    println("hasField: <s>, <fieldName>");
+    //println("hasField: <s>, <fieldName>");
 
     if(isADTType(s)){
        s2v = symbolToValue(s, config);
-       println("s2v = <s2v>");
+       //println("s2v = <s2v>");
     }
     // TODO: this is too liberal, restrict to outer type.
     visit(s){

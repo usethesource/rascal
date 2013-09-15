@@ -11,10 +11,6 @@ public class OCallDyn extends Instruction {
 		this.arity = arity;
 	}
 	
-	public int spIncrement() {
-		return arity + 1;
-	}
-	
 	public String toString() { return "OCALLDYN " + arity; }
 	
 	public void generate(){
