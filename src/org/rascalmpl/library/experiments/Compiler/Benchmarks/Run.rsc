@@ -8,7 +8,7 @@ module experiments::Compiler::Benchmarks::Run
 import Prelude;
 import util::Benchmark;
 import util::Math;
-import experiments::Compiler::Compile;
+import experiments::Compiler::Execute;
 
 import experiments::Compiler::Benchmarks::BBottles;
 import experiments::Compiler::Benchmarks::BFac;
