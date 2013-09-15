@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -31,14 +30,14 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadNestedFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadOFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next1;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.OCall;
@@ -407,8 +406,10 @@ public class CodeBlock {
 		return add(new OCallDyn(this, arity));
 	}
 	
-	public CodeBlock CALLJAVA(String methodName, String className, IList parameterTypes){
-		return add(new CallJava(this, getConstantIndex(vf.string(methodName)), getConstantIndex(vf.string(className)), getConstantIndex(parameterTypes)));
+	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes){
+		return add(new CallJava(this, getConstantIndex(vf.string(methodName)), 
+								getConstantIndex(vf.string(className)), 
+								 getTypeConstantIndex(parameterTypes)));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

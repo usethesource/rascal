@@ -8,11 +8,11 @@ public class CallJava extends Instruction {
 	final int methodName;
 	final int parameterTypes;
 	
-	public CallJava(CodeBlock ins, int methodName, int className, int parameterTypes) {
+	public CallJava(CodeBlock ins, int methodName, int className, int i) {
 		super(ins, Opcode.CALLJAVA);
 		this.className = className;
 		this.methodName = methodName;
-		this.parameterTypes = parameterTypes;
+		this.parameterTypes = i;
 	}
 	
 	public String toString() { return "CALLJAVA " + codeblock.getConstantValue(methodName) + ", " + codeblock.getConstantValue(className) +
