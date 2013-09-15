@@ -46,25 +46,6 @@ int getTmp(str name){
    return n;		
 }
 
-public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
-public loc LibraryPrecompiled = |std:///experiments/Compiler/muRascal2RVM/Library.muast|;
-
-map[str,Declaration] parseLibrary(){
-    println("mu2rvm: Recompiling library.mu");
- 	libModule = parse(Library);
- 	funMap = ();
- 
-  	for(fun <- libModule.functions){
-  	    required_frame_size = fun.nlocals + estimate_stack_size(fun.body);
-    	funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, fun.nlocals, required_frame_size, tr(fun.body)));
-  	}
-  
-  	writeTextValueFile(LibraryPrecompiled, funMap);
-    println("mu2rvm: Written compiled version of Library.mu");
-  	
-  	return funMap;
-}
-
 // Does an expression produce a value? (needed for cleaning up the stack)
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
@@ -79,25 +60,12 @@ default bool producesValue(MuExp exp) = true;
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str module_name, map[str,Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions), bool listing=false){
+RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions), bool listing=false){
   funMap = ();
   nLabel = -1;
   temporaries = ();
   
   println("mu2rvm: Compiling module <module_name>");
-  
-  if(exists(LibraryPrecompiled) && lastModified(LibraryPrecompiled) > lastModified(Library)){
-     try {
-  	       funMap = readTextValueFile(#map[str,Declaration], LibraryPrecompiled);
-  	       println("mu2rvm: Using precompiled version of Library.mu");
-  	 } catch:
-  	       funMap = parseLibrary();
-  } else {
-    funMap = parseLibrary();
-  }
-  
-  library_names = domain(funMap);
-  // println("<size(library_names)> functions in muRascal library:\n<library_names>");
  
   for(fun <- functions){
     functionScope = fun.qname;
@@ -114,10 +82,10 @@ RVMProgram mu2rvm(muModule(str module_name, map[str,Symbol] types, list[MuFuncti
   module_init_fun = getUID(module_name,[],"#module_init_main",1);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
   if(!funMap[main_fun]?) {
-  	main_fun = getFUID(module_name,"main",ftype,0);
-  	module_init_fun = getFUID(module_name,"#module_init_main",ftype,0);
+  	 main_fun = getFUID(module_name,"main",ftype,0);
+  	 module_init_fun = getFUID(module_name,"#module_init_main",ftype,0);
   }
-  println("main_fun = <main_fun>");
+  
   funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   									[*tr(initializations), 
   									 LOADLOC(0), 
@@ -129,8 +97,8 @@ RVMProgram mu2rvm(muModule(str module_name, map[str,Symbol] types, list[MuFuncti
   main_testsuite = getUID(module_name,[],"testsuite",1);
   module_init_testsuite = getUID(module_name,[],"#module_init_testsuite",1);
   if(!funMap[main_testsuite]?) { 						
-  	main_testsuite = getFUID(module_name,"testsuite",ftype,0);
-  	module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
+  	 main_testsuite = getFUID(module_name,"testsuite",ftype,0);
+  	 module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
   funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   										[*tr(initializations), 
@@ -139,9 +107,9 @@ RVMProgram mu2rvm(muModule(str module_name, map[str,Symbol] types, list[MuFuncti
   									 	 RETURN1(),
   									 	 HALT()
   										 ]));
-  res = rvm(types, funMap, [], resolver, overloaded_functions);
+  res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
   if(listing){
-    for(fname <- funMap, fname notin library_names)
+    for(fname <- funMap, fname)
   		iprintln(funMap[fname]);
   }
   return res;
@@ -244,6 +212,7 @@ INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args
 
 INS tr(muCallMuPrim(str name, list[MuExp] args)) =  (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLMUPRIM(name, size(args))];
 
+INS tr(muCallJava(str name, str class, Symbol types, list[MuExp] args)) = [ *tr(args), CALLJAVA(name, class, types) ];
 // Return
 
 INS tr(muReturn()) = [RETURN0()];
@@ -327,8 +296,8 @@ default INS tr(e: muMulti(MuExp exp)) =
 	 [ *tr(exp),
        INIT(0),
        NEXT0()
-    ]
-    when bprintln("tr outer muMulti: <e>");
+    ];
+    //when bprintln("tr outer muMulti: <e>");
     
 INS tr(e:muOne(list[MuExp] exps)) {
   bprintln("tr outer muOne: <e>");
@@ -345,7 +314,7 @@ INS tr(e:muOne(list[MuExp] exps)) {
      ];
 }
 
-INS tr(e:muAll(list[MuExp] exps)) {  // TODO: not complete yet
+INS tr(e:muAll(list[MuExp] exps)) { 
     println("tr outer muAll: <e>");
     
     startLab = nextLabel();
@@ -423,7 +392,7 @@ default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 // muOne: explore one successfull evaluation
 
 INS tr_cond(e: muOne(list[MuExp] exps), str continueLab, str failLab){
-    println("tr_cond: <e>");
+    //println("tr_cond: <e>");
     code = [LABEL(continueLab)];
     for(exp <- exps){
         if(muMulti(exp1) := exp){
@@ -465,7 +434,7 @@ INS tr_cond_do(muOne(list[MuExp] exps), str continueLab, str failLab){
 // muAll: explore all sucessfull evaluations
 
 INS tr_cond(e: muAll(list[MuExp] exps), str continueLab, str failLab){
-    println("tr_cond : <e>");
+    //println("tr_cond : <e>");
     code = [];
     lastMulti = -1;
     
@@ -518,9 +487,9 @@ INS tr_cond(e: muMulti(MuExp exp), str continueLab, str failLab) =
       INIT(0),
       NEXT0(),
       JMPFALSE(failLab)
-    ]
-    when bprintln("tr_cond: <e>");
+    ];
+    //when bprintln("tr_cond: <e>");
 
-default INS tr_cond(MuExp exp, str continueLab, str failLab) = [ LABEL(continueLab), *tr(exp), JMPFALSE(failLab) ]
-    when bprintln("default tr_cond: <exp>");
+default INS tr_cond(MuExp exp, str continueLab, str failLab) = [ LABEL(continueLab), *tr(exp), JMPFALSE(failLab) ];
+    //when bprintln("default tr_cond: <exp>");
     

@@ -1,7 +1,7 @@
 module experiments::Compiler::Examples::Tmp
 
-import Boolean;
+import experiments::Compiler::Examples::MyLibrary;
 
 value main(list[value] args) { 
-	  return arbBool();
-}
+	  return return replaceAll("abracadabra", "a", "A");
+}  

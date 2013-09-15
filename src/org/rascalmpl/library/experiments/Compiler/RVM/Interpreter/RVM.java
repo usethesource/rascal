@@ -1,6 +1,9 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,18 +11,24 @@ import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IRational;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -127,14 +136,20 @@ public class RVM {
 			int[] funs = new int[fuids.length()];
 			int i = 0;
 			for(IValue fuid : fuids) {
-				int index = functionMap.get(((IString) fuid).getValue());
+				Integer index = functionMap.get(((IString) fuid).getValue());
+				if(index == null){
+					throw new RuntimeException("No definition for " + fuid + " in functionMap");
+				}
 				funs[i++] = index;
 			}
 			fuids = (IList) ofTuple.get(2);
 			int[] constrs = new int[fuids.length()];
 			i = 0;
 			for(IValue fuid : fuids) {
-				int index = constructorMap.get(((IString) fuid).getValue());
+				Integer index = constructorMap.get(((IString) fuid).getValue());
+				if(index == null){
+					throw new RuntimeException("No definition for " + fuid + " in constructorMap");
+				}
 				constrs[i++] = index;
 			}
 			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
@@ -526,9 +541,6 @@ public class RVM {
 					}
 
 					throw new RuntimeException("STOREVARDEREF cannot find matching scope: " + s);
-
-
-				
 				
 				case Opcode.OP_CALLCONSTR:
 					constructor = constructorStore.get(instructions[pc++]);
@@ -769,8 +781,14 @@ public class RVM {
 					}
 					continue;
 					
-
-				
+				case Opcode.OP_CALLJAVA:
+					String methodName =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
+					String className =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
+					Type parameterTypes = cf.function.typeConstantStore[instructions[pc++]];
+					arity = parameterTypes.getArity();
+					sp = callJavaMethod(methodName, className, parameterTypes, stack, sp);
+					continue;
+					
 				case Opcode.OP_INIT:
 					arity = instructions[pc++];
 					Object src = stack[--sp];
@@ -1332,5 +1350,157 @@ public class RVM {
 		}
 		return Rascal_FALSE;
 	}
+	
+	int callJavaMethod(String methodName, String className, Type parameterTypes, Object[] stack, int sp){
+		Class<?> clazz;
+		try {
+			clazz = this.getClass().getClassLoader().loadClass(className);
+			Constructor<?> cons;
+			cons = clazz.getConstructor(IValueFactory.class);
+			Object instance = cons.newInstance(vf);
+
+			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes));
+			int nformals = parameterTypes.getArity();
+			Object[] parameters = new Object[nformals];
+			for(int i = 0; i < nformals; i++){
+				parameters[i] = stack[sp - nformals + i];
+			}
+			stack[sp - nformals] =  m.invoke(instance, parameters);
+			return sp - nformals + 1;
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (NoSuchMethodException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return sp;
+	}
+	
+	Class<?>[] makeJavaTypes(Type parameterTypes){
+		JavaClasses javaClasses = new JavaClasses();
+		Class<?>[] jtypes = new Class<?>[parameterTypes.getArity()];
 		
+		for(int i = 0; i < parameterTypes.getArity(); i++){
+			jtypes[i] = parameterTypes.getFieldType(i).accept(javaClasses);
+		}
+		return jtypes;
+	}
+	
+	private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {
+
+		@Override
+		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
+			return IBool.class;
+		}
+
+		@Override
+		public Class<?> visitReal(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IReal.class;
+		}
+
+		@Override
+		public Class<?> visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IInteger.class;
+		}
+		
+		@Override
+		public Class<?> visitRational(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IRational.class;
+		}
+		
+		@Override
+		public Class<?> visitNumber(org.eclipse.imp.pdb.facts.type.Type type) {
+			return INumber.class;
+		}
+
+		@Override
+		public Class<?> visitList(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IList.class;
+		}
+
+		@Override
+		public Class<?> visitMap(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IMap.class;
+		}
+
+		@Override
+		public Class<?> visitAlias(org.eclipse.imp.pdb.facts.type.Type type) {
+			return type.getAliased().accept(this);
+		}
+
+		@Override
+		public Class<?> visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IConstructor.class;
+		}
+
+		@Override
+		public Class<?> visitSet(org.eclipse.imp.pdb.facts.type.Type type) {
+			return ISet.class;
+		}
+
+		@Override
+		public Class<?> visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
+			return ISourceLocation.class;
+		}
+
+		@Override
+		public Class<?> visitString(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IString.class;
+		}
+
+		@Override
+		public Class<?> visitNode(org.eclipse.imp.pdb.facts.type.Type type) {
+			return INode.class;
+		}
+
+		@Override
+		public Class<?> visitConstructor(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IConstructor.class;
+		}
+
+		@Override
+		public Class<?> visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {
+			return ITuple.class;
+		}
+
+		@Override
+		public Class<?> visitValue(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IValue.class;
+		}
+
+		@Override
+		public Class<?> visitVoid(org.eclipse.imp.pdb.facts.type.Type type) {
+			return null;
+		}
+
+		@Override
+		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
+			return parameterType.getBound().accept(this);
+		}
+
+		@Override
+		public Class<?> visitExternal(
+				org.eclipse.imp.pdb.facts.type.Type externalType) {
+			return IValue.class;
+		}
+
+		@Override
+		public Class<?> visitDateTime(Type type) {
+			return IDateTime.class;
+		}
+	}
 }

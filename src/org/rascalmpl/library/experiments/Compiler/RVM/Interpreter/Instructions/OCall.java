@@ -14,10 +14,6 @@ public class OCall extends Instruction {
 	}
 	
 	public String toString() { return "OCALL " + fuid + ", " + arity + " [ " + codeblock.getOverloadedFunctionIndex(fuid) + " ]"; }
-
-	public int spIncrement() {
-		return arity + 1;
-	}
 		
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
