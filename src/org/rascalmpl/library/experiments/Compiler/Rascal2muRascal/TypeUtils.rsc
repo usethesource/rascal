@@ -318,16 +318,20 @@ void extractScopes(){
         }
     }
     
-    // Fill in uid2addr for overloaded functions; TODO: add the 'scopeIn' field to the 'overload' computed by the type checker
+    // Fill in uid2addr for overloaded functions;
     for(int fuid <- ofunctions) {
     	set[int] funs = config.store[fuid].items;
     	set[str] scopes = {};
-    	str scopeIn = "";
+    	str scopeIn = uid2str(0);
     	for(int fuid <- funs) {
-    		scopeIn = uid2addr[fuid].fuid;
-    		scopes += scopeIn;
+    		funScopeIn = uid2addr[fuid].fuid;
+    		if(funScopeIn notin moduleNames) {
+    			scopes += funScopeIn;
+    		}
     	}
-    	//assert size(scopes) == 1;
+    	// The alternatives of the overloaded function may come from different scopes 
+    	// but only in case of module scopes;
+    	assert size(scopes) == 0 || size(scopes) == 1;
     	uid2addr[fuid] = <scopeIn,-1>;
     }
 
