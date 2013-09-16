@@ -33,7 +33,7 @@ void runMu2rvm(){
   // Add 'testsuite'
   code = [ muCallPrim("testreport_open", []), muCallPrim("testreport_close", []), muReturn() ];
   main_testsuite = getUID(muP.name,[],"testsuite",1);
-  println("main_testsuite = <main_testsuite>");
+  // println("main_testsuite = <main_testsuite>");
   // Generate a very generic function type
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
   muP.functions = muP.functions + muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, |rascal:///|, [], (), code);

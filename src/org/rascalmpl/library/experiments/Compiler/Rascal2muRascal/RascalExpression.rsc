@@ -397,10 +397,8 @@ MuExp translateBool((Expression) `<Expression lhs> \<==\> <Expression rhs>`) = t
 
 MuExp translateBool((Expression) `! <Expression lhs>`) = translateBoolNot(lhs);
  
- MuExp translateBool((Expression) `<Pattern pat> := <Expression exp>`)  {
-   println("translateBool: <pat> := <exp>");
-   return muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]));
-} 
+ MuExp translateBool((Expression) `<Pattern pat> := <Expression exp>`)  =
+   muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]));
 
 // All other expressions are translated as ordinary expression
 
@@ -600,9 +598,7 @@ MuExp translateSetOrList(es, str kind){
        writer = nextTmp();
        enterWriter(writer);
        code = [ muAssignTmp(writer, muCallPrim("<kind>writer_open", [])) ];
-       println("es = <es>");
        for(elem <- es){
-           println("elem = <elem>");
            if(elem is splice){
               code += muCallPrim("<kind>writer_splice", [muTmp(writer), translate(elem.argument)]);
             } else {

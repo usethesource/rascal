@@ -360,7 +360,7 @@ public enum MuPrimitive {
 	public static int is_set(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isSet();
-		return sp - 1;}
+		return sp;}
 		
 	public static int is_str(Object[] stack, int sp, int arity) {
 		assert arity == 1;
