@@ -111,9 +111,9 @@ void translate(m: (Module) `<Header header> <Body body>`) {
 
 void importModule((Import) `import <QualifiedName qname> ;`){
     name = replaceAll("<qname>", "::", "/");
-    println("name = <name>");
+    //println("name = <name>");
     imported_modules += |std:///| + ("<name>" + ".rsc");
-    println("imported_modules = <imported_modules>");
+    //println("imported_modules = <imported_modules>");
 }
 	
 void translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
@@ -181,7 +181,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   									nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, tbody);
   
   if("test" in tmods){
-  println("ftype = <ftype>");
+     // println("ftype = <ftype>");
      params = ftype.parameters;
      tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
