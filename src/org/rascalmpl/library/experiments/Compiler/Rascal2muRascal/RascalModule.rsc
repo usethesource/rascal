@@ -181,7 +181,6 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   									nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, tbody);
   
   if("test" in tmods){
-     // println("ftype = <ftype>");
      params = ftype.parameters;
      tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }

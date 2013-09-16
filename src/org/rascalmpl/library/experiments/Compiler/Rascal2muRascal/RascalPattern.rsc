@@ -222,7 +222,7 @@ MuExp translateFunction({Pattern ","}* formals, MuExp body){
       if(!(pat is typedVariable || pat is literal))
       b = false;
   }
-  if(b){    //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))){
+  if(b) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))){
      return translateFormals([formal | formal <- formals], 0, body);
   } else {
 	  list[MuExp] conditions = [];
@@ -231,7 +231,7 @@ MuExp translateFunction({Pattern ","}* formals, MuExp body){
 	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
 	      i += 1;
 	  };
-	  return muIfelse(muOne(conditions), [ muReturn(body) ], [ muFailReturn() ]);
+	  return muIfelse(muAll(conditions), [ muReturn(body) ], [ muFailReturn() ]);
   }
 }
 
