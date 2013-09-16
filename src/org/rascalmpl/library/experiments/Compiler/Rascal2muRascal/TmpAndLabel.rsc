@@ -88,5 +88,16 @@ void leaveWriter(){
   writerVariables = tail(writerVariables);
 }
 
+private list[bool] functionsUnderTranslation = [];
 
+void enterFunctionTranslation(bool withBacktrackableParameters) {
+	functionsUnderTranslation = withBacktrackableParameters + functionsUnderTranslation;
+}
+
+void leaveFunctionTranslation() {
+	functionsUnderTranslation = tail(functionsUnderTranslation);
+}
+
+bool getTopFunctionTranslation() = head(functionsUnderTranslation);
+ 
 
