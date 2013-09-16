@@ -3,19 +3,21 @@ Synopsis: provides language independent lines of code metrics on top of [M3] mod
 }
 module analysis::m3::metrics::LOC
 
-import lang::java::m3::Facts;
-import lang::java::m3::JavaM3;
+import lang::java::m3::Core;
 import analysis::graphs::Graph;
+import IO;
+import List;
+import String;
 
-int countProjectTotalLoc(M3 model) = (0 | it + countFileTotalLoc(m, cu) | cu <- top(model@containment));
+int countProjectTotalLoc(M3 model) = (0 | it + countFileTotalLoc(model, cu) | cu <- files(model));
 
-int countProjectCommentedLoc(M3 model) = (0 | it + countCommentedLoc(m, cu) | cu <- top(model@containment));
+int countProjectCommentedLoc(M3 model) = (0 | it + countCommentedLoc(model, cu) | cu <- files(model));
 
 int countFileTotalLoc(M3 projectModel, loc cu) = src.end.line when {src} := projectModel@declarations[cu];
 default int countFileTotalLoc(M3 projectModel, loc cu) { throw ("Multiple source for compilation unit <cu> found."); }
 
 int countCommentedLoc(M3 projectModel, loc cu) 
-  = (0 | it + (doc.end.lint - doc.begin.line + 1 - checkForSourceLines(doc)) | doc <- projectModel@documentation[cu]); 
+  = (0 | it + (doc.end.line - doc.begin.line + 1 - checkForSourceLines(doc)) | doc <- projectModel@documentation[cu]); 
 
 private int checkForSourceLines(loc commentLoc) {
 	str comment = readFile(commentLoc);
@@ -37,20 +39,45 @@ private int checkForSourceLines(loc commentLoc) {
 	if (isEmpty(last(contents)))
 		commentedLinesSrc = replaceLast(commentedLinesSrc, "\n" , "");
 	
-	if (comment == trim(commentedLinesSrc))
-		return 0;
-	return 1; 
+	return size(split(comment, trim(commentedLinesSrc)));
 }
 
-int countEmptyLoc(M3 projectModel, loc cu) 
-  =	(0 | it + 1 | loc doc <- projectModel@declarations[cu], /^\s*$/ <- split("\n", readFile(doc)));
+str removeComments(str contents, M3 projectModel, loc cu) {
+  list[str] listContents = split("\n", contents);
+  list[str] result = listContents;
+  for (loc commentLoc <- projectModel@documentation[cu]) {
+    // remove comments
+    result = result - slice(listContents, commentLoc.begin.line - 1, commentLoc.end.line - commentLoc.begin.line + 1);
+  }
+  return intercalate("\n", result);
+}
 
-int countProjectEmptyLoc(M3 projectModel) 
-  = (0 | it + countEmptyLoc(projectModel, cu) | cu <- top(projectModel@containment));
+// Empty lines in comments should not be counted
+int countEmptyLoc(M3 projectModel, loc cu) 
+  =	(0 | it + 1 | loc doc <- projectModel@declarations[cu], /^\s*$/ <- split("\n", removeComments(readFile(doc), projectModel, cu)));
+
+int countProjectEmptyLoc(M3 projectModel) = (0 | it + countEmptyLoc(projectModel, cu) | cu <- files(projectModel));
 
 int countSourceLoc(M3 projectModel, loc cu) 
   =	countFileTotalLoc(projectModel, cu) - countCommentedLoc(projectModel, cu) - countEmptyLoc(projectModel, cu);
 
 int countProjectSourceLoc(M3 projectModel) 
   = countProjectTotalLoc(projectModel) - countProjectCommentedLoc(projectModel) - countProjectEmptyLoc(projectModel);
+  
+map[str language, int count] countTotalLocPerLanguage(M3 projectModel) {
+  map[str, int] result = ();
+  for (cu <- files(projectModel)) {
+    str lang = split("+", cu.scheme)[0];
+    result[lang] ? 0 += countFileTotalLoc(projectModel, cu);
+  }
+  return result;
+}
 
+map[str language, int count] countSourceLocPerLanguage(M3 projectModel) {
+  map[str, int] result = ();
+  for (cu <- files(projectModel)) {
+    str lang = split("+", cu.scheme)[0];
+    result[lang] ? 0 += countSourceLoc(projectModel, cu);
+  }
+  return result;
+}
