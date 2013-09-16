@@ -200,7 +200,6 @@ void extractScopes(){
                                              println(config.store[uid]);
                                              println(config.functionModifiers[uid]);
                                              if(defaultModifier() in config.functionModifiers[uid]) {
-                                             	println("FOUND DEFAULT");
                                              	defaultFunctions += {uid};
                                              }
                                            }
