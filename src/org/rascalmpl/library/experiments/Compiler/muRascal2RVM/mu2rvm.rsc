@@ -109,7 +109,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   										 ]));
   res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
   if(listing){
-    for(fname <- funMap, fname)
+    for(fname <- funMap)
   		iprintln(funMap[fname]);
   }
   return res;
