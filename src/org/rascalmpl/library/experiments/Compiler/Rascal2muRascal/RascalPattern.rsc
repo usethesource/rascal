@@ -41,7 +41,7 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
    MuExp fun_pat;
    if(expression is qualifiedName){
-      fun_pat = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon("<expression>")]);
+      fun_pat = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(getType(expression@\loc).name)]);
    } else {
      fun_pat = translatePat(expression);
    }
