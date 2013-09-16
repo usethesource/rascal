@@ -5,10 +5,12 @@ import Prelude;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
+import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 
 import experiments::Compiler::muRascal::AST;
 
+import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
 /*********************************************************************/
@@ -216,14 +218,17 @@ MuExp translateFormals(list[Pattern] formals, int i, MuExp body){
     }
 }
 
-MuExp translateFunction({Pattern ","}* formals, MuExp body){
+MuExp translateFunction({Pattern ","}* formals, node body){
   bool b = true;
   for(pat <- formals){
       if(!(pat is typedVariable || pat is literal))
       b = false;
   }
-  if(b) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))){
-     return translateFormals([formal | formal <- formals], 0, body);
+  enterFunctionTranslation(b);
+  if(b) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {
+  	 mubody = translateFormals([formal | formal <- formals], 0, translateFunctionBody(body));
+  	 leaveFunctionTranslation();
+     return mubody; 
   } else {
 	  list[MuExp] conditions = [];
 	  int i = 0;
@@ -231,9 +236,13 @@ MuExp translateFunction({Pattern ","}* formals, MuExp body){
 	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
 	      i += 1;
 	  };
-	  return muIfelse(muAll(conditions), [ muReturn(body) ], [ muFailReturn() ]);
+	  mubody = muIfelse(muAll(conditions), [ muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
+	  leaveFunctionTranslation();
+	  return mubody;
   }
 }
 
-
-
+MuExp translateFunctionBody(Expression exp) = translate(exp);
+MuExp translateFunctionBody(MuExp exp) = exp;
+// TODO: check the interpreter subtyping
+default MuExp translateFunctionBody(Statement* stats) = muBlock([ translate(stat) | stat <- stats ]);
