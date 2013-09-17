@@ -69,6 +69,8 @@ MuExp translate((Literal) `<BooleanLiteral b>`) = "<b>" == "true" ? muCon(true) 
  
 MuExp translate((Literal) `<IntegerLiteral n>`) = muCon(toInt("<n>"));
 
+MuExp translate((Literal) `<RegExpLiteral r>`) = translateRegExpLiteral(r);
+
 MuExp translate((Literal) `<StringLiteral n>`) = translateStringLiteral(n);
 
 default MuExp translate((Literal) `<Literal s>`) =  muCon(readTextValueString("<s>"));
@@ -440,7 +442,10 @@ MuExp translateBoolNot(Expression lhs){
 
 /*********************************************************************/
 /*      Auxiliary functions for translating various constructs       */
-/*********************************************************************/
+/*********************************************************************
+
+MuExp translateRegExpLiteral((Literal) `/ <RegExp* rexps> / <RegExpModifier modifier>`){
+} ;
 
 // Translate a string literals and string templates
 
