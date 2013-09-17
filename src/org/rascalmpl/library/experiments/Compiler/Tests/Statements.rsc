@@ -41,6 +41,8 @@ test bool tst() = run("{ int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1;
 test bool tst() = run("{ int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; } else { n -= 1000; } n; }")       == { int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; } else { n -= 1000; } n; };
 test bool tst() = run("{ int n = 0; if(false)                          { n += 1; } else { n -= 1000; } n; }")       == { int n = 0; if(false) { n += 1; } else { n -= 1000; } n; };
 
+test bool tst() = run("{ int n = 0; if([*int x, *int y] := [1,2,3,4,5,6]) { n += 1; fail; } else { if(list[int] _ := [1,2,3,4,5,6]) { n += 100; } else { ; } }  n; }");
+
 
 // While
 
@@ -72,8 +74,5 @@ test bool tst() = run("x = 7" , "switch(1){case 0: x = 0; case 1: x = 1; default
                       
 test bool tst() = run("x = 7" , "switch(2){case 0: x = 0; case 1: x = 1; default: x = 2;}") == sw(2);
 
-//test bool tst() = run("{ int n = 0; switch([1,2,3,4,5,6]) { case [*int x, *int y]: { n += 1; fail; } case list[int] _ : { n += 100; } } n; }") == sw([1,2,3,4,5,6]);
+test bool tst() = run("{ int n = 0; switch([1,2,3,4,5,6]) { case [*int x, *int y]: { n += 1; fail; } case list[int] _ : { n += 100; } } n; }") == swb([1,2,3,4,5,6]);
                                                                   
-
-
-
