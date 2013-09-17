@@ -20,6 +20,7 @@ import experiments::Compiler::Examples::Overloading1;
 import experiments::Compiler::Examples::Overloading2;
 import experiments::Compiler::Examples::Overloading3;
 import experiments::Compiler::Examples::OverloadingMatch;
+import experiments::Compiler::Examples::OverloadingPlusBacktracking;
 
 loc base = |std:///experiments/Compiler/Examples/|;
 
@@ -40,3 +41,4 @@ test bool tst() = demo("Overloading1") == experiments::Compiler::Examples::Overl
 test bool tst() = demo("Overloading2") == experiments::Compiler::Examples::Overloading2::main([]) && demo("Overloading1") == demo("Overloading2");
 test bool tst() = demo("Overloading3") == experiments::Compiler::Examples::Overloading3::main([]);
 test bool tst() = demo("OverloadingMatch") == experiments::Compiler::Examples::OverloadingMatch::main([]);
+test bool tst() = demo("OverloadingPlusBacktracking") == experiments::Compiler::Examples::OverloadingPlusBacktracking::main([]);

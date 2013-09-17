@@ -15,7 +15,7 @@ From this [Core], M3 is supposed to be extended with features specific for a pro
 
 Benefits:
 
-* Qualified names in the shape of [Location]s are a uniform and generic way of identifying source code artifacts, that can be extended acros languages, projects, and versions.
+* Qualified names in the shape of [Location]s are a uniform and generic way of identifying source code artifacts, that can be extended across languages, projects, and versions.
 * M3 helps standardizing the shape of facts we extract from source code for all different languages, limiting the element of surprise.
 * When we use M3 for many languages, common IDE features are made reusable (such as clicking from an extracted fact to the code that generated it).
 * Some downstream analyses may be reusable between different languages if they all map to M3.

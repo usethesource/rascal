@@ -96,8 +96,9 @@ public data MuExp =
           | muAssignVarDeref(str id, str fuid, 
           					 int pos, MuExp exp) 	            // the left-hand side is a variable that refers to a value location
           														
-          | muIfelse(MuExp cond, list[MuExp] thenPart,			// If-then-else expression
-          						 list[MuExp] elsePart)
+          | muIfelse(str label, MuExp cond,                     // If-then-else expression
+          						list[MuExp] thenPart,			
+          						list[MuExp] elsePart)
           						 
           | muWhile(str label, MuExp cond, list[MuExp] body)	// While-Do expression
           | muDo(str label, list[MuExp] body, MuExp cond)		// Do-While expression
@@ -129,8 +130,18 @@ public data MuExp =
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
+          
+          // Exceptions
+          
+          | muThrow(Exp exp)
+          
+          // Exception handling try/catch
+          
+          | muTry(MuExp exp, MuCatch \catch)
+          | muTryFinally(MuExp exp, MuCatch \catch, MuExp \finally)
        	  ;
-       	  
+ 
+ data MuCatch = muCatch(str id, Symbol \type, MuExp body);       	  
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.

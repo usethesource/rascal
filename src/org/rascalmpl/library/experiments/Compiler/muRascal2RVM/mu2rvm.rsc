@@ -27,6 +27,7 @@ int nlocal = 0;
 str mkContinue(str loopname) = "CONTINUE_<loopname>";
 str mkBreak(str loopname) = "BREAK_<loopname>";
 str mkFail(str loopname) = "FAIL_<loopname>";
+str mkElse(str branchname) = "ELSE_<branchname>";
 
 int defaultStackSize = 25;
 
@@ -75,7 +76,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     }
     code = tr(fun.body);
     required_frame_size = nlocal + estimate_stack_size(fun.body);
-    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code));
+    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code, ()));
   }
   
   main_fun = getUID(module_name,[],"main",1);
@@ -92,7 +93,8 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   									 CALL(main_fun,1), // No overloading of main
   									 RETURN1(),
   									 HALT()
-  									]));
+  									],
+  									()));
  
   main_testsuite = getUID(module_name,[],"testsuite",1);
   module_init_testsuite = getUID(module_name,[],"#module_init_testsuite",1);
@@ -106,7 +108,8 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   									 	 CALL(main_testsuite,1), // No overloading of main
   									 	 RETURN1(),
   									 	 HALT()
-  										 ]));
+  										 ],
+  										 ()));
   res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
   if(listing){
     for(fname <- funMap)
@@ -241,11 +244,15 @@ INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];
 
 // If
 
-INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
-    elseLab = mkFail(nextLabel());
-    continueLab = mkContinue(nextLabel());	
-    dummyLab = nextLabel();	   
-//    println("ifelse: elseLab = <elseLab>, continueLab = <continueLab>, dummyLab = <dummyLab>");
+INS tr(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
+    if(label == "") {
+    	label = nextLabel();
+    };
+    elseLab = mkElse(label);
+    continueLab = mkContinue(label);
+    // Use the dummy label to backtrack in case of fail (continue-after-failure label);	
+    dummyLab = mkFail(label); //dummyLab = nextLabel();
+//  println("ifelse: elseLab = <elseLab>, continueLab = <continueLab>, dummyLab = <dummyLab>");
     return [ *tr_cond(cond, dummyLab, elseLab), 
              *(isEmpty(thenPart) ? LOADCON(111) : trblock(thenPart)),
              JMP(continueLab), 

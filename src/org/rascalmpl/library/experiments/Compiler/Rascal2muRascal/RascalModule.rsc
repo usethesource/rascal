@@ -174,14 +174,13 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
  //TODO: keyword parameters
-  tbody = translateFunction(signature.parameters.formals.formals, translate(expression));
+  tbody = translateFunction(signature.parameters.formals.formals, expression);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, tbody);
   
   if("test" in tmods){
-     // println("ftype = <ftype>");
      params = ftype.parameters;
      tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
@@ -193,7 +192,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   nformals = size(ftype.parameters);
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   //TODO: keyword parameters
-  MuExp tbody = translateFunction(signature.parameters.formals.formals, muBlock([ translate(stat) | stat <- body.statements ]));
+  MuExp tbody = translateFunction(signature.parameters.formals.formals, body.statements);
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
   tuple[str fuid,int pos] addr = uid2addr[uid];
