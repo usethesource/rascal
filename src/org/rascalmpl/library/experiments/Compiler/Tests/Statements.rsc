@@ -34,6 +34,14 @@ test bool tst() = run("{d = d1(10, \"a\"); d.n *= 20; d;}") == { d = d1(10, "a")
 /*fails*/ //test bool tst() = run("{ x = [0,1,2,3,4,5]; x[1..3] = [10]; x; }") == { x = [0,1,2,3,4,5]; x[1..3] = [10]; x; };
 /*fails*/ //test bool tst() = run("{ x = [0,1,2,3,4,5,6,7,8]; x[1,3..7] = [10]; x; }") == { x = [0,1,2,3,4,5,6,7,8]; x[1,3..7] = [10]; x; };
 
+// If
+test bool tst() = run("{ int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; fail; } n; }")                     == { int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; fail; } n; };
+test bool tst() = run("{ int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; fail; } else { n -= 1000; } n; }") == { int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; fail; } else { n -= 1000; } n; };
+test bool tst() = run("{ int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; } n; }")                           == { int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; } n; };
+test bool tst() = run("{ int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; } else { n -= 1000; } n; }")       == { int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; } else { n -= 1000; } n; };
+test bool tst() = run("{ int n = 0; if(false)                          { n += 1; } else { n -= 1000; } n; }")       == { int n = 0; if(false) { n += 1; } else { n -= 1000; } n; };
+
+
 // While
 
 test bool tst() = run("i = 10", "while(i \> 0){ append i; i = i - 1;}") == {i = 10; while(i > 0){ append i; i = i - 1;}};
