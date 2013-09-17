@@ -195,26 +195,36 @@ default bool backtrackFree(Pattern p) = true;
 /*                  Signature Patterns                               */
 /*********************************************************************/
 
-MuExp translateFormals(list[Pattern] formals, int i, MuExp body){
+MuExp translateFormals(list[Pattern] formals, int i, node body){
    if(isEmpty(formals))
-      return muReturn(body);
+      return muReturn(translateFunctionBody(body));
    
    pat = formals[0];
    if(pat is literal){
-      return muIfelse(muOne([ muCallMuPrim("equal", [muLoc("<i>",i), translate(pat.literal)]) ]),
+   	  // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
+  	  ifname = nextLabel();
+      enterBacktrackingScope(ifname);
+      exp = muIfelse(ifname,muOne([ muCallMuPrim("equal", [muLoc("<i>",i), translate(pat.literal)]) ]),
                    [ translateFormals(tail(formals), i + 1, body) ],
                    [ muFailReturn() ]
                   );
+      leaveBacktrackingScope();
+      return exp;
    } else {
       name = pat.name;
       tp = pat.\type;
       <fuid, pos> = getVariableScope("<name>", name@\loc);
-      return muIfelse(muOne([ muCallMuPrim("check_arg_type", [ muLoc("<i>",i), muTypeCon(translateType(tp)) ]) ]),
+      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
+  	  ifname = nextLabel();
+      enterBacktrackingScope(ifname);
+      exp = muIfelse(ifname,muOne([ muCallMuPrim("check_arg_type", [ muLoc("<i>",i), muTypeCon(translateType(tp)) ]) ]),
                    [ muAssign("<name>", fuid, pos, muLoc("<i>", i)),
                      translateFormals(tail(formals), i + 1, body) 
                    ],
                    [ muFailReturn() ]
                   );
+      leaveBacktrackingScope();
+      return exp;
     }
 }
 
@@ -224,20 +234,21 @@ MuExp translateFunction({Pattern ","}* formals, node body){
       if(!(pat is typedVariable || pat is literal))
       b = false;
   }
-  enterFunctionTranslation(b);
   if(b) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {
-  	 mubody = translateFormals([formal | formal <- formals], 0, translateFunctionBody(body));
-  	 leaveFunctionTranslation();
-     return mubody; 
+  	 mubody = translateFormals([formal | formal <- formals], 0, body);
+  	 return mubody; 
   } else {
 	  list[MuExp] conditions = [];
 	  int i = 0;
+	  // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
+  	  ifname = nextLabel();
+      enterBacktrackingScope(ifname);
 	  for(Pattern pat <- formals) {
 	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
 	      i += 1;
 	  };
-	  mubody = muIfelse(muAll(conditions), [ muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
-	  leaveFunctionTranslation();
+	  mubody = muIfelse(ifname,muAll(conditions), [ muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
+	  leaveBacktrackingScope();
 	  return mubody;
   }
 }
