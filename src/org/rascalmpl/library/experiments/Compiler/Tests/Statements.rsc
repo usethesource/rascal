@@ -41,7 +41,7 @@ test bool tst() = run("{ int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1;
 test bool tst() = run("{ int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; } else { n -= 1000; } n; }")       == { int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; } else { n -= 1000; } n; };
 test bool tst() = run("{ int n = 0; if(false)                          { n += 1; } else { n -= 1000; } n; }")       == { int n = 0; if(false) { n += 1; } else { n -= 1000; } n; };
 
-test bool tst() = run("{ int n = 0; if([*int x, *int y] := [1,2,3,4,5,6]) { n += 1; fail; } else { if(list[int] _ := [1,2,3,4,5,6]) { n += 100; } else { ; } }  n; }");
+test bool tst() = run("{ int n = 0; if([*int x, *int y] := [1,2,3,4,5,6]) { n += 1; fail; } else { if(list[int] _ := [1,2,3,4,5,6]) { n += 100; } else { ; } }  n; }") == { int n = 0; if([*int x, *int y] := [1,2,3,4,5,6]) { n += 1; fail; } else { if(list[int] _ := [1,2,3,4,5,6]) { n += 100; } else { ; } }  n; };
 
 
 // While
