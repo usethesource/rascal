@@ -130,8 +130,18 @@ public data MuExp =
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
+          
+          // Exceptions
+          
+          | \throw(Exp exp)
+          
+          // Exception handling try/catch
+          
+          | \try(MuExp exp, MuCatch \catch)
+          | \tryFinally(MuExp exp, MuCatch \catch, MuExp \finally)
        	  ;
-       	  
+ 
+ data MuCatch = \catch(str id, Symbol \type, MuExp body);       	  
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.
