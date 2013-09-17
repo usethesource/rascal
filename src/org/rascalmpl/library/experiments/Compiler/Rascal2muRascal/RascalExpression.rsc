@@ -443,9 +443,37 @@ MuExp translateBoolNot(Expression lhs){
 /*********************************************************************/
 /*      Auxiliary functions for translating various constructs       */
 /*********************************************************************
+/*
+lexical RegExpLiteral
+	= "/" RegExp* "/" RegExpModifier ;
 
-MuExp translateRegExpLiteral((Literal) `/ <RegExp* rexps> / <RegExpModifier modifier>`){
-} ;
+lexical NamedRegExp
+	= "\<" Name "\>" 
+	| [\\] [/ \< \> \\] 
+	| NamedBackslash 
+	| ![/ \< \> \\] ;
+
+lexical RegExpModifier
+	= [d i m s]* ;
+
+lexical RegExp
+	= ![/ \< \> \\] 
+	| "\<" Name "\>" 
+	| [\\] [/ \< \> \\] 
+	| "\<" Name ":" NamedRegExp* "\>" 
+	| Backslash 
+	// | @category="MetaVariable" [\<]  Expression expression [\>] TODO: find out why this production existed 
+	;
+lexical NamedBackslash
+	= [\\] !>> [\< \> \\] ;
+*/
+
+MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
+ for(r <- rexps){
+   println("r = <r>");
+ }
+ return muCon("XXXXX");
+}
 
 // Translate a string literals and string templates
 
@@ -462,6 +490,9 @@ lexical MidStringChars
 	
 lexical PostStringChars
 	= @category="Constant" [\>] StringCharacter* [\"] ;
+
+
+
 	
 */	
 
