@@ -133,7 +133,7 @@ public data MuExp =
           
           // Exceptions
           
-          | muThrow(Exp exp)
+          | muThrow(MuExp exp)
           
           // Exception handling try/catch
           
