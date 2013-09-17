@@ -188,9 +188,44 @@ MuExp translate(s: (Statement) `filter ;`) { throw("filter"); }
 
 MuExp translate(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`) = translateSolve(s);
 
-MuExp translate(s: (Statement) `try  <Statement body> <Catch+ handlers>`) { throw("try"); }
+MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers>`) {
+    defaults = [ handler | Catch handler <- handlers, handler is \default ];
+    others   = [ handler | Catch handler <- handlers, !(handler is \default) ];
+    patterns = [ handler.pattern | Catch handler <- others ];
+    
+    lubOfPatterns = !isEmpty(defaults) ? Symbol::\value() : Symbol::\void();
+    if(!isEmpty(defaults)) {
+    	lubOfPatterns = ( lubOfPatterns | lub(it, getType(p@\loc)) | Pattern p <- patterns );
+    }
+    
+    varname = asTmp(nextLabel());
+    bigcatch = muCatch(varname, lubOfPatterns, translateCatches, isEmpty(defaults));
+    
+	return muTry(translate(body), bigcatch);
+}
 
-MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`) { throw("tryFinally"); }
+MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
+  if(size(catches) == 0) {
+      return (hasDefault) ? muBlock([]) : muThrow(muTmp(varname));
+  }
+  
+  c = head(catches);
+  
+  if(c is binding) {
+      ifname = nextLabel();
+      enterBacktrackingScope(ifname);
+      conds = [ muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(c.pattern), muTmp(varname)])) ];
+      exp = muIfelse(ifname, muAll(conds), [translate(c.statement)], [translateCatches(varname, tail(catches), hasDefault)]);
+      leaveBacktrackingScope();
+      return exp;
+  }
+  
+  return translate(c.statement);
+}
+
+MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`) { 
+	throw("tryFinally"); 
+}
 
 MuExp translate(s: (Statement) `<Label label> { <Statement+ statements> }`) =
     muBlock([translate(stat) | stat <- statements]);
@@ -203,7 +238,7 @@ MuExp translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names>
 
 MuExp translate(s: (Statement) `return <Statement statement>`)  = muReturn(translate(statement));
 
-MuExp translate(s: (Statement) `throw <Statement statement>`) { throw("throw"); }
+MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translate(statement));
 
 MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) { throw("insert"); }
 
