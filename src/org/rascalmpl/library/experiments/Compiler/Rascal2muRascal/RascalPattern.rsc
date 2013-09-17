@@ -204,7 +204,7 @@ MuExp translateFormals(list[Pattern] formals, int i, node body){
    	  // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
   	  ifname = nextLabel();
       enterBacktrackingScope(ifname);
-      exp = muIfelse(ifname,muOne([ muCallMuPrim("equal", [muLoc("<i>",i), translate(pat.literal)]) ]),
+      exp = muIfelse(ifname,muAll([ muCallMuPrim("equal", [muLoc("<i>",i), translate(pat.literal)]) ]),
                    [ translateFormals(tail(formals), i + 1, body) ],
                    [ muFailReturn() ]
                   );
@@ -217,7 +217,7 @@ MuExp translateFormals(list[Pattern] formals, int i, node body){
       // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
   	  ifname = nextLabel();
       enterBacktrackingScope(ifname);
-      exp = muIfelse(ifname,muOne([ muCallMuPrim("check_arg_type", [ muLoc("<i>",i), muTypeCon(translateType(tp)) ]) ]),
+      exp = muIfelse(ifname,muAll([ muCallMuPrim("check_arg_type", [ muLoc("<i>",i), muTypeCon(translateType(tp)) ]) ]),
                    [ muAssign("<name>", fuid, pos, muLoc("<i>", i)),
                      translateFormals(tail(formals), i + 1, body) 
                    ],

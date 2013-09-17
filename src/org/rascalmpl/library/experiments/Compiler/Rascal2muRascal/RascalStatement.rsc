@@ -249,7 +249,7 @@ MuExp translateSwitchCases(str switchval, list[Case] cases) {
      	ifname = nextLabel();
      	enterBacktrackingScope(ifname);
         cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pwa.pattern), muTmp(switchval)]));
-        exp = muIfelse(ifname, cond, [translate(pwa.statement)], [translateSwitchCases(switchval, tail(cases))]);
+        exp = muIfelse(ifname, muAll([cond]), [translate(pwa.statement)], [translateSwitchCases(switchval, tail(cases))]);
         leaveBacktrackingScope();
         return exp; 
      } else {
