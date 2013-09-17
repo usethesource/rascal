@@ -71,6 +71,8 @@ MuExp translate((Literal) `<IntegerLiteral n>`) = muCon(toInt("<n>"));
 
 MuExp translate((Literal) `<StringLiteral n>`) = translateStringLiteral(n);
 
+MuExp translate((Literal) `<RegExpLiteral r>`) = translateRegExpLiteral(r);
+
 default MuExp translate((Literal) `<Literal s>`) =  muCon(readTextValueString("<s>"));
 
 MuExp translate(e:(Expression)  `<Literal s>`) = translate(s);
@@ -356,7 +358,8 @@ MuExp translate(e:(Expression) `<Expression lhs> || <Expression rhs>`)  = transl
  
 // Conditional Expression
 MuExp translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = 
-    muIfelse(makeMuAll([translate(condition)]), [translate(thenExp)],  [translate(elseExp)]); 
+	// Label (used to backtrack) here is not important as it is not allowed to have 'fail' in conditional expressions 
+    muIfelse(nextLabel(),makeMuAll([translate(condition)]), [translate(thenExp)],  [translate(elseExp)]); 
 
 // Default: should not happen
 default MuExp translate(Expression e) {
@@ -441,6 +444,36 @@ MuExp translateBoolNot(Expression lhs){
 /*      Auxiliary functions for translating various constructs       */
 /*********************************************************************/
 
+/*
+lexical NamedRegExp
+	= "\<" Name "\>" 
+	| [\\] [/ \< \> \\] 
+	| NamedBackslash 
+	| ![/ \< \> \\] ;
+	
+lexical RegExpModifier
+	= [d i m s]* ;
+	
+lexical RegExp
+	= ![/ \< \> \\] 
+	| "\<" Name "\>" 
+	| [\\] [/ \< \> \\] 
+	| "\<" Name ":" NamedRegExp* "\>" 
+	| Backslash 
+	// | @category="MetaVariable" [\<]  Expression expression [\>] TODO: find out why this production existed 
+	;
+lexical Backslash
+	= [\\] !>> [/ \< \> \\] ;
+
+lexical NamedBackslash
+	= [\\] !>> [\< \> \\] ;
+*/
+
+MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* regexps>/<RegExpModifier modifier>`){
+
+
+}
+
 // Translate a string literals and string templates
 
 /*
@@ -521,16 +554,14 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
  
  MuExp translateClosure(Expression e, Parameters parameters, Statement* statements) {
  	uid = loc2uid[e@\loc];
-	fuid = uid2str(uid);
-    ftype = getClosureType(e@\loc);
-	nformals = size(ftype.parameters);
-	nlocals = getScopeSize(fuid);
+	fuid = uid2str(u MuExp translateClosure(Expression e, Parameters parameters, Statement+ statements) {
+= getScopeSize(fuid);
 	bool isVarArgs = (varArgs(_,_) := parameters);
   	// TODO: keyword parameters
     
     MuExp body = translateFunction(parameters.formals.formals, muBlock([ translate(stat) | stat <- statements ]));
-    tuple[str fuid,int pos] addr = uid2addr[uid];
-    functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+    tuple[str    MuExp body = translateFunction(parameters.formals.formals, statements);
+? "" : addr.fuid, 
   									  nformals, nlocals, e@\loc, [], (), body);
 	return (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid); // closures are not overloaded
 }
