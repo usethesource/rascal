@@ -26,7 +26,7 @@ list[Declaration] parseMuLibrary(){
  
   	for(fun <- libModule.functions){
   	    required_frame_size = fun.nlocals + estimate_stack_size(fun.body);
-    	functions += FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, fun.nlocals, required_frame_size, tr(fun.body));
+    	functions += FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, fun.nlocals, required_frame_size, tr(fun.body),());
   	}
   
   	writeTextValueFile(MuLibraryCompiled, functions);
