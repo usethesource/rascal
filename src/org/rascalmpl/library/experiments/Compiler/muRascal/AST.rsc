@@ -133,15 +133,15 @@ public data MuExp =
           
           // Exceptions
           
-          | \throw(Exp exp)
+          | muThrow(Exp exp)
           
           // Exception handling try/catch
           
-          | \try(MuExp exp, MuCatch \catch)
-          | \tryFinally(MuExp exp, MuCatch \catch, MuExp \finally)
+          | muTry(MuExp exp, MuCatch \catch)
+          | muTryFinally(MuExp exp, MuCatch \catch, MuExp \finally)
        	  ;
  
- data MuCatch = \catch(str id, Symbol \type, MuExp body);       	  
+ data MuCatch = muCatch(str id, Symbol \type, MuExp body);       	  
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.
