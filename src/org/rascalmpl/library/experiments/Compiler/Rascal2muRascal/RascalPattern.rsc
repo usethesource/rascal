@@ -5,10 +5,12 @@ import Prelude;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
+import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 
 import experiments::Compiler::muRascal::AST;
 
+import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
 /*********************************************************************/
@@ -193,47 +195,65 @@ default bool backtrackFree(Pattern p) = true;
 /*                  Signature Patterns                               */
 /*********************************************************************/
 
-MuExp translateFormals(list[Pattern] formals, int i, MuExp body){
+MuExp translateFormals(list[Pattern] formals, int i, node body){
    if(isEmpty(formals))
-      return muReturn(body);
+      return muReturn(translateFunctionBody(body));
    
    pat = formals[0];
    if(pat is literal){
-      return muIfelse(muOne([ muCallMuPrim("equal", [muLoc("<i>",i), translate(pat.literal)]) ]),
+   	  // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
+  	  ifname = nextLabel();
+      enterBacktrackingScope(ifname);
+      exp = muIfelse(ifname,muAll([ muCallMuPrim("equal", [muLoc("<i>",i), translate(pat.literal)]) ]),
                    [ translateFormals(tail(formals), i + 1, body) ],
                    [ muFailReturn() ]
                   );
+      leaveBacktrackingScope();
+      return exp;
    } else {
       name = pat.name;
       tp = pat.\type;
       <fuid, pos> = getVariableScope("<name>", name@\loc);
-      return muIfelse(muOne([ muCallMuPrim("check_arg_type", [ muLoc("<i>",i), muTypeCon(translateType(tp)) ]) ]),
+      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
+  	  ifname = nextLabel();
+      enterBacktrackingScope(ifname);
+      exp = muIfelse(ifname,muAll([ muCallMuPrim("check_arg_type", [ muLoc("<i>",i), muTypeCon(translateType(tp)) ]) ]),
                    [ muAssign("<name>", fuid, pos, muLoc("<i>", i)),
                      translateFormals(tail(formals), i + 1, body) 
                    ],
                    [ muFailReturn() ]
                   );
+      leaveBacktrackingScope();
+      return exp;
     }
 }
 
-MuExp translateFunction({Pattern ","}* formals, MuExp body){
+MuExp translateFunction({Pattern ","}* formals, node body){
   bool b = true;
   for(pat <- formals){
       if(!(pat is typedVariable || pat is literal))
       b = false;
   }
-  if(b){    //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))){
-     return translateFormals([formal | formal <- formals], 0, body);
+  if(b) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {
+  	 mubody = translateFormals([formal | formal <- formals], 0, body);
+  	 return mubody; 
   } else {
 	  list[MuExp] conditions = [];
 	  int i = 0;
+	  // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
+  	  ifname = nextLabel();
+      enterBacktrackingScope(ifname);
 	  for(Pattern pat <- formals) {
 	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
 	      i += 1;
 	  };
-	  return muIfelse(muOne(conditions), [ muReturn(body) ], [ muFailReturn() ]);
+	  mubody = muIfelse(ifname,muAll(conditions), [ muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
+	  leaveBacktrackingScope();
+	  return mubody;
   }
 }
 
-
-
+MuExp translateFunctionBody(Expression exp) = translate(exp);
+MuExp translateFunctionBody(MuExp exp) = exp;
+// TODO: check the interpreter subtyping
+default MuExp translateFunctionBody(Statement* stats) = muBlock([ translate(stat) | stat <- stats ]);

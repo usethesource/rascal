@@ -37,7 +37,7 @@ void run(str bm,  value(list[value]) bmain) {
   t3 = getMilliTime();
   bmain([]);
   t4 = getMilliTime();
-  measurements[bm] =  m = <bm, t3 - t1, t2, t4 - t3>;
+  measurements[bm] =  m = <bm, t3 - t1 - t2, t2, t4 - t3>;
   report_one(m);
 }
 

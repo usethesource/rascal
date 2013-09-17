@@ -53,7 +53,7 @@ private int estimate(muAssign(str id, str fuid, int pos, MuExp exp)) = estimate(
 private int estimate(muAssignLoc(str id, int pos, MuExp exp)) = estimate(exp);
 private int estimate(muAssignTmp(str id, MuExp exp)) = estimate(exp);
 
-private int estimate(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) =
+private int estimate(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) =
     max(max(estimate(cond), estimate_list(thenPart)), estimate_list(elsePart));
 
 private int estimate(muWhile(str label, MuExp cond, list[MuExp] body)) = 
