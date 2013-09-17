@@ -90,7 +90,7 @@ syntax Exp  =
 			> muAssignVarDeref:  	"deref" FunNamePart+ funNames Identifier id "=" Exp exp
 			
 		
-			| muIfelse: 			"if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
+			| muIfelse: 			(Label label ":")? "if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
 			| muWhile: 				(Label label ":")? "while" "(" Exp cond ")" "{" (Exp ";")* body "}" 
 			
 			| muCreate:     		"create" "(" Exp fun  ")"

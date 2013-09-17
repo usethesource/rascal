@@ -96,8 +96,9 @@ public data MuExp =
           | muAssignVarDeref(str id, str fuid, 
           					 int pos, MuExp exp) 	            // the left-hand side is a variable that refers to a value location
           														
-          | muIfelse(MuExp cond, list[MuExp] thenPart,			// If-then-else expression
-          						 list[MuExp] elsePart)
+          | muIfelse(str label, MuExp cond,                     // If-then-else expression
+          						list[MuExp] thenPart,			
+          						list[MuExp] elsePart)
           						 
           | muWhile(str label, MuExp cond, list[MuExp] body)	// While-Do expression
           | muDo(str label, list[MuExp] body, MuExp cond)		// Do-While expression
