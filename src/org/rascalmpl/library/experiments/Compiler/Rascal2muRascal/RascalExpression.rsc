@@ -356,7 +356,8 @@ MuExp translate(e:(Expression) `<Expression lhs> || <Expression rhs>`)  = transl
  
 // Conditional Expression
 MuExp translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = 
-    muIfelse(makeMuAll([translate(condition)]), [translate(thenExp)],  [translate(elseExp)]); 
+	// Label (used to backtrack) here is not important as it is not allowed to have 'fail' in conditional expressions 
+    muIfelse(nextLabel(),makeMuAll([translate(condition)]), [translate(thenExp)],  [translate(elseExp)]); 
 
 // Default: should not happen
 default MuExp translate(Expression e) {

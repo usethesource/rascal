@@ -40,7 +40,7 @@ public str nextLabel(str prefix){
 // - append
 // - break/continue/fail
 
-bool inBacktrackingScope() = !isEmpty(loops);
+bool inBacktrackingScope() = !isEmpty(backtrackingScopes);
 
 private list[str] loops = [];					// *** state
 
@@ -54,6 +54,21 @@ str currentLoop(){
 
 void leaveLoop(){
   loops = tail(loops);
+}
+
+// Backtracking scopes also include if-then-else scopes that allow backtracking in case of using fail
+private list[str] backtrackingScopes = [];
+
+void enterBacktrackingScope(str name){
+  backtrackingScopes = name + backtrackingScopes;
+}
+
+str currentBacktrackingScope(){
+  return top(backtrackingScopes);
+}
+
+void leaveBacktrackingScope(){
+  backtrackingScopes = tail(backtrackingScopes);
 }
 
 str getLabel(Label label) =
@@ -87,17 +102,4 @@ void enterWriter(str name){
 void leaveWriter(){
   writerVariables = tail(writerVariables);
 }
-
-private list[bool] functionsUnderTranslation = [];
-
-void enterFunctionTranslation(bool withBacktrackableParameters) {
-	functionsUnderTranslation = withBacktrackableParameters + functionsUnderTranslation;
-}
-
-void leaveFunctionTranslation() {
-	functionsUnderTranslation = tail(functionsUnderTranslation);
-}
-
-bool getTopFunctionTranslation() = head(functionsUnderTranslation);
- 
 

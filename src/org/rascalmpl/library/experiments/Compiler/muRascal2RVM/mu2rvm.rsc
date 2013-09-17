@@ -27,6 +27,7 @@ int nlocal = 0;
 str mkContinue(str loopname) = "CONTINUE_<loopname>";
 str mkBreak(str loopname) = "BREAK_<loopname>";
 str mkFail(str loopname) = "FAIL_<loopname>";
+str mkElse(str loopname) = "ELSE_<loopname>";
 
 int defaultStackSize = 25;
 
@@ -241,11 +242,15 @@ INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];
 
 // If
 
-INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
-    elseLab = mkFail(nextLabel());
-    continueLab = mkContinue(nextLabel());	
-    dummyLab = nextLabel();	   
-//    println("ifelse: elseLab = <elseLab>, continueLab = <continueLab>, dummyLab = <dummyLab>");
+INS tr(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
+    if(label == "") {
+    	label = nextLabel();
+    };
+    elseLab = mkElse(label);
+    continueLab = mkContinue(label);
+    // Use the dummy label to backtrack in case of fail (continue-after-failure label);	
+    dummyLab = mkFail(label); //dummyLab = nextLabel();
+//  println("ifelse: elseLab = <elseLab>, continueLab = <continueLab>, dummyLab = <dummyLab>");
     return [ *tr_cond(cond, dummyLab, elseLab), 
              *(isEmpty(thenPart) ? LOADCON(111) : trblock(thenPart)),
              JMP(continueLab), 
