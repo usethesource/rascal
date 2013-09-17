@@ -64,12 +64,15 @@ test bool tst() = run("i = 10", "do {i = i - 1; if(i == 3) break; append i; } wh
 
 // Switch
 int sw(int n) { switch(n){case 0: return 0; case 1: return 1; default: return 2;} }
+int swb(list[int] l) { int n = 0; switch(l) { case [*int x, *int y]: { n += 1; fail; } case list[int] _ : { n += 100; } } return n; }
 
 test bool tst() = run("x = 7" , "switch(0){case 0: x = 0; case 1: x = 1; default: x = 2;}") == sw(0);
                       
 test bool tst() = run("x = 7" , "switch(1){case 0: x = 0; case 1: x = 1; default: x = 2;}") == sw(1);
                       
 test bool tst() = run("x = 7" , "switch(2){case 0: x = 0; case 1: x = 1; default: x = 2;}") == sw(2);
+
+//test bool tst() = run("{ int n = 0; switch([1,2,3,4,5,6]) { case [*int x, *int y]: { n += 1; fail; } case list[int] _ : { n += 100; } } n; }") == sw([1,2,3,4,5,6]);
                                                                   
 
 
