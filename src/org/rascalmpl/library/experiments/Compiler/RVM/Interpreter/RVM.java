@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -242,6 +244,13 @@ public class RVM {
 		}
 		if(o instanceof IMapWriter){
 			return "MapWriter[" + ((IMapWriter) o).toString() + "]";
+		}
+		if(o instanceof Matcher){
+			return "Matcher[" + ((Matcher) o).pattern() + "]";
+		}
+		
+		if(o instanceof StringBuilder){
+			return "StringBuilder[" + ((StringBuilder) o).toString() + "]";
 		}
 		throw new RuntimeException("PANIC: asString cannot convert: " + o);
 	}

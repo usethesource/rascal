@@ -13,7 +13,6 @@ import experiments::Compiler::Examples::ListMatch;
 import experiments::Compiler::Examples::Odd;
 import experiments::Compiler::Examples::SendMoreMoney;
 import experiments::Compiler::Examples::SetMatch;
-import experiments::Compiler::Examples::Tmp;
 import experiments::Compiler::Examples::TestSuite;
 //import experiments::Compiler::Examples::Template;
 import experiments::Compiler::Examples::Overloading1;
@@ -23,6 +22,7 @@ import experiments::Compiler::Examples::OverloadingMatch;
 import experiments::Compiler::Examples::OverloadingPlusBacktracking;
 
 loc base = |std:///experiments/Compiler/Examples/|;
+
 
 value demo(str example bool debug = false, bool listing=false, bool testsuite=false, bool recompile=false) =
   execute(base + (example + ".rsc"), debug=debug, listing=listing, testsuite=testsuite, recompile=recompile);

@@ -1,9 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -12,6 +14,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -65,6 +68,9 @@ public enum MuPrimitive {
 	power_mint_mint,
 	rbool,
 	rint,
+	regexp_compile,
+	regexp_find,
+	regexp_group,
 	set2list,
 	size_array_or_list_or_set_or_map_or_tuple,
 	starts_with,
@@ -456,6 +462,35 @@ public enum MuPrimitive {
 		stack[sp -1] = (stack[sp -1] instanceof Boolean) ? vf.bool((Boolean) stack[sp - 2]) : (IBool) stack[sp - 1];
 		return sp;
 	}
+	
+	public static int regexp_compile(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		String RegExpAsString = ((IString)stack[sp - 2]).getValue();
+		String subject = ((IString)stack[sp - 1]).getValue();
+		try {
+			Pattern pat = Pattern.compile(RegExpAsString);
+			stack[sp - 2] = pat.matcher(subject);
+			return sp - 1;
+		} catch (PatternSyntaxException e){
+			throw new RuntimeException("Syntax error in Regexp: " + RegExpAsString);
+		}
+	}
+	
+	public static int regexp_find(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		Matcher matcher = (Matcher) stack[sp - 1];
+		stack[sp - 1] = matcher.find();
+		return sp;
+	}
+	
+	public static int regexp_group(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		Matcher matcher = (Matcher) stack[sp - 2];
+		int idx = (Integer) stack[sp - 1];
+		stack[sp - 2] = vf.string(matcher.group(idx));
+		return sp - 1;
+	}
+		
 		
 	public static int rint(Object[] stack, int sp, int arity) {
 		assert arity == 1;
