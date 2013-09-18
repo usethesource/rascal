@@ -231,11 +231,11 @@ public Production associativity(Symbol rhs, Associativity a, {associativity(Symb
     fail;
 }
 
-public Production associativity(Symbol rhs, Associativity a, {prod(Symbol rhs, list[Symbol] lhs, set[Attr] as), *Production rest}) {
-  if (!(\assoc(_) <- as)) 
-    return \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})});
-  else fail;
-}
+Production associativity(Symbol rhs, Associativity a, {prod(Symbol rhs, list[Symbol] lhs, set[Attr] as), *Production rest}) 
+  = \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})}) when \assoc() notin as;
+
+Production associativity(Symbol rhs, Associativity a, {prod(label(str _, Symbol rhs), list[Symbol] lhs, set[Attr] as), *Production rest}) 
+  =  \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})}) when \assoc() notin as;
 
 @doc{Priority under an associativity group defaults to choice}
 public Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
