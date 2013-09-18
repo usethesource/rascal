@@ -154,7 +154,7 @@ public class CodeBlock {
 		throw new RuntimeException("PANIC: undefined type constant index " + n);
 	}
 	
-	private int getTypeConstantIndex(Type type){
+	public int getTypeConstantIndex(Type type){
 		Integer n = typeConstantMap.get(type);
 		if(n == null){
 			n = typeConstantStore.size();
