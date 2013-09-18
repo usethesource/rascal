@@ -160,6 +160,11 @@ tuple[str fuid,int pos] getVariableScope(str name, loc l) {
   return addr;
 }
 
+MuExp mkVarRef(str name, loc l){
+  <fuid, pos> = getVariableScope("<name>", l);
+  return muVarRef("<name>", fuid, pos);
+}
+
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
   //println("mkAssign: <name>");

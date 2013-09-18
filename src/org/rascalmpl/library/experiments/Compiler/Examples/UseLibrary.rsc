@@ -1,4 +1,4 @@
-module experiments::Compiler::Examples::Tmp
+module experiments::Compiler::Examples::UseLibrary
 
 import experiments::Compiler::Examples::MyLibrary;
 
