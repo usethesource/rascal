@@ -55,6 +55,31 @@ bool producesValue(muReturn()) = false;
 bool producesValue(muNext(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
 
+// Management needed to compute exception tables
+
+// Stack of try blocks (potentially nested)
+lrel[str from,str to] tryBlocks = [];
+
+// Instruction block of all the catch blocks within a function body in the order they appear in the code
+INS catchBlocks = [];
+
+// Functions to manage the try block stack
+void enterTry(str from, str to) {
+	tryBlocks = <from,to> + tryBlocks;
+}
+
+void leaveTry() {
+	tryBlocks = tail(tryBlocks);
+}
+
+// Get the label of a top try block
+tuple[str from,str to] topTry() = top(tryBlocks);
+// Get the label of a top try block of a try catch clause
+tuple[str from,str to] topTryOfCatch() = top(tail(tryBlocks));
+
+// As we use label names to mark try blocks (excluding 'catch' clauses)
+lrel[str from, str to, Symbol \type, str target] exceptionTable = [];
+
 /*********************************************************************/
 /*      Translate a muRascal module                                  */
 /*********************************************************************/
@@ -71,12 +96,14 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   for(fun <- functions){
     functionScope = fun.qname;
     nlocal = fun.nlocals;
+    exceptionTable = [];
+    catchBlocks = [];
     if(listing){
     	iprintln(fun);
     }
     code = tr(fun.body);
     required_frame_size = nlocal + estimate_stack_size(fun.body);
-    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code, ()));
+    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code + catchBlocks, exceptionTable));
   }
   
   main_fun = getUID(module_name,[],"main",1);
@@ -94,7 +121,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   									 RETURN1(),
   									 HALT()
   									],
-  									()));
+  									[]));
  
   main_testsuite = getUID(module_name,[],"testsuite",1);
   module_init_testsuite = getUID(module_name,[],"#module_init_testsuite",1);
@@ -109,7 +136,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   									 	 RETURN1(),
   									 	 HALT()
   										 ],
-  										 ()));
+  										 []));
   res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
   if(listing){
     for(fname <- funMap)
@@ -239,6 +266,36 @@ INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()];
 
 INS tr(muYield()) = [YIELD0()];
 INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];
+
+// Exceptions
+INS tr(muThrow(MuExp exp)) = [ *tr(exp), THROW() ];
+
+INS tr(muTry(MuExp exp, MuCatch \catch)) {
+	// Mark the begin and end of the try block
+	str from = nextLabel();
+	str to = nextLabel();
+	enterTry(from,to);
+	code = [ LABEL(from), *tr(exp), LABEL(to) ];
+	trMuCatch(\catch);
+	leaveTry();
+	return code;
+}
+
+void trMuCatch(muCatch(str id, Symbol \type, MuExp exp)) {
+	// Mark the begin and end of the catch block
+	str from = nextLabel();
+	str to = nextLabel();
+	tuple[str from,str to] currentTry = topTry();
+	exceptionTable += <currentTry.from, currentTry.to, \type, from>;
+	
+	// Catch block may also throw an exception that has to be handled by the catch of the outer try block
+	if(!isEmpty(tail(tryBlocks))) {
+		tuple[str from,str to] outerTry = topTryOfCatch();
+		tuple[Symbol \type,str target] handler = getOneFrom(exceptionTable[outerTry.from,outerTry.to]);
+		exceptionTable += <from,to,handler.\type,handler.\target>;
+	}
+	catchBlocks = catchBlocks + [ LABEL(from), STORELOC(getTmp(id)), *tr(exp), JMP(topTry().to) ];
+}
 
 // Control flow
 

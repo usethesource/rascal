@@ -313,6 +313,10 @@ public class Execute {
 						 			rvm.symbolToType((IConstructor) instruction.get("parameterTypes")));
 				break;
 
+			case "THROW":
+				codeblock.THROW();
+				break;
+				
 			default:
 				throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 			}

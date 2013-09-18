@@ -1350,7 +1350,11 @@ public class RVM {
 					}
 					stdout.println(w.toString());
 					sp = sp - arity + 1;
-					continue;		
+					continue;	
+					
+				case Opcode.OP_THROW:
+					IValue throwVal = (IValue) stack[sp++];
+					continue;
 								
 				default:
 					throw new RuntimeException("RVM main loop -- cannot decode instruction");

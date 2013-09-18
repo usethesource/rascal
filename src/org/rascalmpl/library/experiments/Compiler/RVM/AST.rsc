@@ -10,7 +10,7 @@ public data Declaration =
 		  		   int nlocals, 
 		  		   int maxStack, 
 		  		   list[Instruction] instructions,
-		  		   map[tuple[str,str], tuple[Symbol, str]] exceptions)
+		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
 		;
 
 public data RVMProgram = rvm(str name,
@@ -62,6 +62,8 @@ data Instruction =
 		| RETURN0()									// Return from function without value
 		| RETURN1()									// Return from function with value
 		| FAILRETURN()								// Failure return from function
+		
+		| THROW()                                   // Throws a value
 		
 		| LABEL(str label)							// Define a label (is associated with next instruction)
 		| JMP(str label)							// Jump to a labelled instruction
