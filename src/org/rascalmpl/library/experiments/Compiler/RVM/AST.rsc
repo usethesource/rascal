@@ -63,6 +63,8 @@ data Instruction =
 		| RETURN1()									// Return from function with value
 		| FAILRETURN()								// Failure return from function
 		
+		| THROW()                                   // Throws a value
+		
 		| LABEL(str label)							// Define a label (is associated with next instruction)
 		| JMP(str label)							// Jump to a labelled instruction
 		| JMPTRUE(str label)						// Jump to labelled instruction when top-of-stack is true (stack is popped)
