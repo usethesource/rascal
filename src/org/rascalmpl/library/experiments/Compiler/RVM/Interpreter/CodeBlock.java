@@ -51,6 +51,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.S
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
 
@@ -410,6 +411,10 @@ public class CodeBlock {
 		return add(new CallJava(this, getConstantIndex(vf.string(methodName)), 
 								getConstantIndex(vf.string(className)), 
 								 getTypeConstantIndex(parameterTypes)));
+	}
+	
+	public CodeBlock THROW() {
+		return add(new Throw(this));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
