@@ -276,6 +276,10 @@ INS tr(muTry(MuExp exp, MuCatch \catch)) {
 	str to = nextLabel();
 	enterTry(from,to);
 	code = [ LABEL(from), *tr(exp), LABEL(to) ];
+	
+	// Fill in the try block entry into the current exception table
+	exceptionTable += <currentTry.from, currentTry.to, \type, from>;
+	
 	trMuCatch(\catch);
 	leaveTry();
 	return code;
@@ -286,15 +290,16 @@ void trMuCatch(muCatch(str id, Symbol \type, MuExp exp)) {
 	str from = nextLabel();
 	str to = nextLabel();
 	tuple[str from,str to] currentTry = topTry();
-	exceptionTable += <currentTry.from, currentTry.to, \type, from>;
+	
+	catchBlocks = catchBlocks + [ LABEL(from), STORELOC(getTmp(id)), *tr(exp), JMP(currentTry.to) ];
 	
 	// Catch block may also throw an exception that has to be handled by the catch of the outer try block
 	if(!isEmpty(tail(tryBlocks))) {
 		tuple[str from,str to] outerTry = topTryOfCatch();
 		tuple[Symbol \type,str target] handler = getOneFrom(exceptionTable[outerTry.from,outerTry.to]);
+		// Fill in the catch block entry into the current exception table
 		exceptionTable += <from,to,handler.\type,handler.\target>;
 	}
-	catchBlocks = catchBlocks + [ LABEL(from), STORELOC(getTmp(id)), *tr(exp), JMP(topTry().to) ];
 }
 
 // Control flow
