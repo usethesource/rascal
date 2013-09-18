@@ -17,7 +17,94 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 /*                  Patterns                                         */
 /*********************************************************************/
 
-MuExp translatePat(p:(Pattern) `<Literal lit>`) = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [translate(lit)]);
+MuExp translatePat(p:(Pattern) `<RegExpLiteral r>`) = translateRegExpLiteral(r);
+
+default MuExp translatePat(p:(Pattern) `<Literal lit>`) = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [translate(lit)]);
+/*
+lexical RegExpLiteral
+	= "/" RegExp* "/" RegExpModifier ;
+
+lexical NamedRegExp
+	= "\<" Name "\>" 
+	| [\\] [/ \< \> \\] 
+	| NamedBackslash 
+	| ![/ \< \> \\] ;
+
+lexical RegExpModifier
+	= [d i m s]* ;
+
+lexical RegExp
+	= ![/ \< \> \\] 
+	| "\<" Name "\>" 
+	| [\\] [/ \< \> \\] 
+	| "\<" Name ":" NamedRegExp* "\>" 
+	| Backslash 
+	// | @category="MetaVariable" [\<]  Expression expression [\>] TODO: find out why this production existed 
+	;
+lexical NamedBackslash
+	= [\\] !>> [\< \> \\] ;
+*/
+
+MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
+
+ swriter = nextTmp();
+ fragmentCode = [];
+ varrefs = [];
+ str fragment = "";
+ for(r <- rexps){
+   println("r = <r>");
+   if(size("<r>") == 1){
+      fragment += "<r>";
+   } else {
+     if(size(fragment) > 0){
+        fragmentCode += muCon(fragment);
+        fragment = "";
+     }
+     <varref, fragmentCode1> = extractNamedRegExp(r);
+     if(varref != muCon("")){ // This is a hack to handle an absent assignable variable
+        varrefs += varref;
+     }
+     fragmentCode += fragmentCode1;
+   }
+ }
+ if(size(fragment) > 0){
+        fragmentCode += muCon(fragment);
+ }
+ buildRegExp = muBlock(muAssignTmp(swriter, muCallPrim("stringwriter_open", [])) + 
+                       [ muCallPrim("stringwriter_add", [muTmp(swriter), exp]) | exp <- fragmentCode ] +
+                       muCallPrim("stringwriter_close", [muTmp(swriter)]));
+               
+ println("buildRegExp = <buildRegExp>");
+ 
+ return muCreate(mkCallToLibFun("Library", "MATCH_REGEXP", 3), 
+                 [ buildRegExp,
+                   muCallMuPrim("make_array", varrefs)
+                 ]);  
+}
+
+tuple[MuExp,list[MuExp] ] extractNamedRegExp((RegExp) `\<<Name name>\>`) = 
+    <muCon(""), [ muCallPrim("str_escape_for_regexp", [ translate(name) ])]>;
+
+tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegExp* namedregexps>\>`) {
+  exps = [];
+  str fragment = "(";
+  for(nr <- namedregexps){
+      println("nr = <nr>");
+      if(size("<nr>") == 1){
+        fragment += "<nr>";
+      } else if((NamedRegExp) `\<<Name name2>\>` := nr){
+        println("Name case: <name2>");
+        if(fragment != ""){
+           exps += muCon(fragment);
+           fragment = "";
+        }
+        exps += translate(name2);
+      }
+  }
+  exps += muCon(fragment + ")");
+  return <mkVarRef("<name>", name@\loc), exps>;
+}
+
 
 MuExp translatePat(p:(Pattern) `<Concrete concrete>`) { throw("Concrete"); }
      

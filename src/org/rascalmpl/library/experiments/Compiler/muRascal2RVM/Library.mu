@@ -785,3 +785,19 @@ function MATCH_AND_DESCENT[2, pat, ^val]{
   // Add cases for rel/lrel?
   return false;
 }
+
+// ***** Regular expressions *****
+
+function MATCH_REGEXP[3, ^regexp, varrefs, ^subject, matcher, i, varref]{
+   matcher = muprim("regexp_compile", ^regexp, ^subject);
+   while(muprim("regexp_find", matcher)){
+     i = 0; 
+     while(i < size(varrefs)){
+        varref = get varrefs[i];
+        deref varref = muprim("regexp_group", matcher, i + 1);
+        i = i + 1;
+     };
+     yield true;
+   };
+   return false;
+}

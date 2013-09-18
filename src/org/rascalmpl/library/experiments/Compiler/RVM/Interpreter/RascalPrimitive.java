@@ -1,7 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.bool;
-
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -36,7 +34,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.result.LessThanOrEqualResult;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
@@ -399,6 +396,8 @@ public enum RascalPrimitive {
 	stringwriter_open,
 	stringwriter_add,
 	stringwriter_close,
+	
+	str_escape_for_regexp,
 
 	sublist,
 
@@ -743,6 +742,22 @@ public enum RascalPrimitive {
 		
 		stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
 		return sp - 1;
+	}
+	
+	public static int str_escape_for_regexp(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		String s = ((IString) stack[sp - 1]).getValue();
+		StringBuilder b = new StringBuilder();
+		
+		for (int i = 0; i < s.length(); i++) {
+			char ch = s.charAt(i);
+			if ("^.|?*+()[\\".indexOf(ch) != -1) {
+				b.append('\\');
+			}
+			b.append(ch);
+		}
+		stack[sp - 1] = vf.string(b.toString());
+		return sp;
 	}
 	
 	/*
@@ -2341,18 +2356,21 @@ public enum RascalPrimitive {
 	
 	public static int stringwriter_open(Object[] stack, int sp, int arity) {
 		assert arity == 0;
-		stack[sp] = vf.string("");
+		stack[sp] = new StringBuilder();
 		return sp + 1;
 	}
 	
 	public static int stringwriter_add(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IString) stack[sp - 2]).concat(((IString) stack[sp - 1]));
+		StringBuilder b = (StringBuilder) stack[sp - 2];
+		stack[sp - 2] = b.append(((IString) stack[sp - 1]).getValue());
 		return sp - 1;
 	}
 	
 	public static int stringwriter_close(Object[] stack, int sp, int arity) {
 		assert arity == 1;
+		StringBuilder b = (StringBuilder) stack[sp - 1];
+		stack[sp - 1] = vf.string(b.toString());
 		return sp;
 	}
 	

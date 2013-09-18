@@ -12,7 +12,7 @@ import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
-default MuExp translate((Statement) `<Statement* statements>`) = muBlock([ translate(stat) | stat <- statements ]);
+//default MuExp translate((Statement) `<Statement* statements>`) = muBlock([ translate(stat) | stat <- statements ]);
 
 /********************************************************************/
 /*                  Statement                                       */

@@ -69,7 +69,7 @@ MuExp translate((Literal) `<BooleanLiteral b>`) = "<b>" == "true" ? muCon(true) 
  
 MuExp translate((Literal) `<IntegerLiteral n>`) = muCon(toInt("<n>"));
 
-MuExp translate((Literal) `<RegExpLiteral r>`) = translateRegExpLiteral(r);
+MuExp translate((Literal) `<RegExpLiteral r>`) { throw "RexExpLiteral cannot occur in expression"; }
 
 MuExp translate((Literal) `<StringLiteral n>`) = translateStringLiteral(n);
 
@@ -199,10 +199,14 @@ MuExp translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) =
 // It in reducer
 MuExp translate (e:(Expression) `it`) = muTmp(topIt());
  
- // Qualifid name
+ // Qualified name
 MuExp translate(q:(QualifiedName) `<QualifiedName v>`) = mkVar("<v>", v@\loc);
 
 MuExp translate((Expression) `<QualifiedName v>`) = translate(v);
+
+// For the benefit of names in regular expressions
+
+MuExp translate((Name) `<Name name>`) = mkVar("<name>", name@\loc);
 
 // Subscript
 MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`){
@@ -443,37 +447,7 @@ MuExp translateBoolNot(Expression lhs){
 /*********************************************************************/
 /*      Auxiliary functions for translating various constructs       */
 /*********************************************************************
-/*
-lexical RegExpLiteral
-	= "/" RegExp* "/" RegExpModifier ;
 
-lexical NamedRegExp
-	= "\<" Name "\>" 
-	| [\\] [/ \< \> \\] 
-	| NamedBackslash 
-	| ![/ \< \> \\] ;
-
-lexical RegExpModifier
-	= [d i m s]* ;
-
-lexical RegExp
-	= ![/ \< \> \\] 
-	| "\<" Name "\>" 
-	| [\\] [/ \< \> \\] 
-	| "\<" Name ":" NamedRegExp* "\>" 
-	| Backslash 
-	// | @category="MetaVariable" [\<]  Expression expression [\>] TODO: find out why this production existed 
-	;
-lexical NamedBackslash
-	= [\\] !>> [\< \> \\] ;
-*/
-
-MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
- for(r <- rexps){
-   println("r = <r>");
- }
- return muCon("XXXXX");
-}
 
 // Translate a string literals and string templates
 
@@ -490,10 +464,6 @@ lexical MidStringChars
 	
 lexical PostStringChars
 	= @category="Constant" [\>] StringCharacter* [\"] ;
-
-
-
-	
 */	
 
 MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <StringTemplate template> <StringTail tail>`) =  
