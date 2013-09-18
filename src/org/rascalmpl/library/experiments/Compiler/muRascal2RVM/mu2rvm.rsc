@@ -55,6 +55,22 @@ bool producesValue(muReturn()) = false;
 bool producesValue(muNext(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
 
+// Management needed to compute exception tables
+lrel[str from,str to] tries = [];
+INS catchCode = [];
+
+void enterTry(str from, str to) {
+	tries = <from,to> + tries;
+}
+
+void leaveTry() {
+	tries = tail(tries);
+}
+
+tuple[str from,str to] topTry() = top(tries);
+
+map[tuple[str,str],tuple[Symbol,str]] exceptionTable = ();
+
 /*********************************************************************/
 /*      Translate a muRascal module                                  */
 /*********************************************************************/
@@ -71,12 +87,14 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   for(fun <- functions){
     functionScope = fun.qname;
     nlocal = fun.nlocals;
+    exceptionTable = ();
+    catchCode = [];
     if(listing){
     	iprintln(fun);
     }
     code = tr(fun.body);
     required_frame_size = nlocal + estimate_stack_size(fun.body);
-    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code, ()));
+    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code + catchCode, exceptionTable));
   }
   
   main_fun = getUID(module_name,[],"main",1);
@@ -239,6 +257,25 @@ INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()];
 
 INS tr(muYield()) = [YIELD0()];
 INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];
+
+// Exceptions
+INS tr(muThrow(MuExp exp)) = [ *tr(exp), THROW() ];
+
+INS tr(muTry(MuExp exp, MuCatch \catch)) {
+	from = nextLabel();
+	to = nextLabel();
+	enterTry(from,to);
+	code = [ LABEL(from), *tr(exp), LABEL(to) ];
+	trMuCatch(\catch);
+	leaveTry();
+	return code;
+}
+
+void trMuCatch(muCatch(str id, Symbol \type, MuExp exp)) {
+	from = nextLabel();
+	exceptionTable[topTry()] = <\type,from>;
+	catchCode = catchCode + [ LABEL(from), STORELOC(getTmp(id)), *tr(exp), JMP(topTry().to) ];
+}
 
 // Control flow
 
