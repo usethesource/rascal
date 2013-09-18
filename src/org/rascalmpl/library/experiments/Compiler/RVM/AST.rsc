@@ -10,7 +10,7 @@ public data Declaration =
 		  		   int nlocals, 
 		  		   int maxStack, 
 		  		   list[Instruction] instructions,
-		  		   map[tuple[str,str], tuple[Symbol, str]] exceptions)
+		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
 		;
 
 public data RVMProgram = rvm(str name,
