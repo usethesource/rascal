@@ -109,8 +109,9 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 	}
 
 	@Override
-	protected <U extends IValue, V extends IValue> Result<U> insertElement(Result<V> valueResult) {
-		return addElement((ElementResult<V>) valueResult);
+	protected <U extends IValue, V extends IValue> Result<U> insertElement(Result<V> that) {
+		Type newType = getTypeFactory().listType(that.getType().lub(getType().getElementType()));
+		return makeResult(newType, value.insert(that.getValue()), ctx);
 	}
 
 	protected <U extends IValue, V extends IValue> Result<U> addElement(
