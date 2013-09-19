@@ -29,7 +29,7 @@ str mkBreak(str loopname) = "BREAK_<loopname>";
 str mkFail(str loopname) = "FAIL_<loopname>";
 str mkElse(str branchname) = "ELSE_<branchname>";
 
-// Exception handling
+// Exception handling: labels to mark the start and end of a try and catch blocks 
 str mkTryFrom(str label) = "TRY_FROM_<label>";
 str mkTryTo(str label) = "TRY_TO_<label>";
 str mkCatchFrom(str label) = "CATCH_FROM_<label>";
@@ -65,7 +65,6 @@ default bool producesValue(MuExp exp) = true;
 
 // Stack of try blocks (potentially nested)
 lrel[str from, str to, Symbol \type, str target] tryBlocks = [];
-
 // Instruction block of all the catch blocks within a function body in the order they appear in the code
 INS catchBlocks = [];
 
@@ -73,7 +72,6 @@ INS catchBlocks = [];
 void enterTry(str from, str to, Symbol \type, str target) {
 	tryBlocks = <from,to,\type,target> + tryBlocks;
 }
-
 void leaveTry() {
 	tryBlocks = tail(tryBlocks);
 }
@@ -107,22 +105,10 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     if(listing){
     	iprintln(fun);
     }
-    code = tr(fun.body);
+    // Append catch blocks to the end of the function body code
+    code = tr(fun.body) + catchBlocks;
     required_frame_size = nlocal + estimate_stack_size(fun.body);
-    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code + catchBlocks, exceptionTable));
-    // Debugging exception handling support
-    println("Function body:");
-    for(ins <- code) {
-    	println("	<ins>");
-    }
-    println("Catch blocks:");
-    for(ins <- catchBlocks) {
-    	println("	<ins>");
-    }
-    println("Exception table:");
-    for(entry <- exceptionTable) {
-    	println("	<entry>");
-    }
+    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code, exceptionTable));
   }
   
   main_fun = getUID(module_name,[],"main",1);
@@ -293,14 +279,14 @@ INS tr(muTry(MuExp exp, MuCatch \catch)) {
 	// Mark the begin and end of the try and catch blocks
 	str tryLab = nextLabel();
 	str catchLab = nextLabel();
+	
 	str try_from   = mkTryFrom(tryLab);
 	str try_to     = mkTryTo(tryLab);
 	str catch_from = mkCatchFrom(catchLab);
 	str catch_to   = mkCatchTo(catchLab);
 	
-	enterTry(try_from,try_to,\catch.\type,catch_from);
+	enterTry(try_from,try_to,\catch.\type,catch_from); // Dealing with nesting of try blocks
 	code = [ LABEL(try_from), *tr(exp), LABEL(try_to) ];
-		
 	trMuCatch(\catch, catch_from, catch_to);
 	leaveTry();
 	return code;
@@ -314,7 +300,7 @@ void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str to) {
 	
 	catchBlocks = catchBlocks + [ LABEL(from), STORELOC(getTmp(id)), *tr(exp), LABEL(to), JMP(currentTry.to) ];
 	
-	// Catch block may also throw an exception that has to be handled by the catch of the outer try block
+	// Catch block may also throw an exception that has to be handled by the catch block of the outer try block
 	if(!isEmpty(tail(tryBlocks))) {
 		tuple[str from, str to, Symbol \type, str target] outerTry = topTryOfCatch();
 		// Fill in the catch block entry into the current exception table

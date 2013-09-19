@@ -193,25 +193,25 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers>`) {
     list[Catch] otherCases   = [ handler | Catch handler <- handlers, !(handler is \default) ];
     patterns = [ handler.pattern | Catch handler <- otherCases ];
     
-    println("Types of patterns: <[ getType(p@\loc) | Pattern p <- patterns ]>");
-    
+    // If there is no default catch, compute lub of pattern types,
+    // this gives optimization of the handler search based on types
     lubOfPatterns = !isEmpty(defaultCases) ? Symbol::\value() : Symbol::\void();
     if(isEmpty(defaultCases)) {
     	lubOfPatterns = ( lubOfPatterns | lub(it, getType(p@\loc)) | Pattern p <- patterns );
     }
     
+    // Introduce a temporary variable that is bound within a catch block to a thrown value
     varname = asTmp(nextLabel());
-    bigcatch = muCatch(varname, lubOfPatterns, translateCatches(varname, [ handler | handler <- handlers ], isEmpty(defaultCases)));
-    exp = muTry(translate(body), bigcatch);
-    
-    // Debugging exception handling support
-    println("Translated try/catch: <exp>");
+    bigCatch = muCatch(varname, lubOfPatterns, translateCatches(varname, [ handler | handler <- handlers ], isEmpty(defaultCases)));
+    exp = muTry(translate(body), bigCatch);
     
 	return exp;
 }
 
 MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
+  // Translate a list of catch blocks into one catch block
   if(size(catches) == 0) {
+  	  // In case there is no default catch provided, re-throw the value from the catch block
       return (hasDefault) ? muBlock([]) : muThrow(muTmp(varname));
   }
   
