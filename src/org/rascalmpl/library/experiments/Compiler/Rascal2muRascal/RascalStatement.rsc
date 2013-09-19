@@ -12,7 +12,7 @@ import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
-//default MuExp translate((Statement) `<Statement* statements>`) = muBlock([ translate(stat) | stat <- statements ]);
+MuExp translateStats(Statement* statements) = muBlock([ translate(stat) | stat <- statements ]);
 
 /********************************************************************/
 /*                  Statement                                       */
@@ -47,9 +47,9 @@ MuExp translateTemplate((StringTemplate) `while ( <Expression condition> ) { <St
     enterBacktrackingScope(whilename);
     code = [ muAssignTmp(result, muCallPrim("template_open", [])), 
              muWhile(whilename, muOne([translate(condition)]), 
-                     [ translate(preStats),  
+                     [ translateStats(preStats),  
                         muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])), 
-                       translate(postStats)
+                       translateStats(postStats)
                      ]),
              muCallPrim("template_close", [muTmp(result)])
            ];
@@ -78,9 +78,9 @@ MuExp translateTemplate(s: (StringTemplate) `do { < Statement* preStats> <String
     enterLoop(doname);
     enterBacktrackingScope(doname);
     code = [ muAssignTmp(result, muCallPrim("template_open", [])),
-             muDo(doname,  [ translate(preStats),
+             muDo(doname,  [ translateStats(preStats),
                              muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
-                             translate(postStats)], 
+                             translateStats(postStats)], 
                   muOne([translate(condition)])
                  ),
              muCallPrim("template_close", [muTmp(result)])
@@ -111,9 +111,9 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
     enterBacktrackingScope(forname);
     code = [ muAssignTmp(result, muCallPrim("template_open", [])),
              muWhile(forname, makeMuAll([translate(c) | c <-generators]), 
-                     [ translate(preStats),  
+                     [ translateStats(preStats),  
                        muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
-                       translate(postStats)
+                       translateStats(postStats)
                      ]),
              muCallPrim("template_close", [muTmp(result)])
            ];
@@ -136,9 +136,9 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
     enterBacktrackingScope(ifname);
     code = [ muAssignTmp(result, muCallPrim("template_open", [])),
              muIfelse(ifname, muAll([translate(c) | c <-conditions]), 
-                      [ translate(preStats),
+                      [ translateStats(preStats),
                         muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
-                        translate(postStats)],
+                        translateStats(postStats)],
                       []),
                muCallPrim("template_close", [muTmp(result)])
            ];
@@ -160,13 +160,13 @@ MuExp translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) 
     enterBacktrackingScope(ifname);
     code = [ muAssignTmp(result, muCallPrim("template_open", [])),
              muIfelse(ifname, muAll([translate(c) | c <-conditions]), 
-                      [ translate(preStatsThen), 
+                      [ translateStats(preStatsThen), 
                         muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(thenString)])),
-                        translate(postStatsThen)
+                        translateStats(postStatsThen)
                       ],
-                      [ translate(preStatsElse), 
+                      [ translateStats(preStatsElse), 
                         muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(elseString)])),
-                        translate(postStatsElse)
+                        translateStats(postStatsElse)
                       ]),
               muCallPrim("template_close", [muTmp(result)])
            ];
