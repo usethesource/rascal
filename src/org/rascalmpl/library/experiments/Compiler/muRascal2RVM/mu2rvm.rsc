@@ -58,14 +58,14 @@ default bool producesValue(MuExp exp) = true;
 // Management needed to compute exception tables
 
 // Stack of try blocks (potentially nested)
-lrel[str from,str to] tryBlocks = [];
+lrel[str from, str to, Symbol \type, str target] tryBlocks = [];
 
 // Instruction block of all the catch blocks within a function body in the order they appear in the code
 INS catchBlocks = [];
 
 // Functions to manage the try block stack
-void enterTry(str from, str to) {
-	tryBlocks = <from,to> + tryBlocks;
+void enterTry(str from, str to, Symbol \type, str target) {
+	tryBlocks = <from,to,\type,target> + tryBlocks;
 }
 
 void leaveTry() {
@@ -73,9 +73,9 @@ void leaveTry() {
 }
 
 // Get the label of a top try block
-tuple[str from,str to] topTry() = top(tryBlocks);
+tuple[str from, str to, Symbol \type, str target] topTry() = top(tryBlocks);
 // Get the label of a top try block of a try catch clause
-tuple[str from,str to] topTryOfCatch() = top(tail(tryBlocks));
+tuple[str from, str to, Symbol \type, str target] topTryOfCatch() = top(tail(tryBlocks));
 
 // As we use label names to mark try blocks (excluding 'catch' clauses)
 lrel[str from, str to, Symbol \type, str target] exceptionTable = [];
@@ -104,6 +104,10 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     code = tr(fun.body);
     required_frame_size = nlocal + estimate_stack_size(fun.body);
     funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code + catchBlocks, exceptionTable));
+    // Debugging exception handling support
+    println("Function body: <code>");
+    println("Catch blocks: <catchBlocks>");
+    println("Exception table: <exceptionTable>");
   }
   
   main_fun = getUID(module_name,[],"main",1);
@@ -271,34 +275,33 @@ INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];
 INS tr(muThrow(MuExp exp)) = [ *tr(exp), THROW() ];
 
 INS tr(muTry(MuExp exp, MuCatch \catch)) {
-	// Mark the begin and end of the try block
-	str from = nextLabel();
-	str to = nextLabel();
-	enterTry(from,to);
-	code = [ LABEL(from), *tr(exp), LABEL(to) ];
+	// Mark the begin and end of the try and catch blocks
+	str try_from = nextLabel();
+	str try_to = nextLabel();
+	str catch_from = nextLabel();
+	str catch_to = nextLabel();
 	
-	// Fill in the try block entry into the current exception table
-	exceptionTable += <currentTry.from, currentTry.to, \type, from>;
-	
-	trMuCatch(\catch);
+	enterTry(try_from,try_to,\catch.\type,catch_from);
+	code = [ LABEL(try_from), *tr(exp), LABEL(try_to) ];
+		
+	trMuCatch(\catch, catch_from, catch_to);
 	leaveTry();
 	return code;
 }
 
-void trMuCatch(muCatch(str id, Symbol \type, MuExp exp)) {
-	// Mark the begin and end of the catch block
-	str from = nextLabel();
-	str to = nextLabel();
-	tuple[str from,str to] currentTry = topTry();
+void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str to) {
+	tuple[str from, str to, Symbol \type, str target] currentTry = topTry();
 	
-	catchBlocks = catchBlocks + [ LABEL(from), STORELOC(getTmp(id)), *tr(exp), JMP(currentTry.to) ];
+	// Fill in the try block entry into the current exception table
+	exceptionTable += <currentTry.from, currentTry.to, \type, from>;
+	
+	catchBlocks = catchBlocks + [ LABEL(from), STORELOC(getTmp(id)), *tr(exp), LABEL(to), JMP(currentTry.to) ];
 	
 	// Catch block may also throw an exception that has to be handled by the catch of the outer try block
 	if(!isEmpty(tail(tryBlocks))) {
-		tuple[str from,str to] outerTry = topTryOfCatch();
-		tuple[Symbol \type,str target] handler = getOneFrom(exceptionTable[outerTry.from,outerTry.to]);
+		tuple[str from, str to, Symbol \type, str target] outerTry = topTryOfCatch();
 		// Fill in the catch block entry into the current exception table
-		exceptionTable += <from,to,handler.\type,handler.\target>;
+		exceptionTable += <from,to,outerTry.\type,outerTry.\target>;
 	}
 }
 
