@@ -86,6 +86,11 @@ test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.fragment") == |
 test bool tst() = run("[1,2,3]") == [1,2,3];
 test bool tst() = run("[1,2,3] + [4,5]") == [1,2,3] + [4,5];
 test bool tst() = run("[1,2,3] + 4") == [1,2,3] + 4;
+
+// << and >> not supported by type checker
+/*fails*/ //test bool tst() = run(" 4 \>\> [1,2,3]") == 4 + [1,2,3];
+/*fails*/ //test bool tst() = run(" [1,2,3] \<\< 4") == 4 + [1,2,3];
+
 // not supported by interpreter: test bool tst() = run("[1,2,3] \<\< 4") == [1,2,3] << 4;
 test bool tst() = run("0 + [1,2,3]") == [0,1,2,3];
 // not supported by interpreter: test bool tst() = run("0 \>\> [1,2,3]") == 0 >> [1,2,3];
@@ -93,6 +98,28 @@ test bool tst() = run("[1,2,3] & [1,3]") == [1,2,3] & [1,3];
 test bool tst() = run("[1,2,3] - [1,3]") == [1,2,3] - [1,3];
 test bool tst() = run("1 in [1,2,3]") == 1 in [1,2,3];
 test bool tst() = run("1 notin [1,2,3]") == 1 notin [1,2,3];
+
+
+test bool tst() = run("[1, 2] \< [1, 2, 3]") == [1, 2] < [1, 2, 3];
+test bool tst() = run("[1, 2, 3] \< [1, 2, 3]") == [1, 2, 3] < [1, 2, 3];
+test bool tst() = run("[1, 2, 3] \< [1, 2]") == [1, 2, 3] < [1, 2];
+
+test bool tst() = run("[1, 2] \<= [1, 2, 3]") == [1, 2] <= [1, 2, 3];
+test bool tst() = run("[1, 2, 3] \<= [1, 2, 3]") == [1, 2, 3] <= [1, 2, 3];
+test bool tst() = run("[1, 2, 3] \<= [1, 2]") == [1, 2, 3] <= [1, 2];
+
+test bool tst() = run("[1, 2] \> [1, 2, 3]") == [1, 2] > [1, 2, 3];
+test bool tst() = run("[1, 2, 3] \> [1, 2, 3]") == [1, 2, 3] > [1, 2, 3];
+test bool tst() = run("[1, 2, 3] \> [1, 2]") == [1, 2, 3] > [1, 2];
+
+test bool tst() = run("[1, 2] \>= [1, 2, 3]") == [1, 2] >= [1, 2, 3];
+test bool tst() = run("[1, 2, 3] \>= [1, 2, 3]") == [1, 2, 3] >= [1, 2, 3];
+test bool tst() = run("[1, 2, 3] \>= [1, 2]") == [1, 2, 3] >= [1, 2];
+
+test bool tst() = run("[1, 2, 3] * [1, 2, 3]") == [1, 2, 3] * [1, 2, 3];
+
+test bool tst() = run("[\<1,10\>, \<2,20\>] join [\<300, 2000\>]") == [<1,10>, <2,20>] join [<300, 2000>];
+
 
 // Set
 
@@ -113,6 +140,8 @@ test bool tst() = run("{1, 2} == {1, 2}") == ({1, 2} == {1, 2});
 test bool tst() = run("{1, 2} == {1, 2, 3}") == ({1, 2} == {1, 2, 3});
 test bool tst() = run("{1, 2} != {1, 2}") == ({1, 2} != {1, 2});
 test bool tst() = run("{1, 2} != {1, 2, 3}") == ({1, 2} != {1, 2, 3});
+
+test bool tst() = run("{1, 2, 3} * {10, 20, 30}") == {1, 2, 3} * {10, 20, 30};
 
 // Map
 

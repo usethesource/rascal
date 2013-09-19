@@ -3,10 +3,23 @@ module experiments::Compiler::RVM::AST
 import Type;
 
 public data Declaration = 
-		  FUNCTION(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, int maxStack, list[Instruction] instructions)
+		  FUNCTION(str qname, 
+		  		   Symbol ftype, 
+		  		   str scopeIn, 
+		  		   int nformals, 
+		  		   int nlocals, 
+		  		   int maxStack, 
+		  		   list[Instruction] instructions,
+		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
 		;
 
-public data RVMProgram = rvm(map[str,Symbol] types, map[str, Declaration] declarations, list[Instruction] instructions, map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions);
+public data RVMProgram = rvm(str name,
+							 list[loc] imports,
+                             map[str,Symbol] types, 
+                             map[str, Declaration] declarations, 
+                             list[Instruction] initialization, 
+                             map[str,int] resolver, 
+                             lrel[str,list[str],list[str]] overloaded_functions);
 
 data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
@@ -43,10 +56,14 @@ data Instruction =
 		
 		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive)
 		| CALLPRIM(str name, int arity)				// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
+		| CALLJAVA(str name, str class, 
+		           Symbol parameterTypes)			// Call a Java method
 		
 		| RETURN0()									// Return from function without value
 		| RETURN1()									// Return from function with value
 		| FAILRETURN()								// Failure return from function
+		
+		| THROW()                                   // Throws a value
 		
 		| LABEL(str label)							// Define a label (is associated with next instruction)
 		| JMP(str label)							// Jump to a labelled instruction

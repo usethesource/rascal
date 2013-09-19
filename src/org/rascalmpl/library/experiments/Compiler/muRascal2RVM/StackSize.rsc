@@ -47,12 +47,13 @@ private int estimate(muOCall(MuExp fun, set[Symbol] types, list[MuExp] args)) = 
 
 private int estimate(muCallPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCallMuPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
+private int estimate(muCallJava(str name, str class, Symbol argTypes, list[MuExp] args)) = estimate_arg_list(args);
 
 private int estimate(muAssign(str id, str fuid, int pos, MuExp exp)) = estimate(exp);
 private int estimate(muAssignLoc(str id, int pos, MuExp exp)) = estimate(exp);
 private int estimate(muAssignTmp(str id, MuExp exp)) = estimate(exp);
 
-private int estimate(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) =
+private int estimate(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) =
     max(max(estimate(cond), estimate_list(thenPart)), estimate_list(elsePart));
 
 private int estimate(muWhile(str label, MuExp cond, list[MuExp] body)) = 
@@ -101,5 +102,8 @@ private int estimate(muVarRef(str name, str fuid, int pos)) = 1;
 
 private int estimate(muAssignLocDeref(str id, int pos, MuExp exp)) = estimate(exp);
 private int estimate(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = estimate(exp);
+
+private int estimate(muThrow(MuExp exp)) = estimate(exp);
+private int estimate(muTry(MuExp tryBody, muCatch(str _, Symbol _, MuExp catchBody))) = max(estimate(tryBody),estimate(catchBody));
 
 private default int estimate(e) { throw "Unknown node in the muRascal AST: <e>"; }

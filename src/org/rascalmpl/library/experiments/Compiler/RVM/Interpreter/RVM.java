@@ -1,27 +1,36 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+import java.util.regex.Matcher;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IRational;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
@@ -83,6 +92,7 @@ public class RVM {
 		resolver = new HashMap<String,Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
 		
+		MuPrimitive.init(vf);
 		RascalPrimitive.init(vf, stdout, this);
 	}
 	
@@ -127,14 +137,20 @@ public class RVM {
 			int[] funs = new int[fuids.length()];
 			int i = 0;
 			for(IValue fuid : fuids) {
-				int index = functionMap.get(((IString) fuid).getValue());
+				Integer index = functionMap.get(((IString) fuid).getValue());
+				if(index == null){
+					throw new RuntimeException("No definition for " + fuid + " in functionMap");
+				}
 				funs[i++] = index;
 			}
 			fuids = (IList) ofTuple.get(2);
 			int[] constrs = new int[fuids.length()];
 			i = 0;
 			for(IValue fuid : fuids) {
-				int index = constructorMap.get(((IString) fuid).getValue());
+				Integer index = constructorMap.get(((IString) fuid).getValue());
+				if(index == null){
+					throw new RuntimeException("No definition for " + fuid + " in constructorMap");
+				}
 				constrs[i++] = index;
 			}
 			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
@@ -226,6 +242,13 @@ public class RVM {
 		}
 		if(o instanceof IMapWriter){
 			return "MapWriter[" + ((IMapWriter) o).toString() + "]";
+		}
+		if(o instanceof Matcher){
+			return "Matcher[" + ((Matcher) o).pattern() + "]";
+		}
+		
+		if(o instanceof StringBuilder){
+			return "StringBuilder[" + ((StringBuilder) o).toString() + "]";
 		}
 		throw new RuntimeException("PANIC: asString cannot convert: " + o);
 	}
@@ -350,7 +373,7 @@ public class RVM {
 	// TODO: Need to re-consider management of active coroutines
 	public Object executeProgram(Frame root, Frame cf) {
 		Object[] stack = cf.stack;		                              // current stack
-		int sp = cf.function.nlocals;				                  // current stacp pointer
+		int sp = cf.function.nlocals;				                  // current stack pointer
 		int[] instructions = cf.function.codeblock.getInstructions(); // current instruction sequence
 		int pc = 0;				                                      // current program counter
 				
@@ -526,9 +549,6 @@ public class RVM {
 					}
 
 					throw new RuntimeException("STOREVARDEREF cannot find matching scope: " + s);
-
-
-				
 				
 				case Opcode.OP_CALLCONSTR:
 					constructor = constructorStore.get(instructions[pc++]);
@@ -769,8 +789,14 @@ public class RVM {
 					}
 					continue;
 					
-
-				
+				case Opcode.OP_CALLJAVA:
+					String methodName =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
+					String className =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
+					Type parameterTypes = cf.function.typeConstantStore[instructions[pc++]];
+					arity = parameterTypes.getArity();
+					sp = callJavaMethod(methodName, className, parameterTypes, stack, sp);
+					continue;
+					
 				case Opcode.OP_INIT:
 					arity = instructions[pc++];
 					Object src = stack[--sp];
@@ -889,415 +915,417 @@ public class RVM {
 				case Opcode.OP_CALLMUPRIM:
 					MuPrimitive muprim = MuPrimitive.fromInteger(instructions[pc++]);
 					arity = instructions[pc++];
+					sp = muprim.invoke(stack, sp, arity);
+					continue;
 					
-					switch(muprim){
-					
-					case addition_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) + ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case subtraction_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) - ((Integer) stack[sp - 1]);
-						sp =  sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case and_mbool_mbool:
-						assert arity == 2;
-						boolean b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
-						boolean b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
-						stack[sp - 2] = b1 && b2;
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case greater_equal_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case greater_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) > ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case less_equal_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) <= ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case less_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case assign_pair:
-						assert arity == 2;
-						int v1 = ((Integer) stack[sp - 3]);
-						int v2 = ((Integer) stack[sp - 2]);
-						Object[] pair = (Object[]) stack[sp - 1];
-						stack[v1] = pair[0];
-						stack[v2] = pair[1];
-						stack[sp - 3] = pair;
-						sp = sp - 2;
-						continue NEXT_INSTRUCTION;
-						
-					case assign_subscript_array_mint:
-						assert arity == 3;
-						Object[] ar = (Object[]) stack[sp - 3];
-						index = ((Integer) stack[sp - 2]);
-						ar[index] = stack[sp - 1];
-						stack[sp - 3] = stack[sp - 1];
-						sp = sp - 2;
-						continue NEXT_INSTRUCTION;
-						
-					case check_arg_type:
-						assert arity == 2;
-						Type argType =  ((IValue) stack[sp - 2]).getType();
-						Type paramType = ((Type) stack[sp - 1]);
-						stack[sp - 2] = argType.isSubtypeOf(paramType);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case division_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) / ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case equal_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) == ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case equal:
-						assert arity == 2;
-						if(stack[sp - 2] instanceof IValue && (stack[sp - 2] instanceof IValue)){
-							stack[sp - 2] = ((IValue) stack[sp - 2]).isEqual(((IValue) stack[sp - 1]));
-						} else if(stack[sp - 2] instanceof Type && (stack[sp - 2] instanceof Type)){
-							stack[sp - 2] = ((Type) stack[sp - 2]) == ((Type) stack[sp - 1]);
-						} else 
-							throw new RuntimeException("equal -- not defined on " + stack[sp - 2].getClass() + " and " + stack[sp - 2].getClass());
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-							
-					case equivalent_mbool_mbool:
-						assert arity == 2;
-						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
-						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
-						stack[sp - 2] = (b1 == b2);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case get_name_and_children:
-						assert arity == 1;
-						INode nd = (INode) stack[sp - 1];
-						String name = nd.getName();
-						Object[] elems = new Object[nd.arity() + 1];
-						elems[0] = vf.string(name);
-						for(int i = 0; i < nd.arity(); i++){
-							elems[i + 1] = nd.get(i);
-						}
-						stack[sp - 1] =  elems;
-						continue NEXT_INSTRUCTION;
-						
-					case get_tuple_elements:
-						assert arity == 1;
-						ITuple tup = (ITuple) stack[sp - 1];
-						int nelem = tup.arity();
-						elems = new Object[nelem];
-						for(int i = 0; i < nelem; i++){
-							elems[i] = tup.get(i);
-						}
-						stack[sp - 1] =  elems;
-						continue NEXT_INSTRUCTION;
-						
-					case implies_mbool_mbool:
-						assert arity == 2;
-						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
-						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
-						stack[sp - 2] = b1 ? b2 : true;
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case is_defined:
-						assert arity == 1;
-						stack[sp - 1] = stack[sp - 1] != null;
-						continue NEXT_INSTRUCTION;
-						
-					case is_element:
-						assert arity == 2;
-						stack[sp - 2] = ((ISet) stack[sp - 1]).contains((ISet) stack[sp - 2]);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case is_bool:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isBool();
-						continue NEXT_INSTRUCTION;
-						
-					case is_datetime:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isDateTime();
-						continue NEXT_INSTRUCTION;
-						
-					case is_int:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isInteger();
-						continue NEXT_INSTRUCTION;
-						
-					case is_list:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isList();
-						continue NEXT_INSTRUCTION;
-						
-					case is_loc:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isSourceLocation();
-						continue NEXT_INSTRUCTION;
-						
-					case is_lrel:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isListRelation();
-						continue NEXT_INSTRUCTION;
-						
-					case is_map:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isMap();
-						continue NEXT_INSTRUCTION;
-						
-					case is_node:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isNode();
-						continue NEXT_INSTRUCTION;
-						
-					case is_num:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isNumber();
-						continue NEXT_INSTRUCTION;
-						
-					case is_rat:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isRational();
-						continue NEXT_INSTRUCTION;
-						
-					case is_real:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isReal();
-						continue NEXT_INSTRUCTION;
-						
-					case is_rel:
-						assert arity == 1;
-						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isRelation();
-						continue NEXT_INSTRUCTION;
-						
-					case is_set:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isSet();
-						continue NEXT_INSTRUCTION;
-						
-					case is_str:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isString();
-						continue NEXT_INSTRUCTION;
-						
-					case is_tuple:
-						assert arity == 1;
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isTuple();
-						continue NEXT_INSTRUCTION;
-						
-					case keys_map:
-						assert arity == 1;
-						IMap map = ((IMap) stack[sp - 1]);
-						IListWriter writer = vf.listWriter();
-						for(IValue key : map){
-							writer.append(key);
-						}
-						stack[sp - 1] = writer.done();
-						continue NEXT_INSTRUCTION;
-						
-					
-						
-					case make_array:
-						assert arity >= 0;
-						
-						ar = new Object[arity];
-
-						for (int i = arity - 1; i >= 0; i--) {
-							ar[i] = stack[sp - arity + i];
-						}
-						sp = sp - arity + 1;
-						stack[sp - 1] = ar;
-						continue NEXT_INSTRUCTION;
-						
-					case make_array_of_size:
-						assert arity == 1;
-						int len = ((Integer)stack[sp - 1]);
-						stack[sp - 1] = new Object[len];
-						continue NEXT_INSTRUCTION;
-						
-					case mint:
-						assert arity == 1;
-						stack[sp - 1] = ((IInteger) stack[sp - 1]).intValue();
-						continue NEXT_INSTRUCTION;
-						
-					case modulo_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) % ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case not_equal_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) != ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case not_mbool:
-						assert arity == 1;
-						b1 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
-						stack[sp - 1] = !b1;
-						continue NEXT_INSTRUCTION;
-						
-					case or_mbool_mbool:
-						assert arity == 2;
-						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
-						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
-						stack[sp - 2] = b1 || b2;
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case power_mint_mint:
-						assert arity == 2;
-						int n1 = ((Integer) stack[sp - 2]);
-						int n2 = ((Integer) stack[sp - 1]);
-						int pow = 1;
-						for(int i = 0; i < n2; i++){
-							pow *= n1;
-						}
-						stack[sp - 2] = pow;
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case rbool:
-						assert arity == 1;
-						stack[sp -1] = (stack[sp -1] instanceof Boolean) ? vf.bool((Boolean) stack[sp - 2]) : (IBool) stack[sp - 1];
-						continue NEXT_INSTRUCTION;
-						
-					case rint:
-						assert arity == 1;
-						stack[sp -1] = vf.integer((Integer) stack[sp -1]);
-						continue NEXT_INSTRUCTION;
-					
-					case set2list:
-						assert arity == 1;
-						ISet set = (ISet) stack[sp - 1];
-						writer = vf.listWriter();
-						for(IValue elem : set){
-							writer.append(elem);
-						}
-						stack[sp - 1] = writer.done();
-						continue NEXT_INSTRUCTION;
-						
-					case size_array_or_list_or_set_or_map_or_tuple:
-						assert arity == 1;
-						if(stack[sp - 1] instanceof Object[]){
-							stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
-						} else if(stack[sp - 1] instanceof IList){
-							stack[sp - 1] = ((IList) stack[sp - 1]).length();
-						} else if(stack[sp - 1] instanceof ISet){
-							stack[sp - 1] = ((ISet) stack[sp - 1]).size();
-						} else if(stack[sp - 1] instanceof IMap){
-							stack[sp - 1] = ((IMap) stack[sp - 1]).size();
-						} else if(stack[sp - 1] instanceof ITuple){
-							stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
-						} else
-							throw new RuntimeException("size_array_or_list_mint -- not defined on " + stack[sp - 1].getClass());
-						continue NEXT_INSTRUCTION;
-						
-					case starts_with:
-						assert arity == 3;
-						IList sublist = (IList) stack[sp - 3];
-						IList list = (IList) stack[sp - 2];
-						int start = (Integer) stack[sp - 1];
-						boolean eq = true;
-						
-						if(start + sublist.length() <= list.length()){
-							for(int i = 0; i < sublist.length() && eq; i++){
-								if(!sublist.get(i).equals(list.get(start + i))){
-									eq = false;
-								}
-							}
-						}
-						stack[sp - 3] = eq;
-						sp = sp - 2;
-						continue NEXT_INSTRUCTION;
-						
-					case sublist_list_mint_mint:
-						assert arity == 3;
-						IList lst = (IList) stack[sp - 3];
-						int offset = ((Integer) stack[sp - 2]);
-						int length = ((Integer) stack[sp - 1]);
-						stack[sp - 3] = lst.sublist(offset, length);
-						sp = sp - 2;
-						continue NEXT_INSTRUCTION;
-						
-					case subscript_array_or_list_or_tuple_mint:
-						assert arity == 2;
-						if(stack[sp - 2] instanceof Object[]){
-							stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
-						} else if(stack[sp - 2] instanceof IList){
-							stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
-						} else if(stack[sp - 2] instanceof ITuple){
-							stack[sp - 2] = ((ITuple) stack[sp - 2]).get((Integer) stack[sp - 1]);
-						} else
-							throw new RuntimeException("subscript_array_or_list_mint -- Object[] or IList expected");
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					
-						
-					case subtype:
-						assert arity == 2;
-						stack[sp - 2] = ((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case typeOf:
-						assert arity == 1;
-						if(stack[sp - 1] instanceof Integer) {
-							stack[sp - 1] = TypeFactory.getInstance().integerType();
-						} else {
-							stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
-						}
-						continue NEXT_INSTRUCTION;
-					
-					case product_mint_mint:
-						assert arity == 2;
-						stack[sp - 2] = ((Integer) stack[sp - 2]) * ((Integer) stack[sp - 1]);
-						sp = sp - 1;
-						continue NEXT_INSTRUCTION;
-						
-					case values_map:
-						assert arity == 1;
-						map = ((IMap) stack[sp - 1]);
-						writer = vf.listWriter();
-						for(IValue key : map){
-							writer.append(map.get(key));
-						}
-						stack[sp - 1] = writer.done();
-						continue NEXT_INSTRUCTION;
-					
-					
-					default:
-						throw new RuntimeException("CALLMUPRIM -- unknown primitive");
-					}
+//					switch(muprim){
+//					
+//					case addition_mint_mint:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Integer) stack[sp - 2]) + ((Integer) stack[sp - 1]);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case subtraction_mint_mint:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Integer) stack[sp - 2]) - ((Integer) stack[sp - 1]);
+//						sp =  sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case and_mbool_mbool:
+//						assert arity == 2;
+//						boolean b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+//						boolean b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+//						stack[sp - 2] = b1 && b2;
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case greater_equal_mint_mint:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case greater_mint_mint:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Integer) stack[sp - 2]) > ((Integer) stack[sp - 1]);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case less_equal_mint_mint:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Integer) stack[sp - 2]) <= ((Integer) stack[sp - 1]);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case less_mint_mint:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case assign_pair:
+//						assert arity == 2;
+//						int v1 = ((Integer) stack[sp - 3]);
+//						int v2 = ((Integer) stack[sp - 2]);
+//						Object[] pair = (Object[]) stack[sp - 1];
+//						stack[v1] = pair[0];
+//						stack[v2] = pair[1];
+//						stack[sp - 3] = pair;
+//						sp = sp - 2;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case assign_subscript_array_mint:
+//						assert arity == 3;
+//						Object[] ar = (Object[]) stack[sp - 3];
+//						index = ((Integer) stack[sp - 2]);
+//						ar[index] = stack[sp - 1];
+//						stack[sp - 3] = stack[sp - 1];
+//						sp = sp - 2;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case check_arg_type:
+//						assert arity == 2;
+//						Type argType =  ((IValue) stack[sp - 2]).getType();
+//						Type paramType = ((Type) stack[sp - 1]);
+//						stack[sp - 2] = argType.isSubtypeOf(paramType);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case division_mint_mint:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Integer) stack[sp - 2]) / ((Integer) stack[sp - 1]);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case equal_mint_mint:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Integer) stack[sp - 2]) == ((Integer) stack[sp - 1]);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case equal:
+//						assert arity == 2;
+//						if(stack[sp - 2] instanceof IValue && (stack[sp - 2] instanceof IValue)){
+//							stack[sp - 2] = ((IValue) stack[sp - 2]).isEqual(((IValue) stack[sp - 1]));
+//						} else if(stack[sp - 2] instanceof Type && (stack[sp - 2] instanceof Type)){
+//							stack[sp - 2] = ((Type) stack[sp - 2]) == ((Type) stack[sp - 1]);
+//						} else 
+//							throw new RuntimeException("equal -- not defined on " + stack[sp - 2].getClass() + " and " + stack[sp - 2].getClass());
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//							
+//					case equivalent_mbool_mbool:
+//						assert arity == 2;
+//						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+//						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+//						stack[sp - 2] = (b1 == b2);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case get_name_and_children:
+//						assert arity == 1;
+//						INode nd = (INode) stack[sp - 1];
+//						String name = nd.getName();
+//						Object[] elems = new Object[nd.arity() + 1];
+//						elems[0] = vf.string(name);
+//						for(int i = 0; i < nd.arity(); i++){
+//							elems[i + 1] = nd.get(i);
+//						}
+//						stack[sp - 1] =  elems;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case get_tuple_elements:
+//						assert arity == 1;
+//						ITuple tup = (ITuple) stack[sp - 1];
+//						int nelem = tup.arity();
+//						elems = new Object[nelem];
+//						for(int i = 0; i < nelem; i++){
+//							elems[i] = tup.get(i);
+//						}
+//						stack[sp - 1] =  elems;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case implies_mbool_mbool:
+//						assert arity == 2;
+//						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+//						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+//						stack[sp - 2] = b1 ? b2 : true;
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_defined:
+//						assert arity == 1;
+//						stack[sp - 1] = stack[sp - 1] != null;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_element:
+//						assert arity == 2;
+//						stack[sp - 2] = ((ISet) stack[sp - 1]).contains((ISet) stack[sp - 2]);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_bool:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isBool();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_datetime:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isDateTime();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_int:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isInteger();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_list:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isList();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_loc:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isSourceLocation();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_lrel:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isListRelation();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_map:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isMap();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_node:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isNode();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_num:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isNumber();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_rat:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isRational();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_real:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isReal();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_rel:
+//						assert arity == 1;
+//						stack[sp - 2] = ((IValue) stack[sp - 1]).getType().isRelation();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_set:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isSet();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_str:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isString();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case is_tuple:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isTuple();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case keys_map:
+//						assert arity == 1;
+//						IMap map = ((IMap) stack[sp - 1]);
+//						IListWriter writer = vf.listWriter();
+//						for(IValue key : map){
+//							writer.append(key);
+//						}
+//						stack[sp - 1] = writer.done();
+//						continue NEXT_INSTRUCTION;
+//						
+//					
+//						
+//					case make_array:
+//						assert arity >= 0;
+//						
+//						ar = new Object[arity];
+//
+//						for (int i = arity - 1; i >= 0; i--) {
+//							ar[i] = stack[sp - arity + i];
+//						}
+//						sp = sp - arity + 1;
+//						stack[sp - 1] = ar;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case make_array_of_size:
+//						assert arity == 1;
+//						int len = ((Integer)stack[sp - 1]);
+//						stack[sp - 1] = new Object[len];
+//						continue NEXT_INSTRUCTION;
+//						
+//					case mint:
+//						assert arity == 1;
+//						stack[sp - 1] = ((IInteger) stack[sp - 1]).intValue();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case modulo_mint_mint:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Integer) stack[sp - 2]) % ((Integer) stack[sp - 1]);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case not_equal_mint_mint:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Integer) stack[sp - 2]) != ((Integer) stack[sp - 1]);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case not_mbool:
+//						assert arity == 1;
+//						b1 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+//						stack[sp - 1] = !b1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case or_mbool_mbool:
+//						assert arity == 2;
+//						b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+//						b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+//						stack[sp - 2] = b1 || b2;
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case power_mint_mint:
+//						assert arity == 2;
+//						int n1 = ((Integer) stack[sp - 2]);
+//						int n2 = ((Integer) stack[sp - 1]);
+//						int pow = 1;
+//						for(int i = 0; i < n2; i++){
+//							pow *= n1;
+//						}
+//						stack[sp - 2] = pow;
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case rbool:
+//						assert arity == 1;
+//						stack[sp -1] = (stack[sp -1] instanceof Boolean) ? vf.bool((Boolean) stack[sp - 2]) : (IBool) stack[sp - 1];
+//						continue NEXT_INSTRUCTION;
+//						
+//					case rint:
+//						assert arity == 1;
+//						stack[sp -1] = vf.integer((Integer) stack[sp -1]);
+//						continue NEXT_INSTRUCTION;
+//					
+//					case set2list:
+//						assert arity == 1;
+//						ISet set = (ISet) stack[sp - 1];
+//						writer = vf.listWriter();
+//						for(IValue elem : set){
+//							writer.append(elem);
+//						}
+//						stack[sp - 1] = writer.done();
+//						continue NEXT_INSTRUCTION;
+//						
+//					case size_array_or_list_or_set_or_map_or_tuple:
+//						assert arity == 1;
+//						if(stack[sp - 1] instanceof Object[]){
+//							stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
+//						} else if(stack[sp - 1] instanceof IList){
+//							stack[sp - 1] = ((IList) stack[sp - 1]).length();
+//						} else if(stack[sp - 1] instanceof ISet){
+//							stack[sp - 1] = ((ISet) stack[sp - 1]).size();
+//						} else if(stack[sp - 1] instanceof IMap){
+//							stack[sp - 1] = ((IMap) stack[sp - 1]).size();
+//						} else if(stack[sp - 1] instanceof ITuple){
+//							stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
+//						} else
+//							throw new RuntimeException("size_array_or_list_mint -- not defined on " + stack[sp - 1].getClass());
+//						continue NEXT_INSTRUCTION;
+//						
+//					case starts_with:
+//						assert arity == 3;
+//						IList sublist = (IList) stack[sp - 3];
+//						IList list = (IList) stack[sp - 2];
+//						int start = (Integer) stack[sp - 1];
+//						boolean eq = true;
+//						
+//						if(start + sublist.length() <= list.length()){
+//							for(int i = 0; i < sublist.length() && eq; i++){
+//								if(!sublist.get(i).equals(list.get(start + i))){
+//									eq = false;
+//								}
+//							}
+//						}
+//						stack[sp - 3] = eq;
+//						sp = sp - 2;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case sublist_list_mint_mint:
+//						assert arity == 3;
+//						IList lst = (IList) stack[sp - 3];
+//						int offset = ((Integer) stack[sp - 2]);
+//						int length = ((Integer) stack[sp - 1]);
+//						stack[sp - 3] = lst.sublist(offset, length);
+//						sp = sp - 2;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case subscript_array_or_list_or_tuple_mint:
+//						assert arity == 2;
+//						if(stack[sp - 2] instanceof Object[]){
+//							stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
+//						} else if(stack[sp - 2] instanceof IList){
+//							stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
+//						} else if(stack[sp - 2] instanceof ITuple){
+//							stack[sp - 2] = ((ITuple) stack[sp - 2]).get((Integer) stack[sp - 1]);
+//						} else
+//							throw new RuntimeException("subscript_array_or_list_mint -- Object[] or IList expected");
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					
+//						
+//					case subtype:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case typeOf:
+//						assert arity == 1;
+//						if(stack[sp - 1] instanceof Integer) {
+//							stack[sp - 1] = TypeFactory.getInstance().integerType();
+//						} else {
+//							stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+//						}
+//						continue NEXT_INSTRUCTION;
+//					
+//					case product_mint_mint:
+//						assert arity == 2;
+//						stack[sp - 2] = ((Integer) stack[sp - 2]) * ((Integer) stack[sp - 1]);
+//						sp = sp - 1;
+//						continue NEXT_INSTRUCTION;
+//						
+//					case values_map:
+//						assert arity == 1;
+//						map = ((IMap) stack[sp - 1]);
+//						writer = vf.listWriter();
+//						for(IValue key : map){
+//							writer.append(map.get(key));
+//						}
+//						stack[sp - 1] = writer.done();
+//						continue NEXT_INSTRUCTION;
+//					
+//					
+//					default:
+//						throw new RuntimeException("CALLMUPRIM -- unknown primitive");
+//					}
 					
 				case Opcode.OP_LABEL:
 					throw new RuntimeException("label instruction at runtime");
@@ -1320,7 +1348,28 @@ public class RVM {
 					}
 					stdout.println(w.toString());
 					sp = sp - arity + 1;
-					continue;		
+					continue;	
+					
+				case Opcode.OP_THROW:
+					IValue thrown = (IValue) stack[sp++];
+					// If no exception handler found in the scope of the current function, 
+					// re-throw it to the caller
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						int handler = f.function.getHandler(pc, thrown.getType());
+						if(handler != -1) {
+							pc = handler;
+							continue NEXT_INSTRUCTION;
+						} else {
+							cf = f;
+							instructions = cf.function.codeblock.getInstructions();
+							stack = cf.stack;
+							sp = cf.sp;
+							pc = cf.pc;
+							stack[sp++] = thrown;
+						}
+					}
+					
+					return vf.string("EXCEPTION: " + thrown);
 								
 				default:
 					throw new RuntimeException("RVM main loop -- cannot decode instruction");
@@ -1332,5 +1381,157 @@ public class RVM {
 		}
 		return Rascal_FALSE;
 	}
+	
+	int callJavaMethod(String methodName, String className, Type parameterTypes, Object[] stack, int sp){
+		Class<?> clazz;
+		try {
+			clazz = this.getClass().getClassLoader().loadClass(className);
+			Constructor<?> cons;
+			cons = clazz.getConstructor(IValueFactory.class);
+			Object instance = cons.newInstance(vf);
+
+			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes));
+			int nformals = parameterTypes.getArity();
+			Object[] parameters = new Object[nformals];
+			for(int i = 0; i < nformals; i++){
+				parameters[i] = stack[sp - nformals + i];
+			}
+			stack[sp - nformals] =  m.invoke(instance, parameters);
+			return sp - nformals + 1;
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (NoSuchMethodException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return sp;
+	}
+	
+	Class<?>[] makeJavaTypes(Type parameterTypes){
+		JavaClasses javaClasses = new JavaClasses();
+		Class<?>[] jtypes = new Class<?>[parameterTypes.getArity()];
 		
+		for(int i = 0; i < parameterTypes.getArity(); i++){
+			jtypes[i] = parameterTypes.getFieldType(i).accept(javaClasses);
+		}
+		return jtypes;
+	}
+	
+	private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {
+
+		@Override
+		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
+			return IBool.class;
+		}
+
+		@Override
+		public Class<?> visitReal(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IReal.class;
+		}
+
+		@Override
+		public Class<?> visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IInteger.class;
+		}
+		
+		@Override
+		public Class<?> visitRational(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IRational.class;
+		}
+		
+		@Override
+		public Class<?> visitNumber(org.eclipse.imp.pdb.facts.type.Type type) {
+			return INumber.class;
+		}
+
+		@Override
+		public Class<?> visitList(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IList.class;
+		}
+
+		@Override
+		public Class<?> visitMap(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IMap.class;
+		}
+
+		@Override
+		public Class<?> visitAlias(org.eclipse.imp.pdb.facts.type.Type type) {
+			return type.getAliased().accept(this);
+		}
+
+		@Override
+		public Class<?> visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IConstructor.class;
+		}
+
+		@Override
+		public Class<?> visitSet(org.eclipse.imp.pdb.facts.type.Type type) {
+			return ISet.class;
+		}
+
+		@Override
+		public Class<?> visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
+			return ISourceLocation.class;
+		}
+
+		@Override
+		public Class<?> visitString(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IString.class;
+		}
+
+		@Override
+		public Class<?> visitNode(org.eclipse.imp.pdb.facts.type.Type type) {
+			return INode.class;
+		}
+
+		@Override
+		public Class<?> visitConstructor(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IConstructor.class;
+		}
+
+		@Override
+		public Class<?> visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {
+			return ITuple.class;
+		}
+
+		@Override
+		public Class<?> visitValue(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IValue.class;
+		}
+
+		@Override
+		public Class<?> visitVoid(org.eclipse.imp.pdb.facts.type.Type type) {
+			return null;
+		}
+
+		@Override
+		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
+			return parameterType.getBound().accept(this);
+		}
+
+		@Override
+		public Class<?> visitExternal(
+				org.eclipse.imp.pdb.facts.type.Type externalType) {
+			return IValue.class;
+		}
+
+		@Override
+		public Class<?> visitDateTime(Type type) {
+			return IDateTime.class;
+		}
+	}
 }

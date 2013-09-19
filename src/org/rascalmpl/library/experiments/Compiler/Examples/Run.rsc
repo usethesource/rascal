@@ -1,7 +1,7 @@
 module experiments::Compiler::Examples::Run
 
 import Prelude;
-import experiments::Compiler::Compile;
+import experiments::Compiler::Execute;
 
 import experiments::Compiler::Examples::Bottles;
 import experiments::Compiler::Examples::Capture;
@@ -13,19 +13,22 @@ import experiments::Compiler::Examples::ListMatch;
 import experiments::Compiler::Examples::Odd;
 import experiments::Compiler::Examples::SendMoreMoney;
 import experiments::Compiler::Examples::SetMatch;
-import experiments::Compiler::Examples::Tmp;
 import experiments::Compiler::Examples::TestSuite;
 //import experiments::Compiler::Examples::Template;
 import experiments::Compiler::Examples::Overloading1;
 import experiments::Compiler::Examples::Overloading2;
 import experiments::Compiler::Examples::Overloading3;
+import experiments::Compiler::Examples::OverloadingMatch;
+import experiments::Compiler::Examples::OverloadingPlusBacktracking;
+import experiments::Compiler::Examples::ExceptionHandling1;
 
 loc base = |std:///experiments/Compiler/Examples/|;
 
-value demo(str example bool debug = false, bool listing=false, bool testsuite=false) =
-  execute(base + (example + ".rsc"), debug=debug, listing=listing, testsuite=testsuite);
 
-test bool tst() = demo("Bottles") == experiments::Compiler::Examples::Bottles::main([]);
+value demo(str example bool debug = false, bool listing=false, bool testsuite=false, bool recompile=false) =
+  execute(base + (example + ".rsc"), debug=debug, listing=listing, testsuite=testsuite, recompile=recompile);
+
+test bool tst0() = demo("Bottles") == experiments::Compiler::Examples::Bottles::main([]);
 test bool tst() = demo("Capture") == experiments::Compiler::Examples::Capture::main([]);
 test bool tst() = demo("D1D2") == experiments::Compiler::Examples::D1D2::main([]);
 test bool tst() = demo("Fac") == experiments::Compiler::Examples::Fac::main([]);
@@ -38,3 +41,5 @@ test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::Send
 test bool tst() = demo("Overloading1") == experiments::Compiler::Examples::Overloading1::main([]);
 test bool tst() = demo("Overloading2") == experiments::Compiler::Examples::Overloading2::main([]) && demo("Overloading1") == demo("Overloading2");
 test bool tst() = demo("Overloading3") == experiments::Compiler::Examples::Overloading3::main([]);
+test bool tst() = demo("OverloadingMatch") == experiments::Compiler::Examples::OverloadingMatch::main([]);
+test bool tst() = demo("OverloadingPlusBacktracking") == experiments::Compiler::Examples::OverloadingPlusBacktracking::main([]);

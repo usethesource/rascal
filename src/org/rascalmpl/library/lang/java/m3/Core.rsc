@@ -81,21 +81,21 @@ set[loc] files(rel[loc, loc] containment)
   = {e.lhs | tuple[loc lhs, loc rhs] e <- containment, isCompilationUnit(e.lhs)};
 
 rel[loc, loc] declaredMethods(M3 m, set[Modifier] checkModifiers = {}) {
-    declaredClasses = classes(m@containment);
+    declaredClasses = classes(m);
     methodModifiersMap = toMap(m@modifiers);
     
     return {e | tuple[loc lhs, loc rhs] e <- domainR(m@containment, declaredClasses), isMethod(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
 }
 
 rel[loc, loc] declaredFields(M3 m, set[Modifier] checkModifiers = {}) {
-    declaredClasses = classes(m@containment);
+    declaredClasses = classes(m);
     methodModifiersMap = toMap(m@modifiers);
     
     return {e | tuple[loc lhs, loc rhs] e <- domainR(m@containment, declaredClasses), isField(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
 }
 
 rel[loc, loc] declaredFieldsX(M3 m, set[Modifier] checkModifiers = {}) {
-    declaredClasses = classes(m@containment);
+    declaredClasses = classes(m);
     methodModifiersMap = toMap(m@modifiers);
     
     return {e | tuple[loc lhs, loc rhs] e <- domainR(m@containment, declaredClasses), isField(e.rhs), isEmpty(checkModifiers & (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {})) };
