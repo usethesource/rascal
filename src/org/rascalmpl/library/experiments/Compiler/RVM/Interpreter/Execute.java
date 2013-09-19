@@ -324,8 +324,9 @@ public class Execute {
 		}
 		
 		IList exceptions = (IList) declaration.get("exceptions");
-		
-		rvm.declare(new Function(name, ftype, scopeIn, nformals, nlocals, maxstack, codeblock));
+		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, maxstack, codeblock);
+		function.attachExceptionTable(exceptions, rvm);
+		rvm.declare(function);
 	}
 
 }
