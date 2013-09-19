@@ -41,13 +41,14 @@ import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
 import org.jgll.util.Input;
-import org.jgll.util.dot.GraphVizUtil;
-import org.jgll.util.dot.SPPFToDot;
-import org.jgll.util.dot.ToDotWithoutIntermeidateAndLists;
+import org.jgll.util.Visualization;
+import org.jgll.util.logging.LoggerWrapper;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
+	
+	private static final LoggerWrapper log = LoggerWrapper.getLogger(GrammarToJigll.class);
 	
 	private final IValueFactory vf;
 	
@@ -77,7 +78,7 @@ public class GrammarToJigll {
 	  
 	  parser = ParserFactory.levelParser(grammar);
 
-	  System.out.println("Jigll started.");
+	  log.info("Iguana started.");
 	  
 	  NonterminalSymbolNode sppf = null;
 
@@ -94,7 +95,7 @@ public class GrammarToJigll {
 	  long start = System.nanoTime();
 	  sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder()));
 	  long end = System.nanoTime();
-	  System.out.println("Flattening: " + (end - start) / 1000_000);
+	  log.info("Flattening: %d ms ", (end - start) / 1000_000);
 	  
 	  return ((Result<IConstructor>)sppf.getObject()).getObject();
 	}
@@ -111,8 +112,9 @@ public class GrammarToJigll {
 		  addExceptPatterns(builder, except);
 		  addPrecedencePatterns(builder, notAllowed);
 		  
-		  builder.rewriteExceptPatterns();
-		  builder.rewritePrecedencePatterns();
+		  builder.rewritePatterns();
+		  
+		  builder.leftFactorize();
 		  
 		  grammar = builder.build();
 	}
@@ -140,10 +142,8 @@ public class GrammarToJigll {
 		} catch(ParseError e) {
 			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(URI.create("nothing:///"), 0, 1), null, null);
 		}
-		
-		SPPFToDot toDot = new ToDotWithoutIntermeidateAndLists();
-		sppf.accept(toDot);
-		GraphVizUtil.generateGraph(toDot.getString(), path.getValue(), "graph");
+
+		Visualization.generateSPPFWithNonterminalNodesOnly(path.getValue(), sppf);
 	}
 	
 	private Condition getDeleteSet(IConstructor symbol) {
