@@ -611,7 +611,7 @@ public class RVM {
 					
 				case Opcode.OP_OCALLDYN:
 					arity = instructions[pc++];
-					// Objects of two types may appear on the stack:
+					// Objects of three types may appear on the stack:
 					// 	1. FunctionInstance due to closures
 					// 	2. OverloadedFunctionInstance due to named Rascal functions
 					Object funcObject = stack[--sp];
@@ -729,6 +729,24 @@ public class RVM {
 						Object rval = executeFunction(root, fun_instance, args);
 						if(rval == FAILURE) {
 							continue NEXT_FUNCTION;
+						} else if(rval instanceof Thrown) {
+							// Exception handling
+							IValue thrown = ((Thrown) rval).value;  
+							for(Frame f = cf; f != null; f = f.previousCallFrame) {
+								int handler = f.function.getHandler(pc, thrown.getType());
+								if(handler != -1) {
+									pc = handler;
+									continue NEXT_INSTRUCTION;
+								} else {
+									cf = f;
+									instructions = cf.function.codeblock.getInstructions();
+									stack = cf.stack;
+									sp = cf.sp;
+									pc = cf.pc;
+									stack[sp++] = thrown;
+								}
+							}
+							return (Thrown) rval;
 						} else {
 							if(rval != NONE) {
 								stack[sp++] = rval;
@@ -1351,7 +1369,7 @@ public class RVM {
 					continue;	
 					
 				case Opcode.OP_THROW:
-					IValue thrown = (IValue) stack[sp++];
+					IValue thrown = (IValue) stack[--sp];
 					// If no exception handler found in the scope of the current function, 
 					// re-throw it to the caller
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
@@ -1368,8 +1386,7 @@ public class RVM {
 							stack[sp++] = thrown;
 						}
 					}
-					
-					return vf.string("EXCEPTION: " + thrown);
+					return new Thrown(thrown);
 								
 				default:
 					throw new RuntimeException("RVM main loop -- cannot decode instruction");

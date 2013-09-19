@@ -60,7 +60,7 @@ public class Function {
 			String from = ((IString) tuple.get(0)).getValue();
 			String to = ((IString) tuple.get(1)).getValue();
 			Type type = rvm.symbolToType((IConstructor) tuple.get(2));
-			String handler = ((IString) tuple.get(1)).getValue();
+			String handler = ((IString) tuple.get(3)).getValue();
 			
 			froms[i] = codeblock.getLabelPC(from);
 			tos[i] = codeblock.getLabelPC(to);
