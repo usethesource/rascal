@@ -168,13 +168,19 @@ public class RVM {
 	 * @return converted result or an exception
 	 */
 	private IValue narrow(Object result){
-		if(result instanceof Boolean)
+		if(result instanceof Boolean) {
 			return vf.bool((Boolean) result);
-		if(result instanceof Integer)
+		}
+		if(result instanceof Integer) {
 			return vf.integer((Integer)result);
-		if(result instanceof IValue)
+		}
+		if(result instanceof IValue) {
 			return (IValue) result;
-		if(result instanceof Object[]){
+		}
+		if(result instanceof Thrown) {
+			return vf.string("EXCEPTION: " + ((Thrown) result).value.toString());
+		}
+		if(result instanceof Object[]) {
 			IListWriter w = vf.listWriter();
 			Object[] lst = (Object[]) result;
 			for(int i = 0; i < lst.length; i++){
@@ -245,6 +251,9 @@ public class RVM {
 		}
 		if(o instanceof Matcher){
 			return "Matcher[" + ((Matcher) o).pattern() + "]";
+		}
+		if(o instanceof Thrown) {
+			return "THROWN[ " + asString(((Thrown) o).value) + " ]";
 		}
 		
 		if(o instanceof StringBuilder){
@@ -729,12 +738,18 @@ public class RVM {
 						Object rval = executeFunction(root, fun_instance, args);
 						if(rval == FAILURE) {
 							continue NEXT_FUNCTION;
-						} else if(rval instanceof Thrown) {
+						} 
+						else if(rval instanceof Thrown) {
 							// Exception handling
 							IValue thrown = ((Thrown) rval).value;  
+							// First, try to find a handler in the current frame function,
+							// given the current instruction index and the value type,
+							// then, if not found, look up the caller function(s)
 							for(Frame f = cf; f != null; f = f.previousCallFrame) {
 								int handler = f.function.getHandler(pc, thrown.getType());
 								if(handler != -1) {
+									// Put the thrown value on the stack
+									stack[sp++] = thrown;
 									pc = handler;
 									continue NEXT_INSTRUCTION;
 								} else {
@@ -746,7 +761,9 @@ public class RVM {
 									stack[sp++] = thrown;
 								}
 							}
+							// If a handler has not been found in the caller functions...
 							return (Thrown) rval;
+							
 						} else {
 							if(rval != NONE) {
 								stack[sp++] = rval;
@@ -1370,11 +1387,14 @@ public class RVM {
 					
 				case Opcode.OP_THROW:
 					IValue thrown = (IValue) stack[--sp];
-					// If no exception handler found in the scope of the current function, 
-					// re-throw it to the caller
+					// First, try to find a handler in the current frame function,
+					// given the current instruction index and the value type,
+					// then, if not found, look up the caller function(s)
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
 						int handler = f.function.getHandler(pc, thrown.getType());
 						if(handler != -1) {
+							// Put the thrown value back on the stack
+							stack[sp++] = thrown;
 							pc = handler;
 							continue NEXT_INSTRUCTION;
 						} else {
@@ -1386,6 +1406,7 @@ public class RVM {
 							stack[sp++] = thrown;
 						}
 					}
+					// If a handler has not been found in the caller functions...
 					return new Thrown(thrown);
 								
 				default:

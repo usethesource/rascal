@@ -43,3 +43,4 @@ test bool tst() = demo("Overloading2") == experiments::Compiler::Examples::Overl
 test bool tst() = demo("Overloading3") == experiments::Compiler::Examples::Overloading3::main([]);
 test bool tst() = demo("OverloadingMatch") == experiments::Compiler::Examples::OverloadingMatch::main([]);
 test bool tst() = demo("OverloadingPlusBacktracking") == experiments::Compiler::Examples::OverloadingPlusBacktracking::main([]);
+test bool tst() = demo("ExceptionHandling1") == experiments::Compiler::Examples::ExceptionHandling1::main([]);
