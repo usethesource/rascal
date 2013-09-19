@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -374,7 +373,7 @@ public class RVM {
 	// TODO: Need to re-consider management of active coroutines
 	public Object executeProgram(Frame root, Frame cf) {
 		Object[] stack = cf.stack;		                              // current stack
-		int sp = cf.function.nlocals;				                  // current stacp pointer
+		int sp = cf.function.nlocals;				                  // current stack pointer
 		int[] instructions = cf.function.codeblock.getInstructions(); // current instruction sequence
 		int pc = 0;				                                      // current program counter
 				
@@ -1352,8 +1351,25 @@ public class RVM {
 					continue;	
 					
 				case Opcode.OP_THROW:
-					IValue throwVal = (IValue) stack[sp++];
-					continue;
+					IValue thrown = (IValue) stack[sp++];
+					// If no exception handler found in the scope of the current function, 
+					// re-throw it to the caller
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						int handler = f.function.getHandler(pc, thrown.getType());
+						if(handler != -1) {
+							pc = handler;
+							continue NEXT_INSTRUCTION;
+						} else {
+							cf = f;
+							instructions = cf.function.codeblock.getInstructions();
+							stack = cf.stack;
+							sp = cf.sp;
+							pc = cf.pc;
+							stack[sp++] = thrown;
+						}
+					}
+					
+					return vf.string("EXCEPTION: " + thrown);
 								
 				default:
 					throw new RuntimeException("RVM main loop -- cannot decode instruction");
