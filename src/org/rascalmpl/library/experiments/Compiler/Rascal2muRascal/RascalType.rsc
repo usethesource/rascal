@@ -52,7 +52,7 @@ Symbol translateType(t : (TypeArg) `<Type tp>`)  = translateType(tp);
 Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label(getSimpleName(convertName(name)), translateType(tp));
 
 Symbol translateType(t: (FunctionType) `<Type \type> (<{TypeArg ","}* args>)`) = 
-									\func(translateType(ret), [ translateType(arg) | arg <- args]);
+									\func(translateType(\type), [ translateType(arg) | arg <- args]);
 									
 Symbol translateType(t: (UserType) `<QualifiedName name>`) {
 	rn = convertName(name);
