@@ -463,6 +463,10 @@ public enum MuPrimitive {
 		return sp;
 	}
 	
+	/*
+	 * Regular expressions
+	 */
+	
 	public static int regexp_compile(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		String RegExpAsString = ((IString)stack[sp - 2]).getValue();
@@ -491,7 +495,11 @@ public enum MuPrimitive {
 		return sp - 1;
 	}
 		
-		
+	/*
+	 * rint -- convert muRascal int (mint) to Rascal intt (rint)
+	 * 
+	 * 	
+	 */
 	public static int rint(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = vf.integer((Integer) stack[sp -1]);
