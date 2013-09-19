@@ -80,8 +80,6 @@ public class Function {
 						return handlers[i];
 					}
 				}
-			} else {
-				return -1;
 			}
 			i++;
 		}
