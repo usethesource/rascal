@@ -160,6 +160,11 @@ tuple[str fuid,int pos] getVariableScope(str name, loc l) {
   return addr;
 }
 
+MuExp mkVarRef(str name, loc l){
+  <fuid, pos> = getVariableScope("<name>", l);
+  return muVarRef("<name>", fuid, pos);
+}
+
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
   //println("mkAssign: <name>");
@@ -200,7 +205,6 @@ void extractScopes(){
                                              println(config.store[uid]);
                                              println(config.functionModifiers[uid]);
                                              if(defaultModifier() in config.functionModifiers[uid]) {
-                                             	println("FOUND DEFAULT");
                                              	defaultFunctions += {uid};
                                              }
                                            }
@@ -318,16 +322,20 @@ void extractScopes(){
         }
     }
     
-    // Fill in uid2addr for overloaded functions; TODO: add the 'scopeIn' field to the 'overload' computed by the type checker
+    // Fill in uid2addr for overloaded functions;
     for(int fuid <- ofunctions) {
     	set[int] funs = config.store[fuid].items;
     	set[str] scopes = {};
-    	str scopeIn = "";
+    	str scopeIn = uid2str(0);
     	for(int fuid <- funs) {
-    		scopeIn = uid2addr[fuid].fuid;
-    		scopes += scopeIn;
+    		funScopeIn = uid2addr[fuid].fuid;
+    		if(funScopeIn notin moduleNames) {
+    			scopes += funScopeIn;
+    		}
     	}
-    	assert size(scopes) == 1;
+    	// The alternatives of the overloaded function may come from different scopes 
+    	// but only in case of module scopes;
+    	assert size(scopes) == 0 || size(scopes) == 1;
     	uid2addr[fuid] = <scopeIn,-1>;
     }
 
@@ -369,11 +377,11 @@ public bool isAlias(AbstractValue::\alias(_,_,_,_)) = true;
 public default bool isAlias(AbstractValue _) = false;
 
 public bool hasField(Symbol s, str fieldName){
-    println("hasField: <s>, <fieldName>");
+    //println("hasField: <s>, <fieldName>");
 
     if(isADTType(s)){
        s2v = symbolToValue(s, config);
-       println("s2v = <s2v>");
+       //println("s2v = <s2v>");
     }
     // TODO: this is too liberal, restrict to outer type.
     visit(s){

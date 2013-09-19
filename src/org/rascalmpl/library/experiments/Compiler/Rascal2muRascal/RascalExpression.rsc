@@ -69,6 +69,8 @@ MuExp translate((Literal) `<BooleanLiteral b>`) = "<b>" == "true" ? muCon(true) 
  
 MuExp translate((Literal) `<IntegerLiteral n>`) = muCon(toInt("<n>"));
 
+MuExp translate((Literal) `<RegExpLiteral r>`) { throw "RexExpLiteral cannot occur in expression"; }
+
 MuExp translate((Literal) `<StringLiteral n>`) = translateStringLiteral(n);
 
 default MuExp translate((Literal) `<Literal s>`) =  muCon(readTextValueString("<s>"));
@@ -138,7 +140,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                return t == ftype;
            }           
            if(isOverloadedType(ftype)) {
-               return t in ftype.overloads;
+               return t in (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype));
            }
            throw "Ups, unexpected type of the call receiver expression!";
        }
@@ -165,7 +167,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
       throw "The use of a function has to be managed via overloading resolver!";
    }
    // Push down additional information if the overloading resolution needs to be done at runtime
-   return muOCall(receiver, isFunctionType(ftype) ? { ftype } : ftype.overloads , args);
+   return muOCall(receiver, isFunctionType(ftype) ? { ftype } : (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), args);
 }
 
 // Any
@@ -197,10 +199,14 @@ MuExp translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) =
 // It in reducer
 MuExp translate (e:(Expression) `it`) = muTmp(topIt());
  
- // Qualifid name
+ // Qualified name
 MuExp translate(q:(QualifiedName) `<QualifiedName v>`) = mkVar("<v>", v@\loc);
 
 MuExp translate((Expression) `<QualifiedName v>`) = translate(v);
+
+// For the benefit of names in regular expressions
+
+MuExp translate((Name) `<Name name>`) = mkVar("<name>", name@\loc);
 
 // Subscript
 MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`){
@@ -356,7 +362,8 @@ MuExp translate(e:(Expression) `<Expression lhs> || <Expression rhs>`)  = transl
  
 // Conditional Expression
 MuExp translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = 
-    muIfelse(makeMuAll([translate(condition)]), [translate(thenExp)],  [translate(elseExp)]); 
+	// Label (used to backtrack) here is not important as it is not allowed to have 'fail' in conditional expressions 
+    muIfelse(nextLabel(),makeMuAll([translate(condition)]), [translate(thenExp)],  [translate(elseExp)]); 
 
 // Default: should not happen
 default MuExp translate(Expression e) {
@@ -397,10 +404,8 @@ MuExp translateBool((Expression) `<Expression lhs> \<==\> <Expression rhs>`) = t
 
 MuExp translateBool((Expression) `! <Expression lhs>`) = translateBoolNot(lhs);
  
- MuExp translateBool((Expression) `<Pattern pat> := <Expression exp>`)  {
-   println("translateBool: <pat> := <exp>");
-   return muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]));
-} 
+ MuExp translateBool((Expression) `<Pattern pat> := <Expression exp>`)  =
+   muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]));
 
 // All other expressions are translated as ordinary expression
 
@@ -441,7 +446,8 @@ MuExp translateBoolNot(Expression lhs){
 
 /*********************************************************************/
 /*      Auxiliary functions for translating various constructs       */
-/*********************************************************************/
+/*********************************************************************
+
 
 // Translate a string literals and string templates
 
@@ -458,7 +464,6 @@ lexical MidStringChars
 	
 lexical PostStringChars
 	= @category="Constant" [\>] StringCharacter* [\"] ;
-	
 */	
 
 MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <StringTemplate template> <StringTail tail>`) =  
@@ -521,7 +526,7 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
    
 // Translate a closure   
  
- MuExp translateClosure(Expression e, Parameters parameters, Statement* statements) {
+ MuExp translateClosure(Expression e, Parameters parameters, Statement+ statements) {
  	uid = loc2uid[e@\loc];
 	fuid = uid2str(uid);
     ftype = getClosureType(e@\loc);
@@ -530,7 +535,7 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
 	bool isVarArgs = (varArgs(_,_) := parameters);
   	// TODO: keyword parameters
     
-    MuExp body = translateFunction(parameters.formals.formals, muBlock([ translate(stat) | stat <- statements ]));
+    MuExp body = translateFunction(parameters.formals.formals, statements);
     tuple[str fuid,int pos] addr = uid2addr[uid];
     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  nformals, nlocals, e@\loc, [], (), body);
@@ -600,9 +605,7 @@ MuExp translateSetOrList(es, str kind){
        writer = nextTmp();
        enterWriter(writer);
        code = [ muAssignTmp(writer, muCallPrim("<kind>writer_open", [])) ];
-       println("es = <es>");
        for(elem <- es){
-           println("elem = <elem>");
            if(elem is splice){
               code += muCallPrim("<kind>writer_splice", [muTmp(writer), translate(elem.argument)]);
             } else {

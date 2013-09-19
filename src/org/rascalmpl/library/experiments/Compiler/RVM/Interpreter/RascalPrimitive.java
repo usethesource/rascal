@@ -50,20 +50,13 @@ import org.rascalmpl.values.ValueFactoryFactory;
  */
 
 public enum RascalPrimitive {
-	appendAfter,
 
-	elm_add_list,
-	list_add_elm,
-	list_add_list,
-	map_add_map,
-	tuple_add_tuple,
+	// add
 
 	int_add_int,
 	int_add_num,
 	int_add_rat,
 	int_add_real,
-	
-	int_mod_int,
 
 	num_add_int,
 	num_add_num,
@@ -84,23 +77,36 @@ public enum RascalPrimitive {
 	set_add_elm,
 	set_add_set,
 	str_add_str,
+	elm_add_list,
+	list_add_elm,
+	list_add_list,
+	loc_add_str,
+	map_add_map,
+	tuple_add_tuple,
 	
-	str_addindented_str,
-	str_remove_margins,
+	// adt
 	
 	adt_field_access,
 	adt_field_update,
 	adt_subscript_int,
 	adt_update,
 	
+	// annotation
+	
 	annotation_get,
 	annotation_set,
 
+	// compose
+	
 	lrel_compose_lrel,
 	rel_compose_rel,
 	map_compose_map,
 	
+	// datetime
+	
 	datetime_field_access,
+	
+	// divide
 	
 	int_divide_int,
 	int_divide_num,
@@ -122,9 +128,11 @@ public enum RascalPrimitive {
 	real_divide_real,
 	real_divide_rat,
 	
+	// equal
+	
 	equal,
 	
-	//equivalent_bool_bool,
+	// greater
 
 	int_greater_int,
 	int_greater_num,
@@ -146,7 +154,14 @@ public enum RascalPrimitive {
 	real_greater_real,
 	real_greater_rat,
 
+	datetime_greater_datetime,
+	list_greater_list,
+	loc_greater_loc,
+	map_greater_map,
+	set_greater_set,
 	str_greater_str,
+	
+	// greaterequal
 
 	int_greaterequal_int,
 	int_greaterequal_num,
@@ -168,16 +183,28 @@ public enum RascalPrimitive {
 	real_greaterequal_real,
 	real_greaterequal_rat,
 
+	datetime_greaterequal_datetime,
+	list_greaterequal_list,
+	loc_greaterequal_loc,
+	map_greaterequal_map,
+	set_greaterequal_set,
 	str_greaterequal_str,
-	str_subscript_int,
-
-	has,
+	
+	//has,
+	
+	// intersect
+	
 	set_intersect_set,
 	list_intersect_list,
 	map_intersect_map,
+	
+	// in
+	
 	elm_in_list,
 	elm_in_set,
 	elm_in_map,
+	
+	// is
 	
 	is,
 	
@@ -196,7 +223,14 @@ public enum RascalPrimitive {
 	is_set,
 	is_str,
 	is_tuple,
+	
+	// join
+	list_join_list,
+	lrel_join_lrel,
+	set_join_set,
 
+	// less
+	
 	int_less_int,
 	int_less_num,
 	int_less_rat,
@@ -216,9 +250,17 @@ public enum RascalPrimitive {
 	real_less_int,
 	real_less_real,
 	real_less_rat,
-
+	
+	datetime_less_datetime,
+	list_less_list,
+	loc_less_loc,
+	map_less_map,
+	set_less_set,
 	str_less_str,
 
+
+	// lessequal
+	
 	int_lessequal_int,
 	int_lessequal_num,
 	int_lessequal_rat,
@@ -239,9 +281,15 @@ public enum RascalPrimitive {
 	real_lessequal_real,
 	real_lessequal_rat,
 
+	datetime_lessequal_datetime,
+	list_lessequal_list,
+	loc_lessequal_loc,
+	map_lessequal_map,
 	set_lessequal_set,
 	str_lessequal_str,
 	
+	
+	// list
 	list_size,
 	list_create,
 	list_replace,
@@ -254,7 +302,11 @@ public enum RascalPrimitive {
 	listwriter_open,
 	listwriter_splice,
 	
+	// loc
+	
 	loc_field_access,
+	
+	// map
 	
 	map_create,
 	map_subscript,
@@ -264,24 +316,39 @@ public enum RascalPrimitive {
 	mapwriter_close,
 	mapwriter_open,
 	
+	// modulo
+	
+	int_mod_int,
+	
+	// negative 
 	negative_int,
 	negative_real,
 	negative_rat,
 	negative_num,
+	
+	// node
 	
 	node_create,
 	node_replace,
 	node_subscript_int,
 	node_slice,
 	
-	//not_bool,
-	notequal,
+	// notequal
+	
+	notequal, 
+	
+	// notin
+	
 	elm_notin_list,
 	elm_notin_set,
 	elm_notin_map,
-	//or_bool_bool,
+
+	// println
+	
 	println,
 
+	// product
+	
 	int_product_int,
 	int_product_num,
 	int_product_rat,
@@ -301,8 +368,15 @@ public enum RascalPrimitive {
 	real_product_int,
 	real_product_real,
 	real_product_rat,
-
+	
+	list_product_list,
+	set_product_set,
+	
+	// remainder
+	
 	int_remainder_int,
+	
+	// set
 	
 	set_create,
 	
@@ -311,20 +385,24 @@ public enum RascalPrimitive {
 	setwriter_open,
 	setwriter_splice,
 	
+	// str
+	
+	str_subscript_int,
 	str_replace,
 	str_slice,
+	str_addindented_str,
+	str_remove_margins,
 	
 	stringwriter_open,
 	stringwriter_add,
 	stringwriter_close,
+	
+	str_escape_for_regexp,
 
 	sublist,
 
-	list_subtract_list,
-	map_subtract_map,
-	set_subtract_set,
-	set_subtract_elm,
-
+	// subtract
+	
 	int_subtract_int,
 	int_subtract_num,
 	int_subtract_rat,
@@ -345,21 +423,31 @@ public enum RascalPrimitive {
 	real_subtract_real,
 	real_subtract_rat,
 	
+	list_subtract_list,
+	map_subtract_map,
+	set_subtract_set,
+	set_subtract_elm,
+	
+	// report
+	
 	assertreport,
 	testreport_add,
 	testreport_close,
 	testreport_open,
 	
+	// transitive closure
 	lrel_transitive_closure,
 	rel_transitive_closure,
 	lrel_transitive_reflexive_closure,
 	rel_transitive_reflexive_closure,
 	
-	
+	// template
 	
 	template_open,
 	template_add,
 	template_close,
+	
+	// tuple
 	
 	tuple_field_access,
 	tuple_field_project,
@@ -367,9 +455,12 @@ public enum RascalPrimitive {
 	tuple_subscript_int,
 	tuple_update,
 
+	// type
 	type_equal_type,
 	subtype,
 	typeOf,
+	
+	// Other
 	value_to_string
 	;
 
@@ -463,7 +554,7 @@ public enum RascalPrimitive {
 	}
 	
 	/*
-	 * add_to_...writer
+	 * ...writer_add
 	 */
 	public static int listwriter_add(Object[] stack, int sp, int arity) {
 		assert arity > 0;
@@ -604,6 +695,16 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IList) stack[sp - 2]).concat((IList) stack[sp - 1]);
 		return sp - 1;
 	}
+	
+	public static int list_add_elm(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int loc_add_str(Object[] stack, int sp, int arity) {
+		throw new RuntimeException("Not implemented");
+	}
 
 	public static int map_add_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -611,11 +712,6 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 
-	public static int list_add_elm(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
-		return sp - 1;
-	}
 
 	public static int elm_add_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -646,6 +742,22 @@ public enum RascalPrimitive {
 		
 		stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
 		return sp - 1;
+	}
+	
+	public static int str_escape_for_regexp(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		String s = ((IString) stack[sp - 1]).getValue();
+		StringBuilder b = new StringBuilder();
+		
+		for (int i = 0; i < s.length(); i++) {
+			char ch = s.charAt(i);
+			if ("^.|?*+()[\\".indexOf(ch) != -1) {
+				b.append('\\');
+			}
+			b.append(ch);
+		}
+		stack[sp - 1] = vf.string(b.toString());
+		return sp;
 	}
 	
 	/*
@@ -748,15 +860,6 @@ public enum RascalPrimitive {
 		for(int i = 0; i < len2; i++)
 			elems[len1 + i] = t2.get(i);
 		stack[sp - 2] = vf.tuple(elems);
-		return sp - 1;
-	}
-
-	/*
-	 * appendAfter
-	 */
-	public static int appendAfter(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
 
@@ -1260,6 +1363,35 @@ public enum RascalPrimitive {
 	}
 
 	// greater on other types
+	
+	public static int datetime_greater_datetime(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == 1;
+		return sp - 1;
+	}
+	
+	public static int list_greater_list(Object[] stack, int sp, int arity) {
+		int spnew = list_lessequal_list(stack, sp, arity);
+		stack[sp - 2] = ! (Boolean) stack[sp - 2];
+		return spnew;
+	}
+	
+	public static int loc_greater_loc(Object[] stack, int sp, int arity) {
+		throw new RuntimeException("Not implemented");
+	}
+	
+	public static int map_greater_map(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IMap) stack[sp - 2]).isSubMap((IMap) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int set_greater_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]);
+		return sp - 1;
+	}
+	
 	public static int str_greater_str(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]) == 1;
@@ -1356,6 +1488,39 @@ public enum RascalPrimitive {
 	}
 
 	// greaterequal on other types
+	
+	public static int datetime_greaterequal_datetime(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == 1;
+		return sp - 1;
+	}
+	
+	public static int list_greaterequal_list(Object[] stack, int sp, int arity) {
+		int spnew = list_less_list(stack, sp, arity);
+		stack[sp - 2] = !(Boolean)stack[sp - 2];
+		return spnew;
+	}
+	
+	public static int loc_greaterequal_loc(Object[] stack, int sp, int arity) {
+		throw new RuntimeException("Not implemented");
+	}
+	
+	public static int map_greaterequal_map(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IMap left = (IMap) stack[sp - 2];
+		IMap right = (IMap) stack[sp - 1];
+		stack[sp - 2] = left.isEqual(right) || right.isSubMap(left);
+		return sp - 1;
+	}
+	
+	public static int set_greaterequal_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet left = (ISet) stack[sp - 2];
+		ISet right = (ISet) stack[sp - 1];
+		stack[sp - 2] = left.isEqual(right) || right.isSubsetOf(left);
+		return sp - 1;
+	}
+	
 	public static int str_greaterequal_str(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
@@ -1367,18 +1532,18 @@ public enum RascalPrimitive {
 	 * has
 	 */
 	
-	public static int has(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		IValue val = ((IValue) stack[sp - 2]);
-		String fieldName = ((IString) stack[sp - 1]).getValue();
-		stdout.println("type = " + val.getType());
-		if(val.getType().isAbstractData()){
-			stack[sp - 2] = ((IConstructor)val).getConstructorType().hasField(fieldName);
-		} else {
-			stack[sp - 2] = val.getType().hasField(fieldName);
-		}
-		return sp - 1;
-	}
+//	public static int has(Object[] stack, int sp, int arity) {
+//		assert arity == 2;
+//		IValue val = ((IValue) stack[sp - 2]);
+//		String fieldName = ((IString) stack[sp - 1]).getValue();
+//		stdout.println("type = " + val.getType());
+//		if(val.getType().isAbstractData()){
+//			stack[sp - 2] = ((IConstructor)val).getConstructorType().hasField(fieldName);
+//		} else {
+//			stack[sp - 2] = val.getType().hasField(fieldName);
+//		}
+//		return sp - 1;
+//	}
 
 	/*
 	 * implies
@@ -1546,9 +1711,7 @@ public enum RascalPrimitive {
 		return sp;
 	}
 
-	/*
-	 * insertBefore
-	 */
+	
 	/*
 	 * intersect
 	 * 
@@ -1570,6 +1733,37 @@ public enum RascalPrimitive {
 	/*
 	 * join
 	 */
+	public static int list_join_list(Object[] stack, int sp, int arity) {
+		return list_product_list(stack, sp, arity);
+	}
+	
+	public static int lrel_join_lrel(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+//		IListRelation left = (IListRelation) stack[sp - 2];
+//		IListRelation right = (IListRelation) stack[sp - 1];
+//		int larity = left.arity();
+//		int rarity = right.arity();
+//		IValue fieldValues[] = new IValue[larity + rarity];
+//		IListWriter w =vf.listWriter();
+//		for (IValue ltuple : left.asList().
+//					
+//					get(j);
+//			for (IValue rtuple: right.asList().) {
+//				for (int i = 0; i < larity; i++) {
+//					fieldValues[i] = ((ITuple)ltuple).get(i);
+//				}
+//				for (int i = larity; i < larity + rarity; i++) {
+//					fieldValues[i] = ((ITuple)rtuple).get(i - larity);
+//				}
+//				w.append(vf.tuple(fieldValues));
+//			}
+		return sp - 1;
+	}
+	
+	public static int set_join_set(Object[] stack, int sp, int arity) {
+		return list_product_list(stack, sp, arity);
+	}
+	
 	/*
 	 * lessThan
 	 */
@@ -1659,14 +1853,57 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	// less on other types
+	
+	public static int datetime_less_datetime(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == -1;
+		return sp - 1;
+	}
+	
+	public static int list_less_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+		stack[sp - 2] = false;
+
+		if(left.length() > right.length()){
+			return sp - 1;
+		}
+		OUTER:for (int l = 0, r = 0; l < left.length(); l++) {
+			for (r = Math.max(l, r) ; r < right.length(); r++) {
+				if (left.get(l).isEqual(right.get(r))) {
+					r++;
+					continue OUTER;
+				}
+			}
+			return sp - 1;
+		}
+		stack[sp - 2] = left.length() != right.length();
+		return sp - 1;
+	}
+	
+	public static int loc_less_loc(Object[] stack, int sp, int arity) {
+		throw new RuntimeException("Not implemented");
+	}
+	
+	public static int map_less_map(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IMap) stack[sp - 2]).isSubMap((IMap) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int set_less_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ISet) stack[sp - 2]).isSubsetOf((ISet) stack[sp - 1]);
+		return sp - 1;
+	}
+	
 	public static int str_less_str(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
 		stack[sp - 2] = c == -1;
 		return sp - 1;
 	}
-
-
 
 	/*
 	 * lessequal
@@ -1759,12 +1996,58 @@ public enum RascalPrimitive {
 
 	// lessequal on other types
 	
-	public static int set_lessequal_set(Object[] stack, int sp, int arity) {
+	public static int datetime_lessequal_datetime(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((ISet) stack[sp - 2]).isSubsetOf((ISet) stack[sp - 1]);
+		int c = ((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]);
+		stack[sp - 2] =  c == -1 || c == 0;
 		return sp - 1;
 	}
 	
+	public static int list_lessequal_list(Object[] stack, int sp, int arity) {
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+
+		stack[sp - 2] = false;
+		if (left.length() == 0) {
+			stack[sp - 2] = true;
+			return sp - 1;
+		}
+		else if (left.length() > right.length()) {
+			return sp - 1;
+		}
+
+		OUTER:for (int l = 0, r = 0; l < left.length(); l++) {
+			for (r = Math.max(l, r) ; r < right.length(); r++) {
+				if (left.get(l).isEqual(right.get(r))) {
+					continue OUTER;
+				}
+			}
+			return sp - 1;
+		}
+
+		stack[sp - 2] = left.length() <= right.length();
+		return sp - 1;
+	}
+	
+	public static int loc_lessequal_loc(Object[] stack, int sp, int arity) {
+		throw new RuntimeException("Not implemented");
+	}
+	
+	public static int map_lessequal_map(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IMap left = (IMap) stack[sp - 2];
+		IMap right = (IMap) stack[sp - 1];
+		stack[sp - 2] = left.isEqual(right) || left.isSubMap(right);
+		return sp - 1;
+	}
+	
+	public static int set_lessequal_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet left = (ISet) stack[sp - 2];
+		ISet right = (ISet) stack[sp - 1];
+		stack[sp - 2] = left.isEqual(right) || left.isSubsetOf(right);
+		return sp - 1;
+	}	
 	
 	public static int str_lessequal_str(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -2073,18 +2356,21 @@ public enum RascalPrimitive {
 	
 	public static int stringwriter_open(Object[] stack, int sp, int arity) {
 		assert arity == 0;
-		stack[sp] = vf.string("");
+		stack[sp] = new StringBuilder();
 		return sp + 1;
 	}
 	
 	public static int stringwriter_add(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IString) stack[sp - 2]).concat(((IString) stack[sp - 1]));
+		StringBuilder b = (StringBuilder) stack[sp - 2];
+		stack[sp - 2] = b.append(((IString) stack[sp - 1]).getValue());
 		return sp - 1;
 	}
 	
 	public static int stringwriter_close(Object[] stack, int sp, int arity) {
 		assert arity == 1;
+		StringBuilder b = (StringBuilder) stack[sp - 1];
+		stack[sp - 1] = vf.string(b.toString());
 		return sp;
 	}
 	
@@ -2238,6 +2524,33 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
+	public static int list_product_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+		IListWriter w = vf.listWriter();
+		for(IValue l : left){
+			for(IValue r : right){
+				w.append(vf.tuple(l,r));
+			}
+		}
+		stack[sp - 2] = w.done();
+		return sp - 1;
+	}
+	
+	public static int set_product_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet left = (ISet) stack[sp - 2];
+		ISet right = (ISet) stack[sp - 1];
+		ISetWriter w = vf.setWriter();
+		for(IValue l : left){
+			for(IValue r : right){
+				w.insert(vf.tuple(l,r));
+			}
+		}
+		stack[sp - 2] = w.done();
+		return sp - 1;
+	}
 	
 	/*
 	 * remainder
@@ -2321,16 +2634,6 @@ public enum RascalPrimitive {
 	}
 
 	/*
-	 * negation
-	 */
-
-//	public static int not_bool(Object[] stack, int sp, int arity) {
-//		assert arity == 1;
-//		stack[sp - 1] = ((IBool) stack[sp - 1]).not();
-//		return sp;
-//	}
-
-	/*
 	 * notequal
 	 */
 
@@ -2368,17 +2671,6 @@ public enum RascalPrimitive {
 		stack[sp - 1] = ((INumber) stack[sp - 1]).negate();
 		return sp;
 	}
-	
-
-	/*
-	 * or
-	 */
-
-//	public static int or_bool_bool(Object[] stack, int sp, int arity) {
-//		assert arity == 2;
-//		stack[sp - 2] = ((IBool) stack[sp - 2]).or((IBool) stack[sp - 1]);
-//		return sp - 1;
-//	}
 
 	/*
 	 * println
@@ -2388,17 +2680,6 @@ public enum RascalPrimitive {
 		stdout.println(">>>>> " + stack[sp - 1]);
 		return sp;
 	}
-
-	
-
-
-	/*
-	 * slice
-	 */
-
-	/*
-	 * setAnnotation
-	 */
 
 	/*
 	 * subscript
@@ -2443,7 +2724,6 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	
 	public static int tuple_subscript_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ITuple tup = (ITuple) stack[sp - 2];
@@ -2463,7 +2743,6 @@ public enum RascalPrimitive {
 	 * }
 	 */
 
-	// Numbers
 	// int
 	public static int int_subtract_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -2549,7 +2828,6 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 
-
 	public static int list_subtract_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
@@ -2584,7 +2862,6 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-
 	/*
 	 * transitiveClosure
 	 * 
@@ -2671,7 +2948,9 @@ public enum RascalPrimitive {
 		return sp - 2;
 	}
 	
-	
+	/*
+	 * Miscellaneous
+	 */
 	
 	public static int value_to_string(Object[] stack, int sp, int arity) {
 		assert arity == 1;
@@ -2692,7 +2971,6 @@ public enum RascalPrimitive {
 		init(ValueFactoryFactory.getValueFactory(), null, null);
 		System.err.println("RascalPrimitives have been validated!");
 	}
-
 }
 
 class SliceDescriptor{

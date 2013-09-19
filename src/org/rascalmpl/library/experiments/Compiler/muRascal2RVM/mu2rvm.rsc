@@ -27,6 +27,7 @@ int nlocal = 0;
 str mkContinue(str loopname) = "CONTINUE_<loopname>";
 str mkBreak(str loopname) = "BREAK_<loopname>";
 str mkFail(str loopname) = "FAIL_<loopname>";
+str mkElse(str branchname) = "ELSE_<branchname>";
 
 int defaultStackSize = 25;
 
@@ -46,25 +47,6 @@ int getTmp(str name){
    return n;		
 }
 
-public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
-public loc LibraryPrecompiled = |std:///experiments/Compiler/muRascal2RVM/Library.muast|;
-
-map[str,Declaration] parseLibrary(){
-    println("mu2rvm: Recompiling library.mu");
- 	libModule = parse(Library);
- 	funMap = ();
- 
-  	for(fun <- libModule.functions){
-  	    required_frame_size = fun.nlocals + estimate_stack_size(fun.body);
-    	funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, fun.nlocals, required_frame_size, tr(fun.body)));
-  	}
-  
-  	writeTextValueFile(LibraryPrecompiled, funMap);
-    println("mu2rvm: Written compiled version of Library.mu");
-  	
-  	return funMap;
-}
-
 // Does an expression produce a value? (needed for cleaning up the stack)
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
@@ -73,64 +55,83 @@ bool producesValue(muReturn()) = false;
 bool producesValue(muNext(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
 
+// Management needed to compute exception tables
+
+// Stack of try blocks (potentially nested)
+lrel[str from, str to, Symbol \type, str target] tryBlocks = [];
+
+// Instruction block of all the catch blocks within a function body in the order they appear in the code
+INS catchBlocks = [];
+
+// Functions to manage the try block stack
+void enterTry(str from, str to, Symbol \type, str target) {
+	tryBlocks = <from,to,\type,target> + tryBlocks;
+}
+
+void leaveTry() {
+	tryBlocks = tail(tryBlocks);
+}
+
+// Get the label of a top try block
+tuple[str from, str to, Symbol \type, str target] topTry() = top(tryBlocks);
+// Get the label of a top try block of a try catch clause
+tuple[str from, str to, Symbol \type, str target] topTryOfCatch() = top(tail(tryBlocks));
+
+// As we use label names to mark try blocks (excluding 'catch' clauses)
+lrel[str from, str to, Symbol \type, str target] exceptionTable = [];
+
 /*********************************************************************/
 /*      Translate a muRascal module                                  */
 /*********************************************************************/
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str module_name, map[str,Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions), bool listing=false){
+RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions), bool listing=false){
   funMap = ();
   nLabel = -1;
   temporaries = ();
   
   println("mu2rvm: Compiling module <module_name>");
-  
-  if(exists(LibraryPrecompiled) && lastModified(LibraryPrecompiled) > lastModified(Library)){
-     try {
-  	       funMap = readTextValueFile(#map[str,Declaration], LibraryPrecompiled);
-  	       println("mu2rvm: Using precompiled version of Library.mu");
-  	 } catch:
-  	       funMap = parseLibrary();
-  } else {
-    funMap = parseLibrary();
-  }
-  
-  library_names = domain(funMap);
-  // println("<size(library_names)> functions in muRascal library:\n<library_names>");
  
   for(fun <- functions){
     functionScope = fun.qname;
     nlocal = fun.nlocals;
+    exceptionTable = [];
+    catchBlocks = [];
     if(listing){
     	iprintln(fun);
     }
     code = tr(fun.body);
     required_frame_size = nlocal + estimate_stack_size(fun.body);
-    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code));
+    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code + catchBlocks, exceptionTable));
+    // Debugging exception handling support
+    println("Function body: <code>");
+    println("Catch blocks: <catchBlocks>");
+    println("Exception table: <exceptionTable>");
   }
   
   main_fun = getUID(module_name,[],"main",1);
   module_init_fun = getUID(module_name,[],"#module_init_main",1);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
   if(!funMap[main_fun]?) {
-  	main_fun = getFUID(module_name,"main",ftype,0);
-  	module_init_fun = getFUID(module_name,"#module_init_main",ftype,0);
+  	 main_fun = getFUID(module_name,"main",ftype,0);
+  	 module_init_fun = getFUID(module_name,"#module_init_main",ftype,0);
   }
-  println("main_fun = <main_fun>");
+  
   funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   									[*tr(initializations), 
   									 LOADLOC(0), 
   									 CALL(main_fun,1), // No overloading of main
   									 RETURN1(),
   									 HALT()
-  									]));
+  									],
+  									[]));
  
   main_testsuite = getUID(module_name,[],"testsuite",1);
   module_init_testsuite = getUID(module_name,[],"#module_init_testsuite",1);
   if(!funMap[main_testsuite]?) { 						
-  	main_testsuite = getFUID(module_name,"testsuite",ftype,0);
-  	module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
+  	 main_testsuite = getFUID(module_name,"testsuite",ftype,0);
+  	 module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
   funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   										[*tr(initializations), 
@@ -138,10 +139,11 @@ RVMProgram mu2rvm(muModule(str module_name, map[str,Symbol] types, list[MuFuncti
   									 	 CALL(main_testsuite,1), // No overloading of main
   									 	 RETURN1(),
   									 	 HALT()
-  										 ]));
-  res = rvm(types, funMap, [], resolver, overloaded_functions);
+  										 ],
+  										 []));
+  res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
   if(listing){
-    for(fname <- funMap, fname notin library_names)
+    for(fname <- funMap)
   		iprintln(funMap[fname]);
   }
   return res;
@@ -244,6 +246,7 @@ INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args
 
 INS tr(muCallMuPrim(str name, list[MuExp] args)) =  (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLMUPRIM(name, size(args))];
 
+INS tr(muCallJava(str name, str class, Symbol types, list[MuExp] args)) = [ *tr(args), CALLJAVA(name, class, types) ];
 // Return
 
 INS tr(muReturn()) = [RETURN0()];
@@ -268,15 +271,53 @@ INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()];
 INS tr(muYield()) = [YIELD0()];
 INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];
 
+// Exceptions
+INS tr(muThrow(MuExp exp)) = [ *tr(exp), THROW() ];
+
+INS tr(muTry(MuExp exp, MuCatch \catch)) {
+	// Mark the begin and end of the try and catch blocks
+	str try_from = nextLabel();
+	str try_to = nextLabel();
+	str catch_from = nextLabel();
+	str catch_to = nextLabel();
+	
+	enterTry(try_from,try_to,\catch.\type,catch_from);
+	code = [ LABEL(try_from), *tr(exp), LABEL(try_to) ];
+		
+	trMuCatch(\catch, catch_from, catch_to);
+	leaveTry();
+	return code;
+}
+
+void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str to) {
+	tuple[str from, str to, Symbol \type, str target] currentTry = topTry();
+	
+	// Fill in the try block entry into the current exception table
+	exceptionTable += <currentTry.from, currentTry.to, \type, from>;
+	
+	catchBlocks = catchBlocks + [ LABEL(from), STORELOC(getTmp(id)), *tr(exp), LABEL(to), JMP(currentTry.to) ];
+	
+	// Catch block may also throw an exception that has to be handled by the catch of the outer try block
+	if(!isEmpty(tail(tryBlocks))) {
+		tuple[str from, str to, Symbol \type, str target] outerTry = topTryOfCatch();
+		// Fill in the catch block entry into the current exception table
+		exceptionTable += <from,to,outerTry.\type,outerTry.\target>;
+	}
+}
+
 // Control flow
 
 // If
 
-INS tr(muIfelse(MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
-    elseLab = mkFail(nextLabel());
-    continueLab = mkContinue(nextLabel());	
-    dummyLab = nextLabel();	   
-//    println("ifelse: elseLab = <elseLab>, continueLab = <continueLab>, dummyLab = <dummyLab>");
+INS tr(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart)) {
+    if(label == "") {
+    	label = nextLabel();
+    };
+    elseLab = mkElse(label);
+    continueLab = mkContinue(label);
+    // Use the dummy label to backtrack in case of fail (continue-after-failure label);	
+    dummyLab = mkFail(label); //dummyLab = nextLabel();
+//  println("ifelse: elseLab = <elseLab>, continueLab = <continueLab>, dummyLab = <dummyLab>");
     return [ *tr_cond(cond, dummyLab, elseLab), 
              *(isEmpty(thenPart) ? LOADCON(111) : trblock(thenPart)),
              JMP(continueLab), 
@@ -327,8 +368,8 @@ default INS tr(e: muMulti(MuExp exp)) =
 	 [ *tr(exp),
        INIT(0),
        NEXT0()
-    ]
-    when bprintln("tr outer muMulti: <e>");
+    ];
+    //when bprintln("tr outer muMulti: <e>");
     
 INS tr(e:muOne(list[MuExp] exps)) {
   bprintln("tr outer muOne: <e>");
@@ -345,7 +386,7 @@ INS tr(e:muOne(list[MuExp] exps)) {
      ];
 }
 
-INS tr(e:muAll(list[MuExp] exps)) {  // TODO: not complete yet
+INS tr(e:muAll(list[MuExp] exps)) { 
     println("tr outer muAll: <e>");
     
     startLab = nextLabel();
@@ -423,7 +464,7 @@ default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 // muOne: explore one successfull evaluation
 
 INS tr_cond(e: muOne(list[MuExp] exps), str continueLab, str failLab){
-    println("tr_cond: <e>");
+    //println("tr_cond: <e>");
     code = [LABEL(continueLab)];
     for(exp <- exps){
         if(muMulti(exp1) := exp){
@@ -465,7 +506,7 @@ INS tr_cond_do(muOne(list[MuExp] exps), str continueLab, str failLab){
 // muAll: explore all sucessfull evaluations
 
 INS tr_cond(e: muAll(list[MuExp] exps), str continueLab, str failLab){
-    println("tr_cond : <e>");
+    //println("tr_cond : <e>");
     code = [];
     lastMulti = -1;
     
@@ -518,9 +559,9 @@ INS tr_cond(e: muMulti(MuExp exp), str continueLab, str failLab) =
       INIT(0),
       NEXT0(),
       JMPFALSE(failLab)
-    ]
-    when bprintln("tr_cond: <e>");
+    ];
+    //when bprintln("tr_cond: <e>");
 
-default INS tr_cond(MuExp exp, str continueLab, str failLab) = [ LABEL(continueLab), *tr(exp), JMPFALSE(failLab) ]
-    when bprintln("default tr_cond: <exp>");
+default INS tr_cond(MuExp exp, str continueLab, str failLab) = [ LABEL(continueLab), *tr(exp), JMPFALSE(failLab) ];
+    //when bprintln("default tr_cond: <exp>");
     
