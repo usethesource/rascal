@@ -193,8 +193,10 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers>`) {
     list[Catch] otherCases   = [ handler | Catch handler <- handlers, !(handler is \default) ];
     patterns = [ handler.pattern | Catch handler <- otherCases ];
     
+    println("Types of patterns: <[ getType(p@\loc) | Pattern p <- patterns ]>");
+    
     lubOfPatterns = !isEmpty(defaultCases) ? Symbol::\value() : Symbol::\void();
-    if(!isEmpty(defaultCases)) {
+    if(isEmpty(defaultCases)) {
     	lubOfPatterns = ( lubOfPatterns | lub(it, getType(p@\loc)) | Pattern p <- patterns );
     }
     
