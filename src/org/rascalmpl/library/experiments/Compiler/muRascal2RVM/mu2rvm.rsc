@@ -29,6 +29,12 @@ str mkBreak(str loopname) = "BREAK_<loopname>";
 str mkFail(str loopname) = "FAIL_<loopname>";
 str mkElse(str branchname) = "ELSE_<branchname>";
 
+// Exception handling
+str mkTryFrom(str label) = "TRY_FROM_<label>";
+str mkTryTo(str label) = "TRY_TO_<label>";
+str mkCatchFrom(str label) = "CATCH_FROM_<label>";
+str mkCatchTo(str label) = "CATCH_TO_<label>";
+
 int defaultStackSize = 25;
 
 int newLocal() {
@@ -105,9 +111,18 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     required_frame_size = nlocal + estimate_stack_size(fun.body);
     funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code + catchBlocks, exceptionTable));
     // Debugging exception handling support
-    println("Function body: <code>");
-    println("Catch blocks: <catchBlocks>");
-    println("Exception table: <exceptionTable>");
+    println("Function body:");
+    for(ins <- code) {
+    	println("	<ins>");
+    }
+    println("Catch blocks:");
+    for(ins <- catchBlocks) {
+    	println("	<ins>");
+    }
+    println("Exception table:");
+    for(entry <- exceptionTable) {
+    	println("	<entry>");
+    }
   }
   
   main_fun = getUID(module_name,[],"main",1);
@@ -276,10 +291,12 @@ INS tr(muThrow(MuExp exp)) = [ *tr(exp), THROW() ];
 
 INS tr(muTry(MuExp exp, MuCatch \catch)) {
 	// Mark the begin and end of the try and catch blocks
-	str try_from = nextLabel();
-	str try_to = nextLabel();
-	str catch_from = nextLabel();
-	str catch_to = nextLabel();
+	str tryLab = nextLabel();
+	str catchLab = nextLabel();
+	str try_from   = mkTryFrom(tryLab);
+	str try_to     = mkTryTo(tryLab);
+	str catch_from = mkCatchFrom(catchLab);
+	str catch_to   = mkCatchTo(catchLab);
 	
 	enterTry(try_from,try_to,\catch.\type,catch_from);
 	code = [ LABEL(try_from), *tr(exp), LABEL(try_to) ];
