@@ -232,10 +232,10 @@ public Production associativity(Symbol rhs, Associativity a, {associativity(Symb
 }
 
 Production associativity(Symbol rhs, Associativity a, {prod(Symbol rhs, list[Symbol] lhs, set[Attr] as), *Production rest}) 
-  = \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})}) when \assoc() notin as;
+  = \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})}) when !(\assoc(_) <- as);
 
 Production associativity(Symbol rhs, Associativity a, {prod(label(str _, Symbol rhs), list[Symbol] lhs, set[Attr] as), *Production rest}) 
-  =  \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})}) when \assoc() notin as;
+  =  \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})}) when !(\assoc(_) <- as);
 
 @doc{Priority under an associativity group defaults to choice}
 public Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
