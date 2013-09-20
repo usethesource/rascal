@@ -212,7 +212,7 @@ MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
   // Translate a list of catch blocks into one catch block
   if(size(catches) == 0) {
   	  // In case there is no default catch provided, re-throw the value from the catch block
-      return (hasDefault) ? muBlock([]) : muThrow(muTmp(varname));
+      return muThrow(muTmp(varname));
   }
   
   c = head(catches);
@@ -226,15 +226,19 @@ MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
       return exp;
   }
   
+  // The default case will handle any thrown value
   exp = translate(c.body);
+  
   // Debug exception handling
   // println("Default catch: <exp>");
   
   return exp;
 }
 
-MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`) { 
-	throw("tryFinally"); 
+MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`) {
+	MuExp tryCatch = translate((Statement) `try <Statement body> <Catch+ handlers>`);
+	MuExp finallyExp = translate(finallyBody);
+	return muTryFinally(tryCatch.exp, tryCatch.\catch, finallyExp); 
 }
 
 MuExp translate(s: (Statement) `<Label label> { <Statement+ statements> }`) =
