@@ -92,7 +92,7 @@ lrel[str from, str to, Symbol \type, str target] exceptionTable = [];
 
 RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions), bool listing=false){
   funMap = ();
-  nLabel = -1;
+  nlabel = -1;
   temporaries = ();
   
   println("mu2rvm: Compiling module <module_name>");
@@ -107,6 +107,17 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     }
     // Append catch blocks to the end of the function body code
     code = tr(fun.body) + catchBlocks;
+    
+    // Debugging exception handling
+    // println("FUNCTION BODY:");
+    // for(ins <- code) {
+    //	 println("	<ins>");
+    // }
+    // println("EXCEPTION TABLE:");
+    // for(entry <- exceptionTable) {
+    //	 println("	<entry>");
+    // }
+    
     required_frame_size = nlocal + estimate_stack_size(fun.body);
     funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code, exceptionTable));
   }
@@ -277,8 +288,8 @@ INS tr(muThrow(MuExp exp)) = [ *tr(exp), THROW() ];
 
 INS tr(muTry(MuExp exp, MuCatch \catch)) {
 	// Mark the begin and end of the try and catch blocks
-	str tryLab = nextLabel();
-	str catchLab = nextLabel();
+	str tryLab = experiments::Compiler::muRascal2RVM::mu2rvm::nextLabel();
+	str catchLab = experiments::Compiler::muRascal2RVM::mu2rvm::nextLabel();
 	
 	str try_from   = mkTryFrom(tryLab);
 	str try_to     = mkTryTo(tryLab);
@@ -298,10 +309,20 @@ void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str to) {
 	// Fill in the try block entry into the current exception table
 	exceptionTable += <currentTry.from, currentTry.to, \type, from>;
 	
-	catchBlocks = catchBlocks + [ LABEL(from), STORELOC(getTmp(id)), *tr(exp), LABEL(to), JMP(currentTry.to) ];
+	catchBlock = [];
+	if(muBlock([]) := exp) {
+		catchBlock = [ LABEL(from), POP(), LABEL(to), JMP(currentTry.to) ];
+	} else {
+		catchBlock = [ LABEL(from), STORELOC(getTmp(id)), POP(), *tr(exp), LABEL(to), JMP(currentTry.to) ];
+	}
+	
+	// Debug exception handling
+	// println("Catch block: <catchBlock>");
+	
+	catchBlocks = catchBlocks + catchBlock;
 	
 	// Catch block may also throw an exception that has to be handled by the catch block of the outer try block
-	if(!isEmpty(tail(tryBlocks))) {
+	if(!(muBlock([]) := exp) && !isEmpty(tail(tryBlocks))) {
 		tuple[str from, str to, Symbol \type, str target] outerTry = topTryOfCatch();
 		// Fill in the catch block entry into the current exception table
 		exceptionTable += <from,to,outerTry.\type,outerTry.\target>;

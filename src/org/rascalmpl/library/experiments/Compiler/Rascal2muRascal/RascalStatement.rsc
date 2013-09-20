@@ -202,7 +202,7 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers>`) {
     
     // Introduce a temporary variable that is bound within a catch block to a thrown value
     varname = asTmp(nextLabel());
-    bigCatch = muCatch(varname, lubOfPatterns, translateCatches(varname, [ handler | handler <- handlers ], isEmpty(defaultCases)));
+    bigCatch = muCatch(varname, lubOfPatterns, translateCatches(varname, [ handler | handler <- handlers ], !isEmpty(defaultCases)));
     exp = muTry(translate(body), bigCatch);
     
 	return exp;
@@ -226,7 +226,11 @@ MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
       return exp;
   }
   
-  return translate(c.body);
+  exp = translate(c.body);
+  // Debug exception handling
+  // println("Default catch: <exp>");
+  
+  return exp;
 }
 
 MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`) { 

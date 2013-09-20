@@ -6,13 +6,20 @@ value f(str s) { throw "Try to catch: <s>!"; }
 value main(list[value] args) {
 	
 	str n = "start";
-	
+		
 	// Example of try/catch blocks followed by each other
 	try {
 		throw 100;
 	// Example of the default catch
 	} catch : {
 		n = n + ", then default";
+	}
+	
+	try {
+		throw 100;
+	// Example of an empty, default catch
+	} catch : {
+		;
 	}
 	
 	try {
