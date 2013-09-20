@@ -746,7 +746,7 @@ public class RVM {
 							// given the current instruction index and the value type,
 							// then, if not found, look up the caller function(s)
 							for(Frame f = cf; f != null; f = f.previousCallFrame) {
-								int handler = f.function.getHandler(pc, thrown.getType());
+								int handler = f.function.getHandler(pc - 1, thrown.getType());
 								if(handler != -1) {
 									// Put the thrown value on the stack
 									stack[sp++] = thrown;
@@ -1391,7 +1391,7 @@ public class RVM {
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						int handler = f.function.getHandler(pc, thrown.getType());
+						int handler = f.function.getHandler(pc - 1, thrown.getType());
 						if(handler != -1) {
 							// Put the thrown value back on the stack
 							stack[sp++] = thrown;
