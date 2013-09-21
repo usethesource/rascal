@@ -44,8 +44,6 @@ public class Execute {
 		
 		String main = isTestSuite ? "/<moduleName>_testsuite(list(value());)#0" : "/main(list(value());)#0";
 		String mu_main = isTestSuite ? "/testsuite(1)" : "/main(1)";
-		//String module_init = isTestSuite ? "/#module_init_testsuite(list(value());)#0" : "/#module_init_main(list(value());)#0";
-		//String mu_module_init = isTestSuite ? "/#module_init_testsuite(1)" : "/#module_init_main(1)";
 		
 		String module_init = moduleInit(moduleName);
 		String mu_module_init = muModuleInit(moduleName);
@@ -57,21 +55,18 @@ public class Execute {
 		
 		RVM rvm = new RVM(vf, stdout, debug.getValue());
 		
-		ArrayList<String> initializers = new ArrayList<String>();
-		ArrayList<String> testsuites =  new ArrayList<String>();
+		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
+		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
 		for(IValue imp : imported_functions){
 			IConstructor declaration = (IConstructor) imp;
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
-				//stdout.println("imported function found: " + name);
 				
 				if(name.endsWith("_init(list(value());)#0")){
 					initializers.add(name);
-					//stdout.println("initializer found: " + name);
 				}
 				if(name.endsWith("_testsuite(list(value());)#0")){
 					testsuites.add(name);
-					//stdout.println("testsuite found: " + name);
 				}
 				loadInstructions(name, declaration, rvm);
 			}
@@ -91,16 +86,13 @@ public class Execute {
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
 				if(name.endsWith(main) || name.endsWith(mu_main)) {
-					// Get the main's uid
-					uid_main = name;
+					uid_main = name;			// Get main's uid in current module
 				}
 				if(name.endsWith(module_init) || name.endsWith(mu_module_init)) {
-					// Get the module_init's uid
-					uid_module_init = name;
+					uid_module_init = name;		// Get module_init's uid in current module
 				}
 				if(name.endsWith("_testsuite(list(value());)#0")){
 					testsuites.add(name);
-					//stdout.println("testsuite found: " + name);
 				}
 				loadInstructions(name, declaration, rvm);
 			}
@@ -112,7 +104,6 @@ public class Execute {
 		
 		// Execute initializers of imported modules
 		for(String initializer: initializers){
-			//stdout.println("Executing initializer: " + initializer);
 			rvm.executeProgram(initializer, new IValue[] {});
 		}
 		
@@ -122,7 +113,9 @@ public class Execute {
 		long start = System.currentTimeMillis();
 		IValue result = null;
 		if(isTestSuite){
-			//stdout.println("Executing initializer: " + uid_module_init);
+			/*
+			 * Execute as testsuite
+			 */
 			rvm.executeProgram(uid_module_init, new IValue[] {});
 			int number_of_successes = 0;
 			int number_of_failures = 0;
@@ -150,11 +143,13 @@ public class Execute {
 					+ number_of_failures + " failed.\n");
 			result = vf.tuple(vf.integer(number_of_successes), vf.integer(number_of_failures));
 		} else {
-			if((uid_main == null || uid_module_init == null)) {
+			/*
+			 * Standard execution of main function
+			 */
+			if((uid_main == null)) {
 				throw new RuntimeException("No main function found when loading RVM code!");
 			}
 			
-			stdout.println("Executing initializer: " + uid_module_init);
 			rvm.executeProgram(uid_module_init, new IValue[] {});
 			result = rvm.executeProgram(uid_main, new IValue[] {});
 		}
@@ -180,6 +175,13 @@ public class Execute {
 		return ((IString) instruction.get(field)).getValue();
 	}
 
+	/**
+	 * Load the instructions of a function in a RVM.
+	 * 
+	 * @param name of the function to be loaded
+	 * @param declaration the declaration of that function
+	 * @param rvm in which function will be loaded
+	 */
 	private void loadInstructions(String name, IConstructor declaration, RVM rvm){
 	
 		Type ftype = rvm.symbolToType((IConstructor) declaration.get("ftype"));
