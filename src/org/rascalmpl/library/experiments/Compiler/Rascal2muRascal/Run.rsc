@@ -23,7 +23,7 @@ loc muExample4 = |std:///experiments/Compiler/muRascal2RVM/Capture.mu|;
 void run(){
   muP = r2mu(Example5);
   rvmP = mu2rvm(muP);
-  <v, t> = executeProgram(rvmP, false, 1, false);
+  <v, t> = executeProgram(rvmP, [], false, false);
   println("Result = <v>, [<t> msec]");
   return;
 }
@@ -38,7 +38,7 @@ void runMu2rvm(){
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
   muP.functions = muP.functions + muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, |rascal:///|, [], (), code);
   rvmP = mu2rvm(muP);
-  <v, t> = executeProgram(rvmP, true, 1, false);
+  <v, t> = executeProgram(rvmP, [], true, false);
   println("Result = <v>, [<t> msec]");
 }
 

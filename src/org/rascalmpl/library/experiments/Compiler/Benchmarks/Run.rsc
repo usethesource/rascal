@@ -2,7 +2,10 @@ module experiments::Compiler::Benchmarks::Run
 
 /*
  * A simple micro-benchmarking framework that compares the execution time
- * of interpreted versus compiled Rascal programs.
+ * of interpreted versus compiled Rascal programs:
+ * - import this module in a RascalShell
+ * - Type main() at the command line.
+ * - Go and drink 99 bottles of beer :-(
  */
  
 import Prelude;

@@ -44,7 +44,7 @@ int runDo(){
   muP = muModule("Do", [], functions, [], []);
   rvmP = mu2rvm(muP);
   iprintln(rvmP);
-  <v, t> = executeProgram(rvmP, true, 1);
+  <v, t> = executeProgram(rvmP, true);
   println("Result = <v>, [<t> msec]");
   return int n := v ? n : 0;
 }
