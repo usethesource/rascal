@@ -23,6 +23,7 @@ import experiments::Compiler::Benchmarks::BSetMatch1;
 import experiments::Compiler::Benchmarks::BSetMatch2;
 import experiments::Compiler::Benchmarks::BSendMoreMoney;
 import experiments::Compiler::Benchmarks::BWhile;
+import experiments::Compiler::Benchmarks::BExceptions;
 
 loc base = |std:///experiments/Compiler/Benchmarks/|;
 
@@ -92,5 +93,6 @@ void main(){
   run("BSendMoreMoney", experiments::Compiler::Benchmarks::BSendMoreMoney::main);
   //run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
   run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
+  run("BExceptions", experiments::Compiler::Benchmarks::BExceptions::main);
   report();
 }

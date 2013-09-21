@@ -677,10 +677,14 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, set[Modifi
         //c.stack = c.nextLoc + c.stack;
         itemTypes = {};
         defaults = {};
-        if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
         	defaults += c.store[c.fcvEnv[n]].rtype;
         } else {
-        	itemTypes += c.store[c.fcvEnv[n]].rtype;
+        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+        		defaults += c.store[c.fcvEnv[n]].rtype;
+        	} else {
+        		itemTypes += c.store[c.fcvEnv[n]].rtype;
+        	}
         }
         if(hasDefaultModifier(modifiers)) {
         	defaults += rt;
@@ -3514,7 +3518,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 throw "Not yet implemented";
     
             case ptn:callOrTreeNode(ph,pargs) : {
-                if ( (ph@rtype)? && concreteType(ph@rtype) ) {
+            	if ( (ph@rtype)? && concreteType(ph@rtype) ) {
                     if (isConstructorType(ph@rtype) || isOverloadedType(ph@rtype)) {
                         // default alternatives contain all possible constructors of this name
                         set[Symbol] alts = (isOverloadedType(ph@rtype)) ? filterSet(getDefaultOverloadOptions(ph@rtype), isConstructorType) : {ph@rtype};
