@@ -174,13 +174,6 @@ public class ListResult extends ListOrRelationResult<IList> {
 		return makeResult(type, w.done(), ctx);
 	}
 	
-	
-	@Override
-	protected <U extends IValue, V extends IValue> Result<U> insertElement(Result<V> that) {
-		Type newType = getTypeFactory().listType(that.getType().lub(getType().getElementType()));
-		return makeResult(newType, value.insert(that.getValue()), ctx);
-	}
-	
 	<U extends IValue, V extends IValue> Result<U> appendElement(ElementResult<V> that) {
 		// this is called by addLists in element types.
 		Type newType = getTypeFactory().listType(that.getType().lub(getType().getElementType()));
