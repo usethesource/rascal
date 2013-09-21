@@ -861,7 +861,7 @@ public class RVM {
 					}
 					newCoroutine.frame.sp = fun.nlocals;
 					newCoroutine.suspend(newCoroutine.frame);
-					sp = sp - arity;							/* CHANGED: place coroutine back on stack */
+					sp = sp - arity;							/* Place coroutine back on stack */
 					stack[sp++] = newCoroutine;
 					continue;
 					
@@ -906,7 +906,7 @@ public class RVM {
 					fun = coroutine.frame.function;
 					instructions = coroutine.frame.function.codeblock.getInstructions();
 				
-					coroutine.frame.stack[coroutine.frame.sp++] = 		// CHANGED: yield now always leaves an entry on the stack
+					coroutine.frame.stack[coroutine.frame.sp++] = 		// Always leave an entry on the stack
 							(op == Opcode.OP_NEXT1) ? stack[--sp] : null;
 					
 					cf.pc = pc;
@@ -934,9 +934,7 @@ public class RVM {
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					//if(op == Opcode.OP_YIELD1 /* && rval != null */) {	/* CHANGED */
-					stack[sp++] = rval;	 // corresponding next will always find an entry on the stack
-					//}
+					stack[sp++] = rval;	 								// Corresponding next will always find an entry on the stack
 					continue;
 					
 				case Opcode.OP_HASNEXT:
