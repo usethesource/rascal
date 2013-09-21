@@ -77,7 +77,7 @@ public class Fac {
 		for(int i = 0; i < times; i++){
 			long start = System.currentTimeMillis();
 			
-			rvm.executeProgram("main", "#module_init", new IValue[] {});
+			rvm.executeProgram("main",  new IValue[] {});
 			long now = System.currentTimeMillis();
 			total += now - start;
 			

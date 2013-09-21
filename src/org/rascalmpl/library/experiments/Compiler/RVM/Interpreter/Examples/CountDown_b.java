@@ -123,7 +123,7 @@ public class CountDown_b {
 					.RETURN1()
 					.HALT()));
 
-		rvm.executeProgram("main", "#module_init", new IValue[] {});
+		rvm.executeProgram("main", new IValue[] {});
 	}
 	
 }

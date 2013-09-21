@@ -1,5 +1,7 @@
  package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -8,6 +10,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -23,34 +26,52 @@ public class Execute {
 		this.vf = vf;
 	}
 	
+	String moduleInit(String moduleName){
+		return  "/#" + moduleName + "_init(list(value());)#0";
+	}
+	
+	String muModuleInit(String moduleName){
+		return   "/#" + moduleName + "_init(1)";
+	}
+	
 	// Library function to execute a RVM program from Rascal
 
 	public ITuple executeProgram(IConstructor program, IList imported_functions, IBool debug,
-			IInteger repeat, IBool testsuite, IEvaluatorContext ctx) {
+			IBool testsuite, IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();
+		String moduleName = ((IString) program.get("name")).getValue();
 		
-		String main = isTestSuite ? "/testsuite(list(value());)#0" : "/main(list(value());)#0";
+		String main = isTestSuite ? "/<moduleName>_testsuite(list(value());)#0" : "/main(list(value());)#0";
 		String mu_main = isTestSuite ? "/testsuite(1)" : "/main(1)";
-		String module_init = isTestSuite ? "/#module_init_testsuite(list(value());)#0" : "/#module_init_main(list(value());)#0";
-		String mu_module_init = isTestSuite ? "/#module_init_testsuite(1)" : "/#module_init_main(1)";
+		//String module_init = isTestSuite ? "/#module_init_testsuite(list(value());)#0" : "/#module_init_main(list(value());)#0";
+		//String mu_module_init = isTestSuite ? "/#module_init_testsuite(1)" : "/#module_init_main(1)";
 		
+		String module_init = moduleInit(moduleName);
+		String mu_module_init = muModuleInit(moduleName);
+				
 		String uid_main = null;
 		String uid_module_init = null;
 		
-		RVM rvm = new RVM(vf, ctx.getStdOut(), debug.getValue());
+		PrintWriter stdout = ctx.getStdOut();
 		
+		RVM rvm = new RVM(vf, stdout, debug.getValue());
+		
+		ArrayList<String> initializers = new ArrayList<String>();
+		ArrayList<String> testsuites =  new ArrayList<String>();
 		for(IValue imp : imported_functions){
 			IConstructor declaration = (IConstructor) imp;
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
-				if(name.endsWith(main) || name.endsWith(mu_main)) {
-					// Skip the main's uid
-					continue;
+				//stdout.println("imported function found: " + name);
+				
+				if(name.endsWith("_init(list(value());)#0")){
+					initializers.add(name);
+					//stdout.println("initializer found: " + name);
 				}
-				if(name.endsWith(module_init) || name.endsWith(mu_module_init)) {
-					// Skip the module_init's uid
-					continue;
+				if(name.endsWith("_testsuite(list(value());)#0")){
+					testsuites.add(name);
+					//stdout.println("testsuite found: " + name);
 				}
 				loadInstructions(name, declaration, rvm);
 			}
@@ -77,6 +98,10 @@ public class Execute {
 					// Get the module_init's uid
 					uid_module_init = name;
 				}
+				if(name.endsWith("_testsuite(list(value());)#0")){
+					testsuites.add(name);
+					//stdout.println("testsuite found: " + name);
+				}
 				loadInstructions(name, declaration, rvm);
 			}
 		}
@@ -85,13 +110,53 @@ public class Execute {
 		rvm.addResolver((IMap) program.get("resolver"));
 		rvm.fillOverloadedStore((IList) program.get("overloaded_functions"));
 		
-		if(uid_main == null || uid_module_init == null) {
-			throw new RuntimeException("There is no main or module_init function found when loading RVM code!");
+		// Execute initializers of imported modules
+		for(String initializer: initializers){
+			//stdout.println("Executing initializer: " + initializer);
+			rvm.executeProgram(initializer, new IValue[] {});
+		}
+		
+		if((uid_module_init == null)) {
+			throw new RuntimeException("No module_init function found when loading RVM code!");
 		}
 		long start = System.currentTimeMillis();
-		Object result = null;
-		for (int i = 0; i < repeat.intValue(); i++) {
-			result = rvm.executeProgram(uid_main, uid_module_init, new IValue[] {});
+		IValue result = null;
+		if(isTestSuite){
+			//stdout.println("Executing initializer: " + uid_module_init);
+			rvm.executeProgram(uid_module_init, new IValue[] {});
+			int number_of_successes = 0;
+			int number_of_failures = 0;
+			
+			stdout.println("\nTEST REPORT\n");
+			for(String uid_testsuite: testsuites){
+				IList test_results = (IList)rvm.executeProgram(uid_testsuite, new IValue[] {});
+				for(IValue voutcome : test_results){
+					ITuple outcome = (ITuple) voutcome;
+					boolean passed = ((IBool) outcome.get(1)).getValue();
+					if(passed){
+						number_of_successes++;
+					} else {
+						number_of_failures++;
+					}
+					String tst_name = ((ISourceLocation) outcome.get(0)).getURI().getPath();
+					tst_name = tst_name.substring(1, tst_name.length()); // remove leading /
+					tst_name = tst_name.replaceAll("/", "::");
+					stdout.println(tst_name + ": " + (passed ? "true" : "FALSE"));
+				}
+			}
+			int number_of_tests = number_of_successes + number_of_failures;
+			stdout.println("\nExecuted " + number_of_tests + " tests: "  
+					+ number_of_successes + " succeeded; "
+					+ number_of_failures + " failed.\n");
+			result = vf.tuple(vf.integer(number_of_successes), vf.integer(number_of_failures));
+		} else {
+			if((uid_main == null || uid_module_init == null)) {
+				throw new RuntimeException("No main function found when loading RVM code!");
+			}
+			
+			stdout.println("Executing initializer: " + uid_module_init);
+			rvm.executeProgram(uid_module_init, new IValue[] {});
+			result = rvm.executeProgram(uid_main, new IValue[] {});
 		}
 		long now = System.currentTimeMillis();
 		return vf.tuple((IValue) result, vf.integer(now - start));

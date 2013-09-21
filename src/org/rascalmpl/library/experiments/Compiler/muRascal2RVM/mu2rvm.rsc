@@ -126,17 +126,17 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   }
   
   main_fun = getUID(module_name,[],"main",1);
-  module_init_fun = getUID(module_name,[],"#module_init_main",1);
+  module_init_fun = getUID(module_name,[],"#<module_name>_init",1);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
   if(!funMap[main_fun]?) {
   	 main_fun = getFUID(module_name,"main",ftype,0);
-  	 module_init_fun = getFUID(module_name,"#module_init_main",ftype,0);
+  	 module_init_fun = getFUID(module_name,"#<module_name>_init",ftype,0);
   }
   
   funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   									[*tr(initializations), 
-  									 LOADLOC(0), 
-  									 CALL(main_fun,1), // No overloading of main
+  									 //LOADLOC(0), 
+  									 //CALL(main_fun,1), // No overloading of main
   									 RETURN1(),
   									 HALT()
   									],
@@ -148,14 +148,14 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   	 main_testsuite = getFUID(module_name,"testsuite",ftype,0);
   	 module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
-  funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
-  										[*tr(initializations), 
-  									 	 LOADLOC(0), 
-  									 	 CALL(main_testsuite,1), // No overloading of main
-  									 	 RETURN1(),
-  									 	 HALT()
-  										 ],
-  										 []));
+  //funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
+  //										[*tr(initializations), 
+  //									 	 LOADLOC(0), 
+  //									 	 CALL(main_testsuite,1), // No overloading of main
+  //									 	 RETURN1(),
+  //									 	 HALT()
+  //										 ],
+  //										 []));
   res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
   if(listing){
     for(fname <- funMap)

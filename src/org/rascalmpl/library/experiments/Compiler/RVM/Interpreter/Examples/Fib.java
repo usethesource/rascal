@@ -63,7 +63,7 @@ public static void main(String[] args) {
 					.HALT()));
 		
 		long start = System.currentTimeMillis();
-		IValue val = (IValue) rvm.executeProgram("main", "#module_init", new IValue[] {});
+		IValue val = (IValue) rvm.executeProgram("main", new IValue[] {});
 		long now = System.currentTimeMillis();
 		System.out.println("Result: " + val);
 		System.out.println("RVM: average elapsed time in msecs:" + (now - start));

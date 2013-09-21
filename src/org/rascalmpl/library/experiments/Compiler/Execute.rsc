@@ -55,7 +55,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, bool debug=false, bool
   	       imported_functions += [ importedRvmProgram.declarations[fname] | fname <-importedRvmProgram.declarations ];
   	   } catch x: println("rascal2rvm: Reading <importedLoc> did not succeed: <x>");      
    }
-   <v, t> = executeProgram(rvmProgram, imported_functions, debug, 1, testsuite);
+   <v, t> = executeProgram(rvmProgram, imported_functions, debug, testsuite);
    println("Result = <v>, [<t> msec]");
    return <v, t>;
 }

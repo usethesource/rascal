@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -36,6 +37,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadOFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
+
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next0;
@@ -57,7 +59,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Y
 
 public class CodeBlock {
 
-	private final IValueFactory vf;
+	public final IValueFactory vf;
 	int pc;
 	int labelIndex = 0;
 	
@@ -135,7 +137,7 @@ public class CodeBlock {
 		throw new RuntimeException("PANIC: undefined constant index " + n);
 	}
 	
-	private int getConstantIndex(IValue v){
+	public int getConstantIndex(IValue v){
 		Integer n = constantMap.get(v);
 		if(n == null){
 			n = constantStore.size();
@@ -211,6 +213,14 @@ public class CodeBlock {
 		if(n == null)
 			throw new RuntimeException("PANIC: undefined constructor name " + name);
 		return n;
+	}
+	
+	public String getModuleVarName(int n){
+		return ((IString)getConstantValue(n)).getValue();
+	}
+	
+	public int getModuleVarIndex(String name){
+		return getConstantIndex(vf.string(name));		
 	}
 	
 	CodeBlock add(Instruction ins){
@@ -291,11 +301,17 @@ public class CodeBlock {
 		return add(new StoreLoc(this, pos));
 	}
 	
-	public CodeBlock LOADVAR (String fuid, int pos){
+	public CodeBlock LOADVAR(String fuid, int pos){
+		if(pos == -1){
+			getConstantIndex(vf.string(fuid));
+		}
 		return add(new LoadVar(this, fuid, pos));
 	}
 	
 	public CodeBlock STOREVAR (String fuid, int pos){
+		if(pos == -1){
+			getConstantIndex(vf.string(fuid));
+		}
 		return add(new StoreVar(this, fuid, pos));
 	}
 	

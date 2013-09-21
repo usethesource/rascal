@@ -182,7 +182,9 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   
   if("test" in tmods){
      params = ftype.parameters;
-     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muTypeCon(\tuple([param | param <- params ])) ]);
+     //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
+     
   }
 }
 
@@ -239,8 +241,9 @@ list[str] translateModifiers(FunctionModifiers modifiers){
 }
 
 void generate_tests(str module_name){
-   code = muBlock([ muCallPrim("testreport_open", []), *tests, muCallPrim("testreport_close", []), muReturn() ]);
+   code = muBlock([ muCallPrim("testreport_open", []), *tests, muReturn(muCallPrim("testreport_close", [])) ]);
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-   main_testsuite = getFUID(module_name,"testsuite",ftype,0);
+   name_testsuite = "<module_name>_testsuite";
+   main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
    functions_in_module += muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, |rascal:///|, [], (), code);
 }
