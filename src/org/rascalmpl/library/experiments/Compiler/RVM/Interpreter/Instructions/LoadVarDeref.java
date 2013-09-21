@@ -17,7 +17,8 @@ public class LoadVarDeref extends Instruction {
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getFunctionIndex(fuid));
+		codeblock.addCode((pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid))
+                					  : codeblock.getFunctionIndex(fuid));
 		codeblock.addCode(pos);
 	}
 

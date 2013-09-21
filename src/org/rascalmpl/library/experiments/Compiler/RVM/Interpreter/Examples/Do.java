@@ -53,7 +53,7 @@ public class Do {
 					.RETURN1()
 					.HALT()));
 		
-		rvm.executeProgram("main", "#module_init", new IValue[] {});
+		rvm.executeProgram("main", new IValue[] {});
 	}
 
 }

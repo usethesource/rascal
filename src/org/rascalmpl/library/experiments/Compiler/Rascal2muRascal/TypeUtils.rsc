@@ -281,21 +281,26 @@ void extractScopes(){
     
     containmentPlus = containment+;
     
-    for(muid <- modules) {
+    for(muid <- modules){
+        module_name = uid2name[muid];
     	// First, fill in variables to get their positions right
     	// Sort variable declarations to ensure that formal parameters get first positions preserving their order 
     	topdecls = sort([ uid | uid <- declares[muid], variable(_,_,_,_,_) := config.store[uid] ]);
     	for(i <- index(topdecls)) {
-            uid2addr[topdecls[i]] = <getFUID(uid2str(muid),"#module_init_main",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0), i + 1>;
+            uid2addr[topdecls[i]] = <getFUID(uid2str(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0), i + 1>;
     	}
     	// Then, functions
     	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_) := config.store[uid] ||
     											  closure(_,_,_)        := config.store[uid] ||
-    											  constructor(_,_,_,_)  := config.store[uid] ];
+    											  constructor(_,_,_,_)  := config.store[uid] ||
+    											  variable(_,_,_,_,_)   := config.store[uid] ];
     	for(i <- index(topdecls)) {
     		// functions and closures are identified by their qualified names, and they do not have a position in their scope
     		// only the qualified name of their enclosing module or function is significant 
-    		uid2addr[topdecls[i]] = <uid2str(muid), -1>;
+    		
+    		mvname = (variable(rname,_,_,_,_) := config.store[topdecls[i]]) ? (":" + prettyPrintName(rname)) : "";
+    		   
+    		uid2addr[topdecls[i]] = <uid2str(muid) + mvname, -1>;
     	}
     }
 

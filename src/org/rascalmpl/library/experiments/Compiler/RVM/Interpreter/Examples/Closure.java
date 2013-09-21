@@ -50,7 +50,7 @@ public class Closure {
 					.CALL("main", 1)
 					.HALT()));
 
-		rvm.executeProgram("main", "#module_init", new IValue[] {});
+		rvm.executeProgram("main", new IValue[] {});
 	}
 
 }

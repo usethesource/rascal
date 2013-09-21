@@ -115,7 +115,7 @@ public class CountDown_c {
 					.RETURN1()
 					.HALT()));
 
-		rvm.executeProgram("main", "#module_init", new IValue[] {});
+		rvm.executeProgram("main", new IValue[] {});
 	}
 
 }

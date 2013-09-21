@@ -93,7 +93,7 @@ public class CountDown_a {
 						.CALL("main", 1)
 						.RETURN1()
 						.HALT()));
-		rvm.executeProgram("main", "#module_init", new IValue[] {});
+		rvm.executeProgram("main", new IValue[] {});
 	}
 
 }

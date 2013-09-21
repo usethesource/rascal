@@ -2565,28 +2565,23 @@ public enum RascalPrimitive {
 	/* 
 	 * testreport_...
 	 */
-	static int number_of_tests = 0;
-	static int number_of_failures = 0;
 	static TypeReifier typeReifier;
 	static final int MAXDEPTH = 5;
 	static final int TRIES = 3;
 	
+	static IListWriter test_results;
+	
 	public static int testreport_open(Object[] stack, int sp, int arity) {
 		assert arity == 0;
-		number_of_tests = 0;
-		number_of_failures = 0;
+		test_results = vf.listWriter();
 		typeReifier = new TypeReifier(vf);
-		stdout.println("\nTEST REPORT\n");
 		stack[sp] = null;
 		return sp + 1;
 	}
 	
 	public static int testreport_close(Object[] stack, int sp, int arity) {
 		assert arity == 0;
-		stdout.println("\nExecuted " + number_of_tests + " tests: "  
-				+ (number_of_tests  - number_of_failures) + " succeeded; "
-				+ number_of_failures + " failed.\n");
-		stack[sp] = null;
+		stack[sp] = test_results.done();
 		return sp + 1;
 	}
 	
@@ -2595,12 +2590,13 @@ public enum RascalPrimitive {
 		
 		String fun = ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
-		IConstructor type_cons = ((IConstructor) stack[sp - 1]);
-		Type argType = typeReifier.valueToType(type_cons);
-		IMap definitions = (IMap) type_cons.get("definitions");
+		Type argType = (Type) stack[sp - 1];
+		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
+		//Type argType = typeReifier.valueToType(type_cons);
+		//IMap definitions = (IMap) type_cons.get("definitions");
 		
 		TypeStore store = new TypeStore();
-		typeReifier.declareAbstractDataTypes(definitions, store);
+		//typeReifier.declareAbstractDataTypes(definitions, store);
 		
 		int nargs = argType.getArity();
 		IValue[] args = new IValue[nargs];
@@ -2623,13 +2619,10 @@ public enum RascalPrimitive {
 			IValue res = rvm.executeFunction(fun, args);  // TODO: catch exceptions
 			passed = ((IBool) res).getValue();
 			if(!passed){
-				number_of_failures++;
 				break;
 			}
 		}
-		
-		number_of_tests++;
-		stdout.println("Test " + fun + (passed ? ": succeeded" : ": FAILED") + " at " + src);
+		test_results.append(vf.tuple(src,  vf.bool(passed)));
 		return sp - 2;
 	}
 

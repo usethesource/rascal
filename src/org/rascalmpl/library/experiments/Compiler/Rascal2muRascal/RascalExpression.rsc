@@ -60,7 +60,7 @@ MuExp postfix(str op, Expression arg) = muCallPrim("<getOuterType(arg)>_<op>", [
 MuExp comparison(str op, Expression e) = muCallPrim("<op>", [*translate(e.lhs), *translate(e.rhs)]);
 
 /*********************************************************************/
-/*                  Expessions                                       */
+/*                  Expressions                                       */
 /*********************************************************************/
 
 // literals

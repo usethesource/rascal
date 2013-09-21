@@ -37,22 +37,25 @@ data Instruction =
 		| STORELOC(int pos)							// Store value on top-of-stack in local variable (value remains on stack)
 	   	
 		| LOADVAR(str fuid, int pos)                // Push a variable from an outer scope
-		| STOREVAR(str fuid, int pos)               // Store value on  top-of-stack in variable in outer scope (value remains on stack)
+		| STOREVAR(str fuid, int pos)               // Store value on  top-of-stack in variable in surrounding scope (value remains on stack)
+
+		| LOADMODULEVAR(str fuid)          			// Push a variable from a global module scope
+		| STOREMODULEVAR(str fuid)         			// Store value on  top-of-stack in variable in global module scope (value remains on stack)
 		
 		| LOADLOCREF(int pos)						// Push a reference to a local variable
 		| LOADLOCDEREF(int pos)						// Push value of a local variable identified by reference on stack 
 		| STORELOCDEREF(int pos)					// Store value at stack[sp - 2] in local variable identified by reference at stack[sp -1] (value remains on stack)
 			
-		| LOADVARREF(str fuid, int pos)			    // Push a reference to a variable in anouter scope
+		| LOADVARREF(str fuid, int pos)			    // Push a reference to a variable in a surrounding scope
 		| LOADVARDEREF(str fuid, int pos)           // Push value of a variable in outer scope identified by reference on stack 
-		| STOREVARDEREF(str fuid, int pos)          // Store value at stack[sp - 2] in outer variable identified by reference at stack[sp -1] (value remains on stack)
+		| STOREVARDEREF(str fuid, int pos)          // Store value at stack[sp - 2] in outer variable identified by reference at stack[sp -1] (value remains on stack)		
 		
-		| CALL(str fuid, int arity)					// Call a named *muRascal function
-		| CALLDYN(int arity)						// Call a *muRascal function on stack
+		| CALL(str fuid, int arity)					// Call a named *muRascal* function
+		| CALLDYN(int arity)						// Call a *muRascal* function on stack
 		| CALLCONSTR(str fuid, int arity)			// Call a constructor
 		
-		| OCALL(str fuid, int arity)				// Call a named *Rascal function
-		| OCALLDYN(int arity)						// Call a *Rascal function on stack
+		| OCALL(str fuid, int arity)				// Call a named *Rascal* function
+		| OCALLDYN(int arity)						// Call a *Rascal* function on stack
 		
 		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive)
 		| CALLPRIM(str name, int arity)				// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)

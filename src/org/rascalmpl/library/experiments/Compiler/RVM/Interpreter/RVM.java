@@ -61,6 +61,9 @@ public class RVM {
 	
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
+	
+	
+	private final Map<IValue, IValue> moduleVariables;
 	private PrintWriter stdout;
 	
 	// Management of active coroutines
@@ -91,6 +94,8 @@ public class RVM {
 		
 		resolver = new HashMap<String,Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
+		
+		moduleVariables = new HashMap<IValue,IValue>();
 		
 		MuPrimitive.init(vf);
 		RascalPrimitive.init(vf, stdout, this);
@@ -330,7 +335,7 @@ public class RVM {
 		this.trace = this.trace + trace + "\n";
 	}
 	
-	public IValue executeProgram(String uid_main, String uid_module_init, IValue[] args) {
+	public IValue executeProgram(String uid_main, /*String uid_module_init,*/ IValue[] args) {
 		
 		finalize();
 		
@@ -343,25 +348,10 @@ public class RVM {
 		if (main_function.nformals != 1) {
 			throw new RuntimeException("PANIC: function " + uid_main + " should have one argument");
 		}
-			
-		// Search for module initialization
-
-		Function init_function = functionStore.get(functionMap.get(uid_module_init));
-
-		if (init_function == null) {
-			throw new RuntimeException("PANIC: Code for " + uid_module_init + " not found");
-		}
-
-		if (init_function.nformals != 1) {
-			throw new RuntimeException("PANIC: function " + uid_module_init + " should have one argument");
-		}
-
-		// Perform a call to #module_init" at scope level = 0
-
-		// We need the notion of the root frame, which represents the root environment
-		Frame root = new Frame(init_function.scopeId, null, init_function.maxstack, init_function);
+		
+		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
 		Frame cf = root;
-		cf.stack[0] = vf.list(args); // pass the program argument to #module_init ***as a IList object
+		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
 		IValue res = narrow(executeProgram(root, cf));
 		if(debug) {
 			stdout.println("TRACE:");
@@ -500,6 +490,11 @@ public class RVM {
 					int s = instructions[pc++];
 					int pos = instructions[pc++];
 					
+					if(pos == -1){
+						stack[sp++] = moduleVariables.get(cf.function.constantStore[s]);
+						continue NEXT_INSTRUCTION;
+					}
+					
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
 							stack[sp++] = (op == Opcode.OP_LOADVAR) ? fr.stack[pos] 
@@ -513,6 +508,8 @@ public class RVM {
 				case Opcode.OP_LOADVARDEREF: {
 					int s = instructions[pc++];
 					int pos = instructions[pc++];
+					
+					
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
 							ref = (Reference) fr.stack[pos];
@@ -526,6 +523,12 @@ public class RVM {
 				case Opcode.OP_STOREVAR:
 					int s = instructions[pc++];
 					int pos = instructions[pc++];
+					
+					if(pos == -1){
+						IValue mvar = cf.function.constantStore[s];
+						moduleVariables.put(mvar, (IValue)stack[sp -1]);
+						continue NEXT_INSTRUCTION;
+					}
 
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
