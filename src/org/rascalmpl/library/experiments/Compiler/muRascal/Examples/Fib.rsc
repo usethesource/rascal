@@ -58,7 +58,7 @@ int runFib(){
   muP = muModule("Fib", [], functions, [], []);
   rvmP = mu2rvm(muP);
   //iprintln(rvmP);
-  <v, t_rvm> = executeProgram(rvmP, false, 1);
+  <v, t_rvm> = executeProgram(rvmP, false);
   println("rvm:    fib(<fibarg>) = <v> [<t_rvm> msec]");
   t_rascal = fib_in_rascal();
   println("ratio:  <t_rascal * 1.0 / t_rvm>");

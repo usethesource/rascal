@@ -36,8 +36,8 @@ public class Execute {
 	
 	// Library function to execute a RVM program from Rascal
 
-	public ITuple executeProgram(IConstructor program, IList imported_functions, IBool debug,
-			IBool testsuite, IEvaluatorContext ctx) {
+	public ITuple executeProgram(IConstructor program, IList imported_functions, IList argumentsAsList,
+			IBool debug, IBool testsuite, IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();
 		String moduleName = ((IString) program.get("name")).getValue();
@@ -102,9 +102,13 @@ public class Execute {
 		rvm.addResolver((IMap) program.get("resolver"));
 		rvm.fillOverloadedStore((IList) program.get("overloaded_functions"));
 		
+		IValue[] arguments = new IValue[argumentsAsList.length()];
+		for(int i = 0; i < argumentsAsList.length(); i++){
+			arguments[i] = argumentsAsList.get(i);
+		}
 		// Execute initializers of imported modules
 		for(String initializer: initializers){
-			rvm.executeProgram(initializer, new IValue[] {});
+			rvm.executeProgram(initializer, arguments);
 		}
 		
 		if((uid_module_init == null)) {
@@ -116,13 +120,13 @@ public class Execute {
 			/*
 			 * Execute as testsuite
 			 */
-			rvm.executeProgram(uid_module_init, new IValue[] {});
+			rvm.executeProgram(uid_module_init, arguments);
 			int number_of_successes = 0;
 			int number_of_failures = 0;
 			
 			stdout.println("\nTEST REPORT\n");
 			for(String uid_testsuite: testsuites){
-				IList test_results = (IList)rvm.executeProgram(uid_testsuite, new IValue[] {});
+				IList test_results = (IList)rvm.executeProgram(uid_testsuite, arguments);
 				for(IValue voutcome : test_results){
 					ITuple outcome = (ITuple) voutcome;
 					boolean passed = ((IBool) outcome.get(1)).getValue();
@@ -150,8 +154,8 @@ public class Execute {
 				throw new RuntimeException("No main function found when loading RVM code!");
 			}
 			
-			rvm.executeProgram(uid_module_init, new IValue[] {});
-			result = rvm.executeProgram(uid_main, new IValue[] {});
+			rvm.executeProgram(uid_module_init, arguments);
+			result = rvm.executeProgram(uid_main, arguments);
 		}
 		long now = System.currentTimeMillis();
 		return vf.tuple((IValue) result, vf.integer(now - start));

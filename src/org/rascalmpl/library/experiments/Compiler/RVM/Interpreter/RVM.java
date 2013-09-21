@@ -344,7 +344,7 @@ public class RVM {
 		this.trace = this.trace + trace + "\n";
 	}
 	
-	public IValue executeProgram(String uid_main, /*String uid_module_init,*/ IValue[] args) {
+	public IValue executeProgram(String uid_main, IValue[] args) {
 		
 		finalize();
 		

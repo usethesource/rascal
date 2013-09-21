@@ -35,7 +35,7 @@ list[Declaration] parseMuLibrary(){
   	return functions; 
 }
 
-tuple[value, num] execute_and_time(RVMProgram rvmProgram, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
+tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
    imported_functions = [];
    
     if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
@@ -55,27 +55,27 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, bool debug=false, bool
   	       imported_functions += [ importedRvmProgram.declarations[fname] | fname <-importedRvmProgram.declarations ];
   	   } catch x: println("rascal2rvm: Reading <importedLoc> did not succeed: <x>");      
    }
-   <v, t> = executeProgram(rvmProgram, imported_functions, debug, testsuite);
+   <v, t> = executeProgram(rvmProgram, imported_functions, arguments, debug, testsuite);
    println("Result = <v>, [<t> msec]");
    return <v, t>;
 }
 
-value execute(RVMProgram rvmProgram, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
-	<v, t> = execute_and_time(rvmProgram, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile);
+value execute(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
+	<v, t> = execute_and_time(rvmProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile);
 	return v;
 }
 
-value execute(loc rascalSource, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
+value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute(rvmProgram, debug=debug, testsuite=testsuite);
+   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite);
 }
 
-value execute(str rascalSource, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
+value execute(str rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute(rvmProgram, debug=debug, testsuite=testsuite);
+   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite);
 }
 
-tuple[value, num] execute_and_time(loc rascalSource, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
+tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute_and_time(rvmProgram, debug=debug, testsuite=testsuite);
+   return execute_and_time(rvmProgram, arguments, debug=debug, testsuite=testsuite);
 }

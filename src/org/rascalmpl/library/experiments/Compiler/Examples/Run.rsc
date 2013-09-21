@@ -27,7 +27,7 @@ loc base = |std:///experiments/Compiler/Examples/|;
 
 
 value demo(str example bool debug = false, bool listing=false, bool testsuite=false, bool recompile=false) =
-  execute(base + (example + ".rsc"), debug=debug, listing=listing, testsuite=testsuite, recompile=recompile);
+  execute(base + (example + ".rsc"), [], debug=debug, listing=listing, testsuite=testsuite, recompile=recompile);
 
 test bool tst() = demo("Bottles") == experiments::Compiler::Examples::Bottles::main([]);
 test bool tst() = demo("Capture") == experiments::Compiler::Examples::Capture::main([]);
