@@ -30,5 +30,5 @@ test bool tst() = run("{x = 5; \"a\<if(true){\>
      
      
 test bool tst() = run("{\"a\<for(x \<- [0 .. 5]){\>
-                         \' \<x\>\<}\>b\";}") == "a<for(x <- [0 .. 5]){>
-                          ' <x><}>b";
+                         \' zz\<x\>\<}\>b\";}") == "a<for(x <- [0 .. 5]){>
+                          ' zz<x><}>b";
