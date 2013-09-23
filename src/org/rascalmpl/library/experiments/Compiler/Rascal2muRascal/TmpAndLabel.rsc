@@ -13,6 +13,7 @@ public void resetTmpAndLabel(){
 	loops = [];
 	itVariables = [];
 	writerVariables = [];
+	tryCatchFinally = [];
 }
 
 // Generation of temporary variables and labels
@@ -101,5 +102,21 @@ void enterWriter(str name){
 
 void leaveWriter(){
   writerVariables = tail(writerVariables);
+}
+
+// Administration of try-catch-finally blocks
+
+// The stack of try-catch-finally block is managed to check whether there is a finally block 
+// that must be executed before 'return' if any
+private list[bool] tryCatchFinally = [];
+
+bool hasFinally() = !isEmpty(tryCatchFinally);
+
+void enterTryCatchFinally() {
+	tryCatchFinally = true + tryCatchFinally;
+}
+
+void leaveTryCatchFinally() {
+	tryCatchFinally = tail(tryCatchFinally);
 }
 

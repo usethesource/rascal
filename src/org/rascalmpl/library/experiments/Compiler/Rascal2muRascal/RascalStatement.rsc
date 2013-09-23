@@ -236,7 +236,11 @@ MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
 }
 
 MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`) {
+	// The stack of try-catch-finally block is managed to check whether there is a finally block 
+	// that must be executed before 'return' if any
+	enterTryCatchFinally();
 	MuExp tryCatch = translate((Statement) `try <Statement body> <Catch+ handlers>`);
+	leaveTryCatchFinally();
 	MuExp finallyExp = translate(finallyBody);
 	return muTryFinally(tryCatch.exp, tryCatch.\catch, finallyExp); 
 }
@@ -250,7 +254,15 @@ MuExp translate(s: (Statement) `;`) = muBlock([]);
 
 MuExp translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names> ;`) { throw("globalDirective"); }
 
-MuExp translate(s: (Statement) `return <Statement statement>`)  = muReturn(translate(statement));
+MuExp translate(s: (Statement) `return <Statement statement>`) {
+	// If the 'return' is used in the scope of a try-catch-finally block,
+	// the respective 'finally' block must be executed before the function returns
+	if(hasFinally()) {
+		str varname = asTmp(nextLabel());
+		return muBlock([ muAssignTmp(varname, translate(statement)), muReturn(muTmp(varname)) ]);
+	} 
+	return muReturn(translate(statement));
+}
 
 MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translate(statement));
 
