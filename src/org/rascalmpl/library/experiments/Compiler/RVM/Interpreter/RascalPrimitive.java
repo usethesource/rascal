@@ -446,7 +446,6 @@ public enum RascalPrimitive {
 	template_addunindented,
 	template_close,
 	
-	//str_addindented_str,
 	
 	// tuple
 	
@@ -2968,7 +2967,6 @@ public enum RascalPrimitive {
 		} else {
 			stack[sp - 1] = vf.string(val.toString());
 		}
-		stdout.println("value_to_string: " + val);
 		return sp;
 	}
 

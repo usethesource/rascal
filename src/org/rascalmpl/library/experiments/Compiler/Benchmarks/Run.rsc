@@ -26,6 +26,7 @@ import experiments::Compiler::Benchmarks::BSet1;
 import experiments::Compiler::Benchmarks::BSetMatch1;
 import experiments::Compiler::Benchmarks::BSetMatch2;
 import experiments::Compiler::Benchmarks::BSendMoreMoney;
+import experiments::Compiler::Benchmarks::BTemplate;
 import experiments::Compiler::Benchmarks::BWhile;
 
 
@@ -38,7 +39,7 @@ map[str,Measurement] measurements = ();
 void run(str bm,  value(list[value]) bmain) {
   println("Benchmark: <bm>");
   t1 = getMilliTime();
-  <v, t2> = execute_and_time(base + (bm + ".rsc"));
+  <v, t2> = execute_and_time(base + (bm + ".rsc"), []);
   t3 = getMilliTime();
   bmain([]);
   t4 = getMilliTime();
@@ -96,7 +97,7 @@ void main(){
   run("BSetMatch1", experiments::Compiler::Benchmarks::BSetMatch1::main);
   run("BSetMatch2", experiments::Compiler::Benchmarks::BSetMatch2::main);
   run("BSendMoreMoney", experiments::Compiler::Benchmarks::BSendMoreMoney::main);
-  //run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
+  run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
   run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
  
   report();
