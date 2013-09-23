@@ -16,5 +16,3 @@ extend experiments::Compiler::Tests::Patterns;
 extend experiments::Compiler::Tests::StringTemplates;
 
 extend experiments::Compiler::Examples::Run;
-
-
