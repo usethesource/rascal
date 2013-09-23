@@ -22,6 +22,7 @@ import experiments::Compiler::Examples::OverloadingMatch;
 import experiments::Compiler::Examples::OverloadingPlusBacktracking;
 import experiments::Compiler::Examples::ExceptionHandling1;
 import experiments::Compiler::Examples::ExceptionHandling2;
+import experiments::Compiler::Examples::ExceptionHandling3;
 
 loc base = |std:///experiments/Compiler/Examples/|;
 
@@ -46,3 +47,4 @@ test bool tst() = demo("OverloadingMatch") == experiments::Compiler::Examples::O
 test bool tst() = demo("OverloadingPlusBacktracking") == experiments::Compiler::Examples::OverloadingPlusBacktracking::main([]);
 test bool tst() = demo("ExceptionHandling1") == experiments::Compiler::Examples::ExceptionHandling1::main([]);
 test bool tst() = demo("ExceptionHandling2") == experiments::Compiler::Examples::ExceptionHandling2::main([]);
+test bool tst() = demo("ExceptionHandling3") == experiments::Compiler::Examples::ExceptionHandling3::main([]);
