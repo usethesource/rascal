@@ -62,7 +62,7 @@ java void serve(loc server, Handler callback);
 Handler fileserver(loc root) = 
   Response (loc uri, Method method, map[str, str] headers, map[str, str] parameters,  map[str, str] uploads) {
     if (method != get()) 
-      return response(badRequest());
+      return response(badRequest(), "GET is the only supported method");
       
     if (/\.\./ := "<uri>")
       return response(forbidden(), ".. is not allowed");
