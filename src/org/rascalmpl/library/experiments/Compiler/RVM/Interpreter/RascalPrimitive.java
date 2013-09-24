@@ -226,8 +226,9 @@ public enum RascalPrimitive {
 	
 	// join
 	list_join_list,
-	lrel_join_lrel,
 	set_join_set,
+	lrel_join_lrel,
+	rel_join_rel,
 
 	// less
 	
@@ -1751,31 +1752,82 @@ public enum RascalPrimitive {
 		return list_product_list(stack, sp, arity);
 	}
 	
+	public static int set_join_set(Object[] stack, int sp, int arity) {
+		return set_product_set(stack, sp, arity);
+	}
+	
 	public static int lrel_join_lrel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-//		IListRelation left = (IListRelation) stack[sp - 2];
-//		IListRelation right = (IListRelation) stack[sp - 1];
-//		int larity = left.arity();
-//		int rarity = right.arity();
-//		IValue fieldValues[] = new IValue[larity + rarity];
-//		IListWriter w =vf.listWriter();
-//		for (IValue ltuple : left.asList().
-//					
-//					get(j);
-//			for (IValue rtuple: right.asList().) {
-//				for (int i = 0; i < larity; i++) {
-//					fieldValues[i] = ((ITuple)ltuple).get(i);
-//				}
-//				for (int i = larity; i < larity + rarity; i++) {
-//					fieldValues[i] = ((ITuple)rtuple).get(i - larity);
-//				}
-//				w.append(vf.tuple(fieldValues));
-//			}
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+		if(left.length() == 0){
+			stack[sp - 2] = right;
+			return sp -1;
+		}
+		if(right.length() == 0){
+			stack[sp - 2] = left;
+			return sp -1;
+		}
+		Type leftType = left.get(0).getType();
+		Type rightType = right.get(0).getType();
+		assert leftType.isTuple();
+		assert rightType.isTuple();
+		
+		int larity = leftType.getArity();
+		int rarity = rightType.getArity();
+		IValue fieldValues[] = new IValue[larity + rarity];
+		IListWriter w =vf.listWriter();
+
+		for (IValue ltuple : left){
+			for (IValue rtuple: right) {
+				for (int i = 0; i < larity; i++) {
+					fieldValues[i] = ((ITuple)ltuple).get(i);
+				}
+				for (int i = larity; i < larity + rarity; i++) {
+					fieldValues[i] = ((ITuple)rtuple).get(i - larity);
+				}
+				w.append(vf.tuple(fieldValues));
+			}
+		}
+		stack[sp - 2] = w.done();
 		return sp - 1;
 	}
 	
-	public static int set_join_set(Object[] stack, int sp, int arity) {
-		return list_product_list(stack, sp, arity);
+	public static int rel_join_rel(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet left = (ISet) stack[sp - 2];
+		ISet right = (ISet) stack[sp - 1];
+		if(left.size() == 0){
+			stack[sp - 2] = right;
+			return sp -1;
+		}
+		if(right.size() == 0){
+			stack[sp - 2] = left;
+			return sp -1;
+		}
+		Type leftType = left.getElementType();
+		Type rightType = right.getElementType();
+		assert leftType.isTuple();
+		assert rightType.isTuple();
+		
+		int larity = leftType.getArity();
+		int rarity = rightType.getArity();
+		IValue fieldValues[] = new IValue[larity + rarity];
+		ISetWriter w =vf.setWriter();
+
+		for (IValue ltuple : left){
+			for (IValue rtuple: right) {
+				for (int i = 0; i < larity; i++) {
+					fieldValues[i] = ((ITuple)ltuple).get(i);
+				}
+				for (int i = larity; i < larity + rarity; i++) {
+					fieldValues[i] = ((ITuple)rtuple).get(i - larity);
+				}
+				w.insert(vf.tuple(fieldValues));
+			}
+		}
+		stack[sp - 2] = w.done();
+		return sp - 1;
 	}
 	
 	/*
