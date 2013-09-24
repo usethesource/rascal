@@ -1849,7 +1849,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> \< <{Fiel
             }
         } else if ((Field)`<Name fn>` := f) {
             if (tupleHasField(rt, "<fn>"))
-                failures += makeFailType("Field <prettyPrintName(fn)> does not exist", f@\loc);
+                failures += makeFailType("Field <fn> does not exist", f@\loc);   // PK: was prettyPrintName(fn)
             else {
                 subscripts += getTupleFieldType(rt, fnAsString);
                 if (maintainFieldNames) fieldNames += "<fn>";
