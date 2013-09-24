@@ -137,9 +137,8 @@ public data MuExp =
           
           // Exception handling try/catch
           
-          | muTry(MuExp exp, MuCatch \catch)
-          | muTryFinally(MuExp exp, MuCatch \catch, MuExp \finally)
-       	  ;
+          | muTry(MuExp exp, MuCatch \catch, MuExp \finally)
+          ;
  
  data MuCatch = muCatch(str id, Symbol \type, MuExp body);       	  
        	  
