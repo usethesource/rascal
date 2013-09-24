@@ -154,14 +154,13 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
      paramTypes = \tuple([param | param <- ftype.parameters]);
      params = [ muLoc("<ftype.parameters[i]>", i) | i <- [ 0 .. nformals] ];
      exp = muCallJava("<signature.name>", ttags["javaClass"], paramTypes, params);
-     tbody = translateFunction(signature.parameters.formals.formals, exp);
+     tbody = translateFunction(signature.parameters.formals.formals, exp, []);
     
      functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, tbody);
   } else {
     println("r2mu: <fuid> ignored");
   }
-
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
@@ -174,7 +173,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
  //TODO: keyword parameters
-  tbody = translateFunction(signature.parameters.formals.formals, expression);
+  tbody = translateFunction(signature.parameters.formals.formals, expression, []);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
@@ -183,8 +182,32 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   if("test" in tmods){
      params = ftype.parameters;
      tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muTypeCon(\tuple([param | param <- params ])) ]);
+     // Maybe we should still transfer the reified type
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
-     
+  }
+}
+
+void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`){
+  println("r2mu: Compiling <signature.name>");
+  ftype = getFunctionType(fd@\loc);
+  nformals = size(ftype.parameters);
+  uid = loc2uid[fd@\loc];
+  fuid = uid2str(uid);
+  tuple[str fuid,int pos] addr = uid2addr[uid];
+  bool isVarArgs = (varArgs(_,_) := signature.parameters);
+  
+ //TODO: keyword parameters
+  tbody = translateFunction(signature.parameters.formals.formals, expression, [exp | exp <- conditions]);
+  tmods = translateModifiers(signature.modifiers);
+  ttags =  translateTags(tags);
+  functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+  									nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, tbody);
+  
+  if("test" in tmods){
+     params = ftype.parameters;
+     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muTypeCon(\tuple([param | param <- params ])) ]);
+     // Maybe we should still transfer the reified type
+     //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
 }
 
@@ -194,7 +217,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   nformals = size(ftype.parameters);
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   //TODO: keyword parameters
-  MuExp tbody = translateFunction(signature.parameters.formals.formals, body.statements);
+  MuExp tbody = translateFunction(signature.parameters.formals.formals, body.statements, []);
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
   tuple[str fuid,int pos] addr = uid2addr[uid];
@@ -202,7 +225,6 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   									nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody); 
 }
 
-//str translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions> ;`)   { throw("conditional"); }
 
 
 /* withThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters "throws" {Type ","}+ exceptions */

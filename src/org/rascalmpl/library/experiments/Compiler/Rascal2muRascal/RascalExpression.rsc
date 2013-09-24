@@ -572,7 +572,7 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
 	bool isVarArgs = (varArgs(_,_) := parameters);
   	// TODO: keyword parameters
     
-    MuExp body = translateFunction(parameters.formals.formals, statements);
+    MuExp body = translateFunction(parameters.formals.formals, statements, []);
     tuple[str fuid,int pos] addr = uid2addr[uid];
     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  nformals, nlocals, e@\loc, [], (), body);
