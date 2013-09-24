@@ -346,7 +346,12 @@ void extractScopes(){
 
 }
 
-str getFUID(str fname, Symbol \type) = "<fname>(<for(p<-\type.parameters){><p>;<}>)";
+str getFUID(str fname, Symbol \type) { 
+  println("getFUID: <fname>, <\type>");
+   return "<fname>(<for(p<-\type.parameters){><p>;<}>)";
+}
+
+
 str getFUID(str fname, Symbol \type, int case_num) = "<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
 str getFUID(str modName, str fname, Symbol \type, int case_num) = "<modName>/<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
 
