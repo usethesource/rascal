@@ -14,6 +14,7 @@ import util::Math;
 import experiments::Compiler::Execute;
 
 import experiments::Compiler::Benchmarks::BBottles;
+import experiments::Compiler::Benchmarks::BExceptions;
 import experiments::Compiler::Benchmarks::BFac;
 import experiments::Compiler::Benchmarks::BFib;
 import experiments::Compiler::Benchmarks::BFor;
@@ -25,8 +26,9 @@ import experiments::Compiler::Benchmarks::BSet1;
 import experiments::Compiler::Benchmarks::BSetMatch1;
 import experiments::Compiler::Benchmarks::BSetMatch2;
 import experiments::Compiler::Benchmarks::BSendMoreMoney;
+import experiments::Compiler::Benchmarks::BTemplate;
 import experiments::Compiler::Benchmarks::BWhile;
-import experiments::Compiler::Benchmarks::BExceptions;
+
 
 loc base = |std:///experiments/Compiler/Benchmarks/|;
 
@@ -37,7 +39,7 @@ map[str,Measurement] measurements = ();
 void run(str bm,  value(list[value]) bmain) {
   println("Benchmark: <bm>");
   t1 = getMilliTime();
-  <v, t2> = execute_and_time(base + (bm + ".rsc"));
+  <v, t2> = execute_and_time(base + (bm + ".rsc"), []);
   t3 = getMilliTime();
   bmain([]);
   t4 = getMilliTime();
@@ -83,6 +85,7 @@ void report(){
 void main(){
   measurements = ();
   run("BBottles", experiments::Compiler::Benchmarks::BBottles::main);
+  run("BExceptions", experiments::Compiler::Benchmarks::BExceptions::main);
   run("BFac", experiments::Compiler::Benchmarks::BFac::main);
   run("BFib", experiments::Compiler::Benchmarks::BFib::main);
   run("BFor", experiments::Compiler::Benchmarks::BFor::main);
@@ -94,8 +97,8 @@ void main(){
   run("BSetMatch1", experiments::Compiler::Benchmarks::BSetMatch1::main);
   run("BSetMatch2", experiments::Compiler::Benchmarks::BSetMatch2::main);
   run("BSendMoreMoney", experiments::Compiler::Benchmarks::BSendMoreMoney::main);
-  //run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
+  run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
   run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
-  run("BExceptions", experiments::Compiler::Benchmarks::BExceptions::main);
+ 
   report();
 }

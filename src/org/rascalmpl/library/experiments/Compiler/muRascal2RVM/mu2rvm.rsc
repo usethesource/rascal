@@ -196,7 +196,9 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
 
 INS  tr(list[MuExp] exps) = [ *tr(exp) | exp <- exps ];
 
-INS tr_and_pop(MuExp exp) = producesValue(exp) ? [*tr(exp), POP()] : tr(exp);
+INS tr_and_pop(muBlock([])) = [];
+
+default INS tr_and_pop(MuExp exp) = producesValue(exp) ? [*tr(exp), POP()] : tr(exp);
 
 INS trblock(list[MuExp] exps) {
   if(size(exps) == 0){
@@ -485,7 +487,7 @@ default INS tr(e: muMulti(MuExp exp)) =
     //when bprintln("tr outer muMulti: <e>");
     
 INS tr(e:muOne(list[MuExp] exps)) {
-  bprintln("tr outer muOne: <e>");
+  //bprintln("tr outer muOne: <e>");
   dummyLab = nextLabel();
   failLab = nextLabel();
   afterLab = nextLabel();
@@ -500,7 +502,7 @@ INS tr(e:muOne(list[MuExp] exps)) {
 }
 
 INS tr(e:muAll(list[MuExp] exps)) { 
-    println("tr outer muAll: <e>");
+    //println("tr outer muAll: <e>");
     
     startLab = nextLabel();
     //continueLab = nextLabel();
