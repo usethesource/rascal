@@ -80,7 +80,7 @@ public class GrammarToJigll {
 		  return null;
 	  }
 	  
-	  parser = ParserFactory.levelParser(grammar);
+	  parser = ParserFactory.levelParser(grammar, 30);
 
 	  log.info("Iguana started.");
 	  
