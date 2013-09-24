@@ -28,12 +28,16 @@ import org.jgll.grammar.Grammar;
 import org.jgll.grammar.GrammarBuilder;
 import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionFactory;
+import org.jgll.grammar.condition.ConditionType;
+import org.jgll.grammar.condition.TerminalCondition;
 import org.jgll.grammar.symbols.CharacterClass;
 import org.jgll.grammar.symbols.Keyword;
 import org.jgll.grammar.symbols.Nonterminal;
 import org.jgll.grammar.symbols.Range;
+import org.jgll.grammar.symbols.RegularList;
 import org.jgll.grammar.symbols.Rule;
 import org.jgll.grammar.symbols.Symbol;
+import org.jgll.grammar.symbols.Terminal;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseError;
 import org.jgll.parser.ParserFactory;
@@ -233,6 +237,7 @@ public class GrammarToJigll {
 		keywordsMap = new HashMap<>();
 
 		for (IValue nonterminal : definitions) {
+			
 			boolean ebnf = isEBNF((IConstructor) nonterminal);
 			
 			Nonterminal head = getHead((IConstructor) nonterminal);
@@ -256,6 +261,7 @@ public class GrammarToJigll {
 				}
 				
 				if(!prod.getName().equals("regular")) {
+					
 					IList rhs = (IList) prod.get("symbols");
 					
 					List<Symbol> body = getSymbolList(rhs);
@@ -408,8 +414,7 @@ public class GrammarToJigll {
 		switch (symbol.getName()) {
 		
 			case "char-class":
-				List<Range> targetRanges = buildRanges(symbol);
-				return new CharacterClass(targetRanges);
+			return getCharacterClass(symbol);
 				
 			case "lit":
 				return getKeyword(symbol);
@@ -442,11 +447,71 @@ public class GrammarToJigll {
 				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
 				
 			case "conditional":
+				Symbol regularList = getRegularList(symbol);
+				if(regularList != null) {
+					return regularList;
+				}
 				return getSymbol(getSymbolCons(symbol)).addConditions(getConditions(symbol));
 				
 			default:
 				return new Nonterminal(SymbolAdapter.toString(symbol, true));
 			}
+	}
+
+	private CharacterClass getCharacterClass(IConstructor symbol) {
+		List<Range> targetRanges = buildRanges(symbol);
+		return new CharacterClass(targetRanges);
+	}
+	
+	private Symbol getRegularList(IConstructor conditional) {
+		IConstructor symbol = getSymbolCons(conditional);
+		
+		if(SymbolAdapter.isIterStar(symbol)) {
+			if(SymbolAdapter.isCharClass(getSymbolCons(symbol))) {
+				List<Condition> conditions = getConditions(conditional);
+				CharacterClass characterClass = getCharacterClass(getSymbolCons(symbol));
+				if(isRegularList(characterClass, conditions)) {
+					RegularList star = RegularList.star(SymbolAdapter.toString(symbol, true), characterClass);
+					return star.addConditions(conditions);
+				}
+			}
+		}
+		
+		if(SymbolAdapter.isIterPlus(symbol)) {
+			if(SymbolAdapter.isCharClass(getSymbolCons(symbol))) {
+				List<Condition> conditions = getConditions(conditional);
+				CharacterClass characterClass = getCharacterClass(getSymbolCons(symbol));
+				if(isRegularList(characterClass, conditions)) {
+					RegularList plus = RegularList.plus(SymbolAdapter.toString(symbol, true), characterClass);
+					return plus.addConditions(conditions);
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	private boolean isRegularList(CharacterClass characterClass, List<Condition> conditions) {
+		
+		for(Condition condition : conditions) {
+			if(condition.getType() == ConditionType.NOT_FOLLOW && condition instanceof TerminalCondition) {
+				TerminalCondition terminalCondition = (TerminalCondition) condition;
+				
+				// TODO: currently it only works for a single follow restriction.
+				if(terminalCondition.getTerminals().size() != 1) {
+					return false;
+				}
+				Terminal terminal = terminalCondition.getTerminals().get(0);
+				if(!(terminal instanceof CharacterClass)) {
+					return false;
+				}
+				if(characterClass.equals(terminal)) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	private List<Condition> getConditions(IConstructor symbol) {
