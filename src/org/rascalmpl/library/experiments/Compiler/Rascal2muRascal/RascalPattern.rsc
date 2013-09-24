@@ -315,7 +315,7 @@ MuExp translateFormals(list[Pattern] formals, int i, node body){
     }
 }
 
-MuExp translateFunction({Pattern ","}* formals, node body){
+MuExp translateFunction({Pattern ","}* formals, node body, list[Expression] when_conditions){
   bool b = true;
   for(pat <- formals){
       if(!(pat is typedVariable || pat is literal))
@@ -334,6 +334,8 @@ MuExp translateFunction({Pattern ","}* formals, node body){
 	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
 	      i += 1;
 	  };
+	  conditions += [ traslate(cond) | cond <- when_conditions];
+
 	  mubody = muIfelse(ifname,muAll(conditions), [ muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	  leaveBacktrackingScope();
 	  return mubody;

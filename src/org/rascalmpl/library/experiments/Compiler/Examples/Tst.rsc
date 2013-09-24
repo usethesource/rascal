@@ -1,11 +1,26 @@
 module experiments::Compiler::Examples::Tst
 
-public bool greaterEqual(int i, int j) = i == j || i > j;
+
+// Helper function to generate a getter
+private str genGetter(map[str,str] fields, str x) {
+  return "public <fields[x]> get<x>() {
+         '  return <x>;
+         '}";
+}
+
+// Generate a class with given name and fields.
+
+public str genClass(str name, map[str,str] fields) { 
+  return 
+    "public class <name> {
+    '  <for (x <- fields) {>
+    '  <genGetter(fields, x)><}>
+    '}";
+}
 
 value main(list[value] args){
-   //str Y = "Y\<";
-   //if(/^abc<x:.*>def<Y>ghi<z:[0-9]+>$/ := "abcxyzdefY\<ghi123456789")
-   //   return x + "/" + z;
-   //else return "nomatch";
-   return greaterEqual(4, 3);
-}   
+  return genClass("Person", ("age" : "int"));
+ 
+ 
+ //return genGetter( ("age" : "int"), "age");
+}
