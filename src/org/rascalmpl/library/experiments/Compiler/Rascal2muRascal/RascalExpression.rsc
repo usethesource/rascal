@@ -241,7 +241,7 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
        tp = getSetElementType(tp);
     } else if(isListType(tp)){
        tp = getListElementType(tp);
-    } else {
+    } else if(isMapType(tp)){
        tp = getMapFieldsAsTuple(tp);
     }
     if(tupleHasFieldNames(tp)){
