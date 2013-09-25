@@ -229,9 +229,6 @@ MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
   // The default case will handle any thrown value
   exp = translate(c.body);
   
-  // Debug exception handling
-  // println("Default catch: <exp>");
-  
   return exp;
 }
 
