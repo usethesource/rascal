@@ -51,8 +51,11 @@ MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier m
  fragmentCode = [];
  varrefs = [];
  str fragment = "";
+ modifierString = "<modifier>";
+ for(i <- [0 .. size(modifierString)]){
+     fragment += "(?<modifierString[i]>)";
+ }
  for(r <- rexps){
-   println("r = <r>");
    if(size("<r>") == 1){
       fragment += "<r>";
    } else {
@@ -73,8 +76,6 @@ MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier m
  buildRegExp = muBlock(muAssignTmp(swriter, muCallPrim("stringwriter_open", [])) + 
                        [ muCallPrim("stringwriter_add", [muTmp(swriter), exp]) | exp <- fragmentCode ] +
                        muCallPrim("stringwriter_close", [muTmp(swriter)]));
-               
- println("buildRegExp = <buildRegExp>");
  
  return muCreate(mkCallToLibFun("Library", "MATCH_REGEXP", 3), 
                  [ buildRegExp,
