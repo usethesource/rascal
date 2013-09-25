@@ -27,6 +27,7 @@ import experiments::Compiler::Examples::ExceptionHandlingFinally1;
 import experiments::Compiler::Examples::ExceptionHandlingFinally2;
 import experiments::Compiler::Examples::ExceptionHandlingFinally3;
 import experiments::Compiler::Examples::ExceptionHandlingFinally4;
+import experiments::Compiler::Examples::ExceptionHandlingFinally5;
 
 loc base = |std:///experiments/Compiler/Examples/|;
 
@@ -54,7 +55,8 @@ test bool tst() = demo("OverloadingPlusBacktracking") == experiments::Compiler::
 test bool tst() = demo("ExceptionHandling1") == experiments::Compiler::Examples::ExceptionHandling1::main([]);
 test bool tst() = demo("ExceptionHandling2") == experiments::Compiler::Examples::ExceptionHandling2::main([]);
 test bool tst() = demo("ExceptionHandling3") == experiments::Compiler::Examples::ExceptionHandling3::main([]);
-test bool tst() = demo("ExceptionHandlingFinally1") == experiments::Compiler::Examples::ExceptionHandlingFinally1::main([]);
-test bool tst() = demo("ExceptionHandlingFinally2") == experiments::Compiler::Examples::ExceptionHandlingFinally2::main([]);
-test bool tst() = demo("ExceptionHandlingFinally3") == experiments::Compiler::Examples::ExceptionHandlingFinally3::main([]);
-test bool tst() = demo("ExceptionHandlingFinally4") == experiments::Compiler::Examples::ExceptionHandlingFinally4::main([]);
+test bool tst1() = demo("ExceptionHandlingFinally1",recompile=true) == experiments::Compiler::Examples::ExceptionHandlingFinally1::main([]);
+test bool tst2() = demo("ExceptionHandlingFinally2",recompile=true) == experiments::Compiler::Examples::ExceptionHandlingFinally2::main([]);
+test bool tst3() = demo("ExceptionHandlingFinally3",recompile=true) == experiments::Compiler::Examples::ExceptionHandlingFinally3::main([]);
+test bool tst4() = demo("ExceptionHandlingFinally4",recompile=true) == experiments::Compiler::Examples::ExceptionHandlingFinally4::main([]);
+test bool tst5() = demo("ExceptionHandlingFinally5",recompile=true) == experiments::Compiler::Examples::ExceptionHandlingFinally5::main([]);

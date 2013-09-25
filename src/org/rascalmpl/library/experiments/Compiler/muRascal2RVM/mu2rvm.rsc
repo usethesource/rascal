@@ -350,6 +350,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Translate the 'try' block; inlining 'finally' blocks where necessary
 	code = [ LABEL(try_from), *tr(exp) ];
 	
+	oldFinallyBlocks = finallyBlocks;
 	leaveFinally();
 	
 	// Translate the 'finally' block; inlining 'finally' blocks where necessary
@@ -367,7 +368,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	
 	oldTryBlocks = tryBlocks;
 	tryBlocks = catchAsPartOfTryBlocks;
-	finallyBlocks = tryBlocks;
+	finallyBlocks = oldFinallyBlocks;
 	
 	trMuCatch(\catch, catch_from, catchAsPartOfTry_from, catch_to, try_to);
 		

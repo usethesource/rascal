@@ -6,6 +6,7 @@ value main(list[value] args) {
 	
 	str n = "0";
 	
+	// No exceptions and no returns
 	try {
 		
 		n = n + " 1";

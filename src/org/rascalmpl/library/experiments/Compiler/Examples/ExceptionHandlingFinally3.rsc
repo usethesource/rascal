@@ -30,6 +30,7 @@ value main(list[value] args) {
 	} 
 	finally {
 		n = n + " 10";
+		// Inline in a 'finally' block
 		return n + " has been returned from the outer finally!";
 	}
 	
