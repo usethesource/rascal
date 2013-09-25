@@ -371,10 +371,10 @@ public class RVM {
 	
 	// TODO: Need to re-consider management of active coroutines
 	public Object executeProgram(Frame root, Frame cf) {
-		Object[] stack = cf.stack;		                              // current stack
-		int sp = cf.function.nlocals;				                  // current stack pointer
-		int[] instructions = cf.function.codeblock.getInstructions(); // current instruction sequence
-		int pc = 0;				                                      // current program counter
+		Object[] stack = cf.stack;		                              		// current stack
+		int sp = cf.function.nlocals;				                  	// current stack pointer
+		int [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
+		int pc = 0;				                                      	// current program counter
 				
 		try {
 			NEXT_INSTRUCTION: while (true) {

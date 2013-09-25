@@ -5,6 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -372,6 +374,12 @@ public enum RascalPrimitive {
 	
 	list_product_list,
 	set_product_set,
+	
+	// project
+	
+	map_field_project,
+	rel_field_project,
+	lrel_field_project,
 	
 	// remainder
 	
@@ -1006,8 +1014,6 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 
-
-
 	/*
 	 * ...writer_close
 	 */
@@ -1283,6 +1289,67 @@ public enum RascalPrimitive {
 	/*
 	 * fieldProject
 	 */
+	public static int rel_field_project(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		ISet rel = (ISet) stack[sp - arity];
+		int[] fields = new int[arity - 1];
+		for(int i = 1; i < arity; i++){
+			fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
+		}
+		ISetWriter w = vf.setWriter();
+		IValue[] elems = new IValue[arity - 1];
+		for(IValue vtup : rel){
+			ITuple tup = (ITuple) vtup;
+			for(int j = 0; j < fields.length; j++){
+				elems[j] = tup.get(fields[j]);
+			}
+			w.insert(vf.tuple(elems));
+		}
+		stack[sp - arity] = w.done();
+		return sp - arity + 1;
+	}
+	
+	public static int lrel_field_project(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		IList lrel = (IList) stack[sp - arity];
+		int[] fields = new int[arity - 1];
+		for(int i = 1; i < arity; i++){
+			fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
+		}
+		IListWriter w = vf.listWriter();
+		IValue[] elems = new IValue[arity - 1];
+		for(IValue vtup : lrel){
+			ITuple tup = (ITuple) vtup;
+			for(int j = 0; j < fields.length; j++){
+				elems[j] = tup.get(fields[j]);
+			}
+			w.append(vf.tuple(elems));
+		}
+		stack[sp - arity] = w.done();
+		return sp - arity + 1;
+	}
+	
+	public static int map_field_project(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		IMap map = (IMap) stack[sp - arity];
+		int[] fields = new int[arity - 1];
+		for(int i = 1; i < arity; i++){
+			fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
+		}
+		ISetWriter w = vf.setWriter();
+		IValue[] elems = new IValue[arity - 1];
+		Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
+		while (iter.hasNext()) {
+			Entry<IValue,IValue> entry = iter.next();
+			for(int j = 0; j < fields.length; j++){
+				elems[j] = fields[j] == 0 ? entry.getKey() : entry.getValue();
+			}
+			w.insert(vf.tuple(elems));
+		}
+		stack[sp - arity] = w.done();
+		return sp - arity + 1;
+	}
+
 	/*
 	 * getAnnotation
 	 */

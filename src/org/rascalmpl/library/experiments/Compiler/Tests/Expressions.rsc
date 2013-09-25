@@ -248,12 +248,14 @@ test bool tst() = run("{x = (\"a\" : [0,1,2]); x[\"b\"] = [1000,2000]; x[\"b\"][
 // Projection
 
 test bool tst() = run("\<1,2,3,4\>\<1,3\>") == <1,2,3,4><1,3>;
+test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x\<2,1\>;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x<2,1>;};
 // Issue in type checker:
 /*fails*/ //test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x\<b,1\>;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x<b,1>;};
-// rel_field_project not yet implemented:
-/*fails*/ //test bool tst() = run("{{\<1, \"x\", 2\>, \<10, \"xx\", 20\>}\<2,1\>;}") == {<1, "x", 2>, <10, "xx", 20>}<2,1>;
-// lrel_field_project not yet implemented:
-/*fails*/ //test bool tst() = run("{[\<1, \"x\", 2\>, \<10, \"xx\", 20\>]\<2,1\>;}") == [<1, "x", 2>, <10, "xx", 20>]<2,1>;
+
+test bool tst() = run("{{\<1, \"x\", 2\>, \<10, \"xx\", 20\>}\<2,1\>;}") == {<1, "x", 2>, <10, "xx", 20>}<2,1>;
+test bool tst() = run("{[\<1, \"x\", 2\>, \<10, \"xx\", 20\>]\<2,1\>;}") == [<1, "x", 2>, <10, "xx", 20>]<2,1>;
+
+test bool tst() = run("{(\"a\" : 1, \"b\" : 2, \"c\" : 3)\<1,0,1\>;}") == ("a" : 1, "b" : 2, "c" : 3)<1,0,1>;
 
 // Slicing
 
