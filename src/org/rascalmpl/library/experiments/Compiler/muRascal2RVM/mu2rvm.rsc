@@ -295,8 +295,8 @@ INS tr(muCallJava(str name, str class, Symbol types, list[MuExp] args)) = [ *tr(
 INS tr(muReturn()) = [RETURN0()];
 INS tr(muReturn(MuExp exp)) {
 	if(muTmp(str varname) := exp) {
-		// TODO: inline 'finally' blocks
-		return [*tr(exp), RETURN1()];
+		inlineMuFinally();
+		return [*finallyBlock, *tr(exp), RETURN1()];
 	}
 	return [*tr(exp), RETURN1()];
 }
@@ -330,11 +330,13 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	
 	str try_from              = mkTryFrom(tryLab);
 	str try_to                = mkTryTo(tryLab);
-	str catch_from            = mkCatchFrom(catchLab);
-	str catch_to              = mkCatchTo(catchLab);
+	str catch_from            = mkCatchFrom(catchLab); // used to jump
+	str catch_to              = mkCatchTo(catchLab);   // used to find a handler catch
 	
-	str catchAsPartOfTry_from = mkCatchFrom(nextLabel()) + "_as_try";
+	// Mark the begin of 'catch' blocks that have to be also translated as part of 'try' blocks 
+	str catchAsPartOfTry_from = mkCatchFrom(nextLabel()); // used to find a handler catch
 	
+	// There might be no surrounding 'try' block for a 'catch' block
 	if(!isEmpty(tryBlocks)) {
 		// Get the outer 'try' block
 		EEntry currentTry = topTry();
@@ -342,7 +344,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 		enterCatchAsPartOfTryBlock(catchAsPartOfTry_from, catch_to, currentTry.\type, currentTry.\catch, currentTry.\finally);
 	}
 	
-	// Enter the current 'try' block
+	// Enter the current 'try' block; also including a 'finally' block
 	enterTry(try_from, try_to, \catch.\type, catch_from, \finally); 
 	
 	// Translate the 'try' block; inlining 'finally' blocks where necessary
@@ -364,7 +366,6 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// it has to be handled by the 'catch' blocks of the outer 'try' blocks
 	
 	oldTryBlocks = tryBlocks;
-	
 	tryBlocks = catchAsPartOfTryBlocks;
 	finallyBlocks = tryBlocks;
 	
@@ -393,16 +394,13 @@ void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str fromAsPar
 	catchBlocks = catchBlocks + [[]];
 	catchBlock = [];
 	
-	println("Catch labels: <from> <fromAsPartOfTryBlock>");
-	
-	// TODO: could be optimised by introducing the level of nesting
 	str catchAsPartOfTryNewLab = nextLabel();
-	str catchAsPartOfTryNew_from = mkCatchFrom(catchAsPartOfTryNewLab) + "_as_try";
-	str catchAsPartOfTryNew_to = mkCatchTo(catchAsPartOfTryNewLab) + "_as_try";
+	str catchAsPartOfTryNew_from = mkCatchFrom(catchAsPartOfTryNewLab);
+	str catchAsPartOfTryNew_to = mkCatchTo(catchAsPartOfTryNewLab);
 	
-	// Copy 'try' block environment of the 'catch' block
+	// Copy 'try' block environment of the 'catch' block; needed in case of nested 'catch' blocks
 	catchAsPartOfTryBlocks = [ < [<catchAsPartOfTryNew_from, catchAsPartOfTryNew_to>],
-								entry.\type, entry.\catch, entry.\finally > | EEntry entry <- catchAsPartOfTryBlocks ];
+								 entry.\type, entry.\catch, entry.\finally > | EEntry entry <- catchAsPartOfTryBlocks ];
 	
 	if(muBlock([]) := exp) {
 		catchBlock = [ LABEL(from), POP(), LABEL(to), JMP(jmpto) ];
@@ -422,11 +420,7 @@ void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str fromAsPar
 	currentCatchBlock = oldCurrentCatchBlock;
 	
 	// 'catchBlock' is always non-empty 
-	if(!catchBlocks[currentCatchBlock]?) {
-		catchBlocks[currentCatchBlock] = [ LABEL(fromAsPartOfTryBlock), *catchBlock ];
-	} else {
-		catchBlocks[currentCatchBlock] = [ LABEL(fromAsPartOfTryBlock), *catchBlocks[currentCatchBlock], *catchBlock ];
-	}
+	catchBlocks[currentCatchBlock] = [ LABEL(fromAsPartOfTryBlock), *catchBlocks[currentCatchBlock], *catchBlock ];
 		
 }
 
@@ -440,38 +434,52 @@ void inlineMuFinally() {
 	str finally_from = mkFinallyFrom(finallyLab);
 	str finally_to   = mkFinallyTo(finallyLab);
 	
+	// Stack of 'finally' blocks to be inlined
 	list[MuExp] finallyStack = [ entry.\finally | EEntry entry <- finallyBlocks ];
 	
-	// Make a space in the nested 'try' blocks to inline a 'finally' block
-	tryBlocks = [ <[ *head, <from, finally_from>, <finally_from, finally_to + "_<size(finallyStack) - 1>">], 
+	// Make a space in the current (potentially nested) 'try' blocks to inline a 'finally' block
+	tryBlocks = [ <[ *head, <from,finally_from>, <finally_to + "_<size(finallyStack) - 1>",to>], 
 				   tryBlock.\type, tryBlock.\catch, tryBlock.\finally> | EEntry tryBlock <- tryBlocks, 
 				   														 [ *tuple[str,str] head, <from,to> ] := tryBlock.ranges ];
 	
 	oldTryBlocks = tryBlocks;
-	// TODO: now assuming that there is no 'try-catch' blocks in 'finally' blocks 
+	oldCatchAsPartOfTryBlocks = catchAsPartOfTryBlocks;
 	oldFinallyBlocks = finallyBlocks;
+	oldCurrentCatchBlock = currentCatchBlock;
+	oldCatchBlocks = catchBlocks;
 	
+	// Translate 'finally' blocks as 'try' blocks: mark them with labels
 	tryBlocks = [];	
 	for(int i <- [0..size(finallyStack)]) {
+		// The last 'finally' does not have an outer 'try' block
 		if(i < size(finallyStack) - 1) {
 			EEntry outerTry = finallyBlocks[i + 1];
-			tryBlocks = tryBlocks + [ <[finally_from,finally_to + "_<i>"], outerTry.\type, outerTry.\catch, outerTry.\finally> ];
+			tryBlocks = tryBlocks + [ <[<finally_from, finally_to + "_<i>">], outerTry.\type, outerTry.\catch, outerTry.\finally> ];
 		}
 	}
 	finallyBlocks = tryBlocks;
 	catchAsPartOfTryBlocks = [];
+	currentCatchBlock = size(catchBlocks);
+	catchBlocks = catchBlocks + [[]];
 	
 	finallyBlock = [ LABEL(finally_from) ];
 	for(int i <- [0..size(finallyStack)]) {
 		finallyBlock = [ *finallyBlock, *tr(finallyStack[i]), LABEL(finally_to + "_<i>") ];
-		EEntry currentTry = topTryBlock();
-		exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
-		leaveTry();
-		leaveFinally();
+		if(i < size(finallyStack) - 1) {
+			EEntry currentTry = topTry();
+			exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
+			leaveTry();
+			leaveFinally();
+		}
 	}
 	
 	tryBlocks = oldTryBlocks;
+	catchAsPartOfTryBlocks = oldCatchAsPartOfTryBlocks;
 	finallyBlocks = oldFinallyBlocks;
+	if(isEmpty(catchBlocks[currentCatchBlock])) {
+		catchBlocks = oldCatchBlocks;
+	}
+	currentCatchBlock = oldCurrentCatchBlock;
 	
 }
 
