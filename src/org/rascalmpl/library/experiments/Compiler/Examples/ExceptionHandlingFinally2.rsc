@@ -22,6 +22,7 @@ value main(list[value] args) {
 			n = n + " 5";
 		} finally {
 			n = n + " 6";
+			// Inline in a 'finally' block
 			return n + " has been returned from the inner finally!";
 		}
 		
@@ -33,6 +34,7 @@ value main(list[value] args) {
 		n = n + " 9";
 	} finally {
 		n = n + " 10";
+		// Inline in a 'finally' block
 		return n + " has been returned from the outer finally!";
 	}
 	
