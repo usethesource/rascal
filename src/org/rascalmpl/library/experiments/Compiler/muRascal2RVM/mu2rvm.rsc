@@ -439,8 +439,10 @@ void inlineMuFinally() {
 	list[MuExp] finallyStack = [ entry.\finally | EEntry entry <- finallyBlocks ];
 	
 	// Make a space (hole) in the current (potentially nested) 'try' blocks to inline a 'finally' block
-	index = last([i | int i <- [0..size(finallyStack)], !(muBlock([]) := finallyStack[i])]);
-	tryBlocks = [ <[ *head, <from,finally_from>, <finally_to + "_<index>",to>], 
+	if(isEmpty([ \finally | \finally <- finallyStack, !(muBlock([]) := \finally) ])) {
+		return;
+	}
+	tryBlocks = [ <[ *head, <from,finally_from>, <finally_to + "_<size(finallyBlocks) - 1>",to>], 
 				   tryBlock.\type, tryBlock.\catch, tryBlock.\finally> | EEntry tryBlock <- tryBlocks, 
 				   														 [ *tuple[str,str] head, <from,to> ] := tryBlock.ranges ];
 	
@@ -452,7 +454,7 @@ void inlineMuFinally() {
 	
 	// Translate 'finally' blocks as 'try' blocks: mark them with labels
 	tryBlocks = [];	
-	for(int i <- [0..size(finallyStack)], !(muBlock([]) := finallyStack[i])) {
+	for(int i <- [0..size(finallyStack)]) {
 		// The last 'finally' does not have an outer 'try' block
 		if(i < size(finallyStack) - 1) {
 			EEntry outerTry = finallyBlocks[i + 1];
@@ -465,7 +467,7 @@ void inlineMuFinally() {
 	catchBlocks = catchBlocks + [[]];
 	
 	finallyBlock = [ LABEL(finally_from) ];
-	for(int i <- [0..size(finallyStack)], !(muBlock([]) := finallyStack[i])) {
+	for(int i <- [0..size(finallyStack)]) {
 		finallyBlock = [ *finallyBlock, *tr(finallyStack[i]), LABEL(finally_to + "_<i>") ];
 		if(i < size(finallyStack) - 1) {
 			EEntry currentTry = topTry();
