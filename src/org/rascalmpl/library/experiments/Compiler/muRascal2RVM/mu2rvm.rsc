@@ -103,8 +103,10 @@ EEntry topCatchAsPartOfTryBlocks() = top(catchAsPartOfTryBlocks);
 
 
 // Instruction block of all the 'catch' blocks within a function body in the same order in which they appear in the code
-INS catchBlocks = [];
+list[INS] catchBlocks = [[]];
 int currentCatchBlock = 0;
+
+INS finallyBlock = [];
 
 // As we use label names to mark try blocks (excluding 'catch' clauses)
 list[EEntry] exceptionTable = [];
@@ -126,12 +128,12 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     functionScope = fun.qname;
     nlocal = fun.nlocals;
     exceptionTable = [];
-    catchBlocks = [];
+    catchBlocks = [[]];
     if(listing){
     	iprintln(fun);
     }
     // Append catch blocks to the end of the function body code
-    code = tr(fun.body) + catchBlocks;
+    code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     // Debugging exception handling
     // println("FUNCTION BODY:");
@@ -144,9 +146,9 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     // }
     
     required_frame_size = nlocal + estimate_stack_size(fun.body);
-    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code, 
-    									[ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
-    																			  tuple[str from, str to] range <- entry.ranges ]));
+    lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
+    																			  tuple[str from, str to] range <- entry.ranges ];
+    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code, exceptions));
   }
   
   main_fun = getUID(module_name,[],"main",1);
@@ -325,29 +327,31 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Mark the begin and end of the 'try' and 'catch' blocks
 	str tryLab = nextLabel();
 	str catchLab = nextLabel();
-	str catchAsPartOfTryLab = nextLabel();
 	
 	str try_from              = mkTryFrom(tryLab);
 	str try_to                = mkTryTo(tryLab);
-	str catchAsPartOfTry_from = mkCatchFrom(catchAsPartOfTryLab);
-	str catchAsPartOfTry_to   = mkCatchTo(catchAsPartOfTryLab);
 	str catch_from            = mkCatchFrom(catchLab);
 	str catch_to              = mkCatchTo(catchLab);
 	
+	str catchAsPartOfTry_from = mkCatchFrom(nextLabel()) + "_as_try";
 	
-	EEntry currentTry = topTry(); // Get the outer 'try' block
-	enterTry(try_from, try_to, \catch.\type, catch_from, \finally); // Enter the current 'try' block
-	// Enter the current 'catch' block as part of the outer 'try' block
-	enterCatchAsPartOfTryBlock(catchAsPartOfTry_from, catchAsPartOfTry_to, currentTry.\type, currentTry.\catch, currentTry.\finally);
-	
-	if(size(catchAsPartOfTryBlocks) - size(tryBlocks) > 0) {
-		old = catchAsPartOfTryBlocks;
-		catchAsPartOfTryBlocks = [];
-		;
+	if(!isEmpty(tryBlocks)) {
+		// Get the outer 'try' block
+		EEntry currentTry = topTry();
+		// Enter the current 'catch' block as part of the outer 'try' block
+		enterCatchAsPartOfTryBlock(catchAsPartOfTry_from, catch_to, currentTry.\type, currentTry.\catch, currentTry.\finally);
 	}
 	
-	// Translate the 'try' block
+	// Enter the current 'try' block
+	enterTry(try_from, try_to, \catch.\type, catch_from, \finally); 
+	
+	// Translate the 'try' block; inlining 'finally' blocks where necessary
 	code = [ LABEL(try_from), *tr(exp) ];
+	
+	leaveFinally();
+	
+	// Translate the 'finally' block; inlining 'finally' blocks where necessary
+	code = code + [ *trMuFinally(\finally), LABEL(try_to) ];
 	
 	// Fill in the 'try' block entry into the current exception table
 	currentTry = topTry();
@@ -355,69 +359,120 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	
 	leaveTry();
 	
-	// Translate the 'catch' block
-	trMuCatch(\catch, catch_from, catch_to, try_to);
-	
+	// Translate the 'catch' block; inlining 'finally' blocks where necessary
 	// 'Catch' block may also throw an exception, and if it is part of an outer 'try' block,
 	// it has to be handled by the 'catch' blocks of the outer 'try' blocks
+	
+	oldTryBlocks = tryBlocks;
+	
+	tryBlocks = catchAsPartOfTryBlocks;
+	finallyBlocks = tryBlocks;
+	
+	trMuCatch(\catch, catch_from, catchAsPartOfTry_from, catch_to, try_to);
+		
+	// Restore 'try' block environment
+	catchAsPartOfTryBlocks = tryBlocks;
+	tryBlocks = oldTryBlocks;
+	finallyBlocks = tryBlocks;
+	
 	// Fill in the 'catch' block entry into the current exception table
-	EEntry currentCatchAsPartOfTryBlock = topCatchAsPartOfTryBlock();
-	exceptionTable += <currentCatchAsPartOfTryBlock.ranges, currentCatchAsPartOfTryBlock.\type, currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
-	
-	leaveCatchAsPartOfTryBlock();
-	
-	leaveFinally();
-	
-	// Translate the 'finally' block
-	code = code + [ *trMuFinally(\finally), LABEL(try_to) ];
+	if(!isEmpty(tryBlocks)) {
+		EEntry currentCatchAsPartOfTryBlock = topCatchAsPartOfTryBlocks();
+		exceptionTable += <currentCatchAsPartOfTryBlock.ranges, currentCatchAsPartOfTryBlock.\type, currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
+		leaveCatchAsPartOfTryBlocks();
+	}
 	
 	return code;
 }
 
-void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str to, str fromAsPartOfTryBlock, str toAsPartOfTryBlock, str jmpto) {
-
+void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str fromAsPartOfTryBlock, str to, str jmpto) {
+	
+	oldCatchBlocks = catchBlocks;
+	oldCurrentCatchBlock = currentCatchBlock;
+	currentCatchBlock = size(catchBlocks);
+	catchBlocks = catchBlocks + [[]];
 	catchBlock = [];
+	
+	println("Catch labels: <from> <fromAsPartOfTryBlock>");
+	
+	// TODO: could be optimised by introducing the level of nesting
+	str catchAsPartOfTryNewLab = nextLabel();
+	str catchAsPartOfTryNew_from = mkCatchFrom(catchAsPartOfTryNewLab) + "_as_try";
+	str catchAsPartOfTryNew_to = mkCatchTo(catchAsPartOfTryNewLab) + "_as_try";
+	
+	// Copy 'try' block environment of the 'catch' block
+	catchAsPartOfTryBlocks = [ < [<catchAsPartOfTryNew_from, catchAsPartOfTryNew_to>],
+								entry.\type, entry.\catch, entry.\finally > | EEntry entry <- catchAsPartOfTryBlocks ];
+	
 	if(muBlock([]) := exp) {
 		catchBlock = [ LABEL(from), POP(), LABEL(to), JMP(jmpto) ];
 	} else {
 		catchBlock = [ LABEL(from), STORELOC(getTmp(id)), POP(), *tr(exp), LABEL(to), JMP(jmpto) ];
 	}
 	
-	// 'catchBlock' is always non-empty 
-	if(catchBlocks[currentCatchAsPartOfTryBlock]?) {
-		catchBlocks[currentCatchAsPartOfTryBlock] = [ LABEL(fromAsPartOfTryBlock), *catchBlock, LABEL(toAsPartOfTryBlock) ];
+	if(!isEmpty(catchBlocks[currentCatchBlock])) {
+		catchBlocks[currentCatchBlock] = [ LABEL(catchAsPartOfTryNew_from), *catchBlocks[currentCatchBlock], LABEL(catchAsPartOfTryNew_to) ];
+		for(currentCatchAsPartOfTryBlock <- catchAsPartOfTryBlocks) {
+			exceptionTable += <currentCatchAsPartOfTryBlock.ranges, currentCatchAsPartOfTryBlock.\type, currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
+		}
 	} else {
-		catchBlocks[currentCatchAsPartOfTryBlock] = [ LABEL(fromAsPartOfTryBlock), *catchBlocks[currentCatchAsPartOfTryBlock], *catchBlock, LABEL(toAsPartOfTryBlock) ];
+		catchBlocks = oldCatchBlocks;
 	}
 	
+	currentCatchBlock = oldCurrentCatchBlock;
+	
+	// 'catchBlock' is always non-empty 
+	if(!catchBlocks[currentCatchBlock]?) {
+		catchBlocks[currentCatchBlock] = [ LABEL(fromAsPartOfTryBlock), *catchBlock ];
+	} else {
+		catchBlocks[currentCatchBlock] = [ LABEL(fromAsPartOfTryBlock), *catchBlocks[currentCatchBlock], *catchBlock ];
+	}
+		
 }
 
 INS trMuFinally(MuExp \finally) = tr(\finally);
 
-INS inlineMuFinally(str finally_from, str finally_to, int i, list[EEntry] finallyEnv) {
+void inlineMuFinally() {
+	
+	finallyBlock = [];
 
-	\finally = top(finallyEnv).\finally;
-	str finally_to = finally_to + "_<i>";
+	str finallyLab   = nextLabel();
+	str finally_from = mkFinallyFrom(finallyLab);
+	str finally_to   = mkFinallyTo(finallyLab);
+	
+	list[MuExp] finallyStack = [ entry.\finally | EEntry entry <- finallyBlocks ];
 	
 	// Make a space in the nested 'try' blocks to inline a 'finally' block
-	tryBlocks = [ <[ *head, <from, finally_from>, <finally_from, finally_to>], 
+	tryBlocks = [ <[ *head, <from, finally_from>, <finally_from, finally_to + "_<size(finallyStack) - 1>">], 
 				   tryBlock.\type, tryBlock.\catch, tryBlock.\finally> | EEntry tryBlock <- tryBlocks, 
 				   														 [ *tuple[str,str] head, <from,to> ] := tryBlock.ranges ];
 	
-	oldEnv = tryBlocks;
-	// Set the actual 'try' environment of the current 'finally' block
-	outerTry = top(tail(finallyEnv));
-	tryBlocks = [ <[finally_from,finally_to], outerTry.\type, outerTry.\catch, outerTry.\finally> ];
+	oldTryBlocks = tryBlocks;
+	// TODO: now assuming that there is no 'try-catch' blocks in 'finally' blocks 
+	oldFinallyBlocks = finallyBlocks;
 	
-	finallyCode = [ *tr(\finally), LABEL(finally_to) ];
+	tryBlocks = [];	
+	for(int i <- [0..size(finallyStack)]) {
+		if(i < size(finallyStack) - 1) {
+			EEntry outerTry = finallyBlocks[i + 1];
+			tryBlocks = tryBlocks + [ <[finally_from,finally_to + "_<i>"], outerTry.\type, outerTry.\catch, outerTry.\finally> ];
+		}
+	}
+	finallyBlocks = tryBlocks;
+	catchAsPartOfTryBlocks = [];
 	
-	for(EEntry tryBlock <- tryBlocks) {
-		exceptionTable += <tryBlock.ranges, tryBlock.\type, tryBlock.\catch, tryBlock.\finally>;
+	finallyBlock = [ LABEL(finally_from) ];
+	for(int i <- [0..size(finallyStack)]) {
+		finallyBlock = [ *finallyBlock, *tr(finallyStack[i]), LABEL(finally_to + "_<i>") ];
+		EEntry currentTry = topTryBlock();
+		exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
+		leaveTry();
+		leaveFinally();
 	}
 	
-	finallyCode = finallyCode + [ *inlineMuFinally(tail(finallyEnv)) ];
+	tryBlocks = oldTryBlocks;
+	finallyBlocks = oldFinallyBlocks;
 	
-	tryBlocks = oldEnv;
 }
 
 // Control flow
