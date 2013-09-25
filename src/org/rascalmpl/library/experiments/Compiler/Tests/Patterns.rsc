@@ -137,4 +137,14 @@ test bool tst() = run("/400 := (1 :[10, 100], 2:[20,200], 3 :[30,300])") == /400
 
 test bool tst() = run("/int x := d1(1, \"a\") && x == 1") == (/int x := d1(1, "a") && x == 1);
 
+// Regular expressions
+
+test bool tst() = run("/a/ := \"a\"") == (/a/ := "a");
+test bool tst() = run("/a/i := \"A\"") == (/a/i := "A");
+test bool tst() = run("/a/d := \"a\"") == (/a/d := "a");
+test bool tst() = run("/a/m := \"a\"") == (/a/m := "a");
+test bool tst() = run("/a\nb/ := \"a\nb\"") == (/a\nb/ := "a\nb");
+test bool tst() = run("/a.b/ := \"a\nb\"") == (/a.b/ := "a\nb");
+test bool tst() = run("/a.b/d := \"a\nb\"") == (/a.b/d := "a\nb");
+
 
