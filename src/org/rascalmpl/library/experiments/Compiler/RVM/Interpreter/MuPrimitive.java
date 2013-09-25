@@ -73,6 +73,11 @@ public enum MuPrimitive {
 	regexp_group,
 	set2list,
 	size_array_or_list_or_set_or_map_or_tuple,
+	size_array,
+	size_list,
+	size_set,
+	size_map,
+	size_tuple,
 	starts_with,
 	sublist_list_mint_mint,
 	subscript_array_or_list_or_tuple_mint, 
@@ -531,6 +536,35 @@ public enum MuPrimitive {
 			stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
 		} else
 			throw new RuntimeException("size_array_or_list_mint -- not defined on " + stack[sp - 1].getClass());
+		return sp;
+	}
+	public static int size_array(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
+		return sp;
+	}
+	
+	public static int size_list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((IList) stack[sp - 1]).length();
+		return sp;
+	}
+	
+	public static int size_set(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((ISet) stack[sp - 1]).size();
+		return sp;
+	}
+	
+	public static int size_map(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((IMap) stack[sp - 1]).size();
+		return sp;
+	}
+	
+	public static int size_tuple(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
 		return sp;
 	}
 		
