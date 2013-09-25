@@ -13,6 +13,7 @@ value main(list[value] args) {
 		try {
 			
 			n = n + " 2";
+			// Inline in a 'try' block
 			return n + " has been returned!";
 			
 		} catch 0: {		
@@ -34,4 +35,5 @@ value main(list[value] args) {
 		n = n + " 10";
 	}
 	
+	return n;
 }

@@ -1,4 +1,4 @@
-module experiments::Compiler::Examples::ExceptionHandlingFinally2
+module experiments::Compiler::Examples::ExceptionHandlingFinally4
 
 value f() { throw "Try to catch me!"; }
 
@@ -13,16 +13,12 @@ value main(list[value] args) {
 		try {
 			
 			n = n + " 2";
-			// Inline in a 'try' block
-			return n + " has been returned!";
+			n = n + " 3";
 			
-		} catch 0: {		
-			n = n + " 4";
-		} catch int i: {
+		} catch str s: {
 			n = n + " 5";
 		} finally {
 			n = n + " 6";
-			return n + " has been returned from the inner finally!";
 		}
 		
 		n = n + " 7";
@@ -33,7 +29,6 @@ value main(list[value] args) {
 		n = n + " 9";
 	} finally {
 		n = n + " 10";
-		return n + " has been returned from the outer finally!";
 	}
 	
 	return n;
