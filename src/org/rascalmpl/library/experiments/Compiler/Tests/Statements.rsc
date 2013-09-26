@@ -75,4 +75,10 @@ test bool tst() = run("x = 7" , "switch(1){case 0: x = 0; case 1: x = 1; default
 test bool tst() = run("x = 7" , "switch(2){case 0: x = 0; case 1: x = 1; default: x = 2;}") == sw(2);
 
 test bool tst() = run("{ int n = 0; switch([1,2,3,4,5,6]) { case [*int x, *int y]: { n += 1; fail; } case list[int] _ : { n += 100; } } n; }") == swb([1,2,3,4,5,6]);
+
+                                                                  
+// Solve
+
+test bool tst() = run("{rel[int,int] R = {\<1,2\>, \<2,3\>, \<3,4\>}; T = R; solve (T) { T = T + (T o R);}}") ==
+                       {rel[int,int] R = {<1,2>, <2,3>, <3,4>}; T = R; solve (T) { T = T + (T o R);} };                                 
                                                                   

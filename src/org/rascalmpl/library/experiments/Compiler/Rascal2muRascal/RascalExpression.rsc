@@ -101,6 +101,12 @@ MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expr
 MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) =
      muMulti(muCreate(mkCallToLibFun("Library", "RANGE_STEP", 4), [ translatePat(pat), translate(first), translate(second), translate(last)]));
 
+// Range
+
+MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) { throw("range outside enumerator not supported"); }
+
+MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`) { throw("range outside enumerator not supported"); }
+
 // Visit
 MuExp translate (e:(Expression) `<Label label> <Visit \visit>`) = translateVisit(label, \visit);
 
@@ -235,7 +241,20 @@ MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Express
 
 // Field project
 MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields> \>`) {
-    fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<field>") | f <- fields];
+    tp = getType(expression@\loc);   
+    list[str] fieldNames = [];
+    if(isRelType(tp)){
+       tp = getSetElementType(tp);
+    } else if(isListType(tp)){
+       tp = getListElementType(tp);
+    } else if(isMapType(tp)){
+       tp = getMapFieldsAsTuple(tp);
+    }
+    if(tupleHasFieldNames(tp)){
+    	fieldNames = getTupleFieldNames(tp);
+    }	
+    fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf("<field>")) | f <- fields];
+    //fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<field>") | f <- fields];
     return muCallPrim("<getOuterType(expression)>_field_project", [ translate(expression), *fcode]);
 }
 

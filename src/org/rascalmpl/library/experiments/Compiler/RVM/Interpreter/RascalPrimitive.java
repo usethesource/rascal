@@ -5,6 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,6 +26,7 @@ import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetRelation;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -82,6 +85,7 @@ public enum RascalPrimitive {
 	list_add_list,
 	loc_add_str,
 	map_add_map,
+	rel_add_rel,
 	tuple_add_tuple,
 	
 	// adt
@@ -259,7 +263,6 @@ public enum RascalPrimitive {
 	set_less_set,
 	str_less_str,
 
-
 	// lessequal
 	
 	int_lessequal_int,
@@ -288,7 +291,6 @@ public enum RascalPrimitive {
 	map_lessequal_map,
 	set_lessequal_set,
 	str_lessequal_str,
-	
 	
 	// list
 	list_size,
@@ -373,6 +375,12 @@ public enum RascalPrimitive {
 	list_product_list,
 	set_product_set,
 	
+	// project
+	
+	map_field_project,
+	rel_field_project,
+	lrel_field_project,
+	
 	// remainder
 	
 	int_remainder_int,
@@ -447,7 +455,6 @@ public enum RascalPrimitive {
 	template_addunindented,
 	template_close,
 	
-	
 	// tuple
 	
 	tuple_field_access,
@@ -473,8 +480,6 @@ public enum RascalPrimitive {
 
 	private static IValueFactory vf;
 	private static TypeFactory tf;
-	private static IBool TRUE;
-	private static IBool FALSE;
 	static Method [] methods;
 	private static Type lineColumnType;
 	
@@ -493,8 +498,7 @@ public enum RascalPrimitive {
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 									new String[] {"line", "column"});
-		TRUE = vf.bool(true);
-		FALSE = vf.bool(false);
+	
 		Method [] methods1 = RascalPrimitive.class.getDeclaredMethods();
 		HashSet<String> implemented = new HashSet<String>();
 		methods = new Method[methods1.length];
@@ -731,6 +735,12 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((ISet) stack[sp - 1]).insert((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
+	
+	public static int rel_add_rel(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ISet) stack[sp - 2]).union((ISet) stack[sp - 1]);
+		return sp - 1;
+	}
 
 	public static int set_add_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -744,6 +754,11 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
 		return sp - 1;
 	}
+	
+	
+	/*
+	 * str_escape_for_regexp
+	 */
 	
 	public static int str_escape_for_regexp(Object[] stack, int sp, int arity) {
 		assert arity == 1;
@@ -890,16 +905,21 @@ public enum RascalPrimitive {
      	map[&A,&B] x map[&B,&C] -> map[&A,&C]
 		}
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	
 	public static int lrel_compose_lrel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IListRelation) stack[sp - 2]).compose((IListRelation) stack[sp - 1]);
+		
+		IListRelation<IList> left = ((IList) stack[sp - 2]).asRelation();
+		IListRelation<IList> right = ((IList) stack[sp - 1]).asRelation();
+		stack[sp - 2] = left.compose(right);
 		return sp - 1;
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	
 	public static int rel_compose_rel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRelationalAlgebra) stack[sp - 2]).compose((IRelationalAlgebra) stack[sp - 1]);
+		ISetRelation<ISet> left = ((ISet) stack[sp - 2]).asRelation();
+		ISetRelation<ISet> right = ((ISet) stack[sp - 1]).asRelation();
+		stack[sp - 2] = left.compose(right);
 		return sp - 1;
 	}
 
@@ -1005,8 +1025,6 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
 	}
-
-
 
 	/*
 	 * ...writer_close
@@ -1283,6 +1301,67 @@ public enum RascalPrimitive {
 	/*
 	 * fieldProject
 	 */
+	public static int rel_field_project(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		ISet rel = (ISet) stack[sp - arity];
+		int[] fields = new int[arity - 1];
+		for(int i = 1; i < arity; i++){
+			fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
+		}
+		ISetWriter w = vf.setWriter();
+		IValue[] elems = new IValue[arity - 1];
+		for(IValue vtup : rel){
+			ITuple tup = (ITuple) vtup;
+			for(int j = 0; j < fields.length; j++){
+				elems[j] = tup.get(fields[j]);
+			}
+			w.insert(vf.tuple(elems));
+		}
+		stack[sp - arity] = w.done();
+		return sp - arity + 1;
+	}
+	
+	public static int lrel_field_project(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		IList lrel = (IList) stack[sp - arity];
+		int[] fields = new int[arity - 1];
+		for(int i = 1; i < arity; i++){
+			fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
+		}
+		IListWriter w = vf.listWriter();
+		IValue[] elems = new IValue[arity - 1];
+		for(IValue vtup : lrel){
+			ITuple tup = (ITuple) vtup;
+			for(int j = 0; j < fields.length; j++){
+				elems[j] = tup.get(fields[j]);
+			}
+			w.append(vf.tuple(elems));
+		}
+		stack[sp - arity] = w.done();
+		return sp - arity + 1;
+	}
+	
+	public static int map_field_project(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		IMap map = (IMap) stack[sp - arity];
+		int[] fields = new int[arity - 1];
+		for(int i = 1; i < arity; i++){
+			fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
+		}
+		ISetWriter w = vf.setWriter();
+		IValue[] elems = new IValue[arity - 1];
+		Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
+		while (iter.hasNext()) {
+			Entry<IValue,IValue> entry = iter.next();
+			for(int j = 0; j < fields.length; j++){
+				elems[j] = fields[j] == 0 ? entry.getKey() : entry.getValue();
+			}
+			w.insert(vf.tuple(elems));
+		}
+		stack[sp - arity] = w.done();
+		return sp - arity + 1;
+	}
+
 	/*
 	 * getAnnotation
 	 */
@@ -3044,4 +3123,3 @@ class SliceDescriptor{
 		this.end = end;
 	}
 }
-
