@@ -239,7 +239,10 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <
 	MuExp tryCatch = translate((Statement) `try <Statement body> <Catch+ handlers>`);
 	leaveTryCatchFinally();
 	MuExp finallyExp = translate(finallyBody);
-	return muTry(tryCatch.exp, tryCatch.\catch, finallyExp); 
+	str varname = asTmp(nextLabel());
+	return muTry(muTry(tryCatch.exp, tryCatch.\catch, finallyExp), 
+				 muCatch(varname, Symbol::\value(), muBlock([finallyExp, muThrow(muTmp(varname))])), 
+				 muBlock([])); 
 }
 
 MuExp translate(s: (Statement) `<Label label> { <Statement+ statements> }`) =
