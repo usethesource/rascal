@@ -327,11 +327,12 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Mark the begin and end of the 'try' and 'catch' blocks
 	str tryLab = nextLabel();
 	str catchLab = nextLabel();
+	str finallyLab = nextLabel();
 	
-	str try_from              = mkTryFrom(tryLab);
-	str try_to                = mkTryTo(tryLab);
-	str catch_from            = mkCatchFrom(catchLab); // used to jump
-	str catch_to              = mkCatchTo(catchLab);   // used to find a handler catch
+	str try_from      = mkTryFrom(tryLab);
+	str try_to        = mkTryTo(tryLab);
+	str catch_from    = mkCatchFrom(catchLab); // used to jump
+	str catch_to      = mkCatchTo(catchLab);   // used to mark the end of a 'catch' block and find a handler catch
 	
 	// Mark the begin of 'catch' blocks that have to be also translated as part of 'try' blocks 
 	str catchAsPartOfTry_from = mkCatchFrom(nextLabel()); // used to find a handler catch
@@ -353,14 +354,14 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	oldFinallyBlocks = finallyBlocks;
 	leaveFinally();
 	
-	// Translate the 'finally' block; inlining 'finally' blocks where necessary
-	code = code + [ *trMuFinally(\finally), LABEL(try_to) ];
-	
 	// Fill in the 'try' block entry into the current exception table
 	currentTry = topTry();
 	exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
 	
 	leaveTry();
+	
+	// Translate the 'finally' block; inlining 'finally' blocks where necessary
+	code = code + [ LABEL(try_to), *trMuFinally(\finally) ];
 	
 	// Translate the 'catch' block; inlining 'finally' blocks where necessary
 	// 'Catch' block may also throw an exception, and if it is part of an outer 'try' block,

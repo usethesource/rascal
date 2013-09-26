@@ -104,6 +104,6 @@ private int estimate(muAssignLocDeref(str id, int pos, MuExp exp)) = estimate(ex
 private int estimate(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = estimate(exp);
 
 private int estimate(muThrow(MuExp exp)) = estimate(exp);
-private int estimate(muTry(MuExp tryBody, muCatch(str _, Symbol _, MuExp catchBody), MuExp \finally)) = max(max(estimate(tryBody),estimate(catchBody)),estimate(catchBody));
+private int estimate(muTry(MuExp tryBody, muCatch(str varname, Symbol \type, MuExp catchBody), MuExp \finally)) = max(max(estimate(tryBody),1 + estimate(catchBody)),estimate(catchBody));
 
 private default int estimate(e) { throw "Unknown node in the muRascal AST: <e>"; }
