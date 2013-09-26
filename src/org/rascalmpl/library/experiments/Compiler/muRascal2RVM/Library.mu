@@ -37,10 +37,10 @@ function ENUM_LIST[1, ^lst, last, i]{
    last = size_list(^lst) - 1;
    i = 0;
    while(i < last){
-      yield get ^lst[i];
+      yield get_list ^lst[i];
       i = i + 1;
    };
-   return get ^lst[last];
+   return get_list ^lst[last];
 }
 
 function ENUM_SET[1, ^set, ^lst, last, i]{
@@ -48,10 +48,10 @@ function ENUM_SET[1, ^set, ^lst, last, i]{
    last = size_list(^lst) - 1;
    i = 0;
    while(i < last){
-      yield get ^lst[i];
+      yield get_list ^lst[i];
       i = i + 1;
    };
-   return get ^lst[last];
+   return get_list ^lst[last];
 }
 
 function ENUM_MAP[1, ^map, ^klst, last, i]{
@@ -59,10 +59,10 @@ function ENUM_MAP[1, ^map, ^klst, last, i]{
    last = size_list(^klst) - 1;
    i = 0;
    while(i < last){
-      yield get ^klst[i];
+      yield get_list ^klst[i];
       i = i + 1;
    };
-   return get ^klst[last];
+   return get_list ^klst[last];
 }
 
 function ENUM_NODE[1, ^nd, last, i, lst]{
@@ -70,20 +70,20 @@ function ENUM_NODE[1, ^nd, last, i, lst]{
    last = size_array(lst) - 2;
    i = 1;  // skip name
    while(i < last){
-      yield get lst[i];
+      yield get_list lst[i];
       i = i + 1;
    };
-   return get lst[last];
+   return get_list lst[last];
 }
 
 function ENUM_TUPLE[1, ^tup, last, i]{
    last = size_tuple(^tup) - 1;
    i = 0;
    while(i < last){
-      yield get ^tup[i];
+      yield get_tuple ^tup[i];
       i = i + 1;
    };
-   return get ^tup[last];
+   return get_tuple ^tup[last];
 }
 
 function ENUMERATE[2, enumerator, pat, cpat, elm]{
@@ -200,7 +200,7 @@ function MATCH_N[2, pats, subjects, plen, slen, p, pat]{
    p = 0;
    while(p < plen){
      // println("MATCH_N: init ", p);
-     set pats[p] = init(get pats[p], get subjects[p]);
+     set_array pats[p] = init(get_array pats[p], get_array subjects[p]);
      p = p + 1;
    };
    
@@ -208,7 +208,7 @@ function MATCH_N[2, pats, subjects, plen, slen, p, pat]{
      p = 0;
      while(p < plen){
        // println("p = ", p);
-       pat = get pats[p];
+       pat = get_array pats[p];
        if(hasNext(pat)){
           if(next(pat)){
               p = p + 1;
@@ -341,9 +341,9 @@ function MATCH_LIST[2, pats,   						// A list of coroutines to match list eleme
      p        = 0; 
      cursor   = 0;
      forward  = true;
-     matcher  = init(get pats[p], ^subject, cursor, sublen);
+     matcher  = init(get_array pats[p], ^subject, cursor, sublen);
      matchers = make_array(patlen);
-     set matchers[0] = matcher;
+     set_array matchers[0] = matcher;
      
      while(true){
      	// Move forward
@@ -363,8 +363,8 @@ function MATCH_LIST[2, pats,   						// A list of coroutines to match list eleme
                  if(p < patlen1){
                    p = p + 1;
                    // prim("println", ["Forward", p, cursor]);
-                   matcher  = init(get pats[p], ^subject, cursor,  sublen - cursor);
-                   set matchers[p] = matcher;
+                   matcher  = init(get_array pats[p], ^subject, cursor,  sublen - cursor);
+                   set_array matchers[p] = matcher;
                  } else {
                    if(hasNext(matcher)){
                      // explore more alternatives
@@ -385,7 +385,7 @@ function MATCH_LIST[2, pats,   						// A list of coroutines to match list eleme
          } else {  
            if(p > 0){
                p        = p - 1;
-               matcher  = get matchers[p];
+               matcher  = get_array matchers[p];
                forward  = true;
            } else {
          	   // prim("println", ["RETURN FALSE", p, cursor]);
@@ -406,7 +406,7 @@ function MATCH_PAT_IN_LIST[4, pat, ^subject, start, available, cpat]{
        return [false, start];
     }; 
  
-    cpat = init(pat, get ^subject[start]);
+    cpat = init(pat, get_list ^subject[start]);
     
     while(hasNext(cpat)){
        if(next(cpat)){
@@ -421,13 +421,13 @@ function MATCH_VAR_IN_LIST[4, varref, ^subject, start, available]{
        return [false, start];
    }; 
 //   if(is_defined(deref varref)){
-//      if(equal(deref varref, get ^subject[start])){
+//      if(equal(deref varref, get_list ^subject[start])){
 //         return [true, start + 1];
 //      } else {
 //         return [ false, start];
 //      };
 //   };
-   deref varref = get ^subject[start];
+   deref varref = get_list ^subject[start];
    return [true, start + 1];
 }
 
@@ -486,8 +486,8 @@ function MATCH_SET[2,  pair,	   					// A pair of literals, and patterns (other 
 					   success,						// Success flag of last macth
 					   ^remaining					// Remaining set as determined by last successfull match
 					]{
-      ^literals = get pair[0];
-      pats      = get pair[1];
+      ^literals = get_array pair[0];
+      pats      = get_array pair[1];
       
      if(subset(^literals, ^subject)){
         ^subject1 = set_subtract_set(^subject, ^literals);
@@ -499,9 +499,9 @@ function MATCH_SET[2,  pair,	   					// A pair of literals, and patterns (other 
      	patlen1   =  patlen - 1;
      	p         = 0;
      	forward   = true;
-     	matcher   = init(get pats[p], ^subject1);
+     	matcher   = init(get_array pats[p], ^subject1);
      	matchers  = make_array(patlen);
-     	set matchers[0] = matcher;
+     	set_array matchers[0] = matcher;
      	
      	while(true){
      	// Move forward
@@ -519,8 +519,8 @@ function MATCH_SET[2,  pair,	   					// A pair of literals, and patterns (other 
                  if(p < patlen1){
                    p = p + 1;
                    //println("Move right to", p);
-                   matcher  = init(get pats[p], ^current);
-                   set matchers[p] = matcher;
+                   matcher  = init(get_array pats[p], ^current);
+                   set_array matchers[p] = matcher;
                  } else {
                    if(hasNext(matcher)){
                      // explore more alternatives
@@ -540,7 +540,7 @@ function MATCH_SET[2,  pair,	   					// A pair of literals, and patterns (other 
            if(p > 0){
                p        = p - 1;
                //println("Move left to", p);
-               matcher  = get matchers[p];
+               matcher  = get_array matchers[p];
                forward  = true;
            } else {
                return false;
@@ -650,7 +650,7 @@ function ENUM_SUBSETS[1, ^set, lst, i, j, last, elIndex, ^sub]{
         while(j > 0){
            if(j mod 2 == 1){
               //println("ENUM_SUBSETS", "j = ", j, "elIndex =", elIndex);
-              ^sub = set_add_elm(^sub, get lst[elIndex]);
+              ^sub = set_add_elm(^sub, get_list lst[elIndex]);
            };
            elIndex = elIndex + 1;
            j = j / 2;
@@ -690,7 +690,7 @@ function MATCH_AND_DESCENT_LIST[2, pat, ^lst, last, i]{
    last = size_list(^lst);
    i = 0;
    while(i < last){
-      DO_ALL(pat, get ^lst[i]);
+      DO_ALL(pat, get_list ^lst[i]);
       i = i + 1;
    };
    return false;
@@ -702,7 +702,7 @@ function MATCH_AND_DESCENT_SET[2, pat, ^set, ^lst, last, i]{
    last = size_list(^lst);
    i = 0;
    while(i < last){
-      DO_ALL(pat, get ^lst[i]);
+      DO_ALL(pat, get_list ^lst[i]);
       i = i + 1;
    };
    return false;
@@ -714,19 +714,19 @@ function MATCH_AND_DESCENT_MAP[2, pat, ^map, ^klst, ^vlst, last, i]{
    last = size_list(^klst);
    i = 0;
    while(i < last){
-      DO_ALL(pat, get ^klst[i]);
-      DO_ALL(pat, get ^vlst[i]);
+      DO_ALL(pat, get_list ^klst[i]);
+      DO_ALL(pat, get_list ^vlst[i]);
       i = i + 1;
    };
    return false;
 }
 
-function MATCH_AND_DESCENT_NODE[2, pat, ^nd, last, i, lst]{
-   lst = get_name_and_children(^nd);
-   last = size_array(lst);
+function MATCH_AND_DESCENT_NODE[2, pat, ^nd, last, i, ar]{
+   ar = get_name_and_children(^nd);
+   last = size_array(ar);
    i = 0; 
    while(i < last){
-      DO_ALL(pat, get lst[i]);
+      DO_ALL(pat, get_array ar[i]);
       i = i + 1;
    };
    return false;
@@ -736,7 +736,7 @@ function MATCH_AND_DESCENT_TUPLE[2, pat, ^tup, last, i]{
    last = size_tuple(^tup) - 1;
    i = 0;
    while(i < last){
-      DO_ALL(pat, get ^tup[i]);
+      DO_ALL(pat, get_tuple ^tup[i]);
       i = i + 1;
    };
    return false;
@@ -793,7 +793,7 @@ function MATCH_REGEXP[3, ^regexp, varrefs, ^subject, matcher, i, varref]{
    while(muprim("regexp_find", matcher)){
      i = 0; 
      while(i < size_array(varrefs)){
-        varref = get varrefs[i];
+        varref = get_array varrefs[i];
         deref varref = muprim("regexp_group", matcher, i + 1);
         i = i + 1;
      };
