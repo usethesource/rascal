@@ -148,7 +148,9 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public void insert(ISetWriter relW, IValue lhs, IConstructor rhs) {
-		relW.insert(values.tuple(lhs, rhs));
+		if (isValid((ISourceLocation) lhs) && rhs != null) {
+			relW.insert(values.tuple(lhs, rhs));
+		}
 	}
 	
 	private boolean isValid(ISourceLocation binding) {
@@ -346,6 +348,11 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	private void fillOverrides(IMethodBinding node, ITypeBinding parent) {
+		if (node == null || parent == null) {
+			System.err.println("parent or method binding is null, not proceeding with fillOverrides");
+			return;
+		}
+		
 		List<ITypeBinding> parentClass = new ArrayList<ITypeBinding>();
 		parentClass.addAll(Arrays.asList(parent.getInterfaces()));
 		parentClass.add(parent.getSuperclass());
