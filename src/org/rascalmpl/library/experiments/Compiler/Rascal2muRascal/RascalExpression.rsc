@@ -101,6 +101,12 @@ MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expr
 MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) =
      muMulti(muCreate(mkCallToLibFun("Library", "RANGE_STEP", 4), [ translatePat(pat), translate(first), translate(second), translate(last)]));
 
+// Range
+
+MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) { throw("range outside enumerator not supported"); }
+
+MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`) { throw("range outside enumerator not supported"); }
+
 // Visit
 MuExp translate (e:(Expression) `<Label label> <Visit \visit>`) = translateVisit(label, \visit);
 
@@ -241,7 +247,7 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
        tp = getSetElementType(tp);
     } else if(isListType(tp)){
        tp = getListElementType(tp);
-    } else {
+    } else if(isMapType(tp)){
        tp = getMapFieldsAsTuple(tp);
     }
     if(tupleHasFieldNames(tp)){
