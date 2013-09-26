@@ -85,9 +85,13 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
      	       case preAssign(lrel[str,int] funNames, 
      	       				  str name, MuExp exp)                  => muAssign(name,getUID(modName,funNames),vardefs[getUID(modName,funNames)][name],exp)
      	       case preList(list[MuExp] exps)						=> muCallMuPrim("make_array", exps)
-     	       case preSubscript(MuExp lst, MuExp index)			=> muCallMuPrim("subscript_array_or_list_or_tuple_mint", [lst, index])
-     	       case preAssignSubscript(MuExp lst, MuExp index, MuExp exp1) 
-     	       														=> muCallMuPrim("assign_subscript_array_mint", [lst, index, exp1])
+     	       case preSubscriptArray(MuExp ar, MuExp index)		=> muCallMuPrim("subscript_array_mint", [ar, index])
+     	       case preSubscriptList(MuExp lst, MuExp index)		=> muCallMuPrim("subscript_list_mint", [lst, index])
+     	       case preSubscriptTuple(MuExp tup, MuExp index)		=> muCallMuPrim("subscript_tuple_mint", [tup, index])
+     	       
+     	       case preAssignSubscriptArray(MuExp ar, MuExp index, MuExp exp1) => muCallMuPrim("assign_subscript_array_mint", [ar, index, exp1])
+     	       case preAssignSubscriptList(MuExp lst, MuExp index, MuExp exp1) 	=> muCallMuPrim("assign_subscript_list_mint", [lst, index, exp1])
+     	        
       	       case preIfthen(cond,thenPart) 						=> muIfelse("", cond, thenPart, [])
       	       
       	       case preLocDeref(str name)                   		=> muLocDeref(name, vardefs[uid][name])
@@ -103,7 +107,12 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                
                // Calls that are directly mapped to muPrimitives
                
-               case muCall(preVar("size"), [exp1])					=> muCallMuPrim("size_array_or_list_or_set_or_map_or_tuple", [exp1])
+               case muCall(preVar("size_array"), [exp1])			=> muCallMuPrim("size_array", [exp1])
+               case muCall(preVar("size_list"), [exp1])				=> muCallMuPrim("size_list", [exp1])
+               case muCall(preVar("size_set"), [exp1])				=> muCallMuPrim("size_set", [exp1])
+               case muCall(preVar("size_map"), [exp1])				=> muCallMuPrim("size_map", [exp1])
+               case muCall(preVar("size_tuple"), [exp1])			=> muCallMuPrim("size_tuple", [exp1])
+               
                case muCall(preVar("is_defined"), [exp1])			=> muCallMuPrim("is_defined", [exp1])
                case muCall(preVar("is_element"), [exp1, exp2])		=> muCallMuPrim("is_element", [exp1, exp2])
                case muCall(preVar("keys"), [exp1])					=> muCallMuPrim("keys_map", [exp1])

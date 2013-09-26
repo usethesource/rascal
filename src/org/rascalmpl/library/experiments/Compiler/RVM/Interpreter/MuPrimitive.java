@@ -72,10 +72,16 @@ public enum MuPrimitive {
 	regexp_find,
 	regexp_group,
 	set2list,
-	size_array_or_list_or_set_or_map_or_tuple,
+	size_array,
+	size_list,
+	size_set,
+	size_map,
+	size_tuple,
 	starts_with,
 	sublist_list_mint_mint,
-	subscript_array_or_list_or_tuple_mint, 
+	subscript_array_mint,
+	subscript_list_mint,
+	subscript_tuple_mint,
 	subtraction_mint_mint,
 	subtype,
 	typeOf,
@@ -517,20 +523,33 @@ public enum MuPrimitive {
 		return sp;
 	}
 		
-	public static int size_array_or_list_or_set_or_map_or_tuple(Object[] stack, int sp, int arity) {
+	public static int size_array(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		if(stack[sp - 1] instanceof Object[]){
-			stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
-		} else if(stack[sp - 1] instanceof IList){
-			stack[sp - 1] = ((IList) stack[sp - 1]).length();
-		} else if(stack[sp - 1] instanceof ISet){
-			stack[sp - 1] = ((ISet) stack[sp - 1]).size();
-		} else if(stack[sp - 1] instanceof IMap){
-			stack[sp - 1] = ((IMap) stack[sp - 1]).size();
-		} else if(stack[sp - 1] instanceof ITuple){
-			stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
-		} else
-			throw new RuntimeException("size_array_or_list_mint -- not defined on " + stack[sp - 1].getClass());
+		stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
+		return sp;
+	}
+	
+	public static int size_list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((IList) stack[sp - 1]).length();
+		return sp;
+	}
+	
+	public static int size_set(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((ISet) stack[sp - 1]).size();
+		return sp;
+	}
+	
+	public static int size_map(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((IMap) stack[sp - 1]).size();
+		return sp;
+	}
+	
+	public static int size_tuple(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
 		return sp;
 	}
 		
@@ -561,16 +580,21 @@ public enum MuPrimitive {
 		return sp - 2;
 	}
 		
-	public static int subscript_array_or_list_or_tuple_mint(Object[] stack, int sp, int arity) {
+	public static int subscript_array_mint(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		if(stack[sp - 2] instanceof Object[]){
-			stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
-		} else if(stack[sp - 2] instanceof IList){
-			stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
-		} else if(stack[sp - 2] instanceof ITuple){
-			stack[sp - 2] = ((ITuple) stack[sp - 2]).get((Integer) stack[sp - 1]);
-		} else
-			throw new RuntimeException("subscript_array_or_list_or_tuplemint -- Object[], IList or ITuple expected");
+		stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
+		return sp - 1;
+	}
+	
+	public static int subscript_list_mint(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int subscript_tuple_mint(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ITuple) stack[sp - 2]).get((Integer) stack[sp - 1]);
 		return sp - 1;
 	}
 		

@@ -229,9 +229,6 @@ MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
   // The default case will handle any thrown value
   exp = translate(c.body);
   
-  // Debug exception handling
-  // println("Default catch: <exp>");
-  
   return exp;
 }
 
@@ -242,7 +239,10 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <
 	MuExp tryCatch = translate((Statement) `try <Statement body> <Catch+ handlers>`);
 	leaveTryCatchFinally();
 	MuExp finallyExp = translate(finallyBody);
-	return muTry(tryCatch.exp, tryCatch.\catch, finallyExp); 
+	str varname = asTmp(nextLabel());
+	return muTry(muTry(tryCatch.exp, tryCatch.\catch, muBlock([])), 
+				 muCatch(varname, Symbol::\value(), muBlock([finallyExp, muThrow(muTmp(varname))])), 
+				 finallyExp); 
 }
 
 MuExp translate(s: (Statement) `<Label label> { <Statement+ statements> }`) =
@@ -324,7 +324,27 @@ MuExp translateSwitchCases(str switchval, list[Case] cases) {
 // Solve statement
 
 MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`) {
-
+   iterations = nextTmp();  // count number of iterations
+   change = nextTmp();		// keep track of any changed value
+   result = nextTmp();		// result of body computation
+ 
+   varCode = [ translate(var) | var <- variables ];
+   tmps = [ nextTmp() | var <- variables ];
+// TODO: check that given bound is positive
+   return muBlock([ muAssignTmp(iterations,  (bound is empty) ? muCon(1000000) : translate(bound.expression)),
+                    muAssignTmp(change, muCon(true)),
+                    *[ muAssignTmp(tmps[i], varCode[i]) | i <- index(varCode) ],
+                    muWhile(nextLabel(),
+                            muCallMuPrim("and_mbool_mbool", [muTmp(change), muCallPrim("int_greater_int", [muTmp(iterations), muCon(0)]) ]), 
+                            [ muAssignTmp(change, muCon(false)),
+                              muAssignTmp(result, translate(body)),
+                              *[ muIfelse(nextLabel(), muCallPrim("notequal", [muTmp(tmps[i]), varCode[i]]), [muAssignTmp(change, muCon(true))], []) 
+                 			   | i <- index(varCode)
+                 			   ],
+                              muAssignTmp(iterations, muCallPrim("int_subtract_int", [muTmp(iterations), muCon(1)])) 
+                            ]),
+                    muTmp(result)
+           ]);
 }
 
 

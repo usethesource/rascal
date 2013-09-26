@@ -323,8 +323,17 @@ MuExp translateFunction({Pattern ","}* formals, node body, list[Expression] when
       b = false;
   }
   if(b) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {
-  	 mubody = translateFormals([formal | formal <- formals], 0, body);
-  	 return mubody; 
+  	
+  	 if(isEmpty(when_conditions)){
+  	    return  translateFormals([formal | formal <- formals], 0, body);
+  	  } else {
+  	    ifname = nextLabel();
+        enterBacktrackingScope(ifname);
+        conditions += [ translate(cond) | cond <- when_conditions];
+        mubody = muIfelse(ifname,muAll(conditions), [ muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
+	    leaveBacktrackingScope();
+	    return mubody;
+  	  }
   } else {
 	  list[MuExp] conditions = [];
 	  int i = 0;
@@ -335,7 +344,7 @@ MuExp translateFunction({Pattern ","}* formals, node body, list[Expression] when
 	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
 	      i += 1;
 	  };
-	  conditions += [ traslate(cond) | cond <- when_conditions];
+	  conditions += [ translate(cond) | cond <- when_conditions];
 
 	  mubody = muIfelse(ifname,muAll(conditions), [ muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	  leaveBacktrackingScope();

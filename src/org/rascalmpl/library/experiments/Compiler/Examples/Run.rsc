@@ -23,6 +23,14 @@ import experiments::Compiler::Examples::OverloadingPlusBacktracking;
 import experiments::Compiler::Examples::ExceptionHandling1;
 import experiments::Compiler::Examples::ExceptionHandling2;
 import experiments::Compiler::Examples::ExceptionHandling3;
+import experiments::Compiler::Examples::ExceptionHandlingFinally1;
+import experiments::Compiler::Examples::ExceptionHandlingFinally2;
+import experiments::Compiler::Examples::ExceptionHandlingFinally3;
+import experiments::Compiler::Examples::ExceptionHandlingFinally4;
+import experiments::Compiler::Examples::ExceptionHandlingFinally5;
+import experiments::Compiler::Examples::ExceptionHandlingFinally6;
+import experiments::Compiler::Examples::ExceptionHandlingFinally7;
+import experiments::Compiler::Examples::ExceptionHandlingFinally8;
 
 loc base = |std:///experiments/Compiler/Examples/|;
 
@@ -50,3 +58,11 @@ test bool tst() = demo("OverloadingPlusBacktracking") == experiments::Compiler::
 test bool tst() = demo("ExceptionHandling1") == experiments::Compiler::Examples::ExceptionHandling1::main([]);
 test bool tst() = demo("ExceptionHandling2") == experiments::Compiler::Examples::ExceptionHandling2::main([]);
 test bool tst() = demo("ExceptionHandling3") == experiments::Compiler::Examples::ExceptionHandling3::main([]);
+test bool tst() = demo("ExceptionHandlingFinally1") == experiments::Compiler::Examples::ExceptionHandlingFinally1::main([]);
+test bool tst() = demo("ExceptionHandlingFinally2") == experiments::Compiler::Examples::ExceptionHandlingFinally2::main([]);
+test bool tst() = demo("ExceptionHandlingFinally3") == experiments::Compiler::Examples::ExceptionHandlingFinally3::main([]);
+test bool tst() = demo("ExceptionHandlingFinally4") == experiments::Compiler::Examples::ExceptionHandlingFinally4::main([]);
+test bool tst() = demo("ExceptionHandlingFinally5") == experiments::Compiler::Examples::ExceptionHandlingFinally5::main([]);
+test bool tst() = demo("ExceptionHandlingFinally6") == experiments::Compiler::Examples::ExceptionHandlingFinally6::main([]);
+test bool tst() = demo("ExceptionHandlingFinally7") == experiments::Compiler::Examples::ExceptionHandlingFinally7::main([]);
+test bool tst() = demo("ExceptionHandlingFinally8") == experiments::Compiler::Examples::ExceptionHandlingFinally8::main([]);

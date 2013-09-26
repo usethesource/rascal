@@ -1,26 +1,17 @@
 module experiments::Compiler::Examples::Tst
 
+str bottles(0)     = "no more bottles"; 
+str bottles(1)     = "1 bottle";
+default str bottles(int n) = "<n> bottles"; 
 
-// Helper function to generate a getter
-private str genGetter(map[str,str] fields, str x) {
-  return "public <fields[x]> get<x>() {
-         '  return <x>;
-         '}";
-}
-
-// Generate a class with given name and fields.
-
-public str genClass(str name, map[str,str] fields) { 
+public str sing() {
   return 
-    "public class <name> {
-    '  <for (x <- fields) {>
-    '  <genGetter(fields, x)><}>
-    '}";
-}
-
-value main(list[value] args){
-  return genClass("Person", ("age" : "int"));
- 
- 
- //return genGetter( ("age" : "int"), "age");
-}
+  "<for(n <- [2 .. 1]){>
+  'xxx of beer on the wall, <111> of beer.
+  'Take one down, pass it around, <bottles(n-1)> of beer on the wall
+  'No more bottles of beer on the wall, no more bottles of beer.
+  'Go to the store and buy some more, 99 bottles of beer on the wall.
+  <}>";
+}  
+  
+value main(list[value] args) = sing();
