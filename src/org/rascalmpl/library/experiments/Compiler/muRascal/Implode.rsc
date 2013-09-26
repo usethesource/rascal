@@ -85,9 +85,13 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
      	       case preAssign(lrel[str,int] funNames, 
      	       				  str name, MuExp exp)                  => muAssign(name,getUID(modName,funNames),vardefs[getUID(modName,funNames)][name],exp)
      	       case preList(list[MuExp] exps)						=> muCallMuPrim("make_array", exps)
-     	       case preSubscript(MuExp lst, MuExp index)			=> muCallMuPrim("subscript_array_or_list_or_tuple_mint", [lst, index])
-     	       case preAssignSubscript(MuExp lst, MuExp index, MuExp exp1) 
-     	       														=> muCallMuPrim("assign_subscript_array_mint", [lst, index, exp1])
+     	       case preSubscriptArray(MuExp ar, MuExp index)		=> muCallMuPrim("subscript_array_mint", [ar, index])
+     	       case preSubscriptList(MuExp lst, MuExp index)		=> muCallMuPrim("subscript_list_mint", [lst, index])
+     	       case preSubscriptTuple(MuExp tup, MuExp index)		=> muCallMuPrim("subscript_tuple_mint", [tup, index])
+     	       
+     	       case preAssignSubscriptArray(MuExp ar, MuExp index, MuExp exp1) => muCallMuPrim("assign_subscript_array_mint", [ar, index, exp1])
+     	       case preAssignSubscriptList(MuExp lst, MuExp index, MuExp exp1) 	=> muCallMuPrim("assign_subscript_list_mint", [lst, index, exp1])
+     	        
       	       case preIfthen(cond,thenPart) 						=> muIfelse("", cond, thenPart, [])
       	       
       	       case preLocDeref(str name)                   		=> muLocDeref(name, vardefs[uid][name])

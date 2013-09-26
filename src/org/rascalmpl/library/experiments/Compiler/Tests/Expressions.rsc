@@ -198,6 +198,9 @@ test bool tst() = run("res = []; for(x \<- [1, 0 .. 10]) res = res + [x];", "res
 test bool tst() = run("res = []; for(x \<- [10, 8 .. 0]) res = res + [x];", "res") == {res = []; for(x <- [10, 8 .. 0]) res = res + [x]; res;};
 test bool tst() = run("res = []; for(x \<- [10, 11 .. 0]) res = res + [x];", "res") == {res = []; for(x <- [10, 11 .. 0]) res = res + [x]; res;};
 
+// For now, we do not support ranges outside enumerators.
+/*fails*/ //test bool tst() = run("[1 .. 10];") == [1..10];
+
 // List Comprehension
 
 test bool tst() = run("[ x |x \<- [1 .. 10]]") == [ x |x <- [1 .. 10]];
