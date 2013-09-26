@@ -5280,7 +5280,12 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
         // TODO: Check for conversion errors
         < c, at > = convertAndExpandType(annoType,c);
         < c, ot > = convertAndExpandType(onType,c);
-        
+        if(isFailType(at)) {
+        	c.messages = c.messages + getFailures(at);
+        }
+        if(isFailType(ot)) {
+        	c.messages = c.messages + getFailures(ot);
+        }
         rn = convertName(n);
         c = addAnnotation(c,rn,at,ot,getVis(vis),decl@\loc);
     }
@@ -5428,6 +5433,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
         < c, ttypeC > = convertAndExpandType(ttype, c); 
+        if(isFailType(ttypeC)) {
+        	c.messages = c.messages + getFailures(ttypeC);
+        }
         throwsTypes += ttypeC; 
     }
     
@@ -5475,6 +5483,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
         < c, ttypeC > = convertAndExpandType(ttype, c); 
+        if(isFailType(ttypeC)) {
+        	c.messages = c.messages + getFailures(ttypeC);
+        }
         throwsTypes += ttypeC; 
     }
 
@@ -5524,6 +5535,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
         < c, ttypeC > = convertAndExpandType(ttype, c); 
+        if(isFailType(ttypeC)) {
+        	c.messages = c.messages + getFailures(ttypeC);
+        }
         throwsTypes += ttypeC; 
     }
 
@@ -5576,6 +5590,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
         < c, ttypeC > = convertAndExpandType(ttype, c); 
+        if(isFailType(ttypeC)) {
+        	c.messages = c.messages + getFailures(ttypeC);
+        }
         throwsTypes += ttypeC; 
     }
 
@@ -5713,12 +5730,18 @@ public Configuration importFunction(RName functionName, Signature sig, loc at, V
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
         < c, ttypeC > = convertAndExpandType(ttype, c); 
+        if(isFailType(ttypeC)) {
+        	c.messages = c.messages + getFailures(ttypeC);
+        }
         throwsTypes += ttypeC; 
     }
     set[Modifier] modifiers = getModifiers(sig);
     cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
     cFun = addFunction(cFun, functionName, Symbol::\func(\void(),[]), modifiers, isVarArgs(sig), vis, throwsTypes, at);
     < cFun, tFun > = processSignature(sig, cFun);
+    if(isFailType(tFun)) {
+    	c.messages = c.messages + getFailures(tFun);
+    }
     c = addFunction(c, functionName, tFun, modifiers, isVarArgs(sig), vis, throwsTypes, at);
     return c;
 }
@@ -5788,6 +5811,12 @@ public Configuration importAnnotation(RName annName, Type annType, Type onType, 
     // NOTE: We also do not descend here. We just process these once, after all the types have been added.
     < c, atype > = convertAndExpandType(annType,c);
     < c, otype > = convertAndExpandType(onType,c);
+    if(isFailType(atype)) {
+        	c.messages = c.messages + getFailures(atype);
+        }
+    if(isFailType(otype)) {
+        c.messages = c.messages + getFailures(otype);
+    }
     return addAnnotation(c,annName,atype,otype,vis,at);
 }
 
