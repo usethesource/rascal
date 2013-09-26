@@ -335,7 +335,7 @@ MuExp translateFunction({Pattern ","}* formals, node body, list[Expression] when
 	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
 	      i += 1;
 	  };
-	  conditions += [ traslate(cond) | cond <- when_conditions];
+	  conditions += [ translate(cond) | cond <- when_conditions];
 
 	  mubody = muIfelse(ifname,muAll(conditions), [ muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	  leaveBacktrackingScope();
