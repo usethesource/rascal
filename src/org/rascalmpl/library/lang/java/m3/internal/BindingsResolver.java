@@ -172,6 +172,8 @@ public class BindingsResolver {
 	}
 	
 	public IConstructor resolveType(ISourceLocation uri, IBinding binding, boolean isDeclaration) {
+		if (binding == null)
+			return null;
     if (binding instanceof ITypeBinding) {
       return computeTypeSymbol(uri, (ITypeBinding) binding, isDeclaration);
     } else if (binding instanceof IMethodBinding) {
@@ -184,6 +186,8 @@ public class BindingsResolver {
 	}
 	
 	public IConstructor computeMethodTypeSymbol(IMethodBinding binding, boolean isDeclaration) {
+		if (binding == null)
+			return null;
 	  ISourceLocation decl = values.sourceLocation(resolveBinding(binding));
 	  return computeMethodTypeSymbol(decl, binding, isDeclaration);
 	}
@@ -250,6 +254,8 @@ public class BindingsResolver {
   }
 
   public IConstructor computeTypeSymbol(ITypeBinding binding, boolean isDeclaration) {
+	  if (binding == null)
+			return null;
     ISourceLocation decl = values.sourceLocation(resolveBinding(binding));
     return computeTypeSymbol(decl, binding, isDeclaration);
   }
