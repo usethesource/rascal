@@ -350,6 +350,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Translate the 'try' block; inlining 'finally' blocks where necessary
 	code = [ LABEL(try_from), *tr(exp) ];
 	
+	oldFinallyBlocks = finallyBlocks;
 	leaveFinally();
 	
 	// Translate the 'finally' block; inlining 'finally' blocks where necessary
@@ -367,7 +368,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	
 	oldTryBlocks = tryBlocks;
 	tryBlocks = catchAsPartOfTryBlocks;
-	finallyBlocks = tryBlocks;
+	finallyBlocks = oldFinallyBlocks;
 	
 	trMuCatch(\catch, catch_from, catchAsPartOfTry_from, catch_to, try_to);
 		
@@ -437,8 +438,11 @@ void inlineMuFinally() {
 	// Stack of 'finally' blocks to be inlined
 	list[MuExp] finallyStack = [ entry.\finally | EEntry entry <- finallyBlocks ];
 	
-	// Make a space in the current (potentially nested) 'try' blocks to inline a 'finally' block
-	tryBlocks = [ <[ *head, <from,finally_from>, <finally_to + "_<size(finallyStack) - 1>",to>], 
+	// Make a space (hole) in the current (potentially nested) 'try' blocks to inline a 'finally' block
+	if(isEmpty([ \finally | \finally <- finallyStack, !(muBlock([]) := \finally) ])) {
+		return;
+	}
+	tryBlocks = [ <[ *head, <from,finally_from>, <finally_to + "_<size(finallyBlocks) - 1>",to>], 
 				   tryBlock.\type, tryBlock.\catch, tryBlock.\finally> | EEntry tryBlock <- tryBlocks, 
 				   														 [ *tuple[str,str] head, <from,to> ] := tryBlock.ranges ];
 	
@@ -467,6 +471,7 @@ void inlineMuFinally() {
 		finallyBlock = [ *finallyBlock, *tr(finallyStack[i]), LABEL(finally_to + "_<i>") ];
 		if(i < size(finallyStack) - 1) {
 			EEntry currentTry = topTry();
+			// Fill in the 'catch' block entry into the current exception table
 			exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
 			leaveTry();
 			leaveFinally();
