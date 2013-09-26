@@ -5736,7 +5736,9 @@ public Configuration importFunction(RName functionName, Signature sig, loc at, V
         throwsTypes += ttypeC; 
     }
     set[Modifier] modifiers = getModifiers(sig);
-    cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
+    cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]]
+    																	// constructor names may be overloaded 
+    																	|| overload(_,_) := c.store[c.fcvEnv[ename]] )];
     cFun = addFunction(cFun, functionName, Symbol::\func(\void(),[]), modifiers, isVarArgs(sig), vis, throwsTypes, at);
     < cFun, tFun > = processSignature(sig, cFun);
     if(isFailType(tFun)) {
