@@ -42,28 +42,30 @@ syntax FunNamePart = FConst id >> "::" "::" Integer nformals >> "::" "::";
 syntax ModNamePart = Identifier id >> "::" "::";
 
 syntax Exp  =
-			  muLab: 				Label id
+			  muLab: 					Label id
 			
 			// non-nested, named functions inside or ouside a given module
-			| preFunNN:             ModNamePart modName FConst id >> "::" "::" Integer nformals
+			| preFunNN:             	ModNamePart modName FConst id >> "::" "::" Integer nformals
 			// nested functions inside a current module
-			| preFunN:              FunNamePart+ funNames FConst id >> "::" "::" Integer nformals
+			| preFunN:              	FunNamePart+ funNames FConst id >> "::" "::" Integer nformals
 			
-			| muConstr: 			"cons" FConst id
+			| muConstr: 				"cons" FConst id
 			
-		    | muLoc: 				Identifier id >> ":" ":" Integer pos
+		    | muLoc: 					Identifier id >> ":" ":" Integer pos
 			
 			// call-by-reference: uses of variables that refer to a value location in contrast to a value
-			| preLocDeref:  		"deref" Identifier id
-			| preVarDeref:   		"deref" FunNamePart+ funNames Identifier id
+			| preLocDeref:  			"deref" Identifier id
+			| preVarDeref:   			"deref" FunNamePart+ funNames Identifier id
 			
-			> muCallPrim: 			"prim" "(" String name "," {Exp ","}+ args ")"
-			| muCallMuPrim: 		"muprim" "(" String name "," {Exp ","}+ args ")"
+			> muCallPrim: 				"prim" "(" String name "," {Exp ","}+ args ")"
+			| muCallMuPrim: 			"muprim" "(" String name "," {Exp ","}+ args ")"
 			
-			| preSubscript: 		"get" Exp lst "[" Exp index "]"
-			> muCall: 				Exp exp1 "(" {Exp ","}* args ")"
-			> muReturn: 			"return"  Exp exp
-			> muReturn: 			"return"
+			| preSubscriptArray: 		"get_array" Exp ar "[" Exp index "]"
+			| preSubscriptList: 		"get_list" Exp lst "[" Exp index "]"
+			| preSubscriptTuple: 		"get_tuple" Exp tup "[" Exp index "]"
+			> muCall: 					Exp exp1 "(" {Exp ","}* args ")"
+			> muReturn: 				"return"  Exp exp
+			> muReturn: 				"return"
 			
 			| left preAddition:			Exp lhs "+"   Exp rhs
 			
@@ -81,37 +83,37 @@ syntax Exp  =
 			> left preAnd:				Exp lhs "&&" Exp rhs
 			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] Identifier typeName
 			
-		 	> preAssignLoc:			Identifier id "=" Exp exp
-		 	| preAssignSubscript:	"set" Exp lst "[" Exp index "]" "=" Exp exp
-			> preAssign: 			FunNamePart+ funNames Identifier id "=" Exp exp
+		 	> preAssignLoc:				Identifier id "=" Exp exp
+		 	| preAssignSubscriptArray:	"set_array" Exp ar "[" Exp index "]" "=" Exp exp
+			> preAssign: 				FunNamePart+ funNames Identifier id "=" Exp exp
 			
 			// call-by-reference: assignment 
-			| preAssignLocDeref: 	"deref" Identifier id "=" Exp exp
-			> muAssignVarDeref:  	"deref" FunNamePart+ funNames Identifier id "=" Exp exp
+			| preAssignLocDeref: 		"deref" Identifier id "=" Exp exp
+			> muAssignVarDeref:  		"deref" FunNamePart+ funNames Identifier id "=" Exp exp
 			
 		
-			| muIfelse: 			(Label label ":")? "if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
-			| muWhile: 				(Label label ":")? "while" "(" Exp cond ")" "{" (Exp ";")* body "}" 
+			| muIfelse: 				(Label label ":")? "if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
+			| muWhile: 					(Label label ":")? "while" "(" Exp cond ")" "{" (Exp ";")* body "}" 
 			
-			| muCreate:     		"create" "(" Exp fun  ")"
-			| muCreate: 			"create" "(" Exp fun "," {Exp ","}+ args ")"
+			| muCreate:     			"create" "(" Exp fun  ")"
+			| muCreate: 				"create" "(" Exp fun "," {Exp ","}+ args ")"
 			
-			| muInit: 				"init" "(" Exp coro ")"
-			| muInit: 				"init" "(" Exp coro "," {Exp ","}+ args ")"
+			| muInit: 					"init" "(" Exp coro ")"
+			| muInit: 					"init" "(" Exp coro "," {Exp ","}+ args ")"
 			
-			| muNext:   			"next" "(" Exp coro ")"
-			| muNext:   			"next" "(" Exp coro "," {Exp ","}+ args ")"
+			| muNext:   				"next" "(" Exp coro ")"
+			| muNext:   				"next" "(" Exp coro "," {Exp ","}+ args ")"
 			
-			| muHasNext: 			"hasNext" "(" Exp coro ")"	
+			| muHasNext: 				"hasNext" "(" Exp coro ")"	
 			
-			| muYield: 				"yield"  Exp exp 
-			> muYield: 				"yield"
+			| muYield: 					"yield"  Exp exp 
+			> muYield: 					"yield"
 			
 			// call-by-reference: expressions that return a value location
-			| preLocRef:     		"ref" Identifier id
-			| preVarRef:      		"ref" FunNamePart+ funNames Identifier id
+			| preLocRef:     			"ref" Identifier id
+			| preVarRef:      			"ref" FunNamePart+ funNames Identifier id
 			
-			| bracket				"(" Exp exp ")"
+			| bracket					"(" Exp exp ")"
 			;
 			
 //syntax OptLabel =
@@ -120,7 +122,9 @@ syntax Exp  =
 //			; 			
 
 keyword Keywords = 
-              "module" | "function" | "return" | "get" | /* "set" excluded, can be used in ```... is set'' construct*/
+              "module" | "function" | "return" | 
+              "get_array" | "get_list" | "get_tuple" |
+              "set_array" |
 			  "prim" | "muprim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "hasNext" |
               "type" |
@@ -138,10 +142,7 @@ syntax Exp =
 			// *local* variables of functions used inside their closures and nested functions
 			| preVar: 					FunNamePart+ funNames Identifier id 
 			
-			| preIfthen:    "if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}"
-			| preAssignLocList:
-							"[" Identifier id1 "," Identifier id2 "]" "=" Exp exp
-			> preList:		"[" {Exp ","}* exps "]"
-		
-			
+			| preIfthen:    			"if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}"
+			| preAssignLocList:			"[" Identifier id1 "," Identifier id2 "]" "=" Exp exp
+			> preList:					"[" {Exp ","}* exps "]"
 			;
