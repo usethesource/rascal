@@ -9,10 +9,12 @@ import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -69,6 +71,8 @@ public class GrammarToJigll {
 	private Input input;
 	
 	private IConstructor rascalGrammar;
+	
+	private Set<Rule> regularListRules;
 
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
@@ -235,6 +239,7 @@ public class GrammarToJigll {
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 		rulesMap = new HashMap<>();
 		keywordsMap = new HashMap<>();
+		regularListRules = new HashSet<>();
 
 		for (IValue nonterminal : definitions) {
 			
@@ -253,7 +258,9 @@ public class GrammarToJigll {
 			for (IValue alt : alts) {
 				
 				IConstructor prod = (IConstructor) alt;
+				
 				Object object;
+				
 				if(ebnf) {
 					object = getRegularDefinition(alts);
 				} else {
@@ -271,6 +278,10 @@ public class GrammarToJigll {
 					builder.addRule(rule);						
 				}
 			}
+		}
+		
+		for(Rule rule : regularListRules) {
+			builder.addRule(rule);
 		}
 
 		return builder;
@@ -449,6 +460,10 @@ public class GrammarToJigll {
 			case "conditional":
 				Symbol regularList = getRegularList(symbol);
 				if(regularList != null) {
+					List<Symbol> body = new ArrayList<>();
+					body.add(regularList);
+					Rule rule = new Rule(getHead(getSymbolCons(symbol)), regularList);
+					regularListRules.add(rule);
 					return regularList;
 				}
 				return getSymbol(getSymbolCons(symbol)).addConditions(getConditions(symbol));
