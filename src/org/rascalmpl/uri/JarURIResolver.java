@@ -118,13 +118,13 @@ public class JarURIResolver implements IURIInputStreamResolver{
 	}
 	
 	public String[] listEntries(URI uri) throws IOException {
-		if (!isDirectory(uri)) {
-			return new String[] { };
-		}
+//		if (!isDirectory(uri)) {
+//			return new String[] { };
+//		}
 		String jar = getJar(uri);
 		String path = getPath(uri);
 		
-		if (!path.endsWith("/")) {
+		if (!path.endsWith("/") && !path.isEmpty()) {
 			path = path + "/";
 		}
 		
