@@ -15,6 +15,7 @@ import lang::rascal::types::CheckTypes;
 
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 import experiments::Compiler::muRascal2RVM::StackSize;
+import experiments::Compiler::muRascal2RVM::PeepHole;
 
 public loc MuLibrary = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
 public loc MuLibraryCompiled = |std:///experiments/Compiler/muRascal2RVM/Library.rvm|;
@@ -26,7 +27,7 @@ list[Declaration] parseMuLibrary(){
  
   	for(fun <- libModule.functions){
   	    required_frame_size = fun.nlocals + estimate_stack_size(fun.body);
-    	functions += FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, fun.nlocals, required_frame_size, tr(fun.body),[]);
+    	functions += FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, fun.nlocals, required_frame_size, peephole(tr(fun.body)),[]);
   	}
   
   	writeTextValueFile(MuLibraryCompiled, functions);

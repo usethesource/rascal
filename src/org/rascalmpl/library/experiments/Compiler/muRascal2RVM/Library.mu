@@ -770,8 +770,8 @@ function VISIT[1, visitor]{
         };
    }; 
    return false;     
-}
-
+}         
+  
 function MATCH_AND_DESCENT[2, pat, ^val]{
   // println("MATCH_AND_DESCENT", pat, ^val);
   DO_ALL(pat, ^val);
