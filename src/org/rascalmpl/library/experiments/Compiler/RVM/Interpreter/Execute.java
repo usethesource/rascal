@@ -387,6 +387,10 @@ public class Execute {
 			case "THROW":
 				codeblock.THROW();
 				break;
+			
+			case "JMPSWITCH":
+				codeblock.JMPSWITCH((IList)instruction.get("labels"));
+				break;
 				
 			default:
 				throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");

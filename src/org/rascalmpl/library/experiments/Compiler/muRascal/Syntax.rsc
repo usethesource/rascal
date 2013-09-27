@@ -95,6 +95,8 @@ syntax Exp  =
 			| muIfelse: 				(Label label ":")? "if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
 			| muWhile: 					(Label label ":")? "while" "(" Exp cond ")" "{" (Exp ";")* body "}" 
 			
+			| muTypeSwitch:				"typeswitch" "(" Exp exp ")" "{" (TypeCase ";")+ cases "default" ":" Exp default ";" "}"
+			
 			| muCreate:     			"create" "(" Exp fun  ")"
 			| muCreate: 				"create" "(" Exp fun "," {Exp ","}+ args ")"
 			
@@ -116,10 +118,7 @@ syntax Exp  =
 			| bracket					"(" Exp exp ")"
 			;
 			
-//syntax OptLabel =
-//			  empty: 
-//			| labeled: Label label ":"
-//			; 			
+syntax TypeCase = muTypeCase: 			"case" Identifier id ":" Exp exp ;		
 
 keyword Keywords = 
               "module" | "function" | "return" | 
@@ -129,7 +128,8 @@ keyword Keywords =
               "create" | "init" | "next" | "yield" | "hasNext" |
               "type" |
               "ref" | "deref" |
-              "fun" | "cons" | "is" | "mod" | "pow"
+              "fun" | "cons" | "is" | "mod" | "pow" |
+              "typeswitch" | "default" | "case"
              ;
              
 // Syntactic features that will be removed by the preprocessor. 

@@ -2,8 +2,10 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -23,6 +25,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.I
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Instruction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpSwitch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Label;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadBool;
@@ -425,12 +428,16 @@ public class CodeBlock {
 	
 	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes){
 		return add(new CallJava(this, getConstantIndex(vf.string(methodName)), 
-								getConstantIndex(vf.string(className)), 
-								 getTypeConstantIndex(parameterTypes)));
+									  getConstantIndex(vf.string(className)), 
+								      getTypeConstantIndex(parameterTypes)));
 	}
 	
 	public CodeBlock THROW() {
 		return add(new Throw(this));
+	}
+	
+	public CodeBlock JMPSWITCH(IList labels){
+		return add(new JmpSwitch(this, labels));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

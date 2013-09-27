@@ -10,6 +10,7 @@ import experiments::Compiler::muRascal::Implode;
 
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::muRascal2RVM::ToplevelType;
 import experiments::Compiler::muRascal2RVM::StackSize;
 
 alias INS = list[Instruction];
@@ -174,14 +175,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   	 main_testsuite = getFUID(module_name,"testsuite",ftype,0);
   	 module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
-  //funMap += (module_init_testsuite : FUNCTION(module_init_testsuite, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
-  //										[*tr(initializations), 
-  //									 	 LOADLOC(0), 
-  //									 	 CALL(main_testsuite,1), // No overloading of main
-  //									 	 RETURN1(),
-  //									 	 HALT()
-  //										 ],
-  //										 []));
+  
   res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
   if(listing){
     for(fname <- funMap)
@@ -189,7 +183,6 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   }
   return res;
 }
-
 
 /*********************************************************************/
 /*      Translate lists of muRascal expressions                      */
@@ -228,6 +221,7 @@ default INS tr(muBlock(list[MuExp] exps)) = trblock(exps);
 /*********************************************************************/
 
 // Literals and type constants
+
 INS tr(muBool(bool b)) = [LOADBOOL(b)];
 INS tr(muCon("true")) = [LOADCON(true)];
 INS tr(muCon("false")) = [LOADCON(false)];
@@ -238,10 +232,12 @@ default INS tr(muCon(value c)) = [LOADCON(c)];
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
 
 // muRascal functions
+
 INS tr(muFun(str fuid)) = [LOADFUN(fuid)];
 INS tr(muFun(str fuid, str scopeIn)) = [LOAD_NESTED_FUN(fuid, scopeIn)];
 
 // Rascal functions
+
 INS tr(muOFun(str fuid)) = [ LOADOFUN(fuid) ];
 
 INS tr(muConstr(str fuid)) = [LOADCONSTR(fuid)];
@@ -268,14 +264,17 @@ INS tr(muAssignTmp(str id, MuExp exp)) = [*tr(exp), STORELOC(getTmp(id)) ];
 // Calls
 
 // Constructor
+
 INS tr(muCallConstr(str fuid, list[MuExp] args)) = [ *tr(args), CALLCONSTR(fuid, size(args)) ];
 
 // muRascal functions
+
 INS tr(muCall(muFun(str fuid), list[MuExp] args)) = [*tr(args), CALL(fuid, size(args))];
 INS tr(muCall(muConstr(str fuid), list[MuExp] args)) = [*tr(args), CALLCONSTR(fuid, size(args))];
 INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size(args))];
 
 // Rascal functions
+
 INS tr(muOCall(muOFun(str fuid), list[MuExp] args)) = [*tr(args), OCALL(fuid, size(args))];
 INS tr(muOCall(MuExp fun, set[Symbol] types, list[MuExp] args)) 
 	= { list[MuExp] targs = [ muTypeCon(t) | t <- types ]; 
@@ -290,6 +289,7 @@ INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args
 INS tr(muCallMuPrim(str name, list[MuExp] args)) =  (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLMUPRIM(name, size(args))];
 
 INS tr(muCallJava(str name, str class, Symbol types, list[MuExp] args)) = [ *tr(args), CALLJAVA(name, class, types) ];
+
 // Return
 
 INS tr(muReturn()) = [RETURN0()];
@@ -321,6 +321,7 @@ INS tr(muYield()) = [YIELD0()];
 INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];
 
 // Exceptions
+
 INS tr(muThrow(MuExp exp)) = [ *tr(exp), THROW() ];
 
 INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
@@ -545,6 +546,22 @@ INS tr(muDo(str label, list[MuExp] body, MuExp cond)) {
 INS tr(muBreak(str label)) = [ JMP(mkBreak(label)) ];
 INS tr(muContinue(str label)) = [ JMP(mkContinue(label)) ];
 INS tr(muFail(str label)) = [ JMP(mkFail(label)) ];
+
+
+INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
+   defaultLab = nextLabel();
+   continueLab = mkContinue(defaultLab);
+   labels = [defaultLab | i <- index(toplevelTypes) ];
+   caseCode =  [];
+	for(cs <- cases){
+		caseLab = defaultLab + "_" + cs.name;
+		labels[getToplevelType(cs.name)] = caseLab;
+		caseCode += [ LABEL(caseLab), *tr(cs.exp), JMP(continueLab) ];
+	 };
+   caseCode += [LABEL(defaultLab), *tr(defaultExp), JMP(continueLab) ];
+   println("caseCode = <caseCode>");
+   return [ *tr(exp), JMPSWITCH(labels), *caseCode, LABEL(continueLab) ];
+}
 
 // Multi/One/All outside conditional context
     

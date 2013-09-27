@@ -344,6 +344,7 @@ public class RVM {
 		this.trace = this.trace + trace + "\n";
 	}
 	
+	
 	public IValue executeProgram(String uid_main, IValue[] args) {
 		
 		finalize();
@@ -412,7 +413,14 @@ public class RVM {
 						pc++;
 					sp--;
 					continue;
-
+					
+				case Opcode.OP_JMPSWITCH:
+					IValue val = (IValue) stack[--sp];
+					int labelIndex = ToplevelType.getToplevelType(val.getType());
+					IList labels = (IList) cf.function.constantStore[instructions[pc++]];
+					pc = ((IInteger) labels.get(labelIndex)).intValue();
+					continue;
+					
 				case Opcode.OP_POP:
 					sp--;
 					continue;
