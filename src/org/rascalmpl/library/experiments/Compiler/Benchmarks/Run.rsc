@@ -15,6 +15,7 @@ import experiments::Compiler::Execute;
 
 import experiments::Compiler::Benchmarks::BBottles;
 import experiments::Compiler::Benchmarks::BExceptions;
+import experiments::Compiler::Benchmarks::BExceptionsFinally;
 import experiments::Compiler::Benchmarks::BFac;
 import experiments::Compiler::Benchmarks::BFib;
 import experiments::Compiler::Benchmarks::BFor;
@@ -86,6 +87,7 @@ void main(){
   measurements = ();
   run("BBottles", experiments::Compiler::Benchmarks::BBottles::main);
   run("BExceptions", experiments::Compiler::Benchmarks::BExceptions::main);
+  run("BExceptionsFinally", experiments::Compiler::Benchmarks::BExceptionsFinally::main);
   run("BFac", experiments::Compiler::Benchmarks::BFac::main);
   run("BFib", experiments::Compiler::Benchmarks::BFib::main);
   run("BFor", experiments::Compiler::Benchmarks::BFor::main);
