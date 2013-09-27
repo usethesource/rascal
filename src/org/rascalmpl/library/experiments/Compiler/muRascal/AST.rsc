@@ -103,6 +103,8 @@ public data MuExp =
           | muWhile(str label, MuExp cond, list[MuExp] body)	// While-Do expression
           | muDo(str label, list[MuExp] body, MuExp cond)		// Do-While expression
           
+          | muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \default)		// switch over cases for specific type
+          
 		  | muBreak(str label)									// Break statement
 		  | muContinue(str label)								// Continue statement
 		  | muFail(str label)									// Fail statement
@@ -140,7 +142,9 @@ public data MuExp =
           | muTry(MuExp exp, MuCatch \catch, MuExp \finally)
           ;
  
- data MuCatch = muCatch(str id, Symbol \type, MuExp body);       	  
+data MuCatch = muCatch(str id, Symbol \type, MuExp body);    
+
+data MuTypeCase = muTypeCase(str name, MuExp exp);	  
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.

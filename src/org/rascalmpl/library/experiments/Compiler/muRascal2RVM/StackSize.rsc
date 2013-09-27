@@ -66,6 +66,9 @@ private int estimate(muBreak(str label)) = 0;
 private int estimate(muContinue(str label)) = 0;
 private int estimate(muFail(str label)) = 0;
 
+private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \default)) = 
+(1 | max(it, estimate(cs.exp)) | cs <- cases);
+       
 private int estimate(muFailReturn()) = 0;
 
 private int estimate(muCreate(muFun(str fuid))) = 1;

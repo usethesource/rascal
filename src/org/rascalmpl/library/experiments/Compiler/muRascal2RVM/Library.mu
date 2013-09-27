@@ -102,6 +102,21 @@ function ENUMERATE[2, enumerator, pat, cpat, elm]{
    }; 
    return false;     
 }
+
+function ENUMERATE_AND_MATCH[2,  pat, ^val]{
+  typeswitch(^val){
+    case list:  ENUMERATE(init(create(ENUM_LIST, ^val)), pat);
+    case node:  ENUMERATE(init(create(ENUM_NODE, ^val)), pat);
+    case map:   ENUMERATE(init(create(ENUM_MAP, ^val)), pat);
+    case set:   ENUMERATE(init(create(ENUM_SET, ^val)), pat);
+    case tuple: ENUMERATE(init(create(ENUM_TUPLE, ^val)), pat);
+    default:    ENUMERATE(init(create(ENUM_LITERAL, ^val)), pat);
+  };
+  // Add cases for rel/lrel?
+  return ^val;
+}
+
+/*
         
 function ENUMERATE_AND_MATCH[2,  pat, ^val]{
   if(^val is list){
@@ -128,6 +143,7 @@ function ENUMERATE_AND_MATCH[2,  pat, ^val]{
   // Add cases for rel/lrel?
   return ^val;
 }
+*/
 
 // ***** Ranges *****
 
@@ -760,6 +776,25 @@ function MATCH_AND_DESCENT[2, pat, ^val]{
   // println("MATCH_AND_DESCENT", pat, ^val);
   DO_ALL(pat, ^val);
   
+  // println("MATCH_AND_DESCENT", "outer match failed"); 
+  typeswitch(^val){
+    case list:  VISIT(init(create(MATCH_AND_DESCENT_LIST, pat, ^val)));
+    case node:  VISIT(init(create(MATCH_AND_DESCENT_NODE, pat, ^val)));
+    case map:   VISIT(init(create(MATCH_AND_DESCENT_MAP, pat, ^val)));
+    case set:   VISIT(init(create(MATCH_AND_DESCENT_SET, pat, ^val)));
+    case tuple: VISIT(init(create(MATCH_AND_DESCENT_TUPLE, pat, ^val)));
+    default:    return false;
+  };  
+  // Add cases for rel/lrel?
+  return false;
+}
+
+/*
+
+function MATCH_AND_DESCENT[2, pat, ^val]{
+  // println("MATCH_AND_DESCENT", pat, ^val);
+  DO_ALL(pat, ^val);
+  
   // println("MATCH_AND_DESCENT", "outer match failed");    
   if(^val is list){
      return VISIT(init(create(MATCH_AND_DESCENT_LIST, pat, ^val)));
@@ -785,6 +820,7 @@ function MATCH_AND_DESCENT[2, pat, ^val]{
   // Add cases for rel/lrel?
   return false;
 }
+*/
 
 // ***** Regular expressions *****
 

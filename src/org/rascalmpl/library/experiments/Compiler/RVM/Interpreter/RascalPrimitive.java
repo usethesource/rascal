@@ -1621,33 +1621,6 @@ public enum RascalPrimitive {
 		stack[sp - 2] = c == 0 || c == 1;
 		return sp - 1;
 	}
-	
-	/*
-	 * has
-	 */
-	
-//	public static int has(Object[] stack, int sp, int arity) {
-//		assert arity == 2;
-//		IValue val = ((IValue) stack[sp - 2]);
-//		String fieldName = ((IString) stack[sp - 1]).getValue();
-//		stdout.println("type = " + val.getType());
-//		if(val.getType().isAbstractData()){
-//			stack[sp - 2] = ((IConstructor)val).getConstructorType().hasField(fieldName);
-//		} else {
-//			stack[sp - 2] = val.getType().hasField(fieldName);
-//		}
-//		return sp - 1;
-//	}
-
-	/*
-	 * implies
-	 */
-
-//	public static int implies_bool_bool(Object[] stack, int sp, int arity) {
-//		assert arity == 2;
-//		stack[sp - 2] = ((IBool) stack[sp - 2]).implies((IBool) stack[sp - 1]);
-//		return sp - 1;
-//	}
 
 	/*
 	 * intersect
