@@ -177,12 +177,12 @@ MuExp translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) 
 MuExp translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) = translateSwitch(s);
 
 MuExp translate(s: (Statement) `fail <Target target> ;`) = 
-     inBacktrackingScope() ? muFail(target is empty ? currentBacktrackingScope() : "<target.label>")
+     inBacktrackingScope() ? muFail(target is empty ? currentBacktrackingScope() : "<target.name>")
                            : muFailReturn();
 
-MuExp translate(s: (Statement) `break <Target target> ;`) = muBreak(target is empty ? currentLoop() : "<target.label>");
+MuExp translate(s: (Statement) `break <Target target> ;`) = muBreak(target is empty ? currentLoop() : "<target.name>");
 
-MuExp translate(s: (Statement) `continue <Target target> ;`) = muContinue(target is empty ? currentLoop() : "<target.label>");
+MuExp translate(s: (Statement) `continue <Target target> ;`) = muContinue(target is empty ? currentLoop() : "<target.name>");
 
 MuExp translate(s: (Statement) `filter ;`) { throw("filter"); }
 
