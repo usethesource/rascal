@@ -12,6 +12,7 @@ import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
 import experiments::Compiler::muRascal2RVM::StackSize;
+import experiments::Compiler::muRascal2RVM::PeepHole;
 
 alias INS = list[Instruction];
 
@@ -134,7 +135,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     	iprintln(fun);
     }
     // Append catch blocks to the end of the function body code
-    code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    code = peephole(tr(fun.body)) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     // Debugging exception handling
     // println("FUNCTION BODY:");
@@ -559,7 +560,6 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
 		caseCode += [ LABEL(caseLab), *tr(cs.exp), JMP(continueLab) ];
 	 };
    caseCode += [LABEL(defaultLab), *tr(defaultExp), JMP(continueLab) ];
-   println("caseCode = <caseCode>");
    return [ *tr(exp), JMPSWITCH(labels), *caseCode, LABEL(continueLab) ];
 }
 
