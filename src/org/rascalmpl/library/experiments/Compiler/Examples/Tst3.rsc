@@ -1,10 +1,4 @@
 module experiments::Compiler::Examples::Tst3
 
-int square(int n) = n * n when n < 10;
-int square(int n) = 10 * n * n when n >= 10;
-
-
-value main(list[value] args){
-  return square(15);
-}
+public test bool testList18() = [1,2,1,2,3,4,3,4,5] - 5 == [1,2,1,2,3,4,3,4];
   
