@@ -462,9 +462,8 @@ public class GrammarToJigll {
 				if(regularList != null) {
 					List<Symbol> body = new ArrayList<>();
 					body.add(regularList);
-					Rule rule = new Rule(getHead(getSymbolCons(symbol)), regularList);
+					Rule rule = new Rule(new Nonterminal(SymbolAdapter.toString(getSymbolCons(symbol), true)), regularList);
 					regularListRules.add(rule);
-					return regularList;
 				}
 				return getSymbol(getSymbolCons(symbol)).addConditions(getConditions(symbol));
 				
