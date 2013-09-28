@@ -431,6 +431,7 @@ public enum RascalPrimitive {
 	real_subtract_rat,
 	
 	list_subtract_list,
+	list_subtract_elm,
 	map_subtract_map,
 	set_subtract_set,
 	set_subtract_elm,
@@ -2942,6 +2943,12 @@ public enum RascalPrimitive {
 	public static int list_subtract_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int list_subtract_elm(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IList) stack[sp - 2]).delete((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
 
