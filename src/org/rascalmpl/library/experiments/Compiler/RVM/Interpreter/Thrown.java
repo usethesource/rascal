@@ -2,12 +2,20 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import org.eclipse.imp.pdb.facts.IValue;
 
-public class Thrown {
+public class Thrown extends RuntimeException {
 	
-	final IValue value;
+	private static final long serialVersionUID = 5789848344801944419L;
 	
-	public Thrown(IValue value) {
+	private static Thrown instance = new Thrown(null);
+	IValue value;
+	
+	private Thrown(IValue value) {
 		this.value = value;
+	}
+	
+	public static Thrown getInstance(IValue value) {
+		instance.value = value;
+		return instance;
 	}
 
 }

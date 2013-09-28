@@ -458,6 +458,11 @@ public class RVM {
 					continue;
 				}
 				
+				case Opcode.OP_UNWRAPTHROWN: {
+					stack[instructions[pc++]] = ((Thrown) stack[--sp]).value;
+					continue;
+				}
+				
 				case Opcode.OP_STORELOCDEREF:
 					Reference ref = (Reference) stack[instructions[pc++]];
 					ref.stack[ref.pos] = stack[sp - 1]; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
@@ -752,12 +757,12 @@ public class RVM {
 						} 
 						else if(rval instanceof Thrown) {
 							// Exception handling
-							IValue thrown = ((Thrown) rval).value;  
+							Thrown thrown = (Thrown) rval;  
 							// First, try to find a handler in the current frame function,
 							// given the current instruction index and the value type,
 							// then, if not found, look up the caller function(s)
 							for(Frame f = cf; f != null; f = f.previousCallFrame) {
-								int handler = f.function.getHandler(pc - 1, thrown.getType());
+								int handler = f.function.getHandler(pc - 1, thrown.value.getType());
 								if(handler != -1) {
 									// Put the thrown value on the stack
 									stack[sp++] = thrown;
@@ -986,16 +991,22 @@ public class RVM {
 					continue;	
 					
 				case Opcode.OP_THROW:
-					IValue thrown = (IValue) stack[--sp];
+					Object obj = stack[--sp];
+					Thrown thrown = null;
+					if(obj instanceof IValue) {
+						thrown = Thrown.getInstance((IValue) obj);
+					} else {
+						// Then, an object of type 'Thrown' is on top of the stack
+						thrown = (Thrown) obj;
+					}
 					// First, try to find a handler in the current frame function,
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						int handler = f.function.getHandler(pc - 1, thrown.getType());
+						int handler = f.function.getHandler(pc - 1, thrown.value.getType());
 						if(handler != -1) {
-							// Put the thrown value back on the stack
-							stack[sp++] = thrown;
 							pc = handler;
+							stack[sp++] = thrown;
 							continue NEXT_INSTRUCTION;
 						} else {
 							cf = f;
@@ -1007,7 +1018,7 @@ public class RVM {
 						}
 					}
 					// If a handler has not been found in the caller functions...
-					return new Thrown(thrown);
+					return thrown;
 								
 				default:
 					throw new RuntimeException("RVM main loop -- cannot decode instruction");
