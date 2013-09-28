@@ -2361,8 +2361,9 @@ public CheckResult computeSubtractionType(Configuration c, Symbol t1, Symbol t2,
 		return < c, t1 >;
     }
     
-    if (isListType(t1) && !comparable(getListElementType(t1),t2)) {
-		c = addScopeWarning(c, "<isListRelType(t1) ? "List Relation" : "List"> of type <prettyPrintType(t1)> could never contain elements of type <prettyPrintType(t2)>", l); 
+    if (isListType(t1)) {
+        if(!comparable(getListElementType(t1),t2))
+		   c = addScopeWarning(c, "<isListRelType(t1) ? "List Relation" : "List"> of type <prettyPrintType(t1)> could never contain elements of type <prettyPrintType(t2)>", l); 
 		return < c, t1 >;
     }
     
@@ -2372,8 +2373,9 @@ public CheckResult computeSubtractionType(Configuration c, Symbol t1, Symbol t2,
         return < c, t1 >;
     }
     
-    if (isSetType(t1)&& !comparable(getSetElementType(t1),t2)) {
-		c = addScopeWarning(c, "<isRelType(t1) ? "Relation" : "Set"> of type <prettyPrintType(t1)> could never contain elements of type <prettyPrintType(t2)>", l); 
+    if (isSetType(t1)) {
+        if(!comparable(getSetElementType(t1),t2))
+		   c = addScopeWarning(c, "<isRelType(t1) ? "Relation" : "Set"> of type <prettyPrintType(t1)> could never contain elements of type <prettyPrintType(t2)>", l); 
         return < c, t1 >;
     }
     
@@ -2383,8 +2385,9 @@ public CheckResult computeSubtractionType(Configuration c, Symbol t1, Symbol t2,
         return < c, t1 >;
     }
     
-    if (isBagType(t1)&& !comparable(getBagElementType(t1),t2)) {
-		c = addScopeWarning(c, "Bag of type <prettyPrintType(t1)> could never contain elements of type <prettyPrintType(t2)>", l); 
+    if (isBagType(t1)) {
+        if(!comparable(getBagElementType(t1),t2))
+		   c = addScopeWarning(c, "Bag of type <prettyPrintType(t1)> could never contain elements of type <prettyPrintType(t2)>", l); 
         return < c, t1 >;
     }
 
