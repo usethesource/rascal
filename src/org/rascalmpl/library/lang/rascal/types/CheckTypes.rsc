@@ -2080,6 +2080,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
 	if (isSetType(t1) && isVoidType(getSetElementType(t1))) t1 = makeRelType(makeVoidType(),makeVoidType());
 	if (isSetType(t2) && isVoidType(getSetElementType(t2))) t2 = makeRelType(makeVoidType(),makeVoidType());
 	
+	
     if (isMapType(t1) && isMapType(t2)) {
         if (subtype(getMapRangeType(t1),getMapDomainType(t2))) {
             return markLocationType(c, exp@\loc, makeMapType(stripLabel(getMapDomainType(t1)),stripLabel(getMapRangeType(t2))));
@@ -2207,12 +2208,19 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> join <Ex
 	if (isSetType(t1) && isRelType(t2))
 		return markLocationType(c, exp@\loc, \rel( getSetElementType(t1) + [ stripLabel(t) | t <- getRelFields(t2) ] ));
 	
-	// TODO: Can we use join on list/lrel combinations?
+	if (isListRelType(t1) && isListType(t2))
+		return markLocationType(c, exp@\loc, \lrel( [ stripLabel(t) | t <- getListRelFields(t1) ] + getListElementType(t2) ));
+	
+	if (isListType(t1) && isListRelType(t2))
+		return markLocationType(c, exp@\loc, \lrel( getListElementType(t1) + [ stripLabel(t) | t <- getListRelFields(t2) ] ));
+	
+	if (isListType(t1) && isListType(t2))
+		return markLocationType(c, exp@\loc, \lrel([ getListElementType(t1), getListElementType(t2) ]));
 	
 	if (isSetType(t1) && isSetType(t2))
 		return markLocationType(c, exp@\loc, \rel([ getSetElementType(t1), getSetElementType(t2) ]));
 	
-    return markLocationFailed(c, exp@\loc, makeFailType("Composition not defined for <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
+    return markLocationFailed(c, exp@\loc, makeFailType("Join not defined for <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
 }
 
 @doc{Check the types of Rascal expressions: Remainder (DONE)}
