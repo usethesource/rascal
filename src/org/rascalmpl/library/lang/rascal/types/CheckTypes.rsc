@@ -863,7 +863,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
     // instead of in the surrounding environment.   
     rt = \void();
     Symbol funType = Symbol::\func(rt,[]);
-    cFun = addClosure(cFun, funType, exp@\loc);
+    cFun = addClosure(c, funType, exp@\loc);
     
     // Calculate the parameter types. This returns the parameters as a tuple. As
     // a side effect, names defined in the parameters are added to the environment.
