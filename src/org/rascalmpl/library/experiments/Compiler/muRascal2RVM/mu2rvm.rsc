@@ -48,6 +48,7 @@ int newLocal() {
 }
 
 map[str,int] temporaries = ();
+str asUnwrapedThrown(str name) = name + "_unwraped";
 
 int getTmp(str name){
    if(temporaries[name]?)
@@ -409,7 +410,12 @@ void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str fromAsPar
 	if(muBlock([]) := exp) {
 		catchBlock = [ LABEL(from), POP(), LABEL(to), JMP(jmpto) ];
 	} else {
-		catchBlock = [ LABEL(from), STORELOC(getTmp(id)), POP(), *tr(exp), LABEL(to), JMP(jmpto) ];
+		catchBlock = [ LABEL(from), 
+					   // store a thrown value
+					   STORELOC(getTmp(id)), POP(),
+					   // load a thrown value, unwrap it and store the unwrapped one in a separate local variable
+					   LOADLOC(getTmp(id)), UNWRAPTHROWN(getTmp(asUnwrapedThrown(id))),
+					   *tr(exp), LABEL(to), JMP(jmpto) ];
 	}
 	
 	if(!isEmpty(catchBlocks[currentCatchBlock])) {
