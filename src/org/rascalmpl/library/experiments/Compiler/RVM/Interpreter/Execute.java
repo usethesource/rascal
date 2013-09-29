@@ -395,6 +395,10 @@ public class Execute {
 				codeblock.JMPSWITCH((IList)instruction.get("labels"));
 				break;
 				
+			case "UNWRAPTHROWN":
+				codeblock.UNWRAPTHROWN(getIntField(instruction, "pos"));
+				break;
+				
 			default:
 				throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 			}

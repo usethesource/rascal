@@ -76,7 +76,7 @@ str getLabel(Label label) =
   (label is \default) ? "<label.name>" : nextTmp();
   
 str asTmp(str name) = "TMP_<name>";
-
+str asUnwrapedThrown(str name) = name + "_unwraped";
 
 // Keep track of possibly nested "it" variables in reducers
 

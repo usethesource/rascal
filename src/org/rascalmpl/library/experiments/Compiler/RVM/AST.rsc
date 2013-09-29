@@ -34,7 +34,9 @@ data Instruction =
 		| LOADOFUN(str fuid)                        // Push a named *Rascal function
 		
 		| LOADLOC(int pos)							// Push value of local variable
-		| STORELOC(int pos)							// Store value on top-of-stack in local variable (value remains on stack)
+		| STORELOC(int pos)							// Store value on top-of-stack in the local variable (value remains on stack)
+		
+		| UNWRAPTHROWN(int pos)                    // Unwrap a thrown value on top-of-stack, and store the unwrapped value in the local variable (value removed from the stack)
 	   	
 		| LOADVAR(str fuid, int pos)                // Push a variable from an outer scope
 		| STOREVAR(str fuid, int pos)               // Store value on  top-of-stack in variable in surrounding scope (value remains on stack)

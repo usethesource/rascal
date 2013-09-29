@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -631,7 +632,7 @@ public enum RascalPrimitive {
 	 * @param arity TODO
 	 * @return		new stack pointer and modified stack contents
 	 */
-	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
 	}
 
@@ -3722,7 +3723,11 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		IConstructor cons =  (IConstructor) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
-		stack[sp - 2] = cons.get((idx >= 0) ? idx : cons.arity());
+		try {
+			stack[sp - 2] = cons.get((idx >= 0) ? idx : cons.arity());
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 	
@@ -3730,7 +3735,11 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		INode node =  (INode) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
-		stack[sp - 2] = node.get((idx >= 0) ? idx : node.arity());
+		try {
+			stack[sp - 2] = node.get((idx >= 0) ? idx : node.arity());
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 	
@@ -3738,13 +3747,20 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		IList lst = ((IList) stack[sp - 2]);
 		int idx = ((IInteger) stack[sp - 1]).intValue();
-		stack[sp - 2] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
+		try {
+			stack[sp - 2] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 
 	public static Object map_subscript(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
+		if(stack[sp - 2] == null) {
+			throw RuntimeExceptions.noSuchKey((IValue) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 	
@@ -3752,8 +3768,12 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		IString str = ((IString) stack[sp - 2]);
 		int idx = ((IInteger) stack[sp - 1]).intValue();
-		stack[sp - 2] = (idx >= 0) ? str.substring(idx, idx+1)
-								   : str.substring(str.length() + idx, str.length() + idx + 1);
+		try {
+			stack[sp - 2] = (idx >= 0) ? str.substring(idx, idx+1)
+								   	   : str.substring(str.length() + idx, str.length() + idx + 1);
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 	
@@ -3761,7 +3781,11 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		ITuple tup = (ITuple) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
-		stack[sp - 2] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
+		try {
+			stack[sp - 2] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 

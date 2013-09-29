@@ -208,6 +208,22 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers>`) {
 	return exp;
 }
 
+MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`) {
+	// The stack of try-catch-finally block is managed to check whether there is a finally block 
+	// that must be executed before 'return', if any; 
+	// in this case, the return expression has to be first evaluated, stored in a temporary variable 
+	// and returned after the 'finally' block has been executed
+	enterTryCatchFinally();
+	MuExp tryCatch = translate((Statement) `try <Statement body> <Catch+ handlers>`);
+	leaveTryCatchFinally();
+	MuExp finallyExp = translate(finallyBody);
+	// Introduce a temporary variable that is bound within a catch block to a thrown value
+	str varname = asTmp(nextLabel());
+	return muTry(muTry(tryCatch.exp, tryCatch.\catch, muBlock([])), 
+				 muCatch(varname, Symbol::\value(), muBlock([finallyExp, muThrow(muTmp(varname))])), 
+				 finallyExp); 
+}
+
 MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
   // Translate a list of catch blocks into one catch block
   if(size(catches) == 0) {
@@ -220,7 +236,7 @@ MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
   if(c is binding) {
       ifname = nextLabel();
       enterBacktrackingScope(ifname);
-      conds = [ muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(c.pattern), muTmp(varname)])) ];
+      conds = [ muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(c.pattern), muTmp(asUnwrapedThrown(varname))])) ];
       exp = muIfelse(ifname, muAll(conds), [translate(c.body)], [translateCatches(varname, tail(catches), hasDefault)]);
       leaveBacktrackingScope();
       return exp;
@@ -230,19 +246,6 @@ MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
   exp = translate(c.body);
   
   return exp;
-}
-
-MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`) {
-	// The stack of try-catch-finally block is managed to check whether there is a finally block 
-	// that must be executed before 'return' if any
-	enterTryCatchFinally();
-	MuExp tryCatch = translate((Statement) `try <Statement body> <Catch+ handlers>`);
-	leaveTryCatchFinally();
-	MuExp finallyExp = translate(finallyBody);
-	str varname = asTmp(nextLabel());
-	return muTry(muTry(tryCatch.exp, tryCatch.\catch, muBlock([])), 
-				 muCatch(varname, Symbol::\value(), muBlock([finallyExp, muThrow(muTmp(varname))])), 
-				 finallyExp); 
 }
 
 MuExp translate(s: (Statement) `<Label label> { <Statement+ statements> }`) =
