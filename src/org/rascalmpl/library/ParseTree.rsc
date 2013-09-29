@@ -224,18 +224,14 @@ public Production associativity(Symbol s, Associativity as, {*Production a, choi
   = associativity(s, as, a+b); 
   
 @doc{Nested (equal) associativity is flattened}             
-public Production associativity(Symbol rhs, Associativity a, {associativity(Symbol rhs2, Associativity b, set[Production] alts), *Production rest}) {
-  if (a == b)  
-    return associativity(rhs, a, rest + alts) ;
-  else
-    fail;
-}
+public Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associativity b, set[Production] alts), *Production rest})  
+  = associativity(rhs, a, rest + alts) ;
 
 Production associativity(Symbol rhs, Associativity a, {prod(rhs, list[Symbol] lhs, set[Attr] as), *Production rest}) 
   = \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})}) when !(\assoc(_) <- as);
 
-Production associativity(Symbol rhs, Associativity a, {prod(label(str _, rhs), list[Symbol] lhs, set[Attr] as), *Production rest}) 
-  =  \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})}) when !(\assoc(_) <- as);
+Production associativity(Symbol rhs, Associativity a, {prod(label(str l, rhs), list[Symbol] lhs, set[Attr] as), *Production rest}) 
+  =  \associativity(rhs, a, rest + {prod(label(l, rhs), lhs, as + {\assoc(a)})}) when !(\assoc(_) <- as);
 
 @doc{Priority under an associativity group defaults to choice}
 public Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
