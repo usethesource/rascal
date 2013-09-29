@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -183,7 +184,8 @@ public class RVM {
 			return (IValue) result;
 		}
 		if(result instanceof Thrown) {
-			return vf.string("EXCEPTION: " + ((Thrown) result).value.toString());
+			((Thrown) result).printStackTrace(stdout);
+			return vf.string(((Thrown) result).toString());
 		}
 		if(result instanceof Object[]) {
 			IListWriter w = vf.listWriter();
@@ -322,7 +324,7 @@ public class RVM {
 	}
 	
 	// Execute a function instance, i.e., a function in its environment
-	// Note: the root frame is the environment of the non-nested functions and enables access to the global variables
+	// Note: the root frame is the environment of the non-nested functions, which enables access to the global variables
 	// Note: the return type is 'Object' as this method is used to implement call to overloaded functions, its alternatives may fail
 	public Object executeFunction(Frame root, FunctionInstance func, IValue[] args){
 		Frame cf = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
@@ -455,6 +457,11 @@ public class RVM {
 				
 				case Opcode.OP_STORELOC: {
 					stack[instructions[pc++]] = stack[sp - 1];
+					continue;
+				}
+				
+				case Opcode.OP_UNWRAPTHROWN: {
+					stack[instructions[pc++]] = ((Thrown) stack[--sp]).value;
 					continue;
 				}
 				
@@ -751,13 +758,14 @@ public class RVM {
 							continue NEXT_FUNCTION;
 						} 
 						else if(rval instanceof Thrown) {
-							// Exception handling
-							IValue thrown = ((Thrown) rval).value;  
+							// EXCEPTION HANDLING
+							Thrown thrown = (Thrown) rval;
+							thrown.stacktrace.add(cf);
 							// First, try to find a handler in the current frame function,
 							// given the current instruction index and the value type,
 							// then, if not found, look up the caller function(s)
 							for(Frame f = cf; f != null; f = f.previousCallFrame) {
-								int handler = f.function.getHandler(pc - 1, thrown.getType());
+								int handler = f.function.getHandler(pc - 1, thrown.value.getType());
 								if(handler != -1) {
 									// Put the thrown value on the stack
 									stack[sp++] = thrown;
@@ -953,7 +961,35 @@ public class RVM {
 				case Opcode.OP_CALLPRIM:
 					RascalPrimitive prim = RascalPrimitive.fromInteger(instructions[pc++]);
 					arity = instructions[pc++];
-					sp = prim.invoke(stack, sp, arity);
+					try {
+						sp = prim.invoke(stack, sp, arity);
+					} catch(InvocationTargetException targetException) {
+						if(!(targetException.getTargetException() instanceof Thrown)) {
+							throw targetException;
+						}
+						// EXCEPTION HANDLING
+						Thrown thrown = (Thrown) targetException.getTargetException();
+						thrown.stacktrace.add(cf);
+						sp = sp - arity + 1;
+						for(Frame f = cf; f != null; f = f.previousCallFrame) {
+							int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+							if(handler != -1) {
+								pc = handler;
+								stack[sp - 1] = thrown;
+								continue NEXT_INSTRUCTION;
+							} else {
+								cf = f;
+								instructions = cf.function.codeblock.getInstructions();
+								stack = cf.stack;
+								sp = cf.sp;
+								pc = cf.pc;
+								stack[sp++] = thrown;
+							}
+						}
+						// If a handler has not been found in the caller functions...
+						return thrown;
+					}
+					
 					continue;
 					
 				case Opcode.OP_CALLMUPRIM:
@@ -986,16 +1022,24 @@ public class RVM {
 					continue;	
 					
 				case Opcode.OP_THROW:
-					IValue thrown = (IValue) stack[--sp];
+					Object obj = stack[--sp];
+					Thrown thrown = null;
+					if(obj instanceof IValue) {
+						List<Frame> stacktrace = new ArrayList<Frame>();
+						stacktrace.add(cf);
+						thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
+					} else {
+						// Then, an object of type 'Thrown' is on top of the stack
+						thrown = (Thrown) obj;
+					}
 					// First, try to find a handler in the current frame function,
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						int handler = f.function.getHandler(pc - 1, thrown.getType());
+						int handler = f.function.getHandler(pc - 1, thrown.value.getType());
 						if(handler != -1) {
-							// Put the thrown value back on the stack
-							stack[sp++] = thrown;
 							pc = handler;
+							stack[sp++] = thrown;
 							continue NEXT_INSTRUCTION;
 						} else {
 							cf = f;
@@ -1007,7 +1051,7 @@ public class RVM {
 						}
 					}
 					// If a handler has not been found in the caller functions...
-					return new Thrown(thrown);
+					return thrown;
 								
 				default:
 					throw new RuntimeException("RVM main loop -- cannot decode instruction");
