@@ -62,6 +62,8 @@ test bool tst() = run("$2013-01-01T08:15:30.055+0100$.timezoneOffsetMinutes") ==
 // Location
 
 // Many issues here where field access should generate an exception
+
+test bool tst() = run("|file:///home/paulk/pico.trm|(0,1,\<2,3\>,\<4,5\>)") == |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>);
 test bool tst() = run("|http://www.rascal-mpl.org| == |http://www.rascal-mpl.org|") == (|http://www.rascal-mpl.org| == |http://www.rascal-mpl.org|);
 test bool tst() = run("|http://www.rascal-mpl.org| == |std://demo/basic/Hello.rsc|") == (|http://www.rascal-mpl.org| == |std://demo/basic/Hello.rsc|);
 
@@ -119,8 +121,13 @@ test bool tst() = run("[1, 2, 3] \>= [1, 2]") == [1, 2, 3] >= [1, 2];
 
 test bool tst() = run("[1, 2, 3] * [1, 2, 3]") == [1, 2, 3] * [1, 2, 3];
 
-// Typechecker:
-/*fails*///test bool tst() = run("[1, 2, 3] join [1, 2, 3]") == [1, 2, 3] join [1, 2, 3];
+// Returns the same tuples but in different order:
+//  [ <1,1>, <1,2>, <1,3>, <2,1>, <2,2>, <2,3>, <3,1>, <3,2>, <3,3> ]
+// versus
+// [ <3,3>, <3,2>, <3,1>, <2,3>, <2,2>, <2,1>, <1,3>, <1,2>, <1,1> ]
+// I prefer the first one (as given by the compiler)
+
+/*fails*/ //test bool tst() = run("[1, 2, 3] join [1, 2, 3]") == [1, 2, 3] join [1, 2, 3];
 
 test bool tst() = run("[\<1,10\>, \<2,20\>] join [\<300, 2000\>]") == [<1,10>, <2,20>] join [<300, 2000>];
 
@@ -164,6 +171,10 @@ test bool tst() = run("1 notin (1 : 10, 2 : 20)") == 1 notin (1 : 10, 2 : 20);
 
 // Node
 test bool tst() = run("\"abc\"(1, true, 3.5)") == "abc"(1, true, 3.5);
+
+// ADT
+
+test bool tst() = run("d1(3, \"a\") \>= d1(2, \"a\")") == d1(3, "a") >= d1(2, "a");
 
 
 // Enumerator
