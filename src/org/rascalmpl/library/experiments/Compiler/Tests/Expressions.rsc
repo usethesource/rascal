@@ -1,5 +1,6 @@
 module experiments::Compiler::Tests::Expressions
 
+import Exception;
 extend  experiments::Compiler::Tests::TestUtils;
 
 // Booleans, see separate files Booleans.rsc
@@ -243,6 +244,16 @@ test bool tst() = run("{x = \<1, 2, 3\>; x [1];}") ==  {x = <1, 2, 3>; x [1];};
 test bool tst() = run("{x = \"abc\"; x [1];}") ==  {x = "abc"; x [1];};
 test bool tst() = run("{x = \"f\"(1, 2, 3); x [1];}") ==  {x = "f"(1, 2, 3); x [1];};
 test bool tst() = run("{x = d1(1, \"a\"); x [1];}") ==  {x = d1(1, "a"); x [1];};
+
+// Subscript (IndexOutOfBounds)
+test bool tst() = run("{x = [1, 2, 3]; int elem = 0; try { elem = x[5]; } catch IndexOutOfBounds(int index): { elem = 100 + index; } elem; }", ["Exception"]) 
+					== {x = [1, 2, 3]; int elem = 0; try { elem = x[5]; } catch IndexOutOfBounds(int index): { elem = 100 + index; } elem; };
+test bool tst() = run("{x = \"abc\"; str elem = \"\"; try { elem = x[6]; } catch IndexOutOfBounds(int index): { s = \"\<index\>\"; elem = \"100\" + s; } elem; }", ["Exception"]) 
+					== {x = "abc";   str elem = "";   try { elem = x[6]; } catch IndexOutOfBounds(int index): { s = "<index>";     elem = "100" + s; }   elem; };
+test bool tst() = run("{x = \"f\"(1, 2, 3); value elem = 0; try { elem = x[7]; } catch IndexOutOfBounds(int index): { elem = 100 + index; } elem; }", ["Exception"]) 
+				   ==  {x = "f"(1, 2, 3);   value elem = 0; try { elem = x[7]; } catch IndexOutOfBounds(int index): { elem = 100 + index; } elem; };
+test bool tst() = run("{x = d1(1, \"a\"); value elem = 0; try { x[8]; } catch IndexOutOfBounds(int index): { elem = 100 + index; } elem; }", ["Exception"]) 
+				   ==  {x = d1(1, "a");   value elem = 0; try { x[8]; } catch IndexOutOfBounds(int index): { elem = 100 + index; } elem; };
 
 test bool tst() = run("{x = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]; x[1][0];}") == {x = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]; x[1][0];};
 test bool tst() = run("{x = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]; x[1][0] = 1000; x[1][0];}") == {x = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]; x[1][0] = 1000; x[1][0];};
