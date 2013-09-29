@@ -30,16 +30,29 @@ public class JarURIResolver implements IURIInputStreamResolver{
 	
 	private String getJar(URI uri) {
 		String path = uri.toASCIIString();
-		return path.substring(path.indexOf("/"), path.indexOf('!'));
+		int bang = path.indexOf('!');
+		if (bang != -1) {
+		  return path.substring(path.indexOf("/"), bang);
+		}
+		else {
+		  return path.substring(path.indexOf("/"));
+		}
 	}
 	
 	private String getPath(URI uri) {
 		String path = uri.toASCIIString();
-		path = path.substring(path.indexOf('!') + 1);
-		while (path.startsWith("/")) {
-			path = path.substring(1);
+		int bang = path.indexOf('!');
+		
+		if (bang != -1) {
+		  path = path.substring(bang + 1);
+		  while (path.startsWith("/")) {
+		    path = path.substring(1);
+		  }
+		  return path;
 		}
-		return path;
+		else {
+		  return "";
+		}
 	}
 	
 	public InputStream getInputStream(URI uri) throws IOException {
@@ -118,9 +131,6 @@ public class JarURIResolver implements IURIInputStreamResolver{
 	}
 	
 	public String[] listEntries(URI uri) throws IOException {
-//		if (!isDirectory(uri)) {
-//			return new String[] { };
-//		}
 		String jar = getJar(uri);
 		String path = getPath(uri);
 		
