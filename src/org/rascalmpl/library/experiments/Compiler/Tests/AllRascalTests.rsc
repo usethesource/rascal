@@ -44,15 +44,11 @@ list[str] functionalityTests = [
 //"DataDeclarationTests"	// Checking function parameterized3
 							// |rascal://Type|(19722,49,<356,81>,<356,130>): "Length of symbol list and label list much match"
 
-//"DataTypeTests"		//error("Subtraction not defined on list[int] and int",|project://rascal-test/src/tests/functionality/DataTypeTests.rsc|(23443,23,<467,36>,<467,59>))
-						//error("Subtraction not defined on list[int] and int",|project://rascal-test/src/tests/functionality/DataTypeTests.rsc|(23279,23,<465,36>,<465,59>))
-						//error("Subtraction not defined on list[int] and int",|project://rascal-test/src/tests/functionality/DataTypeTests.rsc|(23361,23,<466,36>,<466,59>))
-						//error("Invalid return type bool, expected return type void",|project://rascal-test/src/tests/functionality/DataTypeTests.rsc|(58287,13,<1059,18>,<1059,31>))
-						//error("Invalid type: expected bool, found rel[int, int]",|project://rascal-test/src/tests/functionality/DataTypeTests.rsc|(61807,16,<1129,40>,<1129,56>))
-						//error("Subtraction not defined on set[int] and int",|project://rascal-test/src/tests/functionality/DataTypeTests.rsc|(34462,11,<639,35>,<639,46>))
-						//error("Unexpected type: type of body expression, value, must be a subtype of the function return type, bool",|project://rascal-test/src/tests/functionality/DataTypeTests.rsc|(26044,34,<519,36>,<519,70>))
-						//error("Invalid return type bool, expected return type void",|project://rascal-test/src/tests/functionality/DataTypeTests.rsc|(58170,13,<1054,21>,<1054,34>))
-
+"DataTypeTests"				// Most test pass, still todo:
+							// 1. some loc comparisons fail.
+							// 2. 3 set match tests fails.
+							// 3. Implement range outside enumerator.
+							
 //"DeclarationTests"		// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(985,1,<31,18>,<31,19>))
 						// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1071,1,<35,14>,<35,15>))
 						// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1167,1,<39,24>,<39,25>))

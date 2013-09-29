@@ -39,7 +39,7 @@ public enum ToplevelType {
 	}
 	
 	public static int getToplevelType(Type t){
-		// Compositie types
+		// Composite types
 		if(t.isConstructor())
 			return CONSTRUCTOR.getToplevelType();
 		if(t.isNode())
