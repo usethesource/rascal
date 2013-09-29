@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -183,7 +184,8 @@ public class RVM {
 			return (IValue) result;
 		}
 		if(result instanceof Thrown) {
-			return vf.string("EXCEPTION: " + ((Thrown) result).value.toString());
+			((Thrown) result).printStackTrace(stdout);
+			return vf.string(((Thrown) result).toString());
 		}
 		if(result instanceof Object[]) {
 			IListWriter w = vf.listWriter();
@@ -322,7 +324,7 @@ public class RVM {
 	}
 	
 	// Execute a function instance, i.e., a function in its environment
-	// Note: the root frame is the environment of the non-nested functions and enables access to the global variables
+	// Note: the root frame is the environment of the non-nested functions, which enables access to the global variables
 	// Note: the return type is 'Object' as this method is used to implement call to overloaded functions, its alternatives may fail
 	public Object executeFunction(Frame root, FunctionInstance func, IValue[] args){
 		Frame cf = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
@@ -756,8 +758,9 @@ public class RVM {
 							continue NEXT_FUNCTION;
 						} 
 						else if(rval instanceof Thrown) {
-							// Exception handling
-							Thrown thrown = (Thrown) rval;  
+							// EXCEPTION HANDLING
+							Thrown thrown = (Thrown) rval;
+							thrown.stacktrace.add(cf);
 							// First, try to find a handler in the current frame function,
 							// given the current instruction index and the value type,
 							// then, if not found, look up the caller function(s)
@@ -994,7 +997,9 @@ public class RVM {
 					Object obj = stack[--sp];
 					Thrown thrown = null;
 					if(obj instanceof IValue) {
-						thrown = Thrown.getInstance((IValue) obj);
+						List<Frame> stacktrace = new ArrayList<Frame>();
+						stacktrace.add(cf);
+						thrown = Thrown.getInstance((IValue) obj, stacktrace);
 					} else {
 						// Then, an object of type 'Thrown' is on top of the stack
 						thrown = (Thrown) obj;
