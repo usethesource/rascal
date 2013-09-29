@@ -2552,7 +2552,7 @@ public enum RascalPrimitive {
 			int llen = left.getLength();
 
 			if (loffset == roffset) {
-				stack[sp - 2] = llen == rlen;;
+				stack[sp - 2] = (llen < rlen);
 				return sp - 1;
 			}
 			stack[sp - 2] = false;
@@ -4047,13 +4047,13 @@ public enum RascalPrimitive {
 		int offset = ((IInteger) stack [sp - arity + 1]).intValue();
 		int length = ((IInteger) stack [sp - arity + 2]).intValue();
 		
-		ITuple line = (ITuple) stack [sp - arity + 3];
-		int beginLine = ((IInteger) line.get(0)).intValue();
-		int endLine = ((IInteger) line.get(1)).intValue();
+		ITuple begin = (ITuple) stack [sp - arity + 3];
+		int beginLine = ((IInteger) begin.get(0)).intValue();
+		int beginCol = ((IInteger) begin.get(1)).intValue();
 		
-		ITuple column = (ITuple) stack [sp - arity + 4];
-		int beginCol = ((IInteger) column.get(0)).intValue();
-		int endCol = ((IInteger)  column.get(1)).intValue();
+		ITuple end = (ITuple) stack [sp - arity + 4];
+		int endLine = ((IInteger) end.get(0)).intValue();
+		int endCol = ((IInteger)  end.get(1)).intValue();
 		
 		stack[sp - arity] = vf.sourceLocation(loc.getURI(), offset, length, beginLine, endLine, beginCol, endCol);
 		return sp - arity + 1;
