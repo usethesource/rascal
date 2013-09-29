@@ -281,7 +281,24 @@ MuExp translate(e:(Expression) `<Expression argument> +`)   = postfix("transitiv
 MuExp translate(e:(Expression) `<Expression argument> *`)   = postfix("transitiveReflexiveClosure", argument);
 
 // isDefined?
-MuExp translate(e:(Expression) `<Expression argument> ?`)   { throw("isDefined"); }
+MuExp translate(e:(Expression) `<Expression argument> ?`) {
+	str isDefined = asTmp(nextLabel());
+	str varname = asTmp(nextLabel());
+	// Check if evaluation of the expression throws a 'NoSuchKey' or 'NoSuchAnnotation' exception;
+	// do this by checking equality of the value constructor names
+	cond1 = muCallMuPrim("equal", [ muCon("NoSuchKey"),
+									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname)) ]), muInt(0) ] ) ]);
+	cond2 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"),
+									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname)) ]), muInt(0) ] ) ]);
+	
+	elsePart  = muIfelse(nextLabel(), muAll([cond2]), [], [ muThrow(muTmp(varname)) ]);
+	catchBody = muIfelse(nextLabel(), muAll([cond1]), [], [ elsePart ]);
+	return muBlock([ muAssignTmp(isDefined, muCon(false)), 
+			  		 muTry(muBlock([ translate(argument), muAssignTmp(isDefined, muCon(true)) ]), 
+			  		 				muCatch(varname, Symbol::\adt("RuntimeException",[]), catchBody), 
+			  		 				muBlock([])),
+			  		 muTmp(isDefined) ]);
+}
 
 // Not
 MuExp translate(e:(Expression) `!<Expression argument>`)    = translateBool(e);
