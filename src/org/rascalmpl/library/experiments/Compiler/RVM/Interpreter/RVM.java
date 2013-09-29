@@ -999,7 +999,7 @@ public class RVM {
 					if(obj instanceof IValue) {
 						List<Frame> stacktrace = new ArrayList<Frame>();
 						stacktrace.add(cf);
-						thrown = Thrown.getInstance((IValue) obj, stacktrace);
+						thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
 					} else {
 						// Then, an object of type 'Thrown' is on top of the stack
 						thrown = (Thrown) obj;
