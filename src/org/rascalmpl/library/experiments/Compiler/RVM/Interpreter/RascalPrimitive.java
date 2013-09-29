@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetRelation;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -39,8 +38,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.result.LessThanOrEqualResult;
-import org.rascalmpl.interpreter.result.SourceLocationResult;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
@@ -464,7 +461,10 @@ public enum RascalPrimitive {
 	rel_field_project,
 	lrel_field_project,
 
+	// range
 	
+	range_create,
+	range_step_create,
 	
 	// remainder
 	
@@ -4068,6 +4068,53 @@ public enum RascalPrimitive {
 			stack[sp - 1] = vf.string(val.toString());
 		}
 		return sp;
+	}
+	
+	public static int range_create(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		int from = ((IInteger) stack[sp - 2]).intValue();
+		int to = ((IInteger) stack[sp - 1]).intValue();
+		IListWriter w = vf.listWriter();
+		
+		if(from < to){
+			for(int i = from; i < to; i++){
+				w.append(vf.integer(i));
+			}
+		} else {
+			for(int i = from; i > to; i--){
+				w.append(vf.integer(i));
+			}
+		}
+		stack[sp - 2] = w.done();
+		return sp - 1;
+	}
+	
+	public static int range_step_create(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		int from = ((IInteger) stack[sp - 3]).intValue();
+		int second = ((IInteger) stack[sp - 2]).intValue();
+		int to = ((IInteger) stack[sp - 1]).intValue();
+
+		IListWriter w = vf.listWriter();
+
+		if(from < to){
+			if(second > from && second < to){
+				int step = second - from;
+
+				for(int i = from; i < to; i += step){
+					w.append(vf.integer(i));
+				}
+			}
+		} else {
+			if(second < from && second > to){
+				int step = second - from;
+				for(int i = from; i > to; i += step){
+					w.append(vf.integer(i));
+				}
+			}
+		}
+		stack[sp - 2] = w.done();
+		return sp - 1;
 	}
 
 	/*
