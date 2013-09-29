@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -536,7 +537,7 @@ public enum RascalPrimitive {
 	 * @param arity TODO
 	 * @return		new stack pointer and modified stack contents
 	 */
-	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
 	}
 
@@ -2824,6 +2825,9 @@ public enum RascalPrimitive {
 	public static Object map_subscript(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
+		if(stack[sp - 2] == null) {
+			throw RuntimeExceptions.noSuchKey((IValue) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 	
