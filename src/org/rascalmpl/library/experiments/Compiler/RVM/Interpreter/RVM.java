@@ -961,7 +961,35 @@ public class RVM {
 				case Opcode.OP_CALLPRIM:
 					RascalPrimitive prim = RascalPrimitive.fromInteger(instructions[pc++]);
 					arity = instructions[pc++];
-					sp = prim.invoke(stack, sp, arity);
+					try {
+						sp = prim.invoke(stack, sp, arity);
+					} catch(InvocationTargetException targetException) {
+						if(!(targetException.getTargetException() instanceof Thrown)) {
+							throw targetException;
+						}
+						// EXCEPTION HANDLING
+						Thrown thrown = (Thrown) targetException.getTargetException();
+						thrown.stacktrace.add(cf);
+						sp = sp - arity + 1;
+						for(Frame f = cf; f != null; f = f.previousCallFrame) {
+							int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+							if(handler != -1) {
+								pc = handler;
+								stack[sp - 1] = thrown;
+								continue NEXT_INSTRUCTION;
+							} else {
+								cf = f;
+								instructions = cf.function.codeblock.getInstructions();
+								stack = cf.stack;
+								sp = cf.sp;
+								pc = cf.pc;
+								stack[sp++] = thrown;
+							}
+						}
+						// If a handler has not been found in the caller functions...
+						return thrown;
+					}
+					
 					continue;
 					
 				case Opcode.OP_CALLMUPRIM:
