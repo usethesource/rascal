@@ -48,6 +48,8 @@ list[str] functionalityTests = [
 							// 1. some loc comparisons fail.
 							// 2. 3 set match tests fails.
 							// 3. Implement range outside enumerator.
+							// 4. Ifdefined not yet implemented
+							// 5. Commented out two problematic ||s.
 							
 //"DeclarationTests"		// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(985,1,<31,18>,<31,19>))
 						// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1071,1,<35,14>,<35,15>))
