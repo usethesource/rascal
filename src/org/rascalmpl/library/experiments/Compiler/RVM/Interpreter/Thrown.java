@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 
 public class Thrown extends RuntimeException {
@@ -12,6 +13,8 @@ public class Thrown extends RuntimeException {
 	private static Thrown instance = new Thrown();
 	
 	IValue value;
+	ISourceLocation loc;
+	
 	List<Frame> stacktrace;
 	
 	private Thrown() {
@@ -19,8 +22,9 @@ public class Thrown extends RuntimeException {
 		this.stacktrace = null;
 	}
 	
-	public static Thrown getInstance(IValue value, List<Frame> stacktrace) {
+	public static Thrown getInstance(IValue value, ISourceLocation loc, List<Frame> stacktrace) {
 		instance.value = value;
+		instance.loc = loc;
 		instance.stacktrace = stacktrace;
 		return instance;
 	}
@@ -30,7 +34,7 @@ public class Thrown extends RuntimeException {
 	}
 	
 	public void printStackTrace(PrintWriter stdout) {
-		stdout.println("EXCEPTION: throw " + this.toString());
+		stdout.println("Runtime Exception: throw " + this.toString() + ((loc !=null) ? loc : "") );
 		for(Frame cf : stacktrace) {
 			for(Frame f = cf; f != null; f = cf.previousCallFrame) {
 				stdout.println("at " + f.function.name);
