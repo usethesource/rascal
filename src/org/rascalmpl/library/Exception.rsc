@@ -64,6 +64,7 @@ data RuntimeException =
      | NoSuchAnnotation(str label)
  
      | NoSuchKey(value key)
+     | MultipleKey(value key)
      | ParseError(loc location)
      | PathNotFound(loc l)
      | PathNotFound(set[loc] locs)
