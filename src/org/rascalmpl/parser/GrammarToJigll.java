@@ -516,10 +516,13 @@ public class GrammarToJigll {
 					return false;
 				}
 				Terminal terminal = terminalCondition.getTerminals().get(0);
+				
 				if(!(terminal instanceof CharacterClass)) {
 					return false;
 				}
-				if(characterClass.equals(terminal)) {
+
+				CharacterClass other = (CharacterClass) terminal;
+				if(other.contains(characterClass)) {
 					return true;
 				}
 			}
