@@ -1467,10 +1467,10 @@ public enum RascalPrimitive {
 			v = vf.integer(sloc.getLength());
 			break;
 		case "begin":
-			v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getEndLine()));
+			v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
 			break;
 		case "end":
-			v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginColumn()), vf.integer(sloc.getEndColumn()));
+			v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
 			break;
 
 		default:
@@ -2872,7 +2872,7 @@ public enum RascalPrimitive {
 			int llen = left.getLength();
 
 			if (loffset == roffset) {
-				stack[sp - 2] = llen < rlen;;
+				stack[sp - 2] = (llen <= rlen);
 				return sp - 1;
 			}
 			stack[sp - 2] = roffset < loffset && roffset + rlen >= loffset + llen;
@@ -3528,6 +3528,7 @@ public enum RascalPrimitive {
 		
 		String fun = ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
+		stdout.println("testreport_add: " + src);
 		Type argType = (Type) stack[sp - 1];
 		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
 		//Type argType = typeReifier.valueToType(type_cons);
