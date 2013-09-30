@@ -298,12 +298,14 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
 }
 
 // setAnnotation
-MuExp translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expression \value> ]`) =
-    muCallPrim("annotation_set", [translate(expression), muCon("<name>"), translate(\value)]);
+MuExp translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expression val> ]`) =
+    muCallPrim("annotation_set", [translate(expression), muCon("<name>"), translate(val)]);
 
 // getAnnotation
-MuExp translate (e:(Expression) `<Expression expression> @ <Name name>`) =
-    muCallPrim("annotation_get", [translate(expression), muCon("<name>")]);
+MuExp translate (e:(Expression) `<Expression expression> @ <Name name>`) {
+println("getAnnotation: <e>");
+    return muCallPrim("annotation_get", [translate(expression), muCon("<name>")]);
+    }
 
 // Is
 MuExp translate (e:(Expression) `<Expression expression> is <Name name>`) =
