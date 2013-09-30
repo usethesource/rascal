@@ -132,11 +132,15 @@ MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expre
 
 // Range
 
-MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) =
-    muCallPrim("range_create", [translate(first), translate(last)]);
+MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
+   kind = (getOuterType(first) == "int" && getOuterType(last) == "int") ? "int" : "real";
+   return muCallPrim("range_create_<kind>", [translate(first), translate(last)]);
+}
 
-MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`) =
-   muCallPrim("range_step_create", [translate(first),  translate(second), translate(last)]);
+MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`) {
+   kind = (getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int") ? "int" : "real";
+   return muCallPrim("range_step_create_<kind>", [translate(first),  translate(second), translate(last)]);
+}
 
 // Visit
 MuExp translate (e:(Expression) `<Label label> <Visit \visit>`) = translateVisit(label, \visit);
