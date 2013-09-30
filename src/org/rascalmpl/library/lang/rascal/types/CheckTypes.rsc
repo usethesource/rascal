@@ -5443,7 +5443,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     rn = getFunctionName(sig);
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
-        < c, ttypeC > = convertAndExpandType(ttype, c); 
+        < c, ttypeC > = convertAndExpandThrowType(ttype, c); 
         if(isFailType(ttypeC)) {
         	c.messages = c.messages + getFailures(ttypeC);
         }
@@ -5493,7 +5493,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     rn = getFunctionName(sig);
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
-        < c, ttypeC > = convertAndExpandType(ttype, c); 
+        < c, ttypeC > = convertAndExpandThrowType(ttype, c); 
         if(isFailType(ttypeC)) {
         	c.messages = c.messages + getFailures(ttypeC);
         }
@@ -5545,7 +5545,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     rn = getFunctionName(sig);
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
-        < c, ttypeC > = convertAndExpandType(ttype, c); 
+        < c, ttypeC > = convertAndExpandThrowType(ttype, c); 
         if(isFailType(ttypeC)) {
         	c.messages = c.messages + getFailures(ttypeC);
         }
@@ -5600,7 +5600,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     rn = getFunctionName(sig);
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
-        < c, ttypeC > = convertAndExpandType(ttype, c); 
+        < c, ttypeC > = convertAndExpandThrowType(ttype, c); 
         if(isFailType(ttypeC)) {
         	c.messages = c.messages + getFailures(ttypeC);
         }
@@ -5740,7 +5740,7 @@ public Configuration importFunction(RName functionName, Signature sig, loc at, V
     // from top to bottom, and don't descend into them at any point.
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
-        < c, ttypeC > = convertAndExpandType(ttype, c); 
+        < c, ttypeC > = convertAndExpandThrowType(ttype, c); 
         if(isFailType(ttypeC)) {
         	c.messages = c.messages + getFailures(ttypeC);
         }
@@ -6043,6 +6043,27 @@ public CheckResult convertAndExpandSymbol(Sym t, Configuration c) {
 public CheckResult convertAndExpandType(Type t, Configuration c) {
     rt = convertType(t);
     if ( (rt@errinfo)? && size(rt@errinfo) > 0) {
+        for (m <- rt@errinfo) {
+            c = addScopeMessage(c,m);
+        }
+    }
+    return expandType(rt, t@\loc, c);
+}
+
+//  We allow constructor names (constructor types) to be used in the 'throws' clauses of Rascal functions
+public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
+    rt = convertType(t);
+    if( utc:\user(rn,pl) := rt && isEmpty(pl) 
+               && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
+        // Check if there is a value constructor with this name in the current environment
+        if(constructor(_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
+            // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
+            c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
+            c.usedIn[utc@at] = head(c.stack);
+            return <c, rt>;   
+        }
+    }
+    if ( (rt@errinfo)? && size(rt@errinfo) > 0 ) {
         for (m <- rt@errinfo) {
             c = addScopeMessage(c,m);
         }
