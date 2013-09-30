@@ -292,8 +292,8 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
     if(tupleHasFieldNames(tp)){
     	fieldNames = getTupleFieldNames(tp);
     }	
-    fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf("<field>")) | f <- fields];
-    //fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<field>") | f <- fields];
+    fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf(fieldNames, "<f>")) | f <- fields];
+    //fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<f>") | f <- fields];
     return muCallPrim("<getOuterType(expression)>_field_project", [ translate(expression), *fcode]);
 }
 
