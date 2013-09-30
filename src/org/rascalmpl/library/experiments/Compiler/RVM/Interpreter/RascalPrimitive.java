@@ -953,7 +953,7 @@ public enum RascalPrimitive {
 	public static int template_addunindented(Object[] stack, int sp, int arity) {
 		assert arity <= 2;
 		if(arity == 1){
-			stack[sp - 1] = $processString(((IString) stack[sp - 2]));
+			stack[sp - 1] = $processString(((IString) stack[sp - 1]));
 			return sp;
 		}
 		stack[sp - 2] = $processString((IString) stack[sp - 2]).concat($processString((IString) stack[sp - 1]));
