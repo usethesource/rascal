@@ -463,8 +463,10 @@ public enum RascalPrimitive {
 
 	// range
 	
-	range_create,
-	range_step_create,
+	range_create_int,
+	range_step_create_int,
+	range_create_real,
+	range_step_create_real,
 	
 	// remainder
 	
@@ -4070,51 +4072,87 @@ public enum RascalPrimitive {
 		return sp;
 	}
 	
-	public static int range_create(Object[] stack, int sp, int arity) {
+	public static int range_create_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		int from = ((IInteger) stack[sp - 2]).intValue();
 		int to = ((IInteger) stack[sp - 1]).intValue();
-		IListWriter w = vf.listWriter();
-		
-		if(from < to){
-			for(int i = from; i < to; i++){
-				w.append(vf.integer(i));
-			}
-		} else {
-			for(int i = from; i > to; i--){
-				w.append(vf.integer(i));
-			}
-		}
-		stack[sp - 2] = w.done();
+		int second = from < to ? from + 1 : from - 1;
+
+		stack[sp - 2] = $range_step_int(from, second, to);
 		return sp - 1;
 	}
 	
-	public static int range_step_create(Object[] stack, int sp, int arity) {
+	public static int range_step_create_int(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		int from = ((IInteger) stack[sp - 3]).intValue();
 		int second = ((IInteger) stack[sp - 2]).intValue();
 		int to = ((IInteger) stack[sp - 1]).intValue();
 
+		stack[sp - 3] = $range_step_int(from, second, to);
+		return sp - 2;
+	}
+	
+	public static IList $range_step_int(int from, int second, int to) {
 		IListWriter w = vf.listWriter();
 
-		if(from < to){
-			if(second > from && second < to){
-				int step = second - from;
+		int diff =  second - from;
 
-				for(int i = from; i < to; i += step){
-					w.append(vf.integer(i));
-				}
+		if(from < to && diff > 0){
+			while(from < to){
+				w.append(vf.integer(from));
+				from += diff;
 			}
-		} else {
-			if(second < from && second > to){
-				int step = second - from;
-				for(int i = from; i > to; i += step){
-					w.append(vf.integer(i));
-				}
+		} else if(from >= to && diff < 0){
+			while(from > to){
+				w.append(vf.integer(from));
+				from += diff;
 			}
 		}
-		stack[sp - 2] = w.done();
+		return w.done();
+	}
+	
+	private static double $toDouble(Object o){
+		return (o instanceof IInteger) ? ((IInteger) o).intValue() : 
+										(o instanceof IReal) ?  ((IReal)o).doubleValue() : ((IRational) o).doubleValue();
+	}
+	
+	public static int range_create_real(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		double from = $toDouble(stack[sp - 2]);
+		double to =  $toDouble(stack[sp - 1]);
+		double second = from < to ? from + 1 : from - 1;
+
+		stack[sp - 2] = $range_step_real(from, second, to);
 		return sp - 1;
+	}
+	
+	public static int range_step_create_real(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		double from =  $toDouble(stack[sp - 3]);
+		double second =  $toDouble(stack[sp - 2]);
+		double to =  $toDouble(stack[sp - 1]);
+
+		stack[sp - 3] = $range_step_real(from, second, to);
+		return sp - 2;
+	}
+	
+	public static IList $range_step_real(double from, double second, double to) {
+		IListWriter w = vf.listWriter();
+
+		double diff =  second - from;
+
+		if(from < to && diff > 0){
+			while(from < to){
+				w.append(vf.real(from));
+				from += diff;
+			}
+		} else if(from >= to && diff < 0){
+			while(from > to){
+				w.append(vf.real(from));
+				from += diff;
+			}
+		}
+		return w.done();
 	}
 
 	/*
