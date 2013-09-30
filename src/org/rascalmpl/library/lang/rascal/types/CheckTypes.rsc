@@ -1848,11 +1848,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> \< <{Fiel
                 if (maintainFieldNames) fieldNames += getTupleFieldName(rt, offset);
             }
         } else if ((Field)`<Name fn>` := f) {
-            if (tupleHasField(rt, "<fn>"))
+            fnAsString = "<fn>";
+            if (!tupleHasField(rt, fnAsString)) {
                 failures += makeFailType("Field <fn> does not exist", f@\loc);   // PK: was prettyPrintName(fn)
-            else {
+            } else {
                 subscripts += getTupleFieldType(rt, fnAsString);
-                if (maintainFieldNames) fieldNames += "<fn>";
+                if (maintainFieldNames) fieldNames += fnAsString;
             }
         } else {
             throw "Unhandled field case: <f>";
