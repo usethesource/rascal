@@ -54,8 +54,7 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
 
-	private static final LoggerWrapper log = LoggerWrapper
-			.getLogger(GrammarToJigll.class);
+	private static final LoggerWrapper log = LoggerWrapper.getLogger(GrammarToJigll.class);
 
 	private final IValueFactory vf;
 
@@ -74,7 +73,7 @@ public class GrammarToJigll {
 	private IConstructor rascalGrammar;
 
 	private Set<Rule> regularListRules;
-
+	
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
 	}
@@ -98,9 +97,7 @@ public class GrammarToJigll {
 			sppf = parser.parse(input, this.grammar, startSymbol);
 		} catch (ParseError e) {
 			System.out.println(e);
-			throw RuntimeExceptionFactory.parseError(
-					vf.sourceLocation(URI.create("nothing:///"), 0, 1), null,
-					null);
+			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(URI.create("nothing:///"), 0, 1), null, null);
 		}
 
 		long start = System.nanoTime();
@@ -114,10 +111,8 @@ public class GrammarToJigll {
 	public void generateGrammar(IConstructor rascalGrammar) {
 		this.rascalGrammar = rascalGrammar;
 		GrammarBuilder builder = convert("inmemory", rascalGrammar);
-		IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf
-				.string("notAllowed"));
-		IMap except = (IMap) ((IMap) rascalGrammar.get("about")).get(vf
-				.string("excepts"));
+		IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
+		IMap except = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("excepts"));
 
 		assert notAllowed != null;
 		assert except != null;
@@ -141,8 +136,7 @@ public class GrammarToJigll {
 		if (!file.exists()) {
 			file.createNewFile();
 		}
-		ObjectOutputStream out = new ObjectOutputStream(
-				new BufferedOutputStream(new FileOutputStream(file)));
+		ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 		out.writeObject(grammar);
 		out.close();
 	}
@@ -154,13 +148,10 @@ public class GrammarToJigll {
 		try {
 			sppf = parser.parse(input, this.grammar, startSymbol);
 		} catch (ParseError e) {
-			throw RuntimeExceptionFactory.parseError(
-					vf.sourceLocation(URI.create("nothing:///"), 0, 1), null,
-					null);
+			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(URI.create("nothing:///"), 0, 1), null, null);
 		}
 
-		Visualization.generateSPPFWithNonterminalNodesOnly(path.getValue(),
-				sppf);
+		Visualization.generateSPPFWithNonterminalNodesOnly(path.getValue(), sppf);
 	}
 
 	private Condition getDeleteSet(IConstructor symbol) {
@@ -187,12 +178,10 @@ public class GrammarToJigll {
 				IConstructor s = (IConstructor) rhs.get(0);
 				keywords.add(getKeyword(s));
 			}
-			return ConditionFactory
-					.notMatch(keywords.toArray(new Keyword[] {}));
+			return ConditionFactory.notMatch(keywords.toArray(new Keyword[] {}));
 
 		default:
-			throw new RuntimeException(symbol.getName()
-					+ " is not a supported in delete set.");
+			throw new RuntimeException(symbol.getName() + " is not a supported in delete set.");
 
 			// default:
 			// return ConditionFactory.notMatch(new Symbol[] { getSymbol(symbol)
@@ -234,8 +223,7 @@ public class GrammarToJigll {
 
 		case "char-class":
 			List<Range> targetRanges = buildRanges(symbol);
-			return ConditionFactory
-					.notPrecede(new CharacterClass(targetRanges));
+			return ConditionFactory.notPrecede(new CharacterClass(targetRanges));
 
 		case "lit":
 			return ConditionFactory.notPrecede(getKeyword(symbol));
@@ -317,8 +305,7 @@ public class GrammarToJigll {
 			Iterator<IValue> iterator = set.iterator();
 			while (iterator.hasNext()) {
 				// Create a new filter for each filtered nonterminal
-				builder.addPrecedencePattern(rule.getHead(), rule, position,
-						rulesMap.get(iterator.next()));
+				builder.addPrecedencePattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
 			}
 		}
 	}
@@ -340,8 +327,7 @@ public class GrammarToJigll {
 			Iterator<IValue> iterator = set.iterator();
 			while (iterator.hasNext()) {
 				// Create a new filter for each filtered nonterminal
-				builder.addExceptPattern(rule.getHead(), rule, position,
-						rulesMap.get(iterator.next()));
+				builder.addExceptPattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
 			}
 		}
 	}
@@ -359,15 +345,18 @@ public class GrammarToJigll {
 	}
 
 	private List<Symbol> getSymbolList(IList rhs) {
+		
 		List<Symbol> result = new ArrayList<>();
 		
 		for(int i = 0; i < rhs.length(); i++) {
-			rhs.get(i);
 			IConstructor current = (IConstructor) rhs.get(i);
 			IConstructor next = i + 1 < rhs.length() ? (IConstructor) rhs.get(i + 1) : null;
-			createRegularList(current, next);
+			Symbol symbol = createRegularList(current, next);
 			
-			Symbol symbol = getSymbol(current);
+			if(symbol == null) {
+				symbol = getSymbol(current);				
+			}
+			
 			if (symbol != null) {
 				result.add(symbol);
 			}
@@ -476,19 +465,10 @@ public class GrammarToJigll {
 			return new Nonterminal(SymbolAdapter.toString(symbol, true));
 
 		case "start":
-			return new Nonterminal("start["
-					+ SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
+			return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
 
 		case "conditional":
-			Symbol regularList = getRegularList(symbol);
-			if (regularList != null) {
-				List<Symbol> body = new ArrayList<>();
-				body.add(regularList);
-				Rule rule = new Rule(new Nonterminal(SymbolAdapter.toString(getSymbolCons(symbol), true)), regularList);
-				regularListRules.add(rule);
-			}
-			return getSymbol(getSymbolCons(symbol)).addConditions(
-					getConditions(symbol));
+			return getSymbol(getSymbolCons(symbol)).addConditions(getConditions(symbol));
 
 		default:
 			return new Nonterminal(SymbolAdapter.toString(symbol, true));
@@ -500,17 +480,19 @@ public class GrammarToJigll {
 		return new CharacterClass(targetRanges);
 	}
 
-	private void createRegularList(IConstructor currentSymbol, IConstructor nextSymbol) {
+	private Nonterminal createRegularList(IConstructor currentSymbol, IConstructor nextSymbol) {
 		
 		if(SymbolAdapter.isConditional(currentSymbol)) {
-			Symbol regularList = getRegularList(currentSymbol);
+			RegularList regularList = createRegularListFromConditionals(currentSymbol);
 			if(regularList != null) {
-				return;
+				String head = SymbolAdapter.toString(getSymbolCons(currentSymbol), true);
+				createRugularListRules(head, regularList);
+				return new Nonterminal("Regular_" + head);
 			}
 		}
 		
 		if(!isCharacterClassList(currentSymbol) || nextSymbol == null) {
-			return;
+			return null;
 		}
 		
 		CharacterClass thisCharacterClass = getCharacterClassList(currentSymbol);
@@ -521,17 +503,23 @@ public class GrammarToJigll {
 				String head = SymbolAdapter.toString(currentSymbol, true);
 				if (SymbolAdapter.isIterStar(currentSymbol)) {
 					RegularList regularList = RegularList.star(head, thisCharacterClass);
-					Rule rule = new Rule(new Nonterminal(head), regularList);
-					regularListRules.add(rule);
+					createRugularListRules(head, regularList);
+					return new Nonterminal("Regular_" + head);
 				} 
 				else if (SymbolAdapter.isIterPlus(currentSymbol)) {
 					RegularList regularList = RegularList.plus(head, thisCharacterClass);
-					Rule rule = new Rule(new Nonterminal(head), regularList);
-					regularListRules.add(rule);
+					createRugularListRules(head, regularList);
+					return new Nonterminal("Regular_" + head);
 				}
 			}
 		}
 		
+		return null;
+	}
+	
+	private void createRugularListRules(String head, RegularList regularList) {
+		Rule rule = new Rule(new Nonterminal("Regular_" + head), regularList);
+		regularListRules.add(rule);
 	}
 	
 	/**
@@ -562,7 +550,7 @@ public class GrammarToJigll {
 	}
 	
 	
-	private Symbol getRegularList(IConstructor conditional) {
+	private RegularList createRegularListFromConditionals(IConstructor conditional) {
 		
 		IConstructor symbol = getSymbolCons(conditional);
 
@@ -571,9 +559,7 @@ public class GrammarToJigll {
 				List<Condition> conditions = getConditions(conditional);
 				CharacterClass characterClass = getCharacterClass(getSymbolCons(symbol));
 				if (isRegularList(characterClass, conditions)) {
-					RegularList star = RegularList.star(
-							SymbolAdapter.toString(symbol, true),
-							characterClass);
+					RegularList star = RegularList.star(SymbolAdapter.toString(symbol, true), characterClass);
 					return star.addConditions(conditions);
 				}
 			}
@@ -584,9 +570,7 @@ public class GrammarToJigll {
 				List<Condition> conditions = getConditions(conditional);
 				CharacterClass characterClass = getCharacterClass(getSymbolCons(symbol));
 				if (isRegularList(characterClass, conditions)) {
-					RegularList plus = RegularList.plus(
-							SymbolAdapter.toString(symbol, true),
-							characterClass);
+					RegularList plus = RegularList.plus(SymbolAdapter.toString(symbol, true), characterClass);
 					return plus.addConditions(conditions);
 				}
 			}
