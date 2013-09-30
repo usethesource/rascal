@@ -1278,10 +1278,10 @@ test: tail(<L>,<N>) == <?>
 
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] tail(list[&T] lst);
+public java list[&T] tail(list[&T] lst) throws EmptyList;
  
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] tail(list[&T] lst, int len) throws IndexOutOfBoundsError;
+public java list[&T] tail(list[&T] lst, int len) throws IndexOutOfBounds;
 
 @doc{
 Synopsis: Get number of elements from the head of a list.
@@ -1391,7 +1391,7 @@ test: toMap(<L>) == <?>
 
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java map[&A,set[&B]] toMap(list[tuple[&A, &B]] lst) throws DuplicateKey;
+public java map[&A,set[&B]] toMap(list[tuple[&A, &B]] lst) throws MultipleKey;
 
 @doc{
 Synopsis: Convert a list of tuples to a map; result must be a map.
@@ -1434,7 +1434,7 @@ hint: <H>
 test: toMapUnique(<P>) == <?>
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java map[&A,&B] toMapUnique(list[tuple[&A, &B]] lst) throws DuplicateKey;
+public java map[&A,&B] toMapUnique(list[tuple[&A, &B]] lst) throws MultipleKey;
 
 @doc{
 Synopsis: Convert a list to a set.
