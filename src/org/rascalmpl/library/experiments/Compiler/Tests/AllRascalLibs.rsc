@@ -126,7 +126,8 @@ list[str] libs = [
 value main(list[value] args){
   for(lib <- libs){
     println("**** Compiling <lib> ****");
-    compile("module TST import <lib>;");
+    //compile("module TST import <lib>;");
+    compile(|project://rascal/src/org/rascalmpl/library/| + (lib + ".rsc"));
   }
   return true;
 }
