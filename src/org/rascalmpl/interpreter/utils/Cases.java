@@ -361,7 +361,8 @@ public class Cases  {
 					.getType();
 
 			if (subjectType.isSubtypeOf(TF.nodeType())) {
-				boolean isTree = subjectType.isSubtypeOf(Factory.Tree);
+				boolean isTree = subjectType.isSubtypeOf(Factory.Tree) 
+				    && ((IConstructor) subject.getValue()).getConstructorType() == Factory.Tree_Appl;
 
 				if (isTree) { // matching abstract with concrete
 					TreeAsNode wrap = new TreeAsNode((IConstructor) subject.getValue());
