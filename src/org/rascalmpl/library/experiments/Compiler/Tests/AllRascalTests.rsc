@@ -43,7 +43,7 @@ list[str] functionalityTests = [
 //"DataDeclarationTests"	// Checking function parameterized3
 							// |rascal://Type|(19722,49,<356,81>,<356,130>): "Length of symbol list and label list much match"
 
-//"DataTypeTests"				// Most test pass, still todo:
+"DataTypeTests"				// Most test pass, still todo:
 							// - 3 set match tests fails (2 generate a panic)
 							// - Ifdefined not yet implemented
 							// - Commented out two problematic ||s.
@@ -67,7 +67,7 @@ list[str] functionalityTests = [
 						
 						// |rascal://experiments::Compiler::RVM::Run|(217,264,<12,0>,<14,153>): Java("RuntimeException","PANIC: undefined label FAIL_loop")
 						
-"SubscriptTests"		// Checking function WrongMapIndex
+//"SubscriptTests"		// Checking function WrongMapIndex
 						// |rascal://lang::rascal::types::AbstractType|(22449,2,<471,78>,<471,80>): "getMapFieldsAsTuple called with unexpected type fail"
 ];
 
@@ -82,7 +82,7 @@ list[str] rascalTests = [
 //"IO"					// error("Type IO not declared",|project://rascal/src/org/rascalmpl/library/IO.rsc|(14954,11,<531,60>,<531,71>))
 						// etc
 //"ListRelations"
-//"Lists",
+"Lists"
 //"Maps",
 //"Matching",
 //"Memoization",
@@ -90,7 +90,7 @@ list[str] rascalTests = [
 						// does not match the declared signature:	ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  
 //"Relations",
 //"Sets"				// |rascal://lang::rascal::types::CheckTypes|(13530,1,<303,71>,<303,72>): NoSuchField("containedIn")
-"SolvedIssues"			//error("Type EmptyList not declared",|project://rascal/src/org/rascalmpl/library/List.rsc|(19660,9,<926,52>,<926,61>))
+//"SolvedIssues"			//error("Type EmptyList not declared",|project://rascal/src/org/rascalmpl/library/List.rsc|(19660,9,<926,52>,<926,61>))
 //"Strings"  			// |rascal://lang::rascal::types::CheckTypes|(13530,1,<303,71>,<303,72>): NoSuchField("containedIn")
 //"Tuples"				// OK
 ];
@@ -102,7 +102,7 @@ int nfail = 0;
 void runTests(list[str] names, loc base){
  for(tst <- names){
       println("***** <tst> *****");
-      if(<s, f> := execute(base + (tst + ".rsc"), [], recompile=true, testsuite=true)){
+      if(<s, f> := execute(base + (tst + ".rsc"), [], testsuite=true)){
          nsuccess += s;
          nfail += f;
       } else {

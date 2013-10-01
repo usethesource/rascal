@@ -211,7 +211,7 @@ test bool tst() = run("res = []; for(x \<- [10, 8 .. 0]) res = res + [x];", "res
 test bool tst() = run("res = []; for(x \<- [10, 11 .. 0]) res = res + [x];", "res") == {res = []; for(x <- [10, 11 .. 0]) res = res + [x]; res;};
 
 // For now, we do not support ranges outside enumerators.
-/*fails*/ //test bool tst() = run("[1 .. 10];") == [1..10];
+test bool tst() = run("[1 .. 10]") == [1..10];
 
 // List Comprehension
 
@@ -275,8 +275,7 @@ test bool tst() = run("{x = (\"a\" : [0,1,2]); x[\"b\"] = [1000,2000]; x[\"b\"][
 
 test bool tst() = run("\<1,2,3,4\>\<1,3\>") == <1,2,3,4><1,3>;
 test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x\<2,1\>;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x<2,1>;};
-// Issue in type checker:
-/*fails*/ //test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x\<b,1\>;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x<b,1>;};
+test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x\<b,1\>;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x<b,1>;};
 
 test bool tst() = run("{{\<1, \"x\", 2\>, \<10, \"xx\", 20\>}\<2,1\>;}") == {<1, "x", 2>, <10, "xx", 20>}<2,1>;
 test bool tst() = run("{[\<1, \"x\", 2\>, \<10, \"xx\", 20\>]\<2,1\>;}") == [<1, "x", 2>, <10, "xx", 20>]<2,1>;
@@ -303,4 +302,15 @@ test bool tst() = run("{rel[int a, str b, int c] x= {\<1, \"x\", 2\>}; x has a;}
 // is
 test bool tst() = run("d1(3, \"a\") is d1")  == d1(3, "a") is d1;
 test bool tst() = run("\"abc\"(1,2,3,4,5,6,7,8,9) is abc") == "abc"(1,2,3,4,5,6,7,8,9) is abc;
+
+// equality
+
+test bool tst() = run("{ value n = 1; n == 1; }") == { value n = 1; n == 1; };
+test bool tst() =  run("{ value n = 1; 1 == n; }") == { value n = 1; 1 == n; };
+
+test bool tst() = run(" 1 == 1.0") == (1 == 1.0);
+
+test bool tst() = run("{\<1,2\>} == {}") == ( {<1,2>} == {} );
+
+
 
