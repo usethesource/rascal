@@ -195,6 +195,8 @@ public enum RascalPrimitive {
 	str_greater_str,
 	tuple_greater_tuple,
 	
+	greater,
+	
 	// greaterequal
 
 	int_greaterequal_int,
@@ -227,6 +229,8 @@ public enum RascalPrimitive {
 	set_greaterequal_set,
 	str_greaterequal_str,
 	tuple_greaterequal_tuple,
+	
+	greaterequal,
 	
 	//has,
 	
@@ -313,6 +317,8 @@ public enum RascalPrimitive {
 	set_less_set,
 	str_less_str,
 	tuple_less_tuple,
+	
+	less,
 
 	// lessequal
 	
@@ -346,6 +352,8 @@ public enum RascalPrimitive {
 	set_lessequal_set,
 	str_lessequal_str,
 	tuple_lessequal_tuple,
+	
+	lessequal,
 	
 	// list
 	list_size,
@@ -1706,6 +1714,12 @@ public enum RascalPrimitive {
 
 	// greater on other types
 	
+	public static int greater(Object[] stack, int sp, int arity) {
+		int spnew = lessequal(stack, sp, arity);
+		stack[sp - 2] = ! (Boolean) stack[sp - 2];
+		return spnew;
+	}
+	
 	public static int adt_greater_adt(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		return node_greater_node(stack, sp, arity);
@@ -1861,6 +1875,12 @@ public enum RascalPrimitive {
 	}
 
 	// greaterequal on other types
+	
+	public static int greaterequal(Object[] stack, int sp, int arity) {
+		int spnew = less(stack, sp, arity);
+		stack[sp - 2] = ! (Boolean) stack[sp - 2];
+		return spnew;
+	}
 	
 	public static int adt_greaterequal_adt(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -2440,7 +2460,7 @@ public enum RascalPrimitive {
 	
 	// Generic less
 	
-	private static int $less(Object[] stack, int sp, int arity){
+	private static int less(Object[] stack, int sp, int arity){
 		assert arity == 2;
 		
 		IValue left = (IValue) stack[sp - 2];
@@ -2611,9 +2631,9 @@ public enum RascalPrimitive {
 			fakeStack[0] = left.get(i);
 			fakeStack[1] = right.get(i);
 			if(leftArity < rightArity || i < leftArity - 1)
-				$lessequal(fakeStack, 2, 2);
+				lessequal(fakeStack, 2, 2);
 			else
-				$less(fakeStack, 2, 2);
+				less(fakeStack, 2, 2);
 
 			if(!((Boolean)fakeStack[0])){
 				stack[sp - 2] = false;
@@ -2648,9 +2668,9 @@ public enum RascalPrimitive {
 			fakeStack[0] = left.get(i);
 			fakeStack[1] = right.get(i);
 			if(leftArity < rightArity || i < leftArity - 1)
-				$lessequal(fakeStack, 2, 2);
+				equal(fakeStack, 2, 2);
 			else
-				$less(fakeStack, 2, 2);
+				less(fakeStack, 2, 2);
 
 			if(!((Boolean)fakeStack[0])){
 				stack[sp - 2] = false;
@@ -2753,7 +2773,7 @@ public enum RascalPrimitive {
 
 	// Generic lessequal
 	
-	private static int $lessequal(Object[] stack, int sp, int arity){
+	private static int lessequal(Object[] stack, int sp, int arity){
 		assert arity == 2;
 		
 		IValue left = (IValue) stack[sp - 2];		
@@ -2927,7 +2947,7 @@ public enum RascalPrimitive {
 			fakeStack[0] = left.get(i);
 			fakeStack[1] = right.get(i);
 			
-			$lessequal(fakeStack, 2, 2);
+			lessequal(fakeStack, 2, 2);
 
 			if(!((Boolean)fakeStack[0])){
 				stack[sp - 2] = false;
@@ -2964,7 +2984,7 @@ public enum RascalPrimitive {
 			fakeStack[0] = left.get(i);
 			fakeStack[1] = right.get(i);
 			
-			$lessequal(fakeStack, 2, 2);
+			lessequal(fakeStack, 2, 2);
 
 			if(!((Boolean)fakeStack[0])){
 				stack[sp - 2] = false;
