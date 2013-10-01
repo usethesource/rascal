@@ -110,6 +110,8 @@ MuExp translate((Literal) `<RegExpLiteral r>`) { throw "RexExpLiteral cannot occ
 
 MuExp translate((Literal) `<StringLiteral n>`) = translateStringLiteral(n);
 
+MuExp translate((Literal) `<LocationLiteral src>`) = translateLocationLiteral(src);
+
 default MuExp translate((Literal) `<Literal s>`) =  muCon(readTextValueString("<s>"));
 
 MuExp translate(e:(Expression)  `<Literal s>`) = translate(s);
@@ -169,7 +171,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    }
    
    if(getOuterType(expression) == "loc"){
-       return muCallPrim("loc_create", [receiver, *args]);
+       return muCallPrim("loc_with_offset_create", [receiver, *args]);
    }
    
    if(muFun(str _) := receiver || muFun(str _, str _) := receiver || muConstr(str _) := receiver) {
@@ -544,6 +546,7 @@ syntax StringLiteral
 	
 lexical PreStringChars
 	= [\"] StringCharacter* [\<] ;
+	
 lexical MidStringChars
 	=  [\>] StringCharacter* [\<] ;
 	
@@ -645,6 +648,81 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
                    ]);
  }
  
+ // Translate location templates
+ 
+ /*
+ syntax LocationLiteral
+	= \default: ProtocolPart protocolPart PathPart pathPart ;
+ */
+ 
+ MuExp translateLocationLiteral((LocationLiteral) `<ProtocolPart protocolPart> <PathPart pathPart>`) =
+     muCallPrim("loc_create", [muCallPrim("str_add_str", [translateProtocolPart(protocolPart), translatePathPart(pathPart)])]);
+ 
+ /*
+ syntax ProtocolPart
+	= nonInterpolated: ProtocolChars protocolChars 
+	| interpolated: PreProtocolChars pre Expression expression ProtocolTail tail ;
+	
+lexical PreProtocolChars
+	= "|" URLChars "\<" ;
+	
+ lexical MidProtocolChars
+	= "\>" URLChars "\<" ;
+	
+lexical ProtocolChars
+	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000];
+
+syntax ProtocolTail
+	= mid: MidProtocolChars mid Expression expression ProtocolTail tail 
+	| post: PostProtocolChars post ;
+
+lexical PostProtocolChars
+	= "\>" URLChars "://" ;	
+*/
+
+ MuExp translateProtocolPart((ProtocolPart) `<ProtocolChars protocolChars>`) = muCon("<protocolChars>"[1..]);
+ 
+ MuExp translateProtocolPart((ProtocolPart) `<PreProtocolChars pre> <Expression expression> <ProtocolTail tail>`) =
+    muCallPrim("str_add_str", [muCon("<pre>"[1..-1]), translate(expression), translateProtocolTail(tail)]);
+ 
+ // ProtocolTail
+ MuExp  translateProtocolTail((ProtocolTail) `<MidProtocolChars mid> <Expression expression> <ProtocolTail tail>`) =
+   muCallPrim("str_add_str", [muCon("<mid>"[1..-1]), translate(expression), translateProtocolTail(tail)]);
+   
+MuExp translateProtocolTail((ProtocolTail) `<PostProtocolChars post>`) = muCon("<post>"[1 ..]);
+
+/*
+syntax PathPart
+	= nonInterpolated: PathChars pathChars 
+	| interpolated: PrePathChars pre Expression expression PathTail tail ;
+
+lexical PathChars
+	= URLChars [|] ;
+		
+ syntax PathTail
+	= mid: MidPathChars mid Expression expression PathTail tail 
+	| post: PostPathChars post ;
+
+lexical PrePathChars
+	= URLChars "\<" ;
+
+lexical MidPathChars
+	= "\>" URLChars "\<" ;
+	
+lexical PostPathChars
+	=  "\>" URLChars "|" ;
+*/
+
+MuExp translatePathPart((PathPart) `<PathChars pathChars>`) = muCon("<pathChars>"[..-1]);
+MuExp translatePathPart((PathPart) `<PrePathChars pre> <Expression expression> <PathTail tail>`) =
+   muCallPrim("str_add_str", [ muCon("<pre>"[..-1]), translate(expression), translatePathTail(tail)]);
+
+// PathTail
+MuExp translatePathTail((PathTail) `<MidPathChars mid> <Expression expression> <PathTail tail>`) =
+   muCallPrim("str_add_str", [ muCon("<mid>"[1..-1]), translate(expression), translatePathTail(tail)]);
+   
+MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-1]);
+
  
 // Translate a closure   
  
