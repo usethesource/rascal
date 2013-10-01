@@ -1,8 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -371,6 +374,7 @@ public enum RascalPrimitive {
 	// loc
 	
 	loc_create,
+	loc_with_offset_create,
 	loc_field_access,
 	
 	// map
@@ -875,10 +879,18 @@ public enum RascalPrimitive {
 	}
 
 	public static int str_add_str(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		
-		stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
-		return sp - 1;
+		assert arity >= 2;
+		if(arity == 2){
+			stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
+			return sp - 1;
+		} else {
+			StringWriter w = new StringWriter();
+			for(int i = 0; i < arity; i++){
+				w.append(((IString)stack[sp - arity + i]).getValue());
+			}
+			stack[sp - arity] = vf.string(w.toString());
+			return sp - arity + 1;
+		}
 	}
 	
 	
@@ -4065,6 +4077,19 @@ public enum RascalPrimitive {
 	 */
 	
 	public static int loc_create(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		String uri = ((IString) stack[sp - 1]).getValue();
+
+		try {
+			stack[sp - 1] =vf.sourceLocation(new URI(uri));
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return sp;
+	}
+	
+	public static int loc_with_offset_create(Object[] stack, int sp, int arity) {
 		assert arity == 5;
 		ISourceLocation loc = (ISourceLocation) stack[sp - arity];
 		int offset = ((IInteger) stack [sp - arity + 1]).intValue();
