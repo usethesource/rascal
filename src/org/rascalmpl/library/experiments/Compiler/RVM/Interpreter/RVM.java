@@ -450,7 +450,6 @@ public class RVM {
 															: new Reference(stack, pos);
 					
 					if(op == Opcode.OP_LOADLOC && rval == null) {
-						// TODO: factor out the exception-handling code
 						// EXCEPTION HANDLING
 						List<Frame> stacktrace = new ArrayList<Frame>();
 						stacktrace.add(cf);
@@ -458,16 +457,16 @@ public class RVM {
 						for(Frame f = cf; f != null; f = f.previousCallFrame) {
 							int handler = f.function.getHandler(pc - 1, thrown.value.getType());
 							if(handler != -1) {
+								if(f != cf) {
+									cf = f;
+									instructions = cf.function.codeblock.getInstructions();
+									stack = cf.stack;
+									sp = cf.sp;
+									pc = cf.pc;
+								}
 								pc = handler;
 								stack[sp++] = thrown;
 								continue NEXT_INSTRUCTION;
-							} else {
-								cf = f;
-								instructions = cf.function.codeblock.getInstructions();
-								stack = cf.stack;
-								sp = cf.sp;
-								pc = cf.pc;
-								stack[sp++] = thrown;
 							}
 						}
 						// If a handler has not been found in the caller functions...
@@ -545,7 +544,6 @@ public class RVM {
 					if(pos == -1){
 						rval = moduleVariables.get(cf.function.constantStore[s]);
 						if(op == Opcode.OP_LOADVAR && rval == null) {
-							// TODO: factor out the exception-handling code
 							// EXCEPTION HANDLING
 							List<Frame> stacktrace = new ArrayList<Frame>();
 							stacktrace.add(cf);
@@ -553,16 +551,16 @@ public class RVM {
 							for(Frame f = cf; f != null; f = f.previousCallFrame) {
 								int handler = f.function.getHandler(pc - 1, thrown.value.getType());
 								if(handler != -1) {
+									if(f != cf) {
+										cf = f;
+										instructions = cf.function.codeblock.getInstructions();
+										stack = cf.stack;
+										sp = cf.sp;
+										pc = cf.pc;
+									}
 									pc = handler;
 									stack[sp++] = thrown;
 									continue NEXT_INSTRUCTION;
-								} else {
-									cf = f;
-									instructions = cf.function.codeblock.getInstructions();
-									stack = cf.stack;
-									sp = cf.sp;
-									pc = cf.pc;
-									stack[sp++] = thrown;
 								}
 							}
 							// If a handler has not been found in the caller functions...
@@ -578,7 +576,6 @@ public class RVM {
 							rval = (op == Opcode.OP_LOADVAR) ? fr.stack[pos] 
 																	: new Reference(fr.stack, pos);
 							if(op == Opcode.OP_LOADLOC && rval == null) {
-								// TODO: factor out the exception-handling code
 								// EXCEPTION HANDLING
 								List<Frame> stacktrace = new ArrayList<Frame>();
 								stacktrace.add(cf);
@@ -586,16 +583,16 @@ public class RVM {
 								for(Frame f = cf; f != null; f = f.previousCallFrame) {
 									int handler = f.function.getHandler(pc - 1, thrown.value.getType());
 									if(handler != -1) {
+										if(f != cf) {
+											cf = f;
+											instructions = cf.function.codeblock.getInstructions();
+											stack = cf.stack;
+											sp = cf.sp;
+											pc = cf.pc;
+										}
 										pc = handler;
 										stack[sp++] = thrown;
 										continue NEXT_INSTRUCTION;
-									} else {
-										cf = f;
-										instructions = cf.function.codeblock.getInstructions();
-										stack = cf.stack;
-										sp = cf.sp;
-										pc = cf.pc;
-										stack[sp++] = thrown;
 									}
 								}
 								// If a handler has not been found in the caller functions...
@@ -838,7 +835,6 @@ public class RVM {
 							continue NEXT_FUNCTION;
 						} 
 						else if(rval instanceof Thrown) {
-							// TODO: factor out the exception-handling code
 							// EXCEPTION HANDLING
 							Thrown thrown = (Thrown) rval;
 							thrown.stacktrace.add(cf);
@@ -848,17 +844,17 @@ public class RVM {
 							for(Frame f = cf; f != null; f = f.previousCallFrame) {
 								int handler = f.function.getHandler(pc - 1, thrown.value.getType());
 								if(handler != -1) {
+									if(f != cf) {
+										cf = f;
+										instructions = cf.function.codeblock.getInstructions();
+										stack = cf.stack;
+										sp = cf.sp;
+										pc = cf.pc;
+									}
+									pc = handler;
 									// Put the thrown value on the stack
 									stack[sp++] = thrown;
-									pc = handler;
 									continue NEXT_INSTRUCTION;
-								} else {
-									cf = f;
-									instructions = cf.function.codeblock.getInstructions();
-									stack = cf.stack;
-									sp = cf.sp;
-									pc = cf.pc;
-									stack[sp++] = thrown;
 								}
 							}
 							// If a handler has not been found in the caller functions...
@@ -1048,7 +1044,6 @@ public class RVM {
 						if(!(targetException.getTargetException() instanceof Thrown)) {
 							throw targetException;
 						}
-						// TODO: factor out the exception-handling code
 						// EXCEPTION HANDLING
 						Thrown thrown = (Thrown) targetException.getTargetException();
 						thrown.stacktrace.add(cf);
@@ -1056,16 +1051,16 @@ public class RVM {
 						for(Frame f = cf; f != null; f = f.previousCallFrame) {
 							int handler = f.function.getHandler(pc - 1, thrown.value.getType());
 							if(handler != -1) {
+								if(f != cf) {
+									cf = f;
+									instructions = cf.function.codeblock.getInstructions();
+									stack = cf.stack;
+									sp = cf.sp;
+									pc = cf.pc;
+								}
 								pc = handler;
-								stack[sp - 1] = thrown;
-								continue NEXT_INSTRUCTION;
-							} else {
-								cf = f;
-								instructions = cf.function.codeblock.getInstructions();
-								stack = cf.stack;
-								sp = cf.sp;
-								pc = cf.pc;
 								stack[sp++] = thrown;
+								continue NEXT_INSTRUCTION;
 							}
 						}
 						// If a handler has not been found in the caller functions...
@@ -1114,24 +1109,23 @@ public class RVM {
 						// Then, an object of type 'Thrown' is on top of the stack
 						thrown = (Thrown) obj;
 					}
-					// TODO: factor out the exception-handling code
 					// First, try to find a handler in the current frame function,
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
 						int handler = f.function.getHandler(pc - 1, thrown.value.getType());
 						if(handler != -1) {
+							if(f != cf) {
+								cf = f;
+								instructions = cf.function.codeblock.getInstructions();
+								stack = cf.stack;
+								sp = cf.sp;
+								pc = cf.pc;
+							}
 							pc = handler;
 							stack[sp++] = thrown;
 							continue NEXT_INSTRUCTION;
-						} else {
-							cf = f;
-							instructions = cf.function.codeblock.getInstructions();
-							stack = cf.stack;
-							sp = cf.sp;
-							pc = cf.pc;
-							stack[sp++] = thrown;
-						}
+						} 
 					}
 					// If a handler has not been found in the caller functions...
 					return thrown;
