@@ -84,6 +84,13 @@ test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.fragment") == |
 /*fails*/ //test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.end.line") == |file://-|(11,37,<1,11>,<1,48>).end.line;
 /*fails*/ //test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.end.column") == |file://-|(11,37,<1,11>,<1,48>).end.column;
 
+// Location templates
+
+test bool tst() = run("{h = \"home\"; |file:///\<h\>/paulk/pico.trm|;}") == 
+					{h = "home"; |file:///<h>/paulk/pico.trm|;};
+test bool tst() = run("{f = \"file\"; h = \"home\"; |\<f\>:///\<h\>/paulk/pico.trm|;}") == 
+					{f = "file"; h = "home"; |<f>:///<h>/paulk/pico.trm|;};
+
 // List
 
 test bool tst() = run("[1,2,3]") == [1,2,3];
