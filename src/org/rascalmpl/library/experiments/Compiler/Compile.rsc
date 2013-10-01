@@ -43,7 +43,7 @@ RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false){
    	rvmProgram = mu2rvm(muMod, listing=listing);                          
 
    	writeTextValueFile(rvmProgramLoc, rvmProgram);
-   	println("rascal2rvm: Writing compiled version <rvmProgramLoc>:\n<rvmProgram>");
+   	println("rascal2rvm: Writing compiled version <rvmProgramLoc>");
    	
    	return rvmProgram;
 }
