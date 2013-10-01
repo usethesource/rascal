@@ -158,10 +158,15 @@ private Grammar split(Grammar g) {
 
 data Production = temp();
 
-private bool isNotEmpty(Production p) 
-	=  p has alternatives ==> p.alternatives != {}
-	&& p has choices ==> p.choices != []
-	;
+private bool isNotEmpty(Production p) {
+	if (p has alternatives) {
+		return p.alternatives != {};		
+	}
+	if (p has choices) {
+		return p.choices != [];	
+	}
+	return true;
+}
 private Grammar removeEmptyProductions(Grammar g) {
 	g = visit(g) {
 		case list[Production] l => [p | p <- l, isNotEmpty(p)]
