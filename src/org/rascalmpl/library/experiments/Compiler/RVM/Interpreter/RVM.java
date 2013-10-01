@@ -445,8 +445,36 @@ public class RVM {
 					
 				case Opcode.OP_LOADLOC:
 				case Opcode.OP_LOADLOCREF:
-					stack[sp++] = (op == Opcode.OP_LOADLOC) ? stack[instructions[pc++]] 
-															: new Reference(stack, instructions[pc++]);
+					int pos = instructions[pc++];
+					Object rval = (op == Opcode.OP_LOADLOC) ? stack[pos] 
+															: new Reference(stack, pos);
+					
+					if(op == Opcode.OP_LOADLOC && rval == null) {
+						// TODO: factor out the exception-handling code
+						// EXCEPTION HANDLING
+						List<Frame> stacktrace = new ArrayList<Frame>();
+						stacktrace.add(cf);
+						Thrown thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+						for(Frame f = cf; f != null; f = f.previousCallFrame) {
+							int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+							if(handler != -1) {
+								pc = handler;
+								stack[sp++] = thrown;
+								continue NEXT_INSTRUCTION;
+							} else {
+								cf = f;
+								instructions = cf.function.codeblock.getInstructions();
+								stack = cf.stack;
+								sp = cf.sp;
+								pc = cf.pc;
+								stack[sp++] = thrown;
+							}
+						}
+						// If a handler has not been found in the caller functions...
+						return thrown;
+					}
+					
+					stack[sp++] = rval;
 					continue;
 				
 				case Opcode.OP_LOADLOCDEREF: {
@@ -512,17 +540,69 @@ public class RVM {
 				case Opcode.OP_LOADVAR:
 				case Opcode.OP_LOADVARREF: {
 					int s = instructions[pc++];
-					int pos = instructions[pc++];
+					pos = instructions[pc++];
 					
 					if(pos == -1){
-						stack[sp++] = moduleVariables.get(cf.function.constantStore[s]);
+						rval = moduleVariables.get(cf.function.constantStore[s]);
+						if(op == Opcode.OP_LOADVAR && rval == null) {
+							// TODO: factor out the exception-handling code
+							// EXCEPTION HANDLING
+							List<Frame> stacktrace = new ArrayList<Frame>();
+							stacktrace.add(cf);
+							Thrown thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+							for(Frame f = cf; f != null; f = f.previousCallFrame) {
+								int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+								if(handler != -1) {
+									pc = handler;
+									stack[sp++] = thrown;
+									continue NEXT_INSTRUCTION;
+								} else {
+									cf = f;
+									instructions = cf.function.codeblock.getInstructions();
+									stack = cf.stack;
+									sp = cf.sp;
+									pc = cf.pc;
+									stack[sp++] = thrown;
+								}
+							}
+							// If a handler has not been found in the caller functions...
+							return thrown;
+						}
+						
+						stack[sp++] = rval;
 						continue NEXT_INSTRUCTION;
 					}
 					
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
-							stack[sp++] = (op == Opcode.OP_LOADVAR) ? fr.stack[pos] 
+							rval = (op == Opcode.OP_LOADVAR) ? fr.stack[pos] 
 																	: new Reference(fr.stack, pos);
+							if(op == Opcode.OP_LOADLOC && rval == null) {
+								// TODO: factor out the exception-handling code
+								// EXCEPTION HANDLING
+								List<Frame> stacktrace = new ArrayList<Frame>();
+								stacktrace.add(cf);
+								Thrown thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+								for(Frame f = cf; f != null; f = f.previousCallFrame) {
+									int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+									if(handler != -1) {
+										pc = handler;
+										stack[sp++] = thrown;
+										continue NEXT_INSTRUCTION;
+									} else {
+										cf = f;
+										instructions = cf.function.codeblock.getInstructions();
+										stack = cf.stack;
+										sp = cf.sp;
+										pc = cf.pc;
+										stack[sp++] = thrown;
+									}
+								}
+								// If a handler has not been found in the caller functions...
+								return thrown;
+							}
+							
+							stack[sp++] = rval;
 							continue NEXT_INSTRUCTION;
 						}
 					}
@@ -531,7 +611,7 @@ public class RVM {
 				
 				case Opcode.OP_LOADVARDEREF: {
 					int s = instructions[pc++];
-					int pos = instructions[pc++];
+					pos = instructions[pc++];
 					
 					
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
@@ -546,7 +626,7 @@ public class RVM {
 				
 				case Opcode.OP_STOREVAR:
 					int s = instructions[pc++];
-					int pos = instructions[pc++];
+					pos = instructions[pc++];
 					
 					if(pos == -1){
 						IValue mvar = cf.function.constantStore[s];
@@ -653,7 +733,7 @@ public class RVM {
 					
 					if(funcObject instanceof FunctionInstance) {
 						FunctionInstance fun_instance = (FunctionInstance) funcObject;
-						Object rval = executeFunction(root, fun_instance, args);
+						rval = executeFunction(root, fun_instance, args);
 						if(rval != NONE) {
 							stack[sp++] = rval;
 						}
@@ -681,7 +761,7 @@ public class RVM {
 									this.appendToTrace("		" + "try alternative: " + getFunctionName(index));
 								}
 										
-								Object rval = executeFunction(root, fun_instance, args);
+								rval = executeFunction(root, fun_instance, args);
 								if(rval == FAILURE) {
 									continue NEXT_FUNCTION;
 								} else {
@@ -753,11 +833,12 @@ public class RVM {
 							this.appendToTrace("		" + "try alternative: " + getFunctionName(index));
 						}
 								
-						Object rval = executeFunction(root, fun_instance, args);
+						rval = executeFunction(root, fun_instance, args);
 						if(rval == FAILURE) {
 							continue NEXT_FUNCTION;
 						} 
 						else if(rval instanceof Thrown) {
+							// TODO: factor out the exception-handling code
 							// EXCEPTION HANDLING
 							Thrown thrown = (Thrown) rval;
 							thrown.stacktrace.add(cf);
@@ -802,7 +883,7 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_FAILRETURN:
-					Object rval = Failure.getInstance();
+					rval = Failure.getInstance();
 					// TODO: Need to re-consider management of active coroutines
 					cf = cf.previousCallFrame;
 					if(cf == null) {
@@ -967,6 +1048,7 @@ public class RVM {
 						if(!(targetException.getTargetException() instanceof Thrown)) {
 							throw targetException;
 						}
+						// TODO: factor out the exception-handling code
 						// EXCEPTION HANDLING
 						Thrown thrown = (Thrown) targetException.getTargetException();
 						thrown.stacktrace.add(cf);
@@ -1032,6 +1114,7 @@ public class RVM {
 						// Then, an object of type 'Thrown' is on top of the stack
 						thrown = (Thrown) obj;
 					}
+					// TODO: factor out the exception-handling code
 					// First, try to find a handler in the current frame function,
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)

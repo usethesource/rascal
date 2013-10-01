@@ -71,6 +71,8 @@ public class RuntimeExceptions {
 	public static final Type ImplodeError = TF.constructor(TS, Exception, "ImplodeError", TF.stringType(), "message");
 
 	public static final Type ArithmeticException = TF.constructor(TS, Exception, "ArithmeticException", TF.stringType(), "message");
+	
+	public static final Type UninitializedVariable = TF.constructor(TS, Exception, "UninitializedVariable", TF.stringType(), "name");
 
 	
 	public static Thrown arithmeticException(String msg, ISourceLocation loc, List<Frame> stacktrace) {
@@ -242,5 +244,9 @@ public class RuntimeExceptions {
 	public static Thrown timeout(ISourceLocation loc, List<Frame> stacktrace) {
     	return Thrown.getInstance(VF.constructor(Timeout), loc, stacktrace);
     }
+	
+	public static Thrown uninitializedVariable(int pos, ISourceLocation loc, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(UninitializedVariable, VF.integer(pos)), loc, stacktrace);
+	}
 
 }
