@@ -42,6 +42,9 @@ bool isContainerType(str t) = t in {"list", "map", "set", "rel", "lrel"};
 MuExp infix(str op, Expression e){
   lot = getOuterType(e.lhs);
   rot = getOuterType(e.rhs);
+  if(lot == "value" || rot == "value"){
+     return muCallPrim("<op>", [*translate(e.lhs), *translate(e.rhs)]);
+  }
   if(isContainerType(lot))
      if(isContainerType(rot))
        return muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
@@ -81,9 +84,14 @@ set[str] numeric = {"int", "real", "rat", "num"};
 
 MuExp comparison(str op, Expression e) {
   lot = getOuterType(e.lhs);
-  if(lot in numeric) lot += "_"; else lot = "";
   rot = getOuterType(e.rhs);
-  if(rot in numeric) rot = "_" + rot; else rot = "";
+  if(lot == "value" || rot == "value"){
+     lot = ""; rot = "";
+  } else {
+    if(lot in numeric) lot += "_"; else lot = "";
+ 
+     if(rot in numeric) rot = "_" + rot; else rot = "";
+  }
   
   return muCallPrim("<lot><op><rot>", [*translate(e.lhs), *translate(e.rhs)]);
 }
