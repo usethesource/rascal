@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetRelation;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -38,6 +37,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
@@ -80,13 +80,18 @@ public enum RascalPrimitive {
 	elm_add_set,
 	set_add_elm,
 	set_add_set,
+	set_add_rel,
 	str_add_str,
 	elm_add_list,
 	list_add_elm,
 	list_add_list,
+	list_add_lrel,
 	loc_add_str,
 	map_add_map,
 	rel_add_rel,
+	rel_add_set,
+	lrel_add_lrel,
+	lrel_add_list,
 	tuple_add_tuple,
 	
 	// adt
@@ -135,6 +140,26 @@ public enum RascalPrimitive {
 	
 	// equal
 	
+	int_equal_int,
+	int_equal_num,
+	int_equal_rat,
+	int_equal_real,
+
+	num_equal_int,
+	num_equal_num,
+	num_equal_real,
+	num_equal_rat,
+
+	rat_equal_int,
+	rat_equal_num,
+	rat_equal_rat,
+	rat_equal_real,
+
+	real_equal_num,
+	real_equal_int,
+	real_equal_real,
+	real_equal_rat,
+	
 	equal,
 	
 	// greater
@@ -159,12 +184,18 @@ public enum RascalPrimitive {
 	real_greater_real,
 	real_greater_rat,
 
+	adt_greater_adt,
+	bool_greater_bool,
 	datetime_greater_datetime,
 	list_greater_list,
 	loc_greater_loc,
+	node_greater_node,
 	map_greater_map,
 	set_greater_set,
 	str_greater_str,
+	tuple_greater_tuple,
+	
+	greater,
 	
 	// greaterequal
 
@@ -188,25 +219,39 @@ public enum RascalPrimitive {
 	real_greaterequal_real,
 	real_greaterequal_rat,
 
+	adt_greaterequal_adt,
+	bool_greaterequal_bool,
 	datetime_greaterequal_datetime,
 	list_greaterequal_list,
 	loc_greaterequal_loc,
+	node_greaterequal_node,
 	map_greaterequal_map,
 	set_greaterequal_set,
 	str_greaterequal_str,
+	tuple_greaterequal_tuple,
+	
+	greaterequal,
 	
 	//has,
 	
 	// intersect
 	
-	set_intersect_set,
 	list_intersect_list,
+	list_intersect_lrel,
+	lrel_intersect_lrel,
+	lrel_intersect_list,
 	map_intersect_map,
+	rel_intersect_rel,
+	rel_intersect_set,
+	set_intersect_set,
+	set_intersect_rel,
 	
 	// in
 	
 	elm_in_list,
+	elm_in_lrel,
 	elm_in_set,
+	elm_in_rel,
 	elm_in_map,
 	
 	// is
@@ -230,10 +275,15 @@ public enum RascalPrimitive {
 	is_tuple,
 	
 	// join
+	
 	list_join_list,
-	set_join_set,
+	list_join_lrel,
+	lrel_join_list,
 	lrel_join_lrel,
 	rel_join_rel,
+	rel_join_set,
+	set_join_set,
+	set_join_rel,
 
 	// less
 	
@@ -257,12 +307,18 @@ public enum RascalPrimitive {
 	real_less_real,
 	real_less_rat,
 	
+	adt_less_adt,
+	bool_less_bool,
 	datetime_less_datetime,
 	list_less_list,
 	loc_less_loc,
 	map_less_map,
+	node_less_node,
 	set_less_set,
 	str_less_str,
+	tuple_less_tuple,
+	
+	less,
 
 	// lessequal
 	
@@ -286,12 +342,18 @@ public enum RascalPrimitive {
 	real_lessequal_real,
 	real_lessequal_rat,
 
+	adt_lessequal_adt,
+	bool_lessequal_bool,
 	datetime_lessequal_datetime,
 	list_lessequal_list,
 	loc_lessequal_loc,
 	map_lessequal_map,
+	node_lessequal_node,
 	set_lessequal_set,
 	str_lessequal_str,
+	tuple_lessequal_tuple,
+	
+	lessequal,
 	
 	// list
 	list_size,
@@ -308,6 +370,7 @@ public enum RascalPrimitive {
 	
 	// loc
 	
+	loc_create,
 	loc_field_access,
 	
 	// map
@@ -339,12 +402,34 @@ public enum RascalPrimitive {
 	
 	// notequal
 	
+	int_notequal_int,
+	int_notequal_num,
+	int_notequal_rat,
+	int_notequal_real,
+
+	num_notequal_int,
+	num_notequal_num,
+	num_notequal_real,
+	num_notequal_rat,
+
+	rat_notequal_int,
+	rat_notequal_num,
+	rat_notequal_rat,
+	rat_notequal_real,
+
+	real_notequal_num,
+	real_notequal_int,
+	real_notequal_real,
+	real_notequal_rat,
+	
 	notequal, 
 	
 	// notin
 	
 	elm_notin_list,
+	elm_notin_lrel,
 	elm_notin_set,
+	elm_notin_rel,
 	elm_notin_map,
 
 	// println
@@ -374,13 +459,22 @@ public enum RascalPrimitive {
 	real_product_rat,
 	
 	list_product_list,
+	lrel_product_lrel,
 	set_product_set,
+	rel_product_rel,
 	
 	// project
 	
 	map_field_project,
 	rel_field_project,
 	lrel_field_project,
+
+	// range
+	
+	range_create_int,
+	range_step_create_int,
+	range_create_real,
+	range_step_create_real,
 	
 	// remainder
 	
@@ -433,9 +527,20 @@ public enum RascalPrimitive {
 	
 	list_subtract_list,
 	list_subtract_elm,
+	list_subtract_lrel,
+	lrel_subtract_lrel,
+	lrel_subtract_list,
 	map_subtract_map,
-	set_subtract_set,
+	rel_subtract_rel,
+	rel_subtract_set,
 	set_subtract_elm,
+	set_subtract_set,
+	set_subtract_rel,
+	
+	// rel
+	
+	rel_field_access,
+	lrel_field_access,
 	
 	// report
 	
@@ -696,7 +801,8 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 
-
+	// Add on non-numeric types
+	
 	public static int list_add_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IList) stack[sp - 2]).concat((IList) stack[sp - 1]);
@@ -709,6 +815,23 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
+	public static int elm_add_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IList) stack[sp - 1]).insert((IValue) stack[sp - 2]);
+		return sp - 1;
+	}
+	
+	public static int list_add_lrel(Object[] stack, int sp, int arity) {
+		return list_add_list(stack, sp, arity);
+	}
+	
+	public static int lrel_add_lrel(Object[] stack, int sp, int arity) {
+		return list_add_list(stack, sp, arity);
+	}
+	public static int lrel_add_list(Object[] stack, int sp, int arity) {
+		return list_add_list(stack, sp, arity);
+	}
+	
 	public static int loc_add_str(Object[] stack, int sp, int arity) {
 		throw new RuntimeException("Not implemented");
 	}
@@ -716,13 +839,6 @@ public enum RascalPrimitive {
 	public static int map_add_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IMap) stack[sp - 2]).join((IMap) stack[sp - 1]);
-		return sp - 1;
-	}
-
-
-	public static int elm_add_list(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = ((IList) stack[sp - 1]).insert((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 
@@ -738,16 +854,24 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
+	public static int set_add_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ISet) stack[sp - 2]).union((ISet) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int set_add_rel(Object[] stack, int sp, int arity) {
+		return set_add_set(stack, sp, arity);
+	}
+	
 	public static int rel_add_rel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 2]).union((ISet) stack[sp - 1]);
 		return sp - 1;
 	}
-
-	public static int set_add_set(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = ((ISet) stack[sp - 2]).union((ISet) stack[sp - 1]);
-		return sp - 1;
+	
+	public static int rel_add_set(Object[] stack, int sp, int arity) {
+		return set_add_set(stack, sp, arity);
 	}
 
 	public static int str_add_str(Object[] stack, int sp, int arity) {
@@ -839,7 +963,7 @@ public enum RascalPrimitive {
 	public static int template_addunindented(Object[] stack, int sp, int arity) {
 		assert arity <= 2;
 		if(arity == 1){
-			stack[sp - 1] = $processString(((IString) stack[sp - 2]));
+			stack[sp - 1] = $processString(((IString) stack[sp - 1]));
 			return sp;
 		}
 		stack[sp - 2] = $processString((IString) stack[sp - 2]).concat($processString((IString) stack[sp - 1]));
@@ -930,6 +1054,10 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IMap) stack[sp - 2]).compose((IMap) stack[sp - 1]);
 		return sp - 1;
 	}
+	
+	/*
+	 * mod
+	 */
 	
 	public static int int_mod_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -1056,10 +1184,117 @@ public enum RascalPrimitive {
 	/*
 	 * equal
 	 */
+	
+	// int
+	public static int int_equal_int(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	public static int int_equal_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	public static int int_equal_rat(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	public static int int_equal_real(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	// num
+	
+	public static int num_equal_int(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	public static int num_equal_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	public static int num_equal_rat(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	public static int num_equal_real(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	// rat
+	
+	public static int real_equal_int(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	public static int real_equal_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IReal) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	public static int real_equal_rat(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	public static int real_equal_real(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	// real
+	
+	public static int rat_equal_int(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	public static int rat_equal_num(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IRational) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	public static int rat_equal_rat(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	public static int rat_equal_real(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+		return sp - 1;
+	}
+	
+	// Equality on other types
 
 	public static int equal(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]);
+		IValue left = (stack[sp - 2] instanceof Boolean) ? vf.bool((Boolean)stack[sp - 2]) : (IValue)stack[sp - 2];
+		IValue right = (stack[sp - 1] instanceof Boolean) ? vf.bool((Boolean)stack[sp - 1]) : (IValue)stack[sp - 1];
+		stack[sp - 2] = left.isEqual(right);
 		return sp - 1;
 	}
 	
@@ -1234,10 +1469,10 @@ public enum RascalPrimitive {
 			v = null;
 			break;
 		case "offset":
-			v = vf.string(sloc.getOffset());
+			v = vf.integer(sloc.getOffset());
 			break;
 		case "length":
-			v = vf.string(sloc.getLength());
+			v = vf.integer(sloc.getLength());
 			break;
 		case "begin":
 			v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
@@ -1252,6 +1487,25 @@ public enum RascalPrimitive {
 		stack[sp - 2] = v;
 		return sp - 1;
 	}
+	
+	public static int lrel_field_access(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IListRelation<IList> left = ((IList) stack[sp - 2]).asRelation();
+		stack[sp - 2] = left.projectByFieldNames(((IString) stack[sp - 1]).getValue());
+		return sp - 1;
+	}
+	
+	public static int rel_field_access(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISetRelation<ISet> left = ((ISet) stack[sp - 2]).asRelation();
+		stack[sp - 2] = left.projectByFieldNames(((IString) stack[sp - 1]).getValue());
+		return sp - 1;
+	}
+	
+	
+	/*
+	 * Annotations
+	 */
 	
 	public static int annotation_get(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -1376,89 +1630,110 @@ public enum RascalPrimitive {
 	// int
 	public static int int_greater_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int int_greater_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int int_greater_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int int_greater_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	// num
 	public static int num_greater_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int num_greater_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int num_greater_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int num_greater_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	// rat
 	public static int rat_greater_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int rat_greater_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).greater((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).greater((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int rat_greater_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int rat_greater_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	// real
 	public static int real_greater_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).greater((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).greater((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int real_greater_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int real_greater_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int real_greater_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 
 	// greater on other types
+	
+	public static int greater(Object[] stack, int sp, int arity) {
+		int spnew = lessequal(stack, sp, arity);
+		stack[sp - 2] = ! (Boolean) stack[sp - 2];
+		return spnew;
+	}
+	
+	public static int adt_greater_adt(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		return node_greater_node(stack, sp, arity);
+	}
+	
+	public static int bool_greater_bool(Object[] stack, int sp, int arity){
+		assert arity == 2;
+		boolean left = (stack[sp - 2] instanceof Boolean) ? (Boolean) stack[sp - 2] : ((IBool) stack[sp - 2]).getValue();
+		boolean right = (stack[sp - 1] instanceof Boolean) ? (Boolean) stack[sp - 1] : ((IBool) stack[sp - 1]).getValue();
+		
+		stack[sp - 2] = left && !right;
+		return sp - 1;
+		
+	}
 	
 	public static int datetime_greater_datetime(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -1473,13 +1748,24 @@ public enum RascalPrimitive {
 	}
 	
 	public static int loc_greater_loc(Object[] stack, int sp, int arity) {
-		throw new RuntimeException("Not implemented");
+		int spnew = loc_lessequal_loc(stack, sp, arity);
+		stack[sp - 2] = ! (Boolean) stack[sp - 2];
+		return spnew;
 	}
 	
 	public static int map_greater_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IMap) stack[sp - 2]).isSubMap((IMap) stack[sp - 1]);
-		return sp - 1;
+		IMap left = (IMap) stack[sp - 2];
+		IMap right = (IMap) stack[sp - 1];
+		
+		stack[sp - 2] = right.isSubMap(left) && !left.isSubMap(right);
+		return arity - 1;
+	}
+	
+	public static int node_greater_node(Object[] stack, int sp, int arity) {
+		int newsp = node_lessequal_node(stack, sp, arity);
+		stack[newsp - 1] = !(Boolean)stack[newsp - 1];
+		return newsp;
 	}
 	
 	public static int set_greater_set(Object[] stack, int sp, int arity) {
@@ -1493,6 +1779,11 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]) == 1;
 		return sp - 1;
 	}
+	public static int tuple_greater_tuple(Object[] stack, int sp, int arity) {
+		int spnew = tuple_lessequal_tuple(stack, sp, arity);
+		stack[sp - 2] = ! (Boolean) stack[sp - 2];
+		return spnew;
+	}
 
 	/*
 	 * greaterThanOrEq
@@ -1501,89 +1792,108 @@ public enum RascalPrimitive {
 	// int
 	public static int int_greaterequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int int_greaterequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int int_greaterequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int int_greaterequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	// num
 	public static int num_greaterequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int num_greaterequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int num_greaterequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int num_greaterequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	// rat
 	public static int rat_greaterequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int rat_greaterequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int rat_greaterequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int rat_greaterequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	// real
 	public static int real_greaterequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int real_greaterequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int real_greaterequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int real_greaterequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 
 	// greaterequal on other types
+	
+	public static int greaterequal(Object[] stack, int sp, int arity) {
+		int spnew = less(stack, sp, arity);
+		stack[sp - 2] = ! (Boolean) stack[sp - 2];
+		return spnew;
+	}
+	
+	public static int adt_greaterequal_adt(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		return node_greaterequal_node(stack, sp, arity);
+	}
+	
+	public static int bool_greaterequal_bool(Object[] stack, int sp, int arity){
+		assert arity == 2;
+		boolean left = (stack[sp - 2] instanceof Boolean) ? (Boolean) stack[sp - 2] : ((IBool) stack[sp - 2]).getValue();
+		boolean right = (stack[sp - 1] instanceof Boolean) ? (Boolean) stack[sp - 1] : ((IBool) stack[sp - 1]).getValue();
+		stack[sp - 2] = (left && !right) || (left == right);
+		return sp - 1;
+	}
 	
 	public static int datetime_greaterequal_datetime(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -1598,14 +1908,22 @@ public enum RascalPrimitive {
 	}
 	
 	public static int loc_greaterequal_loc(Object[] stack, int sp, int arity) {
-		throw new RuntimeException("Not implemented");
+		int spnew = loc_less_loc(stack, sp, arity);
+		stack[sp - 2] = !(Boolean)stack[sp - 2];
+		return spnew;
+	}
+	
+	public static int node_greaterequal_node(Object[] stack, int sp, int arity) {
+		int newsp = node_less_node(stack, sp, arity);
+		stack[newsp - 1] = !(Boolean)stack[newsp - 1];
+		return newsp;
 	}
 	
 	public static int map_greaterequal_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		IMap left = (IMap) stack[sp - 2];
 		IMap right = (IMap) stack[sp - 1];
-		stack[sp - 2] = left.isEqual(right) || right.isSubMap(left);
+		stack[sp - 2] = right.isSubMap(left);
 		return sp - 1;
 	}
 	
@@ -1623,6 +1941,12 @@ public enum RascalPrimitive {
 		stack[sp - 2] = c == 0 || c == 1;
 		return sp - 1;
 	}
+	
+	public static int tuple_greaterequal_tuple(Object[] stack, int sp, int arity) {
+		int spnew = tuple_less_tuple(stack, sp, arity);
+		stack[sp - 2] = !(Boolean)stack[sp - 2];
+		return spnew;
+	}
 
 	/*
 	 * intersect
@@ -1633,17 +1957,41 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IList) stack[sp - 2]).intersect((IList) stack[sp - 1]);
 		return sp - 1;
 	}
+	
+	public static int list_intersect_lrel(Object[] stack, int sp, int arity) {
+		return list_intersect_list(stack, sp, arity);
+	}
+	
+	public static int lrel_intersect_lrel(Object[] stack, int sp, int arity) {
+		return list_intersect_list(stack, sp, arity);
+	}
+	
+	public static int lrel_intersect_list(Object[] stack, int sp, int arity) {
+		return list_intersect_list(stack, sp, arity);
+	}
+	
+	public static int map_intersect_map(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IMap) stack[sp - 2]).common((IMap) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int rel_intersect_rel(Object[] stack, int sp, int arity) {
+		return set_intersect_set(stack, sp, arity);
+	}
+	
+	public static int rel_intersect_set(Object[] stack, int sp, int arity) {
+		return set_intersect_set(stack, sp, arity);
+	}
 
 	public static int set_intersect_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 2]).intersect((ISet) stack[sp - 1]);
 		return sp - 1;
 	}
-
-	public static int map_intersect_map(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = ((IMap) stack[sp - 2]).common((IMap) stack[sp - 1]);
-		return sp - 1;
+	
+	public static int set_intersect_rel(Object[] stack, int sp, int arity) {
+		return set_intersect_set(stack, sp, arity);
 	}
 
 	/*
@@ -1655,11 +2003,19 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
+	
+	public static int elm_in_lrel(Object[] stack, int sp, int arity) {
+		return elm_in_list(stack, sp, arity);
+	}
 
 	public static int elm_in_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]);
 		return sp - 1;
+	}
+	
+	public static int elm_in_rel(Object[] stack, int sp, int arity) {
+		return elm_in_set(stack, sp, arity);
 	}
 
 	public static int elm_in_map(Object[] stack, int sp, int arity) {
@@ -1802,12 +2158,41 @@ public enum RascalPrimitive {
 	/*
 	 * join
 	 */
+	
 	public static int list_join_list(Object[] stack, int sp, int arity) {
 		return list_product_list(stack, sp, arity);
 	}
 	
-	public static int set_join_set(Object[] stack, int sp, int arity) {
-		return set_product_set(stack, sp, arity);
+	public static int list_join_lrel(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+		if(left.length() == 0){
+			stack[sp - 2] = left;
+			return sp -1;
+		}
+		if(right.length() == 0){
+			stack[sp - 2] = right;
+			return sp -1;
+		}
+		Type rightType = right.get(0).getType();
+		assert rightType.isTuple();
+	
+		int rarity = rightType.getArity();
+		IValue fieldValues[] = new IValue[1 + rarity];
+		IListWriter w =vf.listWriter();
+
+		for (IValue lval : left){
+			fieldValues[0] = lval;
+			for (IValue rtuple: right) {
+				for (int i = 0; i < rarity; i++) {
+					fieldValues[i + 1] = ((ITuple)rtuple).get(i);
+				}
+				w.append(vf.tuple(fieldValues));
+			}
+		}
+		stack[sp - 2] = w.done();
+		return sp - 1;
 	}
 	
 	public static int lrel_join_lrel(Object[] stack, int sp, int arity) {
@@ -1815,11 +2200,11 @@ public enum RascalPrimitive {
 		IList left = (IList) stack[sp - 2];
 		IList right = (IList) stack[sp - 1];
 		if(left.length() == 0){
-			stack[sp - 2] = right;
+			stack[sp - 2] = left;
 			return sp -1;
 		}
 		if(right.length() == 0){
-			stack[sp - 2] = left;
+			stack[sp - 2] = right;
 			return sp -1;
 		}
 		Type leftType = left.get(0).getType();
@@ -1847,16 +2232,84 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
+	public static int lrel_join_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+		if(left.length() == 0){
+			stack[sp - 2] = left;
+			return sp -1;
+		}
+		if(right.length() == 0){
+			stack[sp - 2] = right;
+			return sp -1;
+		}
+		Type leftType = left.get(0).getType();
+		assert leftType.isTuple();
+		
+		int larity = leftType.getArity();
+		IValue fieldValues[] = new IValue[larity + 1];
+		IListWriter w =vf.listWriter();
+
+		for (IValue ltuple : left){
+			for (IValue rval: right) {
+				for (int i = 0; i < larity; i++) {
+					fieldValues[i] = ((ITuple)ltuple).get(i);
+				}
+				fieldValues[larity] = rval;
+				w.append(vf.tuple(fieldValues));
+			}
+		}
+		stack[sp - 2] = w.done();
+		return sp - 1;
+	}
+	
+	public static int set_join_set(Object[] stack, int sp, int arity) {
+		return set_product_set(stack, sp, arity);
+	}
+	
+	public static int set_join_rel(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet left = (ISet) stack[sp - 2];
+		ISet right = (ISet) stack[sp - 1];
+		if(left.size() == 0){
+			stack[sp - 2] = left;
+			return sp -1;
+		}
+		if(right.size() == 0){
+			stack[sp - 2] = right;
+			return sp -1;
+		}
+		Type rightType = right.getElementType();
+		assert rightType.isTuple();
+		
+		int rarity = rightType.getArity();
+		IValue fieldValues[] = new IValue[1 + rarity];
+		ISetWriter w =vf.setWriter();
+
+		for (IValue lval : left){
+			for (IValue rtuple: right) {
+				fieldValues[0] = lval;
+				for (int i = 0; i <  rarity; i++) {
+					fieldValues[i + 1] = ((ITuple)rtuple).get(i);
+				}
+				w.insert(vf.tuple(fieldValues));
+			}
+		}
+		stack[sp - 2] = w.done();
+		return sp - 1;
+	}
+	
 	public static int rel_join_rel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ISet left = (ISet) stack[sp - 2];
 		ISet right = (ISet) stack[sp - 1];
 		if(left.size() == 0){
-			stack[sp - 2] = right;
+			stack[sp - 2] = left;
 			return sp -1;
 		}
 		if(right.size() == 0){
-			stack[sp - 2] = left;
+			stack[sp - 2] = right;
 			return sp -1;
 		}
 		Type leftType = left.getElementType();
@@ -1884,6 +2337,38 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
+	public static int rel_join_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet left = (ISet) stack[sp - 2];
+		ISet right = (ISet) stack[sp - 1];
+		if(left.size() == 0){
+			stack[sp - 2] = left;
+			return sp -1;
+		}
+		if(right.size() == 0){
+			stack[sp - 2] = right;
+			return sp -1;
+		}
+		Type leftType = left.getElementType();
+		assert leftType.isTuple();
+		
+		int larity = leftType.getArity();
+		IValue fieldValues[] = new IValue[larity + 1];
+		ISetWriter w =vf.setWriter();
+
+		for (IValue ltuple : left){
+			for (IValue rval: right) {
+				for (int i = 0; i < larity; i++) {
+					fieldValues[i] = ((ITuple)ltuple).get(i);
+				}
+				fieldValues[larity] = rval;
+				w.insert(vf.tuple(fieldValues));
+			}
+		}
+		stack[sp - 2] = w.done();
+		return sp - 1;
+	}
+	
 	/*
 	 * lessThan
 	 */
@@ -1891,88 +2376,145 @@ public enum RascalPrimitive {
 	// int
 	public static int int_less_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int int_less_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).less((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).less((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int int_less_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int int_less_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	// num
 	public static int num_less_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).less((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).less((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int num_less_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).less((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).less((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int num_less_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).less((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).less((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int num_less_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).less((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).less((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	// rat
 	public static int rat_less_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).less((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).less((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int rat_less_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).less((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).less((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int rat_less_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).less((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).less((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int rat_less_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).less((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).less((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	// real
 	public static int real_less_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).less((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).less((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int real_less_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).less((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).less((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int real_less_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).less((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).less((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int real_less_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).less((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).less((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
+	
+	// Generic less
+	
+	private static int less(Object[] stack, int sp, int arity){
+		assert arity == 2;
+		
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+		
+		if(leftType.isSubtypeOf(tf.numberType())){
+			return num_less_num(stack, sp, arity);
+		}
+		if(leftType.isBool()){
+			return bool_less_bool(stack, sp, arity);
+		}
+		if(leftType.isString()){
+			return str_less_str(stack,sp, arity);
+		}
+		if(leftType.isDateTime()){
+			return datetime_less_datetime(stack,sp, arity);
+		}
+		if(leftType.isSourceLocation()){
+			return loc_less_loc(stack,sp, arity);
+		}
+		if(leftType.isList()){
+			return list_less_list(stack, sp, arity);
+		}
+		if(leftType.isSet()){
+			return set_less_set(stack, sp, arity);
+		}
+		if(leftType.isMap()){
+			return map_less_map(stack, sp, arity);
+		}
+		if(leftType.isNode()){
+			return node_less_node(stack, sp, arity);
+		}
+		if(leftType.isTuple()){
+			return tuple_less_tuple(stack, sp, arity);
+		}
+		throw new RuntimeException("less: unknown type " + leftType);
+	}
+	
 	// less on other types
+	
+	public static int adt_less_adt(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		return node_less_node(stack, sp, arity);
+	}
+	
+	public static int bool_less_bool(Object[] stack, int sp, int arity){
+		assert arity == 2;
+		boolean left = (stack[sp - 2] instanceof Boolean) ? (Boolean) stack[sp - 2] : ((IBool) stack[sp - 2]).getValue();
+		boolean right = (stack[sp - 1] instanceof Boolean) ? (Boolean) stack[sp - 1] : ((IBool) stack[sp - 1]).getValue();
+		
+		stack[sp - 2] = !left && right;
+		return sp - 1;
+		
+	}
 	
 	public static int datetime_less_datetime(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -2003,12 +2545,102 @@ public enum RascalPrimitive {
 	}
 	
 	public static int loc_less_loc(Object[] stack, int sp, int arity) {
-		throw new RuntimeException("Not implemented");
+		assert arity == 2;
+		ISourceLocation left = (ISourceLocation) stack[sp - 2];
+		ISourceLocation right = (ISourceLocation) stack[sp - 1];
+
+		int compare = left.getURI().toString().compareTo(right.getURI().toString());
+		if (compare < 0) {
+			stack[sp - 2] = true;
+			return sp - 1;
+		}
+		else if (compare > 0) {
+			stack[sp - 2] = false;
+			return sp - 1;
+		}
+
+		// but the uri's are the same
+		// note that line/column information is superfluous and does not matter for ordering
+
+		if (left.hasOffsetLength()) {
+			if (!right.hasOffsetLength()) {
+				stack[sp - 2] = false;
+				return sp - 1;
+			}
+
+			int roffset = right.getOffset();
+			int rlen = right.getLength();
+			int loffset = left.getOffset();
+			int llen = left.getLength();
+
+			if (loffset == roffset) {
+				stack[sp - 2] = (llen < rlen);
+				return sp - 1;
+			}
+			stack[sp - 2] = false;
+			return sp - 1;
+		}
+		else if (compare == 0) {
+			stack[sp - 2] = true;
+			return sp - 1;
+		}
+
+		if (!right.hasOffsetLength()) {
+			throw new ImplementationError("assertion failed");
+		}
+		stack[sp - 2] = false;
+		return sp - 1;
+
 	}
 	
 	public static int map_less_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IMap) stack[sp - 2]).isSubMap((IMap) stack[sp - 1]);
+		IMap left = ((IMap) stack[sp - 2]);
+		IMap right = ((IMap) stack[sp - 1]);
+		
+		stack[sp - 2] = left.isSubMap(right) && !right.isSubMap(left);
+		return sp - 1;
+	}
+	
+	public static int node_less_node(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		INode left = (INode) stack[sp - 2];
+		INode right = (INode) stack[sp - 1];
+
+		int compare = left.getName().compareTo(right.getName());
+
+		if (compare <= -1) {
+			stack[sp - 2] = true;
+			return sp - 1;
+		}
+
+		if (compare >= 1){
+			stack[sp - 2] = false;
+			return sp - 1;
+		}
+
+		// if the names are not ordered, then we order lexicographically on the arguments:
+
+		int leftArity = left.arity();
+		int rightArity = right.arity();
+
+		Object[] fakeStack = new Object[2];
+		fakeStack[0] = false;
+		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
+
+			fakeStack[0] = left.get(i);
+			fakeStack[1] = right.get(i);
+			if(leftArity < rightArity || i < leftArity - 1)
+				lessequal(fakeStack, 2, 2);
+			else
+				less(fakeStack, 2, 2);
+
+			if(!((Boolean)fakeStack[0])){
+				stack[sp - 2] = false;
+				return sp - 1;
+			}
+		}
+		stack[sp - 2] = (leftArity < rightArity) || (Boolean)fakeStack[0];
 		return sp - 1;
 	}
 	
@@ -2024,6 +2656,31 @@ public enum RascalPrimitive {
 		stack[sp - 2] = c == -1;
 		return sp - 1;
 	}
+	
+	public static int tuple_less_tuple(Object[] stack, int sp, int arity) {
+		ITuple left = (ITuple)stack[sp - 2];
+		int leftArity = left.arity();
+		ITuple right = (ITuple)stack[sp - 1];
+		int rightArity = right.arity();
+
+		Object[] fakeStack = new Object[2];
+		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
+			fakeStack[0] = left.get(i);
+			fakeStack[1] = right.get(i);
+			if(leftArity < rightArity || i < leftArity - 1)
+				equal(fakeStack, 2, 2);
+			else
+				less(fakeStack, 2, 2);
+
+			if(!((Boolean)fakeStack[0])){
+				stack[sp - 2] = false;
+				return sp - 1;
+			}
+		}
+
+		stack[sp - 2] = leftArity <= rightArity;
+		return sp - 1;
+	}
 
 	/*
 	 * lessequal
@@ -2032,89 +2689,145 @@ public enum RascalPrimitive {
 	// int
 	public static int int_lessequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int int_lessequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int int_lessequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int int_lessequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	// num
 	public static int num_lessequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int num_lessequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int num_lessequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int num_lessequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	// rat
 	public static int rat_lessequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int rat_lessequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int rat_lessequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int rat_lessequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	// real
 	public static int real_lessequal_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int real_lessequal_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int real_lessequal_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 	public static int real_lessequal_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
+		stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]).getValue();
 		return sp - 1;
 	}
 
+	// Generic lessequal
+	
+	private static int lessequal(Object[] stack, int sp, int arity){
+		assert arity == 2;
+		
+		IValue left = (IValue) stack[sp - 2];		
+		Type leftType = left.getType();
+		
+		if(leftType.isSubtypeOf(tf.numberType())){
+			return num_lessequal_num(stack, sp, arity);
+		}
+		if(leftType.isBool()){
+			return bool_lessequal_bool(stack, sp, arity);
+		}
+		if(leftType.isString()){
+			return str_lessequal_str(stack, sp, arity);
+		}
+		if(leftType.isDateTime()){
+			return datetime_lessequal_datetime(stack, sp, arity);
+		}
+		if(leftType.isSourceLocation()){
+			return loc_lessequal_loc(stack, sp, arity);
+		}
+		if(leftType.isList()){
+			return list_lessequal_list(stack, sp, arity);
+		}
+		if(leftType.isSet()){
+			return set_lessequal_set(stack, sp, arity);
+		}
+		if(leftType.isMap()){
+			return map_lessequal_map(stack, sp, arity);
+		}
+		if(leftType.isNode()){
+			return node_lessequal_node(stack, sp, arity);
+		}
+		if(leftType.isTuple()){
+			return tuple_lessequal_tuple(stack, sp, arity);
+		}
+		throw new RuntimeException("lessequal: unknown type " + leftType);
+	}
+	
 	// lessequal on other types
+	
+	public static int adt_lessequal_adt(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		return node_lessequal_node(stack, sp, arity);
+	}
+	
+	public static int bool_lessequal_bool(Object[] stack, int sp, int arity){
+		assert arity == 2;
+		boolean left = (stack[sp - 2] instanceof Boolean) ? (Boolean) stack[sp - 2] : ((IBool) stack[sp - 2]).getValue();
+		boolean right = (stack[sp - 1] instanceof Boolean) ? (Boolean) stack[sp - 1] : ((IBool) stack[sp - 1]).getValue();
+		
+		stack[sp - 2] = (!left && right) || (left == right);
+		return sp - 1;
+		
+	}
 	
 	public static int datetime_lessequal_datetime(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -2150,14 +2863,98 @@ public enum RascalPrimitive {
 	}
 	
 	public static int loc_lessequal_loc(Object[] stack, int sp, int arity) {
-		throw new RuntimeException("Not implemented");
+		assert arity == 2;
+		ISourceLocation left = (ISourceLocation) stack[sp - 2];
+		ISourceLocation right = (ISourceLocation) stack[sp - 1];
+
+		int compare = left.getURI().toString().compareTo(right.getURI().toString());
+		if (compare < 0) {
+			stack[sp - 2] = true;
+			return sp - 1;
+		}
+		else if (compare > 0) {
+			stack[sp - 2] = false;
+			return sp - 1;
+		}
+
+		// but the uri's are the same
+		// note that line/column information is superfluous and does not matter for ordering
+
+		if (left.hasOffsetLength()) {
+			if (!right.hasOffsetLength()) {
+				stack[sp - 2] = false;
+				return sp - 1;
+			}
+
+			int roffset = right.getOffset();
+			int rlen = right.getLength();
+			int loffset = left.getOffset();
+			int llen = left.getLength();
+
+			if (loffset == roffset) {
+				stack[sp - 2] = (llen <= rlen);
+				return sp - 1;
+			}
+			stack[sp - 2] = roffset < loffset && roffset + rlen >= loffset + llen;
+			return sp - 1;
+		}
+		else if (compare == 0) {
+			stack[sp - 2] = false;
+			return sp - 1;
+		}
+
+		if (!right.hasOffsetLength()) {
+			throw new ImplementationError("assertion failed");
+		}
+		stack[sp - 2] = false;
+		return sp - 1;
+
 	}
 	
 	public static int map_lessequal_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		IMap left = (IMap) stack[sp - 2];
 		IMap right = (IMap) stack[sp - 1];
-		stack[sp - 2] = left.isEqual(right) || left.isSubMap(right);
+		stack[sp - 2] = left.isSubMap(right);
+		return sp - 1;
+	}
+	
+	public static int node_lessequal_node(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		INode left = (INode) stack[sp - 2];
+		INode right = (INode) stack[sp - 1];
+
+		int compare = left.getName().compareTo(right.getName());
+
+		if (compare <= -1) {
+			stack[sp - 2] = true;
+			return sp - 1;
+		}
+
+		if (compare >= 1){
+			stack[sp - 2] = false;
+			return sp - 1;
+		}
+
+		// if the names are not ordered, then we order lexicographically on the arguments:
+
+		int leftArity = left.arity();
+		int rightArity = right.arity();
+
+		Object[] fakeStack = new Object[2];
+		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
+
+			fakeStack[0] = left.get(i);
+			fakeStack[1] = right.get(i);
+			
+			lessequal(fakeStack, 2, 2);
+
+			if(!((Boolean)fakeStack[0])){
+				stack[sp - 2] = false;
+				return sp - 1;
+			}
+		}
+		stack[sp - 2] = leftArity <= rightArity;
 		return sp - 1;
 	}
 	
@@ -2173,6 +2970,29 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
 		stack[sp - 2] = c == -1 || c == 0;
+		return sp - 1;
+	}
+	
+	public static int tuple_lessequal_tuple(Object[] stack, int sp, int arity) {
+		ITuple left = (ITuple)stack[sp - 2];
+		int leftArity = left.arity();
+		ITuple right = (ITuple)stack[sp - 1];
+		int rightArity = right.arity();
+
+		Object[] fakeStack = new Object[2];
+		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
+			fakeStack[0] = left.get(i);
+			fakeStack[1] = right.get(i);
+			
+			lessequal(fakeStack, 2, 2);
+
+			if(!((Boolean)fakeStack[0])){
+				stack[sp - 2] = false;
+				return sp - 1;
+			}
+		}
+
+		stack[sp - 2] = leftArity <= rightArity;
 		return sp - 1;
 	}
 
@@ -2271,11 +3091,19 @@ public enum RascalPrimitive {
 		stack[sp - 2] = !((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
+	
+	public static int elm_notin_lrel(Object[] stack, int sp, int arity) {
+		return elm_notin_list(stack, sp, arity);
+	}
 
 	public static int elm_notin_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = !((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]);
 		return sp - 1;
+	}
+	
+	public static int elm_notin_rel(Object[] stack, int sp, int arity) {
+		return elm_notin_set(stack, sp, arity);
 	}
 
 	public static int elm_notin_map(Object[] stack, int sp, int arity) {
@@ -2511,8 +3339,9 @@ public enum RascalPrimitive {
 			for(IValue v : set){
 				writer.append(v);
 			}
-		} else
-			throw new RuntimeException("splice_to_listwriter illegal argument: " + stack[sp - 1].getClass());
+		} else {
+			writer.append((IValue) stack[sp - 1]);
+		}
 		stack[sp - 2] = writer;
 		return sp - 1;
 	}
@@ -2530,8 +3359,9 @@ public enum RascalPrimitive {
 			for(IValue v : set){
 				writer.insert(v);
 			}
-		} else
-			throw new RuntimeException("splice_to_listwriter illegal argument: " + stack[sp - 1].getClass());
+		} else {
+			writer.insert((IValue) stack[sp - 1]);
+		}
 		stack[sp - 2] = writer;
 		return sp - 1;
 	}
@@ -2658,6 +3488,10 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
+	public static int lrel_product_lrel(Object[] stack, int sp, int arity) {
+		return list_product_list(stack, sp, arity);
+	}
+	
 	public static int set_product_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ISet left = (ISet) stack[sp - 2];
@@ -2670,6 +3504,10 @@ public enum RascalPrimitive {
 		}
 		stack[sp - 2] = w.done();
 		return sp - 1;
+	}
+	
+	public static int rel_product_rel(Object[] stack, int sp, int arity) {
+		return set_product_set(stack, sp, arity);
 	}
 	
 	/*
@@ -2710,6 +3548,7 @@ public enum RascalPrimitive {
 		
 		String fun = ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
+		stdout.println("testreport_add: " + src);
 		Type argType = (Type) stack[sp - 1];
 		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
 		//Type argType = typeReifier.valueToType(type_cons);
@@ -2749,6 +3588,111 @@ public enum RascalPrimitive {
 	/*
 	 * notequal
 	 */
+	
+	// int
+		public static int int_notequal_int(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		public static int int_notequal_num(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((IInteger) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		public static int int_notequal_rat(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((IInteger) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		public static int int_notequal_real(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((IInteger) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		// num
+		
+		public static int num_notequal_int(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((INumber) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		public static int num_notequal_num(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		public static int num_notequal_rat(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((INumber) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		public static int num_notequal_real(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((INumber) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		// rat
+		
+		public static int real_notequal_int(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((IReal) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		public static int real_notequal_num(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((IReal) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		public static int real_notequal_rat(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((IReal) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		public static int real_notequal_real(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((IReal) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		// real
+		
+		public static int rat_notequal_int(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((IRational) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		public static int rat_notequal_num(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((IRational) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		public static int rat_notequal_rat(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((IRational) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		public static int rat_notequal_real(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			stack[sp - 2] = !((IRational) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+			return sp - 1;
+		}
+		
+		// Notequal on other types
 
 	public static int notequal(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -2802,7 +3746,11 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		IConstructor cons =  (IConstructor) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
-		stack[sp - 2] = cons.get((idx >= 0) ? idx : cons.arity());
+		try {
+			stack[sp - 2] = cons.get((idx >= 0) ? idx : cons.arity());
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 	
@@ -2810,7 +3758,11 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		INode node =  (INode) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
-		stack[sp - 2] = node.get((idx >= 0) ? idx : node.arity());
+		try {
+			stack[sp - 2] = node.get((idx >= 0) ? idx : node.arity());
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 	
@@ -2818,7 +3770,11 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		IList lst = ((IList) stack[sp - 2]);
 		int idx = ((IInteger) stack[sp - 1]).intValue();
-		stack[sp - 2] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
+		try {
+			stack[sp - 2] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 
@@ -2835,8 +3791,12 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		IString str = ((IString) stack[sp - 2]);
 		int idx = ((IInteger) stack[sp - 1]).intValue();
-		stack[sp - 2] = (idx >= 0) ? str.substring(idx, idx+1)
-								   : str.substring(str.length() + idx, str.length() + idx + 1);
+		try {
+			stack[sp - 2] = (idx >= 0) ? str.substring(idx, idx+1)
+								   	   : str.substring(str.length() + idx, str.length() + idx + 1);
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 	
@@ -2844,7 +3804,11 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		ITuple tup = (ITuple) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
-		stack[sp - 2] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
+		try {
+			stack[sp - 2] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 
@@ -2943,6 +3907,14 @@ public enum RascalPrimitive {
 		stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
 		return sp - 1;
 	}
+	
+	// subtract on non-numeric types
+	
+	public static int list_subtract_elm(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((IList) stack[sp - 2]).delete((IValue) stack[sp - 1]);
+		return sp - 1;
+	}
 
 	public static int list_subtract_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -2950,9 +3922,35 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	public static int list_subtract_elm(Object[] stack, int sp, int arity) {
+	public static int list_subtract_lrel(Object[] stack, int sp, int arity) {
+		return list_subtract_list(stack, sp, arity);
+	}
+	
+	public static int lrel_subtract_lrel(Object[] stack, int sp, int arity) {
+		return list_subtract_list(stack, sp, arity);
+	}
+	
+	public static int lrel_subtract_list(Object[] stack, int sp, int arity) {
+		return list_subtract_list(stack, sp, arity);
+	}
+	
+	public static int map_subtract_map(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IList) stack[sp - 2]).delete((IValue) stack[sp - 1]);
+		stack[sp - 2] = ((IMap) stack[sp - 2]).remove((IMap) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int rel_subtract_rel(Object[] stack, int sp, int arity) {
+		return set_subtract_set(stack, sp, arity);
+	}
+	
+	public static int rel_subtract_set(Object[] stack, int sp, int arity) {
+		return set_subtract_set(stack, sp, arity);
+	}
+	
+	public static int set_subtract_elm(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ISet) stack[sp - 2]).delete((IValue) stack[sp - 1]);
 		return sp - 1;
 	}
 
@@ -2962,16 +3960,8 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	public static int set_subtract_elm(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = ((ISet) stack[sp - 2]).delete((IValue) stack[sp - 1]);
-		return sp - 1;
-	}
-
-	public static int map_subtract_map(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		stack[sp - 2] = ((IMap) stack[sp - 2]).remove((IMap) stack[sp - 1]);
-		return sp - 1;
+	public static int set_subtract_rel(Object[] stack, int sp, int arity) {
+		return set_subtract_set(stack, sp, arity);
 	}
 	
 	/*
@@ -2993,34 +3983,34 @@ public enum RascalPrimitive {
 	 * }
 	 */
 
-	@SuppressWarnings("rawtypes")
 	public static int lrel_transitive_closure(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		stack[sp - 1] = ((IListRelation) stack[sp - 1]).closure();
+		IListRelation<IList> left = ((IList) stack[sp - 1]).asRelation();
+		stack[sp - 1] = left.closure();
 		return sp;
 	}
 
-	@SuppressWarnings("rawtypes")
 	public static int rel_transitive_closure(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		stack[sp - 1] = ((IRelationalAlgebra) stack[sp - 1]).closure();
+		ISetRelation<ISet> left = ((ISet) stack[sp - 1]).asRelation();
+		stack[sp - 1] = left.closure();
 		return sp;
 	}
 
 	/*
 	 * transitiveReflexiveClosure
 	 */
-	@SuppressWarnings("rawtypes")
 	public static int lrel_transitive_reflexive_closure(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		stack[sp - 1] = ((IListRelation) stack[sp - 1]).closureStar();
+		IListRelation<IList> left = ((IList) stack[sp - 1]).asRelation();
+		stack[sp - 1] = left.closureStar();
 		return sp;
 	}
 
-	@SuppressWarnings("rawtypes")
 	public static int rel_transitive_reflexive_closure(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		stack[sp - 1] =((IRelationalAlgebra) stack[sp - 1]).closureStar();
+		ISetRelation<ISet> left = ((ISet) stack[sp - 1]).asRelation();
+		stack[sp - 1] = left.closureStar();
 		return sp;
 	}
 	
@@ -3074,6 +4064,24 @@ public enum RascalPrimitive {
 	 * Miscellaneous
 	 */
 	
+	public static int loc_create(Object[] stack, int sp, int arity) {
+		assert arity == 5;
+		ISourceLocation loc = (ISourceLocation) stack[sp - arity];
+		int offset = ((IInteger) stack [sp - arity + 1]).intValue();
+		int length = ((IInteger) stack [sp - arity + 2]).intValue();
+		
+		ITuple begin = (ITuple) stack [sp - arity + 3];
+		int beginLine = ((IInteger) begin.get(0)).intValue();
+		int beginCol = ((IInteger) begin.get(1)).intValue();
+		
+		ITuple end = (ITuple) stack [sp - arity + 4];
+		int endLine = ((IInteger) end.get(0)).intValue();
+		int endCol = ((IInteger)  end.get(1)).intValue();
+		
+		stack[sp - arity] = vf.sourceLocation(loc.getURI(), offset, length, beginLine, endLine, beginCol, endCol);
+		return sp - arity + 1;
+	}
+	
 	public static int value_to_string(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		IValue val = (IValue) stack[sp -1];
@@ -3083,6 +4091,89 @@ public enum RascalPrimitive {
 			stack[sp - 1] = vf.string(val.toString());
 		}
 		return sp;
+	}
+	
+	public static int range_create_int(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		int from = ((IInteger) stack[sp - 2]).intValue();
+		int to = ((IInteger) stack[sp - 1]).intValue();
+		int second = from < to ? from + 1 : from - 1;
+
+		stack[sp - 2] = $range_step_int(from, second, to);
+		return sp - 1;
+	}
+	
+	public static int range_step_create_int(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		int from = ((IInteger) stack[sp - 3]).intValue();
+		int second = ((IInteger) stack[sp - 2]).intValue();
+		int to = ((IInteger) stack[sp - 1]).intValue();
+
+		stack[sp - 3] = $range_step_int(from, second, to);
+		return sp - 2;
+	}
+	
+	public static IList $range_step_int(int from, int second, int to) {
+		IListWriter w = vf.listWriter();
+
+		int diff =  second - from;
+
+		if(from < to && diff > 0){
+			while(from < to){
+				w.append(vf.integer(from));
+				from += diff;
+			}
+		} else if(from >= to && diff < 0){
+			while(from > to){
+				w.append(vf.integer(from));
+				from += diff;
+			}
+		}
+		return w.done();
+	}
+	
+	private static double $toDouble(Object o){
+		return (o instanceof IInteger) ? ((IInteger) o).intValue() : 
+										(o instanceof IReal) ?  ((IReal)o).doubleValue() : ((IRational) o).doubleValue();
+	}
+	
+	public static int range_create_real(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		double from = $toDouble(stack[sp - 2]);
+		double to =  $toDouble(stack[sp - 1]);
+		double second = from < to ? from + 1 : from - 1;
+
+		stack[sp - 2] = $range_step_real(from, second, to);
+		return sp - 1;
+	}
+	
+	public static int range_step_create_real(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		double from =  $toDouble(stack[sp - 3]);
+		double second =  $toDouble(stack[sp - 2]);
+		double to =  $toDouble(stack[sp - 1]);
+
+		stack[sp - 3] = $range_step_real(from, second, to);
+		return sp - 2;
+	}
+	
+	public static IList $range_step_real(double from, double second, double to) {
+		IListWriter w = vf.listWriter();
+
+		double diff =  second - from;
+
+		if(from < to && diff > 0){
+			while(from < to){
+				w.append(vf.real(from));
+				from += diff;
+			}
+		} else if(from >= to && diff < 0){
+			while(from > to){
+				w.append(vf.real(from));
+				from += diff;
+			}
+		}
+		return w.done();
 	}
 
 	/*

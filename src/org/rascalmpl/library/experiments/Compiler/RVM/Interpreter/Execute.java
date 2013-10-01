@@ -129,16 +129,19 @@ public class Execute {
 				IList test_results = (IList)rvm.executeProgram(uid_testsuite, arguments);
 				for(IValue voutcome : test_results){
 					ITuple outcome = (ITuple) voutcome;
+					String tst_name = ((ISourceLocation) outcome.get(0)).toString();
+					//tst_name = tst_name.substring(1, tst_name.length()); // remove leading /
+					//tst_name = tst_name.replaceAll("/", "::");
+					
 					boolean passed = ((IBool) outcome.get(1)).getValue();
+					
 					if(passed){
 						number_of_successes++;
 					} else {
 						number_of_failures++;
 					}
-					String tst_name = ((ISourceLocation) outcome.get(0)).getURI().getPath();
-					tst_name = tst_name.substring(1, tst_name.length()); // remove leading /
-					tst_name = tst_name.replaceAll("/", "::");
-					stdout.println(tst_name + ": " + (passed ? "true" : "FALSE"));
+					if(!passed)
+						stdout.println(tst_name + ": FALSE");
 				}
 			}
 			int number_of_tests = number_of_successes + number_of_failures;

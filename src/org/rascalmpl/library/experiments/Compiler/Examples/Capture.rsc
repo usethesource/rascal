@@ -13,5 +13,3 @@ public value main(list[value] args) {
 	
 	return res1 + res2; // 111 + 53 == 164
 }
-
-public bool testCapture() = main([]) == 164;
