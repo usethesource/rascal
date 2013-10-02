@@ -41,9 +41,12 @@ test bool tst() = run("|http://www.rascal-mpl.org| := |std://demo/basic/Hello.rs
 // Basic Patterns
 
 test bool tst() = run("x := 2") == x := 2;
+test bool tst() = run("_ := 2") == _ := 2;
+
 test bool tst() = run("x := 2") == x := 2 && x == 2;
 
 test bool tst() = run("int x := 2") == int x := 2;
+test bool tst() = run("int _ := 2") == int _ := 2;
 test bool tst() = run("int x := 2") == int x := 2 && x == 2;
 
 test bool tst() = run("x:1 := 1") == x:1 := 1;
@@ -63,12 +66,14 @@ test bool tst() = run("[1] := [2]") == [1] := [2];
 test bool tst() = run("[1] := [1,2]") == [1] := [1,2];
 
 test bool tst() = run("[1, x*, 5] := [1,2,3,4,5]") == [1, x*, 5] := [1,2,3,4,5];
+test bool tst() = run("[1, _*, 5] := [1,2,3,4,5]") == [1, _*, 5] := [1,2,3,4,5];
 test bool tst() = run("[1, x*, 5] := [1,2,3,4,5]") == [1, x*, 5] := [1,2,3,4,5] && x == [2,3,4];
 
 test bool tst() = run("[1, *x, 5] := [1,2,3,4,5]") == [1, *x, 5] := [1,2,3,4,5];
 test bool tst() = run("[1, *x, 5] := [1,2,3,4,5]") == [1, *x, 5] := [1,2,3,4,5] && x == [2,3,4];
 
 test bool tst() = run("[1, *int x, 5] := [1,2,3,4,5]") == [1, *int x, 5] := [1,2,3,4,5];
+test bool tst() = run("[1, *int _, 5] := [1,2,3,4,5]") == [1, *int _, 5] := [1,2,3,4,5];
 test bool tst() = run("[1, *int x, 5] := [1,2,3,4,5]") == [1, *int x, 5] := [1,2,3,4,5] && x == [2,3,4];
 
 
@@ -89,12 +94,23 @@ test bool tst() = run("{1} := {1,2}") == {1} := {1,2};
 test bool tst() = run("{x, 2} := {2, 1}") == {x, 2} := {2, 1};
 
 test bool tst() = run("{1, x*, 5} := {1,2,3,4,5}") == {1, x*, 5} := {1,2,3,4,5};
+test bool tst() = run("{1, _*, 5} := {1,2,3,4,5}") == {1, _*, 5} := {1,2,3,4,5};
 test bool tst() = run("{1, x*, 5} := {1,2,3,4,5} && x == {2, 3, 4}") == {1, x*, 5} := {1,2,3,4,5} && x == {2,3,4};
 
 test bool tst() = run("{1, *int x, 5} := {1,2,3,4,5}") == {1, *int x, 5} := {1,2,3,4,5};
+test bool tst() = run("{1, *int _, 5} := {1,2,3,4,5}") == {1, *int _, 5} := {1,2,3,4,5};
 test bool tst() = run("{1, *int x, 5} := {1,2,3,4,5} && x == {2, 3, 4}") == {1, *int x, 5} := {1,2,3,4,5} && x == {2,3,4};
 
 test bool tst() = run("{ y = {5, 6}; {*int x, 3, *y} := {1,2,3,4,5,6};}") == { y = {5, 6}; {*int x, 3, *y} := {1,2,3,4,5,6};};
+
+test bool tst() = run("{*_} := {}") == {*_} := {};
+test bool tst() = run("!{*_} := {}") == !{*_} := {};
+test bool tst() = run("{*_,1} := {}") == {*_,1} := {};
+
+// Following two failures due to error in Rascal interpreter:
+/*fails*/ // test bool tst() = run("!{*_,1} := {}") == !{*_,1} := {};
+test bool tst() = run("{*_,1} := {2}") == {*_,1} := {2};
+/*fails*/ //test bool tst() = run("!{*_,1} := {2}") == !{*_,1} := {2};
 
 // Node/Constructor matching
 
