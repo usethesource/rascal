@@ -2,6 +2,8 @@ module experiments::Compiler::Examples::UninitializedVariables
 
 public int globalVar;
 
+public str expectedResult = " global var is not defined! global var is defined: 0! local var is not defined! local var is defined: 2!";
+
 public value main(list[value] args) {
 	int localVar;
 	
