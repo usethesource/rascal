@@ -497,8 +497,6 @@ public class RVM {
 					ref.stack[ref.pos] = stack[sp - 1]; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
 					continue;
 				
-				
-
 				case Opcode.OP_LOADFUN:
 					// Loads functions that are defined at the root
 					stack[sp++] = new FunctionInstance(functionStore.get(instructions[pc++]), root);
