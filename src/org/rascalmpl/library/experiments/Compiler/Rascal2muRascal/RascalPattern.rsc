@@ -128,8 +128,8 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`){
 
 // reifiedType pattern
 
-MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> )`) {
-    throw "reifiedType pattern";
+MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> )`) {    
+    return muCreate(mkCallToLibFun("Library","MATCH_REIFIED_TYPE",2), [muCon(symbol)]);
 }
 
 // callOrTree pattern
