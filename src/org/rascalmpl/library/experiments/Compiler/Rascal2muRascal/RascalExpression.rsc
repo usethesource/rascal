@@ -333,7 +333,6 @@ MuExp translate(e:(Expression) `<Expression argument> *`)   = postfix_rel_lrel("
 
 // isDefined?
 MuExp translate(e:(Expression) `<Expression argument> ?`) {
-	str isDefined = asTmp(nextLabel());
 	str varname = asTmp(nextLabel());
 	// Check if evaluation of the expression throws a 'NoSuchKey' or 'NoSuchAnnotation' exception;
 	// do this by checking equality of the value constructor names
@@ -344,14 +343,12 @@ MuExp translate(e:(Expression) `<Expression argument> ?`) {
 	cond2 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"),
 									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname)) ]), muInt(0) ] ) ]);
 	
-	elsePart3 = muIfelse(nextLabel(), muAll([cond3]), [], [ muThrow(muTmp(varname)) ]);
-	elsePart2 = muIfelse(nextLabel(), muAll([cond2]), [], [ elsePart3 ]);
-	catchBody = muIfelse(nextLabel(), muAll([cond1]), [], [ elsePart2 ]);
-	return muBlock([ muAssignTmp(isDefined, muCon(false)), 
-			  		 muTry(muBlock([ translate(argument), muAssignTmp(isDefined, muCon(true)) ]), 
+	elsePart3 = muIfelse(nextLabel(), muAll([cond3]), [ muCon(false) ], [ muThrow(muTmp(varname)) ]);
+	elsePart2 = muIfelse(nextLabel(), muAll([cond2]), [ muCon(false) ], [ elsePart3 ]);
+	catchBody = muIfelse(nextLabel(), muAll([cond1]), [ muCon(false) ], [ elsePart2 ]);
+	return muTry(muBlock([ translate(argument), muCon(true) ]), 
 			  		 				muCatch(varname, Symbol::\adt("RuntimeException",[]), catchBody), 
-			  		 				muBlock([])),
-			  		 muTmp(isDefined) ]);
+			  		 				muBlock([]));
 }
 
 // Not
@@ -426,7 +423,26 @@ MuExp translate(e:(Expression) `<Expression lhs> == <Expression rhs>`)  = compar
 MuExp translate(e:(Expression) `<Expression lhs> != <Expression rhs>`)  = comparison("notequal", e);
 
 // IfDefinedOtherwise
-MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`)  { throw("ifDefinedOtherwise"); }
+MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`)  { 
+	str varname = asTmp(nextLabel());
+	// Check if evaluation of the expression throws a 'NoSuchKey' or 'NoSuchAnnotation' exception;
+	// do this by checking equality of the value constructor names
+	cond1 = muCallMuPrim("equal", [ muCon("UninitializedVariable"),
+									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname)) ]), muInt(0) ] ) ]);
+	cond3 = muCallMuPrim("equal", [ muCon("NoSuchKey"),
+									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname)) ]), muInt(0) ] ) ]);
+	cond2 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"),
+									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname)) ]), muInt(0) ] ) ]);
+	muLHS = translate(lhs);
+	muRHS = translate(rhs);
+	elsePart3 = muIfelse(nextLabel(), muAll([cond3]), [ muRHS ], [ muThrow(muTmp(varname)) ]);
+	elsePart2 = muIfelse(nextLabel(), muAll([cond2]), [ muRHS ], [ elsePart3 ]);
+	catchBody = muIfelse(nextLabel(), muAll([cond1]), [ muRHS ], [ elsePart2 ]);
+	return muTry(muLHS, 
+			  	 muCatch(varname, Symbol::\adt("RuntimeException",[]), catchBody), 
+			  	 muBlock([]));
+	
+}
 
 // NoMatch
 MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`)  { throw("noMatch"); }

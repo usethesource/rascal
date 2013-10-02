@@ -433,7 +433,8 @@ void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str fromAsPar
 		
 }
 
-INS trMuFinally(MuExp \finally) = tr(\finally);
+// TODO: Re-think the way empty 'finally' blocks are translated
+INS trMuFinally(MuExp \finally) = (muBlock([]) := \finally) ? [ LOADCON(666), POP() ] : tr(\finally);
 
 void inlineMuFinally() {
 	
@@ -476,7 +477,7 @@ void inlineMuFinally() {
 	
 	finallyBlock = [ LABEL(finally_from) ];
 	for(int i <- [0..size(finallyStack)]) {
-		finallyBlock = [ *finallyBlock, *tr(finallyStack[i]), LABEL(finally_to + "_<i>") ];
+		finallyBlock = [ *finallyBlock, *trMuFinally(finallyStack[i]), LABEL(finally_to + "_<i>") ];
 		if(i < size(finallyStack) - 1) {
 			EEntry currentTry = topTry();
 			// Fill in the 'catch' block entry into the current exception table
