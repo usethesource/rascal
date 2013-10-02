@@ -1047,7 +1047,7 @@ public class RVM {
 						// EXCEPTION HANDLING
 						Thrown thrown = (Thrown) targetException.getTargetException();
 						thrown.stacktrace.add(cf);
-						sp = sp - arity + 1;
+						sp = sp - arity;
 						for(Frame f = cf; f != null; f = f.previousCallFrame) {
 							int handler = f.function.getHandler(pc - 1, thrown.value.getType());
 							if(handler != -1) {
