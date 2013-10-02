@@ -1,5 +1,9 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -10,6 +14,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RuntimeExceptions {
@@ -119,15 +124,77 @@ public class RuntimeExceptions {
 		return Thrown.getInstance(VF.constructor(IO, msg), loc, stacktrace);
 	}
 	
-//	private static Thrown javaException(String clazz, String message, IValue cause, ISourceLocation loc, List<Frame> stacktrace) {
-//		return Thrown.getInstance(VF.constructor(Java, VF.string(clazz), VF.string(message), cause), loc, stacktrace);
-//	}
-//
-//	private static Thrown javaException(String clazz, String message, ISourceLocation loc, List<Frame> stacktrace) {
-//		return Thrown.getInstance(VF.constructor(Java, VF.string(clazz), VF.string(message)), loc, stacktrace);
-//	}
+	private static Thrown javaException(String clazz, String message, IValue cause, ISourceLocation loc, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(Java, VF.string(clazz), VF.string(message), cause), loc, stacktrace);
+	}
 
-	// TODO: java exceptions
+	private static Thrown javaException(String clazz, String message, ISourceLocation loc, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(Java, VF.string(clazz), VF.string(message)), loc, stacktrace);
+	}
+	
+	public static Thrown javaException(Throwable targetException, ISourceLocation loc, List<Frame> stacktrace) throws ImplementationError {
+		try {
+			String clazz = targetException.getClass().getSimpleName();
+			String msg = targetException.getMessage();
+			List<Frame> trace = buildTrace(targetException, stacktrace);
+			Throwable cause = targetException.getCause();
+
+			if (cause != null && cause != targetException) {
+				Thrown throwCause = cause instanceof Thrown ? (Thrown) cause : javaException(cause, loc, trace);
+				return javaException(clazz, msg != null ? msg : "", throwCause.value, loc, trace);
+			}
+			else {
+				return javaException(clazz, msg != null ? msg : "", loc, trace);
+			}
+		} catch (IOException e) {
+			throw new ImplementationError("Could not create stack trace", e);
+		}
+	}
+
+	private static List<Frame> buildTrace(Throwable targetException, List<Frame> stacktrace) throws IOException {
+		StackTraceElement[] elements = targetException.getStackTrace();
+		List<Frame> trace = new ArrayList<Frame>();
+		for(StackTraceElement elem : elements) {
+			if(elem.getMethodName().equals("invoke")) {
+				break;
+			}
+			Function function = new Function(elem.getClassName() + "." + elem.getMethodName(), null, null, -1, -1, -1, null);
+			trace.add(new Frame(-1, null, -1, function));
+		}
+		trace.addAll(stacktrace);
+		return trace;
+	}
+	
+//    private static ISourceLocation robustSourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
+//    	if (path == null) {
+//    		path = "UNKNOWN_FILENAME";
+//    	}
+//    	if (!path.startsWith("/")) {
+//			path = "/" + path;
+//		}
+//    	URI uri = null;
+//		try {
+//			uri = new URI("file", "", path, null);
+//		} catch (URISyntaxException e) {
+//			// TODO Auto-generated catch block
+//		}
+//    	
+//    	if (offset < 0) 
+//    		offset = 0;
+//		if (length < 0) 
+//			length = 0;
+//		if (beginLine < 0) 
+//			beginLine = 0;
+//		if (beginCol < 0) 
+//			beginCol = 0;
+//		if (endCol < 0) 
+//			endCol = 0;
+//		if (endLine < beginLine) 
+//			endLine = beginLine;
+//		if (endLine == beginLine && endCol < beginCol) 
+//			endCol = beginCol;
+//		return VF.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
+//    }
 	
 	public static Thrown moduleNotFound(IString module, ISourceLocation loc, List<Frame> stacktrace) {
 		return Thrown.getInstance(VF.constructor(ModuleNotFound, module), loc, stacktrace);
