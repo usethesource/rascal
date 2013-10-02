@@ -362,7 +362,12 @@ MuExp translateAssignment(s: (Statement) `<Assignable assignable> <Assignment op
 MuExp applyAssignmentOperator(str operator, assignable, statement) {
     if(operator == "=")
     	return translate(statement);
-    op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator];  // missing ?=
+    if(operator == "?="){
+        oldval = getValues(assignable);
+        assert size(oldval) == 1;	
+        return generateIfDefinedOtherwise(oldval[0], translate(statement));
+    }
+    op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator]; 
     op2 = "<getOuterType(assignable)>_<op1>_<getOuterType(statement)>";
     oldval = getValues(assignable);
     assert size(oldval) == 1;
@@ -384,11 +389,11 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optF
 MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`) =
      assignTo(receiver, muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), translateOpt(optFirst), translate(second), translateOpt(optLast), rhs]));
 
-MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, MuExp rhs){
-    return assignTo(receiver, muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), muCon("<field>"), rhs]) );
-}
+MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, MuExp rhs) =
+     assignTo(receiver, muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), muCon("<field>"), rhs]) );
 
-// ifdefined
+MuExp assignTo(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, MuExp rhs) = 
+	assignTo(receiver,  rhs);
 
 MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, MuExp rhs) {
 	nelems = size_assignables(elements);
@@ -438,7 +443,8 @@ list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpressi
 list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) = 
     [ muCallPrim("<getOuterType(receiver)>_field_access", [ *getValues(receiver), muCon("<field>")]) ];
 
-// ifdefined
+list[MuExp] getValues(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = 
+     [ generateIfDefinedOtherwise(getValues(receiver)[0], translate(defaultExpression)) ];
 
 list[MuExp] getValues(a:(Assignable) `\<  <{Assignable ","}+ elements > \>` ) = [ *getValues(elm) | elm <- elements ];
 
@@ -454,7 +460,7 @@ Assignable getReceiver(a: (Assignable) `<Assignable receiver> [ <Expression subs
 Assignable getReceiver(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) = getReceiver(receiver);
 Assignable getReceiver(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`) = getReceivers(receiver);  
 Assignable getReceiver(a: (Assignable) `<Assignable receiver> . <Name field>`) = getReceiver(receiver); 
-Assignable getReceives(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = getReceiver(receiver); 
+Assignable getReceiver(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = getReceiver(receiver); 
 Assignable getReceiver(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`) = a;
 Assignable getReceiver(a: (Assignable) `\< <{Assignable ","}+ elements> \>`) =  a;
 Assignable getReceiver(a: (Assignable) `<Assignable receiver> @ <Name annotation>`) = getReceiver(receiver); 

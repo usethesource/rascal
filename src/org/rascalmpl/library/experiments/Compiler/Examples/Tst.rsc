@@ -1,5 +1,5 @@
 module experiments::Compiler::Examples::Tst
 
-int m ;
+syntax A = "a";
   
-value main(list[value] args) { return m + 1; }
+value main(list[value] args) { return [A] "a"; }

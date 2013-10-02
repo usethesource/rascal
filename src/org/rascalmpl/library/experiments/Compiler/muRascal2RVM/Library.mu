@@ -288,12 +288,23 @@ function MATCH_VAR[2, varref, ^subject]{
    return true;
 }
 
+function MATCH_ANONYMOUS_VAR[1, ^subject]{
+   return true;
+}
+
 function MATCH_TYPED_VAR[3, typ, varref, ^subject]{
    if(subtype(typeOf(^subject), typ)){
 //     if(is_defined(deref varref)){
 //         return equal(deref varref, ^subject);
 //      };
       deref varref = ^subject;
+      return true;
+   };
+   return false;  
+}
+
+function MATCH_TYPED_ANONYMOUS_VAR[2, typ, ^subject]{
+   if(subtype(typeOf(^subject), typ)){
       return true;
    };
    return false;  
@@ -447,6 +458,13 @@ function MATCH_VAR_IN_LIST[4, varref, ^subject, start, available]{
    return [true, start + 1];
 }
 
+function MATCH_ANONYMOUS_VAR_IN_LIST[3, ^subject, start, available]{
+   if(available <= 0){
+       return [false, start];
+   }; 
+   return [true, start + 1];
+}
+
 function MATCH_MULTIVAR_IN_LIST[4, varref, ^subject, start, available, len]{
 //   if(is_defined(deref varref)){
 //       if(starts_with(deref varref, ^subject, start)){
@@ -458,6 +476,16 @@ function MATCH_MULTIVAR_IN_LIST[4, varref, ^subject, start, available, len]{
     len = 0;
     while(len <= available){
         deref varref = sublist(^subject, start, len);
+        // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_mint_mint", start, len)]);
+        yield [true, start + len];
+        len = len + 1;
+     };
+     return [false, start];
+}
+
+function MATCH_ANONYMOUS_MULTIVAR_IN_LIST[3, ^subject, start, available, len]{
+    len = 0;
+    while(len <= available){
         // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_mint_mint", start, len)]);
         yield [true, start + len];
         len = len + 1;
@@ -478,6 +506,17 @@ function MATCH_TYPED_MULTIVAR_IN_LIST[5, typ, varref, ^subject, start, available
        while(len <= available){
           deref varref = sublist(^subject, start, len);
           // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_mint_mint", start, len)]);
+          yield [true, start + len];
+          len = len + 1;
+       };       
+    };
+    return [false, start];
+}
+
+function MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[4, typ, ^subject, start, available, len]{
+    if(equal(typ, typeOf(^subject))){
+       len = 0;
+       while(len <= available){
           yield [true, start + len];
           len = len + 1;
        };       
@@ -611,6 +650,18 @@ function MATCH_VAR_IN_SET[2, varref, ^available, gen, elm]{
     return [ false, ^available ];
 }
 
+function MATCH_ANONYMOUS_VAR_IN_SET[1, ^available, gen, elm]{
+   if(size_set(^available) == 0){
+       return [ false, ^available ];
+   };
+   gen = init(create(ENUM_SET, ^available));
+   while(hasNext(gen)){
+        elm = next(gen);
+        yield [ true, set_subtract_elm(^available, elm) ];
+   };
+   return [ false, ^available ];
+}
+
 function MATCH_MULTIVAR_IN_SET[2, varref, ^available, gen, ^subset]{
 //    if(is_defined(deref varref)){
 //         if(subset(deref varref, ^available)){
@@ -624,6 +675,15 @@ function MATCH_MULTIVAR_IN_SET[2, varref, ^available, gen, ^subset]{
 	        yield [ true, set_subtract_set(^available, ^subset) ];
 	    };
 //    };
+    return [ false, ^available ];
+}
+
+function MATCH_ANONYMOUS_MULTIVAR_IN_SET[1, ^available, gen, ^subset]{
+    gen = init(create(ENUM_SUBSETS, ^available));
+	while(hasNext(gen)){
+	      ^subset = next(gen);
+	      yield [ true, set_subtract_set(^available, ^subset) ];
+	};
     return [ false, ^available ];
 }
 
@@ -643,6 +703,19 @@ function MATCH_TYPED_MULTIVAR_IN_SET[3, typ, varref, ^available, gen, ^subset]{
 	          yield [ true, set_subtract_set(^available, ^subset) ];
 	       };
 //	   };
+    };
+    return [ false, ^available ];
+}
+
+function MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[2, typ, ^available, gen, ^subset]{
+    // println("MATCH_TYPED_MULTIVAR_IN_SET", typ, varref, ^available);
+    if(equal(typ, typeOf(^available))){
+	   gen = init(create(ENUM_SUBSETS, ^available));
+       while(hasNext(gen)){
+             ^subset = next(gen);
+	          yield [ true, set_subtract_set(^available, ^subset) ];
+	   };
+
     };
     return [ false, ^available ];
 }
