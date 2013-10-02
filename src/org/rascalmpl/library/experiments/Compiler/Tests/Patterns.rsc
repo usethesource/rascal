@@ -147,4 +147,14 @@ test bool tst() = run("/a\nb/ := \"a\nb\"") == (/a\nb/ := "a\nb");
 test bool tst() = run("/a.b/ := \"a\nb\"") == (/a.b/ := "a\nb");
 test bool tst() = run("/a.b/d := \"a\nb\"") == (/a.b/d := "a\nb");
 
+// NoMatch
+
+test bool tst() = run("1 !:= 1") == 1 !:= 1;
+test bool tst() = run("1 !:= 2") == 1 !:= 2;
+
+test bool tst() = run("int x !:= 2") == int x !:= 2;
+
+test bool tst() = run("[1, x*, 5] !:= [1,2,3,4,5]") == [1, x*, 5] !:= [1,2,3,4,5];
+test bool tst() = run("[1, x*, 5] !:= [1,2,3,4,6]") == [1, x*, 5] !:= [1,2,3,4,6];
+
 
