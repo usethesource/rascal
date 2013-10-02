@@ -130,7 +130,7 @@ public class BindingsResolver {
         return resolveInitializer((Initializer) node);
       }
 		}
-		return convertBinding("unknown", null, null, null);
+		return convertBinding("unknown", null, null, null, false);
 	}
 	
 	private URI resolveQualifiedName(QualifiedName node) {
@@ -138,7 +138,7 @@ public class BindingsResolver {
 		URI name = resolveBinding(node.getName());
 		
 		if (parent.getScheme().equals("java+array") && name.getScheme().equals("unresolved")) {
-      return convertBinding("java+field", resolveBinding(node.getQualifier()).getPath() + "/" + node.getName().getIdentifier(), null, null);
+      return convertBinding("java+field", resolveBinding(node.getQualifier()).getPath() + "/" + node.getName().getIdentifier(), null, null, node.getName().isDeclaration());
     }
 		
 		return name;
@@ -152,12 +152,12 @@ public class BindingsResolver {
     }
 		initializerCounter.put(parent, initCounter);
 		
-		return convertBinding("java+initializer", parent.getPath() + "$initializer" + initCounter, null, null);
+		return convertBinding("java+initializer", parent.getPath() + "$initializer" + initCounter, null, null, true);
 	}
 	
 	public URI resolveBinding(IBinding binding) {
 		if (binding == null) {
-      return convertBinding("unresolved", null, null, null);
+      return convertBinding("unresolved", null, null, null, false);
     }
 		if (binding instanceof ITypeBinding) {
       return resolveBinding((ITypeBinding) binding);
@@ -168,7 +168,7 @@ public class BindingsResolver {
     } else if (binding instanceof IVariableBinding) {
       return resolveBinding((IVariableBinding) binding);
     }
-		return convertBinding("unknown", null, null, null);
+		return convertBinding("unknown", null, null, null, false);
 	}
 	
 	public IConstructor resolveType(ISourceLocation uri, IBinding binding, boolean isDeclaration) {
@@ -378,7 +378,7 @@ public class BindingsResolver {
 
   private URI resolveBinding(IMethodBinding binding) {
 		if (binding == null) {
-      return convertBinding("unresolved", null, null, null);
+      return convertBinding("unresolved", null, null, null, false);
     }
 		String signature = resolveBinding(binding.getDeclaringClass()).getPath();
 		if (!signature.isEmpty()) {
@@ -406,19 +406,19 @@ public class BindingsResolver {
       scheme = "java+method";
     }
 		
-		return convertBinding(scheme, signature, null, null);
+		return convertBinding(scheme, signature, null, null, binding.getDeclaringClass().isFromSource());
 	}
 	
 	private URI resolveBinding(IPackageBinding binding) {
 		if (binding == null) {
-      return convertBinding("unresolved", null, null, null);
+      return convertBinding("unresolved", null, null, null, false);
     }
-		return convertBinding("java+package", binding.getName().replaceAll("\\.", "/"), null, null);
+		return convertBinding("java+package", binding.getName().replaceAll("\\.", "/"), null, null, true);
 	}
 	
 	private URI resolveBinding(ITypeBinding binding) {
 		if (binding == null) {
-			return convertBinding("unresolved", null, null, null);
+			return convertBinding("unresolved", null, null, null, false);
 		}
 		
 		String scheme = binding.isInterface() ? "java+interface" : "java+class";
@@ -449,7 +449,7 @@ public class BindingsResolver {
 		}
 		
 		if (binding.isWildcardType()) {
-			return convertBinding("unknown", null, null, null);
+			return convertBinding("unknown", null, null, null, false);
 		}
 		
 		if (binding.isLocal()) {
@@ -476,18 +476,20 @@ public class BindingsResolver {
 			scheme = "java+anonymousClass";
 		}
 		
-		return convertBinding(scheme, qualifiedName.replaceAll("\\.", "/"), null, null);
+		return convertBinding(scheme, qualifiedName.replaceAll("\\.", "/"), null, null, binding.isFromSource());
 	}
 	
 	private URI resolveBinding(IVariableBinding binding) {
 		if (binding == null) {
-      return convertBinding("unresolved", null, null, null);
+      return convertBinding("unresolved", null, null, null, false);
     }
 		String qualifiedName = "";
-
+		
 		ITypeBinding declaringClass = binding.getDeclaringClass();
+		boolean isFromSource = true;
 		if (declaringClass != null) {
 			qualifiedName = getPath(resolveBinding(declaringClass));
+			isFromSource = false;
 		} else {
 			IMethodBinding declaringMethod = binding.getDeclaringMethod();
 			if (declaringMethod != null) {
@@ -498,29 +500,31 @@ public class BindingsResolver {
 		if (!qualifiedName.isEmpty()) {
       qualifiedName = qualifiedName.concat("/");
     } else {
-      return convertBinding("unresolved", null, null, null);
+      return convertBinding("unresolved", null, null, null, false);
     }
 		
 		String scheme = "java+variable";
-		if (binding.isField()) {
-      scheme = "java+field";
+		if (binding.isEnumConstant()) {
+      scheme = "java+enumConstant";
     } else if (binding.isParameter()) {
       scheme = "java+parameter";
-    } else if (binding.isEnumConstant()) {
-      scheme = "java+enumconstant";
+    } else if (binding.isField()) {
+      scheme = "java+field";
     }
 		
-		return convertBinding(scheme, qualifiedName.concat(binding.getName()), null, null);
+		return convertBinding(scheme, qualifiedName.concat(binding.getName()), null, null, isFromSource);
 	}
 	
-	public URI convertBinding(String scheme, String path, String query, String fragment) {
+	public URI convertBinding(String scheme, String path, String query, String fragment, boolean isFromSource) {
 		URI binding = null;
 		if (path == null) {
       path = "";
     }
-		
+		String authority = "";
+		if (isFromSource)
+			authority = this.project;
 		try {
-		  binding = URIUtil.create(scheme, this.project, !(path.startsWith("/")) ? "/" + path : path, query, fragment);
+		  binding = URIUtil.create(scheme, authority, !(path.startsWith("/")) ? "/" + path : path, query, fragment);
 		} catch (URISyntaxException e) {
 		  throw new RuntimeException("can not convert binding, which should never happen", e);
 		}
