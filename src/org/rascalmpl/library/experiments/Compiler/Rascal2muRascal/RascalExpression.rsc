@@ -430,7 +430,7 @@ MuExp translate(e:(Expression) `<Expression lhs> != <Expression rhs>`)  = compar
 
 
 // NoMatch
-MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`)  { throw("noMatch"); }
+MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`)  = translateBool(e);
 
 // Match
 MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = translateBool(e);
@@ -497,6 +497,9 @@ MuExp translateBool((Expression) `! <Expression lhs>`) = translateBoolNot(lhs);
  
  MuExp translateBool((Expression) `<Pattern pat> := <Expression exp>`)  =
    muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]));
+   
+MuExp translateBool((Expression) `<Pattern pat> !:= <Expression exp>`) =
+    muCallMuPrim("not_mbool", [makeMuAll([muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]))]) ]);
 
 // All other expressions are translated as ordinary expression
 
