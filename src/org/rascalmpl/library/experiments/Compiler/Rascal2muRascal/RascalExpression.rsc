@@ -436,6 +436,17 @@ MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`)  = translat
 MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = translateBool(e);
 
 // Enumerate
+
+MuExp translate(e:(Expression) `<QualifiedName name> \<- <Expression exp>`) {
+    <fuid, pos> = getVariableScope("<name>", name@\loc);
+    return muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [muVarRef("<name>", fuid, pos), translate(exp)]));
+}
+
+MuExp translate(e:(Expression) `<Type tp> <Name name> \<- <Expression exp>`) {
+    <fuid, pos> = getVariableScope("<name>", name@\loc);
+    return muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN", 3), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
+}
+
 MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) =
     muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH", 2), [translatePat(pat), translate(exp)]));
 

@@ -187,10 +187,14 @@ test bool tst() = run("d1(3, \"a\") \>= d1(2, \"a\")") == d1(3, "a") >= d1(2, "a
 // Enumerator
 
 test bool tst() = run("x \<- []") == x <- [];
+test bool tst() = run("int x \<- []") == int x <- [];
 test bool tst() = run("x \<- [1,2,3]") == x <- [1,2,3];
+test bool tst() = run("int x \<- [1,2,3]") == int x <- [1,2,3];
 
 test bool tst() = run("res = []; for(x \<- [1,2,3]) res = res +[x];", "res") == {res = []; for(x <- [1,2,3]) res = res +[x]; res;};
+test bool tst() = run("res = []; for(int x \<- [1,2,3]) res = res +[x];", "res") == {res = []; for(int x <- [1,2,3]) res = res +[x]; res;};
 test bool tst() = run("res = []; for(x \<- [1,2,3], x != 2) res = res +[x];", "res") == {res = []; for(x <- [1,2,3], x != 2) res = res +[x]; res;};
+test bool tst() = run("res = []; for(int x \<- [1,2,3], x != 2) res = res +[x];", "res") == {res = []; for(int x <- [1,2,3], x != 2) res = res +[x]; res;};
 
 test bool tst() = run("res = []; for([int x, 5] \<- [[1,5], [2,5], [3, 5]], x != 2) res = res +[x];", "res") == {res = []; for([int x, 5] <- [[1,5], [2,5], [3, 5]], x != 2) res = res +[x]; res;};
 test bool tst() = run("res = []; for([int x, 5] \<- [[1,6], [2,5], [3, 5]], x != 2) res = res +[x];", "res") == {res = []; for([int x, 5] <- [[1,6], [2,5], [3, 5]], x != 2) res = res +[x]; res;};
@@ -199,12 +203,16 @@ test bool tst() = run("res = []; for(int x \<- \<1,2,3,4\>) res = res +[x];", "r
 // Any
 
 test bool tst() = run("any(x \<- [1,2,13,3], x \> 3)") == any(x <- [1,2,13,3], x > 3);
+test bool tst() = run("any(int x \<- [1,2,13,3], x \> 3)") == any(int x <- [1,2,13,3], x > 3);
 test bool tst() = run("any(x \<- [1,2,13,3], x \> 20)") == any(x <- [1,2,13,3], x > 20);
+test bool tst() = run("any(int x \<- [1,2,13,3], x \> 20)") == any(int x <- [1,2,13,3], x > 20);
 
 // All
 
 test bool tst() = run("all(x \<- [1,2,13,3], x \> 0)") == all(x <- [1,2,13,3], x > 0);
+test bool tst() = run("all(int x \<- [1,2,13,3], x \> 0)") == all(int x <- [1,2,13,3], x > 0);
 test bool tst() = run("all(x \<- [1,2,13,3], x \> 20)") == all(x <- [1,2,13,3], x > 20);
+test bool tst() = run("all(int x \<- [1,2,13,3], x \> 20)") == all(int x <- [1,2,13,3], x > 20);
 
 // Range
 
