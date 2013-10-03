@@ -211,6 +211,8 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(AnnotationTypeMemberDeclaration node) {
 		ownValue = scopeManager.pop();
+		IConstructor type = bindingsResolver.computeTypeSymbol(node.getType().resolveBinding(), true);
+	    insert(types, ownValue, type);
 	}
 	
 	public boolean visit(AnonymousClassDeclaration node) {

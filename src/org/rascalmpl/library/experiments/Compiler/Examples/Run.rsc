@@ -33,6 +33,8 @@ import experiments::Compiler::Examples::ExceptionHandlingFinally7;
 import experiments::Compiler::Examples::ExceptionHandlingFinally8;
 import experiments::Compiler::Examples::RascalRuntimeExceptions;
 import experiments::Compiler::Examples::IsDefined;
+import experiments::Compiler::Examples::UninitializedVariables;
+import experiments::Compiler::Examples::IfDefinedOtherwise;
 
 loc base = |std:///experiments/Compiler/Examples/|;
 
@@ -70,3 +72,5 @@ test bool tst() = demo("ExceptionHandlingFinally7") == experiments::Compiler::Ex
 test bool tst() = demo("ExceptionHandlingFinally8") == experiments::Compiler::Examples::ExceptionHandlingFinally8::main([]);
 test bool tst() = demo("RascalRuntimeExceptions") == experiments::Compiler::Examples::RascalRuntimeExceptions::main([]);
 test bool tst() = demo("IsDefined") == experiments::Compiler::Examples::IsDefined::main([]);
+test bool tst() = demo("UninitializedVariables") == experiments::Compiler::Examples::UninitializedVariables::expectedResult;
+test bool tst() = demo("IfDefinedOtherwise") == experiments::Compiler::Examples::IfDefinedOtherwise::expectedResult;

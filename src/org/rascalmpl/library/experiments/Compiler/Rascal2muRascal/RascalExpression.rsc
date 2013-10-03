@@ -110,6 +110,8 @@ MuExp translate((Literal) `<RegExpLiteral r>`) { throw "RexExpLiteral cannot occ
 
 MuExp translate((Literal) `<StringLiteral n>`) = translateStringLiteral(n);
 
+MuExp translate((Literal) `<LocationLiteral src>`) = translateLocationLiteral(src);
+
 default MuExp translate((Literal) `<Literal s>`) =  muCon(readTextValueString("<s>"));
 
 MuExp translate(e:(Expression)  `<Literal s>`) = translate(s);
@@ -169,7 +171,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    }
    
    if(getOuterType(expression) == "loc"){
-       return muCallPrim("loc_create", [receiver, *args]);
+       return muCallPrim("loc_with_offset_create", [receiver, *args]);
    }
    
    if(muFun(str _) := receiver || muFun(str _, str _) := receiver || muConstr(str _) := receiver) {
@@ -330,23 +332,28 @@ MuExp translate(e:(Expression) `<Expression argument> +`)   = postfix_rel_lrel("
 MuExp translate(e:(Expression) `<Expression argument> *`)   = postfix_rel_lrel("transitive_reflexive_closure", argument);
 
 // isDefined?
-MuExp translate(e:(Expression) `<Expression argument> ?`) {
-	str isDefined = asTmp(nextLabel());
-	str varname = asTmp(nextLabel());
+MuExp translate(e:(Expression) `<Expression argument> ?`)  = generateIfDefinedOtherwise(muBlock([ translate(argument), muCon(true) ]),  muCon(false));
+
+// IfDefinedOtherwise
+MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`)  = generateIfDefinedOtherwise(translate(lhs), translate(rhs));
+
+MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS) {
+
+    str varname = asTmp(nextLabel());
 	// Check if evaluation of the expression throws a 'NoSuchKey' or 'NoSuchAnnotation' exception;
 	// do this by checking equality of the value constructor names
-	cond1 = muCallMuPrim("equal", [ muCon("NoSuchKey"),
+	cond1 = muCallMuPrim("equal", [ muCon("UninitializedVariable"),
+									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname)) ]), muInt(0) ] ) ]);
+	cond3 = muCallMuPrim("equal", [ muCon("NoSuchKey"),
 									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname)) ]), muInt(0) ] ) ]);
 	cond2 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"),
 									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname)) ]), muInt(0) ] ) ]);
 	
-	elsePart  = muIfelse(nextLabel(), muAll([cond2]), [], [ muThrow(muTmp(varname)) ]);
-	catchBody = muIfelse(nextLabel(), muAll([cond1]), [], [ elsePart ]);
-	return muBlock([ muAssignTmp(isDefined, muCon(false)), 
-			  		 muTry(muBlock([ translate(argument), muAssignTmp(isDefined, muCon(true)) ]), 
-			  		 				muCatch(varname, Symbol::\adt("RuntimeException",[]), catchBody), 
-			  		 				muBlock([])),
-			  		 muTmp(isDefined) ]);
+	elsePart3 = muIfelse(nextLabel(), muAll([cond3]), [ muRHS ], [ muThrow(muTmp(varname)) ]);
+	elsePart2 = muIfelse(nextLabel(), muAll([cond2]), [ muRHS ], [ elsePart3 ]);
+	catchBody = muIfelse(nextLabel(), muAll([cond1]), [ muRHS ], [ elsePart2 ]);
+	return muTry(muLHS, muCatch(varname, Symbol::\adt("RuntimeException",[]), catchBody), 
+			  		 	muBlock([]));
 }
 
 // Not
@@ -420,16 +427,26 @@ MuExp translate(e:(Expression) `<Expression lhs> == <Expression rhs>`)  = compar
 // NotEqual
 MuExp translate(e:(Expression) `<Expression lhs> != <Expression rhs>`)  = comparison("notequal", e);
 
-// IfDefinedOtherwise
-MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`)  { throw("ifDefinedOtherwise"); }
+
 
 // NoMatch
-MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`)  { throw("noMatch"); }
+MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`)  = translateBool(e);
 
 // Match
 MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = translateBool(e);
 
 // Enumerate
+
+MuExp translate(e:(Expression) `<QualifiedName name> \<- <Expression exp>`) {
+    <fuid, pos> = getVariableScope("<name>", name@\loc);
+    return muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [muVarRef("<name>", fuid, pos), translate(exp)]));
+}
+
+MuExp translate(e:(Expression) `<Type tp> <Name name> \<- <Expression exp>`) {
+    <fuid, pos> = getVariableScope("<name>", name@\loc);
+    return muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN", 3), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
+}
+
 MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) =
     muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH", 2), [translatePat(pat), translate(exp)]));
 
@@ -491,6 +508,9 @@ MuExp translateBool((Expression) `! <Expression lhs>`) = translateBoolNot(lhs);
  
  MuExp translateBool((Expression) `<Pattern pat> := <Expression exp>`)  =
    muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]));
+   
+MuExp translateBool((Expression) `<Pattern pat> !:= <Expression exp>`) =
+    muCallMuPrim("not_mbool", [makeMuAll([muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]))]) ]);
 
 // All other expressions are translated as ordinary expression
 
@@ -544,6 +564,7 @@ syntax StringLiteral
 	
 lexical PreStringChars
 	= [\"] StringCharacter* [\<] ;
+	
 lexical MidStringChars
 	=  [\>] StringCharacter* [\<] ;
 	
@@ -645,6 +666,81 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
                    ]);
  }
  
+ // Translate location templates
+ 
+ /*
+ syntax LocationLiteral
+	= \default: ProtocolPart protocolPart PathPart pathPart ;
+ */
+ 
+ MuExp translateLocationLiteral((LocationLiteral) `<ProtocolPart protocolPart> <PathPart pathPart>`) =
+     muCallPrim("loc_create", [muCallPrim("str_add_str", [translateProtocolPart(protocolPart), translatePathPart(pathPart)])]);
+ 
+ /*
+ syntax ProtocolPart
+	= nonInterpolated: ProtocolChars protocolChars 
+	| interpolated: PreProtocolChars pre Expression expression ProtocolTail tail ;
+	
+lexical PreProtocolChars
+	= "|" URLChars "\<" ;
+	
+ lexical MidProtocolChars
+	= "\>" URLChars "\<" ;
+	
+lexical ProtocolChars
+	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000];
+
+syntax ProtocolTail
+	= mid: MidProtocolChars mid Expression expression ProtocolTail tail 
+	| post: PostProtocolChars post ;
+
+lexical PostProtocolChars
+	= "\>" URLChars "://" ;	
+*/
+
+ MuExp translateProtocolPart((ProtocolPart) `<ProtocolChars protocolChars>`) = muCon("<protocolChars>"[1..]);
+ 
+ MuExp translateProtocolPart((ProtocolPart) `<PreProtocolChars pre> <Expression expression> <ProtocolTail tail>`) =
+    muCallPrim("str_add_str", [muCon("<pre>"[1..-1]), translate(expression), translateProtocolTail(tail)]);
+ 
+ // ProtocolTail
+ MuExp  translateProtocolTail((ProtocolTail) `<MidProtocolChars mid> <Expression expression> <ProtocolTail tail>`) =
+   muCallPrim("str_add_str", [muCon("<mid>"[1..-1]), translate(expression), translateProtocolTail(tail)]);
+   
+MuExp translateProtocolTail((ProtocolTail) `<PostProtocolChars post>`) = muCon("<post>"[1 ..]);
+
+/*
+syntax PathPart
+	= nonInterpolated: PathChars pathChars 
+	| interpolated: PrePathChars pre Expression expression PathTail tail ;
+
+lexical PathChars
+	= URLChars [|] ;
+		
+ syntax PathTail
+	= mid: MidPathChars mid Expression expression PathTail tail 
+	| post: PostPathChars post ;
+
+lexical PrePathChars
+	= URLChars "\<" ;
+
+lexical MidPathChars
+	= "\>" URLChars "\<" ;
+	
+lexical PostPathChars
+	=  "\>" URLChars "|" ;
+*/
+
+MuExp translatePathPart((PathPart) `<PathChars pathChars>`) = muCon("<pathChars>"[..-1]);
+MuExp translatePathPart((PathPart) `<PrePathChars pre> <Expression expression> <PathTail tail>`) =
+   muCallPrim("str_add_str", [ muCon("<pre>"[..-1]), translate(expression), translatePathTail(tail)]);
+
+// PathTail
+MuExp translatePathTail((PathTail) `<MidPathChars mid> <Expression expression> <PathTail tail>`) =
+   muCallPrim("str_add_str", [ muCon("<mid>"[1..-1]), translate(expression), translatePathTail(tail)]);
+   
+MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-1]);
+
  
 // Translate a closure   
  
