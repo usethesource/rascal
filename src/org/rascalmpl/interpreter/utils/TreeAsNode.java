@@ -20,7 +20,7 @@ public class TreeAsNode implements INode {
 
   public TreeAsNode(IConstructor tree) {
     this.name = TreeAdapter.getConstructorName(tree);
-    this.args = TreeAdapter.getASTArgs(tree);
+    this.args = TreeAdapter.isContextFree(tree) ? TreeAdapter.getASTArgs(tree) : TreeAdapter.getArgs(tree);
   }
   
   @Override
