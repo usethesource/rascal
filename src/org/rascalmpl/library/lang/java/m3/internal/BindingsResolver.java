@@ -502,12 +502,12 @@ public class BindingsResolver {
     }
 		
 		String scheme = "java+variable";
-		if (binding.isField()) {
-      scheme = "java+field";
+		if (binding.isEnumConstant()) {
+      scheme = "java+enumConstant";
     } else if (binding.isParameter()) {
       scheme = "java+parameter";
-    } else if (binding.isEnumConstant()) {
-      scheme = "java+enumconstant";
+    } else if (binding.isField()) {
+      scheme = "java+field";
     }
 		
 		return convertBinding(scheme, qualifiedName.concat(binding.getName()), null, null);

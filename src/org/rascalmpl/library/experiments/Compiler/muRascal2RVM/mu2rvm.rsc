@@ -164,8 +164,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   
   funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   									[*tr(initializations), 
-  									 //LOADLOC(0), 
-  									 //CALL(main_fun,1), // No overloading of main
+  									 LOADCON(true),
   									 RETURN1(),
   									 HALT()
   									],
@@ -434,7 +433,8 @@ void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str fromAsPar
 		
 }
 
-INS trMuFinally(MuExp \finally) = tr(\finally);
+// TODO: Re-think the way empty 'finally' blocks are translated
+INS trMuFinally(MuExp \finally) = (muBlock([]) := \finally) ? [ LOADCON(666), POP() ] : tr(\finally);
 
 void inlineMuFinally() {
 	
@@ -477,7 +477,7 @@ void inlineMuFinally() {
 	
 	finallyBlock = [ LABEL(finally_from) ];
 	for(int i <- [0..size(finallyStack)]) {
-		finallyBlock = [ *finallyBlock, *tr(finallyStack[i]), LABEL(finally_to + "_<i>") ];
+		finallyBlock = [ *finallyBlock, *trMuFinally(finallyStack[i]), LABEL(finally_to + "_<i>") ];
 		if(i < size(finallyStack) - 1) {
 			EEntry currentTry = topTry();
 			// Fill in the 'catch' block entry into the current exception table

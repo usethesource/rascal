@@ -22,6 +22,13 @@ test bool tst() = run("{ \<x, y\> = \<1,2\>;  x + y; }") == { <x, y> = <1,2>;  x
 test bool tst() = run("{ z = \<1,2\>; \<x, y\> = z;  x + y; }") == { z = <1,2>; <x, y> = z;  x + y; };
 
 test bool tst() = run("{x = [1,2,3]; z = \<10,20\>; \<x[2], y\> = z; x[2] + y; }") == {x = [1,2,3]; z = <10,20>; <x[2], y> = z;  x[2] + y; };
+                       
+test bool tst() = run("{M = (1:10); M[1] ? 0 += 100; M;}") == {M = (1:10); M[1] ? 0 += 100; M;};
+test bool tst() = run("{M = (1:10); M[2] ? 0 += 100; M;}") == {M = (1:10); M[2] ? 0 += 100; M;};
+
+test bool tst() = run("{M = (1:10); M[1] ?= 100; M;}") == {M = (1:10); M[1] ?= 100; M;};
+test bool tst() = run("{M = (1:10); M[2] ?= 100; M;}") == {M = (1:10); M[2] ?= 100; M;};
+
 
 
 // Following tests succeed when executed separately, but fail when executed as part of AllTests,
@@ -80,5 +87,8 @@ test bool tst() = run("{ int n = 0; switch([1,2,3,4,5,6]) { case [*int x, *int y
 // Solve
 
 test bool tst() = run("{rel[int,int] R = {\<1,2\>, \<2,3\>, \<3,4\>}; T = R; solve (T) { T = T + (T o R);}}") ==
-                       {rel[int,int] R = {<1,2>, <2,3>, <3,4>}; T = R; solve (T) { T = T + (T o R);} };                                 
+                       {rel[int,int] R = {<1,2>, <2,3>, <3,4>}; T = R; solve (T) { T = T + (T o R);} };       
+                       
+
+                   
                                                                   
