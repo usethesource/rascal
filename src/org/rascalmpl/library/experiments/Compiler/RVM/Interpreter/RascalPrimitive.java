@@ -36,6 +36,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -662,11 +663,11 @@ public enum RascalPrimitive {
 	public static int assertreport(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		boolean succeeded = (stack[sp - 3] instanceof Boolean) ? (Boolean) stack[sp - 3] : ((IBool) stack[sp - 3]).getValue();
-		String message = ((IString) stack[sp - 2]).getValue();
-		message = message.isEmpty() ? "" : ": " + message;
+		IString message = (IString) stack[sp - 2];
 		ISourceLocation src = ((ISourceLocation) stack[sp - 1]);
 		if(!succeeded){
 			stdout.println("Assertion failed" + message + " at " + src);
+			throw RuntimeExceptions.assertionFailed(message, src,  new ArrayList<Frame>());
 		}
 		return sp - 2;
 	}
@@ -1088,86 +1089,151 @@ public enum RascalPrimitive {
 	// int
 	public static int int_divide_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
+
 	}
 	public static int int_divide_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int int_divide_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IRational) stack[sp - 1]);
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IRational) stack[sp - 1]);
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int int_divide_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
+		try {
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	// num
 	public static int num_divide_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int num_divide_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((INumber) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int num_divide_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int num_divide_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	// rat
 	public static int rat_divide_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int rat_divide_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IRational) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int rat_divide_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IRational) stack[sp - 1]);
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IRational) stack[sp - 1]);
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int rat_divide_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	// real
 	public static int real_divide_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IReal) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int real_divide_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int real_divide_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int real_divide_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 
 	/*
@@ -1525,8 +1591,12 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		IValue val = (IValue) stack[sp - 2];
 		String label = ((IString) stack[sp - 1]).getValue();
-		stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
-		return sp - 1;
+		try {
+			stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
+			return sp - 1;
+		} catch (FactTypeUseException e) {
+			throw RuntimeExceptions.noSuchAnnotation(label, null, new ArrayList<Frame>());
+		}
 	}
 	
 	public static int annotation_set(Object[] stack, int sp, int arity) {
