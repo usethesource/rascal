@@ -8,6 +8,7 @@ import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
+import experiments::Compiler::Rascal2muRascal::RascalType;
 
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
@@ -236,8 +237,20 @@ MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
   if(c is binding) {
       ifname = nextLabel();
       enterBacktrackingScope(ifname);
-      conds = [ muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(c.pattern), muTmp(asUnwrapedThrown(varname))])) ];
-      exp = muIfelse(ifname, muAll(conds), [translate(c.body)], [translateCatches(varname, tail(catches), hasDefault)]);
+      list[MuExp] conds = [];
+      list[MuExp] then = [];
+      if(c.pattern is literal) {
+          conds = [ muCallMuPrim("equal", [ muTmp(asUnwrapedThrown(varname)), translate(c.pattern.literal) ]) ];
+          then = [ translate(c.body) ];
+      } else if(c.pattern is typedVariable) {
+          conds = [ muCallMuPrim("check_arg_type", [ muTmp(asUnwrapedThrown(varname)), muTypeCon(translateType(c.pattern.\type)) ]) ];
+          <fuid,pos> = getVariableScope("<c.pattern.name>", c.pattern.name@\loc);
+          then = [ muAssign("<c.pattern.name>", fuid, pos, muTmp(asUnwrapedThrown(varname))), translate(c.body) ];
+      } else {
+          conds = [ muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(c.pattern), muTmp(asUnwrapedThrown(varname))])) ];
+          then = [ translate(c.body) ];
+      }
+      exp = muIfelse(ifname, muAll(conds), then, [translateCatches(varname, tail(catches), hasDefault)]);
       leaveBacktrackingScope();
       return exp;
   }
