@@ -238,7 +238,7 @@ Total time: compiled: 63307; interpreted: 341472; saved: 81.461%
 
 =======================================================
 
-Specialized functions ENUMERATE_AND_ASSIGN, ENUMERATE_CHECK_AND_ASSIGN
+Specialized functions ENUMERATE_AND_ASSIGN, ENUMERATE_CHECK _AND_ASSIGN
 
 Summary of Measurements $2013-10-02T22:39:33.800+01:00$:
 
@@ -287,3 +287,82 @@ Maximal speedup: 103.42
 Total time: compiled: 62753; interpreted: 329381; saved: 80.948%
 
 =======================================================
+
+Set matching uses HashSet.
+
+Summary of Measurements $2013-10-04T13:38:12.872+01:00$:
+
+            BBottles: compiled: (compilation   204. msec, execution 15337. msec); interpreted: 67215. msec; speedup: 4.3825 x; saved: 76.879 %
+         BExceptions: compiled: (compilation    66. msec, execution   268. msec); interpreted:  1758. msec; speedup: 6.5597 x; saved: 81.001 %
+  BExceptionsFinally: compiled: (compilation    27. msec, execution    42. msec); interpreted:  1550. msec; speedup: 36.905 x; saved: 95.548 %
+                BFac: compiled: (compilation    37. msec, execution   324. msec); interpreted:  2046. msec; speedup: 6.3148 x; saved: 82.356 %
+                BFib: compiled: (compilation    70. msec, execution  2144. msec); interpreted: 1.9787E+5 msec; speedup: 92.292 x; saved: 98.881 %
+                BFor: compiled: (compilation   101. msec, execution  2177. msec); interpreted: 44689. msec; speedup: 20.528 x; saved: 94.903 %
+            BForCond: compiled: (compilation    94. msec, execution  2346. msec); interpreted: 47008. msec; speedup: 20.038 x; saved: 94.809 %
+         BListMatch1: compiled: (compilation   139. msec, execution  5056. msec); interpreted: 13233. msec; speedup: 2.6173 x; saved: 60.742 %
+         BListMatch2: compiled: (compilation    21. msec, execution   320. msec); interpreted:   629. msec; speedup: 1.9656 x; saved: 45.787 %
+           BReverse1: compiled: (compilation    61. msec, execution  3528. msec); interpreted: 27716. msec; speedup: 7.8560 x; saved: 87.051 %
+      BSendMoreMoney: compiled: (compilation    98. msec, execution 14438. msec); interpreted: 1.3514E+5 msec; speedup: 9.3601 x; saved: 89.244 %
+               BSet1: compiled: (compilation    90. msec, execution  1002. msec); interpreted: 23438. msec; speedup: 23.391 x; saved: 95.341 %
+          BSetMatch1: compiled: (compilation    79. msec, execution 16269. msec); interpreted:   150. msec; speedup: 0.0092200 x; saved: -10799. %
+          BSetMatch2: compiled: (compilation    35. msec, execution   272. msec); interpreted:  3316. msec; speedup: 12.191 x; saved: 90.742 %
+           BTemplate: compiled: (compilation    49. msec, execution  1252. msec); interpreted:  8763. msec; speedup: 6.9992 x; saved: 85.153 %
+              BWhile: compiled: (compilation    28. msec, execution   363. msec); interpreted: 44514. msec; speedup: 122.63 x; saved: 99.122 %
+Average speedup: 23.377
+Minimal speedup: 0.0092200
+Maximal speedup: 122.63
+Total time: compiled: 66337; interpreted: 619039; saved: 89.284%
+
+Summary of Measurements $2013-10-04T13:53:07.749+01:00$:
+
+            BBottles: compiled: (compilation    88. msec, execution 14280. msec); interpreted: 70958. msec; speedup: 4.9690 x; saved: 79.751 %
+         BExceptions: compiled: (compilation   100. msec, execution    38. msec); interpreted:  1591. msec; speedup: 41.868 x; saved: 91.326 %
+  BExceptionsFinally: compiled: (compilation    22. msec, execution    16. msec); interpreted:  1618. msec; speedup: 101.13 x; saved: 97.651 %
+                BFac: compiled: (compilation    21. msec, execution    22. msec); interpreted:  1875. msec; speedup: 85.227 x; saved: 97.707 %
+                BFib: compiled: (compilation    60. msec, execution  2034. msec); interpreted: 1.9953E+5 msec; speedup: 98.095 x; saved: 98.951 %
+                BFor: compiled: (compilation    70. msec, execution  2121. msec); interpreted: 44684. msec; speedup: 21.067 x; saved: 95.097 %
+            BForCond: compiled: (compilation   119. msec, execution  2673. msec); interpreted: 46885. msec; speedup: 17.540 x; saved: 94.045 %
+         BListMatch1: compiled: (compilation    59. msec, execution  5017. msec); interpreted: 12901. msec; speedup: 2.5715 x; saved: 60.654 %
+         BListMatch2: compiled: (compilation    22. msec, execution   332. msec); interpreted:   617. msec; speedup: 1.8584 x; saved: 42.626 %
+           BReverse1: compiled: (compilation    65. msec, execution  3712. msec); interpreted: 27389. msec; speedup: 7.3785 x; saved: 86.210 %
+      BSendMoreMoney: compiled: (compilation    66. msec, execution 14909. msec); interpreted: 1.3422E+5 msec; speedup: 9.0028 x; saved: 88.843 %
+               BSet1: compiled: (compilation    73. msec, execution   770. msec); interpreted: 23723. msec; speedup: 30.809 x; saved: 96.446 %
+          BSetMatch1: compiled: (compilation    77. msec, execution 15916. msec); interpreted:   185. msec; speedup: 0.011624 x; saved: -8544.9 %
+          BSetMatch2: compiled: (compilation    20. msec, execution   184. msec); interpreted:  2894. msec; speedup: 15.728 x; saved: 92.951 %
+           BTemplate: compiled: (compilation 44014. msec, execution  2376. msec); interpreted: 16143. msec; speedup: 6.7942 x; saved: -187.37 %
+              BWhile: compiled: (compilation    28. msec, execution   418. msec); interpreted: 45188. msec; speedup: 108.11 x; saved: 99.013 %
+Average speedup: 34.509
+Minimal speedup: 0.011624
+Maximal speedup: 108.11
+Total time: compiled: 109722; interpreted: 630398; saved: 82.595%
+
+
+=======================================================
+
+Special casing in set matching for literals + single (multi)-variable or splice
+
+Summary of Measurements $2013-10-04T23:25:44.245+01:00$:
+
+            BBottles: compiled: (compilation    22. msec, execution 13251. msec); interpreted: 16475. msec; speedup: 1.2433 x; saved: 19.436 %
+         BExceptions: compiled: (compilation    18. msec, execution    38. msec); interpreted:   759. msec; speedup: 19.974 x; saved: 92.622 %
+  BExceptionsFinally: compiled: (compilation    45. msec, execution    51. msec); interpreted:  1059. msec; speedup: 20.765 x; saved: 90.935 %
+                BFac: compiled: (compilation    20. msec, execution    28. msec); interpreted:   784. msec; speedup:    28. x; saved: 93.878 %
+                BFib: compiled: (compilation    22. msec, execution  2212. msec); interpreted: 55967. msec; speedup: 25.302 x; saved: 96.008 %
+                BFor: compiled: (compilation    28. msec, execution  2243. msec); interpreted: 37680. msec; speedup: 16.799 x; saved: 93.973 %
+            BForCond: compiled: (compilation    18. msec, execution  2200. msec); interpreted: 40064. msec; speedup: 18.211 x; saved: 94.464 %
+         BListMatch1: compiled: (compilation    26. msec, execution  4649. msec); interpreted: 10693. msec; speedup: 2.3001 x; saved: 56.280 %
+         BListMatch2: compiled: (compilation    17. msec, execution   283. msec); interpreted:   631. msec; speedup: 2.2297 x; saved: 52.456 %
+           BReverse1: compiled: (compilation    19. msec, execution  3425. msec); interpreted: 10221. msec; speedup: 2.9842 x; saved: 66.305 %
+      BSendMoreMoney: compiled: (compilation    18. msec, execution 13149. msec); interpreted: 1.1641E+5 msec; speedup: 8.8528 x; saved: 88.689 %
+               BSet1: compiled: (compilation    18. msec, execution   763. msec); interpreted: 20532. msec; speedup: 26.910 x; saved: 96.196 %
+          BSetMatch1: compiled: (compilation    20. msec, execution     6. msec); interpreted:   187. msec; speedup: 31.167 x; saved: 86.096 %
+          BSetMatch2: compiled: (compilation    20. msec, execution   267. msec); interpreted:  2596. msec; speedup: 9.7228 x; saved: 88.945 %
+           BTemplate: compiled: (compilation    19. msec, execution   635. msec); interpreted:  6172. msec; speedup: 9.7197 x; saved: 89.404 %
+              BWhile: compiled: (compilation    17. msec, execution   340. msec); interpreted: 35944. msec; speedup: 105.72 x; saved: 99.007 %
+Average speedup: 20.619
+Minimal speedup: 1.2433
+Maximal speedup: 105.72
+Total time: compiled: 43887; interpreted: 356169; saved: 87.678%
+
+=======================================================
+

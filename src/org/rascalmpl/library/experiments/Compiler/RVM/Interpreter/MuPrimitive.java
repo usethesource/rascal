@@ -2,6 +2,8 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.BitSet;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,6 +16,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -60,8 +63,16 @@ public enum MuPrimitive {
 	less_mint_mint,
 	make_array,
 	make_array_of_size,
+	make_mset,
 	mint,
 	modulo_mint_mint,
+	mset,
+	mset_copy,
+	mset2list,
+	mset_add_elm,
+	mset_subtract_mset,
+	mset_subtract_set,
+	mset_subtract_elm,
 	not_equal_mint_mint,
 	not_mbool,
 	or_mbool_mbool,
@@ -71,10 +82,12 @@ public enum MuPrimitive {
 	regexp_compile,
 	regexp_find,
 	regexp_group,
+	set,
 	set2list,
 	size_array,
 	size_list,
 	size_set,
+	size_mset,
 	size_map,
 	size_tuple,
 	starts_with,
@@ -522,6 +535,17 @@ public enum MuPrimitive {
 		stack[sp - 1] = writer.done();
 		return sp;
 	}
+	
+	public static int mset2list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		HashSet<IValue> mset =(HashSet<IValue>) stack[sp - 1];
+		IListWriter writer = vf.listWriter();
+		for(IValue elem : mset){
+			writer.append(elem);
+		}
+		stack[sp - 1] = writer.done();
+		return sp;
+	}
 		
 	public static int size_array(Object[] stack, int sp, int arity) {
 		assert arity == 1;
@@ -538,6 +562,12 @@ public enum MuPrimitive {
 	public static int size_set(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((ISet) stack[sp - 1]).size();
+		return sp;
+	}
+	
+	public static int size_mset(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((HashSet<?>) stack[sp - 1]).size();
 		return sp;
 	}
 	
@@ -628,6 +658,81 @@ public enum MuPrimitive {
 			writer.append(map.get(key));
 		}
 		stack[sp - 1] = writer.done();
+		return sp;
+	}
+	
+	public static int mset(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		ISet set =  ((ISet) stack[sp - 1]);
+		HashSet<IValue> mset = new HashSet<IValue>();
+		for(IValue v : set){
+			mset.add(v);
+		}
+		stack[sp - 1] = mset;
+		return sp;
+	}
+	
+	public static int mset_subtract_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+		ISet set =  ((ISet) stack[sp - 1]);
+		for(IValue v : set){
+			mset.remove(v);
+		}
+		stack[sp - 2] = mset;
+		return sp - 1;
+	}
+	
+	public static int mset_subtract_mset(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		HashSet<IValue> lhs =(HashSet<IValue>) stack[sp - 2];
+		HashSet<IValue> rhs =(HashSet<IValue>) stack[sp - 1];
+	
+		lhs.removeAll(rhs);
+		stack[sp - 2] = lhs;
+		return sp - 1;
+	}
+	
+	public static int mset_subtract_elm(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		HashSet<IValue> mset =(HashSet<IValue>) stack[sp - 2];
+		IValue elm =  ((IValue) stack[sp - 1]);
+		mset.remove(elm);
+		stack[sp - 2] = mset;
+		return sp - 1;
+	}
+	
+	public static int mset_add_elm(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		HashSet<IValue> mset =(HashSet<IValue>) stack[sp - 2];
+		IValue elm =  ((IValue) stack[sp - 1]);
+		mset.add(elm);
+		stack[sp - 2] = mset;
+		return sp - 1;
+	}
+	
+	public static int set(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		HashSet<IValue> mset =(HashSet<IValue>) stack[sp - 1];
+		ISetWriter w = vf.setWriter();
+		for(IValue v : mset){
+			w.insert(v);
+		}
+		stack[sp - 1] = w.done();
+		return sp;
+	}
+	
+	public static int make_mset(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		HashSet<IValue> mset = new HashSet<IValue>();
+		stack[sp] = mset;
+		return sp + 1;
+	}
+	
+	public static int mset_copy(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		HashSet<IValue> mset =(HashSet<IValue>) stack[sp - 1];
+		stack[sp] = mset.clone();
 		return sp;
 	}
 	
