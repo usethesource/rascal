@@ -3164,7 +3164,7 @@ public class Prelude {
 		
 		InputStream in = null;
 		try{
-			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
+			in = new BufferedInputStream(ctx.getResolverRegistry().getInputStream(loc.getURI()));
 			return new BinaryValueReader().read(values, store, start, in);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -3190,7 +3190,7 @@ public class Prelude {
 		
 		InputStream in = null;
 		try{
-			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
+			in = new BufferedInputStream(ctx.getResolverRegistry().getInputStream(loc.getURI()));
 			return new StandardTextReader().read(values, store, start, new InputStreamReader(in, "UTF8"));
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
