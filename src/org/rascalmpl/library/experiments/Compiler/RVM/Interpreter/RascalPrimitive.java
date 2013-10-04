@@ -487,6 +487,8 @@ public enum RascalPrimitive {
 	// set
 	
 	set_create,
+	set2elm,
+	set_size,
 	
 	setwriter_add,
 	setwriter_close,
@@ -3081,6 +3083,23 @@ public enum RascalPrimitive {
 
 		return sp;
 	}
+	
+	public static int set2elm(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		ISet set = (ISet) stack[sp - 1];
+		if(set.size() != 1)
+			throw new RuntimeException("set2elm: set should have a single element");
+		IValue elm = set.iterator().next();
+		stack[sp - 1] = elm;
+		return sp;
+	}
+	
+	public static int set_size(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		ISet set = (ISet) stack[sp - 1];		
+		stack[sp - 1] = vf.integer(set.size());
+		return sp;
+	}
 
 	public static int tuple_create(Object[] stack, int sp, int arity) {
 		assert arity >= 0;
@@ -4032,7 +4051,19 @@ public enum RascalPrimitive {
 	
 	public static int typeOf(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+		if(stack[sp - 1] instanceof HashSet<?>){	// For the benefit of set matching
+													// Move to muPrimitives?
+			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+			if(mset.isEmpty()){
+				stack[sp - 1] = tf.setType(tf.voidType());
+			} else {
+				IValue v = mset.iterator().next();
+				stack[sp - 1] =tf.setType(v.getType());
+			}
+			
+		} else {
+			stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+		}
 		return sp;
 	}
 	
