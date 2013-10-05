@@ -399,6 +399,10 @@ public class Execute {
 				codeblock.UNWRAPTHROWN(getIntField(instruction, "pos"));
 				break;
 				
+			case "FILTERRETURN":
+				codeblock.FILTERRETURN();
+				break;
+				
 			default:
 				throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
 			}

@@ -70,6 +70,7 @@ private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \defa
 (1 | max(it, estimate(cs.exp)) | cs <- cases);
        
 private int estimate(muFailReturn()) = 0;
+private int estimate(muFilterReturn()) = 0;
 
 private int estimate(muCreate(muFun(str fuid))) = 1;
 private int estimate(muCreate(MuExp fun)) = estimate(fun);

@@ -67,6 +67,7 @@ data Instruction =
 		| RETURN0()									// Return from function without value
 		| RETURN1()									// Return from function with value
 		| FAILRETURN()								// Failure return from function
+		| FILTERRETURN()							// Return for filter statement
 		
 		| THROW()                                   // Throws a value
 		

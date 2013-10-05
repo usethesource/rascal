@@ -303,6 +303,8 @@ INS tr(muReturn(MuExp exp)) {
 }
 INS tr(muFailReturn()) = [ FAILRETURN() ];
 
+INS tr(muFilterReturn()) = [ FILTERRETURN() ];
+
 // Coroutines
 
 INS tr(muCreate(muFun(str fuid))) = [CREATE(fuid, 0)];
