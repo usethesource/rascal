@@ -57,6 +57,8 @@ test bool tst() = run("$2013-01-01T08:15:30.055+0100$.second") == $2013-01-01T08
 test bool tst() = run("$2013-01-01T08:15:30.055+0100$.millisecond") == $2013-01-01T08:15:30.055+0100$.millisecond;
 test bool tst() = run("$2013-01-01T08:15:30.055+0100$.timezoneOffsetHours") == $2013-01-01T08:15:30.055+0100$.timezoneOffsetHours;
 test bool tst() = run("$2013-01-01T08:15:30.055+0100$.timezoneOffsetMinutes") == $2013-01-01T08:15:30.055+0100$.timezoneOffsetMinutes;
+test bool tst() = run("$2013-01-01T08:15:30.055+0100$.justTime") == $2013-01-01T08:15:30.055+0100$.justTime;
+test bool tst() = run("$2013-01-01T08:15:30.055+0100$.justDate") == $2013-01-01T08:15:30.055+0100$.justDate;
 
 
 // Location
