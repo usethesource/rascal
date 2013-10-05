@@ -46,12 +46,10 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RuntimeExceptions;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -127,6 +125,7 @@ public enum RascalPrimitive {
 	// datetime
 	
 	datetime_field_access,
+	datetime_update,
 	
 	// divide
 	
@@ -1424,105 +1423,218 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
+	/* TODO: In both implementations UnsupportedOperation is thrown. 
+	 * I guess this has to be replaced by something better, e.g., UnavailableInformation
+	 */
+
 	public static int datetime_field_access(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		IDateTime dt = ((IDateTime) stack[sp - 2]);
 		String field = ((IString) stack[sp - 1]).getValue();
 		IValue v;
 		try {
-		switch (field) {
-		case "isDate":
-			v = vf.bool(dt.isDate());
-			break;
-		case "isTime":
-			v = vf.bool(dt.isTime());
-			break;
-		case "isDateTime":
-			v = vf.bool(dt.isDateTime());
-			break;
-		case "century":
-			if (!dt.isTime()) {
-			 v = vf.integer(dt.getCentury());
-			 break;
-			}
-			throw new UnsupportedOperation("Can not retrieve the century on a time value", null);
-		case "year":
-			if (!dt.isTime()) {
-				v = vf.integer(dt.getYear());
+			switch (field) {
+			case "isDate":
+				v = vf.bool(dt.isDate());
 				break;
-			}
-			throw new UnsupportedOperation("Can not retrieve the year on a time value", null);
-			
-		case "month":
-			if (!dt.isTime()) {
-				v = vf.integer(dt.getMonthOfYear());
+			case "isTime":
+				v = vf.bool(dt.isTime());
 				break;
-			}
-			throw new UnsupportedOperation("Can not retrieve the month on a time value", null);
-		case "day":
-			if (!dt.isTime()) {
-				v = vf.integer(dt.getDayOfMonth());
+			case "isDateTime":
+				v = vf.bool(dt.isDateTime());
 				break;
+			case "century":
+				if (!dt.isTime()) {
+					v = vf.integer(dt.getCentury());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the century on a time value", null);
+			case "year":
+				if (!dt.isTime()) {
+					v = vf.integer(dt.getYear());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the year on a time value", null);
+
+			case "month":
+				if (!dt.isTime()) {
+					v = vf.integer(dt.getMonthOfYear());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the month on a time value", null);
+			case "day":
+				if (!dt.isTime()) {
+					v = vf.integer(dt.getDayOfMonth());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the day on a time value", null);
+			case "hour":
+				if (!dt.isDate()) {
+					v = vf.integer(dt.getHourOfDay());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the hour on a date value", null);
+			case "minute":
+				if (!dt.isDate()) {
+					v = vf.integer(dt.getMinuteOfHour());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the minute on a date value", null);
+			case "second":
+				if (!dt.isDate()) {
+					v = vf.integer(dt.getSecondOfMinute());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the second on a date value", null);
+			case "millisecond":
+				if (!dt.isDate()) {
+					v = vf.integer(dt.getMillisecondsOfSecond());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the millisecond on a date value", null);
+			case "timezoneOffsetHours":
+				if (!dt.isDate()) {
+					v = vf.integer(dt.getTimezoneOffsetHours());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the timezone offset hours on a date value", null);
+			case "timezoneOffsetMinutes":
+				if (!dt.isDate()) {
+					v = vf.integer(dt.getTimezoneOffsetMinutes());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the timezone offset minutes on a date value", null);
+
+			case "justDate":
+				if (!dt.isTime()) {
+					v = vf.date(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the date component of a time value", null);
+			case "justTime":
+				if (!dt.isDate()) {
+					v = vf.time(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(), 
+							dt.getMillisecondsOfSecond(), dt.getTimezoneOffsetHours(),
+							dt.getTimezoneOffsetMinutes());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the time component of a date value", null);
+			default:
+				throw RuntimeExceptions.noSuchField(field, null,  new ArrayList<Frame>());
 			}
-			throw new UnsupportedOperation("Can not retrieve the day on a time value", null);
-		case "hour":
-			if (!dt.isDate()) {
-				v = vf.integer(dt.getHourOfDay());
-				break;
-			}
-			throw new UnsupportedOperation("Can not retrieve the hour on a date value", null);
-		case "minute":
-			if (!dt.isDate()) {
-				v = vf.integer(dt.getMinuteOfHour());
-				break;
-			}
-			throw new UnsupportedOperation("Can not retrieve the minute on a date value", null);
-		case "second":
-			if (!dt.isDate()) {
-				v = vf.integer(dt.getSecondOfMinute());
-				break;
-			}
-			throw new UnsupportedOperation("Can not retrieve the second on a date value", null);
-		case "millisecond":
-			if (!dt.isDate()) {
-				v = vf.integer(dt.getMillisecondsOfSecond());
-				break;
-			}
-			throw new UnsupportedOperation("Can not retrieve the millisecond on a date value", null);
-		case "timezoneOffsetHours":
-			if (!dt.isDate()) {
-				v = vf.integer(dt.getTimezoneOffsetHours());
-				break;
-			}
-			throw new UnsupportedOperation("Can not retrieve the timezone offset hours on a date value", null);
-		case "timezoneOffsetMinutes":
-			if (!dt.isDate()) {
-				v = vf.integer(dt.getTimezoneOffsetMinutes());
-				break;
-			}
-			throw new UnsupportedOperation("Can not retrieve the timezone offset minutes on a date value", null);
-			
-		case "justDate":
-			if (!dt.isTime()) {
-				v = vf.date(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
-				break;
-			}
-			throw new UnsupportedOperation("Can not retrieve the date component of a time value", null);
-		case "justTime":
-			if (!dt.isDate()) {
-				v = vf.time(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(), 
-						dt.getMillisecondsOfSecond(), dt.getTimezoneOffsetHours(),
-						dt.getTimezoneOffsetMinutes());
-				break;
-			}
-			throw new UnsupportedOperation("Can not retrieve the time component of a date value", null);
-		default:
-			throw RuntimeExceptions.noSuchField(field, null,  new ArrayList<Frame>());
-		}
-		stack[sp - 2] = v;
-		return sp - 1;
-		
+			stack[sp - 2] = v;
+			return sp - 1;
+
 		} catch (InvalidDateTimeException e) {
+			throw RuntimeExceptions.illegalArgument(dt, null, new ArrayList<Frame>(), e.getMessage());
+		}
+	}
+	
+	/* TODO: In both implementations UnsupportedOperation is thrown. 
+	 * I guess this has to be replaced by something better, e.g., UnavailableInformation
+	 */
+	public static int datetime_update(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		IDateTime dt = ((IDateTime) stack[sp - 3]);
+		String field = ((IString) stack[sp - 2]).getValue();
+		IValue repl = (IValue) stack[sp - 1];
+
+		// Individual fields
+		int year = dt.getYear();
+		int month = dt.getMonthOfYear();
+		int day = dt.getDayOfMonth();
+		int hour = dt.getHourOfDay();
+		int minute = dt.getMinuteOfHour();
+		int second = dt.getSecondOfMinute();
+		int milli = dt.getMillisecondsOfSecond();
+		int tzOffsetHour = dt.getTimezoneOffsetHours();
+		int tzOffsetMin = dt.getTimezoneOffsetMinutes();
+
+		try {
+			switch (field) {
+
+			case "year":
+				if (dt.isTime()) {
+					throw new UnsupportedOperation("Can not update the year on a time value", null);
+				}
+				year = ((IInteger)repl).intValue();
+				break;
+
+			case "month":
+				if (dt.isTime()) {
+					throw new UnsupportedOperation("Can not update the month on a time value", null);
+				}
+				month = ((IInteger)repl).intValue();
+				break;
+
+			case "day":
+				if (dt.isTime()) {
+					throw new UnsupportedOperation("Can not update the day on a time value", null);
+				}	
+				day = ((IInteger)repl).intValue();
+				break;
+
+			case "hour":
+				if (dt.isDate()) {
+					throw new UnsupportedOperation("Can not update the hour on a date value", null);
+				}	
+				hour = ((IInteger)repl).intValue();
+				break;
+
+			case "minute":
+				if (dt.isDate()) {
+					throw new UnsupportedOperation("Can not update the minute on a date value", null);
+				}
+				minute = ((IInteger)repl).intValue();
+				break;
+
+			case "second":
+				if (dt.isDate()) {
+					throw new UnsupportedOperation("Can not update the second on a date value", null);
+				}
+				second = ((IInteger)repl).intValue();
+				break;
+
+			case "millisecond":
+				if (dt.isDate()) {
+					throw new UnsupportedOperation("Can not update the millisecond on a date value", null);
+				}
+				milli = ((IInteger)repl).intValue();
+				break;
+
+			case "timezoneOffsetHours":
+				if (dt.isDate()) {
+					throw new UnsupportedOperation("Can not update the timezone offset hours on a date value", null);
+				}
+				tzOffsetHour = ((IInteger)repl).intValue();
+				break;
+
+			case "timezoneOffsetMinutes":
+				if (dt.isDate()) {
+					throw new UnsupportedOperation("Can not update the timezone offset minutes on a date value", null);
+				}
+				tzOffsetMin = ((IInteger)repl).intValue();
+				break;			
+
+			default:
+				throw RuntimeExceptions.noSuchField(field, null,  new ArrayList<Frame>());
+			}
+			IDateTime newdt = null;
+			if (dt.isDate()) {
+				newdt = vf.date(year, month, day);
+			} else if (dt.isTime()) {
+				newdt = vf.time(hour, minute, second, milli, tzOffsetHour, tzOffsetMin);
+			} else {
+				newdt = vf.datetime(year, month, day, hour, minute, second, milli, tzOffsetHour, tzOffsetMin);
+			}
+
+			stack[sp - 3] = newdt;
+			return sp - 2;
+		}
+		catch (IllegalArgumentException e) {
+			throw RuntimeExceptions.illegalArgument(repl, null, null, "Cannot update field " + field + ", this would generate an invalid datetime value");
+		}
+		catch (InvalidDateTimeException e) {
 			throw RuntimeExceptions.illegalArgument(dt, null, new ArrayList<Frame>(), e.getMessage());
 		}
 	}
