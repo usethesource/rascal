@@ -1,5 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
+
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -42,9 +45,12 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RuntimeExceptions;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /*
@@ -377,6 +383,7 @@ public enum RascalPrimitive {
 	loc_create,
 	loc_with_offset_create,
 	loc_field_access,
+	loc_update,
 	
 	// map
 	
@@ -605,9 +612,9 @@ public enum RascalPrimitive {
 	 * @param fact value factory to be used
 	 * @param stdout 
 	 */
-	public static void init(IValueFactory fact, PrintWriter stdoutPrinter, RVM usedRVM) {
+	public static void init(IValueFactory fact, RVM usedRVM) {
 		vf = fact;
-		stdout = stdoutPrinter;
+		stdout = usedRVM.stdout;
 		rvm = usedRVM;
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
@@ -646,7 +653,7 @@ public enum RascalPrimitive {
 	 * Invoke the implementation of a primitive from the RVM main interpreter loop.
 	 * @param stack	stack in the current execution frame
 	 * @param sp	stack pointer
-	 * @param arity TODO
+	 * @param arity number of arguments on the stack
 	 * @return		new stack pointer and modified stack contents
 	 */
 	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -840,7 +847,19 @@ public enum RascalPrimitive {
 	}
 	
 	public static int loc_add_str(Object[] stack, int sp, int arity) {
-		throw new RuntimeException("Not implemented");
+		assert arity == 2;
+		ISourceLocation sloc = (ISourceLocation) stack[sp - 2];
+		String s = ((IString) stack[sp - 1]).getValue();
+		URI uri = sloc.getURI();
+		try {
+			uri = URIUtil.changePath(uri, uri.getPath().concat(s));
+			// TODO handle length/offset and column/line
+			sloc = vf.sourceLocation(uri);
+			stack[sp - 2] = sloc;
+			return sp - 1;
+		} catch (URISyntaxException e){
+			throw RuntimeExceptions.parseError(null, sloc, new ArrayList<Frame>());
+		}
 	}
 
 	public static int map_add_map(Object[] stack, int sp, int arity) {
@@ -1459,113 +1478,426 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		ISourceLocation sloc = ((ISourceLocation) stack[sp - 2]);
 		String field = ((IString) stack[sp - 1]).getValue();
+		URI uri = sloc.getURI();
 		IValue v;
 		switch (field) {
-		case "uri":
-			v = vf.string(sloc.getURI().toString());
-			break;
+		
 		case "scheme":
 			String s = sloc.getURI().getScheme();
 			v = vf.string(s == null ? "" : s);
 			break;
+			
 		case "authority":
 			s = sloc.getURI().getAuthority();
 			v = vf.string(s == null ? "" : s);
 			break;
+			
 		case "host":
+			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
+				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", null,  new ArrayList<Frame>());
+			}
 			s = sloc.getURI().getHost();
 			v = vf.string(s == null ? "" : s);
 			break;
-		case "port":
-			int n = sloc.getURI().getPort();
-			v = vf.string(Integer.toString(n));
-			break;
+			
 		case "path":
 			s = sloc.getURI().getPath();
 			v = vf.string(s == null ? "" : s);
 			break;
-		case "extension":
-			String path = sloc.getURI().getPath();
-			int i = path.lastIndexOf('.');
-			if (i != -1) {
-				v = vf.string(path.substring(i + 1));
-			} else {
-				v = vf.string("");
-			}
-			break;
-		case "query":
-			s = sloc.getURI().getQuery();
-			v = vf.string(s == null ? "" : s);
-			break;
-		case "fragment":
-			s= sloc.getURI().getFragment();
-			v = vf.string(s == null ? "" : s);
-			break;
-		case "user":
-			s = sloc.getURI().getUserInfo();
-			v = vf.string(s == null ? "" : s);
-			break;
+			
 		case "parent":
-			path = sloc.getURI().getPath();
+			
+			String path = sloc.getURI().getPath();
 			if (path.equals("")) {
-				throw RuntimeExceptionFactory.noParent(sloc, null, null);
+				throw RuntimeExceptions.noParent(sloc, null, null);
 			}
-			i = path.lastIndexOf("/");
+			int i = path.lastIndexOf("/");
 			
 			if (i != -1) {
 				path = path.substring(0, i);
-				v = vf.string(path);
+				Object[] fakeStack = new Object[3];
+				fakeStack[0] = sloc;
+				fakeStack[1] = vf.string("path");
+				fakeStack[2] = vf.string(path);
+				loc_update(fakeStack, 3, 3);
+				v = (ISourceLocation) fakeStack[0];
 			} else {
-				throw RuntimeExceptionFactory.noParent(sloc, null, null);
+				throw RuntimeExceptions.noParent(sloc, null, null);
 			}
 			break;	
+			
 		case "file": 
 			path = sloc.getURI().getPath();
 			
 			if (path.equals("")) {
-				throw RuntimeExceptionFactory.noParent(sloc,null,null);
+				throw RuntimeExceptions.noParent(sloc,null,null);
 			}
 			i = path.lastIndexOf("/");
 			
 			if (i != -1) {
 				path = path.substring(i+1);
 			}
-			v = vf.string(path);			
+			v = vf.string(path);	
+			break;
 			
 		case "ls":
-//			try {
-//				IListWriter w = vf.listWriter();
-//				Type stringType = tf.stringType();
-//				URI uri = sloc.getURI();
-//				for (String elem : ctx.getResolverRegistry().listEntries(uri)) {
-//					w.append(vf.string(elem));
-//				}
-//				
-//				v = w.done();
-//				
-//			} catch (IOException e) {
-//				throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null,null);
-//			}
-			v = null;
+			try {
+				ISourceLocation resolved = rvm.ctx.getHeap().resolveSourceLocation(sloc);
+				IListWriter w = vf.listWriter();
+				
+				Object[] fakeStack = new Object[2];
+				for (String elem : rvm.ctx.getResolverRegistry().listEntries(uri)) {
+					fakeStack[0] = resolved;
+					fakeStack[1] = vf.string(elem);
+					loc_add_str(fakeStack, 2, 2);
+					w.append((ISourceLocation)fakeStack[0]);
+				}
+				
+				v = w.done();
+				break;
+			} catch (IOException e) {
+				throw RuntimeExceptions.io(vf.string(e.getMessage()), null,null);
+			}
+			
+		case "extension":
+			path = sloc.getURI().getPath();
+			i = path.lastIndexOf('.');
+			if (i != -1) {
+				v = vf.string(path.substring(i + 1));
+			} else {
+				v = vf.string("");
+			}
 			break;
-		case "offset":
-			v = vf.integer(sloc.getOffset());
+			
+		case "fragment":
+			s = sloc.getURI().getFragment();
+			v = vf.string(s == null ? "" : s);
 			break;
+			
+		case "query":
+			s = sloc.getURI().getQuery();
+			v = vf.string(s == null ? "" : s);
+			break;
+			
+		case "params":
+			
+			String query = uri.getQuery();
+			IMapWriter res = vf.mapWriter(tf.stringType(), tf.stringType());
+			
+			if (query != null && query.length() > 0) {
+				String[] params = query.split("&");
+				for (String param : params) {
+					String[] keyValue = param.split("=");
+					res.put(vf.string(keyValue[0]), vf.string(keyValue[1]));
+				}
+			}
+			v = res.done();
+			break;
+			
+		case "user":
+			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
+				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", null,  new ArrayList<Frame>());
+			}
+			s = sloc.getURI().getUserInfo();
+			v = vf.string(s == null ? "" : s);
+			break;
+			
+		
+		
+		case "port":
+			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
+				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", null,  new ArrayList<Frame>());
+			}
+			int n = sloc.getURI().getPort();
+			v = vf.integer(n);
+			break;	
+			
 		case "length":
-			v = vf.integer(sloc.getLength());
-			break;
+			if(sloc.hasOffsetLength()){
+				v = vf.integer(sloc.getLength());
+				break;
+			} else {
+				throw RuntimeExceptions.unavailableInformation(sloc, new ArrayList<Frame>());
+			}
+
+		case "offset":
+			if(sloc.hasOffsetLength()){
+				v = vf.integer(sloc.getOffset());
+				break;
+			} else {
+				throw RuntimeExceptions.unavailableInformation(sloc, new ArrayList<Frame>());
+			}
+
 		case "begin":
-			v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
-			break;
+			if(sloc.hasLineColumn()){
+				v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
+				break;
+			} else {
+				throw RuntimeExceptions.unavailableInformation(sloc, new ArrayList<Frame>());
+			}
 		case "end":
-			v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
+			if(sloc.hasLineColumn()){
+				v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
+				break;
+			} else {
+				throw RuntimeExceptions.unavailableInformation(sloc, new ArrayList<Frame>());
+			}
+			
+		case "uri":
+			v = vf.string(sloc.getURI().toString());
+			break;
+			
+		case "top":
+			v = vf.sourceLocation(uri);
 			break;
 
 		default:
 			throw new RuntimeException("Access to non-existing field " + field + " in location");
 		}
+		
 		stack[sp - 2] = v;
 		return sp - 1;
+	}
+	
+	public static int loc_update(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		ISourceLocation sloc = ((ISourceLocation) stack[sp - 3]);
+		String field = ((IString) stack[sp - 2]).getValue();
+		IValue repl = (IValue) stack[sp - 1];
+		
+		Type replType = repl.getType();
+		
+		int iLength = sloc.hasOffsetLength() ? sloc.getLength() : -1;
+		int iOffset = sloc.hasOffsetLength() ? sloc.getOffset() : -1;
+		int iBeginLine = sloc.hasLineColumn() ? sloc.getBeginLine() : -1;
+		int iBeginColumn = sloc.hasLineColumn() ? sloc.getBeginColumn() : -1;
+		int iEndLine = sloc.hasLineColumn() ? sloc.getEndLine() : -1;
+		int iEndColumn = sloc.hasLineColumn() ? sloc.getEndColumn() : -1;
+		URI uri = sloc.getURI();
+
+		try {
+			IValue v;
+			switch (field) {
+			
+			case "uri":
+				uri = URIUtil.createFromEncoded((((IString)repl).getValue()));
+				break;
+
+			case "scheme":
+				uri = URIUtil.changeScheme(uri, (((IString)repl).getValue()));
+				break;
+
+			case "authority":
+				uri = URIUtil.changeAuthority(uri, (((IString)repl).getValue()));
+				break;
+
+			case "host":
+				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
+					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", null,  new ArrayList<Frame>());
+				}
+				uri = URIUtil.changeHost(uri, (((IString)repl).getValue()));
+				break;
+
+			case "path":
+				String path = ((IString)repl).getValue();
+				if(!path.startsWith("/"))
+					path = "/" + path;
+				uri = URIUtil.changePath(uri, path);
+				break;
+				
+			case "file": 
+				path = uri.getPath();
+
+				if (path.equals("")) {
+					throw RuntimeExceptions.noParent(sloc,null,null);
+				}
+				int i = path.lastIndexOf("/");
+				
+				if (i != -1) {
+					uri = URIUtil.changePath(uri, path.substring(0, i) + "/" + ((IString) repl).getValue());
+				}
+				else {
+					uri = URIUtil.changePath(uri, path + "/" + ((IString) repl).getValue());	
+				}	
+				break;
+
+			case "parent":
+				path = uri.getPath();
+				String parent = ((IString) repl).getValue();
+				
+				if (!parent.startsWith("/")) {
+					parent = "/" + parent;
+				}
+				i = path.lastIndexOf("/");
+				if (i != -1) {
+					uri = URIUtil.changePath(uri, parent + path.substring(i));
+				}
+				else {
+					uri = URIUtil.changePath(uri, parent);	
+				}
+				break;	
+
+			case "ls":
+				throw RuntimeExceptions.noSuchField("Cannot update the children of a location", null, new ArrayList<Frame>());
+				
+			case "extension":
+				path = uri.getPath();
+				String ext = ((IString) repl).getValue();
+				
+				if (path.length() > 1) {
+					int index = path.lastIndexOf('.');
+
+					if (index == -1 && !ext.isEmpty()) {
+						path = path + (!ext.startsWith(".") ? "." : "") + ext;
+					}
+					else if (!ext.isEmpty()) {
+						path = path.substring(0, index) + (!ext.startsWith(".") ? "." : "") + ext;
+					}
+					else {
+						path = path.substring(0, index);
+					}
+					
+					uri = URIUtil.changePath(uri, path);
+				}
+				break;
+				
+			case "top":
+				if (replType.isString()) {
+					uri = URIUtil.assumeCorrect(((IString) repl).getValue());
+				}
+				else if (replType.isSourceLocation()) {
+					uri = ((ISourceLocation) repl).getURI();
+				}
+				break;
+
+			case "fragment":
+				uri = URIUtil.changeFragment(uri, ((IString) repl).getValue());
+				break;
+
+			case "query":
+				uri = URIUtil.changeQuery(uri, ((IString) repl).getValue());
+				break;
+				
+			case "user":
+				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
+					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", null,  new ArrayList<Frame>());
+				}
+				if (uri.getHost() != null) {
+					uri = URIUtil.changeUserInformation(uri, ((IString) repl).getValue());
+				}
+				break;
+				
+			case "port":
+				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
+					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", null,  new ArrayList<Frame>());
+				}
+				if (uri.getHost() != null) {
+					int port = Integer.parseInt(((IInteger) repl).getStringRepresentation());
+					uri = URIUtil.changePort(uri, port);
+				}
+				break;	
+				
+			case "length":
+				iLength = ((IInteger) repl).intValue();
+				if (iLength < 0) {
+					throw RuntimeExceptions.illegalArgument(repl, null, new ArrayList<Frame>());
+				}
+				break;
+				
+			case "offset":
+				iOffset = ((IInteger) repl).intValue();
+				if (iOffset < 0) {
+					throw RuntimeExceptions.illegalArgument(repl, null, new ArrayList<Frame>());
+				}
+				break;
+				
+			case "begin":
+				iBeginLine = ((IInteger) ((ITuple) repl).get(0)).intValue();
+				iBeginColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
+				
+				if (iBeginColumn < 0 || iBeginLine < 0) {
+					throw RuntimeExceptions.illegalArgument(repl, null,  new ArrayList<Frame>());
+				}
+				break;
+			case "end":
+				iEndLine = ((IInteger) ((ITuple) repl).get(0)).intValue();
+				iEndColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
+				
+				if (iEndColumn < 0 || iEndLine < 0) {
+					throw RuntimeExceptions.illegalArgument(repl, null,  new ArrayList<Frame>());
+				}
+				break;			
+
+			default:
+				throw RuntimeExceptions.noSuchField("Modification of field " + field + " in location not allowed", null, new ArrayList<Frame>());
+			}
+			
+			if (sloc.hasLineColumn()) {
+				// was a complete loc, and thus will be now
+				stack[sp - 3] = vf.sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+				return sp - 2;
+			}
+			
+			if (sloc.hasOffsetLength()) {
+				// was a partial loc
+				
+				if (iBeginLine != -1 || iBeginColumn != -1) {
+					//will be complete now.
+					iEndLine = iBeginLine;
+					iEndColumn = iBeginColumn;
+					stack[sp - 3] = vf.sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+					return sp - 2;
+				}
+				else if (iEndLine != -1 || iEndColumn != -1) {
+					// will be complete now.
+					iBeginLine = iEndLine;
+					iBeginColumn = iEndColumn;
+					stack[sp - 3] = vf.sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+					return sp - 2;
+				}
+				else {
+					// remains a partial loc
+					stack[sp - 3] = vf.sourceLocation(uri, iOffset, iLength);
+					return sp - 2;
+				}
+			}
+
+			// used to have no offset/length or line/column info, if we are here
+			
+			if (iBeginColumn != -1 || iEndColumn != -1 || iBeginLine != -1 || iBeginColumn != -1) {
+				// trying to add line/column info to a uri that has no offset length
+				throw RuntimeExceptions.invalidUseOfLocation("Can not add line/column information without offset/length", null,  new ArrayList<Frame>());
+			}
+			
+			// trying to set offset that was not there before, adding length automatically
+			if (iOffset != -1 ) {
+				if (iLength == -1) {
+					iLength = 0;
+				}
+			}
+			
+			// trying to set length that was not there before, adding offset automatically
+			if (iLength != -1) {
+				if (iOffset == -1) {
+					iOffset = 0;
+				}
+			}
+			
+			if (iOffset != -1 || iLength != -1) {
+				// used not to no offset/length, but do now
+				stack[sp - 3] = vf.sourceLocation(uri, iOffset, iLength);
+				return sp - 2;
+			}
+			
+			// no updates to offset/length or line/column, and did not used to have any either:
+			stack[sp - 3] = vf.sourceLocation(uri);
+			return sp - 2;
+
+		} catch (IllegalArgumentException e) {
+			throw RuntimeExceptions.illegalArgument(null, null);
+		} catch (URISyntaxException e) {
+			throw RuntimeExceptions.parseError(null, null, null);
+		}
 	}
 	
 	public static int lrel_field_access(Object[] stack, int sp, int arity) {
@@ -3646,7 +3978,7 @@ public enum RascalPrimitive {
 	
 	public static int testreport_add(Object[] stack, int sp, int arity) {
 		assert arity == 3; 
-		
+
 		String fun = ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
 		stdout.println("testreport_add: " + src);
@@ -3654,18 +3986,18 @@ public enum RascalPrimitive {
 		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
 		//Type argType = typeReifier.valueToType(type_cons);
 		//IMap definitions = (IMap) type_cons.get("definitions");
-		
+
 		TypeStore store = new TypeStore();
 		//typeReifier.declareAbstractDataTypes(definitions, store);
-		
+
 		int nargs = argType.getArity();
 		IValue[] args = new IValue[nargs];
-		
+
 		TypeParameterVisitor tpvisit = new TypeParameterVisitor();
 		Type requestedType = tf.tupleType(argType);
 		HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
 		RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, store);
-		
+
 		int tries = nargs == 0 ? 1 : TRIES;
 		boolean passed = true;
 		for(int i = 0; i < tries; i++){
@@ -3676,10 +4008,16 @@ public enum RascalPrimitive {
 					//stdout.println("args[" + j + "] = " + args[j]);
 				}
 			}
-			IValue res = rvm.executeFunction(fun, args);  // TODO: catch exceptions
-			passed = ((IBool) res).getValue();
-			if(!passed){
-				break;
+			try {
+				IValue res = rvm.executeFunction(fun, args); 
+				passed = ((IBool) res).getValue();
+				if(!passed){
+					break;
+				}
+			} catch (Thrown e){ 			// TODO: handle exceptions
+				
+			}
+			catch (Exception e){
 			}
 		}
 		test_results.append(vf.tuple(src,  vf.bool(passed)));
@@ -4179,15 +4517,15 @@ public enum RascalPrimitive {
 	
 	public static int loc_create(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		String uri = ((IString) stack[sp - 1]).getValue();
+		IString uri = ((IString) stack[sp - 1]);
 
 		try {
-			stack[sp - 1] =vf.sourceLocation(new URI(uri));
+			stack[sp - 1] =vf.sourceLocation(new URI(uri.getValue()));
+			return sp;
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw RuntimeExceptions.illegalArgument(uri, null, new ArrayList<Frame>());
 		}
-		return sp;
+		
 	}
 	
 	public static int loc_with_offset_create(Object[] stack, int sp, int arity) {
@@ -4307,7 +4645,7 @@ public enum RascalPrimitive {
 	 */
 
 	public static void main(String[] args) {
-		init(ValueFactoryFactory.getValueFactory(), null, null);
+		init(ValueFactoryFactory.getValueFactory(), null);
 		System.err.println("RascalPrimitives have been validated!");
 	}
 }
