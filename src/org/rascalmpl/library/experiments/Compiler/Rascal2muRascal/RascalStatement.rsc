@@ -185,7 +185,7 @@ MuExp translate(s: (Statement) `break <Target target> ;`) = muBreak(target is em
 
 MuExp translate(s: (Statement) `continue <Target target> ;`) = muContinue(target is empty ? currentLoop() : "<target.name>");
 
-MuExp translate(s: (Statement) `filter ;`) { throw("filter"); }
+MuExp translate(s: (Statement) `filter ;`) = muFilterReturn();
 
 MuExp translate(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`) = translateSolve(s);
 

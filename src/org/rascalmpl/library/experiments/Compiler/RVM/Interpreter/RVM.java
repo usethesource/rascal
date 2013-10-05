@@ -894,11 +894,13 @@ public class RVM {
 						throw new RuntimeException("PANIC: FAILRETURN should return from the program execution given the current design!");
 					}
 					
+				case Opcode.OP_FILTERRETURN:
 				case Opcode.OP_RETURN0:
 				case Opcode.OP_RETURN1:
+				
 					rval = null;
-					boolean returns = op == Opcode.OP_RETURN1; 
-					if(returns) {
+					boolean returns = (op == Opcode.OP_RETURN1) || (op == Opcode.OP_FILTERRETURN);
+					if(op == Opcode.OP_RETURN1) {
 						rval = stack[sp - 1];
 					}
 					

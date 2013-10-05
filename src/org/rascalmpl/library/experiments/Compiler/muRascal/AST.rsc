@@ -85,6 +85,7 @@ public data MuExp =
  
           | muReturn()											// Return from function without value
           | muReturn(MuExp exp)									// Return from function with value
+          | muFilterReturn()									// Return for filer statement
               
            // Assignment, If and While
               
