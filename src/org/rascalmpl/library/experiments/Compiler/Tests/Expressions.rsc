@@ -60,6 +60,20 @@ test bool tst() = run("$2013-01-01T08:15:30.055+0100$.timezoneOffsetMinutes") ==
 test bool tst() = run("$2013-01-01T08:15:30.055+0100$.justTime") == $2013-01-01T08:15:30.055+0100$.justTime;
 test bool tst() = run("$2013-01-01T08:15:30.055+0100$.justDate") == $2013-01-01T08:15:30.055+0100$.justDate;
 
+// field update
+
+
+
+test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.year += 1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.year += 1; DT;};
+test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.month += 1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.month += 1; DT;};
+test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.day += 1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.day += 1; DT;};
+test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.hour += 1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.hour += 1; DT;};
+test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.minute += 1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.minute += 1; DT;};
+test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.second += 1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.second += 1; DT;};
+test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.millisecond += 1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.millisecond += 1; DT;};
+test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$;.DT.timezoneOffsetHours +=1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.timezoneOffsetHours +=1; DT;};
+test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.timezoneOffsetMinutes += 1; DT; }") == {DT = $2013-01-01T08:15:30.055+0100$; DT.timezoneOffsetMinutes += 1; DT; };
+
 
 // Location
 
