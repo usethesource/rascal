@@ -34,6 +34,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
 
@@ -66,18 +67,21 @@ public class RVM {
 	
 	
 	private final Map<IValue, IValue> moduleVariables;
-	private PrintWriter stdout;
+	PrintWriter stdout;
 	
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
 	Frame ccf = null; // the start frame (of the coroutine's main function) of the current active coroutine
+	IEvaluatorContext ctx;
 
 
-	public RVM(IValueFactory vf, PrintWriter stdout, boolean debug) {
+	public RVM(IValueFactory vf, IEvaluatorContext ctx, boolean debug) {
 		super();
 
 		this.vf = vf;
-		this.stdout = stdout;		
+		
+		this.ctx = ctx;
+		this.stdout = ctx.getStdOut();	
 		this.debug = debug;
 		this.finalized = false;
 		
@@ -100,11 +104,11 @@ public class RVM {
 		moduleVariables = new HashMap<IValue,IValue>();
 		
 		MuPrimitive.init(vf);
-		RascalPrimitive.init(vf, stdout, this);
+		RascalPrimitive.init(vf, this);
 	}
 	
 	public RVM(IValueFactory vf){
-		this(vf, new PrintWriter(System.out, true), false);
+		this(vf, null, false);
 	}
 	
 	public void declare(Function f){
