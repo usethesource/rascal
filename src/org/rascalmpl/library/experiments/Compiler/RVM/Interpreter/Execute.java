@@ -379,7 +379,7 @@ public class Execute {
 				break;
 
 			case "OCALLDYN" :
-				codeblock.OCALLDYN(getIntField(instruction, "arity"));
+				codeblock.OCALLDYN(rvm.symbolToType((IConstructor) instruction.get("types")), getIntField(instruction, "arity"));
 				break;
 
 			case "CALLJAVA":

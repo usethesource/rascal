@@ -720,6 +720,8 @@ public class RVM {
 					continue;
 					
 				case Opcode.OP_OCALLDYN:
+					// Get function types to perform a type-based dynamic resolution
+					Type types = cf.function.codeblock.getConstantType(instructions[pc++]);		
 					arity = instructions[pc++];
 					// Objects of three types may appear on the stack:
 					// 	1. FunctionInstance due to closures
@@ -731,8 +733,6 @@ public class RVM {
 						args[i] = (IValue) stack[sp - arity + i];
 					}			
 					sp = sp - arity;
-					// Get function types to perform a type-based dynamic resolution
-					Object[] types = (Object[]) stack[--sp];
 					
 					if(funcObject instanceof FunctionInstance) {
 						FunctionInstance fun_instance = (FunctionInstance) funcObject;
@@ -756,7 +756,7 @@ public class RVM {
 					NEXT_FUNCTION: 
 					for(int index : of_instance.functions) {
 						fun = functionStore.get(index);
-						for(Object type : types) {
+						for(Type type : types) {
 							if(type == fun.ftype) {
 								FunctionInstance fun_instance = new FunctionInstance(fun, of_instance.env);
 										
@@ -779,7 +779,7 @@ public class RVM {
 					
 					for(int index : of_instance.constructors) {
 						constructor = constructorStore.get(index);
-						for(Object type : types) {
+						for(Type type : types) {
 							if(type == constructor) {
 								
 								if(debug) {

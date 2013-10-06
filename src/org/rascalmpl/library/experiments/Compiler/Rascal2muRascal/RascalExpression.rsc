@@ -222,7 +222,9 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
       throw "The use of a function has to be managed via overloading resolver!";
    }
    // Push down additional information if the overloading resolution needs to be done at runtime
-   return muOCall(receiver, isFunctionType(ftype) ? { ftype } : (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), args);
+   return muOCall(receiver, 
+   				  isFunctionType(ftype) ? Symbol::\tuple([ ftype ]) : Symbol::\tuple([ t | Symbol t <- getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype) ]), 
+   				  args);
 }
 
 // Any
