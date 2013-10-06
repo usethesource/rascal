@@ -57,7 +57,7 @@ data Instruction =
 		| CALLCONSTR(str fuid, int arity)			// Call a constructor
 		
 		| OCALL(str fuid, int arity)				// Call a named *Rascal* function
-		| OCALLDYN(int arity)						// Call a *Rascal* function on stack
+		| OCALLDYN(Symbol types, int arity)			// Call a *Rascal* function on stack
 		
 		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive)
 		| CALLPRIM(str name, int arity)				// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)

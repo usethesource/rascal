@@ -214,10 +214,11 @@ data Configuration = config(set[Message] messages,
                             list[LabelStackItem] labelStack,
                             list[Timing] timings,
                             int nextLoc,
-                            int uniqueify
+                            int uniqueify,
+                            map[int,Expression] keywordDefaults
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0);
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,());
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -2181,8 +2182,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> join <Ex
     < c, t2 > = checkExp(e2, c);
 
     if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-
-	Symbol stripLabel(Symbol t) = (\label(s,lt) := t) ? stripLabel(lt) : t;
+	
+	    Symbol stripLabel(Symbol t) = (\label(s,lt) := t) ? stripLabel(lt) : t;
 	
     if ((isRelType(t1) && isRelType(t2)) || (isListRelType(t1) && isListRelType(t2))) {
         list[Symbol] lflds = isRelType(t1) ? getRelFields(t1) : getListRelFields(t1);
@@ -2797,26 +2798,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> \<- <Express
 
 @doc{Check the types of Rascal expressions: Implication (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> ==\> <Expression e2>`, Configuration c) {
-    needNewScope = !inBooleanScope(c);
-    cImp = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
-    < cImp, t1 > = checkExp(e1, cImp);
-    < cImp, t2 > = checkExp(e2, cImp);
-    c = needNewScope ? exitBooleanScope(cImp,c) : cImp;
-    if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-    if (isBoolType(t1) && isBoolType(t2)) return markLocationType(c,exp@\loc,\bool());
-    return markLocationFailed(c,exp@\loc,makeFailType("Logical and not defined for types <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
+	return checkBooleanOpsWithMerging(exp, e1, e2, "Logical implication", c);
 }
 
 @doc{Check the types of Rascal expressions: Equivalence (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \<==\> <Expression e2>`, Configuration c) {
-    needNewScope = !inBooleanScope(c);
-    cEquiv = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
-    < cEquiv, t1 > = checkExp(e1, cEquiv);
-    < cEquiv, t2 > = checkExp(e2, cEquiv);
-    c = needNewScope ? exitBooleanScope(cEquiv,c) : cEquiv;
-    if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-    if (isBoolType(t1) && isBoolType(t2)) return markLocationType(c,exp@\loc,\bool());
-    return markLocationFailed(c,exp@\loc,makeFailType("Logical and not defined for types <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
+	return checkBooleanOpsWithMerging(exp, e1, e2, "Logical equivalence", c);
 }
 
 @doc{Check the types of Rascal expressions: And (DONE)}
@@ -2833,6 +2820,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> && <Expr
 
 @doc{Check the types of Rascal expressions: Or (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> || <Expression e2>`, Configuration c) {
+	return checkBooleanOpsWithMerging(exp, e1, e2, "Logical or", c);
+}
+
+@doc{Handle merging logic for checking boolean operations}
+public CheckResult checkBooleanOpsWithMerging(Expression exp, Expression e1, Expression e2, str opname, Configuration c) {
     needNewScope = !inBooleanScope(c);
     cOr = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
     failures = { };
@@ -2840,12 +2832,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> || <Expr
     // The left and right branches are evaluated in their own environments,
     // since we want to make sure to control the propagation of names created
     // in the branches. This is because the or short circuits and backtracks,
-    // so the only names visible after evaluation are named added on both branches.
+    // so the only names visible after evaluation are names added on both branches.
     cOrLeft = enterBooleanScope(cOr, e1@\loc);
     leftStartRange = cOrLeft.nextLoc;
     < cOrLeft, t1 > = checkExp(e1, cOrLeft);
     if (isFailType(t1)) failures += t1;
-    leftEndRange = cOrLeft.nextLoc;
+    leftEndRange = cOrLeft.nextLoc - 1; // Since nextLoc holds the next, the last allocated is at -1
     
     // This finds vars added in the left-hand branch. To save time, we just look at new items added
     // into the abstract store between the location we started with and the current location. We
@@ -2854,36 +2846,48 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> || <Expr
     // expression, e.g., (x := p1 || y := p2) || x := p3, we don't want x to suddenly "come back"
     // when it would not have been visible outside of the nested or.
     leftVars = ( );
-    if (leftEndRange > leftStartRange) {
+    if (leftEndRange >= leftStartRange) {
        leftVars = ( vn : v | idx <- [leftStartRange .. leftEndRange+1], idx in cOrLeft.store, sh := head(cOrLeft.stack), v:variable(vn,_,_,sh,_) := cOrLeft.store[idx], idx := cOrLeft.fcvEnv[vn]);
     }
 
     cOr = exitBooleanScope(cOrLeft, cOr);
     
-    cOrRight = enterBooleanScope(c, e2@\loc);
+    // As above, do the same for the right branch
+    cOrRight = enterBooleanScope(cOr, e2@\loc);
     rightStartRange = cOrRight.nextLoc;
     < cOrRight, t2 > = checkExp(e2, cOrRight);
     if (isFailType(t2)) failures += t2;
-    rightEndRange = cOrRight.nextLoc;
+    rightEndRange = cOrRight.nextLoc - 1;
     
-    // Similarly to the above, this finds vars added in the right-hand branch.
+    // Find vars added on the right branch, see above for details of how this works.
     rightVars = ( );
-    if (rightEndRange > rightStartRange) {
+    if (rightEndRange >= rightStartRange) {
        rightVars = ( vn : v | idx <- [rightStartRange .. rightEndRange+1], idx in cOrRight.store, sh := head(cOrRight.stack), v:variable(vn,_,_,sh,_) := cOrRight.store[idx], idx := cOrRight.fcvEnv[vn]);
     }
     
     cOr = exitBooleanScope(cOrRight, cOr);
     
     // Now, which variables are on both branches? We want to add those into the current scope, and we
-    // also need to ensure that the type information is consistent.
-    for (vn <- leftVars, vn in rightVars, variable(vn,lt,linf,_,lat) := leftVars[vn], variable(vn,rt,rinf,_,_) := rightVars[vn]) {
+    // also need to ensure that the type information is consistent. We also want to merge them in
+    // the store and in bookkeeping info like uses, ensuring we only have one copy of each of
+    // the variables.
+    for (vn <- leftVars, vn in rightVars, variable(vn,lt,linf,lin,lloc) := leftVars[vn], variable(vn,rt,rinf,rin,rloc) := rightVars[vn]) {
         // NOTE: It should be the case that lt and rt, the types assigned to the vars, are not
         // inferred types -- they should have been bound to actual types already. Check here
         // just in case (since this will have been marked elsewhere as an error, don't add another 
         // error here, just leave the name out of the scope). We also make sure they are not
         // failure types, in which case we don't want to introduce the variable.
         if (! (isInferredType(lt) || isInferredType(rt) || isFailType(lt) || isFailType(rt)) ) {
-            cOr = addVariable(cOr, vn, linf && rinf, lat, lt);
+        	// If the variable is available on both sides, we hoist it up into this level,
+        	// merging all references to the two independent variables into just one
+			cOr.store[cOrLeft.fcvEnv[vn]].containedIn = head(cOr.stack);; // Move the definition from the left-hand side to this level
+			oldDefinitions = domainR(cOr.definitions, { cOrRight.fcvEnv[vn] }); // Find the old right-hand side definition(s) of the variable
+			cOr.definitions = domainX(cOr.definitions, { cOrRight.fcvEnv[vn] }); // Remove the definition from the right-hand side 
+			oldUses = domainR(cOr.uses, { cOrRight.fcvEnv[vn] }); // Find uses of the right-hand definition
+			cOr.uses = cOr.uses - oldUses + ( { cOrLeft.fcvEnv[vn] } * oldUses<1> ) + ( { cOrLeft.fcvEnv[vn] } * oldDefinitions<1> ); // Switch these to uses of the left-hand definition, plus make right-hand defs into uses
+			cOr.store = domainX(cOr.store, { cOrRight.fcvEnv[vn] }); // Finally, remove the right-hand definition from the store
+			cOr.fcvEnv[vn] = cOrLeft.fcvEnv[vn]; // Make sure the name is in the top environment
+            
             if (!equivalent(lt,rt)) {
                 // We added the variable anyway just to prevent spurious errors, but we just assume the first type
                 // is the correct one. If not, we will get errors based on that (i.e., the user meant for the
@@ -2896,7 +2900,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> || <Expr
     c = needNewScope ? exitBooleanScope(cOr,c) : cOr;
     if (size(failures) > 0) return markLocationFailed(c,exp@\loc,failures);
     if (isBoolType(t1) && isBoolType(t2)) return markLocationType(c,exp@\loc,\bool());
-    return markLocationFailed(c,exp@\loc,makeFailType("Logical or not defined for types <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
+    return markLocationFailed(c,exp@\loc,makeFailType("<opname> not defined for types <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
 }
 
 @doc{Check the types of Rascal expressions: If Then Else (DONE)}
@@ -3025,10 +3029,14 @@ public CheckResult checkLiteral(Literal l:(Literal)`<LocationLiteral ll>`, Confi
 }
 
 @doc{Check the types of Rascal parameters: Default (DONE) }
-public CheckResult checkParameters((Parameters)`( <Formals fs> )`, Configuration c) = checkFormals(fs, false, c);
+public CheckResult checkParameters((Parameters)`( <Formals fs> <KeywordFormals kfs>)`, Configuration c) = checkFormals(fs, false, c);
 
 @doc{Check the types of Rascal parameters: VarArgs (DONE) }
-public CheckResult checkParameters((Parameters)`( <Formals fs> ... )`, Configuration c) = checkFormals(fs, true, c);
+public CheckResult checkParameters((Parameters)`( <Formals fs> ... <KeywordFormals kfs>)`, Configuration c) = checkFormals(fs, true, c);
+
+@doc{Retrieve the keyword formals from a parameter list: Default (DONE) }
+public KeywordFormals getKeywordFormals((Parameters)`( <Formals fs> <KeywordFormals kfs>)`) = kfs;
+public KeywordFormals getKeywordFormals((Parameters)`( <Formals fs> ... <KeywordFormals kfs>)`) = kfs;
 
 @doc{Check the types of Rascal formals: Default}
 public CheckResult checkFormals((Formals)`<{Pattern ","}* ps>`, bool isVarArgs, Configuration c) {
@@ -3048,6 +3056,29 @@ public CheckResult checkFormals((Formals)`<{Pattern ","}* ps>`, bool isVarArgs, 
         }
     }
     return < c, \tuple(formals) >;
+}
+
+@doc{Check the types of Rascal keyword formals}
+public CheckResult checkKeywordFormals((KeywordFormals)`<OptionalComma oc> <{KeywordFormal ","}+ kfl>`, Configuration c) {
+	list[Symbol] kformals = [ ];
+	for (kfi <- kfl) {
+		< rt, c > = checkKeywordFormal(kfi, c);
+		kformals += rt;
+	}
+	return < c, \tuple(kformals) >;
+}
+
+public CheckResult checkKeywordFormal(KeywordFormal kf: (KeywordFormal)`<Type t> <Name n> = <Expression e>`, Configuration c) {
+// public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symbol rt) {
+    < c, rt > = convertAndExpandType(t,c);
+	currentNextLoc = c.nextLoc;
+	c = addVariable(c, convertName(n), false, n@\loc, rt);
+	< c, et > = checkExp(e, c);
+	if (!subtype(et, rt))
+		rt = makeFailType("The default is not compatible with the parameter type", kf@\loc);  
+	if (c.nextLoc > currentNextLoc)
+		c.keywordDefaults[currentNextLoc] = e;	  	
+	return < c, rt >;
 }
 
 @doc{Defs and uses of names; allows marking them while still keeping them in the same list or set.}
@@ -5654,7 +5685,12 @@ public CheckResult processSignature(Signature sig:(Signature)`<FunctionModifiers
     < c, rType > = convertAndExpandType(t,c);
 
     < c, ptTuple > = checkParameters(ps, c);
+
+    kfs = getKeywordFormals(ps);
+	< c, kfTuple > = checkKeywordFormals(kfs, c);
+	
     list[Symbol] parameterTypes = getTupleFields(ptTuple);
+    // TODO: Pick up here...
     paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
     funType = \void();
     if (size(paramFailures) > 0) {
@@ -5705,9 +5741,13 @@ public list[Type] getFunctionThrows(Signature sig:(Signature)`<FunctionModifiers
 
 @doc{Check to see if the function is a varargs function.}
 public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> ) throws <{Type ","}+ exs>`) = false;
+public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> <KeywordFormals kfmls>) throws <{Type ","}+ exs>`) = false;
 public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> ... ) throws <{Type ","}+ exs>`) = true;
+public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> ... <KeywordFormals kfmls>) throws <{Type ","}+ exs>`) = true;
 public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> )`) = false;
+public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> <KeywordFormals kfmls>)`) = false;
 public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> ... )`) = true;
+public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> ... <KeywordFormals kfmls>)`) = true;
 
 //
 // TODO: The code for importing signature items duplicates a fair amount of the declaration
