@@ -277,13 +277,10 @@ INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size
 // Rascal functions
 
 INS tr(muOCall(muOFun(str fuid), list[MuExp] args)) = [*tr(args), OCALL(fuid, size(args))];
-INS tr(muOCall(MuExp fun, set[Symbol] types, list[MuExp] args)) 
-	= { list[MuExp] targs = [ muTypeCon(t) | t <- types ]; 
-		[ *tr(targs), CALLMUPRIM("make_array",size(targs)), // this order is to optimize the stack size
-		  *tr(args), 
-		  *tr(fun), 
-		  OCALLDYN(size(args))]; 
-	  };
+INS tr(muOCall(MuExp fun, Symbol types, list[MuExp] args)) 
+	= [ *tr(args), 
+		*tr(fun), 
+		OCALLDYN(types, size(args))];
 
 INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args))];
 
@@ -302,6 +299,8 @@ INS tr(muReturn(MuExp exp)) {
 	return [*tr(exp), RETURN1()];
 }
 INS tr(muFailReturn()) = [ FAILRETURN() ];
+
+INS tr(muFilterReturn()) = [ FILTERRETURN() ];
 
 // Coroutines
 

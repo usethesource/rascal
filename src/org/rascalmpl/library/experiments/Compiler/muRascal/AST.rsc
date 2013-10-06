@@ -73,7 +73,7 @@ public data MuExp =
           | muCall(MuExp fun, list[MuExp] args)					// Call a *muRascal function
           
           | muOCall(MuExp fun, list[MuExp] args)                // Call a declared *Rascal function
-          | muOCall(MuExp fun, set[Symbol] types,               // Call a dynamic *Rascal function
+          | muOCall(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function
           					   list[MuExp] args)
           
           | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
@@ -85,6 +85,7 @@ public data MuExp =
  
           | muReturn()											// Return from function without value
           | muReturn(MuExp exp)									// Return from function with value
+          | muFilterReturn()									// Return for filer statement
               
            // Assignment, If and While
               
