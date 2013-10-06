@@ -44,7 +44,16 @@ public class URIUtil {
 	 * @throws URISyntaxException
 	 */
 	public static URI createFile(String path) throws URISyntaxException {
+		path = fixWindowsPath(path);
 		return fixUnicode(new URI("file","", path, null));
+	}
+	
+	private static String fixWindowsPath(String path) {
+		if (!path.startsWith("/")) {
+			path = "/" + path;
+		}
+		
+		return path;
 	}
 
 	/**
