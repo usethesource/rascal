@@ -73,7 +73,7 @@ public data MuExp =
           | muCall(MuExp fun, list[MuExp] args)					// Call a *muRascal function
           
           | muOCall(MuExp fun, list[MuExp] args)                // Call a declared *Rascal function
-          | muOCall(MuExp fun, set[Symbol] types,               // Call a dynamic *Rascal function
+          | muOCall(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function
           					   list[MuExp] args)
           
           | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
