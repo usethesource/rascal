@@ -857,7 +857,9 @@ MuExp translateSlice(Expression expression, OptionalExpression optFirst, Express
 
 // Translate Visit
 
-MuExp translateVisit(label, \visit) { 
+MuExp translateVisit(label, \visit) {
+
+	int i = nextVisit();
 	
 	subject = \visit.subject;
 	cases = \visit.cases;
