@@ -127,7 +127,11 @@ private list[str] functionScopes = [];
 
 str topFunctionScope() = top(functionScopes);
 
-void enterFunctionScope(str fuid) = fuid + functionScopes;
+void enterFunctionScope(str fuid) { 
+	functionScopes = fuid + functionScopes; 
+}
 
-void leaveFunctionScope() = tail(functionScopes);
+void leaveFunctionScope() { 
+	functionScopes = tail(functionScopes); 
+}
 
