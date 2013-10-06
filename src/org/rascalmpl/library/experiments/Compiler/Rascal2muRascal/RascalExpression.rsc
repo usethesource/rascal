@@ -160,6 +160,7 @@ MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{E
 
 // Reified type
 MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) { throw("reifiedType"); }
+//  muCon(symbolToValue(symbol, config));
 
 // Call
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
@@ -222,7 +223,9 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
       throw "The use of a function has to be managed via overloading resolver!";
    }
    // Push down additional information if the overloading resolution needs to be done at runtime
-   return muOCall(receiver, isFunctionType(ftype) ? { ftype } : (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), args);
+   return muOCall(receiver, 
+   				  isFunctionType(ftype) ? Symbol::\tuple([ ftype ]) : Symbol::\tuple([ t | Symbol t <- getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype) ]), 
+   				  args);
 }
 
 // Any
@@ -747,6 +750,9 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
  MuExp translateClosure(Expression e, Parameters parameters, Statement+ statements) {
  	uid = loc2uid[e@\loc];
 	fuid = uid2str(uid);
+	
+	enterFunctionScope(fuid);
+	
     ftype = getClosureType(e@\loc);
 	nformals = size(ftype.parameters);
 	nlocals = getScopeSize(fuid);
@@ -757,6 +763,9 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
     tuple[str fuid,int pos] addr = uid2addr[uid];
     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  nformals, nlocals, e@\loc, [], (), body);
+  	
+  	leaveFunctionScope();								  
+  	
 	return (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid); // closures are not overloaded
 }
 
@@ -851,4 +860,30 @@ MuExp translateSlice(Expression expression, OptionalExpression optFirst, Express
 
 // Translate Visit
 
-MuExp translateVisit(label, \visit) { throw "visit"; }
+MuExp translateVisit(label, \visit) {
+
+	int i = nextVisit();
+	
+	subject = \visit.subject;
+	cases = \visit.cases;
+	
+	for(c <- cases) {
+		if(c is patternWithAction) {
+			if(c.patternWithAction is replacing) {
+				pattern = c.patternWithAction.pattern;
+				expression = c.patternWithAction.replacement.replacementExpression;
+				// TODO: conditional replacement
+			} else {
+				// Arbitrary
+				pattern = c.patternWithAction.pattern;
+				statement = c.patternWithAction.statement;
+			}
+		} else {
+			// Default
+			statement = c.statement;
+		}
+	}
+
+}
+
+

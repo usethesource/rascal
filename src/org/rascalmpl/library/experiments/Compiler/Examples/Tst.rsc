@@ -1,5 +1,7 @@
 module experiments::Compiler::Examples::Tst
 
-syntax A = "a";
-  
-value main(list[value] args) { return [A] "a"; }
+data M = message(str txt);
+
+public anno M node@message;
+
+value main(list[value] args) { return "f"()@message("abc"); }
