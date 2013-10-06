@@ -18,6 +18,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
+//import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FilterReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.HasNext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Init;
@@ -422,8 +423,8 @@ public class CodeBlock {
 		return add(new OCall(this, fuid, arity));
 	}
 	
-	public CodeBlock OCALLDYN(int arity) {
-		return add(new OCallDyn(this, arity));
+	public CodeBlock OCALLDYN(Type types, int arity) {
+		return add(new OCallDyn(this, getTypeConstantIndex(types), arity));
 	}
 	
 	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes){
@@ -442,6 +443,10 @@ public class CodeBlock {
 	
 	public CodeBlock UNWRAPTHROWN(int pos) {
 		return add(new UnwrapThrown(this, pos));
+	}
+	
+	public CodeBlock FILTERRETURN(){
+		return null; //add(new FilterReturn(this));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

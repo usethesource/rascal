@@ -20,6 +20,7 @@ import experiments::Compiler::Examples::Overloading2;
 import experiments::Compiler::Examples::Overloading3;
 import experiments::Compiler::Examples::OverloadingMatch;
 import experiments::Compiler::Examples::OverloadingPlusBacktracking;
+import experiments::Compiler::Examples::OverloadingDynamicCall;
 import experiments::Compiler::Examples::ExceptionHandling1;
 import experiments::Compiler::Examples::ExceptionHandling2;
 import experiments::Compiler::Examples::ExceptionHandling3;
@@ -59,6 +60,7 @@ test bool tst() = demo("Overloading2") == experiments::Compiler::Examples::Overl
 test bool tst() = demo("Overloading3") == experiments::Compiler::Examples::Overloading3::main([]);
 test bool tst() = demo("OverloadingMatch") == experiments::Compiler::Examples::OverloadingMatch::main([]);
 test bool tst() = demo("OverloadingPlusBacktracking") == experiments::Compiler::Examples::OverloadingPlusBacktracking::main([]);
+test bool tst() = demo("OverloadingDynamicCall") == experiments::Compiler::Examples::OverloadingDynamicCall::main([]);
 test bool tst() = demo("ExceptionHandling1") == experiments::Compiler::Examples::ExceptionHandling1::main([]);
 test bool tst() = demo("ExceptionHandling2") == experiments::Compiler::Examples::ExceptionHandling2::main([]);
 test bool tst() = demo("ExceptionHandling3") == experiments::Compiler::Examples::ExceptionHandling3::main([]);

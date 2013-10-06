@@ -43,7 +43,7 @@ private int estimate(muCall(muConstr(str fuid), list[MuExp] args)) = estimate_ar
 private int estimate(muCall(MuExp fun, list[MuExp] args)) = max(estimate(fun), 1 + estimate_arg_list(args));
 
 private int estimate(muOCall(muOFun(str fuid), list[MuExp] args)) = estimate_arg_list(args);
-private int estimate(muOCall(MuExp fun, set[Symbol] types, list[MuExp] args)) = max(estimate(fun), max(1 + 1 + estimate_arg_list(args), size(types)));
+private int estimate(muOCall(MuExp fun, Symbol types, list[MuExp] args)) = max(estimate(fun), 1 + estimate_arg_list(args));
 
 private int estimate(muCallPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCallMuPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
@@ -70,6 +70,7 @@ private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \defa
 (1 | max(it, estimate(cs.exp)) | cs <- cases);
        
 private int estimate(muFailReturn()) = 0;
+private int estimate(muFilterReturn()) = 0;
 
 private int estimate(muCreate(muFun(str fuid))) = 1;
 private int estimate(muCreate(MuExp fun)) = estimate(fun);

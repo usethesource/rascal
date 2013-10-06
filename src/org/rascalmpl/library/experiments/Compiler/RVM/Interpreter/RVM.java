@@ -34,6 +34,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
 
@@ -66,18 +67,21 @@ public class RVM {
 	
 	
 	private final Map<IValue, IValue> moduleVariables;
-	private PrintWriter stdout;
+	PrintWriter stdout;
 	
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
 	Frame ccf = null; // the start frame (of the coroutine's main function) of the current active coroutine
+	IEvaluatorContext ctx;
 
 
-	public RVM(IValueFactory vf, PrintWriter stdout, boolean debug) {
+	public RVM(IValueFactory vf, IEvaluatorContext ctx, boolean debug) {
 		super();
 
 		this.vf = vf;
-		this.stdout = stdout;		
+		
+		this.ctx = ctx;
+		this.stdout = ctx.getStdOut();	
 		this.debug = debug;
 		this.finalized = false;
 		
@@ -100,11 +104,11 @@ public class RVM {
 		moduleVariables = new HashMap<IValue,IValue>();
 		
 		MuPrimitive.init(vf);
-		RascalPrimitive.init(vf, stdout, this);
+		RascalPrimitive.init(vf, this);
 	}
 	
 	public RVM(IValueFactory vf){
-		this(vf, new PrintWriter(System.out, true), false);
+		this(vf, null, false);
 	}
 	
 	public void declare(Function f){
@@ -242,7 +246,7 @@ public class RVM {
 			for(Integer fun : of.functions) {
 				alts = alts + functionStore.get(fun).getName() + "; ";
 			}
-			return "OverloadedFunction[ alts: " + "]";
+			return "OverloadedFunction[ alts: " + alts + "]";
 		}
 		if(o instanceof Reference){
 			Reference ref = (Reference) o;
@@ -716,6 +720,8 @@ public class RVM {
 					continue;
 					
 				case Opcode.OP_OCALLDYN:
+					// Get function types to perform a type-based dynamic resolution
+					Type types = cf.function.codeblock.getConstantType(instructions[pc++]);		
 					arity = instructions[pc++];
 					// Objects of three types may appear on the stack:
 					// 	1. FunctionInstance due to closures
@@ -727,8 +733,6 @@ public class RVM {
 						args[i] = (IValue) stack[sp - arity + i];
 					}			
 					sp = sp - arity;
-					// Get function types to perform a type-based dynamic resolution
-					Object[] types = (Object[]) stack[--sp];
 					
 					if(funcObject instanceof FunctionInstance) {
 						FunctionInstance fun_instance = (FunctionInstance) funcObject;
@@ -752,7 +756,7 @@ public class RVM {
 					NEXT_FUNCTION: 
 					for(int index : of_instance.functions) {
 						fun = functionStore.get(index);
-						for(Object type : types) {
+						for(Type type : types) {
 							if(type == fun.ftype) {
 								FunctionInstance fun_instance = new FunctionInstance(fun, of_instance.env);
 										
@@ -775,7 +779,7 @@ public class RVM {
 					
 					for(int index : of_instance.constructors) {
 						constructor = constructorStore.get(index);
-						for(Object type : types) {
+						for(Type type : types) {
 							if(type == constructor) {
 								
 								if(debug) {
@@ -890,11 +894,13 @@ public class RVM {
 						throw new RuntimeException("PANIC: FAILRETURN should return from the program execution given the current design!");
 					}
 					
+				case Opcode.OP_FILTERRETURN:
 				case Opcode.OP_RETURN0:
 				case Opcode.OP_RETURN1:
+				
 					rval = null;
-					boolean returns = op == Opcode.OP_RETURN1; 
-					if(returns) {
+					boolean returns = (op == Opcode.OP_RETURN1) || (op == Opcode.OP_FILTERRETURN);
+					if(op == Opcode.OP_RETURN1) {
 						rval = stack[sp - 1];
 					}
 					
