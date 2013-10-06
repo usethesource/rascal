@@ -71,7 +71,7 @@ test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.hour += 1; DT;}"
 test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.minute += 1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.minute += 1; DT;};
 test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.second += 1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.second += 1; DT;};
 test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.millisecond += 1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.millisecond += 1; DT;};
-test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$;.DT.timezoneOffsetHours +=1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.timezoneOffsetHours +=1; DT;};
+test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.timezoneOffsetHours +=1; DT;}") == {DT = $2013-01-01T08:15:30.055+0100$; DT.timezoneOffsetHours +=1; DT;};
 test bool tst() = run("{DT = $2013-01-01T08:15:30.055+0100$; DT.timezoneOffsetMinutes += 1; DT; }") == {DT = $2013-01-01T08:15:30.055+0100$; DT.timezoneOffsetMinutes += 1; DT; };
 
 

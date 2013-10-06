@@ -160,6 +160,7 @@ MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{E
 
 // Reified type
 MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) { throw("reifiedType"); }
+//  muCon(symbolToValue(symbol, config));
 
 // Call
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
