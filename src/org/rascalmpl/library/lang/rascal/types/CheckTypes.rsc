@@ -2798,26 +2798,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> \<- <Express
 
 @doc{Check the types of Rascal expressions: Implication (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> ==\> <Expression e2>`, Configuration c) {
-    needNewScope = !inBooleanScope(c);
-    cImp = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
-    < cImp, t1 > = checkExp(e1, cImp);
-    < cImp, t2 > = checkExp(e2, cImp);
-    c = needNewScope ? exitBooleanScope(cImp,c) : cImp;
-    if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-    if (isBoolType(t1) && isBoolType(t2)) return markLocationType(c,exp@\loc,\bool());
-    return markLocationFailed(c,exp@\loc,makeFailType("Logical and not defined for types <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
+	return checkBooleanOpsWithMerging(exp, e1, e2, "Logical implication", c);
 }
 
 @doc{Check the types of Rascal expressions: Equivalence (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \<==\> <Expression e2>`, Configuration c) {
-    needNewScope = !inBooleanScope(c);
-    cEquiv = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
-    < cEquiv, t1 > = checkExp(e1, cEquiv);
-    < cEquiv, t2 > = checkExp(e2, cEquiv);
-    c = needNewScope ? exitBooleanScope(cEquiv,c) : cEquiv;
-    if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-    if (isBoolType(t1) && isBoolType(t2)) return markLocationType(c,exp@\loc,\bool());
-    return markLocationFailed(c,exp@\loc,makeFailType("Logical and not defined for types <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
+	return checkBooleanOpsWithMerging(exp, e1, e2, "Logical equivalence", c);
 }
 
 @doc{Check the types of Rascal expressions: And (DONE)}
@@ -2834,6 +2820,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> && <Expr
 
 @doc{Check the types of Rascal expressions: Or (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> || <Expression e2>`, Configuration c) {
+	return checkBooleanOpsWithMerging(exp, e1, e2, "Logical or", c);
+}
+
+@doc{Handle merging logic for checking boolean operations}
+public CheckResult checkBooleanOpsWithMerging(Expression exp, Expression e1, Expression e2, str opname, Configuration c) {
     needNewScope = !inBooleanScope(c);
     cOr = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
     failures = { };
@@ -2889,8 +2880,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> || <Expr
         if (! (isInferredType(lt) || isInferredType(rt) || isFailType(lt) || isFailType(rt)) ) {
         	// If the variable is available on both sides, we hoist it up into this level,
         	// merging all references to the two independent variables into just one
-			currentScopeId = head(cOr.stack);
-			cOr.store[cOrLeft.fcvEnv[vn]].containedIn = currentScopeId; // Move the definition from the left-hand side to this level
+			cOr.store[cOrLeft.fcvEnv[vn]].containedIn = head(cOr.stack);; // Move the definition from the left-hand side to this level
 			oldDefinitions = domainR(cOr.definitions, { cOrRight.fcvEnv[vn] }); // Find the old right-hand side definition(s) of the variable
 			cOr.definitions = domainX(cOr.definitions, { cOrRight.fcvEnv[vn] }); // Remove the definition from the right-hand side 
 			oldUses = domainR(cOr.uses, { cOrRight.fcvEnv[vn] }); // Find uses of the right-hand definition
@@ -2910,7 +2900,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> || <Expr
     c = needNewScope ? exitBooleanScope(cOr,c) : cOr;
     if (size(failures) > 0) return markLocationFailed(c,exp@\loc,failures);
     if (isBoolType(t1) && isBoolType(t2)) return markLocationType(c,exp@\loc,\bool());
-    return markLocationFailed(c,exp@\loc,makeFailType("Logical or not defined for types <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
+    return markLocationFailed(c,exp@\loc,makeFailType("<opname> not defined for types <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
 }
 
 @doc{Check the types of Rascal expressions: If Then Else (DONE)}
