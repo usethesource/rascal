@@ -18,7 +18,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FilterReturn;
+//import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FilterReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.HasNext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Init;
@@ -446,7 +446,7 @@ public class CodeBlock {
 	}
 	
 	public CodeBlock FILTERRETURN(){
-		return add(new FilterReturn(this));
+		return null; //add(new FilterReturn(this));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
