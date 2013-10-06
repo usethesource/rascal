@@ -51,12 +51,12 @@ list[str] functionalityTests = [
 
 
 list[str] rascalTests = [
-"BacktrackingTests"		// |rascal://lang::rascal::types::CheckTypes|(286903,27,<5690,18>,<5690,45>): The called signature: checkKeywordFormals(sort("KeywordFormals"), Configuration),
+//"BacktrackingTests"		// |rascal://lang::rascal::types::CheckTypes|(286903,27,<5690,18>,<5690,45>): The called signature: checkKeywordFormals(sort("KeywordFormals"), Configuration),
 						// does not match the declared signature:	CheckResult checkKeywordFormals(sort("KeywordFormals"), Configuration); (concrete pattern);  
 //"Booleans"			// |rascal://experiments::Compiler::RVM::Run|(217,264,<12,0>,<14,153>): Java("RuntimeException","PANIC: undefined overloaded function name Boolean/fromString(str();)#0/use:IllegalArgument(str();str();)")
 						// at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock.getOverloadedFunctionIndex(|file:///CodeBlock.java|(0,0,<202,0>,<202,0>))
 
-//"Equality"				// |rascal://lang::rascal::types::CheckTypes|(286903,27,<5690,18>,<5690,45>): The called signature: checkKeywordFormals(sort("KeywordFormals"), Configuration),
+"Equality"				// |rascal://lang::rascal::types::CheckTypes|(286903,27,<5690,18>,<5690,45>): The called signature: checkKeywordFormals(sort("KeywordFormals"), Configuration),
 						// does not match the declared signature:	CheckResult checkKeywordFormals(sort("KeywordFormals"), Configuration); (concrete pattern);  
 //"Functions"				// Checking function callKwp
 						// |rascal://lang::rascal::types::CheckTypes|(206380,13,<4071,16>,<4071,29>): The called signature: checkExp(sort("Expression"), Configuration),
@@ -73,7 +73,7 @@ list[str] rascalTests = [
 // "Nodes"				// |rascal://lang::rascal::types::CheckTypes|(254842,31,<5055,19>,<5055,50>): The called signature: buildAssignableTree(sort("Assignable"), bool, Configuration),
 						// does not match the declared signature:	ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  
 //"Relations",
-//"Sets"					// |rascal://lang::rascal::types::CheckTypes|(286903,27,<5690,18>,<5690,45>): The called signature: checkKeywordFormals(sort("KeywordFormals"), Configuration),
+//"Sets"				// |rascal://lang::rascal::types::CheckTypes|(286903,27,<5690,18>,<5690,45>): The called signature: checkKeywordFormals(sort("KeywordFormals"), Configuration),
 						// does not match the declared signature:	CheckResult checkKeywordFormals(sort("KeywordFormals"), Configuration); (concrete pattern);  
 //"SolvedIssues"		// |rascal://lang::rascal::types::CheckTypes|(286903,27,<5690,18>,<5690,45>): The called signature: checkKeywordFormals(sort("KeywordFormals"), Configuration),
 						// does not match the declared signature:	CheckResult checkKeywordFormals(sort("KeywordFormals"), Configuration); (concrete pattern);  
