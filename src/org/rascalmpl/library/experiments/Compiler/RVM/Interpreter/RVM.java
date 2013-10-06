@@ -246,7 +246,7 @@ public class RVM {
 			for(Integer fun : of.functions) {
 				alts = alts + functionStore.get(fun).getName() + "; ";
 			}
-			return "OverloadedFunction[ alts: " + "]";
+			return "OverloadedFunction[ alts: " + alts + "]";
 		}
 		if(o instanceof Reference){
 			Reference ref = (Reference) o;
