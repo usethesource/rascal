@@ -169,6 +169,9 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   nformals = size(ftype.parameters);
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
+  
+  enterFunctionScope(fuid);
+  
   tuple[str fuid,int pos] addr = uid2addr[uid];
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
@@ -185,6 +188,9 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
      // Maybe we should still transfer the reified type
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
+  
+  leaveFunctionScope();
+  
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`){
@@ -193,6 +199,9 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   nformals = size(ftype.parameters);
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
+  
+  enterFunctionScope(fuid);
+  
   tuple[str fuid,int pos] addr = uid2addr[uid];
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
@@ -209,6 +218,9 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
      // Maybe we should still transfer the reified type
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
+  
+  leaveFunctionScope();
+  
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
@@ -220,9 +232,15 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   MuExp tbody = translateFunction(signature.parameters.formals.formals, body.statements, []);
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
+  
+  enterFunctionScope(fuid);
+  
   tuple[str fuid,int pos] addr = uid2addr[uid];
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody); 
+  									nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody);
+  									
+  leaveFunctionScope();
+   
 }
 
 
