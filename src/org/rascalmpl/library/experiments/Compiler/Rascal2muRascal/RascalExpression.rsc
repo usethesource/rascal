@@ -861,28 +861,37 @@ MuExp translateSlice(Expression expression, OptionalExpression optFirst, Express
 
 MuExp translateVisit(label, \visit) {
 
+	// TODO: conditional
+	
 	int i = nextVisit();
 	
 	subject = \visit.subject;
 	cases = \visit.cases;
 	
+	production = Production::prod(Symbol::regular(\iter-star-seps(sort("Pattern"),[layouts("$default$"),lit(","),layouts("$default$")]))); // {Pattern ","}*
+	
+	list[MuFunction] case_functions = [];
+	
 	for(c <- cases) {
 		if(c is patternWithAction) {
+			pattern = c.patternWithAction;
 			if(c.patternWithAction is replacing) {
-				pattern = c.patternWithAction.pattern;
 				expression = c.patternWithAction.replacement.replacementExpression;
-				// TODO: conditional replacement
+				exp = translateFunction(appl(production,[ pattern ]), translate(expression), []);
 			} else {
 				// Arbitrary
-				pattern = c.patternWithAction.pattern;
 				statement = c.patternWithAction.statement;
+				exp = translateFunction(appl(production, [ pattern ]), translate(statement), []);
 			}
 		} else {
 			// Default
 			statement = c.statement;
+			exp = translateFunction(appl(production, []), translate(statement), []);
 		}
 	}
 
 }
+
+MuExp translateVisitCase()
 
 
