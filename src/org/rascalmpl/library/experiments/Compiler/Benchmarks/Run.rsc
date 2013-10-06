@@ -57,7 +57,7 @@ void report_one(Measurement m){
   iexec = m.interpretedExec;
   speedup = iexec/cexec;
   saved = 100.0 * (iexec - (comp + cexec)) / iexec;
-  println("<right(m.name, 15)>: compiled: (compilation <align(comp)> msec, execution <align(cexec)> msec); interpreted: <align(iexec)> msec; speedup: <align(speedup)> x; saved: <align(saved)> %");
+  println("<right(m.name, 20)>: compiled: (compilation <align(comp)> msec, execution <align(cexec)> msec); interpreted: <align(iexec)> msec; speedup: <align(speedup)> x; saved: <align(saved)> %");
 }
 
 void report(){
