@@ -423,8 +423,8 @@ public class CodeBlock {
 		return add(new OCall(this, fuid, arity));
 	}
 	
-	public CodeBlock OCALLDYN(int arity) {
-		return add(new OCallDyn(this, arity));
+	public CodeBlock OCALLDYN(Type types, int arity) {
+		return add(new OCallDyn(this, getTypeConstantIndex(types), arity));
 	}
 	
 	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes){
