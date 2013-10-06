@@ -120,3 +120,14 @@ void leaveTryCatchFinally() {
 	tryCatchFinally = tail(tryCatchFinally);
 }
 
+// Administration of function scopes; 
+// needed to translate 'visit' expressions and generate function declarations for 'visit' cases
+
+private list[str] functionScopes = [];
+
+str topFunctionScope() = top(functionScopes);
+
+void enterFunctionScope(str fuid) = fuid + functionScopes;
+
+void leaveFunctionScope() = tail(functionScopes);
+
