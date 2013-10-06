@@ -106,7 +106,7 @@ void leaveWriter(){
 
 // Administration of try-catch-finally blocks
 
-// The stack of try-catch-finally block is managed to check whether there is a finally block 
+// The stack of try-catch-finally block is managed to check whether there is a finally block
 // that must be executed before 'return' if any
 private list[bool] tryCatchFinally = [];
 
@@ -123,12 +123,18 @@ void leaveTryCatchFinally() {
 // Administration of function scopes; 
 // needed to translate 'visit' expressions and generate function declarations for 'visit' cases
 
-private list[str] functionScopes = [];
+private lrel[str scope,int counter] functionScopes = [];
 
-str topFunctionScope() = top(functionScopes);
+str topFunctionScope() = top(functionScopes).scope;
+
+int nextVisit() {
+	int counter = top(functionScopes).counter;
+	functionScopes = <top(functionScopes).scope, counter + 1> + tail(functionScopes);
+	return counter;
+}
 
 void enterFunctionScope(str fuid) { 
-	functionScopes = fuid + functionScopes; 
+	functionScopes = <fuid,0> + functionScopes; 
 }
 
 void leaveFunctionScope() { 
