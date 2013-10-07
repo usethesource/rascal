@@ -282,7 +282,7 @@ MuExp translate(s: (Statement) `return <Statement statement>`) {
 
 MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translate(statement));
 
-MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) = muReturn(translate(statement));
+MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) = translate(statement);
 
 MuExp translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) =
    muCallPrim("listwriter_add", [muTmp(asTmp(currentLoop())), translate(statement)]);
