@@ -18,6 +18,7 @@ public class Thrown extends RuntimeException {
 	List<Frame> stacktrace;
 	
 	private Thrown() {
+		super();
 		this.value = null;
 		this.stacktrace = null;
 	}
