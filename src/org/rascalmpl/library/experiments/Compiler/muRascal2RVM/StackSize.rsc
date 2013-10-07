@@ -103,6 +103,7 @@ private int estimate(muVarDeref(str name, str fuid, int pos)) = 1;
 
 private int estimate(muLocRef(str name, int pos)) = 1;
 private int estimate(muVarRef(str name, str fuid, int pos)) = 1;
+private int estimate(muTmpRef(str name)) = 1;
 
 private int estimate(muAssignLocDeref(str id, int pos, MuExp exp)) = estimate(exp);
 private int estimate(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = estimate(exp);

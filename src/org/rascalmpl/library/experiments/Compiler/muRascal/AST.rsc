@@ -66,6 +66,7 @@ public data MuExp =
           
           | muLocRef(str name, int pos) 				        // Call-by-reference: expression that returns a value location
           | muVarRef(str name, str fuid, int pos)
+          | muTmpRef(str name)
              
           | muTypeCon(Symbol tp)								// Type constant
           
