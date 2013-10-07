@@ -5686,8 +5686,8 @@ public CheckResult processSignature(Signature sig:(Signature)`<FunctionModifiers
 
     < c, ptTuple > = checkParameters(ps, c);
 
-    kfs = getKeywordFormals(ps);
-	< c, kfTuple > = checkKeywordFormals(kfs, c);
+	//kfs = getKeywordFormals(ps);
+	//< c, kfTuple > = checkKeywordFormals(kfs, c);
 	
     list[Symbol] parameterTypes = getTupleFields(ptTuple);
     // TODO: Pick up here...
