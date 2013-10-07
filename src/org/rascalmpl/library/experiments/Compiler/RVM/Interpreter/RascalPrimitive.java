@@ -1,7 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -581,6 +579,7 @@ public enum RascalPrimitive {
 	
 	tuple_field_access,
 	tuple_field_project,
+	tuple_field_update,
 	tuple_create,
 	tuple_subscript_int,
 	tuple_update,
@@ -615,7 +614,9 @@ public enum RascalPrimitive {
 	 */
 	public static void init(IValueFactory fact, RVM usedRVM) {
 		vf = fact;
-		stdout = usedRVM.stdout;
+		if(usedRVM != null){
+			stdout = usedRVM.stdout;
+		}
 		rvm = usedRVM;
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
@@ -2110,6 +2111,12 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		stack[sp - 2] = ((ITuple) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
 		return sp - 1;
+	}
+	
+	public static int tuple_field_update(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		stack[sp - 3] = ((ITuple) stack[sp - 3]).set(((IString) stack[sp - 2]).getValue(), (IValue) stack[sp - 1]);
+		return sp - 2;
 	}
 	
 	public static int tuple_field_project(Object[] stack, int sp, int arity) {
@@ -4671,7 +4678,7 @@ public enum RascalPrimitive {
 	public static int tuple_update(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		ITuple tup = (ITuple) stack[sp - 3];
-		int n = ((IInteger) stack[sp -2]).intValue();
+		int n = ((IInteger) stack[sp - 2]).intValue();
 		stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
 		return sp - 2;
 	}
