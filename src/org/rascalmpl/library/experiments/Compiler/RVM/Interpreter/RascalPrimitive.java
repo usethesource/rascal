@@ -1,7 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
