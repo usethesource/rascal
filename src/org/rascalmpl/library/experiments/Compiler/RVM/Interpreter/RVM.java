@@ -328,7 +328,11 @@ public class RVM {
 		for(int i = 0; i < args.length; i++){
 			cf.stack[i] = args[i]; 
 		}
-		return narrow(executeProgram(root, cf)); 
+		Object o = executeProgram(root, cf);
+		if(o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		return narrow(o); 
 	}
 	
 	// Execute a function instance, i.e., a function in its environment
@@ -341,7 +345,11 @@ public class RVM {
 		for(int i = 0; i < args.length; i++){
 			cf.stack[i] = args[i]; 
 		}
-		return executeProgram(root, cf);
+		Object o = executeProgram(root, cf);
+		if(o != null && o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		return o;
 	}
 	
 	private String trace = "";
@@ -372,7 +380,11 @@ public class RVM {
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
 		Frame cf = root;
 		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
-		IValue res = narrow(executeProgram(root, cf));
+		Object o = executeProgram(root, cf);
+		if(o != null && o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		IValue res = narrow(o);
 		if(debug) {
 			stdout.println("TRACE:");
 			stdout.println(getTrace());
