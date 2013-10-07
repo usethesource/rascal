@@ -403,7 +403,7 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optF
      assignTo(receiver, muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), translateOpt(optFirst), translate(second), translateOpt(optLast), rhs]));
 
 MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, MuExp rhs) =
-     assignTo(receiver, muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), muCon("<field>"), rhs]) );
+     assignTo(receiver, muCallPrim("<getOuterType(receiver)>_field_update", [*getValues(receiver), muCon("<field>"), rhs]) );
 
 MuExp assignTo(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, MuExp rhs) = 
 	assignTo(receiver,  rhs);
@@ -431,7 +431,7 @@ MuExp assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, 
 }
 
 MuExp assignTo(a: (Assignable) `<Assignable receiver> @ <Name annotation>`,  MuExp rhs) =
-     assignTo(receiver, muCallPrim("annotation_setupdate", [*getValues(receiver), muCon("<field>"), rhs]));
+     assignTo(receiver, muCallPrim("annotation_set", [*getValues(receiver), muCon("<annotation>"), rhs]));
 
 // getValues: get the current value(s) of an assignable
 
@@ -464,7 +464,7 @@ list[MuExp] getValues(a:(Assignable) `\<  <{Assignable ","}+ elements > \>` ) = 
 list[MuExp] getValues(a:(Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` ) = [ *getValues(arg) | arg <- arguments ];
 
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> @ <Name annotation>`) = 
-    [ muCallPrim("annotation_get", [ *getValues(receiver), muCon("<field>")]) ];
+    [ muCallPrim("annotation_get", [ *getValues(receiver), muCon("<annotation>")]) ];
 
 // getReceiver: get the final receiver of an assignable
 

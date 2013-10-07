@@ -28,7 +28,7 @@ list[str] libs = [
                     	//  Caused by associativity in ParseTree
 						//
 //"IO", 				// OK
-//"List" 					// uses ||
+//"List" 					// uses keyword parameters
 
 //"ListRelation"			// 	import List
 						  
@@ -75,9 +75,8 @@ list[str] libs = [
 //"util::FileSystem" 	// 	import IO
 
 //"util::Highlight"		// import String, ParseTree
-"util::LOC"				// |rascal://experiments::Compiler::Rascal2muRascal::TypeUtils|(13601,5,<349,56>,<349,61>): NoSuchField("parameters")
-//"util::Math", 		// |rascal://experiments::Compiler::Rascal2muRascal::TypeUtils|(4067,1,<134,20>,<134,21>): NoSuchKey(|std:///util/Math.rsc|(3114,1,<153,5>,<153,6>))
-						//   Caused by: || operator in ceil 
+//"util::LOC"				// |rascal://experiments::Compiler::Rascal2muRascal::TypeUtils|(13601,5,<349,56>,<349,61>): NoSuchField("parameters")
+//"util::Math" 			// OK
 						
 
 //"util::Maybe"			// OK
