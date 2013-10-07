@@ -6128,8 +6128,7 @@ public CheckResult convertAndExpandType(Type t, Configuration c) {
 //  We allow constructor names (constructor types) to be used in the 'throws' clauses of Rascal functions
 public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
     rt = convertType(t);
-    if( utc:\user(rn,pl) := rt && isEmpty(pl) 
-               && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
+    if( utc:\user(rn,pl) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
         // Check if there is a value constructor with this name in the current environment
         if(constructor(_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
@@ -6137,7 +6136,16 @@ public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
             c.usedIn[utc@at] = head(c.stack);
             return <c, rt>;   
         }
-    }
+    } else if (\func(utc:\user(rn,pl), ps) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
+        // Check if there is a value constructor with this name in the current environment
+        if(constructor(_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
+            // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
+            c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
+            c.usedIn[utc@at] = head(c.stack);
+            return <c, rt>;   
+        }
+	}
+    
     if ( (rt@errinfo)? && size(rt@errinfo) > 0 ) {
         for (m <- rt@errinfo) {
             c = addScopeMessage(c,m);
