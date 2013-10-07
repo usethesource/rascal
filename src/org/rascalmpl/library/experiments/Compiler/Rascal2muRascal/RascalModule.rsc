@@ -230,6 +230,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   //TODO: keyword parameters
   MuExp tbody = translateFunction(signature.parameters.formals.formals, body.statements, []);
+  tmods = translateModifiers(signature.modifiers);
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
   
@@ -238,6 +239,13 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   tuple[str fuid,int pos] addr = uid2addr[uid];
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody);
+  					
+   if("test" in tmods){
+     params = ftype.parameters;
+     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muTypeCon(\tuple([param | param <- params ])) ]);
+     // Maybe we should still transfer the reified type
+     //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
+  }
   									
   leaveFunctionScope();
    

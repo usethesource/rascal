@@ -254,6 +254,7 @@ INS tr(muVarDeref(str name, str fuid, int pos)) = [ fuid == functionScope ? LOAD
 
 INS tr(muLocRef(str name, int pos)) = [ LOADLOCREF(pos) ];
 INS tr(muVarRef(str name, str fuid, int pos)) = [ fuid == functionScope ? LOADLOCREF(pos) : LOADVARREF(fuid, pos) ];
+INS tr(muTmpRef(str name)) = [ LOADLOCREF(getTmp(name)) ];
 
 INS tr(muAssignLocDeref(str id, int pos, MuExp exp)) = [ *tr(exp), STORELOCDEREF(pos) ];
 INS tr(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = [ *tr(exp), fuid == functionScope ? STORELOCDEREF(pos) : STOREVARDEREF(fuid, pos) ];
