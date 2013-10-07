@@ -165,13 +165,15 @@ Vis getVis(Visibility v:(Visibility)`private`) = privateVis();
 Vis getVis(Visibility v:(Visibility)`public`) = publicVis();
 default Vis getVis(Visibility v) = defaultVis();
 
+alias KeywordParamMap = map[RName kpName, Symbol kpType];
+
 @doc{Abstract values manipulated by the semantics. We include special scopes here as well, such as the
      scopes used for blocks and boolean expressions.}
 data AbstractValue 
     = label(RName name, LabelSource source, int containedIn, loc at) 
     | variable(RName name, Symbol rtype, bool inferred, int containedIn, loc at)
-    | function(RName name, Symbol rtype, bool isVarArgs, int containedIn, list[Symbol] throwsTypes, loc at)
-    | closure(Symbol rtype, int containedIn, loc at)
+    | function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, list[Symbol] throwsTypes, loc at)
+    | closure(Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at)
     | \module(RName name, loc at)
     | overload(set[int] items, Symbol rtype)
     | datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
@@ -278,15 +280,15 @@ public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
 public int definingContainer(Configuration c, int i) {
     cid = c.store[i].containedIn;
     if (\module(_,_) := c.store[cid]) return cid;
-    if (\function(_,_,_,_,_,_) := c.store[cid]) return cid;
-    if (\closure(_,_,_) := c.store[cid]) return cid;
+    if (\function(_,_,_,_,_,_,_) := c.store[cid]) return cid;
+    if (\closure(_,_,_,_) := c.store[cid]) return cid;
     return definingContainer(c,cid);
 }
 
 public list[int] upToContainer(Configuration c, int i) {
     if (\module(_,_) := c.store[i]) return [i];
-    if (\function(_,_,_,_,_,_) := c.store[i]) return [i];
-    if (\closure(_,_,_) := c.store[i]) return [i];
+    if (\function(_,_,_,_,_,_,_) := c.store[i]) return [i];
+    if (\closure(_,_,_,_) := c.store[i]) return [i];
     return [i] + upToContainer(c,c.store[i].containedIn);
 }
 
@@ -502,7 +504,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
             c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
             c.nextLoc = c.nextLoc + 1;
         }
-    } else if (constructor(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
+    } else if (constructor(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
         // If the same constructor definitions comes in along multiple paths, this is fine.
         // The only thing we do then is make sure the names are correct, since, given module
         // B extending module A, we could call the constructor A::cons or B::cons.
@@ -613,8 +615,8 @@ public Configuration popModule(Configuration c) {
     return c;
 }
 
-public Configuration addClosure(Configuration c, Symbol rt, loc l) {
-    c.store[c.nextLoc] = closure(rt,head(c.stack),l);
+public Configuration addClosure(Configuration c, Symbol rt, KeywordParamMap keywordParams, loc l) {
+    c.store[c.nextLoc] = closure(rt,keywordParams, head(c.stack),l);
     c.definitions = c.definitions + < c.nextLoc, l >;
     c.stack = c.nextLoc + c.stack;
     c.nextLoc = c.nextLoc + 1;
@@ -622,7 +624,7 @@ public Configuration addClosure(Configuration c, Symbol rt, loc l) {
     return c;
 }
 
-public Configuration addFunction(Configuration c, RName n, Symbol rt, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l) {
+public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordParamMap keywordParams, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l) {
     // TODO: Handle the visibility properly. The main point is that we should not have variants
     // for the same function that are given different visibilities.
     // TODO: Verify the scoping is working properly for the second and third cases. It should be the
@@ -645,7 +647,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, set[Modifi
             moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
             c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
         }
-        c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
+        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
         for(Modifier modifier <- modifiers) {
         	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
         } 
@@ -654,7 +656,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, set[Modifi
         //c.stack = c.nextLoc + c.stack;
         c.nextLoc = c.nextLoc + 1;
     } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-        c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
+        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
         for(Modifier modifier <- modifiers) {
         	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
         }
@@ -668,8 +670,8 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, set[Modifi
         c.visibilities[c.nextLoc] = visibility;
         //c.stack = c.nextLoc + c.stack;
         c.nextLoc = c.nextLoc + 1;
-    } else if (function(_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
-        c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
+    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
+        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
         for(Modifier modifier <- modifiers) {
         	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
         }
@@ -705,7 +707,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, set[Modifi
             moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
             c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
         }
-        c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
+        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
         for(Modifier modifier <- modifiers) {
         	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
         }
@@ -807,16 +809,18 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
     // instead of in the surrounding environment.   
     < cFun, rt > = convertAndExpandType(t,c);
     Symbol funType = Symbol::\func(rt,[]);
-    cFun = addClosure(cFun, funType, exp@\loc);
+    cFun = addClosure(cFun, funType, ( ), exp@\loc);
     
     // Calculate the parameter types. This returns the parameters as a tuple. As
     // a side effect, names defined in the parameters are added to the environment.
     < cFun, ptTuple > = checkParameters(ps, cFun);
     list[Symbol] parameterTypes = getTupleFields(ptTuple);
+
+	< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(ps), cFun);
     
     // Check each of the parameters for failures. If we have any failures, we do
     // not build a function type.
-    paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
+    paramFailures = { pt | pt <- (parameterTypes+toList(keywordParams<1>)), isFailType(pt) };
     if (size(paramFailures) > 0) {
         funType = collapseFailTypes(paramFailures + makeFailType("Could not calculate function type because of errors calculating the parameter types", exp@\loc));     
     } else {
@@ -825,7 +829,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
     
     // Update the closure with the computed function type.
     cFun.store[head(cFun.stack)].rtype = funType;
-    
+	cFun.store[head(cFun.stack)].keywordParams = keywordParams;
+	    
     // In the environment with the parameters, check the body of the closure.
     for (s <- ss) < cFun, st > = checkStmt(s, cFun);
     
@@ -864,16 +869,17 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
     // instead of in the surrounding environment.   
     rt = \void();
     Symbol funType = Symbol::\func(rt,[]);
-    cFun = addClosure(c, funType, exp@\loc);
+    cFun = addClosure(c, funType, ( ), exp@\loc);
     
     // Calculate the parameter types. This returns the parameters as a tuple. As
     // a side effect, names defined in the parameters are added to the environment.
     < cFun, ptTuple > = checkParameters(ps, cFun);
+    < cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(ps), cFun);
     list[Symbol] parameterTypes = getTupleFields(ptTuple);
     
     // Check each of the parameters for failures. If we have any failures, we do
     // not build a function type.
-    paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
+    paramFailures = { pt | pt <- (parameterTypes+toList(keywordParams<1>)), isFailType(pt) };
     if (size(paramFailures) > 0) {
         funType = collapseFailTypes(paramFailures + makeFailType("Could not calculate function type because of errors calculating the parameter types", exp@\loc));     
     } else {
@@ -882,6 +888,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
     
     // Update the closure with the computed function type.
     cFun.store[head(cFun.stack)].rtype = funType;
+	cFun.store[head(cFun.stack)].keywordParams = keywordParams;
     
     // In the environment with the parameters, check the body of the closure.
     for (s <- ss) < cFun, st > = checkStmt(s, cFun);
@@ -3034,7 +3041,11 @@ public CheckResult checkParameters((Parameters)`( <Formals fs> <KeywordFormals k
 @doc{Check the types of Rascal parameters: VarArgs (DONE) }
 public CheckResult checkParameters((Parameters)`( <Formals fs> ... <KeywordFormals kfs>)`, Configuration c) = checkFormals(fs, true, c);
 
-@doc{Retrieve the keyword formals from a parameter list: Default (DONE) }
+@doc{Retrieves the parameters from a signature}
+public Parameters getFunctionParameters(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`) = ps;
+public Parameters getFunctionParameters(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps>`) = ps;
+
+@doc{Retrieve the keyword formals from a parameter list}
 public KeywordFormals getKeywordFormals((Parameters)`( <Formals fs> <KeywordFormals kfs>)`) = kfs;
 public KeywordFormals getKeywordFormals((Parameters)`( <Formals fs> ... <KeywordFormals kfs>)`) = kfs;
 
@@ -3059,26 +3070,27 @@ public CheckResult checkFormals((Formals)`<{Pattern ","}* ps>`, bool isVarArgs, 
 }
 
 @doc{Check the types of Rascal keyword formals}
-public CheckResult checkKeywordFormals((KeywordFormals)`<OptionalComma oc> <{KeywordFormal ","}+ kfl>`, Configuration c) {
-	list[Symbol] kformals = [ ];
+public tuple[Configuration,KeywordParamMap] checkKeywordFormals((KeywordFormals)`<OptionalComma oc> <{KeywordFormal ","}+ kfl>`, Configuration c) {
+	KeywordParamMap kpm = ( );
 	for (kfi <- kfl) {
-		< rt, c > = checkKeywordFormal(kfi, c);
-		kformals += rt;
+		< c, rn, rt > = checkKeywordFormal(kfi, c);
+		kpm[rn] = rt;
 	}
-	return < c, \tuple(kformals) >;
+	return < c, kpm >;
 }
 
-public CheckResult checkKeywordFormal(KeywordFormal kf: (KeywordFormal)`<Type t> <Name n> = <Expression e>`, Configuration c) {
-// public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symbol rt) {
+@doc{Check the type of a single Rascal keyword formal}
+public tuple[Configuration,RName,Symbol] checkKeywordFormal(KeywordFormal kf: (KeywordFormal)`<Type t> <Name n> = <Expression e>`, Configuration c) {
     < c, rt > = convertAndExpandType(t,c);
 	currentNextLoc = c.nextLoc;
-	c = addVariable(c, convertName(n), false, n@\loc, rt);
+	rn = convertName(n);
+	c = addVariable(c, rn, false, n@\loc, rt);
 	< c, et > = checkExp(e, c);
 	if (!subtype(et, rt))
 		rt = makeFailType("The default is not compatible with the parameter type", kf@\loc);  
 	if (c.nextLoc > currentNextLoc)
 		c.keywordDefaults[currentNextLoc] = e;	  	
-	return < c, rt >;
+	return < c, rn, rt >;
 }
 
 @doc{Defs and uses of names; allows marking them while still keeping them in the same list or set.}
@@ -5493,13 +5505,18 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         // Put the function in, so we can enter the correct scope. This also puts the function name into the
         // scope -- we don't want to inadvertently use the function name as the name of a pattern variable,
         // and this makes sure we find it when checking the patterns in the signature.
-        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         < cFun, tFun > = processSignature(sig, cFun);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
-    
+
+		// Check the keyword formals. This will compute the types, check for redeclarations of the param
+		// names, and also make sure the default is the correct type.        
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+		for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
+		  
         // We now have the function type. So, we can throw cFun away, and add this as a proper function
         // into the scope. NOTE: This can be a failure type.
-        c = addFunction(c, rn, tFun, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
     //else {
     funId = getOneFrom(invert(c.definitions)[fd@\loc]);
@@ -5513,6 +5530,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         funId = head(c.stack);
         funType = c.store[funId].rtype;
         < cFun, tFun > = processSignature(sig, c);
+        // Checking the keyword formals here adds the names into the store and also adds
+        // entries mapping each name to its default
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
         c = recoverEnvironmentsAfterCall(cFun, c);
     }
     
@@ -5537,10 +5557,16 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
         cFun = prepareSignatureEnv(c);
-        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         < cFun, tFun > = processSignature(sig, cFun);
-        c = addFunction(c, rn, tFun, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
+
+		// Check the keyword formals. This will compute the types, check for redeclarations of the param
+		// names, and also make sure the default is the correct type.        
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+		for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
+
+        c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
     //else {
     funId = getOneFrom(invert(c.definitions)[fd@\loc]);
@@ -5562,6 +5588,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
             cFun = setExpectedReturn(c, \value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
         < cFun, tExp > = checkExp(exp, cFun);
         if (!isFailType(tExp) && !subtype(tExp, cFun.expectedReturnType))
             cFun = addScopeMessage(cFun,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
@@ -5589,10 +5616,16 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     if (fd@\loc notin c.definitions<1>) {
     	set[Modifier] modifiers = getModifiers(sig); 
         cFun = prepareSignatureEnv(c);
-        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         < cFun, tFun > = processSignature(sig, cFun);
-        c = addFunction(c, rn, tFun, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
+
+		// Check the keyword formals. This will compute the types, check for redeclarations of the param
+		// names, and also make sure the default is the correct type.        
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+		for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
+
+        c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
     //else {
     funId = getOneFrom(invert(c.definitions)[fd@\loc]);
@@ -5612,6 +5645,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
             cFun = setExpectedReturn(c, \void());
         }
         < cFun, tFun > = processSignature(sig, cFun);
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);        
         for (cond <- conds) {
             < cFun, tCond > = checkExp(cond, cFun);
             if (!isFailType(tCond) && !isBoolType(tCond))
@@ -5644,10 +5678,16 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
         cFun = prepareSignatureEnv(c);
-        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         < cFun, tFun > = processSignature(sig, cFun);
-        c = addFunction(c, rn, tFun, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
+
+		// Check the keyword formals. This will compute the types, check for redeclarations of the param
+		// names, and also make sure the default is the correct type.        
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+		for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
+
+        c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
     //else {
     funId = getOneFrom(invert(c.definitions)[fd@\loc]);
@@ -5667,6 +5707,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
             cFun = setExpectedReturn(c, \void());
         }
         < cFun, tFun > = processSignature(sig, cFun);
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);        
         if ((FunctionBody)`{ <Statement* ss> }` := body) {
             for (stmt <- ss) {
                 < cFun, tStmt > = checkStmt(stmt, cFun);
@@ -5683,14 +5724,8 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 public CheckResult processSignature(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`, Configuration c) {
     // TODO: Do something with the exception information
     < c, rType > = convertAndExpandType(t,c);
-
     < c, ptTuple > = checkParameters(ps, c);
-
-	//kfs = getKeywordFormals(ps);
-	//< c, kfTuple > = checkKeywordFormals(kfs, c);
-	
     list[Symbol] parameterTypes = getTupleFields(ptTuple);
-    // TODO: Pick up here...
     paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
     funType = \void();
     if (size(paramFailures) > 0) {
@@ -5705,7 +5740,6 @@ public CheckResult processSignature(Signature sig:(Signature)`<FunctionModifiers
 @doc{Process function signatures: NoThrows}
 public CheckResult processSignature(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps>`, Configuration c) {
     < c, rType > = convertAndExpandType(t,c);
-
     < c, ptTuple > = checkParameters(ps, c);
     list[Symbol] parameterTypes = getTupleFields(ptTuple);
     paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
@@ -5791,12 +5825,12 @@ public Configuration importFunction(RName functionName, Signature sig, loc at, V
     cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]]
     																	// constructor names may be overloaded 
     																	|| overload(_,_) := c.store[c.fcvEnv[ename]] )];
-    cFun = addFunction(cFun, functionName, Symbol::\func(\void(),[]), modifiers, isVarArgs(sig), vis, throwsTypes, at);
+    cFun = addFunction(cFun, functionName, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), vis, throwsTypes, at);
     < cFun, tFun > = processSignature(sig, cFun);
-    if(isFailType(tFun)) {
-    	c.messages = c.messages + getFailures(tFun);
-    }
-    c = addFunction(c, functionName, tFun, modifiers, isVarArgs(sig), vis, throwsTypes, at);
+    if(isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
+	< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+	for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
+    c = addFunction(c, functionName, tFun, keywordParams, modifiers, isVarArgs(sig), vis, throwsTypes, at);
     return c;
 }
 
@@ -6094,8 +6128,7 @@ public CheckResult convertAndExpandType(Type t, Configuration c) {
 //  We allow constructor names (constructor types) to be used in the 'throws' clauses of Rascal functions
 public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
     rt = convertType(t);
-    if( utc:\user(rn,pl) := rt && isEmpty(pl) 
-               && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
+    if( utc:\user(rn,pl) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
         // Check if there is a value constructor with this name in the current environment
         if(constructor(_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
@@ -6103,7 +6136,16 @@ public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
             c.usedIn[utc@at] = head(c.stack);
             return <c, rt>;   
         }
-    }
+    } else if (\func(utc:\user(rn,pl), ps) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
+        // Check if there is a value constructor with this name in the current environment
+        if(constructor(_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
+            // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
+            c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
+            c.usedIn[utc@at] = head(c.stack);
+            return <c, rt>;   
+        }
+	}
+    
     if ( (rt@errinfo)? && size(rt@errinfo) > 0 ) {
         for (m <- rt@errinfo) {
             c = addScopeMessage(c,m);
