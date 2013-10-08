@@ -114,58 +114,65 @@ public class Execute {
 		if((uid_module_init == null)) {
 			throw new RuntimeException("No module_init function found when loading RVM code!");
 		}
-		long start = System.currentTimeMillis();
-		IValue result = null;
-		if(isTestSuite){
-			/*
-			 * Execute as testsuite
-			 */
-			rvm.executeProgram(uid_module_init, arguments);
-			int number_of_successes = 0;
-			int number_of_failures = 0;
+		
+		try {
+			long start = System.currentTimeMillis();
+			IValue result = null;
+			if(isTestSuite){
+				/*
+				 * Execute as testsuite
+				 */
+				rvm.executeProgram(uid_module_init, arguments);
+				int number_of_successes = 0;
+				int number_of_failures = 0;
 			
-			stdout.println("\nTEST REPORT\n");
-			for(String uid_testsuite: testsuites){
-				IList test_results = (IList)rvm.executeProgram(uid_testsuite, arguments);
-				for(IValue voutcome : test_results){
-					ITuple outcome = (ITuple) voutcome;
-					String tst_name = ((ISourceLocation) outcome.get(0)).toString();
-					//tst_name = tst_name.substring(1, tst_name.length()); // remove leading /
-					//tst_name = tst_name.replaceAll("/", "::");
+				stdout.println("\nTEST REPORT\n");
+				for(String uid_testsuite: testsuites){
+					IList test_results = (IList)rvm.executeProgram(uid_testsuite, arguments);
+					for(IValue voutcome : test_results){
+						ITuple outcome = (ITuple) voutcome;
+						String tst_name = ((ISourceLocation) outcome.get(0)).toString();
+						//tst_name = tst_name.substring(1, tst_name.length()); // remove leading /
+						//tst_name = tst_name.replaceAll("/", "::");
 					
-					boolean passed = ((IBool) outcome.get(1)).getValue();
-					String exception = ((IString) outcome.get(2)).getValue();
-					if(!exception.isEmpty()){
-						exception = "; Unexpected exception: " + exception;
-					}
+						boolean passed = ((IBool) outcome.get(1)).getValue();
+						String exception = ((IString) outcome.get(2)).getValue();
+						if(!exception.isEmpty()){
+							exception = "; Unexpected exception: " + exception;
+						}
 					
-					if(passed){
-						number_of_successes++;
-					} else {
-						number_of_failures++;
+						if(passed){
+							number_of_successes++;
+						} else {
+							number_of_failures++;
+						}
+						if(!passed)
+							stdout.println(tst_name + ": FALSE" + exception);
 					}
-					if(!passed)
-						stdout.println(tst_name + ": FALSE" + exception);
 				}
-			}
-			int number_of_tests = number_of_successes + number_of_failures;
-			stdout.println("\nExecuted " + number_of_tests + " tests: "  
-					+ number_of_successes + " succeeded; "
-					+ number_of_failures + " failed.\n");
-			result = vf.tuple(vf.integer(number_of_successes), vf.integer(number_of_failures));
-		} else {
-			/*
-			 * Standard execution of main function
-			 */
-			if((uid_main == null)) {
-				throw new RuntimeException("No main function found when loading RVM code!");
-			}
+				int number_of_tests = number_of_successes + number_of_failures;
+				stdout.println("\nExecuted " + number_of_tests + " tests: "  
+						+ number_of_successes + " succeeded; "
+						+ number_of_failures + " failed.\n");
+				result = vf.tuple(vf.integer(number_of_successes), vf.integer(number_of_failures));
+			} else {
+				/*
+				 * Standard execution of main function
+				 */
+				if((uid_main == null)) {
+					throw new RuntimeException("No main function found when loading RVM code!");
+				}
 			
-			rvm.executeProgram(uid_module_init, arguments);
-			result = rvm.executeProgram(uid_main, arguments);
+				rvm.executeProgram(uid_module_init, arguments);
+				result = rvm.executeProgram(uid_main, arguments);
+			}
+			long now = System.currentTimeMillis();
+			return vf.tuple((IValue) result, vf.integer(now - start));
+			
+		} catch(Thrown e) {
+			e.printStackTrace(stdout);
+			return vf.tuple(vf.string("Runtime exception <currently unknown location>: " + e.value), vf.integer(0));
 		}
-		long now = System.currentTimeMillis();
-		return vf.tuple((IValue) result, vf.integer(now - start));
 	}
 	
 	// Get Boolean field from an instruction

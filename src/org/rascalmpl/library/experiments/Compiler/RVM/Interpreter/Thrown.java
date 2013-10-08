@@ -35,7 +35,7 @@ public class Thrown extends RuntimeException {
 	}
 	
 	public void printStackTrace(PrintWriter stdout) {
-		stdout.println("Runtime Exception: throw " + this.toString() + ((loc !=null) ? loc : "") );
+		stdout.println("Runtime exception: throw " + this.toString() + ((loc !=null) ? loc : "") );
 		for(Frame cf : stacktrace) {
 			for(Frame f = cf; f != null; f = cf.previousCallFrame) {
 				stdout.println("at " + f.function.name);
