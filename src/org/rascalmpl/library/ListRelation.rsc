@@ -10,6 +10,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module ListRelation
 
+import Exception;
 import List;
 
 @doc{
