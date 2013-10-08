@@ -564,5 +564,4 @@ toLocation("rascal://lang::rascal::syntax::Rascal");
 toLocation("document.xml");
 </screen>
 }
-public loc toLocation(/<car:.*>\:\/\/<cdr:.*>/) = |<car>://<cdr>|; 
-public default loc toLocation(str s) = |cwd:///<s>|;
+public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>| : |cwd:///<s>|;
