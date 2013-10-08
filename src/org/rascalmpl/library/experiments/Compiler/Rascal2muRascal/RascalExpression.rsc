@@ -779,13 +779,24 @@ MuExp translateGenerators({Expression ","}+ generators){
    }
 }
 
+list[MuExp] translateComprehensionContribution(str kind, str tmp, list[Expression] results){
+  return 
+	  for( r <- results){
+	    if((Expression) `* <Expression exp>` := r){
+	       append muCallPrim("<kind>writer_splice", [muTmp(tmp), translate(exp)]);
+	    } else {
+	      append muCallPrim("<kind>writer_add", [muTmp(tmp), translate(r)]);
+	    }
+	  }
+} 
+
 MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ results> | <{Expression ","}+ generators> ]`) {
     loopname = nextLabel(); 
     tmp = asTmp(loopname);
     return
     muBlock(
     [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])),
-      muWhile(loopname, makeMuAll([translate(g) | g <-generators]), [muCallPrim("listwriter_add", [muTmp(tmp)] + [ translate(r) | r <- results])]), 
+      muWhile(loopname, makeMuAll([translate(g) | g <-generators]), translateComprehensionContribution("list", tmp, [r | r <- results])),
       muCallPrim("listwriter_close", [muTmp(tmp)]) 
     ]);
 }
@@ -796,7 +807,7 @@ MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ results> |
     return
     muBlock(
     [ muAssignTmp(tmp, muCallPrim("setwriter_open", [])),
-      muWhile(loopname, makeMuAll([translate(g) | g <-generators]), [muCallPrim("setwriter_add", [muTmp(tmp)] + [ translate(r) | r <- results])]), 
+      muWhile(loopname, makeMuAll([translate(g) | g <-generators]), translateComprehensionContribution("set", tmp, [r | r <- results])),
       muCallPrim("setwriter_close", [muTmp(tmp)]) 
     ]);
 }
