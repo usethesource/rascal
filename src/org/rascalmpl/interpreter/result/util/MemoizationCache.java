@@ -70,6 +70,7 @@ public class MemoizationCache {
 	}
 	
 	private class CacheKey {
+		private boolean forDeletion = false;
 		private final int storedHash;
 		@SuppressWarnings("rawtypes")
 		private final KeySoftReference[] params;
@@ -109,6 +110,8 @@ public class MemoizationCache {
 				return true;
 			if (obj instanceof CacheKey) {
 				CacheKey other = (CacheKey)obj;
+				if (other.forDeletion || this.forDeletion)
+					return false;
 				if (other.storedHash != this.storedHash) 
 					return false;
 				if (other.params.length != this.params.length)
@@ -254,8 +257,11 @@ public class MemoizationCache {
 		}
 		for (CacheKeyWrapper ckw : toCleanup) {
 			CacheKey cl = ckw.key;
+			cl.forDeletion = true;
 			cache.remove(cl);
-			cl.keyArgs.clear();
+			if (cl.keyArgs != null) {
+				cl.keyArgs.clear();
+			}
 			for (int i =0; i < cl.params.length; i++) 
 				cl.params[i] = null;
 		}

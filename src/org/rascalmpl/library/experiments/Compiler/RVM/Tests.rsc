@@ -22,6 +22,6 @@ public loc exmpl5 = |project://RascalStandardLibrary/src/experiments/Compiler/RV
 public void testit() {
 	RascalVM code = parse(readFile(exmpl5));
 	println("parsed: <code>");
-	tuple[value,int] r = executeProgram(code.directives, 1);
+	tuple[value,int] r = executeProgram(code.directives);
 	println("it results in: <r[0]> and took: <r[1]>");
 }

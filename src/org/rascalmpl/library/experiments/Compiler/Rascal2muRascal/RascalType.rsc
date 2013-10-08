@@ -51,8 +51,8 @@ Symbol translateType(t : (Type) `<Sym symbol>`)  = sym2symbol(symbol);
 Symbol translateType(t : (TypeArg) `<Type tp>`)  = translateType(tp);
 Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label(getSimpleName(convertName(name)), translateType(tp));
 
-Symbol translateType(t: (FunctionType) `<Type \type> (<{TypeArg ","}* args>)`) = 
-									\func(translateType(ret), [ translateType(arg) | arg <- args]);
+Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) = 
+									\func(translateType(tp), [ translateType(arg) | arg <- args]);
 									
 Symbol translateType(t: (UserType) `<QualifiedName name>`) {
 	rn = convertName(name);
@@ -75,7 +75,7 @@ Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters
 	throw "The name <name> is not resolved to a type: <val>.";
 }  
 									
-Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)));  
+Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)), \value());  
 Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter(getSimpleName(convertName(name)), translateType(bound));  
 
 default Symbol translateType(Type t) {

@@ -137,8 +137,6 @@ public class ConcurrentTestFramework {
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
 
-		resolverRegistry.registerInput(new JarURIResolver(ConcurrentTestFramework.class));
-
 		evaluator.addRascalSearchPath(URIUtil.rootScheme("test-modules"));
 		resolverRegistry.registerInput(modules);
 

@@ -53,7 +53,7 @@ int runFac(){
   muP = muModule("Fac", [], functions, [], []);
   rvmP = mu2rvm(muP);
   //iprintln(rvmP);
-  <v, t_rvm> = executeProgram(rvmP, false, repeat);
+  <v, t_rvm> = executeProgram(rvmP, false);
   println("rvm:    fac(<facarg>) = <v> [<t_rvm> msec]");
   t_rascal = fac_in_rascal();
   println("ratio:  <t_rascal * 1.0 / t_rvm>");

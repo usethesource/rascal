@@ -13,11 +13,14 @@ public class LoadVar extends Instruction {
 		this.pos = pos;
 	}
 	
-	public String toString() { return "LOADVar " + fuid + ", " + pos; }
+	public String toString() { 
+		return "LOADVAR " + fuid + ", " + pos;
+	}
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getFunctionIndex(fuid));
+		codeblock.addCode((pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid))
+				                      :	codeblock.getFunctionIndex(fuid));
 		codeblock.addCode(pos);
 	}
 }

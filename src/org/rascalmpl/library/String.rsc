@@ -9,6 +9,7 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Vadim Zaytsev - vadim@grammarware.net - SWAT, CWI}
 module String
 
 import Origins;
@@ -547,4 +548,20 @@ Synopsis: Determine if a string matches the given (Java-syntax) regular expressi
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool rexpMatch(str s, str re);
 
+@doc{
+Synopsis: Convert a string value to a (source code) location.
 
+Description:
+# Converts string `s` to a location.
+# If the scheme is not provided, it is assumed to be `cwd`.
+
+Examples:
+<screen>
+import String;
+toLocation("http://grammarware.net");
+toLocation("rascal://lang::rascal::syntax::Rascal");
+toLocation("document.xml");
+</screen>
+}
+public loc toLocation(/<car:.*>\:\/\/<cdr:.*>/) = |<car>://<cdr>|; 
+public default loc toLocation(str s) = |cwd:///<s>|;

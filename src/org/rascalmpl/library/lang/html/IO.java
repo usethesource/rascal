@@ -12,6 +12,7 @@
 package org.rascalmpl.library.lang.html;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -38,9 +39,9 @@ public class IO {
 	}
 	
 	public IValue readHTMLFile(ISourceLocation file, IEvaluatorContext ctx) {
-		try {
+		try (Reader reader = ctx.getResolverRegistry().getCharacterReader(file.getURI())) {
 			Constructor cons = new Constructor();
-			new ParserDelegator().parse(ctx.getResolverRegistry().getCharacterReader(file.getURI()), cons, true);
+      new ParserDelegator().parse(reader, cons, true);
 			return cons.getValue();
 		} catch (MalformedURLException e) {
 			throw RuntimeExceptionFactory.malformedURI(file.getURI().toASCIIString(), null, null);

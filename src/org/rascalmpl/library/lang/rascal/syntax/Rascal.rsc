@@ -314,7 +314,7 @@ lexical PreStringChars
 	= @category="Constant" [\"] StringCharacter* [\<] ;
 
 lexical CaseInsensitiveStringConstant
-	= @category="Constant" "\'" StringCharacter* "\'" ;
+	= @category="Constant" "\'" StringCharacter* chars "\'" ;
 
 lexical Backslash
 	= [\\] !>> [/ \< \> \\] ;
@@ -551,7 +551,7 @@ syntax ProtocolTail
 	| post: PostProtocolChars post ;
 
 lexical Nonterminal
-	= [A-Z] !<< [A-Z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z] \ RascalKeywords;
+	= ([A-Z] !<< [A-Z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) \ RascalKeywords;
 
 syntax PathTail
 	= mid: MidPathChars mid Expression expression PathTail tail 

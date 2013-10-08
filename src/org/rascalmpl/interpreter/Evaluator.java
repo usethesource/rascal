@@ -74,7 +74,6 @@ import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -235,7 +234,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		ClassResourceInputOutput benchmarkdata = new ClassResourceInputOutput(resolverRegistry, "benchmarks", getClass(), "/org/rascalmpl/benchmark");
 		resolverRegistry.registerInput(benchmarkdata);
 		
-		resolverRegistry.registerInput(new JarURIResolver(getClass()));
+		resolverRegistry.registerInput(new JarURIResolver());
 
 		resolverRegistry.registerInputOutput(rascalPathResolver);
 
@@ -394,10 +393,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		this.interrupt = interrupt;
 	}
 
-	@Override	
-	public boolean __getInterrupt() {
-		return interrupt;
-	}
 
 	@Override	
 	public Stack<Accumulator> __getAccumulators() {
@@ -425,7 +420,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 	@Override	
 	public boolean isInterrupted() {
-		return interrupt;
+		return interrupt || isCanceled();
 	}
 
 	@Override	
@@ -988,7 +983,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IConstructor tree = new RascalParser().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		
 		if (!noBacktickOutsideStringConstant(command)) {
-		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, getCurrentModuleEnvironment());
+		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
 		}
 		
 		Command stat = new ASTBuilder().buildCommand(tree);
@@ -1009,7 +1004,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		tree = new RascalParser().parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	
 	  if (!noBacktickOutsideStringConstant(command)) {
-	    tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, getCurrentModuleEnvironment());
+	    tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
 		}
 
 		Commands stat = new ASTBuilder().buildCommands(tree);
@@ -1059,7 +1054,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IConstructor tree =  new RascalParser().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
 		if (!noBacktickOutsideStringConstant(command)) {
-		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, getCurrentModuleEnvironment());
+		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
 		}
 		
 		return tree;
@@ -1074,7 +1069,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       IConstructor tree = new RascalParser().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
   
 			if (!noBacktickOutsideStringConstant(commands)) {
-			  tree = parseFragments(this, tree, getCurrentModuleEnvironment());
+			  tree = parseFragments(this, tree, location, getCurrentModuleEnvironment());
 			}
 			
 			return tree;

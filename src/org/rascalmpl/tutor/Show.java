@@ -38,19 +38,14 @@ public class Show extends TutorHttpServlet {
 		String fileName = resourceBase + concept + "/" + baseName;
 		if(debug) System.err.println("ShowConcept, fileName: " + fileName);
 		// this code should not be doing string concat, but using the correct URIUtil.create overload
-		InputStream in = evaluator.getResolverRegistry().getInputStream(URIUtil.assumeCorrect(fileName));
-		ServletOutputStream out = response.getOutputStream();
 		
-		try {
+		try (InputStream in = evaluator.getResolverRegistry().getInputStream(URIUtil.assumeCorrect(fileName));
+		    ServletOutputStream out = response.getOutputStream()) {
 			byte buf[] = new byte[10000];
 			while(in.available() > 0){
 				int n = in.read(buf);
 				out.write(buf, 0, n);
 			}
-		}
-
-		finally {
-			out.close();
 		}
 	}
 }
