@@ -123,7 +123,7 @@ public enum RascalPrimitive {
 	// datetime
 	
 	datetime_field_access,
-	datetime_update,
+	datetime_field_update,
 	
 	// divide
 	
@@ -382,7 +382,7 @@ public enum RascalPrimitive {
 	loc_create,
 	loc_with_offset_create,
 	loc_field_access,
-	loc_update,
+	loc_field_update,
 	
 	// map
 	
@@ -1534,7 +1534,7 @@ public enum RascalPrimitive {
 	/* TODO: In both implementations UnsupportedOperation is thrown. 
 	 * I guess this has to be replaced by something better, e.g., UnavailableInformation
 	 */
-	public static int datetime_update(Object[] stack, int sp, int arity) {
+	public static int datetime_field_update(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		IDateTime dt = ((IDateTime) stack[sp - 3]);
 		String field = ((IString) stack[sp - 2]).getValue();
@@ -1685,7 +1685,7 @@ public enum RascalPrimitive {
 				fakeStack[0] = sloc;
 				fakeStack[1] = vf.string("path");
 				fakeStack[2] = vf.string(path);
-				loc_update(fakeStack, 3, 3);
+				loc_field_update(fakeStack, 3, 3);
 				v = (ISourceLocation) fakeStack[0];
 			} else {
 				throw RuntimeExceptions.noParent(sloc, null, null);
@@ -1825,7 +1825,7 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	public static int loc_update(Object[] stack, int sp, int arity) {
+	public static int loc_field_update(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		ISourceLocation sloc = ((ISourceLocation) stack[sp - 3]);
 		String field = ((IString) stack[sp - 2]).getValue();

@@ -12,6 +12,8 @@
 
 module util::Reflective
 
+import Exception;
+import Message;
 import ParseTree;
 import Grammar;
 import IO;

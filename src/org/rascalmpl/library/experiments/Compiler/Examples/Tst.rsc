@@ -1,7 +1,5 @@
 module experiments::Compiler::Examples::Tst
 
-data M = message(str txt);
-
-public anno M node@message;
-
-value main(list[value] args) { return "f"()@message("abc"); }
+value main(list[value] args) { 
+ 	if({*int a} := {1,2,3,4,5,6,7,8,9}) return {a}; 
+}

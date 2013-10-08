@@ -29,7 +29,7 @@ test bool tst() = run("\"a\" := \"a\"") == "a" := "a";
 test bool tst() = run("\"a\" := \"b\"") == "a" := "b";
 
 // Datetime
-// The following two tests fail, since theinterpreter does not support datetime patterns. We are ahead :-)
+// The following two tests fail, since the interpreter does not support datetime patterns. We are ahead :-)
 /*fails*/ //test bool tst() = run("$2012-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$") == ($2012-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$);
 /*fails*/ //test bool tst() = run("$2013-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$") == ($2013-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$);
 

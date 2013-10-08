@@ -591,7 +591,7 @@ function MATCH_SET[2,  pair,	   					// A pair of literals, and patterns (other 
      	while(true){
      	// Move forward
      	 forward = hasNext(matcher);
-     	 //println("At head", p);
+     	 println("At head", p);
          while(forward && hasNext(matcher)){
         	[success, remaining] = next(matcher);
             if(success){ 
@@ -599,11 +599,11 @@ function MATCH_SET[2,  pair,	   					// A pair of literals, and patterns (other 
                current = remaining;
                if((p == patlen1) && (size_mset(current) == 0)) {
               	   yield true;
-              	   //println("Back from yield", p); 
+              	   println("Back from yield", p); 
                } else {
                  if(p < patlen1){
                    p = p + 1;
-                   //println("Move right to", p);
+                   println("Move right to", p);
                    matcher  = init(get_array pats[p], current);
                    set_array matchers[p] = matcher;
                  } else {
@@ -624,7 +624,7 @@ function MATCH_SET[2,  pair,	   					// A pair of literals, and patterns (other 
          } else {  
            if(p > 0){
                p        = p - 1;
-               //println("Move left to", p);
+               println("Move left to", p);
                matcher  = get_array matchers[p];
                forward  = true;
            } else {
@@ -651,7 +651,6 @@ function ENUM_MSET[1, set, ^lst, last, i]{
 
 // All coroutines that may occur in a set pattern have the following parameters:
 // - pat: the actual pattern to match one or more elements
-// - start: the start index in the subject list
 // - available: the remaining, unmatched, elements in the subject set
 
 function MATCH_PAT_IN_SET[2, pat, available, available1, gen, cpat, elm]{
@@ -721,13 +720,14 @@ function MATCH_ANONYMOUS_MULTIVAR_IN_SET[1, available, available1, gen, subset]{
 }
 
 function MATCH_TYPED_MULTIVAR_IN_SET[3, typ, varref, available, available1, gen, subset]{
-    // println("MATCH_TYPED_MULTIVAR_IN_SET", typ, varref, ^available);
+    println("MATCH_TYPED_MULTIVAR_IN_SET", typ, varref, available);
     available1 = mset_copy(available);
     if(equal(typ, typeOf(available))){
 	   gen = init(create(ENUM_SUBSETS, available1));
 	   while(hasNext(gen)){
 	         subset = next(gen);
 	   		 deref varref = set(subset);
+	   		  println("MATCH_TYPED_MULTIVAR_IN_SET, assigns", subset);
 	         yield [ true, mset_subtract_mset(available1, subset) ];
 	   };
     };
@@ -735,7 +735,7 @@ function MATCH_TYPED_MULTIVAR_IN_SET[3, typ, varref, available, available1, gen,
 }
 
 function MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[2, typ, available, available1, gen, subset]{
-    // println("MATCH_TYPED_MULTIVAR_IN_SET", typ, varref, ^available);
+    println("MATCH_TYPED_MULTIVAR_IN_SET", typ, available);
     available1 = mset_copy(available);
     if(equal(typ, typeOf(available))){
 	   gen = init(create(ENUM_SUBSETS, available1));
@@ -755,7 +755,7 @@ function MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[2, typ, available, available1, ge
 // ith subset 
  
 function ENUM_SUBSETS[1, set, lst, i, j, last, elIndex, sub]{
-    //println("ENUM_SUBSETS for:", ^set);
+    println("ENUM_SUBSETS for:", set);
     lst = mset2list(set); 
     last = 2 pow size_mset(set);
     i = last - 1;
@@ -772,7 +772,7 @@ function ENUM_SUBSETS[1, set, lst, i, j, last, elIndex, sub]{
            elIndex = elIndex + 1;
            j = j / 2;
         };
-        // println("ENUM_SUBSETS returns:", sub, "i =", i, "last one = ", i == 0);
+        println("ENUM_SUBSETS returns:", sub, "i =", i, "last one = ", i == 0);
         if(i == 0){
            return sub;
         } else {

@@ -19,7 +19,7 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
 MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(pat, exp);
    
-MuExp translate((Expression) `<Pattern pat> !:= <Expression exp>`) =
+MuExp translateMatch((Expression) `<Pattern pat> !:= <Expression exp>`) =
     muCallMuPrim("not_mbool", [makeMuAll([ translateMatch(pat, exp) ]) ]);
     
 default MuExp translateMatch(Pattern pat, Expression exp) =
@@ -118,6 +118,8 @@ tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegEx
   return <mkVarRef("<name>", name@\loc), exps>;
 }
 
+default tuple[MuExp, list[MuExp]] extractNamedRegExp(RegExp r) = <muCon(""), [muCon("<r>")]>;
+
 
 MuExp translatePat(p:(Pattern) `<Concrete concrete>`) { throw("Concrete syntax pattern"); }
      
@@ -202,13 +204,17 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) {
 
 default MuExp translatePat(Pattern p) { throw "Pattern <p> cannot be translated"; }
 
-// Patterns that are part of a descendant pattern
+/*********************************************************************/
+/*                  Descendant Pattern                               */
+/*********************************************************************/
 
 MuExp translatePatinDescendant(p:(Pattern) `<Literal lit>`) = muCreate(mkCallToLibFun("Library","MATCH_AND_DESCENT",2), [muCreate(mkCallToLibFun("Library","MATCH_AND_DESCENT_LITERAL",2), [translate(lit)])]);
 
 default MuExp translatePatinDescendant(Pattern p) = translatePat(p);
 
-// Translate patterns as element of a list pattern
+/*********************************************************************/
+/*                  List Pattern                                     */
+/*********************************************************************/
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`) {
    if("<name>" == "_"){
@@ -250,7 +256,9 @@ default MuExp translatePatAsListElem(Pattern p) {
   return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_LIST",4), [translatePat(p)]);
 }
 
-// Translate Set pattern
+/*********************************************************************/
+/*                  Set Pattern                                     */
+/*********************************************************************/
 
 // Translate patterns as element of a set pattern
 
@@ -474,8 +482,14 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
 
 
 /*********************************************************************/
-/*                  End of Patterns                                  */
+/*                  End of Special Pattern Cases                     */
 /*********************************************************************/
+
+/*********************************************************************/
+/*                  BacktrackFree for Patterns                       */
+/*********************************************************************/
+
+// TODO: Make this more precise
 
 bool backtrackFree(p:(Pattern) `[<{Pattern ","}* pats>]`) = false;
 bool backtrackFree(p:(Pattern) `{<{Pattern ","}* pats>}`) = false;
@@ -533,7 +547,7 @@ MuExp translateFunction({Pattern ","}* formals, node body, list[Expression] when
   	  } else {
   	    ifname = nextLabel();
         enterBacktrackingScope(ifname);
-        conditions += [ translate(cond) | cond <- when_conditions];
+        conditions = [ translate(cond) | cond <- when_conditions];
         mubody = muIfelse(ifname,muAll(conditions), [ muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	    leaveBacktrackingScope();
 	    return mubody;
