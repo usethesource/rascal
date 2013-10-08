@@ -134,6 +134,10 @@ public class Execute {
 					//tst_name = tst_name.replaceAll("/", "::");
 					
 					boolean passed = ((IBool) outcome.get(1)).getValue();
+					String exception = ((IString) outcome.get(2)).getValue();
+					if(!exception.isEmpty()){
+						exception = "; Unexpected exception: " + exception;
+					}
 					
 					if(passed){
 						number_of_successes++;
@@ -141,7 +145,7 @@ public class Execute {
 						number_of_failures++;
 					}
 					if(!passed)
-						stdout.println(tst_name + ": FALSE");
+						stdout.println(tst_name + ": FALSE" + exception);
 				}
 			}
 			int number_of_tests = number_of_successes + number_of_failures;
