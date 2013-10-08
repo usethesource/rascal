@@ -22,6 +22,7 @@ public void generate(type[&T <: Tree] nont) {
   gr = expandParameterizedSymbols(gr);
   gr = addNotAllowedSets(gr);
   gr = prioAssocToChoice(gr);
+  gr.about["regularExpressions"] = getRegularLexicals(gr);
  
   generateGrammar(gr);
 }
