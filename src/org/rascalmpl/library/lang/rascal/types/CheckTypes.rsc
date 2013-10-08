@@ -1017,7 +1017,7 @@ public CheckResult checkExp(Expression exp:(Expression)`type ( <Expression es> ,
     if (isFailType(t1) || isFailType(t2))
         return markLocationFailed(c,exp@\loc,collapseFailTypes({t1,t2}));
     else
-        return markLocationType(c,exp@\loc,\type(\value()));
+        return markLocationType(c,exp@\loc,\reified(\value()));
 }
 
 @doc{Check the types of Rascal expressions: Concete Syntax Fragments (TODO)}
@@ -1715,7 +1715,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 private map[Symbol,map[str,Symbol]] fieldMap =
     ( \loc() :
         ( "scheme" : \str(), "authority" : \str(), "host" : \str(), "path" : \str(), "parent" : \str(),
-          "file" : \str(), "ls" : \list(\str()), "extension" : \str(), "fragment" : \str(), 
+          "file" : \str(), "ls" : \list(\loc()), "extension" : \str(), "fragment" : \str(), 
           "query" : \str(), "user" : \str(), "port" : \int(), "length" : \int(), "offset" : \int(), 
           "begin" : \tuple([\label("line",\int()),\label("column",\int())]), 
           "end" : \tuple([\label("line",\int()),\label("column",\int())]), "uri" : \str(), "top" : \loc()
