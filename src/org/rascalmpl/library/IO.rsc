@@ -34,7 +34,7 @@ Pitfalls:
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void appendToFile(loc file, value V...)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+throws PathNotFound(loc file), IO(str msg);
 
 @doc{
 Synopsis: Append a value to a file.
@@ -51,7 +51,7 @@ Files are encoded using the charset provided.
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void appendToFileEnc(loc file, str charset, value V...)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+throws PathNotFound(loc file), IO(str msg);
 
 @doc{
 Synopsis: Returns all available character sets
@@ -297,7 +297,7 @@ Create a directory at location `file`.
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void mkDirectory(loc file)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+throws PathNotFound(loc file), IO(str msg);
 
 @doc{
 Synopsis: Print a value without subsequent newline.
@@ -453,7 +453,7 @@ Pitfalls:
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java str readFile(loc file)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+throws PathNotFound(loc file), IO(str msg);
 
 @doc{
 Synopsis: Read the contents of a location and return it as string value.
@@ -465,12 +465,12 @@ Also see [readFileLinesEnc].
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java str readFileEnc(loc file, str charset)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+throws PathNotFound(loc file), IO(str msg);
 
 @deprecated{Use @see str readFile(loc file)}
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[str] readFile(str filename)
-throws NoSuchFileError(str msg), IO(str msg);
+throws IO(str msg);
 
 @doc{
 Synopsis: Read the contents of a file and return it as a list of bytes.
@@ -478,7 +478,7 @@ Synopsis: Read the contents of a file and return it as a list of bytes.
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java list[int] readFileBytes(loc file)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+throws PathNotFound(loc file), IO(str msg);
 
 
 @doc{
@@ -499,7 +499,7 @@ Pitfalls:
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java list[str] readFileLines(loc file)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+throws PathNotFound(loc file), IO(str msg);
 
 @doc{
 Synopsis: Read the contents of a file location and return it as a list of strings.
@@ -511,7 +511,7 @@ Also see [readFileLines].
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java list[str] readFileLinesEnc(loc file, str charset)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+throws PathNotFound(loc file), IO(str msg);
 
 @doc{
 Synopsis: Write values to a file.
@@ -528,7 +528,7 @@ Files are encoded in UTF-8, in case this is not desired, use [writeFileEnc].
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void writeFile(loc file, value V...)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+throws PathNotFound(loc file), IO(str msg);
 
 @doc{
 Synopsis: Write values to a file.
@@ -545,13 +545,13 @@ Files are encoded using the charset provided.
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void writeFileEnc(loc file, str charset, value V...)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+throws PathNotFound(loc file), IO(str msg);
 
 @doc{
 Synopsis: Changes the last modification date of a file.
 }
 public void touch(loc file)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg){
+throws PathNotFound(loc file), IO(str msg){
   appendToFile(file);
 }
 
@@ -565,7 +565,7 @@ MD5 hash the contents of a file location.
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java str md5HashFile(loc file)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+throws PathNotFound(loc file), IO(str msg);
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java str createLink(str title, str target);
