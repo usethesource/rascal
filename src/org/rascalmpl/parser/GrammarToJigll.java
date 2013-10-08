@@ -234,9 +234,11 @@ public class GrammarToJigll {
 	}
 
 	public GrammarBuilder convert(String name, IConstructor rascalGrammar) {
+		IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
+		createRegularExpressionRules(regularExpressions);
 
 		GrammarBuilder builder = new GrammarBuilder(name);
-
+		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 		rulesMap = new HashMap<>();
 		keywordsMap = new HashMap<>();
@@ -280,11 +282,11 @@ public class GrammarToJigll {
 				}
 			}
 		}
-
+		
 		for (Rule rule : regularListRules) {
 			builder.addRule(rule);
 		}
-
+		
 		return builder;
 	}
 
@@ -307,6 +309,17 @@ public class GrammarToJigll {
 				// Create a new filter for each filtered nonterminal
 				builder.addPrecedencePattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
 			}
+		}
+	}
+	
+	private void createRegularExpressionRules(IMap regularExpressions) {
+		Iterator<Entry<IValue, IValue>> it = regularExpressions.entryIterator();
+
+		while (it.hasNext()) {
+			Entry<IValue, IValue> next = it.next();
+			IConstructor head = (IConstructor) next.getKey();
+			IConstructor body = (IConstructor) next.getValue();
+			System.out.println(head + " " + body);
 		}
 	}
 
@@ -343,7 +356,7 @@ public class GrammarToJigll {
 		}
 		return targetRanges;
 	}
-
+	
 	private List<Symbol> getSymbolList(IList rhs) {
 		
 		List<Symbol> result = new ArrayList<>();
@@ -351,7 +364,7 @@ public class GrammarToJigll {
 		for(int i = 0; i < rhs.length(); i++) {
 			IConstructor current = (IConstructor) rhs.get(i);
 			IConstructor next = i + 1 < rhs.length() ? (IConstructor) rhs.get(i + 1) : null;
-			Symbol symbol = createRegularList(current, next);
+			Symbol symbol = null; //createRegularList(current, next);
 			
 			if(symbol == null) {
 				symbol = getSymbol(current);				
@@ -480,6 +493,7 @@ public class GrammarToJigll {
 		return new CharacterClass(targetRanges);
 	}
 
+	@SuppressWarnings("unused")
 	private Nonterminal createRegularList(IConstructor currentSymbol, IConstructor nextSymbol) {
 		
 		if(SymbolAdapter.isConditional(currentSymbol)) {

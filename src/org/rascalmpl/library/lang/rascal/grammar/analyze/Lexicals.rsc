@@ -26,7 +26,7 @@ Production inlineProductions(Production p, Grammar g) = innermost visit(p) {
 };
 
 Grammar flattenChoices(g) = innermost visit(g) {
-  case choice(s, alts)            => prod(s, [alt({seq(alt.symbols) | alt <- alts})],{})
+  case choice(s, alts)          => prod(s, [alt({seq(alt.symbols) | alt <- alts})],{})
   case priority(def, choices)     => choice(def, {*choices})
   case associativity(def, _,alts) => choice(def, alts) 
 };

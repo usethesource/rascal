@@ -55,7 +55,7 @@ public set[Production] expand(Symbol s) {
 public Grammar makeRegularStubs(Grammar g) {
   prods = {g.rules[nont] | Symbol nont <- g.rules};
   stubs = makeRegularStubs(prods);
-  return compose(g, grammar({},stubs));
+  return compose(g, grammar({},stubs, ()));
 }
 
 public set[Production] makeRegularStubs(set[Production] prods) {
