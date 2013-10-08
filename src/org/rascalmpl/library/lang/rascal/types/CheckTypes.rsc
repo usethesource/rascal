@@ -1017,7 +1017,7 @@ public CheckResult checkExp(Expression exp:(Expression)`type ( <Expression es> ,
     if (isFailType(t1) || isFailType(t2))
         return markLocationFailed(c,exp@\loc,collapseFailTypes({t1,t2}));
     else
-        return markLocationType(c,exp@\loc,\type(\value()));
+        return markLocationType(c,exp@\loc,\reified(\value()));
 }
 
 @doc{Check the types of Rascal expressions: Concete Syntax Fragments (TODO)}
