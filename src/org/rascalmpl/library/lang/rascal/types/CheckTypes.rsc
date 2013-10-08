@@ -3079,6 +3079,9 @@ public tuple[Configuration,KeywordParamMap] checkKeywordFormals((KeywordFormals)
 	return < c, kpm >;
 }
 
+// This is for the case when the keyword formals production derives empty
+public default tuple[Configuration,KeywordParamMap] checkKeywordFormals(KeywordFormals kwf, Configuration c) = < c, ( ) >;
+
 @doc{Check the type of a single Rascal keyword formal}
 public tuple[Configuration,RName,Symbol] checkKeywordFormal(KeywordFormal kf: (KeywordFormal)`<Type t> <Name n> = <Expression e>`, Configuration c) {
     < c, rt > = convertAndExpandType(t,c);
