@@ -4733,7 +4733,7 @@ public test bool literalExp2() = < _, \real()> := checkExp(parseExpression("1.1"
 public test bool literalExp3() = < _, \rat()> := checkExp(parseExpression("1r2"), newConfiguration());
 public test bool literalExp4() = < _, \bool()> := checkExp(parseExpression("true"), newConfiguration());
 public test bool literalExp5() = < _, \bool()> := checkExp(parseExpression("false"), newConfiguration());
-public test bool literalExp6() = < _, \datetime()> := checkExp(parseExpression("$2012-01-27"), newConfiguration());
+public test bool literalExp6() = < _, \datetime()> := checkExp(parseExpression("$2012-01-27$"), newConfiguration());
 public test bool literalExp7() = < _, \str()> := checkExp(parseExpression("\"hello world!\""), newConfiguration());
 public test bool literalExp8() = < _, \loc()> := checkExp(parseExpression("|project://MyLang/src/myfile.rsc|"), newConfiguration());
 
@@ -6367,60 +6367,60 @@ public Configuration checkCase(Case cs:(Case)`default : <Statement stmt>`, Symbo
 
 @doc{Check the type of Rascal pattern with action constructs: Replacing (DONE)}
 public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAction)`<Pattern p> =\> <Replacement r>`, Symbol expected, Configuration c) {
-    cOnEntry = c;
-    
+    // We need to enter a boolean scope here since we will be adding pattern vars in both
+    // the case and potentially in a when clause
+	cVisit = enterBooleanScope(c, pwa@\loc);
+	    
     // First, calculate the pattern type. The expected type, which is the type of the item being
     // matched (in a switch, for instance), acts as the subject type. If we cannot calculate the
-    // pattern type, it does no good to check the replacement, so just return with an error
-    // We return in the original environment to make sure that any bound names, name declarations,
-    // etc are removed completely (including from the store).
-    < c, pt > = calculatePatternType(p, c, expected);
+    // pattern type, assume it is value so we can continue checking, but report the error.
+    < cVisit, pt > = calculatePatternType(p, cVisit, expected);
     if (isFailType(pt)) {
-        cOnEntry.messages = getFailures(pt);
-        return cOnEntry;
+        c.messages = getFailures(pt);
+        pt = \value();
     }
         
     // Now, calculate the replacement type. This should be a subtype of the pattern type, since it
     // should be substitutable for the matched term.
-    < c, rt > = checkReplacement(r, c);
+    < cVisit, rt > = checkReplacement(r, cVisit);
     if (!isFailType(rt) && !subtype(rt, pt))
-        c = addScopeError(c,"Type of replacement, <prettyPrintType(rt)>, not substitutable for type of pattern, <prettyPrintType(pt)>",pwa@\loc);
+        cVisit = addScopeError(cVisit,"Type of replacement, <prettyPrintType(rt)>, not substitutable for type of pattern, <prettyPrintType(pt)>",pwa@\loc);
     
     // Now, return in the environment, restoring the visible names to what they were on entry.
-    return recoverEnvironments(c, cOnEntry);
+    return exitBooleanScope(cVisit, c);
 }
 
 @doc{Check the type of Rascal pattern with action constructs: Arbitrary (DONE)}
 public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAction)`<Pattern p> : <Statement stmt>`, Symbol expected, Configuration c) {
-    cOnEntry = c;
+    // We need to enter a boolean scope here since we will be adding pattern vars in
+    // the case
+	cVisit = enterBooleanScope(c, pwa@\loc);
 
     // First, calculate the pattern type. The expected type, which is the type of the item being
     // matched (in a switch, for instance), acts as the subject type. If we cannot calculate the
-    // pattern type, it does no good to check the replacement, so just return with an error
-    // We return in the original environment to make sure that any bound names, name declarations,
-    // etc are removed.
-    < c, pt > = calculatePatternType(p, c, expected);
+    // pattern type, assume it is value so we can continue checking, but report the error.
+    < cVisit, pt > = calculatePatternType(p, cVisit, expected);
     if (isFailType(pt)) {
-        cOnEntry.messages = getFailures(pt);
-        return cOnEntry;
+        c.messages = getFailures(pt);
+        pt = \value();
     }
 
     // We slightly abuse the label stack by putting cases in there as well. This allows us to  
     // keep track of inserted types without needing to invent a new mechanism for doing so.
-    if (labelTypeInStack(c,{visitLabel()})) {
-        c.labelStack = labelStackItem(getFirstLabeledName(c,{visitLabel()}), caseLabel(), pt) + c.labelStack;
+    if (labelTypeInStack(cVisit,{visitLabel()})) {
+        cVisit.labelStack = labelStackItem(getFirstLabeledName(cVisit,{visitLabel()}), caseLabel(), pt) + cVisit.labelStack;
     }
 
     // Second, calculate the statement type. This is done in the same environment, so the names
     // from the pattern persist.
-    < c, st > = checkStmt(stmt, c);
+    < cVisit, st > = checkStmt(stmt, cVisit);
 
-    if (labelTypeInStack(c,{visitLabel()})) {
-        c.labelStack = tail(c.labelStack);
+    if (labelTypeInStack(cVisit,{visitLabel()})) {
+        cVisit.labelStack = tail(cVisit.labelStack);
     }
 
     // Now, return in the environment, restoring the visible names to what they were on entry.
-    return recoverEnvironments(c, cOnEntry);
+    return exitBooleanScope(cVisit, c);
 }
 
 @doc{Check the type of a Rascal replacement: Unconditional (DONE)}
