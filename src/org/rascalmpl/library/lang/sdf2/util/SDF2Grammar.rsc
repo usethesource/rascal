@@ -127,7 +127,7 @@ private GrammarDefinition addLexicalChaining(GrammarDefinition def) {
 			}
 		};
 		// now add the chain rules to one of the grammars
-		chains = grammar({}, (\sort(n) : \prod(\sort(n), [\parameterized-lex("LEX",[\lex(n)])], {}) | n <- overlap));
+		chains = grammar({}, (\sort(n) : \prod(\sort(n), [\parameterized-lex("LEX",[\lex(n)])], {}) | n <- overlap), ());
 		def = top-down-break visit(def) {
 			case Grammar g => compose(g, chains)
 		};
