@@ -38,6 +38,7 @@ import org.jgll.grammar.symbol.Nonterminal;
 import org.jgll.grammar.symbol.Range;
 import org.jgll.grammar.symbol.RegularList;
 import org.jgll.grammar.symbol.Rule;
+import org.jgll.grammar.symbol.Sequence;
 import org.jgll.grammar.symbol.Symbol;
 import org.jgll.grammar.symbol.Terminal;
 import org.jgll.parser.GLLParser;
@@ -317,9 +318,15 @@ public class GrammarToJigll {
 
 		while (it.hasNext()) {
 			Entry<IValue, IValue> next = it.next();
-			IConstructor head = (IConstructor) next.getKey();
-			IConstructor body = (IConstructor) next.getValue();
-			System.out.println(head + " " + body);
+
+			Nonterminal head = getHead((IConstructor) next.getKey());
+			IList rhs = (IList) ((IConstructor) next.getValue()).get("symbols");
+
+			List<Symbol> body = getSymbolList(rhs);
+			
+			Rule rule = new Rule(head, new Sequence(body));
+			
+			System.out.println(rule);
 		}
 	}
 

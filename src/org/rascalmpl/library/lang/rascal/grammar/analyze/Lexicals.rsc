@@ -19,7 +19,7 @@ Production inlineProductions(Production p, Grammar g) = innermost visit(p) {
 };
 
 &T replaceDefinitions(&T v, Grammar g)  = visit(v) {
-  case lex(l) => seq(g.rules[lex(l)].symbols) when bprintln(g.rules[lex(l)])
+  case lex(l) => seq(g.rules[lex(l)].symbols)
   case lit(s) => seq(g.rules[lit(s)].symbols)
   case cilit(s) => seq(g.rules[cilit(s)].symbols) 
   case \parametrized-lex(l,ps) => seq(g.rules[\parametrized-lex(l,ps)])
