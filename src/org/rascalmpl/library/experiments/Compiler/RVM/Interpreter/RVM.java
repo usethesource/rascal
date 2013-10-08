@@ -328,13 +328,17 @@ public class RVM {
 		for(int i = 0; i < args.length; i++){
 			cf.stack[i] = args[i]; 
 		}
-		return narrow(executeProgram(root, cf)); 
+		Object o = executeProgram(root, cf);
+		if(o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		return narrow(o); 
 	}
 	
 	// Execute a function instance, i.e., a function in its environment
 	// Note: the root frame is the environment of the non-nested functions, which enables access to the global variables
 	// Note: the return type is 'Object' as this method is used to implement call to overloaded functions, its alternatives may fail
-	public Object executeFunction(Frame root, FunctionInstance func, IValue[] args){
+	private Object executeFunction(Frame root, FunctionInstance func, IValue[] args){
 		Frame cf = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
 		
 		// Pass the program argument to main
@@ -372,7 +376,11 @@ public class RVM {
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
 		Frame cf = root;
 		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
-		IValue res = narrow(executeProgram(root, cf));
+		Object o = executeProgram(root, cf);
+		if(o != null && o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		IValue res = narrow(o);
 		if(debug) {
 			stdout.println("TRACE:");
 			stdout.println(getTrace());
@@ -380,8 +388,7 @@ public class RVM {
 		return res;
 	}
 	
-	// TODO: Need to re-consider management of active coroutines
-	public Object executeProgram(Frame root, Frame cf) {
+	private Object executeProgram(Frame root, Frame cf) {
 		Object[] stack = cf.stack;		                              		// current stack
 		int sp = cf.function.nlocals;				                  	// current stack pointer
 		int [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence

@@ -4149,11 +4149,12 @@ public enum RascalPrimitive {
 	}
 	
 	public static int testreport_add(Object[] stack, int sp, int arity) {
-		assert arity == 3; 
+		assert arity == 4; 
 
-		String fun = ((IString) stack[sp - 3]).getValue();
+		String fun = ((IString) stack[sp - 4]).getValue();
+		String expected =  ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
-		stdout.println("testreport_add: " + src);
+		//stdout.println("testreport_add: " + src);
 		Type argType = (Type) stack[sp - 1];
 		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
 		//Type argType = typeReifier.valueToType(type_cons);
@@ -4172,7 +4173,8 @@ public enum RascalPrimitive {
 
 		int tries = nargs == 0 ? 1 : TRIES;
 		boolean passed = true;
-		for(int i = 0; i < tries; i++){
+		String message = "";
+		for(int i = 0; i < tries && passed; i++){
 			if(nargs > 0){
 				ITuple tup = (ITuple) randomValue.generate(argType);
 				for(int j = 0; j < args.length; j++){
@@ -4186,14 +4188,20 @@ public enum RascalPrimitive {
 				if(!passed){
 					break;
 				}
-			} catch (Thrown e){ 			// TODO: handle exceptions
-				
+			} catch (Thrown e){
+				IConstructor cons = (IConstructor) e.value;
+				if(!cons.getName().equals(expected)){
+					message = e.toString();
+					passed = false;
+				}
 			}
 			catch (Exception e){
+				message = e.getMessage();
+				passed = false;
 			}
 		}
-		test_results.append(vf.tuple(src,  vf.bool(passed)));
-		return sp - 2;
+		test_results.append(vf.tuple(src,  vf.bool(passed), vf.string(message == null ? "" : message)));
+		return sp - 3;
 	}
 
 	/*
