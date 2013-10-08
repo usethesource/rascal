@@ -2763,7 +2763,7 @@ public class Prelude {
 			return values.string(intValue);
 		}
 		else {
-			throw RuntimeExceptionFactory.illegalCharacter(i, null, null);
+			throw RuntimeExceptionFactory.illegalArgument(i, null, null);
 		}
 	}
 	
@@ -2773,7 +2773,7 @@ public class Prelude {
 		for (int i = 0; i < lst.length(); i ++) {
 			chars[i] = ((IInteger) lst.get(i)).intValue();
 			if (!Character.isValidCodePoint(chars[i])) {
-				throw RuntimeExceptionFactory.illegalCharacter(values.integer(chars[i]), null, null);
+				throw RuntimeExceptionFactory.illegalArgument(values.integer(chars[i]), null, null);
 			}
 		}
 		
