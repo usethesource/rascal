@@ -1,5 +1,6 @@
 module util::Webserver
 
+import Exception;
 import IO;
 
 public map[str extension, str mimeType] mimeTypes = (
