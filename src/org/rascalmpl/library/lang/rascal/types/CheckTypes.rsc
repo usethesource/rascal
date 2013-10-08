@@ -292,6 +292,14 @@ public list[int] upToContainer(Configuration c, int i) {
     return [i] + upToContainer(c,c.store[i].containedIn);
 }
 
+public int containedIn(Configuration c, AbstractValue av) {
+	if (av has containedIn) return av.containedIn;
+	// NOTE: This assumes that overloads are all defined at the same level (all at the top
+	// of a module, for instance), or this won't work properly at the calling site.
+	if (av is overload) return containedIn(c, c.store[getOneFrom(av.items)]);
+	return head(c.stack);
+}
+
 public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symbol rt) {
     moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
     moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
@@ -303,7 +311,7 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.nextLoc = c.nextLoc + 1;
     } else {
-        if (atRootOfModule && \module(_,_) := c.store[c.store[c.fcvEnv[n]].containedIn] && c.store[c.fcvEnv[n]].containedIn != moduleId) {
+        if (atRootOfModule && \module(_,_) := c.store[containedIn(c,c.store[c.fcvEnv[n]])] && containedIn(c,c.store[c.fcvEnv[n]]) != moduleId) {
             // In this case, we are adding a global variable that shadows another global item
             // from a different module. This is allowed, but:
             // TODO: Add a warning indicating we are doing so.
@@ -312,7 +320,7 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
             c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
             c.definitions = c.definitions + < c.nextLoc, l >;
             c.nextLoc = c.nextLoc + 1;
-        } else if (atRootOfModule && \module(_,_) := c.store[c.store[c.fcvEnv[n]].containedIn] && c.store[c.fcvEnv[n]].containedIn == moduleId) {
+        } else if (atRootOfModule && \module(_,_) := c.store[containedIn(c,c.store[c.fcvEnv[n]])] && containedIn(c,c.store[c.fcvEnv[n]]) == moduleId) {
             // In this case, we are adding a global variable that shadows another global item
             // from the same module, which is not allowed.
             c = addScopeError(c, "Cannot re-declare global name", l);
@@ -2854,7 +2862,7 @@ public CheckResult checkBooleanOpsWithMerging(Expression exp, Expression e1, Exp
     // when it would not have been visible outside of the nested or.
     leftVars = ( );
     if (leftEndRange >= leftStartRange) {
-       leftVars = ( vn : v | idx <- [leftStartRange .. leftEndRange+1], idx in cOrLeft.store, sh := head(cOrLeft.stack), v:variable(vn,_,_,sh,_) := cOrLeft.store[idx], idx := cOrLeft.fcvEnv[vn]);
+       leftVars = ( vn : v | idx <- [leftStartRange .. leftEndRange+1], idx in cOrLeft.store, sh := head(cOrLeft.stack), v:variable(vn,_,_,sh,_) := cOrLeft.store[idx], RSimpleName("_") != vn, idx := cOrLeft.fcvEnv[vn]);
     }
 
     cOr = exitBooleanScope(cOrLeft, cOr);
@@ -2869,7 +2877,7 @@ public CheckResult checkBooleanOpsWithMerging(Expression exp, Expression e1, Exp
     // Find vars added on the right branch, see above for details of how this works.
     rightVars = ( );
     if (rightEndRange >= rightStartRange) {
-       rightVars = ( vn : v | idx <- [rightStartRange .. rightEndRange+1], idx in cOrRight.store, sh := head(cOrRight.stack), v:variable(vn,_,_,sh,_) := cOrRight.store[idx], idx := cOrRight.fcvEnv[vn]);
+       rightVars = ( vn : v | idx <- [rightStartRange .. rightEndRange+1], idx in cOrRight.store, sh := head(cOrRight.stack), v:variable(vn,_,_,sh,_) := cOrRight.store[idx], RSimpleName("_") != vn, idx := cOrRight.fcvEnv[vn]);
     }
     
     cOr = exitBooleanScope(cOrRight, cOr);
