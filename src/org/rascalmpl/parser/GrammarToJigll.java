@@ -236,7 +236,8 @@ public class GrammarToJigll {
 
 	public GrammarBuilder convert(String name, IConstructor rascalGrammar) {
 		IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
-		createRegularExpressionRules(regularExpressions);
+		
+		Map<Nonterminal, Rule> regularExpressionRules = createRegularExpressionRules(regularExpressions);
 
 		GrammarBuilder builder = new GrammarBuilder(name);
 		
@@ -244,6 +245,8 @@ public class GrammarToJigll {
 		rulesMap = new HashMap<>();
 		keywordsMap = new HashMap<>();
 		regularListRules = new HashSet<>();
+		
+		Set<Rule> rules = new HashSet<>();
 
 		for (IValue nonterminal : definitions) {
 
@@ -279,13 +282,19 @@ public class GrammarToJigll {
 
 					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
-					builder.addRule(rule);
+					rules.add(rule);
 				}
 			}
 		}
-		
-		for (Rule rule : regularListRules) {
+
+		for (Rule rule : regularExpressionRules.values()) {
 			builder.addRule(rule);
+		}
+		
+		for (Rule rule : rules) {
+			if(!regularExpressionRules.containsKey(rule.getHead())) {
+				builder.addRule(rule);
+			}
 		}
 		
 		return builder;
@@ -313,7 +322,10 @@ public class GrammarToJigll {
 		}
 	}
 	
-	private void createRegularExpressionRules(IMap regularExpressions) {
+	private Map<Nonterminal, Rule> createRegularExpressionRules(IMap regularExpressions) {
+		
+		Map<Nonterminal, Rule> rules = new HashMap<>();
+		
 		Iterator<Entry<IValue, IValue>> it = regularExpressions.entryIterator();
 
 		while (it.hasNext()) {
@@ -324,10 +336,12 @@ public class GrammarToJigll {
 
 			List<Symbol> body = getSymbolList(rhs);
 			
-			Rule rule = new Rule(head, new Sequence(body));
-			
+			Rule rule = new Rule(head, body);
 			System.out.println(rule);
+			rules.put(head, rule);
 		}
+		
+		return rules;
 	}
 
 	private void addExceptPatterns(GrammarBuilder builder, IMap map) {
