@@ -860,34 +860,36 @@ MuExp translateSlice(Expression expression, OptionalExpression optFirst, Express
 
 // Translate Visit
 
+map[str,int] strategies = ("bottom-up"       : 0,
+						   "top-down"        : 1,
+						   "bottom-up-break" : 2,
+						   "top-down-break"  : 3,
+						   "innermost"       : 4,
+						   "outermost"       : 5);
+
 MuExp translateVisit(label, \visit) {
 	
-	int i = nextVisit();
-	
-	strategy = 0;
-	if(\visit is givenStrategy) {
-		switch(\visit.strategy) {
-			case (Strategy) `bottom-up`      : strategy = 0;
-			case (Strategy) `top-down`       : strategy = 1;
-			case (Strategy) `bottom-up-break`: strategy = 2;
-			case (Strategy) `top-down-break` : strategy = 3;
-			case (Strategy) `innermost`      : strategy = 4;
-			case (Strategy) `outermost`      : strategy = 5;
-		}	
-	}
-	
+	int i = nextVisit(); // unique id of a visit in the function body
+		
+	int strategy = (\visit is defaultStrategy) ? 0 : strategies["<\visit.strategy>"];
 	subject = \visit.subject;
 	cases = \visit.cases;
 	
 	list[MuExp] exps = [];
+	
 	bool rebuild = false;
 	Symbol ftype = Symbol::func(Symbol::\void(), [Symbol::\value()]);
+	// If there is at least one 'pattern-with-action' case or at least one case has 'insert',
+	// then re-build the tree
 	if(Case c <- cases, ( c is patternWithAction || /\insert(_,_) := c ) ) {
 		rebuild = true;
 		ftype = Symbol::func(Symbol::\value(), [Symbol::\value()]);
 	}
 	
-	tuple[str fuid,str scopeId] fun = bla; // TODO
+	str scopeId = topFunctionScope();
+	str fuid = scopeId + "/use:" + "visit_<i>(\\value();)";
+	
+	MuExp fun = muFun(fuid,scopeId);
 	
 	str varname = asTmp(nextLabel());
 	exps += muAssignTmp(varname, translate(subject));
@@ -908,10 +910,11 @@ MuExp translateVisit(label, \visit) {
 		exps += visitChildren(varname, <bla>);
 	}
 
+	functions_module += muFunction(fuid,scopeId,ftype, muBlock(exps));
 }
 
 @doc{Applies a function to all the children of a value, if any}
-MuExp visitChildren(str varname, tuple[str fuid, str scopeId] fun) {
+MuExp visitChildren(str varname, MuExp fun) {
 	str name_and_children = asTmp(nextLabel());
 	muAssignTmp(name_and_children, muCallMuPrim("get_name_and_children", [ muTmp(varname) ]));
 	
@@ -922,21 +925,21 @@ MuExp visitChildren(str varname, tuple[str fuid, str scopeId] fun) {
 	exp_list = muBlock([
 					muAssignTmp(writer, muCallPrim("listwriter_open", [])),	
 					muWhile(loopname, makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muTmp(varname) ])) ]), 
-					 			  	  [ muCallPrim("listwriter_add", [ muTmp(writer), muCall(muFun(fun.fuid, fun.scopeId), [ muTmp(child) ]) ]) ]),
+					 			  	  [ muCallPrim("listwriter_add", [ muTmp(writer), muCall(fun, [ muTmp(child) ]) ]) ]),
 					muCallPrim("listwriter_close", [ muTmp(writer) ])
 					]);
 	loopname = nextLabel();
 	exp_set = muBlock([
 					muAssignTmp(writer, muCallPrim("setwriter_open", [])),	
 					muWhile(loopname, makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muTmp(varname) ])) ]), 
-					 			  	  [ muCallPrim("setwriter_add", [ muTmp(writer), muCall(muFun(fun.fuid, fun.scopeId), [ muTmp(child) ]) ]) ]),
+					 			  	  [ muCallPrim("setwriter_add", [ muTmp(writer), muCall(fun, [ muTmp(child) ]) ]) ]),
 					muCallPrim("setwriter_close", [ muTmp(writer) ])
 					]);
 	loopname = nextLabel();
 	exp_map = muBlock([
 					muAssignTmp(writer, muCallPrim("mapwriter_open", [])),	
 					muWhile(loopname, makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muTmp(varname) ])) ]), 
-					 			  	  [ muCallPrim("mapwriter_add", [ muTmp(writer), muCall(muFun(fun.fuid, fun.scopeId), [ muTmp(child) ]), muCall(muFun(fun.fuid, fun.scopeId), [ muCallPrim("map_subscript", [ muTmp(varname), muTmp(child) ]) ]) ]) ]),
+					 			  	  [ muCallPrim("mapwriter_add", [ muTmp(writer), muCall(fun, [ muTmp(child) ]), muCall(fun, [ muCallPrim("map_subscript", [ muTmp(varname), muTmp(child) ]) ]) ]) ]),
 					muCallPrim("mapwriter_close", [ muTmp(writer) ])
 					]);
 	return muTypeSwitch( muTmp(varname), 
