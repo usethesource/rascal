@@ -102,7 +102,7 @@ str getOuterType(e) {
 Symbol getFunctionType(loc l) { 
    int uid = loc2uid[l];
    fun = config.store[uid];
-   if(function(_,Symbol rtype,_,_,_,_) := fun) {
+   if(function(_,Symbol rtype,_,_,_,_,_) := fun) {
        return rtype;
    } else {
        throw "Looked up a function, but got: <fun> instead";
@@ -112,7 +112,7 @@ Symbol getFunctionType(loc l) {
 Symbol getClosureType(loc l) {
    int uid = loc2uid[l];
    cls = config.store[uid];
-   if(closure(Symbol rtype,_,_) := cls) {
+   if(closure(Symbol rtype,_,_,_) := cls) {
        return rtype;
    } else {
        throw "Looked up a closure, but got: <cls> instead";
@@ -178,7 +178,7 @@ void extractScopes(){
    for(uid <- config.store){
       item = config.store[uid];
       switch(item){
-        case function(rname,rtype,_,
+        case function(rname,rtype,_,_,
         			  inScope,_,src):      { 
         							         functions += {uid};
                                              declares += {<inScope, uid>}; 
@@ -257,7 +257,7 @@ void extractScopes(){
         									 }
         									 uid2name[uid] = "bscope#<bscopes[uid]>";
         								   }
-        case closure(rtype,inScope,src):       {
+        case closure(rtype,_,inScope,src):       {
                                              functions += {uid};
                                              declares += {<inScope, uid>};
         									 loc2uid[src] = uid;
@@ -290,8 +290,8 @@ void extractScopes(){
             uid2addr[topdecls[i]] = <getFUID(uid2str(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0), i + 1>;
     	}
     	// Then, functions
-    	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_) := config.store[uid] ||
-    											  closure(_,_,_)        := config.store[uid] ||
+    	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_,_) := config.store[uid] ||
+    											  closure(_,_,_,_)        := config.store[uid] ||
     											  constructor(_,_,_,_)  := config.store[uid] ||
     											  variable(_,_,_,_,_)   := config.store[uid] ];
     	for(i <- index(topdecls)) {
@@ -320,8 +320,8 @@ void extractScopes(){
         	uid2addr[decls[i]] = <fuid2str[fuid], i + nformals>;
         }
         // Then, functions
-        decls = [ uid | uid <- declares[innerScopes], function(_,_,_,_,_,_) := config.store[uid] ||
-        											  closure(_,_,_) := config.store[uid] ];
+        decls = [ uid | uid <- declares[innerScopes], function(_,_,_,_,_,_,_) := config.store[uid] ||
+        											  closure(_,_,_,_) := config.store[uid] ];
         for(i <- index(decls)) {
         	uid2addr[decls[i]] = <fuid2str[fuid], -1>;
         }
