@@ -32,14 +32,14 @@ import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionFactory;
 import org.jgll.grammar.condition.ConditionType;
 import org.jgll.grammar.condition.TerminalCondition;
-import org.jgll.grammar.symbols.CharacterClass;
-import org.jgll.grammar.symbols.Keyword;
-import org.jgll.grammar.symbols.Nonterminal;
-import org.jgll.grammar.symbols.Range;
-import org.jgll.grammar.symbols.RegularList;
-import org.jgll.grammar.symbols.Rule;
-import org.jgll.grammar.symbols.Symbol;
-import org.jgll.grammar.symbols.Terminal;
+import org.jgll.grammar.symbol.CharacterClass;
+import org.jgll.grammar.symbol.Keyword;
+import org.jgll.grammar.symbol.Nonterminal;
+import org.jgll.grammar.symbol.Range;
+import org.jgll.grammar.symbol.RegularList;
+import org.jgll.grammar.symbol.Rule;
+import org.jgll.grammar.symbol.Symbol;
+import org.jgll.grammar.symbol.Terminal;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseError;
 import org.jgll.parser.ParserFactory;
@@ -585,12 +585,7 @@ public class GrammarToJigll {
 			if (condition.getType() == ConditionType.NOT_FOLLOW && condition instanceof TerminalCondition) {
 				TerminalCondition terminalCondition = (TerminalCondition) condition;
 
-				// TODO: currently it only works for a single follow
-				// restriction.
-				if (terminalCondition.getTerminals().size() != 1) {
-					return false;
-				}
-				Terminal terminal = terminalCondition.getTerminals().get(0);
+				Terminal terminal = terminalCondition.getTerminal();
 
 				if (!(terminal instanceof CharacterClass)) {
 					return false;
