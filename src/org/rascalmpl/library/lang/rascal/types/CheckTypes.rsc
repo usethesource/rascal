@@ -1715,7 +1715,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 private map[Symbol,map[str,Symbol]] fieldMap =
     ( \loc() :
         ( "scheme" : \str(), "authority" : \str(), "host" : \str(), "path" : \str(), "parent" : \str(),
-          "file" : \str(), "ls" : \list(\str()), "extension" : \str(), "fragment" : \str(), 
+          "file" : \str(), "ls" : \list(\loc()), "extension" : \str(), "fragment" : \str(), 
           "query" : \str(), "user" : \str(), "port" : \int(), "length" : \int(), "offset" : \int(), 
           "begin" : \tuple([\label("line",\int()),\label("column",\int())]), 
           "end" : \tuple([\label("line",\int()),\label("column",\int())]), "uri" : \str(), "top" : \loc()
