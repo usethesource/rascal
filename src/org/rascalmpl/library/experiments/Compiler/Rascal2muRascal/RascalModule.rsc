@@ -115,6 +115,13 @@ void importModule((Import) `import <QualifiedName qname> ;`){
     imported_modules += |std:///| + ("<name>" + ".rsc");
     //println("imported_modules = <imported_modules>");
 }
+
+void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement extend properly
+    name = replaceAll("<qname>", "::", "/");
+    //println("name = <name>");
+    imported_modules += |std:///| + ("<name>" + ".rsc");
+    //println("imported_modules = <imported_modules>");
+}
 	
 void translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
 
@@ -184,7 +191,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   
   if("test" in tmods){
      params = ftype.parameters;
-     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muTypeCon(\tuple([param | param <- params ])) ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
      // Maybe we should still transfer the reified type
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
@@ -214,7 +221,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   
   if("test" in tmods){
      params = ftype.parameters;
-     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muTypeCon(\tuple([param | param <- params ])) ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
      // Maybe we should still transfer the reified type
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
@@ -231,6 +238,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   //TODO: keyword parameters
   MuExp tbody = translateFunction(signature.parameters.formals.formals, body.statements, []);
   tmods = translateModifiers(signature.modifiers);
+  ttags =  translateTags(tags);
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
   
@@ -242,7 +250,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   					
    if("test" in tmods){
      params = ftype.parameters;
-     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muTypeCon(\tuple([param | param <- params ])) ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
      // Maybe we should still transfer the reified type
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
