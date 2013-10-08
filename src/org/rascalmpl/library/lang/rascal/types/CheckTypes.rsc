@@ -292,11 +292,11 @@ public list[int] upToContainer(Configuration c, int i) {
     return [i] + upToContainer(c,c.store[i].containedIn);
 }
 
-public int containedIn(Configuration c, AbstractValue av) {
+private int getContainedIn(Configuration c, AbstractValue av) {
 	if (av has containedIn) return av.containedIn;
 	// NOTE: This assumes that overloads are all defined at the same level (all at the top
 	// of a module, for instance), or this won't work properly at the calling site.
-	if (av is overload) return containedIn(c, c.store[getOneFrom(av.items)]);
+	if (av is overload) return getContainedIn(c, c.store[getOneFrom(av.items)]);
 	return head(c.stack);
 }
 
@@ -311,7 +311,7 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.nextLoc = c.nextLoc + 1;
     } else {
-        if (atRootOfModule && \module(_,_) := c.store[containedIn(c,c.store[c.fcvEnv[n]])] && containedIn(c,c.store[c.fcvEnv[n]]) != moduleId) {
+        if (atRootOfModule && \module(_,_) := c.store[getContainedIn(c,c.store[c.fcvEnv[n]])] && getContainedIn(c,c.store[c.fcvEnv[n]]) != moduleId) {
             // In this case, we are adding a global variable that shadows another global item
             // from a different module. This is allowed, but:
             // TODO: Add a warning indicating we are doing so.
@@ -320,7 +320,7 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
             c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
             c.definitions = c.definitions + < c.nextLoc, l >;
             c.nextLoc = c.nextLoc + 1;
-        } else if (atRootOfModule && \module(_,_) := c.store[containedIn(c,c.store[c.fcvEnv[n]])] && containedIn(c,c.store[c.fcvEnv[n]]) == moduleId) {
+        } else if (atRootOfModule && \module(_,_) := c.store[getContainedIn(c,c.store[c.fcvEnv[n]])] && getContainedIn(c,c.store[c.fcvEnv[n]]) == moduleId) {
             // In this case, we are adding a global variable that shadows another global item
             // from the same module, which is not allowed.
             c = addScopeError(c, "Cannot re-declare global name", l);
