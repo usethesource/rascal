@@ -1,7 +1,6 @@
 package org.rascalmpl.interpreter.utils;
 
 import java.util.Iterator;
-import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -21,7 +20,7 @@ public class TreeAsNode implements INode {
 
   public TreeAsNode(IConstructor tree) {
     this.name = TreeAdapter.getConstructorName(tree);
-    this.args = TreeAdapter.getASTArgs(tree);
+    this.args = TreeAdapter.isContextFree(tree) ? TreeAdapter.getASTArgs(tree) : TreeAdapter.getArgs(tree);
   }
   
   @Override

@@ -138,7 +138,7 @@ public abstract class Import {
 					String moduleEnvName = eval.getCurrentModuleEnvironment().getName();
 					URI ur = null;
 					if (moduleEnvName.equals(ModuleEnvironment.SHELL_MODULE)) {
-						ur = URIUtil.rootScheme("cwd");
+						ur = URI.create("rascal:///");
 					} else {
 						ur = eval.getRascalResolver().getRootForModule((URIUtil.createRascalModule(moduleEnvName)));
 					}
@@ -351,6 +351,7 @@ public abstract class Import {
     try {
       eval.startJob("Parsing " + location, 10);
       eval.event("initial parse");
+
       IConstructor tree = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
       if (TreeAdapter.isAmb(tree)) {
@@ -410,7 +411,7 @@ public abstract class Import {
       IConstructor result = tree;
       if (!eval.getHeap().isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
         eval.event("parsing concrete syntax");
-        result = parseFragments(eval, tree, env);
+        result = parseFragments(eval, tree, location, env);
       }
 
       if (!eval.getSuspendTriggerListeners().isEmpty()) {
@@ -425,14 +426,18 @@ public abstract class Import {
   }
   
   private static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod) {
-    org.rascalmpl.ast.Import imp = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
-    try {
-      imp.interpret(eval);
-    }
-    catch (Throwable e) {
-      // parsing the current module should be robust wrt errors in modules it depends on.
-      eval.getMonitor().warning("could not load module " + TreeAdapter.yield(mod) + "[" + e.getMessage() + "]", imp != null ? imp.getLocation() : eval.getCurrentAST().getLocation());
-    }
+	  org.rascalmpl.ast.Import imp = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
+	  try {
+		  imp.interpret(eval);
+	  }
+	  catch (Throwable e) {
+		  // parsing the current module should be robust wrt errors in modules it depends on.
+		  eval.getMonitor().warning("could not load module " + TreeAdapter.yield(mod) + "[" + e.getMessage() + "]", imp != null ? imp.getLocation() : eval.getCurrentAST().getLocation());
+		  if(eval.isInterrupted()) {
+			  e.printStackTrace();
+			  throw e;
+		  }
+	  }
   }
 
   /**
@@ -443,7 +448,7 @@ public abstract class Import {
    * @param parser is the parser to use for the concrete literals
    * @return parse tree of a module with structured concrete literals, or parse errors
    */
-  public static IConstructor parseFragments(final IEvaluator<Result<IValue>> eval, IConstructor module, final ModuleEnvironment env) {
+  public static IConstructor parseFragments(final IEvaluator<Result<IValue>> eval, IConstructor module, final URI location, final ModuleEnvironment env) {
     // TODO: update source code locations!!
     
      return (IConstructor) module.accept(new IdentityTreeVisitor<ImplementationError>() {
@@ -454,7 +459,7 @@ public abstract class Import {
          IConstructor pattern = getConcretePattern(tree);
          
          if (pattern != null) {
-           IConstructor parsedFragment = parseFragment(eval, env, (IConstructor) TreeAdapter.getArgs(tree).get(0));
+           IConstructor parsedFragment = parseFragment(eval, env, (IConstructor) TreeAdapter.getArgs(tree).get(0), location);
            return TreeAdapter.setArgs(tree, vf.list(parsedFragment));
          }
          else {
@@ -534,7 +539,7 @@ public abstract class Import {
     }
   }
   
-  private static IConstructor parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, IConstructor tree) {
+  private static IConstructor parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, IConstructor tree, URI uri) {
     IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
     IConstructor lit = TreeAdapter.getArg(tree, "parts");
     Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
@@ -543,7 +548,6 @@ public abstract class Import {
     
     try {
       String parserMethodName = eval.getParserGenerator().getParserMethodName(symTree);
-      URI uri = eval.getCurrentAST().getLocation().getURI();
       DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation> converter = new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>();
       UPTRNodeFactory nodeFactory = new UPTRNodeFactory();
     

@@ -95,6 +95,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -994,10 +995,13 @@ public class Prelude {
 	}
 	
 	public IValue exists(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		return values.bool(ctx.getResolverRegistry().exists(sloc.getURI()));
 	}
 	
 	public IValue lastModified(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  
 		try {
 			return values.datetime(ctx.getResolverRegistry().lastModified(sloc.getURI()));
 		} catch(FileNotFoundException e){
@@ -1009,18 +1013,23 @@ public class Prelude {
 	}
 	
 	public IValue isDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		return values.bool(ctx.getResolverRegistry().isDirectory(sloc.getURI()));
 	}
 	
 	public IValue isFile(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		return values.bool(ctx.getResolverRegistry().isFile(sloc.getURI()));
 	}
 	
 	public void mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) throws IOException {
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		ctx.getResolverRegistry().mkDirectory(sloc.getURI());
 	}
 	
 	public IValue listEntries(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  
 		try {
 			java.lang.String [] entries = ctx.getResolverRegistry().listEntries(sloc.getURI());
 			IListWriter w = values.listWriter();
@@ -1045,6 +1054,7 @@ public class Prelude {
 	
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  Reader reader = null;
 	  
 		try {
 			Charset c = ctx.getResolverRegistry().getCharset(sloc.getURI());
@@ -1052,12 +1062,22 @@ public class Prelude {
 				return readFileEnc(sloc, values.string(c.name()), ctx);
 			}
 			sloc = ctx.getHeap().resolveSourceLocation(sloc);
-			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI()), ctx);
+		  reader = ctx.getResolverRegistry().getCharacterReader(sloc.getURI());
+      return consumeInputStream(sloc, reader, ctx);
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+		finally {
+		  if (reader != null) {
+		    try {
+          reader.close();
+        } catch (IOException e) {
+          // TODO Auto-generated catch block
+        }
+		  }
 		}
 	}
 	
@@ -1234,19 +1254,29 @@ public class Prelude {
 	
 	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	  Reader reader = null;
 	  
 		try {
 			Charset detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
 			if (detected != null) {
 				return readFileLinesEnc(sloc, values.string(detected.name()), ctx);
 			}
-			return consumeInputStreamLines(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI()), ctx);
+			reader = ctx.getResolverRegistry().getCharacterReader(sloc.getURI());
+      return consumeInputStreamLines(sloc, reader, ctx);
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
+		} finally {
+		  if (reader != null) {
+		    try {
+          reader.close();
+        } catch (IOException e) {
+          // forgot about it
+        }
+		  }
 		}
 	}
 	
@@ -1372,22 +1402,16 @@ public class Prelude {
 	 * A mini class to wrap a lessThan function
 	 */
 	private class Less {
-	  private final ICallableValue less;
-	  private final IValue[] args = new IValue[2];
-	  private final Type[] types = new Type[2];
-	  
-    Less(ICallableValue less) {
-	    this.less = less;
-	    FunctionType func = (FunctionType) less.getType();
-	    types[0] = func.getArgumentTypes().getFieldType(0);
-	    types[1] = func.getArgumentTypes().getFieldType(1);
-	  }
-    
-    public boolean less(IValue x, IValue y) {
-      args[0] = x;
-      args[1] = y;
-      return ((IBool) less.call(types, args, null).getValue()).getValue();
-    }
+		private final ICallableValue less;
+
+		Less(ICallableValue less) {
+			this.less = less;
+		}
+
+		public boolean less(IValue x, IValue y) {
+			return ((IBool) less.call(new Type[] { x.getType(), y.getType() },
+					new IValue[] { x, y }, null).getValue()).getValue();
+		}
 	}
 	
 	private class Sorting {

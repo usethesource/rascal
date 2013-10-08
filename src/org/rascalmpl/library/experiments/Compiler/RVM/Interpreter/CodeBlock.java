@@ -4,17 +4,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Call;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallDyn;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallJava;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Dup;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.HasNext;
@@ -22,6 +24,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.I
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Instruction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpSwitch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Label;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadBool;
@@ -30,15 +33,20 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadNestedFun;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadOFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrown;
+
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next1;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.OCall;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.OCallDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Pop;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Println;
@@ -48,12 +56,13 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.S
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
 
 public class CodeBlock {
 
-	private final IValueFactory vf;
+	public final IValueFactory vf;
 	int pc;
 	int labelIndex = 0;
 	
@@ -70,6 +79,7 @@ public class CodeBlock {
 	private Type[] finalTypeConstantStore;
 	
 	private Map<String, Integer> functionMap;
+	private Map<String, Integer> resolver;
 	private Map<String, Integer> constructorMap;
 	
 	public int[] finalCode;
@@ -130,7 +140,7 @@ public class CodeBlock {
 		throw new RuntimeException("PANIC: undefined constant index " + n);
 	}
 	
-	private int getConstantIndex(IValue v){
+	public int getConstantIndex(IValue v){
 		Integer n = constantMap.get(v);
 		if(n == null){
 			n = constantStore.size();
@@ -149,7 +159,7 @@ public class CodeBlock {
 		throw new RuntimeException("PANIC: undefined type constant index " + n);
 	}
 	
-	private int getTypeConstantIndex(Type type){
+	public int getTypeConstantIndex(Type type){
 		Integer n = typeConstantMap.get(type);
 		if(n == null){
 			n = typeConstantStore.size();
@@ -176,6 +186,23 @@ public class CodeBlock {
 		return n;
 	}
 	
+	public String getOverloadedFunctionName(int n){
+		for(String fname : resolver.keySet()){
+			if(resolver.get(fname) == n) {
+				return fname;
+			}
+		}
+		throw new RuntimeException("PANIC: undefined overloaded function index " + n);
+	}
+	
+	public int getOverloadedFunctionIndex(String name){
+		Integer n = resolver.get(name);
+		if(n == null){
+			throw new RuntimeException("PANIC: undefined overloaded function name " + name);
+		}
+		return n;
+	}
+	
 	public String getConstructorName(int n) {
 		for(String cname : constructorMap.keySet()) {
 			if(constructorMap.get(cname) == n)
@@ -189,6 +216,14 @@ public class CodeBlock {
 		if(n == null)
 			throw new RuntimeException("PANIC: undefined constructor name " + name);
 		return n;
+	}
+	
+	public String getModuleVarName(int n){
+		return ((IString)getConstantValue(n)).getValue();
+	}
+	
+	public int getModuleVarIndex(String name){
+		return getConstantIndex(vf.string(name));		
 	}
 	
 	CodeBlock add(Instruction ins){
@@ -269,11 +304,17 @@ public class CodeBlock {
 		return add(new StoreLoc(this, pos));
 	}
 	
-	public CodeBlock LOADVAR (String fuid, int pos){
+	public CodeBlock LOADVAR(String fuid, int pos){
+		if(pos == -1){
+			getConstantIndex(vf.string(fuid));
+		}
 		return add(new LoadVar(this, fuid, pos));
 	}
 	
 	public CodeBlock STOREVAR (String fuid, int pos){
+		if(pos == -1){
+			getConstantIndex(vf.string(fuid));
+		}
 		return add(new StoreVar(this, fuid, pos));
 	}
 	
@@ -369,17 +410,44 @@ public class CodeBlock {
 		return add(new LoadType(this, getTypeConstantIndex(type)));
 	}
 	
-	public CodeBlock DUP(){
-		return add(new Dup(this));
-	}
-	
 	public CodeBlock FAILRETURN(){
 		return add(new FailReturn(this));
 	}
-		
-	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, boolean listing){
+	
+	public CodeBlock LOADOFUN(String fuid) {
+		return add(new LoadOFun(this, fuid));
+	}
+	
+	public CodeBlock OCALL(String fuid, int arity) {
+		return add(new OCall(this, fuid, arity));
+	}
+	
+	public CodeBlock OCALLDYN(int arity) {
+		return add(new OCallDyn(this, arity));
+	}
+	
+	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes){
+		return add(new CallJava(this, getConstantIndex(vf.string(methodName)), 
+									  getConstantIndex(vf.string(className)), 
+								      getTypeConstantIndex(parameterTypes)));
+	}
+	
+	public CodeBlock THROW() {
+		return add(new Throw(this));
+	}
+	
+	public CodeBlock JMPSWITCH(IList labels){
+		return add(new JmpSwitch(this, labels));
+	}
+	
+	public CodeBlock UNWRAPTHROWN(int pos) {
+		return add(new UnwrapThrown(this, pos));
+	}
+			
+	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;
+		this.resolver = resolver;
 		int codeSize = pc;
 		pc = 0;
 		finalCode = new int[codeSize];

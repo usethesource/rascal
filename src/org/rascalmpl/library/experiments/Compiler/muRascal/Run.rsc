@@ -11,7 +11,7 @@ import IO;
 
 public void execute(experiments::Compiler::muRascal::Syntax::Module tree, loc selection) {
 	ast = implode(#experiments::Compiler::muRascal::AST::Module, tree);
-	out = executeProgram(ast.directives, 1);
+	out = executeProgram(ast.directives);
 	println(out);	
 }
 

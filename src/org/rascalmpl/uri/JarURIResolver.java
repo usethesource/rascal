@@ -23,40 +23,55 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class JarURIResolver implements IURIInputStreamResolver{
-	private final Class<?> clazz;
 	
-	public JarURIResolver(Class<?> clazz){
+	public JarURIResolver() {
 		super();
-		
-		this.clazz = clazz;
 	}
 	
 	private String getJar(URI uri) {
 		String path = uri.toASCIIString();
-		return path.substring(path.indexOf("/"), path.indexOf('!'));
+		int bang = path.indexOf('!');
+		if (bang != -1) {
+		  return path.substring(path.indexOf("/"), bang);
+		}
+		else {
+		  return path.substring(path.indexOf("/"));
+		}
 	}
 	
 	private String getPath(URI uri) {
 		String path = uri.toASCIIString();
-		path = path.substring(path.indexOf('!') + 1);
-		while (path.startsWith("/")) {
-			path = path.substring(1);
+		int bang = path.indexOf('!');
+		
+		if (bang != -1) {
+		  path = path.substring(bang + 1);
+		  while (path.startsWith("/")) {
+		    path = path.substring(1);
+		  }
+		  return path;
 		}
-		return path;
+		else {
+		  return "";
+		}
 	}
 	
 	public InputStream getInputStream(URI uri) throws IOException {
-		InputStream resourceAsStream = clazz.getResourceAsStream(getPath(uri));
-		if (resourceAsStream != null) {
-			return resourceAsStream;
-		}
-		throw new FileNotFoundException(uri.toString());
+	  String jar = getJar(uri);
+    String path = getPath(uri);
+    
+    @SuppressWarnings("resource")
+    // jarFile's are closed the moment when there are no more references to it.
+    JarFile jarFile = new JarFile(jar);
+    JarEntry jarEntry = jarFile.getJarEntry(path);
+    return jarFile.getInputStream(jarEntry);
 	}
 	
 	public boolean exists(URI uri) {
 		try {
 			String jar = getJar(uri);
 			String path = getPath(uri);
+			
+			
 			
 			JarFile jarFile = new JarFile(jar);
 			JarEntry jarEntry = jarFile.getJarEntry(path);
@@ -116,13 +131,10 @@ public class JarURIResolver implements IURIInputStreamResolver{
 	}
 	
 	public String[] listEntries(URI uri) throws IOException {
-		if (!isDirectory(uri)) {
-			return new String[] { };
-		}
 		String jar = getJar(uri);
 		String path = getPath(uri);
 		
-		if (!path.endsWith("/")) {
+		if (!path.endsWith("/") && !path.isEmpty()) {
 			path = path + "/";
 		}
 		

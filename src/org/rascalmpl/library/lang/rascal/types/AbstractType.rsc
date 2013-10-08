@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
+@contributor{Anastasia Izmaylova - Anastasia.Izmaylova@cwi.nl (CWI)}
 @bootstrapParser
 module lang::rascal::types::AbstractType
 
@@ -25,7 +26,7 @@ public data Symbol =
 	  \user(RName rname, list[Symbol] parameters)
 	| failure(set[Message] messages)
 	| \inferred(int uniqueId)
-	| \overloaded(set[Symbol] overloads)
+	| \overloaded(set[Symbol] overloads, set[Symbol] defaults)
 	;
 
 @doc{Extension to add a production type.}
@@ -69,7 +70,7 @@ public str prettyPrintType(\reified(Symbol t)) = "type[<prettyPrintType(t)>]";
 public str prettyPrintType(\user(RName rn, list[Symbol] ps)) = "<prettyPrintName(rn)>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
 public str prettyPrintType(failure(set[Message] ms)) = "fail"; // TODO: Add more detail?
 public str prettyPrintType(\inferred(int n)) = "inferred(<n>)";
-public str prettyPrintType(\overloaded(set[Symbol] os)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(\o) | \o <- os])>";
+public str prettyPrintType(\overloaded(set[Symbol] os, set[Symbol] defaults)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(\o) | \o <- os + defaults])>";
 // named non-terminal symbols
 public str prettyPrintType(Symbol::\sort(str name)) = name;
 public str prettyPrintType(Symbol::\lex(str name)) = name;
@@ -633,19 +634,26 @@ public int getInferredTypeIndex(Symbol t) {
 }
 
 @doc{Is this type an overloaded type?}
-public bool isOverloadedType(\overloaded(_)) = true;
+public bool isOverloadedType(\overloaded(_,_)) = true;
 public default bool isOverloadedType(Symbol _) = false;
 
-@doc{Get the overloads stored inside the overloaded type.}
-public set[Symbol] getOverloadOptions(Symbol t) {
-	if (\overloaded(s) := t) return s;
-	throw "Error: Cannot get overloaded options from non-overloaded type <prettyPrintType(t)>";
+@doc{Get the non-default overloads stored inside the overloaded type.}
+public set[Symbol] getNonDefaultOverloadOptions(Symbol t) {
+	if (\overloaded(s,_) := t) return s;
+	throw "Error: Cannot get non-default overloaded options from non-overloaded type <prettyPrintType(t)>";
+}
+
+@doc{Get the default overloads stored inside the overloaded type.}
+public set[Symbol] getDefaultOverloadOptions(Symbol t) {
+	if (\overloaded(_,defaults) := t) return defaults;
+	throw "Error: Cannot get default overloaded options from non-overloaded type <prettyPrintType(t)>";
 }
 
 @doc{Construct a new overloaded type.}
-public Symbol makeOverloadedType(set[Symbol] options) {
-	flattened = { (\overloaded(opts) := opt) ? *opts : opt | opt <- options }; 
-	return \overloaded(flattened);
+public Symbol makeOverloadedType(set[Symbol] options, set[Symbol] defaults) {
+	options  = { *( (\overloaded(opts,_) := opt) ? opts : { opt } ) | opt <- options };
+	defaults = defaults + { *( (\overloaded(_,opts) := opt) ? opts : {} ) | opt <- options };
+	return \overloaded(options,defaults);
 }
 
 @doc{Ensure that sets of tuples are treated as relations.}

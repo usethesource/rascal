@@ -48,6 +48,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -308,7 +309,7 @@ public class TraversalEvaluator {
 		  try {
 		    rcons = (IConstructor) eval.call(cons.getType().getName(), cons.getName(), args);
 		  }
-		  catch (UndeclaredFunction | ArgumentsMismatch e) {
+		  catch (UndeclaredFunction | UndeclaredModule | ArgumentsMismatch e) {
 		    // This may happen when visiting data constructors dynamically which are not 
 		    // defined in the current scope. For example, when data was serialized and the format
 		    // has changed in the meantime. We issue a warning, because it is indicative of a bug

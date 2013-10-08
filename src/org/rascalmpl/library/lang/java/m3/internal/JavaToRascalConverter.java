@@ -35,7 +35,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	protected IValue ownValue;
 	private static final String DATATYPE_RASCAL_AST_TYPE_NODE 			= "Type";
-	private static final String DATATYPE_RASCAL_AST_MODIFIER_NODE 		= "Modifiers";
+	private static final String DATATYPE_RASCAL_AST_MODIFIER_NODE 		= "Modifier";
 	private static final String DATATYPE_RASCAL_AST_DECLARATION_NODE 	= "Declaration";
 	private static final String DATATYPE_RASCAL_AST_EXPRESSION_NODE 	= "Expression";
 	private static final String DATATYPE_RASCAL_AST_STATEMENT_NODE 		= "Statement";
@@ -49,13 +49,13 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected ISourceLocation loc;
 	protected String project;
 	
-	private final BindingsResolver bindingsResolver;
+	protected final BindingsResolver bindingsResolver;
 	protected final boolean collectBindings;
 	
 	JavaToRascalConverter(final TypeStore typeStore, boolean collectBindings) {
 		super(true);
 		this.typeStore = typeStore;
-		this.bindingsResolver = new BindingsResolver(collectBindings);
+		this.bindingsResolver = new BindingsResolver(typeStore, collectBindings);
 		this.collectBindings = collectBindings;
 		DATATYPE_RASCAL_AST_TYPE_NODE_TYPE 		= this.typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_TYPE_NODE);
 		DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_MODIFIER_NODE);
@@ -70,15 +70,16 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	public void set(ISourceLocation loc) {
 		this.loc = loc;
-		bindingsResolver.setProject(loc.getURI().getAuthority());
+    bindingsResolver.setProject(loc.getURI().getAuthority());
 	}
 	
 	protected ISourceLocation resolveBinding(String packageComponent) {
-		URI packageBinding = new BindingsResolver(this.collectBindings) {
+		URI packageBinding = new BindingsResolver(typeStore, this.collectBindings) {
 			public URI resolveBinding(String packageC) {
 				this.setProject(loc.getURI().getAuthority());
-				if (collectBindings)
+				if (collectBindings) {
 					return convertBinding("java+package", packageC, null, null);
+				}
 				return convertBinding("unknown", null, null, null);
 			}
 		}.resolveBinding(packageComponent);
@@ -87,8 +88,9 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	}
 	
 	protected ISourceLocation resolveBinding(CompilationUnit node) {
-		URI compilationUnit = new BindingsResolver(true) {
+		URI compilationUnit = new BindingsResolver(typeStore, true) {
 			public URI resolveBinding(CompilationUnit node) {
+			  this.setProject(loc.getURI().getAuthority());
 				return convertBinding("java+compilationUnit", loc.getURI().getPath(), null, null);
 			}
 		}.resolveBinding(node);
@@ -120,7 +122,13 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		if (node instanceof CompilationUnit) {
       return resolveBinding((CompilationUnit) node);
     }
-		return values.sourceLocation(bindingsResolver.resolveBinding(node));
+		URI binding = bindingsResolver.resolveBinding(node);
+		
+		if (binding != null) {
+		  return values.sourceLocation(binding);
+		}
+		
+		return null;
 	}
 	
 	protected ISourceLocation getSourceLocation(ASTNode node) {
@@ -140,7 +148,8 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 				return values.sourceLocation(loc.getURI(), 
 						 start, nodeLength, 
 						 compilUnit.getLineNumber(start), compilUnit.getLineNumber(end), 
-						 compilUnit.getColumnNumber(start)+1, compilUnit.getColumnNumber(end)+1);
+						 // TODO: only adding 1 at the end seems to work, need to test.
+						 compilUnit.getColumnNumber(start), compilUnit.getColumnNumber(end)+1);
 			}
 		} catch (IllegalArgumentException e) {
 			System.out.println("Most probably missing dependency");
@@ -213,8 +222,8 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		if(this.ownValue == null) {
       return ;
     }
-		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName)) {
-      this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annoValue);
+		if (annoValue != null && ownValue.getType().declaresAnnotation(this.typeStore, annoName)) {
+      ownValue = ((IConstructor) ownValue).asAnnotatable().setAnnotation(annoName, annoValue);
     }
 	}
 	
@@ -223,7 +232,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		if(this.ownValue == null) {
       return ;
     }
-		if (this.ownValue.getType().declaresAnnotation(this.typeStore, annoName) && !annos.isEmpty()) {
+		if (annoList != null && this.ownValue.getType().declaresAnnotation(this.typeStore, annoName) && !annos.isEmpty()) {
       this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annos);
     }
 	}

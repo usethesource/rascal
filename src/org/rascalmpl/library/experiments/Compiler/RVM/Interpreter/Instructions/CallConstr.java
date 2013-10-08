@@ -14,10 +14,6 @@ public class CallConstr extends Instruction {
 	}
 	
 	public String toString() { return "CALL " + fuid + ", " + arity + " [ " + codeblock.getConstructorIndex(fuid) + " ]"; }
-
-	public int spIncrement() {
-		return arity + 1;
-	}
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());

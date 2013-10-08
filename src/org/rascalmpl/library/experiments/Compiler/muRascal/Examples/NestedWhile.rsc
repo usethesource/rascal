@@ -32,7 +32,7 @@ bool runNestedWhile(){
   muP = muModule("NesteWhile", [], functions, [], []);
   rvmP = mu2rvm(muP);
   iprintln(rvmP);
-  <v, t> = executeProgram(rvmP, false, 1);
+  <v, t> = executeProgram(rvmP, false);
   println("Result = <v>, [<t> msec]");
   return bool b := v ? b : false;
 }

@@ -1,7 +1,8 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -12,10 +13,11 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
@@ -27,7 +29,10 @@ import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.LineComment;
@@ -54,10 +59,10 @@ import org.rascalmpl.uri.URIUtil;
 public class M3Converter extends JavaToRascalConverter {
 	private static final String DATATYPE_M3_NODE							= "M3";
 	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_M3_NODE_TYPE;
+	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_TYPESYMBOL;
 	
 	private static final org.eclipse.imp.pdb.facts.type.Type locType 		= TF.sourceLocationType();
 	private static final org.eclipse.imp.pdb.facts.type.Type m3TupleType 	= TF.tupleType(locType, locType);
-//	private static final org.eclipse.imp.pdb.facts.type.Type m3MapType   	= TF.mapType(locType, locType);
 	private final org.eclipse.imp.pdb.facts.type.Type m3LOCModifierType;
 	private final org.eclipse.imp.pdb.facts.type.Type m3LOCTypeType;
 	
@@ -66,21 +71,29 @@ public class M3Converter extends JavaToRascalConverter {
 	private ISetWriter uses;
 	private ISetWriter declarations;
 	private ISetWriter containment;
-	private ISetWriter typeInheritance;
+	private ISetWriter extendsRelations;
+	private ISetWriter implementsRelations;
 	private ISetWriter fieldAccess;
 	private ISetWriter methodInvocation;
 	private ISetWriter typeDependency;
 	private ISetWriter documentation;
 	private ISetWriter modifiers;
 	private ISetWriter names;
+	private ISetWriter methodOverrides;
+  private ISetWriter types;
+  private final org.eclipse.imp.pdb.facts.type.Type CONSTRUCTOR_M3;
 	
 	M3Converter(final TypeStore typeStore) {
 		super(typeStore, true);
 		this.DATATYPE_M3_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_M3_NODE);
+		TypeFactory tf = TypeFactory.getInstance();
+    this.CONSTRUCTOR_M3= this.typeStore.lookupConstructor(DATATYPE_M3_NODE_TYPE, "m3", tf.tupleType(tf.sourceLocationType()));
+		this.DATATYPE_TYPESYMBOL = this.typeStore.lookupAbstractDataType("TypeSymbol");
 		uses = values.relationWriter(m3TupleType);
 		declarations = values.relationWriter(m3TupleType);
 		containment = values.relationWriter(m3TupleType);
-		typeInheritance = values.relationWriter(m3TupleType);
+		extendsRelations = values.relationWriter(m3TupleType);
+		implementsRelations = values.relationWriter(m3TupleType);
 		fieldAccess = values.relationWriter(m3TupleType);
 		methodInvocation = values.relationWriter(m3TupleType);
 		m3LOCModifierType = TF.tupleType(locType, DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE);
@@ -88,30 +101,28 @@ public class M3Converter extends JavaToRascalConverter {
 		m3LOCTypeType = TF.tupleType(locType, locType);
 		typeDependency = values.relationWriter(m3LOCTypeType);
 		documentation = values.relationWriter(m3TupleType);
-		names = values.relationWriter(TF.tupleType(TF.stringType(), locType)); 
+		names = values.relationWriter(TF.tupleType(TF.stringType(), locType));
+		methodOverrides = values.relationWriter(TF.tupleType(locType, locType));
+		types = values.relationWriter(TF.tupleType(locType, DATATYPE_TYPESYMBOL));
 	}
 	
 	public IValue getModel() {
-		ownValue = values.constructor(DATATYPE_M3_NODE_TYPE);
+		ownValue = values.constructor(CONSTRUCTOR_M3, loc);
 		setAnnotation("declarations", declarations.done());
 		setAnnotation("uses", uses.done());
 		setAnnotation("containment", containment.done());
-		setAnnotation("typeInheritance", typeInheritance.done());
+		setAnnotation("extends", extendsRelations.done());
+		setAnnotation("implements", implementsRelations.done());
 		setAnnotation("methodInvocation", methodInvocation.done());
 		setAnnotation("modifiers", modifiers.done());
 		setAnnotation("typeDependency", typeDependency.done());
 		setAnnotation("documentation", documentation.done());
 		setAnnotation("fieldAccess", fieldAccess.done());
 		setAnnotation("names", names.done());
+		setAnnotation("methodOverrides", methodOverrides.done());
+		setAnnotation("types", types.done());
 		insertCompilationUnitMessages();
 		return ownValue;
-	}
-	
-	@Override
-	protected IValue visitChild(ASTNode node) {
-		if (node == null)
-			return null;
-		return super.visitChild(node);
 	}
 	
 	public ISourceLocation getParent() {
@@ -119,8 +130,9 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public void insert(ISetWriter relW, IValue lhs, IValue rhs) {
-		if ((isValid((ISourceLocation) lhs) && isValid((ISourceLocation) rhs)))
+		if ((isValid((ISourceLocation) lhs) && isValid((ISourceLocation) rhs))) {
 			relW.insert(values.tuple(lhs, rhs));
+		}
 	}
 
 	public void insert(ISetWriter relW, IValue lhs, IValueList rhs) {
@@ -130,15 +142,50 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public void insert(ISetWriter relW, IString lhs, IValue rhs) {
-		relW.insert(values.tuple(lhs, rhs));
+		if (isValid((ISourceLocation) rhs)) {
+			relW.insert(values.tuple(lhs, rhs));
+		}
 	}
 	
 	public void insert(ISetWriter relW, IValue lhs, IConstructor rhs) {
-		relW.insert(values.tuple(lhs, rhs));
+		if (isValid((ISourceLocation) lhs) && rhs != null) {
+			relW.insert(values.tuple(lhs, rhs));
+		}
 	}
 	
 	private boolean isValid(ISourceLocation binding) {
-		return !(binding.getURI().getScheme().equals("unknown") || binding.getURI().getScheme().equals("unresolved"));
+		return binding != null && !(binding.getURI().getScheme().equals("unknown") || binding.getURI().getScheme().equals("unresolved"));
+	}
+	
+	private void visitListOfModifiers(List modif) {
+		for (Iterator it = modif.iterator(); it.hasNext(); ) {
+			((ASTNode)it.next()).accept(this);
+		}
+	}
+	
+	private void visitFragments(List fragments) {
+		for (Iterator it = fragments.iterator(); it.hasNext(); ) {
+			((VariableDeclarationFragment) it.next()).accept(this);
+		}
+	}
+	
+	private boolean simpleNameIsConstructorDecl(SimpleName node) {
+		ASTNode parent = node.getParent();
+		if (parent instanceof MethodDeclaration) {
+			if (((MethodDeclaration) parent).isConstructor() && ((MethodDeclaration) parent).getName() == node) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private void addTypeDependency(ISourceLocation dependency) {
+	  if (!scopeManager.isEmpty()) {
+	    ISourceLocation parent = getParent();
+	    if (!parent.isEqual(dependency)) {
+	      insert(typeDependency, parent, dependency);
+	    }
+	  }
 	}
 	
 	public void preVisit(ASTNode node) {
@@ -153,6 +200,7 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(AnnotationTypeDeclaration node) {
 		ownValue = scopeManager.pop();
+		computeTypeSymbol(node);
 	}
 	
 	public boolean visit(AnnotationTypeMemberDeclaration node) {
@@ -163,18 +211,24 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(AnnotationTypeMemberDeclaration node) {
 		ownValue = scopeManager.pop();
+		IConstructor type = bindingsResolver.computeTypeSymbol(node.getType().resolveBinding(), true);
+	    insert(types, ownValue, type);
 	}
 	
 	public boolean visit(AnonymousClassDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		// enum constant declaration and classinstancecreation gives types for anonymousclasses
 		ASTNode parent = node.getParent();
-		if (parent instanceof ClassInstanceCreation)
+		if (parent instanceof ClassInstanceCreation) {
 			insert(typeDependency, ownValue, resolveBinding(((ClassInstanceCreation) parent).getType()));
-		else if (parent instanceof EnumConstantDeclaration)
+		}
+		else if (parent instanceof EnumConstantDeclaration) {
 			insert(typeDependency, ownValue, resolveBinding(((EnumConstantDeclaration) parent).resolveVariable()));
+		}
 		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
+	  IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding(), false);
+    insert(types, ownValue, type);
 		return true;
 	}
 	
@@ -193,6 +247,7 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(CompilationUnit node) {
+	  insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
@@ -226,7 +281,7 @@ public class M3Converter extends JavaToRascalConverter {
 				implementedInterfaces.add(resolveBinding(t));
 			}
 		}
-		insert(typeInheritance, ownValue, implementedInterfaces);
+		insert(implementsRelations, ownValue, implementedInterfaces);
 		
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
@@ -234,11 +289,22 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(EnumDeclaration node) {
 		ownValue = scopeManager.pop();
+	  computeTypeSymbol(node);
 	}
+
+  private void computeTypeSymbol(AbstractTypeDeclaration node) {
+    IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding(), true);
+    insert(types, ownValue, type);
+  }
 	
 	public boolean visit(FieldAccess node) {
 		insert(fieldAccess, getParent(), ownValue);
 		return true;
+	}
+	
+	public boolean visit(FieldDeclaration node) {
+		visitFragments(node.fragments());
+		return false;
 	}
 	
 	public boolean visit(Initializer node) {
@@ -270,6 +336,40 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(MethodDeclaration node) {
 		ownValue = scopeManager.pop();
+		ASTNode parent = node.getParent();
+		if (parent instanceof TypeDeclaration) {
+		  // TODO: why can this node.resolveBinding sometimes be null?
+			fillOverrides(node.resolveBinding(), ((TypeDeclaration)parent).resolveBinding());
+		}
+		else if (parent instanceof AnonymousClassDeclaration) {
+			fillOverrides(node.resolveBinding(), ((AnonymousClassDeclaration)parent).resolveBinding());
+		}
+		
+		IConstructor type = bindingsResolver.computeMethodTypeSymbol(node.resolveBinding(), true);
+		insert(types, ownValue, type);
+	}
+	
+	private void fillOverrides(IMethodBinding node, ITypeBinding parent) {
+		if (node == null || parent == null) {
+			System.err.println("parent or method binding is null, not proceeding with fillOverrides");
+			return;
+		}
+		
+		List<ITypeBinding> parentClass = new ArrayList<ITypeBinding>();
+		parentClass.addAll(Arrays.asList(parent.getInterfaces()));
+		parentClass.add(parent.getSuperclass());
+		
+		for (ITypeBinding parentBinding: parentClass) {
+			if (parentBinding == null) {
+				return;
+			}
+			for (IMethodBinding parentMethod: parentBinding.getDeclaredMethods()) {
+				if (node.overrides(parentMethod) && node.isSubsignature(parentMethod)) {
+					insert(methodOverrides, resolveBinding(node), resolveBinding(parentMethod));
+				}
+			}
+			fillOverrides(node, parentBinding);
+		}
 	}
 	
 	public boolean visit(MethodInvocation node) {
@@ -284,8 +384,18 @@ public class M3Converter extends JavaToRascalConverter {
 		return true;
 	}
 	
+	private void generatePackageDecls(URI parent, URI pkg, URI folder) {
+	    insert(declarations, values.sourceLocation(pkg), values.sourceLocation(folder));
+	  
+	    if (!(parent == null)) {
+	      insert(containment, values.sourceLocation(parent), values.sourceLocation(pkg));
+	      insert(names, values.string(pkg.getPath()), values.sourceLocation(pkg));
+	      pkg = parent;
+	      generatePackageDecls(URIUtil.getParentURI(pkg), pkg, URIUtil.getParentURI(folder));
+	    }
+    	}
+	
 	public boolean visit(PackageDeclaration node) {
-		
 		IPackageBinding binding = node.resolveBinding();
 		
 		if (binding == null) {
@@ -294,24 +404,8 @@ public class M3Converter extends JavaToRascalConverter {
 		  return true;
 		}
 		
+		generatePackageDecls(URIUtil.getParentURI(((ISourceLocation) ownValue).getURI()), ((ISourceLocation) ownValue).getURI(), URIUtil.getParentURI(loc.getURI()));
 	
-		String parent = "";
-		String current = "";
-    for (String component: binding.getNameComponents()) {
-      current += ("/" + component);
-
-      ISourceLocation parentBinding = resolveBinding(parent);
-      insert(containment, parentBinding, resolveBinding(current));
-      insert(names, values.string(component), resolveBinding(current));
-			
-      // Here we implicitly declare all the parent packages, 
-      // i.e. java+package://<project>/java is a parent of java+package://<project>/java/util
-			URI pathURI = URIUtil.assumeCorrect(loc.getURI().getScheme(), loc.getURI().getAuthority(), current);
-			insert(declarations, resolveBinding(current), values.sourceLocation(pathURI));
-			
-			parent = current;
-		}
-		
 		insert(containment, ownValue, getParent());
 		
 		scopeManager.push((ISourceLocation) ownValue);
@@ -323,31 +417,25 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(QualifiedName node) {
-		if (((ISourceLocation) ownValue).getURI().getScheme().equals("java+field"))
+		if (((ISourceLocation) ownValue).getURI().getScheme().equals("java+field")) {
 			insert(fieldAccess, getParent(), ownValue);
+		}
 		return true;
 	}
 	
 	public boolean visit(SimpleName node) {
-		URI uri = ((ISourceLocation) ownValue).getURI();
-		try {
-			insert(names, values.string(node.getIdentifier()), values.sourceLocation(URIUtil.changePath(uri, uri.getPath().replaceAll("/", "."))));
-		} catch (URISyntaxException e) {
-			// should not happen
-		}
+		insert(names, values.string(node.getIdentifier()), values.sourceLocation(((ISourceLocation) ownValue).getURI()));
 		
 		if (((ISourceLocation)ownValue).getURI().getScheme().equals("java+field")) {
-			if (!getParent().isEqual((ISourceLocation) ownValue))
+			if (!getParent().isEqual((ISourceLocation) ownValue)) {
 				insert(fieldAccess, getParent(), ownValue);
+			}
 		}
 		
-		insert(typeDependency, getParent(), resolveBinding(node.resolveTypeBinding()));//???
-		
-		if (!node.isDeclaration() && !simpleNameIsConstructorDecl(node)) {
-			ISourceLocation declaringClass = resolveDeclaringClass(node.resolveBinding());
-			
-			if (!getParent().isEqual(declaringClass)) {
-				insert(typeDependency, getParent(), declaringClass);
+		if (!simpleNameIsConstructorDecl(node)) {
+			addTypeDependency(resolveBinding(node.resolveTypeBinding()));
+			if (!node.isDeclaration()) {
+				addTypeDependency(resolveDeclaringClass(node.resolveBinding()));
 			}
 		}
 		
@@ -355,7 +443,7 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public void endVisit(SimpleName node) {
-		if (node.isDeclaration() || simpleNameIsConstructorDecl(node)) {
+		if ((node.isDeclaration() || simpleNameIsConstructorDecl(node))) {
 			insert(declarations, ownValue, getSourceLocation(compilUnit.findDeclaringNode(node.resolveBinding())));
 		}
 		else {
@@ -363,10 +451,6 @@ public class M3Converter extends JavaToRascalConverter {
 		}
 	}
 
-  private boolean simpleNameIsConstructorDecl(SimpleName node) {
-    return node.getParent() instanceof MethodDeclaration && ((MethodDeclaration) node.getParent()).isConstructor();
-  }
-	
 	public boolean visit(SingleVariableDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
@@ -375,6 +459,8 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(SingleVariableDeclaration node) {
 		ownValue = scopeManager.pop();
+	  IConstructor type = bindingsResolver.computeTypeSymbol(node.getType().resolveBinding(), false);
+    insert(types, ownValue, type);
 	}
 	
 	public boolean visit(SuperConstructorInvocation node) {
@@ -410,7 +496,8 @@ public class M3Converter extends JavaToRascalConverter {
 					implementsInterfaces.add(resolveBinding(n));
 				}
 			}
-		} else if (node.getAST().apiLevel() >= AST.JLS3) {
+		} 
+		else if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (node.getSuperclassType() != null) {
 				extendsClass.add(resolveBinding(node.getSuperclassType()));
 			}
@@ -422,8 +509,8 @@ public class M3Converter extends JavaToRascalConverter {
 			}
 		}
 		
-		insert(typeInheritance, ownValue, extendsClass);
-		insert(typeInheritance, ownValue, implementsInterfaces);
+		insert(extendsRelations, ownValue, extendsClass);
+		insert(implementsRelations, ownValue, implementsInterfaces);
 		
 		return true;
 	}
@@ -431,10 +518,10 @@ public class M3Converter extends JavaToRascalConverter {
 	
 	public void endVisit(TypeDeclaration node) {
 		ownValue = scopeManager.pop();
+		computeTypeSymbol(node);
 	}
 	
 	public boolean visit(TypeParameter node) {
-		// ???
 		IValueList extendsList = new IValueList(values);
 		if (!node.typeBounds().isEmpty()) {
 			for (Iterator it = node.typeBounds().iterator(); it.hasNext();) {
@@ -443,34 +530,12 @@ public class M3Converter extends JavaToRascalConverter {
 			}
 		}
 		
-		insert(typeInheritance, ownValue, extendsList);
+		insert(containment, getParent(), ownValue);
 		
 		return true;
 	}
 	
-	private void visitListOfModifiers(List modif) {
-		for (Iterator it = modif.iterator(); it.hasNext(); ) {
-			((ASTNode)it.next()).accept(this);
-		}
-	}
-	
-	private void visitFragments(List fragments) {
-		for (Iterator it = fragments.iterator(); it.hasNext(); ) {
-			((VariableDeclarationFragment) it.next()).accept(this);
-		}
-	}
-	
-	public boolean visit(FieldDeclaration node) {
-		visitFragments(node.fragments());
-		return false;
-	}
-	
 	public boolean visit(VariableDeclarationExpression node) {
-		visitFragments(node.fragments());
-		return false;
-	}
-	
-	public boolean visit(VariableDeclarationStatement node) {
 		visitFragments(node.fragments());
 		return false;
 	}
@@ -484,11 +549,13 @@ public class M3Converter extends JavaToRascalConverter {
 			FieldDeclaration parent = (FieldDeclaration)parentASTNode;
 			parent.getType().accept(this);
 			visitListOfModifiers(parent.modifiers());
-		} else if (parentASTNode instanceof VariableDeclarationExpression) {
+		} 
+		else if (parentASTNode instanceof VariableDeclarationExpression) {
 			VariableDeclarationExpression parent = (VariableDeclarationExpression)parentASTNode;
 			parent.getType().accept(this);
 			visitListOfModifiers(parent.modifiers());
-		} else {
+		} 
+		else {
 			VariableDeclarationStatement parent = (VariableDeclarationStatement)parentASTNode;
 			parent.getType().accept(this);
 			visitListOfModifiers(parent.modifiers());
@@ -498,6 +565,20 @@ public class M3Converter extends JavaToRascalConverter {
 	}
 	
 	public void endVisit(VariableDeclarationFragment node) {
-		ownValue = scopeManager.pop();
+	  ownValue = scopeManager.pop();
+		IVariableBinding binding = node.resolveBinding();
+		
+		if (binding != null) {
+		  IConstructor type = bindingsResolver.computeTypeSymbol(binding.getType(), false);
+		  insert(types, ownValue, type);
+		}
+		else {
+		  System.err.println("no binding for " + node);
+		}
+	}
+
+	public boolean visit(VariableDeclarationStatement node) {
+		visitFragments(node.fragments());
+		return false;
 	}
 }

@@ -11,17 +11,20 @@ import Prelude;
 // All information related to one Rascal module
 
 public data MuModule =											
-              muModule(str name, list[Symbol] types, 
+              muModule(str name, list[loc] imports,
+              					 map[str,Symbol] types, 
                                  list[MuFunction] functions, 
                                  list[MuVariable] variables, 
-                                 list[MuExp] initialization)
+                                 list[MuExp] initialization,
+                                 map[str,int] resolver,
+                                 lrel[str,list[str],list[str]] overloaded_functions)
             ;
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-              muFunction(str qname, int nformals, int nlocals, loc source, list[str] modifiers, map[str,str] tags, list[MuExp] body)
+              muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, loc source, list[str] modifiers, map[str,str] tags, MuExp body)
           ;
           
 // A global (module level) variable.
@@ -45,8 +48,12 @@ public data MuExp =
           | muCon(value c)										// Rascal Constant: an arbitrary IValue
             													// Some special cases are handled by preprocessor, see below.
           | muLab(str name)										// Label
-          | muFun(str fuid)							            // Function constant: functions at the root
-          | muFun(str fuid, str scopeIn)                        // Function constant: nested functions and closures
+          
+          | muFun(str fuid)							            // *muRascal function constant: functions at the root
+          | muFun(str fuid, str scopeIn)                        // *muRascal function constant: nested functions and closures
+          
+          | muOFun(str fuid)                                    // *Rascal functions, i.e., overloaded function at the root
+          
           | muConstr(str fuid) 									// Constructors
           
           	// Variables
@@ -62,16 +69,19 @@ public data MuExp =
              
           | muTypeCon(Symbol tp)								// Type constant
           
-          // Function overloading
-          | muFunAddition(MuExp lhs, MuExp rhs)
-          | muCall(list[MuExp] funs, list[MuExp] args)
-     
-     		// Call/return
-     		
-          | muCall(MuExp fun, list[MuExp] args)					// Call a function
+          // Call/return    		
+          | muCall(MuExp fun, list[MuExp] args)					// Call a *muRascal function
+          
+          | muOCall(MuExp fun, list[MuExp] args)                // Call a declared *Rascal function
+          | muOCall(MuExp fun, set[Symbol] types,               // Call a dynamic *Rascal function
+          					   list[MuExp] args)
+          
           | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
           | muCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
+          | muCallJava(str name, str class, 
+          			   Symbol parameterTypes,
+          			   list[MuExp] args)						// Call a Java method in given class
  
           | muReturn()											// Return from function without value
           | muReturn(MuExp exp)									// Return from function with value
@@ -86,11 +96,14 @@ public data MuExp =
           | muAssignVarDeref(str id, str fuid, 
           					 int pos, MuExp exp) 	            // the left-hand side is a variable that refers to a value location
           														
-          | muIfelse(MuExp cond, list[MuExp] thenPart,			// If-then-else expression
-          						 list[MuExp] elsePart)
+          | muIfelse(str label, MuExp cond,                     // If-then-else expression
+          						list[MuExp] thenPart,			
+          						list[MuExp] elsePart)
           						 
           | muWhile(str label, MuExp cond, list[MuExp] body)	// While-Do expression
           | muDo(str label, list[MuExp] body, MuExp cond)		// Do-While expression
+          
+          | muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \default)		// switch over cases for specific type
           
 		  | muBreak(str label)									// Break statement
 		  | muContinue(str label)								// Continue statement
@@ -115,12 +128,23 @@ public data MuExp =
           
            // Multi-expressions
           
-          | muExpList(list[MuExp] exps)  						// A list of expressions
+          | muBlock(list[MuExp] exps)  							// A list of expressions, only last value remains
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
-       	  ;
-       	  
+          
+          // Exceptions
+          
+          | muThrow(MuExp exp)
+          
+          // Exception handling try/catch
+          
+          | muTry(MuExp exp, MuCatch \catch, MuExp \finally)
+          ;
+ 
+data MuCatch = muCatch(str id, Symbol \type, MuExp body);    
+
+data MuTypeCase = muTypeCase(str name, MuExp exp);	  
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.
@@ -143,15 +167,20 @@ public data MuExp =
             | preFunNN(str modName, str name, int nformals)
             | preFunN(lrel[str,int] funNames, str name, int nformals)
             | preList(list[MuExp] exps)
-            | preSubscript(MuExp lst, MuExp idx)
+            | preSubscriptArray(MuExp lst, MuExp idx)
+            | preSubscriptList(MuExp lst, MuExp idx)
+            | preSubscriptTuple(MuExp lst, MuExp idx)
             | preAssignLoc(str name, MuExp exp)
             | preAssign(lrel[str,int] funNames, str name, MuExp exp)
             | preAssignLocList(str name1, str name2, MuExp exp)
-            | preAssignSubscript(MuExp lst, MuExp idx, MuExp exp)
+            | preAssignSubscriptArray(MuExp lst, MuExp idx, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart)
             
             | preAddition(MuExp lhs, MuExp rhs)
             | preSubtraction(MuExp lhs, MuExp rhs)
+            | preDivision(MuExp lhs, MuExp rhs)
+            | preModulo(MuExp lhs, MuExp rhs)
+            | prePower(MuExp lhs, MuExp rhs)
                  
             | preLess(MuExp lhs, MuExp rhs)
             | preLessEqual(MuExp lhs, MuExp rhs)
@@ -171,3 +200,7 @@ public data MuExp =
             | preAssignLocDeref(str name, MuExp exp)
             | preAssignVarDeref(lrel[str,int] funNames, str name, MuExp exp)
            ;
+           
+public bool isOverloadedFunction(muOFun(str _)) = true;
+//public bool isOverloadedFunction(muOFun(str _, str _)) = true;
+public default bool isOverloadedFunction(MuExp _) = false;

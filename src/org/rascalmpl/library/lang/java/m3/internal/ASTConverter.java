@@ -2,6 +2,7 @@ package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.*;
@@ -19,10 +20,43 @@ public class ASTConverter extends JavaToRascalConverter {
 	
 	public void postVisit(ASTNode node) {
 		setAnnotation("src", getSourceLocation(node));
-		setAnnotation("binding", resolveBinding(node));
+		ISourceLocation decl = resolveBinding(node);
+		if (!decl.getURI().getScheme().equals("unknown")) {
+		  setAnnotation("decl", decl); 
+		}
+		setAnnotation("typ", resolveType(node));
 	}
 	
-	public boolean visit(AnnotationTypeDeclaration node) {
+	private IValue resolveType(ASTNode node) {
+	  if (node instanceof Expression) {
+	    ITypeBinding binding = ((Expression) node).resolveTypeBinding();
+	    if (binding != null) {
+	      return bindingsResolver.computeTypeSymbol(binding, false);
+	    }
+	  }
+	  else if (node instanceof TypeDeclaration) {
+	    ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();
+	    if (binding != null) {
+	      return bindingsResolver.computeTypeSymbol(binding, true);
+	    }
+	  }
+	  else if (node instanceof MethodDeclaration) {
+	    IMethodBinding binding = ((MethodDeclaration) node).resolveBinding();
+      if (binding != null) {
+        return bindingsResolver.computeMethodTypeSymbol(binding, true);
+      }
+	  }
+	  else if (node instanceof VariableDeclaration) {
+	    ITypeBinding binding = ((VariableDeclaration) node).resolveBinding().getType();
+      if (binding != null) {
+        return bindingsResolver.computeTypeSymbol(binding, false);
+      }
+	  }
+	  
+	  return null;
+  }
+
+  public boolean visit(AnnotationTypeDeclaration node) {
 		IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
 		IValue name = values.string(node.getName().getFullyQualifiedName());
 		

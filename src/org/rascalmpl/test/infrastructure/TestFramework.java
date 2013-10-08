@@ -33,8 +33,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -43,7 +41,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
-import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -140,8 +137,6 @@ public class TestFramework {
 		
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
-		
-		resolverRegistry.registerInput(new JarURIResolver(TestFramework.class));
 		
 		evaluator.addRascalSearchPath(URIUtil.rootScheme("test-modules"));
 		resolverRegistry.registerInput(modules);
