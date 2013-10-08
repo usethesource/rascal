@@ -13,6 +13,8 @@
 }
 module Grammar
 
+import Exception;
+import Message;
 extend ParseTree;
 import Set;
 import IO;
