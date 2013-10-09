@@ -64,6 +64,8 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public enum RascalPrimitive {
 
 	// add
+	
+	add,
 
 	int_add_int,
 	int_add_num,
@@ -116,6 +118,8 @@ public enum RascalPrimitive {
 
 	// compose
 	
+	compose,
+	
 	lrel_compose_lrel,
 	rel_compose_rel,
 	map_compose_map,
@@ -127,6 +131,7 @@ public enum RascalPrimitive {
 	
 	// divide
 	
+	divide,
 	int_divide_int,
 	int_divide_num,
 	int_divide_rat,
@@ -149,6 +154,8 @@ public enum RascalPrimitive {
 	
 	// equal
 	
+	equal,
+	
 	int_equal_int,
 	int_equal_num,
 	int_equal_rat,
@@ -169,9 +176,9 @@ public enum RascalPrimitive {
 	real_equal_real,
 	real_equal_rat,
 	
-	equal,
-	
 	// greater
+	
+	greater,
 
 	int_greater_int,
 	int_greater_num,
@@ -204,9 +211,9 @@ public enum RascalPrimitive {
 	str_greater_str,
 	tuple_greater_tuple,
 	
-	greater,
-	
 	// greaterequal
+	
+	greaterequal,
 
 	int_greaterequal_int,
 	int_greaterequal_num,
@@ -239,11 +246,9 @@ public enum RascalPrimitive {
 	str_greaterequal_str,
 	tuple_greaterequal_tuple,
 	
-	greaterequal,
-	
-	//has,
-	
 	// intersect
+	
+	intersect,
 	
 	list_intersect_list,
 	list_intersect_lrel,
@@ -256,6 +261,8 @@ public enum RascalPrimitive {
 	set_intersect_rel,
 	
 	// in
+	
+	in,
 	
 	elm_in_list,
 	elm_in_lrel,
@@ -285,6 +292,8 @@ public enum RascalPrimitive {
 	
 	// join
 	
+	join,
+	
 	list_join_list,
 	list_join_lrel,
 	lrel_join_list,
@@ -295,6 +304,8 @@ public enum RascalPrimitive {
 	set_join_rel,
 
 	// less
+	
+	less,
 	
 	int_less_int,
 	int_less_num,
@@ -326,10 +337,10 @@ public enum RascalPrimitive {
 	set_less_set,
 	str_less_str,
 	tuple_less_tuple,
-	
-	less,
 
 	// lessequal
+	
+	lessequal,
 	
 	int_lessequal_int,
 	int_lessequal_num,
@@ -361,8 +372,6 @@ public enum RascalPrimitive {
 	set_lessequal_set,
 	str_lessequal_str,
 	tuple_lessequal_tuple,
-	
-	lessequal,
 	
 	// list
 	list_size,
@@ -396,9 +405,13 @@ public enum RascalPrimitive {
 	
 	// modulo
 	
+	mod,
+	
 	int_mod_int,
 	
 	// negative 
+	
+	negative,
 	negative_int,
 	negative_real,
 	negative_rat,
@@ -412,6 +425,8 @@ public enum RascalPrimitive {
 	node_slice,
 	
 	// notequal
+	
+	notequal,
 	
 	int_notequal_int,
 	int_notequal_num,
@@ -433,9 +448,9 @@ public enum RascalPrimitive {
 	real_notequal_real,
 	real_notequal_rat,
 	
-	notequal, 
-	
 	// notin
+	
+	notin,
 	
 	elm_notin_list,
 	elm_notin_lrel,
@@ -448,6 +463,8 @@ public enum RascalPrimitive {
 	println,
 
 	// product
+	
+	product,
 	
 	int_product_int,
 	int_product_num,
@@ -489,6 +506,7 @@ public enum RascalPrimitive {
 	
 	// remainder
 	
+	remainder,
 	int_remainder_int,
 	
 	// set
@@ -517,6 +535,8 @@ public enum RascalPrimitive {
 	sublist,
 
 	// subtract
+	
+	subtract,
 	
 	int_subtract_int,
 	int_subtract_num,
@@ -563,8 +583,13 @@ public enum RascalPrimitive {
 	testreport_open,
 	
 	// transitive closure
+	
+	transitive_closure,
+	
 	lrel_transitive_closure,
 	rel_transitive_closure,
+	
+	transitive_reflexive_closure,
 	lrel_transitive_reflexive_closure,
 	rel_transitive_reflexive_closure,
 	
@@ -731,6 +756,152 @@ public enum RascalPrimitive {
 	 *		tuple[&L1,&L2] x tuple[&R1,&R2,&R3] -> tuple[&L1,&L2,&R1,&R2,&R3]
 	 * }
 	 */
+	
+	public static int add(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IValue lhs = ((IValue) stack[sp - 2]);
+		IValue rhs = ((IValue) stack[sp - 1]);
+		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+		switch (lhsType) {
+		case INT:
+			switch (rhsType) {
+			case INT:
+				return int_add_int(stack, sp, arity);
+			case NUM:
+				return int_add_num(stack, sp, arity);
+			case REAL:
+				return int_add_real(stack, sp, arity);
+			case RAT:
+				return int_add_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case NUM:
+			switch (rhsType) {
+			case INT:
+				return num_add_int(stack, sp, arity);
+			case NUM:
+				return num_add_num(stack, sp, arity);
+			case REAL:
+				return num_add_real(stack, sp, arity);
+			case RAT:
+				return num_add_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case REAL:
+			switch (rhsType) {
+			case INT:
+				return real_add_int(stack, sp, arity);
+			case NUM:
+				return real_add_num(stack, sp, arity);
+			case REAL:
+				return real_add_real(stack, sp, arity);
+			case RAT:
+				return real_add_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case RAT:
+			switch (rhsType) {
+			case INT:
+				return rat_add_int(stack, sp, arity);
+			case NUM:
+				return rat_add_num(stack, sp, arity);
+			case REAL:
+				return rat_add_real(stack, sp, arity);
+			case RAT:
+				return rat_add_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case SET:
+			switch (rhsType) {
+			case SET:
+				return set_add_set(stack, sp, arity);
+			case REL:
+				return set_add_rel(stack, sp, arity);
+			default:
+				return set_add_elm(stack, sp, arity);
+			}
+		case LIST:
+			switch (rhsType) {
+			case LIST:
+				return list_add_list(stack, sp, arity);
+			case LREL:
+				return list_add_lrel(stack, sp, arity);
+			default:
+				return list_add_elm(stack, sp, arity);
+			}
+		case LOC:
+			switch (rhsType) {
+			case STR:
+				return loc_add_str(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case LREL:
+			switch (rhsType) {
+			case LIST:
+				return lrel_add_list(stack, sp, arity);
+			case LREL:
+				return lrel_add_lrel(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case MAP:
+			switch (rhsType) {
+			case MAP:
+				return map_add_map(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case REL:
+			switch (rhsType) {
+			case SET:
+				return rel_add_set(stack, sp, arity);
+			case REL:
+				return rel_add_rel(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case STR:
+			switch (rhsType) {
+			case STR:
+				return str_add_str(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case TUPLE:
+			switch (rhsType) {
+			case TUPLE:
+				return tuple_add_tuple(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		default:
+			switch (rhsType) {
+			case SET:
+				return elm_add_set(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		}
+	}
 
 	// int
 	public static int int_add_int(Object[] stack, int sp, int arity) {
@@ -1068,6 +1239,23 @@ public enum RascalPrimitive {
 		}
 	 */
 	
+	public static int compose(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+		switch (ToplevelType.getToplevelType(leftType)) {
+		case LREL:
+			return lrel_compose_lrel(stack, sp, arity);
+		case REL:
+			return rel_compose_rel(stack, sp, arity);
+		case MAP:
+			return map_compose_map(stack, sp, arity);
+		default:
+			throw new RuntimeException("compose: unexpected type " + leftType);
+		}
+	}
+	
 	public static int lrel_compose_lrel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		
@@ -1095,6 +1283,15 @@ public enum RascalPrimitive {
 	 * mod
 	 */
 	
+	public static int mod(Object[] stack, int sp, int arity) {
+		IValue lhs = ((IValue) stack[sp - 2]);
+		IValue rhs = ((IValue) stack[sp - 1]);
+		if(lhs.getType().isInteger() && rhs.getType().isInteger()){
+			return int_mod_int(stack, sp, arity);
+		}
+		throw new RuntimeException("mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType());
+	}
+	
 	public static int int_mod_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).mod((IInteger) stack[sp - 1]);
@@ -1106,6 +1303,75 @@ public enum RascalPrimitive {
 	 * 
 	 * infix Division "/" { &L <: num x &R <: num        -> LUB(&L, &R) }
 	 */
+
+	public static int divide(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IValue lhs = ((IValue) stack[sp - 2]);
+		IValue rhs = ((IValue) stack[sp - 1]);
+		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+		switch (lhsType) {
+		case INT:
+			switch (rhsType) {
+			case INT:
+				return int_divide_int(stack, sp, arity);
+			case NUM:
+				return int_divide_num(stack, sp, arity);
+			case REAL:
+				return int_divide_real(stack, sp, arity);
+			case RAT:
+				return int_divide_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case NUM:
+			switch (rhsType) {
+			case INT:
+				return num_divide_int(stack, sp, arity);
+			case NUM:
+				return num_divide_num(stack, sp, arity);
+			case REAL:
+				return num_divide_real(stack, sp, arity);
+			case RAT:
+				return num_divide_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case REAL:
+			switch (rhsType) {
+			case INT:
+				return real_divide_int(stack, sp, arity);
+			case NUM:
+				return real_divide_num(stack, sp, arity);
+			case REAL:
+				return real_divide_real(stack, sp, arity);
+			case RAT:
+				return real_divide_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case RAT:
+			switch (rhsType) {
+			case INT:
+				return rat_divide_int(stack, sp, arity);
+			case NUM:
+				return rat_divide_num(stack, sp, arity);
+			case REAL:
+				return rat_divide_real(stack, sp, arity);
+			case RAT:
+				return rat_divide_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		default:
+			throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+		}
+	}
 
 	// int
 	public static int int_divide_int(Object[] stack, int sp, int arity) {
@@ -2539,6 +2805,44 @@ public enum RascalPrimitive {
 	/*
 	 * intersect
 	 */
+	
+	public static int intersect(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+		IValue right = (IValue) stack[sp - 2];
+		Type rightType = right.getType();
+
+		switch (ToplevelType.getToplevelType(leftType)) {
+		case LIST:
+			switch (ToplevelType.getToplevelType(rightType)) {
+			case LIST:
+				return list_intersect_list(stack, sp, arity);
+			case LREL:
+				return list_intersect_lrel(stack, sp, arity);
+			default:
+				throw new RuntimeException("intersect: illegal combination "
+						+ leftType + " and " + rightType);
+			}
+		case SET:
+			switch (ToplevelType.getToplevelType(rightType)) {
+			case SET:
+				return set_intersect_set(stack, sp, arity);
+			case REL:
+				return set_intersect_rel(stack, sp, arity);
+			default:
+				throw new RuntimeException("intersect: illegal combination "
+						+ leftType + " and " + rightType);
+			}
+		case MAP:
+			return map_intersect_map(stack, sp, arity);
+
+		default:
+			throw new RuntimeException("intersect: illegal combination "
+					+ leftType + " and " + rightType);
+		}
+	}
 
 	public static int list_intersect_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -2585,6 +2889,31 @@ public enum RascalPrimitive {
 	/*
 	 * in
 	 */
+	
+	public static int in(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+		IValue right = (IValue) stack[sp - 2];
+		Type rightType = right.getType();
+
+		switch (ToplevelType.getToplevelType(leftType)) {
+		case LIST:
+			return elm_in_list(stack, sp, arity);
+		case LREL:
+			return elm_in_lrel(stack, sp, arity);
+		case SET:
+			return elm_in_set(stack, sp, arity);
+		case REL:
+			return elm_in_rel(stack, sp, arity);
+		case MAP:
+			return elm_in_map(stack, sp, arity);
+		default:
+			throw new RuntimeException("in: illegal combination " + leftType
+					+ " and " + rightType);
+		}
+	}
 
 	public static int elm_in_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -2746,6 +3075,63 @@ public enum RascalPrimitive {
 	/*
 	 * join
 	 */
+	
+	public static int join(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+		IValue right = (IValue) stack[sp - 2];
+		Type rightType = right.getType();
+
+		switch (ToplevelType.getToplevelType(leftType)) {
+		case LIST:
+			switch (ToplevelType.getToplevelType(rightType)) {
+			case LIST:
+				return list_join_list(stack, sp, arity);
+			case LREL:
+				return list_join_lrel(stack, sp, arity);
+			default:
+				throw new RuntimeException("join: illegal combination "
+						+ leftType + " and " + rightType);
+			}
+		case LREL:
+			switch (ToplevelType.getToplevelType(rightType)) {
+			case LIST:
+				return lrel_join_list(stack, sp, arity);
+			case LREL:
+				return lrel_join_lrel(stack, sp, arity);
+			default:
+				throw new RuntimeException("join: illegal combination "
+						+ leftType + " and " + rightType);
+			}
+		case SET:
+			switch (ToplevelType.getToplevelType(rightType)) {
+			case SET:
+				return set_join_set(stack, sp, arity);
+			case REL:
+				return set_join_rel(stack, sp, arity);
+			default:
+				throw new RuntimeException("join: illegal combination "
+						+ leftType + " and " + rightType);
+			}
+			
+		case REL:
+			switch (ToplevelType.getToplevelType(rightType)) {
+			case SET:
+				return rel_join_set(stack, sp, arity);
+			case REL:
+				return rel_join_rel(stack, sp, arity);
+			default:
+				throw new RuntimeException("join: illegal combination "
+						+ leftType + " and " + rightType);
+			}
+
+		default:
+			throw new RuntimeException("join: illegal combination "
+					+ leftType + " and " + rightType);
+		}
+	}
 	
 	public static int list_join_list(Object[] stack, int sp, int arity) {
 		return list_product_list(stack, sp, arity);
@@ -3048,43 +3434,38 @@ public enum RascalPrimitive {
 	
 	// Generic less
 	
-	private static int less(Object[] stack, int sp, int arity){
+	private static int less(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		
+
 		IValue left = (IValue) stack[sp - 2];
 		Type leftType = left.getType();
-		
-		if(leftType.isSubtypeOf(tf.numberType())){
+
+		if (leftType.isSubtypeOf(tf.numberType())) {
 			return num_less_num(stack, sp, arity);
 		}
-		if(leftType.isBool()){
+		switch (ToplevelType.getToplevelType(leftType)) {
+
+		case BOOL:
 			return bool_less_bool(stack, sp, arity);
-		}
-		if(leftType.isString()){
-			return str_less_str(stack,sp, arity);
-		}
-		if(leftType.isDateTime()){
-			return datetime_less_datetime(stack,sp, arity);
-		}
-		if(leftType.isSourceLocation()){
-			return loc_less_loc(stack,sp, arity);
-		}
-		if(leftType.isList()){
+		case STR:
+			return str_less_str(stack, sp, arity);
+		case DATETIME:
+			return datetime_less_datetime(stack, sp, arity);
+		case LOC:
+			return loc_less_loc(stack, sp, arity);
+		case LIST:
 			return list_less_list(stack, sp, arity);
-		}
-		if(leftType.isSet()){
+		case SET:
 			return set_less_set(stack, sp, arity);
-		}
-		if(leftType.isMap()){
+		case MAP:
 			return map_less_map(stack, sp, arity);
-		}
-		if(leftType.isNode()){
+		case NODE:
 			return node_less_node(stack, sp, arity);
-		}
-		if(leftType.isTuple()){
+		case TUPLE:
 			return tuple_less_tuple(stack, sp, arity);
+		default:
+			throw new RuntimeException("less: unexpected type " + leftType);
 		}
-		throw new RuntimeException("less: unknown type " + leftType);
 	}
 	
 	// less on other types
@@ -3361,43 +3742,42 @@ public enum RascalPrimitive {
 
 	// Generic lessequal
 	
-	private static int lessequal(Object[] stack, int sp, int arity){
+	private static int lessequal(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		
-		IValue left = (IValue) stack[sp - 2];		
+
+		IValue left = (IValue) stack[sp - 2];
 		Type leftType = left.getType();
-		
-		if(leftType.isSubtypeOf(tf.numberType())){
+
+		if (leftType.isSubtypeOf(tf.numberType())) {
 			return num_lessequal_num(stack, sp, arity);
 		}
-		if(leftType.isBool()){
+		switch (ToplevelType.getToplevelType(leftType)) {
+
+		case BOOL:
 			return bool_lessequal_bool(stack, sp, arity);
-		}
-		if(leftType.isString()){
+
+		case STR:
 			return str_lessequal_str(stack, sp, arity);
-		}
-		if(leftType.isDateTime()){
+
+		case DATETIME:
 			return datetime_lessequal_datetime(stack, sp, arity);
-		}
-		if(leftType.isSourceLocation()){
+
+		case LOC:
 			return loc_lessequal_loc(stack, sp, arity);
-		}
-		if(leftType.isList()){
+
+		case LIST:
 			return list_lessequal_list(stack, sp, arity);
-		}
-		if(leftType.isSet()){
+		case SET:
 			return set_lessequal_set(stack, sp, arity);
-		}
-		if(leftType.isMap()){
+		case MAP:
 			return map_lessequal_map(stack, sp, arity);
-		}
-		if(leftType.isNode()){
+		case NODE:
 			return node_lessequal_node(stack, sp, arity);
-		}
-		if(leftType.isTuple()){
+		case TUPLE:
 			return tuple_lessequal_tuple(stack, sp, arity);
+		default:
+			throw new RuntimeException("lessequal: unexpected type " + leftType);
 		}
-		throw new RuntimeException("lessequal: unknown type " + leftType);
 	}
 	
 	// lessequal on other types
@@ -3691,6 +4071,31 @@ public enum RascalPrimitive {
 	 * notin
 	 *
 	 */
+	
+	public static int notin(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+		IValue right = (IValue) stack[sp - 2];
+		Type rightType = right.getType();
+
+		switch (ToplevelType.getToplevelType(leftType)) {
+		case LIST:
+			return elm_notin_list(stack, sp, arity);
+		case LREL:
+			return elm_notin_lrel(stack, sp, arity);
+		case SET:
+			return elm_notin_set(stack, sp, arity);
+		case REL:
+			return elm_notin_rel(stack, sp, arity);
+		case MAP:
+			return elm_notin_map(stack, sp, arity);
+		default:
+			throw new RuntimeException("notin: illegal combination " + leftType
+					+ " and " + rightType);
+		}
+	}
 	public static int elm_notin_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = !((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]);
@@ -3993,6 +4398,75 @@ public enum RascalPrimitive {
 	 *		set[&L] x set[&R]                    -> rel[&L,&R]
 	 * }
 	 */
+	
+	public static int product(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IValue lhs = ((IValue) stack[sp - 2]);
+		IValue rhs = ((IValue) stack[sp - 1]);
+		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+		switch (lhsType) {
+		case INT:
+			switch (rhsType) {
+			case INT:
+				return int_product_int(stack, sp, arity);
+			case NUM:
+				return int_product_num(stack, sp, arity);
+			case REAL:
+				return int_product_real(stack, sp, arity);
+			case RAT:
+				return int_product_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case NUM:
+			switch (rhsType) {
+			case INT:
+				return num_product_int(stack, sp, arity);
+			case NUM:
+				return num_product_num(stack, sp, arity);
+			case REAL:
+				return num_product_real(stack, sp, arity);
+			case RAT:
+				return num_product_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case REAL:
+			switch (rhsType) {
+			case INT:
+				return real_product_int(stack, sp, arity);
+			case NUM:
+				return real_product_num(stack, sp, arity);
+			case REAL:
+				return real_product_real(stack, sp, arity);
+			case RAT:
+				return real_product_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case RAT:
+			switch (rhsType) {
+			case INT:
+				return rat_product_int(stack, sp, arity);
+			case NUM:
+				return rat_product_num(stack, sp, arity);
+			case REAL:
+				return rat_product_real(stack, sp, arity);
+			case RAT:
+				return rat_product_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		default:
+			throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+		}
+	}
 
 	// int
 	public static int int_product_int(Object[] stack, int sp, int arity) {
@@ -4118,6 +4592,14 @@ public enum RascalPrimitive {
 	/*
 	 * remainder
 	 */
+	public static int remainder(Object[] stack, int sp, int arity) {
+		IValue lhs = ((IValue) stack[sp - 2]);
+		IValue rhs = ((IValue) stack[sp - 1]);
+		if(lhs.getType().isInteger() && rhs.getType().isInteger()){
+			return int_remainder_int(stack, sp, arity);
+		}
+		throw new RuntimeException("remainder: unexpected type combination" + lhs.getType() + " and " + rhs.getType());
+	}
 
 	public static int int_remainder_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -4325,6 +4807,22 @@ public enum RascalPrimitive {
 	 * prefix UnaryMinus "-" { &L <: num -> &L }
 	 */
 
+	public static int negative(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+
+		switch (ToplevelType.getToplevelType(leftType)) {
+		case INT: return negative_int(stack, sp, arity);
+		case NUM: return negative_num(stack, sp, arity);
+		case REAL: return negative_real(stack, sp, arity);
+		case RAT: return negative_rat(stack, sp, arity);
+		default:
+			throw new RuntimeException("negative: unexpected type " + leftType);
+		
+		}
+	}
 	public static int negative_int(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((IInteger) stack[sp - 1]).negate();
@@ -4441,6 +4939,75 @@ public enum RascalPrimitive {
 	 * 		map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
 	 * }
 	 */
+	
+	public static int subtract(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IValue lhs = ((IValue) stack[sp - 2]);
+		IValue rhs = ((IValue) stack[sp - 1]);
+		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+		switch (lhsType) {
+		case INT:
+			switch (rhsType) {
+			case INT:
+				return int_subtract_int(stack, sp, arity);
+			case NUM:
+				return int_subtract_num(stack, sp, arity);
+			case REAL:
+				return int_subtract_real(stack, sp, arity);
+			case RAT:
+				return int_subtract_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case NUM:
+			switch (rhsType) {
+			case INT:
+				return num_subtract_int(stack, sp, arity);
+			case NUM:
+				return num_subtract_num(stack, sp, arity);
+			case REAL:
+				return num_subtract_real(stack, sp, arity);
+			case RAT:
+				return num_subtract_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case REAL:
+			switch (rhsType) {
+			case INT:
+				return real_subtract_int(stack, sp, arity);
+			case NUM:
+				return real_subtract_num(stack, sp, arity);
+			case REAL:
+				return real_subtract_real(stack, sp, arity);
+			case RAT:
+				return real_subtract_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case RAT:
+			switch (rhsType) {
+			case INT:
+				return rat_subtract_int(stack, sp, arity);
+			case NUM:
+				return rat_subtract_num(stack, sp, arity);
+			case REAL:
+				return rat_subtract_real(stack, sp, arity);
+			case RAT:
+				return rat_subtract_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		default:
+			throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+		}
+	}
 
 	// int
 	public static int int_subtract_int(Object[] stack, int sp, int arity) {
@@ -4601,6 +5168,19 @@ public enum RascalPrimitive {
 	 * 		rel[&L,&L]  		-> rel[&L,&L]
 	 * }
 	 */
+	
+	public static int transitive_closure(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue lhs = (IValue) stack[sp - 1];
+		Type lhsType = lhs.getType();
+		if(lhsType.isListRelation()){
+			return lrel_transitive_closure(stack, sp, arity);
+		}
+		if(lhsType.isRelation()){
+			return rel_transitive_closure(stack, sp, arity);
+		}
+		throw new RuntimeException("transitive_closure: unexpectetype " + lhsType);
+	}
 
 	public static int lrel_transitive_closure(Object[] stack, int sp, int arity) {
 		assert arity == 1;
@@ -4619,6 +5199,19 @@ public enum RascalPrimitive {
 	/*
 	 * transitiveReflexiveClosure
 	 */
+	
+	public static int transitive_reflexive_closure(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue lhs = (IValue) stack[sp - 1];
+		Type lhsType = lhs.getType();
+		if(lhsType.isListRelation()){
+			return lrel_transitive_reflexive_closure(stack, sp, arity);
+		}
+		if(lhsType.isRelation()){
+			return rel_transitive_reflexive_closure(stack, sp, arity);
+		}
+		throw new RuntimeException("transitive_closure: unexpectetype " + lhsType);
+	}
 	public static int lrel_transitive_reflexive_closure(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		IListRelation<IList> left = ((IList) stack[sp - 1]).asRelation();
