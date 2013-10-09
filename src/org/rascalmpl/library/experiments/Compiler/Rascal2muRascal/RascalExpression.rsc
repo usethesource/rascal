@@ -886,14 +886,14 @@ MuExp translateVisit(label, \visit) {
 	int strategy = (\visit is defaultStrategy) ? 0 : strategies["<\visit.strategy>"];
 	
 	str scopeId = topFunctionScope();
-	str traverse_fuid = scopeId + "/" + "traverse" + "_<\visit.strategy>" + "_<i>";
+	str traverse_fuid = scopeId + "/" + "traverse" + "_<(\visit is defaultStrategy) ? "bottom-up" : "<\visit.strategy>">" + "_<i>";
 	str phi_fuid      = scopeId + "/" + "phi"                             + "_<i>";
 	
 	// Non-overloaded, nested functions
 	MuExp traverse_fun = muFun(traverse_fuid, scopeId); // recursive function
 	MuExp phi_fun      = muFun(phi_fuid, scopeId);      // non-recursive function
 	
-	cases = \visit.cases;
+	visitCases = \visit.cases;
 	
 	list[MuExp] traverse_body_exps = [];
 	
@@ -903,7 +903,7 @@ MuExp translateVisit(label, \visit) {
 	
 	// If there is at least one 'pattern-with-action' or one case has 'insert', 
 	// then the tree has to be re-built
-	if(Case c <- cases, (c is patternWithAction || /\insert(_,_) := c)) {
+	if(Case c <- visitCases, (c is patternWithAction || /\insert(_,_) := c)) {
 		rebuild = true;
 		traverse_ftype = Symbol::func(Symbol::\value(), [Symbol::\value()]);   // return type is value
 		phi_ftype      = Symbol::func(Symbol::\value(), [Symbol::\value()]);   // return type is value
@@ -917,10 +917,10 @@ MuExp translateVisit(label, \visit) {
 		}
 	}
 	
-	functions_module += muFunction(phi_fuid, phi_ftype, scopeId, 1, 1, \visit@\loc, [], (), translateVisitCases([ c | Case c <- cases ], rebuild));
+	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 1, 1, \visit@\loc, [], (), translateVisitCases([ c | Case c <- visitCases ], rebuild));
 	
 	if(rebuild) {
-		traverse_body_exps += muAssignLoc("subject_traverse", 0, muCall(phi_fun, muLoc("subject_traverse",0)));
+		traverse_body_exps += muAssignLoc("subject_traverse", 0, muCall(phi_fun, [ muLoc("subject_traverse",0) ]));
 	} else {
 		traverse_body_exps += muCall(phi_fun, muLoc("subject_traverse",0));
 	}
@@ -933,11 +933,11 @@ MuExp translateVisit(label, \visit) {
 		}
 	}
 
-	functions_module += muFunction(traverse_fuid, traverse_ftype, scopeId, 1, 3, \visit@\loc, [], (), muBlock([ *traverse_body_exps, muLoc("subject_traverse",0)]));
+	functions_in_module += muFunction(traverse_fuid, traverse_ftype, scopeId, 1, 3, \visit@\loc, [], (), muBlock([ *traverse_body_exps, muLoc("subject_traverse",0)]));
 	
 	subject = \visit.subject;
 	
-	return muCall(traverse_fun, translate(subject));
+	return muCall(traverse_fun, [ translate(subject) ]);
 	
 }
 
@@ -989,13 +989,13 @@ MuExp translateVisitCases(list[Case] cases, bool rebuild) {
 	c = head(cases);
 	
 	if(c is patternWithAction) {
-		pattern = c.patternWithAction;
+		pattern = c.patternWithAction.pattern;
 		cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ translatePat(pattern), muLoc("subject_phi",0) ]));		
 		ifname = nextLabel();
 		enterBacktrackingScope(ifname);
 		if(c.patternWithAction is replacing) {
 			replacement = translate(c.patternWithAction.replacement.replacementExpression);
-        	exp = muIfelse(ifname, muAll([cond]), [ muReturn(translate(replacement)) ], [ translateVisitCases(tail(cases),rebuild) ]);
+        	exp = muIfelse(ifname, muAll([cond]), [ muReturn(replacement) ], [ translateVisitCases(tail(cases),rebuild) ]);
         	leaveBacktrackingScope();
         	return exp;
 		} else {
