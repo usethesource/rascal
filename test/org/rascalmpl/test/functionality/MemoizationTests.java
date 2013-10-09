@@ -23,4 +23,11 @@ public class MemoizationTests extends TestFramework {
 		runTestInSameEvaluator("OneMB(1)[0]==1");
 	}
 
+	@Test
+	public void manyEntries() throws InterruptedException {
+		prepare("import String;");
+		prepareMore("@memo str dup(str s) = s + s;");
+		runTestInSameEvaluator("(true | it && dup(s) == s + s | i <- [0..30000], str s := stringChar(i))");   ;
+	}
+
 }
