@@ -35,10 +35,12 @@ import org.jgll.grammar.condition.TerminalCondition;
 import org.jgll.grammar.symbol.CharacterClass;
 import org.jgll.grammar.symbol.Keyword;
 import org.jgll.grammar.symbol.Nonterminal;
+import org.jgll.grammar.symbol.Plus;
 import org.jgll.grammar.symbol.Range;
+import org.jgll.grammar.symbol.RegularExpression;
 import org.jgll.grammar.symbol.RegularList;
 import org.jgll.grammar.symbol.Rule;
-import org.jgll.grammar.symbol.Sequence;
+import org.jgll.grammar.symbol.Star;
 import org.jgll.grammar.symbol.Symbol;
 import org.jgll.grammar.symbol.Terminal;
 import org.jgll.parser.GLLParser;
@@ -143,7 +145,7 @@ public class GrammarToJigll {
 	}
 
 	public void generateGraph(IString path) {
-		parser = ParserFactory.levelParser(grammar);
+		parser = ParserFactory.levelParser(grammar, 30);
 
 		NonterminalSymbolNode sppf;
 		try {
@@ -152,7 +154,7 @@ public class GrammarToJigll {
 			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(URI.create("nothing:///"), 0, 1), null, null);
 		}
 
-		Visualization.generateSPPFWithNonterminalNodesOnly(path.getValue(), sppf);
+		Visualization.generateSPPFGraph(path.getValue(), sppf);
 	}
 
 	private Condition getDeleteSet(IConstructor symbol) {
@@ -334,10 +336,9 @@ public class GrammarToJigll {
 			Nonterminal head = getHead((IConstructor) next.getKey());
 			IList rhs = (IList) ((IConstructor) next.getValue()).get("symbols");
 
-			List<Symbol> body = getSymbolList(rhs);
+			List<Symbol> body = getRegularExpressionList(rhs);
 			
-			Rule rule = new Rule(head, body);
-			System.out.println(rule);
+			Rule rule = new Rule(head, new RegularExpression(body));
 			rules.put(head, rule);
 		}
 		
@@ -390,6 +391,22 @@ public class GrammarToJigll {
 			if(symbol == null) {
 				symbol = getSymbol(current);				
 			}
+			
+			if (symbol != null) {
+				result.add(symbol);
+			}
+		}
+		
+		return result;
+	}
+	
+	private List<Symbol> getRegularExpressionList(IList rhs) {
+		
+		List<Symbol> result = new ArrayList<>();
+		
+		for(int i = 0; i < rhs.length(); i++) {
+			IConstructor current = (IConstructor) rhs.get(i);
+			Symbol symbol = getRegularExpression(current);				
 			
 			if (symbol != null) {
 				result.add(symbol);
@@ -508,6 +525,42 @@ public class GrammarToJigll {
 			return new Nonterminal(SymbolAdapter.toString(symbol, true));
 		}
 	}
+	
+	private Symbol getRegularExpression(IConstructor symbol) {
+		
+		switch (symbol.getName()) {
+		
+		case "label":
+			return getRegularExpression(getSymbolCons(symbol));
+			
+		case "char-class":
+			return getCharacterClass(symbol);	
+
+		case "iter":
+			return new Plus(getCharacterClass(getSymbolCons(symbol)));
+
+		case "iter-seps":
+			return new Plus(getCharacterClass(getSymbolCons(symbol)));
+
+		case "iter-star":
+			return new Star(getCharacterClass(getSymbolCons(symbol)));
+
+		case "iter-star-seps":
+			return new Star(getCharacterClass(getSymbolCons(symbol)));
+
+//		case "opt":
+//			return new Nonterminal(SymbolAdapter.toString(symbol, true));
+//
+//		case "alt":
+//			return new Nonterminal(SymbolAdapter.toString(symbol, true));
+//
+//		case "seq":
+//			return new Nonterminal(SymbolAdapter.toString(symbol, true));
+			
+		default:
+			throw new IllegalStateException("Should not reach here." + symbol);
+		}
+	}
 
 	private CharacterClass getCharacterClass(IConstructor symbol) {
 		List<Range> targetRanges = buildRanges(symbol);
@@ -558,7 +611,7 @@ public class GrammarToJigll {
 	}
 	
 	/**
-	 *  Returns true if the symbol is of the form [a-z]+, [a-z]* or [a-z].
+	 *  Returns the character class if the symbol is of the form [a-z]+, [a-z]* or [a-z].
 	 *  
 	 *  @return null if the given symbol is not of the above mentioned types.
 	 */
