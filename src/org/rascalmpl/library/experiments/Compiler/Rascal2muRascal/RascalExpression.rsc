@@ -153,7 +153,7 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
 }
 
 // Visit
-MuExp translate (e:(Expression) `<Label label> <Visit \visit>`) = translateVisit(label, \visit);
+MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translateVisit(label, visitItself);
 
 // Reducer
 MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`) = translateReducer(init, result, generators);
@@ -933,7 +933,7 @@ MuExp translateVisit(label, \visit) {
 		}
 	}
 
-	functions_in_module += muFunction(traverse_fuid, traverse_ftype, scopeId, 1, 3, \visit@\loc, [], (), muBlock([ *traverse_body_exps, muLoc("subject_traverse",0)]));
+	functions_in_module += muFunction(traverse_fuid, traverse_ftype, scopeId, 1, 3, \visit@\loc, [], (), muReturn(muBlock([ *traverse_body_exps, muLoc("subject_traverse",0)])));
 	
 	subject = \visit.subject;
 	
