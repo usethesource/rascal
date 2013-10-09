@@ -880,6 +880,7 @@ map[str,int] strategies = ( "bottom-up"       : 0,
 
 MuExp translateVisit(label, \visit) {
 	
+	
 	// Unique 'id' of a visit in the function body
 	int i = nextVisit();
 		

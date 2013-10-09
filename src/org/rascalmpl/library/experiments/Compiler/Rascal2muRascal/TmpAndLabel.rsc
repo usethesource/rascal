@@ -140,15 +140,3 @@ void enterFunctionScope(str fuid) {
 void leaveFunctionScope() { 
 	functionScopes = tail(functionScopes); 
 }
-
-private list[int] visits = [];
-
-int topVisit() = top(visits);
-
-void enterVisit(int strategy) {
-	visits = strategy + visits;
-}
-
-void leaveVisit() {
-	visits = tail(visits);
-}
