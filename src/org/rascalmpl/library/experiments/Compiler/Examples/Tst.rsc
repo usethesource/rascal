@@ -1,5 +1,6 @@
 module experiments::Compiler::Examples::Tst
 
+import Exception;
 import Set;
 import List;
 

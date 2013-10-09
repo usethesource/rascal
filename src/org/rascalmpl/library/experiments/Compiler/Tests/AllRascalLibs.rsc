@@ -19,6 +19,7 @@ list[str] libs = [
 //"ListRelation"		// OK
 //"Map" 				// OK
 //"Message", 			// OK
+//"Node"				// OK
 //"Origins",			// OK
 //"Relation",			// OK
 //"Set",				// OK
@@ -46,8 +47,6 @@ list[str] libs = [
                         //
 //"Grammar", 			// |rascal://experiments::Compiler::Rascal2muRascal::TypeUtils|(13601,5,<349,56>,<349,61>): NoSuchField("parameters")
                     	//  Caused by associativity in ParseTree
-						 
-"Node"					// uses visit
 
 //"Number"				// DEPRECATED: TC gives errors
 
