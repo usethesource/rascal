@@ -67,7 +67,7 @@ public Grammar compose(Grammar g1, Grammar g2) {
   g1.starts += g2.starts;
   return innermost visit(g1) {
     case c:choice(_, {p, *r, Production x:priority(_,/p)}) => c[alternatives = {x, *r}]
-    case c:choice(_, {p, *r, Production x:associativity(_,/p)}) => c[alternatives = {x, *r}]
+    case c:choice(_, {p, *r, Production x:associativity(_,_,/p)}) => c[alternatives = {x, *r}]
   };
 }    
 
