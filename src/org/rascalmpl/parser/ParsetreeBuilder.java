@@ -27,6 +27,11 @@ public class ParsetreeBuilder implements NodeListener<IConstructor,IConstructor>
   @SuppressWarnings("unchecked")
   @Override
   public Result<IConstructor> endNode(IConstructor type, Iterable<IConstructor> children, PositionInfo node) {
+	
+	if(type == null) {
+		throw new IllegalArgumentException("type cannot be null.");
+	}
+	  
 	if(children == null) {
 		throw new IllegalArgumentException("children cannot be null.");
 	}
