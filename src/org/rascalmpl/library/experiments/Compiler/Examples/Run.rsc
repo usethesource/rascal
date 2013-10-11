@@ -38,6 +38,7 @@ import experiments::Compiler::Examples::RascalRuntimeExceptions;
 import experiments::Compiler::Examples::IsDefined;
 import experiments::Compiler::Examples::UninitializedVariables;
 import experiments::Compiler::Examples::IfDefinedOtherwise;
+import experiments::Compiler::Examples::UseLibrary;
 import experiments::Compiler::Examples::Visit1;
 import experiments::Compiler::Examples::Visit2;
 import experiments::Compiler::Examples::Visit3;
@@ -83,6 +84,9 @@ test bool tst() = demo("RascalRuntimeExceptions") == experiments::Compiler::Exam
 test bool tst() = demo("IsDefined") == experiments::Compiler::Examples::IsDefined::main([]);
 test bool tst() = demo("UninitializedVariables") == experiments::Compiler::Examples::UninitializedVariables::expectedResult;
 test bool tst() = demo("IfDefinedOtherwise") == experiments::Compiler::Examples::IfDefinedOtherwise::expectedResult;
+
+// under investigation
+/*fails*/ //test bool tst1() = demo("UseLibrary") == experiments::Compiler::Examples::UseLibrary::main([]);
 
 test bool tst1() = demo("Visit1") == experiments::Compiler::Examples::Visit1::main([]);
 test bool tst2() = demo("Visit2") == experiments::Compiler::Examples::Visit2::main([]);

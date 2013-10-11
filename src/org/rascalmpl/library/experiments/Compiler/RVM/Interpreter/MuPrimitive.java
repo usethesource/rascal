@@ -67,12 +67,13 @@ public enum MuPrimitive {
 	mint,
 	modulo_mint_mint,
 	mset,
-	mset_copy,
+//	mset_copy,
 	mset2list,
-	mset_add_elm,
-	mset_subtract_mset,
-	mset_subtract_set,
-	mset_subtract_elm,
+	mset_destructive_add_elm,
+	mset_destructive_add_mset,
+	mset_destructive_subtract_mset,
+	mset_destructive_subtract_set,
+	mset_destructive_subtract_elm,
 	not_equal_mint_mint,
 	not_mbool,
 	or_mbool_mbool,
@@ -536,6 +537,7 @@ public enum MuPrimitive {
 		return sp;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static int mset2list(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		HashSet<IValue> mset =(HashSet<IValue>) stack[sp - 1];
@@ -664,7 +666,7 @@ public enum MuPrimitive {
 	public static int mset(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		ISet set =  ((ISet) stack[sp - 1]);
-		HashSet<IValue> mset = new HashSet<IValue>();
+		HashSet<IValue> mset = new HashSet<IValue>(set.size());
 		for(IValue v : set){
 			mset.add(v);
 		}
@@ -672,9 +674,11 @@ public enum MuPrimitive {
 		return sp;
 	}
 	
-	public static int mset_subtract_set(Object[] stack, int sp, int arity) {
+	@SuppressWarnings("unchecked")
+	public static int mset_destructive_subtract_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+		mset = (HashSet<IValue>) mset.clone();
 		ISet set =  ((ISet) stack[sp - 1]);
 		for(IValue v : set){
 			mset.remove(v);
@@ -683,37 +687,54 @@ public enum MuPrimitive {
 		return sp - 1;
 	}
 	
-	public static int mset_subtract_mset(Object[] stack, int sp, int arity) {
+	@SuppressWarnings("unchecked")
+	public static int mset_destructive_subtract_mset(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		HashSet<IValue> lhs =(HashSet<IValue>) stack[sp - 2];
-		HashSet<IValue> rhs =(HashSet<IValue>) stack[sp - 1];
+		HashSet<IValue> lhs = (HashSet<IValue>) stack[sp - 2];
+		//lhs =  (HashSet<IValue>) lhs.clone();
+		HashSet<IValue> rhs = (HashSet<IValue>) stack[sp - 1];
 	
 		lhs.removeAll(rhs);
 		stack[sp - 2] = lhs;
 		return sp - 1;
 	}
 	
-	public static int mset_subtract_elm(Object[] stack, int sp, int arity) {
+	@SuppressWarnings("unchecked")
+	public static int mset_destructive_add_mset(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		HashSet<IValue> mset =(HashSet<IValue>) stack[sp - 2];
+		HashSet<IValue> lhs = (HashSet<IValue>) stack[sp - 2];
+		//lhs =  (HashSet<IValue>) lhs.clone();
+		HashSet<IValue> rhs = (HashSet<IValue>) stack[sp - 1];
+		lhs.addAll(rhs);
+		stack[sp - 2] = lhs;
+		return sp - 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int mset_destructive_subtract_elm(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+		//mset =  (HashSet<IValue>)  mset.clone();
 		IValue elm =  ((IValue) stack[sp - 1]);
 		mset.remove(elm);
 		stack[sp - 2] = mset;
 		return sp - 1;
 	}
 	
-	public static int mset_add_elm(Object[] stack, int sp, int arity) {
+	@SuppressWarnings("unchecked")
+	public static int mset_destructive_add_elm(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		HashSet<IValue> mset =(HashSet<IValue>) stack[sp - 2];
+		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
 		IValue elm =  ((IValue) stack[sp - 1]);
 		mset.add(elm);
 		stack[sp - 2] = mset;
 		return sp - 1;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static int set(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		HashSet<IValue> mset =(HashSet<IValue>) stack[sp - 1];
+		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
 		ISetWriter w = vf.setWriter();
 		for(IValue v : mset){
 			w.insert(v);
@@ -729,12 +750,13 @@ public enum MuPrimitive {
 		return sp + 1;
 	}
 	
-	public static int mset_copy(Object[] stack, int sp, int arity) {
-		assert arity == 1;
-		HashSet<IValue> mset =(HashSet<IValue>) stack[sp - 1];
-		stack[sp] = mset.clone();
-		return sp;
-	}
+//	@SuppressWarnings("unchecked")
+//	public static int mset_copy(Object[] stack, int sp, int arity) {
+//		assert arity == 1;
+//		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+//		stack[sp - 1] = mset.clone();
+//		return sp;
+//	}
 	
 	/*
 	 * Run this class as a Java program to compare the list of enumeration constants with the implemented methods in this class.
