@@ -7,6 +7,7 @@
 }
 module util::FileSystem
 
+import Exception;
 import IO;
 
 data FileSystem 

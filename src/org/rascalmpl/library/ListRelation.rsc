@@ -10,6 +10,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module ListRelation
 
+import Exception;
 import List;
 
 @doc{
@@ -206,7 +207,9 @@ test: complement(<R>) == <?>
 }
 public lrel[&T0, &T1] complement(lrel[&T0, &T1] R)
 {
-  return (domain(R) * range(R)) - R;
+  return [<V0, V1> | &T0 V0 <- R<0>, &T1 V1 <- R<1>, <V0, V1> notin R];
+  
+ // Was:  (domain(R) * range(R)) - R;
 }
 
 public lrel[&T0, &T1, &T2] complement(lrel[&T0, &T1, &T2] R)
@@ -373,10 +376,10 @@ Examples:
 <screen>
 import ListRelation;
 legs = [<"bird", 2>, <"dog", 4>, <"human", 2>, <"spider", 8>, <"millepede", 1000>, <"crab", 8>, <"cat", 4>];
-DomainByRange(legs);
+groupDomainByRange(legs);
 </screen>
 }
-public set[list[&U]] groupDomainByRange(lrel[&U dom, &T ran] input) {
+public set[set[&U]] groupDomainByRange(lrel[&U dom, &T ran] input) {
    return ( i : (input<ran, dom>)[i] | i <- input.ran )<1>;
 }
 
@@ -390,7 +393,7 @@ skins = [<"bird", "feather">, <"dog", "fur">, <"tortoise", "shell">, <"human", "
 groupRangeByDomain(skins);
 </screen>
 }
-public set[list[&T]] groupRangeByDomain(lrel[&U dom, &T ran] input) {
+public set[set[&T]] groupRangeByDomain(lrel[&U dom, &T ran] input) {
    return ( i : input[i] | i <- input.dom )<1>;
 }
 

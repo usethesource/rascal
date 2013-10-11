@@ -70,7 +70,6 @@ public class MemoizationCache {
 	}
 	
 	private class CacheKey {
-		private boolean forDeletion = false;
 		private final int storedHash;
 		@SuppressWarnings("rawtypes")
 		private final KeySoftReference[] params;
@@ -108,38 +107,6 @@ public class MemoizationCache {
 		public boolean equals(Object obj) {
 			if (this == obj) 
 				return true;
-			if (obj instanceof CacheKey) {
-				CacheKey other = (CacheKey)obj;
-				if (other.forDeletion || this.forDeletion)
-					return false;
-				if (other.storedHash != this.storedHash) 
-					return false;
-				if (other.params.length != this.params.length)
-					return false;
-				for (int i = 0; i < params.length; i++) {
-					IValue tp = (IValue)params[i].get();
-					IValue op = (IValue)other.params[i].get();
-					if (tp == null || op == null) 
-						return false; 
-					if (!tp.isEqual(op))
-						return false;
-				}
-				
-				if (other.keyArgsSize != keyArgsSize)
-					return false;
-				if (keyArgsSize > 0) {
-					for (Entry<String, KeySoftReference<IValue>> kv: keyArgs.entrySet()) {
-						IValue tp = kv.getValue().get();
-						IValue op = other.keyArgs.get(kv.getKey()).get();
-						if (tp == null || op == null) 
-							return false; 
-						if (!tp.isEqual(op))
-							return false;
-					}
-				}
-				return true;
-				
-			}
 			if (obj instanceof LookupKey) {
 				return ((LookupKey)obj).equals(this);
 			}
@@ -257,7 +224,6 @@ public class MemoizationCache {
 		}
 		for (CacheKeyWrapper ckw : toCleanup) {
 			CacheKey cl = ckw.key;
-			cl.forDeletion = true;
 			cache.remove(cl);
 			if (cl.keyArgs != null) {
 				cl.keyArgs.clear();
@@ -278,6 +244,9 @@ public class MemoizationCache {
 	}
 	
 
+	/**
+	 * This method assumes that the getStoredResult is first called to assure there was no result already there beforehand.
+	 */
 	public void storeResult(IValue[] params, Map<String, IValue> keyArgs, Result<IValue> result) {
 		cleanupCache();
 		CacheKey newKey = new CacheKey(params, keyArgs, queue);

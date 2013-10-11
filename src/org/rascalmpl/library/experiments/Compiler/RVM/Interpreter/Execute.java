@@ -217,6 +217,7 @@ public class Execute {
 		IList code = (IList) declaration.get("instructions");
 		CodeBlock codeblock = new CodeBlock(vf);
 		// Loading instructions
+		try {
 		for (int i = 0; i < code.length(); i++) {
 			IConstructor instruction = (IConstructor) code.get(i);
 			String opcode = instruction.getName();
@@ -415,9 +416,12 @@ public class Execute {
 				break;
 				
 			default:
-				throw new RuntimeException("PANIC: Unknown instruction: " + opcode + " has been used");
+				throw new RuntimeException("PANIC: In function " + name + ", nknown instruction: " + opcode);
 			}
 
+		}
+		} catch (Exception e){
+			throw new RuntimeException("In function " + name + " : " + e.getMessage());
 		}
 		
 		IList exceptions = (IList) declaration.get("exceptions");

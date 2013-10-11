@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.lang.ref.SoftReference;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ import org.rascalmpl.interpreter.utils.Names;
 abstract public class NamedFunction extends AbstractFunction {
 	protected final String name;
 	protected final Type[] keywordParameterTypes;
-	private MemoizationCache memoization;
+	private SoftReference<MemoizationCache> memoization;
 	
 	public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, String name,
 			boolean varargs, List<KeywordParameter> keyargs, Environment env) {
@@ -58,23 +59,38 @@ abstract public class NamedFunction extends AbstractFunction {
 	
 	protected abstract boolean hasMemoization();
 	
+	
 	protected Result<IValue> getMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues) {
 		if (hasMemoization()) {
-			if (memoization == null) {
-				memoization = new MemoizationCache();
+			MemoizationCache memoizationActual = getMemoizationCache(false);
+			if (memoizationActual == null) {
 				return null;
 			}
-			return memoization.getStoredResult(argValues, keyArgValues);
+			return memoizationActual.getStoredResult(argValues, keyArgValues);
 		}
 		return null;
+	}
+
+	private MemoizationCache getMemoizationCache(boolean returnFresh) {
+		MemoizationCache result = null;
+		if (memoization == null) {
+			result = new MemoizationCache();
+			memoization = new SoftReference<>(result);
+			return returnFresh ? result : null;
+
+		}
+		result = memoization.get();
+		if (result == null ) {
+			result = new MemoizationCache();
+			memoization = new SoftReference<>(result);
+			return returnFresh ? result : null;
+		}
+		return result;
 	}
 	
 	protected Result<IValue> storeMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues, Result<IValue> result) {
 		if (hasMemoization()) {
-			if (memoization == null) {
-				memoization = new MemoizationCache();
-			}
-			memoization.storeResult(argValues, keyArgValues, result);
+			getMemoizationCache(true).storeResult(argValues, keyArgValues, result);
 		}
 		return result;
 	}

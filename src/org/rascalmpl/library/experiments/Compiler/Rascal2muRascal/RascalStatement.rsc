@@ -25,7 +25,7 @@ MuExp translate(s: (Statement) `assert <Expression expression> : <Expression mes
 
 MuExp translate(s: (Statement) `<Expression expression> ;`) = translate(expression);
 
-MuExp translate(s: (Statement) `<Label label> <Visit \visit>`) { throw("visit"); }
+MuExp translate(s: (Statement) `<Label label> <Visit visitItself>`) = translateVisit(label, visitItself);
 
 MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`) {
     whilename = getLabel(label);
@@ -282,7 +282,7 @@ MuExp translate(s: (Statement) `return <Statement statement>`) {
 
 MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translate(statement));
 
-MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) = translate(statement);
+MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) = muReturn(translate(statement));
 
 MuExp translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) =
    muCallPrim("listwriter_add", [muTmp(asTmp(currentLoop())), translate(statement)]);

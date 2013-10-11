@@ -21,6 +21,7 @@ Provides the following functions:
 
 module util::Benchmark
 
+import Exception;
 import IO;
 
 @doc{

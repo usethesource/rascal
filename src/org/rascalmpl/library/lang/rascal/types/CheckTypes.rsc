@@ -3724,10 +3724,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             //println("<pt@at>: Pattern tree is <pt>, with subjects <subjects>");
             return < c, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
         } else {
-    		for (pt <- tooManyMatches)
+    		for (PatternTree pt <- tooManyMatches)
     			failures += makeFailType("Multiple constructors match this pattern, add additional type annotations", pt@at);
         	
-    		for (pt <- arityProblems)
+    		for (PatternTree pt <- arityProblems)
     			failures += makeFailType("Only constructors with a different arity are available", pt@at);
 
             for (unk <- unknowns)
@@ -6384,7 +6384,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     // pattern type, assume it is value so we can continue checking, but report the error.
     < cVisit, pt > = calculatePatternType(p, cVisit, expected);
     if (isFailType(pt)) {
-        c.messages = getFailures(pt);
+    	<cVisit, pt> = markLocationFailed(cVisit, p@\loc, pt);
         pt = \value();
     }
         
@@ -6409,7 +6409,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     // pattern type, assume it is value so we can continue checking, but report the error.
     < cVisit, pt > = calculatePatternType(p, cVisit, expected);
     if (isFailType(pt)) {
-        c.messages = getFailures(pt);
+        <cVisit, pt> = markLocationFailed(cVisit, p@\loc, pt);
         pt = \value();
     }
 

@@ -236,13 +236,14 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   nformals = size(ftype.parameters);
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   //TODO: keyword parameters
-  MuExp tbody = translateFunction(signature.parameters.formals.formals, body.statements, []);
-  tmods = translateModifiers(signature.modifiers);
-  ttags =  translateTags(tags);
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
   
   enterFunctionScope(fuid);
+  
+  MuExp tbody = translateFunction(signature.parameters.formals.formals, body.statements, []);
+  tmods = translateModifiers(signature.modifiers);
+  ttags =  translateTags(tags);
   
   tuple[str fuid,int pos] addr = uid2addr[uid];
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
