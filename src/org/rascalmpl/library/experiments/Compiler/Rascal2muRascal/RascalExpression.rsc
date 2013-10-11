@@ -971,7 +971,7 @@ MuExp visitChildren(MuExp traverse_fun, bool rebuild) {
 					muCallPrim("mapwriter_close", [ muTmp(writer) ])
 					]);
 	loopname = nextLabel();
-	exp_tuple = muBlock([
+	exp_array = muBlock([
 					muAssignTmp(writer, muCallMuPrim("make_array_of_size", [ muCallMuPrim("size_tuple", [ muLoc("subject_traverse",0) ]) ])),
 					muAssignTmp(index, muInt(0)),
 					muWhile(loopname, makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
@@ -986,9 +986,9 @@ MuExp visitChildren(MuExp traverse_fun, bool rebuild) {
 				   		  muTypeCase("set", exp_set),
 				   		  muTypeCase("rel", exp_set),
 				   		  muTypeCase("map", exp_map),
-				   		  muTypeCase("tuple", muCallMuPrim("make_tuple_array", [ exp_tuple ])),
-				   		  muTypeCase("node", muLoc("subject_traverse",0)),       // TODO:
-				   		  muTypeCase("constructor", muLoc("subject_traverse",0)) // TODO:
+				   		  muTypeCase("tuple", muCallMuPrim("make_tuple_array", [ exp_array ])),
+				   		  muTypeCase("node", muCallMuPrim("make_node_array", [ muCallMuPrim("get_name", [ muLoc("subject_traverse",0) ]), exp_array ])),
+				   		  muTypeCase("constructor", muCallMuPrim("make_constructor_array", [ muCallMuPrim("typeOf_constructor", [ muLoc("subject_traverse",0) ]), exp_array ]))
 				 		 ], 
 				 		 muLoc("subject_traverse",0) );
 }

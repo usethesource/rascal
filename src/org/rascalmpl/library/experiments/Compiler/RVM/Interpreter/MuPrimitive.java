@@ -2,14 +2,13 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.BitSet;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -35,6 +34,7 @@ public enum MuPrimitive {
 	equal_mint_mint,
 	equal,
 	equivalent_mbool_mbool,
+	get_name,
 	get_name_and_children,
 	get_tuple_elements,
 	greater_equal_mint_mint,
@@ -102,8 +102,10 @@ public enum MuPrimitive {
 	product_mint_mint,
 	
 	make_tuple_array,
-//	make_node_array,
-//	make_constructor_array
+	make_node_array,
+	make_constructor_array,
+	
+	typeOf_constructor
 	;
 	
 	private static IValueFactory vf;
@@ -268,6 +270,13 @@ public enum MuPrimitive {
 		boolean b2 = (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
 		stack[sp - 2] = (b1 == b2);
 		return sp - 1;
+	}
+	
+	public static int get_name(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		INode nd = (INode) stack[sp - 1];
+		stack[sp - 1] = vf.string(nd.getName());
+		return sp;
 	}
 		
 	public static int get_name_and_children(Object[] stack, int sp, int arity) {
@@ -650,6 +659,18 @@ public enum MuPrimitive {
 		return sp;
 	}
 	
+	public static int typeOf_constructor(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		if(stack[sp - 1] instanceof Integer) {
+			stack[sp - 1] = TypeFactory.getInstance().integerType();
+		} else if(stack[sp - 1] instanceof IConstructor) {
+			stack[sp - 1] = ((IConstructor) stack[sp - 1]).getConstructorType();
+		} else {
+			stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+		}
+		return sp;
+	}
+	
 	public static int product_mint_mint(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((Integer) stack[sp - 2]) * ((Integer) stack[sp - 1]);
@@ -772,6 +793,32 @@ public enum MuPrimitive {
 		}
 		stack[sp - 1] = vf.tuple(args);
 		return sp;
+	}
+	
+	public static int make_node_array(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		String name = ((IString) stack[sp - 2]).getValue(); 
+		Object[] vals = (Object[]) stack[sp - 1];
+		IValue[] args = new IValue[vals.length];
+		int i = 0;
+		for(Object val : vals) {
+			args[i++] = (IValue) val;
+		}
+		stack[sp - 2] = vf.node(name, args);
+		return sp - 1;
+	}
+	
+	public static int make_constructor_array(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		Type type = (Type) stack[sp - 2]; 
+		Object[] vals = (Object[]) stack[sp - 1];
+		IValue[] args = new IValue[vals.length];
+		int i = 0;
+		for(Object val : vals) {
+			args[i++] = (IValue) val;
+		}
+		stack[sp - 2] = vf.constructor(type, args);
+		return sp - 1;
 	}
 	
 	/*
