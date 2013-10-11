@@ -199,6 +199,8 @@ test bool tst() = run("{1, 2, 3} join {10, 20, 30}") == {1, 2, 3} join {10, 20, 
 test bool tst() = run("{\<1,10\>, \<2,20\>} join {\<300, 2000\>}") == {<1,10>, <2,20>} join {<300, 2000>};
 
 test bool tst() = run("{ [1], [2], [3] } + [4]") == { [1], [2], [3] } + [4];
+test bool tst() = run("[ [1], [2], [3] ] + [4]") == [ [1], [2], [3] ] + [4];
+test bool tst() = run("[ {1}, {2}, {3} ] + {4}") == [ {1}, {2}, {3} ] + {4};
 
 // Map
 
@@ -221,7 +223,7 @@ test bool tst() = run("d1(3, \"a\") \>= d1(2, \"a\")") == d1(3, "a") >= d1(2, "a
 
 // Enumerator
 
-//Here the interpreter and compiler deviate: compiled code gives true, interpreted code gives false.
+//Here the interpreter and compiler deviate: compiled code gives true, interpreted code gives false. The compiler is right.
 /*fails*/ // test bool tst() = run("x \<- []") == x <- [];
 test bool tst() = run("int x \<- []") == int x <- [];
 test bool tst() = run("x \<- [1,2,3]") == x <- [1,2,3];

@@ -33,7 +33,7 @@ list[str] functionalityTests = [
 							// at addParamLabels(|rascal://Type|(16896,2,<325,125>,<325,127>))
 							// at lub(|rascal://Type|(16771,201,<325,0>,<325,201>))
 
-//"DataTypeTests"			// 16 tests fail
+"DataTypeTests"			// 16 tests fail
 							
 //"DeclarationTests"		// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(985,1,<31,18>,<31,19>))
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1071,1,<35,14>,<35,15>))
@@ -87,7 +87,7 @@ list[str] rascalTests = [
 						// error("Name a is not in scope",|rascal:///lang/rascal/tests/Relations.rsc|(240,1,<11,39>,<11,40>))
 						// error("Type EmptySet not declared",|project://rascal/src/org/rascalmpl/library/Set.rsc|(9472,8,<476,45>,<476,53>))
 
-"Sets"				// |rascal://lang::rascal::types::CheckTypes|(13598,1,<304,71>,<304,72>): NoSuchField("containedIn")
+//"Sets"				// |rascal://lang::rascal::types::CheckTypes|(13598,1,<304,71>,<304,72>): NoSuchField("containedIn")
 						 
 //"SolvedIssues"		// errors due to imported List module.  
 //"Strings"  			// Checking function assignSlice
@@ -117,8 +117,8 @@ void runTests(list[str] names, loc base){
 value main(list[value] args){
   nsuccess = 0;
   nfail = 0;
-  //runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
-  runTests(rascalTests, |project://rascal-test/src/tests|);
+  runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
+  //runTests(rascalTests, |project://rascal-test/src/tests|);
   println("Overall summary: <nsuccess + nfail> tests executed, <nsuccess> succeeded, <nfail> failed");
   return nfail == 0;
 }

@@ -39,6 +39,12 @@ default MuExp makeMuOne(exp) = muOne(exp);
 
 bool isContainerType(str t) = t in {"list", "map", "set", "rel", "lrel"};
 
+bool areCompatibleContainerTypes({"list", "lrel"}) = true;
+bool areCompatibleContainerTypes({"set", "rel"}) = true;
+bool areCompatibleContainerTypes({str c}) = true;
+default bool areCompatibleContainerTypes(set[str] s) = false;
+
+
 MuExp infix(str op, Expression e){
   lot = getOuterType(e.lhs);
   rot = getOuterType(e.rhs);
@@ -47,7 +53,7 @@ MuExp infix(str op, Expression e){
      return muCallPrim("<op>", [*translate(e.lhs), *translate(e.rhs)]);
   }
   if(isContainerType(lot))
-     if(isContainerType(rot))
+     if(areCompatibleContainerTypes({lot, rot}))
        return muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
      else
        return muCallPrim("<lot>_<op>_elm", [*translate(e.lhs), *translate(e.rhs)]);
