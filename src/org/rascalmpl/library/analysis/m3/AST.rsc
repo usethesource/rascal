@@ -40,7 +40,7 @@ anno loc             Declaration@src;
 anno loc             Declaration@decl;
 anno loc             Declaration@typ;
 anno list[Modifier]  Declaration@modifiers;
-anno list[Message]   Declaration@errors;
+anno list[Message]   Declaration@messages;
 
 data Statement;
 anno loc Statement@src;

@@ -9,6 +9,7 @@
 @contributor{Bas Basten - Bas.Basten@cwi.nl - CWI}
 module Ambiguity
 
+import Exception;
 import ParseTree;
 import IO;
 import ValueIO;

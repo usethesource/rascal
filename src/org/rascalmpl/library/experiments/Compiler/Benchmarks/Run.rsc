@@ -29,6 +29,7 @@ import experiments::Compiler::Benchmarks::BSetMatch2;
 import experiments::Compiler::Benchmarks::BSendMoreMoney;
 import experiments::Compiler::Benchmarks::BTemplate;
 import experiments::Compiler::Benchmarks::BWhile;
+import experiments::Compiler::Benchmarks::BVisit1;
 
 
 loc base = |std:///experiments/Compiler/Benchmarks/|;
@@ -101,6 +102,7 @@ void main(){
   run("BSendMoreMoney", experiments::Compiler::Benchmarks::BSendMoreMoney::main);
   run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
   run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
+  run("BVisit1", experiments::Compiler::Benchmarks::BVisit1::main);
  
   report();
 }

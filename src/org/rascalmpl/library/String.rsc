@@ -12,6 +12,7 @@
 @contributor{Vadim Zaytsev - vadim@grammarware.net - SWAT, CWI}
 module String
 
+import Exception;
 import Origins;
 
 @doc{
@@ -54,7 +55,7 @@ stringChar(charAt("abc", 0));
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java int charAt(str s, int i) throws out_of_range(str msg);
+public java int charAt(str s, int i) throws IndexOutOfBounds(str msg);
 
 @doc{
 Synopsis: Return characters of a string.
@@ -373,13 +374,13 @@ public java bool startsWith(str subject, str prefix);
 Synopsis: Convert a character code into a string. 
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str stringChar(int char) throws IllegalCharacter(int character);
+public java str stringChar(int char) throws IllegalArgument(int character);
 
 @doc{
 Synopsis: Convert a list of character codes into a string.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str stringChars(list[int] chars) throws IllegalCharacter(int character);
+public java str stringChars(list[int] chars) throws IllegalArgument(int character);
 
 @doc{
 Synopsis: Check that a given integer value is a valid Unicode code point.
@@ -563,5 +564,4 @@ toLocation("rascal://lang::rascal::syntax::Rascal");
 toLocation("document.xml");
 </screen>
 }
-public loc toLocation(/<car:.*>\:\/\/<cdr:.*>/) = |<car>://<cdr>|; 
-public default loc toLocation(str s) = |cwd:///<s>|;
+public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>| : |cwd:///<s>|;
