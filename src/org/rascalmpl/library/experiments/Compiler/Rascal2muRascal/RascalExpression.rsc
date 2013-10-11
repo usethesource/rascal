@@ -935,7 +935,7 @@ MuExp translateVisit(label, \visit) {
 		}
 	}
 
-	functions_in_module += muFunction(traverse_fuid, traverse_ftype, scopeId, 1, 3, \visit@\loc, [], (), muReturn(muBlock([ *traverse_body_exps, muLoc("subject_traverse",0)])));
+	functions_in_module += muFunction(traverse_fuid, traverse_ftype, scopeId, 1, 4, \visit@\loc, [], (), muReturn(muBlock([ *traverse_body_exps, muLoc("subject_traverse",0)])));
 	
 	subject = \visit.subject;
 	
@@ -947,6 +947,7 @@ MuExp translateVisit(label, \visit) {
 MuExp visitChildren(MuExp traverse_fun, bool rebuild) {
 	str writer   = asTmp(nextLabel()); // #2
 	str child    = asTmp(nextLabel()); // #3
+	str index    = asTmp(nextLabel()); // #4
 	
 	str loopname = nextLabel();
 	exp_list = muBlock([
@@ -969,23 +970,36 @@ MuExp visitChildren(MuExp traverse_fun, bool rebuild) {
 					 			  	  [ muCallPrim("mapwriter_add", [ muTmp(writer), muCall(traverse_fun, [ muTmp(child) ]), muCall(traverse_fun, [ muCallPrim("map_subscript", [ muLoc("subject_traverse",0), muTmp(child) ]) ]) ]) ]),
 					muCallPrim("mapwriter_close", [ muTmp(writer) ])
 					]);
+	loopname = nextLabel();
+	exp_tuple = muBlock([
+					muAssignTmp(writer, muCallMuPrim("make_array_of_size", [ muCallMuPrim("size_tuple", [ muLoc("subject_traverse",0) ]) ])),
+					muAssignTmp(index, muInt(0)),
+					muCallMuPrim("println", [ muCon("Array"), muTmp(writer) ]),	
+					muWhile(loopname, makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
+					 			  	  [ muCallMuPrim("assign_subscript_array_mint", [ muTmp(writer), muTmp(index), muCall(traverse_fun, [ muTmp(child) ]) ]),
+					 			  	    muCallMuPrim("println", [ muCon("Array"), muTmp(writer) ]),
+					 			  	    muAssignTmp(index, muCallMuPrim("addition_mint_mint", [ muTmp(index), muInt(1) ]) ) ]),
+					muTmp(writer) 
+					]);
 	return muTypeSwitch( muLoc("subject_traverse",0), 
 				 		 [ 
-				   		  muTypeCase("list", exp_list), 
+				   		  muTypeCase("list", exp_list),
+				   		  muTypeCase("lrel", exp_list), 
 				   		  muTypeCase("set", exp_set),
+				   		  muTypeCase("rel", exp_set),
 				   		  muTypeCase("map", exp_map),
-				   		  muTypeCase("tuple", muLoc("subject_traverse",0)),      // TODO:
+				   		  muTypeCase("tuple", muCallMuPrim("make_tuple_array", [ exp_tuple ])),
 				   		  muTypeCase("node", muLoc("subject_traverse",0)),       // TODO:
 				   		  muTypeCase("constructor", muLoc("subject_traverse",0)) // TODO:
 				 		 ], 
-				 		 muLoc("subject_traverse",0) );
+				 		 muBlock([ muCallMuPrim("println", [ muCon("Default"), muLoc("subject_traverse",0) ]), muLoc("subject_traverse",0) ]) );
 }
 
 @doc{Generates the body of a phi function}
 MuExp translateVisitCases(list[Case] cases, bool rebuild) {
 	// TODO: conditional
 	if(size(cases) == 0) {
-		return rebuild ? muLoc("subject_phi",0) : muBlock([]);
+		return rebuild ? muReturn(muLoc("subject_phi",0)) : muBlock([]);
 	}
 	
 	c = head(cases);

@@ -98,7 +98,11 @@ public enum MuPrimitive {
 	subtraction_mint_mint,
 	subtype,
 	typeOf,
-	product_mint_mint
+	product_mint_mint,
+	
+	make_tuple_array,
+//	make_node_array,
+//	make_constructor_array
 	;
 	
 	private static IValueFactory vf;
@@ -733,6 +737,18 @@ public enum MuPrimitive {
 		assert arity == 1;
 		HashSet<IValue> mset =(HashSet<IValue>) stack[sp - 1];
 		stack[sp] = mset.clone();
+		return sp;
+	}
+	
+	public static int make_tuple_array(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		Object[] vals = (Object[]) stack[sp - 1];
+		IValue[] args = new IValue[vals.length];
+		int i = 0;
+		for(Object val : vals) {
+			args[i++] = (IValue) val;
+		}
+		stack[sp - 1] = vf.tuple(args);
 		return sp;
 	}
 	
