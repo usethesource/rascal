@@ -974,10 +974,8 @@ MuExp visitChildren(MuExp traverse_fun, bool rebuild) {
 	exp_tuple = muBlock([
 					muAssignTmp(writer, muCallMuPrim("make_array_of_size", [ muCallMuPrim("size_tuple", [ muLoc("subject_traverse",0) ]) ])),
 					muAssignTmp(index, muInt(0)),
-					muCallMuPrim("println", [ muCon("Array"), muTmp(writer) ]),	
 					muWhile(loopname, makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
 					 			  	  [ muCallMuPrim("assign_subscript_array_mint", [ muTmp(writer), muTmp(index), muCall(traverse_fun, [ muTmp(child) ]) ]),
-					 			  	    muCallMuPrim("println", [ muCon("Array"), muTmp(writer) ]),
 					 			  	    muAssignTmp(index, muCallMuPrim("addition_mint_mint", [ muTmp(index), muInt(1) ]) ) ]),
 					muTmp(writer) 
 					]);
@@ -992,7 +990,7 @@ MuExp visitChildren(MuExp traverse_fun, bool rebuild) {
 				   		  muTypeCase("node", muLoc("subject_traverse",0)),       // TODO:
 				   		  muTypeCase("constructor", muLoc("subject_traverse",0)) // TODO:
 				 		 ], 
-				 		 muBlock([ muCallMuPrim("println", [ muCon("Default"), muLoc("subject_traverse",0) ]), muLoc("subject_traverse",0) ]) );
+				 		 muLoc("subject_traverse",0) );
 }
 
 @doc{Generates the body of a phi function}
