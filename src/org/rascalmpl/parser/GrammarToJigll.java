@@ -49,6 +49,7 @@ import org.jgll.parser.ParserFactory;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
+import org.jgll.util.CollectionsUtil;
 import org.jgll.util.Input;
 import org.jgll.util.Visualization;
 import org.jgll.util.logging.LoggerWrapper;
@@ -331,14 +332,15 @@ public class GrammarToJigll {
 		Iterator<Entry<IValue, IValue>> it = regularExpressions.entryIterator();
 
 		while (it.hasNext()) {
-			Entry<IValue, IValue> next = it.next();
+			Entry<IValue, IValue> regularExpression = it.next();
 
-			Nonterminal head = getHead((IConstructor) next.getKey());
-			IList rhs = (IList) ((IConstructor) next.getValue()).get("symbols");
+			Nonterminal head = getHead((IConstructor) regularExpression.getKey());
+			IValue prod = regularExpression.getValue();
+			IList rhs = (IList) ((IConstructor) prod).get("symbols");
 
 			List<Symbol> body = getRegularExpressionList(rhs);
 			
-			Rule rule = new Rule(head, new RegularExpression(body));
+			Rule rule = new Rule(head, CollectionsUtil.list(new RegularExpression(body)), prod);
 			rules.put(head, rule);
 		}
 		
