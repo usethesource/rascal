@@ -2075,7 +2075,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <Type t> ] <Expression
     < c, rt > = convertAndExpandType(t,c);
     
     set[Symbol] failures = { };
-    if (!isADTType(rt)) failures += makeFailType("Expected non-terminal type, instead found <prettyPrintType(rt)>", t@\loc);
+    if (\sort(_) !:= rt) failures += makeFailType("Expected non-terminal type, instead found <prettyPrintType(rt)>", t@\loc);
     if (!isFailType(t1) && !isStrType(t1)) failures += makeFailType("Expected str, instead found <prettyPrintType(t1)>", e@\loc);
     if (isFailType(t1)) failures += t1;
 
