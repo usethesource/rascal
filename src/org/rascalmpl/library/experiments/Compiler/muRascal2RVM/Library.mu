@@ -65,15 +65,15 @@ function ENUM_MAP[1, ^map, ^klst, last, i]{
    return get_list ^klst[last];
 }
 
-function ENUM_NODE[1, ^nd, last, i, lst]{
-   lst = get_name_and_children(^nd);
-   last = size_array(lst) - 2;
+function ENUM_NODE[1, ^nd, last, i, array]{
+   array = get_name_and_children(^nd);
+   last = size_array(array) - 1;
    i = 1;  // skip name
    while(i < last){
-      yield get_list lst[i];
+      yield get_array array[i];
       i = i + 1;
    };
-   return get_list lst[last];
+   return get_array array[last];
 }
 
 function ENUM_TUPLE[1, ^tup, last, i]{
@@ -114,7 +114,6 @@ function ENUMERATE_AND_MATCH[2,  pat, ^val]{
     case tuple: ENUMERATE_AND_MATCH1(init(create(ENUM_TUPLE, ^val)), pat);
     default:    ENUMERATE_AND_MATCH1(init(create(ENUM_LITERAL, ^val)), pat);
   };
-  // Add cases for rel/lrel?
   return ^val;
 }
 
@@ -138,7 +137,6 @@ function ENUMERATE_AND_ASSIGN[2, varref, ^val]{
     case tuple: ENUMERATE_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), varref);
     default:    ENUMERATE_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), varref);
   };
-  // Add cases for rel/lrel?
   return false;
 }
 
@@ -164,7 +162,6 @@ function ENUMERATE_CHECK_AND_ASSIGN[3, typ, varref, ^val]{
     case tuple: ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), typ, varref);
     default:    ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), typ, varref);
   };
-  // Add cases for rel/lrel?
   return false;
 }
 
