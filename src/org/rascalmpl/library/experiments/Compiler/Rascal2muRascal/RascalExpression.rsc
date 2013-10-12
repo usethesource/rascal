@@ -955,49 +955,53 @@ MuExp visitChildren(MuExp traverse_fun, bool rebuild) {
 	str child    = asTmp(nextLabel()); // #3
 	str index    = asTmp(nextLabel()); // #4
 	
-	str loopname = nextLabel();
-	exp_list = muBlock([
-					muAssignTmp(writer, muCallPrim("listwriter_open", [])),	
-					muWhile(loopname, makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
-					 			  	  [ muCallPrim("listwriter_add", [ muTmp(writer), muCall(traverse_fun, [ muTmp(child) ]) ]) ]),
-					muCallPrim("listwriter_close", [ muTmp(writer) ])
-					]);
-	loopname = nextLabel();
-	exp_set = muBlock([
-					muAssignTmp(writer, muCallPrim("setwriter_open", [])),	
-					muWhile(loopname, makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
-					 			  	  [ muCallPrim("setwriter_add", [ muTmp(writer), muCall(traverse_fun, [ muTmp(child) ]) ]) ]),
-					muCallPrim("setwriter_close", [ muTmp(writer) ])
-					]);
-	loopname = nextLabel();
-	exp_map = muBlock([
-					muAssignTmp(writer, muCallPrim("mapwriter_open", [])),	
-					muWhile(loopname, makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
-					 			  	  [ muCallPrim("mapwriter_add", [ muTmp(writer), muCall(traverse_fun, [ muTmp(child) ]), muCall(traverse_fun, [ muCallPrim("map_subscript", [ muLoc("subject_traverse",0), muTmp(child) ]) ]) ]) ]),
-					muCallPrim("mapwriter_close", [ muTmp(writer) ])
-					]);
-	loopname = nextLabel();
-	exp_array = muBlock([
-					muAssignTmp(writer, muCallMuPrim("make_array_of_size", [ muCallMuPrim("size_tuple", [ muLoc("subject_traverse",0) ]) ])),
-					muAssignTmp(index, muInt(0)),
-					muWhile(loopname, makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
-					 			  	  [ muCallMuPrim("assign_subscript_array_mint", [ muTmp(writer), muTmp(index), muCall(traverse_fun, [ muTmp(child) ]) ]),
-					 			  	    muAssignTmp(index, muCallMuPrim("addition_mint_mint", [ muTmp(index), muInt(1) ]) ) ]),
-					muTmp(writer) 
-					]);
 	return muTypeSwitch( muLoc("subject_traverse",0), 
 				 		 [ 
-				   		  muTypeCase("list", exp_list),
-				   		  muTypeCase("lrel", exp_list), 
-				   		  muTypeCase("set", exp_set),
-				   		  muTypeCase("rel", exp_set),
-				   		  muTypeCase("map", exp_map),
-				   		  muTypeCase("tuple", muCallMuPrim("make_tuple_array", [ exp_array ])),
-				   		  muTypeCase("node", muCallMuPrim("make_node_array", [ muCallMuPrim("get_name", [ muLoc("subject_traverse",0) ]), exp_array ])),
-				   		  muTypeCase("constructor", muCallMuPrim("make_constructor_array", [ muCallMuPrim("typeOf_constructor", [ muLoc("subject_traverse",0) ]), exp_array ]))
+				   		  muTypeCase("list", visitListCode(writer,child,index,traverse_fun)),
+				   		  muTypeCase("lrel", visitListCode(writer,child,index,traverse_fun)), 
+				   		  muTypeCase("set",  visitSetCode(writer,child,index,traverse_fun)),
+				   		  muTypeCase("rel",  visitSetCode(writer,child,index,traverse_fun)),
+				   		  muTypeCase("map",  visitMapCode(writer,child,index,traverse_fun)),
+				   		  muTypeCase("tuple", muCallMuPrim("make_tuple_array", [ visitTupleOrNodeOrConstructorCode(writer,child,index,traverse_fun) ])),
+				   		  muTypeCase("node", muCallMuPrim("make_node_array", [ muCallMuPrim("get_name", [ muLoc("subject_traverse",0) ]), visitTupleOrNodeOrConstructorCode(writer,child,index,traverse_fun) ])),
+				   		  muTypeCase("constructor", muCallMuPrim("make_constructor_array", [ muCallMuPrim("typeOf_constructor", [ muLoc("subject_traverse",0) ]), visitTupleOrNodeOrConstructorCode(writer,child,index,traverse_fun) ]))
 				 		 ], 
 				 		 muLoc("subject_traverse",0) );
 }
+
+MuExp visitListCode(str writer, str child, str index, MuExp traverse_fun)
+	= muBlock([
+				muAssignTmp(writer, muCallPrim("listwriter_open", [])),	
+				muWhile(nextLabel(), makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
+				 			  	     [ muCallPrim("listwriter_add", [ muTmp(writer), muCall(traverse_fun, [ muTmp(child) ]) ]) ]),
+				muCallPrim("listwriter_close", [ muTmp(writer) ])
+				]);
+
+MuExp visitSetCode(str writer, str child, str index, MuExp traverse_fun)
+	= muBlock([
+				muAssignTmp(writer, muCallPrim("setwriter_open", [])),	
+				muWhile(nextLabel(), makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
+				 			  	     [ muCallPrim("setwriter_add", [ muTmp(writer), muCall(traverse_fun, [ muTmp(child) ]) ]) ]),
+				muCallPrim("setwriter_close", [ muTmp(writer) ])
+				]);
+
+MuExp visitMapCode(str writer, str child, str index, MuExp traverse_fun)
+	= muBlock([
+				muAssignTmp(writer, muCallPrim("mapwriter_open", [])),	
+				muWhile(nextLabel(), makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
+					 			  	 [ muCallPrim("mapwriter_add", [ muTmp(writer), muCall(traverse_fun, [ muTmp(child) ]), muCall(traverse_fun, [ muCallPrim("map_subscript", [ muLoc("subject_traverse",0), muTmp(child) ]) ]) ]) ]),
+				muCallPrim("mapwriter_close", [ muTmp(writer) ])
+				]);
+	
+MuExp visitTupleOrNodeOrConstructorCode(str writer, str child, str index, MuExp traverse_fun)
+	= muBlock([
+				muAssignTmp(writer, muCallMuPrim("make_array_of_size", [ muCallMuPrim("size", [ muLoc("subject_traverse",0) ]) ])),
+				muAssignTmp(index, muInt(0)),
+				muWhile(nextLabel(), makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
+					 			  	 [ muCallMuPrim("assign_subscript_array_mint", [ muTmp(writer), muTmp(index), muCall(traverse_fun, [ muTmp(child) ]) ]),
+					 			  	   muAssignTmp(index, muCallMuPrim("addition_mint_mint", [ muTmp(index), muInt(1) ]) ) ]),
+				muTmp(writer) 
+				]);
 
 @doc{Generates the body of a phi function}
 MuExp translateVisitCases(list[Case] cases, bool rebuild) {
