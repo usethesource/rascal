@@ -215,10 +215,12 @@ test bool tst() = run("1 notin (1 : 10, 2 : 20)") == 1 notin (1 : 10, 2 : 20);
 
 // Node
 test bool tst() = run("\"abc\"(1, true, 3.5)") == "abc"(1, true, 3.5);
+test bool tst() = run("{ x | int x \<- \"a\"(1,2,3) }") == { x | int x <- "a"(1,2,3) };
 
 // ADT
 
 test bool tst() = run("d1(3, \"a\") \>= d1(2, \"a\")") == d1(3, "a") >= d1(2, "a");
+test bool tst() = run("{ x | x \<- d1(3, \"a\") }") == { x | x <- d1(3,"a") };
 
 
 // Enumerator
