@@ -91,6 +91,7 @@ public enum MuPrimitive {
 	size_mset,
 	size_map,
 	size_tuple,
+	size,
 	starts_with,
 	sublist_list_mint_mint,
 	subscript_array_mint,
@@ -595,6 +596,24 @@ public enum MuPrimitive {
 	public static int size_tuple(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
+		return sp;
+	}
+	
+	public static int size(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		if(stack[sp - 1] instanceof IConstructor) {
+			stack[sp - 1] = ((IConstructor) stack[sp - 1]).arity();
+		} else if(stack[sp - 1] instanceof INode) {
+			stack[sp - 1] = ((INode) stack[sp - 1]).arity();
+		} else if(stack[sp - 1] instanceof IList) {
+			stack[sp - 1] = ((IList) stack[sp - 1]).length();
+		} else if(stack[sp - 1] instanceof ISet) {
+			stack[sp - 1] = ((ISet) stack[sp - 1]).size();
+		} else if(stack[sp - 1] instanceof IMap) {
+			stack[sp - 1] = ((IMap) stack[sp - 1]).size();
+		} else if(stack[sp - 1] instanceof ITuple) {
+			stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
+		}
 		return sp;
 	}
 		
