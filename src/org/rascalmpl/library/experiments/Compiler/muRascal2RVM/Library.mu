@@ -105,14 +105,15 @@ function ENUMERATE_AND_MATCH1[2, enumerator, pat, cpat, elm]{
 
 function ENUMERATE_AND_MATCH[2,  pat, ^val]{
   typeswitch(^val){
-    case list:  ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat);
-    case lrel:  ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat);
-    case node:  ENUMERATE_AND_MATCH1(init(create(ENUM_NODE, ^val)), pat);
-    case map:   ENUMERATE_AND_MATCH1(init(create(ENUM_MAP, ^val)), pat);
-    case set:   ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat);
-    case rel:   ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat);
-    case tuple: ENUMERATE_AND_MATCH1(init(create(ENUM_TUPLE, ^val)), pat);
-    default:    ENUMERATE_AND_MATCH1(init(create(ENUM_LITERAL, ^val)), pat);
+    case list:         ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat);
+    case lrel:         ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat);
+    case node:         ENUMERATE_AND_MATCH1(init(create(ENUM_NODE, ^val)), pat);
+    case constructor:  ENUMERATE_AND_MATCH1(init(create(ENUM_NODE, ^val)), pat);
+    case map:          ENUMERATE_AND_MATCH1(init(create(ENUM_MAP, ^val)), pat);
+    case set:          ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat);
+    case rel:          ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat);
+    case tuple:        ENUMERATE_AND_MATCH1(init(create(ENUM_TUPLE, ^val)), pat);
+    default:           ENUMERATE_AND_MATCH1(init(create(ENUM_LITERAL, ^val)), pat);
   };
   return ^val;
 }
@@ -128,14 +129,15 @@ function ENUMERATE_AND_ASSIGN1[2, enumerator, varref, elm]{
 
 function ENUMERATE_AND_ASSIGN[2, varref, ^val]{
   typeswitch(^val){
-    case list:  ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref);
-    case lrel:  ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref);
-    case node:  ENUMERATE_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), varref);
-    case map:   ENUMERATE_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), varref);
-    case set:   ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref);
-    case rel:   ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref);
-    case tuple: ENUMERATE_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), varref);
-    default:    ENUMERATE_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), varref);
+    case list:         ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref);
+    case lrel:         ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref);
+    case node:         ENUMERATE_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), varref);
+    case constructor:  ENUMERATE_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), varref);
+    case map:          ENUMERATE_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), varref);
+    case set:          ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref);
+    case rel:          ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref);
+    case tuple:        ENUMERATE_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), varref);
+    default:           ENUMERATE_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), varref);
   };
   return false;
 }
@@ -153,14 +155,15 @@ function ENUMERATE_CHECK_AND_ASSIGN1[3, enumerator, typ, varref, elm]{
 
 function ENUMERATE_CHECK_AND_ASSIGN[3, typ, varref, ^val]{
   typeswitch(^val){
-    case list:  ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref);
-    case lrel:  ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref);
-    case node:  ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), typ, varref);
-    case map:   ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), typ, varref);
-    case set:   ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref);
-    case rel:   ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref);
-    case tuple: ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), typ, varref);
-    default:    ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), typ, varref);
+    case list:         ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref);
+    case lrel:         ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref);
+    case node:         ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), typ, varref);
+    case constructor:  ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), typ, varref);
+    case map:          ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), typ, varref);
+    case set:          ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref);
+    case rel:          ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref);
+    case tuple:        ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), typ, varref);
+    default:           ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), typ, varref);
   };
   return false;
 }
@@ -895,14 +898,16 @@ function MATCH_AND_DESCENT[2, pat, ^val]{
   
   // println("MATCH_AND_DESCENT", "outer match failed"); 
   typeswitch(^val){
-    case list:  VISIT(init(create(MATCH_AND_DESCENT_LIST, pat, ^val)));
-    case node:  VISIT(init(create(MATCH_AND_DESCENT_NODE, pat, ^val)));
-    case map:   VISIT(init(create(MATCH_AND_DESCENT_MAP, pat, ^val)));
-    case set:   VISIT(init(create(MATCH_AND_DESCENT_SET, pat, ^val)));
-    case tuple: VISIT(init(create(MATCH_AND_DESCENT_TUPLE, pat, ^val)));
-    default:    return false;
+    case list:        VISIT(init(create(MATCH_AND_DESCENT_LIST, pat, ^val)));
+    case lrel:        VISIT(init(create(MATCH_AND_DESCENT_LIST, pat, ^val)));
+    case node:        VISIT(init(create(MATCH_AND_DESCENT_NODE, pat, ^val)));
+    case constructor: VISIT(init(create(MATCH_AND_DESCENT_NODE, pat, ^val)));
+    case map:         VISIT(init(create(MATCH_AND_DESCENT_MAP, pat, ^val)));
+    case set:         VISIT(init(create(MATCH_AND_DESCENT_SET, pat, ^val)));
+    case rel:         VISIT(init(create(MATCH_AND_DESCENT_SET, pat, ^val)));
+    case tuple:       VISIT(init(create(MATCH_AND_DESCENT_TUPLE, pat, ^val)));
+    default:          return false;
   };  
-  // Add cases for rel/lrel?
   return false;
 }
 
