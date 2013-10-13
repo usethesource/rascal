@@ -433,7 +433,13 @@ public class RVM {
 					
 				case Opcode.OP_JMPSWITCH:
 					IValue val = (IValue) stack[--sp];
-					int labelIndex = ToplevelType.getToplevelTypeAsInt(val.getType());
+					Type t = null;
+					if(val instanceof IConstructor) {
+						t = ((IConstructor) val).getConstructorType();
+					} else {
+						t = val.getType();
+					}
+					int labelIndex = ToplevelType.getToplevelTypeAsInt(t);
 					IList labels = (IList) cf.function.constantStore[instructions[pc++]];
 					pc = ((IInteger) labels.get(labelIndex)).intValue();
 					continue;
