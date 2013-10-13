@@ -94,6 +94,6 @@ test bool tst1() = demo("Visit1") == experiments::Compiler::Examples::Visit1::ma
 test bool tst2() = demo("Visit2") == experiments::Compiler::Examples::Visit2::main([]);
 test bool tst3() = demo("Visit3") == experiments::Compiler::Examples::Visit3::main([]);
 test bool tst4() = demo("Visit4") == experiments::Compiler::Examples::Visit4::main([]);
-//test bool tst5() = demo("Visit5") == experiments::Compiler::Examples::Visit5::main([]);
+test bool tst5() = demo("Visit5") == experiments::Compiler::Examples::Visit5::main([]);
 
 
