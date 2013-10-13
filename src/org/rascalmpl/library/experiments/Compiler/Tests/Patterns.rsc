@@ -124,6 +124,12 @@ test bool tst() = run("d1(int x, \"a\") := d1(1, \"a\")") == d1(int x, "a") := d
 
 test bool tst() = run("str f(int x, str s) := d1(1, \"a\")") == str f(int x, str s) := d1(1, "a") && x == 1 && s == "a" && f == "d1";
 
+test bool tst() = run("{ s = \"not matched\"; switch(\"a\"(1,2)) { case node nd: str n(int x, int y): s = n + \"_matched(\<x\>,\<y\>)\"; } s; }") 
+				    == { s = "not matched";   switch("a"(1,2))   { case node nd: str n(int x, int y): s = n + "_matched(<x>,<y>)"; } s; };
+
+test bool tst() = run("{ s = \"not matched\"; switch(\"a\"(1,2)) { case nd: str n(x,y): s = n + \"_matched(\<x\>,\<y\>)\"; } s; }") 
+				    == { s = "not matched";   switch("a"(1,2))   { case nd: str n(x,y): s = n + "_matched(<x>,<y>)"; } s; };
+
 // Descendant matching
 
 test bool tst() = run("/1 := [[1, 2], [5, [8], 7], \"a\"]") == /1 := [[1, 2], [5, [8], 7], "a"];
