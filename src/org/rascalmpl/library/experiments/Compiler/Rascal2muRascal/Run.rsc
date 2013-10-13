@@ -8,17 +8,17 @@ import experiments::Compiler::RVM::Run;
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 
-loc Example1 = |std:///experiments/Compiler/Examples/Capture.rsc|;
-loc Example2 = |std:///experiments/Compiler/Examples/D1D2.rsc|;
-loc Example3 = |std:///experiments/Compiler/Examples/ListMatch.rsc|;
-loc Example4 = |std:///experiments/Compiler/Examples/Odd.rsc|;
-loc Example5 = |std:///experiments/Compiler/Examples/Fac.rsc|;
-loc Example6 = |std:///experiments/Compiler/Examples/Fib.rsc|;
+loc Example1 = |rascal:///experiments/Compiler/Examples/Capture.rsc|;
+loc Example2 = |rascal:///experiments/Compiler/Examples/D1D2.rsc|;
+loc Example3 = |rascal:///experiments/Compiler/Examples/ListMatch.rsc|;
+loc Example4 = |rascal:///experiments/Compiler/Examples/Odd.rsc|;
+loc Example5 = |rascal:///experiments/Compiler/Examples/Fac.rsc|;
+loc Example6 = |rascal:///experiments/Compiler/Examples/Fib.rsc|;
 
-loc muExample1 = |std:///experiments/Compiler/muRascal2RVM/TypeConExample.mu|;
-loc muExample2 = |std:///experiments/Compiler/muRascal2RVM/Coroutines.mu|;
-loc muExample3 = |std:///experiments/Compiler/muRascal2RVM/CallByReference.mu|;
-loc muExample4 = |std:///experiments/Compiler/muRascal2RVM/Capture.mu|;
+loc muExample1 = |rascal:///experiments/Compiler/muRascal2RVM/TypeConExample.mu|;
+loc muExample2 = |rascal:///experiments/Compiler/muRascal2RVM/Coroutines.mu|;
+loc muExample3 = |rascal:///experiments/Compiler/muRascal2RVM/CallByReference.mu|;
+loc muExample4 = |rascal:///experiments/Compiler/muRascal2RVM/Capture.mu|;
 
 void run(){
   muP = r2mu(Example5);

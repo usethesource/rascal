@@ -26,7 +26,7 @@ public list[MuVariable] variables_in_module = [];
 public list[MuExp] variable_initializations = [];
 public list[MuExp] tests = [];
 
-public loc Library = |std:///experiments/Compiler/muRascal2RVM/Library.mu|;
+public loc Library = |rascal:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
 public void resetR2mu() {
     imported_modules = [];
@@ -112,15 +112,21 @@ void translate(m: (Module) `<Header header> <Body body>`) {
 void importModule((Import) `import <QualifiedName qname> ;`){
     name = replaceAll("<qname>", "::", "/");
     //println("name = <name>");
-    imported_modules += |std:///| + ("<name>" + ".rsc");
+    imported_modules += |rascal:///| + ("<name>" + ".rsc");
     //println("imported_modules = <imported_modules>");
 }
 
 void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement extend properly
     name = replaceAll("<qname>", "::", "/");
     //println("name = <name>");
-    imported_modules += |std:///| + ("<name>" + ".rsc");
+    imported_modules += |rascal:///| + ("<name>" + ".rsc");
     //println("imported_modules = <imported_modules>");
+}
+
+void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing to do */ }
+
+default void importModule(Import imp){
+    throw "Unimplemented import: <imp>";
 }
 	
 void translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
