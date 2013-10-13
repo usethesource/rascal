@@ -3608,9 +3608,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                                if (size(badMatches) == 0) 
 	                                    // if we had no bad matches, this is a valid alternative
 	                                    matches += a;
-								} else {
-									nonMatches += a;
-								}
+                                } else {
+                                    nonMatches += a;
+                                }
                             }
                         //}
                         
@@ -3665,7 +3665,15 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         	insert updateBindProblems(ptn, nonMatches, matches);
                         }
                     } else if (isStrType(ph@rtype)) {
-                        insert updateRT(ptn, \node());
+                        list[PatternTree] newChildren = [];
+                        try {
+                            for(int idx <- index(pargs)) {
+                                <c, newarg> = bind(pargs[idx],Symbol::\value(),c);
+                            }
+                        } catch v : {
+                            newChildren = pargs;
+                        }
+                        insert updateRT(ptn[args=newChildren], \node());
                     }
                 }
             }       
