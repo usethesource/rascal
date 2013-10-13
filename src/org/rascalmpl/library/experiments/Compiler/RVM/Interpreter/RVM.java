@@ -968,7 +968,7 @@ public class RVM {
 					// the main function of coroutine may have formal parameters,
 					// therefore, INIT may take a number of arguments == formal parameters - arguments already passed to CREATE
 					if(arity != fun.nformals - coroutine.frame.sp)
-						throw new RuntimeException("Too many or too few arguments to INIT, the expected number: " + (fun.nformals - coroutine.frame.sp));
+						throw new RuntimeException("Too many or too few arguments to INIT, the expected number: " + (fun.nformals - coroutine.frame.sp) + "; " + fun.getName() + "; " + cf.function.getName());
 					Coroutine newCoroutine = coroutine.copy();
 					for (int i = arity - 1; i >= 0; i--) {
 						newCoroutine.frame.stack[coroutine.frame.sp + i] = stack[sp - arity + i];
