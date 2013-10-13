@@ -32,9 +32,12 @@ import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionFactory;
 import org.jgll.grammar.condition.ConditionType;
 import org.jgll.grammar.condition.TerminalCondition;
+import org.jgll.grammar.symbol.Alt;
 import org.jgll.grammar.symbol.CharacterClass;
+import org.jgll.grammar.symbol.Group;
 import org.jgll.grammar.symbol.Keyword;
 import org.jgll.grammar.symbol.Nonterminal;
+import org.jgll.grammar.symbol.Opt;
 import org.jgll.grammar.symbol.Plus;
 import org.jgll.grammar.symbol.Range;
 import org.jgll.grammar.symbol.RegularExpression;
@@ -402,13 +405,13 @@ public class GrammarToJigll {
 		return result;
 	}
 	
-	private List<Symbol> getRegularExpressionList(IList rhs) {
+	private List<Symbol> getRegularExpressionList(Iterable<IValue> rhs) {
 		
 		List<Symbol> result = new ArrayList<>();
 		
-		for(int i = 0; i < rhs.length(); i++) {
-			IConstructor current = (IConstructor) rhs.get(i);
-			Symbol symbol = getRegularExpression(current);				
+		for(IValue val : rhs) {
+			IConstructor constructor = (IConstructor) val;
+			Symbol symbol = getRegularExpression(constructor);				
 			
 			if (symbol != null) {
 				result.add(symbol);
@@ -550,17 +553,17 @@ public class GrammarToJigll {
 		case "iter-star-seps":
 			return new Star(getCharacterClass(getSymbolCons(symbol)));
 
-//		case "opt":
-//			return new Nonterminal(SymbolAdapter.toString(symbol, true));
-//
-//		case "alt":
-//			return new Nonterminal(SymbolAdapter.toString(symbol, true));
-//
-//		case "seq":
-//			return new Nonterminal(SymbolAdapter.toString(symbol, true));
+		case "opt":
+			return new Opt(getRegularExpression(getSymbolCons(symbol)));
+
+		case "alt":
+			return new Alt(getRegularExpressionList((ISet) symbol.get("alternatives")));
+
+		case "seq":
+			return new Group(getRegularExpressionList((IList) symbol.get("symbols")));
 			
 		default:
-			throw new IllegalStateException("Should not reach here." + symbol);
+			throw new IllegalStateException("Should not reach here. " + symbol);
 		}
 	}
 
