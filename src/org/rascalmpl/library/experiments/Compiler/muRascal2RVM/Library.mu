@@ -346,8 +346,12 @@ function MATCH_TYPED_ANONYMOUS_VAR[2, typ, ^subject]{
 function MATCH_VAR_BECOMES[3, varref, pat, ^subject, cpat]{
    cpat = init(pat, ^subject);
    while(hasNext(cpat)){
-     deref varref = ^subject;
-     yield true;
+     if(next(cpat)) {
+       deref varref = ^subject;
+       yield true;
+     } else {
+       return false;
+     };
    };
    return false;
 }
@@ -356,8 +360,12 @@ function MATCH_TYPED_VAR_BECOMES[4, typ, varref, pat, ^subject, cpat]{
    if(subtype(typeOf(^subject), typ)){
      cpat = init(pat, ^subject);
      while(hasNext(cpat)){
-       deref varref = ^subject;
-       yield true;
+       if(next(cpat)) {
+         deref varref = ^subject;
+         yield true;
+       } else {
+         return false;
+       };
      };
    };  
    return false;
