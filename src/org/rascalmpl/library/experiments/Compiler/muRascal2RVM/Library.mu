@@ -406,7 +406,11 @@ function MATCH_LIST[2, pats,   						// A list of coroutines to match list eleme
 					   success,						// Success flag of last macth
 					   nextCursor					// Cursor movement of last successfull match
 					]{
-
+     if(^subject is list) {
+         // continue
+     } else {
+         return false;
+     };
      patlen   = size_array(pats);
      patlen1 =  patlen - 1;
      sublen   = size_list(^subject);
@@ -586,6 +590,11 @@ function MATCH_SET[2,  pair,	   					// A pair of literals, and patterns (other 
 					   success,						// Success flag of last macth
 					   remaining					// Remaining mset as determined by last successfull match
 					]{
+      if(^subject is set) {
+          // continue
+      } else {
+          return false;
+      };
       ^literals = get_array pair[0];
       pats      = get_array pair[1];
       
