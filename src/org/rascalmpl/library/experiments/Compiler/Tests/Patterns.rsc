@@ -179,4 +179,8 @@ test bool tst() = run("int x !:= 2") == int x !:= 2;
 test bool tst() = run("[1, x*, 5] !:= [1,2,3,4,5]") == [1, x*, 5] !:= [1,2,3,4,5];
 test bool tst() = run("[1, x*, 5] !:= [1,2,3,4,6]") == [1, x*, 5] !:= [1,2,3,4,6];
 
+// False match as the subject dynamic type is not a subtype of the pattern type
+test bool tst() = run("{ value v = { [1,2] }; [1,2] := v; }") == { value v = { [1,2] }; [1,2] := v; };
+test bool tst() = run("{ value v = \<1,2\>; {1,2} := v; }") == { value v = <1,2>; {1,2} := v; };
+test bool tst() = run("{ value v = \<1,2\>; \"nd\"(1,2) := v; }") == { value v = <1,2>; "nd"(1,2) := v; };
 
