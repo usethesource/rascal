@@ -241,9 +241,6 @@ public class GrammarToJigll {
 	}
 
 	public GrammarBuilder convert(String name, IConstructor rascalGrammar) {
-		IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
-		
-		Map<Nonterminal, Rule> regularExpressionRules = createRegularExpressionRules(regularExpressions);
 
 		GrammarBuilder builder = new GrammarBuilder(name);
 		
@@ -292,6 +289,10 @@ public class GrammarToJigll {
 				}
 			}
 		}
+		
+		IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
+		
+		Map<Nonterminal, Rule> regularExpressionRules = createRegularExpressionRules(regularExpressions);
 
 		for (Rule rule : regularExpressionRules.values()) {
 			builder.addRule(rule);
@@ -534,6 +535,9 @@ public class GrammarToJigll {
 	private Symbol getRegularExpression(IConstructor symbol) {
 		
 		switch (symbol.getName()) {
+			
+		case "conditional":
+			return getRegularExpression(getSymbolCons(symbol)).addConditions(getConditions(symbol));
 		
 		case "label":
 			return getRegularExpression(getSymbolCons(symbol));
