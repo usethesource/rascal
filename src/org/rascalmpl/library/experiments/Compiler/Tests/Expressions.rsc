@@ -288,6 +288,8 @@ test bool tst() = run("{ds = {0, 1, 2, 3}; {[S, E] |  int S \<- ds, int E \<- (d
 					   
 test bool tst() = run("{ \<x[0] + 1, x[1] + 1\> | x \<- { \<1,2\>, \<3,4\> } }") == { <x[0] + 1, x[1] + 1> | x <- { <1,2>, <3,4> } };
 
+test bool tst() = run("{ l | /list[int] l := [ [1, [2]], [[3],[4]] ] }") == { l | /list[int] l := [ [1, [2]], [[3],[4]] ] };
+
 // Map Comprehension
 
 test bool tst() = run("(x : 10 * x | x \<- [1 .. 10])") == (x : 10 * x | x <- [1 .. 10]);
