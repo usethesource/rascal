@@ -111,7 +111,7 @@ public Result eval(List([Atom("lambda"), List(vars*), exp]), Env defEnv) =
 
 public default Result eval(List([ exps* ]), Env e) {         <img src="/images/9.png">
   if(isEmpty(exps))
-     return &lt;FALSE, e>;
+     return &lt;List([]), e>;
   vals = [ eval(exp, e).val | exp &lt;- exps ];
   return apply(head(vals), tail(vals), e);
 }
