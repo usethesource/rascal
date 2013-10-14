@@ -1,0 +1,24 @@
+\usepackage{xspace}
+\usepackage{xstring}
+\usepackage{xcolor}
+\usepackage[scaled=0.8]{beramono}
+\definecolor{Rkeyword}{RGB}{123,0,82}
+\definecolor{Rconstant}{RGB}{139,0,139}
+\definecolor{Rcomment}{RGB}{82, 141, 115}
+\definecolor{Rmetavariable}{RGB}{41, 95, 148}
+\definecolor{Rmetaskipped}{RGB}{82, 141, 115}
+\newenvironment{rascal}{ %
+\parindent=0pt
+\obeyspaces\obeylines
+\begingroup\lccode`~=`\^^M
+\lowercase{\endgroup\def~}{\par\leavevmode} %
+\ttfamily\vspace{0.8em}}{\vspace{.8em}}
+{\ignorespacesafterend}
+\newcommand{\CAT}[2]{%
+\IfStrEqCase{#1} { %
+{Keyword} {\textcolor{Rkeyword}{\textbf{#2}}} %
+{Comment} {\textcolor{Rcomment}{\textit{#2}}} %
+{MetaSkipped} {\textcolor{Rmetaskipped}{textit{#2}}} %
+{Constant} {\textcolor{Rconstant}{#2}} %
+{MetaVariable} {\textcolor{Rmetavariable}{\textit{#2}}}}[#2]
+}
