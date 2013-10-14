@@ -48,15 +48,17 @@ default str wrapLink(str text, Tree pt) = text;
 
 public map[str, str] texEscapes = (
 	"\\": "\\textbackslash{}",
-	"\<": "\\textless{};",
-	"\>": "\\textgreater{};",
-	"%": "\\%{};",
+	"\<": "\\textless{}",
+	"\>": "\\textgreater{}",
+	"%": "\\%{}",
 	"&" : "\\&{}",
 	"_" : "\\_{}",
 	"^" : "\\^{}",
 	"{" : "\\{{}",
 	"}" : "\\}{}",
-	"$" : "\\${}"
+	"$" : "\\${}",
+	"[" : "{}[",
+	"\t" : "    "
 );
 
 str highlight2latex(appl(prod(lit(str l), _, _), _)) = catCmd("Keyword", l)
