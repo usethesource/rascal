@@ -92,7 +92,7 @@ public Result eval(List([Atom("if"), Lval tst, Lval conseq, Lval alt]), Env e) =
        eval(tst, e).val != FALSE ? eval(conseq, e) : eval(alt, e);
        
                                                              <img src="/images/6.png">
-public Result eval(List([Atom("begin"), list[Lval] exps]) , Env e) {
+public Result eval(List([Atom("begin"), exps*]) , Env e) {
   val = FALSE;
   for(Lval exp &lt;- exps){
       &lt;val, e> = eval(exp, e);
