@@ -546,16 +546,16 @@ public class GrammarToJigll {
 			return getCharacterClass(symbol);	
 
 		case "iter":
-			return new Plus(getCharacterClass(getSymbolCons(symbol)));
+			return new Plus(getRegularExpression(getSymbolCons(symbol)));
 
 		case "iter-seps":
-			return new Plus(getCharacterClass(getSymbolCons(symbol)));
+			return new Plus(getRegularExpression(getSymbolCons(symbol)));
 
 		case "iter-star":
-			return new Star(getCharacterClass(getSymbolCons(symbol)));
+			return new Star(getRegularExpression(getSymbolCons(symbol)));
 
 		case "iter-star-seps":
-			return new Star(getCharacterClass(getSymbolCons(symbol)));
+			return new Star(getRegularExpression(getSymbolCons(symbol)));
 
 		case "opt":
 			return new Opt(getRegularExpression(getSymbolCons(symbol)));
