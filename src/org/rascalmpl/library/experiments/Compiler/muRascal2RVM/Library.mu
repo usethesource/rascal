@@ -229,7 +229,7 @@ function MATCH[2, pat, ^subject, cpat]{
    return false;
 }
 
-function MATCH_N[2, pats, subjects, plen, slen, p, pat]{
+function MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
    // println("MATCH_N", pats, subjects);
    plen = size_array(pats);
    slen = size_array(subjects);
@@ -238,9 +238,10 @@ function MATCH_N[2, pats, subjects, plen, slen, p, pat]{
       return false;
    };
    p = 0;
+   ipats = make_array(plen);
    while(p < plen){
      // println("MATCH_N: init ", p);
-     set_array pats[p] = init(get_array pats[p], get_array subjects[p]);
+     set_array ipats[p] = init(get_array pats[p], get_array subjects[p]);
      p = p + 1;
    };
    
@@ -248,7 +249,7 @@ function MATCH_N[2, pats, subjects, plen, slen, p, pat]{
      p = 0;
      while(p < plen){
        // println("p = ", p);
-       pat = get_array pats[p];
+       pat = get_array ipats[p];
        if(hasNext(pat)){
           if(next(pat)){
               p = p + 1;
