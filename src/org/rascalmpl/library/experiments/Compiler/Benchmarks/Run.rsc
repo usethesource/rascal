@@ -32,7 +32,7 @@ import experiments::Compiler::Benchmarks::BWhile;
 import experiments::Compiler::Benchmarks::BVisit1;
 
 
-loc base = |std:///experiments/Compiler/Benchmarks/|;
+loc base = |rascal:///experiments/Compiler/Benchmarks/|;
 
 alias Measurement = tuple[str name, num compilationTime, num compiledExec, num interpretedExec];
 

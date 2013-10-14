@@ -6,6 +6,9 @@ module experiments::Compiler::Tests::AllCompilerTests
  * - Type :test at the command line.
  * - Go and drink some latte ;-)
  */
+ 
+import experiments::Compiler::Compile;
+import experiments::Compiler::Execute;
 
 // Note: Type commented out since it uses a definition of datatype D that is incompatible with TestUtils
 // extend experiments::Compiler::Tests::Types;

@@ -47,7 +47,7 @@ import experiments::Compiler::Examples::Visit4;
 import experiments::Compiler::Examples::Visit5;
 import experiments::Compiler::Examples::Visit6;
 
-loc base = |std:///experiments/Compiler/Examples/|;
+loc base = |rascal:///experiments/Compiler/Examples/|;
 
 
 value demo(str example bool debug = false, bool listing=false, bool testsuite=false, bool recompile=false) =
