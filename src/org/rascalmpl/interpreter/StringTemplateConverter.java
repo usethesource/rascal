@@ -25,6 +25,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.primitive.OrgString;
 import org.rascalmpl.ast.DataTarget;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.MidStringChars.Lexical;
@@ -109,21 +110,50 @@ public class StringTemplateConverter {
 				Result<IValue> result = this.getStatement().interpret(__eval);
 				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 				IValue v = result.getValue();
-				if (!(v instanceof IString)) {
-					// Ensure that values that are trees are yielding the appropriate string value
-					StringBuilder sb = new StringBuilder(500);
-					appendToString(v, sb);
-					v = vf.string(sb.toString());
-				}
+//				if (!(v instanceof IString)) {
+//					// Ensure that values that are trees are yielding the appropriate string value
+////					StringBuilder sb = new StringBuilder(500);
+////					appendToString(v, sb);
+////					v = vf.string(sb.toString());
+				v = convertToString(v);
+//				}
 				java.lang.String fill = __eval.getCurrentIndent();
-				java.lang.String content = ((IString)v).getValue();
-				content = content.replaceAll("\n", "\n" + fill);
-				v = vf.string(content);
+				if (v instanceof OrgString) {
+					v = ((OrgString)v).replaceAll("\n", vf.string(src, "\n" + fill));
+				}
+				else {
+					java.lang.String content = ((IString)v).getValue();
+					content = content.replaceAll("\n", "\n" + fill);
+					v = vf.string(content);
+				}
 //				__eval.unindent();
 
 				result = ResultFactory.makeResult(v.getType(), v, result.getEvaluatorContext());
 				target.append(result);
 				return result;
+			}
+			
+			private IString convertToString(IValue value) {
+				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
+				if (value.getType() == Factory.Tree && value.asAnnotatable().hasAnnotation("loc")) {
+					return vf.string((ISourceLocation) value.asAnnotatable().getAnnotation("loc"),
+					    org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
+				}
+				else if (value.getType().isNode() && value.asAnnotatable().hasAnnotation("location")) {
+					return vf.string((ISourceLocation) value.asAnnotatable().getAnnotation("location"),
+						    value.toString());
+				}
+				else if (value.getType().isSubtypeOf(Factory.Type)) {
+					return vf.string(src, SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol"), false));
+				}
+				else if (value.getType().isString()) {
+					// use the origin of the string, if any
+					return (IString) value;
+				} 
+				else {
+					// use the expression location as origin.
+					return vf.string(src, value.toString());
+				}
 			}
 			
 			private void appendToString(IValue value, StringBuilder b) {
@@ -159,10 +189,7 @@ public class StringTemplateConverter {
 			
 			private IString makeValue(String arg) {
 				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
-				if (vf instanceof OriginValueFactory) {
-					return ((OriginValueFactory)vf).string(src, arg);
-				}
-				return vf.string(arg);
+				return vf.string(src, arg);
 			}
 			
 			private String removeMargins(String arg) {

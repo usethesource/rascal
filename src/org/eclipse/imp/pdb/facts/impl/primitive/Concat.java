@@ -134,4 +134,24 @@ public class Concat extends OrgString {
 	}
 
 
+	@Override
+	public int indexOf(String str) {
+		int ind = lhs.indexOf(str);
+		if (ind != -1) {
+			return ind;
+		}
+		// test for overlapping
+		for (int i = 1; i < str.length(); i++) {
+			String before = str.substring(0, i);
+			String after = str.substring(i, str.length());
+			int lind = lhs.indexOf(before);
+			int rind = rhs.indexOf(after);
+			if (lind == str.length() - i && rind == 0) {
+				return lind;
+			}
+		}
+		return rhs.indexOf(str);
+	}
+
+
 }

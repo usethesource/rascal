@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.values.OriginValueFactory;
 
 public class ConcatStringResult extends StringResult {
 	private final int length;
@@ -55,6 +56,16 @@ public class ConcatStringResult extends StringResult {
 
 	@Override
 	public IString getValue() {
+		if (components.isEmpty()) {
+			return getValueFactory().string("");
+		}
+		if (getValueFactory() instanceof OriginValueFactory) {
+			IString s = components.get(0).getValue();
+			for (int i = 1; i < components.size(); i++) {
+				s = s.concat(components.get(i).getValue());
+			}
+			return s;
+		}
 		StringBuilder builder = new StringBuilder(length);
 		yield(builder);
 		return getValueFactory().string(builder.toString());
