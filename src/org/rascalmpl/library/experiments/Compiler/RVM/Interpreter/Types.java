@@ -8,7 +8,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -19,15 +18,16 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class Types {
 	
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	
-	public Types(IValueFactory vf) {
+	public Types(IRascalValueFactory vf) {
 		this.vf = vf;
 	}
 	

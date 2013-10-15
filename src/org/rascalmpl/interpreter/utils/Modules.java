@@ -5,12 +5,12 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Modules {
-  private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+  private static final IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
   
   public static ISet getImports(IConstructor tree) {
     return get(tree, "default");

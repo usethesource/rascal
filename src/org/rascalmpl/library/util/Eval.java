@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -43,10 +42,11 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Eval {
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 		
 	private final IInteger duration;
 	private Evaluator eval;
@@ -62,7 +62,7 @@ public class Eval {
 	public final Type Exception = tf.abstractDataType(store, "Exception");
 	public final Type Exception_StaticError = tf.constructor(store, Exception, "StaticError", tf.stringType(), "messages", tf.sourceLocationType(), "location");
 			
-	public Eval(IValueFactory values){
+	public Eval(IRascalValueFactory values){
 		super();
 		this.values = values;
 		this.tr = new TypeReifier(values);

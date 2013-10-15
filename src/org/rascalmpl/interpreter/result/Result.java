@@ -27,7 +27,6 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -43,6 +42,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 // TODO: perhaps move certain stuff down to ValueResult (or merge that class with this one).
@@ -154,7 +154,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return TypeFactory.getInstance();
 	}
 	
-	protected IValueFactory getValueFactory() {
+	protected IRascalValueFactory getValueFactory() {
 		return ctx.getValueFactory();
 	}
 	

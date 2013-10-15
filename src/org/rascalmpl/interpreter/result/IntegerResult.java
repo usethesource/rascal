@@ -23,13 +23,13 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class IntegerResult extends ElementResult<IInteger> {
 
@@ -264,7 +264,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 				Result<V> from,  
 				Result<W> to, 
 				Result<X> second, 
-				IValueFactory vf, 
+				IRascalValueFactory vf, 
 				TypeFactory tf, 
 				IEvaluatorContext ctx) {
 		

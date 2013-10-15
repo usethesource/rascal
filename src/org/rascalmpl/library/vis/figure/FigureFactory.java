@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.combine.Overlap;
 import org.rascalmpl.library.vis.figure.combine.containers.Box;
@@ -57,6 +56,7 @@ import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.properties.Types;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.vector.Dimension;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -68,7 +68,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  */
 @SuppressWarnings("serial")
 public class FigureFactory {
-	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	static IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 	static IList emptyList = vf.list();
 	
 	enum Primitives {

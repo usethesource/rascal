@@ -18,14 +18,14 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Arbitrary {
 
 	private final Random random;
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 
-	public Arbitrary(IValueFactory values) {
+	public Arbitrary(IRascalValueFactory values) {
 		this.random = new Random();
 		this.values = values;
 

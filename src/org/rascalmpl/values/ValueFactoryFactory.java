@@ -14,13 +14,22 @@
 *******************************************************************************/
 package org.rascalmpl.values;
 
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 
 public class ValueFactoryFactory{
-	private final static IValueFactory valueFactory = ValueFactory.getInstance();
+	private final static IRascalValueFactory valueFactory;
 	
-	public static IValueFactory getValueFactory(){
+	static {
+		String orgs = System.getProperty("org.rascalmpl.origins");
+		if (orgs != null && orgs.equals("true")) {
+			System.err.println("INFO: enabling origins of strings");
+			valueFactory = OriginValueFactory.getInstance();
+		}
+		else {
+			valueFactory = RascalValueFactory.getInstance();
+		}
+	}
+	
+	public static IRascalValueFactory getValueFactory(){
 		return valueFactory;
 	}
 }

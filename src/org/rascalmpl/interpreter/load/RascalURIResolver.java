@@ -26,13 +26,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.IURIInputOutputResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.UnsupportedSchemeException;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -56,7 +56,7 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 	
 	public ISourceLocation resolve(ISourceLocation loc) {
 	  URI uri = loc.getURI();
-	  IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	  IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 	  
 	  if (!uri.getScheme().equals(scheme())) {
 	    return loc;

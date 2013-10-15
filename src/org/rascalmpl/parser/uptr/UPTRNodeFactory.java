@@ -7,17 +7,17 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, ISourceLocation>{
-	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private final static IRascalValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	public UPTRNodeFactory(){
 		super();

@@ -18,7 +18,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -30,13 +29,14 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Resource {
 
 	private static HashMap<String, IResource> resourceHandlers = new HashMap<String, IResource>();
-	private IValueFactory vf = null;
+	private IRascalValueFactory vf = null;
 	
-	public Resource(IValueFactory vf) {
+	public Resource(IRascalValueFactory vf) {
 		this.vf = vf;
 	}
 

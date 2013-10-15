@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.CaseInsensitiveStringConstant;
 import org.rascalmpl.ast.Char;
 import org.rascalmpl.ast.Class;
@@ -30,11 +29,12 @@ import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Type;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 public class Symbols {
-	private static IValueFactory factory = ValueFactoryFactory.getValueFactory();
+	private static IRascalValueFactory factory = ValueFactoryFactory.getValueFactory();
 	
 	public static IConstructor typeToSymbol(Sym type, boolean lex, String layout) {
 	  return (IConstructor) symbolAST2SymbolConstructor(type, lex, layout);

@@ -12,7 +12,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -22,13 +21,14 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Method;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class Webserver {
-  private final IValueFactory vf;
+  private final IRascalValueFactory vf;
   private final Map<ISourceLocation, NanoHTTPD> servers;
   private final Map<Method,IConstructor> methodValues = new HashMap<>();
   private final Map<IConstructor,Status> statusValues = new HashMap<>();
@@ -36,7 +36,7 @@ public class Webserver {
   private final Type stringMap = tf.mapType(tf.stringType(), tf.stringType());
   private final Type[] argTypes = new Type[] { tf.sourceLocationType(), null, stringMap, stringMap, stringMap };
   
-  public Webserver(IValueFactory vf) {
+  public Webserver(IRascalValueFactory vf) {
     this.vf = vf;
     this.servers = new HashMap<>();
   }

@@ -17,7 +17,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Expression.Anti;
 import org.rascalmpl.ast.Expression.CallOrTree;
@@ -31,6 +30,7 @@ import org.rascalmpl.ast.QualifiedName.Default;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.semantics.dynamic.Expression.Set;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
@@ -39,9 +39,9 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		private static final long serialVersionUID = 2430739406856140650L;
 	}
 
-	private IValueFactory vf;
+	private IRascalValueFactory vf;
 
-	public IUPTRAstToSymbolConstructor(IValueFactory vf) {
+	public IUPTRAstToSymbolConstructor(IRascalValueFactory vf) {
 		this.vf = vf;
 	}
 	

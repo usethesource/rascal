@@ -56,7 +56,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
@@ -77,6 +76,7 @@ import org.rascalmpl.interpreter.staticErrors.JavaMethodLink;
 import org.rascalmpl.interpreter.staticErrors.MissingTag;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
+import org.rascalmpl.values.IRascalValueFactory;
 
 
 public class JavaBridge {
@@ -86,7 +86,7 @@ public class JavaBridge {
 	
 	private final static JavaClasses javaClasses = new JavaClasses();
 	
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 	
 	private final Map<Class<?>, Object> instanceCache;
 	
@@ -94,7 +94,7 @@ public class JavaBridge {
 
   private final Configuration config;
 
-	public JavaBridge(List<ClassLoader> classLoaders, IValueFactory valueFactory, Configuration config) {
+	public JavaBridge(List<ClassLoader> classLoaders, IRascalValueFactory valueFactory, Configuration config) {
 		this.loaders = classLoaders;
 		this.vf = valueFactory;
 		this.instanceCache = new HashMap<Class<?>, Object>();
@@ -313,7 +313,7 @@ public class JavaBridge {
 		}
 		
 		try{
-			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
+			Constructor<?> constructor = clazz.getConstructor(IRascalValueFactory.class);
 			instance = constructor.newInstance(vf);
 			instanceCache.put(clazz, instance);
 			return instance;
@@ -345,7 +345,7 @@ public class JavaBridge {
 						return instance;
 					}
 
-					Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
+					Constructor<?> constructor = clazz.getConstructor(IRascalValueFactory.class);
 					instance = constructor.newInstance(vf);
 					instanceCache.put(clazz, instance);
 					return instance;

@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 @SuppressWarnings("serial")
 public class Save extends TutorHttpServlet {
@@ -42,7 +42,7 @@ public class Save extends TutorHttpServlet {
 		PrintWriter out = response.getWriter();
 
 		try {
-			IValueFactory vf = evaluator.getValueFactory();
+			IRascalValueFactory vf = evaluator.getValueFactory();
 			IValue result = evaluator.call("save", vf.string(concept), vf.string(newContent), vf.bool(newConcept));
 		    resp = ((IString) result).getValue();
 		    

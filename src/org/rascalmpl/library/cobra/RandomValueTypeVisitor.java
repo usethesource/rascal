@@ -32,7 +32,6 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -41,19 +40,20 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeException> {
 
 	private static final Random stRandom = new Random();
 
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final ModuleEnvironment rootEnv;
 	private final int maxDepth;
 	private final HashMap<Type, ICallableValue> generators;
 	private final Map<Type, Type> typeParameters;
 
-	public RandomValueTypeVisitor(IValueFactory vf, ModuleEnvironment rootEnv,
+	public RandomValueTypeVisitor(IRascalValueFactory vf, ModuleEnvironment rootEnv,
 			int maxDepth, HashMap<Type, ICallableValue> generators, Map<Type, Type> typeParameters) {
 		this.vf = vf;
 		this.rootEnv = rootEnv;

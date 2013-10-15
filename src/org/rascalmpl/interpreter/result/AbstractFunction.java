@@ -26,7 +26,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -42,6 +41,7 @@ import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -57,7 +57,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected final static TypeStore hiddenStore = new TypeStore();
 
 	protected final AbstractAST ast;
-	protected final IValueFactory vf;
+	protected final IRascalValueFactory vf;
 	
 	protected static int callNesting = 0;
 	protected static boolean callTracing = false;

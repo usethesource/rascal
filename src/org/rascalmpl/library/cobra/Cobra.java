@@ -20,7 +20,6 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -28,6 +27,7 @@ import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.cobra.util.NullOutputStream;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Cobra {
 
@@ -44,11 +44,11 @@ public class Cobra {
 	}
 
 
-	final IValueFactory vf;
+	final IRascalValueFactory vf;
 
 	private final QuickCheck quickcheck;
 
-	public Cobra(IValueFactory vf) {
+	public Cobra(IRascalValueFactory vf) {
 		this.vf = vf;
 		this.quickcheck = QuickCheck.getInstance();
 	}

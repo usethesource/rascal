@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Statement;
@@ -38,6 +37,7 @@ import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.parser.ParserGenerator;
+import org.rascalmpl.values.IRascalValueFactory;
 
 /**
  * TODO: This interface was used by the
@@ -84,7 +84,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public void __setInterrupt(boolean interrupt);	
 	public JavaBridge __getJavaBridge();
 	public TypeDeclarationEvaluator __getTypeDeclarator();
-	public IValueFactory __getVf();
+	public IRascalValueFactory __getVf();
 	public TraversalEvaluator __getCurrentTraversalEvaluator();
 	public void __pushTraversalEvaluator(TraversalEvaluator te);
 	public TraversalEvaluator __popTraversalEvaluator();

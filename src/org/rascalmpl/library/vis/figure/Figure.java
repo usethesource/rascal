@@ -47,7 +47,6 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
@@ -66,6 +65,7 @@ import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 import org.rascalmpl.library.vis.util.vector.TransformMatrix;
 import org.rascalmpl.library.vis.util.vector.TwoDimensional;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -78,7 +78,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  */
 
 public abstract class Figure implements Comparable<Figure> {
-	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private static final IRascalValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	public static enum ResizeMode{
 		RESIZE, ZOOM;

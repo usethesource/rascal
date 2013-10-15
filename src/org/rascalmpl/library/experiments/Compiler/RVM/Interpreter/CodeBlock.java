@@ -7,7 +7,6 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Call;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallConstr;
@@ -60,10 +59,11 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.S
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class CodeBlock {
 
-	public final IValueFactory vf;
+	public final IRascalValueFactory vf;
 	int pc;
 	int labelIndex = 0;
 	
@@ -85,7 +85,7 @@ public class CodeBlock {
 	
 	public int[] finalCode;
 	
-	public CodeBlock(IValueFactory factory){
+	public CodeBlock(IRascalValueFactory factory){
 		labelInfo = new HashMap<String, LabelInfo>();
 		insList = new ArrayList<Instruction>();
 		new ArrayList<Integer>();

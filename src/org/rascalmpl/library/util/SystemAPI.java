@@ -26,17 +26,17 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class SystemAPI {
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
 
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 
-	public SystemAPI(IValueFactory values) {
+	public SystemAPI(IRascalValueFactory values) {
 		this.values = values;
 	}
 

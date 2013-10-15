@@ -21,12 +21,12 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SymbolAdapter {
-  private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+  private static final IRascalValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	private SymbolAdapter() {
 		super();

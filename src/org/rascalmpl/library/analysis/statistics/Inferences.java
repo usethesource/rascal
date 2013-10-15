@@ -20,13 +20,13 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Inferences {
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	
-	public Inferences(IValueFactory values){
+	public Inferences(IRascalValueFactory values){
 		super();
 		this.values = values;
 	}

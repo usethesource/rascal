@@ -24,7 +24,6 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -33,6 +32,7 @@ import org.rascalmpl.ast.LocationLiteral.Default;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -44,7 +44,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  */
 public class RuntimeExceptionFactory {
 	private static TypeFactory TF = TypeFactory.getInstance();
-	private static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private static IRascalValueFactory VF = ValueFactoryFactory.getValueFactory();
 	public static final TypeStore TS = new TypeStore();
 	public static final Type Exception = TF.abstractDataType(TS, "RuntimeException");
 	

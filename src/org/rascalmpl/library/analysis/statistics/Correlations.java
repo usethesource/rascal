@@ -15,15 +15,15 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Correlations {
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	private TypeFactory types;
 	
-	public Correlations(IValueFactory values){
+	public Correlations(IRascalValueFactory values){
 		super();
 		this.types = TypeFactory.getInstance();
 		this.values = values;

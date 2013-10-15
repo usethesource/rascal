@@ -1,12 +1,12 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Examples;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class CountDown_b {
@@ -14,7 +14,7 @@ public class CountDown_b {
 	public static void main(String[] args) {
 		
 		RVM rvm = new RVM(ValueFactoryFactory.getValueFactory());
-		IValueFactory vf = rvm.vf;
+		IRascalValueFactory vf = rvm.vf;
 		TypeFactory tf = TypeFactory.getInstance();
 		/*
 		 * g (n) 

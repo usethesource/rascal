@@ -15,10 +15,10 @@ package org.rascalmpl.interpreter;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BoxADT {
@@ -32,7 +32,7 @@ public class BoxADT {
 		return box;
 	}
 
-	static private IValueFactory vf;
+	static private IRascalValueFactory vf;
 	static {
 		tf = TypeFactory.getInstance();
 		vf = ValueFactoryFactory.getValueFactory();
@@ -146,7 +146,7 @@ public class BoxADT {
 		return ts;
 	}
 
-	static IValueFactory getValueFactory() {
+	static IRascalValueFactory getValueFactory() {
 		return vf;
 	}
 

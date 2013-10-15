@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -48,6 +47,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Rascalify {
@@ -61,7 +61,7 @@ public class Rascalify {
 		_labels = new ArrayList<LabelNode>();
 	}
 	
-	public Rascalify(IValueFactory values) {
+	public Rascalify(IRascalValueFactory values) {
 		super();
 	}
 

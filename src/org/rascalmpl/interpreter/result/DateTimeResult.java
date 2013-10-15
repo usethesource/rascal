@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -33,6 +32,7 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.ibm.icu.util.Calendar;
@@ -40,7 +40,7 @@ import com.ibm.icu.util.Calendar;
 public class DateTimeResult extends ElementResult<IDateTime> {
 
 	private static TypeFactory TF = TypeFactory.getInstance();
-	private static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private static IRascalValueFactory VF = ValueFactoryFactory.getValueFactory();
 	public static final TypeStore TS = new TypeStore();
 	public static final Type Duration = TF.abstractDataType(TS, "Duration");
 	public static final Type duration = TF.constructor(TS, Duration, "duration", 
@@ -81,7 +81,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
-		IValueFactory vf = getValueFactory();
+		IRascalValueFactory vf = getValueFactory();
 		IDateTime dt = getValue();
 
 		try {

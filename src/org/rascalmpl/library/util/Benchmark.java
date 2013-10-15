@@ -13,13 +13,13 @@
 package org.rascalmpl.library.util;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Benchmark {
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	
-	public Benchmark(IValueFactory values){
+	public Benchmark(IRascalValueFactory values){
 		super();
 		
 		this.values = values;

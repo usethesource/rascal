@@ -77,8 +77,12 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.primitive.Chunk;
+import org.eclipse.imp.pdb.facts.impl.primitive.Concat;
+import org.eclipse.imp.pdb.facts.impl.primitive.IOrgStringVisitor;
+import org.eclipse.imp.pdb.facts.impl.primitive.NoOrg;
+import org.eclipse.imp.pdb.facts.impl.primitive.OrgString;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
@@ -104,6 +108,7 @@ import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -117,10 +122,10 @@ import com.ibm.icu.util.ULocale;
 
 public class Prelude {
 	private final TypeFactory types ;
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	private final Random random;
 	
-	public Prelude(IValueFactory values){
+	public Prelude(IRascalValueFactory values){
 		super();
 		
 		this.values = values;
@@ -3272,6 +3277,32 @@ public class Prelude {
 
 	public IList getTraversalContext(IEvaluatorContext ctx) {
 		return ctx.getEvaluator().__getCurrentTraversalEvaluator().getContext();
+	}
+	
+	public IList origins(IString x) {
+		if (x instanceof OrgString) {
+			OrgString os = (OrgString)x;
+			final IListWriter w = values.listWriter();
+			os.accept(new IOrgStringVisitor() {
+				@Override
+				public void visit(Concat concat) {
+					concat.getLhs().accept(this);
+					concat.getRhs().accept(this);
+				}
+				
+				@Override
+				public void visit(Chunk chunk) {
+					w.append(chunk.getOrigin());
+				}
+
+				@Override
+				public void visit(NoOrg noOrg) {
+					// nop
+				}
+			});
+			return w.done();
+		}
+		return values.list();
 	}
 }
 

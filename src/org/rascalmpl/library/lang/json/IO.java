@@ -22,7 +22,6 @@ import java.io.Reader;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -30,11 +29,12 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.util.JSonReader;
 import org.rascalmpl.library.util.JSonWriter;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class IO {
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 
-	public IO(IValueFactory values) {
+	public IO(IRascalValueFactory values) {
 		super();
 
 		this.values = values;

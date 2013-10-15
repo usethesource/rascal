@@ -29,7 +29,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.FigureFactory;
@@ -38,6 +37,7 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 /**
 
@@ -865,7 +865,7 @@ public class LayeredGraph extends Figure {
 			String vname =  fromName + "_" + to.name + "[" + (from.layer + delta) + "]";
 			if(debug)System.err.println("Creating virtual node " + vname + " between " + fromName + " and " + to.name);
 			LayeredGraphNode virtual = new LayeredGraphNode(this, vname, hgap/2, vgap);
-			IValueFactory vf = ValueFactoryFactory.getValueFactory();
+			IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 			IString vfVname = vf.string(vname);
 			nodes.add(virtual);
 			

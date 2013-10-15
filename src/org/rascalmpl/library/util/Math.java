@@ -20,14 +20,14 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Math {
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	private final Random random;
 	
-	public Math(IValueFactory values){
+	public Math(IRascalValueFactory values){
 		super();
 		
 		this.values = values;

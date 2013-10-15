@@ -12,13 +12,13 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Frequencies {
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	
-	public Frequencies(IValueFactory values){
+	public Frequencies(IRascalValueFactory values){
 		super();
 		this.values = values;
 	}

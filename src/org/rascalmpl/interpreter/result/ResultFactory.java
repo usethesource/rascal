@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -40,6 +39,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 public class ResultFactory {
@@ -61,7 +61,7 @@ public class ResultFactory {
 	
 
 	public static Result<IBool> bool(boolean b, IEvaluatorContext ctx) {
-		IValueFactory vf = ctx.getValueFactory();
+		IRascalValueFactory vf = ctx.getValueFactory();
 		IBool result = vf.bool(b);
 		return new BoolResult(result.getType(), result, ctx);
 	}

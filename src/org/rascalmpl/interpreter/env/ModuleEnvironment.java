@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -49,6 +48,7 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -231,7 +231,7 @@ public class ModuleEnvironment extends Environment {
 		Set<String> done = new HashSet<String>();
 		todo.add(getName());
 		
-		IValueFactory VF = ValueFactoryFactory.getValueFactory();
+		IRascalValueFactory VF = ValueFactoryFactory.getValueFactory();
 		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) VF.constructor(Factory.Symbol_Sort, VF.string("SyntaxDefinition")));
 		IMapWriter result = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(TF.stringType()), TF.setType(DefSort)));
 		

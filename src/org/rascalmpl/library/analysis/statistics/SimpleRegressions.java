@@ -13,14 +13,14 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class SimpleRegressions {
 	
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	
-	public SimpleRegressions(IValueFactory values){
+	public SimpleRegressions(IRascalValueFactory values){
 		super();
 		this.values = values;
 	}

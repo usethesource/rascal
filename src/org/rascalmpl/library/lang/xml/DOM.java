@@ -23,7 +23,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.jdom.Attribute;
 import org.jdom.CDATA;
 import org.jdom.Comment;
@@ -38,12 +37,13 @@ import org.jdom.Text;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.xml.Factory;
 
 public class DOM {
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 	
-	public DOM(IValueFactory vf) {
+	public DOM(IRascalValueFactory vf) {
 		this.vf = vf;
 	}
 	

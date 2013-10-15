@@ -23,17 +23,17 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class IO{
 	private static final TypeFactory types = TypeFactory.getInstance();
 	
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	
-	public IO(IValueFactory values){
+	public IO(IRascalValueFactory values){
 		super();
 		
 		this.values = values;

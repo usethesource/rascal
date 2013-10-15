@@ -39,22 +39,22 @@ import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.yaml.snakeyaml.Yaml;
 
 public class RascalYAML {
 	private static final String ANCHOR_ANNO = "anchor";
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	private final TypeReifier reifier;
 	
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	
-	public RascalYAML(IValueFactory values) {
+	public RascalYAML(IRascalValueFactory values) {
 		super();
 		this.values = values;
 		this.reifier = new TypeReifier(values);

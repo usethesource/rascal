@@ -30,17 +30,17 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.values.IRascalValueFactory;
 
 
 public class RVM {
 
-	public final IValueFactory vf;
+	public final IRascalValueFactory vf;
 	private final Boolean TRUE;
 	private final Boolean FALSE;
 	private final IBool Rascal_TRUE;
@@ -75,7 +75,7 @@ public class RVM {
 	IEvaluatorContext ctx;
 
 
-	public RVM(IValueFactory vf, IEvaluatorContext ctx, boolean debug) {
+	public RVM(IRascalValueFactory vf, IEvaluatorContext ctx, boolean debug) {
 		super();
 
 		this.vf = vf;
@@ -107,7 +107,7 @@ public class RVM {
 		RascalPrimitive.init(vf, this);
 	}
 	
-	public RVM(IValueFactory vf){
+	public RVM(IRascalValueFactory vf){
 		this(vf, null, false);
 	}
 	
@@ -1171,7 +1171,7 @@ public class RVM {
 		try {
 			clazz = this.getClass().getClassLoader().loadClass(className);
 			Constructor<?> cons;
-			cons = clazz.getConstructor(IValueFactory.class);
+			cons = clazz.getConstructor(IRascalValueFactory.class);
 			Object instance = cons.newInstance(vf);
 
 			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes));

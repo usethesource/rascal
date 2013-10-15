@@ -73,15 +73,15 @@ import static org.rascalmpl.library.vis.KeySym.KeySym_keyUnknown;
 
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class KeySymTranslate {
-  private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+  private static final IRascalValueFactory VF = ValueFactoryFactory.getValueFactory();
 	static final Type[] empty = {};
 	static final Type[] modifiers = {KeyModifier_modCtrl,KeyModifier_modCommand,KeyModifier_modAlt,KeyModifier_modShift};
 	static final int[] modifiersSWT = {SWT.CTRL, SWT.COMMAND, SWT.ALT, SWT.SHIFT };
@@ -96,7 +96,7 @@ public class KeySymTranslate {
 	}
 	
 	public static IValue toRascalKey(KeyEvent e,IEvaluatorContext ctx){
-		IValueFactory vf = VF;
+		IRascalValueFactory vf = VF;
 		if(e.keyCode >= ' ' && e.keyCode < '~'){
 			String keySym = "" + (char)e.keyCode;
 			return vf.constructor(KeySym_keyPrintable, vf.string(keySym));
