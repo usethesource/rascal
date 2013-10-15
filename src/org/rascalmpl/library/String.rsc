@@ -567,4 +567,4 @@ toLocation("document.xml");
 public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>| : |cwd:///<s>|;
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[loc] origins(str s);
+public java lrel[loc, str] origins(str s);
