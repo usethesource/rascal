@@ -3303,7 +3303,7 @@ public class Prelude {
 				
 				@Override
 				public void visit(Chunk chunk) {
-					w.append(chunk.getOrigin());
+					w.append(values.tuple(chunk.getOrigin(), chunk));
 				}
 
 				@Override
