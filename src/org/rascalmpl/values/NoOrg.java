@@ -1,15 +1,14 @@
-package org.eclipse.imp.pdb.facts.impl.primitive;
-
-import java.util.Iterator;
+package org.rascalmpl.values;
 
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 
 public class NoOrg extends Atom {
+	private static final OriginValueFactory vf = (OriginValueFactory) ValueFactoryFactory.getValueFactory();
+	
 	private final IString value;
 	
 	public NoOrg(String s) {
-		value = StringValue.newString(s);
+		value = vf.baseString(s);
 	}
 	
 	private NoOrg(IString v) {

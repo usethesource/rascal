@@ -2,8 +2,6 @@ package org.rascalmpl.values;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.impl.primitive.Chunk;
-import org.eclipse.imp.pdb.facts.impl.primitive.NoOrg;
 
 public class OriginValueFactory extends RascalValueFactory {
 
@@ -43,6 +41,10 @@ public class OriginValueFactory extends RascalValueFactory {
 	@Override
 	public IString string(int[] chars) {
 		return new NoOrg(super.string(chars).getValue());
+	}
+	
+	/*package*/ IString baseString(String str) {
+		return super.string(str);
 	}
 
 }

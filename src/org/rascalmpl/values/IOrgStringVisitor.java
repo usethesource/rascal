@@ -1,4 +1,4 @@
-package org.eclipse.imp.pdb.facts.impl.primitive;
+package org.rascalmpl.values;
 
 public interface IOrgStringVisitor {
 	void visit(Chunk chunk);

@@ -1,21 +1,18 @@
-package org.eclipse.imp.pdb.facts.impl.primitive;
+package org.rascalmpl.values;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.values.IRascalValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class Chunk extends Atom {
-	private static final IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
+	private static final OriginValueFactory vf = (OriginValueFactory) ValueFactoryFactory.getValueFactory();
 	
 	private final IString value;
 	private final ISourceLocation origin;
 
 	public Chunk(ISourceLocation origin, String value) {
-		this(origin, StringValue.newString(value));
+		this(origin, vf.baseString(value));
 	}
 
 	private Chunk(ISourceLocation origin, IString str) {
