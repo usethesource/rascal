@@ -15,7 +15,7 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 	public Type getType() {
 		return STRING_TYPE;
 	}
-
+	
 	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitString(this);
@@ -44,5 +44,17 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 
 	
 	public abstract void accept(IOrgStringVisitor visitor);
+
+	public IString replaceAll(String sub, IString string) {
+		int ind = indexOf(sub);
+		if (ind != -1) {
+			IString l = substring(0, ind);
+			IString r = substring(ind + sub.length(), length());
+			return l.concat(string.concat(((OrgString) r).replaceAll(sub, string)));
+		}
+		return this;
+	}
+	
+	public abstract int indexOf(String str);
 
 }

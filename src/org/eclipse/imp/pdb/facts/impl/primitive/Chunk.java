@@ -112,6 +112,11 @@ public class Chunk extends Atom {
 		visitor.visit(this);
 	}
 
+	@Override
+	public int indexOf(String str) {
+		return getValue().indexOf(str);
+	}
+
 
 }
 
