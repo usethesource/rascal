@@ -2,7 +2,6 @@ package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.Nonterminal;
 import org.rascalmpl.ast.Prod;
 import org.rascalmpl.ast.Start;
@@ -10,6 +9,7 @@ import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Visibility;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 /**
@@ -40,7 +40,7 @@ public abstract class SyntaxDefinition extends
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			Sym type = getDefined();
-			IValueFactory vf = eval.getValueFactory();
+			IRascalValueFactory vf = eval.getValueFactory();
 			
 			if (type.isNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
@@ -68,7 +68,7 @@ public abstract class SyntaxDefinition extends
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 		  Sym type = getDefined();
-      IValueFactory vf = eval.getValueFactory();
+		  IRascalValueFactory vf = eval.getValueFactory();
       
       if (type.isNonterminal()) {
         String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
@@ -97,7 +97,7 @@ public abstract class SyntaxDefinition extends
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 		  Sym type = getDefined();
-      IValueFactory vf = eval.getValueFactory();
+		  IRascalValueFactory vf = eval.getValueFactory();
       
       if (type.isNonterminal()) {
         String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
@@ -125,7 +125,7 @@ public abstract class SyntaxDefinition extends
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			Sym type = getDefined();
-			IValueFactory vf = eval.getValueFactory();
+			IRascalValueFactory vf = eval.getValueFactory();
 			
 			if (type.isNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();

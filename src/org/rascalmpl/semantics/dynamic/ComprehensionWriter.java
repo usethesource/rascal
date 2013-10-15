@@ -1,7 +1,6 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
@@ -11,6 +10,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public abstract class ComprehensionWriter {
 	protected org.eclipse.imp.pdb.facts.type.Type elementType1;
@@ -20,7 +20,7 @@ public abstract class ComprehensionWriter {
 	protected IWriter writer;
 	protected final org.rascalmpl.interpreter.IEvaluator<Result<IValue>> ev;
 	protected final TypeFactory TF;
-	protected final IValueFactory VF;
+	protected final IRascalValueFactory VF;
 
 	ComprehensionWriter(java.util.List<Expression> resultExprs,
 			IEvaluator<Result<IValue>> ev) {

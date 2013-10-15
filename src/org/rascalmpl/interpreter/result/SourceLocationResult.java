@@ -34,7 +34,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -45,6 +44,7 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	private final Type intTuple;
@@ -122,7 +122,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
-		IValueFactory vf = getValueFactory();
+		IRascalValueFactory vf = getValueFactory();
 		URI uri = getValue().getURI();
 		if (name.equals("scheme")) {
 			return makeResult(getTypeFactory().stringType(), vf.string(uri.getScheme()), ctx);

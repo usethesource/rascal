@@ -24,20 +24,20 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class RSFIO {
 	private static final TypeFactory types = TypeFactory.getInstance();
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	private TypeReifier tr;
 	
-	public RSFIO(IValueFactory values){
+	public RSFIO(IRascalValueFactory values){
 		super();
 		
 		this.values = values;

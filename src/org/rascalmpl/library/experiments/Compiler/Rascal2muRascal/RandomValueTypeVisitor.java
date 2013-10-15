@@ -32,7 +32,6 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -44,20 +43,21 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.cobra.RandomType;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeException> {
 
 	private static final Random stRandom = new Random();
 
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	//private final ModuleEnvironment rootEnv;
 	TypeStore definitions;
 	private final int maxDepth;
 	private final Map<Type, Type> typeParameters;
 
-	public RandomValueTypeVisitor(IValueFactory vf, int maxDepth, Map<Type, Type> typeParameters, TypeStore definitions) {
+	public RandomValueTypeVisitor(IRascalValueFactory vf, int maxDepth, Map<Type, Type> typeParameters, TypeStore definitions) {
 		this.vf = vf;
 		//this.rootEnv = rootEnv;
 		this.maxDepth = maxDepth;

@@ -14,15 +14,15 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Execute {
 
-	private IValueFactory vf;
+	private IRascalValueFactory vf;
 
-	public Execute(IValueFactory vf) {
+	public Execute(IRascalValueFactory vf) {
 		this.vf = vf;
 	}
 	

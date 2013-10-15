@@ -20,18 +20,18 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class IOTests extends TestCase {
 	private static TypeFactory tf = TypeFactory.getInstance();
 	private static TypeStore ts = new TypeStore();
-	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	private static IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private static Type Boolean = tf.abstractDataType(ts, "Boolean");
 	
 	private static Type Name = tf.abstractDataType(ts, "Name");

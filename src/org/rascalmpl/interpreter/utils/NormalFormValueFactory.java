@@ -4,13 +4,13 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
+import org.rascalmpl.values.IRascalValueFactory;
 
 /**
  * Using this ValueFactory, constructor functions will be called in the current scope instead
@@ -20,7 +20,7 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
 public final class NormalFormValueFactory extends AbstractValueFactoryAdapter {
   private final IEvaluatorContext ctx;
 
-  public NormalFormValueFactory(IValueFactory factory, IEvaluatorContext ctx) {
+  public NormalFormValueFactory(IRascalValueFactory factory, IEvaluatorContext ctx) {
     super(factory);
     this.ctx = ctx;
   }

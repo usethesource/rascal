@@ -17,7 +17,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -41,6 +40,7 @@ import org.rascalmpl.library.util.Eval;
 import org.rascalmpl.library.util.Eval.EvalTimer;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class HTMLGenerator {
 	private final TypeReifier tr;
@@ -50,7 +50,7 @@ public class HTMLGenerator {
 	private final Type ShellException = tf.abstractDataType(ts, "ShellException");
 	private final Type ShellError = tf.constructor(ts, ShellException, "error", tf.stringType(), "message");
 	private final Type ShellParseError = tf.constructor(ts, ShellException, "parseError", tf.stringType(), "message", tf.sourceLocationType(), "location");
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	private final Eval eval;
 	private Evaluator evaluator;
 	private StringWriter errString;
@@ -60,7 +60,7 @@ public class HTMLGenerator {
 	private Environment old = null;
 	private ModuleEnvironment env = null;
 
-	public HTMLGenerator(IValueFactory vf) {
+	public HTMLGenerator(IRascalValueFactory vf) {
 		this.values = vf;
 		this.tr = new TypeReifier(values);
 		this.eval = new org.rascalmpl.library.util.Eval(values); 

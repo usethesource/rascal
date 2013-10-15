@@ -36,7 +36,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -49,6 +48,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /*
@@ -624,7 +624,7 @@ public enum RascalPrimitive {
 		return values[prim];
 	}
 
-	private static IValueFactory vf;
+	private static IRascalValueFactory vf;
 	private static TypeFactory tf;
 	static Method [] methods;
 	private static Type lineColumnType;
@@ -637,7 +637,7 @@ public enum RascalPrimitive {
 	 * @param fact value factory to be used
 	 * @param stdout 
 	 */
-	public static void init(IValueFactory fact, RVM usedRVM) {
+	public static void init(IRascalValueFactory fact, RVM usedRVM) {
 		vf = fact;
 		if(usedRVM != null){
 			stdout = usedRVM.stdout;

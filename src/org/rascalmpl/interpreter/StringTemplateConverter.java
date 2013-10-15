@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.DataTarget;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.MidStringChars.Lexical;
@@ -46,6 +45,8 @@ import org.rascalmpl.ast.StringTemplate.While;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.OriginValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -106,7 +107,7 @@ public class StringTemplateConverter {
 				
 				// TODO refactor this: pull up to Append
 				Result<IValue> result = this.getStatement().interpret(__eval);
-				IValueFactory vf = ValueFactoryFactory.getValueFactory();
+				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 				IValue v = result.getValue();
 				if (!(v instanceof IString)) {
 					// Ensure that values that are trees are yielding the appropriate string value
@@ -157,7 +158,10 @@ public class StringTemplateConverter {
 			}
 			
 			private IString makeValue(String arg) {
-				IValueFactory vf = ValueFactoryFactory.getValueFactory();
+				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
+				if (vf instanceof OriginValueFactory) {
+					return ((OriginValueFactory)vf).string(src, arg);
+				}
 				return vf.string(arg);
 			}
 			

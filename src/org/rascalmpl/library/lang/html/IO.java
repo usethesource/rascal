@@ -27,14 +27,14 @@ import javax.swing.text.html.parser.ParserDelegator;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class IO {
-	private final IValueFactory factory;
+	private final IRascalValueFactory factory;
 
-	public IO(IValueFactory factory) {
+	public IO(IRascalValueFactory factory) {
 		this.factory = factory;
 	}
 	

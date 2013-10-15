@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -40,6 +39,7 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -51,10 +51,10 @@ data type[&T] = type(Symbol symbol, map[Symbol, Production] definitions);
 </pre>
  */
 public class TypeReifier {
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 	private final TypeFactory tf;
 	
-	public TypeReifier(IValueFactory valueFactory) {
+	public TypeReifier(IRascalValueFactory valueFactory) {
 		this.vf = valueFactory;
 		this.tf = TypeFactory.getInstance();
 	}

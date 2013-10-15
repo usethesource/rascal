@@ -19,9 +19,9 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public enum MuPrimitive {
@@ -109,7 +109,7 @@ public enum MuPrimitive {
 	typeOf_constructor
 	;
 	
-	private static IValueFactory vf;
+	private static IRascalValueFactory vf;
 	static Method [] methods;
 	
 	private static MuPrimitive[] values = MuPrimitive.values();
@@ -123,7 +123,7 @@ public enum MuPrimitive {
 	 * @param fact value factory to be used
 	 * @param stdout 
 	 */
-	public static void init(IValueFactory fact) {
+	public static void init(IRascalValueFactory fact) {
 		vf = fact;
 	
 		Method [] methods1 = MuPrimitive.class.getDeclaredMethods();

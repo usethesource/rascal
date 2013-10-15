@@ -23,8 +23,8 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class ShellExec {
 	
@@ -33,9 +33,9 @@ public class ShellExec {
 	private static HashMap<IInteger, OutputStreamWriter> processOutputStreams = new HashMap<IInteger, OutputStreamWriter>();
 	private static IInteger processCounter = null;
 	
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 
-	public ShellExec(IValueFactory vf) {
+	public ShellExec(IRascalValueFactory vf) {
 		this.vf = vf;
 	}
 

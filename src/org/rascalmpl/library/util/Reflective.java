@@ -23,7 +23,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -34,14 +33,15 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Reflective {
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	private Evaluator cachedEvaluator;
 	private int robin = 0;
 	private static final int maxCacheRounds = 500;
 
-	public Reflective(IValueFactory values){
+	public Reflective(IRascalValueFactory values){
 		super();
 		this.values = values;
 	}

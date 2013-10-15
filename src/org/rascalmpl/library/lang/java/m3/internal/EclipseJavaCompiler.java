@@ -27,7 +27,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -37,13 +36,14 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class EclipseJavaCompiler {
-  protected final IValueFactory VF;
+  protected final IRascalValueFactory VF;
   private List<String> classPathEntries;
   private List<String> sourcePathEntries;
 
-  public EclipseJavaCompiler(IValueFactory vf) {
+  public EclipseJavaCompiler(IRascalValueFactory vf) {
     this.VF = vf;
     this.classPathEntries = new ArrayList<String>();
     this.sourcePathEntries = new ArrayList<String>();

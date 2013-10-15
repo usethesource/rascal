@@ -16,11 +16,11 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedConstructorTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Factory {
 	private static TypeFactory tf = TypeFactory.getInstance();
@@ -57,7 +57,7 @@ public class Factory {
 		super();
 	}
 
-	public ISourceLocation toSourceLocation(IValueFactory factory,
+	public ISourceLocation toSourceLocation(IRascalValueFactory factory,
 			IConstructor loc) {
 		Type type = loc.getConstructorType();
 

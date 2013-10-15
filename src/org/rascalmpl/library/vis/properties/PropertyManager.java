@@ -18,13 +18,13 @@ import java.util.HashMap;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.Dimension;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -36,7 +36,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 @SuppressWarnings("rawtypes")
 public class PropertyManager {
 
-	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	static IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 	static IList emptyList = vf.list();
 	
 	HashMap<Properties, PropertyValue> explicitValues, stdValues;

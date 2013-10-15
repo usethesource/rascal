@@ -16,18 +16,18 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Factory {
 	private static TypeStore errors = new TypeStore(org.rascalmpl.values.locations.Factory.getStore());
 	private static TypeFactory tf = TypeFactory.getInstance();
-	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	private static IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 
 	public static final Type Summary = tf.abstractDataType(errors, "Summary");
 	public static final Type Error = tf.abstractDataType(errors, "Error");

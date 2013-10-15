@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -37,12 +36,13 @@ import org.rascalmpl.tasks.ITaskRegistry;
 import org.rascalmpl.tasks.ITransaction;
 import org.rascalmpl.tasks.PDBValueTaskRegistry;
 import org.rascalmpl.tasks.Transaction;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Manager {
 	private Transaction base = null;
 	private final ITaskRegistry<Type, IValue, IValue> registry;
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 	private final TypeReifier typeReifier;
 	private final Map<IValueWrapper,ProducerWrapper> producers = new HashMap<IValueWrapper,ProducerWrapper>();
 	
@@ -50,7 +50,7 @@ public class Manager {
 		this(ValueFactoryFactory.getValueFactory());
 	}
 	
-	public Manager(IValueFactory vf) {
+	public Manager(IRascalValueFactory vf) {
 		this.vf = vf;
 		this.typeReifier = new TypeReifier(vf);
 		this.registry = PDBValueTaskRegistry.getRegistry();

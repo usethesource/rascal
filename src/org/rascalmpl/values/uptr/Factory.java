@@ -13,11 +13,11 @@
 package org.rascalmpl.values.uptr;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -152,7 +152,7 @@ public class Factory {
 	public static final String Location = "loc";
 	public static final String Length = "len";
 
-	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	private static final IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 	public static final IValue Attribute_Assoc_Left = vf.constructor(Attr_Assoc, vf.constructor(Associativity_Left));
 	public static final IValue Attribute_Assoc_Right = vf.constructor(Attr_Assoc, vf.constructor(Associativity_Right));
 	public static final IValue Attribute_Assoc_Non_Assoc = vf.constructor(Attr_Assoc, vf.constructor(Associativity_NonAssoc));

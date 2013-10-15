@@ -7,12 +7,12 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class GraphBuilder {
-	private static final IValueFactory vf = ValueFactoryFactory
+	private static final IRascalValueFactory vf = ValueFactoryFactory
 			.getValueFactory();
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	private final IdentityHashMap<Object, IValue> ids = new IdentityHashMap<Object, IValue>();

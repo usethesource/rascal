@@ -15,21 +15,21 @@ package org.rascalmpl.interpreter;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Accumulator {
 
 	private String label = null;
 	private IListWriter writer = null;
-	private IValueFactory factory;
+	private IRascalValueFactory factory;
 	
-	public Accumulator(IValueFactory factory, String label) {
+	public Accumulator(IRascalValueFactory factory, String label) {
 		this.factory = factory;
 		this.label = label;
 	}
 	
-	public Accumulator(IValueFactory factory) {
+	public Accumulator(IRascalValueFactory factory) {
 		this(factory, null);
 	}
 	

@@ -11,12 +11,12 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Descriptive {
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	
-	public Descriptive(IValueFactory values){
+	public Descriptive(IRascalValueFactory values){
 		super();
 		this.values = values;
 	}

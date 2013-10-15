@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -30,6 +29,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class JavaToRascal {
@@ -38,7 +38,7 @@ public class JavaToRascal {
 
 	final private Evaluator evaluator;
 
-	protected final static IValueFactory vf = ValueFactoryFactory
+	protected final static IRascalValueFactory vf = ValueFactoryFactory
 			.getValueFactory();
 
 	protected static final TypeFactory TF = TypeFactory.getInstance();

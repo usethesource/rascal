@@ -22,7 +22,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -44,7 +44,7 @@ public class DebugUpdater {
 		
 	private static class PushDownTreeVisitor<E extends Throwable> extends TreeVisitor<E> {
 		
-		final static private IValueFactory VF = ValueFactoryFactory.getValueFactory();
+		final static private IRascalValueFactory VF = ValueFactoryFactory.getValueFactory();
 		
 		final private boolean addBreakable;
 		

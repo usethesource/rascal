@@ -26,17 +26,17 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.library.util.Maybe;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class LinearProgramming {
 	
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 
-	public LinearProgramming(IValueFactory values) {
+	public LinearProgramming(IRascalValueFactory values) {
 		super();
 		this.values = values;
 	}
@@ -123,7 +123,7 @@ public class LinearProgramming {
 		return elems;
 	}
 
-	private static IList convertToRealList(double[] l, IValueFactory vf) {
+	private static IList convertToRealList(double[] l, IRascalValueFactory vf) {
 		TypeFactory tf = TypeFactory.getInstance();
 		IListWriter writer = vf.listWriter(tf.realType());
 		for (int i = 0; i < l.length; i++) {
@@ -166,7 +166,7 @@ public class LinearProgramming {
 		LinearObjectiveFunction fJ = convertLinObjFun(f);
 		GoalType goal = minimize.getValue() ? 
 						GoalType.MINIMIZE : GoalType.MAXIMIZE;
-		IValueFactory vf = values;
+		IRascalValueFactory vf = values;
 		boolean nonNegativeJ =  nonNegative.getValue();
 		try {
 			RealPointValuePair res = 

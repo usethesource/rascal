@@ -24,10 +24,10 @@ import java.util.Vector;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 class Count {
@@ -124,7 +124,7 @@ public class Profiler extends Thread {
 	public IList getProfileData(){
 		TypeFactory TF = TypeFactory.getInstance();
 		Type elemType = TF.tupleType(TF.sourceLocationType(), TF.integerType());
-		IValueFactory VF = ValueFactoryFactory.getValueFactory();
+		IRascalValueFactory VF = ValueFactoryFactory.getValueFactory();
 		IListWriter w = VF.listWriter(elemType);
 		for(Map.Entry<ISourceLocation, Count> e : sortData()){
 			w.insert(VF.tuple(e.getKey(), VF.integer(e.getValue().getTicks())));

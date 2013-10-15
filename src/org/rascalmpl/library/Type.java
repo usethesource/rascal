@@ -14,14 +14,14 @@ package org.rascalmpl.library;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Type {
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 
-	public Type(IValueFactory vf) {
+	public Type(IRascalValueFactory vf) {
 		this.vf = vf;
 		
 	}

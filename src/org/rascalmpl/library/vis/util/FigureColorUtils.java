@@ -19,20 +19,20 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.graphics.RGB;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class FigureColorUtils {
 
 	public static final int OPAQUE = 255;
 	
-	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	static IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-	public FigureColorUtils(IValueFactory factory) {
+	public FigureColorUtils(IRascalValueFactory factory) {
 		// TODO: this code is weird; should vf be non-static, perhaps?
 		vf = factory;
 	}

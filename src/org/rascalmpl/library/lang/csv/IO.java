@@ -17,7 +17,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -25,18 +24,19 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class IO {
 	private static final TypeFactory types = TypeFactory.getInstance();
 	
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	private int separator;  	// The separator to be used between fields
 	private boolean header;		// Does the file start with a line defining field names?
 
 	private TypeReifier tr;
 	
-	public IO(IValueFactory values){
+	public IO(IRascalValueFactory values){
 		super();
 		
 		this.values = values;
@@ -459,7 +459,7 @@ class FieldReader {
  */
 class Record implements Iterable<String> {
 	private static final TypeFactory types = TypeFactory.getInstance();
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
+	private static final IRascalValueFactory values = ValueFactoryFactory.getValueFactory();
 	ArrayList<IValue> rfields = new ArrayList<IValue>();
 	ArrayList<Type> fieldTypes = new ArrayList<Type>();
 	

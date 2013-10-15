@@ -20,7 +20,6 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -29,6 +28,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class QuickCheck {
 	
@@ -45,7 +45,7 @@ public class QuickCheck {
 	}
 
 	public IValue arbitrary(Type type, int depthLimit, Environment env,
-			IValueFactory vf, Map<Type, Type> typeParameters) {
+			IRascalValueFactory vf, Map<Type, Type> typeParameters) {
 
 		RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(vf,
 				(ModuleEnvironment) env, depthLimit, generators, typeParameters);
@@ -76,7 +76,7 @@ public class QuickCheck {
 			int tries, boolean verbose, PrintWriter out) {
 
 		Environment declEnv = function.getEnv();
-		IValueFactory vf = function.getEval().getValueFactory();
+		IRascalValueFactory vf = function.getEval().getValueFactory();
 		Type formals = function.getFormals();
 		String expected = null;
 		

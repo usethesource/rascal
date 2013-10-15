@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
@@ -33,11 +32,12 @@ import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class StaticChecker {
 	private final Evaluator eval;
-	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private final static IRascalValueFactory VF = ValueFactoryFactory.getValueFactory();
 	public static final String TYPECHECKER = "typecheckTree";
 	private boolean checkerEnabled; 
 	private boolean initialized;

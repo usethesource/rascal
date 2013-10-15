@@ -39,13 +39,13 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class JDBC {
@@ -103,11 +103,11 @@ public class JDBC {
 	public static final Type nullableT = TF.parameterType("T");
 	public static final Type Nullable = TF.abstractDataType(TS, "Nullable", nullableT);
 
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 	private int connectionCounter = 0;
 	private HashMap<IInteger,Connection> connectionMap;
 
-	public JDBC(IValueFactory vf) {
+	public JDBC(IRascalValueFactory vf) {
 		this.vf = vf;
 		this.connectionMap = new HashMap<IInteger,Connection>();
 	}
@@ -504,7 +504,7 @@ public class JDBC {
 		return res;
 	}
 	
-	public static IValue jdbc2pdbValue(ResultSet rs, int idx, IValueFactory vf) {
+	public static IValue jdbc2pdbValue(ResultSet rs, int idx, IRascalValueFactory vf) {
 		IValue res = null;
 		
 		try {

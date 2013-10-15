@@ -19,7 +19,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -53,12 +52,13 @@ import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BindingsResolver {
 	private String project;
 	private TypeStore store;
-	private final IValueFactory values = ValueFactoryFactory.getValueFactory();
+	private final IRascalValueFactory values = ValueFactoryFactory.getValueFactory();
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final boolean collectBindings;
 	

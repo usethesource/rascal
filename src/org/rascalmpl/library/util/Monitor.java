@@ -15,13 +15,13 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Monitor {
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 
-	public Monitor(IValueFactory vf) {
+	public Monitor(IRascalValueFactory vf) {
 		this.vf = vf;
 	}
 

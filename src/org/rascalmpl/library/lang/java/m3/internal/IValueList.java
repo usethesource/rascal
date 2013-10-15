@@ -14,14 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class IValueList {
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	
 	private List<IValue> valueList;
 	
-	public IValueList(final IValueFactory values) {
+	public IValueList(final IRascalValueFactory values) {
 		this.values = values;
 		
 		valueList = new ArrayList<IValue>();

@@ -9,7 +9,6 @@ package org.rascalmpl.library.vis.swt;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
@@ -19,14 +18,15 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.library.vis.graphics.FontStyle;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SWTFontsAndColors {
 	
-	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	static IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private static TypeFactory tf = TypeFactory.getInstance();
 
-	public SWTFontsAndColors(IValueFactory factory) {
+	public SWTFontsAndColors(IRascalValueFactory factory) {
 		vf = factory;
 	}
 	
