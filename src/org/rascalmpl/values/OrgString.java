@@ -61,6 +61,9 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 	
 	@Override
 	public boolean isEqual(IValue other) {
+		if (this == other) {
+			return true;
+		}
 		if (!(other instanceof IString)) {
 			return false;
 		}
@@ -76,6 +79,23 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 			}
 		}
 		return true;
+	}
+
+	public IString slice(int first, int second, int end) {
+		int inc = second - first;
+		if (inc == 1) {
+			return substring(first, end);
+		}
+		IString result = null;
+		for (int i = first; i < end; i += inc) {
+			if (result == null) {
+				result = substring(i, i + 1);
+			}
+			else {
+				result = result.concat(substring(i, i + 1));
+			}
+		}
+		return result;
 	}
 
 }

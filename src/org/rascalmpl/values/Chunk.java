@@ -45,8 +45,6 @@ public class Chunk extends Atom {
 
 	@Override
 	public IString substring(int start, int end) {
-		// make new loc offset += start
-		// length -= (length - end);
 		ISourceLocation loc = getOrigin();
 		int offset = loc.getOffset() + start;
 		int length = end - start;
@@ -56,20 +54,23 @@ public class Chunk extends Atom {
 			int c = charAt(i);
 			if (isLineBreak(c)) {
 				beginLine++;
+				beginColumn = 0;
 			}
 			else {
 				beginColumn++;
 			}
 		}
-		int endLine = loc.getEndLine();
-		int endColumn = loc.getEndColumn();
-		for (int i = length() - 1; i > end; i--) {
+		// This is not right yet....
+		int endLine = beginLine;
+		int endColumn = beginColumn;
+		for (int i = start; i < end; i++) {
 			int c = charAt(i);
 			if (isLineBreak(c)) {
-				endLine--;
+				endLine++;
+				endColumn = 0;
 			}
 			else {
-				endColumn--;
+				endColumn++;
 			}
 		}
 		return new Chunk(

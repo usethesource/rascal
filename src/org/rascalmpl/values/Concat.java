@@ -3,7 +3,6 @@ package org.rascalmpl.values;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public class Concat extends OrgString {
@@ -52,7 +51,7 @@ public class Concat extends OrgString {
 		if (index < lhs.length()) {
 			return lhs.charAt(index);
 		}
-		return rhs.charAt(index);
+		return rhs.charAt(index - lhs.length());
 	}
 
 	@Override
