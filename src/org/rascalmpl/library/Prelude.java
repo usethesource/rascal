@@ -3015,7 +3015,10 @@ public class Prelude {
 		return true;
 	}
 	
-	public IValue replaceAll(IString str, IString find, IString replacement){
+	public IValue replaceAll(IString str, IString find, IString replacement) {
+		if (str instanceof OrgString) {
+			return ((OrgString)str).replaceAll(find.getValue(), replacement);
+		}
 		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
 		char [] input = str.getValue().toCharArray();
 		char [] findChars = find.getValue().toCharArray();

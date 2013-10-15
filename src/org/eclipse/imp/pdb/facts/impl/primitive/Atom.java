@@ -17,7 +17,7 @@ public abstract class Atom extends OrgString {
 
 			@Override
 			public Integer next() {
-				return charAt(cursor);
+				return charAt(cursor++);
 			}
 
 			@Override

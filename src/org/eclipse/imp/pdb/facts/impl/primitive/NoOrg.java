@@ -1,5 +1,7 @@
 package org.eclipse.imp.pdb.facts.impl.primitive;
 
+import java.util.Iterator;
+
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 
@@ -47,11 +49,6 @@ public class NoOrg extends Atom {
 	@Override
 	public IString replace(int first, int second, int end, IString repl) {
 		return new NoOrg(value.replace(first, second, end, repl));
-	}
-
-	@Override
-	public boolean isEqual(IValue other) {
-		return value.isEqual(other);
 	}
 
 	@Override

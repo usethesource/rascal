@@ -97,12 +97,6 @@ public class Chunk extends Atom {
 	}
 
 	@Override
-	public boolean isEqual(IValue other) {
-		return value.isEqual(other);
-	}
-
-
-	@Override
 	public int compare(IString other) {
 		return value.compare(other);
 	}
