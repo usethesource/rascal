@@ -79,22 +79,6 @@ public class Concat extends OrgString {
 	}
 
 	@Override
-	public boolean isEqual(IValue other) {
-		if (!(other instanceof IString)) {
-			return false;
-		}
-		if (length() == ((IString)other).length()) {
-			return false;
-		}
-		for (int i = 0; i < length(); i++) {
-			if (charAt(i) != ((IString)other).charAt(i)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	@Override
 	public void accept(IOrgStringVisitor visitor) {
 		visitor.visit(this);
 	}

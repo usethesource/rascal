@@ -1,5 +1,7 @@
 package org.eclipse.imp.pdb.facts.impl.primitive;
 
+import java.util.Iterator;
+
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -56,5 +58,24 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 	}
 	
 	public abstract int indexOf(String str);
+	
+	@Override
+	public boolean isEqual(IValue other) {
+		if (!(other instanceof IString)) {
+			return false;
+		}
+		if (length() != ((IString)other).length()) {
+			return false;
+		}
+		OrgString os = (OrgString)other;
+		Iterator<Integer> iter1 = iterator();
+		Iterator<Integer> iter2 = os.iterator();
+		while (iter1.hasNext() && iter2.hasNext()) {
+			if (iter1.next() != iter2.next()) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }
