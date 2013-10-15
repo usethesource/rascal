@@ -78,11 +78,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.impl.primitive.Chunk;
-import org.eclipse.imp.pdb.facts.impl.primitive.Concat;
-import org.eclipse.imp.pdb.facts.impl.primitive.IOrgStringVisitor;
-import org.eclipse.imp.pdb.facts.impl.primitive.NoOrg;
-import org.eclipse.imp.pdb.facts.impl.primitive.OrgString;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
@@ -108,7 +103,12 @@ import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.Chunk;
+import org.rascalmpl.values.Concat;
+import org.rascalmpl.values.IOrgStringVisitor;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.NoOrg;
+import org.rascalmpl.values.OrgString;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -1113,8 +1113,11 @@ public class Prelude {
 			if(sloc.hasOffsetLength() && sloc.getOffset() != -1){
 				str = str.substring(sloc.getOffset(), sloc.getOffset() + sloc.getLength());
 			}
+			else {
+				sloc = values.sourceLocation(sloc, 0, str.length());
+			}
 			
-			return values.string(str);
+			return values.string(sloc, str);
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException ioex){
@@ -1145,7 +1148,7 @@ public class Prelude {
 				result.append(new java.lang.String(buf, 0, count));
 			}
 			
-			return values.string(new String(md.digest()));
+			return values.string(sloc, new String(md.digest()));
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException ioex){
@@ -1302,6 +1305,7 @@ public class Prelude {
 	private IList consumeInputStreamLines(ISourceLocation sloc,	Reader stream, IEvaluatorContext ctx ) {
 		IListWriter w = values.listWriter();
 		
+		int offset = 0;
 		BufferedReader in = null;
 		try{
 			in = new BufferedReader(stream);
@@ -1313,14 +1317,17 @@ public class Prelude {
 			int beginColumn = sloc.hasLineColumn() ? sloc.getBeginColumn() : -1;
 			int endLine = sloc.hasLineColumn() ? sloc.getEndLine() : -1;
 			int endColumn = sloc.hasLineColumn() ? sloc.getEndColumn() : -1;
-
 			do{
 				line = in.readLine();
 				i++;
 				if(line != null){
 					if(!sloc.hasOffsetLength()){
-						w.append(values.string(line));
+						ISourceLocation lloc = values.sourceLocation(sloc, offset, line.length(), 
+								i, i+1, 0, line.length());
+						w.append(values.string(lloc, line));
+						offset += line.length() + 1; // for line terminator???
 					}else{
+						// TODO: make origins
 						if(!sloc.hasLineColumn()){
 							endColumn = line.length();
 						}
@@ -2834,6 +2841,7 @@ public class Prelude {
 		return values.string(s);
 	}
 
+	// TODO: orings are lost!
 	public IValue format(IString s, IString dir, IInteger n, IString pad)
 	//@doc{format -- return string of length n, with s placed according to dir (left/center/right) and padded with pad}
 	{
