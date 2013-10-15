@@ -30,6 +30,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.OrgString;
 
 public class StringResult extends ElementResult<IString> {
 
@@ -187,6 +188,9 @@ public class StringResult extends ElementResult<IString> {
 	}
 	
 	public Result<IValue> makeSlice(int first, int second, int end){
+		if (getValue() instanceof OrgString) {
+			return makeResult(TypeFactory.getInstance().stringType(), ((OrgString)getValue()).slice(first, second, end), ctx);
+		}
 		StringBuilder buffer = new StringBuilder();
 		IString s = getValue();
 		int increment = second - first;
