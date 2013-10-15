@@ -13,6 +13,7 @@ import experiments::Compiler::Examples::ListMatch;
 import experiments::Compiler::Examples::Odd;
 import experiments::Compiler::Examples::SendMoreMoney;
 import experiments::Compiler::Examples::SetMatch;
+import experiments::Compiler::Examples::Descent;
 import experiments::Compiler::Examples::TestSuite;
 import experiments::Compiler::Examples::Template;
 import experiments::Compiler::Examples::Overloading1;
@@ -45,6 +46,7 @@ import experiments::Compiler::Examples::Visit3;
 import experiments::Compiler::Examples::Visit4;
 import experiments::Compiler::Examples::Visit5;
 import experiments::Compiler::Examples::Visit6;
+import experiments::Compiler::Examples::Visit7;
 
 loc base = |rascal:///experiments/Compiler/Examples/|;
 
@@ -59,6 +61,7 @@ test bool tst() = demo("Fac") == experiments::Compiler::Examples::Fac::main([]);
 test bool tst() = demo("Fib") == experiments::Compiler::Examples::Fib::main([]);
 test bool tst() = demo("ListMatch") == experiments::Compiler::Examples::ListMatch::main([]);
 test bool tst() = demo("SetMatch") == experiments::Compiler::Examples::SetMatch::main([]);
+test bool tst() = demo("Descent") == experiments::Compiler::Examples::Descent::main([]);
 test bool tst() = demo("Odd") == experiments::Compiler::Examples::Odd::main([]);
 test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
 
@@ -97,5 +100,6 @@ test bool tst3() = demo("Visit3") == experiments::Compiler::Examples::Visit3::ma
 test bool tst4() = demo("Visit4") == experiments::Compiler::Examples::Visit4::main([]);
 test bool tst5() = demo("Visit5") == experiments::Compiler::Examples::Visit5::main([]);
 test bool tst6() = demo("Visit6") == experiments::Compiler::Examples::Visit6::main([]);
+test bool tst7() = demo("Visit7") == experiments::Compiler::Examples::Visit7::main([]);
 
 
