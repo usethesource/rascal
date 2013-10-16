@@ -57,8 +57,13 @@ syntax Exp  =
 			| preLocDeref:  			"deref" Identifier id
 			| preVarDeref:   			"deref" FunNamePart+ funNames Identifier id
 			
-			> muCallPrim: 				"prim" "(" String name "," {Exp ","}+ args ")"
+			> muCallPrim: 				"prim" "(" String name ")"
+			| muCallPrim:               "prim" "(" String name "," {Exp ","}+ args ")"
 			| muCallMuPrim: 			"muprim" "(" String name "," {Exp ","}+ args ")"
+			
+			| muMulti:                  "multi" "(" Exp exp ")"
+			| muOne:                    "one" "(" {Exp ","}+ exps ")"
+			| muAll:                    "all" "(" {Exp ","}+ exps ")"
 			
 			| preSubscriptArray: 		"get_array" Exp ar "[" Exp index "]"
 			| preSubscriptList: 		"get_list" Exp lst "[" Exp index "]"
@@ -129,7 +134,8 @@ keyword Keywords =
               "type" |
               "ref" | "deref" |
               "fun" | "cons" | "is" | "mod" | "pow" |
-              "typeswitch" | "default" | "case"
+              "typeswitch" | "default" | "case" |
+              "multi" | "one" | "all"
              ;
              
 // Syntactic features that will be removed by the preprocessor. 
