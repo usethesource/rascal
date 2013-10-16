@@ -158,7 +158,7 @@ public class GrammarToJigll {
 			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(URI.create("nothing:///"), 0, 1), null, null);
 		}
 
-		Visualization.generateSPPFGraph(path.getValue(), sppf);
+		Visualization.generateSPPFGraph(path.getValue(), sppf, input);
 	}
 
 	private Condition getDeleteSet(IConstructor symbol) {
