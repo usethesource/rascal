@@ -10,10 +10,13 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 
+import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.debug.IDebugListener;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
@@ -96,7 +99,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	
 	// Temporary instrumentation for accurate profiling
 	private long timestamp;
-	private boolean printTimes = false;
+	private boolean printTimes = true;
 	
 	public SGTDBF(){
 		super();
@@ -1123,7 +1126,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	    // Initialize.
 	    this.inputURI = inputURI;
 	    this.input = input;
-
+	    
+	    if (printTimes) {
+	      System.err.println("Parsing " + inputURI);
+	      System.err.println("Input length is " + input.length);
+	    }
 	    this.recoverer = recoverer;
 	    this.debugListener = debugListener;
 
@@ -1205,17 +1212,20 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	}
 
 	private void initTime() {
-	  timestamp = System.nanoTime();
+	  timestamp = bean.getCurrentThreadCpuTime();
 	}
 	
+	private ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
+	
   private void checkTime(String msg) {
-    long newStamp = System.nanoTime();
+    long newStamp = bean.getCurrentThreadCpuTime();
 		long duration = newStamp - timestamp;
-		timestamp = newStamp;
 		
 		if (printTimes) {
-		  System.err.println(msg + ": " + duration / (1000 * 1000));
+		  System.err.println(msg + ": " + duration + " nanoseconds CPU time");
 		}
+		
+		timestamp = bean.getCurrentThreadCpuTime();
   }
 
 	private static int[] charsToInts(char[] input){
@@ -1235,6 +1245,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 * Parses with post parse filtering.
 	 */
 	private T parse(String nonterminal, URI inputURI, int[] input, IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer, IDebugListener<P> debugListener){
+	  
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, recoverer, debugListener);
 		return buildResult(result, converter, nodeConstructorFactory, actionExecutor);
 	}

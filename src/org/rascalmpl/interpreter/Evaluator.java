@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -747,12 +749,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 
+	private static ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
 	@Override
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, URI location){
 		IRascalMonitor old = setMonitor(monitor);
 		
 		try{
+		  getStdErr().println("Reading characters into memory.");
+		  long start = bean.getCurrentThreadCpuTime();
 			char[] input = getResourceContent(location);
+			getStdErr().println("Reading characters done in " + (bean.getCurrentThreadCpuTime() - start));
+			
 			return parseObject(startSort, robust, location, input);
 		}catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
