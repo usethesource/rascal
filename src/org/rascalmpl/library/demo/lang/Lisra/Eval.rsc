@@ -37,7 +37,7 @@ public Result eval(List([Atom("begin"), *Lval exps]) , Env e) {
 }
                                                              /*7*/
 public Result eval(List([Atom("define"), var, exp]), Env e){
-   e = e[0][var] = eval(exp, e).val;
+   e[0][var] = eval(exp, e).val;
    return <FALSE, e>;
 }
                                                              /*8*/
