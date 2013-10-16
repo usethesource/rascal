@@ -881,16 +881,18 @@ MuExp translateSlice(Expression expression, OptionalExpression optFirst, Express
 // Translate Visit
 MuExp translateVisit(label,\visit) {
 	MuExp traverse_fun;
+	bool fixpoint = false;
+	
 	if(\visit is defaultStrategy) {
 		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",4);
 	} else {
 		switch("<\visit.strategy>") {
-			case "bottom-up"      : traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",4);
-			case "top-down"       : traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN",4);
-			case "bottom-up-break": traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK",4);
-			case "top-down-break" : traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK",4);
-			case "innermost"      : throw "Sorry, innermost strategy is not supported yet!";
-			case "outermost"      : throw "Sorry, outermost strategy is not supported yet!";
+			case "bottom-up"      :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",      4);
+			case "top-down"       :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN",       4);
+			case "bottom-up-break":   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK",4);
+			case "top-down-break" :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK", 4);
+			case "innermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",      4); fixpoint = true; }
+			case "outermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN",       4); fixpoint = true; }
 		}
 	}
 	
@@ -906,7 +908,27 @@ MuExp translateVisit(label,\visit) {
 	str scopeId = topFunctionScope();
 	str phi_fuid = scopeId + "/" + "phi_<i>";
 	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value()]);	
-	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 2, 2, \visit@\loc, [], (), translateVisitCases([ c | Case c <- \visit.cases ]));
+	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 2, 2, \visit@\loc, [], (), 
+										translateVisitCases([ c | Case c <- \visit.cases ]));
+	
+	if(fixpoint) {
+		str phi_fixpoint_fuid = scopeId + "/" + "phi_fixpoint_<i>";
+		
+		list[MuExp] body = [];
+		body += muAssignLoc("changed", 2, muBool(true));
+		body += muWhile(nextLabel(), muLoc("changed",2), 
+						[ muAssignLoc("val", 3, muCall(muFun(phi_fuid,scopeId), [ muLoc("subject",0), muLoc("matched",1) ])),
+						  muIfelse(nextLabel(), muCallPrim("equal",[ muLoc("val",3), muLoc("subject",0) ]),
+						  						[ muAssignLoc("changed",2, muBool(false)) ], [ muAssignLoc("subject",0, muLoc("val",3)) ] )]);
+		body += muReturn(muLoc("subject",0));
+		
+		functions_in_module += muFunction(phi_fixpoint_fuid, phi_ftype, scopeId, 2, 4, \visit@\loc, [], (), muBlock(body));
+	
+		str hasMatch = asTmp(nextLabel());
+		return muBlock([ muAssignTmp(hasMatch, muBool(false)), 
+					 	 muCall(traverse_fun, [ muFun(phi_fixpoint_fuid,scopeId), translate(\visit.subject), muTmpRef(hasMatch), muBool(rebuild) ]) 
+				   	   ]);
+	}
 	
 	str hasMatch = asTmp(nextLabel());
 	return muBlock([ muAssignTmp(hasMatch, muBool(false)), 
