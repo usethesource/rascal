@@ -105,6 +105,7 @@ public enum RascalPrimitive {
 	tuple_add_tuple,
 	
 	// adt
+	constructor,
 	
 	adt_field_access,
 	adt_field_update,
@@ -374,6 +375,8 @@ public enum RascalPrimitive {
 	tuple_lessequal_tuple,
 	
 	// list
+	list,
+	
 	list_size,
 	list_create,
 	list_replace,
@@ -418,6 +421,7 @@ public enum RascalPrimitive {
 	negative_num,
 	
 	// node
+	node,
 	
 	node_create,
 	node_replace,
@@ -510,6 +514,7 @@ public enum RascalPrimitive {
 	int_remainder_int,
 	
 	// set
+	set,
 	
 	set_create,
 	set2elm,
@@ -601,6 +606,7 @@ public enum RascalPrimitive {
 	template_close,
 	
 	// tuple
+	tuple,
 	
 	tuple_field_access,
 	tuple_field_project,
@@ -705,6 +711,50 @@ public enum RascalPrimitive {
 		}
 		return sp - 2;
 	}
+	
+	/*
+	 * Value factory operations
+	 */
+	
+	public static int constructor(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		Type type = (Type) stack[sp - 2]; 
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 2] = vf.constructor(type, args);
+		return sp - 1;
+
+	}
+	
+	public static int node(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		String name = ((IString) stack[sp - 2]).getValue(); 
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 2] = vf.node(name, args);
+		return sp - 1;
+	}
+
+	public static int list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 1] = vf.list(args);
+		return sp;
+	}
+	
+	public static int set(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 1] = vf.set(args);
+		return sp;
+	}
+	
+	public static int tuple(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 1] = vf.tuple(args);
+		return sp;
+	}
+
+
 	
 	/*
 	 * ...writer_add
