@@ -24,6 +24,12 @@ str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 str functionScope = "";
 int nlocal = 0;
 
+int get_nlocals() = nlocal;
+
+void set_nlocals(int n) {
+	nlocal = n;
+}
+
 // Systematic label generation related to loops
 
 str mkContinue(str loopname) = "CONTINUE_<loopname>";
