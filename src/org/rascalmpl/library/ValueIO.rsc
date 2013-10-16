@@ -42,6 +42,7 @@ public value readTextValueString(str input) {
 
 @doc{Parse a textual string representation of a value and validate it against the given type}
 @javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses TypeStore from environment}
 public java &T readTextValueString(type[&T] result, str input);
 	
 @doc{Write a value to a file using an efficient binary file format}

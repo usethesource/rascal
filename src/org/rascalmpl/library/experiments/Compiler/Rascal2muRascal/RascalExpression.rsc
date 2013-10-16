@@ -379,7 +379,8 @@ MuExp translate(e:(Expression) `*<Expression argument>`) {
 }
 
 // AsType
-MuExp translate(e:(Expression) `[ <Type \type> ] <Expression argument>`)  { throw("asType"); }
+MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
+   muCallPrim("parse", [muCon(symbolToValue(translateType(typ), config)), translate(argument)]);
 
 // Composition
 MuExp translate(e:(Expression) `<Expression lhs> o <Expression rhs>`)   = infix_rel_lrel("compose", e);
