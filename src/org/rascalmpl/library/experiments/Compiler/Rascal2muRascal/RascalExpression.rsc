@@ -879,219 +879,71 @@ MuExp translateSlice(Expression expression, OptionalExpression optFirst, Express
     muCallPrim("<getOuterType(expression)>_slice", [  translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast) ]);
 
 // Translate Visit
-
-map[str,int] strategies = ( "bottom-up"       : 0,
-						    "top-down"        : 1,
-						    "bottom-up-break" : 2,
-						    "top-down-break"  : 3,
-						    "innermost"       : 4,
-						    "outermost"       : 5 );
-
-MuExp translateVisit(label, \visit) {
+MuExp translateVisit(label,\visit) {
+	MuExp traverse_fun;
+	if(\visit is defaultStrategy) {
+		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",4);
+	} else {
+		switch("<\visit.strategy>") {
+			case "bottom-up"      : traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",4);
+			case "top-down"       : traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN",4);
+			case "bottom-up-break": traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK",4);
+			case "top-down-break" : traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK",4);
+			case "innermost"      : throw "Sorry, innermost strategy is not supported yet!";
+			case "outermost"      : throw "Sorry, outermost strategy is not supported yet!";
+		}
+	}
+	
+	bool rebuild = false;
+	if( Case c <- \visit.cases, (c is patternWithAction || /\insert(_,_) := c) ) {
+		rebuild = true;
+	}
 	
 	// Unique 'id' of a visit in the function body
 	int i = nextVisit();
-		
-	int strategy = (\visit is defaultStrategy) ? 0 : strategies["<\visit.strategy>"];
 	
+	// Generate and add a nested function 'phi'
 	str scopeId = topFunctionScope();
-	str traverse_fuid = scopeId + "/" + "traverse" + "_<(\visit is defaultStrategy) ? "bottom-up" : "<\visit.strategy>">" + "_<i>";
-	str phi_fuid      = scopeId + "/" + "phi"                             + "_<i>";
+	str phi_fuid = scopeId + "/" + "phi_<i>";
+	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value()]);	
+	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 2, 2, \visit@\loc, [], (), translateVisitCases([ c | Case c <- \visit.cases ]));
 	
-	// Non-overloaded, nested functions
-	MuExp traverse_fun = muFun(traverse_fuid, scopeId); // recursive function
-	MuExp phi_fun      = muFun(phi_fuid, scopeId);      // non-recursive function
-	
-	visitCases = \visit.cases;
-	
-	list[MuExp] traverse_body_exps = [];
-	
-	Symbol traverse_ftype = Symbol::func(Symbol::\void(), [Symbol::\value()]); // return type is void
-	Symbol phi_ftype      = Symbol::func(Symbol::\void(), [Symbol::\value()]); // return type is void
-	bool rebuild = false;
-	
-	// If there is at least one 'pattern-with-action' or one case has 'insert', 
-	// then the tree has to be re-built
-	if(Case c <- visitCases, (c is patternWithAction || /\insert(_,_) := c)) {
-		rebuild = true;
-		traverse_ftype = Symbol::func(Symbol::\value(), [Symbol::\value()]);   // return type is the value type
-		phi_ftype      = Symbol::func(Symbol::\value(), [Symbol::\value()]);   // return type is the value type
-	}
-	
-	str matched = asTmp(nextLabel());       // #3 (traverse)
-	
-	traverse_body_exps += muAssignTmp(matched, muBool(false));
-	
-	if(strategy == 0 || strategy == 2) {
-		if(rebuild) {
-			traverse_body_exps += muAssignLoc("subject_traverse", 0, visitChildren(traverse_fun, rebuild));
-		} else {
-			traverse_body_exps += visitChildren(traverse_fun, rebuild);
-		}
-	}
-	
-	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 2, 2, \visit@\loc, [], (), translateVisitCases([ c | Case c <- visitCases ], rebuild));
-	
-	// Applying cases	
-	if(rebuild) {
-		if(strategy == 2) {
-			traverse_body_exps += muIfelse(nextLabel(), muLocDeref("hasMatch", 1), 
-										   [ muReturn(muLoc("subject_traverse",0)) ],
-										   [ muAssignLoc("subject_traverse", 0, muCall(phi_fun, [ muLoc("subject_traverse",0), muTmpRef(matched) ])) ]);
-		} else {
-			traverse_body_exps += muAssignLoc("subject_traverse", 0, muCall(phi_fun, [ muLoc("subject_traverse",0), muTmpRef(matched) ]));
-		}
-	} else {
-		if(strategy == 2) {
-			traverse_body_exps += muIfelse(nextLabel(), muLocDeref("hasMatch", 1), 
-										   [],
-										   [ muCall(phi_fun, muLoc("subject_traverse",0)) ]);
-		} else {
-			traverse_body_exps += muCall(phi_fun, muLoc("subject_traverse",0));
-		}
-	}
-	traverse_body_exps += muAssignLocDeref("hasMatch", 1, muCallMuPrim("or_mbool_mbool", [ muLocDeref("hasMatch",1), muTmp(matched) ]));
-	
-	if(strategy == 1 || strategy == 3) {
-		if(rebuild) {
-			if(strategy == 3) {
-				traverse_body_exps += muIfelse(nextLabel(), muLocDeref("hasMatch",1),
-											   [ muLoc("subject_traverse",0) ],
-											   [ muAssignLoc("subject_traverse", 0, visitChildren(traverse_fun, rebuild)) ]);
-			} else {
-				traverse_body_exps += muAssignLoc("subject_traverse", 0, visitChildren(traverse_fun, rebuild));
-			}
-		} else {
-			if(strategy == 3) {
-				traverse_body_exps += muIfelse(nextLabel(), muLocDeref("hasMatch",1), 
-											   [],
-											   [ visitChildren(traverse_fun, childHasMatch, rebuild) ]);
-			} else {
-				traverse_body_exps += visitChildren(traverse_fun, childHasMatch, rebuild);
-			}
-		}
-	}
-
-	functions_in_module += muFunction(traverse_fuid, traverse_ftype, scopeId, 2, 9, \visit@\loc, [], (), muBlock([ *traverse_body_exps, muReturn(muLoc("subject_traverse",0))]));
-	
-	subject = \visit.subject;
-	
-	str rootMatched = asTmp(nextLabel());
-	return muBlock([ muAssignTmp(rootMatched, muBool(false)), muCall(traverse_fun, [ translate(subject), muTmpRef(rootMatched) ]) ]);
-	
+	str hasMatch = asTmp(nextLabel());
+	return muBlock([ muAssignTmp(hasMatch, muBool(false)), 
+					 muCall(traverse_fun, [ muFun(phi_fuid,scopeId), translate(\visit.subject), muTmpRef(hasMatch), muBool(rebuild) ]) 
+				   ]);
 }
-
-@doc{Applies a function to all the children of a value, if any}
-MuExp visitChildren(MuExp traverse_fun, bool rebuild) {
-	str writer        = asTmp(nextLabel()); // #4 (traverse)
-	str child         = asTmp(nextLabel()); // #5 (traverse)
-	str index         = asTmp(nextLabel()); // #6 (traverse)
-	str key           = asTmp(nextLabel()); // #7 (traverse)  
-	str val           = asTmp(nextLabel()); // #8 (traverse)
-	
-	str childHasMatch = asTmp(nextLabel()); // #9 (traverse)
-	
-	return muBlock([ muAssignTmp(childHasMatch, muBool(false)),
-					 muTypeSwitch( muLoc("subject_traverse",0), 
-				 		 [ 
-				   		  muTypeCase("list", visitListCode(writer,child,index,key,val,childHasMatch,traverse_fun)),
-				   		  muTypeCase("lrel", visitListCode(writer,child,index,key,val,childHasMatch,traverse_fun)), 
-				   		  muTypeCase("set",  visitSetCode(writer,child,index,key,val,childHasMatch,traverse_fun)),
-				   		  muTypeCase("rel",  visitSetCode(writer,child,index,key,val,childHasMatch,traverse_fun)),
-				   		  muTypeCase("map",  visitMapCode(writer,child,index,key,val,childHasMatch,traverse_fun)),
-				   		  muTypeCase("tuple", muCallMuPrim("make_tuple_array", [ visitTupleOrNodeOrConstructorCode(writer,child,index,key,val,childHasMatch,traverse_fun) ])),
-				   		  muTypeCase("node", muCallMuPrim("make_node_array", [ muCallMuPrim("get_name", [ muLoc("subject_traverse",0) ]), visitTupleOrNodeOrConstructorCode(writer,child,index,key,val,childHasMatch,traverse_fun) ])),
-				   		  muTypeCase("constructor", muCallMuPrim("make_constructor_array", [ muCallMuPrim("typeOf_constructor", [ muLoc("subject_traverse",0) ]), visitTupleOrNodeOrConstructorCode(writer,child,index,key,val,childHasMatch,traverse_fun) ]))
-				 		 ], 
-				 		 muLoc("subject_traverse",0) ) ]);
-}
-
-MuExp visitListCode(str writer, str child, str index, str key, str val, str childHasMatch, MuExp traverse_fun)
-	= muBlock([
-				muAssignTmp(writer, muCallPrim("listwriter_open", [])),	
-				muWhile(nextLabel(), makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
-				 			  	     [ muAssignTmp(childHasMatch, muBool(false)),
-				 			  	       muAssignTmp(val, muCall(traverse_fun, [ muTmp(child), muTmpRef(childHasMatch) ])),
-				 			  	       muAssignLocDeref("hasMatch",1, muCallMuPrim("or_mbool_mbool", [ muLocDeref("hasMatch",1), muTmp(childHasMatch) ])),
-				 			  	       muCallPrim("listwriter_add", [ muTmp(writer), muTmp(val) ])
-				 			  	     ]),
-				muCallPrim("listwriter_close", [ muTmp(writer) ])
-				]);
-
-MuExp visitSetCode(str writer, str child, str index, str key, str val, str childHasMatch, MuExp traverse_fun)
-	= muBlock([
-				muAssignTmp(writer, muCallPrim("setwriter_open", [])),	
-				muWhile(nextLabel(), makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
-				 			  	     [ muAssignTmp(childHasMatch, muBool(false)),
-				 			  	       muAssignTmp(val, muCall(traverse_fun, [ muTmp(child), muTmpRef(childHasMatch) ])),
-				 			  	       muAssignLocDeref("hasMatch",1, muCallMuPrim("or_mbool_mbool", [ muLocDeref("hasMatch",1), muTmp(childHasMatch) ])),
-				 			  	       muCallPrim("setwriter_add", [ muTmp(writer), muTmp(val) ])
-				 			  	     ]),
-				muCallPrim("setwriter_close", [ muTmp(writer) ])
-				]);
-
-MuExp visitMapCode(str writer, str child, str index, str key, str val, str childHasMatch, MuExp traverse_fun)
-	= muBlock([
-				muAssignTmp(writer, muCallPrim("mapwriter_open", [])),	
-				muWhile(nextLabel(), makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
-					 			  	 [ muAssignTmp(childHasMatch, muBool(false)),
-					 			  	   muAssignTmp(key, muCall(traverse_fun, [ muTmp(child), muTmpRef(childHasMatch) ])),
-					 			  	   muAssignLocDeref("hasMatch",1, muCallMuPrim("or_mbool_mbool", [ muLocDeref("hasMatch",1), muTmp(childHasMatch) ])),
-					 			  	   muAssignTmp(childHasMatch, muBool(false)),
-					 			  	   muAssignTmp(val, muCall(traverse_fun, [ muCallPrim("map_subscript", [ muLoc("subject_traverse",0), muTmp(child) ]), 
-					 			  	 										   muTmpRef(childHasMatch) ])),
-					 			  	   muAssignLocDeref("hasMatch",1, muCallMuPrim("or_mbool_mbool", [ muLocDeref("hasMatch",1), muTmp(childHasMatch) ])),
-					 			  	   muCallPrim("mapwriter_add", [ muTmp(writer), muTmp(key), muTmp(val) ]) 
-					 			  	 ]),
-				muCallPrim("mapwriter_close", [ muTmp(writer) ])
-				]);
-	
-MuExp visitTupleOrNodeOrConstructorCode(str writer, str child, str index, str key, str val, str childHasMatch, MuExp traverse_fun)
-	= muBlock([
-				muAssignTmp(writer, muCallMuPrim("make_array_of_size", [ muCallMuPrim("size", [ muLoc("subject_traverse",0) ]) ])),
-				muAssignTmp(index, muInt(0)),
-				muWhile(nextLabel(), makeMuAll([ muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [ muTmpRef(child), muLoc("subject_traverse",0) ])) ]), 
-					 			  	 [ muAssignTmp(childHasMatch, muBool(false)),
-					 			  	   muCallMuPrim("assign_subscript_array_mint", [ muTmp(writer), muTmp(index), muCall(traverse_fun, [ muTmp(child), muTmpRef(childHasMatch) ]) ]),
-					 			  	   muAssignLocDeref("hasMatch",1, muCallMuPrim("or_mbool_mbool", [ muLocDeref("hasMatch",1), muTmp(childHasMatch) ])),
-					 			  	   muAssignTmp(index, muCallMuPrim("addition_mint_mint", [ muTmp(index), muInt(1) ]) ) 
-					 			  	 ]),
-				muTmp(writer) 
-				]);
 
 @doc{Generates the body of a phi function}
-MuExp translateVisitCases(list[Case] cases, bool rebuild) {
+MuExp translateVisitCases(list[Case] cases) {
 	// TODO: conditional
 	if(size(cases) == 0) {
-		return rebuild ? muReturn(muLoc("subject_phi",0)) : muBlock([]);
+		return muReturn(muLoc("subject",0));
 	}
 	
 	c = head(cases);
 	
 	if(c is patternWithAction) {
 		pattern = c.patternWithAction.pattern;
-		cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ translatePat(pattern), muLoc("subject_phi",0) ]));		
+		cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ translatePat(pattern), muLoc("subject",0) ]));		
 		ifname = nextLabel();
 		enterBacktrackingScope(ifname);
 		if(c.patternWithAction is replacing) {
 			replacement = translate(c.patternWithAction.replacement.replacementExpression);
-        	exp = muIfelse(ifname, muAll([cond]), [ muReturn(muBlock([ muAssignLocDeref("matched", 1, muBool(true)), replacement ])) ], [ translateVisitCases(tail(cases),rebuild) ]);
+        	exp = muIfelse(ifname, muAll([cond]), [ muReturn(muBlock([ muAssignLocDeref("matched", 1, muBool(true)), replacement ])) ], [ translateVisitCases(tail(cases)) ]);
         	leaveBacktrackingScope();
         	return exp;
 		} else {
 			// Arbitrary
 			statement = c.patternWithAction.statement;
-			exp = muIfelse(ifname, muAll([cond]), rebuild ? [ muAssignLocDeref("matched", 1, muBool(true)), translate(statement), muReturn(muLoc("subject_phi",0)) ] 
-														  : [ muAssignLocDeref("matched", 1, muBool(true)), translate(statement) ], 
-												  [ translateVisitCases(tail(cases),rebuild) ]);
+			exp = muIfelse(ifname, muAll([cond]), [ muAssignLocDeref("matched", 1, muBool(true)), translate(statement), muReturn(muLoc("subject",0)) ],
+												  [ translateVisitCases(tail(cases)) ]);
         	leaveBacktrackingScope();
 			return exp;
 		}
 	} else {
 		// Default
-		return rebuild ? muBlock([ muAssignLocDeref("matched", 1, muBool(true)), translate(c.statement), muReturn(muLoc("subject_phi",0)) ]) 
-					   : muBlock([ muAssignLocDeref("matched", 1, muBool(true)), translate(c.statement) ]);
+		return muBlock([ muAssignLocDeref("matched", 1, muBool(true)), translate(c.statement), muReturn(muLoc("subject",0)) ]);
 	}
-	
 }
 

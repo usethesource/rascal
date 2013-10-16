@@ -765,6 +765,50 @@ public enum RascalPrimitive {
 
 	
 	/*
+	 * Value factory operations
+	 */
+	
+	public static int constructor(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		Type type = (Type) stack[sp - 2]; 
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 2] = vf.constructor(type, args);
+		return sp - 1;
+
+	}
+	
+	public static int node(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		String name = ((IString) stack[sp - 2]).getValue(); 
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 2] = vf.node(name, args);
+		return sp - 1;
+	}
+
+	public static int list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 1] = vf.list(args);
+		return sp;
+	}
+	
+	public static int set(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 1] = vf.set(args);
+		return sp;
+	}
+	
+	public static int tuple(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 1] = vf.tuple(args);
+		return sp;
+	}
+
+
+	
+	/*
 	 * ...writer_add
 	 */
 	public static int listwriter_add(Object[] stack, int sp, int arity) {

@@ -25,9 +25,12 @@ list[Declaration] parseMuLibrary(){
  	libModule = parse(MuLibrary);
  	functions = [];
  
-  	for(fun <- libModule.functions){
-  	    required_frame_size = fun.nlocals + estimate_stack_size(fun.body);
-    	functions += FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, fun.nlocals, required_frame_size, peephole(tr(fun.body)),[]);
+  	for(fun <- libModule.functions) {
+  		functionScope = fun.qname;
+  		set_nlocals(fun.nlocals);
+  	    body = peephole(tr(fun.body));
+  	    required_frame_size = get_nlocals() + estimate_stack_size(fun.body);
+    	functions += FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), required_frame_size, body,[]);
   	}
   
   	writeTextValueFile(MuLibraryCompiled, functions);
