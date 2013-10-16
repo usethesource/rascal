@@ -44,8 +44,11 @@ str getUidOfGlobalNonOverloadedFunction(str name) {
 }
 
 @doc{Generates a unique scope id: non-empty 'funNames' list implies a nested function}
-str getUID(str modName, lrel[str,int] funNames, str funName, int nformals) 
-	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>(<nformals>)";
+str getUID(str modName, lrel[str,int] funNames, str funName, int nformals) {
+	// Due to the current semantics of the implode
+	modName = replaceAll(modName, "::", "");
+	return "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>(<nformals>)"; 
+}
 str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> ]) 
 	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>(<nformals>)";
 
@@ -102,6 +105,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preAssignVarDeref(lrel[str,int] funNames,
       	       						  str name, muExp exp)          				=> muAssignVarDeref(name,getUID(modName,funNames),vardefs[getUID(modName,funNames)][name],exp)
       	       
+      	       case muCallPrim(str name)                                            => muCallPrim(name[1..-1], [])
                case muCallPrim(str name, list[MuExp] exps)							=> muCallPrim(name[1..-1], exps)			// strip surrounding quotes
                case muCallMuPrim(str name, list[MuExp] exps)						=> muCallMuPrim(name[1..-1], exps)			// strip surrounding quotes
                
@@ -114,6 +118,8 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar("size_map"), [exp1])								=> muCallMuPrim("size_map", [exp1])
                case muCall(preVar("size_tuple"), [exp1])							=> muCallMuPrim("size_tuple", [exp1])
                
+               case muCall(preVar("size"),[exp1])                                   => muCallMuPrim("size",[exp1])
+               
                case muCall(preVar("is_defined"), [exp1])							=> muCallMuPrim("is_defined", [exp1])
                case muCall(preVar("is_element"), [exp1, exp2])						=> muCallMuPrim("is_element", [exp1, exp2])
                case muCall(preVar("keys"), [exp1])									=> muCallMuPrim("keys_map", [exp1])
@@ -124,6 +130,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar("get_name_and_children"), [exp1])					=> muCallMuPrim("get_name_and_children", [exp1])
                case muCall(preVar("typeOf"), [exp1])								=> muCallPrim("typeOf", [exp1])
                case muCall(preVar("subtype"), [exp1, exp2])         				=> muCallPrim("subtype", [exp1, exp2])
+               case muCall(preVar("make_iarray"), [exp1])							=> muCallMuPrim("make_iarray_of_size", [exp1])
                case muCall(preVar("make_array"), [exp1])							=> muCallMuPrim("make_array_of_size", [exp1])
                case muCall(preVar("starts_with"), [exp1, exp2, exp3])				=> muCallMuPrim("starts_with", [exp1, exp2, exp3])
                case muCall(preVar("sublist"), list[MuExp] exps)						=> muCallMuPrim("sublist_list_mint_mint", exps)
@@ -163,7 +170,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       // Overloading
       	       case preFunNN(str modName,  str name, int nformals)                  => muFun(getUID(modName,[],name,nformals))
       	       case preFunN(lrel[str,int] funNames,  str name, int nformals)        => muFun(getUID(modName,funNames,name,nformals), getUID(modName,funNames))
-     	       
+      	       
             };
       } catch e: throw "In muRascal function <modName>::<for(<f,n> <- funNames){><f>::<n>::<}><fname>::<nformals> (uid = <uid>) : <e>";   
     }    
