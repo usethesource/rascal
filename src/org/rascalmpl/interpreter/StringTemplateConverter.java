@@ -51,6 +51,7 @@ import org.rascalmpl.values.OriginValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
   
 public class StringTemplateConverter {
 	private static int labelCounter = 0;
@@ -128,7 +129,7 @@ public class StringTemplateConverter {
 			private IString convertToString(IValue value) {
 				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 				if (value.getType() == Factory.Tree && value.asAnnotatable().hasAnnotation("loc")) {
-					return vf.string((ISourceLocation) value.asAnnotatable().getAnnotation("loc"),
+					return vf.string(TreeAdapter.getLocation((IConstructor) value),
 					    org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
 				}
 				else if ((value.getType().isNode() || value.getType().isConstructor()) 

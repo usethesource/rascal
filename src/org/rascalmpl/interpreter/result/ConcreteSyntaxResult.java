@@ -252,7 +252,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	protected <U extends IValue> Result<U> addString(StringResult that) {
 		// Note the reverse concat.
 		return (Result<U>) new ConcatStringResult(getType(), that, 
-				new StringResult(that.getType(),ctx.getValueFactory().string(TreeAdapter.yield(getValue())), ctx), ctx);
+				new StringResult(that.getType(),ctx.getValueFactory()
+						.string(TreeAdapter.getLocation(getValue()), TreeAdapter.yield(getValue())), ctx), ctx);
 	}
 
 	@Override
