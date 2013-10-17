@@ -7,6 +7,7 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
@@ -185,5 +186,17 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 
 	
 	public abstract void serialize(StringBuilder b);
+	
+	
+	public OrgString escape(IMap substitutions) {
+		// REALLY slow
+		OrgString result = this;
+		for (IValue k: substitutions) {
+			IString s = ((IString)k);
+			IString v = (IString)substitutions.get(s);
+			result = (OrgString) result.replaceAll(s.getValue(), v);
+		}
+		return result;
+	}
 	
 }

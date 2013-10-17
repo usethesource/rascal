@@ -3095,6 +3095,9 @@ public class Prelude {
 	
 	
 	public IValue escape(IString str, IMap substitutions) {
+		if (str instanceof OrgString) {
+			return ((OrgString)str).escape(substitutions);
+		}
 		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
 		char[] input = str.getValue().toCharArray();
 		
@@ -3111,6 +3114,9 @@ public class Prelude {
 	}
 	
 	public IValue contains(IString str, IString find){
+		if (str instanceof OrgString) {
+			return values.bool(((OrgString)str).indexOf(find.getValue()) >= 0);
+		}
 		return values.bool(str.getValue().indexOf(find.getValue()) >= 0);
 	}
 	
