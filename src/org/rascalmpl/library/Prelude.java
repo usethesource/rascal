@@ -2164,7 +2164,7 @@ public class Prelude {
 
 	}
 	public IString unparse(IConstructor tree) {
-		return values.string(TreeAdapter.yield(tree));
+		return values.string(TreeAdapter.getLocation(tree), TreeAdapter.yield(tree));
 	}
 	
 	private IConstructor makeConstructor(Type returnType, String name, IEvaluatorContext ctx,  IValue ...args) {
@@ -2251,7 +2251,7 @@ public class Prelude {
 
 		// always yield if expected type is str, except if regular 
 		if (type.isString() && !splicing) {
-			return values.string(TreeAdapter.yield(tree));
+			return values.string(TreeAdapter.getLocation(tree), TreeAdapter.yield(tree));
 		}
 
 		if (SymbolAdapter.isStartSort(TreeAdapter.getType(tree))) {
@@ -2287,7 +2287,7 @@ public class Prelude {
 				}
 				
 				if (isUntypedNodeType(type)) {
-					return values.node(constructorName, values.string(yield));
+					return values.node(constructorName, values.string(TreeAdapter.getLocation(tree), yield));
 				}
 				
 				Set<Type> conses = findConstructors(type, constructorName, 1, store);
@@ -2323,7 +2323,7 @@ public class Prelude {
 			}
 			if (type.isString() || isUntypedNodeType(type)) {
 				// NB: in "node space" all lexicals become strings
-				return values.string(yield);
+				return values.string(TreeAdapter.getLocation(tree), yield);
 			}
 			
 			throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Missing lexical constructor");
