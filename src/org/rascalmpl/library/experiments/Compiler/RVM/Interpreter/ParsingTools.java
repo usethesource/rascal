@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -47,6 +46,7 @@ import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.Recoverer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -55,7 +55,7 @@ import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 
 public class ParsingTools {
 
-	private IValueFactory vf;
+	private IRascalValueFactory vf;
 	private URIResolverRegistry resolverRegistry;
 	private IRascalMonitor monitor;
 	private List<ClassLoader> classLoaders;
@@ -65,7 +65,7 @@ public class ParsingTools {
 	private HashMap<String,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>> parsers;
 	private IEvaluatorContext ctx;
 	
-	ParsingTools(IValueFactory fact, IEvaluatorContext ctx){
+	ParsingTools(IRascalValueFactory fact, IEvaluatorContext ctx){
 		vf = fact;
 		this.ctx = ctx;
 		resolverRegistry = ctx.getResolverRegistry();
@@ -438,7 +438,7 @@ public class ParsingTools {
 	    // TODO: update source code locations!!
 	    
 	     return (IConstructor) module.accept(new IdentityTreeVisitor<ImplementationError>() {
-	       final IValueFactory vf = eval.getValueFactory();
+	       final IRascalValueFactory vf = eval.getValueFactory();
 	       
 	       @Override
 	       public IConstructor visitTreeAppl(IConstructor tree)  {
@@ -547,7 +547,7 @@ public class ParsingTools {
 	      IConstructor prod = TreeAdapter.getProduction(tree);
 	      IConstructor sym = ProductionAdapter.getDefined(prod);
 	      sym = SymbolAdapter.delabel(sym); 
-	      IValueFactory vf = eval.getValueFactory();
+	      IRascalValueFactory vf = eval.getValueFactory();
 	      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
 	      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
 	    }
@@ -613,7 +613,7 @@ public class ParsingTools {
 
 	  private static IConstructor replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, IConstructor fragment, final Map<String, IConstructor> antiquotes) {
 	      return (IConstructor) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {
-	        private final IValueFactory vf = eval.getValueFactory();
+	        private final IRascalValueFactory vf = eval.getValueFactory();
 	        
 	        @Override
 	        public IConstructor visitTreeAppl(IConstructor tree)  {

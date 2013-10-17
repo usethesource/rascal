@@ -27,7 +27,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -42,16 +41,17 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.parser.StandAloneParser;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParserGenerator {
 	private final Evaluator evaluator;
 	private final JavaBridge bridge;
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
 	private static final boolean debug = false;
 
-	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
+	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IRascalValueFactory factory, Configuration config) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment scope = new ModuleEnvironment("___parsergenerator___", heap);
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, scope,heap);
