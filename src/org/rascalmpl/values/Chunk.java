@@ -1,5 +1,6 @@
 package org.rascalmpl.values;
 
+import org.apache.commons.lang.WordUtils;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -72,6 +73,17 @@ public class Chunk extends Atom {
 	@Override
 	public void accept(IOrgStringVisitor visitor) {
 		visitor.visit(this);
+	}
+
+	@Override
+	public OrgString capitalize() {
+		if (length() == 0) {
+			return this;
+		}
+		String s = getValue();
+		return new Concat(
+				new NoOrg(WordUtils.capitalize(s.substring(0, 1))),
+				(OrgString)substring(1, length()));
 	}
 
 }

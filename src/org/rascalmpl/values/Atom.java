@@ -5,8 +5,6 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IString;
 
 public abstract class Atom extends OrgString {
-	protected static final OriginValueFactory vf = (OriginValueFactory) ValueFactoryFactory.getValueFactory();
-	
 	protected final IString value;
 	
 	public Atom(String s) {
@@ -69,4 +67,11 @@ public abstract class Atom extends OrgString {
 			}
 		};
 	}
+	
+	@Override
+	public void serialize(StringBuilder b) {
+		// Don't call getValue on this!!!
+		b.append(value.getValue());
+	}
+
 }

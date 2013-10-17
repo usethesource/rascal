@@ -1,5 +1,6 @@
 package org.rascalmpl.values;
 
+import org.apache.commons.lang.WordUtils;
 import org.eclipse.imp.pdb.facts.IString;
 
 public class NoOrg extends Atom {
@@ -30,6 +31,11 @@ public class NoOrg extends Atom {
 	@Override
 	public void accept(IOrgStringVisitor visitor) {
 		visitor.visit(this);
+	}
+
+	@Override
+	public OrgString capitalize() {
+		return new NoOrg(WordUtils.capitalize(getValue()));
 	}
 
 }
