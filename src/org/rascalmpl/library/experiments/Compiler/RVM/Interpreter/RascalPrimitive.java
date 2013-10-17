@@ -50,6 +50,7 @@ import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTyp
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.library.Prelude;
 
 /*
  * The primitives that can be called via the CALLPRIM instruction.
@@ -105,6 +106,7 @@ public enum RascalPrimitive {
 	tuple_add_tuple,
 	
 	// adt
+	constructor,
 	
 	adt_field_access,
 	adt_field_update,
@@ -374,6 +376,8 @@ public enum RascalPrimitive {
 	tuple_lessequal_tuple,
 	
 	// list
+	list,
+	
 	list_size,
 	list_create,
 	list_replace,
@@ -418,6 +422,7 @@ public enum RascalPrimitive {
 	negative_num,
 	
 	// node
+	node,
 	
 	node_create,
 	node_replace,
@@ -457,6 +462,10 @@ public enum RascalPrimitive {
 	elm_notin_set,
 	elm_notin_rel,
 	elm_notin_map,
+	
+	// parse
+	
+	parse,
 
 	// println
 	
@@ -510,6 +519,7 @@ public enum RascalPrimitive {
 	int_remainder_int,
 	
 	// set
+	set,
 	
 	set_create,
 	set2elm,
@@ -601,6 +611,7 @@ public enum RascalPrimitive {
 	template_close,
 	
 	// tuple
+	tuple,
 	
 	tuple_field_access,
 	tuple_field_project,
@@ -631,6 +642,7 @@ public enum RascalPrimitive {
 	
 	private static PrintWriter stdout;
 	private static RVM rvm;
+	private static ParsingTools parsingTools;
 
 	/**
 	 * Initialize the primitive methods.
@@ -643,6 +655,8 @@ public enum RascalPrimitive {
 			stdout = usedRVM.stdout;
 		}
 		rvm = usedRVM;
+		
+		parsingTools = new ParsingTools(fact, rvm.ctx);
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 									new String[] {"line", "column"});
@@ -705,6 +719,50 @@ public enum RascalPrimitive {
 		}
 		return sp - 2;
 	}
+	
+	/*
+	 * Value factory operations
+	 */
+	
+	public static int constructor(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		Type type = (Type) stack[sp - 2]; 
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 2] = vf.constructor(type, args);
+		return sp - 1;
+
+	}
+	
+	public static int node(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		String name = ((IString) stack[sp - 2]).getValue(); 
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 2] = vf.node(name, args);
+		return sp - 1;
+	}
+
+	public static int list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 1] = vf.list(args);
+		return sp;
+	}
+	
+	public static int set(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 1] = vf.set(args);
+		return sp;
+	}
+	
+	public static int tuple(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 1] = vf.tuple(args);
+		return sp;
+	}
+
+
 	
 	/*
 	 * ...writer_add
@@ -4844,6 +4902,21 @@ public enum RascalPrimitive {
 		assert arity == 1;
 		stack[sp - 1] = ((INumber) stack[sp - 1]).negate();
 		return sp;
+	}
+	
+	/*
+	 * parse
+	 */
+	
+	public static int parse(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IConstructor type = (IConstructor) stack[sp - 2];
+		stdout.println("parse: " + type.getType());
+		IString s = ((IString) stack[sp - 1]);
+	
+		IValue tree = parsingTools.parse(type, s);
+		stack[sp - 2] = tree;
+		return sp - 1;
 	}
 
 	/*

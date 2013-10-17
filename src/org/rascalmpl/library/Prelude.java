@@ -3183,7 +3183,13 @@ public class Prelude {
 	 */
 	
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc, IEvaluatorContext ctx){
+		
+//		TypeStore store = ctx.getCurrentEnvt().getStore();
 		TypeStore store = new TypeStore();
+		ModuleEnvironment pt = ctx.getHeap().getModule("ParseTree");
+		if(pt != null){
+			store.importStore(pt.getStore());
+		}
 		Type start = tr.valueToType((IConstructor) type, store);
 		loc = ctx.getHeap().resolveSourceLocation(loc);
 		
@@ -3210,7 +3216,7 @@ public class Prelude {
 	public IValue readTextValueFile(IValue type, ISourceLocation loc, IEvaluatorContext ctx){
 	  loc = ctx.getHeap().resolveSourceLocation(loc);
 	  
-		TypeStore store = new TypeStore();
+		TypeStore store = ctx.getCurrentEnvt().getStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
 		InputStream in = null;
@@ -3230,8 +3236,13 @@ public class Prelude {
 		}
 	}
 	
-	public IValue readTextValueString(IValue type, IString input) {
+	public IValue readTextValueString(IValue type, IString input, IEvaluatorContext ctx) {
+//		TypeStore store = ctx.getCurrentEnvt().getStore();
 		TypeStore store = new TypeStore();
+		ModuleEnvironment pt = ctx.getHeap().getModule("ParseTree");
+		if(pt != null){
+			store.importStore(pt.getStore());
+		}
 		Type start = tr.valueToType((IConstructor) type, store);
 		
 		StringReader in = new StringReader(input.getValue());

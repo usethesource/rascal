@@ -78,6 +78,7 @@ public data MuExp =
           					   list[MuExp] args)
           
           | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
+          | muCallPrim(str name)                                // Call a Rascal primitive function (with empty list of arguments)
           | muCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
           | muCallJava(str name, str class, 

@@ -935,4 +935,134 @@ function MATCH_REGEXP[3, ^regexp, varrefs, ^subject, matcher, i, varref]{
      yield true;
    };
    return false;
-} 
+}
+
+// ***** Traverse functions *****
+
+function TRAVERSE_TOP_DOWN[4, phi, ^subject, hasMatch, rebuild, matched] {
+	matched = false;	
+	^subject = phi(^subject, ref matched);
+	
+	if(rebuild) {
+		return VISIT_CHILDREN(^subject, Library::TRAVERSE_TOP_DOWN::4, phi, hasMatch, rebuild);
+	};	
+	return VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_TOP_DOWN::4, phi, hasMatch, rebuild);	
+}
+
+function TRAVERSE_BOTTOM_UP[4, phi, ^subject, hasMatch, rebuild, matched] {
+	if(rebuild) {
+		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_BOTTOM_UP::4, phi, hasMatch, rebuild);
+	} else {
+		VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_BOTTOM_UP::4, phi, hasMatch, rebuild);
+	};
+	
+	matched = false;	
+	return phi(^subject, ref matched);
+}
+
+function TRAVERSE_TOP_DOWN_BREAK[4, phi, ^subject, hasMatch, rebuild, matched] {
+	matched = false;
+	^subject = phi(^subject, ref matched);
+	deref hasMatch = muprim("or_mbool_mbool", matched, deref hasMatch);
+	
+	if(deref hasMatch) {	
+		return ^subject;
+	};
+	
+	if(rebuild) {
+		return VISIT_CHILDREN(^subject, Library::TRAVERSE_TOP_DOWN_BREAK::4, phi, hasMatch, rebuild);
+	};	
+	return VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_TOP_DOWN_BREAK::4, phi, hasMatch, rebuild);
+}
+
+function TRAVERSE_BOTTOM_UP_BREAK[4, phi, ^subject, hasMatch, rebuild, matched] {
+	if(rebuild) {
+		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_BOTTOM_UP_BREAK::4, phi, hasMatch, rebuild);
+	} else {
+		VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_BOTTOM_UP_BREAK::4, phi, hasMatch, rebuild);
+	};
+	
+	if(deref hasMatch) {	
+		return ^subject;
+	};
+	matched = false;	
+	^subject = phi(^subject, ref matched);
+	deref hasMatch = muprim("or_mbool_mbool", matched, deref hasMatch);
+	
+	return ^subject;
+}
+
+function VISIT_CHILDREN[5, ^subject, traverse_fun, phi, hasMatch, rebuild] {
+	
+	typeswitch(^subject) {
+	    case list:  return prim("list",  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    case lrel:  return prim("list",  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    case set:   return prim("set",   VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    case rel:   return prim("set",   VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    case tuple: return prim("tuple", VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    case node:  return prim("node",  muprim("get_name", ^subject), 
+	    							     VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    case constructor: 
+	                return prim("constructor", 
+	                					 muprim("typeOf_constructor", ^subject), 
+	    							     VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    
+	    case map:   return VISIT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild); // special case of map
+	    
+	    default:    return ^subject;
+	};
+}
+
+function VISIT_CHILDREN_VOID[5, ^subject, traverse_fun, phi, hasMatch, rebuild] {
+	
+	typeswitch(^subject) {
+	    case list:  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    case lrel:  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    case set:   VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    case rel:   VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    case tuple: VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    case node:  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    case constructor: 
+	                VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    
+	    case map:   VISIT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild); // special case of map
+	    
+	    default:    ^subject;
+	};
+	
+	return ^subject;
+}
+
+function VISIT_NOT_MAP[5, ^subject, traverse_fun, phi, hasMatch, rebuild,
+						  iarray, enumerator, ^child, i, childHasMatch] {
+	iarray = make_iarray(size(^subject));
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^child, ^subject);
+	i = 0;
+	while(all(multi(enumerator))) {
+		childHasMatch = false;
+		set_array iarray[i] = traverse_fun(phi, ^child, ref childHasMatch, rebuild);
+		i = i + 1;
+		deref hasMatch = muprim("or_mbool_mbool", childHasMatch, deref hasMatch);
+	};
+	return iarray;
+}
+
+function VISIT_MAP[5, ^subject, traverse_fun, phi, hasMatch, rebuild,
+					  writer, enumerator, ^key, ^val, childHasMatch] {
+	writer = prim("mapwriter_open");
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^key, ^subject);
+	while(all(multi(enumerator))) {
+		^val = prim("map_subscript", ^subject, ^key);
+		
+		childHasMatch = false;
+		^key = traverse_fun(phi, ^key, ref childHasMatch, rebuild);
+		deref hasMatch = muprim("or_mbool_mbool", childHasMatch, deref hasMatch);
+		
+		childHasMatch = false;
+		^val = traverse_fun(phi, ^val, ref childHasMatch, rebuild);
+		deref hasMatch = muprim("or_mbool_mbool", childHasMatch, deref hasMatch);
+		
+		prim("mapwriter_add", writer, ^key, ^val);
+	};
+	return prim("mapwriter_close", writer);
+}

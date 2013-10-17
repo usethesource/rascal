@@ -61,6 +61,8 @@ public enum MuPrimitive {
 	values_map,
 	less_equal_mint_mint,
 	less_mint_mint,
+	make_iarray,
+	make_iarray_of_size,
 	make_array,
 	make_array_of_size,
 	make_mset,
@@ -101,10 +103,6 @@ public enum MuPrimitive {
 	subtype,
 	typeOf,
 	product_mint_mint,
-	
-	make_tuple_array,
-	make_node_array,
-	make_constructor_array,
 	
 	typeOf_constructor
 	;
@@ -425,6 +423,25 @@ public enum MuPrimitive {
 		stack[sp - 1] = writer.done();
 		return sp;
 	}
+	
+	public static int make_iarray(Object[] stack, int sp, int arity) {
+		assert arity >= 0;
+		
+		IValue[] ar = new IValue[arity];
+		for(int i = arity - 1; i >= 0; i--) {
+			ar[i] = (IValue) stack[sp - arity + i];
+		}
+		sp = sp - arity + 1;
+		stack[sp - 1] = ar;
+		return sp;
+	}
+	
+	public static int make_iarray_of_size(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		int len = ((Integer) stack[sp - 1]);
+		stack[sp - 1] = new IValue[len];
+		return sp;
+	}
 		
 	public static int make_array(Object[] stack, int sp, int arity) {
 		assert arity >= 0;
@@ -438,7 +455,7 @@ public enum MuPrimitive {
 		stack[sp - 1] = ar;
 		return sp;
 	}
-		
+			
 	public static int make_array_of_size(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		int len = ((Integer)stack[sp - 1]);
@@ -801,45 +818,7 @@ public enum MuPrimitive {
 //		stack[sp - 1] = mset.clone();
 //		return sp;
 //	}
-	
-	public static int make_tuple_array(Object[] stack, int sp, int arity) {
-		assert arity == 1;
-		Object[] vals = (Object[]) stack[sp - 1];
-		IValue[] args = new IValue[vals.length];
-		int i = 0;
-		for(Object val : vals) {
-			args[i++] = (IValue) val;
-		}
-		stack[sp - 1] = vf.tuple(args);
-		return sp;
-	}
-	
-	public static int make_node_array(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		String name = ((IString) stack[sp - 2]).getValue(); 
-		Object[] vals = (Object[]) stack[sp - 1];
-		IValue[] args = new IValue[vals.length];
-		int i = 0;
-		for(Object val : vals) {
-			args[i++] = (IValue) val;
-		}
-		stack[sp - 2] = vf.node(name, args);
-		return sp - 1;
-	}
-	
-	public static int make_constructor_array(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		Type type = (Type) stack[sp - 2]; 
-		Object[] vals = (Object[]) stack[sp - 1];
-		IValue[] args = new IValue[vals.length];
-		int i = 0;
-		for(Object val : vals) {
-			args[i++] = (IValue) val;
-		}
-		stack[sp - 2] = vf.constructor(type, args);
-		return sp - 1;
-	}
-	
+			
 	/*
 	 * Run this class as a Java program to compare the list of enumeration constants with the implemented methods in this class.
 	 */
