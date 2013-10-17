@@ -37,12 +37,6 @@ public class Concat extends OrgString {
 
 	@Override
 	public IString reverse() {
-		/*
-		 * abcd --> dcba
-		 * ab cd --> dc ba
-		 * ab cde --> edc ba
-		 * What happens with locations?
-		 */
 		return new Concat((OrgString)rhs.reverse(), (OrgString)lhs.reverse());
 	}
 
@@ -136,5 +130,10 @@ public class Concat extends OrgString {
 		return rhs.indexOf(str);
 	}
 
+	@Override
+	public int hashCode() {
+		// TODO!!!!
+		return 1;
+	}
 
 }
