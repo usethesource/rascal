@@ -179,7 +179,8 @@ public class StringResult extends ElementResult<IString> {
 		if ( (idx >= getValue().getValue().length()) || (idx < 0) ) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		return makeResult(getType(), getValueFactory().string(getValue().getValue().substring(idx, idx + 1)), ctx);
+//		return makeResult(getType(), getValueFactory().string(getValue().getValue().substring(idx, idx + 1)), ctx);
+		return makeResult(getType(), getValue().substring(idx, idx + 1), ctx);
 	}
 	
 	@Override
