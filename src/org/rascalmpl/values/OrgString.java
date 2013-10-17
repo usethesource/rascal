@@ -1,14 +1,18 @@
 package org.rascalmpl.values;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public abstract class OrgString implements IString, Iterable<Integer> {
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
@@ -43,6 +47,31 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 		throw new IllegalOperationException(
 				"Cannot be viewed as annotatable.", getType());
 	}
+	
+	@Override
+	public int compare(IString other) {
+		OrgString os = (OrgString)other;
+		Iterator<Integer> iter1 = this.iterator();
+		Iterator<Integer> iter2 = os.iterator();
+		while (true) {
+			if (iter1.hasNext() && iter2.hasNext()) {
+				if (iter1.next() > iter2.next()) {
+					return 1; // I'm bigger than other
+				}
+				if (iter1.next() < iter2.next()) {
+					return -1; // I'm smaller
+				}
+				continue; // we don't know yet
+			}
+			if (iter1.hasNext()) {
+				return 1; // I'm longer, hence bigger
+			}
+			if (iter2.hasNext()) {
+				return -1; // Other is longer, hence I'm smaller.
+			}
+			return 0; // reached the end, we're equal.
+		}
+	}
 
 	
 	public abstract void accept(IOrgStringVisitor visitor);
@@ -61,11 +90,17 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 	
 	@Override
 	public boolean isEqual(IValue other) {
+		if (other == null) {
+			return false;
+		}
 		if (this == other) {
 			return true;
 		}
 		if (!(other instanceof IString)) {
 			return false;
+		}
+		if (!(other instanceof OrgString)) {
+			throw new ImplementationError("Mixing factories!!!");
 		}
 		if (length() != ((IString)other).length()) {
 			return false;
@@ -96,6 +131,16 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 			}
 		}
 		return result;
+	}
+	
+	public String toString() {
+		try(StringWriter stream = new StringWriter()) {
+			new StandardTextWriter().write(this, stream);
+			return stream.toString();
+		} catch (IOException ioex) {
+			// this never happens
+		}
+		return "";
 	}
 
 }
