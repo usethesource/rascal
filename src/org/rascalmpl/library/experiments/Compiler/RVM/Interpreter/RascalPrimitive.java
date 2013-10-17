@@ -50,6 +50,7 @@ import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.library.Prelude;
 
 /*
  * The primitives that can be called via the CALLPRIM instruction.
@@ -461,6 +462,10 @@ public enum RascalPrimitive {
 	elm_notin_set,
 	elm_notin_rel,
 	elm_notin_map,
+	
+	// parse
+	
+	parse,
 
 	// println
 	
@@ -637,6 +642,7 @@ public enum RascalPrimitive {
 	
 	private static PrintWriter stdout;
 	private static RVM rvm;
+	private static ParsingTools parsingTools;
 
 	/**
 	 * Initialize the primitive methods.
@@ -649,6 +655,8 @@ public enum RascalPrimitive {
 			stdout = usedRVM.stdout;
 		}
 		rvm = usedRVM;
+		
+		parsingTools = new ParsingTools(fact, rvm.ctx);
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 									new String[] {"line", "column"});
@@ -4894,6 +4902,21 @@ public enum RascalPrimitive {
 		assert arity == 1;
 		stack[sp - 1] = ((INumber) stack[sp - 1]).negate();
 		return sp;
+	}
+	
+	/*
+	 * parse
+	 */
+	
+	public static int parse(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IConstructor type = (IConstructor) stack[sp - 2];
+		stdout.println("parse: " + type.getType());
+		IString s = ((IString) stack[sp - 1]);
+	
+		IValue tree = parsingTools.parse(type, s);
+		stack[sp - 2] = tree;
+		return sp - 1;
 	}
 
 	/*
