@@ -140,3 +140,23 @@ void enterFunctionScope(str fuid) {
 void leaveFunctionScope() { 
 	functionScopes = tail(functionScopes); 
 }
+
+private list[Symbol] visits = [];
+
+Symbol topCaseType() = top(visits);
+
+void enterVisit() {
+	visits = Symbol::\void() + visits;
+}
+
+void leaveVisit() {
+	visits = tail(visits);
+}
+
+void fillCaseType(Symbol t) {
+	visits = t + tail(visits);
+}
+
+void clearCaseType() {
+	visits = Symbol::\void() + tail(visits);
+}

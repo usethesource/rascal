@@ -907,9 +907,12 @@ MuExp translateVisit(label,\visit) {
 	// Generate and add a nested function 'phi'
 	str scopeId = topFunctionScope();
 	str phi_fuid = scopeId + "/" + "phi_<i>";
-	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value()]);	
+	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value()]);
+	
+	enterVisit();	
 	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 2, 2, \visit@\loc, [], (), 
 										translateVisitCases([ c | Case c <- \visit.cases ]));
+	leaveVisit();
 	
 	if(fixpoint) {
 		str phi_fixpoint_fuid = scopeId + "/" + "phi_fixpoint_<i>";
@@ -947,18 +950,25 @@ MuExp translateVisitCases(list[Case] cases) {
 	
 	if(c is patternWithAction) {
 		pattern = c.patternWithAction.pattern;
-		cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ translatePat(pattern), muLoc("subject",0) ]));		
+		typePat = getType(pattern@\loc);
+		cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ translatePat(pattern), muLoc("subject",0) ]));
 		ifname = nextLabel();
 		enterBacktrackingScope(ifname);
 		if(c.patternWithAction is replacing) {
 			replacement = translate(c.patternWithAction.replacement.replacementExpression);
-        	exp = muIfelse(ifname, muAll([cond]), [ muReturn(muBlock([ muAssignLocDeref("matched", 1, muBool(true)), replacement ])) ], [ translateVisitCases(tail(cases)) ]);
+			replacementType = getType(c.patternWithAction.replacement.replacementExpression@\loc);
+			tcond = muCallPrim("subtype", [ muTypeCon(replacementType), muCallPrim("typeOf", [ muLoc("subject",0) ]) ]);
+        	exp = muIfelse(ifname, muAll([cond,tcond]), [ muReturn(muBlock([ muAssignLocDeref("matched", 1, muBool(true)), replacement ])) ], [ translateVisitCases(tail(cases)) ]);
         	leaveBacktrackingScope();
         	return exp;
 		} else {
 			// Arbitrary
 			statement = c.patternWithAction.statement;
-			exp = muIfelse(ifname, muAll([cond]), [ muAssignLocDeref("matched", 1, muBool(true)), translate(statement), muReturn(muLoc("subject",0)) ],
+			\case = translate(statement);
+			insertType = topCaseType();
+			clearCaseType();
+			tcond = muCallPrim("subtype", [ muTypeCon(insertType), muCallPrim("typeOf", [ muLoc("subject",0) ]) ]);
+			exp = muIfelse(ifname, muAll([cond,tcond]), [ muAssignLocDeref("matched", 1, muBool(true)), \case, muReturn(muLoc("subject",0)) ],
 												  [ translateVisitCases(tail(cases)) ]);
         	leaveBacktrackingScope();
 			return exp;
