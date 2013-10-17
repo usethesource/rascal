@@ -131,7 +131,8 @@ public class StringTemplateConverter {
 					return vf.string((ISourceLocation) value.asAnnotatable().getAnnotation("loc"),
 					    org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
 				}
-				else if (value.getType().isNode() && value.asAnnotatable().hasAnnotation("location")) {
+				else if ((value.getType().isNode() || value.getType().isConstructor()) 
+						&& value.asAnnotatable().hasAnnotation("location")) {
 					return vf.string((ISourceLocation) value.asAnnotatable().getAnnotation("location"),
 						    value.toString());
 				}
@@ -181,7 +182,14 @@ public class StringTemplateConverter {
 			
 			private IString makeValue(String arg) {
 				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
-				return vf.string(src, arg);
+				// Consts always have " <, or > ", or > <.
+				ISourceLocation loc = vf.sourceLocation(src, src.getOffset() + 1, 
+						src.getLength() - 2, 
+						src.getBeginLine(), 
+						src.getEndLine(), 
+						src.getBeginColumn() + 1,
+						src.getEndColumn() - 1);
+				return vf.string(loc, arg);
 			}
 			
 			private String removeMargins(String arg) {
