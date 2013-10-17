@@ -97,6 +97,7 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.util.Maybe;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
@@ -3323,12 +3324,12 @@ public class Prelude {
 				
 				@Override
 				public void visit(Chunk chunk) {
-					w.append(values.tuple(chunk.getOrigin(), chunk));
+					w.append(values.tuple(values.constructor(Maybe.Maybe_just, chunk.getOrigin()), chunk));
 				}
 
 				@Override
 				public void visit(NoOrg noOrg) {
-					// nop
+					w.append(values.tuple(values.constructor(Maybe.Maybe_nothing), noOrg));
 				}
 			});
 			return w.done();
