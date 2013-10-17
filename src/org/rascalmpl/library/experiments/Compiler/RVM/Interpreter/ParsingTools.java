@@ -77,23 +77,24 @@ public class ParsingTools {
 		
 		List<ClassLoader> oldClassLoaders = ctx.getEvaluator().getClassLoaders();
 		
-		classLoaders = new ArrayList<ClassLoader>(); 
+		classLoaders = oldClassLoaders;
+		//classLoaders = new ArrayList<ClassLoader>(); 
 		
-		 stderr.println("Class loaders before:");
+		 stderr.println("Class loaders:");
 		  for(ClassLoader cl : oldClassLoaders){
 			  stderr.println(cl);
-			  classLoaders.add(cl);
+			  //classLoaders.add(cl);
 		  }
-		  classLoaders.add(org.rascalmpl.parser.gtd.IGTD.class.getClassLoader());
-		  classLoaders.add(org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory.class.getClassLoader());
-		  classLoaders.add(org.rascalmpl.parser.gtd.result.out.INodeFlattener.class.getClassLoader());
-		  classLoaders.add(org.rascalmpl.parser.gtd.recovery.IRecoverer.class.getClassLoader());
-		  classLoaders.add(0, ParsingTools.class.getClassLoader());
+//		  classLoaders.add(org.rascalmpl.parser.gtd.IGTD.class.getClassLoader());
+//		  classLoaders.add(org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory.class.getClassLoader());
+//		  classLoaders.add(org.rascalmpl.parser.gtd.result.out.INodeFlattener.class.getClassLoader());
+//		  classLoaders.add(org.rascalmpl.parser.gtd.recovery.IRecoverer.class.getClassLoader());
+//		  classLoaders.add(0, ParsingTools.class.getClassLoader());
 		  
-		  stderr.println("Class loaders after:");
-		  for(ClassLoader cl : classLoaders){
-			  stderr.println(cl);
-		  }  
+//		  stderr.println("Class loaders after:");
+//		  for(ClassLoader cl : classLoaders){
+//			  stderr.println(cl);
+//		  }  
 		
 	}
 	
