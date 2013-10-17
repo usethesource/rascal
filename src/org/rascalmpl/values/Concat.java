@@ -32,7 +32,7 @@ public class Concat extends OrgString {
 
 	@Override
 	public IString reverse() {
-		return new Concat((OrgString)rhs.reverse(), (OrgString)lhs.reverse());
+		return ((OrgString)rhs.reverse()).concat(lhs.reverse());
 	}
 
 	@Override
@@ -51,8 +51,8 @@ public class Concat extends OrgString {
 		if (start >= lhs.length()) {
 			return rhs.substring(start - lhs.length(), end - lhs.length());
 		}
-		return new Concat((OrgString)lhs.substring(start),
-				(OrgString)rhs.substring(0, end - lhs.length()));
+		return lhs.substring(start)
+				.concat(rhs.substring(0, end - lhs.length()));
 	}
 
 	
@@ -143,10 +143,8 @@ public class Concat extends OrgString {
 	}
 	
 	public OrgString capitalize() {
-		if (lhs.length() > 0) {
-			return new Concat(lhs.capitalize(), rhs);
-		}
-		return new Concat(lhs, rhs.capitalize());
+		assert lhs.length() > 0;
+		return (OrgString) lhs.capitalize().concat(rhs);
 	}
 
 }

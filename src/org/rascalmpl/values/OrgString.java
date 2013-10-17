@@ -34,6 +34,12 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 
 	@Override
 	public IString concat(IString other) {
+		if (length() == 0) {
+			return other;
+		}
+		if (other.length() == 0) {
+			return this;
+		}
 		return new Concat(this, (OrgString)other);
 	}
 

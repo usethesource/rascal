@@ -81,9 +81,8 @@ public class Chunk extends Atom {
 			return this;
 		}
 		String s = getValue();
-		return new Concat(
-				new NoOrg(WordUtils.capitalize(s.substring(0, 1))),
-				(OrgString)substring(1, length()));
+		return (OrgString) new NoOrg(WordUtils.capitalize(s.substring(0, 1)))
+				.concat((OrgString)substring(1, length()));
 	}
 
 }
