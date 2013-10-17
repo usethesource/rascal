@@ -30,7 +30,12 @@ public abstract class Atom extends OrgString {
 	
 	@Override
 	public int hashCode() {
-		return value.hashCode();
+		int h = 0;
+		String s = getValue();
+		for (int i = 0; i < length(); i++) {
+			h += s.charAt(i);
+		}
+		return h;
 	}
 	
 	@Override
