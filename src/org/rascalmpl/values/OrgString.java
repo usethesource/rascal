@@ -5,6 +5,8 @@ import java.io.StringWriter;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
@@ -15,6 +17,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public abstract class OrgString implements IString, Iterable<Integer> {
+	protected static final OriginValueFactory vf = (OriginValueFactory) ValueFactoryFactory.getValueFactory();
+		
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
 
 	@Override
@@ -153,4 +157,33 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 		return "";
 	}
 
+	public IList split(String sep) {
+		IListWriter w = vf.listWriter();
+		split(w, sep);
+		return w.done();
+	}
+	
+	public abstract OrgString capitalize();
+	
+	private void split(IListWriter w, String sep) {
+		int ind = indexOf(sep);		
+		if (ind != -1) {
+			w.append(substring(0, ind));
+			((OrgString)substring(ind + sep.length())).split(w, sep);
+		}
+		else {
+			w.append(this);
+		}
+	}
+	
+	@Override
+	public String getValue() {
+		StringBuilder b = new StringBuilder();
+		serialize(b);
+		return b.toString();
+	}
+
+	
+	public abstract void serialize(StringBuilder b);
+	
 }

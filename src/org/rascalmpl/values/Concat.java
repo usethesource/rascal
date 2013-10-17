@@ -31,11 +31,6 @@ public class Concat extends OrgString {
 	}
 
 	@Override
-	public String getValue() {
-		return lhs.getValue() + rhs.getValue();
-	}
-
-	@Override
 	public IString reverse() {
 		return new Concat((OrgString)rhs.reverse(), (OrgString)lhs.reverse());
 	}
@@ -139,6 +134,19 @@ public class Concat extends OrgString {
 	@Override
 	public int hashCode() {
 		return lhs.hashCode() + rhs.hashCode();
+	}
+
+	@Override
+	public void serialize(StringBuilder b) {
+		lhs.serialize(b);
+		rhs.serialize(b);
+	}
+	
+	public OrgString capitalize() {
+		if (lhs.length() > 0) {
+			return new Concat(lhs.capitalize(), rhs);
+		}
+		return new Concat(lhs, rhs.capitalize());
 	}
 
 }

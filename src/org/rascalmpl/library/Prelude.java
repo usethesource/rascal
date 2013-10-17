@@ -2828,6 +2828,9 @@ public class Prelude {
 	}
 	
 	public IList split(IString sep, IString src) {
+		if (src instanceof OrgString) {
+			return ((OrgString)src).split(sep.getValue());
+		}
 		String[] lst = src.getValue().split(Pattern.quote(sep.getValue()));
 		IListWriter lw = values.listWriter();
 		for (String s: lst) {
