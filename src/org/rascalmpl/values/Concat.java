@@ -119,6 +119,8 @@ public class Concat extends OrgString {
 		}
 		// test for overlapping
 		for (int i = 1; i < str.length(); i++) {
+			// for a string abcd we partition as
+			// a bcd, ab cd, abc d
 			String before = str.substring(0, i);
 			String after = str.substring(i, str.length());
 			int lind = lhs.indexOf(before);
@@ -127,13 +129,16 @@ public class Concat extends OrgString {
 				return lind;
 			}
 		}
-		return rhs.indexOf(str);
+		ind = rhs.indexOf(str);
+		if (ind != -1) {
+			return lhs.length() + ind;
+		}
+		return -1;
 	}
 
 	@Override
 	public int hashCode() {
-		// TODO!!!!
-		return 1;
+		return lhs.hashCode() + rhs.hashCode();
 	}
 
 }
