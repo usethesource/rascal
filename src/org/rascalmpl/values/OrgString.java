@@ -55,10 +55,12 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 		Iterator<Integer> iter2 = os.iterator();
 		while (true) {
 			if (iter1.hasNext() && iter2.hasNext()) {
-				if (iter1.next() > iter2.next()) {
+				Integer x1 = iter1.next();
+				Integer x2 = iter2.next();
+				if (x1 > x2) {
 					return 1; // I'm bigger than other
 				}
-				if (iter1.next() < iter2.next()) {
+				if (x1 < x2) {
 					return -1; // I'm smaller
 				}
 				continue; // we don't know yet
@@ -77,6 +79,9 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 	public abstract void accept(IOrgStringVisitor visitor);
 
 	public IString replaceAll(String sub, IString string) {
+		if (getValue().indexOf("public") != -1) {
+			System.err.println("Bla");
+		}
 		int ind = indexOf(sub);
 		if (ind != -1) {
 			IString l = substring(0, ind);
@@ -90,6 +95,11 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 	
 	@Override
 	public boolean isEqual(IValue other) {
+		return equals(other);
+	}
+	
+	@Override
+	public boolean equals(Object other) {
 		if (other == null) {
 			return false;
 		}

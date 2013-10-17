@@ -110,13 +110,7 @@ public class StringTemplateConverter {
 				Result<IValue> result = this.getStatement().interpret(__eval);
 				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 				IValue v = result.getValue();
-//				if (!(v instanceof IString)) {
-//					// Ensure that values that are trees are yielding the appropriate string value
-////					StringBuilder sb = new StringBuilder(500);
-////					appendToString(v, sb);
-////					v = vf.string(sb.toString());
 				v = convertToString(v);
-//				}
 				java.lang.String fill = __eval.getCurrentIndent();
 				if (v instanceof OrgString) {
 					v = ((OrgString)v).replaceAll("\n", vf.string(src, "\n" + fill));
@@ -126,8 +120,6 @@ public class StringTemplateConverter {
 					content = content.replaceAll("\n", "\n" + fill);
 					v = vf.string(content);
 				}
-//				__eval.unindent();
-
 				result = ResultFactory.makeResult(v.getType(), v, result.getEvaluatorContext());
 				target.append(result);
 				return result;
