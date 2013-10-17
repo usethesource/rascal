@@ -47,6 +47,8 @@ import experiments::Compiler::Examples::Visit4;
 import experiments::Compiler::Examples::Visit5;
 import experiments::Compiler::Examples::Visit6;
 import experiments::Compiler::Examples::Visit7;
+import experiments::Compiler::Examples::Visit8;
+import experiments::Compiler::Examples::Visit9;
 
 loc base = |rascal:///experiments/Compiler/Examples/|;
 
@@ -101,5 +103,5 @@ test bool tst4() = demo("Visit4") == experiments::Compiler::Examples::Visit4::ma
 test bool tst5() = demo("Visit5") == experiments::Compiler::Examples::Visit5::main([]);
 test bool tst6() = demo("Visit6") == experiments::Compiler::Examples::Visit6::main([]);
 test bool tst7() = demo("Visit7") == experiments::Compiler::Examples::Visit7::main([]);
-
-
+test bool tst8() = demo("Visit8") == experiments::Compiler::Examples::Visit8::main([]);
+test bool tst9() = demo("Visit9") == experiments::Compiler::Examples::Visit9::main([]);
