@@ -5,7 +5,7 @@ value main(list[value] args) {
 	for(j <- [1 .. 1000]) {
 	
 		res = bottom-up-break visit({ [ "a"(1,1) ], [ "b"(2,2) ], [ "c"(3,3) ] }) {
-				case set[value] s => s + { [ "d"(5,5) ] }
+				case set[list[node]] s => s + { [ "d"(5,5) ] }
 				case list[node] l => l + [ "d"(4,4) ]
 				case "a"(int x, int y) => "a"(x + 1000, y + 1000)
 				case "b"(int x, int y) => "b"(x + 1000, y + 1000)
