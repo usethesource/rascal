@@ -1123,6 +1123,17 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     	return < targetType, canInstantiate, c >;	
 	}
 	
+	// Special handling for overloads -- if we have an overload, at least one of the overload options
+	// should be a subtype of the other type, but some of them may not be.
+	bool subtypeOrOverload(Symbol t1, Symbol t2) {
+		if (!isOverloadedType(t1)) {
+			return subtype(t1,t2);
+		} else {
+			overloads = getNonDefaultOverloadOptions(t1) + getDefaultOverloadOptions(t1);
+			return (true in { subtype(overload,t2) | overload <- overloads });
+		}		
+	}
+	
 	tuple[Configuration c, set[Symbol] matches, set[str] failures] matchFunctionAlts(Configuration c, set[Symbol] alts) {
         set[Symbol] matches = { };
         set[str] failureReasons = { };
@@ -1141,7 +1152,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         				if (!b) continue;
         				args = getFunctionArgumentTypes(a);
         			}
-                 	if (false notin { subtype(tl[idx],args[idx]) | (idx <- index(epsList)) })
+                 	if (false notin { subtypeOrOverload(tl[idx],args[idx]) | (idx <- index(epsList)) })
                     	matches += a;
                     else
                     	failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
@@ -1165,12 +1176,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                         list[Symbol] varPart = tail(tl,size(tl)-size(args)+1);
                         list[Symbol] fixedArgs = head(args,size(args)-1);
                         Symbol varArgsType = getListElementType(last(args));
-                        if (size(fixedPart) == 0 || all(idx <- index(fixedPart), subtype(fixedPart[idx],fixedArgs[idx]))) {
+                        if (size(fixedPart) == 0 || all(idx <- index(fixedPart), subtypeOrOverload(fixedPart[idx],fixedArgs[idx]))) {
                             if (size(varPart) == 0) {
                                 matches += a;
-                            } else if (size(varPart) == 1 && subtype(varPart[0],last(args))) {
+                            } else if (size(varPart) == 1 && subtypeOrOverload(varPart[0],last(args))) {
                                 matches += a;
-                            } else if (all(idx2 <- index(varPart),subtype(varPart[idx2],varArgsType))) {
+                            } else if (all(idx2 <- index(varPart),subtypeOrOverload(varPart[idx2],varArgsType))) {
                                 matches += a;
                             } else {
                                 failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
