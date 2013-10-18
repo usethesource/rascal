@@ -99,7 +99,27 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 				IConstructor tree = (IConstructor)subject.getValue();
 
 				NonTerminalType nt = (NonTerminalType)declaredType;
-				if (SymbolAdapter.isEqual(nt.getSymbol(), TreeAdapter.getType(tree))) {
+				
+				IConstructor declaredSymbol = nt.getSymbol();
+				IConstructor subjectSymbol = TreeAdapter.getType(tree);
+				
+				if( (SymbolAdapter.isIterPlus(subjectSymbol) && SymbolAdapter.isIterStar(declaredSymbol)
+						&& SymbolAdapter.isEqual(SymbolAdapter.getSymbol(subjectSymbol), SymbolAdapter.getSymbol(declaredSymbol))) || 
+						
+					(SymbolAdapter.isIterPlusSeps(subjectSymbol) && SymbolAdapter.isIterStarSeps(declaredSymbol)
+						&& SymbolAdapter.isEqual(SymbolAdapter.getSymbol(subjectSymbol), SymbolAdapter.getSymbol(declaredSymbol))
+				        && SymbolAdapter.isEqual(SymbolAdapter.getSeparators(subjectSymbol), SymbolAdapter.getSeparators(declaredSymbol))) ||
+				        
+				    (SymbolAdapter.isEqual(declaredSymbol, subjectSymbol)) ) {
+					
+					if(TreeAdapter.isList(tree)) {
+						if(TreeAdapter.getArgs(tree).isEmpty()) {
+							if(SymbolAdapter.isIterPlus(declaredSymbol)  || (SymbolAdapter.isIterPlusSeps(declaredSymbol))) {
+								return false;
+							}
+						}
+					}
+					
 					if(anonymous) { 
 						return true;
 					}		
