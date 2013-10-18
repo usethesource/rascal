@@ -1066,7 +1066,64 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     if (size(failures) > 0)
         return markLocationFailed(c, exp@\loc, failures);
     
-    tuple[set[Symbol] matches, set[str] failures] matchFunctionAlts(set[Symbol] alts) {
+ 	tuple[Symbol, bool, Configuration] instantiateFunctionTypeArgs(Configuration c, Symbol targetType) {
+		// If the function is parametric, we need to calculate the actual types of the
+    	// parameters and make sure they fall within the proper bounds.
+    	formalArgs = getFunctionArgumentTypes(targetType);
+		bool varArgs = ( ((targetType@isVarArgs)?) ? targetType@isVarArgs : false );
+		set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
+		map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
+    	bool canInstantiate = true;            
+		if (!varArgs) {
+			// First try to get the bindings between the type vars and the actual types for each of the
+			// function parameters. Here this is not a varargs function, so there are the same number of
+			// formals as actuals.
+			for (idx <- index(tl)) {
+				try {
+					bindings = match(formalArgs[idx],tl[idx],bindings);
+				} catch : {
+					c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
+					canInstantiate = false;  
+				}
+			}
+		} else {
+			// Get the bindings between the type vars and the actual types for each function parameter. Since
+			// this is a var-args function, we need to take that into account. The first for loop takes care
+			// of the fixes parameters, while the second takes care of those that are mapped to the var-args
+			// parameter.
+			for (idx <- index(tl), idx < size(formalArgs)) {
+				try {
+					bindings = match(formalArgs[idx],tl[idx],bindings);
+				} catch : {
+					c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
+					canInstantiate = false;  
+				}
+			}
+			for (idx <- index(tl), idx >= size(formalArgs)) {
+				try {
+					bindings = match(getListElementType(formalArgs[size(formalArgs)-1]),tl[idx],bindings);
+				} catch : {
+					c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(getListElementType(formalArgs[size(formalArgs)-1]))>", epsList[idx]@\loc);
+					canInstantiate = false;  
+				}
+			}
+    	}
+    	// Based on the above, either give an error message (if we could not match the function's parameter types) or
+    	// try to instantiate the entire function type. The instantiation should only fail if we cannot instantiate
+    	// the return type correctly, for instance if the instantiation would violate the bounds.
+    	// NOTE: We may instantiate and still have type parameters, since we may be calling this from inside
+    	// a function, using a value with a type parameter as its type.
+    	if (canInstantiate) {
+        	try {
+            	targetType = instantiate(targetType, bindings);
+        	} catch : {
+            	canInstantiate = false;
+        	}
+    	}
+    	return < targetType, canInstantiate, c >;	
+	}
+	
+	tuple[Configuration c, set[Symbol] matches, set[str] failures] matchFunctionAlts(Configuration c, set[Symbol] alts) {
         set[Symbol] matches = { };
         set[str] failureReasons = { };
         for (a <- alts, isFunctionType(a)) {
@@ -1078,8 +1135,16 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             if (!varArgs) {
                 if (size(epsList) == size(args) && size(epsList) == 0) {
                     matches += a;
-                } else if (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | (idx <- index(epsList)) }) {
-                    matches += a;
+                } else if (size(epsList) == size(args)) {
+					if (typeContainsTypeVars(a)) {
+        				< a, b, c > = instantiateFunctionTypeArgs(c, a);
+        				if (!b) continue;
+        				args = getFunctionArgumentTypes(a);
+        			}
+                 	if (false notin { subtype(tl[idx],args[idx]) | (idx <- index(epsList)) })
+                    	matches += a;
+                    else
+                    	failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
                 } else {
                     failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
                 }
@@ -1088,6 +1153,14 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                     if (size(epsList) == 0) {
                         matches += a;
                     } else {
+						if (typeContainsTypeVars(a) && size(args)-1 <= size(tl)) {
+    	    				< a, b, c > = instantiateFunctionTypeArgs(c, a);
+        					if (!b) continue;
+        					args = getFunctionArgumentTypes(a);
+        				}
+        				// TODO: It may be good to put another check here to make sure we don't
+        				// continue if the size is wrong; we will still get the proper error, but
+        				// we could potentially give a better message here
                         list[Symbol] fixedPart = head(tl,size(args)-1);
                         list[Symbol] varPart = tail(tl,size(tl)-size(args)+1);
                         list[Symbol] fixedArgs = head(args,size(args)-1);
@@ -1112,10 +1185,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         // TODO: Here would be a good place to filter out constructors that are "masked" by functions with the
         // same name and signature. We already naturally mask function declarations by using a set, but we do
         // need to keep track there of possible matching IDs so we can link things up correctly.
-        return < matches, failureReasons >;
+        return < c, matches, failureReasons >;
     }
     
-   tuple[set[Symbol] matches, set[str] failures] matchConstructorAlts(set[Symbol] alts) {
+   tuple[Configuration c, set[Symbol] matches, set[str] failures] matchConstructorAlts(Configuration c, set[Symbol] alts) {
         set[Symbol] matches = { };
         set[str] failureReasons = { };
         for (a <- alts, isConstructorType(a)) {
@@ -1131,7 +1204,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         // TODO: Here would be a good place to filter out constructors that are "masked" by functions with the
         // same name and signature. We already naturally mask function declarations by using a set, but we do
         // need to keep track there of possible matching IDs so we can link things up correctly.
-        return < matches, failureReasons >;
+        return < c, matches, failureReasons >;
     }
         
     // e was either a name or an expression that evaluated to a function, a constructor,
@@ -1140,9 +1213,9 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         set[Symbol] alts     = isFunctionType(t1) ? {t1} : ( isConstructorType(t1) ? {  } : getNonDefaultOverloadOptions(t1) );
         set[Symbol] defaults = isFunctionType(t1) ? {  } : ( isConstructorType(t1) ? {t1} : getDefaultOverloadOptions(t1) );
         
-        < nonDefaultFunctionMatches, nonDefaultFunctionFailureReasons > = matchFunctionAlts(alts);
-        < defaultFunctionMatches, defaultFunctionFailureReasons > = matchFunctionAlts(defaults);
-        < constructorMatches, constructorFailureReasons > = matchConstructorAlts(defaults);
+        < c, nonDefaultFunctionMatches, nonDefaultFunctionFailureReasons > = matchFunctionAlts(c, alts);
+        < c, defaultFunctionMatches, defaultFunctionFailureReasons > = matchFunctionAlts(c, defaults);
+        < c, constructorMatches, constructorFailureReasons > = matchConstructorAlts(c, defaults);
         
         if (size(nonDefaultFunctionMatches) == 0 && size(defaultFunctionMatches) == 0 && size(constructorMatches) == 0) {
             return markLocationFailed(c,exp@\loc,{makeFailType(reason,exp@\loc) | reason <- (nonDefaultFunctionFailureReasons + defaultFunctionFailureReasons + constructorFailureReasons)});
@@ -1166,65 +1239,14 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             	isInNonDefaults = rt in nonDefaultFunctionMatches;
             	
             	if (typeContainsTypeVars(rt)) {
-                	// If the function is parametric, we need to calculate the actual types of the
-                	// parameters and make sure they fall within the proper bounds.
-                	formalArgs = getFunctionArgumentTypes(rt);
-                	bool varArgs = ( ((rt@isVarArgs)?) ? rt@isVarArgs : false );
-                	set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
-                	map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
-                
-                	if (!varArgs) {
-                    	// First try to get the bindings between the type vars and the actual types for each of the
-                    	// function parameters. Here this is not a varargs function, so there are the same number of
-                    	// formals as actuals.
-                    	for (idx <- index(tl)) {
-                        	try {
-                            	bindings = match(formalArgs[idx],tl[idx],bindings);
-                        	} catch : {
-                            	c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
-                            	cannotInstantiateFunction = true;  
-                        	}
-                    	}
-                	} else {
-                    	// Get the bindings between the type vars and the actual types for each function parameter. Since
-                    	// this is a var-args function, we need to take that into account. The first for loop takes care
-                    	// of the fixes parameters, while the second takes care of those that are mapped to the var-args
-                    	// parameter.
-                    	for (idx <- index(tl), idx < size(formalArgs)) {
-                        	try {
-                            	bindings = match(formalArgs[idx],tl[idx],bindings);
-                        	} catch : {
-                            	c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
-                            	cannotInstantiateFunction = true;  
-                        	}
-                    	}
-                    	for (idx <- index(tl), idx >= size(formalArgs)) {
-                        	try {
-                            	bindings = match(getListElementType(formalArgs[size(formalArgs)-1]),tl[idx],bindings);
-                        	} catch : {
-                            	c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(getListElementType(formalArgs[size(formalArgs)-1]))>", epsList[idx]@\loc);
-                            	cannotInstantiateFunction = true;  
-                        	}
-                    	}
-                	}
-                	// Based on the above, either give an error message (if we could not match the function's parameter types) or
-                	// try to instantiate the entire function type. The instantiation should only fail if we cannot instantiate
-                	// the return type correctly, for instance if the instantiation would violate the bounds.
-                	// NOTE: We may instantiate and still have type parameters, since we may be calling this from inside
-                	// a function, using a value with a type parameter as its type.
-                	if (!cannotInstantiateFunction) {
-                    	try {
-                        	rt = instantiate(rt, bindings);
-                        	if(isInDefaults) {
-                        		finalDefaultMatches += rt;
-                        	}
-                        	if(isInNonDefaults) {
-                        		finalNonDefaultMatches += rt;
-                        	}
-                    	} catch : {
-                        	cannotIstantiateFunction = true;
-                    	}
-                	}
+					< rt, canInstantiate, c > = instantiateFunctionTypeArgs(c, rt);
+					cannotInstantiateFunction = !canInstantiate;
+					if(isInDefaults) {
+						finalDefaultMatches += rt;
+					}
+					if(isInNonDefaults) {
+						finalNonDefaultMatches += rt;
+					}
             	} else {
             		if(isInDefaults) {
             			finalDefaultMatches += rt;
