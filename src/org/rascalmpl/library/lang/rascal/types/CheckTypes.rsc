@@ -1082,7 +1082,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				try {
 					bindings = match(formalArgs[idx],tl[idx],bindings);
 				} catch : {
-					c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
+					// c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
 					canInstantiate = false;  
 				}
 			}
@@ -1095,7 +1095,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				try {
 					bindings = match(formalArgs[idx],tl[idx],bindings);
 				} catch : {
-					c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
+					// c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
 					canInstantiate = false;  
 				}
 			}
@@ -1103,7 +1103,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				try {
 					bindings = match(getListElementType(formalArgs[size(formalArgs)-1]),tl[idx],bindings);
 				} catch : {
-					c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(getListElementType(formalArgs[size(formalArgs)-1]))>", epsList[idx]@\loc);
+					// c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(getListElementType(formalArgs[size(formalArgs)-1]))>", epsList[idx]@\loc);
 					canInstantiate = false;  
 				}
 			}
@@ -1148,9 +1148,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                     matches += a;
                 } else if (size(epsList) == size(args)) {
 					if (typeContainsTypeVars(a)) {
-        				< a, b, c > = instantiateFunctionTypeArgs(c, a);
-        				if (!b) continue;
-        				args = getFunctionArgumentTypes(a);
+        				< instantiated, b, c > = instantiateFunctionTypeArgs(c, a);
+        				if (!b) {
+        					failureReasons += "Could not instantiate type variables in type <prettyPrintType(a)> with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+        					continue;
+        				}
+        				args = getFunctionArgumentTypes(instantiated);
         			}
                  	if (false notin { subtypeOrOverload(tl[idx],args[idx]) | (idx <- index(epsList)) })
                     	matches += a;
@@ -1165,9 +1168,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                         matches += a;
                     } else {
 						if (typeContainsTypeVars(a) && size(args)-1 <= size(tl)) {
-    	    				< a, b, c > = instantiateFunctionTypeArgs(c, a);
-        					if (!b) continue;
-        					args = getFunctionArgumentTypes(a);
+    	    				< instantiated, b, c > = instantiateFunctionTypeArgs(c, a);
+	        				if (!b) {
+	        					failureReasons += "Could not instantiate type variables in type <prettyPrintType(a)> with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+	        					continue;
+	        				}
+        					args = getFunctionArgumentTypes(instantiated);
         				}
         				// TODO: It may be good to put another check here to make sure we don't
         				// continue if the size is wrong; we will still get the proper error, but
