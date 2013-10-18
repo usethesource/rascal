@@ -377,10 +377,11 @@ MuExp translate(e:(Expression) `-<Expression argument>`)    = prefix("negative",
 MuExp translate(e:(Expression) `*<Expression argument>`) {
     throw "Splice cannot occur outside set or list";
 }
-
+   
 // AsType
 MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
-   muCallPrim("parse", [muCon(symbolToValue(translateType(typ), config)), translate(argument)]);
+   muCallPrim("parse", [muCon(getModuleName()), muCon(symbolToValue(translateType(typ), config)), translate(argument)]);
+   
 
 // Composition
 MuExp translate(e:(Expression) `<Expression lhs> o <Expression rhs>`)   = infix_rel_lrel("compose", e);
