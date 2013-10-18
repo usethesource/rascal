@@ -51,6 +51,10 @@ public Tree parseDeclaration(str toParse) {
 	return parse(#Declaration,toParse);
 }
 
+public Tree parseSyntaxDeclaration(str toParse) {
+	return parse(#Import,toParse);
+}
+
 public Tree parseStatement(str toParse) {
 	return parse(#Statement,toParse);
 }
