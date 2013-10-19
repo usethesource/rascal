@@ -122,15 +122,16 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		IValueFactory vf = getValueFactory();
-		URI uri = getValue().getURI();
+		ISourceLocation value = getValue();
 		if (name.equals("scheme")) {
-			return makeResult(getTypeFactory().stringType(), vf.string(uri.getScheme()), ctx);
+			return makeResult(getTypeFactory().stringType(), vf.string(value.getScheme()), ctx);
 		}
 		else if (name.equals("authority")) {
-			String authority = uri.getAuthority();
+			String authority = value.getAuthority();
 			return makeResult(getTypeFactory().stringType(), vf.string(authority != null ? authority : ""), ctx);
 		}
 		else if (name.equals("host")) {
+			URI uri = value.getURI();
 			if (!ctx.getResolverRegistry().supportsHost(uri)) {
 				throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 			}
@@ -138,10 +139,11 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(getTypeFactory().stringType(), vf.string(host != null ? host : ""), ctx);
 		}
 		else if (name.equals("path")) {
-			String path = uri.getPath();
+			String path = value.getPath();
 			return makeResult(getTypeFactory().stringType(), vf.string(path != null ? path : ""), ctx);
 		}
 		else if (name.equals("parent")) {
+			URI uri = value.getURI();
 			String path = uri.getPath();
 			if (path.equals("")) {
 				throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
@@ -157,7 +159,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		else if (name.equals("file")) {
-			String path = uri.getPath();
+			String path = value.getPath();
 			
 			if (path.equals("")) {
 				throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
@@ -192,7 +194,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 		}
 		else if (name.equals("extension")) {
-			String path = uri.getPath();
+			String path = value.getPath();
 			int i = path.lastIndexOf('.');
 			if (i != -1) {
 				return makeResult(getTypeFactory().stringType(), vf.string(path.substring(i + 1)), ctx);
@@ -200,15 +202,15 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(getTypeFactory().stringType(), vf.string(""), ctx);
 		}
 		else if (name.equals("fragment")) {
-			String fragment = uri.getFragment();
+			String fragment = value.getFragment();
 			return makeResult(getTypeFactory().stringType(), vf.string(fragment != null ? fragment : ""), ctx);
 		}
 		else if (name.equals("query")) {
-			String query = uri.getQuery();
+			String query = value.getQuery();
 			return makeResult(getTypeFactory().stringType(), vf.string(query != null ? query : ""), ctx);
 		}
 		else if (name.equals("params")) {
-			String query = uri.getQuery();
+			String query = value.getQuery();
 			IMapWriter res = vf.mapWriter(getTypeFactory().stringType(), getTypeFactory().stringType());
 			
 			if (query != null && query.length() > 0) {
@@ -223,6 +225,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(map.getType(), map, ctx);
 		}
 		else if (name.equals("user")) {
+			URI uri = value.getURI();
 			if (!ctx.getResolverRegistry().supportsHost(uri)) {
 				throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 			}
@@ -230,6 +233,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(getTypeFactory().stringType(), vf.string(user != null ? user : ""), ctx);
 		}
 		else if (name.equals("port")) {
+			URI uri = value.getURI();
 			if (!ctx.getResolverRegistry().supportsHost(uri)) {
 				throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 			}
@@ -270,10 +274,13 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 		}
 		else if (name.equals("uri")) {
+			URI uri = value.getURI();
 			return makeResult(getTypeFactory().stringType(), vf
 					.string(uri.toString()), ctx);
 		} 
 		else if (name.equals("top")) {
+			// FIXME we should have a way to strip the source location from offset etc
+			URI uri = value.getURI();
 			return makeResult(getTypeFactory().sourceLocationType(), vf.sourceLocation(uri), ctx);
 		} 
 		else {
