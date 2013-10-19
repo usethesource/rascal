@@ -20,6 +20,7 @@ import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
+public str module_name;
 public list[loc] imported_modules = [];
 public list[MuFunction] functions_in_module = [];
 public list[MuVariable] variables_in_module = [];
@@ -29,6 +30,7 @@ public list[MuExp] tests = [];
 public loc Library = |rascal:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
 public void resetR2mu() {
+ 	module_name = "** undefined **";
     imported_modules = [];
 	functions_in_module = [];
 	variables_in_module = [];
@@ -36,6 +38,8 @@ public void resetR2mu() {
 	tests = [];
 	resetTmpAndLabel();
 }
+
+public str getModuleName() = module_name;
 
 @doc{Compile a Rascal source module (given as string) to muRascal}
 MuModule r2mu(str moduleStr){
@@ -71,6 +75,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  		println(w);
    	  	}
    	  }
+   	  module_name = "<M.header.name>";
    	  imported_modules = [];
    	  functions_in_module = [];
    	  variables_in_module = [];
