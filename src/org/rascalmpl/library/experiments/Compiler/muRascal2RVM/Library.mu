@@ -105,13 +105,13 @@ function ENUMERATE_AND_MATCH1[2, enumerator, pat, cpat, elm]{
 
 function ENUMERATE_AND_MATCH[2,  pat, ^val]{
   typeswitch(^val){
-    case list:         ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat);
-    case lrel:         ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat);
+    case list:         if(size_list(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat); };
+    case lrel:         if(size_list(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat); };
     case node:         ENUMERATE_AND_MATCH1(init(create(ENUM_NODE, ^val)), pat);
     case constructor:  ENUMERATE_AND_MATCH1(init(create(ENUM_NODE, ^val)), pat);
-    case map:          ENUMERATE_AND_MATCH1(init(create(ENUM_MAP, ^val)), pat);
-    case set:          ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat);
-    case rel:          ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat);
+    case map:          if(size_map(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_MAP, ^val)), pat); };
+    case set:          if(size_set(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat); };
+    case rel:          if(size_set(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat); };
     case tuple:        ENUMERATE_AND_MATCH1(init(create(ENUM_TUPLE, ^val)), pat);
     default:           ENUMERATE_AND_MATCH1(init(create(ENUM_LITERAL, ^val)), pat);
   };
@@ -129,13 +129,13 @@ function ENUMERATE_AND_ASSIGN1[2, enumerator, varref, elm]{
 
 function ENUMERATE_AND_ASSIGN[2, varref, ^val]{
   typeswitch(^val){
-    case list:         ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref);
-    case lrel:         ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref);
+    case list:         if(size_list(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref); };
+    case lrel:         if(size_list(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref); };
     case node:         ENUMERATE_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), varref);
     case constructor:  ENUMERATE_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), varref);
-    case map:          ENUMERATE_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), varref);
-    case set:          ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref);
-    case rel:          ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref);
+    case map:          if(size_map(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), varref); };
+    case set:          if(size_set(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref); };
+    case rel:          if(size_set(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref); };
     case tuple:        ENUMERATE_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), varref);
     default:           ENUMERATE_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), varref);
   };
@@ -155,13 +155,13 @@ function ENUMERATE_CHECK_AND_ASSIGN1[3, enumerator, typ, varref, elm]{
 
 function ENUMERATE_CHECK_AND_ASSIGN[3, typ, varref, ^val]{
   typeswitch(^val){
-    case list:         ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref);
-    case lrel:         ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref);
+    case list:         if(size_list(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref); };
+    case lrel:         if(size_list(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref); };
     case node:         ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), typ, varref);
     case constructor:  ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), typ, varref);
-    case map:          ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), typ, varref);
-    case set:          ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref);
-    case rel:          ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref);
+    case map:          if(size_map(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), typ, varref); };
+    case set:          if(size_set(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref); };
+    case rel:          if(size_set(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref); };
     case tuple:        ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), typ, varref);
     default:           ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), typ, varref);
   };
