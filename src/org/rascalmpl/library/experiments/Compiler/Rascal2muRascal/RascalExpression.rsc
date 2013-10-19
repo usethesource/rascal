@@ -45,9 +45,20 @@ bool areCompatibleContainerTypes({str c}) = true;
 default bool areCompatibleContainerTypes(set[str] s) = false;
 
 
-MuExp infix(str op, Expression e){
-  lot = getOuterType(e.lhs);
-  rot = getOuterType(e.rhs);
+str typedInfixOp(str lot, str op, str rot) {
+  if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter"){
+     return op;
+  }
+  if(isContainerType(lot))
+     return areCompatibleContainerTypes({lot, rot}) ? "<lot>_<op>_<rot>" : "<lot>_<op>_elm";
+  else
+     return isContainerType(rot) ? "elm_<op>_<rot>" : "<lot>_<op>_<rot>";
+}
+
+MuExp infix(str op, Expression e) = 
+  muCallPrim(typedInfixOp(getOuterType(e.lhs), op, getOuterType(e.rhs)), 
+             [*translate(e.lhs), *translate(e.rhs)]);
+  /*
   println("infix: op = <op>, lot = <lot>, rot = <rot>");
   if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter"){
      return muCallPrim("<op>", [*translate(e.lhs), *translate(e.rhs)]);
@@ -63,6 +74,7 @@ MuExp infix(str op, Expression e){
      else
        return muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
 }
+*/
 
 MuExp infix_elm_left(str op, Expression e){
    rot = getOuterType(e.rhs);
