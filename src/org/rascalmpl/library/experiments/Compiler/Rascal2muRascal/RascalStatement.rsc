@@ -382,7 +382,9 @@ MuExp applyAssignmentOperator(str operator, assignable, statement) {
         return generateIfDefinedOtherwise(oldval[0], translate(statement));
     }
     op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator]; 
-    op2 = "<getOuterType(assignable)>_<op1>_<getOuterType(statement)>";
+    //op2 = "<getOuterType(assignable)>_<op1>_<getOuterType(statement)>";
+    op2 = typedInfixOp(getOuterType(assignable), op1, getOuterType(statement));;
+    
     oldval = getValues(assignable);
     assert size(oldval) == 1;
     return muCallPrim("<op2>", [*oldval, translate(statement)]); 	
