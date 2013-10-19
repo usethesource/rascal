@@ -791,12 +791,26 @@ public Configuration exitBooleanScope(Configuration c, Configuration cOrig) {
     return recoverEnvironments(c,cOrig);
 }
 
+public CheckResult checkStatementSequence(list[Statement] ss, Configuration c) {
+	// Introduce any functions in the statement list into the current scope, but
+	// don't process the bodies, just the signatures. This way we can use functions
+	// in the bodies of other functions inside the block before the declaring statement
+	// is reached.
+    fundecls = [ fd | Statement fds:(Statement)`<FunctionDeclaration fd>` <- ss ];
+	for (fundecl <- fundecls) {
+		c = checkFunctionDeclaration(fundecl, false, c);
+	}
+	t1 = Symbol::\void();
+	for (s <- ss) < c, t1 > = checkStmt(s, c);
+	return < c, t1 >;
+}
+
 @doc{Check the types of Rascal expressions: NonEmptyBlock (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`{ <Statement+ ss> }`, Configuration c) {
-    // TODO: Do we need to extract out function declarations first, or do they have to be in order here?
     cBlock = enterBlock(c,exp@\loc);
-    t1 = Symbol::\void();
-    for (s <- ss) < cBlock, t1 > = checkStmt(s, cBlock);
+
+	< cBlock, t1 > = checkStatementSequence([ssi | ssi <- ss], cBlock);
+
     c = exitBlock(cBlock,c);
     
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
@@ -840,7 +854,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
 	cFun.store[head(cFun.stack)].keywordParams = keywordParams;
 	    
     // In the environment with the parameters, check the body of the closure.
-    for (s <- ss) < cFun, st > = checkStmt(s, cFun);
+	< cFun, st > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
     // Now, recover the environment active before the call, removing any names
     // added by the closure (e.g., for parameters) from the environment. This
@@ -899,7 +913,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
 	cFun.store[head(cFun.stack)].keywordParams = keywordParams;
     
     // In the environment with the parameters, check the body of the closure.
-    for (s <- ss) < cFun, st > = checkStmt(s, cFun);
+	< cFun, t1 > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
     // Now, recover the environment active before the call, removing any names
     // added by the closure (e.g., for parameters) from the environment. This
@@ -4628,8 +4642,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> { <Statement
         cBlock.labelStack = labelStackItem(RSimpleName(""), blockLabel(), \void()) + cBlock.labelStack;
     }
 
-    list[Symbol] stmtTypes = [];
-    for (s <- stmts) { < cBlock, t1 > = checkStmt(s, cBlock); stmtTypes = stmtTypes + t1; }
+	< cBlock, st > = checkStatementSequence([ssi | ssi <- stmts], cBlock);
 
     // Pop the label stack...
     cBlock.labelStack = tail(cBlock.labelStack);
@@ -4637,10 +4650,10 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> { <Statement
     // ... and return to the scope on entry, removing the label
     c = exitBlock(cBlock, c);
 
-    if (isFailType(last(stmtTypes)))
-        return markLocationFailed(c, stmt@\loc, last(stmtTypes));
+    if (isFailType(st))
+        return markLocationFailed(c, stmt@\loc, st);
     else
-        return markLocationType(c, stmt@\loc, last(stmtTypes)); 
+        return markLocationType(c, stmt@\loc, st); 
 }
 
 @doc{Check the type of Rascal statements: EmptyStatement (DONE)}
@@ -5703,15 +5716,23 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
             cFun = setExpectedReturn(c, \void());
         }
         < cFun, tFun > = processSignature(sig, cFun);
-		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);        
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+	
+		// Any variables bound in the when clause should be visible inside the function body,
+		// so we enter a new boolean scope to make sure the bindings are handled properly.
+		condList = [ cond | cond <- conds ];
+		cWhen = enterBooleanScope(cFun, condList[0]@\loc);    
         for (cond <- conds) {
-            < cFun, tCond > = checkExp(cond, cFun);
+            < cWhen, tCond > = checkExp(cond, cWhen);
             if (!isFailType(tCond) && !isBoolType(tCond))
-                cFun = addScopeMessage(cFun,error("Unexpected type: condition should be of type bool, not type <prettyPrintType(tCond)>", cond@\loc));
+                cWhen = addScopeMessage(cWhen,error("Unexpected type: condition should be of type bool, not type <prettyPrintType(tCond)>", cond@\loc));
         }
-        < cFun, tExp > = checkExp(exp, cFun);
-        if (!isFailType(tExp) && !subtype(tExp, cFun.expectedReturnType))
-            cFun = addScopeMessage(cFun,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
+        
+        < cWhen, tExp > = checkExp(exp, cWhen);
+        if (!isFailType(tExp) && !subtype(tExp, cWhen.expectedReturnType))
+            cWhen = addScopeMessage(cWhen,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
+            
+        cFun = exitBooleanScope(cWhen, cFun);
         c = recoverEnvironmentsAfterCall(cFun, c);
     }
 
@@ -5767,9 +5788,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);        
         if ((FunctionBody)`{ <Statement* ss> }` := body) {
-            for (stmt <- ss) {
-                < cFun, tStmt > = checkStmt(stmt, cFun);
-            }
+			< cFun, tStmt > = checkStatementSequence([ssi | ssi <- ss], cFun);
         }
         c = recoverEnvironmentsAfterCall(cFun, c);
     }
@@ -5942,7 +5961,7 @@ public Configuration importProduction(RSignatureItem item, Configuration c) {
 		c = addSyntaxDefinition(c, RSimpleName(sortName), item.at, prod, prod.def is \start);
 	}
 	// Productions that end up in the store
-	for(/Production prod:prod(_,_,_) <- prod) {
+	for(/Production prod:prod(_,_,_) := prod) {
 		if(label(str l, Symbol _) := prod.def) {
     		c = addProduction(c, RSimpleName(l), item.at, prod);
     	} else if(prod.def has name) {
@@ -6931,6 +6950,14 @@ public Configuration addNameWarning(Configuration c, RName n, loc l) {
 
 public anno map[loc,str] Tree@docStrings;
 public anno map[loc,set[loc]] Tree@docLinks;
+
+public Configuration checkAndReturnConfig(str mpath) {
+    c = newConfiguration();
+	t = getModuleParseTree(mpath);    
+	if (t has top && Module m := t.top)
+		c = checkModule(m, c);
+	return c;
+}
 
 public Module check(Module m) {
     c = newConfiguration();

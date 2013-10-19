@@ -90,9 +90,10 @@ public class ParserGenerator {
 	 * @param imports a set of syntax definitions (which are imports in the Rascal grammar)
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getParser(IRascalMonitor monitor, URI loc, String name, IMap definition) {
 		monitor.startJob("Generating parser:" + name, 100, 90);
-		
+
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
 			IConstructor grammar = getGrammar(monitor, name, definition);
@@ -103,26 +104,24 @@ public class ParserGenerator {
 			debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 			monitor.event("Compiling generated java code: " + name, 30);
 			Class<IGTD<IConstructor, IConstructor, ISourceLocation>> p = bridge.compileJava(loc, packageName + "." + normName, getClass(), classString.getValue());
-			
-			
-		      String className = normName;
-		      Class<?> clazz;
-		      for (ClassLoader cl: evaluator.getClassLoaders()) {
-		        try {
-		    
-		          clazz = cl.loadClass(className);
-		          return (Class<IGTD<IConstructor, IConstructor, ISourceLocation>>) clazz.newInstance();
-		        
-		        } catch (ClassNotFoundException e) {
-		          continue;
-		        } catch (InstantiationException e) {
-		          throw new ImplementationError("could not instantiate " + className + " to valid IGTD parser", e);
-		        } catch (IllegalAccessException e) {
-		          throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
-		        }
-		      }
-		      throw new ImplementationError("class for cached parser " + className + " could not be found");
-		      
+
+			String className = normName;
+			Class<?> clazz;
+			for (ClassLoader cl: evaluator.getClassLoaders()) {
+				try {
+					clazz = cl.loadClass(className);
+					return (Class<IGTD<IConstructor, IConstructor, ISourceLocation>>) clazz.newInstance();
+
+				} catch (ClassNotFoundException e) {
+					continue;
+				} catch (InstantiationException e) {
+					throw new ImplementationError("could not instantiate " + className + " to valid IGTD parser", e);
+				} catch (IllegalAccessException e) {
+					throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
+				}
+			}
+			throw new ImplementationError("class for cached parser " + className + " could not be found");
+
 		}  catch (ClassCastException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
 		} catch (Throw e) {
@@ -188,7 +187,6 @@ public class ParserGenerator {
 		Type grammar = TF.constructor(TS, Grammar, "grammar", TF.setType(Symbol), "starts", TF.mapType(Symbol, Production), "rules");
 
 		return vf.constructor(grammar, vf.set(), definition);
-		// return (IConstructor) evaluator.call(monitor, "modules2grammar", vf.string(main), definition);
 	}
 	
 	public IConstructor getExpandedGrammar(IRascalMonitor monitor, String main, IMap definition) {
@@ -265,6 +263,7 @@ public class ParserGenerator {
   public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, URI loc, String name, IConstructor grammar) {
   	monitor.startJob("Generating parser:" + name, 100, 60);
   	try {
+
   		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
   		monitor.event("Generating java source code for parser: " + name,30);
   		IString classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);

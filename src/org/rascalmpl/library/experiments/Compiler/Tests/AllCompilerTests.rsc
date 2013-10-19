@@ -9,7 +9,6 @@ module experiments::Compiler::Tests::AllCompilerTests
  
 import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
-import util::ShellExec;
 
 // Note: Type commented out since it uses a definition of datatype D that is incompatible with TestUtils
 // extend experiments::Compiler::Tests::Types;
@@ -20,3 +19,6 @@ extend experiments::Compiler::Tests::Patterns;
 extend experiments::Compiler::Tests::StringTemplates;
 
 extend experiments::Compiler::Examples::Run;
+
+// extend experiments::Compiler::Tests::GetGrammarTest;
+
