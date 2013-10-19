@@ -81,7 +81,6 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			throw new SyntaxError("location constructor", ctx.getCurrentAST().getLocation());
 		}
 		
-		URI uri = getValue().getURI();
 
 		int iLength = Integer.parseInt(actuals[1].toString());
 		int iOffset = Integer.parseInt(actuals[0].toString());
@@ -113,10 +112,10 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[3]).get(1), ctx.getCurrentAST(), ctx.getStackTrace());
 			}
 
-			return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+			return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(getValue(), iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
 		}
 		else {
-			return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(uri, iOffset, iLength), ctx);
+			return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(getValue(), iOffset, iLength), ctx);
 		}
 	}
 	
