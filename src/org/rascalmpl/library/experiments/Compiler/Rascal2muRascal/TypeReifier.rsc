@@ -19,6 +19,42 @@ private map[Symbol,Production] grammar = ();
 private set[Symbol] starts = {};
 private Symbol activeLayout = Symbol::\layouts("$default$");
 
+public map[Symbol,Production] getGrammar(Configuration config) {
+
+	// Collect all the types that are in the type environment
+	typeMap = ( getSimpleName(rname) : config.store[config.typeEnv[rname]].rtype | rname <- config.typeEnv );
+	// Collect all the constructors of the adt types in the type environment
+	types = range(typeMap);
+	constructors = { <\type.\adt, \type> | int uid <- config.store, 
+												constructor(_, Symbol \type, _, _) := config.store[uid],
+												\type.\adt in types };
+	// Collects all the productions of the non-terminal types in the type environment
+	productions = { <\type.\sort, \type> | int uid <- config.store,
+												production(_, Symbol \type, _, _) := config.store[uid],
+												\type.\sort in types };
+	
+	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
+   	  																config.store[uid].rtype in types );
+   	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
+   	
+   	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
+   	if(!isEmpty(activeLayouts)) {
+   		activeLayout = getOneFrom(activeLayouts);
+   	}
+	
+	map[Symbol,Production] definitions =   ( nonterminal : \layouts(grammar[nonterminal]) | nonterminal <- grammar ) 
+										 + ( Symbol::\start(nonterminal) : \layouts(Production::choice(Symbol::\start(nonterminal),
+																					   				   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) })) 
+																				| nonterminal <- starts );
+	if(str n <- typeMap, Symbol::\layouts(_) := typeMap[n]) {
+ 		definitions = reify(typeMap[n],definitions);
+ 	}
+ 	definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
+ 	definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
+ 	
+ 	return definitions;
+}
+
 public type[value] symbolToValue(Symbol symbol, Configuration config) {
 	
 	// Collect all the types that are in the type environment
@@ -31,14 +67,16 @@ public type[value] symbolToValue(Symbol symbol, Configuration config) {
 	// Collects all the productions of the non-terminal types in the type environment
 	productions = { <\type.\sort, \type> | int uid <- config.store,
 												production(_, Symbol \type, _, _) := config.store[uid],
-												\type.\sort in types };									
-   	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
+												\type.\sort in types };
+	
+	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
    	  																config.store[uid].rtype in types );
    	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
    	
    	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
-   	if(!isEmpty(activeLayouts))
+   	if(!isEmpty(activeLayouts)) {
    		activeLayout = getOneFrom(activeLayouts);
+   	}
    	
 	// Recursively collects all the type definitions associated with a given symbol
  	map[Symbol,Production] definitions = reify(symbol, ());
@@ -133,25 +171,32 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
 		Symbol nonterminal = typeMap[name]; 
 		assert !(Symbol::\adt(name,_) := nonterminal);
 		if(!definitions[nonterminal]?) {
-			definitions[nonterminal] = \layouts(grammar[nonterminal]);
+			definitions[nonterminal] = \layouts(grammar[nonterminal]); // inserts an active layout
 			if(nonterminal in starts) {
-				definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),[ Symbol::\label("top", nonterminal) ],{}));
+				definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
+																					   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }));
 			}
+			println("Productions[nonterminal]: <productions[nonterminal]>");
+			println("Domain(grammar): <domain(grammar)>");
 			definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
 		}
 		definitions;
 	  } when Symbol::\sort(str name) := symbol || Symbol::\lex(str name) := symbol ||
 	  		 Symbol::\layouts(str name) := symbol || Symbol::\keywords(str name) := symbol;
+
 // parameterized-sort, parameterized-lex  
 public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) 
 	= { 
 		Symbol nonterminal = typeMap[name]; 
 		assert !(Symbol::\adt(name,_) := nonterminal);
 		if(!definitions[nonterminal]?) {
-			definitions[nonterminal] = \layouts(grammar[nonterminal]);
+			definitions[nonterminal] = \layouts(grammar[nonterminal]); // inserts an active layout
 			if(nonterminal in starts) {
-				definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),[ Symbol::\label("top", nonterminal) ],{}));
+				definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
+																					   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }));
 			}
+			println("Productions[nonterminal]: <productions[nonterminal]>");
+			println("Domain(grammar): <domain(grammar)>");
 			definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
 		}
 		definitions = ( definitions | reify(sym, it) | sym <- parameters );
@@ -185,7 +230,6 @@ public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] defin
 public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] definitions) = definitions;
 		   
 public default map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) = definitions;
-
 
 private Production sym2prod(Symbol::\cons(Symbol \type, str name, list[Symbol] parameters)) 
 	= Production::\cons(Symbol::label(name, \type), parameters, {}) 
