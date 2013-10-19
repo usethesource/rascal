@@ -5942,7 +5942,7 @@ public Configuration importProduction(RSignatureItem item, Configuration c) {
 		c = addSyntaxDefinition(c, RSimpleName(sortName), item.at, prod, prod.def is \start);
 	}
 	// Productions that end up in the store
-	for(/Production prod:prod(_,_,_) <- prod) {
+	for(/Production prod:prod(_,_,_) := prod) {
 		if(label(str l, Symbol _) := prod.def) {
     		c = addProduction(c, RSimpleName(l), item.at, prod);
     	} else if(prod.def has name) {
