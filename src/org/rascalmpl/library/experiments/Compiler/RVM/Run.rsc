@@ -11,7 +11,12 @@ import IO;
 
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Execute}
 @reflect{Executes RVM programs}
-public java tuple[value,int] executeProgram(RVMProgram program, list[Declaration] imported_functions, list[value] arguments, bool debug, bool testsuite);
+public java tuple[value,int] executeProgram(RVMProgram program,
+                                            list[Declaration] imported_functions, 
+                                            map[str, map[Symbol, Production]] imported_grammars,
+										    list[value] arguments, 
+										    bool debug, 
+										    bool testsuite);
 
 public void execute(experiments::Compiler::RVM::Syntax::RascalVM tree, loc selection) {
 	ast = implode(#experiments::Compiler::RVM::AST::RascalVM, tree);

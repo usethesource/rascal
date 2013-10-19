@@ -19,7 +19,8 @@ public data RVMProgram = rvm(str name,
                              map[str, Declaration] declarations, 
                              list[Instruction] initialization, 
                              map[str,int] resolver, 
-                             lrel[str,list[str],list[str]] overloaded_functions);
+                             lrel[str,list[str],list[str]] overloaded_functions,
+                             map[Symbol, Production] grammar);
 
 data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean

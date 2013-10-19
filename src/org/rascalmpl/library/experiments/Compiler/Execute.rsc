@@ -41,6 +41,7 @@ list[Declaration] parseMuLibrary(){
 
 tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
    imported_functions = [];
+   imported_grammars = ();
    
     if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
      try {
@@ -57,9 +58,10 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
        try {
   	       importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	       imported_functions += [ importedRvmProgram.declarations[fname] | fname <-importedRvmProgram.declarations ];
+  	       imported_grammars[importedRvmProgram.name] = importedRvmProgram.grammar;
   	   } catch x: println("rascal2rvm: Reading <importedLoc> did not succeed: <x>");      
    }
-   <v, t> = executeProgram(rvmProgram, imported_functions, arguments, debug, testsuite);
+   <v, t> = executeProgram(rvmProgram, imported_functions, imported_grammars, arguments, debug, testsuite);
    println("Result = <v>, [<t> msec]");
    return <v, t>;
 }
