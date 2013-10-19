@@ -11,7 +11,7 @@ list[str] libs = [
 
 /***** OK *****/
 
-//"Boolean", 			// OK
+//"Boolean" 			// OK
 //"DateTime"			// OK
 //"Exception" 			// OK
 //"IO"					// OK
@@ -30,6 +30,7 @@ list[str] libs = [
 //"Traversal",			// OK
 //"Tuple", 				// OK
 //"ValueIO", 			// OK
+//"util::Benchmark"		// OK
 //"util::Eval"			// OK
 //"util::FileSystem" 	// OK
 //"util::Math" 			// OK
@@ -56,17 +57,13 @@ list[str] libs = [
                     	
 //"APIGen" 				// reifiedTypeNodes |rascal://lang::rascal::types::CheckTypes|(178871,21,<3518,22>,<3518,43>): "Not yet implemented" 
                         //
-"Grammar" 			// error("Cannot assign type set[value] into field of type set[Production]",|project://rascal/src/org/rascalmpl/library/Grammar.rsc|(2176,25,<70,56>,<70,81>))
+//"Grammar" 			   // Depends on ParseTree
+// "Number"				// DEPRECATED: TC gives errors
 
-//"Number"				// DEPRECATED: TC gives errors
-
-//"ParseTree", 			// error("Type of pattern could not be computed, please add additional type annotations",|rascal:///ParseTree.rsc|(19030,14,<511,22>,<511,36>))
+"ParseTree" 			// error("Type of pattern could not be computed, please add additional type annotations",|rascal:///ParseTree.rsc|(19030,14,<511,22>,<511,36>))
 
 //"Prelude",			// Depends on all others 
 						 
-//"util::Benchmark"		// error("Function of type fun map[str, num](map[str, fun void()], fun int(fun void())) cannot be called with argument types (map[str, fun void()],overloaded:\n\t\tfun int(fun void())\n\t\tfun int())",|rascal:///util/Benchmark.rsc|(5603,26,<179,8>,<179,34>))
-						// error("Function of type fun map[str, num](map[str, fun void()]) cannot be called with argument types (map[str, fun void()],overloaded:\n\t\tfun int(fun void())\n\t\tfun int())",|rascal:///util/Benchmark.rsc|(5603,26,<179,8>,<179,34>))
-						// Overloaded function issue
 
 //"util::Highlight"		// import String, ParseTree
 
