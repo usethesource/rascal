@@ -64,6 +64,7 @@ public class RVM {
 	
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
+	private IMap grammars;
 	
 	
 	private final Map<IValue, IValue> moduleVariables;
@@ -168,6 +169,14 @@ public class RVM {
 			}
 			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
 		}
+	}
+	
+	public void setGrammars(IMap grammer){
+		this.grammars = grammars;
+	}
+	
+	public IMap getGrammars(){
+		return grammars;
 	}
 	
 	/**
