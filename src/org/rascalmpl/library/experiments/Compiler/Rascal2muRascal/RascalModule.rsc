@@ -82,11 +82,13 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  variable_initializations = [];
    	  map[str,Symbol] types = ( fuid2str[uid] : \type | int uid <- config.store, 
    	  									   					constructor(name, Symbol \type, containedIn, at) := config.store[uid]
-   	  													 || production(name, Symbol \type, containedIn, at) := config.store[uid]
+   	  									   				 || production(name, Symbol \type, containedIn, at) := config.store[uid]
    	  						  );
    	  translate(M);
    	 
-   	  generate_tests("<M.header.name>");
+   	  modName = replaceAll("<M.header.name>","\\","");
+   	 
+   	  generate_tests(modName);
    	  
    	  // Overloading resolution...	  
    	  lrel[str,list[str],list[str]] overloaded_functions = [ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
@@ -96,7 +98,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  											  			 > 
    	  															| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions ];
    	  
-   	  return muModule("<M.header.name>", imported_modules, types, functions_in_module, variables_in_module, variable_initializations, overloadingResolver, overloaded_functions);
+   	  return muModule(modName, imported_modules, types, functions_in_module, variables_in_module, variable_initializations, overloadingResolver, overloaded_functions);
    	}
    } catch Java("ParseError","Parse error"): {
    	   throw "Syntax errors in module <moduleLoc>";
@@ -116,6 +118,7 @@ void translate(m: (Module) `<Header header> <Body body>`) {
 
 void importModule((Import) `import <QualifiedName qname> ;`){
     name = replaceAll("<qname>", "::", "/");
+    name = replaceAll(name, "\\","");
     //println("name = <name>");
     imported_modules += |rascal:///| + ("<name>" + ".rsc");
     //println("imported_modules = <imported_modules>");
@@ -123,6 +126,7 @@ void importModule((Import) `import <QualifiedName qname> ;`){
 
 void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement extend properly
     name = replaceAll("<qname>", "::", "/");
+    name = replaceAll(name, "\\","");
     //println("name = <name>");
     imported_modules += |rascal:///| + ("<name>" + ".rsc");
     //println("imported_modules = <imported_modules>");

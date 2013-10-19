@@ -2,4 +2,6 @@ module experiments::Compiler::Examples::Tst
 
 syntax AB = ("a" | "b")+ ;
 
-value main(list[value] args) = [AB] "ababababab";
+syntax CD = ("c" | "d")+ ;
+
+value main(list[value] args) = <[AB] "ababababab", [CD] "cddcdcdcdcdc">;

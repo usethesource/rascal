@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URI;
@@ -74,51 +75,69 @@ public class ParsingTools {
 		stdout = ctx.getEvaluator().getStdOut();
 		config = ctx.getEvaluator().getConfiguration();
 		parsers = new HashMap<String,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>>();
-		
-		List<ClassLoader> oldClassLoaders = ctx.getEvaluator().getClassLoaders();
-		
-		classLoaders = oldClassLoaders;
-		//classLoaders = new ArrayList<ClassLoader>(); 
-		
-		 stderr.println("Class loaders:");
-		  for(ClassLoader cl : oldClassLoaders){
-			  stderr.println(cl);
-			  //classLoaders.add(cl);
-		  }
-//		  classLoaders.add(org.rascalmpl.parser.gtd.IGTD.class.getClassLoader());
-//		  classLoaders.add(org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory.class.getClassLoader());
-//		  classLoaders.add(org.rascalmpl.parser.gtd.result.out.INodeFlattener.class.getClassLoader());
-//		  classLoaders.add(org.rascalmpl.parser.gtd.recovery.IRecoverer.class.getClassLoader());
-//		  classLoaders.add(0, ParsingTools.class.getClassLoader());
-		  
-//		  stderr.println("Class loaders after:");
-//		  for(ClassLoader cl : classLoaders){
-//			  stderr.println(cl);
-//		  }  
-		
+		classLoaders = ctx.getEvaluator().getClassLoaders();
+	}
+	
+	private IRascalMonitor setMonitor(IRascalMonitor monitor2) {
+		monitor = monitor2;
+		return null;
+	}
+	
+	private void startJob(String name, int totalWork) {
+		if (monitor != null)
+			monitor.startJob(name, totalWork);
+	}
+	
+	private int endJob(boolean succeeded) {
+		if (monitor != null)
+			return monitor.endJob(succeeded);
+		return 0;
 	}
 	
 	private void storeObjectParser(String name, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
+		stderr.println("Storing parser for : " + name);
 		parsers.put(name, parser);
 	}
 
 	private Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getObjectParser(String name) {
-		return parsers.get(name);
-	}
-
-	private boolean isBootstrapper() { return false; }
-
-	public IValue parse(IValue start, ISourceLocation input, IMap syntax) {
-		return parse(start, vf.mapWriter().done(), input, syntax);
+		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = parsers.get(name);
+		stderr.println("Retrieving parser for : " + name + ((parser == null) ? "fails" : "succeeds"));
+		return parser;
 	}
 	
-	public IValue parse(IValue start, IMap robust, ISourceLocation input, IMap syntax) {
+	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(IString moduleName, URI loc, IMap syntax){
+		return getParser(moduleName.getValue(), loc, false, syntax);
+	}
+
+	private boolean isBootstrapper() { return false;  }
+
+	/**
+	 * Parse text at a location
+	 * @param moduleName TODO
+	 * @param start		Start symbol
+	 * @param input		To be parsed as location
+	 * @param syntax	Grammar as (non-terminal,production) map.
+	 * @return
+	 */
+	public IValue parse(IString moduleName, IValue start, ISourceLocation input, IMap syntax) {
+		return parse(moduleName, start, vf.mapWriter().done(), input, syntax);
+	}
+	
+	/**
+	 * Parse text at a location
+	 * @param moduleName TODO
+	 * @param start		Start symbol.
+	 * @param robust	Error recovery map.
+	 * @param input		To be parsed as locatiion
+	 * @param syntax	Grammar as (non-terminal,production) map.
+	 * @return ParseTree
+	 */
+	public IValue parse(IString moduleName, IValue start, IMap robust, ISourceLocation input, IMap syntax) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
-		
 		try {
-			IConstructor pt = parseObject(monitor, startSort, robust, input.getURI(), syntax);
+			IConstructor pt = parseObject(monitor, moduleName, startSort, robust, input.getURI(), syntax);
 
 			if (TreeAdapter.isAppl(pt)) {
 				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
@@ -136,17 +155,30 @@ public class ParsingTools {
 		}
 	}
 
-	public IValue parse(IValue start, IString input) {
-		return parse(start, vf.mapWriter().done(), input);
+	/**
+	 * Parse a string
+	 * @param start		Start symbol
+	 * @param input		To be parsed as string
+	 * @return ParseTree
+	 */
+	public IValue parse(IString moduleName, IValue start, IString input) {
+		return parse(moduleName, start, vf.mapWriter().done(), input);
 	}
 	
-	public IValue parse(IValue start, IMap robust, IString input) {
+	/**
+	 * Parse a string
+	 * @param start		Start symbol
+	 * @param robust	Error recovery map
+	 * @param input	To be parsed as string
+	 * @return ParseTree
+	 */
+	public IValue parse(IString moduleName, IValue start, IMap robust, IString input) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
 		IMap syntax = (IMap) ((IConstructor) start).get(1);
 		try {
-			IConstructor pt = parseObject(monitor, startSort, robust, input.getValue(), syntax);
+			IConstructor pt = parseObject(monitor, moduleName, startSort, robust, input.getValue(), syntax);
 
 			if (TreeAdapter.isAppl(pt)) {
 				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
@@ -165,15 +197,24 @@ public class ParsingTools {
 		}
 	}
 	
-	public IValue parse(IValue start, IString input, ISourceLocation loc, IMap syntax) {
-		return parse(start, vf.mapWriter().done(), input, loc, syntax);
+	/**
+	 * Parse a string with given location
+	 * @param moduleName TODO
+	 * @param start		Start symbol
+	 * @param input		To be parsed as string
+	 * @param loc		Its location
+	 * @param syntax	Grammar as (non-terminal,production) map.
+	 * @return ParseTree
+	 */
+	public IValue parse(IString moduleName, IValue start, IString input, ISourceLocation loc, IMap syntax) {
+		return parse(moduleName, start, vf.mapWriter().done(), input, loc, syntax);
 	}
 	
-	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc, IMap syntax) {
+	public IValue parse(IString moduleName, IValue start, IMap robust, IString input, ISourceLocation loc, IMap syntax) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		try {
-			IConstructor pt = parseObject(monitor, startSort, robust, input.getValue(), loc, syntax);
+			IConstructor pt = parseObject(monitor, moduleName, startSort, robust, input.getValue(), loc, syntax);
 
 			if (TreeAdapter.isAppl(pt)) {
 				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
@@ -192,24 +233,31 @@ public class ParsingTools {
 		}
 	}
 	
-//	public IString saveParser(ISourceLocation outFile) {
-//		
-//		IGTD<IConstructor, IConstructor, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidURI(), false);
-//		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, IConstructor, ISourceLocation>>) parser.getClass();
-//		
-//		
-//		try(OutputStream outStream = resolverRegistry.getOutputStream(outFile.getURI(), false)) {
-//			ctx.getEvaluator().getParserGenerator().saveToJar(parserClass, outStream);
-//		} catch (IOException e) {
-//			throw RuntimeExceptionFactory.io(vf.string("Unable to save to output file '" + outFile.getURI() + "'"), null, null);
-//		}
-//		return vf.string(parserClass.getName());
-//
-//	}
+	public IString saveParser(ISourceLocation outFile) {
+		
+		IGTD<IConstructor, IConstructor, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidURI(), false);
+		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, IConstructor, ISourceLocation>>) parser.getClass();
+		
+		
+		try(OutputStream outStream = resolverRegistry.getOutputStream(outFile.getURI(), false)) {
+			ctx.getEvaluator().getParserGenerator().saveToJar(parserClass, outStream);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(vf.string("Unable to save to output file '" + outFile.getURI() + "'"), null, null);
+		}
+		return vf.string(parserClass.getName());
+
+	}
+	
 	public IString unparse(IConstructor tree) {
 		return vf.string(TreeAdapter.yield(tree));
 	}
 	
+	/**
+	 * Chek that start symbol is valid
+	 * @param start			Start symbol, as IValue
+	 * @param reified		Reified type, that shoud represent a non-terminal type
+	 * @return Start symbol represented as Symbol
+	 */
 	private static IConstructor checkPreconditions(IValue start, Type reified) {
 		if (!(reified instanceof ReifiedType)) {
 		   throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A reified type is required instead of " + reified);
@@ -226,9 +274,10 @@ public class ParsingTools {
 		return symbol;
 	}
 	
-	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input, IMap syntax){
-		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(location, syntax);
-		String name = "";
+	@SuppressWarnings("unchecked")
+	public IConstructor parseObject(IString moduleName, IConstructor startSort, IMap robust, URI location, char[] input, IMap syntax){
+		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(moduleName, location, syntax);
+		String name = ""; moduleName.getValue();
 		if (SymbolAdapter.isStartSort(startSort)) {
 			name = "start__";
 			startSort = SymbolAdapter.getStart(startSort);
@@ -265,9 +314,39 @@ public class ParsingTools {
 	        }
 	        //throw new ImplementationError("class for cached parser " + className + " could not be found");
 	      }
-	      
 	     
 		return (IConstructor) parser.parse(name, location, input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
+	}
+
+	public IConstructor parseObject(IRascalMonitor monitor, IString moduleName, IConstructor startSort, IMap robust, URI location, IMap syntax){
+		IRascalMonitor old = setMonitor(monitor);
+		
+		try{
+			char[] input = getResourceContent(location);
+			return parseObject(moduleName, startSort, robust, location, input, syntax);
+		}catch(IOException ioex){
+			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), null, null);
+		} finally{
+			setMonitor(old);
+		}
+	}
+
+	public IConstructor parseObject(IRascalMonitor monitor, IString moduleName, IConstructor startSort, IMap robust, String input, IMap syntax){
+		IRascalMonitor old = setMonitor(monitor);
+		try{
+			return parseObject(moduleName, startSort, robust, URIUtil.invalidURI(), input.toCharArray(), syntax);
+		}finally{
+			setMonitor(old);
+		}
+	}
+	
+	public IConstructor parseObject(IRascalMonitor monitor, IString moduleName, IConstructor startSort, IMap robust, String input, ISourceLocation loc, IMap syntax){
+		IRascalMonitor old = setMonitor(monitor);
+		try{
+			return parseObject(moduleName, startSort, robust, loc.getURI(), input.toCharArray(), syntax);
+		}finally{
+			setMonitor(old);
+		}
 	}
 	
 	/**
@@ -299,61 +378,7 @@ public class ParsingTools {
 			i++;
 		}
 	}
-
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, URI location, IMap syntax){
-		//IRascalMonitor old = setMonitor(monitor);
-		
-		try{
-			char[] input = getResourceContent(location);
-			return parseObject(startSort, robust, location, input, syntax);
-		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), null, null);
-		} finally{
-//			setMonitor(old);
-		}
-	}
 	
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, IMap syntax){
-//		IRascalMonitor old = setMonitor(monitor);
-		try{
-			return parseObject(startSort, robust, URIUtil.invalidURI(), input.toCharArray(), syntax);
-		}finally{
-//			setMonitor(old);
-		}
-	}
-	
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, ISourceLocation loc, IMap syntax){
-//		IRascalMonitor old = setMonitor(monitor);
-		try{
-			return parseObject(startSort, robust, loc.getURI(), input.toCharArray(), syntax);
-		}finally{
-//			setMonitor(old);
-		}
-	}
-	
-	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(URI loc, IMap syntax){
-		return getParser("XXX", loc, false, syntax);
-	}
-
-	
-//	public IConstructor getGrammar(Environment env) {
-//		ModuleEnvironment root = (ModuleEnvironment) env.getRoot();
-//		return getParserGenerator().getGrammar(monitor, root.getName(), root.getSyntaxDefinition());
-//	}
-	
-	
-//	public IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
-////		IRascalMonitor old = setMonitor(monitor);
-//		try {
-//			ParserGenerator pgen = getParserGenerator();
-//			String main = uri.getAuthority();
-//			ModuleEnvironment env = getHeap().getModule(main);
-//			return pgen.getGrammar(monitor, main, env.getSyntaxDefinition());
-//		}
-//		finally {
-////			setMonitor(old);
-//		}
-//	}
 	
 //	public IValue diagnoseAmbiguity(IRascalMonitor monitor, IConstructor parseTree) {
 ////		IRascalMonitor old = setMonitor(monitor);
@@ -382,13 +407,13 @@ public class ParsingTools {
 //	}
 	
 	public ISet getNestingRestrictions(IRascalMonitor monitor, IConstructor g) {
-//		IRascalMonitor old = setMonitor(monitor);
+		IRascalMonitor old = setMonitor(monitor);
 		try {
 			ParserGenerator pgen = getParserGenerator();
 			return pgen.getNestingRestrictions(monitor, g);
 		}
 		finally {
-//			setMonitor(old);
+			setMonitor(old);
 		}
 	}
 	
@@ -396,7 +421,7 @@ public class ParsingTools {
   
 	
 	public ParserGenerator getParserGenerator() {
-//		startJob("Loading parser generator", 40);
+		startJob("Loading parser generator", 40);
 		if(parserGenerator == null ){
 		  if (isBootstrapper()) {
 		    throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
@@ -404,7 +429,7 @@ public class ParsingTools {
 		 
 		  parserGenerator = new ParserGenerator(monitor, stderr, classLoaders, vf, config);
 		}
-//		endJob(true);
+		endJob(true);
 		return parserGenerator;
 	}
 	
@@ -510,7 +535,7 @@ public class ParsingTools {
 
 	    if (parser == null || force) {
 	      String parserName = name; // .replaceAll("::", ".");
-
+stderr.println("name = " + name);
 	      parser = pg.getNewParser(monitor, loc, parserName, definitions);
 	      storeObjectParser(name, parser);
 	    }
@@ -525,8 +550,6 @@ public class ParsingTools {
 	      throw new ImplementationError(e.getMessage(), e);
 	    }
 	  }
-	  
-	
 
 	private IConstructor parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, IConstructor tree, URI uri) {
 	    IConstructor symTree = TreeAdapter.getArg(tree, "symbol");

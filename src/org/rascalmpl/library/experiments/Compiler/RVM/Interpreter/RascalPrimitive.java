@@ -4909,14 +4909,15 @@ public enum RascalPrimitive {
 	 */
 	
 	public static int parse(Object[] stack, int sp, int arity) {
-		assert arity == 2;
+		assert arity == 3;
+		IString module_name = (IString) stack[sp - 3];
 		IConstructor type = (IConstructor) stack[sp - 2];
 		stdout.println("parse: " + type.getType());
 		IString s = ((IString) stack[sp - 1]);
 	
-		IValue tree = parsingTools.parse(type, s);
-		stack[sp - 2] = tree;
-		return sp - 1;
+		IValue tree = parsingTools.parse(module_name, type, s);
+		stack[sp - 3] = tree;
+		return sp - 2;
 	}
 
 	/*
