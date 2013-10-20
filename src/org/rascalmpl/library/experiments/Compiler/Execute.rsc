@@ -54,11 +54,13 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    }
   
    for(imp <- rvmProgram.imports){
+      println("importing: <imp>");
       importedLoc = imp.parent + (basename(imp) + ".rvm");
        try {
   	       importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	       imported_functions += [ importedRvmProgram.declarations[fname] | fname <-importedRvmProgram.declarations ];
   	       imported_grammars[importedRvmProgram.name] = importedRvmProgram.grammar;
+  	       println("adding grammar for <importedRvmProgram.name>");
   	   } catch x: println("rascal2rvm: Reading <importedLoc> did not succeed: <x>");      
    }
    <v, t> = executeProgram(rvmProgram, imported_functions, imported_grammars, arguments, debug, testsuite);
