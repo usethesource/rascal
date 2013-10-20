@@ -32,6 +32,7 @@ default MuExp translateMatch(Pattern pat, Expression exp) =
 MuExp translatePat(p:(Pattern) `<RegExpLiteral r>`) = translateRegExpLiteral(r);
 
 default MuExp translatePat(p:(Pattern) `<Literal lit>`) = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [translate(lit)]);
+
 /*
 lexical RegExpLiteral
 	= "/" RegExp* "/" RegExpModifier ;
