@@ -127,7 +127,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(getTypeFactory().stringType(), vf.string(value.getScheme()), ctx);
 		}
 		else if (name.equals("authority")) {
-			String authority = value.getAuthority();
+			String authority = value.hasAuthority() ? value.getAuthority() : "";
 			return makeResult(getTypeFactory().stringType(), vf.string(authority != null ? authority : ""), ctx);
 		}
 		else if (name.equals("host")) {
@@ -139,7 +139,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(getTypeFactory().stringType(), vf.string(host != null ? host : ""), ctx);
 		}
 		else if (name.equals("path")) {
-			String path = value.getPath();
+			String path = value.hasPath() ? value.getPath() : "";
 			return makeResult(getTypeFactory().stringType(), vf.string(path != null ? path : ""), ctx);
 		}
 		else if (name.equals("parent")) {
@@ -159,7 +159,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		else if (name.equals("file")) {
-			String path = value.getPath();
+			String path = value.hasPath() ? value.getPath() : "";
 			
 			if (path.equals("")) {
 				throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
@@ -194,7 +194,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 		}
 		else if (name.equals("extension")) {
-			String path = value.getPath();
+			String path = value.hasPath() ? value.getPath() : "";
 			int i = path.lastIndexOf('.');
 			if (i != -1) {
 				return makeResult(getTypeFactory().stringType(), vf.string(path.substring(i + 1)), ctx);
@@ -202,15 +202,15 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(getTypeFactory().stringType(), vf.string(""), ctx);
 		}
 		else if (name.equals("fragment")) {
-			String fragment = value.getFragment();
+			String fragment = value.hasFragment() ? value.getFragment() : "";
 			return makeResult(getTypeFactory().stringType(), vf.string(fragment != null ? fragment : ""), ctx);
 		}
 		else if (name.equals("query")) {
-			String query = value.getQuery();
+			String query = value.hasQuery() ? value.getQuery() : "";
 			return makeResult(getTypeFactory().stringType(), vf.string(query != null ? query : ""), ctx);
 		}
 		else if (name.equals("params")) {
-			String query = value.getQuery();
+			String query = value.hasQuery() ? value.getQuery() : "";
 			IMapWriter res = vf.mapWriter(getTypeFactory().stringType(), getTypeFactory().stringType());
 			
 			if (query != null && query.length() > 0) {
