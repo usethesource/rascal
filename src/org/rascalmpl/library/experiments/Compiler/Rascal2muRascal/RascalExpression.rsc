@@ -58,23 +58,6 @@ str typedInfixOp(str lot, str op, str rot) {
 MuExp infix(str op, Expression e) = 
   muCallPrim(typedInfixOp(getOuterType(e.lhs), op, getOuterType(e.rhs)), 
              [*translate(e.lhs), *translate(e.rhs)]);
-  /*
-  println("infix: op = <op>, lot = <lot>, rot = <rot>");
-  if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter"){
-     return muCallPrim("<op>", [*translate(e.lhs), *translate(e.rhs)]);
-  }
-  if(isContainerType(lot))
-     if(areCompatibleContainerTypes({lot, rot}))
-       return muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
-     else
-       return muCallPrim("<lot>_<op>_elm", [*translate(e.lhs), *translate(e.rhs)]);
-  else
-    if(isContainerType(rot))
-       return muCallPrim("elm_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
-     else
-       return muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
-}
-*/
 
 MuExp infix_elm_left(str op, Expression e){
    rot = getOuterType(e.rhs);

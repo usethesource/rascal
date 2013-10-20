@@ -406,16 +406,16 @@ public class ParsingTools {
 //		}
 //	}
 	
-	public ISet getNestingRestrictions(IRascalMonitor monitor, IConstructor g) {
-		IRascalMonitor old = setMonitor(monitor);
-		try {
-			ParserGenerator pgen = getParserGenerator();
-			return pgen.getNestingRestrictions(monitor, g);
-		}
-		finally {
-			setMonitor(old);
-		}
-	}
+//	public ISet getNestingRestrictions(IRascalMonitor monitor, IConstructor g) {
+//		IRascalMonitor old = setMonitor(monitor);
+//		try {
+//			ParserGenerator pgen = getParserGenerator();
+//			return pgen.getNestingRestrictions(monitor, g);
+//		}
+//		finally {
+//			setMonitor(old);
+//		}
+//	}
 	
 	private ParserGenerator parserGenerator;
   

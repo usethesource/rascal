@@ -18,7 +18,7 @@ function ALL[1,arg,carg]{
 // Initialize a pattern with a given value and exhaust all its possibilities
 
 function DO_ALL[2, pat, ^val, co]{
-   println("DO_ALL", pat, ^val);
+   // println("DO_ALL", pat, ^val);
    co = init(pat, ^val);
    while(hasNext(co)){
          if(next(co)){
