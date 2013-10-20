@@ -893,7 +893,9 @@ MuExp translateVisit(label,\visit) {
 	}
 	
 	bool rebuild = false;
-	if( Case c <- \visit.cases, (c is patternWithAction || /\insert(_,_) := c) ) {
+	if( Case c <- \visit.cases, (c is patternWithAction && c.patternWithAction is replacing 
+									|| hasTopLevelInsert(c)) ) {
+		println("Rebuilding visit!");
 		rebuild = true;
 	}
 	
@@ -975,3 +977,12 @@ MuExp translateVisitCases(list[Case] cases) {
 	}
 }
 
+private bool hasTopLevelInsert(Case c) {
+	println("Look for an insert...");
+	top-down-break visit(c) {
+		case (Statement) `insert <DataTarget dt> <Statement stat>`: return true;
+		case Visit v: ;
+	}
+	println("Insert has not been found, non-rebuilding visit!");
+	return false;
+}

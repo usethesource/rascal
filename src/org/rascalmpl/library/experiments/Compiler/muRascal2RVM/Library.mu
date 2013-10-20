@@ -1043,16 +1043,24 @@ function VISIT_CHILDREN_VOID[5, ^subject, traverse_fun, phi, hasMatch, rebuild] 
 
 function VISIT_NOT_MAP[5, ^subject, traverse_fun, phi, hasMatch, rebuild,
 						  iarray, enumerator, ^child, i, childHasMatch] {
-	iarray = make_iarray(size(^subject));
+	if(rebuild) {
+	    iarray = make_iarray(size(^subject));
+	    i = 0;
+	};
 	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^child, ^subject);
-	i = 0;
 	while(all(multi(enumerator))) {
 		childHasMatch = false;
-		set_array iarray[i] = traverse_fun(phi, ^child, ref childHasMatch, rebuild);
-		i = i + 1;
+		^child = traverse_fun(phi, ^child, ref childHasMatch, rebuild);
+		if(rebuild) {
+		    set_array iarray[i] = ^child;
+		    i = i + 1;
+		};
 		deref hasMatch = muprim("or_mbool_mbool", childHasMatch, deref hasMatch);
 	};
-	return iarray;
+	if(rebuild) {
+	    return iarray;
+	};
+	return;
 }
 
 function VISIT_MAP[5, ^subject, traverse_fun, phi, hasMatch, rebuild,
