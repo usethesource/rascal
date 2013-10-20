@@ -392,7 +392,7 @@ MuExp translate(e:(Expression) `*<Expression argument>`) {
    
 // AsType
 MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
-   muCallPrim("parse", [muCon(getModuleName()), muCon(symbolToValue(translateType(typ), config)), translate(argument)]);
+   muCallPrim("parse", [muCon(getModuleName()), muCon(type(symbolToValue(translateType(typ), config).symbol,getGrammar(config))), translate(argument)]);
    
 
 // Composition
