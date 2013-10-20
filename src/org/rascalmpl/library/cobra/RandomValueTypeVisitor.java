@@ -14,6 +14,8 @@ package org.rascalmpl.library.cobra;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -354,7 +356,10 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		} else {
 			RandomValueTypeVisitor visitor = descend();
 			IString str = vf.string(visitor.generate(type).toString());
-			return str.concat(vf.string(RandomStringUtils.random(1)));
+			IString result = str.concat(vf.string(RandomStringUtils.random(1)));
+			// make sure we are not generating very strange sequences
+			String normalized = Normalizer.normalize(result.getValue(), Form.NFC);
+			return vf.string(normalized);
 		}
 	}
 

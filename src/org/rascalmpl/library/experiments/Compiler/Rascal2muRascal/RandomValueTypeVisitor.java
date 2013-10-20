@@ -14,9 +14,10 @@ package org.rascalmpl.library.experiments.Compiler.Rascal2muRascal;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
@@ -37,11 +38,7 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.cobra.RandomType;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -339,7 +336,10 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		} else {
 			RandomValueTypeVisitor visitor = descend();
 			IString str = vf.string(visitor.generate(type).toString());
-			return str.concat(vf.string(RandomStringUtils.random(1)));
+			IString result = str.concat(vf.string(RandomStringUtils.random(1)));
+			// make sure we are not generating very strange sequences
+			String normalized = Normalizer.normalize(result.getValue(), Form.NFC);
+			return vf.string(normalized);
 		}
 	}
 
