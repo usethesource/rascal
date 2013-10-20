@@ -462,7 +462,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 				}
 				if (uri.getHost() != null) {
-					uri = URIUtil.changeUserInformation(uri, ((IString) repl.getValue()).getValue());
+					uri = URIUtil.changeUserInformation(uri, newStringValue);
 				}
 				authority = uri.getAuthority();
 				uriPartChanged = true;
