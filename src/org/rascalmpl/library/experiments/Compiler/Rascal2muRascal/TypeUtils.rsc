@@ -235,6 +235,19 @@ void extractScopes(){
         								     // Fill in fuid2type to enable more precise overloading resolution
         								     fuid2type[uid] = rtype;
         								   }
+        case production(rname,rtype,
+                        inScope,src):      {
+                                             constructors += {uid};
+                                             declares += {<inScope, uid>};
+                                             loc2uid[src] = uid;
+                                             for(l <- config.uses[uid]) {
+                                                 loc2uid[l] = uid;
+                                             }
+                                             // Fill in uid2name
+                                             uid2name[uid] = getPUID(getSimpleName(rname),rtype);
+                                             // Fill in fuid2type to enable more precise overloading resolution
+                                             fuid2type[uid] = rtype;
+                                           }
         case blockScope(inScope,src):      { 
         								     containment += {<inScope, uid>};
         									 loc2uid[src] = uid;
@@ -357,6 +370,9 @@ str getFUID(str modName, str fname, Symbol \type, int case_num) = "<modName>/<fn
 
 str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
 str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
+
+str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
+str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
 
 str uid2str(int uid, str name) = uid2str(uid) + "/" + name;
 str uid2str(int uid, str name, int \case) = uid2str(uid) + "/" + name + "#<\case>";
