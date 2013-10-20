@@ -14,6 +14,7 @@
 package org.rascalmpl.values;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -207,12 +208,12 @@ public class LocalSharingValueFactory implements IValueFactory{
 	}
 
 	@Override
-	public ISourceLocation sourceLocation(String scheme, String authority, String path) {
+	public ISourceLocation sourceLocation(String scheme, String authority, String path) throws URISyntaxException {
 		return cachedSourceLocations.cache(valueFactory.sourceLocation(scheme, authority, path));
 	}
 
 	@Override
-	public ISourceLocation sourceLocation(String scheme, String authority, String path, String query, String fragment) {
+	public ISourceLocation sourceLocation(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException {
 		return cachedSourceLocations.cache(valueFactory.sourceLocation(scheme, authority, path, query, fragment));
 	}
 
