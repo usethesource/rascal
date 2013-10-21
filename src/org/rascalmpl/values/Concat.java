@@ -31,19 +31,8 @@ public class Concat extends OrgString {
 	}
 
 	@Override
-	public String getValue() {
-		return lhs.getValue() + rhs.getValue();
-	}
-
-	@Override
 	public IString reverse() {
-		/*
-		 * abcd --> dcba
-		 * ab cd --> dc ba
-		 * ab cde --> edc ba
-		 * What happens with locations?
-		 */
-		return new Concat((OrgString)rhs.reverse(), (OrgString)lhs.reverse());
+		return ((OrgString)rhs.reverse()).concat(lhs.reverse());
 	}
 
 	@Override
@@ -62,8 +51,8 @@ public class Concat extends OrgString {
 		if (start >= lhs.length()) {
 			return rhs.substring(start - lhs.length(), end - lhs.length());
 		}
-		return new Concat((OrgString)lhs.substring(start),
-				(OrgString)rhs.substring(0, end - lhs.length()));
+		return lhs.substring(start)
+				.concat(rhs.substring(0, end - lhs.length()));
 	}
 
 	
@@ -125,6 +114,8 @@ public class Concat extends OrgString {
 		}
 		// test for overlapping
 		for (int i = 1; i < str.length(); i++) {
+			// for a string abcd we partition as
+			// a bcd, ab cd, abc d
 			String before = str.substring(0, i);
 			String after = str.substring(i, str.length());
 			int lind = lhs.indexOf(before);
@@ -133,8 +124,27 @@ public class Concat extends OrgString {
 				return lind;
 			}
 		}
-		return rhs.indexOf(str);
+		ind = rhs.indexOf(str);
+		if (ind != -1) {
+			return lhs.length() + ind;
+		}
+		return -1;
 	}
 
+	@Override
+	public int hashCode() {
+		return lhs.hashCode() + rhs.hashCode();
+	}
+
+	@Override
+	public void serialize(StringBuilder b) {
+		lhs.serialize(b);
+		rhs.serialize(b);
+	}
+	
+	public OrgString capitalize() {
+		assert lhs.length() > 0;
+		return (OrgString) lhs.capitalize().concat(rhs);
+	}
 
 }

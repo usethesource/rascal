@@ -45,7 +45,7 @@ public class ParserGenerator {
 	private final JavaBridge bridge;
 	private final IRascalValueFactory vf;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IRascalValueFactory factory, Configuration config) {
 		GlobalEnvironment heap = new GlobalEnvironment();

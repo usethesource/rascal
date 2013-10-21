@@ -1,23 +1,16 @@
 package org.rascalmpl.values;
 
+import org.apache.commons.lang.WordUtils;
 import org.eclipse.imp.pdb.facts.IString;
 
 public class NoOrg extends Atom {
-	private static final OriginValueFactory vf = (OriginValueFactory) ValueFactoryFactory.getValueFactory();
-	
-	private final IString value;
 	
 	public NoOrg(String s) {
-		value = vf.baseString(s);
+		super(s);
 	}
-	
-	private NoOrg(IString v) {
-		value = v;
-	}
-	
-	@Override
-	public String getValue() {
-		return value.getValue();
+
+	public NoOrg(IString s) {
+		super(s);
 	}
 
 	@Override
@@ -26,23 +19,8 @@ public class NoOrg extends Atom {
 	}
 
 	@Override
-	public int length() {
-		return value.length();
-	}
-
-	@Override
 	public IString substring(int start, int end) {
 		return new NoOrg(value.substring(start, end));
-	}
-
-	@Override
-	public int compare(IString other) {
-		return value.compare(other);
-	}
-
-	@Override
-	public int charAt(int index) {
-		return value.charAt(index);
 	}
 
 	@Override
@@ -56,8 +34,8 @@ public class NoOrg extends Atom {
 	}
 
 	@Override
-	public int indexOf(String str) {
-		return getValue().indexOf(str);
+	public OrgString capitalize() {
+		return new NoOrg(WordUtils.capitalize(getValue()));
 	}
 
 }

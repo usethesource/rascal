@@ -13,7 +13,7 @@
 module String
 
 import Exception;
-import Origins;
+import util::Maybe;
 
 @doc{
 Synopsis: Center a string in given space.
@@ -567,4 +567,4 @@ toLocation("document.xml");
 public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>| : |cwd:///<s>|;
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java lrel[loc, str] origins(str s);
+public java lrel[Maybe[loc], str] origins(str s);
