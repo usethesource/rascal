@@ -170,7 +170,7 @@ public class TraversalEvaluator {
 		}
 
 		if (direction == DIRECTION.BottomUp) {
-			if ((progress == PROGRESS.Breaking) && tr.changed) {
+			if ((progress == PROGRESS.Breaking) && tr.matched) {
 				this.traversalContext.remove(this.traversalContext.size()-1);
 				return result;
 			}
