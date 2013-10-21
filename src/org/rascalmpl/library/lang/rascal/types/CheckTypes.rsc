@@ -3536,6 +3536,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
             }
         }
+        
+        case ptn:concreteSyntaxNode(rt,plist) => ptn[@rtype = rt]
     }
     
     if (size(failures) > 0) {
@@ -4114,6 +4116,13 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         case tvarBecomesNode(nt, n, l, cp) : {
             < c, cpNew > = bind(cp, rt, c);
             return < c, pt[child = cpNew] >;
+        }
+        
+        case concreteSyntaxNode(nt,plist) : {
+            if (comparable(pt@rtype, rt)) {
+                return < c, pt >;
+            }
+            throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
         }
     }
     
