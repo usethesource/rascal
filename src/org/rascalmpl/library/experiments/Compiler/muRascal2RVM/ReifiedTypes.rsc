@@ -10,7 +10,7 @@ import ParseTree;
 import IO;
 
 public bool reifiedtype(Symbol \type, type[value] st) {
-	moduleLoc = |std:///ParseTree.rsc|;
+	moduleLoc = |rascal:///ParseTree.rsc|;
 	Module M = parse(#start[Module], moduleLoc);
    	Configuration c = newConfiguration();
    	Configuration config = checkModule(M.top, c);

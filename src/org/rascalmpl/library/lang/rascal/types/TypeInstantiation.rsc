@@ -22,7 +22,7 @@ import lang::rascal::types::TypeExceptions;
 public alias Bindings = map[str varName, Symbol varType];
 
 public Bindings defaultMatch(Symbol t, Symbol m, Bindings bindings) {
-	if (!subtype(m,t))
+	if (!comparable(m,t))
 		throw invalidMatch(t, m);
 	return bindings;
 }

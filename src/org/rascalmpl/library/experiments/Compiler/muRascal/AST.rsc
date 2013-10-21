@@ -17,7 +17,8 @@ public data MuModule =
                                  list[MuVariable] variables, 
                                  list[MuExp] initialization,
                                  map[str,int] resolver,
-                                 lrel[str,list[str],list[str]] overloaded_functions)
+                                 lrel[str,list[str],list[str]] overloaded_functions,
+                                 map[Symbol, Production] grammar)
             ;
           
 // All information related to a function declaration. This can be a top-level
@@ -78,6 +79,7 @@ public data MuExp =
           					   list[MuExp] args)
           
           | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
+          | muCallPrim(str name)                                // Call a Rascal primitive function (with empty list of arguments)
           | muCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
           | muCallJava(str name, str class, 

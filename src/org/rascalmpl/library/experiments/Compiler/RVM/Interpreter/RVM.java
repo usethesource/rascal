@@ -64,10 +64,12 @@ public class RVM {
 	
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
+	private IMap grammars;
 	
 	
 	private final Map<IValue, IValue> moduleVariables;
 	PrintWriter stdout;
+	PrintWriter stderr;
 	
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
@@ -81,7 +83,8 @@ public class RVM {
 		this.vf = vf;
 		
 		this.ctx = ctx;
-		this.stdout = ctx.getStdOut();	
+		this.stdout = ctx.getStdOut();
+		this.stderr = ctx.getStdErr();
 		this.debug = debug;
 		this.finalized = false;
 		
@@ -166,6 +169,14 @@ public class RVM {
 			}
 			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
 		}
+	}
+	
+	public void setGrammars(IMap grammer){
+		this.grammars = grammars;
+	}
+	
+	public IMap getGrammars(){
+		return grammars;
 	}
 	
 	/**
@@ -1160,10 +1171,12 @@ public class RVM {
 				}
 			}
 		} catch (Exception e) {
-			stdout.println("PANIC: (instruction execution): " + e.getMessage());
-			e.printStackTrace();
+			e.printStackTrace(stderr);
+			throw new RuntimeException("PANIC: (instruction execution): " + e.getMessage());
+			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
+			//e.printStackTrace();
+			//stderr.println(e.getStackTrace());
 		}
-		return Rascal_FALSE;
 	}
 	
 	int callJavaMethod(String methodName, String className, Type parameterTypes, Object[] stack, int sp){

@@ -3,6 +3,8 @@ module experiments::Compiler::Examples::Run
 import Prelude;
 import experiments::Compiler::Execute;
 
+import experiments::Compiler::Examples::AsType1;
+import experiments::Compiler::Examples::AsType2;
 import experiments::Compiler::Examples::Bottles;
 import experiments::Compiler::Examples::Capture;
 import experiments::Compiler::Examples::E1E2;
@@ -41,12 +43,18 @@ import experiments::Compiler::Examples::UninitializedVariables;
 import experiments::Compiler::Examples::IfDefinedOtherwise;
 import experiments::Compiler::Examples::UseLibrary;
 import experiments::Compiler::Examples::Visit1;
+import experiments::Compiler::Examples::Visit1a;
 import experiments::Compiler::Examples::Visit2;
 import experiments::Compiler::Examples::Visit3;
 import experiments::Compiler::Examples::Visit4;
 import experiments::Compiler::Examples::Visit5;
 import experiments::Compiler::Examples::Visit6;
 import experiments::Compiler::Examples::Visit7;
+import experiments::Compiler::Examples::Visit8;
+import experiments::Compiler::Examples::Visit9;
+import experiments::Compiler::Examples::Visit10;
+
+import experiments::Compiler::Examples::IMP3;
 
 loc base = |rascal:///experiments/Compiler/Examples/|;
 
@@ -54,6 +62,8 @@ loc base = |rascal:///experiments/Compiler/Examples/|;
 value demo(str example bool debug = false, bool listing=false, bool testsuite=false, bool recompile=false) =
   execute(base + (example + ".rsc"), [], debug=debug, listing=listing, testsuite=testsuite, recompile=recompile);
 
+test bool tst() = demo("AsType1",recompile=true) == experiments::Compiler::Examples::AsType1::main([]);
+test bool tst() = demo("AsType2",recompile=true) == experiments::Compiler::Examples::AsType2::main([]);
 test bool tst() = demo("Bottles") == experiments::Compiler::Examples::Bottles::main([]);
 test bool tst() = demo("Capture") == experiments::Compiler::Examples::Capture::main([]);
 test bool tst() = demo("E1E2") == experiments::Compiler::Examples::E1E2::main([]);
@@ -94,12 +104,17 @@ test bool tst() = demo("IfDefinedOtherwise") == experiments::Compiler::Examples:
 // under investigation
 /*fails*/ //test bool tst1() = demo("UseLibrary") == experiments::Compiler::Examples::UseLibrary::main([]);
 
-test bool tst1() = demo("Visit1") == experiments::Compiler::Examples::Visit1::main([]);
-test bool tst2() = demo("Visit2") == experiments::Compiler::Examples::Visit2::main([]);
-test bool tst3() = demo("Visit3") == experiments::Compiler::Examples::Visit3::main([]);
-test bool tst4() = demo("Visit4") == experiments::Compiler::Examples::Visit4::main([]);
-test bool tst5() = demo("Visit5") == experiments::Compiler::Examples::Visit5::main([]);
-test bool tst6() = demo("Visit6") == experiments::Compiler::Examples::Visit6::main([]);
-test bool tst7() = demo("Visit7") == experiments::Compiler::Examples::Visit7::main([]);
+test bool tst1()  = demo("Visit1")  == experiments::Compiler::Examples::Visit1::main([]);
+test bool tst1a() = demo("Visit1a") == experiments::Compiler::Examples::Visit1::main([]);
+test bool tst2()  = demo("Visit2")  == experiments::Compiler::Examples::Visit2::main([]);
+test bool tst3()  = demo("Visit3")  == experiments::Compiler::Examples::Visit3::main([]);
+test bool tst4()  = demo("Visit4")  == experiments::Compiler::Examples::Visit4::main([]);
+test bool tst5()  = demo("Visit5")  == experiments::Compiler::Examples::Visit5::main([]);
+test bool tst6()  = demo("Visit6")  == experiments::Compiler::Examples::Visit6::main([]);
+test bool tst7()  = demo("Visit7")  == experiments::Compiler::Examples::Visit7::main([]);
+test bool tst8()  = demo("Visit8")  == experiments::Compiler::Examples::Visit8::main([]);
+test bool tst9()  = demo("Visit9")  == experiments::Compiler::Examples::Visit9::main([]);
+test bool tst10() = demo("Visit10") == experiments::Compiler::Examples::Visit10::expectedResult;
 
-
+// Overloading resolution & imports
+test bool tst() = demo("IMP3") == experiments::Compiler::Examples::IMP3::main([]);

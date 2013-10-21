@@ -282,7 +282,8 @@ MuExp translate(s: (Statement) `return <Statement statement>`) {
 
 MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translate(statement));
 
-MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) = muReturn(translate(statement));
+MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) 
+	= { fillCaseType(getType(statement@\loc)); muReturn(translate(statement)); };
 
 MuExp translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) =
    muCallPrim("listwriter_add", [muTmp(asTmp(currentLoop())), translate(statement)]);
@@ -381,7 +382,9 @@ MuExp applyAssignmentOperator(str operator, assignable, statement) {
         return generateIfDefinedOtherwise(oldval[0], translate(statement));
     }
     op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator]; 
-    op2 = "<getOuterType(assignable)>_<op1>_<getOuterType(statement)>";
+    //op2 = "<getOuterType(assignable)>_<op1>_<getOuterType(statement)>";
+    op2 = typedInfixOp(getOuterType(assignable), op1, getOuterType(statement));;
+    
     oldval = getValues(assignable);
     assert size(oldval) == 1;
     return muCallPrim("<op2>", [*oldval, translate(statement)]); 	
