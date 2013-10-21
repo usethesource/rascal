@@ -2643,12 +2643,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			type = type.instantiate(env.getTypeBindings());
 			
-			if (type instanceof NonTerminalType) {
-				NonTerminalType cType = (NonTerminalType) type;
-				if (cType.isConcreteListType()) {
-					return new ConcreteListVariablePattern(eval, this, type, getName());
-				}
-			}
 			return new TypedVariablePattern(eval, this, type, getName());
 		}
 

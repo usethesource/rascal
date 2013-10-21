@@ -36,8 +36,12 @@ public class Execute {
 	
 	// Library function to execute a RVM program from Rascal
 
-	public ITuple executeProgram(IConstructor program, IList imported_functions, IList argumentsAsList,
-			IBool debug, IBool testsuite, IEvaluatorContext ctx) {
+	public ITuple executeProgram(IConstructor program, 
+								 IList imported_functions,
+								 IList imported_overloaded_functions,
+								 IMap imported_overloading_resolvers,
+								 IMap imported_grammars, IList argumentsAsList,
+								 IBool debug, IBool testsuite, IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();
 		String moduleName = ((IString) program.get("name")).getValue();
@@ -71,6 +75,10 @@ public class Execute {
 				loadInstructions(name, declaration, rvm);
 			}
 		}
+		
+		// Overloading resolution of imported functions
+		rvm.addResolver(imported_overloading_resolvers);
+		rvm.fillOverloadedStore(imported_overloaded_functions);
 
 		IMap types = (IMap) program.get("types");
 		Iterator<Entry<IValue, IValue>> entries = types.entryIterator();
@@ -101,6 +109,9 @@ public class Execute {
 		// Overloading resolution
 		rvm.addResolver((IMap) program.get("resolver"));
 		rvm.fillOverloadedStore((IList) program.get("overloaded_functions"));
+		
+		// Grammars
+		rvm.setGrammars(imported_grammars);
 		
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){

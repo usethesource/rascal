@@ -24,6 +24,12 @@ str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 str functionScope = "";
 int nlocal = 0;
 
+int get_nlocals() = nlocal;
+
+void set_nlocals(int n) {
+	nlocal = n;
+}
+
 // Systematic label generation related to loops
 
 str mkContinue(str loopname) = "CONTINUE_<loopname>";
@@ -120,7 +126,10 @@ list[EEntry] exceptionTable = [];
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] types, list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions), bool listing=false){
+RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] types, 
+                           list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations,
+                           map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions, map[Symbol, Production] grammar), 
+                  bool listing=false){
   funMap = ();
   nlabel = -1;
   temporaries = ();
@@ -177,7 +186,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   	 module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
   
-  res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
+  res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions, grammar);
   if(listing){
     for(fname <- funMap)
   		iprintln(funMap[fname]);

@@ -14,6 +14,9 @@ import util::Math;
 import experiments::Compiler::Execute;
 
 import experiments::Compiler::Benchmarks::BBottles;
+import experiments::Compiler::Benchmarks::BCompareFor;
+import experiments::Compiler::Benchmarks::BCompareIf;
+import experiments::Compiler::Benchmarks::BCompareComprehension;
 import experiments::Compiler::Benchmarks::BExceptions;
 import experiments::Compiler::Benchmarks::BExceptionsFinally;
 import experiments::Compiler::Benchmarks::BFac;
@@ -30,6 +33,9 @@ import experiments::Compiler::Benchmarks::BSendMoreMoney;
 import experiments::Compiler::Benchmarks::BTemplate;
 import experiments::Compiler::Benchmarks::BWhile;
 import experiments::Compiler::Benchmarks::BVisit1;
+import experiments::Compiler::Benchmarks::BVisit2;
+import experiments::Compiler::Benchmarks::BVisit3;
+import experiments::Compiler::Benchmarks::BVisit4;
 
 
 loc base = |rascal:///experiments/Compiler/Benchmarks/|;
@@ -87,6 +93,9 @@ void report(){
 void main(){
   measurements = ();
   run("BBottles", experiments::Compiler::Benchmarks::BBottles::main);
+  run("BCompareFor", experiments::Compiler::Benchmarks::BCompareFor::main);
+  run("BCompareIf", experiments::Compiler::Benchmarks::BCompareIf::main);
+  run("BCompareComprehension", experiments::Compiler::Benchmarks::BCompareComprehension::main);
   run("BExceptions", experiments::Compiler::Benchmarks::BExceptions::main);
   run("BExceptionsFinally", experiments::Compiler::Benchmarks::BExceptionsFinally::main);
   run("BFac", experiments::Compiler::Benchmarks::BFac::main);
@@ -103,6 +112,9 @@ void main(){
   run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
   run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
   run("BVisit1", experiments::Compiler::Benchmarks::BVisit1::main);
- 
+  run("BVisit2", experiments::Compiler::Benchmarks::BVisit2::main);
+  run("BVisit3", experiments::Compiler::Benchmarks::BVisit3::main);
+  run("BVisit4", experiments::Compiler::Benchmarks::BVisit4::main);
+  
   report();
 }

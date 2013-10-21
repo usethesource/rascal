@@ -791,12 +791,26 @@ public Configuration exitBooleanScope(Configuration c, Configuration cOrig) {
     return recoverEnvironments(c,cOrig);
 }
 
+public CheckResult checkStatementSequence(list[Statement] ss, Configuration c) {
+	// Introduce any functions in the statement list into the current scope, but
+	// don't process the bodies, just the signatures. This way we can use functions
+	// in the bodies of other functions inside the block before the declaring statement
+	// is reached.
+    fundecls = [ fd | Statement fds:(Statement)`<FunctionDeclaration fd>` <- ss ];
+	for (fundecl <- fundecls) {
+		c = checkFunctionDeclaration(fundecl, false, c);
+	}
+	t1 = Symbol::\void();
+	for (s <- ss) < c, t1 > = checkStmt(s, c);
+	return < c, t1 >;
+}
+
 @doc{Check the types of Rascal expressions: NonEmptyBlock (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`{ <Statement+ ss> }`, Configuration c) {
-    // TODO: Do we need to extract out function declarations first, or do they have to be in order here?
     cBlock = enterBlock(c,exp@\loc);
-    t1 = Symbol::\void();
-    for (s <- ss) < cBlock, t1 > = checkStmt(s, cBlock);
+
+	< cBlock, t1 > = checkStatementSequence([ssi | ssi <- ss], cBlock);
+
     c = exitBlock(cBlock,c);
     
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
@@ -840,7 +854,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
 	cFun.store[head(cFun.stack)].keywordParams = keywordParams;
 	    
     // In the environment with the parameters, check the body of the closure.
-    for (s <- ss) < cFun, st > = checkStmt(s, cFun);
+	< cFun, st > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
     // Now, recover the environment active before the call, removing any names
     // added by the closure (e.g., for parameters) from the environment. This
@@ -899,7 +913,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
 	cFun.store[head(cFun.stack)].keywordParams = keywordParams;
     
     // In the environment with the parameters, check the body of the closure.
-    for (s <- ss) < cFun, st > = checkStmt(s, cFun);
+	< cFun, t1 > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
     // Now, recover the environment active before the call, removing any names
     // added by the closure (e.g., for parameters) from the environment. This
@@ -1066,7 +1080,75 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     if (size(failures) > 0)
         return markLocationFailed(c, exp@\loc, failures);
     
-    tuple[set[Symbol] matches, set[str] failures] matchFunctionAlts(set[Symbol] alts) {
+ 	tuple[Symbol, bool, Configuration] instantiateFunctionTypeArgs(Configuration c, Symbol targetType) {
+		// If the function is parametric, we need to calculate the actual types of the
+    	// parameters and make sure they fall within the proper bounds.
+    	formalArgs = getFunctionArgumentTypes(targetType);
+		bool varArgs = ( ((targetType@isVarArgs)?) ? targetType@isVarArgs : false );
+		set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
+		map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
+    	bool canInstantiate = true;            
+		if (!varArgs) {
+			// First try to get the bindings between the type vars and the actual types for each of the
+			// function parameters. Here this is not a varargs function, so there are the same number of
+			// formals as actuals.
+			for (idx <- index(tl)) {
+				try {
+					bindings = match(formalArgs[idx],tl[idx],bindings);
+				} catch : {
+					// c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
+					canInstantiate = false;  
+				}
+			}
+		} else {
+			// Get the bindings between the type vars and the actual types for each function parameter. Since
+			// this is a var-args function, we need to take that into account. The first for loop takes care
+			// of the fixes parameters, while the second takes care of those that are mapped to the var-args
+			// parameter.
+			for (idx <- index(tl), idx < size(formalArgs)) {
+				try {
+					bindings = match(formalArgs[idx],tl[idx],bindings);
+				} catch : {
+					// c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
+					canInstantiate = false;  
+				}
+			}
+			for (idx <- index(tl), idx >= size(formalArgs)) {
+				try {
+					bindings = match(getListElementType(formalArgs[size(formalArgs)-1]),tl[idx],bindings);
+				} catch : {
+					// c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(getListElementType(formalArgs[size(formalArgs)-1]))>", epsList[idx]@\loc);
+					canInstantiate = false;  
+				}
+			}
+    	}
+    	// Based on the above, either give an error message (if we could not match the function's parameter types) or
+    	// try to instantiate the entire function type. The instantiation should only fail if we cannot instantiate
+    	// the return type correctly, for instance if the instantiation would violate the bounds.
+    	// NOTE: We may instantiate and still have type parameters, since we may be calling this from inside
+    	// a function, using a value with a type parameter as its type.
+    	if (canInstantiate) {
+        	try {
+            	targetType = instantiate(targetType, bindings);
+        	} catch : {
+            	canInstantiate = false;
+        	}
+    	}
+    	return < targetType, canInstantiate, c >;	
+	}
+	
+	// Special handling for overloads -- if we have an overload, at least one of the overload options
+	// should be a subtype of the other type, but some of them may not be.
+	bool subtypeOrOverload(Symbol t1, Symbol t2) {
+		if (!isOverloadedType(t1)) {
+			return subtype(t1,t2);
+		} else {
+			overloads = getNonDefaultOverloadOptions(t1) + getDefaultOverloadOptions(t1);
+			return (true in { subtype(overload,t2) | overload <- overloads });
+		}		
+	}
+	
+	tuple[Configuration c, set[Symbol] matches, set[str] failures] matchFunctionAlts(Configuration c, set[Symbol] alts) {
         set[Symbol] matches = { };
         set[str] failureReasons = { };
         for (a <- alts, isFunctionType(a)) {
@@ -1078,8 +1160,19 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             if (!varArgs) {
                 if (size(epsList) == size(args) && size(epsList) == 0) {
                     matches += a;
-                } else if (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | (idx <- index(epsList)) }) {
-                    matches += a;
+                } else if (size(epsList) == size(args)) {
+					if (typeContainsTypeVars(a)) {
+        				< instantiated, b, c > = instantiateFunctionTypeArgs(c, a);
+        				if (!b) {
+        					failureReasons += "Could not instantiate type variables in type <prettyPrintType(a)> with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+        					continue;
+        				}
+        				args = getFunctionArgumentTypes(instantiated);
+        			}
+                 	if (false notin { subtypeOrOverload(tl[idx],args[idx]) | (idx <- index(epsList)) })
+                    	matches += a;
+                    else
+                    	failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
                 } else {
                     failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
                 }
@@ -1088,16 +1181,27 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                     if (size(epsList) == 0) {
                         matches += a;
                     } else {
+						if (typeContainsTypeVars(a) && size(args)-1 <= size(tl)) {
+    	    				< instantiated, b, c > = instantiateFunctionTypeArgs(c, a);
+	        				if (!b) {
+	        					failureReasons += "Could not instantiate type variables in type <prettyPrintType(a)> with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+	        					continue;
+	        				}
+        					args = getFunctionArgumentTypes(instantiated);
+        				}
+        				// TODO: It may be good to put another check here to make sure we don't
+        				// continue if the size is wrong; we will still get the proper error, but
+        				// we could potentially give a better message here
                         list[Symbol] fixedPart = head(tl,size(args)-1);
                         list[Symbol] varPart = tail(tl,size(tl)-size(args)+1);
                         list[Symbol] fixedArgs = head(args,size(args)-1);
                         Symbol varArgsType = getListElementType(last(args));
-                        if (size(fixedPart) == 0 || all(idx <- index(fixedPart), subtype(fixedPart[idx],fixedArgs[idx]))) {
+                        if (size(fixedPart) == 0 || all(idx <- index(fixedPart), subtypeOrOverload(fixedPart[idx],fixedArgs[idx]))) {
                             if (size(varPart) == 0) {
                                 matches += a;
-                            } else if (size(varPart) == 1 && subtype(varPart[0],last(args))) {
+                            } else if (size(varPart) == 1 && subtypeOrOverload(varPart[0],last(args))) {
                                 matches += a;
-                            } else if (all(idx2 <- index(varPart),subtype(varPart[idx2],varArgsType))) {
+                            } else if (all(idx2 <- index(varPart),subtypeOrOverload(varPart[idx2],varArgsType))) {
                                 matches += a;
                             } else {
                                 failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
@@ -1112,10 +1216,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         // TODO: Here would be a good place to filter out constructors that are "masked" by functions with the
         // same name and signature. We already naturally mask function declarations by using a set, but we do
         // need to keep track there of possible matching IDs so we can link things up correctly.
-        return < matches, failureReasons >;
+        return < c, matches, failureReasons >;
     }
     
-   tuple[set[Symbol] matches, set[str] failures] matchConstructorAlts(set[Symbol] alts) {
+   tuple[Configuration c, set[Symbol] matches, set[str] failures] matchConstructorAlts(Configuration c, set[Symbol] alts) {
         set[Symbol] matches = { };
         set[str] failureReasons = { };
         for (a <- alts, isConstructorType(a)) {
@@ -1131,7 +1235,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         // TODO: Here would be a good place to filter out constructors that are "masked" by functions with the
         // same name and signature. We already naturally mask function declarations by using a set, but we do
         // need to keep track there of possible matching IDs so we can link things up correctly.
-        return < matches, failureReasons >;
+        return < c, matches, failureReasons >;
     }
         
     // e was either a name or an expression that evaluated to a function, a constructor,
@@ -1140,9 +1244,9 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         set[Symbol] alts     = isFunctionType(t1) ? {t1} : ( isConstructorType(t1) ? {  } : getNonDefaultOverloadOptions(t1) );
         set[Symbol] defaults = isFunctionType(t1) ? {  } : ( isConstructorType(t1) ? {t1} : getDefaultOverloadOptions(t1) );
         
-        < nonDefaultFunctionMatches, nonDefaultFunctionFailureReasons > = matchFunctionAlts(alts);
-        < defaultFunctionMatches, defaultFunctionFailureReasons > = matchFunctionAlts(defaults);
-        < constructorMatches, constructorFailureReasons > = matchConstructorAlts(defaults);
+        < c, nonDefaultFunctionMatches, nonDefaultFunctionFailureReasons > = matchFunctionAlts(c, alts);
+        < c, defaultFunctionMatches, defaultFunctionFailureReasons > = matchFunctionAlts(c, defaults);
+        < c, constructorMatches, constructorFailureReasons > = matchConstructorAlts(c, defaults);
         
         if (size(nonDefaultFunctionMatches) == 0 && size(defaultFunctionMatches) == 0 && size(constructorMatches) == 0) {
             return markLocationFailed(c,exp@\loc,{makeFailType(reason,exp@\loc) | reason <- (nonDefaultFunctionFailureReasons + defaultFunctionFailureReasons + constructorFailureReasons)});
@@ -1166,65 +1270,14 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             	isInNonDefaults = rt in nonDefaultFunctionMatches;
             	
             	if (typeContainsTypeVars(rt)) {
-                	// If the function is parametric, we need to calculate the actual types of the
-                	// parameters and make sure they fall within the proper bounds.
-                	formalArgs = getFunctionArgumentTypes(rt);
-                	bool varArgs = ( ((rt@isVarArgs)?) ? rt@isVarArgs : false );
-                	set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
-                	map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
-                
-                	if (!varArgs) {
-                    	// First try to get the bindings between the type vars and the actual types for each of the
-                    	// function parameters. Here this is not a varargs function, so there are the same number of
-                    	// formals as actuals.
-                    	for (idx <- index(tl)) {
-                        	try {
-                            	bindings = match(formalArgs[idx],tl[idx],bindings);
-                        	} catch : {
-                            	c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
-                            	cannotInstantiateFunction = true;  
-                        	}
-                    	}
-                	} else {
-                    	// Get the bindings between the type vars and the actual types for each function parameter. Since
-                    	// this is a var-args function, we need to take that into account. The first for loop takes care
-                    	// of the fixes parameters, while the second takes care of those that are mapped to the var-args
-                    	// parameter.
-                    	for (idx <- index(tl), idx < size(formalArgs)) {
-                        	try {
-                            	bindings = match(formalArgs[idx],tl[idx],bindings);
-                        	} catch : {
-                            	c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
-                            	cannotInstantiateFunction = true;  
-                        	}
-                    	}
-                    	for (idx <- index(tl), idx >= size(formalArgs)) {
-                        	try {
-                            	bindings = match(getListElementType(formalArgs[size(formalArgs)-1]),tl[idx],bindings);
-                        	} catch : {
-                            	c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(getListElementType(formalArgs[size(formalArgs)-1]))>", epsList[idx]@\loc);
-                            	cannotInstantiateFunction = true;  
-                        	}
-                    	}
-                	}
-                	// Based on the above, either give an error message (if we could not match the function's parameter types) or
-                	// try to instantiate the entire function type. The instantiation should only fail if we cannot instantiate
-                	// the return type correctly, for instance if the instantiation would violate the bounds.
-                	// NOTE: We may instantiate and still have type parameters, since we may be calling this from inside
-                	// a function, using a value with a type parameter as its type.
-                	if (!cannotInstantiateFunction) {
-                    	try {
-                        	rt = instantiate(rt, bindings);
-                        	if(isInDefaults) {
-                        		finalDefaultMatches += rt;
-                        	}
-                        	if(isInNonDefaults) {
-                        		finalNonDefaultMatches += rt;
-                        	}
-                    	} catch : {
-                        	cannotIstantiateFunction = true;
-                    	}
-                	}
+					< rt, canInstantiate, c > = instantiateFunctionTypeArgs(c, rt);
+					cannotInstantiateFunction = !canInstantiate;
+					if(isInDefaults) {
+						finalDefaultMatches += rt;
+					}
+					if(isInNonDefaults) {
+						finalNonDefaultMatches += rt;
+					}
             	} else {
             		if(isInDefaults) {
             			finalDefaultMatches += rt;
@@ -4589,8 +4642,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> { <Statement
         cBlock.labelStack = labelStackItem(RSimpleName(""), blockLabel(), \void()) + cBlock.labelStack;
     }
 
-    list[Symbol] stmtTypes = [];
-    for (s <- stmts) { < cBlock, t1 > = checkStmt(s, cBlock); stmtTypes = stmtTypes + t1; }
+	< cBlock, st > = checkStatementSequence([ssi | ssi <- stmts], cBlock);
 
     // Pop the label stack...
     cBlock.labelStack = tail(cBlock.labelStack);
@@ -4598,10 +4650,10 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> { <Statement
     // ... and return to the scope on entry, removing the label
     c = exitBlock(cBlock, c);
 
-    if (isFailType(last(stmtTypes)))
-        return markLocationFailed(c, stmt@\loc, last(stmtTypes));
+    if (isFailType(st))
+        return markLocationFailed(c, stmt@\loc, st);
     else
-        return markLocationType(c, stmt@\loc, last(stmtTypes)); 
+        return markLocationType(c, stmt@\loc, st); 
 }
 
 @doc{Check the type of Rascal statements: EmptyStatement (DONE)}
@@ -5664,15 +5716,23 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
             cFun = setExpectedReturn(c, \void());
         }
         < cFun, tFun > = processSignature(sig, cFun);
-		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);        
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+	
+		// Any variables bound in the when clause should be visible inside the function body,
+		// so we enter a new boolean scope to make sure the bindings are handled properly.
+		condList = [ cond | cond <- conds ];
+		cWhen = enterBooleanScope(cFun, condList[0]@\loc);    
         for (cond <- conds) {
-            < cFun, tCond > = checkExp(cond, cFun);
+            < cWhen, tCond > = checkExp(cond, cWhen);
             if (!isFailType(tCond) && !isBoolType(tCond))
-                cFun = addScopeMessage(cFun,error("Unexpected type: condition should be of type bool, not type <prettyPrintType(tCond)>", cond@\loc));
+                cWhen = addScopeMessage(cWhen,error("Unexpected type: condition should be of type bool, not type <prettyPrintType(tCond)>", cond@\loc));
         }
-        < cFun, tExp > = checkExp(exp, cFun);
-        if (!isFailType(tExp) && !subtype(tExp, cFun.expectedReturnType))
-            cFun = addScopeMessage(cFun,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
+        
+        < cWhen, tExp > = checkExp(exp, cWhen);
+        if (!isFailType(tExp) && !subtype(tExp, cWhen.expectedReturnType))
+            cWhen = addScopeMessage(cWhen,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
+            
+        cFun = exitBooleanScope(cWhen, cFun);
         c = recoverEnvironmentsAfterCall(cFun, c);
     }
 
@@ -5728,9 +5788,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);        
         if ((FunctionBody)`{ <Statement* ss> }` := body) {
-            for (stmt <- ss) {
-                < cFun, tStmt > = checkStmt(stmt, cFun);
-            }
+			< cFun, tStmt > = checkStatementSequence([ssi | ssi <- ss], cFun);
         }
         c = recoverEnvironmentsAfterCall(cFun, c);
     }
@@ -5903,7 +5961,7 @@ public Configuration importProduction(RSignatureItem item, Configuration c) {
 		c = addSyntaxDefinition(c, RSimpleName(sortName), item.at, prod, prod.def is \start);
 	}
 	// Productions that end up in the store
-	for(/Production prod:prod(_,_,_) <- prod) {
+	for(/Production prod:prod(_,_,_) := prod) {
 		if(label(str l, Symbol _) := prod.def) {
     		c = addProduction(c, RSimpleName(l), item.at, prod);
     	} else if(prod.def has name) {
@@ -6892,6 +6950,14 @@ public Configuration addNameWarning(Configuration c, RName n, loc l) {
 
 public anno map[loc,str] Tree@docStrings;
 public anno map[loc,set[loc]] Tree@docLinks;
+
+public Configuration checkAndReturnConfig(str mpath) {
+    c = newConfiguration();
+	t = getModuleParseTree(mpath);    
+	if (t has top && Module m := t.top)
+		c = checkModule(m, c);
+	return c;
+}
 
 public Module check(Module m) {
     c = newConfiguration();

@@ -18,6 +18,7 @@ function ALL[1,arg,carg]{
 // Initialize a pattern with a given value and exhaust all its possibilities
 
 function DO_ALL[2, pat, ^val, co]{
+   // println("DO_ALL", pat, ^val);
    co = init(pat, ^val);
    while(hasNext(co)){
          if(next(co)){
@@ -105,13 +106,13 @@ function ENUMERATE_AND_MATCH1[2, enumerator, pat, cpat, elm]{
 
 function ENUMERATE_AND_MATCH[2,  pat, ^val]{
   typeswitch(^val){
-    case list:         ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat);
-    case lrel:         ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat);
+    case list:         if(size_list(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat); };
+    case lrel:         if(size_list(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat); };
     case node:         ENUMERATE_AND_MATCH1(init(create(ENUM_NODE, ^val)), pat);
     case constructor:  ENUMERATE_AND_MATCH1(init(create(ENUM_NODE, ^val)), pat);
-    case map:          ENUMERATE_AND_MATCH1(init(create(ENUM_MAP, ^val)), pat);
-    case set:          ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat);
-    case rel:          ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat);
+    case map:          if(size_map(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_MAP, ^val)), pat); };
+    case set:          if(size_set(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat); };
+    case rel:          if(size_set(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat); };
     case tuple:        ENUMERATE_AND_MATCH1(init(create(ENUM_TUPLE, ^val)), pat);
     default:           ENUMERATE_AND_MATCH1(init(create(ENUM_LITERAL, ^val)), pat);
   };
@@ -129,13 +130,13 @@ function ENUMERATE_AND_ASSIGN1[2, enumerator, varref, elm]{
 
 function ENUMERATE_AND_ASSIGN[2, varref, ^val]{
   typeswitch(^val){
-    case list:         ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref);
-    case lrel:         ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref);
+    case list:         if(size_list(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref); };
+    case lrel:         if(size_list(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref); };
     case node:         ENUMERATE_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), varref);
     case constructor:  ENUMERATE_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), varref);
-    case map:          ENUMERATE_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), varref);
-    case set:          ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref);
-    case rel:          ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref);
+    case map:          if(size_map(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), varref); };
+    case set:          if(size_set(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref); };
+    case rel:          if(size_set(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref); };
     case tuple:        ENUMERATE_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), varref);
     default:           ENUMERATE_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), varref);
   };
@@ -155,13 +156,13 @@ function ENUMERATE_CHECK_AND_ASSIGN1[3, enumerator, typ, varref, elm]{
 
 function ENUMERATE_CHECK_AND_ASSIGN[3, typ, varref, ^val]{
   typeswitch(^val){
-    case list:         ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref);
-    case lrel:         ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref);
+    case list:         if(size_list(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref); };
+    case lrel:         if(size_list(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref); };
     case node:         ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), typ, varref);
     case constructor:  ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), typ, varref);
-    case map:          ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), typ, varref);
-    case set:          ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref);
-    case rel:          ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref);
+    case map:          if(size_map(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), typ, varref); };
+    case set:          if(size_set(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref); };
+    case rel:          if(size_set(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref); };
     case tuple:        ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), typ, varref);
     default:           ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), typ, varref);
   };
@@ -814,15 +815,49 @@ function ENUM_SUBSETS[1, set, lst, i, j, last, elIndex, sub]{
 // ***** Descendent pattern ***
 
 function MATCH_DESCENDANT[2, pat, ^subject, gen, cpat]{
-   // println("MATCH_DESCENDANT", pat, ^subject);
+   //println("MATCH_DESCENDANT", pat, ^subject);
    DO_ALL(create(MATCH_AND_DESCENT, pat),  ^subject);
    return false;
 }
 
 // ***** Match and descent for all types *****
 
+function MATCH_AND_DESCENT[2, pat, ^val]{
+  //println("MATCH_AND_DESCENT", pat, ^val);
+  DO_ALL(pat, ^val);
+  
+  //println("MATCH_AND_DESCENT", "outer match completed"); 
+  typeswitch(^val){
+    case list:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), ^val);
+    case lrel:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), ^val);
+    case node:        DO_ALL(create(MATCH_AND_DESCENT_NODE, pat), ^val);
+    case constructor: DO_ALL(create(MATCH_AND_DESCENT_NODE, pat), ^val);
+    case map:         DO_ALL(create(MATCH_AND_DESCENT_MAP, pat), ^val);
+    case set:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat), ^val);
+    case rel:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat), ^val);
+    case tuple:       DO_ALL(create(MATCH_AND_DESCENT_TUPLE, pat), ^val);
+    default:          return false;
+  };  
+  return false;
+}
+/*
+function VISIT[1, visitor]{
+   //println("VISIT", visitor);
+   while(hasNext(visitor)){
+        if(next(visitor)){
+           if(hasNext(visitor)){
+              yield true;
+           } else {
+             return true;
+           };
+        };
+   }; 
+   return false;     
+}   
+*/
+
 function MATCH_AND_DESCENT_LITERAL[2, pat, ^subject, res]{
-  // println("MATCH_AND_DESCENT_LITERAL", pat, ^subject);
+  //println("MATCH_AND_DESCENT_LITERAL", pat, ^subject);
   if(equal(typeOf(pat), typeOf(^subject))){
      res = equal(pat, ^subject);
      return res;
@@ -832,23 +867,25 @@ function MATCH_AND_DESCENT_LITERAL[2, pat, ^subject, res]{
 }
 
 function MATCH_AND_DESCENT_LIST[2, pat, ^lst, last, i]{
-   // println("MATCH_AND_DESCENT_LIST", pat, ^lst);
+   //println("MATCH_AND_DESCENT_LIST", pat, ^lst);
    last = size_list(^lst);
    i = 0;
    while(i < last){
       DO_ALL(pat, get_list ^lst[i]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list ^lst[i]);
       i = i + 1;
    };
    return false;
 }
 
 function MATCH_AND_DESCENT_SET[2, pat, ^set, ^lst, last, i]{
-   // println("MATCH_AND_DESCENT_SET", pat, ^set);
+   //println("MATCH_AND_DESCENT_SET", pat, ^set);
    ^lst = set2list(^set);
    last = size_list(^lst);
    i = 0;
    while(i < last){
       DO_ALL(pat, get_list ^lst[i]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list ^lst[i]);
       i = i + 1;
    };
    return false;
@@ -862,6 +899,8 @@ function MATCH_AND_DESCENT_MAP[2, pat, ^map, ^klst, ^vlst, last, i]{
    while(i < last){
       DO_ALL(pat, get_list ^klst[i]);
       DO_ALL(pat, get_list ^vlst[i]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list ^klst[i]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list ^vlst[i]);
       i = i + 1;
    };
    return false;
@@ -873,52 +912,21 @@ function MATCH_AND_DESCENT_NODE[2, pat, ^nd, last, i, ar]{
    i = 0; 
    while(i < last){
       DO_ALL(pat, get_array ar[i]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_array ar[i]);
       i = i + 1;
    };
    return false;
 }
 
 function MATCH_AND_DESCENT_TUPLE[2, pat, ^tup, last, i]{
-   last = size_tuple(^tup) - 1;
+   last = size_tuple(^tup);
    i = 0;
    while(i < last){
       DO_ALL(pat, get_tuple ^tup[i]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_tuple ^tup[i]);
       i = i + 1;
    };
    return false;
-}
- 
-function VISIT[1, visitor]{
-   // println("VISIT", visitor);
-   while(hasNext(visitor)){
-        if(next(visitor)){
-           if(hasNext(visitor)){
-              yield true;
-           } else {
-             return true;
-           };
-        };
-   }; 
-   return false;     
-}         
-  
-function MATCH_AND_DESCENT[2, pat, ^val]{
-  // println("MATCH_AND_DESCENT", pat, ^val);
-  DO_ALL(pat, ^val);
-  
-  // println("MATCH_AND_DESCENT", "outer match failed"); 
-  typeswitch(^val){
-    case list:        VISIT(init(create(MATCH_AND_DESCENT_LIST, pat, ^val)));
-    case lrel:        VISIT(init(create(MATCH_AND_DESCENT_LIST, pat, ^val)));
-    case node:        VISIT(init(create(MATCH_AND_DESCENT_NODE, pat, ^val)));
-    case constructor: VISIT(init(create(MATCH_AND_DESCENT_NODE, pat, ^val)));
-    case map:         VISIT(init(create(MATCH_AND_DESCENT_MAP, pat, ^val)));
-    case set:         VISIT(init(create(MATCH_AND_DESCENT_SET, pat, ^val)));
-    case rel:         VISIT(init(create(MATCH_AND_DESCENT_SET, pat, ^val)));
-    case tuple:       VISIT(init(create(MATCH_AND_DESCENT_TUPLE, pat, ^val)));
-    default:          return false;
-  };  
-  return false;
 }
 
 // ***** Regular expressions *****
@@ -935,4 +943,142 @@ function MATCH_REGEXP[3, ^regexp, varrefs, ^subject, matcher, i, varref]{
      yield true;
    };
    return false;
-} 
+}
+
+// ***** Traverse functions *****
+
+function TRAVERSE_TOP_DOWN[4, phi, ^subject, hasMatch, rebuild, matched] {
+	matched = false;	
+	^subject = phi(^subject, ref matched);
+	
+	if(rebuild) {
+		return VISIT_CHILDREN(^subject, Library::TRAVERSE_TOP_DOWN::4, phi, hasMatch, rebuild);
+	};	
+	return VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_TOP_DOWN::4, phi, hasMatch, rebuild);	
+}
+
+function TRAVERSE_BOTTOM_UP[4, phi, ^subject, hasMatch, rebuild, matched] {
+	if(rebuild) {
+		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_BOTTOM_UP::4, phi, hasMatch, rebuild);
+	} else {
+		VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_BOTTOM_UP::4, phi, hasMatch, rebuild);
+	};
+	
+	matched = false;	
+	return phi(^subject, ref matched);
+}
+
+function TRAVERSE_TOP_DOWN_BREAK[4, phi, ^subject, hasMatch, rebuild, matched] {
+	matched = false;
+	^subject = phi(^subject, ref matched);
+	deref hasMatch = muprim("or_mbool_mbool", matched, deref hasMatch);
+	
+	if(deref hasMatch) {	
+		return ^subject;
+	};
+	
+	if(rebuild) {
+		return VISIT_CHILDREN(^subject, Library::TRAVERSE_TOP_DOWN_BREAK::4, phi, hasMatch, rebuild);
+	};	
+	return VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_TOP_DOWN_BREAK::4, phi, hasMatch, rebuild);
+}
+
+function TRAVERSE_BOTTOM_UP_BREAK[4, phi, ^subject, hasMatch, rebuild, matched] {
+	if(rebuild) {
+		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_BOTTOM_UP_BREAK::4, phi, hasMatch, rebuild);
+	} else {
+		VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_BOTTOM_UP_BREAK::4, phi, hasMatch, rebuild);
+	};
+	
+	if(deref hasMatch) {	
+		return ^subject;
+	};
+	matched = false;	
+	^subject = phi(^subject, ref matched);
+	deref hasMatch = muprim("or_mbool_mbool", matched, deref hasMatch);
+	
+	return ^subject;
+}
+
+function VISIT_CHILDREN[5, ^subject, traverse_fun, phi, hasMatch, rebuild] {
+	
+	typeswitch(^subject) {
+	    case list:  return prim("list",  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    case lrel:  return prim("list",  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    case set:   return prim("set",   VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    case rel:   return prim("set",   VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    case tuple: return prim("tuple", VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    case node:  return prim("node",  muprim("get_name", ^subject), 
+	    							     VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    case constructor: 
+	                return prim("constructor", 
+	                					 muprim("typeOf_constructor", ^subject), 
+	    							     VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
+	    
+	    case map:   return VISIT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild); // special case of map
+	    
+	    default:    return ^subject;
+	};
+}
+
+function VISIT_CHILDREN_VOID[5, ^subject, traverse_fun, phi, hasMatch, rebuild] {
+	
+	typeswitch(^subject) {
+	    case list:  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    case lrel:  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    case set:   VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    case rel:   VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    case tuple: VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    case node:  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    case constructor: 
+	                VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
+	    
+	    case map:   VISIT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild); // special case of map
+	    
+	    default:    ^subject;
+	};
+	
+	return ^subject;
+}
+
+function VISIT_NOT_MAP[5, ^subject, traverse_fun, phi, hasMatch, rebuild,
+						  iarray, enumerator, ^child, i, childHasMatch] {
+	if(rebuild) {
+	    iarray = make_iarray(size(^subject));
+	    i = 0;
+	};
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^child, ^subject);
+	while(all(multi(enumerator))) {
+		childHasMatch = false;
+		^child = traverse_fun(phi, ^child, ref childHasMatch, rebuild);
+		if(rebuild) {
+		    set_array iarray[i] = ^child;
+		    i = i + 1;
+		};
+		deref hasMatch = muprim("or_mbool_mbool", childHasMatch, deref hasMatch);
+	};
+	if(rebuild) {
+	    return iarray;
+	};
+	return;
+}
+
+function VISIT_MAP[5, ^subject, traverse_fun, phi, hasMatch, rebuild,
+					  writer, enumerator, ^key, ^val, childHasMatch] {
+	writer = prim("mapwriter_open");
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^key, ^subject);
+	while(all(multi(enumerator))) {
+		^val = prim("map_subscript", ^subject, ^key);
+		
+		childHasMatch = false;
+		^key = traverse_fun(phi, ^key, ref childHasMatch, rebuild);
+		deref hasMatch = muprim("or_mbool_mbool", childHasMatch, deref hasMatch);
+		
+		childHasMatch = false;
+		^val = traverse_fun(phi, ^val, ref childHasMatch, rebuild);
+		deref hasMatch = muprim("or_mbool_mbool", childHasMatch, deref hasMatch);
+		
+		prim("mapwriter_add", writer, ^key, ^val);
+	};
+	return prim("mapwriter_close", writer);
+}
