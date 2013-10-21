@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -101,37 +102,29 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 				NonTerminalType nt = (NonTerminalType)declaredType;
 				
 				IConstructor declaredSymbol = nt.getSymbol();
-				IConstructor subjectSymbol = TreeAdapter.getType(tree);
+				Type subjectNT = RascalTypeFactory.getInstance().nonTerminalType(tree);
 				
-				if( (SymbolAdapter.isIterPlus(subjectSymbol) && SymbolAdapter.isIterStar(declaredSymbol)
-						&& SymbolAdapter.isEqual(SymbolAdapter.getSymbol(subjectSymbol), SymbolAdapter.getSymbol(declaredSymbol))) || 
-						
-					(SymbolAdapter.isIterPlusSeps(subjectSymbol) && SymbolAdapter.isIterStarSeps(declaredSymbol)
-						&& SymbolAdapter.isEqual(SymbolAdapter.getSymbol(subjectSymbol), SymbolAdapter.getSymbol(declaredSymbol))
-				        && SymbolAdapter.isEqual(SymbolAdapter.getSeparators(subjectSymbol), SymbolAdapter.getSeparators(declaredSymbol))) ||
-				        
-				    (SymbolAdapter.isEqual(declaredSymbol, subjectSymbol)) ) {
-					
-					if(TreeAdapter.isList(tree)) {
-						if(TreeAdapter.getArgs(tree).isEmpty()) {
-							if(SymbolAdapter.isIterPlus(declaredSymbol)  || (SymbolAdapter.isIterPlusSeps(declaredSymbol))) {
-								return false;
-							}
-						}
-					}
-					
-					if(anonymous) { 
-						return true;
-					}		
-					
-					ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
-					this.alreadyStored = true;
-					return true;
+				if(subjectNT.isSubtypeOf(nt)) {
+				  if(TreeAdapter.isList(tree)) {
+				    if(TreeAdapter.getArgs(tree).isEmpty()) {
+				      if(SymbolAdapter.isIterPlus(declaredSymbol)  || (SymbolAdapter.isIterPlusSeps(declaredSymbol))) {
+				        return false;
+				      }
+				    }
+				  }
+
+				  if(anonymous) { 
+				    return true;
+				  }		
+
+				  ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
+				  this.alreadyStored = true;
+				  return true;
 				}
 			}
 			return false;
 		}
-		
+
 		Type tmp;
 		if (subject.getValue().getType().isSubtypeOf(declaredType)) {
 			if(debug)System.err.println("matches");
