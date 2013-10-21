@@ -1,41 +1,28 @@
 package org.rascalmpl.values;
 
+import org.apache.commons.lang.WordUtils;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 
 public class Chunk extends Atom {
-	private static final OriginValueFactory vf = (OriginValueFactory) ValueFactoryFactory.getValueFactory();
-	
-	private final IString value;
 	private final ISourceLocation origin;
 
 	public Chunk(ISourceLocation origin, String value) {
-		this(origin, vf.baseString(value));
+		super(value);
+		this.origin = origin;
 	}
 
 	private Chunk(ISourceLocation origin, IString str) {
+		super(str);
 		this.origin = origin;
-		this.value = str;
 	}
 
 	public ISourceLocation getOrigin() {
 		return origin;
 	}
-
-
-	@Override
-	public int length() {
-		return value.length();
-	}
-
-	@Override
-	public String getValue() {
-		return value.getValue();
-	}
-
-
+		
 	@Override
 	public IString reverse() {
 		// What happens with origin?
@@ -52,7 +39,7 @@ public class Chunk extends Atom {
 		int beginColumn = loc.getBeginColumn();
 		for (int i = 0; i < start; i++) {
 			int c = charAt(i);
-			if (isLineBreak(c)) {
+			if (c == '\n') {
 				beginLine++;
 				beginColumn = 0;
 			}
@@ -65,7 +52,7 @@ public class Chunk extends Atom {
 		int endColumn = beginColumn;
 		for (int i = start; i < end; i++) {
 			int c = charAt(i);
-			if (isLineBreak(c)) {
+			if (c == '\n') {
 				endLine++;
 				endColumn = 0;
 			}
@@ -78,25 +65,9 @@ public class Chunk extends Atom {
 		  value.substring(start, end));
 	}
 
-
-	private boolean isLineBreak(int c) {
-		return c == '\n';
-	}
-
-	@Override
-	public int charAt(int index) {
-		return value.charAt(index);
-	}
-
-
 	@Override
 	public IString replace(int first, int second, int end, IString repl) {
 		throw new ImplementationError("Not yet implemented");
-	}
-
-	@Override
-	public int compare(IString other) {
-		return value.compare(other);
 	}
 
 	@Override
@@ -105,10 +76,14 @@ public class Chunk extends Atom {
 	}
 
 	@Override
-	public int indexOf(String str) {
-		return getValue().indexOf(str);
+	public OrgString capitalize() {
+		if (length() == 0) {
+			return this;
+		}
+		String s = getValue();
+		return (OrgString) new NoOrg(WordUtils.capitalize(s.substring(0, 1)))
+				.concat((OrgString)substring(1, length()));
 	}
-
 
 }
 

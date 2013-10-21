@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -367,7 +366,7 @@ public class ParsingTools {
 	    // TODO: update source code locations!!
 	    
 	     return (IConstructor) module.accept(new IdentityTreeVisitor<ImplementationError>() {
-	       final IValueFactory vf = eval.getValueFactory();
+	       final IRascalValueFactory vf = eval.getValueFactory();
 	       
 	       @Override
 	       public IConstructor visitTreeAppl(IConstructor tree)  {
@@ -474,7 +473,7 @@ stderr.println("name = " + name);
 	      IConstructor prod = TreeAdapter.getProduction(tree);
 	      IConstructor sym = ProductionAdapter.getDefined(prod);
 	      sym = SymbolAdapter.delabel(sym); 
-	      IValueFactory vf = eval.getValueFactory();
+	      IRascalValueFactory vf = eval.getValueFactory();
 	      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
 	      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
 	    }
@@ -540,7 +539,7 @@ stderr.println("name = " + name);
 
 	  private static IConstructor replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, IConstructor fragment, final Map<String, IConstructor> antiquotes) {
 	      return (IConstructor) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {
-	        private final IValueFactory vf = eval.getValueFactory();
+	        private final IRascalValueFactory vf = eval.getValueFactory();
 	        
 	        @Override
 	        public IConstructor visitTreeAppl(IConstructor tree)  {

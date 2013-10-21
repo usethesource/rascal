@@ -97,6 +97,7 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.util.Maybe;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
@@ -2164,7 +2165,7 @@ public class Prelude {
 
 	}
 	public IString unparse(IConstructor tree) {
-		return values.string(TreeAdapter.yield(tree));
+		return values.string(TreeAdapter.getLocation(tree), TreeAdapter.yield(tree));
 	}
 	
 	private IConstructor makeConstructor(Type returnType, String name, IEvaluatorContext ctx,  IValue ...args) {
@@ -2251,7 +2252,7 @@ public class Prelude {
 
 		// always yield if expected type is str, except if regular 
 		if (type.isString() && !splicing) {
-			return values.string(TreeAdapter.yield(tree));
+			return values.string(TreeAdapter.getLocation(tree), TreeAdapter.yield(tree));
 		}
 
 		if (SymbolAdapter.isStartSort(TreeAdapter.getType(tree))) {
@@ -2287,7 +2288,7 @@ public class Prelude {
 				}
 				
 				if (isUntypedNodeType(type)) {
-					return values.node(constructorName, values.string(yield));
+					return values.node(constructorName, values.string(TreeAdapter.getLocation(tree), yield));
 				}
 				
 				Set<Type> conses = findConstructors(type, constructorName, 1, store);
@@ -2323,7 +2324,7 @@ public class Prelude {
 			}
 			if (type.isString() || isUntypedNodeType(type)) {
 				// NB: in "node space" all lexicals become strings
-				return values.string(yield);
+				return values.string(TreeAdapter.getLocation(tree), yield);
 			}
 			
 			throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Missing lexical constructor");
@@ -2828,6 +2829,9 @@ public class Prelude {
 	}
 	
 	public IList split(IString sep, IString src) {
+		if (src instanceof OrgString) {
+			return ((OrgString)src).split(sep.getValue());
+		}
 		String[] lst = src.getValue().split(Pattern.quote(sep.getValue()));
 		IListWriter lw = values.listWriter();
 		for (String s: lst) {
@@ -3092,6 +3096,9 @@ public class Prelude {
 	
 	
 	public IValue escape(IString str, IMap substitutions) {
+		if (str instanceof OrgString) {
+			return ((OrgString)str).escape(substitutions);
+		}
 		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
 		char[] input = str.getValue().toCharArray();
 		
@@ -3108,6 +3115,9 @@ public class Prelude {
 	}
 	
 	public IValue contains(IString str, IString find){
+		if (str instanceof OrgString) {
+			return values.bool(((OrgString)str).indexOf(find.getValue()) >= 0);
+		}
 		return values.bool(str.getValue().indexOf(find.getValue()) >= 0);
 	}
 	
@@ -3314,12 +3324,12 @@ public class Prelude {
 				
 				@Override
 				public void visit(Chunk chunk) {
-					w.append(values.tuple(chunk.getOrigin(), chunk));
+					w.append(values.tuple(values.constructor(Maybe.Maybe_just, chunk.getOrigin()), chunk));
 				}
 
 				@Override
 				public void visit(NoOrg noOrg) {
-					// nop
+					w.append(values.tuple(values.constructor(Maybe.Maybe_nothing), noOrg));
 				}
 			});
 			return w.done();

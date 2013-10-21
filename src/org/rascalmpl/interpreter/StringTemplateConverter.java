@@ -51,6 +51,7 @@ import org.rascalmpl.values.OriginValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
   
 public class StringTemplateConverter {
 	private static int labelCounter = 0;
@@ -110,13 +111,7 @@ public class StringTemplateConverter {
 				Result<IValue> result = this.getStatement().interpret(__eval);
 				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 				IValue v = result.getValue();
-//				if (!(v instanceof IString)) {
-//					// Ensure that values that are trees are yielding the appropriate string value
-////					StringBuilder sb = new StringBuilder(500);
-////					appendToString(v, sb);
-////					v = vf.string(sb.toString());
 				v = convertToString(v);
-//				}
 				java.lang.String fill = __eval.getCurrentIndent();
 				if (v instanceof OrgString) {
 					v = ((OrgString)v).replaceAll("\n", vf.string(src, "\n" + fill));
@@ -126,8 +121,6 @@ public class StringTemplateConverter {
 					content = content.replaceAll("\n", "\n" + fill);
 					v = vf.string(content);
 				}
-//				__eval.unindent();
-
 				result = ResultFactory.makeResult(v.getType(), v, result.getEvaluatorContext());
 				target.append(result);
 				return result;
@@ -136,10 +129,11 @@ public class StringTemplateConverter {
 			private IString convertToString(IValue value) {
 				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 				if (value.getType() == Factory.Tree && value.asAnnotatable().hasAnnotation("loc")) {
-					return vf.string((ISourceLocation) value.asAnnotatable().getAnnotation("loc"),
+					return vf.string(TreeAdapter.getLocation((IConstructor) value),
 					    org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
 				}
-				else if (value.getType().isNode() && value.asAnnotatable().hasAnnotation("location")) {
+				else if ((value.getType().isNode() || value.getType().isConstructor()) 
+						&& value.asAnnotatable().hasAnnotation("location")) {
 					return vf.string((ISourceLocation) value.asAnnotatable().getAnnotation("location"),
 						    value.toString());
 				}
@@ -189,7 +183,14 @@ public class StringTemplateConverter {
 			
 			private IString makeValue(String arg) {
 				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
-				return vf.string(src, arg);
+				// Consts always have " <, or > ", or > <.
+				ISourceLocation loc = vf.sourceLocation(src, src.getOffset() + 1, 
+						src.getLength() - 2, 
+						src.getBeginLine(), 
+						src.getEndLine(), 
+						src.getBeginColumn() + 1,
+						src.getEndColumn() - 1);
+				return vf.string(loc, arg);
 			}
 			
 			private String removeMargins(String arg) {
