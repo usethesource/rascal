@@ -41,6 +41,8 @@ list[Declaration] parseMuLibrary(){
 
 tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
    imported_functions = [];
+   imported_overloaded_functions = [];
+   imported_overloading_resolvers = ();
    imported_grammars = ();
    
     if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
@@ -59,11 +61,22 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
        try {
   	       importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	       imported_functions += [ importedRvmProgram.declarations[fname] | fname <-importedRvmProgram.declarations ];
+  	       
+  	       // We need to merge overloading resolvers regarding overloaded function indices
+  	       pos_delta = size(imported_overloaded_functions); 
+  	       imported_overloaded_functions = imported_overloaded_functions + importedRvmProgram.overloaded_functions;
+  	       imported_overloading_resolvers = imported_overloading_resolvers + ( ofname : importedRvmProgram.resolver[ofname] + pos_delta | str ofname <- importedRvmProgram.resolver );
+  	       
   	       imported_grammars[importedRvmProgram.name] = importedRvmProgram.grammar;
   	       println("adding grammar for <importedRvmProgram.name>");
   	   } catch x: println("rascal2rvm: Reading <importedLoc> did not succeed: <x>");      
    }
-   <v, t> = executeProgram(rvmProgram, imported_functions, imported_grammars, arguments, debug, testsuite);
+   
+   pos_delta = size(imported_overloaded_functions);
+   rvmProgram.resolver = ( ofname : rvmProgram.resolver[ofname] + pos_delta | str ofname <- rvmProgram.resolver );
+   <v, t> = executeProgram(rvmProgram, imported_functions, 
+   									   imported_overloaded_functions, imported_overloading_resolvers, 
+   									   imported_grammars, arguments, debug, testsuite);
    println("Result = <v>, [<t> msec]");
    return <v, t>;
 }
