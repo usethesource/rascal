@@ -1089,16 +1089,6 @@ public enum RascalPrimitive {
 		path = path.concat(s);
 		stack[sp - 2 ] = $loc_field_update(sloc, "path", vf.string(path));
 		return sp - 1;
-//		URI uri = sloc.getURI();
-//		try {
-//			uri = URIUtil.changePath(uri, uri.getPath().concat(s));
-//			// TODO handle length/offset and column/line
-//			sloc = vf.sourceLocation(uri);
-//			stack[sp - 2] = sloc;
-//			return sp - 1;
-//		} catch (URISyntaxException e){
-//			throw RuntimeExceptions.parseError(null, sloc, new ArrayList<Frame>());
-//		}
 	}
 
 	public static int map_add_map(Object[] stack, int sp, int arity) {
@@ -1976,7 +1966,7 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		ISourceLocation sloc = ((ISourceLocation) stack[sp - 2]);
 		String field = ((IString) stack[sp - 1]).getValue();
-		URI uri; // = sloc.getURI();
+		URI uri;
 		IValue v;
 		switch (field) {
 		
@@ -1986,8 +1976,7 @@ public enum RascalPrimitive {
 			break;
 			
 		case "authority":
-			s = sloc.hasAuthority() ? sloc.getAuthority() : "";
-			v = vf.string(s == null ? "" : s);
+			v = vf.string(sloc.hasAuthority() ? sloc.getAuthority() : "");
 			break;
 			
 		case "host":
@@ -2000,13 +1989,11 @@ public enum RascalPrimitive {
 			break;
 			
 		case "path":
-			s = sloc.hasPath() ? sloc.getPath() : "";
-			v = vf.string(s == null ? "" : s);
+			v = vf.string(sloc.hasPath() ? sloc.getPath() : "");
 			break;
 			
 		case "parent":
-			uri = sloc.getURI();
-			String path = uri.getPath();
+			String path = sloc.getPath();
 			if (path.equals("")) {
 				throw RuntimeExceptions.noParent(sloc, null, null);
 			}
@@ -2041,7 +2028,7 @@ public enum RascalPrimitive {
 				
 				Object[] fakeStack = new Object[2];
 				for (String elem : rvm.ctx.getResolverRegistry().listEntries(resolved.getURI())) {
-					fakeStack[0] = resolved;
+					fakeStack[0] = resolved;	// TODO
 					fakeStack[1] = vf.string(elem);
 					loc_add_str(fakeStack, 2, 2);
 					w.append((ISourceLocation)fakeStack[0]);
@@ -2064,21 +2051,18 @@ public enum RascalPrimitive {
 			break;
 			
 		case "fragment":
-			s = sloc.hasFragment() ? sloc.getFragment() : "";
-			v = vf.string(s == null ? "" : s);
+			v = vf.string(sloc.hasFragment() ? sloc.getFragment() : "");
 			break;
 			
 		case "query":
-			s = sloc.hasQuery() ? sloc.getQuery() : "";
-			v = vf.string(s == null ? "" : s);
+			v = vf.string(sloc.hasQuery() ? sloc.getQuery() : "");
 			break;
 			
 		case "params":
-			
 			String query = sloc.hasQuery() ? sloc.getQuery() : "";
 			IMapWriter res = vf.mapWriter(tf.stringType(), tf.stringType());
 			
-			if (query != null && query.length() > 0) {
+			if (query.length() > 0) {
 				String[] params = query.split("&");
 				for (String param : params) {
 					String[] keyValue = param.split("=");
@@ -2093,7 +2077,7 @@ public enum RascalPrimitive {
 			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
 				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", null,  new ArrayList<Frame>());
 			}
-			s = sloc.getURI().getUserInfo();
+			s = uri.getUserInfo();
 			v = vf.string(s == null ? "" : s);
 			break;
 		
@@ -2102,7 +2086,7 @@ public enum RascalPrimitive {
 			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
 				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", null,  new ArrayList<Frame>());
 			}
-			int n = sloc.getURI().getPort();
+			int n = uri.getPort();
 			v = vf.integer(n);
 			break;	
 			
@@ -2138,13 +2122,11 @@ public enum RascalPrimitive {
 			}
 			
 		case "uri":
-			uri = sloc.getURI();
-			v = vf.string(uri.toString());
+			v = vf.string(sloc.getURI().toString());
 			break;
 			
 		case "top":
-			uri = sloc.getURI();
-			v = vf.sourceLocation(uri);
+			v = vf.sourceLocation(sloc.getURI());
 			break;
 
 		default:
@@ -2223,8 +2205,6 @@ public enum RascalPrimitive {
 
 			case "path":
 				path = newStringValue;
-				if(!path.startsWith("/")) /***/
-					path = "/" + path;
 				uriPartChanged = true;
 				break;
 				
