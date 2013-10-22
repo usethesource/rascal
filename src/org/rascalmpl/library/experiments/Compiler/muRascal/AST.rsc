@@ -193,6 +193,7 @@ public data MuExp =
             | preGreater(MuExp lhs, MuExp rhs)
             | preGreaterEqual(MuExp lhs, MuExp rhs)
             | preAnd(MuExp lhs, MuExp rhs)
+            | preOr(MuExp lhs, MuExp rhs)
        
             | preIs(MuExp, str typeName)
             

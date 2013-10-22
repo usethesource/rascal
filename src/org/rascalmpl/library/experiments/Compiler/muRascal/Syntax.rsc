@@ -86,6 +86,7 @@ syntax Exp  =
 			| non-assoc preGreaterEqual:Exp lhs "\>=" Exp rhs
 			
 			> left preAnd:				Exp lhs "&&" Exp rhs
+			> left preOr:               Exp lhs "||" Exp rhs
 			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] Identifier typeName
 			
 		 	> preAssignLoc:				Identifier id "=" Exp exp
