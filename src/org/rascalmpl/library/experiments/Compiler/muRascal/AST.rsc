@@ -154,8 +154,10 @@ data MuTypeCase = muTypeCase(str name, MuExp exp);
 // They will never be seen by later stages of the compiler.
 
 public data Module =
-            preMod(str name, list[Function] functions)
+            preMod(str name, list[TypeDeclaration] types, list[Function] functions)
           ;
+
+public data TypeDeclaration = preTypeDecl(str \type);
 
 public data Function =				
              preFunction(lrel[str,int] funNames, str name, int nformals, 
