@@ -24,14 +24,16 @@ lexical StrChar =
             | Quote: [\\] [\"] 
             | Backslash: [\\] [\\] 
             | Decimal: [\\] [0-9] [0-9] [0-9] 
-            | Normal: ![\n\t\"\\] 
+            | Normal: ![\n\t\"\\]
             ;
 
 lexical String = [\"] StrChar* [\"];
 
 start syntax Module =
-			  preMod: 		"module" Identifier name Function* functions
+			  preMod: 		"module" Identifier name TypeDeclaration* types Function* functions
 			;
+			
+syntax TypeDeclaration = preTypeDecl: "declares" String sym;
 
 syntax Function =     
               preFunction:	"function" FunNamePart* funNames Identifier name "[" Integer nformals "," {Identifier ","}* locals "]"
@@ -127,7 +129,7 @@ syntax Exp  =
 syntax TypeCase = muTypeCase: 			"case" Identifier id ":" Exp exp ;		
 
 keyword Keywords = 
-              "module" | "function" | "return" | 
+              "module" | "declares" | "function" | "return" | 
               "get_array" | "get_list" | "get_tuple" |
               "set_array" |
 			  "prim" | "muprim" | "if" | "else" |  "while" |

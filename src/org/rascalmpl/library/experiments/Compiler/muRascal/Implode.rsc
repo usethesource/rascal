@@ -19,9 +19,20 @@ MuModule preprocess(Module pmod){
        vdfs = ("<f.locals[i]>" : i  | int i <- index(f.locals));
        vardefs =  vardefs + (uid : vdfs);
    }
+   map[str,Symbol] types = ();
+   for(t <- pmod.types) {
+       try {
+           Symbol sym = readTextValueString(#Symbol, replaceAll((t.\type)[1..-1],"\\",""));
+           if(sym has name) {
+               types[sym.name] = sym;
+           }
+       } catch IO(str msg) : {
+           throw "Could not parse the string of a type constant into Symbol: <msg>";
+       }
+   }
    resolver = ();
    overloaded_functions = [];
-   return muModule(pmod.name, [], (), [ preprocess(f, pmod.name) | f <- pmod.functions ], [], [], resolver, overloaded_functions, ());
+   return muModule(pmod.name, [], types, [ preprocess(f, pmod.name) | f <- pmod.functions ], [], [], resolver, overloaded_functions, ());
 }
 
 bool isGlobalNonOverloadedFunction(str name) {
