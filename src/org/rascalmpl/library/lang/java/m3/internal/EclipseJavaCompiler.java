@@ -42,6 +42,7 @@ public class EclipseJavaCompiler {
   protected final IValueFactory VF;
   private List<String> classPathEntries;
   private List<String> sourcePathEntries;
+  public static Hashtable<String, ISourceLocation> cache = new Hashtable<>();
 
   public EclipseJavaCompiler(IValueFactory vf) {
     this.VF = vf;
@@ -68,6 +69,17 @@ public class EclipseJavaCompiler {
       }
     }
   }
+  
+  public IValue createM3FromJarClass(ISourceLocation jarLoc, IEvaluatorContext eval) {
+      TypeStore store = new TypeStore();
+      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+      store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+      JarConverter converter = new JarConverter(store);
+      converter.set(jarLoc);
+      converter.convert(jarLoc, eval);
+
+      return converter.getModel();
+  }
 
   @SuppressWarnings("rawtypes")
   public IValue createM3FromFile(ISourceLocation loc, IString javaVersion, IEvaluatorContext eval) {
@@ -77,7 +89,7 @@ public class EclipseJavaCompiler {
       TypeStore store = new TypeStore();
       store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
       store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-      M3Converter converter = new M3Converter(store);
+      SourceConverter converter = new SourceConverter(store);
 
       converter.set(cu);
       converter.set(loc);
@@ -86,7 +98,7 @@ public class EclipseJavaCompiler {
         Comment comment = (Comment) it.next();
         comment.accept(converter);
       }
-
+      
       return converter.getModel();
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
