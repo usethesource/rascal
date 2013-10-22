@@ -165,6 +165,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preModulo(MuExp lhs, MuExp rhs)									=> muCallMuPrim("modulo_mint_mint", [lhs, rhs])
       	       case prePower(MuExp lhs, MuExp rhs)									=> muCallMuPrim("power_mint_mint", [lhs, rhs])
       	       case preAnd(MuExp lhs, MuExp rhs)									=> muCallMuPrim("and_mbool_mbool", [lhs, rhs])
+      	       case preOr(MuExp lhs, MuExp rhs)									    => muCallMuPrim("or_mbool_mbool", [lhs, rhs])
       	       case preIs(MuExp lhs, str typeName)									=> muCallMuPrim("is_<typeName>", [lhs])
       	       
       	       // Overloading
