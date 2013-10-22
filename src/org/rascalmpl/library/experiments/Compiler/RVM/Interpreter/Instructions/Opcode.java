@@ -56,11 +56,12 @@ public enum Opcode {
 	FAILRETURN			(39, 	1),
 	LOADOFUN        	(40,    2),
 	OCALL           	(41,    3),
-	OCALLDYN	    	(42,	2),
+	OCALLDYN	    	(42,	3),
 	CALLJAVA        	(43,    4),
 	THROW           	(44,    1),
 	JMPSWITCH			(45,	2),
-	UNWRAPTHROWN        (46,    2)
+	UNWRAPTHROWN        (46,    2),
+	FILTERRETURN		(47, 	1)
 	;
 	
 	private final int op;
@@ -122,6 +123,8 @@ public enum Opcode {
 	static public final int OP_THROW = 44;
 	static public final int OP_JMPSWITCH = 45;
 	static public final int OP_UNWRAPTHROWN = 46;
+	static public final int OP_FILTERRETURN = 47;
+	
 	
 	 Opcode(int op, int pc_incr){
 		this.op = op;
@@ -265,7 +268,7 @@ public enum Opcode {
 			return "OCALL " + cb.finalCode[pc + 1]  + ", " + cb.finalCode[pc + 2] + " [" + cb.getFunctionName(cb.finalCode[pc + 1]) + "]";
 			
 		case OCALLDYN:
-			return "OCALLDYN " + cb.finalCode[pc + 1];
+			return "OCALLDYN " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2] + " [" + cb.getConstantType(cb.finalCode[pc + 1]) + "]";
 			
 		case CALLJAVA:	
 			return "CALLJAVA " + cb.getConstantValue(cb.finalCode[pc + 1]) + ", " + cb.getConstantValue(cb.finalCode[pc + 2]) + ", " + cb.getConstantValue(cb.finalCode[pc + 3]) ;
@@ -278,6 +281,9 @@ public enum Opcode {
 			
 		case UNWRAPTHROWN:
 			return "UNWRAPTHROWN " + cb.finalCode[pc + 1];
+			
+		case FILTERRETURN:
+			return "FILTERRETURN";
 		
 		default:
 			break;

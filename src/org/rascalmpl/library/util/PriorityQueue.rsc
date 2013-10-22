@@ -31,6 +31,7 @@ module util::PriorityQueue
   * TODO: the value in each pair is now an int but should become &T.
  */
 
+import Exception;
 import util::Math;
 import List;
 import Set;
@@ -39,7 +40,7 @@ import IO;
 
 // Binomial Trees
 
-private data BinomialTree[&T] = binomialTree(int priority,            // priority of this tree
+private data BinomialTree = binomialTree(int priority,            // priority of this tree
                                          int val,                     // payload
                                          int degree,                  // degree of tree
                                          list[BinomialTree] children  // subtrees

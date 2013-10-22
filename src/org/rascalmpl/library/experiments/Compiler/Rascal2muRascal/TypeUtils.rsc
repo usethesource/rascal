@@ -102,7 +102,7 @@ str getOuterType(e) {
 Symbol getFunctionType(loc l) { 
    int uid = loc2uid[l];
    fun = config.store[uid];
-   if(function(_,Symbol rtype,_,_,_,_) := fun) {
+   if(function(_,Symbol rtype,_,_,_,_,_) := fun) {
        return rtype;
    } else {
        throw "Looked up a function, but got: <fun> instead";
@@ -112,7 +112,7 @@ Symbol getFunctionType(loc l) {
 Symbol getClosureType(loc l) {
    int uid = loc2uid[l];
    cls = config.store[uid];
-   if(closure(Symbol rtype,_,_) := cls) {
+   if(closure(Symbol rtype,_,_,_) := cls) {
        return rtype;
    } else {
        throw "Looked up a closure, but got: <cls> instead";
@@ -178,7 +178,7 @@ void extractScopes(){
    for(uid <- config.store){
       item = config.store[uid];
       switch(item){
-        case function(rname,rtype,_,
+        case function(rname,rtype,_,_,
         			  inScope,_,src):      { 
         							         functions += {uid};
                                              declares += {<inScope, uid>}; 
@@ -235,6 +235,19 @@ void extractScopes(){
         								     // Fill in fuid2type to enable more precise overloading resolution
         								     fuid2type[uid] = rtype;
         								   }
+        case production(rname,rtype,
+                        inScope,src):      {
+                                             constructors += {uid};
+                                             declares += {<inScope, uid>};
+                                             loc2uid[src] = uid;
+                                             for(l <- config.uses[uid]) {
+                                                 loc2uid[l] = uid;
+                                             }
+                                             // Fill in uid2name
+                                             uid2name[uid] = getPUID(getSimpleName(rname),rtype);
+                                             // Fill in fuid2type to enable more precise overloading resolution
+                                             fuid2type[uid] = rtype;
+                                           }
         case blockScope(inScope,src):      { 
         								     containment += {<inScope, uid>};
         									 loc2uid[src] = uid;
@@ -257,7 +270,7 @@ void extractScopes(){
         									 }
         									 uid2name[uid] = "bscope#<bscopes[uid]>";
         								   }
-        case closure(rtype,inScope,src):       {
+        case closure(rtype,_,inScope,src):       {
                                              functions += {uid};
                                              declares += {<inScope, uid>};
         									 loc2uid[src] = uid;
@@ -290,8 +303,8 @@ void extractScopes(){
             uid2addr[topdecls[i]] = <getFUID(uid2str(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0), i + 1>;
     	}
     	// Then, functions
-    	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_) := config.store[uid] ||
-    											  closure(_,_,_)        := config.store[uid] ||
+    	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_,_) := config.store[uid] ||
+    											  closure(_,_,_,_)        := config.store[uid] ||
     											  constructor(_,_,_,_)  := config.store[uid] ||
     											  variable(_,_,_,_,_)   := config.store[uid] ];
     	for(i <- index(topdecls)) {
@@ -320,8 +333,8 @@ void extractScopes(){
         	uid2addr[decls[i]] = <fuid2str[fuid], i + nformals>;
         }
         // Then, functions
-        decls = [ uid | uid <- declares[innerScopes], function(_,_,_,_,_,_) := config.store[uid] ||
-        											  closure(_,_,_) := config.store[uid] ];
+        decls = [ uid | uid <- declares[innerScopes], function(_,_,_,_,_,_,_) := config.store[uid] ||
+        											  closure(_,_,_,_) := config.store[uid] ];
         for(i <- index(decls)) {
         	uid2addr[decls[i]] = <fuid2str[fuid], -1>;
         }
@@ -357,6 +370,9 @@ str getFUID(str modName, str fname, Symbol \type, int case_num) = "<modName>/<fn
 
 str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
 str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
+
+str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
+str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
 
 str uid2str(int uid, str name) = uid2str(uid) + "/" + name;
 str uid2str(int uid, str name, int \case) = uid2str(uid) + "/" + name + "#<\case>";

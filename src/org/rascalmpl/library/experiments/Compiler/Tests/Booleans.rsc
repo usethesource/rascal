@@ -26,7 +26,7 @@ test bool tst() = run("true \<==\> false") == (true <==> false);
 test bool tst() = run("true ? 1 : 2") == (true ? 1 : 2);
 test bool tst() = run("false ? 1 : 2") == (false ? 1 : 2);
 
-test bool tst() = run("{b = 2 \> 1; b ? 10 : 20;}") == {b = 2 > 1; b ? 10 : 20;};
+test bool tst() = run("{v = 2 \> 1; v ? 10 : 20;}") == {v = 2 > 1; v ? 10 : 20;};
 
 // Assign outcome of Boolean operation
 

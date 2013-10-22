@@ -29,7 +29,7 @@ test bool tst() = run("\"a\" := \"a\"") == "a" := "a";
 test bool tst() = run("\"a\" := \"b\"") == "a" := "b";
 
 // Datetime
-// The following two tests fail, since theinterpreter does not support datetime patterns. We are ahead :-)
+// The following two tests fail, since the interpreter does not support datetime patterns. We are ahead :-)
 /*fails*/ //test bool tst() = run("$2012-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$") == ($2012-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$);
 /*fails*/ //test bool tst() = run("$2013-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$") == ($2013-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$);
 
@@ -124,6 +124,12 @@ test bool tst() = run("d1(int x, \"a\") := d1(1, \"a\")") == d1(int x, "a") := d
 
 test bool tst() = run("str f(int x, str s) := d1(1, \"a\")") == str f(int x, str s) := d1(1, "a") && x == 1 && s == "a" && f == "d1";
 
+test bool tst() = run("{ s = \"not matched\"; switch(\"a\"(1,2)) { case node nd: str n(int x, int y): s = n + \"_matched(\<x\>,\<y\>)\"; } s; }") 
+				    == { s = "not matched";   switch("a"(1,2))   { case node nd: str n(int x, int y): s = n + "_matched(<x>,<y>)"; } s; };
+
+test bool tst() = run("{ s = \"not matched\"; switch(\"a\"(1,2)) { case nd: str n(x,y): s = n + \"_matched(\<x\>,\<y\>)\"; } s; }") 
+				    == { s = "not matched";   switch("a"(1,2))   { case nd: str n(x,y): s = n + "_matched(<x>,<y>)"; } s; };
+
 // Descendant matching
 
 test bool tst() = run("/1 := [[1, 2], [5, [8], 7], \"a\"]") == /1 := [[1, 2], [5, [8], 7], "a"];
@@ -173,4 +179,8 @@ test bool tst() = run("int x !:= 2") == int x !:= 2;
 test bool tst() = run("[1, x*, 5] !:= [1,2,3,4,5]") == [1, x*, 5] !:= [1,2,3,4,5];
 test bool tst() = run("[1, x*, 5] !:= [1,2,3,4,6]") == [1, x*, 5] !:= [1,2,3,4,6];
 
+// False match as the subject dynamic type is not a subtype of the pattern type
+test bool tst() = run("{ value v = { [1,2] }; [1,2] := v; }") == { value v = { [1,2] }; [1,2] := v; };
+test bool tst() = run("{ value v = \<1,2\>; {1,2} := v; }") == { value v = <1,2>; {1,2} := v; };
+test bool tst() = run("{ value v = \<1,2\>; \"nd\"(1,2) := v; }") == { value v = <1,2>; "nd"(1,2) := v; };
 

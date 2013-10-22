@@ -1,5 +1,7 @@
 module experiments::Compiler::Examples::Tst
 
-syntax A = "a";
-  
-value main(list[value] args) { return [A] "a"; }
+syntax AB = ("a" | "b")+ ;
+
+syntax CD = ("c" | "d")+ ;
+
+value main(list[value] args) = < [AB] "ababababab", [CD] "cdcdcdcdcdc" >;

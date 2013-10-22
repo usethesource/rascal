@@ -25,6 +25,7 @@ Export-Package:
  org.rascalmpl.library.experiments.resource.resources.file,
  org.rascalmpl.library.experiments.resource.results,
  org.rascalmpl.library.experiments.resource.results.buffers,
+ org.rascalmpl.library.experiments.Compiler.RVM.Interpreter,
  org.rascalmpl.library.lang.aterm,
  org.rascalmpl.library.lang.aut,
  org.rascalmpl.library.lang.csv,

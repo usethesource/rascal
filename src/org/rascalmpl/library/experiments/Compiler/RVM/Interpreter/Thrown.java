@@ -18,6 +18,7 @@ public class Thrown extends RuntimeException {
 	List<Frame> stacktrace;
 	
 	private Thrown() {
+		super();
 		this.value = null;
 		this.stacktrace = null;
 	}
@@ -34,9 +35,9 @@ public class Thrown extends RuntimeException {
 	}
 	
 	public void printStackTrace(PrintWriter stdout) {
-		stdout.println("Runtime Exception: throw " + this.toString() + ((loc !=null) ? loc : "") );
+		stdout.println("Runtime exception: throw " + this.toString() + ((loc !=null) ? loc : "") );
 		for(Frame cf : stacktrace) {
-			for(Frame f = cf; f != null; f = cf.previousCallFrame) {
+			for(Frame f = cf; f != null; f = f.previousCallFrame) {
 				stdout.println("at " + f.function.name);
 			}
 		}

@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -36,15 +37,20 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.library.Prelude;
 
 /*
  * The primitives that can be called via the CALLPRIM instruction.
@@ -59,6 +65,8 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public enum RascalPrimitive {
 
 	// add
+	
+	add,
 
 	int_add_int,
 	int_add_num,
@@ -98,6 +106,7 @@ public enum RascalPrimitive {
 	tuple_add_tuple,
 	
 	// adt
+	constructor,
 	
 	adt_field_access,
 	adt_field_update,
@@ -111,6 +120,8 @@ public enum RascalPrimitive {
 
 	// compose
 	
+	compose,
+	
 	lrel_compose_lrel,
 	rel_compose_rel,
 	map_compose_map,
@@ -118,9 +129,11 @@ public enum RascalPrimitive {
 	// datetime
 	
 	datetime_field_access,
+	datetime_field_update,
 	
 	// divide
 	
+	divide,
 	int_divide_int,
 	int_divide_num,
 	int_divide_rat,
@@ -143,6 +156,8 @@ public enum RascalPrimitive {
 	
 	// equal
 	
+	equal,
+	
 	int_equal_int,
 	int_equal_num,
 	int_equal_rat,
@@ -163,9 +178,9 @@ public enum RascalPrimitive {
 	real_equal_real,
 	real_equal_rat,
 	
-	equal,
-	
 	// greater
+	
+	greater,
 
 	int_greater_int,
 	int_greater_num,
@@ -198,9 +213,9 @@ public enum RascalPrimitive {
 	str_greater_str,
 	tuple_greater_tuple,
 	
-	greater,
-	
 	// greaterequal
+	
+	greaterequal,
 
 	int_greaterequal_int,
 	int_greaterequal_num,
@@ -233,11 +248,9 @@ public enum RascalPrimitive {
 	str_greaterequal_str,
 	tuple_greaterequal_tuple,
 	
-	greaterequal,
-	
-	//has,
-	
 	// intersect
+	
+	intersect,
 	
 	list_intersect_list,
 	list_intersect_lrel,
@@ -250,6 +263,8 @@ public enum RascalPrimitive {
 	set_intersect_rel,
 	
 	// in
+	
+	in,
 	
 	elm_in_list,
 	elm_in_lrel,
@@ -279,6 +294,8 @@ public enum RascalPrimitive {
 	
 	// join
 	
+	join,
+	
 	list_join_list,
 	list_join_lrel,
 	lrel_join_list,
@@ -289,6 +306,8 @@ public enum RascalPrimitive {
 	set_join_rel,
 
 	// less
+	
+	less,
 	
 	int_less_int,
 	int_less_num,
@@ -320,10 +339,10 @@ public enum RascalPrimitive {
 	set_less_set,
 	str_less_str,
 	tuple_less_tuple,
-	
-	less,
 
 	// lessequal
+	
+	lessequal,
 	
 	int_lessequal_int,
 	int_lessequal_num,
@@ -356,9 +375,9 @@ public enum RascalPrimitive {
 	str_lessequal_str,
 	tuple_lessequal_tuple,
 	
-	lessequal,
-	
 	// list
+	list,
+	
 	list_size,
 	list_create,
 	list_replace,
@@ -376,6 +395,7 @@ public enum RascalPrimitive {
 	loc_create,
 	loc_with_offset_create,
 	loc_field_access,
+	loc_field_update,
 	
 	// map
 	
@@ -389,15 +409,20 @@ public enum RascalPrimitive {
 	
 	// modulo
 	
+	mod,
+	
 	int_mod_int,
 	
 	// negative 
+	
+	negative,
 	negative_int,
 	negative_real,
 	negative_rat,
 	negative_num,
 	
 	// node
+	node,
 	
 	node_create,
 	node_replace,
@@ -405,6 +430,8 @@ public enum RascalPrimitive {
 	node_slice,
 	
 	// notequal
+	
+	notequal,
 	
 	int_notequal_int,
 	int_notequal_num,
@@ -426,21 +453,27 @@ public enum RascalPrimitive {
 	real_notequal_real,
 	real_notequal_rat,
 	
-	notequal, 
-	
 	// notin
+	
+	notin,
 	
 	elm_notin_list,
 	elm_notin_lrel,
 	elm_notin_set,
 	elm_notin_rel,
 	elm_notin_map,
+	
+	// parse
+	
+	parse,
 
 	// println
 	
 	println,
 
 	// product
+	
+	product,
 	
 	int_product_int,
 	int_product_num,
@@ -482,11 +515,15 @@ public enum RascalPrimitive {
 	
 	// remainder
 	
+	remainder,
 	int_remainder_int,
 	
 	// set
+	set,
 	
 	set_create,
+	set2elm,
+	set_size,
 	
 	setwriter_add,
 	setwriter_close,
@@ -508,6 +545,8 @@ public enum RascalPrimitive {
 	sublist,
 
 	// subtract
+	
+	subtract,
 	
 	int_subtract_int,
 	int_subtract_num,
@@ -554,8 +593,13 @@ public enum RascalPrimitive {
 	testreport_open,
 	
 	// transitive closure
+	
+	transitive_closure,
+	
 	lrel_transitive_closure,
 	rel_transitive_closure,
+	
+	transitive_reflexive_closure,
 	lrel_transitive_reflexive_closure,
 	rel_transitive_reflexive_closure,
 	
@@ -567,9 +611,11 @@ public enum RascalPrimitive {
 	template_close,
 	
 	// tuple
+	tuple,
 	
 	tuple_field_access,
 	tuple_field_project,
+	tuple_field_update,
 	tuple_create,
 	tuple_subscript_int,
 	tuple_update,
@@ -596,16 +642,21 @@ public enum RascalPrimitive {
 	
 	private static PrintWriter stdout;
 	private static RVM rvm;
+	private static ParsingTools parsingTools;
 
 	/**
 	 * Initialize the primitive methods.
 	 * @param fact value factory to be used
 	 * @param stdout 
 	 */
-	public static void init(IValueFactory fact, PrintWriter stdoutPrinter, RVM usedRVM) {
+	public static void init(IValueFactory fact, RVM usedRVM) {
 		vf = fact;
-		stdout = stdoutPrinter;
+		if(usedRVM != null){
+			stdout = usedRVM.stdout;
+		}
 		rvm = usedRVM;
+		
+		parsingTools = new ParsingTools(fact, rvm.ctx);
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 									new String[] {"line", "column"});
@@ -643,7 +694,7 @@ public enum RascalPrimitive {
 	 * Invoke the implementation of a primitive from the RVM main interpreter loop.
 	 * @param stack	stack in the current execution frame
 	 * @param sp	stack pointer
-	 * @param arity TODO
+	 * @param arity number of arguments on the stack
 	 * @return		new stack pointer and modified stack contents
 	 */
 	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -660,14 +711,58 @@ public enum RascalPrimitive {
 	public static int assertreport(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		boolean succeeded = (stack[sp - 3] instanceof Boolean) ? (Boolean) stack[sp - 3] : ((IBool) stack[sp - 3]).getValue();
-		String message = ((IString) stack[sp - 2]).getValue();
-		message = message.isEmpty() ? "" : ": " + message;
+		IString message = (IString) stack[sp - 2];
 		ISourceLocation src = ((ISourceLocation) stack[sp - 1]);
 		if(!succeeded){
 			stdout.println("Assertion failed" + message + " at " + src);
+			throw RuntimeExceptions.assertionFailed(message, src,  new ArrayList<Frame>());
 		}
 		return sp - 2;
 	}
+	
+	/*
+	 * Value factory operations
+	 */
+	
+	public static int constructor(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		Type type = (Type) stack[sp - 2]; 
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 2] = vf.constructor(type, args);
+		return sp - 1;
+
+	}
+	
+	public static int node(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		String name = ((IString) stack[sp - 2]).getValue(); 
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 2] = vf.node(name, args);
+		return sp - 1;
+	}
+
+	public static int list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 1] = vf.list(args);
+		return sp;
+	}
+	
+	public static int set(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 1] = vf.set(args);
+		return sp;
+	}
+	
+	public static int tuple(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue[] args = (IValue[]) stack[sp - 1];
+		stack[sp - 1] = vf.tuple(args);
+		return sp;
+	}
+
+
 	
 	/*
 	 * ...writer_add
@@ -719,6 +814,152 @@ public enum RascalPrimitive {
 	 *		tuple[&L1,&L2] x tuple[&R1,&R2,&R3] -> tuple[&L1,&L2,&R1,&R2,&R3]
 	 * }
 	 */
+	
+	public static int add(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IValue lhs = ((IValue) stack[sp - 2]);
+		IValue rhs = ((IValue) stack[sp - 1]);
+		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+		switch (lhsType) {
+		case INT:
+			switch (rhsType) {
+			case INT:
+				return int_add_int(stack, sp, arity);
+			case NUM:
+				return int_add_num(stack, sp, arity);
+			case REAL:
+				return int_add_real(stack, sp, arity);
+			case RAT:
+				return int_add_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case NUM:
+			switch (rhsType) {
+			case INT:
+				return num_add_int(stack, sp, arity);
+			case NUM:
+				return num_add_num(stack, sp, arity);
+			case REAL:
+				return num_add_real(stack, sp, arity);
+			case RAT:
+				return num_add_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case REAL:
+			switch (rhsType) {
+			case INT:
+				return real_add_int(stack, sp, arity);
+			case NUM:
+				return real_add_num(stack, sp, arity);
+			case REAL:
+				return real_add_real(stack, sp, arity);
+			case RAT:
+				return real_add_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case RAT:
+			switch (rhsType) {
+			case INT:
+				return rat_add_int(stack, sp, arity);
+			case NUM:
+				return rat_add_num(stack, sp, arity);
+			case REAL:
+				return rat_add_real(stack, sp, arity);
+			case RAT:
+				return rat_add_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case SET:
+			switch (rhsType) {
+			case SET:
+				return set_add_set(stack, sp, arity);
+			case REL:
+				return set_add_rel(stack, sp, arity);
+			default:
+				return set_add_elm(stack, sp, arity);
+			}
+		case LIST:
+			switch (rhsType) {
+			case LIST:
+				return list_add_list(stack, sp, arity);
+			case LREL:
+				return list_add_lrel(stack, sp, arity);
+			default:
+				return list_add_elm(stack, sp, arity);
+			}
+		case LOC:
+			switch (rhsType) {
+			case STR:
+				return loc_add_str(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case LREL:
+			switch (rhsType) {
+			case LIST:
+				return lrel_add_list(stack, sp, arity);
+			case LREL:
+				return lrel_add_lrel(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case MAP:
+			switch (rhsType) {
+			case MAP:
+				return map_add_map(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case REL:
+			switch (rhsType) {
+			case SET:
+				return rel_add_set(stack, sp, arity);
+			case REL:
+				return rel_add_rel(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case STR:
+			switch (rhsType) {
+			case STR:
+				return str_add_str(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case TUPLE:
+			switch (rhsType) {
+			case TUPLE:
+				return tuple_add_tuple(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		default:
+			switch (rhsType) {
+			case SET:
+				return elm_add_set(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		}
+	}
 
 	// int
 	public static int int_add_int(Object[] stack, int sp, int arity) {
@@ -837,7 +1078,27 @@ public enum RascalPrimitive {
 	}
 	
 	public static int loc_add_str(Object[] stack, int sp, int arity) {
-		throw new RuntimeException("Not implemented");
+		assert arity == 2;
+		ISourceLocation sloc = (ISourceLocation) stack[sp - 2];
+		String s = ((IString) stack[sp - 1]).getValue();
+		
+		String path = sloc.hasPath() ? sloc.getPath() : "";
+		if(!path.endsWith("/")){
+			path = path + "/";
+		}
+		path = path.concat(s);
+		stack[sp - 2 ] = $loc_field_update(sloc, "path", vf.string(path));
+		return sp - 1;
+//		URI uri = sloc.getURI();
+//		try {
+//			uri = URIUtil.changePath(uri, uri.getPath().concat(s));
+//			// TODO handle length/offset and column/line
+//			sloc = vf.sourceLocation(uri);
+//			stack[sp - 2] = sloc;
+//			return sp - 1;
+//		} catch (URISyntaxException e){
+//			throw RuntimeExceptions.parseError(null, sloc, new ArrayList<Frame>());
+//		}
 	}
 
 	public static int map_add_map(Object[] stack, int sp, int arity) {
@@ -1044,6 +1305,23 @@ public enum RascalPrimitive {
 		}
 	 */
 	
+	public static int compose(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+		switch (ToplevelType.getToplevelType(leftType)) {
+		case LREL:
+			return lrel_compose_lrel(stack, sp, arity);
+		case REL:
+			return rel_compose_rel(stack, sp, arity);
+		case MAP:
+			return map_compose_map(stack, sp, arity);
+		default:
+			throw new RuntimeException("compose: unexpected type " + leftType);
+		}
+	}
+	
 	public static int lrel_compose_lrel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		
@@ -1071,6 +1349,15 @@ public enum RascalPrimitive {
 	 * mod
 	 */
 	
+	public static int mod(Object[] stack, int sp, int arity) {
+		IValue lhs = ((IValue) stack[sp - 2]);
+		IValue rhs = ((IValue) stack[sp - 1]);
+		if(lhs.getType().isInteger() && rhs.getType().isInteger()){
+			return int_mod_int(stack, sp, arity);
+		}
+		throw new RuntimeException("mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType());
+	}
+	
 	public static int int_mod_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).mod((IInteger) stack[sp - 1]);
@@ -1083,89 +1370,223 @@ public enum RascalPrimitive {
 	 * infix Division "/" { &L <: num x &R <: num        -> LUB(&L, &R) }
 	 */
 
+	public static int divide(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IValue lhs = ((IValue) stack[sp - 2]);
+		IValue rhs = ((IValue) stack[sp - 1]);
+		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+		switch (lhsType) {
+		case INT:
+			switch (rhsType) {
+			case INT:
+				return int_divide_int(stack, sp, arity);
+			case NUM:
+				return int_divide_num(stack, sp, arity);
+			case REAL:
+				return int_divide_real(stack, sp, arity);
+			case RAT:
+				return int_divide_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case NUM:
+			switch (rhsType) {
+			case INT:
+				return num_divide_int(stack, sp, arity);
+			case NUM:
+				return num_divide_num(stack, sp, arity);
+			case REAL:
+				return num_divide_real(stack, sp, arity);
+			case RAT:
+				return num_divide_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case REAL:
+			switch (rhsType) {
+			case INT:
+				return real_divide_int(stack, sp, arity);
+			case NUM:
+				return real_divide_num(stack, sp, arity);
+			case REAL:
+				return real_divide_real(stack, sp, arity);
+			case RAT:
+				return real_divide_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case RAT:
+			switch (rhsType) {
+			case INT:
+				return rat_divide_int(stack, sp, arity);
+			case NUM:
+				return rat_divide_num(stack, sp, arity);
+			case REAL:
+				return rat_divide_real(stack, sp, arity);
+			case RAT:
+				return rat_divide_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		default:
+			throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+		}
+	}
+
 	// int
 	public static int int_divide_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
+
 	}
 	public static int int_divide_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int int_divide_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IRational) stack[sp - 1]);
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IRational) stack[sp - 1]);
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int int_divide_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
+		try {
 		stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
 		return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	// num
 	public static int num_divide_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int num_divide_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((INumber) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int num_divide_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int num_divide_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	// rat
 	public static int rat_divide_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int rat_divide_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IRational) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int rat_divide_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IRational) stack[sp - 1]);
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IRational) stack[sp - 1]);
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int rat_divide_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	// real
 	public static int real_divide_num(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IReal) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int real_divide_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int real_divide_real(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 	public static int real_divide_rat(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
-		return sp - 1;
+		try {
+			stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
+			return sp - 1;
+		} catch(ArithmeticException e) {
+			throw RuntimeExceptions.arithmeticException("/ by zero", null, new ArrayList<Frame>());
+		}
 	}
 
 	/*
@@ -1335,169 +1756,678 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
+	/* TODO: In both implementations UnsupportedOperation is thrown. 
+	 * I guess this has to be replaced by something better, e.g., UnavailableInformation
+	 */
+
 	public static int datetime_field_access(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		IDateTime dt = ((IDateTime) stack[sp - 2]);
 		String field = ((IString) stack[sp - 1]).getValue();
 		IValue v;
-		switch (field) {
-		case "isDate":
-			v = vf.bool(dt.isDate());
-			break;
-		case "isTime":
-			v = vf.bool(dt.isTime());
-			break;
-		case "isDateTime":
-			v = vf.bool(dt.isDateTime());
-			break;
-		case "century":
-			v = vf.integer(dt.getCentury());
-			break;
-		case "year":
-			v = vf.integer(dt.getYear());
-			break;
-		case "month":
-			v = vf.integer(dt.getMonthOfYear());
-			break;
-		case "day":
-			v = vf.integer(dt.getDayOfMonth());
-			break;
-		case "hour":
-			v = vf.integer(dt.getHourOfDay());
-			break;
-		case "minute":
-			v = vf.integer(dt.getMinuteOfHour());
-			break;
-		case "second":
-			v = vf.integer(dt.getSecondOfMinute());
-			break;
-		case "millisecond":
-			v = vf.integer(dt.getMillisecondsOfSecond());
-			break;
-		case "timezoneOffsetHours":
-			v = vf.integer(dt.getTimezoneOffsetHours());
-			break;
-		case "timezoneOffsetMinutes":
-			v = vf.integer(dt.getTimezoneOffsetMinutes());
-			break;
-		default:
-			throw new RuntimeException("Access to non-existing field " + field + " in datetime");
+		try {
+			switch (field) {
+			case "isDate":
+				v = vf.bool(dt.isDate());
+				break;
+			case "isTime":
+				v = vf.bool(dt.isTime());
+				break;
+			case "isDateTime":
+				v = vf.bool(dt.isDateTime());
+				break;
+			case "century":
+				if (!dt.isTime()) {
+					v = vf.integer(dt.getCentury());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the century on a time value", null);
+			case "year":
+				if (!dt.isTime()) {
+					v = vf.integer(dt.getYear());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the year on a time value", null);
+
+			case "month":
+				if (!dt.isTime()) {
+					v = vf.integer(dt.getMonthOfYear());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the month on a time value", null);
+			case "day":
+				if (!dt.isTime()) {
+					v = vf.integer(dt.getDayOfMonth());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the day on a time value", null);
+			case "hour":
+				if (!dt.isDate()) {
+					v = vf.integer(dt.getHourOfDay());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the hour on a date value", null);
+			case "minute":
+				if (!dt.isDate()) {
+					v = vf.integer(dt.getMinuteOfHour());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the minute on a date value", null);
+			case "second":
+				if (!dt.isDate()) {
+					v = vf.integer(dt.getSecondOfMinute());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the second on a date value", null);
+			case "millisecond":
+				if (!dt.isDate()) {
+					v = vf.integer(dt.getMillisecondsOfSecond());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the millisecond on a date value", null);
+			case "timezoneOffsetHours":
+				if (!dt.isDate()) {
+					v = vf.integer(dt.getTimezoneOffsetHours());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the timezone offset hours on a date value", null);
+			case "timezoneOffsetMinutes":
+				if (!dt.isDate()) {
+					v = vf.integer(dt.getTimezoneOffsetMinutes());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the timezone offset minutes on a date value", null);
+
+			case "justDate":
+				if (!dt.isTime()) {
+					v = vf.date(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the date component of a time value", null);
+			case "justTime":
+				if (!dt.isDate()) {
+					v = vf.time(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(), 
+							dt.getMillisecondsOfSecond(), dt.getTimezoneOffsetHours(),
+							dt.getTimezoneOffsetMinutes());
+					break;
+				}
+				throw new UnsupportedOperation("Can not retrieve the time component of a date value", null);
+			default:
+				throw RuntimeExceptions.noSuchField(field, null,  new ArrayList<Frame>());
+			}
+			stack[sp - 2] = v;
+			return sp - 1;
+
+		} catch (InvalidDateTimeException e) {
+			throw RuntimeExceptions.illegalArgument(dt, null, new ArrayList<Frame>(), e.getMessage());
 		}
-		stack[sp - 2] = v;
-		return sp - 1;
+	}
+	
+	/* TODO: In both implementations UnsupportedOperation is thrown. 
+	 * I guess this has to be replaced by something better, e.g., UnavailableInformation
+	 */
+	public static int datetime_field_update(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		IDateTime dt = ((IDateTime) stack[sp - 3]);
+		String field = ((IString) stack[sp - 2]).getValue();
+		IValue repl = (IValue) stack[sp - 1];
+
+		// Individual fields
+		int year = dt.getYear();
+		int month = dt.getMonthOfYear();
+		int day = dt.getDayOfMonth();
+		int hour = dt.getHourOfDay();
+		int minute = dt.getMinuteOfHour();
+		int second = dt.getSecondOfMinute();
+		int milli = dt.getMillisecondsOfSecond();
+		int tzOffsetHour = dt.getTimezoneOffsetHours();
+		int tzOffsetMin = dt.getTimezoneOffsetMinutes();
+
+		try {
+			switch (field) {
+
+			case "year":
+				if (dt.isTime()) {
+					throw new UnsupportedOperation("Can not update the year on a time value", null);
+				}
+				year = ((IInteger)repl).intValue();
+				break;
+
+			case "month":
+				if (dt.isTime()) {
+					throw new UnsupportedOperation("Can not update the month on a time value", null);
+				}
+				month = ((IInteger)repl).intValue();
+				break;
+
+			case "day":
+				if (dt.isTime()) {
+					throw new UnsupportedOperation("Can not update the day on a time value", null);
+				}	
+				day = ((IInteger)repl).intValue();
+				break;
+
+			case "hour":
+				if (dt.isDate()) {
+					throw new UnsupportedOperation("Can not update the hour on a date value", null);
+				}	
+				hour = ((IInteger)repl).intValue();
+				break;
+
+			case "minute":
+				if (dt.isDate()) {
+					throw new UnsupportedOperation("Can not update the minute on a date value", null);
+				}
+				minute = ((IInteger)repl).intValue();
+				break;
+
+			case "second":
+				if (dt.isDate()) {
+					throw new UnsupportedOperation("Can not update the second on a date value", null);
+				}
+				second = ((IInteger)repl).intValue();
+				break;
+
+			case "millisecond":
+				if (dt.isDate()) {
+					throw new UnsupportedOperation("Can not update the millisecond on a date value", null);
+				}
+				milli = ((IInteger)repl).intValue();
+				break;
+
+			case "timezoneOffsetHours":
+				if (dt.isDate()) {
+					throw new UnsupportedOperation("Can not update the timezone offset hours on a date value", null);
+				}
+				tzOffsetHour = ((IInteger)repl).intValue();
+				break;
+
+			case "timezoneOffsetMinutes":
+				if (dt.isDate()) {
+					throw new UnsupportedOperation("Can not update the timezone offset minutes on a date value", null);
+				}
+				tzOffsetMin = ((IInteger)repl).intValue();
+				break;			
+
+			default:
+				throw RuntimeExceptions.noSuchField(field, null,  new ArrayList<Frame>());
+			}
+			IDateTime newdt = null;
+			if (dt.isDate()) {
+				newdt = vf.date(year, month, day);
+			} else if (dt.isTime()) {
+				newdt = vf.time(hour, minute, second, milli, tzOffsetHour, tzOffsetMin);
+			} else {
+				newdt = vf.datetime(year, month, day, hour, minute, second, milli, tzOffsetHour, tzOffsetMin);
+			}
+
+			stack[sp - 3] = newdt;
+			return sp - 2;
+		}
+		catch (IllegalArgumentException e) {
+			throw RuntimeExceptions.illegalArgument(repl, null, null, "Cannot update field " + field + ", this would generate an invalid datetime value");
+		}
+		catch (InvalidDateTimeException e) {
+			throw RuntimeExceptions.illegalArgument(dt, null, new ArrayList<Frame>(), e.getMessage());
+		}
 	}
 	
 	public static int loc_field_access(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ISourceLocation sloc = ((ISourceLocation) stack[sp - 2]);
 		String field = ((IString) stack[sp - 1]).getValue();
+		URI uri; // = sloc.getURI();
 		IValue v;
 		switch (field) {
-		case "uri":
-			v = vf.string(sloc.getURI().toString());
-			break;
+		
 		case "scheme":
-			String s = sloc.getURI().getScheme();
+			String s = sloc.getScheme();
 			v = vf.string(s == null ? "" : s);
 			break;
+			
 		case "authority":
-			s = sloc.getURI().getAuthority();
+			s = sloc.hasAuthority() ? sloc.getAuthority() : "";
 			v = vf.string(s == null ? "" : s);
 			break;
+			
 		case "host":
-			s = sloc.getURI().getHost();
+			uri = sloc.getURI();
+			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
+				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", null,  new ArrayList<Frame>());
+			}
+			s = uri.getHost();
 			v = vf.string(s == null ? "" : s);
 			break;
-		case "port":
-			int n = sloc.getURI().getPort();
-			v = vf.string(Integer.toString(n));
-			break;
+			
 		case "path":
-			s = sloc.getURI().getPath();
+			s = sloc.hasPath() ? sloc.getPath() : "";
 			v = vf.string(s == null ? "" : s);
 			break;
-		case "extension":
-			String path = sloc.getURI().getPath();
-			int i = path.lastIndexOf('.');
-			if (i != -1) {
-				v = vf.string(path.substring(i + 1));
-			} else {
-				v = vf.string("");
-			}
-			break;
-		case "query":
-			s = sloc.getURI().getQuery();
-			v = vf.string(s == null ? "" : s);
-			break;
-		case "fragment":
-			s= sloc.getURI().getFragment();
-			v = vf.string(s == null ? "" : s);
-			break;
-		case "user":
-			s = sloc.getURI().getUserInfo();
-			v = vf.string(s == null ? "" : s);
-			break;
+			
 		case "parent":
-			path = sloc.getURI().getPath();
+			uri = sloc.getURI();
+			String path = uri.getPath();
 			if (path.equals("")) {
-				throw RuntimeExceptionFactory.noParent(sloc, null, null);
+				throw RuntimeExceptions.noParent(sloc, null, null);
 			}
-			i = path.lastIndexOf("/");
+			int i = path.lastIndexOf("/");
 			
 			if (i != -1) {
 				path = path.substring(0, i);
-				v = vf.string(path);
+				v = $loc_field_update(sloc, "path", vf.string(path));
 			} else {
-				throw RuntimeExceptionFactory.noParent(sloc, null, null);
+				throw RuntimeExceptions.noParent(sloc, null, null);
 			}
 			break;	
+			
 		case "file": 
-			path = sloc.getURI().getPath();
+			path = sloc.hasPath() ? sloc.getPath() : "";
 			
 			if (path.equals("")) {
-				throw RuntimeExceptionFactory.noParent(sloc,null,null);
+				throw RuntimeExceptions.noParent(sloc,null,null);
 			}
 			i = path.lastIndexOf("/");
 			
 			if (i != -1) {
 				path = path.substring(i+1);
 			}
-			v = vf.string(path);			
+			v = vf.string(path);	
+			break;
 			
 		case "ls":
-//			try {
-//				IListWriter w = vf.listWriter();
-//				Type stringType = tf.stringType();
-//				URI uri = sloc.getURI();
-//				for (String elem : ctx.getResolverRegistry().listEntries(uri)) {
-//					w.append(vf.string(elem));
-//				}
-//				
-//				v = w.done();
-//				
-//			} catch (IOException e) {
-//				throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null,null);
-//			}
-			v = null;
+			try {
+				ISourceLocation resolved = rvm.ctx.getHeap().resolveSourceLocation(sloc);
+				IListWriter w = vf.listWriter();
+				
+				Object[] fakeStack = new Object[2];
+				for (String elem : rvm.ctx.getResolverRegistry().listEntries(resolved.getURI())) {
+					fakeStack[0] = resolved;
+					fakeStack[1] = vf.string(elem);
+					loc_add_str(fakeStack, 2, 2);
+					w.append((ISourceLocation)fakeStack[0]);
+				}
+				
+				v = w.done();
+				break;
+			} catch (IOException e) {
+				throw RuntimeExceptions.io(vf.string(e.getMessage()), null,null);
+			}
+			
+		case "extension":
+			path = sloc.hasPath() ? sloc.getPath() : "";
+			i = path.lastIndexOf('.');
+			if (i != -1) {
+				v = vf.string(path.substring(i + 1));
+			} else {
+				v = vf.string("");
+			}
 			break;
-		case "offset":
-			v = vf.integer(sloc.getOffset());
+			
+		case "fragment":
+			s = sloc.hasFragment() ? sloc.getFragment() : "";
+			v = vf.string(s == null ? "" : s);
 			break;
+			
+		case "query":
+			s = sloc.hasQuery() ? sloc.getQuery() : "";
+			v = vf.string(s == null ? "" : s);
+			break;
+			
+		case "params":
+			
+			String query = sloc.hasQuery() ? sloc.getQuery() : "";
+			IMapWriter res = vf.mapWriter(tf.stringType(), tf.stringType());
+			
+			if (query != null && query.length() > 0) {
+				String[] params = query.split("&");
+				for (String param : params) {
+					String[] keyValue = param.split("=");
+					res.put(vf.string(keyValue[0]), vf.string(keyValue[1]));
+				}
+			}
+			v = res.done();
+			break;
+			
+		case "user":
+			uri = sloc.getURI();
+			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
+				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", null,  new ArrayList<Frame>());
+			}
+			s = sloc.getURI().getUserInfo();
+			v = vf.string(s == null ? "" : s);
+			break;
+		
+		case "port":
+			uri = sloc.getURI();
+			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
+				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", null,  new ArrayList<Frame>());
+			}
+			int n = sloc.getURI().getPort();
+			v = vf.integer(n);
+			break;	
+			
 		case "length":
-			v = vf.integer(sloc.getLength());
-			break;
+			if(sloc.hasOffsetLength()){
+				v = vf.integer(sloc.getLength());
+				break;
+			} else {
+				throw RuntimeExceptions.unavailableInformation(sloc, new ArrayList<Frame>());
+			}
+
+		case "offset":
+			if(sloc.hasOffsetLength()){
+				v = vf.integer(sloc.getOffset());
+				break;
+			} else {
+				throw RuntimeExceptions.unavailableInformation(sloc, new ArrayList<Frame>());
+			}
+
 		case "begin":
-			v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
-			break;
+			if(sloc.hasLineColumn()){
+				v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
+				break;
+			} else {
+				throw RuntimeExceptions.unavailableInformation(sloc, new ArrayList<Frame>());
+			}
 		case "end":
-			v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
+			if(sloc.hasLineColumn()){
+				v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
+				break;
+			} else {
+				throw RuntimeExceptions.unavailableInformation(sloc, new ArrayList<Frame>());
+			}
+			
+		case "uri":
+			uri = sloc.getURI();
+			v = vf.string(uri.toString());
+			break;
+			
+		case "top":
+			uri = sloc.getURI();
+			v = vf.sourceLocation(uri);
 			break;
 
 		default:
 			throw new RuntimeException("Access to non-existing field " + field + " in location");
 		}
+		
 		stack[sp - 2] = v;
 		return sp - 1;
+	}
+	
+	public static int loc_field_update(Object[] stack, int sp, int arity){
+		assert arity == 3;
+		ISourceLocation sloc = ((ISourceLocation) stack[sp - 3]);
+		String field = ((IString) stack[sp - 2]).getValue();
+		IValue repl = (IValue) stack[sp - 1];
+		stack[sp - 3] = $loc_field_update(sloc, field, repl);
+		return sp - 2;
+	}
+	
+	private static ISourceLocation $loc_field_update(ISourceLocation sloc, String field, IValue repl) {		
+		Type replType = repl.getType();
+		
+		int iLength = sloc.hasOffsetLength() ? sloc.getLength() : -1;
+		int iOffset = sloc.hasOffsetLength() ? sloc.getOffset() : -1;
+		int iBeginLine = sloc.hasLineColumn() ? sloc.getBeginLine() : -1;
+		int iBeginColumn = sloc.hasLineColumn() ? sloc.getBeginColumn() : -1;
+		int iEndLine = sloc.hasLineColumn() ? sloc.getEndLine() : -1;
+		int iEndColumn = sloc.hasLineColumn() ? sloc.getEndColumn() : -1;
+		URI uri;
+		boolean uriPartChanged = false;
+		String scheme = sloc.getScheme();
+		String authority = sloc.hasAuthority() ? sloc.getAuthority() : null;
+		String path = sloc.hasPath() ? sloc.getPath() : null;
+		String query = sloc.hasQuery() ? sloc.getQuery() : null;
+		String fragment = sloc.hasFragment() ? sloc.getFragment() : null;
+		
+		try {
+			IValue v;
+			String newStringValue = null;
+			if(replType.isString()){
+				newStringValue = ((IString)repl).getValue();
+			}
+		
+			switch (field) {
+			
+			case "uri":
+				uri = URIUtil.createFromEncoded(newStringValue);
+				// now destruct it again
+				scheme = uri.getScheme();
+				authority = uri.getAuthority();
+				path = uri.getPath();
+				query = uri.getQuery();
+				fragment = uri.getFragment();
+				uriPartChanged = true;
+				break;
+
+			case "scheme":
+				scheme = newStringValue;
+				uriPartChanged = true;
+				break;
+
+			case "authority":
+				authority = newStringValue;
+				uriPartChanged = true;
+				break;
+
+			case "host":
+				uri = sloc.getURI();
+				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
+					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", null,  new ArrayList<Frame>());
+				}
+				uri = URIUtil.changeHost(uri, newStringValue);
+				authority = uri.getAuthority();
+				uriPartChanged = true;
+				break;
+
+			case "path":
+				path = newStringValue;
+				if(!path.startsWith("/")) /***/
+					path = "/" + path;
+				uriPartChanged = true;
+				break;
+				
+			case "file": 
+				int i = path.lastIndexOf("/");
+				
+				if (i != -1) {
+					path = path.substring(0, i) + "/" + newStringValue;
+				}
+				else {
+					path = path + "/" + newStringValue;	
+				}	
+				uriPartChanged = true;
+				break;
+
+			case "parent":
+				i = path.lastIndexOf("/");
+				String parent = newStringValue;
+				if (i != -1) {
+					path = parent + path.substring(i);
+				}
+				else {
+					path = parent;	
+				}
+				uriPartChanged = true;
+				break;	
+
+			case "ls":
+				throw RuntimeExceptions.noSuchField("Cannot update the children of a location", null, new ArrayList<Frame>());
+				
+			case "extension":
+				String ext = newStringValue;
+				
+				if (path.length() > 1) {
+					int index = path.lastIndexOf('.');
+
+					if (index == -1 && !ext.isEmpty()) {
+						path = path + (!ext.startsWith(".") ? "." : "") + ext;
+					}
+					else if (!ext.isEmpty()) {
+						path = path.substring(0, index) + (!ext.startsWith(".") ? "." : "") + ext;
+					}
+					else {
+						path = path.substring(0, index);
+					}
+				}
+				uriPartChanged = true;
+				break;
+				
+			case "top":
+				if (replType.isString()) {
+					uri = URIUtil.assumeCorrect(newStringValue);
+					scheme = uri.getScheme();
+					authority = uri.getAuthority();
+					path = uri.getPath();
+					query = uri.getQuery();
+					fragment = uri.getFragment();
+				}
+				else if (replType.isSourceLocation()) {
+					ISourceLocation rep = (ISourceLocation) repl;
+					scheme = rep.getScheme();
+					authority = rep.hasAuthority() ? rep.getAuthority() : null;
+					path = rep.hasPath() ? rep.getPath() : null;
+					query = rep.hasQuery() ? rep.getQuery() : null;
+					fragment = rep.hasFragment() ? rep.getFragment() : null;
+				}
+				uriPartChanged = true;
+				break;
+
+			case "fragment":
+				fragment = newStringValue;
+				uriPartChanged = true;
+				break;
+
+			case "query":
+				query = newStringValue;
+				uriPartChanged = true;
+				break;
+				
+			case "user":
+				uri = sloc.getURI();
+				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
+					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", null,  new ArrayList<Frame>());
+				}
+				if (uri.getHost() != null) {
+					uri = URIUtil.changeUserInformation(uri, newStringValue);
+				}
+				uriPartChanged = true;
+				break;
+				
+			case "port":
+				uri = sloc.getURI();
+				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
+					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", null,  new ArrayList<Frame>());
+				}
+				if (uri.getHost() != null) {
+					int port = Integer.parseInt(((IInteger) repl).getStringRepresentation());
+					uri = URIUtil.changePort(uri, port);
+				}
+				authority = uri.getAuthority();
+				uriPartChanged = true;
+				break;	
+				
+			case "length":
+				iLength = ((IInteger) repl).intValue();
+				if (iLength < 0) {
+					throw RuntimeExceptions.illegalArgument(repl, null, new ArrayList<Frame>());
+				}
+				break;
+				
+			case "offset":
+				iOffset = ((IInteger) repl).intValue();
+				if (iOffset < 0) {
+					throw RuntimeExceptions.illegalArgument(repl, null, new ArrayList<Frame>());
+				}
+				break;
+				
+			case "begin":
+				iBeginLine = ((IInteger) ((ITuple) repl).get(0)).intValue();
+				iBeginColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
+				
+				if (iBeginColumn < 0 || iBeginLine < 0) {
+					throw RuntimeExceptions.illegalArgument(repl, null,  new ArrayList<Frame>());
+				}
+				break;
+			case "end":
+				iEndLine = ((IInteger) ((ITuple) repl).get(0)).intValue();
+				iEndColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
+				
+				if (iEndColumn < 0 || iEndLine < 0) {
+					throw RuntimeExceptions.illegalArgument(repl, null,  new ArrayList<Frame>());
+				}
+				break;			
+
+			default:
+				throw RuntimeExceptions.noSuchField("Modification of field " + field + " in location not allowed", null, new ArrayList<Frame>());
+			}
+			
+			ISourceLocation newLoc = sloc;
+			if (uriPartChanged) {
+				newLoc = vf.sourceLocation(scheme, authority, path, query, fragment);
+			}
+			
+			if (sloc.hasLineColumn()) {
+				// was a complete loc, and thus will be now
+				return vf.sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+			}
+			
+			if (sloc.hasOffsetLength()) {
+				// was a partial loc
+				
+				if (iBeginLine != -1 || iBeginColumn != -1) {
+					//will be complete now.
+					iEndLine = iBeginLine;
+					iEndColumn = iBeginColumn;
+					return vf.sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+				}
+				else if (iEndLine != -1 || iEndColumn != -1) {
+					// will be complete now.
+					iBeginLine = iEndLine;
+					iBeginColumn = iEndColumn;
+					return vf.sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+				}
+				else {
+					// remains a partial loc
+					return vf.sourceLocation(newLoc, iOffset, iLength);
+				}
+			}
+
+			// used to have no offset/length or line/column info, if we are here
+			
+			if (iBeginColumn != -1 || iEndColumn != -1 || iBeginLine != -1 || iBeginColumn != -1) {
+				// trying to add line/column info to a uri that has no offset length
+				throw RuntimeExceptions.invalidUseOfLocation("Can not add line/column information without offset/length", null,  new ArrayList<Frame>());
+			}
+			
+			// trying to set offset that was not there before, adding length automatically
+			if (iOffset != -1 ) {
+				if (iLength == -1) {
+					iLength = 0;
+				}
+			}
+			
+			// trying to set length that was not there before, adding offset automatically
+			if (iLength != -1) {
+				if (iOffset == -1) {
+					iOffset = 0;
+				}
+			}
+			
+			if (iOffset != -1 || iLength != -1) {
+				// used not to no offset/length, but do now
+				return vf.sourceLocation(newLoc, iOffset, iLength);
+			}
+			
+			// no updates to offset/length or line/column, and did not used to have any either:
+			return newLoc;
+
+		} catch (IllegalArgumentException e) {
+			throw RuntimeExceptions.illegalArgument(null, null);
+		} catch (URISyntaxException e) {
+			throw RuntimeExceptions.parseError(null, null, null);
+		}
 	}
 	
 	public static int lrel_field_access(Object[] stack, int sp, int arity) {
@@ -1523,8 +2453,12 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		IValue val = (IValue) stack[sp - 2];
 		String label = ((IString) stack[sp - 1]).getValue();
-		stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
-		return sp - 1;
+		try {
+			stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
+			return sp - 1;
+		} catch (FactTypeUseException e) {
+			throw RuntimeExceptions.noSuchAnnotation(label, null, new ArrayList<Frame>());
+		}
 	}
 	
 	public static int annotation_set(Object[] stack, int sp, int arity) {
@@ -1541,6 +2475,12 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		stack[sp - 2] = ((ITuple) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
 		return sp - 1;
+	}
+	
+	public static int tuple_field_update(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		stack[sp - 3] = ((ITuple) stack[sp - 3]).set(((IString) stack[sp - 2]).getValue(), (IValue) stack[sp - 1]);
+		return sp - 2;
 	}
 	
 	public static int tuple_field_project(Object[] stack, int sp, int arity) {
@@ -1963,6 +2903,44 @@ public enum RascalPrimitive {
 	/*
 	 * intersect
 	 */
+	
+	public static int intersect(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+		IValue right = (IValue) stack[sp - 2];
+		Type rightType = right.getType();
+
+		switch (ToplevelType.getToplevelType(leftType)) {
+		case LIST:
+			switch (ToplevelType.getToplevelType(rightType)) {
+			case LIST:
+				return list_intersect_list(stack, sp, arity);
+			case LREL:
+				return list_intersect_lrel(stack, sp, arity);
+			default:
+				throw new RuntimeException("intersect: illegal combination "
+						+ leftType + " and " + rightType);
+			}
+		case SET:
+			switch (ToplevelType.getToplevelType(rightType)) {
+			case SET:
+				return set_intersect_set(stack, sp, arity);
+			case REL:
+				return set_intersect_rel(stack, sp, arity);
+			default:
+				throw new RuntimeException("intersect: illegal combination "
+						+ leftType + " and " + rightType);
+			}
+		case MAP:
+			return map_intersect_map(stack, sp, arity);
+
+		default:
+			throw new RuntimeException("intersect: illegal combination "
+					+ leftType + " and " + rightType);
+		}
+	}
 
 	public static int list_intersect_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -2009,6 +2987,31 @@ public enum RascalPrimitive {
 	/*
 	 * in
 	 */
+	
+	public static int in(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+		IValue right = (IValue) stack[sp - 2];
+		Type rightType = right.getType();
+
+		switch (ToplevelType.getToplevelType(leftType)) {
+		case LIST:
+			return elm_in_list(stack, sp, arity);
+		case LREL:
+			return elm_in_lrel(stack, sp, arity);
+		case SET:
+			return elm_in_set(stack, sp, arity);
+		case REL:
+			return elm_in_rel(stack, sp, arity);
+		case MAP:
+			return elm_in_map(stack, sp, arity);
+		default:
+			throw new RuntimeException("in: illegal combination " + leftType
+					+ " and " + rightType);
+		}
+	}
 
 	public static int elm_in_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -2170,6 +3173,63 @@ public enum RascalPrimitive {
 	/*
 	 * join
 	 */
+	
+	public static int join(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+		IValue right = (IValue) stack[sp - 2];
+		Type rightType = right.getType();
+
+		switch (ToplevelType.getToplevelType(leftType)) {
+		case LIST:
+			switch (ToplevelType.getToplevelType(rightType)) {
+			case LIST:
+				return list_join_list(stack, sp, arity);
+			case LREL:
+				return list_join_lrel(stack, sp, arity);
+			default:
+				throw new RuntimeException("join: illegal combination "
+						+ leftType + " and " + rightType);
+			}
+		case LREL:
+			switch (ToplevelType.getToplevelType(rightType)) {
+			case LIST:
+				return lrel_join_list(stack, sp, arity);
+			case LREL:
+				return lrel_join_lrel(stack, sp, arity);
+			default:
+				throw new RuntimeException("join: illegal combination "
+						+ leftType + " and " + rightType);
+			}
+		case SET:
+			switch (ToplevelType.getToplevelType(rightType)) {
+			case SET:
+				return set_join_set(stack, sp, arity);
+			case REL:
+				return set_join_rel(stack, sp, arity);
+			default:
+				throw new RuntimeException("join: illegal combination "
+						+ leftType + " and " + rightType);
+			}
+			
+		case REL:
+			switch (ToplevelType.getToplevelType(rightType)) {
+			case SET:
+				return rel_join_set(stack, sp, arity);
+			case REL:
+				return rel_join_rel(stack, sp, arity);
+			default:
+				throw new RuntimeException("join: illegal combination "
+						+ leftType + " and " + rightType);
+			}
+
+		default:
+			throw new RuntimeException("join: illegal combination "
+					+ leftType + " and " + rightType);
+		}
+	}
 	
 	public static int list_join_list(Object[] stack, int sp, int arity) {
 		return list_product_list(stack, sp, arity);
@@ -2472,43 +3532,38 @@ public enum RascalPrimitive {
 	
 	// Generic less
 	
-	private static int less(Object[] stack, int sp, int arity){
+	private static int less(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		
+
 		IValue left = (IValue) stack[sp - 2];
 		Type leftType = left.getType();
-		
-		if(leftType.isSubtypeOf(tf.numberType())){
+
+		if (leftType.isSubtypeOf(tf.numberType())) {
 			return num_less_num(stack, sp, arity);
 		}
-		if(leftType.isBool()){
+		switch (ToplevelType.getToplevelType(leftType)) {
+
+		case BOOL:
 			return bool_less_bool(stack, sp, arity);
-		}
-		if(leftType.isString()){
-			return str_less_str(stack,sp, arity);
-		}
-		if(leftType.isDateTime()){
-			return datetime_less_datetime(stack,sp, arity);
-		}
-		if(leftType.isSourceLocation()){
-			return loc_less_loc(stack,sp, arity);
-		}
-		if(leftType.isList()){
+		case STR:
+			return str_less_str(stack, sp, arity);
+		case DATETIME:
+			return datetime_less_datetime(stack, sp, arity);
+		case LOC:
+			return loc_less_loc(stack, sp, arity);
+		case LIST:
 			return list_less_list(stack, sp, arity);
-		}
-		if(leftType.isSet()){
+		case SET:
 			return set_less_set(stack, sp, arity);
-		}
-		if(leftType.isMap()){
+		case MAP:
 			return map_less_map(stack, sp, arity);
-		}
-		if(leftType.isNode()){
+		case NODE:
 			return node_less_node(stack, sp, arity);
-		}
-		if(leftType.isTuple()){
+		case TUPLE:
 			return tuple_less_tuple(stack, sp, arity);
+		default:
+			throw new RuntimeException("less: unexpected type " + leftType);
 		}
-		throw new RuntimeException("less: unknown type " + leftType);
 	}
 	
 	// less on other types
@@ -2785,43 +3840,42 @@ public enum RascalPrimitive {
 
 	// Generic lessequal
 	
-	private static int lessequal(Object[] stack, int sp, int arity){
+	private static int lessequal(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		
-		IValue left = (IValue) stack[sp - 2];		
+
+		IValue left = (IValue) stack[sp - 2];
 		Type leftType = left.getType();
-		
-		if(leftType.isSubtypeOf(tf.numberType())){
+
+		if (leftType.isSubtypeOf(tf.numberType())) {
 			return num_lessequal_num(stack, sp, arity);
 		}
-		if(leftType.isBool()){
+		switch (ToplevelType.getToplevelType(leftType)) {
+
+		case BOOL:
 			return bool_lessequal_bool(stack, sp, arity);
-		}
-		if(leftType.isString()){
+
+		case STR:
 			return str_lessequal_str(stack, sp, arity);
-		}
-		if(leftType.isDateTime()){
+
+		case DATETIME:
 			return datetime_lessequal_datetime(stack, sp, arity);
-		}
-		if(leftType.isSourceLocation()){
+
+		case LOC:
 			return loc_lessequal_loc(stack, sp, arity);
-		}
-		if(leftType.isList()){
+
+		case LIST:
 			return list_lessequal_list(stack, sp, arity);
-		}
-		if(leftType.isSet()){
+		case SET:
 			return set_lessequal_set(stack, sp, arity);
-		}
-		if(leftType.isMap()){
+		case MAP:
 			return map_lessequal_map(stack, sp, arity);
-		}
-		if(leftType.isNode()){
+		case NODE:
 			return node_lessequal_node(stack, sp, arity);
-		}
-		if(leftType.isTuple()){
+		case TUPLE:
 			return tuple_lessequal_tuple(stack, sp, arity);
+		default:
+			throw new RuntimeException("lessequal: unexpected type " + leftType);
 		}
-		throw new RuntimeException("lessequal: unknown type " + leftType);
 	}
 	
 	// lessequal on other types
@@ -3081,6 +4135,23 @@ public enum RascalPrimitive {
 
 		return sp;
 	}
+	
+	public static int set2elm(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		ISet set = (ISet) stack[sp - 1];
+		if(set.size() != 1)
+			throw new RuntimeException("set2elm: set should have a single element");
+		IValue elm = set.iterator().next();
+		stack[sp - 1] = elm;
+		return sp;
+	}
+	
+	public static int set_size(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		ISet set = (ISet) stack[sp - 1];		
+		stack[sp - 1] = vf.integer(set.size());
+		return sp;
+	}
 
 	public static int tuple_create(Object[] stack, int sp, int arity) {
 		assert arity >= 0;
@@ -3098,6 +4169,31 @@ public enum RascalPrimitive {
 	 * notin
 	 *
 	 */
+	
+	public static int notin(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+		IValue right = (IValue) stack[sp - 2];
+		Type rightType = right.getType();
+
+		switch (ToplevelType.getToplevelType(leftType)) {
+		case LIST:
+			return elm_notin_list(stack, sp, arity);
+		case LREL:
+			return elm_notin_lrel(stack, sp, arity);
+		case SET:
+			return elm_notin_set(stack, sp, arity);
+		case REL:
+			return elm_notin_rel(stack, sp, arity);
+		case MAP:
+			return elm_notin_map(stack, sp, arity);
+		default:
+			throw new RuntimeException("notin: illegal combination " + leftType
+					+ " and " + rightType);
+		}
+	}
 	public static int elm_notin_list(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = !((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]);
@@ -3400,6 +4496,75 @@ public enum RascalPrimitive {
 	 *		set[&L] x set[&R]                    -> rel[&L,&R]
 	 * }
 	 */
+	
+	public static int product(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IValue lhs = ((IValue) stack[sp - 2]);
+		IValue rhs = ((IValue) stack[sp - 1]);
+		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+		switch (lhsType) {
+		case INT:
+			switch (rhsType) {
+			case INT:
+				return int_product_int(stack, sp, arity);
+			case NUM:
+				return int_product_num(stack, sp, arity);
+			case REAL:
+				return int_product_real(stack, sp, arity);
+			case RAT:
+				return int_product_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case NUM:
+			switch (rhsType) {
+			case INT:
+				return num_product_int(stack, sp, arity);
+			case NUM:
+				return num_product_num(stack, sp, arity);
+			case REAL:
+				return num_product_real(stack, sp, arity);
+			case RAT:
+				return num_product_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case REAL:
+			switch (rhsType) {
+			case INT:
+				return real_product_int(stack, sp, arity);
+			case NUM:
+				return real_product_num(stack, sp, arity);
+			case REAL:
+				return real_product_real(stack, sp, arity);
+			case RAT:
+				return real_product_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case RAT:
+			switch (rhsType) {
+			case INT:
+				return rat_product_int(stack, sp, arity);
+			case NUM:
+				return rat_product_num(stack, sp, arity);
+			case REAL:
+				return rat_product_real(stack, sp, arity);
+			case RAT:
+				return rat_product_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		default:
+			throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+		}
+	}
 
 	// int
 	public static int int_product_int(Object[] stack, int sp, int arity) {
@@ -3525,6 +4690,14 @@ public enum RascalPrimitive {
 	/*
 	 * remainder
 	 */
+	public static int remainder(Object[] stack, int sp, int arity) {
+		IValue lhs = ((IValue) stack[sp - 2]);
+		IValue rhs = ((IValue) stack[sp - 1]);
+		if(lhs.getType().isInteger() && rhs.getType().isInteger()){
+			return int_remainder_int(stack, sp, arity);
+		}
+		throw new RuntimeException("remainder: unexpected type combination" + lhs.getType() + " and " + rhs.getType());
+	}
 
 	public static int int_remainder_int(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -3556,30 +4729,32 @@ public enum RascalPrimitive {
 	}
 	
 	public static int testreport_add(Object[] stack, int sp, int arity) {
-		assert arity == 3; 
-		
-		String fun = ((IString) stack[sp - 3]).getValue();
+		assert arity == 4; 
+
+		String fun = ((IString) stack[sp - 4]).getValue();
+		String expected =  ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
-		stdout.println("testreport_add: " + src);
+		//stdout.println("testreport_add: " + src);
 		Type argType = (Type) stack[sp - 1];
 		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
 		//Type argType = typeReifier.valueToType(type_cons);
 		//IMap definitions = (IMap) type_cons.get("definitions");
-		
+
 		TypeStore store = new TypeStore();
 		//typeReifier.declareAbstractDataTypes(definitions, store);
-		
+
 		int nargs = argType.getArity();
 		IValue[] args = new IValue[nargs];
-		
+
 		TypeParameterVisitor tpvisit = new TypeParameterVisitor();
 		Type requestedType = tf.tupleType(argType);
 		HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
 		RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, store);
-		
+
 		int tries = nargs == 0 ? 1 : TRIES;
 		boolean passed = true;
-		for(int i = 0; i < tries; i++){
+		String message = "";
+		for(int i = 0; i < tries && passed; i++){
 			if(nargs > 0){
 				ITuple tup = (ITuple) randomValue.generate(argType);
 				for(int j = 0; j < args.length; j++){
@@ -3587,14 +4762,26 @@ public enum RascalPrimitive {
 					//stdout.println("args[" + j + "] = " + args[j]);
 				}
 			}
-			IValue res = rvm.executeFunction(fun, args);  // TODO: catch exceptions
-			passed = ((IBool) res).getValue();
-			if(!passed){
-				break;
+			try {
+				IValue res = rvm.executeFunction(fun, args); 
+				passed = ((IBool) res).getValue();
+				if(!passed){
+					break;
+				}
+			} catch (Thrown e){
+				IConstructor cons = (IConstructor) e.value;
+				if(!cons.getName().equals(expected)){
+					message = e.toString();
+					passed = false;
+				}
+			}
+			catch (Exception e){
+				message = e.getMessage();
+				passed = false;
 			}
 		}
-		test_results.append(vf.tuple(src,  vf.bool(passed)));
-		return sp - 2;
+		test_results.append(vf.tuple(src,  vf.bool(passed), vf.string(message == null ? "" : message)));
+		return sp - 3;
 	}
 
 	/*
@@ -3718,6 +4905,22 @@ public enum RascalPrimitive {
 	 * prefix UnaryMinus "-" { &L <: num -> &L }
 	 */
 
+	public static int negative(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+
+		IValue left = (IValue) stack[sp - 2];
+		Type leftType = left.getType();
+
+		switch (ToplevelType.getToplevelType(leftType)) {
+		case INT: return negative_int(stack, sp, arity);
+		case NUM: return negative_num(stack, sp, arity);
+		case REAL: return negative_real(stack, sp, arity);
+		case RAT: return negative_rat(stack, sp, arity);
+		default:
+			throw new RuntimeException("negative: unexpected type " + leftType);
+		
+		}
+	}
 	public static int negative_int(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((IInteger) stack[sp - 1]).negate();
@@ -3739,6 +4942,21 @@ public enum RascalPrimitive {
 		assert arity == 1;
 		stack[sp - 1] = ((INumber) stack[sp - 1]).negate();
 		return sp;
+	}
+	
+	/*
+	 * parse
+	 */
+	
+	public static int parse(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		IString module_name = (IString) stack[sp - 3];
+		IConstructor type = (IConstructor) stack[sp - 2];
+		IString s = ((IString) stack[sp - 1]);
+	
+		IValue tree = parsingTools.parse(module_name, type, s);
+		stack[sp - 3] = tree;
+		return sp - 2;
 	}
 
 	/*
@@ -3834,6 +5052,75 @@ public enum RascalPrimitive {
 	 * 		map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
 	 * }
 	 */
+	
+	public static int subtract(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IValue lhs = ((IValue) stack[sp - 2]);
+		IValue rhs = ((IValue) stack[sp - 1]);
+		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+		switch (lhsType) {
+		case INT:
+			switch (rhsType) {
+			case INT:
+				return int_subtract_int(stack, sp, arity);
+			case NUM:
+				return int_subtract_num(stack, sp, arity);
+			case REAL:
+				return int_subtract_real(stack, sp, arity);
+			case RAT:
+				return int_subtract_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case NUM:
+			switch (rhsType) {
+			case INT:
+				return num_subtract_int(stack, sp, arity);
+			case NUM:
+				return num_subtract_num(stack, sp, arity);
+			case REAL:
+				return num_subtract_real(stack, sp, arity);
+			case RAT:
+				return num_subtract_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case REAL:
+			switch (rhsType) {
+			case INT:
+				return real_subtract_int(stack, sp, arity);
+			case NUM:
+				return real_subtract_num(stack, sp, arity);
+			case REAL:
+				return real_subtract_real(stack, sp, arity);
+			case RAT:
+				return real_subtract_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		case RAT:
+			switch (rhsType) {
+			case INT:
+				return rat_subtract_int(stack, sp, arity);
+			case NUM:
+				return rat_subtract_num(stack, sp, arity);
+			case REAL:
+				return rat_subtract_real(stack, sp, arity);
+			case RAT:
+				return rat_subtract_rat(stack, sp, arity);
+			default:
+				throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+			}
+		default:
+			throw new RuntimeException("Illegal type combination: "
+						+ lhsType + " and " + rhsType);
+		}
+	}
 
 	// int
 	public static int int_subtract_int(Object[] stack, int sp, int arity) {
@@ -3994,6 +5281,19 @@ public enum RascalPrimitive {
 	 * 		rel[&L,&L]  		-> rel[&L,&L]
 	 * }
 	 */
+	
+	public static int transitive_closure(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue lhs = (IValue) stack[sp - 1];
+		Type lhsType = lhs.getType();
+		if(lhsType.isListRelation()){
+			return lrel_transitive_closure(stack, sp, arity);
+		}
+		if(lhsType.isRelation()){
+			return rel_transitive_closure(stack, sp, arity);
+		}
+		throw new RuntimeException("transitive_closure: unexpectetype " + lhsType);
+	}
 
 	public static int lrel_transitive_closure(Object[] stack, int sp, int arity) {
 		assert arity == 1;
@@ -4012,6 +5312,19 @@ public enum RascalPrimitive {
 	/*
 	 * transitiveReflexiveClosure
 	 */
+	
+	public static int transitive_reflexive_closure(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		IValue lhs = (IValue) stack[sp - 1];
+		Type lhsType = lhs.getType();
+		if(lhsType.isListRelation()){
+			return lrel_transitive_reflexive_closure(stack, sp, arity);
+		}
+		if(lhsType.isRelation()){
+			return rel_transitive_reflexive_closure(stack, sp, arity);
+		}
+		throw new RuntimeException("transitive_closure: unexpectetype " + lhsType);
+	}
 	public static int lrel_transitive_reflexive_closure(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		IListRelation<IList> left = ((IList) stack[sp - 1]).asRelation();
@@ -4032,7 +5345,19 @@ public enum RascalPrimitive {
 	
 	public static int typeOf(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+		if(stack[sp - 1] instanceof HashSet<?>){	// For the benefit of set matching
+													// Move to muPrimitives?
+			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+			if(mset.isEmpty()){
+				stack[sp - 1] = tf.setType(tf.voidType());
+			} else {
+				IValue v = mset.iterator().next();
+				stack[sp - 1] =tf.setType(v.getType());
+			}
+			
+		} else {
+			stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+		}
 		return sp;
 	}
 	
@@ -4067,7 +5392,7 @@ public enum RascalPrimitive {
 	public static int tuple_update(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		ITuple tup = (ITuple) stack[sp - 3];
-		int n = ((IInteger) stack[sp -2]).intValue();
+		int n = ((IInteger) stack[sp - 2]).intValue();
 		stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
 		return sp - 2;
 	}
@@ -4078,15 +5403,15 @@ public enum RascalPrimitive {
 	
 	public static int loc_create(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		String uri = ((IString) stack[sp - 1]).getValue();
+		IString uri = ((IString) stack[sp - 1]);
 
 		try {
-			stack[sp - 1] =vf.sourceLocation(new URI(uri));
+			stack[sp - 1] =vf.sourceLocation(new URI(uri.getValue()));
+			return sp;
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw RuntimeExceptions.illegalArgument(uri, null, new ArrayList<Frame>());
 		}
-		return sp;
+		
 	}
 	
 	public static int loc_with_offset_create(Object[] stack, int sp, int arity) {
@@ -4103,7 +5428,7 @@ public enum RascalPrimitive {
 		int endLine = ((IInteger) end.get(0)).intValue();
 		int endCol = ((IInteger)  end.get(1)).intValue();
 		
-		stack[sp - arity] = vf.sourceLocation(loc.getURI(), offset, length, beginLine, endLine, beginCol, endCol);
+		stack[sp - arity] = vf.sourceLocation(loc, offset, length, beginLine, endLine, beginCol, endCol);
 		return sp - arity + 1;
 	}
 	
@@ -4206,7 +5531,7 @@ public enum RascalPrimitive {
 	 */
 
 	public static void main(String[] args) {
-		init(ValueFactoryFactory.getValueFactory(), null, null);
+		init(ValueFactoryFactory.getValueFactory(), null);
 		System.err.println("RascalPrimitives have been validated!");
 	}
 }

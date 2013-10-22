@@ -1,0 +1,23 @@
+\documentclass[]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{lmodern}
+
+\usepackage{rascal}
+\usepackage{listings}
+
+\begin{document}
+Right click on any rascal file, select experimental, Show as Latex. Then copy paste the generated latex into a rascal environment as follows.
+		
+Example 1	
+\begin{rascal}
+	\CAT{Keyword}{module} NewModule
+
+	\CAT{Comment}{@doc\{{}Example docs\}{}}
+	\CAT{Keyword}{data} X = answer(\CAT{Keyword}{int} fortyTwo);
+
+	\CAT{Keyword}{public} X getAnswer() = answer(42);
+\end{rascal}
+	
+\end{document}

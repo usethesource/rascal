@@ -14,6 +14,7 @@
 package org.rascalmpl.values;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -195,6 +196,25 @@ public class LocalSharingValueFactory implements IValueFactory{
 	@Override
 	public ISourceLocation sourceLocation(URI uri, int offset, int length){
 		return cachedSourceLocations.cache(valueFactory.sourceLocation(uri, offset, length));
+	}
+	@Override
+	public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
+		return cachedSourceLocations.cache(valueFactory.sourceLocation(loc, offset, length, beginLine, endLine, beginCol, endCol));
+	}
+
+	@Override
+	public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length) {
+		return cachedSourceLocations.cache(valueFactory.sourceLocation(loc, offset, length));
+	}
+
+	@Override
+	public ISourceLocation sourceLocation(String scheme, String authority, String path) throws URISyntaxException {
+		return cachedSourceLocations.cache(valueFactory.sourceLocation(scheme, authority, path));
+	}
+
+	@Override
+	public ISourceLocation sourceLocation(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException {
+		return cachedSourceLocations.cache(valueFactory.sourceLocation(scheme, authority, path, query, fragment));
 	}
 
 	@Override
@@ -602,6 +622,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public IMapWriter mapWriter(Type mapType) {
 		return new MapCachingWriter(this, valueFactory.mapWriter(mapType));
 	}
+
 
 	
 

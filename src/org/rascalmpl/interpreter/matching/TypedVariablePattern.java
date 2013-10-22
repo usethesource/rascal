@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -99,19 +100,31 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 				IConstructor tree = (IConstructor)subject.getValue();
 
 				NonTerminalType nt = (NonTerminalType)declaredType;
-				if (SymbolAdapter.isEqual(nt.getSymbol(), TreeAdapter.getType(tree))) {
-					if(anonymous) { 
-						return true;
-					}		
-					
-					ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
-					this.alreadyStored = true;
-					return true;
+				
+				IConstructor declaredSymbol = nt.getSymbol();
+				Type subjectNT = RascalTypeFactory.getInstance().nonTerminalType(tree);
+				
+				if(subjectNT.isSubtypeOf(nt)) {
+				  if(TreeAdapter.isList(tree)) {
+				    if(TreeAdapter.getArgs(tree).isEmpty()) {
+				      if(SymbolAdapter.isIterPlus(declaredSymbol)  || (SymbolAdapter.isIterPlusSeps(declaredSymbol))) {
+				        return false;
+				      }
+				    }
+				  }
+
+				  if(anonymous) { 
+				    return true;
+				  }		
+
+				  ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
+				  this.alreadyStored = true;
+				  return true;
 				}
 			}
 			return false;
 		}
-		
+
 		Type tmp;
 		if (subject.getValue().getType().isSubtypeOf(declaredType)) {
 			if(debug)System.err.println("matches");

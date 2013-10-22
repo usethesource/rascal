@@ -34,50 +34,54 @@ public enum ToplevelType {
 		this.toplevelType = n;
 	}
 	
-	public int getToplevelType(){
+	public int getToplevelTypeAsInt(){
 		return toplevelType;
 	}
 	
-	public static int getToplevelType(Type t){
+	public static ToplevelType getToplevelType(Type t){
 		// Composite types
 		if(t.isConstructor())
-			return CONSTRUCTOR.getToplevelType();
+			return CONSTRUCTOR;
 		if(t.isNode())
-			return NODE.getToplevelType();
+			return NODE;
 		if(t.isListRelation())
-			return LREL.getToplevelType();
+			return LREL;
 		if(t.isList())
-			return LIST.getToplevelType();
+			return LIST;
 		if(t.isMap())
-			return MAP.getToplevelType();
+			return MAP;
 		if(t.isRelation())
-			return REL.getToplevelType();
+			return REL;
 		if(t.isSet())
-			return SET.getToplevelType();
+			return SET;
 		if(t.isTuple())
-			return TUPLE.getToplevelType();
+			return TUPLE;
 		// Primitive types
 		if(t.isBool())
-			return BOOL.getToplevelType();
+			return BOOL;
 		if(t.isInteger())
-			return INT.getToplevelType();
+			return INT;
 		if(t.isReal())
-			return REAL.getToplevelType();
+			return REAL;
 		if(t.isRational())
-			return RAT.getToplevelType();
+			return RAT;
 		if(t.isNumber())
-			return NUM.getToplevelType();
+			return NUM;
 		if(t.isString())
-			return STR.getToplevelType();
+			return STR;
 		if(t.isSourceLocation())
-			return LOC.getToplevelType();
+			return LOC;
 		if(t.isDateTime())
-			return DATETIME.getToplevelType();
+			return DATETIME;
 		if(t.isTop())
-			return VALUE.getToplevelType();
+			return VALUE;
 		if(t.isBottom())
-			return VOID.getToplevelType();
+			return VOID;
 		
 		throw new RuntimeException("Unknown type: " + t);
+	}
+	
+	public static int getToplevelTypeAsInt(Type t){
+		return getToplevelType(t).getToplevelTypeAsInt();
 	}
 }
