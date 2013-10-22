@@ -91,7 +91,7 @@ public class GrammarToJigll {
 			return null;
 		}
 
-		parser = ParserFactory.levelParser(grammar, 30);
+		parser = ParserFactory.createLevelParser(grammar, 30);
 
 		log.info("Iguana started.");
 
@@ -149,7 +149,7 @@ public class GrammarToJigll {
 	}
 
 	public void generateGraph(IString path) {
-		parser = ParserFactory.levelParser(grammar, 30);
+		parser = ParserFactory.createLevelParser(grammar, 30);
 
 		NonterminalSymbolNode sppf;
 		try {
@@ -290,18 +290,18 @@ public class GrammarToJigll {
 			}
 		}
 		
-		IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
-		
-		Map<Nonterminal, Rule> regularExpressionRules = createRegularExpressionRules(regularExpressions);
-
-		for (Rule rule : regularExpressionRules.values()) {
-			builder.addRule(rule);
-		}
+//		IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
+//		
+//		Map<Nonterminal, Rule> regularExpressionRules = createRegularExpressionRules(regularExpressions);
+//
+//		for (Rule rule : regularExpressionRules.values()) {
+//			builder.addRule(rule);
+//		}
 		
 		for (Rule rule : rules) {
-			if(!regularExpressionRules.containsKey(rule.getHead())) {
+//			if(!regularExpressionRules.containsKey(rule.getHead())) {
 				builder.addRule(rule);
-			}
+//			}
 		}
 		
 		return builder;
