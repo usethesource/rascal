@@ -15,7 +15,7 @@ lexical Comment
 
 lexical Identifier = id: ( [_^@]?[A-Za-z][A-Za-z0-9_]* ) \ Keywords;
 lexical Integer =  [0-9]+;
-lexical Label = label: [$][A-Za-z][A-Za-z0-9]+ \ Keyword;
+lexical Label = label: [$][A-Za-z][A-Za-z0-9]+ \ Keywords;
 lexical FConst = fconst: ( [A-Za-z][A-Za-z0-9_]* ) \ Keywords; // [_][A-Za-z0-9]+;
 
 lexical StrChar = 
