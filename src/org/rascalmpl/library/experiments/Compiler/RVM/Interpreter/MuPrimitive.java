@@ -8,12 +8,14 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -32,6 +34,7 @@ public enum MuPrimitive {
 	equal_mint_mint,
 	equal,
 	equivalent_mbool_mbool,
+	get_name,
 	get_name_and_children,
 	get_tuple_elements,
 	greater_equal_mint_mint,
@@ -58,10 +61,21 @@ public enum MuPrimitive {
 	values_map,
 	less_equal_mint_mint,
 	less_mint_mint,
+	make_iarray,
+	make_iarray_of_size,
 	make_array,
 	make_array_of_size,
+	make_mset,
 	mint,
 	modulo_mint_mint,
+	mset,
+//	mset_copy,
+	mset2list,
+	mset_destructive_add_elm,
+	mset_destructive_add_mset,
+	mset_destructive_subtract_mset,
+	mset_destructive_subtract_set,
+	mset_destructive_subtract_elm,
 	not_equal_mint_mint,
 	not_mbool,
 	or_mbool_mbool,
@@ -71,12 +85,15 @@ public enum MuPrimitive {
 	regexp_compile,
 	regexp_find,
 	regexp_group,
+	set,
 	set2list,
 	size_array,
 	size_list,
 	size_set,
+	size_mset,
 	size_map,
 	size_tuple,
+	size,
 	starts_with,
 	sublist_list_mint_mint,
 	subscript_array_mint,
@@ -85,7 +102,9 @@ public enum MuPrimitive {
 	subtraction_mint_mint,
 	subtype,
 	typeOf,
-	product_mint_mint
+	product_mint_mint,
+	
+	typeOf_constructor
 	;
 	
 	private static IValueFactory vf;
@@ -251,6 +270,13 @@ public enum MuPrimitive {
 		stack[sp - 2] = (b1 == b2);
 		return sp - 1;
 	}
+	
+	public static int get_name(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		INode nd = (INode) stack[sp - 1];
+		stack[sp - 1] = vf.string(nd.getName());
+		return sp;
+	}
 		
 	public static int get_name_and_children(Object[] stack, int sp, int arity) {
 		assert arity == 1;
@@ -397,6 +423,25 @@ public enum MuPrimitive {
 		stack[sp - 1] = writer.done();
 		return sp;
 	}
+	
+	public static int make_iarray(Object[] stack, int sp, int arity) {
+		assert arity >= 0;
+		
+		IValue[] ar = new IValue[arity];
+		for(int i = arity - 1; i >= 0; i--) {
+			ar[i] = (IValue) stack[sp - arity + i];
+		}
+		sp = sp - arity + 1;
+		stack[sp - 1] = ar;
+		return sp;
+	}
+	
+	public static int make_iarray_of_size(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		int len = ((Integer) stack[sp - 1]);
+		stack[sp - 1] = new IValue[len];
+		return sp;
+	}
 		
 	public static int make_array(Object[] stack, int sp, int arity) {
 		assert arity >= 0;
@@ -410,7 +455,7 @@ public enum MuPrimitive {
 		stack[sp - 1] = ar;
 		return sp;
 	}
-		
+			
 	public static int make_array_of_size(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		int len = ((Integer)stack[sp - 1]);
@@ -522,6 +567,18 @@ public enum MuPrimitive {
 		stack[sp - 1] = writer.done();
 		return sp;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static int mset2list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		HashSet<IValue> mset =(HashSet<IValue>) stack[sp - 1];
+		IListWriter writer = vf.listWriter();
+		for(IValue elem : mset){
+			writer.append(elem);
+		}
+		stack[sp - 1] = writer.done();
+		return sp;
+	}
 		
 	public static int size_array(Object[] stack, int sp, int arity) {
 		assert arity == 1;
@@ -541,6 +598,12 @@ public enum MuPrimitive {
 		return sp;
 	}
 	
+	public static int size_mset(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((HashSet<?>) stack[sp - 1]).size();
+		return sp;
+	}
+	
 	public static int size_map(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((IMap) stack[sp - 1]).size();
@@ -550,6 +613,24 @@ public enum MuPrimitive {
 	public static int size_tuple(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
+		return sp;
+	}
+	
+	public static int size(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		if(stack[sp - 1] instanceof IConstructor) {
+			stack[sp - 1] = ((IConstructor) stack[sp - 1]).arity();
+		} else if(stack[sp - 1] instanceof INode) {
+			stack[sp - 1] = ((INode) stack[sp - 1]).arity();
+		} else if(stack[sp - 1] instanceof IList) {
+			stack[sp - 1] = ((IList) stack[sp - 1]).length();
+		} else if(stack[sp - 1] instanceof ISet) {
+			stack[sp - 1] = ((ISet) stack[sp - 1]).size();
+		} else if(stack[sp - 1] instanceof IMap) {
+			stack[sp - 1] = ((IMap) stack[sp - 1]).size();
+		} else if(stack[sp - 1] instanceof ITuple) {
+			stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
+		}
 		return sp;
 	}
 		
@@ -614,6 +695,18 @@ public enum MuPrimitive {
 		return sp;
 	}
 	
+	public static int typeOf_constructor(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		if(stack[sp - 1] instanceof Integer) {
+			stack[sp - 1] = TypeFactory.getInstance().integerType();
+		} else if(stack[sp - 1] instanceof IConstructor) {
+			stack[sp - 1] = ((IConstructor) stack[sp - 1]).getConstructorType();
+		} else {
+			stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+		}
+		return sp;
+	}
+	
 	public static int product_mint_mint(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((Integer) stack[sp - 2]) * ((Integer) stack[sp - 1]);
@@ -631,6 +724,101 @@ public enum MuPrimitive {
 		return sp;
 	}
 	
+	public static int mset(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		ISet set =  ((ISet) stack[sp - 1]);
+		HashSet<IValue> mset = new HashSet<IValue>(set.size());
+		for(IValue v : set){
+			mset.add(v);
+		}
+		stack[sp - 1] = mset;
+		return sp;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int mset_destructive_subtract_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+		mset = (HashSet<IValue>) mset.clone();
+		ISet set =  ((ISet) stack[sp - 1]);
+		for(IValue v : set){
+			mset.remove(v);
+		}
+		stack[sp - 2] = mset;
+		return sp - 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int mset_destructive_subtract_mset(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		HashSet<IValue> lhs = (HashSet<IValue>) stack[sp - 2];
+		//lhs =  (HashSet<IValue>) lhs.clone();
+		HashSet<IValue> rhs = (HashSet<IValue>) stack[sp - 1];
+	
+		lhs.removeAll(rhs);
+		stack[sp - 2] = lhs;
+		return sp - 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int mset_destructive_add_mset(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		HashSet<IValue> lhs = (HashSet<IValue>) stack[sp - 2];
+		//lhs =  (HashSet<IValue>) lhs.clone();
+		HashSet<IValue> rhs = (HashSet<IValue>) stack[sp - 1];
+		lhs.addAll(rhs);
+		stack[sp - 2] = lhs;
+		return sp - 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int mset_destructive_subtract_elm(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+		//mset =  (HashSet<IValue>)  mset.clone();
+		IValue elm =  ((IValue) stack[sp - 1]);
+		mset.remove(elm);
+		stack[sp - 2] = mset;
+		return sp - 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int mset_destructive_add_elm(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+		IValue elm =  ((IValue) stack[sp - 1]);
+		mset.add(elm);
+		stack[sp - 2] = mset;
+		return sp - 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int set(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+		ISetWriter w = vf.setWriter();
+		for(IValue v : mset){
+			w.insert(v);
+		}
+		stack[sp - 1] = w.done();
+		return sp;
+	}
+	
+	public static int make_mset(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		HashSet<IValue> mset = new HashSet<IValue>();
+		stack[sp] = mset;
+		return sp + 1;
+	}
+	
+//	@SuppressWarnings("unchecked")
+//	public static int mset_copy(Object[] stack, int sp, int arity) {
+//		assert arity == 1;
+//		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+//		stack[sp - 1] = mset.clone();
+//		return sp;
+//	}
+			
 	/*
 	 * Run this class as a Java program to compare the list of enumeration constants with the implemented methods in this class.
 	 */

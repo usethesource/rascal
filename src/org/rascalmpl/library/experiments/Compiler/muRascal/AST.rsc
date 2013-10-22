@@ -17,7 +17,8 @@ public data MuModule =
                                  list[MuVariable] variables, 
                                  list[MuExp] initialization,
                                  map[str,int] resolver,
-                                 lrel[str,list[str],list[str]] overloaded_functions)
+                                 lrel[str,list[str],list[str]] overloaded_functions,
+                                 map[Symbol, Production] grammar)
             ;
           
 // All information related to a function declaration. This can be a top-level
@@ -66,6 +67,7 @@ public data MuExp =
           
           | muLocRef(str name, int pos) 				        // Call-by-reference: expression that returns a value location
           | muVarRef(str name, str fuid, int pos)
+          | muTmpRef(str name)
              
           | muTypeCon(Symbol tp)								// Type constant
           
@@ -73,10 +75,11 @@ public data MuExp =
           | muCall(MuExp fun, list[MuExp] args)					// Call a *muRascal function
           
           | muOCall(MuExp fun, list[MuExp] args)                // Call a declared *Rascal function
-          | muOCall(MuExp fun, set[Symbol] types,               // Call a dynamic *Rascal function
+          | muOCall(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function
           					   list[MuExp] args)
           
           | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
+          | muCallPrim(str name)                                // Call a Rascal primitive function (with empty list of arguments)
           | muCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
           | muCallJava(str name, str class, 
@@ -85,6 +88,7 @@ public data MuExp =
  
           | muReturn()											// Return from function without value
           | muReturn(MuExp exp)									// Return from function with value
+          | muFilterReturn()									// Return for filer statement
               
            // Assignment, If and While
               

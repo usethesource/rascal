@@ -145,22 +145,16 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 				if (SymbolAdapter.isSepList(declaredListType) == SymbolAdapter.isSepList(subjectListType)) {
 					if (SymbolAdapter.getSymbol(subjectListType).equals(SymbolAdapter.getSymbol(declaredListType))) {
 						ctx.getCurrentEnvt().storeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
+						
+						return true;
 					}
 				}
 			}
 			
-//			if (ProductionAdapter.getRhs(TreeAdapter.getProduction(subjectTree)).isEqual(declaredType.getSymbol())) {
-//				ctx.getCurrentEnvt().storeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
-//			}
-			if (debug)
-				System.err.println("matches");
-			return true;
+			return false;
 		}
 		
-// 		if (debug)
-//			System.err.println("no match");
-//		 return false;
-		return true;
+		return false;
 	}
 
 

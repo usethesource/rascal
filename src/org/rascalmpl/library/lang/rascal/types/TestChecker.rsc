@@ -22,7 +22,7 @@ import lang::rascal::types::TypeSignature;
 import lang::rascal::checker::ParserHelper;
 import lang::rascal::types::CheckTypes;
 
-public CheckResult checkStatementsString(str statementsString, list[str] importedModules = [], list[str] initialDecls = []) {
+public CheckResult checkStatementsString(str statementsString, list[str] importedModules = [], list[str] initialDecls = [], list[str] syntaxDecls = []) {
 	// Convert the string representations of the module name into
 	// the internal name format we use for Rascal qualified names.
 	list[RName] imports = [ ];
@@ -121,7 +121,27 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 
 	// Enter the context for the current module.
 	c.stack = currentModuleId + c.stack;
-	
+
+	// Process syntax declarations.
+	list[Tree] sdecls = [ ];
+	for (d <- syntaxDecls) {
+		try {
+			sdecls += parseSyntaxDeclaration(d);
+		} catch perror : {
+			c = addScopeError(c, "Cannot parse syntax declaration <d>", |file:///tmp/CheckStatementsString.rsc|);
+		}
+	}
+
+	syntaxConfig = processSyntax(moduleName, sdecls);
+	for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals)
+		c = importNonterminal(item.sortName, item.sort, item.at, c);
+	for (prodItem <- syntaxConfig.publicProductions) {
+		// First, resolve names in the productions
+		<p,c> = resolveProduction(prodItem.prod, prodItem.at, c, false);
+		prodItem.prod = p;
+		c = importProduction(prodItem, c);
+	}
+
 	// Process the declarations. These are assumed to be at the module
 	// level for the artificial module we are working in. To avoid
 	// order dependencies, we process these just like normal declarations,

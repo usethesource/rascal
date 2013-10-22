@@ -9,6 +9,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module Relation
 
+import Exception;
 import Set;
 
 @doc{

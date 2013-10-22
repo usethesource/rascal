@@ -1,9 +1,13 @@
 module util::LOC
 
+import Exception;
+import Message;
 import ParseTree;
 import util::Math;
 import List;
 import IO;
+import util::FileSystem;
+import util::Reflective;
 
 
 /*

@@ -39,23 +39,25 @@ default MuExp makeMuOne(exp) = muOne(exp);
 
 bool isContainerType(str t) = t in {"list", "map", "set", "rel", "lrel"};
 
-MuExp infix(str op, Expression e){
-  lot = getOuterType(e.lhs);
-  rot = getOuterType(e.rhs);
-  if(lot == "value" || rot == "value"){
-     return muCallPrim("<op>", [*translate(e.lhs), *translate(e.rhs)]);
+bool areCompatibleContainerTypes({"list", "lrel"}) = true;
+bool areCompatibleContainerTypes({"set", "rel"}) = true;
+bool areCompatibleContainerTypes({str c}) = true;
+default bool areCompatibleContainerTypes(set[str] s) = false;
+
+
+str typedInfixOp(str lot, str op, str rot) {
+  if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter"){
+     return op;
   }
   if(isContainerType(lot))
-     if(isContainerType(rot))
-       return muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
-     else
-       return muCallPrim("<lot>_<op>_elm", [*translate(e.lhs), *translate(e.rhs)]);
+     return areCompatibleContainerTypes({lot, rot}) ? "<lot>_<op>_<rot>" : "<lot>_<op>_elm";
   else
-    if(isContainerType(rot))
-       return muCallPrim("elm_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
-     else
-       return muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
+     return isContainerType(rot) ? "elm_<op>_<rot>" : "<lot>_<op>_<rot>";
 }
+
+MuExp infix(str op, Expression e) = 
+  muCallPrim(typedInfixOp(getOuterType(e.lhs), op, getOuterType(e.rhs)), 
+             [*translate(e.lhs), *translate(e.rhs)]);
 
 MuExp infix_elm_left(str op, Expression e){
    rot = getOuterType(e.rhs);
@@ -85,6 +87,7 @@ set[str] numeric = {"int", "real", "rat", "num"};
 MuExp comparison(str op, Expression e) {
   lot = getOuterType(e.lhs);
   rot = getOuterType(e.rhs);
+  println("comparison: op = <op>, lot = <lot>, rot = <rot>");
   if(lot == "value" || rot == "value"){
      lot = ""; rot = "";
   } else {
@@ -153,13 +156,14 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
 }
 
 // Visit
-MuExp translate (e:(Expression) `<Label label> <Visit \visit>`) = translateVisit(label, \visit);
+MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translateVisit(label, visitItself);
 
 // Reducer
 MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`) = translateReducer(init, result, generators);
 
 // Reified type
 MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) { throw("reifiedType"); }
+//  muCon(symbolToValue(symbol, config));
 
 // Call
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
@@ -222,7 +226,9 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
       throw "The use of a function has to be managed via overloading resolver!";
    }
    // Push down additional information if the overloading resolution needs to be done at runtime
-   return muOCall(receiver, isFunctionType(ftype) ? { ftype } : (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), args);
+   return muOCall(receiver, 
+   				  isFunctionType(ftype) ? Symbol::\tuple([ ftype ]) : Symbol::\tuple([ t | Symbol t <- getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype) ]), 
+   				  args);
 }
 
 // Any
@@ -366,9 +372,11 @@ MuExp translate(e:(Expression) `-<Expression argument>`)    = prefix("negative",
 MuExp translate(e:(Expression) `*<Expression argument>`) {
     throw "Splice cannot occur outside set or list";
 }
-
+   
 // AsType
-MuExp translate(e:(Expression) `[ <Type \type> ] <Expression argument>`)  { throw("asType"); }
+MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
+   muCallPrim("parse", [muCon(getModuleName()), muCon(type(symbolToValue(translateType(typ), config).symbol,getGrammar(config))), translate(argument)]);
+   
 
 // Composition
 MuExp translate(e:(Expression) `<Expression lhs> o <Expression rhs>`)   = infix_rel_lrel("compose", e);
@@ -430,10 +438,10 @@ MuExp translate(e:(Expression) `<Expression lhs> != <Expression rhs>`)  = compar
 
 
 // NoMatch
-MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`)  = translateBool(e);
+MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`)  = translateMatch(e);
 
 // Match
-MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = translateBool(e);
+MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = translateMatch(e);
 
 // Enumerate
 
@@ -506,11 +514,11 @@ MuExp translateBool((Expression) `<Expression lhs> \<==\> <Expression rhs>`) = t
 
 MuExp translateBool((Expression) `! <Expression lhs>`) = translateBoolNot(lhs);
  
- MuExp translateBool((Expression) `<Pattern pat> := <Expression exp>`)  =
-   muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]));
+ MuExp translateBool(e: (Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(e);
+//   muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]));
    
-MuExp translateBool((Expression) `<Pattern pat> !:= <Expression exp>`) =
-    muCallMuPrim("not_mbool", [makeMuAll([muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]))]) ]);
+MuExp translateBool(e: (Expression) `<Pattern pat> !:= <Expression exp>`) = translateMatch(e);
+//    muCallMuPrim("not_mbool", [makeMuAll([muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]))]) ]);
 
 // All other expressions are translated as ordinary expression
 
@@ -747,6 +755,9 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
  MuExp translateClosure(Expression e, Parameters parameters, Statement+ statements) {
  	uid = loc2uid[e@\loc];
 	fuid = uid2str(uid);
+	
+	enterFunctionScope(fuid);
+	
     ftype = getClosureType(e@\loc);
 	nformals = size(ftype.parameters);
 	nlocals = getScopeSize(fuid);
@@ -757,6 +768,9 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
     tuple[str fuid,int pos] addr = uid2addr[uid];
     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  nformals, nlocals, e@\loc, [], (), body);
+  	
+  	leaveFunctionScope();								  
+  	
 	return (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid); // closures are not overloaded
 }
 
@@ -770,13 +784,24 @@ MuExp translateGenerators({Expression ","}+ generators){
    }
 }
 
+list[MuExp] translateComprehensionContribution(str kind, str tmp, list[Expression] results){
+  return 
+	  for( r <- results){
+	    if((Expression) `* <Expression exp>` := r){
+	       append muCallPrim("<kind>writer_splice", [muTmp(tmp), translate(exp)]);
+	    } else {
+	      append muCallPrim("<kind>writer_add", [muTmp(tmp), translate(r)]);
+	    }
+	  }
+} 
+
 MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ results> | <{Expression ","}+ generators> ]`) {
     loopname = nextLabel(); 
     tmp = asTmp(loopname);
     return
     muBlock(
     [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])),
-      muWhile(loopname, makeMuAll([translate(g) | g <-generators]), [muCallPrim("listwriter_add", [muTmp(tmp)] + [ translate(r) | r <- results])]), 
+      muWhile(loopname, makeMuAll([translate(g) | g <-generators]), translateComprehensionContribution("list", tmp, [r | r <- results])),
       muCallPrim("listwriter_close", [muTmp(tmp)]) 
     ]);
 }
@@ -787,7 +812,7 @@ MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ results> |
     return
     muBlock(
     [ muAssignTmp(tmp, muCallPrim("setwriter_open", [])),
-      muWhile(loopname, makeMuAll([translate(g) | g <-generators]), [muCallPrim("setwriter_add", [muTmp(tmp)] + [ translate(r) | r <- results])]), 
+      muWhile(loopname, makeMuAll([translate(g) | g <-generators]), translateComprehensionContribution("set", tmp, [r | r <- results])),
       muCallPrim("setwriter_close", [muTmp(tmp)]) 
     ]);
 }
@@ -850,5 +875,114 @@ MuExp translateSlice(Expression expression, OptionalExpression optFirst, Express
     muCallPrim("<getOuterType(expression)>_slice", [  translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast) ]);
 
 // Translate Visit
+MuExp translateVisit(label,\visit) {
+	MuExp traverse_fun;
+	bool fixpoint = false;
+	
+	if(\visit is defaultStrategy) {
+		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",4);
+	} else {
+		switch("<\visit.strategy>") {
+			case "bottom-up"      :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",      4);
+			case "top-down"       :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN",       4);
+			case "bottom-up-break":   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK",4);
+			case "top-down-break" :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK", 4);
+			case "innermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",      4); fixpoint = true; }
+			case "outermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN",       4); fixpoint = true; }
+		}
+	}
+	
+	bool rebuild = false;
+	if( Case c <- \visit.cases, (c is patternWithAction && c.patternWithAction is replacing 
+									|| hasTopLevelInsert(c)) ) {
+		println("Rebuilding visit!");
+		rebuild = true;
+	}
+	
+	// Unique 'id' of a visit in the function body
+	int i = nextVisit();
+	
+	// Generate and add a nested function 'phi'
+	str scopeId = topFunctionScope();
+	str phi_fuid = scopeId + "/" + "phi_<i>";
+	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value()]);
+	
+	enterVisit();	
+	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 2, 2, \visit@\loc, [], (), 
+										translateVisitCases([ c | Case c <- \visit.cases ]));
+	leaveVisit();
+	
+	if(fixpoint) {
+		str phi_fixpoint_fuid = scopeId + "/" + "phi_fixpoint_<i>";
+		
+		list[MuExp] body = [];
+		body += muAssignLoc("changed", 2, muBool(true));
+		body += muWhile(nextLabel(), muLoc("changed",2), 
+						[ muAssignLoc("val", 3, muCall(muFun(phi_fuid,scopeId), [ muLoc("subject",0), muLoc("matched",1) ])),
+						  muIfelse(nextLabel(), muCallPrim("equal",[ muLoc("val",3), muLoc("subject",0) ]),
+						  						[ muAssignLoc("changed",2, muBool(false)) ], [ muAssignLoc("subject",0, muLoc("val",3)) ] )]);
+		body += muReturn(muLoc("subject",0));
+		
+		functions_in_module += muFunction(phi_fixpoint_fuid, phi_ftype, scopeId, 2, 4, \visit@\loc, [], (), muBlock(body));
+	
+		str hasMatch = asTmp(nextLabel());
+		return muBlock([ muAssignTmp(hasMatch, muBool(false)), 
+					 	 muCall(traverse_fun, [ muFun(phi_fixpoint_fuid,scopeId), translate(\visit.subject), muTmpRef(hasMatch), muBool(rebuild) ]) 
+				   	   ]);
+	}
+	
+	str hasMatch = asTmp(nextLabel());
+	return muBlock([ muAssignTmp(hasMatch, muBool(false)), 
+					 muCall(traverse_fun, [ muFun(phi_fuid,scopeId), translate(\visit.subject), muTmpRef(hasMatch), muBool(rebuild) ]) 
+				   ]);
+}
 
-MuExp translateVisit(label, \visit) { throw "visit"; }
+@doc{Generates the body of a phi function}
+MuExp translateVisitCases(list[Case] cases) {
+	// TODO: conditional
+	if(size(cases) == 0) {
+		return muReturn(muLoc("subject",0));
+	}
+	
+	c = head(cases);
+	
+	if(c is patternWithAction) {
+		pattern = c.patternWithAction.pattern;
+		typePat = getType(pattern@\loc);
+		cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ translatePat(pattern), muLoc("subject",0) ]));
+		ifname = nextLabel();
+		enterBacktrackingScope(ifname);
+		if(c.patternWithAction is replacing) {
+			replacement = translate(c.patternWithAction.replacement.replacementExpression);
+			replacementType = getType(c.patternWithAction.replacement.replacementExpression@\loc);
+			tcond = muCallPrim("subtype", [ muTypeCon(replacementType), muCallPrim("typeOf", [ muLoc("subject",0) ]) ]);
+        	exp = muIfelse(ifname, muAll([cond,tcond]), [ muReturn(muBlock([ muAssignLocDeref("matched", 1, muBool(true)), replacement ])) ], [ translateVisitCases(tail(cases)) ]);
+        	leaveBacktrackingScope();
+        	return exp;
+		} else {
+			// Arbitrary
+			statement = c.patternWithAction.statement;
+			\case = translate(statement);
+			insertType = topCaseType();
+			clearCaseType();
+			tcond = muCallPrim("subtype", [ muTypeCon(insertType), muCallPrim("typeOf", [ muLoc("subject",0) ]) ]);
+			exp = muIfelse(ifname, muAll([cond,tcond]), [ muAssignLocDeref("matched", 1, muBool(true)), \case, muReturn(muLoc("subject",0)) ],
+												  [ translateVisitCases(tail(cases)) ]);
+        	leaveBacktrackingScope();
+			return exp;
+		}
+	} else {
+		// Default
+		return muBlock([ muAssignLocDeref("matched", 1, muBool(true)), translate(c.statement), muReturn(muLoc("subject",0)) ]);
+	}
+}
+
+private bool hasTopLevelInsert(Case c) {
+	println("Look for an insert...");
+	top-down-break visit(c) {
+		case (Statement) `insert <DataTarget dt> <Statement stat>`: return true;
+		case Visit v: ;
+	}
+	println("Insert has not been found, non-rebuilding visit!");
+	return false;
+}

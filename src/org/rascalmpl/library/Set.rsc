@@ -11,6 +11,7 @@
 
 module Set
 
+import Exception;
 import List;
 import util::Math;
 

@@ -19,7 +19,8 @@ public data RVMProgram = rvm(str name,
                              map[str, Declaration] declarations, 
                              list[Instruction] initialization, 
                              map[str,int] resolver, 
-                             lrel[str,list[str],list[str]] overloaded_functions);
+                             lrel[str,list[str],list[str]] overloaded_functions,
+                             map[Symbol, Production] grammar);
 
 data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
@@ -57,7 +58,7 @@ data Instruction =
 		| CALLCONSTR(str fuid, int arity)			// Call a constructor
 		
 		| OCALL(str fuid, int arity)				// Call a named *Rascal* function
-		| OCALLDYN(int arity)						// Call a *Rascal* function on stack
+		| OCALLDYN(Symbol types, int arity)			// Call a *Rascal* function on stack
 		
 		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive)
 		| CALLPRIM(str name, int arity)				// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
@@ -67,6 +68,7 @@ data Instruction =
 		| RETURN0()									// Return from function without value
 		| RETURN1()									// Return from function with value
 		| FAILRETURN()								// Failure return from function
+		| FILTERRETURN()							// Return for filter statement
 		
 		| THROW()                                   // Throws a value
 		
