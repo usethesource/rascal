@@ -1,6 +1,6 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
-import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-@SuppressWarnings({"rawtypes", "deprecation"})
 public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -47,7 +46,6 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected static org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE;
 	protected CompilationUnit compilUnit;
 	protected ISourceLocation loc;
-	protected String project;
 	
 	protected final BindingsResolver bindingsResolver;
 	protected final boolean collectBindings;
@@ -70,65 +68,65 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	
 	public void set(ISourceLocation loc) {
 		this.loc = loc;
-    bindingsResolver.setProject(loc.getURI().getAuthority());
 	}
 	
 	protected ISourceLocation resolveBinding(String packageComponent) {
-		URI packageBinding = new BindingsResolver(typeStore, this.collectBindings) {
-			public URI resolveBinding(String packageC) {
-				this.setProject(loc.getURI().getAuthority());
-				if (collectBindings) {
-					return convertBinding("java+package", packageC, null, null);
+		ISourceLocation packageBinding = new BindingsResolver(typeStore, this.collectBindings) {
+			public ISourceLocation resolveBinding(String packageC) {
+				try {
+					if (collectBindings) {
+						if (EclipseJavaCompiler.cache.containsKey(packageC)) {
+							return EclipseJavaCompiler.cache.get(packageC);
+						}
+						return values.sourceLocation("java+package", null, packageC);
+					}
+					return values.sourceLocation("unknown", null, null);
+				} catch (URISyntaxException e) {
+					throw new RuntimeException("Should not happen", e);
 				}
-				return convertBinding("unknown", null, null, null);
 			}
 		}.resolveBinding(packageComponent);
-		
-		return values.sourceLocation(packageBinding);
+		EclipseJavaCompiler.cache.put(packageComponent, packageBinding);
+		return packageBinding;
 	}
 	
 	protected ISourceLocation resolveBinding(CompilationUnit node) {
-		URI compilationUnit = new BindingsResolver(typeStore, true) {
-			public URI resolveBinding(CompilationUnit node) {
-			  this.setProject(loc.getURI().getAuthority());
-				return convertBinding("java+compilationUnit", loc.getURI().getPath(), null, null);
+		ISourceLocation compilationUnit = new BindingsResolver(typeStore, true) {
+			public ISourceLocation resolveBinding(CompilationUnit node) {
+				return convertBinding("java+compilationUnit", loc.getAuthority(), loc.getURI().getPath());
 			}
 		}.resolveBinding(node);
 		
-		return values.sourceLocation(compilationUnit);
+		return compilationUnit;
 	}
 	
 	protected ISourceLocation resolveBinding(IBinding binding) {
-		URI resolvedBinding = bindingsResolver.resolveBinding(binding);
-		return values.sourceLocation(resolvedBinding);
+		ISourceLocation resolvedBinding = bindingsResolver.resolveBinding(binding);
+		if (binding != null)
+			EclipseJavaCompiler.cache.put(binding.getKey(), resolvedBinding);
+		return resolvedBinding;
 	}
 	
 	protected ISourceLocation resolveDeclaringClass(IBinding binding) {
-		URI resolvedBinding;
+		ISourceLocation resolvedBinding;
 		if (binding instanceof ITypeBinding) {
-      resolvedBinding = bindingsResolver.resolveBinding(((ITypeBinding) binding).getDeclaringClass());
-    } else if (binding instanceof IMethodBinding) {
-      resolvedBinding = bindingsResolver.resolveBinding(((IMethodBinding) binding).getDeclaringClass());
-    } else if (binding instanceof IVariableBinding) {
-      resolvedBinding = bindingsResolver.resolveBinding(((IVariableBinding) binding).getDeclaringClass());
-    } else {
+		  resolvedBinding = bindingsResolver.resolveBinding(((ITypeBinding) binding).getDeclaringClass());
+		} else if (binding instanceof IMethodBinding) {
+		  resolvedBinding = bindingsResolver.resolveBinding(((IMethodBinding) binding).getDeclaringClass());
+		} else if (binding instanceof IVariableBinding) {
+		  resolvedBinding = bindingsResolver.resolveBinding(((IVariableBinding) binding).getDeclaringClass());
+		} else {
 			binding = null;
 			resolvedBinding = bindingsResolver.resolveBinding(binding);
 		}
-		return values.sourceLocation(resolvedBinding);
+		return resolvedBinding;
 	}
 	
 	protected ISourceLocation resolveBinding(ASTNode node) {
 		if (node instanceof CompilationUnit) {
-      return resolveBinding((CompilationUnit) node);
-    }
-		URI binding = bindingsResolver.resolveBinding(node);
-		
-		if (binding != null) {
-		  return values.sourceLocation(binding);
+			return resolveBinding((CompilationUnit) node);
 		}
-		
-		return null;
+		return bindingsResolver.resolveBinding(node);
 	}
 	
 	protected ISourceLocation getSourceLocation(ASTNode node) {
@@ -145,16 +143,16 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 					end = start + nodeLength - 1;
 				}
 		
-				return values.sourceLocation(loc.getURI(), 
+				return values.sourceLocation(loc, 
 						 start, nodeLength, 
 						 compilUnit.getLineNumber(start), compilUnit.getLineNumber(end), 
 						 // TODO: only adding 1 at the end seems to work, need to test.
 						 compilUnit.getColumnNumber(start), compilUnit.getColumnNumber(end)+1);
 			}
 		} catch (IllegalArgumentException e) {
-			System.out.println("Most probably missing dependency");
+			System.err.println("Most probably missing dependency");
 		}
-		return values.sourceLocation(loc.getURI(), 0, 0, 0, 0, 0, 0);
+		return values.sourceLocation(loc, 0, 0, 0, 0, 0, 0);
 	}
 	
 	protected IValue[] removeNulls(IValue... withNulls) {
@@ -181,6 +179,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		return extendedModifierList;
 	}
 	
+	@SuppressWarnings({"rawtypes"})
 	protected IValueList parseExtendedModifiers(List ext) {
 		IValueList extendedModifierList = new IValueList(values);
 	
@@ -195,6 +194,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		return extendedModifierList;
 	}
 	
+	@SuppressWarnings("deprecation")
 	protected IValueList parseExtendedModifiers(BodyDeclaration node) {
 		if (node.getAST().apiLevel() == AST.JLS2) {
 			return parseModifiers(node.getModifiers());
@@ -267,21 +267,21 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		IValueList result = new IValueList(values);
 		
 		int i;
+
 		IProblem[] problems = compilUnit.getProblems();
 		for (i = 0; i < problems.length; i++) {
 			int offset = problems[i].getSourceStart();
 			int length = problems[i].getSourceEnd() - offset + 1;
 			int sl = problems[i].getSourceLineNumber();
-			ISourceLocation pos = values.sourceLocation(loc.getURI(), offset, length, sl, sl, 0, 0);
+			ISourceLocation pos = values.sourceLocation(loc, offset, length, sl, sl, 0, 0);
 			org.eclipse.imp.pdb.facts.type.Type constr;
 			if (problems[i].isError()) {
-        constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "error", args);
-      } else {
-        constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "warning", args);
-      }
+				constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "error", args);
+			} else {
+				constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "warning", args);
+			}
 			result.add(values.constructor(constr, values.string(problems[i].getMessage()), pos));
 		}
-		
-		setAnnotation("messages", result.asList());
+		setAnnotation("messages", result);
 	}
 }
