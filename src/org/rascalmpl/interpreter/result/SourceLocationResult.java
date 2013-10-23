@@ -212,8 +212,11 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		// now the calculated fields
 		case "parent": {
 			String path = value.hasPath() ? value.getPath() : "";
-			if (path.equals("")) {
+			if (path.equals("") || path.equals("/")) {
 				throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
+			}
+			if (path.endsWith("/")) {
+				path = path.substring(0, path.length() -1);
 			}
 			int i = path.lastIndexOf((int)'/');
 			if (i != -1) {
@@ -329,8 +332,8 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
 		try {
 			String newStringValue = null;
-			if (repl.getValue() instanceof IString) {
-				newStringValue = ((IString) repl.getValue()).getValue();
+			if (replType.isString()) {
+				newStringValue = ((IString)replValue).getValue();
 			}
 			if (name.equals("uri")) {
 				if (!replType.isString()) {
