@@ -215,7 +215,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			if (path.equals("") || path.equals("/")) {
 				throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 			}
-			if (path.endsWith("/")) {
+			while (path.endsWith("/")) {
 				path = path.substring(0, path.length() -1);
 			}
 			int i = path.lastIndexOf((int)'/');
