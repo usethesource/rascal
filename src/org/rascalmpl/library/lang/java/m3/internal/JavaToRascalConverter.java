@@ -282,6 +282,6 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 			}
 			result.add(values.constructor(constr, values.string(problems[i].getMessage()), pos));
 		}
-		setAnnotation("messages", result);
+		setAnnotation("messages", result.asList());
 	}
 }
