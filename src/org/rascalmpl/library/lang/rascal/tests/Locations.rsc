@@ -20,8 +20,9 @@ test bool canChangeScheme(loc l, str s) { l.scheme = createValidScheme(s); retur
 test bool canChangeAuthority(loc l, str s) = (l[authority = s]).authority ==  s;
 test bool canChangeAuthority(loc l, str s) { l.authority = s; return l.authority ==  s; }
 
-test bool canChangePath(loc l, str s) = (l[path = s]).path ==  (startsWith(s,"/") ? s : "/" + s);
-test bool canChangePath(loc l, str s) { l.path = s; return l.path ==  (startsWith(s,"/") ? s : "/" + s); }
+str fixPath(str s) = visit (s)  { case /\/\/+/ => "/" };
+test bool canChangePath(loc l, str s) = (l[path = s]).path ==  fixPath(startsWith(s,"/") ? s : "/" + s);
+test bool canChangePath(loc l, str s) { l.path = s; return l.path ==  fixPath(startsWith(s,"/") ? s : "/" + s); }
 
 test bool canChangeQuery(loc l, str s) = (l[query = s]).query ==  s;
 test bool canChangeQuery(loc l, str s) { l.query = s; return l.query ==  s; }
@@ -50,14 +51,8 @@ test bool validURIFragment(loc l, str s) = l[fragment = s].uri != "";
 test bool pathAdditions(list[str] ss) = (|tmp:///ba| | it + s  | s <- ss, s != "" ).path == ("/ba" | it + "/" + s  | s <- ss, s != "" );
 test bool pathAdditions(loc l, str s) = (l + s).path == ((endsWith(l.path, "/") ? l.path : l.path + "/") + s) || s == "";
 
-str fixPath(str s) {
-	while (endsWith(s, "/")) {
-		s = s[..-1];
-	}
-	return s;
-}
-test bool testParent(loc l, str s) = s == "" || ((l + replaceAll(s, "/","_")).parent + "/") == (l[path=fixPath(l.path)] + "/");
-
+test bool testParent(loc l, str s) = s == "" || ((l + replaceAll(s, "/","_")).parent + "/") == (l[path=l.path] + "/");
+test bool testWindowsParent(str s) = s == "" || (|file:///c:/| + replaceAll(s,"/","_")).parent == |file:///c:/|;
 test bool testFile(loc l, str s) {
 	s = replaceAll(s, "/","_");
 	return (l + s).file == s;

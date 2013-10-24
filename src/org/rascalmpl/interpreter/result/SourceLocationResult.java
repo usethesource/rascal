@@ -216,15 +216,18 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 			}
 			// remove one or more /'s at the end
-			while (path.endsWith("/")) {
+			if (path.endsWith("/")) {
 				path = path.substring(0, path.length() -1);
 			}
 			int i = path.lastIndexOf((int)'/');
 			if (i != -1) {
 				path = path.substring(0, i);
-				// remove possible duplicate /'s at the end 
-				while (path.endsWith("/")) {
-					path = path.substring(0, path.length() -1);
+				if (value.getScheme().equalsIgnoreCase("file")) {
+					// there is a special case for file references to windows paths.
+					// the root path should end with a / (c:/ not c:)
+					if (path.lastIndexOf((int)'/') == 0 && path.endsWith(":")) {
+						path += "/";
+					}
 				}
 				return fieldUpdate("path", makeResult(tf.stringType(), vf.string(path), ctx), store);
 			}
