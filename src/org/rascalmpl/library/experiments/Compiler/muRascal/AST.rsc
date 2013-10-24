@@ -130,6 +130,11 @@ public data MuExp =
           | muYield()											// Yield from coroutine, without value
           | muYield(MuExp exp)									// Yield from coroutine, with value
           
+          | muTerminate()                                       // Terminate (return with no possibility of further resumption) 
+          														// from a coroutine without a value
+          | muTerminate(MuExp exp)                              // Terminate from a coroutine with a single value
+          | muTerminate(list[MuExp] exps)                       // Terminate from a coroutine with multiple values
+          
            // Multi-expressions
           
           | muBlock(list[MuExp] exps)  							// A list of expressions, only last value remains

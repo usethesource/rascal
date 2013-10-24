@@ -87,6 +87,7 @@ data Instruction =
 		| NEXT1()									// Next operation (with argument) on co-routine on top-of-stack
 		| YIELD0()									// Yield from co-routine without value
 		| YIELD1()									// Yield from co-routine with value
+		| TERMINATE(int arity)                      // Terminate from a coroutine with potentially none or multiple arguments 
 		
 		| PRINTLN(int arity)						// Print arity values on the stack (TODO: may disappear)
 		
