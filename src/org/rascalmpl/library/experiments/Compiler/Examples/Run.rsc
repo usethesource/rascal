@@ -53,6 +53,7 @@ import experiments::Compiler::Examples::Visit7;
 import experiments::Compiler::Examples::Visit8;
 import experiments::Compiler::Examples::Visit9;
 import experiments::Compiler::Examples::Visit10;
+import experiments::Compiler::Examples::Visit11;
 
 import experiments::Compiler::Examples::IMP3;
 
@@ -115,6 +116,7 @@ test bool tst7()  = demo("Visit7")  == experiments::Compiler::Examples::Visit7::
 test bool tst8()  = demo("Visit8")  == experiments::Compiler::Examples::Visit8::main([]);
 test bool tst9()  = demo("Visit9")  == experiments::Compiler::Examples::Visit9::main([]);
 test bool tst10() = demo("Visit10") == experiments::Compiler::Examples::Visit10::expectedResult;
+test bool tst11() = demo("Visit11") == experiments::Compiler::Examples::Visit11::main([]);
 
 // Overloading resolution & imports
 test bool tst() = demo("IMP3") == experiments::Compiler::Examples::IMP3::main([]);
