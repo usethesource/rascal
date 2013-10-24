@@ -1066,6 +1066,36 @@ public class RVM {
 					stack[sp++] = rval;	 								// Corresponding next will always find an entry on the stack
 					continue;
 					
+				case Opcode.OP_TERMINATE:
+					arity = instructions[pc++];
+					
+					// Terminate with no arguments returns FALSE
+					rval = (arity == 0) ? Rascal_FALSE : Rascal_TRUE;
+					
+					int nformals = cf.function.nformals;
+					for(int i = 0; i < arity; i++) {
+						ref = (Reference) stack[nformals - 1 - i];
+						ref.stack[ref.pos] = stack[--sp];
+					}
+					
+					// if the current frame is the frame of a top active coroutine, 
+					// then pop this coroutine from the stack of active coroutines
+					if(cf == ccf) {
+						activeCoroutines.pop();
+						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+					}
+					
+					cf = cf.previousCallFrame;
+					if(cf == null) {
+						return rval; 
+					}
+					instructions = cf.function.codeblock.getInstructions();
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					stack[sp++] = rval;
+					continue;
+					
 				case Opcode.OP_HASNEXT:
 					coroutine = (Coroutine) stack[--sp];
 					stack[sp++] = coroutine.hasNext() ? TRUE : FALSE;
