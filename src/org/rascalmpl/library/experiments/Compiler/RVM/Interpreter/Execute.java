@@ -426,6 +426,10 @@ public class Execute {
 				codeblock.FILTERRETURN();
 				break;
 				
+			case "TERMINATE":
+				codeblock.TERMINATE(getIntField(instruction, "arity"));
+				break;
+				
 			default:
 				throw new RuntimeException("PANIC: In function " + name + ", nknown instruction: " + opcode);
 			}
