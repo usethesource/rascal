@@ -947,138 +947,177 @@ function MATCH_REGEXP[3, ^regexp, varrefs, ^subject, matcher, i, varref]{
 
 // ***** Traverse functions *****
 
-function TRAVERSE_TOP_DOWN[4, phi, ^subject, hasMatch, rebuild, matched] {
-	matched = false;	
-	^subject = phi(^subject, ref matched);
-	
+function TRAVERSE_TOP_DOWN[5, phi, ^subject, hasMatch, beenChanged, rebuild, 
+							  matched, changed] {
+	matched = false; // ignored	
+	changed = false;
+	^subject = phi(^subject, ref matched, ref changed);
 	if(rebuild) {
-		return VISIT_CHILDREN(^subject, Library::TRAVERSE_TOP_DOWN::4, phi, hasMatch, rebuild);
-	};	
-	return VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_TOP_DOWN::4, phi, hasMatch, rebuild);	
-}
-
-function TRAVERSE_BOTTOM_UP[4, phi, ^subject, hasMatch, rebuild, matched] {
-	if(rebuild) {
-		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_BOTTOM_UP::4, phi, hasMatch, rebuild);
-	} else {
-		VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_BOTTOM_UP::4, phi, hasMatch, rebuild);
+		deref beenChanged = changed || deref beenChanged;
+		changed = false;
+		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_TOP_DOWN::5, phi, hasMatch, ref changed, rebuild);
+		deref beenChanged = changed || deref beenChanged;	
+		return ^subject;
 	};
-	
-	matched = false;	
-	return phi(^subject, ref matched);
+	return VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_TOP_DOWN::5, phi, hasMatch, ref changed, rebuild);
 }
 
-function TRAVERSE_TOP_DOWN_BREAK[4, phi, ^subject, hasMatch, rebuild, matched] {
+function TRAVERSE_TOP_DOWN_BREAK[5, phi, ^subject, hasMatch, beenChanged, rebuild, 
+									matched, changed] {
 	matched = false;
-	^subject = phi(^subject, ref matched);
-	deref hasMatch = muprim("or_mbool_mbool", matched, deref hasMatch);
-	
-	if(deref hasMatch) {	
+	changed = false;
+	^subject = phi(^subject, ref matched, ref changed);
+	deref beenChanged = changed || deref beenChanged;	
+	if(deref hasMatch = matched || deref hasMatch) {	
 		return ^subject;
 	};
-	
 	if(rebuild) {
-		return VISIT_CHILDREN(^subject, Library::TRAVERSE_TOP_DOWN_BREAK::4, phi, hasMatch, rebuild);
+		changed = false;
+		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_TOP_DOWN_BREAK::5, phi, hasMatch, ref changed, rebuild);
+		deref beenChanged = changed || deref beenChanged;
+		return ^subject;
 	};	
-	return VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_TOP_DOWN_BREAK::4, phi, hasMatch, rebuild);
+	return VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_TOP_DOWN_BREAK::5, phi, hasMatch, ref changed, rebuild);
 }
 
-function TRAVERSE_BOTTOM_UP_BREAK[4, phi, ^subject, hasMatch, rebuild, matched] {
+function TRAVERSE_BOTTOM_UP[5, phi, ^subject, hasMatch, beenChanged, rebuild, 
+							   matched, changed] {
+	matched = false; // ignored
+	changed = false;
 	if(rebuild) {
-		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_BOTTOM_UP_BREAK::4, phi, hasMatch, rebuild);
+		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_BOTTOM_UP::5, phi, hasMatch, ref changed, rebuild);
+		deref beenChanged = changed || deref beenChanged;
+		changed = false;
 	} else {
-		VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_BOTTOM_UP_BREAK::4, phi, hasMatch, rebuild);
+		VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_BOTTOM_UP::5, phi, hasMatch, ref changed, rebuild);
 	};
-	
+	^subject = phi(^subject, ref matched, ref changed);
+	deref beenChanged = changed || deref beenChanged;
+	return ^subject;
+}
+
+function TRAVERSE_BOTTOM_UP_BREAK[5, phi, ^subject, hasMatch, beenChanged, rebuild, 
+									 matched, changed] {
+	matched = false;
+	changed = false;
+	if(rebuild) {
+		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_BOTTOM_UP_BREAK::5, phi, hasMatch, ref changed, rebuild);
+		deref beenChanged = changed || deref beenChanged;
+		changed = false;
+	} else {
+		VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_BOTTOM_UP_BREAK::5, phi, hasMatch, ref changed, rebuild);
+	};		
 	if(deref hasMatch) {	
 		return ^subject;
 	};
-	matched = false;	
-	^subject = phi(^subject, ref matched);
-	deref hasMatch = muprim("or_mbool_mbool", matched, deref hasMatch);
-	
+	^subject = phi(^subject, ref matched, ref changed);
+	deref hasMatch = matched || deref hasMatch;
+	deref beenChanged = changed || deref beenChanged;	
 	return ^subject;
 }
 
-function VISIT_CHILDREN[5, ^subject, traverse_fun, phi, hasMatch, rebuild] {
-	
-	typeswitch(^subject) {
-	    case list:  return prim("list",  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
-	    case lrel:  return prim("list",  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
-	    case set:   return prim("set",   VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
-	    case rel:   return prim("set",   VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
-	    case tuple: return prim("tuple", VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
-	    case node:  return prim("node",  muprim("get_name", ^subject), 
-	    							     VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
-	    case constructor: 
-	                return prim("constructor", 
-	                					 muprim("typeOf_constructor", ^subject), 
-	    							     VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild));
-	    
-	    case map:   return VISIT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild); // special case of map
-	    
-	    default:    return ^subject;
+function VISIT_CHILDREN[6, ^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild, 
+						   children] {
+	if((^subject is list) || (^subject is set) || (^subject is tuple) || (^subject is node)) {
+		children = VISIT_NOT_MAP(^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild);
+	} else {
+		if(^subject is map) {
+			children = VISIT_MAP(^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild); // special case of map
+		};
 	};
-}
-
-function VISIT_CHILDREN_VOID[5, ^subject, traverse_fun, phi, hasMatch, rebuild] {
-	
-	typeswitch(^subject) {
-	    case list:  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
-	    case lrel:  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
-	    case set:   VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
-	    case rel:   VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
-	    case tuple: VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
-	    case node:  VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
-	    case constructor: 
-	                VISIT_NOT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild);
-	    
-	    case map:   VISIT_MAP(^subject,traverse_fun,phi,hasMatch,rebuild); // special case of map
-	    
-	    default:    ^subject;
+	if(deref beenChanged) {
+		return typeswitch(^subject) {
+	    			case list:  prim("list", children);
+	    			case lrel:  prim("list", children);
+	    			case set:   prim("set",  children);
+	    			case rel:   prim("set",  children);
+	    			case tuple: prim("tuple",children);
+	    			case node:  prim("node", muprim("get_name", ^subject), children);
+	    			case constructor: 
+	                			prim("constructor", muprim("typeOf_constructor", ^subject), children);	    
+	    			case map:   children; // special case of map	    
+	    			default:    ^subject;
+				};
 	};
-	
 	return ^subject;
 }
 
-function VISIT_NOT_MAP[5, ^subject, traverse_fun, phi, hasMatch, rebuild,
-						  iarray, enumerator, ^child, i, childHasMatch] {
-	if(rebuild) {
-	    iarray = make_iarray(size(^subject));
-	    i = 0;
-	};
+function VISIT_NOT_MAP[6, ^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild,
+						  iarray, enumerator, ^child, i, childHasMatch, childBeenChanged] {
+	iarray = make_iarray(size(^subject));
 	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^child, ^subject);
+	i = 0;
 	while(all(multi(enumerator))) {
 		childHasMatch = false;
-		^child = traverse_fun(phi, ^child, ref childHasMatch, rebuild);
-		if(rebuild) {
-		    set_array iarray[i] = ^child;
-		    i = i + 1;
-		};
-		deref hasMatch = muprim("or_mbool_mbool", childHasMatch, deref hasMatch);
+		childBeenChanged = false;
+		^child = traverse_fun(phi, ^child, ref childHasMatch, ref childBeenChanged, rebuild);
+		set_array iarray[i] = ^child;
+		i = i + 1;
+		deref hasMatch = childHasMatch || deref hasMatch;
+		deref beenChanged = childBeenChanged || deref beenChanged;
 	};
-	if(rebuild) {
-	    return iarray;
-	};
-	return;
+	return iarray;
 }
 
-function VISIT_MAP[5, ^subject, traverse_fun, phi, hasMatch, rebuild,
-					  writer, enumerator, ^key, ^val, childHasMatch] {
+function VISIT_MAP[6, ^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild,
+					  writer, enumerator, ^key, ^val, childHasMatch, childBeenChanged] {
 	writer = prim("mapwriter_open");
 	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^key, ^subject);
 	while(all(multi(enumerator))) {
 		^val = prim("map_subscript", ^subject, ^key);
 		
 		childHasMatch = false;
-		^key = traverse_fun(phi, ^key, ref childHasMatch, rebuild);
-		deref hasMatch = muprim("or_mbool_mbool", childHasMatch, deref hasMatch);
+		childBeenChanged = false;
+		^key = traverse_fun(phi, ^key, ref childHasMatch, ref childBeenChanged, rebuild);
+		deref hasMatch = childHasMatch || deref hasMatch;
+		deref beenChanged = childBeenChanged || deref beenChanged;
 		
 		childHasMatch = false;
-		^val = traverse_fun(phi, ^val, ref childHasMatch, rebuild);
-		deref hasMatch = muprim("or_mbool_mbool", childHasMatch, deref hasMatch);
+		childBeenChanged = false;
+		^val = traverse_fun(phi, ^val, ref childHasMatch, ref childBeenChanged, rebuild);
+		deref hasMatch = childHasMatch || deref hasMatch;
+		deref beenChanged = childBeenChanged || deref beenChanged;
 		
 		prim("mapwriter_add", writer, ^key, ^val);
 	};
 	return prim("mapwriter_close", writer);
+}
+
+function VISIT_CHILDREN_VOID[6, ^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild] {	
+	if((^subject is list) || (^subject is set) || (^subject is tuple) || (^subject is node)) {
+		VISIT_NOT_MAP_VOID(^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild);
+		return ^subject;
+	};
+	if(^subject is map) {
+		VISIT_MAP_VOID(^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild); // special case of map
+	};
+	return ^subject;
+}
+
+function VISIT_NOT_MAP_VOID[6, ^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild,
+						       enumerator, ^child, childHasMatch, childBeenChanged] {
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^child, ^subject);
+	childBeenChanged = false; // ignored
+	while(all(multi(enumerator))) {
+		childHasMatch = false;
+		traverse_fun(phi, ^child, ref childHasMatch, ref childBeenChanged, rebuild);
+		deref hasMatch = childHasMatch || deref hasMatch;
+	};
+	return;
+}
+
+function VISIT_MAP_VOID[6, ^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild,
+					       enumerator, ^key, ^val, childHasMatch, childBeenChanged] {
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^key, ^subject);
+	childBeenChanged = false; // ignored  
+	while(all(multi(enumerator))) {
+		childHasMatch = false;
+		traverse_fun(phi, ^key, ref childHasMatch, ref childBeenChanged, rebuild);
+		deref hasMatch = childHasMatch || deref hasMatch;
+		
+		childHasMatch = false;
+		traverse_fun(phi, prim("map_subscript", ^subject, ^key), ref childHasMatch, ref childBeenChanged, rebuild);
+		deref hasMatch = childHasMatch || deref hasMatch;	
+	};
+	return;
 }
