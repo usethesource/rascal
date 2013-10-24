@@ -216,16 +216,12 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 			}
 			// remove one or more /'s at the end
-			while (path.endsWith("/")) {
+			if (path.endsWith("/")) {
 				path = path.substring(0, path.length() -1);
 			}
 			int i = path.lastIndexOf((int)'/');
 			if (i != -1) {
 				path = path.substring(0, i);
-				// remove possible duplicate /'s at the end 
-				while (path.endsWith("/")) {
-					path = path.substring(0, path.length() -1);
-				}
 				return fieldUpdate("path", makeResult(tf.stringType(), vf.string(path), ctx), store);
 			}
 			throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
