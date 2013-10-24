@@ -330,6 +330,10 @@ INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()];
 INS tr(muYield()) = [YIELD0()];
 INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];
 
+INS tr(muTerminate()) = [ TERMINATE(0) ];
+INS tr(muTerminate(MuExp exp)) = [ *tr(exp), TERMINATE(1) ];
+INS tr(muTerminate(list[MuExp] exps)) = [ *tr(exps), TERMINATE(size(exps)) ];
+
 // Exceptions
 
 INS tr(muThrow(MuExp exp)) = [ *tr(exp), THROW() ];

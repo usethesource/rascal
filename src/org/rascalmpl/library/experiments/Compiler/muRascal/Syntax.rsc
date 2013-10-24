@@ -116,8 +116,12 @@ syntax Exp  =
 			
 			| muHasNext: 				"hasNext" "(" Exp coro ")"	
 			
-			| muYield: 					"yield"  Exp exp 
+			| muYield: 					"yield"  Exp exp
 			> muYield: 					"yield"
+			
+			| muTerminate:              "terminate" Exp exp
+			| muTerminate:              "terminate" "(" {Exp ","}+ exps ")"
+			> muTerminate:              "terminate" 
 			
 			// call-by-reference: expressions that return a value location
 			| preLocRef:     			"ref" Identifier id
@@ -133,7 +137,7 @@ keyword Keywords =
               "get_array" | "get_list" | "get_tuple" |
               "set_array" |
 			  "prim" | "muprim" | "if" | "else" |  "while" |
-              "create" | "init" | "next" | "yield" | "hasNext" |
+              "create" | "init" | "next" | "yield" | "terminate" | "hasNext" |
               "type" |
               "ref" | "deref" |
               "fun" | "cons" | "is" | "mod" | "pow" |
