@@ -1081,16 +1081,24 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		ISourceLocation sloc = (ISourceLocation) stack[sp - 2];
 		String s = ((IString) stack[sp - 1]).getValue();
-		URI uri = sloc.getURI();
-		try {
-			uri = URIUtil.changePath(uri, uri.getPath().concat(s));
-			// TODO handle length/offset and column/line
-			sloc = vf.sourceLocation(uri);
-			stack[sp - 2] = sloc;
-			return sp - 1;
-		} catch (URISyntaxException e){
-			throw RuntimeExceptions.parseError(null, sloc, new ArrayList<Frame>());
+		
+		String path = sloc.hasPath() ? sloc.getPath() : "";
+		if(!path.endsWith("/")){
+			path = path + "/";
 		}
+		path = path.concat(s);
+		stack[sp - 2 ] = $loc_field_update(sloc, "path", vf.string(path));
+		return sp - 1;
+//		URI uri = sloc.getURI();
+//		try {
+//			uri = URIUtil.changePath(uri, uri.getPath().concat(s));
+//			// TODO handle length/offset and column/line
+//			sloc = vf.sourceLocation(uri);
+//			stack[sp - 2] = sloc;
+//			return sp - 1;
+//		} catch (URISyntaxException e){
+//			throw RuntimeExceptions.parseError(null, sloc, new ArrayList<Frame>());
+//		}
 	}
 
 	public static int map_add_map(Object[] stack, int sp, int arity) {
@@ -1968,36 +1976,37 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		ISourceLocation sloc = ((ISourceLocation) stack[sp - 2]);
 		String field = ((IString) stack[sp - 1]).getValue();
-		URI uri = sloc.getURI();
+		URI uri; // = sloc.getURI();
 		IValue v;
 		switch (field) {
 		
 		case "scheme":
-			String s = sloc.getURI().getScheme();
+			String s = sloc.getScheme();
 			v = vf.string(s == null ? "" : s);
 			break;
 			
 		case "authority":
-			s = sloc.getURI().getAuthority();
+			s = sloc.hasAuthority() ? sloc.getAuthority() : "";
 			v = vf.string(s == null ? "" : s);
 			break;
 			
 		case "host":
+			uri = sloc.getURI();
 			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
 				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", null,  new ArrayList<Frame>());
 			}
-			s = sloc.getURI().getHost();
+			s = uri.getHost();
 			v = vf.string(s == null ? "" : s);
 			break;
 			
 		case "path":
-			s = sloc.getURI().getPath();
+			s = sloc.hasPath() ? sloc.getPath() : "";
 			v = vf.string(s == null ? "" : s);
 			break;
 			
 		case "parent":
-			
-			String path = sloc.getURI().getPath();
+			uri = sloc.getURI();
+			String path = uri.getPath();
 			if (path.equals("")) {
 				throw RuntimeExceptions.noParent(sloc, null, null);
 			}
@@ -2005,19 +2014,14 @@ public enum RascalPrimitive {
 			
 			if (i != -1) {
 				path = path.substring(0, i);
-				Object[] fakeStack = new Object[3];
-				fakeStack[0] = sloc;
-				fakeStack[1] = vf.string("path");
-				fakeStack[2] = vf.string(path);
-				loc_field_update(fakeStack, 3, 3);
-				v = (ISourceLocation) fakeStack[0];
+				v = $loc_field_update(sloc, "path", vf.string(path));
 			} else {
 				throw RuntimeExceptions.noParent(sloc, null, null);
 			}
 			break;	
 			
 		case "file": 
-			path = sloc.getURI().getPath();
+			path = sloc.hasPath() ? sloc.getPath() : "";
 			
 			if (path.equals("")) {
 				throw RuntimeExceptions.noParent(sloc,null,null);
@@ -2036,7 +2040,7 @@ public enum RascalPrimitive {
 				IListWriter w = vf.listWriter();
 				
 				Object[] fakeStack = new Object[2];
-				for (String elem : rvm.ctx.getResolverRegistry().listEntries(uri)) {
+				for (String elem : rvm.ctx.getResolverRegistry().listEntries(resolved.getURI())) {
 					fakeStack[0] = resolved;
 					fakeStack[1] = vf.string(elem);
 					loc_add_str(fakeStack, 2, 2);
@@ -2050,7 +2054,7 @@ public enum RascalPrimitive {
 			}
 			
 		case "extension":
-			path = sloc.getURI().getPath();
+			path = sloc.hasPath() ? sloc.getPath() : "";
 			i = path.lastIndexOf('.');
 			if (i != -1) {
 				v = vf.string(path.substring(i + 1));
@@ -2060,18 +2064,18 @@ public enum RascalPrimitive {
 			break;
 			
 		case "fragment":
-			s = sloc.getURI().getFragment();
+			s = sloc.hasFragment() ? sloc.getFragment() : "";
 			v = vf.string(s == null ? "" : s);
 			break;
 			
 		case "query":
-			s = sloc.getURI().getQuery();
+			s = sloc.hasQuery() ? sloc.getQuery() : "";
 			v = vf.string(s == null ? "" : s);
 			break;
 			
 		case "params":
 			
-			String query = uri.getQuery();
+			String query = sloc.hasQuery() ? sloc.getQuery() : "";
 			IMapWriter res = vf.mapWriter(tf.stringType(), tf.stringType());
 			
 			if (query != null && query.length() > 0) {
@@ -2085,16 +2089,16 @@ public enum RascalPrimitive {
 			break;
 			
 		case "user":
+			uri = sloc.getURI();
 			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
 				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", null,  new ArrayList<Frame>());
 			}
 			s = sloc.getURI().getUserInfo();
 			v = vf.string(s == null ? "" : s);
 			break;
-			
-		
 		
 		case "port":
+			uri = sloc.getURI();
 			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
 				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", null,  new ArrayList<Frame>());
 			}
@@ -2134,10 +2138,12 @@ public enum RascalPrimitive {
 			}
 			
 		case "uri":
-			v = vf.string(sloc.getURI().toString());
+			uri = sloc.getURI();
+			v = vf.string(uri.toString());
 			break;
 			
 		case "top":
+			uri = sloc.getURI();
 			v = vf.sourceLocation(uri);
 			break;
 
@@ -2149,12 +2155,16 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	public static int loc_field_update(Object[] stack, int sp, int arity) {
+	public static int loc_field_update(Object[] stack, int sp, int arity){
 		assert arity == 3;
 		ISourceLocation sloc = ((ISourceLocation) stack[sp - 3]);
 		String field = ((IString) stack[sp - 2]).getValue();
 		IValue repl = (IValue) stack[sp - 1];
-		
+		stack[sp - 3] = $loc_field_update(sloc, field, repl);
+		return sp - 2;
+	}
+	
+	private static ISourceLocation $loc_field_update(ISourceLocation sloc, String field, IValue repl) {		
 		Type replType = repl.getType();
 		
 		int iLength = sloc.hasOffsetLength() ? sloc.getLength() : -1;
@@ -2163,76 +2173,90 @@ public enum RascalPrimitive {
 		int iBeginColumn = sloc.hasLineColumn() ? sloc.getBeginColumn() : -1;
 		int iEndLine = sloc.hasLineColumn() ? sloc.getEndLine() : -1;
 		int iEndColumn = sloc.hasLineColumn() ? sloc.getEndColumn() : -1;
-		URI uri = sloc.getURI();
-
+		URI uri;
+		boolean uriPartChanged = false;
+		String scheme = sloc.getScheme();
+		String authority = sloc.hasAuthority() ? sloc.getAuthority() : null;
+		String path = sloc.hasPath() ? sloc.getPath() : null;
+		String query = sloc.hasQuery() ? sloc.getQuery() : null;
+		String fragment = sloc.hasFragment() ? sloc.getFragment() : null;
+		
 		try {
 			IValue v;
+			String newStringValue = null;
+			if(replType.isString()){
+				newStringValue = ((IString)repl).getValue();
+			}
+		
 			switch (field) {
 			
 			case "uri":
-				uri = URIUtil.createFromEncoded((((IString)repl).getValue()));
+				uri = URIUtil.createFromEncoded(newStringValue);
+				// now destruct it again
+				scheme = uri.getScheme();
+				authority = uri.getAuthority();
+				path = uri.getPath();
+				query = uri.getQuery();
+				fragment = uri.getFragment();
+				uriPartChanged = true;
 				break;
 
 			case "scheme":
-				uri = URIUtil.changeScheme(uri, (((IString)repl).getValue()));
+				scheme = newStringValue;
+				uriPartChanged = true;
 				break;
 
 			case "authority":
-				uri = URIUtil.changeAuthority(uri, (((IString)repl).getValue()));
+				authority = newStringValue;
+				uriPartChanged = true;
 				break;
 
 			case "host":
+				uri = sloc.getURI();
 				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
 					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", null,  new ArrayList<Frame>());
 				}
-				uri = URIUtil.changeHost(uri, (((IString)repl).getValue()));
+				uri = URIUtil.changeHost(uri, newStringValue);
+				authority = uri.getAuthority();
+				uriPartChanged = true;
 				break;
 
 			case "path":
-				String path = ((IString)repl).getValue();
-				if(!path.startsWith("/"))
+				path = newStringValue;
+				if(!path.startsWith("/")) /***/
 					path = "/" + path;
-				uri = URIUtil.changePath(uri, path);
+				uriPartChanged = true;
 				break;
 				
 			case "file": 
-				path = uri.getPath();
-
-				if (path.equals("")) {
-					throw RuntimeExceptions.noParent(sloc,null,null);
-				}
 				int i = path.lastIndexOf("/");
 				
 				if (i != -1) {
-					uri = URIUtil.changePath(uri, path.substring(0, i) + "/" + ((IString) repl).getValue());
+					path = path.substring(0, i) + "/" + newStringValue;
 				}
 				else {
-					uri = URIUtil.changePath(uri, path + "/" + ((IString) repl).getValue());	
+					path = path + "/" + newStringValue;	
 				}	
+				uriPartChanged = true;
 				break;
 
 			case "parent":
-				path = uri.getPath();
-				String parent = ((IString) repl).getValue();
-				
-				if (!parent.startsWith("/")) {
-					parent = "/" + parent;
-				}
 				i = path.lastIndexOf("/");
+				String parent = newStringValue;
 				if (i != -1) {
-					uri = URIUtil.changePath(uri, parent + path.substring(i));
+					path = parent + path.substring(i);
 				}
 				else {
-					uri = URIUtil.changePath(uri, parent);	
+					path = parent;	
 				}
+				uriPartChanged = true;
 				break;	
 
 			case "ls":
 				throw RuntimeExceptions.noSuchField("Cannot update the children of a location", null, new ArrayList<Frame>());
 				
 			case "extension":
-				path = uri.getPath();
-				String ext = ((IString) repl).getValue();
+				String ext = newStringValue;
 				
 				if (path.length() > 1) {
 					int index = path.lastIndexOf('.');
@@ -2246,38 +2270,53 @@ public enum RascalPrimitive {
 					else {
 						path = path.substring(0, index);
 					}
-					
-					uri = URIUtil.changePath(uri, path);
 				}
+				uriPartChanged = true;
 				break;
 				
 			case "top":
 				if (replType.isString()) {
-					uri = URIUtil.assumeCorrect(((IString) repl).getValue());
+					uri = URIUtil.assumeCorrect(newStringValue);
+					scheme = uri.getScheme();
+					authority = uri.getAuthority();
+					path = uri.getPath();
+					query = uri.getQuery();
+					fragment = uri.getFragment();
 				}
 				else if (replType.isSourceLocation()) {
-					uri = ((ISourceLocation) repl).getURI();
+					ISourceLocation rep = (ISourceLocation) repl;
+					scheme = rep.getScheme();
+					authority = rep.hasAuthority() ? rep.getAuthority() : null;
+					path = rep.hasPath() ? rep.getPath() : null;
+					query = rep.hasQuery() ? rep.getQuery() : null;
+					fragment = rep.hasFragment() ? rep.getFragment() : null;
 				}
+				uriPartChanged = true;
 				break;
 
 			case "fragment":
-				uri = URIUtil.changeFragment(uri, ((IString) repl).getValue());
+				fragment = newStringValue;
+				uriPartChanged = true;
 				break;
 
 			case "query":
-				uri = URIUtil.changeQuery(uri, ((IString) repl).getValue());
+				query = newStringValue;
+				uriPartChanged = true;
 				break;
 				
 			case "user":
+				uri = sloc.getURI();
 				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
 					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", null,  new ArrayList<Frame>());
 				}
 				if (uri.getHost() != null) {
-					uri = URIUtil.changeUserInformation(uri, ((IString) repl).getValue());
+					uri = URIUtil.changeUserInformation(uri, newStringValue);
 				}
+				uriPartChanged = true;
 				break;
 				
 			case "port":
+				uri = sloc.getURI();
 				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
 					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", null,  new ArrayList<Frame>());
 				}
@@ -2285,6 +2324,8 @@ public enum RascalPrimitive {
 					int port = Integer.parseInt(((IInteger) repl).getStringRepresentation());
 					uri = URIUtil.changePort(uri, port);
 				}
+				authority = uri.getAuthority();
+				uriPartChanged = true;
 				break;	
 				
 			case "length":
@@ -2322,10 +2363,14 @@ public enum RascalPrimitive {
 				throw RuntimeExceptions.noSuchField("Modification of field " + field + " in location not allowed", null, new ArrayList<Frame>());
 			}
 			
+			ISourceLocation newLoc = sloc;
+			if (uriPartChanged) {
+				newLoc = vf.sourceLocation(scheme, authority, path, query, fragment);
+			}
+			
 			if (sloc.hasLineColumn()) {
 				// was a complete loc, and thus will be now
-				stack[sp - 3] = vf.sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-				return sp - 2;
+				return vf.sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
 			}
 			
 			if (sloc.hasOffsetLength()) {
@@ -2335,20 +2380,17 @@ public enum RascalPrimitive {
 					//will be complete now.
 					iEndLine = iBeginLine;
 					iEndColumn = iBeginColumn;
-					stack[sp - 3] = vf.sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-					return sp - 2;
+					return vf.sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
 				}
 				else if (iEndLine != -1 || iEndColumn != -1) {
 					// will be complete now.
 					iBeginLine = iEndLine;
 					iBeginColumn = iEndColumn;
-					stack[sp - 3] = vf.sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-					return sp - 2;
+					return vf.sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
 				}
 				else {
 					// remains a partial loc
-					stack[sp - 3] = vf.sourceLocation(uri, iOffset, iLength);
-					return sp - 2;
+					return vf.sourceLocation(newLoc, iOffset, iLength);
 				}
 			}
 
@@ -2375,13 +2417,11 @@ public enum RascalPrimitive {
 			
 			if (iOffset != -1 || iLength != -1) {
 				// used not to no offset/length, but do now
-				stack[sp - 3] = vf.sourceLocation(uri, iOffset, iLength);
-				return sp - 2;
+				return vf.sourceLocation(newLoc, iOffset, iLength);
 			}
 			
 			// no updates to offset/length or line/column, and did not used to have any either:
-			stack[sp - 3] = vf.sourceLocation(uri);
-			return sp - 2;
+			return newLoc;
 
 		} catch (IllegalArgumentException e) {
 			throw RuntimeExceptions.illegalArgument(null, null);
@@ -4912,7 +4952,6 @@ public enum RascalPrimitive {
 		assert arity == 3;
 		IString module_name = (IString) stack[sp - 3];
 		IConstructor type = (IConstructor) stack[sp - 2];
-		stdout.println("parse: " + type.getType());
 		IString s = ((IString) stack[sp - 1]);
 	
 		IValue tree = parsingTools.parse(module_name, type, s);
@@ -5389,7 +5428,7 @@ public enum RascalPrimitive {
 		int endLine = ((IInteger) end.get(0)).intValue();
 		int endCol = ((IInteger)  end.get(1)).intValue();
 		
-		stack[sp - arity] = vf.sourceLocation(loc.getURI(), offset, length, beginLine, endLine, beginCol, endCol);
+		stack[sp - arity] = vf.sourceLocation(loc, offset, length, beginLine, endLine, beginCol, endCol);
 		return sp - arity + 1;
 	}
 	

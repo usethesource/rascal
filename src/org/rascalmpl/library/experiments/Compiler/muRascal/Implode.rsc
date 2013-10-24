@@ -19,9 +19,20 @@ MuModule preprocess(Module pmod){
        vdfs = ("<f.locals[i]>" : i  | int i <- index(f.locals));
        vardefs =  vardefs + (uid : vdfs);
    }
+   map[str,Symbol] types = ();
+   for(t <- pmod.types) {
+       try {
+           Symbol sym = readTextValueString(#Symbol, replaceAll((t.\type)[1..-1],"\\",""));
+           if(sym has name) {
+               types[sym.name] = sym;
+           }
+       } catch IO(str msg) : {
+           throw "Could not parse the string of a type constant into Symbol: <msg>";
+       }
+   }
    resolver = ();
    overloaded_functions = [];
-   return muModule(pmod.name, [], (), [ preprocess(f, pmod.name) | f <- pmod.functions ], [], [], resolver, overloaded_functions, ());
+   return muModule(pmod.name, [], types, [ preprocess(f, pmod.name) | f <- pmod.functions ], [], [], resolver, overloaded_functions, ());
 }
 
 bool isGlobalNonOverloadedFunction(str name) {
@@ -165,6 +176,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preModulo(MuExp lhs, MuExp rhs)									=> muCallMuPrim("modulo_mint_mint", [lhs, rhs])
       	       case prePower(MuExp lhs, MuExp rhs)									=> muCallMuPrim("power_mint_mint", [lhs, rhs])
       	       case preAnd(MuExp lhs, MuExp rhs)									=> muCallMuPrim("and_mbool_mbool", [lhs, rhs])
+      	       case preOr(MuExp lhs, MuExp rhs)									    => muCallMuPrim("or_mbool_mbool", [lhs, rhs])
       	       case preIs(MuExp lhs, str typeName)									=> muCallMuPrim("is_<typeName>", [lhs])
       	       
       	       // Overloading
