@@ -92,6 +92,8 @@ private int estimate(muTerminate()) = 1;
 private int estimate(muTerminate(MuExp exp)) = estimate(exp);
 private int estimate(muTerminate(MuExp exp, list[MuExp] exps)) = estimate_arg_list([ exp, *exps ]);
 
+private int estimate(muGuard(MuExp exp)) = estimate(exp);
+
 private int estimate(muReturn()) = 0;
 private int estimate(muReturn(MuExp exp)) = estimate(exp);
 

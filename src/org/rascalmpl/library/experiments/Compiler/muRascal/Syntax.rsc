@@ -124,6 +124,8 @@ syntax Exp  =
 			| muTerminate:              "terminate" "(" Exp exp "," {Exp ","}+ exps ")"
 			| muTerminate:              "terminate" !>> "("
 			
+			| muGuard:                  "guard" Exp exp
+			
 			// call-by-reference: expressions that return a value location
 			| preLocRef:     			"ref" Identifier id
 			| preVarRef:      			"ref" FunNamePart+ funNames Identifier id
@@ -139,6 +141,7 @@ keyword Keywords =
               "set_array" |
 			  "prim" | "muprim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "terminate" | "hasNext" |
+              "guard" |
               "type" |
               "ref" | "deref" |
               "fun" | "cons" | "is" | "mod" | "pow" |
