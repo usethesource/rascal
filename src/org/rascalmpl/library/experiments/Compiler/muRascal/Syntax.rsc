@@ -70,9 +70,12 @@ syntax Exp  =
 			| preSubscriptArray: 		"get_array" Exp ar "[" Exp index "]"
 			| preSubscriptList: 		"get_list" Exp lst "[" Exp index "]"
 			| preSubscriptTuple: 		"get_tuple" Exp tup "[" Exp index "]"
-			> muCall: 					Exp!muTerminate!muYield exp1 "(" {Exp ","}* args ")"
+			
+			> muCall: 					Exp!muYield!muReturn exp1 "(" {Exp ","}* args ")"
+			
 			> muReturn: 				"return"  Exp exp
-			> muReturn: 				"return"
+			| muReturn:                 "return" "(" Exp exp "," {Exp ","}+ exps ")"
+			> muReturn: 				"return" !>> "("
 			
 			| left preAddition:			Exp lhs "+"   Exp rhs
 			

@@ -94,6 +94,7 @@ private int estimate(muGuard(MuExp exp)) = estimate(exp);
 
 private int estimate(muReturn()) = 0;
 private int estimate(muReturn(MuExp exp)) = estimate(exp);
+private int estimate(muReturn(MuExp exp, list[MuExp] exps)) = estimate_arg_list([ exp, *exps ]);
 
 private int estimate(muHasNext(MuExp coro)) = estimate(coro);
 

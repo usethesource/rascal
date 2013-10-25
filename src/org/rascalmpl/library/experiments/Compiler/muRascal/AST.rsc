@@ -86,8 +86,10 @@ public data MuExp =
           			   Symbol parameterTypes,
           			   list[MuExp] args)						// Call a Java method in given class
  
-          | muReturn()											// Return from function without value
-          | muReturn(MuExp exp)									// Return from function with value
+          | muReturn()											// Return from a function without value
+          | muReturn(MuExp exp)									// Return from a function with value
+          | muReturn(MuExp exp, list[MuExp] exps)               // Return from a coroutine with multiple values
+          
           | muFilterReturn()									// Return for filer statement
               
            // Assignment, If and While
