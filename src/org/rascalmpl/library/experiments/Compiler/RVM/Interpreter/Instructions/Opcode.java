@@ -62,7 +62,7 @@ public enum Opcode {
 	JMPSWITCH			(45,	2),
 	UNWRAPTHROWN        (46,    2),
 	FILTERRETURN		(47, 	1),
-	TERMINATE           (48,    2)
+	TERMINATE           (48,    1)
 	;
 	
 	private final int op;
@@ -288,7 +288,7 @@ public enum Opcode {
 			return "FILTERRETURN";
 			
 		case TERMINATE:
-			return "TERMINATE " + cb.finalCode[pc + 1];
+			return "TERMINATE";
 		
 		default:
 			break;

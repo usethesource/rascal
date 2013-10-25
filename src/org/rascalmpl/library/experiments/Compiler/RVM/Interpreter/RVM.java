@@ -1075,19 +1075,6 @@ public class RVM {
 					continue;
 					
 				case Opcode.OP_TERMINATE:
-					arity = instructions[pc++];
-					
-					// Terminate with no arguments returns FALSE
-					rval = (arity == 0) ? Rascal_FALSE : Rascal_TRUE;
-					
-					int nformals = cf.function.nformals;
-					for(int i = 0; i < arity; i++) {
-						ref = (Reference) stack[nformals - 1 - i];
-						ref.stack[ref.pos] = stack[--sp];
-					}
-					
-					// if the current frame is the frame of a top active coroutine, 
-					// then pop this coroutine from the stack of active coroutines
 					if(cf == ccf) {
 						activeCoroutines.pop();
 						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
@@ -1095,13 +1082,13 @@ public class RVM {
 					
 					cf = cf.previousCallFrame;
 					if(cf == null) {
-						return rval; 
+						return Rascal_FALSE;    // 'Terminate' has to always return FALSE, i.e., signal a failure;
 					}
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					stack[sp++] = rval;
+					stack[sp++] = Rascal_FALSE; // 'Terminate' has to always return FALSE, i.e., signal a failure;
 					continue;
 					
 				case Opcode.OP_HASNEXT:

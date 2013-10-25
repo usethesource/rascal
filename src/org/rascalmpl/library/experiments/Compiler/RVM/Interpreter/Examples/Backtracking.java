@@ -75,7 +75,7 @@ public class Backtracking {
 				.NEXT0()
 				.JMPFALSE("WHILE2")
 				.LOADCON(true)
-				.YIELD1()
+				.YIELD1(1)
 				.POP()
 				.JMP("WHILE2")
 		));
@@ -169,7 +169,7 @@ public class Backtracking {
 				.NEXT0()
 				.JMPFALSE("RETURN")
 				.LOADCON(true)
-				.YIELD1()
+				.YIELD1(1)
 				.POP()
 				.JMP("WHILE")
 		));

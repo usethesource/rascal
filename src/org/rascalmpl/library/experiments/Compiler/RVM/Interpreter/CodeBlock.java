@@ -450,8 +450,8 @@ public class CodeBlock {
 		return add(new FilterReturn(this));
 	}
 	
-	public CodeBlock TERMINATE(int arity) {
-		return add(new Terminate(this, arity));
+	public CodeBlock TERMINATE() {
+		return add(new Terminate(this));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

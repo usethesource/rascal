@@ -38,7 +38,7 @@ public class CountDown_b {
 							.RETURN1()
 							.LABEL("BODY")
 							.LOADLOC(0)
-							.YIELD1()
+							.YIELD1(1)
 							.POP()
 							.LOADLOC(0)
 							.LOADCON(1)
