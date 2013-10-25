@@ -127,8 +127,9 @@ public data MuExp =
           | muNext(MuExp exp)									// Next on coroutine, no arguments
           | muNext(MuExp exp1, list[MuExp] args)				// Next on coroutine, with arguments
           
-          | muYield()											// Yield from coroutine, without value
-          | muYield(MuExp exp)									// Yield from coroutine, with value
+          | muYield()											// Yield from a coroutine without value
+          | muYield(MuExp exp)									// Yield from a coroutine with value
+          | muYield(MuExp exp, list[MuExp] exps)                // Yield from a coroutine with multiple values
           
           | muTerminate()                                       // Terminate (return with no possibility of further resumption) 
           														// from a coroutine without a value

@@ -328,7 +328,8 @@ INS tr(muNext(MuExp coro)) = [*tr(coro), NEXT0()];
 INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
 
 INS tr(muYield()) = [YIELD0()];
-INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];
+INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1(1)];
+INS tr(muYield(MuExp, list[MuExp] exps)) = [ *tr(exp), *tr(exps), YIELD1(size(exps) + 1) ];
 
 INS tr(muTerminate()) = [ TERMINATE(0) ];
 INS tr(muTerminate(MuExp exp)) = [ *tr(exp), TERMINATE(1) ];
