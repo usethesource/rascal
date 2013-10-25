@@ -120,9 +120,7 @@ syntax Exp  =
 			| muYield:                  "yield" "(" Exp exp "," {Exp ","}+ exps ")"
 			> muYield: 					"yield" !>> "("
 			
-			| muTerminate:              "terminate" Exp exp
-			| muTerminate:              "terminate" "(" Exp exp "," {Exp ","}+ exps ")"
-			| muTerminate:              "terminate" !>> "("
+			| muTerminate:              "terminate"
 			
 			| muGuard:                  "guard" Exp exp
 			

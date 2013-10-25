@@ -44,7 +44,7 @@ public class CountDown_c {
 							.POP()
 							
 							.LOADLOC(0)
-							.YIELD1()
+							.YIELD1(1)
 							.POP()
 							.LOADLOC(0)
 							.LOADCON(1)

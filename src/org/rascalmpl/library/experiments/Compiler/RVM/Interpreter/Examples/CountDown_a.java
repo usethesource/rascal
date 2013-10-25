@@ -36,7 +36,7 @@ public class CountDown_a {
 							.RETURN1()
 							.LABEL("BODY")
 							.LOADLOC(0)
-							.YIELD1()
+							.YIELD1(1)
 							.POP()        // added pop with respect to the new NEXT0's default bahviour on the stack
 							.LOADLOC(0)
 							.LOADCON(1)

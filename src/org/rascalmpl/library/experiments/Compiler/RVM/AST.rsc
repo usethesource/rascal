@@ -87,7 +87,7 @@ data Instruction =
 		| NEXT1()									// Next operation (with argument) on co-routine on top-of-stack
 		| YIELD0()									// Yield from co-routine without value
 		| YIELD1(int arity)							// Yield from co-routine with value
-		| TERMINATE(int arity)                      // Terminate from a coroutine with potentially none or multiple arguments
+		| TERMINATE()                               // Terminate from a coroutine returning false;
 		| GUARD()                                   // Suspends the current coroutine instance during initialization if true,
 		                                            // or terminates it returning false;
 		

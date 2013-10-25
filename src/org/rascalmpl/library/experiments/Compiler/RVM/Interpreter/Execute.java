@@ -427,7 +427,7 @@ public class Execute {
 				break;
 				
 			case "TERMINATE":
-				codeblock.TERMINATE(getIntField(instruction, "arity"));
+				codeblock.TERMINATE();
 				break;
 				
 			default:
