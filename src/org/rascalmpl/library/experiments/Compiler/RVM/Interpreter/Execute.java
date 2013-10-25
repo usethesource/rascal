@@ -327,7 +327,7 @@ public class Execute {
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1();
+				codeblock.YIELD1(getIntField(instruction, "arity"));
 				break;
 
 			case "HASNEXT":

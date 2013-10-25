@@ -1052,13 +1052,21 @@ public class RVM {
 					coroutine = activeCoroutines.pop();
 					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					Frame prev = coroutine.start.previousCallFrame;
-					rval = (op == Opcode.OP_YIELD1) ? stack[--sp] : null;
+					rval = Rascal_TRUE; // In fact, yield has to always return TRUE
+					if(op == Opcode.OP_YIELD1) {
+						arity = instructions[pc++];
+						int nformals = coroutine.start.function.nformals;
+						for(int i = 0; i < arity; i++) {
+							ref = (Reference) stack[nformals - 1 - i];
+							ref.stack[ref.pos] = stack[--sp];
+						}
+					}
 					cf.pc = pc;
 					cf.sp = sp;
 					coroutine.suspend(cf);
 					cf = prev;
 					if(op == Opcode.OP_YIELD1 && cf == null)
-						return narrow(rval);
+						return rval;
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
