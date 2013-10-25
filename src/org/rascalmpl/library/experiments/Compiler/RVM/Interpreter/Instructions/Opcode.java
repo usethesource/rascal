@@ -34,7 +34,7 @@ public enum Opcode {
 	NEXT0				(17,	1),
 	NEXT1				(18,	1),
 	YIELD0				(19,	1),
-	YIELD1				(20,	1),
+	YIELD1				(20,	2),
 	INIT				(21,	2),
 	CREATEDYN			(22,	2),
 	HASNEXT				(23,	1),
@@ -204,7 +204,7 @@ public enum Opcode {
 			return "YIELD0";
 		
 		case YIELD1:
-			return "YIELD1";
+			return "YIELD1 " + cb.finalCode[pc + 1];
 		
 		case INIT:
 			return "INIT " + cb.finalCode[pc + 1];

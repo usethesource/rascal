@@ -356,8 +356,8 @@ public class CodeBlock {
 		return add(new Yield0(this));
 	}
 	
-	public CodeBlock YIELD1() {
-		return add(new Yield1(this));
+	public CodeBlock YIELD1(int arity) {
+		return add(new Yield1(this, arity));
 	}
 	
 	public CodeBlock CREATEDYN(int arity) {
