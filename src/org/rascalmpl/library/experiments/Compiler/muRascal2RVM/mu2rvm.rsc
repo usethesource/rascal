@@ -335,6 +335,8 @@ INS tr(muTerminate()) = [ TERMINATE(0) ];
 INS tr(muTerminate(MuExp exp)) = [ *tr(exp), TERMINATE(1) ];
 INS tr(muTerminate(MuExp exp, list[MuExp] exps)) = [ *tr(exp), *tr(exps), TERMINATE(size(exps) + 1) ];
 
+INS tr(muGuard(MuExp exp)) = [ *tr(exp), GUARD() ];
+
 // Exceptions
 
 INS tr(muThrow(MuExp exp)) = [ *tr(exp), THROW() ];
