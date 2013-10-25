@@ -16,6 +16,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class Execute {
@@ -61,6 +62,7 @@ public class Execute {
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
+		
 		for(IValue imp : imported_functions){
 			IConstructor declaration = (IConstructor) imp;
 			if (declaration.getName().contentEquals("FUNCTION")) {
@@ -72,7 +74,11 @@ public class Execute {
 				if(name.endsWith("_testsuite(list(value());)#0")){
 					testsuites.add(name);
 				}
-				loadInstructions(name, declaration, rvm);
+				loadInstructions(name, declaration, rvm, false);
+			}
+			if (declaration.getName().contentEquals("COROUTINE")) {
+				String name = ((IString) declaration.get("qname")).getValue();
+				loadInstructions(name, declaration, rvm, true);
 			}
 		}
 		
@@ -102,7 +108,12 @@ public class Execute {
 				if(name.endsWith("_testsuite(list(value());)#0")){
 					testsuites.add(name);
 				}
-				loadInstructions(name, declaration, rvm);
+				loadInstructions(name, declaration, rvm, false);
+			}
+			
+			if(declaration.getName().contentEquals("COROUTINE")) {
+				String name = ((IString) declaration.get("qname")).getValue();
+				loadInstructions(name, declaration, rvm, true);
 			}
 		}
 		
@@ -211,9 +222,9 @@ public class Execute {
 	 * @param declaration the declaration of that function
 	 * @param rvm in which function will be loaded
 	 */
-	private void loadInstructions(String name, IConstructor declaration, RVM rvm){
+	private void loadInstructions(String name, IConstructor declaration, RVM rvm, boolean isCoroutine){
 	
-		Type ftype = rvm.symbolToType((IConstructor) declaration.get("ftype"));
+		Type ftype = isCoroutine ? null : rvm.symbolToType((IConstructor) declaration.get("ftype"));
 		
 		//System.err.println("loadInstructions: " + name + ": ftype = " + ftype + ", declaration = " + declaration);
 		
@@ -439,9 +450,13 @@ public class Execute {
 			throw new RuntimeException("In function " + name + " : " + e.getMessage());
 		}
 		
-		IList exceptions = (IList) declaration.get("exceptions");
 		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, maxstack, codeblock);
-		function.attachExceptionTable(exceptions, rvm);
+		if(isCoroutine) {
+			function.isCoroutine = true;
+		} else {
+			IList exceptions = (IList) declaration.get("exceptions");
+			function.attachExceptionTable(exceptions, rvm);
+		}
 		rvm.declare(function);
 	}
 

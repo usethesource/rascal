@@ -64,11 +64,13 @@ str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> 
 	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>(<nformals>)";
 
 MuFunction preprocess(Function f, str modName){
+   
    uid = getUID(modName,f.funNames,f.name,f.nformals);
    scopeIn = (!isEmpty(f.funNames)) ? getUID(modName,f.funNames) : ""; // if not a function scope, then the root one
    // Generate a very generic function type
    ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals + 1] ]);
-   return muFunction(uid, ftype, scopeIn, f.nformals, size(vardefs[uid]), |rascal:///|, [], (), muBlock(preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body)));
+   return (f is preCoroutine) ? muCoroutine(uid, scopeIn, f.nformals, size(vardefs[uid]), muBlock(preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body)))
+                              : muFunction(uid, ftype, scopeIn, f.nformals, size(vardefs[uid]), |rascal:///|, [], (), muBlock(preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body)));
 }
 
 list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] exps){

@@ -11,6 +11,12 @@ public data Declaration =
 		  		   int maxStack, 
 		  		   list[Instruction] instructions,
 		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
+	    | COROUTINE(str qname, 
+		  		    str scopeIn, 
+		  		    int nformals, 
+		  		    int nlocals, 
+		  		    int maxStack, 
+		  		    list[Instruction] instructions)
 		;
 
 public data RVMProgram = rvm(str name,
