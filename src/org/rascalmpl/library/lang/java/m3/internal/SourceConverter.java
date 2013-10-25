@@ -13,7 +13,6 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.uri.URIUtil;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
 public class SourceConverter extends M3Converter {
@@ -265,11 +264,8 @@ public class SourceConverter extends M3Converter {
 		if (parent != null) {
 			parent = parent.replaceAll(Matcher.quoteReplacement("\\"), "/");
 			String authority = null;
-			try {
+			if (sourceLoc.hasAuthority())
 				authority = sourceLoc.getAuthority();
-			} catch (UnsupportedOperationException e) {
-				// do nothing
-			}
 			try {
 				return values.sourceLocation(sourceLoc.getScheme(), authority, parent);
 			} catch (URISyntaxException e) {
