@@ -86,6 +86,7 @@ private int estimate(muNext(MuExp coro, list[MuExp] args)) = max(estimate(coro),
 
 private int estimate(muYield()) = 1;
 private int estimate(muYield(MuExp exp)) = estimate(exp);
+private int estimate(muYield(MuExp exp, list[MuExp] exps)) = estimate_arg_list([ exp, *exps ]);
 
 private int estimate(muTerminate()) = 1;
 private int estimate(muTerminate(MuExp exp)) = estimate(exp);
