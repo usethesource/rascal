@@ -36,8 +36,10 @@ start syntax Module =
 syntax TypeDeclaration = preTypeDecl: "declares" String sym;
 
 syntax Function =     
-              preFunction:	"function" FunNamePart* funNames Identifier name "[" Integer nformals "," {Identifier ","}* locals "]"
-                            "{" (Exp ";")+ body "}"
+                preFunction:  "function"  FunNamePart* funNames Identifier name "[" Integer nformals "," {Identifier ","}* locals "]"
+                              "{" (Exp ";")+ body "}"
+              | preCoroutine: "coroutine" FunNamePart* funNames Identifier name "[" Integer nformals "," {Identifier ","}* locals "]"
+                              "{" (Exp ";")+ body "}"
 			;
 			
 syntax FunNamePart = FConst id >> "::" "::" Integer nformals >> "::" "::";
@@ -137,7 +139,7 @@ syntax Exp  =
 syntax TypeCase = muTypeCase: 			"case" Identifier id ":" Exp exp ;		
 
 keyword Keywords = 
-              "module" | "declares" | "function" | "return" | 
+              "module" | "declares" | "function" | "coroutine" | "return" | 
               "get_array" | "get_list" | "get_tuple" |
               "set_array" |
 			  "prim" | "muprim" | "if" | "else" |  "while" |

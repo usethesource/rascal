@@ -25,7 +25,8 @@ public data MuModule =
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-              muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, loc source, list[str] modifiers, map[str,str] tags, MuExp body)
+                muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, loc source, list[str] modifiers, map[str,str] tags, MuExp body)
+              | muCoroutine(str qname, str scopeIn, int nformals, int nlocals, MuExp body)
           ;
           
 // A global (module level) variable.
@@ -167,8 +168,10 @@ public data Module =
 public data TypeDeclaration = preTypeDecl(str \type);
 
 public data Function =				
-             preFunction(lrel[str,int] funNames, str name, int nformals, 
-                         list[str] locals, list[MuExp] body)
+               preFunction(lrel[str,int] funNames, str name, int nformals, 
+                           list[str] locals, list[MuExp] body)
+             | preCoroutine(lrel[str,int] funNames, str name, int nformals, 
+                            list[str] locals, list[MuExp] body)
           ;
 
 public data MuExp =
