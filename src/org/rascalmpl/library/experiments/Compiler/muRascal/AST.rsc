@@ -133,7 +133,7 @@ public data MuExp =
           | muTerminate()                                       // Terminate (return with no possibility of further resumption) 
           														// from a coroutine without a value
           | muTerminate(MuExp exp)                              // Terminate from a coroutine with a single value
-          | muTerminate(list[MuExp] exps)                       // Terminate from a coroutine with multiple values
+          | muTerminate(MuExp exp, list[MuExp] exps)            // Terminate from a coroutine with multiple values
           
            // Multi-expressions
           

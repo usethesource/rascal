@@ -332,7 +332,7 @@ INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];
 
 INS tr(muTerminate()) = [ TERMINATE(0) ];
 INS tr(muTerminate(MuExp exp)) = [ *tr(exp), TERMINATE(1) ];
-INS tr(muTerminate(list[MuExp] exps)) = [ *tr(exps), TERMINATE(size(exps)) ];
+INS tr(muTerminate(MuExp exp, list[MuExp] exps)) = [ *tr(exp), *tr(exps), TERMINATE(size(exps) + 1) ];
 
 // Exceptions
 
