@@ -999,12 +999,55 @@ public class RVM {
 						newCoroutine.frame.stack[coroutine.frame.sp + i] = stack[sp - arity + i];
 					}
 					newCoroutine.frame.sp = fun.nlocals;
-					newCoroutine.suspend(newCoroutine.frame);
 					sp = sp - arity;							/* Place coroutine back on stack */
 					stack[sp++] = newCoroutine;
+					
+					// Now, instead of simply suspending a coroutine during INIT, let it execute until GUARD, which has been delegated the INIT's suspension
+					newCoroutine.suspend(newCoroutine.frame);
+					// put the coroutine onto the stack of active coroutines
+					activeCoroutines.push(newCoroutine);
+					ccf = newCoroutine.start;
+					newCoroutine.next(cf);
+					
+					fun = newCoroutine.frame.function;
+					instructions = newCoroutine.frame.function.codeblock.getInstructions();
+				
+					cf.pc = pc;
+					cf.sp = sp;
+					
+					cf = newCoroutine.frame;
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					
 					continue;
 					
 				case Opcode.OP_GUARD:
+					rval = stack[--sp];
+					boolean precondition;
+					if(rval instanceof IBool) {
+						precondition = ((IBool) rval).getValue();
+					} else if(rval instanceof Boolean) {
+						precondition = (Boolean) rval;
+					} else {
+						throw new RuntimeException("Guard's expression has to be boolean!");
+					}
+					
+					coroutine = activeCoroutines.pop();
+					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+					Frame prev = coroutine.start.previousCallFrame;
+					
+					cf.pc = pc;
+					cf.sp = sp;
+					if(precondition) {
+						coroutine.suspend(cf);
+					}
+					cf = prev;
+					instructions = cf.function.codeblock.getInstructions();
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					
 					continue;
 					
 				case Opcode.OP_CREATE:
@@ -1064,7 +1107,7 @@ public class RVM {
 				case Opcode.OP_YIELD1:
 					coroutine = activeCoroutines.pop();
 					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
-					Frame prev = coroutine.start.previousCallFrame;
+					prev = coroutine.start.previousCallFrame;
 					rval = Rascal_TRUE; // In fact, yield has to always return TRUE
 					if(op == Opcode.OP_YIELD1) {
 						arity = instructions[pc++];
