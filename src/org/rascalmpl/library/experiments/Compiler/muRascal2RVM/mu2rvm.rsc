@@ -175,7 +175,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
   									[*tr(initializations), 
   									 LOADCON(true),
-  									 RETURN1(),
+  									 RETURN1(1),
   									 HALT()
   									],
   									[]));
@@ -305,17 +305,12 @@ INS tr(muReturn()) = [RETURN0()];
 INS tr(muReturn(MuExp exp)) {
 	if(muTmp(str varname) := exp) {
 		inlineMuFinally();
-		return [*finallyBlock, *tr(exp), RETURN1()];
+		return [*finallyBlock, *tr(exp), RETURN1(1)];
 	}
-	return [*tr(exp), RETURN1()];
+	return [*tr(exp), RETURN1(1)];
 }
-INS tr(muReturn(MuExp exp, list[MuExp] exps)) {
-	if(e <- [ exp, *exps ], muTmp(str varname) := exp) {
-	    inlineMuFinally();
-		return [*finallyBlock, *tr(exp), RETURN1()]; // TODO: does not yet supports multiple arguments
-	}
-	return [*tr(exp), RETURN1()];
-}
+INS tr(muReturn(MuExp exp, list[MuExp] exps))
+	= [*tr(exp), *tr(exps), RETURN1(size(exps) + 1)];
 
 INS tr(muFailReturn()) = [ FAILRETURN() ];
 

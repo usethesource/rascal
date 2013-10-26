@@ -923,9 +923,19 @@ public class RVM {
 				case Opcode.OP_RETURN1:
 				
 					rval = null;
-					boolean returns = (op == Opcode.OP_RETURN1) || (op == Opcode.OP_FILTERRETURN);
-					if(op == Opcode.OP_RETURN1) {
-						rval = stack[sp - 1];
+					boolean returns = cf.isCoroutine || op == Opcode.OP_RETURN1 || op == Opcode.OP_FILTERRETURN;
+					if(op == Opcode.OP_RETURN1 || cf.isCoroutine) {
+						if(cf.isCoroutine) {
+							rval = Rascal_TRUE;
+							arity = instructions[pc++];
+							int nformals = cf.function.nformals;
+							for(int i = 0; i < arity; i++) {
+								ref = (Reference) stack[nformals - 1 - i];
+								ref.stack[ref.pos] = stack[--sp];
+							}
+						} else {
+							rval = stack[sp - 1];
+						}
 					}
 					
 					// if the current frame is the frame of a top active coroutine, 

@@ -33,7 +33,7 @@ public class CountDown {
 							.CALLPRIM(RascalPrimitive.num_greater_num, 2)
 							.JMPTRUE("BODY")
 							.LOADCON(0)
-							.RETURN1()
+							.RETURN1(1)
 							.LABEL("BODY")
 							.LOADLOC(0)
 							.YIELD1(1)
@@ -77,7 +77,7 @@ public class CountDown {
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main", 1)
-					.RETURN1()
+					.RETURN1(1)
 					.HALT()));
 
 		rvm.executeProgram("main", new IValue[] {});

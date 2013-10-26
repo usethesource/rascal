@@ -72,7 +72,7 @@ data Instruction =
 		           Symbol parameterTypes)			// Call a Java method
 		
 		| RETURN0()									// Return from function without value
-		| RETURN1()									// Return from function with value
+		| RETURN1(int arity)						// Return from function with value
 		| FAILRETURN()								// Failure return from function
 		| FILTERRETURN()							// Return for filter statement
 		

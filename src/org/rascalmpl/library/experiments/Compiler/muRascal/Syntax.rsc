@@ -73,7 +73,7 @@ syntax Exp  =
 			| preSubscriptList: 		"get_list" Exp lst "[" Exp index "]"
 			| preSubscriptTuple: 		"get_tuple" Exp tup "[" Exp index "]"
 			
-			> muCall: 					Exp!muYield!muReturn exp1 "(" {Exp ","}* args ")"
+			> muCall: 					Exp!muReturn!muYield!muTerminate exp1 "(" {Exp ","}* args ")"
 			
 			> muReturn: 				"return"  Exp exp
 			| muReturn:                 "return" "(" Exp exp "," {Exp ","}+ exps ")"
@@ -125,7 +125,7 @@ syntax Exp  =
 			| muYield:                  "yield" "(" Exp exp "," {Exp ","}+ exps ")"
 			> muYield: 					"yield" !>> "("
 			
-			| muTerminate:              "terminate"
+			| muTerminate:              "terminate" !>> "("
 			
 			| muGuard:                  "guard" Exp exp
 			
