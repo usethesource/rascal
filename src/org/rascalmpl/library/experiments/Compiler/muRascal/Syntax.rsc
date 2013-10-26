@@ -73,7 +73,7 @@ syntax Exp  =
 			| preSubscriptList: 		"get_list" Exp lst "[" Exp index "]"
 			| preSubscriptTuple: 		"get_tuple" Exp tup "[" Exp index "]"
 			
-			> muCall: 					Exp!muReturn!muYield!muTerminate exp1 "(" {Exp ","}* args ")"
+			> muCall: 					Exp!muReturn!muYield!muExhaust exp1 "(" {Exp ","}* args ")"
 			
 			> muReturn: 				"return"  Exp exp
 			| muReturn:                 "return" "(" Exp exp "," {Exp ","}+ exps ")"
@@ -125,7 +125,7 @@ syntax Exp  =
 			| muYield:                  "yield" "(" Exp exp "," {Exp ","}+ exps ")"
 			> muYield: 					"yield" !>> "("
 			
-			| muTerminate:              "terminate" !>> "("
+			| muExhaust:                "exhaust" !>> "("
 			
 			| muGuard:                  "guard" Exp exp
 			
@@ -143,7 +143,7 @@ keyword Keywords =
               "get_array" | "get_list" | "get_tuple" |
               "set_array" |
 			  "prim" | "muprim" | "if" | "else" |  "while" |
-              "create" | "init" | "next" | "yield" | "terminate" | "hasNext" |
+              "create" | "init" | "next" | "yield" | "exhaust" | "hasNext" |
               "guard" |
               "type" |
               "ref" | "deref" |

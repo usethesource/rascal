@@ -437,8 +437,8 @@ public class Execute {
 				codeblock.FILTERRETURN();
 				break;
 				
-			case "TERMINATE":
-				codeblock.TERMINATE();
+			case "EXHAUST":
+				codeblock.EXHAUST();
 				break;
 				
 			default:

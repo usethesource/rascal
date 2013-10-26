@@ -40,7 +40,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadOFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Terminate;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Exhaust;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrown;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
@@ -450,8 +450,8 @@ public class CodeBlock {
 		return add(new FilterReturn(this));
 	}
 	
-	public CodeBlock TERMINATE() {
-		return add(new Terminate(this));
+	public CodeBlock EXHAUST() {
+		return add(new Exhaust(this));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

@@ -134,8 +134,8 @@ public data MuExp =
           | muYield(MuExp exp)									// Yield from a coroutine with value
           | muYield(MuExp exp, list[MuExp] exps)                // Yield from a coroutine with multiple values
           
-          | muTerminate()                                       // Terminate (return with no possibility of further resumption) 
-          														// from a coroutine without a value
+          | muExhaust()                                         // Signal a failure and return from the coroutine disallowing further resumption 
+
           | muGuard(MuExp exp)                                  // Specifies a condition of suspending a coroutine instance during initialization
           
            // Multi-expressions

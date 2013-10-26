@@ -62,7 +62,7 @@ public enum Opcode {
 	JMPSWITCH			(45,	2),
 	UNWRAPTHROWN        (46,    2),
 	FILTERRETURN		(47, 	1),
-	TERMINATE           (48,    1)
+	EXHAUST           (48,    1)
 	;
 	
 	private final int op;
@@ -125,7 +125,7 @@ public enum Opcode {
 	static public final int OP_JMPSWITCH = 45;
 	static public final int OP_UNWRAPTHROWN = 46;
 	static public final int OP_FILTERRETURN = 47;
-	static public final int OP_TERMINATE = 48;
+	static public final int OP_EXHAUST = 48;
 	
 	
 	 Opcode(int op, int pc_incr){
@@ -287,7 +287,7 @@ public enum Opcode {
 		case FILTERRETURN:
 			return "FILTERRETURN";
 			
-		case TERMINATE:
+		case EXHAUST:
 			return "TERMINATE";
 		
 		default:

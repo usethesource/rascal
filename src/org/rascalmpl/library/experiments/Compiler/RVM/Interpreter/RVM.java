@@ -1084,7 +1084,7 @@ public class RVM {
 					stack[sp++] = rval;	 								// Corresponding next will always find an entry on the stack
 					continue;
 					
-				case Opcode.OP_TERMINATE:
+				case Opcode.OP_EXHAUST:
 					if(cf == ccf) {
 						activeCoroutines.pop();
 						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
