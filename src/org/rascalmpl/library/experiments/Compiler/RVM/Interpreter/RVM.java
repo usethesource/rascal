@@ -1147,13 +1147,13 @@ public class RVM {
 					
 					cf = cf.previousCallFrame;
 					if(cf == null) {
-						return Rascal_FALSE;    // 'Terminate' has to always return FALSE, i.e., signal a failure;
+						return Rascal_FALSE;    // 'Exhaust' has to always return FALSE, i.e., signal a failure;
 					}
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					stack[sp++] = Rascal_FALSE; // 'Terminate' has to always return FALSE, i.e., signal a failure;
+					stack[sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE, i.e., signal a failure;
 					continue;
 					
 				case Opcode.OP_HASNEXT:
