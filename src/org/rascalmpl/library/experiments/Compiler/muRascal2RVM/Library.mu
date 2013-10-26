@@ -17,160 +17,154 @@ function ALL[1,arg,carg]{
 
 // Initialize a pattern with a given value and exhaust all its possibilities
 
-function DO_ALL[2, pat, ^val, co]{
-   // println("DO_ALL", pat, ^val);
+coroutine DO_ALL[2, pat, ^val, co]{
    co = init(pat, ^val);
-   while(hasNext(co)){
-         if(next(co)){
-            yield true;
-         };
+   while(next(co)) {
+       yield;
    };
-   return false;
 } 
 
-// ***** Enumerators for all types *****
+// ***** Enumerators for all types ***** NOTE: all ENUM declarations get extra parameter 'rval'
 
-function ENUM_LITERAL[1, ^lit]{
+coroutine ENUM_LITERAL[2, ^lit, rval]{
    return ^lit;
 }
 
-function ENUM_LIST[1, ^lst, last, i]{
-   last = size_list(^lst) - 1;
+coroutine ENUM_LIST[2, ^lst, rval, len, i]{
+   len = size_list(^lst);
+   guard len > 0;
    i = 0;
-   while(i < last){
+   while(i < (len - 1)) {
       yield get_list ^lst[i];
       i = i + 1;
    };
-   return get_list ^lst[last];
+   return get_list ^lst[i];
 }
 
-function ENUM_SET[1, ^set, ^lst, last, i]{
+coroutine ENUM_SET[2, ^set, rval, ^lst, len, i]{
    ^lst = set2list(^set);
-   last = size_list(^lst) - 1;
+   len = size_list(^lst);
+   guard len > 0;
    i = 0;
-   while(i < last){
+   while(i < (len - 1)) {
       yield get_list ^lst[i];
       i = i + 1;
    };
-   return get_list ^lst[last];
+   return get_list ^lst[i];
 }
 
-function ENUM_MAP[1, ^map, ^klst, last, i]{
+coroutine ENUM_MAP[2, ^map, rval, ^klst, len, i]{
    ^klst = keys(^map);
-   last = size_list(^klst) - 1;
+   len = size_list(^klst);
+   guard len > 0;
    i = 0;
-   while(i < last){
+   while(i < (len - 1)) {
       yield get_list ^klst[i];
       i = i + 1;
    };
-   return get_list ^klst[last];
+   return get_list ^klst[i];
 }
 
-function ENUM_NODE[1, ^nd, last, i, array]{
+coroutine ENUM_NODE[2, ^nd, rval, len, i, array]{
    array = get_name_and_children(^nd);
-   last = size_array(array) - 1;
+   len = size_array(array) - 1;
+   guard len > 0;
    i = 1;  // skip name
-   while(i < last){
+   while(i < len) {
       yield get_array array[i];
       i = i + 1;
    };
-   return get_array array[last];
+   return get_array array[i];
 }
 
-function ENUM_TUPLE[1, ^tup, last, i]{
-   last = size_tuple(^tup) - 1;
+coroutine ENUM_TUPLE[2, ^tup, rval, len, i]{
+   len = size_tuple(^tup);
+   guard len > 0;
    i = 0;
-   while(i < last){
+   while(i < (len - 1)) {
       yield get_tuple ^tup[i];
       i = i + 1;
    };
-   return get_tuple ^tup[last];
+   return get_tuple ^tup[i];
 }
 
-function ENUMERATE_AND_MATCH1[2, enumerator, pat, cpat, elm]{
-   while(hasNext(enumerator)){
-     elm = next(enumerator);
+coroutine ENUMERATE_AND_MATCH1[2, enumerator, pat, cpat, elm]{ 
+	/* NOTE: slightly changed the original semantics: no backtracking was possible for the last possible value */
+   enumerator = init(enumerator, ref elm); // NOTE: reflects the fact that all ENUM declarations get an extra parameter
+   while(next(enumerator)) {
      cpat = init(pat, elm);
-     while(hasNext(cpat)){
-       if(next(cpat)){
-          if(hasNext(enumerator)){
-             yield true;
-          } else {
-             return true;
-          };
-       };
+     while(next(cpat)){
+       yield;
      };
    }; 
-   return false;     
 }
 
-function ENUMERATE_AND_MATCH[2,  pat, ^val]{
-  typeswitch(^val){
-    case list:         if(size_list(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat); };
-    case lrel:         if(size_list(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat); };
-    case node:         ENUMERATE_AND_MATCH1(init(create(ENUM_NODE, ^val)), pat);
-    case constructor:  ENUMERATE_AND_MATCH1(init(create(ENUM_NODE, ^val)), pat);
-    case map:          if(size_map(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_MAP, ^val)), pat); };
-    case set:          if(size_set(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat); };
-    case rel:          if(size_set(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat); };
-    case tuple:        ENUMERATE_AND_MATCH1(init(create(ENUM_TUPLE, ^val)), pat);
-    default:           ENUMERATE_AND_MATCH1(init(create(ENUM_LITERAL, ^val)), pat);
+coroutine ENUMERATE_AND_MATCH[2, pat, ^val]{ 
+  /* NOTE: initialization of coroutines has been moved into the ENUMERATE_AND_MATCH1 body */
+  /* NOTE: apparently, we have an example of stackful coroutines here */
+  typeswitch(^val) {
+    case list:         ENUMERATE_AND_MATCH1(create(ENUM_LIST,   ^val), pat);
+    case lrel:         ENUMERATE_AND_MATCH1(create(ENUM_LIST,   ^val), pat);
+    case node:         ENUMERATE_AND_MATCH1(create(ENUM_NODE,   ^val), pat);
+    case constructor:  ENUMERATE_AND_MATCH1(create(ENUM_NODE,   ^val), pat);
+    case map:          ENUMERATE_AND_MATCH1(create(ENUM_MAP,    ^val), pat);
+    case set:          ENUMERATE_AND_MATCH1(create(ENUM_SET,    ^val), pat);
+    case rel:          ENUMERATE_AND_MATCH1(create(ENUM_SET,    ^val), pat);
+    case tuple:        ENUMERATE_AND_MATCH1(create(ENUM_TUPLE,  ^val), pat);
+    default:           ENUMERATE_AND_MATCH1(create(ENUM_LITERAL,^val), pat);
   };
-  return ^val;
 }
 
-function ENUMERATE_AND_ASSIGN1[2, enumerator, varref, elm]{
-   while(hasNext(enumerator)){
-     elm = next(enumerator);
-     deref varref = elm;
-     yield true;
+coroutine ENUMERATE_AND_ASSIGN1[2, enumerator, varref, elm]{
+   enumerator = init(enumerator, ref elm); // NOTE: reflects the fact that all ENUM declarations get an extra parameter
+   while(next(enumerator)) {
+     yield elm;
    }; 
-   return false;     
 }
 
-function ENUMERATE_AND_ASSIGN[2, varref, ^val]{
-  typeswitch(^val){
-    case list:         if(size_list(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref); };
-    case lrel:         if(size_list(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref); };
-    case node:         ENUMERATE_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), varref);
-    case constructor:  ENUMERATE_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), varref);
-    case map:          if(size_map(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), varref); };
-    case set:          if(size_set(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref); };
-    case rel:          if(size_set(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref); };
-    case tuple:        ENUMERATE_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), varref);
-    default:           ENUMERATE_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), varref);
+coroutine ENUMERATE_AND_ASSIGN[2, ^val, varref]{ // NOTE: flipped parameters
+  /* NOTE: initialization of coroutines has been moved into the ENUMERATE_AND_ASSIGN1 body */
+  /* NOTE: apparently, we have an example of stackful coroutines here */
+  typeswitch(^val) {
+    case list:         ENUMERATE_AND_ASSIGN1(create(ENUM_LIST,   ^val), varref);
+    case lrel:         ENUMERATE_AND_ASSIGN1(create(ENUM_LIST,   ^val), varref);
+    case node:         ENUMERATE_AND_ASSIGN1(create(ENUM_NODE,   ^val), varref);
+    case constructor:  ENUMERATE_AND_ASSIGN1(create(ENUM_NODE,   ^val), varref);
+    case map:          ENUMERATE_AND_ASSIGN1(create(ENUM_MAP,    ^val), varref);
+    case set:          ENUMERATE_AND_ASSIGN1(create(ENUM_SET,    ^val), varref);
+    case rel:          ENUMERATE_AND_ASSIGN1(create(ENUM_SET,    ^val), varref);
+    case tuple:        ENUMERATE_AND_ASSIGN1(create(ENUM_TUPLE,  ^val), varref);
+    default:           ENUMERATE_AND_ASSIGN1(create(ENUM_LITERAL,^val), varref);
   };
-  return false;
 }
 
-function ENUMERATE_CHECK_AND_ASSIGN1[3, enumerator, typ, varref, elm]{
-   while(hasNext(enumerator)){
-     elm = next(enumerator);
+coroutine ENUMERATE_CHECK_AND_ASSIGN1[3, enumerator, typ, varref, elm]{
+   enumerator = init(enumerator, ref elm); // NOTE: reflects the fact that all ENUM declarations get an extra parameter
+   while(next(enumerator)){
      if(subtype(typeOf(elm), typ)){
-     	deref varref = elm;
-        yield true;
+     	yield elm;
      };
    }; 
-   return false;      
 }
 
-function ENUMERATE_CHECK_AND_ASSIGN[3, typ, varref, ^val]{
+coroutine ENUMERATE_CHECK_AND_ASSIGN[3, ^val, typ, varref]{ // NOTE: flipped parameters
+  /* NOTE: initialization of coroutines has been moved into the ENUMERATE_CHECK_AND_ASSIGN1 body */
+  /* NOTE: apparently, we have an example of stackful coroutines here */
   typeswitch(^val){
-    case list:         if(size_list(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref); };
-    case lrel:         if(size_list(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref); };
-    case node:         ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), typ, varref);
-    case constructor:  ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), typ, varref);
-    case map:          if(size_map(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), typ, varref); };
-    case set:          if(size_set(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref); };
-    case rel:          if(size_set(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref); };
-    case tuple:        ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), typ, varref);
-    default:           ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), typ, varref);
+    case list:         ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_LIST,   ^val), typ, varref);
+    case lrel:         ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_LIST,   ^val), typ, varref);
+    case node:         ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_NODE,   ^val), typ, varref);
+    case constructor:  ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_NODE,   ^val), typ, varref);
+    case map:          ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_MAP,    ^val), typ, varref);
+    case set:          ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_SET,    ^val), typ, varref);
+    case rel:          ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_SET,    ^val), typ, varref);
+    case tuple:        ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_TUPLE,  ^val), typ, varref);
+    default:           ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_LITERAL,^val), typ, varref);
   };
-  return false;
 }
 
 
-// ***** Ranges *****
+// ***** Ranges ***** // NOTE: skipped this for now
 
 function RANGE[3, pat, ^first, ^end, i, n]{
    i = mint(^first);
@@ -217,69 +211,44 @@ function RANGE_STEP[4, pat, ^first, ^second, ^end, i, n, step]{
 
 // ***** Pattern matching *****
 
-function MATCH[2, pat, ^subject, cpat]{
-   // println("MATCH", pat, ^subject);
+coroutine MATCH[2, pat, ^subject, cpat]{
    cpat = init(pat, ^subject);
-   while(hasNext(cpat)){
-      if(next(cpat)){
-         yield true;
-      } else {
-        return false;
-      };
+   while(next(cpat)){
+      yield;
    };
-   return false;
 }
 
-function MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
-   // println("MATCH_N", pats, subjects);
+coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{ /* NOTE: check semantics here, whether all the possible combinations */
    plen = size_array(pats);
    slen = size_array(subjects);
-   if(plen != slen){
-      // println("MATCH_N: unequal length", plen, slen);
-      return false;
-   };
+   guard plen == slen;
    p = 0;
    ipats = make_array(plen);
-   while(p < plen){
-     // println("MATCH_N: init ", p);
+   while(p < plen) {
      set_array ipats[p] = init(get_array pats[p], get_array subjects[p]);
      p = p + 1;
    };
    
-   while(true){
+   while(true) {
      p = 0;
-     while(p < plen){
-       // println("p = ", p);
+     while(p < plen) {
        pat = get_array ipats[p];
-       if(hasNext(pat)){
-          if(next(pat)){
-              p = p + 1;
-           } else {
-              return false;
-           };   
+       if(next(pat)) {
+          p = p + 1;   
        } else {
-         return false;
+         exhaust;
        };
      };
-     // println("MATCH_N yields true");
-     yield true; 
+     yield; 
    };
 }
 
 function MATCH_CALL_OR_TREE[2, pats, ^subject, cpats]{
-    // println("MATCH_CALL_OR_TREE", pats, ^subject);
-    if(^subject is node){
-      cpats = init(create(MATCH_N, pats, get_name_and_children(^subject)));
-      while(hasNext(cpats)){
-        // println("MATCH_CALL_OR_TREE", "hasNext=true");
-        if(next(cpats)){
-           yield true;
-        } else {
-           return false;
-        };
-      };
+    guard ^subject is node;
+    cpats = init(create(MATCH_N, pats, get_name_and_children(^subject)));
+    while(next(cpats)){
+      yield;
     };
-    return false;
 }
 
 function MATCH_REIFIED_TYPE[2, pat, ^subject, nc, konstructor, symbol]{
