@@ -294,7 +294,7 @@ public class Execute {
 				break;
 
 			case "RETURN1":
-				codeblock.RETURN1();
+				codeblock.RETURN1(getIntField(instruction, "arity"));
 				break;
 
 			case "JMP":

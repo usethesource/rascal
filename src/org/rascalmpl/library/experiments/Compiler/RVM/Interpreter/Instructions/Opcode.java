@@ -21,7 +21,7 @@ public enum Opcode {
 	STORELOC 			(4, 	2),
 	CALL 				(5, 	3),
 	CALLPRIM	 		(6, 	3),
-	RETURN1 			(7, 	1),
+	RETURN1 			(7, 	2),
 	JMP 				(8, 	2),
 	JMPTRUE 			(9, 	2),
 	JMPFALSE 			(10, 	2),
@@ -165,7 +165,7 @@ public enum Opcode {
 			return "CALLPRIM " + cb.finalCode[pc + 1] +  ", " + cb.finalCode[pc + 2] + " [" + RascalPrimitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
 			
 		case RETURN1:
-			return "RETURN1";
+			return "RETURN1 " + cb.finalCode[pc + 1];
 			
 		case JMP:
 			return "JMP " + cb.finalCode[pc + 1];
