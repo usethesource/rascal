@@ -1004,6 +1004,9 @@ public class RVM {
 					stack[sp++] = newCoroutine;
 					continue;
 					
+				case Opcode.OP_GUARD:
+					continue;
+					
 				case Opcode.OP_CREATE:
 				case Opcode.OP_CREATEDYN:
 					if(op == Opcode.OP_CREATE){

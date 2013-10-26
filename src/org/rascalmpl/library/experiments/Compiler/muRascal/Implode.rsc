@@ -66,8 +66,8 @@ str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> 
 MuFunction preprocess(Function f, str modName){
    uid = getUID(modName,f.funNames,f.name,f.nformals);
    
+   // Guard specific check
    insertGuard = false;
-   // Guard check
    if(f is preCoroutine) {
        guards = [];
        visit(f.body) { case e:muGuard(_): guards += e; }
@@ -75,7 +75,7 @@ MuFunction preprocess(Function f, str modName){
            throw "More than one guard expression has been found in <uid>!";
        }
        if(size(guards) == 1 && guards[0] notin f.body) {
-           throw "Guard expression has to be top-level within the coroutine\'s body <uid>!";
+           throw "Guard expression has to be at top-level within the body of a coroutine: <uid>!";
        }
        if(size(guards) == 1) {
            for(MuExp e <- f.body) {
@@ -86,8 +86,7 @@ MuFunction preprocess(Function f, str modName){
                    throw "Yield or return has been found before a guard expression: <uid>";
                }
            }
-       }
-       if(size(guards) == 0) {
+       } else {
            insertGuard = true;
        }
    }
