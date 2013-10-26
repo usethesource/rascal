@@ -441,6 +441,10 @@ public class Execute {
 				codeblock.EXHAUST();
 				break;
 				
+			case "GUARD":
+				codeblock.GUARD();
+				break;
+				
 			default:
 				throw new RuntimeException("PANIC: In function " + name + ", nknown instruction: " + opcode);
 			}

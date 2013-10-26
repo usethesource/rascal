@@ -14,7 +14,7 @@ public enum Opcode {
 	 * 
 	 * OPCODENAME(	opcode,	pc increment)
 	 */
-	LOADCON			(0, 	2),
+	LOADCON			    (0, 	2),
 	LOADVAR 			(1, 	3),
 	LOADLOC 			(2,		2),
 	STOREVAR 			(3, 	3),
@@ -62,7 +62,8 @@ public enum Opcode {
 	JMPSWITCH			(45,	2),
 	UNWRAPTHROWN        (46,    2),
 	FILTERRETURN		(47, 	1),
-	EXHAUST           (48,    1)
+	EXHAUST             (48,    1),
+	GUARD               (49,    1)
 	;
 	
 	private final int op;
@@ -126,6 +127,7 @@ public enum Opcode {
 	static public final int OP_UNWRAPTHROWN = 46;
 	static public final int OP_FILTERRETURN = 47;
 	static public final int OP_EXHAUST = 48;
+	static public final int OP_GUARD = 49;
 	
 	
 	 Opcode(int op, int pc_incr){
@@ -289,6 +291,9 @@ public enum Opcode {
 			
 		case EXHAUST:
 			return "TERMINATE";
+			
+		case GUARD:
+			return "GUARD";
 		
 		default:
 			break;

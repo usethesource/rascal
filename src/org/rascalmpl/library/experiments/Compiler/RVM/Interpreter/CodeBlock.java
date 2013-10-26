@@ -19,6 +19,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FilterReturn;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Guard;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.HasNext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Init;
@@ -452,6 +453,10 @@ public class CodeBlock {
 	
 	public CodeBlock EXHAUST() {
 		return add(new Exhaust(this));
+	}
+	
+	public CodeBlock GUARD() {
+		return add(new Guard(this));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
