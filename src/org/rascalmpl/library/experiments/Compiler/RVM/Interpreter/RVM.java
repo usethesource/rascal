@@ -1083,6 +1083,15 @@ public class RVM {
 				case Opcode.OP_NEXT0:
 				case Opcode.OP_NEXT1:
 					coroutine = (Coroutine) stack[--sp];
+					
+					// Merged the hasNext and next semantics
+					if(!coroutine.hasNext()) {
+						if(op == Opcode.OP_NEXT1) {
+							--sp;
+						}
+						stack[sp++] = FALSE;
+						continue NEXT_INSTRUCTION;
+					}
 					// put the coroutine onto the stack of active coroutines
 					activeCoroutines.push(coroutine);
 					ccf = coroutine.start;
