@@ -64,13 +64,41 @@ str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> 
 	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>(<nformals>)";
 
 MuFunction preprocess(Function f, str modName){
-   
    uid = getUID(modName,f.funNames,f.name,f.nformals);
+   
+   insertGuard = false;
+   // Guard check
+   if(f is preCoroutine) {
+       guards = [];
+       visit(f.body) { case e:muGuard(_): guards += e; }
+       if(size(guards) > 1) {
+           throw "More than one guard expression has been found in <uid>!";
+       }
+       if(size(guards) == 1 && guards[0] notin f.body) {
+           throw "Guard expression has to be top-level within the coroutine\'s body <uid>!";
+       }
+       if(size(guards) == 1) {
+           for(MuExp e <- f.body) {
+               if(e in guards) {
+                   break;
+               }
+               if(!isEmpty([ exp | /MuExp exp := e, exp is muReturn || exp is muYield ])) {
+                   throw "Yield or return has been found before a guard expression: <uid>";
+               }
+           }
+       }
+       if(size(guards) == 0) {
+           insertGuard = true;
+       }
+   }
+   
    scopeIn = (!isEmpty(f.funNames)) ? getUID(modName,f.funNames) : ""; // if not a function scope, then the root one
    // Generate a very generic function type
    ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals + 1] ]);
-   return (f is preCoroutine) ? muCoroutine(uid, scopeIn, f.nformals, size(vardefs[uid]), muBlock(preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body)))
-                              : muFunction(uid, ftype, scopeIn, f.nformals, size(vardefs[uid]), |rascal:///|, [], (), muBlock(preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body)));
+   
+   body = preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body);
+   return (f is preCoroutine) ? muCoroutine(uid, scopeIn, f.nformals, size(vardefs[uid]), muBlock(insertGuard ? [ muGuard(muBool(true)), *body ] : body))
+                              : muFunction(uid, ftype, scopeIn, f.nformals, size(vardefs[uid]), |rascal:///|, [], (), muBlock(body));
 }
 
 list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] exps){
