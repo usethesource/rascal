@@ -241,6 +241,9 @@ test bool tst() = run("res = []; for([int x, 5] \<- [[1,5], [2,5], [3, 5]], x !=
 test bool tst() = run("res = []; for([int x, 5] \<- [[1,6], [2,5], [3, 5]], x != 2) res = res +[x];", "res") == {res = []; for([int x, 5] <- [[1,6], [2,5], [3, 5]], x != 2) res = res +[x]; res;};
 
 test bool tst() = run("res = []; for(int x \<- \<1,2,3,4\>) res = res +[x];", "res") == {res = []; for(int x <- <1,2,3,4>) res = res +[x]; res;};
+
+test bool tst() = run("{ res = []; for([*int x,*int y] \<- [ [1,2],[3,4] ]) { res = res + [x,y]; } res; }") == { res = []; for([*int x,*int y] <- [ [1,2],[3,4] ]) { res = res + [x,y]; } res; };
+test bool tst() = run("{ res = []; for(d3([*int x,*int y],[*int z,*int w]) \<- [ d3([1,2],[3,4]) ]) { res = res + [x,y,z,w]; } res; }") == { res = []; for(d3([*int x,*int y],[*int z, *int w]) := d3([1,2],[3,4])) { res = res + [x,y,z,w]; } res; };
 // Any
 
 test bool tst() = run("any(x \<- [1,2,13,3], x \> 3)") == any(x <- [1,2,13,3], x > 3);
