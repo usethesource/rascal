@@ -112,7 +112,7 @@ function ENUMERATE_AND_MATCH[2,  pat, ^val]{
     case tuple:        ENUMERATE_AND_MATCH1(init(create(ENUM_TUPLE, ^val)), pat);
     default:           ENUMERATE_AND_MATCH1(init(create(ENUM_LITERAL, ^val)), pat);
   };
-  return ^val;
+  return false;
 }
 
 function ENUMERATE_AND_ASSIGN1[2, enumerator, varref, elm]{
