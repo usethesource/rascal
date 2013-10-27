@@ -11,12 +11,19 @@ lexical Comment
   = "/*" (![*] | [*] !>> [/])* "*/" 
   | "//" ![\n]* [\n]; 
 
-//layout Whitespace = [\ \t\n]*;
-
-lexical Identifier = id: ( [_^@]?[A-Za-z][A-Za-z0-9_]* ) \ Keywords;
+// lexical Identifier = id: ( [_^@]?[A-Za-z][A-Za-z0-9_]* ) \ Keywords;
 lexical Integer =  [0-9]+;
-lexical Label = label: [$][A-Za-z][A-Za-z0-9]+ \ Keywords;
-lexical FConst = fconst: ( [A-Za-z][A-Za-z0-9_]* ) \ Keywords; // [_][A-Za-z0-9]+;
+lexical Label = label: [$][A-Za-z][A-Za-z0-9]+  \ Keywords;
+lexical FConst = ( [A-Z][A-Z0-9_]* )    \ Keywords;
+lexical MConst = ( [A-Z][A-Za-z0-9_]* ) \ Keywords;
+lexical TConst = ( [a-z][a-z]* )        \ Keywords;
+
+lexical Identifier = 
+			    fvar: FConst var
+			  |	ivar: ( [i][A-Z][A-Za-z0-9_]* )      \ Keywords var
+              | rvar: ( [r][A-Z][A-Za-z0-9_]* )      \ Keywords var
+              | mvar: ( [a-h j-q s-z][A-Za-z0-9_]* ) \ Keywords var
+              ; 
 
 lexical StrChar = 
 			  NewLine: [\\] [n] 
@@ -30,20 +37,20 @@ lexical StrChar =
 lexical String = [\"] StrChar* [\"];
 
 start syntax Module =
-			  preMod: 		"module" Identifier name TypeDeclaration* types Function* functions
+			  preMod: 		"module" MConst name TypeDeclaration* types Function* functions
 			;
 			
 syntax TypeDeclaration = preTypeDecl: "declares" String sym;
 
 syntax Function =     
-                preFunction:  "function"  FunNamePart* funNames Identifier name "[" Integer nformals "," {Identifier ","}* locals "]"
+                preFunction:  "function"  FunNamePart* funNames FConst name "[" Integer nformals "," {Identifier!fvar ","}* locals "]"
                               "{" (Exp ";")+ body "}"
-              | preCoroutine: "coroutine" FunNamePart* funNames Identifier name "[" Integer nformals "," {Identifier ","}* locals "]"
+              | preCoroutine: "coroutine" FunNamePart* funNames FConst name "[" Integer nformals "," {Identifier!fvar ","}* locals "]"
                               "{" (Exp ";")+ body "}"
 			;
 			
 syntax FunNamePart = FConst id >> "::" "::" Integer nformals >> "::" "::";
-syntax ModNamePart = Identifier id >> "::" "::";
+syntax ModNamePart = MConst id >> "::" "::";
 
 syntax Exp  =
 			  muLab: 					Label id
@@ -55,11 +62,9 @@ syntax Exp  =
 			
 			| muConstr: 				"cons" FConst id
 			
-		    | muLoc: 					Identifier id >> ":" ":" Integer pos
-			
 			// call-by-reference: uses of variables that refer to a value location in contrast to a value
-			| preLocDeref:  			"deref" Identifier id
-			| preVarDeref:   			"deref" FunNamePart+ funNames Identifier id
+			| preLocDeref:  			"deref" Identifier!fvar!ivar!mvar id
+			| preVarDeref:   			"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id
 			
 			> muCallPrim: 				"prim" "(" String name ")"
 			| muCallPrim:               "prim" "(" String name "," {Exp ","}+ args ")"
@@ -94,15 +99,15 @@ syntax Exp  =
 			
 			> left preAnd:				Exp lhs "&&" Exp rhs
 			> left preOr:               Exp lhs "||" Exp rhs
-			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] Identifier typeName
+			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] TConst typeName
 			
-		 	> preAssignLoc:				Identifier id "=" Exp exp
+		 	> preAssignLoc:				Identifier!fvar id "=" Exp exp
 		 	| preAssignSubscriptArray:	"set_array" Exp ar "[" Exp index "]" "=" Exp exp
-			> preAssign: 				FunNamePart+ funNames Identifier id "=" Exp exp
+			> preAssign: 				FunNamePart+ funNames Identifier!fvar id "=" Exp exp
 			
 			// call-by-reference: assignment 
-			| preAssignLocDeref: 		"deref" Identifier id "=" Exp exp
-			> muAssignVarDeref:  		"deref" FunNamePart+ funNames Identifier id "=" Exp exp
+			| preAssignLocDeref: 		"deref" Identifier!fvar!ivar!mvar id "=" Exp exp
+			> preAssignVarDeref:  		"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id "=" Exp exp
 			
 		
 			| muIfelse: 				(Label label ":")? "if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
@@ -130,13 +135,13 @@ syntax Exp  =
 			| muGuard:                  "guard" Exp exp
 			
 			// call-by-reference: expressions that return a value location
-			| preLocRef:     			"ref" Identifier id
-			| preVarRef:      			"ref" FunNamePart+ funNames Identifier id
+			| preLocRef:     			"ref" Identifier!fvar!rvar id
+			| preVarRef:      			"ref" FunNamePart+ funNames Identifier!fvar!rvar id
 			
 			| bracket					"(" Exp exp ")"
 			;
 			
-syntax TypeCase = muTypeCase: 			"case" Identifier id ":" Exp exp ;		
+syntax TypeCase = muTypeCase: 			"case" TConst id ":" Exp exp ;		
 
 keyword Keywords = 
               "module" | "declares" | "function" | "coroutine" | "return" | 
@@ -163,6 +168,6 @@ syntax Exp =
 			| preVar: 					FunNamePart+ funNames Identifier id 
 			
 			| preIfthen:    			"if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}"
-			| preAssignLocList:			"[" Identifier id1 "," Identifier id2 "]" "=" Exp exp
+			| preAssignLocList:			"[" Identifier!fvar!rvar id1 "," Identifier!fvar!rvar id2 "]" "=" Exp exp
 			> preList:					"[" {Exp ","}* exps "]"
 			;
