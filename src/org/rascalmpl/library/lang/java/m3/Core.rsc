@@ -29,14 +29,6 @@ anno rel[loc from, loc to] M3@fieldAccess;        // code using data (like field
 anno rel[loc from, loc to] M3@typeDependency;     // using a type literal in some code (types of variables, annotations)
 anno rel[loc from, loc to] M3@methodOverrides;    // which method override which other methods
 
-@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-@reflect
-java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
-
-private void setEnvironmentOptions(loc directory) {
-    setEnvironmentOptions(getPaths(directory, "class") + find(directory, "jar"), getPaths(directory, "java"));
-}
-
 M3 composeJavaM3(loc id, set[M3] models) {
   m = composeM3(id, models);
   
@@ -69,8 +61,13 @@ java M3 createM3FromJarClass(loc jarClass);
 Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [M3] model
 }
 M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
-    setEnvironmentOptions(project);
-    result = composeJavaM3(project, { createM3FromFile(f, javaVersion = javaVersion) | loc f <- find(project, "java") });
+    classPaths = getPaths(project, "class") + find(project, "jar");
+    sourcePaths = getPaths(project, "java");
+    //setEnvironmentOptions(project);
+    setEnvironmentOptions(classPaths, sourcePaths);
+    for (sp <- sourcePaths) {
+      result = composeJavaM3(project, { createM3FromFile(f, javaVersion = javaVersion) | loc f <- find(sp, "java") });
+    }
     registerProject(project.authority, result);
     return result;
 }

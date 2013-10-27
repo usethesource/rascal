@@ -114,7 +114,7 @@ public class EclipseJavaCompiler {
       CompilationUnit cu = getCompilationUnit(loc, collectBindings.getValue(), javaVersion, eval);
 
       TypeStore store = new TypeStore();
-      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+//      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
       store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
       ASTConverter converter = new ASTConverter(store, collectBindings.getValue());
 

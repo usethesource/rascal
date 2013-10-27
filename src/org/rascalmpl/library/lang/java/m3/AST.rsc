@@ -1,7 +1,8 @@
 module lang::java::m3::AST
 
 extend analysis::m3::AST;
-import lang::java::m3::Core;
+import util::FileSystem;
+import lang::java::m3::TypeSymbol;
  
 data Declaration
     = \compilationUnit(list[Declaration] imports, list[Declaration] types)
@@ -144,6 +145,14 @@ data Modifier
     | \annotation(Expression \anno)
     | \onDemand()
     ;
+
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+@reflect
+java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
+
+void setEnvironmentOptions(loc directory) {
+    setEnvironmentOptions(getPaths(directory, "class") + find(directory, "jar"), getPaths(directory, "java"));
+}
       
 @doc{Creates AST from a file}
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
