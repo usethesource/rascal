@@ -93,11 +93,7 @@ function ENUMERATE_AND_MATCH1[2, enumerator, pat, cpat, elm]{
      cpat = init(pat, elm);
      while(hasNext(cpat)){
        if(next(cpat)){
-          if(hasNext(enumerator)){
-             yield true;
-          } else {
-             return true;
-          };
+          yield true;
        };
      };
    }; 
