@@ -218,153 +218,110 @@ coroutine MATCH[2, pat, ^subject, cpat]{
    };
 }
 
-coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{ /* NOTE: check semantics here, whether all the possible combinations */
+coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{ /* NOTE: fixed semantics */
    plen = size_array(pats);
    slen = size_array(subjects);
    guard plen == slen;
    p = 0;
    ipats = make_array(plen);
-   while(p < plen) {
-     set_array ipats[p] = init(get_array pats[p], get_array subjects[p]);
-     p = p + 1;
-   };
-   
-   while(true) {
-     p = 0;
-     while(p < plen) {
+   set_array ipats[p] = init(get_array pats[p], get_array subjects[p]);
+   while((p >= 0) && (p < plen)) {
        pat = get_array ipats[p];
        if(next(pat)) {
-          p = p + 1;   
+           if(p < (plen - 1)) {
+               p = p + 1;
+               set_array ipats[p] = init(get_array pats[p], get_array subjects[p]);
+           } else {
+               yield;
+           };
        } else {
-         exhaust;
+           p = p - 1;
        };
-     };
-     yield; 
-   };
+   };   
 }
 
-function MATCH_CALL_OR_TREE[2, pats, ^subject, cpats]{
+coroutine MATCH_CALL_OR_TREE[2, pats, ^subject, cpats]{
     guard ^subject is node;
     cpats = init(create(MATCH_N, pats, get_name_and_children(^subject)));
-    while(next(cpats)){
-      yield;
+    while(next(cpats)) {
+        yield;
     };
 }
 
-function MATCH_REIFIED_TYPE[2, pat, ^subject, nc, konstructor, symbol]{
-    if(^subject is node){
-       nc = get_name_and_children(^subject);
-       konstructor = get_array nc[0];
-       symbol = get_array nc[1];
-       if(equal(konstructor, "type") && equal(symbol, pat)){
-          return true;
-       };
+coroutine MATCH_REIFIED_TYPE[2, pat, ^subject, nc, konstructor, symbol]{
+    guard ^subject is node;
+    nc = get_name_and_children(^subject);
+    konstructor = get_array nc[0];
+    symbol = get_array nc[1];
+    if(equal(konstructor, "type") && equal(symbol, pat)) { // NOTE: the second equal?
+        return;
     };
-    return false;
 }
 
-function MATCH_TUPLE[2, pats, ^subject, cpats]{
-    // println("MATCH_TUPLE", pats, ^subject);
-    if(^subject is tuple){
-      cpats = init(create(MATCH_N, pats, get_tuple_elements(^subject)));
-      while(hasNext(cpats)){
-        // println("MATCH_TUPLE", "hasNext=true");
-        if(next(cpats)){
-           yield true;
-        } else {
-           return false;
-        };
-      };
+coroutine MATCH_TUPLE[2, pats, ^subject, cpats]{
+    guard ^subject is tuple;
+    cpats = init(create(MATCH_N, pats, get_tuple_elements(^subject)));
+    while(next(cpats)) {
+        yield;
     };
-    return false;
 }
 
-function MATCH_LITERAL[2, pat, ^subject, res]{
-  // println("MATCH_LITERAL", pat, ^subject);
-  if(equal(typeOf(pat), typeOf(^subject))){
-     return equal(pat, ^subject);
-  };
-  return false;
+coroutine MATCH_LITERAL[2, pat, ^subject, res]{
+    guard ( equal(typeOf(pat),typeOf(^subject)) && equal(pat, ^subject) );
 }
 
-function MATCH_VAR[2, varref, ^subject]{
-//   if(is_defined(deref varref)){
-//      return equal(deref varref, ^subject);
-//   };
-   deref varref = ^subject;
-   return true;
+coroutine MATCH_VAR[2, ^subject, varref]{ // NOTE: flipped parameters
+   return ^subject;
 }
 
-function MATCH_ANONYMOUS_VAR[1, ^subject]{
-   return true;
+coroutine MATCH_ANONYMOUS_VAR[1, ^subject]{
+   return;
 }
 
-function MATCH_TYPED_VAR[3, typ, varref, ^subject]{
-   if(subtype(typeOf(^subject), typ)){
-//     if(is_defined(deref varref)){
-//         return equal(deref varref, ^subject);
-//      };
-      deref varref = ^subject;
-      return true;
-   };
-   return false;  
+coroutine MATCH_TYPED_VAR[3, ^subject, typ, varref]{ // NOTE: flipped parameters
+   guard subtype(typeOf(^subject), typ);
+   return ^subject;  
 }
 
-function MATCH_TYPED_ANONYMOUS_VAR[2, typ, ^subject]{
-   if(subtype(typeOf(^subject), typ)){
-      return true;
-   };
-   return false;  
+coroutine MATCH_TYPED_ANONYMOUS_VAR[2, typ, ^subject]{
+   guard subtype(typeOf(^subject), typ);
+   return;
 }
 
-function MATCH_VAR_BECOMES[3, varref, pat, ^subject, cpat]{
+coroutine MATCH_VAR_BECOMES[3, pat, ^subject, varref, cpat]{ // NOTE: flipped parameters
    cpat = init(pat, ^subject);
-   while(hasNext(cpat)){
-     if(next(cpat)) {
-       deref varref = ^subject;
-       yield true;
-     } else {
-       return false;
-     };
+   while(next(cpat)){
+       yield ^subject;
    };
-   return false;
 }
 
-function MATCH_TYPED_VAR_BECOMES[4, typ, varref, pat, ^subject, cpat]{
-   if(subtype(typeOf(^subject), typ)){
-     cpat = init(pat, ^subject);
-     while(hasNext(cpat)){
-       if(next(cpat)) {
-         deref varref = ^subject;
-         yield true;
-       } else {
-         return false;
-       };
-     };
-   };  
-   return false;
+coroutine MATCH_TYPED_VAR_BECOMES[4, pat, ^subject, typ, varref, cpat]{ // NOTE: flipped parameters
+   guard subtype(typeOf(^subject), typ);
+   cpat = init(pat, ^subject);
+   while(next(cpat)){
+       yield ^subject;
+   };
 }
 
-function MATCH_AS_TYPE[3, typ, pat, ^subject]{
-   if(subtype(typeOf(^subject), typ)){
-      DO_ALL(pat, ^subject);
-   };  
-   return false;
+coroutine MATCH_AS_TYPE[3, typ, pat, ^subject]{ // NOTE: example of stackful coroutines is here
+   guard subtype(typeOf(^subject), typ);
+   DO_ALL(pat, ^subject);
 }
 
-function MATCH_ANTI[2, pat, ^subject, cpat]{
+coroutine MATCH_ANTI[2, pat, ^subject, cpat]{
 	cpat = init(pat, ^subject);
 	if(next(cpat)){
-	   return false;
+	   exhaust;
 	} else {
-	   return true;
+	   return;
 	};
 }
 
 // ***** List matching *****
 
-function MATCH_LIST[2, pats,   						// A list of coroutines to match list elements
+coroutine MATCH_LIST[2, pats,   					// A list of coroutines to match list elements
 					   ^subject,					// The subject list
+					   
 					   patlen,						// Length of pattern list
 					   patlen1,						// patlen - 1
 					   sublen,						// Length of subject list
@@ -376,11 +333,8 @@ function MATCH_LIST[2, pats,   						// A list of coroutines to match list eleme
 					   success,						// Success flag of last macth
 					   nextCursor					// Cursor movement of last successfull match
 					]{
-     if(^subject is list) {
-         // continue
-     } else {
-         return false;
-     };
+     guard ^subject is list;
+     
      patlen   = size_array(pats);
      patlen1 =  patlen - 1;
      sublen   = size_list(^subject);
