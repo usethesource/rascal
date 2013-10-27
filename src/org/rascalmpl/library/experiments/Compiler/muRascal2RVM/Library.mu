@@ -236,12 +236,33 @@ function MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
    };
    p = 0;
    ipats = make_array(plen);
+   /*
    while(p < plen){
      // println("MATCH_N: init ", p);
      set_array ipats[p] = init(get_array pats[p], get_array subjects[p]);
      p = p + 1;
    };
-   
+   */
+   set_array ipats[p] = init(get_array pats[p], get_array subjects[p]);
+   while((p >= 0) && (p < plen)) {
+     pat = get_array ipats[p];
+     if(hasNext(pat)) {
+       if(next(pat)) {
+           if(p < (plen - 1)) {
+               p = p + 1;
+               set_array ipats[p] = init(get_array pats[p], get_array subjects[p]);
+           } else {
+               yield true;
+           };
+       } else {
+           p = p - 1;
+       };
+     } else {
+         p = p - 1;
+     };
+   };   
+   return false;   
+   /*
    while(true){
      p = 0;
      while(p < plen){
@@ -260,6 +281,7 @@ function MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
      // println("MATCH_N yields true");
      yield true; 
    };
+   */
 }
 
 function MATCH_CALL_OR_TREE[2, pats, ^subject, cpats]{
