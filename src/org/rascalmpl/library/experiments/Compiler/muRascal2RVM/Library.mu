@@ -451,10 +451,16 @@ coroutine MATCH_SET[2, pair,	   					// A pair of literals, and patterns (other 
 					   matchers,					// List of currently active pattern matchers
 					   remaining					// Remaining mset as determined by last successfull match
 					]{
+	  guard iSubject is set;
 	  
       iLiterals = get_array pair[0];
-      pats      = get_array pair[1];      
-      guard ((iSubject is set) && subset(iLiterals, iSubject));
+      pats      = get_array pair[1];
+      
+      if(subset(iLiterals, iSubject)) {
+          // continue
+      } else {
+          exhaust;
+      };
       
       subject1 = mset_destructive_subtract_set(mset(iSubject), iLiterals);
       patlen   = size_array(pats);
