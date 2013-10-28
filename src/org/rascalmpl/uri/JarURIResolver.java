@@ -30,7 +30,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 	}
 	
 	private String getJar(URI uri) {
-		String path = uri.toASCIIString();
+		String path = uri.getPath();
 		int bang = path.indexOf('!');
 		if (bang != -1) {
 		  return path.substring(path.indexOf("/"), bang);
@@ -41,7 +41,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 	}
 	
 	private String getPath(URI uri) {
-		String path = uri.toASCIIString();
+		String path = uri.getPath();
 		int bang = path.indexOf('!');
 		
 		if (bang != -1) {
