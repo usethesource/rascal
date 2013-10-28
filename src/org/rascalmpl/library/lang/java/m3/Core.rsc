@@ -18,6 +18,7 @@ import Node;
 import List;
 
 import util::FileSystem;
+import demo::common::Crawl;
 
 data Modifier = \annotation(loc \ann);
 
@@ -27,14 +28,6 @@ anno rel[loc from, loc to] M3@methodInvocation;   // methods calling each other 
 anno rel[loc from, loc to] M3@fieldAccess;        // code using data (like fields)
 anno rel[loc from, loc to] M3@typeDependency;     // using a type literal in some code (types of variables, annotations)
 anno rel[loc from, loc to] M3@methodOverrides;    // which method override which other methods
-
-@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-@reflect
-java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
-
-private void setEnvironmentOptions(loc directory) {
-    setEnvironmentOptions(getPaths(directory, "class") + find(directory, "jar"), getPaths(directory, "java"));
-}
 
 M3 composeJavaM3(loc id, set[M3] models) {
   m = composeM3(id, models);
@@ -49,18 +42,71 @@ M3 composeJavaM3(loc id, set[M3] models) {
   return m;
 }
 
+M3 link(M3 projectModel, set[M3] libraryModels) {
+  projectModel@declarations = { <name[authority=projectModel.id.authority], src> | <name, src> <- projectModel@declarations };
+  for (libraryModel <- libraryModels) {
+    libraryModel@declarations = { <name[authority=libraryModel.id.authority], src> | <name, src> <- libraryModel@declarations }; 
+  }
+}
+
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
 java M3 createM3FromFile(loc file, str javaVersion = "1.7");
+
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+@reflect
+java M3 createM3FromJarClass(loc jarClass);
 
 @doc{
 Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [M3] model
 }
 M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
-    setEnvironmentOptions(project);
-    result = composeJavaM3(project, { createM3FromFile(f, javaVersion = javaVersion) | loc f <- find(project, "java") });
+    classPaths = getPaths(project, "class") + find(project, "jar");
+    sourcePaths = getPaths(project, "java");
+    //setEnvironmentOptions(project);
+    setEnvironmentOptions(classPaths, sourcePaths);
+    M3 result = m3(project);
+    for (sp <- sourcePaths) {
+      result = composeJavaM3(project, { createM3FromFile(f, javaVersion = javaVersion) | loc f <- find(sp, "java") });
+    }
     registerProject(project.authority, result);
     return result;
+}
+
+Declaration getMethodAST(loc methodLoc, M3 model = m3(|unknown:///|)) {
+  if (isMethod(methodLoc)) {
+    if (isEmpty(model)) {
+      model = getModelContaining(methodLoc);
+      if (isEmpty(model))
+        throw "Declaration for <methodLoc> not found in any models";
+    }
+    loc file = getFileContaining(methodLoc, model);
+    Declaration fileAST = createAstFromFile(file, true);
+    visit(fileAST) {
+      case Declaration d: {
+        if ("decl" in getAnnotations(d) && d@decl == methodLoc)
+          return d;
+      }
+    }
+    throw "No declaration matching <methodLoc> found";
+  }
+  throw "Only methods are supported at the moment";
+}
+
+M3 createM3FromJar(loc jarFile) {
+    str jarName = substring(jarFile.path, 0, findFirst(jarFile.path, "!"));
+    jarName = substring(jarName, findLast(jarName, "/")+1);
+    loc jarLoc = |jar:///|;
+    jarLoc.authority = jarName;
+    return composeJavaM3(jarLoc , { createM3FromJarClass(jarClass) | loc jarClass <- crawl(jarFile, "class") });
+}
+
+M3 includeJarRelations(M3 project, set[M3] jarRels = {}) {
+  set[M3] rels = jarRels;
+  if (isEmpty(rels))
+    rels = createM3FromProjectJars(project.id);
+  
+  return composeJavaM3(project.id, rels);
 }
 
 private set[loc] getPaths(loc dir, str suffix) { 
