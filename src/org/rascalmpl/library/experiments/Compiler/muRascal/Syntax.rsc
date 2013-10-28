@@ -22,7 +22,7 @@ lexical IId = ( [i][A-Z][A-Za-z0-9_]* )      \ Keywords;
 lexical RId = ( [r][A-Z][A-Za-z0-9_]* )      \ Keywords;
 lexical MId = 
 			  ( [a-h j-q s-z][A-Za-z0-9_]* ) \ Keywords
-			| ( [a-z][a-z][A-Za-z0-9_]* )    \ Keywords
+			| ( [ir][a-z][A-Za-z0-9_]* )    \ Keywords
 			;
 
 lexical Identifier = 
