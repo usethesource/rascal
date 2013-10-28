@@ -1,5 +1,7 @@
 module experiments::Compiler::Examples::Tst
 
+import experiments::Compiler::Examples::ParseTreeDataType;
+
 syntax AB = ("a" | "b")+ ;
 
 syntax CD = ("c" | "d")+ ;
