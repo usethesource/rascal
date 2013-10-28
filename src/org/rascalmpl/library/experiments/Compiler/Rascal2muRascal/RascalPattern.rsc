@@ -265,34 +265,34 @@ default MuExp translatePatAsListElem(Pattern p) {
 
 MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`) {
    if("<name>" == "_"){
-      return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_SET",1), []);
+      return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_SET",2), []);
    }
    <fuid, pos> = getVariableScope("<name>", name@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_SET",2), [muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_SET",3), [muVarRef("<name>", fuid, pos)]);
 } 
 
 MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`) {
    if("<name>" == "_"){
-      return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_MULTIVAR_IN_SET",1), []);
+      return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_MULTIVAR_IN_SET",2), []);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_SET",2), [muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_SET",3), [muVarRef("<name>", fuid, pos)]);
 }
 
 MuExp translatePatAsSetElem(p:(Pattern) `*<Type tp> <Name name>`) {
    if("<name>" == "_"){
-      return muCreate(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET",2), [muTypeCon(\set(translateType(tp)))]);
+      return muCreate(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET",3), [muTypeCon(\set(translateType(tp)))]);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_TYPED_MULTIVAR_IN_SET",3), [muTypeCon(\set(translateType(tp))), muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_TYPED_MULTIVAR_IN_SET",4), [muTypeCon(\set(translateType(tp))), muVarRef("<name>", fuid, pos)]);
 }
 
 MuExp translatePatAsSetElem(p:(Pattern) `*<Name name>`) {
    if("<name>" == "_"){
-      return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_MULTIVAR_IN_SET",1), []);
+      return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_MULTIVAR_IN_SET",2), []);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_SET",2), [muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_SET",3), [muVarRef("<name>", fuid, pos)]);
 } 
 
 MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`) {
@@ -300,7 +300,7 @@ MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`) {
 }   
 
 default MuExp translatePatAsSetElem(Pattern p) {
-  return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",2), [translatePat(p)]);
+  return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(p)]);
 }
 
 value getLiteralValue((Literal) `<Literal s>`) =  readTextValueString("<s>"); // TODO interpolation
@@ -329,7 +329,7 @@ MuExp translateMatch(p:(Pattern) `{<{Pattern ","}* pats>}`, Expression exp){
         vars += pat;
         compiledVars += translatePatAsSetElem(pat);
       } else {
-        otherPats +=  muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",2), [translatePat(pat)]);
+        otherPats +=  muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(pat)]);
       }
    }
    MuExp litCode;
@@ -465,7 +465,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
       } else if(pat is qualifiedName || pat is typedVariable){
          compiledVars += translatePatAsSetElem(pat);
       } else {
-        otherPats +=  muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",2), [translatePat(pat)]);
+        otherPats +=  muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(pat)]);
       }
    }
    MuExp litCode;

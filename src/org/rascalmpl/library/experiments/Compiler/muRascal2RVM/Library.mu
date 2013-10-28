@@ -163,52 +163,49 @@ coroutine ENUMERATE_CHECK_AND_ASSIGN[3, typ, rVar, iVal]{
   };
 }
 
-/*
 // ***** Ranges ***** // NOTE: skipped this for now
 
-function RANGE[3, pat, ^first, ^end, i, n]{
-   i = mint(^first);
-   n = mint(^end);
-   if(i < n){
-      while(i < n){
-        DO_ALL(pat, rint(i));
-        i = i + 1;
+coroutine RANGE[3, pat, iFirst, iEnd, j, n]{
+   j = mint(iFirst);
+   n = mint(iEnd);
+   if(j < n) {
+      while(j < n) {
+        DO_ALL(pat, rint(j));
+        j = j + 1;
       };
    } else {
-      while(i > n){
-        DO_ALL(pat, rint(i)); 
-        i = i - 1;
+      while(j > n) {
+        DO_ALL(pat, rint(j)); 
+        j = j - 1;
       };
    };
-   return false;
 }
 
-function RANGE_STEP[4, pat, ^first, ^second, ^end, i, n, step]{
-   i = mint(^first);
-   n = mint(^end);
-   if(i < n){
-      step = mint(^second) - i;
-      if(step <= 0){
-         return false;
+coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step]{
+   j = mint(iFirst);
+   n = mint(iEnd);
+   if(j < n) {
+      step = mint(iSecond) - j;
+      if(step <= 0) {
+         exhaust;
       };   
-      while(i < n){
-        DO_ALL(pat, rint(i));
-        i = i + step;
+      while(j < n) {
+        DO_ALL(pat, rint(j));
+        j = j + step;
       };
-      return false;
+      exhaust;
    } else {
-      step = mint(^second) - i;
-      if(step >= 0){
-         return false;
+      step = mint(iSecond) - j;
+      if(step >= 0) {
+         exhaust;
       };   
-      while(i > n){
-        DO_ALL(pat, rint(i));
-        i = i + step;
+      while(j > n) {
+        DO_ALL(pat, rint(j));
+        j = j + step;
       };
-      return false;
+      exhaust;
    };
 }
-*/
 
 // ***** Pattern matching *****
 
@@ -591,7 +588,7 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, g
 	};
 }
 
-// the power set of a set of size n has 2^n-1 elements 
+// The power set of a set of size n has 2^n-1 elements 
 // so we enumerate the numbers 0..2^n-1
 // if the nth bit of a number i is 1 then
 // the nth element of the set should be in the
@@ -620,4 +617,284 @@ coroutine ENUM_SUBSETS[2, set, rSubset, lst, k, j, last, elIndex, sub]{
         }; 
         k = k - 1;  
     };
+}
+
+// ***** Descendent pattern ***
+
+coroutine MATCH_DESCENDANT[2, pat, iSubject, gen, cpat]{
+   DO_ALL(create(MATCH_AND_DESCENT, pat), iSubject);
+}
+
+// ***** Match and descent for all types *****
+
+coroutine MATCH_AND_DESCENT[2, pat, iVal]{
+  DO_ALL(pat, iVal);
+  
+  typeswitch(iVal){
+    case list:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), iVal);
+    case lrel:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), iVal);
+    case node:        DO_ALL(create(MATCH_AND_DESCENT_NODE, pat), iVal);
+    case constructor: DO_ALL(create(MATCH_AND_DESCENT_NODE, pat), iVal);
+    case map:         DO_ALL(create(MATCH_AND_DESCENT_MAP, pat),  iVal);
+    case set:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat),  iVal);
+    case rel:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat),  iVal);
+    case tuple:       DO_ALL(create(MATCH_AND_DESCENT_TUPLE, pat),iVal);
+    default:          exhaust;
+  };  
+}
+
+coroutine MATCH_AND_DESCENT_LITERAL[2, pat, iSubject, res]{
+  if(equal(typeOf(pat), typeOf(iSubject)) && equal(pat, iSubject)){
+      return;
+  };
+  
+  MATCH_AND_DESCENT(create(MATCH_LITERAL, pat), iSubject);
+}
+
+coroutine MATCH_AND_DESCENT_LIST[2, pat, iLst, last, j]{
+   last = size_list(iLst);
+   j = 0;
+   while(j < last){
+      DO_ALL(pat, get_list iLst[j]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list iLst[j]);
+      j = j + 1;
+   };
+}
+
+coroutine MATCH_AND_DESCENT_SET[2, pat, iSet, iLst, last, j]{
+   iLst = set2list(iSet);
+   last = size_list(iLst);
+   j = 0;
+   while(j < last){
+      DO_ALL(pat, get_list iLst[j]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list iLst[j]);
+      j = j + 1;
+   };
+}
+
+coroutine MATCH_AND_DESCENT_MAP[2, pat, iMap, iKlst, iVlst, last, j]{
+   iKlst = keys(iMap);
+   iVlst = values(iMap);
+   last = size_list(iKlst);
+   j = 0;
+   while(j < last){
+      DO_ALL(pat, get_list iKlst[j]);
+      DO_ALL(pat, get_list iVlst[j]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list iKlst[j]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list iVlst[j]);
+      j = j + 1;
+   };
+}
+
+coroutine MATCH_AND_DESCENT_NODE[2, pat, iNd, last, j, ar]{
+   ar = get_name_and_children(iNd);
+   last = size_array(ar);
+   j = 0; 
+   while(j < last){
+      DO_ALL(pat, get_array ar[j]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_array ar[j]);
+      j = j + 1;
+   };
+}
+
+coroutine MATCH_AND_DESCENT_TUPLE[2, pat, iTup, last, j]{
+   last = size_tuple(iTup);
+   j = 0;
+   while(j < last){
+      DO_ALL(pat, get_tuple iTup[j]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_tuple iTup[j]);
+      j = j + 1;
+   };
+}
+
+// ***** Regular expressions *****
+
+coroutine MATCH_REGEXP[3, iRegexp, varrefs, iSubject, matcher, j, rVar]{
+   matcher = muprim("regexp_compile", iRegexp, iSubject);
+   while(muprim("regexp_find", matcher)){
+     j = 0; 
+     while(j < size_array(varrefs)){
+        rVar = get_array varrefs[j];
+        deref rVar = muprim("regexp_group", matcher, j + 1);
+        j = j + 1;
+     };
+     yield;
+   };
+}
+
+// ***** Traverse functions *****
+
+function TRAVERSE_TOP_DOWN[5, phi, iSubject, rHasMatch, rBeenChanged, rebuild, 
+							  matched, changed] {
+	matched = false; // ignored	
+	changed = false;
+	iSubject = phi(iSubject, ref matched, ref changed);
+	if(rebuild) {
+		deref rBeenChanged = changed || deref rBeenChanged;
+		changed = false;
+		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_TOP_DOWN::5, phi, rHasMatch, ref changed, rebuild);
+		deref rBeenChanged = changed || deref rBeenChanged;	
+		return iSubject;
+	};
+	return VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_TOP_DOWN::5, phi, rHasMatch, ref changed, rebuild);
+}
+
+function TRAVERSE_TOP_DOWN_BREAK[5, phi, iSubject, rHasMatch, rBeenChanged, rebuild, 
+									matched, changed] {
+	matched = false;
+	changed = false;
+	iSubject = phi(iSubject, ref matched, ref changed);
+	deref rBeenChanged = changed || deref rBeenChanged;	
+	if(deref rHasMatch = matched || deref rHasMatch) {	
+		return iSubject;
+	};
+	if(rebuild) {
+		changed = false;
+		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_TOP_DOWN_BREAK::5, phi, rHasMatch, ref changed, rebuild);
+		deref rBeenChanged = changed || deref rBeenChanged;
+		return iSubject;
+	};	
+	return VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_TOP_DOWN_BREAK::5, phi, rHasMatch, ref changed, rebuild);
+}
+
+function TRAVERSE_BOTTOM_UP[5, phi, iSubject, rHasMatch, rBeenChanged, rebuild, 
+							   matched, changed] {
+	matched = false; // ignored
+	changed = false;
+	if(rebuild) {
+		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_BOTTOM_UP::5, phi, rHasMatch, ref changed, rebuild);
+		deref rBeenChanged = changed || deref rBeenChanged;
+		changed = false;
+	} else {
+		VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_BOTTOM_UP::5, phi, rHasMatch, ref changed, rebuild);
+	};
+	iSubject = phi(iSubject, ref matched, ref changed);
+	deref rBeenChanged = changed || deref rBeenChanged;
+	return iSubject;
+}
+
+function TRAVERSE_BOTTOM_UP_BREAK[5, phi, iSubject, rHasMatch, rBeenChanged, rebuild, 
+									 matched, changed] {
+	matched = false;
+	changed = false;
+	if(rebuild) {
+		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_BOTTOM_UP_BREAK::5, phi, rHasMatch, ref changed, rebuild);
+		deref rBeenChanged = changed || deref rBeenChanged;
+		changed = false;
+	} else {
+		VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_BOTTOM_UP_BREAK::5, phi, rHasMatch, ref changed, rebuild);
+	};		
+	if(deref rHasMatch) {	
+		return iSubject;
+	};
+	iSubject = phi(iSubject, ref matched, ref changed);
+	deref rHasMatch = matched || deref rHasMatch;
+	deref rBeenChanged = changed || deref rBeenChanged;	
+	return iSubject;
+}
+
+function VISIT_CHILDREN[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild, 
+						   children] {
+	if((iSubject is list) || (iSubject is set) || (iSubject is tuple) || (iSubject is node)) {
+		children = VISIT_NOT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild);
+	} else {
+		if(iSubject is map) {
+			children = VISIT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild); // special case of map
+		};
+	};
+	if(deref rBeenChanged) {
+		return typeswitch(iSubject) {
+	    			case list:  prim("list", children);
+	    			case lrel:  prim("list", children);
+	    			case set:   prim("set",  children);
+	    			case rel:   prim("set",  children);
+	    			case tuple: prim("tuple",children);
+	    			case node:  prim("node", muprim("get_name", iSubject), children);
+	    			case constructor: 
+	                			prim("constructor", muprim("typeOf_constructor", iSubject), children);	    
+	    			case map:   children; // special case of map	    
+	    			default:    iSubject;
+				};
+	};
+	return iSubject;
+}
+
+function VISIT_NOT_MAP[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild,
+						  iarray, enumerator, iChild, j, childHasMatch, childBeenChanged] {
+	iarray = make_iarray(size(iSubject));
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref iChild, iSubject);
+	j = 0;
+	while(all(multi(enumerator))) {
+		childHasMatch = false;
+		childBeenChanged = false;
+		iChild = traverse_fun(phi, iChild, ref childHasMatch, ref childBeenChanged, rebuild);
+		set_array iarray[j] = iChild;
+		j = j + 1;
+		deref rHasMatch = childHasMatch || deref rHasMatch;
+		deref rBeenChanged = childBeenChanged || deref rBeenChanged;
+	};
+	return iarray;
+}
+
+function VISIT_MAP[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild,
+					  writer, enumerator, iKey, iVal, childHasMatch, childBeenChanged] {
+	writer = prim("mapwriter_open");
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref iKey, iSubject);
+	while(all(multi(enumerator))) {
+		iVal = prim("map_subscript", iSubject, iKey);
+		
+		childHasMatch = false;
+		childBeenChanged = false;
+		iKey = traverse_fun(phi, iKey, ref childHasMatch, ref childBeenChanged, rebuild);
+		deref rHasMatch = childHasMatch || deref rHasMatch;
+		deref rBeenChanged = childBeenChanged || deref rBeenChanged;
+		
+		childHasMatch = false;
+		childBeenChanged = false;
+		iVal = traverse_fun(phi, iVal, ref childHasMatch, ref childBeenChanged, rebuild);
+		deref rHasMatch = childHasMatch || deref rHasMatch;
+		deref rBeenChanged = childBeenChanged || deref rBeenChanged;
+		
+		prim("mapwriter_add", writer, iKey, iVal);
+	};
+	return prim("mapwriter_close", writer);
+}
+
+function VISIT_CHILDREN_VOID[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild] {	
+	if((iSubject is list) || (iSubject is set) || (iSubject is tuple) || (iSubject is node)) {
+		VISIT_NOT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild);
+		return iSubject;
+	};
+	if(iSubject is map) {
+		VISIT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild); // special case of map
+	};
+	return iSubject;
+}
+
+function VISIT_NOT_MAP_VOID[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild,
+						       enumerator, iChild, childHasMatch, childBeenChanged] {
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref iChild, iSubject);
+	childBeenChanged = false; // ignored
+	while(all(multi(enumerator))) {
+		childHasMatch = false;
+		traverse_fun(phi, iChild, ref childHasMatch, ref childBeenChanged, rebuild);
+		deref rHasMatch = childHasMatch || deref rHasMatch;
+	};
+	return;
+}
+
+function VISIT_MAP_VOID[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild,
+					       enumerator, iKey, iVal, childHasMatch, childBeenChanged] {
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref iKey, iSubject);
+	childBeenChanged = false; // ignored  
+	while(all(multi(enumerator))) {
+		childHasMatch = false;
+		traverse_fun(phi, iKey, ref childHasMatch, ref childBeenChanged, rebuild);
+		deref rHasMatch = childHasMatch || deref rHasMatch;
+		
+		childHasMatch = false;
+		traverse_fun(phi, prim("map_subscript", iSubject, iKey), ref childHasMatch, ref childBeenChanged, rebuild);
+		deref rHasMatch = childHasMatch || deref rHasMatch;	
+	};
+	return;
 }
