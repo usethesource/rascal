@@ -75,6 +75,10 @@ public class ParsingTools {
 		classLoaders = ctx.getEvaluator().getClassLoaders();
 	}
 	
+	private IRascalMonitor getMonitor() {
+		return monitor;
+	}
+	
 	private IRascalMonitor setMonitor(IRascalMonitor monitor2) {
 		monitor = monitor2;
 		return monitor2;
@@ -256,10 +260,10 @@ public class ParsingTools {
 	      Class<?> clazz;
 	      for (ClassLoader cl: classLoaders) {
 	        try {
-	          stderr.println("Trying classloader: " + cl);
+	          //stderr.println("Trying classloader: " + cl);
 	          clazz = cl.loadClass(className);
 	          parser =  (IGTD<IConstructor, IConstructor, ISourceLocation>) clazz.newInstance();
-	          stderr.println("succeeded!");
+	          //stderr.println("succeeded!");
 	          break;
 	        } catch (ClassNotFoundException e) {
 	          continue;
@@ -373,7 +377,7 @@ public class ParsingTools {
 	         IConstructor pattern = getConcretePattern(tree);
 	         
 	         if (pattern != null) {
-	           IConstructor parsedFragment = parseFragment(eval, env, (IConstructor) TreeAdapter.getArgs(tree).get(0), location);
+	           IConstructor parsedFragment = parseFragment(env, (IConstructor) TreeAdapter.getArgs(tree).get(0), location);
 	           return TreeAdapter.setArgs(tree, vf.list(parsedFragment));
 	         }
 	         else {
@@ -437,7 +441,7 @@ public class ParsingTools {
 
 	    if (parser == null || force) {
 	      String parserName = name; // .replaceAll("::", ".");
-stderr.println("name = " + name);
+	     //stderr.println("name = " + name);
 	      parser = pg.getNewParser(monitor, loc, parserName, definitions);
 	      storeObjectParser(name, parser);
 	    }
@@ -453,7 +457,7 @@ stderr.println("name = " + name);
 	    }
 	  }
 
-	private IConstructor parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, IConstructor tree, URI uri) {
+	private IConstructor parseFragment(ModuleEnvironment env, IConstructor tree, URI uri) {
 	    IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
 	    IConstructor lit = TreeAdapter.getArg(tree, "parts");
 	    Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
@@ -461,43 +465,42 @@ stderr.println("name = " + name);
 	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser("XXX", TreeAdapter.getLocation(tree).getURI(), false, null);
 	    
 	    try {
-	      String parserMethodName = eval.getParserGenerator().getParserMethodName(symTree);
+	      String parserMethodName = getParserGenerator().getParserMethodName(symTree);
 	      DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation> converter = new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>();
 	      UPTRNodeFactory nodeFactory = new UPTRNodeFactory();
 	    
-	      char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes);
+	      char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
 	      
 	      IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri, input, converter, nodeFactory);
-	      fragment = replaceHolesByAntiQuotes(eval, fragment, antiquotes);
+	      fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
 
 	      IConstructor prod = TreeAdapter.getProduction(tree);
 	      IConstructor sym = ProductionAdapter.getDefined(prod);
 	      sym = SymbolAdapter.delabel(sym); 
-	      IValueFactory vf = eval.getValueFactory();
 	      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
 	      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
 	    }
 	    catch (ParseError e) {
 	      ISourceLocation loc = TreeAdapter.getLocation(tree);
-	      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
-	      eval.getMonitor().warning("parse error in concrete syntax", src);
+	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
+	      getMonitor().warning("parse error in concrete syntax", src);
 	      return tree.asAnnotatable().setAnnotation("parseError", src);
 	    }
 	    catch (StaticError e) {
 	      ISourceLocation loc = TreeAdapter.getLocation(tree);
-	      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-	      eval.getMonitor().warning(e.getMessage(), e.getLocation());
+	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+	      getMonitor().warning(e.getMessage(), e.getLocation());
 	      return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
 	    }
 	    catch (UndeclaredNonTerminalException e) {
 	      ISourceLocation loc = TreeAdapter.getLocation(tree);
-	      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-	      eval.getMonitor().warning(e.getMessage(), src);
+	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+	      getMonitor().warning(e.getMessage(), src);
 	      return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
 	    }
 	  }
 	  
-	  private static char[] replaceAntiQuotesByHoles(IEvaluator<Result<IValue>> eval, IConstructor lit, Map<String, IConstructor> antiquotes) {
+	  private char[] replaceAntiQuotesByHoles(IConstructor lit, Map<String, IConstructor> antiquotes) {
 	    IList parts = TreeAdapter.getArgs(lit);
 	    StringBuilder b = new StringBuilder();
 	    
@@ -524,28 +527,27 @@ stderr.println("name = " + name);
 	        b.append('\\');
 	      }
 	      else if (cons.equals("hole")) {
-	        b.append(createHole(eval, part, antiquotes));
+	        b.append(createHole(part, antiquotes));
 	      }
 	    }
 	    
 	    return b.toString().toCharArray();
 	  }
 
-	  private static String createHole(IEvaluator<Result<IValue>> ctx, IConstructor part, Map<String, IConstructor> antiquotes) {
-	    String ph = ctx.getParserGenerator().createHole(part, antiquotes.size());
+	  private String createHole(IConstructor part, Map<String, IConstructor> antiquotes) {
+	    String ph = getParserGenerator().createHole(part, antiquotes.size());
 	    antiquotes.put(ph, part);
 	    return ph;
 	  }
 
-	  private static IConstructor replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, IConstructor fragment, final Map<String, IConstructor> antiquotes) {
+	  private IConstructor replaceHolesByAntiQuotes(IConstructor fragment, final Map<String, IConstructor> antiquotes) {
 	      return (IConstructor) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {
-	        private final IValueFactory vf = eval.getValueFactory();
 	        
 	        @Override
 	        public IConstructor visitTreeAppl(IConstructor tree)  {
 	          String cons = TreeAdapter.getConstructorName(tree);
 	          if (cons == null || !cons.equals("$MetaHole") ) {
-	            IListWriter w = eval.getValueFactory().listWriter();
+	            IListWriter w = vf.listWriter();
 	            IList args = TreeAdapter.getArgs(tree);
 	            for (IValue elem : args) {
 	              w.append(elem.accept(this));
