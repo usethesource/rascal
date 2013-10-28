@@ -160,11 +160,11 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     required_frame_size = nlocal + estimate_stack_size(fun.body);
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
-    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code))
+    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.scopeIn, fun.nformals, nlocal, fun.refs, required_frame_size, code))
     							   : (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code, exceptions));
   }
   
-  main_fun = getUID(module_name,[],"main",1);
+  main_fun = getUID(module_name,[],"MAIN",1);
   module_init_fun = getUID(module_name,[],"#<module_name>_init",1);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
   if(!funMap[main_fun]?) {
@@ -180,7 +180,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   									],
   									[]));
  
-  main_testsuite = getUID(module_name,[],"testsuite",1);
+  main_testsuite = getUID(module_name,[],"TESTSUITE",1);
   module_init_testsuite = getUID(module_name,[],"#module_init_testsuite",1);
   if(!funMap[main_testsuite]?) { 						
   	 main_testsuite = getFUID(module_name,"testsuite",ftype,0);

@@ -15,6 +15,7 @@ public data Declaration =
 		  		    str scopeIn, 
 		  		    int nformals, 
 		  		    int nlocals, 
+		  		    list[int] refs,
 		  		    int maxStack, 
 		  		    list[Instruction] instructions)
 		;

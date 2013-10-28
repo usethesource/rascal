@@ -16,7 +16,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class Execute {
@@ -48,7 +47,7 @@ public class Execute {
 		String moduleName = ((IString) program.get("name")).getValue();
 		
 		String main = isTestSuite ? "/<moduleName>_testsuite(list(value());)#0" : "/main(list(value());)#0";
-		String mu_main = isTestSuite ? "/testsuite(1)" : "/main(1)";
+		String mu_main = isTestSuite ? "/TESTSUITE(1)" : "/MAIN(1)";
 		
 		String module_init = moduleInit(moduleName);
 		String mu_module_init = muModuleInit(moduleName);
@@ -457,6 +456,13 @@ public class Execute {
 		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, maxstack, codeblock);
 		if(isCoroutine) {
 			function.isCoroutine = true;
+			IList refList = (IList) declaration.get("refs");
+			int[] refs = new int[refList.length()];
+			int i = 0;
+			for(IValue ref : refList) {
+				refs[i++] = ((IInteger) ref).intValue();
+			}
+			function.refs = refs;
 		} else {
 			IList exceptions = (IList) declaration.get("exceptions");
 			function.attachExceptionTable(exceptions, rvm);

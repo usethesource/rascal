@@ -928,9 +928,12 @@ public class RVM {
 						if(cf.isCoroutine) {
 							rval = Rascal_TRUE;
 							arity = instructions[pc++];
-							int nformals = cf.function.nformals;
+							int[] refs = cf.function.refs;
+							if(arity != refs.length) {
+								throw new RuntimeException("The return within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
+							}
 							for(int i = 0; i < arity; i++) {
-								ref = (Reference) stack[nformals - 1 - i];
+								ref = (Reference) stack[refs[arity - 1 - i]];
 								ref.stack[ref.pos] = stack[--sp];
 							}
 						} else {
@@ -1023,7 +1026,7 @@ public class RVM {
 					continue;
 					
 				case Opcode.OP_GUARD:
-					rval = stack[--sp];
+					rval = stack[sp - 1];
 					boolean precondition;
 					if(rval instanceof IBool) {
 						precondition = ((IBool) rval).getValue();
@@ -1033,20 +1036,35 @@ public class RVM {
 						throw new RuntimeException("Guard's expression has to be boolean!");
 					}
 					
-					coroutine = activeCoroutines.pop();
-					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
-					Frame prev = coroutine.start.previousCallFrame;
-					
-					cf.pc = pc;
-					cf.sp = sp;
-					if(precondition) {
-						coroutine.suspend(cf);
+					if(cf == ccf) {
+						coroutine = activeCoroutines.pop();
+						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+						Frame prev = cf.previousCallFrame;
+						if(precondition) {
+							coroutine.suspend(cf);
+						}
+						--sp;
+						cf.pc = pc;
+						cf.sp = sp;
+						cf = prev;
+						instructions = cf.function.codeblock.getInstructions();
+						stack = cf.stack;
+						sp = cf.sp;
+						pc = cf.pc;	
+						continue NEXT_INSTRUCTION;
 					}
-					cf = prev;
-					instructions = cf.function.codeblock.getInstructions();
-					stack = cf.stack;
-					sp = cf.sp;
-					pc = cf.pc;
+					
+					if(!precondition) {
+						cf.pc = pc;
+						cf.sp = sp;
+						cf = cf.previousCallFrame;
+						instructions = cf.function.codeblock.getInstructions();
+						stack = cf.stack;
+						sp = cf.sp;
+						pc = cf.pc;
+						stack[sp++] = Rascal_FALSE;
+						continue NEXT_INSTRUCTION;
+					}
 					
 					continue;
 					
@@ -1116,13 +1134,16 @@ public class RVM {
 				case Opcode.OP_YIELD1:
 					coroutine = activeCoroutines.pop();
 					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
-					prev = coroutine.start.previousCallFrame;
+					Frame prev = coroutine.start.previousCallFrame;
 					rval = Rascal_TRUE; // In fact, yield has to always return TRUE
 					if(op == Opcode.OP_YIELD1) {
 						arity = instructions[pc++];
-						int nformals = coroutine.start.function.nformals;
+						int[] refs = cf.function.refs;
+						if(arity != refs.length) {
+							throw new RuntimeException("The return within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
+						}
 						for(int i = 0; i < arity; i++) {
-							ref = (Reference) stack[nformals - 1 - i];
+							ref = (Reference) stack[refs[arity - 1 - i]];
 							ref.stack[ref.pos] = stack[--sp];
 						}
 					}
