@@ -18,11 +18,15 @@ lexical FConst = ( [A-Z][A-Z0-9_]* )    \ Keywords;
 lexical MConst = ( [A-Z][A-Za-z0-9_]* ) \ Keywords;
 lexical TConst = ( [a-z][a-z]* )        \ Keywords;
 
+lexical IId = ( [i][A-Z][A-Za-z0-9_]* )      \ Keywords;
+lexical RId = ( [r][A-Z][A-Za-z0-9_]* )      \ Keywords;
+lexical MId = ( [a-h j-q s-z][A-Za-z0-9_]* ) \ Keywords;
+
 lexical Identifier = 
 			    fvar: FConst var
-			  |	ivar: ( [i][A-Z][A-Za-z0-9_]* )      \ Keywords var
-              | rvar: ( [r][A-Z][A-Za-z0-9_]* )      \ Keywords var
-              | mvar: ( [a-h j-q s-z][A-Za-z0-9_]* ) \ Keywords var
+			  |	ivar: IId var
+              | rvar: RId var
+              | mvar: MId var
               ; 
 
 lexical StrChar = 

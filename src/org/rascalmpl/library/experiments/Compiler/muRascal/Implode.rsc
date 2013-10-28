@@ -68,7 +68,7 @@ MuFunction preprocess(Function f, str modName){
    
    list[int] refs = [];
    if(f is preCoroutine) {
-       refs = [ vardefs[uid][name] | rvar(str name) <- f.locals ];
+       refs = [ vardefs[uid][name] | int i <- index(f.locals), i < f.nformals, rvar(str name) := f.locals[i] ];
    }
    // Guard specific check
    insertGuard = false;
