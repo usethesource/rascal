@@ -330,10 +330,8 @@ coroutine MATCH_LIST[2, pats,   					// A list of coroutines to match list eleme
 					    sublen,						// Length of subject list
 					    p,							// Cursor in patterns
 					    cursor,						// Cursor in subject
-					    forward,
 					    matcher,					// Currently active pattern matcher
 					    matchers,					// List of currently active pattern matchers
-					    success,					// Success flag of last macth
 					    nextCursor					// Cursor movement of last successfull match
 					 ]{
      guard iSubject is list;
@@ -343,7 +341,6 @@ coroutine MATCH_LIST[2, pats,   					// A list of coroutines to match list eleme
      sublen   = size_list(iSubject);
      p        = 0; 
      cursor   = 0;
-     forward  = true;
      matcher  = init(get_array pats[p], iSubject, cursor, ref nextCursor, sublen);
      matchers = make_array(patlen);
      set_array matchers[0] = matcher;
@@ -438,5 +435,189 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iSubject, start, rNext,
     while(len <= available){
         yield start + len;
         len = len + 1;
+    };
+}
+
+// ***** SET matching *****
+
+coroutine MATCH_SET[2, pair,	   					// A pair of literals, and patterns (other patterns first, multivars last) to match set elements
+					   iSubject,					// The subject set
+					   
+					   iLiterals,					// The literals that occur in the set pattern
+					   pats,						// the patterns
+					   subject1,					// subject minus literals as mset
+					   patlen,						// Length of pattern list
+					   patlen1,						// patlen - 1
+					   p,							// Cursor in patterns
+					   current,						// Current mset to be matched
+					   matcher,						// Currently active pattern matcher
+					   matchers,					// List of currently active pattern matchers
+					   remaining					// Remaining mset as determined by last successfull match
+					]{
+	  
+      iLiterals = get_array pair[0];
+      pats      = get_array pair[1];      
+      guard ((iSubject is set) && subset(iLiterals, iSubject));
+      
+      subject1 = mset_destructive_subtract_set(mset(iSubject), iLiterals);
+      patlen   = size_array(pats);
+      
+      if(patlen == 0) {
+          if(size_mset(subject1) == 0) {
+     	      return;
+     	  } else {
+     	      exhaust;
+     	  };
+      };
+      
+      patlen1   =  patlen - 1;
+      p         = 0;
+      matcher   = init(get_array pats[p], subject1, ref remaining);
+      matchers  = make_array(patlen);
+      set_array matchers[0] = matcher;
+     	
+      while(true){
+          // Move forward
+     	  while(next(matcher)){
+              current = remaining;
+              if((p == patlen1) && (size_mset(current) == 0)) {
+                  yield; 
+              } else {
+                  if(p < patlen1){
+                      p = p + 1;
+                      matcher  = init(get_array pats[p], current, ref remaining);
+                      set_array matchers[p] = matcher;
+                  };  
+              };
+          }; 
+          // If possible, move backward
+          if(p > 0){
+               p       = p - 1;
+               matcher = get_array matchers[p];
+           } else {
+               exhaust;
+           };
+      };     
+}
+
+coroutine ENUM_MSET[2, set, rElm, iLst, len, j]{
+    // NOTE: added an extra parameter
+    iLst = mset2list(set);
+    len = size_list(iLst);
+    j = 0;
+    while(j < len) {
+        yield get_list iLst[j];
+        j = j + 1;
+    };
+}
+
+// All coroutines that may occur in a set pattern have the following parameters:
+// - pat: the actual pattern to match one or more elements
+// - available: the remaining, unmatched, elements in the subject set
+
+coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
+	// NOTE: added an extra parameter
+	guard size_mset(available) > 0;
+    
+    gen = init(create(ENUM_MSET, available, ref elm));
+    while(next(gen)) {
+        cpat = init(pat, elm);
+        while(next(cpat)) {
+            yield mset_destructive_subtract_elm(available, elm);
+            available = mset_destructive_add_elm(available, elm);
+        };
+    };
+}
+
+coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
+	// NOTE: added an extra parameter
+	guard size_mset(available) > 0;
+ 
+    gen = init(create(ENUM_MSET, available, ref elm));
+    while(next(gen)) {
+	    yield(elm, mset_destructive_subtract_elm(available, elm));
+	    available = mset_destructive_add_elm(available, elm);
+    };
+}
+
+coroutine MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRenaming, gen, elm]{
+	// NOTE: added an extra parameter
+	guard size_set(available) > 0;
+    
+    gen = init(create(ENUM_MSET, available, ref elm));
+    while(next(gen)) { 
+        yield mset_destructive_subtract_elm(available, elm);
+        available = mset_destructive_add_elm(available, elm);
+   };
+}
+
+coroutine MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
+	// NOTE: added an extra parameter
+    gen = init(create(ENUM_SUBSETS, available, ref subset));
+    while(next(gen)) {
+	    yield(set(subset), mset_destructive_subtract_mset(available, subset));
+	    available = mset_destructive_add_mset(available, subset);
+    };
+}
+
+coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]{
+	// NOTE: added an extra parameter
+    gen = init(create(ENUM_SUBSETS, available, ref subset));
+    while(next(gen)) {
+	    yield mset_destructive_subtract_mset(available, subset);
+	    available = mset_destructive_add_mset(available, subset);
+    };
+}
+
+coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset]{
+	// NOTE: added an extra parameter
+	guard subtype(typeOf(available), typ);
+    
+    gen = init(create(ENUM_SUBSETS, available, ref subset));
+	while(next(gen)) {
+	    yield(set(subset), mset_destructive_subtract_mset(available, subset));
+	    available = mset_destructive_add_mset(available, subset);
+	};
+}
+
+coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
+	// NOTE: added an extra parameter
+	guard subtype(typeOf(available), typ);
+    
+    gen = init(create(ENUM_SUBSETS, available));
+    while(next(gen)) {
+        yield mset_destructive_subtract_mset(available, subset);
+	    available = mset_destructive_add_mset(available, subset);
+	};
+}
+
+// the power set of a set of size n has 2^n-1 elements 
+// so we enumerate the numbers 0..2^n-1
+// if the nth bit of a number i is 1 then
+// the nth element of the set should be in the
+// ith subset 
+ 
+coroutine ENUM_SUBSETS[2, set, rSubset, lst, k, j, last, elIndex, sub]{
+	// NOTE: added an extra parameter
+    lst = mset2list(set); 
+    last = 2 pow size_mset(set);
+    k = last - 1;
+    while(k >= 0) {
+        j = k;
+        elIndex = 0; 
+        sub = make_mset();
+        while(j > 0) {
+           if(j mod 2 == 1){
+              sub = mset_destructive_add_elm(sub, get_list lst[elIndex]);
+           };
+           elIndex = elIndex + 1;
+           j = j / 2;
+        };
+        if(k == 0) {
+           return sub;
+        } else {
+           yield sub;
+        }; 
+        k = k - 1;  
     };
 }
