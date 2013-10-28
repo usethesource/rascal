@@ -29,6 +29,7 @@ public class Function {
 	 int[] handlers;
 	 
 	 boolean isCoroutine = false;
+	 int[] refs;
 	
 	public Function(String name, Type ftype, String funIn, int nformals, int nlocals, int maxstack, CodeBlock codeblock){
 		this.name = name;
