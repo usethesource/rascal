@@ -964,15 +964,15 @@ MuExp translateVisit(label,\visit) {
 	bool fixpoint = false;
 	
 	if(\visit is defaultStrategy) {
-		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",4);
+		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",5);
 	} else {
 		switch("<\visit.strategy>") {
-			case "bottom-up"      :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",      4);
-			case "top-down"       :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN",       4);
-			case "bottom-up-break":   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK",4);
-			case "top-down-break" :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK", 4);
-			case "innermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",      4); fixpoint = true; }
-			case "outermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN",       4); fixpoint = true; }
+			case "bottom-up"      :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",      5);
+			case "top-down"       :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN",       5);
+			case "bottom-up-break":   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK",5);
+			case "top-down-break" :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK", 5);
+			case "innermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",      5); fixpoint = true; }
+			case "outermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN",       5); fixpoint = true; }
 		}
 	}
 	
@@ -989,10 +989,10 @@ MuExp translateVisit(label,\visit) {
 	// Generate and add a nested function 'phi'
 	str scopeId = topFunctionScope();
 	str phi_fuid = scopeId + "/" + "phi_<i>";
-	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value()]);
+	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value(),Symbol::\value()]);
 	
 	enterVisit();	
-	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 2, 2, \visit@\loc, [], (), 
+	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 3, 3, \visit@\loc, [], (), 
 										translateVisitCases([ c | Case c <- \visit.cases ]));
 	leaveVisit();
 	
@@ -1000,24 +1000,29 @@ MuExp translateVisit(label,\visit) {
 		str phi_fixpoint_fuid = scopeId + "/" + "phi_fixpoint_<i>";
 		
 		list[MuExp] body = [];
-		body += muAssignLoc("changed", 2, muBool(true));
-		body += muWhile(nextLabel(), muLoc("changed",2), 
-						[ muAssignLoc("val", 3, muCall(muFun(phi_fuid,scopeId), [ muLoc("subject",0), muLoc("matched",1) ])),
-						  muIfelse(nextLabel(), muCallPrim("equal",[ muLoc("val",3), muLoc("subject",0) ]),
-						  						[ muAssignLoc("changed",2, muBool(false)) ], [ muAssignLoc("subject",0, muLoc("val",3)) ] )]);
+		body += muAssignLoc("changed", 3, muBool(true));
+		body += muWhile(nextLabel(), muLoc("changed",3), 
+						[ muAssignLoc("val", 4, muCall(muFun(phi_fuid,scopeId), [ muLoc("subject",0), muLoc("matched",1), muLoc("hasInsert",2) ])),
+						  muIfelse(nextLabel(), muCallPrim("equal",[ muLoc("val",4), muLoc("subject",0) ]),
+						  						[ muAssignLoc("changed",3, muBool(false)) ], 
+						  						[ muAssignLoc("subject",0, muLoc("val",4)) ] )]);
 		body += muReturn(muLoc("subject",0));
 		
-		functions_in_module += muFunction(phi_fixpoint_fuid, phi_ftype, scopeId, 2, 4, \visit@\loc, [], (), muBlock(body));
+		functions_in_module += muFunction(phi_fixpoint_fuid, phi_ftype, scopeId, 3, 5, \visit@\loc, [], (), muBlock(body));
 	
 		str hasMatch = asTmp(nextLabel());
-		return muBlock([ muAssignTmp(hasMatch, muBool(false)), 
-					 	 muCall(traverse_fun, [ muFun(phi_fixpoint_fuid,scopeId), translate(\visit.subject), muTmpRef(hasMatch), muBool(rebuild) ]) 
+		str beenChanged = asTmp(nextLabel());
+		return muBlock([ muAssignTmp(hasMatch, muBool(false)),
+						 muAssignTmp(beenChanged, muBool(false)),
+					 	 muCall(traverse_fun, [ muFun(phi_fixpoint_fuid,scopeId), translate(\visit.subject), muTmpRef(hasMatch), muTmpRef(beenChanged), muBool(rebuild) ]) 
 				   	   ]);
 	}
 	
 	str hasMatch = asTmp(nextLabel());
+	str beenChanged = asTmp(nextLabel());
 	return muBlock([ muAssignTmp(hasMatch, muBool(false)), 
-					 muCall(traverse_fun, [ muFun(phi_fuid,scopeId), translate(\visit.subject), muTmpRef(hasMatch), muBool(rebuild) ]) 
+	                 muAssignTmp(beenChanged, muBool(false)),
+					 muCall(traverse_fun, [ muFun(phi_fuid,scopeId), translate(\visit.subject), muTmpRef(hasMatch), muTmpRef(beenChanged), muBool(rebuild) ]) 
 				   ]);
 }
 
@@ -1040,7 +1045,8 @@ MuExp translateVisitCases(list[Case] cases) {
 			replacement = translate(c.patternWithAction.replacement.replacementExpression);
 			replacementType = getType(c.patternWithAction.replacement.replacementExpression@\loc);
 			tcond = muCallPrim("subtype", [ muTypeCon(replacementType), muCallPrim("typeOf", [ muLoc("subject",0) ]) ]);
-        	exp = muIfelse(ifname, muAll([cond,tcond]), [ muReturn(muBlock([ muAssignLocDeref("matched", 1, muBool(true)), replacement ])) ], [ translateVisitCases(tail(cases)) ]);
+			list[MuExp] cbody = [ muAssignLocDeref("matched",1,muBool(true)), muAssignLocDeref("hasInsert",2,muBool(true)), replacement ];
+        	exp = muIfelse(ifname, muAll([cond,tcond]), [ muReturn(muBlock(cbody)) ], [ translateVisitCases(tail(cases)) ]);
         	leaveBacktrackingScope();
         	return exp;
 		} else {
@@ -1050,8 +1056,12 @@ MuExp translateVisitCases(list[Case] cases) {
 			insertType = topCaseType();
 			clearCaseType();
 			tcond = muCallPrim("subtype", [ muTypeCon(insertType), muCallPrim("typeOf", [ muLoc("subject",0) ]) ]);
-			exp = muIfelse(ifname, muAll([cond,tcond]), [ muAssignLocDeref("matched", 1, muBool(true)), \case, muReturn(muLoc("subject",0)) ],
-												  [ translateVisitCases(tail(cases)) ]);
+			list[MuExp] cbody = [ muAssignLocDeref("matched",1,muBool(true)) ];
+			if(!(muBlock([]) := \case)) {
+				cbody += \case;
+			}
+			cbody += muReturn(muLoc("subject",0));
+			exp = muIfelse(ifname, muAll([cond,tcond]), cbody, [ translateVisitCases(tail(cases)) ]);
         	leaveBacktrackingScope();
 			return exp;
 		}

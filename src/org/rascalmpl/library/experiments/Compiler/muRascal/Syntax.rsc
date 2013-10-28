@@ -15,7 +15,7 @@ lexical Comment
 
 lexical Identifier = id: ( [_^@]?[A-Za-z][A-Za-z0-9_]* ) \ Keywords;
 lexical Integer =  [0-9]+;
-lexical Label = label: [$][A-Za-z][A-Za-z0-9]+ \ Keyword;
+lexical Label = label: [$][A-Za-z][A-Za-z0-9]+ \ Keywords;
 lexical FConst = fconst: ( [A-Za-z][A-Za-z0-9_]* ) \ Keywords; // [_][A-Za-z0-9]+;
 
 lexical StrChar = 
@@ -24,14 +24,16 @@ lexical StrChar =
             | Quote: [\\] [\"] 
             | Backslash: [\\] [\\] 
             | Decimal: [\\] [0-9] [0-9] [0-9] 
-            | Normal: ![\n\t\"\\] 
+            | Normal: ![\n\t\"\\]
             ;
 
 lexical String = [\"] StrChar* [\"];
 
 start syntax Module =
-			  preMod: 		"module" Identifier name Function* functions
+			  preMod: 		"module" Identifier name TypeDeclaration* types Function* functions
 			;
+			
+syntax TypeDeclaration = preTypeDecl: "declares" String sym;
 
 syntax Function =     
               preFunction:	"function" FunNamePart* funNames Identifier name "[" Integer nformals "," {Identifier ","}* locals "]"
@@ -86,6 +88,7 @@ syntax Exp  =
 			| non-assoc preGreaterEqual:Exp lhs "\>=" Exp rhs
 			
 			> left preAnd:				Exp lhs "&&" Exp rhs
+			> left preOr:               Exp lhs "||" Exp rhs
 			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] Identifier typeName
 			
 		 	> preAssignLoc:				Identifier id "=" Exp exp
@@ -126,7 +129,7 @@ syntax Exp  =
 syntax TypeCase = muTypeCase: 			"case" Identifier id ":" Exp exp ;		
 
 keyword Keywords = 
-              "module" | "function" | "return" | 
+              "module" | "declares" | "function" | "return" | 
               "get_array" | "get_list" | "get_tuple" |
               "set_array" |
 			  "prim" | "muprim" | "if" | "else" |  "while" |

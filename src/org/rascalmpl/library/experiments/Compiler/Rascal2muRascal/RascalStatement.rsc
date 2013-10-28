@@ -283,7 +283,9 @@ MuExp translate(s: (Statement) `return <Statement statement>`) {
 MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translate(statement));
 
 MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) 
-	= { fillCaseType(getType(statement@\loc)); muReturn(translate(statement)); };
+	= { fillCaseType(getType(statement@\loc)); 
+		muBlock([ muAssignLocDeref("hasInsert",2,muBool(true)), 
+				  muReturn(translate(statement)) ]); };
 
 MuExp translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) =
    muCallPrim("listwriter_add", [muTmp(asTmp(currentLoop())), translate(statement)]);

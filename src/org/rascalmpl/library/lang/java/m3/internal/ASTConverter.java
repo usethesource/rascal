@@ -690,11 +690,11 @@ public class ASTConverter extends JavaToRascalConverter {
 		for (String component: node.getName().getFullyQualifiedName().split("\\.")) {
 			if (ownValue == null) {
 				ownValue = constructDeclarationNode("package", values.string(component));
-				setAnnotation("binding", resolveBinding(component));
+				setAnnotation("decl", resolveBinding(component));
 				continue;
 			}
 			ownValue = constructDeclarationNode("package", ownValue, values.string(component));
-			setAnnotation("binding", resolveBinding(component));
+			setAnnotation("decl", resolveBinding(component));
 		}
 		
 		setAnnotation("modifiers", annotations);
