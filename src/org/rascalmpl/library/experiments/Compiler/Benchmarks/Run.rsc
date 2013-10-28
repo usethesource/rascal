@@ -13,6 +13,7 @@ import util::Benchmark;
 import util::Math;
 import experiments::Compiler::Execute;
 
+import experiments::Compiler::Benchmarks::BasType;
 import experiments::Compiler::Benchmarks::BBottles;
 import experiments::Compiler::Benchmarks::BCompareFor;
 import experiments::Compiler::Benchmarks::BCompareIf;
@@ -100,6 +101,7 @@ void report(){
 
 void main(){
   measurements = ();
+  run("BasType", experiments::Compiler::Benchmarks::BasType::main);
   run("BBottles", experiments::Compiler::Benchmarks::BBottles::main);
   run("BCompareFor", experiments::Compiler::Benchmarks::BCompareFor::main);
   run("BCompareIf", experiments::Compiler::Benchmarks::BCompareIf::main);
