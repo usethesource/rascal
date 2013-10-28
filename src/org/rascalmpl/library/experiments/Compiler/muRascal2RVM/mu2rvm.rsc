@@ -326,7 +326,7 @@ INS tr(muCreate(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), CREATEDYN
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
 INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order!
 
-INS tr(muHasNext(MuExp coro)) = [*tr(coro), HASNEXT()];
+// INS tr(muHasNext(MuExp coro)) = [*tr(coro), HASNEXT()];
 
 INS tr(muNext(MuExp coro)) = [*tr(coro), NEXT0()];
 INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
@@ -644,9 +644,6 @@ INS tr(e:muAll(list[MuExp] exps)) {
           		     POP(),
           		     LABEL(newFail),
           		     LOADLOC(co), 
-          		     HASNEXT(), 
-          		     JMPFALSE(currentFail), 
-          		     LOADLOC(co),
           		     NEXT0(), 
           		     JMPFALSE(currentFail)
           		   ];
@@ -762,9 +759,6 @@ INS tr_cond(e: muAll(list[MuExp] exps), str continueLab, str failLab){
            	        LABEL(newFail),
           			*((i == lastMulti) ? [LABEL(continueLab)] :[]),
           		    LOADLOC(co), 
-          		    HASNEXT(), 
-          		    JMPFALSE(currentFail), 
-          		    LOADLOC(co),
           		    NEXT0(), 
           		    JMPFALSE(currentFail)
           		  ];

@@ -927,14 +927,16 @@ public class RVM {
 					if(op == Opcode.OP_RETURN1 || cf.isCoroutine) {
 						if(cf.isCoroutine) {
 							rval = Rascal_TRUE;
-							arity = instructions[pc++];
-							int[] refs = cf.function.refs;
-							if(arity != refs.length) {
-								throw new RuntimeException("The return within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
-							}
-							for(int i = 0; i < arity; i++) {
-								ref = (Reference) stack[refs[arity - 1 - i]];
-								ref.stack[ref.pos] = stack[--sp];
+							if(op == Opcode.OP_RETURN1) {
+								arity = instructions[pc++];
+								int[] refs = cf.function.refs;
+								if(arity != refs.length) {
+									throw new RuntimeException("The return within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
+								}
+								for(int i = 0; i < arity; i++) {
+									ref = (Reference) stack[refs[arity - 1 - i]];
+									ref.stack[ref.pos] = stack[--sp];
+								}
 							}
 						} else {
 							rval = stack[sp - 1];
