@@ -65,11 +65,32 @@ M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
     sourcePaths = getPaths(project, "java");
     //setEnvironmentOptions(project);
     setEnvironmentOptions(classPaths, sourcePaths);
+    M3 result = m3(project);
     for (sp <- sourcePaths) {
       result = composeJavaM3(project, { createM3FromFile(f, javaVersion = javaVersion) | loc f <- find(sp, "java") });
     }
     registerProject(project.authority, result);
     return result;
+}
+
+Declaration getMethodAST(loc methodLoc, M3 model = m3(|unknown:///|)) {
+  if (isMethod(methodLoc)) {
+    if (isEmpty(model)) {
+      model = getModelContaining(methodLoc);
+      if (isEmpty(model))
+        throw "Declaration for <methodLoc> not found in any models";
+    }
+    loc file = getFileContaining(methodLoc, model);
+    Declaration fileAST = createAstFromFile(file, true);
+    visit(fileAST) {
+      case Declaration d: {
+        if ("decl" in getAnnotations(d) && d@decl == methodLoc)
+          return d;
+      }
+    }
+    throw "No declaration matching <methodLoc> found";
+  }
+  throw "Only methods are supported at the moment";
 }
 
 M3 createM3FromJar(loc jarFile) {
