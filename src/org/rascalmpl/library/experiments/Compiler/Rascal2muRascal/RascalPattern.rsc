@@ -219,34 +219,34 @@ default MuExp translatePatinDescendant(Pattern p) = translatePat(p);
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`) {
    if("<name>" == "_"){
-       return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_LIST",3), []);
+       return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_LIST",4), []);
    }
    <fuid, pos> = getVariableScope("<name>", name@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_LIST",4), [muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_LIST",5), [muVarRef("<name>", fuid, pos)]);
 } 
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`) {
    if("<name>" == "_"){
-       return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_MULTIVAR_IN_LIST",3), []);
+       return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_MULTIVAR_IN_LIST",4), []);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_LIST",4), [muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_LIST",5), [muVarRef("<name>", fuid, pos)]);
 }
 
 MuExp translatePatAsListElem(p:(Pattern) `*<Type tp> <Name name>`) {
    if("<name>" == "_"){
-      return muCreate(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST",4), [muTypeCon(\list(translateType(tp)))]);
+      return muCreate(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST",5), [muTypeCon(\list(translateType(tp)))]);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_TYPED_MULTIVAR_IN_LIST",5), [muTypeCon(\list(translateType(tp))), muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_TYPED_MULTIVAR_IN_LIST",6), [muTypeCon(\list(translateType(tp))), muVarRef("<name>", fuid, pos)]);
 }
 
 MuExp translatePatAsListElem(p:(Pattern) `*<Name name>`) {
    if("<name>" == "_"){
-      return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_MULTIVAR_IN_LIST",3), []);
+      return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_MULTIVAR_IN_LIST",4), []);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_LIST",4), [muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_LIST",5), [muVarRef("<name>", fuid, pos)]);
 } 
 
 MuExp translatePatAsListElem(p:(Pattern) `+<Pattern argument>`) {
@@ -254,7 +254,7 @@ MuExp translatePatAsListElem(p:(Pattern) `+<Pattern argument>`) {
 }   
 
 default MuExp translatePatAsListElem(Pattern p) {
-  return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_LIST",4), [translatePat(p)]);
+  return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_LIST",5), [translatePat(p)]);
 }
 
 /*********************************************************************/

@@ -267,8 +267,10 @@ coroutine MATCH_TUPLE[2, pats, iSubject, cpats]{
     };
 }
 
-coroutine MATCH_LITERAL[2, pat, iSubject, res]{
-    guard ( equal(typeOf(pat),typeOf(iSubject)) && equal(pat, iSubject) );
+coroutine MATCH_LITERAL[2, pat, iSubject]{
+    guard (equal(typeOf(pat),typeOf(iSubject)) 
+    		&& equal(pat, iSubject));
+    return;
 }
 
 coroutine MATCH_VAR[2, rVar, iSubject]{
@@ -289,17 +291,17 @@ coroutine MATCH_TYPED_ANONYMOUS_VAR[2, typ, iSubject]{
    return;
 }
 
-coroutine MATCH_VAR_BECOMES[3, pat, rVar, iSubject, cpat]{
+coroutine MATCH_VAR_BECOMES[3, rVar, pat, iSubject, cpat]{
    cpat = init(pat, iSubject);
-   while(next(cpat)){
+   while(next(cpat)) {
        yield iSubject;
    };
 }
 
-coroutine MATCH_TYPED_VAR_BECOMES[4, pat, typ, rVar, iSubject, cpat]{
+coroutine MATCH_TYPED_VAR_BECOMES[4, typ, rVar, pat, iSubject, cpat]{
    guard subtype(typeOf(iSubject), typ);
    cpat = init(pat, iSubject);
-   while(next(cpat)){
+   while(next(cpat)) {
        yield iSubject;
    };
 }
@@ -311,7 +313,7 @@ coroutine MATCH_AS_TYPE[3, typ, pat, iSubject]{ // NOTE: example of stackful cor
 
 coroutine MATCH_ANTI[2, pat, iSubject, cpat]{
 	cpat = init(pat, iSubject);
-	if(next(cpat)){
+	if(next(cpat)) {
 	   exhaust;
 	} else {
 	   return;
@@ -321,19 +323,19 @@ coroutine MATCH_ANTI[2, pat, iSubject, cpat]{
 // ***** List matching *****
 
 coroutine MATCH_LIST[2, pats,   					// A list of coroutines to match list elements
-					   iSubject,					// The subject list
+					    iSubject,					// The subject list
 					   
-					   patlen,						// Length of pattern list
-					   patlen1,						// patlen - 1
-					   sublen,						// Length of subject list
-					   p,							// Cursor in patterns
-					   cursor,						// Cursor in subject
-					   forward,
-					   matcher,						// Currently active pattern matcher
-					   matchers,					// List of currently active pattern matchers
-					   success,						// Success flag of last macth
-					   nextCursor					// Cursor movement of last successfull match
-					]{
+					    patlen,						// Length of pattern list
+					    patlen1,					// patlen - 1
+					    sublen,						// Length of subject list
+					    p,							// Cursor in patterns
+					    cursor,						// Cursor in subject
+					    forward,
+					    matcher,					// Currently active pattern matcher
+					    matchers,					// List of currently active pattern matchers
+					    success,					// Success flag of last macth
+					    nextCursor					// Cursor movement of last successfull match
+					 ]{
      guard iSubject is list;
      
      patlen   = size_array(pats);
@@ -348,43 +350,24 @@ coroutine MATCH_LIST[2, pats,   					// A list of coroutines to match list eleme
      
      while(true) {
      	// Move forward
-     	 forward = hasNext(matcher);
-     	 // prim("println", ["At head", p, cursor, forward]);
-         while(forward && hasNext(matcher)){
-        	[success, nextCursor] = next(matcher);
-            if(success){ 
-               forward = true;
-               cursor = nextCursor;
-               if((p == patlen1) && (cursor == sublen)) {
-                   yield true; 
-               } else {
-                 if(p < patlen1){
-                   p = p + 1;
-                   matcher  = init(get_array pats[p], iSubject, cursor, ref nextCursor, sublen - cursor);
-                   set_array matchers[p] = matcher;
-                 } else {
-                   if(hasNext(matcher)){
-                     // explore more alternatives
-                   } else {
-                      forward = false;
-                   };
-                 };  
-               };
+     	while(next(matcher)) {
+            cursor = nextCursor;
+            if((p == patlen1) && (cursor == sublen)) {
+                yield; 
             } else {
-              forward = false;
+                if(p < patlen1){
+                    p = p + 1;
+                    matcher  = init(get_array pats[p], iSubject, cursor, ref nextCursor, sublen - cursor);
+                    set_array matchers[p] = matcher;
+                };  
             };
          }; 
          // If possible, move backward
-         if(forward){
-           // nothing
-         } else {  
-           if(p > 0){
-               p        = p - 1;
-               matcher  = get_array matchers[p];
-               forward  = true;
-           } else {
-               return false;
-           };
+         if(p > 0) {
+             p        = p - 1;
+             matcher  = get_array matchers[p];
+         } else {
+             exhaust;
          };
      };
 }
@@ -437,7 +420,7 @@ coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[4, iSubject, start, rNext, available,
      };
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_LIST[5, typ, rVar, iSubject, start, rNext, available, len]{
+coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iSubject, start, rNext, available, len]{
 	// NOTE: added an extra parameter 'rNext'
 	guard subtype(typeOf(iSubject), typ);
     len = 0;
