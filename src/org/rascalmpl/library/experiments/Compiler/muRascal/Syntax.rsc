@@ -16,7 +16,7 @@ lexical Integer =  [0-9]+;
 lexical Label = label: [$][A-Za-z][A-Za-z0-9]+  \ Keywords;
 lexical FConst = ( [A-Z][A-Z0-9_]* )    \ Keywords;
 lexical MConst = ( [A-Z][A-Za-z0-9_]* ) \ Keywords;
-lexical TConst = ( [a-z][a-z]* )        \ Keywords;
+lexical TConst = @category = "IType" ( [a-z][a-z]* )        \ Keywords;
 
 lexical IId = ( [i][A-Z][A-Za-z0-9_]* )      \ Keywords;
 lexical RId = ( [r][A-Z][A-Za-z0-9_]* )      \ Keywords;
