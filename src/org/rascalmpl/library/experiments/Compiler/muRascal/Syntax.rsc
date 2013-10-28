@@ -8,8 +8,8 @@ lexical LAYOUT
   | [\t-\n \r \ ];
     
 lexical Comment
-  = "/*" (![*] | [*] !>> [/])* "*/" 
-  | "//" ![\n]* [\n]; 
+  = @category = "Comment" "/*" (![*] | [*] !>> [/])* "*/" 
+  | @category = "Comment" "//" ![\n]* [\n]; 
 
 // lexical Identifier = id: ( [_^@]?[A-Za-z][A-Za-z0-9_]* ) \ Keywords;
 lexical Integer =  [0-9]+;
@@ -27,21 +27,21 @@ lexical MId =
 
 lexical Identifier = 
 			    fvar: FConst var
-			  |	ivar: IId var
-              | rvar: RId var
+			  |	@category = "IValue" ivar: IId var
+              | @category = "Reference" rvar: RId var
               | mvar: MId var
               ; 
 
 lexical StrChar = 
-			  NewLine: [\\] [n] 
-            | Tab: [\\] [t] 
-            | Quote: [\\] [\"] 
-            | Backslash: [\\] [\\] 
-            | Decimal: [\\] [0-9] [0-9] [0-9] 
-            | Normal: ![\n\t\"\\]
+			  @category = "Constant" NewLine: [\\] [n] 
+            | @category = "Constant" Tab: [\\] [t] 
+            | @category = "Constant" Quote: [\\] [\"] 
+            | @category = "Constant" Backslash: [\\] [\\] 
+            | @category = "Constant" Decimal: [\\] [0-9] [0-9] [0-9] 
+            | @category = "Constant" Normal: ![\n\t\"\\]
             ;
 
-lexical String = [\"] StrChar* [\"];
+lexical String = @category = "Constant" [\"] StrChar* [\"];
 
 start syntax Module =
 			  preMod: 		"module" MConst name TypeDeclaration* types Function* functions
