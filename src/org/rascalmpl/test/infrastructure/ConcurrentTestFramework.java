@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.uri.ClassResourceInputOutput;
+import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -141,7 +141,7 @@ public class ConcurrentTestFramework {
 		resolverRegistry.registerInput(modules);
 
 		evaluator.addRascalSearchPath(URIUtil.rootScheme("benchmarks"));
-		resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
+		resolverRegistry.registerInput(new ClassResourceInput(resolverRegistry, "benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
 
 	}
 
