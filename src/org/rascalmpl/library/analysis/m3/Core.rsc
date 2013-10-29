@@ -61,6 +61,8 @@ M3 composeM3(loc id, set[M3] models) {
   return m;
 }
 
+bool isEmpty(M3 model) = model.id.scheme == "unknown";
+
 @doc{
 Synopsis: constructs a recursive FileSystem from a binary [Location] relation.
 
@@ -86,6 +88,15 @@ set[loc] files(M3 model) {
  }
  
  return done;
+}
+
+loc getFileContaining(loc method, M3 model) {
+  for (loc l <- ((model@containment<1,0>)+)[method]) {
+    if (isCompilationUnit(l)) {
+      assert size(model@declarations[l]) == 1 : "Got more than one file containing the method";
+      return getOneFrom(model@declarations[l]);
+    }
+  }
 }
 
 @doc{

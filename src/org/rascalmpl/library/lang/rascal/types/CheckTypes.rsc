@@ -1053,10 +1053,13 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
     }
   }
   
-  if (size(failures) > 0)
+  if (size(failures) > 0) {
     return markLocationFailed(c, exp@\loc, failures);
+  }
   
-  return convertAndExpandSymbol(concrete.symbol, c);  
+  <c, rt> = convertAndExpandSymbol(concrete.symbol, c);
+  
+  return markLocationType(c, exp@\loc, rt);
 }
 
 @doc{Check the types of Rascal expressions: CallOrTree}

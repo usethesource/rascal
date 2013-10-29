@@ -391,7 +391,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	public boolean visit(ExpressionStatement node) {
 		
 		IValue expression = visitChild(node.getExpression());
-		ownValue = constructStatementNode("expression", expression);
+		ownValue = constructStatementNode("expressionStatement", expression);
 		
 		return false;
 	}
@@ -1044,7 +1044,7 @@ public class ASTConverter extends JavaToRascalConverter {
 			typeDeclaration = visitChild(node.getDeclaration());
 		}
 		
-		ownValue = constructStatementNode("declaration", typeDeclaration);
+		ownValue = constructStatementNode("declarationStatement", typeDeclaration);
 		
 		return false;
 	}
@@ -1104,7 +1104,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		ownValue = constructDeclarationNode("variables", type, fragments.asList());
 		setAnnotation("modifiers", extendedModifiers);
 		
-		ownValue = constructExpressionNode("declaration", ownValue);
+		ownValue = constructExpressionNode("declarationExpression", ownValue);
 		
 		
 		return false;
@@ -1138,7 +1138,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		ownValue = constructDeclarationNode("variables", type, fragments.asList());
 		setAnnotation("modifiers", extendedModifiers);
 		
-		ownValue = constructStatementNode("declaration", ownValue);
+		ownValue = constructStatementNode("declarationStatement", ownValue);
 		
 		return false;
 	}

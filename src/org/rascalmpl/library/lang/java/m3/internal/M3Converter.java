@@ -62,7 +62,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		types = values.relationWriter(TF.tupleType(locType, DATATYPE_TYPESYMBOL));
 	}
 	
-	public IValue getModel() {
+	public IValue getModel(boolean insertErrors) {
 		ownValue = values.constructor(CONSTRUCTOR_M3, loc);
 		setAnnotation("declarations", declarations.done());
 		setAnnotation("uses", uses.done());
@@ -77,7 +77,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		setAnnotation("names", names.done());
 		setAnnotation("methodOverrides", methodOverrides.done());
 		setAnnotation("types", types.done());
-		insertCompilationUnitMessages();
+		insertCompilationUnitMessages(insertErrors);
 		return ownValue;
 	}
 	

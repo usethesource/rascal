@@ -78,7 +78,7 @@ public class EclipseJavaCompiler {
       converter.set(jarLoc);
       converter.convert(jarLoc, eval);
 
-      return converter.getModel();
+      return converter.getModel(false);
   }
 
   @SuppressWarnings("rawtypes")
@@ -99,7 +99,7 @@ public class EclipseJavaCompiler {
         comment.accept(converter);
       }
       
-      return converter.getModel();
+      return converter.getModel(true);
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
     }
@@ -114,14 +114,15 @@ public class EclipseJavaCompiler {
       CompilationUnit cu = getCompilationUnit(loc, collectBindings.getValue(), javaVersion, eval);
 
       TypeStore store = new TypeStore();
-      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+//      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
       store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
       ASTConverter converter = new ASTConverter(store, collectBindings.getValue());
 
       converter.set(cu);
       converter.set(loc);
       cu.accept(converter);
-      converter.insertCompilationUnitMessages();
+      
+      converter.insertCompilationUnitMessages(true);
       return converter.getValue();
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);

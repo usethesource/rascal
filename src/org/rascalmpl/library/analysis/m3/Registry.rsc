@@ -42,6 +42,14 @@ void unregisterProject(str project) {
   projects -= (project:m3(project));
 }
 
+M3 getModelContaining(loc entity) {
+  for (proj <- projects) {
+    if (<name, _> <- projects[proj]@declarations)
+      return projects[proj];
+  }
+  throw "No model found containing the declaration <entity>";
+}
+
 @doc{
 Synopsis: map a qualified name [Location] to a physical file store [Location]
 
