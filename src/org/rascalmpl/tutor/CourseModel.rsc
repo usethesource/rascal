@@ -23,7 +23,7 @@ import ParseTree;
 import RascalUtils;
 import Warnings;
 
-//public loc courseDir    = |file:///Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/courses|;
+//public loc courseDir    = |file:///Users/paulklint/Documents/workspace-level1/rascal/src/org/rascalmpl/courses|;
 public loc courseDir    = |courses:///|;
 
 /* The processing of exams is organized by sharing information between the server and the user (teacher) via dropbox.
