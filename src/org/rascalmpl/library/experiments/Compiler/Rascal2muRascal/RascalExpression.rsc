@@ -1,6 +1,5 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalExpression
-
 import Prelude;
 
 import lang::rascal::\syntax::Rascal;
@@ -138,9 +137,9 @@ MuExp getConstructor(str cons) {
    }
    println("uid = <uid>");
    
- 
-   tuple[str fuid,int pos] addr = uid2addr[uid];
-   println("fuid = <fuid>, pos = <pos>");
+   res = muConstr(uid2name[uid]);
+   println("res = <res>");
+   return res;
 }
 
 MuExp translateConcrete(Tree parseTree){
@@ -148,7 +147,7 @@ MuExp translateConcrete(Tree parseTree){
    
    cons = getName(parseTree);
    MuExp receiver =  getConstructor(cons);
-   list[MuExp] args = [ translateConcrete(a) | a <- arguments ];
+   list[MuExp] args = [ translateConcrete(a) | Tree a <- getChildren(parseTree) ];
    
    return muCall(receiver, args);
    
