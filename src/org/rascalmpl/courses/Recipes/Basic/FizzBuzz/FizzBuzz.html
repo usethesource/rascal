@@ -71,14 +71,14 @@
 import IO;
 
 public void fizzbuzz() {
-   for(int n &lt;- [1 .. 100]){
+   for(int n &lt;- [1 .. 101]){
       fb = ((n % 3 == 0) ? "Fizz" : "") + ((n % 5 == 0) ? "Buzz" : "");
       println((fb == "") ?"&lt;n>" : fb);
    }
 }
 
 public void fizzbuzz2() {
-  for (n &lt;- [1..100]) 
+  for (n &lt;- [1..101]) 
     switch(&lt;n % 3 == 0, n % 5 == 0>) {
       case &lt;true,true>  : println("FizzBuzz");
       case &lt;true,false> : println("Fizz");
@@ -88,7 +88,7 @@ public void fizzbuzz2() {
 }
 
 public void fizzbuzz3() {
-  for (n &lt;- [1..100]) {
+  for (n &lt;- [1..101]) {
     if (n % 3 == 0) print("Fizz");
     if (n % 5 == 0) print("Buzz");
     else if (n % 3 != 0) print(n);

@@ -1,7 +1,8 @@
 module lang::java::m3::AST
 
 extend analysis::m3::AST;
-import lang::java::m3::Core;
+import util::FileSystem;
+import lang::java::m3::TypeSymbol;
  
 data Declaration
     = \compilationUnit(list[Declaration] imports, list[Declaration] types)
@@ -61,7 +62,7 @@ data Expression
     | \this()
     | \this(Expression thisExpression)
     | \super()
-    | \declaration(Declaration decl)
+    | \declarationExpression(Declaration decl)
     | \infix(Expression lhs, str operator, Expression rhs, list[Expression] extendedOperands)
     | \postfix(Expression operand, str operator)
     | \prefix(str operator, Expression operand)
@@ -98,9 +99,9 @@ data Statement
     | \try(Statement body, list[Statement] catchClauses)
     | \try(Statement body, list[Statement] catchClauses, Statement \finally)                                        
     | \catch(Declaration exception, Statement body)
-    | \declaration(Declaration declaration)
+    | \declarationStatement(Declaration declaration)
     | \while(Expression condition, Statement body)
-    | \expression(Expression stmt)
+    | \expressionStatement(Expression stmt)
     | \constructorCall(bool isSuper, Expression expr, list[Expression] arguments)
     | \constructorCall(bool isSuper, list[Expression] arguments)
     ;           
@@ -144,6 +145,14 @@ data Modifier
     | \annotation(Expression \anno)
     | \onDemand()
     ;
+
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+@reflect
+java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
+
+void setEnvironmentOptions(loc directory) {
+    setEnvironmentOptions(getPaths(directory, "class") + find(directory, "jar"), getPaths(directory, "java"));
+}
       
 @doc{Creates AST from a file}
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}

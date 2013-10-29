@@ -16,7 +16,6 @@ package org.rascalmpl.uri;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -28,13 +27,13 @@ import java.nio.charset.Charset;
  * some functionality may or may not work. Typically, the user will eventually get a "SchemeNotSupportedException" 
  * if an operation is not provided. 
  */
-public class ClassResourceInputOutput implements IURIInputOutputResolver {
+public class ClassResourceInput implements IURIInputStreamResolver {
 	protected final Class<?> clazz;
 	protected final String scheme;
 	protected final URIResolverRegistry registry;
 	protected final String prefix;
 
-	public ClassResourceInputOutput(URIResolverRegistry registry, String scheme, Class<?> clazz, String prefix) {
+	public ClassResourceInput(URIResolverRegistry registry, String scheme, Class<?> clazz, String prefix) {
 		this.registry = registry;
 		this.clazz = clazz;
 		this.scheme = scheme;
@@ -145,44 +144,6 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 		return (n  < 0) ? path : path.substring(n);
 	}
 
-	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
-		try {
-			String parent = getParent(uri);
-			String child = getChild(uri);
-			
-			URL res = clazz.getResource(parent);
-			if(res == null)
-				throw new FileNotFoundException(parent);
-			URI parentUri = res.toURI();
-			String path = parentUri.getPath();
-			if (path == null) {
-				path = "/";
-			}
-			URI childUri = URIUtil.changePath(parentUri, path + child);
-			
-			return registry.getOutputStream(childUri, append);
-		} catch (URISyntaxException e) {
-			throw new IOException(e.getMessage(), e);
-		}
-	}
-
-	public void mkDirectory(URI uri) throws IOException {
-		String parent = getParent(uri);
-		String child = getChild(uri);
-
-		try {
-			URL res = clazz.getResource(parent);
-			if(res == null)
-				throw new FileNotFoundException(parent);
-			URI parentUri = res.toURI();
-			URI childUri = URIUtil.changePath(parentUri, parentUri.getPath() + child);
-
-			registry.mkDirectory(childUri);
-		} catch (URISyntaxException e) {
-			throw new IOException(e.getMessage(), e);
-		} 
-	}
-	
 	public boolean supportsHost() {
 		return false;
 	}

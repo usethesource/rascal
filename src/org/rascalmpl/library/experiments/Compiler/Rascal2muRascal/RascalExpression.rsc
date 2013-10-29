@@ -1,6 +1,5 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalExpression
-
 import Prelude;
 
 import lang::rascal::\syntax::Rascal;
@@ -122,7 +121,40 @@ MuExp translate(e:(Expression)  `<Literal s>`) = translate(s);
 // Other expressions
 
 // Concrete
-MuExp translate(e:(Expression) `<Concrete concret>`) { throw("Concrete"); }
+MuExp translate(e:(Expression) `<Concrete concrete>`) {
+  return translateConcrete(concrete);
+}
+
+MuExp getConstructor(str cons) {
+   uid = -1;
+   for(c <- constructors){
+     //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <uid2str(c)>");
+     if(cons == getSimpleName(config.store[c].name)){
+        println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
+        uid = c;
+        break;
+     }
+   }
+   println("uid = <uid>");
+   
+   res = muConstr(uid2name[uid]);
+   println("res = <res>");
+   return res;
+}
+
+MuExp translateConcrete(Tree parseTree){
+   // ignore kw arguments for the moment
+   
+   cons = getName(parseTree);
+   MuExp receiver =  getConstructor(cons);
+   list[MuExp] args = [ translateConcrete(a) | Tree a <- getChildren(parseTree) ];
+   
+   return muCall(receiver, args);
+   
+   //if(getOuterType(expression) == "loc"){
+   //    return muCallPrim("loc_with_offset_create", [receiver, *args]);
+   //}
+}
 
 // Block
 MuExp translate(e:(Expression) `{ <Statement+ statements> }`) = muBlock([translate(stat) | stat <- statements]);

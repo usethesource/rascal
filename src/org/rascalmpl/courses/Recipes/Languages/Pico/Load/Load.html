@@ -74,23 +74,7 @@ public PROGRAM  load(str txt) = implode(#PROGRAM, parse(#Program, txt));
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Pico::Load;
 ok
 <span class="prompt">rascal></span>load(&quot;begin declare x : natural; x := 3 end&quot;);
-PROGRAM: program(
-  [decl(
-      "x",
-      natural()[
-        @location=|file://-|(18,7,&lt;1,18>,&lt;1,25>)
-      ])[
-      @location=|file://-|(14,11,&lt;1,14>,&lt;1,25>)
-    ]],
-  [asgStat(
-      "x",
-      natCon(3)[
-        @location=|file://-|(32,1,&lt;1,32>,&lt;1,33>)
-      ])[
-      @location=|file://-|(27,6,&lt;1,27>,&lt;1,33>)
-    ]])[
-  @location=|file://-|(0,37,&lt;1,0>,&lt;1,37>)
-]
+|file://-|: Java compilation failed due to with classpath [/Users/jurgenv/Test/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar]: package org.eclipse.imp.pdb.facts.type does not exist
 </pre> Observe how the various parts of the abstract syntax tree are annotated with location attributes.
 
 </div>
@@ -101,7 +85,7 @@ PROGRAM: program(
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Pico/Load&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Pico/Load&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

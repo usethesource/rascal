@@ -76,6 +76,8 @@
 
 import String;
 import IO;
+import Set;
+import List;
 
 // Capitalize the first character of a string
 
@@ -98,11 +100,11 @@ private str genGetter(map[str,str] fields, str x) {
 }
 
 // Generate a class with given name and fields.
-
+// The field names are processed in sorted order.
 public str genClass(str name, map[str,str] fields) { <img src="/images/2.png">
   return 
     "public class &lt;name> {
-    '  &lt;for (x &lt;- fields) {>
+    '  &lt;for (x &lt;- sort([f | f &lt;- fields])) {>
     '  private &lt;fields[x]> &lt;x>;
     '  &lt;genSetter(fields, x)>
     '  &lt;genGetter(fields, x)>&lt;}>
@@ -138,6 +140,13 @@ map[str, str]: ("age":"Integer","name":"String","address":"String")
 <span class="prompt">rascal></span>println(genClass(&quot;Person&quot;, fields));
 public class Person {
   
+  private String address;
+  public void setAddress(String address) {
+    this.address = address;
+  }
+  public String getAddress() {
+    return address;
+  }
   private Integer age;
   public void setAge(Integer age) {
     this.age = age;
@@ -151,13 +160,6 @@ public class Person {
   }
   public String getName() {
     return name;
-  }
-  private String address;
-  public void setAddress(String address) {
-    this.address = address;
-  }
-  public String getAddress() {
-    return address;
   }
 }
 ok
