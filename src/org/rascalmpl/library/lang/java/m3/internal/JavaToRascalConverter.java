@@ -261,26 +261,27 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		return values.constructor(constr, removeNulls(children));
 	}
 	
-	protected void insertCompilationUnitMessages() {
+	protected void insertCompilationUnitMessages(boolean insertErrors) {
 		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(TF.stringType(), TF.sourceLocationType());
 		
 		IValueList result = new IValueList(values);
-		
-		int i;
-
-		IProblem[] problems = compilUnit.getProblems();
-		for (i = 0; i < problems.length; i++) {
-			int offset = problems[i].getSourceStart();
-			int length = problems[i].getSourceEnd() - offset + 1;
-			int sl = problems[i].getSourceLineNumber();
-			ISourceLocation pos = values.sourceLocation(loc, offset, length, sl, sl, 0, 0);
-			org.eclipse.imp.pdb.facts.type.Type constr;
-			if (problems[i].isError()) {
-				constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "error", args);
-			} else {
-				constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "warning", args);
+		if (insertErrors) {
+			int i;
+	
+			IProblem[] problems = compilUnit.getProblems();
+			for (i = 0; i < problems.length; i++) {
+				int offset = problems[i].getSourceStart();
+				int length = problems[i].getSourceEnd() - offset + 1;
+				int sl = problems[i].getSourceLineNumber();
+				ISourceLocation pos = values.sourceLocation(loc, offset, length, sl, sl, 0, 0);
+				org.eclipse.imp.pdb.facts.type.Type constr;
+				if (problems[i].isError()) {
+					constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "error", args);
+				} else {
+					constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "warning", args);
+				}
+				result.add(values.constructor(constr, values.string(problems[i].getMessage()), pos));
 			}
-			result.add(values.constructor(constr, values.string(problems[i].getMessage()), pos));
 		}
 		setAnnotation("messages", result.asList());
 	}
