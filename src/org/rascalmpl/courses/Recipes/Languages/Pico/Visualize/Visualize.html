@@ -119,7 +119,8 @@ public Figure visCFG(rel[CFNode, CFNode] CFGGraph){
 <li> returns a Figure graph.</li>
 </ul></li>
 </ul> Let's now apply this:
- <pre class="listing">import demo::lang::Pico::ControlFlow;
+ <warning>StaticError("Java compilation failed due to with classpath [/Users/jurgenv/Test/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar]: package org.eclipse.imp.pdb.facts.type does not exist\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaCompilation/JavaCompilation.html)",|file://-|)
+</warning><pre class="listing">import demo::lang::Pico::ControlFlow;
 import demo::lang::Pico::Visualize;
 CFG = cflowProgram("begin declare n : natural, s : string; n := 10; s := \"a\"; while n do s := s + \"a\"; n := n - 1 od end");
 render(visCFG(CFG.graph));
@@ -137,7 +138,7 @@ render(visCFG(CFG.graph));
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Pico/Visualize&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Pico/Visualize&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

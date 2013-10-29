@@ -112,13 +112,13 @@ syntax start[Exp] = Whitespace Exp top Whitespace;
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Concrete::WithLayout::Syntax;
 ok
 <span class="prompt">rascal></span>import demo::lang::Exp::Concrete::WithLayout::Eval;
-ok
+|rascal://demo::lang::Exp::Concrete::WithLayout::Eval|: Java compilation failed due to with classpath [/Users/jurgenv/Test/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar]: package org.eclipse.imp.pdb.facts.type does not exist
 <span class="prompt">rascal></span>eval(&quot;2 +  3&quot;);
-int: 5
+|stdin:///|(0,4,&lt;1,0>,&lt;1,4>): Undeclared variable: eval
 <span class="prompt">rascal></span>eval(&quot;2   +  3*4&quot;);
-int: 14
+|stdin:///|(0,4,&lt;1,0>,&lt;1,4>): Undeclared variable: eval
 <span class="prompt">rascal></span>eval(&quot;( 2+3 )* 4&quot;);
-int: 20
+|stdin:///|(0,4,&lt;1,0>,&lt;1,4>): Undeclared variable: eval
 </pre>
 </div>
 
@@ -133,7 +133,7 @@ int: 20
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Exp/Concrete/WithLayout&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Exp/Concrete/WithLayout&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 4 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
