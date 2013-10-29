@@ -55,7 +55,7 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.uri.ClassResourceInputOutput;
+import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -237,7 +237,7 @@ public class RascalShell {
 		int count = 0;
 		for (String root : roots) {
 			String scheme = "root" + count;
-			reg.registerInput(new ClassResourceInputOutput(reg, scheme, RascalShell.class, "/" + root));
+			reg.registerInput(new ClassResourceInput(reg, scheme, RascalShell.class, "/" + root));
 			eval.addRascalSearchPath(URIUtil.rootScheme(scheme));
 		}
 		IRascalMonitor monitor = new NullRascalMonitor();
