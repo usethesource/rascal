@@ -126,86 +126,35 @@ MuExp translate(e:(Expression) `<Concrete concrete>`) {
   return translateConcrete(concrete);
 }
 
-loc patch(loc l) {
- l.length += 1;
- l.end.column += 1;
- return l;
+MuExp getConstructor(str cons) {
+   uid = -1;
+   for(c <- constructors){
+     //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <uid2str(c)>");
+     if(cons == getSimpleName(config.store[c].name)){
+        println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
+        uid = c;
+        break;
+     }
+   }
+   println("uid = <uid>");
+   
+ 
+   tuple[str fuid,int pos] addr = uid2addr[uid];
+   println("fuid = <fuid>, pos = <pos>");
 }
 
 MuExp translateConcrete(Tree parseTree){
    // ignore kw arguments for the moment
    
-   expression = getName(parseTree);
-   iprint(parseTree);
-   println(" type = <getType(patch(parseTree@\loc))>");
-   println("expression = <expression>");
-   arguments = getChildren(parseTree);
-   println("arguments = <arguments>");
-   println("loc2uid = <loc2uid>");
-   int uid = loc2uid[patch(parseTree@\loc)];
-   tuple[str fuid,int pos] addr = uid2addr[uid];
-   println("fuid = <fuid>, pos = <pos>");
-   MuExp receiver =  mkVar("<expression>", patch(parseTree@\loc));
+   cons = getName(parseTree);
+   MuExp receiver =  getConstructor(cons);
    list[MuExp] args = [ translateConcrete(a) | a <- arguments ];
-   if(getOuterType(expression) == "str") {
-       return muCallPrim("node_create", [receiver, *args]);
-   }
    
-   if(getOuterType(expression) == "loc"){
-       return muCallPrim("loc_with_offset_create", [receiver, *args]);
-   }
+   return muCall(receiver, args);
    
-   if(muFun(str _) := receiver || muFun(str _, str _) := receiver || muConstr(str _) := receiver) {
-       return muCall(receiver, args);
-   }
-   
-   // Now overloading resolution...
-   ftype = getType(expression@\loc); // Get the type of a receiver
-   if(isOverloadedFunction(receiver) && receiver.fuid in overloadingResolver) {
-       // Get the types of arguments
-       list[Symbol] targs = [ getType(arg@\loc) | arg <- arguments ];
-       // Generate a unique name for an overloaded function resolved for this specific use 
-       str ofqname = receiver.fuid + "(<for(targ<-targs){><targ>;<}>)";
-       // Resolve alternatives for this specific call
-       int i = overloadingResolver[receiver.fuid];
-       tuple[str scopeIn,set[int] alts] of = overloadedFunctions[i];
-       set[int] resolved = {};
-       
-       bool matches(Symbol t) {
-           if(isFunctionType(ftype) || isConstructorType(ftype)) { 
-               return t == ftype;
-           }           
-           if(isOverloadedType(ftype)) {
-               return t in (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype));
-           }
-           throw "Ups, unexpected type of the call receiver expression!";
-       }
-       
-       for(int alt <- of.alts) {
-           t = fuid2type[alt];
-           if(matches(t)) {
-               resolved += alt;
-           }
-       }
-       
-       bool exists = <of.scopeIn,resolved> in overloadedFunctions;
-       if(!exists) {
-           i = size(overloadedFunctions);
-           overloadedFunctions += <of.scopeIn,resolved>;
-       } else {
-           i = indexOf(overloadedFunctions, <of.scopeIn,resolved>);
-       }
-       
-       overloadingResolver[ofqname] = i;
-       return muOCall(muOFun(ofqname), args);
-   }
-   if(isOverloadedFunction(receiver) && receiver.fuid notin overloadingResolver) {
-      throw "The use of a function has to be managed via overloading resolver!";
-   }
-   // Push down additional information if the overloading resolution needs to be done at runtime
-   return muOCall(receiver, 
-   				  isFunctionType(ftype) ? Symbol::\tuple([ ftype ]) : Symbol::\tuple([ t | Symbol t <- getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype) ]), 
-   				  args);
+   //if(getOuterType(expression) == "loc"){
+   //    return muCallPrim("loc_with_offset_create", [receiver, *args]);
+   //}
 }
 
 // Block

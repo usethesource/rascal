@@ -79,18 +79,14 @@ public void resetScopeExtraction() {
 	overloadedFunctions = [];
 }
 
-// Get the type of an expression
+// Get the type of an expression as Symbol
 Symbol getType(loc l) = config.locationTypes[l];
 
+// Get the type of an expression as string
 str getType(e) = "<getType(e@\loc)>";
 
-// Get the outermost type constructor of an expression
-str getOuterType(e) {
- tp = "<getName(getType(e@\loc))>";
-// if(tp in {"int", "real", "rat"})
-// 	tp = "num";
- return tp;
-}
+// Get the outermost type constructor of an expression as string
+str getOuterType(e) = "<getName(getType(e@\loc))>";
 
 /* 
 * CHANGED: 
@@ -130,8 +126,7 @@ public MuExp mkCallToLibFun(str modName, str fname, int nformals)
 	= muFun("<modName>/<fname>(<nformals>)");
 
 MuExp mkVar(str name, loc l) {
-  
-  int uid = loc2uid[l];
+  uid = loc2uid[l];
   tuple[str fuid,int pos] addr = uid2addr[uid];
   
   // Pass all the functions through the overloading resolution
