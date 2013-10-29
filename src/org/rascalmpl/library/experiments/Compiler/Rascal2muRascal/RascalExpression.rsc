@@ -139,17 +139,22 @@ MuExp getConstructor(str cons) {
    
    res = muConstr(fuid2str[uid]);
    println("res = <res>");
+   
    return res;
 }
 
-MuExp translateConcrete(Tree parseTree){
+MuExp translateConcrete(node parseTree){
    // ignore kw arguments for the moment
    
    cons = getName(parseTree);
    MuExp receiver =  getConstructor(cons);
-   list[MuExp] args = [ translateConcrete(a) | Tree a <- getChildren(parseTree) ];
    
-   return muCall(receiver, args);
+  for(a <- getChildren(parseTree)){
+    println("type: <typeOf(a)>, arg: <a>");
+  }
+   list[MuExp] args = [ translateConcrete(a) | a <- getChildren(parseTree) ];
+   
+   return muOCall(receiver, args);
    
    //if(getOuterType(expression) == "loc"){
    //    return muCallPrim("loc_with_offset_create", [receiver, *args]);

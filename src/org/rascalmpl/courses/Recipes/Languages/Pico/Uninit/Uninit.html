@@ -101,7 +101,7 @@ public set[Occurrence] uninitProgram(str txt) = uninitProgram(load(txt)); <img s
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Pico::Uninit;
 ok
 <span class="prompt">rascal></span>uninitProgram(&quot;begin declare n : natural, m : natural, p : natural; n := 10; m := n + p end&quot;);
-|file://-|: Java compilation failed due to with classpath [/Users/jurgenv/Test/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar]: package org.eclipse.imp.pdb.facts.type does not exist
+|rascal://demo::lang::Pico::Uninit|(548,6,&lt;17,34>,&lt;17,40>): Undeclared variable: reachX
 </pre>
 </div>
 

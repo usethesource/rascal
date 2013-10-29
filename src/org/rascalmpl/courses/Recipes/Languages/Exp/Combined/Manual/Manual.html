@@ -64,8 +64,8 @@ public Exp parse(str txt) = parse(#Exp, txt);
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Combined::Manual::Parse;
 ok
 <span class="prompt">rascal></span>parse(&quot;2+3&quot;);
-|file://-|: Java compilation failed due to with classpath [/Users/jurgenv/Test/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar]: package org.eclipse.imp.pdb.facts.type does not exist
-</pre> Next, we define a <code>load</code> function:
+sort("Exp"): `2+3`
+Tree: appl(prod(sort("Exp"),[sort("Exp"),layouts("Whitespace"),lit("+"),layouts("Whitespace"),sort("Exp")],{assoc(left())}),[appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(50)])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)],appl(prod(layouts("Whitespace"),[\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],{}),[appl(regular(\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))),[])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)]])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)],appl(prod(lit("+"),[\char-class([range(43,43)])],{}),[char(43)]),appl(prod(layouts("Whitespace"),[\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],{}),[appl(regular(\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))),[])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)]])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)],appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(0,3,&lt;1,0>,&lt;1,3>)]</pre> Next, we define a <code>load</code> function:
  <pre class="listing">module demo::lang::Exp::Combined::Manual::Load
 
 import demo::lang::Exp::Concrete::WithLayout::Syntax;  <img src="/images/1.png">
@@ -93,9 +93,11 @@ public Exp load((Exp)`( &lt;Exp e> )`)
 </li>
 </ul> Let's try it:
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Combined::Manual::Load;
-|rascal://demo::lang::Exp::Combined::Manual::Load|: Java compilation failed due to with classpath [/Users/jurgenv/Test/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar]: package org.eclipse.imp.pdb.facts.type does not exist
+ok
 <span class="prompt">rascal></span>load(&quot;2+3&quot;);
-|stdin:///|(0,4,&lt;1,0>,&lt;1,4>): Undeclared variable: load
+Exp: add(
+  con(2),
+  con(3))
 </pre> <br/>
 <br/>
 
@@ -111,7 +113,7 @@ public int eval(str txt) = eval(load(txt));
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Combined::Manual::Eval;
 ok
 <span class="prompt">rascal></span>eval(&quot;2+3&quot;);
-|rascal://demo::lang::Exp::Combined::Manual::Eval|(211,4,&lt;7,32>,&lt;7,36>): Undeclared variable: load
+int: 5
 </pre>
 </div>
 
@@ -121,7 +123,7 @@ ok
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Exp/Combined/Manual&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Exp/Combined/Manual&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 4 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
