@@ -60,7 +60,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	config = checkModule(M, c);
    	// Extract scoping information available from the configuration returned by the type checker  
    	extractScopes();  
-   	text(config);	
+   	//text(config);	
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    	if(size(errors) > 0) {
