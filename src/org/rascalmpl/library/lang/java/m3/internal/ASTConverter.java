@@ -19,16 +19,12 @@ public class ASTConverter extends JavaToRascalConverter {
 	}
 	
 	public void postVisit(ASTNode node) {
-		try {
 		setAnnotation("src", getSourceLocation(node));
 		ISourceLocation decl = resolveBinding(node);
 		if (!decl.getURI().getScheme().equals("unknown")) {
 		  setAnnotation("decl", decl); 
 		}
 		setAnnotation("typ", resolveType(node));
-		} catch (Exception e) {
-			throw new RuntimeException("blah", e);
-		}
 	}
 	
 	private IValue resolveType(ASTNode node) {

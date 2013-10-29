@@ -14,14 +14,14 @@ public enum Opcode {
 	 * 
 	 * OPCODENAME(	opcode,	pc increment)
 	 */
-	LOADCON			(0, 	2),
+	LOADCON			    (0, 	2),
 	LOADVAR 			(1, 	3),
 	LOADLOC 			(2,		2),
 	STOREVAR 			(3, 	3),
 	STORELOC 			(4, 	2),
 	CALL 				(5, 	3),
 	CALLPRIM	 		(6, 	3),
-	RETURN1 			(7, 	1),
+	RETURN1 			(7, 	2),
 	JMP 				(8, 	2),
 	JMPTRUE 			(9, 	2),
 	JMPFALSE 			(10, 	2),
@@ -34,7 +34,7 @@ public enum Opcode {
 	NEXT0				(17,	1),
 	NEXT1				(18,	1),
 	YIELD0				(19,	1),
-	YIELD1				(20,	1),
+	YIELD1				(20,	2),
 	INIT				(21,	2),
 	CREATEDYN			(22,	2),
 	HASNEXT				(23,	1),
@@ -61,7 +61,9 @@ public enum Opcode {
 	THROW           	(44,    1),
 	JMPSWITCH			(45,	2),
 	UNWRAPTHROWN        (46,    2),
-	FILTERRETURN		(47, 	1)
+	FILTERRETURN		(47, 	1),
+	EXHAUST             (48,    1),
+	GUARD               (49,    1)
 	;
 	
 	private final int op;
@@ -124,6 +126,8 @@ public enum Opcode {
 	static public final int OP_JMPSWITCH = 45;
 	static public final int OP_UNWRAPTHROWN = 46;
 	static public final int OP_FILTERRETURN = 47;
+	static public final int OP_EXHAUST = 48;
+	static public final int OP_GUARD = 49;
 	
 	
 	 Opcode(int op, int pc_incr){
@@ -163,7 +167,7 @@ public enum Opcode {
 			return "CALLPRIM " + cb.finalCode[pc + 1] +  ", " + cb.finalCode[pc + 2] + " [" + RascalPrimitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
 			
 		case RETURN1:
-			return "RETURN1";
+			return "RETURN1 " + cb.finalCode[pc + 1];
 			
 		case JMP:
 			return "JMP " + cb.finalCode[pc + 1];
@@ -202,7 +206,7 @@ public enum Opcode {
 			return "YIELD0";
 		
 		case YIELD1:
-			return "YIELD1";
+			return "YIELD1 " + cb.finalCode[pc + 1];
 		
 		case INIT:
 			return "INIT " + cb.finalCode[pc + 1];
@@ -284,6 +288,12 @@ public enum Opcode {
 			
 		case FILTERRETURN:
 			return "FILTERRETURN";
+			
+		case EXHAUST:
+			return "TERMINATE";
+			
+		case GUARD:
+			return "GUARD";
 		
 		default:
 			break;
