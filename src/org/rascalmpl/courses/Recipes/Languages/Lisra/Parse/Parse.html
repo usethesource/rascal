@@ -95,15 +95,19 @@ public Lval build((LispExp)`( &lt;LispExp* lst> )`)  = List([build(le) | le &lt;
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Lisra::Parse;
-|rascal://demo::lang::Lisra::Parse|: Java compilation failed due to with classpath [/Users/jurgenv/Test/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar]: package org.eclipse.imp.pdb.facts.type does not exist
+ok
 <span class="prompt">rascal></span>import demo::lang::Lisra::Runtime;
 ok
 <span class="prompt">rascal></span>parse(&quot;1&quot;);
-|stdin:///|(0,5,&lt;1,0>,&lt;1,5>): Undeclared variable: parse
+Lval: Integer(1)
 <span class="prompt">rascal></span>parse(&quot;x&quot;);
-|stdin:///|(0,5,&lt;1,0>,&lt;1,5>): Undeclared variable: parse
+Lval: Atom("x")
 <span class="prompt">rascal></span>parse(&quot;(+ 5 7)&quot;);
-|stdin:///|(0,5,&lt;1,0>,&lt;1,5>): Undeclared variable: parse
+Lval: List([
+    Atom("+"),
+    Integer(5),
+    Integer(7)
+  ])
 </pre>
 </div>
 
@@ -113,7 +117,7 @@ ok
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Lisra/Parse&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Lisra/Parse&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 4 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -25,7 +25,8 @@ public data MuModule =
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-              muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, loc source, list[str] modifiers, map[str,str] tags, MuExp body)
+                muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, loc source, list[str] modifiers, map[str,str] tags, MuExp body)
+              | muCoroutine(str qname, str scopeIn, int nformals, int nlocals, list[int] refs, MuExp body)
           ;
           
 // A global (module level) variable.
@@ -59,7 +60,7 @@ public data MuExp =
           
           	// Variables
           | muLoc(str name, int pos)							// Local variable, with position in current scope
-          | muVar(str id, str fuid, int pos)					// Variable: retrieve its value
+          | muVar(str name, str fuid, int pos)					// Variable: retrieve its value
           | muTmp(str name)										// Temporary variable introduced by front-end
           
           | muLocDeref(str name, int pos) 				        // Call-by-reference: a variable that refers to a value location
@@ -86,18 +87,20 @@ public data MuExp =
           			   Symbol parameterTypes,
           			   list[MuExp] args)						// Call a Java method in given class
  
-          | muReturn()											// Return from function without value
-          | muReturn(MuExp exp)									// Return from function with value
+          | muReturn()											// Return from a function without value
+          | muReturn(MuExp exp)									// Return from a function with value
+          | muReturn(MuExp exp, list[MuExp] exps)               // Return from a coroutine with multiple values
+          
           | muFilterReturn()									// Return for filer statement
               
            // Assignment, If and While
               
-          | muAssignLoc(str id, int pos, MuExp exp)				// Assign a value to a local variable
-          | muAssign(str id, str fuid, int pos, MuExp exp)		// Assign a value to a variable
-          | muAssignTmp(str id, MuExp exp)						// Assign to temporary variable introduced by front-end
+          | muAssignLoc(str name, int pos, MuExp exp)			// Assign a value to a local variable
+          | muAssign(str name, str fuid, int pos, MuExp exp)	// Assign a value to a variable
+          | muAssignTmp(str name, MuExp exp)					// Assign to temporary variable introduced by front-end
           
-          | muAssignLocDeref(str id, int pos, MuExp exp)        // Call-by-reference assignment:
-          | muAssignVarDeref(str id, str fuid, 
+          | muAssignLocDeref(str name, int pos, MuExp exp)      // Call-by-reference assignment:
+          | muAssignVarDeref(str name, str fuid, 
           					 int pos, MuExp exp) 	            // the left-hand side is a variable that refers to a value location
           														
           | muIfelse(str label, MuExp cond,                     // If-then-else expression
@@ -127,8 +130,13 @@ public data MuExp =
           | muNext(MuExp exp)									// Next on coroutine, no arguments
           | muNext(MuExp exp1, list[MuExp] args)				// Next on coroutine, with arguments
           
-          | muYield()											// Yield from coroutine, without value
-          | muYield(MuExp exp)									// Yield from coroutine, with value
+          | muYield()											// Yield from a coroutine without value
+          | muYield(MuExp exp)									// Yield from a coroutine with value
+          | muYield(MuExp exp, list[MuExp] exps)                // Yield from a coroutine with multiple values
+          
+          | muExhaust()                                         // Signal a failure and return from the coroutine disallowing further resumption 
+
+          | muGuard(MuExp exp)                                  // Specifies a condition of suspending a coroutine instance during initialization
           
            // Multi-expressions
           
@@ -153,6 +161,13 @@ data MuTypeCase = muTypeCase(str name, MuExp exp);
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.
 
+public data Identifier =
+				  fvar(str var)
+				| ivar(str var)
+				| rvar(str var)
+				| mvar(str var)
+				;
+
 public data Module =
             preMod(str name, list[TypeDeclaration] types, list[Function] functions)
           ;
@@ -160,25 +175,27 @@ public data Module =
 public data TypeDeclaration = preTypeDecl(str \type);
 
 public data Function =				
-             preFunction(lrel[str,int] funNames, str name, int nformals, 
-                         list[str] locals, list[MuExp] body)
+               preFunction(lrel[str,int] funNames, str name, int nformals, 
+                           list[Identifier] locals, list[MuExp] body)
+             | preCoroutine(lrel[str,int] funNames, str name, int nformals, 
+                            list[Identifier] locals, list[MuExp] body)
           ;
 
 public data MuExp =
               preIntCon(str txt)
             | preStrCon(str txt)  
             | preTypeCon(str txt)
-            | preVar(str name)
-            | preVar(lrel[str name,int formals] funNames, str name)
+            | preVar(Identifier id)
+            | preVar(lrel[str name,int formals] funNames, Identifier id)
             | preFunNN(str modName, str name, int nformals)
             | preFunN(lrel[str,int] funNames, str name, int nformals)
             | preList(list[MuExp] exps)
             | preSubscriptArray(MuExp lst, MuExp idx)
             | preSubscriptList(MuExp lst, MuExp idx)
             | preSubscriptTuple(MuExp lst, MuExp idx)
-            | preAssignLoc(str name, MuExp exp)
-            | preAssign(lrel[str,int] funNames, str name, MuExp exp)
-            | preAssignLocList(str name1, str name2, MuExp exp)
+            | preAssignLoc(Identifier id, MuExp exp)
+            | preAssign(lrel[str,int] funNames, Identifier id, MuExp exp)
+            | preAssignLocList(Identifier id1, Identifier id2, MuExp exp)
             | preAssignSubscriptArray(MuExp lst, MuExp idx, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart)
             
@@ -199,13 +216,13 @@ public data MuExp =
        
             | preIs(MuExp, str typeName)
             
-            | preLocDeref(str name)
-            | preVarDeref(lrel[str,int] funNames, str name)
-            | preLocRef(str name)
-            | preVarRef(lrel[str,int] funNames, str name)
+            | preLocDeref(Identifier id)
+            | preVarDeref(lrel[str,int] funNames, Identifier id)
+            | preLocRef(Identifier id)
+            | preVarRef(lrel[str,int] funNames, Identifier id)
             
-            | preAssignLocDeref(str name, MuExp exp)
-            | preAssignVarDeref(lrel[str,int] funNames, str name, MuExp exp)
+            | preAssignLocDeref(Identifier id, MuExp exp)
+            | preAssignVarDeref(lrel[str,int] funNames, Identifier id, MuExp exp)
            ;
            
 public bool isOverloadedFunction(muOFun(str _)) = true;

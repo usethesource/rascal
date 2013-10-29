@@ -8,6 +8,8 @@ public class Frame {
 	int sp;
 	int pc;
 	final Function function;
+	
+	final boolean isCoroutine;
 		
 	public Frame(int scopeId, Frame previousCallFrame, int stackSize, Function function){
 		this(scopeId, previousCallFrame, previousCallFrame, stackSize, function);
@@ -25,6 +27,7 @@ public class Frame {
 		this.pc = 0;
 		this.sp = 0;
 		this.function = function;
+		this.isCoroutine = function.isCoroutine;
 	}
 	
 	public Frame copy() {

@@ -47,7 +47,7 @@ public class Execute {
 		String moduleName = ((IString) program.get("name")).getValue();
 		
 		String main = isTestSuite ? "/<moduleName>_testsuite(list(value());)#0" : "/main(list(value());)#0";
-		String mu_main = isTestSuite ? "/testsuite(1)" : "/main(1)";
+		String mu_main = isTestSuite ? "/TESTSUITE(1)" : "/MAIN(1)";
 		
 		String module_init = moduleInit(moduleName);
 		String mu_module_init = muModuleInit(moduleName);
@@ -61,6 +61,7 @@ public class Execute {
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
+		
 		for(IValue imp : imported_functions){
 			IConstructor declaration = (IConstructor) imp;
 			if (declaration.getName().contentEquals("FUNCTION")) {
@@ -72,7 +73,11 @@ public class Execute {
 				if(name.endsWith("_testsuite(list(value());)#0")){
 					testsuites.add(name);
 				}
-				loadInstructions(name, declaration, rvm);
+				loadInstructions(name, declaration, rvm, false);
+			}
+			if (declaration.getName().contentEquals("COROUTINE")) {
+				String name = ((IString) declaration.get("qname")).getValue();
+				loadInstructions(name, declaration, rvm, true);
 			}
 		}
 		
@@ -102,7 +107,12 @@ public class Execute {
 				if(name.endsWith("_testsuite(list(value());)#0")){
 					testsuites.add(name);
 				}
-				loadInstructions(name, declaration, rvm);
+				loadInstructions(name, declaration, rvm, false);
+			}
+			
+			if(declaration.getName().contentEquals("COROUTINE")) {
+				String name = ((IString) declaration.get("qname")).getValue();
+				loadInstructions(name, declaration, rvm, true);
 			}
 		}
 		
@@ -211,9 +221,9 @@ public class Execute {
 	 * @param declaration the declaration of that function
 	 * @param rvm in which function will be loaded
 	 */
-	private void loadInstructions(String name, IConstructor declaration, RVM rvm){
+	private void loadInstructions(String name, IConstructor declaration, RVM rvm, boolean isCoroutine){
 	
-		Type ftype = rvm.symbolToType((IConstructor) declaration.get("ftype"));
+		Type ftype = isCoroutine ? null : rvm.symbolToType((IConstructor) declaration.get("ftype"));
 		
 		//System.err.println("loadInstructions: " + name + ": ftype = " + ftype + ", declaration = " + declaration);
 		
@@ -283,7 +293,7 @@ public class Execute {
 				break;
 
 			case "RETURN1":
-				codeblock.RETURN1();
+				codeblock.RETURN1(getIntField(instruction, "arity"));
 				break;
 
 			case "JMP":
@@ -327,7 +337,7 @@ public class Execute {
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1();
+				codeblock.YIELD1(getIntField(instruction, "arity"));
 				break;
 
 			case "HASNEXT":
@@ -426,6 +436,14 @@ public class Execute {
 				codeblock.FILTERRETURN();
 				break;
 				
+			case "EXHAUST":
+				codeblock.EXHAUST();
+				break;
+				
+			case "GUARD":
+				codeblock.GUARD();
+				break;
+				
 			default:
 				throw new RuntimeException("PANIC: In function " + name + ", nknown instruction: " + opcode);
 			}
@@ -435,9 +453,20 @@ public class Execute {
 			throw new RuntimeException("In function " + name + " : " + e.getMessage());
 		}
 		
-		IList exceptions = (IList) declaration.get("exceptions");
 		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, maxstack, codeblock);
-		function.attachExceptionTable(exceptions, rvm);
+		if(isCoroutine) {
+			function.isCoroutine = true;
+			IList refList = (IList) declaration.get("refs");
+			int[] refs = new int[refList.length()];
+			int i = 0;
+			for(IValue ref : refList) {
+				refs[i++] = ((IInteger) ref).intValue();
+			}
+			function.refs = refs;
+		} else {
+			IList exceptions = (IList) declaration.get("exceptions");
+			function.attachExceptionTable(exceptions, rvm);
+		}
 		rvm.declare(function);
 	}
 

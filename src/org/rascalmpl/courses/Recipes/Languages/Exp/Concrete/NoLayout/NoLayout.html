@@ -115,17 +115,17 @@ ok
 ok
 </pre>  Just checking that <code>parse</code> returns a sort of parse tree:
 <pre class="screen"><span class="prompt">rascal></span>parse(#Exp, &quot;2+3&quot;);
-|file://-|: Java compilation failed due to with classpath [/Users/jurgenv/Test/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar]: package org.eclipse.imp.pdb.facts.type does not exist
-</pre>  You will see such parse trees only once, unless you are a researcher in parsing ;-)
+sort("Exp"): `2+3`
+Tree: appl(prod(sort("Exp"),[sort("Exp"),layouts("<i>default</i>"),lit("+"),layouts("<i>default</i>"),sort("Exp")],{assoc(left())}),[appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(50)])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)],appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)],appl(prod(lit("+"),[\char-class([range(43,43)])],{}),[char(43)]),appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)],appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(0,3,&lt;1,0>,&lt;1,3>)]</pre>  You will see such parse trees only once, unless you are a researcher in parsing ;-)
   Here is a demonstration of <code>eval</code>:
 <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Concrete::NoLayout::Eval;
-|rascal://demo::lang::Exp::Concrete::NoLayout::Eval|: Java compilation failed due to with classpath [/Users/jurgenv/Test/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar]: package org.eclipse.imp.pdb.facts.type does not exist
+ok
 <span class="prompt">rascal></span>eval(&quot;2+3&quot;);
-|stdin:///|(0,4,&lt;1,0>,&lt;1,4>): Undeclared variable: eval
+int: 5
 <span class="prompt">rascal></span>eval(&quot;2+3*4&quot;);
-|stdin:///|(0,4,&lt;1,0>,&lt;1,4>): Undeclared variable: eval
+int: 14
 <span class="prompt">rascal></span>eval(&quot;(2+3)*4&quot;);
-|stdin:///|(0,4,&lt;1,0>,&lt;1,4>): Undeclared variable: eval
+int: 20
 </pre>
 </div>
 
@@ -135,7 +135,7 @@ ok
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Exp/Concrete/NoLayout&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Exp/Concrete/NoLayout&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 5 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
