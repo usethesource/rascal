@@ -78,7 +78,7 @@ public class EclipseJavaCompiler {
       converter.set(jarLoc);
       converter.convert(jarLoc, eval);
 
-      return converter.getModel();
+      return converter.getModel(false);
   }
 
   @SuppressWarnings("rawtypes")
@@ -99,7 +99,7 @@ public class EclipseJavaCompiler {
         comment.accept(converter);
       }
       
-      return converter.getModel();
+      return converter.getModel(true);
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
     }
@@ -121,7 +121,8 @@ public class EclipseJavaCompiler {
       converter.set(cu);
       converter.set(loc);
       cu.accept(converter);
-      converter.insertCompilationUnitMessages();
+      
+      converter.insertCompilationUnitMessages(true);
       return converter.getValue();
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
