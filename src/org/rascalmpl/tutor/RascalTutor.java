@@ -29,6 +29,7 @@ import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -44,7 +45,7 @@ public class RascalTutor {
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
-		
+	  eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		eval.addRascalSearchPath(URIUtil.rootScheme("tutor"));
 		eval.addRascalSearchPath(URIUtil.rootScheme("courses"));
 	}

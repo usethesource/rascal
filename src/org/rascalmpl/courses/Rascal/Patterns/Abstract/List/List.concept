@@ -66,7 +66,7 @@ desc: Complete this function that tests that a list of words consists of two ide
 list:
 import List;
 public bool isReplicated(list[str] words){
-  return [list[str] L, <?>] := words;
+  return [*str L, <?>] := words;
 }
 test: isReplicated(["a", "b", "a", "b"]) == true;
        
