@@ -923,9 +923,24 @@ public class RVM {
 				case Opcode.OP_RETURN1:
 				
 					rval = null;
-					boolean returns = (op == Opcode.OP_RETURN1) || (op == Opcode.OP_FILTERRETURN);
-					if(op == Opcode.OP_RETURN1) {
-						rval = stack[sp - 1];
+					boolean returns = cf.isCoroutine || op == Opcode.OP_RETURN1 || op == Opcode.OP_FILTERRETURN;
+					if(op == Opcode.OP_RETURN1 || cf.isCoroutine) {
+						if(cf.isCoroutine) {
+							rval = Rascal_TRUE;
+							if(op == Opcode.OP_RETURN1) {
+								arity = instructions[pc++];
+								int[] refs = cf.function.refs;
+								if(arity != refs.length) {
+									throw new RuntimeException("The return within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
+								}
+								for(int i = 0; i < arity; i++) {
+									ref = (Reference) stack[refs[arity - 1 - i]];
+									ref.stack[ref.pos] = stack[--sp];
+								}
+							}
+						} else {
+							rval = stack[sp - 1];
+						}
 					}
 					
 					// if the current frame is the frame of a top active coroutine, 
@@ -989,9 +1004,70 @@ public class RVM {
 						newCoroutine.frame.stack[coroutine.frame.sp + i] = stack[sp - arity + i];
 					}
 					newCoroutine.frame.sp = fun.nlocals;
-					newCoroutine.suspend(newCoroutine.frame);
 					sp = sp - arity;							/* Place coroutine back on stack */
 					stack[sp++] = newCoroutine;
+					
+					// Now, instead of simply suspending a coroutine during INIT, let it execute until GUARD, which has been delegated the INIT's suspension
+					newCoroutine.suspend(newCoroutine.frame);
+					// put the coroutine onto the stack of active coroutines
+					activeCoroutines.push(newCoroutine);
+					ccf = newCoroutine.start;
+					newCoroutine.next(cf);
+					
+					fun = newCoroutine.frame.function;
+					instructions = newCoroutine.frame.function.codeblock.getInstructions();
+				
+					cf.pc = pc;
+					cf.sp = sp;
+					
+					cf = newCoroutine.frame;
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					
+					continue;
+					
+				case Opcode.OP_GUARD:
+					rval = stack[sp - 1];
+					boolean precondition;
+					if(rval instanceof IBool) {
+						precondition = ((IBool) rval).getValue();
+					} else if(rval instanceof Boolean) {
+						precondition = (Boolean) rval;
+					} else {
+						throw new RuntimeException("Guard's expression has to be boolean!");
+					}
+					
+					if(cf == ccf) {
+						coroutine = activeCoroutines.pop();
+						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+						Frame prev = cf.previousCallFrame;
+						if(precondition) {
+							coroutine.suspend(cf);
+						}
+						--sp;
+						cf.pc = pc;
+						cf.sp = sp;
+						cf = prev;
+						instructions = cf.function.codeblock.getInstructions();
+						stack = cf.stack;
+						sp = cf.sp;
+						pc = cf.pc;	
+						continue NEXT_INSTRUCTION;
+					}
+					
+					if(!precondition) {
+						cf.pc = pc;
+						cf.sp = sp;
+						cf = cf.previousCallFrame;
+						instructions = cf.function.codeblock.getInstructions();
+						stack = cf.stack;
+						sp = cf.sp;
+						pc = cf.pc;
+						stack[sp++] = Rascal_FALSE;
+						continue NEXT_INSTRUCTION;
+					}
+					
 					continue;
 					
 				case Opcode.OP_CREATE:
@@ -1027,6 +1103,15 @@ public class RVM {
 				case Opcode.OP_NEXT0:
 				case Opcode.OP_NEXT1:
 					coroutine = (Coroutine) stack[--sp];
+					
+					// Merged the hasNext and next semantics
+					if(!coroutine.hasNext()) {
+						if(op == Opcode.OP_NEXT1) {
+							--sp;
+						}
+						stack[sp++] = FALSE;
+						continue NEXT_INSTRUCTION;
+					}
 					// put the coroutine onto the stack of active coroutines
 					activeCoroutines.push(coroutine);
 					ccf = coroutine.start;
@@ -1052,18 +1137,46 @@ public class RVM {
 					coroutine = activeCoroutines.pop();
 					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					Frame prev = coroutine.start.previousCallFrame;
-					rval = (op == Opcode.OP_YIELD1) ? stack[--sp] : null;
+					rval = Rascal_TRUE; // In fact, yield has to always return TRUE
+					if(op == Opcode.OP_YIELD1) {
+						arity = instructions[pc++];
+						int[] refs = cf.function.refs;
+						if(arity != refs.length) {
+							throw new RuntimeException("The return within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
+						}
+						for(int i = 0; i < arity; i++) {
+							ref = (Reference) stack[refs[arity - 1 - i]];
+							ref.stack[ref.pos] = stack[--sp];
+						}
+					}
 					cf.pc = pc;
 					cf.sp = sp;
 					coroutine.suspend(cf);
 					cf = prev;
 					if(op == Opcode.OP_YIELD1 && cf == null)
-						return narrow(rval);
+						return rval;
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
 					stack[sp++] = rval;	 								// Corresponding next will always find an entry on the stack
+					continue;
+					
+				case Opcode.OP_EXHAUST:
+					if(cf == ccf) {
+						activeCoroutines.pop();
+						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+					}
+					
+					cf = cf.previousCallFrame;
+					if(cf == null) {
+						return Rascal_FALSE;    // 'Exhaust' has to always return FALSE, i.e., signal a failure;
+					}
+					instructions = cf.function.codeblock.getInstructions();
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					stack[sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE, i.e., signal a failure;
 					continue;
 					
 				case Opcode.OP_HASNEXT:

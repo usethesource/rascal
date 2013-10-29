@@ -17,475 +17,351 @@ function ALL[1,arg,carg]{
 
 // Initialize a pattern with a given value and exhaust all its possibilities
 
-function DO_ALL[2, pat, ^val, co]{
-   // println("DO_ALL", pat, ^val);
-   co = init(pat, ^val);
-   while(hasNext(co)){
-         if(next(co)){
-            yield true;
-         };
+coroutine DO_ALL[2, pat, iVal, co]{
+   co = init(pat, iVal);
+   while(next(co)) {
+       yield;
    };
-   return false;
-} 
-
-// ***** Enumerators for all types *****
-
-function ENUM_LITERAL[1, ^lit]{
-   return ^lit;
 }
 
-function ENUM_LIST[1, ^lst, last, i]{
-   last = size_list(^lst) - 1;
-   i = 0;
-   while(i < last){
-      yield get_list ^lst[i];
-      i = i + 1;
-   };
-   return get_list ^lst[last];
+// ***** Enumerators for all types ***** NOTE: all ENUM declarations get extra parameter 'rval'
+
+coroutine ENUM_LITERAL[2, iLit, rVal]{
+   return iLit;
 }
 
-function ENUM_SET[1, ^set, ^lst, last, i]{
-   ^lst = set2list(^set);
-   last = size_list(^lst) - 1;
-   i = 0;
-   while(i < last){
-      yield get_list ^lst[i];
-      i = i + 1;
+coroutine ENUM_LIST[2, iLst, rVal, len, j]{
+   len = size_list(iLst);
+   guard len > 0;
+   j = 0;
+   while(j < (len - 1)) {
+      yield get_list iLst[j];
+      j = j + 1;
    };
-   return get_list ^lst[last];
+   return get_list iLst[j];
 }
 
-function ENUM_MAP[1, ^map, ^klst, last, i]{
-   ^klst = keys(^map);
-   last = size_list(^klst) - 1;
-   i = 0;
-   while(i < last){
-      yield get_list ^klst[i];
-      i = i + 1;
+coroutine ENUM_SET[2, iSet, rVal, iLst, len, j]{
+   iLst = set2list(iSet);
+   len = size_list(iLst);
+   guard len > 0;
+   j = 0;
+   while(j < (len - 1)) {
+      yield get_list iLst[j];
+      j = j + 1;
    };
-   return get_list ^klst[last];
+   return get_list iLst[j];
 }
 
-function ENUM_NODE[1, ^nd, last, i, array]{
-   array = get_name_and_children(^nd);
-   last = size_array(array) - 1;
-   i = 1;  // skip name
-   while(i < last){
-      yield get_array array[i];
-      i = i + 1;
+coroutine ENUM_MAP[2, iMap, rVal, iKlst, len, j]{
+   iKlst = keys(iMap);
+   len = size_list(iKlst);
+   guard len > 0;
+   j = 0;
+   while(j < (len - 1)) {
+      yield get_list iKlst[j];
+      j = j + 1;
    };
-   return get_array array[last];
+   return get_list iKlst[j];
 }
 
-function ENUM_TUPLE[1, ^tup, last, i]{
-   last = size_tuple(^tup) - 1;
-   i = 0;
-   while(i < last){
-      yield get_tuple ^tup[i];
-      i = i + 1;
+coroutine ENUM_NODE[2, iNd, rVal, len, j, array]{
+   array = get_name_and_children(iNd);
+   len = size_array(array) - 1;
+   guard len > 0;
+   j = 1;  // skip name
+   while(j < len) {
+      yield get_array array[j];
+      j = j + 1;
    };
-   return get_tuple ^tup[last];
+   return get_array array[j];
 }
 
-function ENUMERATE_AND_MATCH1[2, enumerator, pat, cpat, elm]{
-   while(hasNext(enumerator)){
-     elm = next(enumerator);
-     cpat = init(pat, elm);
-     while(hasNext(cpat)){
-       if(next(cpat)){
-          yield true;
-       };
+coroutine ENUM_TUPLE[2, iTup, rVal, len, j]{
+   len = size_tuple(iTup);
+   guard len > 0;
+   j = 0;
+   while(j < (len - 1)) {
+      yield get_tuple iTup[j];
+      j = j + 1;
+   };
+   return get_tuple iTup[j];
+}
+
+coroutine ENUMERATE_AND_MATCH1[2, enumerator, pat, cpat, iElm]{ 
+   // NOTE: slightly changed the original semantics: no backtracking was possible for the last possible value
+   enumerator = init(enumerator, ref iElm); // NOTE: reflects the fact that all ENUM declarations get an extra parameter
+   while(next(enumerator)) {
+     cpat = init(pat, iElm);
+     while(next(cpat)){
+       yield;
      };
    }; 
-   return false;     
 }
 
-function ENUMERATE_AND_MATCH[2,  pat, ^val]{
-  typeswitch(^val){
-    case list:         if(size_list(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat); };
-    case lrel:         if(size_list(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_LIST, ^val)), pat); };
-    case node:         ENUMERATE_AND_MATCH1(init(create(ENUM_NODE, ^val)), pat);
-    case constructor:  ENUMERATE_AND_MATCH1(init(create(ENUM_NODE, ^val)), pat);
-    case map:          if(size_map(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_MAP, ^val)), pat); };
-    case set:          if(size_set(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat); };
-    case rel:          if(size_set(^val) > 0) { ENUMERATE_AND_MATCH1(init(create(ENUM_SET, ^val)), pat); };
-    case tuple:        ENUMERATE_AND_MATCH1(init(create(ENUM_TUPLE, ^val)), pat);
-    default:           ENUMERATE_AND_MATCH1(init(create(ENUM_LITERAL, ^val)), pat);
+coroutine ENUMERATE_AND_MATCH[2, pat, iVal]{ 
+  // NOTE: initialization of coroutines has been moved into the ENUMERATE_AND_MATCH1 body
+  // NOTE: apparently, we have an example of stackful coroutines here
+  typeswitch(iVal) {
+    case list:         ENUMERATE_AND_MATCH1(create(ENUM_LIST,   iVal), pat);
+    case lrel:         ENUMERATE_AND_MATCH1(create(ENUM_LIST,   iVal), pat);
+    case node:         ENUMERATE_AND_MATCH1(create(ENUM_NODE,   iVal), pat);
+    case constructor:  ENUMERATE_AND_MATCH1(create(ENUM_NODE,   iVal), pat);
+    case map:          ENUMERATE_AND_MATCH1(create(ENUM_MAP,    iVal), pat);
+    case set:          ENUMERATE_AND_MATCH1(create(ENUM_SET,    iVal), pat);
+    case rel:          ENUMERATE_AND_MATCH1(create(ENUM_SET,    iVal), pat);
+    case tuple:        ENUMERATE_AND_MATCH1(create(ENUM_TUPLE,  iVal), pat);
+    default:           ENUMERATE_AND_MATCH1(create(ENUM_LITERAL,iVal), pat);
   };
-  return false;
 }
 
-function ENUMERATE_AND_ASSIGN1[2, enumerator, varref, elm]{
-   while(hasNext(enumerator)){
-     elm = next(enumerator);
-     deref varref = elm;
-     yield true;
+coroutine ENUMERATE_AND_ASSIGN1[2, enumerator, rVar, iElm]{
+   enumerator = init(enumerator, ref iElm); // NOTE: reflects the fact that all ENUM declarations get an extra parameter
+   while(next(enumerator)) {
+     yield iElm;
    }; 
-   return false;     
 }
 
-function ENUMERATE_AND_ASSIGN[2, varref, ^val]{
-  typeswitch(^val){
-    case list:         if(size_list(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref); };
-    case lrel:         if(size_list(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), varref); };
-    case node:         ENUMERATE_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), varref);
-    case constructor:  ENUMERATE_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), varref);
-    case map:          if(size_map(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), varref); };
-    case set:          if(size_set(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref); };
-    case rel:          if(size_set(^val) > 0) { ENUMERATE_AND_ASSIGN1(init(create(ENUM_SET, ^val)), varref); };
-    case tuple:        ENUMERATE_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), varref);
-    default:           ENUMERATE_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), varref);
+coroutine ENUMERATE_AND_ASSIGN[2, rVar, iVal]{
+  // NOTE: initialization of coroutines has been moved into the ENUMERATE_AND_ASSIGN1 body
+  // NOTE: apparently, we have an example of stackful coroutines here
+  typeswitch(iVal) {
+    case list:         ENUMERATE_AND_ASSIGN1(create(ENUM_LIST,   iVal), rVar);
+    case lrel:         ENUMERATE_AND_ASSIGN1(create(ENUM_LIST,   iVal), rVar);
+    case node:         ENUMERATE_AND_ASSIGN1(create(ENUM_NODE,   iVal), rVar);
+    case constructor:  ENUMERATE_AND_ASSIGN1(create(ENUM_NODE,   iVal), rVar);
+    case map:          ENUMERATE_AND_ASSIGN1(create(ENUM_MAP,    iVal), rVar);
+    case set:          ENUMERATE_AND_ASSIGN1(create(ENUM_SET,    iVal), rVar);
+    case rel:          ENUMERATE_AND_ASSIGN1(create(ENUM_SET,    iVal), rVar);
+    case tuple:        ENUMERATE_AND_ASSIGN1(create(ENUM_TUPLE,  iVal), rVar);
+    default:           ENUMERATE_AND_ASSIGN1(create(ENUM_LITERAL,iVal), rVar);
   };
-  return false;
 }
 
-function ENUMERATE_CHECK_AND_ASSIGN1[3, enumerator, typ, varref, elm]{
-   while(hasNext(enumerator)){
-     elm = next(enumerator);
-     if(subtype(typeOf(elm), typ)){
-     	deref varref = elm;
-        yield true;
+coroutine ENUMERATE_CHECK_AND_ASSIGN1[3, enumerator, typ, rVar, iElm]{
+   enumerator = init(enumerator, ref iElm); // NOTE: reflects the fact that all ENUM declarations get an extra parameter
+   while(next(enumerator)){
+     if(subtype(typeOf(iElm), typ)){
+     	yield iElm;
      };
    }; 
-   return false;      
 }
 
-function ENUMERATE_CHECK_AND_ASSIGN[3, typ, varref, ^val]{
-  typeswitch(^val){
-    case list:         if(size_list(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref); };
-    case lrel:         if(size_list(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LIST, ^val)), typ, varref); };
-    case node:         ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), typ, varref);
-    case constructor:  ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_NODE, ^val)), typ, varref);
-    case map:          if(size_map(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_MAP, ^val)), typ, varref); };
-    case set:          if(size_set(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref); };
-    case rel:          if(size_set(^val) > 0) { ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_SET, ^val)), typ, varref); };
-    case tuple:        ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_TUPLE, ^val)), typ, varref);
-    default:           ENUMERATE_CHECK_AND_ASSIGN1(init(create(ENUM_LITERAL, ^val)), typ, varref);
+coroutine ENUMERATE_CHECK_AND_ASSIGN[3, typ, rVar, iVal]{
+  // NOTE: initialization of coroutines has been moved into the ENUMERATE_CHECK_AND_ASSIGN1 body
+  // NOTE: apparently, we have an example of stackful coroutines here
+  typeswitch(iVal){
+    case list:         ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_LIST,   iVal), typ, rVar);
+    case lrel:         ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_LIST,   iVal), typ, rVar);
+    case node:         ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_NODE,   iVal), typ, rVar);
+    case constructor:  ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_NODE,   iVal), typ, rVar);
+    case map:          ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_MAP,    iVal), typ, rVar);
+    case set:          ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_SET,    iVal), typ, rVar);
+    case rel:          ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_SET,    iVal), typ, rVar);
+    case tuple:        ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_TUPLE,  iVal), typ, rVar);
+    default:           ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_LITERAL,iVal), typ, rVar);
   };
-  return false;
 }
 
+// ***** Ranges ***** // NOTE: skipped this for now
 
-// ***** Ranges *****
-
-function RANGE[3, pat, ^first, ^end, i, n]{
-   i = mint(^first);
-   n = mint(^end);
-   if(i < n){
-      while(i < n){
-        DO_ALL(pat, rint(i));
-        i = i + 1;
+coroutine RANGE[3, pat, iFirst, iEnd, j, n]{
+   j = mint(iFirst);
+   n = mint(iEnd);
+   if(j < n) {
+      while(j < n) {
+        DO_ALL(pat, rint(j));
+        j = j + 1;
       };
    } else {
-      while(i > n){
-        DO_ALL(pat, rint(i)); 
-        i = i - 1;
+      while(j > n) {
+        DO_ALL(pat, rint(j)); 
+        j = j - 1;
       };
    };
-   return false;
 }
 
-function RANGE_STEP[4, pat, ^first, ^second, ^end, i, n, step]{
-   i = mint(^first);
-   n = mint(^end);
-   if(i < n){
-      step = mint(^second) - i;
-      if(step <= 0){
-         return false;
+coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step]{
+   j = mint(iFirst);
+   n = mint(iEnd);
+   if(j < n) {
+      step = mint(iSecond) - j;
+      if(step <= 0) {
+         exhaust;
       };   
-      while(i < n){
-        DO_ALL(pat, rint(i));
-        i = i + step;
+      while(j < n) {
+        DO_ALL(pat, rint(j));
+        j = j + step;
       };
-      return false;
+      exhaust;
    } else {
-      step = mint(^second) - i;
-      if(step >= 0){
-         return false;
+      step = mint(iSecond) - j;
+      if(step >= 0) {
+         exhaust;
       };   
-      while(i > n){
-        DO_ALL(pat, rint(i));
-        i = i + step;
+      while(j > n) {
+        DO_ALL(pat, rint(j));
+        j = j + step;
       };
-      return false;
+      exhaust;
    };
 }
 
 // ***** Pattern matching *****
 
-function MATCH[2, pat, ^subject, cpat]{
-   // println("MATCH", pat, ^subject);
-   cpat = init(pat, ^subject);
-   while(hasNext(cpat)){
-      if(next(cpat)){
-         yield true;
-      } else {
-        return false;
-      };
+coroutine MATCH[2, pat, iSubject, cpat]{
+   cpat = init(pat, iSubject);
+   while(next(cpat)){
+      yield;
    };
-   return false;
 }
 
-function MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
-   // println("MATCH_N", pats, subjects);
+coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{ // NOTE: fixed semantics
    plen = size_array(pats);
    slen = size_array(subjects);
-   if(plen != slen){
-      // println("MATCH_N: unequal length", plen, slen);
-      return false;
-   };
+   guard plen == slen;
    p = 0;
    ipats = make_array(plen);
-   /*
-   while(p < plen){
-     // println("MATCH_N: init ", p);
-     set_array ipats[p] = init(get_array pats[p], get_array subjects[p]);
-     p = p + 1;
-   };
-   */
    set_array ipats[p] = init(get_array pats[p], get_array subjects[p]);
    while((p >= 0) && (p < plen)) {
-     pat = get_array ipats[p];
-     if(hasNext(pat)) {
+       pat = get_array ipats[p];
        if(next(pat)) {
            if(p < (plen - 1)) {
                p = p + 1;
                set_array ipats[p] = init(get_array pats[p], get_array subjects[p]);
            } else {
-               yield true;
+               yield;
            };
        } else {
            p = p - 1;
        };
-     } else {
-         p = p - 1;
-     };
    };   
-   return false;   
-   /*
-   while(true){
-     p = 0;
-     while(p < plen){
-       // println("p = ", p);
-       pat = get_array ipats[p];
-       if(hasNext(pat)){
-          if(next(pat)){
-              p = p + 1;
-           } else {
-              return false;
-           };   
-       } else {
-         return false;
-       };
-     };
-     // println("MATCH_N yields true");
-     yield true; 
-   };
-   */
 }
 
-function MATCH_CALL_OR_TREE[2, pats, ^subject, cpats]{
-    // println("MATCH_CALL_OR_TREE", pats, ^subject);
-    if(^subject is node){
-      cpats = init(create(MATCH_N, pats, get_name_and_children(^subject)));
-      while(hasNext(cpats)){
-        // println("MATCH_CALL_OR_TREE", "hasNext=true");
-        if(next(cpats)){
-           yield true;
-        } else {
-           return false;
-        };
-      };
+coroutine MATCH_CALL_OR_TREE[2, pats, iSubject, cpats]{
+    guard iSubject is node;
+    cpats = init(create(MATCH_N, pats, get_name_and_children(iSubject)));
+    while(next(cpats)) {
+        yield;
     };
-    return false;
 }
 
-function MATCH_REIFIED_TYPE[2, pat, ^subject, nc, konstructor, symbol]{
-    if(^subject is node){
-       nc = get_name_and_children(^subject);
-       konstructor = get_array nc[0];
-       symbol = get_array nc[1];
-       if(equal(konstructor, "type") && equal(symbol, pat)){
-          return true;
-       };
+coroutine MATCH_REIFIED_TYPE[2, pat, iSubject, nc, konstructor, symbol]{
+    guard iSubject is node;
+    nc = get_name_and_children(iSubject);
+    konstructor = get_array nc[0];
+    symbol = get_array nc[1];
+    if(equal(konstructor, "type") && equal(symbol, pat)) { // NOTE: the second equal? Should not it be a match?
+        return;
     };
-    return false;
 }
 
-function MATCH_TUPLE[2, pats, ^subject, cpats]{
-    // println("MATCH_TUPLE", pats, ^subject);
-    if(^subject is tuple){
-      cpats = init(create(MATCH_N, pats, get_tuple_elements(^subject)));
-      while(hasNext(cpats)){
-        // println("MATCH_TUPLE", "hasNext=true");
-        if(next(cpats)){
-           yield true;
-        } else {
-           return false;
-        };
-      };
+coroutine MATCH_TUPLE[2, pats, iSubject, cpats]{
+    guard iSubject is tuple;
+    cpats = init(create(MATCH_N, pats, get_tuple_elements(iSubject)));
+    while(next(cpats)) {
+        yield;
     };
-    return false;
 }
 
-function MATCH_LITERAL[2, pat, ^subject, res]{
-  // println("MATCH_LITERAL", pat, ^subject);
-  if(equal(typeOf(pat), typeOf(^subject))){
-     return equal(pat, ^subject);
-  };
-  return false;
+coroutine MATCH_LITERAL[2, pat, iSubject]{
+    guard (equal(typeOf(pat),typeOf(iSubject)) 
+    		&& equal(pat, iSubject));
+    return;
 }
 
-function MATCH_VAR[2, varref, ^subject]{
-//   if(is_defined(deref varref)){
-//      return equal(deref varref, ^subject);
-//   };
-   deref varref = ^subject;
-   return true;
+coroutine MATCH_VAR[2, rVar, iSubject]{
+   return iSubject;
 }
 
-function MATCH_ANONYMOUS_VAR[1, ^subject]{
-   return true;
+coroutine MATCH_ANONYMOUS_VAR[1, iSubject]{
+   return;
 }
 
-function MATCH_TYPED_VAR[3, typ, varref, ^subject]{
-   if(subtype(typeOf(^subject), typ)){
-//     if(is_defined(deref varref)){
-//         return equal(deref varref, ^subject);
-//      };
-      deref varref = ^subject;
-      return true;
+coroutine MATCH_TYPED_VAR[3, typ, rVar, iSubject]{
+   guard subtype(typeOf(iSubject), typ);
+   return iSubject;  
+}
+
+coroutine MATCH_TYPED_ANONYMOUS_VAR[2, typ, iSubject]{
+   guard subtype(typeOf(iSubject), typ);
+   return;
+}
+
+coroutine MATCH_VAR_BECOMES[3, rVar, pat, iSubject, cpat]{
+   cpat = init(pat, iSubject);
+   while(next(cpat)) {
+       yield iSubject;
    };
-   return false;  
 }
 
-function MATCH_TYPED_ANONYMOUS_VAR[2, typ, ^subject]{
-   if(subtype(typeOf(^subject), typ)){
-      return true;
+coroutine MATCH_TYPED_VAR_BECOMES[4, typ, rVar, pat, iSubject, cpat]{
+   guard subtype(typeOf(iSubject), typ);
+   cpat = init(pat, iSubject);
+   while(next(cpat)) {
+       yield iSubject;
    };
-   return false;  
 }
 
-function MATCH_VAR_BECOMES[3, varref, pat, ^subject, cpat]{
-   cpat = init(pat, ^subject);
-   while(hasNext(cpat)){
-     if(next(cpat)) {
-       deref varref = ^subject;
-       yield true;
-     } else {
-       return false;
-     };
-   };
-   return false;
+coroutine MATCH_AS_TYPE[3, typ, pat, iSubject]{ // NOTE: example of stackful coroutines is here
+   guard subtype(typeOf(iSubject), typ);
+   DO_ALL(pat, iSubject);
 }
 
-function MATCH_TYPED_VAR_BECOMES[4, typ, varref, pat, ^subject, cpat]{
-   if(subtype(typeOf(^subject), typ)){
-     cpat = init(pat, ^subject);
-     while(hasNext(cpat)){
-       if(next(cpat)) {
-         deref varref = ^subject;
-         yield true;
-       } else {
-         return false;
-       };
-     };
-   };  
-   return false;
-}
-
-function MATCH_AS_TYPE[3, typ, pat, ^subject]{
-   if(subtype(typeOf(^subject), typ)){
-      DO_ALL(pat, ^subject);
-   };  
-   return false;
-}
-
-function MATCH_ANTI[2, pat, ^subject, cpat]{
-	cpat = init(pat, ^subject);
-	if(next(cpat)){
-	   return false;
+coroutine MATCH_ANTI[2, pat, iSubject, cpat]{
+	cpat = init(pat, iSubject);
+	if(next(cpat)) {
+	   exhaust;
 	} else {
-	   return true;
+	   return;
 	};
 }
 
 // ***** List matching *****
 
-function MATCH_LIST[2, pats,   						// A list of coroutines to match list elements
-					   ^subject,					// The subject list
-					   patlen,						// Length of pattern list
-					   patlen1,						// patlen - 1
-					   sublen,						// Length of subject list
-					   p,							// Cursor in patterns
-					   cursor,						// Cursor in subject
-					   forward,
-					   matcher,						// Currently active pattern matcher
-					   matchers,					// List of currently active pattern matchers
-					   success,						// Success flag of last macth
-					   nextCursor					// Cursor movement of last successfull match
-					]{
-     if(^subject is list) {
-         // continue
-     } else {
-         return false;
-     };
+coroutine MATCH_LIST[2, pats,   					// A list of coroutines to match list elements
+					    iSubject,					// The subject list
+					   
+					    patlen,						// Length of pattern list
+					    patlen1,					// patlen - 1
+					    sublen,						// Length of subject list
+					    p,							// Cursor in patterns
+					    cursor,						// Cursor in subject
+					    matcher,					// Currently active pattern matcher
+					    matchers,					// List of currently active pattern matchers
+					    nextCursor					// Cursor movement of last successfull match
+					 ]{
+     guard iSubject is list;
+     
      patlen   = size_array(pats);
      patlen1 =  patlen - 1;
-     sublen   = size_list(^subject);
+     sublen   = size_list(iSubject);
      p        = 0; 
      cursor   = 0;
-     forward  = true;
-     matcher  = init(get_array pats[p], ^subject, cursor, sublen);
+     matcher  = init(get_array pats[p], iSubject, cursor, ref nextCursor, sublen);
      matchers = make_array(patlen);
      set_array matchers[0] = matcher;
      
-     while(true){
+     while(true) {
      	// Move forward
-     	 forward = hasNext(matcher);
-     	 // prim("println", ["At head", p, cursor, forward]);
-         while(forward && hasNext(matcher)){
-        	[success, nextCursor] = next(matcher);
-            if(success){ 
-               forward = true;
-               cursor = nextCursor;
-               // prim("println", ["SUCCESS", p, cursor]);
-               if((p == patlen1) && (cursor == sublen)) {
-                   // prim("println", ["*** YIELD", p, cursor]);
-              	   yield true;
-              	   // prim("println", ["Back from yield", p, cursor]); 
-               } else {
-                 if(p < patlen1){
-                   p = p + 1;
-                   // prim("println", ["Forward", p, cursor]);
-                   matcher  = init(get_array pats[p], ^subject, cursor,  sublen - cursor);
-                   set_array matchers[p] = matcher;
-                 } else {
-                   if(hasNext(matcher)){
-                     // explore more alternatives
-                   } else {
-                      // prim("println", ["Backward", p, cursor]);
-                      forward = false;
-                   };
-                 };  
-               };
+     	while(next(matcher)) {
+            cursor = nextCursor;
+            if((p == patlen1) && (cursor == sublen)) {
+                yield; 
             } else {
-              // prim("println", ["No success, Backward", p, cursor]);
-              forward = false;
+                if(p < patlen1){
+                    p = p + 1;
+                    matcher  = init(get_array pats[p], iSubject, cursor, ref nextCursor, sublen - cursor);
+                    set_array matchers[p] = matcher;
+                };  
             };
          }; 
          // If possible, move backward
-         if(forward){
-           // nothing
-         } else {  
-           if(p > 0){
-               p        = p - 1;
-               matcher  = get_array matchers[p];
-               forward  = true;
-           } else {
-         	   // prim("println", ["RETURN FALSE", p, cursor]);
-               return false;
-           };
+         if(p > 0) {
+             p        = p - 1;
+             matcher  = get_array matchers[p];
+         } else {
+             exhaust;
          };
      };
 }
@@ -493,649 +369,538 @@ function MATCH_LIST[2, pats,   						// A list of coroutines to match list eleme
 // All coroutines that may occur in a list pattern have the following parameters:
 // - pat: the actual pattern to match one or more elements
 // - start: the start index in the subject list
-// - available: the number of remianing, unmatched, elements in the subject list
+// - available: the number of remaining, unmatched, elements in the subject list
 
-function MATCH_PAT_IN_LIST[4, pat, ^subject, start, available, cpat]{
-
-    if(available <= 0){
-       return [false, start];
-    }; 
- 
-    cpat = init(pat, get_list ^subject[start]);
+coroutine MATCH_PAT_IN_LIST[5, pat, iSubject, start, rNext, available, cpat]{ 
+   // NOTE: added an extra parameter 'rNext'
+    guard available > 0;
+    cpat = init(pat, get_list iSubject[start]);
     
-    while(hasNext(cpat)){
-       if(next(cpat)){
-          return [true, start + 1];
-       };   
+    // NOTE: replaced 'return' with 'yield'
+    while(next(cpat)) {
+       yield start + 1;   
     };
-    return [false, start];
 } 
 
-function MATCH_VAR_IN_LIST[4, varref, ^subject, start, available]{
-   if(available <= 0){
-       return [false, start];
-   }; 
-//   if(is_defined(deref varref)){
-//      if(equal(deref varref, get_list ^subject[start])){
-//         return [true, start + 1];
-//      } else {
-//         return [ false, start];
-//      };
-//   };
-   deref varref = get_list ^subject[start];
-   return [true, start + 1];
+coroutine MATCH_VAR_IN_LIST[5, rVar, iSubject, start, rNext, available]{
+   // NOTE: added an extra parameter 'rNext'
+   guard available > 0;
+   // NOTE: an example of multi argument 'return'! (could not have been replaced with one reference due to the create-init design)
+   return(get_list iSubject[start], start + 1);
 }
 
-function MATCH_ANONYMOUS_VAR_IN_LIST[3, ^subject, start, available]{
-   if(available <= 0){
-       return [false, start];
-   }; 
-   return [true, start + 1];
+coroutine MATCH_ANONYMOUS_VAR_IN_LIST[4, iSubject, start, rNext, available]{
+   // Note: added an extra parameter 'rNext'
+   guard available > 0;
+   return start + 1;
 }
 
-function MATCH_MULTIVAR_IN_LIST[4, varref, ^subject, start, available, len]{
-//   if(is_defined(deref varref)){
-//       if(starts_with(deref varref, ^subject, start)){
-//          return [ true, start + size_list(deref varref) ];
-//       } else {
-//         return [false, start];
-//       };
-//    };
+coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iSubject, start, rNext, available, len]{
+	// NOTE: added an extra parameter 'rNext'
     len = 0;
-    while(len <= available){
-        deref varref = sublist(^subject, start, len);
-        // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_mint_mint", start, len)]);
-        yield [true, start + len];
+    // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
+    while(len <= available) {
+        yield(sublist(iSubject, start, len), start + len);
         len = len + 1;
      };
-     return [false, start];
 }
 
-function MATCH_ANONYMOUS_MULTIVAR_IN_LIST[3, ^subject, start, available, len]{
+coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[4, iSubject, start, rNext, available, len]{
+	// NOTE: added an extra parameter 'rNext'
     len = 0;
     while(len <= available){
-        // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_mint_mint", start, len)]);
-        yield [true, start + len];
+        yield start + len;
         len = len + 1;
      };
-     return [false, start];
 }
 
-function MATCH_TYPED_MULTIVAR_IN_LIST[5, typ, varref, ^subject, start, available, len]{
-    if(subtype(typeOf(^subject), typ)){
-//       if(is_defined(deref varref)){
-//          if(starts_with(deref varref, ^subject, start)){
-//             return [ true, start + size_list(deref varref) ];
-//          } else {
-//            return [false, start];
-//          };
-//       };
-       len = 0;
-       while(len <= available){
-          deref varref = sublist(^subject, start, len);
-          // prim("println", ["MATCH_MULTIVAR_IN_LIST", prim("addition_mint_mint", start, len)]);
-          yield [true, start + len];
-          len = len + 1;
-       };       
+coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iSubject, start, rNext, available, len]{
+	// NOTE: added an extra parameter 'rNext'
+	guard subtype(typeOf(iSubject), typ);
+    len = 0;
+    // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
+    while(len <= available){
+        yield(sublist(iSubject, start, len), start + len);
+        len = len + 1;
     };
-    return [false, start];
 }
 
-function MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[4, typ, ^subject, start, available, len]{
-    if(subtype(typeOf(^subject), typ)){
-       len = 0;
-       while(len <= available){
-          yield [true, start + len];
-          len = len + 1;
-       };       
+coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iSubject, start, rNext, available, len]{
+	// NOTE: added an extra parameter 'rNext'
+	guard subtype(typeOf(iSubject), typ);
+    len = 0;
+    while(len <= available){
+        yield start + len;
+        len = len + 1;
     };
-    return [false, start];
 }
 
 // ***** SET matching *****
 
-function MATCH_SET[2,  pair,	   					// A pair of literals, and patterns (other patterns first, multiivars last) to match set elements
-					   ^subject,					// The subject set
-					   ^literals,					// The literals that occur in the set pattern
+coroutine MATCH_SET[2, pair,	   					// A pair of literals, and patterns (other patterns first, multivars last) to match set elements
+					   iSubject,					// The subject set
+					   
+					   iLiterals,					// The literals that occur in the set pattern
 					   pats,						// the patterns
 					   subject1,					// subject minus literals as mset
 					   patlen,						// Length of pattern list
 					   patlen1,						// patlen - 1
 					   p,							// Cursor in patterns
 					   current,						// Current mset to be matched
-					   forward,
 					   matcher,						// Currently active pattern matcher
 					   matchers,					// List of currently active pattern matchers
-					   success,						// Success flag of last macth
 					   remaining					// Remaining mset as determined by last successfull match
 					]{
-      if(^subject is set) {
-          // continue
-      } else {
-          return false;
-      };
-      ^literals = get_array pair[0];
+	  guard iSubject is set;
+	  
+      iLiterals = get_array pair[0];
       pats      = get_array pair[1];
       
-     if(subset(^literals, ^subject)){
-        subject1 = mset_destructive_subtract_set(mset(^subject), ^literals);
-     	patlen    = size_array(pats);
-     	if(patlen == 0){
-     	   success = size_mset(subject1) == 0;
-     	   return success;
-     	};    
-     	patlen1   =  patlen - 1;
-     	p         = 0;
-     	forward   = true;
-     	matcher   = init(get_array pats[p], subject1);
-     	matchers  = make_array(patlen);
-     	set_array matchers[0] = matcher;
-     	
-     	while(true){
-     	// Move forward
-     	 forward = hasNext(matcher);
-     	 //println("At head, pattern", p);
-         while(forward && hasNext(matcher)){
-        	[success, remaining] = next(matcher);
-            if(success){ 
-               //println("success, remaining = ", remaining);
-               forward = true;
-               current = remaining;
-               if((p == patlen1) && (size_mset(current) == 0)) {
-              	   yield true;
-              	   //println("Back from yield, at pattern", p); 
-               } else {
-                 if(p < patlen1){
-                   p = p + 1;
-                   //println("Move right to pattern", p);
-                   matcher  = init(get_array pats[p], current);
-                   set_array matchers[p] = matcher;
-                 } else {
-                   if(hasNext(matcher)){
-                     // explore more alternatives
-                   } else {
-                      forward = false;
-                   };
-                 };  
-               };
-            } else {
-              forward = false;
-            };
-         }; 
-         // If possible, move backward
-         if(forward){
-           // nothing
-         } else {  
-           if(p > 0){
-               p        = p - 1;
-               //println("Move left to pattern", p);
-               matcher  = get_array matchers[p];
-               forward  = true;
-           } else {
-               return false;
-           };
-         };
+      if(subset(iLiterals, iSubject)) {
+          // continue
+      } else {
+          exhaust;
       };
-        
-     } else {
-       return false;
-     };
+      
+      subject1 = mset_destructive_subtract_set(mset(iSubject), iLiterals);
+      patlen   = size_array(pats);
+      
+      if(patlen == 0) {
+          if(size_mset(subject1) == 0) {
+     	      return;
+     	  } else {
+     	      exhaust;
+     	  };
+      };
+      
+      patlen1   =  patlen - 1;
+      p         = 0;
+      matcher   = init(get_array pats[p], subject1, ref remaining);
+      matchers  = make_array(patlen);
+      set_array matchers[0] = matcher;
+     	
+      while(true){
+          // Move forward
+     	  while(next(matcher)){
+              current = remaining;
+              if((p == patlen1) && (size_mset(current) == 0)) {
+                  yield; 
+              } else {
+                  if(p < patlen1){
+                      p = p + 1;
+                      matcher  = init(get_array pats[p], current, ref remaining);
+                      set_array matchers[p] = matcher;
+                  };  
+              };
+          }; 
+          // If possible, move backward
+          if(p > 0){
+               p       = p - 1;
+               matcher = get_array matchers[p];
+           } else {
+               exhaust;
+           };
+      };     
 }
 
-function ENUM_MSET[1, set, ^lst, last, i]{
-   ^lst = mset2list(set);
-   last = size_list(^lst) - 1;
-   i = 0;
-   while(i < last){
-      yield get_list ^lst[i];
-      i = i + 1;
-   };
-   return get_list ^lst[last];
+coroutine ENUM_MSET[2, set, rElm, iLst, len, j]{
+    // NOTE: added an extra parameter
+    iLst = mset2list(set);
+    len = size_list(iLst);
+    j = 0;
+    while(j < len) {
+        yield get_list iLst[j];
+        j = j + 1;
+    };
 }
 
 // All coroutines that may occur in a set pattern have the following parameters:
 // - pat: the actual pattern to match one or more elements
 // - available: the remaining, unmatched, elements in the subject set
 
-function MATCH_PAT_IN_SET[2, pat, available, gen, cpat, elm]{
-    if(size_mset(available) == 0){
-       return [ false, available ];
-    }; 
-
-    gen = init(create(ENUM_MSET, available));
-    while(hasNext(gen)){
-        elm = next(gen);
+coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
+	// NOTE: added an extra parameter
+	guard size_mset(available) > 0;
+    
+    gen = init(create(ENUM_MSET, available, ref elm));
+    while(next(gen)) {
         cpat = init(pat, elm);
-        while(hasNext(cpat)){
-           if(next(cpat)){
-              yield [ true, mset_destructive_subtract_elm(available, elm) ];
-              available = mset_destructive_add_elm(available, elm);
-           };
+        while(next(cpat)) {
+            yield mset_destructive_subtract_elm(available, elm);
+            available = mset_destructive_add_elm(available, elm);
         };
     };
-    return [ false, available ];
-} 
-
-function MATCH_VAR_IN_SET[2, varref, available, gen, elm]{
-   if(size_mset(available) == 0){
-       return [ false, available ];
-   };
- 
-   gen = init(create(ENUM_MSET, available));
-   while(hasNext(gen)){
-	     elm = next(gen);
-	     deref varref = elm;
-	     yield [ true, mset_destructive_subtract_elm(available, elm) ];
-	     available = mset_destructive_add_elm(available, elm);
-   };
-   return [ false, available ];
 }
 
-function MATCH_ANONYMOUS_VAR_IN_SET[1, available, gen, elm]{
-   if(size_set(available) == 0){
-       return [ false, available ];
-   };
+coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
+	// NOTE: added an extra parameter
+	guard size_mset(available) > 0;
  
-   gen = init(create(ENUM_MSET, available));
-   while(hasNext(gen)){ 
-        elm = next(gen);
-        yield [ true, mset_destructive_subtract_elm(available, elm) ];
+    gen = init(create(ENUM_MSET, available, ref elm));
+    while(next(gen)) {
+	    yield(elm, mset_destructive_subtract_elm(available, elm));
+	    available = mset_destructive_add_elm(available, elm);
+    };
+}
+
+coroutine MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRenaming, gen, elm]{
+	// NOTE: added an extra parameter
+	guard size_set(available) > 0;
+    
+    gen = init(create(ENUM_MSET, available, ref elm));
+    while(next(gen)) { 
+        yield mset_destructive_subtract_elm(available, elm);
         available = mset_destructive_add_elm(available, elm);
    };
-   return [ false, available ];
 }
 
-function MATCH_MULTIVAR_IN_SET[2, varref, available, gen, subset]{
-   gen = init(create(ENUM_SUBSETS, available));
-   while(hasNext(gen)){
-	     subset = next(gen);
-	     deref varref = set(subset);
-	     yield [ true,mset_destructive_subtract_mset(available, subset) ];
-	     available = mset_destructive_add_mset(available, subset);
-   };
-   return [ false, available ];
-}
-
-function MATCH_ANONYMOUS_MULTIVAR_IN_SET[1, available, gen, subset]{
-   gen = init(create(ENUM_SUBSETS, available));
-   while(hasNext(gen)){
-	     subset = next(gen);
-	     yield [ true,mset_destructive_subtract_mset(available, subset) ];
-	     available = mset_destructive_add_mset(available, subset);
-   };
-   return [ false, available ];
-}
-
-function MATCH_TYPED_MULTIVAR_IN_SET[3, typ, varref, available, gen, subset]{
-    //println("MATCH_TYPED_MULTIVAR_IN_SET", typ, varref, available);
-    if(subtype(typeOf(available), typ)){
-	   gen = init(create(ENUM_SUBSETS, available));
-	   while(hasNext(gen)){
-	         subset = next(gen);
-	   		 deref varref = set(subset);
-	   		 //println("MATCH_TYPED_MULTIVAR_IN_SET, assigns", varref, subset);
-	          yield [ true,mset_destructive_subtract_mset(available, subset) ];
-	          available = mset_destructive_add_mset(available, subset);
-	   };
+coroutine MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
+	// NOTE: added an extra parameter
+    gen = init(create(ENUM_SUBSETS, available, ref subset));
+    while(next(gen)) {
+	    yield(set(subset), mset_destructive_subtract_mset(available, subset));
+	    available = mset_destructive_add_mset(available, subset);
     };
-    //println("MATCH_TYPED_MULTIVAR_IN_SET: returns false");
-    return [ false, available ];
 }
 
-function MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[2, typ, available, gen, subset]{
-    //println("MATCH_TYPED_MULTIVAR_IN_SET", typ, available);
- 
-    if(subtype(typeOf(available), typ)){
-	   gen = init(create(ENUM_SUBSETS, available));
-       while(hasNext(gen)){
-             subset = next(gen);
-	          yield [ true,mset_destructive_subtract_mset(available, subset) ];
-	          available = mset_destructive_add_mset(available, subset);
-	   };
+coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]{
+	// NOTE: added an extra parameter
+    gen = init(create(ENUM_SUBSETS, available, ref subset));
+    while(next(gen)) {
+	    yield mset_destructive_subtract_mset(available, subset);
+	    available = mset_destructive_add_mset(available, subset);
     };
-    return [ false, available ];
 }
 
-// the power set of a set of size n has 2^n-1 elements 
+coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset]{
+	// NOTE: added an extra parameter
+	guard subtype(typeOf(available), typ);
+    
+    gen = init(create(ENUM_SUBSETS, available, ref subset));
+	while(next(gen)) {
+	    yield(set(subset), mset_destructive_subtract_mset(available, subset));
+	    available = mset_destructive_add_mset(available, subset);
+	};
+}
+
+coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
+	// NOTE: added an extra parameter
+	guard subtype(typeOf(available), typ);
+    
+    gen = init(create(ENUM_SUBSETS, available));
+    while(next(gen)) {
+        yield mset_destructive_subtract_mset(available, subset);
+	    available = mset_destructive_add_mset(available, subset);
+	};
+}
+
+// The power set of a set of size n has 2^n-1 elements 
 // so we enumerate the numbers 0..2^n-1
 // if the nth bit of a number i is 1 then
 // the nth element of the set should be in the
 // ith subset 
  
-function ENUM_SUBSETS[1, set, lst, i, j, last, elIndex, sub]{
-    //println("ENUM_SUBSETS for:", set);
+coroutine ENUM_SUBSETS[2, set, rSubset, lst, k, j, last, elIndex, sub]{
+	// NOTE: added an extra parameter
     lst = mset2list(set); 
     last = 2 pow size_mset(set);
-    i = last - 1;
-    while(i >= 0){
-        //println("ENUM_SUBSETS", "i = ", i);
-        j = i;
+    k = last - 1;
+    while(k >= 0) {
+        j = k;
         elIndex = 0; 
         sub = make_mset();
-        while(j > 0){
+        while(j > 0) {
            if(j mod 2 == 1){
-              //println("ENUM_SUBSETS", "j = ", j, "elIndex =", elIndex);
               sub = mset_destructive_add_elm(sub, get_list lst[elIndex]);
            };
            elIndex = elIndex + 1;
            j = j / 2;
         };
-        //println("ENUM_SUBSETS returns:", sub, "i =", i, "last one = ", i == 0);
-        if(i == 0){
+        if(k == 0) {
            return sub;
         } else {
            yield sub;
         }; 
-        i = i - 1;  
+        k = k - 1;  
     };
 }
 
 // ***** Descendent pattern ***
 
-function MATCH_DESCENDANT[2, pat, ^subject, gen, cpat]{
-   //println("MATCH_DESCENDANT", pat, ^subject);
-   DO_ALL(create(MATCH_AND_DESCENT, pat),  ^subject);
-   return false;
+coroutine MATCH_DESCENDANT[2, pat, iSubject, gen, cpat]{
+   DO_ALL(create(MATCH_AND_DESCENT, pat), iSubject);
 }
 
 // ***** Match and descent for all types *****
 
-function MATCH_AND_DESCENT[2, pat, ^val]{
-  //println("MATCH_AND_DESCENT", pat, ^val);
-  DO_ALL(pat, ^val);
+coroutine MATCH_AND_DESCENT[2, pat, iVal]{
+  DO_ALL(pat, iVal);
   
-  //println("MATCH_AND_DESCENT", "outer match completed"); 
-  typeswitch(^val){
-    case list:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), ^val);
-    case lrel:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), ^val);
-    case node:        DO_ALL(create(MATCH_AND_DESCENT_NODE, pat), ^val);
-    case constructor: DO_ALL(create(MATCH_AND_DESCENT_NODE, pat), ^val);
-    case map:         DO_ALL(create(MATCH_AND_DESCENT_MAP, pat), ^val);
-    case set:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat), ^val);
-    case rel:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat), ^val);
-    case tuple:       DO_ALL(create(MATCH_AND_DESCENT_TUPLE, pat), ^val);
-    default:          return false;
+  typeswitch(iVal){
+    case list:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), iVal);
+    case lrel:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), iVal);
+    case node:        DO_ALL(create(MATCH_AND_DESCENT_NODE, pat), iVal);
+    case constructor: DO_ALL(create(MATCH_AND_DESCENT_NODE, pat), iVal);
+    case map:         DO_ALL(create(MATCH_AND_DESCENT_MAP, pat),  iVal);
+    case set:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat),  iVal);
+    case rel:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat),  iVal);
+    case tuple:       DO_ALL(create(MATCH_AND_DESCENT_TUPLE, pat),iVal);
+    default:          exhaust;
   };  
-  return false;
 }
-/*
-function VISIT[1, visitor]{
-   //println("VISIT", visitor);
-   while(hasNext(visitor)){
-        if(next(visitor)){
-           if(hasNext(visitor)){
-              yield true;
-           } else {
-             return true;
-           };
-        };
-   }; 
-   return false;     
-}   
-*/
 
-function MATCH_AND_DESCENT_LITERAL[2, pat, ^subject, res]{
-  //println("MATCH_AND_DESCENT_LITERAL", pat, ^subject);
-  if(equal(typeOf(pat), typeOf(^subject))){
-     res = equal(pat, ^subject);
-     return res;
+coroutine MATCH_AND_DESCENT_LITERAL[2, pat, iSubject, res]{
+  if(equal(typeOf(pat), typeOf(iSubject)) && equal(pat, iSubject)){
+      return;
   };
   
-  return MATCH_AND_DESCENT(create(MATCH_LITERAL, pat), ^subject);
+  MATCH_AND_DESCENT(create(MATCH_LITERAL, pat), iSubject);
 }
 
-function MATCH_AND_DESCENT_LIST[2, pat, ^lst, last, i]{
-   //println("MATCH_AND_DESCENT_LIST", pat, ^lst);
-   last = size_list(^lst);
-   i = 0;
-   while(i < last){
-      DO_ALL(pat, get_list ^lst[i]);
-      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list ^lst[i]);
-      i = i + 1;
+coroutine MATCH_AND_DESCENT_LIST[2, pat, iLst, last, j]{
+   last = size_list(iLst);
+   j = 0;
+   while(j < last){
+      DO_ALL(pat, get_list iLst[j]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list iLst[j]);
+      j = j + 1;
    };
-   return false;
 }
 
-function MATCH_AND_DESCENT_SET[2, pat, ^set, ^lst, last, i]{
-   //println("MATCH_AND_DESCENT_SET", pat, ^set);
-   ^lst = set2list(^set);
-   last = size_list(^lst);
-   i = 0;
-   while(i < last){
-      DO_ALL(pat, get_list ^lst[i]);
-      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list ^lst[i]);
-      i = i + 1;
+coroutine MATCH_AND_DESCENT_SET[2, pat, iSet, iLst, last, j]{
+   iLst = set2list(iSet);
+   last = size_list(iLst);
+   j = 0;
+   while(j < last){
+      DO_ALL(pat, get_list iLst[j]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list iLst[j]);
+      j = j + 1;
    };
-   return false;
 }
 
-function MATCH_AND_DESCENT_MAP[2, pat, ^map, ^klst, ^vlst, last, i]{
-   ^klst = keys(^map);
-   ^vlst = values(^map);
-   last = size_list(^klst);
-   i = 0;
-   while(i < last){
-      DO_ALL(pat, get_list ^klst[i]);
-      DO_ALL(pat, get_list ^vlst[i]);
-      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list ^klst[i]);
-      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list ^vlst[i]);
-      i = i + 1;
+coroutine MATCH_AND_DESCENT_MAP[2, pat, iMap, iKlst, iVlst, last, j]{
+   iKlst = keys(iMap);
+   iVlst = values(iMap);
+   last = size_list(iKlst);
+   j = 0;
+   while(j < last){
+      DO_ALL(pat, get_list iKlst[j]);
+      DO_ALL(pat, get_list iVlst[j]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list iKlst[j]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_list iVlst[j]);
+      j = j + 1;
    };
-   return false;
 }
 
-function MATCH_AND_DESCENT_NODE[2, pat, ^nd, last, i, ar]{
-   ar = get_name_and_children(^nd);
+coroutine MATCH_AND_DESCENT_NODE[2, pat, iNd, last, j, ar]{
+   ar = get_name_and_children(iNd);
    last = size_array(ar);
-   i = 0; 
-   while(i < last){
-      DO_ALL(pat, get_array ar[i]);
-      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_array ar[i]);
-      i = i + 1;
+   j = 0; 
+   while(j < last){
+      DO_ALL(pat, get_array ar[j]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_array ar[j]);
+      j = j + 1;
    };
-   return false;
 }
 
-function MATCH_AND_DESCENT_TUPLE[2, pat, ^tup, last, i]{
-   last = size_tuple(^tup);
-   i = 0;
-   while(i < last){
-      DO_ALL(pat, get_tuple ^tup[i]);
-      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_tuple ^tup[i]);
-      i = i + 1;
+coroutine MATCH_AND_DESCENT_TUPLE[2, pat, iTup, last, j]{
+   last = size_tuple(iTup);
+   j = 0;
+   while(j < last){
+      DO_ALL(pat, get_tuple iTup[j]);
+      DO_ALL(create(MATCH_AND_DESCENT, pat),  get_tuple iTup[j]);
+      j = j + 1;
    };
-   return false;
 }
 
 // ***** Regular expressions *****
 
-function MATCH_REGEXP[3, ^regexp, varrefs, ^subject, matcher, i, varref]{
-   matcher = muprim("regexp_compile", ^regexp, ^subject);
+coroutine MATCH_REGEXP[3, iRegexp, varrefs, iSubject, matcher, j, rVar]{
+   matcher = muprim("regexp_compile", iRegexp, iSubject);
    while(muprim("regexp_find", matcher)){
-     i = 0; 
-     while(i < size_array(varrefs)){
-        varref = get_array varrefs[i];
-        deref varref = muprim("regexp_group", matcher, i + 1);
-        i = i + 1;
+     j = 0; 
+     while(j < size_array(varrefs)){
+        rVar = get_array varrefs[j];
+        deref rVar = muprim("regexp_group", matcher, j + 1);
+        j = j + 1;
      };
-     yield true;
+     yield;
    };
-   return false;
 }
 
 // ***** Traverse functions *****
 
-function TRAVERSE_TOP_DOWN[5, phi, ^subject, hasMatch, beenChanged, rebuild, 
+function TRAVERSE_TOP_DOWN[5, phi, iSubject, rHasMatch, rBeenChanged, rebuild, 
 							  matched, changed] {
 	matched = false; // ignored	
 	changed = false;
-	^subject = phi(^subject, ref matched, ref changed);
+	iSubject = phi(iSubject, ref matched, ref changed);
 	if(rebuild) {
-		deref beenChanged = changed || deref beenChanged;
+		deref rBeenChanged = changed || deref rBeenChanged;
 		changed = false;
-		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_TOP_DOWN::5, phi, hasMatch, ref changed, rebuild);
-		deref beenChanged = changed || deref beenChanged;	
-		return ^subject;
+		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_TOP_DOWN::5, phi, rHasMatch, ref changed, rebuild);
+		deref rBeenChanged = changed || deref rBeenChanged;	
+		return iSubject;
 	};
-	return VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_TOP_DOWN::5, phi, hasMatch, ref changed, rebuild);
+	return VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_TOP_DOWN::5, phi, rHasMatch, ref changed, rebuild);
 }
 
-function TRAVERSE_TOP_DOWN_BREAK[5, phi, ^subject, hasMatch, beenChanged, rebuild, 
+function TRAVERSE_TOP_DOWN_BREAK[5, phi, iSubject, rHasMatch, rBeenChanged, rebuild, 
 									matched, changed] {
 	matched = false;
 	changed = false;
-	^subject = phi(^subject, ref matched, ref changed);
-	deref beenChanged = changed || deref beenChanged;	
-	if(deref hasMatch = matched || deref hasMatch) {	
-		return ^subject;
+	iSubject = phi(iSubject, ref matched, ref changed);
+	deref rBeenChanged = changed || deref rBeenChanged;	
+	if(deref rHasMatch = matched || deref rHasMatch) {	
+		return iSubject;
 	};
 	if(rebuild) {
 		changed = false;
-		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_TOP_DOWN_BREAK::5, phi, hasMatch, ref changed, rebuild);
-		deref beenChanged = changed || deref beenChanged;
-		return ^subject;
+		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_TOP_DOWN_BREAK::5, phi, rHasMatch, ref changed, rebuild);
+		deref rBeenChanged = changed || deref rBeenChanged;
+		return iSubject;
 	};	
-	return VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_TOP_DOWN_BREAK::5, phi, hasMatch, ref changed, rebuild);
+	return VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_TOP_DOWN_BREAK::5, phi, rHasMatch, ref changed, rebuild);
 }
 
-function TRAVERSE_BOTTOM_UP[5, phi, ^subject, hasMatch, beenChanged, rebuild, 
+function TRAVERSE_BOTTOM_UP[5, phi, iSubject, rHasMatch, rBeenChanged, rebuild, 
 							   matched, changed] {
 	matched = false; // ignored
 	changed = false;
 	if(rebuild) {
-		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_BOTTOM_UP::5, phi, hasMatch, ref changed, rebuild);
-		deref beenChanged = changed || deref beenChanged;
+		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_BOTTOM_UP::5, phi, rHasMatch, ref changed, rebuild);
+		deref rBeenChanged = changed || deref rBeenChanged;
 		changed = false;
 	} else {
-		VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_BOTTOM_UP::5, phi, hasMatch, ref changed, rebuild);
+		VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_BOTTOM_UP::5, phi, rHasMatch, ref changed, rebuild);
 	};
-	^subject = phi(^subject, ref matched, ref changed);
-	deref beenChanged = changed || deref beenChanged;
-	return ^subject;
+	iSubject = phi(iSubject, ref matched, ref changed);
+	deref rBeenChanged = changed || deref rBeenChanged;
+	return iSubject;
 }
 
-function TRAVERSE_BOTTOM_UP_BREAK[5, phi, ^subject, hasMatch, beenChanged, rebuild, 
+function TRAVERSE_BOTTOM_UP_BREAK[5, phi, iSubject, rHasMatch, rBeenChanged, rebuild, 
 									 matched, changed] {
 	matched = false;
 	changed = false;
 	if(rebuild) {
-		^subject = VISIT_CHILDREN(^subject, Library::TRAVERSE_BOTTOM_UP_BREAK::5, phi, hasMatch, ref changed, rebuild);
-		deref beenChanged = changed || deref beenChanged;
+		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_BOTTOM_UP_BREAK::5, phi, rHasMatch, ref changed, rebuild);
+		deref rBeenChanged = changed || deref rBeenChanged;
 		changed = false;
 	} else {
-		VISIT_CHILDREN_VOID(^subject, Library::TRAVERSE_BOTTOM_UP_BREAK::5, phi, hasMatch, ref changed, rebuild);
+		VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_BOTTOM_UP_BREAK::5, phi, rHasMatch, ref changed, rebuild);
 	};		
-	if(deref hasMatch) {	
-		return ^subject;
+	if(deref rHasMatch) {	
+		return iSubject;
 	};
-	^subject = phi(^subject, ref matched, ref changed);
-	deref hasMatch = matched || deref hasMatch;
-	deref beenChanged = changed || deref beenChanged;	
-	return ^subject;
+	iSubject = phi(iSubject, ref matched, ref changed);
+	deref rHasMatch = matched || deref rHasMatch;
+	deref rBeenChanged = changed || deref rBeenChanged;	
+	return iSubject;
 }
 
-function VISIT_CHILDREN[6, ^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild, 
+function VISIT_CHILDREN[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild, 
 						   children] {
-	if((^subject is list) || (^subject is set) || (^subject is tuple) || (^subject is node)) {
-		children = VISIT_NOT_MAP(^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild);
+	if((iSubject is list) || (iSubject is set) || (iSubject is tuple) || (iSubject is node)) {
+		children = VISIT_NOT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild);
 	} else {
-		if(^subject is map) {
-			children = VISIT_MAP(^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild); // special case of map
+		if(iSubject is map) {
+			children = VISIT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild); // special case of map
 		};
 	};
-	if(deref beenChanged) {
-		return typeswitch(^subject) {
+	if(deref rBeenChanged) {
+		return typeswitch(iSubject) {
 	    			case list:  prim("list", children);
 	    			case lrel:  prim("list", children);
 	    			case set:   prim("set",  children);
 	    			case rel:   prim("set",  children);
 	    			case tuple: prim("tuple",children);
-	    			case node:  prim("node", muprim("get_name", ^subject), children);
+	    			case node:  prim("node", muprim("get_name", iSubject), children);
 	    			case constructor: 
-	                			prim("constructor", muprim("typeOf_constructor", ^subject), children);	    
+	                			prim("constructor", muprim("typeOf_constructor", iSubject), children);	    
 	    			case map:   children; // special case of map	    
-	    			default:    ^subject;
+	    			default:    iSubject;
 				};
 	};
-	return ^subject;
+	return iSubject;
 }
 
-function VISIT_NOT_MAP[6, ^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild,
-						  iarray, enumerator, ^child, i, childHasMatch, childBeenChanged] {
-	iarray = make_iarray(size(^subject));
-	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^child, ^subject);
-	i = 0;
+function VISIT_NOT_MAP[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild,
+						  iarray, enumerator, iChild, j, childHasMatch, childBeenChanged] {
+	iarray = make_iarray(size(iSubject));
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref iChild, iSubject);
+	j = 0;
 	while(all(multi(enumerator))) {
 		childHasMatch = false;
 		childBeenChanged = false;
-		^child = traverse_fun(phi, ^child, ref childHasMatch, ref childBeenChanged, rebuild);
-		set_array iarray[i] = ^child;
-		i = i + 1;
-		deref hasMatch = childHasMatch || deref hasMatch;
-		deref beenChanged = childBeenChanged || deref beenChanged;
+		iChild = traverse_fun(phi, iChild, ref childHasMatch, ref childBeenChanged, rebuild);
+		set_array iarray[j] = iChild;
+		j = j + 1;
+		deref rHasMatch = childHasMatch || deref rHasMatch;
+		deref rBeenChanged = childBeenChanged || deref rBeenChanged;
 	};
 	return iarray;
 }
 
-function VISIT_MAP[6, ^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild,
-					  writer, enumerator, ^key, ^val, childHasMatch, childBeenChanged] {
+function VISIT_MAP[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild,
+					  writer, enumerator, iKey, iVal, childHasMatch, childBeenChanged] {
 	writer = prim("mapwriter_open");
-	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^key, ^subject);
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref iKey, iSubject);
 	while(all(multi(enumerator))) {
-		^val = prim("map_subscript", ^subject, ^key);
+		iVal = prim("map_subscript", iSubject, iKey);
 		
 		childHasMatch = false;
 		childBeenChanged = false;
-		^key = traverse_fun(phi, ^key, ref childHasMatch, ref childBeenChanged, rebuild);
-		deref hasMatch = childHasMatch || deref hasMatch;
-		deref beenChanged = childBeenChanged || deref beenChanged;
+		iKey = traverse_fun(phi, iKey, ref childHasMatch, ref childBeenChanged, rebuild);
+		deref rHasMatch = childHasMatch || deref rHasMatch;
+		deref rBeenChanged = childBeenChanged || deref rBeenChanged;
 		
 		childHasMatch = false;
 		childBeenChanged = false;
-		^val = traverse_fun(phi, ^val, ref childHasMatch, ref childBeenChanged, rebuild);
-		deref hasMatch = childHasMatch || deref hasMatch;
-		deref beenChanged = childBeenChanged || deref beenChanged;
+		iVal = traverse_fun(phi, iVal, ref childHasMatch, ref childBeenChanged, rebuild);
+		deref rHasMatch = childHasMatch || deref rHasMatch;
+		deref rBeenChanged = childBeenChanged || deref rBeenChanged;
 		
-		prim("mapwriter_add", writer, ^key, ^val);
+		prim("mapwriter_add", writer, iKey, iVal);
 	};
 	return prim("mapwriter_close", writer);
 }
 
-function VISIT_CHILDREN_VOID[6, ^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild] {	
-	if((^subject is list) || (^subject is set) || (^subject is tuple) || (^subject is node)) {
-		VISIT_NOT_MAP_VOID(^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild);
-		return ^subject;
+function VISIT_CHILDREN_VOID[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild] {	
+	if((iSubject is list) || (iSubject is set) || (iSubject is tuple) || (iSubject is node)) {
+		VISIT_NOT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild);
+		return iSubject;
 	};
-	if(^subject is map) {
-		VISIT_MAP_VOID(^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild); // special case of map
+	if(iSubject is map) {
+		VISIT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild); // special case of map
 	};
-	return ^subject;
+	return iSubject;
 }
 
-function VISIT_NOT_MAP_VOID[6, ^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild,
-						       enumerator, ^child, childHasMatch, childBeenChanged] {
-	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^child, ^subject);
+function VISIT_NOT_MAP_VOID[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild,
+						       enumerator, iChild, childHasMatch, childBeenChanged] {
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref iChild, iSubject);
 	childBeenChanged = false; // ignored
 	while(all(multi(enumerator))) {
 		childHasMatch = false;
-		traverse_fun(phi, ^child, ref childHasMatch, ref childBeenChanged, rebuild);
-		deref hasMatch = childHasMatch || deref hasMatch;
+		traverse_fun(phi, iChild, ref childHasMatch, ref childBeenChanged, rebuild);
+		deref rHasMatch = childHasMatch || deref rHasMatch;
 	};
 	return;
 }
 
-function VISIT_MAP_VOID[6, ^subject, traverse_fun, phi, hasMatch, beenChanged, rebuild,
-					       enumerator, ^key, ^val, childHasMatch, childBeenChanged] {
-	enumerator = create(ENUMERATE_AND_ASSIGN, ref ^key, ^subject);
+function VISIT_MAP_VOID[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild,
+					       enumerator, iKey, iVal, childHasMatch, childBeenChanged] {
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref iKey, iSubject);
 	childBeenChanged = false; // ignored  
 	while(all(multi(enumerator))) {
 		childHasMatch = false;
-		traverse_fun(phi, ^key, ref childHasMatch, ref childBeenChanged, rebuild);
-		deref hasMatch = childHasMatch || deref hasMatch;
+		traverse_fun(phi, iKey, ref childHasMatch, ref childBeenChanged, rebuild);
+		deref rHasMatch = childHasMatch || deref rHasMatch;
 		
 		childHasMatch = false;
-		traverse_fun(phi, prim("map_subscript", ^subject, ^key), ref childHasMatch, ref childBeenChanged, rebuild);
-		deref hasMatch = childHasMatch || deref hasMatch;	
+		traverse_fun(phi, prim("map_subscript", iSubject, iKey), ref childHasMatch, ref childBeenChanged, rebuild);
+		deref rHasMatch = childHasMatch || deref rHasMatch;	
 	};
 	return;
 }
