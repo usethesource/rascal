@@ -137,7 +137,7 @@ MuExp getConstructor(str cons) {
    }
    println("uid = <uid>");
    
-   res = muConstr(uid2name[uid]);
+   res = muConstr(fuid2str[uid]);
    println("res = <res>");
    return res;
 }
