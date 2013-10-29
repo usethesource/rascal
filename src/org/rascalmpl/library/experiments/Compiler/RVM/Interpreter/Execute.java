@@ -36,7 +36,8 @@ public class Execute {
 	
 	// Library function to execute a RVM program from Rascal
 
-	public ITuple executeProgram(IConstructor program, 
+	public ITuple executeProgram(IConstructor program,
+								 IMap imported_types,
 								 IList imported_functions,
 								 IList imported_overloaded_functions,
 								 IMap imported_overloading_resolvers,
@@ -62,6 +63,12 @@ public class Execute {
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
 		
+		Iterator<Entry<IValue, IValue>> entries = imported_types.entryIterator();
+		while(entries.hasNext()) {
+			Entry<IValue, IValue> entry = entries.next();
+			rvm.declareConstructor(((IString) entry.getKey()).getValue(), (IConstructor) entry.getValue());
+		}
+		
 		for(IValue imp : imported_functions){
 			IConstructor declaration = (IConstructor) imp;
 			if (declaration.getName().contentEquals("FUNCTION")) {
@@ -86,7 +93,7 @@ public class Execute {
 		rvm.fillOverloadedStore(imported_overloaded_functions);
 
 		IMap types = (IMap) program.get("types");
-		Iterator<Entry<IValue, IValue>> entries = types.entryIterator();
+		entries = types.entryIterator();
 		while(entries.hasNext()) {
 			Entry<IValue, IValue> entry = entries.next();
 			rvm.declareConstructor(((IString) entry.getKey()).getValue(), (IConstructor) entry.getValue());
