@@ -1040,20 +1040,23 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
   
   for (hole((ConcreteHole) `\<<Sym s> <Name n>\>`) <- concrete.parts) {
     <c, rt> = convertAndExpandSymbol(s, c);
-    if (isFailType(rt)) failures += t1;  
+    if(isFailType(rt)) { 
+        failures += rt; 
+    }  
     
     name = convertName(n)[@at = n@\loc];
     
     if (fcvExists(c, name)) {
         c.uses = c.uses + < c.fcvEnv[name], n@\loc >;
         c.usedIn[n@\loc] = head(c.stack);
-        return markLocationType(c, n@\loc, c.store[c.fcvEnv[name]].rtype);
+        <c, rt> = markLocationType(c, n@\loc, c.store[c.fcvEnv[name]].rtype);
     } else {
-        return markLocationFailed(c, n@\loc, makeFailType("Name <prettyPrintName(name)> is not in scope", n@\loc));
+        <c, rt> = markLocationFailed(c, n@\loc, makeFailType("Name <prettyPrintName(name)> is not in scope", n@\loc));
+        failures += rt;
     }
   }
   
-  if (size(failures) > 0) {
+  if(size(failures) > 0) {
     return markLocationFailed(c, exp@\loc, failures);
   }
   
