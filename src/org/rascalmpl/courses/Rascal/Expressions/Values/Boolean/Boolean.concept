@@ -70,7 +70,7 @@ The following function are provided for Boolean:
 Examples:
 Consider the following match of a list
 <listing>
-[1, list[int] L, 2, list[int] M] := [1,2,3,2,4]
+[1, *int L, 2, *int M] := [1,2,3,2,4]
 </listing>
 By definition `list[int] L` and `list[int] M` match list elements that are part of the enclosing list in which they occur. If they should match a nested list each should be enclosed in list brackets.
 
@@ -85,7 +85,7 @@ Depending on the context, only the first solution of a match expression is used,
 If a match expression occurs in a larger Boolean expression, a subsequent subexpression may yield false and -- depending on the actual operator -- evaluation backtracks to a previously evaluated match operator to try a next solution. Let's illustrate this by extending the above example:
 
 <listing>
-[1, list[int] L, 2, list[int] M] := [1,2,3,2,4] && size(L) > 0
+[1, *int L, 2, *int M] := [1,2,3,2,4] && size(L) > 0
 </listing>
 where we are looking for a solution in which L has a non-empty list as value. Evaluation proceeds as follows:
 
