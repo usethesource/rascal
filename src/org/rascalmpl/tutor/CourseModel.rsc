@@ -446,7 +446,7 @@ public list[ConceptName] getCourseConcepts(ConceptName rootConcept){
 // find the root under which it is included in the concept hierarchy.
 
 str getLocalRoot(str cn){
-   //println("getLocalRoot: <cn>");
+   // println("getLocalRoot: <cn>");
    remote = courseDir + rootname(cn) + remoteConcepts;
    if(exists(remote)){
       remoteMap = readTextValueFile(#list[tuple[ConceptName, loc]], remote);
