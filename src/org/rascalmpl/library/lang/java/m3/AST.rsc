@@ -3,6 +3,7 @@ module lang::java::m3::AST
 extend analysis::m3::AST;
 import util::FileSystem;
 import lang::java::m3::TypeSymbol;
+import IO;
  
 data Declaration
     = \compilationUnit(list[Declaration] imports, list[Declaration] types)
@@ -146,6 +147,11 @@ data Modifier
     | \onDemand()
     ;
 
+set[loc] getPaths(loc dir, str suffix) { 
+   bool containsFile(loc d) = isDirectory(d) ? (x <- d.ls && x.extension == suffix) : false;
+   return find(dir, containsFile);
+}
+
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
 java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
@@ -162,5 +168,5 @@ public java Declaration createAstFromFile(loc file, bool collectBindings, str ja
 @doc{Creates ASTs from a project}
 public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, str javaVersion = "1.7" ) {
    setEnvironmentOptions(project);
-   return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | loc f <- find(project, ".java") };
+   return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | loc f <- find(project, "java") };
 }
