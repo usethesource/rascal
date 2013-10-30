@@ -15,6 +15,8 @@ import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
+import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getQualifiedFunctionName, need better structure
+
 public Configuration config = newConfiguration();
 
 /*
@@ -125,8 +127,10 @@ int getScopeSize(str fuid) = size({ pos | int pos <- range(uid2addr)[fuid], pos 
 public MuExp mkCallToLibFun(str modName, str fname, int nformals)
 	= muFun("<modName>/<fname>(<nformals>)");
 
-MuExp mkVar(str name, loc l) {
-  uid = loc2uid[l];
+
+MuExp mkVar(str name, loc l) = mkVar(name, loc2uid[l]);
+
+MuExp mkVar(str name,int uid) {
   tuple[str fuid,int pos] addr = uid2addr[uid];
   
   // Pass all the functions through the overloading resolution
@@ -134,7 +138,12 @@ MuExp mkVar(str name, loc l) {
     // Get the function uids of an overloaded function
     set[int] ofuids = (uid in functions || uid in constructors) ? { uid } : config.store[uid].items;
     // Generate a unique name for an overloaded function resolved for this specific use
-    str ofuid = uid2str(config.usedIn[l]) + "/use:" + name;
+    //str ofuid = uid2str(config.usedIn[l]) + "/use:" + name;
+    
+    str ofuid = uid2str(getFunctionUID()) + "/use:" + name;
+    
+    //if(config.usedIn[l] != getFunctionUID())
+    //	println("******* <name>: <config.usedIn[l]>, <getFunctionUID()>");
     
     bool exists = <addr.fuid,ofuids> in overloadedFunctions;
     int i = size(overloadedFunctions);

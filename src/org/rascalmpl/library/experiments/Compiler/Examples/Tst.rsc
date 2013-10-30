@@ -1,9 +1,5 @@
 module experiments::Compiler::Examples::Tst
 
-import experiments::Compiler::Examples::ParseTreeDataType;
+data DDD = d1(int n) | d2 (str s);
 
-syntax AB = ("a" | "b")+ ;
-
-syntax CD = ("c" | "d")+ ;
-
-value main(list[value] args) = < [AB] "ababababab", [CD] "cdcdcdcdcdc" >;
+value main(list[value] args) = d1(123);
