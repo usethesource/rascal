@@ -1045,11 +1045,11 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
     name = convertName(n)[@at = n@\loc];
     
     if (fcvExists(c, name)) {
-        c.uses = c.uses + < c.fcvEnv[name], exp@\loc >;
-        c.usedIn[exp@\loc] = head(c.stack);
-        return markLocationType(c, exp@\loc, c.store[c.fcvEnv[name]].rtype);
+        c.uses = c.uses + < c.fcvEnv[name], n@\loc >;
+        c.usedIn[n@\loc] = head(c.stack);
+        return markLocationType(c, n@\loc, c.store[c.fcvEnv[name]].rtype);
     } else {
-        return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(name)> is not in scope", exp@\loc));
+        return markLocationFailed(c, n@\loc, makeFailType("Name <prettyPrintName(name)> is not in scope", n@\loc));
     }
   }
   
