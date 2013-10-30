@@ -1,6 +1,5 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalExpression
-
 import Prelude;
 
 import lang::rascal::\syntax::Rascal;
@@ -138,19 +137,24 @@ MuExp getConstructor(str cons) {
    }
    println("uid = <uid>");
    
- 
-   tuple[str fuid,int pos] addr = uid2addr[uid];
-   println("fuid = <fuid>, pos = <pos>");
+   res = muConstr(fuid2str[uid]);
+   println("res = <res>");
+   
+   return res;
 }
 
-MuExp translateConcrete(Tree parseTree){
+MuExp translateConcrete(node parseTree){
    // ignore kw arguments for the moment
    
    cons = getName(parseTree);
    MuExp receiver =  getConstructor(cons);
-   list[MuExp] args = [ translateConcrete(a) | a <- arguments ];
    
-   return muCall(receiver, args);
+  for(a <- getChildren(parseTree)){
+    println("type: <typeOf(a)>, arg: <a>");
+  }
+   list[MuExp] args = [ translateConcrete(a) | a <- getChildren(parseTree) ];
+   
+   return muOCall(receiver, args);
    
    //if(getOuterType(expression) == "loc"){
    //    return muCallPrim("loc_with_offset_create", [receiver, *args]);
@@ -937,7 +941,7 @@ MuExp translateVisit(label,\visit) {
 	
 	// Generate and add a nested function 'phi'
 	str scopeId = topFunctionScope();
-	str phi_fuid = scopeId + "/" + "phi_<i>";
+	str phi_fuid = scopeId + "/" + "PHI_<i>";
 	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value(),Symbol::\value()]);
 	
 	enterVisit();	
@@ -946,16 +950,16 @@ MuExp translateVisit(label,\visit) {
 	leaveVisit();
 	
 	if(fixpoint) {
-		str phi_fixpoint_fuid = scopeId + "/" + "phi_fixpoint_<i>";
+		str phi_fixpoint_fuid = scopeId + "/" + "PHI_FIXPOINT_<i>";
 		
 		list[MuExp] body = [];
 		body += muAssignLoc("changed", 3, muBool(true));
 		body += muWhile(nextLabel(), muLoc("changed",3), 
-						[ muAssignLoc("val", 4, muCall(muFun(phi_fuid,scopeId), [ muLoc("subject",0), muLoc("matched",1), muLoc("hasInsert",2) ])),
-						  muIfelse(nextLabel(), muCallPrim("equal",[ muLoc("val",4), muLoc("subject",0) ]),
+						[ muAssignLoc("val", 4, muCall(muFun(phi_fuid,scopeId), [ muLoc("iSubject",0), muLoc("matched",1), muLoc("hasInsert",2) ])),
+						  muIfelse(nextLabel(), muCallPrim("equal",[ muLoc("val",4), muLoc("iSubject",0) ]),
 						  						[ muAssignLoc("changed",3, muBool(false)) ], 
-						  						[ muAssignLoc("subject",0, muLoc("val",4)) ] )]);
-		body += muReturn(muLoc("subject",0));
+						  						[ muAssignLoc("iSubject",0, muLoc("val",4)) ] )]);
+		body += muReturn(muLoc("iSubject",0));
 		
 		functions_in_module += muFunction(phi_fixpoint_fuid, phi_ftype, scopeId, 3, 5, \visit@\loc, [], (), muBlock(body));
 	
@@ -993,7 +997,7 @@ MuExp translateVisitCases(list[Case] cases) {
 		if(c.patternWithAction is replacing) {
 			replacement = translate(c.patternWithAction.replacement.replacementExpression);
 			replacementType = getType(c.patternWithAction.replacement.replacementExpression@\loc);
-			tcond = muCallPrim("subtype", [ muTypeCon(replacementType), muCallPrim("typeOf", [ muLoc("subject",0) ]) ]);
+			tcond = muCallPrim("subtype", [ muTypeCon(replacementType), muCallPrim("typeOf", [ muLoc("iSubject",0) ]) ]);
 			list[MuExp] cbody = [ muAssignLocDeref("matched",1,muBool(true)), muAssignLocDeref("hasInsert",2,muBool(true)), replacement ];
         	exp = muIfelse(ifname, muAll([cond,tcond]), [ muReturn(muBlock(cbody)) ], [ translateVisitCases(tail(cases)) ]);
         	leaveBacktrackingScope();
@@ -1004,7 +1008,7 @@ MuExp translateVisitCases(list[Case] cases) {
 			\case = translate(statement);
 			insertType = topCaseType();
 			clearCaseType();
-			tcond = muCallPrim("subtype", [ muTypeCon(insertType), muCallPrim("typeOf", [ muLoc("subject",0) ]) ]);
+			tcond = muCallPrim("subtype", [ muTypeCon(insertType), muCallPrim("typeOf", [ muLoc("iSubject",0) ]) ]);
 			list[MuExp] cbody = [ muAssignLocDeref("matched",1,muBool(true)) ];
 			if(!(muBlock([]) := \case)) {
 				cbody += \case;
@@ -1016,7 +1020,7 @@ MuExp translateVisitCases(list[Case] cases) {
 		}
 	} else {
 		// Default
-		return muBlock([ muAssignLocDeref("matched", 1, muBool(true)), translate(c.statement), muReturn(muLoc("subject",0)) ]);
+		return muBlock([ muAssignLocDeref("matched", 1, muBool(true)), translate(c.statement), muReturn(muLoc("iSubject",0)) ]);
 	}
 }
 
