@@ -66,7 +66,6 @@ data Production
 data Attr 
      = \assoc(Associativity \assoc) <img src="/images/4.png">
      | \bracket()
-     | \tag(value \tag) 
      ;
 data Associativity 
      = \left() <img src="/images/5.png">
@@ -84,7 +83,6 @@ data Symbol
      | \keywords(str name)
      | \parameterized-sort(str name, list[Symbol] parameters)  
      | \parameterized-lex(str name, list[Symbol] parameters)  
-     | \parameter(str name)
      ;
 data Symbol 
      = \lit(str string) <img src="/images/10.png">
@@ -99,7 +97,7 @@ data Symbol
      | \iter-seps(Symbol symbol, list[Symbol] separators)   
      | \iter-star-seps(Symbol symbol, list[Symbol] separators) 
      | \alt(set[Symbol] alternatives)
-     | \seq(list[Symbol] sequence)
+     | \seq(list[Symbol] symbols)
      ;
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) <img src="/images/12.png">;
 data Condition

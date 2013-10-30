@@ -81,7 +81,7 @@ ok
 ok
 </pre>  Seeing that <code>parse</code> returns a parse tree:
 <pre class="screen"><span class="prompt">rascal></span>parse(#Exp, &quot;2+3&quot;);
-Exp: `2+3`
+sort("Exp"): `2+3`
 Tree: appl(prod(sort("Exp"),[sort("Exp"),layouts("<i>default</i>"),lit("+"),layouts("<i>default</i>"),sort("Exp")],{assoc(left())}),[appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(50)])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)],appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)],appl(prod(lit("+"),[\char-class([range(43,43)])],{}),[char(43)]),appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)],appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(0,3,&lt;1,0>,&lt;1,3>)]</pre>  Catching a parse error:
 <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok

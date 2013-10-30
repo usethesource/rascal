@@ -76,12 +76,11 @@ data Symbol                            // Composite types.
      | \map(Symbol from, Symbol to)
      | \bag(Symbol symbol)
      | \adt(str name, list[Symbol] parameters)
-     | \cons(Symbol \adt, list[Symbol] parameters)
+     | \cons(Symbol \adt, str name, list[Symbol] parameters)
      | \alias(str name, list[Symbol] parameters, Symbol aliased)
      | \func(Symbol ret, list[Symbol] parameters)
      | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
      | \reified(Symbol symbol)
-     | \lrel(list[Symbol] symbols)
      ;
 data Symbol
      = \parameter(str name, Symbol bound) // Parameter
