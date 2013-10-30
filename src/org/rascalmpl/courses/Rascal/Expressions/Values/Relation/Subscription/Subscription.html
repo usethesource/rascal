@@ -82,7 +82,7 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>R = {&lt;1,10&gt;, &lt;2,20&gt;, &lt;1,11&gt;, &lt;3,30&gt;, &lt;2,21&gt;};
-rel[int, int]: {
+rel[int,int]: {
   &lt;1,10>,
   &lt;3,30>,
   &lt;2,20>,
@@ -97,7 +97,7 @@ set[int]: {11,10}
 set[int]: {11,10,21,20}
 <span class="prompt">rascal></span>RR = {&lt;1,10,100&gt;,&lt;1,11,101&gt;,&lt;2,20,200&gt;,&lt;2,22,202&gt;,
 <span class="continuation">>>>>>>></span>              &lt;3,30,300>};
-rel[int, int, int]: {
+rel[int,int,int]: {
   &lt;2,22,202>,
   &lt;2,20,200>,
   &lt;3,30,300>,
@@ -105,7 +105,7 @@ rel[int, int, int]: {
   &lt;1,11,101>
 }
 <span class="prompt">rascal></span>RR[1];
-rel[int, int]: {
+rel[int,int]: {
   &lt;10,100>,
   &lt;11,101>
 }
@@ -116,7 +116,7 @@ set[int]: {101,100}
 <span class="continuation">>>>>>>></span>{&lt;"US", 2008, 14264600>, &lt;"EU", 2008, 18394115>,
 <span class="continuation">>>>>>>></span> &lt;"Japan", 2008, 4923761>, &lt;"US", 2007, 13811200>, 
 <span class="continuation">>>>>>>></span> &lt;"EU", 2007, 13811200>, &lt;"Japan", 2007, 4376705>};
-rel[str country, int year, int amount]: {
+rel[str country,int year,int amount]: {
   &lt;"EU",2007,13811200>,
   &lt;"EU",2008,18394115>,
   &lt;"Japan",2008,4923761>,
@@ -126,7 +126,7 @@ rel[str country, int year, int amount]: {
 }
 </pre>  and then retrieve the information for the index <code>"Japan"</code>:
 <pre class="screen"><span class="prompt">rascal></span>GDP[&quot;Japan&quot;];
-rel[int, int]: {
+rel[int,int]: {
   &lt;2007,4376705>,
   &lt;2008,4923761>
 }

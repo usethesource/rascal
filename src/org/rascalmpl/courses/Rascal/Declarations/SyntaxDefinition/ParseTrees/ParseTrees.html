@@ -160,7 +160,7 @@ Benefits:
 
 Pitfalls:
 For historical reasons the name of the annotation is "loc" and this interferes with the Rascal keyword `loc`
-for the type of [$Values/Location]s.
+for the type of [Location]s.
 Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
 
 Questions:
@@ -210,7 +210,6 @@ data Production
 data Attr 
      = \assoc(Associativity \assoc) <img src="/images/4.png">
      | \bracket()
-     | \tag(value \tag) 
      ;
      
 data Associativity 
@@ -235,7 +234,6 @@ data Symbol
      | \keywords(str name)
      | \parameterized-sort(str name, list[Symbol] parameters)  
      | \parameterized-lex(str name, list[Symbol] parameters)  
-     | \parameter(str name)
      ; 
 
 // These are the terminal symbols.
@@ -254,7 +252,7 @@ data Symbol
      | \iter-seps(Symbol symbol, list[Symbol] separators)   
      | \iter-star-seps(Symbol symbol, list[Symbol] separators) 
      | \alt(set[Symbol] alternatives)
-     | \seq(list[Symbol] sequence)
+     | \seq(list[Symbol] symbols)
      ;
   
 
@@ -305,18 +303,14 @@ public Production associativity(Symbol s, Associativity as, {*Production a, choi
   = associativity(s, as, a+b); 
   
 @doc{Nested (equal) associativity is flattened}             
-public Production associativity(Symbol rhs, Associativity a, {associativity(Symbol rhs2, Associativity b, set[Production] alts), *Production rest}) {
-  if (a == b)  
-    return associativity(rhs, a, rest + alts) ;
-  else
-    fail;
-}
+public Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associativity b, set[Production] alts), *Production rest})  
+  = associativity(rhs, a, rest + alts) ;
 
-public Production associativity(Symbol rhs, Associativity a, {prod(Symbol rhs, list[Symbol] lhs, set[Attr] as), *Production rest}) {
-  if (!(\assoc(_) &lt;- as)) 
-    return \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})});
-  else fail;
-}
+Production associativity(Symbol rhs, Associativity a, {prod(rhs, list[Symbol] lhs, set[Attr] as), *Production rest}) 
+  = \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})}) when !(\assoc(_) &lt;- as);
+
+Production associativity(Symbol rhs, Associativity a, {prod(label(str l, rhs), list[Symbol] lhs, set[Attr] as), *Production rest}) 
+  =  \associativity(rhs, a, rest + {prod(label(l, rhs), lhs, as + {\assoc(a)})}) when !(\assoc(_) &lt;- as);
 
 @doc{Priority under an associativity group defaults to choice}
 public Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
@@ -388,6 +382,34 @@ unparse(parse(#Exp, "2+3"));
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str unparse(Tree tree);
+
+@doc{
+Synopsis: Save the current object parser to a file.
+
+Description:
+`saveParser` will save the current object parser (constructed from (imported)
+syntax declarations) to a file. The name of the parser class is returned,
+for reference.
+
+The saved parser can be used later on by loading the parser class from
+the JAR file, instantiating it and calling the parse() method.
+
+Examples:
+&lt;listing>
+import ParseTree;
+// import a grammar
+import demo::lang::Exp::Concrete::NoLayout::Syntax;
+
+// save the parser to a JAR file
+saveParser(|file:///tmp/Exp.jar|);
+&lt;/listing>
+}
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{uses evaluator's parser interface}
+public java str saveParser(loc outFile);
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java str printSymbol(Symbol sym, bool withLayout);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses Evaluator to create constructors in the caller scope (to fire rewrite rules).}
@@ -584,6 +606,15 @@ public bool sameType(Symbol s,conditional(Symbol t,_)) = sameType(s,t);
 public bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
 public bool sameType(Symbol s, s) = true;
 public default bool sameType(Symbol s, Symbol t) = false;
+
+@doc{Determine if the given type is a non-terminal type}
+public bool isNonTerminalType(Symbol::\sort(str _)) = true;
+public bool isNonTerminalType(Symbol::\lex(str _)) = true;
+public bool isNonTerminalType(Symbol::\layouts(str _)) = true;
+public bool isNonTerminalType(Symbol::\keywords(str _)) = true;
+public bool isNonTerminalType(Symbol::\parameterized-sort(str _, list[Symbol] _)) = true;
+public bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true;
+public default bool isNonTerminalType(Symbol s) = false;
 
 </pre>
 </div>

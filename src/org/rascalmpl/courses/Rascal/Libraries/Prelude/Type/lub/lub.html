@@ -110,10 +110,10 @@
 <li> <code>Symbol lub(\node(), \adt(str n, list[Symbol] _))</code></li>
 <li> <code>Symbol lub(\adt(str n, list[Symbol] lp), \adt(n, list[Symbol] rp))</code></li>
 <li> <code>Symbol lub(\adt(str n, list[Symbol] lp), \adt(str m, list[Symbol] rp))</code></li>
-<li> <code>Symbol lub(\adt(str ln, list[Symbol] lp), Symbol::\cons(Symbol b, list[Symbol] _))</code></li>
-<li> <code>Symbol lub(Symbol::\cons(Symbol la, list[Symbol] _), Symbol::\cons(Symbol ra, list[Symbol] _))</code></li>
-<li> <code>Symbol lub(Symbol::\cons(Symbol a, list[Symbol] lp), \adt(str n, list[Symbol] rp))</code></li>
-<li> <code>Symbol lub(Symbol::\cons(Symbol _, list[Symbol] _), \node())</code></li>
+<li> <code>Symbol lub(\adt(str ln, list[Symbol] lp), Symbol::\cons(Symbol b, _, list[Symbol] _))</code></li>
+<li> <code>Symbol lub(Symbol::\cons(Symbol la, _, list[Symbol] _), Symbol::\cons(Symbol ra, _, list[Symbol] _))</code></li>
+<li> <code>Symbol lub(Symbol::\cons(Symbol a, _, list[Symbol] lp), \adt(str n, list[Symbol] rp))</code></li>
+<li> <code>Symbol lub(Symbol::\cons(Symbol _, _, list[Symbol] _), \node())</code></li>
 <li> <code>Symbol lub(\alias(str _, list[Symbol] _, Symbol aliased), Symbol r)</code></li>
 <li> <code>Symbol lub(Symbol l, \alias(str _, list[Symbol] _, Symbol aliased))</code></li>
 <li> <code>Symbol lub(\parameter(str _, Symbol bound), Symbol r)</code></li>

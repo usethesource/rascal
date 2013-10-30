@@ -82,7 +82,7 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>R = [&lt;1,10&gt;, &lt;2,20&gt;, &lt;1,11&gt;, &lt;3,30&gt;, &lt;2,21&gt;];
-lrel[int, int]: [
+lrel[int,int]: [
   &lt;1,10>,
   &lt;2,20>,
   &lt;1,11>,
@@ -90,14 +90,14 @@ lrel[int, int]: [
   &lt;2,21>
 ]
 <span class="prompt">rascal></span>R[1];
-list[int]: [10,11]
+tuple[int,int]: &lt;2,20>
 <span class="prompt">rascal></span>R[{1}];
 list[int]: [10,11]
 <span class="prompt">rascal></span>R[{1, 2}];
 list[int]: [10,20,11,21]
 <span class="prompt">rascal></span>RR = [&lt;1,10,100&gt;,&lt;1,11,101&gt;,&lt;2,20,200&gt;,&lt;2,22,202&gt;,
 <span class="continuation">>>>>>>></span>              &lt;3,30,300>];
-lrel[int, int, int]: [
+lrel[int,int,int]: [
   &lt;1,10,100>,
   &lt;1,11,101>,
   &lt;2,20,200>,
@@ -105,10 +105,7 @@ lrel[int, int, int]: [
   &lt;3,30,300>
 ]
 <span class="prompt">rascal></span>RR[1];
-lrel[int, int]: [
-  &lt;10,100>,
-  &lt;11,101>
-]
+tuple[int,int,int]: &lt;1,11,101>
 <span class="prompt">rascal></span>RR[1,_];
 list[int]: [100,101]
 </pre>  Introduce a relation with economic data and assign it to <code>GDP</code>:
@@ -116,7 +113,7 @@ list[int]: [100,101]
 <span class="continuation">>>>>>>></span>[&lt;"US", 2008, 14264600>, &lt;"EU", 2008, 18394115>,
 <span class="continuation">>>>>>>></span> &lt;"Japan", 2008, 4923761>, &lt;"US", 2007, 13811200>, 
 <span class="continuation">>>>>>>></span> &lt;"EU", 2007, 13811200>, &lt;"Japan", 2007, 4376705>];
-lrel[str country, int year, int amount]: [
+lrel[str country,int year,int amount]: [
   &lt;"US",2008,14264600>,
   &lt;"EU",2008,18394115>,
   &lt;"Japan",2008,4923761>,
@@ -126,7 +123,7 @@ lrel[str country, int year, int amount]: [
 ]
 </pre>  and then retrieve the information for the index <code>"Japan"</code>:
 <pre class="screen"><span class="prompt">rascal></span>GDP[&quot;Japan&quot;];
-lrel[int, int]: [
+lrel[int,int]: [
   &lt;2008,4923761>,
   &lt;2007,4376705>
 ]

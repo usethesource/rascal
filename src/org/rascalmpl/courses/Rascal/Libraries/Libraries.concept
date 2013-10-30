@@ -8,7 +8,7 @@ Types:
 
 Function:
 
-Details: Prelude util lang Vis analysis
+Details: Prelude util lang Vis analysis Java
 
 Description:
 
@@ -16,6 +16,9 @@ Description:
 The libraries described here provide the following functionality:
 <toc Rascal/Libraries 1>
 
+Specifically for analyzing Java:
+
+<toc Rascal/Libraries/Java 1>
 
 Examples:
 

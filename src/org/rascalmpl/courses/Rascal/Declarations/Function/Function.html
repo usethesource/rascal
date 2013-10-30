@@ -130,10 +130,10 @@
 <pre class="screen"><span class="prompt">rascal></span>rel[int, int] invert(rel[int,int] R){
 <span class="continuation">>>>>>>></span>   return {&lt;Y, X> | &lt;int X, int Y> &lt;- R };
 <span class="continuation">>>>>>>></span>}
-rel[int, int] (rel[int, int]): rel[int, int] invert(rel[int, int]);
+rel[int,int] (rel[int,int]): rel[int,int] invert(rel[int,int]);
 </pre>  Call it
 <pre class="screen"><span class="prompt">rascal></span>invert({&lt;1,10&gt;, &lt;2,20&gt;});
-rel[int, int]: {
+rel[int,int]: {
   &lt;20,2>,
   &lt;10,1>
 }
@@ -142,15 +142,15 @@ rel[int, int]: {
  <pre class="screen"><span class="prompt">rascal></span>rel[&amp;T2, &amp;T1] invert2(rel[&amp;T1,&amp;T2] R){  
 <span class="continuation">>>>>>>></span>   return {&lt;Y, X> | &lt;&amp;T1 X, &amp;T2 Y> &lt;- R };
 <span class="continuation">>>>>>>></span>}
-rel[&amp;T2, &amp;T1] (rel[&amp;T1, &amp;T2]): rel[&amp;T2, &amp;T1] invert2(rel[&amp;T1, &amp;T2]);
+rel[&amp;T2,&amp;T1] (rel[&amp;T1,&amp;T2]): rel[&amp;T2,&amp;T1] invert2(rel[&amp;T1,&amp;T2]);
 </pre> Now apply it to relations with different types:
 <pre class="screen"><span class="prompt">rascal></span>invert2({&lt;1,10&gt;, &lt;2,20&gt;});
-rel[int, int]: {
+rel[int,int]: {
   &lt;20,2>,
   &lt;10,1>
 }
 <span class="prompt">rascal></span>invert2({&lt;&quot;mon&quot;, 1&gt;, &lt;&quot;tue&quot;, 2&gt;});
-rel[int, str]: {
+rel[int,str]: {
   &lt;2,"tue">,
   &lt;1,"mon">
 }

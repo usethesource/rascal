@@ -115,7 +115,7 @@
  <pre class="screen"><span class="prompt">rascal></span>import lang::csv::IO;
 ok
 <span class="prompt">rascal></span>R1 = readCSV(#rel[int position, str artist, str title, int year],  |courses:///Rascal/Libraries/lang/csv/ex1.csv|, (&quot;separator&quot; : &quot;;&quot;));
-rel[int position, str artist, str title, int year]: {
+rel[int position,str artist,str title,int year]: {
   &lt;2,"Queen","Bohemian rhapsody",1975>,
   &lt;3,"Boudewijn de Groot","Avond",1997>,
   &lt;1,"Eagles","Hotel California",1977>
@@ -125,7 +125,7 @@ rel[int position, str artist, str title, int year]: {
 set[str]: {"Eagles","Boudewijn de Groot","Queen"}
 </pre> It is also possible to infer the type:
 <pre class="screen"><span class="prompt">rascal></span>R1 = readCSV(|courses:///Rascal/Libraries/lang/csv/ex1.csv|, (&quot;separator&quot; : &quot;;&quot;));
-readCSV inferred the relation type: rel[int \position, str \artist, str \title, int \year]
+readCSV inferred the relation type: rel[int \position,str \artist,str \title,int \year]
 value: {
   &lt;2,"Queen","Bohemian rhapsody",1975>,
   &lt;3,"Boudewijn de Groot","Avond",1997>,
