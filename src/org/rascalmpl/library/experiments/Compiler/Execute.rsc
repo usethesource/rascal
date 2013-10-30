@@ -30,7 +30,8 @@ list[Declaration] parseMuLibrary(){
   		set_nlocals(fun.nlocals);
   	    body = peephole(tr(fun.body));
   	    required_frame_size = get_nlocals() + estimate_stack_size(fun.body);
-    	functions += FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), required_frame_size, body,[]);
+    	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun.scopeIn, fun.nformals, get_nlocals(), fun.refs, required_frame_size, body)
+    									  : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), required_frame_size, body,[]);
   	}
   
   	writeTextValueFile(MuLibraryCompiled, functions);
@@ -40,6 +41,7 @@ list[Declaration] parseMuLibrary(){
 }
 
 tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
+   imported_types = ();
    imported_functions = [];
    imported_overloaded_functions = [];
    imported_overloading_resolvers = ();
@@ -60,6 +62,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
       importedLoc = imp.parent + (basename(imp) + ".rvm");
        try {
   	       importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
+  	       imported_types = imported_types + importedRvmProgram.types;
   	       imported_functions += [ importedRvmProgram.declarations[fname] | fname <-importedRvmProgram.declarations ];
   	       
   	       // We need to merge overloading resolvers regarding overloaded function indices
@@ -74,7 +77,8 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    
    pos_delta = size(imported_overloaded_functions);
    rvmProgram.resolver = ( ofname : rvmProgram.resolver[ofname] + pos_delta | str ofname <- rvmProgram.resolver );
-   <v, t> = executeProgram(rvmProgram, imported_functions, 
+   <v, t> = executeProgram(rvmProgram, imported_types,
+   									   imported_functions, 
    									   imported_overloaded_functions, imported_overloading_resolvers, 
    									   imported_grammars, arguments, debug, testsuite);
    println("Result = <v>, [<t> msec]");

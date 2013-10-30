@@ -22,7 +22,7 @@ $T_i$ represents the type of element $i$. Tuple have two major applications:
 * For ad-hoc packaging of values, for instance, to return multiple-values from a function.
 
 
-See [Rascal:Values/Tuple] the operatiosn on tuples.
+See [Rascal:Values/Tuple] for the operations on tuples.
 
 Examples:
 

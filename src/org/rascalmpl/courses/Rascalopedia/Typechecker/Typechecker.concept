@@ -30,7 +30,7 @@ These different styles of type checking have different trade offs:
   ** Con: more type declarations have to be written by the programmer and in some situations the type systems limits what can be expressed.
 * Dynamic checking:
   ** Pro: most flexible and expressive.
-  ** Con: errors can only found during execution.
+  ** Con: errors can only be found during execution.
 * Hybrid type checking:
   ** Pro: a reasonable compromise.
   ** Con not as safe as full static typechecking.
