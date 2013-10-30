@@ -1,19 +1,4 @@
-module Library
-
-/*
-function ONE[1,arg, carg]{
-   carg = init(create(arg));
-   return next(arg);
-}
-
-function ALL[1,arg,carg]{
-   carg = init(create(arg));
-   while(hasNext(carg)){
-        yield next(carg);
-   };
-   return false;
-}  
-*/    
+module Library   
 
 // Initialize a pattern with a given value and exhaust all its possibilities
 
@@ -24,7 +9,13 @@ coroutine DO_ALL[2, pat, iVal, co]{
    };
 }
 
-// ***** Enumerators for all types ***** NOTE: all ENUM declarations get extra parameter 'rval'
+// ***** Enumerators for all types 
+
+// These are used by
+// - ENEMERATE_AND_MATCH
+// - ENUMERATE_AND_ASSIGN
+// - ENUMERATE_CHECK_AND_ASSIGN
+// All ENUM declarations have a parameter 'rVal' that is used to yield their value
 
 coroutine ENUM_LITERAL[2, iLit, rVal]{
    return iLit;
@@ -34,11 +25,10 @@ coroutine ENUM_LIST[2, iLst, rVal, len, j]{
    len = size_list(iLst);
    guard len > 0;
    j = 0;
-   while(j < (len - 1)) {
+   while(j < len) {
       yield get_list iLst[j];
       j = j + 1;
    };
-   return get_list iLst[j];
 }
 
 coroutine ENUM_SET[2, iSet, rVal, iLst, len, j]{
@@ -46,11 +36,10 @@ coroutine ENUM_SET[2, iSet, rVal, iLst, len, j]{
    len = size_list(iLst);
    guard len > 0;
    j = 0;
-   while(j < (len - 1)) {
+   while(j < len) {
       yield get_list iLst[j];
       j = j + 1;
    };
-   return get_list iLst[j];
 }
 
 coroutine ENUM_MAP[2, iMap, rVal, iKlst, len, j]{
@@ -58,39 +47,35 @@ coroutine ENUM_MAP[2, iMap, rVal, iKlst, len, j]{
    len = size_list(iKlst);
    guard len > 0;
    j = 0;
-   while(j < (len - 1)) {
+   while(j < len) {
       yield get_list iKlst[j];
       j = j + 1;
    };
-   return get_list iKlst[j];
 }
 
 coroutine ENUM_NODE[2, iNd, rVal, len, j, array]{
    array = get_name_and_children(iNd);
-   len = size_array(array) - 1;
-   guard len > 0;
+   len = size_array(array);
+   guard len > 1;
    j = 1;  // skip name
    while(j < len) {
       yield get_array array[j];
       j = j + 1;
    };
-   return get_array array[j];
 }
 
 coroutine ENUM_TUPLE[2, iTup, rVal, len, j]{
    len = size_tuple(iTup);
    guard len > 0;
    j = 0;
-   while(j < (len - 1)) {
+   while(j < len) {
       yield get_tuple iTup[j];
       j = j + 1;
    };
-   return get_tuple iTup[j];
 }
 
 coroutine ENUMERATE_AND_MATCH1[2, enumerator, pat, cpat, iElm]{ 
-   // NOTE: slightly changed the original semantics: no backtracking was possible for the last possible value
-   enumerator = init(enumerator, ref iElm); // NOTE: reflects the fact that all ENUM declarations get an extra parameter
+   enumerator = init(enumerator, ref iElm);
    while(next(enumerator)) {
      cpat = init(pat, iElm);
      while(next(cpat)){
@@ -100,7 +85,6 @@ coroutine ENUMERATE_AND_MATCH1[2, enumerator, pat, cpat, iElm]{
 }
 
 coroutine ENUMERATE_AND_MATCH[2, pat, iVal]{ 
-  // NOTE: initialization of coroutines has been moved into the ENUMERATE_AND_MATCH1 body
   // NOTE: apparently, we have an example of stackful coroutines here
   typeswitch(iVal) {
     case list:         ENUMERATE_AND_MATCH1(create(ENUM_LIST,   iVal), pat);
@@ -116,14 +100,13 @@ coroutine ENUMERATE_AND_MATCH[2, pat, iVal]{
 }
 
 coroutine ENUMERATE_AND_ASSIGN1[2, enumerator, rVar, iElm]{
-   enumerator = init(enumerator, ref iElm); // NOTE: reflects the fact that all ENUM declarations get an extra parameter
+   enumerator = init(enumerator, ref iElm);
    while(next(enumerator)) {
      yield iElm;
    }; 
 }
 
 coroutine ENUMERATE_AND_ASSIGN[2, rVar, iVal]{
-  // NOTE: initialization of coroutines has been moved into the ENUMERATE_AND_ASSIGN1 body
   // NOTE: apparently, we have an example of stackful coroutines here
   typeswitch(iVal) {
     case list:         ENUMERATE_AND_ASSIGN1(create(ENUM_LIST,   iVal), rVar);
@@ -139,7 +122,7 @@ coroutine ENUMERATE_AND_ASSIGN[2, rVar, iVal]{
 }
 
 coroutine ENUMERATE_CHECK_AND_ASSIGN1[3, enumerator, typ, rVar, iElm]{
-   enumerator = init(enumerator, ref iElm); // NOTE: reflects the fact that all ENUM declarations get an extra parameter
+   enumerator = init(enumerator, ref iElm); 
    while(next(enumerator)){
      if(subtype(typeOf(iElm), typ)){
      	yield iElm;
@@ -148,7 +131,6 @@ coroutine ENUMERATE_CHECK_AND_ASSIGN1[3, enumerator, typ, rVar, iElm]{
 }
 
 coroutine ENUMERATE_CHECK_AND_ASSIGN[3, typ, rVar, iVal]{
-  // NOTE: initialization of coroutines has been moved into the ENUMERATE_CHECK_AND_ASSIGN1 body
   // NOTE: apparently, we have an example of stackful coroutines here
   typeswitch(iVal){
     case list:         ENUMERATE_CHECK_AND_ASSIGN1(create(ENUM_LIST,   iVal), typ, rVar);
@@ -216,7 +198,7 @@ coroutine MATCH[2, pat, iSubject, cpat]{
    };
 }
 
-coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{ // NOTE: fixed semantics
+coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
    plen = size_array(pats);
    slen = size_array(subjects);
    guard plen == slen;
@@ -309,32 +291,33 @@ coroutine MATCH_AS_TYPE[3, typ, pat, iSubject]{ // NOTE: example of stackful cor
 }
 
 coroutine MATCH_ANTI[2, pat, iSubject, cpat]{
-	cpat = init(pat, iSubject);
-	if(next(cpat)) {
-	   exhaust;
-	} else {
-	   return;
-	};
+	   cpat = init(pat, iSubject);
+   	if(next(cpat)) {
+	      exhaust;
+	   } else {
+	     return;
+   	};
 }
 
 // ***** List matching *****
 
-coroutine MATCH_LIST[2, pats,   					// A list of coroutines to match list elements
-					    iSubject,					// The subject list
+coroutine MATCH_LIST[2, 
+    pats,       					// A list of coroutines to match list elements
+					    iSubject,					  // The subject list
 					   
-					    patlen,						// Length of pattern list
-					    patlen1,					// patlen - 1
-					    sublen,						// Length of subject list
-					    p,							// Cursor in patterns
-					    cursor,						// Cursor in subject
-					    matcher,					// Currently active pattern matcher
-					    matchers,					// List of currently active pattern matchers
-					    nextCursor					// Cursor movement of last successfull match
-					 ]{
+					    patlen,						    // Length of pattern list
+					    patlen1,					   // patlen - 1
+					    sublen,						    // Length of subject list
+					    p,							         // Cursor in patterns
+					    cursor,						    // Cursor in subject
+					    matcher,					   // Currently active pattern matcher
+					    matchers,  					// List of currently active pattern matchers
+					    nextCursor							 // Cursor movement of last successfull match
+					    ]{
      guard iSubject is list;
      
      patlen   = size_array(pats);
-     patlen1 =  patlen - 1;
+     patlen1  =  patlen - 1;
      sublen   = size_list(iSubject);
      p        = 0; 
      cursor   = 0;
@@ -343,8 +326,8 @@ coroutine MATCH_LIST[2, pats,   					// A list of coroutines to match list eleme
      set_array matchers[0] = matcher;
      
      while(true) {
-     	// Move forward
-     	while(next(matcher)) {
+     	   // Move forward
+        	while(next(matcher)) {
             cursor = nextCursor;
             if((p == patlen1) && (cursor == sublen)) {
                 yield; 
@@ -368,45 +351,41 @@ coroutine MATCH_LIST[2, pats,   					// A list of coroutines to match list eleme
 
 // All coroutines that may occur in a list pattern have the following parameters:
 // - pat: the actual pattern to match one or more elements
+// - iSubject: the subject list
 // - start: the start index in the subject list
+// - rNext: reference variable to return next cursor position
 // - available: the number of remaining, unmatched, elements in the subject list
 
 coroutine MATCH_PAT_IN_LIST[5, pat, iSubject, start, rNext, available, cpat]{ 
-   // NOTE: added an extra parameter 'rNext'
     guard available > 0;
     cpat = init(pat, get_list iSubject[start]);
     
-    // NOTE: replaced 'return' with 'yield'
     while(next(cpat)) {
        yield start + 1;   
     };
 } 
 
 coroutine MATCH_VAR_IN_LIST[5, rVar, iSubject, start, rNext, available]{
-   // NOTE: added an extra parameter 'rNext'
    guard available > 0;
    // NOTE: an example of multi argument 'return'! (could not have been replaced with one reference due to the create-init design)
    return(get_list iSubject[start], start + 1);
 }
 
 coroutine MATCH_ANONYMOUS_VAR_IN_LIST[4, iSubject, start, rNext, available]{
-   // Note: added an extra parameter 'rNext'
    guard available > 0;
    return start + 1;
 }
 
 coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iSubject, start, rNext, available, len]{
-	// NOTE: added an extra parameter 'rNext'
     len = 0;
     // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
     while(len <= available) {
         yield(sublist(iSubject, start, len), start + len);
         len = len + 1;
-     };
+    };
 }
 
 coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[4, iSubject, start, rNext, available, len]{
-	// NOTE: added an extra parameter 'rNext'
     len = 0;
     while(len <= available){
         yield start + len;
@@ -415,8 +394,7 @@ coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[4, iSubject, start, rNext, available,
 }
 
 coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iSubject, start, rNext, available, len]{
-	// NOTE: added an extra parameter 'rNext'
-	guard subtype(typeOf(iSubject), typ);
+	    guard subtype(typeOf(iSubject), typ);
     len = 0;
     // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
     while(len <= available){
@@ -426,8 +404,7 @@ coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iSubject, start, rNext, ava
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iSubject, start, rNext, available, len]{
-	// NOTE: added an extra parameter 'rNext'
-	guard subtype(typeOf(iSubject), typ);
+    	guard subtype(typeOf(iSubject), typ);
     len = 0;
     while(len <= available){
         yield start + len;
@@ -437,21 +414,22 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iSubject, start, rNext,
 
 // ***** SET matching *****
 
-coroutine MATCH_SET[2, pair,	   					// A pair of literals, and patterns (other patterns first, multivars last) to match set elements
-					   iSubject,					// The subject set
+coroutine MATCH_SET[2, 
+    pair,	   					    // A pair of literals, and patterns (other patterns first, multivars last) to match set elements
+					    iSubject,   					// The subject set
 					   
-					   iLiterals,					// The literals that occur in the set pattern
-					   pats,						// the patterns
-					   subject1,					// subject minus literals as mset
-					   patlen,						// Length of pattern list
-					   patlen1,						// patlen - 1
-					   p,							// Cursor in patterns
-					   current,						// Current mset to be matched
-					   matcher,						// Currently active pattern matcher
-					   matchers,					// List of currently active pattern matchers
-					   remaining					// Remaining mset as determined by last successfull match
-					]{
-	  guard iSubject is set;
+					    iLiterals,  					// The literals that occur in the set pattern
+					    pats,						       // the patterns
+					    subject1,   					// subject minus literals as mset
+					    patlen,						     // Length of pattern list
+					    patlen1,    						// patlen - 1
+					    p,          							// Cursor in patterns
+					    current,						    // Current mset to be matched
+					    matcher,    						// Currently active pattern matcher
+					    matchers,   					// List of currently active pattern matchers
+					    remaining					   // Remaining mset as determined by last successfull match
+					    ]{
+	    guard iSubject is set;
 	  
       iLiterals = get_array pair[0];
       pats      = get_array pair[1];
@@ -481,7 +459,7 @@ coroutine MATCH_SET[2, pair,	   					// A pair of literals, and patterns (other 
      	
       while(true){
           // Move forward
-     	  while(next(matcher)){
+     	    while(next(matcher)){
               current = remaining;
               if((p == patlen1) && (size_mset(current) == 0)) {
                   yield; 
@@ -517,10 +495,11 @@ coroutine ENUM_MSET[2, set, rElm, iLst, len, j]{
 // All coroutines that may occur in a set pattern have the following parameters:
 // - pat: the actual pattern to match one or more elements
 // - available: the remaining, unmatched, elements in the subject set
+// - rRemaining: reference parameter to return remaining set elements
 
 coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
-	// NOTE: added an extra parameter
-	guard size_mset(available) > 0;
+
+	    guard size_mset(available) > 0;
     
     gen = init(create(ENUM_MSET, available, ref elm));
     while(next(gen)) {
@@ -533,65 +512,61 @@ coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
 }
 
 coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
-	// NOTE: added an extra parameter
-	guard size_mset(available) > 0;
+	    guard size_mset(available) > 0;
  
     gen = init(create(ENUM_MSET, available, ref elm));
     while(next(gen)) {
-	    yield(elm, mset_destructive_subtract_elm(available, elm));
-	    available = mset_destructive_add_elm(available, elm);
+	          yield(elm, mset_destructive_subtract_elm(available, elm));
+	          available = mset_destructive_add_elm(available, elm);
     };
 }
 
 coroutine MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRenaming, gen, elm]{
-	// NOTE: added an extra parameter
-	guard size_set(available) > 0;
+	    guard size_set(available) > 0;
     
     gen = init(create(ENUM_MSET, available, ref elm));
     while(next(gen)) { 
-        yield mset_destructive_subtract_elm(available, elm);
-        available = mset_destructive_add_elm(available, elm);
+          yield mset_destructive_subtract_elm(available, elm);
+          available = mset_destructive_add_elm(available, elm);
    };
 }
 
 coroutine MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
-	// NOTE: added an extra parameter
     gen = init(create(ENUM_SUBSETS, available, ref subset));
     while(next(gen)) {
-	    yield(set(subset), mset_destructive_subtract_mset(available, subset));
-	    available = mset_destructive_add_mset(available, subset);
+	          yield(set(subset), mset_destructive_subtract_mset(available, subset));
+	          available = mset_destructive_add_mset(available, subset);
     };
 }
 
 coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]{
-	// NOTE: added an extra parameter
     gen = init(create(ENUM_SUBSETS, available, ref subset));
     while(next(gen)) {
-	    yield mset_destructive_subtract_mset(available, subset);
-	    available = mset_destructive_add_mset(available, subset);
+	          yield mset_destructive_subtract_mset(available, subset);
+	          available = mset_destructive_add_mset(available, subset);
     };
 }
 
 coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset]{
-	// NOTE: added an extra parameter
-	guard subtype(typeOf(available), typ);
+
+	    guard subtype(typeOf(available), typ);
     
     gen = init(create(ENUM_SUBSETS, available, ref subset));
-	while(next(gen)) {
-	    yield(set(subset), mset_destructive_subtract_mset(available, subset));
-	    available = mset_destructive_add_mset(available, subset);
-	};
+    	while(next(gen)) {
+	          yield(set(subset), mset_destructive_subtract_mset(available, subset));
+	          available = mset_destructive_add_mset(available, subset);
+    	};
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
-	// NOTE: added an extra parameter
-	guard subtype(typeOf(available), typ);
+
+    	guard subtype(typeOf(available), typ);
     
     gen = init(create(ENUM_SUBSETS, available));
     while(next(gen)) {
-        yield mset_destructive_subtract_mset(available, subset);
-	    available = mset_destructive_add_mset(available, subset);
-	};
+          yield mset_destructive_subtract_mset(available, subset);
+	          available = mset_destructive_add_mset(available, subset);
+	    };
 }
 
 // The power set of a set of size n has 2^n-1 elements 
@@ -601,7 +576,6 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, g
 // ith subset 
  
 coroutine ENUM_SUBSETS[2, set, rSubset, lst, k, j, last, elIndex, sub]{
-	// NOTE: added an extra parameter
     lst = mset2list(set); 
     last = 2 pow size_mset(set);
     k = last - 1;
