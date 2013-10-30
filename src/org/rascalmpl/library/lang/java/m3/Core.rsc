@@ -109,11 +109,6 @@ M3 includeJarRelations(M3 project, set[M3] jarRels = {}) {
   return composeJavaM3(project.id, rels);
 }
 
-private set[loc] getPaths(loc dir, str suffix) { 
-   bool containsFile(loc d) = isDirectory(d) ? (x <- d.ls && x.extension == suffix) : false;
-   return find(dir, containsFile);
-}
-
 bool isCompilationUnit(loc entity) = entity.scheme == "java+compilationUnit";
 bool isPackage(loc entity) = entity.scheme == "java+package";
 bool isClass(loc entity) = entity.scheme == "java+class";
