@@ -130,36 +130,54 @@ MuExp getConstructor(str cons) {
    for(c <- constructors){
      //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <uid2str(c)>");
      if(cons == getSimpleName(config.store[c].name)){
-        println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
+        //println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
         uid = c;
         break;
      }
    }
-   println("uid = <uid>");
-   
-   res = muConstr(fuid2str[uid]);
-   println("res = <res>");
-   
-   return res;
+   if(uid < 0)
+      throw("No definition for constructor: <cons>");
+   return muConstr(fuid2str[uid]);
+}
+/*
+data Tree 
+     = appl(Production prod, list[Tree] args)
+     | cycle(Symbol symbol, int cycleLength) 
+     | amb(set[Tree] alternatives)  
+     | char(int character)
+     ;
+     
+lexical Concrete 
+  = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
+
+lexical ConcretePart
+  = @category="MetaSkipped" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
+  | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
+  | @category="MetaVariable" hole : ConcreteHole hole
+  | @category="MetaSkipped" lt: "\\\<"
+  | @category="MetaSkipped" gt: "\\\>"
+  | @category="MetaSkipped" bq: "\\`"
+  | @category="MetaSkipped" bs: "\\\\"
+  ;
+  
+syntax ConcreteHole 
+  = \one: "\<" Sym symbol Name name "\>"
+  ;
+*/
+
+MuExp translateConcrete(e:(ConcreteHole) `\< <Sym symbol> <Name name> \>`){
+  println("***** ConcreteHole, name: <name>");
+  iprint(e);
+  return muCallPrim("list_subscript_int", [muCallPrim("adt_field_access", [mkVar("<name>", name@\loc), muCon("args")]), muCon(7)]);
 }
 
-MuExp translateConcrete(node parseTree){
-   // ignore kw arguments for the moment
-   
-   cons = getName(parseTree);
-   MuExp receiver =  getConstructor(cons);
-   
-  for(a <- getChildren(parseTree)){
-    println("type: <typeOf(a)>, arg: <a>");
-  }
-   list[MuExp] args = [ translateConcrete(a) | a <- getChildren(parseTree) ];
-   
-   return muOCall(receiver, args);
-   
-   //if(getOuterType(expression) == "loc"){
-   //    return muCallPrim("loc_with_offset_create", [receiver, *args]);
-   //}
+default MuExp translateConcrete(e: appl(Production prod, list[Tree] args)){
+   //MuExp receiver =  getConstructor("appl");
+   //return muCall(receiver, [muCon(prod), muCallPrim("list_create",  [ translateConcrete(a) | a <- args ])]);
+    return muCallPrim("parse_fragment", [muCon(getModuleName()), muCon(e), muCon(e@\loc)]);
 }
+
+default MuExp translateConcrete(t) = muCon(t);
 
 // Block
 MuExp translate(e:(Expression) `{ <Statement+ statements> }`) = muBlock([translate(stat) | stat <- statements]);
