@@ -466,6 +466,7 @@ public enum RascalPrimitive {
 	// parse
 	
 	parse,
+	parse_fragment,
 
 	// println
 	
@@ -4934,10 +4935,22 @@ public enum RascalPrimitive {
 		IConstructor type = (IConstructor) stack[sp - 2];
 		IString s = ((IString) stack[sp - 1]);
 	
-		IValue tree = parsingTools.parse(module_name, type, s);
+		stack[sp - 3] = parsingTools.parse(module_name, type, s);
+		return sp - 2;
+	}
+	
+	public static int parse_fragment(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		IString module_name = (IString) stack[sp - 3];
+		IConstructor ctree = (IConstructor) stack[sp - 2];
+		ISourceLocation loc = ((ISourceLocation) stack[sp - 1]);
+	
+		IValue tree = parsingTools.parseFragment(module_name, ctree, loc.getURI());
 		stack[sp - 3] = tree;
 		return sp - 2;
 	}
+	
+	
 
 	/*
 	 * println
