@@ -171,8 +171,11 @@ MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
 
 // List pattern 
 
-MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) =
-    muCreate(mkCallToLibFun("Library","MATCH_LIST",2), [muCallMuPrim("make_array", [ translatePatAsListElem(pat) | pat <- pats ])]);
+MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
+    lookahead = computeLookahead(p);  
+    lpats = [pat | pat <- pats];   //TODO: should be unnnecessary
+    return muCreate(mkCallToLibFun("Library","MATCH_LIST",2), [muCallMuPrim("make_array", [ translatePatAsListElem(lpats[i], lookahead[i]) | i <- index(lpats) ])]);
+}
 
 // Variable becomes pattern
 
@@ -217,7 +220,28 @@ default MuExp translatePatinDescendant(Pattern p) = translatePat(p);
 /*                  List Pattern                                     */
 /*********************************************************************/
 
-MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`) {
+bool isListVar(p:(Pattern) `<QualifiedName name>*`) = true;
+bool isListVar(p:(Pattern) `*<Type tp> <Name name>`) = true;
+bool isListVar(p:(Pattern) `*<Name name>`) = true;
+default bool isListVar(Pattern p) = false;
+
+alias Lookahead = tuple[int nElem, int nList];
+
+list[Lookahead] computeLookahead((Pattern) `[<{Pattern ","}* pats>]`){
+    nElem = 0;
+    nList = 0;
+    rprops = for(p <- reverse([p | p <- pats])){
+                 append <nElem, nList>;
+                 if(isListVar(p)) nList += 1; else nElem += 1;
+             };
+             
+    println("computeLookahead: <pats> ===\> <reverse(rprops)>");
+    return reverse(rprops);
+}
+
+str isLast(Lookahead lookahead) = lookahead.nList == 0 ? "LAST_" : "";
+
+MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead lookahead) {
    if("<name>" == "_"){
        return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_LIST",4), []);
    }
@@ -225,35 +249,35 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`) {
    return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_LIST",5), [muVarRef("<name>", fuid, pos)]);
 } 
 
-MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`) {
+MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`, Lookahead lookahead) {
    if("<name>" == "_"){
-       return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_MULTIVAR_IN_LIST",4), []);
+       return muCreate(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>ANONYMOUS_MULTIVAR_IN_LIST",5), [muCon(lookahead.nElem)]);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_LIST",5), [muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>MULTIVAR_IN_LIST",6), [muVarRef("<name>", fuid, pos), muCon(lookahead.nElem)]);
 }
 
-MuExp translatePatAsListElem(p:(Pattern) `*<Type tp> <Name name>`) {
+MuExp translatePatAsListElem(p:(Pattern) `*<Type tp> <Name name>`, Lookahead lookahead) {
    if("<name>" == "_"){
-      return muCreate(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST",5), [muTypeCon(\list(translateType(tp)))]);
+      return muCreate(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>TYPED_ANONYMOUS_MULTIVAR_IN_LIST",6), [muTypeCon(\list(translateType(tp))), muCon(lookahead.nElem)]);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_TYPED_MULTIVAR_IN_LIST",6), [muTypeCon(\list(translateType(tp))), muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>TYPED_MULTIVAR_IN_LIST",7), [muTypeCon(\list(translateType(tp))), muVarRef("<name>", fuid, pos), muCon(lookahead.nElem)]);
 }
 
-MuExp translatePatAsListElem(p:(Pattern) `*<Name name>`) {
+MuExp translatePatAsListElem(p:(Pattern) `*<Name name>`, Lookahead lookahead) {
    if("<name>" == "_"){
-      return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_MULTIVAR_IN_LIST",4), []);
+      return muCreate(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>ANONYMOUS_MULTIVAR_IN_LIST",5), [muCon(lookahead.nElem)]);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_LIST",5), [muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>MULTIVAR_IN_LIST",6), [muVarRef("<name>", fuid, pos), muCon(lookahead.nElem)]);
 } 
 
-MuExp translatePatAsListElem(p:(Pattern) `+<Pattern argument>`) {
+MuExp translatePatAsListElem(p:(Pattern) `+<Pattern argument>`, Lookahead lookahead) {
   throw "splicePlus pattern";
 }   
 
-default MuExp translatePatAsListElem(Pattern p) {
+default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead) {
   return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_LIST",5), [translatePat(p)]);
 }
 
