@@ -581,6 +581,10 @@ coroutine MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
     };
 }
 
+coroutine MATCH_LAST_MULTIVAR_IN_SET[3, rVar, available, rRemaining]{
+    return(set(available), mset_empty());
+}
+
 coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]{
     gen = init(create(ENUM_SUBSETS, available, ref subset));
     while(next(gen)) {
@@ -589,8 +593,11 @@ coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]
     };
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset]{
+coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining]{
+    return(set(available), mset_empty());
+}
 
+coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset]{
 	    guard subtype(typeOf(available), typ);
     
     gen = init(create(ENUM_SUBSETS, available, ref subset));
@@ -600,8 +607,12 @@ coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, 
     	};
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
+coroutine MATCH_LAST_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining]{
+	    guard subtype(typeOf(available), typ);
+    return(set(available), mset_empty());
+}
 
+coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
     	guard subtype(typeOf(available), typ);
     
     gen = init(create(ENUM_SUBSETS, available));
@@ -609,6 +620,11 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, g
           yield mset_destructive_subtract_mset(available, subset);
 	          available = mset_destructive_add_mset(available, subset);
 	    };
+}
+
+coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
+    	guard subtype(typeOf(available), typ);
+    return mset_empty();
 }
 
 // The power set of a set of size n has 2^n-1 elements 
