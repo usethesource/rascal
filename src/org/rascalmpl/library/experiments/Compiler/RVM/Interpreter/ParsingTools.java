@@ -358,57 +358,56 @@ public class ParsingTools {
 	
 	// From import.java
 	
-	 /**
-	   * This function will reconstruct a parse tree of a module, where all nested concrete syntax fragments
-	   * have been parsed and their original flat literal strings replaced by fully structured parse trees.
-	   * 
-	   * @param module is a parse tree of a Rascal module containing flat concrete literals
-	   * @param parser is the parser to use for the concrete literals
-	   * @return parse tree of a module with structured concrete literals, or parse errors
-	   */
-	  public IConstructor parseFragments(final IEvaluator<Result<IValue>> eval, IConstructor module, final URI location, final ModuleEnvironment env) {
-	    // TODO: update source code locations!!
-	    
-	     return (IConstructor) module.accept(new IdentityTreeVisitor<ImplementationError>() {
-	       final IValueFactory vf = eval.getValueFactory();
-	       
-	       @Override
-	       public IConstructor visitTreeAppl(IConstructor tree)  {
-	         IConstructor pattern = getConcretePattern(tree);
-	         
-	         if (pattern != null) {
-	           IConstructor parsedFragment = parseFragment(env, (IConstructor) TreeAdapter.getArgs(tree).get(0), location);
-	           return TreeAdapter.setArgs(tree, vf.list(parsedFragment));
-	         }
-	         else {
-	           IListWriter w = vf.listWriter();
-	           IList args = TreeAdapter.getArgs(tree);
-	           for (IValue arg : args) {
-	             w.append(arg.accept(this));
-	           }
-	           args = w.done();
-	           
-	           return TreeAdapter.setArgs(tree, args);
-	         }
-	       }
-
-	       private IConstructor getConcretePattern(IConstructor tree) {
-	         String sort = TreeAdapter.getSortName(tree);
-	         if (sort.equals("Expression") || sort.equals("Pattern")) {
-	           String cons = TreeAdapter.getConstructorName(tree);
-	           if (cons.equals("concrete")) {
-	             return (IConstructor) TreeAdapter.getArgs(tree).get(0);
-	           }
-	         }
-	         return null;
-	      }
-
-	      @Override
-	       public IConstructor visitTreeAmb(IConstructor arg) {
-	         throw new ImplementationError("unexpected ambiguity: " + arg);
-	       }
-	     });
-	  }
+//	 /**
+//	   * This function will reconstruct a parse tree of a module, where all nested concrete syntax fragments
+//	   * have been parsed and their original flat literal strings replaced by fully structured parse trees.
+//	   * 
+//	   * @param module is a parse tree of a Rascal module containing flat concrete literals
+//	   * @param parser is the parser to use for the concrete literals
+//	   * @return parse tree of a module with structured concrete literals, or parse errors
+//	   */
+//	  public IConstructor parseFragments(final IEvaluator<Result<IValue>> eval, IConstructor module, final URI location, final ModuleEnvironment env) {
+//	    // TODO: update source code locations!!
+//	    
+//	     return (IConstructor) module.accept(new IdentityTreeVisitor<ImplementationError>() {
+//	       
+//	       @Override
+//	       public IConstructor visitTreeAppl(IConstructor tree)  {
+//	         IConstructor pattern = getConcretePattern(tree);
+//	         
+//	         if (pattern != null) {
+//	           IConstructor parsedFragment = parseFragment((IConstructor) TreeAdapter.getArgs(tree).get(0), location);
+//	           return TreeAdapter.setArgs(tree, vf.list(parsedFragment));
+//	         }
+//	         else {
+//	           IListWriter w = vf.listWriter();
+//	           IList args = TreeAdapter.getArgs(tree);
+//	           for (IValue arg : args) {
+//	             w.append(arg.accept(this));
+//	           }
+//	           args = w.done();
+//	           
+//	           return TreeAdapter.setArgs(tree, args);
+//	         }
+//	       }
+//
+//	       private IConstructor getConcretePattern(IConstructor tree) {
+//	         String sort = TreeAdapter.getSortName(tree);
+//	         if (sort.equals("Expression") || sort.equals("Pattern")) {
+//	           String cons = TreeAdapter.getConstructorName(tree);
+//	           if (cons.equals("concrete")) {
+//	             return (IConstructor) TreeAdapter.getArgs(tree).get(0);
+//	           }
+//	         }
+//	         return null;
+//	      }
+//
+//	      @Override
+//	       public IConstructor visitTreeAmb(IConstructor arg) {
+//	         throw new ImplementationError("unexpected ambiguity: " + arg);
+//	       }
+//	     });
+//	  }
 	  
 	  @SuppressWarnings("unchecked")
 	  public IGTD<IConstructor, IConstructor, ISourceLocation> getParser(String name, URI loc, boolean force, IMap syntax) {
@@ -456,13 +455,15 @@ public class ParsingTools {
 	      throw new ImplementationError(e.getMessage(), e);
 	    }
 	  }
+	  
+	  private boolean getBootstrap() { return false; }
 
-	private IConstructor parseFragment(ModuleEnvironment env, IConstructor tree, URI uri) {
+	IConstructor parseFragment(IString name, IConstructor tree, URI uri) {
 	    IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
 	    IConstructor lit = TreeAdapter.getArg(tree, "parts");
 	    Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
 	    
-	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser("XXX", TreeAdapter.getLocation(tree).getURI(), false, null);
+	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap() ? new RascalParser() : getParser(name.getValue(), TreeAdapter.getLocation(tree).getURI(), false, null);
 	    
 	    try {
 	      String parserMethodName = getParserGenerator().getParserMethodName(symTree);
