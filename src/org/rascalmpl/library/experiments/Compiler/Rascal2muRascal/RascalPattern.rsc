@@ -220,26 +220,26 @@ default MuExp translatePatinDescendant(Pattern p) = translatePat(p);
 /*                  List Pattern                                     */
 /*********************************************************************/
 
-bool isListVar(p:(Pattern) `<QualifiedName name>*`) = true;
-bool isListVar(p:(Pattern) `*<Type tp> <Name name>`) = true;
-bool isListVar(p:(Pattern) `*<Name name>`) = true;
-default bool isListVar(Pattern p) = false;
+bool isMultiVar(p:(Pattern) `<QualifiedName name>*`) = true;
+bool isMultiVar(p:(Pattern) `*<Type tp> <Name name>`) = true;
+bool isMultiVar(p:(Pattern) `*<Name name>`) = true;
+default bool isMultiVar(Pattern p) = false;
 
-alias Lookahead = tuple[int nElem, int nList];
+alias Lookahead = tuple[int nElem, int nMultiVar];
 
 list[Lookahead] computeLookahead((Pattern) `[<{Pattern ","}* pats>]`){
     nElem = 0;
-    nList = 0;
+    nMultiVar = 0;
     rprops = for(p <- reverse([p | p <- pats])){
-                 append <nElem, nList>;
-                 if(isListVar(p)) nList += 1; else nElem += 1;
+                 append <nElem, nMultiVar>;
+                 if(isMultiVar(p)) nMultiVar += 1; else nElem += 1;
              };
              
     println("computeLookahead: <pats> ===\> <reverse(rprops)>");
     return reverse(rprops);
 }
 
-str isLast(Lookahead lookahead) = lookahead.nList == 0 ? "LAST_" : "";
+str isLast(Lookahead lookahead) = lookahead.nMultiVar == 0 ? "LAST_" : "";
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead lookahead) {
    if("<name>" == "_"){
@@ -287,7 +287,9 @@ default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead) {
 
 // Translate patterns as element of a set pattern
 
-MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`) {
+str isLast(bool b) = b ? "LAST_" : "";
+
+MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`, bool last) {
    if("<name>" == "_"){
       return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_SET",2), []);
    }
@@ -295,35 +297,35 @@ MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`) {
    return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_SET",3), [muVarRef("<name>", fuid, pos)]);
 } 
 
-MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`) {
+MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last) {
    if("<name>" == "_"){
-      return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_MULTIVAR_IN_SET",2), []);
+      return muCreate(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET",2), []);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_SET",3), [muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_<isLast(last)>MULTIVAR_IN_SET",3), [muVarRef("<name>", fuid, pos)]);
 }
 
-MuExp translatePatAsSetElem(p:(Pattern) `*<Type tp> <Name name>`) {
+MuExp translatePatAsSetElem(p:(Pattern) `*<Type tp> <Name name>`, bool last) {
    if("<name>" == "_"){
-      return muCreate(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET",3), [muTypeCon(\set(translateType(tp)))]);
+      return muCreate(mkCallToLibFun("Library","MATCH_<isLast(last)>TYPED_ANONYMOUS_MULTIVAR_IN_SET",3), [muTypeCon(\set(translateType(tp)))]);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_TYPED_MULTIVAR_IN_SET",4), [muTypeCon(\set(translateType(tp))), muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_<isLast(last)>TYPED_MULTIVAR_IN_SET",4), [muTypeCon(\set(translateType(tp))), muVarRef("<name>", fuid, pos)]);
 }
 
-MuExp translatePatAsSetElem(p:(Pattern) `*<Name name>`) {
+MuExp translatePatAsSetElem(p:(Pattern) `*<Name name>`, bool last) {
    if("<name>" == "_"){
-      return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_MULTIVAR_IN_SET",2), []);
+      return muCreate(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET",2), []);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_SET",3), [muVarRef("<name>", fuid, pos)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_<isLast(last)>MULTIVAR_IN_SET",3), [muVarRef("<name>", fuid, pos)]);
 } 
 
-MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`) {
+MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`, bool last) {
   throw "splicePlus pattern";
 }   
 
-default MuExp translatePatAsSetElem(Pattern p) {
+default MuExp translatePatAsSetElem(Pattern p, bool last) {
   return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(p)]);
 }
 
@@ -340,18 +342,27 @@ MuExp translateMatch(p:(Pattern) `{<{Pattern ","}* pats>}`, Expression exp){
    multiVars = [];
    compiledMultiVars = [];
    otherPats = [];
-   for(pat <- pats){
+   int lastMulti = -1;
+   lpats = [pat | pat <- pats]; // TODO: unnnecessary
+   for(i <- [size(lpats) - 1 .. -1]){
+       if(lpats[i] is splice || lpats[i] is multiVariable){
+          lastMulti = i;
+          break;
+       }
+    }   
+   for(i <- index(lpats)){
+      pat = lpats[i];
       if(pat is literal){
          literals += pat.literal;
       } else if(pat is splice || pat is multiVariable){
          multiVars += pat;
-         compiledMultiVars += translatePatAsSetElem(pat);
+         compiledMultiVars += translatePatAsSetElem(pat, i == lastMulti);
       } else if(pat is qualifiedName){
          vars += pat;
-         compiledVars += translatePatAsSetElem(pat);
+         compiledVars += translatePatAsSetElem(pat, false);
       } else if(pat is typedVariable){
         vars += pat;
-        compiledVars += translatePatAsSetElem(pat);
+        compiledVars += translatePatAsSetElem(pat, false);
       } else {
         otherPats +=  muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(pat)]);
       }
@@ -481,22 +492,31 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
    compiledVars = [];
    compiledMultiVars = [];
    otherPats = [];
-   for(pat <- pats){
+   int lastMulti = -1;
+   lpats = [pat | pat <- pats]; // TODO: unnnecessary
+   for(i <- [size(lpats) - 1 .. -1]){
+       if(lpats[i] is splice || lpats[i] is multiVariable){
+          lastMulti = i;
+          break;
+       }
+    }   
+   for(i <- index(lpats)){
+      pat = lpats[i];
       if(pat is literal){
          literals += pat.literal;
       } else if(pat is splice || pat is multiVariable){
-         compiledMultiVars += translatePatAsSetElem(pat);
+         compiledMultiVars += translatePatAsSetElem(pat, i == lastMulti);
       } else if(pat is qualifiedName || pat is typedVariable){
-         compiledVars += translatePatAsSetElem(pat);
+         compiledVars += translatePatAsSetElem(pat, false);
       } else {
         otherPats +=  muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(pat)]);
       }
    }
    MuExp litCode;
    if(all(lit <- literals, isConstant(lit))){
-   		litCode = muCon({ getLiteralValue(lit) | lit <- literals });
+   		   litCode = muCon({ getLiteralValue(lit) | lit <- literals });
    } else {
-   		litCode = muCallPrim("set_create", [ translate(lit) | lit <- literals] );
+   		   litCode = muCallPrim("set_create", [ translate(lit) | lit <- literals] );
    }
    
    translatedPatterns = otherPats + compiledVars + compiledMultiVars;

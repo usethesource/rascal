@@ -69,6 +69,7 @@ public enum MuPrimitive {
 	mint,
 	modulo_mint_mint,
 	mset,
+	mset_empty(),
 //	mset_copy,
 	mset2list,
 	mset_destructive_add_elm,
@@ -733,6 +734,12 @@ public enum MuPrimitive {
 		}
 		stack[sp - 1] = mset;
 		return sp;
+	}
+	
+	public static int mset_empty(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		stack[sp] = new HashSet<IValue>(0);
+		return sp + 1;
 	}
 	
 	@SuppressWarnings("unchecked")
