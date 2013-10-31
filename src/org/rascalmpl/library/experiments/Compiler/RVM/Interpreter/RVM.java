@@ -931,7 +931,7 @@ public class RVM {
 								arity = instructions[pc++];
 								int[] refs = cf.function.refs;
 								if(arity != refs.length) {
-									throw new RuntimeException("The return within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
+									throw new RuntimeException("Coroutine " + cf.function.name + ": arity of return (" + arity  + ") unequal to number of reference parameters (" +  refs.length + ")");
 								}
 								for(int i = 0; i < arity; i++) {
 									ref = (Reference) stack[refs[arity - 1 - i]];
@@ -988,11 +988,11 @@ public class RVM {
 						Frame frame = new Frame(fun.scopeId, null, fun_instance.env, fun.maxstack, fun);
 						coroutine = new Coroutine(frame);
 					} else {
-						throw new RuntimeException("unexpected argument type for INIT: " + src.getClass() + ", " + src);
+						throw new RuntimeException("Unexpected argument type for INIT: " + src.getClass() + ", " + src);
 					}
 					
 					if(coroutine.isInitialized()) {
-						throw new RuntimeException("Trying to initialize a coroutine, which has been already initialized: " + fun.getName() + " (corounine's main), called in " + cf.function.getName());
+						throw new RuntimeException("Trying to initialize a coroutine, which has already been initialized: " + fun.getName() + " (corounine's main), called in " + cf.function.getName());
 					}
 					// the main function of coroutine may have formal parameters,
 					// therefore, INIT may take a number of arguments == formal parameters - arguments already passed to CREATE
