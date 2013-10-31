@@ -376,8 +376,9 @@ coroutine MATCH_ANONYMOUS_VAR_IN_LIST[4, iSubject, start, rNext, available]{
    return start + 1;
 }
 
-coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iSubject, start, rNext, available, len]{
+coroutine MATCH_MULTIVAR_IN_LIST[6, rVar, iLookahead, iSubject, start, rNext, available, len]{
     len = 0;
+    available = available - mint(iLookahead);
     // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
     while(len <= available) {
         yield(sublist(iSubject, start, len), start + len);
@@ -385,17 +386,38 @@ coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iSubject, start, rNext, available, len
     };
 }
 
-coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[4, iSubject, start, rNext, available, len]{
+coroutine MATCH_LAST_MULTIVAR_IN_LIST[6, rVar, iLookahead, iSubject, start, rNext, available, len]{
+    len = available - mint(iLookahead);
+    guard(len >= 0);
+    // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
+    while(len <= available) {
+        yield(sublist(iSubject, start, len), start + len);
+        len = len + 1;
+    };
+}
+
+coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[5, iLookahead, iSubject, start, rNext, available, len]{
     len = 0;
+    available = available - mint(iLookahead);
     while(len <= available){
         yield start + len;
         len = len + 1;
      };
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iSubject, start, rNext, available, len]{
+coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST[5, iLookahead, iSubject, start, rNext, available, len]{
+    len = available - mint(iLookahead);
+    guard(len >= 0);
+    while(len <= available){
+        yield start + len;
+        len = len + 1;
+     };
+}
+
+coroutine MATCH_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iLookahead, iSubject, start, rNext, available, len]{
 	    guard subtype(typeOf(iSubject), typ);
     len = 0;
+    available = available - mint(iLookahead);
     // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
     while(len <= available){
         yield(sublist(iSubject, start, len), start + len);
@@ -403,9 +425,29 @@ coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iSubject, start, rNext, ava
     };
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iSubject, start, rNext, available, len]{
+coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iLookahead, iSubject, start, rNext, available, len]{
+    len = available - mint(iLookahead);
+	    guard subtype(typeOf(iSubject), typ) && len >= 0;
+    // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
+    while(len <= available){
+        yield(sublist(iSubject, start, len), start + len);
+        len = len + 1;
+    };
+}
+
+coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iLookahead, iSubject, start, rNext, available, len]{
     	guard subtype(typeOf(iSubject), typ);
     len = 0;
+    available = available - mint(iLookahead);
+    while(len <= available){
+        yield start + len;
+        len = len + 1;
+    };
+}
+
+coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iLookahead, iSubject, start, rNext, available, len]{
+    len = available - mint(iLookahead);
+    	guard subtype(typeOf(iSubject), typ) && len >= 0;
     while(len <= available){
         yield start + len;
         len = len + 1;
