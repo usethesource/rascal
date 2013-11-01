@@ -26,6 +26,8 @@ import experiments::Compiler::Benchmarks::BFor;
 import experiments::Compiler::Benchmarks::BForCond;
 import experiments::Compiler::Benchmarks::BListMatch1;
 import experiments::Compiler::Benchmarks::BListMatch2;
+import experiments::Compiler::Benchmarks::BListMatch3;
+import experiments::Compiler::Benchmarks::BMarriage;
 import experiments::Compiler::Benchmarks::BReverse1;
 import experiments::Compiler::Benchmarks::BSet1;
 import experiments::Compiler::Benchmarks::BSetMatch1;
@@ -114,6 +116,8 @@ void main(){
   run("BForCond", experiments::Compiler::Benchmarks::BForCond::main);
   run("BListMatch1", experiments::Compiler::Benchmarks::BListMatch1::main);
   run("BListMatch2", experiments::Compiler::Benchmarks::BListMatch2::main);
+  run("BListMatch3", experiments::Compiler::Benchmarks::BListMatch3::main);
+  run("BMarriage", experiments::Compiler::Benchmarks::BMarriage::main);
   run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
   run("BSet1", experiments::Compiler::Benchmarks::BSet1::main);
   run("BSetMatch1", experiments::Compiler::Benchmarks::BSetMatch1::main);
