@@ -41,11 +41,11 @@ list[Declaration] parseMuLibrary(){
 }
 
 tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false){
-   imported_types = ();
-   imported_functions = [];
-   imported_overloaded_functions = [];
-   imported_overloading_resolvers = ();
-   imported_grammars = ();
+   map[str,Symbol] imported_types = ();
+   list[Declaration] imported_functions = [];
+   lrel[str,list[str],list[str]] imported_overloaded_functions = [];
+   map[str,int] imported_overloading_resolvers = ();
+   map[str,map[Symbol,Production]] imported_grammars = ();
    
     if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
      try {
