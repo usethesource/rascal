@@ -112,6 +112,7 @@ public enum MuPrimitive {
 	static Method [] methods;
 	
 	private static MuPrimitive[] values = MuPrimitive.values();
+	private static HashSet<IValue> emptyMset = new HashSet<IValue>(0);
 
 	public static MuPrimitive fromInteger(int muprim){
 		return values[muprim];
@@ -728,7 +729,8 @@ public enum MuPrimitive {
 	public static int mset(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		ISet set =  ((ISet) stack[sp - 1]);
-		HashSet<IValue> mset = new HashSet<IValue>(set.size());
+		int n = set.size();
+		HashSet<IValue> mset = n > 0 ? new HashSet<IValue>(set.size()) : emptyMset;
 		for(IValue v : set){
 			mset.add(v);
 		}
@@ -738,7 +740,7 @@ public enum MuPrimitive {
 	
 	public static int mset_empty(Object[] stack, int sp, int arity) {
 		assert arity == 0;
-		stack[sp] = new HashSet<IValue>(0);
+		stack[sp] = emptyMset;
 		return sp + 1;
 	}
 	
