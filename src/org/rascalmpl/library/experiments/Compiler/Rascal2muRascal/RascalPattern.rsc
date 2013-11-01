@@ -335,6 +335,7 @@ bool isConstant(StringLiteral l) = l is nonInterpolated;
 bool isConstant(LocationLiteral l) = l.protocolPart is nonInterpolated && l.pathPart is nonInterpolated;
 default bool isConstant(Literal l) = true;
 
+/*
 MuExp translateMatch(p:(Pattern) `{<{Pattern ","}* pats>}`, Expression exp){
    literals = [];
    vars = [];
@@ -486,6 +487,7 @@ MuExp translateMatch(p:(Pattern) `{<{Pattern ","}* pats>}`, Expression exp){
                                                                                            
    return muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [patCode, translate(exp)]));
 }
+*/
 
 MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
    literals = [];
