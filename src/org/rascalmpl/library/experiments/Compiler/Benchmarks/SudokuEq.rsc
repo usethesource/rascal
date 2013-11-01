@@ -1,8 +1,11 @@
 module experiments::Compiler::Benchmarks::SudokuEq
 
-import Number;
+import util::Math;
+import Exception;
 import IO;
 import List;
+import lang::logic::\syntax::Propositions;
+import lang::dimacs::\syntax::Dimacs;
 import lang::dimacs::IO;
 
 public int s(int x, int y, int z) {return x*81+y*9+z+1;}
@@ -53,5 +56,5 @@ public void main() {
     list[list[int]] r = full()+rowFull()+colFull()
            +subgridFull1()+subgridFull2();
     println(size(r));
-    writeDimacsCnf(|project://aap/src/u.cnf|, r, 729);
+    // writeDimacsCnf(|project://aap/src/u.cnf|, r, 729);
 }
