@@ -5049,6 +5049,11 @@ public enum RascalPrimitive {
 		IValue[] indices = new IValue[indexArity];
 		for(int i = 0; i < indexArity; i++ ){
 			indices[i] = (IValue) stack[sp - arity + i + 1];
+			if(indices[i].getType().isString()){
+				String s = ((IString) indices[i]).getValue();
+				if(s.equals("_"))
+					indices[i] = null;
+			}
 		}
 		IValue[] elems = new  IValue[resArity];
 		ISetWriter w = vf.setWriter();
@@ -5057,7 +5062,8 @@ public enum RascalPrimitive {
 			ITuple tup = (ITuple) vtup;
 			for(int i = 0; i < indexArity; i++){
 				if(!tup.get(i).isEqual(indices[i])){
-					continue NextTuple;
+					if(indices[i] != null)
+						continue NextTuple;
 				}
 			}
 			for(int i = 0; i < resArity; i++){
@@ -5080,6 +5086,11 @@ public enum RascalPrimitive {
 		IValue[] indices = new IValue[indexArity];
 		for(int i = 0; i < indexArity; i++ ){
 			indices[i] = (IValue) stack[sp - arity + i + 1];
+			if(indices[i].getType().isString()){
+				String s = ((IString) indices[i]).getValue();
+				if(s.equals("_"))
+					indices[i] = null;
+			}
 		}
 		IValue[] elems = new  IValue[resArity];
 		IListWriter w = vf.listWriter();
@@ -5088,7 +5099,8 @@ public enum RascalPrimitive {
 			ITuple tup = (ITuple) vtup;
 			for(int i = 0; i < indexArity; i++){
 				if(!tup.get(i).isEqual(indices[i])){
-					continue NextTuple;
+					if(indices[i] != null)
+						continue NextTuple;
 				}
 			}
 			for(int i = 0; i < resArity; i++){

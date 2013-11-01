@@ -331,7 +331,7 @@ MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+
     if(ot notin {"map", "rel", "lrel"}) {
     	   op = "<getOuterType(exp)>_subscript_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     }
-    return muCallPrim(op, translate(exp) + [translate(s) | s <- subscripts]);
+    return muCallPrim(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts]);
 }
 
 // Slice
