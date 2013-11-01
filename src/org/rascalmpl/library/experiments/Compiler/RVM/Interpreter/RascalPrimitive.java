@@ -531,6 +531,10 @@ public enum RascalPrimitive {
 	setwriter_open,
 	setwriter_splice,
 	
+	// subscript
+	lrel_subscript,
+	rel_subscript,
+	
 	// str
 	
 	str_subscript_int,
@@ -5033,6 +5037,67 @@ public enum RascalPrimitive {
 			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
 		}
 		return sp - 1;
+	}
+	
+	public static int rel_subscript(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		ISet rel = ((ISet) stack[sp - arity]);
+		int indexArity = arity - 1;
+		int relArity = rel.getElementType().getArity();
+		assert relArity < indexArity;
+		int resArity = relArity - indexArity;
+		IValue[] indices = new IValue[indexArity];
+		for(int i = 0; i < indexArity; i++ ){
+			indices[i] = (IValue) stack[sp - arity + i + 1];
+		}
+		IValue[] elems = new  IValue[resArity];
+		ISetWriter w = vf.setWriter();
+		NextTuple:
+		for(IValue vtup : rel){
+			ITuple tup = (ITuple) vtup;
+			for(int i = 0; i < indexArity; i++){
+				if(!tup.get(i).isEqual(indices[i])){
+					continue NextTuple;
+				}
+			}
+			for(int i = 0; i < resArity; i++){
+				elems[i] = tup.get(indexArity + i);
+			}
+			w.insert(resArity > 1 ? vf.tuple(elems) : elems[0]);
+		}
+		stack[sp - arity] = w.done();
+		return sp - arity + 1;
+		
+	}
+	
+	public static int lrel_subscript(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		IList lrel = ((IList) stack[sp - arity]);
+		int indexArity = arity - 1;
+		int lrelArity = lrel.getElementType().getArity();
+		assert lrelArity < indexArity;
+		int resArity = lrelArity - indexArity;
+		IValue[] indices = new IValue[indexArity];
+		for(int i = 0; i < indexArity; i++ ){
+			indices[i] = (IValue) stack[sp - arity + i + 1];
+		}
+		IValue[] elems = new  IValue[resArity];
+		IListWriter w = vf.listWriter();
+		NextTuple:
+		for(IValue vtup : lrel){
+			ITuple tup = (ITuple) vtup;
+			for(int i = 0; i < indexArity; i++){
+				if(!tup.get(i).isEqual(indices[i])){
+					continue NextTuple;
+				}
+			}
+			for(int i = 0; i < resArity; i++){
+				elems[i] = tup.get(indexArity + i);
+			}
+			w.append(resArity > 1 ? vf.tuple(elems) : elems[0]);
+		}
+		stack[sp - arity] = w.done();
+		return sp - arity + 1;
 	}
 
 	/*
