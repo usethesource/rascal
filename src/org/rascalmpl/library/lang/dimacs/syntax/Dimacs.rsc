@@ -17,7 +17,7 @@ lexical Number
   | non-assoc negative: "-" Number number
   ;
               
-syntax Dimacs
+start syntax Dimacs
   = Prologue prologue {Line "\n"}+ lines "\n";
 
 syntax Line 
@@ -25,4 +25,4 @@ syntax Line
   | comment: Comment comment
   ;
 
-syntax Disjuncts = Number+ numbers; 
+syntax Disjunct = Number+ numbers; 
