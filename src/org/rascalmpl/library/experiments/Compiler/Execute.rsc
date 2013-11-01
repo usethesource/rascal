@@ -68,7 +68,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
   	       // We need to merge overloading resolvers regarding overloaded function indices
   	       pos_delta = size(imported_overloaded_functions); 
   	       imported_overloaded_functions = imported_overloaded_functions + importedRvmProgram.overloaded_functions;
-  	       imported_overloading_resolvers = imported_overloading_resolvers + ( ofname : importedRvmProgram.resolver[ofname] + pos_delta | str ofname <- importedRvmProgram.resolver );
+  	       imported_overloading_resolvers = imported_overloading_resolvers + ( ofname : (importedRvmProgram.resolver[ofname] + pos_delta) | str ofname <- importedRvmProgram.resolver );
   	       
   	       imported_grammars[importedRvmProgram.name] = importedRvmProgram.grammar;
   	       println("adding grammar for <importedRvmProgram.name>");
