@@ -794,8 +794,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(SimpleType node) {
-		
-		IValue value = values.string(node.getName().toString());
+		IValue value = visitChild(node.getName());
 		ownValue = constructTypeNode("simpleType", value);
 		
 		return false;

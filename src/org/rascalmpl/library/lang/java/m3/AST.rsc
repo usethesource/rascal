@@ -111,7 +111,7 @@ data Type
     = arrayType(Type \type)
     | parameterizedType(Type \type)
     | qualifiedType(Type qualifier, Expression simpleName)
-    | simpleType(str name)
+    | simpleType(Expression name)
     | unionType(list[Type] types)
     | wildcard()
     | upperbound(Type \type)
