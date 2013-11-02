@@ -88,7 +88,12 @@ Symbol getType(loc l) = config.locationTypes[l];
 str getType(e) = "<getType(e@\loc)>";
 
 // Get the outermost type constructor of an expression as string
-str getOuterType(e) = "<getName(getType(e@\loc))>";
+str getOuterType(e) { 
+	if(parameter(str _, Symbol bound) := getType(e@\loc)) {
+		return "<getName(bound)>";
+	}
+	return "<getName(getType(e@\loc))>";
+}
 
 /* 
 * CHANGED: 
