@@ -8,6 +8,8 @@ import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
+import lang::rascal::types::TypeInstantiation;
+import lang::rascal::types::TypeExceptions;
 
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
@@ -250,10 +252,33 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        set[int] resolved = {};
        
        bool matches(Symbol t) {
-           if(isFunctionType(ftype) || isConstructorType(ftype)) { 
+           if(isFunctionType(ftype) || isConstructorType(ftype)) {
+               if(/parameter(_,_) := t) { // In case of polymorphic function types
+                   try {
+                       bindings = match(\tuple(t.parameters),\tuple(ftype.parameters),());
+                       return instantiate(t.ret,bindings) == ftype.ret;
+                   } catch invalidMatch(_,_,_): { 
+                       return false;
+                   } catch invalidMatch(_,_): { 
+                       return false; 
+                   }
+               }
                return t == ftype;
            }           
            if(isOverloadedType(ftype)) {
+               if(/parameter(_,_) := t) { // In case of polymorphic function types
+                   for(Symbol alt <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype))) {
+                       try {
+           	               bindings = match(\tuple(t.parameters),\tuple(alt.parameters),());
+           	               return instantiate(t.ret,bindings) == alt.ret;
+           	           } catch invalidMatch(_,_,_): { 
+                           ;
+                       } catch invalidMatch(_,_): { 
+                           ; 
+                       }
+                   }
+                   return false;
+           	   }
                return t in (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype));
            }
            throw "Ups, unexpected type of the call receiver expression!";
@@ -275,6 +300,9 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
        overloadingResolver[ofqname] = i;
+       println(ofqname);
+       println(overloadingResolver);
+       println(overloadedFunctions);
        return muOCall(muOFun(ofqname), args);
    }
    if(isOverloadedFunction(receiver) && receiver.fuid notin overloadingResolver) {
