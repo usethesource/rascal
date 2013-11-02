@@ -6,6 +6,7 @@ import experiments::Compiler::muRascal::AST;
 
 
 public int estimate_stack_size(MuExp exp) = estimate(exp) + 1;
+public int estimate_stack_size(list[MuExp] exps) = estimate_list(exps) + 1;
 
 private int estimate(muLab(bool b)) = 1;
 
