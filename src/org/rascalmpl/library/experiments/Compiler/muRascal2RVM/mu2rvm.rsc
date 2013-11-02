@@ -45,7 +45,7 @@ str mkCatchTo(str label) = "CATCH_TO_<label>";
 str mkFinallyFrom(str label) = "FINALLY_FROM_<label>";
 str mkFinallyTo(str label) = "FINALLY_TO_<label>";
 
-int defaultStackSize = 25;
+//int defaultStackSize = 25;
 
 int newLocal() {
     n = nlocal;
@@ -172,7 +172,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   	 module_init_fun = getFUID(module_name,"#<module_name>_init",ftype,0);
   }
   
-  funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
+  funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, estimate_stack_size(initializations) + size(variables) + 1, 
   									[*tr(initializations), 
   									 LOADCON(true),
   									 RETURN1(1),
