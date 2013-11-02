@@ -38,7 +38,7 @@ import analysis::m3::TypeSymbol;
 data Declaration;
 anno loc             Declaration@src;
 anno loc             Declaration@decl;
-anno loc             Declaration@typ;
+anno TypeSymbol      Declaration@typ;
 anno list[Modifier]  Declaration@modifiers;
 anno list[Message]   Declaration@messages;
 
