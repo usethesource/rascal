@@ -44,7 +44,7 @@ bool areCompatibleContainerTypes({str c}) = true;
 default bool areCompatibleContainerTypes(set[str] s) = false;
 
 
-str typedInfixOp(str lot, str op, str rot) {
+str typedBinaryOp(str lot, str op, str rot) {
   if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter"){
      return op;
   }
@@ -55,7 +55,7 @@ str typedInfixOp(str lot, str op, str rot) {
 }
 
 MuExp infix(str op, Expression e) = 
-  muCallPrim(typedInfixOp(getOuterType(e.lhs), op, getOuterType(e.rhs)), 
+  muCallPrim(typedBinaryOp(getOuterType(e.lhs), op, getOuterType(e.rhs)), 
              [*translate(e.lhs), *translate(e.rhs)]);
 
 MuExp infix_elm_left(str op, Expression e){
@@ -70,10 +70,14 @@ MuExp infix_rel_lrel(str op, Expression e){
   if(rot == "set") rot = "rel"; else if (rot == "list") rot = "lrel";
   return muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
 }
- 
-MuExp prefix(str op, Expression arg) = muCallPrim("<op>_<getOuterType(arg)>", [translate(arg)]);
 
-MuExp postfix(str op, Expression arg) = muCallPrim("<getOuterType(arg)>_<op>", [translate(arg)]);
+str typedUnaryOp(str ot, str op) = (ot == "value" || ot == "parameter") ? op : "<op>_<ot>";
+ 
+MuExp prefix(str op, Expression arg) {
+  return muCallPrim(typedUnaryOp(getOuterType(arg), op), [translate(arg)]);
+}
+
+MuExp postfix(str op, Expression arg) = muCallPrim(typedUnaryOp(getOuterType(arg), op), [translate(arg)]);
 
 MuExp postfix_rel_lrel(str op, Expression arg) {
   ot = getOuterType(arg);

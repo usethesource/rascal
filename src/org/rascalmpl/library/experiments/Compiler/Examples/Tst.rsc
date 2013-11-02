@@ -1,5 +1,5 @@
 module experiments::Compiler::Examples::Tst
 
-data DDD = d1(int n) | d2 (str s);
+&T <: num neg(&T <: num x) = - x;
 
-value main(list[value] args) = d1(123);
+value main(list[value] args) = neg(3);

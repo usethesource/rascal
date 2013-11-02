@@ -4893,7 +4893,7 @@ public enum RascalPrimitive {
 	public static int negative(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 
-		IValue left = (IValue) stack[sp - 2];
+		IValue left = (IValue) stack[sp - 1];
 		Type leftType = left.getType();
 
 		switch (ToplevelType.getToplevelType(leftType)) {
