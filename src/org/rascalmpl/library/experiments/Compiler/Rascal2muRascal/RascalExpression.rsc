@@ -304,9 +304,6 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
        overloadingResolver[ofqname] = i;
-       println(ofqname);
-       println(overloadingResolver);
-       println(overloadedFunctions);
        return muOCall(muOFun(ofqname), args);
    }
    if(isOverloadedFunction(receiver) && receiver.fuid notin overloadingResolver) {

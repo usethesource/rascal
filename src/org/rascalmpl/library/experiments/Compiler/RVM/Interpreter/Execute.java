@@ -424,7 +424,8 @@ public class Execute {
 
 			case "CALLJAVA":
 				codeblock.CALLJAVA(getStrField(instruction, "name"), getStrField(instruction, "class"), 
-						 			rvm.symbolToType((IConstructor) instruction.get("parameterTypes")));
+						 			rvm.symbolToType((IConstructor) instruction.get("parameterTypes")), 
+						 			getIntField(instruction, "reflect"));
 				break;
 
 			case "THROW":

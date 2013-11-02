@@ -70,7 +70,8 @@ data Instruction =
 		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive)
 		| CALLPRIM(str name, int arity)				// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
 		| CALLJAVA(str name, str class, 
-		           Symbol parameterTypes)			// Call a Java method
+		           Symbol parameterTypes,
+		           int reflect)			            // Call a Java method
 		
 		| RETURN0()									// Return from function without value
 		| RETURN1(int arity)						// Return from function with value
