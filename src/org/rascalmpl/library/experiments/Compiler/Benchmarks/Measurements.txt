@@ -560,3 +560,15 @@ Maximal speedup: 158.8
 Total time: compiled: 74803; interpreted: 411086; saved: 81.804%
 
 =======================================================
+
+Specifically, BSudoku benckmark:
+
+Summary of Measurements $2013-11-02T05:05:11.601+01:00$:
+
+             BSudoku: compiled: (compilation   153. msec, execution   540. msec); interpreted:  9230. msec; speedup: 17.093 x; saved: 92.492 %
+Average speedup: 17.093
+Minimal speedup: 17.093
+Maximal speedup: 17.093
+Total time: compiled: 693; interpreted: 9230; saved: 92.492%
+
+=======================================================
