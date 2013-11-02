@@ -385,7 +385,7 @@ MuExp applyAssignmentOperator(str operator, assignable, statement) {
     }
     op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator]; 
     //op2 = "<getOuterType(assignable)>_<op1>_<getOuterType(statement)>";
-    op2 = typedInfixOp(getOuterType(assignable), op1, getOuterType(statement));;
+    op2 = typedBinaryOp(getOuterType(assignable), op1, getOuterType(statement));;
     
     oldval = getValues(assignable);
     assert size(oldval) == 1;
