@@ -971,8 +971,9 @@ public class RVM {
 					String methodName =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
 					String className =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
 					Type parameterTypes = cf.function.typeConstantStore[instructions[pc++]];
+					int reflect = instructions[pc++];
 					arity = parameterTypes.getArity();
-					sp = callJavaMethod(methodName, className, parameterTypes, stack, sp);
+					sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
 					continue;
 					
 				case Opcode.OP_INIT:
@@ -1292,19 +1293,21 @@ public class RVM {
 		}
 	}
 	
-	int callJavaMethod(String methodName, String className, Type parameterTypes, Object[] stack, int sp){
+	int callJavaMethod(String methodName, String className, Type parameterTypes, Integer reflect, Object[] stack, int sp){
 		Class<?> clazz;
 		try {
 			clazz = this.getClass().getClassLoader().loadClass(className);
 			Constructor<?> cons;
 			cons = clazz.getConstructor(IValueFactory.class);
 			Object instance = cons.newInstance(vf);
-
-			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes));
+			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes, reflect));
 			int nformals = parameterTypes.getArity();
-			Object[] parameters = new Object[nformals];
+			Object[] parameters = new Object[nformals + reflect];
 			for(int i = 0; i < nformals; i++){
 				parameters[i] = stack[sp - nformals + i];
+			}
+			if(reflect == 1) {
+				parameters[nformals] = this.ctx;
 			}
 			stack[sp - nformals] =  m.invoke(instance, parameters);
 			return sp - nformals + 1;
@@ -1331,12 +1334,20 @@ public class RVM {
 		return sp;
 	}
 	
-	Class<?>[] makeJavaTypes(Type parameterTypes){
+	Class<?>[] makeJavaTypes(Type parameterTypes, int reflect){
 		JavaClasses javaClasses = new JavaClasses();
-		Class<?>[] jtypes = new Class<?>[parameterTypes.getArity()];
+		int arity = parameterTypes.getArity() + reflect;
+		Class<?>[] jtypes = new Class<?>[arity];
 		
 		for(int i = 0; i < parameterTypes.getArity(); i++){
 			jtypes[i] = parameterTypes.getFieldType(i).accept(javaClasses);
+		}
+		if(reflect == 1) {
+			try {
+				jtypes[arity - 1] = this.getClass().getClassLoader().loadClass("org.rascalmpl.interpreter.IEvaluatorContext");
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
 		return jtypes;
 	}

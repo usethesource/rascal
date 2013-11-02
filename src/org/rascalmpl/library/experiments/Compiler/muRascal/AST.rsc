@@ -85,6 +85,7 @@ public data MuExp =
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
           | muCallJava(str name, str class, 
           			   Symbol parameterTypes,
+          			   int reflect,
           			   list[MuExp] args)						// Call a Java method in given class
  
           | muReturn()											// Return from a function without value
