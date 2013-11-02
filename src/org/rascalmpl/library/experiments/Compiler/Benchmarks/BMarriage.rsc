@@ -5,6 +5,7 @@ import List;
 import Map;
 import Relation;
 import Set;
+import IO;
 
 // Stable Marriage algorithm
 
@@ -20,7 +21,7 @@ map[str,list[str]] male_preferences = (
    "ian":  ["hope", "cath", "dee", "gay", "bea", "abi", "fay", "ivy", "jan", "eve"],
    "jon":  ["abi", "fay", "jan", "gay", "eve", "bea", "dee", "cath", "ivy", "hope"]
    );
- 
+
 map[str, list[str]] female_preferences = (
    "abi":  ["bob", "fred", "jon", "gav", "ian", "abe", "dan", "ed", "col", "hal"],
    "bea":  ["bob", "abe", "col", "fred", "gav", "dan", "ian", "ed", "jon", "hal"],
@@ -33,33 +34,41 @@ map[str, list[str]] female_preferences = (
    "ivy":  ["ian", "col", "hal", "gav", "fred", "bob", "abe", "ed", "jon", "dan"],
    "jan":  ["ed", "hal", "gav", "abe", "bob", "jon", "col", "ian", "fred", "dan"]
    );
-   
+  
 data ENGAGED = engaged(str man, str woman);
 
 public set[ENGAGED] stableMarriage(map[str,list[str]] male_preferences, map[str,list[str]] female_preferences){
   engagements = {};
-  freeMen = domain(male_preferences);;
+  freeMen = domain(male_preferences);
+  //println("freeMen = <freeMen>");
   while (size(freeMen) > 0){
      <m, freeMen> = takeOneFrom(freeMen);
      w = head(male_preferences[m]);
+     //println("<m>, <w>, <male_preferences[m]>");
+     if(size(male_preferences[m]) == 0) return engagements;
      male_preferences[m] = tail(male_preferences[m]);
-     if({*_, engaged(str m1, w), *_} := engagements){
+     if({engaged(str m1, str w1), *_} := engagements, w1 == w){  // (1) defined var in pattern, (2) && does not work
+        //println("already engaged: <m1>, <w>");
         if(indexOf(female_preferences[w], m) < indexOf(female_preferences[w], m1)){
-           engagements = engagements - {engaged(m1, w)} + {engaged(m, w)};
+           engagements1 = engagements - {engaged(m1, w)} + {engaged(m, w)};
+           //println("<engagements> ==\> <engagements1>");
+           engagements = engagements1;
            freeMen += m1;
          } else {
            freeMen += m;
          }
       } else {
       	engagements += {engaged(m, w)};
-      }  
+      	//println("add engaged(<m>, <w>)");
+      } 
   }
   return engagements;    
 }
 
 value main(list[value] args){
-   for(i <- [1 .. 1000]){
-     stableMarriage(male_preferences, female_preferences);
-   }
-   return 0;
+  
+   //for(i <- [1 .. 1000]){
+     return stableMarriage(male_preferences, female_preferences);
+  // }
+  // return 0;
 }
