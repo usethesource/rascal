@@ -1293,7 +1293,7 @@ public class RVM {
 		}
 	}
 	
-	int callJavaMethod(String methodName, String className, Type parameterTypes, Integer reflect, Object[] stack, int sp){
+	int callJavaMethod(String methodName, String className, Type parameterTypes, int reflect, Object[] stack, int sp){
 		Class<?> clazz;
 		try {
 			clazz = this.getClass().getClassLoader().loadClass(className);

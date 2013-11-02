@@ -1,11 +1,11 @@
 module experiments::Compiler::Benchmarks::BSudoku
 
-import experiments::Compiler::Benchmarks::SudokuEq;
+//import experiments::Compiler::Benchmarks::SudokuEq;
 import Exception;
 import IO;
 import List;
 import Set;
-import Number;
+import util::Math;
 import String;
 
 str lab = "";
@@ -97,7 +97,14 @@ public bool solv(int p) {
 
 public bool solv() {
    int p = 0;
-   while (p<81 && val[p]!=0) p = p+1;
+   bool cond = true;
+   while (p<81 && cond) {
+       if(val[p]!=0) {
+           p = p+1;
+       } else {
+           cond = false;
+       }
+   }
    if (p==81) return true;
    return solv(p);
 }
@@ -105,10 +112,10 @@ public bool solv() {
 
 /* ----------------------------------------- */
 
-public void main() { 
-   // list[int] sdku=readSudoku(|project://aap/src/sudoku3328.txt|);
-   list[int] sdku=readSudoku(|project://smt/src/sudoku/example1.txt|);
+public value main(list[value] args) { 
+   list[int] sdku=readSudoku(|rascal:///experiments/Compiler/Benchmarks/example1.txt|);
    val = sdku;
    sol = sdku;
    solv();
+   return <val,sol>;
 }

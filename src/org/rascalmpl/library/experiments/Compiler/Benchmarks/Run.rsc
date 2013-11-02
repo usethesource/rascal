@@ -48,6 +48,8 @@ import experiments::Compiler::Benchmarks::BVisit6e;
 import experiments::Compiler::Benchmarks::BVisit6f;
 import experiments::Compiler::Benchmarks::BVisit6g;
 
+import experiments::Compiler::Benchmarks::BSudoku;
+
 
 loc base = |rascal:///experiments/Compiler/Benchmarks/|;
 
@@ -136,6 +138,7 @@ void main(){
   run("BVisit6e", experiments::Compiler::Benchmarks::BVisit6e::main);
   run("BVisit6f", experiments::Compiler::Benchmarks::BVisit6f::main);
   run("BVisit6g", experiments::Compiler::Benchmarks::BVisit6g::main);
+  run("BSudoku", experiments::Compiler::Benchmarks::BSudoku::main);
   
   report();
 }
