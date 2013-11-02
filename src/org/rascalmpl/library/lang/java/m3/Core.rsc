@@ -61,6 +61,8 @@ java M3 createM3FromJarClass(loc jarClass);
 Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [M3] model
 }
 M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
+    if (!(isDirectory(project)))
+      throw "<project> is not a valid directory";
     classPaths = getPaths(project, "class") + find(project, "jar");
     sourcePaths = getPaths(project, "java");
     //setEnvironmentOptions(project);
