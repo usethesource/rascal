@@ -97,6 +97,7 @@ loc getFileContaining(loc method, M3 model) {
       return getOneFrom(model@declarations[l]);
     }
   }
+  throw "No file containing method <method> found";
 }
 
 @doc{
