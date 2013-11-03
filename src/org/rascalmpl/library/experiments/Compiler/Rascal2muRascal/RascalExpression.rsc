@@ -372,7 +372,7 @@ MuExp translate (e:(Expression) `<Expression expression> [ <OptionalExpression o
 
 // Field access
 MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) =
-    return muCallPrim("<getOuterType(expression)>_field_access", [ translate(expression), muCon("<field>") ]);
+   muCallPrim("<getOuterType(expression)>_field_access", [ translate(expression), muCon("<field>") ]);
 
 // Field update
 MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Expression replacement> ]`) =
