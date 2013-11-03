@@ -23,6 +23,7 @@ The `Graph` library provides the following functions:
 }
 module analysis::graphs::Graph
 
+import Exception;
 import Set;
 import Relation;
 import IO;      
