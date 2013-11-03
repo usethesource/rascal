@@ -410,7 +410,7 @@ public bool isNonTerminalType(AbstractValue::sorttype(_,_,_,_)) = true;
 public default bool isNonTerminalType(AbstractValue _) = false;
 
 public bool isAlias(AbstractValue::\alias(_,_,_,_)) = true;
-public default bool isAlias(AbstractValue _) = false;
+public default bool isAlias(AbstractValue a) = false;
 
 public bool hasField(Symbol s, str fieldName){
     //println("hasField: <s>, <fieldName>");
