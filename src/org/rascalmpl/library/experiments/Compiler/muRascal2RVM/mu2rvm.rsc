@@ -12,7 +12,7 @@ import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
 import experiments::Compiler::muRascal2RVM::StackSize;
-import experiments::Compiler::muRascal2RVM::PeepHole;
+//import experiments::Compiler::muRascal2RVM::PeepHole;
 
 alias INS = list[Instruction];
 
@@ -145,7 +145,8 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     	iprintln(fun);
     }
     // Append catch blocks to the end of the function body code
-    code = peephole(tr(fun.body)) + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    //code = peephole(tr(fun.body)) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     // Debugging exception handling
     // println("FUNCTION BODY:");
@@ -662,7 +663,7 @@ INS tr(e:muAll(list[MuExp] exps)) {
 
 // The above list of muExps is exhaustive, no other cases exist
 
-default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
+default INS tr(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }
 
 /*********************************************************************/
 /*      End of muRascal expressions                                  */

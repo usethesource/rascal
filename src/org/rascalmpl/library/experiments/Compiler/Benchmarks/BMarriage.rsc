@@ -40,18 +40,14 @@ data ENGAGED = engaged(str man, str woman);
 public set[ENGAGED] stableMarriage(map[str,list[str]] male_preferences, map[str,list[str]] female_preferences){
   engagements = {};
   freeMen = domain(male_preferences);
-  //println("freeMen = <freeMen>");
   while (size(freeMen) > 0){
      <m, freeMen> = takeOneFrom(freeMen);
      w = head(male_preferences[m]);
-     //println("<m>, <w>, <male_preferences[m]>");
      if(size(male_preferences[m]) == 0) return engagements;
      male_preferences[m] = tail(male_preferences[m]);
-     if({engaged(str m1, str w1), *_} := engagements, w1 == w){  // (1) defined var in pattern, (2) && does not work
-        //println("already engaged: <m1>, <w>");
+     if({engaged(str m1, w), *_} := engagements){
         if(indexOf(female_preferences[w], m) < indexOf(female_preferences[w], m1)){
            engagements1 = engagements - {engaged(m1, w)} + {engaged(m, w)};
-           //println("<engagements> ==\> <engagements1>");
            engagements = engagements1;
            freeMen += m1;
          } else {
@@ -59,7 +55,6 @@ public set[ENGAGED] stableMarriage(map[str,list[str]] male_preferences, map[str,
          }
       } else {
       	engagements += {engaged(m, w)};
-      	//println("add engaged(<m>, <w>)");
       } 
   }
   return engagements;    

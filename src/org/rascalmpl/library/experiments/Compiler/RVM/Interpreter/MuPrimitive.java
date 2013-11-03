@@ -33,6 +33,7 @@ public enum MuPrimitive {
 	division_mint_mint,
 	equal_mint_mint,
 	equal,
+	equal_set_mset,
 	equivalent_mbool_mbool,
 	get_name,
 	get_name_and_children,
@@ -41,7 +42,7 @@ public enum MuPrimitive {
 	greater_mint_mint,
 	implies_mbool_mbool,
 	is_defined,
-	is_element,
+	is_element_mset,
 	is_bool,
 	is_datetime,
 	is_int,
@@ -56,6 +57,7 @@ public enum MuPrimitive {
 	is_rel,
 	is_set,
 	is_str,
+	
 	is_tuple,
 	keys_map,
 	values_map,
@@ -70,7 +72,6 @@ public enum MuPrimitive {
 	modulo_mint_mint,
 	mset,
 	mset_empty(),
-//	mset_copy,
 	mset2list,
 	mset_destructive_add_elm,
 	mset_destructive_add_mset,
@@ -79,6 +80,7 @@ public enum MuPrimitive {
 	mset_destructive_subtract_elm,
 	not_equal_mint_mint,
 	not_mbool,
+	occurs_list_list_mint,
 	or_mbool_mbool,
 	power_mint_mint,
 	rbool,
@@ -88,6 +90,7 @@ public enum MuPrimitive {
 	regexp_group,
 	set,
 	set2list,
+	set_is_subset_of_mset,
 	size_array,
 	size_list,
 	size_set,
@@ -103,6 +106,7 @@ public enum MuPrimitive {
 	subtraction_mint_mint,
 	subtype,
 	typeOf,
+	undefine,
 	product_mint_mint,
 	
 	typeOf_constructor
@@ -264,7 +268,7 @@ public enum MuPrimitive {
 			throw new RuntimeException("equal -- not defined on " + stack[sp - 2].getClass() + " and " + stack[sp - 2].getClass());
 		return sp - 1;
 	}
-			
+	
 	public static int equivalent_mbool_mbool(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		boolean b1 = (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
@@ -315,13 +319,29 @@ public enum MuPrimitive {
 		
 	public static int is_defined(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		stack[sp - 1] = stack[sp - 1] != null;
+		Reference ref = (Reference) stack[sp - 1];
+		stack[sp - 1] = ref.isDefined();
+		return sp;
+	}
+	
+	public static int undefine(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		Reference ref = (Reference) stack[sp - 1];
+		stack[sp - 1] = ref.getValue();
+		ref.undefine();
 		return sp;
 	}
 		
-	public static int is_element(Object[] stack, int sp, int arity) {
+//	public static int is_element(Object[] stack, int sp, int arity) {
+//		assert arity == 2;
+//		stack[sp - 2] = ((ISet) stack[sp - 1]).contains((ISet) stack[sp - 2]);
+//		return sp - 1;
+//	}
+	
+	@SuppressWarnings("unchecked")
+	public static int is_element_mset(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((ISet) stack[sp - 1]).contains((ISet) stack[sp - 2]);
+		stack[sp - 2] = ((HashSet<IValue>) stack[sp - 1]).contains((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 		
@@ -726,6 +746,28 @@ public enum MuPrimitive {
 		return sp;
 	}
 	
+	public static int occurs_list_list_mint(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		IList sublist =  ((IList) stack[sp - 3]);
+		int nsub = sublist.length();
+		IList list =  ((IList) stack[sp - 2]);
+		Integer start = (Integer) stack[sp - 1];
+		int nlist = list.length();
+		stack[sp - 3] = false;
+		int newsp = sp - 2;
+		if(start + nsub <= nlist){
+			for(int i = 0; i < nsub; i++){
+				if(!sublist.get(i).isEqual(list.get(start + i)))
+					return newsp;
+			}
+		} else {
+			return newsp;
+		}
+		
+		stack[sp - 3] = true;
+		return newsp;
+	}
+	
 	public static int mset(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		ISet set =  ((ISet) stack[sp - 1]);
@@ -754,6 +796,21 @@ public enum MuPrimitive {
 			mset.remove(v);
 		}
 		stack[sp - 2] = mset;
+		return sp - 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int set_is_subset_of_mset(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet subset = ((ISet) stack[sp - 2]);
+		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+		for(IValue v : subset){
+			if(!mset.contains(v)){
+				stack[sp - 2] = false;
+				return sp - 1;
+			}
+		}
+		stack[sp - 2] = true;
 		return sp - 1;
 	}
 	
@@ -818,6 +875,24 @@ public enum MuPrimitive {
 		HashSet<IValue> mset = new HashSet<IValue>();
 		stack[sp] = mset;
 		return sp + 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int equal_set_mset(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet set = (ISet) stack[sp - 2];
+		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+		stack[sp - 2] = false;
+		if(set.size() != mset.size()){
+			return sp - 1;
+		}
+		for(IValue v : set){
+			if(!mset.contains(v)){
+				return sp - 1;
+			}
+		}
+		stack[sp - 2] = true;
+		return sp - 1;
 	}
 	
 //	@SuppressWarnings("unchecked")
