@@ -453,6 +453,9 @@ public enum RascalPrimitive {
 	real_notequal_real,
 	real_notequal_rat,
 	
+	//reified
+	reified_field_access,
+	
 	// notin
 	
 	notin,
@@ -658,10 +661,11 @@ public enum RascalPrimitive {
 		vf = fact;
 		if(usedRVM != null){
 			stdout = usedRVM.stdout;
+			rvm = usedRVM;
+			parsingTools = new ParsingTools(fact, rvm.ctx);
+		} else {
+			System.err.println("No RVM found");
 		}
-		rvm = usedRVM;
-		
-		parsingTools = new ParsingTools(fact, rvm.ctx);
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 									new String[] {"line", "column"});
@@ -2426,6 +2430,14 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		ISetRelation<ISet> left = ((ISet) stack[sp - 2]).asRelation();
 		stack[sp - 2] = left.projectByFieldNames(((IString) stack[sp - 1]).getValue());
+		return sp - 1;
+	}
+	
+	public static int reified_field_access(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IConstructor reified = (IConstructor) stack[sp - 2];
+		String field = ((IString) stack[sp - 1]).getValue();
+		stack[sp - 1] = reified.get(field);
 		return sp - 1;
 	}
 	
