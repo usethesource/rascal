@@ -56,16 +56,29 @@ loc base = |rascal:///experiments/Compiler/Benchmarks/|;
 
 alias Measurement = tuple[str name, num compilationTime, num compiledExec, num interpretedExec];
 
+int nsamples = 2;  // Number of samples per data point.
+
 map[str,Measurement] measurements = ();
 
 void run(str bm,  value(list[value]) bmain) {
   println("Benchmark: <bm>");
-  t1 = getMilliTime();
-  <v, t2> = execute_and_time(base + (bm + ".rsc"), []);
-  t3 = getMilliTime();
-  bmain([]);
-  t4 = getMilliTime();
-  measurements[bm] =  m = <bm, t3 - t1 - t2, t2, t4 - t3>;
+  comp = 0;
+  cexec = 0;
+  iexec = 0;
+  for(int i <- [0 .. nsamples]){
+	  t1 = getMilliTime();
+	  <v, t2> = execute_and_time(base + (bm + ".rsc"), []);
+	  t3 = getMilliTime();
+	  comp += t3 - t1 - t2;
+	  cexec += t2;
+  }
+  for(int i <- [0 .. nsamples]){  
+	  t3 = getMilliTime();
+	  bmain([]);
+	  t4 = getMilliTime();
+	  iexec = t4 - t3;
+  }
+  measurements[bm] =  m = <bm, comp/nsamples, cexec/nsamples, iexec/nsamples>;
   report_one(m);
 }
 
@@ -104,43 +117,74 @@ void report(){
   println("Total time: compiled: <tot_comp>; interpreted: <tot_inter>; saved: <precision(100 * (tot_inter - tot_comp) / tot_inter, 5)>%");
 }
 
+void report_one_latex(Measurement m){
+  cexec = m.compiledExec;
+  iexec = m.interpretedExec;
+  speedup = iexec/cexec;
+  println("<m.name> & <round(cexec, 1)> & <round(iexec, 1)> & <round(speedup, 0.1)> \\\\ \\hline");
+}
+
+void report_latex(){
+  min_speedup = 100000;
+  max_speedup = 0;
+  tot_speedup = 0;
+  tot_comp = 0;
+  tot_inter = 0;
+ 
+  println("\\begin{tabular}{| l | r | r | r |} \\hline");
+  println("\\textbf{Name} & \\textbf{Compiled} & \\textbf{Interpreted} & \\textbf{Speedup} \\\\ \\hline \\hline");
+  
+  for(bm <- sort(domain(measurements))){
+      m = measurements[bm];
+      report_one_latex(m);
+      speedup =  m.interpretedExec/m.compiledExec;
+      tot_speedup += speedup;  
+      min_speedup = min(min_speedup, speedup);
+      max_speedup = max(max_speedup, speedup);
+      tot_comp += m.compilationTime + m.compiledExec;
+      tot_inter += m.interpretedExec;
+  }
+  println("\\textbf{Average Speedup}&   &  & <round(tot_speedup/size(measurements), 0.1)> \\\\ \\hline");
+  println("\\end{tabular}");
+}
+
 void main(){
   measurements = ();
-  run("BasType", experiments::Compiler::Benchmarks::BasType::main);
+  //run("BasType", experiments::Compiler::Benchmarks::BasType::main);
   run("BBottles", experiments::Compiler::Benchmarks::BBottles::main);
-  run("BCompareFor", experiments::Compiler::Benchmarks::BCompareFor::main);
-  run("BCompareIf", experiments::Compiler::Benchmarks::BCompareIf::main);
-  run("BCompareComprehension", experiments::Compiler::Benchmarks::BCompareComprehension::main);
-  run("BExceptions", experiments::Compiler::Benchmarks::BExceptions::main);
-  run("BExceptionsFinally", experiments::Compiler::Benchmarks::BExceptionsFinally::main);
-  run("BFac", experiments::Compiler::Benchmarks::BFac::main);
+  //run("BCompareFor", experiments::Compiler::Benchmarks::BCompareFor::main);
+  //run("BCompareIf", experiments::Compiler::Benchmarks::BCompareIf::main);
+  //run("BCompareComprehension", experiments::Compiler::Benchmarks::BCompareComprehension::main);
+  //run("BExceptions", experiments::Compiler::Benchmarks::BExceptions::main);
+  //run("BExceptionsFinally", experiments::Compiler::Benchmarks::BExceptionsFinally::main);
+  //run("BFac", experiments::Compiler::Benchmarks::BFac::main);
   run("BFib", experiments::Compiler::Benchmarks::BFib::main);
-  run("BFor", experiments::Compiler::Benchmarks::BFor::main);
-  run("BForCond", experiments::Compiler::Benchmarks::BForCond::main);
+  //run("BFor", experiments::Compiler::Benchmarks::BFor::main);
+  //run("BForCond", experiments::Compiler::Benchmarks::BForCond::main);
   run("BListMatch1", experiments::Compiler::Benchmarks::BListMatch1::main);
-  run("BListMatch2", experiments::Compiler::Benchmarks::BListMatch2::main);
-  run("BListMatch3", experiments::Compiler::Benchmarks::BListMatch3::main);
+  //run("BListMatch2", experiments::Compiler::Benchmarks::BListMatch2::main);
+  //run("BListMatch3", experiments::Compiler::Benchmarks::BListMatch3::main);
   run("BMarriage", experiments::Compiler::Benchmarks::BMarriage::main);
-  run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
+  //run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
   run("BRSFCalls", experiments::Compiler::Benchmarks::BRSFCalls::main);
-  run("BSet1", experiments::Compiler::Benchmarks::BSet1::main);
-  run("BSetMatch1", experiments::Compiler::Benchmarks::BSetMatch1::main);
+  //run("BSet1", experiments::Compiler::Benchmarks::BSet1::main);
+  //run("BSetMatch1", experiments::Compiler::Benchmarks::BSetMatch1::main);
   run("BSetMatch2", experiments::Compiler::Benchmarks::BSetMatch2::main);
   run("BSendMoreMoney", experiments::Compiler::Benchmarks::BSendMoreMoney::main);
   run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
-  run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
-  run("BVisit1", experiments::Compiler::Benchmarks::BVisit1::main);
-  run("BVisit2", experiments::Compiler::Benchmarks::BVisit2::main);
-  run("BVisit3", experiments::Compiler::Benchmarks::BVisit3::main);
-  run("BVisit4", experiments::Compiler::Benchmarks::BVisit4::main);
-  run("BVisit6a", experiments::Compiler::Benchmarks::BVisit6a::main);
-  run("BVisit6b", experiments::Compiler::Benchmarks::BVisit6b::main);
-  run("BVisit6c", experiments::Compiler::Benchmarks::BVisit6c::main);
-  run("BVisit6d", experiments::Compiler::Benchmarks::BVisit6d::main);
-  run("BVisit6e", experiments::Compiler::Benchmarks::BVisit6e::main);
-  run("BVisit6f", experiments::Compiler::Benchmarks::BVisit6f::main);
-  run("BVisit6g", experiments::Compiler::Benchmarks::BVisit6g::main);
+  //run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
+  //run("BVisit1", experiments::Compiler::Benchmarks::BVisit1::main);
+  //run("BVisit2", experiments::Compiler::Benchmarks::BVisit2::main);
+  //run("BVisit3", experiments::Compiler::Benchmarks::BVisit3::main);
+  //run("BVisit4", experiments::Compiler::Benchmarks::BVisit4::main);
+  //run("BVisit6a", experiments::Compiler::Benchmarks::BVisit6a::main);
+  //run("BVisit6b", experiments::Compiler::Benchmarks::BVisit6b::main);
+  //run("BVisit6c", experiments::Compiler::Benchmarks::BVisit6c::main);
+  //run("BVisit6d", experiments::Compiler::Benchmarks::BVisit6d::main);
+  //run("BVisit6e", experiments::Compiler::Benchmarks::BVisit6e::main);
+  //run("BVisit6f", experiments::Compiler::Benchmarks::BVisit6f::main);
+  //run("BVisit6g", experiments::Compiler::Benchmarks::BVisit6g::main);
   run("BSudoku", experiments::Compiler::Benchmarks::BSudoku::main);
   
-  report();
+  report_latex();
 }
