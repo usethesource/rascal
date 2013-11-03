@@ -112,110 +112,112 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
           append
             top-down visit(exp){
             	// Constructs to be resolved by preprocessing
-               case preIntCon(str txt)												=> muInt(toInt(txt))
-               case preStrCon(str txt)												=> muCon(txt[1..-1])						// strip surrounding quotes
-               case preTypeCon(str txt):                    						{
-               																			try {
-																							Symbol sym = readTextValueString(#Symbol, txt[1..-1]);
-																							insert muTypeCon(sym);
-																						} catch IO(str msg) :
-																						throw "Could not parse the string of a type constant into Symbol: <msg>";
-               																		}
-               case preVar(mvar("true")) 											=> muBool(true)
-               case preVar(mvar("false")) 											=> muBool(false)
-               case preVar(fvar(str var))                                           => { if(!isGlobalNonOverloadedFunction(var)) { throw "Function or coroutine <var> has not been declared!"; } muFun(getUidOfGlobalNonOverloadedFunction(var)); }
-     	       case preVar(Identifier id) 											=> muLoc(id.var, vardefs[uid][id.var])
-     	       case preVar(lrel[str,int] funNames, Identifier id)        			=> muVar(name,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
-     	       case preAssignLocList(Identifier id1, Identifier id2, MuExp exp1) 	=> muCallMuPrim("assign_pair", [muInt(vardefs[uid][id1.var]), muInt(vardefs[uid][id2.var]), exp1])
+               case preIntCon(str txt)															=> muInt(toInt(txt))
+               case preStrCon(str txt)															=> muCon(txt[1..-1])						// strip surrounding quotes
+               case preTypeCon(str txt):                    										{
+               																							try {
+																											Symbol sym = readTextValueString(#Symbol, txt[1..-1]);
+																											insert muTypeCon(sym);
+																										} catch IO(str msg) :
+																										throw "Could not parse the string of a type constant into Symbol: <msg>";
+               																						}
+               case preVar(mvar("true")) 														=> muBool(true)
+               case preVar(mvar("false")) 														=> muBool(false)
+               case preVar(fvar(str var))                                           			=> { if(!isGlobalNonOverloadedFunction(var)) { throw "Function or coroutine <var> has not been declared!"; } muFun(getUidOfGlobalNonOverloadedFunction(var)); }
+     	       case preVar(Identifier id) 														=> muLoc(id.var, vardefs[uid][id.var])
+     	       case preVar(lrel[str,int] funNames, Identifier id)        						=> muVar(name,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
+     	       case preAssignLocList(Identifier id1, Identifier id2, MuExp exp1) 				=> muCallMuPrim("assign_pair", [muInt(vardefs[uid][id1.var]), muInt(vardefs[uid][id2.var]), exp1])
      	       
-     	       case preAssignLoc(Identifier id, MuExp exp) 							=> muAssignLoc(id.var, vardefs[uid][id.var], exp)
+     	       case preAssignLoc(Identifier id, MuExp exp) 										=> muAssignLoc(id.var, vardefs[uid][id.var], exp)
      	       case preAssign(lrel[str,int] funNames, 
-     	       				  Identifier id, MuExp exp)                  			=> muAssign(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
-     	       case preList(list[MuExp] exps)										=> muCallMuPrim("make_array", exps)
-     	       case preSubscriptArray(MuExp ar, MuExp index)						=> muCallMuPrim("subscript_array_mint", [ar, index])
-     	       case preSubscriptList(MuExp lst, MuExp index)						=> muCallMuPrim("subscript_list_mint", [lst, index])
-     	       case preSubscriptTuple(MuExp tup, MuExp index)						=> muCallMuPrim("subscript_tuple_mint", [tup, index])
+     	       				  Identifier id, MuExp exp)                  						=> muAssign(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
+     	       case preList(list[MuExp] exps)													=> muCallMuPrim("make_array", exps)
+     	       case preSubscriptArray(MuExp ar, MuExp index)									=> muCallMuPrim("subscript_array_mint", [ar, index])
+     	       case preSubscriptList(MuExp lst, MuExp index)									=> muCallMuPrim("subscript_list_mint", [lst, index])
+     	       case preSubscriptTuple(MuExp tup, MuExp index)									=> muCallMuPrim("subscript_tuple_mint", [tup, index])
      	       
-     	       case preAssignSubscriptArray(MuExp ar, MuExp index, MuExp exp1) 		=> muCallMuPrim("assign_subscript_array_mint", [ar, index, exp1])
-     	       case preAssignSubscriptList(MuExp lst, MuExp index, MuExp exp1) 		=> muCallMuPrim("assign_subscript_list_mint", [lst, index, exp1])
+     	       case preAssignSubscriptArray(MuExp ar, MuExp index, MuExp exp1) 					=> muCallMuPrim("assign_subscript_array_mint", [ar, index, exp1])
+     	       case preAssignSubscriptList(MuExp lst, MuExp index, MuExp exp1) 					=> muCallMuPrim("assign_subscript_list_mint", [lst, index, exp1])
      	        
-      	       case preIfthen(cond,thenPart) 										=> muIfelse("", cond, thenPart, [])
+      	       case preIfthen(cond,thenPart) 													=> muIfelse("", cond, thenPart, [])
       	       
-      	       case preLocDeref(Identifier id)                   					=> muLocDeref(id.var, vardefs[uid][id.var])
-      	       case preVarDeref(lrel[str,int] funNames, Identifier id)   			=> muVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
-      	       case preLocRef(Identifier id)                     					=> muLocRef(id.var, vardefs[uid][id.var])
-      	       case preVarRef(lrel[str,int] funNames, Identifier id)     			=> muVarRef(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
-      	       case preAssignLocDeref(Identifier id, MuExp exp)  					=> muAssignLocDeref(id.var, vardefs[uid][id.var], exp)
-      	       case preAssignVarDeref(lrel[str,int] funNames,
-      	       						  Identifier id, muExp exp)          			=> muAssignVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
+      	       case preLocDeref(Identifier id)                   								=> muLocDeref(id.var, vardefs[uid][id.var])
+      	       case preVarDeref(lrel[str,int] funNames, Identifier id)   						=> muVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
+      	       case preLocRef(Identifier id)                     								=> muLocRef(id.var, vardefs[uid][id.var])
+      	       case preVarRef(lrel[str,int] funNames, Identifier id)     						=> muVarRef(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
+      	       case preAssignLocDeref(Identifier id, MuExp exp)  								=> muAssignLocDeref(id.var, vardefs[uid][id.var], exp)
+      	       case preAssignVarDeref(lrel[str,int] funNames, Identifier id, muExp exp)         => muAssignVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
       	       
-      	       case muCallPrim(str name)                                            => muCallPrim(name[1..-1], [])
-               case muCallPrim(str name, list[MuExp] exps)							=> muCallPrim(name[1..-1], exps)			// strip surrounding quotes
-               case muCallMuPrim(str name, list[MuExp] exps)						=> muCallMuPrim(name[1..-1], exps)			// strip surrounding quotes
+      	       case muCallPrim(str name)                                            			=> muCallPrim(name[1..-1], [])
+               case muCallPrim(str name, list[MuExp] exps)										=> muCallPrim(name[1..-1], exps)			// strip surrounding quotes
+               case muCallMuPrim(str name, list[MuExp] exps)									=> muCallMuPrim(name[1..-1], exps)			// strip surrounding quotes
                
                // Calls that are directly mapped to muPrimitives
                
-               case muCall(preVar(mvar("size_array")), [exp1])						=> muCallMuPrim("size_array", [exp1])
-               case muCall(preVar(mvar("size_list")), [exp1])						=> muCallMuPrim("size_list", [exp1])
-               case muCall(preVar(mvar("size_set")), [exp1])						=> muCallMuPrim("size_set", [exp1])
-               case muCall(preVar(mvar("size_mset")), [exp1])						=> muCallMuPrim("size_mset", [exp1])
-               case muCall(preVar(mvar("size_map")), [exp1])						=> muCallMuPrim("size_map", [exp1])
-               case muCall(preVar(mvar("size_tuple")), [exp1])						=> muCallMuPrim("size_tuple", [exp1])
+               case muCall(preVar(mvar("size_array")), [exp1])									=> muCallMuPrim("size_array", [exp1])
+               case muCall(preVar(mvar("size_list")), [exp1])									=> muCallMuPrim("size_list", [exp1])
+               case muCall(preVar(mvar("size_set")), [exp1])									=> muCallMuPrim("size_set", [exp1])
+               case muCall(preVar(mvar("size_mset")), [exp1])									=> muCallMuPrim("size_mset", [exp1])
+               case muCall(preVar(mvar("size_map")), [exp1])									=> muCallMuPrim("size_map", [exp1])
+               case muCall(preVar(mvar("size_tuple")), [exp1])									=> muCallMuPrim("size_tuple", [exp1])
                
-               case muCall(preVar(mvar("size")),[exp1])                             => muCallMuPrim("size",[exp1])
+               case muCall(preVar(mvar("size")),[exp1])                             			=> muCallMuPrim("size",[exp1])
                
-               case muCall(preVar(mvar("is_defined")), [exp1])							=> muCallMuPrim("is_defined", [exp1])
-               case muCall(preVar(mvar("is_element")), [exp1, exp2])					=> muCallMuPrim("is_element", [exp1, exp2])
-               case muCall(preVar(mvar("keys")), [exp1])								=> muCallMuPrim("keys_map", [exp1])
-               case muCall(preVar(mvar("values")), [exp1])								=> muCallMuPrim("values_map", [exp1])
-               case muCall(preVar(mvar("set2list")), [exp1])							=> muCallMuPrim("set2list", [exp1])
-               case muCall(preVar(mvar("mset2list")), [exp1])							=> muCallMuPrim("mset2list", [exp1])
-               case muCall(preVar(mvar("equal")), [exp1, exp2])							=> muCallMuPrim("equal", [exp1, exp2])
-               case muCall(preVar(mvar("get_name_and_children")), [exp1])				=> muCallMuPrim("get_name_and_children", [exp1])
-               case muCall(preVar(mvar("typeOf")), [exp1])								=> muCallPrim("typeOf", [exp1])
-               case muCall(preVar(mvar("subtype")), [exp1, exp2])         				=> muCallPrim("subtype", [exp1, exp2])
-               case muCall(preVar(mvar("make_iarray")), [exp1])							=> muCallMuPrim("make_iarray_of_size", [exp1])
-               case muCall(preVar(mvar("make_array")), [exp1])							=> muCallMuPrim("make_array_of_size", [exp1])
-               case muCall(preVar(mvar("starts_with")), [exp1, exp2, exp3])				=> muCallMuPrim("starts_with", [exp1, exp2, exp3])
-               case muCall(preVar(mvar("sublist")), list[MuExp] exps)					=> muCallMuPrim("sublist_list_mint_mint", exps)
-               case muCall(preVar(mvar("subset")), list[MuExp] exps)					=> muCallPrim("set_lessequal_set", exps)
-              //case muCall(preVar(mvar("mset_copy")), list[MuExp] exps) 				=> muCallMuPrim("mset_copy", exps)
-               case muCall(preVar(mvar("mset_destructive_subtract_mset")), list[MuExp] exps) => muCallMuPrim("mset_destructive_subtract_mset", exps)
-               case muCall(preVar(mvar("mset_destructive_add_mset")), list[MuExp] exps)		 => muCallMuPrim("mset_destructive_add_mset", exps)
-               case muCall(preVar(mvar("mset_destructive_add_elm")), list[MuExp] exps)		 => muCallMuPrim("mset_destructive_add_elm", exps)
-               case muCall(preVar(mvar("mset_destructive_subtract_elm")), list[MuExp] exps)	 => muCallMuPrim("mset_destructive_subtract_elm", exps)
-               case muCall(preVar(mvar("mset_destructive_subtract_set")), list[MuExp] exps)	 => muCallMuPrim("mset_destructive_subtract_set", exps)
-               //case muCall(preVar(mvar("set_subtract_elm")), list[MuExp] exps)			 => muCallPrim("set_subtract_elm", exps)			
-               case muCall(preVar(mvar("mset")), list[MuExp] exps) 						=> muCallMuPrim("mset", exps)
-                case muCall(preVar(mvar("mset_empty")), list[MuExp] exps) 						=> muCallMuPrim("mset_empty", exps)
-               case muCall(preVar(mvar("set")), list[MuExp] exps) 						=> muCallMuPrim("set", exps)
+               case muCall(preVar(mvar("is_defined")), [exp1])									=> muCallMuPrim("is_defined", [exp1])
+               case muCall(preVar(mvar("is_element")), [exp1, exp2])							=> muCallMuPrim("is_element", [exp1, exp2])
+               case muCall(preVar(mvar("is_element_mset")), [exp1, exp2])						=> muCallMuPrim("is_element_mset", [exp1, exp2])
+               case muCall(preVar(mvar("keys")), [exp1])										=> muCallMuPrim("keys_map", [exp1])
+               case muCall(preVar(mvar("values")), [exp1])										=> muCallMuPrim("values_map", [exp1])
+               case muCall(preVar(mvar("set2list")), [exp1])									=> muCallMuPrim("set2list", [exp1])
+               case muCall(preVar(mvar("mset2list")), [exp1])									=> muCallMuPrim("mset2list", [exp1])
+               case muCall(preVar(mvar("equal")), [exp1, exp2])									=> muCallMuPrim("equal", [exp1, exp2])
+               case muCall(preVar(mvar("equal_set_mset")), [exp1, exp2])						=> muCallMuPrim("equal_set_mset", [exp1, exp2])
+               case muCall(preVar(mvar("get_name_and_children")), [exp1])						=> muCallMuPrim("get_name_and_children", [exp1])
+               case muCall(preVar(mvar("typeOf")), [exp1])										=> muCallPrim("typeOf", [exp1])
+               case muCall(preVar(mvar("subtype")), [exp1, exp2])         						=> muCallPrim("subtype", [exp1, exp2])
+               case muCall(preVar(mvar("make_iarray")), [exp1])									=> muCallMuPrim("make_iarray_of_size", [exp1])
+               case muCall(preVar(mvar("make_array")), [exp1])									=> muCallMuPrim("make_array_of_size", [exp1])
+               case muCall(preVar(mvar("starts_with")), [exp1, exp2, exp3])						=> muCallMuPrim("starts_with", [exp1, exp2, exp3])
+               case muCall(preVar(mvar("sublist")), list[MuExp] exps)							=> muCallMuPrim("sublist_list_mint_mint", exps)
+               case muCall(preVar(mvar("occurs")), list[MuExp] exps)							=> muCallMuPrim("occurs_list_list_mint", exps)
+               case muCall(preVar(mvar("subset")), list[MuExp] exps)							=> muCallPrim("set_lessequal_set", exps)
+               case muCall(preVar(mvar("subset_set_mset")), list[MuExp] exps)					=> muCallMuPrim("set_is_subset_of_mset", exps)
+               case muCall(preVar(mvar("mset_destructive_subtract_mset")), list[MuExp] exps)	=> muCallMuPrim("mset_destructive_subtract_mset", exps)
+               case muCall(preVar(mvar("mset_destructive_add_mset")), list[MuExp] exps)		 	=> muCallMuPrim("mset_destructive_add_mset", exps)
+               case muCall(preVar(mvar("mset_destructive_add_elm")), list[MuExp] exps)		 	=> muCallMuPrim("mset_destructive_add_elm", exps)
+               case muCall(preVar(mvar("mset_destructive_subtract_elm")), list[MuExp] exps)	 	=> muCallMuPrim("mset_destructive_subtract_elm", exps)
+               case muCall(preVar(mvar("mset_destructive_subtract_set")), list[MuExp] exps)	 	=> muCallMuPrim("mset_destructive_subtract_set", exps)		
+               case muCall(preVar(mvar("mset")), list[MuExp] exps) 								=> muCallMuPrim("mset", exps)
+               case muCall(preVar(mvar("mset_empty")), list[MuExp] exps) 						=> muCallMuPrim("mset_empty", exps)
+               case muCall(preVar(mvar("set")), list[MuExp] exps) 								=> muCallMuPrim("set", exps)
              
-               case muCall(preVar(mvar("make_mset")), list[MuExp] exps)					=> muCallMuPrim("make_mset", exps)
-               case muCall(preVar(mvar("get_tuple_elements")), [exp1])					=> muCallMuPrim("get_tuple_elements", [exp1])
-               case muCall(preVar(mvar("println")), list[MuExp] exps)					=> muCallMuPrim("println", exps)
+               case muCall(preVar(mvar("make_mset")), list[MuExp] exps)							=> muCallMuPrim("make_mset", exps)
+               case muCall(preVar(mvar("get_tuple_elements")), [exp1])							=> muCallMuPrim("get_tuple_elements", [exp1])
+               case muCall(preVar(mvar("println")), list[MuExp] exps)							=> muCallMuPrim("println", exps)
                												
-               case muCall(preVar(mvar("rint")), list[MuExp] exps) 						=> muCallMuPrim("rint", exps)
-               case muCall(preVar(mvar("mint")), list[MuExp] exps) 						=> muCallMuPrim("mint", exps)
+               case muCall(preVar(mvar("rint")), list[MuExp] exps) 								=> muCallMuPrim("rint", exps)
+               case muCall(preVar(mvar("mint")), list[MuExp] exps) 								=> muCallMuPrim("mint", exps)
+               case muCall(preVar(mvar("undefine")), list[MuExp] exps) 							=> muCallMuPrim("undefine", exps)
                
                // Syntactic constructs that are mapped to muPrimitives
-      	       case preLess(MuExp lhs, MuExp rhs)									=> muCallMuPrim("less_mint_mint", [lhs, rhs])
-      	       case preLessEqual(MuExp lhs, MuExp rhs)								=> muCallMuPrim("less_equal_mint_mint", [lhs, rhs])
-      	       case preEqual(MuExp lhs, MuExp rhs)									=> muCallMuPrim("equal_mint_mint", [lhs, rhs])
-      	       case preNotEqual(MuExp lhs, MuExp rhs)								=> muCallMuPrim("not_equal_mint_mint", [lhs, rhs])
-      	       case preGreater(MuExp lhs, MuExp rhs)								=> muCallMuPrim("greater_mint_mint", [lhs, rhs])
-      	       case preGreaterEqual(MuExp lhs, MuExp rhs)							=> muCallMuPrim("greater_equal_mint_mint", [lhs, rhs])
-      	       case preAddition(MuExp lhs, MuExp rhs)								=> muCallMuPrim("addition_mint_mint", [lhs, rhs])
-      	       case preSubtraction(MuExp lhs, MuExp rhs)							=> muCallMuPrim("subtraction_mint_mint", [lhs, rhs])
-      	       case preDivision(MuExp lhs, MuExp rhs)								=> muCallMuPrim("division_mint_mint", [lhs, rhs])
-      	       case preModulo(MuExp lhs, MuExp rhs)									=> muCallMuPrim("modulo_mint_mint", [lhs, rhs])
-      	       case prePower(MuExp lhs, MuExp rhs)									=> muCallMuPrim("power_mint_mint", [lhs, rhs])
-      	       case preAnd(MuExp lhs, MuExp rhs)									=> muCallMuPrim("and_mbool_mbool", [lhs, rhs])
-      	       case preOr(MuExp lhs, MuExp rhs)									    => muCallMuPrim("or_mbool_mbool", [lhs, rhs])
-      	       case preIs(MuExp lhs, str typeName)									=> muCallMuPrim("is_<typeName>", [lhs])
+      	       case preLess(MuExp lhs, MuExp rhs)												=> muCallMuPrim("less_mint_mint", [lhs, rhs])
+      	       case preLessEqual(MuExp lhs, MuExp rhs)											=> muCallMuPrim("less_equal_mint_mint", [lhs, rhs])
+      	       case preEqual(MuExp lhs, MuExp rhs)												=> muCallMuPrim("equal_mint_mint", [lhs, rhs])
+      	       case preNotEqual(MuExp lhs, MuExp rhs)											=> muCallMuPrim("not_equal_mint_mint", [lhs, rhs])
+      	       case preGreater(MuExp lhs, MuExp rhs)											=> muCallMuPrim("greater_mint_mint", [lhs, rhs])
+      	       case preGreaterEqual(MuExp lhs, MuExp rhs)										=> muCallMuPrim("greater_equal_mint_mint", [lhs, rhs])
+      	       case preAddition(MuExp lhs, MuExp rhs)											=> muCallMuPrim("addition_mint_mint", [lhs, rhs])
+      	       case preSubtraction(MuExp lhs, MuExp rhs)										=> muCallMuPrim("subtraction_mint_mint", [lhs, rhs])
+      	       case preDivision(MuExp lhs, MuExp rhs)											=> muCallMuPrim("division_mint_mint", [lhs, rhs])
+      	       case preModulo(MuExp lhs, MuExp rhs)												=> muCallMuPrim("modulo_mint_mint", [lhs, rhs])
+      	       case prePower(MuExp lhs, MuExp rhs)												=> muCallMuPrim("power_mint_mint", [lhs, rhs])
+      	       case preAnd(MuExp lhs, MuExp rhs)												=> muCallMuPrim("and_mbool_mbool", [lhs, rhs])
+      	       case preOr(MuExp lhs, MuExp rhs)									    			=> muCallMuPrim("or_mbool_mbool", [lhs, rhs])
+      	       case preIs(MuExp lhs, str typeName)												=> muCallMuPrim("is_<typeName>", [lhs])
       	       
       	       // Overloading
-      	       case preFunNN(str modName,  str name, int nformals)                  => muFun(getUID(modName,[],name,nformals))
-      	       case preFunN(lrel[str,int] funNames,  str name, int nformals)        => muFun(getUID(modName,funNames,name,nformals), getUID(modName,funNames))
+      	       case preFunNN(str modName,  str name, int nformals)                  			=> muFun(getUID(modName,[],name,nformals))
+      	       case preFunN(lrel[str,int] funNames,  str name, int nformals)        			=> muFun(getUID(modName,funNames,name,nformals), getUID(modName,funNames))
       	       
             };
       } catch e: throw "In muRascal function <modName>::<for(<f,n> <- funNames){><f>::<n>::<}><fname>::<nformals> (uid = <uid>) : <e>";   

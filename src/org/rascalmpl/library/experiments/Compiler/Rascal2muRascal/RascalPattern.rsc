@@ -240,7 +240,7 @@ list[Lookahead] computeLookahead((Pattern) `[<{Pattern ","}* pats>]`){
 }
 
 str isLast(Lookahead lookahead) = lookahead.nMultiVar == 0 ? "LAST_" : "";
-
+/*
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead lookahead) {
    if("<name>" == "_"){
        return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_LIST",4), []);
@@ -248,6 +248,7 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead looka
    <fuid, pos> = getVariableScope("<name>", name@\loc);
    return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_LIST",5), [muVarRef("<name>", fuid, pos)]);
 } 
+*/
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`, Lookahead lookahead) {
    if("<name>" == "_"){
