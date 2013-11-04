@@ -191,13 +191,9 @@ public data MuExp =
             | preFunNN(str modName, str name, int nformals)
             | preFunN(lrel[str,int] funNames, str name, int nformals)
             | preList(list[MuExp] exps)
-            | preSubscriptArray(MuExp lst, MuExp idx)
-            | preSubscriptList(MuExp lst, MuExp idx)
-            | preSubscriptTuple(MuExp lst, MuExp idx)
             | preAssignLoc(Identifier id, MuExp exp)
             | preAssign(lrel[str,int] funNames, Identifier id, MuExp exp)
             | preAssignLocList(Identifier id1, Identifier id2, MuExp exp)
-            | preAssignSubscriptArray(MuExp lst, MuExp idx, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart)
             
             | preAddition(MuExp lhs, MuExp rhs)

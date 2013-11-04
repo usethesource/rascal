@@ -76,11 +76,21 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import util::ContentCompletion;
 ok
 <span class="prompt">rascal></span>SymbolTree symbol = symbol(&quot;main&quot;, &quot;method&quot;, {});
-|stdin:///|(0,10,&lt;1,0>,&lt;1,10>): Undeclared type: SymbolTree
+|stdin:///|(20,28,&lt;1,20>,&lt;1,48>): The called signature: symbol(str, str, set[void]),
+does not match any of the declared (overloaded) signature patterns:
+	SymbolTree = symbol(str,str)
+	SymbolTree = symbol(str,str,map[str, str])
+	SymbolTree = symbol(str,str)
+	SymbolTree = symbol(str,str,map[str, str])
+
 <span class="prompt">rascal></span>symbol@label = &quot;main (Entry Point)&quot;;
 |stdin:///|(0,6,&lt;1,0>,&lt;1,6>): Uninitialized variable: label
 <span class="prompt">rascal></span>createProposalsFromLabels(symbol);
-|stdin:///|(0,25,&lt;1,0>,&lt;1,25>): Undeclared variable: createProposalsFromLabels
+|stdin:///|(0,33,&lt;1,0>,&lt;1,33>): The called signature: createProposalsFromLabels(SymbolTree (...)),
+does not match any of the declared (overloaded) signature patterns:
+	list[CompletionProposal] createProposalsFromLabels(SymbolTree);
+	list[CompletionProposal] createProposalsFromLabels(list[SymbolTree]);
+
 </pre>
 </div>
 
