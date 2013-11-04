@@ -169,8 +169,7 @@ public class RascalTutor {
 		context.addServlet(new ServletHolder(new Save()), "/save");
 		context.addServlet(new ServletHolder(new Compile()), "/compile");
 
-
-		URI baseURI = getResolverRegistry().getResourceURI(URIUtil.rootScheme(BASE_SCHEME));
+		URI baseURI = URIUtil.rootScheme(BASE_SCHEME);
 		
 		System.err.println("resourceBase = " + baseURI);
 		String resourceBase = baseURI.toASCIIString();
