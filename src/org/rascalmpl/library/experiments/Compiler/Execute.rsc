@@ -31,7 +31,7 @@ list[Declaration] parseMuLibrary(){
   	    body = peephole(tr(fun.body));
   	    required_frame_size = get_nlocals() + estimate_stack_size(fun.body);
     	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun.scopeIn, fun.nformals, get_nlocals(), fun.refs, required_frame_size, body)
-    									  : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), required_frame_size, body,[]);
+    									  : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), false, required_frame_size, body,[]);
   	}
   
   	writeTextValueFile(MuLibraryCompiled, functions);
