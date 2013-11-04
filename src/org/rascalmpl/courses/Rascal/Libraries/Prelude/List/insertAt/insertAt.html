@@ -112,13 +112,16 @@ list[str]: ["zebra","elephant","eagle","snake","owl"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_3" value="0@3@[3,1,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_3" value="0@3@[3,2,1,0]">
 <label for="Rascal/Libraries/Prelude/List/insertAt_1_3">a length that depends on the inserted element. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_1" value="1@1@[3,1,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_2" value="1@2@[3,2,1,0]">
+<label for="Rascal/Libraries/Prelude/List/insertAt_1_2">N-1 elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_1" value="2@1@[3,2,1,0]">
 <label for="Rascal/Libraries/Prelude/List/insertAt_1_1">N elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_0" value="2@0@[3,1,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_0" value="3@0@[3,2,1,0]">
 <label for="Rascal/Libraries/Prelude/List/insertAt_1_0">N+1 elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
@@ -143,10 +146,10 @@ list[str]: ["zebra","elephant","eagle","snake","owl"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_insertAt_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:E" value="-8">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:L" value="[-4, -11, 18, 1, -11, -7]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:I" value="2">
-The type of <tt>insertAt([-4, -11, 18, 1, -11, -7], 2, -8)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_insertAt_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:E" value="10">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:L" value="[19, -17, -14, 12, 11]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:I" value="0">
+The type of <tt>insertAt([19, -17, -14, 12, 11], 0, 10)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_insertAt_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -170,10 +173,10 @@ The type of <tt>insertAt([-4, -11, 18, 1, -11, -7], 2, -8)</tt> is <input type="
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_insertAt_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:E" value="&quot;Pepper&quot;">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:L" value="[&quot;Yoda&quot;, &quot;Joh Yowza&quot;, &quot;Jasmine&quot;, &quot;Jabba the Hut&quot;]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:E" value="-18">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:L" value="[12, -2, 12, -10]">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:I" value="0">
-<pre class="prequestion">insertAt([&quot;Yoda&quot;, &quot;Joh Yowza&quot;, &quot;Jasmine&quot;, &quot;Jabba the Hut&quot;], 0, &quot;Pepper&quot;) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_insertAt_3:answer" class="answerText"></pre>
+<pre class="prequestion">insertAt([12, -2, 12, -10], 0, -18) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_insertAt_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:another" value="yes">

@@ -75,26 +75,26 @@
 <li> Define a parse function for the language.</li>
 <li> Register the language.</li>
 </ul> Now you can step-by-step extend the IDE for your language with additional features:
- <ul><li><a href="/Rascal/Libraries/util/IDE/clearLanguage/clearLanguage.html">clearLanguage</a>: </li>
-<li><a href="/Rascal/Libraries/util/IDE/clearLanguages/clearLanguages.html">clearLanguages</a>: </li>
-<li><a href="/Rascal/Libraries/util/IDE/clearNonRascalContribution/clearNonRascalContribution.html">clearNonRascalContribution</a>: </li>
-<li><a href="/Rascal/Libraries/util/IDE/clearNonRascalContributions/clearNonRascalContributions.html">clearNonRascalContributions</a>: </li>
-<li><a href="/Rascal/Libraries/util/IDE/Contribution/Contribution.html">Contribution</a>: </li>
-<li><a href="/Rascal/Libraries/util/IDE/createConsole/createConsole.html">createConsole</a>: </li>
+ <ul><li><a href="/Rascal/Libraries/util/IDE/clearLanguage/clearLanguage.html">clearLanguage</a>: Clear a registered language.</li>
+<li><a href="/Rascal/Libraries/util/IDE/clearLanguages/clearLanguages.html">clearLanguages</a>: Clear all registered languages.</li>
+<li><a href="/Rascal/Libraries/util/IDE/clearNonRascalContribution/clearNonRascalContribution.html">clearNonRascalContribution</a>: Clear all non-Rascal IDE contributions for a specific editor.</li>
+<li><a href="/Rascal/Libraries/util/IDE/clearNonRascalContributions/clearNonRascalContributions.html">clearNonRascalContributions</a>: Clear all non-Rascal IDE contributions.</li>
+<li><a href="/Rascal/Libraries/util/IDE/Contribution/Contribution.html">Contribution</a>: Data type to describe contributions to the menus of the IDE.</li>
+<li><a href="/Rascal/Libraries/util/IDE/createConsole/createConsole.html">createConsole</a>: Create a console with a Rascal handler.</li>
 <li><a href="/Rascal/Libraries/util/IDE/DocumentationHover/DocumentationHover.html">DocumentationHover</a>: Show documentation strings by hovering over elements of the source text in the IDE.</li>
 <li><a href="/Rascal/Libraries/util/IDE/ErrorMarking/ErrorMarking.html">ErrorMarking</a>: Visual and browsable error messages in the IDE.</li>
 <li><a href="/Rascal/Libraries/util/IDE/Folding/Folding.html">Folding</a>: Editors may hide (fold) certain parts of a source text based on <code>foldable</code> annotations.</li>
 <li><a href="/Rascal/Libraries/util/IDE/Hyperlinking/Hyperlinking.html">Hyperlinking</a>: Hyperlinks in source code.</li>
-<li><a href="/Rascal/Libraries/util/IDE/label/label.html">label</a>: </li>
-<li><a href="/Rascal/Libraries/util/IDE/loc/loc.html">loc</a>: </li>
+<li><a href="/Rascal/Libraries/util/IDE/label/label.html">label</a>: Annotate an outline node with a label.</li>
+<li><a href="/Rascal/Libraries/util/IDE/loc/loc.html">loc</a>: Annotate an outline node with a link.</li>
 <li><a href="/Rascal/Libraries/util/IDE/Menus/Menus.html">Menus</a>: menus in the IDE can be used to call Rascal functions with source texts as arguments and source texts as output</li>
 <li><a href="/Rascal/Libraries/util/IDE/Outline/Outline.html">Outline</a>: An outline is an IDE view with hyperlinks that quickly visualizes an outline of a source code file</li>
 <li><a href="/Rascal/Libraries/util/IDE/Plugin/Plugin.html">Plugin</a>: </li>
-<li><a href="/Rascal/Libraries/util/IDE/registerAnnotator/registerAnnotator.html">registerAnnotator</a>: </li>
-<li><a href="/Rascal/Libraries/util/IDE/registerContributions/registerContributions.html">registerContributions</a>: </li>
-<li><a href="/Rascal/Libraries/util/IDE/registerLanguage/registerLanguage.html">registerLanguage</a>: </li>
-<li><a href="/Rascal/Libraries/util/IDE/registerNonRascalContributions/registerNonRascalContributions.html">registerNonRascalContributions</a>: </li>
-<li><a href="/Rascal/Libraries/util/IDE/registerOutliner/registerOutliner.html">registerOutliner</a>: </li>
+<li><a href="/Rascal/Libraries/util/IDE/registerAnnotator/registerAnnotator.html">registerAnnotator</a>: Register an annotator.</li>
+<li><a href="/Rascal/Libraries/util/IDE/registerContributions/registerContributions.html">registerContributions</a>: Register contributions to Eclipse menus.</li>
+<li><a href="/Rascal/Libraries/util/IDE/registerLanguage/registerLanguage.html">registerLanguage</a>: Register a language extension and a parser for use in Eclipse.</li>
+<li><a href="/Rascal/Libraries/util/IDE/registerNonRascalContributions/registerNonRascalContributions.html">registerNonRascalContributions</a>: Register contributions to menus of a non-Rascal editor.</li>
+<li><a href="/Rascal/Libraries/util/IDE/registerOutliner/registerOutliner.html">registerOutliner</a>: Register an outliner.</li>
 </ul> To be able to reuse your IDE between runs of Eclipse, read about <a href="/Rascal/Libraries/util/IDE/Plugin/Plugin.html">Plugin</a>s.
  To add annotations to trees, just after parsing, you should register an <code>annotator</code> function.
 
