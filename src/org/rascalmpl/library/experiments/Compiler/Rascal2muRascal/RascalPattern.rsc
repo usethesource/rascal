@@ -103,11 +103,11 @@ tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegEx
   exps = [];
   str fragment = "(";
   for(nr <- namedregexps){
-      println("nr = <nr>");
+      //println("nr = <nr>");
       if(size("<nr>") == 1){
         fragment += "<nr>";
       } else if((NamedRegExp) `\<<Name name2>\>` := nr){
-        println("Name case: <name2>");
+        //println("Name case: <name2>");
         if(fragment != ""){
            exps += muCon(fragment);
            fragment = "";
@@ -129,7 +129,7 @@ MuExp translatePat(p:(Pattern) `<QualifiedName name>`) {
       return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR",1), []);
    }
    <fuid, pos> = getVariableScope("<name>", name@\loc);
-   println("transPattern: <fuid>, <pos>");
+   //println("transPattern: <fuid>, <pos>");
    return muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muVarRef("<name>", fuid, pos)]);
 } 
      
@@ -234,8 +234,6 @@ list[Lookahead] computeLookahead((Pattern) `[<{Pattern ","}* pats>]`){
                  append <nElem, nMultiVar>;
                  if(isMultiVar(p)) nMultiVar += 1; else nElem += 1;
              };
-             
-    println("computeLookahead: <pats> ===\> <reverse(rprops)>");
     return reverse(rprops);
 }
 
@@ -378,7 +376,7 @@ MuExp translateMatch(p:(Pattern) `{<{Pattern ","}* pats>}`, Expression exp){
    
    translatedPatterns = otherPats + compiledVars + compiledMultiVars;
    
-   println("translatedPatterns = <translatedPatterns>");
+   //println("translatedPatterns = <translatedPatterns>");
    
    if(size(otherPats) == 0){
       if(size(multiVars) == 1 && size(vars) == 0){
