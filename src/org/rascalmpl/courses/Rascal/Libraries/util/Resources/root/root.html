@@ -86,6 +86,22 @@ Resource: root({
       |project://rascal|,
       {}),
     project(
+      |project://ExercisesInStyle|,
+      {
+        folder(
+          |project://ExercisesInStyle/META-INF|,
+          {file(|project://ExercisesInStyle/META-INF/MANIFEST.MF|)}),
+        folder(
+          |project://ExercisesInStyle/src|,
+          {
+            file(|project://ExercisesInStyle/src/pp.txt|),
+            file(|project://ExercisesInStyle/src/try1.rsc|)
+          }),
+        folder(
+          |project://ExercisesInStyle/.settings|,
+          {file(|project://ExercisesInStyle/.settings/org.eclipse.core.resources.prefs|)})
+      }),
+    project(
       |project://Test|,
       {
         folder(
@@ -243,13 +259,7 @@ Resource: root({
                   {folder(
                       |project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp|,
                       {folder(
-                          |project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb|,
-                          {
-                            folder(
-                              |project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test|,
-                              {
-                                folder(
-             ...
+ ...
 </pre>
 </div>
 
