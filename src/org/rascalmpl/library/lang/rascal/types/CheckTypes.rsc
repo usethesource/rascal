@@ -6082,7 +6082,19 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         sig = sigMap[modName];
         c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
         for (item <- sig.datatypes) c = importADT(item.adtName, item.adtType, item.at, publicVis(), true, c);
-        for (item <- sig.aliases) c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), true, c);
+        bool modified = true;
+        definitions = invert(c.definitions);
+        while(modified) {
+            modified = false;
+            for(item <- sig.aliases) {
+                int aliasId = getOneFrom(definitions[item.at]);
+                Symbol t = c.store[aliasId].rtype;
+                c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), true, c);
+                if(t != c.store[aliasId].rtype) {
+                    modified = true;
+                }
+            }
+        }
         for (item <- sig.tags) c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), true, c);
         c.stack = tail(c.stack);
     }
@@ -6142,6 +6154,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     if ((Body)`<Toplevel* tls>` := body) {
         dt1 = now();
         list[Declaration] typesAndTags = [ ];
+        list[Declaration] aliases = [ ];
         list[Declaration] annotations = [ ];
         list[Declaration] names = [ ];
         
@@ -6151,7 +6164,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
             switch(decl) {
                 case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : names = names + decl;
                 case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : annotations = annotations + decl;
-                case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : typesAndTags = typesAndTags + decl;
+                case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : aliases = aliases + decl;
                 case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : typesAndTags = typesAndTags + decl;
                 case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : typesAndTags = typesAndTags + decl;
                 case (Declaration)`<Tags _> <Visibility _> data <UserType _> = <{Variant "|"}+ _> ;` : typesAndTags = typesAndTags + decl;
@@ -6161,6 +6174,22 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 
         // Introduce the type names into the environment
         for (t <- typesAndTags) c = checkDeclaration(t,false,c);
+        for (t <- aliases) c = checkDeclaration(t,false,c);
+        
+        // Now, actually process the aliases
+        bool modified = true;
+        definitions = invert(c.definitions);
+        while(modified) {
+        	    modified = false;
+            for(t <- aliases) {
+                int aliasId = getOneFrom(definitions[t@\loc]);
+                Symbol aliasedType = c.store[aliasId].rtype;
+                c = checkDeclaration(t,true,c);
+                if(aliasedType != c.store[aliasId].rtype) {
+                    modified = true;
+                }
+            }
+        }
         
         // Now, actually process the type names
         for (t <- typesAndTags) c = checkDeclaration(t,true,c);

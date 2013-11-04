@@ -1,15 +1,17 @@
 module experiments::Compiler::Benchmarks::BDotVis
-import lang::dot::Dot;
+
+import Exception;
 import vis::Figure;
-import vis::Render; 
+//import vis::Render; 
 import Set;
 import IO;
 import String;
 import List;
 import Map;
 
-import analysis::formalconcepts::CXTIO;
-import analysis::formalconcepts::FCA;
+import experiments::Compiler::Benchmarks::dot::Dot;
+import experiments::Compiler::Benchmarks::fca::CXTIO;
+import experiments::Compiler::Benchmarks::fca::FCA;
 
 
 Stms getStms(DotGraph g) {
@@ -35,10 +37,11 @@ public Figure vertice(Id s, Attrs attrs) {
     list[str] labs = [s| <"label", s> <-attrs];
     str lab = (isEmpty(labs))?s:labs[0];
     list[str] r = [w | <"shape", w> <-attrs];
+    println("Attrs: <attrs>");
     if (!isEmpty(r)) {
       switch(r[0]) {
        case "ellipse": return shapeEllipse(text(substr(lab)), getProps(attrs)+id(s));
-       case "diamond": return shapeDiamand(text(substr(lab)), getProps(attrs)+id(s));
+       case "diamond": return shapeDiamond(text(substr(lab)), getProps(attrs)+id(s));
        }
     }
     return shapeBox(text(substr(lab)), getProps(attrs)+id(s));
@@ -65,9 +68,9 @@ Attrs getEdgeAttributes(Stms stms) {
 list[Figure] getNodes(Stms stms, Attrs nodeAttrs) {
    map[str, Figure] m = 
      (from:
-   vertice(from, nodeAttrs)| E(Id from, _)<-stms)
+   vertice(from, nodeAttrs)| Stm stm<-stms, (E(Id from, Id _):=stm || E(Id from, NodeId _):=stm || E(Id from, Stm _):=stm))
    + (to:
-   vertice(to, nodeAttrs)| E(_, Id to)<-stms)   
+   vertice(to, nodeAttrs)| Stm stm<-stms, (E(Id _, Id to):=stm || E(NodeId _, Id to):=stm || E(Stm _, Id to):=stm))   
    + (s:
    vertice(s, nodeAttrs+attrs) | N(Id s, attrs)<-stms)
    + (s:
@@ -78,22 +81,21 @@ list[Figure] getNodes(Stms stms, Attrs nodeAttrs) {
 
 list[Edge] getEdges(Stms stms, Attrs edgeAttrs) {   
     return [edge(from, to, getProps(edgeAttrs)+toArrow(headNormal(fillColor("red"))))|E(Id from, Id to)<-stms];
-    }
+}
 
 public Figure dot2fig(DotGraph g) {
     Stms stms = getStms(g);
     Attrs nodeAttrs = getNodeAttributes(stms);
     Attrs edgeAttrs = getEdgeAttributes(stms);
     list[Figure] nodes = getNodes(stms, nodeAttrs);
-    // println(nodes);
     list[Edge] edges = getEdges(stms, edgeAttrs);
-    // println(edges);
     return graph(nodes, edges, size(800),vgap(40), hgap(40), hint("layered"));
-    }
+}
     
 public value main(list[value] args) {
-     ConceptLattice[str, str] cl = fca(readCxt(|rascal:///experiments/Compiler/Benchmarks/FCAExamples/FCxt2.cxt|));
+     ConceptLattice[str, str] cl = fca(readCxt(|rascal:///experiments/Compiler/Benchmarks/fca/examples/FCxt2.cxt|));
      DotGraph gr = toDot(cl);
      Figure g = dot2fig(gr);
-     render(g);
-     }
+     //render(g);
+     return g;
+}
