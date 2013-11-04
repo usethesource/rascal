@@ -261,7 +261,7 @@ public class SourceConverter extends M3Converter {
 	private ISourceLocation getParent(ISourceLocation sourceLoc) {
 		File file = new File(sourceLoc.getPath());
 		String parent = file.getParent();
-		if (parent != null) {
+		if (parent != null && !parent.equals("/")) {
 			parent = parent.replaceAll(Matcher.quoteReplacement("\\"), "/");
 			String authority = null;
 			if (sourceLoc.hasAuthority())
