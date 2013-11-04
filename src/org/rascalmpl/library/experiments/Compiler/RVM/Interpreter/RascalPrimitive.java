@@ -50,7 +50,6 @@ import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.library.Prelude;
 
 /*
  * The primitives that can be called via the CALLPRIM instruction.
@@ -2509,6 +2508,8 @@ public enum RascalPrimitive {
 	public static int rel_field_project(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		ISet rel = (ISet) stack[sp - arity];
+		int indexArity = arity - 1;
+		assert indexArity <= rel.getElementType().getArity();
 		int[] fields = new int[arity - 1];
 		for(int i = 1; i < arity; i++){
 			fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
@@ -2520,7 +2521,7 @@ public enum RascalPrimitive {
 			for(int j = 0; j < fields.length; j++){
 				elems[j] = tup.get(fields[j]);
 			}
-			w.insert(vf.tuple(elems));
+			w.insert((indexArity > 1) ? vf.tuple(elems) : elems[0]);
 		}
 		stack[sp - arity] = w.done();
 		return sp - arity + 1;
@@ -2529,6 +2530,8 @@ public enum RascalPrimitive {
 	public static int lrel_field_project(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		IList lrel = (IList) stack[sp - arity];
+		int indexArity = arity - 1;
+		assert indexArity <= lrel.getElementType().getArity();
 		int[] fields = new int[arity - 1];
 		for(int i = 1; i < arity; i++){
 			fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
@@ -2540,7 +2543,7 @@ public enum RascalPrimitive {
 			for(int j = 0; j < fields.length; j++){
 				elems[j] = tup.get(fields[j]);
 			}
-			w.append(vf.tuple(elems));
+			w.append((indexArity > 1) ? vf.tuple(elems) : elems[0]);
 		}
 		stack[sp - arity] = w.done();
 		return sp - arity + 1;
@@ -3710,7 +3713,9 @@ public enum RascalPrimitive {
 	
 	public static int set_less_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((ISet) stack[sp - 2]).isSubsetOf((ISet) stack[sp - 1]);
+		ISet lhs = (ISet) stack[sp - 2];
+		ISet rhs = (ISet) stack[sp - 1];
+		stack[sp - 2] = !lhs.isEqual(rhs) && lhs.isSubsetOf(rhs);
 		return sp - 1;
 	}
 	
