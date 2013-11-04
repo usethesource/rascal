@@ -35,6 +35,7 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
 
@@ -355,9 +356,26 @@ public class RVM {
 	private Object executeFunction(Frame root, FunctionInstance func, IValue[] args){
 		Frame cf = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
 		
-		// Pass the program argument to main
-		for(int i = 0; i < args.length; i++){
-			cf.stack[i] = args[i]; 
+		// Pass function arguments and account for the case of a variable number of parameters
+		if(func.function.isVarArgs) {
+			for(int i = 0; i < func.function.nformals - 1; i++) {
+				cf.stack[i] = args[i];
+			}
+			Type argTypes = ((FunctionType) func.function.ftype).getArgumentTypes();
+			if(args.length == func.function.nformals
+					&& args[func.function.nformals - 1].getType().isSubtypeOf(argTypes.getFieldType(func.function.nformals - 1))) {
+				cf.stack[func.function.nformals - 1] = args[func.function.nformals - 1];
+			} else {
+				IListWriter writer = vf.listWriter();
+				for(int i = func.function.nformals - 1; i < args.length; i++) {
+					writer.append(args[i]);
+				}
+				cf.stack[func.function.nformals - 1] = writer.done();
+			}
+		} else {
+			for(int i = 0; i < args.length; i++){
+				cf.stack[i] = args[i]; 
+			}
 		}
 		return executeProgram(root, cf);
 	}
@@ -779,7 +797,8 @@ public class RVM {
 							this.appendToTrace("		" + getFunctionName(index));
 						}
 					}
-					
+					// TODO: Re-think of the cases of polymorphic and var args function alternatives
+					// The most straightforward solution would be to check the arity and let pattern matching on formal parameters do the rest
 					NEXT_FUNCTION: 
 					for(int index : of_instance.functions) {
 						fun = functionStore.get(index);

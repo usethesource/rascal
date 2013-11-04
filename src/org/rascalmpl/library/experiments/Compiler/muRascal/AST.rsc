@@ -25,7 +25,7 @@ public data MuModule =
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-                muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, loc source, list[str] modifiers, map[str,str] tags, MuExp body)
+                muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, loc source, list[str] modifiers, map[str,str] tags, MuExp body)
               | muCoroutine(str qname, str scopeIn, int nformals, int nlocals, list[int] refs, MuExp body)
           ;
           
@@ -191,13 +191,9 @@ public data MuExp =
             | preFunNN(str modName, str name, int nformals)
             | preFunN(lrel[str,int] funNames, str name, int nformals)
             | preList(list[MuExp] exps)
-            | preSubscriptArray(MuExp lst, MuExp idx)
-            | preSubscriptList(MuExp lst, MuExp idx)
-            | preSubscriptTuple(MuExp lst, MuExp idx)
             | preAssignLoc(Identifier id, MuExp exp)
             | preAssign(lrel[str,int] funNames, Identifier id, MuExp exp)
             | preAssignLocList(Identifier id1, Identifier id2, MuExp exp)
-            | preAssignSubscriptArray(MuExp lst, MuExp idx, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart)
             
             | preAddition(MuExp lhs, MuExp rhs)

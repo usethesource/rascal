@@ -45,7 +45,7 @@ public str getModuleName() = module_name;
 private void setFunctionUID(loc l) {
    inverted = config.definitions<1,0>;
    function_uid = toList(inverted[l])[0];
-   println("function_uid = <function_uid>");
+   //println("function_uid = <function_uid>");
 }
 
 public int getFunctionUID() = function_uid;
@@ -187,10 +187,10 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
      paramTypes = \tuple([param | param <- ftype.parameters]);
      params = [ muLoc("<ftype.parameters[i]>", i) | i <- [ 0 .. nformals] ];
      exp = muCallJava("<signature.name>", ttags["javaClass"], paramTypes, ("reflect" in ttags) ? 1 : 0, params);
-     tbody = translateFunction(signature.parameters.formals.formals, exp, []);
+     tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, exp, []);
     
      functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, tbody);
+  									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, tmods, ttags, tbody);
   } else {
     println("r2mu: <fuid> ignored");
   }
@@ -198,7 +198,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
   println("r2mu: Compiling <signature.name>");
-   setFunctionUID(fd@\loc);
+  setFunctionUID(fd@\loc);
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
   uid = loc2uid[fd@\loc];
@@ -210,11 +210,11 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
  //TODO: keyword parameters
-  tbody = translateFunction(signature.parameters.formals.formals, expression, []);
+  tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, expression, []);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, tbody);
+  									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, tmods, ttags, tbody);
   
   if("test" in tmods){
      params = ftype.parameters;
@@ -229,7 +229,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`){
   println("r2mu: Compiling <signature.name>");
-   setFunctionUID(fd@\loc);
+  setFunctionUID(fd@\loc);
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
   uid = loc2uid[fd@\loc];
@@ -241,11 +241,11 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
  //TODO: keyword parameters
-  tbody = translateFunction(signature.parameters.formals.formals, expression, [exp | exp <- conditions]);
+  tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, expression, [exp | exp <- conditions]);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									nformals, getScopeSize(fuid), fd@\loc, tmods, ttags, tbody);
+  									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, tmods, ttags, tbody);
   
   if("test" in tmods){
      params = ftype.parameters;
@@ -260,7 +260,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
   println("r2mu: Compiling <signature.name>");
-   setFunctionUID(fd@\loc);
+  setFunctionUID(fd@\loc);
   ftype = getFunctionType(fd@\loc);    
   nformals = size(ftype.parameters);
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
@@ -270,13 +270,13 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   
   enterFunctionScope(fuid);
   
-  MuExp tbody = translateFunction(signature.parameters.formals.formals, body.statements, []);
+  MuExp tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, body.statements, []);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   
   tuple[str fuid,int pos] addr = uid2addr[uid];
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									nformals, getScopeSize(fuid), fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody);
+  									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody);
   					
    if("test" in tmods){
      params = ftype.parameters;
@@ -331,5 +331,5 @@ void generate_tests(str module_name){
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    name_testsuite = "<module_name>_testsuite";
    main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-   functions_in_module += muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, |rascal:///|, [], (), code);
+   functions_in_module += muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, false, |rascal:///|, [], (), code);
 }
