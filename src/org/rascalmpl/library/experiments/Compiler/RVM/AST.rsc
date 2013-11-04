@@ -7,7 +7,8 @@ public data Declaration =
 		  		   Symbol ftype, 
 		  		   str scopeIn, 
 		  		   int nformals, 
-		  		   int nlocals, 
+		  		   int nlocals,
+		  		   bool isVarArgs,
 		  		   int maxStack, 
 		  		   list[Instruction] instructions,
 		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
