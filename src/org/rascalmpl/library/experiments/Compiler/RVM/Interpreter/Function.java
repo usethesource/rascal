@@ -30,6 +30,8 @@ public class Function {
 	 
 	 boolean isCoroutine = false;
 	 int[] refs;
+	 
+	 boolean isVarArgs = false;
 	
 	public Function(String name, Type ftype, String funIn, int nformals, int nlocals, int maxstack, CodeBlock codeblock){
 		this.name = name;

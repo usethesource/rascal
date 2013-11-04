@@ -355,9 +355,20 @@ public class RVM {
 	private Object executeFunction(Frame root, FunctionInstance func, IValue[] args){
 		Frame cf = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
 		
-		// Pass the program argument to main
-		for(int i = 0; i < args.length; i++){
-			cf.stack[i] = args[i]; 
+		// Pass function arguments and account for the case of a variable number of parameters
+		if(func.function.isVarArgs) {
+			for(int i = 0; i < func.function.nformals - 1; i++) {
+				cf.stack[i] = args[i];
+			}
+			IListWriter writer = vf.listWriter();
+			for(int i = func.function.nformals - 1; i < args.length; i++) {
+				writer.append(args[i]);
+			}
+			cf.stack[func.function.nformals - 1] = writer.done();
+		} else {
+			for(int i = 0; i < args.length; i++){
+				cf.stack[i] = args[i]; 
+			}
 		}
 		return executeProgram(root, cf);
 	}
@@ -779,7 +790,8 @@ public class RVM {
 							this.appendToTrace("		" + getFunctionName(index));
 						}
 					}
-					
+					// TODO: Re-think of the cases of polymorphic and var args function alternatives
+					// The most straightforward solution would be to check the arity and let pattern matching on formal parameters do the rest
 					NEXT_FUNCTION: 
 					for(int index : of_instance.functions) {
 						fun = functionStore.get(index);

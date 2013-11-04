@@ -852,10 +852,10 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
 	bool isVarArgs = (varArgs(_,_) := parameters);
   	// TODO: keyword parameters
     
-    MuExp body = translateFunction(parameters.formals.formals, statements, []);
+    MuExp body = translateFunction(parameters.formals.formals, isVarArgs, statements, []);
     tuple[str fuid,int pos] addr = uid2addr[uid];
     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									  nformals, nlocals, e@\loc, [], (), body);
+  									  nformals, nlocals, isVarArgs, e@\loc, [], (), body);
   	
   	leaveFunctionScope();								  
   	
@@ -996,7 +996,7 @@ MuExp translateVisit(label,\visit) {
 	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value(),Symbol::\value()]);
 	
 	enterVisit();	
-	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 3, 3, \visit@\loc, [], (), 
+	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 3, 3, false, \visit@\loc, [], (), 
 										translateVisitCases([ c | Case c <- \visit.cases ]));
 	leaveVisit();
 	
@@ -1012,7 +1012,7 @@ MuExp translateVisit(label,\visit) {
 						  						[ muAssignLoc("iSubject",0, muLoc("val",4)) ] )]);
 		body += muReturn(muLoc("iSubject",0));
 		
-		functions_in_module += muFunction(phi_fixpoint_fuid, phi_ftype, scopeId, 3, 5, \visit@\loc, [], (), muBlock(body));
+		functions_in_module += muFunction(phi_fixpoint_fuid, phi_ftype, scopeId, 3, 5, false, \visit@\loc, [], (), muBlock(body));
 	
 		str hasMatch = asTmp(nextLabel());
 		str beenChanged = asTmp(nextLabel());

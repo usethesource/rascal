@@ -25,7 +25,7 @@ public data MuModule =
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-                muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, loc source, list[str] modifiers, map[str,str] tags, MuExp body)
+                muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, loc source, list[str] modifiers, map[str,str] tags, MuExp body)
               | muCoroutine(str qname, str scopeIn, int nformals, int nlocals, list[int] refs, MuExp body)
           ;
           

@@ -474,6 +474,8 @@ public class Execute {
 		} else {
 			IList exceptions = (IList) declaration.get("exceptions");
 			function.attachExceptionTable(exceptions, rvm);
+			boolean isVarArgs = ((IBool) declaration.get("isVarArgs")).getValue();
+			function.isVarArgs = isVarArgs;
 		}
 		rvm.declare(function);
 	}
