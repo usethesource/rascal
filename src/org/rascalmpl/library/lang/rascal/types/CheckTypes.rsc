@@ -368,8 +368,10 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.nextLoc = c.nextLoc + 1;
     } else {
-        if (!equivalent(rt,c.store[c.annotationEnv[n]].rtype))
+        if (!equivalent(rt,c.store[c.annotationEnv[n]].rtype)){
+            println("addAnnotation: <n>, <rt> and <c.store[c.annotationEnv[n]].rtype>, <l>");
             throw "All annotation types in an annotation set much be equivalent";
+            }
         c.store[c.annotationEnv[n]].onTypes = c.store[c.annotationEnv[n]].onTypes + rtOn; 
         c.definitions = c.definitions + < c.annotationEnv[n], l >;
     }
