@@ -124,6 +124,9 @@ public class RVM {
 	
 	public void declareConstructor(String name, IConstructor symbol) {
 		Type constr = types.symbolToType(symbol, typeStore);
+		if(constructorMap.get(name) != null) {
+			throw new RuntimeException("PANIC: Double declaration of constructor: " + name);
+		}
 		constructorMap.put(name, constructorStore.size());
 		constructorStore.add(constr);
 	}
