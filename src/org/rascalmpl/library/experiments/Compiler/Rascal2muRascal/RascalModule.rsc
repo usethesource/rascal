@@ -45,7 +45,7 @@ public str getModuleName() = module_name;
 private void setFunctionUID(loc l) {
    inverted = config.definitions<1,0>;
    function_uid = toList(inverted[l])[0];
-   println("function_uid = <function_uid>");
+   //println("function_uid = <function_uid>");
 }
 
 public int getFunctionUID() = function_uid;
