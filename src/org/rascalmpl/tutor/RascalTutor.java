@@ -24,6 +24,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
+import org.eclipse.swt.internal.Library;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -46,6 +47,7 @@ public class RascalTutor {
 		PrintWriter stdout = new PrintWriter(System.out);
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
 	  eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+	 
 		eval.addRascalSearchPath(URIUtil.rootScheme("tutor"));
 		eval.addRascalSearchPath(URIUtil.rootScheme("courses"));
 	}
