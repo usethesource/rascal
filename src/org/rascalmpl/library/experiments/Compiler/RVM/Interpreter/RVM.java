@@ -35,6 +35,7 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
 
@@ -360,11 +361,17 @@ public class RVM {
 			for(int i = 0; i < func.function.nformals - 1; i++) {
 				cf.stack[i] = args[i];
 			}
-			IListWriter writer = vf.listWriter();
-			for(int i = func.function.nformals - 1; i < args.length; i++) {
-				writer.append(args[i]);
+			Type argTypes = ((FunctionType) func.function.ftype).getArgumentTypes();
+			if(args.length == func.function.nformals
+					&& args[func.function.nformals - 1].getType().isSubtypeOf(argTypes.getFieldType(func.function.nformals - 1))) {
+				cf.stack[func.function.nformals - 1] = args[func.function.nformals - 1];
+			} else {
+				IListWriter writer = vf.listWriter();
+				for(int i = func.function.nformals - 1; i < args.length; i++) {
+					writer.append(args[i]);
+				}
+				cf.stack[func.function.nformals - 1] = writer.done();
 			}
-			cf.stack[func.function.nformals - 1] = writer.done();
 		} else {
 			for(int i = 0; i < args.length; i++){
 				cf.stack[i] = args[i]; 
