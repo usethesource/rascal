@@ -18,7 +18,7 @@ public class CallJava extends Instruction {
 	}
 	
 	public String toString() { return "CALLJAVA " + codeblock.getConstantValue(methodName) + ", " + codeblock.getConstantValue(className) +
-			                                      ", " +  codeblock.getConstantValue(parameterTypes) + ", " + reflect; }
+			                                      ", " +  codeblock.getConstantType(parameterTypes) + ", " + reflect; }
 		
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
