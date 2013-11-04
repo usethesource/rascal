@@ -103,5 +103,4 @@ Import-Package: javax.servlet,
  org.rascalmpl.library.vis,
  org.rascalmpl.values
 Bundle-ClassPath: lib/snakeyaml-1.11.jar,
- lib/kodkod.jar,
  .
