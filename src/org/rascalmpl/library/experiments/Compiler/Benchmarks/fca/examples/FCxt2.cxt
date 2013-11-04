@@ -3,9 +3,9 @@ B
 2
 2
 
-value>5
+value==5
 value==1
->5
+==5
 ==1
 X.
 .X
