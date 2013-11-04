@@ -265,6 +265,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                        return false;
                    } catch invalidMatch(_,_): { 
                        return false; 
+                   } catch err: {
+                       println("WARNING: Cannot match <ftype> against <t> for location: <expression@\loc>! <err>");
                    }
                }
                return t == ftype;
@@ -279,6 +281,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                            ;
                        } catch invalidMatch(_,_): { 
                            ; 
+                       } catch err: {
+                           println("WARNING: Cannot match <alt> against <t> for location: <expression@\loc>! <err>");
                        }
                    }
                    return false;
