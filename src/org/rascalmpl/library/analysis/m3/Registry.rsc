@@ -1,3 +1,10 @@
+@doc{
+Synopsis: in memory database for [analysis/m3/Core] models for resolving hyperlinks
+
+Description:
+
+The functions in this file are used to register m3 models in a global in-memory database. When a source location is clicked this database is used used to resolve logical source locations, such as `|java+class:///java/lang/Object|` to physical source locations such as `|file:///usr/lib/blabla.java|`.
+}
 module analysis::m3::Registry
 
 import analysis::m3::Core;
