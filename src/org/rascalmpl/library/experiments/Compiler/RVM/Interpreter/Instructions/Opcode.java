@@ -275,7 +275,7 @@ public enum Opcode {
 			return "OCALLDYN " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2] + " [" + cb.getConstantType(cb.finalCode[pc + 1]) + "]";
 			
 		case CALLJAVA:	
-			return "CALLJAVA " + cb.getConstantValue(cb.finalCode[pc + 1]) + ", " + cb.getConstantValue(cb.finalCode[pc + 2]) + ", " + cb.getConstantValue(cb.finalCode[pc + 3]) + "," + cb.finalCode[pc + 4] ;
+			return "CALLJAVA " + cb.getConstantValue(cb.finalCode[pc + 1]) + ", " + cb.getConstantValue(cb.finalCode[pc + 2]) + ", " + cb.getConstantType(cb.finalCode[pc + 3]) + "," + cb.finalCode[pc + 4] ;
 			
 		case THROW:
 			return "THROW";
