@@ -171,13 +171,6 @@ public class RascalTutor {
 		context.addServlet(new ServletHolder(new Save()), "/save");
 		context.addServlet(new ServletHolder(new Compile()), "/compile");
 
-		URI baseURI = URIUtil.rootScheme(BASE_SCHEME);
-		
-		System.err.println("resourceBase = " + baseURI);
-		String resourceBase = baseURI.toASCIIString();
-		context.setResourceBase(resourceBase); 
-		context.setAttribute("ResourceBase", resourceBase);
-     
 		String welcome[] = { BASE_SCHEME + ":///index.html"};
 		context.setWelcomeFiles(welcome);
 		
