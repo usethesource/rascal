@@ -81,9 +81,9 @@ syntax Exp  =
 			| muOne:                    "one" "(" {Exp ","}+ exps ")"
 			| muAll:                    "all" "(" {Exp ","}+ exps ")"
 			
-			| preSubscriptArray: 		"get_array" Exp ar "[" Exp index "]"
-			| preSubscriptList: 		"get_list" Exp lst "[" Exp index "]"
-			| preSubscriptTuple: 		"get_tuple" Exp tup "[" Exp index "]"
+		//	| preSubscriptArray: 		"get_array" Exp ar "[" Exp index "]"
+		//	| preSubscriptList: 		"get_list" Exp lst "[" Exp index "]"
+		//	| preSubscriptTuple: 		"get_tuple" Exp tup "[" Exp index "]"
 			
 			> muCall: 					Exp!muReturn!muYield!muExhaust exp1 "(" {Exp ","}* args ")"
 			
@@ -109,7 +109,7 @@ syntax Exp  =
 			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] TConst typeName
 			
 		 	> preAssignLoc:				Identifier!fvar id "=" Exp exp
-		 	| preAssignSubscriptArray:	"set_array" Exp ar "[" Exp index "]" "=" Exp exp
+		 //	| preAssignSubscriptArray:	"set_array" Exp ar "[" Exp index "]" "=" Exp exp
 			> preAssign: 				FunNamePart+ funNames Identifier!fvar id "=" Exp exp
 			
 			// call-by-reference: assignment 
@@ -152,8 +152,7 @@ syntax TypeCase = muTypeCase: 			"case" TConst id ":" Exp exp ;
 
 keyword Keywords = 
               "module" | "declares" | "function" | "coroutine" | "return" | 
-              "get_array" | "get_list" | "get_tuple" |
-              "set_array" |
+              //"get_array" | "get_list" | "get_tuple" | "set_array" |
 			  "prim" | "muprim" | "if" | "else" |  "while" |
               "create" | "init" | "next" | "yield" | "exhaust" | "hasNext" |
               "guard" |
