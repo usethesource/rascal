@@ -291,7 +291,9 @@ public str readConceptFile(ConceptName cn){
 
 public void saveConceptFile(ConceptName cn, str text){
    remoteloc = courseDir + cn + remoteLoc;
+   println("remoteLoc for saving into lib: <remoteloc>");
    if(exists(remoteloc)){
+      println("it exists!!");
       remote = readTextValueFile(#loc,  remoteloc);
       if(replaceDoc(remote, basename(cn), text)){
          rmap = remoteContentMap[rootname(cn)] ? ();

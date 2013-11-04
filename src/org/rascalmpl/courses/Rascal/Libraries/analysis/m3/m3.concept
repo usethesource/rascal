@@ -1,6 +1,6 @@
 Name: m3
 
-Synopsis:
+Synopsis: a language independent meta model for facts about source code, which is extensible to include language specific modeling elements
 
 Syntax:
 

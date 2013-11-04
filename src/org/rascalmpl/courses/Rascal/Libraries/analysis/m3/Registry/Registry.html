@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/analysis/m3/Registry</title>
 
-<meta name="description" content="Rascal/Libraries/analysis/m3/Registry: ">
+<meta name="description" content="Rascal/Libraries/analysis/m3/Registry:  in memory database for [analysis/m3/Core] models for resolving hyperlinks">
 
 <meta name="keywords" content="Rascal/Libraries/analysis/m3/Registry, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -43,6 +43,11 @@
 <span class="sectionHead">Name</span> <a href="/Rascal/Rascal.html">Rascal</a>/<a href="/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Rascal/Libraries/analysis/analysis.html">analysis</a>/<a href="/Rascal/Libraries/analysis/m3/m3.html">m3</a>/<a href="/Rascal/Libraries/analysis/m3/Registry/Registry.html">Registry</a>
 </div>
 
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  in memory database for <a href="/Rascal/Libraries/analysis/m3/Core/Core.html">analysis/m3/Core</a> models for resolving hyperlinks
+
+</div>
+
 	                       
                            
                            
@@ -50,6 +55,11 @@
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import analysis::m3::Registry;</code>
  </AUTOINSERTED>
+
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  The functions in this file are used to register m3 models in a global in-memory database. When a source location is clicked this database is used used to resolve logical source locations, such as <code>|java+class:///java/lang/Object|</code> to physical source locations such as <code>|file:///usr/lib/blabla.java|</code>.
 
 </div>
 
