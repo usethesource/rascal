@@ -76,10 +76,10 @@ The following functions are defined for DateTime:
 Examples:
 <screen>
 //Examples of `datetime` values are:
-$2010-07-15;
-$T07:15:23.123+0100;
+$2010-07-15$;
+$T07:15:23.123+0100$;
 // Now introduce a `datetime` value and assign it to `DT`.
-DT = $2010-07-15T09:15:23.123+03:00;
+DT = $2010-07-15T09:15:23.123+03:00$;
 // Here are examples of some `datatime` fields:
 DT.isDateTime;
 DT.justDate;

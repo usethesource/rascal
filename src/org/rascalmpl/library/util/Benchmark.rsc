@@ -15,7 +15,7 @@ Synopsis: Functions for time measurement and benchmarking.
 
 Description:
 
-Provides the following functions:
+The `Benchmark` library provides the following functions:
 <toc Rascal/Libraries/util/Benchmark 1>
 }
 

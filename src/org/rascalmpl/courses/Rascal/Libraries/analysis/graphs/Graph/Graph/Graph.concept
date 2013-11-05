@@ -1,9 +1,0 @@
-<AUTOINSERTED>
-Name: Graph
-Types: 
-<listing>
-alias Graph[&T] = rel[&T from, &T to];
-</listing>
-Usage: `import analysis::graphs::Graph;`
-</AUTOINSERTED>
-Synopsis: Graph is an alias for a binary relation.

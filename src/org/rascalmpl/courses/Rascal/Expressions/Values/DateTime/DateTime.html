@@ -162,22 +162,22 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>   Examples of <code>datetime</code> values are:
-<pre class="screen"><span class="prompt">rascal></span>$2010-07-15;
-
-<span class="prompt">rascal></span>$T07:15:23.123+0100;
-
+<pre class="screen"><span class="prompt">rascal></span>$2010-07-15$;
+datetime: <i></i>2010-07-15
+<span class="prompt">rascal></span>$T07:15:23.123+0100$;
+datetime: $T07:15:23.123+01:00$
 </pre>  Now introduce a <code>datetime</code> value and assign it to <code>DT</code>.
-<pre class="screen"><span class="prompt">rascal></span>DT = $2010-07-15T09:15:23.123+03:00;
-
+<pre class="screen"><span class="prompt">rascal></span>DT = $2010-07-15T09:15:23.123+03:00$;
+datetime: $2010-07-15T09:15:23.123+03:00$
 </pre>  Here are examples of some <code>datatime</code> fields:
 <pre class="screen"><span class="prompt">rascal></span>DT.isDateTime;
-|stdin:///|(0,2,&lt;1,0>,&lt;1,2>): Undeclared variable: DT
+bool: true
 <span class="prompt">rascal></span>DT.justDate;
-|stdin:///|(0,2,&lt;1,0>,&lt;1,2>): Undeclared variable: DT
+datetime: <i></i>2010-07-15
 <span class="prompt">rascal></span>DT.justTime;
-|stdin:///|(0,2,&lt;1,0>,&lt;1,2>): Undeclared variable: DT
+datetime: $T09:15:23.123+03:00$
 <span class="prompt">rascal></span>DT.century;
-|stdin:///|(0,2,&lt;1,0>,&lt;1,2>): Undeclared variable: DT
+int: 20
 </pre>
 </div>
 
@@ -193,7 +193,7 @@
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/DateTime&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/DateTime&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 4 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

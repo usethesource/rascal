@@ -1,3 +1,6 @@
+@doc{
+Synopsis: defines AST node types for Java
+}
 module lang::java::m3::AST
 
 extend analysis::m3::AST;
@@ -159,7 +162,11 @@ void setEnvironmentOptions(loc directory) {
     setEnvironmentOptions(getPaths(directory, "class") + find(directory, "jar"), getPaths(directory, "java"));
 }
       
-@doc{Creates AST from a file}
+@doc{
+Synopsis: Creates AST from a file
+
+Description: useful for analyzing raw source code on disk, but if you have an Eclipse project you should have a look at [lang/java/jdt/m3] instead.
+}
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
 public java Declaration createAstFromFile(loc file, bool collectBindings, str javaVersion = "1.7");
