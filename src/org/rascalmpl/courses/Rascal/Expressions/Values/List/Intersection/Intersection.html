@@ -100,14 +100,14 @@ list[int]: [4,5]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_List_Intersection_1:answer" id="Rascal/Expressions/Values/List/Intersection_1_2" value="0@2@[2,0,1]">
+<input type="radio" name="Rascal_Expressions_Values_List_Intersection_1:answer" id="Rascal/Expressions/Values/List/Intersection_1_5" value="0@5@[5,2,0]">
+<label for="Rascal/Expressions/Values/List/Intersection_1_5">Equal to the sum of the number of elements in both lists. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_Intersection_1:answer" id="Rascal/Expressions/Values/List/Intersection_1_2" value="1@2@[5,2,0]">
 <label for="Rascal/Expressions/Values/List/Intersection_1_2">Greater than the number of elements in the second list. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_Intersection_1:answer" id="Rascal/Expressions/Values/List/Intersection_1_0" value="1@0@[2,0,1]">
+<input type="radio" name="Rascal_Expressions_Values_List_Intersection_1:answer" id="Rascal/Expressions/Values/List/Intersection_1_0" value="2@0@[5,2,0]">
 <label for="Rascal/Expressions/Values/List/Intersection_1_0">Smaller than or equal to the number of elements in the first list. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_List_Intersection_1:answer" id="Rascal/Expressions/Values/List/Intersection_1_1" value="2@1@[2,0,1]">
-<label for="Rascal/Expressions/Values/List/Intersection_1_1">Greater than the number of elements in the first list. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -131,9 +131,9 @@ list[int]: [4,5]
 <span id="answerFeedback_Rascal_Expressions_Values_List_Intersection_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Intersection_2:A" value="[49, 45, 41, 10]">
-<input type="hidden" name="Rascal_Expressions_Values_List_Intersection_2:B" value="[62]">
-The type of <tt>[49, 45, 41, 10] &amp; [62]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_Intersection_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Intersection_2:A" value="[94, 59, 17]">
+<input type="hidden" name="Rascal_Expressions_Values_List_Intersection_2:B" value="[71, 23]">
+The type of <tt>[94, 59, 17] &amp; [71, 23]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_Intersection_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -157,10 +157,10 @@ The type of <tt>[49, 45, 41, 10] &amp; [62]</tt> is <input type="text" size="30"
 <span id="answerFeedback_Rascal_Expressions_Values_List_Intersection_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Intersection_3:DIFF" value="{59, 17, 11, 71, 23}">
-<input type="hidden" name="Rascal_Expressions_Values_List_Intersection_3:A" value="{78, 16, 71}">
-<input type="hidden" name="Rascal_Expressions_Values_List_Intersection_3:B" value="{41}">
-<pre class="prequestion">[16,17,71,23,59,11,78] &amp; [17,71,23,41,59,11] == <input type="text" size="30" name="Rascal_Expressions_Values_List_Intersection_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Intersection_3:DIFF" value="{78, 16, 71}">
+<input type="hidden" name="Rascal_Expressions_Values_List_Intersection_3:A" value="{41}">
+<input type="hidden" name="Rascal_Expressions_Values_List_Intersection_3:B" value="{93, 13}">
+<pre class="prequestion">[16,71,41,78] &amp; [16,71,13,93,78] == <input type="text" size="30" name="Rascal_Expressions_Values_List_Intersection_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_Intersection_3:another" value="yes">
@@ -183,9 +183,9 @@ The type of <tt>[49, 45, 41, 10] &amp; [62]</tt> is <input type="text" size="30"
 <span id="answerFeedback_Rascal_Expressions_Values_List_Intersection_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Intersection_4:A" value="[3, 3]">
-<input type="hidden" name="Rascal_Expressions_Values_List_Intersection_4:B" value="[8, 8, 6]">
-<pre class="prequestion">[3, 3] &amp; [8, 8, 6] == <input type="text" size="30" name="Rascal_Expressions_Values_List_Intersection_4:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Intersection_4:A" value="[8, 8, 6]">
+<input type="hidden" name="Rascal_Expressions_Values_List_Intersection_4:B" value="[0, 5, 5, 5]">
+<pre class="prequestion">[8, 8, 6] &amp; [0, 5, 5, 5] == <input type="text" size="30" name="Rascal_Expressions_Values_List_Intersection_4:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_Intersection_4:another" value="yes">

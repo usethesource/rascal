@@ -85,6 +85,7 @@
 <ul></ul><li><a href="/Rascal/Concepts/SyntaxDefinitionAndParsing/SyntaxDefinitionAndParsing.html">SyntaxDefinitionAndParsing</a>: Syntax definition and parser generation for new languages.</li>
 <ul></ul><li><a href="/Rascal/Concepts/RewriteRules/RewriteRules.html">RewriteRules</a>: Rewrite rules (deprecated)</li>
 <ul></ul><li><a href="/Rascal/Concepts/IDEConstruction/IDEConstruction.html">IDEConstruction</a>: Extend an IDE with interactive, language-specific, features (Eclipse only).</li>
+<ul></ul><li><a href="/Rascal/Concepts/CodeModels/CodeModels.html">CodeModels</a>: code models are abstract representations of source code</li>
 <ul></ul></ul><li><a href="/Rascal/Declarations/Declarations.html">Declarations</a>: The entities that can be declared in Rascal programs.</li>
 <ul><li><a href="/Rascal/Declarations/Module/Module.html">Module</a>: Declare a module.</li>
 <ul></ul><li><a href="/Rascal/Declarations/Import/Import.html">Import</a>: Declare the import a module.</li>
@@ -774,14 +775,19 @@
 <ul></ul></ul></ul><li><a href="/Rascal/Libraries/lang/java/java.html">java</a>: Definitions and tools related to the Java language.</li>
 <ul><li><a href="/Rascal/Libraries/lang/java/jdt/jdt.html">jdt</a>: tools for Java provided via reusing the Eclipse JDT</li>
 <ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/m3.html">m3</a>: functions for generating M3 models starting from Eclipse projects</li>
-<ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/Core/Core.html">Core</a>: </li>
-<ul></ul></ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/m3.html">m3</a>: Java-specific version of the M3 model</li>
-<ul><li><a href="/Rascal/Libraries/lang/java/m3/AST/AST.html">AST</a>: </li>
-<ul><li><a href="/Rascal/Libraries/lang/java/m3/AST/createAstFromFile/createAstFromFile.html">createAstFromFile</a>: </li>
+<ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/Core/Core.html">Core</a>: create M3 models for Eclipse projects</li>
+<ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromEclipseFile/createM3FromEclipseFile.html">createM3FromEclipseFile</a>: Extract an M3 model for a file that is located in an eclipse project</li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromEclipseProject/createM3FromEclipseProject.html">createM3FromEclipseProject</a>: Extract a full m3 model from an Eclipse project</li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromProjectJars/createM3FromProjectJars.html">createM3FromProjectJars</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/Core/getMethodASTEclipse/getMethodASTEclipse.html">getMethodASTEclipse</a>: Create an AST for the given logical method location</li>
+<ul></ul></ul></ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/m3.html">m3</a>: Java-specific version of the M3 model</li>
+<ul><li><a href="/Rascal/Libraries/lang/java/m3/AST/AST.html">AST</a>: defines AST node types for Java</li>
+<ul><li><a href="/Rascal/Libraries/lang/java/m3/AST/createAstFromFile/createAstFromFile.html">createAstFromFile</a>: Creates AST from a file</li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/AST/createAstsFromDirectory/createAstsFromDirectory.html">createAstsFromDirectory</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/AST/Declaration/Declaration.html">Declaration</a>: </li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/Core.html">Core</a>: </li>
-<ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/extends/extends.html">extends</a>: </li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/Core.html">Core</a>: extends the M3 <a href="/Rascal/Libraries/analysis/m3/Core/Core.html">Core</a> with Java specific concepts such as inheritance and overriding.</li>
+<ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/createM3FromDirectory/createM3FromDirectory.html">createM3FromDirectory</a>: globs for jars, class files and java files in a directory and tries to compile all source files into an <span class="inlineError">ambiguous: Rascal:M3</span> model</li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/extends/extends.html">extends</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/fieldAccess/fieldAccess.html">fieldAccess</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/implements/implements.html">implements</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/methodInvocation/methodInvocation.html">methodInvocation</a>: </li>
@@ -976,7 +982,7 @@
 <ul><li><a href="/Rascal/Libraries/analysis/m3/Core/containment/containment.html">containment</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/declarations/declarations.html">declarations</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/documentation/documentation.html">documentation</a>: </li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/M3/M3.html">M3</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/M3/M3.html">M3</a>: the m3 constructor is identified by the name of a project encoded as a <a href="/Rascal/Expressions/Values/Location/Location.html">Location</a> and has annotations for each kind of fact extracted from a project.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/messages/messages.html">messages</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/modifiers/modifiers.html">modifiers</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/names/names.html">names</a>: </li>
@@ -1034,8 +1040,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/sumSquaredErrors/sumSquaredErrors.html">sumSquaredErrors</a>: Sum of squared errors.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/totalSumSquares/totalSumSquares.html">totalSumSquares</a>: Sum of squared deviations.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/XSumSquares/XSumSquares.html">XSumSquares</a>: Sum of squared deviations of x values about their mean.</li>
-<ul></ul></ul></ul></ul><li><a href="/Rascal/Libraries/MetricsMetaModel/MetricsMetaModel.html">MetricsMetaModel</a>: M3 is a model for representing source code artifacts</li>
-<ul></ul></ul></ul>
+<ul></ul></ul></ul></ul></ul></ul>
 </div>
 
   	                       
@@ -1045,7 +1050,7 @@
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Contents&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Contents&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 24 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 25 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
