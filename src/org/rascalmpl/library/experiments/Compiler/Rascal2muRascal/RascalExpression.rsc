@@ -375,8 +375,13 @@ MuExp translate (e:(Expression) `<Expression expression> [ <OptionalExpression o
 	translateSlice(expression, optFirst, second, optLast);
 
 // Field access
-MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) =
-   muCallPrim("<getOuterType(expression)>_field_access", [ translate(expression), muCon("<field>") ]);
+MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
+   tp = getType(expression@\loc);
+   if(isTupleType(tp) || isRelType(tp) || isListRelType(tp) || isMapType(tp)) {
+       return translate((Expression)`<Expression expression> \< <Name field> \>`);
+   }
+   return muCallPrim("<getOuterType(expression)>_field_access", [ translate(expression), muCon("<field>") ]);
+}
 
 // Field update
 MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Expression replacement> ]`) =
