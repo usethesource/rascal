@@ -22,6 +22,11 @@ For language-specific support, please go here:
 
    * [lang/java/m3]
 
+
+To get started with m3 immediately, please have a look at:
+
+   * [$lang/java/jdt/m3/Core/createM3FromEclipseProject]
+
 Examples:
 
 Benefits:
