@@ -1321,13 +1321,13 @@ public class Prelude {
 						}
 						if(i == beginLine){
 							if(i == endLine){
-								w.append(values.string(line.substring(beginColumn, endColumn)));
+								w.append(values.string(line.substring(beginColumn, Math.min(endColumn, line.length()))));
 							}else{
 								w.append(values.string(line.substring(beginColumn)));
 							}
 						}else if(i > beginLine){
 							if(i == endLine){
-								w.append(values.string(line.substring(0, endColumn)));
+								w.append(values.string(line.substring(0, Math.min(endColumn, line.length()))));
 							}
 							else if(i < endLine){
 								w.append(values.string(line));
