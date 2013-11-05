@@ -27,7 +27,14 @@ Now we will follow the [EASY:EASY] paradigm:
 * the same library will generate a [Rascal:Values/Relation]al model to represent interesting facts between Java source code artifacts
 * then we can write queries over the generated trees and relations using [Rascal:Expressions].
 
+
+These are a number of recipes for measuring different things about Java:
+
+* [MeasuringClasses]
+* [MeasuringMethods]
+
 Examples:
+
 
 <screen>
 // First we import the basic data types for representing Java. The model is called _M3_, and its definition is split acros a generic
@@ -38,28 +45,11 @@ import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 // Calling the following function generates an enormous value representing everything the Eclipse Java compiler knows about this project:
 myModel = createM3FromEclipseProject(|project://HelloWorld|);
-// First things first: notice that _all_ these [$Rascal:Values/Location] literals are hyperlinks and you can click on them to go the source code that they point to. Try it!
-// Next, let's focus on the _containment_ relation. This defines what parts of the source code are parts of which other parts:
-myModel@containment
-// As you can read, classes contain methods, methods contain variables, etc. Classes could also contain other classes (nested classes), and methods can even contain classes (anonymous classes). Let's focus on a specific class, and project what it contains from the relation:
-myModel@containment[|java+class:///HelloWorld|]
-// Let's filter the methods:
-helloWorldMethods = [ e | e <- myModel@containment[|java+class:///HelloWorld|], e.scheme == "java+method"];
-// And we are ready to compute our first metric. How many methods does this class contain?
-import List;
-size(helloWorldMethods)
-// No magic applied! It is just a little query on a model that knows everything about the code. Let's generalize and compute the number of methods for all classes in one big expression. First a function to compute the number for a given class:
-int numberOfMethods(loc cl, M3 model) = size([ m | m <- model@containment[cl], isMethod(m)]);
-// then we apply this new function to give us a map from classes to integers:
-map[loc class, int methodCount] numberOfMethodsPerClass = (cl:numberOfMethods(cl, myModel) | <cl,_> <- myModel@containment, isClass(cl));
-// how about the number of fields?
-int numberOfFields(loc cl, M3 model) = size([ m | m <- model@containment[cl], isField(m)]);
-map[loc class, int fieldCount] numberOfFieldsPerClass = (cl:numberOfFields(cl, myModel) | <cl,_> <- myModel@containment, isClass(cl));
-// what is the ratio between fields and methods for each class?
-(cl : (numberOfFieldsPerClass[cl] * 1.0) / (numberOfMethodsPerClass[cl] * 1.0) | cl <- classes(myModel))
 </screen>
 
 Benefits:
+
+* Notice that _all_ these [$Rascal:Values/Location] literals are hyperlinks and you can click on them to go the source code that they point to. Try it!
 
 Pitfalls:
 
