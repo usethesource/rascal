@@ -1316,9 +1316,26 @@ public class RVM {
 	}
 	
 	int callJavaMethod(String methodName, String className, Type parameterTypes, int reflect, Object[] stack, int sp){
-		Class<?> clazz;
+		Class<?> clazz = null;
 		try {
-			clazz = this.getClass().getClassLoader().loadClass(className);
+			try {
+				clazz = this.getClass().getClassLoader().loadClass(className);
+			} catch(ClassNotFoundException e1) {
+				// If the class is not found, try other class loaders
+				for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
+					try {
+						clazz = loader.loadClass(className);
+						break;
+					} catch(ClassNotFoundException e2) {
+						;
+					}
+				}
+			}
+			
+			if(clazz == null) {
+				throw new RuntimeException("Class not found: " + className);
+			}
+			
 			Constructor<?> cons;
 			cons = clazz.getConstructor(IValueFactory.class);
 			Object instance = cons.newInstance(vf);
@@ -1333,10 +1350,11 @@ public class RVM {
 			}
 			stack[sp - nformals] =  m.invoke(instance, parameters);
 			return sp - nformals + 1;
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
+//		catch (ClassNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		catch (NoSuchMethodException | SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
