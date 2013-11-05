@@ -1,3 +1,6 @@
+@doc{
+Synopsis: defines AST node types for Java
+}
 module lang::java::m3::AST
 
 extend analysis::m3::AST;
