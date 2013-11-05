@@ -100,6 +100,10 @@ test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).begin.column") == |fi
 test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).end.line") == |file://-|(11,37,<1,11>,<1,48>).end.line;
 test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).end.column") == |file://-|(11,37,<1,11>,<1,48>).end.column;
 
+test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x.b;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x.b;};
+test bool tst() = run("{lrel[int a, str b, int c]  x= [ \<1, \"x\", 2\>, \<3, \"y\", 4\> ]; x.b;}") == {lrel[int a, str b, int c]  x= [ <1, "x", 2>, <3, "y", 4> ]; x.b;};
+
+
 // field update
 test bool tst() = run("{L = |std:///experiments/Compiler/Benchmarks/|; L.uri = \"http://www.rascal-mpl.org\"; L;}") == {L = |std:///experiments/Compiler/Benchmarks/|; L.uri = "http://www.rascal-mpl.org"; L;};
 test bool tst() = run("{L = |std:///experiments/Compiler/Benchmarks/|; L.scheme= \"xxx\"; L;}") == {L = |std:///experiments/Compiler/Benchmarks/|; L.scheme = "xxx"; L;};
@@ -363,6 +367,9 @@ test bool tst() = run("{[\<1, \"x\", 2\>, \<10, \"x\", 20\>][_, \"x\"];}") == [<
 test bool tst() = run("\<1,2,3,4\>\<1,3\>") == <1,2,3,4><1,3>;
 test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x\<2,1\>;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x<2,1>;};
 test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x\<b,1\>;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x<b,1>;};
+
+test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x\<2\>;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x<2>;};
+test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x\<b\>;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x<b>;};
 
 test bool tst() = run("{{\<1, \"x\", 2\>, \<10, \"xx\", 20\>}\<2,1\>;}") == {<1, "x", 2>, <10, "xx", 20>}<2,1>;
 test bool tst() = run("{[\<1, \"x\", 2\>, \<10, \"xx\", 20\>]\<2,1\>;}") == [<1, "x", 2>, <10, "xx", 20>]<2,1>;
