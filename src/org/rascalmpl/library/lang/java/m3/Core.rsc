@@ -1,5 +1,9 @@
 @doc{
 Synopsis: extends the M3 [$analysis/m3/Core] with Java specific concepts such as inheritance and overriding.
+
+Description: 
+
+For a quick start, go find [createM3FromEclipseProject].
 }
 module lang::java::m3::Core
 
