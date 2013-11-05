@@ -2092,6 +2092,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
+		public IBooleanResult getBacktracker(IEvaluatorContext ctx) {
+		  return new BasicBooleanResult(ctx, this);
+		}
+		
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			
 			__eval.setCurrentAST(this);
