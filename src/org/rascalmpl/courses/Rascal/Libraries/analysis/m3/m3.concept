@@ -18,6 +18,10 @@ This is the core language independent model:
 
 <toc Rascal/Libraries/analysis/m3 1>
 
+For language-specific support, please go here:
+
+   * [lang/java/m3]
+
 Examples:
 
 Benefits:

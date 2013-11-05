@@ -6,11 +6,11 @@
 
 
 <head>
-<title>Rascal/Libraries/analysis/m3</title>
+<title>Rascal/Concepts/CodeModels</title>
 
-<meta name="description" content="Rascal/Libraries/analysis/m3:  a language independent meta model for facts about source code, which is extensible to include language specific modeling elements">
+<meta name="description" content="Rascal/Concepts/CodeModels:  code models are abstract representations of source code">
 
-<meta name="keywords" content="Rascal/Libraries/analysis/m3, Rascal, meta-programming, software analysis, software transformation">
+<meta name="keywords" content="Rascal/Concepts/CodeModels, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/jquery-1.4.2.min.js"></script>
@@ -29,7 +29,7 @@
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
-    <input type="hidden" name="concept" value="Rascal/Libraries/analysis/m3">
+    <input type="hidden" name="concept" value="Rascal/Concepts/CodeModels">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
   </form>
@@ -40,11 +40,11 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="/Rascal/Rascal.html">Rascal</a>/<a href="/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Rascal/Libraries/analysis/analysis.html">analysis</a>/<a href="/Rascal/Libraries/analysis/m3/m3.html">m3</a>
+<span class="sectionHead">Name</span> <a href="/Rascal/Rascal.html">Rascal</a>/<a href="/Rascal/Concepts/Concepts.html">Concepts</a>/<a href="/Rascal/Concepts/CodeModels/CodeModels.html">CodeModels</a>
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  a language independent meta model for facts about source code, which is extensible to include language specific modeling elements
+<span class="sectionHead">Synopsis</span>  code models are abstract representations of source code
 
 </div>
 
@@ -52,20 +52,19 @@
                            
                            
                            
-<div id="Details">
-<span class="sectionHead">Details</span> <a href="/Rascal/Libraries/analysis/m3/AST/AST.html">AST</a> &#032 <a href="/Rascal/Libraries/analysis/m3/Core/Core.html">Core</a> &#032 <a href="/Rascal/Libraries/analysis/m3/Registry/Registry.html">Registry</a> &#032 <a href="/Rascal/Libraries/analysis/m3/TypeSymbol/TypeSymbol.html">TypeSymbol</a> &#032 
-</div>
-
 <div id="Description">
-<span class="sectionHead">Description</span>  This is the core language independent model:
+<span class="sectionHead">Description</span>  You can use any of Rascal's <a href="/Rascal/Expressions/Values/Values.html">Values</a> to represent facts about source code. For example, <a href="/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a> can be used to define abstract syntax trees and <a href="/Rascal/Expressions/Values/Relation/Relation.html">Relation</a> are used to represent call graphs. We consistently use <a href="/Rascal/Expressions/Values/Location/Location.html">Location</a> to refer to source code artifacts, either physically (<code>|file:///tmp/HelloWorld.java|</code>) or logically (<code>|java+class://java/lang/Object|</code>).
  <br/>
 <br/>
 
- <ul><li><a href="/Rascal/Libraries/analysis/m3/AST/AST.html">AST</a>: a symbolic representation for abstract syntax trees of programming languages.</li>
-<li><a href="/Rascal/Libraries/analysis/m3/Core/Core.html">Core</a>: M3 common source code model represent facts extracted from source code for use in downstream metrics or other analyses.</li>
-<li><a href="/Rascal/Libraries/analysis/m3/Registry/Registry.html">Registry</a>: in memory database for <a href="/Rascal/Libraries/analysis/m3/Core/Core.html">analysis/m3/Core</a> models for resolving hyperlinks</li>
-<li><a href="/Rascal/Libraries/analysis/m3/TypeSymbol/TypeSymbol.html">TypeSymbol</a>: a symbolic representation for types that occur in programming languages.</li>
-</ul> For language-specific support, please go here:
+ Specifically we have standardized a set of models to represent source code which are ready for computing metrics: <a href="/Rascal/Libraries/analysis/m3/m3.html">m3</a>. This M3 model consists of: 
+  <ul><li> an open (extensible) set of <a href="/Rascal/Expressions/Values/Relation/Relation.html">Relation</a>s between source code artifacts.</li>
+<li> a number of extensible <a href="/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a> for representing abstract syntax trees. </li>
+</ul> The core language independent model can be found here: <a href="/Rascal/Libraries/analysis/m3/m3.html">m3</a>
+ <br/>
+<br/>
+
+ Extensions for representing facts about specific languages:
   <ul><li> <a href="/Rascal/Libraries/lang/java/m3/m3.html">lang/java/m3</a></li>
 </ul>
 </div>
@@ -74,8 +73,8 @@
   	                       
   	                       
   	                       
-<a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/analysis/m3&new=false"><b>Edit</b></a>] | 
-               [<a id="newAction" href="/edit?concept=Rascal/Libraries/analysis/m3&new=true"><b>New Subconcept</b></a>] |
+<a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Concepts/CodeModels&new=false"><b>Edit</b></a>] | 
+               [<a id="newAction" href="/edit?concept=Rascal/Concepts/CodeModels&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
