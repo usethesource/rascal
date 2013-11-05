@@ -2488,7 +2488,7 @@ public enum RascalPrimitive {
 			newFields[i] = field.getType().isInteger() ? tup.get(((IInteger) field).intValue())
 												       : tup.get(((IString) field).getValue());
 		}
-		stack[sp - arity] = vf.tuple(newFields);
+		stack[sp - arity] = (arity - 1 > 1) ? vf.tuple(newFields) : newFields[0];
 		return sp - arity + 1;
 	}
 	
