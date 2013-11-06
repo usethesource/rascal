@@ -174,7 +174,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   }
   
   funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, false, estimate_stack_size(initializations) + size(variables) + 1, 
-  									[*tr(initializations), 
+  									[*trvoidblock(initializations), 
   									 LOADCON(true),
   									 RETURN1(1),
   									 HALT()
