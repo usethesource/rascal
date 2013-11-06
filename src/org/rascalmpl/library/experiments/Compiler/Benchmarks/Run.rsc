@@ -144,7 +144,7 @@ void report_latex(){
       tot_comp += m.compilationTime + m.compiledExec;
       tot_inter += m.interpretedExec;
   }
-  println("\\textbf{Average Speedup}&   &  & <round(tot_speedup/size(measurements), 0.1)> \\\\ \\hline");
+  println("\\textbf{Average Speedup}&   &  & \\textbf{<round(tot_speedup/size(measurements), 0.1)>} \\\\ \\hline");
   println("\\end{tabular}");
 }
 
@@ -190,18 +190,48 @@ void main(){
   report();
 }
 
-void main_paper(){
+void main_paper1(){
   measurements = ();
-  nsamples = 10;
-  run("BBottles", experiments::Compiler::Benchmarks::BBottles::main);
-  run("BFib", experiments::Compiler::Benchmarks::BFib::main);
+  nsamples = 3;
+  run("BCompareFor", experiments::Compiler::Benchmarks::BCompareFor::main);
+  run("BCompareIf", experiments::Compiler::Benchmarks::BCompareIf::main);
+  run("BCompareComprehension", experiments::Compiler::Benchmarks::BCompareComprehension::main);
+  run("BExceptions", experiments::Compiler::Benchmarks::BExceptions::main);
+  run("BExceptionsFinally", experiments::Compiler::Benchmarks::BExceptionsFinally::main);
+  run("BFor", experiments::Compiler::Benchmarks::BFor::main);
+  run("BForCond", experiments::Compiler::Benchmarks::BForCond::main);
   run("BListMatch1", experiments::Compiler::Benchmarks::BListMatch1::main);
   run("BListMatch2", experiments::Compiler::Benchmarks::BListMatch2::main);
   run("BListMatch3", experiments::Compiler::Benchmarks::BListMatch3::main);
-  run("BMarriage", experiments::Compiler::Benchmarks::BMarriage::main);
-  run("BRSFCalls", experiments::Compiler::Benchmarks::BRSFCalls::main);
+  run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
+  run("BSet1", experiments::Compiler::Benchmarks::BSet1::main);
   run("BSetMatch1", experiments::Compiler::Benchmarks::BSetMatch1::main);
   run("BSetMatch2", experiments::Compiler::Benchmarks::BSetMatch2::main);
+  run("BWhile", experiments::Compiler::Benchmarks::BWhile::main);
+  run("BVisit1", experiments::Compiler::Benchmarks::BVisit1::main);
+  run("BVisit2", experiments::Compiler::Benchmarks::BVisit2::main);
+  run("BVisit3", experiments::Compiler::Benchmarks::BVisit3::main);
+  //run("BVisit4", experiments::Compiler::Benchmarks::BVisit4::main);
+  //run("BVisit6a", experiments::Compiler::Benchmarks::BVisit6a::main);
+  //run("BVisit6b", experiments::Compiler::Benchmarks::BVisit6b::main);
+  //run("BVisit6c", experiments::Compiler::Benchmarks::BVisit6c::main);
+  //run("BVisit6d", experiments::Compiler::Benchmarks::BVisit6d::main);
+  //run("BVisit6e", experiments::Compiler::Benchmarks::BVisit6e::main);
+  //run("BVisit6f", experiments::Compiler::Benchmarks::BVisit6f::main);
+  //run("BVisit6g", experiments::Compiler::Benchmarks::BVisit6g::main);
+  report();
+  report_latex();
+}
+
+
+void main_paper2(){
+  measurements = ();
+  nsamples = 3;
+  run("BBottles", experiments::Compiler::Benchmarks::BBottles::main);
+  run("BFac", experiments::Compiler::Benchmarks::BFac::main);
+  run("BFib", experiments::Compiler::Benchmarks::BFib::main);
+  run("BMarriage", experiments::Compiler::Benchmarks::BMarriage::main);
+  run("BRSFCalls", experiments::Compiler::Benchmarks::BRSFCalls::main);
   run("BSendMoreMoney", experiments::Compiler::Benchmarks::BSendMoreMoney::main);
   run("BSudoku", experiments::Compiler::Benchmarks::BSudoku::main);
   run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
