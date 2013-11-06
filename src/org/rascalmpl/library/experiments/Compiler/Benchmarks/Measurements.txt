@@ -523,7 +523,7 @@ Minimal speedup: 0.10111
 Maximal speedup: 93.326
 Total time: compiled: 74425; interpreted: 416054; saved: 82.112%
 
-           BBottles: compiled: (compilation   404. msec, execution 13638. msec); interpreted: 19911. msec; speedup: 1.4600 x; saved: 29.476 %
+           
 BCompareComprehension: compiled: (compilation   346. msec, execution    67. msec); interpreted:   441. msec; speedup: 6.5821 x; saved: 6.3492 %
          BCompareFor: compiled: (compilation   360. msec, execution    43. msec); interpreted:   100. msec; speedup: 2.3256 x; saved: -303.0 %
           BCompareIf: compiled: (compilation   243. msec, execution    38. msec); interpreted:   483. msec; speedup: 12.711 x; saved: 41.822 %
