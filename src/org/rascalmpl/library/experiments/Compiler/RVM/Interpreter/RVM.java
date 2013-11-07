@@ -78,7 +78,7 @@ public class RVM {
 	IEvaluatorContext ctx;
 
 
-	public RVM(IValueFactory vf, IEvaluatorContext ctx, boolean debug) {
+	public RVM(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
 		super();
 
 		this.vf = vf;
@@ -107,12 +107,12 @@ public class RVM {
 		
 		moduleVariables = new HashMap<IValue,IValue>();
 		
-		MuPrimitive.init(vf);
-		RascalPrimitive.init(vf, this);
+		MuPrimitive.init(vf, stdout, profile);
+		RascalPrimitive.init(vf, this, profile);
 	}
 	
 	public RVM(IValueFactory vf){
-		this(vf, null, false);
+		this(vf, null, false, false);
 	}
 	
 	public void declare(Function f){
