@@ -111,13 +111,18 @@ bool isConstantLiteral((Literal) `<LocationLiteral src>`) = src.protocolPart is 
 bool isConstantLiteral((Literal) `<StringLiteral n>`) = n is nonInterpolated;
 default bool isConstantLiteral(Literal l) = true;
 
+// TODO Add map constants
+
 bool isConstant(Expression e:(Expression)`{ <{Expression ","}* es> }`) = size_exps(es) == 0 || all(elm <- es, isConstant(elm));
 bool isConstant(Expression e:(Expression)`[ <{Expression ","}* es> ]`)  = size_exps(es) == 0 ||  all(elm <- es, isConstant(elm));
 bool isConstant(e:(Expression) `\< <{Expression ","}+ elements> \>`) = size_exps(elements) == 0 ||  all(elm <- elements, isConstant(elm));
 bool isConstant((Expression) `<Literal s>`) = isConstantLiteral(s);
 default bool isConstant(Expression e) = false;
 
-value getConstantValue(Expression e) = readTextValueString("<e>");
+value getConstantValue(Expression e) {
+  //println("getConstant: <e>");
+  return readTextValueString("<e>");
+}
 
 
 /*********************************************************************/

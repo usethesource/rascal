@@ -12,7 +12,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -650,13 +652,17 @@ public enum RascalPrimitive {
 	private static PrintWriter stdout;
 	private static RVM rvm;
 	private static ParsingTools parsingTools;
+	
+	private static boolean profiling = false;
+	private static long timeSpent[] = new long[values.length];
 
 	/**
 	 * Initialize the primitive methods.
 	 * @param fact value factory to be used
+	 * @param profiling TODO
 	 * @param stdout 
 	 */
-	public static void init(IValueFactory fact, RVM usedRVM) {
+	public static void init(IValueFactory fact, RVM usedRVM, boolean doProfile) {
 		vf = fact;
 		if(usedRVM != null){
 			stdout = usedRVM.stdout;
@@ -665,6 +671,7 @@ public enum RascalPrimitive {
 		} else {
 			System.err.println("No RVM found");
 		}
+		profiling = doProfile;
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 									new String[] {"line", "column"});
@@ -678,11 +685,13 @@ public enum RascalPrimitive {
 			if(!name.startsWith("$")){ // ignore all auxiliary functions that start with $.
 				switch(name){
 				case "init":
+				case "exit":
 				case "invoke":
 				case "fromInteger":
 				case "values":
 				case "valueOf":
 				case "main":
+				case "printProfile":
 					/* ignore all utility functions that do not implement some primitive */
 					break;
 				default:
@@ -697,7 +706,12 @@ public enum RascalPrimitive {
 			}
 		}
 	}
-
+	
+	public static void exit(){
+		if(profiling)
+			printProfile();
+	}
+	
 	/**
 	 * Invoke the implementation of a primitive from the RVM main interpreter loop.
 	 * @param stack	stack in the current execution frame
@@ -706,7 +720,29 @@ public enum RascalPrimitive {
 	 * @return		new stack pointer and modified stack contents
 	 */
 	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+		if(!profiling){
+			return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+		} else {
+			long start = System.currentTimeMillis();
+			int res = (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+			timeSpent[ordinal()] += System.currentTimeMillis() - start;
+			return res;
+		}
+	}
+	
+	private static void printProfile(){
+		stdout.println("\nRascalPrimitive execution times (ms)");
+		long total = 0;
+		TreeMap<Long,String> data = new TreeMap<Long,String>();
+		for(int i = 0; i < values.length; i++){
+			if(timeSpent[i] > 0 ){
+				data.put(timeSpent[i], values[i].name());
+				total += timeSpent[i];
+			}
+		}
+		for(long t : data.descendingKeySet()){
+			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
+		}
 	}
 
 	/***************************************************************
@@ -5430,6 +5466,7 @@ public enum RascalPrimitive {
 	 * typeOf
 	 */
 	
+	@SuppressWarnings("unchecked")
 	public static int typeOf(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		if(stack[sp - 1] instanceof HashSet<?>){	// For the benefit of set matching
@@ -5618,7 +5655,7 @@ public enum RascalPrimitive {
 	 */
 
 	public static void main(String[] args) {
-		init(ValueFactoryFactory.getValueFactory(), null);
+		init(ValueFactoryFactory.getValueFactory(), null, false);
 		System.err.println("RascalPrimitives have been validated!");
 	}
 }

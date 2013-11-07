@@ -42,7 +42,7 @@ public class Execute {
 								 IList imported_overloaded_functions,
 								 IMap imported_overloading_resolvers,
 								 IMap imported_grammars, IList argumentsAsList,
-								 IBool debug, IBool testsuite, IEvaluatorContext ctx) {
+								 IBool debug, IBool testsuite, IBool profile, IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();
 		String moduleName = ((IString) program.get("name")).getValue();
@@ -58,7 +58,7 @@ public class Execute {
 		
 		PrintWriter stdout = ctx.getStdOut();
 		
-		RVM rvm = new RVM(vf, ctx, debug.getValue());
+		RVM rvm = new RVM(vf, ctx, debug.getValue(), profile.getValue());
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
@@ -195,6 +195,8 @@ public class Execute {
 				result = rvm.executeProgram(uid_main, arguments);
 			}
 			long now = System.currentTimeMillis();
+			MuPrimitive.exit();
+			RascalPrimitive.exit();
 			return vf.tuple((IValue) result, vf.integer(now - start));
 			
 		} catch(Thrown e) {
