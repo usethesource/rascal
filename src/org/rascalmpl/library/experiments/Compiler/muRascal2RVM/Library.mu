@@ -1,4 +1,25 @@
-module Library   
+module Library
+
+// Semantics of the all operator
+
+coroutine ALL[1, coArray, 
+                 len, j, coInits, co] {
+    len = size_array(coArray);
+    j = 0;
+    put_array(coInits,j,init(get_array(coArray,j)));
+    while(j >= 0) {
+        co = get_array(coInits,j);
+        if(next(co)) {
+            if(j == len - 1) {
+                yield;
+            } else {
+                j = j + 1;
+                put_array(coInits,j,init(get_array(coArray,j)));
+            };
+        } else {
+            j = j - 1; };
+    };
+}
 
 // Initialize a pattern with a given value and exhaust all its possibilities
 
