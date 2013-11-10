@@ -720,14 +720,14 @@ public enum RascalPrimitive {
 	 * @return		new stack pointer and modified stack contents
 	 */
 	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		if(!profiling){
+	//	if(!profiling){
 			return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
-		} else {
-			long start = System.currentTimeMillis();
-			int res = (int) methods[ordinal()].invoke(null, stack,  sp, arity);
-			timeSpent[ordinal()] += System.currentTimeMillis() - start;
-			return res;
-		}
+//		} else {
+//			long start = System.currentTimeMillis();
+//			int res = (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+//			timeSpent[ordinal()] += System.currentTimeMillis() - start;
+//			return res;
+//		}
 	}
 	
 	private static void printProfile(){

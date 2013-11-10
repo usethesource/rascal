@@ -63,8 +63,19 @@ public enum Opcode {
 	UNWRAPTHROWN        (46,    2),
 	FILTERRETURN		(47, 	1),
 	EXHAUST             (48,    1),
-	GUARD               (49,    1)
+	GUARD               (49,    1),
+	SUBSCRIPTARRAY		(50,    1),
+	SUBSCRIPTLIST		(51,    1),
+	LESSINT				(52,	1),
+	GREATEREQUALINT		(53,	1),
+	ADDINT				(54,	1),
+	SUBTRACTINT			(55,	1),
+	ANDBOOL				(56,	1),
+	TYPEOF				(57,	1),
+	SUBTYPE				(58,	1),
+	CHECKARGTYPE		(59,	1)
 	;
+	
 	
 	private final int op;
 	private final int pc_incr;
@@ -128,7 +139,16 @@ public enum Opcode {
 	static public final int OP_FILTERRETURN = 47;
 	static public final int OP_EXHAUST = 48;
 	static public final int OP_GUARD = 49;
-	
+	static public final int OP_SUBSCRIPTARRAY = 50;
+	static public final int OP_SUBSCRIPTLIST = 51;
+	static public final int OP_LESSINT = 52;
+	static public final int OP_GREATEREQUALINT = 53;
+	static public final int OP_ADDINT = 54;
+	static public final int OP_SUBTRACTINT = 55;
+	static public final int OP_ANDBOOL = 56;
+	static public final int OP_TYPEOF = 57;
+	static public final int OP_SUBTYPE = 58;
+	static public final int OP_CHECKARGTYPE = 59;
 	
 	 Opcode(int op, int pc_incr){
 		this.op = op;
@@ -294,6 +314,36 @@ public enum Opcode {
 			
 		case GUARD:
 			return "GUARD";
+			
+		case SUBSCRIPTARRAY:
+			return "SUBSCRIPTARRAY";
+			
+		case SUBSCRIPTLIST:
+			return "SUBSCRIPTLIST";
+			
+		case LESSINT:
+			return "LESSINT";
+			
+		case GREATEREQUALINT:
+			return "GREATEREQUALINT";
+			
+		case ADDINT:
+			return "ADDINT";
+			
+		case SUBTRACTINT:
+			return "SUBTRACTINT";
+			
+		case ANDBOOL:
+			return "ANDBOOL";
+			
+		case TYPEOF:
+			return "TYPEOF";
+			
+		case SUBTYPE:
+			return "SUBTYPE";
+			
+		case CHECKARGTYPE:
+			return "CHECKARGTYPE";
 		
 		default:
 			break;

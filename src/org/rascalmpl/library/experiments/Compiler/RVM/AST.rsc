@@ -105,5 +105,16 @@ data Instruction =
 		| POP()										// Pop one value from the stack
 		
 		| HALT()									// Halt execution of the RVM program
+		| SUBSCRIPTARRAY()							// Fetch array element with given index (mint)
+		| SUBSCRIPTLIST()							// Fetch list element with given index (mint)
+		| LESSINT()									// Less between two mints
+		| GREATEREQUALINT()							// Greater-equal between two mints
+		| ADDINT()									// Add two mints
+		| SUBTRACTINT()								// Subtract two mints
+		| ANDBOOL()									// and between two mbools.
+		
+		| TYPEOF()									// Get type of top element
+		| SUBTYPE()									// Subtype between top two IValues
+		| CHECKARGTYPE()							// Check the type of an argument
 ;
 	
