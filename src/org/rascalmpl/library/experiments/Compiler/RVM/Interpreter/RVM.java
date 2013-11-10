@@ -33,6 +33,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -42,6 +43,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 public class RVM {
 
 	public final IValueFactory vf;
+	private final TypeFactory tf;
 	private final Boolean TRUE;
 	private final Boolean FALSE;
 	private final IBool Rascal_TRUE;
@@ -82,6 +84,7 @@ public class RVM {
 		super();
 
 		this.vf = vf;
+		tf = TypeFactory.getInstance();
 		
 		this.ctx = ctx;
 		this.stdout = ctx.getStdOut();
@@ -382,6 +385,7 @@ public class RVM {
 	
 	private String trace = "";
 	
+	
 	public String getTrace() {
 		return trace;
 	}
@@ -433,13 +437,13 @@ public class RVM {
 //				}
 				int op = instructions[pc++];
 
-				if (debug) {
-					int startpc = pc - 1;
-					for (int i = 0; i < sp; i++) {
-						stdout.println("\t" + (i < cf.function.nlocals ? "*" : "") + i + ": " + asString(stack[i]));
-					}
-					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
-				}
+//				if (debug) {
+//					int startpc = pc - 1;
+//					for (int i = 0; i < sp; i++) {
+//						stdout.println("\t" + (i < cf.function.nlocals ? "*" : "") + i + ": " + asString(stack[i]));
+//					}
+//					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+//				}
 
 				switch (op) {
 				
@@ -1239,6 +1243,72 @@ public class RVM {
 						return thrown;
 					}
 					
+					continue;
+				
+				// Some specialized MuPrimitives
+					
+				case Opcode.OP_SUBSCRIPTARRAY:
+					stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
+					sp--;
+					continue;
+					
+				case Opcode.OP_SUBSCRIPTLIST:
+					stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
+					sp--;
+					continue;
+					
+				case Opcode.OP_LESSINT:
+					stack[sp - 2] = ((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]);
+					sp--;
+					continue;
+					
+				case Opcode.OP_GREATEREQUALINT:
+					stack[sp - 2] = ((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]);
+					sp--;
+					continue;
+					
+				case Opcode.OP_ADDINT:
+					stack[sp - 2] = ((Integer) stack[sp - 2]) + ((Integer) stack[sp - 1]);
+					sp--;
+					continue;
+					
+				case Opcode.OP_SUBTRACTINT:
+					stack[sp - 2] = ((Integer) stack[sp - 2]) - ((Integer) stack[sp - 1]);
+					sp--;
+					continue;
+					
+				case Opcode.OP_ANDBOOL:
+					boolean b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+					boolean b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+					stack[sp - 2] = b1 && b2;
+					sp--;
+					continue;
+					
+				case Opcode.OP_TYPEOF:
+					if(stack[sp - 1] instanceof HashSet<?>){	// For the benefit of set matching
+						@SuppressWarnings("unchecked")
+						HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+						if(mset.isEmpty()){
+							stack[sp - 1] = tf.setType(tf.voidType());
+						} else {
+							IValue v = mset.iterator().next();
+							stack[sp - 1] = tf.setType(v.getType());
+						}
+					} else {
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+					}
+					continue;
+					
+				case Opcode.OP_SUBTYPE:
+					stack[sp - 2] = ((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]);
+					sp--;
+					continue;
+					
+				case Opcode.OP_CHECKARGTYPE:
+					Type argType =  ((IValue) stack[sp - 2]).getType();
+					Type paramType = ((Type) stack[sp - 1]);
+					stack[sp - 2] = argType.isSubtypeOf(paramType);
+					sp--;
 					continue;
 					
 				case Opcode.OP_CALLMUPRIM:

@@ -454,6 +454,46 @@ public class Execute {
 				codeblock.GUARD();
 				break;
 				
+			case "SUBSCRIPTARRAY":
+				codeblock.SUBSCRIPTARRAY();
+				break;
+				
+			case "SUBSCRIPTLIST":
+				codeblock.SUBSCRIPTLIST();
+				break;
+				
+			case "LESSINT":
+				codeblock.LESSINT();
+				break;
+				
+			case "GREATEREQUALINT":
+				codeblock.GREATEREQUALINT();
+				break;
+				
+			case "ADDINT":
+				codeblock.ADDINT();
+				break;
+				
+			case "SUBTRACTINT":
+				codeblock.SUBTRACTINT();
+				break;
+				
+			case "ANDBOOL":
+				codeblock.ANDBOOL();
+				break;
+				
+			case "TYPEOF":
+				codeblock.TYPEOF();
+				break;
+				
+			case "SUBTYPE":
+				codeblock.SUBTYPE();
+				break;
+				
+			case "CHECKARGTYPE":
+				codeblock.CHECKARGTYPE();
+				break;
+				
 			default:
 				throw new RuntimeException("PANIC: In function " + name + ", nknown instruction: " + opcode);
 			}
