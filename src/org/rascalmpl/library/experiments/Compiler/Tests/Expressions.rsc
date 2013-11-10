@@ -250,6 +250,7 @@ test bool tst() = run("res = []; for(int x \<- \<1,2,3,4\>) res = res +[x];", "r
 test bool tst() = run("{ res = []; for([*int x,*int y] \<- [ [1,2],[3,4] ]) { res = res + [x,y]; } res; }") == { res = []; for([*int x,*int y] <- [ [1,2],[3,4] ]) { res = res + [x,y]; } res; };
 test bool tst() = run("{ res = []; for(d3([*int x,*int y],[*int z,*int w]) \<- [ d3([1,2],[3,4]) ]) { res = res + [x,y,z,w]; } res; }") == { res = []; for(d3([*int x,*int y],[*int z,*int w]) <- [ d3([1,2],[3,4]) ]) { res = res + [x,y,z,w]; } res; };
 test bool tst() = run("{ res = []; for(d3([*int x,*int y],[*int z,*int w]) := d3([1,2],[3,4])) { res = res + [x,y,z,w]; } res; }") == { res = []; for(d3([*int x,*int y],[*int z,*int w]) := d3([1,2],[3,4])) { res = res + [x,y,z,w]; } res; };
+
 // Any
 
 test bool tst() = run("any(x \<- [1,2,13,3], x \> 3)") == any(x <- [1,2,13,3], x > 3);
@@ -274,8 +275,6 @@ test bool tst() = run("res = []; for(x \<- [1, 0 .. 10]) res = res + [x];", "res
 
 test bool tst() = run("res = []; for(x \<- [10, 8 .. 0]) res = res + [x];", "res") == {res = []; for(x <- [10, 8 .. 0]) res = res + [x]; res;};
 test bool tst() = run("res = []; for(x \<- [10, 11 .. 0]) res = res + [x];", "res") == {res = []; for(x <- [10, 11 .. 0]) res = res + [x]; res;};
-
-// For now, we do not support ranges outside enumerators.
 test bool tst() = run("[1 .. 10]") == [1..10];
 
 // List Comprehension

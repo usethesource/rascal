@@ -113,9 +113,11 @@ public bool solv() {
 /* ----------------------------------------- */
 
 public value main(list[value] args) { 
-   list[int] sdku=readSudoku(|rascal:///experiments/Compiler/Benchmarks/example1.txt|);
-   val = sdku;
-   sol = sdku;
-   solv();
-   return <val,sol>;
+  for(int i <- [0 .. 5]){
+   	list[int] sdku=readSudoku(|rascal:///experiments/Compiler/Benchmarks/example1.txt|);
+   	val = sdku;
+   	sol = sdku;
+   	solv();
+   }
+   return 0;
 }

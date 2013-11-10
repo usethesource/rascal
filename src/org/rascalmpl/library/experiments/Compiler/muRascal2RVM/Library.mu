@@ -332,51 +332,47 @@ coroutine MATCH_ANTI[2, pat, iSubject, cpat]{
 // ***** List matching *****
 
 coroutine MATCH_LIST[2, 
-    pats,       					// A list of coroutines to match list elements
-					    iSubject,					  // The subject list
-					   
-					    patlen,						    // Length of pattern list
-					    patlen1,					   // patlen - 1
-					    sublen,						    // Length of subject list
-					    p,							         // Cursor in patterns
-					    cursor,						    // Cursor in subject
-					    matcher,					   // Currently active pattern matcher
-					    matchers,  					// List of currently active pattern matchers
-					    nextCursor							 // Cursor movement of last successfull match
-					    ]{
+     pats,       // Coroutines to match list elements
+	 iSubject,   // The subject list
+			   
+	 patlen,     // Length of pattern array
+	 sublen,     // Length of subject list
+	 p,          // Cursor in patterns
+	 cursor,     // Cursor in subject
+	 matchers,   // Currently active pattern matchers
+	 nextCursor  // Cursor last successfull match
+	]{
      guard iSubject is list;
      
      patlen   = size_array(pats);
-     patlen1  =  patlen - 1;
+     matchers = make_array(patlen);
      sublen   = size_list(iSubject);
      p        = 0; 
      cursor   = 0;
-     matcher  = init(get_array(pats, p), iSubject, cursor, ref nextCursor, sublen);
-     matchers = make_array(patlen);
-     put_array(matchers, 0, matcher);
+     put_array(matchers, cursor, 
+               init(get_array(pats, p), 
+                    iSubject, cursor, ref nextCursor, sublen));
      
-     while(true) {
-     	   // Move forward
-        	while(next(matcher)) {
-            cursor = nextCursor;
-            if((p == patlen1) && (cursor == sublen)) {
-                yield; 
-            } else {
-                if(p < patlen1){
-                    p = p + 1;
-                    matcher  = init(get_array(pats, p), iSubject, cursor, ref nextCursor, sublen - cursor);
-                    put_array(matchers, p, matcher);
+     while(true){
+           while(next(get_array(matchers, p))) {   // Move forward
+                 cursor = nextCursor;
+                 if((p == patlen - 1) && (cursor == sublen)) {
+                    yield; 
+                 } else {
+                   if(p < patlen - 1){
+                      p = p + 1;
+                      put_array(matchers, p, 
+                                init(get_array(pats, p), iSubject, 
+                                     cursor, ref nextCursor, sublen - cursor));
                 };  
-            };
+           };
          }; 
-         // If possible, move backward
-         if(p > 0) {
-             p        = p - 1;
-             matcher  = get_array(matchers, p);
+         if(p > 0) {  // If possible, move backward
+            p  = p - 1;
          } else {
-             exhaust;
+           exhaust;
          };
-     };
+    };
 }
 
 // All coroutines that may occur in a list pattern have the following parameters:
