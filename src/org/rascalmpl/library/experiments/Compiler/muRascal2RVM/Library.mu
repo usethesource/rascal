@@ -1,4 +1,25 @@
-module Library   
+module Library
+
+// Semantics of the all operator
+
+coroutine ALL[1, coArray, 
+                 len, j, coInits, co] {
+    len = size_array(coArray);
+    j = 0;
+    put_array(coInits,j,init(get_array(coArray,j)));
+    while(j >= 0) {
+        co = get_array(coInits,j);
+        if(next(co)) {
+            if(j == len - 1) {
+                yield;
+            } else {
+                j = j + 1;
+                put_array(coInits,j,init(get_array(coArray,j)));
+            };
+        } else {
+            j = j - 1; };
+    };
+}
 
 // Initialize a pattern with a given value and exhaust all its possibilities
 
@@ -311,62 +332,56 @@ coroutine MATCH_ANTI[2, pat, iSubject, cpat]{
 // ***** List matching *****
 
 coroutine MATCH_LIST[2, 
-    pats,       					// A list of coroutines to match list elements
-					    iSubject,					  // The subject list
-					   
-					    patlen,						    // Length of pattern list
-					    patlen1,					   // patlen - 1
-					    sublen,						    // Length of subject list
-					    p,							         // Cursor in patterns
-					    cursor,						    // Cursor in subject
-					    matcher,					   // Currently active pattern matcher
-					    matchers,  					// List of currently active pattern matchers
-					    nextCursor							 // Cursor movement of last successfull match
-					    ]{
+     pats,       // Coroutines to match list elements
+	 iSubject,   // The subject list
+			   
+	 patlen,     // Length of pattern array
+	 sublen,     // Length of subject list
+	 p,          // Cursor in patterns
+     cursor,     // Cursor in subject
+	 matchers    // Currently active pattern matchers
+	]{
      guard iSubject is list;
      
      patlen   = size_array(pats);
-     patlen1  =  patlen - 1;
+     matchers = make_array(patlen);
      sublen   = size_list(iSubject);
      p        = 0; 
      cursor   = 0;
-     matcher  = init(get_array(pats, p), iSubject, cursor, ref nextCursor, sublen);
-     matchers = make_array(patlen);
-     put_array(matchers, 0, matcher);
+     put_array(matchers, p, 
+               init(get_array(pats, p), 
+                    iSubject, ref cursor, sublen));
      
-     while(true) {
-     	   // Move forward
-        	while(next(matcher)) {
-            cursor = nextCursor;
-            if((p == patlen1) && (cursor == sublen)) {
-                yield; 
-            } else {
-                if(p < patlen1){
-                    p = p + 1;
-                    matcher  = init(get_array(pats, p), iSubject, cursor, ref nextCursor, sublen - cursor);
-                    put_array(matchers, p, matcher);
+     while(true){
+           while(next(get_array(matchers, p))) {   // Move forward
+                 if((p == patlen - 1) && (cursor == sublen)) {
+                    yield; 
+                 } else {
+                   if(p < patlen - 1){
+                      p = p + 1;
+                      put_array(matchers, p, 
+                                init(get_array(pats, p), iSubject, 
+                                     ref cursor, sublen - cursor));
                 };  
-            };
+           };
          }; 
-         // If possible, move backward
-         if(p > 0) {
-             p        = p - 1;
-             matcher  = get_array(matchers, p);
+         if(p > 0) {  // If possible, move backward
+            p  = p - 1;
          } else {
-             exhaust;
+           exhaust;
          };
-     };
+    };
 }
 
 // All coroutines that may occur in a list pattern have the following parameters:
 // - pat: the actual pattern to match one or more elements
 // - iSubject: the subject list
-// - start: the start index in the subject list
 // - rNext: reference variable to return next cursor position
 // - available: the number of remaining, unmatched, elements in the subject list
 
-coroutine MATCH_PAT_IN_LIST[5, pat, iSubject, start, rNext, available, cpat]{ 
+coroutine MATCH_PAT_IN_LIST[4, pat, iSubject, rNext, available, start, cpat]{ 
     guard available > 0;
+    start = deref rNext;
     cpat = init(pat, get_list(iSubject, start));
     
     while(next(cpat)) {
@@ -374,9 +389,10 @@ coroutine MATCH_PAT_IN_LIST[5, pat, iSubject, start, rNext, available, cpat]{
     };
 } 
 /*
-coroutine MATCH_VAR_IN_LIST[5, rVar, iSubject, start, rNext, available, iVal, iElem]{
+coroutine MATCH_VAR_IN_LIST[4, rVar, iSubject, rNext, available, start, iVal, iElem]{
    println("MATCH_VAR_IN_LIST", iSubject, start, available);
    guard available > 0;
+   start = deref rNext;
    iElem = get_list(iSubject, start);
    if(is_defined(rVar)){
       iVal = deref rVar;
@@ -388,13 +404,14 @@ coroutine MATCH_VAR_IN_LIST[5, rVar, iSubject, start, rNext, available, iVal, iE
    return(iElem, start + 1);
 }
 
-coroutine MATCH_ANONYMOUS_VAR_IN_LIST[4, iSubject, start, rNext, available]{
+coroutine MATCH_ANONYMOUS_VAR_IN_LIST[3, iSubject, rNext, available]{
    guard available > 0;
-   return start + 1;
+   return deref rNext + 1;
 }
 */
 
-coroutine MATCH_MULTIVAR_IN_LIST[6, rVar, iLookahead, iSubject, start, rNext, available, len, iVal]{
+coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, available, start, len, iVal]{
+    start = deref rNext;
     len = 0;
     available = available - mint(iLookahead);
     if(is_defined(rVar)){
@@ -412,9 +429,10 @@ coroutine MATCH_MULTIVAR_IN_LIST[6, rVar, iLookahead, iSubject, start, rNext, av
     };
 }
 
-coroutine MATCH_LAST_MULTIVAR_IN_LIST[6, rVar, iLookahead, iSubject, start, rNext, available, len, iVal]{
+coroutine MATCH_LAST_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, available, start, len, iVal]{
     len = available - mint(iLookahead);
     guard(len >= 0);
+    start = deref rNext;
     if(is_defined(rVar)){
       iVal = deref rVar;
       if(/*subtype(typeOf(iElem), typeOf(iVal)) &&*/ occurs(iVal, iSubject, start)){
@@ -431,7 +449,8 @@ coroutine MATCH_LAST_MULTIVAR_IN_LIST[6, rVar, iLookahead, iSubject, start, rNex
     };
 }
 
-coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[5, iLookahead, iSubject, start, rNext, available, len]{
+coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[4, iLookahead, iSubject, rNext, available, start, len]{
+    start = deref rNext;
     len = 0;
     available = available - mint(iLookahead);
     while(len <= available){
@@ -440,17 +459,19 @@ coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[5, iLookahead, iSubject, start, rNext
      };
 }
 
-coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST[5, iLookahead, iSubject, start, rNext, available, len]{
+coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST[4, iLookahead, iSubject, rNext, available, start, len]{
     len = available - mint(iLookahead);
     guard(len >= 0);
+    start = deref rNext;
     while(len <= available){
         yield start + len;
         len = len + 1;
      };
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iLookahead, iSubject, start, rNext, available, len]{
+coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iLookahead, iSubject, rNext, available, start, len]{
 	guard subtype(typeOf(iSubject), typ);
+	start = deref rNext;
     len = 0;
     available = available - mint(iLookahead);
     // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
@@ -460,9 +481,10 @@ coroutine MATCH_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iLookahead, iSubject, start
     };
 }
 
-coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iLookahead, iSubject, start, rNext, available, len]{
+coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iLookahead, iSubject, rNext, available, start, len]{
     len = available - mint(iLookahead);
 	guard subtype(typeOf(iSubject), typ) && len >= 0;
+	start = deref rNext;
     // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
     while(len <= available){
         yield(sublist(iSubject, start, len), start + len);
@@ -470,8 +492,9 @@ coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iLookahead, iSubject, 
     };
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iLookahead, iSubject, start, rNext, available, len]{
+coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubject, rNext, available, start, len]{
     guard subtype(typeOf(iSubject), typ);
+    start = deref rNext;
     len = 0;
     available = available - mint(iLookahead);
     while(len <= available){
@@ -480,9 +503,10 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iLookahead, iSubject, s
     };
 }
 
-coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iLookahead, iSubject, start, rNext, available, len]{
+coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubject, rNext, available, start, len]{
     len = available - mint(iLookahead);
     guard subtype(typeOf(iSubject), typ) && len >= 0;
+    start = deref rNext;
     while(len <= available){
         yield start + len;
         len = len + 1;

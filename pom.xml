@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<relativePath>../rascal-master/pom.xml</relativePath>
+		<relativePath>../rascal-pom-parent/pom.xml</relativePath>
 		<groupId>org.rascalmpl</groupId>
-		<artifactId>rascal-master</artifactId>
+		<artifactId>rascal-pom-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
@@ -14,7 +14,7 @@
 	<packaging>eclipse-plugin</packaging>
 
 	<scm>
-		<developerConnection>scm:git:https://github.com/cwi-swat/rascal.git</developerConnection>			
+		<developerConnection>scm:git:https://github.com/cwi-swat/rascal.git</developerConnection>
 	</scm>
 
 	<build>
@@ -26,7 +26,7 @@
 		      <exclude>**/*.java</exclude>
 		      <exclude>**/*.class</exclude>
 		    </excludes>
-		  </resource>			
+		  </resource>
 		  <resource>
 		    <directory>.</directory>
 		    <filtering>false</filtering>
@@ -42,7 +42,7 @@
 				<directory>test</directory>
 				<excludes>
 					<exclude>**/*.java</exclude>
-					<exclude>**/*.class</exclude>					
+					<exclude>**/*.class</exclude>
 				</excludes>
 			</testResource>
 		</testResources>
@@ -65,7 +65,7 @@
 					<argLine>
 						-Xmx1g
 						-Xss128m
-					</argLine>				
+					</argLine>
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuite.java</include>
 					</includes>
@@ -74,6 +74,7 @@
 		</plugins>
 	</build>
 
+	<!-- Used to trigger upstream projects in Jenkins  -->
 	<dependencies>
 		<dependency>
 			<groupId>org.eclipse.imp</groupId>

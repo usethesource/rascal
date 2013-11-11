@@ -1,8 +1,10 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -117,6 +119,11 @@ public enum MuPrimitive {
 	
 	private static MuPrimitive[] values = MuPrimitive.values();
 	private static HashSet<IValue> emptyMset = new HashSet<IValue>(0);
+	
+	private static boolean profiling = false;
+	private static long timeSpent[] = new long[values.length];
+	
+	private static PrintWriter stdout;
 
 	public static MuPrimitive fromInteger(int muprim){
 		return values[muprim];
@@ -125,11 +132,14 @@ public enum MuPrimitive {
 	/**
 	 * Initialize the primitive methods.
 	 * @param fact value factory to be used
+	 * @param stdout TODO
+	 * @param doProfile TODO
 	 * @param stdout 
 	 */
-	public static void init(IValueFactory fact) {
+	public static void init(IValueFactory fact, PrintWriter stdoutWriter, boolean doProfile) {
 		vf = fact;
-	
+		stdout = stdoutWriter;
+		profiling = doProfile;
 		Method [] methods1 = MuPrimitive.class.getDeclaredMethods();
 		HashSet<String> implemented = new HashSet<String>();
 		methods = new Method[methods1.length];
@@ -139,11 +149,13 @@ public enum MuPrimitive {
 			if(!name.startsWith("$")){ // ignore all auxiliary functions that start with $.
 				switch(name){
 				case "init":
+				case "exit":
 				case "invoke":
 				case "fromInteger":
 				case "values":
 				case "valueOf":
 				case "main":
+				case "printProfile":
 					/* ignore all utility functions that do not implement some primitive */
 					break;
 				default:
@@ -159,6 +171,25 @@ public enum MuPrimitive {
 		}
 	}
 	
+	public static void exit(){
+		if(profiling)
+			printProfile();
+	}
+	private static void printProfile(){
+		stdout.println("\nMuPrimitive execution times (ms)");
+		long total = 0;
+		TreeMap<Long,String> data = new TreeMap<Long,String>();
+		for(int i = 0; i < values.length; i++){
+			if(timeSpent[i] > 0 ){
+				data.put(timeSpent[i], values[i].name());
+				total += timeSpent[i];
+			}
+		}
+		for(long t : data.descendingKeySet()){
+			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
+		}
+	}
+	
 	/**
 	 * Invoke the implementation of a muRascal primitive from the RVM main interpreter loop.
 	 * @param stack	stack in the current execution frame
@@ -167,7 +198,14 @@ public enum MuPrimitive {
 	 * @return		new stack pointer and (implicitly) modified stack contents
 	 */
 	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
-		return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+	//	if(!profiling){
+			return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+//		} else {
+//			long start = System.currentTimeMillis();
+//			int res = (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+//			timeSpent[ordinal()] += System.currentTimeMillis() - start;
+//			return res;
+//		}
 	}
 	
 	/***************************************************************
@@ -908,7 +946,7 @@ public enum MuPrimitive {
 	 */
 
 	public static void main(String[] args) {
-		init(ValueFactoryFactory.getValueFactory());
+		init(ValueFactoryFactory.getValueFactory(), null, false);
 		System.err.println("MuPrimitives have been validated!");
 	}
 }

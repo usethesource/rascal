@@ -174,7 +174,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   }
   
   funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, false, estimate_stack_size(initializations) + size(variables) + 1, 
-  									[*tr(initializations), 
+  									[*trvoidblock(initializations), 
   									 LOADCON(true),
   									 RETURN1(1),
   									 HALT()
@@ -294,9 +294,27 @@ INS tr(muOCall(MuExp fun, Symbol types, list[MuExp] args))
 		*tr(fun), 
 		OCALLDYN(types, size(args))];
 
-INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args))];
+// Calls to Rascal primitives
 
-INS tr(muCallMuPrim(str name, list[MuExp] args)) =  (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLMUPRIM(name, size(args))];
+INS tr(muCallPrim("println", list[MuExp] args)) = [*tr(args), PRINTLN(size(args))];
+INS tr(muCallPrim("subtype", list[MuExp] args)) = [*tr(args), SUBTYPE()];
+INS tr(muCallPrim("typeOf", list[MuExp] args)) = [*tr(args), TYPEOF()];
+
+default INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args))];
+
+// Calls to MuRascal primitives
+
+INS tr(muCallMuPrim("println", list[MuExp] args)) = [*tr(args), PRINTLN(size(args))];
+INS tr(muCallMuPrim("subscript_array_mint", list[MuExp] args)) = [*tr(args), SUBSCRIPTARRAY()];
+INS tr(muCallMuPrim("subscript_list_mint", list[MuExp] args)) = [*tr(args), SUBSCRIPTLIST()];
+INS tr(muCallMuPrim("less_mint_mint", list[MuExp] args)) = [*tr(args), LESSINT()];
+INS tr(muCallMuPrim("greater_equal_mint_mint", list[MuExp] args)) = [*tr(args), GREATEREQUALINT()];
+INS tr(muCallMuPrim("addition_mint_mint", list[MuExp] args)) = [*tr(args), ADDINT()];
+INS tr(muCallMuPrim("subtraction_mint_mint", list[MuExp] args)) = [*tr(args), SUBTRACTINT()];
+INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL()];
+INS tr(muCallMuPrim("check_arg_type", list[MuExp] args)) = [*tr(args), CHECKARGTYPE()];
+
+default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
 
 INS tr(muCallJava(str name, str class, Symbol types, int reflect, list[MuExp] args)) = [ *tr(args), CALLJAVA(name, class, types, reflect) ];
 
