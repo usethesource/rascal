@@ -3312,6 +3312,11 @@ public class Prelude {
 		return ctx.getEvaluator().__getCurrentTraversalEvaluator().getContext();
 	}
 	
+		
+	public IString deleteOrigin(IString x) {
+		return values.string(x.getValue());
+	}
+	
 	public IList origins(IString x) {
 		if (x instanceof OrgString) {
 			OrgString os = (OrgString)x;
