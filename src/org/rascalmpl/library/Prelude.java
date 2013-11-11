@@ -2298,7 +2298,8 @@ public class Prelude {
 						@SuppressWarnings("unused")
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
-						IConstructor ast = makeConstructor(type, constructorName, ctx, values.string(yield));
+						IConstructor ast = makeConstructor(type, constructorName, ctx, 
+								values.string(TreeAdapter.getLocation(tree), yield));
 						return ast.asAnnotatable().setAnnotation("location", loc);
 					}
 					catch (Backtrack b) {
