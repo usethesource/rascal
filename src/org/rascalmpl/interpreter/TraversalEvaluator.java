@@ -116,7 +116,7 @@ public class TraversalEvaluator {
 		IValue result = subject;
 		this.traversalContext.add(subject);
 		
-		if (/* casesOrRules.hasRegexp()  && */ subjectType.isString()) {
+		if (casesOrRules.hasRegexp()  &&  subjectType.isString()) {
 			result = traverseStringOnce(subject, casesOrRules, tr);
 			this.traversalContext.remove(this.traversalContext.size()-1);
 			return result;
