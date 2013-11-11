@@ -1,5 +1,6 @@
 package org.rascalmpl.values;
 
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 
@@ -17,6 +18,11 @@ public class OriginValueFactory extends RascalValueFactory {
 	public IString string(ISourceLocation origin, String s) {
 		return new Chunk(origin, s);
 	}
+	
+	@Override
+	public IString string(ISet origins, IString str) {
+		return new Insincere(str, origins);
+	}
 
 	@Override
 	public IString string(ISourceLocation origin, int ch) throws IllegalArgumentException {
@@ -27,6 +33,7 @@ public class OriginValueFactory extends RascalValueFactory {
 	public IString string(ISourceLocation origin, int[] chars) throws IllegalArgumentException {
 		return new Chunk(origin, string(chars).getValue());
 	}
+	
 	
 	@Override
 	public IString string(String s) {
