@@ -108,6 +108,7 @@ import org.rascalmpl.values.Chunk;
 import org.rascalmpl.values.Concat;
 import org.rascalmpl.values.IOrgStringVisitor;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.Insincere;
 import org.rascalmpl.values.NoOrg;
 import org.rascalmpl.values.OrgString;
 import org.rascalmpl.values.uptr.Factory;
@@ -3330,6 +3331,14 @@ public class Prelude {
 				@Override
 				public void visit(NoOrg noOrg) {
 					w.append(values.tuple(values.constructor(Maybe.Maybe_nothing), noOrg));
+				}
+
+				@Override
+				public void visit(Insincere insincere) {
+					for (IValue loc: insincere.getOrigins()) {
+						w.append(values.tuple(values.constructor(Maybe.Maybe_just, 
+								(ISourceLocation)loc, insincere)));
+					}
 				}
 			});
 			return w.done();
