@@ -568,3 +568,28 @@ public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>|
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java lrel[Maybe[loc], str] origins(str s);
+
+@doc{
+
+This functions returns the set of origins contributing to a substring
+identified by the location value "subject".
+
+NB: currently, we assume that subject is aligned with the locations\
+in orgs. I.e. subject covers (possibly multiple) *whole* locations in orgs.  
+
+}
+list[loc] originsOf(lrel[Maybe[loc], str] orgs, loc subject) {
+  int cur = 0;
+  i = 0;
+  while (cur < subject.offset) {
+    cur += size(orgs[i][1]);
+    i += 1;
+  }
+  found = [];
+  while (cur - subject.offset < subject.length) {
+    found += [orgs[i]];
+    cur += size(orgs[i][1]);
+    i += 1;
+  }
+  return [ l | <just(loc l), _> <- found ];	
+}
