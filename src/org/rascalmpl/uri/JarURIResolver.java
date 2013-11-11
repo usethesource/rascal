@@ -19,6 +19,7 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -158,9 +159,17 @@ public class JarURIResolver implements IURIInputStreamResolver{
 				
 				if (index == -1) {
 					matchedEntries.add(result);
-				}
-				else if (index == result.length() - 1) {
-					matchedEntries.add(result.substring(0, result.length() - 1));	
+				} else {
+					boolean entryPresent = false;
+					for (Iterator<String> it = matchedEntries.iterator(); it.hasNext(); ) {
+						if (result.indexOf(it.next()) != -1) {
+							entryPresent = true;
+							break;
+						}
+					}
+					if (!entryPresent) {
+						matchedEntries.add(result.substring(0, result.length() - 1));
+					}
 				}
 			}
 		}
