@@ -2299,7 +2299,8 @@ public class Prelude {
 						@SuppressWarnings("unused")
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
-						IConstructor ast = makeConstructor(type, constructorName, ctx, values.string(yield));
+						IConstructor ast = makeConstructor(type, constructorName, ctx, 
+								values.string(TreeAdapter.getLocation(tree), yield));
 						return ast.asAnnotatable().setAnnotation("location", loc);
 					}
 					catch (Backtrack b) {
@@ -3310,6 +3311,11 @@ public class Prelude {
 
 	public IList getTraversalContext(IEvaluatorContext ctx) {
 		return ctx.getEvaluator().__getCurrentTraversalEvaluator().getContext();
+	}
+	
+		
+	public IString deleteOrigin(IString x) {
+		return values.string(x.getValue());
 	}
 	
 	public IList origins(IString x) {

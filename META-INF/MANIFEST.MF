@@ -74,7 +74,7 @@ Export-Package:
 Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.swt,
  org.jdom,
- org.objectweb.asm,
+ org.objectweb.asm;bundle-version="4.0.0",
  org.apache.commons.math,
  org.apache.commons.lang,
  org.eclipse.jetty.http,

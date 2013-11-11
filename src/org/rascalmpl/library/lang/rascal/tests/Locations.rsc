@@ -29,7 +29,6 @@ test bool canChangeQuery(loc l, str s) { l.query = s; return l.query ==  s; }
 test bool canChangeFragment(loc l, str s) = (l[fragment = s]).fragment ==  s;
 test bool canChangeFragment(loc l, str s) { l.fragment = s; return l.fragment ==  s; }
 
-
 list[int] validHostChars = (validSchemeChars - [singleChar("+"), singleChar(".")]);
 str createValidHost(str s) {
 	if (s == "")
@@ -47,3 +46,28 @@ test bool validURIAuthority(loc l, str s) = l[authority = s].uri != "";
 test bool validURIPath(loc l, str s) = l[path = s].uri != "";
 test bool validURIQuery(loc l, str s) = l[query = s].uri != "";
 test bool validURIFragment(loc l, str s) = l[fragment = s].uri != "";
+
+test bool pathAdditions(list[str] ss) = (|tmp:///ba| | it + s  | s <- ss, s != "" ).path == ("/ba" | it + "/" + s  | s <- ss, s != "" );
+test bool pathAdditions(loc l, str s) = (l + s).path == ((endsWith(l.path, "/") ? l.path : l.path + "/") + s) || s == "";
+
+str fixPath(str s) {
+	while (endsWith(s, "/")) {
+		s = s[..-1];
+	}
+	return s;
+}
+test bool testParent(loc l, str s) = s == "" || ((l + replaceAll(s, "/","_")).parent + "/") == (l[path=fixPath(l.path)] + "/");
+
+test bool testFile(loc l, str s) {
+	s = replaceAll(s, "/","_");
+	return (l + s).file == s;
+}
+
+test bool testExtension(loc l, str s, str s2) {
+	s2 = replaceAll(s2, ".","_");
+	s2 = replaceAll(s2, "/","_");
+	if (endsWith(s, "/")) {
+		s += "a";	
+	}
+	return (l + "<s>.<s2>").extension == s2;
+}

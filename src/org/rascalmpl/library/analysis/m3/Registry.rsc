@@ -1,6 +1,8 @@
 module analysis::m3::Registry
 
 import analysis::m3::Core;
+import String;
+import IO;
 
 private map[str project, M3 model] projects = ();
 
@@ -52,7 +54,15 @@ Note that specific languages should declare they own resolvers, delegating immed
 @resolver{m3}
 loc resolveM3(loc name) {
   str project = name.authority;
-  if (<name, src> <- projects[project]@declarations) 
-     return src;
+  if (isEmpty(project)) {
+    for (proj <- projects) {
+      if (<name, src> <- projects[proj]@declarations) {
+        return src;
+      }
+    }
+  } else {
+    if (<name, src> <- projects[project]@declarations) 
+       return src;
+  }
   throw "<name> not resolved";
 }
