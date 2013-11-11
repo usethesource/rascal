@@ -1,5 +1,5 @@
 module experiments::Compiler::Examples::Tst
 
-&T <: num neg(&T <: num x) = - x;
+import Type;
 
-value main(list[value] args) = neg(3);
+value main(list[value] args) = #int.symbol;
