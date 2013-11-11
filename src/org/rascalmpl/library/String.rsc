@@ -570,11 +570,17 @@ public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>|
 public java lrel[Maybe[loc], str] origins(str s);
 
 @doc{
-Set the origin of this string. Note: this discards *all*
-original origin information.
+Delete origins for string s.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str deleteOrigin(str s);
+
+@doc{
+Set the origins of this string. Note: this discards *all*
+original origin information so may lead to "insincere" results.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str setOrigins(str s, set[loc] origins);
 
 public set[loc] originsOnly(str s) = { l | <just(loc l), _> <- origins(s) };
 

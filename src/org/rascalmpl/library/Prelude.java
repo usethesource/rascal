@@ -3318,6 +3318,10 @@ public class Prelude {
 		return values.string(x.getValue());
 	}
 	
+	public IString setOrigins(IString x, ISet origins) {
+		return values.string(origins, x);
+	}
+	
 	public IList origins(IString x) {
 		if (x instanceof OrgString) {
 			OrgString os = (OrgString)x;
@@ -3343,7 +3347,7 @@ public class Prelude {
 				public void visit(Insincere insincere) {
 					for (IValue loc: insincere.getOrigins()) {
 						w.append(values.tuple(values.constructor(Maybe.Maybe_just, 
-								(ISourceLocation)loc, insincere)));
+								(ISourceLocation)loc), insincere));
 					}
 				}
 			});
