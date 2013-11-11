@@ -502,7 +502,7 @@ public class SetPattern extends AbstractMatchingResult {
 				// Variable has been set before, use its dynamic type to distinguish set variables.
 				IValue val = env.getVariable(name).getValue();
 				
-				if(val.getType().isSet()){
+				if(val != null && val.getType().isSet()){
 					isSetVar[i] = true;
 					if(elements.equals(val)){
 						varGen[i] = new SingleIValueIterator(val);
@@ -512,8 +512,9 @@ public class SetPattern extends AbstractMatchingResult {
 				}
 				if(elements.contains(val)){
 					varGen[i] = new SingleIValueIterator(val);
-				} else
+				} else {
 					return false;
+				}
 			}
 			return true;
 		}
