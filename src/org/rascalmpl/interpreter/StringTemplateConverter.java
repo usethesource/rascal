@@ -14,6 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,9 +44,11 @@ import org.rascalmpl.ast.StringTemplate.For;
 import org.rascalmpl.ast.StringTemplate.IfThen;
 import org.rascalmpl.ast.StringTemplate.IfThenElse;
 import org.rascalmpl.ast.StringTemplate.While;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.OrgString;
 import org.rascalmpl.values.OriginValueFactory;
@@ -54,6 +58,7 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
   
 public class StringTemplateConverter {
+	private static int uniqueId = 0;
 	private static int labelCounter = 0;
 	
 	public StringTemplateConverter() {
@@ -181,10 +186,21 @@ public class StringTemplateConverter {
 				return makeValue(removeMargins(preprocessedString));
 			}
 			
+			private String uniqueFragment() {
+				return "" + (++uniqueId);
+			}
+			
 			private IString makeValue(String arg) {
 				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 				// Consts always have " <, or > ", or > <.
-				ISourceLocation loc = vf.sourceLocation(src, src.getOffset() + 1, 
+				URI uri;
+				String frag = uniqueFragment(); 
+				try {
+					uri = URIUtil.changeFragment(src.getURI(), frag);
+				} catch (URISyntaxException e) {
+					throw new ImplementationError("invalid fragment " + frag);
+				}
+				ISourceLocation loc = vf.sourceLocation(uri, src.getOffset() + 1, 
 						src.getLength() - 2, 
 						src.getBeginLine(), 
 						src.getEndLine(), 
