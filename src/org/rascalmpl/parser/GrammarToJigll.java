@@ -14,8 +14,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -30,8 +30,6 @@ import org.jgll.grammar.Grammar;
 import org.jgll.grammar.GrammarBuilder;
 import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionFactory;
-import org.jgll.grammar.condition.ConditionType;
-import org.jgll.grammar.condition.TerminalCondition;
 import org.jgll.grammar.symbol.Alt;
 import org.jgll.grammar.symbol.CharacterClass;
 import org.jgll.grammar.symbol.Group;
@@ -41,11 +39,9 @@ import org.jgll.grammar.symbol.Opt;
 import org.jgll.grammar.symbol.Plus;
 import org.jgll.grammar.symbol.Range;
 import org.jgll.grammar.symbol.RegularExpression;
-import org.jgll.grammar.symbol.RegularList;
 import org.jgll.grammar.symbol.Rule;
 import org.jgll.grammar.symbol.Star;
 import org.jgll.grammar.symbol.Symbol;
-import org.jgll.grammar.symbol.Terminal;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseError;
 import org.jgll.parser.ParserFactory;
@@ -79,7 +75,6 @@ public class GrammarToJigll {
 
 	private IConstructor rascalGrammar;
 
-	private Set<Rule> regularListRules;
 	
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
@@ -91,7 +86,8 @@ public class GrammarToJigll {
 			return null;
 		}
 
-		parser = ParserFactory.createLevelParser(grammar, 30);
+//		parser = ParserFactory.createLevelParser(grammar, 100);
+		parser = ParserFactory.createRecursiveDescentParser(grammar);
 
 		log.info("Iguana started.");
 
@@ -247,7 +243,6 @@ public class GrammarToJigll {
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 		rulesMap = new HashMap<>();
 		keywordsMap = new HashMap<>();
-		regularListRules = new HashSet<>();
 		
 		Set<Rule> rules = new HashSet<>();
 
@@ -290,18 +285,18 @@ public class GrammarToJigll {
 			}
 		}
 		
-//		IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
-//		
-//		Map<Nonterminal, Rule> regularExpressionRules = createRegularExpressionRules(regularExpressions);
-//
-//		for (Rule rule : regularExpressionRules.values()) {
-//			builder.addRule(rule);
-//		}
+		IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
+		
+		Map<Nonterminal, Rule> regularExpressionRules = createRegularExpressionRules(regularExpressions);
+
+		for (Rule rule : regularExpressionRules.values()) {
+			builder.addRule(rule);
+		}
 		
 		for (Rule rule : rules) {
-//			if(!regularExpressionRules.containsKey(rule.getHead())) {
+			if(!regularExpressionRules.containsKey(rule.getHead())) {
 				builder.addRule(rule);
-//			}
+			}
 		}
 		
 		return builder;
@@ -431,21 +426,41 @@ public class GrammarToJigll {
 
 			IMap definitions = (IMap) rascalGrammar.get("rules");
 			IConstructor choice = (IConstructor) definitions.get(symbol);
-			ISet alts = (ISet) choice.get("alternatives");
+			
+			ISet alts = null;
+			try {
+				alts = (ISet) choice.get("alternatives");
+			} catch(Exception e) {
+				System.out.println(symbol);
+			}
 
 			assert alts.size() == 1;
 
 			int[] chars = null;
 			for (IValue alt : alts) {
 				IConstructor prod = (IConstructor) alt;
-				IList rhs = (IList) prod.get("symbols");
+
+				IList rhs = null;
+				try {
+					rhs = (IList) prod.get("symbols");
+				} catch(Exception e) {
+					System.out.println(symbol);
+				}
+
 				chars = new int[rhs.length()];
 
 				int i = 0;
 				for (IValue s : rhs) {
 
-					IList ranges = (IList) ((IConstructor) s).get("ranges");
+					IList ranges = null;
+					try {
+						ranges = (IList) ((IConstructor) s).get("ranges");
+					} catch(Exception e) {
+						System.out.println(symbol);
+					}
+		
 					assert ranges.length() == 1;
+					
 					for (IValue r : ranges) {
 						IConstructor range = (IConstructor) r;
 						int begin = ((IInteger) range.get("begin")).intValue();
@@ -574,128 +589,6 @@ public class GrammarToJigll {
 	private CharacterClass getCharacterClass(IConstructor symbol) {
 		List<Range> targetRanges = buildRanges(symbol);
 		return new CharacterClass(targetRanges);
-	}
-
-	@SuppressWarnings("unused")
-	private Nonterminal createRegularList(IConstructor currentSymbol, IConstructor nextSymbol) {
-		
-		if(SymbolAdapter.isConditional(currentSymbol)) {
-			RegularList regularList = createRegularListFromConditionals(currentSymbol);
-			if(regularList != null) {
-				String head = SymbolAdapter.toString(getSymbolCons(currentSymbol), true);
-				createRugularListRules(head, regularList);
-				return new Nonterminal("Regular_" + head);
-			}
-		}
-		
-		if(!isCharacterClassList(currentSymbol) || nextSymbol == null) {
-			return null;
-		}
-		
-		CharacterClass thisCharacterClass = getCharacterClassList(currentSymbol);
-		CharacterClass otherCharacterClass = getCharacterClassList(nextSymbol);
-		
-		if (thisCharacterClass != null && otherCharacterClass != null) {
-			if(!otherCharacterClass.contains(thisCharacterClass)) {
-				String head = SymbolAdapter.toString(currentSymbol, true);
-				if (SymbolAdapter.isIterStar(currentSymbol)) {
-					RegularList regularList = RegularList.star(head, thisCharacterClass);
-					createRugularListRules(head, regularList);
-					return new Nonterminal("Regular_" + head);
-				} 
-				else if (SymbolAdapter.isIterPlus(currentSymbol)) {
-					RegularList regularList = RegularList.plus(head, thisCharacterClass);
-					createRugularListRules(head, regularList);
-					return new Nonterminal("Regular_" + head);
-				}
-			}
-		}
-		
-		return null;
-	}
-	
-	private void createRugularListRules(String head, RegularList regularList) {
-		Rule rule = new Rule(new Nonterminal("Regular_" + head), regularList);
-		regularListRules.add(rule);
-	}
-	
-	/**
-	 *  Returns the character class if the symbol is of the form [a-z]+, [a-z]* or [a-z].
-	 *  
-	 *  @return null if the given symbol is not of the above mentioned types.
-	 */
-	private CharacterClass getCharacterClassList(IConstructor symbol) {
-		
-		if (SymbolAdapter.isIterStar(symbol) && SymbolAdapter.isCharClass(getSymbolCons(symbol))) {
-			return getCharacterClass(getSymbolCons(symbol));
-		}
-		
-		if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isCharClass(getSymbolCons(symbol))) {
-			return getCharacterClass(getSymbolCons(symbol));
-		}
-		
-		if(SymbolAdapter.isCharClass(symbol)) {
-			return getCharacterClass(symbol);
-		}
-		
-		return null;
-	}
-	
-	private boolean isCharacterClassList(IConstructor symbol) {
-		return (SymbolAdapter.isIterStar(symbol) && SymbolAdapter.isCharClass(getSymbolCons(symbol))) ||
-			   (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isCharClass(getSymbolCons(symbol)));
-	}
-	
-	
-	private RegularList createRegularListFromConditionals(IConstructor conditional) {
-		
-		IConstructor symbol = getSymbolCons(conditional);
-
-		if (SymbolAdapter.isIterStar(symbol)) {
-			if (SymbolAdapter.isCharClass(getSymbolCons(symbol))) {
-				List<Condition> conditions = getConditions(conditional);
-				CharacterClass characterClass = getCharacterClass(getSymbolCons(symbol));
-				if (isRegularList(characterClass, conditions)) {
-					RegularList star = RegularList.star(SymbolAdapter.toString(symbol, true), characterClass);
-					return star.addConditions(conditions);
-				}
-			}
-		}
-
-		if (SymbolAdapter.isIterPlus(symbol)) {
-			if (SymbolAdapter.isCharClass(getSymbolCons(symbol))) {
-				List<Condition> conditions = getConditions(conditional);
-				CharacterClass characterClass = getCharacterClass(getSymbolCons(symbol));
-				if (isRegularList(characterClass, conditions)) {
-					RegularList plus = RegularList.plus(SymbolAdapter.toString(symbol, true), characterClass);
-					return plus.addConditions(conditions);
-				}
-			}
-		}
-
-		return null;
-	}
-
-	private boolean isRegularList(CharacterClass characterClass, List<Condition> conditions) {
-
-		for (Condition condition : conditions) {
-			if (condition.getType() == ConditionType.NOT_FOLLOW && condition instanceof TerminalCondition) {
-				TerminalCondition terminalCondition = (TerminalCondition) condition;
-
-				Terminal terminal = terminalCondition.getTerminal();
-
-				if (!(terminal instanceof CharacterClass)) {
-					return false;
-				}
-
-				CharacterClass other = (CharacterClass) terminal;
-				if (other.contains(characterClass)) {
-					return true;
-				}
-			}
-		}
-
-		return false;
 	}
 
 	private List<Condition> getConditions(IConstructor symbol) {
