@@ -18,6 +18,7 @@ package org.rascalmpl.library.lang.java.m3.internal;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +43,7 @@ public class EclipseJavaCompiler {
   protected final IValueFactory VF;
   private List<String> classPathEntries;
   private List<String> sourcePathEntries;
-  public static Hashtable<String, ISourceLocation> cache = new Hashtable<>();
+  public static HashMap<String, ISourceLocation> cache = new HashMap<>();
 
   public EclipseJavaCompiler(IValueFactory vf) {
     this.VF = vf;
