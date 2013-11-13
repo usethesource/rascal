@@ -90,8 +90,8 @@ public class SourceConverter extends M3Converter {
 		}
 		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
-	  IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding(), false);
-    insert(types, ownValue, type);
+		IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding(), false);
+	  	insert(types, ownValue, type);
 		return true;
 	}
 	
@@ -110,7 +110,7 @@ public class SourceConverter extends M3Converter {
 	}
 	
 	public boolean visit(CompilationUnit node) {
-	  insert(declarations, ownValue, getSourceLocation(node));
+		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
