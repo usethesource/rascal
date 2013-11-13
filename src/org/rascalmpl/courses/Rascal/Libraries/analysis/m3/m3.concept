@@ -1,0 +1,38 @@
+Name: m3
+
+Synopsis: a language independent meta model for facts about source code, which is extensible to include language specific modeling elements
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+This is the core language independent model:
+
+<toc Rascal/Libraries/analysis/m3 1>
+
+For language-specific support, please go here:
+
+   * [lang/java/m3]
+
+
+To get started with m3 immediately, please have a look at:
+
+   * [$lang/java/jdt/m3/Core/createM3FromEclipseProject]
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

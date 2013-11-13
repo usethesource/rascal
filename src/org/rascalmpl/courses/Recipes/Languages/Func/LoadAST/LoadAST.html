@@ -112,40 +112,53 @@ Prog: prog([func(
       cond(
         leq(
           var("n")[
-            @location=|file://-|(13,1,&lt;1,13>,&lt;1,14>)
+            @location=|file://-|(13,1,&lt;1,13>,&lt;1,14>),
+            @comments=()
           ],
           nat(1)[
-            @location=|file://-|(18,1,&lt;1,18>,&lt;1,19>)
+            @location=|file://-|(18,1,&lt;1,18>,&lt;1,19>),
+            @comments=()
           ])[
-          @location=|file://-|(13,6,&lt;1,13>,&lt;1,19>)
+          @location=|file://-|(13,6,&lt;1,13>,&lt;1,19>),
+          @comments=()
         ],
         nat(1)[
-          @location=|file://-|(38,1,&lt;2,13>,&lt;2,14>)
+          @location=|file://-|(38,1,&lt;2,13>,&lt;2,14>),
+          @comments=()
         ],
         mul(
           var("n")[
-            @location=|file://-|(70,1,&lt;4,13>,&lt;4,14>)
+            @location=|file://-|(70,1,&lt;4,13>,&lt;4,14>),
+            @comments=()
           ],
           call(
             "fact",
             [sub(
                 var("n")[
-                  @location=|file://-|(79,1,&lt;4,22>,&lt;4,23>)
+                  @location=|file://-|(79,1,&lt;4,22>,&lt;4,23>),
+                  @comments=()
                 ],
                 nat(1)[
-                  @location=|file://-|(81,1,&lt;4,24>,&lt;4,25>)
+                  @location=|file://-|(81,1,&lt;4,24>,&lt;4,25>),
+                  @comments=()
                 ])[
-                @location=|file://-|(79,3,&lt;4,22>,&lt;4,25>)
+                @location=|file://-|(79,3,&lt;4,22>,&lt;4,25>),
+                @comments=()
               ]])[
-            @location=|file://-|(74,9,&lt;4,17>,&lt;4,26>)
+            @location=|file://-|(74,9,&lt;4,17>,&lt;4,26>),
+            @comments=()
           ])[
+          @comments=(),
           @location=|file://-|(70,13,&lt;4,13>,&lt;4,26>)
         ])[
-        @location=|file://-|(10,87,&lt;1,10>,&lt;5,13>)
+        @location=|file://-|(10,87,&lt;1,10>,&lt;5,13>),
+        @comments=()
       ])[
-      @location=|file://-|(0,97,&lt;1,0>,&lt;5,13>)
+      @location=|file://-|(0,97,&lt;1,0>,&lt;5,13>),
+      @comments=()
     ]])[
-  @location=|file://-|(0,97,&lt;1,0>,&lt;5,13>)
+  @location=|file://-|(0,97,&lt;1,0>,&lt;5,13>),
+  @comments=()
 ]
 </pre>  We get the original program and its <b>abstract syntax tree</b> of type <code>Prog</code> back.
   In case of doubt, compare this with the result in <a href="/Recipes/Languages/Func/Parse/Parse.html">Func/Parse</a> where we did obtain a parse tree.
@@ -157,39 +170,52 @@ Prog: prog([func(
       cond(
         leq(
           var("n")[
-            @location=|std:///demo/lang/Func/programs/F0.func|(13,1,&lt;1,13>,&lt;1,14>)
+            @location=|std:///demo/lang/Func/programs/F0.func|(13,1,&lt;1,13>,&lt;1,14>),
+            @comments=()
           ],
           nat(1)[
+            @comments=(),
             @location=|std:///demo/lang/Func/programs/F0.func|(18,1,&lt;1,18>,&lt;1,19>)
           ])[
-          @location=|std:///demo/lang/Func/programs/F0.func|(13,6,&lt;1,13>,&lt;1,19>)
+          @location=|std:///demo/lang/Func/programs/F0.func|(13,6,&lt;1,13>,&lt;1,19>),
+          @comments=()
         ],
         nat(1)[
-          @location=|std:///demo/lang/Func/programs/F0.func|(38,1,&lt;2,13>,&lt;2,14>)
+          @location=|std:///demo/lang/Func/programs/F0.func|(38,1,&lt;2,13>,&lt;2,14>),
+          @comments=()
         ],
         mul(
           var("n")[
-            @location=|std:///demo/lang/Func/programs/F0.func|(70,1,&lt;4,13>,&lt;4,14>)
+            @location=|std:///demo/lang/Func/programs/F0.func|(70,1,&lt;4,13>,&lt;4,14>),
+            @comments=()
           ],
           call(
             "fact",
             [sub(
                 var("n")[
-                  @location=|std:///demo/lang/Func/programs/F0.func|(79,1,&lt;4,22>,&lt;4,23>)
+                  @location=|std:///demo/lang/Func/programs/F0.func|(79,1,&lt;4,22>,&lt;4,23>),
+                  @comments=()
                 ],
                 nat(1)[
-                  @location=|std:///demo/lang/Func/programs/F0.func|(81,1,&lt;4,24>,&lt;4,25>)
+                  @location=|std:///demo/lang/Func/programs/F0.func|(81,1,&lt;4,24>,&lt;4,25>),
+                  @comments=()
                 ])[
+                @comments=(),
                 @location=|std:///demo/lang/Func/programs/F0.func|(79,3,&lt;4,22>,&lt;4,25>)
               ]])[
+            @comments=(),
             @location=|std:///demo/lang/Func/programs/F0.func|(74,9,&lt;4,17>,&lt;4,26>)
           ])[
-          @location=|std:///demo/lang/Func/programs/F0.func|(70,13,&lt;4,13>,&lt;4,26>)
+          @location=|std:///demo/lang/Func/programs/F0.func|(70,13,&lt;4,13>,&lt;4,26>),
+          @comments=()
         ])[
-        @location=|std:///demo/lang/Func/programs/F0.func|(10,87,&lt;1,10>,&lt;5,13>)
+        @location=|std:///demo/lang/Func/programs/F0.func|(10,87,&lt;1,10>,&lt;5,13>),
+        @comments=()
       ])[
+      @comments=(),
       @location=|std:///demo/lang/Func/programs/F0.func|(0,97,&lt;1,0>,&lt;5,13>)
     ]])[
+  @comments=(),
   @location=|std:///demo/lang/Func/programs/F0.func|(0,97,&lt;1,0>,&lt;5,13>)
 ]
 </pre>

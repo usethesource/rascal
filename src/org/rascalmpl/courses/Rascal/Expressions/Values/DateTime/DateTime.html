@@ -162,20 +162,20 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>   Examples of <code>datetime</code> values are:
-<pre class="screen"><span class="prompt">rascal></span>$2010-07-15;
-datetime: $2010-07-15
-<span class="prompt">rascal></span>$T07:15:23.123+0100;
-datetime: $T07:15:23.123+01:00
+<pre class="screen"><span class="prompt">rascal></span>$2010-07-15$;
+datetime: <i></i>2010-07-15
+<span class="prompt">rascal></span>$T07:15:23.123+0100$;
+datetime: $T07:15:23.123+01:00$
 </pre>  Now introduce a <code>datetime</code> value and assign it to <code>DT</code>.
-<pre class="screen"><span class="prompt">rascal></span>DT = $2010-07-15T09:15:23.123+03:00;
-datetime: $2010-07-15T09:15:23.123+03:00
+<pre class="screen"><span class="prompt">rascal></span>DT = $2010-07-15T09:15:23.123+03:00$;
+datetime: $2010-07-15T09:15:23.123+03:00$
 </pre>  Here are examples of some <code>datatime</code> fields:
 <pre class="screen"><span class="prompt">rascal></span>DT.isDateTime;
 bool: true
 <span class="prompt">rascal></span>DT.justDate;
-datetime: $2010-07-15
+datetime: <i></i>2010-07-15
 <span class="prompt">rascal></span>DT.justTime;
-datetime: $T09:15:23.123+03:00
+datetime: $T09:15:23.123+03:00$
 <span class="prompt">rascal></span>DT.century;
 int: 20
 </pre>

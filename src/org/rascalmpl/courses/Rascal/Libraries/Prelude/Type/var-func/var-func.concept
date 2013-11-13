@@ -1,7 +1,0 @@
-<AUTOINSERTED>
-Name: var-func
-Function: 
-`Production \var-func(Symbol ret, str name, list[tuple[Symbol typ, str label]] parameters, Symbol varArg, str varLabel)`
-Usage: `import Type;`
-</AUTOINSERTED>
-Synopsis: Functions with variable argument lists are normalized to a normal function.

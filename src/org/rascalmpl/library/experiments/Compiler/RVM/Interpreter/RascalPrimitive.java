@@ -12,7 +12,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +52,6 @@ import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTyp
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.library.Prelude;
 
 /*
  * The primitives that can be called via the CALLPRIM instruction.
@@ -453,6 +454,9 @@ public enum RascalPrimitive {
 	real_notequal_real,
 	real_notequal_rat,
 	
+	//reified
+	reified_field_access,
+	
 	// notin
 	
 	notin,
@@ -466,6 +470,7 @@ public enum RascalPrimitive {
 	// parse
 	
 	parse,
+	parse_fragment,
 
 	// println
 	
@@ -529,6 +534,10 @@ public enum RascalPrimitive {
 	setwriter_close,
 	setwriter_open,
 	setwriter_splice,
+	
+	// subscript
+	lrel_subscript,
+	rel_subscript,
 	
 	// str
 	
@@ -643,20 +652,26 @@ public enum RascalPrimitive {
 	private static PrintWriter stdout;
 	private static RVM rvm;
 	private static ParsingTools parsingTools;
+	
+	private static boolean profiling = false;
+	private static long timeSpent[] = new long[values.length];
 
 	/**
 	 * Initialize the primitive methods.
 	 * @param fact value factory to be used
+	 * @param profiling TODO
 	 * @param stdout 
 	 */
-	public static void init(IRascalValueFactory fact, RVM usedRVM) {
+	public static void init(IRascalValueFactory fact, RVM usedRVM, boolean doProfile) {
 		vf = fact;
 		if(usedRVM != null){
 			stdout = usedRVM.stdout;
+			rvm = usedRVM;
+			parsingTools = new ParsingTools(fact, rvm.ctx);
+		} else {
+			System.err.println("No RVM found");
 		}
-		rvm = usedRVM;
-		
-		parsingTools = new ParsingTools(fact, rvm.ctx);
+		profiling = doProfile;
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 									new String[] {"line", "column"});
@@ -670,11 +685,13 @@ public enum RascalPrimitive {
 			if(!name.startsWith("$")){ // ignore all auxiliary functions that start with $.
 				switch(name){
 				case "init":
+				case "exit":
 				case "invoke":
 				case "fromInteger":
 				case "values":
 				case "valueOf":
 				case "main":
+				case "printProfile":
 					/* ignore all utility functions that do not implement some primitive */
 					break;
 				default:
@@ -689,7 +706,12 @@ public enum RascalPrimitive {
 			}
 		}
 	}
-
+	
+	public static void exit(){
+		if(profiling)
+			printProfile();
+	}
+	
 	/**
 	 * Invoke the implementation of a primitive from the RVM main interpreter loop.
 	 * @param stack	stack in the current execution frame
@@ -698,7 +720,29 @@ public enum RascalPrimitive {
 	 * @return		new stack pointer and modified stack contents
 	 */
 	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+	//	if(!profiling){
+			return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+//		} else {
+//			long start = System.currentTimeMillis();
+//			int res = (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+//			timeSpent[ordinal()] += System.currentTimeMillis() - start;
+//			return res;
+//		}
+	}
+	
+	private static void printProfile(){
+		stdout.println("\nRascalPrimitive execution times (ms)");
+		long total = 0;
+		TreeMap<Long,String> data = new TreeMap<Long,String>();
+		for(int i = 0; i < values.length; i++){
+			if(timeSpent[i] > 0 ){
+				data.put(timeSpent[i], values[i].name());
+				total += timeSpent[i];
+			}
+		}
+		for(long t : data.descendingKeySet()){
+			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
+		}
 	}
 
 	/***************************************************************
@@ -1089,16 +1133,6 @@ public enum RascalPrimitive {
 		path = path.concat(s);
 		stack[sp - 2 ] = $loc_field_update(sloc, "path", vf.string(path));
 		return sp - 1;
-//		URI uri = sloc.getURI();
-//		try {
-//			uri = URIUtil.changePath(uri, uri.getPath().concat(s));
-//			// TODO handle length/offset and column/line
-//			sloc = vf.sourceLocation(uri);
-//			stack[sp - 2] = sloc;
-//			return sp - 1;
-//		} catch (URISyntaxException e){
-//			throw RuntimeExceptions.parseError(null, sloc, new ArrayList<Frame>());
-//		}
 	}
 
 	public static int map_add_map(Object[] stack, int sp, int arity) {
@@ -1976,7 +2010,7 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		ISourceLocation sloc = ((ISourceLocation) stack[sp - 2]);
 		String field = ((IString) stack[sp - 1]).getValue();
-		URI uri; // = sloc.getURI();
+		URI uri;
 		IValue v;
 		switch (field) {
 		
@@ -1986,8 +2020,7 @@ public enum RascalPrimitive {
 			break;
 			
 		case "authority":
-			s = sloc.hasAuthority() ? sloc.getAuthority() : "";
-			v = vf.string(s == null ? "" : s);
+			v = vf.string(sloc.hasAuthority() ? sloc.getAuthority() : "");
 			break;
 			
 		case "host":
@@ -2000,13 +2033,11 @@ public enum RascalPrimitive {
 			break;
 			
 		case "path":
-			s = sloc.hasPath() ? sloc.getPath() : "";
-			v = vf.string(s == null ? "" : s);
+			v = vf.string(sloc.hasPath() ? sloc.getPath() : "");
 			break;
 			
 		case "parent":
-			uri = sloc.getURI();
-			String path = uri.getPath();
+			String path = sloc.getPath();
 			if (path.equals("")) {
 				throw RuntimeExceptions.noParent(sloc, null, null);
 			}
@@ -2041,7 +2072,7 @@ public enum RascalPrimitive {
 				
 				Object[] fakeStack = new Object[2];
 				for (String elem : rvm.ctx.getResolverRegistry().listEntries(resolved.getURI())) {
-					fakeStack[0] = resolved;
+					fakeStack[0] = resolved;	// TODO
 					fakeStack[1] = vf.string(elem);
 					loc_add_str(fakeStack, 2, 2);
 					w.append((ISourceLocation)fakeStack[0]);
@@ -2064,21 +2095,18 @@ public enum RascalPrimitive {
 			break;
 			
 		case "fragment":
-			s = sloc.hasFragment() ? sloc.getFragment() : "";
-			v = vf.string(s == null ? "" : s);
+			v = vf.string(sloc.hasFragment() ? sloc.getFragment() : "");
 			break;
 			
 		case "query":
-			s = sloc.hasQuery() ? sloc.getQuery() : "";
-			v = vf.string(s == null ? "" : s);
+			v = vf.string(sloc.hasQuery() ? sloc.getQuery() : "");
 			break;
 			
 		case "params":
-			
 			String query = sloc.hasQuery() ? sloc.getQuery() : "";
 			IMapWriter res = vf.mapWriter(tf.stringType(), tf.stringType());
 			
-			if (query != null && query.length() > 0) {
+			if (query.length() > 0) {
 				String[] params = query.split("&");
 				for (String param : params) {
 					String[] keyValue = param.split("=");
@@ -2093,7 +2121,7 @@ public enum RascalPrimitive {
 			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
 				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", null,  new ArrayList<Frame>());
 			}
-			s = sloc.getURI().getUserInfo();
+			s = uri.getUserInfo();
 			v = vf.string(s == null ? "" : s);
 			break;
 		
@@ -2102,7 +2130,7 @@ public enum RascalPrimitive {
 			if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
 				throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", null,  new ArrayList<Frame>());
 			}
-			int n = sloc.getURI().getPort();
+			int n = uri.getPort();
 			v = vf.integer(n);
 			break;	
 			
@@ -2138,13 +2166,11 @@ public enum RascalPrimitive {
 			}
 			
 		case "uri":
-			uri = sloc.getURI();
-			v = vf.string(uri.toString());
+			v = vf.string(sloc.getURI().toString());
 			break;
 			
 		case "top":
-			uri = sloc.getURI();
-			v = vf.sourceLocation(uri);
+			v = vf.sourceLocation(sloc.getURI());
 			break;
 
 		default:
@@ -2223,8 +2249,6 @@ public enum RascalPrimitive {
 
 			case "path":
 				path = newStringValue;
-				if(!path.startsWith("/")) /***/
-					path = "/" + path;
 				uriPartChanged = true;
 				break;
 				
@@ -2444,6 +2468,14 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
+	public static int reified_field_access(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IConstructor reified = (IConstructor) stack[sp - 2];
+		String field = ((IString) stack[sp - 1]).getValue();
+		stack[sp - 1] = reified.get(field);
+		return sp - 1;
+	}
+	
 	
 	/*
 	 * Annotations
@@ -2492,7 +2524,7 @@ public enum RascalPrimitive {
 			newFields[i] = field.getType().isInteger() ? tup.get(((IInteger) field).intValue())
 												       : tup.get(((IString) field).getValue());
 		}
-		stack[sp - arity] = vf.tuple(newFields);
+		stack[sp - arity] = (arity - 1 > 1) ? vf.tuple(newFields) : newFields[0];
 		return sp - arity + 1;
 	}
 	
@@ -2512,6 +2544,8 @@ public enum RascalPrimitive {
 	public static int rel_field_project(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		ISet rel = (ISet) stack[sp - arity];
+		int indexArity = arity - 1;
+		assert indexArity <= rel.getElementType().getArity();
 		int[] fields = new int[arity - 1];
 		for(int i = 1; i < arity; i++){
 			fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
@@ -2523,7 +2557,7 @@ public enum RascalPrimitive {
 			for(int j = 0; j < fields.length; j++){
 				elems[j] = tup.get(fields[j]);
 			}
-			w.insert(vf.tuple(elems));
+			w.insert((indexArity > 1) ? vf.tuple(elems) : elems[0]);
 		}
 		stack[sp - arity] = w.done();
 		return sp - arity + 1;
@@ -2532,6 +2566,8 @@ public enum RascalPrimitive {
 	public static int lrel_field_project(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		IList lrel = (IList) stack[sp - arity];
+		int indexArity = arity - 1;
+		assert indexArity <= lrel.getElementType().getArity();
 		int[] fields = new int[arity - 1];
 		for(int i = 1; i < arity; i++){
 			fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
@@ -2543,7 +2579,7 @@ public enum RascalPrimitive {
 			for(int j = 0; j < fields.length; j++){
 				elems[j] = tup.get(fields[j]);
 			}
-			w.append(vf.tuple(elems));
+			w.append((indexArity > 1) ? vf.tuple(elems) : elems[0]);
 		}
 		stack[sp - arity] = w.done();
 		return sp - arity + 1;
@@ -3713,7 +3749,9 @@ public enum RascalPrimitive {
 	
 	public static int set_less_set(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((ISet) stack[sp - 2]).isSubsetOf((ISet) stack[sp - 1]);
+		ISet lhs = (ISet) stack[sp - 2];
+		ISet rhs = (ISet) stack[sp - 1];
+		stack[sp - 2] = !lhs.isEqual(rhs) && lhs.isSubsetOf(rhs);
 		return sp - 1;
 	}
 	
@@ -4908,7 +4946,7 @@ public enum RascalPrimitive {
 	public static int negative(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 
-		IValue left = (IValue) stack[sp - 2];
+		IValue left = (IValue) stack[sp - 1];
 		Type leftType = left.getType();
 
 		switch (ToplevelType.getToplevelType(leftType)) {
@@ -4954,10 +4992,22 @@ public enum RascalPrimitive {
 		IConstructor type = (IConstructor) stack[sp - 2];
 		IString s = ((IString) stack[sp - 1]);
 	
-		IValue tree = parsingTools.parse(module_name, type, s);
+		stack[sp - 3] = parsingTools.parse(module_name, type, s);
+		return sp - 2;
+	}
+	
+	public static int parse_fragment(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		IString module_name = (IString) stack[sp - 3];
+		IConstructor ctree = (IConstructor) stack[sp - 2];
+		ISourceLocation loc = ((ISourceLocation) stack[sp - 1]);
+	
+		IValue tree = parsingTools.parseFragment(module_name, ctree, loc.getURI());
 		stack[sp - 3] = tree;
 		return sp - 2;
 	}
+	
+	
 
 	/*
 	 * println
@@ -5040,6 +5090,79 @@ public enum RascalPrimitive {
 			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
 		}
 		return sp - 1;
+	}
+	
+	public static int rel_subscript(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		ISet rel = ((ISet) stack[sp - arity]);
+		int indexArity = arity - 1;
+		int relArity = rel.getElementType().getArity();
+		assert relArity < indexArity;
+		int resArity = relArity - indexArity;
+		IValue[] indices = new IValue[indexArity];
+		for(int i = 0; i < indexArity; i++ ){
+			indices[i] = (IValue) stack[sp - arity + i + 1];
+			if(indices[i].getType().isString()){
+				String s = ((IString) indices[i]).getValue();
+				if(s.equals("_"))
+					indices[i] = null;
+			}
+		}
+		IValue[] elems = new  IValue[resArity];
+		ISetWriter w = vf.setWriter();
+		NextTuple:
+		for(IValue vtup : rel){
+			ITuple tup = (ITuple) vtup;
+			for(int i = 0; i < indexArity; i++){
+				if(!tup.get(i).isEqual(indices[i])){
+					if(indices[i] != null)
+						continue NextTuple;
+				}
+			}
+			for(int i = 0; i < resArity; i++){
+				elems[i] = tup.get(indexArity + i);
+			}
+			w.insert(resArity > 1 ? vf.tuple(elems) : elems[0]);
+		}
+		stack[sp - arity] = w.done();
+		return sp - arity + 1;
+		
+	}
+	
+	public static int lrel_subscript(Object[] stack, int sp, int arity) {
+		assert arity >= 2;
+		IList lrel = ((IList) stack[sp - arity]);
+		int indexArity = arity - 1;
+		int lrelArity = lrel.getElementType().getArity();
+		assert lrelArity < indexArity;
+		int resArity = lrelArity - indexArity;
+		IValue[] indices = new IValue[indexArity];
+		for(int i = 0; i < indexArity; i++ ){
+			indices[i] = (IValue) stack[sp - arity + i + 1];
+			if(indices[i].getType().isString()){
+				String s = ((IString) indices[i]).getValue();
+				if(s.equals("_"))
+					indices[i] = null;
+			}
+		}
+		IValue[] elems = new  IValue[resArity];
+		IListWriter w = vf.listWriter();
+		NextTuple:
+		for(IValue vtup : lrel){
+			ITuple tup = (ITuple) vtup;
+			for(int i = 0; i < indexArity; i++){
+				if(!tup.get(i).isEqual(indices[i])){
+					if(indices[i] != null)
+						continue NextTuple;
+				}
+			}
+			for(int i = 0; i < resArity; i++){
+				elems[i] = tup.get(indexArity + i);
+			}
+			w.append(resArity > 1 ? vf.tuple(elems) : elems[0]);
+		}
+		stack[sp - arity] = w.done();
+		return sp - arity + 1;
 	}
 
 	/*
@@ -5343,6 +5466,7 @@ public enum RascalPrimitive {
 	 * typeOf
 	 */
 	
+	@SuppressWarnings("unchecked")
 	public static int typeOf(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		if(stack[sp - 1] instanceof HashSet<?>){	// For the benefit of set matching
@@ -5531,7 +5655,7 @@ public enum RascalPrimitive {
 	 */
 
 	public static void main(String[] args) {
-		init(ValueFactoryFactory.getValueFactory(), null);
+		init(ValueFactoryFactory.getValueFactory(), null, false);
 		System.err.println("RascalPrimitives have been validated!");
 	}
 }

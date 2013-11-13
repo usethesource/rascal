@@ -33,10 +33,10 @@ public class CountDown_a {
 							.CALLPRIM(RascalPrimitive.num_greater_num,2)
 							.JMPTRUE("BODY")
 							.LOADCON(0)
-							.RETURN1()
+							.RETURN1(1)
 							.LABEL("BODY")
 							.LOADLOC(0)
-							.YIELD1()
+							.YIELD1(1)
 							.POP()        // added pop with respect to the new NEXT0's default bahviour on the stack
 							.LOADLOC(0)
 							.LOADCON(1)
@@ -77,7 +77,7 @@ public class CountDown_a {
 						.HASNEXT()
 						.JMPTRUE("BODY")
 						.LOADLOC(2)
-						.RETURN1()
+						.RETURN1(1)
 						.LABEL("BODY")
 						.LOADLOC(2)
 						.LOADLOC(1)
@@ -91,7 +91,7 @@ public class CountDown_a {
 					new CodeBlock(vf)
 						.LOADLOC(0)
 						.CALL("main", 1)
-						.RETURN1()
+						.RETURN1(1)
 						.HALT()));
 		rvm.executeProgram("main", new IValue[] {});
 	}

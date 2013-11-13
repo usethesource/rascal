@@ -390,14 +390,17 @@ private bool replaceDoc(str itemName, Tags tags, str oldFileContent, str newDocC
 public bool replaceDoc(loc L, str itemName, str newDocContent){
   //L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
   L1 = L.top;
-  //println("replaceDoc: <L1>, <itemName>, <newDocContent>");
+  println("replaceDoc: <L1>, <itemName>, <newDocContent>");
   oldFileContent = readFile(L1);
   M = parseModule(L1, libSearchPath);
   newDocContent = removeAUTOINSERTED(newDocContent);
   top-down visit(M){
-    case Header header: 
-         if(normalizeName("<header.name>") == itemName){
+    case Header header: {
+    println("HEADER HERE! <header.name>");
+         if(basename(normalizeName("<header.name>")) == itemName){
+            println("HEADER MATCH");
             return replaceDoc(itemName, header.tags, oldFileContent, newDocContent, L1);
+         }
          }
     case FunctionDeclaration decl: 
    		 if(normalizeName("<decl.signature.name>") == itemName) {
@@ -410,6 +413,8 @@ public bool replaceDoc(loc L, str itemName, str newDocContent){
    		   return replaceDoc(itemName, d.tags, oldFileContent, newDocContent, L1);
    		 } 
   }
+  
+  println("NIKS GEVONDEN");
   return false;
 }
 

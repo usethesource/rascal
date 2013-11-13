@@ -57,73 +57,7 @@
 <span class="sectionHead">Details</span> <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/intercept/intercept.html">intercept</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/interceptStdErr/interceptStdErr.html">interceptStdErr</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/meanSquareError/meanSquareError.html">meanSquareError</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/predict/predict.html">predict</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/R/R.html">R</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/regressionSumSquares/regressionSumSquares.html">regressionSumSquares</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/RSquare/RSquare.html">RSquare</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/significance/significance.html">significance</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/slope/slope.html">slope</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/slopeConfidenceInterval/slopeConfidenceInterval.html">slopeConfidenceInterval</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/slopeStdErr/slopeStdErr.html">slopeStdErr</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/sumOfCrossProducts/sumOfCrossProducts.html">sumOfCrossProducts</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/sumSquaredErrors/sumSquaredErrors.html">sumSquaredErrors</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/totalSumSquares/totalSumSquares.html">totalSumSquares</a> &#032 <a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/XSumSquares/XSumSquares.html">XSumSquares</a> &#032 
 </div>
 
-<div id="Description">
-<span class="sectionHead">Description</span>  Estimates for a given list of observations an ordinary <a href="http://en.wikipedia.org/wiki/Least_squares_regression">least squares regression model<img src="/images/www-icon.png" with="20" height="20"></a> with one independent variable.
- <br/>
-<br/>
-
- y = intercept + slope * x
- <br/>
-<br/>
-
- Standard errors for <a href="http://en.wikipedia.org/wiki/Root_of_a_function">intercept<img src="/images/www-icon.png" with="20" height="20"></a> and <a href="http://en.wikipedia.org/wiki/Slope">slope<img src="/images/www-icon.png" with="20" height="20"></a> are available as well as Analysis of Variance (ANOVA), r-square and Pearson's r statistics.
- <br/>
-<br/>
-
- Observations are <code>&lt;x,y></code> tuples.
- <br/>
-<br/>
-
- At least two observations with different <code>x</code> coordinates are required to estimate a bivariate regression model.
- Therefore, all functions in <code>SimpleRegression</code> throw an <code>IllegalArgument</code> exception:
-  <ul><li> when there are fewer than two observations in the model, or </li>
-<li> when there is no variation in the <code>x</code> values (i.e. all <code>x</code> values are the same). </li>
-</ul> The following functions are provided:
- <ul><li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/intercept/intercept.html">intercept</a>: Intercept of regression line.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/interceptStdErr/interceptStdErr.html">interceptStdErr</a>: Standard error of intercept estimate.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/meanSquareError/meanSquareError.html">meanSquareError</a>: Sum of squared errors divided by the degrees of freedom.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/predict/predict.html">predict</a>: Predict a value.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/R/R.html">R</a>: Pearson's product-moment correlation coefficient.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/regressionSumSquares/regressionSumSquares.html">regressionSumSquares</a>: Sum of squared deviations of the predicted y values about their mean.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/RSquare/RSquare.html">RSquare</a>: Coefficient of determination.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/significance/significance.html">significance</a>: Significance of the slope correlation.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/slope/slope.html">slope</a>: Slope of regression line.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/slopeConfidenceInterval/slopeConfidenceInterval.html">slopeConfidenceInterval</a>: The 95% slope confidence interval.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/slopeStdErr/slopeStdErr.html">slopeStdErr</a>: Standard error of slope estimate.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/sumOfCrossProducts/sumOfCrossProducts.html">sumOfCrossProducts</a>: Sum of cross products of observations.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/sumSquaredErrors/sumSquaredErrors.html">sumSquaredErrors</a>: Sum of squared errors.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/totalSumSquares/totalSumSquares.html">totalSumSquares</a>: Sum of squared deviations.</li>
-<li><a href="/Rascal/Libraries/analysis/statistics/SimpleRegression/XSumSquares/XSumSquares.html">XSumSquares</a>: Sum of squared deviations of x values about their mean.</li>
-</ul>
-</div>
-
   	                       
-<div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import analysis::statistics::SimpleRegression;
-ok
-</pre> Take data that are roughly related to the line: <code>y = 2 + 3 * x</code>.
-<pre class="screen"><span class="prompt">rascal></span>list[tuple[num,num]] D = [&lt;1.0,4.7&gt;, &lt;2.0,8.3&gt;, &lt;3.0,10.1&gt;,&lt;4.0,14.5&gt;];
-lrel[num, num]: [
-  &lt;1.0,4.7>,
-  &lt;2.0,8.3>,
-  &lt;3.0,10.1>,
-  &lt;4.0,14.5>
-]
-<span class="prompt">rascal></span>intercept(D);
-num: 1.5999999999999996
-<span class="prompt">rascal></span>slope(D);
-num: 3.12
-</pre>  So we infer from the data that the line is actually: <code>y = 1.6 + 3.1 * x</code>.
-  We use this to predict the value of <code>y</code> for <code>x</code> = 5:
-<pre class="screen"><span class="prompt">rascal></span>predict(D, 5);
-num: 17.200000000000003
-<span class="prompt">rascal></span>meanSquareError(D);
-num: 0.5640000000000001
-<span class="prompt">rascal></span>R(D);
-num: 0.9886098308181855
-</pre>
-</div>
-
   	                       
   	                       
   	                       

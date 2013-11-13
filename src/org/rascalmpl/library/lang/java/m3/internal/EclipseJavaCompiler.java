@@ -18,6 +18,7 @@ package org.rascalmpl.library.lang.java.m3.internal;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +43,7 @@ public class EclipseJavaCompiler {
   protected final IRascalValueFactory VF;
   private List<String> classPathEntries;
   private List<String> sourcePathEntries;
-  public static Hashtable<String, ISourceLocation> cache = new Hashtable<>();
+  public static HashMap<String, ISourceLocation> cache = new HashMap<>();
 
   public EclipseJavaCompiler(IRascalValueFactory vf) {
     this.VF = vf;
@@ -78,7 +79,7 @@ public class EclipseJavaCompiler {
       converter.set(jarLoc);
       converter.convert(jarLoc, eval);
 
-      return converter.getModel();
+      return converter.getModel(false);
   }
 
   @SuppressWarnings("rawtypes")
@@ -99,7 +100,7 @@ public class EclipseJavaCompiler {
         comment.accept(converter);
       }
       
-      return converter.getModel();
+      return converter.getModel(true);
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
     }
@@ -114,14 +115,15 @@ public class EclipseJavaCompiler {
       CompilationUnit cu = getCompilationUnit(loc, collectBindings.getValue(), javaVersion, eval);
 
       TypeStore store = new TypeStore();
-      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+//      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
       store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
       ASTConverter converter = new ASTConverter(store, collectBindings.getValue());
 
       converter.set(cu);
       converter.set(loc);
       cu.accept(converter);
-      converter.insertCompilationUnitMessages();
+      
+      converter.insertCompilationUnitMessages(true);
       return converter.getValue();
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);

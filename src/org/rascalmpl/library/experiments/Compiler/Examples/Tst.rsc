@@ -1,7 +1,5 @@
 module experiments::Compiler::Examples::Tst
 
-syntax AB = ("a" | "b")+ ;
+import Type;
 
-syntax CD = ("c" | "d")+ ;
-
-value main(list[value] args) = < [AB] "ababababab", [CD] "cdcdcdcdcdc" >;
+value main(list[value] args) = #int.symbol;
