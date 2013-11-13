@@ -8,16 +8,21 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AddInt;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AndBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Call;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallJava;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FilterReturn;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.GreaterEqualInt;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Guard;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.HasNext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Init;
@@ -27,6 +32,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.J
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpSwitch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Label;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LessInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCon;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadConstr;
@@ -39,6 +45,12 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadOFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Exhaust;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptArray;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrown;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
@@ -249,8 +261,8 @@ public class CodeBlock {
 		return add(new Return0(this));
 	}
 	
-	public CodeBlock RETURN1(){
-		return add(new Return1(this));
+	public CodeBlock RETURN1(int arity){
+		return add(new Return1(this,arity));
 	}
 	
 	public CodeBlock LABEL(String arg){
@@ -355,8 +367,8 @@ public class CodeBlock {
 		return add(new Yield0(this));
 	}
 	
-	public CodeBlock YIELD1() {
-		return add(new Yield1(this));
+	public CodeBlock YIELD1(int arity) {
+		return add(new Yield1(this, arity));
 	}
 	
 	public CodeBlock CREATEDYN(int arity) {
@@ -427,10 +439,11 @@ public class CodeBlock {
 		return add(new OCallDyn(this, getTypeConstantIndex(types), arity));
 	}
 	
-	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes){
+	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes, int reflect){
 		return add(new CallJava(this, getConstantIndex(vf.string(methodName)), 
 									  getConstantIndex(vf.string(className)), 
-								      getTypeConstantIndex(parameterTypes)));
+								      getTypeConstantIndex(parameterTypes),
+								      reflect));
 	}
 	
 	public CodeBlock THROW() {
@@ -447,6 +460,54 @@ public class CodeBlock {
 	
 	public CodeBlock FILTERRETURN(){
 		return add(new FilterReturn(this));
+	}
+	
+	public CodeBlock EXHAUST() {
+		return add(new Exhaust(this));
+	}
+	
+	public CodeBlock GUARD() {
+		return add(new Guard(this));
+	}
+	
+	public CodeBlock SUBSCRIPTARRAY() {
+		return add(new SubscriptArray(this));
+	}
+	
+	public CodeBlock SUBSCRIPTLIST() {
+		return add(new SubscriptList(this));
+	}
+	
+	public CodeBlock LESSINT() {
+		return add(new LessInt(this));
+	}
+	
+	public CodeBlock GREATEREQUALINT() {
+		return add(new GreaterEqualInt(this));
+	}
+	
+	public CodeBlock ADDINT() {
+		return add(new AddInt(this));
+	}
+	
+	public CodeBlock SUBTRACTINT() {
+		return add(new SubtractInt(this));
+	}
+	
+	public CodeBlock ANDBOOL() {
+		return add(new AndBool(this));
+	}
+
+	public CodeBlock TYPEOF() {
+		return add(new TypeOf(this));
+	}
+	
+	public CodeBlock SUBTYPE() {
+		return add(new SubType(this));
+	}
+	
+	public CodeBlock CHECKARGTYPE() {
+		return add(new CheckArgType(this));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

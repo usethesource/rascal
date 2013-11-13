@@ -21,7 +21,7 @@ public class Do {
 					LOADLOC(0).
 					LOADLOC(0).
 					CALLPRIM(RascalPrimitive.num_product_num, 2).
-					RETURN1()));
+					RETURN1(1)));
 		
 		rvm.declare(new Function("cube", tf.valueType(), null, 1, 1, 6, 
 				new CodeBlock(vf).
@@ -30,14 +30,14 @@ public class Do {
 					CALLPRIM(RascalPrimitive.num_product_num, 2).
 					LOADLOC(0).
 					CALLPRIM(RascalPrimitive.num_product_num, 2).
-					RETURN1()));
+					RETURN1(1)));
 		
 		rvm.declare(new Function("do", tf.valueType(), null, 2, 2, 6, 
 				new CodeBlock(vf).
 					LOADLOC(1).
 					LOADLOC(0).
 					CALLDYN(1).
-					RETURN1()));
+					RETURN1(1)));
 		
 		rvm.declare(new Function("main", tf.valueType(), null, 1, 1, 7,
 				new CodeBlock(vf).
@@ -50,7 +50,7 @@ public class Do {
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main",1)
-					.RETURN1()
+					.RETURN1(1)
 					.HALT()));
 		
 		rvm.executeProgram("main", new IValue[] {});

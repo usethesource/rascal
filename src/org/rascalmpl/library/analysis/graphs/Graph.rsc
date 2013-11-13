@@ -19,10 +19,11 @@ The Graph data type is a binary relation and all operators and functions defined
 on [$Values/Relation] are also defined on Graph.
 
 The `Graph` library provides the following functions:
-<toc Rascal/Libraries/Prelude/Graph 1>
+<toc Rascal/Libraries/analysis/graphs/Graph 1>
 }
 module analysis::graphs::Graph
 
+import Exception;
 import Set;
 import Relation;
 import IO;      

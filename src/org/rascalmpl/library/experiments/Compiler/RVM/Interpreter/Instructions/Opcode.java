@@ -14,14 +14,14 @@ public enum Opcode {
 	 * 
 	 * OPCODENAME(	opcode,	pc increment)
 	 */
-	LOADCON			(0, 	2),
+	LOADCON			    (0, 	2),
 	LOADVAR 			(1, 	3),
 	LOADLOC 			(2,		2),
 	STOREVAR 			(3, 	3),
 	STORELOC 			(4, 	2),
 	CALL 				(5, 	3),
 	CALLPRIM	 		(6, 	3),
-	RETURN1 			(7, 	1),
+	RETURN1 			(7, 	2),
 	JMP 				(8, 	2),
 	JMPTRUE 			(9, 	2),
 	JMPFALSE 			(10, 	2),
@@ -34,7 +34,7 @@ public enum Opcode {
 	NEXT0				(17,	1),
 	NEXT1				(18,	1),
 	YIELD0				(19,	1),
-	YIELD1				(20,	1),
+	YIELD1				(20,	2),
 	INIT				(21,	2),
 	CREATEDYN			(22,	2),
 	HASNEXT				(23,	1),
@@ -57,12 +57,25 @@ public enum Opcode {
 	LOADOFUN        	(40,    2),
 	OCALL           	(41,    3),
 	OCALLDYN	    	(42,	3),
-	CALLJAVA        	(43,    4),
+	CALLJAVA        	(43,    5),
 	THROW           	(44,    1),
 	JMPSWITCH			(45,	2),
 	UNWRAPTHROWN        (46,    2),
-	FILTERRETURN		(47, 	1)
+	FILTERRETURN		(47, 	1),
+	EXHAUST             (48,    1),
+	GUARD               (49,    1),
+	SUBSCRIPTARRAY		(50,    1),
+	SUBSCRIPTLIST		(51,    1),
+	LESSINT				(52,	1),
+	GREATEREQUALINT		(53,	1),
+	ADDINT				(54,	1),
+	SUBTRACTINT			(55,	1),
+	ANDBOOL				(56,	1),
+	TYPEOF				(57,	1),
+	SUBTYPE				(58,	1),
+	CHECKARGTYPE		(59,	1)
 	;
+	
 	
 	private final int op;
 	private final int pc_incr;
@@ -124,7 +137,18 @@ public enum Opcode {
 	static public final int OP_JMPSWITCH = 45;
 	static public final int OP_UNWRAPTHROWN = 46;
 	static public final int OP_FILTERRETURN = 47;
-	
+	static public final int OP_EXHAUST = 48;
+	static public final int OP_GUARD = 49;
+	static public final int OP_SUBSCRIPTARRAY = 50;
+	static public final int OP_SUBSCRIPTLIST = 51;
+	static public final int OP_LESSINT = 52;
+	static public final int OP_GREATEREQUALINT = 53;
+	static public final int OP_ADDINT = 54;
+	static public final int OP_SUBTRACTINT = 55;
+	static public final int OP_ANDBOOL = 56;
+	static public final int OP_TYPEOF = 57;
+	static public final int OP_SUBTYPE = 58;
+	static public final int OP_CHECKARGTYPE = 59;
 	
 	 Opcode(int op, int pc_incr){
 		this.op = op;
@@ -163,7 +187,7 @@ public enum Opcode {
 			return "CALLPRIM " + cb.finalCode[pc + 1] +  ", " + cb.finalCode[pc + 2] + " [" + RascalPrimitive.fromInteger(cb.finalCode[pc + 1]).name() + "]";
 			
 		case RETURN1:
-			return "RETURN1";
+			return "RETURN1 " + cb.finalCode[pc + 1];
 			
 		case JMP:
 			return "JMP " + cb.finalCode[pc + 1];
@@ -202,7 +226,7 @@ public enum Opcode {
 			return "YIELD0";
 		
 		case YIELD1:
-			return "YIELD1";
+			return "YIELD1 " + cb.finalCode[pc + 1];
 		
 		case INIT:
 			return "INIT " + cb.finalCode[pc + 1];
@@ -271,7 +295,7 @@ public enum Opcode {
 			return "OCALLDYN " + cb.finalCode[pc + 1] + ", " + cb.finalCode[pc + 2] + " [" + cb.getConstantType(cb.finalCode[pc + 1]) + "]";
 			
 		case CALLJAVA:	
-			return "CALLJAVA " + cb.getConstantValue(cb.finalCode[pc + 1]) + ", " + cb.getConstantValue(cb.finalCode[pc + 2]) + ", " + cb.getConstantValue(cb.finalCode[pc + 3]) ;
+			return "CALLJAVA " + cb.getConstantValue(cb.finalCode[pc + 1]) + ", " + cb.getConstantValue(cb.finalCode[pc + 2]) + ", " + cb.getConstantType(cb.finalCode[pc + 3]) + "," + cb.finalCode[pc + 4] ;
 			
 		case THROW:
 			return "THROW";
@@ -284,6 +308,42 @@ public enum Opcode {
 			
 		case FILTERRETURN:
 			return "FILTERRETURN";
+			
+		case EXHAUST:
+			return "TERMINATE";
+			
+		case GUARD:
+			return "GUARD";
+			
+		case SUBSCRIPTARRAY:
+			return "SUBSCRIPTARRAY";
+			
+		case SUBSCRIPTLIST:
+			return "SUBSCRIPTLIST";
+			
+		case LESSINT:
+			return "LESSINT";
+			
+		case GREATEREQUALINT:
+			return "GREATEREQUALINT";
+			
+		case ADDINT:
+			return "ADDINT";
+			
+		case SUBTRACTINT:
+			return "SUBTRACTINT";
+			
+		case ANDBOOL:
+			return "ANDBOOL";
+			
+		case TYPEOF:
+			return "TYPEOF";
+			
+		case SUBTYPE:
+			return "SUBTYPE";
+			
+		case CHECKARGTYPE:
+			return "CHECKARGTYPE";
 		
 		default:
 			break;

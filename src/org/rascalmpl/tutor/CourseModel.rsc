@@ -23,7 +23,7 @@ import ParseTree;
 import RascalUtils;
 import Warnings;
 
-//public loc courseDir    = |file:///Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/courses|;
+//public loc courseDir    = |file:///Users/paulklint/Documents/workspace-level1/rascal/src/org/rascalmpl/courses|;
 public loc courseDir    = |courses:///|;
 
 /* The processing of exams is organized by sharing information between the server and the user (teacher) via dropbox.
@@ -291,7 +291,9 @@ public str readConceptFile(ConceptName cn){
 
 public void saveConceptFile(ConceptName cn, str text){
    remoteloc = courseDir + cn + remoteLoc;
+   println("remoteLoc for saving into lib: <remoteloc>");
    if(exists(remoteloc)){
+      println("it exists!!");
       remote = readTextValueFile(#loc,  remoteloc);
       if(replaceDoc(remote, basename(cn), text)){
          rmap = remoteContentMap[rootname(cn)] ? ();
@@ -446,7 +448,7 @@ public list[ConceptName] getCourseConcepts(ConceptName rootConcept){
 // find the root under which it is included in the concept hierarchy.
 
 str getLocalRoot(str cn){
-   //println("getLocalRoot: <cn>");
+   // println("getLocalRoot: <cn>");
    remote = courseDir + rootname(cn) + remoteConcepts;
    if(exists(remote)){
       remoteMap = readTextValueFile(#list[tuple[ConceptName, loc]], remote);

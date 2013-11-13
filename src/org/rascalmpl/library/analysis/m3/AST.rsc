@@ -3,7 +3,7 @@ Synopsis: a symbolic representation for abstract syntax trees of programming lan
 
 Description:
 
-[M3] provides a general set of data types for the syntactic constructs of programming languages: `Expression`, `Statement`, `Declaration` and `Type`.
+We provide a general set of data types for the syntactic constructs of programming languages: `Expression`, `Statement`, `Declaration` and `Type`.
 Also, very common syntactic constructs are added to this, such as `if`, `while`, etc.
 
 The idea is that parsers for different languages will map to common abstract syntax elements, when this can be done meaningfully.
@@ -15,7 +15,7 @@ The concept of a _source [Location]_ is important for abstract syntax trees. The
 pointing to the physical location of the construct in the source code.
 
 The concept of _declaration_ is also relevant. A `decl` annotation points from a use of a concept to its definition, but always
-via an indirection (i.e. fully qualified name). The `decl` annotation is also of type `loc`, where each [Location] is a fully qualified name of the
+via an indirection (i.e. fully qualified name). The `decl` annotation is also of type `loc`, where each [Expressions/Values/Location] is a fully qualified name of the
 definition that is used. 
 
 Finally, the concept of a _type_ is relevant for ASTs. In particular an `Expression` may have a `typ` annotation, or
@@ -38,7 +38,7 @@ import analysis::m3::TypeSymbol;
 data Declaration;
 anno loc             Declaration@src;
 anno loc             Declaration@decl;
-anno loc             Declaration@typ;
+anno TypeSymbol      Declaration@typ;
 anno list[Modifier]  Declaration@modifiers;
 anno list[Message]   Declaration@messages;
 

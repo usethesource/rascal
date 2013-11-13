@@ -15,6 +15,8 @@ import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
+import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getQualifiedFunctionName, need better structure
+
 public Configuration config = newConfiguration();
 
 /*
@@ -79,17 +81,18 @@ public void resetScopeExtraction() {
 	overloadedFunctions = [];
 }
 
-// Get the type of an expression
+// Get the type of an expression as Symbol
 Symbol getType(loc l) = config.locationTypes[l];
 
+// Get the type of an expression as string
 str getType(e) = "<getType(e@\loc)>";
 
-// Get the outermost type constructor of an expression
-str getOuterType(e) {
- tp = "<getName(getType(e@\loc))>";
-// if(tp in {"int", "real", "rat"})
-// 	tp = "num";
- return tp;
+// Get the outermost type constructor of an expression as string
+str getOuterType(e) { 
+	if(parameter(str _, Symbol bound) := getType(e@\loc)) {
+		return "<getName(bound)>";
+	}
+	return "<getName(getType(e@\loc))>";
 }
 
 /* 
@@ -129,9 +132,11 @@ int getScopeSize(str fuid) = size({ pos | int pos <- range(uid2addr)[fuid], pos 
 public MuExp mkCallToLibFun(str modName, str fname, int nformals)
 	= muFun("<modName>/<fname>(<nformals>)");
 
+
+//MuExp mkVar(str name, loc l) = mkVar(name, loc2uid[l]);
+
 MuExp mkVar(str name, loc l) {
-  
-  int uid = loc2uid[l];
+  uid = loc2uid[l];
   tuple[str fuid,int pos] addr = uid2addr[uid];
   
   // Pass all the functions through the overloading resolution
@@ -140,6 +145,11 @@ MuExp mkVar(str name, loc l) {
     set[int] ofuids = (uid in functions || uid in constructors) ? { uid } : config.store[uid].items;
     // Generate a unique name for an overloaded function resolved for this specific use
     str ofuid = uid2str(config.usedIn[l]) + "/use:" + name;
+    
+    //str ofuid = uid2str(getFunctionUID()) + "/use:" + name;
+    
+    //if(config.usedIn[l] != getFunctionUID())
+    //	println("******* <name>: <config.usedIn[l]>, <getFunctionUID()>");
     
     bool exists = <addr.fuid,ofuids> in overloadedFunctions;
     int i = size(overloadedFunctions);
@@ -400,7 +410,7 @@ public bool isNonTerminalType(AbstractValue::sorttype(_,_,_,_)) = true;
 public default bool isNonTerminalType(AbstractValue _) = false;
 
 public bool isAlias(AbstractValue::\alias(_,_,_,_)) = true;
-public default bool isAlias(AbstractValue _) = false;
+public default bool isAlias(AbstractValue a) = false;
 
 public bool hasField(Symbol s, str fieldName){
     //println("hasField: <s>, <fieldName>");

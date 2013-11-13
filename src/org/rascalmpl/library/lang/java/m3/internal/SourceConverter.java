@@ -1,16 +1,18 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
-import java.net.URI;
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+
 import org.eclipse.jdt.core.dom.*;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.uri.URIUtil;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
 public class SourceConverter extends M3Converter {
@@ -88,8 +90,8 @@ public class SourceConverter extends M3Converter {
 		}
 		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
-	  IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding(), false);
-    insert(types, ownValue, type);
+		IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding(), false);
+	  	insert(types, ownValue, type);
 		return true;
 	}
 	
@@ -108,7 +110,7 @@ public class SourceConverter extends M3Converter {
 	}
 	
 	public boolean visit(CompilationUnit node) {
-	  insert(declarations, ownValue, getSourceLocation(node));
+		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
@@ -245,29 +247,43 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
-	private void generatePackageDecls(URI parent, URI pkg, URI folder) {
-	    insert(declarations, values.sourceLocation(pkg), values.sourceLocation(folder));
+	private void generatePackageDecls(ISourceLocation parent, ISourceLocation pkg, ISourceLocation folder) {
+	    insert(declarations, pkg, folder);
 	  
 	    if (!(parent == null)) {
-	      insert(containment, values.sourceLocation(parent), values.sourceLocation(pkg));
-	      insert(names, values.string(pkg.getPath()), values.sourceLocation(pkg));
+	      insert(containment, parent, pkg);
+	      insert(names, values.string(pkg.getPath()), pkg);
 	      pkg = parent;
-	      generatePackageDecls(URIUtil.getParentURI(pkg), pkg, URIUtil.getParentURI(folder));
+	      generatePackageDecls(getParent(pkg), pkg, getParent(folder));
 	    }
-    	}
+    }
+	
+	private ISourceLocation getParent(ISourceLocation sourceLoc) {
+		File file = new File(sourceLoc.getPath());
+		String parent = file.getParent();
+		if (parent != null && !parent.equals("/")) {
+			parent = parent.replaceAll(Matcher.quoteReplacement("\\"), "/");
+			String authority = null;
+			if (sourceLoc.hasAuthority())
+				authority = sourceLoc.getAuthority();
+			try {
+				return values.sourceLocation(sourceLoc.getScheme(), authority, parent);
+			} catch (URISyntaxException e) {
+				throw new RuntimeException("Should not happen", e);
+			}
+		}
+		return null; // there is no parent;
+	}
 	
 	public boolean visit(PackageDeclaration node) {
 		IPackageBinding binding = node.resolveBinding();
 		
-		if (binding == null) {
-		  // TODO
+		if (binding != null) {
+		  generatePackageDecls(getParent((ISourceLocation) ownValue), (ISourceLocation) ownValue, getParent(loc));
+		  insert(containment, ownValue, getParent());
+		} else {
 		  System.err.println("Unresolved binding for: "+ node);
-		  return true;
 		}
-		
-		generatePackageDecls(URIUtil.getParentURI(((ISourceLocation) ownValue).getURI()), ((ISourceLocation) ownValue).getURI(), URIUtil.getParentURI(loc.getURI()));
-	
-		insert(containment, ownValue, getParent());
 		
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;

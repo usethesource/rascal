@@ -7,10 +7,18 @@ public data Declaration =
 		  		   Symbol ftype, 
 		  		   str scopeIn, 
 		  		   int nformals, 
-		  		   int nlocals, 
+		  		   int nlocals,
+		  		   bool isVarArgs,
 		  		   int maxStack, 
 		  		   list[Instruction] instructions,
 		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
+	    | COROUTINE(str qname, 
+		  		    str scopeIn, 
+		  		    int nformals, 
+		  		    int nlocals, 
+		  		    list[int] refs,
+		  		    int maxStack, 
+		  		    list[Instruction] instructions)
 		;
 
 public data RVMProgram = rvm(str name,
@@ -63,10 +71,11 @@ data Instruction =
 		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive)
 		| CALLPRIM(str name, int arity)				// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
 		| CALLJAVA(str name, str class, 
-		           Symbol parameterTypes)			// Call a Java method
+		           Symbol parameterTypes,
+		           int reflect)			            // Call a Java method
 		
 		| RETURN0()									// Return from function without value
-		| RETURN1()									// Return from function with value
+		| RETURN1(int arity)						// Return from function with value
 		| FAILRETURN()								// Failure return from function
 		| FILTERRETURN()							// Return for filter statement
 		
@@ -86,12 +95,26 @@ data Instruction =
 		| NEXT0()									// Next operation (without argument) on co-routine on top-of-stack
 		| NEXT1()									// Next operation (with argument) on co-routine on top-of-stack
 		| YIELD0()									// Yield from co-routine without value
-		| YIELD1()									// Yield from co-routine with value
+		| YIELD1(int arity)							// Yield from co-routine with value
+		| EXHAUST()                                 // Return from a coroutine disallowing further resumption;
+		| GUARD()                                   // Suspends the current coroutine instance during initialization if true,
+		                                            // or terminates it returning false;
 		
 		| PRINTLN(int arity)						// Print arity values on the stack (TODO: may disappear)
 		
 		| POP()										// Pop one value from the stack
 		
 		| HALT()									// Halt execution of the RVM program
+		| SUBSCRIPTARRAY()							// Fetch array element with given index (mint)
+		| SUBSCRIPTLIST()							// Fetch list element with given index (mint)
+		| LESSINT()									// Less between two mints
+		| GREATEREQUALINT()							// Greater-equal between two mints
+		| ADDINT()									// Add two mints
+		| SUBTRACTINT()								// Subtract two mints
+		| ANDBOOL()									// and between two mbools.
+		
+		| TYPEOF()									// Get type of top element
+		| SUBTYPE()									// Subtype between top two IValues
+		| CHECKARGTYPE()							// Check the type of an argument
 ;
 	

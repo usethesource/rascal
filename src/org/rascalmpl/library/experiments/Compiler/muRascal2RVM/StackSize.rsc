@@ -6,6 +6,7 @@ import experiments::Compiler::muRascal::AST;
 
 
 public int estimate_stack_size(MuExp exp) = estimate(exp) + 1;
+public int estimate_stack_size(list[MuExp] exps) = estimate_list(exps) + 1;
 
 private int estimate(muLab(bool b)) = 1;
 
@@ -47,7 +48,7 @@ private int estimate(muOCall(MuExp fun, Symbol types, list[MuExp] args)) = max(e
 
 private int estimate(muCallPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCallMuPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
-private int estimate(muCallJava(str name, str class, Symbol argTypes, list[MuExp] args)) = estimate_arg_list(args);
+private int estimate(muCallJava(str name, str class, Symbol argTypes, int reflect, list[MuExp] args)) = estimate_arg_list(args);
 
 private int estimate(muAssign(str id, str fuid, int pos, MuExp exp)) = estimate(exp);
 private int estimate(muAssignLoc(str id, int pos, MuExp exp)) = estimate(exp);
@@ -86,9 +87,15 @@ private int estimate(muNext(MuExp coro, list[MuExp] args)) = max(estimate(coro),
 
 private int estimate(muYield()) = 1;
 private int estimate(muYield(MuExp exp)) = estimate(exp);
+private int estimate(muYield(MuExp exp, list[MuExp] exps)) = estimate_arg_list([ exp, *exps ]);
+
+private int estimate(muExhaust()) = 1;
+
+private int estimate(muGuard(MuExp exp)) = estimate(exp);
 
 private int estimate(muReturn()) = 0;
 private int estimate(muReturn(MuExp exp)) = estimate(exp);
+private int estimate(muReturn(MuExp exp, list[MuExp] exps)) = estimate_arg_list([ exp, *exps ]);
 
 private int estimate(muHasNext(MuExp coro)) = estimate(coro);
 

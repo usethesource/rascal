@@ -368,8 +368,10 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
         c.definitions = c.definitions + < c.nextLoc, l >;
         c.nextLoc = c.nextLoc + 1;
     } else {
-        if (!equivalent(rt,c.store[c.annotationEnv[n]].rtype))
+        if (!equivalent(rt,c.store[c.annotationEnv[n]].rtype)){
+            println("addAnnotation: <n>, <rt> and <c.store[c.annotationEnv[n]].rtype>, <l>");
             throw "All annotation types in an annotation set much be equivalent";
+            }
         c.store[c.annotationEnv[n]].onTypes = c.store[c.annotationEnv[n]].onTypes + rtOn; 
         c.definitions = c.definitions + < c.annotationEnv[n], l >;
     }
@@ -1040,23 +1042,29 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
   
   for (hole((ConcreteHole) `\<<Sym s> <Name n>\>`) <- concrete.parts) {
     <c, rt> = convertAndExpandSymbol(s, c);
-    if (isFailType(rt)) failures += t1;  
+    if(isFailType(rt)) { 
+        failures += rt; 
+    }  
     
     name = convertName(n)[@at = n@\loc];
     
     if (fcvExists(c, name)) {
-        c.uses = c.uses + < c.fcvEnv[name], exp@\loc >;
-        c.usedIn[exp@\loc] = head(c.stack);
-        return markLocationType(c, exp@\loc, c.store[c.fcvEnv[name]].rtype);
+        c.uses = c.uses + < c.fcvEnv[name], n@\loc >;
+        c.usedIn[n@\loc] = head(c.stack);
+        <c, rt> = markLocationType(c, n@\loc, c.store[c.fcvEnv[name]].rtype);
     } else {
-        return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(name)> is not in scope", exp@\loc));
+        <c, rt> = markLocationFailed(c, n@\loc, makeFailType("Name <prettyPrintName(name)> is not in scope", n@\loc));
+        failures += rt;
     }
   }
   
-  if (size(failures) > 0)
+  if(size(failures) > 0) {
     return markLocationFailed(c, exp@\loc, failures);
+  }
   
-  return convertAndExpandSymbol(concrete.symbol, c);  
+  <c, rt> = convertAndExpandSymbol(concrete.symbol, c);
+  
+  return markLocationType(c, exp@\loc, rt);
 }
 
 @doc{Check the types of Rascal expressions: CallOrTree}
@@ -6074,7 +6082,19 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         sig = sigMap[modName];
         c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
         for (item <- sig.datatypes) c = importADT(item.adtName, item.adtType, item.at, publicVis(), true, c);
-        for (item <- sig.aliases) c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), true, c);
+        bool modified = true;
+        definitions = invert(c.definitions);
+        while(modified) {
+            modified = false;
+            for(item <- sig.aliases) {
+                int aliasId = getOneFrom(definitions[item.at]);
+                Symbol t = c.store[aliasId].rtype;
+                c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), true, c);
+                if(t != c.store[aliasId].rtype) {
+                    modified = true;
+                }
+            }
+        }
         for (item <- sig.tags) c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), true, c);
         c.stack = tail(c.stack);
     }
@@ -6134,6 +6154,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     if ((Body)`<Toplevel* tls>` := body) {
         dt1 = now();
         list[Declaration] typesAndTags = [ ];
+        list[Declaration] aliases = [ ];
         list[Declaration] annotations = [ ];
         list[Declaration] names = [ ];
         
@@ -6143,7 +6164,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
             switch(decl) {
                 case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : names = names + decl;
                 case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : annotations = annotations + decl;
-                case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : typesAndTags = typesAndTags + decl;
+                case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : aliases = aliases + decl;
                 case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : typesAndTags = typesAndTags + decl;
                 case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : typesAndTags = typesAndTags + decl;
                 case (Declaration)`<Tags _> <Visibility _> data <UserType _> = <{Variant "|"}+ _> ;` : typesAndTags = typesAndTags + decl;
@@ -6153,6 +6174,22 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 
         // Introduce the type names into the environment
         for (t <- typesAndTags) c = checkDeclaration(t,false,c);
+        for (t <- aliases) c = checkDeclaration(t,false,c);
+        
+        // Now, actually process the aliases
+        bool modified = true;
+        definitions = invert(c.definitions);
+        while(modified) {
+        	    modified = false;
+            for(t <- aliases) {
+                int aliasId = getOneFrom(definitions[t@\loc]);
+                Symbol aliasedType = c.store[aliasId].rtype;
+                c = checkDeclaration(t,true,c);
+                if(aliasedType != c.store[aliasId].rtype) {
+                    modified = true;
+                }
+            }
+        }
         
         // Now, actually process the type names
         for (t <- typesAndTags) c = checkDeclaration(t,true,c);
