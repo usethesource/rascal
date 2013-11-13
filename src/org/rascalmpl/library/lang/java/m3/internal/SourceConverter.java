@@ -321,7 +321,9 @@ public class SourceConverter extends M3Converter {
 	
 	public void endVisit(SimpleName node) {
 		if ((node.isDeclaration() || simpleNameIsConstructorDecl(node))) {
-			insert(declarations, ownValue, getSourceLocation(compilUnit.findDeclaringNode(node.resolveBinding())));
+			insert(declarations, ownValue, 
+					getSourceLocation(node));
+							//compilUnit.findDeclaringNode(node.resolveBinding())));
 		}
 		else {
 			insert(uses, getSourceLocation(node), ownValue);
