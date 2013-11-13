@@ -484,7 +484,8 @@ public class BindingsResolver {
 				qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath();
 			}
 			else {
-				System.err.println("Should not happen");
+				System.err.println("No defining class or method for " + binding.getClass().getCanonicalName());
+				System.err.println("Most probably anonymous class in initializer");
 			}
 		}
 		
