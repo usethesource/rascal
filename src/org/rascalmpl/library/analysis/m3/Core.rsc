@@ -90,16 +90,6 @@ set[loc] files(M3 model) {
  return done;
 }
 
-loc getFileContaining(loc method, M3 model) {
-  for (loc l <- ((model@containment<1,0>)+)[method]) {
-    if (isCompilationUnit(l)) {
-      assert size(model@declarations[l]) == 1 : "Got more than one file containing the method";
-      return getOneFrom(model@declarations[l]);
-    }
-  }
-  throw "No file containing method <method> found";
-}
-
 @doc{
 Synopsis: transform the containment relation to a recursive tree model
 

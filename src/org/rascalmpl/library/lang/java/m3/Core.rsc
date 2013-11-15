@@ -64,6 +64,8 @@ public java M3 createM3FromFile(loc file, str javaVersion = "1.7");
 @reflect
 public java M3 createM3FromJarClass(loc jarClass);
 
+map[loc, map[loc, Declaration]] methodASTs = ();
+
 @doc{
 Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
@@ -78,28 +80,19 @@ public M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
     for (sp <- sourcePaths) {
       result = composeJavaM3(project, { createM3FromFile(f, javaVersion = javaVersion) | loc f <- find(sp, "java") });
     }
-    registerProject(project.authority, result);
+    registerProject(project, result);
     return result;
 }
 
 public Declaration getMethodAST(loc methodLoc, M3 model = m3(|unknown:///|)) {
-  if (isMethod(methodLoc)) {
-    if (isEmpty(model)) {
-      model = getModelContaining(methodLoc);
-      if (isEmpty(model))
-        throw "Declaration for <methodLoc> not found in any models";
-    }
-    loc file = getFileContaining(methodLoc, model);
-    Declaration fileAST = createAstFromFile(file, true);
-    visit(fileAST) {
-      case Declaration d: {
-        if ("decl" in getAnnotations(d) && d@decl == methodLoc)
-          return d;
-      }
-    }
-    throw "No declaration matching <methodLoc> found";
+  if (isEmpty(model)) {
+    model = getModelContaining(methodLoc);
   }
-  throw "Only methods are supported at the moment";
+  if (model.id notin methodASTs) {
+    methodASTs[model.id] = ( d@decl : d |/Declaration d := createAstsFromDirectory(model.id, true), d is method || d is constructor);
+  }
+  try return methodASTs[model.id][methodLoc];
+  catch: throw "Method <methodLoc> not found in any model";
 }
 
 public M3 createM3FromJar(loc jarFile) {

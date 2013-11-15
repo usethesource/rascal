@@ -62,6 +62,8 @@ public class BindingsResolver {
 	private final Map<String, Integer> anonymousClassCounter = new HashMap<String, Integer>();
 	private final Map<String, String> resolvedAnonymousClasses = new HashMap<String, String>();
 	private final Map<ISourceLocation, Integer> initializerCounter = new HashMap<ISourceLocation, Integer>();
+	private final Map<Initializer, ISourceLocation> initializerLookUp = new HashMap<>();
+	
   private org.eclipse.imp.pdb.facts.type.Type typeSymbol;
 	
 	BindingsResolver(final TypeStore store, boolean collectBindings) {
@@ -112,7 +114,13 @@ public class BindingsResolver {
       } else if (node instanceof TypeParameter) {
         return resolveBinding(((TypeParameter) node).resolveBinding());
       } else if (node instanceof VariableDeclaration) {
-        return resolveBinding(((VariableDeclaration) node).resolveBinding());
+    	VariableDeclaration n = (VariableDeclaration) node;
+        ISourceLocation result = resolveBinding(n.resolveBinding());
+        // Have to move towards parent to make the binding unique
+        if (result.getScheme() == "unresolved") {
+        	result = resolveBinding(n.getParent(), n.getName().getIdentifier());
+        }
+        return result;
       } else if (node instanceof ConstructorInvocation) {
         return resolveBinding(((ConstructorInvocation) node).resolveConstructorBinding());
       } else if (node instanceof SuperConstructorInvocation) {
@@ -124,6 +132,34 @@ public class BindingsResolver {
       }
 		}
 		return convertBinding("unknown", null, null);
+	}
+	
+	private ISourceLocation resolveBinding(ASTNode parentNode, String childName) {
+		ISourceLocation parentBinding = resolveBinding(parentNode);
+		// Something has to declare it!!!
+		while(parentBinding.getScheme().equals("unknown") || parentBinding.getScheme().equals("unresolved")) {
+			if (parentNode == null) {
+				//truely unresolved/unknown
+				return convertBinding("unresolved", null, null);
+			}
+			parentNode = parentNode.getParent();
+			parentBinding = resolveBinding(parentNode);
+		}
+		String key = "";
+		for (String storedKey: EclipseJavaCompiler.cache.keySet()) {
+			if (EclipseJavaCompiler.cache.get(storedKey).equals(parentBinding)) {
+				key = storedKey;
+				break;
+			}
+		}
+		key += "#".concat(childName);
+		if (EclipseJavaCompiler.cache.containsKey(key)) {
+			return EclipseJavaCompiler.cache.get(key);
+		}
+		// FIXME: May not be variable only!!!
+		ISourceLocation childBinding = convertBinding("java+variable", null, parentBinding.getPath().concat("/").concat(childName));
+		EclipseJavaCompiler.cache.put(key, childBinding);
+		return childBinding;
 	}
 	
 	private ISourceLocation resolveQualifiedName(QualifiedName node) {
@@ -138,14 +174,27 @@ public class BindingsResolver {
 	}
 	
 	private ISourceLocation resolveInitializer(Initializer node) {
+		if (initializerLookUp.containsKey(node)) {
+			return initializerLookUp.get(node); 
+		}
 		int initCounter = 1;
 		ISourceLocation parent = resolveBinding(node.getParent());
 		if (initializerCounter.containsKey(parent)) {
 	      initCounter = initializerCounter.get(parent) + 1;
 	    }
 		initializerCounter.put(parent, initCounter);
-		
-		return convertBinding("java+initializer", null, parent.getPath() + "$initializer" + initCounter);
+		String key = "";
+		for (String storedKey: EclipseJavaCompiler.cache.keySet()) {
+			if (EclipseJavaCompiler.cache.get(storedKey).equals(parent)) {
+				key = storedKey;
+				break;
+			}
+		}
+		key += "$initializer" + initCounter;
+		ISourceLocation result = convertBinding("java+initializer", null, parent.getPath() + "$initializer" + initCounter);
+		EclipseJavaCompiler.cache.put(key, result);
+		initializerLookUp.put(node, result);
+		return result;
 	}
 	
 	public ISourceLocation resolveBinding(IBinding binding) {
@@ -435,7 +484,8 @@ public class BindingsResolver {
 				qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath();
 			}
 			else {
-				System.err.println("Should not happen");
+				System.err.println("No defining class or method for " + binding.getClass().getCanonicalName());
+				System.err.println("Most probably anonymous class in initializer");
 			}
 		}
 		
@@ -508,7 +558,7 @@ public class BindingsResolver {
 		if (!qualifiedName.isEmpty()) {
 	      qualifiedName = qualifiedName.concat("/");
 	    } else {
-	      return convertBinding("unresolved", null, null);
+	    	return convertBinding("unresolved", null, null);
 	    }
 		
 		String scheme = "java+variable";
