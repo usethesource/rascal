@@ -32,7 +32,6 @@ import List;
 import Map;
 import Message;
 import Node;
-import Number;
 import Origins;
 import ParseTree;
 import PriorityQueue;
