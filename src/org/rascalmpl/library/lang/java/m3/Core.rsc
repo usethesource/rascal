@@ -67,7 +67,7 @@ public java M3 createM3FromJarClass(loc jarClass);
 map[loc, map[loc, Declaration]] methodASTs = ();
 
 @doc{
-Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [M3] model
+Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
 public M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
     if (!(isDirectory(project)))
