@@ -148,7 +148,7 @@ public rel[loc, loc] declaredTopTypes(M3 m)
   = {e | tuple[loc lhs, loc rhs] e <- m@containment, isCompilationUnit(e.lhs), isClass(e.rhs) || isInterface(e.rhs)}; 
 
 public rel[loc, loc] declaredSubTypes(M3 m) 
-  = {e | tuple[loc lhs, loc rhs] e <- m@containment, isClass(e.rhs)} - declaredTopTypes(rels);
+  = {e | tuple[loc lhs, loc rhs] e <- m@containment, isClass(e.rhs)} - declaredTopTypes(m);
 
 @memo public set[loc] classes(M3 m) =  {e | e <- m@declarations<name>, isClass(e)};
 @memo public set[loc] interfaces(M3 m) =  {e | e <- m@declarations<name>, isInterface(e)};
