@@ -92,7 +92,7 @@ Questions:
 module ParseTree
 
 extend Type;
-import Message;
+extend Message;
 
 @doc{
 Synopsis: The Tree data type as produced by the parser.
