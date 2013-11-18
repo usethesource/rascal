@@ -55,7 +55,7 @@ private BinomialTree mergeTree(BinomialTree p, BinomialTree q){
 }
 
 private str toString(BinomialTree T){
-	str res = "[" + toString(T.root) + "/" + toString(T.val);
+	str res = "[" + toString(T.priority) + "/" + toString(T.val);
 	if(!isEmpty(T.children))
 		res = res + ":";
 	for(BinomialTree child <- T.children){
@@ -83,7 +83,7 @@ public bool isEmpty(PriorityQueue Q){
 }
 
 public PriorityQueue insertElement(PriorityQueue Q, int priority, int val){
-  return mergeQueue(Q, priorityQueue(priority, val));
+  return mergeQueue(Q, mkPriorityQueue(priority, val));
 }
 
 public int findMinimum(PriorityQueue Q){
@@ -130,11 +130,11 @@ private list[BinomialTree] add(list[BinomialTree] heap, BinomialTree t){
     if(m.priority == minPrio){
     	minIndexFromEnd= size(heap);
     }
-    return [ m, tail(heap) ];
+    return [ m, *tail(heap) ];
   } else {
   	if(t.priority == minPrio)
     	minIndexFromEnd= size(heap);
-    return [t, heap];
+    return [t, *heap];
   }
 }
 
@@ -206,11 +206,11 @@ test bool prioTest() {
    
    list[int] sorted = [];
    while(size(sorted) < size(elms)){
-   	         <min, minVal, Q> = extractMinimum(Q);
-   	         sorted = sorted + [min];
+   	         <minimum, minVal, Q> = extractMinimum(Q);
+   	         sorted = sorted + [minimum];
    }
    
-   println("Q=", toString(Q));
+   println("Q=<toString(Q)>");
    
    println("sorted=<sorted>");  
    
