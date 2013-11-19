@@ -437,13 +437,13 @@ public class RVM {
 //				}
 				int op = instructions[pc++];
 
-//				if (debug) {
-//					int startpc = pc - 1;
-//					for (int i = 0; i < sp; i++) {
-//						stdout.println("\t" + (i < cf.function.nlocals ? "*" : "") + i + ": " + asString(stack[i]));
-//					}
-//					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
-//				}
+				if (debug) {
+					int startpc = pc - 1;
+					for (int i = 0; i < sp; i++) {
+						stdout.println("\t" + (i < cf.function.nlocals ? "*" : "") + i + ": " + asString(stack[i]));
+					}
+					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+				}
 
 				switch (op) {
 				
