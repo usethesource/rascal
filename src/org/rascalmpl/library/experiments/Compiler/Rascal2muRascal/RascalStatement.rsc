@@ -28,7 +28,7 @@ MuExp translate(s: (Statement) `<Expression expression> ;`) = translate(expressi
 MuExp translate(s: (Statement) `<Label label> <Visit visitItself>`) = translateVisit(label, visitItself);
 
 MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`) {
-    whilename = getLabel(label);
+    whilename = getLabel();
     tmp = asTmp(whilename);
     enterLoop(whilename);
     enterBacktrackingScope(whilename);
@@ -124,7 +124,7 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
 } 
 
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) {
-	ifname = nextLabel();
+	ifname = getLabel(label);
 	enterBacktrackingScope(ifname);
 	code = muIfelse(ifname, muAll([translate(c) | c <-conditions]), [translate(thenStatement)], []);
     leaveBacktrackingScope();
@@ -148,7 +148,7 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
 }    
 
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) {
-	ifname = nextLabel();
+	ifname = getLabel(label);
 	enterBacktrackingScope(ifname);
     code = muIfelse(ifname, muAll([translate(c) | c <-conditions]), [translate(thenStatement)], [translate(elseStatement)]);
     leaveBacktrackingScope();
