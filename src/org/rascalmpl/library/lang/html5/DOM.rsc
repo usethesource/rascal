@@ -2,439 +2,329 @@ module lang::html5::DOM
 
 import List;
 
-data HTML5Node
-  = a(list[value] kids)
-  | abbr(list[value] kids)
-  | address(list[value] kids)
-  | area(list[value] kids)
-  | article(list[value] kids)
-  | aside(list[value] kids)
-  | audio(list[value] kids)
-  | b(list[value] kids)
-  | base(list[value] kids)
-  | bdi(list[value] kids)
-  | bdo(list[value] kids)
-  | blockquote(list[value] kids)
-  | body(list[value] kids)
-  | br(list[value] kids)
-  | button(list[value] kids)
-  | canvas(list[value] kids)
-  | caption(list[value] kids)
-  | cite(list[value] kids)
-  | code(list[value] kids)
-  | col(list[value] kids)
-  | colgroup(list[value] kids)
-  | \data(list[value] kids)
-  | datalist(list[value] kids)
-  | dd(list[value] kids)
-  | del(list[value] kids)
-  | details(list[value] kids)
-  | dfn(list[value] kids)
-  | dialog(list[value] kids)
-  | div(list[value] kids)
-  | dl(list[value] kids)
-  | dt(list[value] kids)
-  | em(list[value] kids)
-  | embed(list[value] kids)
-  | fieldset(list[value] kids)
-  | figcaption(list[value] kids)
-  | figure(list[value] kids)
-  | footer(list[value] kids)
-  | form(list[value] kids)
-  | h1(list[value] kids)
-  | h2(list[value] kids)
-  | h3(list[value] kids)
-  | h4(list[value] kids)
-  | h5(list[value] kids)
-  | h6(list[value] kids)
-  | head(list[value] kids)
-  | header(list[value] kids)
-  | hgroup(list[value] kids)
-  | hr(list[value] kids)
-  | html(list[value] kids)
-  | i(list[value] kids)
-  | iframe(list[value] kids)
-  | img(list[value] kids)
-  | input(list[value] kids)
-  | ins(list[value] kids)
-  | kbd(list[value] kids)
-  | keygen(list[value] kids)
-  | label(list[value] kids)
-  | legend(list[value] kids)
-  | li(list[value] kids)
-  | link(list[value] kids)
-  | main(list[value] kids)
-  | \map(list[value] kids)
-  | mark(list[value] kids)
-  | menu(list[value] kids)
-  | menuitem(list[value] kids)
-  | meta(list[value] kids)
-  | meter(list[value] kids)
-  | nav(list[value] kids)
-  | noscript(list[value] kids)
-  | object(list[value] kids)
-  | ol(list[value] kids)
-  | optgroup(list[value] kids)
-  | option(list[value] kids)
-  | output(list[value] kids)
-  | p(list[value] kids)
-  | param(list[value] kids)
-  | pre(list[value] kids)
-  | progress(list[value] kids)
-  | q(list[value] kids)
-  | rp(list[value] kids)
-  | rt(list[value] kids)
-  | ruby(list[value] kids)
-  | s(list[value] kids)
-  | samp(list[value] kids)
-  | script(list[value] kids)
-  | section(list[value] kids)
-  | select(list[value] kids)
-  | small(list[value] kids)
-  | source(list[value] kids)
-  | span(list[value] kids)
-  | strong(list[value] kids)
-  | style(list[value] kids)
-  | sub(list[value] kids)
-  | summary(list[value] kids)
-  | sup(list[value] kids)
-  | table(list[value] kids)
-  | tbody(list[value] kids)
-  | td(list[value] kids)
-  | template(list[value] kids)
-  | textarea(list[value] kids)
-  | tfoot(list[value] kids)
-  | th(list[value] kids)
-  | thead(list[value] kids)
-  | time(list[value] kids)
-  | title(list[value] kids)
-  | tr(list[value] kids)
-  | track(list[value] kids)
-  | u(list[value] kids)
-  | ul(list[value] kids)
-  | var(list[value] kids)
-  | video(list[value] kids)
-  | wbr(list[value] kids)
-  | a(set[HTML5Attr] attrs, list[value] kids)
-  | abbr(set[HTML5Attr] attrs, list[value] kids)
-  | address(set[HTML5Attr] attrs, list[value] kids)
-  | area(set[HTML5Attr] attrs, list[value] kids)
-  | article(set[HTML5Attr] attrs, list[value] kids)
-  | aside(set[HTML5Attr] attrs, list[value] kids)
-  | audio(set[HTML5Attr] attrs, list[value] kids)
-  | b(set[HTML5Attr] attrs, list[value] kids)
-  | base(set[HTML5Attr] attrs, list[value] kids)
-  | bdi(set[HTML5Attr] attrs, list[value] kids)
-  | bdo(set[HTML5Attr] attrs, list[value] kids)
-  | blockquote(set[HTML5Attr] attrs, list[value] kids)
-  | body(set[HTML5Attr] attrs, list[value] kids)
-  | br(set[HTML5Attr] attrs, list[value] kids)
-  | button(set[HTML5Attr] attrs, list[value] kids)
-  | canvas(set[HTML5Attr] attrs, list[value] kids)
-  | caption(set[HTML5Attr] attrs, list[value] kids)
-  | cite(set[HTML5Attr] attrs, list[value] kids)
-  | code(set[HTML5Attr] attrs, list[value] kids)
-  | col(set[HTML5Attr] attrs, list[value] kids)
-  | colgroup(set[HTML5Attr] attrs, list[value] kids)
-  | \data(set[HTML5Attr] attrs, list[value] kids)
-  | datalist(set[HTML5Attr] attrs, list[value] kids)
-  | dd(set[HTML5Attr] attrs, list[value] kids)
-  | del(set[HTML5Attr] attrs, list[value] kids)
-  | details(set[HTML5Attr] attrs, list[value] kids)
-  | dfn(set[HTML5Attr] attrs, list[value] kids)
-  | dialog(set[HTML5Attr] attrs, list[value] kids)
-  | div(set[HTML5Attr] attrs, list[value] kids)
-  | dl(set[HTML5Attr] attrs, list[value] kids)
-  | dt(set[HTML5Attr] attrs, list[value] kids)
-  | em(set[HTML5Attr] attrs, list[value] kids)
-  | embed(set[HTML5Attr] attrs, list[value] kids)
-  | fieldset(set[HTML5Attr] attrs, list[value] kids)
-  | figcaption(set[HTML5Attr] attrs, list[value] kids)
-  | figure(set[HTML5Attr] attrs, list[value] kids)
-  | footer(set[HTML5Attr] attrs, list[value] kids)
-  | form(set[HTML5Attr] attrs, list[value] kids)
-  | h1(set[HTML5Attr] attrs, list[value] kids)
-  | h2(set[HTML5Attr] attrs, list[value] kids)
-  | h3(set[HTML5Attr] attrs, list[value] kids)
-  | h4(set[HTML5Attr] attrs, list[value] kids)
-  | h5(set[HTML5Attr] attrs, list[value] kids)
-  | h6(set[HTML5Attr] attrs, list[value] kids)
-  | head(set[HTML5Attr] attrs, list[value] kids)
-  | header(set[HTML5Attr] attrs, list[value] kids)
-  | hgroup(set[HTML5Attr] attrs, list[value] kids)
-  | hr(set[HTML5Attr] attrs, list[value] kids)
-  | html(set[HTML5Attr] attrs, list[value] kids)
-  | i(set[HTML5Attr] attrs, list[value] kids)
-  | iframe(set[HTML5Attr] attrs, list[value] kids)
-  | img(set[HTML5Attr] attrs, list[value] kids)
-  | input(set[HTML5Attr] attrs, list[value] kids)
-  | ins(set[HTML5Attr] attrs, list[value] kids)
-  | kbd(set[HTML5Attr] attrs, list[value] kids)
-  | keygen(set[HTML5Attr] attrs, list[value] kids)
-  | label(set[HTML5Attr] attrs, list[value] kids)
-  | legend(set[HTML5Attr] attrs, list[value] kids)
-  | li(set[HTML5Attr] attrs, list[value] kids)
-  | link(set[HTML5Attr] attrs, list[value] kids)
-  | main(set[HTML5Attr] attrs, list[value] kids)
-  | \map(set[HTML5Attr] attrs, list[value] kids)
-  | mark(set[HTML5Attr] attrs, list[value] kids)
-  | menu(set[HTML5Attr] attrs, list[value] kids)
-  | menuitem(set[HTML5Attr] attrs, list[value] kids)
-  | meta(set[HTML5Attr] attrs, list[value] kids)
-  | meter(set[HTML5Attr] attrs, list[value] kids)
-  | nav(set[HTML5Attr] attrs, list[value] kids)
-  | noscript(set[HTML5Attr] attrs, list[value] kids)
-  | object(set[HTML5Attr] attrs, list[value] kids)
-  | ol(set[HTML5Attr] attrs, list[value] kids)
-  | optgroup(set[HTML5Attr] attrs, list[value] kids)
-  | option(set[HTML5Attr] attrs, list[value] kids)
-  | output(set[HTML5Attr] attrs, list[value] kids)
-  | p(set[HTML5Attr] attrs, list[value] kids)
-  | param(set[HTML5Attr] attrs, list[value] kids)
-  | pre(set[HTML5Attr] attrs, list[value] kids)
-  | progress(set[HTML5Attr] attrs, list[value] kids)
-  | q(set[HTML5Attr] attrs, list[value] kids)
-  | rp(set[HTML5Attr] attrs, list[value] kids)
-  | rt(set[HTML5Attr] attrs, list[value] kids)
-  | ruby(set[HTML5Attr] attrs, list[value] kids)
-  | s(set[HTML5Attr] attrs, list[value] kids)
-  | samp(set[HTML5Attr] attrs, list[value] kids)
-  | script(set[HTML5Attr] attrs, list[value] kids)
-  | section(set[HTML5Attr] attrs, list[value] kids)
-  | select(set[HTML5Attr] attrs, list[value] kids)
-  | small(set[HTML5Attr] attrs, list[value] kids)
-  | source(set[HTML5Attr] attrs, list[value] kids)
-  | span(set[HTML5Attr] attrs, list[value] kids)
-  | strong(set[HTML5Attr] attrs, list[value] kids)
-  | style(set[HTML5Attr] attrs, list[value] kids)
-  | sub(set[HTML5Attr] attrs, list[value] kids)
-  | summary(set[HTML5Attr] attrs, list[value] kids)
-  | sup(set[HTML5Attr] attrs, list[value] kids)
-  | table(set[HTML5Attr] attrs, list[value] kids)
-  | tbody(set[HTML5Attr] attrs, list[value] kids)
-  | td(set[HTML5Attr] attrs, list[value] kids)
-  | template(set[HTML5Attr] attrs, list[value] kids)
-  | textarea(set[HTML5Attr] attrs, list[value] kids)
-  | tfoot(set[HTML5Attr] attrs, list[value] kids)
-  | th(set[HTML5Attr] attrs, list[value] kids)
-  | thead(set[HTML5Attr] attrs, list[value] kids)
-  | time(set[HTML5Attr] attrs, list[value] kids)
-  | title(set[HTML5Attr] attrs, list[value] kids)
-  | tr(set[HTML5Attr] attrs, list[value] kids)
-  | track(set[HTML5Attr] attrs, list[value] kids)
-  | u(set[HTML5Attr] attrs, list[value] kids)
-  | ul(set[HTML5Attr] attrs, list[value] kids)
-  | var(set[HTML5Attr] attrs, list[value] kids)
-  | video(set[HTML5Attr] attrs, list[value] kids)
-  | wbr(set[HTML5Attr] attrs, list[value] kids)
-  ; 
+data HTML5Node = html5node(str name, list[value] kids);
+data HTML5Attr = html5attr(str name, value val);
 
-data HTML5Attr
-  = abbr(value val)
-  | about(value val)
-  | accept(value val)
-  | accesskey(value val)
-  | action(value val)
-  | align(value val)
-  | allowfullscreen(value val)
-  | alt(value val)
-  | aria(value val)
-  | async(value val)
-  | autocomplete(value val)
-  | autofocus(value val)
-  | autoplay(value val)
-  | border(value val)
-  | challenge(value val)
-  | char(value val)
-  | charset(value val)
-  | checked(value val)
-  | cite(value val)
-  | class(value val)
-  | cols(value val)
-  | colspan(value val)
-  | command(value val)
-  | content(value val)
-  | contenteditable(value val)
-  | contextmenu(value val)
-  | controls(value val)
-  | coords(value val)
-  | \data(value val)
-  | datatype(value val)
-  | \datetime(value val)
-  | \default(value val)
-  | defer(value val)
-  | dir(value val)
-  | dirname(value val)
-  | disabled(value val)
-  | download(value val)
-  | draggable(value val)
-  | dropzone(value val)
-  | enctype(value val)
-  | \for(value val)
-  | form(value val)
-  | formaction(value val)
-  | formenctype(value val)
-  | formmethod(value val)
-  | formnovalidate(value val)
-  | formtarget(value val)
-  | headers(value val)
-  | height(value val)
-  | hidden(value val)
-  | high(value val)
-  | href(value val)
-  | hreflang(value val)
-  | http(value val)
-  | icon(value val)
-  | id(value val)
-  | inlist(value val)
-  | ismap(value val)
-  | itemid(value val)
-  | itemprop(value val)
-  | itemref(value val)
-  | itemscope(value val)
-  | itemtype(value val)
-  | keytype(value val)
-  | kind(value val)
-  | label(value val)
-  | lang(value val)
-  | language(value val)
-  | \list(value val)
-  | local_(value val)
-  | loop(value val)
-  | low(value val)
-  | manifest(value val)
-  | max(value val)
-  | maxlength(value val)
-  | media(value val)
-  | mediagroup(value val)
-  | method(value val)
-  | min(value val)
-  | multiple(value val)
-  | muted(value val)
-  | name(value val)
-  | novalidate(value val)
-  | onabort(value val)
-  | onafterprint(value val)
-  | onbeforeprint(value val)
-  | onbeforeunload(value val)
-  | onblur(value val)
-  | oncanplay(value val)
-  | oncanplaythrough(value val)
-  | onchange(value val)
-  | onclick(value val)
-  | oncontextmenu(value val)
-  | ondblclick(value val)
-  | ondrag(value val)
-  | ondragend(value val)
-  | ondragenter(value val)
-  | ondragleave(value val)
-  | ondragover(value val)
-  | ondragstart(value val)
-  | ondrop(value val)
-  | ondurationchange(value val)
-  | onemptied(value val)
-  | onended(value val)
-  | onerror(value val)
-  | onfocus(value val)
-  | onformchange(value val)
-  | onforminput(value val)
-  | onhashchange(value val)
-  | oninput(value val)
-  | oninvalid(value val)
-  | onkeydown(value val)
-  | onkeypress(value val)
-  | onkeyup(value val)
-  | onload(value val)
-  | onloadeddata(value val)
-  | onloadedmetadata(value val)
-  | onloadstart(value val)
-  | onmessage(value val)
-  | onmousedown(value val)
-  | onmousemove(value val)
-  | onmouseout(value val)
-  | onmouseover(value val)
-  | onmouseup(value val)
-  | onmousewheel(value val)
-  | onoffline(value val)
-  | ononline(value val)
-  | onpagehide(value val)
-  | onpageshow(value val)
-  | onpause(value val)
-  | onplay(value val)
-  | onplaying(value val)
-  | onpopstate(value val)
-  | onprogress(value val)
-  | onratechange(value val)
-  | onredo(value val)
-  | onreset(value val)
-  | onresize(value val)
-  | onscroll(value val)
-  | onseeked(value val)
-  | onseeking(value val)
-  | onselect(value val)
-  | onshow(value val)
-  | onstalled(value val)
-  | onstorage(value val)
-  | onsubmit(value val)
-  | onsuspend(value val)
-  | ontimeupdate(value val)
-  | onundo(value val)
-  | onunload(value val)
-  | onvolumechange(value val)
-  | onwaiting(value val)
-  | open(value val)
-  | optimum(value val)
-  | pattern(value val)
-  | ping(value val)
-  | placeholder(value val)
-  | poster(value val)
-  | prefix(value val)
-  | preload(value val)
-  | property(value val)
-  | radiogroup(value val)
-  | readonly(value val)
-  | \rel(value val)
-  | required(value val)
-  | resource(value val)
-  | rev(value val)
-  | reversed(value val)
-  | role(value val)
-  | rows(value val)
-  | rowspan(value val)
-  | sandbox(value val)
-  | scope(value val)
-  | scoped(value val)
-  | seamless(value val)
-  | selected(value val)
-  | shape(value val)
-  | size(value val)
-  | sizes(value val)
-  | span(value val)
-  | spellcheck(value val)
-  | src(value val)
-  | srcdoc(value val)
-  | srclang(value val)
-  | \start(value val)
-  | step(value val)
-  | style(value val)
-  | tabindex(value val)
-  | target(value val)
-  | template(value val)
-  | title(value val)
-  | translate(value val)
-  | \type(value val)
-  | typeof(value val)
-  | usemap(value val)
-  | valign(value val)
-  | \value(value val)
-  | vocab(value val)
-  | width(value val)
-  | wrap(value val)
-  | xml_base(value val)
-  | xml_id(value val)
-  | xml_lang(value val)
-  | xml_space(value val)
-  ;
+
+HTML5Node a(value kids...) = html5node("a", kids);
+HTML5Node abbr(value kids...) = html5node("abbr", kids);
+HTML5Node address(value kids...) = html5node("address", kids);
+HTML5Node area(value kids...) = html5node("area", kids);
+HTML5Node article(value kids...) = html5node("article", kids);
+HTML5Node aside(value kids...) = html5node("aside", kids);
+HTML5Node audio(value kids...) = html5node("audio", kids);
+HTML5Node b(value kids...) = html5node("b", kids);
+HTML5Node base(value kids...) = html5node("base", kids);
+HTML5Node bdi(value kids...) = html5node("bdi", kids);
+HTML5Node bdo(value kids...) = html5node("bdo", kids);
+HTML5Node blockquote(value kids...) = html5node("blockquote", kids);
+HTML5Node body(value kids...) = html5node("body", kids);
+HTML5Node br(value kids...) = html5node("br", kids);
+HTML5Node button(value kids...) = html5node("button", kids);
+HTML5Node canvas(value kids...) = html5node("canvas", kids);
+HTML5Node caption(value kids...) = html5node("caption", kids);
+HTML5Node cite(value kids...) = html5node("cite", kids);
+HTML5Node code(value kids...) = html5node("code", kids);
+HTML5Node col(value kids...) = html5node("col", kids);
+HTML5Node colgroup(value kids...) = html5node("colgroup", kids);
+HTML5Node \data(value kids...) = html5node("data", kids);
+HTML5Node datalist(value kids...) = html5node("datalist", kids);
+HTML5Node dd(value kids...) = html5node("dd", kids);
+HTML5Node del(value kids...) = html5node("del", kids);
+HTML5Node details(value kids...) = html5node("details", kids);
+HTML5Node dfn(value kids...) = html5node("dfn", kids);
+HTML5Node dialog(value kids...) = html5node("dialog", kids);
+HTML5Node div(value kids...) = html5node("div", kids);
+HTML5Node dl(value kids...) = html5node("dl", kids);
+HTML5Node dt(value kids...) = html5node("dt", kids);
+HTML5Node em(value kids...) = html5node("em", kids);
+HTML5Node embed(value kids...) = html5node("embed", kids);
+HTML5Node fieldset(value kids...) = html5node("fieldset", kids);
+HTML5Node figcaption(value kids...) = html5node("figcaption", kids);
+HTML5Node figure(value kids...) = html5node("figure", kids);
+HTML5Node footer(value kids...) = html5node("footer", kids);
+HTML5Node form(value kids...) = html5node("form", kids);
+HTML5Node h1(value kids...) = html5node("h1", kids);
+HTML5Node h2(value kids...) = html5node("h2", kids);
+HTML5Node h3(value kids...) = html5node("h3", kids);
+HTML5Node h4(value kids...) = html5node("h4", kids);
+HTML5Node h5(value kids...) = html5node("h5", kids);
+HTML5Node h6(value kids...) = html5node("h6", kids);
+HTML5Node head(value kids...) = html5node("head", kids);
+HTML5Node header(value kids...) = html5node("header", kids);
+HTML5Node hgroup(value kids...) = html5node("hgroup", kids);
+HTML5Node hr(value kids...) = html5node("hr", kids);
+HTML5Node html(value kids...) = html5node("html", kids);
+HTML5Node i(value kids...) = html5node("i", kids);
+HTML5Node iframe(value kids...) = html5node("iframe", kids);
+HTML5Node img(value kids...) = html5node("img", kids);
+HTML5Node input(value kids...) = html5node("input", kids);
+HTML5Node ins(value kids...) = html5node("ins", kids);
+HTML5Node kbd(value kids...) = html5node("kbd", kids);
+HTML5Node keygen(value kids...) = html5node("keygen", kids);
+HTML5Node label(value kids...) = html5node("label", kids);
+HTML5Node legend(value kids...) = html5node("legend", kids);
+HTML5Node li(value kids...) = html5node("li", kids);
+HTML5Node link(value kids...) = html5node("link", kids);
+HTML5Node main(value kids...) = html5node("main", kids);
+HTML5Node \map(value kids...) = html5node("map", kids);
+HTML5Node mark(value kids...) = html5node("mark", kids);
+HTML5Node menu(value kids...) = html5node("menu", kids);
+HTML5Node menuitem(value kids...) = html5node("menuitem", kids);
+HTML5Node meta(value kids...) = html5node("meta", kids);
+HTML5Node meter(value kids...) = html5node("meter", kids);
+HTML5Node nav(value kids...) = html5node("nav", kids);
+HTML5Node noscript(value kids...) = html5node("noscript", kids);
+HTML5Node object(value kids...) = html5node("object", kids);
+HTML5Node ol(value kids...) = html5node("ol", kids);
+HTML5Node optgroup(value kids...) = html5node("optgroup", kids);
+HTML5Node option(value kids...) = html5node("option", kids);
+HTML5Node output(value kids...) = html5node("output", kids);
+HTML5Node p(value kids...) = html5node("p", kids);
+HTML5Node param(value kids...) = html5node("param", kids);
+HTML5Node pre(value kids...) = html5node("pre", kids);
+HTML5Node progress(value kids...) = html5node("progress", kids);
+HTML5Node q(value kids...) = html5node("q", kids);
+HTML5Node rp(value kids...) = html5node("rp", kids);
+HTML5Node rt(value kids...) = html5node("rt", kids);
+HTML5Node ruby(value kids...) = html5node("ruby", kids);
+HTML5Node s(value kids...) = html5node("s", kids);
+HTML5Node samp(value kids...) = html5node("samp", kids);
+HTML5Node script(value kids...) = html5node("script", kids);
+HTML5Node section(value kids...) = html5node("section", kids);
+HTML5Node select(value kids...) = html5node("select", kids);
+HTML5Node small(value kids...) = html5node("small", kids);
+HTML5Node source(value kids...) = html5node("source", kids);
+HTML5Node span(value kids...) = html5node("span", kids);
+HTML5Node strong(value kids...) = html5node("strong", kids);
+HTML5Node style(value kids...) = html5node("style", kids);
+HTML5Node sub(value kids...) = html5node("sub", kids);
+HTML5Node summary(value kids...) = html5node("summary", kids);
+HTML5Node sup(value kids...) = html5node("sup", kids);
+HTML5Node table(value kids...) = html5node("table", kids);
+HTML5Node tbody(value kids...) = html5node("tbody", kids);
+HTML5Node td(value kids...) = html5node("td", kids);
+HTML5Node template(value kids...) = html5node("template", kids);
+HTML5Node textarea(value kids...) = html5node("textarea", kids);
+HTML5Node tfoot(value kids...) = html5node("tfoot", kids);
+HTML5Node th(value kids...) = html5node("th", kids);
+HTML5Node thead(value kids...) = html5node("thead", kids);
+HTML5Node time(value kids...) = html5node("time", kids);
+HTML5Node title(value kids...) = html5node("title", kids);
+HTML5Node tr(value kids...) = html5node("tr", kids);
+HTML5Node track(value kids...) = html5node("track", kids);
+HTML5Node u(value kids...) = html5node("u", kids);
+HTML5Node ul(value kids...) = html5node("ul", kids);
+HTML5Node var(value kids...) = html5node("var", kids);
+HTML5Node video(value kids...) = html5node("video", kids);
+HTML5Node wbr(value kids...) = html5node("wbr", kids);
+
+HTML5Attr abbr(value val) = html5attr("abbr", val);
+HTML5Attr about(value val) = html5attr("about", val);
+HTML5Attr accept(value val) = html5attr("accept", val);
+HTML5Attr accesskey(value val) = html5attr("accesskey", val);
+HTML5Attr action(value val) = html5attr("action", val);
+HTML5Attr align(value val) = html5attr("align", val);
+HTML5Attr allowfullscreen(value val) = html5attr("allowfullscreen", val);
+HTML5Attr alt(value val) = html5attr("alt", val);
+HTML5Attr aria(value val) = html5attr("aria", val);
+HTML5Attr async(value val) = html5attr("async", val);
+HTML5Attr autocomplete(value val) = html5attr("autocomplete", val);
+HTML5Attr autofocus(value val) = html5attr("autofocus", val);
+HTML5Attr autoplay(value val) = html5attr("autoplay", val);
+HTML5Attr border(value val) = html5attr("border", val);
+HTML5Attr challenge(value val) = html5attr("challenge", val);
+HTML5Attr char(value val) = html5attr("char", val);
+HTML5Attr charset(value val) = html5attr("charset", val);
+HTML5Attr checked(value val) = html5attr("checked", val);
+HTML5Attr cite(value val) = html5attr("cite", val);
+HTML5Attr class(value val) = html5attr("class", val);
+HTML5Attr cols(value val) = html5attr("cols", val);
+HTML5Attr colspan(value val) = html5attr("colspan", val);
+HTML5Attr command(value val) = html5attr("command", val);
+HTML5Attr content(value val) = html5attr("content", val);
+HTML5Attr contenteditable(value val) = html5attr("contenteditable", val);
+HTML5Attr contextmenu(value val) = html5attr("contextmenu", val);
+HTML5Attr controls(value val) = html5attr("controls", val);
+HTML5Attr coords(value val) = html5attr("coords", val);
+HTML5Attr \data(value val) = html5attr("data", val);
+HTML5Attr datatype(value val) = html5attr("datatype", val);
+HTML5Attr \datetime(value val) = html5attr("datetime", val);
+HTML5Attr \default(value val) = html5attr("default", val);
+HTML5Attr defer(value val) = html5attr("defer", val);
+HTML5Attr dir(value val) = html5attr("dir", val);
+HTML5Attr dirname(value val) = html5attr("dirname", val);
+HTML5Attr disabled(value val) = html5attr("disabled", val);
+HTML5Attr download(value val) = html5attr("download", val);
+HTML5Attr draggable(value val) = html5attr("draggable", val);
+HTML5Attr dropzone(value val) = html5attr("dropzone", val);
+HTML5Attr enctype(value val) = html5attr("enctype", val);
+HTML5Attr \for(value val) = html5attr("for", val);
+HTML5Attr form(value val) = html5attr("form", val);
+HTML5Attr formaction(value val) = html5attr("formaction", val);
+HTML5Attr formenctype(value val) = html5attr("formenctype", val);
+HTML5Attr formmethod(value val) = html5attr("formmethod", val);
+HTML5Attr formnovalidate(value val) = html5attr("formnovalidate", val);
+HTML5Attr formtarget(value val) = html5attr("formtarget", val);
+HTML5Attr headers(value val) = html5attr("headers", val);
+HTML5Attr height(value val) = html5attr("height", val);
+HTML5Attr hidden(value val) = html5attr("hidden", val);
+HTML5Attr high(value val) = html5attr("high", val);
+HTML5Attr href(value val) = html5attr("href", val);
+HTML5Attr hreflang(value val) = html5attr("hreflang", val);
+HTML5Attr http(value val) = html5attr("http", val);
+HTML5Attr icon(value val) = html5attr("icon", val);
+HTML5Attr id(value val) = html5attr("id", val);
+HTML5Attr inlist(value val) = html5attr("inlist", val);
+HTML5Attr ismap(value val) = html5attr("ismap", val);
+HTML5Attr itemid(value val) = html5attr("itemid", val);
+HTML5Attr itemprop(value val) = html5attr("itemprop", val);
+HTML5Attr itemref(value val) = html5attr("itemref", val);
+HTML5Attr itemscope(value val) = html5attr("itemscope", val);
+HTML5Attr itemtype(value val) = html5attr("itemtype", val);
+HTML5Attr keytype(value val) = html5attr("keytype", val);
+HTML5Attr kind(value val) = html5attr("kind", val);
+HTML5Attr label(value val) = html5attr("label", val);
+HTML5Attr lang(value val) = html5attr("lang", val);
+HTML5Attr language(value val) = html5attr("language", val);
+HTML5Attr \list(value val) = html5attr("list", val);
+HTML5Attr local_(value val) = html5attr("local_", val);
+HTML5Attr loop(value val) = html5attr("loop", val);
+HTML5Attr low(value val) = html5attr("low", val);
+HTML5Attr manifest(value val) = html5attr("manifest", val);
+HTML5Attr max(value val) = html5attr("max", val);
+HTML5Attr maxlength(value val) = html5attr("maxlength", val);
+HTML5Attr media(value val) = html5attr("media", val);
+HTML5Attr mediagroup(value val) = html5attr("mediagroup", val);
+HTML5Attr method(value val) = html5attr("method", val);
+HTML5Attr min(value val) = html5attr("min", val);
+HTML5Attr multiple(value val) = html5attr("multiple", val);
+HTML5Attr muted(value val) = html5attr("muted", val);
+HTML5Attr name(value val) = html5attr("name", val);
+HTML5Attr novalidate(value val) = html5attr("novalidate", val);
+HTML5Attr onabort(value val) = html5attr("onabort", val);
+HTML5Attr onafterprint(value val) = html5attr("onafterprint", val);
+HTML5Attr onbeforeprint(value val) = html5attr("onbeforeprint", val);
+HTML5Attr onbeforeunload(value val) = html5attr("onbeforeunload", val);
+HTML5Attr onblur(value val) = html5attr("onblur", val);
+HTML5Attr oncanplay(value val) = html5attr("oncanplay", val);
+HTML5Attr oncanplaythrough(value val) = html5attr("oncanplaythrough", val);
+HTML5Attr onchange(value val) = html5attr("onchange", val);
+HTML5Attr onclick(value val) = html5attr("onclick", val);
+HTML5Attr oncontextmenu(value val) = html5attr("oncontextmenu", val);
+HTML5Attr ondblclick(value val) = html5attr("ondblclick", val);
+HTML5Attr ondrag(value val) = html5attr("ondrag", val);
+HTML5Attr ondragend(value val) = html5attr("ondragend", val);
+HTML5Attr ondragenter(value val) = html5attr("ondragenter", val);
+HTML5Attr ondragleave(value val) = html5attr("ondragleave", val);
+HTML5Attr ondragover(value val) = html5attr("ondragover", val);
+HTML5Attr ondragstart(value val) = html5attr("ondragstart", val);
+HTML5Attr ondrop(value val) = html5attr("ondrop", val);
+HTML5Attr ondurationchange(value val) = html5attr("ondurationchange", val);
+HTML5Attr onemptied(value val) = html5attr("onemptied", val);
+HTML5Attr onended(value val) = html5attr("onended", val);
+HTML5Attr onerror(value val) = html5attr("onerror", val);
+HTML5Attr onfocus(value val) = html5attr("onfocus", val);
+HTML5Attr onformchange(value val) = html5attr("onformchange", val);
+HTML5Attr onforminput(value val) = html5attr("onforminput", val);
+HTML5Attr onhashchange(value val) = html5attr("onhashchange", val);
+HTML5Attr oninput(value val) = html5attr("oninput", val);
+HTML5Attr oninvalid(value val) = html5attr("oninvalid", val);
+HTML5Attr onkeydown(value val) = html5attr("onkeydown", val);
+HTML5Attr onkeypress(value val) = html5attr("onkeypress", val);
+HTML5Attr onkeyup(value val) = html5attr("onkeyup", val);
+HTML5Attr onload(value val) = html5attr("onload", val);
+HTML5Attr onloadeddata(value val) = html5attr("onloadeddata", val);
+HTML5Attr onloadedmetadata(value val) = html5attr("onloadedmetadata", val);
+HTML5Attr onloadstart(value val) = html5attr("onloadstart", val);
+HTML5Attr onmessage(value val) = html5attr("onmessage", val);
+HTML5Attr onmousedown(value val) = html5attr("onmousedown", val);
+HTML5Attr onmousemove(value val) = html5attr("onmousemove", val);
+HTML5Attr onmouseout(value val) = html5attr("onmouseout", val);
+HTML5Attr onmouseover(value val) = html5attr("onmouseover", val);
+HTML5Attr onmouseup(value val) = html5attr("onmouseup", val);
+HTML5Attr onmousewheel(value val) = html5attr("onmousewheel", val);
+HTML5Attr onoffline(value val) = html5attr("onoffline", val);
+HTML5Attr ononline(value val) = html5attr("ononline", val);
+HTML5Attr onpagehide(value val) = html5attr("onpagehide", val);
+HTML5Attr onpageshow(value val) = html5attr("onpageshow", val);
+HTML5Attr onpause(value val) = html5attr("onpause", val);
+HTML5Attr onplay(value val) = html5attr("onplay", val);
+HTML5Attr onplaying(value val) = html5attr("onplaying", val);
+HTML5Attr onpopstate(value val) = html5attr("onpopstate", val);
+HTML5Attr onprogress(value val) = html5attr("onprogress", val);
+HTML5Attr onratechange(value val) = html5attr("onratechange", val);
+HTML5Attr onredo(value val) = html5attr("onredo", val);
+HTML5Attr onreset(value val) = html5attr("onreset", val);
+HTML5Attr onresize(value val) = html5attr("onresize", val);
+HTML5Attr onscroll(value val) = html5attr("onscroll", val);
+HTML5Attr onseeked(value val) = html5attr("onseeked", val);
+HTML5Attr onseeking(value val) = html5attr("onseeking", val);
+HTML5Attr onselect(value val) = html5attr("onselect", val);
+HTML5Attr onshow(value val) = html5attr("onshow", val);
+HTML5Attr onstalled(value val) = html5attr("onstalled", val);
+HTML5Attr onstorage(value val) = html5attr("onstorage", val);
+HTML5Attr onsubmit(value val) = html5attr("onsubmit", val);
+HTML5Attr onsuspend(value val) = html5attr("onsuspend", val);
+HTML5Attr ontimeupdate(value val) = html5attr("ontimeupdate", val);
+HTML5Attr onundo(value val) = html5attr("onundo", val);
+HTML5Attr onunload(value val) = html5attr("onunload", val);
+HTML5Attr onvolumechange(value val) = html5attr("onvolumechange", val);
+HTML5Attr onwaiting(value val) = html5attr("onwaiting", val);
+HTML5Attr open(value val) = html5attr("open", val);
+HTML5Attr optimum(value val) = html5attr("optimum", val);
+HTML5Attr pattern(value val) = html5attr("pattern", val);
+HTML5Attr ping(value val) = html5attr("ping", val);
+HTML5Attr placeholder(value val) = html5attr("placeholder", val);
+HTML5Attr poster(value val) = html5attr("poster", val);
+HTML5Attr prefix(value val) = html5attr("prefix", val);
+HTML5Attr preload(value val) = html5attr("preload", val);
+HTML5Attr property(value val) = html5attr("property", val);
+HTML5Attr radiogroup(value val) = html5attr("radiogroup", val);
+HTML5Attr readonly(value val) = html5attr("readonly", val);
+HTML5Attr \rel(value val) = html5attr("rel", val);
+HTML5Attr required(value val) = html5attr("required", val);
+HTML5Attr resource(value val) = html5attr("resource", val);
+HTML5Attr rev(value val) = html5attr("rev", val);
+HTML5Attr reversed(value val) = html5attr("reversed", val);
+HTML5Attr role(value val) = html5attr("role", val);
+HTML5Attr rows(value val) = html5attr("rows", val);
+HTML5Attr rowspan(value val) = html5attr("rowspan", val);
+HTML5Attr sandbox(value val) = html5attr("sandbox", val);
+HTML5Attr scope(value val) = html5attr("scope", val);
+HTML5Attr scoped(value val) = html5attr("scoped", val);
+HTML5Attr seamless(value val) = html5attr("seamless", val);
+HTML5Attr selected(value val) = html5attr("selected", val);
+HTML5Attr shape(value val) = html5attr("shape", val);
+HTML5Attr size(value val) = html5attr("size", val);
+HTML5Attr sizes(value val) = html5attr("sizes", val);
+HTML5Attr span(value val) = html5attr("span", val);
+HTML5Attr spellcheck(value val) = html5attr("spellcheck", val);
+HTML5Attr src(value val) = html5attr("src", val);
+HTML5Attr srcdoc(value val) = html5attr("srcdoc", val);
+HTML5Attr srclang(value val) = html5attr("srclang", val);
+HTML5Attr \start(value val) = html5attr("start", val);
+HTML5Attr step(value val) = html5attr("step", val);
+HTML5Attr style(value val) = html5attr("style", val);
+HTML5Attr tabindex(value val) = html5attr("tabindex", val);
+HTML5Attr target(value val) = html5attr("target", val);
+HTML5Attr template(value val) = html5attr("template", val);
+HTML5Attr title(value val) = html5attr("title", val);
+HTML5Attr translate(value val) = html5attr("translate", val);
+HTML5Attr \type(value val) = html5attr("type", val);
+HTML5Attr typeof(value val) = html5attr("typeof", val);
+HTML5Attr usemap(value val) = html5attr("usemap", val);
+HTML5Attr valign(value val) = html5attr("valign", val);
+HTML5Attr \value(value val) = html5attr("value", val);
+HTML5Attr vocab(value val) = html5attr("vocab", val);
+HTML5Attr width(value val) = html5attr("width", val);
+HTML5Attr wrap(value val) = html5attr("wrap", val);
+HTML5Attr xml_base(value val) = html5attr("xml_base", val);
+HTML5Attr xml_id(value val) = html5attr("xml_id", val);
+HTML5Attr xml_lang(value val) = html5attr("xml_lang", val);
+HTML5Attr xml_space(value val) = html5attr("xml_space", val);
+
+
   
 /*
 # void tags: <img> no closing tag.
@@ -465,7 +355,7 @@ bool isVoid(str x) =
 
 bool isRawText(str x) = x in {"script", "style"};
 
-bool isEscapableRawText(str x) = x in {"script", "style"};
+bool isEscapableRawText(str x) = x in {"textarea", "title"};
 
 bool isBlockLevel(str x) =
   x in {"address", "article", "aside", "audio", "blockquote", "canvas", "dd",
@@ -488,7 +378,7 @@ str attrsToString(set[HTML5Attr] attrs)
   = intercalate(" ", [ attrToString(a) | a <- attrs ] );
   
 // TODO: escaping
-str attrToString(str x(value v)) = "<x>=\"<v>\"";
+str attrToString(html5attr(str x, value v)) = "<x>=\"<v>\"";
   
 str rawText(list[value] xs) = ("" | it + "<x>" | x <- xs );
 
@@ -520,10 +410,8 @@ str nodeToString(str n, set[HTML5Attr] attrs, list[value] kids) {
       }
       else if (isBlockLevel(n)) {
         s += "<startTag(n, attrs)>
-             '  <for (k <- kids) {>
-             '   <kidToString(k)>
-             '  <}>
-             '<endTag(n)>";
+             '  <for (k <- kids) {><kidToString(k)>
+             '  <}><endTag(n)>";
       }
       else {
         s += startTag(n, attrs);
@@ -534,17 +422,19 @@ str nodeToString(str n, set[HTML5Attr] attrs, list[value] kids) {
 }
   
 public HTML5Node example 
-  = html([head([title(["something"])]), body([
-      ul([li(["bla"]), 
-          li(["foo", img({href("someref")}, [])])])])]);
+  = html(head(title("something")), body(
+      ul(li("bla"), 
+          li("foo", img(href("someref"))))));
   
 str toString(HTML5Node x) {
-  switch (x) {
-    case str n(set[HTML5Attr] attrs, list[value] kids): 
-       return nodeToString(n, attrs, kids);
-    case str n(set[HTML5Attr] attrs): 
-       return nodeToString(n, attrs, []);
-    case str n(list[value] kids):
-       return nodeToString(n, {}, kids);   
+  attrs = {};
+  kids = for (value k <- x.kids) {
+    if (HTML5Attr a := k) {
+      attrs += {a};
+    }
+    else {
+      append k;
+    }
   }
+  return nodeToString(x.name, attrs, kids); 
 }
