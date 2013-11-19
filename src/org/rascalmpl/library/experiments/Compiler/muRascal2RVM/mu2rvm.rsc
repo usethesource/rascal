@@ -12,7 +12,7 @@ import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
 import experiments::Compiler::muRascal2RVM::StackSize;
-//import experiments::Compiler::muRascal2RVM::PeepHole;
+import experiments::Compiler::muRascal2RVM::PeepHole;
 
 alias INS = list[Instruction];
 
@@ -145,8 +145,8 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     	iprintln(fun);
     }
     // Append catch blocks to the end of the function body code
-    code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
-    //code = peephole(tr(fun.body)) + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    //code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    code = peephole(tr(fun.body)) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     // Debugging exception handling
     // println("FUNCTION BODY:");
@@ -564,7 +564,7 @@ INS tr(muWhile(str label, MuExp cond, list[MuExp] body)) {
     }	
     continueLab = mkContinue(label);
     breakLab = mkBreak(label);
-//    println("while: continueLab = <continueLab>, breakLab = <breakLab>");
+    //println("while: continueLab = <continueLab>, breakLab = <breakLab>");
     return [ *tr_cond(cond, continueLab, breakLab), 	 					
     		 *trvoidblock(body),			
     		 JMP(continueLab),
