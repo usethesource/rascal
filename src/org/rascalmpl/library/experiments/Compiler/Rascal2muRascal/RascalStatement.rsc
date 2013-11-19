@@ -28,7 +28,7 @@ MuExp translate(s: (Statement) `<Expression expression> ;`) = translate(expressi
 MuExp translate(s: (Statement) `<Label label> <Visit visitItself>`) = translateVisit(label, visitItself);
 
 MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`) {
-    whilename = getLabel();
+    whilename = getLabel(label);
     tmp = asTmp(whilename);
     enterLoop(whilename);
     enterBacktrackingScope(whilename);
