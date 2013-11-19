@@ -213,9 +213,9 @@ MuExp translate(e:(Expression) `{ <Statement+ statements> }`) = muBlock([transla
 MuExp translate(e:(Expression) `(<Expression expression>)`)   = translate(expression);
 
 // Closure
-MuExp translate (e:(Expression) `<Type \type> <Parameters parameters> { <Statement+ statements> }`) = translateClosure(e, parameters, statements);
+MuExp translate (e:(Expression) `<Type \type> <Parameters parameters> { <Statement+ statements> }`) = translateClosure(e, parameters, muBlock([translate(stat) | stat <- statements]));
 
-MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statements> }`) = translateClosure(e, parameters, statements);
+MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statements> }`) = translateClosure(e, parameters, muBlock([translate(stat) | stat <- statements]));
 
 // Enumerator with range
 
@@ -880,7 +880,7 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
  
 // Translate a closure   
  
- MuExp translateClosure(Expression e, Parameters parameters, Statement+ statements) {
+ MuExp translateClosure(Expression e, Parameters parameters, MuExp cbody) {
  	uid = loc2uid[e@\loc];
 	fuid = uid2str(uid);
 	
@@ -892,7 +892,7 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
 	bool isVarArgs = (varArgs(_,_) := parameters);
   	// TODO: keyword parameters
     
-    MuExp body = translateFunction(parameters.formals.formals, isVarArgs, statements, []);
+    MuExp body = translateFunction(parameters.formals.formals, isVarArgs, cbody, []);
     tuple[str fuid,int pos] addr = uid2addr[uid];
     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  nformals, nlocals, isVarArgs, e@\loc, [], (), body);
