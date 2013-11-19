@@ -187,7 +187,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
      paramTypes = \tuple([param | param <- ftype.parameters]);
      params = [ muLoc("<ftype.parameters[i]>", i) | i <- [ 0 .. nformals] ];
      exp = muCallJava("<signature.name>", ttags["javaClass"], paramTypes, ("reflect" in ttags) ? 1 : 0, params);
-     tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, translate(exp), []);
+     tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, exp, []);
     
      functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, tmods, ttags, tbody);
