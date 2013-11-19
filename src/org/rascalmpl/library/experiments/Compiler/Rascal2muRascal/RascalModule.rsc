@@ -270,7 +270,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   
   enterFunctionScope(fuid);
   
-  MuExp tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, muBlock([translate(stat) | stat <- body.statements]), []);
+  MuExp tbody = translateFunction(signature.parameters.formals.formals, isVarArgs,  body.statements, []);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   
