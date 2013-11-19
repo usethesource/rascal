@@ -114,6 +114,9 @@ public class CodeBlock {
 		if(info == null){
 			labelInfo.put(label, new LabelInfo(ins, labelIndex++, pc));
 		} else {
+			if(info.isResolved()){
+				throw new RuntimeException("PANIC: double declaration of label " + label);
+			}
 			info.instruction = ins;
 			info.PC = pc;
 		}
@@ -576,5 +579,9 @@ class LabelInfo {
 	public LabelInfo(int index) {
 		this.index = index;
 		PC = -1;
+	}
+	
+	public boolean isResolved(){
+		return PC >= 0;
 	}
 }
