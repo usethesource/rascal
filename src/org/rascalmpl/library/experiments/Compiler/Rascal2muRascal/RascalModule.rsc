@@ -187,7 +187,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
      paramTypes = \tuple([param | param <- ftype.parameters]);
      params = [ muLoc("<ftype.parameters[i]>", i) | i <- [ 0 .. nformals] ];
      exp = muCallJava("<signature.name>", ttags["javaClass"], paramTypes, ("reflect" in ttags) ? 1 : 0, params);
-     tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, exp, []);
+     tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, translate(exp), []);
     
      functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, tmods, ttags, tbody);
@@ -210,7 +210,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
  //TODO: keyword parameters
-  tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, expression, []);
+  tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, translate(expression), []);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
@@ -241,7 +241,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
  //TODO: keyword parameters
-  tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, expression, [exp | exp <- conditions]);
+  tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, translate(expression), [exp | exp <- conditions]);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
@@ -270,7 +270,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   
   enterFunctionScope(fuid);
   
-  MuExp tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, body.statements, []);
+  MuExp tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, muBlock([translate(stat) | stat <- body.statements]), []);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   

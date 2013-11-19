@@ -5,7 +5,7 @@ import experiments::Compiler::Execute;
 
 loc base1 = |project:///rascal-test/tests/functionality|;
 list[str] functionalityTests = [
-//"AccumulatingTests"			// r2mu: Compiling testClosuresHaveAccessToLexicalScopeForAppend
+"AccumulatingTests"		// r2mu: Compiling testClosuresHaveAccessToLexicalScopeForAppend
 							// |rascal://experiments::Compiler::Rascal2muRascal::RascalExpression|(8083,43,<218,89>,<218,132>): The called signature: translateClosure(sort("Expression"), sort("Parameters"), \iter-star-seps(sort("Statement"),[layouts("LAYOUTLIST")])),
 							//does not match the declared signature:	MuExp translateClosure(sort("Expression"), sort("Parameters"), \iter-seps(sort("Statement"),[layouts("LAYOUTNAME")]));
 
@@ -188,8 +188,8 @@ void runTests(list[str] names, loc base){
 value main(list[value] args){
   nsuccess = 0;
   nfail = 0;
-  //runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
-  runTests(rascalTests, |project://rascal-test/src/tests|);
+  runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
+  //runTests(rascalTests, |project://rascal-test/src/tests|);
   println("Overall summary: <nsuccess + nfail> tests executed, <nsuccess> succeeded, <nfail> failed");
   return nfail == 0;
 }
