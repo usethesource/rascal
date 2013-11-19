@@ -124,7 +124,7 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
 } 
 
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) {
-	ifname = nextLabel();
+	ifname = getLabel(label);
 	enterBacktrackingScope(ifname);
 	code = muIfelse(ifname, muAll([translate(c) | c <-conditions]), [translate(thenStatement)], []);
     leaveBacktrackingScope();
@@ -148,7 +148,7 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
 }    
 
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) {
-	ifname = nextLabel();
+	ifname = getLabel(label);
 	enterBacktrackingScope(ifname);
     code = muIfelse(ifname, muAll([translate(c) | c <-conditions]), [translate(thenStatement)], [translate(elseStatement)]);
     leaveBacktrackingScope();
