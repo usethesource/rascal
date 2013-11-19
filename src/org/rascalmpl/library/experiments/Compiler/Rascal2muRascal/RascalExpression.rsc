@@ -661,6 +661,7 @@ MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
      }
   } else {
     switch(fun){
+    // TODO: Review short-cut semantics
     	case "and": return makeMuAll([translate(lhs), translate(rhs)]);
     	case "or":  // a or b == !(!a and !b)
     				return muCallMuPrim("not_mbool", [makeMuAll([muCallMuPrim("not_mbool", [translate(lhs)]),  muCallMuPrim("not_mbool", [translate(lhs)])])]);
