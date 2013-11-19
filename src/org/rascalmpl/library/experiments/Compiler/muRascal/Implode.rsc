@@ -9,6 +9,13 @@ import Ambiguity;
 rel[str,str] global_functions = {};
 map[str,map[str,int]] vardefs = ();
 
+int nLabel = 0;
+
+str nextLabel(str prefix) {
+  nLabel += 1;
+  return "<prefix><nLabel>";
+}
+
 MuModule preprocess(Module pmod){
    global_functions = {};
    vardefs = ();
@@ -214,12 +221,8 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preModulo(MuExp lhs, MuExp rhs)												=> muCallMuPrim("modulo_mint_mint", [lhs, rhs])
       	       case prePower(MuExp lhs, MuExp rhs)												=> muCallMuPrim("power_mint_mint", [lhs, rhs])
       	       
-      	       //case preAnd(MuExp lhs, MuExp rhs)												=> muCallMuPrim("and_mbool_mbool", [lhs, rhs])
-      	       case preAnd(MuExp lhs, MuExp rhs)												=> muIfelse("L_AND", lhs, [rhs], [muCon(false)])
-      	       
-      	       //case preOr(MuExp lhs, MuExp rhs)									    		=> muCallMuPrim("or_mbool_mbool", [lhs, rhs])
-      	       
-      	       case preOr(MuExp lhs, MuExp rhs)									    			=> muIfelse("L_OR", lhs, [muCon(true)], [rhs])
+      	       case preAnd(MuExp lhs, MuExp rhs)												=> muIfelse(nextLabel("L_AND"), lhs, [rhs], [muCon(false)])      	       
+      	       case preOr(MuExp lhs, MuExp rhs)									    			=> muIfelse(nextLabel("L_OR"), lhs, [muCon(true)], [rhs])
       	       
       	       case preIs(MuExp lhs, str typeName)												=> muCallMuPrim("is_<typeName>", [lhs])
       	       

@@ -652,10 +652,10 @@ MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
      lcode = translateBool(lhs);
      rcode = translateBool(rhs);
      switch(fun){
-     	case "and": 		return muIfelse("L_AND", lcode, [rcode], [muCon(false)]);
-     	case "or":			return muIfelse("L_OR", lcode, [muCon(true)], [rcode]);
-     	case "implies":		return muIfelse("L_IMPLIES", lcode, [rcode], [muCon(true)]);
-     	case "equivalent":	return muIfelse("L_EQUIVALENT", lcode, [rcode], [muCallMuPrim("not_mbool", [rcode])]);
+     	case "and": 		return muIfelse(nextLabel("L_AND"), lcode, [rcode], [muCon(false)]);
+     	case "or":			return muIfelse(nextLabel("L_OR"), lcode, [muCon(true)], [rcode]);
+     	case "implies":		return muIfelse(nextLabel("L_IMPLIES"), lcode, [rcode], [muCon(true)]);
+     	case "equivalent":	return muIfelse(nextLabel("L_EQUIVALENT"), lcode, [rcode], [muCallMuPrim("not_mbool", [rcode])]);
      	default:
     		throw "translateBoolBinary: unknown operator <fun>";
      }
