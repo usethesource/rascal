@@ -1661,7 +1661,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             if (size(failures) > 0)
                 return markLocationFailed(c,exp@\loc,failures);
             else if ((size(relFields) - size(tl)) == 1)
-                return markLocationType(c,exp@\loc,\set(last(relFields)));
+                return markLocationType(c,exp@\loc,\list(last(relFields)));
             else
                 return markLocationType(c,exp@\loc,\lrel(tail(relFields,size(relFields)-size(tl))));
         }

@@ -213,9 +213,9 @@ MuExp translate(e:(Expression) `{ <Statement+ statements> }`) = muBlock([transla
 MuExp translate(e:(Expression) `(<Expression expression>)`)   = translate(expression);
 
 // Closure
-MuExp translate (e:(Expression) `<Type \type> <Parameters parameters> { <Statement+ statements> }`) = translateClosure(e, parameters, muBlock([translate(stat) | stat <- statements]));
+MuExp translate (e:(Expression) `<Type \type> <Parameters parameters> { <Statement+ statements> }`) = translateClosure(e, parameters, statements);
 
-MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statements> }`) = translateClosure(e, parameters, muBlock([translate(stat) | stat <- statements]));
+MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statements> }`) = translateClosure(e, parameters, statements);
 
 // Enumerator with range
 
@@ -902,7 +902,7 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
  
 // Translate a closure   
  
- MuExp translateClosure(Expression e, Parameters parameters, MuExp cbody) {
+ MuExp translateClosure(Expression e, Parameters parameters, Tree cbody) {
  	uid = loc2uid[e@\loc];
 	fuid = uid2str(uid);
 	
