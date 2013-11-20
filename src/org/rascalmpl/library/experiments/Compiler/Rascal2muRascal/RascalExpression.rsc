@@ -280,11 +280,19 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
            if(isFunctionType(ftype) || isConstructorType(ftype)) {
                if(/parameter(_,_) := t) { // In case of polymorphic function types
                    try {
-                       bindings = match(\tuple(t.parameters),\tuple(ftype.parameters),());
-                       return instantiate(t.ret,bindings) == ftype.ret;
+                       if(isConstructorType(t) && isConstructorType(ftype)) {
+                           bindings = match(\tuple([ a | Symbol arg <- getConstructorArgumentTypes(t),     label(_,Symbol a) := arg || Symbol a := arg ]),
+                                            \tuple([ a | Symbol arg <- getConstructorArgumentTypes(ftype), label(_,Symbol a) := arg || Symbol a := arg ]),());
+                           return instantiate(t.\adt,bindings) == ftype.\adt;
+                       }
+                       if(isFunctionType(t) && isFunctionType()) {
+                           bindings = match(getFunctionArgumentTypesAsTuple(t),getFunctionArgumentTypesAsTuple(ftype),());
+                           return instantiate(t.ret,bindings) == ftype.ret;
+                       }
+                       return false;
                    } catch invalidMatch(_,_,_): { 
                        return false;
-                   } catch invalidMatch(_,_): { 
+                   } catch invalidMatch(_,_): {
                        return false; 
                    } catch err: {
                        println("WARNING: Cannot match <ftype> against <t> for location: <expression@\loc>! <err>");
@@ -296,12 +304,20 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                if(/parameter(_,_) := t) { // In case of polymorphic function types
                    for(Symbol alt <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype))) {
                        try {
-           	               bindings = match(\tuple(t.parameters),\tuple(alt.parameters),());
-           	               return instantiate(t.ret,bindings) == alt.ret;
-           	           } catch invalidMatch(_,_,_): { 
+           	               if(isConstructorType(t) && isConstructorType(alt)) {
+           	                   bindings = match(\tuple([ a | Symbol arg <- getConstructorArgumentTypes(t),   label(_,Symbol a) := arg || Symbol a := arg ]),
+           	                                    \tuple([ a | Symbol arg <- getConstructorArgumentTypes(alt), label(_,Symbol a) := arg || Symbol a := arg ]),());
+           	                   return instantiate(t.\adt,bindings) == alt.\adt;
+           	               }
+           	               if(isFunctionType(t) && isFunctionType(alt)) {
+           	                   bindings = match(getFunctionArgumentTypesAsTuple(t),getFunctionArgumentTypesAsTuple(alt),());
+           	                   return instantiate(t.ret,bindings) == alt.ret;
+           	               }
+           	               return false;
+           	           } catch invalidMatch(_,_,_): {
+           	               ;
+                       } catch invalidMatch(_,_): {
                            ;
-                       } catch invalidMatch(_,_): { 
-                           ; 
                        } catch err: {
                            println("WARNING: Cannot match <alt> against <t> for location: <expression@\loc>! <err>");
                        }
@@ -319,7 +335,13 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                resolved += alt;
            }
        }
-       
+       if(isEmpty(resolved)) {
+           for(int alt <- of.alts) {
+               t = fuid2type[alt];
+               println("ALT: <t>");
+           }
+           throw "ERROR in overloading resolution: <ftype>";
+       }
        bool exists = <of.scopeIn,resolved> in overloadedFunctions;
        if(!exists) {
            i = size(overloadedFunctions);
