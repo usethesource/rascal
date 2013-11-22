@@ -60,6 +60,9 @@ import experiments::Compiler::Examples::Visit10;
 import experiments::Compiler::Examples::Visit11;
 import experiments::Compiler::Examples::VisitWithWhen;
 
+import experiments::Compiler::Examples::FailWithLabel1;
+import experiments::Compiler::Examples::FailWithLabel2;
+
 import experiments::Compiler::Examples::IMP3;
 
 loc base = |rascal:///experiments/Compiler/Examples/|;
@@ -130,3 +133,7 @@ test bool tst12() = demo("VisitWithWhen") == experiments::Compiler::Examples::Vi
 
 // Overloading resolution & imports
 test bool tst() = demo("IMP3") == experiments::Compiler::Examples::IMP3::main([]);
+
+// Fail with labels
+test bool tst500() = demo("FailWithLabel1") == experiments::Compiler::Examples::FailWithLabel1::main([]);
+test bool tst501() = demo("FailWithLabel2") == experiments::Compiler::Examples::FailWithLabel2::main([]);
