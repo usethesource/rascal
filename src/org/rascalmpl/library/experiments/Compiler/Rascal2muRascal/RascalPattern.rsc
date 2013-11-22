@@ -547,9 +547,9 @@ default bool backtrackFree(Pattern p) = true;
 /*                  Signature Patterns                               */
 /*********************************************************************/
 
-MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, MuExp body){
+MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, node body){
    if(isEmpty(formals))
-      return muReturn(body);
+      return muReturn(translateFunctionBody(body));
    pat = formals[0];
    if(pat is literal){
    	  // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
@@ -579,7 +579,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, MuExp body)
     }
 }
 
-MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, MuExp body, list[Expression] when_conditions){
+MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, node body, list[Expression] when_conditions){
   bool b = true;
   for(pat <- formals){
       if(!(pat is typedVariable || pat is literal))
@@ -593,7 +593,7 @@ MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, MuExp body, list
   	    ifname = nextLabel();
         enterBacktrackingScope(ifname);
         conditions = [ translate(cond) | cond <- when_conditions];
-        mubody = muIfelse(ifname,muAll(conditions), [ muReturn(body) ], [ muFailReturn() ]);
+        mubody = muIfelse(ifname,muAll(conditions), [ muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	    leaveBacktrackingScope();
 	    return mubody;
   	  }
@@ -610,14 +610,14 @@ MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, MuExp body, list
 	  };
 	  conditions += [ translate(cond) | cond <- when_conditions];
 
-	  mubody = muIfelse(ifname,muAll(conditions), [ muReturn(body) ], [ muFailReturn() ]);
+	  mubody = muIfelse(ifname,muAll(conditions), [ muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	  leaveBacktrackingScope();
 	  return mubody;
   }
 }
-/*
+
 MuExp translateFunctionBody(Expression exp) = translate(exp);
 MuExp translateFunctionBody(MuExp exp) = exp;
 // TODO: check the interpreter subtyping
 default MuExp translateFunctionBody(Statement* stats) = muBlock([ translate(stat) | stat <- stats ]);
-*/
+default MuExp translateFunctionBody(Statement+ stats) = muBlock([ translate(stat) | stat <- stats ]);
