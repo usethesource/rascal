@@ -5310,16 +5310,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable 
 
 @doc{General function to calculate the type of an append.}
 Symbol computeAppendType(Symbol t1, Symbol t2, loc l) {
-    if (isListType(t1) && isListType(t2))
-        return lub(t1,t2);
-    // TODO: Not sure if we can append non-list items...
-    //if (isListType(t1) && !isContainerType(t2))
-    //    return \list(lub(getListElementType(t1),t2));
-    //if (isListType(t2) && !isContainerType(t1))
-    //    return \list(lub(t1,getListElementType(t2)));
-    //if (isListType(t1))
-    //    return \list(lub(getListElementType(t1),t2));
-        
+    if (isListType(t1)) return \list(lub(getListElementType(t1),t2));
     return makeFailType("Append not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
 }
 
