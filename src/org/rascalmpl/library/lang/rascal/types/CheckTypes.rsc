@@ -1730,7 +1730,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 		res = \list(\value());
 	}
 	
-	if (isFailType(res))
+	if (isFailType(res) || size(failures) > 0)
 		return markLocationFailed(c, exp@\loc, failures + res);
 	else
 		return markLocationType(c, exp@\loc, res);
@@ -1765,7 +1765,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 		res = \list(\value());
 	}
 	
-	if (isFailType(res))
+	if (isFailType(res) || size(failures) > 0)
 		return markLocationFailed(c, exp@\loc, failures + res);
 	else
 		return markLocationType(c, exp@\loc, res);
@@ -4847,6 +4847,8 @@ data AssignableTree
     = bracketNode(AssignableTree child)
     | variableNode(RName name)
     | subscriptNode(AssignableTree receiver, Symbol subscriptType)
+    | sliceNode(AssignableTree receiver, Symbol firstType, Symbol lastType)
+    | sliceStepNode(AssignableTree receiver, Symbol firstType, Symbol secondType, Symbol lastType)
     | fieldAccessNode(AssignableTree receiver, RName name)
     | ifDefinedOrDefaultNode(AssignableTree receiver, Symbol defaultType)
     | constructorNode(RName name, list[AssignableTree] children)
@@ -4944,6 +4946,79 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
         return < c, subscriptNode(atree,tsub)[@atype=getRelFields(atree@atype)[1]][@at=assn@\loc] >;
 
     return < c, subscriptNode(atree,tsub)[@atype=makeFailType("Cannot subscript assignable of type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
+}
+
+@doc{Extract a tree representation of the assignable and perform basic checks: Slice (DONE)}
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, bool top, Configuration c) {
+    < c, atree > = buildAssignableTree(ar, false, c);
+    
+    tFirst = makeIntType();
+    tLast = makeIntType();
+    
+    if ((OptionalExpression)`<Expression eFirst>` := optFirst)
+    	< c, tFirst > = checkExp(eFirst, c);
+    
+    if ((OptionalExpression)`<Expression eLast>` := optLast)
+    	< c, tLast > = checkExp(eLast, c);
+    
+    if (isFailType(atree@atype) || isFailType(tFirst) || isFailType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=collapseFailTypes({atree@atype,tFirst,tLast})][@at=assn@\loc] >;
+
+    if (!concreteType(atree@atype)) {
+        failtype = makeFailType("Assignable <ar> must have an actual type before subscripting", assn@\loc);
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=failtype][@at=assn@\loc] >;
+    }
+
+    if (isListType(atree@atype) && isIntType(tFirst) && isIntType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+    if (isNodeType(atree@atype) && isIntType(tFirst) && isIntType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+    if (isStrType(atree@atype) && isIntType(tFirst) && isIntType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+	if (!isIntType(tFirst) || !isIntType(tLast))
+		return < c, sliceNode(atree,tFirst,tLast)[@atype=makeFailType("Indexes must be of type int, given: <prettyPrintType(tFirst)>, <prettyPrintType(tLast)>",assn@\loc)][@at=assn@\loc] >;
+		
+    return < c, sliceNode(atree,tFirst,tLast)[@atype=makeFailType("Cannot use slicing to assign into type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
+}
+
+@doc{Extract a tree representation of the assignable and perform basic checks: Slice Step (DONE)}
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, bool top, Configuration c) {
+    < c, atree > = buildAssignableTree(ar, false, c);
+    
+    tFirst = makeIntType();
+    if ((OptionalExpression)`<Expression eFirst>` := optFirst)
+    	< c, tFirst > = checkExp(eFirst, c);
+    
+    < c, tSecond > = checkExp(second, c);
+        
+    tLast = makeIntType();
+    if ((OptionalExpression)`<Expression eLast>` := optLast)
+    	< c, tLast > = checkExp(eLast, c);
+    
+    if (isFailType(atree@atype) || isFailType(tFirst) || isFailType(tSecond) || isFailType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=collapseFailTypes({atree@atype,tFirst,tSecond,tLast})][@at=assn@\loc] >;
+
+    if (!concreteType(atree@atype)) {
+        failtype = makeFailType("Assignable <ar> must have an actual type before subscripting", assn@\loc);
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=failtype][@at=assn@\loc] >;
+    }
+
+    if (isListType(atree@atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+    if (isNodeType(atree@atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+    if (isStrType(atree@atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+	if (!isIntType(tFirst) || !isIntType(tSecond) || !isIntType(tLast))
+		return < c, sliceNode(atree,tFirst,tLast)[@atype=makeFailType("Indexes must be of type int, given: <prettyPrintType(tFirst)>, <prettyPrintType(tSecond)>, <prettyPrintType(tLast)>",assn@\loc)][@at=assn@\loc] >;
+		
+    return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=makeFailType("Cannot use slicing to assign into type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: FieldAccess (DONE)}
@@ -5233,11 +5308,51 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable 
     }
 }
 
+@doc{General function to calculate the type of an append.}
+Symbol computeAppendType(Symbol t1, Symbol t2, loc l) {
+    if (isListType(t1) && isListType(t2))
+        return lub(t1,t2);
+    // TODO: Not sure if we can append non-list items...
+    //if (isListType(t1) && !isContainerType(t2))
+    //    return \list(lub(getListElementType(t1),t2));
+    //if (isListType(t2) && !isContainerType(t1))
+    //    return \list(lub(t1,getListElementType(t2)));
+    //if (isListType(t1))
+    //    return \list(lub(getListElementType(t1),t2));
+        
+    return makeFailType("Append not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
+}
+
 @doc{Check the type of Rascal assignments: Append}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`\<\<=`, Assignable a, Symbol st, Configuration c) {
+	// TODO: This isn't implemented yet, so we need to verify this is actually the correct type.
+    cbak = c;
     < c, atree > = buildAssignableTree(a, true, c);
     if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
-    throw "Not yet implemented";
+
+    // If the assignment point is not concrete, we cannot do the assignment -- 
+    // the subject type cannot influence the type here.
+    if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a \<\< operation", a@\loc));
+    
+    // Check to ensure the append is valid. If so, the resulting type is the overall
+    // type of the assignable, else it is the failure type generated by the operation.
+    rt = computeAppendType(atree@atype, st, l);
+    if (isFailType(rt)) return markLocationType(c, l, rt);
+
+    // Now, using the result type, try to bind it to the assignable tree
+    try {
+        < c, atree > = bindAssignable(atree, rt, c);
+    } catch : {
+        return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
+    }
+
+    unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+    if (size(unresolved) > 0)
+        return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
+    else {
+        c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
+        return markLocationType(c, l, atree@otype);
+    }
 }
 
 @doc{Bind variable types to variables in assignables: Bracket}
@@ -5287,16 +5402,8 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
 
 @doc{Bind variable types to variables in assignables: Subscript}
 public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree receiver, Symbol stype), Symbol st, Configuration c) {
-    // To bind the subscript, we push the subject type back through into the receiver
-    // after calculating the proper type. For instance, given x is a list[int], an
-    // assignable like x[5] was originally given an atype of int. To calculate
-    // the type we are trying to bind, we then take the lub of the list element
-    // type and the subject type and wrap those in a list. So, for x[5] = 3.4,
-    // this would be \list(\num()). NOTE: The expected subject type below is
-    // always the element type, never the container type -- we are assigning
-    // into a list, tuple, etc, not over one.
     
-    if (isListType(receiver@atype)) {
+    if (isListType(receiver@atype)) { 
         < c, receiver > = bindAssignable(receiver, \list(lub(st,getListElementType(receiver@atype))), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=getListElementType(receiver@atype)] >;
     } else if (isNodeType(receiver@atype)) {
@@ -5317,6 +5424,45 @@ public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree
         relFields = getRelFields(receiver@atype);
         < c, receiver > = bindAssignable(receiver, \rel([relFields[0],lub(relFields[1],st)]), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=getRelFields(receiver@atype)[1]] >;
+    } else {
+    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver@atype)>";
+    }
+}
+
+public default ATResult bindAssignable(AssignableTree atree, Symbol st, Configuration c) {
+	throw "Missing assignable!";
+	return < c, atree >;
+}
+
+@doc{Bind variable types to variables in assignables: Slice}
+public ATResult bindAssignable(AssignableTree atree:sliceNode(AssignableTree receiver, Symbol firstType, Symbol lastType), Symbol st, Configuration c) {    
+    if (isListType(receiver@atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, lub(st,receiver@atype), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=receiver@atype] >;
+    } else if (isNodeType(receiver@atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, \node(), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\node()] >;
+    } else if (isStrType(receiver@atype) && isStrType(st)) {
+        < c, receiver > = bindAssignable(receiver, \str(), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\str()] >;
+    } else {
+    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver@atype)>";
+    }
+}
+
+@doc{Bind variable types to variables in assignables: Slice Step}
+public ATResult bindAssignable(AssignableTree atree:sliceStepNode(AssignableTree receiver, Symbol firstType, Symbol secondType, Symbol lastType), Symbol st, Configuration c) {    
+    if (isListType(receiver@atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, lub(st,receiver@atype), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=receiver@atype] >;
+    } else if (isNodeType(receiver@atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, \node(), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\node()] >;
+    } else if (isStrType(receiver@atype) && isStrType(st)) {
+        < c, receiver > = bindAssignable(receiver, \str(), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\str()] >;
+    } else {
+    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver@atype)>";
     }
 }
 
