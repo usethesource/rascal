@@ -285,7 +285,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                                             \tuple([ a | Symbol arg <- getConstructorArgumentTypes(ftype), label(_,Symbol a) := arg || Symbol a := arg ]),());
                            return instantiate(t.\adt,bindings) == ftype.\adt;
                        }
-                       if(isFunctionType(t) && isFunctionType()) {
+                       if(isFunctionType(t) && isFunctionType(ftype)) {
                            bindings = match(getFunctionArgumentTypesAsTuple(t),getFunctionArgumentTypesAsTuple(ftype),());
                            return instantiate(t.ret,bindings) == ftype.ret;
                        }
