@@ -340,7 +340,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                t = fuid2type[alt];
                println("ALT: <t>");
            }
-           throw "ERROR in overloading resolution: <ftype>";
+           throw "ERROR in overloading resolution: <ftype>; <expression@\loc>";
        }
        bool exists = <of.scopeIn,resolved> in overloadedFunctions;
        if(!exists) {
