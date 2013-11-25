@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
-module analysis::statistics::D3
+module analysis::statistics::markup::D3
 import Prelude;
 import display::Display;
 

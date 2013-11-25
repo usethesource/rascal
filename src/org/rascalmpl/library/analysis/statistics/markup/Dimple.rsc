@@ -7,9 +7,9 @@
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 
-module analysis::statistics::Dimple
+module analysis::statistics::markup::Dimple
 import Prelude;
-import analysis::statistics::D3;
+import analysis::statistics::markup::D3;
 import util::HtmlDisplay;
 
 
