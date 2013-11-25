@@ -57,6 +57,11 @@ public Bindings match(Symbol t:\list(Symbol et), Symbol m, Bindings bindings) {
 	return match(et,getListElementType(m),bindings);
 }
 
+public Bindings match(Symbol t:\lrel(list[Symbol] ets), Symbol m, Bindings bindings) {
+	bindings = defaultMatch(t,m,bindings);
+	return match(\tuple(ets),getListElementType(m),bindings);
+}
+
 public Bindings match(Symbol t:\map(Symbol md, Symbol mr), Symbol m, Bindings bindings) {
 	bindings = defaultMatch(t,m,bindings);
 	return match(mr,getMapRangeType(m),match(md,getMapDomainType(m),bindings));
@@ -131,6 +136,7 @@ public Symbol instantiate(\set(Symbol et), Bindings bindings) = \set(instantiate
 public Symbol instantiate(\rel(list[Symbol] ets), Bindings bindings) = \rel([ instantiate(et,bindings) | et <- ets ]);
 public Symbol instantiate(\tuple(list[Symbol] ets), Bindings bindings) = \tuple([ instantiate(et,bindings) | et <- ets ]);
 public Symbol instantiate(\list(Symbol et), Bindings bindings) = \list(instantiate(et,bindings));
+public Symbol instantiate(\lrel(list[Symbol] ets), Bindings bindings) = \lrel([ instantiate(et,bindings) | et <- ets ]);
 public Symbol instantiate(\map(Symbol md, Symbol mr), Bindings bindings) = \map(instantiate(md,bindings), instantiate(mr,bindings));
 public Symbol instantiate(\bag(Symbol et), Bindings bindings) =\bag(instantiate(et,bindings));
 public Symbol instantiate(\parameter(str s, Symbol t), Bindings bindings) = bindings[s] when s in bindings && subtype(bindings[s],t);
