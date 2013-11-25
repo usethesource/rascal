@@ -4341,10 +4341,10 @@ public enum RascalPrimitive {
 	public static SliceDescriptor $makeSliceDescriptor(Object[] stack, int sp, int arity, int len) {
 		assert arity == 4;
 		
-		Integer first = $getInt((IValue) stack[sp - 3]);
+		Integer first = $getInt((IValue) stack[sp - 4]);
 	
-		Integer second = $getInt((IValue) stack[sp - 2]);
-		Integer end = $getInt((IValue) stack[sp - 1]);
+		Integer second = $getInt((IValue) stack[sp - 3]);
+		Integer end = $getInt((IValue) stack[sp - 2]);
 		
 		int firstIndex = 0;
 		int secondIndex = 1;
