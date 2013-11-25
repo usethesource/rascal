@@ -36,10 +36,10 @@ test bool tst() = run("{M = (1:10); M[2] ?= 100; M;}") == {M = (1:10); M[2] ?= 1
 /*fails*/ //test bool tst() = run("{d = d1(10, \"a\"); d.s = \"b\"; d;}") == { d = d1(10, "a"); d.s = "b"; d;};
 /*fails*/ //test bool tst() = run("{d = d1(10, \"a\"); d.n *= 20; d;}") == { d = d1(10, "a"); d.n *= 20; d;};
 
-// Three issues in typechecker:
+// Status of Constructor assignment is unclear, currently not supported
 /*fails*/ //test bool tst() = run("{d1(x, y) = d1(10, \"a\"); \<x, y\>;}") == { d1(x, y) = d1(10, "a"); <x, y>;};
-/*fails*/ //test bool tst() = run("{ x = [0,1,2,3,4,5]; x[1..3] = [10]; x; }") == { x = [0,1,2,3,4,5]; x[1..3] = [10]; x; };
-/*fails*/ //test bool tst() = run("{ x = [0,1,2,3,4,5,6,7,8]; x[1,3..7] = [10]; x; }") == { x = [0,1,2,3,4,5,6,7,8]; x[1,3..7] = [10]; x; };
+test bool tst() = run("{ x = [0,1,2,3,4,5]; x[1..3] = [10]; x; }") == { x = [0,1,2,3,4,5]; x[1..3] = [10]; x; };
+test bool tst() = run("{ x = [0,1,2,3,4,5,6,7,8]; x[1,3..7] = [10]; x; }") == { x = [0,1,2,3,4,5,6,7,8]; x[1,3..7] = [10]; x; };
 
 // If
 test bool tst() = run("{ int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; fail; } n; }")                     == { int n = 0; if([*int x,*int y] := [1,2,3,4,5]) { n += 1; fail; } n; };
