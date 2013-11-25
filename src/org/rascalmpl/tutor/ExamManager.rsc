@@ -173,7 +173,7 @@ void createReview(){
 
 public set[examResult] update(str cn){
   scores = readSubmissionsAgain(cn);
-  reviews = readCSV(#set[reviewType], (resultsDir) + "Review.csv", ("separator" : ","));
+  reviews = readCSV(#set[reviewType], (resultsDir) + "Review.csv", ("separator" : ";"));
   println("reviews = <typeOf(reviews)>: <reviews>");
   
   rel[str Question, str Expected]good = readCSV(#rel[str Question, str Expected], (resultsDir) + "GoodAnswers.csv", ("separator" : ";"));
@@ -195,7 +195,11 @@ public set[examResult] update(str cn){
 	                points[q] = review.Score;
 	                comments[q] = review.Comment;
 	             }
-	             score = score + (points[q]?0.0);
+	             
+	             if (q in points) {
+	               score = score + points[q];
+	             } 
+	             
 	          }
 	          append examResult(sc.studentName, sc.studentMail, sc.StudentNumber, sc.timestamp, 
                                 sc.answers, sc.expectedAnswers, comments, points, 10.0 * score / nquestions);
