@@ -4270,8 +4270,8 @@ public enum RascalPrimitive {
 	public static int list_replace(Object[] stack, int sp, int arity) {
 		assert arity == 5;
 		IList lst = (IList) stack[sp - 5];
+		SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), lst.length());
 		IList repl = (IList) stack[sp - 1];
-		SliceDescriptor sd = $makeSliceDescriptor(stack, sp, arity, lst.length());
 		stack[sp - 5] = lst.replace(sd.first, sd.second, sd.end, repl);
 		return sp - 4;
 	}
@@ -4279,8 +4279,8 @@ public enum RascalPrimitive {
 	public static int str_replace(Object[] stack, int sp, int arity) {
 		assert arity == 5;
 		IString str = (IString) stack[sp - 5];
+		SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), str.length());
 		IString repl = (IString) stack[sp - 1];
-		SliceDescriptor sd = $makeSliceDescriptor(stack, sp, arity, str.length());
 		stack[sp - 5] = str.replace(sd.first, sd.second, sd.end, repl);
 		return sp - 4;
 	}
@@ -4288,8 +4288,8 @@ public enum RascalPrimitive {
 	public static int node_replace(Object[] stack, int sp, int arity) {
 		assert arity == 5;
 		INode node = (INode) stack[sp - 5];
+		SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), node.arity());
 		IList repl = (IList) stack[sp - 1];
-		SliceDescriptor sd = $makeSliceDescriptor(stack, sp, arity, node.arity());
 		stack[sp - 5] = node.replace(sd.first, sd.second, sd.end, repl);
 		return sp - 4;
 	}
@@ -4302,7 +4302,7 @@ public enum RascalPrimitive {
 		assert arity == 4;
 		
 		IList lst = (IList) stack[sp - 4];
-		stack[sp - 4] = $makeSlice(lst, $makeSliceDescriptor(stack, sp, arity, lst.length()));
+		stack[sp - 4] = $makeSlice(lst, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), lst.length()));
 		return sp - 3;
 	}
 	
@@ -4310,7 +4310,7 @@ public enum RascalPrimitive {
 		assert arity == 4;
 		
 		IString str = (IString) stack[sp - 4];
-		stack[sp - 4] = $makeSlice(str, $makeSliceDescriptor(stack, sp, arity, str.length()));
+		stack[sp - 4] = $makeSlice(str, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), str.length()));
 		return sp - 3;
 	}
 	
@@ -4334,17 +4334,11 @@ public enum RascalPrimitive {
 		assert arity == 4;
 		
 		INode node = (INode) stack[sp - 4];
-		stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor(stack, sp, arity, node.arity()));
+		stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), node.arity()));
 		return sp - 3;
 	}
-	
-	public static SliceDescriptor $makeSliceDescriptor(Object[] stack, int sp, int arity, int len) {
-		assert arity == 4;
-		
-		Integer first = $getInt((IValue) stack[sp - 4]);
-	
-		Integer second = $getInt((IValue) stack[sp - 3]);
-		Integer end = $getInt((IValue) stack[sp - 2]);
+
+	public static SliceDescriptor $makeSliceDescriptor(Integer first, Integer second, Integer end, int len) {
 		
 		int firstIndex = 0;
 		int secondIndex = 1;
