@@ -252,6 +252,21 @@ public class CodeBlock {
 		finalCode[pc++] = c;
 	}
 	
+	public void addCode0(int op){
+		finalCode[pc++] = op;
+	}
+	
+	public void addCode1(int op, int arg1){
+		finalCode[pc++] = op;
+		finalCode[pc++] = arg1;
+	}
+	
+	public void addCode2(int op, int arg1, int arg2){
+		finalCode[pc++] = op;
+		finalCode[pc++] = arg1;
+		finalCode[pc++] = arg2;
+	}
+	
 	public CodeBlock POP(){
 		return add(new Pop(this));
 	}

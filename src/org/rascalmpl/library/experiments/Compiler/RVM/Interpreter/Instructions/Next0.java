@@ -7,5 +7,4 @@ public class Next0 extends Instruction {
 	public Next0(CodeBlock ins) {
 		super(ins, Opcode.NEXT0);
 	}
-	
 }

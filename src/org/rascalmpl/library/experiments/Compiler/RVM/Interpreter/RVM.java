@@ -112,6 +112,7 @@ public class RVM {
 		
 		MuPrimitive.init(vf, stdout, profile);
 		RascalPrimitive.init(vf, this, profile);
+		Opcode.init(stdout, profile);
 	}
 	
 	public RVM(IValueFactory vf){
@@ -444,6 +445,8 @@ public class RVM {
 					}
 					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
 				}
+				
+				Opcode.use(op);
 
 				switch (op) {
 				

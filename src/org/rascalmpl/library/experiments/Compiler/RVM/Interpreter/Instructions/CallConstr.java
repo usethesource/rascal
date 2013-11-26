@@ -16,9 +16,7 @@ public class CallConstr extends Instruction {
 	public String toString() { return "CALL " + fuid + ", " + arity + " [ " + codeblock.getConstructorIndex(fuid) + " ]"; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getConstructorIndex(fuid));
-		codeblock.addCode(arity);
+		codeblock.addCode2(opcode.getOpcode(), codeblock.getConstructorIndex(fuid), arity);
 	}
 
 }
