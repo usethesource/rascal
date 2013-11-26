@@ -426,10 +426,5 @@ public bool hasField(Symbol s, str fieldName){
     return false;
 }
 
-public int getTupleFieldIndex(Symbol s, str fieldName){
-    i = 0;
-    visit(s){
-      case label(name, _): if(name == fieldName) return i; else i += 1;
-    }
-    throw "Type <s> does not have a field <fieldName>";
-}
+public int getTupleFieldIndex(Symbol s, str fieldName) = 
+    indexOf(getTupleFieldNames(s), fieldName);
