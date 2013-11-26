@@ -431,8 +431,22 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
 }
 
 // Field update
-MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Expression replacement> ]`) =
-    muCallPrim("<getOuterType(expression)>_field_update", [ translate(expression), muCon("<key>"), translate(replacement) ]);
+MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Expression replacement> ]`) {
+    tp = getType(expression@\loc);   
+    list[str] fieldNames = [];
+    if(isRelType(tp)){
+       tp = getSetElementType(tp);
+    } else if(isListType(tp)){
+       tp = getListElementType(tp);
+    } else if(isMapType(tp)){
+       tp = getMapFieldsAsTuple(tp);
+    }
+    if(tupleHasFieldNames(tp)){
+    	fieldNames = getTupleFieldNames(tp);
+    }	
+    return muCallPrim("<getOuterType(expression)>_update", [ translate(expression), muCon(indexOf(fieldNames, "<key>")), translate(replacement) ]);
+        //muCallPrim("<getOuterType(expression)>_field_update", [ translate(expression), muCon("<key>"), translate(replacement) ]);
+}
 
 // Field project
 MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields> \>`) {
