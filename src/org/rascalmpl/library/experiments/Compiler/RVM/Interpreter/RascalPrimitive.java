@@ -2498,16 +2498,23 @@ public enum RascalPrimitive {
 		IValue val = (IValue) stack[sp - 3];
 		String label = ((IString) stack[sp - 2]).getValue();
 		IValue repl = (IValue) stack[sp - 1];
-		stack[sp - 2] = val.asAnnotatable().setAnnotation(label, repl);
-		return sp - 1;
+		stack[sp - 3] = val.asAnnotatable().setAnnotation(label, repl);
+		return sp - 2;
 	}
 	
+	/*
+	 * Field access
+	 */
 	
 	public static int tuple_field_access(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ITuple) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
 		return sp - 1;
 	}
+	
+	/*
+	 * Field update
+	 */
 	
 	public static int tuple_field_update(Object[] stack, int sp, int arity) {
 		assert arity == 3;
@@ -2528,9 +2535,6 @@ public enum RascalPrimitive {
 		return sp - arity + 1;
 	}
 	
-	/*
-	 * fieldUpdate
-	 */
 	public static int adt_field_update(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		stack[sp - 3] = ((IConstructor) stack[sp - 3]).set(((IString) stack[sp - 2]).getValue(),
