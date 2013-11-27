@@ -180,7 +180,14 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   tuple[str fuid,int pos] addr = uid2addr[uid];
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
- //TODO: keyword parameters
+  // Keyword parameters
+  rel[str,Symbol,MuExp] kwps = {};
+  KeywordFormals kwfs = signature.parameters.keywordFormals;
+  if(kwfs is \default) {
+      keywordParamsMap = getKeywords(fd@\loc);
+      kwps = { <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression) > | KeywordFormal kwf <- kwfs.keywordFormalList };
+  }
+ 
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   if(ttags["javaClass"]?){
@@ -190,7 +197,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
      tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, exp, []);
     
      functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, tmods, ttags, tbody);
+  									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, tmods, ttags, kwps, tbody);
   } else {
     println("r2mu: <fuid> ignored");
   }
@@ -209,12 +216,19 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   tuple[str fuid,int pos] addr = uid2addr[uid];
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
- //TODO: keyword parameters
+  // Keyword parameters
+  rel[str,Symbol,MuExp] kwps = {};
+  KeywordFormals kwfs = signature.parameters.keywordFormals;
+  if(kwfs is \default) {
+      keywordParamsMap = getKeywords(fd@\loc);
+      kwps = { <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression) > | KeywordFormal kwf <- kwfs.keywordFormalList };
+  }
+  
   tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, translate(expression), []);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, tmods, ttags, tbody);
+  									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, tmods, ttags, kwps, tbody);
   
   if("test" in tmods){
      params = ftype.parameters;
@@ -240,12 +254,19 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   tuple[str fuid,int pos] addr = uid2addr[uid];
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
- //TODO: keyword parameters
+  // Keyword parameters
+  rel[str,Symbol,MuExp] kwps = {};
+  KeywordFormals kwfs = signature.parameters.keywordFormals;
+  if(kwfs is \default) {
+      keywordParamsMap = getKeywords(fd@\loc);
+      kwps = { <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression) > | KeywordFormal kwf <- kwfs.keywordFormalList };
+  }
+  
   tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, translate(expression), [exp | exp <- conditions]);
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, tmods, ttags, tbody);
+  									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, tmods, ttags, kwps, tbody);
   
   if("test" in tmods){
      params = ftype.parameters;
@@ -264,7 +285,15 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   ftype = getFunctionType(fd@\loc);    
   nformals = size(ftype.parameters);
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
-  //TODO: keyword parameters
+  
+  // Keyword parameters
+  rel[str,Symbol,MuExp] kwps = {};
+  KeywordFormals kwfs = signature.parameters.keywordFormals;
+  if(kwfs is \default) {
+      keywordParamsMap = getKeywords(fd@\loc);
+      kwps = { <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression) > | KeywordFormal kwf <- kwfs.keywordFormalList };
+  }
+  
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
   
@@ -276,7 +305,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   
   tuple[str fuid,int pos] addr = uid2addr[uid];
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), tbody);
+  									nformals, getScopeSize(fuid), isVarArgs, fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), kwps, tbody);
   					
    if("test" in tmods){
      params = ftype.parameters;
