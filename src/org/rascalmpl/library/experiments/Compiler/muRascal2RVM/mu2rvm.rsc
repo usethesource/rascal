@@ -206,6 +206,8 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
 
 INS  tr(list[MuExp] exps) = [ *tr(exp) | exp <- exps ];
 
+INS tr(map[str,MuExp] kwargs) = [ *[ muCon(id), *tr(kwargs)] | str id <- kwargs ] + [ CALLMUPRIM("make_map", size(kwargs)) ];
+
 INS tr_and_pop(muBlock([])) = [];
 
 default INS tr_and_pop(MuExp exp) = producesValue(exp) ? [*tr(exp), POP()] : tr(exp);
@@ -263,6 +265,9 @@ INS tr(muVar(str id, str fuid, int pos)) = [fuid == functionScope ? LOADLOC(pos)
 INS tr(muLoc(str id, int pos)) = [LOADLOC(pos)];
 INS tr(muTmp(str id)) = [LOADLOC(getTmp(id))];
 
+INS tr(muLocKwp(str id)) = [ LOADLOCKWP(id) ];
+INS tr(muVarKwp(str fuid, str id)) = [ LOADVARKWP(fuid, id) ];
+
 INS tr(muLocDeref(str name, int pos)) = [ LOADLOCDEREF(pos) ];
 INS tr(muVarDeref(str name, str fuid, int pos)) = [ fuid == functionScope ? LOADLOCDEREF(pos) : LOADVARDEREF(fuid, pos) ];
 
@@ -283,19 +288,37 @@ INS tr(muAssignTmp(str id, MuExp exp)) = [*tr(exp), STORELOC(getTmp(id)) ];
 
 INS tr(muCallConstr(str fuid, list[MuExp] args)) = [ *tr(args), CALLCONSTR(fuid, size(args)) ];
 
+//TODO:
+INS tr(muCallConstr(str fuid, list[MuExp] args, map[str,MuExp] kwargs)) = [ *tr(args), CALLCONSTR(fuid, size(args)) ];
+
 // muRascal functions
 
-INS tr(muCall(muFun(str fuid), list[MuExp] args)) = [*tr(args), CALL(fuid, size(args))];
-INS tr(muCall(muConstr(str fuid), list[MuExp] args)) = [*tr(args), CALLCONSTR(fuid, size(args))];
-INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size(args))];
+INS tr(muCall(muFun(str fuid), list[MuExp] args)) = [*tr(args), *tr(()), CALL(fuid, size(args) + 1)];
+INS tr(muCall(muFun(str fuid), list[MuExp] args, map[str, MuExp] kwargs)) = [*tr(args), *tr(kwargs), CALL(fuid, size(args) + 1)];
+
+INS tr(muCall(muConstr(str fuid), list[MuExp] args)) = [*tr(args), *tr(()), CALLCONSTR(fuid, size(args) + 1)];
+INS tr(muCall(muConstr(str fuid), list[MuExp] args, map[str,MuExp] kwargs)) = [*tr(args), *tr(kwargs), CALLCONSTR(fuid, size(args) + 1)];
+
+INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(()), *tr(fun), CALLDYN(size(args) + 1)];
+INS tr(muCall(MuExp fun, list[MuExp] args, map[str,MuExp] kwargs)) = [*tr(args), *tr(kwargs), *tr(fun), CALLDYN(size(args) + 1)];
 
 // Rascal functions
 
-INS tr(muOCall(muOFun(str fuid), list[MuExp] args)) = [*tr(args), OCALL(fuid, size(args))];
+INS tr(muOCall(muOFun(str fuid), list[MuExp] args)) = [*tr(args), *tr(()), OCALL(fuid, size(args) + 1)];
+INS tr(muOCall(muOFun(str fuid), list[MuExp] args, map[str,MuExp] kwargs)) = [*tr(args), *tr(kwargs), OCALL(fuid, size(args) + 1)];
+
 INS tr(muOCall(MuExp fun, Symbol types, list[MuExp] args)) 
-	= [ *tr(args), 
+	= [ *tr(args),
+	    *tr(()),
 		*tr(fun), 
-		OCALLDYN(types, size(args))];
+		OCALLDYN(types, size(args) + 1)];
+		
+INS tr(muOCall(MuExp fun, Symbol types, list[MuExp] args, map[str,MuExp] kwargs)) 
+	= [ *tr(args),
+	    *tr(kwargs),
+		*tr(fun), 
+		OCALLDYN(types, size(args) + 1)];
+
 
 // Calls to Rascal primitives
 
