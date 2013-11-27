@@ -181,12 +181,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
   // Keyword parameters
-  rel[str,Symbol,MuExp] kwps = {};
-  KeywordFormals kwfs = signature.parameters.keywordFormals;
-  if(kwfs is \default) {
-      keywordParamsMap = getKeywords(fd@\loc);
-      kwps = { <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression) > | KeywordFormal kwf <- kwfs.keywordFormalList };
-  }
+  rel[str,Symbol,MuExp] kwps = translateKeywordParameters(signature.parameters, fd@\loc);
  
   tmods = translateModifiers(signature.modifiers);
   ttags =  translateTags(tags);
@@ -200,7 +195,8 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
     
      functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									nformals + 1, getScopeSize(fuid) + 1, // + 1 is due to keyword parameters
-  									isVarArgs, fd@\loc, tmods, ttags, kwps, tbody);
+  									isVarArgs, fd@\loc, tmods, ttags, 
+  									kwps, tbody);
   } else {
     println("r2mu: <fuid> ignored");
   }
@@ -220,12 +216,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
   // Keyword parameters
-  rel[str,Symbol,MuExp] kwps = {};
-  KeywordFormals kwfs = signature.parameters.keywordFormals;
-  if(kwfs is \default) {
-      keywordParamsMap = getKeywords(fd@\loc);
-      kwps = { <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression) > | KeywordFormal kwf <- kwfs.keywordFormalList };
-  }
+  rel[str,Symbol,MuExp] kwps = translateKeywordParameters(signature.parameters, fd@\loc);
   
   // TODO: we plan to introduce keyword patterns as formal parameters
   tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, translate(expression), []);
@@ -233,7 +224,8 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   ttags =  translateTags(tags);
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									nformals + 1, getScopeSize(fuid) + 1, // + 1 is due to keyword parameters 
-  									isVarArgs, fd@\loc, tmods, ttags, kwps, tbody);
+  									isVarArgs, fd@\loc, tmods, ttags, 
+  									kwps, tbody);
   
   if("test" in tmods){
      params = ftype.parameters;
@@ -260,12 +252,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
   // Keyword parameters
-  rel[str,Symbol,MuExp] kwps = {};
-  KeywordFormals kwfs = signature.parameters.keywordFormals;
-  if(kwfs is \default) {
-      keywordParamsMap = getKeywords(fd@\loc);
-      kwps = { <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression) > | KeywordFormal kwf <- kwfs.keywordFormalList };
-  }
+  rel[str,Symbol,MuExp] kwps = translateKeywordParameters(signature.parameters, fd@\loc);
   
   // TODO: we plan to introduce keyword patterns as formal parameters
   tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, translate(expression), [exp | exp <- conditions]);
@@ -273,7 +260,8 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   ttags =  translateTags(tags);
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									nformals + 1, getScopeSize(fuid) + 1, // + 1 is due to keyword parameters 
-  									isVarArgs, fd@\loc, tmods, ttags, kwps, tbody);
+  									isVarArgs, fd@\loc, tmods, ttags, 
+  									kwps, tbody);
   
   if("test" in tmods){
      params = ftype.parameters;
@@ -293,16 +281,11 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   nformals = size(ftype.parameters);
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
-  // Keyword parameters
-  rel[str,Symbol,MuExp] kwps = {};
-  KeywordFormals kwfs = signature.parameters.keywordFormals;
-  if(kwfs is \default) {
-      keywordParamsMap = getKeywords(fd@\loc);
-      kwps = { <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression) > | KeywordFormal kwf <- kwfs.keywordFormalList };
-  }
-  
   uid = loc2uid[fd@\loc];
   fuid = uid2str(uid);
+  
+  // Keyword parameters
+  rel[str,Symbol,MuExp] kwps = translateKeywordParameters(signature.parameters, fd@\loc);
   
   enterFunctionScope(fuid);
   
@@ -314,7 +297,8 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   tuple[str fuid,int pos] addr = uid2addr[uid];
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									nformals + 1, getScopeSize(fuid) + 1, // + 1 is due to keyword parameters
-  									isVarArgs, fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), kwps, tbody);
+  									isVarArgs, fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), 
+  									kwps, tbody);
   					
    if("test" in tmods){
      params = ftype.parameters;
@@ -362,6 +346,16 @@ list[str] translateModifiers(FunctionModifiers modifiers){
        lst += "default";
    }
    return lst;
+}
+
+rel[str,Symbol,MuExp] translateKeywordParameters(Parameters parameters, loc l) {
+  rel[str,Symbol,MuExp] kwps = {};
+  KeywordFormals kwfs = parameters.keywordFormals;
+  if(kwfs is \default) {
+      keywordParamsMap = getKeywords(l);
+      kwps = { <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression) > | KeywordFormal kwf <- kwfs.keywordFormalList };
+  }
+  return kwps;
 }
 
 void generate_tests(str module_name){
