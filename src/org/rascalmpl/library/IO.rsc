@@ -530,6 +530,14 @@ public java void writeFile(loc file, value V...)
 throws PathNotFound(loc file), IO(str msg);
 
 @doc{
+Synopsis: Write a list of bytes to a file.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses URI Resolver Registry}
+public java void writeFileBytes(loc file, list[int] bytes)
+throws PathNotFound(loc file), IO(str msg);
+
+@doc{
 Synopsis: Write values to a file.
 
 Description:

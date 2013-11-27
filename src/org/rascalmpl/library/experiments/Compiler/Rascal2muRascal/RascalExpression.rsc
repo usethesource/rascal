@@ -285,7 +285,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                                             \tuple([ a | Symbol arg <- getConstructorArgumentTypes(ftype), label(_,Symbol a) := arg || Symbol a := arg ]),());
                            return instantiate(t.\adt,bindings) == ftype.\adt;
                        }
-                       if(isFunctionType(t) && isFunctionType()) {
+                       if(isFunctionType(t) && isFunctionType(ftype)) {
                            bindings = match(getFunctionArgumentTypesAsTuple(t),getFunctionArgumentTypesAsTuple(ftype),());
                            return instantiate(t.ret,bindings) == ftype.ret;
                        }
@@ -340,7 +340,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                t = fuid2type[alt];
                println("ALT: <t>");
            }
-           throw "ERROR in overloading resolution: <ftype>";
+           throw "ERROR in overloading resolution: <ftype>; <expression@\loc>";
        }
        bool exists = <of.scopeIn,resolved> in overloadedFunctions;
        if(!exists) {
@@ -431,8 +431,22 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
 }
 
 // Field update
-MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Expression replacement> ]`) =
-    muCallPrim("<getOuterType(expression)>_field_update", [ translate(expression), muCon("<key>"), translate(replacement) ]);
+MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Expression replacement> ]`) {
+    tp = getType(expression@\loc);   
+    list[str] fieldNames = [];
+    if(isRelType(tp)){
+       tp = getSetElementType(tp);
+    } else if(isListType(tp)){
+       tp = getListElementType(tp);
+    } else if(isMapType(tp)){
+       tp = getMapFieldsAsTuple(tp);
+    }
+    if(tupleHasFieldNames(tp)){
+    	fieldNames = getTupleFieldNames(tp);
+    }	
+    return muCallPrim("<getOuterType(expression)>_update", [ translate(expression), muCon(indexOf(fieldNames, "<key>")), translate(replacement) ]);
+        //muCallPrim("<getOuterType(expression)>_field_update", [ translate(expression), muCon("<key>"), translate(replacement) ]);
+}
 
 // Field project
 MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields> \>`) {
