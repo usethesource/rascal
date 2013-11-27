@@ -25,7 +25,9 @@
 package org.rascalmpl.library;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -1242,6 +1244,44 @@ public class Prelude {
 			}
 		}
 
+		return;
+	}
+	
+	public void writeFileBytes(ISourceLocation sloc, IList blist, IEvaluatorContext ctx){
+		sloc = ctx.getHeap().resolveSourceLocation(sloc);
+		BufferedOutputStream out=null;
+		try{
+			Iterator<IValue> iter = blist.iterator();
+			int count = 0;
+			byte[] bytes = new byte[blist.length()];
+			while (iter.hasNext()){
+				IValue ival = iter.next();
+				bytes[count++] = (byte) (((IInteger) ival).intValue());
+			}
+			OutputStream stream = ctx.getResolverRegistry().getOutputStream(sloc.getURI(), false);
+			out = new BufferedOutputStream(stream);
+			final int size = 4096;
+			byte[] buf=new byte[size];
+			BufferedInputStream is=new BufferedInputStream(new ByteArrayInputStream(bytes));
+			int available;
+			while((available = is.read(buf)) > 0) {   
+			   out.write(buf, 0, available); 
+			}      
+			out.flush();
+			out.close();
+		}catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
+		}catch(IOException e){
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
+		}finally{
+			if(out != null){
+				try{
+					out.close();
+				}catch(IOException ioex){
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
+				}
+			}
+		}
 		return;
 	}
 	
