@@ -940,11 +940,14 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
         keywordParamsMap = getKeywords(e@\loc);
         kwps = { <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression) > | KeywordFormal kwf <- kwfs.keywordFormalList };
     }
-  
+    
+    // TODO: we plan to introduce keyword patterns as formal parameters
     MuExp body = translateFunction(parameters.formals.formals, isVarArgs, cbody, []);
+    
     tuple[str fuid,int pos] addr = uid2addr[uid];
     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									  nformals, nlocals, isVarArgs, e@\loc, [], (), kwps, body);
+  									  nformals + 1, nlocals + 1, // + 1 is due to keyword parameters 
+  									  isVarArgs, e@\loc, [], (), kwps, body);
   	
   	leaveFunctionScope();								  
   	
