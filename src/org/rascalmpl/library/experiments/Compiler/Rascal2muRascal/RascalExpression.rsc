@@ -249,7 +249,13 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 
 // Call
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
-   // ignore kw arguments for the moment
+   
+   // Keyword arguments
+   map[str,MuExp] kwargs = ();
+   if(keywordArguments is \default) {
+       kwargs = ( "<kwarg.name>" : translate(kwarg.expression) | KeywordArgument kwarg <- keywordArguments.keywordArgumentList );
+   }
+   
    MuExp receiver = translate(expression);
    list[MuExp] args = [ translate(a) | a <- arguments ];
    if(getOuterType(expression) == "str") {
@@ -261,7 +267,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    }
    
    if(muFun(str _) := receiver || muFun(str _, str _) := receiver || muConstr(str _) := receiver) {
-       return muCall(receiver, args);
+       return muCall(receiver, args, kwargs); // keyword arguments
    }
    
    // Now overloading resolution...
@@ -351,7 +357,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
        overloadingResolver[ofqname] = i;
-       return muOCall(muOFun(ofqname), args);
+       return muOCall(muOFun(ofqname), args, kwargs);
    }
    if(isOverloadedFunction(receiver) && receiver.fuid notin overloadingResolver) {
       throw "The use of a function has to be managed via overloading resolver!";
@@ -359,7 +365,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    // Push down additional information if the overloading resolution needs to be done at runtime
    return muOCall(receiver, 
    				  isFunctionType(ftype) ? Symbol::\tuple([ ftype ]) : Symbol::\tuple([ t | Symbol t <- getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype) ]), 
-   				  args);
+   				  args, kwargs);
 }
 
 // Any
@@ -926,12 +932,19 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
 	nformals = size(ftype.parameters);
 	nlocals = getScopeSize(fuid);
 	bool isVarArgs = (varArgs(_,_) := parameters);
-  	// TODO: keyword parameters
-    
+  	
+  	// Keyword parameters
+    rel[str,Symbol,MuExp] kwps = {};
+    KeywordFormals kwfs = parameters.keywordFormals;
+    if(kwfs is \default) {
+        keywordParamsMap = getKeywords(e@\loc);
+        kwps = { <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression) > | KeywordFormal kwf <- kwfs.keywordFormalList };
+    }
+  
     MuExp body = translateFunction(parameters.formals.formals, isVarArgs, cbody, []);
     tuple[str fuid,int pos] addr = uid2addr[uid];
     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									  nformals, nlocals, isVarArgs, e@\loc, [], (), body);
+  									  nformals, nlocals, isVarArgs, e@\loc, [], (), kwps, body);
   	
   	leaveFunctionScope();								  
   	

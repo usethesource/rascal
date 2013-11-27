@@ -9,7 +9,8 @@ public data Declaration =
 		  		   int nformals, 
 		  		   int nlocals,
 		  		   bool isVarArgs,
-		  		   int maxStack, 
+		  		   int maxStack,
+		  		   rel[str,Symbol,list[Instruction]] kwps, // keyword parameters
 		  		   list[Instruction] instructions,
 		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
 	    | COROUTINE(str qname, 
@@ -45,10 +46,16 @@ data Instruction =
 		| LOADLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in the local variable (value remains on stack)
 		
-		| UNWRAPTHROWN(int pos)                    // Unwrap a thrown value on top-of-stack, and store the unwrapped value in the local variable (value removed from the stack)
+		| LOADLOCKWP(str id)                        // Load value of a keyword parameter
+		| STORELOCKWP(str id)                       // Store value on top-of-stack in the keyword parameter (value remains on stack)
+		
+		| UNWRAPTHROWN(int pos)                     // Unwrap a thrown value on top-of-stack, and store the unwrapped value in the local variable (value removed from the stack)
 	   	
 		| LOADVAR(str fuid, int pos)                // Push a variable from an outer scope
-		| STOREVAR(str fuid, int pos)               // Store value on  top-of-stack in variable in surrounding scope (value remains on stack)
+		| STOREVAR(str fuid, int pos)               // Store value on top-of-stack in variable in surrounding scope (value remains on stack)
+		
+		| LOADVARKWP(str fuid, str id)              // Load a keyword parameter from an outer scope
+		| STOREVARKWP(str fuid, str id)             // Store value on top-of-stack in the keyword parameter of a surrounding scope (value remains on stack)
 
 		| LOADMODULEVAR(str fuid)          			// Push a variable from a global module scope
 		| STOREMODULEVAR(str fuid)         			// Store value on  top-of-stack in variable in global module scope (value remains on stack)

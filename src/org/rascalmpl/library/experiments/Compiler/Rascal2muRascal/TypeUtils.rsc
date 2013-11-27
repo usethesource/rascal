@@ -30,6 +30,7 @@ public set[int] functions = {};
 public set[int] defaultFunctions = {};
 public set[int] constructors = {};
 public set[int] variables = {};
+public set[int] keywordParameters = {};
 public set[int] ofunctions = {};
 
 public set[str] moduleNames = {};
@@ -128,6 +129,8 @@ int getScopeSize(str fuid) = size({ pos | int pos <- range(uid2addr)[fuid], pos 
 								// and uses patterns to match these variables 
 								+ size(fuid2type[invertUnique(fuid2str)[fuid]].parameters);
 
+KeywordParamMap getKeywords(loc location) = config.store[loc2uid[location]].keywordParams;
+
 @doc{Make a call to a library function given its name, module's name and a number of its formal parameters}
 public MuExp mkCallToLibFun(str modName, str fname, int nformals)
 	= muFun("<modName>/<fname>(<nformals>)");
@@ -162,6 +165,11 @@ MuExp mkVar(str name, loc l) {
   	return muOFun(ofuid);
   }
   
+  // Keyword parameters
+  if(uid in keywordParameters) {
+      return muKwpVar(name, addr.fuid);
+  }
+  
   return muVar(name, addr.fuid, addr.pos);
 }
 
@@ -188,7 +196,8 @@ void extractScopes(){
    for(uid <- config.store){
       item = config.store[uid];
       switch(item){
-        case function(rname,rtype,_,_,
+        case function(rname,rtype,
+                      keywordParams,_,
         			  inScope,_,src):      { 
         							         functions += {uid};
                                              declares += {<inScope, uid>}; 
@@ -280,7 +289,8 @@ void extractScopes(){
         									 }
         									 uid2name[uid] = "bscope#<bscopes[uid]>";
         								   }
-        case closure(rtype,_,inScope,src):       {
+        case closure(rtype,keywordParams,
+                       inScope,src):       {
                                              functions += {uid};
                                              declares += {<inScope, uid>};
         									 loc2uid[src] = uid;
@@ -333,14 +343,24 @@ void extractScopes(){
 	}
 	
     for(int fuid <- functions) {
-    	nformals = size(fuid2type[fuid].parameters);
+    	nformals = size(fuid2type[fuid].parameters); // ***Note: 'parameters' field does not include keyword parameters
         innerScopes = {fuid} + containmentPlus[fuid];
         // First, fill in variables to get their positions right
+        keywordParams = config.store[fuid].keywordParams;
+        // Filter all the non-keyword variables within the function scope
+        // ***Note: Filtering by name is possible only when shadowing of local variables is not permitted
         // Sort variable declarations to ensure that formal parameters get first positions preserving their order
-        decls = sort([ uid | uid <- declares[innerScopes], variable(_,_,_,_,_) := config.store[uid] ]);
-        for(i <- index(decls)) {
+        decls_non_kwp = sort([ uid | int uid <- declares[innerScopes], variable(name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
+        fuid_str = fuid2str[fuid];
+        for(int i <- index(decls_non_kwp)) {
         	// Note: we need to reserve positions for variables that will replace formal parameter patterns
-        	uid2addr[decls[i]] = <fuid2str[fuid], i + nformals>;
+        	uid2addr[decls_non-kwp[i]] = <fuid_str, i + nformals>;
+        }
+        // Filter all the keyword variables (parameters) within the function scope
+        decls_kwp = sort([ uid | int uid <- declares[innerScopes], variable(name,_,_,_,_) := config.store[uid], name in keywordParams ]);
+        for(int i <- index(decls_kwp)) {
+            keywordParameters += decls_kwp[i];
+            uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have the position
         }
         // Then, functions
         decls = [ uid | uid <- declares[innerScopes], function(_,_,_,_,_,_,_) := config.store[uid] ||

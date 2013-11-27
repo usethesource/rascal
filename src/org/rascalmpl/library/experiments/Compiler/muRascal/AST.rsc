@@ -25,7 +25,10 @@ public data MuModule =
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-                muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, loc source, list[str] modifiers, map[str,str] tags, MuExp body)
+                muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, 
+                           loc source, list[str] modifiers, map[str,str] tags,
+                           rel[str,Symbol,MuExp] kwps,
+                           MuExp body)
               | muCoroutine(str qname, str scopeIn, int nformals, int nlocals, list[int] refs, MuExp body)
           ;
           
@@ -69,17 +72,29 @@ public data MuExp =
           | muLocRef(str name, int pos) 				        // Call-by-reference: expression that returns a value location
           | muVarRef(str name, str fuid, int pos)
           | muTmpRef(str name)
+          
+          // Keyword parameters
+          | muKwpLoc(str name)                                  // Local keyword parameter
+          | muKwpVar(str name, str fuid)                        // Keyword parameter
              
           | muTypeCon(Symbol tp)								// Type constant
           
           // Call/return    		
-          | muCall(MuExp fun, list[MuExp] args)					// Call a *muRascal function
+          | muCall(MuExp fun, list[MuExp] args)                 // Call a *muRascal function
+          | muCall(MuExp fun, list[MuExp] args,                 // Call a *muRascal function with *keyword arguments
+                              map[str,MuExp] kwargs)
           
-          | muOCall(MuExp fun, list[MuExp] args)                // Call a declared *Rascal function
-          | muOCall(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function
-          					   list[MuExp] args)
+          | muOCall(MuExp fun, list[MuExp] args,                // Call a declared *Rascal function with *keyword arguments
+                               map[str,MuExp] kwargs)
+
+          | muOCall(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function with *keyword arguments
+          					   list[MuExp] args,
+          					   map[str,MuExp] kwargs)
           
           | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
+          | muCallConstr(str fuid, list[MuExp] args, 			// Call a constructor with *keyword arguments
+                                   map[str,MuExp] kwargs)
+          
           | muCallPrim(str name)                                // Call a Rascal primitive function (with empty list of arguments)
           | muCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
