@@ -6,10 +6,10 @@ import experiments::Compiler::Execute;
 loc base1 = |project:///rascal-test/tests/functionality|;
 list[str] functionalityTests = [
 
-//"AccumulatingTests"		// 4 tests fail
+"AccumulatingTests"		// 4 tests fail
 //"AnnotationTests"			// 3 tests fail
 
-//"AssignmentTests"			// 3 tests fail
+//"AssignmentTests"			// 1 test fails, issue posted
 
 
 //"BackTrackingTests"		//  13 tests fail 
@@ -18,12 +18,12 @@ list[str] functionalityTests = [
 
 //"ComprehensionTests"		// 15 tests fail
 
-//"DataDeclarationTests"		// Checking function parameterized3
-							// |rascal://Type|(19740,49,<357,81>,<357,130>): "Length of symbol list and label list much match"
-							// at addParamLabels(|rascal://Type|(16896,2,<325,125>,<325,127>))
-							// at lub(|rascal://Type|(16771,201,<325,0>,<325,201>))
-							// ==> Issue posted
-
+//"DataDeclarationTests"		//error("Initializer type Maybe[&T \<: value] not assignable to variable of type Maybe[void]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5906,10,<104,53>,<104,63>))
+							//error("Initializer type Exp1[&T \<: value] not assignable to variable of type Exp1[int]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5772,11,<100,58>,<100,69>))
+							//error("Initializer type &T \<: value not assignable to variable of type str",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5535,12,<95,68>,<95,80>))
+							//error("Initializer type &T \<: value not assignable to variable of type str",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5061,12,<89,68>,<89,80>))
+							// Issue posted
+							
 //"DataTypeTests"			// 9 tests fail
 							
 //"DeclarationTests"			// OK, these are conscious changes in the scoping rules
@@ -42,10 +42,9 @@ list[str] functionalityTests = [
 //"ReducerTests"			// OK
 
 //"StatementTests"			// |rascal://experiments::Compiler::RVM::Run|(217,264,<12,0>,<14,153>): Java("RuntimeException","PANIC: undefined label FAIL_loop")
-							// ===> Issues posted
+							// ===> Issue posted
 						
-"SubscriptTests"			// Checking function WrongMapIndex
-							// |rascal://lang::rascal::types::AbstractType|(22449,2,<471,78>,<471,80>): "getMapFieldsAsTuple called with unexpected type fail"
+//"SubscriptTests"			// set-based subscripts of relations ==> Issue posted.
 ];
 
 
@@ -66,19 +65,21 @@ list[str] rascalTests = [
 							//error("Cannot assign pattern of type list[value] to non-inferred variable of type list[str]",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8582,32,<223,19>,<223,51>))
 							//error("Name r is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8244,1,<218,11>,<218,12>))
 							//error("Cannot assign pattern of type list[int] to non-inferred variable of type list[str]",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8251,28,<218,18>,<218,46>))
+							// Issue posted
+							
+//"Booleans"				// 3 tests fail
+						// Commented out fromInt test
 
-//"Booleans"			//error("Name fromInt is not in scope",|project://rascal-test/src/tests/Booleans.rsc|(802,7,<25,37>,<25,44>))
-
-//"Equality"			// error("Unexpected type: type of body expression, value, must be a subtype of the function return type, bool",|project://rascal-test/src/tests/Equality.rsc|(4382,30,<84,47>,<84,77>))
-						// error("Unexpected type: type of body expression, value, must be a subtype of the function return type, bool",|project://rascal-test/src/tests/Equality.rsc|(4304,29,<83,47>,<83,76>))
-
+//"Equality"				// 2 tests fail
+						// Added parentheses for ?operator
+						
 //"Functions"			// Checking function callKwp
 						// |rascal://lang::rascal::types::CheckTypes|(206380,13,<4071,16>,<4071,29>): The called signature: checkExp(sort("Expression"), Configuration),
 						// does not match the declared signature:	CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  
 
 //"Integers"			// OK
 
-//"IO"					// adding grammar for ValueIO
+"IO"					// adding grammar for ValueIO
 						// |rascal://experiments::Compiler::RVM::Run|(217,715,<12,0>,<23,28>): Java("RuntimeException","PANIC: (instruction execution): null")
 						//	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM.executeProgram(|file:///RVM.java|(0,0,<1381,0>,<1381,0>))
 
@@ -115,10 +116,8 @@ list[str] rascalTests = [
 
 //"Memoization"			// Does not exist
 
-//"Nodes"				//Checking function assignSlice
-						//|rascal://lang::rascal::types::CheckTypes|(260931,31,<5186,19>,<5186,50>): The called signature: buildAssignableTree(sort("Assignable"), bool, Configuration),
-						//does not match the declared signature:	ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  
-
+//"Nodes"				// 8 test fail
+	
 //"Relations"			//error("Name a is not in scope",|project://rascal-test/src/tests/Relations.rsc|(226,1,<11,39>,<11,40>))
 						//error("Name z is not in scope",|project://rascal-test/src/tests/Relations.rsc|(239,1,<11,52>,<11,53>))
 						//error("Name z is not in scope",|project://rascal-test/src/tests/Relations.rsc|(229,1,<11,42>,<11,43>))
@@ -150,14 +149,12 @@ list[str] rascalTests = [
 						//error("Could not instantiate type variables in type fun map[&K \<: value, set[&V \<: value]](set[&V \<: value], fun &K \<: value(&V \<: value)) with argument types (set[int],fun int(int))",|project://rascal-test/src/tests/Sets.rsc|(2149,21,<67,11>,<67,32>))
 						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2182,7,<69,8>,<69,15>))
 						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2200,7,<69,26>,<69,33>))
+						// Posted issue
 
 						 
 //"SolvedIssues"		// OK
 
-//"Strings"  			// Checking function assignSlice
-						// |rascal://lang::rascal::types::CheckTypes|(258310,31,<5109,19>,<5109,50>): The called signature: buildAssignableTree(sort("Assignable"), bool, Configuration),
-						// does not match the declared signature:	ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  ATResult buildAssignableTree(sort("Assignable"), bool, Configuration); (concrete pattern);  
-						// ==> Issue
+//"Strings"  			// 2 test fail
 
 //"Tuples"				// OK
 ];
@@ -169,7 +166,7 @@ int nfail = 0;
 void runTests(list[str] names, loc base){
  for(tst <- names){
       println("***** <tst> ***** <base>");
-      if(<s, f> := execute(base + (tst + ".rsc"), [], recompile=true, testsuite=true, listing=true, debug=true)){
+      if(<s, f> := execute(base + (tst + ".rsc"), [], recompile=true, testsuite=true, listing=false, debug=false)){
          nsuccess += s;
          nfail += f;
       } else {
