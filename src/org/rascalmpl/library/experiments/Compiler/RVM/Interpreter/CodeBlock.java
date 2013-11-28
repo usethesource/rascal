@@ -655,7 +655,7 @@ public class CodeBlock {
     }
     
     public String toString(int n){
-    	Opcode opc = Opcode.fromInteger(finalCode[n]);
+    	Opcode opc = Opcode.fromInteger(fetchOp(finalCode[n]));
     	return Opcode.toString(this, opc, n);
     }
     

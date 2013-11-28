@@ -434,6 +434,7 @@ public class RVM {
 		ArrayList<Frame> stacktrace;
 		Thrown thrown;
 		int arity;
+		String last_function_name = "";
 				
 		try {
 			NEXT_INSTRUCTION: while (true) {
@@ -442,17 +443,20 @@ public class RVM {
 //				}
 				int instruction = instructions[pc++];
 				int op = CodeBlock.fetchOp(instruction);
-				//stderr.println(cf.function.name + "[" + (pc -1) + "]: op = " + Opcode.values[op] + ", arg1 = " + CodeBlock.fetchArg1(instruction) + ", arg2 = " + CodeBlock.fetchArg2(instruction));
+				stderr.println(cf.function.name + "[" + (pc -1) + "]: op = " + Opcode.values[op] + ", arg1 = " + CodeBlock.fetchArg1(instruction) + ", arg2 = " + CodeBlock.fetchArg2(instruction));
 
-//				if (debug) {
-//					int startpc = pc - 1;
-//					for (int i = 0; i < sp; i++) {
-//						stdout.println("\t" + (i < cf.function.nlocals ? "*" : "") + i + ": " + asString(stack[i]));
-//					}
-//					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
-//				}
-//				
-//				Opcode.use(instruction);
+				if (debug) {
+					int startpc = pc - 1;
+					if(!last_function_name.equals(cf.function.name))
+						stdout.printf("[%3d] %s\n", startpc, cf.function.name);
+					
+					for (int i = 0; i < sp; i++) {
+						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
+					}
+					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
+				}
+				
+				Opcode.use(instruction);
 				
 				switch (op) {
 				
