@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -105,6 +106,7 @@ public enum MuPrimitive {
 	subscript_array_mint,
 	subscript_list_mint,
 	subscript_tuple_mint,
+	subscript_str_mint,
 	subtraction_mint_mint,
 	subtype,
 	typeOf,
@@ -690,6 +692,8 @@ public enum MuPrimitive {
 			stack[sp - 1] = ((IMap) stack[sp - 1]).size();
 		} else if(stack[sp - 1] instanceof ITuple) {
 			stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
+		} else if(stack[sp - 1] instanceof IString) {
+			stack[sp - 1] = ((IString) stack[sp - 1]).length();
 		}
 		return sp;
 	}
@@ -736,6 +740,19 @@ public enum MuPrimitive {
 	public static int subscript_tuple_mint(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ITuple) stack[sp - 2]).get((Integer) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int subscript_str_mint(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IString str = ((IString) stack[sp - 2]);
+		int idx = (Integer) stack[sp - 1];
+		try {
+			stack[sp - 2] = (idx >= 0) ? str.substring(idx, idx+1)
+								   	   : str.substring(str.length() + idx, str.length() + idx + 1);
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
+		}
 		return sp - 1;
 	}
 		
