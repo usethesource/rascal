@@ -719,14 +719,14 @@ public enum RascalPrimitive {
 	 * @return		new stack pointer and modified stack contents
 	 */
 	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		//if(!profiling){
+		if(!profiling){
 			return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
-//		} else {
-//			long start = System.currentTimeMillis();
-//			int res = (int) methods[ordinal()].invoke(null, stack,  sp, arity);
-//			timeSpent[ordinal()] += System.currentTimeMillis() - start;
-//			return res;
-//		}
+		} else {
+			long start = System.currentTimeMillis();
+			int res = (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+			timeSpent[ordinal()] += System.currentTimeMillis() - start;
+			return res;
+		}
 	}
 	
 	private static void printProfile(){
@@ -4772,7 +4772,7 @@ public enum RascalPrimitive {
 		String fun = ((IString) stack[sp - 4]).getValue();
 		String expected =  ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
-		//stdout.println("testreport_add: " + src);
+		stdout.println("testreport_add: " + src);
 		Type argType = (Type) stack[sp - 1];
 		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
 		//Type argType = typeReifier.valueToType(type_cons);

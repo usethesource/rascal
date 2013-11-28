@@ -6,7 +6,7 @@ import experiments::Compiler::Execute;
 loc base1 = |project:///rascal-test/tests/functionality|;
 list[str] functionalityTests = [
 
-//"AccumulatingTests"		// 4 tests fail
+"AccumulatingTests"		// 4 tests fail
 //"AnnotationTests"			// 3 tests fail
 
 //"AssignmentTests"			// 1 test fails, issue posted
@@ -16,7 +16,7 @@ list[str] functionalityTests = [
 
 //"CallTests"				// keyword parameters
 
-"ComprehensionTests"		// 15 tests fail
+//"ComprehensionTests"		// 15 tests fail
 
 //"DataDeclarationTests"		//error("Initializer type Maybe[&T \<: value] not assignable to variable of type Maybe[void]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5906,10,<104,53>,<104,63>))
 							//error("Initializer type Exp1[&T \<: value] not assignable to variable of type Exp1[int]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5772,11,<100,58>,<100,69>))
