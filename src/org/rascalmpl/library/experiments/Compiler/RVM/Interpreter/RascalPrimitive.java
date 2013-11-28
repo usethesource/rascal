@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.SortedMap;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -2487,6 +2486,9 @@ public enum RascalPrimitive {
 		String label = ((IString) stack[sp - 1]).getValue();
 		try {
 			stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
+			if(stack[sp - 2] == null) {
+				throw RuntimeExceptions.noSuchAnnotation(label, null, new ArrayList<Frame>());
+			}
 			return sp - 1;
 		} catch (FactTypeUseException e) {
 			throw RuntimeExceptions.noSuchAnnotation(label, null, new ArrayList<Frame>());
