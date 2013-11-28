@@ -18,53 +18,53 @@ public enum Opcode {
 	 * 
 	 * OPCODENAME(	opcode,	pc increment)
 	 */
-	LOADCON			    (0, 	2),
-	LOADVAR 			(1, 	3),
-	LOADLOC 			(2,		2),
-	STOREVAR 			(3, 	3),
-	STORELOC 			(4, 	2),
-	CALL 				(5, 	3),
-	CALLPRIM	 		(6, 	3),
-	RETURN1 			(7, 	2),
-	JMP 				(8, 	2),
-	JMPTRUE 			(9, 	2),
-	JMPFALSE 			(10, 	2),
+	LOADCON			    (0, 	1), //2),
+	LOADVAR 			(1, 	1), //3),
+	LOADLOC 			(2,		1), //2),
+	STOREVAR 			(3, 	1), //3),
+	STORELOC 			(4, 	1), //2),
+	CALL 				(5, 	1), //3),
+	CALLPRIM	 		(6, 	1), //3),
+	RETURN1 			(7, 	1),//2),
+	JMP 				(8, 	1), //2),
+	JMPTRUE 			(9, 	1), //2),
+	JMPFALSE 			(10, 	1), //2),
 	LABEL 				(11, 	0),
 	HALT 				(12, 	1),
 	POP 				(13, 	1),
-	CALLDYN				(14,	2),
-	LOADFUN				(15,	2), // TODO: to be renamed to LOAD_ROOT_FUN
-	CREATE				(16,	3),
+	CALLDYN				(14,	1), //2),
+	LOADFUN				(15,	1), //2), // TODO: to be renamed to LOAD_ROOT_FUN
+	CREATE				(16,	1), //3),
 	NEXT0				(17,	1),
 	NEXT1				(18,	1),
 	YIELD0				(19,	1),
-	YIELD1				(20,	2),
-	INIT				(21,	2),
-	CREATEDYN			(22,	2),
+	YIELD1				(20,	1), //2),
+	INIT				(21,	1), //2),
+	CREATEDYN			(22,	1), //2),
 	HASNEXT				(23,	1),
-	PRINTLN				(24,	2),
+	PRINTLN				(24,	1), //2),
 	RETURN0				(25,	1),
-	LOADLOCREF			(26,	2),
-	LOADVARREF			(27,	3),
-	LOADLOCDEREF		(28,	2),
-	LOADVARDEREF		(29,	3),
-	STORELOCDEREF		(30,	2),
-	STOREVARDEREF		(31,	3),
-	LOADCONSTR			(32,	2),
-	CALLCONSTR			(33,	3), // TODO: plus number of formal parameters
-	LOAD_NESTED_FUN		(34, 	3),
-	LOADTYPE			(35,	2),
-	CALLMUPRIM			(36,	3),
-	LOADBOOL			(37,	2),
-	LOADINT				(38,	2),
+	LOADLOCREF			(26,	1), //2),
+	LOADVARREF			(27,	1), //3),
+	LOADLOCDEREF		(28,	1), //2),
+	LOADVARDEREF		(29,	1), //3),
+	STORELOCDEREF		(30,	1), //2),
+	STOREVARDEREF		(31,	1), //3),
+	LOADCONSTR			(32,	1), //2),
+	CALLCONSTR			(33,	1), //3), // TODO: plus number of formal parameters
+	LOAD_NESTED_FUN		(34, 	1), //3),
+	LOADTYPE			(35,	1), //2),
+	CALLMUPRIM			(36,	1), //3),
+	LOADBOOL			(37,	1), //2),
+	LOADINT				(38,	1), //2),
 	FAILRETURN			(39, 	1),
-	LOADOFUN        	(40,    2),
-	OCALL           	(41,    3),
-	OCALLDYN	    	(42,	3),
+	LOADOFUN        	(40,    1), //2),
+	OCALL           	(41,    1), //3),
+	OCALLDYN	    	(42,	1), //3),
 	CALLJAVA        	(43,    5),
 	THROW           	(44,    1),
-	JMPSWITCH			(45,	2),
-	UNWRAPTHROWN        (46,    2),
+	JMPSWITCH			(45,	1), //2),
+	UNWRAPTHROWN        (46,    1), //2),
 	FILTERRETURN		(47, 	1),
 	EXHAUST             (48,    1),
 	GUARD               (49,    1),
@@ -77,14 +77,25 @@ public enum Opcode {
 	ANDBOOL				(56,	1),
 	TYPEOF				(57,	1),
 	SUBTYPE				(58,	1),
-	CHECKARGTYPE		(59,	1)
+	CHECKARGTYPE		(59,	1),
+	LOADLOC0			(60, 	1),
+	LOADLOC1			(61, 	1),
+	LOADLOC2			(62, 	1),
+	LOADLOC3			(63, 	1),
+	LOADLOC4			(64, 	1),
+	LOADLOC5			(65, 	1),
+	LOADLOC6			(66, 	1),
+	LOADLOC7			(67, 	1),
+	LOADLOC8			(68, 	1),
+	LOADLOC9			(69, 	1)
+	
 	;
 	
 	
 	private final int op;
 	private final int pc_incr;
 	
-	private final static Opcode[] values = Opcode.values();
+	public final static Opcode[] values = Opcode.values();
 	
 	public static Opcode fromInteger(int n){
 		return values[n];
@@ -153,6 +164,23 @@ public enum Opcode {
 	static public final int OP_TYPEOF = 57;
 	static public final int OP_SUBTYPE = 58;
 	static public final int OP_CHECKARGTYPE = 59;
+	static public final int OP_LOADLOC0 = 60;
+	static public final int OP_LOADLOC1 = 61;
+	static public final int OP_LOADLOC2 = 62;
+	static public final int OP_LOADLOC3 = 63;
+	static public final int OP_LOADLOC4 = 64;
+	static public final int OP_LOADLOC5 = 65;
+	static public final int OP_LOADLOC6 = 66;
+	static public final int OP_LOADLOC7 = 67;
+	static public final int OP_LOADLOC8 = 68;
+	static public final int OP_LOADLOC9 = 69;
+	
+	
+	/*
+	 * Meta-instructions that are generated dynamically during execution and
+	 * will never occur in generated code.
+	 */
+	static public final int POSTOP_CHECKUNDEF = 100;
 	
 	 Opcode(int op, int pc_incr){
 		this.op = op;
@@ -169,8 +197,8 @@ public enum Opcode {
       opFrequencies = new long[values.length];
 	}
 	
-	public static void use(int op){
-		opFrequencies[op]++;
+	public static void use(int instruction){
+		opFrequencies[CodeBlock.fetchOp(instruction)]++;
 	}
 	
 	public static void exit(){
@@ -382,6 +410,26 @@ public enum Opcode {
 			
 		case CHECKARGTYPE:
 			return "CHECKARGTYPE";
+		case LOADLOC0:
+			return "LOADLOC0";
+		case LOADLOC1:
+			return "LOADLOC1";
+		case LOADLOC2:
+			return "LOADLOC2";
+		case LOADLOC3:
+			return "LOADLOC3";
+		case LOADLOC4:
+			return "LOADLOC4";
+		case LOADLOC5:
+			return "LOADLOC5";
+		case LOADLOC6:
+			return "LOADLOC6";
+		case LOADLOC7:
+			return "LOADLOC7";
+		case LOADLOC8:
+			return "LOADLOC8";
+		case LOADLOC9:
+			return "LOADLOC9";
 		
 		default:
 			break;
