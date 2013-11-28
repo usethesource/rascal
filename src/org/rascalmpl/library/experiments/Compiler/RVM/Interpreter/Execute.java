@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
 public class Execute {
 
@@ -197,6 +198,7 @@ public class Execute {
 			long now = System.currentTimeMillis();
 			MuPrimitive.exit();
 			RascalPrimitive.exit();
+			Opcode.exit();
 			return vf.tuple((IValue) result, vf.integer(now - start));
 			
 		} catch(Thrown e) {
