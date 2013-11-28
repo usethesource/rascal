@@ -1252,6 +1252,13 @@ public enum RascalPrimitive {
 		return org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(arg);
 	}
 	
+	private static String $preprocess(String arg) {
+		arg = org.rascalmpl.interpreter.utils.StringUtils.unquote(arg);
+		// don't unescape ' yet
+		arg = org.rascalmpl.interpreter.utils.StringUtils.unescapeBase(arg);
+		return arg;
+	}
+	
 	private static IString $processString(IString s){
 		return vf.string($removeMargins(s.getValue()));
 	}
@@ -1760,8 +1767,12 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		IValue left = (stack[sp - 2] instanceof Boolean) ? vf.bool((Boolean)stack[sp - 2]) : (IValue)stack[sp - 2];
 		IValue right = (stack[sp - 1] instanceof Boolean) ? vf.bool((Boolean)stack[sp - 1]) : (IValue)stack[sp - 1];
-		stack[sp - 2] = left.isEqual(right);
-		return sp - 1;
+		if(left.getType().isNumber() && right.getType().isNumber()){
+			return num_equal_num(stack, sp, arity);
+		} else {
+			stack[sp - 2] = left.isEqual(right);
+			return sp - 1;
+		}
 	}
 	
 	public static int type_equal_type(Object[] stack, int sp, int arity) {
@@ -4772,7 +4783,7 @@ public enum RascalPrimitive {
 		String fun = ((IString) stack[sp - 4]).getValue();
 		String expected =  ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
-		stdout.println("testreport_add: " + src);
+		//stdout.println("testreport_add: " + src);
 		Type argType = (Type) stack[sp - 1];
 		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
 		//Type argType = typeReifier.valueToType(type_cons);
