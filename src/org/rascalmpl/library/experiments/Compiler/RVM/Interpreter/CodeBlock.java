@@ -40,6 +40,16 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc0;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc1;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc2;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc3;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc4;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc5;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc6;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc7;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc8;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc9;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadNestedFun;
@@ -257,15 +267,72 @@ public class CodeBlock {
 	}
 	
 	public void addCode1(int op, int arg1){
-		finalCode[pc++] = op;
-		finalCode[pc++] = arg1;
+//		finalCode[pc++] = op;
+//		finalCode[pc++] = arg1;
+		finalCode[pc++] = encode1(op, arg1);
 	}
 	
 	public void addCode2(int op, int arg1, int arg2){
-		finalCode[pc++] = op;
-		finalCode[pc++] = arg1;
-		finalCode[pc++] = arg2;
+//		finalCode[pc++] = op;
+//		finalCode[pc++] = arg1;
+//		finalCode[pc++] = arg2;
+		finalCode[pc++] = encode2(op, arg1, arg2);
 	}
+	
+	/*
+	 * Proposed instruction encoding:
+	 * 
+	 * 	   argument2    argument1       op
+	 *  |-----------| |-----------| |---------|
+	 *  sizeArg2 bits sizeArg1 bits sizeOp bits
+	 */
+	
+	public final static int sizeOp = 7;
+	public final static int sizeArg1 = 13;
+	public final static int sizeArg2 = 12;
+	public final static int maskOp = (1 << sizeOp) - 1;
+	public final static int maskArg1 = (1 << sizeArg1) - 1;
+	public final static int maskArg2 = (1 << sizeArg2) - 1;
+	public final static int shiftArg1 = sizeOp;
+	public final static int shiftArg2 = sizeOp + sizeArg1;
+
+	public static int encode0(int op){
+		return op;
+	}
+	
+	public static int encode1(int op, int arg1){
+		assert arg1 < (1 << sizeArg1);
+		return (arg1 << shiftArg1) | op;
+	}
+	
+	public static int encode2(int op, int arg1, int arg2){
+		assert arg1 < (1 << sizeArg1) && arg2 < (1 << sizeArg2);
+		return (arg2 << shiftArg2) | (arg1 << shiftArg1) | op;
+	}
+	
+	public static int fetchOp(int instr){
+		return instr & maskOp;
+	}
+	
+	public static int fetchArg1(int instr){
+		return (instr >> shiftArg1) & maskArg1;
+	}
+	
+	public static int fetchArg2(int instr){
+		return (instr >> shiftArg2) & maskArg2;
+	}
+	
+	public static boolean isMaxArg1(int arg){
+		return arg == maskArg1;
+	}
+	public static boolean isMaxArg2(int arg){
+		return arg == maskArg2;
+	}
+	
+	
+	/*
+	 * All Instructions
+	 */
 	
 	public CodeBlock POP(){
 		return add(new Pop(this));
@@ -328,7 +395,20 @@ public class CodeBlock {
 	}
 	
 	public CodeBlock LOADLOC (int pos){
-		return add(new LoadLoc(this, pos));
+		switch(pos){
+		case 0: return add(new LoadLoc0(this));
+		case 1: return add(new LoadLoc1(this));
+		case 2: return add(new LoadLoc2(this));
+		case 3: return add(new LoadLoc3(this));
+		case 4: return add(new LoadLoc4(this));
+		case 5: return add(new LoadLoc5(this));
+		case 6: return add(new LoadLoc6(this));
+		case 7: return add(new LoadLoc7(this));
+		case 8: return add(new LoadLoc8(this));
+		case 9: return add(new LoadLoc9(this));
+		default:
+			return add(new LoadLoc(this, pos));
+		}
 	}
 	
 	public CodeBlock STORELOC (int pos){
@@ -577,6 +657,13 @@ public class CodeBlock {
     public String toString(int n){
     	Opcode opc = Opcode.fromInteger(finalCode[n]);
     	return Opcode.toString(this, opc, n);
+    }
+    
+    public static void main(String[] args) {
+    	int w = encode2(13, 100, -2);
+    	System.out.println("op = " + fetchOp(w));
+    	System.out.println("arg1 = " + fetchArg1(w));
+    	System.out.println("arg2 = " + fetchArg2(w));
     }
 }
 
