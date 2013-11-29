@@ -99,7 +99,7 @@ MuExp comparison(str op, Expression e) {
   } else {
     if(lot in numeric) lot += "_"; else lot = "";
  
-     if(rot in numeric) rot = "_" + rot; else rot = "";
+    if(rot in numeric) rot = "_" + rot; else rot = "";
   }
   
   return muCallPrim("<lot><op><rot>", [*translate(e.lhs), *translate(e.rhs)]);
