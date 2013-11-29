@@ -17,8 +17,6 @@ public class CallPrim extends Instruction {
 	public String toString() { return "CALLPRIM " + prim + ", " + arity; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(prim.ordinal());
-		codeblock.addCode(arity);
+		codeblock.addCode2(opcode.getOpcode(), prim.ordinal(), arity);
 	}
 }

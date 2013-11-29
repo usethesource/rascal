@@ -16,9 +16,6 @@ public class LoadNestedFun extends Instruction {
 	public String toString() { return "LOAD_NESTED_FUN " + fuid + ", " + scopeIn + " [ " + codeblock.getFunctionIndex(fuid) + ", " + codeblock.getFunctionIndex(scopeIn) + " ]"; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getFunctionIndex(fuid));
-		codeblock.addCode(codeblock.getFunctionIndex(scopeIn));
+		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), codeblock.getFunctionIndex(scopeIn));
 	}
-
 }

@@ -17,11 +17,13 @@ list[str] libs = [
 //"Grammar" 			// OK
 //"IO"					// OK
 //"List" 				// OK
-//"ListRelation"		//  New error due to recent fix.
+//"ListRelation"		// OK
 //"Map" 				// OK
 //"Message", 			// OK
 //"Node"				// OK
 //"Origins",			// OK
+//"ParseTree" 			// OK
+//"Prelude"				// OK	
 //"Relation",			// OK
 //"Set",				// OK
 //"String",				// OK
@@ -45,7 +47,7 @@ list[str] libs = [
 
 /***** Not yet OK *****/
 
-"Ambiguity"			// error("Expected type list, not fun list[&T \<: value](list[&T \<: value])",|project://rascal/src/org/rascalmpl/library/Ambiguity.rsc|(9985,7,<248,42>,<248,49>))
+//"Ambiguity"			// error("Expected type list, not fun list[&T \<: value](list[&T \<: value])",|project://rascal/src/org/rascalmpl/library/Ambiguity.rsc|(9985,7,<248,42>,<248,49>))
 						// error("Type of pattern could not be computed, please add additional type annotations",|project://rascal/src/org/rascalmpl/library/Ambiguity.rsc|(9496,18,<234,31>,<234,49>))
 						// error("Type of pattern could not be computed, please add additional type annotations",|project://rascal/src/org/rascalmpl/library/Ambiguity.rsc|(10313,18,<257,38>,<257,56>))
 						// error("Type of pattern could not be computed, please add additional type annotations",|project://rascal/src/org/rascalmpl/library/Ambiguity.rsc|(10281,25,<257,6>,<257,31>))
@@ -63,9 +65,6 @@ list[str] libs = [
 
 // "Number"				// DEPRECATED: TC gives errors
 
-//"ParseTree" 			// error during compilation
-
-//"Prelude"				// Depends on all others 		 
 
 //"util::LOC"			// error("Field top does not exist on type Tree",|std:///util/LOC.rsc|(943,5,<44,8>,<44,13>))
 						

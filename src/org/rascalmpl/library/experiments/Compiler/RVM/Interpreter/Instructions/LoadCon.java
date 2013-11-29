@@ -14,8 +14,7 @@ public class LoadCon extends Instruction {
 	public String toString() { return "LOADCON " + constant + "[" + codeblock.getConstantValue(constant) + "]"; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(constant);
+		codeblock.addCode1(opcode.getOpcode(), constant);
 	}
 
 }
