@@ -168,7 +168,7 @@ coroutine ENUMERATE_CHECK_AND_ASSIGN[3, typ, rVar, iVal]{
 
 // ***** Ranges ***** // NOTE: skipped this for now
 
-coroutine RANGE[3, pat, iFirst, iEnd, j, n]{
+coroutine RANGE_INT[3, pat, iFirst, iEnd, j, n]{
    j = mint(iFirst);
    n = mint(iEnd);
    if(j < n) {
@@ -184,7 +184,28 @@ coroutine RANGE[3, pat, iFirst, iEnd, j, n]{
    };
 }
 
-coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step]{
+coroutine RANGE[3, pat, iFirst, iEnd, j, n, rone]{
+   j = iFirst;
+   n = iEnd;
+   if(iFirst is int && iEnd is int){
+     rone = rint(1);
+   } else {
+     rone = prim("num_to_real", rint(1));
+   };
+   if(prim("less", j, n)) {
+      while(prim("less", j, n)) {
+        DO_ALL(pat, j);
+        j = prim("add", j, rone);
+      };
+   } else {
+      while(prim("greater", j, n)) {
+        DO_ALL(pat, j); 
+        j = prim("subtract", j, rone);
+      };
+   };
+}
+
+coroutine RANGE_STEP_INT[4, pat, iFirst, iSecond, iEnd, j, n, step]{
    j = mint(iFirst);
    n = mint(iEnd);
    if(j < n) {
@@ -205,6 +226,43 @@ coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step]{
       while(j > n) {
         DO_ALL(pat, rint(j));
         j = j + step;
+      };
+      exhaust;
+   };
+}
+
+coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step, mixed]{
+   j = iFirst;
+   n = iEnd;
+   if(iFirst is int && iSecond is int && iEnd is int){
+     mixed = false;
+   } else {
+     mixed = true;
+   };
+   if(prim("less", j, n)) {
+      step = prim("subtract", iSecond, j);
+      if(mixed){
+        step = prim("num_to_real", step);
+      };
+      if(prim("lessequal", step, rint(0))) {
+         exhaust;
+      };   
+      while(prim("less", j, n)) {
+        DO_ALL(pat, j);
+        j = prim("add", j, step);
+      };
+      exhaust;
+   } else {
+      step = prim("subtract", iSecond, j);
+      if(mixed){
+        step = prim("num_to_real", step);
+      };
+      if(prim("greaterequal", step, rint(0))) {
+         exhaust;
+      };   
+      while(prim("greater", j, n)) {
+        DO_ALL(pat, j);
+        j = prim("add", j, step);
       };
       exhaust;
    };
