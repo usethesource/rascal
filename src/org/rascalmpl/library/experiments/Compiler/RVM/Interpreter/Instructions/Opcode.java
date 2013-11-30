@@ -347,7 +347,7 @@ public enum Opcode {
 			return "CALLMUPRIM " + MuPrimitive.fromInteger(arg1).name() +  ", " + arg2;
 			
 		case LOADBOOL:
-			return "LOADBOOL " + arg1;
+			return "LOADBOOL " + (arg1 == 1);
 			
 		case LOADINT:
 			return "LOADINT " + arg1;
