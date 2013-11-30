@@ -888,7 +888,7 @@ public class RVM {
 					arity = CodeBlock.fetchArg2(instruction);
 					
 					if(debug) {
-						this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(instructions[pc - 2]));   // TODO: Adjust pc - 2
+						this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
 						this.appendToTrace("	with alternatives:");
 						for(int index : of.functions) {
 							this.appendToTrace("		" + getFunctionName(index));
