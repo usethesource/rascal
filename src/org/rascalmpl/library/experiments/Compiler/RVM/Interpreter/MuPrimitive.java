@@ -607,7 +607,7 @@ public enum MuPrimitive {
 	}
 		
 	/*
-	 * rint -- convert muRascal int (mint) to Rascal intt (rint)
+	 * rint -- convert muRascal int (mint) to Rascal int (rint)
 	 * 
 	 * 	
 	 */
