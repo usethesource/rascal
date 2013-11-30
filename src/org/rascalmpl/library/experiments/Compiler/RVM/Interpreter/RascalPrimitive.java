@@ -466,6 +466,10 @@ public enum RascalPrimitive {
 	elm_notin_rel,
 	elm_notin_map,
 	
+	// 	num
+	
+	num_to_real,
+	
 	// parse
 	
 	parse,
@@ -512,10 +516,12 @@ public enum RascalPrimitive {
 
 	// range
 	
-	range_create_int,
-	range_step_create_int,
-	range_create_real,
-	range_step_create_real,
+//	range_create_int,
+//	range_step_create_int,
+//	range_create_real,
+//	range_step_create_real,
+	
+
 	
 	// remainder
 	
@@ -4994,6 +5000,16 @@ public enum RascalPrimitive {
 	}
 	
 	/*
+	 * num
+	 */
+	
+	public static int num_to_real(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((INumber) stack[sp - 1]).toReal();
+		return sp;
+	}
+	
+	/*
 	 * parse
 	 */
 	
@@ -5578,88 +5594,88 @@ public enum RascalPrimitive {
 		return sp;
 	}
 	
-	public static int range_create_int(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		int from = ((IInteger) stack[sp - 2]).intValue();
-		int to = ((IInteger) stack[sp - 1]).intValue();
-		int second = from < to ? from + 1 : from - 1;
-
-		stack[sp - 2] = $range_step_int(from, second, to);
-		return sp - 1;
-	}
+//	public static int range_create_int(Object[] stack, int sp, int arity) {
+//		assert arity == 2;
+//		int from = ((IInteger) stack[sp - 2]).intValue();
+//		int to = ((IInteger) stack[sp - 1]).intValue();
+//		int second = from < to ? from + 1 : from - 1;
+//
+//		stack[sp - 2] = $range_step_int(from, second, to);
+//		return sp - 1;
+//	}
 	
-	public static int range_step_create_int(Object[] stack, int sp, int arity) {
-		assert arity == 3;
-		int from = ((IInteger) stack[sp - 3]).intValue();
-		int second = ((IInteger) stack[sp - 2]).intValue();
-		int to = ((IInteger) stack[sp - 1]).intValue();
-
-		stack[sp - 3] = $range_step_int(from, second, to);
-		return sp - 2;
-	}
+//	public static int range_step_create_int(Object[] stack, int sp, int arity) {
+//		assert arity == 3;
+//		int from = ((IInteger) stack[sp - 3]).intValue();
+//		int second = ((IInteger) stack[sp - 2]).intValue();
+//		int to = ((IInteger) stack[sp - 1]).intValue();
+//
+//		stack[sp - 3] = $range_step_int(from, second, to);
+//		return sp - 2;
+//	}
 	
-	public static IList $range_step_int(int from, int second, int to) {
-		IListWriter w = vf.listWriter();
-
-		int diff =  second - from;
-
-		if(from < to && diff > 0){
-			while(from < to){
-				w.append(vf.integer(from));
-				from += diff;
-			}
-		} else if(from >= to && diff < 0){
-			while(from > to){
-				w.append(vf.integer(from));
-				from += diff;
-			}
-		}
-		return w.done();
-	}
+//	public static IList $range_step_int(int from, int second, int to) {
+//		IListWriter w = vf.listWriter();
+//
+//		int diff =  second - from;
+//
+//		if(from < to && diff > 0){
+//			while(from < to){
+//				w.append(vf.integer(from));
+//				from += diff;
+//			}
+//		} else if(from >= to && diff < 0){
+//			while(from > to){
+//				w.append(vf.integer(from));
+//				from += diff;
+//			}
+//		}
+//		return w.done();
+//	}
 	
-	private static double $toDouble(Object o){
-		return (o instanceof IInteger) ? ((IInteger) o).intValue() : 
-										(o instanceof IReal) ?  ((IReal)o).doubleValue() : ((IRational) o).doubleValue();
-	}
+//	private static double $toDouble(Object o){
+//		return (o instanceof IInteger) ? ((IInteger) o).intValue() : 
+//										(o instanceof IReal) ?  ((IReal)o).doubleValue() : ((IRational) o).doubleValue();
+//	}
 	
-	public static int range_create_real(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		double from = $toDouble(stack[sp - 2]);
-		double to =  $toDouble(stack[sp - 1]);
-		double second = from < to ? from + 1 : from - 1;
-
-		stack[sp - 2] = $range_step_real(from, second, to);
-		return sp - 1;
-	}
-	
-	public static int range_step_create_real(Object[] stack, int sp, int arity) {
-		assert arity == 3;
-		double from =  $toDouble(stack[sp - 3]);
-		double second =  $toDouble(stack[sp - 2]);
-		double to =  $toDouble(stack[sp - 1]);
-
-		stack[sp - 3] = $range_step_real(from, second, to);
-		return sp - 2;
-	}
-	
-	public static IList $range_step_real(double from, double second, double to) {
-		IListWriter w = vf.listWriter();
-
-		double diff =  second - from;
-
-		if(from < to && diff > 0){
-			while(from < to){
-				w.append(vf.real(from));
-				from += diff;
-			}
-		} else if(from >= to && diff < 0){
-			while(from > to){
-				w.append(vf.real(from));
-				from += diff;
-			}
-		}
-		return w.done();
-	}
+//	public static int range_create_real(Object[] stack, int sp, int arity) {
+//		assert arity == 2;
+//		double from = $toDouble(stack[sp - 2]);
+//		double to =  $toDouble(stack[sp - 1]);
+//		double second = from < to ? from + 1 : from - 1;
+//
+//		stack[sp - 2] = $range_step_real(from, second, to);
+//		return sp - 1;
+//	}
+//	
+//	public static int range_step_create_real(Object[] stack, int sp, int arity) {
+//		assert arity == 3;
+//		double from =  $toDouble(stack[sp - 3]);
+//		double second =  $toDouble(stack[sp - 2]);
+//		double to =  $toDouble(stack[sp - 1]);
+//
+//		stack[sp - 3] = $range_step_real(from, second, to);
+//		return sp - 2;
+//	}
+//	
+//	public static IList $range_step_real(double from, double second, double to) {
+//		IListWriter w = vf.listWriter();
+//
+//		double diff =  second - from;
+//
+//		if(from < to && diff > 0){
+//			while(from < to){
+//				w.append(vf.real(from));
+//				from += diff;
+//			}
+//		} else if(from >= to && diff < 0){
+//			while(from > to){
+//				w.append(vf.real(from));
+//				from += diff;
+//			}
+//		}
+//		return w.done();
+//	}
 
 	/*
 	 * Run this class as a Java program to compare the list of enumeration constants with the implemented methods in this class.
