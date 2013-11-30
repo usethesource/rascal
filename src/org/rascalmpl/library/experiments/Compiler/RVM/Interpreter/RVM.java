@@ -443,12 +443,12 @@ public class RVM {
 //				}
 				int instruction = instructions[pc++];
 				int op = CodeBlock.fetchOp(instruction);
-				stderr.println(cf.function.name + "[" + (pc -1) + "]: op = " + Opcode.values[op] + ", arg1 = " + CodeBlock.fetchArg1(instruction) + ", arg2 = " + CodeBlock.fetchArg2(instruction));
+				stderr.println(cf.function.name + "[" + (pc - 1) + "]: " + cf.function.codeblock.toString(pc - 1));
 
 				if (debug) {
 					int startpc = pc - 1;
 					if(!last_function_name.equals(cf.function.name))
-						stdout.printf("[%3d] %s\n", startpc, cf.function.name);
+						stdout.printf("[%03d] %s\n", startpc, cf.function.name);
 					
 					for (int i = 0; i < sp; i++) {
 						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
@@ -459,7 +459,7 @@ public class RVM {
 				Opcode.use(instruction);
 				
 				switch (op) {
-				
+					
 				case Opcode.OP_POP:
 					sp--;
 					continue NEXT_INSTRUCTION;
@@ -888,7 +888,7 @@ public class RVM {
 					arity = CodeBlock.fetchArg2(instruction);
 					
 					if(debug) {
-						this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(instructions[pc - 2]));   // TODO: Adjust pc - 2
+						this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
 						this.appendToTrace("	with alternatives:");
 						for(int index : of.functions) {
 							this.appendToTrace("		" + getFunctionName(index));

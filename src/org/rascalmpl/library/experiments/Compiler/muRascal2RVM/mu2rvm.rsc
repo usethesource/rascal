@@ -139,6 +139,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   for(fun <- functions){
     functionScope = fun.qname;
     nlocal = fun.nlocals;
+    temporaries = ();
     exceptionTable = [];
     catchBlocks = [[]];
     if(listing){
