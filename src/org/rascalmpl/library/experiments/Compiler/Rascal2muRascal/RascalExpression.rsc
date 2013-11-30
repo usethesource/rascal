@@ -219,23 +219,58 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
 
 // Enumerator with range
 
-MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`) =
-    muMulti(muCreate(mkCallToLibFun("Library", "RANGE", 3), [ translatePat(pat), translate(first), translate(last)]));
+MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`) {
+    kind = getOuterType(first) == "int" && getOuterType(last) == "int" ? "_INT" : "";
+    return muMulti(muCreate(mkCallToLibFun("Library", "RANGE<kind>", 3), [ translatePat(pat), translate(first), translate(last)]));
+ }
     
-MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) =
-     muMulti(muCreate(mkCallToLibFun("Library", "RANGE_STEP", 4), [ translatePat(pat), translate(first), translate(second), translate(last)]));
+MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) {
+     kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
+     return muMulti(muCreate(mkCallToLibFun("Library", "RANGE_STEP<kind>", 4), [ translatePat(pat), translate(first), translate(second), translate(last)]));
+}
 
 // Range
-
 MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
-   kind = (getOuterType(first) == "int" && getOuterType(last) == "int") ? "int" : "real";
-   return muCallPrim("range_create_<kind>", [translate(first), translate(last)]);
+  loopname = nextLabel(); 
+  writer = asTmp(loopname);
+  var = nextTmp();
+  patcode = muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muTmpRef(var)]);
+
+  kind = getOuterType(first) == "int" && getOuterType(last) == "int" ? "_INT" : "";
+  rangecode = muMulti(muCreate(mkCallToLibFun("Library", "RANGE<kind>", 3), [ patcode, translate(first), translate(last)]));
+    
+  return
+    muBlock(
+    [ muAssignTmp(writer, muCallPrim("listwriter_open", [])),
+      muWhile(loopname, makeMuAll([rangecode]), [ muCallPrim("listwriter_add", [muTmp(writer), muTmp(var)])]),
+      muCallPrim("listwriter_close", [muTmp(writer)]) 
+    ]);
+    
 }
 
 MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`) {
-   kind = (getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int") ? "int" : "real";
-   return muCallPrim("range_step_create_<kind>", [translate(first),  translate(second), translate(last)]);
+  loopname = nextLabel(); 
+  writer = asTmp(loopname);
+  var = nextTmp();
+  patcode = muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muTmpRef(var)]);
+
+  kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
+  rangecode = muMulti(muCreate(mkCallToLibFun("Library", "RANGE_STEP<kind>", 4), [ patcode, translate(first), translate(second), translate(last)]));
+    
+  return
+    muBlock(
+    [ muAssignTmp(writer, muCallPrim("listwriter_open", [])),
+      muWhile(loopname, makeMuAll([rangecode]), [ muCallPrim("listwriter_add", [muTmp(writer), muTmp(var)])]),
+      muCallPrim("listwriter_close", [muTmp(writer)]) 
+    ]);
+    
 }
+
+
+//MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`) {
+//   kind = (getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int") ? "int" : "real";
+//   return muCallPrim("range_step_create_<kind>", [translate(first),  translate(second), translate(last)]);
+//}
 
 // Visit
 MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translateVisit(label, visitItself);
