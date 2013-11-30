@@ -27,14 +27,13 @@ import List;
 import util::FileSystem;
 import demo::common::Crawl;
 
-data Modifier = \annotation(loc \ann);
-
 anno rel[loc from, loc to] M3@extends;            // classes extending classes and interfaces extending interfaces
 anno rel[loc from, loc to] M3@implements;         // classes implementing interfaces
 anno rel[loc from, loc to] M3@methodInvocation;   // methods calling each other (including constructors)
 anno rel[loc from, loc to] M3@fieldAccess;        // code using data (like fields)
 anno rel[loc from, loc to] M3@typeDependency;     // using a type literal in some code (types of variables, annotations)
 anno rel[loc from, loc to] M3@methodOverrides;    // which method override which other methods
+anno rel[loc declaration, loc annotation] M3@annotations;
 
 public M3 composeJavaM3(loc id, set[M3] models) {
   m = composeM3(id, models);

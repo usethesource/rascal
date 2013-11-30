@@ -36,6 +36,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	protected ISetWriter names;
 	protected ISetWriter methodOverrides;
 	protected ISetWriter types;
+	protected ISetWriter annotations;
 	protected final org.eclipse.imp.pdb.facts.type.Type CONSTRUCTOR_M3;
 	
 	@SuppressWarnings("deprecation")
@@ -59,6 +60,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		documentation = values.relationWriter(m3TupleType);
 		names = values.relationWriter(TF.tupleType(TF.stringType(), locType));
 		methodOverrides = values.relationWriter(TF.tupleType(locType, locType));
+		annotations = values.relationWriter(TF.tupleType(locType, locType));
 		types = values.relationWriter(TF.tupleType(locType, DATATYPE_TYPESYMBOL));
 	}
 	
@@ -77,6 +79,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		setAnnotation("names", names.done());
 		setAnnotation("methodOverrides", methodOverrides.done());
 		setAnnotation("types", types.done());
+		setAnnotation("annotations", annotations.done());
 		insertCompilationUnitMessages(insertErrors);
 		return ownValue;
 	}

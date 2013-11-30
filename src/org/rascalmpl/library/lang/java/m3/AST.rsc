@@ -144,7 +144,6 @@ data Modifier
     | \native()
     | \volatile()
     | \strictfp()
-    | \deprecated()
     | \annotation(Expression \anno)
     | \onDemand()
     ;
