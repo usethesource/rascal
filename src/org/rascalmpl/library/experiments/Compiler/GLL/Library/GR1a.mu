@@ -10,7 +10,7 @@ declares "cons(adt(\"LIT\",[]),\"LIT_\",[label(\"child\",str())])"
 declares "cons(adt(\"EPSILON\",[]),\"EPSILON_\",[])"
 
 coroutine S[3,rI,rTree,iSubject,
-              s,a_lit,a,d,epsilon,tree0,tree1,tree2,tree3,recognized,index0,index] {
+              s,a_lit,a,d,epsilon,tree1,tree2] {
     
     // S = a S
     if(muprim("less_mint_mint", deref rI, size(iSubject))) {
@@ -29,25 +29,7 @@ coroutine S[3,rI,rTree,iSubject,
 	    // Dealing with left recursion
 	    s = create(S_PRIME,rI,ref tree1,iSubject);
 	    while(all( multi(s) )) {
-	        
-	        index0 = deref rI;
-	        tree0 = tree1;
-	        recognized = true;
-	        while(recognized) {
-	            recognized = false;
-	            index = deref rI;
-	            a = create(A,ref index,ref tree2,iSubject);
-	            d = create(LIT,"d",ref index,ref tree3,iSubject);
-	            while(all(multi(a), multi(d))) {
-	                println("S = S A d");
-	                recognized = true;
-	                deref rI = index;
-	                tree0 = cons S_(tree0,tree2,tree3);
-	                yield(deref rI,tree0);
-	            };
-	        };
-	        deref rI = index0;
-	        
+	        CYCLE(rI,rTree,iSubject,tree1);
 	    };
 	    true; // muRascal detail: dummy expression
 	};
@@ -82,6 +64,18 @@ coroutine S_PRIME[3,rI,rTree,iSubject,
 	   yield(deref rI,cons S_(tree1));
 	};
 
+}
+
+coroutine CYCLE[4,rI,rTree,iSubject, tree,
+                  a,d,tree0,tree1,tree2] {
+    a = create(A,rI,ref tree1,iSubject);
+	d = create(LIT,"d",rI,ref tree2,iSubject);
+    while(all( multi(a), multi(d) )) {
+        println("S = S A d (In Cycle)");
+        tree0 = cons S_(tree,tree1,tree2);
+        yield(deref rI,tree0);
+        CYCLE(rI,rTree,iSubject,tree0);
+    };
 }
 
 coroutine A[3,rI,rTree,iSubject,
