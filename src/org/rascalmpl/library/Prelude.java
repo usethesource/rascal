@@ -1251,22 +1251,13 @@ public class Prelude {
 		sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		BufferedOutputStream out=null;
 		try{
-			Iterator<IValue> iter = blist.iterator();
-			int count = 0;
-			byte[] bytes = new byte[blist.length()];
-			while (iter.hasNext()){
-				IValue ival = iter.next();
-				bytes[count++] = (byte) (((IInteger) ival).intValue());
-			}
 			OutputStream stream = ctx.getResolverRegistry().getOutputStream(sloc.getURI(), false);
 			out = new BufferedOutputStream(stream);
-			final int size = 4096;
-			byte[] buf=new byte[size];
-			BufferedInputStream is=new BufferedInputStream(new ByteArrayInputStream(bytes));
-			int available;
-			while((available = is.read(buf)) > 0) {   
-			   out.write(buf, 0, available); 
-			}      
+			Iterator<IValue> iter = blist.iterator();
+			while (iter.hasNext()){
+				IValue ival = iter.next();
+				out.write((byte) (((IInteger) ival).intValue()));
+			}
 			out.flush();
 			out.close();
 		}catch(FileNotFoundException e){
