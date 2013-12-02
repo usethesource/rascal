@@ -27,7 +27,6 @@ public data MuModule =
 public data MuFunction =					
                 muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, 
                            loc source, list[str] modifiers, map[str,str] tags,
-                           rel[str,Symbol,MuExp] kwps,
                            MuExp body)
               | muCoroutine(str qname, str scopeIn, int nformals, int nlocals, list[int] refs, MuExp body)
           ;
@@ -114,6 +113,10 @@ public data MuExp =
           | muAssignLoc(str name, int pos, MuExp exp)			// Assign a value to a local variable
           | muAssign(str name, str fuid, int pos, MuExp exp)	// Assign a value to a variable
           | muAssignTmp(str name, MuExp exp)					// Assign to temporary variable introduced by front-end
+          
+          // Keyword parameters
+          | muAssignKwpLoc(str id, MuExp exp)
+          | muAssignKwp(str id, str fuid, MuExp exp)
           
           | muAssignLocDeref(str name, int pos, MuExp exp)      // Call-by-reference assignment:
           | muAssignVarDeref(str name, str fuid, 
