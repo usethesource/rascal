@@ -10,7 +10,6 @@ public data Declaration =
 		  		   int nlocals,
 		  		   bool isVarArgs,
 		  		   int maxStack,
-		  		   rel[str,Symbol,list[Instruction]] kwps, // keyword parameters
 		  		   list[Instruction] instructions,
 		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
 	    | COROUTINE(str qname, 

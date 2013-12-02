@@ -145,8 +145,6 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     if(listing){
     	iprintln(fun);
     }
-    // Keyword parameters
-    rel[str,Symbol,list[Instruction]] kwps = { <id, \type, tr(\default)> | <str id, Symbol \type, MuExp \default> <- fun.kwps };
     
     // Append catch blocks to the end of the function body code
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
@@ -165,7 +163,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     required_frame_size = nlocal + estimate_stack_size(fun.body);
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
-    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.scopeIn, fun.nformals, nlocal, fun.refs, required_frame_size, kwps, code))
+    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.scopeIn, fun.nformals, nlocal, fun.refs, required_frame_size, code))
     							   : (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, fun.isVarArgs, required_frame_size, code, exceptions));
   }
   
@@ -177,7 +175,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   	 module_init_fun = getFUID(module_name,"#<module_name>_init",ftype,0);
   }
   
-  funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, false, estimate_stack_size(initializations) + size(variables) + 1, {}
+  funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, false, estimate_stack_size(initializations) + size(variables) + 1,
   									[*trvoidblock(initializations), 
   									 LOADCON(true),
   									 RETURN1(1),
