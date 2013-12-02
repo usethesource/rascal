@@ -443,12 +443,12 @@ public class RVM {
 //				}
 				int instruction = instructions[pc++];
 				int op = CodeBlock.fetchOp(instruction);
-				stderr.println(cf.function.name + "[" + (pc -1) + "]: op = " + Opcode.values[op] + ", arg1 = " + CodeBlock.fetchArg1(instruction) + ", arg2 = " + CodeBlock.fetchArg2(instruction));
+				stderr.println(cf.function.name + "[" + (pc - 1) + "]: " + cf.function.codeblock.toString(pc - 1));
 
 				if (debug) {
 					int startpc = pc - 1;
 					if(!last_function_name.equals(cf.function.name))
-						stdout.printf("[%3d] %s\n", startpc, cf.function.name);
+						stdout.printf("[%03d] %s\n", startpc, cf.function.name);
 					
 					for (int i = 0; i < sp; i++) {
 						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
@@ -459,7 +459,7 @@ public class RVM {
 				Opcode.use(instruction);
 				
 				switch (op) {
-				
+					
 				case Opcode.OP_POP:
 					sp--;
 					continue NEXT_INSTRUCTION;
@@ -888,7 +888,7 @@ public class RVM {
 					arity = CodeBlock.fetchArg2(instruction);
 					
 					if(debug) {
-						this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(instructions[pc - 2]));   // TODO: Adjust pc - 2
+						this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
 						this.appendToTrace("	with alternatives:");
 						for(int index : of.functions) {
 							this.appendToTrace("		" + getFunctionName(index));
@@ -1208,12 +1208,18 @@ public class RVM {
 					rval = Rascal_TRUE; // In fact, yield has to always return TRUE
 					if(op == Opcode.OP_YIELD1) {
 						arity = CodeBlock.fetchArg1(instruction);
-						int[] refs = cf.function.refs;
-						if(arity != refs.length) {
-							throw new RuntimeException("The return within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
+						int[] refs = coroutine.start.function.refs; // Takes the reference parameter positions of the top active coroutine instance 
+						
+						if(cf != coroutine.start && cf.function.refs.length != refs.length) {
+							throw new RuntimeException("The 'yield' from within a nested call has to take the same number of arguments as the number of the caller's reference parameters: " + cf.function.refs.length + "; " + refs.length);
 						}
+						
+						if(arity != refs.length) {
+							throw new RuntimeException("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
+						}
+						
 						for(int i = 0; i < arity; i++) {
-							ref = (Reference) stack[refs[arity - 1 - i]];
+							ref = (Reference) coroutine.start.stack[refs[arity - 1 - i]]; // Takes the reference parameters of the top active coroutine instance
 							ref.stack[ref.pos] = stack[--sp];
 						}
 					}
