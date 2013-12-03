@@ -30,7 +30,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.I
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Instruction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpSwitch;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpIndexed;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Label;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LessInt;
@@ -548,8 +549,8 @@ public class CodeBlock {
 		return add(new Throw(this));
 	}
 	
-	public CodeBlock JMPSWITCH(IList labels){
-		return add(new JmpSwitch(this, labels));
+	public CodeBlock TYPESWITCH(IList labels){
+		return add(new TypeSwitch(this, labels));
 	}
 	
 	public CodeBlock UNWRAPTHROWN(int pos) {
@@ -606,6 +607,10 @@ public class CodeBlock {
 	
 	public CodeBlock CHECKARGTYPE() {
 		return add(new CheckArgType(this));
+	}
+		
+	public CodeBlock JMPINDEXED(IList labels){
+		return add(new JmpIndexed(this, labels));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
