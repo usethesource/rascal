@@ -203,7 +203,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
 /*********************************************************************/
 
 
-INS  tr(list[MuExp] exps) = [ *tr(exp) | exp <- exps ];
+INS tr(list[MuExp] exps) = [ *tr(exp) | exp <- exps ];
 
 INS tr(map[str,MuExp] kwargs) = [ *[ muCon(id), *tr(kwargs)] | str id <- kwargs ] + [ CALLMUPRIM("make_map", size(kwargs)) ];
 
