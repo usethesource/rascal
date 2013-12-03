@@ -28,6 +28,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -3188,6 +3189,12 @@ public class Prelude {
 	 * ValueIO
 	 */
 	
+	public IInteger getFileLength(ISourceLocation g, IEvaluatorContext ctx) throws IOException {
+		File f = new File(ctx.getResolverRegistry().getResourceURI(g.getURI()));
+		if (!f.exists() || f.isDirectory()) throw new IOException();
+		return values.integer(f.length());
+	}
+	
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc, IEvaluatorContext ctx){
 		
 //		TypeStore store = ctx.getCurrentEnvt().getStore();
@@ -3315,6 +3322,8 @@ public class Prelude {
 	public IList getTraversalContext(IEvaluatorContext ctx) {
 		return ctx.getEvaluator().__getCurrentTraversalEvaluator().getContext();
 	}
+	
+	
 }
 
 // Utilities used by Graph
