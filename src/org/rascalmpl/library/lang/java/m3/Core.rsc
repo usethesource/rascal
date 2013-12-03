@@ -44,6 +44,7 @@ public M3 composeJavaM3(loc id, set[M3] models) {
   m@fieldAccess = {*model@fieldAccess | model <- models};
   m@typeDependency = {*model@typeDependency | model <- models};
   m@methodOverrides = {*model@methodOverrides | model <- models};
+  m@annotations = {*model@annotations | model <- models};
   
   return m;
 }
