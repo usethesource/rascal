@@ -8,8 +8,9 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module analysis::statistics::BarChart
 
-import Relation;
-import Set;
+// import Relation;
+// import Set;
+import Prelude;
 import analysis::statistics::markup::D3;
 import analysis::statistics::markup::Dimple;
 import lang::json::IO;
@@ -42,11 +43,31 @@ public tuple[int x, int y, int width, int height, str align] legendBounds =
       for colNames ["Name", "Age", "Sex"], and 
       for relation {<"Piet", 25, "M">, <"Anne", 40, "V">}
     }
-   
  
-public loc barChart(loc location, list[str] colNames, rel[value, value, value] relation, str title="title", str x_axe="x", str y_axe="y", 
- value orderRule = "", value series="") {
- list[map[str, value]] jsonData = [(colNames[i]:r[i]|i<-[0..3])|r<-relation];
+private set[list[value]] jn(rel[value ca, value x] r) { 
+    return {[ca, x]|<ca, x><-r};  
+    }
+
+private set[list[value]] jn(set[list[value]] r1, rel[value ca2 , value y] r2) {
+   return {t+y|t<-r1, <ca2, y><-r2, t[0]== ca2};  
+}
+
+private set[list[value]] jn(list[rel[value, value]] rs) {
+   if (isEmpty(rs)) return {};
+   return (jn(rs[0])|jn(it, e) | e<-tail(rs));  
+   }
+   
+private bool isNull(value v) {
+    if (str w:=v) return isEmpty(w);
+    if (list w:=v) return isEmpty(w);
+    return false;
+    }
+
+public loc barChart(loc location, list[str] colNames, list[rel[value, value]] relation, str title="title", value x_axe="x", value y_axe="y", 
+ value orderRule = "", value series="", 
+    list[tagColor] assignColor=[]) {
+ set[list[value]] s = jn(relation);
+ list[map[str, value]] jsonData = [(colNames[i]:r[i]|i<-[0..size(r)])|r<-s];
  str header  = Z(title_, (), title)+
  Z(script_,(src_: "http://d3js.org/d3.v3.min.js"))+
  Z(script_,(src_: "http:dimplejs.org/dist/dimple.v1.1.2.min.js"));
@@ -66,9 +87,11 @@ public loc barChart(loc location, list[str] colNames, rel[value, value, value] r
         ,
         expr(chart.addSeries("myChart", series,  "dimple.plot.bar"))
         ,
-        expr(chart.addLegend("myChart", legendBounds.x, legendBounds.y, 
+        expr(isNull(series)?"":chart.addLegend("myChart", legendBounds.x, legendBounds.y, 
                                          legendBounds.width, legendBounds.height, 
                                          legendBounds.align))
+        ,
+        expr(chart.assignColor("myChart", assignColor))
         ,
         expr(chart.draw("myChart"))
         );

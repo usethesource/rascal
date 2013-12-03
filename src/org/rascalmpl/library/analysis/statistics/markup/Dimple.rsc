@@ -12,6 +12,8 @@ import Prelude;
 import analysis::statistics::markup::D3;
 import util::HtmlDisplay;
 
+public alias tagColor = tuple[str tg, str fill , str stroke , real opacity];
+
 
 public tuple[str(str, int, int) newSvg, str(str, str) chart, tuple [str() bar] plot]  dimple = 
   < 
@@ -24,7 +26,9 @@ public tuple[str(str, int, int) newSvg, str(str, str) chart, tuple [str() bar] p
      <str() {return "dimple.plot.bar";}>
   >;
   
-
+tagColor getTagColor(str tg, str fill="black", str stroke="black", real opacity=1.0) {
+    return <tg, fill, stroke, opacity>;
+    }
   
 public tuple[
       str(str, list[value]) addCategoryAxis // (chart, position, field)
@@ -38,7 +42,10 @@ public tuple[
       str(str, int, int, int, int) setBounds
       ,
       str(str, int, int, int, int, str,  list[value]) addLegend  // (chart, x, y, width, height, 
-         //  [horizontalAlign], [series]
+      //  [horizontalAlign], [series]
+      ,
+      str(str, list[tagColor]) assignColor //  chart, fillColor, [strokeColor], [opacity]
+        
       ]
 chart=
 <
@@ -52,7 +59,15 @@ str(str chart, int x, int y , int width, int height) {return
 str(str chart, int x, int y , int width, int height, str align,  value e...) {
     if (isEmpty(align)) return "";
     return "<chart>.addLegend(<x>, <y>, <width>, <height>, <val(align)>  <vals1(e)>)";
-    }    
+    },  
+str(str chart, list[tagColor] q) {
+     if (isEmpty(q)) return "";
+     tagColor t = q[0];
+     str r = "<chart>.assignColor(<val(t[0])>, <val(t[1])>, <val(t[2])>, <val(t[3])>)";
+     for (t<-q) 
+     r+= ";<chart>.assignColor(<val(t[0])>, <val(t[1])>, <val(t[2])>, <val(t[3])>)";
+     return r;
+     }
 >;
 
 public tuple[str(str, str, str) addOrderRule] 
@@ -65,7 +80,7 @@ str val(value field) {
       if (list[str] fields := field) {
            if (isEmpty(fields)) return "[]";
            str r="[";
-           r += head(fields);
+           r += "\"<head(fields)>\"";
            for (f<-tail(fields)) r+= ",\"<f>\"";
            r += "]";
            return r;
