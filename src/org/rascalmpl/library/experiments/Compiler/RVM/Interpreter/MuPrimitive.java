@@ -74,6 +74,7 @@ public enum MuPrimitive {
 	make_array_of_size,
 	make_mset,
 	make_map_str_entry,     // kwp
+	make_map_str_ivalue,    // kwp
 	make_entry_type_ivalue, // kwp
 	mint,
 	modulo_mint_mint,
@@ -83,6 +84,7 @@ public enum MuPrimitive {
 	mset_destructive_add_elm,
 	mset_destructive_add_mset,
 	map_str_entry_add_entry_type_ivalue, // kwp
+	map_str_ivalue_add_ivalue,           // kwp
 	mset_destructive_subtract_mset,
 	mset_destructive_subtract_set,
 	mset_destructive_subtract_elm,
@@ -953,6 +955,12 @@ public enum MuPrimitive {
 		return sp + 1;
 	}
 	
+	public static int make_map_str_ivalue(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		stack[sp] = new HashMap<String, IValue>();
+		return sp + 1;
+	}
+	
 	public static int make_entry_type_ivalue(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = new AbstractMap.SimpleEntry<Type,IValue>((Type) stack[sp - 2], (IValue) stack[sp - 1]);
@@ -963,6 +971,13 @@ public enum MuPrimitive {
 	public static int map_str_entry_add_entry_type_ivalue(Object[] stack, int sp, int arity) {
 		assert arity == 3;
 		stack[sp - 3] = ((Map<String, Map.Entry<Type,IValue>>) stack[sp - 3]).put(((IString) stack[sp - 2]).getValue(), (Map.Entry<Type, IValue>) stack[sp - 1]);
+		return sp - 2;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int map_str_ivalue_add_ivalue(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		stack[sp - 3] = ((Map<String, IValue>) stack[sp - 3]).put(((IString) stack[sp - 2]).getValue(), (IValue) stack[sp - 1]);
 		return sp - 2;
 	}
 			
