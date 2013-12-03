@@ -687,6 +687,8 @@ bool backtrackFree(Expression e){
     	return false;
     case (Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`: 
     	return false;
+    case (Expression) `<Pattern pat> := <Expression exp>`:
+    	return false;
     }
     return true;
 }
@@ -735,13 +737,17 @@ MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
     // TODO: Review short-cut semantics
     	case "and": return makeMuAll([translate(lhs), translate(rhs)]);
     	case "or":  // a or b == !(!a and !b)
-    				return muCallMuPrim("not_mbool", [makeMuAll([muCallMuPrim("not_mbool", [translate(lhs)]),  muCallMuPrim("not_mbool", [translate(lhs)])])]);
+    				//return muCallMuPrim("not_mbool", [makeMuAll([muCallMuPrim("not_mbool", [translate(lhs)]),  muCallMuPrim("not_mbool", [translate(lhs)])])]);
+    				return muOr([translate(lhs), translate(rhs)]);
+    				//return makeMuAll([muIfelse(nextLabel("L_OR"), makeMuAll([translate(lhs)]), [muCon(true)], [makeMuAll([translate(rhs)])])]);
     	case "implies":
     				// a ==> b
-    	            return makeMuAll([muCallMuPrim("implies_mbool_mbool", [makeMuAll([translate(lhs)]), makeMuAll([translate(rhs)])])]);
+    	            //return makeMuAll([muCallMuPrim("implies_mbool_mbool", [makeMuAll([translate(lhs)]), makeMuAll([translate(rhs)])])]);
+    	            return makeMuAll([muIfelse(nextLabel("L_IMPLIES"), translate(lhs), [translate(rhs)], [muCon(true)])]);
     	case "equivalent":
     				// a <==> b
-    				return makeMuAll([muCallMuPrim("equivalent_mbool_mbool", [makeMuAll([translate(lhs)]), makeMuAll([translate(rhs)])])]);
+    				//return makeMuAll([muCallMuPrim("equivalent_mbool_mbool", [makeMuAll([translate(lhs)]), makeMuAll([translate(rhs)])])]);
+    				return makeMuAll([muIfelse(nextLabel("L_EQUIVALENCE"), translate(lhs), [translate(rhs)], [muCallMuPrim("not_mbool", [translate(rhs)])])]);
     	default:
     		throw "translateBoolBinary: unknown operator <fun>";
     }
