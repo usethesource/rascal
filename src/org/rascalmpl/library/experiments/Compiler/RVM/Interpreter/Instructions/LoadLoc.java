@@ -14,7 +14,6 @@ public class LoadLoc extends Instruction {
 	public String toString() { return "LOADLOC " + pos; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(pos);
+		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
 }

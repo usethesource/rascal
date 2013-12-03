@@ -17,8 +17,6 @@ public class CallMuPrim extends Instruction {
 	public String toString() { return "CALLMUPRIM " + muprim + ", " + arity; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(muprim.ordinal());
-		codeblock.addCode(arity);
+		codeblock.addCode2(opcode.getOpcode(), muprim.ordinal(), arity);
 	}
 }
