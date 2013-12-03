@@ -29,7 +29,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		super();
 	}
 	
-	private String getJar(URI uri) {
+	private String getJar(URI uri) throws IOException {
 		String path = uri.getPath();
 		if (path == null) {
 			path = uri.toString();
@@ -39,7 +39,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		  return path.substring(path.indexOf("/"), bang);
 		}
 		else {
-		  return path.substring(path.indexOf("/"));
+			throw new IOException("The jar and the internal path should be seperated with a !");
 		}
 	}
 	
@@ -91,6 +91,10 @@ public class JarURIResolver implements IURIInputStreamResolver{
 	
 	public boolean isDirectory(URI uri){
 		try {
+			if (uri.getPath() != null && uri.getPath().endsWith(".jar!")) {
+				// if the uri is the root of a jar, and it ends with a !, it should be considered a directory
+				return true;
+			}
 			String jar = getJar(uri);
 			String path = getPath(uri);
 			
@@ -99,10 +103,23 @@ public class JarURIResolver implements IURIInputStreamResolver{
 			}
 			
 			JarFile jarFile = new JarFile(jar);
-			JarEntry jarEntry = jarFile.getJarEntry(path);
-			jarFile.close();
-			
-			return(jarEntry != null && jarEntry.isDirectory());
+			try {
+				JarEntry jarEntry = jarFile.getJarEntry(path);
+				if (jarEntry != null && jarEntry.isDirectory()) {
+					return true;
+				}
+				// maybe the path is not in the jar as a seperate entry, but there are files in the path
+				Enumeration<JarEntry> entries =  jarFile.entries();
+				while (entries.hasMoreElements()) {
+					if (entries.nextElement().getName().startsWith(path)) {
+						return true;
+					}
+				}
+				return false;
+			}
+			finally {
+				jarFile.close();
+			}
 		} catch (IOException e) {
 			return false;
 		}
