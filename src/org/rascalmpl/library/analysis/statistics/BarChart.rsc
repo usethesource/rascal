@@ -63,9 +63,9 @@ private bool isNull(value v) {
     return false;
     }
 
-public loc barChart(loc location, list[str] colNames, list[rel[value, value]] relation, str title="title", value x_axe="x", value y_axe="y", 
+public loc barChart(loc location, list[str] colNames, list[rel[value, value]] relation, str title="title", value x_axis="x", value y_axis="y", 
  value orderRule = "", value series="", 
-    list[tagColor] assignColor=[]) {
+    list[tagColor] assignColor=[], value x_measure_axis="") {
  set[list[value]] s = jn(relation);
  list[map[str, value]] jsonData = [(colNames[i]:r[i]|i<-[0..size(r)])|r<-s];
  str header  = Z(title_, (), title)+
@@ -79,11 +79,11 @@ public loc barChart(loc location, list[str] colNames, list[rel[value, value]] re
         expr(chart.setBounds("myChart", chartBounds.x, chartBounds.y, 
                                          chartBounds.width, chartBounds.height ))
         ,
-        var(("x":expr(chart.addCategoryAxis("myChart", "x",x_axe))))
+        var(("x":expr(chart.addAxis("myChart", "x",x_axis, x_measure_axis))))
         ,
-        expr(axis.addOrderRule("x", "<orderRule>", "false"))
+        expr(axis.addOrderRule("x", orderRule, "false"))
         ,
-        expr(chart.addMeasureAxis("myChart", "y", y_axe))
+        expr(chart.addMeasureAxis("myChart", "y", y_axis))
         ,
         expr(chart.addSeries("myChart", series,  "dimple.plot.bar"))
         ,
