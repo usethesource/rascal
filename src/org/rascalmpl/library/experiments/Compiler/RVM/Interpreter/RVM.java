@@ -553,7 +553,7 @@ public class RVM {
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
-				case Opcode.OP_JMPSWITCH:
+				case Opcode.OP_TYPESWITCH:
 					IValue val = (IValue) stack[--sp];
 					Type t = null;
 					if(val instanceof IConstructor) {
@@ -563,6 +563,12 @@ public class RVM {
 					}
 					int labelIndex = ToplevelType.getToplevelTypeAsInt(t);
 					IList labels = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
+					pc = ((IInteger) labels.get(labelIndex)).intValue();
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_JMPINDEXED:
+					labelIndex = ((IInteger) stack[--sp]).intValue();
+					labels = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					pc = ((IInteger) labels.get(labelIndex)).intValue();
 					continue NEXT_INSTRUCTION;
 					

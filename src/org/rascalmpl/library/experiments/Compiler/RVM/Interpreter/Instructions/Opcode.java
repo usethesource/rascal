@@ -63,7 +63,7 @@ public enum Opcode {
 	OCALLDYN	    	(42,	1), //3),
 	CALLJAVA        	(43,    5),
 	THROW           	(44,    1),
-	JMPSWITCH			(45,	1), //2),
+	TYPESWITCH			(45,	1), //2),
 	UNWRAPTHROWN        (46,    1), //2),
 	FILTERRETURN		(47, 	1),
 	EXHAUST             (48,    1),
@@ -87,8 +87,8 @@ public enum Opcode {
 	LOADLOC6			(66, 	1),
 	LOADLOC7			(67, 	1),
 	LOADLOC8			(68, 	1),
-	LOADLOC9			(69, 	1)
-	
+	LOADLOC9			(69, 	1),
+	JMPINDEXED			(70, 	1)
 	;
 	
 	
@@ -149,7 +149,7 @@ public enum Opcode {
 	static public final int OP_OCALLDYN = 42;
 	static public final int OP_CALLJAVA = 43;
 	static public final int OP_THROW = 44;
-	static public final int OP_JMPSWITCH = 45;
+	static public final int OP_TYPESWITCH = 45;
 	static public final int OP_UNWRAPTHROWN = 46;
 	static public final int OP_FILTERRETURN = 47;
 	static public final int OP_EXHAUST = 48;
@@ -174,6 +174,7 @@ public enum Opcode {
 	static public final int OP_LOADLOC7 = 67;
 	static public final int OP_LOADLOC8 = 68;
 	static public final int OP_LOADLOC9 = 69;
+	static public final int OP_JMPINDEXED = 70;
 	
 	
 	/*
@@ -370,8 +371,8 @@ public enum Opcode {
 		case THROW:
 			return "THROW";
 			
-		case JMPSWITCH:
-			return "JMPSWITCH " + cb.getConstantValue(arg1);
+		case TYPESWITCH:
+			return "TYPESWITCH " + cb.getConstantValue(arg1);
 			
 		case UNWRAPTHROWN:
 			return "UNWRAPTHROWN " + arg1;
@@ -434,6 +435,8 @@ public enum Opcode {
 			return "LOADLOC8";
 		case LOADLOC9:
 			return "LOADLOC9";
+		case JMPINDEXED:
+			return "JMPINDEXED " + cb.getConstantValue(arg1);
 		
 		default:
 			break;

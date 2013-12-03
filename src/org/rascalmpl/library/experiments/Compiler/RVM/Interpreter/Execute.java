@@ -436,8 +436,8 @@ public class Execute {
 				codeblock.THROW();
 				break;
 			
-			case "JMPSWITCH":
-				codeblock.JMPSWITCH((IList)instruction.get("labels"));
+			case "TYPESWITCH":
+				codeblock.TYPESWITCH((IList)instruction.get("labels"));
 				break;
 				
 			case "UNWRAPTHROWN":
@@ -494,6 +494,10 @@ public class Execute {
 				
 			case "CHECKARGTYPE":
 				codeblock.CHECKARGTYPE();
+				break;
+				
+			case "JMPINDEXED":
+				codeblock.JMPINDEXED((IList)instruction.get("labels"));
 				break;
 				
 			default:
