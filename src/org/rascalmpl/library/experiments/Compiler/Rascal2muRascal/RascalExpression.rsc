@@ -282,15 +282,21 @@ MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{E
 MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) { throw("reifiedType"); }
 //  muCon(symbolToValue(symbol, config));
 
-// Call
-MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
-   
+list[MuExp] translateKeywordArguments(KeywordArguments keywordArguments) {
    // Keyword arguments
    map[str,MuExp] kwargs = ();
    if(keywordArguments is \default) {
+       for(KeywordArgument kwarg <- keywordArguments.keywordArgumentList) {
+           ;
+       }
        kwargs = ( "<kwarg.name>" : translate(kwarg.expression) | KeywordArgument kwarg <- keywordArguments.keywordArgumentList );
    }
-   
+    
+}
+
+// Call
+MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
+      
    MuExp receiver = translate(expression);
    list[MuExp] args = [ translate(a) | a <- arguments ];
    if(getOuterType(expression) == "str") {
