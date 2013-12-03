@@ -34,7 +34,9 @@ public tuple[
       str(str, list[value]) addCategoryAxis // (chart, position, field)
       , 
       str(str,list[value]) addMeasureAxis // (chart, position, field )
-      , 
+      ,
+      str(str,list[value]) addAxis // (chart, position, cat_field, measure_field )
+      ,  
       str(str, value, str, list[value]) addSeries // (chart, categoryFields, plotFunction )
       , 
       str(str) draw // ()
@@ -52,6 +54,7 @@ chart=
 // str(str chart, str position, value field) {return "<chart>.addCategoryAxis(\"<position>\",<val(field)>)";},
 str(str chart, value e...) {return "<chart>.addCategoryAxis(<vals(e)>)";},
 str(str chart, value e...) {return "<chart>.addMeasureAxis(<vals(e)>)";},
+str(str chart, value e...) {return "<chart>.addAxis(<vals(e)>)";},
 str(str chart, value fields, str plotFunction, value e...) {return "<chart>.addSeries(<val(fields)>, <plotFunction> <vals1(e)>)";},
 str(str chart) {return "<chart>.draw()";},
 str(str chart, int x, int y , int width, int height) {return 
@@ -73,7 +76,7 @@ str(str chart, list[tagColor] q) {
 public tuple[str(str, str, str) addOrderRule] 
 axis = 
 <
-str(str axis, str ordering, str desc) {return "<axis>.addOrderRule(\"<ordering>\",<desc>)";}
+str(str axis, value ordering, str desc) {return "<axis>.addOrderRule(<val(ordering)>,<desc>)";}
 >;
 
 str val(value field) {
