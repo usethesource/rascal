@@ -6,17 +6,17 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 
-public class JmpSwitch extends Instruction {
+public class TypeSwitch extends Instruction {
 
 	IList labels;
 
-	public JmpSwitch(CodeBlock ins, IList labels){
-		super(ins, Opcode.JMPSWITCH);
+	public TypeSwitch(CodeBlock ins, IList labels){
+		super(ins, Opcode.TYPESWITCH);
 		this.labels = labels;
 	}
 	
 	public String toString() { 
-		String res = "JMPSWITCH ";
+		String res = "TYPESWITCH ";
 		String sep = "";
 		for(IValue vlabel : labels){
 			String label = ((IString) vlabel).getValue();
