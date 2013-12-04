@@ -120,7 +120,7 @@ bool isConstant((Expression) `<Literal s>`) = isConstantLiteral(s);
 default bool isConstant(Expression e) = false;
 
 value getConstantValue(Expression e) {
-  println("getConstant: <e>");
+  //println("getConstant: <e>");
   return readTextValueString("<e>");
 }
 
