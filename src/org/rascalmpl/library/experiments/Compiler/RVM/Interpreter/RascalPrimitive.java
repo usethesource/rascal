@@ -5071,7 +5071,7 @@ public enum RascalPrimitive {
 		IConstructor cons =  (IConstructor) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
 		try {
-			stack[sp - 2] = cons.get((idx >= 0) ? idx : cons.arity());
+			stack[sp - 2] = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 		} catch(IndexOutOfBoundsException e) {
 			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
 		}
@@ -5083,7 +5083,7 @@ public enum RascalPrimitive {
 		INode node =  (INode) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
 		try {
-			stack[sp - 2] = node.get((idx >= 0) ? idx : node.arity());
+			stack[sp - 2] = node.get((idx >= 0) ? idx : (node.arity() + idx));
 		} catch(IndexOutOfBoundsException e) {
 			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
 		}

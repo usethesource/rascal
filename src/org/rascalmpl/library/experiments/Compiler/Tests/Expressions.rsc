@@ -329,10 +329,19 @@ test bool tst() = run("{*x | x \<- [[1,2],[3,4]]}") == {*x | x <- [[1,2],[3,4]]}
 
 // Subscript
 test bool tst() = run("{x = [1, 2, 3]; x [1];}") ==  {x = [1, 2, 3]; x [1];};
+test bool tst() = run("{x = [1, 2, 3]; x [-1];}") ==  {x = [1, 2, 3]; x [-1];};
+
 test bool tst() = run("{x = \<1, 2, 3\>; x [1];}") ==  {x = <1, 2, 3>; x [1];};
+test bool tst() = run("{x = \<1, 2, 3\>; x [-1];}") ==  {x = <1, 2, 3>; x [-1];};
+
 test bool tst() = run("{x = \"abc\"; x [1];}") ==  {x = "abc"; x [1];};
+test bool tst() = run("{x = \"abc\"; x [-1];}") ==  {x = "abc"; x [-1];};
+
 test bool tst() = run("{x = \"f\"(1, 2, 3); x [1];}") ==  {x = "f"(1, 2, 3); x [1];};
+test bool tst() = run("{x = \"f\"(1, 2, 3); x [-1];}") ==  {x = "f"(1, 2, 3); x [-1];};
+
 test bool tst() = run("{x = d1(1, \"a\"); x [1];}") ==  {x = d1(1, "a"); x [1];};
+test bool tst() = run("{x = d1(1, \"a\"); x [-1];}") ==  {x = d1(1, "a"); x [-1];};
 
 // Subscript (IndexOutOfBounds)
 test bool tst() = run("{x = [1, 2, 3]; int elem = 0; try { elem = x[5]; } catch IndexOutOfBounds(int index): { elem = 100 + index; } elem; }", ["Exception"]) 
