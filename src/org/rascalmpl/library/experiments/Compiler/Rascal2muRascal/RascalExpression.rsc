@@ -120,7 +120,7 @@ bool isConstant((Expression) `<Literal s>`) = isConstantLiteral(s);
 default bool isConstant(Expression e) = false;
 
 value getConstantValue(Expression e) {
-  //println("getConstant: <e>");
+  println("getConstant: <e>");
   return readTextValueString("<e>");
 }
 
@@ -437,6 +437,7 @@ MuExp translate (e:(Expression) `\< <{Expression ","}+ elements> \>`) {
 }
 
 // Map
+// TODO: map constants
 MuExp translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) =
    muCallPrim("map_create", [ translate(m.from), translate(m.to) | m <- mappings ]);
 
