@@ -80,19 +80,13 @@ public data MuExp =
           
           // Call/return    		
           | muCall(MuExp fun, list[MuExp] args)                 // Call a *muRascal function
-          | muCall(MuExp fun, list[MuExp] args,                 // Call a *muRascal function with *keyword arguments
-                              map[str,MuExp] kwargs)
           
-          | muOCall(MuExp fun, list[MuExp] args,                // Call a declared *Rascal function with *keyword arguments
-                               map[str,MuExp] kwargs)
+          | muOCall(MuExp fun, list[MuExp] args)                // Call a declared *Rascal function
 
-          | muOCall(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function with *keyword arguments
-          					   list[MuExp] args,
-          					   map[str,MuExp] kwargs)
+          | muOCall(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function
+          					   list[MuExp] args)
           
           | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
-          | muCallConstr(str fuid, list[MuExp] args, 			// Call a constructor with *keyword arguments
-                                   map[str,MuExp] kwargs)
           
           | muCallPrim(str name)                                // Call a Rascal primitive function (with empty list of arguments)
           | muCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function

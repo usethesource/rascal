@@ -209,7 +209,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("undefine")), list[MuExp] exps) 							=> muCallMuPrim("undefine", exps)
                
                // Keyword parameters
-               case muCall(MuExp receiver, list[MuExp] exps)                                    => muCall(receiver, exps, ())
+               case muCall(MuExp receiver, list[MuExp] exps)                                    => muCall(receiver, exps + [ muCallMuPrim("make_map_str_ivalue",[]) ])
                
                // Syntactic constructs that are mapped to muPrimitives
       	       case preLess(MuExp lhs, MuExp rhs)												=> muCallMuPrim("less_mint_mint", [lhs, rhs])
