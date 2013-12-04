@@ -3593,9 +3593,14 @@ public enum RascalPrimitive {
 	
 	private static int less(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-
-		IValue left = (IValue) stack[sp - 2];
-		Type leftType = left.getType();
+		
+		Type leftType = ((IValue) stack[sp - 2]).getType();
+		Type rightType = ((IValue) stack[sp - 1]).getType();
+		
+		if(!leftType.comparable(rightType)){
+			stack[sp - 2] = false;
+			return sp - 1;
+		}
 
 		if (leftType.isSubtypeOf(tf.numberType())) {
 			return num_less_num(stack, sp, arity);
@@ -3611,8 +3616,10 @@ public enum RascalPrimitive {
 		case LOC:
 			return loc_less_loc(stack, sp, arity);
 		case LIST:
+		case LREL:
 			return list_less_list(stack, sp, arity);
 		case SET:
+		case REL:
 			return set_less_set(stack, sp, arity);
 		case MAP:
 			return map_less_map(stack, sp, arity);
@@ -3904,12 +3911,18 @@ public enum RascalPrimitive {
 	private static int lessequal(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 
-		IValue left = (IValue) stack[sp - 2];
-		Type leftType = left.getType();
+		Type leftType = ((IValue) stack[sp - 2]).getType();
+		Type rightType = ((IValue) stack[sp - 1]).getType();
+		
+		if(!leftType.comparable(rightType)){
+			stack[sp - 2] = false;
+			return sp - 1;
+		}
 
 		if (leftType.isSubtypeOf(tf.numberType())) {
 			return num_lessequal_num(stack, sp, arity);
 		}
+		
 		switch (ToplevelType.getToplevelType(leftType)) {
 
 		case BOOL:
@@ -3925,8 +3938,10 @@ public enum RascalPrimitive {
 			return loc_lessequal_loc(stack, sp, arity);
 
 		case LIST:
+		case LREL:
 			return list_lessequal_list(stack, sp, arity);
 		case SET:
+		case REL:
 			return set_lessequal_set(stack, sp, arity);
 		case MAP:
 			return map_lessequal_map(stack, sp, arity);
@@ -4811,10 +4826,12 @@ public enum RascalPrimitive {
 		String message = "";
 		for(int i = 0; i < tries && passed; i++){
 			if(nargs > 0){
+				message = " with arguments: ";
 				ITuple tup = (ITuple) randomValue.generate(argType);
 				for(int j = 0; j < args.length; j++){
 					args[j] = tup.get(j);
 					//stdout.println("args[" + j + "] = " + args[j]);
+					message = message + args[j].toString() + " ";
 				}
 			}
 			try {
@@ -4826,12 +4843,12 @@ public enum RascalPrimitive {
 			} catch (Thrown e){
 				IConstructor cons = (IConstructor) e.value;
 				if(!cons.getName().equals(expected)){
-					message = e.toString();
+					message = e.toString() + message;
 					passed = false;
 				}
 			}
 			catch (Exception e){
-				message = e.getMessage();
+				message = e.getMessage() + message;
 				passed = false;
 			}
 		}

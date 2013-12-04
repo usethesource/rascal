@@ -38,6 +38,10 @@ public enum ToplevelType {
 		return toplevelType;
 	}
 	
+	/*
+	 * TODO: This function is an obvious performance hog; This should be built-in to the PDB.
+	 */
+	
 	public static ToplevelType getToplevelType(Type t){
 		// Composite types
 		if(t.isConstructor())
