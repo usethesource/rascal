@@ -114,7 +114,7 @@ list[str] rascalTests = [
 
 //"Memoization"			// Does not exist
 
-//"Nodes"					// 10 test fail
+"Nodes"					// 10 test fail
 	
 //"Relations"			//error("Name a is not in scope",|project://rascal-test/src/tests/Relations.rsc|(226,1,<11,39>,<11,40>))
 						//error("Name z is not in scope",|project://rascal-test/src/tests/Relations.rsc|(239,1,<11,52>,<11,53>))
