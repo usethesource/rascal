@@ -282,20 +282,21 @@ MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{E
 MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) { throw("reifiedType"); }
 //  muCon(symbolToValue(symbol, config));
 
-list[MuExp] translateKeywordArguments(KeywordArguments keywordArguments) {
+MuExp translateKeywordArguments(KeywordArguments keywordArguments) {
    // Keyword arguments
-   map[str,MuExp] kwargs = ();
+   list[MuExp] kwargs = [ muAssignTmp("map_of_keyword_arguments", muCallMuPrim("make_map_str_ivalue",[])) ];
    if(keywordArguments is \default) {
        for(KeywordArgument kwarg <- keywordArguments.keywordArgumentList) {
-           ;
+           kwargs += muCallMuPrim("map_str_ivalue_add_ivalue",[ muTmp("map_of_keyword_arguments"), muCon("<kwarg.name>"), translate(kwarg.expression) ]);           
        }
-       kwargs = ( "<kwarg.name>" : translate(kwarg.expression) | KeywordArgument kwarg <- keywordArguments.keywordArgumentList );
    }
-    
+   return muBlock([ *kwargs, muTmp("map_of_keyword_arguments") ]);
 }
 
 // Call
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
+
+   MuExp kwargs = translateKeywordArguments(keywordArguments);
       
    MuExp receiver = translate(expression);
    list[MuExp] args = [ translate(a) | a <- arguments ];
@@ -398,7 +399,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
        overloadingResolver[ofqname] = i;
-       return muOCall(muOFun(ofqname), args, kwargs);
+       return muOCall(muOFun(ofqname), args + [ kwargs ]);
    }
    if(isOverloadedFunction(receiver) && receiver.fuid notin overloadingResolver) {
       throw "The use of a function has to be managed via overloading resolver!";
@@ -406,7 +407,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    // Push down additional information if the overloading resolution needs to be done at runtime
    return muOCall(receiver, 
    				  isFunctionType(ftype) ? Symbol::\tuple([ ftype ]) : Symbol::\tuple([ t | Symbol t <- getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype) ]), 
-   				  args, kwargs);
+   				  args + [ kwargs ]);
 }
 
 // Any
