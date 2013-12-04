@@ -4412,10 +4412,10 @@ public enum RascalPrimitive {
 			throw RuntimeExceptionFactory.emptyList(null, null);
 		}
 		if (firstIndex >= len) {
-			throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(firstIndex), null, null);
+			throw RuntimeExceptions.indexOutOfBounds(vf.integer(firstIndex), null, new ArrayList<Frame>());
 		}
 		if (endIndex > len ) {
-			throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(endIndex), null, null);
+			throw RuntimeExceptions.indexOutOfBounds(vf.integer(endIndex), null, new ArrayList<Frame>());
 		}
 		
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
