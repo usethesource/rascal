@@ -928,23 +928,23 @@ public enum RascalPrimitive {
 						+ lhsType + " and " + rhsType);
 			}
 		case SET:
-			switch (rhsType) {
-			case SET:
-				return set_add_set(stack, sp, arity);
-			case REL:
-				return set_add_rel(stack, sp, arity);
-			default:
+//			switch (rhsType) {
+//			case SET:
+//				return set_add_set(stack, sp, arity);
+//			case REL:
+//				return set_add_rel(stack, sp, arity);
+//			default:
 				return set_add_elm(stack, sp, arity);
-			}
+//			}
 		case LIST:
-			switch (rhsType) {
-			case LIST:
-				return list_add_list(stack, sp, arity);
-			case LREL:
-				return list_add_lrel(stack, sp, arity);
-			default:
+//			switch (rhsType) {
+//			case LIST:
+//				return list_add_list(stack, sp, arity);
+//			case LREL:
+//				return list_add_lrel(stack, sp, arity);
+//			default:
 				return list_add_elm(stack, sp, arity);
-			}
+//			}
 		case LOC:
 			switch (rhsType) {
 			case STR:

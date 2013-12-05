@@ -50,7 +50,8 @@ list[str] rascalTests = [
 //"Tuples"					// OK
 //"SolvedIssues"			// OK
 //"Equality"				// OK
-							// Added parentheses for ?operator
+							// Added parentheses for ? operator
+//"Nodes"					// 10 test fail
 
 //"BacktrackingTests"		// error("Name s is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8573,1,<223,10>,<223,11>))
 							//error("Name L is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8246,1,<218,13>,<218,14>))
@@ -114,7 +115,7 @@ list[str] rascalTests = [
 
 //"Memoization"			// Does not exist
 
-"Nodes"					// 10 test fail
+
 	
 //"Relations"			//error("Name a is not in scope",|project://rascal-test/src/tests/Relations.rsc|(226,1,<11,39>,<11,40>))
 						//error("Name z is not in scope",|project://rascal-test/src/tests/Relations.rsc|(239,1,<11,52>,<11,53>))
@@ -149,7 +150,7 @@ list[str] rascalTests = [
 						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2200,7,<69,26>,<69,33>))
 						// Posted issue
 
-//"Strings"  				// 2 test fail
+"Strings"  				// 2 test fail
 ];
 
 loc base = |rascal-test:///tests/library|;
