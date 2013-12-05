@@ -869,7 +869,7 @@ coroutine MATCH_AND_DESCENT_NODE[2, pat, iNd, last, j, ar]{
    last = size_array(ar);
    j = 0; 
    while(j < last){
-      DO_ALL(pat, get_array(ar, j));
+      //DO_ALL(pat, get_array(ar, j));
       DO_ALL(create(MATCH_AND_DESCENT, pat),  get_array(ar, j));
       j = j + 1;
    };
