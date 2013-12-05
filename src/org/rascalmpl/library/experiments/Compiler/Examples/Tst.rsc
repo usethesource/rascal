@@ -24,5 +24,5 @@ module experiments::Compiler::Examples::Tst
 	//	    == [1,2,3];
 	//}
 
-
-public bool main(list[value] args)  = true <==> (true && false) ;
+import Boolean;
+public bool main(list[value] args)  = fromString("true"); // == true && fromString("false") == false;
