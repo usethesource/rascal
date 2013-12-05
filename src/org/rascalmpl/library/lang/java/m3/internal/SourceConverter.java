@@ -52,6 +52,10 @@ public class SourceConverter extends M3Converter {
 	}
 	
 	public void preVisit(ASTNode node) {
+		if (node instanceof Annotation) {
+			insert(annotations, getParent(), resolveBinding(((Annotation) node).getTypeName()));
+			return;
+		}
 		ownValue = resolveBinding(node);
 	}
 	

@@ -14,8 +14,6 @@ public class Return1 extends Instruction {
 	public String toString() { return "RETURN1 " + arity; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(arity);
+		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
-
 }

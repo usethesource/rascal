@@ -14,8 +14,6 @@ public class LoadOFun extends Instruction {
 	public String toString() { return "LOADOFUN " + fuid + " [ " + codeblock.getOverloadedFunctionIndex(fuid) + " ]"; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getOverloadedFunctionIndex(fuid));
+		codeblock.addCode1(opcode.getOpcode(), codeblock.getOverloadedFunctionIndex(fuid));
 	}
-
 }

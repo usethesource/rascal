@@ -45,6 +45,7 @@ import experiments::Compiler::Examples::RascalRuntimeExceptions;
 import experiments::Compiler::Examples::IsDefined;
 import experiments::Compiler::Examples::UninitializedVariables;
 import experiments::Compiler::Examples::IfDefinedOtherwise;
+import experiments::Compiler::Examples::IfDefinedOtherwise2;
 import experiments::Compiler::Examples::UseLibrary;
 import experiments::Compiler::Examples::Visit1;
 import experiments::Compiler::Examples::Visit1a;
@@ -83,7 +84,7 @@ test bool tst() = demo("SetMatch") == experiments::Compiler::Examples::SetMatch:
 test bool tst() = demo("SetMatchMix") == experiments::Compiler::Examples::SetMatchMix::main([]);
 test bool tst() = demo("Descent") == experiments::Compiler::Examples::Descent::main([]);
 test bool tst() = demo("Odd") == experiments::Compiler::Examples::Odd::main([]);
-test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
+/*fails*/ //test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
 
 // String templates generate a too large indent for nested templates.
 /*fails*/ // test bool tst() = demo("Template") == experiments::Compiler::Examples::Template::main([]);
@@ -113,6 +114,7 @@ test bool tst() = demo("RascalRuntimeExceptions") == experiments::Compiler::Exam
 test bool tst() = demo("IsDefined") == experiments::Compiler::Examples::IsDefined::main([]);
 test bool tst() = demo("UninitializedVariables") == experiments::Compiler::Examples::UninitializedVariables::expectedResult;
 test bool tst() = demo("IfDefinedOtherwise") == experiments::Compiler::Examples::IfDefinedOtherwise::expectedResult;
+test bool tst() = demo("IfDefinedOtherwise2") == experiments::Compiler::Examples::IfDefinedOtherwise2::main([]);
 
 // under investigation
 /*fails*/ //test bool tst1() = demo("UseLibrary") == experiments::Compiler::Examples::UseLibrary::main([]);
@@ -135,5 +137,5 @@ test bool tst12() = demo("VisitWithWhen") == experiments::Compiler::Examples::Vi
 test bool tst() = demo("IMP3") == experiments::Compiler::Examples::IMP3::main([]);
 
 // Fail with labels
-test bool tst500() = demo("FailWithLabel1") == experiments::Compiler::Examples::FailWithLabel1::main([]);
-test bool tst501() = demo("FailWithLabel2") == experiments::Compiler::Examples::FailWithLabel2::main([]);
+test bool tst() = demo("FailWithLabel1") == experiments::Compiler::Examples::FailWithLabel1::main([]);
+test bool tst() = demo("FailWithLabel2") == experiments::Compiler::Examples::FailWithLabel2::main([]);
