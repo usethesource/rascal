@@ -425,3 +425,6 @@ public bool hasField(Symbol s, str fieldName){
     }
     return false;
 }
+
+public int getTupleFieldIndex(Symbol s, str fieldName) = 
+    indexOf(getTupleFieldNames(s), fieldName);

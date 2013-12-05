@@ -7,5 +7,4 @@ public class SubtractInt extends Instruction {
 	public SubtractInt(CodeBlock ins) {
 		super(ins, Opcode.SUBTRACTINT);
 	}
-
 }

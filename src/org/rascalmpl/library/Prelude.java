@@ -25,7 +25,10 @@
 package org.rascalmpl.library;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -1242,6 +1245,35 @@ public class Prelude {
 			}
 		}
 
+		return;
+	}
+	
+	public void writeFileBytes(ISourceLocation sloc, IList blist, IEvaluatorContext ctx){
+		sloc = ctx.getHeap().resolveSourceLocation(sloc);
+		BufferedOutputStream out=null;
+		try{
+			OutputStream stream = ctx.getResolverRegistry().getOutputStream(sloc.getURI(), false);
+			out = new BufferedOutputStream(stream);
+			Iterator<IValue> iter = blist.iterator();
+			while (iter.hasNext()){
+				IValue ival = iter.next();
+				out.write((byte) (((IInteger) ival).intValue()));
+			}
+			out.flush();
+			out.close();
+		}catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
+		}catch(IOException e){
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), null);
+		}finally{
+			if(out != null){
+				try{
+					out.close();
+				}catch(IOException ioex){
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
+				}
+			}
+		}
 		return;
 	}
 	
@@ -3157,6 +3189,12 @@ public class Prelude {
 	 * ValueIO
 	 */
 	
+	public IInteger getFileLength(ISourceLocation g, IEvaluatorContext ctx) throws IOException {
+		File f = new File(ctx.getResolverRegistry().getResourceURI(g.getURI()));
+		if (!f.exists() || f.isDirectory()) throw new IOException();
+		return values.integer(f.length());
+	}
+	
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc, IEvaluatorContext ctx){
 		
 //		TypeStore store = ctx.getCurrentEnvt().getStore();
@@ -3284,6 +3322,8 @@ public class Prelude {
 	public IList getTraversalContext(IEvaluatorContext ctx) {
 		return ctx.getEvaluator().__getCurrentTraversalEvaluator().getContext();
 	}
+	
+	
 }
 
 // Utilities used by Graph

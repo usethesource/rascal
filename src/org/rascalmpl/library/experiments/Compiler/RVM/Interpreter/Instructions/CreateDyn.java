@@ -14,8 +14,7 @@ public class CreateDyn extends Instruction {
 	public String toString() { return "CREATEDYN " + arity; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(arity);
+		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
 
 }

@@ -10,12 +10,17 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module ValueIO
 
+
+
 @doc{Read  a value from a binary file in PBF format}
 public value readValueFile(loc file) {
   return readBinaryValueFile(#value, file);
 }
 
-
+@doc{Get length in bytes of a file.}
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses URI Resolver Registry}
+public java int getFileLength(loc file);
 
 @doc{Read a typed value from a binary file.}
 @javaClass{org.rascalmpl.library.Prelude}
