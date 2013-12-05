@@ -804,6 +804,7 @@ MuExp translateStringLiteral((StringLiteral) `<PreStringChars pre> <Expression e
 }
                     
 MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString("<constant>"));
+//muCon("<constant>"[1..-1]);
 
 MuExp translatePre(PreStringChars pre) {
   content = "<pre>"[1..-1];
