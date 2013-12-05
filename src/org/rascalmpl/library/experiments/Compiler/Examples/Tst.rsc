@@ -23,22 +23,6 @@ module experiments::Compiler::Examples::Tst
 	//	return {for (x <- [1,2,3]) { f = () { append x; }; f();}} 
 	//	    == [1,2,3];
 	//}
-	
-	
-
-public value main(list[value] args)  {
-		return for( ([*int x,*int y] := [1,2,3]) || ([*int x,*int y] := [4,5,6]) ) {
-    	append <x, y>;
-    	}
-    }
-
-//public value main(list[value] args)  {
-//		return for( true || true ) {
-//    	append 1;
-//    	}
-//    }
- 
- 
- 	//public value main(list[value] args)  {
- 	//	x = 0; for(i <- [1 .. 10]) { x += 1; }; return  x;
- 	//}
+//import String;
+//public value main(list[value] args) { S = "\"\"땿"; return trim(" \t\n" + S + "\r\b\t "); }
+public value main(list[value] args) {return ("\r\b\t "); }

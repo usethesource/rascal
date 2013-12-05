@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public enum ToplevelType {
 	VOID			(0),
@@ -49,13 +50,13 @@ public enum ToplevelType {
 		if(t.isNode())
 			return NODE;
 		if(t.isListRelation())
-			return LREL;
+			return t.getElementType().equivalent(TypeFactory.getInstance().voidType()) ? LIST : LREL;
 		if(t.isList())
 			return LIST;
 		if(t.isMap())
 			return MAP;
 		if(t.isRelation())
-			return REL;
+			return t.getElementType().equivalent(TypeFactory.getInstance().voidType()) ? SET : REL;
 		if(t.isSet())
 			return SET;
 		if(t.isTuple())
