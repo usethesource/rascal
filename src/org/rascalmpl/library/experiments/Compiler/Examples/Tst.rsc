@@ -23,6 +23,6 @@ module experiments::Compiler::Examples::Tst
 	//	return {for (x <- [1,2,3]) { f = () { append x; }; f();}} 
 	//	    == [1,2,3];
 	//}
-//import String;
-//public value main(list[value] args) { S = "\"\"땿"; return trim(" \t\n" + S + "\r\b\t "); }
-public value main(list[value] args) {return ("\r\b\t "); }
+
+
+public bool main(list[value] args)  = true <==> (true && false) ;
