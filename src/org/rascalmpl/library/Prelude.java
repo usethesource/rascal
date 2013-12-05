@@ -41,6 +41,8 @@ import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -57,6 +59,7 @@ import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
+import java.util.Stack;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.CharSetUtils;
@@ -92,9 +95,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
-import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.util.Maybe;
@@ -3320,6 +3321,49 @@ public class Prelude {
 	
 	public IString setOrigins(IString x, ISet origins) {
 		return values.string(origins, x);
+	}
+	
+	public IString tagString(IString x, final IString tg, final IString val){
+		if (x instanceof OrgString) {
+			OrgString os = (OrgString)x;
+			final Stack<OrgString> s = new Stack<OrgString>();
+			os.accept(new IOrgStringVisitor() {
+				@Override
+				public void visit(Concat concat) {
+					concat.getLhs().accept(this);
+					concat.getRhs().accept(this);
+					OrgString rhs = s.pop();
+					OrgString lhs = s.pop();
+					s.push(new Concat(lhs, rhs));
+				}
+				
+				@Override
+				public void visit(Chunk chunk) {
+					ISourceLocation loc = chunk.getOrigin();
+					URI newUri;
+					try {
+						newUri = URIUtil.changeQuery(loc.getURI(), tg.getValue()+"="+val.getValue());
+					} catch (URISyntaxException e) {
+						newUri = loc.getURI();
+					}
+					ISourceLocation newLoc = values.sourceLocation(newUri, 
+								loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
+					s.push(new Chunk(newLoc, chunk.getValue()));
+				}
+
+				@Override
+				public void visit(NoOrg noOrg) {
+					s.push(noOrg);
+				}
+
+				@Override
+				public void visit(Insincere insincere) {
+					s.push(insincere);
+				}
+			});
+			return s.pop();
+		}
+		return x;
 	}
 	
 	public IList origins(IString x) {
