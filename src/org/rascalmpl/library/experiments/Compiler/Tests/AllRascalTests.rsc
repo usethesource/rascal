@@ -51,7 +51,8 @@ list[str] rascalTests = [
 //"SolvedIssues"			// OK
 //"Equality"				// OK
 							// Added parentheses for ? operator
-//"Nodes"					// 10 test fail
+//"Nodes"					// OK
+//"Strings"  				// OK
 
 //"BacktrackingTests"		// error("Name s is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8573,1,<223,10>,<223,11>))
 							//error("Name L is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8246,1,<218,13>,<218,14>))
@@ -70,7 +71,7 @@ list[str] rascalTests = [
 							//error("Cannot assign pattern of type list[int] to non-inferred variable of type list[str]",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8251,28,<218,18>,<218,46>))
 							// Issue posted
 							
-//"Booleans"				// 3 tests fail
+"Booleans"				// 3 tests fail
 						// Commented out fromInt test
 
 						
@@ -149,8 +150,6 @@ list[str] rascalTests = [
 						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2182,7,<69,8>,<69,15>))
 						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2200,7,<69,26>,<69,33>))
 						// Posted issue
-
-"Strings"  				// 2 test fail
 ];
 
 loc base = |rascal-test:///tests/library|;
