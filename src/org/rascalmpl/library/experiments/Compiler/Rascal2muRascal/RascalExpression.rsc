@@ -401,7 +401,15 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
 MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = makeMuOne([translate(g) | g <- generators ]);
 
 // All
-MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = makeMuAll([translate(g) | g <- generators ]);
+MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
+  isGen = [!backtrackFree(g) | g <- generators];
+  generators1 = [g | g <- generators]; // TODO: artefact of concrete syntax
+  gens = [isGen[i] ? translate(generators1[i]) : translateBoolClosure(generators1[i]) | i <- index(generators1)];
+  println("all: gens = <gens>");
+  return;  //... a call to RASCALL_ALL ...
+}
+
+//makeMuAll([translate(g) | g <- generators ]);
 
 // Comprehension
 MuExp translate (e:(Expression) `<Comprehension comprehension>`) = translateComprehension(comprehension);
@@ -980,6 +988,10 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
   	leaveFunctionScope();								  
   	
 	return (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid); // closures are not overloaded
+}
+
+MuExp translateBoolClosure(Expression e){
+	// To be done
 }
 
 // Translate comprehensions
