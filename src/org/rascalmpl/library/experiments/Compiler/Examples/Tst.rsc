@@ -17,7 +17,7 @@ module experiments::Compiler::Examples::Tst
 //import IO;
 //public value main(list[value] args) {
 //    res = true;
-//     O: if(int X <- {}){ 
+//     O: if(int X <- {1,2,3}){ 
 //           println("X = <X>");
 //           if(X >= 2){
 //              fail O; 
@@ -30,4 +30,4 @@ module experiments::Compiler::Examples::Tst
 //        return res;
 //}
 data TREE = i(int N) | f(TREE a,TREE b) | g(TREE a, TREE b);
-public value main(list[value] args)  = [ X | /int X <- f(i(1),g(i(2),i(3))) ]; // == [1,2,3];
+public value main(list[value] args)  = [ X | /value X <- f(i(1),g(i(2),i(3))) ]; // == [1,i(1),2,i(2),3,i(3),g(i(2),i(3))];

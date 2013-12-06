@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -42,6 +43,121 @@ public enum ToplevelType {
 	/*
 	 * TODO: This function is an obvious performance hog; This should be built-in to the PDB.
 	 */
+	
+//	public static ToplevelType getToplevelType(Type t){
+//		return t.accept(new ITypeVisitor<ToplevelType,RuntimeException>() {
+//
+//			@Override
+//			public ToplevelType visitReal(Type type) throws RuntimeException {
+//				return BOOL;
+//			}
+//
+//			@Override
+//			public ToplevelType visitInteger(Type type) throws RuntimeException {
+//				return INT;
+//			}
+//
+//			@Override
+//			public ToplevelType visitRational(Type type)
+//					throws RuntimeException {
+//				return RAT;
+//			}
+//
+//			@Override
+//			public ToplevelType visitList(Type type) throws RuntimeException {
+//				return LIST;
+//			}
+//
+//			@Override
+//			public ToplevelType visitMap(Type type) throws RuntimeException {
+//				return MAP;
+//			}
+//
+//			@Override
+//			public ToplevelType visitNumber(Type type) throws RuntimeException {
+//				return NUM;
+//			}
+//
+//			@Override
+//			public ToplevelType visitAlias(Type type) throws RuntimeException {
+//				// TODO Auto-generated method stub
+//				return null;
+//			}
+//
+//			@Override
+//			public ToplevelType visitSet(Type type) throws RuntimeException {
+//				return SET;
+//			}
+//
+//			@Override
+//			public ToplevelType visitSourceLocation(Type type)
+//					throws RuntimeException {
+//				return LOC;
+//			}
+//
+//			@Override
+//			public ToplevelType visitString(Type type) throws RuntimeException {
+//				return STR;
+//			}
+//
+//			@Override
+//			public ToplevelType visitNode(Type type) throws RuntimeException {
+//				return NODE;
+//			}
+//
+//			@Override
+//			public ToplevelType visitConstructor(Type type)
+//					throws RuntimeException {
+//				return CONSTRUCTOR;
+//			}
+//
+//			@Override
+//			public ToplevelType visitAbstractData(Type type)
+//					throws RuntimeException {
+//				// TODO Auto-generated method stub
+//				return null;
+//			}
+//
+//			@Override
+//			public ToplevelType visitTuple(Type type) throws RuntimeException {
+//				return TUPLE;
+//			}
+//
+//			@Override
+//			public ToplevelType visitValue(Type type) throws RuntimeException {
+//				return VALUE;
+//			}
+//
+//			@Override
+//			public ToplevelType visitVoid(Type type) throws RuntimeException  {
+//				return VOID;
+//			}
+//
+//			@Override
+//			public ToplevelType visitBool(Type type) throws RuntimeException {
+//				return BOOL;
+//			}
+//
+//			@Override
+//			public ToplevelType visitParameter(Type type)
+//					throws RuntimeException {
+//				// TODO Auto-generated method stub
+//				return null;
+//			}
+//
+//			@Override
+//			public ToplevelType visitExternal(Type type)
+//					throws RuntimeException {
+//				// TODO Auto-generated method stub
+//				return null;
+//			}
+//
+//			@Override
+//			public ToplevelType visitDateTime(Type type)
+//					throws RuntimeException {
+//				return DATETIME;
+//			}});
+//	}
 	
 	public static ToplevelType getToplevelType(Type t){
 		// Composite types
