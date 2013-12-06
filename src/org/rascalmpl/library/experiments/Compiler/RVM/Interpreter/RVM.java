@@ -443,7 +443,6 @@ public class RVM {
 //				}
 				int instruction = instructions[pc++];
 				int op = CodeBlock.fetchOp(instruction);
-				stderr.println(cf.function.name + "[" + (pc - 1) + "]: " + cf.function.codeblock.toString(pc - 1));
 
 //				if (debug) {
 //					int startpc = pc - 1;
