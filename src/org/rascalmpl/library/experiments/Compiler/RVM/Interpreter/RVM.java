@@ -445,18 +445,18 @@ public class RVM {
 				int op = CodeBlock.fetchOp(instruction);
 				stderr.println(cf.function.name + "[" + (pc - 1) + "]: " + cf.function.codeblock.toString(pc - 1));
 
-				if (debug) {
-					int startpc = pc - 1;
-					if(!last_function_name.equals(cf.function.name))
-						stdout.printf("[%03d] %s\n", startpc, cf.function.name);
-					
-					for (int i = 0; i < sp; i++) {
-						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
-					}
-					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
-				}
-				
-				Opcode.use(instruction);
+//				if (debug) {
+//					int startpc = pc - 1;
+//					if(!last_function_name.equals(cf.function.name))
+//						stdout.printf("[%03d] %s\n", startpc, cf.function.name);
+//					
+//					for (int i = 0; i < sp; i++) {
+//						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
+//					}
+//					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
+//				}
+//				
+//				Opcode.use(instruction);
 				
 				switch (op) {
 					
