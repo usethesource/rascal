@@ -804,10 +804,9 @@ coroutine MATCH_DESCENDANT[2, pat, iSubject, gen, cpat]{
 }
 
 // ***** Match and descent for all types *****
+// Enforces the same left-most innermost traversal order as the interpreter
 
 coroutine MATCH_AND_DESCENT[2, pat, iVal]{
-  DO_ALL(pat, iVal);
-  
   typeswitch(iVal){
     case list:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), iVal);
     case lrel:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), iVal);
@@ -817,8 +816,9 @@ coroutine MATCH_AND_DESCENT[2, pat, iVal]{
     case set:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat),  iVal);
     case rel:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat),  iVal);
     case tuple:       DO_ALL(create(MATCH_AND_DESCENT_TUPLE, pat),iVal);
-    default:          exhaust;
+    default:          true;
   };  
+  DO_ALL(pat, iVal);
 }
 
 coroutine MATCH_AND_DESCENT_LITERAL[2, pat, iSubject, res]{
