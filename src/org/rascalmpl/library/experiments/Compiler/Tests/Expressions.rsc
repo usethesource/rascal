@@ -264,6 +264,7 @@ test bool tst() = run("all(x \<- [1,2,13,3], x \> 0)") == all(x <- [1,2,13,3], x
 test bool tst() = run("all(int x \<- [1,2,13,3], x \> 0)") == all(int x <- [1,2,13,3], x > 0);
 test bool tst() = run("all(x \<- [1,2,13,3], x \> 20)") == all(x <- [1,2,13,3], x > 20);
 test bool tst() = run("all(int x \<- [1,2,13,3], x \> 20)") == all(int x <- [1,2,13,3], x > 20);
+test bool tst() = run("all(int x \<- [1,2,3], x \>= 2 )") == all(int x <- [1,2,3], x >= 2 );
 
 // Range
 
@@ -329,10 +330,19 @@ test bool tst() = run("{*x | x \<- [[1,2],[3,4]]}") == {*x | x <- [[1,2],[3,4]]}
 
 // Subscript
 test bool tst() = run("{x = [1, 2, 3]; x [1];}") ==  {x = [1, 2, 3]; x [1];};
+test bool tst() = run("{x = [1, 2, 3]; x [-1];}") ==  {x = [1, 2, 3]; x [-1];};
+
 test bool tst() = run("{x = \<1, 2, 3\>; x [1];}") ==  {x = <1, 2, 3>; x [1];};
+test bool tst() = run("{x = \<1, 2, 3\>; x [-1];}") ==  {x = <1, 2, 3>; x [-1];};
+
 test bool tst() = run("{x = \"abc\"; x [1];}") ==  {x = "abc"; x [1];};
+test bool tst() = run("{x = \"abc\"; x [-1];}") ==  {x = "abc"; x [-1];};
+
 test bool tst() = run("{x = \"f\"(1, 2, 3); x [1];}") ==  {x = "f"(1, 2, 3); x [1];};
+test bool tst() = run("{x = \"f\"(1, 2, 3); x [-1];}") ==  {x = "f"(1, 2, 3); x [-1];};
+
 test bool tst() = run("{x = d1(1, \"a\"); x [1];}") ==  {x = d1(1, "a"); x [1];};
+test bool tst() = run("{x = d1(1, \"a\"); x [-1];}") ==  {x = d1(1, "a"); x [-1];};
 
 // Subscript (IndexOutOfBounds)
 test bool tst() = run("{x = [1, 2, 3]; int elem = 0; try { elem = x[5]; } catch IndexOutOfBounds(int index): { elem = 100 + index; } elem; }", ["Exception"]) 

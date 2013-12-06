@@ -15,14 +15,13 @@ list[str] functionalityTests = [
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1167,1,<39,24>,<39,25>))
 //"RangeTests"				// OK
 							// 4 tests fail but this a deliberate improvement over the interpreter result.
+//"BackTrackingTests"		// OK 
 
 //"AccumulatingTests"		// 2 tests fail: append that crosses function boundary: make tmp scope dependent?
 
-"BackTrackingTests"		// 13 tests fail 
-
 //"CallTests"				// keyword parameters
 
-//"ComprehensionTests"		// 15 tests fail
+"ComprehensionTests"		// 15 tests fail
 
 //"DataDeclarationTests"	//error("Initializer type Maybe[&T \<: value] not assignable to variable of type Maybe[void]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5906,10,<104,53>,<104,63>))
 							//error("Initializer type Exp1[&T \<: value] not assignable to variable of type Exp1[int]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5772,11,<100,58>,<100,69>))
@@ -46,10 +45,15 @@ list[str] functionalityTests = [
 
 
 list[str] rascalTests = [
-
+//"Booleans"				// OK
+							// Commented out fromInt test
 //"Integers"				// OK
 //"Tuples"					// OK
 //"SolvedIssues"			// OK
+//"Equality"				// OK
+							// Added parentheses for ? operator
+//"Nodes"					// OK
+//"Strings"  				// OK
 
 //"BacktrackingTests"		// error("Name s is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8573,1,<223,10>,<223,11>))
 							//error("Name L is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8246,1,<218,13>,<218,14>))
@@ -67,12 +71,6 @@ list[str] rascalTests = [
 							//error("Name r is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8244,1,<218,11>,<218,12>))
 							//error("Cannot assign pattern of type list[int] to non-inferred variable of type list[str]",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8251,28,<218,18>,<218,46>))
 							// Issue posted
-							
-//"Booleans"				// 3 tests fail
-						// Commented out fromInt test
-
-//"Equality"				// 2 tests fail
-						// Added parentheses for ?operator
 						
 //"Functions"			// Checking function callKwp
 						// |rascal://lang::rascal::types::CheckTypes|(206380,13,<4071,16>,<4071,29>): The called signature: checkExp(sort("Expression"), Configuration),
@@ -110,12 +108,10 @@ list[str] rascalTests = [
 
 //"Maps"				// Compilation of ListRelation
 
-//"Matching"				//getFUID: fT2, failure({error("Type of pattern could not be computed",|project://rascal-test/src/tests/Matching.rsc|(828,17,<42,10>,<42,27>)),error("Could not calculate function type because of errors calculating the parameter types",|project://rascal-test/src/tests/Matching.rsc|(819,27,<42,1>,<42,28>)),error("Multiple constructors match this pattern, add additional type annotations",|project://rascal-test/src/tests/Matching.rsc|(828,17,<42,10>,<42,27>))})
+//"Matching"			//getFUID: fT2, failure({error("Type of pattern could not be computed",|project://rascal-test/src/tests/Matching.rsc|(828,17,<42,10>,<42,27>)),error("Could not calculate function type because of errors calculating the parameter types",|project://rascal-test/src/tests/Matching.rsc|(819,27,<42,1>,<42,28>)),error("Multiple constructors match this pattern, add additional type annotations",|project://rascal-test/src/tests/Matching.rsc|(828,17,<42,10>,<42,27>))})
 						//|rascal://experiments::Compiler::Rascal2muRascal::TypeUtils|(14990,5,<374,27>,<374,32>): NoSuchField("parameters")
 
 //"Memoization"			// Does not exist
-
-//"Nodes"					// 10 test fail
 	
 //"Relations"			//error("Name a is not in scope",|project://rascal-test/src/tests/Relations.rsc|(226,1,<11,39>,<11,40>))
 						//error("Name z is not in scope",|project://rascal-test/src/tests/Relations.rsc|(239,1,<11,52>,<11,53>))
@@ -149,8 +145,6 @@ list[str] rascalTests = [
 						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2182,7,<69,8>,<69,15>))
 						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2200,7,<69,26>,<69,33>))
 						// Posted issue
-
-"Strings"  				// 2 test fail
 ];
 
 loc base = |rascal-test:///tests/library|;

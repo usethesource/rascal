@@ -424,6 +424,7 @@ MuExp translate (e:(Expression) `\< <{Expression ","}+ elements> \>`) {
 }
 
 // Map
+// TODO: map constants
 MuExp translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) =
    muCallPrim("map_create", [ translate(m.from), translate(m.to) | m <- mappings ]);
 
@@ -720,15 +721,16 @@ default MuExp translateBool(Expression e) {
    
 // Translate Boolean operators
 
+// TODO: WORK IN PROGRESS HERE!
+
 MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
   if(backtrackFree(lhs) && backtrackFree(rhs)) {
-     lcode = translateBool(lhs);
-     rcode = translateBool(rhs);
      switch(fun){
-     	case "and": 		return muIfelse(nextLabel("L_AND"), lcode, [rcode], [muCon(false)]);
-     	case "or":			return muIfelse(nextLabel("L_OR"), lcode, [muCon(true)], [rcode]);
-     	case "implies":		return muIfelse(nextLabel("L_IMPLIES"), lcode, [rcode], [muCon(true)]);
-     	case "equivalent":	return muIfelse(nextLabel("L_EQUIVALENT"), lcode, [rcode], [muCallMuPrim("not_mbool", [rcode])]);
+     	case "and": 		return muIfelse(nextLabel("L_AND"),  translateBool(lhs), [translateBool(rhs)], [muCon(false)]);
+     						//return makeMuAll([translate(lhs), translate(rhs)]);
+     	case "or":			return muIfelse(nextLabel("L_OR"),  translateBool(lhs), [muCon(true)], [translateBool(rhs)]);
+     	case "implies":		return muIfelse(nextLabel("L_IMPLIES"),  translateBool(lhs), [translateBool(rhs)], [muCon(true)]);
+     	case "equivalent":	return muIfelse(nextLabel("L_EQUIVALENT"),  translateBool(lhs), [translateBool(rhs)], [muCallMuPrim("not_mbool", [translateBool(rhs)])]);
      	default:
     		throw "translateBoolBinary: unknown operator <fun>";
      }
@@ -800,6 +802,7 @@ MuExp translateStringLiteral((StringLiteral) `<PreStringChars pre> <Expression e
 }
                     
 MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString("<constant>"));
+//muCon("<constant>"[1..-1]);
 
 MuExp translatePre(PreStringChars pre) {
   content = "<pre>"[1..-1];
