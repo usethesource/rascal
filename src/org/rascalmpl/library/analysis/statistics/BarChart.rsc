@@ -62,12 +62,15 @@ private bool isNull(value v) {
     if (list w:=v) return isEmpty(w);
     return false;
     }
-
-public loc barChart(loc location, list[str] colNames, list[rel[value, value]] relation, str title="title", value x_axis="x", value y_axis="y", 
+    
+public loc barChart(loc location, list[tuple[list[str] hd, set[list[value]] t]] relation, str title="title", value x_axis="x", value y_axis="y", 
  value orderRule = "", value series="", 
-    list[tagColor] assignColor=[], value x_measure_axis="") {
- set[list[value]] s = jn(relation);
- list[map[str, value]] jsonData = [(colNames[i]:r[i]|i<-[0..size(r)])|r<-s];
+    list[tagColor] assignColor=[], value y_axis2="") {
+    // println(relation);
+   list[map[str, value]] jsonData = [*[(q.hd[i] : r[i]|i<-[0..size(q.hd)])|
+          r<-q.t]|
+        tuple[list[str] hd, set[list[value]] t] q<-relation]; 
+ // println(jsonData);      
  str header  = Z(title_, (), title)+
  Z(script_,(src_: "http://d3js.org/d3.v3.min.js"))+
  Z(script_,(src_: "http:dimplejs.org/dist/dimple.v1.1.2.min.js"));
@@ -79,19 +82,25 @@ public loc barChart(loc location, list[str] colNames, list[rel[value, value]] re
         expr(chart.setBounds("myChart", chartBounds.x, chartBounds.y, 
                                          chartBounds.width, chartBounds.height ))
         ,
-        var(("x":expr(chart.addAxis("myChart", "x",x_axis, x_measure_axis))))
+        var(("x":expr(chart.addAxis("myChart", "x",x_axis, ""))))
         ,
         expr(axis.addOrderRule("x", orderRule, "false"))
         ,
-        expr(chart.addMeasureAxis("myChart", "y", y_axis))
+        var(("y1":expr(chart.addMeasureAxis("myChart", "y", y_axis))))
+        , 
+        var(("y2":expr(isNull(y_axis2)?"null":chart.addMeasureAxis("myChart", "y", y_axis2))))
         ,
-        expr(chart.addSeries("myChart", series,  "dimple.plot.bar"))
+        var(("mySeries":expr(chart.addSeries("myChart", series,  "dimple.plot.bar",  expr("[x, y1]")))))
+        ,
+        var(("mySeries2":expr(isNull(y_axis2)?"":chart.addSeries("myChart", "",  "dimple.plot.line", expr("[x, y2]")))))
         ,
         expr(isNull(series)?"":chart.addLegend("myChart", legendBounds.x, legendBounds.y, 
                                          legendBounds.width, legendBounds.height, 
                                          legendBounds.align))
         ,
         expr(chart.assignColor("myChart", assignColor))
+        ,
+        expr(isNull(y_axis2)?"":"mySeries2.aggregate=dimple.aggregateMethod.max")
         ,
         expr(chart.draw("myChart"))
         );
@@ -101,39 +110,3 @@ public loc barChart(loc location, list[str] colNames, list[rel[value, value]] re
       return location;    
       }
       
-/* Example in Rascal Eclipse 
-  
-module webdesign::examples::M3
-
-import lang::java::jdt::m3::Core;
-import lang::java::m3::TypeSymbol;
-import Prelude;
-import util::HtmlDisplay;
-import Relation;
-import analysis::statistics::BarChart;
-
-
-public rel[loc,bool, loc] getMethodsWorking(loc project)
-{
-        model = createM3FromEclipseProject(project);
-        rel[loc name, TypeSymbol typ] methodReturntype = { d| m <- methods(model), d<-model@types, m==d.name};
-        rel[loc name, bool proc ] methodIsProc = 
-           {<n, \void()==r >|<n, t> <- methodReturntype, \method(_,_, r,_):=t};
-        rel[loc name, loc  src] methodSource=  {d | m <- methods(model), d <- model@declarations, m == d.name};  
-        rel[loc name, bool proc, loc src] r = { <m1, b1, s2>   | <m1, b1><-methodIsProc, <m2, s2><-  methodSource, m1==m2 }; 
-        return r; 
-}
-
-public rel[str, bool, str] simplify(rel[loc, bool, loc] a) {
-      return {<name.file, proc, src.file>  |<loc name, bool proc, loc src> <- a};
-      }
-
-public rel[str,bool, str] a = simplify(getMethodsWorking(|project://dotplugin|));
-
-public void main() {
-    htmlDisplay(barChart(|project://dotplugin/src/m3|,  ["defs","proc", "src"], a, title="First example", x_axe= "src", y_axe= "defs", 
-    series= "proc", orderRule= "proc"));
-    }
-
-  
-  */
