@@ -40,10 +40,6 @@ public enum ToplevelType {
 		return toplevelType;
 	}
 	
-	/*
-	 * TODO: This function is an obvious performance hog; This should be built-in to the PDB.
-	 */
-	
 	public static ToplevelType getToplevelType(Type t){
 		return t.accept(new ITypeVisitor<ToplevelType,RuntimeException>() {
 
@@ -158,49 +154,6 @@ public enum ToplevelType {
 				return DATETIME;
 			}});
 	}
-	
-//	public static ToplevelType getToplevelType(Type t){
-//		// Composite types
-//		if(t.isConstructor())
-//			return CONSTRUCTOR;
-//		if(t.isNode())
-//			return NODE;
-//		if(t.isListRelation())
-//			return t.getElementType().equivalent(TypeFactory.getInstance().voidType()) ? LIST : LREL;
-//		if(t.isList())
-//			return LIST;
-//		if(t.isMap())
-//			return MAP;
-//		if(t.isRelation())
-//			return t.getElementType().equivalent(TypeFactory.getInstance().voidType()) ? SET : REL;
-//		if(t.isSet())
-//			return SET;
-//		if(t.isTuple())
-//			return TUPLE;
-//		// Primitive types
-//		if(t.isBool())
-//			return BOOL;
-//		if(t.isInteger())
-//			return INT;
-//		if(t.isReal())
-//			return REAL;
-//		if(t.isRational())
-//			return RAT;
-//		if(t.isNumber())
-//			return NUM;
-//		if(t.isString())
-//			return STR;
-//		if(t.isSourceLocation())
-//			return LOC;
-//		if(t.isDateTime())
-//			return DATETIME;
-//		if(t.isTop())
-//			return VALUE;
-//		if(t.isBottom())
-//			return VOID;
-//		
-//		throw new RuntimeException("Unknown type: " + t);
-//	}
 	
 	public static int getToplevelTypeAsInt(Type t){
 		return getToplevelType(t).getToplevelTypeAsInt();
