@@ -6,6 +6,8 @@ import experiments::Compiler::Execute;
 loc base1 = |project:///rascal-test/tests/functionality|;
 list[str] functionalityTests = [
 
+// OK
+
 //"AnnotationTests"			// OK
 //"AssignmentTests"			// OK
 //"ReducerTests"			// OK
@@ -17,11 +19,13 @@ list[str] functionalityTests = [
 							// 4 tests fail but this a deliberate improvement over the interpreter result.
 //"BackTrackingTests"		// OK 
 
+// Not yet OK
+
 //"AccumulatingTests"		// 2 tests fail: append that crosses function boundary: make tmp scope dependent?
 
 //"CallTests"				// keyword parameters
 
-"ComprehensionTests"		// 15 tests fail
+"ComprehensionTests"		// 8 tests fail
 
 //"DataDeclarationTests"	//error("Initializer type Maybe[&T \<: value] not assignable to variable of type Maybe[void]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5906,10,<104,53>,<104,63>))
 							//error("Initializer type Exp1[&T \<: value] not assignable to variable of type Exp1[int]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5772,11,<100,58>,<100,69>))
