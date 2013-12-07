@@ -29,5 +29,6 @@ module experiments::Compiler::Examples::Tst
 //        };
 //        return res;
 //}
-data TREE = i(int N) | f(TREE a,TREE b) | g(TREE a, TREE b);
-public value main(list[value] args)  = [ X | /value X <- f(i(1),g(i(2),i(3))) ]; // == [1,i(1),2,i(2),3,i(3),g(i(2),i(3))];
+ data NODE = i(int I) | s(str x)  | st(set[NODE] s) | l(list[NODE]) | m(map[NODE,NODE] m) | f() | f(NODE a) | f(NODE a, NODE b) | g() | g(NODE a) | g(NODE a,NODE b);
+   
+public value main(list[value] args)  = f(i(1)) <= f(i(1));
