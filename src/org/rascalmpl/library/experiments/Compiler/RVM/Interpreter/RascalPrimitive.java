@@ -3623,8 +3623,11 @@ public enum RascalPrimitive {
 			return set_less_set(stack, sp, arity);
 		case MAP:
 			return map_less_map(stack, sp, arity);
+		case CONSTRUCTOR:
 		case NODE:
 			return node_less_node(stack, sp, arity);
+		case ADT:
+			return adt_less_adt(stack, sp, 2);
 		case TUPLE:
 			return tuple_less_tuple(stack, sp, arity);
 		default:
@@ -3908,6 +3911,14 @@ public enum RascalPrimitive {
 
 	// Generic lessequal
 	
+	private static boolean $lessequal(IValue left, IValue right){
+		Object[] fakeStack = new Object[2];
+		fakeStack[0] = left;
+		fakeStack[1] = right;
+		lessequal(fakeStack, 2, 2);
+		return (Boolean)fakeStack[0];
+	}
+	
 	private static int lessequal(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 
@@ -3945,8 +3956,11 @@ public enum RascalPrimitive {
 			return set_lessequal_set(stack, sp, arity);
 		case MAP:
 			return map_lessequal_map(stack, sp, arity);
+		case CONSTRUCTOR:
 		case NODE:
 			return node_lessequal_node(stack, sp, arity);
+		case ADT:
+			return adt_lessequal_adt(stack, sp, 2);
 		case TUPLE:
 			return tuple_lessequal_tuple(stack, sp, arity);
 		default:
@@ -4083,15 +4097,8 @@ public enum RascalPrimitive {
 		int leftArity = left.arity();
 		int rightArity = right.arity();
 
-		Object[] fakeStack = new Object[2];
 		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-
-			fakeStack[0] = left.get(i);
-			fakeStack[1] = right.get(i);
-			
-			lessequal(fakeStack, 2, 2);
-
-			if(!((Boolean)fakeStack[0])){
+			if(!$lessequal(left.get(i), right.get(i))){
 				stack[sp - 2] = false;
 				return sp - 1;
 			}
@@ -4121,14 +4128,8 @@ public enum RascalPrimitive {
 		ITuple right = (ITuple)stack[sp - 1];
 		int rightArity = right.arity();
 
-		Object[] fakeStack = new Object[2];
-		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-			fakeStack[0] = left.get(i);
-			fakeStack[1] = right.get(i);
-			
-			lessequal(fakeStack, 2, 2);
-
-			if(!((Boolean)fakeStack[0])){
+		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {			
+			if(!$lessequal(left.get(i), right.get(i))){
 				stack[sp - 2] = false;
 				return sp - 1;
 			}
