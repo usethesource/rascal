@@ -120,7 +120,7 @@ bool isConstant((Expression) `<Literal s>`) = isConstantLiteral(s);
 default bool isConstant(Expression e) = false;
 
 value getConstantValue(Expression e) {
-  println("getConstant: <e>");
+  //println("getConstant: <e>");
   return readTextValueString("<e>");
 }
 
@@ -401,7 +401,17 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
 MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = makeMuOne([translate(g) | g <- generators ]);
 
 // All
-MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = makeMuAll([translate(g) | g <- generators ]);
+
+//MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = makeMuAll([translate(g) | g <- generators ]);
+
+MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
+  isGen = [!backtrackFree(g) | g <- generators];
+  generators1 = [g | g <- generators]; // TODO: artefact of concrete syntax
+  gens = [isGen[i] ? translate(generators1[i]).exp // Unwraps muMulti 
+                   : translateBoolClosure(generators1[i]) | i <- index(generators1)];
+  println("all: gens = <gens>");
+  return muCall(mkCallToLibFun("Library", "RASCAL_ALL", 2), [ muCallMuPrim("make_array", gens), muCallMuPrim("make_array", [ muBool(b) | bool b <- isGen ]) ]);
+}
 
 // Comprehension
 MuExp translate (e:(Expression) `<Comprehension comprehension>`) = translateComprehension(comprehension);
@@ -725,14 +735,12 @@ default MuExp translateBool(Expression e) {
 
 MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
   if(backtrackFree(lhs) && backtrackFree(rhs)) {
-     lcode = translateBool(lhs);
-     rcode = translateBool(rhs);
      switch(fun){
-     	case "and": 		return muIfelse(nextLabel("L_AND"), lcode, [rcode], [muCon(false)]);
+     	case "and": 		return muIfelse(nextLabel("L_AND"),  translateBool(lhs), [translateBool(rhs)], [muCon(false)]);
      						//return makeMuAll([translate(lhs), translate(rhs)]);
-     	case "or":			return muIfelse(nextLabel("L_OR"), lcode, [muCon(true)], [rcode]);
-     	case "implies":		return muIfelse(nextLabel("L_IMPLIES"), lcode, [rcode], [muCon(true)]);
-     	case "equivalent":	return muIfelse(nextLabel("L_EQUIVALENT"), lcode, [rcode], [muCallMuPrim("not_mbool", [rcode])]);
+     	case "or":			return muIfelse(nextLabel("L_OR"),  translateBool(lhs), [muCon(true)], [translateBool(rhs)]);
+     	case "implies":		return muIfelse(nextLabel("L_IMPLIES"),  translateBool(lhs), [translateBool(rhs)], [muCon(true)]);
+     	case "equivalent":	return muIfelse(nextLabel("L_EQUIVALENT"),  translateBool(lhs), [translateBool(rhs)], [muCallMuPrim("not_mbool", [translateBool(rhs)])]);
      	default:
     		throw "translateBoolBinary: unknown operator <fun>";
      }
@@ -804,6 +812,7 @@ MuExp translateStringLiteral((StringLiteral) `<PreStringChars pre> <Expression e
 }
                     
 MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString("<constant>"));
+//muCon("<constant>"[1..-1]);
 
 MuExp translatePre(PreStringChars pre) {
   content = "<pre>"[1..-1];
@@ -981,6 +990,28 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
   	leaveFunctionScope();								  
   	
 	return (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid); // closures are not overloaded
+}
+
+MuExp translateBoolClosure(Expression e){
+    tuple[str fuid,int pos] addr = <topFunctionScope(),-1>;
+	fuid = addr.fuid + "/non_gen_at_<e@\loc>()";
+	
+	enterFunctionScope(fuid);
+	
+    ftype = Symbol::func(Symbol::\bool(),[]);
+	nformals = 0;
+	nlocals = 0;
+	bool isVarArgs = false;
+  	// TODO: keyword parameters
+    
+    MuExp body = muReturn(translate(e));
+    functions_in_module += muFunction(fuid, ftype, addr.fuid, 
+  									  nformals, nlocals, isVarArgs, e@\loc, [], (), body);
+  	
+  	leaveFunctionScope();								  
+  	
+	return muFun(fuid, addr.fuid); // closures are not overloaded
+
 }
 
 // Translate comprehensions

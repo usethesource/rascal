@@ -928,23 +928,23 @@ public enum RascalPrimitive {
 						+ lhsType + " and " + rhsType);
 			}
 		case SET:
-			switch (rhsType) {
-			case SET:
-				return set_add_set(stack, sp, arity);
-			case REL:
-				return set_add_rel(stack, sp, arity);
-			default:
+//			switch (rhsType) {
+//			case SET:
+//				return set_add_set(stack, sp, arity);
+//			case REL:
+//				return set_add_rel(stack, sp, arity);
+//			default:
 				return set_add_elm(stack, sp, arity);
-			}
+//			}
 		case LIST:
-			switch (rhsType) {
-			case LIST:
-				return list_add_list(stack, sp, arity);
-			case LREL:
-				return list_add_lrel(stack, sp, arity);
-			default:
+//			switch (rhsType) {
+//			case LIST:
+//				return list_add_list(stack, sp, arity);
+//			case LREL:
+//				return list_add_lrel(stack, sp, arity);
+//			default:
 				return list_add_elm(stack, sp, arity);
-			}
+//			}
 		case LOC:
 			switch (rhsType) {
 			case STR:
@@ -3593,9 +3593,14 @@ public enum RascalPrimitive {
 	
 	private static int less(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-
-		IValue left = (IValue) stack[sp - 2];
-		Type leftType = left.getType();
+		
+		Type leftType = ((IValue) stack[sp - 2]).getType();
+		Type rightType = ((IValue) stack[sp - 1]).getType();
+		
+		if(!leftType.comparable(rightType)){
+			stack[sp - 2] = false;
+			return sp - 1;
+		}
 
 		if (leftType.isSubtypeOf(tf.numberType())) {
 			return num_less_num(stack, sp, arity);
@@ -3611,13 +3616,18 @@ public enum RascalPrimitive {
 		case LOC:
 			return loc_less_loc(stack, sp, arity);
 		case LIST:
+		case LREL:
 			return list_less_list(stack, sp, arity);
 		case SET:
+		case REL:
 			return set_less_set(stack, sp, arity);
 		case MAP:
 			return map_less_map(stack, sp, arity);
+		case CONSTRUCTOR:
 		case NODE:
 			return node_less_node(stack, sp, arity);
+		case ADT:
+			return adt_less_adt(stack, sp, 2);
 		case TUPLE:
 			return tuple_less_tuple(stack, sp, arity);
 		default:
@@ -3901,15 +3911,29 @@ public enum RascalPrimitive {
 
 	// Generic lessequal
 	
+	private static boolean $lessequal(IValue left, IValue right){
+		Object[] fakeStack = new Object[2];
+		fakeStack[0] = left;
+		fakeStack[1] = right;
+		lessequal(fakeStack, 2, 2);
+		return (Boolean)fakeStack[0];
+	}
+	
 	private static int lessequal(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 
-		IValue left = (IValue) stack[sp - 2];
-		Type leftType = left.getType();
+		Type leftType = ((IValue) stack[sp - 2]).getType();
+		Type rightType = ((IValue) stack[sp - 1]).getType();
+		
+		if(!leftType.comparable(rightType)){
+			stack[sp - 2] = false;
+			return sp - 1;
+		}
 
 		if (leftType.isSubtypeOf(tf.numberType())) {
 			return num_lessequal_num(stack, sp, arity);
 		}
+		
 		switch (ToplevelType.getToplevelType(leftType)) {
 
 		case BOOL:
@@ -3925,13 +3949,18 @@ public enum RascalPrimitive {
 			return loc_lessequal_loc(stack, sp, arity);
 
 		case LIST:
+		case LREL:
 			return list_lessequal_list(stack, sp, arity);
 		case SET:
+		case REL:
 			return set_lessequal_set(stack, sp, arity);
 		case MAP:
 			return map_lessequal_map(stack, sp, arity);
+		case CONSTRUCTOR:
 		case NODE:
 			return node_lessequal_node(stack, sp, arity);
+		case ADT:
+			return adt_lessequal_adt(stack, sp, 2);
 		case TUPLE:
 			return tuple_lessequal_tuple(stack, sp, arity);
 		default:
@@ -4068,15 +4097,8 @@ public enum RascalPrimitive {
 		int leftArity = left.arity();
 		int rightArity = right.arity();
 
-		Object[] fakeStack = new Object[2];
 		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-
-			fakeStack[0] = left.get(i);
-			fakeStack[1] = right.get(i);
-			
-			lessequal(fakeStack, 2, 2);
-
-			if(!((Boolean)fakeStack[0])){
+			if(!$lessequal(left.get(i), right.get(i))){
 				stack[sp - 2] = false;
 				return sp - 1;
 			}
@@ -4106,14 +4128,8 @@ public enum RascalPrimitive {
 		ITuple right = (ITuple)stack[sp - 1];
 		int rightArity = right.arity();
 
-		Object[] fakeStack = new Object[2];
-		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-			fakeStack[0] = left.get(i);
-			fakeStack[1] = right.get(i);
-			
-			lessequal(fakeStack, 2, 2);
-
-			if(!((Boolean)fakeStack[0])){
+		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {			
+			if(!$lessequal(left.get(i), right.get(i))){
 				stack[sp - 2] = false;
 				return sp - 1;
 			}
@@ -4397,10 +4413,10 @@ public enum RascalPrimitive {
 			throw RuntimeExceptionFactory.emptyList(null, null);
 		}
 		if (firstIndex >= len) {
-			throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(firstIndex), null, null);
+			throw RuntimeExceptions.indexOutOfBounds(vf.integer(firstIndex), null, new ArrayList<Frame>());
 		}
 		if (endIndex > len ) {
-			throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(endIndex), null, null);
+			throw RuntimeExceptions.indexOutOfBounds(vf.integer(endIndex), null, new ArrayList<Frame>());
 		}
 		
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
@@ -4811,10 +4827,12 @@ public enum RascalPrimitive {
 		String message = "";
 		for(int i = 0; i < tries && passed; i++){
 			if(nargs > 0){
+				message = " with arguments: ";
 				ITuple tup = (ITuple) randomValue.generate(argType);
 				for(int j = 0; j < args.length; j++){
 					args[j] = tup.get(j);
 					//stdout.println("args[" + j + "] = " + args[j]);
+					message = message + args[j].toString() + " ";
 				}
 			}
 			try {
@@ -4826,12 +4844,12 @@ public enum RascalPrimitive {
 			} catch (Thrown e){
 				IConstructor cons = (IConstructor) e.value;
 				if(!cons.getName().equals(expected)){
-					message = e.toString();
+					message = e.toString() + message;
 					passed = false;
 				}
 			}
 			catch (Exception e){
-				message = e.getMessage();
+				message = e.getMessage() + message;
 				passed = false;
 			}
 		}
@@ -5054,7 +5072,7 @@ public enum RascalPrimitive {
 		IConstructor cons =  (IConstructor) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
 		try {
-			stack[sp - 2] = cons.get((idx >= 0) ? idx : cons.arity());
+			stack[sp - 2] = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 		} catch(IndexOutOfBoundsException e) {
 			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
 		}
@@ -5066,7 +5084,7 @@ public enum RascalPrimitive {
 		INode node =  (INode) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
 		try {
-			stack[sp - 2] = node.get((idx >= 0) ? idx : node.arity());
+			stack[sp - 2] = node.get((idx >= 0) ? idx : (node.arity() + idx));
 		} catch(IndexOutOfBoundsException e) {
 			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
 		}
