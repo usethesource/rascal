@@ -265,6 +265,9 @@ test bool tst() = run("all(int x \<- [1,2,13,3], x \> 0)") == all(int x <- [1,2,
 test bool tst() = run("all(x \<- [1,2,13,3], x \> 20)") == all(x <- [1,2,13,3], x > 20);
 test bool tst() = run("all(int x \<- [1,2,13,3], x \> 20)") == all(int x <- [1,2,13,3], x > 20);
 test bool tst() = run("all(int x \<- [1,2,3], x \>= 2 )") == all(int x <- [1,2,3], x >= 2 );
+test bool tst() = run("all(int x \<- [1,2,3], x \<= 2 )") == all(int x <- [1,2,3], x <= 2 );
+test bool tst() = run("all(int x \<- [])") == !all(int x <- []);
+
 
 // Range
 
