@@ -6,6 +6,7 @@ coroutine ALL[1, coArray,
                  len, j, coInits, co] {
     len = size_array(coArray);
     j = 0;
+    // coiInits is not created!
     put_array(coInits,j,init(get_array(coArray,j)));
     while(j >= 0) {
         co = get_array(coInits,j);
@@ -18,6 +19,47 @@ coroutine ALL[1, coArray,
             };
         } else {
             j = j - 1; };
+    };
+}
+
+function RASCAL_ALL[2, genArray, generators, 
+                        len, j, gen, genInits, forward] {
+    len = size_array(genArray);
+    j = 0;
+    genInits = make_array(len);
+    forward = true;
+    while(true){
+        if(get_array(generators, j)){
+           if(forward){
+              put_array(genInits,j,init(get_array(genArray,j)));
+           };
+           gen = get_array(genInits,j);
+           if(next(gen)) {
+              forward = true;
+              j = j + 1;
+           } else {
+             forward = false;
+             j = j - 1;
+           };
+        } else {
+          if(forward){
+             if(get_array(genArray, j)()){
+                forward = true;
+                j = j + 1;
+             } else {
+               return false;
+             };
+           } else {
+             j = j - 1;
+           };
+        };
+        if(j <= 0){
+           return true;
+        };
+        if(j == len){
+           forward = false;
+           j = j - 2;
+        };
     };
 }
 
@@ -804,10 +846,9 @@ coroutine MATCH_DESCENDANT[2, pat, iSubject, gen, cpat]{
 }
 
 // ***** Match and descent for all types *****
+// Enforces the same left-most innermost traversal order as the interpreter
 
 coroutine MATCH_AND_DESCENT[2, pat, iVal]{
-  DO_ALL(pat, iVal);
-  
   typeswitch(iVal){
     case list:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), iVal);
     case lrel:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), iVal);
@@ -817,8 +858,9 @@ coroutine MATCH_AND_DESCENT[2, pat, iVal]{
     case set:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat),  iVal);
     case rel:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat),  iVal);
     case tuple:       DO_ALL(create(MATCH_AND_DESCENT_TUPLE, pat),iVal);
-    default:          exhaust;
+    default:          true;
   };  
+  DO_ALL(pat, iVal);
 }
 
 coroutine MATCH_AND_DESCENT_LITERAL[2, pat, iSubject, res]{
@@ -867,9 +909,9 @@ coroutine MATCH_AND_DESCENT_MAP[2, pat, iMap, iKlst, iVlst, last, j]{
 coroutine MATCH_AND_DESCENT_NODE[2, pat, iNd, last, j, ar]{
    ar = get_name_and_children(iNd);
    last = size_array(ar);
-   j = 0; 
+   j = 1; 
    while(j < last){
-      DO_ALL(pat, get_array(ar, j));
+      //DO_ALL(pat, get_array(ar, j));
       DO_ALL(create(MATCH_AND_DESCENT, pat),  get_array(ar, j));
       j = j + 1;
    };
