@@ -993,7 +993,25 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
 }
 
 MuExp translateBoolClosure(Expression e){
-	// To be done
+    tuple[str fuid,int pos] addr = <topFunctionScope(),-1>;
+	fuid = addr.fuid + "/non_gen_at_<e@\loc>()";
+	
+	enterFunctionScope(fuid);
+	
+    ftype = Symbol::func(Symbol::\bool(),[]);
+	nformals = 0;
+	nlocals = 0;
+	bool isVarArgs = false;
+  	// TODO: keyword parameters
+    
+    MuExp body = muReturn(translate(e));
+    functions_in_module += muFunction(fuid, ftype, addr.fuid, 
+  									  nformals, nlocals, isVarArgs, e@\loc, [], (), body);
+  	
+  	leaveFunctionScope();								  
+  	
+	return muFun(fuid, addr.fuid); // closures are not overloaded
+
 }
 
 // Translate comprehensions
