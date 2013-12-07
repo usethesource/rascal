@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +26,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.library.vis.graphics.NewInterpolation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public enum MuPrimitive {
@@ -524,7 +526,7 @@ public enum MuPrimitive {
 		stack[sp - 1] = new Object[len];
 		return sp;
 	}
-		
+			
 	public static int mint(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((IInteger) stack[sp - 1]).intValue();
@@ -957,6 +959,26 @@ public enum MuPrimitive {
 //		stack[sp - 1] = mset.clone();
 //		return sp;
 //	}
+	
+	public static int make_array_list(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		stack[sp] = new ArrayList<Object>();
+		return sp + 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int get_array_list_mint(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((List<Object>) stack[sp - 2]).get((Integer) stack[sp - 1]);
+		return sp - 1;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static int put_array_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((List<Object>) stack[sp - 2]).add(stack[sp - 1]);
+		return sp - 1;
+	}
 			
 	/*
 	 * Run this class as a Java program to compare the list of enumeration constants with the implemented methods in this class.
