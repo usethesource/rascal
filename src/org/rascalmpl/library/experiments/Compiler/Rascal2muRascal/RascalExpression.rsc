@@ -800,22 +800,31 @@ lexical PostStringChars
 MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <StringTemplate template> <StringTail tail>`) {
 	preResult = nextTmp();
 	return muBlock( [ muAssignTmp(preResult, translatePre(pre)),
-                      muCallPrim("template_addunindented", [ translateTemplate(template, preResult), *translateTail(tail)])
+                      muCallPrim("template_addunindented", [ translateTemplate(template, computeIndent(pre), preResult), *translateTail(tail)])
                     ]);
 }
     
 MuExp translateStringLiteral((StringLiteral) `<PreStringChars pre> <Expression expression> <StringTail tail>`) {
     preResult = nextTmp();
     return muBlock( [ muAssignTmp(preResult, translatePre(pre)),
-					  muCallPrim("template_addunindented", [ translateTemplate(expression, preResult), *translateTail(tail)])
+					  muCallPrim("template_addunindented", [ translateTemplate(expression, computeIndent(pre), preResult), *translateTail(tail)])
 					]   );
 }
                     
 MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString("<constant>"));
 //muCon("<constant>"[1..-1]);
 
+str removeMargins(str s)  = visit(s) { case /^[ \t]*'/m => "" };
+
+str computeIndent(str s) {
+   lines = split("\n", s); 
+   return left("", size(lines[-1]));
+} 
+
+str computeIndent(PreStringChars pre) = computeIndent(removeMargins("<pre>"[1..-1]));
+
 MuExp translatePre(PreStringChars pre) {
-  content = "<pre>"[1..-1];
+  content = removeMargins("<pre>"[1..-1]);
   return muCon(content);  //[muCallPrim("str_remove_margins", [muCon(content)])];
 }
 
@@ -872,7 +881,7 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <Expression express
 }
 	
 list[MuExp] translateTail((StringTail) `<PostStringChars post>`) {
-  content = "<post>"[1..-1];
+  content = removeMargins("<post>"[1..-1]);
   return size(content) == 0 ? [] : [muCon(content)]; //[muCallPrim("str_remove_margins", [muCon(content)])];
 }
 
@@ -884,9 +893,9 @@ list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate tem
            ];
  }  
  
- MuExp translateTemplate(Expression e, str pre){
+ MuExp translateTemplate(Expression e, str indent, str preResult){
     result = nextTmp();
-    return muBlock([ muAssignTmp(result, muCallPrim("template_open", [muTmp(pre)])),
+    return muBlock([ muAssignTmp(result, muCallPrim("template_open", [muCon(indent), muTmp(preResult)])),
     				 muAssignTmp(result, muCallPrim("template_add", [ muTmp(result), muCallPrim("value_to_string", [translate(e)]) ])),
                      muCallPrim("template_close", [muTmp(result)])
                    ]);
