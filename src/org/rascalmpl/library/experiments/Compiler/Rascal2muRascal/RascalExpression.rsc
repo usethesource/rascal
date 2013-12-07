@@ -402,16 +402,16 @@ MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = make
 
 // All
 
-MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = makeMuAll([translate(g) | g <- generators ]);
-/*
+//MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = makeMuAll([translate(g) | g <- generators ]);
+
 MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
   isGen = [!backtrackFree(g) | g <- generators];
   generators1 = [g | g <- generators]; // TODO: artefact of concrete syntax
-  gens = [isGen[i] ? translate(generators1[i]) : translateBoolClosure(generators1[i]) | i <- index(generators1)];
+  gens = [isGen[i] ? translate(generators1[i]).exp // Unwraps muMulti 
+                   : translateBoolClosure(generators1[i]) | i <- index(generators1)];
   println("all: gens = <gens>");
-  return;  //... a call to RASCALL_ALL ...
+  return muCall(mkCallToLibFun("Library", "RASCAL_ALL", 2), [ muCallMuPrim("make_array", gens), muCallMuPrim("make_array", [ muBool(b) | bool b <- isGen ]) ]);
 }
-*/
 
 // Comprehension
 MuExp translate (e:(Expression) `<Comprehension comprehension>`) = translateComprehension(comprehension);
