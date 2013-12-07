@@ -26,7 +26,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.library.vis.graphics.NewInterpolation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public enum MuPrimitive {
@@ -115,7 +114,14 @@ public enum MuPrimitive {
 	undefine,
 	product_mint_mint,
 	
-	typeOf_constructor
+	typeOf_constructor,
+	
+	// GLL
+	make_array_list,
+	get_array_list_mint,
+	put_array_list,
+	elm_in_array_list,
+	size_array_list
 	;
 	
 	private static IValueFactory vf;
@@ -978,6 +984,20 @@ public enum MuPrimitive {
 		assert arity == 2;
 		stack[sp - 2] = ((List<Object>) stack[sp - 2]).add(stack[sp - 1]);
 		return sp - 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int elm_in_array_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((List<Object>) stack[sp - 2]).contains(stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int size_array_list(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((List<Object>) stack[sp - 1]).size();
+		return sp;
 	}
 			
 	/*
