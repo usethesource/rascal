@@ -22,7 +22,8 @@ public enum ToplevelType {
 	SET				(14),
 	REL				(15),
 	TUPLE			(16),
-	VALUE			(17);
+	ADT				(17),
+	VALUE			(18);
 	
 	private final int toplevelType;
 	
@@ -76,8 +77,7 @@ public enum ToplevelType {
 
 			@Override
 			public ToplevelType visitAlias(Type type) throws RuntimeException {
-				// TODO Auto-generated method stub
-				return null;
+				throw new RuntimeException("Alias cannot occur as toplevel type");
 			}
 
 			@Override
@@ -110,8 +110,7 @@ public enum ToplevelType {
 			@Override
 			public ToplevelType visitAbstractData(Type type)
 					throws RuntimeException {
-				// TODO Auto-generated method stub
-				return null;
+				return ADT;
 			}
 
 			@Override
@@ -137,15 +136,13 @@ public enum ToplevelType {
 			@Override
 			public ToplevelType visitParameter(Type type)
 					throws RuntimeException {
-				// TODO Auto-generated method stub
-				return null;
+				throw new RuntimeException("Parameter cannot occur as toplevel type");
 			}
 
 			@Override
 			public ToplevelType visitExternal(Type type)
 					throws RuntimeException {
-				// TODO Auto-generated method stub
-				return null;
+				throw new RuntimeException("External cannot occur as toplevel type");
 			}
 
 			@Override
