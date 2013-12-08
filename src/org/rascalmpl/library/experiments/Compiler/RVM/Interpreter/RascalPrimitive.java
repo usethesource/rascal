@@ -1220,8 +1220,6 @@ public enum RascalPrimitive {
 	 */
 	
 	private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
-//	private static final Pattern INDENT = Pattern.compile("(?<![\\\\])'([ \t]*)([^']*)$");
-//	private static final Pattern NONSPACE = Pattern.compile("[^ \t]");	
 	
 	private static Stack<String> indentStack = new Stack<String>();
 	
@@ -1236,48 +1234,18 @@ public enum RascalPrimitive {
 	
 	private static void $unindent(){
 		indentStack.pop();
-		//stdout.println("$unindent: " + indentStack.size() + ", \"" + $getCurrentIndent() + "\"" );
 	}
-	
-//	private static String $computeIndent(String arg) {
-//		Matcher m = INDENT.matcher(arg);
-//		if (m.find()) {
-//			String res = m.group(1) + $replaceEverythingBySpace(m.group(2)) ;
-//			//stdout.println("$computeIndent: \"" + arg + "\" => \"" + res + "\"");
-//			return res;
-//		}
-//		//stdout.println("$computeIndent: \"" + arg + "\" => \"\"");
-//		return "";
-//	}
-	
-//	private static String $replaceEverythingBySpace(String input) {
-//		return NONSPACE.matcher(input).replaceAll(" ");
-//	}
 	
 	private static String $removeMargins(String arg) {
 		arg = MARGIN.matcher(arg).replaceAll("");
 		return org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(arg);
 	}
 	
-	private static String $preprocess(String arg) {
-		return arg;
-//		arg = org.rascalmpl.interpreter.utils.StringUtils.unquote(arg);
-//		// don't unescape ' yet
-//		arg = org.rascalmpl.interpreter.utils.StringUtils.unescapeBase(arg);
-//		return arg;
-	}
-	
-//	private static IString $processString(IString s){
-//		return vf.string($removeMargins(s.getValue()));
-//	}
-	
 	public static int template_open(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		String ind = ((IString) stack[sp - 2]).getValue();
 		String pre = ((IString) stack[sp - 1]).getValue();
-		//String ind = $computeIndent(pre);
 		$indent(ind);
-		//stdout.println("template_open: \"" + pre + "\"\nindent: \"" + ind + "\"");
 		stack[sp - 2] = vf.string(pre);
 		return sp - 1;
 	}
@@ -1295,7 +1263,6 @@ public enum RascalPrimitive {
 	public static int template_add(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		IString template = (IString) stack[sp - arity];
-		//stdout.println("template_add: template = \"" + template.getValue() + "\"");
 		String indent = $getCurrentIndent();
 		for(int i = 1; i < arity; i++){
 			IString arg_s = (IString) stack[sp - arity + i];
@@ -1313,18 +1280,14 @@ public enum RascalPrimitive {
 			}
 		}
 		stack[sp - arity] = template;
-		//stdout.println("template_add (" + (arity - 1) + ") => \"" + template + "\"");
 		return sp - arity + 1;
 	}
 	
 	public static int template_close(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		$unindent();
-		//stdout.println("template_close: \"" + ((IString)stack[sp - 1]).getValue() + "\"");
 		return sp;
 	}
-
-	//	public static int addition_loc_str(Object[] stack, int sp) { 	}
 
 	public static int tuple_add_tuple(Object[] stack, int sp, int arity) {
 		assert arity == 2;
