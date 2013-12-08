@@ -348,6 +348,29 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
       }
 	  }
 	}
+	
+	private static int[][] strangeNonNFCUnicodeRanges
+		= {
+			  {0x100000, 0x10FFFF}
+			, {0x20000, 0x2FFFF}
+		};
+	
+	private int[] generateInts(int start, int stop, int count) {
+		int[] result =new int[count];
+		int range = stop - start;
+		for (int i =0 ; i < count; i++)
+			result[i] = start + stRandom.nextInt(range);
+		return result;
+	}
+	private String randomString(int count) {
+		if (stRandom.nextBoolean()) {
+			return RandomStringUtils.random(count);
+		}
+		else {
+			int[] range =strangeNonNFCUnicodeRanges[stRandom.nextInt(strangeNonNFCUnicodeRanges.length)];
+			return new String(generateInts(range[0], range[1], count), 0 , count);
+		}
+	}
 
 	@Override
 	public IValue visitString(Type type) {
@@ -356,7 +379,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		} else {
 			RandomValueTypeVisitor visitor = descend();
 			IString str = vf.string(visitor.generate(type).toString());
-			IString result = str.concat(vf.string(RandomStringUtils.random(1)));
+			IString result = str.concat(vf.string(randomString(1)));
 			// make sure we are not generating very strange sequences
 			String normalized = Normalizer.normalize(result.getValue(), Form.NFC);
 			return vf.string(normalized);
