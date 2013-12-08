@@ -25,7 +25,7 @@ list[str] functionalityTests = [
 
 //"CallTests"				// keyword parameters
 
-//"ComprehensionTests"		// 8 tests fail
+"ComprehensionTests"		// 8 tests fail
 
 //"DataDeclarationTests"	//error("Initializer type Maybe[&T \<: value] not assignable to variable of type Maybe[void]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5906,10,<104,53>,<104,63>))
 							//error("Initializer type Exp1[&T \<: value] not assignable to variable of type Exp1[int]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5772,11,<100,58>,<100,69>))
@@ -33,7 +33,7 @@ list[str] functionalityTests = [
 							//error("Initializer type &T \<: value not assignable to variable of type str",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5061,12,<89,68>,<89,80>))
 							// Issue posted
 							
-"DataTypeTests"			// 8 tests fail: escapes in string templates
+//"DataTypeTests"			// 8 tests fail: escapes in string templates
 							
 
 //"PatternTests"			// Uses keyword parameters

@@ -13,9 +13,17 @@ module experiments::Compiler::Examples::Tst
 	//}
 
 // public bool main(list[value] args) = all(int X <- {1,2,3}, X >= 2);
- 
-   
-public value main(list[value] args)  {str a = "a\\bc2"; 
-   return "12<"abc\n   \' def\n\'       ghi">4";
-   
- }
+
+// Generate a class with given name and fields.
+
+public str genClass(str name, map[str,str] fields) { 
+  return 
+    "public class {
+    '  <for (x <- fields) {>
+    '  PPPPPP<}>
+    '}";
+}
+
+value main(list[value] args){
+  return genClass("Person", ("first" : "String", "last" : "String", "age" : "int", "married" : "boolean"));
+}
