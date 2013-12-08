@@ -1097,21 +1097,49 @@ public class Prelude {
 	}
 
 	private IValue consumeInputStream(ISourceLocation sloc, Reader in, IEvaluatorContext ctx) {
-		StringBuilder result = new StringBuilder(1024 * 1024);
 		try{
-			char[] buf = new char[4096];
-			int count;
-
-			while((count = in.read(buf)) != -1) {
-				result.append(new java.lang.String(buf, 0, count));
+			java.lang.String str = null;
+			if(!sloc.hasOffsetLength() || sloc.getOffset() == -1){
+				StringBuilder result = new StringBuilder(1024 * 1024);
+				char[] buf = new char[4096];
+				int count;
+	
+				while((count = in.read(buf)) != -1) {
+					result.append(new java.lang.String(buf, 0, count));
+				}
+				str = result.toString();
 			}
-			
-			java.lang.String str = result.toString();
-			
-			if(sloc.hasOffsetLength() && sloc.getOffset() != -1){
-				str = str.substring(sloc.getOffset(), sloc.getOffset() + sloc.getLength());
+			else {
+				BufferedReader buffer = new BufferedReader(in, 4096);
+				try {
+					// first scan for offset
+					int offset = sloc.getOffset();
+					int seen = 0 ;
+					while (seen < offset) {
+						char c = (char)buffer.read();
+						if (Character.isHighSurrogate(c)) {
+							buffer.read();
+						}
+						seen++;
+					}
+	
+					// offset reached, start reading and possibly merging
+					int targetLength = sloc.getLength();
+					StringBuilder result = new StringBuilder(targetLength);
+					for (int i = 0; i < targetLength; i++) {
+						char c = (char)buffer.read();
+						result.append(c);
+						if (Character.isHighSurrogate(c)) {
+							result.append((char)buffer.read());
+						}
+					}
+					str = result.toString();
+				}
+				finally {
+					buffer.close();
+				}
+				
 			}
-			
 			return values.string(str);
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
