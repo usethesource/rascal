@@ -349,17 +349,17 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 	  }
 	}
 	
-	private static int[][] strangeNonNFCUnicodeRanges
-		= {
-			  {0x100000, 0x10FFFF}
-			, {0x20000, 0x2FFFF}
-		};
-	
-	private int[] generateInts(int start, int stop, int count) {
+	private int[] generateCodePoints(int start, int stop, int count) {
 		int[] result =new int[count];
 		int range = stop - start;
-		for (int i =0 ; i < count; i++)
-			result[i] = start + stRandom.nextInt(range);
+		for (int i =0 ; i < count; i++) {
+			int newPoint = 0;
+			while (!Character.isDefined(newPoint) || !Character.isValidCodePoint(newPoint) || Character.getType(newPoint) == Character.UNASSIGNED) {
+				newPoint = start + stRandom.nextInt(range);
+			}
+			result[i] = newPoint;
+
+		}
 		return result;
 	}
 	private String randomString(int count) {
@@ -367,8 +367,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 			return RandomStringUtils.random(count);
 		}
 		else {
-			int[] range =strangeNonNFCUnicodeRanges[stRandom.nextInt(strangeNonNFCUnicodeRanges.length)];
-			return new String(generateInts(range[0], range[1], count), 0 , count);
+			return new String(generateCodePoints(0x10000, 0x2FFFF, count), 0 , count);
 		}
 	}
 
