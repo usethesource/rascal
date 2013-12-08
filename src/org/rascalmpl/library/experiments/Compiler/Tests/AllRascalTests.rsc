@@ -12,7 +12,7 @@ list[str] functionalityTests = [
 //"AssignmentTests"			// OK
 //"ComprehensionTests"		// OOK
 							// 3 tests fail that correspond to empty enumerations: interpreter gives false, compiler gives true.
-
+//"DataTypeTests"			// OK
 //"ReducerTests"			// OK
 //"DeclarationTests"		// OK, these are conscious changes in the scoping rules
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(985,1,<31,18>,<31,19>))
@@ -28,16 +28,12 @@ list[str] functionalityTests = [
 
 //"CallTests"				// keyword parameters
 
-
 //"DataDeclarationTests"	//error("Initializer type Maybe[&T \<: value] not assignable to variable of type Maybe[void]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5906,10,<104,53>,<104,63>))
 							//error("Initializer type Exp1[&T \<: value] not assignable to variable of type Exp1[int]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5772,11,<100,58>,<100,69>))
 							//error("Initializer type &T \<: value not assignable to variable of type str",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5535,12,<95,68>,<95,80>))
 							//error("Initializer type &T \<: value not assignable to variable of type str",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5061,12,<89,68>,<89,80>))
 							// Issue posted
 							
-"DataTypeTests"			// 8 tests fail: escapes in string templates
-							
-
 //"PatternTests"			// Uses keyword parameters
 							// Checking function matchADTwithKeywords4
 							// |rascal://lang::rascal::types::CheckTypes|(140533,19,<2772,21>,<2772,40>): The called signature: checkExp(sort("Expression"), Configuration),
