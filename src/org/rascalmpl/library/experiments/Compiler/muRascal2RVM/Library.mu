@@ -59,6 +59,9 @@ function RASCAL_ALL[2, genArray, generators,
         if(j == len){
            forward = false;
            j = j - 2;
+           if(j < 0){
+              return true;
+           };
         };
     };
 }
