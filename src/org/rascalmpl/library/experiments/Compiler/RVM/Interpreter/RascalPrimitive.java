@@ -680,6 +680,7 @@ public enum RascalPrimitive {
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 									new String[] {"line", "column"});
+		indentStack = new Stack<String>();
 	
 		Method [] methods1 = RascalPrimitive.class.getDeclaredMethods();
 		HashSet<String> implemented = new HashSet<String>();
@@ -1220,7 +1221,7 @@ public enum RascalPrimitive {
 	
 	private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
 //	private static final Pattern INDENT = Pattern.compile("(?<![\\\\])'([ \t]*)([^']*)$");
-	private static final Pattern NONSPACE = Pattern.compile("[^ \t]");	
+//	private static final Pattern NONSPACE = Pattern.compile("[^ \t]");	
 	
 	private static Stack<String> indentStack = new Stack<String>();
 	
@@ -1277,8 +1278,8 @@ public enum RascalPrimitive {
 		//String ind = $computeIndent(pre);
 		$indent(ind);
 		//stdout.println("template_open: \"" + pre + "\"\nindent: \"" + ind + "\"");
-		stack[sp - 1] = vf.string(pre);
-		return sp;
+		stack[sp - 2] = vf.string(pre);
+		return sp - 1;
 	}
 	
 	public static int template_addunindented(Object[] stack, int sp, int arity) {
@@ -1298,21 +1299,17 @@ public enum RascalPrimitive {
 		String indent = $getCurrentIndent();
 		for(int i = 1; i < arity; i++){
 			IString arg_s = (IString) stack[sp - arity + i];
-			String [] lines = arg_s.getValue().split("\n");
+			String [] lines = $removeMargins(arg_s.getValue()).split("\n");
 			if(lines.length <= 1){
 				template = template.concat(arg_s);
 			} else {
+				StringBuilder sb = new StringBuilder();
+				sb.append(lines[0]);
 				for(int j = 1; j < lines.length; j++){
-					template = template.concat(vf.string($removeMargins(lines[j])));
+					sb.append("\n").append(indent).append(lines[j]);
 				}
-//				StringBuilder sb = new StringBuilder();
-//				sb.append($removeMargins(lines[0]));
-//				for(int j = 1; j < lines.length; j++){
-//					sb.append("\n").append(indent).append($removeMargins(lines[j]));
-//				}
-//				String res = sb.toString();
-//				template = template.concat(vf.string(res));
-				
+				String res = sb.toString();
+				template = template.concat(vf.string(res));
 			}
 		}
 		stack[sp - arity] = template;

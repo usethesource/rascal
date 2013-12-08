@@ -818,10 +818,11 @@ str removeMargins(str s)  = visit(s) { case /^[ \t]*'/m => "" };
 
 str computeIndent(str s) {
    lines = split("\n", s); 
-   return left("", size(lines[-1]));
+   return isEmpty(lines) ? "" : left("", size(lines[-1]));
 } 
 
 str computeIndent(PreStringChars pre) = computeIndent(removeMargins("<pre>"[1..-1]));
+str computeIndent(MidStringChars mid) = computeIndent(removeMargins("<mid>"[1..-1]));
 
 MuExp translatePre(PreStringChars pre) {
   content = removeMargins("<pre>"[1..-1]);
@@ -845,24 +846,27 @@ syntax StringTemplate
 	| interpolated: MidStringChars mid Expression expression StringMiddle tail ;
 */
 
-MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`)  =  muCon("<mid>"[1..-1]); // muCallPrim("str_remove_margins", [muCon("<mid>"[1..-1])]);
+MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`) {
+  content = removeMargins("<mid>"[1..-1]);
+  return muCon(content); // muCallPrim("str_remove_margins", [muCon("<mid>"[1..-1])]);
+}
 
 MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {
     midResult = nextTmp();
     return muBlock( [ muAssignTmp(midResult, translateMid(mid)),
-   			          muCallPrim("template_addunindented", [ translateTemplate(template, midResult), translateMiddle(tail) ])
+   			          muCallPrim("template_addunindented", [ translateTemplate(template,  computeIndent(mid), midResult), translateMiddle(tail) ])
    			        ]);
    	}
 
 MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <Expression expression> <StringMiddle tail>`) {
     midResult = nextTmp();
     return muBlock( [ muAssignTmp(midResult, translateMid(mid)),
-                      muCallPrim("template_addunindented", [ translateTemplate(expression, midResult), translateMiddle(tail) ])
+                      muCallPrim("template_addunindented", [ translateTemplate(expression, computeIndent(mid), midResult), translateMiddle(tail) ])
                     ]);
 }
 
 MuExp translateMid(MidStringChars mid) {
-  content = "<mid>"[1..-1];
+  content = removeMargins("<mid>"[1..-1]);
   return muCon(content);
 }    
 /*
@@ -875,7 +879,7 @@ syntax StringTail
 list[MuExp] translateTail((StringTail) `<MidStringChars mid> <Expression expression> <StringTail tail>`) {
     midResult = nextTmp();
     return [ muBlock( [ muAssignTmp(midResult, translateMid(mid)),
-                      muCallPrim("template_addunindented", [ translateTemplate(expression, midResult), *translateTail(tail)])
+                      muCallPrim("template_addunindented", [ translateTemplate(expression, computeIndent(mid), midResult), *translateTail(tail)])
                     ])
            ];
 }
@@ -888,7 +892,7 @@ list[MuExp] translateTail((StringTail) `<PostStringChars post>`) {
 list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate template> <StringTail tail>`) {
     midResult = nextTmp();
     return [ muBlock( [ muAssignTmp(midResult, translateMid(mid)),
-                        muCallPrim("template_addunindented", [ translateTemplate(template, midResult), *translateTail(tail) ])
+                        muCallPrim("template_addunindented", [ translateTemplate(template, computeIndent(mid), midResult), *translateTail(tail) ])
                     ])
            ];
  }  
