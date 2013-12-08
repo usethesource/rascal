@@ -12,18 +12,11 @@ module experiments::Compiler::Examples::Tst
 	//	    == [1,2,3];
 	//}
 
-// public bool main(list[value] args) = all(int X <- {1,2,3}, X >= 2);
 
-// Generate a class with given name and fields.
+data T1 = \int() | \void() | string(str s);
+data T2 = \int() | \void() | string(str s);
 
-public str genClass(str name, map[str,str] fields) { 
-  return 
-    "public class {
-    '  <for (x <- fields) {>
-    '  PPPPPP<}>
-    '}";
-}
-
-value main(list[value] args){
-  return genClass("Person", ("first" : "String", "last" : "String", "age" : "int", "married" : "boolean"));
-}
+bool fT1(T1::\int()) = true;
+	
+bool fT2(T2::\int()) = true;
+	
