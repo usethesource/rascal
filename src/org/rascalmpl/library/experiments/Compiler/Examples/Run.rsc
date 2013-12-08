@@ -86,8 +86,7 @@ test bool tst() = demo("Descent") == experiments::Compiler::Examples::Descent::m
 test bool tst() = demo("Odd") == experiments::Compiler::Examples::Odd::main([]);
 test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
 
-// String templates generate a too large indent for nested templates.
-/*fails*/ // test bool tst() = demo("Template") == experiments::Compiler::Examples::Template::main([]);
+test bool tst() = demo("Template") == experiments::Compiler::Examples::Template::main([]);
 test bool tst() = demo("Overloading1") == experiments::Compiler::Examples::Overloading1::main([]);
 test bool tst() = demo("Overloading2") == experiments::Compiler::Examples::Overloading2::main([]) && demo("Overloading1") == demo("Overloading2");
 test bool tst() = demo("Overloading3") == experiments::Compiler::Examples::Overloading3::main([]);
