@@ -149,6 +149,44 @@ list[str] rascalTests = [
 						// Posted issue
 ];
 
+list[str] libraryTests = [
+
+// OK
+// "BooleanTests"			// OK
+//"IntegerTests"			// OK
+//"MathTests"				// OK
+//"NumberTests"				// OK
+
+//"GraphTests"			//error("Could not instantiate type variables in type fun set[&T \<: value](rel[&T \<: value from, &T \<: value to], set[&T \<: value], set[&T \<: value]) with argument types (set[void],set[void],set[void])",|project://rascal-test/src/tests/library/GraphTests.rsc|(1084,18,<27,33>,<27,51>))
+						//error("Could not instantiate type variables in type fun set[&T \<: value](rel[&T \<: value from, &T \<: value to]) with argument types (set[void])",|project://rascal-test/src/tests/library/GraphTests.rsc|(766,10,<18,33>,<18,43>))
+						//error("Could not instantiate type variables in type fun set[&T \<: value](rel[&T \<: value from, &T \<: value to]) with argument types (set[void])",|project://rascal-test/src/tests/library/GraphTests.rsc|(2748,7,<57,30>,<57,37>))
+						//error("Could not instantiate type variables in type fun set[&T \<: value](rel[&T \<: value from, &T \<: value to], set[&T \<: value], set[&T \<: value]) with argument types (set[void],set[void],set[void])",|project://rascal-test/src/tests/library/GraphTests.rsc|(1548,18,<35,33>,<35,51>))
+
+
+//"ListTests" 			//error("Could not instantiate type variables in type fun map[&A \<: value, &B \<: value](lrel[&A \<: value, &B \<: value]) with argument types (list[void])",|project://rascal-test/src/tests/library/ListTests.rsc|(8668,21,<223,38>,<223,59>))
+						//error("Could not instantiate type variables in type fun map[&A \<: value, &B \<: value](lrel[&A \<: value, &B \<: value]) with argument types (list[void])",|project://rascal-test/src/tests/library/ListTests.rsc|(8735,15,<224,38>,<224,53>))
+						//error("Could not instantiate type variables in type fun &T \<: value(list[&T \<: value], fun &T \<: value(&T \<: value, &T \<: value), &T \<: value) with argument types (list[int],fun int(int, int),int)",|project://rascal-test/src/tests/library/ListTests.rsc|(4472,29,<123,16>,<123,45>))
+						//error("Could not instantiate type variables in type fun list[&U \<: value](list[&T \<: value], fun &U \<: value(&T \<: value)) with argument types (list[int],fun int(int))",|project://rascal-test/src/tests/library/ListTests.rsc|(3384,22,<93,72>,<93,94>))
+						//error("Could not instantiate type variables in type fun map[&A \<: value, set[&B \<: value]](lrel[&A \<: value, &B \<: value]) with argument types (list[void])",|project://rascal-test/src/tests/library/ListTests.rsc|(9023,15,<233,32>,<233,47>))
+						//error("Could not instantiate type variables in type fun map[&A \<: value, set[&B \<: value]](lrel[&A \<: value, &B \<: value]) with argument types (list[void])",|project://rascal-test/src/tests/library/ListTests.rsc|(9078,9,<234,32>,<234,41>))
+
+//"MapTests"				//error("Could not instantiate type variables in type fun map[&K \<: value, &V \<: value](map[&K \<: value, &V \<: value], fun &L \<: value(&K \<: value), fun &W \<: value(&V \<: value)) with argument types (map[int, int],fun int(int),fun int(int))",|project://rascal-test/src/tests/library/MapTests.rsc|(2612,29,<67,32>,<67,61>))
+						//error("Could not instantiate type variables in type fun map[&K \<: value, &V \<: value](map[&K \<: value, &V \<: value], fun &L \<: value(&K \<: value), fun &W \<: value(&V \<: value)) with argument types (map[void, void],fun int(int),fun int(int))",|project://rascal-test/src/tests/library/MapTests.rsc|(2552,20,<66,32>,<66,52>))
+						//error("Could not instantiate type variables in type fun map[&K \<: value, &V \<: value](map[&K \<: value, &V \<: value], fun &L \<: value(&K \<: value), fun &W \<: value(&V \<: value)) with argument types (map[int, int],fun int(int),fun int(int))",|project://rascal-test/src/tests/library/MapTests.rsc|(2474,29,<65,32>,<65,61>))
+						//error("Could not instantiate type variables in type fun map[&K \<: value, &V \<: value](map[&K \<: value, &V \<: value], fun &L \<: value(&K \<: value), fun &W \<: value(&V \<: value)) with argument types (map[void, void],fun int(int),fun int(int))",|project://rascal-test/src/tests/library/MapTests.rsc|(2414,20,<64,32>,<64,52>))
+						//error("Unexpected type: type of body expression, map[int, int], must be a subtype of the function return type, bool",|project://rascal-test/src/tests/library/MapTests.rsc|(1640,26,<40,36>,<40,62>))
+
+//"RelationTests"
+//"SetTests"				// error("Could not instantiate type variables in type fun map[&A \<: value, set[&B \<: value]](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|project://rascal-test/src/tests/library/SetTests.rsc|(3902,14,<91,32>,<91,46>))
+						//error("Could not instantiate type variables in type fun map[&A \<: value, set[&B \<: value]](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|project://rascal-test/src/tests/library/SetTests.rsc|(3956,9,<92,32>,<92,41>))
+						//error("Could not instantiate type variables in type fun set[&U \<: value](set[&T \<: value], fun &U \<: value(&T \<: value)) with argument types (set[int],fun int(int))",|project://rascal-test/src/tests/library/SetTests.rsc|(1800,22,<38,70>,<38,92>))
+						//error("Could not instantiate type variables in type fun &T \<: value(set[&T \<: value], fun &T \<: value(&T \<: value, &T \<: value), &T \<: value) with argument types (set[int],fun int(int, int),int)",|project://rascal-test/src/tests/library/SetTests.rsc|(2720,29,<60,12>,<60,41>))
+						//error("Could not instantiate type variables in type fun map[&A \<: value, &B \<: value](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|project://rascal-test/src/tests/library/SetTests.rsc|(4286,15,<98,38>,<98,53>))
+						//error("Could not instantiate type variables in type fun map[&A \<: value, &B \<: value](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|project://rascal-test/src/tests/library/SetTests.rsc|(4220,20,<97,38>,<97,58>))
+
+//"StringTests"			// 5 tests fail
+];
+
 loc base = |rascal-test:///tests/library|;
 int nsuccess = 0;
 int nfail = 0;
@@ -168,8 +206,9 @@ void runTests(list[str] names, loc base){
 value main(list[value] args){
   nsuccess = 0;
   nfail = 0;
-  runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
+  //runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
   //runTests(rascalTests, |project://rascal-test/src/tests|);
+  runTests(libraryTests, |project://rascal-test/src/tests/library|);
   println("Overall summary: <nsuccess + nfail> tests executed, <nsuccess> succeeded, <nfail> failed");
   return nfail == 0;
 }
