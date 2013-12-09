@@ -25,6 +25,7 @@ coroutine S[3,rI,rTree,iSubject,
         a_lit = create(LIT,"a",rI,ref tree2,iSubject);
         d_lit = create(LIT,"d",rI,ref tree3,iSubject);
         cont = true;
+        index = deref rI;
 	    while(cont) {
 	        if(next(s)) { /* always true in case of left recursion */ };
 	        cont = false;
@@ -33,6 +34,7 @@ coroutine S[3,rI,rTree,iSubject,
 	            yield(deref rI,cons S_(tree1,tree2,tree3));
 	        };
 	    };
+	    deref rI = index;
 	    true; // muRascal detail: dummy expression
     };
 	
