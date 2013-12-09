@@ -69,6 +69,7 @@ MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier m
      fragment += "(?<modifierString[i]>)";
  }
  for(r <- rexps){
+ println("regexp: <r>");
    if(size("<r>") == 1){
       fragment += "<r>";
    } else {
@@ -103,11 +104,13 @@ tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegEx
   exps = [];
   str fragment = "(";
   for(nr <- namedregexps){
-      //println("nr = <nr>");
-      if(size("<nr>") == 1){
-        fragment += "<nr>";
+      elm = "<nr>";
+      if(size(elm) == 1){
+        fragment += elm;
+      } else if(elm[0] == "\\"){
+        fragment += elm[1..];
       } else if((NamedRegExp) `\<<Name name2>\>` := nr){
-        //println("Name case: <name2>");
+        println("Name case: <name2>");
         if(fragment != ""){
            exps += muCon(fragment);
            fragment = "";
