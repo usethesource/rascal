@@ -1201,7 +1201,13 @@ public enum RascalPrimitive {
 	
 	public static int str_escape_for_regexp(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		String s = ((IString) stack[sp - 1]).getValue();
+		IValue v = ((IValue) stack[sp - 1]);
+		String s;
+		if(v.getType().isString()){
+			s = ((IString) v).getValue();
+		} else {
+			s = v.toString();
+		}
 		StringBuilder b = new StringBuilder();
 		
 		for (int i = 0; i < s.length(); i++) {
@@ -4456,7 +4462,14 @@ public enum RascalPrimitive {
 	public static int stringwriter_add(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		StringBuilder b = (StringBuilder) stack[sp - 2];
-		stack[sp - 2] = b.append(((IString) stack[sp - 1]).getValue());
+		IValue v = ((IValue) stack[sp - 1]);
+		String s;
+		if(v.getType().isString()){
+			s = ((IString) v).getValue();
+		} else {
+			s = v.toString();
+		}
+		stack[sp - 2] = b.append(s);
 		return sp - 1;
 	}
 	
