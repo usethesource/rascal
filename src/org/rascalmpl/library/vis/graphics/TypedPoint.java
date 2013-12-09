@@ -11,15 +11,16 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis.graphics;
 
-class TypedPoint {
+public class TypedPoint {
 	
-	enum kind {
+	public enum kind {
 		CURVED, NORMAL, BEZIER;
 	}
-	final double x, y;
+	public final double x;
+	public final double y;
 	final kind curved;
 
-	TypedPoint(double x, double y, kind curved) {
+	public TypedPoint(double x, double y, kind curved) {
 		this.x = x;
 		this.y = y;
 		this.curved = curved;

@@ -1,5 +1,6 @@
 module lang::rascal::tests::IO
 
+import String;
 import IO;
 import ValueIO;
 
@@ -47,3 +48,26 @@ public test bool appendWorksCorrectlyImplicit(Encoding enc, str a, str b) {
 	  return readFile(aFile) == a + b;
 }
 
+public test bool readOffsetStart(str a, str b) {
+	if (size(a) + size(b) == size(a + b)) {
+		writeFile(aFile, a + b, "utf8");
+		return readFileEnc(aFile[offset=0][length=size(a)], "utf8") == a;
+	}
+	return true;
+}
+
+public test bool readOffsetEnd(str a, str b) {
+	if (size(a) + size(b) == size(a + b)) {
+		writeFile(aFile, a + b, "utf8");
+		return readFileEnc(aFile[offset=size(a)][length=size(b)], "utf8") == b;
+	}
+	return true;
+}
+
+public test bool readOffsetMiddle(str a, str b, str c) {
+	if (size(a) + size(b) + size(c) == size(a + b + c)) {
+		writeFile(aFile, a + b + c, "utf8");
+		return readFileEnc(aFile[offset=size(a)][length=size(b)], "utf8") == b;
+	}
+	return true;
+}
