@@ -401,7 +401,16 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
 MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = makeMuOne([translate(g) | g <- generators ]);
 
 // All
-MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = makeMuAll([translate(g) | g <- generators ]);
+
+MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
+  // First split generators with a top-level && operator
+  generators1 = [*(((Expression) `<Expression e1> && <Expression e2>` := g) ? [e1, e2] : [g]) | g <- generators];
+  isGen = [!backtrackFree(g) | g <- generators1];
+  generators2 = [g | g <- generators1]; // TODO: artefact of concrete syntax
+  gens = [isGen[i] ? translate(generators2[i]).exp // Unwraps muMulti 
+                   : translateBoolClosure(generators2[i]) | i <- index(generators1)];
+  return muCall(mkCallToLibFun("Library", "RASCAL_ALL", 2), [ muCallMuPrim("make_array", gens), muCallMuPrim("make_array", [ muBool(b) | bool b <- isGen ]) ]);
+}
 
 // Comprehension
 MuExp translate (e:(Expression) `<Comprehension comprehension>`) = translateComprehension(comprehension);
@@ -789,25 +798,31 @@ lexical PostStringChars
 
 MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <StringTemplate template> <StringTail tail>`) {
 	preResult = nextTmp();
-	return muBlock( [ muAssignTmp(preResult, translatePre(pre)),
-                      muCallPrim("template_addunindented", [ translateTemplate(template, preResult), *translateTail(tail)])
+	return muBlock( [ muAssignTmp(preResult, translateChars("<pre>")),
+                      muCallPrim("template_addunindented", [ translateTemplate(template, computeIndent(pre), preResult), *translateTail(tail)])
                     ]);
 }
     
 MuExp translateStringLiteral((StringLiteral) `<PreStringChars pre> <Expression expression> <StringTail tail>`) {
     preResult = nextTmp();
-    return muBlock( [ muAssignTmp(preResult, translatePre(pre)),
-					  muCallPrim("template_addunindented", [ translateTemplate(expression, preResult), *translateTail(tail)])
+    return muBlock( [ muAssignTmp(preResult, translateChars("<pre>")),
+					  muCallPrim("template_addunindented", [ translateTemplate(expression, computeIndent(pre), preResult), *translateTail(tail)])
 					]   );
 }
                     
 MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString("<constant>"));
-//muCon("<constant>"[1..-1]);
 
-MuExp translatePre(PreStringChars pre) {
-  content = "<pre>"[1..-1];
-  return muCon(content);  //[muCallPrim("str_remove_margins", [muCon(content)])];
-}
+str removeMargins(str s)  = visit(s) { case /^[ \t]*'/m => "" };
+
+str computeIndent(str s) {
+   lines = split("\n", removeMargins(s)); 
+   return isEmpty(lines) ? "" : left("", size(lines[-1]));
+} 
+
+str computeIndent(PreStringChars pre) = computeIndent(removeMargins("<pre>"[1..-1]));
+str computeIndent(MidStringChars mid) = computeIndent(removeMargins("<mid>"[1..-1]));
+
+MuExp translateChars(str s) = muCon(removeMargins(s[1..-1]));
 
 /*
 syntax StringTemplate
@@ -826,26 +841,22 @@ syntax StringTemplate
 	| interpolated: MidStringChars mid Expression expression StringMiddle tail ;
 */
 
-MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`)  =  muCon("<mid>"[1..-1]); // muCallPrim("str_remove_margins", [muCon("<mid>"[1..-1])]);
+MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`) = muCon(removeMargins("<mid>"[1..-1]));
 
 MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {
     midResult = nextTmp();
-    return muBlock( [ muAssignTmp(midResult, translateMid(mid)),
-   			          muCallPrim("template_addunindented", [ translateTemplate(template, midResult), translateMiddle(tail) ])
+    return muBlock( [ muAssignTmp(midResult, translateChars("<mid>")),
+   			          muCallPrim("template_addunindented", [ translateTemplate(template,  computeIndent(mid), midResult), translateMiddle(tail) ])
    			        ]);
    	}
 
 MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <Expression expression> <StringMiddle tail>`) {
     midResult = nextTmp();
-    return muBlock( [ muAssignTmp(midResult, translateMid(mid)),
-                      muCallPrim("template_addunindented", [ translateTemplate(expression, midResult), translateMiddle(tail) ])
+    return muBlock( [ muAssignTmp(midResult, translateChars("<mid>")),
+                      muCallPrim("template_addunindented", [ translateTemplate(expression, computeIndent(mid), midResult), translateMiddle(tail) ])
                     ]);
 }
-
-MuExp translateMid(MidStringChars mid) {
-  content = "<mid>"[1..-1];
-  return muCon(content);
-}    
+  
 /*
 syntax StringTail
 	= midInterpolated: MidStringChars mid Expression expression StringTail tail 
@@ -855,28 +866,28 @@ syntax StringTail
 
 list[MuExp] translateTail((StringTail) `<MidStringChars mid> <Expression expression> <StringTail tail>`) {
     midResult = nextTmp();
-    return [ muBlock( [ muAssignTmp(midResult, translateMid(mid)),
-                      muCallPrim("template_addunindented", [ translateTemplate(expression, midResult), *translateTail(tail)])
+    return [ muBlock( [ muAssignTmp(midResult, translateChars("<mid>")),
+                      muCallPrim("template_addunindented", [ translateTemplate(expression, computeIndent(mid), midResult), *translateTail(tail)])
                     ])
            ];
 }
 	
 list[MuExp] translateTail((StringTail) `<PostStringChars post>`) {
-  content = "<post>"[1..-1];
-  return size(content) == 0 ? [] : [muCon(content)]; //[muCallPrim("str_remove_margins", [muCon(content)])];
+  content = removeMargins("<post>"[1..-1]);
+  return size(content) == 0 ? [] : [muCon(content)];
 }
 
 list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate template> <StringTail tail>`) {
     midResult = nextTmp();
-    return [ muBlock( [ muAssignTmp(midResult, translateMid(mid)),
-                        muCallPrim("template_addunindented", [ translateTemplate(template, midResult), *translateTail(tail) ])
+    return [ muBlock( [ muAssignTmp(midResult, translateChars("<mid>")),
+                        muCallPrim("template_addunindented", [ translateTemplate(template, computeIndent(mid), midResult), *translateTail(tail) ])
                     ])
            ];
  }  
  
- MuExp translateTemplate(Expression e, str pre){
+ MuExp translateTemplate(Expression e, str indent, str preResult){
     result = nextTmp();
-    return muBlock([ muAssignTmp(result, muCallPrim("template_open", [muTmp(pre)])),
+    return muBlock([ muAssignTmp(result, muCallPrim("template_open", [muCon(indent), muTmp(preResult)])),
     				 muAssignTmp(result, muCallPrim("template_add", [ muTmp(result), muCallPrim("value_to_string", [translate(e)]) ])),
                      muCallPrim("template_close", [muTmp(result)])
                    ]);
@@ -980,6 +991,28 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
   	leaveFunctionScope();								  
   	
 	return (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid); // closures are not overloaded
+}
+
+MuExp translateBoolClosure(Expression e){
+    tuple[str fuid,int pos] addr = <topFunctionScope(),-1>;
+	fuid = addr.fuid + "/non_gen_at_<e@\loc>()";
+	
+	enterFunctionScope(fuid);
+	
+    ftype = Symbol::func(Symbol::\bool(),[]);
+	nformals = 0;
+	nlocals = 0;
+	bool isVarArgs = false;
+  	// TODO: keyword parameters
+    
+    MuExp body = muReturn(translate(e));
+    functions_in_module += muFunction(fuid, ftype, addr.fuid, 
+  									  nformals, nlocals, isVarArgs, e@\loc, [], (), body);
+  	
+  	leaveFunctionScope();								  
+  	
+	return muFun(fuid, addr.fuid); // closures are not overloaded
+
 }
 
 // Translate comprehensions

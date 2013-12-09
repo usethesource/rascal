@@ -680,6 +680,7 @@ public enum RascalPrimitive {
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 									new String[] {"line", "column"});
+		indentStack = new Stack<String>();
 	
 		Method [] methods1 = RascalPrimitive.class.getDeclaredMethods();
 		HashSet<String> implemented = new HashSet<String>();
@@ -1219,8 +1220,6 @@ public enum RascalPrimitive {
 	 */
 	
 	private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
-	private static final Pattern INDENT = Pattern.compile("(?<![\\\\])'([ \t]*)([^']*)$");
-	private static final Pattern NONSPACE = Pattern.compile("[^ \t]");	
 	
 	private static Stack<String> indentStack = new Stack<String>();
 	
@@ -1235,22 +1234,6 @@ public enum RascalPrimitive {
 	
 	private static void $unindent(){
 		indentStack.pop();
-		//stdout.println("$unindent: " + indentStack.size() + ", \"" + $getCurrentIndent() + "\"" );
-	}
-	
-	private static String $computeIndent(String arg) {
-		Matcher m = INDENT.matcher(arg);
-		if (m.find()) {
-			String res = m.group(1) + $replaceEverythingBySpace(m.group(2)) ;
-			//stdout.println("$computeIndent: \"" + arg + "\" => \"" + res + "\"");
-			return res;
-		}
-		//stdout.println("$computeIndent: \"" + arg + "\" => \"\"");
-		return "";
-	}
-	
-	private static String $replaceEverythingBySpace(String input) {
-		return NONSPACE.matcher(input).replaceAll(" ");
 	}
 	
 	private static String $removeMargins(String arg) {
@@ -1258,70 +1241,53 @@ public enum RascalPrimitive {
 		return org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(arg);
 	}
 	
-	private static String $preprocess(String arg) {
-		arg = org.rascalmpl.interpreter.utils.StringUtils.unquote(arg);
-		// don't unescape ' yet
-		arg = org.rascalmpl.interpreter.utils.StringUtils.unescapeBase(arg);
-		return arg;
-	}
-	
-	private static IString $processString(IString s){
-		return vf.string($removeMargins(s.getValue()));
-	}
-	
 	public static int template_open(Object[] stack, int sp, int arity) {
-		assert arity == 1;
+		assert arity == 2;
+		String ind = ((IString) stack[sp - 2]).getValue();
 		String pre = ((IString) stack[sp - 1]).getValue();
-		String ind = $computeIndent(pre);
 		$indent(ind);
-		//stdout.println("template_open: \"" + pre + "\"\nindent: \"" + ind + "\"");
-		stack[sp - 1] = vf.string(pre);
-		return sp;
+		stack[sp - 2] = vf.string(pre);
+		return sp - 1;
 	}
 	
 	public static int template_addunindented(Object[] stack, int sp, int arity) {
 		assert arity <= 2;
 		if(arity == 1){
-			stack[sp - 1] = $processString(((IString) stack[sp - 1]));
+			stack[sp - 1] = (((IString) stack[sp - 1]));
 			return sp;
 		}
-		stack[sp - 2] = $processString((IString) stack[sp - 2]).concat($processString((IString) stack[sp - 1]));
+		stack[sp - 2] = ((IString) stack[sp - 2]).concat(((IString) stack[sp - 1]));
 		return sp - 1;
 	}
 	
 	public static int template_add(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		IString template = (IString) stack[sp - arity];
-		//stdout.println("template_add: template = \"" + template.getValue() + "\"");
 		String indent = $getCurrentIndent();
 		for(int i = 1; i < arity; i++){
 			IString arg_s = (IString) stack[sp - arity + i];
-			String [] lines = arg_s.getValue().split("\n");
+			String [] lines = $removeMargins(arg_s.getValue()).split("\n");
 			if(lines.length <= 1){
-				template = template.concat(vf.string($removeMargins(arg_s.getValue())));
+				template = template.concat(arg_s);
 			} else {
 				StringBuilder sb = new StringBuilder();
-				sb.append($removeMargins(lines[0]));
+				sb.append(lines[0]);
 				for(int j = 1; j < lines.length; j++){
-					sb.append("\n").append(indent).append($removeMargins(lines[j]));
+					sb.append("\n").append(indent).append(lines[j]);
 				}
 				String res = sb.toString();
 				template = template.concat(vf.string(res));
 			}
 		}
 		stack[sp - arity] = template;
-		//stdout.println("template_add (" + (arity - 1) + ") => \"" + template + "\"");
 		return sp - arity + 1;
 	}
 	
 	public static int template_close(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		$unindent();
-		//stdout.println("template_close: \"" + ((IString)stack[sp - 1]).getValue() + "\"");
 		return sp;
 	}
-
-	//	public static int addition_loc_str(Object[] stack, int sp) { 	}
 
 	public static int tuple_add_tuple(Object[] stack, int sp, int arity) {
 		assert arity == 2;
@@ -3623,8 +3589,11 @@ public enum RascalPrimitive {
 			return set_less_set(stack, sp, arity);
 		case MAP:
 			return map_less_map(stack, sp, arity);
+		case CONSTRUCTOR:
 		case NODE:
 			return node_less_node(stack, sp, arity);
+		case ADT:
+			return adt_less_adt(stack, sp, 2);
 		case TUPLE:
 			return tuple_less_tuple(stack, sp, arity);
 		default:
@@ -3908,6 +3877,14 @@ public enum RascalPrimitive {
 
 	// Generic lessequal
 	
+	private static boolean $lessequal(IValue left, IValue right){
+		Object[] fakeStack = new Object[2];
+		fakeStack[0] = left;
+		fakeStack[1] = right;
+		lessequal(fakeStack, 2, 2);
+		return (Boolean)fakeStack[0];
+	}
+	
 	private static int lessequal(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 
@@ -3945,8 +3922,11 @@ public enum RascalPrimitive {
 			return set_lessequal_set(stack, sp, arity);
 		case MAP:
 			return map_lessequal_map(stack, sp, arity);
+		case CONSTRUCTOR:
 		case NODE:
 			return node_lessequal_node(stack, sp, arity);
+		case ADT:
+			return adt_lessequal_adt(stack, sp, 2);
 		case TUPLE:
 			return tuple_lessequal_tuple(stack, sp, arity);
 		default:
@@ -4083,15 +4063,8 @@ public enum RascalPrimitive {
 		int leftArity = left.arity();
 		int rightArity = right.arity();
 
-		Object[] fakeStack = new Object[2];
 		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-
-			fakeStack[0] = left.get(i);
-			fakeStack[1] = right.get(i);
-			
-			lessequal(fakeStack, 2, 2);
-
-			if(!((Boolean)fakeStack[0])){
+			if(!$lessequal(left.get(i), right.get(i))){
 				stack[sp - 2] = false;
 				return sp - 1;
 			}
@@ -4121,14 +4094,8 @@ public enum RascalPrimitive {
 		ITuple right = (ITuple)stack[sp - 1];
 		int rightArity = right.arity();
 
-		Object[] fakeStack = new Object[2];
-		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-			fakeStack[0] = left.get(i);
-			fakeStack[1] = right.get(i);
-			
-			lessequal(fakeStack, 2, 2);
-
-			if(!((Boolean)fakeStack[0])){
+		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {			
+			if(!$lessequal(left.get(i), right.get(i))){
 				stack[sp - 2] = false;
 				return sp - 1;
 			}
