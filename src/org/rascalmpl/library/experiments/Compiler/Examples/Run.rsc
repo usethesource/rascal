@@ -31,6 +31,7 @@ import experiments::Compiler::Examples::OverloadingPlusVarArgsSpecialCase;
 import experiments::Compiler::Examples::ExceptionHandling1;
 import experiments::Compiler::Examples::ExceptionHandling2;
 import experiments::Compiler::Examples::ExceptionHandling3;
+import experiments::Compiler::Examples::ExceptionHandling4;
 import experiments::Compiler::Examples::ExceptionHandlingFinally1;
 import experiments::Compiler::Examples::ExceptionHandlingFinally2;
 import experiments::Compiler::Examples::ExceptionHandlingFinally3;
@@ -86,8 +87,7 @@ test bool tst() = demo("Descent") == experiments::Compiler::Examples::Descent::m
 test bool tst() = demo("Odd") == experiments::Compiler::Examples::Odd::main([]);
 test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
 
-// String templates generate a too large indent for nested templates.
-/*fails*/ // test bool tst() = demo("Template") == experiments::Compiler::Examples::Template::main([]);
+test bool tst() = demo("Template") == experiments::Compiler::Examples::Template::main([]);
 test bool tst() = demo("Overloading1") == experiments::Compiler::Examples::Overloading1::main([]);
 test bool tst() = demo("Overloading2") == experiments::Compiler::Examples::Overloading2::main([]) && demo("Overloading1") == demo("Overloading2");
 test bool tst() = demo("Overloading3") == experiments::Compiler::Examples::Overloading3::main([]);
@@ -100,6 +100,7 @@ test bool tst() = demo("OverloadingPlusVarArgsSpecialCase") == experiments::Comp
 test bool tst() = demo("ExceptionHandling1") == experiments::Compiler::Examples::ExceptionHandling1::main([]);
 test bool tst() = demo("ExceptionHandling2") == experiments::Compiler::Examples::ExceptionHandling2::main([]);
 test bool tst() = demo("ExceptionHandling3") == experiments::Compiler::Examples::ExceptionHandling3::main([]);
+test bool tst() = demo("ExceptionHandling4") == experiments::Compiler::Examples::ExceptionHandling4::main([]);
 test bool tst() = demo("ExceptionHandlingFinally1") == experiments::Compiler::Examples::ExceptionHandlingFinally1::main([]);
 test bool tst() = demo("ExceptionHandlingFinally2") == experiments::Compiler::Examples::ExceptionHandlingFinally2::main([]);
 test bool tst() = demo("ExceptionHandlingFinally3") == experiments::Compiler::Examples::ExceptionHandlingFinally3::main([]);

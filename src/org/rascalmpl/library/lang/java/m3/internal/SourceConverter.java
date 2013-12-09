@@ -186,8 +186,8 @@ public class SourceConverter extends M3Converter {
 	}
 	
 	public boolean visit(Javadoc node) {
-		insert(documentation, resolveBinding(node.getAlternateRoot()), getSourceLocation(node));
-		return true;
+		insert(documentation, getParent(), getSourceLocation(node));
+		return false;
 	}
 	
 	public boolean visit(LineComment node) {

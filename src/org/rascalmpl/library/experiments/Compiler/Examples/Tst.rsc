@@ -12,23 +12,11 @@ module experiments::Compiler::Examples::Tst
 	//	    == [1,2,3];
 	//}
 
-// public bool main(list[value] args) = all(int X <- {1,2,3}, X >= 2);
 
-//import IO;
-//public value main(list[value] args) {
-//    res = true;
-//     O: if(int X <- {1,2,3}){ 
-//           println("X = <X>");
-//           if(X >= 2){
-//              fail O; 
-//           } else {
-//             println("else: <X>");
-//             res = false;
-//             fail O;
-//           }
-//        };
-//        return res;
-//}
- data NODE = i(int I) | s(str x)  | st(set[NODE] s) | l(list[NODE]) | m(map[NODE,NODE] m) | f() | f(NODE a) | f(NODE a, NODE b) | g() | g(NODE a) | g(NODE a,NODE b);
-   
-public value main(list[value] args)  = f(i(1)) <= f(i(1));
+data T1 = \int() | \void() | string(str s);
+data T2 = \int() | \void() | string(str s);
+
+bool fT1(T1::\int()) = true;
+	
+bool fT2(T2::\int()) = true;
+	
