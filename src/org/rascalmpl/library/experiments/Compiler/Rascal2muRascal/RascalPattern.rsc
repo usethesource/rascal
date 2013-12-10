@@ -58,6 +58,11 @@ lexical NamedBackslash
 	= [\\] !>> [\< \> \\] ;
 */
 
+map[str,str] regexpEscapes = (
+"(" : "(?:",
+")" : ")"
+);
+
 MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
    swriter = nextTmp();
    fragmentCode = [];
@@ -68,10 +73,20 @@ MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier m
    for(i <- [0 .. size(modifierString)]){
       fragment += "(?<modifierString[i]>)";
    }
-   for(r <- rexps){
+   lrexps = [r | r <- rexps];
+   len = size(lrexps); // library!
+   i = 0;
+   println("len = <len>");
+   while(i < len){
+      r = lrexps[i];
       println("regexp: <r>");
+      if("<r>" == "\\"){
+         fragment += "\\" + "<lrexps[i + 1]>";
+         i += 2;
+      } else 
       if(size("<r>") == 1){
-         fragment += "<r>";
+         fragment += escape("<r>", regexpEscapes);
+         i += 1;
       } else {
         if(size(fragment) > 0){
             fragmentCode += muCon(fragment);
@@ -93,8 +108,10 @@ MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier m
           default:
         	fragmentCode += [muCon("<r>")];
         }
+        i += 1;
       }
    }
+   
    if(size(fragment) > 0){
       fragmentCode += muCon(fragment);
    }
@@ -114,7 +131,7 @@ tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegEx
    for(nr <- namedregexps){
        elm = "<nr>";
        if(size(elm) == 1){
-         fragment += elm;
+         fragment += escape(elm, regexpEscapes);
        } else if(elm[0] == "\\"){
          fragment += elm[1..];
        } else if((NamedRegExp) `\<<Name name2>\>` := nr){
