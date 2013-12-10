@@ -11,26 +11,24 @@ loc base1 = |project:///rascal-test/tests/functionality|;
 // Percentage: 58%
 
 list[str] functionalityTests = [
-// Total [1958] = 2148 - 190 TC tests
-// OK [1218]
-// Percentage: 62%
 
 // OK
-//"AliasTests"				// OK [17]
-//"AnnotationTests"			// OK [16]
-//"AssignmentTests"			// OK [45]
-//"ComprehensionTests"		// OK [229]
+//"AliasTests"				// OK
+//"AnnotationTests"			// OK
+//"AssignmentTests"			// OK
+//"BackTrackingTests"		// OK
+//"ComprehensionTests"		// OK
 							// 3 tests fail that correspond to empty enumerations: interpreter gives false, compiler gives true.
-//"DataTypeTests"			// OK [736]
-//"ReducerTests"			// OK [4]
-//"DeclarationTests"		// OK [6], these are conscious changes in the scoping rules
+//"DataTypeTests"			// OK
+//"ReducerTests"			// OK
+//"DeclarationTests"		// OK, these are conscious changes in the scoping rules
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(985,1,<31,18>,<31,19>))
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1071,1,<35,14>,<35,15>))
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1167,1,<39,24>,<39,25>))
-//"RangeTests"				// OK [25]
+//"RangeTests"				// OK
 							// 4 tests fail but this a deliberate improvement over the interpreter result.
-//"BackTrackingTests"		// OK [26]
-
+//"RegExpTests"				// OK
+ 							// Commented out 6: Treatment of redeclared local variables
 
 // Not yet OK
 
@@ -58,37 +56,32 @@ list[str] functionalityTests = [
 						
 //"SubscriptTests"			// [50] set-based subscripts of relations ==> Issue posted.
 
- 
-
 //"ProjectionTests" 		// [4]
 							//	Issue #432
-"RegExpTests"				// [60]
- 							// Commented out 6: Treatment of redeclared local variables
- 							// 25 fail
 // "ScopeTests"				// [14]
-//"TryCatchTests"				// [19] 3 fail, Issue #433
+//"TryCatchTests"			// [19] 3 fail, Issue #433
 //"VisitTests"				// 13 fail [98]
 ];
 
 
 list[str] rascalTests = [
 
-// Total: [531]
-// OK: [309]  
-// Percentage: 58%
-
-//"Booleans"				// OK [15]
+//"Booleans"				// OK
 							// Commented out fromInt test
-//"Integers"				// OK [20]
+
+//"Integers"				// OK
 //"Tuples"					// OK [6]
 //"SolvedIssues"			// OK [2]
-//"Equality"				// OK [53]
-							// Added parentheses for ? operator
+
 //"Nodes"					// OK [32]
 //"Strings"  				// OK [61]
 //"StringTests"				// OK [120]
 
 // Not yet OK
+
+//"Equality"				// OK [53]
+							// Added parentheses for ? operator
+							// 1 fails
 
 //"BacktrackingTests"		// [12]
 							// error("Name s is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8573,1,<223,10>,<223,11>))
@@ -193,17 +186,12 @@ list[str] rascalTests = [
 
 list[str] libraryTests = [
 
-// Total: [525]
-// OK: [225]
-// Percentage: 43%
-
 // OK
 
-// "BooleanTests"		// OK [14]
-//"IntegerTests"		// OK [11]
-//"MathTests"			// OK [5]
-
-//"NumberTests"			// OK [75]
+//"BooleanTests"		// OK
+//"IntegerTests"		// OK
+//"MathTests"			// OK
+//"NumberTests"			// OK
 
 // Not yet OK
 
@@ -260,9 +248,9 @@ void runTests(list[str] names, loc base){
 value main(list[value] args){
   nsuccess = 0;
   nfail = 0;
-  runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
+  //runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
   //runTests(rascalTests, |project://rascal-test/src/tests|);
-  //runTests(libraryTests, |project://rascal-test/src/tests/library|);
+  runTests(libraryTests, |project://rascal-test/src/tests/library|);
   println("Overall summary: <nsuccess + nfail> tests executed, <nsuccess> succeeded, <nfail> failed");
   return nfail == 0;
 }
