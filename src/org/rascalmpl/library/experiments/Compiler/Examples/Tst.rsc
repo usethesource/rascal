@@ -1,5 +1,3 @@
 module experiments::Compiler::Examples::Tst
 
-public bool main(list[value] args) {
-   { int n = 3; return (/<x:<n>>/ := "3" && x == "3");}
-}
+public bool main(list[value] args) = /(?s)a.c/ := "a\nc";

@@ -85,7 +85,11 @@ MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier m
          i += 2;
       } else 
       if(size("<r>") == 1){
-         fragment += escape("<r>", regexpEscapes);
+         if("<r>" == "(" && "<lrexps[i + 1]>" == "?"){
+           fragment += "(";
+         } else {
+           fragment += escape("<r>", regexpEscapes);
+         }
          i += 1;
       } else {
         if(size(fragment) > 0){
