@@ -14,6 +14,8 @@ package org.rascalmpl.library.vis.figure.tree;
 import static org.rascalmpl.library.vis.properties.Properties.AREA;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.combine.containers.Box;
@@ -121,6 +123,13 @@ public class TreeMap extends Compose{
 		double cumulatedArea = 0;
 		double w = view.getSize().getX();
 		double h = view.getSize().getY();
+		Arrays.sort(areas, new Comparator<Figure>() {
+			@Override
+			public int compare(Figure o1, Figure o2) {
+				return new Double(o1.prop.getReal(AREA))
+				      .compareTo(o2.prop.getReal(AREA));
+			}
+		});
 		for(Figure cur : areas ){
 			
 			cumulatedArea += cur.prop.getReal(AREA);
