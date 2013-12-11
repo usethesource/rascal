@@ -22,11 +22,11 @@ list[str] functionalityTests = [
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(985,1,<31,18>,<31,19>))
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1071,1,<35,14>,<35,15>))
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1167,1,<39,24>,<39,25>))
-//"RangeTests"				// OK
-							// 4 tests fail but this a deliberate improvement over the interpreter result.
+//"RangeTests"				// OK, 4 tests fail but this is due to false 1. == 1.0 comparisons.
 //"RegExpTests"				// OK
  							// Commented out 6: Treatment of redeclared local variables
-//"TryCatchTests"							// OK
+//"TryCatchTests"			// OK
+
 // Not yet OK
 
 //"AccumulatingTests"		// [15] 2 tests fail: append that crosses function boundary: make tmp scope dependent?
@@ -55,7 +55,7 @@ list[str] functionalityTests = [
 
 //"ProjectionTests" 		// [4]
 							//	Issue #432
-							"ScopeTests"				// [14]
+//"ScopeTests"				// [14]
 
 //"VisitTests"				// 13 fail [98]
 ];
@@ -245,9 +245,9 @@ void runTests(list[str] names, loc base){
 value main(list[value] args){
   nsuccess = 0;
   nfail = 0;
-  //runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
+  runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
   //runTests(rascalTests, |project://rascal-test/src/tests|);
-  runTests(libraryTests, |project://rascal-test/src/tests/library|);
+  //runTests(libraryTests, |project://rascal-test/src/tests/library|);
   println("Overall summary: <nsuccess + nfail> tests executed, <nsuccess> succeeded, <nfail> failed");
   return nfail == 0;
 }
