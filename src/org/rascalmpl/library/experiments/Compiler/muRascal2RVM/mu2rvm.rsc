@@ -237,8 +237,6 @@ default INS tr(muBlock(list[MuExp] exps)) = trblock(exps);
 // Literals and type constants
 
 INS tr(muBool(bool b)) = [LOADBOOL(b)];
-INS tr(muCon("true")) = [LOADCON(true)];
-INS tr(muCon("false")) = [LOADCON(false)];
 
 INS tr(muInt(int n)) = [LOADINT(n)];
 default INS tr(muCon(value c)) = [LOADCON(c)];

@@ -35,6 +35,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
@@ -443,7 +444,6 @@ public class RVM {
 //				}
 				int instruction = instructions[pc++];
 				int op = CodeBlock.fetchOp(instruction);
-				stderr.println(cf.function.name + "[" + (pc - 1) + "]: " + cf.function.codeblock.toString(pc - 1));
 
 				if (debug) {
 					int startpc = pc - 1;
@@ -1045,7 +1045,29 @@ public class RVM {
 					Type parameterTypes = cf.function.typeConstantStore[instructions[pc++]];
 					int reflect = instructions[pc++];
 					arity = parameterTypes.getArity();
-					sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
+					try {
+					    sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
+					} catch(Throw e) {
+						thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
+						// EXCEPTION HANDLING
+						for(Frame f = cf; f != null; f = f.previousCallFrame) {
+							int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+							if(handler != -1) {
+								if(f != cf) {
+									cf = f;
+									instructions = cf.function.codeblock.getInstructions();
+									stack = cf.stack;
+									sp = cf.sp;
+									pc = cf.pc;
+								}
+								pc = handler;
+								stack[sp++] = thrown;
+								continue NEXT_INSTRUCTION;
+							} 
+						}
+						// If a handler has not been found in the caller functions...
+						return thrown;
+					}
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_INIT:
@@ -1460,7 +1482,7 @@ public class RVM {
 		}
 	}
 	
-	int callJavaMethod(String methodName, String className, Type parameterTypes, int reflect, Object[] stack, int sp){
+	int callJavaMethod(String methodName, String className, Type parameterTypes, int reflect, Object[] stack, int sp) throws Throw {
 		Class<?> clazz = null;
 		try {
 			try {
@@ -1513,7 +1535,9 @@ public class RVM {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
+			if(e.getTargetException() instanceof Throw) {
+				throw (Throw) e.getTargetException();
+			}
 			e.printStackTrace();
 		}
 		return sp;

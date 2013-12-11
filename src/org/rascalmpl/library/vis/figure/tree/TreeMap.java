@@ -14,6 +14,8 @@ package org.rascalmpl.library.vis.figure.tree;
 import static org.rascalmpl.library.vis.properties.Properties.AREA;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.combine.containers.Box;
@@ -69,8 +71,28 @@ public class TreeMap extends Compose{
 		return result;
 	}
 	
-
-	private double layoutRow(double yOffset,double cumulatedArea,ArrayList<Figure> figs){
+	private double layoutRowVer(double xOffset,double cumulatedArea,ArrayList<Figure> figs){
+		double width = (cumulatedArea / area) * size.getX();
+		double y = 0;
+		for(Figure fig : figs){
+			fig.localLocation.setX(xOffset);
+			fig.localLocation.setX(y);
+			fig.size.setX(width);
+			double height = (fig.prop.getReal(AREA) / cumulatedArea)* size.getY();
+			fig.size.setY( height);
+			if(fig.size.getX() < fig.minSize.getX() || fig.size.getY() < fig.minSize.getY()){
+				children[curChild] = new Box(null, areas[curChild].prop);
+			} else {
+				children[curChild] = areas[curChild];
+			}
+			curChild++;
+			y+=height;
+		}
+		return xOffset + width;
+	}
+	
+	
+	private double layoutRowHor(double yOffset,double cumulatedArea,ArrayList<Figure> figs){
 		double height = (cumulatedArea / area) * size.getY();
 		double x = 0;
 		for(Figure fig : figs){
@@ -97,7 +119,17 @@ public class TreeMap extends Compose{
 		ArrayList<Figure> currentRow = new ArrayList<Figure>();
 		double prevAR = Double.MAX_VALUE;
 		double yOffset = 0;
+		double xOffset = 0;
 		double cumulatedArea = 0;
+		double w = view.getSize().getX();
+		double h = view.getSize().getY();
+		Arrays.sort(areas, new Comparator<Figure>() {
+			@Override
+			public int compare(Figure o1, Figure o2) {
+				return new Double(o1.prop.getReal(AREA))
+				      .compareTo(o2.prop.getReal(AREA));
+			}
+		});
 		for(Figure cur : areas ){
 			
 			cumulatedArea += cur.prop.getReal(AREA);
@@ -106,7 +138,11 @@ public class TreeMap extends Compose{
 			if(curAR > prevAR){
 				currentRow.remove(currentRow.size()-1);
 				cumulatedArea -= cur.prop.getReal(AREA);
-				yOffset = layoutRow(yOffset,cumulatedArea,currentRow);
+				if(w - xOffset > h - yOffset) {
+					xOffset = layoutRowVer(xOffset, cumulatedArea, currentRow);
+				} else {
+					yOffset = layoutRowHor(yOffset,cumulatedArea,currentRow);
+				}
 				currentRow.clear();
 				currentRow.add(cur);
 				cumulatedArea = cur.prop.getReal(AREA);
@@ -116,7 +152,11 @@ public class TreeMap extends Compose{
 			}
 			
 		}
-		layoutRow(yOffset,cumulatedArea,currentRow);
+		if(w - xOffset > h - yOffset) {
+			xOffset = layoutRowVer(xOffset, cumulatedArea, currentRow);
+		} else {
+			yOffset = layoutRowHor(yOffset,cumulatedArea,currentRow);
+		}
 	}
 
 	@Override

@@ -97,6 +97,8 @@ public class EclipseJavaCompiler {
       cu.accept(converter);
       for (Iterator it = cu.getCommentList().iterator(); it.hasNext();) {
         Comment comment = (Comment) it.next();
+        if (comment.isDocComment())
+        	continue;
         comment.accept(converter);
       }
       
@@ -143,6 +145,7 @@ public class EclipseJavaCompiler {
 
     options.put(JavaCore.COMPILER_SOURCE, javaVersion.getValue());
     options.put(JavaCore.COMPILER_COMPLIANCE, javaVersion.getValue());
+    options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, "enabled");
 
     parser.setCompilerOptions(options);
 
