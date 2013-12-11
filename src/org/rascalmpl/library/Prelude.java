@@ -3319,7 +3319,7 @@ public class Prelude {
 		return values.string(x.getValue());
 	}
 	
-	public IString setOrigins(IString x, ISet origins) {
+	public IString setOrigins(IString x, IList origins) {
 		return values.string(origins, x);
 	}
 	
