@@ -1,5 +1,6 @@
 package org.rascalmpl.values;
 
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -20,7 +21,7 @@ public class OriginValueFactory extends RascalValueFactory {
 	}
 	
 	@Override
-	public IString string(ISet origins, IString str) {
+	public IString string(IList origins, IString str) {
 		return new Insincere(str, origins);
 	}
 

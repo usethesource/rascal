@@ -1,23 +1,24 @@
 package org.rascalmpl.values;
 
 import org.apache.commons.lang.WordUtils;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 
 public class Insincere extends Atom {
-	private final ISet origins;
+	private final IList origins;
 
-	public Insincere(String s, ISet origins) {
+	public Insincere(String s, IList origins) {
 		super(s);
 		this.origins = origins;
 	}
 
-	public Insincere(IString s, ISet origins) {
+	public Insincere(IString s, IList origins) {
 		super(s);
 		this.origins = origins;
 	}
 
-	public ISet getOrigins() {
+	public IList getOrigins() {
 		return origins;
 	}
 	

@@ -1,6 +1,6 @@
 package org.rascalmpl.values;
 
-import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
@@ -36,7 +36,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 
 	@Override
-	public IString string(ISet origins, IString str) {
+	public IString string(IList origins, IString str) {
 		return string(str.getValue());
 	}
 
