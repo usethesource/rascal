@@ -588,7 +588,7 @@ original origin information so may lead to "insincere" results.
 @javaClass{org.rascalmpl.library.Prelude}
 public java str setOrigins(str s, list[loc] origins);
 
-public set[loc] originsOnly(str s) = { l | <just(loc l), _> <- origins(s) };
+public list[loc] originsOnly(str s) = [ l | <just(loc l), _> <- origins(s) ];
 
 @doc{
 
