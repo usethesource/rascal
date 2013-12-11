@@ -67,18 +67,17 @@ list[str] rascalTests = [
 							// Commented out fromInt test
 
 //"Integers"				// OK
-//"Tuples"					// OK [6]
-//"SolvedIssues"			// OK [2]
+//"Tuples"					// OK
+//"SolvedIssues"			// OK
 
-//"Nodes"					// OK [32]
-//"Strings"  				// OK [61]
-//"StringTests"				// OK [120]
+//"Nodes"					// OK
+//"Strings"  				// OK
+//"StringTests"				// OK
 
 // Not yet OK
 
-"Equality"				// OK [53]
+//"Equality"				// OK
 							// Added parentheses for ? operator
-							// 1 fails
 
 //"BacktrackingTests"		// [12]
 							// error("Name s is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8573,1,<223,10>,<223,11>))
@@ -187,8 +186,9 @@ list[str] libraryTests = [
 
 //"BooleanTests"		// OK
 //"IntegerTests"		// OK
-//"MathTests"			// OK
+"MathTests"				// OK
 //"NumberTests"			// OK
+//"StringTests"			// OK
 
 // Not yet OK
 
@@ -223,7 +223,7 @@ list[str] libraryTests = [
 						//error("Could not instantiate type variables in type fun map[&A \<: value, &B \<: value](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|project://rascal-test/src/tests/library/SetTests.rsc|(4286,15,<98,38>,<98,53>))
 						//error("Could not instantiate type variables in type fun map[&A \<: value, &B \<: value](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|project://rascal-test/src/tests/library/SetTests.rsc|(4220,20,<97,38>,<97,58>))
 
-"StringTests"			// [125] 5 tests fail
+
 ];
 
 loc base = |rascal-test:///tests/library|;
@@ -245,9 +245,9 @@ void runTests(list[str] names, loc base){
 value main(list[value] args){
   nsuccess = 0;
   nfail = 0;
-  runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
+  //runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
   //runTests(rascalTests, |project://rascal-test/src/tests|);
-  //runTests(libraryTests, |project://rascal-test/src/tests/library|);
+  runTests(libraryTests, |project://rascal-test/src/tests/library|);
   println("Overall summary: <nsuccess + nfail> tests executed, <nsuccess> succeeded, <nfail> failed");
   return nfail == 0;
 }
