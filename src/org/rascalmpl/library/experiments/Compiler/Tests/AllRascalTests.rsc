@@ -42,7 +42,7 @@ list[str] functionalityTests = [
 //"FunctionCompositionTests"	//[6]
 							// TC does not support function composition, issue #431
 							
-//"PatternTests"			// [420]
+"PatternTests"			// [420]
 							// Uses keyword parameters
 							// Checking function matchADTwithKeywords4
 							// |rascal://lang::rascal::types::CheckTypes|(140533,19,<2772,21>,<2772,40>): The called signature: checkExp(sort("Expression"), Configuration),
@@ -245,9 +245,9 @@ void runTests(list[str] names, loc base){
 value main(list[value] args){
   nsuccess = 0;
   nfail = 0;
-  //runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
+  runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
   //runTests(rascalTests, |project://rascal-test/src/tests|);
-  runTests(libraryTests, |project://rascal-test/src/tests/library|);
+  //runTests(libraryTests, |project://rascal-test/src/tests/library|);
   println("Overall summary: <nsuccess + nfail> tests executed, <nsuccess> succeeded, <nfail> failed");
   return nfail == 0;
 }
