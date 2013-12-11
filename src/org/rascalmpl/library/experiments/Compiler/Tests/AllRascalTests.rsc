@@ -5,10 +5,7 @@ import experiments::Compiler::Execute;
 
 loc base1 = |project:///rascal-test/tests/functionality|;
 
-// Percentage of succeeded tests
-// Total [3014] = 1958 + 531 + 525
-// OK = [1752] = 1218 + 309 + 225
-// Percentage: 58%
+// Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
 list[str] functionalityTests = [
 
@@ -29,7 +26,7 @@ list[str] functionalityTests = [
 							// 4 tests fail but this a deliberate improvement over the interpreter result.
 //"RegExpTests"				// OK
  							// Commented out 6: Treatment of redeclared local variables
-
+//"TryCatchTests"							// OK
 // Not yet OK
 
 //"AccumulatingTests"		// [15] 2 tests fail: append that crosses function boundary: make tmp scope dependent?
@@ -38,7 +35,7 @@ list[str] functionalityTests = [
 
 //"DataDeclarationTests"	// [45]
                             //error("Initializer type Maybe[&T \<: value] not assignable to variable of type Maybe[void]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5906,10,<104,53>,<104,63>))
-							//error("Initializer type Exp1[&T \<: value] not assignable to variable of type Exp1[int]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5772,11,<100,58>,<100,69>))
+										//error("Initializer type Exp1[&T \<: value] not assignable to variable of type Exp1[int]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5772,11,<100,58>,<100,69>))
 							//error("Initializer type &T \<: value not assignable to variable of type str",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5535,12,<95,68>,<95,80>))
 							//error("Initializer type &T \<: value not assignable to variable of type str",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5061,12,<89,68>,<89,80>))
 							// Issue posted
@@ -58,8 +55,8 @@ list[str] functionalityTests = [
 
 //"ProjectionTests" 		// [4]
 							//	Issue #432
-// "ScopeTests"				// [14]
-//"TryCatchTests"			// [19] 3 fail, Issue #433
+							"ScopeTests"				// [14]
+
 //"VisitTests"				// 13 fail [98]
 ];
 
@@ -79,7 +76,7 @@ list[str] rascalTests = [
 
 // Not yet OK
 
-//"Equality"				// OK [53]
+"Equality"				// OK [53]
 							// Added parentheses for ? operator
 							// 1 fails
 
@@ -226,7 +223,7 @@ list[str] libraryTests = [
 						//error("Could not instantiate type variables in type fun map[&A \<: value, &B \<: value](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|project://rascal-test/src/tests/library/SetTests.rsc|(4286,15,<98,38>,<98,53>))
 						//error("Could not instantiate type variables in type fun map[&A \<: value, &B \<: value](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|project://rascal-test/src/tests/library/SetTests.rsc|(4220,20,<97,38>,<97,58>))
 
-//"StringTests"			// [125] 5 tests fail
+"StringTests"			// [125] 5 tests fail
 ];
 
 loc base = |rascal-test:///tests/library|;
