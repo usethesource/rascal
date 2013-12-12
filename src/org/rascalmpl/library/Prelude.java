@@ -1126,11 +1126,25 @@ public class Prelude {
 					// offset reached, start reading and possibly merging
 					int targetLength = sloc.getLength();
 					StringBuilder result = new StringBuilder(targetLength);
-					for (int i = 0; i < targetLength; i++) {
-						char c = (char)buffer.read();
-						result.append(c);
-						if (Character.isHighSurrogate(c)) {
+					int charsRead = 0;
+					while (charsRead < targetLength) {
+						int c = buffer.read();
+						if (c == -1) {
+							break; // EOF
+						}
+						charsRead++;
+						result.append((char)c);
+						if (Character.isHighSurrogate((char)c)) {
+							c = buffer.read();
+							if (c == -1) {
+								break; // EOF
+							}
 							result.append((char)buffer.read());
+							if (!Character.isLowSurrogate((char)c)) {
+								// strange but in case of incorrect unicode stream
+								// let's not eat the next character
+								charsRead++;
+							}
 						}
 					}
 					str = result.toString();
