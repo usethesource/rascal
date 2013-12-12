@@ -261,7 +261,7 @@ INS tr(muLoc(str id, int pos)) = [LOADLOC(pos)];
 INS tr(muTmp(str id)) = [LOADLOC(getTmp(id))];
 
 INS tr(muLocKwp(str id)) = [ LOADLOCKWP(id) ];
-INS tr(muVarKwp(str fuid, str id)) = [ LOADVARKWP(fuid, id) ];
+INS tr(muVarKwp(str fuid, str id)) = [ fuid == functionScope ? LOADLOCKWP(id) : LOADVARKWP(fuid, id) ];
 
 INS tr(muLocDeref(str name, int pos)) = [ LOADLOCDEREF(pos) ];
 INS tr(muVarDeref(str name, str fuid, int pos)) = [ fuid == functionScope ? LOADLOCDEREF(pos) : LOADVARDEREF(fuid, pos) ];
@@ -276,6 +276,9 @@ INS tr(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = [ *tr(exp), fui
 INS tr(muAssign(str id, str fuid, int pos, MuExp exp)) = [*tr(exp), fuid == functionScope ? STORELOC(pos) : STOREVAR(fuid, pos)];
 INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];
 INS tr(muAssignTmp(str id, MuExp exp)) = [*tr(exp), STORELOC(getTmp(id)) ];
+
+INS tr(muAssignLocKwp(str id, MuExp exp)) = [ *tr(exp), STORELOCKWP(id) ];
+INS tr(muAssignKwp(str fuid, str id, MuExp exp)) = [ *tr(exp), fuid == functionScope ? STORELOCKWP(id) : STOREVARKWP(fuid,id) ];
 
 // Calls
 
