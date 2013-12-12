@@ -104,11 +104,11 @@ MuFunction preprocess(Function f, str modName){
    
    scopeIn = (!isEmpty(f.funNames)) ? getUID(modName,f.funNames) : ""; // if not a function scope, then the root one
    // Generate a very generic function type
-   ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals + 1] ]);
+   ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals] ]);
    
    body = preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body);
    return (f is preCoroutine) ? muCoroutine(uid, scopeIn, f.nformals, size(vardefs[uid]), refs, muBlock(insertGuard ? [ muGuard(muBool(true)), *body, muExhaust() ] : [ *body, muExhaust() ]))
-                              : muFunction(uid, ftype, scopeIn, f.nformals + 1, size(vardefs[uid]) + 1, false, |rascal:///|, [], (), muBlock(body));
+                              : muFunction(uid, ftype, scopeIn, f.nformals, size(vardefs[uid]), false, |rascal:///|, [], (), muBlock(body));
 }
 
 list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] exps){
@@ -207,9 +207,6 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("rint")), list[MuExp] exps) 								=> muCallMuPrim("rint", exps)
                case muCall(preVar(mvar("mint")), list[MuExp] exps) 								=> muCallMuPrim("mint", exps)
                case muCall(preVar(mvar("undefine")), list[MuExp] exps) 							=> muCallMuPrim("undefine", exps)
-               
-               // Keyword parameters
-               case muCall(MuExp receiver, list[MuExp] exps)                                    => muCall(receiver, exps + [ muCallMuPrim("make_map_str_ivalue",[]) ])
                
                // Syntactic constructs that are mapped to muPrimitives
       	       case preLess(MuExp lhs, MuExp rhs)												=> muCallMuPrim("less_mint_mint", [lhs, rhs])
