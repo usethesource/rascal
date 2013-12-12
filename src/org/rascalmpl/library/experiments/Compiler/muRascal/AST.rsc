@@ -73,8 +73,8 @@ public data MuExp =
           | muTmpRef(str name)
           
           // Keyword parameters
-          | muKwpLoc(str name)                                  // Local keyword parameter
-          | muKwpVar(str name, str fuid)                        // Keyword parameter
+          | muLocKwp(str name)                                  // Local keyword parameter
+          | muVarKwp(str fuid, str name)                        // Keyword parameter
              
           | muTypeCon(Symbol tp)								// Type constant
           
@@ -109,8 +109,8 @@ public data MuExp =
           | muAssignTmp(str name, MuExp exp)					// Assign to temporary variable introduced by front-end
           
           // Keyword parameters
-          | muAssignKwpLoc(str id, MuExp exp)
-          | muAssignKwp(str id, str fuid, MuExp exp)
+          | muAssignLocKwp(str id, MuExp exp)
+          | muAssignKwp(str fuid, str id, MuExp exp)
           
           | muAssignLocDeref(str name, int pos, MuExp exp)      // Call-by-reference assignment:
           | muAssignVarDeref(str name, str fuid, 

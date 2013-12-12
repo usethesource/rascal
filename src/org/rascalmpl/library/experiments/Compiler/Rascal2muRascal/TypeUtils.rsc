@@ -167,7 +167,7 @@ MuExp mkVar(str name, loc l) {
   
   // Keyword parameters
   if(uid in keywordParameters) {
-      return muKwpVar(name, addr.fuid);
+      return muVarKwp(addr.fuid,name);
   }
   
   return muVar(name, addr.fuid, addr.pos);
@@ -190,7 +190,7 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
   res = "<name>::<addr.fuid>::<addr.pos>";
   //println("mkVar: <name> =\> <res>");
   if(uid in keywordParameters) {
-      return muAssignKwp(name,addr.fuid,exp);
+      return muAssignKwp(addr.fuid,name,exp);
   }
   return muAssign(name, addr.fuid, addr.pos, exp);
 }
