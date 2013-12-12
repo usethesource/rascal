@@ -25,7 +25,7 @@ public enum Opcode {
 	STORELOC 			(4, 	1), //2),
 	CALL 				(5, 	1), //3),
 	CALLPRIM	 		(6, 	1), //3),
-	RETURN1 			(7, 	1),//2),
+	RETURN1 			(7, 	1), //2),
 	JMP 				(8, 	1), //2),
 	JMPTRUE 			(9, 	1), //2),
 	JMPFALSE 			(10, 	1), //2),
@@ -88,7 +88,11 @@ public enum Opcode {
 	LOADLOC7			(67, 	1),
 	LOADLOC8			(68, 	1),
 	LOADLOC9			(69, 	1),
-	JMPINDEXED			(70, 	1)
+	JMPINDEXED			(70, 	1),
+	LOADLOCKWP          (71,    1), // 2
+	LOADVARKWP          (72,    1), // 3
+	STORELOCKWP         (73,    1), // 2
+	STOREVARKWP         (74,    1)  // 3
 	;
 	
 	
@@ -175,6 +179,10 @@ public enum Opcode {
 	static public final int OP_LOADLOC8 = 68;
 	static public final int OP_LOADLOC9 = 69;
 	static public final int OP_JMPINDEXED = 70;
+	static public final int OP_LOADLOCKWP = 71;
+	static public final int OP_LOADVARKWP = 72;
+	static public final int OP_STORELOCKWP = 73;
+	static public final int OP_STOREVARKWP = 74;
 	
 	
 	/*
@@ -437,6 +445,15 @@ public enum Opcode {
 			return "LOADLOC9";
 		case JMPINDEXED:
 			return "JMPINDEXED " + cb.getConstantValue(arg1);
+			
+		case LOADLOCKWP:
+			return "LOADLOCKWP " + cb.getConstantValue(arg1);		
+		case LOADVARKWP:
+			return "LOADVARKWP " + cb.getConstantValue(arg1) + ", " + cb.getConstantValue(arg2);
+		case STORELOCKWP:
+			return "STORELOCKWP " + cb.getConstantValue(arg1);
+		case STOREVARKWP:
+			return "STOREVARKWP " + cb.getConstantValue(arg1) + ", " + cb.getConstantValue(arg2);
 		
 		default:
 			break;
