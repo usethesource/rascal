@@ -1440,6 +1440,34 @@ public class RVM {
 					}
 					// If a handler has not been found in the caller functions...
 					return thrown;
+					
+				case Opcode.OP_LOADLOCKWP:
+					String name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						@SuppressWarnings("unchecked")
+						Map<String, IValue> kargs = (Map<String, IValue>) f.stack[f.function.nformals - 1];
+						if(kargs.containsKey(name)) {
+							stack[sp++] = kargs.get(name);
+							continue NEXT_INSTRUCTION;
+						}
+					}
+					@SuppressWarnings("unchecked")
+					Map<String, IValue> kargs = (Map<String, IValue>) stack[cf.function.nformals];
+					stack[sp++] = kargs.get(name);
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_LOADVARKWP:
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_STORELOCKWP:
+					val = (IValue) stack[sp - 1];
+					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
+					kargs = ((Map<String, IValue>) stack[cf.function.nformals - 1]); 
+					kargs.put(name, val);
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_STOREVARKWP:
+					continue NEXT_INSTRUCTION;
 								
 				default:
 					throw new RuntimeException("RVM main loop -- cannot decode instruction");
