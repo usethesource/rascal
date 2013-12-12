@@ -346,7 +346,7 @@ void extractScopes(){
 	}
 	
     for(int fuid <- functions) {
-    	nformals = size(fuid2type[fuid].parameters) + 2; // ***Note: 'parameters' field does not include keyword parameters, '+ 1' accounts for keyword arguments 
+    	nformals = size(fuid2type[fuid].parameters) + 1; // ***Note: 'parameters' field does not include keyword parameters, '+ 1' accounts for keyword arguments 
         innerScopes = {fuid} + containmentPlus[fuid];
         // First, fill in variables to get their positions right
         keywordParams = config.store[fuid].keywordParams;
