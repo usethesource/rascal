@@ -109,8 +109,8 @@ public data MuExp =
           | muAssignTmp(str name, MuExp exp)					// Assign to temporary variable introduced by front-end
           
           // Keyword parameters
-          | muAssignLocKwp(str id, MuExp exp)
-          | muAssignKwp(str fuid, str id, MuExp exp)
+          | muAssignLocKwp(str name, MuExp exp)
+          | muAssignKwp(str fuid, str name, MuExp exp)
           
           | muAssignLocDeref(str name, int pos, MuExp exp)      // Call-by-reference assignment:
           | muAssignVarDeref(str name, str fuid, 
