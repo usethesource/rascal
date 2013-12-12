@@ -7,6 +7,7 @@ import util::Reflective;
 import util::ValueUI;
 import ParseTree;
 
+import lang::rascal::types::AbstractName;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
@@ -296,7 +297,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   
   tuple[str fuid,int pos] addr = uid2addr[uid];
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									getFormals(), getScopeSize(fuid),
+  									getFormals(uid), getScopeSize(fuid),
   									isVarArgs, fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), 
   									tbody);
   					
@@ -349,7 +350,7 @@ list[str] translateModifiers(FunctionModifiers modifiers){
 }
 
 list[MuExp] translateKeywordParameters(Parameters parameters, int pos, loc l) {
-  rel[str,Symbol,MuExp] kwps = {};
+  list[MuExp] kwps = [];
   KeywordFormals kwfs = parameters.keywordFormals;
   if(kwfs is \default) {
       keywordParamsMap = getKeywords(l);
@@ -358,7 +359,7 @@ list[MuExp] translateKeywordParameters(Parameters parameters, int pos, loc l) {
           kwps += muCallMuPrim("map_str_entry_add_entry_type_ivalue", 
                                   [ muLoc("map_of_default_values",pos), 
                                     muCon("<kwf.name>"), 
-                                    muCallMuPrim("make_entry_type_ivalue", [ muTypeCon(keywordParamsMap["<kwf.name>"]), 
+                                    muCallMuPrim("make_entry_type_ivalue", [ muTypeCon(keywordParamsMap[convertName(kwf.name)]), 
                                                                              translate(kwf.expression) ]) ]);
       }
   }
