@@ -5,10 +5,7 @@ import experiments::Compiler::Execute;
 
 loc base1 = |project:///rascal-test/tests/functionality|;
 
-// Percentage of succeeded tests
-// Total [3014] = 1958 + 531 + 525
-// OK = [1752] = 1218 + 309 + 225
-// Percentage: 58%
+// Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
 list[str] functionalityTests = [
 
@@ -25,10 +22,10 @@ list[str] functionalityTests = [
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(985,1,<31,18>,<31,19>))
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1071,1,<35,14>,<35,15>))
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1167,1,<39,24>,<39,25>))
-//"RangeTests"				// OK
-							// 4 tests fail but this a deliberate improvement over the interpreter result.
+//"RangeTests"				// OK, 4 tests fail but this is due to false 1. == 1.0 comparisons.
 //"RegExpTests"				// OK
  							// Commented out 6: Treatment of redeclared local variables
+//"TryCatchTests"			// OK
 
 // Not yet OK
 
@@ -38,14 +35,14 @@ list[str] functionalityTests = [
 
 //"DataDeclarationTests"	// [45]
                             //error("Initializer type Maybe[&T \<: value] not assignable to variable of type Maybe[void]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5906,10,<104,53>,<104,63>))
-							//error("Initializer type Exp1[&T \<: value] not assignable to variable of type Exp1[int]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5772,11,<100,58>,<100,69>))
+										//error("Initializer type Exp1[&T \<: value] not assignable to variable of type Exp1[int]",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5772,11,<100,58>,<100,69>))
 							//error("Initializer type &T \<: value not assignable to variable of type str",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5535,12,<95,68>,<95,80>))
 							//error("Initializer type &T \<: value not assignable to variable of type str",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5061,12,<89,68>,<89,80>))
 							// Issue posted
 //"FunctionCompositionTests"	//[6]
 							// TC does not support function composition, issue #431
 							
-//"PatternTests"			// [420]
+"PatternTests"			// [420]
 							// Uses keyword parameters
 							// Checking function matchADTwithKeywords4
 							// |rascal://lang::rascal::types::CheckTypes|(140533,19,<2772,21>,<2772,40>): The called signature: checkExp(sort("Expression"), Configuration),
@@ -58,8 +55,8 @@ list[str] functionalityTests = [
 
 //"ProjectionTests" 		// [4]
 							//	Issue #432
-// "ScopeTests"				// [14]
-//"TryCatchTests"			// [19] 3 fail, Issue #433
+//"ScopeTests"				// [14]
+
 //"VisitTests"				// 13 fail [98]
 ];
 
@@ -70,18 +67,17 @@ list[str] rascalTests = [
 							// Commented out fromInt test
 
 //"Integers"				// OK
-//"Tuples"					// OK [6]
-//"SolvedIssues"			// OK [2]
+//"Tuples"					// OK
+//"SolvedIssues"			// OK
 
-//"Nodes"					// OK [32]
-//"Strings"  				// OK [61]
-//"StringTests"				// OK [120]
+//"Nodes"					// OK
+//"Strings"  				// OK
+//"StringTests"				// OK
 
 // Not yet OK
 
-//"Equality"				// OK [53]
+//"Equality"				// OK
 							// Added parentheses for ? operator
-							// 1 fails
 
 //"BacktrackingTests"		// [12]
 							// error("Name s is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8573,1,<223,10>,<223,11>))
@@ -190,8 +186,9 @@ list[str] libraryTests = [
 
 //"BooleanTests"		// OK
 //"IntegerTests"		// OK
-//"MathTests"			// OK
+"MathTests"				// OK
 //"NumberTests"			// OK
+//"StringTests"			// OK
 
 // Not yet OK
 
@@ -226,7 +223,7 @@ list[str] libraryTests = [
 						//error("Could not instantiate type variables in type fun map[&A \<: value, &B \<: value](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|project://rascal-test/src/tests/library/SetTests.rsc|(4286,15,<98,38>,<98,53>))
 						//error("Could not instantiate type variables in type fun map[&A \<: value, &B \<: value](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|project://rascal-test/src/tests/library/SetTests.rsc|(4220,20,<97,38>,<97,58>))
 
-//"StringTests"			// [125] 5 tests fail
+
 ];
 
 loc base = |rascal-test:///tests/library|;
@@ -248,9 +245,9 @@ void runTests(list[str] names, loc base){
 value main(list[value] args){
   nsuccess = 0;
   nfail = 0;
-  //runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
+  runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
   //runTests(rascalTests, |project://rascal-test/src/tests|);
-  runTests(libraryTests, |project://rascal-test/src/tests/library|);
+  //runTests(libraryTests, |project://rascal-test/src/tests/library|);
   println("Overall summary: <nsuccess + nfail> tests executed, <nsuccess> succeeded, <nfail> failed");
   return nfail == 0;
 }
