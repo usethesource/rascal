@@ -3569,14 +3569,16 @@ public enum RascalPrimitive {
 		Type leftType = ((IValue) stack[sp - 2]).getType();
 		Type rightType = ((IValue) stack[sp - 1]).getType();
 		
+		if (leftType.isSubtypeOf(tf.numberType()) && rightType.isSubtypeOf(tf.numberType())) {
+			return num_less_num(stack, sp, arity);
+		}
+		
 		if(!leftType.comparable(rightType)){
 			stack[sp - 2] = false;
 			return sp - 1;
 		}
 
-		if (leftType.isSubtypeOf(tf.numberType())) {
-			return num_less_num(stack, sp, arity);
-		}
+		
 		switch (ToplevelType.getToplevelType(leftType)) {
 
 		case BOOL:
@@ -3897,15 +3899,15 @@ public enum RascalPrimitive {
 		Type leftType = ((IValue) stack[sp - 2]).getType();
 		Type rightType = ((IValue) stack[sp - 1]).getType();
 		
+		if (leftType.isSubtypeOf(tf.numberType()) && rightType.isSubtypeOf(tf.numberType())) {
+			return num_lessequal_num(stack, sp, arity);
+		}
+		
 		if(!leftType.comparable(rightType)){
 			stack[sp - 2] = false;
 			return sp - 1;
 		}
 
-		if (leftType.isSubtypeOf(tf.numberType())) {
-			return num_lessequal_num(stack, sp, arity);
-		}
-		
 		switch (ToplevelType.getToplevelType(leftType)) {
 
 		case BOOL:
