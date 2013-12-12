@@ -346,7 +346,7 @@ void extractScopes(){
 	}
 	
     for(int fuid <- functions) {
-    	nformals = size(fuid2type[fuid].parameters) + 1; // ***Note: 'parameters' field does not include keyword parameters
+    	nformals = size(fuid2type[fuid].parameters) + 2; // ***Note: 'parameters' field does not include keyword parameters, '+ 1' accounts for keyword arguments 
         innerScopes = {fuid} + containmentPlus[fuid];
         // First, fill in variables to get their positions right
         keywordParams = config.store[fuid].keywordParams;
@@ -357,7 +357,7 @@ void extractScopes(){
         fuid_str = fuid2str[fuid];
         for(int i <- index(decls_non_kwp)) {
         	// Note: we need to reserve positions for variables that will replace formal parameter patterns
-        	uid2addr[decls_non_kwp[i]] = <fuid_str, i + nformals>;
+        	uid2addr[decls_non_kwp[i]] = <fuid_str, i + nformals + 1>; // '+ 1' accounts for a local variable used to store default values of keyword parameters
         }
         // Filter all the keyword variables (parameters) within the function scope
         decls_kwp = sort([ uid | int uid <- declares[innerScopes], variable(name,_,_,_,_) := config.store[uid], name in keywordParams ]);
