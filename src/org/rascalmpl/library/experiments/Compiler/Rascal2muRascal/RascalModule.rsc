@@ -354,7 +354,7 @@ list[MuExp] translateKeywordParameters(Parameters parameters, int pos, loc l) {
   KeywordFormals kwfs = parameters.keywordFormals;
   if(kwfs is \default) {
       keywordParamsMap = getKeywords(l);
-      list[MuExp] kwps = [ muAssignLoc("map_of_default_values", pos, muCallMuPrim("make_map_str_entry",[])) ];
+      kwps = [ muAssignLoc("map_of_default_values", pos, muCallMuPrim("make_map_str_entry",[])) ];
       for(KeywordFormal kwf <- kwfs.keywordFormalList) {
           kwps += muCallMuPrim("map_str_entry_add_entry_type_ivalue", 
                                   [ muLoc("map_of_default_values",pos), 

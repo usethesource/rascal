@@ -25,7 +25,7 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
 int size_exps({Expression ","}* es) = size([e | e <- es]);		     // TODO: should become library function
 int size_exps({Expression ","}+ es) = size([e | e <- es]);		     // TODO: should become library function
-int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	// TODO: should become library function
+int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: should become library function
 
 // Create (and flatten) a muAll
 
@@ -281,17 +281,6 @@ MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{E
 // Reified type
 MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) { throw("reifiedType"); }
 //  muCon(symbolToValue(symbol, config));
-
-MuExp translateKeywordArguments(KeywordArguments keywordArguments) {
-   // Keyword arguments
-   list[MuExp] kwargs = [ muAssignTmp("map_of_keyword_arguments", muCallMuPrim("make_map_str_ivalue",[])) ];
-   if(keywordArguments is \default) {
-       for(KeywordArgument kwarg <- keywordArguments.keywordArgumentList) {
-           kwargs += muCallMuPrim("map_str_ivalue_add_ivalue",[ muTmp("map_of_keyword_arguments"), muCon("<kwarg.name>"), translate(kwarg.expression) ]);           
-       }
-   }
-   return muBlock([ *kwargs, muTmp("map_of_keyword_arguments") ]);
-}
 
 // Call
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
@@ -1260,4 +1249,15 @@ private bool hasTopLevelInsert(Case c) {
 	}
 	println("Insert has not been found, non-rebuilding visit!");
 	return false;
+}
+
+MuExp translateKeywordArguments(KeywordArguments keywordArguments) {
+   // Keyword arguments
+   list[MuExp] kwargs = [ muAssignTmp("map_of_keyword_arguments", muCallPrim("mapwriter_open",[])) ];
+   if(keywordArguments is \default) {
+       for(KeywordArgument kwarg <- keywordArguments.keywordArgumentList) {
+           kwargs += muCallPrim("mapwriter_add",[ muTmp("map_of_keyword_arguments"), muCon("<kwarg.name>"), translate(kwarg.expression) ]);           
+       }
+   }
+   return muBlock([ *kwargs, muCallPrim("mapwriter_close", [ muTmp("map_of_keyword_arguments") ]) ]);
 }
